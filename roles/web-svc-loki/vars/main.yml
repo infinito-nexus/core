@@ -35,6 +35,7 @@ LOKI_WAL_DISK_FULL_THRESHOLD: "{{ lookup('config', application_id, 'services.lok
 LOKI_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 LOKI_STORE: "{{ 's3' if LOKI_OBJSTORE_ENABLED | bool else 'filesystem' }}"
 
+LOKI_ALERTING_RULE_NAME: "CriticalApplicationLogLine"
 LOKI_ALERTING_PATTERN: "{{ lookup('config', application_id, 'services.loki.alerting.critical_pattern') }}"
 LOKI_ALERTING_WINDOW: "{{ lookup('config', application_id, 'services.loki.alerting.window') }}"
 LOKI_ALERTMANAGER_ENABLED: "{{ lookup('config', application_id, 'services.prometheus.enabled') | bool }}"

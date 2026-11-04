@@ -1,3 +1,4 @@
+require("./test-alerting");
 require("./test-baseline");
 require("./test-login-methods");
 require("./test-logs");

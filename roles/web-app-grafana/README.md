@@ -12,7 +12,7 @@ Everything Grafana shows is provisioned from files and cannot be edited in the U
 
 - **Datasources** (`templates/provisioning/datasources.yml.j2`): `Loki` (uid `loki`) through the shared network of the `loki` service bond, sending the tenant header `X-Scope-OrgID`, and `Prometheus` (uid `prometheus`) through the attached Prometheus network.
 - **Central dashboard** (`files/dashboards/logs.json`, uid `infinito-logs`): a log volume graph and one log view per application, repeated over the `application` label of Loki, with a free-text line filter.
-- **Alerting** (`templates/provisioning/alerting.yml.j2`): the rule `Critical line in an application log` fires on `services.loki.alerting.critical_pattern` of `web-svc-loki` and notifies the Alertmanager of `web-app-prometheus`, whose receivers (Telegram, Mattermost) are the existing alert channels. The Loki ruler raises the same alert independently.
+- **Alerting** (`templates/provisioning/alerting.yml.j2`): the rule `GRAFANA_LOG_ALERT_TITLE` (`Critical line in an application log`) fires on `services.loki.alerting.critical_pattern` of `web-svc-loki` and notifies the Alertmanager of `web-app-prometheus` through the contact point `GRAFANA_ALERTMANAGER_RECEIVER`; the Alertmanager's receivers (email, Telegram, Mattermost) are the existing alert channels. The Loki ruler raises the same alert independently. `files/playwright/test-alerting.js` writes a line with the word `critical` into the reverse proxy's access log, waits until the rule fires for that application, and, with Prometheus deployed, until the contact point delivered the alert to the Alertmanager without error.
 
 ## Features
 
@@ -26,7 +26,7 @@ Everything Grafana shows is provisioned from files and cannot be edited in the U
 
 - `guest` never reaches Grafana: auto-login sends it to Keycloak.
 - `biber` joins the `auditor` role group for its persona journey and opens the central dashboard; `files/playwright/test-rbac.js` proves that biber without a role group is refused. With `sso` disabled Grafana knows only the break-glass account, so `PERSONA_BIBER_BLOCKED` is `true` then.
-- `administrator` opens the datasource administration. `files/playwright/test-logs.js` writes a line into the reverse proxy's access log and finds it in Explore, and proves that an `auditor` member reads logs while every write to datasources, dashboards and alert rules is refused.
+- `administrator` opens the datasource administration. `files/playwright/test-logs.js` writes a line into the reverse proxy's access log and finds it in Explore (the probe value travels in the request path; the proxy logs no query string), and proves that an `auditor` member reads logs while every write to datasources, dashboards and alert rules is refused.
 
 ## Further Resources
 

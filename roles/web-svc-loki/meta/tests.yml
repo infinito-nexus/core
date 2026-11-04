@@ -1,4 +1,4 @@
 ---
 cli:
   container_service_key: loki
-  timeout: 900
+  timeout: 1800

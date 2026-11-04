@@ -14,8 +14,8 @@ test("administrator: searches the logs of a deployed application and finds the l
   try {
     const page = await ctx.newPage();
     await shared.loginViaOidc(page, shared.env.adminUsername, shared.env.adminPassword);
-    const runId = await shared.writeProbeLine(page);
-    const query = `{application="${shared.env.probeApplication}"} |= "infinito-log-probe="`;
+    const runId = await shared.writeProbeLine(page, []);
+    const query = `{application="${shared.env.probeApplication}"} |= "/${shared.LOG_PROBE_SEGMENT}/"`;
     await expect
       .poll(
         async () => {

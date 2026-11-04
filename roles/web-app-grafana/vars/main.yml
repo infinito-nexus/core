@@ -37,6 +37,7 @@ GRAFANA_LOKI_ROLE: "web-svc-loki"
 GRAFANA_LOKI_DATASOURCE_UID: "loki"
 GRAFANA_LOKI_URL: "http://{{ GRAFANA_LOKI_ROLE | entity_name }}:{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.ports.internal.loki') }}" # nocheck: container-url-lookup  Loki listens on its own port category ports.internal.loki, container_url reads only ports.internal.http
 GRAFANA_LOKI_TENANT: "{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.tenant') }}"
+GRAFANA_LOG_ALERT_TITLE: "Critical line in an application log"
 GRAFANA_LOG_ALERT_PATTERN: "{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.alerting.critical_pattern') }}"
 GRAFANA_LOG_ALERT_WINDOW: "{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.alerting.window') }}"
 GRAFANA_LOG_ALERT_EXPR: >-
@@ -46,6 +47,7 @@ GRAFANA_PROMETHEUS_ROLE: "web-app-prometheus"
 GRAFANA_PROMETHEUS_DATASOURCE_UID: "prometheus"
 GRAFANA_PROMETHEUS_NETWORK: "{{ GRAFANA_PROMETHEUS_ROLE | entity_name }}"
 GRAFANA_PROMETHEUS_URL: "http://{{ lookup('scrape_target', GRAFANA_PROMETHEUS_ROLE, 'prometheus') }}" # nocheck: literal-protocol-lookup  scrape_target names a container-network host:port, which speaks plaintext in compose and swarm
+GRAFANA_ALERTMANAGER_RECEIVER: "alertmanager"
 GRAFANA_ALERTMANAGER_URL: "http://{{ lookup('scrape_target', GRAFANA_PROMETHEUS_ROLE, 'alertmanager') }}" # nocheck: literal-protocol-lookup  scrape_target names a container-network host:port, which speaks plaintext in compose and swarm
 
 GRAFANA_LOG_PROBE_APPLICATION: "svc-prx-openresty"

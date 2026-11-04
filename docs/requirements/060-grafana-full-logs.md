@@ -18,10 +18,10 @@ As a platform operator, I want the complete logs of every deployed Infinito.Nexu
 
 ### Logging contract
 
-- [ ] The Docker daemon configuration rendered by `sys-svc-container` sets `journald` as the default log driver, and a lint fails for any compose or swarm template that sets another `logging.driver` without a `# nocheck:` reason.
+- [x] The Docker daemon configuration rendered by `sys-svc-container` sets `journald` as the default log driver, and a lint fails for any compose or swarm template that sets another `logging.driver` without a `# nocheck:` reason.
 - [ ] Every container log line in journald carries the application id as its tag and as a label, independent of whether Wazuh or Loki is deployed.
 - [ ] `sys-svc-journalctl` makes the journal persistent and raises the `docker.service` rate limit, and a burst test of 20000 lines from one container loses no line.
-- [ ] Every container service that logged to `json-file` before this change logs to journald, including the oauth2-proxy sidecars, the local postgres sidecar, the dashboard, BigBlueButton, Bluesky, Moodle, Taiga, the Matrix compose flavour, the Discourse launcher, `svc-runner` and the Nextcloud major-upgrade container.
+- [x] Every container service that logged to `json-file` before this change logs to journald, including the oauth2-proxy sidecars, the local postgres sidecar, the dashboard, BigBlueButton, Bluesky, Moodle, Taiga, the Matrix compose flavour, the Discourse launcher, `svc-runner` and the Nextcloud major-upgrade container.
 - [ ] Applications that write their logs only to files inside the container write them to stdout or stderr, and the nested Docker daemons of the Matrix ansible flavour and `svc-runner` forward to the host journal.
 
 ### Collection and storage
@@ -44,7 +44,7 @@ As a platform operator, I want the complete logs of every deployed Infinito.Nexu
 
 - [ ] Retention is an inventory parameter per log class with a default of 7 days, and Loki deletes lines older than the configured retention.
 - [ ] A canary test emits synthetic passwords and tokens through an application log and asserts that none of them is stored in Loki.
-- [ ] The log excerpt in `sys-ctl-hlth-container` alerts passes through the same redaction rules.
+- [x] The log excerpt in `sys-ctl-hlth-container` alerts passes through the same redaction rules.
 
 ### Verification
 
@@ -53,7 +53,7 @@ As a platform operator, I want the complete logs of every deployed Infinito.Nexu
 - [x] A Playwright spec asserts that `biber` without a Grafana role group is refused.
 - [ ] Unit tests cover the logging-contract lint, the redaction rules and the retention parameter, and `make test` passes.
 - [ ] The Grafana, Loki and collector roles deploy green in compose and in swarm.
-- [ ] Each new role carries a `README.md` describing what it does and how it is wired.
+- [x] Each new role carries a `README.md` describing what it does and how it is wired.
 
 ## Cross-linking
 

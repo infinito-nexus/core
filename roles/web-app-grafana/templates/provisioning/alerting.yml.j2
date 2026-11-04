@@ -2,7 +2,7 @@ apiVersion: 1
 {% if GRAFANA_PROMETHEUS_ENABLED | bool %}
 contactPoints:
   - orgId: 1
-    name: alertmanager
+    name: {{ GRAFANA_ALERTMANAGER_RECEIVER | to_json }}
     receivers:
       - uid: infinito-alertmanager
         type: prometheus-alertmanager
@@ -11,7 +11,7 @@ contactPoints:
           url: {{ GRAFANA_ALERTMANAGER_URL | to_json }}
 policies:
   - orgId: 1
-    receiver: alertmanager
+    receiver: {{ GRAFANA_ALERTMANAGER_RECEIVER | to_json }}
     group_by:
       - grafana_folder
       - alertname
@@ -24,7 +24,7 @@ groups:
     interval: 1m
     rules:
       - uid: infinito-critical-log-line
-        title: Critical line in an application log
+        title: {{ GRAFANA_LOG_ALERT_TITLE | to_json }}
         condition: C
         data:
           - refId: A

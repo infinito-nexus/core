@@ -22,7 +22,11 @@ const env = {
   lokiUid: decodeDotenvQuotedValue(process.env.LOKI_DATASOURCE_UID),
   prometheusUid: decodeDotenvQuotedValue(process.env.PROMETHEUS_DATASOURCE_UID),
   probeApplication: decodeDotenvQuotedValue(process.env.LOG_PROBE_APPLICATION),
+  alertTitle: decodeDotenvQuotedValue(process.env.LOG_ALERT_TITLE),
+  alertReceiver: decodeDotenvQuotedValue(process.env.LOG_ALERT_RECEIVER),
 };
+
+const LOG_PROBE_SEGMENT = "infinito-log-probe";
 
 /**
  * Whether the browser context of `page` holds a Grafana session.
@@ -103,14 +107,18 @@ async function withBiberInGroup(browser, groupPath, fn) {
 
 /**
  * Write one access-log line into the reverse proxy's journal and return
- * the unique value it carries.
+ * the unique value it carries. The proxy logs the request path without its
+ * query string, so the value travels as a path segment.
  *
  * Args:
  *   page: a Playwright page whose request context sends the probe.
+ *   words: path segments appended after the unique value, e.g. a word the
+ *     log alert matches; an empty list writes the bare probe.
  */
-async function writeProbeLine(page) {
+async function writeProbeLine(page, words) {
   const runId = `probe${Date.now()}${Math.floor(Math.random() * 1_000_000)}`;
-  await page.request.get(`${env.appBaseUrl}/?infinito-log-probe=${runId}`, {
+  const path = [LOG_PROBE_SEGMENT, runId, ...words].map(encodeURIComponent).join("/");
+  await page.request.get(`${env.appBaseUrl}/${path}`, {
     failOnStatusCode: false,
     maxRedirects: 0,
     timeout: resolveTimeout(30_000),
@@ -155,6 +163,7 @@ async function grafanaApi(page, method, path, data) {
 }
 
 module.exports = {
+  LOG_PROBE_SEGMENT,
   env,
   exploreUrl,
   grafanaApi,
