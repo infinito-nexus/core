@@ -584,7 +584,11 @@ install-ruby:
 	@bash scripts/install/ruby.sh
 
 .PHONY: install-skills
-# Install the agent skills from INFINITO_SKILLS_REPOSITORY into this project.
+# Install the agent skills from INFINITO_SKILLS_REPOSITORY into every checkout INFINITO_SKILLS_TARGETS names.
+# Example: make install-skills INFINITO_SKILLS_TARGETS='worktree main' INFINITO_SKILLS_REF=<sha>
+# Param INFINITO_SKILLS_REPOSITORY: URL or local path of the skills repository; a local path installs its committed state at INFINITO_SKILLS_REF, never its working tree.
+# Param INFINITO_SKILLS_REF: branch, tag or commit SHA of the skills repository to install.
+# Param INFINITO_SKILLS_TARGETS: space-separated checkouts to install into, each `worktree` (this checkout) or `main` (the primary checkout, first in `git worktree list`); each receives this checkout's agents/skills on top, never its AGENTS.md.
 install-skills:
 	@bash scripts/install/skills.sh
 

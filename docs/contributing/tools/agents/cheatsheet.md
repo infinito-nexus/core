@@ -10,7 +10,7 @@ few (such as `triage`) are portable skills shared across projects.
 Invoke a skill with its slash command, for example `/i8-develop` or `/i8-quality`,
 or name the skill in your message to the agent. Supply the concrete target (role,
 scope, requirement file, or run URL) in the same message; the skill fills the rest
-from its procedure file. Run `make install-skills` to (re)install them.
+from its procedure file. Run `make install-skills` to (re)install them; `INFINITO_SKILLS_TARGETS`, `INFINITO_SKILLS_REF` and `INFINITO_SKILLS_REPOSITORY` choose the checkouts and the skills version, see [customize.md](../../customize.md).
 
 ## Skills 🗂️
 
