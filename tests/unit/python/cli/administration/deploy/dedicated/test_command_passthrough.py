@@ -62,7 +62,7 @@ class TestDedicatedCommandPassthrough(unittest.TestCase):
 
         self.assertIn("modes", kwargs)
 
-        self.assertNotIn("MODE_LOGS", kwargs["modes"])
+        self.assertNotIn("LOGS", kwargs["modes"])
 
         self.assertEqual(
             kwargs["ansible_args"],

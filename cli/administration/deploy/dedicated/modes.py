@@ -24,12 +24,12 @@ def _parse_bool_literal(text: str) -> bool | None:
 
 def load_modes_from_yaml(modes_yaml_path: str) -> list[dict[str, Any]]:
     """
-    Load MODE_* definitions from a YAML-like key/value file.
+    Load every mode definition from a YAML-like key/value file.
 
     Expected lines:
-      MODE_FOO: true   # comment
-      MODE_BAR: false  # comment
-      MODE_BAZ: null   # comment
+      FOO: true   # comment
+      BAR: false  # comment
+      BAZ: null   # comment
     """
     if not Path(modes_yaml_path).exists():
         raise FileNotFoundError(f"Modes file not found: {modes_yaml_path}")
@@ -50,9 +50,6 @@ def load_modes_from_yaml(modes_yaml_path: str) -> list[dict[str, Any]]:
             val = m.group("value").strip()
             cmt = (m.group("cmt") or "").strip()
 
-            if not key.startswith("MODE_"):
-                continue
-
             default_bool = _parse_bool_literal(val)
 
             modes.append(
@@ -70,9 +67,9 @@ def add_dynamic_mode_args(
     parser: argparse.ArgumentParser, modes_meta: list[dict[str, Any]]
 ) -> dict[str, dict[str, Any]]:
     """
-    Add command-line args dynamically based on MODE_* metadata.
+    Add command-line args dynamically based on the mode metadata.
 
-    Returns a spec mapping MODE_NAME -> info used by build_modes_from_args().
+    Returns a spec mapping NAME -> info used by build_modes_from_args().
     """
     spec: dict[str, dict[str, Any]] = {}
 
@@ -80,7 +77,7 @@ def add_dynamic_mode_args(
         name = meta["name"]
         default = meta["default"]
         desc = meta["help"]
-        short = name.replace("MODE_", "").lower()
+        short = name.lower()
 
         if default is True:
             opt = f"--skip-{short}"
@@ -106,7 +103,7 @@ def add_dynamic_mode_args(
 def build_modes_from_args(
     spec: dict[str, dict[str, Any]], args_namespace: argparse.Namespace
 ) -> dict[str, Any]:
-    """Resolve CLI arguments into a MODE_* dictionary."""
+    """Resolve CLI arguments into a mode dictionary."""
     modes: dict[str, Any] = {}
 
     for mode_name, info in spec.items():
