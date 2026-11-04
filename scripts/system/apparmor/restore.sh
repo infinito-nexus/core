@@ -7,12 +7,12 @@ source "${SCRIPT_DIR}/common.sh"
 
 echo "[apparmor] restoring profiles"
 
+apparmor_reinstate_unconfined_restriction "${APPARMOR_UNCONFINED_RESTRICTION_SYSCTL}" "${APPARMOR_UNCONFINED_RESTRICTION_STATE}"
+
 if ! apparmor_should_manage; then
 	echo "[apparmor] skipping restore: $(apparmor_skip_reason)"
 	exit 0
 fi
-
-apparmor_reinstate_unconfined_restriction "${APPARMOR_UNCONFINED_RESTRICTION_SYSCTL}" "${APPARMOR_UNCONFINED_RESTRICTION_STATE}"
 
 if apparmor_service_exists; then
 	systemctl start apparmor
