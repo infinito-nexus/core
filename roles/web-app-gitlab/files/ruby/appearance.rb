@@ -43,4 +43,4 @@ Dir.mktmpdir do |dir|
   appearance.save! if changed
 end
 
-puts(changed ? 'CHANGED' : 'OK')
+puts(changed ? '[CHANGED] the appearance follows the corporate design' : '[UNCHANGED] the appearance already follows the corporate design')

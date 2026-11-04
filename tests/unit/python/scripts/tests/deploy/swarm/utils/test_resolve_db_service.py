@@ -28,10 +28,13 @@ PINNED_ENGINE_APP = "web-app-magento"
 NO_DB_APP = "web-svc-html"
 LOCAL_SERVICE = "magento_database"
 CENTRAL_SERVICE = "mariadb_mariadb"
+FILLER = tuple(f"filler_service_{index}" for index in range(10000))
 
 
 class TestResolveDbService(unittest.TestCase):
-    def _resolve(self, app_id: str, deployed: tuple[str, ...]) -> str:
+    def _resolve(
+        self, app_id: str, deployed: tuple[str, ...], call: str = "resolve_db_service"
+    ) -> str:
         with tempfile.TemporaryDirectory() as tmp:
             stub_bin = Path(tmp) / "bin"
             stub_bin.mkdir()
@@ -51,7 +54,7 @@ class TestResolveDbService(unittest.TestCase):
                 BASH_ENV="",
             )
             proc = subprocess.run(
-                ["bash", "-c", f'source "{CONTEXT}"; resolve_db_service'],
+                ["bash", "-c", f'source "{CONTEXT}"; {call}'],
                 cwd=PROJECT_ROOT,
                 env=env,
                 capture_output=True,
@@ -86,6 +89,20 @@ class TestResolveDbService(unittest.TestCase):
 
     def test_a_role_without_a_database_dep_resolves_nothing(self) -> None:
         self.assertEqual(self._resolve(NO_DB_APP, (CENTRAL_SERVICE,)), "")
+
+    def test_an_early_match_in_a_long_listing_still_resolves(self) -> None:
+        deployed = (LOCAL_SERVICE, *FILLER, CENTRAL_SERVICE)
+        for _ in range(3):
+            self.assertEqual(self._resolve(PINNED_ENGINE_APP, deployed), LOCAL_SERVICE)
+
+    def test_an_early_match_in_a_long_listing_counts_as_deployed(self) -> None:
+        service = self._resolve(PINNED_ENGINE_APP, (), 'printf "%s" "${SERVICE_NAME}"')
+        deployed = (service, *FILLER)
+        call = "if has_swarm_service; then echo deployed; fi"
+        for _ in range(3):
+            self.assertEqual(
+                self._resolve(PINNED_ENGINE_APP, deployed, call), "deployed"
+            )
 
 
 if __name__ == "__main__":

@@ -61,15 +61,16 @@ class PathStateTests(unittest.TestCase):
             state,
             {
                 "isreg": True,
+                "isdir": False,
                 "mode": "0640",
                 "checksum": hashlib.sha1(b"png").hexdigest(),  # noqa: S324 - the checksum Ansible copy compares is SHA-1
             },
         )
 
-    def test_missing_path_is_not_regular(self):
+    def test_missing_path_is_neither_regular_nor_a_directory(self):
         self.assertEqual(
             self._state(self.root / "absent"),
-            {"isreg": False, "mode": None, "checksum": None},
+            {"isreg": False, "isdir": False, "mode": None, "checksum": None},
         )
 
     def test_directory_is_not_regular(self):
@@ -77,12 +78,31 @@ class PathStateTests(unittest.TestCase):
 
         self.assertFalse(self._state(self.root / "nested")["isreg"])
 
+    def test_directory_reports_its_mode_without_checksum(self):
+        target = self.root / ".cc-writes"
+        target.mkdir()
+        target.chmod(0o1750)
+
+        self.assertEqual(
+            self._state(target),
+            {"isreg": False, "isdir": True, "mode": "1750", "checksum": None},
+        )
+
     def test_symlink_is_reported_not_followed(self):
         target = self.root / "real"
         target.write_bytes(b"data")
         (self.root / "link").symlink_to(target)
 
         self.assertFalse(self._state(self.root / "link")["isreg"])
+
+    def test_symlink_to_a_directory_is_not_a_directory(self):
+        (self.root / "real").mkdir()
+        (self.root / "link").symlink_to(self.root / "real")
+
+        self.assertEqual(
+            self._state(self.root / "link"),
+            {"isreg": False, "isdir": False, "mode": None, "checksum": None},
+        )
 
     def test_path_below_a_file_is_not_regular(self):
         (self.root / "file").write_bytes(b"x")

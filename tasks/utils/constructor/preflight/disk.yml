@@ -8,7 +8,7 @@
 
 - name: "🔍 Measure the usage of / and of the docker root directory"
   ansible.builtin.command:
-    argv: "{{ ['df', '-P', '--'] + preflight_disk_paths }}"
+    argv: "{{ ['df', '-P', '-k', '--'] + preflight_disk_paths }}"
   register: preflight_df
   changed_when: false
 
@@ -24,4 +24,5 @@
   vars:
     preflight_disk_errors: >-
       {{ preflight_df.stdout
-         | preflight_disk_usage(preflight_disk_paths, SIZE_PERCENT_MAXIMUM_DISK_USAGE) }}
+         | preflight_disk_usage(preflight_disk_paths, SIZE_PERCENT_MAXIMUM_DISK_USAGE,
+                                SIZE_GB_MINIMUM_DISK_FREE) }}

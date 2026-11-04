@@ -40,7 +40,7 @@
     fail_msg: >-
       Pre-flight: {{ preflight_volume_errors | join('; ') }}.
       Back up each listed volume, move its data into a volume of the named entity or remove it,
-      then deploy again; compose refuses a volume another project created.
+      then deploy again; compose would reuse it and hand the role another project's data.
   vars:
     preflight_volume_errors: "{{ lookup('docker_ownership', 'volume', preflight_volumes, group_names) }}"
 

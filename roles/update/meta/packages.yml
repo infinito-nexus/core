@@ -1,0 +1,7 @@
+---
+kernel-modules-hook:
+  Archlinux:
+    - kernel-modules-hook
+  Debian: [] # nocheck: empty - every kernel ABI is its own package, so an upgrade installs the new modules beside those of the running kernel
+  RedHat: [] # nocheck: empty - dnf installs every kernel as its own installonly package and never removes the running one
+  batch: false

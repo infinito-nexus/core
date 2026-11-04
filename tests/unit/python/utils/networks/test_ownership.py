@@ -107,12 +107,23 @@ class TestOwnershipErrors(unittest.TestCase):
             ],
         )
 
-    def test_a_missing_project_label_is_reported(self):
-        networks = [_network("matomo", "192.168.31.0/24")]
+    def test_an_unlabeled_network_on_its_subnet_passes(self):
+        networks = [
+            _network("matomo", "192.168.31.0/24"),
+            _network("postgres", "192.168.200.0/24"),
+        ]
+        self.assertEqual(ownership_errors(networks, DECLARED), [])
+
+    def test_a_network_labelled_with_its_role_id_passes(self):
+        networks = [_network("postgres", "192.168.200.0/24", project="svc-db-postgres")]
+        self.assertEqual(ownership_errors(networks, DECLARED), [])
+
+    def test_an_unlabeled_network_off_its_subnet_is_still_drift(self):
+        networks = [_network("matomo", "192.168.40.0/24")]
         self.assertEqual(
             ownership_errors(networks, DECLARED),
             [
-                "network 'matomo' belongs to compose project '', but it is the network of web-app-matomo"
+                "network 'matomo' holds 192.168.40.0/24, but web-app-matomo declares 192.168.31.0/24"
             ],
         )
 

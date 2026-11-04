@@ -47,6 +47,9 @@ def ownership_errors(
     Returns:
         One message per contradiction; empty when every network belongs to
         its entity and no network occupies a subnet another role declares.
+        A network named after its entity without any compose project label,
+        or labelled with a declaring role id as older deploys did, passes on
+        its subnet alone; a label naming another project fails.
     """
     owners = {
         entity: [
@@ -73,7 +76,7 @@ def ownership_errors(
                     f"{role} declares {subnet}" for role, subnet in claims
                 )
                 errors.append(f"network '{name}' holds {listing}, but {expected}")
-            if project != name:
+            if project and project not in {name} | {role for role, _ in claims}:
                 errors.append(
                     f"network '{name}' belongs to compose project '{project}', "
                     f"but it is the network of {' or '.join(role for role, _ in claims)}"

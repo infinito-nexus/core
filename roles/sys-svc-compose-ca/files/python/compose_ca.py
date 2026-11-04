@@ -576,7 +576,8 @@ def render_override(
 
     Args:
       wrap: when False, emit ONLY volumes + environment and never the
-        entrypoint/command wrapper. `docker stack deploy` does not un-escape
+        entrypoint/command wrapper, so no image is inspected, pulled or run.
+        `docker stack deploy` does not un-escape
         the `$$` that the wrapper's command argv carries, so the wrapper is
         swarm-incompatible; swarm callers pass wrap=False and rely on the
         SSL_CERT_FILE/CURL_CA_BUNDLE/NODE_EXTRA_CA_CERTS env + the CA mount.
@@ -589,27 +590,29 @@ def render_override(
     extra_ca_host = _cache_frontend_ca_host()
     bundle_host = _trust_bundle_host(ca_host)
 
-    image_meta = gather_image_meta(
-        sorted(
-            {
+    image_meta: dict[str, ImageMeta] = {}
+    if wrap:
+        image_meta = gather_image_meta(
+            sorted(
+                {
+                    svc["image"].strip()
+                    for svc in services.values()
+                    if isinstance(svc, dict)
+                    and isinstance(svc.get("image"), str)
+                    and svc["image"].strip()
+                }
+            ),
+            cwd=cwd,
+            env=env,
+            built_images={
                 svc["image"].strip()
                 for svc in services.values()
                 if isinstance(svc, dict)
                 and isinstance(svc.get("image"), str)
                 and svc["image"].strip()
-            }
-        ),
-        cwd=cwd,
-        env=env,
-        built_images={
-            svc["image"].strip()
-            for svc in services.values()
-            if isinstance(svc, dict)
-            and isinstance(svc.get("image"), str)
-            and svc["image"].strip()
-            and _has_build(svc)
-        },
-    )
+                and _has_build(svc)
+            },
+        )
 
     for name, svc in services.items():
         if not isinstance(svc, dict):

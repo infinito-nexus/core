@@ -24,17 +24,21 @@ def _ports(ports: Mapping[str, Sequence[str]]) -> dict[int, list[str]]:
 
 
 def preflight_disk_usage(
-    df_output: str, paths: Sequence[str], maximum: Any
+    df_output: str, paths: Sequence[str], maximum: Any, minimum_free_gb: Any
 ) -> list[str]:
-    """Every probed path whose filesystem is fuller than the limit.
+    """Every probed path whose filesystem is fuller than the limits.
 
     Args:
         df_output: the stdout of ``df -P -- <paths>``.
         paths: the paths ``df`` was asked about, in that order.
-        maximum: the highest usage in percent a filesystem may reach.
+        maximum: the usage in percent above which a filesystem counts as full.
+        minimum_free_gb: the free space in GB a filesystem above ``maximum``
+            must still offer to pass.
     """
     try:
-        return disk_usage_errors(list(paths), str(df_output), int(maximum))
+        return disk_usage_errors(
+            list(paths), str(df_output), int(maximum), int(minimum_free_gb)
+        )
     except ValueError as exc:
         raise AnsibleFilterError(f"preflight_disk_usage: {exc}") from exc
 
