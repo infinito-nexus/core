@@ -1,4 +1,5 @@
 import unittest
+from itertools import product
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
@@ -18,7 +19,7 @@ LDAP = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))["LDAP"]
 BASE_CLASSES = "person, inetOrgPerson, nextcloudUser, ldapPublicKey, infinitoUser"
 
 
-def render(mailbox: bool) -> str:
+def environment() -> Environment:
     env = Environment(
         undefined=StrictUndefined,
         autoescape=select_autoescape(default_for_string=False),
@@ -27,10 +28,35 @@ def render(mailbox: bool) -> str:
     env.filters["dict2items"] = lambda mapping: [
         {"key": key, "value": value} for key, value in mapping.items()
     ]
+    return env
+
+
+def render(mailbox: bool) -> str:
     return (
-        env.from_string(EXPRESSION)
+        environment()
+        .from_string(EXPRESSION)
         .render(LDAP=LDAP, KEYCLOAK_EMAIL_MAILBOX=mailbox)
         .strip()
+    )
+
+
+def layout_gate() -> tuple[int, str]:
+    return next(
+        (index, task["ansible.builtin.set_fact"]["kc_email_mailbox_layout"])
+        for index, task in enumerate(EMAIL_POLICY)
+        if "kc_email_mailbox_layout" in task.get("ansible.builtin.set_fact", {})
+    )
+
+
+def layout_block() -> tuple[int, dict]:
+    return next(
+        (index, task)
+        for index, task in enumerate(EMAIL_POLICY)
+        if any(
+            child.get("ansible.builtin.include_role", {}).get("tasks_from")
+            == "06_mailbox.yml"
+            for child in task.get("block", [])
+        )
     )
 
 
@@ -53,16 +79,22 @@ class TestLdapUserObjectClasses(unittest.TestCase):
             i for i, path in enumerate(includes) if "03_ldap/shared" in path
         )
         self.assertLess(policy, federation)
-        layout = next(
-            task
-            for task in EMAIL_POLICY
-            if task.get("ansible.builtin.include_role", {}).get("tasks_from")
-            == "06_mailbox.yml"
-        )
-        self.assertEqual(
-            layout["when"],
-            ["KEYCLOAK_EMAIL_MAILBOX | bool", "KEYCLOAK_LDAP_ENABLED | bool"],
-        )
+        gate_index, _ = layout_gate()
+        block_index, block = layout_block()
+        self.assertLess(gate_index, block_index)
+        self.assertEqual(block["when"], "kc_email_mailbox_layout | bool")
+
+    def test_the_layout_applies_only_with_mailbox_and_ldap(self):
+        _, gate = layout_gate()
+        template = environment().from_string(gate)
+        for mailbox, ldap in product((True, False), repeat=2):
+            with self.subTest(mailbox=mailbox, ldap=ldap):
+                self.assertEqual(
+                    template.render(
+                        KEYCLOAK_EMAIL_MAILBOX=mailbox, KEYCLOAK_LDAP_ENABLED=ldap
+                    ),
+                    str(mailbox and ldap),
+                )
 
 
 if __name__ == "__main__":

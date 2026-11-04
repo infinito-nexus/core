@@ -6,8 +6,11 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.kcadm_json import json_from_noisy_stdout
+from utils.roles.mapping import ROLE_FILE_META_RBAC
 
-TASKS = PROJECT_ROOT / "roles/web-app-keycloak/tasks/update"
+ROLE_DIR = PROJECT_ROOT / "roles/web-app-keycloak"
+TASKS = ROLE_DIR / "tasks/update"
+RBAC_ROLES = load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_RBAC))["roles"]
 KCADM_STDOUT = (
     "[0.001s][warning][os,container] Cgroup memory controller path moved\n"
     '{\n  "id" : "4b7bea7d-cbcc-44b8-bd9e-9b31131a94db"\n}\n'
@@ -61,23 +64,25 @@ class TestGroupGrantsById(unittest.TestCase):
             render(
                 resolve,
                 application_id="web-app-keycloak",
-                item={"key": "user-manager", "value": ["view-users"]},
+                item={"key": "user-manager", "value": RBAC_ROLES["user-manager"]},
             ),
         )
 
     def test_console_grant_targets_the_resolved_id(self):
         _, grant = shells("09_console_rbac.yml")
+        auditor = RBAC_ROLES["auditor"]
         self.assertEqual(
             render(
                 grant,
                 KEYCLOAK_CONSOLE_ROLE_CLIENT="realm-management",
                 item={
-                    "item": {"key": "auditor", "value": ["view-realm", "view-users"]},
+                    "item": {"key": "auditor", "value": auditor},
                     "stdout": KCADM_STDOUT,
                 },
             ),
             "kcadm add-roles -r realm --gid 4b7bea7d-cbcc-44b8-bd9e-9b31131a94db"
-            " --cclientid realm-management --rolename view-realm --rolename view-users",
+            " --cclientid realm-management "
+            + " ".join(f"--rolename {name}" for name in auditor["realm_management"]),
         )
 
     def test_realm_role_group_is_resolved_by_its_rbac_path(self):
