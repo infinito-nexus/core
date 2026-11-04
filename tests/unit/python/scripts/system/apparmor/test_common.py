@@ -15,6 +15,7 @@ from pathlib import Path
 from utils.cache.files import PROJECT_ROOT
 
 COMMON = PROJECT_ROOT / "scripts" / "system" / "apparmor" / "common.sh"
+READ_ONLY_SYSCTL = Path("/proc/sys/kernel/ostype")
 
 PROFILES = """wg-quick (enforce)
 wg-quick//ip (enforce)
@@ -51,7 +52,7 @@ def _call(function: str, sysctl: Path, state: Path) -> subprocess.CompletedProce
         [
             "bash",
             "-c",
-            f'source "{COMMON}"; {function} "$1" "$2"',
+            f'set -euo pipefail; source "{COMMON}"; {function} "$1" "$2"',
             "-",
             str(sysctl),
             str(state),
@@ -113,6 +114,26 @@ class TestUnconfinedRestriction(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(_value(self.sysctl), "0")
+
+    @unittest.skipUnless(READ_ONLY_SYSCTL.is_file(), "needs procfs")
+    def test_a_read_only_sysctl_leaves_the_teardown_running(self) -> None:
+        result = _call(
+            "apparmor_lift_unconfined_restriction", READ_ONLY_SYSCTL, self.state
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not writable", result.stdout)
+        self.assertFalse(self.state.exists())
+
+    @unittest.skipUnless(READ_ONLY_SYSCTL.is_file(), "needs procfs")
+    def test_a_read_only_sysctl_keeps_the_record_for_a_later_restore(self) -> None:
+        self.state.parent.mkdir(parents=True)
+        self.state.write_text("1\n")
+        result = _call(
+            "apparmor_reinstate_unconfined_restriction", READ_ONLY_SYSCTL, self.state
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not writable", result.stdout)
+        self.assertEqual(_value(self.state), "1")
 
 
 if __name__ == "__main__":
