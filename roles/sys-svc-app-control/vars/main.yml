@@ -1,4 +1,10 @@
 ---
+APP_CONTROL_LIB_DIR: "{{ [ DIR_SCRIPTS_ROOT, 'sys-svc-app-control' ] | path_join }}"
+APP_CONTROL_MODULES:
+  - file: app_control.py
+    mode: "0755"
+  - file: app_control_argv.py
+    mode: "0644"
 APP_CONTROL_HOME: "{{ [ '/home', APP_CONTROL_USER ] | path_join }}"
 APP_CONTROL_SSH_KEY_CREDENTIAL: "app_control_ssh_key"
 APP_CONTROL_FORCED_COMMAND: "{{ BIN_APP_CONTROL }} --config {{ FILE_APP_CONTROL_CONFIG }} ssh"

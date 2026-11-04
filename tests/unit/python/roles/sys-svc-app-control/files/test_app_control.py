@@ -2,6 +2,7 @@ import contextlib
 import io
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
@@ -37,6 +38,8 @@ HEALTH_START = [
 
 
 def load_module():
+    if str(SCRIPT.parent) not in sys.path:
+        sys.path.insert(0, str(SCRIPT.parent))
     spec = spec_from_file_location("app_control", str(SCRIPT))
     module = module_from_spec(spec)
     assert spec.loader is not None
