@@ -93,6 +93,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
+- **WordPress options from the configuration:** Every entry of `services.wordpress.options` in [services.yml](meta/services.yml) is written with `wp option update` whenever WordPress stores a different value, and a change flushes the rewrite rules. An inventory sets any option through `applications.web-app-wordpress.services.wordpress.options.<name>`: the key carries `# nocheck: inventory-open-subtree`, so the inventory validator accepts names [services.yml](meta/services.yml) does not declare. Options the role writes elsewhere (`WORDPRESS_OPTIONS_OWNED_ELSEWHERE` in [main.yml](vars/main.yml)) and keys that name a secret are refused. `permalink_structure` is pinned to `/blog/%year%/%monthnum%/%day%/%postname%/`, the structure the blog published its post URLs under.
 
 ## Quick Setup
 

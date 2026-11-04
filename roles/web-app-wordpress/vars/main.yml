@@ -39,7 +39,10 @@ WORDPRESS_CONFIG_UPLD_REL: "config/upload.ini"
 WORDPRESS_CONFIG_UPLD_ABS: "{{ [lookup('container', application_id, 'directories.instance'), WORDPRESS_CONFIG_UPLD_REL ] | path_join }}"
 
 WORDPRESS_MU_PLUGINS_DIR: "{{ [WORDPRESS_DOCKER_HTML_PATH, 'wp-content/mu-plugins'] | path_join }}"
-WORDPRESS_PERMALINK_STRUCTURE: "/%postname%/"
+WORDPRESS_OPTIONS_OWNED_ELSEWHERE: "{{ ['home', 'siteurl', 'blogname', 'admin_email', 'active_plugins', 'rewrite_rules',
+  'openid_connect_generic_settings', 'mwai_options'] + (lookup('config', application_id, 'addons.wp-discourse.config.discourse_settings') |
+  map(attribute='name') | list) }}"
+WORDPRESS_OPTIONS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.options') | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}"
 
 WORDPRESS_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.administrator.email') }}"
 WORDPRESS_ADMIN_USER: "{{ lookup('config', application_id, 'users.administrator.username') }}"

@@ -71,6 +71,24 @@ def line_has_rule(line: str, rule: str) -> bool:
     return rule.lower() in _rules_on_line(line)
 
 
+def marker_reason(line: str, rule: str) -> str | None:
+    """Return the reason a marker for *rule* on *line* states.
+
+    Args:
+        line: one source line.
+        rule: the rule key to look for.
+
+    Returns:
+        The text after the marker's rule list, stripped and empty when the
+        marker states none, or None when *line* carries no marker for *rule*.
+    """
+    rule = rule.lower()
+    for match in _KEYWORD_RE.finditer(line):
+        if rule in {raw.strip().lower() for raw in match.group(1).split(",")}:
+            return line[match.end() :].strip().lstrip("-:").strip()
+    return None
+
+
 def is_suppressed_at(
     lines: Sequence[str],
     line_no: int,

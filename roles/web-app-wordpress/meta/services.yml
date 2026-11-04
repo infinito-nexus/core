@@ -62,6 +62,8 @@ wordpress:
   max_upload_size: 256M
   multisite:
     enabled: false
+  options: # nocheck: inventory-open-subtree  wordpress_options_checked refuses owned, secret and malformed option names at deploy time
+    permalink_structure: "/blog/%year%/%monthnum%/%day%/%postname%/"
   ports:
     local:
       http: 8003

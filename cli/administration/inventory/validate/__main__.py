@@ -18,6 +18,9 @@ from cli.administration.inventory.validate.loaders import (  # noqa: E402
     load_inventory_files,
     load_yaml_file,
 )
+from cli.administration.inventory.validate.open_subtrees import (  # noqa: E402
+    open_subtree_paths,
+)
 from cli.administration.inventory.validate.users import compare_user_keys  # noqa: E402
 from utils.cache.applications import (  # noqa: E402
     get_application_defaults,
@@ -38,6 +41,7 @@ def main() -> None:
 
     application_defaults = get_application_defaults(roles_dir=args.roles_dir)
     variants = get_variants(roles_dir=args.roles_dir)
+    open_paths = open_subtree_paths(args.roles_dir)
     user_defaults = get_user_defaults(roles_dir=args.roles_dir)
     if not application_defaults:
         print(
@@ -53,7 +57,9 @@ def main() -> None:
     inv_files = load_inventory_files(args.inventory_dir)
     for src, apps in inv_files.items():
         app_errs.extend(
-            compare_application_keys(apps, application_defaults, src, variants)
+            compare_application_keys(
+                apps, application_defaults, src, variants, open_paths=open_paths
+            )
         )
 
     user_errs: list[str] = []
