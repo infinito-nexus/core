@@ -1,13 +1,19 @@
+import re
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
-SCRIPT = PROJECT_ROOT / "roles/dsk-gnt-claude/files/shell/claude-gateway.sh"
+ROLE_DIR = PROJECT_ROOT / "roles/dsk-gnt-claude"
+SCRIPT = ROLE_DIR / "files/shell/claude-gateway.sh"
+ENV_PATH = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))["agnt_claude_env_path"]
+SOURCED = re.compile(r"^\s*(?:source|\.)\s+(\S+)\s*$", re.MULTILINE)
 
 CLAUDE_STUB = """#!/usr/bin/env bash
 printf '%s\\n' "${ANTHROPIC_BASE_URL}" "${ANTHROPIC_AUTH_TOKEN}" "${ANTHROPIC_MODEL}" "$@" >"${STUB_LOG}"
@@ -22,21 +28,23 @@ SETTINGS = (
 
 class TestClaudeGateway(unittest.TestCase):
     def run_launcher(self, settings, *args):
-        """Run the launcher against a stub claude and a scratch home.
+        """Run a copy of the launcher that sources a scratch env file.
 
         Args:
-            settings: content of the gateway settings file, None for no file.
+            settings: content of the env file, None for no file.
             args: the arguments the launcher receives.
 
         Returns:
             Tuple of the exit code and the lines the stub claude wrote.
         """
         with tempfile.TemporaryDirectory() as tmp:
-            home = Path(tmp) / "home"
-            settings_dir = home / ".config" / "claude-gateway"
-            settings_dir.mkdir(parents=True)
+            env_file = Path(tmp) / "claude-gateway.env"
             if settings is not None:
-                (settings_dir / "env").write_text(settings)
+                env_file.write_text(settings)
+            copy = read_text(str(SCRIPT)).replace(ENV_PATH, str(env_file))
+            self.assertEqual(SOURCED.findall(copy), [str(env_file)])
+            launcher = Path(tmp) / "claude-gateway.sh"
+            launcher.write_text(copy)
             bindir = Path(tmp) / "bin"
             bindir.mkdir()
             stub = bindir / "claude"
@@ -44,9 +52,8 @@ class TestClaudeGateway(unittest.TestCase):
             stub.chmod(0o755)
             log = Path(tmp) / "claude.log"
             done = subprocess.run(
-                ["bash", str(SCRIPT), *args],
+                ["bash", str(launcher), *args],
                 env={
-                    "HOME": str(home),
                     "PATH": f"{bindir}:/usr/bin:/bin",
                     "STUB_LOG": str(log),
                 },
@@ -56,6 +63,9 @@ class TestClaudeGateway(unittest.TestCase):
             )
             lines = read_text(str(log)).splitlines() if log.exists() else []
             return done.returncode, lines
+
+    def test_the_launcher_sources_exactly_the_role_env_path(self):
+        self.assertEqual(SOURCED.findall(read_text(str(SCRIPT))), [ENV_PATH])
 
     def test_the_settings_and_arguments_reach_claude(self):
         rc, lines = self.run_launcher(SETTINGS, "--resume", "two words")
