@@ -68,7 +68,7 @@ def _isolated_env(root: Path) -> dict[str, str]:
     return env
 
 
-class _InstallCase(unittest.TestCase):
+class _InstallCase:
     @classmethod
     def setUpClass(cls) -> None:
         cls._skills_tmp = tempfile.TemporaryDirectory()
@@ -156,7 +156,7 @@ class _InstallCase(unittest.TestCase):
         return _read(checkout / ".agents" / "skills" / "upstream" / "VERSION")
 
 
-class TestTargetResolution(_InstallCase):
+class TestTargetResolution(_InstallCase, unittest.TestCase):
     def test_worktree_installs_into_the_running_checkout_only(self) -> None:
         self._assert_ok(self._install(self.worktree, "worktree"))
 
@@ -198,7 +198,7 @@ class TestTargetResolution(_InstallCase):
         self.assertEqual(self._installed(), [])
 
 
-class TestLayering(_InstallCase):
+class TestLayering(_InstallCase, unittest.TestCase):
     def test_main_receives_the_running_checkouts_skills_on_top(self) -> None:
         self._assert_ok(self._install(self.worktree, "worktree main"))
 
@@ -218,7 +218,7 @@ class TestLayering(_InstallCase):
         self.assertEqual(_read(self.main / "AGENTS.md"), "main agents")
 
 
-class TestSkillsRef(_InstallCase):
+class TestSkillsRef(_InstallCase, unittest.TestCase):
     def test_a_commit_sha_installs_that_commit(self) -> None:
         self._assert_ok(self._install(self.worktree, "worktree", ref=self.v1))
 
