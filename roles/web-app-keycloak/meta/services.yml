@@ -26,8 +26,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 javascript:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -63,12 +63,16 @@ keycloak:
     totp_enabled: true
   users:
     emails_verified: true
+  email:
+    policy: external
+    switch: false
+    secondary_required: true
+  design:
+    theme: infinito-corporate
   scopes:
     nextcloud: nextcloud
     moodle: moodle
   accounts:
-    bootstrap:
-      username: administrator
     system:
       username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
   admin:
@@ -83,10 +87,8 @@ keycloak:
     service_key: keycloak
   run_after:
     - web-app-matomo
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
-# Exception: sso-proxy sidecar; upstream artefact names (oauth2-proxy image, oauth2-proxy-keycloak.cfg) stay literal, project identifiers use the sso_proxy namespace
 # nocheck: dynamic-flag — per-consumer fan-out
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag
 sso_proxy:
@@ -94,6 +96,10 @@ sso_proxy:
   version: "v7.15.5"
   min_storage: 220MB
   configuration_file: oauth2-proxy-keycloak.cfg
+  alpha_configuration_file: oauth2-proxy-keycloak-alpha.yml
+  error_template_file: oauth2-proxy-error.html
+  templates_directory: /templates
+  cookie_refresh: 1m
   ports:
     internal:
       http: 4180
@@ -106,11 +112,16 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }}"
+  slots:
+    brand:
+      width: 300
+      height: 65
+      frame: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — captcha backend, infrastructural
 recaptcha:
@@ -126,3 +137,15 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: Semaphore signs its users in through Keycloak, so a run that paused it would lock everyone out of the UI that resumes it
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started

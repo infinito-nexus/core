@@ -1,0 +1,72 @@
+{% set design = lookup('design', application_id) %}
+html[data-color-scheme][data-contrast] {
+  --color-bg-primary: var(--design-surface-1);
+  --color-bg-secondary: var(--design-surface-2);
+  --color-bg-tertiary: var(--design-surface-3);
+  --color-bg-brand-softest: var(--design-surface-hover);
+  --color-bg-brand-soft: var(--design-surface-active);
+  --color-bg-inverted: var(--design-text);
+  --color-text-inverted: var(--design-surface-1);
+  --color-text-primary: var(--design-text);
+  --color-text-secondary: var(--design-text-muted);
+  --color-text-tertiary: var(--design-text-muted);
+  --color-text-brand: var(--design-link);
+  --color-text-status-links: var(--design-link);
+  --color-text-brand-on-inverted: var(--design-surface-1);
+  --color-bg-brand-base: var(--design-primary);
+  --color-bg-brand-base-hover: var(--design-primary-hover);
+  --color-text-on-brand-base: var(--design-on-primary);
+  --color-border-primary: var(--design-border);
+  --color-border-brand: var(--design-link);
+  --color-border-brand-soft: var(--design-border-strong);
+  --color-text-error: var(--design-danger);
+  --color-border-error: var(--design-danger);
+  --color-bg-error-base: var(--design-danger);
+  --color-bg-error-base-hover: var(--design-danger-hover);
+  --color-text-on-error-base: var(--design-on-danger);
+  --color-bg-error-soft: var(--design-danger-subtle);
+  --color-bg-error-softest: var(--design-danger-subtle);
+  --color-border-error-soft: var(--design-danger-border);
+  --color-text-warning: var(--design-warning);
+  --color-bg-warning-base: var(--design-warning);
+  --color-text-on-warning-base: var(--design-on-warning);
+  --color-bg-warning-soft: var(--design-warning-subtle);
+  --color-bg-warning-softest: var(--design-warning-subtle);
+  --color-border-warning-soft: var(--design-warning-border);
+  --color-text-success: var(--design-success);
+  --color-bg-success-base: var(--design-success);
+  --color-text-on-success-base: var(--design-on-success);
+  --color-bg-success-soft: var(--design-success-subtle);
+  --color-bg-success-softest: var(--design-success-subtle);
+  --color-border-success-soft: var(--design-success-border);
+  --color-bg-disabled: var(--design-surface-3);
+  --color-text-on-disabled: var(--design-text-muted);
+  --color-text-disabled: var(--design-text-muted);
+  --dropdown-shadow: var(--design-shadow-3);
+  --rich-text-container-color: var(--design-surface-3);
+  --rich-text-text-color: var(--design-text);
+  --rich-text-decorations-color: var(--design-border-strong);
+}
+
+html[data-color-scheme][data-contrast='high'] {
+  --color-border-primary: var(--design-border-strong);
+}
+{% if design.logo is string %}
+
+svg.logo--wordmark {
+  background: url("{{ design.urls.wordmark.svg }}") left center / contain no-repeat;
+}
+
+svg.logo--icon {
+  background: url("{{ design.urls['app-icon'].svg }}") center / contain no-repeat;
+}
+
+svg.logo--wordmark use,
+svg.logo--icon use {
+  visibility: hidden;
+}
+
+img.logo--icon {
+  content: url("{{ design.urls['app-icon'].svg }}");
+}
+{% endif %}

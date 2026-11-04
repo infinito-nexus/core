@@ -1,0 +1,84 @@
+{% set label = lookup('design', application_id).label | e %}
+{% raw %}{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {% verbatim %}{% endraw %}{{ label }}{% raw %}{% endverbatim %}{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">{% verbatim %}{% endraw %}{{ label }}{% raw %}{% endverbatim %}</a></div>
+{% if user.is_anonymous %}
+  {% with toggle="admin/color_theme_toggle.html" %}{% include toggle %}{% endwith %}
+{% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block dark-mode-vars %}
+{{ block.super }}
+<style>
+:root:root {
+  --primary: var(--design-frame);
+  --secondary: var(--design-frame);
+  --accent: var(--design-on-frame);
+  --primary-fg: var(--design-on-frame);
+  --body-fg: var(--design-text);
+  --body-bg: var(--design-surface-1);
+  --body-quiet-color: var(--design-text-muted);
+  --body-medium-color: var(--design-text);
+  --body-loud-color: var(--design-text);
+  --header-color: var(--design-on-frame);
+  --header-branding-color: var(--design-on-frame);
+  --header-bg: var(--design-frame);
+  --header-link-color: var(--design-on-frame);
+  --breadcrumbs-fg: var(--design-on-frame);
+  --breadcrumbs-link-fg: var(--design-on-frame);
+  --breadcrumbs-bg: var(--design-frame-active);
+  --link-fg: var(--design-link);
+  --link-hover-color: var(--design-link);
+  --link-selected-fg: var(--design-link);
+  --hairline-color: var(--design-border);
+  --border-color: var(--design-border-strong);
+  --error-fg: var(--design-danger);
+  --message-debug-bg: var(--design-surface-3);
+  --message-info-bg: var(--design-info-subtle);
+  --message-success-bg: var(--design-success-subtle);
+  --message-warning-bg: var(--design-warning-subtle);
+  --message-error-bg: var(--design-danger-subtle);
+  --darkened-bg: var(--design-surface-2);
+  --selected-bg: var(--design-surface-active);
+  --selected-row: var(--design-surface-active);
+  --button-fg: var(--design-on-primary);
+  --button-bg: var(--design-primary);
+  --button-hover-bg: var(--design-primary-hover);
+  --default-button-bg: var(--design-primary);
+  --default-button-hover-bg: var(--design-primary-hover);
+  --close-button-bg: var(--design-surface-3);
+  --close-button-hover-bg: var(--design-surface-hover);
+  --delete-button-bg: var(--design-danger);
+  --delete-button-hover-bg: var(--design-danger-hover);
+  --object-tools-fg: var(--design-on-frame);
+  --object-tools-bg: var(--design-frame);
+  --object-tools-hover-bg: var(--design-frame-hover);
+}
+:is(#header, .breadcrumbs, .module caption, .module h2, .inline-group h2, .object-tools) {
+  --design-focus: var(--design-on-frame);
+}
+:is(#user-tools a, #logout-form button) {
+  border-bottom-color: rgba(var(--design-on-frame-rgb), 0.25);
+}
+.delete-confirmation form input[type="submit"],
+.submit-row a.deletelink {
+  color: var(--design-on-danger);
+}
+.delete-confirmation form .cancel-link,
+.submit-row a.closelink {
+  color: var(--design-text);
+}
+.paginator a:not([aria-current="page"], .showall):is(:focus, :hover) {
+  color: var(--design-surface-1);
+}
+code strong {
+  color: var(--design-warning);
+}
+</style>
+{% endblock %}
+{% endraw %}

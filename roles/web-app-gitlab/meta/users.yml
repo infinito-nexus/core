@@ -4,3 +4,4 @@ mcp-web-app-gitlab:
   lastname: MCP
   accounts: []
   description: Account the GitLab MCP personal access token belongs to; a token on root reads every private project
+platform_administrator: {}

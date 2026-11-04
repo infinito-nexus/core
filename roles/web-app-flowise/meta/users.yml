@@ -8,3 +8,4 @@ flowise-api-bot:
     algorithm: strong_password
     validation: "[^A-Za-z0-9]"
   description: API-only identity used to reconcile the custom MCP server registry (NOT an OIDC user)
+platform_administrator: {}

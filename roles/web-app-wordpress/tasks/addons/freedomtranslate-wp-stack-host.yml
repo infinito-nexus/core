@@ -1,0 +1,32 @@
+---
+- name: "📦 Install the FreedomTranslate plugin"
+  ansible.builtin.include_tasks: ../utils/install/plugin.yml
+  vars:
+    plugin_name: freedomtranslate-wp
+
+- name: "🔧 Point FreedomTranslate at the translation gateway"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp option update {{ item.name }} {{ item.value | quote }}
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  loop: "{{ WORDPRESS_TRANSLATE_OPTIONS }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: wordpress_translate_option
+  changed_when: "'Success' in wordpress_translate_option.stdout"
+
+- name: "🔎 Read the gateway URL back out of WordPress"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp option get freedomtranslate_api_url --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wordpress_translate_readback
+  changed_when: false
+
+- name: "🛑 Refuse a plugin that translates somewhere else"
+  ansible.builtin.assert:
+    that:
+      - (wordpress_translate_readback.stdout | trim) == WORDPRESS_TRANSLATE_ENDPOINT
+    fail_msg: >-
+      freedomtranslate-wp posts to '{{ wordpress_translate_readback.stdout | trim }}'
+      instead of {{ WORDPRESS_TRANSLATE_ENDPOINT }}, so the content would be
+      translated outside this deployment or not at all.

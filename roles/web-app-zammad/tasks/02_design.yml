@@ -1,0 +1,22 @@
+---
+- name: "🖼️ Read the corporate lockup of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ ZAMMAD_DESIGN_BRAND_FILE }}"
+  register: zammad_design_brand
+  when: ZAMMAD_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Converge the corporate product name and logo of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e DESIGN_TITLE -e DESIGN_DEFAULT_NAMES \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "DESIGN_LOGO_B64 = '{{ zammad_design_brand.content if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}'\n{{ lookup('file', 'ruby/apply/design_branding.rb')
+      }}"
+  environment:
+    DESIGN_TITLE: "{{ ZAMMAD_DESIGN_TITLE }}"
+    DESIGN_DEFAULT_NAMES: "{{ ZAMMAD_DESIGN_DEFAULT_NAMES | to_json }}"
+  register: zammad_design_branding
+  changed_when: "'design-branding: changed' in zammad_design_branding.stdout"

@@ -1,0 +1,16 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  {% set service_name = 'freellmapi' %}
+  {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('compose_only', 'container_name', FREELLMAPI_CONTAINER) }}
+    {{ lookup('container_ports', [service_name, 'http', NETWORK_LOOPBACK_IPV4]) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+{{ lookup('compose_networks') }}
+
+{{ lookup('compose_volumes') }}

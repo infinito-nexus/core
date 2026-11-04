@@ -1,0 +1,225 @@
+@import url("editor.min.css");
+@import url("{{ lookup('cdn', 'web-svc-cdn').relative_urls.shared.css }}/layer.css");
+@import url("{{ lookup('cdn', 'web-svc-cdn').relative_urls.shared.css }}/default.css");
+:root code[class*=language-],
+:root pre[class*=language-] {
+  color: var(--design-text);
+  text-shadow: none;
+}
+:root code[class*=language-] ::selection,
+:root code[class*=language-]::selection,
+:root pre[class*=language-] ::selection,
+:root pre[class*=language-]::selection {
+  background-color: var(--design-info-border);
+}
+@media print {
+:root code[class*=language-],
+:root pre[class*=language-] {
+  text-shadow: none;
+}
+}
+:root :not(pre)>code[class*=language-],
+:root pre[class*=language-] {
+  background-color: var(--design-surface-3);
+}
+:root .token.cdata,
+:root .token.comment,
+:root .token.doctype,
+:root .token.prolog,
+:root .token.punctuation {
+  color: var(--design-text-muted);
+}
+:root .token.boolean,
+:root .token.constant,
+:root .token.deleted,
+:root .token.number,
+:root .token.property,
+:root .token.symbol,
+:root .token.tag {
+  color: var(--design-danger);
+}
+:root .token.attr-name,
+:root .token.builtin,
+:root .token.char,
+:root .token.inserted,
+:root .token.selector,
+:root .token.string {
+  color: var(--design-success);
+}
+:root .language-css .token.string,
+:root .style .token.string,
+:root .token.entity,
+:root .token.operator,
+:root .token.url {
+  color: var(--design-warning);
+  background-color: rgba(var(--design-surface-2-rgb), 0.5);
+}
+:root .token.atrule,
+:root .token.attr-value,
+:root .token.keyword {
+  color: var(--design-info);
+}
+:root .token.class-name,
+:root .token.function {
+  color: var(--design-danger);
+}
+:root .token.important,
+:root .token.regex,
+:root .token.variable {
+  color: var(--design-warning);
+}
+:root .mce-preview-object,
+:root .mce-object,
+:root .mce-pagebreak {
+  border-color: var(--design-border-strong);
+}
+:root .mce-content-body[data-mce-placeholder]:not(.mce-visualblocks):before {
+  color: var(--design-text-muted);
+}
+@media (forced-colors:active) {
+:root .mce-content-body[data-mce-placeholder]:not(.mce-visualblocks):before {
+  color: highlight;
+}
+}
+:root .mce-content-body div.mce-resizehandle {
+  background-color: var(--design-link);
+  border-color: var(--design-link);
+}
+:root .mce-content-body div.mce-resizehandle:hover {
+  background-color: var(--design-link);
+}
+:root .mce-content-body .mce-clonedresizable {
+  outline-color: var(--design-border-strong);
+}
+:root .mce-content-body .mce-resize-helper {
+  color: var(--design-surface-1);
+  background-color: var(--design-text);
+}
+:root .mce-match-marker {
+  color: var(--design-text);
+  background-color: var(--design-surface-active);
+}
+:root .mce-match-marker-selected,
+:root .mce-match-marker-selected::selection {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
+}
+:root .mce-content-body audio[data-mce-selected],
+:root .mce-content-body details[data-mce-selected],
+:root .mce-content-body embed[data-mce-selected],
+:root .mce-content-body img[data-mce-selected],
+:root .mce-content-body object[data-mce-selected],
+:root .mce-content-body table[data-mce-selected],
+:root .mce-content-body video[data-mce-selected],
+:root .mce-content-body hr[data-mce-selected] {
+  outline-color: var(--design-link);
+}
+:root .mce-content-body [contentEditable="false"] [contentEditable="true"]:focus,
+:root .mce-content-body [contentEditable="false"] [contentEditable="true"]:hover {
+  outline-color: var(--design-info-border);
+}
+:root .mce-content-body [contentEditable="false"][data-mce-selected] {
+  outline-color: var(--design-link);
+}
+:root .mce-content-body [data-mce-selected=inline-boundary] {
+  background-color: var(--design-surface-active);
+}
+:root .mce-content-body .mce-edit-focus {
+  outline-color: var(--design-info-border);
+}
+:root .mce-content-body td[data-mce-selected]:after,
+:root .mce-content-body th[data-mce-selected]:after {
+  background-color: rgba(var(--design-surface-active-rgb), 0.7);
+  border-color: rgba(var(--design-info-border-rgb), 0.7);
+}
+:root .mce-content-body img[data-mce-selected]::selection {
+  background: 0 0;
+}
+:root .ephox-snooker-resizer-bar {
+  background-color: var(--design-link);
+}
+:root .mce-toc {
+  border-color: var(--design-border-strong);
+}
+:root .mce-item-table:not([border]),
+:root .mce-item-table:not([border]) caption,
+:root .mce-item-table:not([border]) td,
+:root .mce-item-table:not([border]) th,
+:root .mce-item-table[border="0"],
+:root .mce-item-table[border="0"] caption,
+:root .mce-item-table[border="0"] td,
+:root .mce-item-table[border="0"] th {
+  border-color: var(--design-border);
+}
+:root table[style*="border-width: 0px"],
+:root table[style*="border-width: 0px"] caption,
+:root table[style*="border-width: 0px"] td,
+:root table[style*="border-width: 0px"] th,
+:root .mce-visualblocks address,
+:root .mce-visualblocks article,
+:root .mce-visualblocks aside,
+:root .mce-visualblocks blockquote,
+:root .mce-visualblocks div:not([data-mce-bogus]),
+:root .mce-visualblocks dl,
+:root .mce-visualblocks figcaption,
+:root .mce-visualblocks figure,
+:root .mce-visualblocks h1,
+:root .mce-visualblocks h2,
+:root .mce-visualblocks h3,
+:root .mce-visualblocks h4,
+:root .mce-visualblocks h5,
+:root .mce-visualblocks h6,
+:root .mce-visualblocks hgroup,
+:root .mce-visualblocks ol,
+:root .mce-visualblocks p,
+:root .mce-visualblocks pre,
+:root .mce-visualblocks section,
+:root .mce-visualblocks ul {
+  border-color: var(--design-border-strong);
+}
+:root .mce-nbsp,
+:root .mce-shy {
+  background-color: var(--design-border-strong);
+}
+:root body {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+:root a:link,
+:root a:hover {
+  color: var(--design-link);
+}
+:root hr#system-readmore {
+  color: var(--design-danger);
+  border-color: var(--design-danger);
+}
+:root span[lang] {
+  border-color: var(--design-border-strong);
+}
+:root span[lang]:after {
+  color: var(--design-danger);
+}
+:root body {
+  color: var(--design-text);
+  background-color: var(--design-surface-2);
+}
+:root a {
+  color: var(--design-link);
+}
+:root table[border]:not([border="0"]):not([style*=border-color]) td,
+:root table[border]:not([border="0"]):not([style*=border-color]) th,
+:root hr {
+  border-color: var(--design-border);
+}
+:root figure figcaption {
+  color: var(--design-text-muted);
+}
+:root code {
+  background-color: var(--design-surface-3);
+}
+:root .mce-content-body:not([dir=rtl]) blockquote {
+  border-left-color: var(--design-border-strong);
+}
+:root .mce-content-body[dir=rtl] blockquote {
+  border-right-color: var(--design-border-strong);
+}

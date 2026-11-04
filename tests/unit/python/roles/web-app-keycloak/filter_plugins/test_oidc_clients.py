@@ -105,5 +105,30 @@ class TestDeclaredClientIds(unittest.TestCase):
         self.assertEqual(self.ids(apps), ["client-a", "client-b"])
 
 
+def _client(url):
+    return {"clientId": "x", "attributes": {"backchannel.logout.url": url}}
+
+
+class TestBackchannelLogoutUrls(unittest.TestCase):
+    def setUp(self):
+        self.urls = _load().kc_backchannel_logout_urls
+
+    def test_every_receiving_client_contributes_its_url_once(self):
+        url = "http://matrix.example.onion/_synapse/client/oidc/backchannel_logout"
+        self.assertEqual(self.urls([_client(url), _client(url)]), [url])
+
+    def test_a_client_without_a_receiver_contributes_nothing(self):
+        clients = [
+            {"clientId": "shared", "attributes": {"frontchannel.logout.url": "x"}},
+            {"clientId": "bare"},
+            _client("  "),
+        ]
+        self.assertEqual(self.urls(clients), [])
+
+    def test_a_malformed_client_list_is_survivable(self):
+        self.assertEqual(self.urls(None), [])
+        self.assertEqual(self.urls(["not-a-client", {"attributes": "x"}]), [])
+
+
 if __name__ == "__main__":
     unittest.main()

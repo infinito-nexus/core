@@ -1,0 +1,38 @@
+---
+- name: "👤 Provision the administrator sign-in of the userpass method"
+  when: OPENBAO_USERPASS_ENABLED | bool
+  block:
+    - name: "🧩 Enable the userpass auth method"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'bao auth list -format=json | grep -q "\"{{ OPENBAO_USERPASS_MOUNT }}/\"" ||
+        { bao auth enable -path={{ OPENBAO_USERPASS_MOUNT | quote }}
+        -description={{ OPENBAO_USERPASS_MARKER | quote }} userpass && echo OPENBAO_CHANGED; }'
+      register: openbao_userpass_enable
+      changed_when: "'OPENBAO_CHANGED' in openbao_userpass_enable.stdout"
+
+    - name: "👤 Upsert the administrator account of the userpass method"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e;
+        p=auth/{{ OPENBAO_USERPASS_MOUNT }}/users/{{ OPENBAO_USERPASS_USERNAME }};
+        before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+        bao write $p password=- token_policies={{ OPENBAO_USERPASS_POLICY | quote }} >/dev/null;
+        after=$(bao read -format=json $p | grep -v request_id);
+        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+      args:
+        stdin: "{{ OPENBAO_USERPASS_PASSWORD }}"
+        stdin_add_newline: false
+      register: openbao_userpass_user
+      changed_when: "'OPENBAO_CHANGED' in openbao_userpass_user.stdout"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 Disable the userpass method an identity provider replaces"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'mark=$(bao read -field=description sys/auth/{{ OPENBAO_USERPASS_MOUNT }} 2>/dev/null) || exit 0;
+    [ "$mark" = "{{ OPENBAO_USERPASS_MARKER }}" ] || exit 0;
+    bao auth disable {{ OPENBAO_USERPASS_MOUNT | quote }} && echo OPENBAO_CHANGED'
+  register: openbao_userpass_disable
+  changed_when: "'OPENBAO_CHANGED' in openbao_userpass_disable.stdout"
+  when: not (OPENBAO_USERPASS_ENABLED | bool)

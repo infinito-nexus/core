@@ -8,7 +8,7 @@ from utils.roles.applications.status_codes import (
 )
 
 SEAWEEDFS = {
-    "web-app-seaweedfs": {
+    "web-svc-seaweedfs": {
         "domains": {
             "canonical": {
                 "api": "s3.example.org",
@@ -36,7 +36,7 @@ class TestDeclaredStatusCodes(unittest.TestCase):
         ):
             with self.subTest(domain=domain):
                 self.assertEqual(
-                    declared_status_codes(SEAWEEDFS, "web-app-seaweedfs", domain),
+                    declared_status_codes(SEAWEEDFS, "web-svc-seaweedfs", domain),
                     codes,
                 )
 
@@ -109,7 +109,7 @@ class TestAcceptedStatusCodes(unittest.TestCase):
 
     def test_declared_codes_are_added_to_the_default(self):
         self.assertEqual(
-            accepted_status_codes(SEAWEEDFS, "web-app-seaweedfs", "filer.example.org"),
+            accepted_status_codes(SEAWEEDFS, "web-svc-seaweedfs", "filer.example.org"),
             [200, 302, 301, 403],
         )
 
@@ -145,10 +145,10 @@ class TestAcceptedStatusCodes(unittest.TestCase):
         )
 
     def test_the_result_is_a_copy(self):
-        first = accepted_status_codes(SEAWEEDFS, "web-app-seaweedfs", "unknown.org")
+        first = accepted_status_codes(SEAWEEDFS, "web-svc-seaweedfs", "unknown.org")
         first.append(418)
         self.assertEqual(
-            accepted_status_codes(SEAWEEDFS, "web-app-seaweedfs", "unknown.org"),
+            accepted_status_codes(SEAWEEDFS, "web-svc-seaweedfs", "unknown.org"),
             DEFAULT_OK,
         )
 

@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import datetime as dt
+import importlib.metadata
 import json
 import os
+import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -13,8 +16,74 @@ from cli.administration.inventory.provision.services_disabler import (
     assert_services_disabled_inventory_consistency_from_env,
 )
 from cli.meta.roles.services.called import verify as verify_required_system_services
+from cli.meta.runtime import detect_runtime
+from utils.cache.files import read_text
+from utils.preflight.switches import PREFLIGHT_ROLE, check_enabled
 
 from .proc import run, run_make
+
+_REQUIREMENT_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+
+
+def deploy_ansible_playbook(repo_root: str) -> str:
+    """
+    Return the ansible-playbook of the running interpreter once that
+    interpreter carries every distribution of the `deploy` extra.
+
+    Args:
+      repo_root: checkout whose pyproject.toml declares the `deploy` extra
+    Returns:
+      absolute path of the ansible-playbook next to sys.executable
+    Exits:
+      1 when a `deploy` distribution or that ansible-playbook is missing
+    """
+    pyproject = tomllib.loads(read_text(str(Path(repo_root) / "pyproject.toml")))
+    missing: list[str] = []
+    for requirement in pyproject["project"]["optional-dependencies"]["deploy"]:
+        name = _REQUIREMENT_NAME.match(requirement)
+        try:
+            importlib.metadata.distribution(name.group(0))
+        except importlib.metadata.PackageNotFoundError:
+            missing.append(requirement)
+
+    ansible_playbook = Path(sys.executable).parent / "ansible-playbook"
+    if missing:
+        quoted = " ".join(f"'{requirement}'" for requirement in missing)
+        print(
+            f"\n[ERROR] The deploy interpreter {sys.executable} lacks "
+            f"{', '.join(missing)} from the `deploy` extra of "
+            f"{repo_root}/pyproject.toml.\n"
+            f"        Install them with: {sys.executable} -m pip install {quoted}\n"
+            "        or launch the CLI from the venv `make install` provisions.\n",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if not ansible_playbook.is_file():
+        print(
+            f"\n[ERROR] No ansible-playbook at {ansible_playbook} beside the "
+            f"deploy interpreter {sys.executable}.\n",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return str(ansible_playbook)
+
+
+def _inventory_check_enabled(repo_root: str) -> bool:
+    """
+    Read the inventory switch of the pre-flight role.
+
+    Args:
+      repo_root: checkout whose roles/ holds the pre-flight role
+    Returns:
+      whether the inventory validation is switched on
+    Exits:
+      1 when the switch is missing or not a literal boolean
+    """
+    try:
+        return check_enabled("inventory", Path(repo_root) / "roles")
+    except (OSError, TypeError, ValueError) as exc:
+        print(f"\n[ERROR] {exc}\n", file=sys.stderr)
+        sys.exit(1)
 
 
 def run_ansible_playbook(
@@ -36,11 +105,10 @@ def run_ansible_playbook(
     start_time = dt.datetime.now(tz=dt.UTC)
     print(f"\n▶️ Script started at: {start_time.isoformat()}\n", flush=True)
 
-    if modes.get("MODE_CLEANUP", False):
-        print("\n🧹 Cleaning up...\n", flush=True)
-        run_make(repo_root, "clean")
-    else:
-        print("\n🧹 Cleanup skipped (MODE_CLEANUP not set or False)\n", flush=True)
+    ansible_playbook = deploy_ansible_playbook(repo_root)
+
+    sys.dont_write_bytecode = True
+    os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
     if not skip_build:
         print("\n🛠️  Running project build (make setup)...\n", flush=True)
@@ -57,9 +125,15 @@ def run_ansible_playbook(
         print(f"\n[ERROR] {exc}\n", file=sys.stderr)
         sys.exit(1)
 
-    if modes.get("MODE_ASSERT") is False:
+    if modes.get("VALIDATE") is False:
         print(
-            "\n🔍 Inventory assertion explicitly disabled (MODE_ASSERT=false)\n",
+            "\n🔍 Inventory assertion explicitly disabled (VALIDATE=false)\n",
+            flush=True,
+        )
+    elif not _inventory_check_enabled(repo_root):
+        print(
+            f"\n🔍 Inventory assertion switched off in {PREFLIGHT_ROLE} "
+            "(checks.inventory.enabled=false)\n",
             flush=True,
         )
     else:
@@ -77,7 +151,7 @@ def run_ansible_playbook(
             )
             sys.exit(1)
 
-    cmd: list[str] = ["ansible-playbook", "-i", inventory, playbook_path]
+    cmd: list[str] = [ansible_playbook, "-i", inventory, playbook_path]
 
     if limit:
         cmd.extend(["-l", limit])
@@ -95,7 +169,7 @@ def run_ansible_playbook(
     if diff:
         cmd.append("--diff")
 
-    if modes.get("MODE_DEBUG", False):
+    if modes.get("DEBUG", False):
         verbose = max(verbose, 3)
 
     if verbose:
@@ -130,6 +204,7 @@ def run_ansible_playbook(
             log_path=ansible_log_path,
             log_byte_offset=log_offset_before,
             deployed_role_ids=allowed_applications,
+            runtime=detect_runtime(),
         )
         if not ok:
             print(

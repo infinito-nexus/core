@@ -17,11 +17,13 @@ RUN rm -rf /var/lib/apt/lists/* \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir --break-system-packages \
-    python3-saml==1.16.0 \
-    oauthlib==3.2.2 \
-    requests-oauthlib==2.0.0 \
-    PyJWT==2.9.0
+COPY pip/ /tmp/pip/
+
+RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/pip/requirements.txt
+
+RUN pip3 install --no-cache-dir --break-system-packages --no-deps \
+    -r /tmp/pip/requirements-no-deps.txt \
+    && rm -rf /tmp/pip
 
 RUN mkdir -p /var/log/odoo && \
     chown -R odoo:odoo /var/log/odoo

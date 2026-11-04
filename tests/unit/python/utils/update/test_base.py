@@ -73,7 +73,7 @@ class TestIsMaintained(unittest.TestCase):
             self.assertFalse(is_maintained(roles_root, "web-app-demo"))
 
     def test_every_other_stage_is_maintained(self) -> None:
-        for stage in ("pre-alpha", "beta", "maintenance", "deprecated"):
+        for stage in ("pre-alpha", "beta", "stable", "deprecated"):
             with self.subTest(stage=stage), tempfile.TemporaryDirectory() as tmp:
                 roles_root = self._roles(tmp, f"demo:\n  lifecycle: {stage}\n")
 

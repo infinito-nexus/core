@@ -1,0 +1,333 @@
+name: "🤖 Test: Agents SaaS"
+
+on:
+  workflow_call:
+    inputs:
+      distros:
+        description: "🐧 Space-separated distro pool the matrix spreads its rows over. Empty: every declared distro."
+        required: false
+        type: string
+        default: ""
+      index:
+        description: "Chunk index this call deploys; chunks run serially, one block per index."
+        required: false
+        type: string
+        default: "0"
+      sweep:
+        description: "Sweep number driving the mode and network rotation and the regular-line offset."
+        required: false
+        type: string
+        default: "0"
+      offset:
+        description: "Regular rows to skip before filling the chunks; 0 starts at the head of the ranking."
+        required: false
+        type: string
+        default: "0"
+      chunk_size:
+        description: "Rows one chunk holds; 0 derives it from the runner slots and the queue window."
+        required: false
+        type: string
+        default: "0"
+      whitelist:
+        description: "Optional space-separated whitelist of app ids. Empty: diff vs origin/main. '__ALL__': every app."
+        required: false
+        type: string
+        default: ""
+      priority:
+        description: "Optional space-separated app ids for the priority line."
+        required: false
+        type: string
+        default: ""
+      lifecycles:
+        description: "Lifecycle envelope for discovery (comma/space-separated)."
+        required: false
+        type: string
+        default: ""
+      modes:
+        description: "Deploy modes rows may be drawn from. SaaS integration runs compose with local models only."
+        required: false
+        type: string
+        default: "compose"
+      filesystem:
+        description: "🗄️ Space-separated filesystem pool the matrix spreads its rows over (ext4, btrfs, zfs). Empty: all three."
+        required: false
+        type: string
+        default: ""
+      architectures:
+        description: "🏗️ Space-separated architecture pool the matrix spreads its rows over (amd64, arm64). Empty: both."
+        required: false
+        type: string
+        default: ""
+      network:
+        required: false
+        type: string
+        default: auto
+      vpn:
+        required: false
+        type: string
+        default: auto
+  workflow_dispatch:
+    inputs:
+      whitelist:
+        description: "🎯 Apps to integrate. Empty: diff vs origin/main. '__ALL__': every app."
+        required: false
+        type: string
+        default: "__ALL__"
+      priority:
+        description: "⭐ Apps to integrate first."
+        required: false
+        type: string
+        default: ""
+      distros:
+        description: "🐧 Distro pool the matrix spreads its rows over. Empty: every declared distro."
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  INFINITO_DISTROS: ${{ inputs.distros }}
+  NIX_CONFIG: |
+    access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+  INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+  INFINITO_GHCR_MIRROR_PREFIX: mirror
+  INFINITO_APP_DISCOVERY_RUNNER: host
+  INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
+  INFINITO_ARCHITECTURES: ${{ inputs.architectures }}
+  INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
+  INFINITO_DISCOVERY_SEED: ${{ github.run_id }}
+
+jobs:
+  discover:
+    name: 🔍 SaaS matrix chunk ${{ inputs.index }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    outputs:
+      apps: ${{ steps.discover.outputs.apps }}
+
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: 📦 Install jq
+        shell: bash
+        run: ./scripts/install/apt.sh jq
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: |
+          make install-force
+          # shellcheck source=/dev/null
+          source scripts/meta/env/load.sh
+          echo "${VENV}/bin" >> "${GITHUB_PATH}"
+
+      - name: 🔍 Resolve effective whitelist (diff vs origin/main)
+        id: resolve_wl
+        shell: bash
+        env:
+          INPUT_WHITELIST: ${{ inputs.whitelist }}
+        run: ./scripts/github/resolve/effective_whitelist.sh
+
+      - name: 🔍 Discover the chunk's rows
+        id: discover
+        shell: bash
+        env:
+          INFINITO_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
+          INFINITO_PRIORITY: ${{ inputs.priority }}
+          INFINITO_MODES: ${{ inputs.modes }}
+          INFINITO_NETWORK: ${{ inputs.network }}
+          INFINITO_VPN: ${{ inputs.vpn }}
+          INFINITO_CI_SWEEP: ${{ inputs.sweep }}
+          INFINITO_CI_CHUNK: ${{ inputs.index }}
+          INFINITO_CI_OFFSET: ${{ inputs.offset }}
+          INFINITO_CI_CHUNK_SIZE: ${{ inputs.chunk_size }}
+        run: ./scripts/github/resolve/output_apps.sh
+
+  integrate:
+    name: "🤖 ${{ matrix.label }} + agents"
+    if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 355
+    needs: discover
+
+    concurrency:
+      group: "infinito-agents-saas-${{ matrix.mode }}-${{ matrix.distro }}-${{ matrix.filesystem }}-${{ matrix.apps }}#${{ matrix.variant }}"
+      cancel-in-progress: false
+      queue: max
+
+    strategy:
+      fail-fast: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
+      matrix:
+        include: ${{ fromJson(needs.discover.outputs.apps) }}
+
+    env:
+      APP_ID: ${{ matrix.apps }}
+      INFINITO_DEPLOY_MODE: ${{ matrix.mode }}
+      INFINITO_DISTROS: ${{ matrix.distro }}
+      INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
+      INFINITO_DOCKER_FILESYSTEM_PICK: ${{ matrix.filesystem }}
+      INFINITO_DOCKER_FILESYSTEM_ENFORCED: ${{ matrix.enforce_filesystem }}
+      INFINITO_ARCHITECTURE: ${{ matrix.architecture }}
+      RESCHED_TIMEOUT: "120"
+
+    steps:
+      - name: 🧹 Free disk space
+        if: ${{ !env.ACT }}
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: "⬇️ Checkout"
+        if: ${{ !env.ACT }}
+        uses: actions/checkout@v7.0.0
+
+      - name: "🏗️ Confirm the runner is the assigned architecture"
+        shell: bash
+        run: ./scripts/github/runner/assert_architecture.sh
+
+      - name: "📥 Load rescue-diagnostics SPOT into job env"
+        shell: bash
+        run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
+
+      - name: 💾 Enlarge swap space
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/enlarge_swap.sh
+
+      - name: 📦 Relocate Docker data-root onto /mnt when roomier
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/relocate_docker_dataroot.sh
+
+      - name: 🛡️ Tear down host AppArmor profiles (dev-host parity)
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: make security-apparmor-teardown
+
+      - name: 🔍 Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: 📦 Install jq and iproute2
+        shell: bash
+        run: ./scripts/install/apt.sh jq iproute2
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: |
+          make install-force
+          # shellcheck source=/dev/null
+          source scripts/meta/env/load.sh
+          echo "${VENV}/bin" >> "${GITHUB_PATH}"
+
+      - name: 📦 Preseed large images (Ollama) by host pull and load
+        shell: bash
+        run: make agents-preseed
+
+      - name: 🐳 Deploy the agents bundle (local models behind LiteLLM)
+        timeout-minutes: 240
+        shell: bash
+        run: make compose-deploy bundles=agents
+
+      - name: "🚀 Deploy ${{ matrix.apps }} onto the agents bundle"
+        timeout-minutes: 240
+        shell: bash
+        run: |
+          set -euo pipefail
+          make compose-deploy mode=update apps='${{ matrix.apps }}' variant='${{ matrix.variant }}' 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
+
+      - name: "🎭 Run every Playwright spec of ${{ matrix.apps }}"
+        timeout-minutes: 90
+        shell: bash
+        run: make compose-playwright role='${{ matrix.apps }}'
+
+      - name: 🧪 Run every agent scenario
+        timeout-minutes: 120
+        shell: bash
+        run: |
+          set -euo pipefail
+          make agents-verify mode='${{ matrix.mode }}' 2>&1 | tee "/tmp/agents-verify-${{ matrix.apps }}.log"
+
+      - name: 📊 Result table (id, mode, result, duration, log)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="/tmp/agents-verify-${{ matrix.apps }}.log"
+          if [ -f "${log}" ]; then
+            cat "${log}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No agents-verify result table for ${{ matrix.apps }}; the run never reached the scenario stage." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: "📋 Playwright step summary"
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 utils/github/playwright_summary.py \
+            /tmp/playwright-artifacts \
+            "${{ matrix.apps }}" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 🩺 Dump runner state (on failure)
+        if: ${{ failure() }}
+        timeout-minutes: 5
+        shell: bash
+        run: ./scripts/github/runner/dump_state.sh "post-integration failure (${{ matrix.apps }})"
+
+      - name: "⬆️ Upload Playwright artifacts"
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: playwright-agents-${{ matrix.artifact }}
+          path: /tmp/playwright-artifacts/
+          if-no-files-found: ignore
+
+      - name: ⬆️ Upload agents-verify logs
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: agents-verify-${{ matrix.artifact }}
+          path: /tmp/agents-verify-${{ matrix.apps }}.log
+          if-no-files-found: ignore
+
+      - name: "⬆️ Upload rescue diagnostics"
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: rescue-diagnostics-agents-${{ matrix.artifact }}
+          path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
+          if-no-files-found: ignore

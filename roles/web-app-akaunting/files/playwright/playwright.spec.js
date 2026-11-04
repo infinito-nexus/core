@@ -3,4 +3,5 @@ require("./test-oidc-login");
 require("./test-guest-persona");
 require("./test-biber-persona");
 require("./test-administrator-persona");
+require("./test-design");
 require("./test-seaweedfs");

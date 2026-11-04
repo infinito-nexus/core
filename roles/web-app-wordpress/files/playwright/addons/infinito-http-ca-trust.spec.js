@@ -25,7 +25,7 @@ test("addon infinito-http-ca-trust: the CA-trust mu-plugin is loaded by WordPres
 
     await gotoOnion(
       page,
-      `${shared.env.wpBaseUrl}/wp-admin/plugins.php?plugin_status=mustuse`,
+      shared.wpPluginsScreenUrl("?plugin_status=mustuse"),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
 

@@ -1,0 +1,20 @@
+---
+- services:
+    docs:
+      enabled: true
+      shared: true
+    ldap:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+
+- services:
+    docs:
+      enabled: false
+      shared: false
+    ldap:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false

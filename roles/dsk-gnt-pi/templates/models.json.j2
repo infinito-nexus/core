@@ -1,0 +1,7 @@
+{% set entries = [] %}
+{% for alias in agnt_pi_models %}
+{% set _ = entries.append({"id": alias}) %}
+{% endfor %}
+{% set litellm = {"baseUrl": agnt_pi_gateway_url ~ "/v1", "api": "openai-completions", "apiKey": agnt_pi_gateway_key, "models": entries} %}
+{% set providers = agnt_pi_existing_models.get('providers', {}) | combine({"litellm": litellm}) %}
+{{ agnt_pi_existing_models | combine({"providers": providers}) | to_nice_json }}

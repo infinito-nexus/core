@@ -14,10 +14,8 @@ const { resolveTimeout } = require("./timeouts");
 // login (and immediately log out again) in an isolated context.
 
 exports.register = function (shared) {
-  test("friendica: anonymous visitor can view biber's public profile", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-
-    await shared.provisionBiberAccount(browser);
+  async function viewProfileAnonymously(browser, login) {
+    await shared.provisionBiberAccount(browser, login);
 
     const baseUrl = shared.trimmedBaseUrl();
     const profileUrl = `${baseUrl}/profile/${shared.env.biberUsername}`;
@@ -60,5 +58,17 @@ exports.register = function (shared) {
     } finally {
       await anonContext.close().catch(() => {});
     }
+  }
+
+  test("guest: views biber's public friendica profile without signing in", async ({ browser }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceDisabled("sso");
+    await viewProfileAnonymously(browser, shared.loginViaFriendicaDirect);
+  });
+
+  test("guest: views biber's public friendica profile past the oauth2-proxy gate without signing in", async ({ browser }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceEnabled("sso");
+    await viewProfileAnonymously(browser, shared.loginViaOauth2ProxyAndFriendica);
   });
 };

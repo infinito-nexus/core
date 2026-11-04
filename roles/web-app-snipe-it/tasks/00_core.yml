@@ -12,12 +12,27 @@
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
     webserver_location_extra_configuration: 'proxy_set_header {{ SNIPE_IT_SSO_PROXY_HEADER }} "{{ SNIPE_IT_SSO_PROXY_SECRET }}";'
+
+- name: "📦 Stage the sign-in role mapping package into the build context"
+  stack_host_copy:
+    src: "php/{{ SNIPE_IT_LOGIN_RBAC_CONTEXT }}/"
+    dest: "{{ SNIPE_IT_LOGIN_RBAC_BUILD_DIR }}/"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🐳 Build and start {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
 
 - name: "👔 Snipe-IT manager-side operations (container exec)"
   include_tasks: 01_install/manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🛂 Converge the Snipe-IT accounts to the RBAC role groups"
+  include_tasks: 06_rbac.yml
 
 - name: "🔌 Serve MCP from {{ application_id }}"
   ansible.builtin.include_tasks: utils/mcp.yml

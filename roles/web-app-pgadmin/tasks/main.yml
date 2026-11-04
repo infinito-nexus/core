@@ -1,4 +1,14 @@
 ---
+- name: "🛑 Refuse desktop mode while pgAdmin signs users in through Keycloak"
+  ansible.builtin.assert:
+    that:
+      - not (PGADMIN_SERVER_MODE | bool)
+    fail_msg: >-
+      services.pgadmin.server_mode switches pgAdmin to desktop mode, which has no
+      login at all; with SSO the role no longer puts an oauth2-proxy gate in front,
+      so desktop mode would expose every server to anyone who reaches the domain.
+  when: PGADMIN_OIDC_ENABLED | bool
+
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
@@ -6,3 +16,12 @@
 - name: "🔧 configure pgadmin servers"
   include_tasks: configuration.yml
   when: PGADMIN_SERVER_MODE | bool
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🖥️ pgAdmin stack-host post-deploy (administrator realign)"
+  include_tasks: manager_ops.yml
+  when:
+    - IS_STACK_HOST | bool
+    - not PGADMIN_SERVER_MODE | bool

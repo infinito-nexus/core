@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from utils.annotations.suppress import (
+    has_rule_with_reason,
     is_suppressed_anywhere,
     is_suppressed_at,
     is_suppressed_in_head,
@@ -61,6 +62,56 @@ class TestIsSuppressedAt(unittest.TestCase):
         lines = ["# noqa: email", "", "", "email:"]
         self.assertTrue(is_suppressed_at(lines, 4, "email", mode="line-above"))
 
+    def test_block_above_reaches_past_a_later_annotation(self):
+        """A gettext entry stacks comments; the newest one lands closest.
+
+        ``translate.py`` appends ``translated-by`` when it fills an entry,
+        which pushes an older marker one line further from the msgid. Under
+        ``line-above`` the marker would silently stop working.
+        """
+        lines = [
+            "# nocheck: url",
+            "# translated-by: libretranslate",
+            'msgid "see https://example.invalid/"',
+        ]
+        self.assertTrue(is_suppressed_at(lines, 3, "url", mode="block-above"))
+        self.assertFalse(is_suppressed_at(lines, 3, "url", mode="line-above"))
+
+    def test_block_above_covers_the_translation_too(self):
+        """A gettext entry repeats the URL in msgid and msgstr.
+
+        Only the msgid follows the comments; the msgstr follows the msgid.
+        A marker that stopped at the first non-comment line would leave the
+        translation unguarded.
+        """
+        lines = [
+            "# nocheck: url",
+            "# translated-by: libretranslate",
+            'msgid "see https://example.invalid/"',
+            'msgstr "siehe https://example.invalid/"',
+        ]
+        self.assertTrue(is_suppressed_at(lines, 3, "url", mode="block-above"))
+        self.assertTrue(is_suppressed_at(lines, 4, "url", mode="block-above"))
+
+    def test_block_above_stops_at_the_blank_line_between_entries(self):
+        lines = [
+            "# nocheck: url",
+            'msgid "guarded"',
+            'msgstr ""',
+            "",
+            'msgid "see https://example.invalid/"',
+            'msgstr ""',
+        ]
+        self.assertFalse(is_suppressed_at(lines, 5, "url", mode="block-above"))
+
+    def test_block_above_accepts_the_marker_directly_above(self):
+        lines = ["# nocheck: url", 'msgid "see https://example.invalid/"']
+        self.assertTrue(is_suppressed_at(lines, 2, "url", mode="block-above"))
+
+    def test_block_above_accepts_the_marker_on_the_line_itself(self):
+        lines = ['msgid "see https://example.invalid/"  # nocheck: url']
+        self.assertTrue(is_suppressed_at(lines, 1, "url", mode="block-above"))
+
     def test_default_mode_accepts_either(self):
         same = ["foo  # nocheck: url"]
         above = ["# nocheck: url", "foo"]
@@ -100,6 +151,70 @@ class TestSuppressedLineNumbers(unittest.TestCase):
         ]
         self.assertEqual(suppressed_line_numbers(lines, "url"), {2, 3})
         self.assertEqual(suppressed_line_numbers(lines, "shared"), {4})
+
+
+class TestHasRuleWithReason(unittest.TestCase):
+    """An exemption that has to say why, written above the value it exempts."""
+
+    def test_both_markers_on_the_value_line(self) -> None:
+        lines = ["  min_storage: 20GB  # nocheck: rule-x  Reason: the volume"]
+
+        self.assertTrue(has_rule_with_reason(lines, 1, "rule-x"))
+
+    def test_both_markers_in_the_comment_block_above(self) -> None:
+        lines = [
+            "  # nocheck: rule-x",
+            "  # Reason: the data volume dominates",
+            "  min_storage: 20GB",
+        ]
+
+        self.assertTrue(has_rule_with_reason(lines, 3, "rule-x"))
+
+    def test_the_marker_order_does_not_matter(self) -> None:
+        lines = [
+            "  # Reason: the data volume dominates",
+            "  # nocheck: rule-x",
+            "  min_storage: 20GB",
+        ]
+
+        self.assertTrue(has_rule_with_reason(lines, 3, "rule-x"))
+
+    def test_a_marker_without_a_reason_is_refused(self) -> None:
+        lines = ["  # nocheck: rule-x", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_a_reason_without_the_marker_is_refused(self) -> None:
+        lines = ["  # Reason: the data volume dominates", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_an_empty_reason_is_refused(self) -> None:
+        lines = ["  # nocheck: rule-x  Reason:", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_another_rules_marker_does_not_count(self) -> None:
+        lines = ["  # nocheck: rule-y  Reason: something else", "  min_storage: 20GB"]
+
+        self.assertFalse(has_rule_with_reason(lines, 2, "rule-x"))
+
+    def test_a_blank_line_ends_the_comment_block(self) -> None:
+        lines = [
+            "  # nocheck: rule-x  Reason: the data volume dominates",
+            "",
+            "  min_storage: 20GB",
+        ]
+
+        self.assertFalse(
+            has_rule_with_reason(lines, 3, "rule-x"),
+            "a marker separated by a blank line belongs to the construct above it",
+        )
+
+    def test_a_line_number_outside_the_file_is_refused(self) -> None:
+        for line_no in (0, 5):
+            with self.subTest(line_no=line_no):
+                self.assertFalse(has_rule_with_reason(["x"], line_no, "rule-x"))
 
 
 if __name__ == "__main__":

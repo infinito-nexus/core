@@ -1,4 +1,8 @@
 ---
 roles:
+  developer:
+    description: Can create, configure, build and delete jobs, without access to the Jenkins management pages
+  viewer:
+    description: Can read jobs, builds and their logs
   mcp:
     description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own

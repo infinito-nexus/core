@@ -1,0 +1,9 @@
+location = {{ JITSI_DESIGN_BRANDING_URL }} {
+    alias /config/{{ JITSI_DESIGN_BRANDING_FILE }};
+    default_type application/json;
+    add_header Cache-Control "no-cache";
+}
+
+location = /title.html {
+    alias /config/{{ JITSI_DESIGN_TITLE_FILE }};
+}

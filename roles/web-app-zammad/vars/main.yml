@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-zammad"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 ZAMMAD_PRECHECK_SERVICE: "precheck"
 ZAMMAD_INIT_SERVICE: "init"
@@ -34,18 +34,27 @@ ZAMMAD_SEARCH_READY_SECONDS: 600
 ZAMMAD_SEARCH_POLL_SECONDS: 5
 ZAMMAD_SEARCH_ALLOCATION_TIMEOUT_SECONDS: 60
 
-# Exception: env.j2 must never set DATABASE_URL. The image's config/pre_initializers/database_url.rb
-# builds it from POSTGRESQL_* only while DATABASE_URL is blank, so presetting it drops
-# POSTGRESQL_OPTIONS and Rails falls back to its default pool of 5, below the thread count
-# BackgroundServices starts in the scheduler.
 ZAMMAD_DB_POOL: 50
 
+ZAMMAD_ADMINISTRATOR: "{{ lookup('users', 'platform_administrator') }}"
 ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
 ZAMMAD_WIZARD_BYPASS_USER: "{{ lookup('users', 'zammad-wizard-bypass-admin') }}"
 ZAMMAD_API_BOT_PASSWORD: "{{ ZAMMAD_API_BOT_USER.password }}"
 ZAMMAD_WIZARD_BYPASS_PASSWORD: "{{ ZAMMAD_WIZARD_BYPASS_USER.password }}"
 ZAMMAD_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.initial_admin_password') }}"
 ZAMMAD_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'secrets.credentials.secret_key_base') }}"
+
+ZAMMAD_PRODUCT_NAME: "{{ SOFTWARE_NAME }} Helpdesk"
+ZAMMAD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+ZAMMAD_DESIGN_LOGO_ENABLED: "{{ ZAMMAD_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+ZAMMAD_DESIGN_TITLE: "{{ lookup('design', application_id).title if ZAMMAD_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+ZAMMAD_DESIGN_DEFAULT_NAMES:
+  - "Zammad Helpdesk"
+  - "{{ ZAMMAD_PRODUCT_NAME }}"
+ZAMMAD_DESIGN_BRAND_FILE: "{{ [lookup('design', application_id).dest, 'brand.svg'] | path_join }}"
+ZAMMAD_DESIGN_BRAND_URL: "{{ lookup('design', application_id).urls.brand.svg if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
+ZAMMAD_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.svg if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
+ZAMMAD_DESIGN_FAVICON_URL: "{{ lookup('design', application_id).urls.favicon_ico if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
 
 ZAMMAD_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ZAMMAD_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
@@ -60,14 +69,63 @@ ZAMMAD_TELEGRAM_HELPER_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}telegram_helper.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
 
 ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_http_discovery.rb"
-ZAMMAD_OIDC_GROUP_ROLE_MAP:
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/customer": "Customer"
+ZAMMAD_NETWORK_ORIGINS_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_network_origins.rb"
+ZAMMAD_NETWORK_BASE_URLS: "{{ lookup('network_urls', lookup('tls', application_id, 'url.base')) }}"
+ZAMMAD_RBAC_ROLE_GRANTS:
+  administrator: ["Admin", "Agent"]
+  agent: ["Agent"]
+  customer: ["Customer"]
+ZAMMAD_OIDC_GROUP_ROLE_MAP: >-
+  {{ {
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ZAMMAD_RBAC_ROLE_GRANTS.administrator,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='agent'): ZAMMAD_RBAC_ROLE_GRANTS.agent,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ZAMMAD_RBAC_ROLE_GRANTS.customer,
+     } }}
+ZAMMAD_OIDC_SCOPE: "openid email profile phone address"
+ZAMMAD_OIDC_PROFILE_CLAIMS:
+  firstname: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
+  lastname: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
+  email: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+  phone: "{{ OIDC.ATTRIBUTES.PHONE_NUMBER }}"
+ZAMMAD_OIDC_ADDRESS_FIELDS:
+  street: "{{ OIDC.ADDRESS_CLAIMS.STREET }}"
+  zip: "{{ OIDC.ADDRESS_CLAIMS.POSTAL_CODE }}"
+  city: "{{ OIDC.ADDRESS_CLAIMS.LOCALITY }}"
+  country: "{{ OIDC.ADDRESS_CLAIMS.COUNTRY }}"
+ZAMMAD_LDAP_GROUP_ROLE_MAP: >-
+  {{ {
+       'cn=' ~ application_id ~ '-administrator,' ~ LDAP.DN.OU.ROLES: ZAMMAD_RBAC_ROLE_GRANTS.administrator,
+       'cn=' ~ application_id ~ '-agent,' ~ LDAP.DN.OU.ROLES: ZAMMAD_RBAC_ROLE_GRANTS.agent,
+       'cn=' ~ application_id ~ '-customer,' ~ LDAP.DN.OU.ROLES: ZAMMAD_RBAC_ROLE_GRANTS.customer,
+     } }}
+ZAMMAD_LDAP_GROUP_FILTER: "(|{% for flavor in LDAP.RBAC.FLAVORS %}(objectClass={{ flavor }}){% endfor %})"
+ZAMMAD_LDAP_USER_ATTRIBUTES: >-
+  {{ {
+       LDAP.USER.ATTRIBUTES.ID: 'login',
+       LDAP.USER.ATTRIBUTES.FIRSTNAME: 'firstname',
+       LDAP.USER.ATTRIBUTES.SURNAME: 'lastname',
+       LDAP.USER.ATTRIBUTES.MAIL: 'email',
+       LDAP.USER.ATTRIBUTES.PHONE: 'phone',
+       LDAP.USER.ATTRIBUTES.MOBILE: 'mobile',
+       LDAP.USER.ATTRIBUTES.DEPARTMENT: 'department',
+       LDAP.USER.ATTRIBUTES.STREET: 'street',
+       LDAP.USER.ATTRIBUTES.POSTAL_CODE: 'zip',
+       LDAP.USER.ATTRIBUTES.LOCALITY: 'city',
+       LDAP.USER.ATTRIBUTES.COUNTRY: 'country',
+       LDAP.USER.ATTRIBUTES.DESCRIPTION: 'note',
+     } }}
 
 ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
 ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
+ZAMMAD_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+ZAMMAD_LOGIN_SSO: "{{ lookup('config', application_id, 'services.zammad.login.method.sso.enabled') | bool }}"
+ZAMMAD_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.zammad.login.method.ldap.enabled') | bool }}"
+ZAMMAD_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.zammad.login.method.native.enabled') | bool }}"
+ZAMMAD_LOGIN_2FA: "{{ lookup('config', application_id, 'services.zammad.login.method.2fa.enabled') | bool }}"
+ZAMMAD_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.zammad.login.method.registration.enabled') | bool }}"
+ZAMMAD_LOGIN_FORM: "{{ ZAMMAD_LOGIN_NATIVE | bool or ZAMMAD_LOGIN_LDAP | bool }}"
 
 ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
@@ -98,6 +156,12 @@ ZAMMAD_MCP_UPSTREAM_PASSWORD: "{{ ZAMMAD_MCP_ACCOUNT.password }}"
 ZAMMAD_MCP_UPSTREAM_TOKEN_LABEL: "infinito-mcp"
 ZAMMAD_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 ZAMMAD_MCP_UPSTREAM_AUTH_FORMAT: "Token token={key}"
+
+ZAMMAD_ACCESS_REQUEST_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
+ZAMMAD_ACCESS_REQUEST_ACCOUNT: "{{ lookup('users', 'access-request-zammad') }}"
+ZAMMAD_ACCESS_REQUEST_GROUP: "{{ lookup('config', 'web-svc-access-request', 'services.access-request.zammad_group') }}"
+ZAMMAD_ACCESS_REQUEST_TOKEN: "{{ lookup('config', 'web-svc-access-request', 'secrets.credentials.zammad_api_token') }}"
+ZAMMAD_ACCESS_REQUEST_TOKEN_LABEL: "infinito-access-request"
 
 ZAMMAD_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 ZAMMAD_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"

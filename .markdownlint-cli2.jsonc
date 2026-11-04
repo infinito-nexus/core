@@ -29,6 +29,6 @@
     ".github/PULL_REQUEST_TEMPLATE/**",
     ".agents/**",
     ".claude/**",
-    "skills/**"
+    "agents/skills/**"
   ]
 }

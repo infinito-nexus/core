@@ -1,0 +1,37 @@
+---
+- name: "🧾 Set the signup scope to the registration login method"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
+    named_args:
+      key: "auth_signup.invitation_scope"
+      value: "{{ ODOO_SIGNUP_SCOPE }}"
+
+- name: "🧾 Set the uninvited signup of every website to the registration method"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/website-signup-scope.sql"
+    named_args:
+      scope: "{{ ODOO_SIGNUP_SCOPE }}"
+
+- name: "🔑 Set the password reset to the native login method"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
+    named_args:
+      key: "auth_signup.reset_password"
+      value: "{{ 'True' if ODOO_LOGIN_NATIVE | bool else 'False' }}"
+
+- name: "📁 Remove the LDAP sign-in while the ldap login method is off"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/delete/res-company-ldap.sql"
+    named_args:
+      ldap_server: "{{ ODOO_LDAP_CONFIG.ldap_server }}"
+  when:
+    - ODOO_LDAP_ENABLED | bool
+    - not (ODOO_LOGIN_LDAP | bool)

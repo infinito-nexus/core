@@ -2,6 +2,7 @@
 
 Args (module global, prepended on stdin by lookup('http_request_program')):
     BODY_B64: base64 of the JSON request body; an empty body sends none.
+    HEADERS_B64: base64 of a JSON object of extra request headers.
 
 Args (environment):
     HTTP_METHOD: request method.
@@ -21,10 +22,12 @@ import urllib.error
 import urllib.request
 
 body = base64.b64decode(globals()["BODY_B64"]).decode()
+headers = {"Content-Type": "application/json"} if body else {}
+headers.update(json.loads(base64.b64decode(globals()["HEADERS_B64"]).decode()))
 request = urllib.request.Request(  # noqa: S310 - caller-fixed http:// URL inside the app's own namespace
     os.environ["HTTP_URL"],
     data=body.encode() if body else None,
-    headers={"Content-Type": "application/json"} if body else {},
+    headers=headers,
     method=os.environ["HTTP_METHOD"],
 )
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))

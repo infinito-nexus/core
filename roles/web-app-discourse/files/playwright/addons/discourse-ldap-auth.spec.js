@@ -54,7 +54,7 @@ function settingValue(settings, name) {
   return String(found.value);
 }
 
-test("discourse-ldap-auth: LDAP auth plugin binds Discourse to the distinct LDAP partner directory", async ({ page }) => {
+test("administrator: discourse-ldap-auth plugin binds Discourse to the distinct LDAP partner directory", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-ldap-auth");
   skipUnlessServiceEnabled("ldap");
   test.setTimeout(resolveTimeout(120_000));
@@ -94,8 +94,8 @@ test("discourse-ldap-auth: LDAP auth plugin binds Discourse to the distinct LDAP
 
     expect(
       settingValue(settings, "ldap_auth_enabled").toLowerCase(),
-      "ldap_auth_enabled must be active (LDAP auth plugin installed and turned on)",
-    ).toBe("true");
+      "ldap_auth_enabled must follow login.method.ldap: off under SSO, where LDAP accounts sign in through the Keycloak federation",
+    ).toBe(String(process.env.LOGIN_METHOD_LDAP_ENABLED === "true"));
 
     expect(
       settingValue(settings, "ldap_sync_enabled").toLowerCase(),

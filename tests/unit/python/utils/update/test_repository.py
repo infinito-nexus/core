@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
+from utils.update import repository as module
 from utils.update.repository import (
     RepositoryRefEntry,
     RepositoryRefUpdate,
     apply_updates,
     collect_entries,
+    find_outdated_updates,
+    git_ls_remote_head,
+    is_commit_sha,
     suppressed_ref_lines,
     update_config_refs,
     walk_repo_ref_pairs,
@@ -313,6 +319,260 @@ class TestCollectEntriesCoversAddons(unittest.TestCase):
             )
 
             self.assertEqual(collect_entries(root), [])
+
+
+OLD_SHA = "c623b753" * 5
+TIP_SHA = "0f4e2a9c" * 5
+SHA_REPO = "https://example.test/oidc.git"
+TAG_REPO = "https://example.test/app.git"
+
+
+class _LsRemote:
+    """Stand-in for ``subprocess.run`` answering ``git ls-remote``.
+
+    Args:
+        heads: default-branch tip per repository URL.
+        tags: tag names per repository URL.
+        returncode: exit status every call reports.
+    """
+
+    def __init__(
+        self,
+        heads: dict[str, str] | None = None,
+        tags: dict[str, list[str]] | None = None,
+        returncode: int = 0,
+    ) -> None:
+        self.heads = heads or {}
+        self.tags = tags or {}
+        self.returncode = returncode
+        self.calls: list[tuple[str, ...]] = []
+
+    def __call__(self, argv: list[str], **_kwargs) -> subprocess.CompletedProcess:
+        args = tuple(argv[2:])
+        self.calls.append(args)
+        if args[0] == "--tags":
+            stdout = "".join(
+                f"{'1' * 40}\trefs/tags/{tag}\n" for tag in self.tags.get(args[1], [])
+            )
+        else:
+            head = self.heads.get(args[0])
+            stdout = f"{head}\tHEAD\n" if head else ""
+        return subprocess.CompletedProcess(argv, self.returncode, stdout, "")
+
+
+def _write_role(
+    root: Path, services: str, addons: dict[str, str] | None = None
+) -> Path:
+    role = root / "roles" / "web-app-example"
+    (role / ROLE_DIR_META_ADDONS).mkdir(parents=True)
+    config = role / ROLE_FILE_META_SERVICES
+    config.write_text(services, encoding="utf-8")
+    for stem, body in (addons or {}).items():
+        (role / ROLE_DIR_META_ADDONS / f"{stem}.yml").write_text(body, encoding="utf-8")
+    return config
+
+
+def _find(root: Path, ls_remote: _LsRemote) -> list[RepositoryRefUpdate]:
+    with (
+        mock.patch.object(module, "resolve_max_fetch_workers", return_value=2),
+        mock.patch.object(module.subprocess, "run", side_effect=ls_remote),
+    ):
+        return find_outdated_updates(root)
+
+
+SHA_PINNED = (
+    "sso:\n"
+    "  oidc:\n"
+    f"    repository: {SHA_REPO}\n"
+    f'    ref: "{OLD_SHA}"  # pinned commit\n'
+)
+
+ADDON_SHAPED = (
+    "---\n"
+    "enabled: true\n"
+    "mechanism: plugin\n"
+    "source: upstream\n"
+    "update:\n"
+    "  monitored: true\n"
+    "  catalog: discourse-meta\n"
+    "  upstream_id: docker_manager\n"
+    "config:\n"
+    f"  repository: {SHA_REPO}\n"
+    f"  ref: {OLD_SHA}\n"
+)
+
+
+class TestIsCommitSha(unittest.TestCase):
+    def test_only_a_full_lowercase_sha_counts(self) -> None:
+        self.assertTrue(is_commit_sha(OLD_SHA))
+        self.assertFalse(is_commit_sha(OLD_SHA[:7]))
+        self.assertFalse(is_commit_sha(OLD_SHA + "0"))
+        self.assertFalse(is_commit_sha("main"))
+        self.assertFalse(is_commit_sha("v1.0.0"))
+
+
+class TestGitLsRemoteHead(unittest.TestCase):
+    def test_returns_the_head_commit(self) -> None:
+        ls_remote = _LsRemote(heads={SHA_REPO: TIP_SHA})
+        with mock.patch.object(module.subprocess, "run", side_effect=ls_remote):
+            self.assertEqual(git_ls_remote_head(SHA_REPO), TIP_SHA)
+        self.assertEqual(ls_remote.calls, [(SHA_REPO, "HEAD")])
+
+    def test_a_failed_lookup_returns_none(self) -> None:
+        for failure in (
+            _LsRemote(heads={SHA_REPO: TIP_SHA}, returncode=128),
+            subprocess.TimeoutExpired(["git"], 30),
+            FileNotFoundError("git"),
+        ):
+            with (
+                self.subTest(failure=type(failure).__name__),
+                mock.patch.object(module.subprocess, "run", side_effect=failure),
+            ):
+                self.assertIsNone(git_ls_remote_head(SHA_REPO))
+
+    def test_an_empty_answer_returns_none(self) -> None:
+        with mock.patch.object(module.subprocess, "run", side_effect=_LsRemote()):
+            self.assertIsNone(git_ls_remote_head(SHA_REPO))
+
+
+class TestCommitShaPins(unittest.TestCase):
+    def test_an_outdated_sha_is_rewritten_to_the_tip(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config = _write_role(root, SHA_PINNED)
+
+            updates = _find(root, _LsRemote(heads={SHA_REPO: TIP_SHA}))
+
+            self.assertEqual(
+                [(u.entry.entity_path, u.entry.ref, u.latest) for u in updates],
+                [(("sso", "oidc"), OLD_SHA, TIP_SHA)],
+            )
+            self.assertEqual(apply_updates(updates), [config])
+            written = config.read_text()  # nocheck: cache-read  just rewritten here
+            self.assertEqual(
+                written, SHA_PINNED.replace(f'"{OLD_SHA}"', f'"{TIP_SHA}"')
+            )
+
+    def test_a_current_sha_is_left_alone(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(root, SHA_PINNED)
+
+            self.assertEqual(_find(root, _LsRemote(heads={SHA_REPO: OLD_SHA})), [])
+
+    def test_short_shas_and_branches_are_skipped(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(
+                root,
+                "short:\n"
+                "  repository: https://example.test/short.git\n"
+                f"  ref: {OLD_SHA[:7]}\n"
+                "branch:\n"
+                "  repository: https://example.test/branch.git\n"
+                "  ref: main\n",
+            )
+            ls_remote = _LsRemote()
+
+            self.assertEqual(collect_entries(root), [])
+            self.assertEqual(_find(root, ls_remote), [])
+            self.assertEqual(ls_remote.calls, [])
+
+    def test_a_suppressed_sha_is_not_collected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(
+                root,
+                "app:\n"
+                f"  repository: {SHA_REPO}\n"
+                "  # nocheck: repository-version\n"
+                f"  ref: {OLD_SHA}\n",
+            )
+
+            self.assertEqual(collect_entries(root), [])
+
+    def test_a_sha_that_names_its_own_source_is_not_collected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(
+                root,
+                "app:\n"
+                f"  repository: {SHA_REPO}\n"
+                f"  ref: {OLD_SHA}\n"
+                "  update:\n"
+                "    key: ref\n"
+                "    type: script\n"
+                "    path: files/ref.sh\n",
+            )
+
+            self.assertEqual(collect_entries(root), [])
+
+    def test_a_failed_lookup_leaves_every_pin_alone(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(
+                root,
+                SHA_PINNED + f"app:\n  repository: {TAG_REPO}\n  ref: v1.0.0\n",
+            )
+            ls_remote = _LsRemote(
+                heads={SHA_REPO: TIP_SHA},
+                tags={TAG_REPO: ["v1.0.0", "v1.2.0"]},
+                returncode=128,
+            )
+
+            self.assertEqual(_find(root, ls_remote), [])
+            self.assertEqual(len(ls_remote.calls), 2)
+
+    def test_each_repository_is_queried_once_per_lookup_kind(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(
+                root,
+                SHA_PINNED + f"app:\n  repository: {TAG_REPO}\n  ref: v1.0.0\n",
+                addons={"docker_manager": ADDON_SHAPED},
+            )
+            ls_remote = _LsRemote(
+                heads={SHA_REPO: TIP_SHA},
+                tags={TAG_REPO: ["v1.0.0", "v1.2.0"]},
+            )
+
+            updates = _find(root, ls_remote)
+
+            self.assertEqual(
+                sorted(ls_remote.calls),
+                [("--tags", TAG_REPO), (SHA_REPO, "HEAD")],
+            )
+            self.assertEqual(
+                sorted((u.entry.entity_path, u.latest) for u in updates),
+                [
+                    (("addons", "docker_manager", "config"), TIP_SHA),
+                    (("app",), "v1.2.0"),
+                    (("sso", "oidc"), TIP_SHA),
+                ],
+            )
+
+
+class TestAddonConfigShaPin(unittest.TestCase):
+    def test_the_addon_config_ref_is_walked_and_rewritten(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(
+                root, "app:\n  image: nginx\n", {"docker_manager": ADDON_SHAPED}
+            )
+            addon = root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+            addon /= "docker_manager.yml"
+
+            entries = collect_entries(root)
+
+            self.assertEqual(
+                [(e.entity_path, e.ref, e.line) for e in entries],
+                [(("addons", "docker_manager", "config"), OLD_SHA, 11)],
+            )
+
+            updates = _find(root, _LsRemote(heads={SHA_REPO: TIP_SHA}))
+            self.assertEqual(apply_updates(updates), [addon])
+            written = addon.read_text()  # nocheck: cache-read  just rewritten here
+            self.assertEqual(written, ADDON_SHAPED.replace(OLD_SHA, TIP_SHA))
 
 
 if __name__ == "__main__":

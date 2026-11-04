@@ -1,8 +1,0 @@
----
-# Default variables for the pc-firefox role
-
-application_id: "desk-firefox"
-
-firefox_policy_dir: "/usr/lib/firefox/distribution"
-
-firefox_policy_file: "{{ firefox_policy_dir }}/policies.json"

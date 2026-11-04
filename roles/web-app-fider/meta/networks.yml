@@ -7,3 +7,5 @@ overlay:
   topology: shared_net
   consumer:
     kind: mcp_client
+reachability:
+  handover: true # nocheck: network-reachability  Fider loads every asset and builds its OAuth callback from its one BASE_URL, so an onion page pulls its scripts from clearnet

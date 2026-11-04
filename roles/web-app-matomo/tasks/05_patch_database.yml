@@ -2,33 +2,15 @@
 - name: "🧭 Resolve host path to config.ini.php"
   ansible.builtin.include_tasks: utils/resolve/config_host.yml
 
-- name: "🔄 Update DB host"
-  ansible.builtin.command:
-    argv:
-      - sed
-      - -i
-      - "s/^host *=.*/host = {{ lookup('database', application_id, 'host') | sed_escape('/') }}/"
-      - "{{ MATOMO_CONFIG_HOST }}"
-
-- name: "🔄 Update DB name"
-  ansible.builtin.command:
-    argv:
-      - sed
-      - -i
-      - "s/^dbname *=.*/dbname = {{ lookup('database', application_id, 'name') | sed_escape('/') }}/"
-      - "{{ MATOMO_CONFIG_HOST }}"
-
-- name: "🔄 Update DB user"
-  ansible.builtin.command:
-    argv:
-      - sed
-      - -i
-      - "s/^username *=.*/username = {{ lookup('database', application_id, 'username') | sed_escape('/') }}/"
-      - "{{ MATOMO_CONFIG_HOST }}"
-
-- name: "🔄 Update DB password"
-  ansible.builtin.shell:
-    cmd: sed -i "s/^password *=.*/password = ${PATCH_PASSWORD}/" {{ MATOMO_CONFIG_HOST | quote }}
+- name: "🔄 Update DB host, name, user and password"
+  ansible.builtin.shell: sh -s -- {{ MATOMO_CONFIG_HOST | quote }}
+  args:
+    stdin: "{{ lookup('file', 'shell/patch/database.sh') }}"
   environment:
+    PATCH_HOST: "{{ lookup('database', application_id, 'host') | sed_escape('/') }}"
+    PATCH_NAME: "{{ lookup('database', application_id, 'name') | sed_escape('/') }}"
+    PATCH_USERNAME: "{{ lookup('database', application_id, 'username') | sed_escape('/') }}"
     PATCH_PASSWORD: "{{ lookup('database', application_id, 'password') | sed_escape('/') }}"
+  register: matomo_database_patch
+  changed_when: "'PATCHED' in matomo_database_patch.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

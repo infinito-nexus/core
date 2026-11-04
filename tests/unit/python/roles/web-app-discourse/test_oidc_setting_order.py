@@ -32,6 +32,15 @@ class TestDiscourseOidcSettingOrder(unittest.TestCase):
                     "secret are set",
                 )
 
+    def test_email_override_is_set_only_after_email_editing_is_locked(self) -> None:
+        lines = read_text(str(SETTINGS)).splitlines()
+        self.assertLess(
+            _line_of(lines, "email_editable"),
+            _line_of(lines, "auth_overrides_email"),
+            "SsoOverridesEmailValidator rejects auth_overrides_email = true while "
+            "email_editable is still true",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

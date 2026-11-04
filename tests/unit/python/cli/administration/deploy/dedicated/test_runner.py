@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import io
 import json
 import subprocess
+import tempfile
 import unittest
 import unittest.mock
+from pathlib import Path
 from typing import Any
 
 from cli.administration.deploy.dedicated import runner
@@ -11,8 +14,18 @@ from cli.administration.inventory.provision.services_disabler import (
     ServicesDisabledConflictError,
 )
 
+_ANSIBLE_PLAYBOOK = "/venv/bin/ansible-playbook"
+
 
 class TestRunAnsiblePlaybook(unittest.TestCase):
+    def setUp(self) -> None:
+        patcher = unittest.mock.patch(
+            "cli.administration.deploy.dedicated.runner.deploy_ansible_playbook",
+            return_value=_ANSIBLE_PLAYBOOK,
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _fake_run_side_effect(
         self,
         calls_store: list[tuple[list[str], dict[str, Any]]],
@@ -30,7 +43,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
             calls_store.append((norm_cmd, dict(kwargs)))
 
-            if norm_cmd and norm_cmd[0] == "ansible-playbook":
+            if norm_cmd and norm_cmd[0] == _ANSIBLE_PLAYBOOK:
                 return subprocess.CompletedProcess(
                     norm_cmd,
                     ansible_rc,
@@ -56,9 +69,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": True,
-            "MODE_ASSERT": True,
-            "MODE_DEBUG": True,
+            "CLEANUP": True,
+            "VALIDATE": True,
+            "DEBUG": True,
         }
 
         inventory_path = "/etc/inventories/github-ci/devices.yml"
@@ -66,9 +79,15 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         allowed_apps = ["web-app-foo", "web-app-bar"]
         password_file = "/etc/inventories/github-ci/.password"
 
-        with unittest.mock.patch(
-            "cli.administration.deploy.dedicated.runner.assert_services_disabled_inventory_consistency_from_env"
-        ) as mock_services_disabled_guard:
+        with (
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.assert_services_disabled_inventory_consistency_from_env"
+            ) as mock_services_disabled_guard,
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.check_enabled",
+                return_value=True,
+            ),
+        ):
             runner.run_ansible_playbook(
                 repo_root=repo_root,
                 playbook_path=playbook_path,
@@ -89,7 +108,11 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         def was_called(cmd: list[str]) -> bool:
             return any(call_cmd == cmd for call_cmd, _kw in calls)
 
-        self.assertTrue(was_called(["make", "clean"]), "Expected 'make clean'")
+        self.assertFalse(
+            was_called(["make", "clean"]),
+            "CLEANUP tidies the deployed system, so it must not git-clean "
+            "the control checkout and delete the inventory being deployed",
+        )
         self.assertTrue(was_called(["make", "setup"]), "Expected 'make setup'")
 
         for call_cmd, kw in calls:
@@ -115,7 +138,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertGreaterEqual(len(calls), 1)
         last_cmd, last_kw = calls[-1]
-        self.assertEqual(last_cmd[0], "ansible-playbook")
+        self.assertEqual(last_cmd[0], _ANSIBLE_PLAYBOOK)
         self.assertEqual(last_kw.get("cwd"), repo_root)
 
         self.assertIn("-i", last_cmd)
@@ -133,7 +156,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         modes_index = len(last_cmd) - 1 - last_cmd[::-1].index("-e")
         self.assertEqual(
             json.loads(last_cmd[modes_index + 1]),
-            {"MODE_CLEANUP": True, "MODE_ASSERT": True, "MODE_DEBUG": True},
+            {"CLEANUP": True, "VALIDATE": True, "DEBUG": True},
         )
 
         self.assertIn("--vault-password-file", last_cmd)
@@ -143,7 +166,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertTrue(
             any(arg.startswith("-vvv") for arg in last_cmd),
-            "Expected at least -vvv because MODE_DEBUG=True",
+            "Expected at least -vvv because DEBUG=True",
         )
 
         self.assertNotIn("text", last_kw)
@@ -163,9 +186,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": False,
-            "MODE_ASSERT": False,
-            "MODE_DEBUG": False,
+            "CLEANUP": False,
+            "VALIDATE": False,
+            "DEBUG": False,
         }
 
         inventory_path = "/etc/inventories/github-ci/devices.yml"
@@ -176,7 +199,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
             "-e",
             "APPLICATIONS_WHITELIST=override-app",
             "-e",
-            "MODE_DEBUG=true",
+            "DEBUG=true",
         ]
 
         with unittest.mock.patch(
@@ -198,7 +221,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
             )
 
         last_cmd, _last_kw = calls[-1]
-        self.assertEqual(last_cmd[0], "ansible-playbook")
+        self.assertEqual(last_cmd[0], _ANSIBLE_PLAYBOOK)
 
         self.assertGreaterEqual(len(last_cmd), len(passthrough))
         self.assertEqual(last_cmd[-len(passthrough) :], passthrough)
@@ -221,9 +244,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": False,
-            "MODE_ASSERT": False,
-            "MODE_DEBUG": False,
+            "CLEANUP": False,
+            "VALIDATE": False,
+            "DEBUG": False,
         }
 
         with (
@@ -251,8 +274,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertTrue(
             any(
-                call_cmd and call_cmd[0] == "ansible-playbook"
-                for call_cmd, _kw in calls
+                call_cmd and call_cmd[0] == _ANSIBLE_PLAYBOOK for call_cmd, _kw in calls
             ),
             "ansible-playbook should have been invoked once in the error path",
         )
@@ -264,7 +286,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
                 any("validate/__main__.py" in part for part in call_cmd)
                 for call_cmd, _kw in calls
             ),
-            "Inventory validation should be skipped when MODE_ASSERT is False",
+            "Inventory validation should be skipped when VALIDATE is False",
         )
 
     @unittest.mock.patch("subprocess.run")
@@ -287,9 +309,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
                 inventory_validator_path="/repo/cli/administration/inventory/validate/__main__.py",
                 inventory="/etc/inventories/github-ci/devices.yml",
                 modes={
-                    "MODE_CLEANUP": False,
-                    "MODE_ASSERT": True,
-                    "MODE_DEBUG": False,
+                    "CLEANUP": False,
+                    "VALIDATE": True,
+                    "DEBUG": False,
                 },
                 limit=None,
                 allowed_applications=None,
@@ -302,8 +324,153 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertEqual(ctx.exception.code, 1)
         self.assertFalse(
-            any(call_cmd and call_cmd[0] == "ansible-playbook" for call_cmd, _ in calls)
+            any(call_cmd and call_cmd[0] == _ANSIBLE_PLAYBOOK for call_cmd, _ in calls)
         )
+
+
+class TestInventoryValidationSwitches(unittest.TestCase):
+    def setUp(self) -> None:
+        for target, kwargs in (
+            ("deploy_ansible_playbook", {"return_value": _ANSIBLE_PLAYBOOK}),
+            ("assert_services_disabled_inventory_consistency_from_env", {}),
+        ):
+            patcher = unittest.mock.patch(
+                f"cli.administration.deploy.dedicated.runner.{target}", **kwargs
+            )
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.calls: list[list[str]] = []
+
+    def _record(self, cmd, *args, **kwargs):
+        self.calls.append(list(cmd))
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    def _deploy(self, modes: dict[str, Any], check: unittest.mock.Mock) -> None:
+        with (
+            unittest.mock.patch("subprocess.run", side_effect=self._record),
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.check_enabled", check
+            ),
+        ):
+            runner.run_ansible_playbook(
+                repo_root="/repo",
+                playbook_path="/repo/playbook.yml",
+                inventory_validator_path="/repo/validate/__main__.py",
+                inventory="/etc/inventories/github-ci/devices.yml",
+                modes=modes,
+                skip_build=True,
+            )
+
+    def _validated(self) -> bool:
+        return any("/repo/validate/__main__.py" in cmd for cmd in self.calls)
+
+    def _deployed(self) -> bool:
+        return any(cmd[0] == _ANSIBLE_PLAYBOOK for cmd in self.calls)
+
+    def test_validation_runs_when_assert_is_not_given(self):
+        check = unittest.mock.Mock(return_value=True)
+        self._deploy({}, check)
+        self.assertTrue(self._validated())
+        check.assert_called_once_with("inventory", Path("/repo") / "roles")
+
+    def test_the_inventory_switch_off_skips_validation_but_still_deploys(self):
+        self._deploy({"VALIDATE": True}, unittest.mock.Mock(return_value=False))
+        self.assertFalse(self._validated())
+        self.assertTrue(self._deployed())
+
+    def test_assert_false_skips_validation_without_reading_the_switch(self):
+        check = unittest.mock.Mock(return_value=True)
+        self._deploy({"VALIDATE": False}, check)
+        self.assertFalse(self._validated())
+        check.assert_not_called()
+        self.assertTrue(self._deployed())
+
+    def test_an_unreadable_switch_stops_the_run_before_ansible(self):
+        check = unittest.mock.Mock(side_effect=TypeError("must be true or false"))
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", io.StringIO()) as err,
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._deploy({}, check)
+        self.assertEqual(ctx.exception.code, 1)
+        self.assertIn("must be true or false", err.getvalue())
+        self.assertFalse(self._deployed())
+
+
+class TestDeployAnsiblePlaybook(unittest.TestCase):
+    def _checkout(self, deploy: list[str], with_playbook: bool) -> tuple[str, Path]:
+        tmp = tempfile.TemporaryDirectory(prefix="deploy-extra-")
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        entries = ", ".join(json.dumps(requirement) for requirement in deploy)
+        (root / "pyproject.toml").write_text(
+            f"[project.optional-dependencies]\ndeploy = [{entries}]\n",
+            encoding="utf-8",
+        )
+        bindir = root / "venv" / "bin"
+        bindir.mkdir(parents=True)
+        if with_playbook:
+            (bindir / "ansible-playbook").write_text("", encoding="utf-8")
+        return str(root), bindir
+
+    def _resolve(self, repo_root: str, bindir: Path) -> str:
+        with unittest.mock.patch.object(
+            runner.sys, "executable", str(bindir / "python")
+        ):
+            return runner.deploy_ansible_playbook(repo_root)
+
+    def test_returns_the_playbook_beside_an_interpreter_with_the_deploy_extra(self):
+        repo_root, bindir = self._checkout(
+            ["PyYAML>=6", "ruamel.yaml", "humanfriendly"], with_playbook=True
+        )
+        self.assertEqual(
+            self._resolve(repo_root, bindir), str(bindir / "ansible-playbook")
+        )
+
+    def test_exits_naming_a_deploy_distribution_the_interpreter_lacks(self):
+        absent = "no-such-deploy-dist @ https://example.invalid/x.zip"
+        repo_root, bindir = self._checkout(["PyYAML", absent], with_playbook=True)
+        stderr = io.StringIO()
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", stderr),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._resolve(repo_root, bindir)
+        self.assertEqual(ctx.exception.code, 1)
+        self.assertIn(absent, stderr.getvalue())
+        self.assertNotIn("PyYAML", stderr.getvalue())
+
+    def test_exits_when_no_ansible_playbook_sits_beside_the_interpreter(self):
+        repo_root, bindir = self._checkout(["PyYAML"], with_playbook=False)
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", io.StringIO()),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._resolve(repo_root, bindir)
+        self.assertEqual(ctx.exception.code, 1)
+
+    @unittest.mock.patch("subprocess.run")
+    def test_missing_deploy_distribution_stops_the_run_before_any_phase(self, mock_run):
+        repo_root, bindir = self._checkout(
+            ["no-such-deploy-dist>=1"], with_playbook=True
+        )
+        with (
+            unittest.mock.patch.object(
+                runner.sys, "executable", str(bindir / "python")
+            ),
+            unittest.mock.patch.object(runner.sys, "stderr", io.StringIO()),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            runner.run_ansible_playbook(
+                repo_root=repo_root,
+                playbook_path=f"{repo_root}/playbook.yml",
+                inventory_validator_path=f"{repo_root}/validate/__main__.py",
+                inventory=f"{repo_root}/devices.yml",
+                modes={"VALIDATE": True},
+                skip_build=False,
+            )
+        self.assertEqual(ctx.exception.code, 1)
+        mock_run.assert_not_called()
 
 
 if __name__ == "__main__":

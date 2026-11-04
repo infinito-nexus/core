@@ -1,0 +1,24 @@
+---
+- name: "🛡️ Withdraw admin flag and Editor role from Keycloak users outside their group"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ SHOPWARE_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator, editor]
+    rbac_sync_service_key: web
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ SHOPWARE_WEB_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: "{{ SHOPWARE_USER }}"
+    rbac_sync_argv: [php]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/oidc/admins.php') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      SHOPWARE_RBAC_PROTECTED: >-
+        {{ [lookup('users', 'platform_administrator').username, lookup('users', 'platform_administrator').email] | to_json }}
+      ACL_EDITOR_ROLE_NAME: "{{ SHOPWARE_ACL_EDITOR_ROLE_NAME }}"
+    rbac_sync_members_env:
+      - { name: RBAC_ADMINISTRATORS, role: administrator, field: "" }
+      - { name: RBAC_EDITORS, role: editor, field: "" }

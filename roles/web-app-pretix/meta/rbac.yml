@@ -1,4 +1,8 @@
 ---
 roles:
+  organizer:
+    description: Manages every event and the settings of each Pretix organizer through the "Organizers (SSO)" team
+  checkin:
+    description: Checks attendees in at every event of each Pretix organizer through the "Check-in (SSO)" team, without access to orders or settings
   mcp:
     description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own

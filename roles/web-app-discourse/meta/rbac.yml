@@ -1,0 +1,4 @@
+---
+roles:
+  moderator:
+    description: Can moderate topics, posts and users without access to the site settings

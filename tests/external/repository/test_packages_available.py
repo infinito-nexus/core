@@ -43,6 +43,7 @@ def _collect_probes() -> list[Probe]:
                     spec.repo,
                     spec.source,
                     spec.virtual,
+                    (spec.download or {}).get("url"),
                 )
                 for name in spec.names
             )

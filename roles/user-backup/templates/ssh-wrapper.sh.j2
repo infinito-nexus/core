@@ -22,7 +22,6 @@ for backup_type in $backup_types; do
 			exit $?
 			;;
 		"sudo rsync --server --sender "*" . $last_version_directory/")
-			# Exception: rsync negotiates version-dependent server flags (3.4.x differs and adds --numeric-ids), so glob them instead of exact-matching a fixed string; allowlist-guard the chars so no shell metacharacter can be injected before running the client's path-constrained command.
 			if printf '%s' "$SSH_ORIGINAL_COMMAND" | grep -q '[^ A-Za-z0-9./_=+:-]'; then
 				echo "This command is not supported."
 				exit 1

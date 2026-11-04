@@ -1,0 +1,31 @@
+---
+# Stalwart v0.16.26 builds permissions from the account's own `roles` alone;
+# memberGroupIds feeds ACLs only, so a role on the Keycloak claim group grants
+# its members nothing. The OIDC sync never writes `roles`, so this stamp holds.
+- name: "👑 Grant System Administrator to the administrators, strip it from the rest"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ STALWART_SSO_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: stalwart
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ STALWART_CONTAINER }}"
+    rbac_sync_kind: host
+    rbac_sync_user: ""
+    rbac_sync_argv: []
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_sync.py') }}"
+    rbac_sync_modules:
+      - { name: stalwart_admin_plan.py, content: "{{ lookup('file', role_path ~ '/files/python/stalwart_admin_plan.py') }}" }
+    rbac_sync_env:
+      STALWART_CURL: "{{ 30 | curl }}"
+      STALWART_JMAP_URL: "{{ STALWART_JMAP_URL }}"
+      STALWART_JMAP_TRANSIENT_ERRORS: "{{ STALWART_JMAP_TRANSIENT_ERRORS | to_json }}"
+      STALWART_ADMIN_USER: "{{ STALWART_ADMIN_USER }}"
+      STALWART_ADMIN_PASSWORD: "{{ STALWART_ADMIN_PASSWORD }}"
+      STALWART_DOMAIN: "{{ STALWART_DOMAIN }}"
+      STALWART_RBAC_KEEP: "{{ [STALWART_ADMIN_USER, lookup('users', 'platform_administrator').username] | unique | to_json }}"
+    rbac_sync_members_env:
+      - { name: RBAC_ADMINISTRATORS, role: administrator, field: username }

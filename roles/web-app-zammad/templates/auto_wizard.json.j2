@@ -15,13 +15,13 @@
     { "name": "fqdn",                     "value": "{{ ZAMMAD_HOSTNAME }}" },
     { "name": "http_type",                "value": "{{ ZAMMAD_WEB_PROTOCOL }}" },
     { "name": "organization",             "value": "{{ ORGANIZATION }}" },
-    { "name": "product_name",             "value": "{{ SOFTWARE_NAME }} Helpdesk" },
+    { "name": "product_name",             "value": "{{ ZAMMAD_PRODUCT_NAME }}" },
     { "name": "developer_mode",           "value": false },
-    { "name": "user_create_account",      "value": false },
+    { "name": "user_create_account",      "value": {{ ZAMMAD_LOGIN_REGISTRATION | bool | to_json }} },
     { "name": "user_lost_password",       "value": true }
 {% if ZAMMAD_OIDC_ENABLED %}
     ,
-    { "name": "auth_openid_connect",      "value": true },
+    { "name": "auth_openid_connect",      "value": {{ ZAMMAD_LOGIN_SSO | bool | to_json }} },
     {
       "name":  "auth_openid_connect_credentials",
       "value": {

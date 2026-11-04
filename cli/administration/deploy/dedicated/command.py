@@ -4,6 +4,8 @@ import argparse
 import subprocess
 from typing import Any
 
+from cli.administration.roles.pull import pull_or_exit
+
 from .apps import validate_application_ids
 from .modes import add_dynamic_mode_args, build_modes_from_args, load_modes_from_yaml
 from .paths import INVENTORY_VALIDATOR_PATH, MODES_FILE, PLAYBOOK_PATH, PROJECT_ROOT
@@ -42,9 +44,9 @@ def _passthrough_explanation() -> str:
         "  are NOT parsed by this wrapper and are forwarded 1:1 to ansible-playbook.\n"
         "\n"
         "Important behavior:\n"
-        "  - The wrapper injects its own -e variables first (MODE_*, APPLICATIONS_WHITELIST, ...).\n"
+        "  - The wrapper injects its own -e variables first (the modes of group_vars/all/01_modes.yml, APPLICATIONS_WHITELIST, ...).\n"
         "  - Your own ansible-playbook options come last and can therefore override them,\n"
-        "    e.g. -e MODE_DEBUG=true.\n"
+        "    e.g. -e DEBUG=true.\n"
         "\n"
         "Examples:\n"
         "  Dry-run using Ansible check mode:\n"
@@ -57,7 +59,7 @@ def _passthrough_explanation() -> str:
         "    infinito administration deploy dedicated --skip-tags docker,build\n"
         "\n"
         "  Set or override extra variables:\n"
-        "    infinito administration deploy dedicated -e MODE_DEBUG=true -e foo=bar\n"
+        "    infinito administration deploy dedicated -e DEBUG=true -e foo=bar\n"
         "\n"
         "  Increase parallelism (Ansible forks):\n"
         "    infinito administration deploy dedicated --forks 20\n"
@@ -116,6 +118,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-B", "--skip-build", action="store_true", help="Skip build phase."
+    )
+    parser.add_argument(
+        "--skip-pull",
+        action="store_true",
+        help=(
+            "Deploy the custom roles already under roles/ instead of pulling "
+            "the ones the inventory declares (generated test inventories)."
+        ),
     )
     parser.add_argument(
         "--id",
@@ -185,6 +195,16 @@ def parse_args(
     return args, passthrough, modes_spec
 
 
+def pull_custom_roles(args: Any) -> None:
+    """Place the custom roles the inventory declares before anything reads roles/.
+
+    Args:
+        args: parsed wrapper args; ``skip_pull`` keeps roles/ as it is.
+    """
+    if not args.skip_pull:
+        pull_or_exit(args.inventory)
+
+
 def run_from_args(
     args: Any,
     passthrough: list[str],
@@ -221,4 +241,5 @@ def main(argv: list[str] | None = None) -> int:
     ``cli.administration.deploy.swarm``.
     """
     args, passthrough, modes_spec = parse_args(argv)
+    pull_custom_roles(args)
     return run_from_args(args, passthrough, modes_spec)

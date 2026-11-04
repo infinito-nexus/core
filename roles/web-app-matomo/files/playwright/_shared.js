@@ -5,17 +5,30 @@
 
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, gotoOnion, installCspViolationObserver, normalizeBaseUrl } = require("./personas");
+const {
+  decodeDotenvJsonList,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  installCspViolationObserver,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+const rbacAdminUsername = decodeDotenvQuotedValue(process.env.RBAC_ADMIN_USERNAME);
+const rbacAdminPassword = decodeDotenvQuotedValue(process.env.RBAC_ADMIN_PASSWORD);
+const matomoOidcPlugin = decodeDotenvQuotedValue(process.env.MATOMO_OIDC_PLUGIN);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const matomoApiToken = decodeDotenvQuotedValue(process.env.MATOMO_API_TOKEN);
 const matomoTrackingScope = (process.env.MATOMO_TRACKING_SCOPE || "").trim().toLowerCase();
+const nativeLoginEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
+const BREAKGLASS_LOGIN_PATH = "/index.php?module=Login&fallback=local";
 
 const matomoCanonicalDomain = (() => {
   try {
@@ -28,15 +41,10 @@ const matomoCanonicalDomain = (() => {
 // Emitted at deploy time by templates/playwright.env.j2 via the
 // roles_with_service('matomo') Ansible filter: one entry per role declared as a
 // matomo consumer in its meta/services.yml.
-const matomoTargetRoles = (() => {
-  const raw = process.env.MATOMO_TARGET_ROLES_JSON || "[]";
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
+const matomoTargetRoles = decodeDotenvJsonList(
+  process.env.MATOMO_TARGET_ROLES_JSON,
+  "MATOMO_TARGET_ROLES_JSON"
+);
 
 function attachDiagnostics(page) {
   const consoleErrors = [];
@@ -78,16 +86,15 @@ function hostOf(value) {
   }
 }
 
-// MUST mirror sys-front-inj-matomo matomo_site_domain in root scope: one shared site per registrable domain, not per subdomain
-function baseDomainOf(host) {
-  return String(host || "")
-    .toLowerCase()
-    .replace(/^(?:.*\.)?(.+\..+)$/, "$1");
+function siteRootDomainOf(host) {
+  const name = hostOf(host);
+  return name.endsWith(domainPrimary)
+    ? domainPrimary
+    : name.toLowerCase().replace(/^(?:.*\.)?(.+\..+)$/, "$1");
 }
 
-// Tracking-site needle for a consumer host: full subdomain in 'sub' scope (one site per subdomain), registrable base in 'root' scope (one shared site)
 function siteNeedleFor(host) {
-  return matomoTrackingScope === "root" ? baseDomainOf(host) : hostOf(host);
+  return matomoTrackingScope === "root" ? siteRootDomainOf(host) : hostOf(host);
 }
 
 async function setupMatomoPage(page) {
@@ -103,7 +110,7 @@ async function setupMatomoPage(page) {
 }
 
 async function loginAsAdmin(page) {
-  await gotoOnion(page, `${appBaseUrl}/index.php?module=Login`);
+  await gotoOnion(page, `${appBaseUrl}${BREAKGLASS_LOGIN_PATH}`);
 
   const usernameField = page.locator("input#login_form_login, input[name='form_login']").first();
   const passwordField = page.locator("input#login_form_password, input[name='form_password']").first();
@@ -112,7 +119,9 @@ async function loginAsAdmin(page) {
     .first();
 
   await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(usernameField).toBeEditable({ timeout: resolveTimeout(10_000) });
   await usernameField.fill(adminUsername);
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(10_000) });
   await passwordField.fill(adminPassword);
   await submitButton.click();
 
@@ -124,6 +133,40 @@ async function loginAsAdmin(page) {
     .not.toContain("module=Login");
 }
 
+const LOGIN_FIELD = "input#login_form_login, input[name='form_login']";
+
+function oidcButtonSelector() {
+  return `form[action*='module=${matomoOidcPlugin}'] button[type='submit']`;
+}
+
+async function expectLoginForm(page, message) {
+  const entry = nativeLoginEnabled ? LOGIN_FIELD : oidcButtonSelector();
+  await expect(page.locator(entry).first(), message).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+async function startOidcLogin(page) {
+  expect(matomoOidcPlugin, "MATOMO_OIDC_PLUGIN must be set in the Playwright env file").toBeTruthy();
+  await gotoOnion(page, `${appBaseUrl}/`);
+  const button = page.locator(oidcButtonSelector()).first();
+  await expect(button, `Expected the ${matomoOidcPlugin} sign-in button on the Matomo login page`).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+  await Promise.all([
+    page.waitForURL(/\/protocol\/openid-connect\/auth/, { timeout: resolveTimeout(60_000) }),
+    button.click(),
+  ]);
+}
+
+async function matomoApi(request, method, params) {
+  const response = await request.post(`${appBaseUrl}/index.php`, {
+    form: { module: "API", method, format: "JSON", token_auth: matomoApiToken, ...params },
+    ignoreHTTPSErrors: true,
+    timeout: resolveTimeout(30_000),
+  });
+  expect(response.status(), `Matomo ${method} MUST respond < 400 (got ${response.status()})`).toBeLessThan(400);
+  return response.json();
+}
+
 module.exports = {
   appBaseUrl,
   oidcIssuerUrl,
@@ -131,15 +174,24 @@ module.exports = {
   adminPassword,
   biberUsername,
   biberPassword,
+  rbacAdminUsername,
+  rbacAdminPassword,
+  matomoOidcPlugin,
   canonicalDomain,
   matomoApiToken,
   matomoTrackingScope,
   matomoCanonicalDomain,
   matomoTargetRoles,
+  nativeLoginEnabled,
+  BREAKGLASS_LOGIN_PATH,
+  LOGIN_FIELD,
+  oidcButtonSelector,
   attachDiagnostics,
   hostOf,
-  baseDomainOf,
   siteNeedleFor,
   setupMatomoPage,
   loginAsAdmin,
+  expectLoginForm,
+  startOidcLogin,
+  matomoApi,
 };

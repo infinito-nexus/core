@@ -1,0 +1,16 @@
+---
+- name: "🌐 Activate the platform language {{ ODOO_LANGUAGE }} in Odoo"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e ODOO_LANGUAGE {{ ODOO_LOCAL_CID | quote }}
+      odoo shell --no-http -d {{ ODOO_DB_NAME | quote }}
+    stdin: "{{ lookup('ansible.builtin.file', ODOO_LANGUAGE_SCRIPT) }}"
+  environment:
+    ODOO_LANGUAGE: "{{ ODOO_LANGUAGE }}"
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_language_apply
+  changed_when: "'LANGUAGE_CHANGED' in odoo_language_apply.stdout"
+  failed_when: >-
+    odoo_language_apply.rc != 0
+    or ('LANGUAGE_CHANGED' not in odoo_language_apply.stdout and 'LANGUAGE_UNCHANGED' not in odoo_language_apply.stdout)
+  timeout: "{{ lookup('timeout', 600) | int }}"

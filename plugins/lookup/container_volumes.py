@@ -77,6 +77,27 @@ def _coerce_size_bytes(value: Any) -> int:
         ) from exc
 
 
+def _file_reference(
+    semantic_name: str, target: str, entry: dict[str, Any]
+) -> dict[str, Any]:
+    """Return the per-service reference of a ``config`` or ``secret`` entry.
+
+    Args:
+        semantic_name: the entry's key in ``meta/volumes.yml``.
+        target: the path the file appears at in the container.
+        entry: the canonical entry; ``mode`` is an octal string, ``uid`` and
+            ``gid`` own the file in the container.
+    """
+    reference: dict[str, Any] = {"source": semantic_name, "target": target}
+    for owner in ("uid", "gid"):
+        if entry.get(owner) is not None:
+            reference[owner] = str(entry[owner])
+    mode_value = entry.get("mode")
+    if mode_value:
+        reference["mode"] = _coerce_mode_int(mode_value)
+    return reference
+
+
 def _short_form_volume(source_name: str, target: str, read_only: bool) -> str:
     suffix = ":ro" if read_only else ""
     return f"{source_name}:{target}{suffix}"
@@ -179,18 +200,10 @@ def container_volumes(
                 volumes_block.append(tmpfs_entry)
 
             elif vtype == "config":
-                cfg_ref: dict[str, Any] = {"source": semantic_name, "target": target}
-                mode_value = entry.get("mode")
-                if mode_value:
-                    cfg_ref["mode"] = _coerce_mode_int(mode_value)
-                configs_block.append(cfg_ref)
+                configs_block.append(_file_reference(semantic_name, target, entry))
 
             elif vtype == "secret":
-                sec_ref: dict[str, Any] = {"source": semantic_name, "target": target}
-                mode_value = entry.get("mode")
-                if mode_value:
-                    sec_ref["mode"] = _coerce_mode_int(mode_value)
-                secrets_block.append(sec_ref)
+                secrets_block.append(_file_reference(semantic_name, target, entry))
 
     if extra_volumes:
         volumes_block.extend(to_plain(extra_volumes))

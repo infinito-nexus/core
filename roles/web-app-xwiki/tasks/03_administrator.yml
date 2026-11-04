@@ -50,6 +50,41 @@
     xwiki_http_result: _user_obj_created
   when: _users_obj_list.status == 404 or ('<className>XWiki.XWikiUsers</className>' not in _users_obj_list.content)
 
+- name: "🔎 XWIKI | Probe the sign-in of {{ XWIKI_ADMIN_USER }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
+    xwiki_http_headers:
+      Authorization: "Basic {{ (XWIKI_ADMIN_USER ~ ':' ~ XWIKI_ADMIN_PASSWORD) | b64encode }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_admin_signin
+
+- name: "🔑 XWIKI | Set the password of {{ XWIKI_ADMIN_USER }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_property_value: "{{ XWIKI_ADMIN_PASSWORD }}"
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_USER | urlencode, 'objects/XWiki.XWikiUsers/0/properties/password'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+    xwiki_http_status: [202]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_admin_password
+  when: "'xwiki-user' not in _xwiki_admin_signin.headers"
+
 - block:
     - name: "✅ XWIKI | Ensure {{ XWIKI_ADMIN_GROUP_PAGE }} page exists"
       include_tasks: utils/http.yml
@@ -65,8 +100,25 @@
         xwiki_http_timeout: 30
         xwiki_http_follow_redirects: "safe"
         xwiki_http_result: _admin_group_page
+    - name: "🔎 XWIKI | Read the members of {{ XWIKI_ADMIN_GROUP_PAGE }}"
+      include_tasks: utils/http.yml
+      vars:
+        xwiki_http_method: GET
+        xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE, 'objects/XWiki.XWikiGroups'] | url_join }}"
+        xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/json'}) }}"
+        xwiki_http_body: ""
+        xwiki_http_status: [200]
+        xwiki_http_retry_markers: []
+        xwiki_http_retries: 30
+        xwiki_http_delay: 2
+        xwiki_http_timeout: 30
+        xwiki_http_follow_redirects: "safe"
+        xwiki_http_result: _xwiki_admin_group_members
     - name: "✅ XWIKI | Ensure user is in {{ XWIKI_ADMIN_GROUP_PAGE }}"
       include_tasks: utils/http.yml
+      when: >-
+        XWIKI_ADMIN_REFERENCE not in
+        ((_xwiki_admin_group_members.content | from_json).objectSummaries | map(attribute='headline') | list)
       vars:
         xwiki_http_method: POST
         xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE, 'objects'] | url_join }}"

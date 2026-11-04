@@ -12,7 +12,7 @@ from . import PROJECT_ROOT
 
 class TestCspConfigurationConsistency(unittest.TestCase):
     """
-    Iterate all roles; for each config/main.yml that defines 'csp',
+    Iterate all roles; for each meta/services.yml that defines 'csp',
     assert consistent structure and values:
       - csp is a dict
       - whitelist/flags/hashes are dicts if present

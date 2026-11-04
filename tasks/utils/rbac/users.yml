@@ -1,0 +1,28 @@
+---
+# Output rbac_users: list of {username, email, name} of every account, from the directory when OpenLDAP is deployed, from the inventory otherwise.
+
+- name: "👥 Search every account of the directory"
+  community.general.ldap_search:
+    server_uri: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}"
+    bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+    dn: "{{ LDAP.DN.OU.USERS }}"
+    scope: onelevel
+    filter: "({{ LDAP.USER.ATTRIBUTES.ID }}=*)"
+    attrs:
+      - "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      - "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      - "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+  register: rbac_users_ldap_search
+  delegate_to: "{{ STACK_HOST }}"
+  when: "'svc-db-openldap' in group_names"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👥 Set every account"
+  ansible.builtin.set_fact:
+    rbac_users: >-
+      {{
+        (rbac_users_ldap_search.results | rbac_ldap_members(LDAP.USER.ATTRIBUTES.ID, LDAP.USER.ATTRIBUTES.MAIL, LDAP.USER.ATTRIBUTES.FULLNAME))
+        if ('svc-db-openldap' in group_names)
+        else (lookup('users') | rbac_users)
+      }}

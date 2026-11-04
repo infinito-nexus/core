@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Role test harness with test.sh as its entry point; test-e2e-cli stages files/test/ by that fixed path.

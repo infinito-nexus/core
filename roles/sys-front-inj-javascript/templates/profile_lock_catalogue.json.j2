@@ -1,0 +1,2 @@
+{%- set profile_lock_languages = lookup('config', application_id, 'services.sso.profile.languages') -%}
+{{- lookup('i18n_catalogue', 'profile_lock', 'roles/sys-front-inj-javascript/files/profile_lock_i18n.yml') | dict2items | selectattr('key', 'in', profile_lock_languages) | list | items2dict | to_inline_js -}}

@@ -23,7 +23,7 @@ and a ``test`` fighting over the same entry).
 
 Resolution scope: literal service keys, the ``service_name`` Jinja variable
 resolved against the nearest preceding ``{% set service_name = ... %}``,
-``entity_name``, ``application_id | get_entity_name``, and role var
+``entity_name``, ``application_id | entity_name``, and role var
 constants (``CHESS_SERVICE``) whose ``vars/main.yml`` value resolves the
 same way. Any other dynamic expression (loop variables) is skipped - it
 cannot be resolved statically.
@@ -46,7 +46,7 @@ from utils.cache.yaml import load_yaml
 from utils.docker.healthcheck.compose import known_flavors, resolve_flavors
 from utils.docker.healthcheck.prefixes import PREFIXES
 from utils.docker.healthcheck.probes import PROBES
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
@@ -64,7 +64,7 @@ _LITERAL = re.compile(r"""^['"]([^'"]+)['"]$""")
 _INTERPOLATION = re.compile(r"""^\{\{\s*(.+?)\s*\}\}$""")
 _ROLE_VAR = re.compile(r"^[A-Z][A-Z0-9_]*$")
 _PLAIN_KEY = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
-_ENTITY_NAME_EXPRESSIONS = ("entity_name", "application_id | get_entity_name")
+_ENTITY_NAME_EXPRESSIONS = ("entity_name", "application_id | entity_name")
 
 
 def _role_app_id(rel_path: str) -> str | None:
@@ -89,7 +89,7 @@ def _resolve_expression(expression: str, app: str) -> str | None:
     if interpolation:
         return _resolve_expression(interpolation.group(1), app)
     if normalized in _ENTITY_NAME_EXPRESSIONS:
-        return get_entity_name(app)
+        return entity_name(app)
     if _ROLE_VAR.match(normalized):
         return _resolve_role_var(normalized, app)
     if _PLAIN_KEY.match(normalized) and normalized in (

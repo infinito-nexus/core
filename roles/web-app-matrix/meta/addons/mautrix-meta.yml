@@ -9,6 +9,9 @@ update:
   upstream_id: mautrix-meta
 config:
   bridge_name: "meta"
+  upstream_flags:
+    - matrix_bridge_mautrix_meta_messenger_enabled
+    - matrix_bridge_mautrix_meta_instagram_enabled
   appservice_port: 29319
   database_username: "mautrix_meta_bridge"
   database_name: "mautrix_meta_bridge"

@@ -1,0 +1,29 @@
+export interface KeycloakUserInfo {
+  sub: string;
+  [claim: string]: unknown;
+}
+
+const GROUPS_CLAIM = {{ RBAC.GROUP.CLAIM | to_json }};
+const MODERATOR_GROUP = {{ JITSI_MODERATOR_GROUP_PATH | to_json }};
+const NAME_CLAIMS = {{ [OIDC.ATTRIBUTES.NAME, OIDC.ATTRIBUTES.USERNAME] | to_json }};
+const EMAIL_CLAIM = {{ OIDC.ATTRIBUTES.EMAIL | to_json }};
+
+function text(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export function createContext(userInfo: KeycloakUserInfo) {
+  const groups = userInfo[GROUPS_CLAIM];
+  const moderator = Array.isArray(groups) && groups.includes(MODERATOR_GROUP);
+  const name = NAME_CLAIMS.map((claim) => text(userInfo[claim])).find((value) => value) || "";
+  return {
+    user: {
+      id: userInfo.sub,
+      name: name,
+      email: text(userInfo[EMAIL_CLAIM]),
+      moderator: moderator,
+      lobby_bypass: moderator,
+      security_bypass: moderator,
+    },
+  };
+}

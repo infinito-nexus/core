@@ -3,7 +3,7 @@ compose mode; emit nothing under swarm.
 
 A single SPOT for every service-level YAML key that is structurally
 incompatible with `docker stack deploy` and must therefore be omitted
-when DEPLOYMENT_MODE == 'swarm'. Currently used for:
+when IS_SWARM_MODE. Currently used for:
 
 * `container_name` — swarm rejects it alongside `deploy.replicas > 1`
   ("can't set container_name and X as container name must be unique").

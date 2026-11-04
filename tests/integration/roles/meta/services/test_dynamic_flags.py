@@ -73,8 +73,9 @@ from utils.roles.applications.services.registry import (
     build_covered_key_to_role,
     build_role_to_primary_service_key,
     build_service_registry_from_roles_dir,
+    is_explicit_truth,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -137,15 +138,14 @@ def _suppressed_inline_flags(file_path: Path) -> set[tuple[str, str]]:
     return result
 
 
-_MAIL_PROVIDER_INDIRECTION = "MAIL_PROVIDER in group_names"
+_OFFICE_SUITE_KEYS = ("collabora", "onlyoffice")
+_OFFICE_SUITE_INDIRECTION = "OFFICE_SUITE =="
 
 
 def _references_role_in_group_names(value, role_name: str) -> bool:
     """Return True iff *value* is a Jinja string of the shape
     ``{{ '<role_name>' in group_names }}`` (single or double quotes)."""
-    if not isinstance(value, str):
-        return False
-    if "in group_names" not in value:
+    if not isinstance(value, str) or not is_explicit_truth(value):
         return False
     return f"'{role_name}'" in value or f'"{role_name}"' in value
 
@@ -173,7 +173,7 @@ class TestServicesDynamicFlags(unittest.TestCase):
 
             block_exempt = _suppressed_top_level_keys(services_file)
             inline_exempt = _suppressed_inline_flags(services_file)
-            own_entity = get_entity_name(role_name)
+            own_entity = entity_name(role_name)
 
             for service_key, entry in data.items():
                 if not isinstance(entry, dict):
@@ -183,9 +183,9 @@ class TestServicesDynamicFlags(unittest.TestCase):
                 if service_key == own_entity:
                     continue
 
-                expected_role = covered_key_to_role.get(
+                expected_role = primary_key_to_role.get(
                     service_key,
-                    primary_key_to_role.get(service_key),
+                    covered_key_to_role.get(service_key),
                 )
 
                 for flag in ("enabled", "shared"):
@@ -194,7 +194,7 @@ class TestServicesDynamicFlags(unittest.TestCase):
                     if (service_key, flag) in inline_exempt:
                         continue
                     value = entry[flag]
-                    if not (isinstance(value, str) and "in group_names" in value):
+                    if not (isinstance(value, str) and is_explicit_truth(value)):
                         offenders.append(
                             f"{role_name}: services.{service_key}.{flag}={value!r} "
                             f"is literal; replace with a Jinja "
@@ -205,9 +205,9 @@ class TestServicesDynamicFlags(unittest.TestCase):
                         )
                         continue
                     if (
-                        service_key == "email"
+                        service_key in _OFFICE_SUITE_KEYS
                         and isinstance(value, str)
-                        and _MAIL_PROVIDER_INDIRECTION in value
+                        and _OFFICE_SUITE_INDIRECTION in value
                     ):
                         continue
                     if expected_role and not _references_role_in_group_names(

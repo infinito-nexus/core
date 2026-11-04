@@ -28,7 +28,7 @@ function attachDiagnostics(page, _label) {
   return diagnostics;
 }
 
-async function ssoLoginAndAssertUsername(page, username, password) {
+async function ssoLogin(page, username, password) {
   const diagnostics = attachDiagnostics(page, username);
   // OpenCloud Web's index.html shows a "browser not supported" splash unless
   // `forceAllowOldBrowser` is present in localStorage. Playwright's headless
@@ -46,23 +46,26 @@ async function ssoLoginAndAssertUsername(page, username, password) {
 
   const onIssuer = async () => issuerPattern.test(page.url());
   if (!(await onIssuer())) {
-    // Either click the Login control on the OpenCloud SPA or wait for the
-    // SPA to redirect to Keycloak. Try both in parallel and finish on
-    // whichever happens first.
     const loginCta = page.locator(
       'button:has-text("Login"), button:has-text("Sign in"), button:has-text("Log in"), [data-test-id="login-button"], a[href*="oidc"]'
     );
+    const reachedIssuer = page
+      .waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) })
+      .then(() => true)
+      .catch(() => false);
+    const ctaReady = loginCta
+      .first()
+      .waitFor({ state: "visible", timeout: resolveTimeout(60_000) })
+      .then(() => true)
+      .catch(() => false);
     try {
-      await Promise.race([
-        page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) }),
-        (async () => {
-          await loginCta.first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
-          await Promise.all([
-            page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) }),
-            loginCta.first().click({ timeout: resolveTimeout(30_000) }),
-          ]);
-        })(),
-      ]);
+      await Promise.race([reachedIssuer, ctaReady]);
+      if (!(await onIssuer()) && (await ctaReady)) {
+        await loginCta.first().click({ timeout: resolveTimeout(30_000) });
+      }
+      if (!(await reachedIssuer)) {
+        throw new Error("the SPA neither redirected to Keycloak nor offered a Login control that did");
+      }
     } catch (err) {
       const summary = [
         `URL when stuck: ${page.url()}`,
@@ -77,14 +80,30 @@ async function ssoLoginAndAssertUsername(page, username, password) {
     }
   }
 
-  await page.locator('input[name="username"], #username').fill(username);
-  await page.locator('input[name="password"], #password').fill(password);
+  const usernameField = page.locator('input[name="username"], #username');
+  const passwordField = page.locator('input[name="password"], #password');
+  await usernameField.fill(username);
+  await passwordField.fill(password);
+
+  await expect
+    .poll(
+      async () =>
+        (await usernameField.inputValue()) === username &&
+        (await passwordField.inputValue()) === password,
+      {
+        timeout: resolveTimeout(10_000),
+        message: "Expected the Keycloak login form to still carry both credentials at submit time",
+      },
+    )
+    .toBe(true);
+
   const leftKeycloak = page
     .waitForURL((url) => !issuerPattern.test(url.toString()), { timeout: resolveTimeout(60_000) })
     .catch(() => {});
   await page
-    .locator('input[name="password"], #password')
-    .press("Enter", { timeout: resolveTimeout(5_000) })
+    .locator('#kc-login, input[type="submit"], button[type="submit"]')
+    .first()
+    .click({ timeout: resolveTimeout(30_000) })
     .catch(() => {});
   await leftKeycloak;
 
@@ -124,7 +143,56 @@ async function ssoLoginAndAssertUsername(page, username, password) {
   // navigation banner instead of body text because OpenCloud shows the
   // username inside the user-menu drawer rather than in the page body.
   await expect(page.getByRole("banner", { name: /top bar/i })).toBeVisible({ timeout: resolveTimeout(90_000) });
+}
+
+async function ssoLoginAndAssertUsername(page, username, password) {
+  await ssoLogin(page, username, password);
   await expect(page.getByRole("link", { name: /personal files/i })).toBeVisible({ timeout: resolveTimeout(30_000) });
+}
+
+async function logoutThroughAccountMenu(page) {
+  await page.locator("#_userMenuButton").click({ timeout: resolveTimeout(30_000) });
+  await page.locator("#account-info-container #oc-topbar-account-logout").click({ timeout: resolveTimeout(30_000) });
+  await expect(page.locator("#_userMenuButton"), "the top bar account button must disappear after logout").toBeHidden({
+    timeout: resolveTimeout(60_000),
+  });
+}
+
+async function ownRoleIds(page) {
+  const result = await page.evaluate(async () => {
+    let token = "";
+    for (const store of [window.sessionStorage, window.localStorage]) {
+      for (let index = 0; index < store.length; index += 1) {
+        try {
+          const value = JSON.parse(store.getItem(store.key(index)) || "null");
+          if (value && typeof value.access_token === "string") {
+            token = value.access_token;
+          }
+        } catch {}
+      }
+    }
+    if (!token) {
+      return { error: "no access token in the browser storage" };
+    }
+    const headers = { Authorization: `Bearer ${token}` };
+    const me = await fetch("/graph/v1.0/me", { headers });
+    if (!me.ok) {
+      return { error: `GET /graph/v1.0/me answered ${me.status}` };
+    }
+    const { id } = await me.json();
+    const assignments = await fetch("/api/v0/settings/assignments-list", {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ account_uuid: id }),
+    });
+    if (!assignments.ok) {
+      return { error: `POST /api/v0/settings/assignments-list answered ${assignments.status}` };
+    }
+    const body = await assignments.json();
+    return { roleIds: (body.assignments || []).map((assignment) => assignment.roleId).filter(Boolean) };
+  });
+  expect(result.error, `the OpenCloud role probe failed: ${result.error}`).toBeUndefined();
+  return result.roleIds;
 }
 
 module.exports = {
@@ -138,5 +206,8 @@ module.exports = {
   issuerPattern,
   baseUrlPattern,
   attachDiagnostics,
+  ssoLogin,
   ssoLoginAndAssertUsername,
+  logoutThroughAccountMenu,
+  ownRoleIds,
 };

@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-jitsi"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 JITSI_WEB_SERVICE: "web"
 JITSI_PROSODY_SERVICE: "prosody"
@@ -24,6 +24,22 @@ JITSI_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 JITSI_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
 JITSI_PROSODY_CONFIG_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}prosody-config"
 JITSI_PROSODY_PLUGINS_HOST_PATH: "{{ JITSI_VOLUMES_DIR }}prosody-plugins-custom"
+JITSI_WEB_CONFIG_HOST_PATH: "{{ [JITSI_VOLUMES_DIR, 'config'] | path_join }}"
+JITSI_INTERFACE_CONFIG_HOST_PATH: "{{ [JITSI_WEB_CONFIG_HOST_PATH, 'custom-interface_config.js'] | path_join }}"
+
+JITSI_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+JITSI_DESIGN_TITLE: "{{ lookup('design', application_id).title if JITSI_DESIGN_ENABLED | bool else false }}"
+JITSI_DESIGN_MARK: "{{ application_id }} design"
+JITSI_DESIGN_BRANDING_FILE: "infinito-design-branding.json"
+JITSI_DESIGN_BRANDING_URL: "/{{ JITSI_DESIGN_BRANDING_FILE }}"
+JITSI_DESIGN_TITLE_FILE: "infinito-design-title.html"
+JITSI_DESIGN_FILES:
+  - src: design/branding.json.j2
+    dest: "{{ JITSI_DESIGN_BRANDING_FILE }}"
+  - src: design/title.html.j2
+    dest: "{{ JITSI_DESIGN_TITLE_FILE }}"
+  - src: design/nginx.conf.j2
+    dest: nginx-custom/infinito-design.conf
 
 JITSI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 JITSI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
@@ -41,12 +57,24 @@ JITSI_JVB_AUTH_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentia
 JITSI_JIGASI_XMPP_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.jigasi_xmpp_password') }}"
 JITSI_JIBRI_RECORDER_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.jibri_recorder_password') }}"
 JITSI_JIBRI_XMPP_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.jibri_xmpp_password') }}"
-JITSI_COMPONENT_ACCOUNTS:
-  - user: focus
-    password: "{{ JITSI_JICOFO_AUTH_PASSWORD }}"
-  - user: jvb
-    password: "{{ JITSI_JVB_AUTH_PASSWORD }}"
-
-JITSI_AUTH_TYPE: "{{ 'ldap' if (JITSI_LDAP_ENABLED and not JITSI_OIDC_ENABLED) else 'internal' }}"
+JITSI_KEYCLOAK_ADAPTER_SERVICE: "keycloak_adapter"
+JITSI_KEYCLOAK_ADAPTER_ENABLED: "{{ JITSI_OIDC_ENABLED and (lookup('config', application_id, 'services.' ~ JITSI_KEYCLOAK_ADAPTER_SERVICE ~ '.enabled') | bool) }}"
+JITSI_KEYCLOAK_ADAPTER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ JITSI_KEYCLOAK_ADAPTER_SERVICE ~ '.name') }}"
+JITSI_KEYCLOAK_ADAPTER_PORT: "{{ lookup('config', application_id, 'services.' ~ JITSI_KEYCLOAK_ADAPTER_SERVICE ~ '.ports.internal.http') }}"
+JITSI_KEYCLOAK_ADAPTER_REF: "{{ lookup('config', application_id, 'services.' ~ JITSI_KEYCLOAK_ADAPTER_SERVICE ~ '.ref') }}"
+JITSI_KEYCLOAK_ADAPTER_SOURCE_URL: "{{ lookup('config', application_id, 'services.' ~ JITSI_KEYCLOAK_ADAPTER_SERVICE ~ '.repository') | replace('https://github.com/',
+  'https://raw.githubusercontent.com/') | regex_replace('[.]git$', '') }}/{{ JITSI_KEYCLOAK_ADAPTER_REF }}"
+JITSI_KEYCLOAK_ADAPTER_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'keycloak-adapter'] | path_join }}"
+JITSI_KEYCLOAK_ADAPTER_PAGE_FILE: "infinito-oidc-adapter.html"
+JITSI_KEYCLOAK_ADAPTER_WEB_FILES:
+  - src: keycloak_adapter/nginx.conf.j2
+    dest: nginx-custom/infinito-keycloak-adapter.conf
+  - src: keycloak_adapter/oidc-adapter.html.j2
+    dest: "{{ JITSI_KEYCLOAK_ADAPTER_PAGE_FILE }}"
+JITSI_MODERATOR_GROUP_PATH: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+JITSI_JWT_APP_ID: "{{ application_id }}"
+JITSI_JWT_APP_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_app_secret') }}"
+JITSI_TOKEN_AUTH_URL: "{{ lookup('tls', application_id, 'url.origin') }}/oidc/redirect?path=/{room}"
+JITSI_AUTH_TYPE: "{{ 'jwt' if JITSI_KEYCLOAK_ADAPTER_ENABLED else ('ldap' if (JITSI_LDAP_ENABLED and not JITSI_OIDC_ENABLED) else 'internal') }}"
 JITSI_ENABLE_AUTH: "{{ JITSI_AUTH_TYPE != 'internal' }}"
-JITSI_ENABLE_GUESTS: false
+JITSI_ENABLE_GUESTS: "{{ JITSI_KEYCLOAK_ADAPTER_ENABLED }}"

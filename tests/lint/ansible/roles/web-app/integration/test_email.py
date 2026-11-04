@@ -141,7 +141,7 @@ class TestWebAppRolesIntegrateEmail(unittest.TestCase):
 
     * Roles that call ``lookup('email', ...)`` **must** declare
       ``services.email`` with ``enabled: true`` AND ``shared: true``
-      in ``config/main.yml``. Missing declarations fail the test hard.
+      in ``meta/services.yml``. Missing declarations fail the test hard.
     * Roles that do **not** call ``lookup('email', ...)`` and have no
       explicit opt-out block emit a non-blocking warning annotation.
     """

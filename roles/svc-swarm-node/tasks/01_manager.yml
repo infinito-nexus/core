@@ -26,7 +26,7 @@
   changed_when: false
 
 - name: "⬇️ Fetch manager swarm-advertise address"
-  ansible.builtin.command: container info --format '{{ "{{" }}.Swarm.NodeAddr{{ "}}" }}:2377'
+  ansible.builtin.command: container info --format '{{ "{{" }}.Swarm.NodeAddr{{ "}}" }}:{{ SWARM_MANAGER_PORT }}'
   register: docker_swarm_manager_addr
   changed_when: false
 

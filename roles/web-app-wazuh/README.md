@@ -14,102 +14,14 @@ The manager's vulnerability detection data (`/var/ossec/queue/vd`, volume `wazuh
 The manager downloads it again after a restore, which can take a long time.
 This matters once agents are enrolled.
 
-## Cosmos
-
-The diagram places Wazuh in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-wazuh 🐳🐝]
-        svc_email["email ❌"]
-        svc_sso["sso"]
-        svc_ldap["ldap"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_prometheus["prometheus"]
-        svc_css["css"]
-        svc_container_backup["container_backup"]
-        svc_wazuh["wazuh"]
-        svc_certs_generator["certs_generator"]
-        svc_manager["manager"]
-        svc_indexer["indexer"]
-        svc_console["console"]
-        svc_tor["tor"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -- "0..0" --> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-    linkStyle 7 stroke:red;
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Single-node Wazuh stack:** Manager, indexer, and dashboard at the versions pinned in [services.yml](./meta/services.yml).
 - **Native OIDC login:** The dashboard signs users in against Keycloak's discovery endpoint, without an oauth2-proxy sidecar.
 - **LDAP authorization:** LDAP group membership adds `backend_roles` to an already authenticated user and is never used to verify a password.
 - **Three-tier RBAC:** Administrator, Security Analyst, and Read-only Auditor, declared in [rbac.yml](./meta/rbac.yml) and mapped onto OpenSearch security roles.
+- **Wazuh API roles:** Security rules map the Administrator groups onto the Wazuh API `administrator` role and the Security Analyst and Read-only Auditor groups onto the API `readonly` role, so the dashboard's run_as requests carry the matching API permissions.
 - **Generated credentials:** Every service account password and the manager cluster key come from [secrets.yml](./meta/secrets.yml).
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Wazuh onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-wazuh full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Wazuh to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-wazuh
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
 
 ## Auth flow
 
@@ -142,7 +54,17 @@ sequenceDiagram
 ```
 
 The internal `admin` and `kibanaserver` service accounts authenticate with HTTP basic auth against `internal_users.yml` and bypass OIDC and LDAP.
-With `sso` disabled, these two accounts are the only way to sign in.
+With `sso` disabled, these two accounts and the platform administrator (`internal_users.yml.j2` adds it only then) sign in at the dashboard's basic-auth form.
+
+## Login methods
+
+Each mode offers exactly one sign-in entry, so [services.yml](./meta/services.yml) marks the `sso` key with `# nocheck: login-methods` (see [Login Methods](../../docs/contributing/design/iam/login.md)) instead of declaring `services.wazuh.login.method`:
+
+- With `sso` on, `opensearch_security.auth.type: "openid"` in [opensearch_dashboards.yml.j2](./templates/opensearch_dashboards.yml.j2) sends every visitor to Keycloak; the dashboard renders no form.
+- With `sso` off, the dashboard keeps its default basic-auth form for the internal accounts.
+- The `ldap` service only adds `backend_roles` (`ldap_authz_domain`) and never verifies a password, so the stack has no LDAP sign-in.
+
+Break-glass access while `sso` is on runs over HTTP basic auth against the indexer's `basic_internal_auth_domain` (order 0, `challenge: false`) with the internal `admin` account, for example `curl -k -u admin:<indexer_admin_password> https://<host>:<services.indexer.ports.local.http>/_plugins/_security/authinfo`; the indexer port is published on `DOCKER_BIND_HOST` only, so this path runs from the host, not from a browser.
 
 ## RBAC
 
@@ -157,6 +79,10 @@ With `sso` disabled, these two accounts are the only way to sign in.
 - Only Administrators reach the OpenSearch Dashboards Security app.
 - Every role lands on `/app/home` after login.
 
+## LDAP coverage
+
+No Playwright scenario gates on `ldap`, and [services.yml](./meta/services.yml) exempts the flag from the Playwright service-flag check. The indexer configures LDAP only as `ldap_authz_domain`, which adds `backend_roles` to a user Keycloak or `internal_users.yml` already authenticated, so the stack has no LDAP-bind login to drive: with `sso` on every directory account signs in through Keycloak, which [files/playwright/test-rbac-roles.js](./files/playwright/test-rbac-roles.js) covers, and with `sso` off only the internal `admin` and `kibanaserver` accounts can sign in.
+
 ## Developer Notes
 
 Variant matrix: [variants.yml](./meta/variants.yml). Service flags and image pins: [services.yml](./meta/services.yml). Credentials: [secrets.yml](./meta/secrets.yml). RBAC roles: [rbac.yml](./meta/rbac.yml).
@@ -166,9 +92,4 @@ Variant matrix: [variants.yml](./meta/variants.yml). Service flags and image pin
 - [Wazuh Official Website](https://wazuh.com/)
 - [Wazuh Documentation](https://documentation.wazuh.com/current/)
 - [wazuh-docker GitHub](https://github.com/wazuh/wazuh-docker)
-
-## Credits
-
-Implemented by **[Prageeth Panicker](https://github.com/pragepani)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/3LsSm8JzVMq6n9iHGwMLUc)

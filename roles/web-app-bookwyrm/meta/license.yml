@@ -1,0 +1,19 @@
+---
+spdx: LicenseRef-ACSL-1.4
+url: https://github.com/bookwyrm-social/bookwyrm/blob/main/LICENSE.md
+rights:
+  commercial_use: false
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+  open_source: false

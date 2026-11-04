@@ -1,0 +1,8 @@
+{% set design = lookup('design', application_id) %}
+const DESIGN_TITLE = {{ design.title | to_json }}
+const SEPARATOR = String.fromCharCode(0x2014)
+
+export function bskyTitle(page: string, unreadCountLabel?: string) {
+  const unreadPrefix = unreadCountLabel ? `(${unreadCountLabel}) ` : ''
+  return `${unreadPrefix}${page} ${SEPARATOR} ${DESIGN_TITLE}`
+}

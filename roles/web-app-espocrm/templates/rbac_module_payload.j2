@@ -1,0 +1,6 @@
+Resources/module.json {{ {'order': 100} | to_json | b64encode }}
+Resources/metadata/app/config.json {{ {'params': ESPOCRM_RBAC_MODULE_CONFIG_PARAMS} | to_json | b64encode }}
+Resources/metadata/app/authentication.json {{ {'onSuccessHookClassNameList': ['__APPEND__', ESPOCRM_RBAC_LDAP_HOOK_CLASS]} | to_json | b64encode }}
+Binding.php {{ lookup('file', 'php/rbac/binding.php') | b64encode }}
+Classes/Oidc/GroupUserProvider.php {{ lookup('file', 'php/rbac/group_user_provider.php') | b64encode }}
+Classes/Authentication/LdapRoleGroups.php {{ lookup('file', 'php/rbac/ldap_role_groups.php') | b64encode }}

@@ -1,0 +1,102 @@
+{% set _allowed_groups = lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') %}
+{% set _pass_access_token = lookup('sso', sso_proxy_application_id, 'oauth2_pass_access_token') %}
+{% set _claim_headers = OIDC.ATTRIBUTES | oauth2_claim_headers(lookup('sso', sso_proxy_application_id, 'oauth2_claim_headers')) %}
+{% set _sso_upstream_mode = (compose_mode_force | default('')) or DEPLOYMENT_MODE %}
+server:
+  bindAddress: {{ ('0.0.0.0:' ~ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) | to_json }}
+upstreamConfig:
+  upstreams:
+    - id: "/"
+      path: "/"
+      uri: "http://{{ ((sso_proxy_application_id | entity_name) ~ '_') if _sso_upstream_mode == 'swarm' else '' }}{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}" # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
+      flushInterval: 1s
+      passHostHeader: true
+      proxyWebSockets: true
+      timeout: 30s
+providers:
+  - id: {{ OIDC.BUTTON_TEXT | to_json }}
+    name: {{ OIDC.BUTTON_TEXT | to_json }}
+    provider: oidc
+    clientID: {{ OIDC.CLIENT.ID | to_json }}
+    clientSecret: {{ OIDC.CLIENT.SECRET | to_json }}
+    loginURL: {{ OIDC.CLIENT.AUTHORIZE_URL | to_json }}
+    loginURLParameters:
+      - name: approval_prompt
+        default:
+          - force
+    redeemURL: {{ OIDC.CLIENT.TOKEN_URL | to_json }}
+{% if (TLS_MODE | lower) == 'self_signed' and OIDC.CLIENT.ISSUER_URL.startswith('https') %}
+    caFiles:
+      - {{ CA_TRUST.cert_container | to_json }}
+{% endif %}
+{% if _allowed_groups %}
+    scope: {{ ('openid email profile ' ~ RBAC.GROUP.CLAIM) | to_json }}
+    allowedGroups: {{ _allowed_groups | map('regex_replace', '^/*', '/') | list | to_json }}
+{% else %}
+    scope: "openid email profile"
+{% endif %}
+{% if _claim_headers %}
+    additionalClaims: {{ _claim_headers | map(attribute='claim') | list | to_json }}
+{% endif %}
+    oidcConfig:
+      issuerURL: {{ OIDC.CLIENT.ISSUER_URL | to_json }}
+      skipDiscovery: true
+      jwksURL: {{ OIDC.CLIENT.CERTS | to_json }}
+      emailClaim: {{ OIDC.ATTRIBUTES.EMAIL | to_json }}
+      groupsClaim: {{ RBAC.GROUP.CLAIM | to_json }}
+      userIDClaim: {{ OIDC.ATTRIBUTES.EMAIL | to_json }}
+      audienceClaims:
+        - aud
+      insecureSkipNonce: true
+injectRequestHeaders:
+  - name: X-Forwarded-Groups
+    values:
+      - claimSource:
+          claim: groups
+  - name: X-Forwarded-User
+    values:
+      - claimSource:
+          claim: user
+  - name: X-Forwarded-Email
+    values:
+      - claimSource:
+          claim: email
+  - name: X-Forwarded-Preferred-Username
+    values:
+      - claimSource:
+          claim: preferred_username # nocheck: oidc-claim-name-spot  oauth2-proxy session field name, fixed by SessionState.GetClaim
+{% if _pass_access_token %}
+  - name: X-Forwarded-Access-Token
+    values:
+      - claimSource:
+          claim: access_token
+{% endif %}
+injectResponseHeaders:
+  - name: X-Auth-Request-User
+    values:
+      - claimSource:
+          claim: user
+  - name: X-Auth-Request-Email
+    values:
+      - claimSource:
+          claim: email
+  - name: X-Auth-Request-Preferred-Username
+    values:
+      - claimSource:
+          claim: preferred_username # nocheck: oidc-claim-name-spot  oauth2-proxy session field name, fixed by SessionState.GetClaim
+  - name: X-Auth-Request-Groups
+    values:
+      - claimSource:
+          claim: groups
+{% if _pass_access_token %}
+  - name: X-Auth-Request-Access-Token
+    values:
+      - claimSource:
+          claim: access_token
+{% endif %}
+{% for header in _claim_headers %}
+  - name: {{ header.response }}
+    values:
+      - claimSource:
+          claim: {{ header.claim | to_json }}
+{% endfor %}

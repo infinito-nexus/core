@@ -1,0 +1,10 @@
+---
+- name: "🤖 Agents plugin takes a second OpenAI-compatible service"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: the plugin ships with the image and
+      tasks/utils/ai_gateway.yml already owns its service and bot rows. Add
+      {{ mattermost_addon.value.config.partner_url }} as a further
+      OpenAI-compatible service in System Console > Plugins > Agents to route
+      prompts at the partner instead of the platform gateway.
+  changed_when: false

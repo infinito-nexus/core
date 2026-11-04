@@ -38,20 +38,20 @@ class TestInjEnabledFilter(unittest.TestCase):
                 "services": {
                     "javascript": {"enabled": True},
                     "logout": {"enabled": False},
-                    "css": {"enabled": True},
+                    "design": {"enabled": True},
                     "matomo": {"enabled": False},
                     "dashboard": {"enabled": True},
                 }
             }
         }
-        features = ["javascript", "logout", "css", "matomo", "dashboard"]
+        features = ["javascript", "logout", "design", "matomo", "dashboard"]
         result = self.filter(applications, "myapp", features)
         self.assertEqual(
             result,
             {
                 "javascript": True,
                 "logout": False,
-                "css": True,
+                "design": True,
                 "matomo": False,
                 "dashboard": True,
             },

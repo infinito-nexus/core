@@ -1,0 +1,6 @@
+<object xmlns="http://www.xwiki.org">
+  <className>FlamingoThemesCode.ThemeClass</className>
+{% for name, value in xwiki_design_theme_properties | dictsort %}
+  <property name="{{ name }}"><value>{{ value | e }}</value></property>
+{% endfor %}
+</object>

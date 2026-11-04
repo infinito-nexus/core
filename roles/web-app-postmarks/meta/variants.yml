@@ -11,6 +11,9 @@
 # variant 0: OIDC variant (canonical default).
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     dashboard:
       enabled: true
       shared: true
@@ -26,12 +29,15 @@
     prometheus:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     dashboard:
       enabled: false
       shared: false
@@ -47,7 +53,7 @@
     prometheus:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     tor:

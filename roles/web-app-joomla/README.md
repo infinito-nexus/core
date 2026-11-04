@@ -10,114 +10,35 @@ This role deploys Joomla on Docker Compose. It builds a custom Joomla image that
 
 For the OIDC plugin source and its environment contract see [README.md](./files/joomla-oidc-plugin/README.md).
 
-## Cosmos
-
-The diagram places Joomla in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-joomla 🐳🐝]
-        svc_sso["sso"]
-        svc_ldap["ldap ❌"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_mariadb["mariadb"]
-        svc_joomla["joomla"]
-        svc_css["css"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
-    dep_svc_db_openldap -- "0..0" --> svc_ldap
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-    linkStyle 2 stroke:red;
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Addons
 
-Role-level extensions are declared in [`meta/addons/`](./meta/addons/)
+Role-level extensions are declared in `meta/addons/`
 (unified addon contract, requirement 026):
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
-| `plg_system_keycloak` | `plugin` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `plg_system_keycloak` | `plugin` | enabled with `services.joomla.login.method.sso`, which is on whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
 
 `plg_system_keycloak` is built imperatively inside the Joomla container and speaks OIDC against Keycloak.
-Its enablement derives directly from the `sso` service flag, and its OIDC runtime contract (issuer, client id/secret, redirect/end-session URLs, fallback toggle, and RBAC group paths) lives under the addon's `config:` block, which [`templates/env.j2`](./templates/env.j2) renders into the `JOOMLA_OIDC_*` plugin environment.
+Its enablement derives from the `sso` login method, and its OIDC runtime contract (issuer, client id/secret, redirect/end-session URLs, fallback toggle, and RBAC group paths) lives under the addon's `config:` block, which [`templates/env.j2`](./templates/env.j2) renders into the `JOOMLA_OIDC_*` plugin environment.
 
 ## Features
 
 - **Containerized deployment:** Run Joomla through Docker Compose with the role-specific custom image.
 - **Native OIDC SSO:** Authenticate users against Keycloak via the in-role `plg_system_keycloak` plugin, with `?fallback=local` as an env-toggleable emergency hatch.
-- **RBAC group mapping:** Map Keycloak group paths onto Joomla's built-in `Super Users`, `Editor`, and `Registered` user groups inside the plugin.
-- **LDAP variant:** Switch to Joomla's core LDAP plugin via the role's matrix-deploy variant 1, for sites that prefer direct LDAP federation.
+- **Login methods:** `services.joomla.login.method` declares `sso`, `ldap`, `native`, `2fa`, `passkey` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). `sso` enables `plg_system_keycloak`, which sends every guest to Keycloak. `ldap` enables `plg_authentication_ldap` ([`tasks/10_ldap.yml`](./tasks/10_ldap.yml)). [`tasks/11_login_methods.yml`](./tasks/11_login_methods.yml) runs [`files/php/login_methods.php`](./files/php/login_methods.php) on every deploy, which sets `plg_authentication_joomla` from `native`, `plg_system_webauthn` (the passkey button) from `passkey`, the `totp`, `yubikey`, `webauthn` and `email` plugins of the `multifactorauth` group from `2fa` (offered for enrollment, never enforced), and the com_users `allowUserRegistration` param from `registration`. Shared form: Joomla's authentication plugins apply to every account, so Joomla cannot tell local from directory accounts; `plg_authentication_joomla` therefore stays on while `ldap` is on or the break-glass needs it, and `native` off removes local accounts from the form only when neither applies.
+- **Break-glass access:** with SSO on, `services.sso.oidc.fallback_enabled` keeps `/administrator/index.php?fallback=local` and `index.php?option=com_users&view=login&fallback=local` on the local form for ten minutes, and `plg_authentication_joomla` stays enabled for it; the bootstrap administrator signs in there with its local password ([`test-oidc-fallback.js`](./files/playwright/test-oidc-fallback.js)).
+- **RBAC group mapping:** Map the Keycloak groups of the `administrator`, `manager`, `publisher`, `editor`, `author` and `registered` roles onto Joomla's built-in `Super Users`, `Manager`, `Publisher`, `Editor`, `Author` and `Registered` user groups on every login.
+- **Open access:** Let every realm user sign in; a user without a mapped role group lands in the com_users "New User Registration Group" (`Registered`).
+- **Profile sync:** Overwrite name, email, frontend language (from the `locale` claim, resolved to an installed site language) and time zone (from the `zoneinfo` claim) on every login, so Keycloak stays the source of truth.
+- **Contact sync:** Enable the core `plg_user_profile` and overwrite its phone, street, city, region, postal code, country and website fields from the `phone_number`, `address` and `website` claims on every login; the plugin requests the `phone` and `address` scopes, and the profile form hides the profile fields Keycloak does not feed.
+- **Read-only IdP fields:** `services.sso.profile.locked` decides which fields are locked. [`templates/env.j2`](./templates/env.j2) renders its keys into `JOOMLA_OIDC_PROFILE_LOCKED`, and for an SSO account the plugin renders exactly those fields read-only in the com_users profile form and keeps their stored values when a profile save carries others. `onUserBeforeSave` refuses every other change of a locked field or of the SSO marker of an SSO account from a site request or from the web services API. The shared lock renderer of `sys-front-inj-javascript` adds the translated warning to the same fields as their hover title. Removing a key unlocks its field in the form and on save; the next login still overwrites it.
+- **SSO-only sign-in:** a local sign-in (password, directory, passkey or remember-me cookie) of an SSO account other than the bootstrap administrator is signed out again at once and sent to Keycloak, so a local password set through a password reset or by an administrator never opens a session that skips the login sync of groups and profile.
+- **Break-glass editing:** the backend is break-glass only, and so is a local site session of the bootstrap administrator or of an account holding `core.admin`, signed in with a password through `?fallback=local`: they edit every field of every account, and the next Keycloak login of an SSO account overwrites what Keycloak manages again. The console (`cli/joomla.php`) is not guarded either.
+- **SSO logout:** Route a com_users Log out request through Keycloak's end-session endpoint, so signing out of Joomla also ends the Keycloak session; with the `logout` service on, its injected script sends the button to the universal logout first.
+- **LDAP variant:** Configure and enable Joomla's core `plg_authentication_ldap` against `svc-db-openldap` whenever the `ldap` login method is on (the `ldap` service without `sso`, variant 1), binding with the directory administrator, searching users by their login attribute and reading full name and email from the directory; new directory users are created in `Registered`.
 - **External database:** Persist Joomla content in the project's central RDBMS through the standard role-meta wiring.
 - **NGINX reverse proxy:** Front the Joomla container with the project's `sys-stk-front-proxy` for TLS termination and per-domain routing.
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Joomla onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-joomla full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Joomla to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-joomla
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
 
 ## Developer Notes
 
@@ -125,26 +46,26 @@ See [README.md](./files/joomla-oidc-plugin/README.md) for the OIDC plugin's mani
 
 ## End-to-end tests
 
-The Playwright spec at [`playwright.spec.js`](./files/playwright/playwright.spec.js) currently exercises the **administrator** path only: Keycloak SSO into the admin backend plus the local form-login emergency hatch (`?fallback=local`). The non-admin RBAC path via the canonical `biber` user is not yet covered.
+The Playwright spec at [`playwright.spec.js`](./files/playwright/playwright.spec.js) covers:
 
-Until the biber path is added:
+- the administrator's Keycloak SSO handshake and the local form-login emergency hatch (`?fallback=local`);
+- `biber` in each of the `administrator`, `manager`, `publisher`, `editor`, `author` and `registered` groups landing in the matching Joomla group, the bootstrap administrator keeping `Super Users` without the `administrator` group, and `biber` without a role group landing in `Registered`, read from Users: Manage ([`test-rbac-groups.js`](./files/playwright/test-rbac-groups.js));
+- the `locale`, `zoneinfo`, phone, address and website Keycloak attributes of `biber` arriving as Joomla language, time zone and `plg_user_profile` fields, every synced field read-only, and a save with a tampered name keeping the Keycloak name ([`test-profile-sync.js`](./files/playwright/test-profile-sync.js));
+- every `services.sso.profile.locked` field of `biber` read-only with the translated warning, a direct profile POST with other values keeping them while saving the unmanaged editor setting, the SSO administrator unable to rename itself, a local break-glass session editing its own profile and its account in the backend, and a local password on `biber` opening no `?fallback=local` session ([`test-profile-lock.js`](./files/playwright/test-profile-lock.js));
+- the com_users Log out button ending the Keycloak session, through the issuer's end-session endpoint when `logout` is off and through the universal logout otherwise ([`test-sso-logout.js`](./files/playwright/test-sso-logout.js));
+- the administrator and `biber` signing in through the core LDAP plugin in the LDAP variant with SSO off ([`test-ldap-login.js`](./files/playwright/test-ldap-login.js)), and `plg_authentication_ldap` staying disabled in Extensions: Plugins while `ldap` is off ([`test-ldap-disabled.js`](./files/playwright/test-ldap-disabled.js));
+- with SSO on, the site and administrator sign-in sending a guest to Keycloak, and the `?fallback=local` forms showing no passkey or registration entry while those methods are off ([`test-login-methods.js`](./files/playwright/test-login-methods.js)).
 
-- the role's [`playwright.env.j2`](./templates/playwright.env.j2) MUST NOT carry stale `BIBER_USERNAME` / `BIBER_PASSWORD` keys (the lint at [`test_env_keys_used.py`](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) enforces this);
-- the admin scenarios stay gated on `oidc` (and on `ldap` for the LDAP-variant scenarios), so a deploy with `disable=oidc` reports the SSO scenario as `skipped`, never `failed`.
+SSO scenarios are gated on `sso` and LDAP scenarios on `ldap`, so a deploy without the service reports them as `skipped`, never `failed`.
 
 ## Further Resources
 
 - [Joomla Official Website](https://www.joomla.org/)
 - [Joomla Documentation](https://docs.joomla.org/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/WcX6mKb6zbJMTtrk47XCNk)
 
 ## Persona contract opt-outs
 
 The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`.
-Joomla's site template ships no login/logout module, and `plg_system_keycloak` exposes sign-out only as the route `index.php?option=keycloak&task=logout` (`files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php`, `handleLogout`) rather than as a rendered control, so the persona's mandatory in-app logout click has no target and navigating a logout URL directly is forbidden by the contract.
-The OIDC handshake itself, the LDAP variant and the `/administrator?fallback=local` hatch are covered by `files/playwright/test-oidc-login.js`, `test-ldap-login.js` and `test-oidc-fallback.js`.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+The site front page renders no logout control: Joomla's site template places no login module, and the only rendered Log out button sits on the com_users login view, so the persona's mandatory in-app logout click on the front page has no target and navigating a logout URL directly is forbidden by the contract.
+The OIDC handshake itself, the Keycloak logout from the com_users Log out button, the LDAP variant and the `/administrator?fallback=local` hatch are covered by `files/playwright/test-oidc-login.js`, `test-sso-logout.js`, `test-ldap-login.js` and `test-oidc-fallback.js`.

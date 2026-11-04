@@ -18,10 +18,10 @@ class TestCspFamilyAlignment(unittest.TestCase):
         self.domains = {
             "web-app-bigbluebutton": ["bbb.example.org"],
             "web-app-dashboard": ["dash.abc.onion"],
-            "web-svc-cdn": ["cdn.abc.onion", "cdn.example.org"],
-            "web-app-matomo": ["matomo.abc.onion", "matomo.example.org"],
-            "web-svc-logout": ["logout.abc.onion", "logout.example.org"],
-            "web-app-keycloak": ["auth.abc.onion", "auth.example.org"],
+            "web-svc-cdn": ["cdn.example.org", "cdn.abc.onion"],
+            "web-app-matomo": ["matomo.example.org", "matomo.abc.onion"],
+            "web-svc-logout": ["logout.example.org", "logout.abc.onion"],
+            "web-app-keycloak": ["auth.example.org", "auth.abc.onion"],
         }
 
     def test_clearnet_consumer_gets_clearnet_provider_tokens(self):
@@ -46,6 +46,21 @@ class TestCspFamilyAlignment(unittest.TestCase):
         self.assertNotIn("cdn.example.org", header)
         self.assertNotIn("matomo.example.org", header)
 
+    def test_onion_vhost_of_a_clearnet_consumer_gets_onion_tokens(self):
+        domains = dict(self.domains)
+        domains["web-app-bigbluebutton"] = ["bbb.example.org", "bbb.abc.onion"]
+        header = self.filter.build_csp_header(
+            self.apps,
+            "web-app-bigbluebutton",
+            domains,
+            "https",
+            vhost_domain="bbb.abc.onion",
+        )
+        self.assertIn("http://cdn.abc.onion", header)
+        self.assertIn("http://matomo.abc.onion", header)
+        self.assertNotIn("cdn.example.org", header)
+        self.assertIn("https://auth.example.org", header)
+
     def test_onion_only_provider_falls_back_for_clearnet_consumer(self):
         domains = dict(self.domains)
         domains["web-svc-cdn"] = ["cdn.abc.onion"]
@@ -61,5 +76,5 @@ class TestCspFamilyAlignment(unittest.TestCase):
         header = self.filter.build_csp_header(
             self.apps, "web-app-bigbluebutton", domains, "https"
         )
-        self.assertIn("http://cdn.abc.onion", header)
-        self.assertNotIn("https://cdn.abc.onion", header)
+        self.assertIn("https://cdn.example.org", header)
+        self.assertNotIn("cdn.abc.onion", header)

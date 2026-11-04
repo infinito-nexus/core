@@ -6,138 +6,35 @@
 
 ## Overview
 
-This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via `sys-stk-full`. Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via Stalwart are wired when their providers are present.
-
-## Cosmos
-
-The diagram places Zammad in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_memcached["svc-db-memcached 🐳🐝"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dep_svc_db_redis["svc-db-redis 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-zammad 🐳🐝]
-        svc_litellm["litellm"]
-        svc_sso["sso"]
-        svc_ldap["ldap"]
-        svc_email["email"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_prometheus["prometheus"]
-        svc_css["css"]
-        svc_postgres["postgres"]
-        svc_redis["redis"]
-        svc_memcached["memcached"]
-        svc_zammad["zammad"]
-        svc_railsserver["railsserver"]
-        svc_websocket["websocket"]
-        svc_search["search"]
-        svc_elasticsearch["elasticsearch"]
-        svc_precheck["precheck"]
-        svc_init["init"]
-        svc_scheduler["scheduler"]
-        svc_nginx["nginx"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-        svc_zammadmcp["zammadmcp"]
-        svc_openwebui["openwebui"]
-        svc_hermes["hermes"]
-        svc_openclaw["openclaw"]
-        svc_flowise["flowise ❌"]
-    end
-    subgraph dependents [Dependents]
-        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
-    end
-    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_memcached -. "0..1" .-> svc_memcached
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_db_postgres -. "0..1" .-> svc_postgres
-    dep_svc_db_redis -. "0..1" .-> svc_redis
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_hermes -. "0..1" .-> svc_hermes
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
-    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via `sys-stk-full`. Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via the mail server ([web-app-email](../web-app-email/)) are wired when their providers are present.
 
 ## Features
 
 - **Helpdesk ticketing:** Multi-channel agent and customer surface for email, web and (optionally) chat tickets.
 - **Direct OIDC SSO:** Sign in through the shared Keycloak OIDC client without an oauth2-proxy sidecar; redirect URI is auto-registered.
+- **Keycloak owns the Zammad roles:** every OIDC sign-in rewrites the account's roles from its RBAC group membership, as declared by `ZAMMAD_RBAC_ROLE_GRANTS` in [vars/main.yml](./vars/main.yml): `administrator` grants `Admin` and `Agent`, `agent` grants `Agent`, `customer` grants `Customer`, and a sign-in whose groups match none of them grants `Customer`. A role handed out by hand in the Zammad admin panel is therefore replaced at the account's next sign-in. The roles are left untouched, with an error in the Rails log, whenever the mapping cannot be applied: no group claim in the response at all, a granted role that Zammad does not have or has deactivated, or a role write Zammad's own guards refuse (the last admin, the agent limit). The native `Admin` + `Agent` account of [files/ruby/apply/administrator.rb](./files/ruby/apply/administrator.rb) is only converged while `sso` is off, and the OIDC path grants roles only, not the `Users` group access that script also sets.
+- **OIDC profile sync:** Zammad requests the `phone` and `address` scopes (`ZAMMAD_OIDC_SCOPE`), and every OIDC sign-in copies the first name, last name, email, phone, street, postal code, city and country from the claims it carries onto the account (`ZAMMAD_OIDC_PROFILE_CLAIMS`, `ZAMMAD_OIDC_ADDRESS_FIELDS`). A claim the sign-in does not carry leaves the field unchanged, and an email that another Zammad account already holds is kept with an error in the Rails log.
 - **LDAP federation:** When `svc-db-openldap` is present, Zammad authenticates and provisions accounts against the central LDAP.
-- **Mail-to-ticket:** When `web-app-stalwart` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
+- **LDAP role groups:** the LDAP import maps the RBAC role groups `cn=web-app-zammad-<role>` under the roles OU onto the same Zammad roles as `ZAMMAD_RBAC_ROLE_GRANTS` (`ZAMMAD_LDAP_GROUP_ROLE_MAP`). A directory user in none of them gets Zammad's signup role (`Customer`), so any directory user can open tickets. The import is the leading source for the roles of every directory user: it runs at deploy, on Zammad's own LDAP schedule and from the admin panel's LDAP integration.
+- **LDAP profile fields:** the import copies the login, first name, last name, email, phone, mobile, department, street, postal code, city, country and description (into `note`) from the `LDAP.USER.ATTRIBUTES` keys (`ZAMMAD_LDAP_USER_ATTRIBUTES`). Zammad keeps street, zip, city and country as inactive user attributes, so the API returns them but the user form does not show them.
+- **Mail-to-ticket:** When `web-app-email` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
 - **Server-name alias:** `zammad.helpdesk.{{ DOMAIN_PRIMARY }}` is a true vhost alias of `helpdesk.{{ DOMAIN_PRIMARY }}` (not a 301 redirect).
 - **Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists. Its disk watermarks follow the disk size (85 / 90 / 95 % used, requiring at most 200 / 150 / 100 GB free, `services.search.watermark`); the CI and development variants lower those caps to 10 / 5 / 2 GB.
 - **Search allocation precheck:** [search_allocation_precheck.sh](files/shell/search_allocation_precheck.sh) creates a one-shard probe index named after the container and fails with the answer of `_cluster/allocation/explain`, which names the disk watermark when the data disk is too full, unless Elasticsearch allocates it. `init` runs it in front of `zammad-init`. In compose, the one-shot `precheck` service runs it first and `init` depends on that service, so `compose up` stops on a refusal. Swarm renders no `precheck` service, because `depends_on` does not gate `init` there. Instead the deploy waits until the newest `init` task is `Complete`: a refusing Elasticsearch leaves it `Failed`, the wait stops the deploy, and `docker service logs` of `init` carries the explanation. An `init` the stack deploy did not restart is already `Complete` and passes at once.
 - **Search index per Elasticsearch major:** The index lives in a directory named after the Elasticsearch major inside the `zammad_search` volume. A new major starts on an empty directory and `zammad-init` rebuilds the index from the database on the same deploy.
 - **Wizard bypass:** First deploy seeds `auto_wizard.json` so no manual setup UI step is required.
+- **Login methods:** `services.zammad.login.method.<method>.enabled` in [meta/services.yml](./meta/services.yml) declares `sso`, `ldap`, `native`, `2fa` and `registration`, and [files/ruby/apply/login_methods.rb](./files/ruby/apply/login_methods.rb) writes them into Zammad's settings at every deploy: `sso` sets `auth_openid_connect`, `native` or `ldap` sets `user_show_password_login`, `registration` sets `user_create_account`, and `2fa` sets the authenticator app and security key methods while `two_factor_authentication_enforce_role_ids` stays empty, so the second factor is offered and never enforced. One form serves local and LDAP accounts and Zammad cannot tell them apart, so the form is shared: with `native` off in the LDAP mode a local account still signs in through it. The LDAP import keeps running with the `ldap` service, because it carries the role mapping of the directory users. Break-glass: with the password form hidden, the sign-in page links `#admin_password_auth`, which mails an administrator a one-time password-login link; `POST /api/v1/signin` keeps accepting the local administrator accounts (the API bot of `ZAMMAD_API_BOT_USER`, the wizard administrator), as does Basic auth on the REST API.
 
-## Quick Setup
+## Addons
 
-### Development
+Zammad's cross-role integrations are declared in `meta/addons/`, one file per addon:
 
-Clone, set up the workstation, and deploy Zammad onto the local stack:
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `openid_connect` | `module` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `email_channel` | `bridge` | enabled whenever the `email` service is present (`web-app-email` co-deployed) | `email` → `web-app-email` |
 
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-zammad full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Zammad to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-zammad
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+Both units ship with the Zammad image. [`tasks/01_manager_ops.yml`](./tasks/01_manager_ops.yml) applies [`files/ruby/apply/oidc_settings.rb`](./files/ruby/apply/oidc_settings.rb) and [`files/ruby/apply/email_channel.rb`](./files/ruby/apply/email_channel.rb) under the same service flags the addons declare, so each addon's `enabled` is a declaration of what that provisioning already gates on. Coupling is asserted by [files/playwright/addons/openid_connect.spec.js](./files/playwright/addons/openid_connect.spec.js) and [files/playwright/addons/email_channel.spec.js](./files/playwright/addons/email_channel.spec.js).
 
 ## Developer Notes
 
@@ -148,9 +45,4 @@ Variant matrix lives in [variants.yml](./meta/variants.yml). Service flags and i
 - [Zammad Official Website](https://zammad.org/)
 - [Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)
 - [Zammad GitHub](https://github.com/zammad/zammad)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/U7WFLVC7Qut2pnjLDEzGUr)

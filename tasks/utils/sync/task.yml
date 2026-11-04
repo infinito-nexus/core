@@ -1,0 +1,17 @@
+---
+- name: 📂 Include Token Store
+  ansible.builtin.include_role:
+    name: sys-token-store
+
+- name: 🎛️ Load the proxy handlers an app role may notify before its stack
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/handlers.yml') }}"
+  vars:
+    handler_role_name: svc-prx-openresty
+
+- name: "🔧 Run '{{ sync_task }}' of '{{ sync_application_id }}'"
+  ansible.builtin.include_role:
+    name: "{{ sync_application_id }}"
+    tasks_from: "{{ sync_task }}"
+
+- name: 🚿 Flush the handlers of the role
+  ansible.builtin.meta: flush_handlers

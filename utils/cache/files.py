@@ -29,9 +29,12 @@ view without subprocessing.
 from __future__ import annotations
 
 import os
+import subprocess
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+from utils.roles.custom import is_custom_path
 
 from . import PROJECT_ROOT
 from .gitignore import is_path_gitignored, load_gitignore_patterns
@@ -52,6 +55,8 @@ _DEFAULT_SKIP_DIRS: frozenset[str] = frozenset(
         "vendor",
     }
 )
+
+_ROOT_SKIP_DIRS: frozenset[str] = frozenset({"build"})
 
 
 @lru_cache(maxsize=1)
@@ -91,7 +96,10 @@ def _all_project_files(root_str: str) -> tuple[str, ...]:
     skip_dirs = _DEFAULT_SKIP_DIRS | _local_exclude_dirs()
     paths: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root_str, topdown=True):
-        dirnames[:] = [d for d in dirnames if d not in skip_dirs]
+        skip = skip_dirs
+        if dirpath == root_str:
+            skip = skip | _ROOT_SKIP_DIRS
+        dirnames[:] = [d for d in dirnames if d not in skip]
         paths.extend(str(Path(dirpath) / fn) for fn in filenames)
     return tuple(paths)
 
@@ -196,6 +204,54 @@ def iter_non_ignored_files(
         yield path
 
 
+@lru_cache(maxsize=2)
+def repository_files(*, untracked: bool = False) -> tuple[str, ...]:
+    """Repository-relative POSIX paths of every file ``git ls-files`` lists.
+
+    A tracked file deleted in the worktree is left out. Git ignores the custom
+    roles an inventory pulls into ``roles/``, yet every scan checks them like
+    in-tree roles, so their files are listed as well.
+
+    Args:
+        untracked: also list the untracked files ``.gitignore`` does not exclude.
+
+    Raises:
+        OSError: git is not installed.
+        subprocess.CalledProcessError: git cannot list the files.
+    """
+    root = str(PROJECT_ROOT)
+    rels = _git_files() - _git_files("--deleted")
+    if untracked:
+        rels.update(untracked_files())
+    rels.update(
+        rel
+        for path in iter_project_files()
+        if is_custom_path(rel := os.path.relpath(path, root).replace(os.sep, "/"))
+    )
+    return tuple(sorted(rels))
+
+
+@lru_cache(maxsize=1)
+def untracked_files() -> tuple[str, ...]:
+    """Repository-relative POSIX paths of the untracked files ``.gitignore`` does not exclude.
+
+    Raises:
+        OSError: git is not installed.
+        subprocess.CalledProcessError: git cannot list the files.
+    """
+    return tuple(sorted(_git_files("--others", "--exclude-standard")))
+
+
+def _git_files(*options: str) -> set[str]:
+    out = subprocess.run(
+        ["git", "-c", "safe.directory=*", "ls-files", "-z", *options],
+        cwd=str(PROJECT_ROOT),
+        capture_output=True,
+        check=True,
+    ).stdout
+    return {rel for rel in out.decode("utf-8", errors="replace").split("\0") if rel}
+
+
 def _reset() -> None:
     """Test-only helper: clear the project-walk and file-content caches.
 
@@ -206,3 +262,5 @@ def _reset() -> None:
     _all_project_files.cache_clear()
     _local_exclude_dirs.cache_clear()
     read_text.cache_clear()
+    repository_files.cache_clear()
+    untracked_files.cache_clear()

@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-snipe-it"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 swarm_stack_converge_retries: 600
 
@@ -14,18 +14,84 @@ SNIPE_IT_SERVICE: "{{ entity_name }}"
 SNIPE_IT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, SNIPE_IT_SERVICE) }}"
 SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_key') }}"
 
+SNIPE_IT_MAIL_FROM_NAME: "{{ lookup('config', application_id, 'services.email.from_name') }}"
+
+SNIPE_IT_INITIAL_SETTINGS:
+  alert_email: "{{ lookup('users', 'platform_administrator').email }}"
+  alerts_enabled: 1
+  auto_increment_assets: 0
+  brand: 1
+  default_currency: "USD"
+  full_multiple_companies_support: 0
+  locale: "{{ HOST_LL_CC }}"
+  next_auto_tag_base: 1
+  pwd_secure_min: 10
+  site_name: "Snipe-IT"
+  zerofill_count: 0
+
 SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 
 SNIPE_IT_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 SNIPE_IT_SSO_HEADER_NAME: "INFINITO_SSO_USER"
+SNIPE_IT_SSO_GROUPS_VARIABLE: "INFINITO_SSO_GROUPS"
 SNIPE_IT_SSO_PROXY_HEADER: "X-Infinito-Sso-Proxy"
 SNIPE_IT_SSO_PROXY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.sso_proxy_secret') }}"
 SNIPE_IT_SSO_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
 
-SNIPE_IT_LDAP_FILTER_FRAGMENT: "&(objectClass=inetOrgPerson)"
+SNIPE_IT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SNIPE_IT_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
+SNIPE_IT_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')) }}"
+SNIPE_IT_DESIGN_BRANDING: "{{ lookup('design', application_id) }}"
+SNIPE_IT_DESIGN_COLORS:
+  header_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-frame'] }}"
+  nav_link_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-on-frame'] }}"
+  link_light_color: "{{ SNIPE_IT_DESIGN_PALETTE.light['--design-link'] }}"
+  link_dark_color: "{{ SNIPE_IT_DESIGN_PALETTE.dark['--design-link'] }}"
+  custom_css: "{{ lookup('file', 'custom_css.css', rstrip=False) }}"
+SNIPE_IT_DESIGN_SETTINGS: >-
+  {{
+    SNIPE_IT_DESIGN_COLORS
+    | combine({'site_name': SNIPE_IT_DESIGN_BRANDING.title} if SNIPE_IT_DESIGN_BRANDING.title is string else {})
+    | combine({'brand': 2, 'assets': ['logo', 'favicon']} if SNIPE_IT_DESIGN_BRANDING.logo is string else {'assets': []})
+  }}
+
+SNIPE_IT_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+SNIPE_IT_LDAP_ADMINISTRATOR_GROUP_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
+SNIPE_IT_LDAP_USER_GROUP_DN: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
+SNIPE_IT_LDAP_FILTER_FRAGMENT: >-
+  &(objectClass=inetOrgPerson)(|({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}={{ SNIPE_IT_LDAP_ADMINISTRATOR_GROUP_DN }})({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}={{ SNIPE_IT_LDAP_USER_GROUP_DN
+  }}))(!({{ LDAP.USER.ATTRIBUTES.ID }}={{ SNIPE_IT_BOOTSTRAP_ADMIN_USERNAME }}))
 SNIPE_IT_LDAP_AUTH_FILTER_QUERY: "{{ LDAP.USER.ATTRIBUTES.ID }}="
 SNIPE_IT_LDAP_USER_FIRSTNAME: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME | lower }}"
+SNIPE_IT_LDAP_FIELD_MAP:
+  ldap_display_name: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME | lower }}"
+  ldap_emp_num: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER | lower }}"
+  ldap_phone_field: "{{ LDAP.USER.ATTRIBUTES.PHONE | lower }}"
+  ldap_mobile: "{{ LDAP.USER.ATTRIBUTES.MOBILE | lower }}"
+  ldap_jobtitle: "{{ LDAP.USER.ATTRIBUTES.TITLE | lower }}"
+  ldap_dept: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT | lower }}"
+  ldap_address: "{{ LDAP.USER.ATTRIBUTES.STREET | lower }}"
+  ldap_city: "{{ LDAP.USER.ATTRIBUTES.LOCALITY | lower }}"
+  ldap_state: "{{ LDAP.USER.ATTRIBUTES.REGION | lower }}"
+  ldap_zip: "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE | lower }}"
+  ldap_country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY | lower }}"
+
+SNIPE_IT_RBAC_USER_GROUP: "{{ application_id }}-user"
+SNIPE_IT_RBAC_USER_PERMISSIONS:
+  assets.view: "1"
+  licenses.view: "1"
+  accessories.view: "1"
+  consumables.view: "1"
+  components.view: "1"
+  self.two_factor: "1"
+SNIPE_IT_RBAC_PROTECTED_USERNAMES:
+  - "{{ SNIPE_IT_BOOTSTRAP_ADMIN_USERNAME }}"
+  - "{{ SNIPEIT_MCP_UPSTREAM_USER }}"
+SNIPE_IT_RBAC_ADMINISTRATOR_GROUP_PATH: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+SNIPE_IT_RBAC_USER_GROUP_PATH: "/{{ lookup('rbac_group_path', application_id=application_id, role='user') }}"
+SNIPE_IT_LOGIN_RBAC_CONTEXT: "login_rbac"
+SNIPE_IT_LOGIN_RBAC_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), SNIPE_IT_LOGIN_RBAC_CONTEXT] | path_join }}"
 SNIPEIT_MCP_ENABLED: "{{ lookup('config', application_id, 'services.snipeitmcp.enabled') | bool }}"
 SNIPEIT_MCP_SERVICE_KEY: "snipeitmcp"
 SNIPEIT_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.snipeitmcp.name') }}"

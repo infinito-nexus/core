@@ -1,15 +1,18 @@
 ---
+- name: "📦 ansible-flavor: carry a compose flavor homeserver's identity and media over"
+  include_tasks: 01_carry_over_compose_data.yml
+
 - name: "⬇️ ansible-flavor: clone matrix-docker-ansible-deploy upstream"
-  include_tasks: 01_clone_upstream.yml
+  include_tasks: 02_clone_upstream.yml
 
 - name: "📄 ansible-flavor: render MDAD inventory"
-  include_tasks: 02_render_inventory.yml
+  include_tasks: 03_render_inventory.yml
 
 - name: "🔧 ansible-flavor: provision Matrix database on central postgres"
-  include_tasks: 03_database.yml
+  include_tasks: 04_database.yml
 
 - name: "🚀 ansible-flavor: launch matrix-mdad DiD container"
-  include_tasks: 04_run_playbook.yml
+  include_tasks: 05_run_playbook.yml
 
 - name: "🔌 ansible-flavor: wire sys-svc-proxy to matrix-mdad loopback ports"
-  include_tasks: 05_proxy_wiring.yml
+  include_tasks: 06_proxy_wiring.yml

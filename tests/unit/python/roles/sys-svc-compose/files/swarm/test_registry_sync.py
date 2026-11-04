@@ -1,11 +1,12 @@
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
 from types import ModuleType
 from unittest.mock import patch
 
-from utils.cache.yaml import dump_yaml
+from utils.cache.yaml import dump_yaml, load_yaml
 
 from . import PROJECT_ROOT
 
@@ -29,7 +30,13 @@ class TestSwarmRegistrySync(unittest.TestCase):
         )
 
     def _sync(
-        self, services: dict, *, prefix: str = PREFIX, manifest=lambda img: False
+        self,
+        services: dict,
+        *,
+        prefix: str = PREFIX,
+        manifest=lambda img: False,
+        image_id: str = "sha256:new",
+        pushed: dict | None = None,
     ):
         """Run sync() against a temp compose with docker mocked out; return the
         list of docker argv lists the script issued."""
@@ -42,13 +49,65 @@ class TestSwarmRegistrySync(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             cf = Path(td) / "compose.yml"
             dump_yaml(cf, {"services": services})
+            if pushed is not None:
+                (Path(td) / ".pushed-images.json").write_text(json.dumps(pushed))
             with (
                 patch.object(self.m, "run", side_effect=fake_run),
                 patch.object(self.m, "manifest_exists", side_effect=manifest),
+                patch.object(self.m, "local_image_id", return_value=image_id),
             ):
                 rc = self.m.sync(compose_file=cf, prefix=prefix)
         self.assertEqual(rc, 0)
         return calls
+
+    def _synced_services(self, services: dict, image_id: str) -> dict:
+        with tempfile.TemporaryDirectory() as td:
+            cf = Path(td) / "compose.yml"
+            dump_yaml(cf, {"services": services})
+            with (
+                patch.object(self.m, "run", return_value=0),
+                patch.object(self.m, "manifest_exists", return_value=False),
+                patch.object(self.m, "local_image_id", return_value=image_id),
+            ):
+                self.m.sync(compose_file=cf, prefix=PREFIX)
+            return load_yaml(cf)["services"]
+
+    def test_a_built_image_and_its_siblings_carry_the_local_image_id(self) -> None:
+        services = self._synced_services(
+            {
+                "bookwyrm": {
+                    "build": {"context": "."},
+                    "image": "bookwyrm_custom:3.11-slim",
+                },
+                "worker": {"image": "bookwyrm_custom:3.11-slim"},
+                "redis": {"image": "redis:8"},
+            },
+            image_id="sha256:rebuilt",
+        )
+        self.assertEqual(
+            services["bookwyrm"]["labels"], {"infinito.image-id": "sha256:rebuilt"}
+        )
+        self.assertEqual(
+            services["worker"]["labels"],
+            {"infinito.image-id": "sha256:rebuilt"},
+            "a sibling running the same tag must roll with the rebuilt image too",
+        )
+        self.assertNotIn("labels", services["redis"])
+
+    def test_a_rebuild_under_the_same_tag_changes_the_label(self) -> None:
+        services = self._synced_services(
+            {
+                "pretix": {
+                    "build": {"context": "."},
+                    "image": "pretix_custom:3.13",
+                    "labels": ["keep=1", "infinito.image-id=sha256:old"],
+                },
+            },
+            image_id="sha256:new",
+        )
+        self.assertEqual(
+            services["pretix"]["labels"], ["keep=1", "infinito.image-id=sha256:new"]
+        )
 
     def test_sibling_of_local_build_is_not_pulled(self) -> None:
         """daemon/websocket reference espocrm's already-prefixed build image
@@ -100,6 +159,24 @@ class TestSwarmRegistrySync(unittest.TestCase):
         calls = self._sync({"web": {"image": img}}, manifest=lambda i: True)
         self.assertNotIn(["docker", "pull", "nginx:1.25"], calls)
         self.assertNotIn(["docker", "push", img], calls)
+
+    def test_a_built_image_is_pushed_only_when_its_id_changed(self) -> None:
+        img = f"{PREFIX}mattermost_custom:13.7-slim"
+        services = {"mattermost": {"build": {"context": "."}, "image": img}}
+        push = ["docker", "push", img]
+        for pushed, in_registry, expected in (
+            ({img: "sha256:old"}, True, True),
+            ({img: "sha256:new"}, True, False),
+            ({img: "sha256:new"}, False, True),
+            ({}, True, True),
+        ):
+            with self.subTest(pushed=pushed, in_registry=in_registry):
+                calls = self._sync(
+                    services,
+                    manifest=lambda image, found=in_registry: found,
+                    pushed=pushed,
+                )
+                self.assertEqual(push in calls, expected)
 
     def test_main_empty_prefix_short_circuits(self) -> None:
         """Compose mode passes an empty --registry-prefix; main() returns early

@@ -1,0 +1,27 @@
+---
+# Param rbac_sync_application_id: application whose role mapping the hook reconciles; include on every host of its group, the deploy-time run happens once.
+# Param rbac_sync_enabled: whether the hook is registered; false removes a hook an earlier deploy registered.
+# Param rbac_sync_roles: role names whose members the hook receives; "@users" stands for every account of the directory.
+# Param rbac_sync_mode: "swarm" or "compose", the mode the container runs in; a compose container of a swarm cluster runs on the stack host.
+# Param rbac_sync_service_key: compose/swarm service key of the container the hook acts on.
+# Param rbac_sync_service_name: swarm service name of that container when it lives in another stack (a central database), "" to derive it from the application and the service key.
+# Param rbac_sync_container: compose container name of that service.
+# Param rbac_sync_kind: "container" pipes rbac_sync_script into rbac_sync_argv inside the container; "host" runs rbac_sync_script with Python on the node.
+# Param rbac_sync_user: user rbac_sync_argv runs as inside the container, "" for the image's user.
+# Param rbac_sync_argv: command run inside the container, [] for a host hook.
+# Param rbac_sync_script: the hook's script; "" for a container hook that reads no standard input.
+# Param rbac_sync_modules: list of {name, content} files a host hook imports or reads beside its script, [] for none.
+# Param rbac_sync_env: variables the hook receives; the hook directory is root-only.
+# Param rbac_sync_members_env: list of {name, role, field}; role "*" passes {role: members}, field "" passes whole members, otherwise that field per member.
+# Param rbac_sync_skip_unchanged: whether the timer skips the hook while its definition and members are unchanged and its last run is recent.
+# Output rbac_sync_run: the deploy-time run; its stdout carries CHANGED when the hook wrote something.
+
+- name: "🧹 Unregister the RBAC hook of {{ rbac_sync_application_id }}"
+  ansible.builtin.file:
+    path: "{{ [ DIR_RBAC_SYNC, 'hooks', rbac_sync_application_id ] | path_join }}"
+    state: absent
+  when: not (rbac_sync_enabled | bool)
+
+- name: "🛂 Register and run the RBAC hook of {{ rbac_sync_application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync/register.yml') }}"
+  when: rbac_sync_enabled | bool

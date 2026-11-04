@@ -1,0 +1,40 @@
+---
+- name: "🔄 Redeploy OpenResty for the vhosts that answered stale"
+  ansible.builtin.debug:
+    msg: >-
+      Restarting OpenResty, last status per vhost:
+      {{ dict(front_proxy_deferred_stale | zip(front_proxy_deferred_stale | map('extract', front_proxy_deferred_check.status))) }}
+  changed_when: true
+  notify: restart-openresty
+
+- name: "🔄 Restart OpenResty for the stale vhosts"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Verify the queued vhosts are served after the restart"
+  uri_probe_batch:
+    urls: "{{ front_proxy_deferred_urls }}"
+    method: HEAD
+    status_codes: "{{ front_proxy_deferred_answers }}"
+    attempts: 3
+    delay: 2
+    timeout: "{{ lookup('timeout', 5) | int }}"
+    validate_certs: true
+    follow_redirects: none
+    workers: 16
+  register: front_proxy_deferred_verify
+  failed_when: front_proxy_deferred_verify is failed and front_proxy_deferred_verify.unanswered is not defined
+  changed_when: false
+
+- name: "🛑 Fail on vhosts OpenResty still does not serve"
+  ansible.builtin.fail:
+    msg: >-
+      OpenResty does not serve {{ front_proxy_deferred_unreachable | join(', ') }} even after a restart.
+      Last status per vhost, -1 meaning no answer:
+      {{ dict(front_proxy_deferred_unreachable | zip(front_proxy_deferred_unreachable | map('extract', front_proxy_deferred_verify.status))) }}
+  vars:
+    front_proxy_deferred_unreachable: >-
+      {{
+        front_proxy_deferred_verify.status
+        | front_proxy_unserved(front_proxy_deferred_probes, front_proxy_stale_config_status_codes)
+      }}
+  when: front_proxy_deferred_unreachable | length > 0

@@ -1,0 +1,5 @@
+{# Param semaphore_project_token: the deploy token this run minted. #}
+\set token '{{ semaphore_project_token | replace("'", "''") }}'
+DELETE FROM public.user__token
+WHERE id = :'token'
+RETURNING 'REVOKED';

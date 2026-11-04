@@ -1,16 +1,19 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue } = require("../personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, requireDotenvValue } = require("../personas");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("../service-gating");
 const { resolveTimeout } = require("../timeouts");
 
-const baseUrl = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
+const adminUsername = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME"));
+const adminPassword = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD"));
 
 test.use({ ignoreHTTPSErrors: true });
 
-test("addon auth-ldap: the ldap mount is served by the external plugin", async ({ request }) => {
+test("administrator: addon auth-ldap serves the ldap mount from the external plugin", async ({ request }) => {
   skipUnlessAddonEnabled("auth-ldap");
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
 
   const login = await request.post(
     `${baseUrl}/v1/auth/ldap/login/${encodeURIComponent(adminUsername)}`,

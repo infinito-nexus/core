@@ -2,7 +2,7 @@
 # Service Timers
 
 # # Meta
-SYS_TIMER_ALL_ENABLED: "{{ MODE_DEBUG }}" # Runtime Variables for Process Control - Activates all timers, independend if the handlers had been triggered
+SYS_TIMER_ALL_ENABLED: "{{ DEBUG }}" # Runtime Variables for Process Control - Activates all timers, independend if the handlers had been triggered
 
 HOURS_SERVER_AWAKE: "6..23" # Ours in which the server is "awake" (100% working). Rest of the time is reserved for maintanance
 RANDOMIZED_DELAY_SEC: "5min" # Random delay for systemd timers to avoid peak loads.
@@ -43,5 +43,6 @@ SYS_SCHEDULE_BACKUP_LOCAL_TO_DEVICE: "*-*-* 02:00:00" # Sync to the USB device i
 SYS_SCHEDULE_MAINTANANCE_LETSENCRYPT_RENEW: "*-*-2/2  10:00:00" # Renew Mailu certificates every two days (even days only)
 SYS_SCHEDULE_MAINTANANCE_LETSENCRYPT_DEPLOY: "*-*-* 11,23:00:00" # Deploy letsencrypt certificates twice per day to docker containers
 SYS_SCHEDULE_MAINTANANCE_NEXTCLOUD: "21" # Do nextcloud maintanace between 21:00 and 01:00
+SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC: "*-*-* *:00/15:00" # Reconcile the application role mappings with the directory's role groups every 15 minutes
 
 SYS_SCHEDULE_ANIMATION_KEYBOARD_COLOR: "*-*-* *:*:00" # Change the keyboard color every minute

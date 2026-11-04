@@ -1,0 +1,31 @@
+---
+# Matrix-deploy variant overrides for svc-ai-libretranslate-engine.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    docs:
+      enabled: true
+      shared: true
+    libretranslate-engine:
+      loading_model: lazy
+      load_only:
+        - en
+        - de
+- services:
+    docs:
+      enabled: false
+      shared: false
+    libretranslate-engine:
+      loading_model: build
+      load_only:
+        - en
+        - de
+- services:
+    docs:
+      enabled: false
+      shared: false
+    libretranslate-engine:
+      loading_model: task
+      load_only:
+        - en
+        - de

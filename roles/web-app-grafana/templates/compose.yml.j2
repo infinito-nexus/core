@@ -1,0 +1,34 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_update_order = 'stop-first' %}
+  {% for grafana_instance in GRAFANA_INSTANCES %}
+  {% set service_name = 'grafana' | labelled(grafana_instance.label, '-') %}
+  {% set grafana_domain = lookup('domains')[application_id] | domain_strings | in_network(grafana_instance.network) | first %}
+  {% set grafana_url = lookup('tls', grafana_domain, 'url.origin') %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'grafana') }}
+    {{ lookup('compose_only', 'container_name', GRAFANA_CONTAINER | labelled(grafana_instance.label, '-')) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    environment: # nocheck: compose-environment-from-env-file  every network instance shares the role's one env_file, and only these network-bound keys differ between them
+      GF_SERVER_ROOT_URL: {{ (grafana_url ~ '/') | to_json }}
+      GF_SERVER_DOMAIN: {{ grafana_domain | to_json }}
+      GF_SECURITY_COOKIE_SECURE: "{{ lookup('tls', grafana_domain, 'enabled') | bool | lower }}"
+      {% if GRAFANA_OIDC_ENABLED | bool %}
+      GF_AUTH_SIGNOUT_REDIRECT_URL: {{ (GRAFANA_SIGNOUT_URL_PREFIX ~ ((grafana_url ~ '/login') | urlencode)) | to_json }}
+      {% endif %}
+    {{ lookup('container_ports', ['grafana', 'grafana' | labelled(grafana_instance.label, '_'), DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_healthcheck', 'grafana') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+      {% if GRAFANA_PROMETHEUS_ENABLED | bool %}
+      {{ GRAFANA_PROMETHEUS_NETWORK }}:
+      {% endif %}
+
+  {% endfor %}
+{{ lookup('compose_volumes') }}
+{{ lookup('compose_networks') }}
+  {% if GRAFANA_PROMETHEUS_ENABLED | bool %}
+  {{ GRAFANA_PROMETHEUS_NETWORK }}:
+    external: true
+  {% endif %}

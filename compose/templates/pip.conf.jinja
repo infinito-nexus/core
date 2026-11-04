@@ -1,0 +1,12 @@
+{#
+  Rendered from the cache: declarations. pip reaches the frontend under the
+  real PyPI hostnames, which extra_hosts maps to it; the service name would
+  not resolve, because coredns does not answer for it. trusted-host skips the
+  frontend's self-signed certificate.
+#}
+[global]
+index-url = {{ CACHE_PACKAGE_PYPI_INDEX }}
+trusted-host =
+{% for host in CACHE_PACKAGE_PYPI_HOSTS %}
+    {{ host }}
+{% endfor %}

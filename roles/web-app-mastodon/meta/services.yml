@@ -18,8 +18,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
@@ -50,12 +50,22 @@ mastodon:
   version: v4.6.2
   min_storage: 535MB
   backup:
-    no_stop_required: true
+    stop_required: false
   name: mastodon
   cpus: "1.0"
   mem_reservation: 1.5g
   mem_limit: 2g
   pids_limit: 512
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-mastodon', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-mastodon', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-mastodon', '2fa') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-mastodon', 'registration') }}"
   single_user_mode: false
   ports:
     local:
@@ -116,17 +126,33 @@ minio:
   public: true
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    wordmark:
+      width: 237
+      height: 60
+    app-icon:
+      width: 512
+      height: 512
+    thumbnail:
+      width: 1200
+      height: 630
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag  gated on the role's own 2fa login method, not on group_names
+# nocheck: playwright-service-flag  runtime DOM patch of the settings navigation, asserted by files/playwright/test-login-methods.js
+javascript:
+  bond: 1
+  enabled: "{{ not (lookup('config', 'web-app-mastodon', 'services.mastodon.login.method.2fa.enabled') | bool) }}"
+  shared: "{{ not (lookup('config', 'web-app-mastodon', 'services.mastodon.login.method.2fa.enabled') | bool) }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -140,3 +166,16 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

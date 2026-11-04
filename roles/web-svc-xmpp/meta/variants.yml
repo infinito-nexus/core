@@ -1,22 +1,13 @@
 ---
-# Matrix-deploy variant overrides. The LDAP
-# variant is the canonical XMPP path because most clients only
-# support SCRAM-SHA-256 over a real password store; the OIDC
-# variant exists only to satisfy the auth-flow-variants
-# requirement and runs the same ejabberd config with the OIDC
-# marker raised.
-
-# variant 0: OIDC variant (canonical default; ejabberd LDAP backend
-# stays on, OIDC marker is on so Playwright runs the OIDC scenario).
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     ldap:
       shared: true
       enabled: true
-    sso:
-      enabled: true
-      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -24,15 +15,15 @@
       enabled: true
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
       shared: false # nocheck: variants-static-override backup shared stays literally true
       enabled: false
-    sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -46,9 +37,6 @@
     ldap:
       shared: true
       enabled: true
-    sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

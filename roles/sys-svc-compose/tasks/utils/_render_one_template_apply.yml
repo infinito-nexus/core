@@ -1,0 +1,53 @@
+---
+- name: "✅ Ensure parent directory exists for '{{ _tpl.dest }}'"
+  ansible.builtin.file:
+    path: "{{ _tpl.dest | dirname }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "📄 Render '{{ _tpl.dest }}' (on manager when swarm)"
+  ansible.builtin.template: # nocheck: stack-host-template (structurally STACK_HOST-delegated already (delegate_to + run_once), uses its own swarm-distribution dance)
+    src: "{{ _tpl.src }}"
+    dest: "{{ _tpl.dest }}"
+    owner: "{{ _tpl.owner }}"
+    group: "{{ _tpl.group }}"
+    mode: "{{ _tpl.mode }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: _role_templates_render
+  notify: "{{ _tpl.notify }}"
+
+- name: "[swarm] Replicate '{{ _tpl.dest }}' across the swarm"
+  when: IS_SWARM_MODE
+  block:
+    - name: "[swarm] Slurp rendered '{{ _tpl.dest }}' from manager"
+      ansible.builtin.slurp:
+        src: "{{ _tpl.dest }}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      register: _role_templates_slurp
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "[swarm] Ensure parent directory of '{{ _tpl.dest }}' exists on every node"
+      ansible.builtin.file:
+        path: "{{ _tpl.dest | dirname }}"
+        state: directory
+        mode: "0755"
+      delegate_to: "{{ item }}"
+      loop: "{{ query('node_hosts') }}"
+      run_once: true
+
+    - name: "[swarm] Distribute '{{ _tpl.dest }}' to every node"
+      ansible.builtin.copy:
+        content: "{{ _role_templates_slurp.content | b64decode }}"
+        dest: "{{ _tpl.dest }}"
+        owner: "{{ _tpl.owner }}"
+        group: "{{ _tpl.group }}"
+        mode: "{{ _tpl.mode }}"
+      delegate_to: "{{ item }}"
+      loop: "{{ query('node_hosts') }}"
+      run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -14,3 +14,4 @@ RUN echo "gem 'omniauth_openid_connect'" >> /code/Gemfile && \
 COPY ${DECIDIM_PATCH_SCRIPT_HOST_REL} ${DECIDIM_PATCH_SCRIPT_DOCKER}
 COPY ${DECIDIM_PATCH_RUBY_HOST_REL}/ ${DECIDIM_PATCH_RUBY_DOCKER}/
 RUN DECIDIM_PATCH_RUBY_DOCKER=${DECIDIM_PATCH_RUBY_DOCKER} python3 ${DECIDIM_PATCH_SCRIPT_DOCKER}
+RUN cp ${DECIDIM_PATCH_RUBY_DOCKER}/initializers/infinito_rbac.rb /code/config/initializers/infinito_rbac.rb

@@ -46,3 +46,16 @@ tor:
 container_backup:
   enabled: false
   shared: true
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: every Semaphore request passes this proxy, so a run that paused it would cut off the UI that resumes it
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started

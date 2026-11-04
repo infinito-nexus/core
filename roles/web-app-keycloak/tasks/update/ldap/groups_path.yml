@@ -54,7 +54,9 @@
   changed_when: false
 
 - name: ✅ Assert top-level group for groups.path exists now
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - KEYCLOAK_VALIDATE_ENABLED | bool
+    - IS_STACK_HOST | bool
   assert:
     that:
       - groups_top_id not in ["", "null"]

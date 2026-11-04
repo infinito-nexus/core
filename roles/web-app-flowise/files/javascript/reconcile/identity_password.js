@@ -9,8 +9,8 @@
  * would have stored.
  *
  * Runs inside the Flowise container and reads its own DATABASE_* environment.
- * Prints CHANGED when it rewrote the hash, OK when it already matched or the
- * account does not exist yet.
+ * Prints CHANGED when it rewrote the hash and OK when it already matched.
+ * Exits non-zero when the account row is absent.
  *
  * Environment:
  *   FLOWISE_ADMIN_EMAIL:      the API identity's email.
@@ -56,8 +56,7 @@ async function main() {
     try {
         const found = await client.query('SELECT credential FROM "user" WHERE email = $1', [email])
         if (found.rowCount === 0) {
-            console.log('OK')
-            return
+            fail(`no Flowise account with email ${email}`)
         }
         const stored = found.rows[0].credential
         if (stored && bcrypt.compareSync(password, stored)) {

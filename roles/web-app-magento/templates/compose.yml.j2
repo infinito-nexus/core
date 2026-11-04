@@ -36,10 +36,6 @@
     {{ lookup('container_image', application_id, 'search') }}
     {{ lookup('compose_only', 'container_name', MAGENTO_SEARCH_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
-      - discovery.type=single-node
-      - plugins.security.disabled=true
-      - OPENSEARCH_JAVA_OPTS=-Xms{{ MAGENTO_SEARCH_HEAP_MB }}m -Xmx{{ MAGENTO_SEARCH_HEAP_MB }}m
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

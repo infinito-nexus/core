@@ -23,7 +23,7 @@ carrying a test toolchain.
 Env (rendered into test.env from templates/test.env.j2):
     TOR_SOCKS           SOCKS proxy, host:port
     ONION_HOST          the node onion host
-    ONION_PORTS         space-separated forwarded ports; empty means there is
+    ONION_PORTS         comma-separated forwarded ports; empty means there is
                         nothing to check
     ONION_PORT_TIMEOUT  seconds per connect attempt, above Tor's SocksTimeout
                         (120s by default; torrc does not set it). Every attempt
@@ -151,7 +151,11 @@ def main() -> int:
     timeout = float(
         _required("ONION_PORT_TIMEOUT", "seconds per connect, above Tor's SocksTimeout")
     )
-    ports = [int(entry) for entry in os.environ.get("ONION_PORTS", "").split()]
+    ports = [
+        int(entry)
+        for entry in os.environ.get("ONION_PORTS", "").split(",")
+        if entry.strip()
+    ]
 
     if not ports:
         print("[INFO] no onion-forwarded ports declared; nothing to probe")

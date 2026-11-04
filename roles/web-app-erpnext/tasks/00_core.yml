@@ -5,8 +5,23 @@
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+
+- name: "📦 Stage the {{ ERPNEXT_LOGIN_RBAC_APP }} Frappe app into the build context"
+  stack_host_copy:
+    src: "python/{{ ERPNEXT_LOGIN_RBAC_APP }}/"
+    dest: "{{ ERPNEXT_LOGIN_RBAC_BUILD_DIR }}/"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🐳 Build and start {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
 
 - name: "👔 ERPNext manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🛂 Reconcile the ERPNext roles of the RBAC groups"
+  include_tasks: 04_rbac.yml

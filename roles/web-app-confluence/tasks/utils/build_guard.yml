@@ -1,0 +1,16 @@
+---
+- name: "🔍 Look for a Confluence home in volume '{{ CONFLUENCE_VOLUME }}'"
+  ansible.builtin.command:
+    argv:
+      - container
+      - volume
+      - ls
+      - --quiet
+      - --filter
+      - "name=^{{ CONFLUENCE_VOLUME }}$"
+  register: confluence_volume_lookup
+  changed_when: false
+
+- name: "🛡️ Check the Confluence home against the pinned image"
+  ansible.builtin.include_tasks: "utils/build_guard_check.yml"
+  when: CONFLUENCE_VOLUME in confluence_volume_lookup.stdout_lines

@@ -14,7 +14,7 @@
 - name: 🐛 Debug schema check result
   debug:
     msg: "Schema exists check: rows={{ odoo_schema_exists.rows | default('NOT DEFINED') }}, failed={{ odoo_schema_exists.failed | default(false) }}"
-  when: MODE_DEBUG | bool
+  when: lookup('debug') | bool
 
 - name: 🎬 Initialize Odoo database with core modules
   include_tasks: 02_init_database/bootstrap_schema.yml

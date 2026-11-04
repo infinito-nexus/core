@@ -6,6 +6,14 @@ from utils.distros import distro_names
 
 VALID_DISTROS: tuple[str, ...] = distro_names()
 
+TOOLS_LANE_KEYS: tuple[str, ...] = (
+    "INFINITO_TOOLS_LIBRETRANSLATE_PORT",
+    "INFINITO_TOOLS_LITELLM_PORT",
+    "INFINITO_TOOLS_MODELS_HOST_PATH",
+    "INFINITO_TOOLS_S1_PORT",
+    "INFINITO_TOOLS_TRANSLATE_PORT",
+)
+
 
 def compose_file_args() -> list[str]:
     """Compose `-f` flags shared by up and down flows.
@@ -15,6 +23,7 @@ def compose_file_args() -> list[str]:
     stack outright, so a checkout that was never handed a shared git dir or
     cache network simply does not layer that file in.
     """
+    from .extra_mounts import parse_mounts, write_mounts_override
     from .profile import Profile
 
     profile = Profile()
@@ -25,14 +34,28 @@ def compose_file_args() -> list[str]:
         out += ["-f", "compose/cache.override.yml"]
         if profile.shared_cache_network():
             out += ["-f", "compose/cache.shared.override.yml"]
+        if profile.shared_package_cache():
+            out += ["-f", "compose/shared-cache.override.yml"]
+            if profile.host_pacman_cache():
+                out += ["-f", "compose/pacman.override.yml"]
+    if profile.gpu_reservable():
+        out += ["-f", "compose/gpu.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
         out += ["-f", "compose/noports.override.yml"]
+    if all((os.environ.get(key) or "").strip() for key in TOOLS_LANE_KEYS):
+        out += ["-f", "compose/tools.override.yml"]
+
     if profile.image_mirror_enabled():
         from utils.cache.files import PROJECT_ROOT
 
         from .runner_mirror import write_override
 
         out += ["-f", write_override(PROJECT_ROOT, out[1::2])]
+    mounts = parse_mounts(os.environ.get("INFINITO_EXTRA_MOUNTS") or "")
+    if mounts:
+        from utils.cache.files import PROJECT_ROOT
+
+        out += ["-f", write_mounts_override(PROJECT_ROOT, mounts)]
     return out
 
 

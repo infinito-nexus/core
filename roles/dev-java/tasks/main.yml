@@ -1,4 +1,1 @@
 ---
-- name: 📦 install java
-  package_install:
-    id: java-jdk

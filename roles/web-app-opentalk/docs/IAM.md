@@ -5,8 +5,8 @@ OpenTalk authenticates users against the central Keycloak realm via OIDC and loo
 ## OIDC 🪪
 
 - Issuer URL: `{{ OIDC.CLIENT.ISSUER_URL }}`
-- Frontend client ID: `{{ OIDC.CLIENT.ID }}` (shared with the rest of the platform)
-- Controller client ID and secret: same shared Keycloak client; the secret is sourced from the central OIDC vault entry
+- Frontend client ID: `{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}`, a dedicated public client whose audience mapper adds the controller client to every access token, so the controller's token introspection accepts it
+- Controller client ID and secret: `{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}`, a confidential client; the secret is `secrets.credentials.controller_oidc_client_secret` of the role
 
 ## User Search 🔍
 
@@ -23,11 +23,11 @@ The chain is:
 OpenLDAP  ─►  Keycloak (LDAP federation)  ─►  OpenTalk (Keycloak admin API)
 ```
 
-Any user that exists in OpenLDAP and is reflected into the Keycloak realm can authenticate to OpenTalk and is auto-provisioned in the OpenTalk database on first login. The username equals the LDAP `uid`, delivered via the `preferred_username` claim.
+Any user that exists in OpenLDAP and is reflected into the Keycloak realm can authenticate to OpenTalk and is auto-provisioned in the OpenTalk database on first login. The controller identifies a user by the `sub` claim and refreshes `email`, `given_name`, `family_name`, `nickname`, `locale`, `zoneinfo` and `picture` from the userinfo endpoint on every login.
 
-## Admin Role Mapping 👤
+## Roles 👤
 
-Members of the `application_administrators` LDAP group (per requirement 004) receive `groups` claims that OpenTalk maps to elevated permissions. The exact role-to-group mapping is configured via the controller's role policy file or the Keycloak realm role mapper.
+OpenTalk has no administrator role: controller migration `V21__remove_administrator_role.sql` removed it, and no claim grants elevated rights. The web frontend requests the fixed scopes `openid profile email`, so the `phone` scope is never requested, and the controller stores `phone_number` only when a `[call_in]` section is configured.
 
 ## Verify OIDC Discovery 🩺
 

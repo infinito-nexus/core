@@ -5,4 +5,7 @@ require("./test-forged-identity");
 require("./test-guest-persona");
 require("./test-biber-persona");
 require("./test-administrator-persona");
+require("./test-rbac");
+require("./test-profile-sync");
 require("./test-seaweedfs");
+require("./test-design");

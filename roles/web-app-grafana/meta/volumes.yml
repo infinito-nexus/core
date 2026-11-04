@@ -1,0 +1,64 @@
+---
+data:
+  type: volume
+  name: grafana_data
+  # nocheck: nfs-false-data-loss  Reason: holds Grafana's SQLite database, which corrupts over NFS; the single replica is pinned with placement: manager and the backup stops it first.
+  nfs: false
+  mounts:
+    - service: grafana
+      target: &grafana_data_target /var/lib/grafana
+
+data_onion:
+  type: volume
+  name: grafana_data_onion
+  # nocheck: nfs-false-data-loss  Reason: holds the onion instance's own SQLite database, which corrupts over NFS; the single replica is pinned with placement: manager and the backup stops it first.
+  nfs: false
+  mounts:
+    - service: grafana-onion
+      target: *grafana_data_target
+      when: &grafana_onion_instance "{{ lookup('domains')['web-app-grafana'] | network_instances | map(attribute='label') | select('equalto', 'onion') | list | length
+        > 0 }}"
+
+datasources:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'datasources.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: &grafana_datasources_target /etc/grafana/provisioning/datasources/infinito.yml
+    - service: grafana-onion
+      target: *grafana_datasources_target
+      when: *grafana_onion_instance
+
+dashboard_provider:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'dashboards.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: &grafana_dashboard_provider_target /etc/grafana/provisioning/dashboards/infinito.yml
+    - service: grafana-onion
+      target: *grafana_dashboard_provider_target
+      when: *grafana_onion_instance
+
+dashboard_logs:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'logs.json'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: &grafana_dashboard_logs_target /etc/grafana/dashboards/logs.json
+    - service: grafana-onion
+      target: *grafana_dashboard_logs_target
+      when: *grafana_onion_instance
+
+alerting:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'alerting.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: &grafana_alerting_target /etc/grafana/provisioning/alerting/infinito.yml
+    - service: grafana-onion
+      target: *grafana_alerting_target
+      when: *grafana_onion_instance

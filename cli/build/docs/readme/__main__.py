@@ -5,11 +5,12 @@ Usage:
   python -m cli.build.docs.readme [roles...] [--override] [--check] [--roles-dir DIR]
 
 With no role names every role directory is processed. ``--override``
-regenerates the managed sections (Cosmos, Quick Setup, Credits) even when
-they already exist; without it, only missing sections are added.
-``--update-cosmos`` regenerates only the Cosmos diagram. Prose sections are
-never rewritten. ``--check`` writes nothing and exits non-zero when any
-file would change (for CI).
+regenerates the managed sections (Architecture, Quick Setup, Credits) even
+when they already exist; without it, only missing sections are added.
+``--update-architecture`` regenerates only the Architecture section. Prose
+sections are never rewritten. Every invokable role additionally gets an
+``ARCHITECTURE.md`` sub-page. ``--check`` writes nothing and exits non-zero
+when any file would change (for CI).
 """
 
 from __future__ import annotations
@@ -17,9 +18,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from cli.build.docs.readme.generate import MANAGED_SECTIONS, generate_readme, role_dirs
-from utils.cache.files import PROJECT_ROOT
-from utils.roles.mapping import ROLE_FILE_README
+from cli.build.docs.readme.generate import (
+    MANAGED_SECTIONS,
+    generate_architecture_page,
+    generate_readme,
+    role_dirs,
+)
+from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_ARCHITECTURE, ROLE_FILE_README
 
 
 def main() -> int:
@@ -31,9 +37,9 @@ def main() -> int:
         help="Regenerate managed sections even when present (default: only add missing).",
     )
     parser.add_argument(
-        "--update-cosmos",
+        "--update-architecture",
         action="store_true",
-        help="Regenerate only the Cosmos diagram (implies override for it).",
+        help="Regenerate only the Architecture section (implies override for it).",
     )
     parser.add_argument(
         "--update-quick-setup",
@@ -64,8 +70,8 @@ def main() -> int:
     else:
         targets = role_dirs(roles_root)
 
-    if args.update_cosmos:
-        only, override = ("Cosmos",), True
+    if args.update_architecture:
+        only, override = ("Architecture",), True
     elif args.update_quick_setup:
         only, override = ("Quick Setup",), True
     else:
@@ -73,7 +79,10 @@ def main() -> int:
 
     changed = 0
     for role_dir in targets:
-        if not (role_dir / ROLE_FILE_README).is_file() and not (role_dir / "meta").is_dir():
+        if (
+            not (role_dir / ROLE_FILE_README).is_file()
+            and not (role_dir / "meta").is_dir()
+        ):
             continue
         new_text, actions = generate_readme(
             role_dir, role_dir.name, override=override, only=only
@@ -81,18 +90,29 @@ def main() -> int:
         if new_text is None:
             continue
         changed += 1
-        rel = role_dir.relative_to(PROJECT_ROOT)
         if args.check:
-            print(f"would update {rel}/README.md: {', '.join(actions)}")
+            print(f"would update roles/{role_dir.name}/README.md: {', '.join(actions)}")
             continue
         (role_dir / ROLE_FILE_README).write_text(new_text, encoding="utf-8")
-        print(f"updated {rel}/README.md: {', '.join(actions)}")
+        print(f"updated roles/{role_dir.name}/README.md: {', '.join(actions)}")
+
+    for role_dir in targets:
+        page = generate_architecture_page(role_dir, role_dir.name)
+        if page is None:
+            continue
+        path = role_dir / ROLE_FILE_ARCHITECTURE
+        if args.check:
+            if not path.is_file() or read_text(str(path)) != page:
+                print(f"would write roles/{role_dir.name}/{ROLE_FILE_ARCHITECTURE}")
+                changed += 1
+            continue
+        path.write_text(page, encoding="utf-8")
 
     if args.check and changed:
-        print(f"\n{changed} README.md file(s) would change. Run: make readme-generate")
+        print(f"\n{changed} file(s) would change.")
         return 1
     if not args.check:
-        print(f"\n{changed} README.md file(s) written.")
+        print(f"\n{changed} file(s) written.")
     return 0
 
 

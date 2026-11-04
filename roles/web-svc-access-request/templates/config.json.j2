@@ -1,0 +1,28 @@
+{{ {
+  'public_url': ACCESS_REQUEST_URL,
+  'four_eyes': ACCESS_REQUEST_FOUR_EYES | bool,
+  'platform_group': ACCESS_REQUEST_PLATFORM_GROUP,
+  'approver_emails': ACCESS_REQUEST_APPROVER_EMAILS,
+  'ca_file': ACCESS_REQUEST_CA_FILE,
+  'catalogue': ACCESS_REQUEST_CATALOGUE,
+  'i18n': ACCESS_REQUEST_I18N,
+  'rbac_i18n': ACCESS_REQUEST_RBAC_I18N,
+  'realm': {
+    'base_url': OIDC.URL,
+    'realm': OIDC.CLIENT.REALM,
+    'console_url': OIDC.URL ~ '/admin/' ~ OIDC.CLIENT.REALM ~ '/console',
+  },
+  'mail': {
+    'host': ACCESS_REQUEST_EMAIL.host,
+    'port': ACCESS_REQUEST_EMAIL.port | int,
+    'tls': ACCESS_REQUEST_EMAIL.tls | bool,
+    'start_tls': ACCESS_REQUEST_EMAIL.start_tls | bool,
+    'auth': ACCESS_REQUEST_EMAIL.auth | bool,
+    'username': ACCESS_REQUEST_EMAIL.username,
+    'from': ACCESS_REQUEST_EMAIL['from'],
+  },
+  'zammad': {
+    'url': ACCESS_REQUEST_ZAMMAD_URL,
+    'group': ACCESS_REQUEST_ZAMMAD_GROUP,
+  },
+} | to_nice_json }}

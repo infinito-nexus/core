@@ -38,7 +38,59 @@
   failed_when: >-
     bluesky_admin_create.rc != 0
     or ((bluesky_admin_create.stdout | from_json).status != 200
-        and 'Handle already taken' not in (bluesky_admin_create.stdout | from_json).content)
+        and 'Handle already taken' not in (bluesky_admin_create.stdout | from_json).content
+        and 'Reserved handle' not in (bluesky_admin_create.stdout | from_json).content)
   delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
   become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📁 Create the native PDS admin account with the i8- prefix (idempotent)"
+  ansible.builtin.command:
+    argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', {'handle': BLUESKY_ADMIN_HANDLE_RESERVED, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json) }}"
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
+  register: bluesky_admin_create_reserved
+  changed_when: bluesky_admin_create_reserved.rc == 0 and (bluesky_admin_create_reserved.stdout | from_json).status == 200
+  failed_when: >-
+    bluesky_admin_create_reserved.rc != 0
+    or ((bluesky_admin_create_reserved.stdout | from_json).status != 200
+        and 'Handle already taken' not in (bluesky_admin_create_reserved.stdout | from_json).content)
+  when: "'Reserved handle' in (bluesky_admin_create.stdout | from_json).content"
+  delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Realign the password an existing native PDS administrator kept"
+  when: (bluesky_admin_create.stdout | from_json).status != 200
+  block:
+    - name: "🔎 Resolve the DID of the native PDS administrator handle"
+      ansible.builtin.command:
+        argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+        stdin: "{{ lookup('http_request_program', '') }}"
+      environment:
+        HTTP_METHOD: GET
+        HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.identity.resolveHandle?handle={{ BLUESKY_ADMIN_HANDLE | urlencode }}"
+      register: bluesky_admin_did
+      changed_when: false
+      failed_when: bluesky_admin_did.rc != 0 or (bluesky_admin_did.stdout | from_json).status != 200
+      delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
+      become: true
+
+    - name: "🔑 Set the native administrator password through the admin API"
+      ansible.builtin.command:
+        argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+        stdin: >-
+          {{ lookup('http_request_program',
+                    {'did': ((bluesky_admin_did.stdout | from_json).content | from_json).did, 'password': BLUESKY_ADMIN_PASSWORD} | to_json,
+                    headers={'Authorization': 'Basic ' ~ (('admin:' ~ BLUESKY_ADMIN_PASSWORD) | b64encode)}) }}
+      environment:
+        HTTP_METHOD: POST
+        HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.admin.updateAccountPassword"
+      register: bluesky_admin_password
+      changed_when: true
+      failed_when: bluesky_admin_password.rc != 0 or (bluesky_admin_password.stdout | from_json).status != 200
+      delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
+      become: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

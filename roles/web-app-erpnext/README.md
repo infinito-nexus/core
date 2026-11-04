@@ -6,118 +6,55 @@
 
 ## Overview
 
-This role deploys ERPNext as an Infinito.Nexus web app using the upstream `frappe/erpnext` single-image multi-role pattern from [frappe_docker](https://github.com/frappe/frappe_docker): one Docker image, different commands per container (backend gunicorn, frontend nginx, websocket socketio, scheduler, two queue workers, plus a one-shot configurator). MariaDB and Redis come from the central `svc-db-mariadb` and `svc-db-redis` providers — the three Frappe Redis logical roles (`cache`, `queue`, `socketio`) share one central Redis instance via DB-number split (0 / 1 / 2). Authentication uses Frappe's built-in Social Login Key against the shared Keycloak OIDC client without an oauth2-proxy sidecar; LDAP federation and outbound SMTP via Stalwart are wired when their providers are present.
+This role deploys ERPNext as an Infinito.Nexus web app using the upstream `frappe/erpnext` single-image multi-role pattern from [frappe_docker](https://github.com/frappe/frappe_docker): one Docker image, different commands per container (backend gunicorn, frontend nginx, websocket socketio, scheduler, two queue workers, plus a one-shot configurator). MariaDB and Redis come from the central `svc-db-mariadb` and `svc-db-redis` providers — the three Frappe Redis logical roles (`cache`, `queue`, `socketio`) share one central Redis instance via DB-number split (0 / 1 / 2). Authentication uses Frappe's built-in Social Login Key against the shared Keycloak OIDC client without an oauth2-proxy sidecar; LDAP federation and outbound SMTP via the mail server ([web-app-email](../web-app-email/)) are wired when their providers are present.
 
-## Cosmos
+## Addons
 
-The diagram places ERPNext in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+Role-level extensions are declared in `meta/addons/`, one file per addon:
 
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_db_redis["svc-db-redis 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-erpnext 🐳🐝]
-        svc_sso["sso"]
-        svc_ldap["ldap"]
-        svc_email["email"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_css["css"]
-        svc_mariadb["mariadb"]
-        svc_redis["redis"]
-        svc_erpnext["erpnext"]
-        svc_backend["backend"]
-        svc_frontend["frontend"]
-        svc_websocket["websocket"]
-        svc_scheduler["scheduler"]
-        svc_queue_short["queue-short"]
-        svc_queue_long["queue-long"]
-        svc_configurator["configurator"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_db_redis -. "0..1" .-> svc_redis
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-```
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `social_login_key` | `module` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `email_account` | `module` | enabled whenever the `email` service is present (`web-app-email` co-deployed) | `email` → `web-app-email` |
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Both name a Frappe doctype the image already ships, and the per-addon hooks [`tasks/addons/social_login_key.yml`](./tasks/addons/social_login_key.yml) and [`tasks/addons/email_account.yml`](./tasks/addons/email_account.yml) apply it through the bench python scripts [`oidc_settings.py`](./files/python/apply/oidc_settings.py) and [`email_account.py`](./files/python/apply/email_account.py).
 
 ## Features
 
-- **ERP / CRM / inventory desk** — full ERPNext frontend at `next.erp.{{ DOMAIN_PRIMARY }}`.
-- **Direct OIDC SSO** — Frappe's Social Login Key talks to the shared Keycloak client; redirect URI auto-registered via the `redirect_uris` filter (no per-app Keycloak entry needed).
-- **Keycloak group → Frappe role mapping** — three tiers: `roles/web-app-erpnext/administrator` → `System Manager`, `roles/web-app-erpnext/manager` → `{Sales, Purchase, Stock, Accounts} User`, default → `Customer`. Reconciled on each login by a hook reading the persisted map.
-- **LDAP federation** — when `svc-db-openldap` is present, Frappe's LDAP Settings doctype is auto-configured. End-to-end LDAP login (auto-create Frappe user from LDAP bind) is deferred to a follow-up requirement; v1 ships the Settings doctype only. The LDAP-login Playwright specs are intentionally absent for v1.
-- **Outbound mail (v1)** — when `web-app-stalwart` is present, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** (no precedent in the repo for auto-provisioning role-owned Stalwart mailboxes yet).
-- **Wizard bypass** — first deploy seeds the API-bot user, marks `setup_complete=1` in System Settings, and skips the Frappe setup wizard entirely.
+- **ERP / CRM / inventory desk:** full ERPNext frontend at `next.erp.{{ DOMAIN_PRIMARY }}`.
+- **Direct OIDC SSO:** Frappe's Social Login Key talks to the shared Keycloak client; redirect URI auto-registered via the `redirect_uris` filter (no per-app Keycloak entry needed).
+- **RBAC group → Frappe role mapping:** `ERPNEXT_RBAC_ROLE_GRANTS` maps `administrator` → `System Manager`, `manager` → `{Sales, Purchase, Stock, Accounts} User` and `customer` → `Customer`. With SSO or LDAP, [`files/python/apply/rbac_roles.py`](./files/python/apply/rbac_roles.py) runs as an RBAC hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) inside the backend container at every deploy and on its timer: it renames the account of a member whose address changed, found by its `keycloak` or `directory` `User Social Login` row, to the new address, creates the members of the three role groups, grants their roles, re-enables a disabled member and withdraws these roles from every other account the directory owns, as [RBAC scope](#rbac-scope) describes. The Administrator, Guest, the API bot and the platform administrator (`ERPNEXT_RBAC_PROTECTED_USERS`) are never demoted or disabled. The Social Login Key denies sign-ups, so a Keycloak user outside the role groups cannot create an account. With `svc-db-openldap` deployed, a group change in Keycloak or LDAP takes effect within one timer interval, or earlier at the user's next Keycloak sign-in (see below); without a directory the role groups are inventory grants that the next deploy applies.
+- **Role groups at Keycloak sign-in:** with SSO, the role-owned Frappe app [`infinito_rbac`](./files/python/infinito_rbac/infinito_rbac/hooks.py) applies the same grants to the account that signs in. [`files/Dockerfile`](./files/Dockerfile) builds it into the image every Frappe container runs, and [`files/python/apply/login/rbac.py`](./files/python/apply/login/rbac.py) installs it on the site and writes its settings (`ERPNEXT_LOGIN_RBAC_SETTINGS`) into the site config. Its `override_whitelisted_methods` hook replaces both Frappe callbacks that complete a Keycloak sign-in, `login_via_keycloak` and the generic `custom/keycloak`, with [`login.py`](./files/python/infinito_rbac/infinito_rbac/login.py). It first refuses a sign-in whose `email_verified` claim is not `true`, a sign-in onto an account whose `keycloak` or `directory` `User Social Login` row names another userid (the claim the Social Login Key's `user_id_property` names), a sign-in onto an unlinked account by a user outside every role group, and a sign-in with a changed address while an account still carries the former one; a refused sign-in changes no account. Only then does it read the `RBAC.GROUP.CLAIM` claim from the userinfo before Frappe decides the sign-in: a member without an account is created and signs in at once, a member gets the roles of its groups and loses the managed roles of the groups it left, first and last name follow the `given_name` and `family_name` claims, and an account outside every role group loses the managed roles and, unless it still holds a role the mapping does not manage, is disabled, so Frappe refuses it. The sign-in changes no account but the one that signs in. The protected users stay untouched, and a userinfo without the groups claim fails the sign-in without a change. The timer hook stays the authority for every account that does not sign in.
+- **LDAP federation:** when `svc-db-openldap` is present, Frappe's LDAP Settings doctype is auto-configured. Its search string admits only members of the three role groups; every LDAP sign-in syncs the roles from the group entries under `LDAP.DN.OU.ROLES` (`groupOfNames`, `member`) and writes first name, last name, phone and mobile from the directory (`LDAP.USER.ATTRIBUTES`).
+- **Login methods:** `services.erpnext.login.method.<method>.enabled` in [meta/services.yml](./meta/services.yml) declares `sso`, `ldap`, `native`, `2fa`, `email` and `registration`. `sso` sets `enable_social_login` of the Keycloak Social Login Key ([oidc_settings.py](./files/python/apply/oidc_settings.py)) and `ldap` sets `enabled` of the LDAP Settings ([ldap_source.py](./files/python/apply/ldap_source.py)); [login/methods.py](./files/python/apply/login/methods.py) sets the System Settings `disable_user_pass_login` (off while `native` is on), `login_with_email_link` (`email`), `enable_two_factor_auth` (`2fa`) and the Website Settings `disable_signup` (off while `registration` is on). Frappe asks for the second factor only from members of a Role whose `Two Factor Authentication` box is checked, and the role checks none, so nobody is forced to enroll. The LDAP Settings reuse the email and password fields of the sign-in form, so with `native` off in the LDAP mode the form stays for the "Login with LDAP" button while Frappe refuses every password sign-in of a local account. Break-glass: `disable_user_pass_login` also refuses the Administrator password, so with `native` off the path is the token of the API bot (`Authorization: token <api_key>:<api_secret>`, a System Manager) or `bench --site <site> browse --user Administrator` inside the backend container, which prints a signed-in desk URL.
+- **Outbound mail (v1):** when `web-app-email` is present, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** (no precedent in the repo for auto-provisioning role-owned Stalwart mailboxes yet).
+- **Wizard bypass:** first deploy seeds the API-bot user, marks `setup_complete=1` in System Settings, fills its empty country and currency with the Company's, and skips the Frappe setup wizard entirely.
+- **Company ready to invoice:** every deploy ensures the Company named `service_provider.company.titel` in the country `service_provider.company.address.country`, with the currency ERPNext's country data assigns to that country, plus a fiscal year for today, the tax accounts `VAT 19%`, `VAT 7%`, `VAT 20%`, `Reverse Charge` and `Export` under `Duties and Taxes` and a default cash account, so quotes, orders and invoices work right after the deploy. The abbreviation ERPNext appends to every account is `applications.web-app-erpnext.services.erpnext.company.abbr`, the initials of the company name unless the inventory sets it. A Company that already exists keeps its own values, and a country ERPNext does not know, such as the placeholder default, fails the deploy.
+- **Server Scripts switch:** `applications.web-app-erpnext.services.erpnext.server_scripts` (default `false`) sets `server_script_enabled` in `common_site_config.json` to `1` or `0` on every deploy and restarts the Frappe processes only when the value changes. The same switch grants the API bot the `Script Manager` role, the only role Frappe v16 lets create Server Scripts, when `true` and revokes it when `false`.
 
-## Quick Setup
+## Site structure and consumers
 
-### Development
+The role owns the structure every tenant shares on the ERPNext site: the Keycloak and LDAP sign-in, the RBAC role mapping, the login methods, the API bot `erpnext-api-bot`, the Server Scripts switch and the service provider's Company. Two Infinito.Nexus consumers build on it from their own repositories and create their structure at runtime against this site, each under names reserved for it:
 
-Clone, set up the workstation, and deploy ERPNext onto the local stack:
+| Consumer | Role | Line | Creates on the site |
+|---|---|---|---|
+| Store | `web-app-cst-store` | GUI | item codes, pricing rules, webhooks, notifications, server scripts, the sales order workflow, the sales invoice print format, its provisioning role and its custom fields |
+| Security check | `web-app-cst-security-check` | Security | custom fields, roles, DocTypes and webhooks |
 
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-erpnext full_cycle=false
-```
+This role creates nothing under a consumer's names. [test_consumer_namespaces.py](../../tests/lint/ansible/roles/web-app/erpnext/test_consumer_namespaces.py) holds every reserved prefix and name and fails when one appears anywhere in this role.
 
-### Production
+### API bot roles
 
-Run the published image to provision the inventory and deploy ERPNext to a managed server (the mounted volume persists the inventory):
+`applications.web-app-erpnext.services.erpnext.api_bot.extra_roles` lists the ERPNext roles the consumers need on `erpnext-api-bot` and defaults to an empty list. Every deploy grants them beside `System Manager` and the `Script Manager` of the Server Scripts switch; removing a role from the list does not revoke it. A listed role the site does not hold yet is created as an empty Role (`CHANGED created role <role>`) and granted in the same run; its consumer adds the permissions later. This role is the only writer of the bot's roles, API key and API secret, so a consumer declares the roles it needs here instead of setting them itself.
 
-```bash
-APP=web-app-erpnext
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
+### RBAC scope
 
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+The RBAC sync changes only accounts the directory owns: the members of the three role groups and every account a `User Social Login` row links to the directory, either the `keycloak` row Frappe writes at a Keycloak sign-in (`ERPNEXT_SSO_PROVIDER_NAME`) or the `directory` row the sync writes on every member it converges (`ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME`). On such an account outside every role group it revokes only the roles of `ERPNEXT_RBAC_ROLE_GRANTS` and disables the account only when no other role remains, so a role a consumer granted keeps it enabled. The Keycloak sign-in applies the same rule to the account that signs in. Service, API, website and customer accounts a consumer created outside the directory keep their roles and stay enabled.
 
 ## Image & version policy
 
-- **Image**: `frappe/erpnext` (the official single-image, multi-role build from [frappe_docker](https://github.com/frappe/frappe_docker)).
-- **Pin**: a concrete stable v15.x semver (no `:latest`, no `:edge`, no v14 LTS, no v16 pre-release line).
+- **Image**: `frappe/erpnext` (the official single-image, multi-role build from [frappe_docker](https://github.com/frappe/frappe_docker)), extended by [`files/Dockerfile`](./files/Dockerfile) with the `infinito_rbac` app; every Frappe container runs that local build (`services.erpnext.custom`).
+- **Pin**: a concrete stable v16.x semver (no `:latest`, no `:edge`, no pre-release line).
 - **Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. Schema migrations run automatically on first start of the new image (Frappe ships `bench migrate` in the backend container's entrypoint).
 
 ## Central-service consumer pattern
@@ -163,7 +100,7 @@ make compose-exec service=erpnext-backend \
 
 - Variant matrix lives in [variants.yml](./meta/variants.yml). Service flags and image pins in [services.yml](./meta/services.yml). Credentials declared in [secrets.yml](./meta/secrets.yml).
 - Site name MUST match the HTTP Host header. The Frappe site is created with `bench new-site next.erp.<DOMAIN_PRIMARY>` and `FRAPPE_SITE_NAME_HEADER` on the frontend nginx maps Host → site.
-- All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to `python` inside the backend container (see `files/scripts/`).
+- All post-bootstrap configuration (Company, API bot, OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to `python` inside the backend container (see `files/python/apply/`).
 
 ## Further Resources
 
@@ -171,9 +108,4 @@ make compose-exec service=erpnext-backend \
 - [Frappe Framework Documentation](https://docs.frappe.io/)
 - [frappe_docker (upstream container reference)](https://github.com/frappe/frappe_docker)
 - [Frappe Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/XUTNiMVVCT8K3t96cvQjBj)

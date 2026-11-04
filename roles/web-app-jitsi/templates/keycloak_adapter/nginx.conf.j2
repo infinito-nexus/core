@@ -1,0 +1,16 @@
+location ~ ^/oidc/(redirect|auth|tokenize)$ {
+    set $keycloak_adapter http://{{ JITSI_KEYCLOAK_ADAPTER_SERVICE }}:{{ JITSI_KEYCLOAK_ADAPTER_PORT }};
+    proxy_pass $keycloak_adapter;
+    proxy_http_version 1.1;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+}
+
+location = /static/oidc-adapter.html {
+    alias /config/{{ JITSI_KEYCLOAK_ADAPTER_PAGE_FILE }};
+    default_type text/html;
+    add_header Cache-Control "no-cache";
+}

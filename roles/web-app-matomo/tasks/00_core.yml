@@ -13,3 +13,6 @@
 - name: "👔 Matomo manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "👥 Converge the accounts of {{ application_id }} on its RBAC roles"
+  include_tasks: 10_rbac.yml

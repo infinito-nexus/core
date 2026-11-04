@@ -1,0 +1,20 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: SvelteKit renders its hydration bootstrap as an inline script carrying per-page data, and upstream configures no kit.csp nonce mode, so no hash can be precomputed
+whitelist:
+  connect-src:
+    - "{{ lookup('canonical_url', 'web-app-bluesky', 'api') }}"
+    - wss://jetstream2.us-east.bsky.network
+    - https://public.api.bsky.app # nocheck: url  Reason: CSP origin, not a page; its root answers HTTP 404
+    - https://slingshot.microcosm.blue # nocheck: url  Reason: CSP origin of an XRPC record cache, not a page
+    - https://constellation.microcosm.blue # nocheck: url  Reason: CSP origin of a backlink index, not a page
+    - https://tiles.openfreemap.org # nocheck: url  Reason: CSP origin of the map tile server, not a page
+    - https://stream.place
+    - https://vod-beta.stream.place # nocheck: url  Reason: CSP origin of the HLS replay host, not a page
+  media-src:
+    - "blob:"
+    - https://stream.place
+    - https://vod-beta.stream.place # nocheck: url  Reason: CSP origin of the HLS replay host, not a page
+  worker-src:
+    - "blob:"

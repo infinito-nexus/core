@@ -8,7 +8,8 @@ class FilterModule:
     def generate_all_domains(self, domains_dict, include_www: bool = True):
         """
         Transform a dict of domains (values: str, list, dict) into a flat list,
-        optionally add 'www.' prefixes, dedupe and sort alphabetically.
+        optionally add 'www.' prefixes to every non-wildcard domain, dedupe and
+        sort alphabetically.
         """
 
         def _add(flat, item):
@@ -39,7 +40,7 @@ class FilterModule:
             flat = _flatten(domains_dict)
             if include_www:
                 original = list(flat)
-                flat.extend([f"www.{d}" for d in original])
+                flat.extend([f"www.{d}" for d in original if not d.startswith("*.")])
             return sorted(set(flat))
         except Exception as exc:
             raise AnsibleFilterError(f"generate_all_domains failed: {exc}") from exc

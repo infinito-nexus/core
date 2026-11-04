@@ -8,14 +8,6 @@ host, deliberately: the first CI round is its first execution. Everything below 
 
 Open items that only a live run can settle:
 
-- `index.html` ships an inline pre-paint theme bootstrap, and the rendered header is
-  `script-src-elem 'self' https://cdn.…` with no hash, so it is blocked and the first paint
-  flashes the wrong theme. Pinning `csp.hashes.script-src-elem` fixes it but has to be re-pinned
-  on every image bump; the flash is the cheaper trade until the theme matters.
-- `meta/csp.yml` whitelists `blob:` on `script-src` for the audio worklet the DM composer builds
-  with `URL.createObjectURL`; worklet modules load under `script-src`, not `worker-src`. The
-  bundle registers no service worker and constructs no `Worker`. Whether the Preact bundle also
-  needs `unsafe-inline` for style attributes is unknown until a browser reports violations.
 - The published image is multi-arch, but only `linux/amd64` has been exercised.
 - `Dockerfile.sh` exposes 8124 for aiolibdatachannel signalling beside 8099. Nothing listens on
   it at rest, so only 8099 is published; whether it binds lazily during a call is untested.
@@ -38,7 +30,11 @@ Open items that only a live run can settle:
   auto-provisioning, so the biber account never exists inside Social Home. Path back: upstream
   grows an OIDC/trusted-header auth path.
 
-## Deferred wiring
+## Open from the design pass
+
+- Shared sign-in budget: `POST /api/auth/token` allows 5 attempts per 15 minutes per `request.remote`, and the app ignores `X-Forwarded-For`, so every browser behind the front proxy and the deploy's own token request share one bucket (measured: all logins in `/api/admin/auth-audit` come from `192.168.75.1`). At 2026.10.11 the budget is the module constant `AUTH_TOKEN_RATE_LIMIT` in `socialhome/routes/users.py` with no env or TOML key, and `trusted_proxies` exists for the GFS only (`socialhome/global_server/config.py`); the design spec keeps one administrator token in the Playwright staging volume. Options: let the proxy reach the app with the client address (PROXY protocol or upstream trusted-proxy support), or ask upstream to honour a trusted forwarded header.
+- `tasks/01_setup.yml` comment is stale: at 2026.10.8 the headless seed marks setup complete itself (upstream `platform/standalone/adapter.py`), so the task always answers 409 (measured: `ok`, never `changed`). Options: drop the task or rewrite the comment.
+- `meta/csp.yml` keeps `script-src-elem unsafe-inline` for an inline theme script the 2026.10.8 shell no longer has (it loads `assets/theme-boot.js`; measured: the served `/feed` carries no inline script of its own). Options: drop the flag after checking `hlth-csp`; the injected design script then needs its CSP hash, which `sys-front-inj-design` adds.
 
 - `SH_MAX_STORAGE_BYTES` is pinned to 4 GiB in `vars/main.yml` so the app's media cap stays inside
   `services.socialhome.min_storage` (5 GB). Raising one without the other lets the volume outgrow

@@ -1,2 +1,4 @@
 ---
-roles: {}
+roles:
+  user:
+    description: Can sign in to OpenProject and work in the projects they are a member of

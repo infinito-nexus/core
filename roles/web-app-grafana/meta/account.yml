@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 190
+  username_pattern: .+
+  source: https://github.com/grafana/grafana/blob/v13.3.0/pkg/services/sqlstore/migrations/user_mig.go
+  agent_reachable: false

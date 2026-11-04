@@ -1,7 +1,7 @@
 ---
 - name: 🔍 Resolve GitLab integration provisioning facts
   set_fact:
-    nextcloud_gl_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.base') | regex_replace('/$', '') }}"
+    nextcloud_gl_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.origin') }}"
   changed_when: false
 
 - name: 📖 Read persisted integration_gitlab OAuth client id
@@ -9,14 +9,14 @@
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_gitlab client_id
   register: nextcloud_gl_client_id_current
   changed_when: false
-  failed_when: false
+  failed_when: nextcloud_gl_client_id_current.rc not in [0, 1]
 
 - name: 📖 Read persisted integration_gitlab OAuth client secret
   shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_gitlab client_secret
   register: nextcloud_gl_client_secret_current
   changed_when: false
-  failed_when: false
+  failed_when: nextcloud_gl_client_secret_current.rc not in [0, 1]
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔧 Provision the GitLab <-> Nextcloud OAuth coupling

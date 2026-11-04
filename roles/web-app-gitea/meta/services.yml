@@ -30,8 +30,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -49,11 +49,24 @@ gitea:
   shared: true
   provides: gitea
   image: gitea/gitea
-  version: 28.3.0
+  version: 28.2.0
+  custom: true
+  builder_image: golang
+  builder_version: 1.27.3-alpine
+  source_url: &gitea_source_url "https://dl.gitea.com/gitea/{version}/gitea-src-{version}.tar.gz"
+  source_sha256: b8ad80f8a79ea42fa5cf52bdc3d5fd3457bb6abd6bd57cfcfab6a5ad4f31c3dc
+  update:
+    - type: registry_tags
+      image: gitea/gitea
+      checksum_key: source_sha256
+      checksum_url: *gitea_source_url
+    - key: builder_version
+      type: registry_tags
+      image: golang
   replicas: 1 # nocheck: single-replica  single-writer app state on swarm-shared NFS; concurrent multi-node writers corrupt app.ini
   min_storage: 270MB
   backup:
-    no_stop_required: true
+    stop_required: false
   name: gitea
   cpus: 1.0
   mem_reservation: 1g
@@ -61,18 +74,34 @@ gitea:
   pids_limit: 1024
   healthcheck:
     flavor: curl
-  title: "{{ SOFTWARE_NAME }} Code Hub"
   configuration:
     repository:
       enable_push_create_user: true
       default_private: last
       default_push_create_private: true
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'passkey') }}"
+      openid2:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'openid2') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'registration') }}"
   ports:
     internal:
       http: 3000
       ssh: 22
     local:
       sso: 16488
+      sso_onion: 16529
       http: 8002
     public:
       ssh: 2201
@@ -82,8 +111,7 @@ gitea:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
 # nocheck: playwright-service-flag
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
@@ -150,13 +178,21 @@ minio:
 # nocheck: playwright-service-flag — object store; storage check needs a UI login, but Gitea's personas are blocked (PERSONA_ADMINISTRATOR_BLOCKED/PERSONA_BIBER_BLOCKED), so it has no automatable Playwright login surface
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Code Hub"
+  slots:
+    logo:
+      width: 512
+      height: 512
+    favicon:
+      width: 180
+      height: 180
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -198,3 +234,15 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: it holds the inventory repository Semaphore deploys from, so a run that paused it would cut off the source of every later run
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started

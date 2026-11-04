@@ -43,7 +43,7 @@ bridge:
         "*": "relay"
         "public.{{ MATRIX_SERVER_NAME }}": "commands"
         "{{ MATRIX_SERVER_NAME }}": "user"
-        "@{{ MATRIX_ADMINISTRATOR_USERNAME }}:{{ MATRIX_SERVER_NAME }}": "admin"
+        "{{ lookup('mxid', MATRIX_ADMINISTRATOR_USERNAME) }}": "admin"
 
 database:
     type: postgres

@@ -1,0 +1,14 @@
+---
+enabled: "{{ lookup('config', 'web-app-discourse', 'services.bigbluebutton.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - bigbluebutton
+update:
+  monitored: true
+  catalog: discourse-meta
+  upstream_id: discourse-bbb
+config:
+  repository: https://github.com/discourse/discourse-bbb.git
+  ref: main

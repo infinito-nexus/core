@@ -39,6 +39,7 @@ from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
+from .test_looped_include_declares_loop_var import is_task_or_playbook_file
 
 _RULE = "loop-var-shadow"
 _LOOP_VAR = re.compile(r"^\s*loop_var:\s*[\"']?(?P<name>[A-Za-z_][A-Za-z0-9_]*)")
@@ -63,7 +64,7 @@ def _task_files() -> list[str]:
     return sorted(
         path
         for path in iter_project_files(extensions=(".yml", ".yaml"), exclude_tests=True)
-        if "/tasks/" in Path(path).relative_to(PROJECT_ROOT).as_posix()
+        if is_task_or_playbook_file(Path(path).relative_to(PROJECT_ROOT).as_posix())
     )
 
 

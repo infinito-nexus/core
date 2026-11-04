@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # E2E orchestrator for svc-bkp-volume-2-local.
-# Runs once, in the sync pass: wait for the backup service to terminate, back
+# Runs once, in the first pass: wait for the backup service to terminate, back
 # up, seed a marker and back up again so the tested generation carries it, take
 # every project down, restore through the recover chain, require the marker
 # back and every recorded container up, then let the host's own container
@@ -13,7 +13,7 @@
 # Variables sourced from test.env.j2 by test-e2e-cli.
 set -euo pipefail
 
-: "${ASYNC_ENABLED:?}"
+: "${DEPLOY_IS_UPDATE:?}"
 : "${BKP_TEST_IS_STACK_HOST:?}"
 : "${BKP_TEST_BACKUPS_DIR:?}"
 : "${BKP_TEST_SERVICE:?}"
@@ -26,8 +26,8 @@ if [[ "${BKP_TEST_IS_STACK_HOST}" != "true" ]]; then
     exit 0
 fi
 
-if [[ "${ASYNC_ENABLED}" == "true" ]]; then
-    echo "SKIP: the drill runs once, in the sync pass; repeating it here would tear the host down a second time for the same answer"
+if [[ "${DEPLOY_IS_UPDATE}" == "true" ]]; then
+    echo "SKIP: the drill runs once, in the first pass; repeating it in the update pass would tear the host down a second time for the same answer"
     exit 0
 fi
 
@@ -153,7 +153,7 @@ fi
 
 if [[ "$(container info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null)" == "active" ]]; then
     echo "SKIP: swarm node; the restore half needs compose lifecycle control, so it is drilled by scripts/tests/deploy/swarm/routine/backup"
-    echo "SYNC PASS COMPLETE: backup verified and proven to carry the live payload"
+    echo "FIRST PASS COMPLETE: backup verified and proven to carry the live payload"
     exit 0
 fi
 
@@ -165,4 +165,4 @@ if ! bash "${BKP_TEST_HEALTH_SCRIPT}"; then
     exit 1
 fi
 
-echo "SYNC PASS COMPLETE: backup verified, restore cycle succeeded, marker survived, host healthy"
+echo "FIRST PASS COMPLETE: backup verified, restore cycle succeeded, marker survived, host healthy"

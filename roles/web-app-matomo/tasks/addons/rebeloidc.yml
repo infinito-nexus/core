@@ -1,0 +1,41 @@
+---
+- name: "🧩 Sync the {{ MATOMO_OIDC_PLUGIN }} plugin ({{ MATOMO_OIDC_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/oidc_plugin_sync.sh') | quote }} oidc_plugin_sync
+      {{ MATOMO_OIDC_STATE | quote }}
+      {{ MATOMO_OIDC_PLUGIN | quote }}
+      {{ MATOMO_OIDC_PLUGIN_SOURCE | quote }}
+  register: matomo_oidc_plugin_sync
+  changed_when: "'CHANGED' in matomo_oidc_plugin_sync.stdout"
+
+- name: "🔐 Converge the sign-in plugin settings ({{ MATOMO_OIDC_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i --user www-data -e MATOMO_CONFIG_SECTIONS -e MATOMO_CONFIG_GENERAL
+      {{ MATOMO_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/config_converge.php') }}"
+  environment:
+    MATOMO_CONFIG_SECTIONS: >-
+      {{
+        {
+          MATOMO_OIDC_PLUGIN: (MATOMO_OIDC_SETTINGS if MATOMO_OIDC_ENABLED | bool else {}),
+          MATOMO_RBAC_LOGIN_PLUGIN: (MATOMO_RBAC_LOGIN_SETTINGS if MATOMO_OIDC_ENABLED | bool else {})
+        } | to_json
+      }}
+    MATOMO_CONFIG_GENERAL: "{{ MATOMO_OIDC_GENERAL | to_json }}"
+  register: matomo_oidc_config
+  changed_when: "'CHANGED' in matomo_oidc_config.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛂 Sync the {{ MATOMO_RBAC_LOGIN_PLUGIN }} plugin ({{ MATOMO_OIDC_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/plugin_sync.sh') | quote }} plugin_sync
+      {{ MATOMO_OIDC_STATE | quote }}
+      {{ MATOMO_RBAC_LOGIN_PLUGIN | quote }}
+    stdin: "{{ lookup('template', 'rbac_login_plugin.j2') if MATOMO_OIDC_ENABLED | bool else '' }}"
+  register: matomo_rbac_login_sync
+  changed_when: "'CHANGED' in matomo_rbac_login_sync.stdout"

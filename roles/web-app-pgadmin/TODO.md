@@ -1,0 +1,4 @@
+# Todos
+
+- The user menu loads `https://www.gravatar.com/avatar/<md5 of the administrator e-mail>` on every signed-in page (measured in the browser; the role CSP allows `img-src *`). pgAdmin's default `SHOW_GRAVATAR_IMAGE = True` sends the e-mail hash to a third party. Options: set `PGADMIN_CONFIG_SHOW_GRAVATAR_IMAGE=False` in `templates/env.j2`, or whitelist and accept it explicitly.
+- The pgAdmin container runs at its `mem_limit: 256m`: `memory.current` 252 to 265 MiB with `memory.events max` at 1098 to 1774 within minutes of a start, no OOM kill. The administrator convergence script (`/venv/bin/python3` with `create_app`) peaks at 197 MiB RSS and takes about 27 s at `cpus: "0.2"`. Options: raise `mem_limit` to 512m and `cpus` to 0.5 in `meta/services.yml`, or keep the limits and accept the reclaim pressure.

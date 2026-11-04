@@ -1,0 +1,6 @@
+---
+roles:
+  readwrite:
+    description: Full S3 access to every bucket and object, without MinIO administration
+  readonly:
+    description: Reads objects and bucket locations in every bucket

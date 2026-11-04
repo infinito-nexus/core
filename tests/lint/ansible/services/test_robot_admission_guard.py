@@ -9,7 +9,9 @@ onto a shared node and nothing says a word.
 
 The scan derives the agent set from ``svc-ai-robot``'s own service flags rather
 than from a list, so a third agent added there fails here until it carries the
-guard.
+guard. The guide flag is the one exception: every invokable role declares it to
+link its documentation, so its ``'web-app-docs' in group_names`` gate has the
+shape of an agent flag without naming an agent.
 
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
@@ -27,6 +29,7 @@ from collections.abc import Mapping
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.guide import GUIDE_SERVICE_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -47,7 +50,7 @@ def _embodiable_roles() -> dict[str, str]:
     if not isinstance(services, Mapping):
         return agents
     for flag, block in services.items():
-        if not isinstance(block, Mapping):
+        if not isinstance(block, Mapping) or flag == GUIDE_SERVICE_KEY:
             continue
         match = _AGENT_FLAG.search(str(block.get("enabled") or ""))
         if not match:

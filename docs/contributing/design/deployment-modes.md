@@ -115,6 +115,10 @@ ON by default for east-west traffic confidentiality. Disable via
 `swarm.network.encryption: false` only for performance-sensitive
 deployments with alternative segmentation.
 
+## Configuration blocks
+
+An inventory value of `storage` or `swarm` replaces the whole `group_vars/all` default, so the inventory validator checks every such block in the inventory's `host_vars` and `group_vars` before the playbook starts. A block may set only the keys of its default, each with the type of the default value or a Jinja expression. `storage.backend` is `local` or `nfs`, and an `nfs` backend sets `storage.nfs.server`. A `swarm` block sets `network.encryption`, `registry.host` and `registry.port`; `manager.advertise_addr` may be left out.
+
 ## Stack granularity
 
 One `docker stack` per role, consistent with today's

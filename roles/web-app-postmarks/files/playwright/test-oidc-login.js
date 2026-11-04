@@ -28,7 +28,10 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a real Postmarks owner ses
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator(".header .menu a[href='/admin']"),
+    "Expected the owner affordance Postmarks only renders for a signed-in session, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   // Proof of a genuine authenticated app session (not just the proxy
   // round-trip): the upstream /admin gate (isAuthenticated -> req.session

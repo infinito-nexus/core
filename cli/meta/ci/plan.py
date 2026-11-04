@@ -2,16 +2,20 @@
 
 Usage:
   python -m cli.meta.ci.plan [--distros "debian"] [--filesystem "zfs"]
+      [--architectures "arm64"]
       [--whitelist "..."] [--priority "..."] [--modes auto]
       [--lifecycles "..."] [--sweep N] [--cli]
 
 The plan runs the same pipeline the deploy jobs discover through
 (``cli.meta.ci.matrix``), so what the table shows and what CI deploys cannot
 diverge. One row per ``role#variant`` candidate in global query order, with
-the chunk it falls into and the axes it was assigned.
+the batch it falls into, as the keycap its job name leads with, and the axes
+it was assigned.
 
 Status per row: ⭐ a priority row, ✅ deployed by this sweep, ❌ beyond the
-sweep's budget (raise ``--offset`` to reach it), ✂️ cut as redundant coverage —
+sweep's budget (raise ``--offset`` to reach it), ⭐❌ a priority row the budget
+did not reach — ``--offset`` indexes the regular line only, so this one needs a
+shorter priority line or a run of its own, ✂️ cut as redundant coverage —
 a clone or a row an earlier one already embeds, which no sweep deploys.
 ``--cli`` renders fixed-width terminal tables instead of Markdown.
 
@@ -33,9 +37,9 @@ import sys
 
 from cli.meta.ci import matrix, query, slots
 from cli.meta.roles.applications.complexity.render import _dwidth
-from utils.github.variant import axes, instructions, pools, tor, vpn
+from utils.github.variant import axes, instructions, network, pools, vpn
 from utils.roles.display import display_names
-from utils.symbol_glossary import to_emoji
+from utils.symbol_glossary import keycap, to_emoji
 
 _STAR = to_emoji("priority")
 _OK = to_emoji("enabled")
@@ -44,20 +48,26 @@ _CUT = to_emoji("redundant")
 
 _COLUMNS = (
     "id",
-    "chunk",
+    "batch",
     "name",
     "variant",
     "mode",
     "distro",
     "filesystem",
-    "tor",
+    "architecture",
+    "network",
     "vpn",
     "triggered",
     "covered_by",
     "instructions",
     "clone",
 )
-_GLYPH = {"triggered": "enabled", "distro": "distros"}
+_GLYPH = {
+    "triggered": "enabled",
+    "distro": "distros",
+    "architecture": "architectures",
+    "network": "multi",
+}
 _HEADERS = tuple(
     f"{to_emoji(_GLYPH.get(key, key))} {key.replace('_', ' ').capitalize()}"
     for key in _COLUMNS
@@ -77,10 +87,11 @@ def _key(entry: dict[str, str]) -> tuple[str, ...]:
         entry["apps"],
         entry["variant"],
         entry["mode"],
-        entry["tor"],
+        entry["network"],
         entry["vpn"],
         entry["distro"],
         entry["filesystem"],
+        entry["architecture"],
     )
 
 
@@ -107,10 +118,11 @@ def cells(
         if instructions.redundant(entry):
             status, where = _CUT, ""
         elif chunk is None:
-            status, where = _OFF, ""
+            status = f"{_STAR}{_OFF}" if entry["priority"] == "true" else _OFF
+            where = ""
         else:
             status = _STAR if entry["priority"] == "true" else _OK
-            where = str(chunk)
+            where = keycap(chunk)
         covered = entry.get("covered", "0")
         rows.append(
             (
@@ -121,7 +133,8 @@ def cells(
                 to_emoji(entry["mode"]),
                 to_emoji(entry["distro"]),
                 to_emoji(entry["filesystem"]),
-                to_emoji("tor" if entry["tor"] == "true" else "clearnet"),
+                to_emoji(entry["architecture"]),
+                to_emoji(entry["network"]),
                 to_emoji("vpn" if entry["vpn"] == "true" else "direct"),
                 status,
                 positions.get(covered, covered) if covered not in ("", "0") else "",
@@ -179,9 +192,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--modes", default=query.ALL_MODES)
     parser.add_argument("--lifecycles", default="")
     parser.add_argument("--sweep", type=int, default=None)
-    parser.add_argument("--tor", default=None)
+    parser.add_argument("--network", default=None)
     parser.add_argument("--vpn", default=None)
     parser.add_argument("--filesystem", default="")
+    parser.add_argument("--architectures", default="")
     parser.add_argument("--offset", default=None)
     parser.add_argument("--cli", action="store_true")
     args = parser.parse_args(argv)
@@ -197,10 +211,11 @@ def main(argv: list[str] | None = None) -> int:
         priority=codec.decode_list(args.priority),
         lifecycles=args.lifecycles,
         sweep=sweep,
-        tor_mode=tor.resolve_tor_mode(args.tor),
+        network_input=network.resolve_network_input(args.network),
         vpn_mode=vpn.resolve_vpn_mode(args.vpn),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
+        architectures=pools.resolve_architectures(args.architectures),
     )
     plan = matrix.chunks_of(entries, matrix.resolve_offset(args.offset))
     rows = cells(entries, plan)

@@ -60,10 +60,14 @@ class _XWiki(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
 
-def _program(headers: dict) -> str:
-    """Returns the stdin program tasks/utils/http.yml builds for ``headers``."""
-    encoded = base64.b64encode(json.dumps(headers).encode()).decode()
-    return f"HEADERS_B64 = {json.dumps(encoded)}\n" + read_text(str(SCRIPT_PATH))
+def _program(headers: dict, body: str) -> str:
+    """Returns the stdin program tasks/utils/http.yml builds for ``headers`` and ``body``."""
+    headers_b64 = base64.b64encode(json.dumps(headers).encode()).decode()
+    body_b64 = base64.b64encode(body.encode()).decode()
+    return (
+        f"HEADERS_B64 = {json.dumps(headers_b64)}\n"
+        f"BODY_B64 = {json.dumps(body_b64)}\n" + read_text(str(SCRIPT_PATH))
+    )
 
 
 def _call(url: str, method: str, follow: str, headers: dict, body: str) -> dict:
@@ -71,12 +75,14 @@ def _call(url: str, method: str, follow: str, headers: dict, body: str) -> dict:
     env = {
         "HTTP_METHOD": method,
         "HTTP_URL": url,
-        "HTTP_BODY": body,
         "HTTP_FOLLOW_REDIRECTS": follow,
         "HTTP_TIMEOUT": "5",
     }
     with patch.dict("os.environ", env, clear=True), contextlib.redirect_stdout(stdout):
-        exec(compile(_program(headers), "<stdin>", "exec"), {"__name__": "__main__"})
+        exec(
+            compile(_program(headers, body), "<stdin>", "exec"),
+            {"__name__": "__main__"},
+        )
     return json.loads(stdout.getvalue())
 
 

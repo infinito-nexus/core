@@ -85,6 +85,16 @@ class TestTlsResolveLookup(unittest.TestCase):
         )[0]
         self.assertEqual(val, "https://a.example/")
 
+    def test_url_origin_is_the_base_url_without_its_trailing_slash(self):
+        origin, base = (
+            self.lookup.run(["web-app-a", want], variables=self.base_vars, mode="app")[
+                0
+            ]
+            for want in ("url.origin", "url.base")
+        )
+        self.assertEqual(origin, "https://a.example")
+        self.assertEqual(f"{origin}/", base)
+
     def test_protocols_web_path_is_http_for_an_onion_only_app(self):
         onion = dict(self.base_vars)
         onion["domains"] = {**self.domains, "web-app-onion": "abc123.onion"}
@@ -175,6 +185,25 @@ class TestTlsResolveLookup(unittest.TestCase):
         out = self.lookup.run(["web-svc-cdn"], variables=v, mode="app")[0]
         self.assertEqual(out["domain"], "cdn.abc.onion")
         self.assertFalse(out["enabled"])
+
+    def test_explicit_consumer_outranks_application_id(self):
+        class _Templar:
+            def template(self, value):
+                if value == "{{ _provider_role }}":
+                    raise AssertionError("application_id must not be rendered")
+                return value
+
+        self.lookup._templar = _Templar()
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+        }
+        v["application_id"] = "{{ _provider_role }}"
+        out = self.lookup.run(
+            ["web-svc-cdn"], variables=v, mode="app", consumer="web-app-a"
+        )[0]
+        self.assertEqual(out["domain"], "cdn.example")
 
     def test_term_with_unresolved_jinja_is_templated(self):
         class _FakeTemplar:

@@ -11,7 +11,11 @@
 #   container. Wrapping the value would leak literal quotes into
 #   ``$KEY`` ("\"password\""), breaking DB connect strings, URL parsers,
 #   and any ``int(os.environ['KEY'])`` consumer.
-#   So in swarm mode the filter returns the value unchanged.
+#   So in swarm mode the filter returns the value unchanged, including a
+#   value carrying spaces: quoting one produced ``AGENT_PLATFORMS="{...}"``
+#   in the broker's container, which ``json.loads`` then read as a string
+#   rather than a mapping. A shell-sourced file needs the opposite and must
+#   not contain a space at all - join such a value on a comma.
 #
 # The mode is read from ``DEPLOYMENT_MODE`` in the rendering context.
 # When the context is missing (e.g. unit tests calling the filter
@@ -43,11 +47,7 @@ def _quote_compose_style(value: Any) -> str:
 def _passthrough_swarm(value: Any) -> str:
     if value is None:
         return ""
-    s = str(value)
-    if any(c in s for c in " \t\n"):
-        s = s.replace("\\", "\\\\").replace('"', '\\"')
-        return f'"{s}"'
-    return s
+    return str(value)
 
 
 @jinja2.pass_context
@@ -72,8 +72,63 @@ def dotenv_quote(ctx: jinja2.runtime.Context, value: Any = _MISSING) -> str:
     return _quote_compose_style(value)
 
 
+def _unquote_compose_style(value: str) -> str:
+    if len(value) >= 2 and value.startswith('"') and value.endswith('"'):
+        value = value[1:-1]
+    value = value.replace('\\"', '"')
+    value = value.replace("\\\\", "\\")
+    return value.replace("$$", "$")
+
+
+@jinja2.pass_context
+def dotenv_unquote(ctx: jinja2.runtime.Context, value: Any = _MISSING) -> str:
+    """Inverse of :func:`dotenv_quote`, for reading a value back out of a
+    rendered ``.env`` file.
+
+    Switched on the same ``DEPLOYMENT_MODE`` as the forward direction, so a
+    value written in one mode is read back in that mode. Without a context
+    the compose-style unquote applies, matching the forward default.
+    """
+    if value is _MISSING:
+        return _unquote_compose_style(str(ctx))
+
+    text = "" if value is None else str(value)
+
+    mode = ""
+    try:
+        mode = str(ctx.resolve("DEPLOYMENT_MODE") or "").strip()
+    except Exception:  # pragma: no cover
+        mode = ""
+
+    if mode == "swarm":
+        return text
+    return _unquote_compose_style(text)
+
+
+def dotenv_value(content: Any, key: Any) -> str:
+    """Return the raw right-hand side of ``key`` in a rendered ``.env``.
+
+    Args:
+        content: the file's text.
+        key: the variable name to read.
+
+    Returns:
+        The value still quoted the way the file holds it, or an empty string
+        when the file carries no such assignment. The caller unquotes it with
+        :func:`dotenv_unquote`, which knows the mode the file was written in.
+    """
+    prefix = f"{key}="
+    for line in str(content or "").splitlines():
+        stripped = line.strip()
+        if stripped.startswith(prefix):
+            return stripped[len(prefix) :]
+    return ""
+
+
 class FilterModule:
     def filters(self) -> dict[str, Any]:
         return {
             "dotenv_quote": dotenv_quote,
+            "dotenv_unquote": dotenv_unquote,
+            "dotenv_value": dotenv_value,
         }

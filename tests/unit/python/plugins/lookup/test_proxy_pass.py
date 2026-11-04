@@ -162,6 +162,8 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={
                     "DEPLOYMENT_MODE": "swarm",
+                    "IS_COMPOSE_MODE": False,
+                    "IS_SWARM_MODE": True,
                     "compose_mode_force": "compose",
                 },
             )
@@ -185,6 +187,8 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={
                     "DEPLOYMENT_MODE": "compose",
+                    "IS_COMPOSE_MODE": True,
+                    "IS_SWARM_MODE": False,
                     "compose_mode_force": "compose",
                 },
             )

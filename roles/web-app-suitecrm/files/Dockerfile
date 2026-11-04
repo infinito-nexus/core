@@ -13,6 +13,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       wget \
       curl \
       unzip \
+      zip \
       libpng-dev \
       libzip-dev \
       libicu-dev \
@@ -20,7 +21,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       libxml2-dev \
       libldap2-dev \
       patch \
-  && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
+  && docker-php-ext-configure ldap --with-libdir="lib/$(uname -m)-linux-gnu" \
   && docker-php-ext-install \
       pdo \
       pdo_mysql \

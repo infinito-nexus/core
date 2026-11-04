@@ -1,0 +1,41 @@
+---
+- name: 🔄 Nextcloud | App update (retry once)
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update --all"
+  register: occ_app_update
+  changed_when: "'up-to-date or no updates could be found' not in occ_app_update.stdout"
+  retries: 2
+  delay: 3
+  until: occ_app_update.rc == 0
+  when: not (NEXTCLOUD_PLUGINS_PINNED | bool)
+
+- name: 🔄 Nextcloud | App update, leaving the pinned releases alone
+  when: NEXTCLOUD_PLUGINS_PINNED | bool
+  block:
+    - name: 🔍 Nextcloud | List the apps the appstore offers an update for
+      shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update --all --showonly"
+      register: occ_app_updatable
+      changed_when: false
+      retries: 2
+      delay: 3
+      until: occ_app_updatable.rc == 0
+
+    - name: 🔄 Nextcloud | App update for each unpinned app the appstore offers
+      shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update {{ item | quote }}"
+      register: occ_app_update_unpinned
+      changed_when: "'up-to-date or no updates could be found' not in occ_app_update_unpinned.stdout"
+      retries: 2
+      delay: 3
+      until: occ_app_update_unpinned.rc == 0
+      loop: >-
+        {{ occ_app_updatable.stdout_lines
+           | select('search', ' new version available')
+           | map('regex_replace', ' new version available.*$', '')
+           | difference(NEXTCLOUD_PINNED_PLUGINS) }}
+
+- name: 🔧 Nextcloud | Maintenance repair
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:repair --include-expensive"
+  register: occ_repair
+  changed_when: true
+  retries: 3
+  delay: 10
+  until: occ_repair.rc == 0

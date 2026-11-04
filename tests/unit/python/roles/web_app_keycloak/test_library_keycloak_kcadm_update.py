@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 import types
 import unittest
@@ -257,6 +258,41 @@ class TestKeycloakKcadmUpdate(unittest.TestCase):
             m.run_kcadm(DummyModule(), "kcadm get clients")
 
         self.assertEqual(len(calls), m.CONFIG_LOCK_MAX_RETRIES + 1)
+
+    def test_a_payload_reaches_kcadm_on_stdin_never_on_the_command_line(self):
+        m = self.mod
+        outcomes = [
+            DummyCompleted(1, "", LOCK_ERROR),
+            DummyCompleted(0, "", ""),
+            DummyCompleted(0, "", ""),
+        ]
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append((cmd, kwargs.get("input")))
+            return outcomes[len(calls) - 1]
+
+        payload = {"secret": "s3cr3t-value", "enabled": True}
+        with (
+            patch.object(m.subprocess, "run", side_effect=fake_run),
+            patch.object(m.time, "sleep", return_value=None),
+        ):
+            m.send_update(
+                DummyModule(), "client", "clients", "c1", "example", "kcadm", payload
+            )
+            m.send_create(DummyModule(), "realm", "realms", "", "kcadm", payload)
+
+        self.assertEqual(
+            [cmd for cmd, _ in calls],
+            [
+                "kcadm update clients/c1 -r example -f -",
+                "kcadm update clients/c1 -r example -f -",
+                "kcadm create realms -f -",
+            ],
+        )
+        for cmd, stdin in calls:
+            self.assertNotIn("s3cr3t-value", cmd)
+            self.assertEqual(json.loads(stdin), payload)
 
     def test_get_current_object_parses_noisy(self):
         m = self.mod

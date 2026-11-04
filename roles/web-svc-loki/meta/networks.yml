@@ -1,0 +1,11 @@
+---
+meshes: []
+local:
+  subnet: 192.168.85.0/24
+overlay:
+  modes: [compose, swarm]
+  topology: shared_net
+  consumer:
+    key: loki
+reachability:
+  modes: [clearnet] # nocheck: network-reachability  the authenticated log ingest endpoint must never be served on an onion address

@@ -55,7 +55,7 @@ Excluded, with the reason recorded so the question is not reopened:
 | `web-app-openproject` | no AI surface found in the product |
 | `web-app-espocrm` | measured at tag 10.0.4: zero tree paths match `AI`/`Intelligence`/`OpenAI`/`LLM`/`GPT`/`prompt` while 116 match `Mail` on the same payload, so the search was live. The AI features live only in the closed-source Intelligence extension, which needs a purchased licence and is published in no `espocrm` repository. A version bump does not help: upstream documents the extension as requiring 10.0.3 or greater, so newer cores host it rather than absorb it |
 | `web-app-peertube` | measured at tag v8.2.4 across three independent surfaces: `config/production.yaml.example` `video_transcription:` carries only `enabled`/`engine`/`engine_path`/`model`/`model_path`/`timeout`/`remote_runners.enabled`; `support/docker/production/config/custom-environment-variables.yaml` exposes exactly the seven matching `PEERTUBE_VIDEO_TRANSCRIPTION_*` variables, none of them a URL or a key; `server/core/initializers/config.ts` agrees. Transcription is local Whisper, not an OpenAI-compatible endpoint |
-| infrastructure and static roles | `checkmk`, `prometheus`, `matomo`, `seaweedfs`, `minio`, `mailu`, `keycloak`, `lam`, `fusiondirectory`, `phpldapadmin`, `phpmyadmin`, `pgadmin`, `pihole`, `semaphore`, `jenkins`, `gitea`, `hugo`, `sphinx`, `yourls`, `mini-qr`, `littlejs`, `chess`, `roulette-wheel`, `navigator`, `mig`, `dashboard`, `fediwall`, `postmarks` carry no AI surface |
+| infrastructure and static roles | `checkmk`, `prometheus`, `matomo`, `seaweedfs`, `minio`, `mailu`, `keycloak`, `lam`, `fusiondirectory`, `phpldapadmin`, `phpmyadmin`, `pgadmin`, `pihole`, `semaphore`, `jenkins`, `gitea`, `hugo`, `docs`, `yourls`, `mini-qr`, `littlejs`, `chess`, `roulette-wheel`, `navigator`, `mig`, `dashboard`, `fediwall`, `postmarks` carry no AI surface |
 | fediverse and media roles | `mastodon`, `pixelfed`, `friendica`, `socialhome`, `bookwyrm`, `mobilizon`, `funkwhale`, `bluesky`, `bridgy-fed`, `jellyfin` ship no configurable AI surface |
 | remaining application roles | `akaunting`, `decidim`, `fider`, `listmonk`, `pretix`, `snipe-it`, `taiga`, `penpot`, `joomla`, `suitecrm`, `kix`, `opencloud`, `opentalk`, `jitsi`, `bigbluebutton`, `erpnext` show no first-party AI surface with a configurable endpoint; revisit when upstream adds one |
 
@@ -81,5 +81,5 @@ The gateway is therefore pinned on **variant 2** for every consumer that ships t
 
 ## See Also
 
-- [031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)
-- [025 - MCP Role Integration](025-mcp-role-integration.md)
+- [052 - LLM Gateway Model Backends](052-llm-gateway-model-backends.md)
+- [050 - MCP Role Integration](050-mcp-role-integration.md)

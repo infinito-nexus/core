@@ -3,9 +3,30 @@ set -eu
 
 APP_DIR="/var/www/html"
 CONFIG_PHP="$APP_DIR/config/config.php"
+VERSION_PHP="$APP_DIR/version.php"
 OCC="$APP_DIR/occ"
 INIT_LOCK="$APP_DIR/nextcloud-init-sync.lock"
-IMAGE_VERSION_PHP="/usr/src/nextcloud/version.php"
+
+app_user="${NEXTCLOUD_INIT_GATE_USER:?NEXTCLOUD_INIT_GATE_USER env missing}"
+
+occ_status() {
+  if status="$(timeout 120 su "$app_user" -s /bin/sh -c "php $OCC status" 2>/dev/null)"; then
+    return 0
+  else
+    rc=$?
+  fi
+  case "$rc" in
+    1|124|255) status='' ;;
+    *)
+      echo "Task slot ${slot}: occ status exited ${rc}, which no Nextcloud state explains; check su, timeout and php in the image." >&2
+      exit "$rc"
+      ;;
+  esac
+}
+
+init_lock_free() {
+  ( exec 9>"$INIT_LOCK"; flock -n 9 )
+}
 
 slot="${TASK_SLOT:-1}"
 case "$slot" in
@@ -13,28 +34,32 @@ case "$slot" in
 esac
 
 if [ "$slot" -ne 1 ]; then
-  app_user="${NEXTCLOUD_INIT_GATE_USER:?NEXTCLOUD_INIT_GATE_USER env missing}"
-  image_version="$(php -r "require '$IMAGE_VERSION_PHP'; echo implode('.', \$OC_Version);")"
-
   while true; do
     status=''
-    if ( exec 9>"$INIT_LOCK"; flock -n 9 ) && [ -f "$CONFIG_PHP" ] && [ -f "$OCC" ]; then
-      status="$(su "$app_user" -s /bin/sh -c "php $OCC status" 2>/dev/null || true)"
+    if init_lock_free && [ -f "$CONFIG_PHP" ] && [ -f "$OCC" ]; then
+      occ_status
     fi
 
     ready=1
     case "$status" in *"- installed: true"*) ;; *) ready=0 ;; esac
     case "$status" in *"- maintenance: false"*) ;; *) ready=0 ;; esac
     case "$status" in *"- needsDbUpgrade: false"*) ;; *) ready=0 ;; esac
-    case "$status" in *"- version: $image_version"*) ;; *) ready=0 ;; esac
 
     if [ "$ready" -eq 1 ]; then
       break
     fi
 
-    echo "Task slot ${slot}: waiting for slot 1 to finish Nextcloud init..."
+    echo "Task slot ${slot}: waiting for a consistent Nextcloud installation..."
     sleep 10
   done
+elif [ -f "$VERSION_PHP" ] && [ -f "$OCC" ] && init_lock_free; then
+  occ_status
+  case "$status" in
+    *"- installed: false"*)
+      echo "Task slot ${slot}: $VERSION_PHP exists but Nextcloud reports installed: false. An earlier installation attempt failed after copying the source tree, and the upstream entrypoint never retries it. Read that attempt's error in the earlier container's log, then drop the Nextcloud database and empty the volume before redeploying." >&2
+      exit 1
+      ;;
+  esac
 fi
 
 exec /entrypoint.sh "$@"

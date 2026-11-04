@@ -133,7 +133,8 @@ def _peer_entries(mesh: Mesh, host: str, *, routes_pool: bool) -> list[Commented
     for peer in mesh.peers_of(host):
         entry = CommentedMap()
         entry["host"] = peer.host
-        entry["endpoint"] = peer.endpoint or peer.host
+        if not peer.roaming:
+            entry["endpoint"] = peer.endpoint or peer.host
         entry["public_key"] = peer.public_key
         entry["address"] = peer.address
         if not peer.is_hub:
@@ -162,6 +163,7 @@ def write_mesh(
     host_vars_dir: Path,
     vault_password_file: Path,
     primary: dict[str, str] | None = None,
+    host_vault_password_files: dict[str, Path] | None = None,
 ) -> list[Path]:
     """Write ``mesh`` into every member's host_vars and return the paths.
 
@@ -171,7 +173,10 @@ def write_mesh(
         vault_password_file: password file the private keys are encrypted with.
         primary: hostname to its primary mesh; an absent host counts this
             mesh as its primary.
+        host_vault_password_files: hostname to the password file its own
+            private key is encrypted with instead of ``vault_password_file``.
     """
+    own_password_files = dict(host_vault_password_files or {})
     written: list[Path] = []
     key_name = private_key_name()
 
@@ -194,7 +199,9 @@ def write_mesh(
         if member.private_key is not None:
             credentials = ensure_map(ensure_map(app, SECRETS_KEY), CREDENTIALS_KEY)
             credentials[key_name] = vault_value(
-                vault_password_file, member.private_key, key_name
+                own_password_files.get(member.host, vault_password_file),
+                member.private_key,
+                key_name,
             )
 
         dump_document(path, document)

@@ -22,11 +22,23 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
+  localAdminUsername: decodeDotenvQuotedValue(process.env.WORDPRESS_ADMIN_USERNAME),
+  localAdminPassword: decodeDotenvQuotedValue(process.env.WORDPRESS_ADMIN_PASSWORD),
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
-  rbacGroupPathPrefix: decodeDotenvQuotedValue(process.env.RBAC_GROUP_PATH_PREFIX),
+  rbacGroupMapJson: decodeDotenvQuotedValue(process.env.WORDPRESS_RBAC_GROUP_MAP),
+  networkBaseUrls: decodeDotenvQuotedValue(process.env.WORDPRESS_NETWORK_BASE_URLS),
+  siteOwnerEnabled: (process.env.WORDPRESS_SITE_OWNER_ENABLED || "").toLowerCase() === "true",
+  siteOwnerParentDomain: decodeDotenvQuotedValue(process.env.WORDPRESS_SITE_OWNER_PARENT_DOMAIN),
+  siteOwnerWildcard: (process.env.WORDPRESS_SITE_OWNER_WILDCARD || "").toLowerCase() === "true",
+  profileAttributeLocale: decodeDotenvQuotedValue(process.env.PROFILE_ATTRIBUTE_LOCALE),
+  profileAttributeWebsite: decodeDotenvQuotedValue(process.env.PROFILE_ATTRIBUTE_WEBSITE),
   multisiteEnabled:
     (process.env.WORDPRESS_MULTISITE_ENABLED || "").toLowerCase() === "true",
   discourseBaseUrl: normalizeBaseUrl(process.env.DISCOURSE_BASE_URL || ""),
+  bigbluebuttonBaseUrl: normalizeBaseUrl(process.env.BIGBLUEBUTTON_BASE_URL || ""),
+  listmonkBaseUrl: normalizeBaseUrl(process.env.LISTMONK_BASE_URL || ""),
+  peertubeBaseUrl: normalizeBaseUrl(process.env.PEERTUBE_BASE_URL || ""),
+  translateBaseUrl: normalizeBaseUrl(process.env.TRANSLATE_BASE_URL || ""),
   discourseApiKey: decodeDotenvQuotedValue(process.env.DISCOURSE_API_KEY),
   discourseApiUsername: decodeDotenvQuotedValue(process.env.DISCOURSE_API_USERNAME),
 };
@@ -72,22 +84,66 @@ async function fillKeycloakLoginForm(page, username, password) {
   await signInButton.click({ timeout: resolveTimeout(30_000) });
 }
 
-// WP uses login_type=auto — visiting wp-login.php triggers OIDC redirect when
-// there's no WP session. We land at Keycloak, sign in, and get redirected
-// back to /wp-admin/.
 async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
   await gotoOnion(page, `${wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
-  const url = page.url();
-  if (!url.includes(wpBaseUrl)) {
-    await fillKeycloakLoginForm(page, username, password);
+
+  if (isServiceEnabled("sso")) {
+    if (!page.url().includes(wpBaseUrl)) {
+      await fillKeycloakLoginForm(page, username, password);
+    }
+  } else {
+    await page.locator("input#user_login").fill(username);
+    await page.locator("input#user_pass").fill(password);
+    await page.locator("input#wp-submit").click({ timeout: resolveTimeout(30_000) });
   }
+
   await expect
     .poll(() => page.url(), {
       timeout: resolveTimeout(60_000),
-      message: `Expected redirect back to ${wpBaseUrl}/wp-admin after OIDC login`,
+      message: `Expected redirect back to ${wpBaseUrl}/wp-admin after signing in`,
     })
     .toContain("/wp-admin");
 }
+
+/**
+ * Args:
+ *   page: Playwright page without a WordPress session; ends on a /wp-admin URL.
+ */
+async function wpAdminLogin(page) {
+  if (isServiceEnabled("sso")) {
+    await wpAdminLoginViaOidc(page, env.wpBaseUrl, env.adminUsername, env.adminPassword);
+    return;
+  }
+  await gotoOnion(page, `${env.wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
+  const username = page.locator("#user_login");
+  const password = page.locator("#user_pass");
+  await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await username.fill(env.localAdminUsername);
+  await expect(password).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await password.fill(env.localAdminPassword);
+  await page.locator("#wp-submit").click();
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(10_000),
+      message: `Expected ${env.wpBaseUrl}/wp-admin after the local sign-in`,
+    })
+    .toContain("/wp-admin");
+}
+
+/**
+ * Args:
+ *   query: query string appended to the plugins screen path, "" for none.
+ * Returns:
+ *   The plugins screen URL; under Multisite the Network Admin one, because the site screen silently
+ *   falls back to the All view for plugin_status=mustuse and lists network-active plugins without
+ *   a deactivate action.
+ */
+function wpPluginsScreenUrl(query) {
+  const screen = env.multisiteEnabled ? "wp-admin/network/plugins.php" : "wp-admin/plugins.php";
+  return `${env.wpBaseUrl}/${screen}${query}`;
+}
+
+const wpActivePluginAction = env.multisiteEnabled ? /network deactivate/i : /deactivate/i;
 
 // Client-side sign-out: clearing cookies achieves the same test-isolation
 // goal as wp-login.php?action=logout but avoids the OIDC plugin's
@@ -504,6 +560,28 @@ async function discourseDeleteTopic(request, topicId) {
   }).catch(() => {});
 }
 
+/**
+ * Args:
+ *   wanted: { role, tenant } for a site role (tenant only under Multisite), { network: true } or { siteOwner: true }.
+ * Returns:
+ *   The Keycloak group path WORDPRESS_RBAC_GROUP_MAP maps to that entry.
+ */
+function rbacGroupPath(wanted) {
+  const entries = Object.entries(JSON.parse(env.rbacGroupMapJson));
+  const matches = ([, entry]) => {
+    if (wanted.network) return entry.network === true;
+    if (wanted.siteOwner) return entry.site_owner === true;
+    return entry.role === wanted.role && (entry.tenant || "") === (wanted.tenant || "").toLowerCase();
+  };
+  const match = entries.find(matches);
+  if (!match) {
+    throw new Error(
+      `WORDPRESS_RBAC_GROUP_MAP has no group for ${JSON.stringify(wanted)}; groups: ${entries.map(([path]) => path).join(", ")}`
+    );
+  }
+  return match[0];
+}
+
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(env.appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -520,7 +598,7 @@ async function beforeEach({ page }) {
   expect(env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
   expect(env.canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
-  expect(env.rbacGroupPathPrefix, "RBAC_GROUP_PATH_PREFIX must be set").toBeTruthy();
+  expect(env.rbacGroupMapJson, "WORDPRESS_RBAC_GROUP_MAP must be set").toBeTruthy();
   await page.context().clearCookies();
   await installCspViolationObserver(page);
 }
@@ -529,7 +607,10 @@ module.exports = {
   env,
   attachDiagnostics,
   fillKeycloakLoginForm,
+  wpAdminLogin,
   wpAdminLoginViaOidc,
+  wpPluginsScreenUrl,
+  wpActivePluginAction,
   wpSignOut,
   keycloakAdminToken,
   keycloakResolveGroupId,
@@ -541,5 +622,6 @@ module.exports = {
   discourseApiRequest,
   discourseSearchTopicByTitle,
   discourseDeleteTopic,
+  rbacGroupPath,
   beforeEach,
 };

@@ -1,19 +1,27 @@
 ---
 application_id: "web-app-listmonk"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 container_port: "{{ lookup('config', application_id, 'services.listmonk.ports.internal.http') }}"
+
+LISTMONK_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+LISTMONK_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+LISTMONK_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
 LISTMONK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+LISTMONK_LOGIN_SSO: "{{ lookup('config', application_id, 'services.listmonk.login.method.sso.enabled') | bool }}"
+LISTMONK_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.listmonk.login.method.native.enabled') | bool }}"
+LISTMONK_LOGIN_2FA: "{{ lookup('config', application_id, 'services.listmonk.login.method.2fa.enabled') | bool }}"
+LISTMONK_OIDC_AUTOLOGIN: "{{ LISTMONK_OIDC_ENABLED | bool and LISTMONK_LOGIN_SSO | bool and not LISTMONK_LOGIN_NATIVE | bool }}"
 
 LISTMONK_PUBLIC_API_ENABLED: "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
 
 LISTMONK_USER_SEND: "newsletter"
 LISTMONK_USER_BOUNCE: "bounce"
 
-LISTMONK_EXEC_DATABASE: "container exec -i {{ lookup('database', application_id, 'address') }} psql -U {{ lookup('database', application_id, 'username') }} -d {{
-  lookup('database', application_id, 'name') }}"
+LISTMONK_EXEC_DATABASE: "container exec -i -e LISTMONK_REALIGN_PASSWORD {{ lookup('database', application_id, 'address') }} psql -U {{ lookup('database', application_id,
+  'username') }} -d {{ lookup('database', application_id, 'name') }}"
 LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"
 
 LISTMONK_SETTINGS:
@@ -21,21 +29,22 @@ LISTMONK_SETTINGS:
     value: "\"{{ lookup('tls', application_id, 'url.base') }}\""
 
   - key: "app.notify_emails"
-    value: "{{ [ lookup('users', 'administrator').email ] | to_json }}"
+    value: "{{ [ lookup('users', 'platform_administrator').email ] | to_json }}"
 
   - key: "security.oidc"
     value: >-
       {{ {
-         "enabled": True,
+         "enabled": LISTMONK_LOGIN_SSO | bool,
          "client_id": OIDC.CLIENT.ID,
          "provider_url": OIDC.CLIENT.ISSUER_URL,
-         "client_secret": OIDC.CLIENT.SECRET
+         "client_secret": OIDC.CLIENT.SECRET,
+         "auto_create_users": False
       } | to_json }}
     condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
 
   - key: "appearance.public.custom_js"
-    value: "{{ lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) | to_json }}"
-    condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
+    value: "{{ (lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) if LISTMONK_OIDC_AUTOLOGIN | bool else '') |
+      to_json }}"
 
   - key: "security.enable_captcha"
     value: "true"
@@ -77,13 +86,6 @@ LISTMONK_SETTINGS:
   - key: "app.lang"
     value: '"{{ HOST_LL }}"'
 
-  - key: "app.logo_url"
-    value: '"{{ service_provider.platform.logo }}"'
-    condition: "{{ service_provider.platform.logo | length > 0 }}"
-
-  - key: "app.site_name"
-    value: '"{{ service_provider.company.titel }} Mailing list"'
-
   - key: "bounce.enabled"
     value: "true"
 
@@ -108,10 +110,6 @@ LISTMONK_SETTINGS:
 
   - key: "app.from_email"
     value: '"{{ service_provider.company.titel }} Newsletter <{{ lookup(''users'', LISTMONK_USER_SEND).email }}>"'
-
-  - key: "app.favicon_url"
-    value: '"{{ service_provider.platform.favicon }}"'
-    condition: "{{ service_provider.platform.favicon | length > 0 }}"
 
   - key: "app.check_updates"
     value: "true"
@@ -150,6 +148,67 @@ LISTMONK_SETTINGS:
   - key: "upload.s3.bucket_type"
     value: '"public"'
     condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+
+LISTMONK_SUPER_ADMIN_ROLE_ID: 1
+LISTMONK_RBAC_ROLES:
+  - name: manager
+    permissions:
+      - lists:get_all
+      - lists:manage_all
+      - subscribers:get
+      - subscribers:get_all
+      - subscribers:manage
+      - subscribers:import
+      - campaigns:get
+      - campaigns:get_all
+      - campaigns:get_analytics
+      - campaigns:manage
+      - campaigns:manage_all
+      - campaigns:send
+      - templates:get
+      - templates:manage
+      - media:get
+      - media:manage
+      - bounces:get
+      - bounces:manage
+  - name: viewer
+    permissions:
+      - lists:get_all
+      - subscribers:get
+      - subscribers:get_all
+      - campaigns:get
+      - campaigns:get_all
+      - campaigns:get_analytics
+      - templates:get
+      - media:get
+      - bounces:get
+LISTMONK_RBAC_ADMIN_ROLE: administrator
+
+LISTMONK_DESIGN: "{{ lookup('design', application_id) }}"
+LISTMONK_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+LISTMONK_DESIGN_CSS_MARKER: ":root{--infinito-design-carrier:1}"
+LISTMONK_DESIGN_JS_MARKER: "window.infinitoDesignCarrier = 1;"
+LISTMONK_DESIGN_APPEARANCE:
+  - key: "appearance.admin.custom_css"
+    template: "design/admin.css.j2"
+    marker: "{{ LISTMONK_DESIGN_CSS_MARKER }}"
+  - key: "appearance.admin.custom_js"
+    template: "design/admin.js.j2"
+    marker: "{{ LISTMONK_DESIGN_JS_MARKER }}"
+  - key: "appearance.public.custom_css"
+    template: "design/public.css.j2"
+    marker: "{{ LISTMONK_DESIGN_CSS_MARKER }}"
+LISTMONK_DESIGN_BRANDING:
+  - key: "app.logo_url"
+    design: "{{ LISTMONK_DESIGN.urls.header.svg }}"
+    fallback: "{{ service_provider.platform.logo }}"
+  - key: "app.favicon_url"
+    design: "{{ LISTMONK_DESIGN.urls.favicon_ico }}"
+    fallback: "{{ service_provider.platform.favicon }}"
+  - key: "app.site_name"
+    design: "{{ LISTMONK_DESIGN.label }}"
+    fallback: "{{ service_provider.company.titel }} Mailing list"
+
 LISTMONK_MCP_ENABLED: "{{ lookup('config', application_id, 'services.listmonkmcp.enabled') | bool }}"
 LISTMONK_MCP_SERVICE_KEY: "listmonkmcp"
 LISTMONK_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.listmonkmcp.name') }}"

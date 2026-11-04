@@ -11,11 +11,55 @@ always win" rule.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 from typing import Any
 
 from utils.cache.applications import get_variant_overrides_only
-from utils.roles.applications.topics import apply_topic
-from utils.roles.applications.variants import collect_provider_overrides
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_roles_dir,
+)
+from utils.roles.applications.topics import apply_topic, provider_of
+from utils.roles.applications.variants import (
+    PRIMARY_ONLY_SERVICE_KEYS,
+    collect_provider_overrides,
+)
+
+
+def _services(payload: Any) -> Mapping[str, Any]:
+    services = payload.get("services") if isinstance(payload, Mapping) else None
+    return services if isinstance(services, Mapping) else {}
+
+
+def _drop_undeployed_hosts(
+    resolved: dict[str, Any], *, roles_dir: str, include: Sequence[str]
+) -> dict[str, Any]:
+    baked = {
+        key
+        for key in PRIMARY_ONLY_SERVICE_KEYS
+        if any(key in _services(payload) for payload in resolved.values())
+    }
+    if not baked:
+        return resolved
+    registry = build_service_registry_from_roles_dir(Path(roles_dir))
+    undeployed = {key for key in baked if provider_of(key, registry) not in include}
+    if not undeployed:
+        return resolved
+    stripped: dict[str, Any] = {}
+    for app_id, payload in resolved.items():
+        services = _services(payload)
+        stripped[app_id] = (
+            {
+                **payload,
+                "services": {
+                    key: entry
+                    for key, entry in services.items()
+                    if key not in undeployed
+                },
+            }
+            if undeployed & set(services)
+            else payload
+        )
+    return stripped
 
 
 def _resolve_variant_payloads(
@@ -38,6 +82,10 @@ def _resolve_variant_payloads(
     A config topic a variant declares under a service it depends on is
     finally moved onto that service's provider, so the role pulling a
     dependency in is what decides how lean the dependency runs.
+
+    An entry for a host of
+    :data:`utils.roles.applications.variants.PRIMARY_ONLY_SERVICE_KEYS` is
+    baked only while the round deploys that host itself.
     """
     overrides_per_app = get_variant_overrides_only(roles_dir=roles_dir)
     resolved: dict[str, Any] = {}
@@ -49,6 +97,7 @@ def _resolve_variant_payloads(
         if not 0 <= index < len(variant_list):
             index = 0
         resolved[app_id] = variant_list[index]
+    resolved = _drop_undeployed_hosts(resolved, roles_dir=roles_dir, include=include)
     for provider, topics in collect_provider_overrides(
         resolved, roles_dir=roles_dir
     ).items():

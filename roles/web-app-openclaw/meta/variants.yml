@@ -3,6 +3,9 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     sso:
@@ -19,7 +22,7 @@
     matomo:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     prometheus:
@@ -45,7 +48,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -54,6 +57,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -71,7 +77,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:

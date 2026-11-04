@@ -1,0 +1,32 @@
+---
+- name: "📖 Read the built-in themes of {{ application_id }}"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+      gitea embedded view {{ ('public/assets/css/theme-gitea-' ~ item.key ~ '.*.css') | quote }}
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  loop: "{{ GITEA_THEMES | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: gitea_builtin_themes
+  changed_when: false
+  failed_when: gitea_builtin_themes.rc != 0 or 'gitea-theme-meta-info' not in gitea_builtin_themes.stdout
+
+- name: "🎨 Install the corporate themes of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ GITEA_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/theme_sync.sh') | quote }} theme_sync
+      {{ [GITEA_THEME_DIR, 'theme-' ~ item.item.value ~ '.css'] | path_join | quote }}
+    stdin: "{{ item.stdout ~ '\n' ~ lookup('template', 'theme.css.j2') }}"
+  vars:
+    gitea_theme_scheme: "{{ item.item.key }}"
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  loop: "{{ gitea_builtin_themes.results }}"
+  loop_control:
+    label: "{{ item.item.value }}"
+  register: gitea_theme_install
+  changed_when: "'CHANGED' in gitea_theme_install.stdout"
+
+- name: "🔄 Restart {{ application_id }} to load the installed themes"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/restart.yml"
+  when: gitea_theme_install is changed

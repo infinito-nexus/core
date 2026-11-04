@@ -1,0 +1,43 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Refuse a flavor the role does not carry"
+  ansible.builtin.assert:
+    that:
+      - code_flavor in code_flavors
+    fail_msg: "services.code.flavor is '{{ code_flavor }}'; carried flavors are {{ code_flavors.keys() | list | join(', ') }}."
+    quiet: true
+
+- name: "🧹 Remove the flavors that conflict with {{ code_flavor }}"
+  package_install: # nocheck: package-install removes the flavors other than the configured one, the batch only installs
+    id: "{{ item }}"
+    state: absent
+  loop: "{{ code_conflicting_flavors }}"
+
+- name: "📦 install {{ code_flavor }}"
+  package_install: # nocheck: package-install installs only the configured flavor, the role removes the others
+    id: "{{ code_flavor }}"
+  register: code_install
+
+- name: "🧩 Configure the agents of the installed editor"
+  when: code_install is not skipped
+  block:
+    - name: "🧩 Install the extension of an agent this host deploys"
+      ansible.builtin.command:
+        cmd: "{{ code_binary }} --install-extension {{ item.value.config.extension_id }} --force"
+      become: true
+      become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+      register: code_extension
+      changed_when: "'successfully installed' in (code_extension.stdout | lower)"
+      loop: "{{ code_addons | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when:
+        - item.value.enabled | bool
+        - item.key != 'claude-code' or ((item.value.config.profiles | length == 0) and (item.value.config.unified | length == 0))
+
+    - name: 🧭 Configure the requested Claude editor profiles
+      ansible.builtin.include_tasks: 01_claude_profiles.yml
+      when:
+        - code_addons['claude-code'].enabled | bool
+        - (code_addons['claude-code'].config.profiles | length > 0) or (code_addons['claude-code'].config.unified | length > 0)

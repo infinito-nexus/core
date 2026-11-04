@@ -1,0 +1,4 @@
+---
+canonical:
+  - rsvp.{{ DOMAIN_PRIMARY }}
+aliases: []

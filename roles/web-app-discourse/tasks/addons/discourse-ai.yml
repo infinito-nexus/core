@@ -7,10 +7,12 @@
     argv:
       - container
       - exec
+      - -i
       - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
       - rails
       - r
-      - "{{ lookup('template', 'ai_gateway/register.rb.j2') }}"
+      - "-"
+    stdin: "{{ lookup('template', 'ai_gateway/register.rb.j2') }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

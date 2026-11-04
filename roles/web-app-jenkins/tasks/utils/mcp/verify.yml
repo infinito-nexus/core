@@ -1,14 +1,16 @@
 ---
 - name: "🩺 Complete an MCP initialize handshake against the plugin endpoint"
-  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ JENKINS_LOCAL_CID | quote }} \
-      {{ lookup('timeout', 30) | curl(5, 0) }} -f -o /dev/null \
-        -X POST \
-        -H 'Content-Type: application/json' \
-        -H 'Accept: application/json, text/event-stream' \
-        -u {{ (JENKINS_MCP_USERNAME ~ ':' ~ jenkins_mcp_token) | quote }} \
-        --data-binary {{ JENKINS_MCP_INITIALIZE_PAYLOAD | to_json | quote }} \
-        {{ JENKINS_MCP_URL | quote }}
+  ansible.builtin.shell:
+    cmd: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ JENKINS_LOCAL_CID | quote }} \
+        {{ lookup('timeout', 30) | curl(5, 0) }} -f -o /dev/null \
+          -X POST \
+          -H 'Content-Type: application/json' \
+          -H 'Accept: application/json, text/event-stream' \
+          -H @- \
+          --data-binary {{ JENKINS_MCP_INITIALIZE_PAYLOAD | to_json | quote }} \
+          {{ JENKINS_MCP_URL | quote }}
+    stdin: "Authorization: Basic {{ (JENKINS_MCP_USERNAME ~ ':' ~ jenkins_mcp_token) | b64encode }}"
   register: jenkins_mcp_endpoint_probe
   changed_when: false
   retries: 30

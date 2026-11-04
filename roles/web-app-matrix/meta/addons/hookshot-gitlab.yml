@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-matrix', 'services.gitlab.enabled') | bool }}"
+required: false
+mechanism: bridge
+source: upstream
+bridges:
+  - gitlab

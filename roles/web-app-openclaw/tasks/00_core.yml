@@ -14,6 +14,12 @@
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-full
+  vars:
+    webserver_location_extra_configuration: 'proxy_set_header {{ OPENCLAW_TRUSTED_PROXY_SECRET_HEADER }} "1";'
+
+- name: "🎨 Stage the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/design.yml
+  when: OPENCLAW_DESIGN_ENABLED | bool
 
 - name: "🔌 Configure the OpenClaw MCP surface"
   ansible.builtin.include_tasks: utils/mcp.yml
@@ -23,6 +29,6 @@
   vars:
     assert_isolated_container: "{{ OPENCLAW_CONTAINER }}"
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - "'svc-ai-robot' not in group_names"
     - lookup('config', application_id, 'services.kata.enabled') | bool

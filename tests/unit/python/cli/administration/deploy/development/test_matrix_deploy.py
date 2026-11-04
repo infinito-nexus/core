@@ -198,6 +198,7 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
             sorted(purge_mock.call_args.kwargs["app_ids"]),
             ["web-app-keycloak", "web-app-multi"],
         )
+        self.assertEqual(make_compose_mock.return_value.reset_target.call_count, 2)
 
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",
@@ -499,7 +500,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-0",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 0,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },
@@ -508,7 +509,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-1",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 1,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },
@@ -517,6 +518,42 @@ class TestHandlerFullCycle(unittest.TestCase):
         )
         purge_mock.assert_called_once()
         self.assertEqual(purge_mock.call_args.kwargs["app_ids"], ["web-app-multi"])
+
+    @patch(
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
+        autospec=True,
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
+        autospec=True,
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
+    def test_full_cycle_resets_the_target_before_every_pass(
+        self,
+        make_compose_mock: MagicMock,
+        plan_mock: MagicMock,
+        run_deploy_mock: MagicMock,
+        purge_mock: MagicMock,
+    ) -> None:
+        compose = _make_compose_mock()
+        make_compose_mock.return_value = compose
+        plan_mock.return_value = [
+            _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
+            _entry(1, "/srv/inv-1", {"web-app-multi": 1}),
+        ]
+        events = []
+        compose.reset_target.side_effect = lambda: events.append("reset")
+        run_deploy_mock.side_effect = lambda *_a, **_k: events.append("deploy") or 0
+
+        rc = handler(_args(apps=["web-app-multi"], full_cycle=True))
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(events, ["reset", "deploy"] * 4)
 
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",
@@ -596,7 +633,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-1",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 1,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },

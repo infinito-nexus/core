@@ -12,6 +12,7 @@ const {
   gotoOnion,
   normalizeBaseUrl,
   performKeycloakLoginForm,
+  requireDotenvValue,
   runAdminFlow,
   runBiberFlow,
   runGuestFlow,
@@ -22,10 +23,10 @@ const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const defaultSlug = decodeDotenvQuotedValue(process.env.FEDIWALL_DEFAULT_SLUG || "");
 const wallSlugs = JSON.parse(decodeDotenvQuotedValue(process.env.FEDIWALL_WALL_SLUGS || "[]"));
-const mastodonBaseUrl = normalizeBaseUrl(process.env.MASTODON_BASE_URL || "");
-const friendicaBaseUrl = normalizeBaseUrl(process.env.FRIENDICA_BASE_URL || "");
-const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME || "");
-const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || "");
+const mastodonBaseUrl = normalizeBaseUrl(process.env.MASTODON_BASE_URL || ""); // nocheck: unguarded-env-default -- emitted only when the mastodon source is enabled
+const friendicaBaseUrl = normalizeBaseUrl(process.env.FRIENDICA_BASE_URL || ""); // nocheck: unguarded-env-default -- emitted only when the friendica source is enabled
+const biberUsername = requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_USERNAME");
+const biberPassword = requireDotenvValue(process.env.BIBER_PASSWORD, "BIBER_PASSWORD");
 
 async function beforeEach({ page }) {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();

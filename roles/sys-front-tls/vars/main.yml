@@ -1,2 +1,2 @@
 ---
-tls_mode_effective: "{{ lookup('tls', application_id, 'mode') }}"
+tls_mode_effective: "{{ lookup('tls', domain, 'mode') }}"

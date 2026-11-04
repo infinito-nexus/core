@@ -13,7 +13,7 @@ else
       available_locales: Decidim.available_locales,
       available_authorizations: [],
       external_domain_allowlist: ["decidim.org", "github.com"],
-      users_registration_mode: :enabled,
+      users_registration_mode: ENV.fetch("DECIDIM_USERS_REGISTRATION_MODE"),
       badges_enabled: true,
       send_welcome_notification: true,
       file_upload_settings: Decidim::OrganizationSettings.default(:upload),

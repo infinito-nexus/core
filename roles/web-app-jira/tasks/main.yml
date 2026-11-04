@@ -1,9 +1,4 @@
 ---
-- block:
-    - name: "🧩 load docker, db and proxy for {{ application_id }}"
-      include_role:
-        name: sys-stk-full
-      vars:
-        compose_handlers_flush: true
-    - include_tasks: utils/once/flag.yml
+- name: "▶️ Execute Role (once)"
+  include_tasks: 00_core.yml
   when: run_once_web_app_jira is not defined

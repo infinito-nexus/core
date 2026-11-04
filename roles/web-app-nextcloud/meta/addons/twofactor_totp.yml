@@ -1,5 +1,5 @@
 ---
-enabled: "{{ not (lookup('config', 'web-app-nextcloud', 'services.sso.enabled')) }}"
+enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.nextcloud.login.method.2fa.enabled') | bool }}"
 required: true
 mechanism: plugin
 source: upstream

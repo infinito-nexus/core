@@ -3,6 +3,8 @@ require("./test-mcp-guest").register();
 require("./test-oidc-login");
 require("./test-oidc-security");
 require("./test-forged-identity");
+require("./test-rbac");
 require("./test-guest-persona");
 require("./test-biber-persona");
 require("./test-administrator-persona");
+require("./test-design");

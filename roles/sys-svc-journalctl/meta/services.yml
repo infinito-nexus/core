@@ -2,3 +2,9 @@
 # nocheck: required-by-coverage — TODO: declare proper required_by
 svc-journalctl:
   lifecycle: beta
+  system_max_use_percent: 2
+  system_keep_free: "15%" # Free space journald leaves on the filesystem before it rotates out old entries
+  max_retention_sec: 604800 # Upper bound on how long journal entries are kept
+  docker_rate_limit:
+    interval_sec: 30
+    burst: 1000000

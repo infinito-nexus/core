@@ -1,10 +1,16 @@
 const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isVisible, normalizeBaseUrl, gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  isVisible,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
+const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const loginUsername = decodeDotenvQuotedValue(process.env.LOGIN_USERNAME);
 const loginPassword = decodeDotenvQuotedValue(process.env.LOGIN_PASSWORD);
 const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
@@ -39,7 +45,7 @@ async function getHeaderAuthControls(page) {
   const headerNav = await getHeaderNavigation(page);
   const loginTrigger = headerNav.locator("a, button").filter({ hasText: /login/i }).first();
   const accountTrigger = headerNav.getByRole("button", { name: /account/i }).first();
-  const accountMenu = headerNav.locator(".dropdown-menu").filter({ hasText: /logout/i }).first();
+  const accountMenu = headerNav.locator(".dropdown-menu").filter({ hasText: /log\s*out/i }).first();
 
   return { loginTrigger, accountTrigger, accountMenu };
 }
@@ -143,9 +149,8 @@ async function openDropdownMenu(trigger, menu, label) {
 async function findAccountLogoutItem(accountMenu) {
   return waitForFirstVisible(
     [
-      accountMenu.getByRole("link", { name: /logout/i }),
-      accountMenu.locator("a[href*='logout'], a[href*='signout'], a[href*='sign-out']"),
-      accountMenu.locator("a, button, [role='link']").filter({ hasText: /logout/i }),
+      accountMenu.getByRole("link", { name: /log\s*out on this device/i }),
+      accountMenu.locator("a, button, [role='link']").filter({ hasText: /log\s*out on this device/i }),
     ],
     resolveTimeout(10_000),
     "Timed out waiting for the Account logout entry"
@@ -219,7 +224,7 @@ exports.register = function (shared) {
 
     const logoutEntry = await findAccountLogoutItem(loggedInControls.accountMenu);
     await expect(logoutEntry).toBeVisible({ timeout: resolveTimeout(10_000) });
-    await expect(logoutEntry).toContainText(/logout/i);
+    await expect(logoutEntry).toContainText(/log\s*out on this device/i);
     await logoutEntry.click({ timeout: resolveTimeout(30_000) });
 
     await expect

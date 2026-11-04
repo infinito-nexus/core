@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
+const shared = require("./_shared");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
@@ -40,5 +41,8 @@ test("OIDC: oauth2-proxy redirects visitors through Keycloak onto the gateway", 
       message: `expected redirect back to the OpenClaw gateway at ${baseUrl}`,
     })
     .toContain(canonicalDomain);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator(shared.GATE),
+    "Expected the Control UI's sign-in gate behind the proxy, not a gateway error page or the unmounted static page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });

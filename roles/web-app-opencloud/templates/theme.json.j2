@@ -1,0 +1,49 @@
+{% set design = lookup('design', application_id) %}
+{% set assets = (OPENCLOUD_DESIGN_THEME_URL_PATH if design.logo is string else OPENCLOUD_UPSTREAM_THEME_URL_PATH) ~ '/assets/' %}
+{
+  "common": {
+    "name": {{ design.label | to_json }},
+    "slogan": {{ design.label | to_json }},
+    "logo": {{ (assets ~ 'logo.svg') | to_json }},
+    "urls": {
+      "accessDeniedHelp": "",
+      "imprint": "",
+      "privacy": "",
+      "accessibility": ""
+    }
+  },
+  "clients": {
+    "android": {},
+    "desktop": {},
+    "ios": {},
+    "web": {
+      "defaults": {
+        "logo": {{ (assets ~ 'logo.svg') | to_json }},
+        "logoMobile": {{ (assets ~ 'logo-mobile.svg') | to_json }},
+        "favicon": {{ (assets ~ 'favicon.svg') | to_json }},
+        "designTokens": {
+          "roles": {
+{% for role, token in OPENCLOUD_DESIGN_ROLES.items() %}
+            {{ role | to_json }}: "var(--design-{{ token }})"{{ ',' if not loop.last else '' }}
+{% endfor %}
+          },
+          "colorPalette": {
+{% for icon, token in OPENCLOUD_DESIGN_ICON_COLORS.items() %}
+            {{ ('icon-' ~ icon) | to_json }}: "var(--design-{{ token }})"{{ ',' if not loop.last else '' }}
+{% endfor %}
+          }
+        }
+      },
+      "themes": [
+        {
+          "isDark": false,
+          "label": "Light Theme"
+        },
+        {
+          "isDark": true,
+          "label": "Dark Theme"
+        }
+      ]
+    }
+  }
+}

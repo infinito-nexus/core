@@ -19,8 +19,8 @@ Run integration tests with `make test-integration`.
 
 - You MUST NOT write unit tests for integration test logic. Integration tests verify real runtime boundaries; extracting that logic into unit tests defeats the purpose and duplicates coverage. The integration test itself is the specification.
 - You MUST NOT mock collaborators that are part of the integration boundary being tested. The point is to verify real interaction.
-- You MUST NOT write tests that only assert a file contains a string.
-- You MUST NOT write tests only for non-executable files such as `.yml` or `.j2`. Test the behavior that consumes them.
+- You MAY write tests for non-executable files such as `.yml`, `.j2` or patch files when they pin a value the deploy depends on, for example a security setting or a build step. Assert the parsed or rendered value where the file has one, and the raw text only where it has none, as in a patch.
+- Each test MUST fail when the behavior or value it pins changes.
 - You SHOULD keep each test focused on one integration boundary.
 - You SHOULD test realistic inputs that match what Ansible would pass at runtime.
 - You MAY use `unittest.mock` to stub out external services or filesystem state that is genuinely outside the integration scope.

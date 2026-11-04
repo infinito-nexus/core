@@ -23,8 +23,8 @@ matomo:
 # nocheck: dynamic-flag
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 mailu:
   modes:
@@ -32,10 +32,9 @@ mailu:
       enabled: true
     swarm:
       enabled: true
-  bond: 1
   # nocheck: default-placement-manager  mail edge at a known IP: MX A-record, PTR and SPF bind inbound/outbound SMTP to the stack host IP (a floating task's egress IP breaks deliverability); postfix /queue and dovecot mail+index state are NFS-hostile and ARE the app (no central-service equivalent); cert renewals land in a node-local bind via a manager-side systemd timer
   placement: manager
-  enabled: true # nocheck: dynamic-flag
+  enabled: false
   shared: true
   covers:
     - email
@@ -47,7 +46,7 @@ mailu:
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"
   dmarc:
-    rua_user: administrator
+    rua_user: platform_administrator
   ports:
     local:
       http: 8007
@@ -81,8 +80,14 @@ mailu:
     service_key: front
   run_after:
     - web-app-matomo
-    - web-app-stalwart
+    - web-app-email
   lifecycle: eol
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-mailu', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-mailu', 'native') }}"
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g
@@ -96,8 +101,7 @@ redis:
   backup:
     disabled: true
   enabled: true # nocheck: dynamic-flag
-  # Exception: central redis overlay adds VIP pressure on manager-pinned mailu; embedded redis avoids it.
-  shared: "{{ ('svc-db-redis' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
+  shared: "{{ ('svc-db-redis' in group_names) and (IS_COMPOSE_MODE) }}"
   cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
@@ -106,7 +110,7 @@ redis:
 # nocheck: dynamic-flag  enabled+shared (not the `in group_names` form) marks svc-dns-unbound `required` so the loader deploys it every compose round; reverting reintroduces the admin DNS hang.
 unbound:
   bond: 1
-  enabled: "{{ DEPLOYMENT_MODE == 'compose' }}"
+  enabled: "{{ IS_COMPOSE_MODE }}"
   shared: true
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
@@ -160,6 +164,8 @@ antispam:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 antivirus:
+  backup:
+    stop_required: false
   name: mailu-antivirus
   enabled: true # nocheck: dynamic-flag
   shared: false
@@ -219,11 +225,17 @@ front:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag - carries the login-method script of templates/javascript.js.j2, whose effect files/playwright/test-login-methods.js asserts
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -241,3 +253,16 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  mail provider every role's email entry reaches through MAIL_PROVIDER, so pausing it would cut mail for all of them
+  status: started

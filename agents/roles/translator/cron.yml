@@ -1,0 +1,10 @@
+---
+- name: night
+  schedule: "0 23 * * *"
+  routine: translate
+  action: start
+- name: day-load
+  schedule: "*/10 7-22 * * *"
+  routine: translate
+  condition: host-load-below-30
+  action: start

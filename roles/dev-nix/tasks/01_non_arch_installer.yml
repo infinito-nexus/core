@@ -109,5 +109,5 @@
     {{ dev_nix_binary_path | quote }}
   changed_when: true
   when:
-    - MODE_CLEANUP | bool
+    - CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool

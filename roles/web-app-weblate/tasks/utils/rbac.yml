@@ -1,0 +1,23 @@
+---
+- name: "👥 Converge Weblate superusers and site teams on the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: "{{ [WEBLATE_RBAC_SUPERUSER_ROLE] + (WEBLATE_RBAC_TEAMS | list) }}"
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ WEBLATE_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [weblate, shell]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_reconcile.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      WEBLATE_RBAC_SUPERUSER_ROLE: "{{ WEBLATE_RBAC_SUPERUSER_ROLE }}"
+      WEBLATE_RBAC_TEAMS: "{{ WEBLATE_RBAC_TEAMS | to_json }}"
+      WEBLATE_RBAC_PROTECTED: "{{ [WEBLATE_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_members_env:
+      - { name: RBAC_MEMBERS, role: "*", field: "" }

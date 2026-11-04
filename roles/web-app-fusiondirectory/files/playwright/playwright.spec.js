@@ -2,12 +2,21 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const baseUrl = normalizeBaseUrl(process.env.FUSIONDIRECTORY_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 
@@ -17,6 +26,8 @@ test.beforeEach(async ({ page }) => {
   await page.context().clearCookies();
 });
 
+require("./test-design").register();
+
 test("baseline: FusionDirectory responds on the canonical domain", async ({ page }) => {
   const r = await gotoOnion(page, `${baseUrl}/`);
   expect(r).toBeTruthy();
@@ -24,7 +35,7 @@ test("baseline: FusionDirectory responds on the canonical domain", async ({ page
   expect(r.url().includes(canonicalDomain)).toBe(true);
 });
 
-test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (variant 0)", async ({ page }) => {
+test("OIDC: the Keycloak sign-in lands in FusionDirectory through the header login (variant 0)", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
   expect(adminUsername).toBeTruthy(); expect(adminPassword).toBeTruthy(); expect(oidcIssuerUrl).toBeTruthy();
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
@@ -32,11 +43,16 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   await gotoOnion(page, `${expectedBase}/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
-  await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(`${expectedBase}/main.php`);
+  await expect(page.locator("div.plugin-window").first(), "the oauth2-proxy identity must open a FusionDirectory session").toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+  await expect(page.locator("#loginform"), "no second login form may follow the Keycloak sign-in").toHaveCount(0);
 });
 
-test("LDAP: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
+require("./test-rbac").register();
+
+test("guest: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const expectedBase = baseUrl.replace(/\/$/, "");
   await gotoOnion(page, `${expectedBase}/`);
@@ -56,20 +72,5 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-fusiondirectory admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(configuration|administration|users|groups|departments)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /configuration|administration|users|groups|departments|posix/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page);
 });

@@ -1,0 +1,14 @@
+---
+- name: "⬇️ Resolve the email client scope of realm '{{ KEYCLOAK_REALM }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get client-scopes -r {{ KEYCLOAK_REALM }} --fields id,name --format json
+  register: kc_email_scope_lookup
+  changed_when: false
+
+- name: "🔄 Converge the protocol mappers of the email client scope"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/converge/protocol_mappers.yml"
+  vars:
+    kc_mappers_path: >-
+      client-scopes/{{ (kc_email_scope_lookup.stdout | kcadm_json | selectattr('name', 'equalto', 'email') | list | first).id }}/protocol-mappers/models
+    kc_mappers_desired: >-
+      {{ (KEYCLOAK_DICTIONARY_REALM.clientScopes | selectattr('name', 'equalto', 'email') | list | first).protocolMappers }}

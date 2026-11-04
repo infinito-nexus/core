@@ -74,16 +74,16 @@ class TestAddonEnvFlagsLookup(unittest.TestCase):
         self.assertEqual(f["COLLECTIVES_ADDON_ENABLED"], "true")
         self.assertEqual(f["CONTACTS_ADDON_ENABLED"], "true")
 
-    def test_required_false_skipped_even_if_enabled(self):
-        self.assertEqual(self._flags()["OPTIONAL_ON_ADDON_ENABLED"], "false")
+    def test_required_false_still_gates_on_enabled(self):
+        self.assertEqual(self._flags()["OPTIONAL_ON_ADDON_ENABLED"], "true")
 
     def test_disabled_is_false(self):
         f = self._flags()
         self.assertEqual(f["REQUIRED_OFF_ADDON_ENABLED"], "false")
         self.assertEqual(f["OFF_OPTIONAL_ADDON_ENABLED"], "false")
 
-    def test_missing_required_defaults_false(self):
-        self.assertEqual(self._flags()["NO_REQUIRED_ADDON_ENABLED"], "false")
+    def test_missing_required_does_not_gate(self):
+        self.assertEqual(self._flags()["NO_REQUIRED_ADDON_ENABLED"], "true")
 
     def test_string_flags_coerced(self):
         self.assertEqual(self._flags()["STR_FLAGS_ADDON_ENABLED"], "true")
@@ -124,7 +124,7 @@ class TestNoAddons(unittest.TestCase):
 class TestBridgeDeploymentGating(unittest.TestCase):
     """A bridged addon's flag is true only when one of its partner roles is in the
     round's deployed closure (the inventory groups). When the set cannot be
-    resolved the gating is skipped (flag falls back to enabled AND required)."""
+    resolved the gating is skipped (flag falls back to enabled)."""
 
     def setUp(self):
         self.lookup = LookupModule()

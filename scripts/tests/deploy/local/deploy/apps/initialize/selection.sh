@@ -108,7 +108,7 @@ else
 fi
 
 echo ">>> Creating inventory for app '${apps}'"
-INVENTORY_VARS='{"ASYNC_ENABLED": false, "RUNTIME": "dev"}'
+INVENTORY_VARS='{"RUNTIME": "dev"}'
 if [[ -n "${INFINITO_INVENTORY_EXTRA_VARS:-}" ]]; then
 	INVENTORY_VARS="$("${PYTHON}" -c \
 		'import json, sys; base = json.loads(sys.argv[1]); base.update(json.loads(sys.argv[2])); print(json.dumps(base))' \

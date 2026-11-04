@@ -8,58 +8,6 @@ Deploy and manage [Odoo](https://www.odoo.com/), a comprehensive open-source ent
 
 This role automates the deployment of Odoo in a containerized Docker environment with PostgreSQL database integration, OIDC/LDAP authentication support, and full Infinito.Nexus stack integration including reverse proxy, CSP configuration, and centralized identity management.
 
-## Cosmos
-
-The diagram places Odoo ERP in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dep_svc_db_redis["svc-db-redis 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-odoo 🐳🐝]
-        svc_sso["sso"]
-        svc_ldap["ldap"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_postgres["postgres"]
-        svc_odoo["odoo"]
-        svc_redis["redis"]
-        svc_css["css"]
-        svc_javascript["javascript"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_db_postgres -. "0..1" .-> svc_postgres
-    dep_svc_db_redis -. "0..1" .-> svc_redis
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Purpose
 
 The purpose of this role is to provide a hands-off, production-ready Odoo ERP deployment that integrates seamlessly with the Infinito.Nexus platform. Organizations can leverage Odoo's comprehensive business management capabilities while benefiting from centralized authentication, backup, monitoring, and security features.
@@ -93,47 +41,29 @@ The purpose of this role is to provide a hands-off, production-ready Odoo ERP de
 - **LDAP Authentication:**
   Enterprise directory integration via OpenLDAP for organizations using traditional directory services.
 
+- **Login methods:** `services.odoo.login.method.*` of [`meta/services.yml`](./meta/services.yml) switches each sign-in method on its own; [`tasks/08_login_methods.yml`](./tasks/08_login_methods.yml) and [`tasks/05_oidc.yml`](./tasks/05_oidc.yml) apply the database switches.
+  - `sso`: the `enabled` flag of the Keycloak `auth.oauth.provider` row ("Login with SSO").
+  - `ldap`: the `res.company.ldap` row of the directory; [`tasks/06_ldap.yml`](./tasks/06_ldap.yml) writes it while the method is on and the deploy deletes it while it is off, so with SSO on LDAP accounts sign in through Keycloak's LDAP federation only.
+  - `native`: the system parameter `auth_signup.reset_password`; Odoo has no setting that hides its password form, so [`templates/javascript.js.j2`](./templates/javascript.js.j2) hides the login and password fields, the "Log in" button and the "Reset Password" link while `native` and `ldap` are both off. Local and LDAP accounts share one form and Odoo tries the local password before the directory, so with `ldap` on and `native` off the form still admits local accounts.
+  - `2fa`: Odoo's TOTP (`auth_totp`) has no switch that withdraws the offer, so the script hides the "Enable two-factor authentication" button of the user preferences while the method is off; enrollment is never enforced.
+  - `passkey`: `auth_passkey` installs itself with `web`, so the script hides the "Use a Passkey" entry and the "Add Passkey" button while the method is off.
+  - `odoo_com`: the `enabled` flag of Odoo's shipped "Odoo.com Accounts" provider (`auth_oauth.provider_openerp`).
+  - `registration`: `auth_signup.invitation_scope` and `website.auth_signup_uninvited`, `b2c` while on and `b2b` while off. Keycloak sign-ins keep provisioning their account while it is off, because `auth_oauth_https` creates the user directly instead of through the signup scope.
+
+- **Break-glass access:** the password form stays served and only hidden, so `/web/login?fallback=local` shows it and the local platform administrator signs in there with its password while SSO is on.
+
+- **Role-Based Sign-In:** Only members of a role group of [`meta/rbac.yml`](./meta/rbac.yml) sign in, through Keycloak (groups claim) and through the directory (`memberOf`) alike: `administrator` grants Settings, `manager` the Sales, Accounting, Inventory and Project administrator rights, `user` the internal user, `portal` the customer portal only (`ODOO_RBAC_ROLE_GROUPS` in [`vars/main.yml`](./vars/main.yml)). Every sign-in replaces these managed groups with the ones the roles grant; the platform administrator is never changed or refused. The addons [`infinito_rbac`](./files/addons/infinito_rbac/__manifest__.py), [`auth_oauth_https`](./files/addons/auth_oauth_https/__manifest__.py) and [`auth_ldap_profile`](./files/addons/auth_ldap_profile/__manifest__.py) under `files/addons/` carry the mapping.
+
+- **Profile Sync:** Every Keycloak sign-in writes name, email, phone (`phone` scope), language and time zone from the claims; every directory sign-in writes them from `cn`, `mail`, `telephoneNumber`, `preferredLanguage` and `infinitoTimezone` (the `LDAP.USER.ATTRIBUTES` names). A language that is not installed or an unknown time zone is left out.
+- **Platform Language:** Every deploy activates the platform language `HOST_LL_CC` (`ODOO_LANGUAGE`) next to `en_US` and loads its translations ([`files/python/apply/language.py`](./files/python/apply/language.py)), so the language mapping of the profile sync has a second language to select.
+
+- **Portal Self-Signup:** The signup template `_oauth_template` is a portal user, so a website self-signup never becomes an internal user. Once per database, [`files/python/apply/signup_portal.py`](./files/python/apply/signup_portal.py) moves the internal users the public user created without an identity provider link (earlier self-signups that copied Internal User) to the portal and records the run in the system parameter `infinito.rbac.signup_portal_reconciled`.
+
 - **WebSocket Support:**
   Real-time notifications and live chat capabilities through WebSocket connections.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Odoo ERP onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-odoo full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Odoo ERP to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-odoo
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+- **S3 Attachment Storage:**
+  With `web-svc-seaweedfs` in the inventory, the OCA modules `fs_attachment` and `fs_attachment_s3` route every `ir.attachment` written after the storage row is seeded into the role's own SeaweedFS bucket over the internal S3 endpoint with path-style addressing. Images below 50KB and the JS/CSS asset bundles stay in Postgres so list and kanban views keep reading them locally. `tasks/07_objstore.yml` runs from `tasks/03_install_modules.yml`, after the module install that creates `fs_storage` and before the restart whose `-u all` writes attachments through it, so the stored endpoint and keys are the ones the current inventory holds. It migrates nothing: whatever the database init and the module install wrote to the local filestore stays there.
 
 ## Modules
 
@@ -149,11 +79,11 @@ Odoo's functionality is delivered through a modular architecture. The following 
 | **project** | Project management with Kanban boards, Gantt charts, and time tracking |
 | **stock** | Inventory and warehouse management with barcode support |
 
-Additional modules can be enabled by declaring them as `group: optional` addons in [`meta/addons/`](meta/addons/).
+Additional modules can be enabled by declaring them as `group: optional` addons in `meta/addons/`.
 
 ## Addons
 
-Odoo modules are declared as addons in [`meta/addons/`](meta/addons/) per the unified addon contract (requirement 026). The install path reads them from `applications.web-app-odoo.addons`.
+Odoo modules are declared as addons in `meta/addons/` per the unified addon contract (requirement 026). The install path reads them from `applications.web-app-odoo.addons`.
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
@@ -164,8 +94,13 @@ Odoo modules are declared as addons in [`meta/addons/`](meta/addons/) per the un
 | website | module | enabled (required) | none |
 | project | module | enabled (required) | none |
 | stock | module | enabled (required) | none |
+| auth_oauth | module | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| mail | module | enabled whenever the `email` service is present (`web-app-email` co-deployed) | `email` → `web-app-email` |
+| nextcloud_odoo_integration | module | disabled | `nextcloud` → `web-app-nextcloud` |
 
 All core modules carry `required: true` and `group: core`, so they are always installed. The `optional` group is empty today.
+
+The bridging addons carry no `group`, so the generic `odoo -i <modules>` list leaves them alone: `auth_oauth` is installed by [`tasks/03_install_modules/module_ops.yml`](./tasks/03_install_modules/module_ops.yml) and provisioned by [`tasks/05_oidc.yml`](./tasks/05_oidc.yml), and `mail` arrives as a dependency of the core set while [`templates/odoo.conf.j2`](./templates/odoo.conf.j2) carries the partner SMTP endpoint. `nextcloud_odoo_integration` is distributed through the paid Odoo Apps store and therefore stays disabled until an operator stages a licensed copy into `files/addons/`.
 
 ## Deployment
 
@@ -214,12 +149,10 @@ odoo shell -d <database_name>
 docker logs odoo -f
 ```
 
+## Further Resources
+
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/GwSV4V4SaWCZzhdkpCVmya)
+
 ## Persona contract opt-outs
 
-The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo renders its SSO provider link only on `/web/login` inside the `.o_login_auth` container, not on the site root the persona helper starts from, and its logout sits behind the user menu. The full Keycloak round trip for both users is covered by the role's own `odoo: admin sso login, verify ui, logout` and `odoo: biber sso login, verify ui, logout` scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js).
-
-## Credits
-
-Implemented by **[Evangelos Tsakoudis](https://github.com/evangelostsak)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo renders its SSO provider link only on `/web/login` inside the `.o_login_auth` container, not on the site root the persona helper starts from, and it exposes no in-app logout control — signing out means navigating to `/web/session/logout`. The full Keycloak round trip for both users is covered by the role's own `odoo: admin sso login, verify ui, logout` and `odoo: biber sso login, verify ui, logout` scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js); the second joins `biber` to the `user` role group first, because a Keycloak user without an Odoo role is refused. [files/playwright/test-rbac.js](./files/playwright/test-rbac.js) covers every role and the profile mapping.

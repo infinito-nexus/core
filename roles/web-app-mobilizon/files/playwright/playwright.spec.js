@@ -1,11 +1,20 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const {
+  expectHstsWhenTls,
+  ownResponseHeaders,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -21,8 +30,7 @@ test("Mobilizon front page is served under canonical domain with TLS", async ({ 
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Mobilizon URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Mobilizon");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Mobilizon");
 });
 
 test("Mobilizon returns HTML content under canonical domain", async ({ request }) => {
@@ -43,25 +51,48 @@ test("guest: public-landing → auth chain → never authenticated", async ({ pa
   await runGuestFlow(page);
 });
 
-test("biber: app → universal logout", async ({ page }) => {
-  await runBiberFlow(page);
-});
+async function loggedUserRole(page) {
+  await expect
+    .poll(() => page.evaluate(() => Boolean(window.localStorage.getItem("auth-access-token"))), {
+      timeout: resolveTimeout(30_000),
+      message: "Mobilizon MUST store the access token of the signed-in account",
+    })
+    .toBe(true);
+  return page.evaluate(async () => {
+    const response = await fetch("/api", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${window.localStorage.getItem("auth-access-token")}`,
+      },
+      body: JSON.stringify({ query: "{ loggedUser { role } }" }),
+    });
+    const body = await response.json();
+    return body?.data?.loggedUser?.role ?? null;
+  });
+}
 
-test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-mobilizon admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(events|groups|profile|admin)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /event|group|profile|mobilizon/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+test("biber: app → user role → universal logout", async ({ page }) => {
+  await runBiberFlow(page, {
+    biberInteraction: async (interactivePage) => {
+      expect(
+        await loggedUserRole(interactivePage),
+        "biber holds no role group, so the deploy MUST keep the Mobilizon user role",
+      ).toBe("USER");
     },
   });
 });
+
+test("administrator: app → administrator role → universal logout", async ({ page }) => {
+  await runAdminFlow(page, {
+    adminInteraction: async (interactivePage) => {
+      expect(
+        await loggedUserRole(interactivePage),
+        "the administrator persona MUST hold the Mobilizon administrator role",
+      ).toBe("ADMINISTRATOR");
+    },
+  });
+});
+
+require("./test-design");
+require("./test-login-methods");

@@ -1,0 +1,9 @@
+---
+- name: "🔧 Jenkins plugin needs an API token on the partner"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: tasks/utils/addon.yml installed and enabled
+      {{ mattermost_addon.value.config.plugin_id }}. Issue an API token on
+      {{ mattermost_addon.value.config.partner_url }} and enter it with
+      '/jenkins connect' to complete the coupling.
+  changed_when: false

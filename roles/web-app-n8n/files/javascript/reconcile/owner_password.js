@@ -1,6 +1,6 @@
 /**
- * Prints CHANGED when it rewrote the owner's hash, OK when it already matched or
- * the owner does not exist yet.
+ * Prints CHANGED when it rewrote the owner's hash and OK when it already
+ * matched. Exits non-zero when the owner row is absent.
  *
  * Environment:
  *   N8N_OWNER_EMAIL:    the owner account's email.
@@ -43,8 +43,7 @@ async function main() {
     try {
         const found = await client.query('SELECT password FROM "user" WHERE email = lower($1)', [email])
         if (found.rowCount === 0) {
-            console.log('OK')
-            return
+            fail(`no owner account with email ${email}`)
         }
         const stored = found.rows[0].password
         if (stored && bcrypt.compareSync(password, stored)) {

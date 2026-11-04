@@ -1,0 +1,32 @@
+---
+- name: 📂 Include task to remove deprecated nginx configs
+  include_tasks: remove_deprecated_nginx_configs.yml
+  loop: "{{ deprecated_domains }}"
+  loop_control:
+    loop_var: deprecated_domain
+    label: "{{ deprecated_domain }}"
+  vars:
+    domain: "{{ deprecated_domain }}"
+
+- name: 🔍 Find every per-domain nginx config of the host
+  ansible.builtin.find:
+    paths: "{{ lookup('nginx','directories.configuration.servers') }}"
+    recurse: true
+    patterns: "*.conf"
+    file_type: any
+  register: cln_domains_server_configs
+
+- name: 🗑️ Remove the nginx configs of domains the host no longer serves
+  ansible.builtin.command:
+    argv: "{{ ['rm', '-f', '-v', '--'] + cln_domains_unserved_configs }}"
+  vars:
+    cln_domains_unserved_configs: "{{ cln_domains_server_configs.files | map(attribute='path') | list | unserved_nginx_configs(CURRENT_PLAY_DOMAINS_ALL) }}"
+  register: cln_domains_removed
+  changed_when: cln_domains_removed.stdout_lines | length > 0
+  when: cln_domains_unserved_configs | length > 0
+  notify: restart-openresty
+
+- name: 📋 List the removed nginx configs
+  ansible.builtin.debug:
+    msg: "{{ cln_domains_removed.stdout_lines }}"
+  when: cln_domains_removed is changed

@@ -4,9 +4,11 @@
     {{ server | mcp_authorization(env='X') }} -> "Bearer ${env:X}"
 
 ``bearer_token``, ``app_password`` and ``upstream_session`` present the
-credential as a bearer. ``basic_auth`` presents ``username:token`` base64
+credential as a bearer. ``basic_auth`` presents ``login:token`` base64
 encoded, which cannot reference an environment variable because the encoding
-happens before the value is known.
+happens before the value is known. The login is the principal's ``username``,
+never the users-dict key the token store writes under: the two differ as soon
+as an account shortens its name, and the endpoint then answers 401.
 
 ``oidc`` is deliberately absent. It means the call executes as the requesting
 end user, and a rendered config carries no caller. Emitting the deployment's
@@ -35,7 +37,9 @@ def mcp_authorization(server: Mapping[str, Any], env: str | None = None) -> str:
     """Return the Authorization header value for one discovered MCP server.
 
     Args:
-        server: a MCP_DISCOVERED_SERVERS entry carrying auth, token, owner.
+        server: a MCP_DISCOVERED_SERVERS entry carrying auth, token and, for
+            basic auth, the login; its owner names the token store's principal
+            and is deliberately not what goes on the wire.
         env: name of the environment variable holding the token. Bearer schemes
             reference it instead of inlining the secret; basic auth ignores it
             because the credential is encoded, not substituted.
@@ -44,14 +48,14 @@ def mcp_authorization(server: Mapping[str, Any], env: str | None = None) -> str:
     token = str(server.get("token") or "")
 
     if auth in BASIC_AUTHS:
-        owner = str(server.get("owner") or "")
-        if not owner:
+        login = str(server.get("login") or "")
+        if not login:
             raise ValueError(
                 f"MCP server {server.get('id')!r} declares auth {auth!r} but "
-                f"resolves no credential owner. Basic auth would authenticate "
+                f"resolves no credential login. Basic auth would authenticate "
                 f"as the empty user and the server would answer 401."
             )
-        encoded = base64.b64encode(f"{owner}:{token}".encode()).decode()
+        encoded = base64.b64encode(f"{login}:{token}".encode()).decode()
         return f"Basic {encoded}"
 
     if auth in BEARER_AUTHS:

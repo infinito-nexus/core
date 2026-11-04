@@ -18,7 +18,7 @@
   when: WIREGUARD_MESH_NAMES | length == 0
 
 - name: "📦 Install the WireGuard tooling"
-  package_install:
+  package_install: # nocheck: package-install the mesh bootstrap runs before the update role and the batch run
     id:
       - wireguard
       - iproute
@@ -30,6 +30,36 @@
   vars:
     package_name: "automtu==1.1.1"
     global_install: true
+
+- name: "🔍 Resolve every endpoint this host dials to its IPv4 address"
+  ansible.builtin.command:
+    argv:
+      - getent
+      - ahostsv4
+      - "{{ endpoint }}"
+  loop: "{{ WIREGUARD_DIALLED_ENDPOINTS }}"
+  loop_control:
+    loop_var: endpoint
+  register: wireguard_underlay_lookup
+  changed_when: false
+  failed_when: wireguard_underlay_lookup.rc not in [0, 2]
+
+- name: "🔧 Pin every dialled endpoint to the IPv4 address it resolved to"
+  ansible.builtin.set_fact:
+    wireguard_underlay: "{{ wireguard_underlay_lookup.results | mesh_underlay }}"
+  changed_when: false
+
+- name: "🛑 Fail when a dialled endpoint has no IPv4 address on this host"
+  ansible.builtin.fail:
+    msg: >-
+      {{ unresolved | join(', ') }} resolved to no IPv4 address on
+      {{ inventory_hostname }}. The mesh underlay is IPv4: give the name an A
+      record this host's resolver answers, give the host an IPv4 address, or
+      pass the peer's IPv4 address as --endpoint to
+      cli.administration.inventory.mesh.
+  vars:
+    unresolved: "{{ WIREGUARD_DIALLED_ENDPOINTS | reject('in', wireguard_underlay) | list }}"
+  when: unresolved | length > 0
 
 - name: "🔍 Detect the path MTU the tunnel has to fit inside"
   ansible.builtin.command:

@@ -23,7 +23,7 @@ class TestInvokable(TestCase):
 
         dump_yaml(
             self.categories_file,
-            {"categories": [{"invokable_paths": ["web-app", "update", "util-desk"]}]},
+            {"categories": [{"invokable_paths": ["web-app", "update", "util-dsk"]}]},
         )
 
         def mk_role(name: str, application_id: str | None = None) -> None:
@@ -38,7 +38,7 @@ class TestInvokable(TestCase):
         mk_role("web-app-matomo", "matomo-app")
         mk_role("web-svc-nginx", None)  # not invokable by our patched paths
         mk_role("update", None)  # exact match
-        mk_role("util-desk-custom", None)  # prefix match
+        mk_role("util-dsk-custom", None)  # prefix match
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmp)
@@ -49,14 +49,14 @@ class TestInvokable(TestCase):
             patch.object(
                 inv,
                 "_get_invokable_paths",
-                return_value=["web-app", "update", "util-desk"],
+                return_value=["web-app", "update", "util-dsk"],
             ),
         ):
             got = inv.list_invokable_app_ids()
 
         self.assertEqual(
             got,
-            sorted(["web-app-nextcloud", "matomo-app", "update", "util-desk-custom"]),
+            sorted(["web-app-nextcloud", "matomo-app", "update", "util-dsk-custom"]),
         )
 
     def test_list_invokables_by_type(self) -> None:
@@ -65,7 +65,7 @@ class TestInvokable(TestCase):
             patch.object(
                 inv,
                 "_get_invokable_paths",
-                return_value=["web-app", "update", "util-desk"],
+                return_value=["web-app", "update", "util-dsk"],
             ),
         ):
             grouped = inv.list_invokables_by_type()
@@ -75,7 +75,7 @@ class TestInvokable(TestCase):
         self.assertIn("universal", grouped)
 
         self.assertEqual(grouped["server"], sorted(["web-app-nextcloud", "matomo-app"]))
-        self.assertEqual(grouped["workstation"], sorted(["util-desk-custom"]))
+        self.assertEqual(grouped["workstation"], sorted(["util-dsk-custom"]))
 
         self.assertEqual(grouped["universal"], ["update"])
 
@@ -103,7 +103,7 @@ class TestInvokable(TestCase):
             patch.object(
                 inv,
                 "_get_invokable_paths",
-                return_value=["web-app", "update", "util-desk"],
+                return_value=["web-app", "update", "util-dsk"],
             ),
         ):
             grouped = inv.list_invokables_by_type(rules=rules)
@@ -119,7 +119,7 @@ class TestInvokable(TestCase):
             patch.object(
                 inv,
                 "_get_invokable_paths",
-                return_value=["web-app", "update", "util-desk"],
+                return_value=["web-app", "update", "util-dsk"],
             ),
             patch.object(inv, "_role_skip_modes", side_effect=fake_skip),
         ):
@@ -139,14 +139,14 @@ class TestInvokable(TestCase):
             patch.object(
                 inv,
                 "_get_invokable_paths",
-                return_value=["web-app", "update", "util-desk"],
+                return_value=["web-app", "update", "util-dsk"],
             ),
         ):
             got = inv.types_from_group_names(
                 [
                     "all",
                     "web-app-nextcloud",
-                    "util-desk-custom",
+                    "util-dsk-custom",
                     "update",
                     "foo",
                 ]

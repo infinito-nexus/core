@@ -9,3 +9,4 @@ gcc:
   RedHat:
     - gcc
     - libstdc++
+  batch: false

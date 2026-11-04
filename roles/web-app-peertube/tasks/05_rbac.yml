@@ -1,0 +1,32 @@
+---
+- name: "🛂 PEERTUBE | Provision the role group members and converge their roles"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ PEERTUBE_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator, moderator]
+    rbac_sync_service_key: postgres
+    rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"
+    rbac_sync_container: "{{ lookup('database', application_id, 'container') }}"
+    rbac_sync_kind: host
+    rbac_sync_user: ""
+    rbac_sync_argv: []
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_sync.py') }}"
+    rbac_sync_modules:
+      - { name: select-members-without-account.sql, content: "{{ lookup('file', role_path ~ '/files/sql/rbac/select-members-without-account.sql') }}" }
+      - { name: link-preprovisioned-accounts.sql, content: "{{ lookup('file', role_path ~ '/files/sql/rbac/link-preprovisioned-accounts.sql') }}" }
+      - { name: reconcile-roles.sql, content: "{{ lookup('file', role_path ~ '/files/sql/rbac/reconcile-roles.sql') }}" }
+    rbac_sync_env:
+      PGPASSWORD: "{{ lookup('database', application_id, 'password') }}"
+      PEERTUBE_DB_USER: "{{ lookup('database', application_id, 'username') }}"
+      PEERTUBE_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
+      PEERTUBE_URL: "{{ PEERTUBE_INTERNAL_URL }}"
+      PEERTUBE_HOSTNAME: "{{ PEERTUBE_HOSTNAME }}"
+      PEERTUBE_ROOT_USERNAME: "{{ PEERTUBE_ROOT_USERNAME }}"
+      PEERTUBE_ROOT_PASSWORD: "{{ PEERTUBE_ROOT_PASSWORD }}"
+      PEERTUBE_RBAC_ROLE_IDS: "{{ PEERTUBE_ROLE_IDS | to_json }}"
+      PEERTUBE_OIDC_PLUGIN: "{{ PEERTUBE_OIDC_PLUGIN }}"
+    rbac_sync_members_env:
+      - { name: RBAC_MEMBERS, role: "*", field: "" }

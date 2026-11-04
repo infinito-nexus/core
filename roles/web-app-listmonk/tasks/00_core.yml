@@ -23,6 +23,9 @@
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool
 
+- name: "👑 Reconcile the Listmonk accounts with the role groups"
+  ansible.builtin.include_tasks: 04_rbac.yml
+
 - name: "🔌 Serve MCP from {{ application_id }}"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: LISTMONK_MCP_ENABLED | bool

@@ -10,9 +10,13 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.users import LookupModule, _reset_cache_for_tests
 from utils.cache import base as runtime_data_base
+from utils.cache.carrier import USERS_RENDERED_FACT, merged_users_cache_key
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.paths import FILE_TOKENS
 from utils.roles.mapping import ROLE_FILE_META_USERS
+
+DOMAIN = default_domain_primary()
 
 
 def _write_users(base_dir: Path, role_name: str, users: dict) -> None:
@@ -141,7 +145,7 @@ class TestUsersLookup(unittest.TestCase):
         )
 
         result = self.lookup.run(
-            ["sld"],
+            ["domain_label_0"],
             variables={"SYSTEM_EMAIL_DOMAIN": "mail.example.org"},
             roles_dir=str(self._tmp / "roles"),
         )[0]
@@ -165,14 +169,14 @@ class TestUsersLookup(unittest.TestCase):
         self.lookup._templar = None
 
         result = self.lookup.run(
-            ["sld"],
+            ["domain_label_0"],
             variables={"DOMAIN_PRIMARY": "portal.example.org"},
             roles_dir=str(self._tmp / "roles"),
         )[0]
 
         self.assertEqual(result["username"], "portal")
 
-    def test_materializes_sld_from_role_domain_when_global_domain_is_missing(
+    def test_role_domain_no_longer_stands_in_for_the_primary_domain(
         self,
     ) -> None:
         _write_users(
@@ -188,15 +192,14 @@ class TestUsersLookup(unittest.TestCase):
         _reset_cache_for_tests()
         self.lookup._templar = None
 
-        result = self.lookup.run(
-            ["sld"],
-            variables={"domain": "auth.infinito.test"},
-            roles_dir=str(self._tmp / "roles"),
-        )[0]
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(
+                ["domain_label_0"],
+                variables={"domain": f"auth.{DOMAIN}"},
+                roles_dir=str(self._tmp / "roles"),
+            )
 
-        self.assertEqual(result["username"], "infinito")
-
-    def test_materializes_sld_from_env_backed_domain_primary(self) -> None:
+    def test_reserves_domain_labels_from_env_backed_domain_primary(self) -> None:
         _write_users(
             self._tmp,
             "templated",
@@ -212,7 +215,7 @@ class TestUsersLookup(unittest.TestCase):
 
         with patch.dict(os.environ, {"DOMAIN": "infinito.localhost"}, clear=False):
             result = self.lookup.run(
-                ["sld"],
+                ["domain_label_0"],
                 variables={
                     "DOMAIN_PRIMARY": "{{ lookup('env', 'DOMAIN') | default('infinito.localhost', true) }}"
                 },
@@ -302,6 +305,46 @@ class TestUsersLookup(unittest.TestCase):
             runtime_data_base.DEFAULT_TOKENS_FILE = previous_default
 
         self.assertEqual(result["tokens"]["web-app-mailu"], "token-from-default-path")
+
+    def test_carrier_returns_the_users_with_the_key_they_are_valid_under(
+        self,
+    ) -> None:
+        roles = str(self._tmp / "roles")
+        variables = {"inventory_hostname": "h1"}
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=roles, carrier=True
+        )[0]
+        key = merged_users_cache_key(variables, roles_dir=roles)
+        self.assertEqual(result["key"], [key[0], list(key[1])])
+        self.assertEqual(
+            result["users"],
+            self.lookup.run([], variables=variables, roles_dir=roles)[0],
+        )
+
+    def test_carrier_takes_no_terms(self) -> None:
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(
+                ["alice"],
+                variables={},
+                roles_dir=str(self._tmp / "roles"),
+                carrier=True,
+            )
+
+    def test_a_parked_carrier_answers_a_fresh_worker_without_rendering(self) -> None:
+        roles = str(self._tmp / "roles")
+        self.lookup._templar = _DummyTemplar({"SYSTEM_EMAIL_DOMAIN": "example.org"})
+        variables = {"inventory_hostname": "h1", "SYSTEM_EMAIL_DOMAIN": "example.org"}
+        parked = self.lookup.run(
+            [], variables=variables, roles_dir=roles, carrier=True
+        )[0]
+        _reset_cache_for_tests()
+        variables[USERS_RENDERED_FACT] = parked
+        with patch(
+            "utils.cache.users._render_with_templar",
+            side_effect=AssertionError("rendered"),
+        ):
+            result = self.lookup.run(["alice"], variables=variables, roles_dir=roles)[0]
+        self.assertIs(result, parked["users"]["alice"])
 
 
 class _DummyTemplar:

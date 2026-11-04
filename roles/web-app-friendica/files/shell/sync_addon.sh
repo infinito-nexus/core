@@ -23,6 +23,8 @@ CMD="$1"
 ADDON="$2"
 DESIRED="$3"
 
+exec </dev/null
+
 if [[ "$DESIRED" == "true" ]]; then
     $CMD addon disable "$ADDON" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
     $CMD addon enable  "$ADDON" 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

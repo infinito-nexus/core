@@ -23,19 +23,23 @@ import plugins.lookup.asset as asset_mod  # noqa: E402
 import plugins.lookup.asset_host as asset_host_mod  # noqa: E402
 
 
-def _patched_loader(flavor="internal", domain="cdn.example.org"):
+def _patched_loader(flavor="internal", base="https://cdn.example.org/"):
     """Patch context for the asset module's lookup_loader.
 
     Args:
         flavor: value the mocked `config` lookup returns for services.cdn.flavor.
-        domain: value the mocked `domain` lookup returns for web-svc-cdn.
+        base: value the mocked `tls` lookup returns for web-svc-cdn url.base.
     """
 
     def _get(name, *a, **k):
         if name == "config":
             return mock.MagicMock(run=lambda *_a, **_k: [flavor])
-        if name == "domain":
-            return mock.MagicMock(run=lambda *_a, **_k: [domain])
+        if name == "tls":
+            return mock.MagicMock(
+                run=lambda terms, **_k: (
+                    [base] if list(terms) == ["web-svc-cdn", "url.base"] else [None]
+                )
+            )
         return mock.MagicMock(run=lambda *_a, **_k: [{}])
 
     loader_mock = mock.MagicMock()
@@ -79,9 +83,9 @@ class TestResolveHost(unittest.TestCase):
             host = asset_mod.resolve_host({}, None, None)
         self.assertEqual(host, "https://cdn.jsdelivr.net")
 
-    def test_internal_onion_domain_uses_http(self):
+    def test_internal_flavor_follows_the_vhost_network_base(self):
         onion = "cdn." + "a" * 56 + ".onion"
-        with _patched_loader(flavor="internal", domain=onion):
+        with _patched_loader(flavor="internal", base=f"http://{onion}/"):
             host = asset_mod.resolve_host({"group_names": ["web-svc-cdn"]}, None, None)
         self.assertEqual(host, f"http://{onion}")
 

@@ -6,3 +6,4 @@ acl:
     - acl
   RedHat:
     - acl
+  batch: false

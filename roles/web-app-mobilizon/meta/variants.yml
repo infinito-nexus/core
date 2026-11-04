@@ -5,6 +5,9 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-mobilizon.
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:
@@ -27,12 +30,15 @@
     prometheus:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -56,7 +62,7 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:

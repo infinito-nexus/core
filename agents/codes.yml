@@ -1,0 +1,18 @@
+---
+maintainer: mant
+designer: desg
+tuner: tune
+implementer: impl
+robot: robo
+reviewer: revw
+planner: plan
+coordinator: coor
+operator: oper
+tester: test
+translator: tran
+documenter: docu
+release: rels
+security: secu
+hacker: hack
+counsel: cnsl
+support: supp

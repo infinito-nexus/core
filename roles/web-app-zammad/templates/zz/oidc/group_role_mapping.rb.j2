@@ -1,43 +1,141 @@
 require "json"
 
 OIDC_GROUP_ROLE_MAP    = JSON.parse({{ ZAMMAD_OIDC_GROUP_ROLE_MAP | to_json | to_json }}).freeze
+OIDC_GROUP_CLAIM       = {{ RBAC.GROUP.CLAIM | to_json }}.freeze
+OIDC_PROVIDER_NAME     = "openid_connect".freeze
 OIDC_DEFAULT_ROLE_NAME = "Customer".freeze
+OIDC_PROFILE_CLAIMS    = JSON.parse({{ ZAMMAD_OIDC_PROFILE_CLAIMS | to_json | to_json }}).freeze
+OIDC_ADDRESS_CLAIM     = {{ OIDC.ATTRIBUTES.ADDRESS | to_json }}.freeze
+OIDC_ADDRESS_FIELDS    = JSON.parse({{ ZAMMAD_OIDC_ADDRESS_FIELDS | to_json | to_json }}).freeze
 
 Rails.application.config.after_initialize do
+  unless OIDC_GROUP_ROLE_MAP.is_a?(Hash)
+    raise "zz_oidc_group_role_mapping: the group to role map rendered as #{OIDC_GROUP_ROLE_MAP.class}, not a Hash, so no group path could ever match"
+  end
+
   group_role_map = OIDC_GROUP_ROLE_MAP
 
   patch = Module.new do
-    define_method(:_zammad_role_names_from_oidc) do |auth_hash|
+    define_method(:_zammad_oidc_group_paths) do |auth_hash|
       groups = nil
-      groups ||= auth_hash&.dig("info",  "groups")
-      groups ||= auth_hash&.dig(:info,   :groups)
-      groups ||= auth_hash&.dig("extra", "raw_info", "groups")
-      groups ||= auth_hash&.dig(:extra,  :raw_info, :groups)
-      Array(groups)
+      groups ||= auth_hash&.dig("info",  OIDC_GROUP_CLAIM)
+      groups ||= auth_hash&.dig("extra", "raw_info", OIDC_GROUP_CLAIM)
+      groups.nil? ? nil : Array(groups)
+    end
+
+    define_method(:_zammad_oidc_profile) do |auth_hash|
+      raw = auth_hash&.dig("extra", "raw_info")
+      return {} unless raw.respond_to?(:to_h)
+
+      raw = raw.to_h.transform_keys(&:to_s)
+      profile = OIDC_PROFILE_CLAIMS.each_with_object({}) do |(field, claim), fields|
+        fields[field] = raw[claim].to_s if raw.key?(claim)
+      end
+      address = raw[OIDC_ADDRESS_CLAIM]
+      return profile unless address.respond_to?(:to_h)
+
+      address = address.to_h.transform_keys(&:to_s)
+      OIDC_ADDRESS_FIELDS.each do |field, member|
+        profile[field] = address[member].to_s if address.key?(member)
+      end
+      profile
+    end
+
+    define_method(:_zammad_apply_oidc_profile!) do |user, auth_hash|
+      return unless user
+      return unless auth_hash
+      return unless (auth_hash["provider"] || auth_hash[:provider]).to_s == OIDC_PROVIDER_NAME
+
+      profile = _zammad_oidc_profile(auth_hash)
+      email = profile["email"].to_s.downcase
+      if email.empty?
+        profile.delete("email")
+      elsif User.where.not(id: user.id).exists?(email: email)
+        Rails.logger.error { "zz_oidc_group_role_mapping: another Zammad user holds #{email}, kept the e-mail of user #{user.id}" }
+        profile.delete("email")
+      end
+      user.assign_attributes(profile)
+      return unless user.changed?
+
+      begin
+        user.save!
+      rescue StandardError => e
+        user.restore_attributes
+        Rails.logger.error { "zz_oidc_group_role_mapping: Zammad refused the profile of user #{user.id}: #{e.message}" }
+      end
+    end
+
+    define_method(:_zammad_oidc_directory_user) do |auth_hash|
+      return unless (auth_hash["provider"] || auth_hash[:provider]).to_s == OIDC_PROVIDER_NAME
+
+      uid = (auth_hash["uid"] || auth_hash[:uid]).to_s.downcase
+      return if uid.empty?
+
+      User.where("source LIKE ?", "Ldap::%").find_by(login: uid)
     end
 
     define_method(:_zammad_apply_oidc_roles!) do |user, auth_hash|
       return unless user
-      paths = _zammad_role_names_from_oidc(auth_hash)
-      mapped = paths.map { |p| group_role_map[p] }.compact.uniq
-      mapped = [OIDC_DEFAULT_ROLE_NAME] if mapped.empty?
-      roles  = Role.where(name: mapped)
-      return if roles.empty?
-      user.roles = roles
-      user.save!
+      return unless auth_hash
+      return unless (auth_hash["provider"] || auth_hash[:provider]).to_s == OIDC_PROVIDER_NAME
+
+      paths = _zammad_oidc_group_paths(auth_hash)
+      if paths.nil?
+        Rails.logger.error { "zz_oidc_group_role_mapping: no #{OIDC_GROUP_CLAIM} claim in the #{OIDC_PROVIDER_NAME} response, left the roles of user #{user.id} unchanged" }
+        return
+      end
+
+      mapped  = paths.flat_map { |path| Array(group_role_map[path]) }.uniq
+      mapped  = [OIDC_DEFAULT_ROLE_NAME] if mapped.empty?
+      roles   = Role.where(active: true, name: mapped).to_a
+      missing = mapped - roles.map(&:name)
+      if missing.any?
+        Rails.logger.error { "zz_oidc_group_role_mapping: #{missing.join(', ')} is not an active Zammad role, left the roles of user #{user.id} unchanged" }
+        return
+      end
+      return if user.roles.map(&:id).sort == roles.map(&:id).sort
+
+      begin
+        user.roles = roles
+      rescue StandardError => e
+        user.roles.reset
+        Rails.logger.error { "zz_oidc_group_role_mapping: Zammad refused #{mapped.inspect} for user #{user.id}: #{e.message}" }
+      end
     end
   end
 
-  %w[create_from_hash update_from_hash].each do |method_name|
-    next unless User.respond_to?(method_name)
+  accepts = lambda do |method_name, count|
+    return false unless Authorization.respond_to?(method_name)
 
-    User.singleton_class.prepend(Module.new {
-      include patch
-      define_method(method_name) do |hash|
-        user = super(hash)
-        _zammad_apply_oidc_roles!(user, hash)
-        user
-      end
-    })
+    kinds = Authorization.method(method_name).parameters.map(&:first)
+    return false if kinds.include?(:keyreq)
+
+    required = kinds.count(:req)
+    optional = kinds.count(:opt)
+    count >= required && (kinds.include?(:rest) || count <= required + optional)
   end
+
+  { "find_from_hash" => 1, "create_from_hash" => 2 }.each do |method_name, count|
+    next if accepts.call(method_name, count)
+
+    raise "zz_oidc_group_role_mapping: Authorization.#{method_name} does not take #{count} argument(s) any more, the OIDC group to role mapping would grant no role at all"
+  end
+
+  Authorization.singleton_class.prepend(Module.new {
+    include patch
+
+    define_method(:find_from_hash) do |hash|
+      authorization = super(hash)
+      _zammad_apply_oidc_profile!(authorization&.user, hash)
+      _zammad_apply_oidc_roles!(authorization&.user, hash)
+      authorization
+    end
+
+    define_method(:create_from_hash) do |hash, user = nil|
+      authorization = super(hash, user || _zammad_oidc_directory_user(hash))
+      _zammad_apply_oidc_profile!(authorization&.user, hash)
+      _zammad_apply_oidc_roles!(authorization&.user, hash)
+      authorization
+    end
+  })
 end

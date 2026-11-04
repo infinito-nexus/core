@@ -7,6 +7,7 @@ often as it is generated.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, Any
 
 from ruamel.yaml import YAML
@@ -22,6 +23,7 @@ def round_trip_yaml() -> YAML:
     """Return a YAML handler configured the way every writer here needs it."""
     handler = YAML(typ="rt")
     handler.preserve_quotes = True
+    handler.width = sys.maxsize
     return handler
 
 

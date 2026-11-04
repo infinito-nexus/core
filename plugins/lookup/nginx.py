@@ -1,6 +1,9 @@
 """Resolve nginx path configuration and an optional domain-specific server
 config path under ``<servers_dir>/<protocol>/<domain>.conf``.
 
+``files.lua`` is the body-filter Lua file of one vhost,
+``<lua_dir>/<domain>.lua``; it needs the domain term.
+
 The ``want=`` kwarg is intentionally ignored: want-path is ALWAYS the
 first positional argument so callers can't accidentally pass it both
 ways.
@@ -89,6 +92,8 @@ class LookupModule(LookupBase):
             raise AnsibleError("nginx: want_path is empty")
 
         domain = as_str(terms[1]).strip() if len(terms) == 2 else ""
+        if want == "files.lua" and not domain:
+            raise AnsibleError("nginx: files.lua requires a domain")
 
         applications = lookup_loader.get(
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
@@ -123,6 +128,9 @@ class LookupModule(LookupBase):
         data_files_dir = _ensure_trailing_slash(_join(www_dir, "public_files"))
         data_cdn_dir = _ensure_trailing_slash(_join(www_dir, "public_cdn"))
         data_global_dir = _ensure_trailing_slash(_join(www_dir, "global"))
+        data_paused_dir = _ensure_trailing_slash(_join(www_dir, "paused"))
+        data_paused_apps_dir = _ensure_trailing_slash(_join(data_paused_dir, "apps"))
+        data_paused_pages_dir = _ensure_trailing_slash(_join(data_paused_dir, "pages"))
 
         cache_general_dir = "/tmp/cache_nginx_general/"  # noqa: S108
         cache_image_dir = "/tmp/cache_nginx_image/"  # noqa: S108
@@ -142,6 +150,9 @@ class LookupModule(LookupBase):
             _dir_spec(data_files_dir, "0755"),
             _dir_spec(data_cdn_dir, "0755"),
             _dir_spec(data_global_dir, "0755"),
+            _dir_spec(data_paused_dir, "0755"),
+            _dir_spec(data_paused_apps_dir, "0755"),
+            _dir_spec(data_paused_pages_dir, "0755"),
             _dir_spec(cache_general_dir, "0700"),
             _dir_spec(cache_image_dir, "0700"),
         ]
@@ -172,6 +183,8 @@ class LookupModule(LookupBase):
                     "files": data_files_dir,
                     "cdn": data_cdn_dir,
                     "global": data_global_dir,
+                    "paused_apps": data_paused_apps_dir,
+                    "paused_pages": data_paused_pages_dir,
                 },
                 "cache": {
                     "general": cache_general_dir,
@@ -201,5 +214,6 @@ class LookupModule(LookupBase):
                 "protocol_overridden": bool(protocol_override),
             }
             resolved["files"]["domain"] = _join(servers_dir, protocol, f"{domain}.conf")
+            resolved["files"]["lua"] = _join(lua_dir, f"{domain}.lua")
 
         return [want_get(resolved, want)]

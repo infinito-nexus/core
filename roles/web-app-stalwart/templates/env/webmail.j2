@@ -1,0 +1,10 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+ROUNDCUBEMAIL_DEFAULT_HOST=ssl://stalwart
+ROUNDCUBEMAIL_DEFAULT_PORT=993
+ROUNDCUBEMAIL_SMTP_SERVER=ssl://stalwart
+ROUNDCUBEMAIL_SMTP_PORT=465
+ROUNDCUBEMAIL_DB_TYPE=sqlite
+{% if STALWART_SSO_ENABLED | bool %}
+ROUNDCUBEMAIL_OAUTH_CLIENT_SECRET={{ OIDC.CLIENT.SECRET | dotenv_quote }}
+{% endif %}

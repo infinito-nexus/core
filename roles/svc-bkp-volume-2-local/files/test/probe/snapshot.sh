@@ -13,6 +13,7 @@
 set -euo pipefail
 
 LAUNCHER=baudolo-snapshot
+STATE_FILE=.app-control-state
 
 if ! command -v "${LAUNCHER}" >/dev/null; then
     echo "FAIL: ${LAUNCHER} is not on PATH; the backup unit's ExecStart would fail"
@@ -21,7 +22,7 @@ fi
 
 echo "OK: ${LAUNCHER} is deployed and executable"
 
-PASSTHROUGH="$("${LAUNCHER}" --mode never -- /bin/echo CMD --backups-dir /b)"
+PASSTHROUGH="$("${LAUNCHER}" --mode never --state-file "${STATE_FILE}" -- /bin/echo CMD --backups-dir /b)"
 if [[ "${PASSTHROUGH}" != "CMD --backups-dir /b" ]]; then
     echo "FAIL: --mode never altered the command: '${PASSTHROUGH}'"
     exit 1
@@ -75,7 +76,7 @@ export PATH="${WORK}/bin:${PATH}"
 
 expect() {
     local mode="$1" want="CMD${2:+ $2}" label="$3" got
-    got="$("${LAUNCHER}" --mode "${mode}" -- /bin/echo CMD)"
+    got="$("${LAUNCHER}" --mode "${mode}" --state-file "${STATE_FILE}" -- /bin/echo CMD)"
     if [[ "${got}" != "${want}" ]]; then
         echo "FAIL: mode=${mode} emitted '${got}', expected '${want}'"
         exit 1
@@ -113,7 +114,7 @@ echo "OK: the leftover of the killed run was reaped"
 mkdir -p "${WORK}/mnt/plain/volumes/probe_vol/_data"
 echo "${WORK}/mnt/plain" > "${WORK}/root"
 expect auto "" "a plain directory is not a snapshot source"
-if "${LAUNCHER}" --mode btrfs -- /bin/echo CMD >/dev/null 2>&1; then
+if "${LAUNCHER}" --mode btrfs --state-file "${STATE_FILE}" -- /bin/echo CMD >/dev/null 2>&1; then
     echo "FAIL: a stated kind degraded silently instead of aborting the run"
     exit 1
 fi

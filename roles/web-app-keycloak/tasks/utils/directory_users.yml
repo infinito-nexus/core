@@ -1,0 +1,14 @@
+---
+# Param: keycloak_directory_usernames - usernames to look up in the realm; an empty list reads every user of the realm
+# Output: keycloak_directory_users      - one {username, email, emailVerified, id} mapping per user found; id is the OIDC sub; a named user absent from the realm is left out
+- name: "📖 Keycloak directory | Read users of realm '{{ KEYCLOAK_REALM }}'"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔑 Keycloak directory | Log kcadm in as the permanent admin"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/login.yml"
+
+    - name: "📄 Keycloak directory | Query the users through kcadm"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/directory_users/read.yml"
+      vars:
+        keycloak_directory_page: 500
+        keycloak_directory_fields: id,username,email,emailVerified

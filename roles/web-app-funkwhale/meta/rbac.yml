@@ -1,0 +1,8 @@
+---
+roles:
+  moderator:
+    description: Funkwhale moderator (handles reports, domain and account moderation)
+  librarian:
+    description: Funkwhale librarian (manages the library, uploads, artists and albums of the instance)
+  settings-manager:
+    description: Funkwhale settings manager (edits the instance settings)

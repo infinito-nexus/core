@@ -19,8 +19,8 @@ tor:
   shared: true # nocheck: dynamic-flag
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
@@ -40,7 +40,13 @@ sso:
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-fusiondirectory', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-fusiondirectory', role='user-manager') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-fusiondirectory', role='self-service') }}"
+# nocheck: playwright-service-flag  self-provider
 fusiondirectory:
+  enabled: false
+  backup:
+    stop_required: false
   healthcheck:
     flavor: curl
   modes:
@@ -50,10 +56,13 @@ fusiondirectory:
       enabled: true
   image: nfrastack/fusiondirectory
   version: "1.5"
+  # nocheck: single-replica  PHP stores its sessions in container-local files and the 1.5 image carries no redis or memcached extension to move them to a shared store; lifting this pin needs the image rebuilt on upstream's php8 release, see TODO.md
+  replicas: 1
   name: fusiondirectory
   ports:
     local:
       sso: 16487
+      sso_onion: 16528
       http: 8038
     internal:
       http: 80
@@ -62,8 +71,7 @@ fusiondirectory:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
     - svc-db-openldap
   lifecycle: eol
   min_storage: 379MB
@@ -71,14 +79,31 @@ fusiondirectory:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 156
+      height: 44
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true # nocheck: dynamic-flag — LDAP IS the storage backend, never local
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

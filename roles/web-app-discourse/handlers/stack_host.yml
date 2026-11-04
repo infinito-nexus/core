@@ -23,7 +23,7 @@
   register: result
   when:
     - DISCOURSE_DATABASE_IS_SHARED | bool
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
 
 - name: "🔨 {{ DISCOURSE_LAUNCHER_ACTION }} discourse"
   shell: >
@@ -50,4 +50,4 @@
   failed_when: >
     discourse_overlay_connect.rc != 0 and
     not (discourse_overlay_connect.stderr | default('') | docker_network_noop('connect'))
-  when: SWARM_CLUSTER_AVAILABLE | bool
+  when: IS_SWARM_MODE | bool

@@ -8,7 +8,7 @@
     stdin: "{{ lookup('file', 'python/provision/mcp.py') }}"
   environment:
     N8N_BASE: "{{ N8N_NETNS_API_URL }}"
-    NO_PROXY: 127.0.0.1,localhost
+    NO_PROXY: "{{ NETWORK_LOOPBACK_HOSTS | join(',') }}"
     N8N_OWNER_EMAIL: "{{ N8N_OWNER_EMAIL }}"
     N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
     N8N_API_KEY_NAME: "{{ N8N_MCP_API_KEY_NAME }}"
@@ -43,7 +43,7 @@
     N8N_AI_CREDENTIAL: "{{ N8N_LITELLM_CREDENTIAL_NAME }}"
     N8N_API_KEY_NAME: "{{ N8N_MCP_API_KEY_NAME }}"
     N8N_BASE: "{{ N8N_NETNS_API_URL }}"
-    NO_PROXY: 127.0.0.1,localhost
+    NO_PROXY: "{{ NETWORK_LOOPBACK_HOSTS | join(',') }}"
     N8N_CHAT_MODEL: "{{ LITELLM_CHAT_MODEL }}"
     N8N_CLIENT_WORKFLOW: "{{ N8N_MCP_CLIENT_WORKFLOW_NAME }}"
     N8N_MCP_PROVIDERS: "{{ N8N_MCP_PROVIDERS | to_json }}"

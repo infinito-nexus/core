@@ -6,6 +6,7 @@
       args:
         SNIPE_IT_IMAGE: "{{ SNIPE_IT_IMAGE }}"
         SNIPE_IT_VERSION: "{{ SNIPE_IT_VERSION }}"
+        SNIPE_IT_LOGIN_RBAC_CONTEXT: "{{ SNIPE_IT_LOGIN_RBAC_CONTEXT }}"
     {{ lookup('container_image', application_id, 'snipe-it') }}
     {{ lookup('compose_only', 'container_name', SNIPE_IT_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -34,7 +35,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file snipeitmcp overrides docker_compose_env with mcp/upstream.env, so the role's templates/env.j2 never reaches it and these keys would instead land in the primary snipe-it container, which must not receive ADAPTER_BEARER; ADAPTER_CONTRACT also carries compose $$ escaping that an env_file would not unescape
       ADAPTER_CONTRACT: {{ SNIPEIT_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ SNIPEIT_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ SNIPEIT_MCP_PORT }}"

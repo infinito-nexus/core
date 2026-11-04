@@ -48,11 +48,16 @@ def _collect_local_tcp_ports(port_categories: Any, into: set[int]) -> None:
 def _provided_capabilities(
     applications: dict[str, Any], deployed: set[str]
 ) -> dict[str, set[str]]:
-    """Capability key -> the deployed roles whose service ``provides:`` it.
+    """Capability key -> the deployed roles serving it.
 
     Args:
         applications: the variant-merged applications view.
         deployed: role ids present in this deploy.
+
+    Returns:
+        Per capability key, every deployed role whose service ``provides:``
+        it, plus the deployed role a deployed entity of that name selects
+        with ``provider:``.
     """
     provided: dict[str, set[str]] = {}
     for app_id, cfg in applications.items():
@@ -61,12 +66,15 @@ def _provided_capabilities(
         services = cfg.get("services")
         if not isinstance(services, dict):
             continue
-        for entity in services.values():
+        for name, entity in services.items():
             if not isinstance(entity, dict):
                 continue
             key = entity.get("provides")
             if isinstance(key, str) and key:
                 provided.setdefault(key, set()).add(app_id)
+            selected = entity.get("provider")
+            if isinstance(selected, str) and selected.strip() in deployed:
+                provided.setdefault(str(name), set()).add(selected.strip())
     return provided
 
 

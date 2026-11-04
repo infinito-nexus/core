@@ -1,6 +1,6 @@
 ---
 application_id: "svc-db-openldap"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
 OPENLDAP_SOCKET_PATH_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'run'] | path_join }}"
@@ -21,6 +21,8 @@ OPENLDAP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name
 OPENLDAP_SERVICE: "{{ entity_name }}"
 OPENLDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 OPENLDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
+OPENLDAP_LDAPSM_COMMAND: |-
+  {{ ansible_python_interpreter }} -c 'import sys; from ldapsm.__main__ import main; sys.argv = ["ldapsm", *sys.argv[1:], "-W", sys.stdin.readline().rstrip("\n")]; sys.exit(main())'
 
 OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'services.openldap.network.public') }}"
 OPENLDAP_NETWORK_SWITCH_LOCAL: "{{ lookup('config', application_id, 'services.openldap.network.local') }}"
@@ -34,6 +36,20 @@ OPENLDAP_PROVISION_USERS: "{{ lookup('config', application_id, 'services.openlda
 OPENLDAP_PROVISION_GROUPS: "{{ lookup('config', application_id, 'services.openldap.provision.groups') }}"
 OPENLDAP_PROVISION_UPDATE: "{{ lookup('config', application_id, 'services.openldap.provision.update') }}"
 OPENLDAP_USERS: "{{ lookup('users_non_reserved') }}"
+OPENLDAP_MAIL_DOMAIN: "{{ DOMAIN_PRIMARY }}"
+OPENLDAP_EMAIL_MAILBOX: >-
+  {{ lookup('config', 'web-app-keycloak', 'services.keycloak.email.policy') == 'mailbox'
+     and lookup('config', 'web-app-keycloak', 'services.ldap.enabled') | bool }}
+OPENLDAP_KEYCLOAK_DEPLOYED: "{{ (groups['web-app-keycloak'] | default([]) | length) > 0 }}"
+OPENLDAP_USER_AUXILIARY_CLASSES: >-
+  {{ (LDAP.USER.OBJECTS.AUXILIARY | dict2items
+      | rejectattr('key', 'equalto', 'INFINITO_MAILBOX_USER')
+      | map(attribute='value') | list)
+     + ([LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER] if OPENLDAP_EMAIL_MAILBOX | bool else []) }}
+OPENLDAP_SECONDARY_ADDRESSES: "{{ OPENLDAP_USERS | dict2items | map(attribute='value') | items2dict(key_name='username', value_name='secondary_email') }}"
+OPENLDAP_DIRECTORY_EDITOR_GROUP_DNS:
+  - "cn=web-app-lam-administrator,{{ LDAP.DN.OU.ROLES }}"
+  - "cn=web-app-phpldapadmin-administrator,{{ LDAP.DN.OU.ROLES }}"
 
 OPENLDAP_PYTHON_HEADER_PACKAGE_TEMPLATES_BY_OS_FAMILY:
   Debian:

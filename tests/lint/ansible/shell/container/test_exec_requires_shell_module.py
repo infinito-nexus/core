@@ -16,8 +16,15 @@ The rule fires when ALL of:
 
 * a task uses ``command:`` or ``ansible.builtin.command:``;
 * the command body (string form or list form, but NOT the
-  ``argv: [bash, -lc, ...]`` escape hatch) contains
-  ``container exec`` or ``docker exec``;
+  ``argv: [bash, -lc, ...]`` escape hatch) names ``container`` or
+  ``docker`` with a subcommand that takes a container reference
+  (``exec``, ``restart``, ``stop``, ``start``, ``kill``, ``rm``,
+  ``pause``, ``unpause``, ``logs``, ``cp``, ``inspect``, ``wait``,
+  ``top``). The contract belongs to the lookup's ``$(...)`` output, not
+  to ``exec``: a ``container restart`` of the same target under
+  ``command:`` failed the same way in
+  ``svc-ai-libretranslate-engine/tasks/utils/install_models.yml``,
+  which an ``exec``-only pattern did not catch;
 * the target token is a Jinja reference ``{{ ... }}``.
 
 The ``argv: [bash, -lc, ...]`` form is safe because bash is invoked
@@ -45,9 +52,68 @@ from utils.cache.yaml import load_yaml_any
 from . import PROJECT_ROOT
 
 _RULE = "container-exec-requires-shell"
-_EXEC = re.compile(r"\b(?:container|docker)\s+exec\b")
+_EXEC = re.compile(
+    r"\b(?:container|docker)\s+"
+    r"(?:exec|restart|stop|start|kill|rm|pause|unpause|logs|cp|inspect|wait|top)\b"
+)
 _JINJA = re.compile(r"\{\{[^}]+\}\}")
 _COMMAND_MODULES = frozenset({"command", "ansible.builtin.command"})
+_EXEC_VERB = re.compile(r"\b(?:container|docker)\s+exec\b")
+_ADDRESS_SOURCE = re.compile(
+    r"lookup\(\s*'container_address'"
+    r"|lookup\(\s*'database'\s*,[^)]*,\s*'address'\s*\)"
+)
+
+
+def _variable_values() -> dict[str, str]:
+    """Every string-valued var the roles and group_vars declare, by name."""
+    values: dict[str, str] = {}
+    for pattern in ("roles/*/vars/*.yml", "group_vars/**/*.yml"):
+        for path in PROJECT_ROOT.glob(pattern):
+            data = load_yaml_any(str(path), default_if_missing={})
+            if isinstance(data, dict):
+                values.update(
+                    {str(k): v for k, v in data.items() if isinstance(v, str)}
+                )
+    return values
+
+
+def _shell_variables(values: dict[str, str]) -> tuple[frozenset[str], frozenset[str]]:
+    """Split the vars that carry the swarm ``$(...)`` payload by how they do.
+
+    Args:
+        values: var name to its declared string value.
+
+    Returns:
+        The address vars, whose value is a lookup emitting ``$(...)`` and
+        which oblige ``shell`` only when a container verb uses them, and the
+        exec vars, whose value already is a ``container exec`` of such an
+        address and which oblige ``shell`` wherever a ``command:`` names them.
+    """
+    address = frozenset(
+        name
+        for name, value in values.items()
+        if _ADDRESS_SOURCE.search(value) and not _EXEC.search(value)
+    )
+    exec_ = frozenset(
+        name
+        for name, value in values.items()
+        if _EXEC.search(value)
+        and (_ADDRESS_SOURCE.search(value) or any(a in value for a in address))
+    )
+    return address, exec_
+
+
+_ADDRESS_NAMES, _EXEC_NAMES = _shell_variables(_variable_values())
+
+
+def _needs_shell(body: str) -> bool:
+    """Whether ``body`` under ``command:`` would pass unevaluated shell syntax."""
+    if any(name in body for name in _EXEC_NAMES):
+        return True
+    if any(name in body for name in _ADDRESS_NAMES):
+        return bool(_EXEC.search(body))
+    return bool(_EXEC_VERB.search(body) and _JINJA.search(body))
 
 
 def _is_scan_target(rel_path: str) -> bool:
@@ -114,7 +180,7 @@ def _walk_tasks(node: yaml.Node, findings: list[tuple[int, str]]) -> None:
     cmd_value = _task_command_node(node)
     if cmd_value is not None:
         body = _command_body_text(_node_body_value(cmd_value))
-        if body and _EXEC.search(body) and _JINJA.search(body):
+        if body and _needs_shell(body):
             findings.append((cmd_value.start_mark.line + 1, body.strip()))
     for k, v in node.value:
         if not isinstance(k, yaml.ScalarNode):
@@ -132,6 +198,33 @@ def _scan_file(path_str: str, content: str) -> list[tuple[int, str]]:
     for doc in docs:
         _walk_tasks(doc, found)
     return found
+
+
+class TestShellPayloadVariables(unittest.TestCase):
+    def test_a_database_address_obliges_shell_like_a_container_address(self) -> None:
+        address, _ = _shell_variables(
+            {"X_DB": "{{ lookup('database', application_id, 'address') }}"}
+        )
+        self.assertEqual(address, frozenset({"X_DB"}))
+
+    def test_a_var_wrapping_the_whole_exec_is_caught_by_its_name(self) -> None:
+        _, exec_ = _shell_variables(
+            {
+                "X_PSQL": (
+                    "container exec -i {{ lookup('database', application_id, "
+                    "'address') }} psql"
+                )
+            }
+        )
+        self.assertEqual(exec_, frozenset({"X_PSQL"}))
+
+    def test_a_literal_container_name_obliges_nothing(self) -> None:
+        self.assertEqual(
+            _shell_variables({"X_CONTAINER": "x-app"}), (frozenset(), frozenset())
+        )
+
+    def test_the_listmonk_design_body_under_command_is_flagged(self) -> None:
+        self.assertTrue(_needs_shell("{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1"))
 
 
 class TestContainerExecRequiresShellModule(unittest.TestCase):

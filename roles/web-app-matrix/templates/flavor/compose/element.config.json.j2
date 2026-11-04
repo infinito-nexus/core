@@ -9,7 +9,15 @@
         }
     },
     "logout_redirect_url": "{{ OIDC.CLIENT.LOGOUT_URL if MATRIX_OIDC_ENABLED | bool else MATRIX_BASE_URL }}",
-    "brand": "Element",
+    "brand": {{ (MATRIX_DESIGN_TITLE or 'Element') | to_json }},
+{% if MATRIX_DESIGN_ENABLED | bool %}
+    "branding": {
+{% if MATRIX_DESIGN_LOGO_URL %}
+        "auth_header_logo_url": {{ MATRIX_DESIGN_LOGO_URL | to_json }},
+{% endif %}
+        "welcome_background_url": ""
+    },
+{% endif %}
     "integrations_ui_url": "https://scalar.vector.im/",
     "integrations_rest_url": "https://scalar.vector.im/api", {# nocheck: url #}
     "integrations_widgets_urls": [
@@ -22,6 +30,8 @@
     "uisi_autorageshake_app": "element-auto-uisi",
     "show_labs_settings": true,
     "force_verification": {{ MATRIX_ELEMENT_FORCE_VERIFICATION | bool | to_json }},
+    "sso_redirect_options": {{ MATRIX_ELEMENT_LOGIN_CONFIG.sso_redirect_options | to_json }},
+    "setting_defaults": {{ MATRIX_ELEMENT_LOGIN_CONFIG.setting_defaults | to_json }},
     "room_directory": {
         "servers": ["matrix.org", "gitter.im", "libera.chat"]
     },
@@ -53,6 +63,11 @@
         "feature_rust_crypto": true,
         "feature_new_room_decoration_ui": true
     },
+{% if MATRIX_ADDON_JITSI_ENABLED | bool %}
+    "jitsi": {
+        "preferred_domain": "{{ MATRIX_ADDON_JITSI_PREFERRED_DOMAIN }}"
+    },
+{% endif %}
     "element_call": {
         "url": "https://call.element.dev"
     },

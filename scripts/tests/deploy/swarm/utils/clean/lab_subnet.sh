@@ -13,6 +13,7 @@ source "${_repo}/scripts/meta/env/load.sh"
 
 : "${INFINITO_SWARM_LAB_SUBNET:?INFINITO_SWARM_LAB_SUBNET must be set}"
 : "${INFINITO_SWARM_LAB_NET_NAME:?INFINITO_SWARM_LAB_NET_NAME must be set}"
+: "${INFINITO_SWARM_TEST_LABEL:?INFINITO_SWARM_TEST_LABEL must be set}"
 
 _occupants=""
 for _net in $(docker network ls --format '{{.Name}}' | grep -E "${INFINITO_SWARM_LAB_NET_NAME}" || true); do
@@ -45,7 +46,13 @@ for _net in ${_occupants}; do
 	fi
 	bash "${_here}/../unmount/host_state.sh" "${DIR_VAR_LIB}"
 
+	_lab_nodes="$(docker ps -a --filter "label=${INFINITO_SWARM_TEST_LABEL}" --format '{{.Names}}')"
 	for _node in ${_nodes}; do
+		if ! printf '%s\n' "${_lab_nodes}" | grep -qxF "${_node}"; then
+			echo ">>> lab-reclaim: ${_node} is no lab node; detaching it from ${_net} instead"
+			timeout 15 docker network disconnect -f "${_net}" "${_node}" >/dev/null 2>&1
+			continue
+		fi
 		timeout 30 docker exec "${_node}" systemctl stop nfs-ganesha >/dev/null 2>&1
 		timeout 30 docker kill "${_node}" >/dev/null 2>&1
 		timeout 15 docker network disconnect -f "${_net}" "${_node}" >/dev/null 2>&1

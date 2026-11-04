@@ -49,6 +49,23 @@ def flavour_includes() -> dict[str, set[str]]:
     }
 
 
+def carried_includes(content: str) -> set[str]:
+    """Return the concerns an override carries, its own and a flavour's.
+
+    An override that delegates to a shared flavour instead of replacing it
+    carries everything that flavour includes. Reading its own text alone would
+    report every concern the flavour holds as dropped, which is what the
+    per-network dashboard and logout wrappers are.
+    """
+    present = set(_INCLUDE_RE.findall(content))
+    flavours = flavour_includes()
+    base = str(FLAVOUR_DIR.relative_to(PROJECT_ROOT))
+    for include in tuple(present):
+        if include.startswith(f"{base}/"):
+            present |= flavours.get(include.rsplit("/", 1)[-1], set())
+    return present
+
+
 def required_includes() -> set[str]:
     """Return the includes every shared flavour carries.
 
@@ -88,21 +105,84 @@ def serves_mcp(role: str) -> bool:
     return bool((block.get("endpoint") or {}).get("path"))
 
 
+def scraped(role: str) -> bool:
+    """Return whether the role's own vhost is expected to serve metrics.
+
+    Args:
+        role: the role directory name.
+    """
+    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
+    if not meta.is_file():
+        return False
+    block = load_yaml_any(str(meta), default_if_missing={})
+    if not isinstance(block, Mapping):
+        return False
+    prometheus = block.get("prometheus")
+    if not isinstance(prometheus, Mapping):
+        return False
+    return (
+        prometheus.get("enabled") is not False and prometheus.get("scrape") is not False
+    )
+
+
+def consumes_objstore(role: str) -> bool:
+    """Return whether the role's own vhost has to route an object store.
+
+    Args:
+        role: the role directory name.
+    """
+    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
+    if not meta.is_file():
+        return False
+    block = load_yaml_any(str(meta), default_if_missing={})
+    if not isinstance(block, Mapping):
+        return False
+    for engine in ("seaweedfs", "minio"):
+        entry = block.get(engine)
+        if isinstance(entry, Mapping) and entry.get("enabled") is not False:
+            return True
+    return False
+
+
+APPLIES = {
+    "roles/sys-svc-proxy/templates/mcp/vhost.conf.j2": serves_mcp,
+    "roles/web-app-prometheus/templates/nginx/locations.conf.j2": scraped,
+    "roles/web-svc-seaweedfs/templates/nginx/locations.conf.j2": consumes_objstore,
+}
+
+SATISFIED_BY = {
+    "roles/web-app-prometheus/templates/nginx/locations.conf.j2": {
+        "roles/web-app-prometheus/templates/nginx/location.conf.j2",
+    },
+}
+
+
 def missing_includes() -> list[str]:
     """Return one finding per override dropping a concern that applies to it.
 
-    An override is only asked for a concern its role actually has. The MCP
-    policy renders nothing for a role with no endpoint path, so demanding it
-    everywhere would report noise and train the reader to skip the report.
+    Applicability is decided per concern, not per override: a concern that
+    renders nothing for this role is not demanded of it, and every other
+    concern is. Gating the whole override on one concern's predicate is how
+    web-app-peertube shipped a vhost that declared prometheus and served no
+    metrics - the MCP skip hid the prometheus requirement along with it.
+
+    A concern may also be met by a narrower include. The full prometheus
+    partial ends in locations that proxy to the role's own backend, which a
+    vhost-only role does not have; those roles carry the log_by_lua half alone
+    and emit the same metric label.
     """
     findings = []
     for path in OVERRIDES:
-        if not serves_mcp(role_of(path)):
-            continue
+        role = role_of(path)
         content = read_text(str(path))
         if is_suppressed_in_head(content.splitlines(), _RULE):
             continue
-        for missing in sorted(required_includes() - set(_INCLUDE_RE.findall(content))):
+        present = carried_includes(content)
+        for missing in sorted(required_includes() - present):
+            if not APPLIES.get(missing, lambda _role: True)(role):
+                continue
+            if SATISFIED_BY.get(missing, set()) & present:
+                continue
             rel = path.relative_to(PROJECT_ROOT)
             findings.append(f"{rel}: does not include {missing!r}")
     return findings
@@ -112,6 +192,22 @@ GATED_INCLUDES = (
     "roles/web-app-keycloak/templates/sso_proxy/endpoint.conf.j2",
     "roles/sys-svc-proxy/templates/headers/buffers.conf.j2",
 )
+
+ACL_INCLUDE = "roles/sys-svc-proxy/templates/location/sso_acl.conf.j2"
+
+
+def sso_block(role: str) -> Mapping | None:
+    """Return the role's ``sso`` service block from ``meta/services.yml``.
+
+    Args:
+        role: the role directory name.
+    """
+    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
+    if not meta.is_file():
+        return None
+    block = load_yaml_any(str(meta), default_if_missing={})
+    sso = block.get("sso") if isinstance(block, Mapping) else None
+    return sso if isinstance(sso, Mapping) else None
 
 
 def is_proxy_gated(role: str) -> bool:
@@ -124,14 +220,21 @@ def is_proxy_gated(role: str) -> bool:
     ``oauth2``. An ``oidc`` role authenticates inside the application and its
     vhost carries no gate.
     """
-    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
-    if not meta.is_file():
-        return False
-    block = load_yaml_any(str(meta), default_if_missing={})
-    sso = block.get("sso") if isinstance(block, Mapping) else None
-    if not isinstance(sso, Mapping):
-        return False
-    return bool(sso.get("enabled")) and sso.get("flavor") == "oauth2"
+    sso = sso_block(role)
+    return (
+        sso is not None and bool(sso.get("enabled")) and sso.get("flavor") == "oauth2"
+    )
+
+
+def declares_acl(role: str) -> bool:
+    """Return whether the role declares ``services.sso.oauth2.acl``.
+
+    Args:
+        role: the role directory name.
+    """
+    sso = sso_block(role)
+    oauth2 = sso.get("oauth2") if sso is not None else None
+    return isinstance(oauth2, Mapping) and bool(oauth2.get("acl"))
 
 
 def gated_without_the_gate() -> list[str]:
@@ -139,9 +242,10 @@ def gated_without_the_gate() -> list[str]:
 
     A gated vhost needs the oauth2-proxy endpoint to authenticate at all, and
     the raised header buffers because a Keycloak session cookie does not fit
-    nginx's defaults. Neither is in the shared flavours' intersection, so the
-    rule above cannot ask for them; an override that flips to ``oauth2`` later
-    would drop both without a word.
+    nginx's defaults. One that declares an ACL also needs the ACL locations,
+    or the paths it opens stay behind the gate. None is in the shared
+    flavours' intersection, so the rule above cannot ask for them; an override
+    that flips to ``oauth2`` later would drop them without a word.
     """
     findings = []
     for path in OVERRIDES:
@@ -151,7 +255,8 @@ def gated_without_the_gate() -> list[str]:
         content = read_text(str(path))
         if is_suppressed_in_head(content.splitlines(), _RULE):
             continue
-        for missing in GATED_INCLUDES:
+        required = GATED_INCLUDES + ((ACL_INCLUDE,) if declares_acl(role) else ())
+        for missing in required:
             if missing not in content:
                 rel = path.relative_to(PROJECT_ROOT)
                 findings.append(f"{rel}: is proxy-gated but omits {missing!r}")
@@ -198,6 +303,17 @@ class TestVhostCrossCuttingIncludes(unittest.TestCase):
         self.assertTrue(
             [role_of(p) for p in OVERRIDES if is_proxy_gated(role_of(p))],
             "no role both overrides its vhost and is fronted by oauth2-proxy",
+        )
+
+    def test_an_acl_declaring_gated_override_is_actually_reached(self) -> None:
+        """Without one the ACL requirement would pass over nothing."""
+        self.assertTrue(
+            [
+                role_of(p)
+                for p in OVERRIDES
+                if is_proxy_gated(role_of(p)) and declares_acl(role_of(p))
+            ],
+            "no gated override declares services.sso.oauth2.acl",
         )
 
     def test_an_mcp_serving_override_is_actually_reached(self) -> None:

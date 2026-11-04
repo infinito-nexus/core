@@ -14,12 +14,12 @@ INSERT INTO auth_oauth_provider (
 	write_date
 ) VALUES (
 	'Keycloak',
-	True,
+	%(enabled)s,
 	%(auth_endpoint)s,
 	%(userinfo_endpoint)s,
 	%(userinfo_endpoint)s,
 	%(client_id)s,
-	'openid email profile',
+	%(scope)s,
 	'fa fa-fw fa-key',
 	'{"en_US": "Login with SSO"}',
 	10,

@@ -1,0 +1,13 @@
+(function () {
+  const root = document.documentElement;
+  const sync = function () {
+    const mode = root.getAttribute("data-colourmode");
+    if (mode === "light" || mode === "dark") {
+      root.setAttribute("data-design-theme", mode);
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  };
+  sync();
+  new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ["data-colourmode"] });
+})();

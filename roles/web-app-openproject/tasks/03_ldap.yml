@@ -7,7 +7,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-ldap-auth-source-exists.sql"
+    query_file: "{{ role_path }}/files/sql/select/ldap-auth-source-exists.sql"
     named_args:
       name: "{{ OPENPROJECT_LDAP.name }}"
     expect_rows: true

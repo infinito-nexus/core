@@ -1,18 +1,22 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const {
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const baseUrl = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
-const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
-const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME || "");
-const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || "");
+const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
+const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
+const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const biberUsername = requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_USERNAME");
+const biberPassword = requireDotenvValue(process.env.BIBER_PASSWORD, "BIBER_PASSWORD");
 
 test.use({ ignoreHTTPSErrors: true });
 
-test("ldap: the administrator logs in and receives the administrator policy", async ({ request }) => {
+test("administrator: the administrator logs in through LDAP and receives the administrator policy", async ({ request }) => {
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
 
   const response = await request.post(
     `${baseUrl}/v1/auth/ldap/login/${encodeURIComponent(adminUsername)}`,
@@ -30,8 +34,9 @@ test("ldap: the administrator logs in and receives the administrator policy", as
   ).toContain("administrator");
 });
 
-test("ldap: a user in no OpenBao role group gets no privileged policy", async ({ request }) => {
+test("biber: in no OpenBao role group, biber gets no privileged policy at LDAP login", async ({ request }) => {
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
 
   const response = await request.post(
     `${baseUrl}/v1/auth/ldap/login/${encodeURIComponent(biberUsername)}`,

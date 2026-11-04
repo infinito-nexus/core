@@ -4,7 +4,7 @@
 # compose.yml.j2, which derives them from roles/web-app-moodle/vars/main.yml.
 # That vars file is the single source of truth for:
 #   - container paths    (MOODLE_CODE_DIR, MOODLE_DATA_DIR, MOODLE_SOURCE_DIR,
-#                         MOODLE_ENTRYPOINT_PATH)
+#                         MOODLE_ENTRYPOINT_PATH, MOODLE_BOOTSTRAP_STAGE)
 #   - build-asset names  (MOODLE_BUILD_DIR, MOODLE_BUILD_FILES.*)
 #
 # The COPY src paths and the ENTRYPOINT JSON-array literal in this
@@ -22,6 +22,8 @@ ARG MOODLE_CODE_DIR
 ARG MOODLE_DATA_DIR
 ARG MOODLE_LOCAL_CACHE_DIR
 ARG MOODLE_SOURCE_DIR
+ARG MOODLE_BOOTSTRAP_STAGE
+ARG MOODLE_BOOTSTRAP_SENTINEL
 ARG MOODLE_RUNTIME_USER
 ARG MOODLE_OIDC_ENABLED
 ARG MOODLE_OIDC_PLUGIN_RELPATH
@@ -29,26 +31,47 @@ ARG MOODLE_MCP_ENABLED
 ARG MOODLE_MCP_PLUGIN_RELPATH
 ARG MOODLE_MCP_PLUGIN_ARCHIVE_URL
 ARG MOODLE_OIDC_PLUGIN_ARCHIVE_URL
+ARG MOODLE_OBJECTFS_ENABLED
+ARG MOODLE_OBJECTFS_PLUGIN_RELPATH
+ARG MOODLE_OBJECTFS_PLUGIN_ARCHIVE_URL
 ARG MOODLE_RELEASE
 ARG MOODLE_TARBALL_URL
 ARG MOODLE_VERSION_FILE
 ARG MOODLE_AUTH_SUBDIR
 ARG MOODLE_WEBSERVICE_SUBDIR
+ARG MOODLE_ADMIN_TOOL_SUBDIR
+ARG MOODLE_CLI_RELPATH
+ARG MOODLE_RELEASE_LIB
+ARG MOODLE_TRANSIT_DIR
+ARG MOODLE_TRANSIT_RELEASE
+ARG MOODLE_TRANSIT_TARBALL_URL
+ARG MOODLE_UPGRADE_PATH
 
 ENV MOODLE_CODE_DIR=${MOODLE_CODE_DIR} \
     MOODLE_DATA_DIR=${MOODLE_DATA_DIR} \
     MOODLE_LOCAL_CACHE_DIR=${MOODLE_LOCAL_CACHE_DIR} \
     MOODLE_SOURCE_DIR=${MOODLE_SOURCE_DIR} \
+    MOODLE_BOOTSTRAP_STAGE=${MOODLE_BOOTSTRAP_STAGE} \
+    MOODLE_BOOTSTRAP_SENTINEL=${MOODLE_BOOTSTRAP_SENTINEL} \
     MOODLE_RUNTIME_USER=${MOODLE_RUNTIME_USER} \
     MOODLE_OIDC_PLUGIN_RELPATH=${MOODLE_OIDC_PLUGIN_RELPATH} \
     MOODLE_MCP_PLUGIN_RELPATH=${MOODLE_MCP_PLUGIN_RELPATH} \
     MOODLE_MCP_PLUGIN_ARCHIVE_URL=${MOODLE_MCP_PLUGIN_ARCHIVE_URL} \
     MOODLE_OIDC_PLUGIN_ARCHIVE_URL=${MOODLE_OIDC_PLUGIN_ARCHIVE_URL} \
+    MOODLE_OBJECTFS_PLUGIN_RELPATH=${MOODLE_OBJECTFS_PLUGIN_RELPATH} \
+    MOODLE_OBJECTFS_PLUGIN_ARCHIVE_URL=${MOODLE_OBJECTFS_PLUGIN_ARCHIVE_URL} \
     MOODLE_RELEASE=${MOODLE_RELEASE} \
     MOODLE_TARBALL_URL=${MOODLE_TARBALL_URL} \
     MOODLE_VERSION_FILE=${MOODLE_VERSION_FILE} \
     MOODLE_AUTH_SUBDIR=${MOODLE_AUTH_SUBDIR} \
-    MOODLE_WEBSERVICE_SUBDIR=${MOODLE_WEBSERVICE_SUBDIR}
+    MOODLE_WEBSERVICE_SUBDIR=${MOODLE_WEBSERVICE_SUBDIR} \
+    MOODLE_ADMIN_TOOL_SUBDIR=${MOODLE_ADMIN_TOOL_SUBDIR} \
+    MOODLE_CLI_RELPATH=${MOODLE_CLI_RELPATH} \
+    MOODLE_RELEASE_LIB=${MOODLE_RELEASE_LIB} \
+    MOODLE_TRANSIT_DIR=${MOODLE_TRANSIT_DIR} \
+    MOODLE_TRANSIT_RELEASE=${MOODLE_TRANSIT_RELEASE} \
+    MOODLE_TRANSIT_TARBALL_URL=${MOODLE_TRANSIT_TARBALL_URL} \
+    MOODLE_UPGRADE_PATH=${MOODLE_UPGRADE_PATH}
 
 # hadolint ignore=DL3008
 RUN rm -rf /var/lib/apt/lists/* \
@@ -72,6 +95,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       libzip-dev \
       msmtp \
       msmtp-mta \
+      patch \
       unzip \
  && rm -rf /var/lib/apt/lists/*
 
@@ -98,8 +122,12 @@ COPY build/php-conf/zz-moodle-pool.conf     /usr/local/etc/php-fpm.d/zz-moodle-p
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-COPY build/install/moodle-source.sh /tmp/install-moodle-source.sh
+COPY build/install/moodle/source.sh /tmp/install-moodle-source.sh
 RUN bash /tmp/install-moodle-source.sh && rm /tmp/install-moodle-source.sh
+
+COPY build/moodle/release.sh ${MOODLE_RELEASE_LIB}
+COPY build/install/moodle/upgrade-path.sh /tmp/install-moodle-upgrade-path.sh
+RUN bash /tmp/install-moodle-upgrade-path.sh && rm /tmp/install-moodle-upgrade-path.sh
 
 COPY build/install/auth-oidc.sh /tmp/install-auth-oidc.sh
 RUN if [ "${MOODLE_OIDC_ENABLED}" = "1" ] || [ "${MOODLE_OIDC_ENABLED}" = "true" ]; then \
@@ -113,11 +141,19 @@ RUN if [ "${MOODLE_MCP_ENABLED}" = "1" ] || [ "${MOODLE_MCP_ENABLED}" = "true" ]
     fi \
  && rm /tmp/install-webservice-mcp.sh
 
+COPY build/install/tool-objectfs.sh /tmp/install-tool-objectfs.sh
+COPY build/patch/tool-objectfs-path-style.patch /tmp/tool-objectfs-path-style.patch
+RUN if [ "${MOODLE_OBJECTFS_ENABLED}" = "1" ] || [ "${MOODLE_OBJECTFS_ENABLED}" = "true" ]; then \
+      MOODLE_OBJECTFS_PATCH_PATH=/tmp/tool-objectfs-path-style.patch \
+      bash /tmp/install-tool-objectfs.sh; \
+    fi \
+ && rm /tmp/install-tool-objectfs.sh /tmp/tool-objectfs-path-style.patch
+
 COPY build/config.php ${MOODLE_SOURCE_DIR}/config.php
 RUN chown ${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER} ${MOODLE_SOURCE_DIR}/config.php \
  && chmod 0640 ${MOODLE_SOURCE_DIR}/config.php
 
-COPY build/moodle-entrypoint.sh /usr/local/bin/moodle-entrypoint.sh
+COPY build/moodle/entrypoint.sh /usr/local/bin/moodle-entrypoint.sh
 RUN chmod 0755 /usr/local/bin/moodle-entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/moodle-entrypoint.sh"]

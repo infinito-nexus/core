@@ -1,0 +1,28 @@
+---
+- name: "🔍 update (pacman) | check whether the running kernel loads modules at all"
+  ansible.builtin.stat:
+    path: /proc/modules
+  register: update_proc_modules
+
+- name: "🔍 update (pacman) | list the kernels with an installed module index"
+  ansible.builtin.find:
+    paths: /usr/lib/modules
+    patterns: modules.dep
+    recurse: true
+    depth: 2
+    follow: true
+  register: update_module_indexes
+
+- name: "🔍 update (pacman) | check whether a package owns the running kernel"
+  ansible.builtin.command:
+    argv:
+      - pacman
+      - -Qqo
+      - "/usr/lib/modules/{{ ansible_facts['kernel'] }}"
+  register: update_kernel_owner
+  check_mode: false
+  changed_when: false
+  failed_when: update_kernel_owner.rc not in [0, 1]
+  when:
+    - update_module_trees | length > 1
+    - ansible_facts['kernel'] in update_module_trees

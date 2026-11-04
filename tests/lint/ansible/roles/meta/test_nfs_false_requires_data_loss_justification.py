@@ -34,7 +34,7 @@ from __future__ import annotations
 import re
 import unittest
 
-from utils.annotations.suppress import line_has_rule
+from utils.annotations.suppress import rule_and_reason
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES
 from utils.roles.meta_lookup import get_role_placement
@@ -44,25 +44,6 @@ from . import PROJECT_ROOT
 _RULE = "nfs-false-data-loss"
 
 _NFS_FALSE = re.compile(r"^\s*nfs:\s*false\s*(?:#.*)?$")
-_REASON = re.compile(r"#.*\breason\b\s*:\s*\S", re.IGNORECASE)
-
-
-def _justification_near(lines: list[str], line_no: int) -> tuple[bool, bool]:
-    """Return ``(has_nocheck, has_reason)`` for the ``nfs: false`` at the
-    1-indexed ``line_no``, scanning that line and the contiguous comment
-    lines directly above it. Order of the two markers within the block
-    does not matter."""
-    idx = line_no - 1
-    if idx < 0 or idx >= len(lines):
-        return False, False
-    has_nocheck = line_has_rule(lines[idx], _RULE)
-    has_reason = bool(_REASON.search(lines[idx]))
-    scan = idx - 1
-    while scan >= 0 and lines[scan].lstrip().startswith("#"):
-        has_nocheck = has_nocheck or line_has_rule(lines[scan], _RULE)
-        has_reason = has_reason or bool(_REASON.search(lines[scan]))
-        scan -= 1
-    return has_nocheck, has_reason
 
 
 def _is_manager_pinned(role_name: str) -> bool:
@@ -97,7 +78,7 @@ class TestNfsFalseRequiresDataLossJustification(unittest.TestCase):
                 if not _NFS_FALSE.match(line):
                     continue
                 line_no = idx + 1
-                has_nocheck, has_reason = _justification_near(lines, line_no)
+                has_nocheck, has_reason = rule_and_reason(lines, line_no, _RULE)
                 if has_nocheck and has_reason:
                     continue
                 missing = []

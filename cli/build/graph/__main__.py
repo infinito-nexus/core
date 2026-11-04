@@ -54,8 +54,10 @@ def find_role_tasks(roles_dir: str, role: str) -> str:
 
 def load_meta(path: str) -> Dict[str, Any]:
     """
-    Load metadata from meta/main.yml.
+    Load metadata from ``meta/main.yml``.
+
     Returns a dict with:
+
         - galaxy_info
         - run_after 
         - dependencies
@@ -209,6 +211,7 @@ def build_mappings(
     """
     Build all 12 graph variants (6 dep types × 2 directions).
     Accelerated version:
+
         - One-time scan of all metadata
         - One-time scan of all include_role/import_role
         - One-time scan of include_tasks/import_tasks

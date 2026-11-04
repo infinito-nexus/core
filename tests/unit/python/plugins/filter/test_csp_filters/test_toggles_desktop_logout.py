@@ -99,7 +99,10 @@ class TestCspTogglesDashboardLogout(unittest.TestCase):
             "app1",
             self.domains,
             "https",
-            extra_hashes={"script-src-elem": ["console.log('logout');"]},
+            extra_hashes_by_vhost={
+                "app1.example.org": {"script-src-elem": ["console.log('logout');"]}
+            },
+            vhost_domain="app1.example.org",
         )
         elem = self._get_directive_tokens(header, "script-src-elem")
         attr = self._get_directive_tokens(header, "script-src-attr")
@@ -120,7 +123,10 @@ class TestCspTogglesDashboardLogout(unittest.TestCase):
             "app1",
             self.domains,
             "https",
-            extra_hashes={"script-src-elem": ["console.log('logout');"]},
+            extra_hashes_by_vhost={
+                "app1.example.org": {"script-src-elem": ["console.log('logout');"]}
+            },
+            vhost_domain="app1.example.org",
         )
         expected_hash = self.filter.get_csp_hash("console.log('logout');")
 

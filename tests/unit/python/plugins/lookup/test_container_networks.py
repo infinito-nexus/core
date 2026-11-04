@@ -46,6 +46,8 @@ class TestContainerNetworksLookup(unittest.TestCase):
         vars_ = {
             "application_id": "web-app-baserow",
             "DEPLOYMENT_MODE": "compose",
+            "IS_COMPOSE_MODE": True,
+            "IS_SWARM_MODE": False,
         }
         lm = _make_lookup(vars_)
 
@@ -95,6 +97,8 @@ class TestContainerNetworksLookup(unittest.TestCase):
         vars_ = {
             "application_id": "web-app-x",
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
         }
         lm = _make_lookup(vars_)
 

@@ -7,10 +7,27 @@ sso:
   flavor: oidc
   oidc:
     fallback_enabled: true
-# nocheck: dynamic-flag
+  profile:
+    locked:
+      name: "#jform_name[data-infinito-sso-locked]"
+      username: "#jform_username[data-infinito-sso-locked]"
+      email: "#jform_email1[data-infinito-sso-locked]"
+      language: "#jform_params_language[data-infinito-sso-locked]"
+      timezone: "#jform_params_timezone[data-infinito-sso-locked]"
+      phone: "#jform_profile_phone[data-infinito-sso-locked]"
+      website: "#jform_profile_website[data-infinito-sso-locked]"
+      address: "#jform_profile_address1[data-infinito-sso-locked],#jform_profile_city[data-infinito-sso-locked],#jform_profile_region[data-infinito-sso-locked],#jform_profile_postal_code[data-infinito-sso-locked],#jform_profile_country[data-infinito-sso-locked]"
+    languages: [en]
+# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
+javascript:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }}"
+# nocheck: bond-baseline variant 0 is the OIDC-only round and variant 1 the LDAP-only round, so the directory joins the LDAP round only
 ldap:
-  enabled: false
-  shared: false
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -25,8 +42,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -44,14 +61,35 @@ joomla:
       enabled: true
   image: joomla
   version: 6.2.0-php8.3-apache
+  upgrade:
+    bridges:
+      - version: 5.4.9
+        sha256: 7840541ae606bd460d4bf3647c977699af279c229f708756c78a2dcc06cfc8cf
+        plugins:
+          behaviour/compat: false
+          behaviour/compat6: true
   custom: true
   name: joomla
   min_storage: 478MB
   backup:
-    no_stop_required: true
+    stop_required: false
   upload:
     size_mb: 100
   autocreate_users: true
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'passkey') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'registration') }}"
   ports:
     local:
       http: 8014
@@ -60,18 +98,29 @@ joomla:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Joomla - CMS"
+  slots:
+    site-brand:
+      width: 280
+      height: 48
+      frame: true
+    admin-brand:
+      width: 260
+      height: 44
+      frame: true
+    admin-login:
+      width: 300
+      height: 70
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -89,3 +138,16 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

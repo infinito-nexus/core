@@ -71,18 +71,18 @@
     argv:
       - container
       - exec
+      - -i
       - -u
       - "{{ NEXTCLOUD_DOCKER_USER }}"
       - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - php
+      - sh
+      - -c
+      - exec php "$1" app_api:app:register "$2" "$3" --json-info "$(cat)" --force-scopes --wait-finish
+      - _
       - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
-      - app_api:app:register
       - "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
       - "{{ NEXTCLOUD_CONTEXT_AGENT_DAEMON }}"
-      - --json-info
-      - "{{ NEXTCLOUD_CONTEXT_AGENT_JSON_INFO }}"
-      - --force-scopes
-      - --wait-finish
+    stdin: "{{ NEXTCLOUD_CONTEXT_AGENT_JSON_INFO }}"
   when: >-
     NEXTCLOUD_CONTEXT_AGENT_SERVICE not in nextcloud_registered_exapps.stdout
     or nextcloud_exapp_renew | bool

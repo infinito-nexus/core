@@ -1,0 +1,10 @@
+---
+- name: "⏯️ Apply the persisted pause state of every application on this host"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_APP_CONTROL }}"
+      - --config
+      - "{{ FILE_APP_CONTROL_CONFIG }}"
+      - reconcile
+  register: app_control_reconcile
+  changed_when: "'CHANGED' in app_control_reconcile.stdout"

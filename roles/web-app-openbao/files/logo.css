@@ -1,0 +1,10 @@
+.hds-side-nav__home-link {
+  background: var(--design-url-logo-svg) center / auto 2rem no-repeat;
+}
+.brand-icon-large {
+  background: var(--design-url-logo-svg) center / contain no-repeat;
+}
+.hds-side-nav__home-link .hs-icon,
+.brand-icon-large .hs-icon {
+  visibility: hidden;
+}

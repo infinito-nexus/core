@@ -3,7 +3,7 @@
 
 - name: "📂 Load cleanup routine for '{{ application_id }}'"
   include_tasks: 01_cleanup.yml
-  when: MODE_CLEANUP | bool
+  when: CLEANUP | bool
 
 - name: "📂 Load init routine for '{{ application_id }}'"
   include_tasks: 02_init.yml
@@ -15,6 +15,13 @@
     mode: "0644"
   when: KEYCLOAK_LOGOUT_PANEL_ENABLED | bool
   notify: reload-openresty
+
+- name: "🎨 Load the corporate theme routine for '{{ application_id }}'"
+  include_tasks: utils/theme.yml
+
+- name: "📥 Capture the admin password of the deploy this one replaces"
+  include_tasks: utils/capture_previous_admin.yml
+  when: IS_STACK_HOST | bool
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:

@@ -29,6 +29,6 @@ all:
   hosts:
     workstation:
   children:
-    desk-retroarch:
+    dsk-retroarch:
       hosts:
         workstation:

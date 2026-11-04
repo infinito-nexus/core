@@ -1,0 +1,19 @@
+---
+spdx: LicenseRef-LM-Studio-Terms
+url: https://lmstudio.ai/terms
+rights:
+  commercial_use: true
+  modifications: false
+  distribution: false
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+  open_source: false

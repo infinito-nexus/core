@@ -1,0 +1,29 @@
+---
+- name: "🔀 Rewrite the recipients of the alias domains onto their target domains"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaStageRcpt/set', {'update': {'singleton': {'rewrite': STALWART_RCPT_REWRITE}}}, 'c0']]} | to_json }}
+
+- name: "📖 Read back the RCPT stage singleton"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaStageRcpt/get', {'ids': ['singleton']}, 'c0']]} | to_json }}
+
+- name: "✅ Assert the live recipient rewrite carries every alias domain"
+  ansible.builtin.assert:
+    that:
+      - stalwart_rewrite_terms | reject('in', stalwart_live_rewrite) | list | length == 0
+    fail_msg: >-
+      Stalwart's live recipient rewrite misses {{ stalwart_rewrite_terms | reject('in', stalwart_live_rewrite) | list }};
+      live rewrite: {{ stalwart_live_rewrite }}
+    quiet: true
+  vars:
+    stalwart_live_rewrite: "{{ (stalwart_jmap.methodResponses[0][1].list | first).rewrite | to_json }}"
+    stalwart_rewrite_terms: >-
+      {{ ((STALWART_RCPT_REWRITE.match.values() | map(attribute='if') | list)
+          + (STALWART_RCPT_REWRITE.match.values() | map(attribute='then') | list))
+         | map('to_json') | map('regex_replace', '^"|"$', '') | list }}

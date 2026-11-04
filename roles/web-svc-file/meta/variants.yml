@@ -6,25 +6,25 @@
 # matrix exercises the in-group_names branch of web-svc-file.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     matomo:
       enabled: true
       shared: true
     prometheus:
-      enabled: true
-      shared: true
-    css:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     matomo:
       enabled: false
       shared: false
     prometheus:
-      enabled: false
-      shared: false
-    css:
       enabled: false
       shared: false
     tor:

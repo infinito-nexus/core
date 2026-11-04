@@ -2,17 +2,10 @@
 // Scenarios: SSO login for administrator and biber (Keycloak enabled)
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({ ignoreHTTPSErrors: true });
-
-function decodeDotenvQuotedValue(value) {
-  if (typeof value !== "string" || value.length < 2) return value;
-  if (!(value.startsWith('"') && value.endsWith('"'))) return value;
-  const encoded = value.slice(1, -1);
-  try { return JSON.parse(`"${encoded}"`).replace(/\$\$/g, "$"); }
-  catch { return encoded.replace(/\$\$/g, "$"); }
-}
 
 const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
 const piholeBaseUrl = decodeDotenvQuotedValue(process.env.PIHOLE_BASE_URL);
@@ -22,7 +15,8 @@ const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 
 test.beforeEach(() => {
-  test.skip(!oidcIssuerUrl, "SSO not enabled — skipping OAuth2 tests");
+  skipUnlessServiceEnabled("sso");
+  expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set while the sso service is enabled").toBeTruthy();
   expect(piholeBaseUrl, "PIHOLE_BASE_URL must be set").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();

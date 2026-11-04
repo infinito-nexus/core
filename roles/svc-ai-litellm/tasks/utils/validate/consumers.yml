@@ -1,0 +1,41 @@
+---
+- name: "✅ Probe every consumer key through the gateway APIs"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/validate/consumers.py')) | quote }}
+  args:
+    stdin: >-
+      {{ {
+        'consumers': LITELLM_CONSUMER_KEYS,
+        'models': (
+          ((lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | map(attribute='alias') | list)
+            if LITELLM_OLLAMA_BACKEND | bool else [])
+          + ((lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') | map(attribute='alias') | list)
+            if LITELLM_LMSTUDIO_BACKEND | bool else [])
+          + (LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_SERVED_PROVIDERS) | map(attribute='alias') | list)
+        ) | reject('search', 'embed') | unique | list,
+        'base_url': 'http://127.0.0.1:' ~ (LITELLM_PORT | string),
+        'timeout': LITELLM_UPSTREAM_TIMEOUT | float,
+        'workers': lookup('config', 'svc-ai-litellm', 'services.litellm.validation.workers') | int,
+        'codex_reasoning_effort': lookup('config', 'dsk-gnt-codex', 'services.codex.reasoning_effort'),
+        'max_output_tokens': lookup('config', 'svc-ai-litellm', 'services.litellm.validation.max_output_tokens') | int,
+        'retry_policy': {
+          'retries': lookup('config', 'svc-ai-litellm', 'services.litellm.consumer_validation.retries') | int,
+          'delay': lookup('config', 'svc-ai-litellm', 'services.litellm.consumer_validation.delay') | float,
+          'max_delay': lookup('config', 'svc-ai-litellm', 'services.litellm.consumer_validation.max_delay') | float
+        }
+      } | to_json }}
+  register: litellm_consumer_validation
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: "✅ Require every consumer key and model request to pass validation"
+  ansible.builtin.assert:
+    that:
+      - litellm_consumer_validation.rc == 0
+      - (litellm_consumer_validation.stdout | from_json).ok | bool
+    success_msg: "{{ litellm_consumer_validation.stdout }}"
+    fail_msg: >-
+      {{ litellm_consumer_validation.stdout if litellm_consumer_validation.stdout | trim
+         else 'Gateway validator failed before reporting results; check container availability and Python.' }}

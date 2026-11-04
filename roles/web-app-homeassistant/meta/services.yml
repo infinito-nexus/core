@@ -1,6 +1,9 @@
 ---
 # nocheck: playwright-service-flag
 homeassistant:
+  healthcheck:
+    flavor: curl
+    path: manifest.json
   modes:
     compose:
       enabled: true
@@ -10,7 +13,7 @@ homeassistant:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: ghcr.io/home-assistant/home-assistant
   version: "2026.7"
   name: homeassistant
@@ -40,11 +43,26 @@ logout:
   enabled: false
   shared: false
 
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+
 # nocheck: playwright-service-flag
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
   shared: "{{ 'web-app-dashboard' in group_names }}"
+
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Smart Home"
+  slots:
+    logo:
+      width: 192
+      height: 192
 
 # nocheck: playwright-service-flag
 prometheus:
@@ -84,3 +102,16 @@ flowise:
   bond: 0.5
   enabled: "{{ 'web-app-flowise' in group_names }}"
   shared: "{{ 'web-app-flowise' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

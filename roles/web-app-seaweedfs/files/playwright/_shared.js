@@ -1,7 +1,6 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { isServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvJsonList, decodeDotenvQuotedValue } = require("./personas");
 
 const env = {
   filerUrl: decodeDotenvQuotedValue(process.env.SEAWEEDFS_FILER_URL),
@@ -10,15 +9,10 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
-  ssoEnabled: isServiceEnabled("sso"),
-  frontendEnabled: isServiceEnabled("frontend"),
-  consumerBuckets: (() => {
-    try {
-      return JSON.parse(decodeDotenvQuotedValue(process.env.SEAWEEDFS_CONSUMER_BUCKETS) || "[]");
-    } catch {
-      return [];
-    }
-  })(),
+  consumerBuckets: decodeDotenvJsonList(
+    process.env.SEAWEEDFS_CONSUMER_BUCKETS_JSON,
+    "SEAWEEDFS_CONSUMER_BUCKETS_JSON"
+  ),
 };
 
 async function keycloakLogin(page, username, password) {

@@ -20,8 +20,8 @@ matomo:
 # nocheck: playwright-service-flag
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
@@ -68,13 +68,26 @@ gitlab:
       ssh: false
   proxy:
     service_key: workhorse
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'passkey') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'registration') }}"
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
 webservice:
+  backup:
+    stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
   version: v19.5.3
   name: gitlab-webservice
@@ -91,6 +104,8 @@ webservice:
   mem_limit: 6g
   pids_limit: 2048
 sidekiq:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: tcp
     path: liveness
@@ -105,6 +120,8 @@ sidekiq:
     internal:
       http: 3808
 workhorse:
+  backup:
+    stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
   version: v19.5.3
   name: gitlab-workhorse
@@ -115,8 +132,12 @@ workhorse:
   mem_limit: 512m
   pids_limit: 256
 gitaly:
+  backup:
+    stop_required: true
   # nocheck: single-replica
   replicas: 1
+  # nocheck: default-placement-manager  the repositories live on a node-local volume (meta/volumes.yml nfs: false, gitaly does not support NFS), which a reschedule leaves behind on the old node
+  placement: manager
   image: registry.gitlab.com/gitlab-org/build/cng/gitaly
   version: v19.5.3
   healthcheck:
@@ -130,6 +151,8 @@ gitaly:
   mem_limit: 2g
   pids_limit: 1024
 shell:
+  backup:
+    stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-shell
   version: v19.5.3
   name: gitlab-shell
@@ -141,6 +164,8 @@ shell:
   mem_limit: 256m
   pids_limit: 256
 migrations:
+  backup:
+    stop_required: false
   # nocheck: single-replica
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce
@@ -153,13 +178,27 @@ migrations:
 # nocheck: playwright-service-flag
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 # nocheck: playwright-service-flag
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    header-logo:
+      width: 48
+      height: 48
+      frame: true
+    logo:
+      width: 112
+      height: 112
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — role-injected script that hides the sign-in entries of switched-off login methods GitLab has no setting for, covered by files/playwright/test-login-methods.js
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -216,3 +255,34 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+confluence:
+  enabled: false # nocheck: dynamic-flag - web-app-confluence is EOL, no host may bind it
+  shared: false # nocheck: dynamic-flag - web-app-confluence is EOL, no host may bind it
+jenkins:
+  bond: 0.5
+  enabled: "{{ 'web-app-jenkins' in group_names }}"
+  shared: "{{ 'web-app-jenkins' in group_names }}"
+jira:
+  enabled: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+  shared: false # nocheck: dynamic-flag - web-app-jira is EOL, no host may bind it
+matrix:
+  bond: 0.5
+  enabled: "{{ 'web-app-matrix' in group_names }}"
+  shared: "{{ 'web-app-matrix' in group_names }}"
+mattermost:
+  bond: 0.5
+  enabled: "{{ 'web-app-mattermost' in group_names }}"
+  shared: "{{ 'web-app-mattermost' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

@@ -28,7 +28,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file  checkmkmcp-only keys; the role's single env_file also feeds the primary checkmk container, which must not receive ADAPTER_BEARER or ADAPTER_UPSTREAM_KEY
       ADAPTER_CONTRACT: {{ CHECKMK_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ CHECKMK_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ CHECKMK_MCP_PORT }}"

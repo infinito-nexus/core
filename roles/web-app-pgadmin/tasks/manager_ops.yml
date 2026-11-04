@@ -1,0 +1,48 @@
+---
+- name: "⏳ Wait until the pgAdmin container is healthy"
+  ansible.builtin.shell: >
+    container inspect --type container
+    --format '{% raw %}{{.State.Health.Status}}{% endraw %}'
+    {{ PGADMIN_CONTAINER_ADDRESS }}
+  register: pgadmin_health
+  changed_when: false
+  until: pgadmin_health.stdout.strip() == "healthy"
+  retries: 60
+  delay: 5
+
+- name: "🔑 Realign the pgAdmin administrator with the declared password"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e PGADMIN_ADMIN_EMAIL -e PGADMIN_ADMIN_PASSWORD
+      {{ PGADMIN_CONTAINER_ADDRESS }} /venv/bin/python3 -
+    stdin: "{{ lookup('file', 'python/realign_admin_password.py') }}"
+  environment:
+    PGADMIN_ADMIN_EMAIL: "{{ PGADMIN_ADMIN_EMAIL }}"
+    PGADMIN_ADMIN_PASSWORD: "{{ PGADMIN_ADMIN_PASSWORD }}"
+  register: pgadmin_admin_realign
+  changed_when: pgadmin_admin_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    pgadmin_admin_realign.rc != 0
+    or pgadmin_admin_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛂 Promote the administrator members and demote every other OAuth2 account"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ PGADMIN_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ PGADMIN_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [/venv/bin/python3, "-"]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/reconcile_oauth2_roles.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env: {}
+    rbac_sync_members_env:
+      - { name: PGADMIN_RBAC_ADMINISTRATORS, role: administrator, field: "" }

@@ -1,0 +1,59 @@
+---
+- name: "🔍 Check whether the container CLI is installed"
+  ansible.builtin.stat:
+    path: "{{ BIN_CONTAINER }}"
+  register: preflight_container_cli
+
+- name: "🛫 Verify that the running kernel of a host outside a container has its modules"
+  ansible.builtin.include_tasks: kernel.yml
+  when:
+    - SYS_PREFLIGHT_CHECKS.kernel.enabled | bool
+    - not (DOCKER_IN_CONTAINER | bool)
+
+- name: "🛫 Verify that the clock of a host outside a container is synchronised"
+  ansible.builtin.include_tasks: clock.yml
+  when:
+    - SYS_PREFLIGHT_CHECKS.clock.enabled | bool
+    - not (DOCKER_IN_CONTAINER | bool)
+
+- name: "🛫 Verify that the filesystems of the deploy have room left"
+  ansible.builtin.include_tasks: disk.yml
+  vars:
+    preflight_disk_paths: >-
+      {{ ['/'] + ([preflight_docker_root.stdout | from_json]
+                  if preflight_container_cli.stat.exists else []) }}
+  when: SYS_PREFLIGHT_CHECKS.disk.enabled | bool
+
+- name: "🛫 Verify that every docker network belongs to its entity"
+  ansible.builtin.include_tasks: networks.yml
+  when:
+    - SYS_PREFLIGHT_CHECKS.networks.enabled | bool
+    - preflight_container_cli.stat.exists
+
+- name: "🛫 Verify that every declared docker container belongs to its entity"
+  ansible.builtin.include_tasks: containers.yml
+  when:
+    - SYS_PREFLIGHT_CHECKS.containers.enabled | bool
+    - preflight_container_cli.stat.exists
+
+- name: "🛫 Verify that every declared docker volume belongs to its entity"
+  ansible.builtin.include_tasks: volumes.yml
+  when:
+    - SYS_PREFLIGHT_CHECKS.volumes.enabled | bool
+    - preflight_container_cli.stat.exists
+
+- name: "🛫 Verify that no docker address pool overlaps a range of the deploy"
+  ansible.builtin.include_tasks: pools.yml
+  when:
+    - SYS_PREFLIGHT_CHECKS.pools.enabled | bool
+    - preflight_container_cli.stat.exists
+
+- name: "🛫 Verify that no host process holds a public port of the deploy"
+  ansible.builtin.include_tasks: ports.yml
+  when:
+    - SYS_PREFLIGHT_CHECKS.ports.enabled | bool
+    - preflight_container_cli.stat.exists
+
+- name: "🛫 Verify that the clearnet domains of the deploy resolve"
+  ansible.builtin.include_tasks: domains.yml
+  when: SYS_PREFLIGHT_CHECKS.domains.enabled | bool

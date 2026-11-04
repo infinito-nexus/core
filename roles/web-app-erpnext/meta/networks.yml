@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.214.0/24
+reachability:
+  handover: true # nocheck: network-reachability  Frappe pins its global host_name and the Keycloak login's redirect_url to the one canonical URL, so an onion login returns on the clearnet host

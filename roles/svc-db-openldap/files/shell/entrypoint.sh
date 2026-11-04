@@ -5,6 +5,7 @@ set -euo pipefail
 : "${LDAP_ROOT_DN:?LDAP_ROOT_DN must be set (e.g. cn=administrator,dc=infinito,dc=example)}"
 : "${LDAP_ROOT_PW:?LDAP_ROOT_PW must be set}"
 : "${LDAP_LOG_LEVEL:?LDAP_LOG_LEVEL must be set (e.g. stats, stats2, acl, 0)}"
+: "${LDAP_DIRECTORY_EDITOR_GROUP_DNS:?LDAP_DIRECTORY_EDITOR_GROUP_DNS must be set (semicolon-separated groupOfNames DNs granted write)}"
 
 SLAPD_D_DIR="/etc/ldap/slapd.d"
 DB_DIR="/var/lib/ldap"
@@ -47,11 +48,18 @@ detect_schema_dir() {
   echo "/etc/ldap/schema"
 }
 
+directory_editor_acl() {
+  local -a group_dns
+  IFS=';' read -r -a group_dns <<< "${LDAP_DIRECTORY_EDITOR_GROUP_DNS}"
+  printf '  by group.exact="%s" write\n' "${group_dns[@]}"
+}
+
 write_slapd_conf() {
-  local hash module_path schema_dir
+  local hash module_path schema_dir editor_acl
   hash="$(slappasswd -s "${LDAP_ROOT_PW}")"
   module_path="$(detect_module_path)"
   schema_dir="$(detect_schema_dir)"
+  editor_acl="$(directory_editor_acl)"
 
   cat > "${TMP_CONF}" <<EOF
 include         ${schema_dir}/core.schema
@@ -83,11 +91,13 @@ directory       "${DB_DIR}"
 access to attrs=userPassword
   by dn.exact="${LDAP_ROOT_DN}" manage
   by self write
+${editor_acl}
   by anonymous auth
   by * none
 
 access to *
   by dn.exact="${LDAP_ROOT_DN}" manage
+${editor_acl}
   by * read
 EOF
 }

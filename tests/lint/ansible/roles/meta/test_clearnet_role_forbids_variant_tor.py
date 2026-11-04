@@ -40,7 +40,7 @@ import yaml
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 
 from . import PROJECT_ROOT
@@ -101,7 +101,7 @@ def clearnet_only_keys() -> dict[str, str]:
             continue
         if _suppressed((services_path,)):
             continue
-        key = get_entity_name(role_dir.name)
+        key = entity_name(role_dir.name)
         if key:
             found[key] = role_dir.name
     return found

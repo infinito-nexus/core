@@ -14,6 +14,11 @@
     path: "{{ RUNSC_SHIM_BINARY }}"
   register: sys_svc_container_runsc_shim
 
+- name: "🔍 Probe the NVIDIA container runtime"
+  ansible.builtin.stat:
+    path: "{{ NVIDIA_RUNTIME_BINARY }}"
+  register: sys_svc_container_nvidia_shim
+
 - name: "🧩 Publish the isolating runtime this host can carry"
   ansible.builtin.set_fact:
     SANDBOX_RUNTIME: >-

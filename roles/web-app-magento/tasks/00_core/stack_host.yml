@@ -1,0 +1,9 @@
+---
+- name: "🏗️ Bootstrap and install Magento"
+  include_tasks: ../01_setup.yml
+
+- name: "🎨 Apply the corporate design"
+  include_tasks: ../03_design.yml
+
+- name: "🛂 Reconcile the Magento admin accounts with the administrator group"
+  include_tasks: ../04_rbac.yml

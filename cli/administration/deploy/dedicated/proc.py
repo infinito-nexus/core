@@ -28,8 +28,9 @@ def run_make(repo_root: str, *targets: str) -> None:
     """
     Run `make <targets...>` from the repo root.
 
-    This prevents errors like:
-      make: *** No rule to make target 'clean'.  Stop.
+    This prevents errors like::
+
+        make: *** No rule to make target 'clean'.  Stop.
     """
     final_targets = targets or ("help",)
     run(["make", *final_targets], cwd=repo_root, check=True)

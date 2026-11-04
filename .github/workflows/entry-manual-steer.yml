@@ -1,5 +1,5 @@
 name: "🕹️ Manual"
-run-name: "🕹️ ${{ inputs.chunk_gate && '🛑 ' || '' }}${{ inputs.offset != '0' && inputs.offset != '' && format('⏩{0} ', inputs.offset) || '' }}${{ inputs.workspace != 'auto' && format('🧑‍💻{0} ', inputs.workspace == 'true' && '是' || '否') || '' }}${{ inputs.tor != 'auto' && format('{0} ', inputs.tor == 'disabled' && '🌐' || inputs.tor == 'enforced' && '🧅强制' || '🧅独占') || '' }}${{ inputs.vpn != 'auto' && format('{0} ', inputs.vpn == 'disabled' && '🛣️' || '🚇强制') || '' }}${{ inputs.filesystem != '' && format('🗄️{0} ', inputs.filesystem) || '' }}${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}${{ inputs.lifecycles != '' && format('♻️{0} ', inputs.lifecycles) || '' }}${{ inputs.mode != 'auto' && format('🚀{0} ', inputs.mode) || '' }}${{ inputs.priority != '' && format('⭐{0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯{0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
+run-name: "🕹️ ${{ inputs.chunk_gate && '🛑 ' || '' }}${{ inputs.offset != '0' && inputs.offset != '' && format('⏩{0} ', inputs.offset) || '' }}${{ inputs.workspace != 'auto' && format('🧑‍💻{0} ', inputs.workspace == 'true' && '是' || '否') || '' }}${{ inputs.network != 'auto' && format('{0} ', inputs.network == 'clearnet' && '🌐' || inputs.network == 'tor' && '🧅' || '🌈') || '' }}${{ inputs.vpn != 'auto' && format('{0} ', inputs.vpn == 'disabled' && '🛣️' || '🚇强制') || '' }}${{ inputs.filesystem != '' && format('🗄️{0} ', inputs.filesystem) || '' }}${{ inputs.architectures != '' && format('🏗️{0} ', inputs.architectures) || '' }}${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}${{ inputs.lifecycles != '' && format('♻️{0} ', inputs.lifecycles) || '' }}${{ inputs.mode != 'auto' && format('🚀{0} ', inputs.mode) || '' }}${{ inputs.priority != '' && format('⭐{0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯{0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
@@ -43,16 +43,21 @@ on:
         required: false
         default: ""
         type: string
-      tor:
-        description: "🧅 Tor axis for swarm and compose; the four values are in the README"
+      architectures:
+        description: "🏗️ Architecture pool the rows are spread over. Empty: amd64 and arm64"
+        required: false
+        default: ""
+        type: string
+      network:
+        description: "🌈 Node network mode for swarm and compose; the four values are in the README"
         required: false
         default: "auto"
         type: choice
         options:
           - "auto"
-          - "enforced"
-          - "exclusive"
-          - "disabled"
+          - "clearnet"
+          - "tor"
+          - "multi"
       vpn:
         description: "🚇 WireGuard axis for swarm; auto rotates, the others hold every row"
         required: false
@@ -78,12 +83,12 @@ on:
         default: ""
         type: string
       chunk_gate:
-        description: "🛑 Stop the chunk chain at its first failed chunk"
+        description: "🛑 Stop the chunk chain at its first failed chunk or a failed workspace test"
         required: false
         default: true
         type: boolean
       sweep:
-        description: "🔁 Sweep number driving the mode and tor rotation. Empty: the run number"
+        description: "🔁 Sweep number driving the mode and network rotation. Empty: the run number"
         required: false
         default: ""
         type: string
@@ -129,9 +134,10 @@ jobs:
       chunk_size: ${{ inputs.chunk_size != '' && inputs.chunk_size || '0' }}
       chunk_gate: ${{ inputs.chunk_gate }}
       filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
       workspace: ${{ inputs.workspace }}
       workspace_track: ${{ inputs.workspace_track }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
     secrets: inherit

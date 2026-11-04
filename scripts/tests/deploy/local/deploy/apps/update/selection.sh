@@ -7,6 +7,8 @@ set -euo pipefail
 #   INFINITO_CONTAINER e.g. infinito_nexus_arch
 #   INFINITO_DEBUG     true|false
 #   INFINITO_INVENTORY_DIR      e.g. /etc/inventories/local-full-server
+# Optional:
+#   APP_ID    role whose published guide the docs CLI test replays
 
 : "${apps:?apps is not set (e.g. apps=web-app-nextcloud)}"
 : "${INFINITO_CONTAINER:?INFINITO_CONTAINER is not set (e.g. infinito_nexus_arch)}"
@@ -34,14 +36,19 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../../../.." && pwd)"
 # shellcheck source=scripts/tests/deploy/local/utils/cache-retry.sh
 source "${SCRIPT_DIR}/../../../utils/cache-retry.sh"
 
+: "${PYTHON:=python3}"
+image_tag="$(cd "${REPO_ROOT}" && "${PYTHON}" -c 'from cli.administration.deploy.development.deploy.run import deploy_image_tag; print(deploy_image_tag())')"
+
 echo "=== rapid deploy: app=${apps} container=${INFINITO_CONTAINER} debug=${INFINITO_DEBUG} ==="
 echo "inventory_dir=${INFINITO_INVENTORY_DIR}"
 
 deploy_with_cache_retry "update-${apps//[^A-Za-z0-9._-]/-}" -- \
 	docker exec \
 	-e disable="${disable:-}" \
+	-e APP_ID="${APP_ID:-}" \
 	-e INFINITO_INVENTORY_FILE="${INFINITO_INVENTORY_FILE}" \
 	-e apps="${apps}" \
 	-e INFINITO_DEBUG="${INFINITO_DEBUG}" \
+	-e INFINITO_IMAGE_TAG="${image_tag}" \
 	"${INFINITO_CONTAINER}" \
 	bash "${INFINITO_SRC_DIR}/scripts/tests/deploy/local/deploy/container/update/selection.sh"

@@ -8,3 +8,6 @@
     domain: "{{ lookup('domain', application_id) }}"
     http_port: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}"
     proxy_internal_port: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}"
+
+- name: "👥 Map the administrator role group onto LiteLLM's proxy_admin role"
+  include_tasks: 01_rbac.yml

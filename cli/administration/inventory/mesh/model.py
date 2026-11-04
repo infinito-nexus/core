@@ -28,10 +28,12 @@ class Topology:
     Args:
         hub: the host that routes for every mesh, or None for full meshes.
         spokes: mesh name to the hosts that joined it, never the hub.
+        roaming: the spokes the hub neither dials nor waits for.
     """
 
     hub: str | None
     spokes: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    roaming: frozenset[str] = field(default_factory=frozenset)
 
 
 @dataclass(frozen=True)
@@ -46,6 +48,7 @@ class MeshMember:
             already holds one.
         public_key: the half its peers receive.
         is_hub: whether this member routes for the others.
+        roaming: whether this spoke has no endpoint the hub could dial.
     """
 
     host: str
@@ -54,6 +57,7 @@ class MeshMember:
     public_key: str
     is_hub: bool
     endpoint: str = ""
+    roaming: bool = False
 
 
 @dataclass(frozen=True)

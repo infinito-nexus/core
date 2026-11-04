@@ -2,3 +2,5 @@
 roles:
   mcp:
     description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own
+  external:
+    description: Signs in as a GitLab external user who sees only the projects and groups they are a member of and cannot create projects or groups

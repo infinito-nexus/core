@@ -18,17 +18,13 @@
   include_tasks: _simpleicons_probe.yml
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
 
-- name: 👥 Group docker cards
-  set_fact:
-    portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
-
-- name: "📄 Render Dashboard config.yaml (local + swarm peers)"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+- name: "📄 Render one Dashboard config per network"
+  include_tasks: _instance_config.yml
+  loop: "{{ DASHBOARD_INSTANCES }}"
+  loop_control:
+    loop_var: dashboard_instance
   vars:
-    role_templates:
-      - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
-        dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
+    domain: "{{ DASHBOARD_INSTANCE_DOMAIN }}"
 
 - name: ⏳ Wait for branding assets this deployment serves
   when: DASHBOARD_ASSET_ENABLED | bool
@@ -37,6 +33,8 @@
       slurp:
         src: "{{ DASHBOARD_CONFIG_YML_DEST }}"
       register: dashboard_rendered_config_raw
+      vars:
+        domain: "{{ lookup('domain', DASHBOARD_APPLICATION_ID) }}"
 
     - name: 📊 Collect branding asset URLs served by the shared file service
       set_fact:
@@ -104,30 +102,9 @@
     - name: 🔄 Refresh dashboard cards after Simple Icons becomes reachable
       include_tasks: "03_simpleicons_refresh.yml"
 
-- name: "🔍 Resolve the Dashboard hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: dashboard
-    resolve_output_prefix: DASHBOARD
-    resolve_compose_cid: "{{ DASHBOARD_CONTAINER }}"
-
-- name: "🔍 Resolve the Dashboard network namespace"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
-  vars:
-    netns_output_prefix: DASHBOARD
-
-- name: ⏳ Wait for Dashboard HTTP endpoint (so all logos can download during init)
-  ansible.builtin.command:
-    argv: "{{ DASHBOARD_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ DASHBOARD_INTERNAL_URL }}"
-  register: dashboard_http
-  retries: 60
-  delay: 5
-  until: dashboard_http.rc == 0 and (dashboard_http.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ DASHBOARD_HOST_NODE }}"
-  become: true
-  run_once: true
+- name: ⏳ Wait for every Dashboard instance (so all logos can download during init)
+  include_tasks: _instance_wait.yml
+  loop: "{{ DASHBOARD_INSTANCES }}"
+  loop_control:
+    loop_var: dashboard_instance
+    label: "{{ dashboard_instance.network }}"

@@ -29,136 +29,28 @@ modeled on [`web-app-openproject`](../web-app-openproject/) and
 The **exporter** is mandatory: it backs the export (SVG/PDF) and developer
 handoff features.
 
-## Cosmos
-
-The diagram places Penpot in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dep_svc_db_redis["svc-db-redis 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-penpot 🐳🐝]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_sso["sso"]
-        svc_ldap["ldap"]
-        svc_redis["redis"]
-        svc_postgres["postgres"]
-        svc_minio["minio ❌"]
-        svc_seaweedfs["seaweedfs"]
-        svc_penpot["penpot"]
-        svc_frontend["frontend"]
-        svc_backend["backend"]
-        svc_exporter["exporter"]
-        svc_css["css"]
-        svc_javascript["javascript ❌"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_db_postgres -. "0..1" .-> svc_postgres
-    dep_svc_db_redis -. "0..1" .-> svc_redis
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - Design creation and editing, team collaboration with comments and live cursors.
 - Shared asset libraries and components, version history.
 - Export (SVG, PDF, images) and developer handoff (CSS/code) via the exporter.
 - Real-time collaboration over WebSockets through the proxy.
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Penpot onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-penpot full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Penpot to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-penpot
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+- **Identity attributes:** the OIDC e-mail and name claims and the LDAP username, e-mail, full name and user query come from the platform `OIDC.ATTRIBUTES` and `LDAP.USER.ATTRIBUTES`; every realm user may sign in.
+- **Shared platform team:** Penpot has no instance administrator, only roles per team, so the role groups map onto one team named after `ORGANIZATION` that the platform administrator owns: `administrator` members are team admins, `editor` members editors and `viewer` members viewers; a profile outside all three leaves the team the way Penpot's own leave does. [files/sql/rbac/reconcile.sql](./files/sql/rbac/reconcile.sql) runs in the database as an RBAC hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer; it creates the team once the administrator's profile exists and matches members by e-mail, so a member joins on the first run after their first sign-in.
+- **Directory full names:** the same hook sets the full name of every Penpot profile whose e-mail the directory holds to the directory's name, because Penpot takes the name from OIDC or LDAP only when it registers the profile.
 
 ## Identity
 
-Login methods are toggled through `PENPOT_FLAGS` and configured by Ansible:
+`services.penpot.login.method.*` in [meta/services.yml](./meta/services.yml) drives the login flags in `PENPOT_FLAGS` ([vars/main.yml](./vars/main.yml)):
 
-- **OIDC** via [`web-app-keycloak`](../web-app-keycloak/) — enabled when the
-  `sso` service is active (`flavor: oidc`, native in-app "OpenID" login). Adds
-  `enable-login-with-oidc`.
-- **LDAP** via [`svc-db-openldap`](../svc-db-openldap/) — enabled when the
-  `ldap` service is active. Adds `enable-login-with-ldap`.
-- **Native** local email/password login is *off* once OIDC is the login path
-  (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS`
-  renders `enable-login-with-password` / `disable-login-with-password` accordingly
-  (no JS injection needed — Penpot disables the password form natively). When
-  native login is on, the role bootstraps a local password for the `administrator`
-  profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` —
-  `create-profile` for a fresh profile, `update-profile` to set the password when
-  a federated login already created it; the bootstrap is skipped under OIDC.
+- **`sso`:** `enable-login-with-oidc` (the in-app "OpenID" entry to [`web-app-keycloak`](../web-app-keycloak/)) together with `enable-oidc-registration`, so a first OIDC login creates its Penpot profile while local self-registration stays closed.
+- **`ldap`:** `enable-login-with-ldap`, the "LDAP" button on the login form that binds against [`svc-db-openldap`](../svc-db-openldap/). Under SSO it is off and LDAP accounts sign in through the Keycloak federation.
+- **`native`:** `enable-login-with-password` or `disable-login-with-password`. Penpot keeps the email and password fields for the LDAP button, but without this flag no local password signs in. When it is on, `tasks/main.yml` bootstraps a local password for the `administrator` profile through the backend PREPL (`create-profile` for a fresh profile, `update-profile` when a federated login already created it).
+- **`registration`:** `enable-registration` or `disable-registration`, the local "Create an account" path. Penpot accepts a local sign-up only while `native` is on as well.
 
-**Self-registration** is *on* when OIDC is enabled and *off* otherwise — also
-derived from the `sso` service flag. Penpot routes first-time OIDC logins through
-the registration path (a disabled flag makes the callback fail with
-`?error=registration-disabled` for not-yet-provisioned users), so registration
-must stay on wherever OIDC is. Native admin is bootstrapped and LDAP
-self-provisions without it. `PENPOT_FLAGS` renders `enable-registration` /
-`disable-registration` accordingly.
+Penpot has no second factor and no passkey, so the role declares neither.
+
+**Break-glass:** Penpot has no instance administrator, only team roles. While SSO is on, the backend PREPL (`enable-prepl-server`) that `tasks/01_administrator.yml` drives manages profiles from the CLI.
 
 ## Storage & scalability
 
@@ -213,8 +105,9 @@ globs every `*.js` under `files/playwright/`):
   skipped when `sso` is enabled (native login is disabled under OIDC).
 - `test-login-oidc-admin.js` — OIDC via Keycloak, administrator.
 - `test-login-oidc-biber.js` — OIDC via Keycloak, `biber` (non-admin RBAC).
-- `test-login-ldap-admin.js` — OpenLDAP bind, administrator.
-- `test-login-ldap-biber.js` — OpenLDAP bind, `biber` (non-admin RBAC).
+- `test-login-ldap-admin.js` — OpenLDAP bind, administrator; runs with `ldap` on and `sso` off.
+- `test-login-ldap-biber.js` — OpenLDAP bind, `biber` (non-admin RBAC); runs with `ldap` on and `sso` off.
+- `test-login-methods.js` — with `sso` on, the login page shows the OpenID entry and only the password, LDAP and registration entries whose `LOGIN_METHOD_*_ENABLED` flag is on.
 - `playwright.spec.js` — orchestrator: TLS baseline, project creation, image
   asset upload, and the `guest`/`biber`/`administrator` personas. The `biber` /
   `administrator` personas are declared blocked via `PERSONA_*_BLOCKED`
@@ -232,9 +125,4 @@ OpenLDAP deploy.
 - [Penpot Official Website](https://penpot.app/)
 - [Penpot Configuration Guide](https://help.penpot.app/technical-guide/configuration/)
 - [Penpot Docker Guide](https://github.com/penpot/penpot/tree/main/docker)
-
-## Credits
-
-Implemented by **[Evangelos Tsakoudis](https://github.com/evangelostsak)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/LCynSv3uxC6VYzimXE4CGx)

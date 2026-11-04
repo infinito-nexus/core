@@ -122,6 +122,21 @@ class TestApplicationDomainIndex(unittest.TestCase):
         self.assertEqual(idx["alt2.nested.example"], "web-app-nested")
         self.assertEqual(idx["deep.nested.example"], "web-app-nested")
 
+    def test_build_domain_index_follows_a_domain_change(self):
+        before = {"app": {"domains": {"canonical": ["old.example"]}, "x": 1}}
+        after = {"app": {"domains": {"canonical": ["new.example"]}, "x": 1}}
+        _application_domain_index.build_domain_index(before)
+        idx = _application_domain_index.build_domain_index(after)
+        self.assertEqual(idx, {"new.example": "app"})
+
+    def test_build_domain_index_reuses_the_index_across_other_config(self):
+        first = {"app": {"domains": {"canonical": ["a.example"]}, "port": 1}}
+        second = {"app": {"domains": {"canonical": ["a.example"]}, "port": 2}}
+        self.assertIs(
+            _application_domain_index.build_domain_index(first),
+            _application_domain_index.build_domain_index(second),
+        )
+
     def test_build_domain_index_type_check(self):
         with self.assertRaises(AnsibleError):
             _application_domain_index.build_domain_index("nope")  # type: ignore[arg-type]

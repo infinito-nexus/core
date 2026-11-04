@@ -20,37 +20,36 @@
       {{ stalwart_store_marker is not skipped
          and (stalwart_store_marker.content | b64decode | trim) == (STALWART_STORE_LAYOUT_VERSION | string) }}
 
-- name: "🔍 Find the store database on the shared PostgreSQL"
-  database_query:
-    config: >-
-      {{ lookup('database', application_id) | combine({
-        'username': 'postgres',
-        'name': 'postgres',
-        'password': lookup('config', 'svc-db-postgres', 'secrets.credentials.POSTGRES_PASSWORD'),
-      }) }}
-    query_file: "{{ role_path }}/files/sql/store/database.sql"
-    named_args:
-      name: "{{ lookup('database', application_id, 'name') }}"
-    expect_rows: true
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  register: stalwart_store_database
-  until: stalwart_store_database is succeeded
-  retries: 6
-  delay: 5
-  changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when:
-    - not (stalwart_store_marked | bool)
-    - STALWART_DATABASE_SHARED | bool
+- name: "🔍 Find a store on a host without the 1.x store marker"
+  when: not (stalwart_store_marked | bool)
+  block:
+    - name: "🔍 Find the store database on the shared PostgreSQL"
+      database_query:
+        config: >-
+          {{ lookup('database', application_id) | combine({
+            'username': 'postgres',
+            'name': 'postgres',
+            'password': lookup('config', 'svc-db-postgres', 'secrets.credentials.POSTGRES_PASSWORD'),
+          }) }}
+        query_file: "{{ role_path }}/files/sql/store/database.sql"
+        named_args:
+          name: "{{ lookup('database', application_id, 'name') }}"
+        expect_rows: true
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      register: stalwart_store_database
+      until: stalwart_store_database is succeeded
+      retries: 6
+      delay: 5
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      when: STALWART_DATABASE_SHARED | bool
 
-- name: "🔍 Find the volume of the dedicated store database"
-  ansible.builtin.command: >-
-    container volume ls -q --filter name=^{{ lookup('database', application_id, 'volume') }}$
-  register: stalwart_store_volume
-  changed_when: false
-  when:
-    - not (stalwart_store_marked | bool)
-    - not (STALWART_DATABASE_SHARED | bool)
+    - name: "🔍 Find the volume of the dedicated store database"
+      ansible.builtin.command: >-
+        container volume ls -q --filter name=^{{ lookup('database', application_id, 'volume') }}$
+      register: stalwart_store_volume
+      changed_when: false
+      when: not (STALWART_DATABASE_SHARED | bool)
 
 - name: "🔧 Record whether a store exists that this host never deployed Stalwart 1.x on"
   ansible.builtin.set_fact:
@@ -71,7 +70,7 @@
       - --filter
       - >-
         {{ ('label=com.docker.swarm.service.name=' ~ lookup('database', application_id, 'service_name'))
-           if DEPLOYMENT_MODE == 'swarm'
+           if IS_SWARM_MODE
            else ('name=^' ~ lookup('database', application_id, 'container') ~ '$') }}
   register: stalwart_store_engine
   changed_when: false
@@ -85,7 +84,7 @@
       - stalwart_store_engine.stdout | trim | length > 0
     fail_msg: >-
       The dedicated store database of Stalwart, service '{{ lookup('database', application_id, 'host') }}'
-      of stack '{{ application_id | get_entity_name }}', is not running on {{ inventory_hostname }},
+      of stack '{{ application_id | entity_name }}', is not running on {{ inventory_hostname }},
       so the deploy cannot read the layout of the store in volume '{{ lookup('database', application_id, 'volume') }}'.
       This host has no record of a Stalwart 1.x deploy ({{ STALWART_STORE_MARKER_FILE }}), so that store may predate 1.0,
       and the deploy stops before Stalwart {{ lookup('config', application_id, 'services.stalwart.version') }} opens it.
@@ -108,16 +107,21 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: stalwart_store_exists | bool
 
-- name: "✅ Ensure Stalwart opens no store from before 1.0"
-  ansible.builtin.assert:
-    that:
-      - stalwart_store_layout.rows[0][0] in ['bytea', 'absent']
-    fail_msg: >-
-      The store in database '{{ lookup('database', application_id, 'name') }}' predates Stalwart 1.0
-      (type of column u.v: {{ stalwart_store_layout.rows[0][0] }}, a 1.x store holds bytea).
-      Stalwart {{ lookup('config', application_id, 'services.stalwart.version') }} refuses to open it and has no in-place upgrade,
-      so the deploy stops before it starts Stalwart. Migrate the store into a new
-      database with stalwart-migrate and swap it in as '{{ lookup('database', application_id, 'name') }}',
-      following "Upgrading from 0.16" in roles/web-app-stalwart/README.md, then deploy again.
-    quiet: true
+- name: "🚚 Migrate a 0.16 store and ensure Stalwart opens none from before 1.0"
   when: stalwart_store_layout is not skipped
+  block:
+    - name: "🚚 Migrate the 0.16 store to 1.x with stalwart-migrate"
+      ansible.builtin.include_tasks: store_guard/migrate.yml
+      when: stalwart_store_layout.rows[0][0] not in ['bytea', 'absent']
+
+    - name: "✅ Ensure Stalwart opens no store from before 1.0"
+      ansible.builtin.assert:
+        that:
+          - stalwart_store_layout.rows[0][0] in ['bytea', 'absent']
+        fail_msg: >-
+          The store in database '{{ lookup('database', application_id, 'name') }}' still predates Stalwart 1.0
+          after the migration (type of column u.v: {{ stalwart_store_layout.rows[0][0] }}, a 1.x store holds bytea),
+          so the deploy stops before Stalwart {{ lookup('config', application_id, 'services.stalwart.version') }} opens it.
+          Inspect {{ STALWART_MIGRATE_DIR }} on this host, rerun {{ STALWART_MIGRATE_SCRIPT }} phase by phase
+          ("Upgrading from 0.16" in roles/web-app-stalwart/README.md), then deploy again.
+        quiet: true

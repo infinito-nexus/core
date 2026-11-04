@@ -1,7 +1,13 @@
 import importlib.util
 import unittest
 
-from utils.networks.mesh import dialled_peers, listens
+from utils.networks.mesh import (
+    awaited_keys,
+    dialled_peers,
+    handshaken,
+    listens,
+    underlay,
+)
 
 from . import PROJECT_ROOT
 
@@ -21,6 +27,12 @@ def _filters() -> dict:
 class TestMeshPeersFilters(unittest.TestCase):
     def test_the_filters_are_the_mesh_spot_functions(self):
         self.assertEqual(
-            {"mesh_dialled_peers": dialled_peers, "mesh_listens": listens},
+            {
+                "mesh_awaited_keys": awaited_keys,
+                "mesh_dialled_peers": dialled_peers,
+                "mesh_handshaken": handshaken,
+                "mesh_listens": listens,
+                "mesh_underlay": underlay,
+            },
             _filters(),
         )

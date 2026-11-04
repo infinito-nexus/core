@@ -12,6 +12,7 @@ source "${_build_script_dir}/../meta/env/load.sh"
 
 NO_CACHE=0
 MISSING_ONLY=0
+LABEL_ARGS=()
 
 TARGET=""
 IMAGE_TAG="${IMAGE_TAG:-}" # local image name or base tag (without registry); can be pre-set via env
@@ -40,6 +41,7 @@ Build options:
   --no-cache            Build with --no-cache
   --target <name>       Override Dockerfile target (advanced; default: full).
   --tag <image>         Override the output image tag (default: ${default_tag})
+  --label <key=value>   Add an image label (repeatable)
 
 Publish options:
   --push                Push the built image (uses docker buildx build --push)
@@ -81,6 +83,14 @@ while [[ $# -gt 0 ]]; do
 			echo "ERROR: --tag requires a value"
 			exit 2
 		}
+		shift 2
+		;;
+	--label)
+		[[ "${2:-}" == ?*=* ]] || {
+			echo "ERROR: --label requires a key=value"
+			exit 2
+		}
+		LABEL_ARGS+=(--label "$2")
 		shift 2
 		;;
 	--push)
@@ -245,6 +255,8 @@ fi
 if [[ -n "${TARGET}" ]]; then
 	build_args+=(--target "${TARGET}")
 fi
+
+build_args+=("${LABEL_ARGS[@]}")
 
 compute_publish_tags() {
 	local distro_tag_base="${REGISTRY}/${OWNER}/${REPO_PREFIX}/${INFINITO_DISTRO}"

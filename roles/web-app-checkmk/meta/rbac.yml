@@ -1,4 +1,8 @@
 ---
 roles:
+  user:
+    description: Signs in to Checkmk with the Normal monitoring user role and may use Setup for the hosts it is a contact for
+  guest:
+    description: Signs in to Checkmk with the read-only Guest user role
   mcp:
     description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own

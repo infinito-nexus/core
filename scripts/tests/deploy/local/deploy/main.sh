@@ -25,8 +25,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
 cd "${REPO_ROOT}"
 
+mkdir -p build
+echo $$ >build/deploy.pid
+
 MODE="${mode:-initialize}" # nocheck: deploy router knob; routes to apps/<verb>/ subscripts
 PURGE="${purge:-false}"    # nocheck: deploy router knob; gates entity pre-purge
+
+printf '=== compose-deploy: mode=%s apps=%s bundles=%s variant=%s full_cycle=%s purge=%s disable=%s playwright_keep=%s\n' \
+	"${MODE}" "${apps:-}" "${bundles:-}" "${variant:-}" "${full_cycle:-false}" \
+	"${PURGE}" "${disable:-}" "${INFINITO_PLAYWRIGHT_KEEP:-}"
 
 case "${MODE}" in
 initialize | reinstall | update) ;;

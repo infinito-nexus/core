@@ -1,13 +1,16 @@
 (function () {
   const config = window.__INFINITO_LOGOUT__ || {};
   const origin = config.origin || "";
+  const everywhere = config.everywhere || "";
   const CATALOGUE = config.i18n || {};
   const LOGOUT_PATH = "/protocol/openid-connect/logout";
+  const CONFIRM_ID = "kc-logout";
+  const EVERYWHERE_ID = "kc-logout-everywhere";
   const START_GRACE = 20000;
   const SWEEP_LIMIT = 60000;
-  const BUSY = "#8a6d00";
-  const OK = "#1d6f2b";
-  const WARN = "#9b2226";
+  const BUSY = "var(--design-warning)";
+  const OK = "var(--design-success)";
+  const WARN = "var(--design-danger)";
 
   let box, status, hint, counter, list;
   const rows = {};
@@ -52,7 +55,7 @@
     box.setAttribute("role", "status");
     box.setAttribute("aria-live", "polite");
     box.setAttribute("dir", s.dir);
-    box.style.cssText = "max-width:34rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid rgba(0,0,0,.15);border-left-width:5px;border-radius:.5rem;background:rgba(255,255,255,.94);color:#222;font:14px/1.6 system-ui,sans-serif;text-align:start";
+    box.style.cssText = "max-width:34rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid var(--design-border);border-left-width:5px;border-radius:.5rem;background:var(--design-surface-2);color:var(--design-text);font:14px/1.6 system-ui,sans-serif;text-align:start";
     status = box.appendChild(document.createElement("p"));
     status.style.cssText = "margin:0;font-weight:700;font-size:15px";
     hint = box.appendChild(document.createElement("p"));
@@ -89,7 +92,7 @@
     build();
     if (!rows[host]) {
       const item = list.appendChild(document.createElement("li"));
-      item.style.cssText = "display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.25rem 0;border-top:1px solid rgba(0,0,0,.08)";
+      item.style.cssText = "display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.25rem 0;border-top:1px solid var(--design-border)";
       const name = item.appendChild(document.createElement("span"));
       name.textContent = label(host);
       name.title = host;
@@ -169,6 +172,14 @@
     tally();
   }
 
+  function webUrl(value) {
+    try {
+      const url = new URL(value);
+      if (url.protocol === "http:" || url.protocol === "https:") { return url.href; }
+    } catch {}
+    return "";
+  }
+
   function handle(report) {
     if (report.type === "start") {
       clearTimeout(startTimer);
@@ -191,7 +202,29 @@
       } else {
         say(s.all_done, s.may_close, OK);
       }
+    } else if (report.type === "handoff") {
+      const target = webUrl(report.url);
+      if (!target) { return; }
+      finished = true;
+      unhold();
+      window.location.replace(target);
     }
+  }
+
+  function offerChoices(confirm) {
+    if (!everywhere || document.getElementById(EVERYWHERE_ID)) { return; }
+    if (confirm.tagName === "INPUT") {
+      confirm.value = s.choice_device;
+    } else {
+      confirm.textContent = s.choice_device;
+    }
+    const link = document.createElement("a");
+    link.id = EVERYWHERE_ID;
+    link.href = everywhere;
+    link.textContent = s.choice_everywhere;
+    link.className = String(confirm.className || "").replace(/\bpf-m-primary\b/, "pf-m-secondary");
+    link.style.cssText = "margin-top:.75rem";
+    (confirm.form || confirm).insertAdjacentElement("afterend", link);
   }
 
   window.addEventListener("message", function (event) {
@@ -203,6 +236,11 @@
 
   if (window.location.pathname.indexOf(LOGOUT_PATH) !== -1) {
     ready(function () {
+      const confirm = document.getElementById(CONFIRM_ID);
+      if (confirm) {
+        offerChoices(confirm);
+        return;
+      }
       say(s.checking, s.keep_closed + pace(), BUSY);
       window.addEventListener("beforeunload", hold);
       startTimer = setTimeout(noStart, START_GRACE);

@@ -56,6 +56,7 @@ EXPECTED_BASELINE_KEYS = frozenset(
         "INFINITO_TEST_RUNNER",
         "INFINITO_LINT_RUNNER",
         "INFINITO_DISTROS",
+        "INFINITO_LIFECYCLES",
         "INFINITO_DEBUG",
         "INFINITO_WHITELIST",
         "INFINITO_LIMIT_HOST",
@@ -255,6 +256,12 @@ class TestDotenvSmoke(unittest.TestCase):
                 values.get("INFINITO_CONTAINER"),
                 f"infinito_nexus_{values.get('INFINITO_DISTRO')}",
                 "INFINITO_CONTAINER must be infinito_nexus_${INFINITO_DISTRO}",
+            )
+            self.assertEqual(
+                values.get("INFINITO_LIFECYCLES"),
+                "alpha beta rc stable deprecated",
+                "INFINITO_LIFECYCLES of a local run is every status the fallback "
+                "ci-deploy context of meta/lifecycle.yml deploys, in lifecycle order",
             )
 
 

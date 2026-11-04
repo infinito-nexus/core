@@ -5,6 +5,9 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 const { assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
+require("./test-design");
+require("./test-login-methods");
+
 function attachDiagnostics(page) {
   const consoleErrors = [];
   const pageErrors = [];
@@ -170,6 +173,35 @@ test("biber: bigbluebutton OIDC login and logout", async ({ page }) => {
   await bbbLogout(page, bbbBaseUrl);
   await assertLoggedOut(page, bbbBaseUrl, "biber");
   await expectNoCspViolations(page, diagnostics, "bigbluebutton biber OIDC");
+});
+
+async function greenlightAdminApiStatus(page) {
+  const response = await page.request.get(`${bbbBaseUrl}/api/v1/admin/users/verified.json`, {
+    headers: { Accept: "application/json" },
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+  });
+  return response.status();
+}
+
+test("rbac: the Greenlight Administrator role follows the administrator members", async ({ page }) => {
+  test.skip(isOnionTarget(), "BigBlueButton is WebRTC (UDP/ICE); not served over Tor");
+  test.skip(isSplitRealmOidc(), "clearnet app with an onion OIDC issuer: unreachable from one browser");
+  skipUnlessServiceEnabled("sso");
+  test.setTimeout(resolveTimeout(300_000));
+  await signInViaBbbOidc(page, adminUsername, adminPassword, "administrator");
+  expect(
+    await greenlightAdminApiStatus(page),
+    "the administrator MUST hold the Greenlight Administrator role and list users",
+  ).toBe(200);
+  await bbbLogout(page, bbbBaseUrl);
+
+  await signInViaBbbOidc(page, biberUsername, biberPassword, "biber");
+  expect(
+    [401, 403],
+    "biber holds no administrator role and MUST NOT reach the Greenlight admin API",
+  ).toContain(await greenlightAdminApiStatus(page));
+  await bbbLogout(page, bbbBaseUrl);
 });
 
 

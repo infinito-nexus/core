@@ -8,129 +8,46 @@ Step into a secure future with [Keycloak](https://www.keycloak.org/)! This open�
 
 This role deploys Keycloak in a Docker environment, integrating it with a PostgreSQL database and enabling operation behind a reverse proxy such as NGINX. It manages container orchestration and configuration via Docker Compose and environment variable templates, ensuring a secure and scalable identity management solution.
 
-## Cosmos
-
-The diagram places Keycloak in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-keycloak 🐳🐝]
-        svc_logout["logout ❌"]
-        svc_ldap["ldap"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_javascript["javascript"]
-        svc_keycloak["keycloak"]
-        svc_sso_proxy["sso_proxy"]
-        svc_postgres["postgres"]
-        svc_css["css"]
-        svc_recaptcha["recaptcha"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-    end
-    subgraph dependents [Dependents]
-        dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
-        dpt_web_app_baserow["web-app-baserow 🐳🐝"]
-        dpt_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
-        dpt_web_app_bluesky["web-app-bluesky 🐳🐝"]
-        dpt_web_app_bookwyrm["web-app-bookwyrm 🐳🐝"]
-        dpt_web_app_bridgy_fed["web-app-bridgy-fed 🐳🐝"]
-        dpt_web_app_checkmk["web-app-checkmk 🐳🐝"]
-        dpt_web_app_chess["web-app-chess 🐳🐝"]
-        dpt_web_app_confluence["web-app-confluence 🐳🐝"]
-        dpt_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dpt_web_app_decidim["web-app-decidim 🐳🐝"]
-        dpt_web_app_discourse["web-app-discourse 🐳🐝"]
-        dpt_more["..."]
-    end
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_db_postgres -. "0..1" .-> svc_postgres
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_javascript
-    svc_keycloak -- "1:1" --> dpt_more
-    svc_keycloak -. "0..1" .-> dpt_web_app_akaunting
-    svc_keycloak -. "0..1" .-> dpt_web_app_baserow
-    svc_keycloak -. "0..1" .-> dpt_web_app_bigbluebutton
-    svc_keycloak -. "0..1" .-> dpt_web_app_bluesky
-    svc_keycloak -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_keycloak -- "0..0" --> dpt_web_app_bridgy_fed
-    svc_keycloak -. "0..1" .-> dpt_web_app_checkmk
-    svc_keycloak -- "0..0" --> dpt_web_app_chess
-    svc_keycloak -- "0..0" --> dpt_web_app_confluence
-    svc_keycloak -. "0..1" .-> dpt_web_app_dashboard
-    svc_keycloak -. "0..1" .-> dpt_web_app_decidim
-    svc_keycloak -. "0..1" .-> dpt_web_app_discourse
-    linkStyle 15,17,18 stroke:red;
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Comprehensive Identity Management:** Manage users, roles, and permissions across your applications with robust SSO and user federation.
 - **Advanced Security Options:** Benefit from multi-factor authentication, configurable password policies, and secure session management.
 - **Standards Support:** Seamlessly integrate with SAML, OpenID Connect, and OAuth2 to support various authentication flows.
 - **Scalable and Customizable:** Easily tailor settings and scale your Keycloak instance to meet growing demands.
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Keycloak onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-keycloak full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Keycloak to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-keycloak
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+- **Directory Profile:** Contact, address, locale and organization attributes from OpenLDAP appear in the account and admin consoles under "Contact and locale" (user-editable) and "Organization" (administrator-only), and reach applications through the standard `profile`, `phone` and `address` claims.
+- **Admin Console Roles:** The groups `user-manager`, `auditor` and `impersonator` under `/roles/web-app-keycloak` grant user management, read-only auditing and impersonation in the application realm. Each role lists its `realm-management` client roles under `realm_management` in [rbac.yml](meta/rbac.yml). `realm-admin` stays with the local bootstrap account. A user manager can change group memberships, which includes every application role group, so grant `user-manager` only to people trusted with every application role.
+- **Delegated Grants:** The application realm enables fine-grained admin permissions (v2) and records admin events. With [web-svc-access-request](../web-svc-access-request/README.md) deployed, [15_admin_permissions.yml](tasks/update/15_admin_permissions.yml) lets the platform administrators grant every role group and each application's administrators grant the non-administrator roles of their application.
 
 ## Developer Notes
 
 For the OIDC variable tree, claim rules, and the policy that app-specific protocol mappers belong in per-client scope files (not in the shared `clients/default.json.j2`), see [oidc.md](../../docs/contributing/design/iam/oidc.md).
+
+## Email Policy
+
+`services.keycloak.email.policy` in [services.yml](meta/services.yml) decides which address a user's primary one is.
+
+| Policy | Primary address (`email` claim, SAML, LDAP `mail`) | Keycloak `email` field |
+|---|---|---|
+| `external` (default) | the address the user brings | the primary address |
+| `mailbox` | `<username>@<DOMAIN_PRIMARY>`, read-only attribute `mailbox` | the secondary address, LDAP `infinitoSecondaryMail` |
+
+- `mailbox` needs `svc-db-openldap`, which stores both addresses; a deploy with `mailbox` and `services.ldap.enabled: false` fails.
+- A new inventory, one without `devices.yml` and without host_vars, that deploys Keycloak, the mail provider and `svc-db-openldap` records `mailbox`. `make compose-inventory-refresh` carries the policy and `switch` of the inventory it replaces over. An existing inventory keeps `external` until the operator sets `policy: mailbox` together with `switch: true`; the switch keeps every existing address as secondary address. A mailbox realm cannot return to `external`.
+- The realm records the policy it holds in its attribute `infinitoEmailPolicy`. A deploy whose policy differs from it without `switch: true` fails.
+- The inventory address only seeds a user: a deploy writes it into LDAP `mail` or the realm user once and never overwrites an address the user changed and confirmed. Change an existing user's address in the Keycloak console.
+- Under `mailbox`, a user created at runtime (admin console, admin API, registration) gets its LDAP `mail` from the [RBAC sync timer](../sys-ctl-mtn-rbac-sync/README.md), which runs every 15 minutes (`SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC`). Until its next run the user has no `mailbox` attribute and no `email` claim. The timer sets `mail` only on entries that hold none.
+- With SMTP, a user changes the changeable address through `UPDATE_EMAIL` with forced verification: the new address takes effect after the user follows the link sent to it. Without SMTP only an administrator can change it.
+- System alerts, Alertmanager and the certbot account mail go to the platform administrator's secondary address when it has one, and to its primary address otherwise.
+
+### Leaving the mailbox policy
+
+No deploy moves a realm from `mailbox` back to `external`. An operator who has to do it works through these steps by hand, with `kcadm.sh` inside the Keycloak container after `kcadm.sh config credentials` against the master realm:
+
+1. In the directory, replace `mail` of every user entry with its `infinitoSecondaryMail`, through LAM, phpLDAPadmin or `ldapmodify`. An entry without a secondary address keeps its mailbox address until an administrator gives it another one.
+2. Record the policy in the realm: `kcadm.sh update realms/<realm> -s attributes.infinitoEmailPolicy=external`.
+3. Delete the read-only `mailbox` LDAP mapper, which no deploy removes: find the id of the component named `mailbox` in `kcadm.sh get components -r <realm> --fields id,name,parentId`, then run `kcadm.sh delete components/<id> -r <realm>`.
+4. Set `services.keycloak.email.policy` to `external` in the inventory, drop `switch`, and deploy. The deploy points the `email` mapper back at `mail`, renders the user profile and the claims without the mailbox attribute, and removes the RBAC sync timer's mailbox seed.
+5. Read every user again through the new mappers: `kcadm.sh create user-storage/<ldap-component-id>/sync?action=triggerFullSync -r <realm>`.
 
 ## Admin Console Access
 
@@ -163,15 +80,20 @@ The deploy's `kcadm.sh` logins need no entry: every one, including the ones `web
 - [Setting up Keycloak behind a Reverse Proxy](https://www.keycloak.org/server/reverseproxy)
 - [Wikipedia](https://en.wikipedia.org/wiki/Keycloak)
 - [Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/RMmxgQ2NKW3dmY3U36UmGd)
 
 ## Persona contract opt-outs
 
-This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. Keycloak provides SSO rather than consuming it: `meta/services.yml` carries no `sso` block (the `keycloak` service declares `provides: sso`) and pins `logout.enabled: false`, so the canonical URL has neither an oauth2-proxy gate nor an in-app OIDC login link for the shared persona helpers to click or log out of. The administrator persona is additionally out of reach because Keycloak's only admin surface is the master-realm console, which accepts the permanent super-admin account (`KEYCLOAK_PERMANENT_ADMIN_USERNAME` / `KEYCLOAK_PERMANENT_ADMIN_PASSWORD` in `vars/main.yml`, backed by the role-local `credentials.administrator_password`) and not the normal-realm `ADMIN_PASSWORD` the helper types.
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. Keycloak provides SSO rather than consuming it: `meta/services.yml` carries no `sso` block (the `keycloak` service declares `provides: sso`) and pins `logout.enabled: false`, so the canonical URL has neither an oauth2-proxy gate nor an in-app OIDC login link for the shared persona helpers to click or log out of. The administrator persona is additionally out of reach because Keycloak's only admin surface is the master-realm console, which accepts the permanent super-admin account (`KEYCLOAK_PERMANENT_ADMIN_USERNAME` / `KEYCLOAK_PERMANENT_ADMIN_PASSWORD` in `vars/main.yml`) under its own login name and not the normal-realm one the helper types.
 
 Both journeys are covered bespoke in `files/playwright/playwright.spec.js`: the master-realm super administrator drives the admin console, and the normal-realm administrator and biber each drive the realm account console including sign-out. The path back to the generic personas is an app-shaped surface behind the shared auth chain, which the identity provider by definition does not have.
 
-## Credits
+## Absorbing a password rotation
 
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+Keycloak stores the permanent admin's password in its database, so a rotated inventory value authenticates against nothing and the role would be locked out of its own instance. The temporary account from `KC_BOOTSTRAP_ADMIN_*` is no way back either: Keycloak writes it once, on an empty database, and upstream states it is meant to be deleted once a permanent admin exists.
+
+So the role keeps the credential its predecessor used. Before `sys-stk-full` re-renders the environment file, `tasks/utils/capture_previous_admin.yml` reads `KEYCLOAK_PERMANENT_ADMIN_PASSWORD` out of the file still on disk. When the login after the restart is refused, `tasks/utils/converge/previous_admin.yml` signs in with that captured value and sets the permanent admin's password to the newly rendered one, which the restarted container already carries in its environment. The bootstrap fallback then stays what its name says: the path for an instance that has never been deployed.
+
+A host with no previous environment file captures nothing and goes straight to the bootstrap path, which is the first deploy.
+
+The temporary account is the user `keycloak_bootstrap` in [users.yml](meta/users.yml), username `keycloakbootstrap`, with no accounts. It exists only in the master realm, where Keycloak creates it from `KC_BOOTSTRAP_ADMIN_USERNAME` and `KC_BOOTSTRAP_ADMIN_PASSWORD`. The deploy creates no directory entry, realm user or mailbox for it, and the realm's user profile reserves its username.

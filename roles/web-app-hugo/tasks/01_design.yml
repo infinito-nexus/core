@@ -1,0 +1,78 @@
+---
+- name: "📁 Ensure the build overlay directory of {{ application_id }} exists"
+  ansible.builtin.file:
+    path: "{{ HUGO_DESIGN_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🖼️ Overlay the corporate logo set on the Hugo build of {{ application_id }}"
+  when: HUGO_DESIGN_LOGO | bool
+  block:
+    - name: "📁 Ensure the logo directories of the build overlay exist"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ HUGO_DESIGN_ASSETS_DIR }}"
+        - "{{ [HUGO_DESIGN_DIR, 'static', 'images'] | path_join }}"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ HUGO_DESIGN_ASSETS_DIR }}"
+
+    - name: "🖼️ Place the logo set where the Hugo build reads it"
+      ansible.builtin.copy:
+        src: "{{ [HUGO_DESIGN_ASSETS_DIR, item.src] | path_join }}"
+        dest: "{{ [HUGO_DESIGN_DIR, item.dest] | path_join }}"
+        remote_src: true
+        mode: "0644"
+      loop: "{{ HUGO_DESIGN_OVERLAY }}"
+      loop_control:
+        label: "{{ item.dest }}"
+      notify:
+        - compose-build
+        - compose-up
+
+- name: "📜 Place the build overlay script of {{ application_id }}"
+  ansible.builtin.copy:
+    src: shell/design_overlay.sh
+    dest: "{{ [HUGO_DESIGN_DIR, 'apply.sh'] | path_join }}"
+    mode: "0644"
+  when: HUGO_DESIGN_LOGO | bool or HUGO_DESIGN_TITLE | bool
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🏷️ Hand the corporate title to the Hugo build of {{ application_id }}"
+  ansible.builtin.copy:
+    content: "export HUGO_TITLE={{ HUGO_DESIGN.title | quote }}\n"
+    dest: "{{ [HUGO_DESIGN_DIR, 'env'] | path_join }}"
+    mode: "0644"
+  when: HUGO_DESIGN_TITLE | bool
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🧹 Remove the overlay parts of {{ application_id }} the design no longer asks for"
+  ansible.builtin.file:
+    path: "{{ [HUGO_DESIGN_DIR, item.path] | path_join }}"
+    state: absent
+  loop:
+    - path: static
+      keep: "{{ HUGO_DESIGN_LOGO }}"
+    - path: generated
+      keep: "{{ HUGO_DESIGN_LOGO }}"
+    - path: env
+      keep: "{{ HUGO_DESIGN_TITLE }}"
+    - path: apply.sh
+      keep: "{{ HUGO_DESIGN_LOGO | bool or HUGO_DESIGN_TITLE | bool }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: not (item.keep | bool)
+  notify:
+    - compose-build
+    - compose-up

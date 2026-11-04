@@ -38,12 +38,45 @@ static:
     - service: api
       target: *var_lib_funkwhale_static_target
     - service: front
-      target: *var_lib_funkwhale_static_target
+      target: /usr/share/nginx/html/staticfiles
       read_only: true
+
+front_nginx_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'nginx.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: front
+      target: /etc/nginx/templates/default.conf.template
+      when: "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
+
+settings_module:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'settings.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &app_config_settings_infinito_target /app/config/settings/infinito.py
+    - service: celeryworker
+      target: *app_config_settings_infinito_target
+    - service: celerybeat
+      target: *app_config_settings_infinito_target
+    - service: migrate
+      target: *app_config_settings_infinito_target
+
+design_admin_template:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'design', 'admin_base_site.html'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: /app/funkwhale_api/templates/admin/base_site.html
+      when: "{{ lookup('config', 'web-app-funkwhale', 'services.design.enabled') | bool }}"
 
 typesense_data:
   type: volume
   name: funkwhale_typesense_data
+  backup: false
   mounts:
     - service: typesense
       target: /data

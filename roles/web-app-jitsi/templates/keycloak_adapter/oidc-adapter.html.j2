@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Signing in</title>
+    <script>
+      async function tokenize(params) {
+        const query = new URLSearchParams({
+          code: params.get("code") || "",
+          path: params.get("path") || "",
+          search: params.get("search") || "",
+          hash: params.get("hash") || "",
+        });
+        try {
+          const response = await fetch("/oidc/tokenize?" + query.toString(), {
+            headers: { Accept: "application/json" },
+          });
+          if (!response.ok) return "";
+          const token = await response.json();
+          return typeof token === "string" ? token : "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      async function adapt() {
+        const params = new URLSearchParams(window.location.search);
+        const path = params.get("path") || "";
+        if (!path.startsWith("/") || path.startsWith("//")) {
+          document.body.textContent = "Invalid sign-in target.";
+          return;
+        }
+        const search = params.get("search") || "";
+        const hash = params.get("hash") || "";
+        let state = "oidc=unauthorized";
+        if (!params.get("error")) {
+          const token = await tokenize(params);
+          state = token ? "oidc=authorized&jwt=" + encodeURIComponent(token) : "oidc=failed";
+        }
+        const query = search ? search + "&" + state : state;
+        window.location.replace(path + "?" + query + (hash ? "#" + hash : ""));
+      }
+
+      window.addEventListener("load", adapt);
+    </script>
+  </head>
+  <body>Signing in...</body>
+</html>

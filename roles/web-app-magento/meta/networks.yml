@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.29.0/24
+reachability:
+  handover: true # nocheck: network-reachability  Magento stores one base URL at setup and redirects every other host to it, so an onion request lands on the clearnet host

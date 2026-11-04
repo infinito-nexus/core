@@ -5,3 +5,11 @@ openwebui_data:
   mounts:
     - service: openwebui
       target: /app/backend/data
+design_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-openwebui', 'directories.volumes'), 'custom.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openwebui
+      target: /app/build/static/custom.css
+      when: "{{ lookup('config', 'web-app-openwebui', 'services.design.enabled') | bool }}"

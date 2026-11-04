@@ -5,3 +5,6 @@ parameters:
     {{ LDAP.USER.ATTRIBUTES.MAIL }}: email1
     {{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}: first_name
     {{ LDAP.USER.ATTRIBUTES.SURNAME }}: last_name
+{% for suitecrm_ldap_attribute, suitecrm_profile_field in SUITECRM_PROFILE_FIELDS.items() %}
+    {{ suitecrm_ldap_attribute }}: {{ suitecrm_profile_field.column }}
+{% endfor %}

@@ -1,4 +1,4 @@
-"""Unit tests for utils.inventory.groups.inventory_has_group."""
+"""Unit tests for utils.inventory.groups."""
 
 from __future__ import annotations
 
@@ -7,7 +7,92 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from utils.inventory.groups import inventory_has_group
+from utils.inventory.groups import inventory_groups, inventory_has_group
+
+
+class TestInventoryGroups(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmp = TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+
+    def _write(self, name: str, body: str) -> str:
+        path = self.root / name
+        path.write_text(textwrap.dedent(body).lstrip("\n"), encoding="utf-8")
+        return str(path)
+
+    def test_yaml_lists_top_level_and_nested_children(self) -> None:
+        path = self._write(
+            "inv.yml",
+            """
+            all:
+              children:
+                web-app-cst-store:
+                  children:
+                    nested-group:
+                      hosts: {}
+                  hosts:
+                    localhost: {}
+            """,
+        )
+        self.assertEqual(
+            {"all", "web-app-cst-store", "nested-group"}, inventory_groups(path)
+        )
+
+    def test_yaml_hosts_and_vars_are_no_groups(self) -> None:
+        path = self._write(
+            "inv.yml",
+            """
+            all:
+              hosts:
+                web-app-cst-host: {}
+              vars:
+                applications:
+                  web-app-cst-store: {custom: true}
+            """,
+        )
+        self.assertEqual({"all"}, inventory_groups(path))
+
+    def test_ini_lists_sections_and_children(self) -> None:
+        path = self._write(
+            "hosts",
+            """
+            # [comment-group]
+            [web-app-cst-store]
+            localhost
+
+            [parent:children]
+            child-group
+
+            [parent:vars]
+            key=value
+            """,
+        )
+        self.assertEqual(
+            {"web-app-cst-store", "parent", "child-group"}, inventory_groups(path)
+        )
+
+    def test_yaml_with_ansible_tags_lists_its_groups(self) -> None:
+        path = self._write(
+            "inv.yml",
+            """
+            all:
+              hosts:
+                localhost:
+                  motd: !unsafe '{{ literal }}'
+                  secret: !vault |
+                    $ANSIBLE_VAULT;1.1;AES256
+                    6162
+              children:
+                web-app-cst-store:
+                  hosts: {}
+            """,
+        )
+        self.assertEqual({"all", "web-app-cst-store"}, inventory_groups(path))
+
+    def test_missing_yaml_inventory_raises(self) -> None:
+        with self.assertRaises(FileNotFoundError):
+            inventory_groups(str(self.root / "absent.yml"))
 
 
 class TestInventoryHasGroupYaml(unittest.TestCase):

@@ -14,6 +14,10 @@
     name: sys-front-tls-selfsigned
   when: tls_mode_effective == 'self_signed'
 
-- name: "📂 Load http redirect routines"
-  include_tasks: 01_http.yml
-  when: lookup('tls', application_id, 'enabled') | bool
+- name: 📂 Include dependency 'sys-ctl-mtn-cert-renew'
+  include_role:
+    name: sys-ctl-mtn-cert-renew
+  when:
+    - run_once_sys_ctl_mtn_cert_renew is not defined
+    - lookup('tls', domain, 'enabled') | bool
+    - tls_mode_effective == 'letsencrypt'

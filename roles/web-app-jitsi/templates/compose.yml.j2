@@ -45,5 +45,25 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
+  {% if JITSI_KEYCLOAK_ADAPTER_ENABLED | bool %}
+  {% set service_name = JITSI_KEYCLOAK_ADAPTER_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, JITSI_KEYCLOAK_ADAPTER_SERVICE) }}
+    build:
+      context: {{ JITSI_KEYCLOAK_ADAPTER_BUILD_DIR }}
+      dockerfile: Dockerfile
+      args:
+        KEYCLOAK_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.' ~ JITSI_KEYCLOAK_ADAPTER_SERVICE ~ '.image') }}
+        KEYCLOAK_ADAPTER_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ JITSI_KEYCLOAK_ADAPTER_SERVICE ~ '.version') }}"
+        KEYCLOAK_ADAPTER_SOURCE_URL: "{{ JITSI_KEYCLOAK_ADAPTER_SOURCE_URL }}"
+    {{ lookup('compose_only', 'container_name', JITSI_KEYCLOAK_ADAPTER_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    expose:
+      - "{{ JITSI_KEYCLOAK_ADAPTER_PORT }}"
+    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% endif %}
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

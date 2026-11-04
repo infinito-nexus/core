@@ -1,55 +1,27 @@
 ---
 - name: "📇 Configure the OIDC auth method against Keycloak"
+  ansible.builtin.include_tasks:
+    file: utils/oidc.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
   when: OPENBAO_SSO_ENABLED | bool
-  block:
-    - name: "🧩 Enable the OIDC auth method"
-      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        container exec {{ OPENBAO_LOCAL_CID | quote }}
-        sh -c 'bao auth list -format=json | grep -q "oidc/" ||
-        { bao auth enable oidc && echo OPENBAO_CHANGED; }'
-      register: openbao_oidc_enable
-      changed_when: "'OPENBAO_CHANGED' in openbao_oidc_enable.stdout"
-      delegate_to: "{{ OPENBAO_HOST_NODE }}"
-
-    - name: "📇 Point the OIDC method at the Keycloak realm"
-      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
-        bao write auth/oidc/config
-        oidc_discovery_url={{ OPENBAO_OIDC_ISSUER | quote }}
-        oidc_client_id={{ OPENBAO_OIDC_CLIENT_ID | quote }}
-        oidc_client_secret=-
-        default_role={{ OPENBAO_OIDC_DEFAULT_ROLE | quote }}
-      args:
-        stdin: "{{ OPENBAO_OIDC_CLIENT_SECRET }}"
-        stdin_add_newline: false
-      changed_when: false
-      delegate_to: "{{ OPENBAO_HOST_NODE }}"
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-    - name: "📇 Configure the default OIDC role, which grants only the 'default' policy"
-      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        container exec {{ OPENBAO_LOCAL_CID | quote }}
-        sh -c 'set -e;
-        p=auth/oidc/role/{{ OPENBAO_OIDC_DEFAULT_ROLE }};
-        before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
-        bao write $p role_type=oidc
-        user_claim={{ OPENBAO_OIDC_USER_CLAIM | quote }}
-        groups_claim={{ OPENBAO_OIDC_GROUPS_CLAIM | quote }}
-        oidc_scopes=openid,profile,email
-        token_policies=default
-        allowed_redirect_uris={{ OPENBAO_OIDC_REDIRECT_URIS | quote }} >/dev/null;
-        after=$(bao read -format=json $p | grep -v request_id);
-        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
-      register: openbao_oidc_role
-      changed_when: "'OPENBAO_CHANGED' in openbao_oidc_role.stdout"
-      delegate_to: "{{ OPENBAO_HOST_NODE }}"
 
 - name: "📇 Configure the LDAP auth method against svc-db-openldap"
   ansible.builtin.include_tasks:
     file: addons/auth-ldap.yml
     apply:
       delegate_to: "{{ OPENBAO_HOST_NODE }}"
-  when: OPENBAO_LDAP_ENABLED | bool
+  when: OPENBAO_LOGIN_LDAP | bool
+
+- name: "🧹 Disable the LDAP method once the ldap login method is off"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao auth list -format=json | grep -q "\"ldap/\"" || exit 0;
+    bao auth disable ldap/ && echo OPENBAO_CHANGED'
+  register: openbao_ldap_disable
+  changed_when: "'OPENBAO_CHANGED' in openbao_ldap_disable.stdout"
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  when: not (OPENBAO_LOGIN_LDAP | bool)
 
 - name: "🔍 Read the auth mount accessors"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -110,4 +82,4 @@
   vars:
     alias_mount: "ldap/"
     alias_name: "{{ application_id }}-{{ openbao_group.item }}"
-  when: OPENBAO_LDAP_ENABLED | bool
+  when: OPENBAO_LOGIN_LDAP | bool

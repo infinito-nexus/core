@@ -1,48 +1,93 @@
 ---
 application_id: "web-app-keycloak"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
 KEYCLOAK_CONTAINER_HOSTNAME: "{{ entity_name }}"
-KEYCLOAK_DOMAIN: "{{ domain }}"
 KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
-KEYCLOAK_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+KEYCLOAK_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 KEYCLOAK_REALM_URL: "{{ KEYCLOAK_URL }}/realms/{{ KEYCLOAK_REALM }}"
-KEYCLOAK_DEBUG_ENABLED: "{{ MODE_DEBUG }}"
+KEYCLOAK_DEBUG_ENABLED: "{{ lookup('debug') | bool }}"
+KEYCLOAK_VALIDATE_ENABLED: "{{ lookup('validate') | bool }}"
 KEYCLOAK_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 KEYCLOAK_SERVER_INTERNAL_URL: "http://127.0.0.1:8080"
 
 KEYCLOAK_RBAC_GROUP_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
 KEYCLOAK_RBAC_GROUP_NAME: "{{ RBAC.GROUP.NAME }}"
 KEYCLOAK_RBAC_ALL_APP_IDS: "{{ lookup('deployment').groups | rbac_app_ids }}"
-KEYCLOAK_RBAC_RUN_APP_IDS: "{{ lookup('deployment').running | rbac_app_ids }}"
+# deployment.running omits this role when APPLICATIONS_WHITELIST names only other apps, yet 09_console_rbac resolves its role groups on every run.
+KEYCLOAK_RBAC_RUN_APP_IDS: "{{ (lookup('deployment').running + [application_id]) | rbac_app_ids }}"
 
-KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER: >-
+KEYCLOAK_RBAC_WORKERS: "{{ [RESOURCE_HOST_CPUS | int // 2, 1] | max }}"
+KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/filter_plugins/build_ldap_role_entries.py')) | hash('sha256')
+  }}"
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE: "/tmp/kc_per_app_mapper_payloads.txt"
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_TEMPLATE: >-
   {{
-    ((KEYCLOAK_DICTIONARY_REALM.components['org.keycloak.storage.UserStorageProvider']
+    (KEYCLOAK_DICTIONARY_REALM.components['org.keycloak.storage.UserStorageProvider']
       | selectattr('name','equalto', KEYCLOAK_LDAP_CMP_NAME)
       | list | first
-     ).subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
-     | selectattr('name','equalto','ldap-roles')
-     | list | first
+    ).subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
+    | selectattr('name','equalto','ldap-roles')
+    | list | first
+  }}
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE: >-
+  {{
+    (KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_TEMPLATE
      | dict2items
-     | rejectattr('key','in',['subComponents','id'])
+     | rejectattr('key','in',['subComponents','id','config'])
      | list | items2dict)
     | combine({
-        'name':         kc_app_id | kc_per_app_mapper_name,
         'parentId':     ldap_cmp_id | trim,
         'providerId':   'group-ldap-mapper',
         'providerType': 'org.keycloak.storage.ldap.mappers.LDAPStorageMapper',
-        'config': {
-          'preserve.group.inheritance':            ['false'],
-          'group.name.ldap.attribute':             ['description'],
-          'groups.ldap.filter':                    [kc_app_id | kc_per_app_ldap_filter],
-          'groups.path':                           ['/' ~ (KEYCLOAK_RBAC_GROUP_NAME | trim('/')) ~ '/' ~ kc_app_id],
-          'groups.path.group':                     [kc_app_group_id],
-          'drop.non.existing.groups.during.sync':  ['true'],
-        }
-      }, recursive=True)
+        'config': (KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_TEMPLATE.config
+                   | dict2items
+                   | rejectattr('key','equalto','groups.path.group')
+                   | list | items2dict)
+                  | combine({
+                      'preserve.group.inheritance':            ['false'],
+                      'group.name.ldap.attribute':             ['description'],
+                      'drop.non.existing.groups.during.sync':  ['true'],
+                    }),
+      })
   }}
+# One `<group path below the root> <mapper_name> <base64 mapper JSON> <fingerprint>` line per rbac app of the current run that this host deploys, and per tenant.
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS: |-
+  {% for app_id in KEYCLOAK_RBAC_RUN_APP_IDS | select('in', KEYCLOAK_RBAC_ALL_APP_IDS) -%}
+  {%- set app = lookup('applications')[app_id] -%}
+  {%- set scopes = lookup('applications') | kc_app_ldap_scopes(app_id) -%}
+  {%- set mapper = KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE | combine({
+        'name': app_id | kc_per_app_mapper_name,
+        'config': {
+          'groups.ldap.filter': [scopes.filter],
+          'groups.path':        ['/' ~ (KEYCLOAK_RBAC_GROUP_NAME | trim('/')) ~ '/' ~ app_id],
+        }
+      }, recursive=True) -%}
+  {%- set fingerprint = {
+        'mapper': mapper,
+        'rbac': app.get('rbac'),
+        'domains': app.get('domains'),
+        'logic': KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST,
+      } | to_json(sort_keys=True) | hash('sha256') -%}
+  {{ app_id }} {{ mapper['name'] }} {{ mapper | to_nice_json | b64encode }} {{ fingerprint }}
+  {% for tenant in scopes.tenants -%}
+  {%- set tenant_mapper = KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE | combine({
+        'name': tenant.mapper,
+        'config': {
+          'groups.ldap.filter': [tenant.filter],
+          'groups.path':        ['/' ~ (KEYCLOAK_RBAC_GROUP_NAME | trim('/')) ~ '/' ~ app_id ~ '/' ~ tenant.tenant],
+        }
+      }, recursive=True) -%}
+  {%- set tenant_fingerprint = {
+        'mapper': tenant_mapper,
+        'rbac': app.get('rbac'),
+        'domains': app.get('domains'),
+        'logic': KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST,
+      } | to_json(sort_keys=True) | hash('sha256') -%}
+  {{ app_id }}/{{ tenant.tenant }} {{ tenant_mapper['name'] }} {{ tenant_mapper | to_nice_json | b64encode }} {{ tenant_fingerprint }}
+  {% endfor %}
+  {% endfor %}
 
 KEYCLOAK_HEALTH_ENABLED: true
 
@@ -55,26 +100,20 @@ KEYCLOAK_REALM_IMPORT_FILE_DST: "{{ [KEYCLOAK_REALM_IMPORT_DIR_HOST,KEYCLOAK_REA
 KEYCLOAK_REALM_IMPORT_FILE_DOCKER: "{{ [KEYCLOAK_REALM_IMPORT_DIR_DOCKER,KEYCLOAK_REALM_IMPORT_FILENAME] | path_join }}"
 KEYCLOAK_REALM_TOTP_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.totp_enabled') | bool }}"
 
-KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.bootstrap.username') }}"
-KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+KEYCLOAK_ENV_FILE: "{{ lookup('container', application_id, 'files.env') }}"
 
-KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.system.username') }}"
-KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'keycloak_bootstrap').username }}"
+KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'keycloak_bootstrap').password }}"
+
+KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ OIDC.ADMIN.USERNAME }}"
+KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ OIDC.ADMIN.PASSWORD }}"
 
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
 KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
-# Exception: KEYCLOAK_LOCAL_CID is set by utils/login.yml after resolving the swarm-hosting
-# node; fall back to the compose-mode container_address when the fact is not yet set
-# so vars resolve cleanly before the manager-side ops kick in.
 KEYCLOAK_TARGET_CONTAINER: "{{ KEYCLOAK_LOCAL_CID | default(KEYCLOAK_CONTAINER_ADDRESS) }}" # nocheck: container-var-name-lookup references the consumer's container, not this role's service
 KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_TARGET_CONTAINER }}" # nocheck: container-exec-resolver # nocheck: container-var-name-lookup references the consumer's container, not this role's service
 KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"
 KEYCLOAK_EXEC_KCADM: "{{ KEYCLOAK_EXEC_CONTAINER }} {{ KEYCLOAK_KCADM }}"
-KEYCLOAK_CID_RESOLVE_CMD: >-
-  container ps
-  --filter "label=com.docker.swarm.service.name={{ lookup('container_service', application_id, entity_name) }}"
-  --filter status=running
-  --format '{{ "{{.ID}}" }}' | head -1
 KEYCLOAK_IMAGE: "{{ lookup('config', application_id, 'services.keycloak.image') }}"
 KEYCLOAK_VERSION: "{{ lookup('config', application_id, 'services.keycloak.version') }}"
 KEYCLOAK_REPLICAS: "{{ groups[application_id] | length }}"
@@ -85,6 +124,14 @@ KEYCLOAK_DB_NETWORK_ARG: "{% if lookup('database', application_id, 'shared') | b
 KEYCLOAK_FRONTCHANNEL_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
 KEYCLOAK_LOGOUT_PANEL_FILE: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}-logout-panel.js"
 KEYCLOAK_LOGOUT_PANEL_ENABLED: "{{ lookup('config', application_id, 'services.javascript.enabled') | bool }}"
+KEYCLOAK_LOGOUT_I18N: "{{ lookup('i18n_catalogue', 'logout', 'roles/web-app-keycloak/files/logout_i18n.yml') }}"
+KEYCLOAK_LOGOUT_EVERYWHERE_ENABLED: >-
+  {{ (lookup('config', application_id, 'services.dashboard.enabled') | bool)
+     and (lookup('config', 'web-app-dashboard', 'services.sso.enabled') | bool) }}
+KEYCLOAK_LOGOUT_EVERYWHERE_URL: >-
+  {{ (lookup('landing_url', 'web-app-dashboard') ~ lookup('config', 'web-app-dashboard', 'services.sso.oidc.logout_everywhere'))
+     if (KEYCLOAK_LOGOUT_EVERYWHERE_ENABLED | bool) else '' }}
+KEYCLOAK_BACKCHANNEL_LOGOUT_URLS: "{{ KEYCLOAK_DICTIONARY_REALM.clients | kc_backchannel_logout_urls }}"
 KEYCLOAK_ADMIN_NETWORKS: "{{ lookup('config', application_id, 'services.keycloak.admin.allowed_networks') | kc_admin_networks }}"
 KEYCLOAK_REDIRECT_URIS: "{{ lookup('redirect_uris') }}"
 KEYCLOAK_SAML_APPS: >-
@@ -102,7 +149,7 @@ KEYCLOAK_WEB_ORIGINS: >-
       | map('regex_search','^(https?://[^/]+)')
       | select('string')
       | list | unique }}
-KEYCLOAK_POST_LOGOUT_URIS: "+"
+KEYCLOAK_POST_LOGOUT_URIS: "{{ (['+'] + lookup('network_urls', KEYCLOAK_FRONTCHANNEL_LOGOUT_URL ~ '*')) | join('##') }}"
 
 KEYCLOAK_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 KEYCLOAK_LDAP_SHARED: "{{ lookup('config', application_id, 'services.ldap.shared') }}"
@@ -114,24 +161,137 @@ KEYCLOAK_LDAP_CONNECTION_POOLING: "{{ lookup('config', application_id, 'services
 KEYCLOAK_LDAP_SYNC_CHANGES_PERIOD: "{{ lookup('config', application_id, 'services.ldap.sync.period.changes') }}"
 KEYCLOAK_LDAP_SYNC_FULL_PERIOD: "{{ lookup('config', application_id, 'services.ldap.sync.period.full') }}"
 
+# Keycloak finds only entries holding every class listed here, so the mailbox class joins once the mailbox layout attaches it to every entry.
 KEYCLOAK_LDAP_USER_OBJECT_CLASSES: >
   {{
     (
         (LDAP.USER.OBJECTS.STRUCTURAL | reject('equalto','posixAccount') | list)
-        + (LDAP.USER.OBJECTS.AUXILIARY | dict2items | map(attribute='value') | list)
+        + (LDAP.USER.OBJECTS.AUXILIARY | dict2items
+           | rejectattr('key', 'equalto', 'INFINITO_MAILBOX_USER')
+           | map(attribute='value') | list)
+        + ([LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER] if KEYCLOAK_EMAIL_MAILBOX | bool else [])
       ) | join(', ')
   }}
 
 KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.keycloak.users.emails_verified') }}"
 
+KEYCLOAK_EMAIL_POLICY: "{{ lookup('config', application_id, 'services.keycloak.email.policy') }}"
+KEYCLOAK_EMAIL_POLICIES: ["mailbox", "external"]
+KEYCLOAK_EMAIL_MAILBOX: "{{ KEYCLOAK_EMAIL_POLICY == 'mailbox' }}"
+KEYCLOAK_EMAIL_SWITCH: "{{ lookup('config', application_id, 'services.keycloak.email.switch') | bool }}"
+KEYCLOAK_EMAIL_SECONDARY_REQUIRED: "{{ lookup('config', application_id, 'services.keycloak.email.secondary_required') | bool }}"
+KEYCLOAK_EMAIL_SMTP: "{{ lookup('email', application_id).enabled | bool }}"
+KEYCLOAK_EMAIL_VERIFY: "{{ KEYCLOAK_EMAIL_SMTP | bool and not (KEYCLOAK_EMAIL_MAILBOX | bool) }}"
+KEYCLOAK_EMAIL_DOMAIN: "{{ DOMAIN_PRIMARY }}"
+KEYCLOAK_EMAIL_POLICY_ATTRIBUTE: "infinitoEmailPolicy"
+KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE: "mailbox"
+KEYCLOAK_EMAIL_LDAP_MAPPERS: ["email", "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE }}"]
+KEYCLOAK_EMAIL_SECONDARY_PATTERN: "(?i)^(?!.*@{{ KEYCLOAK_EMAIL_DOMAIN | regex_escape }}$).+$"
+KEYCLOAK_EMAIL_INVENTORY_KEY: "{{ 'secondary_email' if KEYCLOAK_EMAIL_MAILBOX | bool else 'email' }}"
+KEYCLOAK_EMAIL_INVENTORY_ADDRESSES: >-
+  {{ lookup('users_non_reserved') | dict2items | map(attribute='value')
+     | items2dict(key_name='username', value_name=KEYCLOAK_EMAIL_INVENTORY_KEY) }}
+KEYCLOAK_EMAIL_INVENTORY_SECONDARIES: >-
+  {{ lookup('users_non_reserved') | dict2items | map(attribute='value')
+     | items2dict(key_name='username', value_name='secondary_email') }}
+KEYCLOAK_RECONCILED_REQUIRED_ACTIONS: ["UPDATE_EMAIL"]
+KEYCLOAK_REGISTRATION_ALLOWED: false
+
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
+
+KEYCLOAK_CONSOLE_ROLE_CLIENT: "realm-management"
+KEYCLOAK_CONSOLE_ROLE_GRANTS: "{{ lookup('config', application_id, 'rbac.roles') | dict2items | selectattr('value.realm_management', 'defined') | list }}"
+
+KEYCLOAK_ADMIN_PERMISSIONS_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
+KEYCLOAK_ADMIN_PERMISSIONS_PLATFORM_GROUP: "/{{ lookup('rbac_group_path', application_id='web-svc-access-request', role='administrator') }}"
+KEYCLOAK_ADMIN_PERMISSIONS_SPEC:
+  prefix: "access-request"
+  approvers: >-
+    {{ lookup('applications')
+       | rbac_access_catalogue(KEYCLOAK_RBAC_ALL_APP_IDS, KEYCLOAK_RBAC_GROUP_NAME)
+       | rbac_approver_grants(KEYCLOAK_ADMIN_PERMISSIONS_PLATFORM_GROUP) }}
+
+KEYCLOAK_REALM_ROLE_GRANT_APP_IDS: "{{ (KEYCLOAK_RBAC_RUN_APP_IDS | select('in', KEYCLOAK_RBAC_ALL_APP_IDS) | list) if (KEYCLOAK_LDAP_ENABLED | bool) else KEYCLOAK_RBAC_RUN_APP_IDS
+  }}"
+KEYCLOAK_REALM_ROLE_GRANTS: "{{ lookup('applications') | kc_realm_role_grants(KEYCLOAK_REALM_ROLE_GRANT_APP_IDS, KEYCLOAK_RBAC_GROUP_NAME) }}"
+
+KEYCLOAK_PROFILE_MAPPER_PREFIX: "profile:"
+KEYCLOAK_PROFILE_LEGACY_MAPPERS:
+  - "phone number"
+  - "locale"
+KEYCLOAK_PROFILE_LEGACY_MAPPER_PREFIX: "moodle:"
+KEYCLOAK_PROFILE_GROUPS:
+  contact:
+    header: "Contact and locale"
+    description: "Contact details and regional settings, synchronised with the directory and editable by the user."
+    edit: ["admin", "user"]
+  organization:
+    header: "Organization"
+    description: "Organizational details, synchronised with the directory and maintained by administrators."
+    edit: ["admin"]
+KEYCLOAK_PROFILE_ATTRIBUTES:
+  - { name: "middleName", ldap: "{{ LDAP.USER.ATTRIBUTES.INITIALS }}", display: "Middle name", group: "contact", max: 255 }
+  - { name: "nickname", ldap: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME }}", display: "Nickname", group: "contact", max: 255 }
+  - { name: "phoneNumber", ldap: "{{ LDAP.USER.ATTRIBUTES.PHONE }}", display: "Phone number", group: "contact", max: 64 }
+  - { name: "phoneNumberAlt", ldap: "{{ LDAP.USER.ATTRIBUTES.MOBILE }}", display: "Mobile", group: "contact", max: 64 }
+  - { name: "street", ldap: "{{ LDAP.USER.ATTRIBUTES.STREET }}", display: "Street", group: "contact", max: 255 }
+  - { name: "postal_code", ldap: "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE }}", display: "Postal code", group: "contact", max: 32 }
+  - { name: "locality", ldap: "{{ LDAP.USER.ATTRIBUTES.LOCALITY }}", display: "City", group: "contact", max: 128 }
+  - { name: "region", ldap: "{{ LDAP.USER.ATTRIBUTES.REGION }}", display: "Region", group: "contact", max: 128 }
+  - { name: "country", ldap: "{{ LDAP.USER.ATTRIBUTES.COUNTRY }}", display: "Country (ISO-3166-1 alpha-2)", group: "contact", max: 2 }
+  - { name: "website", ldap: "{{ LDAP.USER.ATTRIBUTES.WEBSITE }}", display: "Website", group: "contact", max: 255 }
+  - { name: "locale", ldap: "{{ LDAP.USER.ATTRIBUTES.LOCALE }}", display: "Locale", group: "contact", max: 16 }
+  - { name: "zoneinfo", ldap: "{{ LDAP.USER.ATTRIBUTES.TIMEZONE }}", display: "Time zone (IANA)", group: "contact", max: 64 }
+  - { name: "namePhoneticGiven", ldap: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_GIVEN }}", display: "Phonetic given name", group: "contact", max: 255 }
+  - { name: "namePhoneticFamily", ldap: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_FAMILY }}", display: "Phonetic family name", group: "contact", max: 255 }
+  - { name: "description", ldap: "{{ LDAP.USER.ATTRIBUTES.DESCRIPTION }}", display: "Description", group: "contact", max: 1024 }
+  - { name: "institution", ldap: "{{ LDAP.USER.ATTRIBUTES.ORGANIZATION }}", display: "Institution", group: "organization", max: 255 }
+  - { name: "department", ldap: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT }}", display: "Department", group: "organization", max: 255 }
+  - { name: "title", ldap: "{{ LDAP.USER.ATTRIBUTES.TITLE }}", display: "Job title", group: "organization", max: 255 }
+  - { name: "idNumber", ldap: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER }}", display: "ID number", group: "organization", max: 64 }
 
 KEYCLOAK_DECLARED_CLIENT_APPS: "{{ lookup('applications') | kc_declared_client_apps(lookup('deployment').groups) }}"
 KEYCLOAK_DECLARED_CLIENT_IDS: "{{ lookup('applications') | kc_declared_client_ids(lookup('deployment').groups) }}"
+KEYCLOAK_SAML_CLIENT_IDS: "{{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('protocol', 'equalto', 'saml') | map(attribute='clientId') | list }}"
+KEYCLOAK_SETTINGS_CLIENT_IDS: "{{ ([KEYCLOAK_CLIENT_ID] + KEYCLOAK_DECLARED_CLIENT_IDS + KEYCLOAK_SAML_CLIENT_IDS) | unique | list }}"
+KEYCLOAK_SETTINGS_MISSING_CLIENT_IDS: "{{ KEYCLOAK_SETTINGS_CLIENT_IDS | reject('in', KEYCLOAK_DICTIONARY_REALM.clients | map(attribute='clientId') | list) | list
+  }}"
+KEYCLOAK_SETTINGS_SPEC:
+  clientScopes: "{{ KEYCLOAK_DICTIONARY_REALM.clientScopes }}"
+  clients: "{{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'in', KEYCLOAK_SETTINGS_CLIENT_IDS) | list }}"
+  realms:
+    - realm: "{{ KEYCLOAK_REALM }}"
+      desired:
+        smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"
+        loginWithEmailAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.loginWithEmailAllowed }}"
+        duplicateEmailsAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.duplicateEmailsAllowed }}"
+        adminEventsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminEventsEnabled }}"
+        adminPermissionsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminPermissionsEnabled }}"
+    - realm: master
+      desired:
+        smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"
 
 KEYCLOAK_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.key') }}"
 KEYCLOAK_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.secret') }}"
+
+KEYCLOAK_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+KEYCLOAK_DESIGN_THEME: "{{ lookup('config', application_id, 'services.keycloak.design.theme') }}"
+KEYCLOAK_DESIGN_DARK_CLASS: "design-theme-dark"
+KEYCLOAK_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'theme'] | path_join }}"
+KEYCLOAK_DESIGN_BRAND: "{{ lookup('design', application_id).slots.brand }}"
+KEYCLOAK_DESIGN_ON_FRAME: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-on-frame'] }}"
+KEYCLOAK_DESIGN_BRAND_VERSION: >-
+  {{ [lookup('design', application_id) | to_json,
+      KEYCLOAK_DESIGN_ON_FRAME,
+      (lookup('local_mtime_qs', lookup('design', application_id).logo, mode='epoch')
+       if lookup('design', application_id).logo is string else '')]
+     | join('|') | hash('sha1') | truncate(8, True, '') }}
+KEYCLOAK_DESIGN_STYLE_VERSION: "{{ lookup('template', 'theme/theme.css.j2') | hash('sha1') | truncate(8, True, '') }}"
+KEYCLOAK_DESIGN_TITLE: "{{ lookup('design', application_id).title if lookup('design', application_id).title is string else '' }}"
+KEYCLOAK_DESIGN_TITLE_HTML: >-
+  {{ ('<div class="kc-logo-text"><span>' ~ (KEYCLOAK_DESIGN_TITLE | e) ~ '</span></div>')
+     if (KEYCLOAK_DESIGN_TITLE | length > 0 and lookup('design', application_id).logo is string) else '' }}
 
 KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN: |-
   {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '

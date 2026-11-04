@@ -187,6 +187,18 @@ class TestWildcardDNS(unittest.TestCase):
             },
         )
 
+    def test_wildcard_source_zone_gets_only_its_apex_wildcard(self):
+        recs = self.wildcard_records(
+            current_play_domains_all={},
+            apex="legacy.example",
+            ip4="203.0.113.5",
+            explicit_domains=["*.legacy.example", "legacy.example", "a.b.example.com"],
+            min_child_depth=2,
+            ipv6_enabled=False,
+        )
+        self.assertEqual(_as_set(recs), {("A", "*", "203.0.113.5", False)})
+        self.assertEqual({r["zone"] for r in recs}, {"legacy.example"})
+
     def test_nested_structures_flattened_correctly(self):
         cpda = {
             "svc1": {

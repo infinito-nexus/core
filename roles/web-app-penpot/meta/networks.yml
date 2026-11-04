@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.48.0/24
+reachability:
+  handover: true # nocheck: network-reachability  the Penpot frontend calls its API on the one PENPOT_PUBLIC_URI, which the onion CSP blocks as connect-src

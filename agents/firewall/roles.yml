@@ -1,0 +1,208 @@
+---
+workspace:
+  allow:
+    - app(workspace/worktree):crud
+    - app(workspace/scratch):crud
+    - app(workspace/caches):crud
+    - app(workspace/own-stack):crud
+  deny:
+    - app(docker/exec):crud
+    - app(docker/run):crud
+    - app(workspace/foreign-stack):crud
+    - app(workspace/foreign-worktree):update
+
+forge-reader:
+  allow:
+    - egress(github.com)
+    - egress(api.github.com)
+    - app(github/runs):read
+    - app(github/jobs):read
+    - app(github/artifacts):read
+    - app(github/pull_requests):read
+    - app(github/issues):read
+    - app(github/code-scanning):read
+    - app(github/branches):read
+
+package-consumer:
+  allow:
+    - egress(${INFINITO_REGISTRY_CACHE})
+    - egress(${INFINITO_PACKAGE_CACHE})
+    - app(galaxy/archives):read
+  deny:
+    - egress(registry-1.docker.io)
+    - egress(registry.npmjs.org)
+    - egress(pypi.org)
+
+interactive:
+  includes:
+    - workspace
+    - forge-reader
+    - package-consumer
+  allow:
+    - channel(cross-session/all):crud
+  ask:
+    - app(github/commit):create
+    - app(github/issue-comment):create
+    - app(github/issue):update
+  deny:
+    - app(github/push):create
+
+autonomous-contributor:
+  includes:
+    - workspace
+    - forge-reader
+    - package-consumer
+  allow:
+    - app(fork/commit):create
+    - app(fork/push):create
+    - app(github/pull_request):create
+  ask:
+    - app(fork/force-push):create
+  deny:
+    - app(upstream/push):create
+    - app(github/merge):create
+    - app(upstream/force-push):create
+    - app(github/settings):update
+    - app(github/secrets):read
+    - app(repo/protected-paths):update
+
+maintainer:
+  includes:
+    - autonomous-contributor
+  allow:
+    - app(github/pull_request-comment):create
+    - app(github/issue-comment):create
+    - app(github/review-reply):create
+  ask:
+    - app(github/alert):delete
+    - app(github/issue):delete
+    - app(github/resource):delete
+
+designer:
+  includes:
+    - autonomous-contributor
+  allow:
+    - app(artifact/gallery):create
+  deny:
+    - app(github/foreign-pull_request-comment):create
+
+reviewer:
+  includes:
+    - forge-reader
+  allow:
+    - app(github/review-comment):create
+  deny:
+    - app(github/push):create
+    - app(github/merge):create
+    - app(github/own-pull_request-review):create
+
+planner:
+  includes:
+    - forge-reader
+  allow:
+    - app(openproject/work_packages):crud
+    - channel(any/all):read
+    - app(zammad/tickets):read
+  deny:
+    - app(openproject/approved):update
+    - app(openproject/rejected):update
+
+coordinator:
+  includes:
+    - forge-reader
+  allow:
+    - app(ci/lock):crud
+    - app(github/workflow-dispatch):create
+    - app(fork/feature-merge):create
+  ask:
+    - app(github/workflow):delete
+  deny:
+    - app(upstream/default-merge):create
+
+operator:
+  allow:
+    - app(instance/metrics):read
+    - app(instance/logs):read
+    - app(instance/backups):read
+    - app(instance/make-targets):crud
+  ask:
+    - app(instance/backup-restore):create
+    - app(instance/data):delete
+    - app(instance/service-restart):update
+  deny:
+    - app(foreign-instance/all):crud
+
+tester:
+  includes:
+    - autonomous-contributor
+
+documenter:
+  includes:
+    - autonomous-contributor
+
+translator:
+  includes:
+    - autonomous-contributor
+  allow:
+    - app(weblate/suggestion):create
+    - app(web-svc-translate/translate):crud
+    - app(make/i18n):crud
+  deny:
+    - app(weblate/reviewed):update
+
+release:
+  includes:
+    - forge-reader
+  ask:
+    - app(github/tag):create
+    - app(github/release):create
+  deny:
+    - app(upstream/default-push):create
+
+security:
+  includes:
+    - forge-reader
+  allow:
+    - app(openproject/security-project):crud
+  deny:
+    - egress(*.${INFINITO_PRIMARY_DOMAIN})
+
+hacker:
+  allow:
+    - egress(${AGENTS_HACKER_TARGETS})
+    - app(workspace/scanners):crud
+    - app(openproject/security-project):crud
+    - app(mail/security-contact):create
+  ask:
+    - app(hacker/production-run):create
+  deny:
+    - app(hacker/destructive):crud
+    - app(hacker/denial-of-service):crud
+    - app(instance/internal-ports):crud
+
+counsel:
+  includes:
+    - forge-reader
+    - package-consumer
+  allow:
+    - egress(${AGENTS_COUNSEL_TARGETS}):none
+    - app(openproject/legal-project):crud
+    - app(mail/legal-contact):create
+  deny:
+    - app(fork/commit):create
+    - app(fork/push):create
+    - app(instance/write):update
+    - app(instance/internal-ports):crud
+
+support:
+  allow:
+    - app(zammad/tickets):read
+    - app(mail/support):read
+    - channel(web-app-matrix/support):read
+    - app(zammad/reply-draft):create
+    - app(openproject/work_packages):create
+  ask:
+    - app(zammad/customer-reply):create
+  deny:
+    - app(workspace/secrets):read
+    - app(zammad/other-customers):read

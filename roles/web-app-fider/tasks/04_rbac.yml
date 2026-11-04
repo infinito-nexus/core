@@ -1,0 +1,31 @@
+---
+- name: "🛂 Fider | Converge the user roles on the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ FIDER_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator, collaborator]
+    rbac_sync_service_key: postgres
+    rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"
+    rbac_sync_container: "{{ lookup('database', application_id, 'container') }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv:
+      - psql
+      - -U
+      - "{{ lookup('database', application_id, 'username') }}"
+      - -d
+      - "{{ lookup('database', application_id, 'name') }}"
+      - -v
+      - ON_ERROR_STOP=1
+      - -qtA
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/sql/reconcile-roles.sql') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      PGPASSWORD: "{{ lookup('database', application_id, 'password') }}"
+      FIDER_RBAC_ROLE_IDS: "{{ FIDER_ROLE_IDS | to_json }}"
+      FIDER_RBAC_BOOTSTRAP_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+    rbac_sync_members_env:
+      - { name: RBAC_MEMBERS, role: "*", field: "" }

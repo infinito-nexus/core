@@ -14,16 +14,23 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.domains.served import served_owners
+from utils.networks.reachability import network, network_of
 from utils.templating.jinja import render_strict
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
     as_str,
     collect_domains_for_app,
+    is_domain_term,
+    is_onion_domain,
+    norm_domain,
     override_san_list,
+    redirect_targets,
     require,
     resolve_enabled,
     resolve_le_name,
     resolve_mode,
+    resolve_primary_domain_from_app,
     resolve_term,
     uniq_preserve,
     want_get,
@@ -31,6 +38,7 @@ from utils.tls_common import (
 
 LE_FULLCHAIN = "fullchain.pem"
 LE_PRIVKEY = "privkey.pem"
+PER_DOMAIN_LIVE_FLAVORS = frozenset({"san", "dedicated"})
 
 
 def _join(*parts: Any) -> str:
@@ -107,13 +115,17 @@ class LookupModule(LookupBase):
             )
 
         forced_mode = as_str(kwargs.get("mode", "auto")).lower()
+        served = served_owners(variables)
         app_id, primary_domain = resolve_term(
             term,
             domains=domains,
             applications=applications,
+            redirects=redirect_targets(variables),
+            served=served,
             forced_mode=forced_mode,
             err_prefix="cert",
         )
+        app_served = [name for name, owner in served.items() if owner == app_id]
 
         app = applications.get(app_id, {})
         if not isinstance(app, dict):
@@ -141,7 +153,17 @@ class LookupModule(LookupBase):
                 err_prefix="cert",
             )
 
-            le_name = resolve_le_name(app, primary_domain)
+            flavor = as_str(require(variables, "CERTBOT_FLAVOR", str))
+            domain_term = is_domain_term(term, forced_mode, err_prefix="cert")
+            if domain_term and is_onion_domain(term):
+                le_domain = norm_domain(
+                    resolve_primary_domain_from_app(domains, app_id, err_prefix="cert")
+                )
+            elif domain_term and flavor in PER_DOMAIN_LIVE_FLAVORS:
+                le_domain = norm_domain(term)
+            else:
+                le_domain = primary_domain
+            le_name = resolve_le_name(app, le_domain)
             cert_id = le_name
 
             cert_file = _join(le_live, le_name, LE_FULLCHAIN)
@@ -189,17 +211,16 @@ class LookupModule(LookupBase):
 
             else:
                 cert_id = app_id
-                cert_file = _join(ss_base, app_id, primary_domain, LE_FULLCHAIN)
-                key_file = _join(ss_base, app_id, primary_domain, LE_PRIVKEY)
+                app_primary = norm_domain(
+                    resolve_primary_domain_from_app(domains, app_id, err_prefix="cert")
+                )
+                cert_file = _join(ss_base, app_id, app_primary, LE_FULLCHAIN)
+                key_file = _join(ss_base, app_id, app_primary, LE_PRIVKEY)
 
                 all_domains = collect_domains_for_app(
                     domains, app_id, err_prefix="cert"
                 )
-                all_domains = (
-                    uniq_preserve([primary_domain, *all_domains])
-                    if all_domains
-                    else [primary_domain]
-                )
+                all_domains = uniq_preserve([primary_domain, *all_domains, *app_served])
 
                 san_override = override_san_list(app)
                 if san_override is None:
@@ -209,6 +230,8 @@ class LookupModule(LookupBase):
 
         else:
             raise AnsibleError(f"cert: unsupported mode '{mode}'")
+
+        san_domains = [d for d in san_domains if network(network_of(d)).tls]
 
         resolved: dict[str, Any] = {
             "application_id": app_id,

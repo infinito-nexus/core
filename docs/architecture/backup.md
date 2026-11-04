@@ -69,14 +69,14 @@ section; `svc-bkp-remote-2-local` documents its one-way opt-out in
 
 ## Deploy-time trigger flow
 
-When the backup units actually run during a deploy, keyed on `MODE_BACKUP`
+When the backup units actually run during a deploy, keyed on `BACKUP`
 and whether this is a first install or an update. The nightly systemd
 timers fire independently of every path below.
 
 ```mermaid
 flowchart TB
     start["Deploy starts (tasks/stages/01_constructor.yml)"] --> boot["Pre-preload bootstrap:<br/>docker + NFS export + token store ready"]
-    boot --> mode{"MODE_BACKUP?"}
+    boot --> mode{"BACKUP?"}
 
     mode -->|true| pre["Preload pass instant-starts the pre-state snapshot<br/>(force_flush_instant + state started):<br/>svc-bkp-secrets, svc-bkp-volume (pulls sys-svc-container for a<br/>live dockerd + ensures /opt/compose first), and svc-bkp-nfs<br/>after svc-storage-nfs-server (export must exist)"]
     pre --> kind{"install or update?"}
@@ -90,7 +90,7 @@ flowchart TB
     mode -->|false| install_only["Units installed + enabled, never started here"]
     install_only --> apps_nb["App pass deploys / updates the stacks"] --> done
 
-    done --> timers["Nightly timers keep running on schedule<br/>(both MODE_BACKUP paths)"]
+    done --> timers["Nightly timers keep running on schedule<br/>(both BACKUP paths)"]
 ```
 
 A failing pre-state snapshot aborts the deploy (no `suppress_flush`):

@@ -7,18 +7,13 @@ test.use({ ignoreHTTPSErrors: true });
 test("administrator: app -> universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-yourls admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(admin|administration|tools|stats|users)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /admin|tools|stats|users|configuration/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      const link = interactivePage.getByRole("link", { name: /^tools$/i }).first();
+      await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await link.click({ timeout: resolveTimeout(30_000) });
+      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(interactivePage).toHaveURL(/\/admin\/tools\.php/, {
+        timeout: resolveTimeout(30_000),
+      });
     },
   });
 });

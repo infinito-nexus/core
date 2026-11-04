@@ -70,7 +70,6 @@ test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partn
       instanceHost,
       "the configured XWiki instance must be the partner instance, not Nextcloud itself"
     ).not.toBe(nextcloudHost);
-    const expectedXwikiHost = new URL(shared.env.xwikiBaseUrl).host;
     expect(
       xwikiPartnerHost,
       "XWIKI_PARTNER_HOST must be set in the Playwright env file"
@@ -78,7 +77,7 @@ test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partn
     expect(
       instanceHost,
       "the XWiki instances appValue must point at the deployed XWiki partner host"
-    ).toBe(expectedXwikiHost);
+    ).toBe(xwikiPartnerHost);
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});

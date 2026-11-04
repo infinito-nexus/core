@@ -2,11 +2,12 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 require("./test-seaweedfs");
+require("./test-design").register();
 test.use({ ignoreHTTPSErrors: true });
 
-const oidcEnabled = isServiceEnabled("sso");
+const AUTHENTICATED_MARKER = "my-header .logged-in-container, my-header my-notification-dropdown";
 
 async function peertubeLogout(page, peertubeBaseUrl) {
   await page
@@ -20,6 +21,8 @@ const oidcButtonText = decodeDotenvQuotedValue(process.env.OIDC_BUTTON_TEXT || "
 const peertubeBaseUrl = normalizeBaseUrl(process.env.PEERTUBE_BASE_URL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
+const rootUsername = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_USERNAME);
+const rootPassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
@@ -31,6 +34,8 @@ test.beforeEach(async ({ page }) => {
   expect(peertubeBaseUrl, "PEERTUBE_BASE_URL must be set").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
+  expect(rootUsername, "ADMIN_NATIVE_USERNAME must be set").toBeTruthy();
+  expect(rootPassword, "ADMIN_NATIVE_PASSWORD must be set").toBeTruthy();
   expect(biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
@@ -94,11 +99,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
     })
     .toContain(peertubeBaseUrl);
 
-  const authenticatedMarker = page
-    .locator(
-      "my-avatar-menu, my-user-notifications, my-header my-avatar, a[href='/my-account'], button.dropdown-toggle my-avatar"
-    )
-    .first();
+  const authenticatedMarker = page.locator(AUTHENTICATED_MARKER).first();
 
   await expect
     .poll(
@@ -117,7 +118,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 }
 
 test("administrator: peertube OIDC login and logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   await signInViaDashboardOidc(page, adminUsername, adminPassword, "administrator");
 
   await peertubeLogout(page, peertubeBaseUrl);
@@ -141,8 +142,23 @@ test("administrator: peertube OIDC login and logout", async ({ page }) => {
     .toBe(true);
 });
 
+test("administrator: root signs in to the break-glass form at /login?fallback=local with the administrator password", async ({ page }) => {
+  await gotoOnion(page, `${peertubeBaseUrl}/login?fallback=local`);
+  const username = page.locator("#username");
+  const password = page.locator("#password");
+  await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await username.fill(rootUsername);
+  await expect(password).toBeEditable({ timeout: resolveTimeout(10_000) });
+  await password.fill(rootPassword);
+  await page.locator('input[type="submit"].primary-button').click();
+  await expect(
+    page.locator(AUTHENTICATED_MARKER).first(),
+    "root must sign in with the administrator password the role converges"
+  ).toBeVisible({ timeout: resolveTimeout(10_000) });
+});
+
 test("biber: peertube OIDC login and logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   await signInViaDashboardOidc(page, biberUsername, biberPassword, "biber");
 
   await peertubeLogout(page, peertubeBaseUrl);
@@ -174,3 +190,23 @@ test("biber: peertube OIDC login and logout", async ({ page }) => {
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {
   await runGuestFlow(page);
 });
+
+const peertubeShared = {
+  env: {
+    peertubeBaseUrl,
+    adminUsername,
+    adminPassword,
+    biberUsername,
+    biberPassword,
+    biberFullName: decodeDotenvQuotedValue(process.env.BIBER_FULL_NAME),
+    biberEmail: decodeDotenvQuotedValue(process.env.BIBER_EMAIL),
+    rootUsername,
+    rootPassword,
+  },
+  signIn: signInViaDashboardOidc,
+  logout: (page) => peertubeLogout(page, peertubeBaseUrl),
+};
+
+require("./test-rbac").register(peertubeShared);
+require("./test-profile").register(peertubeShared);
+require("./test-login-methods").register(peertubeShared);

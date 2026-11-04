@@ -3,11 +3,6 @@
   ansible.builtin.setup:
   when: ansible_facts is not defined
 
-- name: ✅ Ensure mhwd is installed on Manjaro
-  package_install:
-    id: mhwd
-  become: true
-
 - name: 🔍 Detect mhwd command
   ansible.builtin.stat:
     path: /usr/bin/mhwd

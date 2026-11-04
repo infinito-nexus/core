@@ -12,7 +12,9 @@ from pathlib import Path
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 
+from utils.reexport import public_names  # noqa: E402
+
 from . import __main__ as _main  # noqa: E402
 
-__all__ = getattr(_main, "__all__", [n for n in dir(_main) if not n.startswith("_")])  # noqa: PLE0605
+__all__ = public_names(_main)  # noqa: PLE0605
 globals().update({name: getattr(_main, name) for name in __all__})

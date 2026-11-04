@@ -1,49 +1,16 @@
-const { test, expect, request } = require("@playwright/test");
+const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
-async function seedTicketViaApi(baseUrl, adminApiUsername, adminApiPassword, subject) {
-  const api = await request.newContext({
-    ignoreHTTPSErrors: true,
-    extraHTTPHeaders: {
-      Authorization: `Basic ${Buffer.from(`${adminApiUsername}:${adminApiPassword}`).toString("base64")}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const resp = await api.post(`${baseUrl}/api/v1/tickets`, {
-    data: {
-      title: subject,
-      group: "Users",
-      customer: adminApiUsername,
-      article: {
-        subject,
-        body: "Seed article for the agent-reply Playwright scenario.",
-        type: "note",
-        internal: false,
-      },
-    },
-  });
-
-  if (resp.status() >= 300) {
-    throw new Error(`Seed POST /api/v1/tickets failed: ${resp.status()} ${await resp.text()}`);
-  }
-  const ticket = await resp.json();
-  await api.dispose();
-  return ticket;
-}
-
 exports.register = function (shared) {
-  test("administrator (agent): replies to an API-seeded ticket via the SPA", async ({ page }) => {
+  test("administrator: replies as agent to an API-seeded ticket via the SPA", async ({ page }) => {
     expect(shared.env.adminApiUsername, "ADMIN_API_USERNAME must be set").toBeTruthy();
     expect(shared.env.adminApiPassword, "ADMIN_API_PASSWORD must be set").toBeTruthy();
 
     const subject = `playwright-agent-reply-${Date.now()}`;
-    const ticket = await seedTicketViaApi(
-      shared.env.zammadBaseUrl,
-      shared.env.adminApiUsername,
-      shared.env.adminApiPassword,
-      subject
+    const ticket = await shared.seedTicketViaApi(
+      subject,
+      "Seed article for the agent-reply Playwright scenario."
     );
 
     await shared.signInAsApiBot(page);

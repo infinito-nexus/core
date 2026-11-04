@@ -16,6 +16,7 @@ qdrant:
   min_storage: 270MB
   backup:
     database_routine: true
+    stop_required: true
   cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 2g
@@ -81,3 +82,16 @@ flowise:
   bond: 0.5
   enabled: "{{ 'web-app-flowise' in group_names }}"
   shared: "{{ 'web-app-flowise' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

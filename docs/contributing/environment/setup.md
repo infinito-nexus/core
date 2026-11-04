@@ -36,8 +36,9 @@ make network-trust-ca
 |---|---|---|
 | Initial setup | `make bootstrap` | Installs project dependencies and runs the first repository setup. |
 | Host preparation | `make environment-bootstrap` | Prepares the local development machine for the project workflow. |
-| Start stack | `make compose-up` | Starts the local development stack. |
+| Start stack | `make compose-up` | Starts the local development stack and resets its shared [target](../../../compose/target/README.md), the bare server foreign deploys are tested against. |
 | Browser trust | `make network-trust-ca` | Trusts the generated local [CA](https://en.wikipedia.org/wiki/Certificate_authority) so `*.infinito.test` works correctly in your browser. |
+| Stack domains | `make network-dns-setup` | Routes each stack's domain to its bind IP: `main.infinito.test` for the primary checkout, `<branch>.infinito.test` for every worktree. Re-run it after `make worktree-up` or `make worktree-down`. |
 
 The `pre-commit` hooks are installed automatically by `make environment-bootstrap`.
 Per-machine overrides go into the process environment before invoking `make` (e.g. `export INFINITO_FOO=…`); `make dotenv` honors caller-set values via setdefault semantics.
@@ -70,7 +71,7 @@ The repository already contains a modular environment test suite at [scripts/tes
 | 2 | `make environment-bootstrap` | Prepares the host machine for local development. |
 | 3 | `make compose-up` | Starts the development stack. |
 | 4 | `make test` | Runs the main combined validation flow. |
-| 5 | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Compose Loop](../../agents/action/iteration/compose.md). |
+| 5 | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Compose Loop](../../../agents/skills/i8-iterate-compose/SKILL.md). |
 | 6 | `make network-trust-ca` | Makes the generated local certificates trusted by the host browser. |
 | 7 | `make compose-down` | Stops the running development stack. |
 | 8 | `make environment-teardown` | Cleans up host-side development environment changes. |

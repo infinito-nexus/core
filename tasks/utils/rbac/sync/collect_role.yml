@@ -1,0 +1,19 @@
+---
+# Param rbac_sync_application_id: application the role belongs to.
+# Param rbac_sync_role: role whose members are added to rbac_sync_members; "@users" stands for every account.
+# Output rbac_sync_members: {role: [{username, email, name}]} extended by this role.
+
+- name: "👥 Resolve the members of {{ rbac_sync_application_id }}/{{ rbac_sync_role }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/members.yml') }}"
+  vars:
+    rbac_members_application_id: "{{ rbac_sync_application_id }}"
+    rbac_members_role: "{{ rbac_sync_role }}"
+  when: rbac_sync_role != '@users'
+
+- name: "👥 Resolve every account for {{ rbac_sync_application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/users.yml') }}"
+  when: rbac_sync_role == '@users'
+
+- name: "👥 Add {{ rbac_sync_role }} to the member map of {{ rbac_sync_application_id }}"
+  ansible.builtin.set_fact:
+    rbac_sync_members: "{{ rbac_sync_members | combine({rbac_sync_role: (rbac_users if rbac_sync_role == '@users' else rbac_members)}) }}"

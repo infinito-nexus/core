@@ -22,7 +22,7 @@
  */
 
 const { resolveTimeout } = require("../../timeouts");
-const { apiFetchOnion } = require("./env");
+const { apiFetchOnion } = require("./onion");
 
 const FORGED_IDENTITY_HEADER_NAMES = Object.freeze([
   "X-Forwarded-User",

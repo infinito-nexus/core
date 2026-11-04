@@ -27,3 +27,9 @@
   changed_when: "'tables successfully created' in yourls_install.stdout"
   failed_when: yourls_install.rc != 0
   delegate_to: "{{ YOURLS_HOST_NODE }}"
+
+- name: "⬆️ Bring the YOURLS database schema up to the running code"
+  ansible.builtin.include_tasks:
+    file: upgrade.yml
+    apply:
+      delegate_to: "{{ YOURLS_HOST_NODE }}"

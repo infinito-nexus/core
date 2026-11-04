@@ -1,11 +1,14 @@
 import importlib.util
 import unittest
 
+from utils.domains.default_primary import default_domain_primary
+
 from . import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "roles" / "sys-ctl-hlth-csp" / "files" / "python" / "script.py"
 ONION = "mirror.b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion"
-DOMAINS = ["mirror.infinito.test", ONION, "html.infinito.test"]
+DOMAIN = default_domain_primary()
+DOMAINS = [f"mirror.{DOMAIN}", ONION, f"html.{DOMAIN}"]
 
 
 def _expand(accept_status, domains=None):
@@ -13,13 +16,13 @@ def _expand(accept_status, domains=None):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.expand_accept_status(
-        accept_status, DOMAINS if domains is None else domains
+        accept_status, DOMAINS if domains is None else domains, ".onion"
     )
 
 
 class TestAcceptStatusReachesOnions(unittest.TestCase):
     def test_the_onion_sibling_inherits_the_declaration(self):
-        expanded = _expand(["mirror.infinito.test=404"])
+        expanded = _expand([f"mirror.{DOMAIN}=404"])
 
         self.assertIn(
             f"{ONION}=404",
@@ -29,12 +32,10 @@ class TestAcceptStatusReachesOnions(unittest.TestCase):
         )
 
     def test_a_vhost_without_an_onion_twin_gains_nothing(self):
-        self.assertEqual(
-            _expand(["html.infinito.test=403"]), ["html.infinito.test=403"]
-        )
+        self.assertEqual(_expand([f"html.{DOMAIN}=403"]), [f"html.{DOMAIN}=403"])
 
     def test_several_codes_carry_over_unchanged(self):
-        expanded = _expand(["mirror.infinito.test=301,302,404"])
+        expanded = _expand([f"mirror.{DOMAIN}=301,302,404"])
 
         self.assertIn(f"{ONION}=301,302,404", expanded)
 
@@ -42,10 +43,10 @@ class TestAcceptStatusReachesOnions(unittest.TestCase):
         self.assertEqual(_expand([f"{ONION}=404"]), [f"{ONION}=404"])
 
     def test_an_entry_without_codes_is_left_alone(self):
-        self.assertEqual(_expand(["mirror.infinito.test"]), ["mirror.infinito.test"])
+        self.assertEqual(_expand([f"mirror.{DOMAIN}"]), [f"mirror.{DOMAIN}"])
 
     def test_only_the_matching_label_is_extended(self):
-        expanded = _expand(["html.infinito.test=403", "mirror.infinito.test=404"])
+        expanded = _expand([f"html.{DOMAIN}=403", f"mirror.{DOMAIN}=404"])
 
         self.assertEqual(
             [e for e in expanded if e.endswith(".onion=404")], [f"{ONION}=404"]

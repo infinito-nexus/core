@@ -15,8 +15,6 @@ if [ "${TOR_FLAVOR}" = "chutney" ]; then
     mkdir -p /run/tor
 
     echo "[tor-entrypoint] bringing up chutney private network '${net}'"
-    # Exception: chutney creates its net/ state dir relative to the CWD, so
-    # every call must run from /opt/chutney or the torrc grep below misses.
     cd /opt/chutney
     CHUTNEY_LISTEN_ADDRESS=127.0.0.1 \
         ./chutney init --net "${net}"

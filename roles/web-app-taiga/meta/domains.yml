@@ -1,3 +1,4 @@
 ---
 canonical:
   - taiga.kanban.{{ DOMAIN_PRIMARY }}
+aliases: []

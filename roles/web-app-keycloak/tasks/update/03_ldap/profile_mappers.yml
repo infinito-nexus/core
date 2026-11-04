@@ -1,0 +1,89 @@
+---
+- name: ⬇️ Fetch components before profile mapper reconciliation
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get components -r {{ KEYCLOAK_REALM }} --format json
+  register: kc_profile_components
+  changed_when: false
+
+- name: 🔍 Resolve legacy profile mapper ids under the LDAP component
+  ansible.builtin.set_fact:
+    kc_profile_legacy_mapper_ids: >-
+      {{
+        kc_profile_components.stdout | kcadm_json
+        | selectattr('parentId', 'equalto', ldap_cmp_id | trim)
+        | selectattr('providerId', 'equalto', 'user-attribute-ldap-mapper')
+        | selectattr('name', 'in', KEYCLOAK_PROFILE_LEGACY_MAPPERS)
+        | map(attribute='id')
+        | list
+        + (
+          kc_profile_components.stdout | kcadm_json
+          | selectattr('parentId', 'equalto', ldap_cmp_id | trim)
+          | selectattr('providerId', 'equalto', 'user-attribute-ldap-mapper')
+          | selectattr('name', 'match', '^' ~ (KEYCLOAK_PROFILE_LEGACY_MAPPER_PREFIX | regex_escape))
+          | map(attribute='id')
+          | list
+        )
+      }}
+  changed_when: false
+
+- name: 🗑️ Delete legacy profile mappers superseded by the profile registry
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} delete components/{{ item }} -r {{ KEYCLOAK_REALM }}
+  loop: "{{ kc_profile_legacy_mapper_ids }}"
+  register: kc_profile_legacy_delete
+  changed_when: kc_profile_legacy_delete.rc == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🔄 Upsert profile attribute mappers from the profile registry
+  keycloak_kcadm_update:
+    object_kind: "component"
+    lookup_value: "{{ item.name }}"
+    desired: >-
+      {{
+        item
+        | dict2items | rejectattr('key', 'in', ['subComponents', 'id']) | list | items2dict
+        | combine({
+            'parentId': (ldap_cmp_id | trim),
+            'providerType': 'org.keycloak.storage.ldap.mappers.LDAPStorageMapper'
+          })
+      }}
+    merge_path: "config"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+    assert_mode: "{{ KEYCLOAK_VALIDATE_ENABLED }}"
+  loop: >-
+    {{
+      ldap_component_tpl.subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
+      | selectattr('name', 'match', '^' ~ (KEYCLOAK_PROFILE_MAPPER_PREFIX | regex_escape))
+      | list
+    }}
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🔄 Upsert the email address mappers of the email policy
+  keycloak_kcadm_update:
+    object_kind: "component"
+    lookup_value: "{{ item.name }}"
+    desired: >-
+      {{
+        item
+        | dict2items | rejectattr('key', 'in', ['subComponents', 'id']) | list | items2dict
+        | combine({
+            'parentId': (ldap_cmp_id | trim),
+            'providerType': 'org.keycloak.storage.ldap.mappers.LDAPStorageMapper'
+          })
+      }}
+    merge_path: "config"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+    assert_mode: "{{ KEYCLOAK_VALIDATE_ENABLED }}"
+  loop: >-
+    {{
+      ldap_component_tpl.subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
+      | selectattr('name', 'in', KEYCLOAK_EMAIL_LDAP_MAPPERS)
+      | list
+    }}
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

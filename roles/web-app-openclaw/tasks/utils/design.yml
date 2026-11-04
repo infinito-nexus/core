@@ -1,0 +1,13 @@
+---
+- name: "📁 Ensure the design directory of {{ application_id }} exists"
+  ansible.builtin.file:
+    path: "{{ OPENCLAW_DESIGN_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🖼️ Render the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_role:
+    name: sys-front-inj-design
+    tasks_from: assets.yml
+  vars:
+    design_assets_dest: "{{ OPENCLAW_DESIGN_DIR }}"

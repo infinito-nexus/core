@@ -31,13 +31,17 @@ prometheus:
 # nocheck: playwright-service-flag - email not used by Jitsi room flow
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
-# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
-css:
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "Jitsi"
+  slots:
+    logo:
+      width: 142
+      height: 64
 # nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag - runtime DOM patch, no probe-able surface flag
 javascript:
@@ -46,6 +50,9 @@ javascript:
   shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 jitsi:
+  bond: 1
+  enabled: true
+  shared: true
   healthcheck:
     flavor: tcp
   modes:
@@ -53,9 +60,6 @@ jitsi:
       enabled: true
     swarm:
       enabled: true
-  bond: 1
-  enabled: true
-  shared: true
   image: jitsi/web
   version: "stable-11031"
   min_storage: 315MB
@@ -65,6 +69,7 @@ jitsi:
     local:
       http: 8084
       sso: 16505
+      sso_onion: 16531
     public:
       media: 10000
     internal:
@@ -121,8 +126,47 @@ jvb:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 2048
+# nocheck: dynamic-flag  operator switch for the JWT moderator path; vars/main.yml also requires services.sso.enabled, so the adapter never runs without Keycloak
+# nocheck: dockerfile-custom  built from the upstream nordeck/jitsi-keycloak-adapter sources at `ref` on the multi-arch Deno image, because the published ghcr.io image is amd64-only and its stock context.ts issues a moderator token to every realm user
+keycloak_adapter:
+  enabled: false
+  shared: false
+  name: jitsi-keycloak-adapter
+  image: denoland/deno
+  version: "2.8.3"
+  custom: true
+  repository: https://github.com/nordeck/jitsi-keycloak-adapter.git
+  ref: v20260623
+  update:
+    - key: ref
+      type: git_tags
+      repository: https://github.com/nordeck/jitsi-keycloak-adapter.git
+      match: "v"
+  healthcheck:
+    flavor: http_status
+    path: health
+  ports:
+    internal:
+      http: 9000
+  cpus: "0.25"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 128
 
 # nocheck: playwright-service-flag
 tor:
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

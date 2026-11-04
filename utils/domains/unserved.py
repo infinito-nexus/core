@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-ONION_SUFFIX = "_onion"
+from utils.networks.reachability import TOR, network
 
 
 def unserved_canonical_keys(services: Any) -> set[str]:
@@ -50,10 +50,11 @@ def served_domains(domains: Any, services: Any) -> list[str]:
     if not isinstance(domains, Mapping):
         return [str(domain) for domain in (domains or [])]
     skipped = unserved_canonical_keys(services)
+    sibling_suffix = f"_{network(TOR).label}"
     served: list[str] = []
     for key, domain in domains.items():
         name = str(key)
-        base = name.removesuffix(ONION_SUFFIX)
+        base = name.removesuffix(sibling_suffix)
         if name in skipped or base in skipped:
             continue
         served.append(str(domain))

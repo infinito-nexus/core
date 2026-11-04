@@ -1,0 +1,6 @@
+---
+roles:
+  manager:
+    description: EspoCRM manager (Managers team, full access to every CRM record, export and mass update)
+  user:
+    description: EspoCRM user (Users team, reads team records, edits own records)

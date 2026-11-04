@@ -1,0 +1,377 @@
+{% set design = lookup('design', application_id) %}
+{% set frame = '.v-application .NavDrawer' %}
+{% set fills = [('primary', 'primary'), ('accent', 'primary'), ('error', 'danger'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
+{% set statuses = [('error', 'danger'), ('success', 'success'), ('warning', 'warning'), ('info', 'info')] %}
+{% set static_fills = [('red', 'danger'), ('green', 'success'), ('orange', 'warning'), ('amber', 'warning'), ('blue', 'info')] %}
+.v-application:is(.theme--light, .theme--dark),
+.v-application :is(.theme--light, .theme--dark) {
+  --highlighted-card-bg-color: var(--design-surface-3);
+  --v-background-base: var(--design-surface-2);
+  --v-primary-base: var(--design-primary);
+}
+.v-application:is(.theme--light, .theme--dark) {
+  background: var(--design-surface-1);
+  color: var(--design-text);
+}
+html .v-application a {
+  color: var(--design-link);
+}
+.v-application:is(.theme--light, .theme--dark) .text--primary {
+  color: var(--design-text) !important;
+}
+.v-application:is(.theme--light, .theme--dark) :is(.text--secondary, .text--disabled),
+html .v-application .grey--text {
+  color: var(--design-text-muted) !important;
+}
+{% for name, token in fills %}
+html .v-application .{{ name }},
+html .v-application .{{ name }}:is([class*="darken-"], [class*="lighten-"], [class*="accent-"]) {
+  background-color: var(--design-{{ token }}) !important;
+  border-color: var(--design-{{ token }}) !important;
+}
+html .v-application .{{ name }}--text,
+html .v-application .{{ name }}--text:is([class*="darken-"], [class*="lighten-"], [class*="accent-"]) {
+  color: var(--design-{{ 'link' if token == 'primary' else token }}) !important;
+  caret-color: var(--design-{{ 'link' if token == 'primary' else token }}) !important;
+}
+.v-application :is(.v-btn:not(.v-btn--outlined), .v-chip, .v-alert, .v-snack__wrapper, .v-avatar).{{ name }} {
+  color: var(--design-on-{{ token }});
+}
+.v-application .v-btn.{{ name }}:hover {
+  background-color: var(--design-{{ token }}-hover) !important;
+  border-color: var(--design-{{ token }}-hover) !important;
+}
+.v-application .v-btn.{{ name }}:active {
+  background-color: var(--design-{{ token }}-active) !important;
+  border-color: var(--design-{{ token }}-active) !important;
+}
+.v-application .v-btn.{{ name }}::before {
+  opacity: 0;
+}
+.v-application :is(.v-chip, .v-alert, .v-snack__wrapper).{{ name }} .v-icon {
+  color: inherit;
+}
+{% endfor %}
+html .v-application .secondary {
+  background-color: var(--design-surface-3) !important;
+  border-color: var(--design-border-strong) !important;
+}
+html .v-application .secondary--text {
+  color: var(--design-text-muted) !important;
+  caret-color: var(--design-text-muted) !important;
+}
+.v-application .v-btn:not(.v-btn--outlined).secondary {
+  color: var(--design-text);
+}
+.v-application .v-btn.secondary:hover {
+  background-color: var(--design-surface-hover) !important;
+}
+.v-application .v-btn.secondary:active {
+  background-color: var(--design-surface-active) !important;
+}
+{% for name, token in static_fills %}
+html .v-application .{{ name }},
+html .v-application .{{ name }}:is([class*="darken-"], [class*="lighten-"], [class*="accent-"]) {
+  background-color: var(--design-{{ token }}) !important;
+  border-color: var(--design-{{ token }}) !important;
+}
+.v-application :is(.v-chip:not(.v-chip--outlined), .v-avatar, .v-btn:not(.v-btn--outlined)).{{ name }},
+.v-application .v-avatar.{{ name }} .white--text {
+  color: var(--design-on-{{ token }}) !important;
+}
+html .v-application .{{ name }}--text,
+html .v-application .{{ name }}--text:is([class*="darken-"], [class*="lighten-"], [class*="accent-"]) {
+  color: var(--design-{{ 'link' if name == 'blue' else token }}) !important;
+  caret-color: var(--design-{{ 'link' if name == 'blue' else token }}) !important;
+}
+{% endfor %}
+html .v-application :is(.blue-grey, .grey),
+html .v-application :is(.blue-grey, .grey):is([class*="darken-"], [class*="lighten-"], [class*="accent-"]) {
+  background-color: var(--design-surface-3) !important;
+  border-color: var(--design-border-strong) !important;
+}
+.v-application :is(.v-chip, .v-btn:not(.v-btn--outlined)):is(.blue-grey, .grey) {
+  color: var(--design-text);
+}
+.v-application :is([style*="color: gray"], [style*="color: grey"]),
+.v-application .SingleLineEditable__content.SingleLineEditable__content--placeholder {
+  color: var(--design-text-muted) !important;
+}
+.v-application [style*="color: rgb(255, 82, 82)"] {
+  color: var(--design-danger) !important;
+}
+.v-application .v-icon[style*="color: rgb(241, 70, 104)"] {
+  color: var(--design-link) !important;
+}
+html .v-application .blue-grey--text,
+html .v-application .blue-grey--text:is([class*="darken-"], [class*="lighten-"], [class*="accent-"]) {
+  color: var(--design-text-muted) !important;
+  caret-color: var(--design-text-muted) !important;
+}
+.v-application :is(.theme--light, .theme--dark):is(.v-card, .v-sheet, .v-list, .v-btn-toggle:not(.v-btn-toggle--group)) {
+  background-color: var(--design-surface-2);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+.v-application :is(.theme--light, .theme--dark).v-toolbar.v-sheet,
+.v-application :is(.theme--light, .theme--dark):is(.v-data-table, .v-tabs-items),
+.v-application :is(.theme--light, .theme--dark).v-tabs > .v-tabs-bar {
+  background-color: transparent;
+  color: var(--design-text);
+}
+.v-application :is(.theme--light, .theme--dark).v-card > :is(.v-card__text, .v-card__subtitle),
+.v-application :is(.theme--light, .theme--dark):is(.v-subheader, .v-label, .v-messages, .v-counter),
+.v-application :is(.theme--light, .theme--dark).v-list-item:not(.v-list-item--disabled) :is(.v-list-item__subtitle, .v-list-item__action-text) {
+  color: var(--design-text-muted);
+}
+.v-application .v-card[style*="background"],
+.v-application [style*="background: rgba(133, 133, 133, 0.06)"] {
+  background: var(--design-surface-3) !important;
+  border-color: var(--design-border) !important;
+}
+.v-application :is(.theme--light, .theme--dark) .item-dialog__title-actions,
+.v-application .v-bottom-sheet > .v-sheet:is(.theme--light, .theme--dark) {
+  background: var(--design-surface-2);
+}
+.v-application .v-overlay .v-overlay__scrim {
+  background-color: var(--design-text) !important;
+}
+.v-application .v-tooltip__content,
+.v-application .v-snack__wrapper:is(.theme--light, .theme--dark) {
+  background-color: var(--design-text);
+  color: var(--design-surface-1);
+}
+.v-application :is(.theme--light, .theme--dark).v-divider,
+.v-application :is(.theme--light, .theme--dark).v-data-table .v-data-footer {
+  border-color: var(--design-border);
+}
+.v-application :is(.theme--light, .theme--dark).v-btn-toggle:not(.v-btn-toggle--group) .v-btn.v-btn {
+  border-color: var(--design-border) !important;
+}
+html .v-application .white {
+  background-color: var(--design-surface-2) !important;
+  border-color: var(--design-surface-2) !important;
+}
+.v-application .auth__divider::before,
+.v-application .auth__divider::after {
+  border-top-color: var(--design-border);
+}
+.v-application :is(.theme--light, .theme--dark).v-icon,
+.v-application :is(.theme--light, .theme--dark).v-btn.v-btn--icon,
+.v-application :is(.theme--light, .theme--dark).v-btn-toggle:not(.v-btn-toggle--group) .v-btn.v-btn .v-icon {
+  color: var(--design-text-muted);
+}
+.v-application :is(.theme--light, .theme--dark).v-btn {
+  color: var(--design-text);
+}
+.v-application :is(.theme--light, .theme--dark).v-btn.v-btn--disabled,
+.v-application :is(.theme--light, .theme--dark).v-btn.v-btn--disabled :is(.v-icon, .v-btn__loading),
+.v-application :is(.theme--light, .theme--dark).v-icon.v-icon.v-icon--disabled {
+  color: var(--design-text-muted) !important;
+}
+.v-application :is(.theme--light, .theme--dark).v-btn.v-btn--disabled.v-btn--has-bg {
+  background-color: var(--design-surface-3) !important;
+}
+.v-application :is(.theme--light, .theme--dark).v-btn:not(.v-btn--has-bg):hover,
+.v-application :is(.theme--light, .theme--dark).v-list-item--link:hover,
+.v-application :is(.theme--light, .theme--dark).v-tabs .v-tab:hover {
+  background-color: var(--design-surface-hover);
+}
+.v-application :is(.theme--light, .theme--dark).v-btn:not(.v-btn--has-bg):active,
+.v-application :is(.theme--light, .theme--dark).v-btn.v-btn--active:not(.v-btn--has-bg),
+.v-application :is(.theme--light, .theme--dark).v-list-item--active,
+.v-application :is(.theme--light, .theme--dark).v-list-item--link:active {
+  background-color: var(--design-surface-active);
+}
+.v-application :is(.theme--light, .theme--dark).v-btn:not(.v-btn--has-bg)::before,
+.v-application :is(.theme--light, .theme--dark).v-list-item.v-list-item::before,
+.v-application :is(.theme--light, .theme--dark).v-tabs .v-tab.v-tab::before,
+.v-application .v-alert--text::before {
+  opacity: 0;
+}
+.v-application :is(.v-btn, .v-list-item, .v-tab, .v-chip, .v-icon.v-icon--link):focus-visible {
+  outline: 2px solid var(--design-focus, var(--design-link));
+  outline-offset: -2px;
+}
+.v-application .v-input--switch:has(input:focus-visible) .v-input--switch__track {
+  outline: 2px solid var(--design-focus, var(--design-link));
+  outline-offset: 2px;
+}
+.v-application :is(.theme--light, .theme--dark).v-list-item:not(.v-list-item--active):not(.v-list-item--disabled),
+.v-application :is(.theme--light, .theme--dark).v-list-item--active {
+  color: var(--design-text);
+}
+.v-application :is(.theme--light, .theme--dark).v-list-item--disabled,
+.v-application :is(.theme--light, .theme--dark).v-data-table .v-data-table__empty-wrapper,
+.v-application :is(.theme--light, .theme--dark).v-data-table .v-data-table-header th.sortable .v-data-table-header__icon,
+.v-application :is(.theme--light, .theme--dark).v-data-table > .v-data-table__wrapper > table > thead > tr > th,
+.v-application :is(.theme--light, .theme--dark).v-tabs > .v-tabs-bar :is(.v-tab:not(.v-tab--active), .v-tab:not(.v-tab--active) > .v-icon, .v-tab--disabled) {
+  color: var(--design-text-muted);
+}
+.v-application :is(.theme--light, .theme--dark).v-data-table > .v-data-table__wrapper > table > thead > tr:last-child > th,
+.v-application :is(.theme--light, .theme--dark).v-data-table > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > :is(td, th):not(.v-data-table__mobile-row),
+.v-application :is(.theme--light, .theme--dark).v-data-table > .v-data-table__wrapper > table > tbody > tr:not(:last-child) > :is(td, th):last-child {
+  border-bottom-color: var(--design-border);
+}
+.v-application :is(.theme--light, .theme--dark).v-data-table > .v-data-table__wrapper > table > tfoot > tr > :is(td, th):not(.v-data-table__mobile-row) {
+  border-top-color: var(--design-border);
+}
+.v-application .v-data-table .v-data-table__wrapper > table > tbody > tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+  background-color: var(--design-surface-hover) !important;
+}
+.v-application .v-data-table .v-data-table__wrapper > table > tbody > tr:is(.active, .v-data-table__selected) {
+  background-color: var(--design-surface-active) !important;
+}
+.v-application :is(.theme--light, .theme--dark).v-input,
+.v-application :is(.theme--light, .theme--dark).v-input :is(input, textarea),
+.v-application :is(.theme--light, .theme--dark).v-select .v-select__selections {
+  color: var(--design-text);
+}
+.v-application :is(.theme--light, .theme--dark).v-input :is(input, textarea)::placeholder,
+.v-application :is(.theme--light, .theme--dark).v-input--is-disabled,
+.v-application :is(.theme--light, .theme--dark).v-input--is-disabled :is(input, textarea),
+.v-application :is(.theme--light, .theme--dark).v-select.v-input--is-disabled .v-select__selections {
+  color: var(--design-text-muted);
+}
+.v-application :is(.theme--light, .theme--dark).v-text-field > .v-input__control > .v-input__slot::before {
+  border-color: var(--design-border-strong);
+}
+.v-application :is(.theme--light, .theme--dark).v-text-field:not(.v-input--has-state):hover > .v-input__control > .v-input__slot::before {
+  border-color: var(--design-text);
+}
+.v-application .v-input .v-input__slot fieldset {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border-strong);
+  color: var(--design-border-strong);
+}
+.v-application .v-input.primary--text .v-input__slot fieldset {
+  border-color: var(--design-link);
+}
+.v-application .v-input.error--text .v-input__slot fieldset {
+  border-color: var(--design-danger);
+}
+.v-application :is(.theme--light, .theme--dark) .v-input .v-label--active {
+  text-shadow: 0 0 2px var(--design-surface-2);
+}
+.v-application .InputWithAppendedButton .v-input__append-outer .v-btn {
+  border-color: var(--design-border-strong);
+}
+.v-application :is(.theme--light, .theme--dark).v-input--switch .v-input--switch__thumb {
+  color: var(--design-surface-2);
+}
+.v-application :is(.theme--light, .theme--dark).v-input--switch .v-input--switch__track {
+  color: var(--design-border-strong);
+}
+.v-application :is(.theme--light, .theme--dark).v-chip {
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+.v-application :is(.theme--light, .theme--dark).v-chip:not(.v-chip--active):not([class*="--text"]) {
+  background: var(--design-surface-3);
+}
+{% for name, token in statuses %}
+.v-application .v-alert:is(.v-alert--text, .v-alert--outlined).{{ name }}--text {
+  background-color: var(--design-{{ token }}-subtle) !important;
+  border-color: var(--design-{{ token }}-border) !important;
+}
+{% endfor %}
+html .v-application:is(.theme--light, .theme--dark) code {
+  background-color: var(--design-surface-3);
+}
+.v-application .CodeMirror,
+.v-application .CodeMirror-gutters {
+  background: var(--design-surface-3);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+.v-application .EnvironmentEditor {
+  border-color: var(--design-border) !important;
+}
+.v-application .CodeMirror-linenumber,
+.v-application .CodeMirror pre.CodeMirror-placeholder {
+  color: var(--design-text-muted);
+}
+.v-application .CodeMirror-cursor {
+  border-left-color: var(--design-text);
+}
+.v-application .CodeMirror-selected {
+  background: var(--design-surface-active);
+}
+.v-application .cm-s-default :is(.cm-string, .cm-string-2) {
+  color: var(--design-success);
+}
+.v-application .cm-s-default :is(.cm-keyword, .cm-atom, .cm-number, .cm-def) {
+  color: var(--design-info);
+}
+.v-application .cm-s-default :is(.cm-property, .cm-variable, .cm-variable-2, .cm-tag) {
+  color: var(--design-text);
+}
+.v-application .cm-s-default :is(.cm-comment, .cm-meta) {
+  color: var(--design-text-muted);
+}
+.v-application .cm-s-default .cm-error {
+  color: var(--design-danger);
+}
+{{ frame }}.v-navigation-drawer {
+  --design-focus: var(--design-on-frame);
+  background-color: var(--design-frame) !important;
+  border-color: var(--design-frame) !important;
+  color: var(--design-on-frame);
+}
+{{ frame }} :is(.theme--light, .theme--dark):is(.v-list, .v-sheet) {
+  background: transparent;
+  color: var(--design-on-frame);
+}
+{{ frame }} :is(.theme--light, .theme--dark).v-list-item:not(.v-list-item--active):not(.v-list-item--disabled),
+{{ frame }} :is(.theme--light, .theme--dark).v-list-item--active,
+{{ frame }} :is(.theme--light, .theme--dark):is(.v-icon, .v-btn, .v-btn.v-btn--icon) {
+  color: var(--design-on-frame);
+}
+{{ frame }} :is(.theme--light, .theme--dark).v-list-item:not(.v-list-item--disabled) .v-list-item__subtitle,
+{{ frame }} .nav-more-toggle .nav-more-title {
+  color: rgba(var(--design-on-frame-rgb), 0.75);
+  opacity: 1;
+}
+{{ frame }} :is(.theme--light, .theme--dark).v-list-item--link:hover,
+{{ frame }} :is(.theme--light, .theme--dark).v-btn:not(.v-btn--has-bg):hover {
+  background-color: var(--design-frame-hover);
+}
+{{ frame }} :is(.theme--light, .theme--dark).v-list-item--active,
+{{ frame }} :is(.theme--light, .theme--dark).v-list-item--link:active,
+{{ frame }} :is(.theme--light, .theme--dark).v-list-item[aria-expanded="true"] {
+  background-color: var(--design-frame-active);
+}
+{{ frame }} :is(.theme--light, .theme--dark).v-divider,
+{{ frame }}:is(.theme--light, .theme--dark):not(.v-navigation-drawer--floating) .v-navigation-drawer__border {
+  background-color: transparent;
+  border-color: rgba(var(--design-on-frame-rgb), 0.2) !important;
+}
+{{ frame }} .v-chip:is(.red, .warning) {
+  background-color: var(--design-on-frame) !important;
+  border-color: var(--design-on-frame) !important;
+  color: var(--design-frame) !important;
+}
+{{ frame }} .v-input--switch :is(.v-input--switch__thumb, .v-input--switch__thumb.primary--text) {
+  color: var(--design-on-frame) !important;
+}
+{{ frame }} .v-input--switch :is(.v-input--switch__track, .v-input--switch__track.primary--text) {
+  color: rgba(var(--design-on-frame-rgb), 0.4) !important;
+  opacity: 1;
+}
+{{ frame }} .DarkModeSwitchWrap .DarkModeSwitchWrap__icon {
+  color: var(--design-frame) !important;
+}
+{{ frame }} .v-btn.primary--text {
+  color: var(--design-on-frame) !important;
+  background-color: var(--design-frame-active);
+}
+.v-application .auth {
+  background-color: var(--design-frame);
+  background-image: none;
+}
+{% if design.logo is string %}
+.v-application .auth .v-image__image {
+  background-image: url("{{ design.urls.logo.png }}") !important;
+  background-size: contain;
+}
+{% endif %}

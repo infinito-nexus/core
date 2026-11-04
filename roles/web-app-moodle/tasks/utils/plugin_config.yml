@@ -1,0 +1,22 @@
+---
+# Param: moodle_plugin_config_component - frankenstyle plugin the settings belong to, e.g. auth_ldap
+# Param: moodle_plugin_config_settings  - mapping of setting name to its string or integer value
+- name: "📄 Stage the plugin settings applier in the Moodle container"
+  ansible.builtin.shell: >
+    container exec -i --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    tee {{ MOODLE_PLUGIN_CONFIG_SCRIPT | quote }} > /dev/null
+  args:
+    stdin: "{{ lookup('file', 'php/provision/plugin_config.php') }}"
+  changed_when: false
+
+- name: "🔧 Apply the {{ moodle_plugin_config_component }} settings in one Moodle CLI run"
+  ansible.builtin.shell: >
+    container exec -i --user {{ MOODLE_RUNTIME_USER }}
+    -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
+    {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_PLUGIN_CONFIG_SCRIPT | quote }}
+  args:
+    stdin: "{{ {'component': moodle_plugin_config_component, 'settings': moodle_plugin_config_settings} | to_json }}"
+  register: moodle_plugin_config
+  changed_when: moodle_plugin_config.stdout is search('^CHANGED [1-9]', multiline=True)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

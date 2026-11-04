@@ -6,7 +6,9 @@ from typing import Any
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.networks.reachability import network_of, role_handover
 from utils.roles.applications.config import get
+from utils.tls_common import iter_domains
 
 
 def _to_list(x: Any) -> list[str]:
@@ -47,13 +49,14 @@ class LookupModule(LookupBase):
     service entry may declare ``domains: [<canonical key>, ...]``; when its
     ``enabled`` resolves falsy those canonicals get no vhost (e.g. the
     seaweedfs filer/master frontend on an onion node), so probing them can
-    only fail.
+    only fail. Also skips the siblings of a ``reachability.handover`` role
+    outside its canonical network.
     """
 
     def _service_disabled_domains(self, applications: Mapping, app_id: str) -> set[str]:
         services = get(applications, app_id, "services", strict=False, default={})
         canonical = get(
-            applications, app_id, "server.domains.canonical", strict=False, default={}
+            applications, app_id, "domains.canonical", strict=False, default={}
         )
         if not isinstance(services, Mapping) or not isinstance(canonical, Mapping):
             return set()
@@ -75,14 +78,9 @@ class LookupModule(LookupBase):
                     skip.add(domain)
         return skip
 
-    def run(
-        self,
-        terms: list[Any] | None,
-        variables: dict[str, Any] | None = None,
-        **kwargs: Any,
-    ) -> list[list[str]]:
-        applications = lookup_loader.get(
-            "applications",
+    def _lookup(self, name: str, variables: dict[str, Any] | None) -> Any:
+        return lookup_loader.get(
+            name,
             loader=self._loader,
             templar=getattr(self, "_templar", None),
         ).run(
@@ -92,14 +90,41 @@ class LookupModule(LookupBase):
             or {},
         )[0]
 
+    def run(
+        self,
+        terms: list[Any] | None,
+        variables: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> list[list[str]]:
+        applications = self._lookup("applications", variables)
+
         if not isinstance(applications, Mapping):
             return [[]]
 
         selection = _selection_from(kwargs.get("group_names"))
+        selected = [app for app in applications if not selection or app in selection]
 
         skip: set[str] = set()
-        for app_id in applications:
-            if not selection or app_id in selection:
-                skip |= self._service_disabled_domains(applications, app_id)
+        for app_id in selected:
+            skip |= self._service_disabled_domains(applications, app_id)
+
+        handover = [
+            app
+            for app in selected
+            if role_handover(
+                {
+                    "networks": get(
+                        applications, app, "networks", strict=False, default={}
+                    )
+                },
+                app=app,
+            )
+        ]
+        domains = self._lookup("domains", variables) if handover else {}
+        for app_id in handover:
+            names = list(iter_domains(domains.get(app_id)))
+            if names:
+                canonical = network_of(names[0])
+                skip.update(name for name in names if network_of(name) != canonical)
 
         return [sorted(skip)]

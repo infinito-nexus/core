@@ -5,6 +5,12 @@ const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const oidcEnabled = isServiceEnabled("sso");
+const SSO_ENTRY = "a[href^='/oauth/gitlab/login']";
+
+const loginMethods = {
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
 
 const env = {
   oidcIssuerUrl:     decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL),
@@ -36,7 +42,7 @@ async function waitForFirstVisible(locators, timeout = resolveTimeout(60_000)) {
   throw new Error("Timed out waiting for one of the expected selectors to become visible");
 }
 
-async function startMattermostSsoFlow(page, baseUrl) {
+async function openMattermostSignIn(page, baseUrl) {
   const base = baseUrl.replace(/\/$/, "");
   await page.addInitScript(() => {
     try {
@@ -50,7 +56,7 @@ async function startMattermostSsoFlow(page, baseUrl) {
       if (page.url().includes("/landing")) {
         await gotoOnion(page, `${base}/login`, { waitUntil: "load", timeout: resolveTimeout(60_000) });
       }
-      await page.locator("#input_loginId").waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
+      await page.locator("[data-testid='login-body-card']").waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
       lastErr = undefined;
       break;
     } catch (e) {
@@ -58,7 +64,11 @@ async function startMattermostSsoFlow(page, baseUrl) {
     }
   }
   if (lastErr) throw lastErr;
-  const ssoButton = page.locator("a[href='/oauth/gitlab/login']");
+}
+
+async function startMattermostSsoFlow(page, baseUrl) {
+  await openMattermostSignIn(page, baseUrl);
+  const ssoButton = page.locator(SSO_ENTRY).first();
   await ssoButton.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await ssoButton.click({ timeout: resolveTimeout(30_000) });
 }
@@ -129,9 +139,12 @@ function beforeEach() {
 module.exports = {
   env,
   oidcEnabled,
+  loginMethods,
+  SSO_ENTRY,
   expectedOidcAuthUrl,
   expectedMattermostBaseUrl,
   waitForFirstVisible,
+  openMattermostSignIn,
   startMattermostSsoFlow,
   dismissMattermostPopups,
   waitForMattermostChannelView,

@@ -130,6 +130,16 @@ class TestServiceGatingHelper(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("SSO_SERVICE_ENABLED", proc.stdout)
 
+    def test_a_hyphenated_service_resolves_to_its_underscored_flag(self):
+        proc = self._run_in_node(
+            "return helper.isServiceEnabled('agent-broker');",
+            env={"AGENT_BROKER_SERVICE_ENABLED": "false"},
+        )
+        self.assertEqual(
+            proc.returncode, 0, msg=f"stderr={proc.stderr}\nstdout={proc.stdout}"
+        )
+        self.assertIn("RESULT:false", proc.stdout)
+
     def test_unknown_service_hard_fails(self):
         proc = self._run_in_node(
             "return helper.isServiceEnabled('oicd');",

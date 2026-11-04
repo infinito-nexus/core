@@ -1,0 +1,21 @@
+---
+- name: "🛂 Make the SuiteCRM admin flag follow the administrator group"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ (SUITECRM_SSO_ENABLED | bool) or (SUITECRM_LDAP_ENABLED | bool) }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ SUITECRM_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: "{{ SUITECRM_WEB_USER }}"
+    rbac_sync_argv: [php]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/reconcile_admins.php') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      SUITECRM_RBAC_PROTECTED: "{{ [SUITECRM_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_members_env:
+      - { name: SUITECRM_RBAC_ADMINS, role: administrator, field: username }

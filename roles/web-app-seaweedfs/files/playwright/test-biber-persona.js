@@ -1,5 +1,6 @@
 const { test } = require("@playwright/test");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   const { env, keycloakLogin, isAuthChain, expect } = shared;
@@ -21,8 +22,7 @@ exports.register = function (shared) {
   }
 
   test("biber: denied on Filer and Master (admin-only)", async ({ page }) => {
-    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
-    test.skip(!env.ssoEnabled, "SSO disabled");
+    skipUnlessServiceEnabled("sso");
     await assertDenied(page, env.filerUrl);
     await page.context().clearCookies();
     await assertDenied(page, env.masterUrl);

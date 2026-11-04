@@ -1,9 +1,15 @@
 ---
 - services:
+    docs:
+      enabled: false
+      shared: false
     nfs-server:
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     nfs-server:
       enabled: false
       shared: false

@@ -1,0 +1,7 @@
+  - job_name: "jenkins"
+    scheme: http
+    metrics_path: "{{ lookup('config', native_prometheus_application_id, 'addons.prometheus.config.metrics_path') }}"
+    static_configs:
+      - targets: ["{{ lookup('native_metrics_target', native_prometheus_application_id) }}"]
+        labels:
+          app: "{{ native_prometheus_application_id }}"

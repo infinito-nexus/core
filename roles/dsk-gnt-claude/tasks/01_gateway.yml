@@ -1,0 +1,17 @@
+---
+- name: 🔐 Write the settings the claude-gateway launcher exports
+  ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
+    src: claude-gateway.env.j2
+    dest: "{{ agnt_claude_env_path }}"
+    owner: "{{ agnt_claude_user }}"
+    group: "{{ agnt_claude_user }}"
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🚀 Install the claude-gateway launcher
+  ansible.builtin.copy:
+    src: shell/claude-gateway.sh
+    dest: "{{ agnt_claude_wrapper_path }}"
+    owner: "{{ agnt_claude_user }}"
+    group: "{{ agnt_claude_user }}"
+    mode: "0700"

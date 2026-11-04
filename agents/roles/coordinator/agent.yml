@@ -1,0 +1,31 @@
+---
+runtime: hermes
+lifecycle: on_demand
+owner: operator
+repositories:
+  - infinito-nexus/core
+firewall_roles:
+  - coordinator
+skills:
+  - i8-merge-sibling
+models:
+  local:
+    - ollama
+  external:
+    - anthropic
+  default: anthropic
+keepass:
+  mode: broker
+write_enabled: false
+triggers:
+  - ci_queue_change
+  - pull_request_ready
+  - branch_divergence
+quotas:
+  requests_per_minute: 60
+  budget_usd_per_day: 10
+  tool_calls_per_minute: 120
+  pull_requests_per_hour: 5
+  comments_per_hour: 20
+  emails_per_hour: 10
+credentials: {}

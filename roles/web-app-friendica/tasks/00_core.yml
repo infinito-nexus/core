@@ -1,6 +1,16 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "👥 Resolve the Friendica administrator members"
+  include_tasks: utils/rbac/members.yml
+  vars:
+    rbac_members_application_id: "{{ application_id }}"
+    rbac_members_role: administrator
+
+- name: "👥 Keep the Friendica administrator members for the admin email list"
+  ansible.builtin.set_fact:
+    friendica_rbac_administrators: "{{ rbac_members }}"
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

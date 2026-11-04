@@ -9,7 +9,7 @@ unproven; when the operator forced a kind it aborts instead, because naming the
 kind rules the live copy out.
 
 Usage:
-    baudolo-snapshot --mode {auto,never,btrfs,zfs} -- baudolo [ARG ...]
+    baudolo-snapshot --mode {auto,never,btrfs,zfs} --state-file NAME -- baudolo [ARG ...]
 """
 
 from __future__ import annotations
@@ -389,6 +389,41 @@ def without_hard_restart(command: list[str]) -> list[str]:
     return command[:start] + command[end:]
 
 
+def paused(project_dir: Path, state_file: str) -> bool:
+    """Return whether app-control paused the compose project in ``project_dir``.
+
+    Args:
+        project_dir: the compose project directory.
+        state_file: the name of the app-control state marker inside it.
+    """
+    marker = project_dir / state_file
+    return marker.is_file() and marker.read_text(encoding="utf-8").strip() == "stopped"
+
+
+def without_paused_projects(command: list[str], state_file: str) -> list[str]:
+    """Return ``command`` without the paused projects of --hard-restart-projects.
+
+    Args:
+        command: the baudolo command line, carrying --compose-dir.
+        state_file: the name of the app-control state marker inside a project.
+    """
+    if "--hard-restart-projects" not in command:
+        return command
+    compose_dir = Path(command[command.index("--compose-dir") + 1])
+    start = command.index("--hard-restart-projects") + 1
+    end = start
+    while end < len(command) and not command[end].startswith("--"):
+        end += 1
+    kept = [
+        project
+        for project in command[start:end]
+        if not paused(compose_dir / project, state_file)
+    ]
+    if not kept:
+        return without_hard_restart(command)
+    return command[:start] + kept + command[end:]
+
+
 def main() -> None:
     """Decide on the snapshot flags, then become the baudolo process."""
     parser = argparse.ArgumentParser(
@@ -401,6 +436,11 @@ def main() -> None:
         help="auto probes the host and falls back to the live copy, never snapshots, "
         "btrfs/zfs state the kind and abort the run when the host cannot deliver it",
     )
+    parser.add_argument(
+        "--state-file",
+        required=True,
+        help="name of the app-control state marker; a project it marks stopped is not hard-restarted",
+    )
     argv = sys.argv[1:]
     if "--" not in argv:
         parser.error("the baudolo command must follow a '--' separator")
@@ -409,6 +449,7 @@ def main() -> None:
     command = argv[cut + 1 :]
     if not command:
         parser.error("no baudolo command was given after '--'")
+    command = without_paused_projects(command, args.state_file)
     flags = [] if args.mode == "never" else guarded_flags(args.mode)
     if flags:
         command = without_hard_restart(command) + flags

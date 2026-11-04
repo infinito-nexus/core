@@ -28,7 +28,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 ## Links 🔗
 
 - You MUST NOT use the full URL as link text. Use the domain name, `here`, or the filename instead. Never use the full path.
-- After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. "More information [here](...)").
+- After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. `More information [here](...)`).
 - For communication links such as Matrix, email, or phone, you MUST show only the value itself as link text, without any protocol prefix or URL wrapper.
 
 | Type | MUST NOT | MUST |
@@ -53,7 +53,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 
 - You SHOULD place emojis after the headline text to visually highlight headings and improve scannability.
 - You MUST NOT place emojis before the headline text, as this interferes with heading hierarchy rendering in some tools.
-- You MUST NOT add emojis to headlines in `docs/agents/` files, as these are machine-readable instruction files where emojis interfere with parsing.
+- You MUST NOT add emojis to headlines in `agents/` files, as these are machine-readable instruction files where emojis interfere with parsing.
 
 ## Documentation Structure 🗂️
 
@@ -74,6 +74,7 @@ See [Docs README](artefact/files/docs/readme_md.md) for the purpose, scope, and 
 
 ### Sphinx 📚
 
+- The Sphinx configuration, extensions and generators live in [web-app-docs](../../roles/web-app-docs/). Deploy that role to build and serve the site.
 - The root `index.rst` uses a `:glob:` toctree (`docs/**`) to automatically include every documentation page.
 - Sphinx indexing SHOULD happen automatically through that root `:glob:` toctree.
 - You SHOULD avoid creating or maintaining manual per-directory indexes when automatic indexing already covers the same pages.

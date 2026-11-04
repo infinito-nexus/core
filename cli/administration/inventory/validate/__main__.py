@@ -10,6 +10,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[4]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from cli.administration.inventory.validate.api import (  # noqa: E402
+    legacy_api_keys,
+    validate_api_keys,
+)
 from cli.administration.inventory.validate.applications import (  # noqa: E402
     compare_application_keys,
 )
@@ -18,7 +22,20 @@ from cli.administration.inventory.validate.loaders import (  # noqa: E402
     load_inventory_files,
     load_yaml_file,
 )
+from cli.administration.inventory.validate.mail import (  # noqa: E402
+    validate_mail_wrapper_for_roles,
+)
+from cli.administration.inventory.validate.pinned_passwords import (  # noqa: E402
+    validate_pinned_passwords,
+)
+from cli.administration.inventory.validate.swarm_storage import (  # noqa: E402
+    validate_swarm_storage,
+)
 from cli.administration.inventory.validate.users import compare_user_keys  # noqa: E402
+from cli.administration.inventory.validate.variables import (  # noqa: E402
+    read_variables,
+    validate_inventory_variables,
+)
 from utils.cache.applications import (  # noqa: E402
     get_application_defaults,
     get_variants,
@@ -67,6 +84,14 @@ def main() -> None:
 
     host_errs = validate_host_keys(set(application_defaults), args.inventory_dir)
     app_errs.extend(host_errs)
+    known = read_variables()
+    app_errs.extend(
+        validate_inventory_variables(args.inventory_dir, known, legacy_api_keys(known))
+    )
+    app_errs.extend(validate_api_keys(args.inventory_dir))
+    app_errs.extend(validate_pinned_passwords(args.inventory_dir, args.roles_dir))
+    app_errs.extend(validate_swarm_storage(args.inventory_dir))
+    app_errs.extend(validate_mail_wrapper_for_roles(args.inventory_dir, args.roles_dir))
 
     if app_errs or user_errs:
         if app_errs:

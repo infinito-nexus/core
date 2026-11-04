@@ -40,7 +40,7 @@ server {
         proxy_pass $upstream_taiga_back;
         proxy_pass_header Server;
         proxy_set_header Host $http_host;
-        proxy_redirect off;
+        proxy_redirect {{ lookup('tls', application_id, 'protocols.web') }}://{{ lookup('domain', application_id) }}/ $http_x_forwarded_proto://$http_host/;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Scheme $scheme;
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;

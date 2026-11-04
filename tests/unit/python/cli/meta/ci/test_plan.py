@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 
 from cli.meta.ci import plan
-from utils.symbol_glossary import to_emoji
+from utils.symbol_glossary import keycap, to_emoji
 
 
 def _entry(
@@ -11,6 +11,7 @@ def _entry(
     variant: str,
     mode: str,
     *,
+    network: str = "clearnet",
     priority: bool = False,
     identifier: str = "0",
     covered: str = "0",
@@ -21,7 +22,7 @@ def _entry(
         "apps": app,
         "variant": variant,
         "mode": mode,
-        "tor": "true" if variant == "0" else "false",
+        "network": network,
         "vpn": "true" if mode == "swarm" else "false",
         "disable": "",
         "priority": "true" if priority else "false",
@@ -31,13 +32,16 @@ def _entry(
         "clone": "true" if clone else "false",
         "distro": "debian",
         "filesystem": "zfs",
+        "architecture": "arm64",
         "label": f"{to_emoji(mode)}{app} {variant}",
     }
 
 
-_PRIORITY = [_entry("web-app-a", "0", "compose", priority=True, identifier="3")]
+_PRIORITY = [
+    _entry("web-app-a", "0", "compose", network="tor", priority=True, identifier="3")
+]
 _REGULAR = [
-    _entry("web-app-b", "0", "swarm", identifier="5"),
+    _entry("web-app-b", "0", "swarm", network="multi", identifier="5"),
     _entry("web-app-b", "1", "compose", identifier="9"),
 ]
 _CUT = [_entry("web-app-c", "0", "compose", identifier="11", covered="5")]
@@ -45,10 +49,12 @@ _ENTRIES = _PRIORITY + _REGULAR + _CUT
 
 
 class TestCells(unittest.TestCase):
-    def test_a_row_in_a_chunk_reports_that_chunk(self) -> None:
+    def test_a_row_in_a_chunk_reports_that_batch_as_its_keycap(self) -> None:
         rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
-        chunk = plan._COLUMNS.index("chunk")
-        self.assertEqual([row[chunk] for row in rows], ["0", "1", "1", ""])
+        batch = plan._COLUMNS.index("batch")
+        self.assertEqual(
+            [row[batch] for row in rows], [keycap(0), keycap(1), keycap(1), ""]
+        )
 
     def test_a_priority_row_is_starred_not_ticked(self) -> None:
         rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
@@ -61,7 +67,13 @@ class TestCells(unittest.TestCase):
         self.assertEqual(
             rows[1][plan._COLUMNS.index("triggered")], to_emoji("disabled")
         )
-        self.assertEqual(rows[1][plan._COLUMNS.index("chunk")], "")
+        self.assertEqual(rows[1][plan._COLUMNS.index("batch")], "")
+
+    def test_a_priority_row_the_budget_missed_keeps_its_star(self) -> None:
+        rows = plan.cells(_ENTRIES, [_REGULAR])
+        status = plan._COLUMNS.index("triggered")
+        self.assertEqual(rows[0][status], to_emoji("priority") + to_emoji("disabled"))
+        self.assertEqual(rows[0][plan._COLUMNS.index("batch")], "")
 
     def test_a_clone_is_named_in_its_own_column(self) -> None:
         entries = [*_ENTRIES, _entry("web-app-d", "0", "compose", clone=True)]
@@ -97,7 +109,7 @@ class TestCells(unittest.TestCase):
         self.assertEqual(
             rows[3][plan._COLUMNS.index("triggered")], to_emoji("redundant")
         )
-        self.assertEqual(rows[3][plan._COLUMNS.index("chunk")], "")
+        self.assertEqual(rows[3][plan._COLUMNS.index("batch")], "")
 
     def test_a_clone_is_cut_as_well(self) -> None:
         entries = [*_ENTRIES, _entry("web-app-d", "0", "compose", clone=True)]
@@ -119,11 +131,19 @@ class TestCells(unittest.TestCase):
         rows = plan.cells(entries, [_PRIORITY, _REGULAR])
         self.assertEqual([row[identifier] for row in rows], ["1", "2", "3", "4", "5"])
 
-    def test_the_tor_state_is_rendered_as_its_glyph(self) -> None:
+    def test_the_network_mode_is_rendered_as_its_glyph(self) -> None:
         rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
-        tor = plan._COLUMNS.index("tor")
-        self.assertEqual(rows[0][tor], to_emoji("tor"))
-        self.assertEqual(rows[2][tor], to_emoji("clearnet"))
+        network = plan._COLUMNS.index("network")
+        self.assertEqual(rows[0][network], to_emoji("tor"))
+        self.assertEqual(rows[1][network], to_emoji("multi"))
+        self.assertEqual(rows[2][network], to_emoji("clearnet"))
+
+    def test_each_network_mode_of_one_row_reports_its_own_chunk(self) -> None:
+        tor = _entry("web-app-a", "0", "compose", network="tor", priority=True)
+        multi = _entry("web-app-a", "0", "compose", network="multi", priority=True)
+        rows = plan.cells([tor, multi], [[tor]])
+        batch = plan._COLUMNS.index("batch")
+        self.assertEqual([row[batch] for row in rows], [keycap(0), ""])
 
     def test_every_row_carries_its_own_distro_and_filesystem_glyph(self) -> None:
         rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
@@ -132,17 +152,26 @@ class TestCells(unittest.TestCase):
         self.assertTrue(all(row[distro] == to_emoji("debian") for row in rows))
         self.assertTrue(all(row[filesystem] == to_emoji("zfs") for row in rows))
 
+    def test_every_row_carries_its_architecture_glyph(self) -> None:
+        rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
+        architecture = plan._COLUMNS.index("architecture")
+        self.assertTrue(all(row[architecture] == to_emoji("arm64") for row in rows))
+
 
 class TestRender(unittest.TestCase):
     def _rows(self) -> list[tuple[str, ...]]:
         return plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
 
-    def test_markdown_is_one_table_with_a_chunk_column(self) -> None:
+    def test_markdown_is_one_table_with_a_batch_column(self) -> None:
         out = plan.render_markdown("sweep 0", self._rows())
         self.assertEqual(out.count("| ---"), 0)
         self.assertEqual(out.count("\n|---"), 1)
-        self.assertIn(f"{to_emoji('chunk')} Chunk", out)
+        self.assertIn(f"{to_emoji('batch')} Batch", out)
         self.assertIn("web-app-a", out)
+
+    def test_the_network_column_is_headed_by_the_multi_glyph(self) -> None:
+        out = plan.render_markdown("sweep 0", self._rows())
+        self.assertIn(f"{to_emoji('multi')} Network", out)
 
     def test_markdown_keeps_one_line_per_row(self) -> None:
         out = plan.render_markdown("sweep 0", self._rows())

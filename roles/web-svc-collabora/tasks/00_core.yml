@@ -1,6 +1,17 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "➕ Let every Nextcloud network sibling frame the editor"
+  set_fact:
+    webserver_csp_whitelist_extra_by_app: >-
+      {{
+        (webserver_csp_whitelist_extra_by_app | default({}))
+        | combine(
+          {application_id: {'frame-ancestors': COLLABORA_FRAME_ANCESTORS}},
+          recursive=True
+        )
+      }}
+
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full

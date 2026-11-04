@@ -8,7 +8,7 @@
 
 # V1: oidc + ldap + everything that can be true, is true
 - services:
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -29,6 +29,8 @@
     sso:
       enabled: true
       shared: true
+    keycloak_adapter:
+      enabled: true # nocheck: variants-static-override  only this role reads the switch, through vars/main.yml after the variant merge
     prometheus:
       enabled: true
       shared: true
@@ -36,7 +38,10 @@
       enabled: false # nocheck: variants-static-override
 
 - services:
-    css:
+    docs:
+      enabled: true
+      shared: true
+    design:
       enabled: false
       shared: false
     dashboard:
@@ -64,7 +69,10 @@
       enabled: false # nocheck: variants-static-override
 
 - services:
-    css:
+    docs:
+      enabled: false
+      shared: false
+    design:
       enabled: false
       shared: false
     dashboard:
@@ -85,6 +93,8 @@
     sso:
       enabled: false
       shared: false
+    keycloak_adapter:
+      enabled: false # nocheck: variants-static-override
     prometheus:
       enabled: false
       shared: false

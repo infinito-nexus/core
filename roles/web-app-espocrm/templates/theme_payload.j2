@@ -1,0 +1,19 @@
+{% set espocrm_logo_rendered = design_branding.logo is string %}
+{% set espocrm_theme = {
+  'stylesheet': ESPOCRM_DESIGN_ASSETS_PATH ~ '/theme.css',
+  'stylesheetIframe': 'client/css/espo/espo-iframe.css',
+  'logo': (ESPOCRM_DESIGN_ASSETS_PATH ~ '/logo.svg') if espocrm_logo_rendered else 'client/img/logo-light.svg',
+  'isDark': false,
+} %}
+{% set espocrm_client = {
+  'favicon': ESPOCRM_DESIGN_ASSETS_PATH ~ '/favicon.svg',
+  'faviconAlternate': ESPOCRM_DESIGN_ASSETS_PATH ~ '/favicon.ico',
+} if espocrm_logo_rendered else {} %}
+module/Resources/module.json {{ {'order': 100} | to_json | b64encode }}
+module/Resources/metadata/themes/{{ ESPOCRM_DESIGN_THEME }}.json {{ espocrm_theme | to_json | b64encode }}
+module/Resources/metadata/app/client.json {{ espocrm_client | to_json | b64encode }}
+assets/theme.css {{ lookup('file', 'css/theme.css') | b64encode }}
+assets/title {{ ESPOCRM_DESIGN_TITLE | b64encode }}
+{% for asset in espocrm_design_assets.results %}
+assets/{{ asset.item }} {{ asset.content }}
+{% endfor %}

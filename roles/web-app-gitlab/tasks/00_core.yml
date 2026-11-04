@@ -30,6 +30,22 @@
 - name: "⏳ Wait for GitLab services"
   include_tasks: 02_wait.yml
 
+- name: "🎨 Read the corporate design for the GitLab appearance"
+  include_tasks: utils/design.yml
+  when: GITLAB_DESIGN_ENABLED | bool
+
+- name: "💎 Converge root, the platform administrator and the appearance"
+  include_tasks: utils/platform_admin.yml
+
+- name: "🚪 Converge the sign-in methods of GitLab"
+  include_tasks: utils/login_methods.yml
+
+- name: "🛂 Reconcile GitLab administrators and external users with the role groups"
+  include_tasks: utils/rbac.yml
+
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml
   when: GITLAB_MCP_ENABLED | bool
+
+- name: "🔎 Wait for the GitLab services the MCP flush recreated"
+  include_tasks: 02_wait.yml

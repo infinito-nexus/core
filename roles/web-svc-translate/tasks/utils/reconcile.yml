@@ -1,0 +1,12 @@
+---
+- name: "📂 For '{{ application_id }}': own the compose handler topic"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: none.yml
+    handlers_from: main
+
+- name: "♻️ Re-render '{{ application_id }}' and recreate it on the stored token"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: true

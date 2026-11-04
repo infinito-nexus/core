@@ -1,0 +1,6 @@
+from config.settings.production import *  # noqa: F403
+
+{% if FUNKWHALE_LDAP_ENABLED | bool %}
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {{ FUNKWHALE_LDAP_FLAGS_BY_GROUP | to_json }}
+{% endif %}

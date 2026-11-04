@@ -13,6 +13,7 @@ from utils.roles.order import (
     build_dependency_graph,
     find_cycle,
     ordered_roles,
+    stable_order_after,
     topological_sort,
 )
 
@@ -80,6 +81,38 @@ class TestRoleOrder(unittest.TestCase):
         dump_yaml(str(Path(self.temp_dir) / "grp-d" / ROLE_FILE_VARS_MAIN), {})
         with self.assertRaises(ValueError):
             ordered_roles(self.temp_dir, "grp")
+
+
+class TestStableOrderAfter(unittest.TestCase):
+    NAMES = ("keycloak", "matomo", "docs", "stalwart", "jitsi")
+
+    def test_no_constraint_keeps_the_order(self):
+        self.assertEqual(stable_order_after(list(self.NAMES), {}), list(self.NAMES))
+
+    def test_a_name_after_all_others_moves_last_and_nothing_else_moves(self):
+        others = [name for name in self.NAMES if name != "docs"]
+        result = stable_order_after(list(self.NAMES), {"docs": others})
+        self.assertEqual(result, [*others, "docs"])
+
+    def test_a_satisfied_constraint_moves_nothing(self):
+        result = stable_order_after(list(self.NAMES), {"stalwart": ["matomo"]})
+        self.assertEqual(result, list(self.NAMES))
+
+    def test_names_outside_the_list_constrain_nothing(self):
+        result = stable_order_after(
+            list(self.NAMES), {"matomo": ["absent"], "docs": ["jitsi", "gone"]}
+        )
+        self.assertEqual(result, ["keycloak", "matomo", "stalwart", "jitsi", "docs"])
+
+    def test_a_name_listing_itself_raises(self):
+        with self.assertRaises(RuntimeError):
+            stable_order_after(list(self.NAMES), {"docs": ["docs"]})
+
+    def test_a_cycle_raises_and_names_its_members(self):
+        with self.assertRaises(RuntimeError) as ctx:
+            stable_order_after(list(self.NAMES), {"docs": ["jitsi"], "jitsi": ["docs"]})
+        self.assertIn("docs", str(ctx.exception))
+        self.assertIn("jitsi", str(ctx.exception))
 
 
 if __name__ == "__main__":

@@ -7,12 +7,14 @@ testing stack.
 ## Scope 📋
 
 - The directory MUST contain only files that are bind-mounted into a
-  service defined in `compose.yml`.
+  service defined in `compose.yml`, or that form the build context of
+  one, such as [target/](target/README.md).
 - The directory MUST NOT host application configuration that belongs to
   an Ansible role. Per-role compose payloads live under
   `roles/<role>/templates/`.
-- The directory MUST NOT host workflow scripts, test fixtures, or
-  build helpers. Those belong under `scripts/` or `tests/`.
+- The directory MUST NOT host workflow scripts or test fixtures, nor
+  build helpers outside a service's build context. Those belong under
+  `scripts/` or `tests/`.
 
 ## Layout 🗂️
 

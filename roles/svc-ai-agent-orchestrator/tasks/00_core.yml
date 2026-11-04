@@ -1,0 +1,60 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🗓️  Collect the deploy-time cron schedules from every agent role"
+  ansible.builtin.set_fact:
+    AGENT_ORCHESTRATOR_CRON_ENTRIES: "{{ AGENT_ORCHESTRATOR_CRON_ENTRIES + lookup('agent_config', item, 'cron', []) }}"
+  loop: "{{ AGENT_ORCHESTRATOR_AGENT_ROLES }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: "🧩 Load the central RDBMS (checkpoints, audit) for {{ application_id }}"
+  include_role:
+    name: sys-svc-rdbms
+    public: false
+  vars:
+    database_consumer_id: "{{ application_id }}"
+  when: lookup('database', application_id, 'enabled') | bool
+
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "📁 Create the control-plane package dirs for {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, item] | path_join }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - utils/orchestrator
+    - utils/agents
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🧩 Stage the committed control-plane libraries beside the server"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', item) }}"
+    dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, item] | path_join }}"
+    mode: "0644"
+  loop: "{{ AGENT_ORCHESTRATOR_LIBS }}"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📦 Stage the agent orchestrator server"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-agent-orchestrator/files/python/server.py') }}"
+        dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, 'server.py'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true

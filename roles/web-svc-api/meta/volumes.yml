@@ -1,0 +1,9 @@
+# nocheck: backup-service-flag the git repository is fetched again from GitHub and the snapshot is part of the image; the volume is backup-disabled
+---
+# nocheck: embedded-state-on-nfs the replicas coordinate through this volume: one holds the fetcher lock and every other replica only reads the repository
+api_data:
+  type: volume
+  backup: false
+  mounts:
+    - service: api
+      target: /data

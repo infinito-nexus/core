@@ -1,0 +1,23 @@
+---
+- name: "👥 Converge the LiteLLM proxy_admin role on the administrator role group"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: litellm
+    rbac_sync_service_name: "{{ lookup('container_service', 'svc-ai-litellm', 'litellm') if (IS_SWARM_MODE | bool) else '' }}"
+    rbac_sync_container: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.name') }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [python3, "-"]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_reconcile.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      LITELLM_PORT: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}"
+      LITELLM_MASTER_KEY: "{{ lookup('config', 'svc-ai-litellm', 'secrets.credentials.master_key') }}"
+      LITELLM_RBAC_KEEP: "{{ [lookup('users', 'platform_administrator').username, 'default_user_id'] | to_json }}"
+    rbac_sync_members_env:
+      - { name: RBAC_ADMINISTRATORS, role: administrator, field: "" }

@@ -2,10 +2,34 @@
 application_id: "web-app-semaphore"
 container_port: "{{ lookup('config', application_id, 'services.semaphore.ports.internal.http') }}"
 
-SEMAPHORE_NAME: "{{ lookup('config', application_id, 'services.semaphore.name') }}"
+SEMAPHORE_SERVICE: "semaphore"
+SEMAPHORE_NAME: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_SERVICE ~ '.name') }}"
+SEMAPHORE_SERVER_IMAGE: >-
+  {{ lookup('config', application_id, 'services.' ~ SEMAPHORE_SERVICE ~ '.image') }}:{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_SERVICE ~ '.version')
+  }}
+SEMAPHORE_DOMAIN: "{{ lookup('domain', application_id) }}"
+SEMAPHORE_WEB_ROOT: "{{ lookup('tls', SEMAPHORE_DOMAIN, 'url.origin') }}"
+SEMAPHORE_ONION_DOMAIN: "{{ lookup('network_siblings', SEMAPHORE_DOMAIN) | in_network('tor') | reject('equalto', SEMAPHORE_DOMAIN) | first | default('') }}"
+SEMAPHORE_ONION_WEB_ROOT: "{{ lookup('tls', SEMAPHORE_ONION_DOMAIN, 'url.origin') }}"
+SEMAPHORE_VHOST_IS_SIBLING: "{{ domain != SEMAPHORE_DOMAIN }}"
+SEMAPHORE_SIBLING_BASE_REWRITE: >-
+  sub_filter '<base href="{{ SEMAPHORE_WEB_ROOT }}/">' '<base href="/">';
+SEMAPHORE_SIBLING_PROXY: |-
+  proxy_redirect {{ SEMAPHORE_WEB_ROOT }}/ /;
+  proxy_cookie_flags semaphore nosecure;
+SEMAPHORE_SIBLING_LOCATION: |-
+  {{ SEMAPHORE_SIBLING_BASE_REWRITE }}
+  {{ SEMAPHORE_SIBLING_PROXY }}
+SEMAPHORE_LOCATION_CONFIGURATION: "{{ SEMAPHORE_SIBLING_LOCATION if SEMAPHORE_VHOST_IS_SIBLING | bool else '' }}"
 
 SEMAPHORE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 SEMAPHORE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+
+SEMAPHORE_LOGIN_SSO: "{{ lookup('config', application_id, 'services.semaphore.login.method.sso.enabled') | bool }}"
+SEMAPHORE_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.semaphore.login.method.ldap.enabled') | bool }}"
+SEMAPHORE_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.semaphore.login.method.native.enabled') | bool }}"
+SEMAPHORE_LOGIN_2FA: "{{ lookup('config', application_id, 'services.semaphore.login.method.2fa.enabled') | bool }}"
+SEMAPHORE_LOGIN_FORM: "{{ SEMAPHORE_LOGIN_NATIVE | bool or SEMAPHORE_LOGIN_LDAP | bool }}"
 
 SEMAPHORE_ACCESS_KEY_ENCRYPTION: "{{ lookup('config', application_id, 'secrets.credentials.access_key_encryption') | regex_replace('^base64:', '') }}"
 SEMAPHORE_COOKIE_HASH: "{{ lookup('config', application_id, 'secrets.credentials.cookie_hash') | regex_replace('^base64:', '') }}"
@@ -16,23 +40,186 @@ SEMAPHORE_ADMIN_PASSWORD: "{{ lookup('users', 'web-app-semaphore-breakglass').pa
 SEMAPHORE_ADMIN_EMAIL: "{{ lookup('users', 'web-app-semaphore-breakglass').email }}"
 SEMAPHORE_ADMIN_NAME: "Semaphore Break-glass Admin"
 
-SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'administrator').username }}"
-SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'administrator').username }}"
+SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'platform_administrator').username }}"
+SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'platform_administrator').username }}"
 
-SEMAPHORE_OIDC_PROVIDERS_JSON: >-
+SEMAPHORE_OIDC_PROVIDER_ID: "keycloak"
+SEMAPHORE_OIDC_ONION_PROVIDER_ID: "keycloak_onion"
+SEMAPHORE_OIDC_ONION_ENABLED: "{{ (SEMAPHORE_OIDC_ENABLED | bool) and SEMAPHORE_ONION_DOMAIN != '' }}"
+SEMAPHORE_OIDC_PROVIDER: >-
   {{ {
-       "keycloak": {
-         "display_name":   "Sign in with Keycloak",
-         "provider_url":   OIDC.CLIENT.ISSUER_URL,
-         "client_id":      OIDC.CLIENT.ID,
-         "client_secret":  OIDC.CLIENT.SECRET,
-         "redirect_url":   (lookup('tls', application_id, 'url.base') | regex_replace('/+$', '')) ~ "/api/auth/oidc/keycloak/redirect",
-         "username_claim": "preferred_username",
-         "email_claim":    "email",
-         "name_claim":     "name",
-         "scopes":         ["openid", "profile", "email"]
-       }
-     } | to_json }}
+       "display_name":   "Sign in with Keycloak",
+       "provider_url":   OIDC.CLIENT.ISSUER_URL,
+       "client_id":      OIDC.CLIENT.ID,
+       "client_secret":  OIDC.CLIENT.SECRET,
+       "redirect_url":   SEMAPHORE_WEB_ROOT ~ "/api/auth/oidc/" ~ SEMAPHORE_OIDC_PROVIDER_ID ~ "/redirect",
+       "username_claim": OIDC.ATTRIBUTES.USERNAME,
+       "email_claim":    lookup('template', lookup('path_absolute', 'roles', application_id, 'templates/oidc/email_claim.j2')) | trim,
+       "name_claim":     OIDC.ATTRIBUTES.NAME,
+       "scopes":         ["openid", "profile", "email"]
+     } }}
+SEMAPHORE_OIDC_PROVIDERS: >-
+  {{ {SEMAPHORE_OIDC_PROVIDER_ID: SEMAPHORE_OIDC_PROVIDER}
+     | combine({SEMAPHORE_OIDC_ONION_PROVIDER_ID: SEMAPHORE_OIDC_PROVIDER | combine({
+         "redirect_url": SEMAPHORE_ONION_WEB_ROOT ~ "/api/auth/oidc/" ~ SEMAPHORE_OIDC_ONION_PROVIDER_ID ~ "/redirect"
+       })} if SEMAPHORE_OIDC_ONION_ENABLED | bool else {}) }}
+SEMAPHORE_OIDC_PROVIDERS_JSON: "{{ SEMAPHORE_OIDC_PROVIDERS | to_json }}"
+SEMAPHORE_OIDC_VHOST_PROVIDER_ID: "{{ SEMAPHORE_OIDC_ONION_PROVIDER_ID if domain == SEMAPHORE_ONION_DOMAIN else SEMAPHORE_OIDC_PROVIDER_ID }}"
+SEMAPHORE_OIDC_LOGIN_CONFIGURATION: |-
+  {% for id, provider in SEMAPHORE_OIDC_PROVIDERS.items() if id != SEMAPHORE_OIDC_VHOST_PROVIDER_ID %}
+  {% set listed = {"id": id, "name": provider.display_name, "color": "", "icon": ""} | to_json(separators=(",", ":")) %}
+  sub_filter ',{{ listed }}' '';
+  sub_filter '{{ listed }},' '';
+  {% endfor %}
+  sub_filter_types application/json;
+  {% if SEMAPHORE_VHOST_IS_SIBLING | bool %}
+  {{ SEMAPHORE_SIBLING_PROXY }}
+  {% endif %}
+SEMAPHORE_OIDC_LOGIN_LOCATION: >-
+  {{ lookup('ansible.builtin.template',
+            lookup('path_absolute', 'roles/sys-svc-proxy/templates/location/html.conf.j2'),
+            template_vars={
+              'location': '= /api/auth/login',
+              'sso_proxy_enabled': false,
+              'webserver_location_extra_configuration': SEMAPHORE_OIDC_LOGIN_CONFIGURATION
+            }) | trim
+     if SEMAPHORE_OIDC_ONION_ENABLED | bool else '' }}
 
-SEMAPHORE_LDAP_SEARCH_FILTER: "(&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s))"
+SEMAPHORE_RBAC_LOGIN_ROLES:
+  - administrator
+  - operator
+  - user
+SEMAPHORE_RBAC_KEPT_ADMINISTRATORS:
+  - "{{ SEMAPHORE_ADMIN_USERNAME }}"
+  - "{{ SEMAPHORE_OIDC_ADMIN_LOGIN }}"
+SEMAPHORE_LDAP_SEARCH_FILTER: >-
+  (&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s)(|{% for semaphore_login_role in SEMAPHORE_RBAC_LOGIN_ROLES %}({{ LDAP.USER.ATTRIBUTES.MEMBER_OF
+  }}=cn={{ application_id }}-{{ semaphore_login_role }},{{ LDAP.DN.OU.ROLES }}){% endfor %}))
+
+SEMAPHORE_PROJECT_NAME: "{{ SOFTWARE_NAME }}"
+SEMAPHORE_API_URL: "http://127.0.0.1:{{ container_port }}/api"
+SEMAPHORE_API_TOKEN_NAME: "{{ SOFTWARE_DOMAIN }}-deploy"
+SEMAPHORE_API_TOKEN_MINUTES: 30
+
+SEMAPHORE_RUNNER_SERVICE: "task-runner"
+SEMAPHORE_RUNNER_NAME: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.name') }}"
+SEMAPHORE_RUNNER_USER: "{{ SEMAPHORE_RUNNER_NAME }}"
+SEMAPHORE_RUNNER_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.runner_token') }}"
+SEMAPHORE_RUNNER_TOKEN_FILE: "{{ lookup('volume', application_id, 'semaphore_runner_token').target }}"
+SEMAPHORE_RUNNER_TOKEN_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'runner.token' ] | path_join }}"
+SEMAPHORE_RUNNER_UID: "{{ lookup('volume', application_id, 'semaphore_runner_token').uid }}"
+SEMAPHORE_RUNNER_GID: "{{ lookup('volume', application_id, 'semaphore_runner_token').gid }}"
+SEMAPHORE_RUNNER_BUILD_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'runner' ] | path_join }}"
+SEMAPHORE_RUNNER_DOCKERFILE: "{{ lookup('path_absolute', 'roles/web-app-semaphore/files/runner/Dockerfile') }}"
+SEMAPHORE_RUNNER_SCRIPTS: "{{ query('fileglob', lookup('path_absolute', 'roles/web-app-semaphore/files/shell/repository/*')) | sort }}"
+SEMAPHORE_RUNNER_SERVER_URL: "http://{{ SEMAPHORE_SERVICE }}:{{ container_port }}"
+SEMAPHORE_RUNNER_TMP: "/tmp/semaphore"
+SEMAPHORE_RUNNER_REPOSITORY: "/opt/app-control"
+SEMAPHORE_RUNNER_BASE_ARG: "SEMAPHORE_RUNNER_BASE_IMAGE"
+SEMAPHORE_RUNNER_INPUTS_ARG: "SEMAPHORE_RUNNER_INPUTS_DIGEST"
+SEMAPHORE_RUNNER_INPUTS_LABEL: "nexus.infinito.semaphore.runner.inputs"
+SEMAPHORE_RUNNER_INPUTS:
+  SEMAPHORE_SERVER_IMAGE: "{{ SEMAPHORE_SERVER_IMAGE }}"
+  SEMAPHORE_RUNNER_DOCKERFILE_DIGEST: "{{ lookup('file', SEMAPHORE_RUNNER_DOCKERFILE) | hash('sha256') }}"
+  SEMAPHORE_RUNNER_REPOSITORY_DIGEST: >-
+    {{ SEMAPHORE_RUNNER_SCRIPTS | map('basename') | zip(query('file', *SEMAPHORE_RUNNER_SCRIPTS)) | list | to_json | hash('sha256') }}
+  SEMAPHORE_RUNNER_USER: "{{ SEMAPHORE_RUNNER_USER }}"
+  SEMAPHORE_RUNNER_UID: "{{ SEMAPHORE_RUNNER_UID }}"
+  SEMAPHORE_RUNNER_GID: "{{ SEMAPHORE_RUNNER_GID }}"
+  SEMAPHORE_RUNNER_REPOSITORY: "{{ SEMAPHORE_RUNNER_REPOSITORY }}"
+  SEMAPHORE_RUNNER_TMP: "{{ SEMAPHORE_RUNNER_TMP }}"
+SEMAPHORE_RUNNER_INPUTS_DIGEST: "{{ SEMAPHORE_RUNNER_INPUTS | semaphore_runner_digest }}"
+SEMAPHORE_RUNNER_INPUTS_FORMAT: >-
+  {{ '{{ json (index .Config.Labels "' ~ SEMAPHORE_RUNNER_INPUTS_LABEL ~ '") }}' }}
+SEMAPHORE_RUNNER_OWN_ROUND: "{{ application_id in lookup('deployment').primary }}"
+# A compose file rendered before the runner existed has no task-runner service, which reads as no runner deployed.
+SEMAPHORE_RUNNER_DEPLOYED: >-
+  {{ {} if semaphore_runner_compose is skipped
+     else (semaphore_runner_compose.content | b64decode | from_yaml).services.get(SEMAPHORE_RUNNER_SERVICE, {}) }}
+SEMAPHORE_RUNNER_HELD: "{{ semaphore_runner_held is not skipped and semaphore_runner_held.rc == 0 }}"
+SEMAPHORE_RUNNER_BASE_IMAGE: >-
+  {{ SEMAPHORE_RUNNER_INPUTS_DIGEST | semaphore_runner_base(
+       SOFTWARE_IMAGE ~ ':' ~ SOFTWARE_IMAGE_TAG,
+       SEMAPHORE_RUNNER_DEPLOYED.build.args[SEMAPHORE_RUNNER_BASE_ARG] if SEMAPHORE_RUNNER_HELD | bool else '',
+       semaphore_runner_held.stdout_lines | first | from_json if SEMAPHORE_RUNNER_HELD | bool else '',
+       SEMAPHORE_RUNNER_OWN_ROUND | bool) }}
+SEMAPHORE_RUNNER_IMAGE_TAG: "{{ SEMAPHORE_RUNNER_BASE_IMAGE | regex_replace('^.*:', '') }}"
+SEMAPHORE_RUNNER_IMAGE: "{{ lookup('image', application_id, SEMAPHORE_RUNNER_SERVICE, version=SEMAPHORE_RUNNER_IMAGE_TAG) }}"
+SEMAPHORE_RUNNER_BUILD_ARGS: >-
+  {{ SEMAPHORE_RUNNER_INPUTS
+     | combine({SEMAPHORE_RUNNER_BASE_ARG: SEMAPHORE_RUNNER_BASE_IMAGE, SEMAPHORE_RUNNER_INPUTS_ARG: SEMAPHORE_RUNNER_INPUTS_DIGEST}) }}
+SEMAPHORE_RUNNER_LIST_FORMAT: "{{ '{{.Repository}}:{{.Tag}}' }}"
+SEMAPHORE_RUNNER_PRUNE_FILTERS: >-
+  {{ ([SEMAPHORE_RUNNER_IMAGE | regex_replace(':[^:/]+$', '')] + ([SOFTWARE_IMAGE] if SOFTWARE_IMAGE_BUILD | bool else []))
+     | map('regex_replace', '^', '--filter=reference=') | list }}
+SEMAPHORE_RUNNER_PRUNED_IMAGES: >-
+  {{ semaphore_runner_images.stdout_lines | reject('in', [SEMAPHORE_RUNNER_IMAGE, SEMAPHORE_RUNNER_BASE_IMAGE]) | list }}
+
+SEMAPHORE_APP_CONTROL_NAME: "{{ APP_CONTROL_USER }}"
+SEMAPHORE_APP_CONTROL_PLAYBOOK: "app-control.sh"
+SEMAPHORE_APP_CONTROL_HOST: "host.docker.internal"
+SEMAPHORE_APP_CONTROL_HOST_KEY_FILE: "/etc/ssh/ssh_host_ed25519_key.pub"
+SEMAPHORE_APP_CONTROL_PRIVATE_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_control_ssh_key') }}"
+SEMAPHORE_APP_CONTROL_KEY_PREFIX: "{{ SEMAPHORE_APP_CONTROL_NAME }} "
+SEMAPHORE_APP_CONTROL_KEY_NAME: "{{ SEMAPHORE_APP_CONTROL_KEY_PREFIX }}{{ (SEMAPHORE_APP_CONTROL_PRIVATE_KEY | ssh_public_key | hash('sha256'))[:12] }}"
+
+SEMAPHORE_DEPLOY_ENABLED: "{{ 'deploy' in lookup('config', application_id, 'services.semaphore') }}"
+SEMAPHORE_DEPLOY_PROJECT_NAME: "{{ SOFTWARE_NAME }} Deploy"
+SEMAPHORE_DEPLOY_NAME: "deploy"
+SEMAPHORE_DEPLOY_LOGIN: "root"
+SEMAPHORE_DEPLOY_INVENTORY_FILE: "devices.yml"
+SEMAPHORE_DEPLOY_SCRIPT: "deploy.sh"
+SEMAPHORE_DEPLOY_APP_ID: "infinito"
+SEMAPHORE_DEPLOY_APP:
+  active: true
+  title: "{{ SOFTWARE_NAME }}"
+  path: bash
+  args:
+    - "{{ [SEMAPHORE_RUNNER_REPOSITORY, SEMAPHORE_DEPLOY_SCRIPT] | path_join }}"
+SEMAPHORE_APPS_JSON: "{{ {SEMAPHORE_DEPLOY_APP_ID: SEMAPHORE_DEPLOY_APP} | to_json }}"
+SEMAPHORE_DEPLOY_PRIVATE_KEY: "{{ lookup('config', application_id, 'secrets.credentials.deploy_ssh_key') }}"
+SEMAPHORE_DEPLOY_KEY_PREFIX: "{{ SEMAPHORE_DEPLOY_NAME }} "
+SEMAPHORE_DEPLOY_KEY_NAME: "{{ SEMAPHORE_DEPLOY_KEY_PREFIX }}{{ (SEMAPHORE_DEPLOY_PRIVATE_KEY | ssh_public_key | hash('sha256'))[:12] }}"
+SEMAPHORE_DEPLOY_ENVIRONMENT_PREFIX: "{{ SEMAPHORE_DEPLOY_NAME }} "
+SEMAPHORE_DEPLOY_REPOSITORY_NAME: "inventory"
+SEMAPHORE_DEPLOY_REPOSITORY_URL: "{{ lookup('config', application_id, 'services.semaphore.deploy.repository.url') }}" # nocheck: lookup-config-path  inventory-only block, read only when SEMAPHORE_DEPLOY_ENABLED
+SEMAPHORE_DEPLOY_REPOSITORY_BRANCH: "{{ lookup('config', application_id, 'services.semaphore.deploy.repository.branch') }}" # nocheck: lookup-config-path  inventory-only block, read only when SEMAPHORE_DEPLOY_ENABLED
+SEMAPHORE_DEPLOY_REPOSITORY_KEY: "{{ lookup('config', application_id, 'services.semaphore.deploy.repository.key') }}" # nocheck: lookup-config-path  inventory-only block, read only when SEMAPHORE_DEPLOY_ENABLED
+SEMAPHORE_DEPLOY_REPOSITORY_KEY_PREFIX: "{{ SEMAPHORE_DEPLOY_REPOSITORY_NAME }} "
+SEMAPHORE_DEPLOY_REPOSITORY_KEY_NAME: "{{ SEMAPHORE_DEPLOY_REPOSITORY_KEY_PREFIX }}{{ (SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key | hash('sha256'))[:12] }}"
+SEMAPHORE_DEPLOY_VAULT_PASSWORD: "{{ lookup('config', application_id, 'services.semaphore.deploy.vault_password') }}" # nocheck: lookup-config-path  inventory-only block, read only when SEMAPHORE_DEPLOY_ENABLED
+
+SEMAPHORE_DEPLOY_FIXTURE_ENABLED: >-
+  {{ RUNTIME in ['dev', 'act', 'github']
+     and lookup('config', application_id, 'services.gitea.enabled') | bool
+     and SEMAPHORE_DEPLOY_ENABLED | bool }}
+SEMAPHORE_DEPLOY_FIXTURE_SRC_DIR: "{{ lookup('path_absolute') }}"
+SEMAPHORE_DEPLOY_FIXTURE_HOST: "target"
+SEMAPHORE_DEPLOY_FIXTURE_APPLICATION: "web-svc-html"
+# nocheck: literal-protocol-lookup  SEMAPHORE_DEPLOY_FIXTURE_VARS pins TLS_MODE self_signed on the target, so it serves https whatever TLS posture this stack runs
+SEMAPHORE_DEPLOY_FIXTURE_URL: "https://{{ lookup('domain', SEMAPHORE_DEPLOY_FIXTURE_APPLICATION) }}"
+SEMAPHORE_DEPLOY_FIXTURE_MARKER: ".infinito-fixture"
+SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY: "{{ SEMAPHORE_DEPLOY_PRIVATE_KEY | ssh_public_key }}"
+SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH: "{{ SEMAPHORE_DEPLOY_REPOSITORY_URL | urlsplit('path') | regex_replace('^/', '') | regex_replace('[.]git$', '') }}"
+SEMAPHORE_DEPLOY_FIXTURE_GITEA_API: "http://127.0.0.1:{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.internal.http') }}/api/v1"
+SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER: "{{ lookup('users', 'platform_administrator').username }}"
+SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS:
+  Authorization: "Basic {{ (SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER ~ ':' ~ SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD) | b64encode }}"
+SEMAPHORE_DEPLOY_FIXTURE_VARS:
+  ansible_host: "{{ semaphore_deploy_fixture_address }}"
+  TLS_MODE: "self_signed"
+  DOMAIN_PRIMARY: "{{ DOMAIN_PRIMARY }}"
+  SYS_SVC_SSHD_PERMIT_ROOT_LOGIN: "prohibit-password"
+  users:
+    root:
+      authorized_keys:
+        - "{{ SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY }}"
+        - "{{ semaphore_deploy_fixture_holder_key }}"
+    administrator:
+      authorized_keys:
+        - "{{ SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY }}"
+SEMAPHORE_DEPLOY_FIXTURE_FINGERPRINT: >-
+  {{ [SEMAPHORE_DEPLOY_REPOSITORY_KEY, SEMAPHORE_DEPLOY_VAULT_PASSWORD, SEMAPHORE_DEPLOY_FIXTURE_HOST,
+      SEMAPHORE_DEPLOY_FIXTURE_APPLICATION, SEMAPHORE_DEPLOY_FIXTURE_VARS] | to_json | hash('sha256') }}

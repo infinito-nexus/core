@@ -8,8 +8,8 @@ invokable roles.
 * **Warning** (GitHub Actions annotation via ``utils.annotations.message``):
   an invokable role with a lifecycle outside the CI-tested set is flagged
   so reviewers can see at a glance which apps ship without deploy-test
-  coverage. The CI-tested set is the ``INFINITO_LIFECYCLES`` envelope in
-  ``default.env`` (single source of truth).
+  coverage. The CI-tested set is every status some ``ci-deploy`` context in
+  ``meta/lifecycle.yml`` deploys.
 
 This test does NOT enforce the allowed-value whitelist; that contract is
 already covered by ``TestLifecycleAllowedValues`` in
@@ -74,8 +74,7 @@ class TestInvokableRolesUseCITestedLifecycle(unittest.TestCase):
     def test_invokable_roles_use_ci_tested_lifecycle(self) -> None:
         """Emit a warning for each invokable role whose lifecycle is not in
         the CI-tested set. This is informational only -- it never fails the
-        test -- so the project can ship pre-alpha or maintenance apps
-        without forcing them through deploy CI."""
+        test."""
         offenders: list[tuple[str, str]] = []
         for role_dir in _invokable_role_dirs(PROJECT_ROOT):
             lifecycle = get_role_lifecycle(role_dir, role_name=role_dir.name)

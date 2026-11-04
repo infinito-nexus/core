@@ -146,6 +146,22 @@ class TestVolumeLookup(unittest.TestCase):
         self.assertEqual(shared["semantic_name"], "shared")
         self.assertIs(shared["nfs"], True)
 
+    def test_owner_is_returned_only_when_declared(self):
+        canonical = {
+            "token": {
+                "type": "secret",
+                "source": "/x/token",
+                "uid": 64101,
+                "gid": 64102,
+            },
+            "plain": {"type": "secret", "source": "/x/plain"},
+        }
+        token = _run("web-app-semaphore", "token", canonical=canonical)[0]
+        self.assertEqual((token["uid"], token["gid"]), (64101, 64102))
+        plain = _run("web-app-semaphore", "plain", canonical=canonical)[0]
+        self.assertNotIn("uid", plain)
+        self.assertNotIn("gid", plain)
+
     def test_raises_when_name_not_found(self):
         canonical = {
             "data": {"type": "volume", "name": "mattermost_data"},

@@ -1,10 +1,21 @@
 ---
+- name: "⏳ Reap the image pre-pull of a host without a server stage"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    tasks_from: utils/prepull/reap.yml
+
 - name: "🧩 Load destruction roles"
   include_tasks: ./tasks/utils/setup/group.yml
   loop: "{{ lookup('stage_groups', 'destructor') }}"
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}"
+
+- name: "🧹 Purge the Cloudflare cache once per deployed zone"
+  include_role:
+    name: sys-stk-front-base
+    tasks_from: cloudflare/02_cleanup.yml
+  when: cf_zones_to_purge is defined
 
 - name: "🛠️ Finalize services"
   include_role:
@@ -15,7 +26,36 @@
     name: test-e2e-cli
   when: RUNTIME in ['dev', 'act', 'github']
 
-- name: "🔓 Unlock all timers"
+- name: "🧹 Decommission stale compose stacks while the timers are still locked"
+  block:
+    - name: "🧹 Decommission the compose stacks of roles no longer active on this host"
+      include_role:
+        name: sys-svc-compose
+        tasks_from: decommission.yml
+      when:
+        - CLEANUP | bool
+        - IS_COMPOSE_MODE | bool
+        - lookup('deployment').whitelist | length == 0
+  always:
+    - name: "🔓 Unlock all timers"
+      include_role:
+        name: sys-service-terminator
+        tasks_from: 02_unlock.yml
+
+- name: "⏯️ Apply the persisted pause state of every application as the last step"
   include_role:
-    name: sys-service-terminator
-    tasks_from: 02_unlock.yml
+    name: sys-svc-app-control
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+
+- name: "🗂️ Sync Semaphore's stop and start templates with the apps app-control holds"
+  include_role:
+    name: web-app-semaphore
+    tasks_from: utils/project.yml
+  vars:
+    application_id: web-app-semaphore
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+    - "'web-app-semaphore' in group_names"

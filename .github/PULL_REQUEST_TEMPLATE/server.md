@@ -1,3 +1,5 @@
+# Server Pull Request
+
 ## Summary
 
 Briefly describe the `web-*` change and the expected user-facing outcome.
@@ -92,11 +94,11 @@ Check the relevant rows and explain intentional omissions in `Additional Notes`.
 | [ ] | `tasks/main.yml` | Usually | Acts as the role entry point and includes the main task flow. |
 | [ ] | `templates/compose.yml.j2` | For containerized app roles | Defines the service, volume, environment, port, and network wiring. |
 | [ ] | `templates/env.j2` | When the app uses environment files | Renders the app environment configuration. |
-| [ ] | `templates/style.css.j2` or `files/style.css` | When the role injects custom branding or theming | Defines the role-local CSS overrides that adapt the UI to the repository design system. See [Contributing `style.css`](../../docs/contributing/artefact/files/role/style.css.md). |
+| [ ] | `files/style.css` plus optional `files/logo.css`, or `templates/style.css.j2` when it needs Jinja | When the role injects custom branding or theming | Defines the role-local CSS overrides that adapt the UI to the repository design system. See [Contributing `style.css`](../../docs/contributing/artefact/files/role/style.css.md). |
 | [ ] | `templates/javascript.js.j2` or `files/javascript.js` | When the role injects custom frontend behavior | Defines the role-local JavaScript that adapts UI behavior or integration glue in the browser. See [Contributing `javascript.js`](../../docs/contributing/artefact/files/role/javascript.js.md). |
 | [ ] | `meta/users.yml` | When the role bootstraps users or identities | Role-local user definitions (file root IS the users map; no `users:` wrapper). |
 | [ ] | `files/Dockerfile` | When a custom image is required | Provides a custom image build path. Prefer this over `Dockerfile.j2`. |
-| [ ] | `templates/playwright.env.j2` | When Playwright coverage is included | Configures the Playwright test environment. See [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md). |
+| [ ] | `templates/playwright.env.j2` | When Playwright coverage is included | Configures the Playwright test environment. See [`playwright.env.j2` skill](../../agents/skills/i8-file-role-playwright-env/SKILL.md). |
 | [ ] | `files/playwright/playwright.spec.js` | When Playwright coverage is included | Defines the Playwright login and logout test flow. See [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md). |
 
 ### Registered

@@ -1,8 +1,4 @@
 ---
-- name: 📦 install which
-  package_install:
-    id: which
-
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

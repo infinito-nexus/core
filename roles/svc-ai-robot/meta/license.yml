@@ -1,0 +1,2 @@
+# nocheck: license-declared installs nothing; it only asserts that web-app-hermes or web-app-openclaw is present and reports the device grant, so the licence belongs to the agent role.
+---

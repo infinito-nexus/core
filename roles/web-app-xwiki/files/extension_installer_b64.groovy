@@ -3,7 +3,7 @@ import groovy.json.JsonSlurper
 import java.util.Base64
 
 def ext = services.extension
-def ns  = "wiki:xwiki"
+def defaultNs = "wiki:xwiki"
 
 def b64 = '__WANTED_B64__'
 def json = new String(Base64.decoder.decode(b64), 'UTF-8')
@@ -17,6 +17,7 @@ if (!wanted || wanted.isEmpty()) {
 wanted.each { e ->
   def id  = (e.id ?: "").toString()
   def ver = (e.version ?: "").toString().trim()
+  def ns  = (e.namespace == null) ? defaultNs : e.namespace.toString()
   if (!id) { println "ERROR::<missing-id>::Empty extension id in wanted list"; return }
 
   def already = ext.getInstalledExtension(id, ns)

@@ -1,0 +1,31 @@
+---
+- name: "🔎 Detect the Joomla core versions"
+  ansible.builtin.include_tasks: detect.yml
+
+- name: "🧭 Plan the Joomla core update up to the image's core"
+  ansible.builtin.set_fact:
+    JOOMLA_CORE_UPGRADE_STEPS: "{{ JOOMLA_CORE_DATABASE | joomla_core_upgrade_steps(JOOMLA_CORE_FILES, JOOMLA_CORE_TARGET, JOOMLA_UPGRADE_BRIDGES) }}"
+
+- name: "🧭 Show the Joomla core update plan"
+  ansible.builtin.debug:
+    msg: >-
+      Joomla core: database {{ JOOMLA_CORE_DATABASE }}, code volume {{ JOOMLA_CORE_FILES }},
+      image {{ JOOMLA_CORE_TARGET }};
+      steps: {{ JOOMLA_CORE_UPGRADE_STEPS | map(attribute='version') | join(' -> ') or 'none' }}
+
+- name: "⬆️ Update the Joomla core step by step"
+  ansible.builtin.include_tasks: step.yml
+  loop: "{{ JOOMLA_CORE_UPGRADE_STEPS }}"
+  loop_control:
+    loop_var: joomla_core_step
+    label: "{{ joomla_core_step.from }} -> {{ joomla_core_step.version }}"
+
+- name: "✅ Assert one Joomla core at or above the image's core"
+  ansible.builtin.assert:
+    that:
+      - JOOMLA_CORE_DATABASE == JOOMLA_CORE_FILES
+      - JOOMLA_CORE_FILES is version(JOOMLA_CORE_TARGET, '>=')
+    fail_msg: >-
+      Joomla core is split after the update: database {{ JOOMLA_CORE_DATABASE }},
+      code volume {{ JOOMLA_CORE_FILES }}, image {{ JOOMLA_CORE_TARGET }}
+    quiet: true

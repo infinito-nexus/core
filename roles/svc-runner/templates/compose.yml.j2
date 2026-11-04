@@ -6,6 +6,7 @@
     image: "{{ RUNNER_IMAGE_REF }}"
     {{ lookup('compose_only', 'container_name', 'runner-' ~ i, node_local=True) }}
     {{ lookup('compose_restart', node_local=True) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     working_dir: "{{ RUNNER_INSTALL_DIR }}/{{ i }}"
     env_file: "{{ RUNNER_INSTALL_DIR }}/{{ i }}/.env"
     # nocheck: compose-inline-mount-section  per-instance host bind mounts, not services.yml volumes
@@ -16,7 +17,7 @@
     group_add:
       - "{{ _runner_docker_gid }}"
     {{ lookup('container_networks', node_local=True) | indent(4) }}
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     deploy:
       {{ lookup('compose_replicas', 1) }}
     {% endif %}

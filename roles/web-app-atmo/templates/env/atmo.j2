@@ -1,0 +1,9 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+CLOUDFLARE_INCLUDE_PROCESS_ENV=true
+OAUTH_PUBLIC_URL={{ ATMO_PUBLIC_URL | dotenv_quote }}
+COOKIE_SECRET={{ lookup('config', application_id, 'secrets.credentials.cookie_secret') | dotenv_quote }}
+CLIENT_ASSERTION_KEY={{ ATMO_CLIENT_ASSERTION_KEY | dotenv_quote }}
+CRON_SECRET={{ ATMO_CRON_SECRET | dotenv_quote }}
+MODERATOR_DIDS={{ ATMO_MODERATOR_DIDS | dotenv_quote }}
+BOT_IDENTIFIER={{ '' | dotenv_quote }}

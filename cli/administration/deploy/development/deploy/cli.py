@@ -19,6 +19,7 @@ from cli.administration.deploy.development.inventory import (
 from cli.administration.deploy.development.variant_select import (
     add_variant_args,
     apply_variant_filter,
+    env_guide_host_pin,
 )
 from cli.administration.inventory.provision.services_disabler import (
     find_provider_roles,
@@ -76,10 +77,10 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         default=_env_full_cycle(),
         help=(
             "After each round's regular deploy, immediately re-run the "
-            "deploy with `-e ASYNC_ENABLED=true` (the async update pass). "
+            "deploy with `-e DEPLOY_IS_UPDATE=true` (the update pass). "
             "Pass 1 + Pass 2 stay co-located on the SAME variant so the "
-            "async re-deploy always runs against the host state the "
-            "matching sync deploy just produced. Defaults to the "
+            "re-deploy always runs against the host state the "
+            "matching first deploy just produced. Defaults to the "
             "full_cycle environment variable (true|false) when set."
         ),
     )
@@ -119,10 +120,12 @@ def handler(args: argparse.Namespace) -> int:
     if passthrough and passthrough[0] == "--":
         passthrough = passthrough[1:]
 
+    roles_dir = str(compose.repo_root / "roles")
     plan = plan_dev_inventory_matrix(
-        roles_dir=str(compose.repo_root / "roles"),
+        roles_dir=roles_dir,
         primary_apps=primary_app_ids,
         base_inventory_dir=str(args.inventory_dir),
+        pinned_variants=env_guide_host_pin(roles_dir, primary_app_ids),
     )
     try:
         plan = apply_variant_filter(plan, args)
@@ -188,7 +191,8 @@ def handler(args: argparse.Namespace) -> int:
             f"matrix-deploy: round {round_index + 1}/{len(plan)} "
             f"inv={inv_dir} variants={round_variants} apps={round_deploy_ids}"
         )
-        print(f"=== {pass_label} PASS 1 (sync) ===")
+        compose.reset_target()
+        print(f"=== {pass_label} PASS 1 (initial) ===")
         rc = run_pass({"VARIANT_INDEX": round_index, "PRIMARY_APPS": primary_app_ids})
         if rc != 0:
             return rc
@@ -198,10 +202,11 @@ def handler(args: argparse.Namespace) -> int:
             _rotate_credentials(
                 compose, inventory_dir=inv_dir, round_variants=round_variants
             )
-            print(f"=== {pass_label} PASS 2 (async) ===")
+            compose.reset_target()
+            print(f"=== {pass_label} PASS 2 (update) ===")
             rc = run_pass(
                 {
-                    "ASYNC_ENABLED": True,
+                    "DEPLOY_IS_UPDATE": True,
                     "VARIANT_INDEX": round_index,
                     "PRIMARY_APPS": primary_app_ids,
                 }

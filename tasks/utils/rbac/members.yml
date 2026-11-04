@@ -1,0 +1,30 @@
+---
+# Param rbac_members_application_id: application whose role group is resolved.
+# Param rbac_members_role: non-tenant role name declared by that application.
+# Output rbac_members: list of {username, email, name}, from the directory when OpenLDAP is deployed, from the inventory grants otherwise.
+
+- name: "👥 Search members of {{ rbac_members_application_id }}/{{ rbac_members_role }}"
+  community.general.ldap_search:
+    server_uri: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}"
+    bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+    dn: "{{ LDAP.DN.OU.USERS }}"
+    scope: onelevel
+    filter: "({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn={{ rbac_members_application_id }}-{{ rbac_members_role }},{{ LDAP.DN.OU.ROLES }})"
+    attrs:
+      - "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      - "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      - "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+  register: rbac_members_ldap_search
+  delegate_to: "{{ STACK_HOST }}"
+  when: "'svc-db-openldap' in group_names"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👥 Set members of {{ rbac_members_application_id }}/{{ rbac_members_role }}"
+  ansible.builtin.set_fact:
+    rbac_members: >-
+      {{
+        (rbac_members_ldap_search.results | rbac_ldap_members(LDAP.USER.ATTRIBUTES.ID, LDAP.USER.ATTRIBUTES.MAIL, LDAP.USER.ATTRIBUTES.FULLNAME))
+        if ('svc-db-openldap' in group_names)
+        else (lookup('users') | rbac_members(rbac_members_application_id, rbac_members_role))
+      }}

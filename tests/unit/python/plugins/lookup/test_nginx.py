@@ -100,6 +100,20 @@ class TestNginxPathsLookup(unittest.TestCase):
         self.assertEqual(out["global"], "/opt/mock/www/global/")
         self.assertEqual(out["well_known"], "/usr/share/nginx/well-known/")
 
+    def test_paused_directories_live_below_the_mounted_www_tree(self):
+        out = self._run(["directories.data"])
+        self.assertEqual(out["paused_apps"], "/opt/mock/www/paused/apps/")
+        self.assertEqual(out["paused_pages"], "/opt/mock/www/paused/pages/")
+
+    def test_paused_directories_are_ensured_world_readable(self):
+        ensure = self._run(["directories.ensure"])
+        for path in (
+            "/opt/mock/www/paused/",
+            "/opt/mock/www/paused/apps/",
+            "/opt/mock/www/paused/pages/",
+        ):
+            self.assertIn({"path": path, "mode": "0755"}, ensure)
+
     def test_directories_cache_projection(self):
         out = self._run(["directories.cache"])
         self.assertEqual(out["general"], "/tmp/cache_nginx_general/")
@@ -207,6 +221,43 @@ class TestNginxPathsLookup(unittest.TestCase):
                 variables=self.variables,
                 protocol="ftp",
             )
+
+    def test_files_lua_is_one_file_per_domain(self):
+        with (
+            patch(
+                "plugins.lookup.nginx.get",
+                side_effect=self._fake_get,
+            ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value={},
+            ),
+            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+        ):
+            loader_mock.get.side_effect = self._loader_get()
+            out = self.plugin.run(
+                ["files.lua", "filer.example.com"],
+                variables=self.variables,
+                protocol="https",
+            )[0]
+
+        self.assertEqual(out, "/opt/mock/nginx/conf.d/lua/filer.example.com.lua")
+
+    def test_files_lua_without_domain_raises(self):
+        with (
+            patch(
+                "plugins.lookup.nginx.get",
+                side_effect=self._fake_get,
+            ),
+            patch(
+                "plugins.lookup.nginx.get_canonical_volumes",
+                return_value={},
+            ),
+            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            self.assertRaises(AnsibleError),
+        ):
+            loader_mock.get.side_effect = self._loader_get()
+            self.plugin.run(["files.lua"], variables=self.variables)
 
     def test_invalid_usage_raises(self):
         with (

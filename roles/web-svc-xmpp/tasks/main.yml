@@ -3,6 +3,12 @@
   include_role:
     name: sys-stk-full
 
+- name: "👥 Resolve the administrator members of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/rbac/members.yml
+  vars:
+    rbac_members_application_id: "{{ application_id }}"
+    rbac_members_role: administrator
+
 - name: "📄 Render ejabberd configuration"
   stack_host_template:
     src: configuration.yml.j2

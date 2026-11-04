@@ -7,10 +7,14 @@ here instead and read through the `group_roles` lookup.
 
 from __future__ import annotations
 
+import heapq
 from collections import defaultdict, deque
 from functools import cache
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
 
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_VARS_MAIN
@@ -163,6 +167,54 @@ def topological_sort(graph, in_degree, roles=None) -> list[str]:
         )
 
     return sorted_roles
+
+
+def stable_order_after(
+    names: list[str], after: Mapping[str, Iterable[str]]
+) -> list[str]:
+    """Order *names* so each one follows the names it lists in *after*.
+
+    Args:
+        names: the names in their current order.
+        after: per name, the names it must follow. Names absent from *names*
+            constrain nothing.
+
+    Returns:
+        *names* reordered: the next name is always the earliest one in *names*
+        whose predecessors are all placed, so a name moves only when a
+        constraint forces it.
+
+    Raises:
+        RuntimeError: the constraints among *names* form a cycle, a name that
+            lists itself included.
+    """
+    index = {name: position for position, name in enumerate(names)}
+    blockers = {
+        name: {dep for dep in after.get(name, ()) if dep in index} for name in names
+    }
+    followers: dict[str, list[str]] = defaultdict(list)
+    for name, deps in blockers.items():
+        for dep in deps:
+            followers[dep].append(name)
+
+    ready = [index[name] for name in names if not blockers[name]]
+    heapq.heapify(ready)
+    placed: list[str] = []
+    while ready:
+        name = names[heapq.heappop(ready)]
+        placed.append(name)
+        for follower in followers[name]:
+            blockers[follower].discard(name)
+            if not blockers[follower]:
+                heapq.heappush(ready, index[follower])
+
+    if len(placed) != len(names):
+        stuck = [name for name in names if blockers[name]]
+        raise RuntimeError(
+            "Circular run_after: "
+            + "; ".join(f"{name} after {sorted(blockers[name])}" for name in stuck)
+        )
+    return placed
 
 
 @cache

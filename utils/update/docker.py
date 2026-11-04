@@ -34,9 +34,10 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.docker.image.discovery import iter_role_images
 from utils.docker.image.ref import (
-    DOCKER_HUB_REGISTRIES,
     GHCR_REGISTRY,
     MCR_REGISTRY,
+    dockerhub_repo,
+    is_dockerhub,
     split_registry_and_name,
 )
 from utils.docker.registry import fetch_registry_tags
@@ -51,6 +52,7 @@ from utils.update.base import (
     version_flavor,
     version_key,
 )
+from utils.update.follow import followed_tags
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -76,24 +78,6 @@ class DockerImageVersionEntry:
 class DockerImageVersionUpdate:
     entry: DockerImageVersionEntry
     latest: str
-
-
-def is_dockerhub(image: str) -> bool:
-    parsed = split_registry_and_name(image)
-    if parsed is None:
-        return False
-    registry, _name = parsed
-    return registry is None or registry in DOCKER_HUB_REGISTRIES
-
-
-def dockerhub_repo(image: str) -> str:
-    parsed = split_registry_and_name(image)
-    if parsed is None:
-        raise ValueError(f"Invalid Docker image reference: {image!r}")
-    registry, name = parsed
-    if registry is not None and registry not in DOCKER_HUB_REGISTRIES:
-        raise ValueError(f"Image is not a Docker Hub reference: {image!r}")
-    return name if "/" in name else f"library/{name}"
 
 
 def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:
@@ -289,6 +273,8 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
     entries: list[DockerImageVersionEntry] = []
 
     for ref in iter_role_images(repo_root):
+        if ref.derived:
+            continue
         if ref.source_file != ROLE_FILE_META_SERVICES:
             continue
         if not is_semver(ref.version):
@@ -356,7 +342,10 @@ def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
         )
 
     for entry in entries:
-        tags = image_tags.get(entry.image, [])
+        config = (load_yaml(str(entry.config_path)) or {}).get(entry.service)
+        tags = followed_tags(
+            entry.image, image_tags.get(entry.image, []), config, entry.version
+        )
         if not tags:
             continue
         latest = latest_semver(

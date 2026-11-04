@@ -78,8 +78,8 @@ class TestPullRequestScope(unittest.TestCase):
         files_json = """\
 [
   {"filename":"AGENTS.md"},
-  {"filename":"docs/agents/action/debug/local.md"},
-  {"filename":"docs/agents/action/develop.md"}
+  {"filename":"agents/skills/i8-debug-local/SKILL.md"},
+  {"filename":"agents/routines/develop.py"}
 ]
 """
         _, outputs = self._run_script(files_json=files_json)

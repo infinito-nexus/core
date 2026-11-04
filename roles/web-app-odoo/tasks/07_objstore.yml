@@ -1,0 +1,20 @@
+---
+- name: "🧹 Release the attachment default from a storage of another engine"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/objstore/clear-other-defaults.sql"
+    named_args:
+      code: "{{ ODOO_OBJSTORE_STORAGE_CODE }}"
+
+- name: "🪣 Register the object store as the default attachment storage"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/objstore/upsert-fs-storage.sql"
+    named_args:
+      code: "{{ ODOO_OBJSTORE_STORAGE_CODE }}"
+      name: "{{ ODOO_OBJSTORE_STORAGE_NAME }}"
+      options: "{{ ODOO_OBJSTORE_OPTIONS | to_json }}"
+      bucket: "{{ ODOO_OBJSTORE_BUCKET }}"
+      force_db_rules: "{{ ODOO_OBJSTORE_FORCE_DB_RULES }}"

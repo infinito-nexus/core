@@ -1,14 +1,14 @@
 """Send one HTTP request to XWiki and print the answer as JSON.
 
-Args (module global, set by a line the caller prepends to this script on stdin):
-    HEADERS_B64: base64 of a JSON object of request headers. Headers carry
-        credentials and cookies, which an environment variable would expose
-        on the process command line.
+Args (module globals, set by lines the caller prepends to this script on stdin):
+    HEADERS_B64: base64 of a JSON object of request headers.
+    BODY_B64: base64 of the request body, sent verbatim; an empty body sends none.
+    Headers and body carry credentials and cookies, which an environment
+    variable would expose on the process command line.
 
 Args (environment):
     HTTP_METHOD: request method.
     HTTP_URL: absolute http:// URL.
-    HTTP_BODY: request body, sent verbatim; an empty string sends none.
     HTTP_FOLLOW_REDIRECTS: ``safe`` follows redirects of GET and HEAD
         requests, ``none`` answers with the redirect itself.
     HTTP_TIMEOUT: socket timeout in seconds.
@@ -49,7 +49,7 @@ def _joined(headers):
 
 
 url = os.environ["HTTP_URL"]
-body = os.environ["HTTP_BODY"]
+body = base64.b64decode(globals()["BODY_B64"]).decode()
 jar = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(
     urllib.request.ProxyHandler({}),

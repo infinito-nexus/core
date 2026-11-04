@@ -1,9 +1,15 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+  requireDotenvValue,
+} = require("./personas");
 
-const baseUrl = normalizeBaseUrl(process.env.BOOKWYRM_BASE_URL || "");
+const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.BOOKWYRM_BASE_URL, "BOOKWYRM_BASE_URL"));
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
@@ -23,7 +29,10 @@ test("OIDC: oauth2-proxy + trusted-header SSO sign the visitor into BookWyrm (va
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("main .tabs"),
+    "Expected BookWyrm's signed-in feed home, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   await gotoOnion(page, `${expectedBase}/preferences/profile`, { waitUntil: "domcontentloaded" });
   await expect(

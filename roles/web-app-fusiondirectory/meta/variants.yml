@@ -6,6 +6,9 @@
 
 # variant 0: OIDC variant (canonical default; oauth2-proxy gate).
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:
@@ -27,12 +30,15 @@
       enabled: true
       shared: true
 
-    css:
+    design:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -55,7 +61,38 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
 
-    css:
+    design:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:

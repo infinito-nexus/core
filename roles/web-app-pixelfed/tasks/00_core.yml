@@ -8,6 +8,20 @@
     compose_handlers_flush: false
     webserver_extra_configuration: "client_max_body_size 512M;"
 
+- name: "📋 Stage the OIDC sign-in listener that sets the admin flag from the role group"
+  stack_host_copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0444"
+  loop:
+    - { src: php/rbac/oidc_login.php, dest: "{{ PIXELFED_RBAC_OIDC_LOGIN_HOST }}" }
+    - { src: php/rbac/userinfo_client.php, dest: "{{ PIXELFED_RBAC_USERINFO_CLIENT_HOST }}" }
+  notify: compose-up
+  when: PIXELFED_OIDC_ENABLED | bool
+
 - name: "👔 Pixelfed manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🛂 Reconcile the Pixelfed admin flag with the RBAC role group"
+  include_tasks: 06_rbac.yml

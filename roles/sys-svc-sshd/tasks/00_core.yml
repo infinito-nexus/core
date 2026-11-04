@@ -18,4 +18,10 @@
     mode: "0644"
   notify: sshd-restart
 
+- name: ▶️ Keep the SSH daemon enabled and running
+  ansible.builtin.systemd:
+    name: "{{ SYS_SVC_SSHD_SERVICE }}"
+    state: started
+    enabled: true
+
 - include_tasks: utils/once/flag.yml

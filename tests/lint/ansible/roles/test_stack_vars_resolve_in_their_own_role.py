@@ -11,7 +11,10 @@ url written by one app was looked up on ``svc-prx-openresty``, which has no such
 service, and the git task died on an unresolvable argument.
 
 Naming the application literally makes the expression answer the same in every
-scope it travels through.
+scope it travels through. ``entity_name`` is both such a variable and the
+filter that derives one from a role id, so a match preceded by a pipe is an
+application of the filter to whatever stands left of it, not a read of the
+reader's scope.
 
 Only the ``compose_*`` keys are judged, because only those does the included
 chain evaluate. A value nobody downstream reads is merely in scope and harmless;
@@ -37,6 +40,18 @@ _STACK_INCLUDE = "sys-stk-full"
 
 _PASSED_RE = re.compile(r"^\s+(compose_[a-z_]+):\s*\"\{\{\s*([A-Z][A-Z0-9_]*)\s*\}\}\"")
 _SCOPED_RE = re.compile(r"(?<![\w.])(application_id|entity_name)\b")
+
+
+def reads_the_scope(line: str) -> bool:
+    """Return whether *line* reads a role-scoped variable.
+
+    Args:
+        line: a single source line.
+    """
+    return any(
+        not line[: match.start()].rstrip().endswith("|")
+        for match in _SCOPED_RE.finditer(line)
+    )
 
 
 def passed_into_stack(role) -> set[str]:
@@ -72,7 +87,7 @@ def definitions_reading_scope(role, names: set[str]) -> list[str]:
     lines = read_text(str(variables)).splitlines()
     for index, line in enumerate(lines, start=1):
         name = line.split(":", 1)[0].strip()
-        if name not in names or not _SCOPED_RE.search(line):
+        if name not in names or not reads_the_scope(line):
             continue
         if is_suppressed_at(lines, index, _RULE):
             continue

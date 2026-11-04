@@ -1,0 +1,58 @@
+---
+# include-gated: when: not (DOCKER_IN_CONTAINER | bool)
+- name: "🔍 update (pacman) | check the module index of the running kernel"
+  ansible.builtin.include_tasks: arch/module_index.yml
+
+- name: "🔍 update (pacman) | read the boot id that tells host from controller"
+  ansible.builtin.slurp:
+    src: /proc/sys/kernel/random/boot_id
+  register: update_boot_id
+
+- name: "🔁 update (pacman) | reboot into the installed kernel"
+  become: true
+  throttle: 1
+  ansible.builtin.reboot:
+    msg: "Infinito.Nexus update: boot the kernel the package upgrade installed"
+    reboot_timeout: "{{ lookup('timeout', 1800) | int }}"
+    test_command: "systemctl is-system-running --wait | grep -qxE 'running|degraded'"
+  register: update_reboot
+  when:
+    - (update_kernel_modules_missing | bool) or (update_kernel_reboot_pending | bool)
+    - UPDATE_REBOOT_ENABLED | bool
+    - not ansible_check_mode
+    - not (update_mesh_up_in_play | bool)
+    - not (update_controller_is_target | bool)
+
+- name: "🔍 update (pacman) | re-read the kernel and its modules after the reboot"
+  when: update_reboot is changed
+  block:
+    - name: "🔍 update (pacman) | read the kernel the host booted"
+      ansible.builtin.setup:
+        gather_subset:
+          - "!all"
+          - platform
+
+    - name: "🔍 update (pacman) | check the module index of the booted kernel"
+      ansible.builtin.include_tasks: arch/module_index.yml
+
+- name: "🛑 update (pacman) | fail before a service restart needs a lost kernel module"
+  ansible.builtin.assert:
+    that: not (update_kernel_modules_missing | bool)
+    fail_msg: >-
+      Reboot required: the running kernel {{ ansible_facts['kernel'] }} has no module index in
+      /usr/lib/modules; only {{ update_module_trees | join(', ') }} have one.
+      No kernel module can load, so restarting Docker would fail to create its iptables chains
+      and leave every container down. Reboot into the installed kernel, then deploy again.
+      {{ update_reboot_skip_reason }}
+    quiet: true
+
+- name: "⚠️ update (pacman) | announce the reboot into the installed kernel"
+  ansible.builtin.debug:
+    msg: >-
+      Reboot pending: the running kernel {{ ansible_facts['kernel'] }} is no longer installed and loads its
+      modules from the tree kernel-modules-hook kept, which no package owns; installed:
+      {{ update_module_trees | reject('equalto', ansible_facts['kernel']) | join(', ') }}.
+      Reboot the host into the installed kernel; during that boot linux-modules-cleanup.service deletes every module tree that neither the new kernel nor an installed
+      package owns.
+      {{ update_reboot_skip_reason }}
+  when: update_kernel_reboot_pending | bool

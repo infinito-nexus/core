@@ -1,0 +1,27 @@
+.sh-sidenav .sh-wordmark.sh-sidenav-brand,
+.sh-login-hero .sh-wordmark {
+  box-sizing: content-box;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-origin: content-box;
+}
+
+.sh-sidenav .sh-wordmark.sh-sidenav-brand {
+  flex-shrink: 0;
+  width: var(--design-slot-sidebar-width);
+  height: var(--design-slot-sidebar-height);
+  background-image: var(--design-url-sidebar-svg);
+  background-position: left center;
+}
+
+.sh-login-hero .sh-wordmark {
+  width: var(--design-slot-login-width);
+  height: var(--design-slot-login-height);
+  background-image: var(--design-url-login-svg);
+  background-position: center;
+}
+
+.sh-sidenav .sh-wordmark.sh-sidenav-brand > *,
+.sh-login-hero .sh-wordmark > * {
+  display: none;
+}

@@ -10,8 +10,7 @@
 #   lookup('unit_name', 'alarm@')                        -> alarm.1.2.3.infinito.nexus@.service
 #
 # Requirements:
-# - SOFTWARE_DOMAIN must be available in vars (inventory/group_vars/role vars).
-# - Version is read via lookup('version') (your existing version lookup plugin).
+# - SYS_SERVICE_VERSION_SUFFIX (group_vars/all/06_daemons.yml) must be available in vars.
 
 from __future__ import annotations
 
@@ -43,33 +42,6 @@ def _render_if_template(templar, value, var_name: str):
             f"unit_name lookup: unresolved template for '{var_name}': {value}"
         )
     return rendered
-
-
-def _resolve_version(templar, variables):
-    try:
-        version = templar.template("{{ lookup('version') }}")
-    except TypeError:
-        version = templar.template("{{ lookup('version') }}")
-
-    if _looks_like_template(version):
-        try:
-            try:
-                from plugins.lookup.version import LookupModule as VersionLookupModule
-            except ModuleNotFoundError:
-                from version import LookupModule as VersionLookupModule
-
-            version_lookup = VersionLookupModule()
-            version_values = version_lookup.run([], variables=variables)
-            if isinstance(version_values, list):
-                version = version_values[0] if version_values else ""
-            else:
-                version = version_values
-        except Exception as exc:
-            raise AnsibleError(
-                "unit_name lookup: failed to resolve version via lookup('version')."
-            ) from exc
-
-    return version
 
 
 def _normalize_suffix(suffix) -> str:
@@ -115,22 +87,17 @@ def _strip_sys_ctl_prefix(systemctl_id: str) -> str:
     return systemctl_id
 
 
-def _build_unit_name(
-    systemctl_id: str, version: str, software_domain: str, suffix
-) -> str:
+def _build_unit_name(systemctl_id: str, version_suffix: str, suffix) -> str:
     sid = _strip_sys_ctl_prefix(_lower_required(systemctl_id, "systemctl_id"))
     if not sid:
         raise AnsibleError(
             "unit_name lookup: normalized systemctl_id is empty after stripping prefix."
         )
-    ver = _lower_required(version, "version")
-    sw = _lower_required(software_domain, "SOFTWARE_DOMAIN")
     sfx = _normalize_suffix(suffix)
 
     if sid.endswith("@"):
-        base = sid[:-1]
-        return f"{base}.{ver}.{sw}@{sfx}"
-    return f"{sid}.{ver}.{sw}{sfx}"
+        return f"{sid[:-1]}{version_suffix}@{sfx}"
+    return f"{sid}{version_suffix}{sfx}"
 
 
 class LookupModule(LookupBase):
@@ -152,26 +119,22 @@ class LookupModule(LookupBase):
             )
 
         available = getattr(self._templar, "available_variables", {}) or {}
-        software_domain = available.get("SOFTWARE_DOMAIN")
-        if not software_domain:
+        version_suffix = available.get("SYS_SERVICE_VERSION_SUFFIX")
+        if not version_suffix:
             raise AnsibleError(
-                "unit_name lookup: SOFTWARE_DOMAIN is not defined in the variable context."
+                "unit_name lookup: SYS_SERVICE_VERSION_SUFFIX is not defined in the variable context."
             )
-        software_domain = _render_if_template(
-            self._templar, software_domain, "SOFTWARE_DOMAIN"
+        version_suffix = _lower_required(
+            _render_if_template(
+                self._templar, version_suffix, "SYS_SERVICE_VERSION_SUFFIX"
+            ),
+            "SYS_SERVICE_VERSION_SUFFIX",
         )
-
-        version = _resolve_version(self._templar, variables)
-        if not version or not str(version).strip():
+        if not version_suffix.startswith(".") or "" in version_suffix[1:].split("."):
             raise AnsibleError(
-                "unit_name lookup: lookup('version') returned an empty value."
+                f"unit_name lookup: SYS_SERVICE_VERSION_SUFFIX must read '.<version>.<domain>', got '{version_suffix}'."
             )
 
         suffix = kwargs.get("suffix")
 
-        results = []
-        results.extend(
-            _build_unit_name(term, version, software_domain, suffix) for term in terms
-        )
-
-        return results
+        return [_build_unit_name(term, version_suffix, suffix) for term in terms]

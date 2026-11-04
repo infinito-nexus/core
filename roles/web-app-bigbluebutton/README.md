@@ -2,142 +2,54 @@
 
 ## Description
 
-This Ansible role deploys [BigBlueButton](https://bigbluebutton.org/) using Docker Compose. It includes support for Greenlight, OIDC, LDAP, TURN/STUN, health checks, and a modular `.env` setup. This role is ideal for educational institutions and teams requiring a self-hosted video conferencing solution.
+This Ansible role deploys [BigBlueButton](https://bigbluebutton.org/) using Docker Compose. It includes support for Greenlight, OIDC, TURN/STUN, health checks, and a modular `.env` setup. This role is ideal for educational institutions and teams requiring a self-hosted video conferencing solution.
 > 🔧 **Note**: The database layer should be decoupled in a future release to improve modularity and integration.
 >
 
 ## Overview
 
-This role provides a fully automated deployment of [BigBlueButton](https://bigbluebutton.org/) using Docker Compose on Arch Linux. It manages the entire lifecycle of the deployment, from cloning the upstream Docker repository and generating the `.env` configuration to customizing `compose.yml` for volume usage, WebSocket proxying, and optional LDAP/OIDC integration.
+This role provides a fully automated deployment of [BigBlueButton](https://bigbluebutton.org/) using Docker Compose on Arch Linux. It manages the entire lifecycle of the deployment, from cloning the upstream Docker repository and generating the `.env` configuration to customizing `compose.yml` for volume usage, WebSocket proxying, and optional OIDC integration.
 The setup includes conditional Greenlight activation, WebRTC support via TURN/STUN, and various fixes for known container orchestration issues. The role is modular and integrates seamlessly with the Infinito.Nexus infrastructure, including reverse proxy configuration, domain management, and secrets templating.
 By default, BigBlueButton is deployed with best-practice hardening, modular secrets, and support for multiple authentication methods and scalable storage backends.
-
-## Cosmos
-
-The diagram places BigBlueButton in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_collabora["web-svc-collabora 🐳🐝"]
-        dep_web_svc_coturn["web-svc-coturn 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-bigbluebutton 🐳🐝]
-        svc_sso["sso"]
-        svc_logout["logout"]
-        svc_ldap["ldap"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_bigbluebutton["bigbluebutton"]
-        svc_postgres["postgres"]
-        svc_greenlight["greenlight"]
-        svc_coturn["coturn"]
-        svc_collabora["collabora"]
-        svc_css["css"]
-        svc_prometheus["prometheus"]
-        svc_bbb_web["bbb-web"]
-        svc_freeswitch["freeswitch"]
-        svc_nginx["nginx"]
-        svc_bbb_shared_notes_server["bbb-shared-notes-server"]
-        svc_bbb_export_annotations["bbb-export-annotations"]
-        svc_webrtc_sfu["webrtc-sfu"]
-        svc_fsesl_akka["fsesl-akka"]
-        svc_apps_akka["apps-akka"]
-        svc_bbb_graphql_server["bbb-graphql-server"]
-        svc_bbb_graphql_actions["bbb-graphql-actions"]
-        svc_bbb_graphql_middleware["bbb-graphql-middleware"]
-        svc_periodic["periodic"]
-        svc_recordings["recordings"]
-        svc_bbb_webrtc_recorder["bbb-webrtc-recorder"]
-        svc_dockerize["dockerize"]
-        svc_container_backup["container_backup"]
-        svc_tor["tor ❌"]
-    end
-    subgraph dependents [Dependents]
-        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -- "1:1" --> svc_ldap
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_collabora -. "0..1" .-> svc_collabora
-    dep_web_svc_coturn -. "0..1" .-> svc_coturn
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_sso -. "0..1" .-> dpt_web_app_nextcloud
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
 - 🐳 **Docker-based** deployment via official [bigbluebutton/docker](https://github.com/bigbluebutton/docker)
 - ✅ **Greenlight** (v3) frontend support
-- 🔐 **SSO with OIDC & LDAP** (optional)
+- 🔐 **SSO with OIDC** (optional). Greenlight v3 has no LDAP login, so directory users sign in through Keycloak's LDAP federation.
+- **Administrator role:** [files/ruby/greenlight/reconcile_roles.rb](./files/ruby/greenlight/reconcile_roles.rb) sets the Greenlight `Administrator` role from the `web-app-bigbluebutton` `administrator` members, matched by email, and demotes every other Greenlight administrator to `User`, as an RBAC hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer. The platform administrator keeps the role.
 - 🧱 Automatic `.env` templating and domain/NGINX integration
 - 🛠 Volume patching and Docker Compose customization
-- 📬 SMTP integration and Greenlight admin creation
+- 📬 SMTP integration and Greenlight admin creation: the administrator is verified and active, and its password converges on every deploy
+- 🎨 Corporate design for Greenlight: brand color and logo through the Greenlight site settings, the configured title through the design script, dark mode through the role stylesheet; the meeting client (`/html5client`) takes the palette and the configured title through its own `customStyleUrl` and `clientTitle` settings
 - 🧪 Workarounds for known Docker Compose issues
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy BigBlueButton onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-bigbluebutton full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy BigBlueButton to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-bigbluebutton
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
 
 ## Single Sign-On (SSO)
 
 - Docs: [External Authentication](https://docs.bigbluebutton.org/greenlight/v3/external-authentication/)
 - Supports:
   - ✅ OpenID Connect (OIDC)
-  - ✅ LDAP (with custom DN and filters)
   - 🧩 Custom OAuth2 flows via ENV vars
+
+## Login methods
+
+`services.bigbluebutton.login.method` declares `sso`, `native` and `registration`:
+
+- `sso` renders the `OPENID_CONNECT_*` block of [templates/env.j2](./templates/env.j2). With it Greenlight v3 shows one Sign In button that posts to Keycloak and no Sign Up, and its API refuses every local sign-in except a SuperAdmin's and every local sign-up. Greenlight finds the account by `external_id`, the token's `sub` (`OPENID_CONNECT_UID_FIELD=sub`), and never by e-mail (`USE_EMAIL_AS_EXTERNAL_ID_FALLBACK=false`); [files/ruby/greenlight/ensure_admin.rb](./files/ruby/greenlight/ensure_admin.rb) gives the administrator the Keycloak id that [roles/web-app-keycloak/tasks/utils/directory_users.yml](../web-app-keycloak/tasks/utils/directory_users.yml) reads at deploy.
+- `native` is the local email and password sign-in Greenlight offers whenever `OPENID_CONNECT_ISSUER` is unset. Greenlight has no switch of its own for it, so [tasks/04_login_methods.yml](./tasks/04_login_methods.yml) refuses an inventory that sets `native` equal to `sso`.
+- `registration` sets the Greenlight site setting `RegistrationMethod` through [files/ruby/greenlight/registration_method.rb](./files/ruby/greenlight/registration_method.rb): `invite` while it is off, so the Sign Up entry disappears and only invited visitors register, and `open` while it or `sso` is on, because Greenlight also applies `RegistrationMethod` to the first OIDC sign-in and `invite` would refuse every new Keycloak account.
+- Greenlight v3 has no own second factor and no LDAP sign-in.
+- **Break-glass:** the role's administrator is a Greenlight `Administrator`, not a `SuperAdmin`, so with SSO on no form admits it. Reach the instance through the Rails runner of the `greenlight` container (`bundle exec rails runner`), the same channel [files/ruby/greenlight/ensure_admin.rb](./files/ruby/greenlight/ensure_admin.rb) uses.
+
+## Addons
+
+Role-level extensions are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `openid_connect` | `module` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+
+Greenlight ships its OpenID Connect strategy with the image and activates it from the `OPENID_CONNECT_*` block in [templates/env.j2](./templates/env.j2), so the addon's enablement derives directly from the `sso` service flag. Coupling is asserted by [files/playwright/addons/openid_connect.spec.js](./files/playwright/addons/openid_connect.spec.js).
 
 ## System Requirements
 
@@ -149,9 +61,4 @@ docker run --rm -it \
 
 - [BigBlueButton Docker Docs](https://docs.bigbluebutton.org/greenlight/v3/install/)
 - [Networking Fixes & Issues](https://stackoverflow.com/questions/53347951/web-app-network-not-found)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Q7yW5QtrffnuDSQvmRZSXu)

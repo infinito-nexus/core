@@ -6,6 +6,16 @@ role whose merged applications config declares
 ``services.<service>.iframe`` (defaulting to ``enabled``) so consumers
 can tell embeddable cards from those that must open in a new tab.
 
+``canonical_domain`` is the host of ``canonical_url``, not the configured
+domain, so both follow the onion substitution a Tor deployment applies. A
+consumer that compares it against what a page actually renders would
+otherwise never match on an onion host.
+
+For the ``dashboard`` service a role MAY name ``services.dashboard.card:
+<key>``; its entry then carries ``domains.canonical.<key>`` and
+``lookup('canonical_url', <role>, <key>)`` instead of the primary domain, so
+the tile target matches the card ``docker_cards`` renders.
+
 A role keeps declaring the service for inventory completeness but can
 opt out of this consumer-target list by setting
 ``services.<service>.scrape: false`` or ``services.<service>.track: false``.
@@ -23,6 +33,14 @@ Kwargs:
         ``deployment`` restricts to roles present anywhere in ``groups``,
         which is what a container-network consumer can actually reach;
         ``all`` returns every declaring role, deployed or not.
+    include_headless: ``True`` also returns declaring roles without a
+        canonical domain, with empty ``canonical_domain`` and
+        ``canonical_url``.
+    network: opt-in network filter. When set, only roles whose page renders
+        in that network are returned: ``canonical_domain`` lies in it and
+        ``lookup('network_handover', id, canonical_domain)`` is false. This
+        drops the SSO provider, whose URL never leaves its canonical network,
+        and a ``handover`` sibling, which only redirects to another network.
     direction: opt-in MCP filter. When set (``server``/``client``/``both``),
         only roles whose block declares that ``direction`` (or ``both``)
         are returned, and each entry additionally carries ``transport``,
@@ -39,17 +57,20 @@ Kwargs:
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlsplit
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
+from utils.networks.reachability import network, network_of
+from utils.roles.applications.dashboard import DASHBOARD_SERVICE, card_target_key
 from utils.roles.applications.mcp import (
     DEFAULT_MCP_TRANSPORT,
     derive_allowed_consumers,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -85,6 +106,30 @@ def _resolve_canonical_domain(role_id: str, app_config: dict[str, Any]) -> str:
     return get_primary_domain({role_id: domains["canonical"]}, role_id)
 
 
+def _resolve_named_canonical_domain(
+    role_id: str, app_config: dict[str, Any], key: str
+) -> str:
+    """Return the domain ``domains.canonical.<key>`` of one role.
+
+    Args:
+        role_id: the role whose domains are read.
+        app_config: the role's merged applications entry.
+        key: the named canonical, e.g. ``element``.
+
+    Raises:
+        AnsibleError: the role declares no such named canonical.
+    """
+    domains = app_config.get("domains")
+    canonical = domains.get("canonical") if isinstance(domains, dict) else None
+    domain = canonical.get(key) if isinstance(canonical, dict) else None
+    if not isinstance(domain, str) or not domain:
+        raise AnsibleError(
+            f"roles_with_service: '{role_id}' has no canonical '{key}' "
+            f"(available: {sorted(canonical) if isinstance(canonical, dict) else []})"
+        )
+    return domain
+
+
 def _deployed_roles(scope: str, vars_: dict[str, Any]) -> set[str] | None:
     """Return the role ids the scope admits, or None for no restriction.
 
@@ -103,6 +148,27 @@ def _deployed_roles(scope: str, vars_: dict[str, Any]) -> set[str] | None:
     if not isinstance(names, (list, tuple, set)) or not names:
         return None
     return {str(name) for name in names}
+
+
+def _renders_in(
+    pass_network: str,
+    role_id: str,
+    domain: str,
+    handover_lookup: Any,
+    variables: dict[str, Any] | None,
+) -> bool:
+    """Return whether the page of ``role_id`` at ``domain`` renders in a network.
+
+    Args:
+        pass_network: the network the page must render in.
+        role_id: the consumer role.
+        domain: the host the consumer entry points at, ``""`` when headless.
+        handover_lookup: the ``network_handover`` lookup.
+        variables: the templating variables.
+    """
+    if not domain or network_of(domain) != pass_network:
+        return False
+    return not handover_lookup.run([role_id, domain], variables=variables)[0]
 
 
 class LookupModule(LookupBase):
@@ -140,10 +206,23 @@ class LookupModule(LookupBase):
             str(direction_raw).strip().lower() if direction_raw is not None else None
         )
         deployed = _deployed_roles(scope, vars_)
+        include_headless = bool(kwargs.get("include_headless", False))
+        pass_network = kwargs.get("network")
+        handover_lookup = None
+        if pass_network is not None:
+            pass_network = str(pass_network).strip()
+            try:
+                network(pass_network)
+            except ValueError as exc:
+                raise AnsibleError(f"roles_with_service: {exc}") from exc
+            handover_lookup = lookup_loader.get(
+                "network_handover", loader=self._loader, templar=self._templar
+            )
 
         tls_lookup = lookup_loader.get(
             "tls", loader=self._loader, templar=self._templar
         )
+        lists_dashboard_cards = not topic and service_name == DASHBOARD_SERVICE
 
         results: list[dict[str, Any]] = []
         for role_id, app_config in applications.items():
@@ -169,17 +248,34 @@ class LookupModule(LookupBase):
                     continue
             if deployed is not None and str(role_id) not in deployed:
                 continue
-            if get_entity_name(str(role_id)) == service_name:
+            if entity_name(str(role_id)) == service_name:
                 continue
             canonical = _resolve_canonical_domain(str(role_id), app_config)
-            if not canonical and direction is None:
+            if not canonical and direction is None and not include_headless:
                 continue
+            card_key = (
+                card_target_key(str(role_id), block) if lists_dashboard_cards else ""
+            )
             canonical_url = ""
-            if canonical:
+            if card_key:
+                canonical = _resolve_named_canonical_domain(
+                    str(role_id), app_config, card_key
+                )
+                resolved = lookup_loader.get(
+                    "canonical_url", loader=self._loader, templar=self._templar
+                ).run([str(role_id), card_key], variables=variables)
+                canonical_url = str(resolved[0]).rstrip("/")
+            elif canonical:
                 resolved = tls_lookup.run(
                     [str(role_id), "url.base"], variables=variables
                 )
                 canonical_url = str(resolved[0]).rstrip("/")
+            if canonical_url:
+                canonical = urlsplit(canonical_url).hostname or canonical
+            if handover_lookup is not None and not _renders_in(
+                pass_network, str(role_id), canonical, handover_lookup, variables
+            ):
+                continue
             iframe = (
                 bool(block["iframe"])
                 if "iframe" in block

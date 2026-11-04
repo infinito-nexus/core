@@ -5,7 +5,7 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.api import resolve_api
+from utils.cache.api import resolve_api
 
 
 class LookupModule(LookupBase):
@@ -44,7 +44,7 @@ class LookupModule(LookupBase):
             if not isinstance(node, dict) or part not in node:
                 raise AnsibleError(
                     f"lookup('api'): unknown key '{path}' (failed at '{part}'). "
-                    f"Declare it under 'API' in group_vars/all/18_api.yml."
+                    f"Declare it under 'API_DECLARATIONS' in group_vars/all/18_api.yml."
                 )
             node = node[part]
         return [node]

@@ -1,0 +1,69 @@
+---
+- name: "🔎 PEERTUBE | Look for the release the last deploy recorded"
+  ansible.builtin.stat:
+    path: "{{ PEERTUBE_RELEASE_MARKER }}"
+  register: _peertube_marker_stat
+
+- name: "📖 PEERTUBE | Read the release the last deploy recorded"
+  ansible.builtin.slurp:
+    src: "{{ PEERTUBE_RELEASE_MARKER }}"
+  register: _peertube_marker
+  when: _peertube_marker_stat.stat.exists
+
+- name: "🔍 PEERTUBE | Check whether the stack's own database already runs"
+  ansible.builtin.shell: >-
+    {% if IS_SWARM_MODE %}
+    container service ps -q --filter desired-state=running
+    {{ lookup('database', application_id, 'service_name') | quote }}
+    {% else %}
+    container ps -q --filter status=running
+    --filter name=^{{ lookup('database', application_id, 'container') }}$
+    {% endif %}
+  register: _peertube_db_running
+  changed_when: false
+  failed_when:
+    - _peertube_db_running.rc != 0
+    - "'no such service' not in (_peertube_db_running.stderr | lower)"
+  when: not (lookup('database', application_id, 'shared') | bool)
+
+- name: "🔍 PEERTUBE | Check whether the database holds PeerTube data"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query: "{{ lookup('file', role_path ~ '/files/sql/check-application/table.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    expect_rows: true
+  register: _peertube_app_table
+  changed_when: false
+  when: >-
+    (lookup('database', application_id, 'shared') | bool)
+    or (_peertube_db_running.stdout | trim | length > 0)
+
+- name: "🔢 PEERTUBE | Read the schema version of the existing data"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query: "{{ lookup('file', role_path ~ '/files/sql/select-migration-version.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    expect_rows: true
+  register: _peertube_data_migration
+  changed_when: false
+  when:
+    - _peertube_app_table is not skipped
+    - _peertube_app_table.rows | length > 0
+    - _peertube_app_table.rows[0][0] == 'application'
+
+- name: "🧭 PEERTUBE | Plan the way from the existing data to the pinned release"
+  ansible.builtin.set_fact:
+    _peertube_upgrade: "{{ PEERTUBE_RELEASE | peertube_upgrade_plan(_peertube_marker_release, _peertube_data_migration_version) }}"
+  vars:
+    _peertube_marker_release: "{{ (_peertube_marker.content | b64decode | trim) if _peertube_marker_stat.stat.exists else '' }}"
+    _peertube_data_migration_version: >-
+      {{ none if _peertube_app_table is skipped
+         else ('' if (_peertube_data_migration is skipped or (_peertube_data_migration.rows | length) == 0)
+         else _peertube_data_migration.rows[0][0]) }}
+
+- name: "🏷️ PEERTUBE | Record the release the data is on until the upgrade completes"
+  ansible.builtin.copy:
+    content: "{{ _peertube_upgrade.data }}\n"
+    dest: "{{ PEERTUBE_RELEASE_MARKER }}"
+    mode: "0644"
+  when: _peertube_upgrade.upgrade | bool

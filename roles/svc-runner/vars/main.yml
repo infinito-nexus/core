@@ -10,7 +10,7 @@ RUNNER_IMAGE_NAME: "{{ lookup('config', application_id, 'services.runner.image_n
 RUNNER_IMAGE_TAG: "{{ lookup('config', application_id, 'services.runner.image_tag') }}"
 RUNNER_IMAGE_REF: "{{ SWARM_REGISTRY_PREFIX }}{{ RUNNER_IMAGE_NAME }}:{{ RUNNER_IMAGE_TAG }}"
 RUNNER_INSTALL_DIR: "{{ lookup('config', application_id, 'services.runner.install_dir') }}"
-RUNNER_CPUS: "{{ lookup('config', application_id, 'services.runner.cpus') | int }}"
+RUNNER_CPUS: "{{ lookup('cpus', application_id, 'runner') | int }}"
 RUNNER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.runner.image') }}:{{ lookup('config', application_id, 'services.runner.version') }}"
 RUNNER_DOCKER_GID_FALLBACK: "{{ lookup('config', application_id, 'services.runner.docker_gid_fallback') }}"
 RUNNER_GITHUB_OWNER: "{{ lookup('env', 'GITHUB_REPOSITORY_OWNER') | default(lookup('config', application_id, 'services.runner.github_owner'), true) }}"

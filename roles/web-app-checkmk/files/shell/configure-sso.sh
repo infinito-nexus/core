@@ -31,16 +31,27 @@ user_connections = [
         "user_scope": "sub",
         "user_id": "${LDAP_UID_ATTR}",
         "user_id_umlauts": "keep",
+        "user_filter": "${LDAP_USER_FILTER}",
         "group_dn": "${LDAP_GROUP_DN}",
         "group_scope": "sub",
         "group_member": "member",
-        "active_plugins": {"email": {}, "alias": {}},
+        "active_plugins": {
+            "email": {},
+            "alias": {},
+            "pager": {"attr": "${LDAP_PAGER_ATTR}"},
+            "groups_to_roles": {
+                "admin": [("${LDAP_ROLE_ADMIN_DN}", None)],
+                "user": [("${LDAP_ROLE_USER_DN}", None)],
+                "guest": [("${LDAP_ROLE_GUEST_DN}", None)],
+            },
+        },
         "cache_livetime": 300,
         "version": 3,
     }
 ]
 EOF
   python3 -c "exec(open('${CFG}/wato/user_connections.mk').read())"
+  rm -f "/omd/sites/${SITE}/var/check_mk/web/ldap_ldap_infinito_sync_time.mk"
 fi
 
 chown -R "${SITE}:${SITE}" "${CFG}"

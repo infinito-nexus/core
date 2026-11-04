@@ -30,6 +30,8 @@ from pathlib import Path
 from plugins.filter.text_filters import to_one_liner
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
+from utils.i18n.extract import logout_context
+from utils.i18n.keyed import keyed_catalogue
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 LOADER = ROLE / "templates" / "javascript.js.j2"
@@ -38,6 +40,7 @@ PANEL = ROLE / "files" / "javascript" / "logout-panel.js"
 CATALOGUE = ROLE / "files" / "logout_i18n.yml"
 NGINX = ROLE / "templates" / "nginx" / "logout_panel.conf.j2"
 ORIGIN = "https://logout.example.test"
+EVERYWHERE = "https://dashboard.example.test/#logout-everywhere"
 LOGOUT_PATH = "/realms/x/protocol/openid-connect/logout"
 BUDGET_BYTES = 2048
 
@@ -45,12 +48,17 @@ BUDGET_BYTES = 2048
 def _render_panel() -> str:
     """Assemble what stack_host_template writes and nginx then serves."""
     source = read_text(str(ASSEMBLY))
-    catalogue = json.dumps(load_yaml(CATALOGUE), ensure_ascii=False)
+    catalogue = json.dumps(
+        keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE)),
+        ensure_ascii=False,
+    )
 
     def resolve(match: re.Match) -> str:
         expression = match.group(0)
-        if "logout_i18n" in expression:
+        if "KEYCLOAK_LOGOUT_I18N" in expression:
             return catalogue
+        if "KEYCLOAK_LOGOUT_EVERYWHERE_URL" in expression:
+            return json.dumps(EVERYWHERE)
         if "javascript/logout-panel.js" in expression:
             return read_text(str(PANEL))
         if "'tls'" in expression:
@@ -62,7 +70,7 @@ def _render_panel() -> str:
 
 def _render_loader() -> str:
     digest = hashlib.sha1(_render_panel().encode(), usedforsecurity=False).hexdigest()
-    english = load_yaml(CATALOGUE)["en"]
+    english = load_yaml(CATALOGUE)
     source = read_text(str(LOADER))
     source = re.sub(r"\{%-.*?-%\}", "", source, flags=re.DOTALL)
 

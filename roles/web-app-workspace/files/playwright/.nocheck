@@ -1,0 +1,1 @@
+# nocheck: role-files-layout  Playwright discovers this suite by path; the runner stages the tree as it stands and the specs import their helpers relatively, so sorting the files by language would break discovery.

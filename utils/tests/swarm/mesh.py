@@ -14,8 +14,8 @@ from utils.tests.swarm.extend_inventory import mesh_enabled
 from utils.tests.swarm.run import run_step
 
 _CONTROLLER = "localhost"
-_PLAYBOOK = "playbooks/mesh.yml"
-_SUDO_PLAYBOOK = "playbooks/swarm-lab-passwordless-sudo.yml"
+_PLAYBOOK = "playbooks/lab/mesh.yml"
+_SUDO_PLAYBOOK = "playbooks/lab/passwordless-sudo.yml"
 _DEFAULT_ADMIN_KEY = "/tmp/swarm-nfs-admin.key"  # noqa: S108 - ephemeral swarm-test path, overridable via KEY_PATH
 
 

@@ -1,5 +1,8 @@
 ---
 litellm:
+  healthcheck:
+    flavor: http_status
+    path: health/liveliness
   modes:
     compose:
       enabled: true
@@ -9,12 +12,62 @@ litellm:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: ghcr.io/berriai/litellm
-  version: main-v1.77.7-stable
+  version: v1.106.6
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
+  freellmapi:
+    alias: freellmapi/auto
+    model: auto
+    include_in_auto: false
+    context:
+    traits: {}
+  validation:
+    enabled: true
+    workers: 3
+    max_output_tokens: 512
+  consumer_validation:
+    retries: 2
+    delay: 60
+    max_delay: 120
+  router:
+    alias: auto
+    remote_fallback: false
+    # nocheck: dynamic-flag
+    strategy: "{{ 'system_one' if (lookup('config', 'svc-ai-litellm', 'services.s1.enabled') | bool) else 'weighted' }}"
+    min_chars_per_token: 2
+    state_chars: 512
+    weights:
+      locality: 1.0
+      cost: 0.4
+      speed: 0.25
+      caching: 0.15
+      throughput: 0.1
+    speed:
+      samples: 12
+      timeout: 60
+      remeasure: false
+    sample:
+      enabled: false
+      mode: shadow
+      trigger: seconds
+      interval: 900
+      width: 3
+  remote_models:
+    - alias: openai/gpt-4o-mini
+      model: openai/gpt-4o-mini
+      provider: openai
+    - alias: anthropic/claude-sonnet-4-5
+      model: anthropic/claude-sonnet-4-5
+      provider: anthropic
+    - alias: openrouter/auto
+      model: openai/openrouter/auto
+      provider: openrouter
+      api_base: https://openrouter.ai/api/v1 # nocheck: url
+      traits:
+        local: false
   min_storage: 1022MB
   cpus: "2.0"
   mem_reservation: 1g
@@ -27,12 +80,20 @@ litellm:
       http: 4000
   run_after:
     - svc-db-postgres
+    - svc-ai-freellmapi
   lifecycle: beta
 
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag
+# nocheck: gateway-backend-registered  Reason: the decider picks which model answers, it is not one; the router hook calls /v1/systemone, no model alias resolves to it
+s1:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-s1' in group_names }}"
+  shared: "{{ 'svc-ai-s1' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
 ollama:
@@ -45,3 +106,22 @@ lmstudio:
   bond: 0.5
   enabled: "{{ 'svc-ai-lmstudio' in group_names }}"
   shared: "{{ 'svc-ai-lmstudio' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag
+freellmapi: # nocheck: gateway-backend-registered AI_FREELLMAPI_MODELS joins LITELLM_REMOTE_MODELS before the common route builder; test_freellmapi.py verifies the render
+  bond: 1
+  enabled: "{{ 'svc-ai-freellmapi' in group_names }}"
+  shared: "{{ 'svc-ai-freellmapi' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

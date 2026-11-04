@@ -16,4 +16,17 @@ if ! command -v markdownlint-cli2 >/dev/null 2>&1; then
 	exit 127
 fi
 
-markdownlint-cli2
+# shellcheck source=scripts/lint/diff/files.sh
+source "${SCRIPT_DIR}/diff/files.sh"
+
+if ! lint_diff_active markdown; then
+	markdownlint-cli2
+	exit
+fi
+
+mapfile -t md_files < <(lint_diff_files '\.md$')
+if [[ "${#md_files[@]}" -eq 0 ]]; then
+	echo "No changed Markdown files."
+	exit 0
+fi
+markdownlint-cli2 --no-globs "${md_files[@]/#/:}"

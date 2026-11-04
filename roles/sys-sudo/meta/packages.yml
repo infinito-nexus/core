@@ -6,3 +6,4 @@ sudo:
     - sudo
   RedHat:
     - sudo
+  batch: false

@@ -1,0 +1,45 @@
+---
+- name: "🧭 Resolve the Magento data volume for the design assets"
+  ansible.builtin.command: >-
+    container volume inspect --format '{{ "{{.Mountpoint}}" }}'
+    {{ MAGENTO_VOLUME | quote }}
+  register: magento_design_volume
+  changed_when: false
+
+- name: "🖼️ Render the corporate logo set into the Magento volume"
+  ansible.builtin.include_role:
+    name: sys-front-inj-design
+    tasks_from: assets.yml
+  vars:
+    design_assets_dest: "{{ [magento_design_volume.stdout | trim, MAGENTO_DESIGN_ASSETS_NAME] | path_join }}"
+  when: MAGENTO_DESIGN_ENABLED | bool
+
+- name: "🎨 Apply or withdraw the corporate design configuration and theme"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ MAGENTO_USER }}
+      -e MAGENTO_DESIGN_ENABLED={{ MAGENTO_DESIGN_ENABLED | string | lower | quote }}
+      -e MAGENTO_DESIGN_VALUES={{ MAGENTO_DESIGN_VALUES | to_json | quote }}
+      -e MAGENTO_DESIGN_FILES={{ MAGENTO_DESIGN_FILES | to_json | quote }}
+      -e MAGENTO_DESIGN_THEME={{ MAGENTO_DESIGN_THEME | to_json | quote }}
+      {{ MAGENTO_PHP_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/php/design.php') }}"
+  register: magento_design
+  changed_when: magento_design.stdout_lines | last != 'unchanged'
+
+- name: "🏗️ Compile the corporate theme"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec --user {{ MAGENTO_USER }} -w {{ MAGENTO_ROOT }}
+      {{ MAGENTO_PHP_CONTAINER_ADDRESS }} sh -c
+      {{ ('bin/magento setup:static-content:deploy --force --area frontend --theme ' ~ MAGENTO_DESIGN_THEME_NAME ~ ' '
+          ~ (magento_design.stdout_lines | select('match', '^locales: ') | first | regex_replace('^locales: ', ''))
+          ~ ' && bin/magento cache:clean full_page block_html') | quote }}
+  when: "'theme: stale' in magento_design.stdout_lines"
+  changed_when: true
+
+- name: "🧹 Remove the rendered corporate logo set"
+  ansible.builtin.file:
+    path: "{{ [magento_design_volume.stdout | trim, MAGENTO_DESIGN_ASSETS_NAME] | path_join }}"
+    state: absent
+  when: not (MAGENTO_DESIGN_ENABLED | bool)

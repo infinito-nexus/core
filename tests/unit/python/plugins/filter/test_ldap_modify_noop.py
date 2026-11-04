@@ -1,6 +1,6 @@
 import unittest
 
-from plugins.filter.ldap_modify_noop import ldap_modify_noop
+from plugins.filter.ldap.modify_noop import ldap_modify_noop
 
 
 class TestLdapModifyNoop(unittest.TestCase):

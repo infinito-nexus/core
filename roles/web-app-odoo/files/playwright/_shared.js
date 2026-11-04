@@ -10,6 +10,16 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || ""),
 };
 
+const loginMethods = {
+  ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  odooCom: process.env.LOGIN_METHOD_ODOO_COM_ENABLED === "true",
+  passkey: process.env.LOGIN_METHOD_PASSKEY_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
+
+const BREAKGLASS_LOGIN_PATH = "/web/login?fallback=local";
+
 const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)
   ? { channel: "chromium", serviceWorkers: "block" }
   : {};
@@ -40,7 +50,7 @@ async function clickOdooSsoButton(locator) {
 }
 
 async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
-  await gotoOnion(page, `${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+  await gotoOnion(page, `${expectedBaseUrl}${BREAKGLASS_LOGIN_PATH}`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await page.locator('input[name="login"]').fill(env.adminUsername);
   await page.locator('input[name="password"]').fill(env.adminPassword);
   await page
@@ -156,9 +166,12 @@ async function openModule(page, modulePath) {
 
 module.exports = {
   env,
+  loginMethods,
+  BREAKGLASS_LOGIN_PATH,
   onionOptions,
   baseUrl,
   clickOdooSsoButton,
+  nativeLoginToOdoo,
   loginToOdoo,
   authenticatedContext,
   openModule,

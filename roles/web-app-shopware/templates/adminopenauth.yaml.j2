@@ -7,3 +7,10 @@ services:
         timeout: 15
         headers:
           Accept: application/json
+  App\InfinitoRbac\AdminOpenAuthRoleGate:
+    class: 'App\InfinitoRbac\AdminOpenAuthRoleGate'
+    tags:
+      - name: kernel.event_listener
+        event: 'Heptacom\AdminOpenAuth\Http\Route\Support\UserRedirectReceivedEvent'
+        method: __invoke
+        priority: -100

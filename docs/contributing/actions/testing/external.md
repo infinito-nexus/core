@@ -43,6 +43,7 @@ GHCR, or other external services. Run them with `make test-external`.
   [`utils.annotations.message`](../../../../utils/annotations/message.py).
 - The URL reachability check treats read and connect timeouts as warnings.
 - All other `4xx`/`5xx` codes and connection errors (DNS, SSL) fail the test.
+- [test_upstream_references.py](../../../../tests/external/repository/test_upstream_references.py) fails when an issue or pull request an `upstream:` directive names is closed, missing or cannot be asked, and skips an item behind an exhausted rate limit. See [upstream.md](upstream.md).
 
 ## Suppression Comments 🚫
 

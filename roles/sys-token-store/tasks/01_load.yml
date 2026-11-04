@@ -4,6 +4,7 @@
     src: "{{ FILE_TOKENS }}"
   register: sys_token_store_raw
   failed_when: false
+  delegate_to: "{{ STACK_HOST }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   become: true
 

@@ -1,5 +1,11 @@
 #!/bin/sh
 
+script_dir="$(dirname "$0")"
+
+redact() {
+    python3 -I "$script_dir/redact.py" "$script_dir/redaction.json"
+}
+
 docker_ps_grep_unhealthy="$(container ps --filter health=unhealthy --format '{{.Names}}')"
 docker_ps_grep_exited="$(container ps --filter status=exited --format '{{.ID}}')"
 
@@ -19,7 +25,7 @@ if [ -n "$docker_ps_grep_unhealthy" ]; then
         echo "------------------------------------------------------------"
         echo "🔍 Last 200 log lines for unhealthy container: $container_name"
         echo "------------------------------------------------------------"
-        container logs --tail 200 "$container_name" 2>&1 || echo "⚠️ Failed to fetch logs for $container_name"
+        { container logs --tail 200 "$container_name" 2>&1 || echo "⚠️ Failed to fetch logs for $container_name"; } | redact
         echo
 
         summary="$summary\n - $container_name (unhealthy)"
@@ -42,7 +48,7 @@ if [ "$swarm_state" != "active" ] && [ -n "$docker_ps_grep_exited" ]; then
             echo "------------------------------------------------------------"
             echo "🔍 Last 200 log lines for exited container: $container_name"
             echo "------------------------------------------------------------"
-            container logs --tail 200 "$container_name" 2>&1 || echo "⚠️ Failed to fetch logs for $container_name"
+            { container logs --tail 200 "$container_name" 2>&1 || echo "⚠️ Failed to fetch logs for $container_name"; } | redact
             echo
 
             summary="$summary\n - $container_name (exited: $container_exit_code)"

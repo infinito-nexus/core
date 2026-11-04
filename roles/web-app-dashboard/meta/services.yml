@@ -1,9 +1,13 @@
 ---
-sso:
+sso: # nocheck: login-methods  Reason: the dashboard keeps no accounts; its only sign-in entry is the Keycloak Login link oidc.js renders, and without SSO it has no sign-in at all
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      dashboard: dashboard
+    logout_everywhere: "#logout-everywhere"
 asset:
   bond: 1
   enabled: "{{ 'web-svc-asset' in group_names }}"
@@ -40,6 +44,7 @@ dashboard:
   name: dashboard
   image: ghcr.io/kevinveenbirkenbach/port-ui
   version: 2.2.2
+  custom: true
   min_storage: 549MB
   cpus: "0.3"
   mem_reservation: 256m
@@ -48,17 +53,25 @@ dashboard:
   ports:
     local:
       http: 8029
+      http_onion: 16560
     internal:
       http: 5000
+      http_onion: 5000
   proxy:
     service_key: dashboard
   run_after:
     - web-app-matomo
   lifecycle: beta
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }}"
+  bootstrap: true
+  slots:
+    logo:
+      width: 512
+      height: 512
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
@@ -76,3 +89,16 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

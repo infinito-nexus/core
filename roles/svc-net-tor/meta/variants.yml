@@ -11,6 +11,9 @@
 # and rendezvous) whose ~9 extra in-container tor nodes need a larger resource
 # footprint than the public flavor.
 - services:
+    docs:
+      enabled: true
+      shared: true
     tor:
       use_entry_guards: false # nocheck: variants-static-override
       flavor: chutney
@@ -19,6 +22,9 @@
       pids_limit: 512
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     tor:
       use_entry_guards: false
       flavor: public

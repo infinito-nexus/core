@@ -1,0 +1,2 @@
+# nocheck: license-declared tasks/main.yml is empty, so the role installs no software whose licence could be declared.
+---

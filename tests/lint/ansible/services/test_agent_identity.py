@@ -33,7 +33,7 @@ from collections.abc import Mapping
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SECRETS, ROLE_FILE_META_USERS
 
 from . import PROJECT_ROOT
@@ -67,7 +67,7 @@ class TestAgentIdentity(unittest.TestCase):
         missing = []
         for role in _claimed_roles():
             users, _lines = _users_of(role)
-            key = get_entity_name(role)
+            key = entity_name(role)
             if users is None or key not in users:
                 missing.append(
                     f"{role}: does not claim the reserved user key '{key}' in "
@@ -85,7 +85,7 @@ class TestAgentIdentity(unittest.TestCase):
         privileged = []
         for role in _claimed_roles():
             users, _lines = _users_of(role)
-            entry = (users or {}).get(get_entity_name(role))
+            entry = (users or {}).get(entity_name(role))
             if not isinstance(entry, Mapping):
                 continue
             if entry.get("roles"):

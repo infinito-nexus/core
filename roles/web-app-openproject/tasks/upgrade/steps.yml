@@ -1,0 +1,41 @@
+# include-gated: when: IS_COMPOSE_MODE
+---
+- name: "🔍 OpenProject | Read the migrations of the schema"
+  ansible.builtin.shell: >-
+    {{ OPENPROJECT_DATABASE_PSQL }}
+    -c "SELECT version FROM schema_migrations"
+  register: openproject_upgrade_migrations
+  changed_when: false
+
+- name: "🧮 OpenProject | Plan the majors before {{ OPENPROJECT_VERSION }}"
+  ansible.builtin.set_fact:
+    openproject_upgrade_stage: "{{ openproject_upgrade_migrations.stdout_lines | openproject_schema_stage }}"
+    openproject_upgrade_majors: "{{ openproject_upgrade_migrations.stdout_lines | openproject_upgrade_steps(OPENPROJECT_VERSION) }}"
+
+- name: "⬆️ OpenProject | Step the schema through the skipped majors"
+  when: openproject_upgrade_majors | length > 0
+  block:
+    - name: "🔍 OpenProject | Find the app containers of the old major"
+      ansible.builtin.command:
+        argv:
+          - container
+          - ps
+          - -aq
+          - --filter
+          - "name=^({{ OPENPROJECT_APP_CONTAINERS | join('|') }})$"
+      register: openproject_upgrade_app
+      changed_when: false
+
+    - name: "🛑 OpenProject | Stop the app containers of the old major"
+      ansible.builtin.command:
+        argv: "{{ ['container', 'stop'] + openproject_upgrade_app.stdout_lines }}"
+      when: openproject_upgrade_app.stdout_lines | length > 0
+
+    - name: "⬆️ Step {{ openproject_upgrade_stage }} via {{ openproject_upgrade_majors }}"
+      ansible.builtin.include_tasks:
+        file: step.yml
+        apply:
+          timeout: "{{ lookup('timeout', 3600) | int }}"
+      loop: "{{ openproject_upgrade_majors }}"
+      loop_control:
+        loop_var: openproject_upgrade_major

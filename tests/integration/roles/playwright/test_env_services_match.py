@@ -11,6 +11,11 @@ key. Bare config stubs (entries with only ``image:`` / ``version:`` /
 ``ports:`` / etc. and no ``enabled:`` key) are out of scope — they
 are not gateable shared-service deps in the documented sense.
 
+The guide key is out of scope too. A role declaring it states that the
+documentation build replays its README, not that the role serves a
+surface of its own; no spec gates on it, and a flag per consuming role
+would register something ``isServiceEnabled`` is never asked about.
+
 Why
 ---
 
@@ -36,13 +41,12 @@ The catalog entry lives in
 Globally-exempt services
 ------------------------
 
-Services whose verification is owned by their own provider's
-parameterised spec (``dashboard``, ``prometheus``)
-are globally exempt: every consumer role declares them in
-``meta/services.yml`` for inventory completeness, but the per-role
-env templates intentionally do NOT render the
-``<NAME>_SERVICE_ENABLED=`` flag because the persona scenarios no
-longer gate on them. The provider specs
+Services whose verification is owned by their own provider's spec
+(``dashboard``, ``prometheus``, ``semaphore``) are globally exempt: every
+consumer role declares them in ``meta/services.yml`` for inventory
+completeness, but the per-role env templates intentionally do NOT render
+the ``<NAME>_SERVICE_ENABLED=`` flag because the persona scenarios no
+longer gate on them. The dashboard and prometheus specs
 (``roles/web-app-{dashboard,prometheus}/files/playwright/playwright.spec.js``)
 parameterise one assertion per consumer using the
 ``DASHBOARD_TARGET_ROLES_JSON`` / ``PROMETHEUS_TARGET_ROLES_JSON``
@@ -58,6 +62,7 @@ from typing import TYPE_CHECKING
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.guide import GUIDE_SERVICE_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -72,7 +77,9 @@ _RULE = "playwright-service-flag"
 _ENV_TEMPLATE_REL = "templates/playwright.env.j2"  # nocheck: role-file-spot
 _ENV_KEY_LHS_RE = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*=", re.MULTILINE)
 
-_SPOT_OWNED_SERVICES: frozenset[str] = frozenset({"dashboard", "prometheus"})
+_SPOT_OWNED_SERVICES: frozenset[str] = frozenset(
+    {"dashboard", "prometheus", "semaphore"}
+)
 
 
 def _service_to_env_key(name: str) -> str:
@@ -144,6 +151,8 @@ class TestPlaywrightEnvServicesMatch(unittest.TestCase):
                 if not isinstance(entry, dict):
                     continue
                 if "enabled" not in entry:
+                    continue
+                if service_key == GUIDE_SERVICE_KEY:
                     continue
                 if service_key in exempt:
                     continue

@@ -3,6 +3,8 @@ cert-deploy:
   lifecycle: beta
   required_by:
     compose:
-      roles: [web-app-stalwart, web-app-mailu]
+      # nocheck: mail-provider-reference
+      roles: [web-app-stalwart]
     swarm:
-      roles: [web-app-stalwart, web-app-mailu]
+      # nocheck: mail-provider-reference
+      roles: [web-app-stalwart]

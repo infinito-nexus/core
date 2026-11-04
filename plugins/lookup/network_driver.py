@@ -6,7 +6,7 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -30,7 +30,7 @@ class LookupModule(LookupBase):
             )
 
         probe, network_role_id = terms
-        name = get_entity_name(str(network_role_id))
+        name = entity_name(str(network_role_id))
         lines = probe.get("stdout_lines") if isinstance(probe, dict) else None
         for line in lines or []:
             try:

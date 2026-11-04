@@ -4,6 +4,18 @@
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 
+STATIC_URL = f"{FORCE_SCRIPT_NAME}/static/"
+
+
+# A mail client resolves no same-origin path, so static() in the Jinja e-mail templates stays canonical and absolute.
+def _canonical_static(path):
+    from django.templatetags.static import static
+
+    return f"{TAIGA_SITES_SCHEME}://{TAIGA_SITES_DOMAIN}{static(path)}"
+
+
+next(engine for engine in TEMPLATES if engine["BACKEND"] == "django_jinja.backend.Jinja2")["OPTIONS"].setdefault("globals", {})["static"] = _canonical_static
+
 {% if lookup('objstore', application_id, 'enabled') | bool %}
 DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
 THUMBNAIL_DEFAULT_STORAGE = DEFAULT_FILE_STORAGE
@@ -34,6 +46,13 @@ OIDC_RP_CLIENT_SECRET           = "{{ OIDC.CLIENT.SECRET }}"
 OIDC_RP_SIGN_ALGO               = "RS256"
 OIDC_RP_SCOPES                  = "openid profile email"
 OIDC_USERNAME_CLAIM             = "{{ OIDC.ATTRIBUTES.USERNAME }}"
+OIDC_FULL_NAME_CLAIM            = "{{ OIDC.ATTRIBUTES.NAME }}"
+OIDC_LOCALE_CLAIM               = "{{ OIDC.ATTRIBUTES.LOCALE }}"
+OIDC_ZONEINFO_CLAIM             = "{{ OIDC.ATTRIBUTES.ZONEINFO }}"
+OIDC_GROUPS_CLAIM               = "{{ RBAC.GROUP.CLAIM }}"
+OIDC_ADMIN_GROUP                = "{{ TAIGA_OIDC_ADMIN_GROUP }}"
+OIDC_ALLOWED_GROUPS             = {{ TAIGA_OIDC_ALLOWED_GROUPS | to_json }}
+OIDC_BOOTSTRAP_SUPERUSER        = "{{ TAIGA_SUPERUSER_NAME }}"
 OIDC_OP_JWKS_ENDPOINT           = "{{ OIDC.CLIENT.CERTS }}"
 OIDC_OP_AUTHORIZATION_ENDPOINT  = "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 OIDC_OP_TOKEN_ENDPOINT          = "{{ OIDC.CLIENT.TOKEN_URL }}"
@@ -49,7 +68,7 @@ LDAP_START_TLS                  = {{ 'True' if LDAP.SERVER.SECURITY | upper == '
 LDAP_BIND_DN                    = "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 LDAP_BIND_PASSWORD              = "{{ LDAP.BIND_CREDENTIAL }}"
 LDAP_SEARCH_BASE                = "{{ LDAP.DN.OU.USERS }}"
-LDAP_SEARCH_FILTER_ADDITIONAL   = "{{ LDAP.FILTERS.USERS.ALL }}"
+LDAP_SEARCH_FILTER_ADDITIONAL   = "{{ TAIGA_LDAP_SEARCH_FILTER }}"
 LDAP_USERNAME_ATTRIBUTE         = "{{ LDAP.USER.ATTRIBUTES.ID }}"
 LDAP_EMAIL_ATTRIBUTE            = "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
 LDAP_FULL_NAME_ATTRIBUTE        = "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"

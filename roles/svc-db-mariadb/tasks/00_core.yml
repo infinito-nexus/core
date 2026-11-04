@@ -25,7 +25,7 @@
     - db_info.container.State.Running
   retries: 30
   delay: 5
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - block:
     - name: "🔎 Root password reset | Check login with desired password (inside container)"
@@ -69,8 +69,8 @@
   delay: 5
   until: mariadb_cli.rc == 0
 
-- name: "⏳ Wait until MariaDB accepts root credentials (via mysql_db)"
-  ansible.mysql.mysql_db:
+- name: "⏳ Wait until MariaDB accepts root credentials (via mariadb_db)"
+  ansible.mariadb.mariadb_db:
     name: "{{ MARIADB_HEALTHCHECK_DB }}"
     state: present
     login_user: root

@@ -1,0 +1,10 @@
+#fake-sidebar {
+  background-color: var(--design-surface-3);
+}
+#orange-square {
+  background-color: var(--design-primary);
+}
+#fake-content {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}

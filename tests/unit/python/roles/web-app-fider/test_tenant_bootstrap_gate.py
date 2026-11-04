@@ -32,6 +32,8 @@ def _run_tasks(*, sso: bool, stack_host: bool, mode: str, tenants: int) -> list:
         "FIDER_MCP_ENABLED": False,
         "IS_STACK_HOST": stack_host,
         "DEPLOYMENT_MODE": mode,
+        "IS_COMPOSE_MODE": mode == "compose",
+        "IS_SWARM_MODE": mode == "swarm",
         "fider_tenant_count": {"rows": [[tenants]]},
     }
     executed: list = []
@@ -55,6 +57,16 @@ def _tenant_posts(tasks: list) -> list:
         for task in tasks
         if str(task.get("uri_retry", {}).get("url", "")).endswith("/_api/tenants")
         or "POST /_api/tenants" in str(task.get("ansible.builtin.shell", ""))
+    ]
+
+
+def _without_rbac_hook(tasks: list) -> list:
+    return [
+        task
+        for task in tasks
+        if not str(task.get("ansible.builtin.include_tasks", "")).endswith(
+            "'tasks/utils/rbac/sync.yml') }}"
+        )
     ]
 
 
@@ -94,7 +106,7 @@ class TestTenantBootstrapGate(unittest.TestCase):
             for mode in MODES:
                 with self.subTest(sso=sso, mode=mode):
                     tasks = _run_tasks(sso=sso, stack_host=False, mode=mode, tenants=0)
-                    self.assertEqual(tasks, [])
+                    self.assertEqual(_without_rbac_hook(tasks), [])
 
 
 if __name__ == "__main__":

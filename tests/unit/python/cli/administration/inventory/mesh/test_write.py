@@ -201,6 +201,14 @@ class TestMeshShapeOnDisk(MeshOnDisk, unittest.TestCase):
                         [p["allowed_ips"] for p in peers], [spec.routed_range]
                     )
 
+    def test_the_swarm_hub_keeps_an_endpoint_for_every_spoke(self):
+        self._write_all()
+        for spec in self.specs:
+            hub = plan_mesh(spec, self.topology).hub.host
+            for peer in self._entry(hub, spec.name)["peers"]:
+                with self.subTest(mesh=spec.name, peer=peer["host"]):
+                    self.assertEqual(peer["host"], peer["endpoint"])
+
     def test_the_hub_pins_each_spoke_to_a_single_address(self):
         self._write_all()
         for spec in self.specs:

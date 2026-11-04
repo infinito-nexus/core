@@ -1,6 +1,6 @@
 # Local Deploy 🚀
 
-Contributor guidance for running deploys against a local development stack on your workstation. For production deploy guidance see the [Deploy Guide](../../administration/deploy.md). For the agent-driven role iteration loop see [compose.md](../../agents/action/iteration/compose.md). For the matrix-variant mechanism that this page references throughout see [variants.md](../design/variants.md).
+Contributor guidance for running deploys against a local development stack on your workstation. For production deploy guidance see the [Deploy Guide](../../administration/deploy.md). For the agent-driven role iteration loop see [compose.md](../../../agents/skills/i8-iterate-compose/SKILL.md). For the matrix-variant mechanism that this page references throughout see [variants.md](../design/variants.md).
 
 ## Entry Points 🧭
 
@@ -21,7 +21,7 @@ Use `mode=reinstall` to bring up a clean slate (cycles the dev stack and purges 
 make compose-deploy mode=reinstall apps="<role> <role>" full_cycle=true
 ```
 
-- `full_cycle=true` adds the async update pass (pass 2) and SHOULD stay on for the baseline. The behaviour, per-variant interleaving, and `--full-cycle` flag mechanics are documented in [variants.md](../design/variants.md).
+- `full_cycle=true` adds the update pass (pass 2) and SHOULD stay on for the baseline. The behaviour, per-variant interleaving, and `--full-cycle` flag mechanics are documented in [variants.md](../design/variants.md).
 - The router runs init, then deploy. Init materialises the inventory under `${INFINITO_INVENTORY_DIR}` (resolved by `make dotenv` via [resolve.sh](../../../scripts/inventory/resolve.sh); see [variables.md](../environment/variables.md)).
 - For roles with a `roles/<role>/meta/variants.yml` the init step produces one inventory folder per variant; the deploy step iterates them. Folder layout, round semantics, cleanup rules, and the link to the file-format reference live in [variants.md](../design/variants.md).
 
@@ -34,7 +34,7 @@ make compose-deploy mode=update apps="<role>"
 ```
 
 - Reuses the existing inventory, keeps app state, runs the deploy only.
-- For multi-variant roles you MUST set `variant=<idx>` (see [Pinning A Single Variant](#pinning-a-single-variant-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles.
+- For multi-variant roles you MUST set `variant=<idx>` (see [Pinning Variants](#pinning-variants-single-or-bundle-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles.
 
 If the reuse path keeps reproducing the same failure and you want to test whether app entity state is involved:
 
@@ -91,4 +91,4 @@ For TLS-enabled local sites, run [`make network-trust-ca`](../../../Makefile) on
 | [`make dotenv`](../../../Makefile) | Resolves `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE`, and `INFINITO_INVENTORY_VARS_FILE` into `.env` for the dev CLI (see [variables.md](../environment/variables.md)). |
 | [local deploy scripts](../../../scripts/tests/deploy/local/) | Bash glue behind the make targets (fresh / reuse / purge variants). |
 | [variants.md](../design/variants.md) | Matrix-variant deep dive. |
-| [compose.md](../../agents/action/iteration/compose.md) | Role-iteration loop for agents. Recommended reading even for human contributors. |
+| [compose.md](../../../agents/skills/i8-iterate-compose/SKILL.md) | Role-iteration loop for agents. Recommended reading even for human contributors. |

@@ -1,0 +1,33 @@
+---
+# Provision the RBAC group tree (/<group_root>/<app>/<role>) and its
+# memberships directly in the realm when LDAP is disabled. The per-app
+# group-ldap-mappers (05c) only run with an LDAP federation, so without this
+# task oauth2-proxy's allowed_groups check has no groups to match and every
+# group-gated app returns 403 for otherwise-authenticated users.
+
+- name: "🔐 RBAC realm groups: provision groups + memberships per rbac app"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: rbac/realm_groups.py
+    rest_script_env: {}
+    rest_script_stdin: >-
+      {{
+        lookup('applications')
+        | build_realm_rbac_groups(lookup('users_non_reserved'), KEYCLOAK_RBAC_GROUP_NAME, KEYCLOAK_RBAC_RUN_APP_IDS)
+        | to_json
+      }}
+    rest_script_ok_rcs: [0, 1]
+    rest_script_changed: "(created|joined)=[1-9]"
+    rest_script_register: kc_rbac_realm_groups
+
+- name: "📊 Report how many RBAC realm groups and memberships changed"
+  ansible.builtin.debug:
+    msg: "{{ kc_rbac_realm_groups.stdout_lines | select('match', '^summary ') | list }}"
+
+- name: "⚠️ Report the RBAC realm groups and memberships that failed"
+  ansible.builtin.fail:
+    msg: "{{ (kc_rbac_realm_groups.stdout_lines | select('match', '^(failed|missing|listing-failed) ') | list) + kc_rbac_realm_groups.stderr_lines }}"
+  when: kc_rbac_realm_groups.rc != 0

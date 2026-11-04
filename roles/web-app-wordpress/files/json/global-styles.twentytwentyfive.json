@@ -1,0 +1,45 @@
+{
+  "version": 3,
+  "isGlobalStylesUserThemeJSON": true,
+  "settings": {
+    "color": {
+      "palette": {
+        "theme": [
+          { "slug": "base", "name": "Base", "color": "var(--design-surface-1)" },
+          { "slug": "contrast", "name": "Contrast", "color": "var(--design-text)" },
+          { "slug": "accent-1", "name": "Accent 1", "color": "var(--design-surface-3)" },
+          { "slug": "accent-2", "name": "Accent 2", "color": "var(--design-surface-2)" },
+          { "slug": "accent-3", "name": "Accent 3", "color": "var(--design-link)" },
+          { "slug": "accent-4", "name": "Accent 4", "color": "var(--design-text-muted)" },
+          { "slug": "accent-5", "name": "Accent 5", "color": "var(--design-surface-2)" },
+          { "slug": "accent-6", "name": "Accent 6", "color": "var(--design-border-strong)" }
+        ]
+      }
+    }
+  },
+  "styles": {
+    "elements": {
+      "button": {
+        "color": {
+          "background": "var(--design-primary)",
+          "text": "var(--design-on-primary)"
+        },
+        ":hover": {
+          "color": {
+            "background": "var(--design-primary-hover)",
+            "text": "var(--design-on-primary)"
+          }
+        },
+        ":active": {
+          "color": {
+            "background": "var(--design-primary-active)",
+            "text": "var(--design-on-primary)"
+          }
+        },
+        ":focus": {
+          "outline": { "color": "var(--design-link)", "offset": "2px" }
+        }
+      }
+    }
+  }
+}

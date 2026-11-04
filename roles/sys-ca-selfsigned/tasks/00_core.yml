@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: "{{ CA_ROOT.base_dir }}"
     state: directory
-    mode: "0750"
+    mode: "0755"
     owner: root
     group: root
 
@@ -73,6 +73,10 @@
   loop: "{{ CA_BUNDLE_CANDIDATES }}"
   register: _ca_public_bundle_candidates
 
+- name: "📌 CA | keep the first public CA bundle the host ships"
+  ansible.builtin.set_fact:
+    _ca_public_bundle: "{{ (_ca_public_bundle_candidates.results | selectattr('stat.exists') | map(attribute='item') | list)[:1] }}"
+
 - name: "🔎 CA | stat host CA-trust bind-mount sources"
   become: true
   ansible.builtin.stat:
@@ -97,11 +101,12 @@
 
 - name: "📄 CA | build the trust bundle its readers name with no fallback"
   become: true
-  ansible.builtin.shell: >-
-    cat {{ ([CA_ROOT.cert_host] + (_ca_public_bundle_candidates.results | selectattr('stat.exists') | map(attribute='item') | list)[:1]) | map('quote') | join(' ')
-    }}
-    > {{ CA_TRUST.bundle_host | quote }}
-  changed_when: true
+  ansible.builtin.script:
+    cmd: >-
+      {{ role_path }}/files/shell/build-trust-bundle.sh
+      {{ ([CA_TRUST.bundle_host, CA_ROOT.cert_host] + _ca_public_bundle) | map('quote') | join(' ') }}
+  register: _ca_trust_bundle_build
+  changed_when: "'bundle-rewritten' in _ca_trust_bundle_build.stdout"
 
 - name: "🔐 CA | enforce permissions (trust bundle)"
   become: true
@@ -119,6 +124,7 @@
     owner: root
     group: root
     mode: "0755"
+  register: _ca_trust_wrapper
 
 - name: "📦 CA | install PHP CA-trust ini (SPOT) on host"
   become: true
@@ -128,6 +134,21 @@
     owner: root
     group: root
     mode: "0644"
+
+- name: "🔎 CA | check whether the host trust store already trusts the Root CA"
+  become: true
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - verify
+      - -no-CApath
+      - -CAfile
+      - "{{ _ca_public_bundle | first }}"
+      - "{{ CA_ROOT.cert_host }}"
+  register: _ca_trusted_by_host
+  changed_when: false
+  failed_when: _ca_trusted_by_host.rc not in [0, 2]
+  when: _ca_public_bundle | length > 0
 
 - name: "📦 CA | Install Root CA into host trust store"
   become: true
@@ -140,6 +161,10 @@
     CA_TRUST_CERT: "{{ CA_ROOT.cert_host }}"
     CA_TRUST_NAME: "{{ DOMAIN_PRIMARY | lower }}"
   changed_when: true
+  when: >-
+    _ca_trust_wrapper is changed
+    or _ca_trusted_by_host is skipped
+    or _ca_trusted_by_host.rc != 0
 
 - name: "✅ TLS | (self_signed) ensure CA trust env vars in {{ FILE_ENVIRONMENT }}"
   become: true
@@ -157,5 +182,9 @@
       line: "CA_TRUST_WRAPPER_HOST={{ CA_TRUST.wrapper_host }}"
     - regexp: "^CA_TRUST_NAME="
       line: "CA_TRUST_NAME={{ CA_TRUST.trust_name }}"
+
+- name: "📌 TLS | (self_signed) let the next letsencrypt role remove the env vars again"
+  ansible.builtin.set_fact:
+    tls_selfsigned_env_disabled: false
 
 - include_tasks: utils/once/flag.yml

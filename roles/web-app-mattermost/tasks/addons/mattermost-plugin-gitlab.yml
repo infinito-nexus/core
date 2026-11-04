@@ -1,0 +1,9 @@
+---
+- name: "🦊 GitLab plugin needs an OAuth application on the partner"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: tasks/utils/addon.yml installed and enabled
+      {{ mattermost_addon.value.config.plugin_id }}. Register an OAuth application on
+      {{ mattermost_addon.value.config.partner_url }} and enter its client id and
+      secret in System Console > Plugins > GitLab to complete the coupling.
+  changed_when: false

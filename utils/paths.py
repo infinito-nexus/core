@@ -43,18 +43,34 @@ def read_group_path(key: str) -> str:
         KeyError: the key is not defined in the SPOT.
         ValueError: the value is not a plain string (e.g. a Jinja template).
     """
-    for line in read_text(_GROUP_PATHS_FILE).splitlines():
+    return read_group_value(_GROUP_PATHS_FILE, key)
+
+
+def read_group_value(path: str, key: str) -> str:
+    """Plain-string value of ``key`` in a group_vars file.
+
+    Args:
+        path: the group_vars file holding the value.
+        key: top-level variable name in it.
+
+    Returns:
+        The literal string value.
+
+    Raises:
+        KeyError: the key is not defined in that file.
+        ValueError: the value is not a plain string (e.g. a Jinja template).
+    """
+    for line in read_text(path).splitlines():
         match = _ENTRY_RE.match(line.strip())
         if not match or match.group("key") != key:
             continue
         value = match.group("value").strip()
         if not value or "{{" in value:
             raise ValueError(
-                f"{key} in {_GROUP_PATHS_FILE} must be a plain string, "
-                f"got: {line.strip()!r}"
+                f"{key} in {path} must be a plain string, got: {line.strip()!r}"
             )
         return value
-    raise KeyError(f"{key} not defined in {_GROUP_PATHS_FILE}")
+    raise KeyError(f"{key} not defined in {path}")
 
 
 def read_group_paths(key: str) -> list[str]:

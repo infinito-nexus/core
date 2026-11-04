@@ -1,0 +1,10 @@
+---
+enabled: false
+required: false
+mechanism: module
+source: bundled
+bridges:
+  - sso
+config:
+  tier: enterprise
+  admin_path: /admin/settings/authentication/openid_connect_providers

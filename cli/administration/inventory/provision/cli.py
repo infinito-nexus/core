@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .credentials_generator import generate_credentials_for_roles
+from .email_policy import apply_email_policy, carry_email_policy, inventory_is_new
 from .filters import filter_dynamic_inventory, parse_roles_list
 from .host_vars import (
     apply_vars_overrides,
@@ -17,9 +18,13 @@ from .host_vars import (
 )
 from .inventory_generator import generate_dynamic_inventory
 from .mirror_overrides import apply_mirror_overrides
+from .network_mode import apply_network_mode_from_env
 from .passwords import generate_random_password
 from .project import build_env_with_project_root, detect_project_root
-from .services_disabler import apply_services_disabled_from_env
+from .services_disabler import (
+    apply_services_disabled_from_env,
+    reconcile_services_disabled_from_env,
+)
 from .tor_node import apply_tor_node_onion
 from .users_generator import generate_user_passwords
 from .yaml_io import dump_yaml, load_yaml
@@ -145,6 +150,16 @@ def main(argv: list[str] | None = None) -> int:
             "respects the variant overlay. Apps not listed default to 0."
         ),
     )
+    parser.add_argument(
+        "--previous-host-vars",
+        default=None,
+        help=(
+            "host_vars file of the inventory this run rebuilds from scratch. Its "
+            "web-app-keycloak email policy and switch carry over, and the "
+            "inventory counts as existing, so no mailbox policy is recorded "
+            "against a realm that holds another one."
+        ),
+    )
 
     args = parser.parse_args(argv)
 
@@ -215,7 +230,11 @@ def main(argv: list[str] | None = None) -> int:
     dyn_children = (dyn_inv.get("all", {}) or {}).get("children", {}) or {}
     application_ids = sorted(dyn_children.keys())
 
-    if inventory_file.exists():
+    new_inventory = not inventory_file.exists()
+    fresh_inventory = inventory_is_new(
+        inventory_file=inventory_file, host_vars_dir=host_vars_file.parent
+    )
+    if not new_inventory:
         print(f"[INFO] Merging into existing inventory: {inventory_file}")
         base_inv = load_yaml(inventory_file)
     else:
@@ -230,6 +249,15 @@ def main(argv: list[str] | None = None) -> int:
         host_vars_file=host_vars_file,
         host=args.host,
     )
+    reconcile_services_disabled_from_env(
+        host_vars_file=host_vars_file, roles_dir=roles_dir
+    )
+
+    if args.previous_host_vars and carry_email_policy(
+        previous_host_vars_file=Path(args.previous_host_vars).resolve(),
+        host_vars_file=host_vars_file,
+    ):
+        print("[INFO] Carried the realm email policy over from the replaced inventory")
 
     print(f"[INFO] Ensuring ansible_become_password for host '{args.host}'")
     ensure_become_password(
@@ -240,7 +268,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(
         f"[INFO] Pinning a password for every user the {len(application_ids)} "
-        "resolved applications declare..."
+        "resolved applications declare and every catalogue user holding an account..."
     )
     pinned = generate_user_passwords(
         roles_dir=roles_dir,
@@ -308,6 +336,18 @@ def main(argv: list[str] | None = None) -> int:
         application_ids=application_ids,
         base_dir=project_root,
     )
+
+    apply_network_mode_from_env(host_vars_file)
+
+    if apply_email_policy(
+        host_vars_file=host_vars_file,
+        application_ids=application_ids,
+        host=args.host,
+        roles_dir=roles_dir,
+        new_inventory=fresh_inventory and not args.previous_host_vars,
+        keycloak_variant=app_variants.get("web-app-keycloak"),
+    ):
+        print("[INFO] New inventory with mail provider: realm email policy mailbox")
 
     apply_services_disabled_from_env(
         host_vars_file=host_vars_file,

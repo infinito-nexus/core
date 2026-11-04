@@ -10,22 +10,24 @@ CONTAINER_TEMPLATE = (
     PROJECT_ROOT / "roles/web-app-keycloak/templates/sso_proxy/container.yml.j2"
 )
 _RENDERED_CFG = re.compile(r"src:\s*\"\{\{\s*lookup\('path_absolute',\s*'([^']+)'\)")
-_HASHED_CFG = re.compile(
-    r"^\s+labels:\n\s+[\w.-]+:\s*\"\{\{\s*lookup\('template',\s*"
-    r"lookup\('path_absolute',\s*'([^']+)'\).*\|\s*hash\('sha256'\)\s*\}\}\"",
+_HASH_LABEL = re.compile(
+    r"^\s+labels:\n\s+[\w.-]+:\s*\"\{\{(?P<expr>.*\|\s*hash\('sha256'\))\s*\}\}\"",
     re.MULTILINE,
+)
+_HASHED_TEMPLATE = re.compile(
+    r"lookup\('template',\s*lookup\('path_absolute',\s*'([^']+)'\)"
 )
 
 
 class TestSsoProxyRestartsOnConfigChange(unittest.TestCase):
     def test_the_sidecar_labels_a_hash_of_the_config_it_mounts(self) -> None:
-        rendered = _RENDERED_CFG.search(read_text(str(SSO_PROXY_TASKS)))
-        hashed = _HASHED_CFG.search(read_text(str(CONTAINER_TEMPLATE)))
-        self.assertIsNotNone(
+        rendered = _RENDERED_CFG.findall(read_text(str(SSO_PROXY_TASKS)))
+        label = _HASH_LABEL.search(read_text(str(CONTAINER_TEMPLATE)))
+        self.assertTrue(
             rendered, f"{SSO_PROXY_TASKS} no longer renders a path_absolute src"
         )
         self.assertIsNotNone(
-            hashed,
+            label,
             "the sso-proxy service must carry a label hashing its rendered "
             "config: the config is a bind mount oauth2-proxy reads at start, "
             "and docker stack deploy only restarts a service whose spec "
@@ -33,9 +35,9 @@ class TestSsoProxyRestartsOnConfigChange(unittest.TestCase):
             "the running sidecar on the old one (WRONGPASS, HTTP 500)",
         )
         self.assertEqual(
-            rendered.group(1),
-            hashed.group(1),
-            "the label must hash the same template sso_proxy.yml renders",
+            sorted(set(_HASHED_TEMPLATE.findall(label.group("expr")))),
+            sorted(set(rendered)),
+            "the label must hash every template sso_proxy.yml renders",
         )
 
 

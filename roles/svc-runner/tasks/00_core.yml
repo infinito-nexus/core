@@ -60,6 +60,7 @@
     return_content: true
   register: _runner_latest_release
   delegate_to: localhost
+  become: false
   changed_when: false
 
 - name: 🏷️ Set resolved runner version

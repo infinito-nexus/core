@@ -1,0 +1,7 @@
+<div class="docs-languages" style="margin-bottom: 1em;">
+  <label for="docs-language-switcher">Language</label>
+  <select id="docs-language-switcher" class="docs-language-switcher" data-version="{{ docs_version }}" data-language="{{ language or 'en' }}" data-page="{{ pagename }}">
+    <option selected>{{ language or 'en' }}</option>
+  </select>
+</div>
+<script src="{{ pathto('_static/js/languages.js', 1) }}"></script>

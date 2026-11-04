@@ -6,6 +6,9 @@
 # services.yml flag on; variant 1 the external front-proxy-only flavor with
 # them off.
 - services:
+    docs:
+      enabled: false
+      shared: false
     cdn:
       flavor: internal
     matomo:
@@ -17,6 +20,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     cdn:
       flavor: external
     matomo:

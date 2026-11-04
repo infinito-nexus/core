@@ -1,11 +1,15 @@
 const { expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 
-const { normalizeBaseUrl } = require("./personas");
+const {
+  OIDC_LOGIN_READY_FLAG,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const dashboardJsBaseUrl = normalizeBaseUrl(process.env.DASHBOARD_JS_BASE_URL || "");
-const matomoBaseUrl = normalizeBaseUrl(process.env.MATOMO_BASE_URL || "");
+const matomoBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.MATOMO_BASE_URL, "MATOMO_BASE_URL"));
 
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -85,7 +89,9 @@ function isKeycloak3pCookieNoise(record) {
   const url = typeof record === "string" ? "" : record.url || "";
   return (
     /\/3p-cookies\//.test(url) ||
-    /requestStorageAccess/i.test(text)
+    /requestStorageAccess/i.test(text) ||
+    (/rejected because it is in a cross-site context/i.test(text) &&
+      /\/protocol\/openid-connect\//.test(`${url} ${text}`))
   );
 }
 
@@ -110,6 +116,14 @@ async function waitForDashboardReady(page) {
   await expect(page.locator("main#main")).toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect(page.locator("header.header")).toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect(page.locator("#navbar_logo img")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  if (isServiceEnabled("sso")) {
+    await expect
+      .poll(() => page.evaluate((flag) => window[flag] === true, OIDC_LOGIN_READY_FLAG), {
+        timeout: resolveTimeout(60_000),
+        message: `Expected oidc.js to finish its Keycloak init (window.${OIDC_LOGIN_READY_FLAG}) and settle the header's Login/Account entries`,
+      })
+      .toBe(true);
+  }
 }
 
 async function waitForResourceResponse(records, partialUrl, label) {

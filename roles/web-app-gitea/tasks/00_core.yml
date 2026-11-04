@@ -12,7 +12,24 @@
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+
+- name: "🩹 Stage the Gitea source patches into the build context of {{ application_id }}"
+  stack_host_copy:
+    src: "patch/{{ item }}"
+    dest: "{{ [GITEA_PATCH_DIR_HOST_ABS, item | dirname] | path_join }}/"
+    mode: "0644"
+  loop: "{{ GITEA_PATCH_FILES }}"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🎨 Stage the corporate design overrides of {{ application_id }}"
+  include_tasks: utils/design.yml
+  when: GITEA_DESIGN_ENABLED | bool
+
+- name: 🚿 Flush handlers to start the Gitea stack
+  meta: flush_handlers
 
 - name: "👔 Gitea manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml

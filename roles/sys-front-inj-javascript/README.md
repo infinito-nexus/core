@@ -8,19 +8,6 @@ This Ansible role injects a custom JavaScript snippet into all HTML responses se
 
 This role injects a custom JavaScript snippet into Nginx-served HTML responses via sub_filter.
 
-## Cosmos
-
-The diagram places Global JavaScript Injector for NGINX in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-front-inj-javascript 💻]
-        svc_javascript["javascript"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **One-line Script Injection**  
@@ -32,11 +19,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Conditional Activation**  
   Activates only when you enable the `javascript` feature for a given application, keeping your server blocks clean and performant.
 
+- **SSO Profile Lock**  
+  `templates/profile_lock.js.j2` renders every input matched by the role's `services.sso.profile.locked` selectors read-only and shows the `locked` text of `files/profile_lock_i18n.yml` in the page language as its hover title. `templates/profile_lock_catalogue.json.j2` cuts the catalogue to the role's `services.sso.profile.languages`; the Playwright env of a role renders the same file. A role includes the renderer from its own `templates/javascript.js.j2`; see [javascript.js.md](../../docs/contributing/artefact/files/role/javascript.js.md#sso-profile-lock-).
+
 - **Debug Mode**  
-  Supports an `MODE_DEBUG` flag that appends optional `console.log` statements for easier troubleshooting in staging or development.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+  Supports a `DEBUG` flag that appends optional `console.log` statements for easier troubleshooting in staging or development.

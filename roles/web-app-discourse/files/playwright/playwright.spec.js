@@ -185,3 +185,7 @@ test("biber: discourse OIDC login and logout", async ({ page }) => {
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {
   await runGuestFlow(page);
 });
+
+require("./test-design").register();
+require("./test-login-methods").register();
+require("./test-rbac").register();

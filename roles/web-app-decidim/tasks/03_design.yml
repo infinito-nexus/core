@@ -1,0 +1,29 @@
+---
+- name: "📥 Decidim | Read the generated logo and favicon"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, item.value] | path_join }}"
+  loop: "{{ DECIDIM_DESIGN_ASSETS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: decidim_design_assets
+  when: DECIDIM_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Decidim | Converge name, colors, logo and favicon of the organization"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
+    container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    {{ DECIDIM_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('template', 'design_settings.rb.j2') }}\n{{ lookup('file', 'ruby/ensure/design.rb') }}"
+  vars:
+    decidim_design_payload:
+      title: "{{ DECIDIM_DESIGN_TITLE }}"
+      colors: "{{ DECIDIM_DESIGN_COLORS if DECIDIM_DESIGN_ENABLED | bool else {} }}"
+      logo: "{{ (decidim_design_assets.results | selectattr('item.key', 'equalto', 'logo') | first).content if DECIDIM_DESIGN_LOGO_ENABLED | bool else '' }}"
+      favicon: "{{ (decidim_design_assets.results | selectattr('item.key', 'equalto', 'favicon') | first).content if DECIDIM_DESIGN_LOGO_ENABLED | bool else '' }}"
+  register: decidim_design_result
+  changed_when: "'DESIGN_CHANGED' in decidim_design_result.stdout"
+  failed_when: >-
+    decidim_design_result.rc != 0
+    or ('DESIGN_CHANGED' not in decidim_design_result.stdout and 'DESIGN_UNCHANGED' not in decidim_design_result.stdout)
+  delegate_to: "{{ DECIDIM_HOST_NODE }}"

@@ -20,14 +20,15 @@
       a service was loaded outside the constructor service-loader path.
   when:
     - MAIL_PROVIDER in group_names
-    - MODE_ASSERT_LOCAL | bool
+    - lookup('validate', 'sys-svc-mail') | bool
+    - IS_STACK_HOST | bool
 
 - name: 🔧 Setup emails via localhost
   include_role:
     name: sys-svc-mail-smtp
   when:
     - run_once_sys_svc_mail_smtp is not defined
-    - not (lookup('email').external | bool)
+    - not (lookup('email', key='external') | bool)
 
 - name: 🔧 Setup msmtp client
   include_role:

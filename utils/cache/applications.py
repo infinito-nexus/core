@@ -18,6 +18,7 @@ from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.roles.applications.mcp import derive_mcp_presence
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS, ROLE_FILE_META_VOLUMES
 
+from .addons import META_ADDONS_DIR, load_addons_dir
 from .base import (
     _RENDER_GUARD,
     _cache_key,
@@ -52,60 +53,10 @@ _META_TOPICS: tuple[str, ...] = (
     "networks",
 )
 
-_META_ADDONS_DIR: str = "addons"
 
 _META_NON_GENERIC_TOPICS: frozenset[str] = frozenset(
     {"main", "variants", "volumes", "secrets", "users"}
 )
-
-
-def _normalize_addons(addons: Any) -> Any:
-    """Normalise the `meta/addons/` map's enable state at load time.
-
-    The enable contract (the unified addon contract's enable Decisions) is
-    materialised here so every consumer reads one already-resolved view instead of
-    re-deriving it: `required: true` defaults to enabled, an optional addon
-    defaults to disabled, and an explicitly declared `enabled` value (literal
-    or Jinja) is preserved verbatim. `required` itself is defaulted to
-    `false` so downstream reads stay uniform.
-
-    A new dict is returned per entry; the YAML cache's payload is never
-    mutated. Malformed (non-mapping) payloads pass through untouched so the
-    schema lint reports the offence with a precise message.
-    """
-    if not isinstance(addons, Mapping):
-        return addons
-
-    out: dict[str, Any] = {}
-    for addon_id, spec in addons.items():
-        if not isinstance(spec, Mapping):
-            out[addon_id] = spec
-            continue
-        normalised = dict(spec)
-        required = bool(normalised.get("required", False))
-        normalised["required"] = required
-        if "enabled" not in normalised:
-            normalised["enabled"] = required
-        out[addon_id] = normalised
-    return out
-
-
-def _load_addons_dir(meta_dir: Path) -> dict[str, Any]:
-    """Assemble the `addons` map from `meta/addons/<addon_id>.yml` files.
-
-    Each file's root IS the addon spec; the filename stem is the addon id.
-    The enable state is normalised (see `_normalize_addons`). A missing or
-    empty `meta/addons/` directory yields ``{}``.
-    """
-    addons_dir = meta_dir / _META_ADDONS_DIR
-    if not addons_dir.is_dir():
-        return {}
-    raw: dict[str, Any] = {}
-    for path in sorted(addons_dir.glob("*.yml")):
-        spec = _load_yaml_cached(path, default_if_missing={})
-        if spec:
-            raw[path.stem] = spec
-    return _normalize_addons(raw)
 
 
 def _has_application_metadata(role_dir: Path) -> bool:
@@ -125,7 +76,7 @@ def _has_application_metadata(role_dir: Path) -> bool:
         return True
     if (meta_dir / "users.yml").is_file():
         return True
-    addons_dir = meta_dir / _META_ADDONS_DIR
+    addons_dir = meta_dir / META_ADDONS_DIR
     return addons_dir.is_dir() and any(addons_dir.glob("*.yml"))
 
 
@@ -172,7 +123,7 @@ def _build_role_base_config(
                          so its raw Jinja `source:` strings never hit the
                          templar; `get_merged_applications` re-attaches them).
     `meta/addons/*.yml` → `addons` (enable state normalised by
-                         `_normalize_addons`).
+                         `utils.cache.addons.normalize_addons`).
     `meta/secrets.yml`   → `credentials` (only literal `default:` values;
                          non-defaults come from the inventory apply_schema step
                          and are merged in by the caller).
@@ -190,7 +141,7 @@ def _build_role_base_config(
 
     for path in sorted(meta_dir.rglob("*.yml")):
         parts = path.relative_to(meta_dir).with_suffix("").parts
-        if parts[0] == _META_ADDONS_DIR:
+        if parts[0] == META_ADDONS_DIR:
             continue
         if len(parts) == 1 and parts[0] in _META_NON_GENERIC_TOPICS:
             continue
@@ -204,7 +155,7 @@ def _build_role_base_config(
     if isinstance(volumes_data, dict) and volumes_data:
         _CANONICAL_VOLUMES_BY_ROLE[role_dir.name] = volumes_data
 
-    addons_data = _load_addons_dir(meta_dir)
+    addons_data = load_addons_dir(meta_dir)
     if addons_data:
         config_data["addons"] = addons_data
 
@@ -339,19 +290,28 @@ def get_application_defaults(
 
 
 def get_variants(
-    *, roles_dir: str | os.PathLike[str] | None = None
+    *, roles_dir: str | os.PathLike[str] | None = None, readonly: bool = False
 ) -> dict[str, list[Any]]:
     """Return ``{application_id: [variant_0, ...]}`` cached per
     ``roles_dir``. Each variant is the role's effective configuration
     after the corresponding `meta/variants.yml` override has been
-    deep-merged on top of `meta/services.yml`."""
+    deep-merged on top of `meta/services.yml`.
+
+    Args:
+        roles_dir: roles tree to read, defaulting to the project's own.
+        readonly: hand out the cached structure itself instead of a deep
+            copy. The copy is what keeps one caller's mutation out of every
+            later caller's data, so this is only for a caller that provably
+            reads: a sweep resolves hundreds of rounds, and copying the whole
+            map per round costs more than building it once did.
+    """
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     key = _cache_key(resolved_roles_dir)
     cached = _VARIANTS_CACHE.get(key)
     if cached is None:
         cached = _build_variants(resolved_roles_dir)
         _VARIANTS_CACHE[key] = cached
-    return copy.deepcopy(cached)
+    return cached if readonly else copy.deepcopy(cached)
 
 
 def _build_variant_overrides_only(
@@ -392,6 +352,14 @@ def get_merged_applications(
     roles_dir: str | os.PathLike[str] | None = None,
     templar: Any = None,
 ) -> dict[str, Any]:
+    """Return the applications payload for *variables*, cached per key.
+
+    A re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE``
+    is written, because its payload carries no users and keeps its volumes. It
+    is therefore memoised on the render guard instead, which drops it when the
+    guard releases. Without that, one template render recomputed the payload
+    for every ``lookup('applications')`` it made.
+    """
     from .users import get_merged_users
 
     variables = variables or {}
@@ -406,11 +374,11 @@ def get_merged_applications(
         _MERGED_APPLICATIONS_CACHE[cache_key] = carried
         return carried
 
-    guarded = getattr(_RENDER_GUARD, "applications", False)
-    if guarded:
-        unrendered = getattr(_RENDER_GUARD, "unrendered_applications", None)
-        if unrendered is not None and unrendered[0] == cache_key:
-            return unrendered[1]
+    nested = getattr(_RENDER_GUARD, "applications", False)
+    if nested:
+        carried_nested = getattr(_RENDER_GUARD, "nested_payloads", {}).get(cache_key)
+        if carried_nested is not None:
+            return carried_nested
 
     defaults = get_application_defaults(roles_dir=resolved_roles_dir)
 
@@ -418,10 +386,14 @@ def get_merged_applications(
 
     merged = merge_with_defaults(defaults, overrides)
 
-    if guarded:
+    if nested:
+        payloads = getattr(_RENDER_GUARD, "nested_payloads", None)
+        if payloads is None:
+            payloads = _RENDER_GUARD.nested_payloads = {}
+        payloads[cache_key] = merged
         return merged
 
-    _RENDER_GUARD.unrendered_applications = (cache_key, copy.deepcopy(merged))
+    _RENDER_GUARD.nested_payloads = {cache_key: copy.deepcopy(merged)}
 
     for app_cfg in merged.values():
         if isinstance(app_cfg, dict):
@@ -443,7 +415,7 @@ def get_merged_applications(
         )
     finally:
         _RENDER_GUARD.applications = False
-        _RENDER_GUARD.unrendered_applications = None
+        _RENDER_GUARD.nested_payloads = {}
 
     for app_id in rendered:
         raw_volumes = get_canonical_volumes(app_id)

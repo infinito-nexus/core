@@ -1,0 +1,25 @@
+---
+- name: "🖼️ Render and read the corporate logo set of {{ application_id }}"
+  when: GITLAB_DESIGN_ENABLED | bool
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ GITLAB_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ GITLAB_DESIGN_DIR }}"
+
+    - name: "📥 Read the logo set for the GitLab appearance"
+      ansible.builtin.slurp:
+        src: "{{ [GITLAB_DESIGN_DIR, item.file] | path_join }}"
+      loop: "{{ GITLAB_DESIGN_UPLOADS }}"
+      loop_control:
+        label: "{{ item.file }}"
+      register: gitlab_design_files
+      when: design_branding.logo is string

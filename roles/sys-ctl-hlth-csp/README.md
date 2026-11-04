@@ -8,20 +8,6 @@ This Ansible role automates the validation of [Content Security Policy (CSP)](ht
 
 Designed for Archlinux systems, this role periodically checks whether web resources (JavaScript, fonts, images, etc.) are blocked by CSP headers. It integrates Python and Node.js tooling and installs a systemd service with timer support.
 
-## Cosmos
-
-The diagram places Health CSP Crawler in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-ctl-hlth-csp 💻]
-        svc_csp["csp"]
-        svc_csp_checker["csp-checker"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **CSP Resource Validation:** Uses Puppeteer to simulate browser requests and detect blocked resources.
@@ -59,9 +45,3 @@ The role configures a systemd service and timer which executes the CSP crawler p
 
 Infinito.Nexus Community License (Non-Commercial)
 [https://s.infinito.nexus/license](https://s.infinito.nexus/license)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

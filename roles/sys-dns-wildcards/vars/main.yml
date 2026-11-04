@@ -1,13 +1,19 @@
 ---
+SYN_DNS_WILDCARD_APEXES: >-
+  {{ ([DOMAIN_PRIMARY]
+      + (CURRENT_PLAY_DOMAINS_ALL | select('match', '[*][.]')
+         | map('regex_replace', '^[*][.]', '') | list | generate_base_sld_domains))
+     | unique }}
 SYN_DNS_WILDCARD_RECORDS: >-
-  {{
-    {} |
-    wildcard_records(
-      DOMAIN_PRIMARY,
-      networks.internet.ip4,
-      networks.internet.ip6,
-      parent_dns_proxied,
-      explicit_domains=CURRENT_PLAY_DOMAINS_ALL,
-      min_child_depth=2,
-      ipv6_enabled=true)
-  }}
+  {%- set records = [] -%}
+  {%- for apex in SYN_DNS_WILDCARD_APEXES -%}
+  {%- set _ = records.extend({} | wildcard_records(
+        apex,
+        networks.internet.ip4,
+        networks.internet.ip6,
+        parent_dns_proxied,
+        explicit_domains=CURRENT_PLAY_DOMAINS_ALL,
+        min_child_depth=2,
+        ipv6_enabled=true)) -%}
+  {%- endfor -%}
+  {{ records }}

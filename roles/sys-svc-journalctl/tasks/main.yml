@@ -7,6 +7,22 @@
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_svc_journalctl is not defined
 
+- name: 🔍 Check whether the persistent journal directory exists
+  ansible.builtin.stat:
+    path: "{{ SYS_SVC_JOURNALCTL_DIRECTORY }}"
+  register: sys_svc_journalctl_directory
+
+- name: 📏 Measure the filesystem that holds the persistent journal
+  ansible.builtin.command:
+    argv:
+      - df
+      - --output=size
+      - --block-size=1M
+      - "{{ SYS_SVC_JOURNALCTL_DIRECTORY if sys_svc_journalctl_directory.stat.exists else (SYS_SVC_JOURNALCTL_DIRECTORY | dirname) }}"
+  register: sys_svc_journalctl_filesystem
+  changed_when: false
+  check_mode: false
+
 - name: 📋 copy journald.conf
   template: # nocheck: stack-host-template (per-host /etc/systemd/journald.conf, not stack-host-only)
     src: templates/journald.conf.j2

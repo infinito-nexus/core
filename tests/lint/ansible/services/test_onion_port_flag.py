@@ -26,10 +26,10 @@ than this paragraph does:
   host-side forward reaches it.
 * the categories a hidden service cannot carry, listed and reasoned once in
   ``plugins.lookup.tor_ports.UDP_ONLY_CATEGORIES``.
-* ``http``, ``sso`` and ``websocket``, because the node onion already forwards
-  port 80 to the reverse proxy, which routes every vhost, every oauth2 hop and
-  every socket upgrade behind it. A direct forward there would bypass the proxy,
-  its auth and its CSP.
+* ``http`` and ``sso`` (and their per-network ``<category>_<label>``
+  instances) and ``websocket``, because the node onion already forwards port 80 to the reverse
+  proxy, which routes every vhost, every oauth2 hop and every socket upgrade
+  behind it. A direct forward there would bypass the proxy, its auth and its CSP.
 * the implicit-TLS variants, because Tor is already the transport encryption and
   ``container_ports`` drops those listeners entirely when TLS is off, which an
   onion deployment always is.
@@ -55,11 +55,20 @@ from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.meta.scan import iter_role_dirs
+from utils.networks.reachability import TOR, network
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _RULE = "onion-flag"
 _HOST_BOUND_SCOPES = ("local", "public")
-_PROXY_FRONTED_CATEGORIES = frozenset({"http", "sso", "websocket"})
+_PROXY_FRONTED_CATEGORIES = frozenset(
+    {
+        "http",
+        f"http_{network(TOR).label}",
+        "sso",
+        f"sso_{network(TOR).label}",
+        "websocket",
+    }
+)
 _IMPLICIT_TLS_CATEGORIES = frozenset({"smtps", "imaps", "pop3s", "ldaps"})
 _OUT_OF_SCOPE = (
     UDP_ONLY_CATEGORIES | _PROXY_FRONTED_CATEGORIES | _IMPLICIT_TLS_CATEGORIES

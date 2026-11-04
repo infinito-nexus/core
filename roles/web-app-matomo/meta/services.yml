@@ -1,10 +1,10 @@
 ---
 # nocheck: seaweedfs-required — object storage not implemented for this role
-# nocheck: dynamic-flag
-# nocheck: sso
 sso:
-  enabled: false
-  shared: false
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
 # nocheck: dynamic-flag
 logout:
   bond: 1
@@ -37,12 +37,11 @@ matomo:
   name: matomo
   min_storage: 404MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 1.0
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 512
-  site_name: Matomo on {{ DOMAIN_PRIMARY }}
   tracking:
     scope: sub
   token:
@@ -56,6 +55,14 @@ matomo:
   proxy:
     service_key: matomo
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-matomo', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-matomo', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-matomo', '2fa') }}"
 bootstrap:
   replicas: 0
   image: ghcr.io/kevinveenbirkenbach/matomo-bootstrap
@@ -81,15 +88,29 @@ redis:
     disabled: true
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: Matomo on {{ DOMAIN_PRIMARY }}
+  slots:
+    logo:
+      width: 300
+      height: 64
+    favicon:
+      width: 256
+      height: 256
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag  gated on the role's own native login method, not on group_names
+# nocheck: playwright-service-flag  runtime DOM patch of the sign-in page, asserted by test-login-methods.js
+javascript:
+  bond: 1
+  enabled: "{{ not (lookup('config', 'web-app-matomo', 'services.matomo.login.method.native.enabled') | bool) }}"
+  shared: "{{ not (lookup('config', 'web-app-matomo', 'services.matomo.login.method.native.enabled') | bool) }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -103,3 +124,16 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

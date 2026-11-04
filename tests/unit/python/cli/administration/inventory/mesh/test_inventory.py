@@ -149,10 +149,14 @@ class TestTopology(InventoryOnDisk, unittest.TestCase):
 
     def test_a_hub_role_with_two_hosts_is_refused(self):
         with self.assertRaises(ValueError):
-            hub_of({**GROUPS, "svc-swarm-manager": ["a", "b"]})
+            hub_of({**GROUPS, "svc-swarm-manager": ["a", "b"]}, self.host_vars)
 
     def test_an_inventory_without_a_hub_host_has_no_hub(self):
-        self.assertIsNone(hub_of({**GROUPS, "svc-swarm-manager": []}))
+        self.assertIsNone(hub_of({**GROUPS, "svc-swarm-manager": []}, self.host_vars))
+
+    def test_the_swarm_manager_stays_the_hub_without_a_named_one(self):
+        self._host("mgr", DECLARED)
+        self.assertEqual("mgr", hub_of(GROUPS, self.host_vars))
 
 
 class TestTheShippedExample(InventoryOnDisk, unittest.TestCase):

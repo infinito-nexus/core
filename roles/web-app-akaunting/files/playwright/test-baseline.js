@@ -1,10 +1,14 @@
 const { test, expect } = require("@playwright/test");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
+const {
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const baseUrl = normalizeBaseUrl(process.env.AKAUNTING_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test("baseline: Akaunting responds on the canonical domain", async ({ page }) => {
   expect(baseUrl, "AKAUNTING_BASE_URL must be set").toBeTruthy();

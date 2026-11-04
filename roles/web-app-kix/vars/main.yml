@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-kix"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 swarm_stack_converge_retries: 600
 
@@ -16,7 +16,25 @@ KIX_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ KIX_F
 KIX_BACKEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KIX_BACKEND_SERVICE ~ '.ports.internal.http') }}"
 KIX_FRONTEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.' ~ KIX_FRONTEND_SERVICE ~ '.ports.internal.http') }}"
 
+KIX_HOME: "/opt/kix"
+KIX_PERL_INCLUDE_ARGS: "-I{{ KIX_HOME }} -I{{ KIX_HOME }}/Kernel/cpan-lib -I{{ KIX_HOME }}/Custom"
+
 KIX_INITIAL_ADMIN_PW: "{{ lookup('config', application_id, 'secrets.credentials.kix_initial_admin_pw') }}"
+KIX_ADMIN_USERNAME: "admin"
+KIX_ADMIN_USAGE_CONTEXT: "Agent"
+
+KIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+KIX_DESIGN_LOGO_ENABLED: "{{ KIX_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+KIX_DESIGN_CONSOLE: "{{ KIX_HOME }}/bin/kix.Console.pl"
+KIX_DESIGN_MARKER_DIR: "/mnt/data/.infinito-design"
+KIX_DESIGN_FRONTEND_CACHE_KEY: "AgentPortal::OBJECT_ICON"
+KIX_DESIGN_ICONS:
+  agent-portal-logo:
+    slot: "logo"
+    builtin: "/opt/kix/static/img/kix_start.png"
+  agent-portal-icon:
+    slot: "favicon"
+    builtin: "/opt/kix/static/img/kix_start_icon.png"
 
 KIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 KIX_LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
@@ -27,6 +45,43 @@ KIX_LDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
 KIX_LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
 KIX_LDAP_ADMINISTRATOR_GROUP_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
 KIX_LDAP_USER_GROUP_DN: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
+KIX_ROLE_SUPERUSER: "Superuser"
+KIX_ROLE_AGENT: "Ticket Agent"
+KIX_LDAP_CONTACT_SYNC:
+  Email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+  Firstname: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+  Lastname: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+  UserLogin: "{{ KIX_LDAP_UID_ATTR }}"
+  Title: "{{ LDAP.USER.ATTRIBUTES.TITLE }}"
+  Phone: "{{ LDAP.USER.ATTRIBUTES.PHONE }}"
+  Mobile: "{{ LDAP.USER.ATTRIBUTES.MOBILE }}"
+  Street: "{{ LDAP.USER.ATTRIBUTES.STREET }}"
+  Zip: "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE }}"
+  City: "{{ LDAP.USER.ATTRIBUTES.LOCALITY }}"
+  Country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY }}"
+  Comment: "{{ LDAP.USER.ATTRIBUTES.DESCRIPTION }}"
+  PrimaryOrganisationID: "SET:1"
+KIX_LDAP_ROLE_SYNC: >-
+  {{
+    {
+      KIX_LDAP_ADMINISTRATOR_GROUP_DN: {KIX_ROLE_SUPERUSER: 1},
+      KIX_LDAP_USER_GROUP_DN: {KIX_ROLE_AGENT: 1}
+    }
+  }}
+KIX_LDAP_USAGE_CONTEXT_SYNC: >-
+  {{
+    {
+      KIX_LDAP_ADMINISTRATOR_GROUP_DN: {'IsAgent': 1, 'IsCustomer': 0},
+      KIX_LDAP_USER_GROUP_DN: {'IsAgent': 1, 'IsCustomer': 0}
+    }
+  }}
+KIX_LDAP_SYNC:
+  - Enabled: 1
+    Module: "Kernel::System::Auth::Sync::LDAP"
+    Config:
+      ContactUserSync: "{{ KIX_LDAP_CONTACT_SYNC }}"
+      GroupDNBasedRoleSync: "{{ KIX_LDAP_ROLE_SYNC }}"
+      GroupDNBasedUsageContextSync: "{{ KIX_LDAP_USAGE_CONTEXT_SYNC }}"
 
 KIX_AUTH_LDAP_HOST_PATH: "{{ lookup('container', application_id, 'directories.volumes') }}auth_ldap.xml"
 

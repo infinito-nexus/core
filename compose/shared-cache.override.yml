@@ -1,0 +1,13 @@
+---
+services:
+  infinito:
+    environment:
+      PIP_CACHE_DIR: ${INFINITO_CACHE_SHARED_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}/pip
+      npm_config_cache: ${INFINITO_CACHE_SHARED_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}/npm
+    volumes:
+      - type: bind
+        source: ${INFINITO_CACHE_SHARED_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
+        target: ${INFINITO_CACHE_SHARED_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
+        bind:
+          create_host_path: true
+      - ./scripts/docker/cache/pacman.sh:/usr/local/bin/pacman-cache.sh:ro

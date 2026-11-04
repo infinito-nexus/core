@@ -1,0 +1,14 @@
+---
+enabled: "{{ lookup('config', 'web-app-discourse', 'services.prometheus.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - prometheus
+update:
+  monitored: true
+  catalog: discourse-meta
+  upstream_id: discourse-prometheus
+config:
+  repository: https://github.com/discourse/discourse-prometheus.git
+  ref: main

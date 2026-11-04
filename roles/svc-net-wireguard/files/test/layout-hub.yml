@@ -1,0 +1,13 @@
+---
+hub: I
+meshes:
+  - name: gamma
+    subnet: 10.100.202.0/24
+    listen_port: 51902
+
+members:
+  I: []
+  II: [gamma]
+  III: [gamma]
+
+roaming: [II]

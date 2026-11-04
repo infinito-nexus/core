@@ -23,3 +23,6 @@
 - name: "📤 dispatch to compose flavor (deprecated; in-repo compose stack)"
   include_tasks: flavor/compose/main.yml
   when: matrix_flavor == 'compose'
+
+- name: "👑 Reconcile the Synapse admin flag with the administrator role"
+  include_tasks: 01_rbac_administrator.yml

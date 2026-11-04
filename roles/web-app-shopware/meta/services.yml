@@ -25,8 +25,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -53,7 +53,6 @@ shopware:
   package:
     name: shopware/production
     version: 6.7.13.0
-  title: "{{ ORGANIZATION }} Shop"
   proxy:
     service_key: web
   ports:
@@ -63,9 +62,14 @@ shopware:
       http: 8060
   run_after:
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-shopware', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-shopware', 'native') }}"
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
@@ -153,13 +157,26 @@ opensearch:
   pids_limit: 1024
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ ORGANIZATION }} Shop"
+  bootstrap: true
+  slots:
+    logo:
+      width: 300
+      height: 60
+    favicon:
+      width: 96
+      height: 96
+    menu-logo:
+      width: 34
+      height: 34
+      frame: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -177,3 +194,16 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

@@ -5,9 +5,12 @@
 # Variant pinning every dynamic services.yml flag to true so the matrix
 # exercises the in-group_names branch of web-app-penpot.
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -41,10 +44,13 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -87,7 +93,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:

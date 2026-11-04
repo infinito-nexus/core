@@ -1,0 +1,18 @@
+#logo-container img.logo,
+.swagger-ui .topbar a.link img {
+  content: var(--design-url-logo-svg);
+  height: 40px;
+  width: auto;
+}
+
+#logo-container img.logo {
+  vertical-align: middle;
+}
+
+.swagger-ui .topbar a.link {
+  flex: 0 1 auto;
+}
+
+#logo-container span {
+  display: none;
+}

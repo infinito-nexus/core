@@ -8,6 +8,7 @@ sso:
   oidc:
     repository: https://github.com/infinito-nexus/taiga-oidc.git
     ref: c623b753047ce9923f3e38614d86e81fc5eb2bb1
+    rbac: false
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -27,14 +28,17 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 taiga:
+  # nocheck: architecture-pin  Reason: every tag of taiga-back, taiga-front, taiga-events and taiga-protected answers with a single linux/amd64 manifest, so arm64 would mean building all four of the stack's images from source rather than one
+  architectures:
+    - amd64
   healthcheck:
     test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8000),5).close()"]
     retries: 5
@@ -56,6 +60,7 @@ taiga:
   ports:
     local:
       sso: 16491
+      sso_onion: 16546
       http: 8027
     internal:
       http: 80
@@ -65,6 +70,16 @@ taiga:
     - web-app-matomo
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'registration') }}"
 async:
   healthcheck:
     test: ["CMD-SHELL", "tr '\\0' ' ' </proc/1/cmdline | grep -qi celery"]
@@ -86,6 +101,8 @@ front:
   mem_limit: 512m
   pids_limit: 256
 gateway:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: http
   ports:
@@ -108,6 +125,8 @@ events:
   mem_limit: 512m
   pids_limit: 256
 async-rabbitmq:
+  backup:
+    stop_required: true
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
     retries: 5
@@ -118,6 +137,8 @@ async-rabbitmq:
   mem_limit: 1.5g
   pids_limit: 512
 events-rabbitmq:
+  backup:
+    stop_required: true
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
     retries: 5
@@ -147,12 +168,20 @@ protected:
   pids_limit: 128
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
-css:
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 35
+      height: 35
+      frame: true
+    logo-auth:
+      width: 128
+      height: 128
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
@@ -175,3 +204,16 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

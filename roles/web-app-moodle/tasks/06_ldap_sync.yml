@@ -1,0 +1,118 @@
+---
+# Configure Moodle's auth_ldap plugin. In variant 0 (hybrid) it runs
+# in sync-only mode (login = auth_oidc); in variant 1 (LDAP-only) it
+# is the primary login plugin. Field mapping is identical between
+# variants.
+
+- name: "▶️ Run Moodle DB upgrade for auth_ldap plugin"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
+  failed_when: false
+  changed_when: false
+
+- name: "🔧 Configure auth_ldap connection + field mapping"
+  include_tasks: utils/plugin_config.yml
+  vars:
+    moodle_plugin_config_component: auth_ldap
+    moodle_plugin_config_settings:
+      host_url: "{{ LDAP.SERVER.URI }}"
+      ldap_version: 3
+      start_tls: 0
+      user_type: "rfc2307"
+      contexts: "{{ LDAP.DN.OU.USERS }}"
+      search_sub: 1
+      user_attribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      objectclass: "{{ LDAP.FILTERS.USERS.ALL }}"
+      memberattribute: "{{ MOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE }}"
+      memberattribute_isdn: 1
+      bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+      bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+      creators: "*"
+      auth_user_create: "{{ MOODLE_OIDC_ENABLED | bool | ternary(0, 1) }}"
+      removeuser: 1 # 1 = suspend (preserve history); 2 = delete
+      sync_suspended: 1
+      field_map_firstname: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+      field_lock_firstname: "locked"
+      field_updatelocal_firstname: "onlogin"
+      field_map_lastname: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+      field_lock_lastname: "locked"
+      field_updatelocal_lastname: "onlogin"
+      field_map_middlename: "{{ LDAP.USER.ATTRIBUTES.INITIALS }}"
+      field_lock_middlename: "locked"
+      field_updatelocal_middlename: "onlogin"
+      field_map_alternatename: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME }}"
+      field_lock_alternatename: "locked"
+      field_updatelocal_alternatename: "onlogin"
+      field_map_email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      field_lock_email: "locked"
+      field_updatelocal_email: "onlogin"
+      field_map_phone1: "{{ LDAP.USER.ATTRIBUTES.PHONE }}"
+      field_lock_phone1: "locked"
+      field_updatelocal_phone1: "onlogin"
+      field_map_phone2: "{{ LDAP.USER.ATTRIBUTES.MOBILE }}"
+      field_lock_phone2: "locked"
+      field_updatelocal_phone2: "onlogin"
+      field_map_address: "{{ LDAP.USER.ATTRIBUTES.STREET }}"
+      field_lock_address: "locked"
+      field_updatelocal_address: "onlogin"
+      field_map_city: "{{ LDAP.USER.ATTRIBUTES.LOCALITY }}"
+      field_lock_city: "locked"
+      field_updatelocal_city: "onlogin"
+      field_map_country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY }}"
+      field_lock_country: "locked"
+      field_updatelocal_country: "onlogin"
+      field_map_institution: "{{ LDAP.USER.ATTRIBUTES.ORGANIZATION }}"
+      field_lock_institution: "locked"
+      field_updatelocal_institution: "onlogin"
+      field_map_department: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT }}"
+      field_lock_department: "locked"
+      field_updatelocal_department: "onlogin"
+      field_map_description: "{{ LDAP.USER.ATTRIBUTES.DESCRIPTION }}"
+      field_lock_description: "locked"
+      field_updatelocal_description: "onlogin"
+      field_map_idnumber: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER }}"
+      field_lock_idnumber: "locked"
+      field_updatelocal_idnumber: "onlogin"
+      field_map_url: "{{ LDAP.USER.ATTRIBUTES.WEBSITE }}"
+      field_lock_url: "locked"
+      field_updatelocal_url: "onlogin"
+      field_map_lang: "{{ LDAP.USER.ATTRIBUTES.LOCALE }}"
+      field_lock_lang: "locked"
+      field_updatelocal_lang: "onlogin"
+      field_map_firstnamephonetic: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_GIVEN }}"
+      field_lock_firstnamephonetic: "locked"
+      field_updatelocal_firstnamephonetic: "onlogin"
+      field_map_lastnamephonetic: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_FAMILY }}"
+      field_lock_lastnamephonetic: "locked"
+      field_updatelocal_lastnamephonetic: "onlogin"
+      field_map_timezone: "{{ LDAP.USER.ATTRIBUTES.TIMEZONE }}"
+      field_lock_timezone: "locked"
+      field_updatelocal_timezone: "onlogin"
+
+- name: "👥 Map the RBAC role groups onto Moodle's system roles"
+  loop: "{{ MOODLE_LDAP_ROLE_GROUP_DNS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_CLI_DIR }}/cfg.php --component=auth_ldap
+    --name={{ (item.key ~ 'context') | quote }}
+    --set={{ item.value | quote }}
+  changed_when: false
+
+- name: "🔑 Hide auth_ldap from login page in variant 0 (OIDC is the only entry point)"
+  when: MOODLE_OIDC_ENABLED | bool
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_CLI_DIR }}/cfg.php --component=auth_ldap
+    --name=removecontexts --set=1
+  changed_when: false
+
+- name: "⚡ Trigger auth_ldap sync to pre-provision LDAP users"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_CLI_DIR }}/scheduled_task.php
+    --execute='\auth_ldap\task\sync_task'
+  failed_when: false
+  changed_when: false

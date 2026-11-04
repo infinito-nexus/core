@@ -1,0 +1,33 @@
+---
+- name: "🔍 Resolve the gateway container for provider validation"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: LITELLM
+    resolve_compose_cid: "{{ LITELLM_CONTAINER }}"
+
+- name: "✅ Validate deployed provider credentials, billing and remote model access"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver, container-exec-env-value  runtime-resolved CID, delegated to the hosting node; the -e values are a timeout and an output-token count
+    container exec -i -e LITELLM_TIMEOUT={{ LITELLM_UPSTREAM_TIMEOUT | quote }} -e LITELLM_VALIDATION_OUTPUT_TOKENS={{ lookup('config', application_id, 'services.litellm.validation.max_output_tokens') | string | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/validate/provider.py')) | quote }} --batch
+  args:
+    stdin: >-
+      {{ {
+        'models': LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list,
+        'workers': lookup('config', application_id, 'services.litellm.validation.workers') | int,
+        'worker_source': lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/validate/provider.py'))
+      } | to_json }}
+  register: litellm_provider_validation
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: false
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: ✅ Require every provider to return an answer
+  ansible.builtin.assert:
+    that:
+      - litellm_provider_validation.rc == 0
+      - (litellm_provider_validation.stdout | from_json).ok | bool
+    success_msg: "{{ litellm_provider_validation.stdout }}"
+    fail_msg: >-
+      {{ litellm_provider_validation.stdout if litellm_provider_validation.stdout | trim
+         else 'Provider validator failed before reporting results; check container availability and Python.' }}

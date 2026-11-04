@@ -1,0 +1,62 @@
+---
+# include-gated: when: IS_COMPOSE_MODE
+- name: "📄 Point the Nextcloud upgrade run at {{ nextcloud_upgrade_tag }}"
+  stack_host_template:
+    src: major_upgrade.yml.j2
+    dest: "{{ NEXTCLOUD_UPGRADE_COMPOSE_HOST }}"
+
+- name: "⏫ Nextcloud upgrade run with {{ NEXTCLOUD_IMAGE }}:{{ nextcloud_upgrade_tag }}"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    {{ (NEXTCLOUD_UPGRADE_RUN + ['--env', 'NEXTCLOUD_UPDATE=1', '--entrypoint', '/entrypoint.sh', NEXTCLOUD_SERVICE, 'true']) | map('quote') | join(' ') }} 2>&1 \
+      | sed -E '/^\[nextcloud\]\[[^]]*\]\[[01]\] /d'
+  args:
+    executable: /bin/bash
+  register: nextcloud_upgrade_step
+  changed_when: true
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+
+- name: "🔴 Leave maintenance mode after the {{ nextcloud_upgrade_tag }} step"
+  ansible.builtin.command:
+    argv: "{{ NEXTCLOUD_UPGRADE_OCC + ['maintenance:mode', '--off'] }}"
+  register: nextcloud_upgrade_maintenance
+  changed_when: "'already disabled' not in nextcloud_upgrade_maintenance.stdout"
+
+- name: "🔍 Read occ status after the {{ nextcloud_upgrade_tag }} step"
+  ansible.builtin.command:
+    argv: "{{ NEXTCLOUD_UPGRADE_OCC + ['status', '--output=json'] }}"
+  register: nextcloud_upgrade_status
+  changed_when: false
+
+- name: "✅ Verify occ status reports the Nextcloud {{ nextcloud_upgrade_tag }} major"
+  vars:
+    nextcloud_upgrade_state: "{{ nextcloud_upgrade_status.stdout | nextcloud_status }}"
+  ansible.builtin.assert:
+    that:
+      - nextcloud_upgrade_state.installed | bool
+      - not (nextcloud_upgrade_state.maintenance | bool)
+      - not (nextcloud_upgrade_state.needsDbUpgrade | bool)
+      - (nextcloud_upgrade_state.versionstring | nextcloud_tag_major) == (nextcloud_upgrade_tag | nextcloud_tag_major)
+    fail_msg: >-
+      After the {{ nextcloud_upgrade_tag }} step occ status reports {{ nextcloud_upgrade_state }}.
+    success_msg: >-
+      occ status reports Nextcloud {{ nextcloud_upgrade_state.versionstring }} after the
+      {{ nextcloud_upgrade_tag }} step, maintenance off, no pending database upgrade.
+    quiet: false
+
+- name: "🔍 List the enabled apps after the {{ nextcloud_upgrade_tag }} step"
+  ansible.builtin.command:
+    argv: "{{ NEXTCLOUD_UPGRADE_OCC + ['app:list', '--output=json'] }}"
+  register: nextcloud_upgrade_apps
+  changed_when: false
+
+- name: "🧩 Record the apps the Nextcloud {{ nextcloud_upgrade_tag }} upgrade disabled"
+  ansible.builtin.set_fact:
+    nextcloud_upgrade_disabled_apps: >-
+      {{ nextcloud_upgrade_disabled_apps
+         + [{'step': nextcloud_upgrade_tag,
+             'disabled': nextcloud_upgrade_step.stdout | nextcloud_disabled_apps(nextcloud_upgrade_apps.stdout)}] }}
+
+- name: "🧩 Apps the Nextcloud {{ nextcloud_upgrade_tag }} upgrade disabled"
+  ansible.builtin.debug:
+    msg: "{{ nextcloud_upgrade_step.stdout | nextcloud_disabled_apps(nextcloud_upgrade_apps.stdout) }}"

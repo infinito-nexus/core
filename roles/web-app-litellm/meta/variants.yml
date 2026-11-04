@@ -3,7 +3,13 @@
 # docs/contributing/artefact/files/role/variants.md for the file format.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     dashboard:
+      enabled: true
+      shared: true
+    design:
       enabled: true
       shared: true
     prometheus:
@@ -16,9 +22,15 @@
       enabled: true
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

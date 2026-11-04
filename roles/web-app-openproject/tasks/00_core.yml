@@ -15,3 +15,6 @@
 - name: "👔 OpenProject manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "👑 Reconcile OpenProject administrators with the administrator role group"
+  include_tasks: 06_rbac.yml

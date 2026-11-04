@@ -56,6 +56,7 @@ echo ">>> Deploying against ${INFINITO_INVENTORY_FILE}"
 
 infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}" \
 	--skip-backup \
+	--skip-pull \
 	--debug \
 	--log "${INFINITO_SRC_DIR}/logs" \
 	-l "${INFINITO_LIMIT_HOST}" \

@@ -15,13 +15,25 @@
     COMPOSE_DOCKER_CLI_BUILD: "{{ BUILDKIT_ENABLED | int }}"
     INFINITO_RESCUE_DIAGNOSTICS_DIR: "{{ DIR_RESCUE_DIAGNOSTICS }}"
     CONTAINER_EXEC_TIMEOUT: "{{ SYS_TIMEOUT_CONTAINER_EXEC }}"
+  gather_facts: false
+  pre_tasks:
+    - name: "🐍 Link the managed Python interpreter before any module needs it"
+      ansible.builtin.script: scripts/system/python/managed_interpreter.sh
+      register: managed_interpreter
+      changed_when: "'linked' in managed_interpreter.stdout"
+
+    - name: "🔍 Gather facts"
+      ansible.builtin.setup:
+
   tasks:
     - name: "Load 'constructor' tasks"
       include_tasks: "tasks/stages/01_constructor.yml"
 
     - name: Load host-type stages
-      ansible.builtin.include_tasks: "tasks/stages/02_{{ item }}.yml"
+      ansible.builtin.include_tasks: "tasks/stages/02_{{ host_type }}.yml"
       loop: "{{ group_names | get_deployment_types_from_groups }}"
+      loop_control:
+        loop_var: host_type
 
     - name: "Load 'destructor' tasks"
       include_tasks: "tasks/stages/03_destructor.yml"

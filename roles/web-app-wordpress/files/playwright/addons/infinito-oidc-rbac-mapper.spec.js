@@ -5,10 +5,9 @@ const { skipUnlessServiceEnabled } = require("../service-gating");
 const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
-test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partner carrying the groups scope and lands on the role-mapping surface", async ({ browser }) => {
+test("administrator: addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partner carrying the groups scope and lands on the role-mapping surface", async ({ browser }) => {
   skipUnlessAddonEnabled("infinito-oidc-rbac-mapper");
   skipUnlessServiceEnabled("sso");
-  skipUnlessServiceEnabled("ldap");
   test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });

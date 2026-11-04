@@ -8,3 +8,6 @@
 - name: "👔 Shopware manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🛡️ Converge the admin flag and the Editor role on the role groups"
+  include_tasks: 06_rbac.yml

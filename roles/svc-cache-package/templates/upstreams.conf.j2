@@ -1,0 +1,69 @@
+{#
+  Rendered from the cache: declarations in roles/*/meta/networks.yml, which
+  are the single point of truth for every cached host, repository and
+  upstream. Nothing here is written by hand; edit the declaration instead.
+
+  A repository that declares a mirror is proxied through a guarded location:
+  Nexus answers 5xx while a remote is unreachable, and the named location
+  retries the same path against the sibling. 404 stays unguarded, because a
+  missing file is missing on both remotes and apt probes for them constantly.
+#}
+proxy_http_version 1.1;
+proxy_set_header Host              $host;
+proxy_set_header X-Real-IP         $remote_addr;
+proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header Accept-Encoding   "";
+proxy_buffering on;
+proxy_request_buffering off;
+proxy_read_timeout {{ CACHE_PACKAGE_READ_TIMEOUT }};
+proxy_connect_timeout {{ CACHE_PACKAGE_CONNECT_TIMEOUT }};
+
+resolver {{ CACHE_PACKAGE_RESOLVER }} ipv6=off valid=30s;
+{% for host in CACHE_PACKAGE_UPSTREAMS %}
+{% for listener in host.listen %}
+
+server {
+	listen {{ listener.port }}{{ ' ssl' if listener.tls else '' }};
+	server_name {{ host.host }};
+{% if listener.tls %}
+	ssl_certificate     {{ CACHE_PACKAGE_CERTS_DIR }}/{{ host.host }}.crt;
+	ssl_certificate_key {{ CACHE_PACKAGE_CERTS_DIR }}/{{ host.host }}.key;
+{% set repo = CACHE_PACKAGE_REPOS[host.repo] %}
+{% if host.passthrough %}
+	location /repository/{{ repo.name }}/ {
+		proxy_pass {{ CACHE_PACKAGE_BACKEND }};
+	}
+{% endif %}
+	location / {
+{% if host.read_timeout %}
+		proxy_read_timeout {{ host.read_timeout }};
+{% endif %}
+		proxy_pass {{ CACHE_PACKAGE_BACKEND }}/repository/{{ repo.name }}/;
+	}
+{% else %}
+{% for route in host.routes %}
+{% set repo = CACHE_PACKAGE_REPOS[route.repo] %}
+{% if repo.mirror %}
+	location {{ route.path }} {
+		rewrite ^{{ route.path }}(.*)$ /repository/{{ repo.name }}/$1 break;
+		proxy_intercept_errors on;
+		proxy_read_timeout {{ CACHE_PACKAGE_MIRROR_TIMEOUT }};
+		error_page 502 503 504 = @{{ repo.name | replace('-', '_') }}_mirror;
+		proxy_pass {{ CACHE_PACKAGE_BACKEND }};
+	}
+	location @{{ repo.name | replace('-', '_') }}_mirror {
+		rewrite ^/repository/{{ repo.name }}/(.*)$ /repository/{{ repo.mirror }}/$1 break;
+		proxy_pass {{ CACHE_PACKAGE_BACKEND }};
+	}
+{% else %}
+	location {{ route.path }} {
+		rewrite ^{{ route.path }}(.*)$ /repository/{{ repo.name }}/$1 break;
+		proxy_pass {{ CACHE_PACKAGE_BACKEND }};
+	}
+{% endif %}
+{% endfor %}
+{% endif %}
+}
+{% endfor %}
+{% endfor %}

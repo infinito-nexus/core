@@ -1,0 +1,4 @@
+---
+roles:
+  user:
+    description: Signs in to pgAdmin through Keycloak with the pgAdmin User role and manages only the servers it registers itself

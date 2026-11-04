@@ -1,0 +1,6 @@
+---
+roles:
+  bureaucrat:
+    description: Can grant and revoke the wiki's user groups and rename accounts
+  interface-admin:
+    description: Can edit the sitewide CSS and JavaScript pages of the wiki

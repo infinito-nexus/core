@@ -2,18 +2,12 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { expectNoCspViolations } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("administrator: openwebui native signup + sign-in", async ({ page }) => {
-    test.skip(
-      isServiceEnabled("sso"),
-      "Native login is only exercised when services.sso.enabled is false — SSO mode owns the admin journey and the local password is never set."
-    );
-    test.skip(
-      isServiceEnabled("ldap"),
-      "Native login is only exercised when services.ldap.enabled is false — LDAP mode owns the admin journey."
-    );
+    skipUnlessServiceDisabled("sso");
+    skipUnlessServiceDisabled("ldap");
 
     const diagnostics = shared.attachDiagnostics(page);
 

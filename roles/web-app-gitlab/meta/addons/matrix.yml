@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-gitlab', 'services.matrix.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - matrix
+config:
+  hostname: "{{ lookup('canonical_url', 'web-app-matrix', 'synapse') }}"

@@ -1,0 +1,33 @@
+---
+- name: "👥 Converge the shared Penpot team and the full names on the directory"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: "{{ (PENPOT_RBAC_TEAM_ROLES | list) + ['@users'] }}"
+    rbac_sync_service_key: "{{ lookup('database', application_id, 'type') }}"
+    rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"
+    rbac_sync_container: "{{ lookup('database', application_id, 'container') }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv:
+      - psql
+      - -U
+      - "{{ PENPOT_DATABASE_USERNAME }}"
+      - -d
+      - "{{ PENPOT_DATABASE_NAME }}"
+      - -v
+      - ON_ERROR_STOP=1
+      - -qtA
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/sql/rbac/reconcile.sql') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      PGPASSWORD: "{{ PENPOT_DATABASE_PASSWORD }}"
+      PENPOT_RBAC_OWNER_EMAIL: "{{ PENPOT_ADMIN_EMAIL }}"
+      PENPOT_RBAC_TEAM_ID: "{{ PENPOT_RBAC_TEAM_ID }}"
+      PENPOT_RBAC_TEAM_NAME: "{{ PENPOT_RBAC_TEAM_NAME }}"
+      PENPOT_RBAC_TEAM_ROLES: "{{ PENPOT_RBAC_TEAM_ROLES | to_json }}"
+    rbac_sync_members_env:
+      - { name: RBAC_MEMBERS, role: "*", field: "" }

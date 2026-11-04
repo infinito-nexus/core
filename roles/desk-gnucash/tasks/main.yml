@@ -1,4 +1,0 @@
----
-- name: 📦 Install GnuCash
-  package_install:
-    id: gnucash

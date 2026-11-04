@@ -1,0 +1,7 @@
+---
+access_request_data:
+  type: volume
+  backup: true
+  mounts:
+    - service: access-request
+      target: /data

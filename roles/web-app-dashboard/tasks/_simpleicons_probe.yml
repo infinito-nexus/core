@@ -35,11 +35,11 @@
   environment:
     HTTP_METHOD: HEAD
     HTTP_URL: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
-  register: dashboard_simpleicons_probe
+  register: dashboard_simpleicons_probe_raw
   loop: "{{ portfolio_cards | simpleicon_slugs }}"
   loop_control:
     label: "{{ item }}"
-  until: dashboard_simpleicons_probe.rc == 0 and (dashboard_simpleicons_probe.stdout | from_json).status in [200, 404]
+  until: dashboard_simpleicons_probe_raw.rc == 0 and (dashboard_simpleicons_probe_raw.stdout | from_json).status in [200, 404]
   retries: 30
   delay: 2
   changed_when: false
@@ -47,17 +47,9 @@
   become: true
   run_once: true
 
-- name: "📄 Load Dashboard Brand logos"
+- name: "📄 Collect the Simple Icons status per card slug"
   ansible.builtin.set_fact:
-    portfolio_cards: >-
-      {{ portfolio_cards | add_simpleicon_source(
-           dashboard_simpleicons_probe.results
-             | map(attribute='stdout')
-             | map('from_json')
-             | map(attribute='status')
-             | zip(dashboard_simpleicons_probe.results | map(attribute='item'))
-             | selectattr('0', 'equalto', 200)
-             | map(attribute='1')
-             | list,
-           DASHBOARD_SIMPLEICONS_URL_BASE) }}
-  changed_when: false
+    dashboard_simpleicons_probe:
+      status: >-
+        {{ dict(dashboard_simpleicons_probe_raw.results | map(attribute='item')
+                | zip(dashboard_simpleicons_probe_raw.results | map(attribute='stdout') | map('from_json') | map(attribute='status'))) }}

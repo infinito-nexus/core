@@ -50,6 +50,15 @@ class TestGenerateAllDomains(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_wildcard_gets_no_www_variant(self):
+        result = self.plugin(
+            {"*.legacy.example": "*.legacy.example", "a": ["legacy.example"]},
+            include_www=True,
+        )
+        self.assertEqual(
+            result, ["*.legacy.example", "legacy.example", "www.legacy.example"]
+        )
+
     def test_ignores_none_and_unsupported_types(self):
         class Weird:
             pass

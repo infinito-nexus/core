@@ -15,6 +15,20 @@ def log_kill(action: str, target: str) -> None:
     syslog.syslog(syslog.LOG_WARNING, f"sys-ctl-rpr-container-hard: {action} {target}")
 
 
+def paused(dir_path: str, state_file: str) -> bool:
+    """Return whether app-control paused the compose project in ``dir_path``.
+
+    Args:
+        dir_path: the compose project directory.
+        state_file: the name of the app-control state marker inside it.
+    """
+    marker = os.path.join(dir_path, state_file)
+    if not os.path.isfile(marker):
+        return False
+    with open(marker, encoding="utf-8") as handle:
+        return handle.read().strip() == "stopped"
+
+
 def hard_restart_docker_services(dir_path: str) -> None:
     """
     Perform a hard restart of compose services in the given directory
@@ -53,6 +67,11 @@ def main() -> None:
     parser.add_argument(
         "--only", nargs="+", help="Restart only the specified subdirectories (by name)"
     )
+    parser.add_argument(
+        "--state-file",
+        required=True,
+        help="Name of the app-control state marker; a project it marks stopped stays down",
+    )
     args = parser.parse_args()
 
     parent_directory = args.parent_directory
@@ -76,6 +95,10 @@ def main() -> None:
 
         if args.only and dir_name not in args.only:
             print(f"Skipping {dir_name} (not in --only list).")
+            continue
+
+        if paused(dir_path, args.state_file):
+            print(f"Skipping {dir_name} (paused by app-control).")
             continue
 
         hard_restart_docker_services(dir_path)

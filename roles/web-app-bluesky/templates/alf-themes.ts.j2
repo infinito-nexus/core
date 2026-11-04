@@ -1,0 +1,106 @@
+{% set design_palette = lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')) %}
+{% set slots = {
+  'white': 'on-primary', 'black': 'frame', 'pink': 'danger', 'like': 'danger', 'yellow': 'warning',
+  'contrast_0': 'surface-1', 'contrast_25': 'surface-2', 'contrast_50': 'surface-3',
+  'contrast_100': 'border', 'contrast_200': 'neutral-300', 'contrast_300': 'border-strong',
+  'contrast_400': 'neutral-500', 'contrast_500': 'neutral-600', 'contrast_600': 'text-muted',
+  'contrast_700': 'text-muted', 'contrast_800': 'neutral-800', 'contrast_900': 'neutral-900',
+  'contrast_950': 'neutral-950', 'contrast_975': 'text', 'contrast_1000': 'text',
+  'primary_25': 'primary-50', 'primary_50': 'primary-100', 'primary_100': 'primary-200',
+  'primary_200': 'primary-300', 'primary_300': 'primary-400', 'primary_400': 'primary-500',
+  'primary_500': 'primary', 'primary_600': 'link', 'primary_700': 'primary-700',
+  'primary_800': 'primary-800', 'primary_900': 'primary-900', 'primary_950': 'primary-950',
+  'primary_975': 'primary-950',
+  'design_primary_hover': 'primary-hover', 'design_on_negative': 'on-danger',
+} %}
+{% set status_steps = {
+  '25': 'subtle', '50': 'subtle', '100': 'border', '200': 'border', '300': 'border',
+  '400': '', '500': '', '600': 'hover', '700': 'active', '800': 'active', '900': 'active',
+  '950': 'active', '975': 'active',
+} %}
+{% set atom_tokens = {
+  'link': 'link', 'textMuted': 'text-muted', 'surfaceHover': 'surface-hover',
+  'surfaceActive': 'surface-active', 'border': 'border',
+} %}
+{% set legacy_tokens = {
+  'light': {'white': 'surface-1', 'black': 'text', 'primary_500': 'link'},
+  'dark': {'white': 'text', 'black': 'surface-1', 'primary_500': 'link'},
+} %}
+{% set palettes = {} %}
+{% set atoms = {} %}
+{% set legacy = {} %}
+{% for mode in ['light', 'dark'] %}
+{%   set tokens = design_palette[mode] %}
+{%   set entries = {} %}
+{%   for slot, token in slots.items() %}
+{%     set _ = entries.update({slot: tokens['--design-' ~ token]}) %}
+{%   endfor %}
+{%   for prefix, status in {'positive': 'success', 'negative': 'danger'}.items() %}
+{%     for step, suffix in status_steps.items() %}
+{%       set _ = entries.update({prefix ~ '_' ~ step: tokens['--design-' ~ status ~ (('-' ~ suffix) if suffix else '')]}) %}
+{%     endfor %}
+{%   endfor %}
+{%   set _ = palettes.update({mode: entries}) %}
+{%   set mode_atoms = {} %}
+{%   for name, token in atom_tokens.items() %}
+{%     set _ = mode_atoms.update({name: tokens['--design-' ~ token]}) %}
+{%   endfor %}
+{%   set _ = atoms.update({mode: mode_atoms}) %}
+{%   set mode_legacy = {} %}
+{%   for slot, token in legacy_tokens[mode].items() %}
+{%     set _ = mode_legacy.update({slot: tokens['--design-' ~ token]}) %}
+{%   endfor %}
+{%   set _ = legacy.update({mode: mode_legacy}) %}
+{% endfor %}
+import {createTheme, type Theme} from '@bsky.app/alf'
+
+type Mode = 'light' | 'dark'
+
+const PALETTES = {{ palettes | to_json }} as const
+
+const ATOMS = {{ atoms | to_json }} as const
+
+const LEGACY = {{ legacy | to_json }} as const
+
+function designTheme(name: 'light' | 'dark' | 'dim', mode: Mode): Theme {
+  const theme = createTheme({
+    scheme: mode,
+    name,
+    palette: PALETTES[mode],
+    options: mode === 'dark' ? {shadowOpacity: 0.4} : {},
+  })
+  const atoms = ATOMS[mode]
+  return {
+    ...theme,
+    atoms: {
+      ...theme.atoms,
+      text_link: {color: atoms.link},
+      text_contrast_low: {color: atoms.textMuted},
+      bg_contrast_100: {backgroundColor: atoms.surfaceHover},
+      bg_contrast_200: {backgroundColor: atoms.surfaceActive},
+      border_contrast_medium: {borderColor: atoms.border},
+    },
+  }
+}
+
+const DESIGN_THEMES = {
+  light: designTheme('light', 'light'),
+  dark: designTheme('dark', 'dark'),
+  dim: designTheme('dim', 'dark'),
+}
+
+export const themes = {
+  lightPalette: DESIGN_THEMES.light.palette,
+  darkPalette: DESIGN_THEMES.dark.palette,
+  dimPalette: DESIGN_THEMES.dim.palette,
+  light: DESIGN_THEMES.light,
+  dark: DESIGN_THEMES.dark,
+  dim: DESIGN_THEMES.dim,
+}
+
+export const lightPalette = {...DESIGN_THEMES.light.palette, ...LEGACY.light}
+export const darkPalette = {...DESIGN_THEMES.dark.palette, ...LEGACY.dark}
+export const dimPalette = {...DESIGN_THEMES.dim.palette, ...LEGACY.dark}
+export const light = DESIGN_THEMES.light
+export const dark = DESIGN_THEMES.dark
+export const dim = DESIGN_THEMES.dim

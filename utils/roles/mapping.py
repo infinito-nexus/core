@@ -145,6 +145,7 @@ ROLE_FILE_TASKS_MAIN = "tasks/main.yml"
 ROLE_FILE_TASKS_MCP = "tasks/utils/mcp.yml"
 ROLE_FILE_VARS_MAIN = "vars/main.yml"
 ROLE_FILE_README = "README.md"
+ROLE_FILE_ARCHITECTURE = "ARCHITECTURE.md"
 ROLE_FILE_TEMPL_COMPOSE = "templates/compose.yml.j2"
 ROLE_GLOB_TEMPL_COMPOSE_SIBLINGS = "templates/*.compose.yml.j2"
 ROLE_GLOB_TEMPL_COMPOSE_VARIANTS = "templates/compose.*.yml.j2"
@@ -183,7 +184,9 @@ ROLE_FILE_META_RBAC = "meta/rbac.yml"
 ROLE_FILE_META_VOLUMES = "meta/volumes.yml"
 ROLE_FILE_META_SECRETS = "meta/secrets.yml"
 ROLE_FILE_META_INFO = "meta/info.yml"
+ROLE_FILE_META_LICENSE = "meta/license.yml"
 ROLE_FILE_META_USERS = "meta/users.yml"
+ROLE_FILE_META_ACCOUNT = "meta/account.yml"
 ROLE_FILE_META_TESTS = "meta/tests.yml"
 
 ROLE_DIR_META_ADDONS = "meta/addons"
@@ -355,6 +358,14 @@ ROLE_FILES: dict[str, dict[str, object]] = {
         "description": ("Optional dashboard / UI metadata (logo, label) for the role."),
         "types": _all(mandatory=False),
     },
+    ROLE_FILE_META_LICENSE: {
+        "description": (
+            "Licence of the software the role deploys: the SPDX expression, "
+            "where it was read, and inline rights for a grant the central "
+            "table does not carry."
+        ),
+        "types": _all(mandatory=False),
+    },
     ROLE_FILE_META_MCP: {
         "description": (
             "Model Context Protocol capability of the role: direction, transport, "
@@ -371,6 +382,17 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             "Reserved-username declarations consumed by the user-management layer."
         ),
         "types": _all(mandatory=False),
+    },
+    ROLE_FILE_META_ACCOUNT: {
+        "description": (
+            "Account policy of the application's own user account: the "
+            "username length ceiling and accepted pattern, the upstream source "
+            "proving both, and whether an agent may hold an account there."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
     },
     ROLE_FILE_PLAYWRIGHT_SPEC: {
         "description": (

@@ -1,0 +1,102 @@
+{% set __css_tpl_dir = lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'css') %}
+@import url("{{ [lookup('cdn', 'web-svc-cdn').urls.shared.css, 'default.css', lookup('local_mtime_qs', [__css_tpl_dir, 'default.css.j2'] | path_join)] | url_join }}");
+
+:root {
+  --color-background: var(--design-frame);
+  --color-content-background: var(--design-frame);
+  --webcam-background-color: var(--design-frame);
+  --loader-bg: var(--design-frame);
+  --loader-bullet: var(--design-on-frame);
+  --color-overlay: rgba(var(--design-frame-rgb), 0.75);
+  --user-list-bg: var(--design-surface-2);
+  --dropdown-bg: var(--design-surface-2);
+  --color-off-white: var(--design-surface-1);
+  --color-muted-background: var(--design-surface-1);
+  --list-item-bg-hover: var(--design-surface-hover);
+  --color-text: var(--design-text);
+  --user-list-text: var(--design-text);
+  --color-heading: var(--design-text);
+  --toolbar-list-color: var(--design-text);
+  --system-message-font-color: var(--design-text);
+  --color-gray-label: var(--design-text-muted);
+  --color-gray-light: var(--design-text-muted);
+  --color-gray-lightest: var(--design-border);
+  --poll-stats-border-color: var(--design-border);
+  --system-message-border-color: var(--design-border);
+  --color-gray-lighter: var(--design-border-strong);
+  --color-primary: var(--design-primary);
+  --btn-primary-bg: var(--design-primary);
+  --btn-primary-border: var(--design-primary);
+  --btn-primary-color: var(--design-on-primary);
+  --btn-primary-hover-bg: var(--design-primary-hover);
+  --btn-primary-active-bg: var(--design-primary-active);
+  --poll-blue: var(--design-primary);
+  --color-link: var(--design-link);
+  --item-focus-border: var(--design-link);
+  --color-danger: var(--design-danger);
+  --btn-danger-bg: var(--design-danger);
+  --btn-danger-border: var(--design-danger);
+  --btn-danger-color: var(--design-on-danger);
+  --btn-danger-bg-hover: var(--design-danger-hover);
+  --toast-error-bg: var(--design-danger);
+  --toast-error-color: var(--design-on-danger);
+  --color-success: var(--design-success);
+  --btn-success-bg: var(--design-success);
+  --btn-success-border: var(--design-success);
+  --btn-success-color: var(--design-on-success);
+  --toast-success-bg: var(--design-success);
+  --toast-success-color: var(--design-on-success);
+  --color-warning: var(--design-warning);
+  --btn-warning-bg: var(--design-warning);
+  --btn-warning-border: var(--design-warning);
+  --btn-warning-color: var(--design-on-warning);
+  --toast-warning-bg: var(--design-warning);
+  --toast-warning-color: var(--design-on-warning);
+  --toast-info-bg: var(--design-info);
+  --toast-info-color: var(--design-on-info);
+  --color-white: var(--design-surface-2);
+  --color-gray: var(--design-text-muted);
+  --color-gray-dark: var(--design-text);
+}
+
+#message-input {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+
+[data-test='userListContent'] ul,
+#chat-list {
+  background-image:
+    linear-gradient(var(--design-surface-2) 30%, rgba(var(--design-surface-2-rgb), 0)),
+    linear-gradient(rgba(var(--design-surface-2-rgb), 0), var(--design-surface-2) 70%),
+    radial-gradient(farthest-side at 50% 0, rgba(var(--design-text-rgb), 0.2), rgba(var(--design-text-rgb), 0)),
+    radial-gradient(farthest-side at 50% 100%, rgba(var(--design-text-rgb), 0.2), rgba(var(--design-text-rgb), 0));
+}
+
+.MuiMenu-root .MuiPaper-root {
+  background-color: var(--design-surface-2);
+  color: var(--design-text);
+}
+
+.MuiMenu-root .MuiMenuItem-root {
+  color: var(--design-text);
+}
+
+.MuiMenu-root .MuiMenuItem-root:hover {
+  background-color: var(--design-surface-hover);
+}
+
+html body {
+  background-color: var(--design-frame) !important;
+}
+
+#Navbar,
+#ActionsBar {
+  --color-white: var(--design-on-frame);
+  --color-gray-dark: var(--design-frame);
+  --btn-default-color: var(--design-on-frame);
+  --btn-default-bg: rgba(var(--design-on-frame-rgb), 0.1);
+  --btn-default-border: rgba(var(--design-on-frame-rgb), 0.5);
+  --btn-default-active-bg: rgba(var(--design-on-frame-rgb), 0.2);
+  --toolbar-button-color: var(--design-on-frame);
+}

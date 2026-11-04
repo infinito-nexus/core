@@ -14,7 +14,7 @@ See the [WordPress Must-Use Plugins handbook](https://developer.wordpress.org/ad
 
 ## When to add code here 📋
 
-Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed.
+Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [06_enable_plugin.yml](../../tasks/06_enable_plugin.yml) so operators can disable them per site if needed.
 
 Each file in this directory SHOULD declare its purpose and the hooks it registers at the top of the file so readers can understand why it cannot be switched off.
 
@@ -22,10 +22,36 @@ Each file in this directory SHOULD declare its purpose and the hooks it register
 
 [infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) implements the OIDC -> WordPress role contract:
 
+- **Group map**: the mapper matches the claim named by `WORDPRESS_OIDC_CLAIM_GROUPS` against `WORDPRESS_RBAC_GROUP_MAP`, which [env.j2](../../templates/env.j2) renders from [rbac_group_map.json.j2](../../templates/rbac_group_map.json.j2). Group paths not in the map are ignored.
 - **Single-Site path**: the claim MUST contain `/roles/web-app-wordpress/<role>` entries. The highest-privilege role across all matches wins (`administrator > editor > author > contributor > subscriber`). When no entry matches, the user's role is set to `subscriber` as a deterministic fallback.
 - **Multisite path** (auto-detected via `is_multisite()`): per-site roles come from `/roles/web-app-wordpress/<canonical-domain>/<role>` entries; the super-admin capability comes from `/roles/web-app-wordpress/network-administrator`. The mapper adds the user to any site they have a role for (`add_user_to_blog`) and removes them from sites it previously added them to (`remove_user_from_blog`) when a role for that site disappears from the claim. A user-meta marker (`_infinito_oidc_added_blog_ids`) records which blog memberships the mapper owns, so memberships added through `wp-admin` or the REST API outside the OIDC flow are never touched.
+- **Own site**: only when `WORDPRESS_SITE_OWNER_ENABLED` is `true`. For a member of `/roles/web-app-wordpress/site-owner` the mapper finds the site `<login>.<host of WORDPRESS_SITE_OWNER_BASE_URL>`. It creates the site with the member as administrator when it is missing, recording the `sub` claim in the site meta `infinito_site_owner_subject`, restores it when it is archived and keeps the member its administrator. For a user outside the group it archives that site, keeping its content. It only acts on a site whose recorded subject matches, or on a site that `infinito_rbac_reserve_own_site()` reserved for the login through `infinito_site_owner_login` at deploy. The first sign-in claims a reserved site: it records the subject and removes every other member, the deploy's interim administrator included. The per-site loop skips the own site. A login the member label rule refuses, a login claim other than the account's login, a missing subject or a foreign site is logged and skips only this step, so the sign-in still completes. At deploy, `infinito_rbac_archive_reserved_sites_of_former_members()` archives every own site whose login is no longer an inventory member and ends its owner's sessions.
+- **Super-admin**: the mapper grants super-admin to members of the network-administrator group and records the grant in `_infinito_oidc_granted_super_admin`. It revokes only a grant it recorded, so the bootstrap administrator and super-admins set in `wp-admin` keep their rights.
+- **Profile sync**: on every OIDC login the mapper writes `first_name`, `last_name`, `display_name`, `user_email`, `user_url` and `locale` from the claims named by the `WORDPRESS_OIDC_CLAIM_*` variables. The locale becomes an installed WordPress language when one matches, its `ll_CC` form otherwise. An email change sends no notification mail.
+- **Read-only profile fields**: for an account that carries the `openid-connect-generic-subject-identity` meta, the `admin_body_class` filter adds `infinito-sso-managed` to the `body` of `profile.php` and `user-edit.php`; the `services.sso.profile.locked` selectors start with that class, so the shared lock renderer of `sys-front-inj-javascript` renders the locked inputs read-only and disables the locked selects, with the translated warning as their hover title. `WORDPRESS_OIDC_PROFILE_LOCKED` lists the keys of `services.sso.profile.locked`, and `INFINITO_OIDC_LOCKABLE_FIELDS` maps each key to its stored field and its `profile.php` input (table below). The `personal_options_update` hook restores each locked input to its stored value or drops it from a `profile.php` save, so WordPress mails no confirmation link to a submitted address, and the `wp_pre_insert_user_data` and `insert_user_meta` filters keep the locked columns and meta on every other `wp_insert_user` write (`user-edit.php`, `/wp/v2/users`, XML-RPC `wp.editProfile`, plugins), except the login's profile sync and WP-CLI. While `email` is locked, an email change of an OIDC account mails no change notice. A field whose key the list does not hold stays editable; the next OIDC login still overwrites it. An unknown key, an empty list or a value that is no JSON list raises on the first guarded write of an OIDC account and names the variable or the key.
+
+| Key            | Stored field                | `profile.php` input            |
+|----------------|-----------------------------|--------------------------------|
+| `first_name`   | user meta `first_name`      | `first_name`, restored         |
+| `last_name`    | user meta `last_name`       | `last_name`, restored          |
+| `display_name` | users column `display_name` | `display_name`, dropped        |
+| `email`        | users column `user_email`   | `email`, restored              |
+| `website`      | users column `user_url`     | `url`, restored                |
+| `language`     | user meta `locale`          | `locale`, dropped              |
 
 For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_group_path` lookup plugin), see [rbac.md](../../../../docs/contributing/design/iam/rbac.md).
+
+## OIDC client settings and member sign-in (infinito-oidc-client.php) 🔑
+
+[infinito-oidc-client.php](infinito-oidc-client.php) acts only when `WORDPRESS_SSO_ENABLED` is `true` and refuses to load when the variable is unset.
+
+- **Settings**: `pre_option_openid_connect_generic_settings` answers on every site from `WORDPRESS_OIDC_SETTINGS`, so a site created at sign-in has its client at once. `pre_update_option` keeps the settings in force for every writer, WP-CLI included, and the deploy deletes any stored copy on every site through [settings.php](../php/oidc/settings.php).
+- **Settings page**: the plugin's options page is missing from every menu and its URL answers 403 to every account, the network administrators included.
+- **Member sign-in**: on a host one label below the parent of `WORDPRESS_SITE_OWNER_BASE_URL` that carries an existing own site, `wp-login.php` redirects with its query to the main site's `wp-login.php` before the plugin's auto-login runs, and `allowed_redirect_hosts` lets the sign-in return to that host.
+
+## AI Engine network guard (infinito-ai-engine-network.php) 🤖
+
+[infinito-ai-engine-network.php](infinito-ai-engine-network.php) acts only on Multisite. `mwai_allow_setup` keeps the AI Engine settings to the network administrators. `option_mwai_options` and `default_option_mwai_options` turn `module_mcp` off and drop `mcp_bearer_token` on every site but the main site, so AI Engine registers no `mcp/v1` route there. The deploy clears both keys from the stored options of those sites through [network_mcp.php](../php/ai_engine/network_mcp.php).
 
 ## HTTP CA trust (infinito-http-ca-trust.php) 🔐
 
@@ -37,9 +63,15 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 
 It hooks `http_api_curl` rather than `http_request_args` because the args array cannot express a proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, so SOCKS5 is reachable only on the raw cURL handle. Without it, libcurl refuses an `.onion` host at name resolution under [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — before `/etc/hosts`, `extra_hosts` or DNS is consulted — and the token exchange fails with cURL error 6, which WordPress surfaces as `wp-login.php?login-error=http_request_failed`.
 
+## Network origins (infinito-network-origins.php) 🌐
+
+[infinito-network-origins.php](infinito-network-origins.php) moves every site URL into the network the request's `Host` belongs to. `INFINITO_NETWORK_BASE_URLS` in [env.j2](../../templates/env.j2) lists the network siblings of each site, canonical network first, separated by `,`, and the sites by `;` (`WORDPRESS_NETWORK_BASE_URLS` in [vars/main.yml](../../vars/main.yml)). A URL whose host is a known site sibling is answered with that site's sibling in the request's network, for the `home` and `siteurl` options, `content_url`, `plugins_url`, `network_home_url`, `network_site_url` and `upload_dir`. `WP_CONTENT_URL` and `WP_PLUGIN_URL` are fixed from `siteurl` before any mu-plugin loads, which is why the URL filters are needed as well. The stored options keep the canonical URL, so WP-CLI and requests on any other host read them unchanged.
+
+On Multisite, [03_multisite.yml](../../tasks/03_multisite.yml) also copies the same file to `wp-content/sunrise.php` and sets `SUNRISE`. WordPress looks the site up by `Host` before any mu-plugin runs, so a sibling host would match no site and get redirected to the clearnet `wp-signup.php`. Loaded as the drop-in, the file answers `pre_get_site_by_path` for a sibling host with the site of its canonical host. It also sets `COOKIE_DOMAIN` for every site host: the network domain's sibling in the request's network for a host at or below it, and a host-only cookie for a child on its own domain (such as `biberblog.<primary>`), because a browser drops a cookie whose domain the host does not match. A constant guard keeps the second load from mu-plugins from registering anything twice.
+
 ## Deployment 🚚
 
-Every file here is declared as an addon under [meta/addons/](../../meta/addons/) with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed.
+Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed.
 
 ## Credits 🙏
 

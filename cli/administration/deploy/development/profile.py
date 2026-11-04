@@ -35,6 +35,10 @@ class Profile:
         declared = _declared("INFINITO_CACHE_STACK")
         return (not self.is_ci()) if declared is None else declared
 
+    def gpu_reservable(self) -> bool:
+        """True iff the docker daemon registers an NVIDIA runtime."""
+        return (os.environ.get("INFINITO_GPU_COUNT") or "0").strip() not in ("", "0")
+
     def image_mirror_enabled(self) -> bool:
         """True iff image references should be rewritten to the GHCR mirror."""
         declared = _declared("INFINITO_GHCR_MIRROR")
@@ -65,3 +69,11 @@ class Profile:
     def owns_cache_stack(self) -> bool:
         """True iff this instance runs the cache stack rather than sharing it."""
         return self.cache_stack_enabled() and not self.shared_cache_network()
+
+    def shared_package_cache(self) -> str:
+        """Shared package and tool cache folder the runner mounts, empty when unset."""
+        return (os.environ.get("INFINITO_CACHE_SHARED_HOST_PATH") or "").strip()
+
+    def host_pacman_cache(self) -> str:
+        """Host pacman cache the runner mounts read-only, empty when there is none."""
+        return (os.environ.get("INFINITO_CACHE_HOST_PACMAN_PATH") or "").strip()

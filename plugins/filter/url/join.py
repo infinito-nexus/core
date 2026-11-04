@@ -1,11 +1,14 @@
 """
 Ansible filter plugin that safely joins URL components from a list.
+
 - Requires a valid '<scheme>://' in the first element (any RFC-3986-ish scheme)
 - Preserves the double slash after the scheme, collapses other duplicate slashes
 - Supports query parts introduced by elements starting with '?' or '&'
+
   * first query element uses '?', subsequent use '&' (regardless of given prefix)
   * each query element must be exactly one 'key=value' pair
   * query elements may only appear after path elements; once query starts, no more path parts
+
 - Raises specific AnsibleFilterError messages for common misuse
 """
 

@@ -7,8 +7,9 @@ orchestrates the rest. They use `systemctl`, the `container` wrapper and
 
 ## Orchestration
 
-`test.sh` runs two different passes, selected by `ASYNC_ENABLED`. The snapshot
-probe runs first in both, because it depends on nothing the backup produces.
+`test.sh` runs two different passes, selected by `DEPLOY_IS_UPDATE`. The
+snapshot probe runs first in both, because it depends on nothing the backup
+produces.
 
 ```mermaid
 flowchart TD
@@ -20,12 +21,12 @@ flowchart TD
     WAIT --> COUNT{"generations stored"}
     COUNT -->|none| FAIL["fail: nothing was backed up"]
     COUNT -->|"some, no backup subjects on the host"| EMPTY["exit 0<br>a stamped empty generation is the expected outcome"]
-    COUNT -->|some| PASS{"ASYNC_ENABLED"}
-    PASS -->|true| ASYNC["verify/backup.sh<br>requires two differential generations"]
-    PASS -->|false| SYNC["verify/backup.sh<br>seed/marker.py seed + one more backup<br>restore_cycle.sh<br>sys-ctl-hlth-container's own script"]
+    COUNT -->|some| PASS{"DEPLOY_IS_UPDATE"}
+    PASS -->|true| UPDATE["verify/backup.sh<br>requires two differential generations"]
+    PASS -->|false| FIRST["verify/backup.sh<br>seed/marker.py seed + one more backup<br>restore_cycle.sh<br>sys-ctl-hlth-container's own script"]
 ```
 
-The sync pass is the whole disaster drill against the host this role deploys on
+The first pass is the whole disaster drill against the host this role deploys on
 (`BKP_TEST_IS_STACK_HOST`), in one sequence: back up, seed the marker, back up
 again so the tested generation carries it, take every project down, restore
 through the recover chain, require the marker and every recorded container
@@ -95,7 +96,7 @@ matrix reports `SKIP` unless they are created first (`mknod /dev/loop0 b 7 0`,
 ## `verify/backup.sh`
 
 Requires the newest generation to hold real payload — a volume counts when it has
-a `files/` tree or a non-empty `sql` dump. In the async pass it additionally
+a `files/` tree or a non-empty `sql` dump. In the update pass it additionally
 requires `PREVIOUS_GENERATION` to be a distinct, older generation, which is what
 proves the differential `--link-dest` chain advanced.
 
@@ -106,15 +107,15 @@ flowchart TD
     VOLS -->|some| PAY{"payload non-empty?"}
     PAY -->|no| F2["fail: the generation holds only empty dirs"]
     PAY -->|yes| PREV{"PREVIOUS_GENERATION set?"}
-    PREV -->|no| OK1["sync pass satisfied"]
+    PREV -->|no| OK1["first pass satisfied"]
     PREV -->|yes| DIFF{"distinct and older?"}
     DIFF -->|no| F3["fail: no differential advance"]
-    DIFF -->|yes| OK2["async pass satisfied"]
+    DIFF -->|yes| OK2["update pass satisfied"]
 ```
 
 ## `restore_cycle.sh`
 
-The destructive drill, sync pass only. It proves the backup is restorable rather
+The destructive drill, first pass only. It proves the backup is restorable rather
 than merely present — the property a backup exists for.
 
 The drill owns the **lifecycle** and nothing else. Every restore is

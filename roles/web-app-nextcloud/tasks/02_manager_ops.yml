@@ -1,4 +1,7 @@
 ---
+- name: ⏫ Bring existing Nextcloud data up to the pinned major
+  include_tasks: utils/major_upgrade.yml
+
 - name: 🚿 Flush handlers so Nextcloud container is restarted and ready
   meta: flush_handlers
 
@@ -48,14 +51,6 @@
     file: 02_manager_ops/06_plugin.yml
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
-  loop: "{{ NEXTCLOUD_PLUGIN_ITEMS }}"
-  loop_control:
-    loop_var: plugin_item
-    label: "{{ plugin_item.key }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  vars:
-    plugin_key: "{{ plugin_item.key }}"
-    plugin_value: "{{ plugin_item.value }}"
   when: NEXTCLOUD_PLUGINS_ENABLED | bool
 
 - name: 🔧 Reconcile administrator identities after plugin setup
@@ -63,6 +58,13 @@
     file: 02_manager_ops/07_admin_identities.yml
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: 🎨 Apply the corporate design
+  include_tasks:
+    file: 02_manager_ops/08_design.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  when: NEXTCLOUD_DESIGN_ENABLED | bool
 
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml

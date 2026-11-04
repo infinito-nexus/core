@@ -1,2 +1,8 @@
 ---
-roles: {}
+roles:
+  owner:
+    description: BookWyrm owner (edits the instance settings and moderates users, federation and invites)
+  moderator:
+    description: BookWyrm moderator (moderates users, posts, federation and invites)
+  editor:
+    description: BookWyrm editor (edits book, author and edition data)

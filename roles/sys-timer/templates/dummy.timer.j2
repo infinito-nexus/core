@@ -1,5 +1,5 @@
 [Unit]
-Description=Timer to start {{ system_service_timer_service }}{{ SYS_SERVICE_SUFFIX }}
+Description=Timer to start {{ lookup('unit_name', system_service_timer_service) }}
 
 [Timer]
 OnCalendar={{ system_service_on_calendar }}

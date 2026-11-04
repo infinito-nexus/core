@@ -1,0 +1,11 @@
+.logo > img {
+  content: var(--design-url-logo-svg);
+}
+.auth__logo {
+  height: 32px;
+}
+.sidebar--collapsed .sidebar__logo .logo > img {
+  content: var(--design-url-symbol-svg);
+  width: 16px;
+  height: 16px;
+}

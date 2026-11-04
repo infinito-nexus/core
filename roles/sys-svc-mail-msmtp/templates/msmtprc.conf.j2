@@ -5,7 +5,7 @@ defaults
 domain              {{ DOMAIN_PRIMARY }}
 logfile             ~/.msmtp.log
 timeout             {{ email.timeout }}
-syslog              {{ MODE_DEBUG | on_off }}
+syslog              {{ lookup('debug', 'sys-svc-mail-msmtp') | on_off }}
 auth                {{ email.auth_mechanism }}
 tls_starttls        {{ email.start_tls | on_off }}
 tls                 {{ email.tls | on_off }}

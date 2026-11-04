@@ -2,8 +2,8 @@
 
 This page covers Playwright end-to-end test requirements, runner integration, and file contracts.
 For implementation guidance when writing or updating role-local files, see
-[Agent `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md) and
-[Agent `playwright.env.j2`](../../../agents/files/role/playwright.env.j2.md).
+[the `playwright.spec.js` authoring skill](../../../../agents/skills/i8-file-role-playwright-spec/SKILL.md) and
+[Agent `playwright.env.j2`](../../../../agents/skills/i8-file-role-playwright-env/SKILL.md).
 For what the `files/playwright/playwright.spec.js` of a role MUST contain, see
 [`playwright.spec.js` (role file rules)](../../artefact/files/role/playwright.specs.js.md).
 
@@ -12,12 +12,12 @@ For what the `files/playwright/playwright.spec.js` of a role MUST contain, see
 - [Playwright](https://playwright.dev/) runs inside Docker via the shared `test-e2e-playwright` role.
 - There is no standalone `make` target for Playwright. Tests run as part of local deploy flows
   (e.g. `make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true`). For spec-only
-  iteration after the first successful deploy, see [Playwright Spec Loop](../../../agents/action/iteration/playwright.md).
+  iteration after the first successful deploy, see [Playwright Spec Loop](../../../../agents/skills/i8-iterate-playwright/SKILL.md).
 
 ## When to Write ✍️
 
 - You MUST provide Playwright tests for every `web-*` role.
-- For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Scenarios section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#scenarios-).
+- For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Triggers section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#triggers-when-to-add-or-update-a-scenario-).
 
 ## Role-Local Files 📁
 
@@ -30,7 +30,7 @@ Every Playwright-enabled role MUST provide exactly these two files:
 
 `playwright.config.js` MUST remain centralized in `roles/test-e2e-playwright/files/` and `package.json` in `roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy into the staging dir). You MUST NOT duplicate or override either per role.
 
-The `@playwright/test` version pinned into the rendered `package.json` comes from `playwright.version` in `roles/test-e2e-playwright/meta/services.yml` via the `image_version` filter. That YAML value is the single source of truth for the Playwright version.
+The `@playwright/test` version pinned into the rendered `package.json` comes from `playwright.version` in `roles/test-e2e-playwright/meta/services.yml` via the `image_version` filter. That YAML value is the single source of truth for the Playwright version. The rendered `package.json` also installs `@axe-core/playwright` at `playwright.axe_version` from the same file, so a spec MAY run WCAG checks with `const { default: AxeBuilder } = require("@axe-core/playwright");`.
 
 ## CI Image Source 🪞
 
@@ -59,7 +59,7 @@ The propagation chain has four hops:
 
 1. The host environment variable `INFINITO_PLAYWRIGHT_KEEP` (set on the host shell, by `act --env INFINITO_PLAYWRIGHT_KEEP=true`, or by the GitHub Actions repository variable forwarded into each `test-deploy-*.yml` workflow as `INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}`).
 2. `roles/test-e2e-playwright/defaults/main.yml` reads the host value into `test_e2e_playwright_keep` via `lookup('env', 'INFINITO_PLAYWRIGHT_KEEP')`. Inventory MAY override the role variable per environment in `group_vars` or `host_vars`.
-3. `roles/test-e2e-playwright/tasks/02_run_one.yml` forwards the resolved value into the Playwright container as `-e INFINITO_PLAYWRIGHT_KEEP={{ test_e2e_playwright_keep }}`.
+3. `roles/test-e2e-playwright/tasks/03_run_pass.yml` forwards the resolved value into the Playwright container as `-e INFINITO_PLAYWRIGHT_KEEP={{ test_e2e_playwright_keep }}`.
 4. `roles/test-e2e-playwright/files/playwright.config.js` switches `trace`, `screenshot`, and `video` to `on` when the container value is `true`. It otherwise leaves the failure-only defaults (`retain-on-failure` for trace and video, `only-on-failure` for screenshot).
 
 Set the variable for the contexts you need:
@@ -79,7 +79,7 @@ Set the variable for the contexts you need:
 See the dedicated SPOT pages for authoring rules:
 
 - [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md): what the role-local spec MUST contain (entry point, scenarios, selectors, final state)
-- [`playwright.env.j2`](../../../agents/files/role/playwright.env.j2.md): rendered test input surface, variable naming, and entry-point selection
+- [`playwright.env.j2`](../../../../agents/skills/i8-file-role-playwright-env/SKILL.md): rendered test input surface, variable naming, and entry-point selection
 
 ## Recording Tests 🎬
 
@@ -120,7 +120,7 @@ Generated files are persisted in the local workspace (git-ignored). Copy the rel
 
 This page owns framework and runner mechanics only. The procedure for writing, deploying, and reviewing a role-local spec lives in the dedicated SPOTs:
 
-- [Agent `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md): authoring procedure and live review.
-- [Compose Loop](../../../agents/action/iteration/compose.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy.
-- [Playwright Spec Loop](../../../agents/action/iteration/playwright.md): spec-only inner loop against the already-running stack.
+- [the `playwright.spec.js` authoring skill](../../../../agents/skills/i8-file-role-playwright-spec/SKILL.md): authoring procedure and live review.
+- [Compose Loop](../../../../agents/skills/i8-iterate-compose/SKILL.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy.
+- [Playwright Spec Loop](../../../../agents/skills/i8-iterate-playwright/SKILL.md): spec-only inner loop against the already-running stack.
 - [`playwright.spec.js` (role file rules)](../../artefact/files/role/playwright.specs.js.md): what the spec MUST contain, including logged-out final state and console cleanliness.

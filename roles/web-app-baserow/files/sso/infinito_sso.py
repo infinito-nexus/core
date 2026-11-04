@@ -7,9 +7,24 @@ and returns the same token payload as Baserow's own login endpoint.
 
 Only the ``X-Forwarded-*`` identity headers are read; nginx overwrites those
 from the oauth2-proxy auth response on every request, so a client cannot forge
-them. The ``X-Auth-Request-*``/``Remote-User``/``X-Forwarded-Name`` variants are
-deliberately excluded: nginx does not overwrite them, so reading them would let
-an already-authenticated user inject a different identity.
+them. The ``X-Auth-Request-*``/``Remote-User`` variants are deliberately
+excluded: nginx does not overwrite them, so reading them would let an
+already-authenticated user inject a different identity. ``X-Forwarded-Name``
+and ``X-Forwarded-Locale`` carry the ID token's name and locale because
+``meta/services.yml`` lists them in ``sso.oauth2.claim_headers``.
+
+An account is found only by the Keycloak username in
+``X-Forwarded-Preferred-Username``, through its ``SsoSubject`` row
+(``baserow.infinito_sso_subject``); a request without that header is refused.
+Baserow's own username is the email, so no account is ever found by address. A
+login whose username has no ``SsoSubject`` creates a new account and its row,
+unless the forwarded email already belongs to an account, which is refused;
+the deploy binds existing accounts (``files/python/bind_sso_subjects.py``).
+
+Every login aligns ``is_staff``/``is_superuser`` with membership of
+``PROXY_HEADER_SSO_ADMIN_GROUP``, except for the account whose email is
+``PROXY_HEADER_SSO_BOOTSTRAP_ADMIN_EMAIL``, and writes the forwarded name and a
+supported language onto the account.
 """
 
 import os
@@ -24,6 +39,7 @@ from baserow.core.models import (
 )
 from baserow.core.user.handler import UserHandler
 from baserow.core.user.utils import normalize_email_address
+from baserow.infinito_sso_subject.models import SsoSubject
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
@@ -38,13 +54,12 @@ from rest_framework.views import APIView
 
 TRUE_VALUES = {"true", "1", "yes", "on"}
 
-USERNAME_HEADERS = (
-    "HTTP_X_FORWARDED_PREFERRED_USERNAME",
-    "HTTP_X_FORWARDED_USER",
-)
+USERNAME_HEADERS = ("HTTP_X_FORWARDED_PREFERRED_USERNAME",)
 EMAIL_HEADERS = ("HTTP_X_FORWARDED_EMAIL",)
-NAME_HEADERS = ("HTTP_X_FORWARDED_PREFERRED_USERNAME",)
+NAME_HEADERS = ("HTTP_X_FORWARDED_NAME",)
+LOCALE_HEADERS = ("HTTP_X_FORWARDED_LOCALE",)
 GROUP_HEADERS = ("HTTP_X_FORWARDED_GROUPS",)
+PRIVILEGE_FLAGS = ("is_staff", "is_superuser")
 
 User = get_user_model()
 
@@ -86,11 +101,28 @@ def _email_from_identity(username, header_email):
 
 
 def _display_name(username, email, header_name):
-    raw_name = header_name or username or email.split("@", 1)[0]
+    if header_name and len(header_name.strip()) >= 2:
+        return " ".join(header_name.split())[:150]
+    raw_name = username or email.split("@", 1)[0]
     name = " ".join(raw_name.replace(".", " ").replace("_", " ").split())
     if len(name) < 2:
         name = email
     return name[:150]
+
+
+def _language(locale):
+    wanted = (locale or "").strip().replace("_", "-").lower()
+    if not wanted:
+        return None
+    codes = [code for code, _ in settings.LANGUAGES]
+    for code in codes:
+        if code.lower() == wanted:
+            return code
+    primary = wanted.split("-", 1)[0]
+    for code in codes:
+        if code.lower().split("-", 1)[0] == primary:
+            return code
+    return None
 
 
 def _split_groups(raw):
@@ -115,13 +147,20 @@ def _is_admin(groups):
     )
 
 
+def _is_bootstrap_admin(user):
+    bootstrap_email = os.environ["PROXY_HEADER_SSO_BOOTSTRAP_ADMIN_EMAIL"].strip()
+    return bool(bootstrap_email) and normalize_email_address(
+        user.email
+    ) == normalize_email_address(bootstrap_email)
+
+
 def _identity_from_request(request):
     if not _sso_enabled():
         raise Http404
 
     username = _first_header(request.META, USERNAME_HEADERS)
     header_email = _first_header(request.META, EMAIL_HEADERS)
-    if not username and not header_email:
+    if not username:
         raise PermissionDenied("Missing trusted SSO identity header.")
 
     email = _email_from_identity(username, header_email)
@@ -135,15 +174,19 @@ def _identity_from_request(request):
             _first_header(request.META, NAME_HEADERS),
         ),
         "is_admin": _is_admin(groups),
+        "language": _language(_first_header(request.META, LOCALE_HEADERS)),
     }
 
 
-def _ensure_profile(user):
+def _ensure_profile(user, language):
     profile, _ = UserProfile.objects.get_or_create(
         user=user,
-        defaults={"language": settings.LANGUAGE_CODE},
+        defaults={"language": language or settings.LANGUAGE_CODE},
     )
     profile_updates = []
+    if language and profile.language != language:
+        profile.language = language
+        profile_updates.append("language")
     if profile.email_verified is not True:
         profile.email_verified = True
         profile_updates.append("email_verified")
@@ -180,12 +223,20 @@ def _ensure_workspace(user, name):
 def _get_or_create_user(identity):
     email = identity["email"]
     username = identity["username"]
-    user_query = Q(email__iexact=email) | Q(username__iexact=email)
-    if username:
-        user_query |= Q(username__iexact=username)
-
-    user = User.objects.select_for_update().filter(user_query).order_by("id").first()
+    subject = (
+        SsoSubject.objects.select_for_update()
+        .select_related("user")
+        .filter(username=username)
+        .first()
+    )
+    user = subject.user if subject else None
     if user is None:
+        if User.objects.filter(
+            Q(email__iexact=email) | Q(username__iexact=email)
+        ).exists():
+            raise PermissionDenied(
+                "Your email address belongs to another Baserow account."
+            )
         user = UserHandler().force_create_user(
             email=email,
             name=identity["name"],
@@ -195,6 +246,7 @@ def _get_or_create_user(identity):
         )
         user.set_unusable_password()
         user.save(update_fields=["password"])
+        SsoSubject.objects.create(user=user, username=username)
 
     user_updates = []
     if not user.is_active:
@@ -203,19 +255,18 @@ def _get_or_create_user(identity):
     if not user.email:
         user.email = email
         user_updates.append("email")
-    if not user.first_name or len(user.first_name) < 2:
+    if user.first_name != identity["name"]:
         user.first_name = identity["name"]
         user_updates.append("first_name")
-    if identity["is_admin"] and not user.is_staff:
-        user.is_staff = True
-        user_updates.append("is_staff")
-    if identity["is_admin"] and not user.is_superuser:
-        user.is_superuser = True
-        user_updates.append("is_superuser")
+    if not _is_bootstrap_admin(user):
+        for flag in PRIVILEGE_FLAGS:
+            if getattr(user, flag) != identity["is_admin"]:
+                setattr(user, flag, identity["is_admin"])
+                user_updates.append(flag)
     if user_updates:
         user.save(update_fields=user_updates)
 
-    _ensure_profile(user)
+    _ensure_profile(user, identity["language"])
     _ensure_workspace(user, identity["name"])
     return user
 

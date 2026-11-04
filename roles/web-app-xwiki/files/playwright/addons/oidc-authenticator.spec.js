@@ -1,22 +1,25 @@
 const { test, expect } = require("@playwright/test");
-const { resolveTimeout } = require("../timeouts");
+const { resolveTimeout, isSplitRealmOidc } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
   decodeDotenvQuotedValue,
-  normalizeBaseUrl,
   gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
 } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const issuerUrl = requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL");
 
 test("oidc-authenticator: XWiki login is coupled to the Keycloak OIDC provider", async ({ page }) => {
   skipUnlessAddonEnabled("oidc-authenticator");
   skipUnlessServiceEnabled("sso");
+  test.skip(isSplitRealmOidc(), "clearnet app with an onion OIDC issuer: unreachable from one browser");
 
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
@@ -53,22 +56,15 @@ test("oidc-authenticator: XWiki login is coupled to the Keycloak OIDC provider",
     `expected the XWiki login action to hand off to the Keycloak OIDC authorization endpoint (proves oidc.provider/endpoint.authorization/clientid are wired and authservice=oidc is active), got ${authUrl}`,
   ).toBe(true);
 
-  // The authorization endpoint must live on the external Keycloak/IdP host,
-  // not on the XWiki host itself — proving the redirect targets the
-  // configured provider rather than looping back to a local login form.
-  // Both hosts share the deployment's registrable parent domain (XWiki is
-  // served at x.wiki.<DOMAIN_PRIMARY>, Keycloak at auth.<DOMAIN_PRIMARY>),
-  // so the IdP host must differ from the XWiki host yet share that parent.
   const idpHost = new URL(authUrl).hostname;
-  const parentDomain = xwikiHost.split(".").slice(-2).join(".");
   expect(
     idpHost,
     `expected the OIDC authorization endpoint to live on the external Keycloak host, not the XWiki host (${xwikiHost}); got ${idpHost}`,
   ).not.toBe(xwikiHost);
   expect(
-    idpHost.endsWith(parentDomain),
-    `expected the OIDC authorization endpoint host (${idpHost}) to belong to the deployment domain (${parentDomain}, derived from ${xwikiHost})`,
-  ).toBe(true);
+    idpHost,
+    `expected the OIDC authorization endpoint host to be the one OIDC_ISSUER_URL declares (${new URL(issuerUrl).hostname}); got ${idpHost}`,
+  ).toBe(new URL(issuerUrl).hostname);
 
   // The Keycloak login form (not an error page) must render for the
   // registered client, confirming the client_id/redirect_uri coupling.

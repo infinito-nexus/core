@@ -1,0 +1,137 @@
+---
+- name: "🔍 POSTGRES | Probe reflink support next to {{ postgres_cluster.root }}"
+  ansible.builtin.script:
+    cmd: >-
+      python/cluster.py reflink
+      --root {{ postgres_cluster.root | quote }}
+      --source {{ postgres_cluster.source | quote }}
+  register: postgres_reflink_probe
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📌 POSTGRES | Remember the reflink support"
+  ansible.builtin.set_fact:
+    postgres_reflink: "{{ postgres_reflink_probe.stdout | from_json }}"
+
+- name: "🛑 POSTGRES | Stop: no reflink copy possible and no backup confirmed"
+  ansible.builtin.fail:
+    msg: >-
+      PostgreSQL {{ postgres_cluster.major }} in {{ postgres_cluster.source_path }}
+      needs pg_upgrade --link to reach PostgreSQL {{ POSTGRES_VERSION_MAJOR }}, which makes the old cluster
+      unusable. The filesystem cannot keep a reflink copy of {{ postgres_cluster.root }}
+      ({{ postgres_reflink.reason }}). Back up the volume {{ POSTGRES_VOLUME }}, then set
+      applications.{{ application_id }}.services.{{ entity_name }}.upgrade.backup_confirmed: true
+      in the host_vars and deploy again.
+  when:
+    - not postgres_reflink.supported
+    - not (POSTGRES_UPGRADE_BACKUP_CONFIRMED | bool)
+
+- name: "📁 POSTGRES | Create the upgrade build context"
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: -postgres-upgrade
+  register: postgres_upgrade_context
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📄 POSTGRES | Stage the upgrade build context"
+  stack_host_copy:
+    src: upgrade/
+    dest: "{{ postgres_upgrade_context.path }}/"
+    mode: "0644"
+
+- name: "🔨 POSTGRES | Build the upgrade image with every major on the path"
+  ansible.builtin.command:
+    argv:
+      - container
+      - build
+      - --tag
+      - "{{ POSTGRES_UPGRADE_IMAGE }}:{{ postgres_cluster.majors | join('-') }}"
+      - --build-arg
+      - "POSTGRES_IMAGE={{ POSTGRES_IMAGE }}"
+      - --build-arg
+      - "POSTGRES_VERSION={{ POSTGRES_VERSION }}"
+      - --build-arg
+      - "POSTGRES_OLD_MAJORS={{ postgres_cluster.majors[:-1] | join(' ') }}"
+      - --build-arg
+      - "POSTGRES_TARGET_MAJOR={{ POSTGRES_VERSION_MAJOR }}"
+      - --build-arg
+      - "POSTGRES_EXTENSION_PACKAGES={{ POSTGRES_LIBRARIES | map(attribute='apt_package') | join(' ') }}"
+      - "{{ postgres_upgrade_context.path }}"
+  register: postgres_upgrade_build
+  changed_when: true
+  retries: 3
+  delay: 30
+  until: postgres_upgrade_build is succeeded
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🗑️ POSTGRES | Remove the upgrade build context"
+  ansible.builtin.file:
+    path: "{{ postgres_upgrade_context.path }}"
+    state: absent
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "⏹️ POSTGRES | Stop the server that runs on the old cluster"
+  ansible.builtin.command:
+    argv: [container, stop, --time, "600", "{{ POSTGRES_CONTAINER }}"]
+  register: postgres_old_stop
+  changed_when: postgres_old_stop.rc == 0
+  failed_when:
+    - postgres_old_stop.rc != 0
+    - "'no such container' not in (postgres_old_stop.stderr | lower)"
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🗑️ POSTGRES | Remove the stopped container before the upgrade"
+  ansible.builtin.command:
+    argv: [container, rm, "{{ POSTGRES_CONTAINER }}"]
+  register: postgres_old_rm
+  changed_when: postgres_old_rm.rc == 0
+  failed_when:
+    - postgres_old_rm.rc != 0
+    - "'no such container' not in (postgres_old_rm.stderr | lower)"
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "💾 POSTGRES | Keep a reflink copy of the cluster where the filesystem allows it"
+  when: postgres_reflink.supported
+  block:
+    - name: "💾 POSTGRES | Keep a reflink copy of {{ postgres_cluster.root }}"
+      ansible.builtin.script:
+        cmd: >-
+          python/cluster.py backup
+          --root {{ postgres_cluster.root | quote }}
+          --major {{ postgres_cluster.major | quote }}
+      register: postgres_backup
+      timeout: "{{ lookup('timeout', 3600) | int }}"
+      delegate_to: "{{ STACK_HOST }}"
+
+    - name: "💾 POSTGRES | Report the reflink copy"
+      ansible.builtin.debug:
+        msg: "Reflink copy of the PostgreSQL {{ postgres_cluster.major }} volume: {{ (postgres_backup.stdout | from_json).path }}"
+
+- name: "⬆️ POSTGRES | Run pg_upgrade --link through every major"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --name
+      - "{{ POSTGRES_CONTAINER }}-upgrade"
+      - --network
+      - none
+      - --volume
+      - "{{ POSTGRES_VOLUME }}:{{ POSTGRES_VOLUME_TARGET }}"
+      - --env
+      - "PGROOT={{ POSTGRES_VOLUME_TARGET }}"
+      - --env
+      - "SOURCE={{ postgres_cluster.source }}"
+      - --env
+      - "MAJORS={{ postgres_cluster.majors | join(' ') }}"
+      - "{{ POSTGRES_UPGRADE_IMAGE }}:{{ postgres_cluster.majors | join('-') }}"
+  register: postgres_upgrade_run
+  changed_when: true
+  timeout: "{{ lookup('timeout', 21600) | int }}"
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📜 POSTGRES | Report the upgrade"
+  ansible.builtin.debug:
+    msg: "{{ postgres_upgrade_run.stdout_lines | select('search', '^\\[pg-upgrade\\]') | list }}"

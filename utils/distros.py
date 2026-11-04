@@ -2,9 +2,11 @@
 
 ``meta/distros.yml`` declares every distribution the project builds, tests
 and deploys on: the id used as ``INFINITO_DISTRO``, the ``os_family``
-ansible reports for it, the Galaxy platform name, the upstream base image
-the development-environment matrix boots it from, and the templates the
+ansible reports for it, the Galaxy platform name, and the templates the
 pkgmgr base image and the environment image references are rendered from.
+The upstream image the development-environment matrix boots each distro
+from is pinned in ``roles/sys-os/meta/services.yml`` under the distro id,
+where the docker updater, the mirror and the vulnerability scan find it.
 
 Consumers MUST read the distro set through this module. A local tuple of
 distro names or an f-string spelling out ``ghcr.io/.../pkgmgr-...`` is a
@@ -26,12 +28,13 @@ from __future__ import annotations
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.yaml_bootstrap import load_block
 
 FILE_META_DISTROS: str = "meta/distros.yml"
+RUNTIME_IMAGES_ROLE: str = "sys-os"
 
-IMAGE_PKGMGR = "pkgmgr"
-IMAGE_PKGMGR_VIRGIN = "pkgmgr_virgin"
+IMAGE_BASE = "base"
 IMAGE_ENVIRONMENT = "environment"
 
 
@@ -82,21 +85,24 @@ def galaxy_platforms() -> list[dict[str, object]]:
 
 def dev_runtime_images() -> tuple[str, ...]:
     """Upstream base images of the development-environment test matrix."""
-    return tuple(spec["dev_runtime_image"] for spec in _specs().values())
+    return tuple(dev_runtime_image(name) for name in distro_names())
 
 
 def dev_runtime_image(distro: str) -> str:
     """Upstream base image the development environment boots a distro from."""
-    return _spec(distro)["dev_runtime_image"]
+    _spec(distro)
+    services = PROJECT_ROOT / "roles" / RUNTIME_IMAGES_ROLE / ROLE_FILE_META_SERVICES
+    entity = load_block(read_text(str(services)))[distro]
+    return f"{entity['image']}:{entity['version']}"
 
 
 def distro_of_dev_runtime_image(image: str) -> str:
     """Distro id whose development environment boots from ``image``."""
-    for name, spec in _specs().items():
-        if spec["dev_runtime_image"] == image:
+    for name in distro_names():
+        if dev_runtime_image(name) == image:
             return name
     raise UnknownDistroError(
-        f"{image!r} is not a dev_runtime_image in {FILE_META_DISTROS}. "
+        f"{image!r} is not a runtime image of {RUNTIME_IMAGES_ROLE}. "
         f"Declared: {', '.join(dev_runtime_images())}."
     )
 
@@ -114,14 +120,9 @@ def _render(kind: str, distro: str, **fields: str) -> str:
     return image_template(kind).format(slug=_spec(distro)["slug"], **fields)
 
 
-def pkgmgr_image(distro: str, owner: str, tag: str) -> str:
-    """Reference of the pkgmgr base image a distro's container builds FROM."""
-    return _render(IMAGE_PKGMGR, distro, owner=owner, tag=tag)
-
-
-def pkgmgr_virgin_image(distro: str, owner: str, tag: str) -> str:
-    """Reference of the untouched pkgmgr image the install tests boot."""
-    return _render(IMAGE_PKGMGR_VIRGIN, distro, owner=owner, tag=tag)
+def base_image(distro: str, owner: str, tag: str) -> str:
+    """Reference of the distribution base image a distro's container builds FROM."""
+    return _render(IMAGE_BASE, distro, owner=owner, tag=tag)
 
 
 def environment_image(distro: str, owner: str, repository: str, tag: str) -> str:

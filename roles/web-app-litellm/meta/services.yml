@@ -9,6 +9,12 @@ litellm:
   shared: true # nocheck: dynamic-flag
   provides: litellm_ui
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-litellm', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-litellm', 'native') }}"
 
 # nocheck: playwright-service-flag
 dashboard:
@@ -35,7 +41,30 @@ sso:
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
 
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} LLM Gateway"
+  slots:
+    logo:
+      width: 320
+      height: 64
+
 # nocheck: logout, dynamic-flag, playwright-service-flag
 logout:
   enabled: false
   shared: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  the role runs no container, so Semaphore has nothing to pause
+  status: started

@@ -1,0 +1,29 @@
+---
+- name: "👤 Run the owner provisioning inside the hub"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: |
+      import json
+      import os
+
+      os.environ.update(
+          {name: str(value) for name, value in json.loads({{ HOMEASSISTANT_OWNER_ENVIRONMENT | to_json | to_json }}).items()}
+      )
+      {{ lookup('file', 'python/provision.py') }}
+  register: homeassistant_owner
+  retries: 30
+  delay: 10
+  until: homeassistant_owner.rc == 0 or (HOMEASSISTANT_LOGIN_REFUSED in homeassistant_owner.stderr)
+  failed_when:
+    - homeassistant_owner.rc != 0
+    - HOMEASSISTANT_LOGIN_REFUSED not in homeassistant_owner.stderr
+  changed_when: "'CHANGED' in homeassistant_owner.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
+  run_once: true

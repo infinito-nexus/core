@@ -1,0 +1,4 @@
+---
+roles:
+  moderator:
+    description: Can handle reports, limit and suspend accounts and moderate posts without access to the server settings

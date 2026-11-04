@@ -1,0 +1,5 @@
+---
+# Param DESIGN_BASE_COLOR: the base color a development inventory or the `base=`
+#   of a design sync puts into services.design.colors.base for that run. Empty
+#   here so both outrank it; the shipped palette comes from meta/services.yml.
+DESIGN_BASE_COLOR: ""

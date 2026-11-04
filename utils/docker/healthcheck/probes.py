@@ -27,7 +27,7 @@ TIMING_DEFAULTS: dict[str, object] = {
 }
 
 _HTTP_REQUEST = (
-    "echo -e 'GET /{path} HTTP/1.1\\r\\nHost: localhost\\r\\n"
+    "printf 'GET /{path} HTTP/1.1\\r\\nHost: localhost\\r\\n"
     "Connection: close\\r\\n\\r\\n' >&3"
 )
 

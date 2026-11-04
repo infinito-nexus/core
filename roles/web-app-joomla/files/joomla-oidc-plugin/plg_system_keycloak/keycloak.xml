@@ -5,7 +5,7 @@
     <creationDate>2026-04-30</creationDate>
     <copyright>(C) 2026 Infinito Nexus</copyright>
     <license>GPL-2.0-or-later</license>
-    <version>1.0.0</version>
+    <version>1.4.0</version>
     <description>Native OIDC SSO against Keycloak for Joomla 6, with RBAC group mapping and an env-toggleable local-form fallback at /administrator?fallback=local.</description>
     <namespace path="src">Joomla\Plugin\System\Keycloak</namespace>
     <files>

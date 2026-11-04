@@ -1,0 +1,34 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+{% if design.logo is string %}
+  var icon = document.querySelector("link[rel~='icon']");
+  if (icon) {
+    icon.href = {{ ('/' ~ OPENCLOUD_DESIGN_THEME_URL_PATH ~ '/assets/favicon.svg') | to_json }};
+  }
+{% endif %}
+  function chosenTheme() {
+    try {
+      return window.localStorage.getItem("oc_currentThemeName");
+    } catch (error) {
+      return null;
+    }
+  }
+  function mirrorTheme() {
+    var label = chosenTheme();
+    if (!label) {
+      root.removeAttribute("data-design-theme");
+      return;
+    }
+    var scheme = root.style.colorScheme;
+    var mode = scheme === "dark" || scheme === "light" ? scheme : /dark/i.test(label) ? "dark" : "light";
+    if (root.getAttribute("data-design-theme") !== mode) {
+      root.setAttribute("data-design-theme", mode);
+    }
+  }
+  mirrorTheme();
+  new MutationObserver(function () {
+    window.setTimeout(mirrorTheme, 0);
+  }).observe(root, { attributes: true, attributeFilter: ["style"] });
+  window.addEventListener("storage", mirrorTheme);
+})();

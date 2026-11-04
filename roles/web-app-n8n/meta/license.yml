@@ -1,0 +1,19 @@
+---
+spdx: LicenseRef-n8n-Sustainable-Use-License
+url: https://github.com/n8n-io/n8n/blob/master/LICENSE.md
+rights:
+  commercial_use: true
+  modifications: true
+  distribution: false
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: false
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+  open_source: false

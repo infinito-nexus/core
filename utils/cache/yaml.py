@@ -11,6 +11,7 @@ through and evicts the cached entry. `invalidate(path)` is the explicit
 escape hatch when a caller knows a file was changed externally.
 
 CACHE SEMANTICS
+
 - Cache key: `(str(Path(path).resolve()), st_mtime_ns, st_size)`.
   Symlinks resolve once at the cache boundary so the same target shares
   an entry regardless of how callers spell the path. The mtime+size
@@ -32,6 +33,7 @@ CACHE SEMANTICS
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -55,14 +57,51 @@ for _tag in ("!override", "!reset"):
 
 
 def _construct_vault_tag(loader, node):
-    return loader.construct_scalar(node)
+    """Load a !vault block as a VaultScalar so the tag survives a round-trip."""
+    from utils.handler.vault import VaultScalar
+
+    return VaultScalar(loader.construct_scalar(node))
 
 
 yaml.SafeLoader.add_constructor("!vault", _construct_vault_tag)
 _Loader.add_constructor("!vault", _construct_vault_tag)
 
+
+@dataclass(frozen=True)
+class TaggedValue:
+    """A value under a local YAML tag, such as Ansible's ``!unsafe`` or ``!vault``, kept as written.
+
+    Args:
+        tag: the tag, for example ``!vault``.
+        value: the scalar text, list or mapping under the tag; never rendered or decrypted.
+    """
+
+    tag: str
+    value: Any
+
+
+def _construct_tagged(loader, _suffix, node):
+    if isinstance(node, yaml.SequenceNode):
+        return TaggedValue(node.tag, loader.construct_sequence(node, deep=True))
+    if isinstance(node, yaml.MappingNode):
+        return TaggedValue(node.tag, loader.construct_mapping(node, deep=True))
+    return TaggedValue(node.tag, loader.construct_scalar(node))
+
+
+class _TaggedLoader(_Loader):
+    pass
+
+
+_TaggedLoader.yaml_constructors = {
+    tag: constructor
+    for tag, constructor in _Loader.yaml_constructors.items()
+    if not (tag or "").startswith("!")
+}
+_TaggedLoader.add_multi_constructor("!", _construct_tagged)
+
 _MISSING = object()
 _CACHE: dict[tuple[str, int, int], list[Any]] = {}
+_TAGGED_CACHE: dict[tuple[str, int, int], list[Any]] = {}
 
 
 def _path_key(path) -> str:
@@ -85,18 +124,21 @@ def _load_docs(path) -> list[Any]:
     synthetic ``default_if_missing`` value never enters the cache and a
     later ``dump_yaml`` is picked up cleanly).
     """
-    p = Path(path)
+    return _cached_docs(Path(path), _Loader, _CACHE)
+
+
+def _cached_docs(p: Path, loader, cache: dict) -> list[Any]:
     sig = _signature(p)
-    if sig in _CACHE:
-        return _CACHE[sig]
+    if sig in cache:
+        return cache[sig]
 
     path_str = sig[0]
-    for stale_key in [k for k in _CACHE if k[0] == path_str and k != sig]:
-        _CACHE.pop(stale_key, None)
+    for stale_key in [k for k in cache if k[0] == path_str and k != sig]:
+        cache.pop(stale_key, None)
 
     with p.open("r", encoding="utf-8") as f:
-        docs = list(yaml.load_all(f, Loader=_Loader))  # nocheck: direct-yaml
-    _CACHE[sig] = docs
+        docs = list(yaml.load_all(f, Loader=loader))  # nocheck: direct-yaml
+    cache[sig] = docs
     return docs
 
 
@@ -114,7 +156,24 @@ def _load_raw(path, *, default_if_missing: Any) -> Any:
             raise FileNotFoundError(p)
         return default_if_missing
 
-    docs = _load_docs(p)
+    return _single_doc(path, _load_docs(p))
+
+
+def load_yaml_tagged(path) -> Any:
+    """Load a single-document YAML file, keeping every local tag as a :class:`TaggedValue`.
+
+    Reads files Ansible reads, where ``!unsafe`` and ``!vault`` are
+    legal, without rendering or decrypting any value. The parse is
+    cached apart from :func:`load_yaml_any`, which loads ``!vault`` as
+    its ciphertext string.
+
+    Args:
+        path: the YAML file; a missing one raises ``FileNotFoundError``.
+    """
+    return _single_doc(path, _cached_docs(Path(path), _TaggedLoader, _TAGGED_CACHE))
+
+
+def _single_doc(path, docs: list[Any]) -> Any:
     if not docs:
         return {}
     if len(docs) > 1:
@@ -130,6 +189,7 @@ def load_yaml(path, *, default_if_missing: Any = _MISSING) -> dict[str, Any]:
     """Load a YAML file as a dict, memoised by absolute path.
 
     `default_if_missing` controls the missing-file behaviour:
+
     - Default (`_MISSING`): raise `FileNotFoundError` for callers that
       want to fail loud (resolution code).
     - Pass a value (typically `{}`): return that value when the file
@@ -250,8 +310,9 @@ def load_yaml_all_str(text: str) -> list:
 def _drop_path(path) -> None:
     """Drop every cache entry for `path`."""
     path_str = _path_key(path)
-    for stale_key in [k for k in _CACHE if k[0] == path_str]:
-        _CACHE.pop(stale_key, None)
+    for cache in (_CACHE, _TAGGED_CACHE):
+        for stale_key in [k for k in cache if k[0] == path_str]:
+            cache.pop(stale_key, None)
 
 
 def invalidate(path) -> None:
@@ -275,6 +336,7 @@ def _reset() -> None:
     orchestrates calls to all of them.
     """
     _CACHE.clear()
+    _TAGGED_CACHE.clear()
 
 
 _reset_cache_for_tests = _reset

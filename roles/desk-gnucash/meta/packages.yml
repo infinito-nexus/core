@@ -1,9 +1,0 @@
----
-gnucash:
-  Archlinux:
-    - gnucash
-  Debian:
-    - gnucash
-  RedHat:
-    - gnucash
-  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry gnucash; TODO: install from Flathub

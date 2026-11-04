@@ -12,66 +12,6 @@ This Ansible role deploys Taiga in a Docker-based environment, allowing fast, re
 
 This role supercharge your project management with Taiga, a dynamic, agile tool designed for teams that thrive on creativity and collaboration. Experience a vibrant interface, robust task tracking, and an energetic platform that drives your projects to success.
 
-## Cosmos
-
-The diagram places Taiga in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-taiga 🐳🐝]
-        svc_sso["sso"]
-        svc_ldap["ldap"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_postgres["postgres"]
-        svc_taiga["taiga"]
-        svc_async["async"]
-        svc_front["front"]
-        svc_gateway["gateway"]
-        svc_events["events"]
-        svc_async_rabbitmq["async-rabbitmq"]
-        svc_events_rabbitmq["events-rabbitmq"]
-        svc_manager["manager"]
-        svc_protected["protected"]
-        svc_seaweedfs["seaweedfs"]
-        svc_css["css"]
-        svc_javascript["javascript ❌"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_db_postgres -. "0..1" .-> svc_postgres
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Why Taiga?
 
 Taiga is ideal for developers, designers, and agile teams who want:
@@ -99,61 +39,38 @@ By using this role, teams can set up Taiga in minutes on Arch Linux systems, whe
 
 - 🐳 **Docker-Based Deployment:** Easy containerized setup of backend, frontend, async workers, and events service.
 - 🔐 **Optional OAuth2 Proxy access guard:** [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/) can be layered in front of Taiga when you want proxy-level access control in addition to Taiga's own authentication flow.
-- 🔑 **LDAP direct login (Option A, default off):** [`taiga-contrib-ldap-auth-ext`](https://github.com/Monogramm/taiga-contrib-ldap-auth-ext) enables users to log into Taiga directly with their LDAP credentials via the Taiga login form. Settings are appended to `config.py` at container startup.
+- 🔑 **LDAP direct login (Option A, on while `login.method.ldap` is):** [`taiga-contrib-ldap-auth-ext`](https://github.com/Monogramm/taiga-contrib-ldap-auth-ext) enables users to log into Taiga directly with their LDAP credentials via the Taiga login form. Settings are appended to `config.py` at container startup.
 - 🔑 **OIDC login via Keycloak (Option B, default on):** [`taiga-contrib-oidc-auth`](https://github.com/taigaio/taiga-contrib-oidc-auth) enables SSO via Keycloak → LDAP. **Note:** The OIDC plugin is not published on PyPI and requires a custom `taiga-front` image with the frontend plugin built in (CoffeeScript/Gulp). Without the custom frontend image the SSO button will not appear in the UI.
+- 🚪 **Login Methods:** `services.taiga.login.method.*` in [`meta/services.yml`](./meta/services.yml) drives Taiga's own switches. `sso` installs and configures the OIDC plugin (together with the `sso` service). `ldap` installs `taiga-contrib-ldap-auth-ext` and sets `loginFormType: ldap` (together with the `ldap` service), so under SSO LDAP accounts sign in through the Keycloak federation. `native` or `ldap` sets `defaultLoginEnabled` in the front's `conf.json`, which shows the username and password form with its "Forgot it?" link; with `ldap` on the form authenticates against the directory, so it is a shared form for both. `registration` sets `publicRegisterEnabled` in `conf.json` and `PUBLIC_REGISTER_ENABLED` for the backend. Taiga has no second factor or passkey, so the role declares neither.
+- 🧯 **Break-Glass:** The bootstrap superuser keeps its local password in every mode, so it signs in through `POST /api/v1/auth` with `type: normal` and through the Django admin at `/admin/` while SSO hides the form.
+- 🛂 **Restricted access:** Only members of the `administrator` and `user` role groups sign in: the OIDC backend checks the groups claim against `OIDC_ALLOWED_GROUPS`, the LDAP backend searches with a `memberOf` filter on both role groups.
+- 👑 **Role mapping:** Every OIDC login grants `is_superuser` and `is_staff` to members of the `administrator` role group and removes both from everyone else, except the bootstrap superuser.
+- 🛂 **Superuser reconcile:** [`files/python/reconcile_superusers.py`](./files/python/reconcile_superusers.py) grants `is_superuser` and `is_staff` to each Taiga account whose username or email matches a member of the `administrator` role group and removes both from every other account, except the bootstrap superuser and Taiga system accounts. It runs as an RBAC hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer (`tasks/03_rbac.yml`). This is the role mapping of the LDAP login path, which maps no group itself.
+- 🪪 **Profile sync:** Every OIDC login copies the username, full name, language and timezone claims into the Taiga account.
+- 🧷 **Plugin capability switch:** `sso.oidc.rbac` in [`meta/services.yml`](./meta/services.yml) states whether the pinned `sso.oidc.ref` carries the group gate, role mapping and profile sync; the Playwright RBAC scenarios run only when it is `true`.
 - 📨 **Email Backend:** Supports SMTP and console backends for development.
 - 🔁 **Async & Realtime Events:** Includes RabbitMQ and support for Taiga’s event system.
 - 🌐 **Reverse Proxy Ready:** Integrates with NGINX using the `sys-stk-front-proxy` role.
 - 🧩 **Composable Design:** Integrates cleanly with other Infinito.Nexus infrastructure roles.
 
+## Addons
+
+Role-level extensions are declared in `meta/addons/`, one file per addon:
+
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `taiga-contrib-oidc-auth` | `plugin` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+
+The plugin is built into the custom `taiga-front` image and pip-installed into the backend from the git ref pinned in [`meta/services.yml`](./meta/services.yml) under `sso.oidc`, so its enablement derives directly from the `sso` service flag. Coupling is asserted by [files/playwright/addons/taiga-contrib-oidc-auth.spec.js](./files/playwright/addons/taiga-contrib-oidc-auth.spec.js).
+
 ---
 
-## Quick Setup
+## Further Resources
 
-### Development
-
-Clone, set up the workstation, and deploy Taiga onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-taiga full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Taiga to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-taiga
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+- [Taiga Official Website](https://taiga.io/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/66q38ho491WQw9deB3T3rD)
 
 ## Persona contract opt-outs
 
 Taiga redirects `/` to the public `/discover` showcase, which renders a bare Login link but not the OIDC entry point; only `/login` binds the SSO directive (see the note in [`files/playwright/_shared.js`](./files/playwright/_shared.js)). The shared personas always enter at the site root, so they can never reach Taiga's SSO button.
 Taiga's AngularJS shell additionally exposes logout only through `ng-click` / `tg-nav` / `ui-sref` directives, which the generic in-app logout helper cannot activate. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the equivalent journeys are driven by the role-local `test-login-oidc.js` and `test-login-native.js` specs, which enter at `/login` and log out through Taiga's own control.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

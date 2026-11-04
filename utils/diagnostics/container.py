@@ -9,7 +9,8 @@ container that carries python3 and a container runtime (DiD) and repeats the
 capture there, pulling each nested snapshot back under
 ``containers/<name>/nested/`` - from the outermost caller down to the deepest
 runtime, however deep the nesting goes. ``RESCUE_SEEN`` carries the ids already
-entered, so a runtime that lists itself is cut as a cycle.
+entered, so a runtime that lists itself is cut as a cycle. ``RESCUE_DEADLINE``
+(optional epoch, handed down every level) caps each command and skips it once past.
 
 Every collector is best-effort: a missing source must never abort the capture.
 ``INFINITO_RESCUE_DIAGNOSTICS_DIR`` and ``INFINITO_DNS53_SAMPLER_LOG`` are
@@ -29,6 +30,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -40,6 +42,8 @@ _NESTED_TIMEOUT = 600
 _TAR_TIMEOUT = 300
 _SELF_IN_CONTAINER = "/tmp/rescue-self.py"  # noqa: S108 - fixed staging path inside the inspected container
 _LOCAL_DUMPS_ENV = "INFINITO_RESCUE_LOCAL_DUMPS_DIR"
+_DEADLINE_ENV = "RESCUE_DEADLINE"
+_SKIPPED = b"[skipped: past RESCUE_DEADLINE]\n"
 _APP_LOG_TAIL = "find /var/log /var/www /opt /srv -xdev -type f -name '*.log' -size -20971520c -mmin -360 -exec sh -c 'echo \"===== $1\"; tail -n 400 \"$1\"' _ {} ';'"
 _PROBE_HOSTS = ("deb.debian.org", "ghcr.io", "repo.packagist.org")
 _DNSMASQ_DIRS = (
@@ -53,9 +57,13 @@ def runtime_bin() -> str | None:
 
 
 def run(
-    cmd: list[str], *, timeout: int = _EXEC_TIMEOUT, stdin: bytes | None = None
+    cmd: list[str], *, timeout: float = _EXEC_TIMEOUT, stdin: bytes | None = None
 ) -> subprocess.CompletedProcess:
     """Best-effort subprocess wrapper: never raises, captures everything."""
+    if os.environ.get(_DEADLINE_ENV):
+        timeout = min(timeout, float(os.environ[_DEADLINE_ENV]) - time.time())
+        if timeout <= 0:
+            return subprocess.CompletedProcess(cmd, 124, b"", _SKIPPED)
     try:
         return subprocess.run(
             cmd, input=stdin, capture_output=True, timeout=timeout, check=False
@@ -160,12 +168,7 @@ def collect_host(out: Path, app_id: str, context: str, stamp: str) -> None:
 
 
 def collect_dnsmasq_introspection(out: Path) -> None:
-    """fd table and rlimits of every live dnsmasq process.
-
-    Run 32118850138 caught dnsmasq alive with zero sockets and nothing in
-    the journal; the socket table alone cannot separate closed listeners
-    from an exhausted fd table or a lost netlink watch, the fd list can.
-    """
+    """fd table and rlimits of every live dnsmasq process."""
     for pid in " ".join(list_lines(["pidof", "dnsmasq"])).split():
         capture(out, f"dnsmasq-{pid}-fd.txt", ["ls", "-l", f"/proc/{pid}/fd"])
         capture(out, f"dnsmasq-{pid}-limits.txt", ["cat", f"/proc/{pid}/limits"])
@@ -191,13 +194,7 @@ def daemon_json_dns() -> list[str]:
 
 
 def collect_resolver_probes(out: Path) -> None:
-    """Resolve each probed name, once through the stack and once per nameserver.
-
-    ``getent`` honours nsswitch and cannot address a server, so on its own it
-    cannot say which of the resolvers in resolv.conf refused. Where the distro
-    ships a query tool, ask every nameserver directly; where it does not, the
-    per-name verdicts still stand on their own.
-    """
+    """Resolve each probed name, once through the stack and once per nameserver."""
     tool = next(
         (
             argv
@@ -326,7 +323,7 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
     capture(
         out / "containers",
         "_events.txt",
-        ["timeout", "15", rt, "events", "--since", "6h"],
+        ["timeout", "--foreground", "15", rt, "events", "--since", "6h"],
         timeout=40,
     )
     containers = list_lines([rt, "ps", "-a", "--format", "{{.Names}}"])
@@ -428,6 +425,8 @@ def recurse(
                 "-e",
                 "RESCUE_SEEN=" + ",".join([*seen, cid] if cid else seen),
                 "-e",
+                f"{_DEADLINE_ENV}={os.environ.get(_DEADLINE_ENV, '')}",
+                "-e",
                 f"{_LOCAL_DUMPS_ENV}={os.environ.get(_LOCAL_DUMPS_ENV, '')}",
                 "-e",
                 f"INFINITO_DNS53_SAMPLER_LOG={os.environ['INFINITO_DNS53_SAMPLER_LOG']}",
@@ -466,7 +465,7 @@ def main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 1
-    depth = int(os.environ.get("RESCUE_DEPTH", "0"))
+    depth = int(os.environ.get("RESCUE_DEPTH", 0))
     seen = [cid for cid in os.environ.get("RESCUE_SEEN", "").split(",") if cid]
     stamp = datetime.now(tz=UTC).strftime("%Y%m%d%H%M%SZ")
     out = Path(out_base) / f"{app_id}-{stamp}-{os.getpid()}"

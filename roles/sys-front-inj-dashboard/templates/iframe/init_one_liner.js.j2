@@ -1,10 +1,8 @@
+{% set _network_base = DOMAIN_PRIMARY | network_sibling(domain | network_of, DOMAIN_PRIMARY, lookup('config', 'svc-net-tor', 'services.tor.node', '')) %}
 document.addEventListener('DOMContentLoaded', function () {
   initIframeHandler(
-    '{{ DOMAIN_PRIMARY }}',
+    '{{ _network_base or DOMAIN_PRIMARY }}',
     '{{ domain }}',
     '{{ lookup("tls", "web-app-dashboard", "url.base") }}'
   );
 });
-{% if MODE_DEBUG | bool %}
-try { console.log("[iframe-sync] Sender for iframe messages is active."); } catch(e) {}
-{% endif %}

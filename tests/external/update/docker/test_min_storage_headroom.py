@@ -40,7 +40,7 @@ import unittest
 from dataclasses import dataclass
 
 from utils.annotations.message import warning
-from utils.annotations.suppress import line_has_rule
+from utils.annotations.suppress import has_rule_with_reason
 from utils.cache.files import read_text
 from utils.docker.image.discovery import load_yaml
 from utils.docker.registry import manifest_transfer_size
@@ -56,7 +56,6 @@ _GIB = 1024**3
 
 _TOP_LEVEL_KEY = re.compile(r"^([A-Za-z0-9][A-Za-z0-9_.-]*):")
 _MIN_STORAGE_KEY = re.compile(r"^\s+min_storage:")
-_REASON = re.compile(r"#.*\breason\b\s*:\s*\S", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -108,22 +107,7 @@ def _declarations(role_name: str) -> tuple[list[_Declaration], list[str]]:
 
 
 def _justified(lines: list[str], line_no: int) -> bool:
-    """Whether the declaration at 1-based *line_no* carries marker and reason.
-
-    Scanned on that line and across the contiguous comment lines directly above
-    it; the order of the two markers within that block does not matter.
-    """
-    idx = line_no - 1
-    if idx < 0 or idx >= len(lines):
-        return False
-    has_rule = line_has_rule(lines[idx], _RULE)
-    has_reason = bool(_REASON.search(lines[idx]))
-    scan = idx - 1
-    while scan >= 0 and lines[scan].lstrip().startswith("#"):
-        has_rule = has_rule or line_has_rule(lines[scan], _RULE)
-        has_reason = has_reason or bool(_REASON.search(lines[scan]))
-        scan -= 1
-    return has_rule and has_reason
+    return has_rule_with_reason(lines, line_no, _RULE)
 
 
 def _measure(pairs: set[tuple[str, str]]) -> dict[tuple[str, str], int | None]:

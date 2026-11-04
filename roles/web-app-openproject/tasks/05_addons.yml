@@ -1,0 +1,15 @@
+---
+- name: "🔍 Resolve the OpenProject web hosting node and container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ OPENPROJECT_WEB_SERVICE }}"
+    resolve_service_name: "{{ lookup('container_service', application_id, OPENPROJECT_WEB_SERVICE) }}"
+    resolve_output_prefix: OPENPROJECT_WEB
+    resolve_compose_cid: "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
+
+- name: "🧩 OpenProject | Run the enabled addon hooks"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/addons/{{ openproject_addon.key }}.yml"
+  loop: "{{ OPENPROJECT_ADDONS_ENABLED }}"
+  loop_control:
+    loop_var: openproject_addon
+    label: "{{ openproject_addon.key }}"

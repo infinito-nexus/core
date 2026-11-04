@@ -19,21 +19,6 @@
     {{ lookup('container_ports',
               ['odoo', 'http', DOCKER_BIND_HOST],
               ['odoo', 'websocket', DOCKER_BIND_HOST]) | indent(4) }}
-    environment:
-      - HOST={{ ODOO_DB_HOST }}
-      - USER={{ ODOO_DB_USER }}
-      - PASSWORD={{ ODOO_DB_PASSWORD }}
-      - ODOO_URL={{ ODOO_URL }}
-      - ODOO_INIT_MODULES={{ ODOO_INIT_MODULES }}
-      - ODOO_UPDATE_MARKER={{ ODOO_UPDATE_MARKER }}
-      {% if ODOO_OIDC_ENABLED | bool %}
-      - ODOO_OIDC_CLIENT_ID={{ ODOO_OIDC_CLIENT_ID }}
-      - ODOO_OIDC_CLIENT_SECRET={{ ODOO_OIDC_CLIENT_SECRET }}
-      - ODOO_OIDC_ISSUER_URL={{ ODOO_OIDC_ISSUER_URL }}
-      - ODOO_OIDC_TOKEN_URL={{ ODOO_OIDC_TOKEN_URL }}
-      - ODOO_OIDC_JWKS_URI={{ ODOO_OIDC_JWKS_URI }}
-      - ODOO_OIDC_UID_FIELD={{ ODOO_OIDC_UID_FIELD }}
-      {% endif %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

@@ -1,0 +1,31 @@
+---
+# Param: kc_mappers_path    - kcadm path of a protocol mapper collection, e.g. clients/<id>/protocol-mappers/models
+# Param: kc_mappers_desired - protocol mappers of the realm dictionary the collection holds afterwards, matched by name
+- name: "⬇️ Read the protocol mappers of '{{ kc_mappers_path }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get {{ kc_mappers_path }} -r {{ KEYCLOAK_REALM }} --format json
+  register: kc_mappers_current
+  changed_when: false
+
+- name: "🔍 Resolve the drifted protocol mappers of '{{ kc_mappers_path }}'"
+  ansible.builtin.set_fact:
+    kc_mappers_drifted: "{{ kc_mappers_current.stdout | kcadm_json | kc_drifted_protocol_mappers(kc_mappers_desired) }}"
+
+- name: "🗑️ Delete the drifted protocol mappers of '{{ kc_mappers_path }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} delete {{ kc_mappers_path }}/{{ kc_mapper.id }} -r {{ KEYCLOAK_REALM }}
+  loop: "{{ kc_mappers_drifted }}"
+  loop_control:
+    loop_var: kc_mapper
+    label: "{{ kc_mapper.name }}"
+  changed_when: true
+
+- name: "✅ Create the protocol mappers '{{ kc_mappers_path }}' lacks"
+  ansible.builtin.shell: >-
+    printf '%s' {{ kc_mapper | to_json | quote }}
+    | {{ KEYCLOAK_EXEC_KCADM }} create {{ kc_mappers_path }} -r {{ KEYCLOAK_REALM }} -f -
+  loop: "{{ kc_mappers_desired | kc_missing_protocol_mappers(kc_mappers_current.stdout | kcadm_json, kc_mappers_drifted) }}"
+  loop_control:
+    loop_var: kc_mapper
+    label: "{{ kc_mapper.name }}"
+  changed_when: true

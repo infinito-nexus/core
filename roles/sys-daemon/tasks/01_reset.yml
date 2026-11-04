@@ -9,8 +9,8 @@
       - SYSTEMD_MANAGER_CONF_DIR | regex_search('^/etc/systemd/system\.conf\.d/?$')
     fail_msg: "SYSTEMD_MANAGER_CONF_DIR must be /etc/systemd/system.conf.d"
   when:
-    - MODE_RESET | bool
-    - MODE_ASSERT | bool
+    - RESET | bool
+    - lookup('validate', 'sys-daemon') | bool
 
 - name: "🧹 Purge manager drop-in directory (remove)"
   file:

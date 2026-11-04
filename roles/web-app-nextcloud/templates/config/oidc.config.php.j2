@@ -19,7 +19,7 @@ return array (
     'oidc_login_client_secret' => '{{ OIDC.CLIENT.SECRET }}',
 
     // Automatically redirect the login page to the provider
-    'oidc_login_auto_redirect' => true,
+    'oidc_login_auto_redirect' => {{ (NEXTCLOUD_LOGIN_SSO | bool and not (NEXTCLOUD_LOGIN_FORM | bool or NEXTCLOUD_LOGIN_PASSKEY | bool)) | string | lower }},
 
     // Redirect to this page after logging out the user
     'oidc_login_logout_url' => '{{ NEXTCLOUD_URL }}',
@@ -99,15 +99,15 @@ return array (
     //
     'oidc_login_attributes' => array (
         'id' => '{{ LDAP.USER.ATTRIBUTES.ID }}',
-        'name' => 'name',
-        'mail' => 'email',
+        'name' => '{{ OIDC.ATTRIBUTES.NAME }}',
+        'mail' => '{{ OIDC.ATTRIBUTES.EMAIL }}',
         'quota' => '{{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA }}',
         # 'home' => 'homeDirectory',    # Not implemented yet
         'ldap_uid' => '{{ OIDC.ATTRIBUTES.USERNAME }}',
         # 'groups' => 'ownCloudGroups', # Not implemented yet
         # 'login_filter' => 'realm_access_roles',
     //    'photoURL' => 'picture',
-    //    'is_admin' => 'ownCloudAdmin',
+        'is_admin' => '{{ RBAC.GROUP.CLAIM }}_/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}',
     ),
 
     // Default group to add users to (optional, defaults to nothing)
@@ -137,7 +137,7 @@ return array (
     'oidc_login_use_external_storage' => false,
 
     // Set OpenID Connect scope
-    'oidc_login_scope' => 'openid profile',
+    'oidc_login_scope' => 'openid profile {{ RBAC.GROUP.CLAIM }} {{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.nextcloud') }}',
 
     // Run in LDAP proxy mode
     // In this mode, instead of creating users of its own, OIDC login

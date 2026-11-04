@@ -1,0 +1,12 @@
+---
+- name: "🧹 Remove the corporate theme of {{ application_id }}"
+  ansible.builtin.shell: >-
+    container exec -i {{ OPENCLOUD_CONTAINER_ADDRESS }}
+    sh -c {{ lookup('file', 'shell/theme_sync.sh') | quote }} theme_sync
+    {{ OPENCLOUD_DESIGN_THEME_DIR | quote }}
+    < /dev/null
+  register: opencloud_theme_removal
+  changed_when: "'CHANGED' in opencloud_theme_removal.stdout"
+  retries: 30
+  delay: 2
+  until: opencloud_theme_removal.rc == 0

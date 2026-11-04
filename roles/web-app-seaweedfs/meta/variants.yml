@@ -1,35 +1,43 @@
 ---
-# nocheck: sso-variant-tor — meta/services.yml gates sso on
-# "svc-net-tor not in group_names": the frontend is off on a tor node by design, so
-# there is no SSO-over-onion flow to exercise.
 - services:
-    container_backup:
+    docs:
+      enabled: false
+      shared: false
+    sso:
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
+    logout:
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
+    dashboard:
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
+    prometheus:
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
+    design:
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
+    tor:
       enabled: true
-    sso:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
-    logout:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
-    dashboard:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
-    prometheus:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
 - services:
-    container_backup:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+    docs:
+      enabled: true
+      shared: true
     sso:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     logout:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     dashboard:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     prometheus:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
+    design:
+      enabled: false
+      shared: false
+    tor:
+      enabled: true

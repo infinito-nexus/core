@@ -29,7 +29,10 @@ test("OIDC: oauth2-proxy + Snipe-IT loginViaRemoteUser mint a native session", a
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase.replace(/^https?:\/\//, ""));
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator(".main-header .navbar"),
+    "Expected the Snipe-IT authenticated shell, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const sessionCookies = await page.context().cookies(expectedBase);
   expect(

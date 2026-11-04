@@ -18,8 +18,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
@@ -45,8 +45,8 @@ minio:
   public: true
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 peertube:
@@ -67,7 +67,7 @@ peertube:
   live:
     enabled: true
   backup:
-    no_stop_required: true
+    stop_required: false
   # nocheck: single-replica PeerTube has no multi-instance support upstream; the RTMP live ingest binds one instance with no VIP session affinity, and the OIDC state cookie uses a per-process key, so concurrent replicas break live streams and the auth callback
   replicas: 1
   cpus: 4
@@ -88,11 +88,38 @@ peertube:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', '2fa') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', 'registration') }}"
+# nocheck: playwright-service-flag — verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
+  slots:
+    header-wide:
+      width: 192
+      height: 48
+    header-square:
+      width: 48
+      height: 48
+    favicon:
+      width: 32
+      height: 32
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag - carries the login-method script of templates/javascript.js.j2, whose effect files/playwright/test-login-methods.js asserts
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -109,3 +136,16 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

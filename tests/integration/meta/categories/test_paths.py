@@ -25,7 +25,7 @@ class TestCategoryPaths(unittest.TestCase):
             for sub_key in attrs:
                 if sub_key in (
                     "title",
-                    "hanzi",
+                    "glyph",
                     "description",
                     "icon",
                     "children",

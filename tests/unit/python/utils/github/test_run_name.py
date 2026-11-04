@@ -51,32 +51,39 @@ class HeadlessSegmentTests(unittest.TestCase):
     the title's own prefix as the value. Such an input renders a glyph for the
     reader and is recovered from the job log instead."""
 
-    TPL = (
-        "🕹️ "
-        "${{ inputs.tor != 'auto' && format('{0} ',"
-        " inputs.tor == 'disabled' && '🌐'"
-        " || inputs.tor == 'enforced' && '🧅强制' || '🧅独占') || '' }}"
-        "${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}"
+    NETWORK = (
+        "${{ inputs.network != 'auto' && format('{0} ',"
+        " inputs.network == 'clearnet' && '🌐'"
+        " || inputs.network == 'tor' && '🧅' || '🌈') || '' }}"
     )
 
+    TPL = (
+        "🕹️ "
+        + NETWORK
+        + "${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}"
+    )
+
+    def test_it_is_the_network_segment_the_declared_run_name_renders(self) -> None:
+        self.assertIn(self.NETWORK, run_name.template())
+
     def test_it_yields_no_segment(self) -> None:
-        self.assertNotIn("tor", run_name.heads(self.TPL))
-        self.assertNotIn("tor", run_name.markers(self.TPL))
+        self.assertNotIn("network", run_name.heads(self.TPL))
+        self.assertNotIn("network", run_name.markers(self.TPL))
 
     def test_its_glyphs_still_terminate_the_value_before_them(self) -> None:
         found = run_name.openings(self.TPL)
         self.assertIn("🌐", found)
-        self.assertIn("🧅强制", found)
-        self.assertIn("🧅独占", found)
+        self.assertIn("🧅", found)
+        self.assertIn("🌈", found)
 
     def test_a_neighbour_value_survives_the_glyph(self) -> None:
         self.assertEqual(
-            run_name.value_from_title("🕹️ 🧅独占 🐧arch debian", "distros", self.TPL),
+            run_name.value_from_title("🕹️ 🌈 🐧arch debian", "distros", self.TPL),
             "arch debian",
         )
 
     def test_the_title_reports_no_value_for_it(self) -> None:
-        self.assertNotIn("tor", run_name.values_from_title("🕹️ 🧅强制 🐧arch", self.TPL))
+        self.assertNotIn("network", run_name.values_from_title("🕹️ 🧅 🐧arch", self.TPL))
 
 
 class OpeningTests(unittest.TestCase):

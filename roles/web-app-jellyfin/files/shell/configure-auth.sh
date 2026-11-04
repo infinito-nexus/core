@@ -184,12 +184,17 @@ if [ "${JELLYFIN_LDAP_ENABLED}" = "true" ]; then
   <LdapBindUser>${JELLYFIN_LDAP_BIND_DN}</LdapBindUser>
   <LdapBindPassword>${JELLYFIN_LDAP_BIND_PASSWORD}</LdapBindPassword>
   <LdapBaseDn>${JELLYFIN_LDAP_BASE_DN}</LdapBaseDn>
-  <LdapSearchFilter>(objectClass=inetOrgPerson)</LdapSearchFilter>
-  <LdapSearchAttributes>uid, cn, mail, displayName</LdapSearchAttributes>
+  <LdapSearchFilter>${JELLYFIN_LDAP_SEARCH_FILTER}</LdapSearchFilter>
+  <LdapSearchAttributes>${JELLYFIN_LDAP_SEARCH_ATTRIBUTES}</LdapSearchAttributes>
+  <LdapAdminFilter>${JELLYFIN_LDAP_ADMIN_FILTER}</LdapAdminFilter>
+  <EnableLdapAdminFilterMemberUid>false</EnableLdapAdminFilterMemberUid>
   <CreateUsersFromLdap>true</CreateUsersFromLdap>
+  <AllowPassChange>false</AllowPassChange>
   <LdapUidAttribute>${JELLYFIN_LDAP_UID_ATTR}</LdapUidAttribute>
   <LdapUsernameAttribute>${JELLYFIN_LDAP_UID_ATTR}</LdapUsernameAttribute>
-  <LdapPasswordAttribute>userPassword</LdapPasswordAttribute>
+  <LdapPasswordAttribute>${JELLYFIN_LDAP_PASSWORD_ATTR}</LdapPasswordAttribute>
+  <EnableLdapProfileImageSync>true</EnableLdapProfileImageSync>
+  <LdapProfileImageAttribute>${JELLYFIN_LDAP_PHOTO_ATTR}</LdapProfileImageAttribute>
   <EnableAllFolders>true</EnableAllFolders>
 </PluginConfiguration>
 XML
@@ -210,22 +215,22 @@ if [ -n "${TOKEN:-}" ] && [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then
       "OidClientId": "${JELLYFIN_OIDC_CLIENT_ID}",
       "OidSecret": "${JELLYFIN_OIDC_CLIENT_SECRET}",
       "Enabled": true,
-      "EnableAuthorization": false,
+      "EnableAuthorization": true,
       "EnableAllFolders": true,
       "EnabledFolders": [],
       "Roles": [],
-      "AdminRoles": [],
+      "AdminRoles": ["${JELLYFIN_OIDC_ADMIN_ROLE}"],
       "EnableFolderRoles": false,
       "EnableLiveTv": false,
       "EnableLiveTvManagement": false,
       "LiveTvRoles": [],
       "LiveTvManagementRoles": [],
       "FolderRoleMapping": [],
-      "RoleClaim": "realm_access.roles",
+      "RoleClaim": "${JELLYFIN_OIDC_ROLE_CLAIM}",
       "OidScopes": ["openid", "profile", "email"],
-      "DefaultUsernameClaim": "preferred_username",
+      "DefaultUsernameClaim": "${JELLYFIN_OIDC_USERNAME_CLAIM}",
       "DisablePushedAuthorization": true,
-      "SchemeOverride": "https"
+      "DisableHttps": ${JELLYFIN_OIDC_DISABLE_HTTPS}
     }
   }
 }
@@ -237,13 +242,25 @@ JSON
   fi
 fi
 
-if [ -n "${TOKEN:-}" ] && [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then
+LOGIN_DISCLAIMER=""
+LOGIN_CSS=""
+if [ "${JELLYFIN_SSO_ENABLED}" = "true" ] && [ "${JELLYFIN_LOGIN_SSO_ENABLED}" = "true" ]; then
+  LOGIN_DISCLAIMER='<form action=\"/sso/OID/start/Keycloak\"><button class=\"raised block emby-button button-submit\">Sign in with Keycloak</button></form>'
+  LOGIN_CSS='a.raised.emby-button { padding: 0.9em 1em; color: inherit !important; } .disclaimerContainer { display: block; }'
+fi
+if [ "${JELLYFIN_LOGIN_FORM_ENABLED}" != "true" ]; then
+  LOGIN_CSS="${LOGIN_CSS} #loginPage .manualLoginForm, #loginPage .visualLoginForm, #loginPage .btnManual, #loginPage .btnQuick, #loginPage .btnForgotPassword { display: none !important; }"
+fi
+
+if [ -n "${TOKEN:-}" ] && { [ "${JELLYFIN_SSO_ENABLED}" = "true" ] || [ "${JELLYFIN_LOGIN_FORM_ENABLED}" != "true" ]; }; then
   if ${CURL} -fsS -X POST "${API}/System/Configuration/branding" -H "Content-Type: application/json" \
-      -H "@${AUTH_HEADER_FILE}" \
-      -d '{"LoginDisclaimer":"<form action=\"/sso/OID/start/Keycloak\"><button class=\"raised block emby-button button-submit\">Sign in with Keycloak</button></form>","CustomCss":"a.raised.emby-button { padding: 0.9em 1em; color: inherit !important; } .disclaimerContainer { display: block; }","SplashscreenEnabled":false}' >/dev/null 2>&1; then
-    log "configured SSO login button via branding"
+      -H "@${AUTH_HEADER_FILE}" --data @- >/dev/null 2>&1 <<JSON
+{"LoginDisclaimer":"${LOGIN_DISCLAIMER}","CustomCss":"${LOGIN_CSS}","SplashscreenEnabled":false}
+JSON
+  then
+    log "configured the login methods of the sign-in page via branding"
   else
-    log "WARN: failed to set SSO login branding"
+    log "WARN: failed to set the login branding"
   fi
 fi
 

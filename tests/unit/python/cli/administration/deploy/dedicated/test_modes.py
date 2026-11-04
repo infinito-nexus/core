@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from argparse import ArgumentParser
 from pathlib import Path
 
 from cli.administration.deploy.dedicated import modes
+from cli.administration.deploy.dedicated.paths import MODES_FILE
 
 
 class TestParseBoolLiteral(unittest.TestCase):
@@ -26,109 +28,104 @@ class TestParseBoolLiteral(unittest.TestCase):
         self.assertIsNone(modes._parse_bool_literal("  "))
 
 
+def _load(content: str) -> list[dict]:
+    with tempfile.NamedTemporaryFile("w+", delete=False, encoding="utf-8") as f:
+        path = f.name
+        f.write(content)
+        f.flush()
+    try:
+        return modes.load_modes_from_yaml(path)
+    finally:
+        Path(path).unlink()
+
+
 class TestLoadModesFromYaml(unittest.TestCase):
     def test_load_modes_basic(self):
-        content = """\
-MODE_CLEANUP: true   # cleanup before deploy
-MODE_DEBUG: false    # debug output
-MODE_ASSERT: null    # inventory assertion
-OTHER_KEY: true      # should be ignored (no MODE_ prefix)
-"""
+        parsed = _load(
+            "CLEANUP: true   # cleanup before deploy\n"
+            "DEBUG: false    # debug output\n"
+            "VALIDATE: null  # inventory assertion\n"
+        )
 
-        with tempfile.NamedTemporaryFile("w+", delete=False, encoding="utf-8") as f:
-            path = f.name
-            f.write(content)
-            f.flush()
-
-        try:
-            parsed = modes.load_modes_from_yaml(path)
-        finally:
-            Path(path).unlink()
-
-        self.assertEqual(len(parsed), 3)
         by_name = {m["name"]: m for m in parsed}
+        self.assertEqual(set(by_name), {"CLEANUP", "DEBUG", "VALIDATE"})
+        self.assertEqual(by_name["CLEANUP"]["default"], True)
+        self.assertEqual(by_name["DEBUG"]["default"], False)
+        self.assertIsNone(by_name["VALIDATE"]["default"])
+        self.assertEqual(by_name["CLEANUP"]["help"], "cleanup before deploy")
 
-        self.assertIn("MODE_CLEANUP", by_name)
-        self.assertIn("MODE_DEBUG", by_name)
-        self.assertIn("MODE_ASSERT", by_name)
+    def test_every_key_is_a_mode(self):
+        parsed = _load("---\n# Mode\nFOO: true\nBAR: false\n")
 
-        self.assertEqual(by_name["MODE_CLEANUP"]["default"], True)
-        self.assertEqual(by_name["MODE_DEBUG"]["default"], False)
-        self.assertIsNone(by_name["MODE_ASSERT"]["default"])
-        self.assertEqual(by_name["MODE_CLEANUP"]["help"], "cleanup before deploy")
-
-    def test_load_modes_ignores_non_mode_keys(self):
-        content = """\
-FOO: true
-BAR: false
-MODE_FOO: true
-"""
-
-        with tempfile.NamedTemporaryFile("w+", delete=False, encoding="utf-8") as f:
-            path = f.name
-            f.write(content)
-            f.flush()
-
-        try:
-            parsed = modes.load_modes_from_yaml(path)
-        finally:
-            Path(path).unlink()
-
-        self.assertEqual(len(parsed), 1)
-        self.assertEqual(parsed[0]["name"], "MODE_FOO")
+        self.assertEqual([m["name"] for m in parsed], ["FOO", "BAR"])
 
 
 class TestDynamicModes(unittest.TestCase):
     def setUp(self):
         self.modes_meta = [
-            {"name": "MODE_CLEANUP", "default": True, "help": "Cleanup before run"},
-            {"name": "MODE_DEBUG", "default": False, "help": "Debug output"},
-            {"name": "MODE_ASSERT", "default": None, "help": "Inventory assertion"},
+            {"name": "CLEANUP", "default": True, "help": "Cleanup before run"},
+            {"name": "DEBUG", "default": False, "help": "Debug output"},
+            {"name": "VALIDATE", "default": None, "help": "Inventory assertion"},
         ]
 
-    def test_add_dynamic_mode_args_and_build_modes_defaults(self):
-        from argparse import ArgumentParser
-
+    def _resolve(self, *argv: str) -> dict:
         parser = ArgumentParser()
         spec = modes.add_dynamic_mode_args(parser, self.modes_meta)
+        self.assertEqual(set(spec), {"CLEANUP", "DEBUG", "VALIDATE"})
+        return modes.build_modes_from_args(spec, parser.parse_args(list(argv)))
 
-        self.assertIn("MODE_CLEANUP", spec)
-        self.assertIn("MODE_DEBUG", spec)
-        self.assertIn("MODE_ASSERT", spec)
+    def test_defaults(self):
+        resolved = self._resolve()
 
-        args = parser.parse_args([])
-        resolved = modes.build_modes_from_args(spec, args)
+        self.assertTrue(resolved["CLEANUP"])
+        self.assertFalse(resolved["DEBUG"])
+        self.assertNotIn("VALIDATE", resolved)
 
-        self.assertTrue(resolved["MODE_CLEANUP"])  # default True
-        self.assertFalse(resolved["MODE_DEBUG"])  # default False
-        self.assertNotIn("MODE_ASSERT", resolved)  # explicit, not set
+    def test_flags_true(self):
+        resolved = self._resolve("--skip-cleanup", "--debug", "--validate", "true")
 
-    def test_add_dynamic_mode_args_and_build_modes_flags_true(self):
-        from argparse import ArgumentParser
+        self.assertFalse(resolved["CLEANUP"])
+        self.assertTrue(resolved["DEBUG"])
+        self.assertTrue(resolved["VALIDATE"])
 
+    def test_flags_false_explicit(self):
+        resolved = self._resolve("--validate", "false")
+
+        self.assertTrue(resolved["CLEANUP"])
+        self.assertFalse(resolved["DEBUG"])
+        self.assertIs(resolved["VALIDATE"], False)
+
+    def test_the_removed_assert_flag_is_rejected(self):
         parser = ArgumentParser()
-        spec = modes.add_dynamic_mode_args(parser, self.modes_meta)
+        modes.add_dynamic_mode_args(parser, self.modes_meta)
 
-        args = parser.parse_args(["--skip-cleanup", "--debug", "--assert", "true"])
-        resolved = modes.build_modes_from_args(spec, args)
+        with self.assertRaises(SystemExit):
+            parser.parse_args(["--assert", "true"])
 
-        self.assertFalse(resolved["MODE_CLEANUP"])
-        self.assertTrue(resolved["MODE_DEBUG"])
-        self.assertTrue(resolved["MODE_ASSERT"])
 
-    def test_add_dynamic_mode_args_and_build_modes_flags_false_explicit(self):
-        from argparse import ArgumentParser
-
+class TestProjectModesFile(unittest.TestCase):
+    def test_flags_are_the_lowercased_keys(self):
         parser = ArgumentParser()
-        spec = modes.add_dynamic_mode_args(parser, self.modes_meta)
+        modes.add_dynamic_mode_args(parser, modes.load_modes_from_yaml(MODES_FILE))
+        flags = {
+            option
+            for action in parser._actions
+            for option in action.option_strings
+            if option not in ("-h", "--help")
+        }
 
-        args = parser.parse_args(["--assert", "false"])
-        resolved = modes.build_modes_from_args(spec, args)
-
-        self.assertTrue(resolved["MODE_CLEANUP"])
-        self.assertFalse(resolved["MODE_DEBUG"])
-        self.assertIn("MODE_ASSERT", resolved)
-        self.assertFalse(resolved["MODE_ASSERT"])
+        self.assertEqual(
+            flags,
+            {
+                "--dummy",
+                "--debug",
+                "--reset",
+                "--skip-cleanup",
+                "--validate",
+                "--skip-backup",
+                "--demo",
+            },
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,54 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "🕸️ Pre-create the Prometheus network Grafana reads metrics and Alertmanager on"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: "{{ GRAFANA_PROMETHEUS_ROLE }}"
+  when: GRAFANA_PROMETHEUS_ENABLED | bool
+
+- name: "📄 Render the Grafana provisioning (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "provisioning/datasources.yml.j2"
+        dest: "{{ [GRAFANA_CONFIG_DIR, 'datasources.yml'] | path_join }}"
+        mode: "0644"
+      - src: "provisioning/dashboards.yml.j2"
+        dest: "{{ [GRAFANA_CONFIG_DIR, 'dashboards.yml'] | path_join }}"
+        mode: "0644"
+      - src: "provisioning/alerting.yml.j2"
+        dest: "{{ [GRAFANA_CONFIG_DIR, 'alerting.yml'] | path_join }}"
+        mode: "0644"
+
+- name: "📋 Stage the central log dashboard"
+  stack_host_copy:
+    src: "dashboards/logs.json"
+    dest: "{{ [GRAFANA_CONFIG_DIR, 'logs.json'] | path_join }}"
+    mode: "0644"
+  notify: compose-up
+
+- name: "🚿 flush handlers for '{{ application_id }}'"
+  meta: flush_handlers
+
+- name: "🔐 Align the break-glass administrator of every network instance"
+  include_tasks: 01_breakglass.yml
+  when: IS_STACK_HOST | bool
+  loop: "{{ GRAFANA_INSTANCES }}"
+  loop_control:
+    loop_var: grafana_instance
+
+- name: "📂 Include front proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ GRAFANA_DOMAIN }}"
+    http_port: "{{ GRAFANA_LOCAL_PORT }}"
+    proxy_internal_port: "{{ GRAFANA_INTERNAL_PORT }}"

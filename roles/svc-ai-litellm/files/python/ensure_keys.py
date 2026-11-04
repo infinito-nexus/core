@@ -1,6 +1,7 @@
 import contextlib
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
 
@@ -54,11 +55,11 @@ def main():
     call = http_call(
         "http://localhost:" + os.environ["LITELLM_PORT"],
         {
-            "Authorization": "Bearer " + os.environ["LITELLM_MK"],
+            "Authorization": "Bearer " + os.environ["LITELLM_MASTER_KEY"],
             "Content-Type": "application/json",
         },
     )
-    for entry in json.loads(os.environ["LITELLM_KEYS_PAYLOAD"]):
+    for entry in json.load(sys.stdin):
         if ensure_key(entry, call):
             print("CHANGED " + entry["alias"])
 

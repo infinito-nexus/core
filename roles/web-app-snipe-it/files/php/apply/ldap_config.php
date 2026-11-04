@@ -27,6 +27,11 @@ $ldap_user_surname_attr   = getenv("LDAP_USER_SURNAME_ATTR") ?: "";
 $ldap_auth_filter_query   = getenv("LDAP_AUTH_FILTER_QUERY") ?: "";
 $ldap_user_mail_attr      = getenv("LDAP_USER_MAIL_ATTR") ?: "";
 $oidc_reset_url           = getenv("OIDC_RESET_URL") ?: "";
+$ldap_field_map           = json_decode((string) getenv("LDAP_FIELD_MAP"), true);
+if (!is_array($ldap_field_map)) {
+    fwrite(STDERR, "LDAP_FIELD_MAP is not a JSON object of Setting column to LDAP attribute\n");
+    exit(1);
+}
 
 $s->ldap_enabled           = 1;
 $s->ldap_server            = $ldap_server_uri;
@@ -42,7 +47,10 @@ $s->ldap_version           = 3;
 $s->ldap_pw_sync           = 0;
 $s->is_ad                  = 0;
 $s->ad_domain              = "";
-$s->ldap_default_group     = "";
+
+foreach ($ldap_field_map as $column => $attribute) {
+    $s->{$column} = $attribute;
+}
 
 $decoded = base64_decode($ldap_bind_password_b64, true);
 if ($decoded === false) {

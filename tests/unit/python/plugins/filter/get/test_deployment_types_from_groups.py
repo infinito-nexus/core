@@ -22,7 +22,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
         return [
             "web-app",
             "web-svc",
-            "desk",
+            "dsk",
             "update",
         ]
 
@@ -34,7 +34,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             get_deployment_types_from_groups(
                 [
                     "web-app-nextcloud",
-                    "desk-firefox",
+                    "dsk-firefox",
                 ]
             ),
             ["server", "workstation"],
@@ -48,7 +48,7 @@ class TestGetDeploymentTypesFromGroups(unittest.TestCase):
             get_deployment_types_from_groups(
                 [
                     "web-svc-logout",
-                    "desk-nextcloud",
+                    "dsk-nextcloud",
                 ]
             ),
             ["server", "workstation"],

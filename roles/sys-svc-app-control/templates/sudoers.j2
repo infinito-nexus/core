@@ -1,0 +1,2 @@
+Defaults:{{ APP_CONTROL_USER }} !requiretty
+{{ APP_CONTROL_USER }} ALL=(root) NOPASSWD: {{ BIN_APP_CONTROL }} --config {{ FILE_APP_CONTROL_CONFIG }} stop *, {{ BIN_APP_CONTROL }} --config {{ FILE_APP_CONTROL_CONFIG }} start *

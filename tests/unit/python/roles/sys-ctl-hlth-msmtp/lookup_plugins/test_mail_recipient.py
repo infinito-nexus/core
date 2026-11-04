@@ -40,7 +40,7 @@ class MailRecipientLookupTests(unittest.TestCase):
         return patch.object(
             self.module.EmailLookup,
             "run",
-            return_value=[{"external": external, "timeout": "30"}],
+            return_value=[external],
         )
 
     def _stub_users(self, email_value):
@@ -54,6 +54,18 @@ class MailRecipientLookupTests(unittest.TestCase):
         lookup = self._make_lookup()
         with self._stub_email(True), self._stub_users("admin@example.com"):
             self.assertEqual(lookup.run([])[0], "admin@example.com")
+
+    def test_reads_only_the_external_key_of_the_email_lookup(self):
+        lookup = self._make_lookup()
+        with (
+            self._stub_email(False) as email_run,
+            patch.object(
+                self.module.pwd, "getpwnam", side_effect=KeyError("administrator")
+            ),
+        ):
+            lookup.run([])
+        email_run.assert_called_once()
+        self.assertEqual(email_run.call_args.kwargs.get("key"), "external")
 
     def test_external_string_true_returns_admin_email(self):
         lookup = self._make_lookup()

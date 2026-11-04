@@ -8,7 +8,7 @@ claim the rendered file does not make. The key is derived from
 ``utils.networks.render``, which renders the file itself, so the two cannot
 drift.
 
-Examples:
+Examples::
 
     - name: create the shared network
       ansible.builtin.command:
@@ -29,7 +29,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.networks.lookup_context import build_context, resolve_var
 from utils.networks.render import shared_network_compose_key
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -52,7 +52,7 @@ class LookupModule(LookupBase):
                 application_id=application_id,
                 deployment_mode=ctx.deployment_mode,
                 registry=ctx.registry,
-                get_entity_name=get_entity_name,
+                entity_name=entity_name,
                 lookup_config=ctx.lookup_config,
                 lookup_database=ctx.lookup_database,
                 node_local=bool(kwargs.get("node_local", False)),

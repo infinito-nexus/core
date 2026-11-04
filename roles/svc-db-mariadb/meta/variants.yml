@@ -1,9 +1,15 @@
 ---
 - services:
+    docs:
+      enabled: true
+      shared: true
     tor:
       enabled: true
     mariadb:
       exposed: true # nocheck: variants-static-override
 - services:
+    docs:
+      enabled: false
+      shared: false
     tor:
       enabled: true

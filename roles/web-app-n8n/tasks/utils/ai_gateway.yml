@@ -8,7 +8,7 @@
     stdin: "{{ lookup('file', 'python/provision/ai.py') }}"
   environment:
     N8N_BASE: "{{ N8N_NETNS_API_URL }}"
-    NO_PROXY: 127.0.0.1,localhost
+    NO_PROXY: "{{ NETWORK_LOOPBACK_HOSTS | join(',') }}"
     N8N_OWNER_EMAIL: "{{ N8N_OWNER_EMAIL }}"
     N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
     N8N_AI_CREDENTIAL: "{{ N8N_LITELLM_CREDENTIAL_NAME }}"

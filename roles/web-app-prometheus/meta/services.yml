@@ -24,13 +24,20 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 216
+      height: 60
+      frame: true
+    symbol:
+      width: 60
+      height: 60
 # nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag — runtime DOM patch, no probe-able surface flag
 javascript:
@@ -39,6 +46,8 @@ javascript:
   shared: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag — self-provider
 prometheus:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: wget
     path: -/healthy
@@ -67,6 +76,7 @@ prometheus:
   ports:
     local:
       sso: 16492
+      sso_onion: 16544
       http: 8066
     internal:
       http: 9090
@@ -75,6 +85,8 @@ prometheus:
   lifecycle: beta
   min_storage: 307MB
 alertmanager:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: wget
     path: -/healthy
@@ -185,3 +197,16 @@ flowise:
   bond: 0.5
   enabled: "{{ 'web-app-flowise' in group_names }}"
   shared: "{{ 'web-app-flowise' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

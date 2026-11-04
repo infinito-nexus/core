@@ -1,11 +1,20 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const {
+  expectHstsWhenTls,
+  ownResponseHeaders,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -21,8 +30,7 @@ test("Social Home front page is served under canonical domain with TLS", async (
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Social Home URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Social Home");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Social Home");
 });
 
 test("Social Home returns HTML content under canonical domain", async ({ request }) => {
@@ -72,3 +80,5 @@ test("administrator: app → universal logout", async ({ page }) => {
     },
   });
 });
+
+require("./test-design").register();

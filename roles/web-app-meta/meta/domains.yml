@@ -1,0 +1,4 @@
+---
+canonical:
+  - meta.{{ DOMAIN_PRIMARY }}
+aliases: []

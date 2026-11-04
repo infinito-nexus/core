@@ -1,0 +1,25 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🥾 For '{{ application_id }}': bootstrap the compose host once"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
+- name: "📄 Render the search engine settings (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "settings.yml.j2"
+        dest: "{{ SEARXNG_SETTINGS_PATH_HOST }}"
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true

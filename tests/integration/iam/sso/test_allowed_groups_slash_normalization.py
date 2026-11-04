@@ -19,7 +19,8 @@ never reaches the upstream app. This is exactly what tripped the
 `web-app-yourls` Playwright spec on iter 2.
 
 This guard pins the cheapest fix at the SPOT that bridges the contract
-mismatch: the oauth2-proxy template normalises every entry to exactly one
+mismatch: the oauth2-proxy alpha template normalises every entry of
+`allowedGroups` to exactly one
 leading slash via `regex_replace('^/*', '/')`. If a future refactor drops
 the normalisation (or changes the rbac_group_path contract to emit a leading
 slash, in which case this normalisation becomes a no-op anchor), this test
@@ -38,11 +39,11 @@ TEMPLATE_PATH = str(
     / "web-app-keycloak"
     / "templates"
     / "sso_proxy"
-    / "oauth2-proxy-keycloak.cfg.j2"
+    / "oauth2-proxy-keycloak-alpha.yml.j2"
 )
 
 ALLOWED_GROUPS_NORMALISED = re.compile(
-    r"allowed_groups\s*=\s*\{\{[^}]*"
+    r"allowedGroups:\s*\{\{[^}]*"
     r"map\(\s*['\"]regex_replace['\"]\s*,\s*"
     r"['\"]\^/\*['\"]\s*,\s*['\"]/['\"]\s*\)"
     r"[^}]*\}\}",
@@ -59,7 +60,7 @@ class TestAllowedGroupsSlashNormalization(unittest.TestCase):
             content,
             ALLOWED_GROUPS_NORMALISED,
             msg=(
-                "oauth2-proxy-keycloak.cfg.j2 must normalise `allowed_groups` "
+                "oauth2-proxy-keycloak-alpha.yml.j2 must normalise `allowedGroups` "
                 "to a leading-slash path via `map('regex_replace', '^/*', "
                 "'/')`. Without that filter, oauth2-proxy literal-matches "
                 "`roles/<app>/...` against Keycloak's emit "

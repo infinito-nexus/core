@@ -1,0 +1,4 @@
+---
+- name: "🚀 Deploy web-svc-loki (core, once per play)"
+  include_tasks: 00_core.yml
+  when: run_once_web_svc_loki is not defined

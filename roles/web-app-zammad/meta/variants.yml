@@ -4,9 +4,12 @@
 
 # V1: oidc + ldap + everything that can be true, is true
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -35,6 +38,9 @@
       enabled: true
       shared: true
     redis:
+      shared: true
+    seaweedfs:
+      enabled: true
       shared: true
     search:
       watermark:
@@ -59,7 +65,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -89,6 +95,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     search:
       watermark:
         max_headroom:
@@ -110,10 +119,13 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -145,6 +157,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: true
+    seaweedfs:
+      enabled: false
+      shared: false
     search:
       watermark:
         max_headroom:

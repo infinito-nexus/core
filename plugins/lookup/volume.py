@@ -21,6 +21,8 @@ Two call forms:
                          only when every mount agrees. An entry that lands at
                          different paths per service omits the key rather than
                          picking one; read ``targets[service]`` there.
+    - ``uid``, ``gid``   the owner a config or secret file is rendered for,
+                         present only when the entry declares them.
 
   ``target`` is what lets ``meta/volumes.yml`` stay the single source of a
   container path: a role defines its constant from the registry
@@ -104,6 +106,7 @@ class LookupModule(LookupBase):
         distinct = {t for t in resolved["targets"].values() if t}
         if len(distinct) == 1:
             resolved["target"] = next(iter(distinct))
+        resolved.update({key: entry[key] for key in ("uid", "gid") if key in entry})
         return [resolved]
 
 

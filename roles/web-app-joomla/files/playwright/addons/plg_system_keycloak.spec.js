@@ -77,11 +77,11 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
     })
     .toContain(expectedJoomlaBaseUrl);
 
-  // Step 3: the callback must have established an authenticated session.
-  // Re-request the guarded root: a logged-in session is NOT bounced back to
-  // the Keycloak auth endpoint (the guard only redirects guests). A bounce
-  // here means the callback failed to provision/log in the user — i.e. the
-  // integration is not actually coupled.
+  expect(
+    page.url(),
+    "Expected the OIDC callback to land on the stored return target, not on the plugin's index.php?fallback=local SSO-error page",
+  ).not.toContain("fallback=local");
+
   await gotoOnion(page, `${expectedJoomlaBaseUrl}/`);
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
 
@@ -94,8 +94,10 @@ test("addon plg_system_keycloak: OIDC handshake couples Joomla to the configured
     "Expected to remain on this Joomla instance after the OIDC handshake",
   ).toContain(expectedJoomlaBaseUrl);
 
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/index.php?option=com_users&view=profile`);
+
   await expect(
-    page.locator("body"),
-    "Expected the authenticated Joomla front-end to render after the plg_system_keycloak OIDC handshake",
-  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+    page.locator("main .com-users-profile, main .com-users-logout").first(),
+    "Expected com_users to render the profile of the Keycloak-provisioned account: a guest is sent to the login view instead, so only an established session satisfies this",
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 });

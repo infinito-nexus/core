@@ -2,65 +2,49 @@
 - name: ⬆️ Nextcloud | Upgrade
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} upgrade"
   register: occ_upgrade
-  changed_when: "'Already up to date' not in occ_upgrade.stdout"
+  changed_when: "'No upgrade required' not in occ_upgrade.stdout"
   retries: 3
   delay: 5
   until: occ_upgrade.rc == 0
 
-- name: 🔧 Nextcloud | Maintenance repair
-  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:repair --include-expensive"
-  register: occ_repair
-  changed_when: "'No repairs needed' not in occ_repair.stdout"
-  retries: 3
-  delay: 10
-  until: occ_repair.rc == 0
-
-- name: 🔄 Nextcloud | App update (retry once)
-  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update --all"
-  register: occ_app_update
-  changed_when: "'No apps found for update' not in occ_app_update.stdout"
-  retries: 2
-  delay: 3
-  until: occ_app_update.rc == 0
-  when: NEXTCLOUD_PINNED_PLUGINS | length == 0
-
-- name: 🔍 Nextcloud | List the apps the appstore offers an update for
-  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update --all --showonly"
-  register: occ_app_updatable
+- name: 🔍 Nextcloud | Read the version the upgrade left running
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status --output=json"
+  register: occ_upgraded_status
   changed_when: false
-  retries: 2
-  delay: 3
-  until: occ_app_updatable.rc == 0
-  when: NEXTCLOUD_PINNED_PLUGINS | length > 0
 
-- name: 🔄 Nextcloud | App update, leaving the pinned releases alone
-  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update {{ item | quote }}"
-  register: occ_app_update_unpinned
-  changed_when: "'No apps found for update' not in occ_app_update_unpinned.stdout"
-  retries: 2
-  delay: 3
-  until: occ_app_update_unpinned.rc == 0
-  when: NEXTCLOUD_PINNED_PLUGINS | length > 0
-  loop: >-
-    {{ occ_app_updatable.stdout_lines | default([])
-       | select('search', ' new version available')
-       | map('regex_replace', ' new version available.*$', '')
-       | difference(NEXTCLOUD_PINNED_PLUGINS) }}
+- name: 🔍 Nextcloud | Read the version the expensive repair last ran for
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get files mimetype_version --default-value="
+  register: occ_repaired_version
+  changed_when: false
+
+- name: 🧮 Nextcloud | Decide whether the post-upgrade pass is due
+  set_fact:
+    nextcloud_post_upgrade_due: >-
+      {{ occ_upgraded_status.stdout
+         | nextcloud_needs_post_upgrade(nextcloud_installed_version, occ_repaired_version.stdout) }}
+
+- name: 🔄 Nextcloud | Post-upgrade pass
+  ansible.builtin.include_tasks: 03_upgrade/01_post_upgrade.yml
+  when: nextcloud_post_upgrade_due | bool
+
+- name: 🔄 Nextcloud | Update the apps the daily update check found a release for
+  ansible.builtin.include_tasks: 03_upgrade/02_cached_updates.yml
+  when: not (nextcloud_post_upgrade_due | bool)
 
 - name: ➕ Nextcloud | Add missing columns
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-columns"
   register: occ_columns
-  changed_when: "'No columns found' not in occ_columns.stdout"
+  changed_when: "'table updated successfully' in occ_columns.stdout"
 
 - name: ➕ Nextcloud | Add missing indices
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-indices"
   register: occ_indices
-  changed_when: "'No indices found' not in occ_indices.stdout"
+  changed_when: "'table updated successfully' in occ_indices.stdout"
 
 - name: ➕ Nextcloud | Add missing primary keys
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-primary-keys"
   register: occ_pks
-  changed_when: "'No primary keys found' not in occ_pks.stdout"
+  changed_when: "'table updated successfully' in occ_pks.stdout"
 
 - name: 🔴 Nextcloud | Disable maintenance mode
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:mode --off"
@@ -69,3 +53,22 @@
   retries: 3
   delay: 5
   until: occ_maint_off.rc == 0
+
+- name: 🔍 Nextcloud | Read occ status
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status --output=json"
+  register: occ_status
+  changed_when: false
+
+- name: ✅ Nextcloud | Verify occ status reports the pinned major
+  vars:
+    occ_status_state: "{{ occ_status.stdout | nextcloud_status }}"
+  assert:
+    that:
+      - (occ_status_state.versionstring | nextcloud_tag_major) == (NEXTCLOUD_VERSION_MAJOR | int)
+      - not (occ_status_state.needsDbUpgrade | bool)
+    fail_msg: >-
+      occ status reports {{ occ_status_state }}, the pinned image tag is {{ NEXTCLOUD_VERSION }}.
+    success_msg: >-
+      occ status reports Nextcloud {{ occ_status_state.versionstring }}, the pinned major
+      {{ NEXTCLOUD_VERSION_MAJOR }}.
+    quiet: false

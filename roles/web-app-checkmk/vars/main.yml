@@ -7,6 +7,26 @@ CHECKMK_SITE: "{{ lookup('config', application_id, 'services.checkmk.site') }}"
 
 CHECKMK_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.cmk_password') }}"
 
+CHECKMK_VERSION: "{{ lookup('config', application_id, 'services.checkmk.version') }}"
+CHECKMK_SITE_DIR: "{{ [lookup('volume', application_id, 'checkmk_data').target, CHECKMK_SITE] | path_join }}"
+CHECKMK_THEMES_DIR: "{{ [CHECKMK_SITE_DIR, 'share/check_mk/web/htdocs/themes'] | path_join }}"
+CHECKMK_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+CHECKMK_DESIGN_LOGO_ENABLED: "{{ CHECKMK_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+CHECKMK_DESIGN_THEME: "corporate"
+CHECKMK_DESIGN_THEME_TITLE: "Corporate"
+CHECKMK_DESIGN_THEME_LIGHT: "facelift"
+CHECKMK_DESIGN_THEME_DARK: "modern-dark"
+CHECKMK_DESIGN_THEME_DIR: "{{ [CHECKMK_SITE_DIR, 'local/share/check_mk/web/htdocs/themes', CHECKMK_DESIGN_THEME] | path_join }}"
+CHECKMK_DESIGN_THEME_MARKER: "{{ [CHECKMK_DESIGN_THEME_DIR, 'theme.json'] | path_join }}"
+CHECKMK_DESIGN_CONFIG: "{{ [CHECKMK_SITE_DIR, 'etc/check_mk/multisite.d/infinito_design.mk'] | path_join }}"
+CHECKMK_DESIGN_DARK_ICON_DIR: "{{ [CHECKMK_THEMES_DIR, CHECKMK_DESIGN_THEME_DARK, 'images'] | path_join }}"
+CHECKMK_DESIGN_BUILTIN_FAVICON: "{{ [CHECKMK_THEMES_DIR, CHECKMK_DESIGN_THEME_LIGHT, 'images/favicon.ico'] | path_join }}"
+CHECKMK_DESIGN_IMAGES:
+  checkmk_logo.svg: "brand.svg"
+  icon_checkmk_logo.svg: "icon.svg"
+  icon_checkmk_logo_min.svg: "icon.svg"
+  favicon.ico: "favicon.ico"
+
 CHECKMK_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 CHECKMK_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
@@ -15,8 +35,15 @@ CHECKMK_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
 CHECKMK_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 CHECKMK_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
 CHECKMK_LDAP_USER_DN: "{{ LDAP.DN.OU.USERS }}"
-CHECKMK_LDAP_GROUP_DN: "{{ LDAP.DN.OU.GROUPS }}"
+CHECKMK_LDAP_GROUP_DN: "{{ LDAP.DN.OU.ROLES }}"
 CHECKMK_LDAP_USER_ID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+CHECKMK_LDAP_PAGER_ATTR: "{{ LDAP.USER.ATTRIBUTES.PHONE }}"
+CHECKMK_LDAP_ROLE_ADMIN_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
+CHECKMK_LDAP_ROLE_USER_DN: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
+CHECKMK_LDAP_ROLE_GUEST_DN: "cn={{ application_id }}-guest,{{ LDAP.DN.OU.ROLES }}"
+CHECKMK_LDAP_USER_FILTER: >-
+  (&{{ LDAP.FILTERS.USERS.ALL }}(|({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}={{ CHECKMK_LDAP_ROLE_ADMIN_DN }})({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}={{ CHECKMK_LDAP_ROLE_USER_DN
+  }})({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}={{ CHECKMK_LDAP_ROLE_GUEST_DN }})))
 CHECKMK_MCP_ENABLED: "{{ lookup('config', application_id, 'services.checkmkmcp.enabled') | bool }}"
 CHECKMK_MCP_SERVICE_KEY: "checkmkmcp"
 CHECKMK_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.checkmkmcp.name') }}"

@@ -6,7 +6,7 @@ events
 }
 http
 {
-{% if DEPLOYMENT_MODE == 'swarm' %}
+{% if IS_SWARM_MODE %}
   resolver 127.0.0.11 valid=10s ipv6=off;
 {% endif %}
   map $http_upgrade $connection_upgrade {
@@ -31,7 +31,7 @@ http
     "~*^(?P<infinito_access_log_token_route>[^?]*?/(?:password/reset|password-reset|reset-password|confirm-email|lostpassword/reset/form|email-login|activate-account)/)" "${infinito_access_log_token_route}[redacted]";
     "~^(?P<infinito_access_log_plain_path>[^?]*)" "${infinito_access_log_plain_path}";
   }
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug', 'sys-svc-webserver-core') | bool %}
   log_format debug '$host - $remote_addr [$time_local] '
                   '"$request_method $infinito_access_log_path $server_protocol" $status $body_bytes_sent '
                   '"User-Agent: $http_user_agent" '

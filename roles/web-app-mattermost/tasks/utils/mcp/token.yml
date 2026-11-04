@@ -24,13 +24,13 @@
           - exec
           - -i
           - "{{ MATTERMOST_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
-          - /mattermost/bin/mmctl
+          - "{{ MATTERMOST_MMCTL }}"
           - --local
           - --json
           - --suppress-warnings
           - token
           - generate
-          - "{{ lookup('users', 'administrator').username }}"
+          - "{{ lookup('users', 'platform_administrator').username }}"
           - "{{ MATTERMOST_MCP_TOKEN_DESCRIPTION }}"
       register: mattermost_mcp_token_mint
       retries: 30

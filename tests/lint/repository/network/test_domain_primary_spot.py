@@ -21,6 +21,8 @@ Allowed
 * ``roles/<role>/meta/variants.yml`` inside any per-variant
   ``domains.canonical`` and ``domains.aliases`` list values
   (alternate SPOTs that the variant matrix selects between).
+* The ``parent`` of a ``domains.served`` entry in either file, which
+  names the domain the served member hosts live below.
 * Wildcard fragments without a leading subdomain word
   (``.{{ DOMAIN_PRIMARY }}`` and ``*.{{ DOMAIN_PRIMARY }}``) used for
   wildcard certs, oauth2-proxy whitelists, iframe origin checks, etc.
@@ -63,7 +65,8 @@ ROLES_DIR = PROJECT_ROOT / "roles"
 @lru_cache(maxsize=4096)
 def _exempt_lines_for_lists(path: Path) -> frozenset[int]:
     """Find every list-item line that lives under
-    ``canonical`` / ``aliases``. The same heuristic also
+    ``canonical`` / ``aliases``, and every ``parent`` line under
+    ``served``. The same heuristic also
     covers ``meta/variants.yml``, since each variant block carries its own
     ``domains.canonical`` / ``aliases`` list and the canonical/aliases
     keys never appear elsewhere in role meta files.
@@ -86,16 +89,22 @@ def _exempt_lines_for_lists(path: Path) -> frozenset[int]:
     lines = text.splitlines()
     inside_list = False
     list_indent = -1
+    header = ""
 
-    header_re = re.compile(r"^(\s*)(canonical|aliases)\s*:\s*(?:#.*)?$")
+    header_re = re.compile(r"^(\s*)(canonical|aliases|served)\s*:\s*(?:#.*)?$")
     item_re = re.compile(r"^(\s*)-\s+")
     dict_entry_re = re.compile(r"^(\s+)[A-Za-z0-9_-]+\s*:\s*\S")
+    served_parent_re = re.compile(r"^\s*(?:-\s+)?parent\s*:")
+
+    def _exempt(line: str) -> bool:
+        return header != "served" or served_parent_re.match(line) is not None
 
     for idx, line in enumerate(lines, start=1):
         match = header_re.match(line)
         if match:
             inside_list = True
             list_indent = len(match.group(1))
+            header = match.group(2)
             continue
         if not inside_list:
             continue
@@ -106,12 +115,14 @@ def _exempt_lines_for_lists(path: Path) -> frozenset[int]:
 
         item_match = item_re.match(line)
         if item_match and len(item_match.group(1)) >= list_indent:
-            allowed.add(idx)
+            if _exempt(line):
+                allowed.add(idx)
             continue
 
         dict_match = dict_entry_re.match(line)
         if dict_match and len(dict_match.group(1)) > list_indent:
-            allowed.add(idx)
+            if _exempt(line):
+                allowed.add(idx)
             continue
 
         line_indent = len(line) - len(stripped)
@@ -122,6 +133,7 @@ def _exempt_lines_for_lists(path: Path) -> frozenset[int]:
             if new_match:
                 inside_list = True
                 list_indent = len(new_match.group(1))
+                header = new_match.group(2)
             continue
 
     return frozenset(allowed)

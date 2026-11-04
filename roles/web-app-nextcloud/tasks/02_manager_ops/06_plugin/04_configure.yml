@@ -1,0 +1,44 @@
+---
+# Loaded via include_vars (not config lookup or lookup('file')) so the role-scoped vars referenced inside the payload render lazily in this task's scope.
+- name: "📄 Load the addon specs of the plugins to configure from meta/addons/"
+  ansible.builtin.include_vars:
+    file: "{{ [role_path, 'meta/addons', plugin_key ~ '.yml'] | path_join }}"
+    name: "nextcloud_addon_spec_{{ plugin_key }}"
+  loop: "{{ nextcloud_plugin_configure_keys }}"
+  loop_control:
+    loop_var: plugin_key
+
+- name: "📋 Read the app configuration Nextcloud holds"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:list --output=json"
+  register: nextcloud_app_config
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧮 Keep the plugin configuration values Nextcloud does not hold yet"
+  ansible.builtin.set_fact:
+    nextcloud_plugin_config_pending: >-
+      {{ query('vars', *(nextcloud_plugin_configure_keys | map('regex_replace', '^', 'nextcloud_addon_spec_')))
+         | nextcloud_plugin_config_pending(nextcloud_app_config.stdout | from_json) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Set the pending plugin configuration (one occ boot, values on stdin)"
+  ansible.builtin.shell:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
+    stdin: >-
+      <?php $occBatch = '{{ nextcloud_plugin_config_pending | nextcloud_occ_config_set_batch | to_json | b64encode }}'; ?>{{ lookup('file', 'php/utils/occ_batch.php')
+      }}
+  when: nextcloud_plugin_config_pending | length > 0
+  register: nextcloud_plugin_config_set
+  changed_when: nextcloud_plugin_config_set.stdout is search(' set to ')
+  failed_when: nextcloud_plugin_config_set.rc != 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📂 Run the hook of every configured plugin from tasks/addons/"
+  ansible.builtin.include_tasks: "{{ plugin_task_path }}"
+  loop: "{{ nextcloud_plugin_configure_keys }}"
+  loop_control:
+    loop_var: plugin_key
+  vars:
+    plugin_task_path: "{{ NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH }}{{ plugin_key }}.yml"
+  when: plugin_task_path is file

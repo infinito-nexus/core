@@ -31,107 +31,16 @@ WordPress offers an extensive array of features that make it a robust platform f
 
 This automated Docker Compose deployment streamlines the process by building a custom WordPress image (which includes tools like msmtp for email delivery) and configuring the necessary PHP settings, ensuring that your WordPress site is secure, scalable, and always up to date.
 
-## Cosmos
-
-The diagram places WordPress in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_discourse["web-app-discourse 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-wordpress 🐳🐝]
-        svc_litellm["litellm"]
-        svc_sso["sso"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_mariadb["mariadb"]
-        svc_discourse["discourse"]
-        svc_wordpress["wordpress"]
-        svc_css["css"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_container_backup["container_backup"]
-        svc_openwebui["openwebui ❌"]
-        svc_hermes["hermes"]
-        svc_openclaw["openclaw"]
-        svc_flowise["flowise ❌"]
-    end
-    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_discourse -. "0..1" .-> svc_discourse
-    dep_web_app_hermes -. "0..1" .-> svc_hermes
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy WordPress onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-wordpress full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy WordPress to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-wordpress
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+- **OIDC profile sync:** Every OIDC login overwrites the WordPress first name, last name, display name, email, website and language of the user with the Keycloak claims, so Keycloak stays the source of the profile.
+- **Read-only IdP fields:** `services.sso.profile.locked` decides which fields are locked. [`templates/env.j2`](./templates/env.j2) renders its keys into `WORDPRESS_OIDC_PROFILE_LOCKED`. On `profile.php` and `user-edit.php` of an OIDC account those fields are read-only with a translated warning as their hover title, rendered by the shared lock renderer of `sys-front-inj-javascript`. Every write through `wp_insert_user` (the profile and user forms, `/wp/v2/users`, XML-RPC `wp.editProfile`, any plugin calling `wp_update_user`) keeps their stored values, except the profile sync of the OIDC login itself. Removing a key unlocks its field in the form and on every write; the next OIDC login still overwrites it.
+- **Break-glass editing:** WP-CLI (`wp user update`) is the one path that changes the IdP-managed fields of an OIDC account; the next OIDC login overwrites them again.
+- **OIDC role mapping:** Every OIDC login sets the WordPress role from the user's Keycloak role groups; a user without one is a Subscriber.
+- **Multisite RBAC:** Under Multisite, per-site groups set the role on each site, and the network-administrator group grants super-admin and revokes the super-admin rights it granted. The bootstrap administrator keeps its super-admin rights.
+- **Login methods:** `services.wordpress.login.method` declares `sso`, `native` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). `sso` enables the `daggerhart-openid-connect-generic` addon. With `sso` on, `native` sets the addon's `login_type`: `auto` (the default, `wp-login.php` redirects to Keycloak) while `native` is off, `button` (form plus Keycloak button) while it is on; without `sso` the WordPress form is the only sign-in. `registration` sets `users_can_register`, or the network option `registration` (`user` or `none`) under Multisite, through WP-CLI in [`tasks/07_manager_ops.yml`](./tasks/07_manager_ops.yml). WordPress core has no second factor and the role no `ldap` service, so neither is declared.
+- **Break-glass access:** with SSO on, the addon skips its redirect for a request that posts `wp-submit`, so the local administrator (`WORDPRESS_ADMIN_USERNAME`) signs in with a direct `POST /wp-login.php` carrying `log`, `pwd` and `wp-submit` (e.g. `curl -c jar -d log=<user> -d pwd=<password> -d wp-submit=1 <url>/wp-login.php`); `files/playwright/test-login-methods.js` proves it. WP-CLI inside the container stays available as well.
 
 ## Purpose
 
@@ -139,38 +48,52 @@ The goal of this deployment is to provide a production-ready, scalable WordPress
 
 ## Multisite
 
-WordPress Multisite is opt-in. Set `services.wordpress.multisite.enabled: true` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in `domains.canonical` becomes a site in the network; the first entry is the network primary, subsequent entries are child sites.
+WordPress Multisite is opt-in. Set `services.wordpress.multisite.enabled: true` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in `domains.canonical` becomes the site of exactly that domain in the network; the first entry is the network primary, subsequent entries are child sites. [files/php/multisite/sites.php](files/php/multisite/sites.php) creates them and moves a site that an earlier deploy created at `<domain>.<network domain>` to `<domain>`.
 
 RBAC under Multisite uses the hierarchical Keycloak group path:
 
 - Per-site role: `/roles/web-app-wordpress/<canonical-domain>/<role>`
 - Network-wide super-admin: `/roles/web-app-wordpress/network-administrator`
+- Own site: `/roles/web-app-wordpress/site-owner`
+
+A member of `site-owner` administers the site `<username>.<parent>`, where `domains.served` in the Multisite variant sets the parent to `user.blog.<DOMAIN_PRIMARY>`. Only a Keycloak username (`[a-z1-9]`, or the agent form `<4 chars>0<suffix>`) of at most 63 characters that is no WordPress `illegal_names` entry names a site. The mapper creates the site on the member's first SSO login, records the member's OIDC subject on it and only ever takes over or archives a site that carries that subject or that the deploy reserved for the login. An SSO login outside the group archives the site and keeps its content, a login back in the group restores it. A deploy applies a membership change as well: [tasks/05_site_owners.yml](tasks/05_site_owners.yml) archives every own site whose login is no longer an inventory member and ends that member's sessions.
+
+Where WordPress can certify a wildcard (no TLS, self-signed, or the Let's Encrypt `wildcard` flavor on a DNS challenge), one vhost serves `*.<parent>`, so a site is reachable as soon as the mapper creates it. Everywhere else every inventory user holding `site-owner` gets a vhost and a certificate for `<username>.<parent>`, and [tasks/05_site_owners.yml](tasks/05_site_owners.yml) reserves the site at deploy, administered by the deploy's administrator until the member's first sign-in claims it. A sign-in on a member host runs on the network's main site, whose auth cookie the network domain shares, so Keycloak needs no redirect URI per member. The SSO client settings come from the container on every site through `infinito-oidc-client`; no account opens or changes them, and the deploy deletes any stored copy.
+
+On Multisite, `infinito-ai-engine-network` keeps the AI Engine settings to the network administrators and its MCP server to the main site, because an AI Engine bearer token signs in as the first administrator of its site, which can be a network administrator.
+
+The Multisite variant in [meta/variants.yml](meta/variants.yml) sets `rbac.tenancy.axis: domain`, declares `network-administrator` and `site-owner` with `scope: global`, keeps `mcp` global and declares the `domains.served` parent of the `site-owner` sites. [rbac_group_map.json.j2](templates/rbac_group_map.json.j2) builds every group path with `rbac_group_path` and hands the map to the mu-plugin as `WORDPRESS_RBAC_GROUP_MAP`. A deploy that enables Multisite without `rbac.tenancy.axis: domain` fails in [tasks/00_core.yml](tasks/00_core.yml) with a message naming the missing tenancy, before the role deploys anything.
 
 Operator-facing instructions for assigning these groups live in [Administration RBAC](../../docs/administration/configuration/rbac.md). The design contract is in [RBAC design](../../docs/contributing/design/iam/rbac.md).
 
 ## Addons
 
-Every plugin and mu-plugin is declared in [`meta/addons/`](./meta/addons/) under
+Every plugin and mu-plugin is declared in `meta/addons/` under
 the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon's `config:` block. Both install paths read those declarations: a `required` addon that fails to install stops the deploy, an optional one warns and is skipped.
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
-| `daggerhart-openid-connect-generic` | `plugin` | enabled with the `sso` service | `sso` → `web-app-keycloak` |
+| `daggerhart-openid-connect-generic` | `plugin` | enabled with the `sso` login method, which follows the `sso` service | `sso` → `web-app-keycloak` |
 | `wp-discourse` | `plugin` | enabled with the `discourse` service | `discourse` → `web-app-discourse` |
 | `activitypub` | `plugin` | enabled in variant 0 (Fediverse federation); off in later variants | none |
 | `infinito-oidc-rbac-mapper` | `mu_plugin` | `required` (always installed, vendored) | `sso` → `web-app-keycloak` |
+| `infinito-oidc-client` | `mu_plugin` | enabled with the `sso` login method (always copied, vendored) | `sso` → `web-app-keycloak` |
+| `infinito-ai-engine-network` | `mu_plugin` | enabled with `ai-engine` (always copied, acts only on Multisite, vendored) | none |
 | `infinito-http-ca-trust` | `mu_plugin` | `required` (always installed, vendored) | none |
+| `s3-uploads` | `plugin` | enabled with the `seaweedfs` service | none |
+| `infinito-s3-uploads` | `mu_plugin` | enabled with the `seaweedfs` service | none |
 
 The OIDC login + RBAC paths are covered by `test-admin-oidc-login.js` /
-`test-rbac-roles.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
+`test-rbac-roles.js` / `test-multisite-rbac.js`, the profile sync by `test-profile-sync.js`, the profile lock with its warning on `profile.php` and `user-edit.php` and against direct form, REST and XML-RPC writes by `test-profile-lock.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
 
 ## Playwright service dependencies
 
 The Playwright suite in [files/playwright/playwright.spec.js](files/playwright/playwright.spec.js) gates its scenarios on the following shared services. Scenarios that depend on a service report as `skipped` when the corresponding `<SERVICE>_SERVICE_ENABLED=false` in the staged `.env`:
 
-- `oidc`: baseline admin OIDC round-trip plus the three RBAC scenarios (subscriber/editor/administrator).
-- `ldap`: the three RBAC scenarios additionally depend on LDAP group sync; disabling LDAP skips them alongside OIDC.
+- `oidc`: baseline admin OIDC round-trip, the three Single-Site RBAC scenarios (subscriber/editor/administrator), the Multisite scenarios (bootstrap super-admin kept, network-administrator grant and revoke, per-site Editor on the primary and on a child site only, own site created, archived and restored through site-owner) and the profile sync and read-only scenario.
+- `javascript`: the profile lock scenarios in `test-profile-lock.js` and the read-only scenario in `test-profile-sync.js`, whose lock the shared lock renderer injects.
 - `discourse`: the WP->Discourse post round-trip scenario. Disabling Discourse skips it; front-page reachability and CSP baselines stay active.
+- `seaweedfs`: the media-library upload scenario in `test-seaweedfs.js`, which lists the role's bucket over the S3 API before and after the upload.
 
 The front-page CSP + canonical-domain baseline is ungated and always runs.
 
@@ -180,14 +103,9 @@ The front-page CSP + canonical-domain baseline is ungated and always runs.
 - [WordPress Multisite Documentation](https://wordpress.org/support/article/create-a-network/)
 - [WordPress Plugin Repository](https://wordpress.org/plugins/)
 - [WP Discourse Plugin](https://wordpress.org/plugins/wp-discourse/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/FZWdjPsZkLfEqUEe3bQ6zj)
 
 ## Persona contract opt-outs
 
-WordPress's canonical surface is the public blog front page. The OIDC round-trip fires on `/wp-login.php`, which the `daggerhart-openid-connect-generic` addon auto-redirects to Keycloak (`login_type: auto`, see [`meta/addons/daggerhart-openid-connect-generic.yml`](./meta/addons/daggerhart-openid-connect-generic.yml)); the shared personas enter at the site root and never visit that path.
+WordPress's canonical surface is the public blog front page. The OIDC round-trip fires on `/wp-login.php`, which the `daggerhart-openid-connect-generic` addon auto-redirects to Keycloak (`login_type: auto` while the `native` login method is off, see [`meta/addons/daggerhart-openid-connect-generic.yml`](./meta/addons/daggerhart-openid-connect-generic.yml)); the shared personas enter at the site root and never visit that path.
 [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The journeys themselves are not dropped: `test-admin-oidc-login.js` drives the admin login, logout and landing assertion, and `test-rbac-roles.js` drives the Keycloak-group-to-WordPress-role mapping over the same entry point.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

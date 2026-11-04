@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Install & test Infinito via the Makefile in every distro's virgin
+# Install & test Infinito via the Makefile in every distro's base
 # container, all distros in parallel inside a single CI job (one runner
 # instead of a matrix). Each distro gets its own copy of the checkout so
 # the concurrent in-container installs never race on the shared tree.
@@ -38,7 +38,7 @@ for d in "${distros[@]}"; do
 		-e INFINITO_VENV_DIR="${INFINITO_VENV_DIR}" \
 		-v "${src}:${INFINITO_SRC_DIR}" \
 		-w "${INFINITO_SRC_DIR}" \
-		"ghcr.io/kevinveenbirkenbach/pkgmgr-${d}-virgin:stable" \
+		"ghcr.io/kevinveenbirkenbach/base-${d}:latest" \
 		bash -lc '
 			set -euo pipefail
 			make install

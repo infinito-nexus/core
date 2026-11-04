@@ -1,0 +1,50 @@
+---
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
+  include_role:
+    name: sys-ctl-alm-compose
+  when: run_once_sys_ctl_alm_compose is not defined
+
+- name: "📁 Create the root-only RBAC sync directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop:
+    - "{{ DIR_RBAC_SYNC }}"
+    - "{{ RBAC_SYNC_HOOKS_DIR }}"
+
+- name: "📁 Create the RBAC sync script directory"
+  ansible.builtin.file:
+    path: "{{ RBAC_SYNC_SCRIPT_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "📋 Install the LDAP modules next to the RBAC sync script"
+  ansible.builtin.copy:
+    src: "{{ lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/' ~ item.src) }}"
+    dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, item.dest ] | path_join }}"
+    mode: "0644"
+  loop:
+    - { src: client.py, dest: ldap_client.py }
+    - { src: mailbox.py, dest: ldap_mailbox.py }
+
+- name: "🧾 Write the RBAC sync configuration"
+  ansible.builtin.copy:
+    content: "{{ RBAC_SYNC_CONFIG | to_nice_json }}\n"
+    dest: "{{ [ DIR_RBAC_SYNC, 'config.json' ] | path_join }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "⏱️ Install the RBAC sync service and its timer"
+  include_role:
+    name: sys-service
+  vars:
+    system_service_timer_enabled: "{{ RBAC_SYNC_LDAP_ENABLED | bool }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC }}"
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} --directory {{ DIR_RBAC_SYNC }}"
+
+- include_tasks: utils/once/flag.yml

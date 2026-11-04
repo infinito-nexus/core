@@ -2,3 +2,5 @@
 roles:
   mcp:
     description: May drive this agent's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own
+  agent-user:
+    description: May start a personal OpenClaw agent from Open WebUI through svc-ai-agent-broker

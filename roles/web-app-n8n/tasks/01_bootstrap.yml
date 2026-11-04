@@ -42,8 +42,8 @@
     stdin: >-
       {{ lookup('http_request_program', {
         'email': N8N_OWNER_EMAIL,
-        'firstName': lookup('users', 'administrator').firstname | replace('.', ' ') | trim,
-        'lastName': lookup('users', 'administrator').lastname | replace('.', ' ') | trim,
+        'firstName': lookup('users', 'platform_administrator').firstname | replace('.', ' ') | trim,
+        'lastName': lookup('users', 'platform_administrator').lastname | replace('.', ' ') | trim,
         'password': N8N_OWNER_PASSWORD,
       } | to_json) }}
   environment:
@@ -57,19 +57,20 @@
   when: n8n_owner_probe_status | int != 200
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔧 Keep the owner setup answer"
-  ansible.builtin.set_fact:
-    n8n_owner_setup_answer: "{{ n8n_owner_setup.stdout | from_json }}"
+- name: "✅ Check the n8n owner setup answer"
   when: n8n_owner_setup is not skipped
+  block:
+    - name: "🔧 Keep the owner setup answer"
+      ansible.builtin.set_fact:
+        n8n_owner_setup_answer: "{{ n8n_owner_setup.stdout | from_json }}"
 
-- name: "✅ Assert n8n owner setup succeeded or was already done"
-  ansible.builtin.assert:
-    that:
-      - >-
-        (n8n_owner_setup_answer.status in [200, 201])
-        or ('already setup' in n8n_owner_setup_answer.content)
-    fail_msg: "n8n owner setup returned {{ n8n_owner_setup_answer.status }}: {{ n8n_owner_setup_answer.content }}"
-  when: n8n_owner_setup is not skipped
+    - name: "✅ Assert n8n owner setup succeeded or was already done"
+      ansible.builtin.assert:
+        that:
+          - >-
+            (n8n_owner_setup_answer.status in [200, 201])
+            or ('already setup' in n8n_owner_setup_answer.content)
+        fail_msg: "n8n owner setup returned {{ n8n_owner_setup_answer.status }}: {{ n8n_owner_setup_answer.content }}"
 
 - name: "🔐 Converge a rotated owner password n8n still rejects"
   when:
@@ -88,11 +89,13 @@
           - -e
           - "N8N_OWNER_EMAIL={{ N8N_OWNER_EMAIL }}"
           - -e
-          - "N8N_OWNER_PASSWORD={{ N8N_OWNER_PASSWORD }}"
+          - N8N_OWNER_PASSWORD
           - "{{ N8N_LOCAL_CID }}" # nocheck: container-exec-resolver
           - node
           - "-"
         stdin: "{{ lookup('file', 'javascript/reconcile/owner_password.js') }}"
+      environment:
+        N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
       register: n8n_owner_password
       retries: 30
       delay: 10

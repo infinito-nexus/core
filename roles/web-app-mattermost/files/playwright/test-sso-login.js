@@ -1,11 +1,12 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const { performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("mattermost: sso login, verify channel view, logout", async ({ page }) => {
-    test.skip(!shared.oidcEnabled, "OIDC shared service disabled");
+    skipUnlessServiceEnabled("sso");
 
     const oidcAuthUrl = shared.expectedOidcAuthUrl();
     const baseUrl = shared.expectedMattermostBaseUrl();

@@ -21,6 +21,7 @@ from typing import Any, ClassVar
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
+from utils.domains.default_primary import default_domain_primary
 
 from . import PROJECT_ROOT
 
@@ -29,14 +30,16 @@ TEMPLATE = (
 )
 CA_CONTAINER = "/tmp/infinito/ca/root-ca.crt"  # nocheck: S108 - CA_TRUST.inject_cert_container, a container path
 CA_BUNDLE_CONTAINER = "/tmp/infinito/ca/ca-bundle.crt"  # nocheck: S108 - CA_TRUST.inject_bundle_container, a container path
+DOMAIN = default_domain_primary()
+DEBUG_SWITCH = ("sys-svc-mail-msmtp",)
 EMAIL = {
     "timeout": 30,
     "auth_mechanism": "PLAIN",
     "start_tls": True,
     "tls": True,
-    "host": "mail.infinito.test",
+    "host": f"mail.{DOMAIN}",
     "port": 587,
-    "from": "no-reply@infinito.test",
+    "from": f"no-reply@{DOMAIN}",
     "auth": False,
 }
 
@@ -82,13 +85,14 @@ def _render(
             return "socks5h://tor:9050"
         if kind == "tor_socks":
             return "127.0.0.1:9050"
-        raise AssertionError(f"unexpected lookup: {kind}")
+        if kind == "debug" and args == DEBUG_SWITCH:
+            return False
+        raise AssertionError(f"unexpected lookup: {kind} {args}")
 
     template = _env().from_string(read_text(str(TEMPLATE)))
     return template.render(
         lookup=lookup,
         sys_svc_mail_msmtp_in_container=in_container,
-        MODE_DEBUG=False,
         CA_TRUST={
             "inject_cert_container": CA_CONTAINER,
             "inject_bundle_container": CA_BUNDLE_CONTAINER,

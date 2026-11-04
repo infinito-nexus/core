@@ -2,11 +2,15 @@
 application_id: "web-app-matomo"
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.matomo.ports.local.http') }}"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 MATOMO_SERVICE: "{{ entity_name }}"
 MATOMO_NAME: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"
-MATOMO_CONFIG: "/var/www/html/config/config.ini.php"
+MATOMO_HTML_DIR: "{{ lookup('volume', application_id, 'data').target }}"
+MATOMO_RELEASE_DIR: "/usr/src/matomo"
+MATOMO_RUNTIME_OWNER: "www-data:www-data"
+MATOMO_CONFIG: "{{ [MATOMO_HTML_DIR, 'config/config.ini.php'] | path_join }}"
+MATOMO_CONSOLE: "{{ [MATOMO_HTML_DIR, 'console'] | path_join }}"
 MATOMO_SERVICE_URL: "http://{{ MATOMO_SERVICE }}"
 
 MATOMO_BOOTSTRAP_SERVICE: "bootstrap"
@@ -19,15 +23,62 @@ MATOMO_BOOTSTRAP_ATTEMPTS: 3
 MATOMO_INSTALLER_STEP_DEADLINE_S: 420
 MATOMO_BOOTSTRAP_SWARM_POLL_DELAY_S: 15
 
-MATOMO_ADMIN_USER_KEY: "administrator"
-MATOMO_ADMIN_USER_NAME: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).username }}"
-MATOMO_ADMIN_PASSWORD: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).password }}"
-MATOMO_ADMIN_EMAIL: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).email }}"
-MATOMO_SITE_NAME: "{{ lookup('config', application_id, 'services.matomo.site_name') }}"
+MATOMO_ADMIN_USER_NAME: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).username }}"
+MATOMO_ADMIN_PASSWORD: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
+MATOMO_ADMIN_EMAIL: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).email }}"
+MATOMO_SITE_NAME: "{{ lookup('design', application_id).label }}"
 MATOMO_SITE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 MATOMO_EXCLUDED_IPS: "{{ lookup('config', application_id, 'services.matomo.excluded_ips') }}"
 
 MATOMO_TOKEN_DESCRIPTION: "{{ lookup('config', application_id, 'services.matomo.token.description') }}"
+
+MATOMO_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+MATOMO_DESIGN_THEME: "InfinitoDesign"
+MATOMO_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'design'] | path_join }}"
+MATOMO_DESIGN_ASSETS: ["logo.svg", "logo.png", "favicon.png"]
+MATOMO_DESIGN_THEME_MODE_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
+
+MATOMO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.matomo.login.method.sso.enabled') | bool }}"
+MATOMO_LOGIN_2FA: "{{ lookup('config', application_id, 'services.matomo.login.method.2fa.enabled') | bool }}"
+MATOMO_TWO_FACTOR_PLUGIN: "TwoFactorAuth"
+MATOMO_TWO_FACTOR_STATE: "{{ 'present' if MATOMO_LOGIN_2FA | bool else 'absent' }}"
+
+MATOMO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MATOMO_OIDC_STATE: "{{ 'present' if MATOMO_OIDC_ENABLED | bool and MATOMO_LOGIN_SSO | bool else 'absent' }}"
+MATOMO_OIDC_PLUGIN: "{{ lookup('config', application_id, 'addons.rebeloidc.config.plugin') }}"
+MATOMO_OIDC_PLUGIN_ARCHIVE: "{{ lookup('config', application_id, 'addons.rebeloidc.config.archive') }}"
+MATOMO_OIDC_PLUGIN_SOURCE: "{{ [MATOMO_RELEASE_DIR, 'plugins', MATOMO_OIDC_PLUGIN] | path_join }}"
+MATOMO_OIDC_SETTINGS:
+  authenticationName: "{{ OIDC.BUTTON_TEXT }}"
+  authorizeUrl: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+  tokenUrl: "{{ OIDC.CLIENT.TOKEN_URL }}"
+  userInfoUrl: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+  endSessionUrl: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+  userInfoId: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+  usernameAttribute: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+  fallbackToEmail: false
+  clientId: "{{ OIDC.CLIENT.ID }}"
+  clientSecret: "{{ OIDC.CLIENT.SECRET }}"
+  scope: "openid profile email {{ RBAC.GROUP.CLAIM }}"
+  allowSignup: false
+  autoLinking: true
+  disableSuperuser: false
+  disablePasswordConfirmation: true
+  fineGrainedPermissions: false
+MATOMO_OIDC_GENERAL:
+  proxy_scheme_headers: ["HTTP_X_FORWARDED_PROTO"]
+  login_logout_url: "{{ MATOMO_SITE_URL if MATOMO_OIDC_ENABLED | bool else '' }}"
+
+MATOMO_RBAC_ROLES: ["view", "write", "admin", "administrator"]
+MATOMO_RBAC_PROTECTED_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
+MATOMO_RBAC_LOGIN_PLUGIN: "InfinitoRbacLogin"
+MATOMO_RBAC_LOGIN_SETTINGS:
+  groups_claim: "{{ RBAC.GROUP.CLAIM }}"
+  superuser_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+  admin_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='admin') }}"
+  write_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='write') }}"
+  view_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='view') }}"
+  protected_logins: "{{ MATOMO_RBAC_PROTECTED_LOGINS }}"
 
 MATOMO_LOCAL_HOST: "127.0.0.1:{{ lookup('config', application_id, 'services.matomo.ports.internal.http') }}"
 matomo_index_php_url: "http://{{ MATOMO_LOCAL_HOST }}/index.php"

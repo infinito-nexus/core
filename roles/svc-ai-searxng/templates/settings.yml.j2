@@ -1,0 +1,15 @@
+use_default_settings: true
+
+server:
+  secret_key: {{ SEARXNG_SECRET_KEY | to_json }}
+  bind_address: "0.0.0.0"
+  port: {{ SEARXNG_PORT }}
+  limiter: false
+  image_proxy: true
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  formats:
+    - html
+    - json

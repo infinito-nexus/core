@@ -1,3 +1,4 @@
+import copy
 import sys
 import unittest
 from pathlib import Path
@@ -17,6 +18,21 @@ sys.path.insert(
 from compose_mods import compose_mods
 
 from utils.cache.yaml import load_yaml_str
+from utils.domains.default_primary import default_domain_primary
+
+DOMAIN = default_domain_primary()
+PUBLISH_HOST = "10.7.7.1"
+
+CONTAINER_LOGGING = {
+    "labels": {"infinito.application": "web-app-bigbluebutton"},
+    "logging": {
+        "driver": "journald",
+        "options": {
+            "tag": "web-app-bigbluebutton",
+            "labels": "infinito.application",
+        },
+    },
+}
 
 
 def sort_dict(obj):
@@ -118,9 +134,17 @@ services:
 
     def test_full_file_semantic_match(self):
         actual_data = load_yaml_str(
-            compose_mods(self.original, self.compose_repository_path, self.env_file)
+            compose_mods(
+                self.original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
         )
         expected_data = load_yaml_str(self.expected)
+        for svc in expected_data["services"].values():
+            svc.update(copy.deepcopy(CONTAINER_LOGGING))
         for key in expected_data:
             self.assertIn(key, actual_data)
             self.assertEqual(sort_dict(actual_data[key]), sort_dict(expected_data[key]))
@@ -146,26 +170,34 @@ services:
                 original,
                 self.compose_repository_path,
                 self.env_file,
-                extra_hosts=["auth.infinito.test:host-gateway"],
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+                extra_hosts=[f"auth.{DOMAIN}:host-gateway"],
             )
         )
         services = data["services"]
         self.assertIn(
-            "auth.infinito.test:host-gateway", services["greenlight"]["extra_hosts"]
+            f"auth.{DOMAIN}:host-gateway", services["greenlight"]["extra_hosts"]
         )
         self.assertNotIn("extra_hosts", services["freeswitch"])
         self.assertEqual(
             services["nginx"]["extra_hosts"],
-            ["existing.example:1.2.3.4", "auth.infinito.test:host-gateway"],
+            ["existing.example:1.2.3.4", f"auth.{DOMAIN}:host-gateway"],
         )
         self.assertEqual(
             services["etherpad"]["extra_hosts"],
-            ["mapped.example:5.6.7.8", "auth.infinito.test:host-gateway"],
+            ["mapped.example:5.6.7.8", f"auth.{DOMAIN}:host-gateway"],
         )
 
     def test_extra_hosts_absent_without_kwarg(self):
         data = load_yaml_str(
-            compose_mods(self.original, self.compose_repository_path, self.env_file)
+            compose_mods(
+                self.original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
         )
         for svc in data["services"].values():
             self.assertNotIn("extra_hosts", svc)
@@ -187,7 +219,13 @@ services:
     image: coturn/coturn:any-tag
 """
         services = load_yaml_str(
-            compose_mods(original, self.compose_repository_path, self.env_file)
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
         )["services"]
         self.assertNotIn("build", services["freeswitch"])
         self.assertNotIn("build", services["haproxy"])
@@ -211,11 +249,100 @@ services:
                 original,
                 self.compose_repository_path,
                 self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
                 pinned=["bbb-shared-notes-server"],
             )
         )["services"]
         self.assertNotIn("build", services["bbb-shared-notes-server"])
         self.assertIn("build", services["html5-dev"])
+
+    def test_upstream_json_file_logging_is_replaced_by_the_contract(self):
+        original = """services:
+  bbb-web:
+    image: bbb/web
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+"""
+        services = load_yaml_str(
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(services["bbb-web"]["logging"], CONTAINER_LOGGING["logging"])
+
+    def test_upstream_list_labels_keep_their_entries_beside_the_application_label(
+        self,
+    ):
+        original = """services:
+  nginx:
+    image: bbb/nginx
+    labels:
+      - com.example.role=edge
+      - com.example.flag
+"""
+        services = load_yaml_str(
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(
+            services["nginx"]["labels"],
+            {
+                "com.example.role": "edge",
+                "com.example.flag": "",
+                "infinito.application": "web-app-bigbluebutton",
+            },
+        )
+
+    def test_missing_logging_contract_fails_loudly(self):
+        with self.assertRaises(KeyError):
+            compose_mods(
+                self.original,
+                self.compose_repository_path,
+                self.env_file,
+                {"labels": {}},
+                PUBLISH_HOST,
+            )
+
+    def test_each_container_port_published_once_on_the_publish_host(self):
+        original = """services:
+  nginx:
+    ports:
+      - "127.0.0.1:48082:48082"
+      - "127.0.0.1:48081:48081"
+      - "127.0.0.1:48087:48087"
+      - "10.7.7.1:48082:48082"
+      - "10.7.7.1:48081:48081"
+      - "10.7.7.1:48087:48087"
+  freeswitch:
+    ports:
+      - 5060:5060/udp
+"""
+        services = load_yaml_str(
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(
+            services["nginx"]["ports"],
+            ["10.7.7.1:48082:48082", "10.7.7.1:48081:48081", "10.7.7.1:48087:48087"],
+        )
+        self.assertEqual(services["freeswitch"]["ports"], ["5060:5060/udp"])
 
 
 if __name__ == "__main__":

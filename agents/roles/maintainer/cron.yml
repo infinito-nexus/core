@@ -1,0 +1,5 @@
+---
+- name: daily-reconcile
+  schedule: "0 4 * * *"
+  routine: maintainer
+  action: start

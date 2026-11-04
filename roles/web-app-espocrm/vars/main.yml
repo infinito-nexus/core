@@ -1,10 +1,13 @@
 ---
 application_id: "web-app-espocrm"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 swarm_stack_converge_retries: 600
 
 websocket_port: "{{ lookup('config', application_id, 'services.espocrm.ports.local.websocket') }}"
+
+ESPOCRM_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+ESPOCRM_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
 ESPOCRM_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
 ESPOCRM_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
@@ -24,20 +27,68 @@ ESPOCRM_SCRIPT_SIDECAR_HOST_REL: "volumes/{{ ESPOCRM_SCRIPT_SIDECAR_FILE }}"
 ESPOCRM_SCRIPT_SIDECAR_DOCKER: "{{ [ ESPOCRM_BIN_DIR, ESPOCRM_SCRIPT_SIDECAR_FILE ] | path_join }}"
 
 ESPOCRM_CONFIG_FILE_PRIVATE: "{{ [ ESPOCRM_APP_DIR, 'data/config-internal.php' ] | path_join }}"
+ESPOCRM_CONFIG_OVERRIDE_FILE: "{{ [ ESPOCRM_APP_DIR, 'data/config-override.php' ] | path_join }}"
 ESPOCRM_LOG_DIR_RELATIVE: "data/logs"
 ESPOCRM_LOG_PATH_RELATIVE: "{{ [ ESPOCRM_LOG_DIR_RELATIVE, 'espo.log' ] | path_join }}"
 ESPOCRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+ESPOCRM_SIBLING_SITE_URLS: "{{ lookup('network_urls', ESPOCRM_URL)[1:] }}"
 ESPOCRM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-ESPOCRM_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+ESPOCRM_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 ESPOCRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if ESPOCRM_OIDC_ONION_ISSUER | bool else '' }}"
 ESPOCRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+ESPOCRM_LOGIN_SSO: "{{ lookup('config', application_id, 'services.espocrm.login.method.sso.enabled') | bool }}"
+ESPOCRM_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.espocrm.login.method.ldap.enabled') | bool }}"
+ESPOCRM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.espocrm.login.method.native.enabled') | bool }}"
+ESPOCRM_LOGIN_2FA: "{{ lookup('config', application_id, 'services.espocrm.login.method.2fa.enabled') | bool }}"
 ESPOCRM_LDAP_AUTOCREATE: "{{ lookup('config', application_id, 'services.ldap.autocreate') }}"
+ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
+ESPOCRM_LDAP_USER_LOGIN_FILTER: >-
+  (|{% for espocrm_rbac_dn in [ESPOCRM_RBAC_ADMIN_DN] + (ESPOCRM_RBAC_TIERS | dict2items | map(attribute='value.dn') | list)
+  %}({{ ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE }}={{ espocrm_rbac_dn }}){% endfor %})
+ESPOCRM_RBAC_TIERS:
+  manager:
+    team: "Managers"
+    role: "Manager"
+    access: "manage"
+    path: "/{{ lookup('rbac_group_path', application_id=application_id, role='manager') }}"
+    dn: "cn={{ application_id }}-manager,{{ LDAP.DN.OU.ROLES }}"
+  user:
+    team: "Users"
+    role: "User"
+    access: "use"
+    path: "/{{ lookup('rbac_group_path', application_id=application_id, role='user') }}"
+    dn: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
+ESPOCRM_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+ESPOCRM_RBAC_ADMIN_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
+ESPOCRM_RBAC_MODULE_PATH: "custom/Espo/Modules/InfinitoRbac"
+ESPOCRM_RBAC_LDAP_HOOK_CLASS: "Espo\\Modules\\InfinitoRbac\\Classes\\Authentication\\LdapRoleGroups"
+ESPOCRM_RBAC_MODULE_CONFIG_PARAMS:
+  infinitoOidcAllowedGroups:
+    level: system
+  infinitoOidcAdministratorGroups:
+    level: system
+  infinitoOidcProtectedUsers:
+    level: system
+  infinitoLdapMemberOfAttribute:
+    level: system
+  infinitoLdapTeamGroups:
+    level: system
+  infinitoLdapAdministratorGroups:
+    level: system
 ESPOCRM_USER: "www-data"
 
 ESPOCRM_SCRIPT_SEED_FILE: "seed_config.php"
 ESPOCRM_SCRIPT_SEED_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), ESPOCRM_SCRIPT_SEED_FILE ] | path_join }}"
 ESPOCRM_SCRIPT_SEED_HOST_REL: "volumes/{{ ESPOCRM_SCRIPT_SEED_FILE }}"
 ESPOCRM_SCRIPT_SEED_DOCKER: "{{ [ ESPOCRM_BIN_DIR, ESPOCRM_SCRIPT_SEED_FILE ] | path_join }}"
+
+ESPOCRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+ESPOCRM_DESIGN_TITLE: "{{ (lookup('design', application_id).title or '') if ESPOCRM_DESIGN_ENABLED | bool else '' }}"
+ESPOCRM_DESIGN_THEME: "Infinito"
+ESPOCRM_DESIGN_MODULE_PATH: "custom/Espo/Modules/InfinitoDesign"
+ESPOCRM_DESIGN_ASSETS_PATH: "client/custom/infinito-design"
+ESPOCRM_DESIGN_ASSETS: ["logo.svg", "favicon.svg", "favicon.ico"]
+ESPOCRM_DESIGN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'design' ] | path_join }}"
 
 ESPOCRM_MAINTENANCE_MODE: "{{ lookup('config', application_id, 'services.espocrm.maintenance_mode') }}"
 ESPOCRM_CRON_DISABLED: "{{ ESPOCRM_MAINTENANCE_MODE }}"

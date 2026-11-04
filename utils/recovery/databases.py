@@ -36,7 +36,7 @@ from utils.roles.applications.services.database import (
     RDBMS_SERVICE_KEYS,
     resolve_database_service_key,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -101,7 +101,7 @@ def engine_by_key(
         engine = resolve_database_service_key(payload, application_id)
         if not engine:
             continue
-        entity = get_entity_name(application_id)
+        entity = entity_name(application_id)
         mapping[f"{entity}{DEDICATED_VOLUME_SUFFIX}"] = engine
         mapping[entity] = engine
     if generation_dir is not None:

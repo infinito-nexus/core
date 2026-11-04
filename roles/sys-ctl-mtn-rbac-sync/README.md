@@ -1,0 +1,42 @@
+# RBAC Sync
+
+## Description
+
+Reconciles the role mapping of every application that cannot read its role groups at sign-in with the members those groups hold in the directory now, so a group change in Keycloak or LDAP reaches the application within one timer interval instead of at its next deploy.
+
+## Overview
+
+An application registers its reconcile as a hook through [tasks/utils/rbac/sync.yml](../../tasks/utils/rbac/sync.yml). The util writes `hooks/<application_id>/` under `DIR_RBAC_SYNC`, root-only, with `hook.json`, the hook's script and the modules a host hook imports, and runs the hook once with the members the deploy resolved. The timer runs [files/python/script.py](./files/python/script.py) on `SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC`; it reads the members of each hook's role groups anonymously from the directory and runs every hook whose container runs on the node.
+
+A `container` hook pipes its script into a command inside the application's container, for applications whose image ships a scripting runtime. A `host` hook runs its script with the node's Python beside its modules and reaches the container through `$RBAC_SYNC_CONTAINER_BIN exec ... $RBAC_SYNC_CID`, for applications that only expose a CLI or an HTTP API inside the container.
+
+## Features
+
+- **One execution path:** the deploy and the timer run the same hook through the same script; only the source of the members differs.
+- **Directory lookup without packages:** members come from the `ldap_client` module of `svc-db-openldap`, a standard-library LDAP client.
+- **Mailbox seed:** under the `mailbox` email policy of `web-app-keycloak`, `svc-db-openldap` installs the timer. Only once the deploy has applied the mailbox layout, which in a deploy with Keycloak happens after Keycloak accepted the realm's policy, [tasks/mailbox.yml](./tasks/mailbox.yml) writes the root-only `mailbox.json` under `DIR_RBAC_SYNC`; under the `external` policy `svc-db-openldap` removes it. While it exists, each run without `--only` gives every account of the users OU that holds no `mail` the address `<uid>@<DOMAIN_PRIMARY>` and the class `infinitoMailboxUser` before the hooks read the members. An existing `mail` value is never changed. The address comes from the `ldap_mailbox` module the deploy's mailbox layout uses. The run binds as `LDAP.DN.ADMINISTRATOR.DATA`; its password lives in `mailbox.json`, never in argv, the log, `config.json`, or the `RBAC_SYNC_LDAP` a host hook receives.
+- **Node-local execution:** a hook runs only where its container runs; on any other node the script reports it as skipped.
+- **Runs only on change:** a hook registered with `skip_unchanged` runs when its definition or the members it receives changed since its last successful run, and at least once per `RBAC_SYNC_REFRESH_SECONDS`.
+- **Single run per cluster:** in swarm the timer only uses the container of task slot 1.
+- **Secrets stay out of argv:** forwarded variables reach `container exec` by name, their values travel in the environment.
+- **Timer only with a directory:** without `svc-db-openldap` the service stays installed for the deploy-time run and the timer stays off.
+- **Failure notification:** a failed hook fails the unit, which triggers `sys-ctl-alm-compose`.
+
+## Hook file
+
+| Key | Meaning |
+| --- | --- |
+| `application_id` | application whose role mapping the hook reconciles |
+| `kind` | `container` or `host` |
+| `roles` | role names whose members the hook receives; `@users` stands for every account of the users OU, for hooks that refresh profiles |
+| `container` | `{"name": ...}` in compose, `{"swarm_service": ...}` in swarm |
+| `user` | user a `container` hook's command runs as, empty for the image's user |
+| `argv` | command a `container` hook runs inside the container, empty for a `host` hook |
+| `script` | file in the hook directory: piped to a `container` hook's command, run by a `host` hook; empty for none |
+| `env` | variables the hook receives |
+| `members_env` | `{name, role, field}` entries; `role: "*"` passes `{role: members}`, an empty `field` passes whole members |
+| `skip_unchanged` | whether the timer skips the hook while its inputs are unchanged and its last run is younger than `RBAC_SYNC_REFRESH_SECONDS` |
+
+## Further Resources
+
+- [systemd.timer(5) manual](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)

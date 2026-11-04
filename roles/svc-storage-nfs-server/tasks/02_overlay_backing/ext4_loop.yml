@@ -1,6 +1,6 @@
 ---
 - name: "📦 Ensure e2fsprogs is installed for mkfs.ext4"
-  package_install:
+  package_install: # nocheck: package-install only the ext4 loop overlay backing includes this file
     id: e2fsprogs
 
 - name: "✅ Refuse to mount over a non-empty export base"

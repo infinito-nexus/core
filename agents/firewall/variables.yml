@@ -1,0 +1,6 @@
+---
+INFINITO_REGISTRY_CACHE: registry cache host the package-consumer reaches
+INFINITO_PACKAGE_CACHE: package cache host the package-consumer reaches
+INFINITO_PRIMARY_DOMAIN: platform primary domain, for denying egress to instances
+AGENTS_HACKER_TARGETS: resolves agents.hacker.targets, the hacker's authorised egress targets
+AGENTS_COUNSEL_TARGETS: resolves agents.counsel.targets, the counsel's read-only instance targets

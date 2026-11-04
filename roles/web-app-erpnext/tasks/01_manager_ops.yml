@@ -25,11 +25,30 @@
   include_tasks: 02_bench_bootstrap.yml
 
 - name: "🔧 configure OIDC"
-  include_tasks: 03_oidc.yml
+  include_tasks: addons/social_login_key.yml
   when: ERPNEXT_OIDC_ENABLED
 - name: "🔧 configure LDAP"
-  include_tasks: 04_ldap.yml
+  include_tasks: 03_ldap.yml
   when: ERPNEXT_LDAP_ENABLED
+- name: "🚪 apply the login methods of the sign-in page"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e LOGIN_NATIVE -e LOGIN_EMAIL -e LOGIN_2FA -e LOGIN_REGISTRATION
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/methods.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    LOGIN_NATIVE: "{{ ERPNEXT_LOGIN_NATIVE | string | lower }}"
+    LOGIN_EMAIL: "{{ ERPNEXT_LOGIN_EMAIL | string | lower }}"
+    LOGIN_2FA: "{{ ERPNEXT_LOGIN_2FA | string | lower }}"
+    LOGIN_REGISTRATION: "{{ ERPNEXT_LOGIN_REGISTRATION | string | lower }}"
+  register: erpnext_login_methods_apply
+  changed_when: false
 - name: "🔧 configure outbound email"
-  include_tasks: 05_email.yml
+  include_tasks: addons/email_account.yml
   when: ERPNEXT_EMAIL_ENABLED
+- name: "🎨 converge corporate design"
+  include_tasks: 05_design.yml

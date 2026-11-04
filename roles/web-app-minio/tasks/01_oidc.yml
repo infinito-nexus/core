@@ -16,8 +16,8 @@
 # yet, please try again.`.
 - name: "⏳ Wait for MinIO IAM subsystem to finish initializing"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   shell: |
     set -euo pipefail
     container run --rm \
@@ -36,8 +36,8 @@
 
 - name: "📝 Register Keycloak as named OIDC IdP on MinIO"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     MINIO_OIDC_CONFIG_URL: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
     MINIO_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
     MINIO_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
@@ -71,28 +71,50 @@
     - mc_idp_add.rc != 0
     - '"already exists" not in (mc_idp_add.stderr | default(""))'
 
-- name: "🔄 Restart MinIO so the named OIDC IdP is picked up by the Console"
-  environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-  shell: |
-    set -euo pipefail
-    container run --rm \
-        -e MINIO_ROOT_USER \
-        -e MINIO_ROOT_PASSWORD \
-        --entrypoint /bin/sh \
-        {{ MINIO_MC_IMAGE }} \
-        -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
-            && mc admin service restart minio --json'
-  args: { executable: /bin/bash }
-  register: mc_admin_service_restart
-  changed_when: mc_admin_service_restart.rc == 0
+- name: "🔄 Restart MinIO so the new OIDC IdP takes effect"
   when: mc_idp_add.changed | bool
+  block:
+    - name: "🔄 Restart MinIO so the named OIDC IdP is picked up by the Console"
+      environment:
+        MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+        MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+      shell: |
+        set -euo pipefail
+        container run --rm \
+            -e MINIO_ROOT_USER \
+            -e MINIO_ROOT_PASSWORD \
+            --entrypoint /bin/sh \
+            {{ MINIO_MC_IMAGE }} \
+            -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
+                && mc admin service restart minio --json'
+      args: { executable: /bin/bash }
+      register: mc_admin_service_restart
+      changed_when: mc_admin_service_restart.rc == 0
 
-- name: "⏳ Wait for MinIO IAM subsystem to come back after restart"
+    - name: "⏳ Wait for MinIO IAM subsystem to come back after restart"
+      environment:
+        MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+        MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+      shell: |
+        set -euo pipefail
+        container run --rm \
+            -e MINIO_ROOT_USER \
+            -e MINIO_ROOT_PASSWORD \
+            --entrypoint /bin/sh \
+            {{ MINIO_MC_IMAGE }} \
+            -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
+                && mc admin policy ls minio'
+      args: { executable: /bin/bash }
+      register: mc_admin_policy_ls_after_restart
+      retries: 60
+      delay: 5
+      until: mc_admin_policy_ls_after_restart.rc == 0
+      changed_when: false
+
+- name: "🔎 Check the RBAC policies (RAW with slash) exist"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   shell: |
     set -euo pipefail
     container run --rm \
@@ -101,40 +123,22 @@
         --entrypoint /bin/sh \
         {{ MINIO_MC_IMAGE }} \
         -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
-            && mc admin policy ls minio'
+            && mc admin policy info minio {{ item.name | quote }}'
   args: { executable: /bin/bash }
-  register: mc_admin_policy_ls_after_restart
-  retries: 60
-  delay: 5
-  until: mc_admin_policy_ls_after_restart.rc == 0
-  changed_when: false
-  when: mc_idp_add.changed | bool
-
-- name: "🔎 Check policy (RAW with slash) exists"
-  environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-  shell: |
-    set -euo pipefail
-    container run --rm \
-        -e MINIO_ROOT_USER \
-        -e MINIO_ROOT_PASSWORD \
-        --entrypoint /bin/sh \
-        {{ MINIO_MC_IMAGE }} \
-        -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
-            && mc admin policy info minio {{ MINIO_OIDC_POLICY_NAME | quote }}'
-  args: { executable: /bin/bash }
+  loop: "{{ MINIO_RBAC_POLICIES }}"
+  loop_control:
+    label: "{{ item.name }}"
   register: mc_policy_info_raw
   failed_when: false
   changed_when: false
 
-- name: "📁 Create policy (RAW with slash) if missing"
+- name: "📁 Create the missing RBAC policies (RAW with slash)"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   shell: |
     set -euo pipefail
-    printf '%s' '{{ (MINIO_OIDC_POLICY_CONTENT | from_yaml | to_json) | b64encode }}' \
+    printf '%s' '{{ (item.content | from_yaml | to_json) | b64encode }}' \
       | base64 -d \
       | container run --rm -i \
           -e MINIO_ROOT_USER \
@@ -142,15 +146,16 @@
           --entrypoint /bin/sh \
           {{ MINIO_MC_IMAGE }} \
           -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
-              && mc admin policy create minio {{ MINIO_OIDC_POLICY_NAME | quote }} /dev/stdin'
+              && mc admin policy create minio {{ item.name | quote }} /dev/stdin'
   args: { executable: /bin/bash }
+  loop: "{{ mc_policy_info_raw.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
   register: minio_policy_create
   changed_when: false
   # rationale: async; consumed only by the STS playwright spec, reaped at the end of this file
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
-  when:
-    - mc_policy_info_raw.rc != 0
+  async: "{{ ASYNC_TIME }}"
+  poll: "{{ ASYNC_POLL }}"
 
 - name: "⏳ Reap the MinIO policy job"
   ansible.builtin.include_tasks: utils/async/reap.yml

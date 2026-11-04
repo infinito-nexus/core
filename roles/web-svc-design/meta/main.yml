@@ -1,0 +1,32 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - design
+    - css
+    - assets
+    - nginx
+    - static
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

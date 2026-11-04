@@ -19,8 +19,8 @@
   vars:
     compose_handlers_flush: true
 
-- name: "🏗️ Bootstrap and install Magento on the stack host"
-  include_tasks: 01_setup.yml
+- name: "🏗️ Set up Magento on the stack host"
+  include_tasks: 00_core/stack_host.yml
   when: IS_STACK_HOST | bool
 
 - include_tasks: utils/once/flag.yml

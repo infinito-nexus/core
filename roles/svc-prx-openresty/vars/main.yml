@@ -1,7 +1,7 @@
 ---
 # General
 application_id: "svc-prx-openresty"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 # Openresty
 OPENRESTY_IMAGE: "{{ lookup('config','svc-prx-openresty', 'services.openresty.image') }}"

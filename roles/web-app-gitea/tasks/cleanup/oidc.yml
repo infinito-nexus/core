@@ -3,7 +3,7 @@
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       gitea admin auth list \
-      | awk -v name="{{ OIDC.BUTTON_TEXT }}" '$0 ~ name {print $1; exit}'
+      | awk -F '\t+' 'NR > 1 && $3 == "OAuth2" {print $1; exit}'
   register: oidc_source_id_raw
   failed_when: false
   changed_when: false

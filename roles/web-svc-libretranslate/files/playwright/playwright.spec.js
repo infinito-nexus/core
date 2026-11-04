@@ -6,6 +6,7 @@ const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLog
 test.use({ ignoreHTTPSErrors: true });
 
 require("./test-mcp-guest").register();
+require("./test-design").register();
 
 const baseUrl = normalizeBaseUrl(process.env.LIBRETRANSLATE_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");

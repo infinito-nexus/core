@@ -7,6 +7,9 @@
 # variant 0: OIDC variant (canonical default).
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:
@@ -27,9 +30,18 @@
     ldap:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
+    gitea:
+      enabled: true
+      shared: true
+    gitlab:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     openwebui:
@@ -63,9 +75,18 @@
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitea:
+      enabled: false
+      shared: false
+    gitlab:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: true
+      shared: true
     tor:
       enabled: true
     openwebui:
@@ -78,6 +99,9 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -87,7 +111,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
@@ -102,6 +126,15 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitea:
+      enabled: false
+      shared: false
+    gitlab:
+      enabled: true
+      shared: true
+    mattermost:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     openwebui:

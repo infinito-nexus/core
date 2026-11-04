@@ -1,0 +1,51 @@
+(function () {
+  const SELECTOR = {{ lookup('config', application_id, 'services.sso.profile.locked').values() | join(',') | to_inline_js }};
+  const CATALOGUE = {{ lookup('template', 'roles/sys-front-inj-javascript/templates/profile_lock_catalogue.json.j2') }};
+  let scheduled = false;
+
+  function speak() {
+    const tags = [document.documentElement.lang, navigator.language];
+    for (let i = 0; i < tags.length; i += 1) {
+      const tag = String(tags[i] || "").toLowerCase();
+      if (CATALOGUE[tag]) { return CATALOGUE[tag]; }
+      const base = tag.split("-")[0];
+      if (CATALOGUE[base]) { return CATALOGUE[base]; }
+    }
+    return CATALOGUE.en;
+  }
+
+  function lock(field, warning) {
+    if (field.tagName === "SELECT") {
+      field.disabled = true;
+    } else {
+      field.readOnly = true;
+    }
+    field.setAttribute("aria-readonly", "true");
+    field.title = warning;
+    field.style.cursor = "not-allowed";
+    Array.prototype.forEach.call(field.labels || [], function (label) { label.title = warning; });
+    if (field.parentElement) { field.parentElement.title = warning; }
+  }
+
+  function run() {
+    scheduled = false;
+    const warning = speak().locked;
+    document.querySelectorAll(SELECTOR).forEach(function (field) {
+      if (field.title !== warning) { lock(field, warning); }
+    });
+  }
+
+  function schedule() {
+    if (scheduled) { return; }
+    scheduled = true;
+    requestAnimationFrame(run);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+
+  new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+})();

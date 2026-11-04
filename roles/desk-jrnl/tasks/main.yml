@@ -1,4 +1,0 @@
----
-- name: 📦 install jrnl
-  package_install:
-    id: jrnl

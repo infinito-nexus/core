@@ -6,9 +6,9 @@ no per-addon exemption: no mechanism auto-exempt and no ``# nocheck`` escape;
 every such addon carries its own spec (gated with ``skipUnlessAddonEnabled``
 so it skips cleanly when the addon is not enabled in the current variant).
 
-Desktop (``desk-*``) roles are the one categorical exception: they drive no
+Desktop (``dsk-*``) roles are the one categorical exception: they drive no
 web surface a Playwright test could exercise, so they MUST NOT ship addon
-specs at all. The lint forbids spec files under ``desk-*`` roles.
+specs at all. The lint forbids spec files under ``dsk-*`` roles.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from utils.update.addons import iter_addon_files
 
 from . import PROJECT_ROOT
 
-DESKTOP_ROLE_PREFIX = "desk-"
+DESKTOP_ROLE_PREFIX = "dsk-"
 
 
 class TestAddonsPlaywrightSpec(unittest.TestCase):

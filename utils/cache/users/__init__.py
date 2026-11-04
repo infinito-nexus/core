@@ -15,7 +15,6 @@ from collections import OrderedDict
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
 from utils.cache import base as _base
 from utils.cache.base import (
@@ -26,15 +25,25 @@ from utils.cache.base import (
     _resolve_override_mapping,
     _resolve_roles_dir,
     _stable_variables_signature,
-    _tokens_file_signature,
 )
+from utils.cache.carrier import _carried_users, merged_users_cache_key
+from utils.cache.users import store as _store
+from utils.cache.users.email_policy import apply_email_policy as _apply_email_policy
+from utils.cache.users.email_policy import (
+    drop_mail_domain_secondaries as _drop_mail_domain_secondaries,
+)
+from utils.cache.users.forwards import validate_forwards as _validate_forwards
 from utils.cache.users.placeholders import (
     substitute_primary_domain_placeholder as _substitute_primary_domain_placeholder,
 )
 from utils.cache.users.placeholders import (
     substitute_scalar_placeholders as _substitute_scalar_placeholders,
 )
+from utils.cache.users.reservations import (
+    materialize_domain_label_reservations as _materialize_domain_label_reservations,
+)
 from utils.cache.yaml import load_yaml as _load_yaml_cached
+from utils.mail.policy import POLICY_MAILBOX, resolve_policy
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
 _USERS_DEFAULTS_CACHE: dict[str, dict[str, Any]] = {}
@@ -61,9 +70,11 @@ def _derive_accounts(roles: Any) -> list[str]:
 
 
 def _apply_account_defaults(users: dict[str, Any]) -> dict[str, Any]:
-    for user in users.values():
+    for key, user in users.items():
         if not isinstance(user, dict):
             continue
+        if "email" not in user:
+            user["email"] = f"{user.get('username', key)}@{{{{ DOMAIN_PRIMARY }}}}"
         if user.get("accounts") is None:
             user["accounts"] = _derive_accounts(user.get("roles", []))
         if "forward" not in user:
@@ -205,6 +216,7 @@ def _build_users(
         seen_usernames.add(username)
         seen_emails.add(email)
 
+    _validate_forwards(users)
     return users
 
 
@@ -219,6 +231,22 @@ def _load_store_users(file_tokens: str | os.PathLike[str] | None) -> dict[str, A
     data = _load_yaml_cached(path, default_if_missing={})
     users = data.get("users", {}) if isinstance(data, dict) else {}
     return users if isinstance(users, dict) else {}
+
+
+def _store_signature(variables: Mapping[str, Any] | None, tokens_file: Path) -> tuple:
+    """Return the cache-key part of the store the users are hydrated from.
+
+    Args:
+        variables: the play's variable scope.
+        tokens_file: the controller's tokens file, used when no snapshot exists.
+
+    Returns:
+        ``(STORE_FACT, digest)``, equal for the tokens file and the
+        ``sys_token_store_users`` fact when both hold the same tokens.
+    """
+    snapshot = _store.snapshot(variables)
+    store = snapshot if snapshot is not None else _load_store_users(tokens_file)
+    return (_store.STORE_FACT, _store.tokens_digest(store))
 
 
 def _resolve_tokens_file(variables: Mapping[str, Any] | None) -> Path:
@@ -308,73 +336,6 @@ def _hydrate_users_tokens(
     return out
 
 
-def _materialize_builtin_user_aliases(
-    users: Mapping[str, Any] | None,
-    variables: Mapping[str, Any] | None,
-    templar: Any = None,
-) -> dict[str, Any]:
-    from utils.templating.ansible import _templar_render_best_effort
-
-    def _normalize_domain_candidate(value: Any) -> str:
-        text = str(value or "").strip()
-        if not text:
-            return ""
-        if ("{{" in text or "{%" in text) and variables:
-            text = str(
-                _templar_render_best_effort(templar, text, dict(variables))
-            ).strip()
-        if "://" in text:
-            parsed = urlparse(text)
-            text = parsed.hostname or text
-        return text.split("/", 1)[0].split(":", 1)[0].strip()
-
-    def _to_primary_domain(value: Any) -> str:
-        text = _normalize_domain_candidate(value)
-        if not text:
-            return ""
-        labels = [label for label in text.split(".") if label]
-        if len(labels) >= 2:
-            return ".".join(labels[-2:])
-        return text
-
-    out: dict[str, Any] = copy.deepcopy(dict(users or {}))
-    variables = variables or {}
-
-    primary_domain = ""
-    for candidate_key, extractor in (
-        ("DOMAIN_PRIMARY", _normalize_domain_candidate),
-        ("SYSTEM_EMAIL_DOMAIN", _normalize_domain_candidate),
-        ("KEYCLOAK_DOMAIN", _to_primary_domain),
-        ("domain", _to_primary_domain),
-    ):
-        primary_domain = extractor(variables.get(candidate_key))
-        if primary_domain:
-            break
-    if not primary_domain:
-        return out
-
-    labels = [label for label in primary_domain.split(".") if label]
-    alias_values = {
-        "sld": labels[0] if labels else primary_domain,
-        "tld": (labels[1] if len(labels) > 1 else (primary_domain + "_tld ")),
-    }
-
-    for alias_key, alias_value in alias_values.items():
-        raw_user = out.get(alias_key)
-        if not isinstance(raw_user, Mapping):
-            continue
-
-        raw_username = str(raw_user.get("username", ""))
-        if "DOMAIN_PRIMARY.split" not in raw_username:
-            continue
-
-        updated_user = copy.deepcopy(dict(raw_user))
-        updated_user["username"] = alias_value
-        out[alias_key] = updated_user
-
-    return out
-
-
 def get_user_defaults(
     *, roles_dir: str | os.PathLike[str] | None = None
 ) -> dict[str, Any]:
@@ -415,23 +376,41 @@ def get_merged_users(
 
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     tokens_file = _resolve_tokens_file(variables)
+    snapshot = _store.snapshot(variables)
+    overrides = _resolve_override_mapping(variables, "users", templar=templar)
+    policy = resolve_policy(
+        _resolve_override_mapping(variables, "applications", templar=templar)
+    )
     cache_key = (
         _cache_key(resolved_roles_dir),
         _stable_variables_signature(source_variables),
-        _tokens_file_signature(tokens_file),
+        _store_signature(variables, tokens_file),
         templar is not None,
+        policy,
     )
     cached = _MERGED_USERS_CACHE.get(cache_key)
     if cached is not None:
         return cached
 
-    defaults = get_user_defaults(roles_dir=roles_dir)
-    overrides = _resolve_override_mapping(variables, "users", templar=templar)
+    if templar is not None and source_variables:
+        carried = _carried_users(
+            source_variables,
+            merged_users_cache_key(source_variables, roles_dir=resolved_roles_dir),
+        )
+        if carried is not None:
+            _MERGED_USERS_CACHE[cache_key] = carried
+            return carried
 
-    merged = _apply_account_defaults(_merge_users(defaults, overrides))
+    defaults = get_user_defaults(roles_dir=roles_dir)
+
+    merged = _apply_email_policy(
+        _apply_account_defaults(_merge_users(defaults, overrides)),
+        policy == POLICY_MAILBOX,
+    )
+    _validate_forwards(merged)
     hydrated = _hydrate_users_tokens(
         merged,
-        _load_store_users(tokens_file),
+        dict(snapshot) if snapshot is not None else _load_store_users(tokens_file),
     )
 
     if getattr(_RENDER_GUARD, "users", False):
@@ -439,7 +418,7 @@ def get_merged_users(
 
     _RENDER_GUARD.users = True
     try:
-        materialized = _materialize_builtin_user_aliases(
+        materialized = _materialize_domain_label_reservations(
             hydrated,
             variables,
             templar=templar,
@@ -450,11 +429,13 @@ def get_merged_users(
         materialized = _substitute_scalar_placeholders(
             materialized, variables, templar=templar
         )
-        rendered = _render_with_templar(
-            materialized,
-            templar=templar,
-            variables=variables,
-            raw_users=materialized,
+        rendered = _drop_mail_domain_secondaries(
+            _render_with_templar(
+                materialized,
+                templar=templar,
+                variables=variables,
+                raw_users=materialized,
+            )
         )
     finally:
         _RENDER_GUARD.users = False
@@ -466,3 +447,4 @@ def get_merged_users(
 def _reset() -> None:
     _USERS_DEFAULTS_CACHE.clear()
     _MERGED_USERS_CACHE.clear()
+    _store._reset()

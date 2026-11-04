@@ -13,7 +13,6 @@ fails at render time instead of reaching Docker as a malformed address.
 
 from __future__ import annotations
 
-import contextlib
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -21,13 +20,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.networks.address import subnet_gateway
-
-
-def _resolve_var(templar: Any, value: Any) -> Any:
-    if templar is not None and value is not None:
-        with contextlib.suppress(Exception):
-            return templar.template(value)
-    return value
+from utils.templating.vars import resolve_var
 
 
 class LookupModule(LookupBase):
@@ -43,7 +36,7 @@ class LookupModule(LookupBase):
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
 
-        application_id = _resolve_var(templar, vars_.get("application_id"))
+        application_id = resolve_var(templar, vars_.get("application_id"))
         if not application_id:
             raise AnsibleError(
                 "subnet_gateway lookup: application_id is required in variables"

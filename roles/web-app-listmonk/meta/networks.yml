@@ -7,3 +7,5 @@ overlay:
   topology: shared_net
   consumer:
     kind: mcp_client
+reachability:
+  handover: true # nocheck: network-reachability  listmonk builds every link, form action and OIDC callback from its one app.root_url, so an onion page sends the browser to clearnet

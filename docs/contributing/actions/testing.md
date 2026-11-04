@@ -29,7 +29,7 @@ Use the following table to choose the right lint, syntax, unit, integration, or 
 
 ## Local Deploy and End-to-End Checks 🚀
 
-For the retry-loop policy, use [Compose Loop](../../agents/action/iteration/compose.md) as the SPOT.
+For the retry-loop policy, use [Compose Loop](../../../agents/skills/i8-iterate-compose/SKILL.md) as the SPOT.
 The table below is a command reference for the supported local deployment paths.
 
 ### Local Validation Commands 🏠
@@ -43,7 +43,7 @@ Use the following table when you need realistic local deployment validation or a
 | Local deploy | `make compose-deploy mode=update apps=web-app-nextcloud purge=true` | Reuses an existing `devices.yml` inventory, purges the entity first, and redeploys one or more apps quickly. | Fast reuse path after a state reset. |
 | Local deploy and E2E | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs a dedicated local validation flow for one or more apps against the dev stack, cycling the stack and re-initializing the inventory first. | Baseline and recovery path. |
 | Full local validation | `make compose-deploy` | Builds the broader local deployment flow across apps. | Broad coverage when you explicitly need it. |
-| Bundle deploy | `make compose-deploy bundles="<bundle>[,<bundle>]"` | Aggregates the role groups from one or more [inventories/bundles/](../../../inventories/bundles/) entries into `apps` and runs the reinstall flow. Set `full_cycle=true` for the async update pass. | One-shot validation of a curated app shape (e.g. `education-suite`). |
+| Bundle deploy | `make compose-deploy bundles="<bundle>[,<bundle>]"` | Aggregates the role groups from one or more [inventories/bundles/](../../../inventories/bundles/) entries into `apps` and runs the reinstall flow. Set `full_cycle=true` for the update pass. | One-shot validation of a curated app shape (e.g. `education-suite`). |
 | Bundle redeploy | `make compose-deploy mode=update bundles="<bundle>[,<bundle>]"` | Same bundle resolution as the bundle deploy, but routes through the reuse path (no down/up, no entity purge). | Fast iteration loop after a prior bundle deploy. |
 | Local reset | `make compose-inventory-refresh` | Recreates the local inventory without deploying apps. | Use this when your local inventory is broken or you want a clean reset. |
 | Local cleanup | `make compose-system-purge` | Deletes local deploy artifacts and cleanup data. | Use this only when you really want to remove local state. |
@@ -69,4 +69,5 @@ For test-type-specific requirements, framework, and creation procedures see:
 - [Unit Tests](testing/unit.md)
 - [Integration Tests](testing/integration.md)
 - [External Tests](testing/external.md)
+- [Upstream References](testing/upstream.md)
 - [Playwright Tests](testing/playwright.md)

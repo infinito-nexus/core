@@ -1,6 +1,8 @@
 import sys
+import tempfile
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 
 from . import PROJECT_ROOT
 
@@ -110,7 +112,14 @@ class TestRepairDockerHard(unittest.TestCase):
             s.hard_restart_docker_services = fake_hard_restart
 
             sys_argv = sys.argv
-            sys.argv = ["x", "/PARENT", "--only", "app2"]
+            sys.argv = [
+                "x",
+                "/PARENT",
+                "--only",
+                "app2",
+                "--state-file",
+                ".app-control-state",
+            ]
             s.main()
             self.assertEqual(seen["called"], ["/PARENT/app2"])
         finally:
@@ -119,6 +128,30 @@ class TestRepairDockerHard(unittest.TestCase):
             s.os.path.isfile = old_isfile
             s.hard_restart_docker_services = old_restart
             sys.argv = sys_argv
+
+    def test_a_project_paused_by_app_control_stays_down(self):
+        s = self.script
+        called = []
+        with tempfile.TemporaryDirectory() as parent:
+            for name, state in (("paused", "stopped\n"), ("running", "started\n")):
+                project = Path(parent) / name
+                project.mkdir()
+                (project / "compose.yml").write_text("services: {}\n")
+                (project / ".app-control-state").write_text(state)
+            old_restart = s.hard_restart_docker_services
+            sys_argv = sys.argv
+            try:
+                s.hard_restart_docker_services = called.append
+                sys.argv = ["x", parent, "--state-file", ".app-control-state"]
+                s.main()
+            finally:
+                s.hard_restart_docker_services = old_restart
+                sys.argv = sys_argv
+        self.assertEqual([Path(path).name for path in called], ["running"])
+
+    def test_a_project_without_a_marker_is_not_paused(self):
+        with tempfile.TemporaryDirectory() as project:
+            self.assertFalse(self.script.paused(project, ".app-control-state"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,31 @@
+---
+- name: "♻️ Reseed '{{ MEDIAWIKI_VOLUME_EXTENSIONS }}' from the image on a version change"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - -i
+      - --user
+      - "0:0"
+      - --mount
+      - "type=volume,src={{ MEDIAWIKI_VOLUME_EXTENSIONS }},dst={{ MEDIAWIKI_EXTENSIONS_SEED_MOUNT }}"
+      - --entrypoint
+      - bash
+      - "{{ MEDIAWIKI_CUSTOM_IMAGE_REF }}"
+      - -s
+      - --
+      - "{{ MEDIAWIKI_HTML_DIR }}"
+      - "{{ MEDIAWIKI_EXTENSIONS_SEED_MOUNT }}"
+      - "{{ MEDIAWIKI_EXTENSIONS_VERSION_MARKER }}"
+    stdin: "{{ lookup('file', 'shell/refresh_extensions.sh') }}"
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  register: mediawiki_extensions_refresh
+  changed_when: "'REFRESHED:' in mediawiki_extensions_refresh.stdout"
+  failed_when: mediawiki_extensions_refresh.rc not in [0, MEDIAWIKI_EXTENSIONS_DOWNGRADE_RC]
+
+- name: "⛔ Refuse to reseed the extensions of a newer MediaWiki"
+  ansible.builtin.fail:
+    msg: "{{ mediawiki_extensions_refresh.stdout }}"
+  when: mediawiki_extensions_refresh.rc == MEDIAWIKI_EXTENSIONS_DOWNGRADE_RC

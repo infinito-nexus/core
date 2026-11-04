@@ -1,0 +1,4 @@
+---
+canonical:
+  - grafana.{{ DOMAIN_PRIMARY }}
+aliases: []

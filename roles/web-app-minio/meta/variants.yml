@@ -7,6 +7,9 @@
 # variant 0: OIDC variant (canonical default).
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:
@@ -30,12 +33,15 @@
     ldap:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -60,7 +66,7 @@
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
@@ -75,7 +81,7 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:

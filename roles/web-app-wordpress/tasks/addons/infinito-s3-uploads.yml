@@ -1,0 +1,5 @@
+---
+- name: "🪣 The S3 endpoint mu-plugin needs no integration beyond staging"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: the mu-plugin reads its WORDPRESS_S3_* settings from the container environment"
+  changed_when: false

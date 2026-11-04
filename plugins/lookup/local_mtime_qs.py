@@ -10,16 +10,19 @@ class LookupModule(LookupBase):
     """
     Return a cache-busting string based on the LOCAL file's mtime.
 
-    Usage (single path → string via Jinja):
+    Usage (single path → string via Jinja)::
+
       {{ lookup('local_mtime_qs', '/path/to/file.css') }}
       -> "?version=1712323456"
 
-    Options:
+    Options::
+
       param (str): query parameter name (default: "version")
       mode  (str): "qs" (default) → returns "?<param>=<mtime>"
                    "epoch"        → returns "<mtime>"
 
-    Multiple paths (returns list, one result per term):
+    Multiple paths (returns list, one result per term)::
+
       {{ lookup('local_mtime_qs', '/a.js', '/b.js', param='v') }}
     """
 

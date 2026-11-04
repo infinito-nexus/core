@@ -1,0 +1,52 @@
+:root,
+html.theme--light,
+html.theme--light body,
+html.theme--light #root,
+html.theme--dark,
+html.theme--dark body,
+html.theme--dark #root,
+html.theme--dim,
+html.theme--dim body,
+html.theme--dim #root {
+  --text: var(--design-text);
+  --background: var(--design-surface-1);
+  --backgroundLight: var(--design-surface-3);
+}
+
+html,
+body,
+#root,
+html.theme--light,
+html.theme--light body,
+html.theme--light #root,
+html.theme--dark,
+html.theme--dark body,
+html.theme--dark #root,
+html.theme--dim,
+html.theme--dim body,
+html.theme--dim #root {
+  background-color: var(--design-surface-1);
+}
+
+.ProseMirror-dark {
+  color: var(--design-text);
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--design-text-muted);
+}
+
+.ProseMirror .mention,
+.ProseMirror .autolink {
+  color: var(--design-link);
+}
+
+svg[data-testid='userAvatarFallback'] [fill='#0070FF' i] {
+  fill: var(--design-primary);
+}
+
+svg[data-testid='userAvatarFallback'] [fill='#fff' i],
+svg[data-testid='userAvatarFallback'] [fill='#ffffff' i],
+svg[data-testid='userAvatarFallback'] [fill='white' i] {
+  fill: var(--design-on-primary);
+}

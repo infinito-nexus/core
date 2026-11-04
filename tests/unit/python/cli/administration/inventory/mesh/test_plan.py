@@ -97,6 +97,14 @@ class TestAddressPersistence(unittest.TestCase):
         mesh = plan_mesh(SWARM, TOPOLOGY, addresses={"swarm-wrk-01": hub})
         self.assertNotEqual(mesh.member("swarm-wrk-01").address, hub)
 
+    def test_a_hand_pinned_address_below_the_allocation_start_is_kept(self):
+        mesh = plan_mesh(SWARM, TOPOLOGY, addresses={"swarm-wrk-01": "10.100.0.2"})
+        self.assertEqual("10.100.0.2", mesh.member("swarm-wrk-01").address)
+
+    def test_a_stored_broadcast_address_is_replaced(self):
+        mesh = plan_mesh(SWARM, TOPOLOGY, addresses={"swarm-wrk-01": "10.100.0.255"})
+        self.assertNotEqual("10.100.0.255", mesh.member("swarm-wrk-01").address)
+
     def test_two_members_claiming_one_address_do_not_both_keep_it(self):
         taken = plan_mesh(SWARM, TOPOLOGY).member("swarm-wrk-01").address
         mesh = plan_mesh(
@@ -126,6 +134,44 @@ class TestPeering(unittest.TestCase):
     def test_a_host_outside_the_mesh_has_no_peers(self):
         mesh = plan_mesh(SWARM, TOPOLOGY)
         self.assertEqual(mesh.peers_of("nfs-server"), ())
+
+
+class TestRoaming(unittest.TestCase):
+    ROAMING = Topology(
+        hub=TOPOLOGY.hub,
+        spokes=TOPOLOGY.spokes,
+        roaming=frozenset({"swarm-wrk-02"}),
+    )
+
+    def test_a_roaming_spoke_has_no_endpoint(self):
+        member = plan_mesh(SWARM, self.ROAMING).member("swarm-wrk-02")
+        self.assertTrue(member.roaming)
+        self.assertEqual("", member.endpoint)
+
+    def test_a_spoke_without_the_mark_keeps_its_endpoint(self):
+        member = plan_mesh(SWARM, self.ROAMING).member("swarm-wrk-01")
+        self.assertFalse(member.roaming)
+        self.assertEqual("swarm-wrk-01", member.endpoint)
+
+    def test_a_roaming_spoke_still_peers_with_the_hub_alone(self):
+        mesh = plan_mesh(SWARM, self.ROAMING)
+        self.assertEqual(
+            [TOPOLOGY.hub], [peer.host for peer in mesh.peers_of("swarm-wrk-02")]
+        )
+
+    def test_the_hub_still_peers_with_a_roaming_spoke(self):
+        mesh = plan_mesh(SWARM, self.ROAMING)
+        self.assertIn("swarm-wrk-02", [p.host for p in mesh.peers_of(TOPOLOGY.hub)])
+
+    def test_an_endpoint_for_a_roaming_spoke_is_refused(self):
+        with self.assertRaises(ValueError) as raised:
+            plan_mesh(SWARM, self.ROAMING, endpoints={"swarm-wrk-02": "192.0.2.4"})
+        self.assertIn("swarm-wrk-02", str(raised.exception))
+
+    def test_a_topology_without_roamers_marks_nobody(self):
+        mesh = plan_mesh(SWARM, TOPOLOGY)
+        self.assertFalse(any(member.roaming for member in mesh.members))
+        self.assertTrue(all(member.endpoint for member in mesh.members))
 
 
 class TestPrimaryMesh(unittest.TestCase):

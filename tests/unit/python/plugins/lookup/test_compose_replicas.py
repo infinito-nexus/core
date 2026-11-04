@@ -53,6 +53,8 @@ class TestComposeReplicasLookup(unittest.TestCase):
     def test_compose_mode_no_arg_emits_empty(self):
         vars_ = {
             "DEPLOYMENT_MODE": "compose",
+            "IS_COMPOSE_MODE": True,
+            "IS_SWARM_MODE": False,
             "application_id": "web-app-x",
             "groups": {"web-app-x": ["h1", "h2", "h3"]},
         }
@@ -75,6 +77,8 @@ class TestComposeReplicasLookup(unittest.TestCase):
     def test_swarm_mode_default_uses_group_length(self):
         vars_ = {
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "application_id": "web-app-x",
             "groups": {"web-app-x": ["mgr-01", "wrk-01", "wrk-02"]},
         }
@@ -84,6 +88,8 @@ class TestComposeReplicasLookup(unittest.TestCase):
     def test_swarm_mode_single_host_yields_one(self):
         vars_ = {
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "application_id": "web-app-x",
             "groups": {"web-app-x": ["h1"]},
         }
@@ -93,6 +99,8 @@ class TestComposeReplicasLookup(unittest.TestCase):
     def test_swarm_mode_empty_group_falls_back_to_one(self):
         vars_ = {
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "application_id": "web-app-x",
             "groups": {"web-app-x": []},
         }
@@ -102,6 +110,8 @@ class TestComposeReplicasLookup(unittest.TestCase):
     def test_swarm_mode_missing_group_falls_back_to_one(self):
         vars_ = {
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "application_id": "web-app-x",
             "groups": {},
         }
@@ -111,6 +121,8 @@ class TestComposeReplicasLookup(unittest.TestCase):
     def test_swarm_mode_explicit_override(self):
         vars_ = {
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "application_id": "web-app-x",
             "groups": {"web-app-x": ["h1", "h2", "h3"]},
         }
@@ -151,6 +163,8 @@ class TestComposeReplicasLookup(unittest.TestCase):
     def test_none_terms_treated_as_no_args(self):
         vars_ = {
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "application_id": "web-app-x",
             "groups": {"web-app-x": ["a", "b"]},
         }

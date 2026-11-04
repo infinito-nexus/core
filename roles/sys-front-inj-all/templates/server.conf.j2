@@ -1,3 +1,4 @@
+{% include 'roles/sys-svc-app-control/templates/nginx/paused.conf.j2' %}
 {% if inj_enabled.logout %}
 {% include 'roles/web-svc-logout/templates/logout-proxy.conf.j2' %}
 {% endif %}

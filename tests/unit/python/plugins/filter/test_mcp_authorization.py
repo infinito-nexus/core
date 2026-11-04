@@ -25,24 +25,53 @@ class TestMcpAuthorization(unittest.TestCase):
             mcp_authorization({"auth": "app_password", "token": "pw"}), "Bearer pw"
         )
 
-    def test_basic_auth_encodes_the_credential_owner_and_token(self):
+    def test_basic_auth_encodes_the_credential_login_and_token(self):
         header = mcp_authorization(
-            {"auth": "basic_auth", "owner": "admin", "token": "t0ken"}
+            {"auth": "basic_auth", "login": "admin", "token": "t0ken"}
         )
         expected = base64.b64encode(b"admin:t0ken").decode()
         self.assertEqual(header, f"Basic {expected}")
 
+    def test_basic_auth_presents_the_login_never_the_owner_key(self):
+        """The endpoint authenticates a login; the key only names the store.
+
+        web-app-wordpress is owned by ``mcp-web-app-wordpress`` and logs in as
+        ``mcp-wordpress``. Encoding the key made every MCP call 401.
+        """
+        header = mcp_authorization(
+            {
+                "auth": "basic_auth",
+                "owner": "mcp-web-app-wordpress",
+                "login": "mcp-wordpress",
+                "token": "t0ken",
+            }
+        )
+        self.assertEqual(
+            header, f"Basic {base64.b64encode(b'mcp-wordpress:t0ken').decode()}"
+        )
+
     def test_basic_auth_ignores_the_env_reference(self):
         header = mcp_authorization(
-            {"auth": "basic_auth", "owner": "admin", "token": "t0ken"},
+            {"auth": "basic_auth", "login": "admin", "token": "t0ken"},
             env="SOME_VAR",
         )
         self.assertNotIn("SOME_VAR", header)
         self.assertTrue(header.startswith("Basic "))
 
-    def test_basic_auth_without_an_owner_raises(self):
+    def test_basic_auth_without_a_login_raises(self):
         with self.assertRaises(ValueError):
             mcp_authorization({"id": "web-app-x", "auth": "basic_auth", "token": "t"})
+
+    def test_basic_auth_refuses_an_owner_key_with_no_login(self):
+        with self.assertRaises(ValueError):
+            mcp_authorization(
+                {
+                    "id": "web-app-x",
+                    "auth": "basic_auth",
+                    "owner": "mcp-web-app-x",
+                    "token": "t",
+                }
+            )
 
     def test_unpresentable_scheme_raises(self):
         with self.assertRaises(ValueError):

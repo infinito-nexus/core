@@ -7,11 +7,18 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 
 exports.register = function (shared) {
   test("administrator: full login flow (KIX → OAuth2-proxy → Keycloak → KIX-LDAP login → KIX UI → universal logout)", async ({ page }) => {
-    test.skip(!shared.env.ssoEnabled,    "SSO shared service disabled");
-    test.skip(!shared.env.ldapEnabled,   "LDAP shared service disabled");
+    shared.skipUnlessServiceEnabled("sso");
+    shared.skipUnlessServiceEnabled("ldap");
     expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
     expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 
     await shared.runKixLoginLogoutFlow(page, adminUsername, adminPassword);
+  });
+
+  test("administrator: KIX-LDAP login of the administrator role member → KIX UI → logout", async ({ page }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceDisabled("sso");
+
+    await shared.runKixDirectoryLoginLogoutFlow(page, shared.env.adminUsername, shared.env.adminPassword);
   });
 };

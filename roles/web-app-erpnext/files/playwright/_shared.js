@@ -1,8 +1,8 @@
-const { expect } = require("@playwright/test");
+const { expect, request } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion, requireDotenvValue } = require("./personas");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
 const oidcIssuerUrl  = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -13,7 +13,33 @@ const adminPassword       = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD);
 const biberUsername       = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword       = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+const biberEmail          = requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL").toLowerCase();
+const managedRoles        = JSON.parse(decodeDotenvQuotedValue(process.env.RBAC_MANAGED_ROLES_JSON || "[]"));
 const canonicalDomain     = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const adminApiKey         = decodeDotenvQuotedValue(process.env.ADMIN_API_KEY);
+const adminApiSecret      = decodeDotenvQuotedValue(process.env.ADMIN_API_SECRET);
+const loginMethods = {
+  ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  email: process.env.LOGIN_METHOD_EMAIL_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
+const localFormShown = loginMethods.native || loginMethods.ldap;
+
+const LOGIN_SECTION = "section.for-login";
+
+/**
+ * Returns:
+ *   An API request context that authenticates as the API bot through its token, the break-glass path that stays open while disable_user_pass_login refuses every password sign-in; dispose it after use.
+ */
+async function breakGlassApi() {
+  expect(adminApiKey, "ADMIN_API_KEY must be set").toBeTruthy();
+  expect(adminApiSecret, "ADMIN_API_SECRET must be set").toBeTruthy();
+  return request.newContext({
+    ignoreHTTPSErrors: true,
+    extraHTTPHeaders: { Authorization: `token ${adminApiKey}:${adminApiSecret}` },
+  });
+}
 
 async function erpnextLogout(page) {
   await gotoOnion(page, `${erpnextBaseUrl}/api/method/logout`, { waitUntil: "commit" }).catch(() => {});
@@ -27,13 +53,20 @@ async function erpnextLogout(page) {
 // (local DB lookup first, LDAP fallback when LDAP Settings is enabled).
 async function signInViaErpnextLocal(page, username, password, personaLabel) {
   await gotoOnion(page, `${erpnextBaseUrl}/login`);
-  await page.fill("input#login_email", username);
-  await page.fill("input#login_password", password);
+  await expect(page.locator(`${LOGIN_SECTION} input#login_password`)).toBeEditable({
+    timeout: resolveTimeout(30_000),
+  });
+  await page.fill(`${LOGIN_SECTION} input#login_email`, username);
+  await page.fill(`${LOGIN_SECTION} input#login_password`, password);
   await Promise.all([
     page.waitForURL((url) => url.toString().includes(canonicalDomain) && !url.toString().includes("/login"), {
       timeout: resolveTimeout(60_000),
     }),
-    page.click("button.btn-login, button[type='submit']", { timeout: resolveTimeout(30_000) }).catch(() => page.keyboard.press("Enter")),
+    page
+      .click(`${LOGIN_SECTION} button.btn-login, ${LOGIN_SECTION} button[type='submit']`, {
+        timeout: resolveTimeout(30_000),
+      })
+      .catch(() => page.keyboard.press("Enter")),
   ]);
   await expect
     .poll(() => page.url(), {
@@ -95,11 +128,17 @@ module.exports = {
     adminNativePassword,
     biberUsername,
     biberPassword,
+    biberEmail,
+    managedRoles,
     canonicalDomain,
+    loginMethods,
+    localFormShown,
   },
+  breakGlassApi,
   signInViaErpnextOidc,
   signInViaErpnextLocal,
   erpnextLogout,
   beforeEach,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
 };

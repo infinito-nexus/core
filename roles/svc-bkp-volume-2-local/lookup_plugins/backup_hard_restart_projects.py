@@ -6,7 +6,7 @@ from typing import Any
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -44,6 +44,6 @@ class LookupModule(LookupBase):
                     if isinstance(backup, Mapping) and backup.get(
                         "project_hard_restart"
                     ):
-                        entities.add(get_entity_name(application_id))
+                        entities.add(entity_name(application_id))
                         break
         return [sorted(entities)]

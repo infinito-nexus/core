@@ -1,0 +1,5 @@
+{% set design = lookup('design', application_id) %}
+ui_theme = {{ CHECKMK_DESIGN_THEME | to_json }}
+{% if design.title is string %}
+page_heading = {{ design.title | to_json }}
+{% endif %}

@@ -103,9 +103,9 @@ flowchart TB
 
 ## Applicability
 
-- The drill runs whenever the app declares an NFS-flagged volume
-  (`PRIMARY_NFS_VOLUME`); apps without one skip it, since there is nothing
-  to prove a restore against.
+- The drill runs whenever the app declares an NFS-flagged volume that is
+  not `backup: false` (`BACKUP_NFS_VOLUME`); apps without one skip it,
+  since there is nothing to prove a restore against.
 - The manager legs of steps 2, 4 and 9 run only when the app's include
   closure contains `svc-bkp-volume-2-local` / `svc-bkp-secrets-2-local`.
   `utils/tests/swarm/backup_repos.py` derives both the manager's inventory

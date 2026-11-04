@@ -1,0 +1,28 @@
+---
+runtime: hermes
+lifecycle: on_demand
+owner: operator
+repositories:
+  - infinito-nexus/core
+firewall_roles:
+  - operator
+skills:
+  - i8-debug-local
+models:
+  local:
+    - ollama
+  external: []
+  default: ollama
+keepass:
+  mode: broker
+write_enabled: false
+triggers:
+  - alarm
+quotas:
+  requests_per_minute: 60
+  budget_usd_per_day: 10
+  tool_calls_per_minute: 120
+  pull_requests_per_hour: 5
+  comments_per_hour: 20
+  emails_per_hour: 10
+credentials: {}

@@ -1,0 +1,6 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+{% if LOKI_OBJSTORE_ENABLED | bool %}
+
+LOKI_S3_ACCESS_KEY_ID={{ lookup('objstore', application_id, 'access_key') | dotenv_quote }}
+LOKI_S3_SECRET_ACCESS_KEY={{ lookup('objstore', application_id, 'secret_key') | dotenv_quote }}
+{% endif %}

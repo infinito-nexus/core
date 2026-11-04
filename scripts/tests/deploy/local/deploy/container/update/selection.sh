@@ -53,12 +53,12 @@ read -ra app_ids <<<"${apps}"
 cmd=(infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}"
 	--skip-backup
 	--skip-cleanup
+	--skip-pull
 	--id "${app_ids[@]}"
 	-l localhost
 	--diff
 	-vv
 	--password-file "${pw_file}"
-	-e ASYNC_ENABLED=false
 	-e SYS_SERVICE_ALL_ENABLED=false
 	-e SYS_SERVICE_DEFAULT_STATE=started
 )

@@ -23,8 +23,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -49,7 +49,7 @@ listmonk:
   image: listmonk/listmonk
   version: "v6.2.0"
   backup:
-    no_stop_required: true
+    stop_required: false
   name: listmonk
   ports:
     internal:
@@ -63,9 +63,16 @@ listmonk:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-listmonk', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-listmonk', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-listmonk', '2fa') }}"
 # nocheck: playwright-service-flag — object store, no Playwright surface
 minio:
   enabled: false # nocheck: dynamic-flag
@@ -74,13 +81,17 @@ minio:
 # nocheck: playwright-service-flag — object store, no Playwright surface
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 182
+      height: 34
 # nocheck: dynamic-flag
 hcaptcha:
   enabled: "{{ HCAPTCHA_ENABLED | bool }}"
@@ -134,3 +145,16 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

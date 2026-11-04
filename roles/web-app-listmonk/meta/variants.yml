@@ -5,6 +5,9 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-listmonk.
 - services:
+    docs:
+      enabled: false
+      shared: false
     asset:
       enabled: true
       shared: true
@@ -31,7 +34,7 @@
     seaweedfs:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     tor:
@@ -46,6 +49,9 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     asset:
       enabled: false
       shared: false
@@ -72,7 +78,7 @@
     seaweedfs:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     tor:

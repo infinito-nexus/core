@@ -4,3 +4,13 @@ semaphore_data:
   mounts:
     - service: semaphore
       target: /var/lib/semaphore
+
+semaphore_runner_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'runner.token' ] | path_join }}"
+  mode: "0400"
+  uid: 64101
+  gid: 64101
+  mounts:
+    - service: task-runner
+      target: /run/secrets/semaphore-runner-token

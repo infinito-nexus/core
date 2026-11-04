@@ -1,0 +1,4 @@
+---
+roles:
+  editor:
+    description: Shopware catalogue and content editor (products, categories, media and shopping experiences through the Editor ACL role)

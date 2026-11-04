@@ -1,0 +1,4 @@
+---
+roles:
+  user-manager:
+    description: Decidim user manager (manages participants, impersonations and verifications without full administrator rights)

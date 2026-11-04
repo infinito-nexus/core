@@ -1,0 +1,35 @@
+---
+- name: "📦 Install {{ BIN_APP_CONTROL }}"
+  ansible.builtin.copy:
+    src: python/app_control.py
+    dest: "{{ BIN_APP_CONTROL }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "📁 Create the app-control directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ FILE_APP_CONTROL_CONFIG | dirname }}"
+    - "{{ lookup('nginx', 'directories.data.paused_apps') }}"
+    - "{{ lookup('nginx', 'directories.data.paused_pages') }}"
+
+- name: "🧾 Write the app-control configuration"
+  ansible.builtin.copy:
+    content: "{{ APP_CONTROL_CONFIG | to_nice_json }}\n"
+    dest: "{{ FILE_APP_CONTROL_CONFIG }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- include_tasks: 01_pages.yml
+
+- include_tasks: 02_ssh.yml
+  when: "'web-app-semaphore' in group_names"
+
+- include_tasks: utils/once/flag.yml

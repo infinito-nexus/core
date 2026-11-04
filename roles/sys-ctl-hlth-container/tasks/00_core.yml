@@ -9,6 +9,24 @@
     name: sys-ctl-rpr-container-soft
   when: run_once_sys_ctl_rpr_container_soft is not defined
 
+- name: 📁 Ensure the script directory of {{ system_service_id }} exists
+  ansible.builtin.file:
+    path: "{{ SYS_CTL_HLTH_CONTAINER_SCRIPT_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: 📋 Deploy the log excerpt redactor of {{ system_service_id }}
+  ansible.builtin.copy:
+    src: python/redact.py
+    dest: "{{ [SYS_CTL_HLTH_CONTAINER_SCRIPT_DIR, 'redact.py'] | path_join }}"
+    mode: "0755"
+
+- name: 📋 Deploy the shared redaction rules of {{ system_service_id }}
+  ansible.builtin.copy:
+    content: "{{ {'replacement': LOG_REDACTION_REPLACEMENT, 'rules': LOG_REDACTION_RULES} | to_nice_json }}\n"
+    dest: "{{ [SYS_CTL_HLTH_CONTAINER_SCRIPT_DIR, 'redaction.json'] | path_join }}"
+    mode: "0644"
+
 - include_role:
     name: sys-service
   vars:

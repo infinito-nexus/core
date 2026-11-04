@@ -1,0 +1,3 @@
+.header .logo img {
+  content: var(--design-url-logo-svg);
+}

@@ -93,7 +93,7 @@ tor:
   version: "<pinned tor x.y.z>"
   name: tor
   backup:
-    no_stop_required: false     # stop for consistent key-volume copy
+    stop_required: true         # stop for consistent key-volume copy
   lifecycle: alpha
   # no public ports; SocksPort/ControlPort bind 127.0.0.1 only
 ```
@@ -147,35 +147,35 @@ applications:
 
 ### Scaffolding & lint
 
-- [ ] `roles/svc-net-tor/` matches the layout; `application_id: svc-net-tor`; `run_once_svc_net_tor` guard; all meta lint green (mapping, galaxy canon, layout, bond, README).
+- `roles/svc-net-tor/` matches the layout; `application_id: svc-net-tor`; `run_once_svc_net_tor` guard; all meta lint green (mapping, galaxy canon, layout, bond, README). Superseded by [055 - Multi-Network Serving](055-multi-network-serving.md), whose network registry names `svc-net-tor` as the onion provider.
 - [ ] `files/Dockerfile` pins `tor` (no `:latest`); image builds in the stack.
 
 ### Mint helper & key persistence
 
-- [ ] Helper mints offline, vaults `hostname` + `hs_ed25519_{public,secret}_key`, emits `DOMAIN_PRIMARY`; re-running reuses the key (address unchanged).
-- [ ] Unit tests: known-vector address determinism, idempotent reuse, byte-exact file formats.
-- [ ] `01_restore_key.yml` restores keys with strict perms before Tor starts; never overwrites existing keys; Tor serves exactly the minted address.
+- Helper mints offline, vaults `hostname` + `hs_ed25519_{public,secret}_key`, emits `DOMAIN_PRIMARY`; re-running reuses the key (address unchanged). Superseded by [055](055-multi-network-serving.md): the clearnet domain stays `DOMAIN_PRIMARY` and the onion is a network sibling.
+- [x] Unit tests: known-vector address determinism, idempotent reuse, byte-exact file formats.
+- `01_restore_key.yml` restores keys with strict perms before Tor starts; never overwrites existing keys; Tor serves exactly the minted address. Superseded by [055](055-multi-network-serving.md) together with the mint helper above.
 - [ ] Address survives redeploy, update, full-cycle reinstall; restoring the vault on a fresh box reproduces the same address; key volume covered by `svc-bkp-container-2-local`.
 
 ### Serving
 
 - [ ] Tor sidecar bootstraps (`network_mode: host`); 9050/9051 bind `127.0.0.1` only; zero published ports.
 - [ ] `lookup('tls', '<x>.onion')` → http/disabled/80, no ACME attempted; app vhosts serve onion `server_name`s on `:80`; every app reachable at `<sub>.<NODE_ONION>.onion` through `HiddenServicePort 80 → 127.0.0.1:80`.
-- [ ] Onion requests reach upstreams with `X-Forwarded-Proto: https`; no `.onion` request is 301'd to https; alias/www canonicalization stays onion-internal; CSP origins (CDN, Matomo, Keycloak, logout) resolve onion — no clearnet leak.
+- Onion requests reach upstreams with `X-Forwarded-Proto: https`; no `.onion` request is 301'd to https; alias/www canonicalization stays onion-internal; CSP origins (CDN, Matomo, Keycloak, logout) resolve onion, no clearnet leak. Superseded by [055](055-multi-network-serving.md): the forwarded headers, per-vhost alignment, redirects and the cross-network leak spec are criteria there.
 
 ### SSO / identity consistency
 
 - [ ] OIDC login completes end-to-end over `.onion`: issuer, redirect URIs, web-origins all onion; no redirect-URI/issuer mismatch.
-- [ ] oauth2-proxy `email_domains` matches provisioned `@<NODE_ONION>.onion` users; `LDAP_DN_BASE` + CA identity resolve consistently.
+- oauth2-proxy `email_domains` matches provisioned `@<NODE_ONION>.onion` users; `LDAP_DN_BASE` + CA identity resolve consistently. Superseded by [055](055-multi-network-serving.md): identities keep the clearnet domain and every network sibling runs its own oauth2-proxy instance.
 
 ### Per-domain TLS
 
-- [ ] Extra domain under `applications.<app>.server.domains` + `tls.mode` deploys as a separate HTTPS vhost (correct flavor) alongside the onion vhost, same upstream.
-- [ ] `tls.py` unit tests: onion→forced off; foreign→app-level flavor; unset→`TLS_MODE`.
+- Extra domain under `applications.<app>.server.domains` + `tls.mode` deploys as a separate HTTPS vhost (correct flavor) alongside the onion vhost, same upstream. Superseded by [055](055-multi-network-serving.md): every canonical domain expands into one vhost per network sibling.
+- [x] `tls.py` unit tests: onion→forced off; foreign→app-level flavor; unset→`TLS_MODE`.
 
 ### Egress
 
-- [ ] `TOR_EGRESS_ENABLED` defaults `false` (outbound untouched); `true` exposes SOCKS to containers, documented.
+- [ ] `services.tor.egress.enabled` (`TOR_EGRESS_ROUTER_ENABLED`) defaults `true`, torifying outbound traffic, and `false` leaves outbound untouched; both are documented in the role README.
 
 ### CI / E2E
 
@@ -207,7 +207,7 @@ These build on the working onion node and are implemented after the web core is 
 
 - When the target under test is an `.onion` domain, the Playwright browser routes through Tor's SOCKS proxy so specs exercise the real onion path (aligns with Decision #11's real-Tor E2E).
 - Mechanism: the `test-e2e-playwright` runner sets the browser proxy to `socks5://127.0.0.1:9050` (with `socks5` remote DNS for `.onion` resolution) when the resolved domain ends in `.onion`.
-- [ ] A Playwright spec against a `<sub>.<node>.onion` surface passes through the Tor SOCKS proxy on an onion node; clearnet targets are unaffected.
+- [x] A Playwright spec against a `<sub>.<node>.onion` surface passes through the Tor SOCKS proxy on an onion node; clearnet targets are unaffected.
 
 ## Out of scope
 
@@ -224,7 +224,7 @@ torsocks curl -I http://next.cloud.<NODE_ONION>.onion   # app over Tor, no publi
 
 ## Prerequisites
 
-Read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/README.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md). Verify key-file byte formats and vhost/TLS behavior **in the DiD container first**, then redeploy.
+Read [AGENTS.md](../../AGENTS.md), then [Role Loop](../../agents/README.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md). Verify key-file byte formats and vhost/TLS behavior **in the DiD container first**, then redeploy.
 
 ## Implementation order
 

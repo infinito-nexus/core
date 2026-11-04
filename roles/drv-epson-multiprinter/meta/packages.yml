@@ -10,4 +10,4 @@ epson-multiprinter:
       - imagescan-plugin-networkscan
   Debian:
     - printer-driver-escpr
-  RedHat: [] # nocheck: empty - Epson's ESC/P-R and Image Scan packages are absent from Fedora, CentOS Stream 10 and EPEL 10; TODO: install Epson's own rpm downloads through a build source
+  RedHat: [] # nocheck: empty - no fetchable source exists: Fedora, CentOS Stream 10 and EPEL 10 carry none of Epson's packages, and Epson serves its own rpms only from support.epson.net, which answers a non-browser request with 403, so a pinned download would fail on the target

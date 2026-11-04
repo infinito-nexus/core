@@ -3,14 +3,24 @@
  * Playwright specs that need to manipulate group membership directly
  * (RBAC-tier tests across web-app-* roles).
  *
- *   `performKeycloakLoginForm(target, username, password)`
+ *   `isAuthChain(url)`
+ *     Whether a URL belongs to the oauth2-proxy / Keycloak redirect
+ *     chain rather than the application itself.
+ *
+ *   `performKeycloakLoginForm(target, username, password, options)`
  *     Fills the Keycloak login form on `target` (a `Page` OR a
  *     `FrameLocator`) and clicks sign-in. Tolerates both the
  *     role-based selector strategy (`getByRole({ name: /username|
  *     email/i })`, etc.) and the legacy input-name selector strategy
  *     (`input[name='username']`, etc.) so iframe-embedded Keycloak
- *     forms work without branching at the call site. Does NOT assert
- *     post-login navigation.
+ *     forms work without branching at the call site.
+ *     `options.settle` (default `true`, `Page` targets only): hold the
+ *     call open until the SSO redirect chain reaches a terminal state —
+ *     a URL outside `/protocol/openid-connect/`, `/login-actions/` and
+ *     `/oauth2/`, a main-frame navigation response of 400 or above
+ *     (oauth2-proxy denying a user it authenticated), or a closed popup.
+ *     A caller may then navigate without racing an in-flight hop.
+ *     `settle: false` returns right after the click.
  *
  *   `performKeycloakLogin(page, username, password, canonicalDomain)`
  *     Calls `performKeycloakLoginForm` and additionally polls the
@@ -23,6 +33,9 @@
  *     asserts the round-trip ends on a denial state (Keycloak error
  *     page, the same authorization endpoint with an error indicator,
  *     or a 401 / 403 on the relying party after the callback).
+ *     Passes `settle: false`: a rejected login legitimately ends on a
+ *     200 Keycloak error page inside the hop, which the settle
+ *     predicate cannot tell apart from a stalled chain.
  *     Returns the resulting URL so callers can assert additional
  *     details if needed.
  *
@@ -40,6 +53,19 @@
  *   `keycloakRemoveUserFromGroupViaRest(request, keycloakBaseUrl, realmName, adminUsername, adminPassword, groupPath, username, opts)`
  *     Best-effort group removal (throws on lookup failure, no-ops if the
  *     user/group is already gone).
+ *
+ *   `keycloakAdminSetUserAttributes(request, keycloakBaseUrl, realmName, username, attributes, adminUsername, adminPassword, opts)`
+ *     Writes user attributes and returns their previous values for a restore.
+ *
+ *   `keycloakAdminCreateUser(request, keycloakBaseUrl, realmName, user, adminUsername, adminPassword, opts)`
+ *     Creates an enabled, verified user from `{ username, email, firstName, lastName, password }`
+ *     and returns its id.
+ *
+ *   `keycloakAdminUpdateUser(request, keycloakBaseUrl, realmName, userId, fields, adminUsername, adminPassword, opts)`
+ *     Merges top-level `fields` (for example `username`) into the user.
+ *
+ *   `keycloakAdminDeleteUser(request, keycloakBaseUrl, realmName, userId, adminUsername, adminPassword, opts)`
+ *     Deletes the user; a user that is already gone is not an error.
  */
 
 const { expect } = require("@playwright/test");
@@ -54,7 +80,7 @@ const { hostnameOf } = require("./dom");
 // without racing the adapter.
 const OIDC_LOGIN_READY_FLAG = "__oidcLoginReady";
 
-const OIDC_TRIGGER_NAME = /sso|openid|single[\s-]?sign/i;
+const OIDC_TRIGGER_NAME = /sso|oidc|openid|single[\s-]?sign/i;
 
 // Keycloak's end-session URL also contains `openid-connect`; a page that
 // renders a hidden Logout item before its Login link would otherwise pin
@@ -63,12 +89,53 @@ const OIDC_ENTRY_SELECTOR = [
   "a[href*='openid_connect' i]:not([href*='logout' i])",
   "a[href*='openid-connect' i]:not([href*='logout' i])",
   "a[href*='/auth/auth/' i]:not([href*='logout' i])",
+  "a[data-href*='oidc' i]:not([data-href*='logout' i])",
+  "a[data-href*='openid' i]:not([data-href*='logout' i])",
   "form[action*='openid' i] button",
+  "form[action*='oidc' i]:not([action*='logout' i]) button",
   "a[data-testid*='oidc' i]",
   "button[data-testid*='oidc' i]",
+  "button[name='oauth2_button']",
 ].join(", ");
 
-async function performKeycloakLoginForm(target, username, password) {
+const SSO_HOP = /\/protocol\/openid-connect\/|\/login-actions\/|\/oauth2\//;
+
+function isPage(target) {
+  return typeof target.url === "function" && typeof target.on === "function";
+}
+
+function watchFailedNavigations(page) {
+  const state = { failedUrl: "" };
+  const onResponse = (response) => {
+    if (response.status() < 400) return;
+    if (!response.request().isNavigationRequest()) return;
+    state.failedUrl = response.url();
+  };
+  page.on("response", onResponse);
+  return { state, stop: () => page.off("response", onResponse) };
+}
+
+async function settleSsoChain(page, state) {
+  const probe = () => {
+    const url = page.url();
+    if (page.isClosed() || url.split("#")[0] === state.failedUrl || !SSO_HOP.test(url)) return "settled";
+    return url;
+  };
+
+  await expect
+    .poll(probe, {
+      timeout: resolveTimeout(60_000),
+      message:
+        "Expected the Keycloak SSO redirect chain to settle: a URL outside /protocol/openid-connect/, " +
+        "/login-actions/ and /oauth2/, a main-frame navigation response of 400 or above, or a closed popup",
+    })
+    .toBe("settled");
+
+  if (page.isClosed()) return;
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) });
+}
+
+async function performKeycloakLoginForm(target, username, password, { settle = true } = {}) {
   const usernameField = target
     .getByRole("textbox", { name: /username|email/i })
     .or(target.locator("input[name='username'], input#username"))
@@ -86,7 +153,20 @@ async function performKeycloakLoginForm(target, username, password) {
   await usernameField.fill(username);
   await usernameField.press("Tab").catch(() => {});
   await passwordField.fill(password);
-  await signInButton.click({ timeout: resolveTimeout(30_000) });
+
+  const page = settle && isPage(target) ? target : null;
+  if (!page) {
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
+    return;
+  }
+
+  const watcher = watchFailedNavigations(page);
+  try {
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
+    await settleSsoChain(page, watcher.state);
+  } finally {
+    watcher.stop();
+  }
 }
 
 async function performKeycloakLogin(page, username, password, canonicalDomain) {
@@ -175,7 +255,7 @@ async function clickOidcLoginLink(page, strictLink, looseLink) {
 }
 
 async function performKeycloakLoginExpectingDenial(page, username, password, canonicalDomain) {
-  await performKeycloakLoginForm(page, username, password);
+  await performKeycloakLoginForm(page, username, password, { settle: false });
 
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
 
@@ -193,6 +273,10 @@ async function performKeycloakLoginExpectingDenial(page, username, password, can
   ).toBe(true);
 
   return finalUrl;
+}
+
+function isAuthChain(url) {
+  return /\/oauth2\/|\/realms\/|\/protocol\/openid-connect\//.test(url || "");
 }
 
 async function keycloakAdminToken(
@@ -387,8 +471,116 @@ async function keycloakRemoveUserFromGroupViaRest(
   }
 }
 
+async function keycloakAdminSetUserAttributes(
+  request,
+  keycloakBaseUrl,
+  realmName,
+  username,
+  attributes,
+  adminUsername,
+  adminPassword,
+  opts = {},
+) {
+  const accessToken = await keycloakAdminToken(request, keycloakBaseUrl, adminUsername, adminPassword, opts);
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const lookupResp = await request.get(
+    `${keycloakBaseUrl}/admin/realms/${realmName}/users?username=${encodeURIComponent(username)}&exact=true`,
+    { headers },
+  );
+  if (!lookupResp.ok()) {
+    throw new Error(`Keycloak user lookup failed: ${lookupResp.status()} ${await lookupResp.text()}`);
+  }
+  const match = (await lookupResp.json()).find((u) => u.username === username);
+  if (!match) {
+    throw new Error(`Keycloak user "${username}" not found`);
+  }
+  const userUrl = `${keycloakBaseUrl}/admin/realms/${realmName}/users/${match.id}`;
+  const userResp = await request.get(userUrl, { headers });
+  if (!userResp.ok()) {
+    throw new Error(`Keycloak user read failed: ${userResp.status()} ${await userResp.text()}`);
+  }
+  const user = await userResp.json();
+  const current = user.attributes || {};
+  const previous = Object.fromEntries(Object.keys(attributes).map((key) => [key, current[key] || []]));
+  const merged = { ...current };
+  for (const [key, value] of Object.entries(attributes)) {
+    merged[key] = Array.isArray(value) ? value : [value];
+  }
+  const putResp = await request.put(userUrl, {
+    headers: { ...headers, "Content-Type": "application/json" },
+    data: { ...user, attributes: merged },
+  });
+  if (!putResp.ok()) {
+    throw new Error(
+      `Keycloak user attribute update failed (user=${username}): ${putResp.status()} ${await putResp.text()}`,
+    );
+  }
+  return previous;
+}
+
+async function keycloakAdminHeaders(request, keycloakBaseUrl, adminUsername, adminPassword, opts) {
+  const accessToken = await keycloakAdminToken(request, keycloakBaseUrl, adminUsername, adminPassword, opts);
+  return { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" };
+}
+
+async function keycloakAdminCreateUser(request, keycloakBaseUrl, realmName, user, adminUsername, adminPassword, opts = {}) {
+  const headers = await keycloakAdminHeaders(request, keycloakBaseUrl, adminUsername, adminPassword, opts);
+  const usersUrl = `${keycloakBaseUrl}/admin/realms/${realmName}/users`;
+  const createResp = await request.post(usersUrl, {
+    headers,
+    data: {
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      enabled: true,
+      emailVerified: true,
+      credentials: [{ type: "password", value: user.password, temporary: false }],
+    },
+    timeout: resolveTimeout(30_000),
+  });
+  if (createResp.status() !== 201) {
+    throw new Error(`Keycloak user create failed (user=${user.username}): ${createResp.status()} ${await createResp.text()}`);
+  }
+  const location = createResp.headers().location || "";
+  const id = location.split("/").pop();
+  if (!id) {
+    throw new Error(`Keycloak user create for ${user.username} returned no Location header`);
+  }
+  return id;
+}
+
+async function keycloakAdminUpdateUser(request, keycloakBaseUrl, realmName, userId, fields, adminUsername, adminPassword, opts = {}) {
+  const headers = await keycloakAdminHeaders(request, keycloakBaseUrl, adminUsername, adminPassword, opts);
+  const userUrl = `${keycloakBaseUrl}/admin/realms/${realmName}/users/${userId}`;
+  const readResp = await request.get(userUrl, { headers, timeout: resolveTimeout(30_000) });
+  if (!readResp.ok()) {
+    throw new Error(`Keycloak user read failed (id=${userId}): ${readResp.status()} ${await readResp.text()}`);
+  }
+  const putResp = await request.put(userUrl, {
+    headers,
+    data: { ...(await readResp.json()), ...fields },
+    timeout: resolveTimeout(30_000),
+  });
+  if (!putResp.ok()) {
+    throw new Error(`Keycloak user update failed (id=${userId}): ${putResp.status()} ${await putResp.text()}`);
+  }
+}
+
+async function keycloakAdminDeleteUser(request, keycloakBaseUrl, realmName, userId, adminUsername, adminPassword, opts = {}) {
+  const headers = await keycloakAdminHeaders(request, keycloakBaseUrl, adminUsername, adminPassword, opts);
+  const deleteResp = await request.delete(`${keycloakBaseUrl}/admin/realms/${realmName}/users/${userId}`, {
+    headers,
+    timeout: resolveTimeout(30_000),
+  });
+  if (!deleteResp.ok() && deleteResp.status() !== 404) {
+    throw new Error(`Keycloak user delete failed (id=${userId}): ${deleteResp.status()} ${await deleteResp.text()}`);
+  }
+}
+
 module.exports = {
   OIDC_LOGIN_READY_FLAG,
+  isAuthChain,
   performKeycloakLoginForm,
   performKeycloakLogin,
   clickOidcLoginLink,
@@ -397,4 +589,8 @@ module.exports = {
   keycloakResolveGroupId,
   keycloakAdminAddUserToGroup,
   keycloakRemoveUserFromGroupViaRest,
+  keycloakAdminSetUserAttributes,
+  keycloakAdminCreateUser,
+  keycloakAdminUpdateUser,
+  keycloakAdminDeleteUser,
 };

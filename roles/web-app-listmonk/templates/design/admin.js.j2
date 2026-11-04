@@ -1,0 +1,19 @@
+{{ LISTMONK_DESIGN_JS_MARKER }}
+(() => {
+  const label = {{ LISTMONK_DESIGN.label | to_json }};
+  const favicon = {{ LISTMONK_DESIGN.urls.favicon_ico | to_json }};
+  const brand = () => {
+    for (const link of document.querySelectorAll("link[rel~='icon']")) {
+      if (link.href !== favicon) link.href = favicon;
+    }
+    const title = document.title.replace(/listmonk$/, label);
+    if (title !== document.title) document.title = title;
+  };
+  brand();
+  new MutationObserver(brand).observe(document.head, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true,
+  });
+})();

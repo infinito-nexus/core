@@ -1,12 +1,18 @@
 ---
 application_id: "web-app-suitecrm"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
 swarm_stack_converge_retries: 600
 
+SUITECRM_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+SUITECRM_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+SUITECRM_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+
 SUITECRM_WELL_SOFTWARE_NAME: "{{ SOFTWARE_DOMAIN | replace('.', '-') }}"
 SUITECRM_PHP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'php.ini'] | path_join }}"
+SUITECRM_SITE_URL_SCRIPT_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'site_url.php'] | path_join }}"
+SUITECRM_SITE_URL_SCRIPT_DOCKER: "{{ lookup('volume', application_id, 'site_url_script').target }}"
 
 SUITECRM_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SUITECRM_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
@@ -18,6 +24,7 @@ SUITECRM_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, enti
 SUITECRM_SERVICE: "{{ entity_name }}"
 
 SUITECRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+SUITECRM_SIBLING_SITE_URLS: "{{ lookup('network_urls', lookup('tls', application_id, 'url.origin'))[1:] }}"
 
 SUITECRM_APP_DIR: /var/www/html
 SUITECRM_SEED_DIR: /usr/src/suitecrm
@@ -27,13 +34,49 @@ SUITECRM_WEB_GROUP: www-data
 SUITECRM_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_saml') }}"
 SUITECRM_SAML_IDP_DESCRIPTOR_URL: "{{ [OIDC.CLIENT.ISSUER_URL, 'protocol/saml/descriptor'] | path_join }}"
 SUITECRM_SAML_SP_ENTITY_ID: "{{ [SUITECRM_URL, 'saml/metadata'] | path_join }}"
-SUITECRM_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+SUITECRM_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 SUITECRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if SUITECRM_OIDC_ONION_ISSUER | bool else '' }}"
 
 SUITECRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+SUITECRM_LOGIN_SSO: "{{ lookup('config', application_id, 'services.suitecrm.login.method.sso.enabled') | bool }}"
+SUITECRM_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.suitecrm.login.method.ldap.enabled') | bool }}"
+SUITECRM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.suitecrm.login.method.native.enabled') | bool }}"
+SUITECRM_LOGIN_2FA: "{{ lookup('config', application_id, 'services.suitecrm.login.method.2fa.enabled') | bool }}"
 SUITECRM_LDAP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ldap.yaml'] | path_join }}"
 SUITECRM_SESSION_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'session.yaml'] | path_join }}"
 SUITECRM_LDAP_EXTENSION_DIR: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
+SUITECRM_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
+SUITECRM_RBAC_LOGIN_ROLES:
+  - administrator
+  - user
+SUITECRM_LDAP_LOGIN_FILTER: >-
+  (&({{ LDAP.USER.ATTRIBUTES.ID }}={username})(|{% for suitecrm_rbac_role in SUITECRM_RBAC_LOGIN_ROLES %}({{ SUITECRM_LDAP_MEMBER_OF_ATTRIBUTE }}=cn={{ application_id
+  }}-{{ suitecrm_rbac_role }},{{ LDAP.DN.OU.ROLES }}){% endfor %}))
+SUITECRM_RBAC_GROUP_PATHS:
+  administrator: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+  user: "/{{ lookup('rbac_group_path', application_id=application_id, role='user') }}"
+SUITECRM_SAML_LOGIN_GROUPS: "{{ SUITECRM_RBAC_LOGIN_ROLES | map('extract', SUITECRM_RBAC_GROUP_PATHS) | list }}"
+SUITECRM_SAML_ADMINISTRATOR_GROUPS: "{{ [SUITECRM_RBAC_GROUP_PATHS.administrator] }}"
+SUITECRM_SAML_PROTECTED_USERS: "{{ [SUITECRM_ADMIN_USERNAME | lower] }}"
+SUITECRM_PROFILE_FIELDS: >-
+  {{ {
+    LDAP.USER.ATTRIBUTES.PHONE: {'column': 'phone_work', 'length': 50},
+    LDAP.USER.ATTRIBUTES.MOBILE: {'column': 'phone_mobile', 'length': 50},
+    LDAP.USER.ATTRIBUTES.TITLE: {'column': 'title', 'length': 50},
+    LDAP.USER.ATTRIBUTES.DEPARTMENT: {'column': 'department', 'length': 50},
+    LDAP.USER.ATTRIBUTES.STREET: {'column': 'address_street', 'length': 150},
+    LDAP.USER.ATTRIBUTES.LOCALITY: {'column': 'address_city', 'length': 100},
+    LDAP.USER.ATTRIBUTES.REGION: {'column': 'address_state', 'length': 100},
+    LDAP.USER.ATTRIBUTES.POSTAL_CODE: {'column': 'address_postalcode', 'length': 20},
+    LDAP.USER.ATTRIBUTES.COUNTRY: {'column': 'address_country', 'length': 100}
+  } }}
+SUITECRM_SAML_PROFILE_COLUMNS: >-
+  {{ {'firstName': {'column': 'first_name', 'length': 255}, 'lastName': {'column': 'last_name', 'length': 255}} | combine(SUITECRM_PROFILE_FIELDS) }}
+SUITECRM_LDAP_PROFILE_COLUMNS: >-
+  {{ {LDAP.USER.ATTRIBUTES.FIRSTNAME: {'column': 'first_name', 'length': 255}, LDAP.USER.ATTRIBUTES.SURNAME: {'column': 'last_name', 'length': 255}} | combine(SUITECRM_PROFILE_FIELDS)
+  }}
+SUITECRM_IAM_SAML_SYNC_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'SamlDirectorySync.php'] | path_join }}"
+SUITECRM_IAM_LDAP_PROVIDER_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ProfileLdapUserProvider.php'] | path_join }}"
 
 SUITECRM_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint.sh"
 SUITECRM_ENTRYPOINT_SCRIPT_SRC: "shell/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
@@ -46,6 +89,13 @@ SUITECRM_EXTERNAL_AUTH_PATCH_SRC: "patch/{{ SUITECRM_EXTERNAL_AUTH_PATCH_FILE }}
 SUITECRM_EXTERNAL_AUTH_PATCH_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), SUITECRM_EXTERNAL_AUTH_PATCH_FILE ] | path_join }}"
 SUITECRM_EXTERNAL_AUTH_PATCH_HOST_REL: "volumes/{{ SUITECRM_EXTERNAL_AUTH_PATCH_FILE }}"
 SUITECRM_EXTERNAL_AUTH_PATCH_DOCKER: "{{ [ '/tmp/', SUITECRM_EXTERNAL_AUTH_PATCH_FILE ] | path_join }}"
+
+SUITECRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+SUITECRM_DESIGN_LOGO_ENABLED: "{{ SUITECRM_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+SUITECRM_DESIGN_TITLE: "{{ lookup('design', application_id).title if SUITECRM_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+SUITECRM_DESIGN_ASSETS_DIR: "{{ lookup('design', application_id).dest }}"
+SUITECRM_DESIGN_SCRIPT: "{{ [role_path, 'files/php/design.php'] | path_join }}"
+SUITECRM_DESIGN_LEGACY_CSS: "legacy.css"
 
 SUITECRM_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, entity_name) }}"
 SUITECRM_PHP_MEMORY_LIMIT: "{{ lookup('service_memory_mb', application_id, entity_name, 0.25) }}M"

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 #
-# svc-net-wireguard role test: three throwaway hosts in two full meshes.
-#
 # Env (all required; the role's test.env carries them):
 #   BULK_BYTES   size of the transfer each reachable pair must carry intact
 #   MESH_ROLE    role whose networks.meshes puts each host into its meshes
@@ -54,21 +52,31 @@ for host in "${HOSTS[@]}"; do
 done
 authorize_every_host
 
-echo "[INFO] writing the inventory of the layout in ${DIR}/layout.yml"
-repo_python "${DIR}/inventory.py" "${DIR}/layout.yml" "${WORK}" "${MESH_ROLE}" \
-	"I=${HOST_I}" "II=${HOST_II}" "III=${HOST_III}"
+write_layout() {
+	local layout="$1"
+	echo "[INFO] writing the inventory of the layout in ${layout}"
+	repo_python "${DIR}/inventory.py" "${layout}" "${INV}" "${MESH_ROLE}" \
+		"I=${HOST_I}" "II=${HOST_II}" "III=${HOST_III}"
+	echo "[INFO] writing the meshes into the inventory"
+	"${PYTHON}" -m cli.administration.inventory.mesh \
+		--inventory "${INV}/devices.yml" \
+		--host-vars-dir "${INV}/host_vars" \
+		--vault-password-file "${WORK}/.password"
+}
 
-echo "[INFO] writing the meshes into the inventory"
-"${PYTHON}" -m cli.administration.inventory.mesh \
-	--inventory "${WORK}/devices.yml" \
-	--host-vars-dir "${WORK}/host_vars" \
-	--vault-password-file "${WORK}/.password"
+deploy_mesh() {
+	local hosts="$1"
+	echo "[INFO] deploying svc-net-wireguard onto ${hosts}"
+	"$(dirname "${PYTHON}")/ansible-playbook" \
+		-i "${INV}/devices.yml" \
+		--vault-password-file "${WORK}/.password" \
+		--limit "${hosts}" \
+		playbooks/lab/mesh.yml
+}
 
-echo "[INFO] deploying svc-net-wireguard onto the three hosts"
-"$(dirname "${PYTHON}")/ansible-playbook" \
-	-i "${WORK}/devices.yml" \
-	--vault-password-file "${WORK}/.password" \
-	playbooks/mesh.yml
+INV="${WORK}/full"
+write_layout "${DIR}/layout.yml"
+deploy_mesh "${HOST_I},${HOST_II},${HOST_III}"
 
 expect_reach "${HOST_I}" "${HOST_II}" alpha
 expect_reach "${HOST_II}" "${HOST_I}" alpha
@@ -77,8 +85,18 @@ expect_reach "${HOST_III}" "${HOST_II}" beta
 expect_isolated "${HOST_I}" "${HOST_III}" beta alpha
 expect_isolated "${HOST_III}" "${HOST_I}" alpha beta
 
+INV="${WORK}/hub"
+write_layout "${DIR}/layout-hub.yml"
+deploy_mesh "${HOST_I},${HOST_III}"
+deploy_mesh "${HOST_II}"
+
+expect_roaming "${HOST_I}" "${HOST_II}" gamma 51902
+expect_reach "${HOST_II}" "${HOST_III}" gamma
+expect_reach "${HOST_III}" "${HOST_II}" gamma
+
 if ((failures > 0)); then
 	echo "[FATAL] ${failures} mesh assertion(s) failed" >&2
 	exit 1
 fi
-echo "[OK] I and II reach each other, II and III reach each other, I and III do not"
+echo "[OK] full meshes: I and II reach each other, II and III reach each other, I and III do not"
+echo "[OK] hub I: it deployed without the roaming II, and II and III reach each other through it"

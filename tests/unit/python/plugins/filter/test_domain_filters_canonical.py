@@ -3,6 +3,9 @@ import unittest
 from ansible.errors import AnsibleFilterError
 
 from plugins.filter.canonical_domains_map import FilterModule
+from utils.domains.default_primary import default_domain_primary
+
+DOMAIN = default_domain_primary()
 
 
 class TestDomainFilters(unittest.TestCase):
@@ -21,6 +24,17 @@ class TestDomainFilters(unittest.TestCase):
         expected = {"web-app-app1": ["app1.example.com"]}
         result = self.filter_module.canonical_domains_map(apps, self.primary)
         self.assertEqual(result, expected)
+
+    def test_an_empty_canonical_list_serves_no_domain(self):
+        apps = {"web-app-app1": {"domains": {"canonical": []}}, "web-app-app2": {}}
+        result = self.filter_module.canonical_domains_map(apps, self.primary)
+        self.assertEqual(result, {"web-app-app2": ["app2.example.com"]})
+
+    def test_an_empty_canonical_mapping_serves_no_domain(self):
+        apps = {"web-app-app1": {"domains": {"canonical": {}}}}
+        self.assertEqual(
+            self.filter_module.canonical_domains_map(apps, self.primary), {}
+        )
 
     def test_canonical_with_list(self):
         apps = {"web-app-app1": {"domains": {"canonical": ["foo.com", "bar.com"]}}}
@@ -117,14 +131,14 @@ class TestDomainFilters(unittest.TestCase):
         import os
 
         prev = os.environ.get("DOMAIN")
-        os.environ["DOMAIN"] = "infinito.test"
+        os.environ["DOMAIN"] = DOMAIN
         try:
             primary = (
                 "{{ lookup('env', 'DOMAIN') | default('infinito.localhost', true) }}"
             )
             apps = {"web-app-app1": {}}
             result = self.filter_module.canonical_domains_map(apps, primary)
-            self.assertEqual(result, {"web-app-app1": ["app1.infinito.test"]})
+            self.assertEqual(result, {"web-app-app1": [f"app1.{DOMAIN}"]})
         finally:
             if prev is None:
                 os.environ.pop("DOMAIN", None)

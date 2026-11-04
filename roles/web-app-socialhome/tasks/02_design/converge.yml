@@ -1,0 +1,73 @@
+---
+- name: "🔑 Request an administrator token for the household theme"
+  uri_retry:
+    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/auth/token"
+    method: POST
+    body_format: json
+    body:
+      username: "{{ SOCIALHOME_ADMIN_USERNAME }}"
+      password: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
+    status_code: 200
+  register: socialhome_theme_token
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🎨 Read the household theme"
+  uri_retry:
+    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
+    status_code: 200
+  register: socialhome_theme
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🎨 Write the household primary colour"
+  uri_retry:
+    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
+    method: PUT
+    body_format: json
+    body:
+      primary_color: "{{ SOCIALHOME_THEME_PRIMARY }}"
+    headers:
+      Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
+    status_code: 200
+  register: socialhome_theme_written
+  changed_when: true
+  when:
+    - socialhome_theme.json.primary_color | lower != SOCIALHOME_THEME_PRIMARY
+    - socialhome_theme.json.primary_color | lower == SOCIALHOME_BRAND_PRIMARY or (socialhome_theme_marker.stat.exists and socialhome_theme_marker.stat.checksum
+      == (socialhome_theme.json.primary_color | lower | hash('sha1')))
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🏷️ Read the household name"
+  uri_retry:
+    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/instance/config"
+    method: GET
+    status_code: 200
+  register: socialhome_instance_config
+
+- name: "🏷️ Hold the household name and the name the role wrote last"
+  ansible.builtin.set_fact:
+    socialhome_name_current: "{{ socialhome_instance_config.json.instance_name }}"
+    socialhome_name_state: "{{ (socialhome_name_state_file.content | b64decode | from_json) if socialhome_name_marker.stat.exists else {} }}"
+
+- name: "🏷️ Rename the household"
+  uri_retry:
+    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/admin/instance"
+    method: PATCH
+    body_format: json
+    body:
+      display_name: "{{ socialhome_name_target }}"
+    headers:
+      Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
+    status_code: 200
+  vars:
+    socialhome_name_ours: "{{ socialhome_name_state | length > 0 and socialhome_name_current == socialhome_name_state.applied }}"
+    socialhome_name_target: >-
+      {{ (socialhome_name_state.previous if socialhome_name_ours | bool else '') if SOCIALHOME_DESIGN_TITLE | length == 0
+         else ('' if (socialhome_name_state | length > 0 and not (socialhome_name_ours | bool)) or socialhome_name_current == SOCIALHOME_DESIGN_TITLE
+         else SOCIALHOME_DESIGN_TITLE) }}
+  register: socialhome_name_written
+  changed_when: true
+  when: socialhome_name_target | length > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

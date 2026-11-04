@@ -7,7 +7,7 @@
       no-resolv and would answer .onion only.
 - name: "📦 Egress router | Install dnsmasq (host split-DNS forwarder)"
   become: true
-  package_install:
+  package_install: # nocheck: package-install only on the egress router this file is included for
     id: dnsmasq
 - name: "📁 Egress router | Ensure the dnsmasq drop-in directory exists"
   ansible.builtin.file:

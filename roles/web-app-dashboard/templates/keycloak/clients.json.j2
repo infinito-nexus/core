@@ -1,0 +1,56 @@
+{% set dashboard_kc_origins = lookup('network_urls', lookup('tls', 'web-app-dashboard', 'url.origin')) %}
+{% set dashboard_kc_redirects = dashboard_kc_origins | map('regex_replace', '$', '/*') | list %}
+{
+  "clientId": "{{ lookup('config', 'web-app-dashboard', 'services.sso.oidc.clients.dashboard') }}",
+  "name": "Dashboard",
+  "description": "Public keycloak-js client of the dashboard. Only its access tokens carry allowed-origins, for the Account REST API calls made with the user's own token.",
+  "enabled": true,
+  "surrogateAuthRequired": false,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "redirectUris": {{ dashboard_kc_redirects | to_json }},
+  "webOrigins": {{ dashboard_kc_origins | to_json }},
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": true,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "pkce.code.challenge.method": "S256",
+    "post.logout.redirect.uris": "{{ dashboard_kc_redirects | join('##') }}",
+    "frontchannel.logout.url": {{ KEYCLOAK_FRONTCHANNEL_LOGOUT_URL | to_json }},
+    "frontchannel.logout.session.required": "true",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "dashboard allowed web origins",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-allowed-origins-mapper",
+      "consentRequired": false,
+      "config": {
+        "introspection.token.claim": "true",
+        "access.token.claim": "true"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "acr",
+    "basic",
+    "openid",
+    "profile",
+    "roles",
+    "{{ KEYCLOAK_RBAC_GROUP_CLAIM }}"
+  ],
+  "optionalClientScopes": []
+}

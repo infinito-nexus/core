@@ -1,0 +1,8 @@
+---
+roles:
+  view:
+    description: Can read the reports of every tracked website
+  write:
+    description: Can read the reports and manage goals, segments and annotations of every tracked website
+  admin:
+    description: Can manage the settings and the access of other users on every tracked website

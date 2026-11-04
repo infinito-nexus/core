@@ -1,0 +1,13 @@
+---
+- include_tasks: 00_core.yml
+  when:
+    - run_once_dsk_virtualbox is not defined
+    - ansible_facts['os_family'] == "Archlinux"
+
+- name: 🎭 WARNING - VirtualBox role is Arch-only, skipping on this host
+  debug:
+    msg: >-
+      WARNING: Skipping VirtualBox setup because this role is Arch/Manjaro-only.
+      Detected os_family={{ ansible_facts['os_family'] | default('unknown') }},
+      distribution={{ ansible_facts['distribution'] | default('unknown') }}.
+  when: ansible_facts['os_family'] != "Archlinux"

@@ -41,23 +41,6 @@ class TestKcPerAppMapperName(unittest.TestCase):
             mod.kc_per_app_mapper_name(42)
 
 
-class TestKcPerAppLdapFilter(unittest.TestCase):
-    def test_typical_app_id(self):
-        self.assertEqual(
-            mod.kc_per_app_ldap_filter("web-app-wordpress"),
-            "(&(objectClass=groupOfNames)(cn=web-app-wordpress-*))",
-        )
-
-    def test_filter_excludes_other_apps_by_construction(self):
-        f = mod.kc_per_app_ldap_filter("web-app-wp")
-        self.assertIn("cn=web-app-wp-*", f)
-        self.assertNotIn("cn=web-app-wordpress-*", f)
-
-    def test_empty_string_rejected(self):
-        with self.assertRaises(ValueError):
-            mod.kc_per_app_ldap_filter("")
-
-
 class TestRbacAppIds(unittest.TestCase):
     @patch.object(mod, "list_invokable_app_ids")
     def test_filters_to_invokable_apps(self, mock_invokable):
@@ -112,7 +95,6 @@ class TestFilterModuleRegistration(unittest.TestCase):
         fm = mod.FilterModule()
         filters = fm.filters()
         self.assertIn("kc_per_app_mapper_name", filters)
-        self.assertIn("kc_per_app_ldap_filter", filters)
         self.assertIn("rbac_app_ids", filters)
 
 

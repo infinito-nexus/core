@@ -18,6 +18,7 @@
     path: "{{ lookup('path_absolute', 'roles', application_id, 'templates/compose.yml.j2') }}"
   register: _sys_svc_rdbms_compose_template
   delegate_to: localhost
+  become: false
   changed_when: false
 
 - name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Apply dedicated setup"
@@ -46,7 +47,9 @@
         fail_msg: >-
           Shared database provider '{{ _database_provider_role }}' was not preloaded by
           sys-service-loader before sys-svc-rdbms ran.
-      when: MODE_ASSERT_LOCAL | bool
+      when:
+        - lookup('validate', 'sys-svc-rdbms') | bool
+        - IS_STACK_HOST | bool
 
     - name: "🎬 For '{{ application_id }}': Init dedicated db on preloaded provider"
       ansible.builtin.include_role:

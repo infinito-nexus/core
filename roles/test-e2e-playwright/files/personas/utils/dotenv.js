@@ -33,4 +33,48 @@ function normalizeBaseUrl(value) {
   return decodeDotenvQuotedValue(value || "").replace(/\/$/, "");
 }
 
-module.exports = { decodeDotenvQuotedValue, normalizeBaseUrl };
+/**
+ * Decode a dotenv value carrying a JSON array of target roles.
+ *
+ * `JSON.parse` on the quoted form succeeds and yields a STRING, which
+ * `Array.isArray` then reads as "no targets" - every assertion over the list
+ * passes vacuously. Only an absent or empty variable yields an empty list.
+ */
+function decodeDotenvJsonList(raw, name) {
+  const decoded = decodeDotenvQuotedValue(raw || "");
+  if (decoded === "") {
+    return [];
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(decoded);
+  } catch (error) {
+    throw new Error(`${name} is not valid JSON`, { cause: error });
+  }
+  if (!Array.isArray(parsed)) {
+    throw new Error(
+      `${name} decoded to ${typeof parsed}, not an array — the value reached ` +
+        "the container still dotenv-quoted, and reading it as an empty list " +
+        "would pass every assertion that iterates it."
+    );
+  }
+  return parsed;
+}
+
+function requireDotenvValue(raw, name) {
+  const decoded = decodeDotenvQuotedValue(raw || "");
+  if (typeof decoded !== "string" || decoded === "") {
+    throw new Error(
+      `${name} is empty — a substring or suffix check against an empty string ` +
+        "matches everything, so the assertion would pass without testing anything."
+    );
+  }
+  return decoded;
+}
+
+module.exports = {
+  decodeDotenvQuotedValue,
+  decodeDotenvJsonList,
+  requireDotenvValue,
+  normalizeBaseUrl,
+};

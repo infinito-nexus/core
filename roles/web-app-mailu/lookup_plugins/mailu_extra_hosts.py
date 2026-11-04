@@ -32,6 +32,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.networks.lookup_context import resolve_var
+from utils.networks.reachability import TOR, is_network
 
 HOST_GATEWAY = "host-gateway"
 
@@ -55,7 +56,7 @@ class LookupModule(LookupBase):
         if (
             self._flag("DOCKER_IN_CONTAINER")
             and self._flag("MAILU_OIDC_ENABLED")
-            and not oidc_host.endswith(".onion")
+            and not is_network(oidc_host, TOR)
         ):
             pins.append(f"{oidc_host}:{HOST_GATEWAY}")
 

@@ -4,6 +4,7 @@ import unittest
 
 from utils.roles.applications.mounts import (
     VolumesSchemaError,
+    compose_service_names,
     content_hash,
     mount_default_read_only,
     mounts_for_service,
@@ -119,6 +120,30 @@ class TestValidateVolumesMeta(unittest.TestCase):
             "r",
         )
         self.assertTrue(any("octal string" in v for v in violations))
+
+    def test_owner_only_on_config_secret(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "volume", "uid": 1000, "gid": 1000}},
+            "r",
+        )
+        self.assertTrue(any("'uid' is only valid for" in v for v in violations))
+        self.assertTrue(any("'gid' is only valid for" in v for v in violations))
+
+    def test_owner_must_be_numeric(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "secret", "source": "/a", "uid": "runner"}},
+            "r",
+        )
+        self.assertTrue(any("numeric id" in v for v in violations))
+
+    def test_numeric_owner_on_secret_passes(self) -> None:
+        self.assertEqual(
+            validate_volumes_meta(
+                {"x": {"type": "secret", "source": "/a", "uid": 1000, "gid": 1000}},
+                "r",
+            ),
+            [],
+        )
 
     def test_read_only_only_on_bind_volume(self) -> None:
         violations = validate_volumes_meta(
@@ -239,6 +264,22 @@ class TestMountsForService(unittest.TestCase):
         self.assertEqual(len(result), 2)
         targets = sorted(m["target"] for m in result)
         self.assertEqual(targets, ["/x", "/z"])
+
+
+class TestComposeServiceNames(unittest.TestCase):
+    def test_an_entry_without_a_proxy_is_only_its_own_key(self) -> None:
+        self.assertEqual(compose_service_names("app", {"image": "app"}), {"app"})
+
+    def test_a_proxy_service_key_joins_the_entry_key(self) -> None:
+        entry = {"proxy": {"service_key": "ejabberd"}}
+        self.assertEqual(compose_service_names("xmpp", entry), {"xmpp", "ejabberd"})
+
+    def test_a_templated_service_key_leaves_only_the_entry_key(self) -> None:
+        entry = {"proxy": {"service_key": "{{ 'synapse' if a else 'matrix' }}"}}
+        self.assertEqual(compose_service_names("app", entry), {"app"})
+
+    def test_a_non_mapping_entry_is_only_its_key(self) -> None:
+        self.assertEqual(compose_service_names("app", None), {"app"})
 
 
 if __name__ == "__main__":  # pragma: no cover

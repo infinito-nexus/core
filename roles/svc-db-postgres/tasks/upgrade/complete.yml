@@ -1,0 +1,62 @@
+---
+- name: "🔍 POSTGRES | Look for the extension updates pg_upgrade generated"
+  ansible.builtin.stat:
+    path: "{{ [postgres_cluster.root, POSTGRES_VERSION_MAJOR, 'update_extensions.sql'] | path_join }}"
+  register: postgres_update_extensions
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🧩 POSTGRES | Apply the extension updates pg_upgrade generated"
+  ansible.builtin.shell: >
+    container exec --user postgres {{ POSTGRES_CONTAINER_ADDRESS }}
+    psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres
+    -f {{ [POSTGRES_VOLUME_TARGET, POSTGRES_VERSION_MAJOR, 'update_extensions.sql'] | path_join | quote }}
+  changed_when: true
+  when: postgres_update_extensions.stat.exists
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📊 POSTGRES | Collect the statistics pg_upgrade did not carry over"
+  ansible.builtin.shell: >
+    container exec --user postgres {{ POSTGRES_CONTAINER_ADDRESS }}
+    vacuumdb -U postgres --all --analyze-in-stages
+    {{ '--missing-stats-only' if (POSTGRES_VERSION_MAJOR | int) >= 18 else '' }}
+  changed_when: true
+  timeout: "{{ lookup('timeout', 21600) | int }}"
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🔍 POSTGRES | List databases whose collation version changed with the image"
+  ansible.builtin.shell: >
+    container exec --user postgres {{ POSTGRES_CONTAINER_ADDRESS }}
+    psql -X -U postgres -d postgres -Atc
+    "select datname || ': ' || datcollversion || ' -> ' || pg_database_collation_actual_version(oid)
+    from pg_database where datallowconn
+    and datcollversion is distinct from pg_database_collation_actual_version(oid)"
+  register: postgres_collation_drift
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📜 POSTGRES | Report databases that need REINDEX after the collation change"
+  ansible.builtin.debug:
+    msg: "{{ postgres_collation_drift.stdout_lines }}"
+  when: postgres_collation_drift.stdout_lines | length > 0
+
+- name: "🗑️ POSTGRES | Remove the clusters pg_upgrade retired"
+  ansible.builtin.script:
+    cmd: >-
+      python/cluster.py cleanup
+      --root {{ postgres_cluster.root | quote }}
+      --target {{ POSTGRES_VERSION_MAJOR | quote }}
+  register: postgres_cleanup
+  changed_when: true
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🗑️ POSTGRES | Remove the applied extension updates"
+  ansible.builtin.file:
+    path: "{{ postgres_update_extensions.stat.path }}"
+    state: absent
+  when: postgres_update_extensions.stat.exists
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📜 POSTGRES | Report the removed clusters"
+  ansible.builtin.debug:
+    msg: "Removed the retired clusters {{ (postgres_cleanup.stdout | from_json).removed }} below {{ postgres_cluster.root }}"

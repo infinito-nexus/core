@@ -9,9 +9,10 @@ Semver pinning is the precondition for the daily auto-update job at
 [update-image-versions](../../../../.github/workflows/cron-update.yml) and
 [update-repository-refs](../../../../.github/workflows/cron-update.yml):
 those jobs only bump entries whose current value matches the semver
-shape (``v?\\d+(\\.\\d+){0,3}(-flavor)?``). A pin like ``latest``,
-``stable``, ``master``, ``main``, or a commit SHA silently opts the
-entry out of the freshness pipeline. That MAY be intentional (e.g. a
+shape (``v?\\d+(\\.\\d+){0,3}(-flavor)?``), and the repository job also
+moves a full 40-hex commit SHA ``ref:`` to its default branch's tip. A
+pin like ``latest``, ``stable``, ``master`` or ``main`` silently opts
+the entry out of the freshness pipeline. That MAY be intentional (e.g. a
 vendor image that does not publish semver tags, or a plugin tracked
 against ``master``), but it MUST be explicit so freshness coverage
 stays auditable.
@@ -62,6 +63,7 @@ from utils.cache.yaml import load_yaml_any
 from utils.docker.image.pin import is_digest
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import is_semver
+from utils.update.repository import is_commit_sha
 
 from . import PROJECT_ROOT
 
@@ -172,6 +174,8 @@ class TestSemverPinning(unittest.TestCase):
 
             for kind, entity_path, lhs, value in _walk_pinned_pairs(data, ()):
                 if is_semver(value):
+                    continue
+                if kind != "image" and is_commit_sha(value):
                     continue
 
                 if kind == "image":

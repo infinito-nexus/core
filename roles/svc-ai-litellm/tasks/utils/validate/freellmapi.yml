@@ -1,0 +1,29 @@
+---
+- name: "✅ Probe FreeLLMAPI streaming and tool round trips through LiteLLM"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/validate/protocols.py')) | quote }}
+  args:
+    stdin: >-
+      {{ {
+        'model': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.alias'),
+        'base_url': 'http://127.0.0.1:' ~ (LITELLM_PORT | string),
+        'timeout': LITELLM_UPSTREAM_TIMEOUT | float,
+        'workers': lookup('config', 'svc-ai-litellm', 'services.litellm.validation.workers') | int,
+        'max_output_tokens': lookup('config', 'svc-ai-litellm', 'services.litellm.validation.max_output_tokens') | int,
+        'reasoning_effort': lookup('config', 'dsk-gnt-codex', 'services.codex.reasoning_effort')
+      } | to_json }}
+  register: litellm_freellmapi_validation
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: "✅ Require FreeLLMAPI to support the client protocols"
+  ansible.builtin.assert:
+    that:
+      - litellm_freellmapi_validation.rc == 0
+      - (litellm_freellmapi_validation.stdout | from_json).ok | bool
+    success_msg: "{{ litellm_freellmapi_validation.stdout }}"
+    fail_msg: >-
+      {{ litellm_freellmapi_validation.stdout if litellm_freellmapi_validation.stdout | trim
+         else 'Protocol validator failed before reporting results; check container availability and Python.' }}

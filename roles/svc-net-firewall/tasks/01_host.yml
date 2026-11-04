@@ -1,9 +1,4 @@
 ---
-- name: "📦 Firewall | Install nftables"
-  become: true
-  package_install:
-    id: nftables
-
 - name: "📁 Firewall | Ensure the fragment directory exists"
   become: true
   ansible.builtin.file:

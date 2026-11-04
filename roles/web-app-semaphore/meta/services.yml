@@ -23,12 +23,16 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
-css:
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 240
+      height: 240
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -38,6 +42,7 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag, semaphore-contract  self-provider: this entry is the Semaphore container itself, so enabled stays its container flag and Semaphore never pauses itself
 semaphore:
   # nocheck: single-replica OSS semaphore is single-instance (HA node registry, schedule dedup and orphan cleaner are pro_impl stubs returning nil); every replica also re-runs `semaphore setup` + db.Migrate on start, and the migration loser deletes the winner's ledger row, poisoning the schema permanently
   replicas: 1
@@ -49,6 +54,11 @@ semaphore:
       enabled: true
     swarm:
       enabled: true
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  control: false
+  status: started
   cpus: 1.0
   mem_reservation: 256m
   mem_limit: 1g
@@ -57,7 +67,7 @@ semaphore:
   image: semaphoreui/semaphore
   version: "v2.19.17"
   backup:
-    no_stop_required: true
+    stop_required: false
   name: semaphore
   ports:
     internal:
@@ -69,7 +79,18 @@ semaphore:
     - svc-db-openldap
     - web-app-keycloak
     - web-app-matomo
+    - web-app-gitea
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', '2fa') }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -82,3 +103,36 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: playwright-service-flag  Gitea only hosts the inventory repository the deploy template clones; Semaphore renders nothing differently with it
+gitea:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitea' in group_names }}"
+  shared: "{{ 'web-app-gitea' in group_names }}"
+
+# nocheck: shared, dynamic-flag  the runner is this role's own container, always on beside Semaphore and never a provider of other roles
+# nocheck: playwright-service-flag, image-healthcheck  the runner opens no port; it polls the server, which records each poll as the runner's touch time
+task-runner:
+  # nocheck: single-replica  the runner signs in with the one runner token the deploy seeds; a second replica would poll under the same identity
+  replicas: 1
+  backup:
+    stop_required: false
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  custom: true
+  name: semaphore-runner
+  min_storage: 6GB
+  cpus: 0.5
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 512

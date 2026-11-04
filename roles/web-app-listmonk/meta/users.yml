@@ -1,5 +1,4 @@
 ---
-administrator: {}
 bounce:
   username: bounce
   roles:
@@ -8,3 +7,4 @@ newsletter:
   username: newsletter
   roles:
     - bot
+platform_administrator: {}

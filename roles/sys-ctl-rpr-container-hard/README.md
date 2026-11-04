@@ -12,19 +12,6 @@ Optimized for containerized environments, this role:
 - Configures a systemd service (and optionally a timer) to execute the restart script.
 - Handles both standard restarts and hard restarts for specific containers (e.g., for Mailu).
 
-## Cosmos
-
-The diagram places Docker Auto Restart in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-ctl-rpr-container-hard 💻]
-        svc_container_hard["container-hard"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Purpose
 
 The primary purpose of this role is to ensure that all Docker Compose services are restarted consistently, resolving issues that may arise from partial restarts. This helps maintain overall service stability and minimizes downtime.
@@ -39,9 +26,3 @@ The primary purpose of this role is to ensure that all Docker Compose services a
 ## Context
 
 This role was implemented to address the classic issue: ["Have you tried turning it off and on again?"](https://www.youtube.com/watch?v=rksCTVFtjM4). The problem initially arose with the `fetchmail` container in Mailu, which fails if only some containers, and not the full compose composition, are restarted.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

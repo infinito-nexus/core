@@ -28,10 +28,10 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": false,
+  "registrationAllowed": {{ KEYCLOAK_REGISTRATION_ALLOWED | bool | to_json }},
   "registrationEmailAsUsername": false,
   "rememberMe": true,
-  "verifyEmail": false,
+  "verifyEmail": {{ KEYCLOAK_EMAIL_VERIFY | bool | to_json }},
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "resetPasswordAllowed": true,
@@ -888,13 +888,30 @@
           "config": {
             "introspection.token.claim": "true",
             "userinfo.token.claim": "true",
-            "user.attribute": "email",
+            "user.attribute": "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE if KEYCLOAK_EMAIL_MAILBOX | bool else 'email' }}",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "email",
             "jsonType.label": "String"
           }
         },
+{% if KEYCLOAK_EMAIL_MAILBOX | bool %}
+        {
+          "name": "email verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.value": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "email_verified",
+            "jsonType.label": "boolean"
+          }
+        }
+{% else %}
         {
           "name": "email verified",
           "protocol": "openid-connect",
@@ -910,6 +927,7 @@
             "jsonType.label": "boolean"
           }
         }
+{% endif %}
       ]
     },
     {
@@ -1477,7 +1495,7 @@
     "jboss-logging"
   ],
   "enabledEventTypes": [],
-  "adminEventsEnabled": false,
+  "adminEventsEnabled": true,
   "adminEventsDetailsEnabled": false,
   "identityProviders": [],
   "identityProviderMappers": [],
@@ -2285,6 +2303,17 @@
       "config": {}
     },
     {
+      "alias": "UPDATE_EMAIL",
+      "name": "Update Email",
+      "providerId": "UPDATE_EMAIL",
+      "enabled": {{ KEYCLOAK_EMAIL_SMTP | bool | to_json }},
+      "defaultAction": false,
+      "priority": 45,
+      "config": {
+        "verifyEmail": "true"
+      }
+    },
+    {
       "alias": "VERIFY_EMAIL",
       "name": "Verify Email",
       "providerId": "VERIFY_EMAIL",
@@ -2369,13 +2398,14 @@
     "parRequestUriLifespan": "60",
     "clientSessionMaxLifespan": "0",
     "frontendUrl": "",
-    "acr.loa.map": "{}"
+    "acr.loa.map": "{}",
+    "{{ KEYCLOAK_EMAIL_POLICY_ATTRIBUTE }}": "{{ KEYCLOAK_EMAIL_POLICY }}"
   },
   "keycloakVersion": "26.1.2",
   "userManagedAccessAllowed": true,
   "organizationsEnabled": false,
   "verifiableCredentialsEnabled": false,
-  "adminPermissionsEnabled": false,
+  "adminPermissionsEnabled": true,
   "clientProfiles": {
     "profiles": []
   },

@@ -1,0 +1,95 @@
+---
+- name: "📋 Report the update-relevant state of every host"
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    update_check_roles_dir: "{{ lookup('path_absolute', '../../roles') }}"
+    update_check_deployed: "{{ lookup('application_closure', group_names) }}"
+    update_check_compose_volumes: {}
+    update_check_secret_files: >-
+      {{ query('ansible.builtin.fileglob',
+               *(update_check_deployed
+                 | map('regex_replace', '^', update_check_roles_dir ~ '/')
+                 | map('regex_replace', '$', '/meta/secrets.yml'))) }}
+    update_check_secret_schemas: >-
+      {{ dict(update_check_secret_files | map('dirname') | map('dirname') | map('basename')
+              | zip(query('ansible.builtin.file', *update_check_secret_files) | map('from_yaml'))) }}
+  tasks:
+    - name: "📋 Collect the update report"
+      ansible.builtin.script: # nocheck: stack-host-consumer (read-only report for legacy hosts that never ran stack_host_template; report.sh tolerates a missing directory)
+        cmd: "report.sh {{ DIR_COMPOSITIONS | quote }} {{ DIR_BACKUPS | quote }}"
+      register: update_report
+      changed_when: false
+
+    - name: "💾 Save the report to /tmp/infinito-update-report-{{ inventory_hostname }}.txt"
+      ansible.builtin.copy:
+        content: "{{ update_report.stdout }}"
+        dest: "/tmp/infinito-update-report-{{ inventory_hostname }}.txt"
+        mode: "0600"
+      delegate_to: localhost
+      become: false
+
+    - name: "🩺 Collect the state the check compares"
+      ansible.builtin.script: # nocheck: stack-host-consumer (read-only check for legacy hosts that never ran stack_host_template; state.sh tolerates a missing directory)
+        cmd: "state.sh {{ DIR_BACKUPS | quote }} {{ lookup('nginx', 'directories.configuration.base') | quote }} {{ LETSENCRYPT_LIVE_PATH | quote }}"
+      register: update_state
+      changed_when: false
+
+    - name: "🧾 Validate the inventory against the current code"
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_playbook_python }}"
+          - -m
+          - cli.administration.inventory.validate
+          - "{{ inventory_dir }}"
+        chdir: "{{ update_check_roles_dir | dirname }}"
+      register: update_inventory
+      changed_when: false
+      failed_when: update_inventory.rc not in [0, 1]
+      delegate_to: localhost
+      become: false
+
+    - name: "📦 Resolve the volumes the code gives every deployed application"
+      ansible.builtin.set_fact:
+        update_check_compose_volumes: "{{ update_check_compose_volumes | combine({item: lookup('compose_volumes', errors='warn')}) }}"
+      vars:
+        application_id: "{{ item }}"
+      loop: "{{ update_check_deployed | select('in', lookup('applications')) | list }}"
+      loop_control:
+        label: "{{ item }}"
+
+    - name: "🔀 Resolve the redirect domains the deploy serves"
+      ansible.builtin.set_fact:
+        update_check_redirect_mappings: "{{ lookup('current_play_redirect_domains') }}"
+
+    - name: "🚦 Judge the host against the current code"
+      ansible.builtin.set_fact:
+        update_check: >-
+          {{ update_state.stdout | update_check(
+               lookup('applications'),
+               group_names,
+               update_check_deployed,
+               update_check_compose_volumes,
+               update_check_redirect_mappings | map(attribute='source') | list,
+               lookup('nginx', 'directories.configuration.http_includes'),
+               update_check_secret_schemas,
+               update_inventory.rc,
+               update_inventory.stdout_lines + update_inventory.stderr_lines) }}
+
+    - name: "💾 Save the check to /tmp/infinito-check-{{ inventory_hostname }}.txt"
+      ansible.builtin.copy:
+        content: "{{ update_check.detail | join('\n') }}\n"
+        dest: "/tmp/infinito-check-{{ inventory_hostname }}.txt"
+        mode: "0600"
+      delegate_to: localhost
+      become: false
+
+    - name: "🚦 Show the check"
+      ansible.builtin.debug:
+        msg: "{{ update_check.summary }}"
+
+    - name: "❌ Fail on a red check"
+      ansible.builtin.fail:
+        msg: "{{ update_check.failures }} red check(s), see /tmp/infinito-check-{{ inventory_hostname }}.txt"
+      when: update_check.failures > 0

@@ -123,6 +123,20 @@ adminopenauth_yaml:
     - service: scheduler
       target: *var_www_html_config_packages_adminopenauth_yaml_target
 
+adminopenauth_role_gate:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.config'), 'AdminOpenAuthRoleGate.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: &var_www_html_src_infinitorbac_adminopenauthrolegate_php_target /var/www/html/src/InfinitoRbac/AdminOpenAuthRoleGate.php
+    - service: web
+      target: *var_www_html_src_infinitorbac_adminopenauthrolegate_php_target
+    - service: worker
+      target: *var_www_html_src_infinitorbac_adminopenauthrolegate_php_target
+    - service: scheduler
+      target: *var_www_html_src_infinitorbac_adminopenauthrolegate_php_target
+
 php_hardening:
   type: config
   source: "{{ FILE_PHP_HARDENING_INI }}"
@@ -130,14 +144,6 @@ php_hardening:
   mounts:
     - service: web
       target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini
-
-php_memory_unlimited:
-  type: config
-  source: "{{ FILE_PHP_MEMORY_UNLIMITED_INI }}"
-  mode: "0444"
-  mounts:
-    - service: web
-      target: /usr/local/etc/php/conf.d/zz-infinito-memory-unlimited.ini
 
 php_fpm_hardening:
   type: config

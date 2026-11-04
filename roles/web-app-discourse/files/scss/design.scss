@@ -1,0 +1,176 @@
+:root {
+  --primary: var(--design-text);
+  --primary-rgb: var(--design-text-rgb);
+  --secondary: var(--design-surface-1);
+  --secondary-rgb: var(--design-surface-1-rgb);
+  --tertiary: var(--design-link);
+  --tertiary-rgb: var(--design-link-rgb);
+  --quaternary: var(--design-primary);
+  --highlight: var(--design-warning-subtle);
+  --danger: var(--design-danger);
+  --success: var(--design-success);
+  --love: var(--design-danger);
+  --primary-very-low: var(--design-surface-3);
+  --primary-low: var(--design-border);
+  --primary-low-mid: var(--design-border-strong);
+  --primary-medium: var(--design-text-muted);
+  --primary-high: var(--design-text-muted);
+  --primary-very-high: var(--design-text);
+  --danger-low: var(--design-danger-subtle);
+  --success-low: var(--design-success-subtle);
+  --highlight-bg: var(--design-warning-subtle);
+  --token-color-surface: var(--design-surface-1);
+  --token-color-background-input: var(--design-surface-2);
+  --token-color-surface-hovered: var(--design-surface-hover);
+  --token-color-surface-pressed: var(--design-surface-active);
+  --token-color-surface-selected: var(--design-surface-active);
+  --token-color-surface-focused: var(--design-surface-3);
+  --token-color-text-default: var(--design-text);
+  --token-color-text-subtle: var(--design-text-muted);
+  --token-color-text-subtlest: var(--design-text-muted);
+  --token-color-text-accent: var(--design-link);
+  --token-color-text-accent-bolder: var(--design-link);
+  --token-color-text-inverse: var(--design-on-primary);
+  --token-color-icon-default: var(--design-text);
+  --token-color-icon-subtle: var(--design-text-muted);
+  --token-color-icon-subtlest: var(--design-text-muted);
+  --token-color-icon-danger: var(--design-danger);
+  --token-color-border-default: var(--design-border);
+  --token-color-border-input: var(--design-border-strong);
+  --token-color-border-focused: var(--design-focus, var(--design-link));
+  --token-color-border-accent: var(--design-link);
+  --token-color-background-accent-bolder: var(--design-primary);
+  --token-color-background-accent-bolder-hovered: var(--design-primary-hover);
+  --token-color-background-accent-bolder-pressed: var(--design-primary-active);
+  --token-color-background-accent-subtle: var(--design-surface-active);
+  --token-color-background-accent-subtler: var(--design-surface-active);
+  --token-color-background-accent-subtle-hovered: var(--design-surface-hover);
+  --token-color-background-accent-subtle-pressed: var(--design-surface-active);
+  --d-hover: var(--design-surface-hover);
+  --d-selected: var(--design-surface-active);
+  --d-selected-text-color: var(--design-text);
+  --d-link-color: var(--design-link);
+  --title-color: var(--design-text);
+  --title-color--read: var(--design-text-muted);
+  --excerpt-color: var(--design-text-muted);
+  --metadata-color: var(--design-text-muted);
+  --content-border-color: var(--design-border);
+  --table-border-color: var(--design-border);
+  --input-border-color: var(--design-border-strong);
+  --d-input-bg-color: var(--design-surface-2);
+  --d-input-text-color: var(--design-text);
+  --d-input-focused-color: var(--design-focus, var(--design-link));
+  --d-nav-color: var(--design-text);
+  --d-nav-color--hover: var(--design-link);
+  --d-nav-color--active: var(--design-link);
+  --d-nav-border-color--active: var(--design-link);
+  --d-topic-list-header-background-color: var(--design-surface-1);
+  --d-topic-list-header-text-color: var(--design-text-muted);
+  --d-category-box-background-color: var(--design-surface-2);
+  --d-badge-card-background-color: var(--design-surface-2);
+  --d-post-aside-background: var(--design-surface-3);
+  --d-sidebar-background: var(--design-surface-1);
+  --d-sidebar-border-color: var(--design-border);
+  --d-sidebar-section-border-color: var(--design-border);
+  --d-sidebar-link-color: var(--design-text-muted);
+  --d-sidebar-link-icon-color: var(--design-text-muted);
+  --d-sidebar-header-color: var(--design-text-muted);
+  --d-sidebar-highlight-background: var(--design-surface-hover);
+  --d-sidebar-highlight-color: var(--design-text);
+  --d-sidebar-active-background: var(--design-surface-active);
+  --d-sidebar-active-color: var(--design-text);
+  --d-sidebar-active-icon-color: var(--design-text);
+  --d-button-default-bg-color: var(--design-surface-3);
+  --d-button-default-bg-color--hover: var(--design-surface-active);
+  --d-button-default-text-color: var(--design-text);
+  --d-button-default-text-color--hover: var(--design-text);
+  --d-button-default-icon-color: var(--design-text-muted);
+  --d-button-default-icon-color--hover: var(--design-text);
+  --d-button-primary-bg-color: var(--design-primary);
+  --d-button-primary-bg-color--hover: var(--design-primary-hover);
+  --d-button-primary-text-color: var(--design-on-primary);
+  --d-button-primary-text-color--hover: var(--design-on-primary);
+  --d-button-primary-icon-color: var(--design-on-primary);
+  --d-button-primary-icon-color--hover: var(--design-on-primary);
+  --d-button-danger-bg-color: var(--design-danger);
+  --d-button-danger-bg-color--hover: var(--design-danger-hover);
+  --d-button-danger-text-color: var(--design-on-danger);
+  --d-button-danger-text-color--hover: var(--design-on-danger);
+  --d-button-danger-icon-color: var(--design-on-danger);
+  --d-button-danger-icon-color--hover: var(--design-on-danger);
+  --d-button-success-bg-color: var(--design-success);
+  --d-button-success-bg-color--hover: var(--design-success-hover);
+  --d-button-success-text-color: var(--design-on-success);
+  --d-button-success-text-color--hover: var(--design-on-success);
+  --d-button-success-icon-color: var(--design-on-success);
+  --d-button-success-icon-color--hover: var(--design-on-success);
+  --d-button-flat-text-color: var(--design-link);
+  --d-button-flat-text-color--hover: var(--design-text);
+  --d-button-flat-icon-color: var(--design-text-muted);
+  --d-button-flat-icon-color--hover: var(--design-text);
+  --d-button-flat-bg-color--hover: var(--design-surface-hover);
+  --d-button-flat-bg-color--focus: var(--design-surface-hover);
+  --header_background: var(--design-frame);
+  --header_background-rgb: var(--design-frame-rgb);
+  --header_primary: var(--design-on-frame);
+  --header_primary-rgb: var(--design-on-frame-rgb);
+  --header_primary-low: var(--design-on-frame);
+  --header_primary-low-mid: var(--design-on-frame);
+  --header_primary-medium: var(--design-on-frame);
+  --header_primary-high: var(--design-on-frame);
+  --header_primary-very-high: var(--design-on-frame);
+  --title-color--header: var(--design-on-frame);
+  --d-header-icon-color: var(--design-on-frame);
+  --d-header-icon-color--hover: var(--design-on-frame);
+  --d-header-icon-color--active: var(--design-on-frame);
+  --d-header-icon-background--hover: var(--design-frame-hover);
+  --d-header-icon-background--active: var(--design-frame-active);
+}
+
+.d-header {
+  --design-focus: var(--design-on-frame);
+  --d-button-flat-text-color: var(--design-on-frame);
+  --d-button-flat-text-color--hover: var(--design-on-frame);
+  --d-button-flat-icon-color: var(--design-on-frame);
+  --d-button-flat-icon-color--hover: var(--design-on-frame);
+  --d-button-flat-bg-color--hover: var(--design-frame-hover);
+  --d-button-flat-bg-color--focus: var(--design-frame-hover);
+}
+
+.admin-area .sidebar-wrapper .admin-panel {
+  --d-sidebar-admin-background: var(--design-surface-3);
+}
+
+body.login-page .d-header,
+body.signup-page .d-header {
+  background-color: var(--design-frame);
+}
+
+.btn-social {
+  color: var(--design-text);
+  background: var(--design-surface-2);
+}
+
+.btn-social:hover,
+.btn-social:focus-visible {
+  color: var(--design-text);
+  background: var(--design-surface-hover);
+}
+
+.d-header a:focus-visible,
+.d-header .btn:focus-visible {
+  outline: 2px solid var(--design-focus);
+  outline-offset: -2px;
+}
+
+.d-header .menu-panel,
+.d-header .search-menu .menu-panel,
+.fk-d-menu {
+  --design-focus: var(--design-link);
+  --d-button-flat-text-color: var(--design-link);
+  --d-button-flat-text-color--hover: var(--design-text);
+  --d-button-flat-icon-color: var(--design-text-muted);
+  --d-button-flat-icon-color--hover: var(--design-text);
+  --d-button-flat-bg-color--hover: var(--design-surface-hover);
+  --d-button-flat-bg-color--focus: var(--design-surface-hover);
+}

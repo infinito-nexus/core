@@ -15,9 +15,7 @@
 
 - name: "🔄 Convert to Multisite when opted in"
   include_tasks: 03_multisite.yml
-  when: >-
-    (lookup('config', application_id, 'services.wordpress.multisite.enabled')
-      | default(false) | bool)
+  when: WORDPRESS_MULTISITE_ENABLED | bool
 
 - name: "🛑 Assert every required addon is claimed by an install path"
   ansible.builtin.assert:
@@ -32,8 +30,12 @@
 - name: "📦 Install declared mu-plugins"
   include_tasks: 04_mu_plugins.yml
 
+- name: "🏠 Reserve and archive the own sites of the site-owner members"
+  include_tasks: 05_site_owners.yml
+  when: WORDPRESS_SITE_OWNER_ENABLED | bool
+
 - name: "🔁 Iterate through WordPress plugins"
-  include_tasks: 05_enable_plugin.yml
+  include_tasks: 06_enable_plugin.yml
   loop: "{{ WORDPRESS_PLUGINS }}"
   loop_control:
     loop_var: wordpress_plugin
@@ -66,11 +68,32 @@
   register: wp_is_multisite
   changed_when: false
 
+- name: "🚪 Align self-registration with the registration login method"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp option update users_can_register {{ WORDPRESS_LOGIN_REGISTRATION | bool | ternary('1', '0') }}
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_users_can_register
+  changed_when: "'Updated' in wp_users_can_register.stdout"
+  when: (wp_is_multisite.stdout | trim) == '0'
+
+- name: "🚪 Align network self-registration with the registration login method"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp site option update registration {{ WORDPRESS_LOGIN_REGISTRATION | bool | ternary('user', 'none') }}
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_network_registration
+  changed_when: "'Updated' in wp_network_registration.stdout"
+  when: (wp_is_multisite.stdout | trim) == '1'
+
 - name: "🔄 Update Single Side WordPress domain"
-  include_tasks: 06_update_domain.yml
+  include_tasks: 08_update_domain.yml
   when: (wp_is_multisite.stdout | trim) == '0'
   vars:
     wp_new_url: "{{ WORDPRESS_URL }}"
+
+- name: "🎨 Apply or withdraw the corporate design"
+  include_tasks: 09_design.yml
 
 - name: "📧 Verify the relay accepted WordPress's startup mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool

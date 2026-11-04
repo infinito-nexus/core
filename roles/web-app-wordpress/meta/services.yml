@@ -4,12 +4,25 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
-# nocheck: seaweedfs-required, object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  profile:
+    locked:
+      first_name: "body.infinito-sso-managed #your-profile #first_name"
+      last_name: "body.infinito-sso-managed #your-profile #last_name"
+      display_name: "body.infinito-sso-managed #your-profile #display_name"
+      email: "body.infinito-sso-managed #your-profile #email"
+      website: "body.infinito-sso-managed #your-profile #url"
+      language: "body.infinito-sso-managed #your-profile #locale"
+    languages: [en]
+# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
+javascript:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -24,8 +37,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag, DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -35,6 +48,26 @@ discourse:
   bond: 1
   enabled: "{{ 'web-app-discourse' in group_names }}"
   shared: "{{ 'web-app-discourse' in group_names }}"
+# nocheck: playwright-service-flag: bridged bigbluebutton partner, covered by partner role spec
+bigbluebutton:
+  bond: 0.5
+  enabled: "{{ 'web-app-bigbluebutton' in group_names }}"
+  shared: "{{ 'web-app-bigbluebutton' in group_names }}"
+# nocheck: playwright-service-flag: bridged listmonk partner, covered by partner role spec
+listmonk:
+  bond: 0.5
+  enabled: "{{ 'web-app-listmonk' in group_names }}"
+  shared: "{{ 'web-app-listmonk' in group_names }}"
+# nocheck: playwright-service-flag: bridged peertube partner, covered by partner role spec
+peertube:
+  bond: 0.5
+  enabled: "{{ 'web-app-peertube' in group_names }}"
+  shared: "{{ 'web-app-peertube' in group_names }}"
+# nocheck: playwright-service-flag: bridged translation gateway, covered by the addon's own spec
+translate:
+  bond: 0.5
+  enabled: "{{ 'web-svc-translate' in group_names }}"
+  shared: "{{ 'web-svc-translate' in group_names }}"
 # nocheck: playwright-service-flag  self-provider
 wordpress:
   enabled: true
@@ -53,13 +86,20 @@ wordpress:
   name: wordpress
   min_storage: 469MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 1
   mem_reservation: 0.5g
   mem_limit: 1.5g
   pids_limit: 512
-  title: Blog by {{ service_provider.platform.titel }}
   max_upload_size: 256M
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'registration') }}"
   multisite:
     enabled: false
   ports:
@@ -70,18 +110,27 @@ wordpress:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-# nocheck: playwright-service-flag, verified by web-svc-css provider spec
-css:
+seaweedfs:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+  public: true
+# nocheck: playwright-service-flag, verified by web-svc-design provider spec
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: Blog by {{ service_provider.platform.titel }}
+  slots:
+    logo:
+      width: 240
+      height: 240
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
 # nocheck: playwright-service-flag
-# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
@@ -113,3 +162,16 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

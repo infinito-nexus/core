@@ -41,6 +41,8 @@ from pathlib import Path
 from plugins.filter.text_filters import to_one_liner
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
+from utils.i18n.extract import logout_context
+from utils.i18n.keyed import keyed_catalogue
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
@@ -48,8 +50,10 @@ PANEL = ROLE / "files" / "javascript" / "logout-panel.js"
 ASSEMBLY = ROLE / "templates" / "logout-panel.js.j2"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
-FRAMED_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
+FRAMED_URL_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
+PANEL_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.origin')"
 ORIGIN = "https://logout.example.test"
+EVERYWHERE = "https://dashboard.example.test/#logout-everywhere"
 DOMAINS = ("https://shop.example.test", "https://cloud.example.test")
 
 DRIVER = textwrap.dedent(
@@ -222,7 +226,7 @@ DRIVER = textwrap.dedent(
       h.post({ type: "host", host: domains[0], ok: true });
       h.post({ type: "host", host: domains[1], ok: true });
       h.post({ type: "done", total: 2, failed: 0 });
-      assert.match(h.status(), /Signed out everywhere/);
+      assert.match(h.status(), /Signed out on this device/);
       assert.match(h.hint(), /You can close this page now/, "answers the only question there is");
       assert.strictEqual(h.counter(), "2 of 2 services signed out");
       assert.strictEqual(h.armed(), 0);
@@ -237,7 +241,7 @@ DRIVER = textwrap.dedent(
       h.fire(SWEEP);
       assert.strictEqual(h.armed(), 0, "guard fails open when done never arrives");
       assert.match(h.status(), /Could not confirm every sign-out/, "a stall must state an outcome");
-      assert.doesNotMatch(h.status(), /Signed out everywhere/, "and must not claim success");
+      assert.doesNotMatch(h.status(), /Signed out on this device/, "and must not claim success");
       assert.match(h.rowState(1), /not confirmed/, "the pending row says so");
       assert.strictEqual(h.rowLink(1).href, domains[1] + "/logout?manual=1");
       assert.match(h.rowState(0), /signed out/, "a confirmed row is left alone");
@@ -301,13 +305,17 @@ DRIVER = textwrap.dedent(
 def _collapsed_panel() -> str:
     """Render the template the way sys-front-inj-javascript serves it.
 
-    :return: the one-lined script with both lookups resolved - the logout
-        origin and the real translation catalogue
+    :return: the one-lined script with every value resolved - the logout
+        origin, the everywhere link and the real translation catalogue
     """
-    catalogue = json.dumps(load_yaml(CATALOGUE_FILE), ensure_ascii=False)
+    catalogue = json.dumps(
+        keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)),
+        ensure_ascii=False,
+    )
     prelude = (
         "window.__INFINITO_LOGOUT__ = {"
-        f"origin: {json.dumps(ORIGIN)}, i18n: {catalogue}"
+        f"origin: {json.dumps(ORIGIN)}, everywhere: {json.dumps(EVERYWHERE)}, "
+        f"i18n: {catalogue}"
         "};"
     )
     return to_one_liner(prelude + "\n" + read_text(str(PANEL)))
@@ -356,15 +364,16 @@ class TestPanelTrustsTheFramedOrigin(unittest.TestCase):
             declaration, f"KEYCLOAK_FRONTCHANNEL_LOGOUT_URL missing from {VARS}"
         )
         self.assertIn(
-            FRAMED_ORIGIN_LOOKUP,
+            FRAMED_URL_LOOKUP,
             declaration,
             "the front-channel logout URL decides which origin ends up framed",
         )
         self.assertIn(
-            FRAMED_ORIGIN_LOOKUP,
+            PANEL_ORIGIN_LOOKUP,
             read_text(str(ASSEMBLY)),
-            "the panel discards messages from any other origin, so its constant and"
-            " the framed URL must come from one expression or the panel goes silent",
+            "the panel discards messages from any other origin, so its constant must"
+            " be the origin of the same tls resolution that builds the framed URL,"
+            " or the panel goes silent",
         )
 
 

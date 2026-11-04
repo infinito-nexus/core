@@ -1,0 +1,24 @@
+ARG WHITEBOARD_IMAGE
+ARG WHITEBOARD_VERSION
+FROM ${WHITEBOARD_IMAGE}:${WHITEBOARD_VERSION}
+
+USER 0
+
+RUN apk add --no-cache \
+      chromium \
+      ffmpeg \
+      nss \
+      freetype \
+      harfbuzz \
+      ttf-dejavu \
+      ttf-liberation \
+      udev \
+      ca-certificates \
+    && update-ca-certificates
+
+RUN if [ -x /usr/bin/chromium-browser ]; then ln -sf /usr/bin/chromium-browser /usr/bin/chromium; fi
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    PUPPETEER_SKIP_DOWNLOAD=true
+
+USER 65534

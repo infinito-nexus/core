@@ -20,6 +20,6 @@ _paq.push(["enableLinkTracking"]);
   g.async=true; g.src=u+"matomo.js"; s.parentNode.insertBefore(g,s);
 })();
 
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug', 'sys-front-inj-matomo') | bool %}
 console.log("Matomo is loaded.");
 {% endif %}

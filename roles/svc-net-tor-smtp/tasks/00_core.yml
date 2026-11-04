@@ -14,11 +14,18 @@
   vars:
     network_role_id: "{{ application_id }}"
 
-- name: "🎬 Stage the gateway daemon into the build context"
+- name: "🎬 Stage the gateway build context"
   stack_host_copy:
-    src: "python/tor_smtp_gateway.py"
-    dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'tor_smtp_gateway.py' ] | path_join }}"
+    src: "{{ item.src }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "0644"
+  loop:
+    - src: "python/tor_smtp_gateway.py"
+      dest: "tor_smtp_gateway.py"
+    - src: "requirements.txt"
+      dest: "requirements.txt"
+  loop_control:
+    label: "{{ item.dest }}"
   when: IS_STACK_HOST | bool
 
 - name: "🚿 Flush compose handlers (build + up with the daemon present)"

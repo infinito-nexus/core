@@ -11,7 +11,7 @@ This directory contains custom **Ansible filter plugins** used within the Infini
 ### Examples
 
 ```jinja2
-{{ role_name | get_entity_name }}
+{{ role_name | entity_name }}
 {{ my_list | unique }}
 {{ user_email | regex_replace('^(.+)@.*$', '\\1') }}
 ````

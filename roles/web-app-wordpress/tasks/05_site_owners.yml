@@ -1,0 +1,16 @@
+---
+- name: "🏠 Reserve the sites of inventory site owners and archive those of former ones"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      -e WP_SITE_OWNER_LOGINS -e WP_SITE_OWNER_MEMBERS -e WP_MS_ADMIN_EMAIL
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+    stdin: "{{ lookup('file', 'php/multisite/site_owners.php') }}"
+  environment:
+    WP_SITE_OWNER_LOGINS: "{{ WORDPRESS_SITE_OWNER_LOGINS | join(',') }}"
+    WP_SITE_OWNER_MEMBERS: "{{ WORDPRESS_SITE_OWNER_MEMBERS | join(',') }}"
+    WP_MS_ADMIN_EMAIL: "{{ WORDPRESS_ADMIN_EMAIL }}"
+  register: wp_ms_site_owners
+  changed_when: "'CHANGED' in wp_ms_site_owners.stdout"

@@ -63,8 +63,8 @@ test("bbb addon: cloud_bbb app route renders its own UI and is coupled to the pa
 
     expect(
       configuredUrl,
-      "the bbb api.url must be a valid https URL pointing at the BigBlueButton API mount (the partner base URL + '/bigbluebutton/' API suffix)"
-    ).toMatch(/^https:\/\/.+\/bigbluebutton\/?$/);
+      "the bbb api.url must be the partner base URL + '/bigbluebutton/' with exactly one slash on each side; the BigBlueButton client appends 'api/<call>' directly, so a missing trailing slash yields '/bigbluebuttonapi/'"
+    ).toMatch(/^https:\/\/[^/]+\/bigbluebutton\/$/);
 
     const apiSecretField = bbbSection.locator("#bbb-api input[name='api.secret'], input[name='api.secret']");
     await expect(

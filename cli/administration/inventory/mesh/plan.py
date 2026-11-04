@@ -67,10 +67,10 @@ def _offset_of(subnet: str, address: str) -> int | None:
         candidate = ipaddress.ip_address(address)
     except ValueError:
         return None
-    if candidate not in network:
+    if candidate not in network or candidate == network.broadcast_address:
         return None
     offset = int(candidate) - int(network.network_address)
-    return offset if offset > SPOKE_OFFSET else None
+    return offset if offset > HUB_OFFSET else None
 
 
 def _spoke_offsets(
@@ -122,18 +122,25 @@ def plan_mesh(
         rotate: mint a fresh keypair for every member.
         controller: host to admit as an extra spoke.
         endpoints: hostname to the underlay address its peers dial; a host
-            left out is dialled by its hostname.
+            left out is dialled by its hostname, a roaming spoke takes none.
         addresses: hostname to the mesh address it already holds, kept across
             a rotation.
     """
     held = {} if rotate else dict(existing_public_keys or {})
     underlay = dict(endpoints or {})
     hub, spokes = members_of(spec, topology, controller)
+    roaming = {host for host in spokes if host in topology.roaming}
+    dialled_roamers = sorted(roaming & set(underlay))
+    if dialled_roamers:
+        raise ValueError(
+            f"{', '.join(dialled_roamers)} roam(s), so no peer dials them: "
+            "drop their --endpoint"
+        )
     offsets = _spoke_offsets(spec.subnet, spokes, dict(addresses or {}))
 
     def member(host: str, offset: int, is_hub: bool) -> MeshMember:
         address = _address(spec.subnet, offset)
-        endpoint = underlay.get(host, host)
+        endpoint = "" if host in roaming else underlay.get(host, host)
         if host in held:
             return MeshMember(
                 host=host,
@@ -142,6 +149,7 @@ def plan_mesh(
                 public_key=held[host],
                 is_hub=is_hub,
                 endpoint=endpoint,
+                roaming=host in roaming,
             )
         private_key = generate_private_key()
         return MeshMember(
@@ -151,6 +159,7 @@ def plan_mesh(
             public_key=public_key_of(private_key),
             is_hub=is_hub,
             endpoint=endpoint,
+            roaming=host in roaming,
         )
 
     members = [member(hub, HUB_OFFSET, True)] if hub else []

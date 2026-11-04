@@ -40,7 +40,7 @@
 
 - name: "🔍 Resolve central mariadb/redis VIPs for admin extra_hosts (swarm)"
   include_tasks: 01_swarm_resolve_peer_vips.yml
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:

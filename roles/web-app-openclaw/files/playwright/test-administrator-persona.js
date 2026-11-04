@@ -1,4 +1,4 @@
-const { test } = require("@playwright/test");
+const { test } = require("./onion-test");
 const { runAdminFlow } = require("./personas");
 
 exports.register = function () {

@@ -28,7 +28,12 @@ def _headers(content_type: str) -> Message:
 
 
 def _run(
-    urlopen: MagicMock, *, method: str, body: str, build_opener: MagicMock | None = None
+    urlopen: MagicMock,
+    *,
+    method: str,
+    body: str,
+    headers: dict[str, str] | None = None,
+    build_opener: MagicMock | None = None,
 ) -> dict:
     stdout = io.StringIO()
     env = {
@@ -36,8 +41,12 @@ def _run(
         "HTTP_URL": URL,
         "HTTP_PROXY": "http://proxy.invalid:3128",
     }
-    encoded = base64.b64encode(body.encode()).decode()
-    program = f"BODY_B64 = {json.dumps(encoded)}\n" + read_text(str(SCRIPT_PATH))
+    body_b64 = base64.b64encode(body.encode()).decode()
+    headers_b64 = base64.b64encode(json.dumps(headers or {}).encode()).decode()
+    program = (
+        f"BODY_B64 = {json.dumps(body_b64)}\n"
+        f"HEADERS_B64 = {json.dumps(headers_b64)}\n" + read_text(str(SCRIPT_PATH))
+    )
     opener_factory = build_opener or MagicMock()
     opener_factory.return_value = MagicMock(open=urlopen)
     with (
@@ -85,6 +94,15 @@ class TestHttpRequest(unittest.TestCase):
                 "content": '{"data": {}}',
             },
         )
+
+    def test_extra_headers_are_sent(self):
+        urlopen = _ok(b"ok")
+
+        _run(urlopen, method="POST", body=BODY, headers={"Authorization": "Basic YTpi"})
+
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.get_header("Authorization"), "Basic YTpi")
+        self.assertEqual(request.get_header("Content-type"), "application/json")
 
     def test_empty_body_sends_none(self):
         urlopen = _ok(b"ok")

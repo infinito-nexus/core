@@ -6,79 +6,29 @@
 
 ## Overview
 
-This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image that pre-installs the `oic-auth`, `ldap`, `role-strategy`, and `configuration-as-code` plugins, then mounts a JCasC YAML file that wires the security realm against Keycloak (variant 0, OIDC) or `svc-db-openldap` (variant 1, LDAP). The setup wizard is skipped via `JAVA_OPTS=-Djenkins.install.runSetupWizard=false` so the JCasC config takes over from first boot.
-
-## Cosmos
-
-The diagram places Jenkins in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-jenkins 🐳🐝]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_sso["sso"]
-        svc_ldap["ldap"]
-        svc_jenkins["jenkins"]
-        svc_jenkinsmcp["jenkinsmcp"]
-        svc_css["css"]
-        svc_container_backup["container_backup"]
-        svc_openwebui["openwebui"]
-        svc_hermes["hermes"]
-        svc_openclaw["openclaw"]
-        svc_flowise["flowise ❌"]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_hermes -. "0..1" .-> svc_hermes
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
-    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image that pre-installs the `ldap`, `role-strategy`, and `configuration-as-code` plugins plus every plugin its enabled addons declare, then mounts a JCasC YAML file that wires the security realm against Keycloak (variant 0, OIDC) or `svc-db-openldap` (variant 1, LDAP). The setup wizard is skipped via `JAVA_OPTS=-Djenkins.install.runSetupWizard=false` so the JCasC config takes over from first boot.
 
 ## Features
 
 - **Containerized deployment:** Run Jenkins through Docker Compose with the role-specific custom image.
 - **Native OIDC SSO:** Authenticate users against Keycloak via the `oic-auth` plugin, configured by JCasC at boot.
 - **LDAP variant:** Switch to Jenkins's core `ldap` plugin via the role's matrix-deploy variant 1 against `svc-db-openldap`.
-- **Role-strategy authorisation:** Map Keycloak groups and LDAP groups onto Jenkins authorities through the `role-strategy` plugin.
+- **Login methods:** `services.jenkins.login.method` declares `sso`, `ldap`, `native` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). Jenkins runs one security realm, so [`templates/casc.yaml.j2`](./templates/casc.yaml.j2) maps them onto it: the `oic` realm while `sso` is on, else the `ldap` realm while `ldap` is on, else the `local` realm, which seeds the platform administrator while `native` is on and sets `allowsSignup` from `registration`. Jenkins core has no second factor, so the role declares no `2fa`.
+- **Break-glass access:** with the `oic` realm, `/login` always hands over to Keycloak and Jenkins renders no local form. The break-glass runs on the host: override `services.jenkins.login.method.sso.enabled: false` in the inventory and redeploy, which renders the `ldap` or `local` realm, or, when no deploy can run, replace the `securityRealm` block of the mounted `casc.yaml` in the role's instance directory with the `local` realm of the platform administrator and restart the container, since JCasC applies the file at startup. The API token [`files/mcp-api-token.groovy`](./files/mcp-api-token.groovy) mints belongs to the MCP credential owner, not to an administrator, so it is no break-glass.
+- **Role-strategy authorisation:** Map the RBAC groups of `meta/rbac.yml` onto the global roles `admin` (`administrator`), `developer` (create, configure, build and delete jobs) and `viewer` (read jobs and builds) through the `role-strategy` plugin. The OIDC realm matches the group paths of the groups claim, the LDAP realm matches the `web-app-jenkins-<role>` group names under the roles OU. A signed-in account without one of these groups is refused.
+- **Profile sync:** Take the full name and email from the OIDC claims on every login, or from the directory's full name and mail attributes in the LDAP variant.
 - **JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code.
 - **Pre-installed plugin set:** Bake build-pipeline, credentials, and SCM plugins into the image so first start-up does not block on plugin downloads.
-- **MCP server surface:** Serve the `mcp-server` plugin's streamable-HTTP endpoint on the container network, guarded by an administrator API token and limited to the read-only tool default.
+- **MCP server surface:** Serve the `mcp-server` plugin's streamable-HTTP endpoint on the container network, guarded by a service-account API token and limited to the read-only tool default.
 
 ## MCP Server
 
-The role exposes Jenkins as an MCP server through the [MCP Server plugin](https://plugins.jenkins.io/mcp-server/), baked into the image alongside the other plugins in `files/plugins.txt`. The surface is declared as the `mcp` service in `meta/services.yml`.
+The role exposes Jenkins as an MCP server through the [MCP Server plugin](https://plugins.jenkins.io/mcp-server/), baked into the image alongside the other plugins in `templates/plugins.txt.j2`. The surface is declared as the `mcp` service in `meta/services.yml`.
 
 | Property | Value |
 | --- | --- |
 | Transport | `streamable_http` |
-| Plugin | `mcp-server` pinned to `0.190.ve5a_6581ffc96` in [`files/plugins.txt`](./files/plugins.txt) |
+| Plugin | `mcp-server` pinned to `0.190.ve5a_6581ffc96` in [`templates/plugins.txt.j2`](./templates/plugins.txt.j2) |
 | Endpoint | `http://jenkins:8080/mcp-server/mcp` |
 | Health | `/mcp-health` |
 | Auth | `basic_auth` (`Authorization: Basic base64(<user>:<apiToken>)`) |
@@ -106,9 +56,10 @@ Off. `mcp.enabled` is true only while `web-app-hermes` or
 
 ### Authorization subject
 
-`auth_subject: administrator`: the API token is issued against the
-administrator account, so every call carries that account's rights no matter who
-asked the client. Reaching the tool server is gated on the role's `mcp` RBAC
+`auth_subject: service_account`: the API token is issued against the MCP
+credential owner, so every call carries that account's rights no matter who
+asked the client. `templates/casc.yaml.j2` grants that account the `viewer`
+role, or the `developer` role while `mcp.tools.mutating_tools_enabled` is on. Reaching the tool server is gated on the role's `mcp` RBAC
 group, which is a separate grant from administering Jenkins.
 
 ### Tool scope
@@ -122,44 +73,19 @@ unauthenticated `tools/list` is refused and returns no tool inventory.
 Remove the MCP client roles, or pin `mcp.enabled: false` for this role.
 The MCP Server plugin is then not installed and the boot hook mints no API token.
 
-## Quick Setup
+## Addons
 
-### Development
+Plugins are declared in `meta/addons/` under the unified addon contract. `templates/plugins.txt.j2` renders one `config.plugin_id` line per enabled addon on top of the role's base plugin set, and `jenkins-plugin-cli` installs the result while the custom image builds:
 
-Clone, set up the workstation, and deploy Jenkins onto the local stack:
+| Addon | Mechanism | Default state | Bridges |
+|-------|-----------|---------------|---------|
+| `oic-auth` | `plugin` | enabled with the `sso` login method, which is on whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `prometheus` | `plugin` | enabled whenever the `prometheus` service is present (`web-app-prometheus` co-deployed) | `prometheus` → `web-app-prometheus` |
+| `gitea` | `plugin` | enabled whenever the `gitea` service is present (`web-app-gitea` co-deployed) | `gitea` → `web-app-gitea` |
+| `gitlab-plugin` | `plugin` | enabled whenever the `gitlab` service is present (`web-app-gitlab` co-deployed) | `gitlab` → `web-app-gitlab` |
+| `mattermost` | `plugin` | enabled whenever the `mattermost` service is present (`web-app-mattermost` co-deployed) | `mattermost` → `web-app-mattermost` |
 
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-jenkins full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Jenkins to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-jenkins
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
+`oic-auth` is configured by `templates/casc.yaml.j2`, which selects the `oic` security realm on the same `services.jenkins.login.method.sso.enabled` flag the addon reads. `prometheus` serves `config.metrics_path` from first boot without further configuration. The `gitea`, `gitlab-plugin`, and `mattermost` SCM/notifier connections each need a partner-side API token or incoming webhook, so the role installs the plugin and publishes the partner URL under `config.server_url` while the connection itself is entered by the operator.
 
 ## Further Resources
 
@@ -167,15 +93,10 @@ docker run --rm -it \
 - [Jenkins oic-auth plugin](https://plugins.jenkins.io/oic-auth/)
 - [Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)
 - [Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/DPv6fGim13i7WdAb98pL1h)
 
 ## Persona contract opt-outs
 
 The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`.
 Outside the OIDC variant, `templates/casc.yaml.j2` selects the `ldap` or `local` security realm and Jenkins' only login surface is its own Java-realm form, whose fields are named `j_username` / `j_password` (pinned by the LDAP scenario in `files/playwright/playwright.spec.js`) — names the shared native-login probe does not match, so the persona never authenticates.
 The flag is currently unconditional; narrowing it to `{% if not JENKINS_OIDC_ENABLED %}` once the OIDC persona journey has been verified end-to-end is the path back.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
