@@ -70,9 +70,12 @@ apparmor_lift_unconfined_restriction() {
 		return 0
 	fi
 
+	if ! printf '0\n' 2>/dev/null >"${sysctl}"; then
+		apparmor_log "[apparmor] ${sysctl} is not writable here; the unprivileged-unconfined restriction stays ${current}"
+		return 0
+	fi
 	mkdir -p "$(dirname "${state}")"
 	printf '%s\n' "${current}" >"${state}"
-	printf '0\n' >"${sysctl}"
 	apparmor_log "[apparmor] lifted unprivileged-unconfined restriction (was ${current}); containers keep plain docker-default"
 }
 
@@ -87,7 +90,10 @@ apparmor_reinstate_unconfined_restriction() {
 		return 0
 	fi
 
-	tr -d '[:space:]' <"${state}" >"${sysctl}"
+	if ! tr -d '[:space:]' <"${state}" 2>/dev/null >"${sysctl}"; then
+		apparmor_log "[apparmor] ${sysctl} is not writable here; ${state} stays for a later restore"
+		return 0
+	fi
 	rm -f "${state}"
 	apparmor_log "[apparmor] reinstated unprivileged-unconfined restriction"
 }
