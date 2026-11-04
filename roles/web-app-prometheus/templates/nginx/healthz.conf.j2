@@ -60,12 +60,22 @@
     proxy_intercept_errors  off;
   }
 
-  location = /healthz/ready {
-    access_log off;
+  location = /_ready_probe {
+    internal;
     {{ prometheus_ready_backend }}
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_connect_timeout   3s;
     proxy_read_timeout      5s;
     proxy_intercept_errors  off;
+  }
+
+  location = /healthz/ready {
+    access_log off;
+    content_by_lua_block {
+      local res = ngx.location.capture("/_ready_probe")
+      ngx.status = res.status
+      ngx.header["Content-Type"] = "text/plain"
+      ngx.print(res.status, "\n")
+    }
   }

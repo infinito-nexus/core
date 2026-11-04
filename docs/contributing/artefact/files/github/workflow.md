@@ -78,11 +78,39 @@ Deploy test workflows use the `jlumbroso/free-disk-space` action to reclaim runn
 
 Set an option back to `false` only when a new host-side step in the same workflow genuinely needs the removed payload.
 
+## Spare disk 💽
+
+Some GitHub-hosted runners have a 72 GB root disk plus a second, unformatted NVMe disk. [mount_spare_disk.sh](../../../../../scripts/github/runner/mount_spare_disk.sh) formats that disk as ext4 and mounts it at `/mnt`. The nested Docker volume (`/mnt/docker`) and the loop image of [docker_dataroot.sh](../../../../../scripts/tests/deploy/utils/filesystem/docker_dataroot.sh) (`/mnt/docker-fs.img`) then land on it.
+
+When `/mnt` has at least `MIN_FREE_GB` free and more than `/`, [relocate_docker_dataroot.sh](../../../../../scripts/github/runner/relocate_docker_dataroot.sh) stops Docker and containerd, bind-mounts `/mnt/containerd` over `/var/lib/containerd` (images, container layers, the swarm node containers), sets the Docker data-root to `/mnt/docker-host` (named volumes), restarts both and verifies that containerd's metadata and the Docker root sit on `/mnt`. Before the stop it fails if Docker already holds containers, images, volumes or build cache, if another containerd namespace holds containers or tasks, if containerd shims run, or if `daemon.json` cannot be read as JSON. Any failure after the stop, and a cancel, unmounts the bind, restores `daemon.json`, restarts both daemons and fails the step. It refuses under act and changes nothing on a runner that is not GitHub-hosted. Every decline prints a `::notice::` annotation. [run.py](../../../../../utils/tests/swarm/run.py) then watches the free space of both `/` and `/var/lib/containerd`.
+
+Step order: spare disk, relocation, swap. With containerd on `/mnt`, the swapfile goes to `/`.
+
+The script formats a disk only when all of these hold; otherwise the runner stays as it is:
+
+- `ACT` is unset (the script fails under act) and `RUNNER_ENVIRONMENT` is `github-hosted`.
+- `/mnt` is an existing, empty directory and no mount.
+- The disk is a whole disk other than the root disk, with no partitions or holders, no filesystem or partition-table signature (`lsblk`, `blkid -p` and `wipefs`), no mount or swap use, not read-only, and at least `MIN_SIZE_GB` large.
+
+Workflow step invocations, in this order and gated alike:
+
+```yaml
+- name: Mount the empty spare disk at /mnt
+  if: ${{ !env.ACT }}
+  shell: bash
+  run: ./scripts/github/runner/mount_spare_disk.sh /mnt 75
+
+- name: Relocate containerd and the Docker data-root onto /mnt when roomier
+  if: ${{ !env.ACT }}
+  shell: bash
+  run: ./scripts/github/runner/relocate_docker_dataroot.sh 75
+```
+
 ## Swap 💾
 
 Deploy test workflows enlarge host swap via [enlarge_swap.sh](../../../../../scripts/github/runner/enlarge_swap.sh) to absorb transient memory spikes (e.g. PeerTube plugin install [#162](https://github.com/infinito-nexus/core/issues/162)) that would otherwise trip the host OOM-killer on the 16 GB GitHub-hosted runner.
 
-The script **prefers `/mnt`** when it is a separate partition (classic `ubuntu-latest` layout with `/dev/sdb` mounted at `/mnt`) and falls back to `/` otherwise. Current public runners no longer expose a separate `/mnt`, so the swapfile lands on `/` and must not starve the root filesystem.
+The script puts the swapfile on `/` when containerd already lives on `/mnt`, **prefers `/mnt`** otherwise when it is a separate partition (classic `ubuntu-latest` layout with `/dev/sdb` mounted at `/mnt`), and falls back to `/`. Current public runners no longer expose a separate `/mnt`, so the swapfile lands on `/` and must not starve the root filesystem.
 
 Swap size is a **fixed constant**, not a "free space minus buffer" calculation. An earlier version took ~99 GB on a 145 GB root partition, leaving so little headroom that later Docker layer writes (Playwright test image pull) failed with `no space left on device`. A fixed cap is large enough to absorb the peertube spike and small enough that Docker layer writes keep succeeding throughout the 30+ min deploy.
 
