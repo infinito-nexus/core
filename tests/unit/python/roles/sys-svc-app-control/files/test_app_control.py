@@ -19,6 +19,21 @@ SCRIPT = (
 )
 STATE_FILE = ".app-control-state"
 REGISTRY_FILE = ".app-control.json"
+HEALTH_SERVICE = "sys-ctl-hlth-webserver.infinito.nexus.service"
+HEALTH_DELAY_SECONDS = 60
+HEALTH_CANCEL = ["systemctl", "stop", "app-control-health-refresh.timer"]
+HEALTH_START = [
+    "systemd-run",
+    "--unit=app-control-health-refresh",
+    f"--on-active={HEALTH_DELAY_SECONDS}",
+    "--timer-property=AccuracySec=1s",
+    "--timer-property=RemainAfterElapse=no",
+    "--collect",
+    "systemctl",
+    "start",
+    "--no-block",
+    HEALTH_SERVICE,
+]
 
 
 def load_module():
@@ -83,6 +98,8 @@ class Host:
             "paused_apps": str(self.paused_apps),
             "compose": "/usr/bin/compose",
             "binary": "/usr/bin/app-control",
+            "health_service": HEALTH_SERVICE,
+            "health_delay_seconds": HEALTH_DELAY_SECONDS,
         }
         self.config_path.write_text(json.dumps(self.config))
         self.registries = {}
@@ -496,6 +513,64 @@ class MainTests(unittest.TestCase):
             host.close()
         self.assertEqual(code, 2)
         self.assertEqual(run.calls, [])
+
+    def test_a_stop_schedules_the_installed_health_sweep_after_the_pause(self):
+        host = Host(registry("web-app-wiki", "wiki"))
+        run = FakeRun(timers=[HEALTH_SERVICE])
+        try:
+            code, _, _ = self.run_main(host, ["stop", "web-app-wiki"], run)
+        finally:
+            host.close()
+        self.assertEqual(code, 0)
+        self.assertEqual(run.actions()[-2:], [HEALTH_CANCEL, HEALTH_START])
+        self.assertEqual(run.actions().count(HEALTH_START), 1)
+
+    def test_a_later_action_moves_the_pending_sweep_behind_it(self):
+        host = Host(registry("web-app-wiki", "wiki"), registry("web-app-blog", "blog"))
+        run = FakeRun(timers=[HEALTH_SERVICE])
+        try:
+            self.run_main(host, ["start", "web-app-wiki"], run)
+            code, _, _ = self.run_main(host, ["start", "web-app-blog"], run)
+        finally:
+            host.close()
+        self.assertEqual(code, 0)
+        actions = run.actions()
+        self.assertEqual(actions.count(HEALTH_START), 2)
+        self.assertEqual(actions[-2:], [HEALTH_CANCEL, HEALTH_START])
+        cancel_kwargs = [kwargs for argv, kwargs in run.calls if argv == HEALTH_CANCEL]
+        self.assertTrue(all(kwargs["check"] is False for kwargs in cancel_kwargs))
+
+    def test_a_host_without_the_health_sweep_skips_it(self):
+        host = Host(registry("web-app-wiki", "wiki"))
+        run = FakeRun()
+        try:
+            code, _, _ = self.run_main(host, ["start", "web-app-wiki"], run)
+        finally:
+            host.close()
+        self.assertEqual(code, 0)
+        self.assertNotIn(HEALTH_START, run.actions())
+
+    def test_a_failed_sweep_start_is_reported_after_the_pause_took_effect(self):
+        host = Host(registry("web-app-wiki", "wiki"))
+        run = FakeRun(timers=[HEALTH_SERVICE], failing=[HEALTH_SERVICE])
+        try:
+            code, _, stderr = self.run_main(host, ["stop", "web-app-wiki"], run)
+            state = host.state("wiki")
+        finally:
+            host.close()
+        self.assertEqual(code, 1)
+        self.assertEqual(state, "stopped")
+        self.assertIn("health sweep not scheduled", stderr)
+
+    def test_reconcile_leaves_the_health_sweep_alone(self):
+        host = Host(registry("web-app-wiki", "wiki"))
+        run = FakeRun(timers=[HEALTH_SERVICE])
+        try:
+            code, _, _ = self.run_main(host, ["reconcile"], run)
+        finally:
+            host.close()
+        self.assertEqual(code, 0)
+        self.assertNotIn(HEALTH_START, run.actions())
 
     def test_the_forced_command_reenters_through_sudo_with_a_fixed_argv(self):
         host = Host(registry("web-app-wiki", "wiki"))
