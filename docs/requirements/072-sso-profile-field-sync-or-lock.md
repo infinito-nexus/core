@@ -264,7 +264,7 @@ Open classification:
 ### Treatment
 
 - [ ] Every field the inventory marks as overwritten and not written back is either written back to Keycloak or LDAP, or rendered read-only.
-- [ ] Each role declares its locked fields in one config key, and one shared mechanism renders the lock and the warning for every role that uses it.
+- [x] Each role declares its locked fields in one config key, and one shared mechanism renders the lock and the warning for every role that uses it (`services.sso.profile.locked` in `roles/web-app-grafana/meta/services.yml:12`, `roles/web-app-joomla/meta/services.yml:11` and `roles/web-app-wordpress/meta/services.yml:13`; the server guards read the same key through `roles/web-app-joomla/templates/env.j2:40` and `roles/web-app-wordpress/templates/env.j2:21`; each role's `templates/javascript.js.j2:1` includes `roles/sys-front-inj-javascript/templates/profile_lock.js.j2:2`; proven by `tests/lint/ansible/roles/meta/test_sso_profile_lock.py:647`, `tests/unit/python/roles/sys-front-inj-javascript/test_profile_lock.py`, `tests/unit/python/roles/web-app-joomla/test_profile_lock_fields.py` and `tests/unit/python/roles/web-app-wordpress/test_profile_lock_fields.py`).
 - [ ] The warning text comes from the i18n catalog and appears in the user's language.
 - [ ] A locked field cannot be changed by submitting the form directly, not only in the rendered page.
 - [x] Joomla renders name, username and email read-only for SSO users and still lets the break-glass administrator edit them.
