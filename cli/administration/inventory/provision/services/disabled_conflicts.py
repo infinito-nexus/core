@@ -10,7 +10,7 @@ from utils.roles.applications.services.registry import (
     expand_service_tokens,
 )
 
-from .services_disabler import (
+from .disabler import (
     ServicesDisabledConflictError,
     load_yaml_mapping_tolerant,
     parse_services_disabled,

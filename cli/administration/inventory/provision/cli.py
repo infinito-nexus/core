@@ -20,7 +20,7 @@ from .mirror_overrides import apply_mirror_overrides
 from .network_mode import apply_network_mode_from_env
 from .passwords import generate_random_password
 from .project import build_env_with_project_root, detect_project_root
-from .services_disabler import (
+from .services.disabler import (
     apply_services_disabled_from_env,
     reconcile_services_disabled_from_env,
 )

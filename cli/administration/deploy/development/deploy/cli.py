@@ -21,7 +21,7 @@ from cli.administration.deploy.development.variant_select import (
     apply_variant_filter,
     env_guide_host_pin,
 )
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     find_provider_roles,
     parse_services_disabled,
 )

@@ -6,6 +6,11 @@ from typing import TYPE_CHECKING
 
 from ruamel.yaml.comments import CommentedMap
 
+from cli.administration.inventory.provision.ruamel_io import (
+    dump_document,
+    load_document,
+    round_trip_yaml,
+)
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
@@ -13,8 +18,6 @@ from utils.roles.applications.services.registry import (
     expand_service_tokens,
 )
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
-
-from .ruamel_io import dump_document, load_document, round_trip_yaml
 
 if TYPE_CHECKING:
     from pathlib import Path

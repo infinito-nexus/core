@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from cli.administration.deploy.dedicated import runner
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     ServicesDisabledConflictError,
 )
 

@@ -232,7 +232,7 @@ def variant_scope(app_id: str, *, variants: dict[str, int] | None = None) -> lis
 
 def _disabled_provider_roles(service_registry: dict[str, Any]) -> set[str]:
     """Provider roles the ``disable`` env removes from the closure, so the
-    swarm include set matches what the provision-time services_disabler
+    swarm include set matches what the provision-time services disabler
     disables (otherwise extend_inventory re-adds the pruned providers via
     this same dep walk). Accepts service keys and provider application ids.
     """

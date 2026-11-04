@@ -33,7 +33,7 @@ from cli.administration.deploy.development.inventory import (
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
 )
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     apply_services_disabled_from_env,
     find_provider_roles,
     parse_services_disabled,

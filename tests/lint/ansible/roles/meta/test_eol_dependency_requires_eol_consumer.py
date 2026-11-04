@@ -79,7 +79,7 @@ the working tree: with ``shared: false`` on ``web-app-minio``'s primary,
 ``expand_service_tokens(['web-app-minio'])`` returns ``['web-app-minio']``
 verbatim instead of ``['minio']``, so ``disable=web-app-minio`` silently
 matches nothing, the ``disable``-vs-inventory guard in
-``cli/administration/inventory/provision/services_disabler.py`` stops reporting
+``cli/administration/inventory/provision/services/disabled_conflicts.py`` stops reporting
 that a disabled service's provider is still in the inventory, and the role drops
 out of the sys-service-loader preload order into the ordinary app pass.
 Withdrawing the provider registration therefore costs the ``disable=`` surface
