@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 
 from . import PROJECT_ROOT
@@ -13,10 +14,36 @@ from .test_realm_import_json import (
     ALLOWED_ORIGINS_MAPPER,
     CONTEXT,
     puts_allowed_origins_into_access_tokens,
+    render,
 )
 
 TEMPLATE = PROJECT_ROOT / "roles/web-app-dashboard/templates/keycloak/clients.json.j2"
 READ_SCOPES = {"profile", "roles", CONTEXT["KEYCLOAK_RBAC_GROUP_CLAIM"]}
+AUDIENCE_RESOLVE_MAPPER = "oidc-audience-resolve-mapper"
+ACCOUNT_AUDIENCE_SCOPE = "roles"
+
+
+def resolves_client_audiences_into_access_tokens(scope: dict) -> bool:
+    """Whether a client scope puts the clients of the user's roles into ``aud``.
+
+    Args:
+        scope: a client scope representation.
+    """
+    return any(
+        mapper["protocolMapper"] == AUDIENCE_RESOLVE_MAPPER
+        and mapper["config"].get("access.token.claim") == "true"
+        for mapper in scope.get("protocolMappers", [])
+    )
+
+
+def realm_scope(name: str) -> dict:
+    """Return one client scope of the realm render.
+
+    Args:
+        name: the client scope's name.
+    """
+    realm = json.loads(render([]))
+    return next(scope for scope in realm["clientScopes"] if scope["name"] == name)
 
 
 def dashboard_client_findings(client: dict) -> list[str]:
@@ -77,6 +104,25 @@ class TestDashboardClient(unittest.TestCase):
         self.assertTrue(
             self.client["fullScopeAllowed"], "the account audience needs it"
         )
+
+    def test_its_access_token_carries_the_account_audience(self) -> None:
+        self.assertIn(ACCOUNT_AUDIENCE_SCOPE, self.client["defaultClientScopes"])
+        self.assertTrue(
+            resolves_client_audiences_into_access_tokens(
+                realm_scope(ACCOUNT_AUDIENCE_SCOPE)
+            )
+        )
+
+    def test_a_scope_without_the_audience_resolve_mapper_fails_the_check(
+        self,
+    ) -> None:
+        scope = realm_scope(ACCOUNT_AUDIENCE_SCOPE)
+        scope["protocolMappers"] = [
+            mapper
+            for mapper in scope["protocolMappers"]
+            if mapper["protocolMapper"] != AUDIENCE_RESOLVE_MAPPER
+        ]
+        self.assertFalse(resolves_client_audiences_into_access_tokens(scope))
 
     def test_its_logout_still_runs_the_conductor_sweep(self) -> None:
         attributes = self.client["attributes"]

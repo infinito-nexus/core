@@ -50,6 +50,7 @@ An application that receives logout tokens declares its own Keycloak client unde
 | `svc-ai-agent-provisioner` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-agent-fixture` | - | to verify | to verify | to verify | to verify |
 | `web-app-akaunting` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
+| `web-app-atmo` | - | to verify | to verify | to verify | to verify |
 | `web-app-baserow` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-app-bigbluebutton` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-bluesky` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
@@ -63,7 +64,7 @@ An application that receives logout tokens declares its own Keycloak client unde
 | `web-app-discourse` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-docs` | - | to verify | to verify | to verify | to verify |
 | `web-app-erpnext` | oidc | to verify | to verify | to verify | to verify |
-| `web-app-espocrm` | oidc | to verify | to verify | to verify | to verify |
+| `web-app-espocrm` | oidc | yes, but stays on the shared client: the receiver finds the user by the `preferred_username` claim, which a Keycloak logout token does not carry, so it refuses every token | `/api/v1/Oidc/backchannelLogout` | [EspoCRM 10.0.11](https://github.com/espocrm/espocrm/blob/10.0.11/application/Espo/Core/Authentication/Oidc/BackchannelLogout.php#L64-L106) | 48 hours idle (`authTokenMaxIdleTime`), no absolute limit (`authTokenLifetime` 0) |
 | `web-app-fediwall` | - | to verify | to verify | to verify | to verify |
 | `web-app-fider` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-flowise` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
@@ -91,24 +92,24 @@ An application that receives logout tokens declares its own Keycloak client unde
 | `web-app-map-animator` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-app-mastodon` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-matomo` | oidc | to verify | to verify | to verify | to verify |
-| `web-app-matrix` | oidc | yes | `/_synapse/client/oidc/backchannel_logout` on the Synapse origin | [Synapse](https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html#oidc_providers) | ends with the Keycloak session through its own client |
+| `web-app-matrix` | oidc | yes | `/_synapse/client/oidc/backchannel_logout` on the Synapse origin | [Synapse](https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html#oidc_providers) | ends with the Keycloak session through its own client; after a failed back-channel call the Synapse access token lives until the device logs out, because `session_lifetime` is unset and therefore infinite |
 | `web-app-mattermost` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-mediawiki` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-meta` | - | to verify | to verify | to verify | to verify |
 | `web-app-mini-qr` | - | to verify | to verify | to verify | to verify |
 | `web-app-minio` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-mobilizon` | oidc | to verify | to verify | to verify | to verify |
-| `web-app-moodle` | oidc | to verify | to verify | to verify | to verify |
+| `web-app-moodle` | oidc | no, `auth_oidc` only receives front-channel logout | - | [moodle-auth_oidc v5.2.1](https://github.com/microsoft/moodle-auth_oidc/blob/v5.2.1/logout.php#L35-L63) | 8 hours (`sessiontimeout`) |
 | `web-app-n8n` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-app-navigator` | - | to verify | to verify | to verify | to verify |
-| `web-app-nextcloud` | oidc | to verify | to verify | to verify | to verify |
+| `web-app-nextcloud` | oidc | no with `oidc_login` (the default with LDAP) and `sociallogin` (the default without LDAP); yes with `user_oidc`, whose provider the role does not register yet, so Nextcloud stays on the shared client | `user_oidc`: `/index.php/apps/user_oidc/backchannel-logout/<provider identifier>` | [oidc_login v3.4.0](https://github.com/pulsejet/nextcloud-oidc-login/blob/v3.4.0/appinfo/routes.php#L12), [sociallogin v6.6.0](https://github.com/zorn-v/nextcloud-social-login/blob/v6.6.0/appinfo/routes.php#L12-L24), [user_oidc v8.12.0](https://github.com/nextcloud/user_oidc/blob/v8.12.0/appinfo/routes.php#L18) | `oidc_login`: 24 hours idle (`session_lifetime`, kept alive); `sociallogin`: 15 days through its remember-me cookie (`remember_login_cookie_lifetime`) |
 | `web-app-odoo` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-openbao` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-openclaw` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
-| `web-app-opencloud` | oidc | to verify | to verify | to verify | to verify |
+| `web-app-opencloud` | oidc | yes, own client not switched yet | `/backchannel_logout` on the OpenCloud origin | [OpenCloud v7.2.4](https://github.com/opencloud-eu/opencloud/blob/v7.2.4/services/proxy/pkg/staticroutes/backchannellogout.go#L40-L135) | no session cookie; every request carries the Keycloak access token, whose cached claims live until its `exp` |
 | `web-app-openproject` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-app-opentalk` | oidc | to verify | to verify | to verify | to verify |
-| `web-app-openwebui` | oidc | to verify | to verify | to verify | to verify |
+| `web-app-openwebui` | oidc | yes when `ENABLE_OAUTH_BACKCHANNEL_LOGOUT` is true, which the role does not set yet; the revocation also needs Redis | `/oauth/backchannel-logout` | [Open WebUI v0.11.0](https://github.com/open-webui/open-webui/blob/v0.11.0/backend/open_webui/utils/oauth.py#L2105-L2285) | 4 weeks (`JWT_EXPIRES_IN`) |
 | `web-app-peertube` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-penpot` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-pgadmin` | oidc | to verify | to verify | to verify | to verify |
@@ -125,16 +126,17 @@ An application that receives logout tokens declares its own Keycloak client unde
 | `web-app-shopware` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-snipe-it` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-app-socialhome` | - | to verify | to verify | to verify | to verify |
-| `web-app-stalwart` | oidc | to verify | to verify | to verify | to verify |
+| `web-app-stalwart` | oidc | no for the WebAdmin; the Roundcube webmail receives tokens but does not check their signature, so its client gets no `backchannel.logout.url` | Roundcube: `/index.php/login/backchannel` on the webmail origin | [Stalwart v1.0.2](https://github.com/stalwartlabs/stalwart/blob/v1.0.2/crates/http/src/auth/oauth/logout.rs#L21-L153), [webui v2.0.4](https://github.com/stalwartlabs/webui/blob/v2.0.4/src/services/auth/oauth.ts#L176-L216), [Roundcube 1.7.5](https://github.com/roundcube/roundcubemail/blob/1.7.5/program/include/rcmail_oauth.php#L421-L458) | WebAdmin: tokens in the tab's session storage, renewed within the Keycloak session; Roundcube: 10 minutes idle (`session_lifetime`), kept alive while a tab is open |
 | `web-app-suitecrm` | saml | to verify | to verify | to verify | to verify |
 | `web-app-taiga` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-wazuh` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-weblate` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-wordpress` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-workspace` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
-| `web-app-xwiki` | oidc | to verify | to verify | to verify | to verify |
+| `web-app-xwiki` | oidc | yes, own client not switched yet; the receiver checks the token only while a client provider is configured | `/xwiki/oidc/authenticator/backchannel_logout` | [oidc-authenticator 2.29.1](https://github.com/xwiki-contrib/oidc/blob/oidc-2.29.1/oidc-authenticator/src/main/java/org/xwiki/contrib/oidc/auth/internal/endpoint/BackChannelLogoutOIDCEndpoint.java#L86-L113) | 30 minutes idle (Tomcat's default session timeout) |
 | `web-app-yourls` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-app-zammad` | oidc | to verify | to verify | to verify | to verify |
+| `web-svc-access-request` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-svc-api` | - | to verify | to verify | to verify | to verify |
 | `web-svc-libretranslate` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-svc-simpleicons` | - | to verify | to verify | to verify | to verify |

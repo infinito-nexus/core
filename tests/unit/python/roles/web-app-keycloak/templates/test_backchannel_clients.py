@@ -8,8 +8,9 @@ from urllib.parse import urlsplit
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 from .test_realm_import_json import CONTEXT, render
@@ -23,6 +24,15 @@ CLIENT_TEMPLATES = sorted(
 BACKCHANNEL_LOGOUT_URL = "backchannel.logout.url"
 ONION = "a" * 56 + ".onion"
 SHARED_CLIENT_ID = CONTEXT["KEYCLOAK_CLIENT_ID"]
+CLIENT_ID_CONSUMERS = (
+    "roles/*/templates/**/*.j2",
+    "roles/*/vars/*.yml",
+    "roles/*/tasks/**/*.yml",
+)
+CLIENT_ID_LOOKUP = re.compile(
+    r"lookup\(\s*'config'\s*,\s*[^,()]+,\s*'services\.sso\.oidc\.clients\.\w+'\s*"
+    r"(?P<tail>[,)])(?P<fallback>\s*\|\s*default\b)?"
+)
 
 
 def role_config(role: str, path: str):
@@ -112,6 +122,8 @@ def backchannel_findings(client: dict) -> list[str]:
     attributes = client["attributes"]
     url = urlsplit(attributes[BACKCHANNEL_LOGOUT_URL])
     origin = f"{url.scheme}://{url.netloc}"
+    siblings = onion_sibling(origin)
+    post_logout = attributes.get("post.logout.redirect.uris", "").split("##")
     findings = []
     if client["frontchannelLogout"] is not False:
         findings.append("frontchannelLogout is not false")
@@ -119,12 +131,19 @@ def backchannel_findings(client: dict) -> list[str]:
         findings.append("serviceAccountsEnabled is not false")
     if attributes.get("backchannel.logout.session.required") != "true":
         findings.append("backchannel.logout.session.required is not 'true'")
-    if not client["webOrigins"] or client["webOrigins"][0] != origin:
-        findings.append(f"{origin} is not the canonical origin {client['webOrigins']}")
+    if client["webOrigins"] != siblings:
+        findings.append(
+            f"webOrigins {client['webOrigins']} are not the canonical origin and its siblings {siblings}"
+        )
     findings.extend(
         f"no redirect URI on the network sibling {sibling}"
-        for sibling in onion_sibling(origin)
+        for sibling in siblings
         if not any(uri.startswith(sibling + "/") for uri in client["redirectUris"])
+    )
+    findings.extend(
+        f"no post-logout redirect URI on the network sibling {sibling}"
+        for sibling in siblings
+        if not any(uri.startswith(sibling + "/") for uri in post_logout)
     )
     return findings
 
@@ -154,6 +173,30 @@ def shared_client_findings(client: dict) -> list[str]:
 def shared_client() -> dict:
     realm = json.loads(render([]))
     return next(c for c in realm["clients"] if c["clientId"] == SHARED_CLIENT_ID)
+
+
+def client_id_consumers() -> dict[str, str]:
+    sources = {}
+    for pattern in CLIENT_ID_CONSUMERS:
+        for path in PROJECT_ROOT.glob(pattern):
+            source = read_text(str(path))
+            if CLIENT_ID_LOOKUP.search(source):
+                sources[str(path.relative_to(PROJECT_ROOT))] = source
+    return sources
+
+
+def silent_client_fallbacks(sources: dict[str, str]) -> list[str]:
+    """Return every per-app client id lookup that would not fail on a missing entry.
+
+    Args:
+        sources: role files keyed by their path.
+    """
+    return [
+        f"{path}: {match.group(0)}"
+        for path, source in sources.items()
+        for match in CLIENT_ID_LOOKUP.finditer(source)
+        if match.group("tail") == "," or match.group("fallback")
+    ]
 
 
 class TestBackchannelClients(unittest.TestCase):
@@ -217,6 +260,25 @@ class TestBackchannelClients(unittest.TestCase):
         }
         self.assertEqual(len(backchannel_findings(client)), 2)
 
+    def test_a_client_that_forgets_the_onion_sibling_fails_the_check(self) -> None:
+        canonical = self.backchannel[0]["webOrigins"][0]
+        client = {
+            **self.backchannel[0],
+            "webOrigins": [canonical],
+            "attributes": {
+                **self.backchannel[0]["attributes"],
+                "post.logout.redirect.uris": canonical + "/*",
+            },
+        }
+        siblings = onion_sibling(canonical)
+        self.assertEqual(
+            backchannel_findings(client),
+            [
+                f"webOrigins {[canonical]} are not the canonical origin and its siblings {siblings}",
+                f"no post-logout redirect URI on the network sibling {siblings[1]}",
+            ],
+        )
+
 
 class TestSharedClientStaysOnTheSweep(unittest.TestCase):
     def test_the_shared_client_keeps_the_sweep_per_network(self) -> None:
@@ -228,6 +290,31 @@ class TestSharedClientStaysOnTheSweep(unittest.TestCase):
         self.assertEqual(
             shared_client_findings(client),
             ["the shared client carries a back-channel logout URL"],
+        )
+
+
+class TestPerAppClientIdsFailLoudly(unittest.TestCase):
+    def setUp(self) -> None:
+        self.consumers = client_id_consumers()
+
+    def test_the_scan_sees_the_synapse_client_id(self) -> None:
+        self.assertIn(f"roles/web-app-matrix/{ROLE_FILE_VARS_MAIN}", self.consumers)
+        self.assertIn(
+            "roles/web-app-matrix/templates/keycloak/clients.json.j2", self.consumers
+        )
+
+    def test_no_per_app_client_id_falls_back_to_another_client(self) -> None:
+        self.assertEqual(silent_client_fallbacks(self.consumers), [])
+
+    def test_a_lookup_with_a_fallback_is_caught(self) -> None:
+        sources = {
+            "default-argument": "{{ lookup('config', application_id, 'services.sso.oidc.clients.synapse', OIDC.CLIENT.ID) }}",
+            "default-filter": "{{ lookup('config', application_id, 'services.sso.oidc.clients.synapse') | default(OIDC.CLIENT.ID) }}",
+            "strict": "{{ lookup('config', application_id, 'services.sso.oidc.clients.synapse') }}",
+        }
+        self.assertEqual(
+            [finding.split(":")[0] for finding in silent_client_fallbacks(sources)],
+            ["default-argument", "default-filter"],
         )
 
 
