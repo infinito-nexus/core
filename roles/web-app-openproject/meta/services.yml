@@ -143,6 +143,7 @@ openproject:
   shared: true
   repository: https://github.com/opf/openproject-deploy
   ref: "stable/{{ lookup('config', 'web-app-openproject', 'services.web.version') }}"
+  ref_kind: branch
   ldap:
     filters:
       administrators: false

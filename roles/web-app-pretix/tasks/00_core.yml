@@ -7,14 +7,25 @@
     mcp_adapter_instance_dir: "{{ PRETIX_MCP_INSTANCE_DIR }}"
   when: PRETIX_MCP_ENABLED | bool
 
-- name: "⬇️ Stage the pretix sources for '{{ application_id }}'"
-  ansible.builtin.include_tasks: utils/source.yml
-
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+    compose_repository_url: "{{ PRETIX_SOURCE_REPOSITORY }}"
+    compose_repository_pull: true
+    compose_repository_ref: "{{ PRETIX_SOURCE_VERSION }}"
+
+- name: "🐳 Stage the build recipe beside the pretix sources"
+  ansible.builtin.copy:
+    src: Dockerfile
+    dest: "{{ [compose_repository_path, PRETIX_SOURCE_DOCKERFILE_NAME] | path_join }}"
+    mode: "0644"
+  notify: compose-build
+  when: IS_STACK_HOST | bool
+
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
 - name: "👤 Converge the platform administrator of {{ application_id }}"
   ansible.builtin.include_tasks: utils/administrator.yml

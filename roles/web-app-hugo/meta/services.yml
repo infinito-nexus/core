@@ -54,6 +54,7 @@ hugo:
   builder_version: v0.169.0
   source_repository: https://github.com/gohugoio/hugoDocs.git
   source_version: v0.165.0
+  ref_kind: tag
   update:
     - key: builder_version
       type: registry_tags

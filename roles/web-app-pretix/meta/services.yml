@@ -57,6 +57,7 @@ pretix:
   version: "3.13"
   source_repository: https://github.com/pretix/pretix.git
   source_version: v2026.9.0
+  ref_kind: tag
   update:
     - key: source_version
       type: git_tags

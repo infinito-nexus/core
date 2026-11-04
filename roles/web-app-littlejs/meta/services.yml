@@ -46,6 +46,7 @@ littlejs:
       enabled: true
   repository: https://github.com/KilledByAPixel/LittleJS.git
   ref: main
+  ref_kind: branch
   image: nginx
   version: 1.31.8-alpine
   custom: true
