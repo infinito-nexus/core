@@ -14,6 +14,8 @@ APP_CONTROL_CONFIG:
   paused_apps: "{{ lookup('nginx', 'directories.data.paused_apps') }}"
   compose: "{{ BIN_COMPOSE }}"
   binary: "{{ BIN_APP_CONTROL }}"
+  health_service: "{{ lookup('unit_name', 'sys-ctl-hlth-webserver') }}"
+  health_delay_seconds: 60
 
 APP_CONTROL_CONTACT_BRANDS:
   mastodon: "Mastodon"

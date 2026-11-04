@@ -52,10 +52,13 @@ msgctxt "rbac:web-app-weblate:manager:description"
 msgid "Administers every project through Weblate's Managers team, without site-wide superuser rights"
 msgstr ""
 
-# translated-by: ollama
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Admin herramientar para servers"
+msgid "Administration tools for servers"
+msgstr ""
 
 msgctxt "access_request:form_administrator"
 msgid "Administrator role"
@@ -116,10 +119,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Aplicaciones"
 
-# translated-by: ollama
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Aplicaciones para comercio electrónico, venta de entradas y gestión de ventas."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:drv-epson-multiprinter:description"
@@ -226,6 +228,10 @@ msgstr "Interface de administración hacia el navegador para el gateway LLM comp
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Tool de joc durata construcției pentru simula operații asigurate de proprietar asupra fișierelor fără privilegii de echipediere în timpul construcției pacientelor"
+
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:svc.runner:title"
@@ -456,6 +462,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Certbot-dreun ACME servisile ko Let's Encrypt singu dobiyelelu TLS dobiyelelu kakekoe ko dobiyelelu dobiyelelu kakekoe NGINX dobiyelelu"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -489,10 +503,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Manager de clipboard con historial editables, acciones personalizadas y soporte para scripting"
 
-# translated-by: ollama
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "Ciel"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-svc-dns:description"
@@ -533,15 +546,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Comercio"
 
-# translated-by: ollama
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "Komunikasi"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Comunidade"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
@@ -680,6 +696,10 @@ msgstr "Kējīxuéliàn"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Customer Relationship Management (CRM) software para gerenciar relações de cliente, pipelines de vendas, marketing e atividades de suporte."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:sys.dns:title"
@@ -891,6 +911,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -1018,15 +1042,9 @@ msgctxt "rbac:web-app-funkwhale:settings-manager:description"
 msgid "Funkwhale settings manager (edits the instance settings)"
 msgstr ""
 
-# translated-by: ollama
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Juegos"
-
-# translated-by: ollama
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Plataformas de juegos y aplicaciones de entretenimiento."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:gen:title"
@@ -1100,10 +1118,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Hollgwea Talsas"
 
-# translated-by: ollama
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "High-performance, self-hosted storage solúcios para gerenciar, escalar e acessar dados não estruturados — incluindo armazenamento de objetos compatível com as APIs do Amazon S3."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 msgctxt "rbac:web-app-moodle:coursecreator:description"
 msgid "Holds Moodle's Course creator role in the system context and can create new courses"
@@ -1188,6 +1205,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Inyección"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr ""
@@ -1252,6 +1273,10 @@ msgctxt "rbac:web-app-keycloak:user-manager:description"
 msgid "Keycloak user manager (create, edit and assign groups to users in the application realm)"
 msgstr ""
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -1261,6 +1286,10 @@ msgstr "LLM-backat tanjenteenginu laungahat LibreTranslate laungahat, na tanjent
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Mengajar platforms, alat kolaborasi kelas, dan lingkungan pendidikan digital."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1352,6 +1381,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Máscara de tradución sin interfaz web, para pipelines que la llaman directamente"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 msgctxt "role:web-app-email:description"
 msgid "Mail server wrapper that consumers depend on, dispatching to the configured mail provider role"
 msgstr ""
@@ -1417,6 +1450,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-workspace:agent-user:description"
 msgid "May start a personal workspace IDE instance through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
 msgstr ""
 
 # translated-by: ollama
@@ -1715,6 +1752,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1768,10 +1809,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Placeholder stub rol fer un XMPP servido/container depliegue, implementación pendiente"
 
-# translated-by: ollama
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Plataformes pa construiret et garentirer lekkuwet vir online shoppe, lekkikatalogo, unb digitaal lekkikantóon – inklušiv pa payement, invenchóry, un kustion kórektóon."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "logout:keep_closed"
@@ -1994,11 +2034,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP gateway que transmite receptores .onion a través del oyente de SOCKS de Tor"
 
 # translated-by: ollama
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Sale"
-
-# translated-by: ollama
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Runtimes Sandibos"
@@ -2149,10 +2184,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Plataforma de nube alojada en su propio domínio para sincronización de archivos, compartición, colaboración en tiempo real y espacios de trabajo de equipo"
 
-# translated-by: ollama
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "Solutions autogestionnaires de nuage pour le synchronisation de fichiers, la collaboration et la partage de données."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-bluesky:description"
@@ -2433,6 +2467,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Social Media Hultzudaa"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2632,11 +2670,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "Toolabora para o Identidade e Controlo de Acesso, incluindo autenticação, provisão de utilizadores e controlo de acesso segura."
 
 # translated-by: ollama
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "Tornaminintsoana dia fanazavana"
-
-# translated-by: ollama
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Toolabor para campanas por correo electrónico, desempeño de audiencia, automatización, y flujos de trabajo de marketing digital."
@@ -2714,6 +2747,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Userz & Acces"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2723,6 +2760,10 @@ msgstr "Client de control de version para ordenadores personales preconfigurado 
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Versiono tree deka layout fóra layaway CDN layaway bi kasa shared, vendo, dan per-roli release layaway bi"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 msgctxt "rbac:web-app-penpot:viewer:description"
 msgid "Views and comments on the files of the shared platform team without editing them"
@@ -2771,6 +2812,10 @@ msgstr ""
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Webserver Optimización"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"

@@ -1,51 +1,9 @@
 applications:
-{% if (portfolio_menu_data.categorized is mapping and portfolio_menu_data.categorized | length > 0) 
-   or (portfolio_menu_data.uncategorized is sequence and portfolio_menu_data.uncategorized | length > 0) %}
-
-    - name: Apps
-      description: Browse, configure and launch all available applications
-      icon:
-          class: fa fa-th-large
-      children:
-
-    {% for category, apps in portfolio_menu_data.categorized.items() %}
-
-      - name: {{ category | to_json }}
-        description: {{ portfolio_menu_categories[category].description | to_json }}
-        icon:
-          class: {{ portfolio_menu_categories[category].icon | to_json }}
-        children:
-
-        {% for app in apps %}
-
-          - name: {{ app.title | to_json }}
-            description: {{ app.text | to_json }}
-            icon: {{ app.icon | to_json }}
-            url: {{ app.url | to_json }}
-            iframe: {{ app.iframe }}
-            
-        {% endfor %}
-
-    {% endfor %}
-
-{% if portfolio_menu_data.uncategorized %}
-
-      - name: Uncategorized
-        description: Tools without a defined category
-        icon:
-          class: fa-solid fa-question
-        children:
-
-{% for app in portfolio_menu_data.uncategorized %}
-
-        - name: {{ app.title | to_json }}
-          description: {{ app.text | to_json }}
-          icon: {{ app.icon | to_json }}
-          url: {{ app.url | to_json }}
-          iframe: {{ app.iframe }}
-
-{% endfor %}
-
-{% endif %}
-
+{% if portfolio_menu_data.menu | length > 0 %}
+{{ [{
+     'name': 'Apps',
+     'description': 'Browse, configure and launch all available applications',
+     'icon': {'class': 'fa fa-th-large'},
+     'children': portfolio_menu_data.menu
+   }] | to_nice_yaml(indent=2) | indent(2, true) }}
 {% endif %}

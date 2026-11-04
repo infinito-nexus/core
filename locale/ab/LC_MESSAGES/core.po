@@ -53,9 +53,12 @@ msgctxt "rbac:web-app-weblate:manager:description"
 msgid "Administers every project through Weblate's Managers team, without site-wide superuser rights"
 msgstr ""
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
+msgid "Administration tools for servers"
 msgstr ""
 
 msgctxt "access_request:form_administrator"
@@ -117,8 +120,8 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr ""
 
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
 msgstr ""
 
 # pulìng saññing va ëimagescan
@@ -229,6 +232,10 @@ msgstr ""
 # abeyo-dwaaswele-dwaaswele-dwaasit-dwala-dwala-dwaaswele-dwaaswele
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
+msgstr ""
+
+msgctxt "menu:Business:title"
+msgid "Business"
 msgstr ""
 
 # translated-by: libretranslate
@@ -465,6 +472,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr ""
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -500,9 +515,8 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
 msgstr ""
 
 # A/AAAA-øveringer (og valgfri CAA) på en web-stack-sætning-sætninger
@@ -548,14 +562,17 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
 msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
+msgstr ""
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
 msgstr ""
 
 msgctxt "category:sys.front.inj:description"
@@ -698,6 +715,10 @@ msgstr ""
 # CRM(software)for(managing)customer(relationships),(sales)pipelines(,)marketing(,)and(support)activities.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr ""
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
 msgstr ""
 
 # translated-by: libretranslate
@@ -912,6 +933,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # ciitanci a gida-kun yuwa a ciitanci a gida-kun
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -1044,13 +1069,7 @@ msgctxt "rbac:web-app-funkwhale:settings-manager:description"
 msgid "Funkwhale settings manager (edits the instance settings)"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr ""
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
 msgstr ""
 
@@ -1128,10 +1147,8 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr ""
 
-# að gilda, prófaða og hafa til unnskúar data – eins vegar object stóráðing
-# sem mismunast að auka Amazon S3 API-stóráðingum.
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
 msgstr ""
 
 msgctxt "rbac:web-app-moodle:coursecreator:description"
@@ -1218,6 +1235,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr ""
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr ""
@@ -1282,6 +1303,10 @@ msgctxt "rbac:web-app-keycloak:user-manager:description"
 msgid "Keycloak user manager (create, edit and assign groups to users in the application realm)"
 msgstr ""
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # pipisela ka lekana ithatha lakanayo
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -1290,6 +1315,10 @@ msgstr ""
 # sa klasa, at edukasyon digital.
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr ""
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
 msgstr ""
 
 # kaluar për shumia të llogarifmueshme të TLS, të sigjarë arsimit automatikë
@@ -1383,6 +1412,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr ""
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 msgctxt "role:web-app-email:description"
 msgid "Mail server wrapper that consumers depend on, dispatching to the configured mail provider role"
 msgstr ""
@@ -1448,6 +1481,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-workspace:agent-user:description"
 msgid "May start a personal workspace IDE instance through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
 msgstr ""
 
 # haysu kasta xeer ku caawiyo qofayso waxa ka mid karo qof waxa lahayn ku
@@ -1740,6 +1777,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1792,10 +1833,8 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr ""
 
-# koleksi produkt, ak kanal dëmi diashënë - konbina korsët, lemëm, ak ëmbi
-# korsët.
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
 msgstr ""
 
 msgctxt "logout:keep_closed"
@@ -2016,11 +2055,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr ""
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr ""
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr ""
@@ -2172,8 +2206,7 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
 
-# àṣè, nìíràn.
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
 msgstr ""
 
@@ -2462,6 +2495,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr ""
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2660,11 +2697,6 @@ msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr ""
-
 # unohlobo kaqambaro digital na qambaro workflows.
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
@@ -2741,6 +2773,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # sīmān, un mēgūn dēfaults
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2749,6 +2785,10 @@ msgstr ""
 # hadlayaa laabka gaarka waa ay hadda waxda laabka aad aqoonaan kaa sharaxa
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
+msgstr ""
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
 msgstr ""
 
 msgctxt "rbac:web-app-penpot:viewer:description"
@@ -2795,6 +2835,10 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
+msgstr ""
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
 msgstr ""
 
 msgctxt "role:dsk-docker:description"

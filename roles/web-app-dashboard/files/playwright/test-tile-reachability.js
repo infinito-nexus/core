@@ -242,6 +242,7 @@ exports.register = function (shared) {
       test(`dashboard tile for ${target.id} embeds ${target.canonical_domain} in iframe and opens it in a new tab`, async ({ page, context }) => {
         await gotoOnion(page, "/", { waitUntil: "domcontentloaded" });
         await shared.waitForDashboardReady(page);
+        await shared.revealCard(page, target.id);
         await assertTileLoadsInIframe(page, target);
         await assertTabButtonOpensNewTab(page, context, target);
       });
@@ -249,6 +250,7 @@ exports.register = function (shared) {
       test(`dashboard tile for ${target.id} opens ${target.canonical_domain} via top-level navigation`, async ({ page, context }) => {
         await gotoOnion(page, "/", { waitUntil: "domcontentloaded" });
         await shared.waitForDashboardReady(page);
+        await shared.revealCard(page, target.id);
         await assertTileNavigatesTopLevel(page, context, target);
       });
     }

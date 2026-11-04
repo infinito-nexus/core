@@ -43,6 +43,8 @@ const runnerImageTag      = requireDotenvValue(process.env.SEMAPHORE_RUNNER_IMAG
 const appControlTargetId  = requireDotenvValue(process.env.APP_CONTROL_TARGET_ID, "APP_CONTROL_TARGET_ID");
 const appControlTargetUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_CONTROL_TARGET_URL, "APP_CONTROL_TARGET_URL"));
 const pausedLanguage      = requireDotenvValue(process.env.APP_CONTROL_PAUSED_LANGUAGE, "APP_CONTROL_PAUSED_LANGUAGE");
+const dashboardStatusEnabled = process.env.DASHBOARD_STATUS_ENABLED === "true";
+const dashboardBaseUrl    = normalizeBaseUrl(decodeDotenvQuotedValue(process.env.DASHBOARD_BASE_URL));
 const pausedCatalogue     = JSON.parse(
   requireDotenvValue(process.env.APP_CONTROL_PAUSED_CATALOGUE_JSON, "APP_CONTROL_PAUSED_CATALOGUE_JSON"),
 );
@@ -558,6 +560,8 @@ module.exports = {
     pausedLanguage,
     pausedCatalogue,
     pausedContacts,
+    dashboardStatusEnabled,
+    dashboardBaseUrl,
   },
   LOGIN_PATH,
   RBAC_SYNC_CONVERGENCE_MS,

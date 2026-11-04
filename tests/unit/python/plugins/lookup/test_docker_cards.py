@@ -245,6 +245,44 @@ logo:
         self.assertEqual(card["url"], "https://myportfolio.com")
         self.assertTrue(card["iframe"])
 
+    def test_card_carries_its_application_id(self):
+        result = self._run_lookup(LookupModule(), self._base_fake_variables())
+
+        self.assertEqual(result[0][0]["id"], "portfolio")
+
+    def test_proxy_gated_card_carries_its_allowed_groups_as_token_paths(self):
+        fake_variables = self._base_fake_variables()
+        fake_variables["GROUP_ROOT"] = "roles"
+        fake_variables["applications"]["portfolio"]["services"]["sso"] = {
+            "enabled": True,
+            "flavor": "oauth2",
+            "oauth2": {
+                "allowed_groups": [
+                    "{{ GROUP_ROOT }}/portfolio/administrator",
+                    "/roles/portfolio/user",
+                ]
+            },
+        }
+
+        card = self._run_lookup(LookupModule(), fake_variables)[0][0]
+
+        self.assertEqual(
+            card["allowed_groups"],
+            ["/roles/portfolio/administrator", "/roles/portfolio/user"],
+        )
+
+    def test_oidc_native_card_is_not_role_gated(self):
+        fake_variables = self._base_fake_variables()
+        fake_variables["applications"]["portfolio"]["services"]["sso"] = {
+            "enabled": True,
+            "flavor": "oidc",
+            "oauth2": {"allowed_groups": ["roles/portfolio/administrator"]},
+        }
+
+        card = self._run_lookup(LookupModule(), fake_variables)[0][0]
+
+        self.assertNotIn("allowed_groups", card)
+
     def test_iframe_flag_defaults_to_enabled(self):
         lookup_module = LookupModule()
         fake_variables = self._base_fake_variables()

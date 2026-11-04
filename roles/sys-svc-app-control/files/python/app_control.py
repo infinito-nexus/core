@@ -12,7 +12,11 @@ Args:
         instance), ``registry_file`` and ``state_file`` (the file names of the
         record and of the state marker inside an instance), ``paused_apps``
         (the directory nginx tests for a paused project), ``compose`` (the
-        compose wrapper) and ``binary`` (the installed path of this command).
+        compose wrapper), ``binary`` (the installed path of this command),
+        ``health_service`` (the webserver health sweep unit run after a stop
+        or start, skipped where it is not installed) and
+        ``health_delay_seconds`` (how long after the last stop or start that
+        sweep runs, so a resumed application answers first).
     stop/start: pause or resume one application whose registry sets
         ``control``, or every such application of this host with ``all``.
     reconcile: apply the persisted state of every registered application; an
@@ -23,8 +27,8 @@ Args:
 
 Output:
     One ``[application_id] ...`` line per application; ``CHANGED`` marks a
-    state change. Exit code 1 when any application failed, 2 when the request
-    was refused.
+    state change. Exit code 1 when any application failed or the health sweep
+    could not be scheduled, 2 when the request was refused.
 """
 
 from __future__ import annotations
@@ -45,6 +49,7 @@ STATES = ("started", "stopped")
 MODES = ("compose", "swarm")
 ALL = "all"
 TARGET = re.compile(r"all|[a-z0-9]+(?:-[a-z0-9]+)*")
+HEALTH_REFRESH_UNIT = "app-control-health-refresh"
 
 
 class RefusedError(Exception):
@@ -271,15 +276,15 @@ def mode_of(registry):
     return mode
 
 
-def timer_present(run, timer):
-    """Return whether the application's own timer unit is installed.
+def timer_present(run, unit):
+    """Return whether a systemd unit is installed on this host.
 
     Args:
         run: ``subprocess.run`` or a stand-in.
-        timer: the unit name.
+        unit: the unit name.
     """
     listed = run(
-        ["systemctl", "list-unit-files", "--no-legend", "--plain", timer],
+        ["systemctl", "list-unit-files", "--no-legend", "--plain", unit],
         capture_output=True,
         text=True,
         check=False,
@@ -383,6 +388,43 @@ def act(config, action, target, run):
     return failed
 
 
+def refresh_health(config, run):
+    """Schedule one webserver health sweep after the last stop or start.
+
+    Args:
+        config: the parsed configuration; ``health_service`` names the sweep
+            unit and ``health_delay_seconds`` the wait before it runs.
+        run: ``subprocess.run`` or a stand-in.
+
+    Returns:
+        The error that kept the sweep from being scheduled, None when it was
+        scheduled or when the unit is not installed on this host.
+    """
+    unit = config["health_service"]
+    if not timer_present(run, unit):
+        return None
+    run(["systemctl", "stop", f"{HEALTH_REFRESH_UNIT}.timer"], check=False)
+    try:
+        run(
+            [
+                "systemd-run",
+                f"--unit={HEALTH_REFRESH_UNIT}",
+                f"--on-active={int(config['health_delay_seconds'])}",
+                "--timer-property=AccuracySec=1s",
+                "--timer-property=RemainAfterElapse=no",
+                "--collect",
+                "systemctl",
+                "start",
+                "--no-block",
+                unit,
+            ],
+            check=True,
+        )
+    except (subprocess.CalledProcessError, OSError) as error:
+        return str(error)
+    return None
+
+
 def reconcile(config, run):
     """Apply the persisted state of every application and return the ids that failed.
 
@@ -467,18 +509,24 @@ def main(
             execvp("sudo", ["sudo", "-n", *escalated])
             return 0
         require_root(options.command, euid)
+        refresh_error = None
         with locked(config):
             if options.command == "reconcile":
                 failed = reconcile(config, run)
             else:
                 failed = act(config, options.command, options.target, run)
+                refresh_error = refresh_health(config, run)
     except RefusedError as error:
         print(f"{COMMAND}: refused: {error}", file=sys.stderr)
         return 2
+    if refresh_error:
+        print(
+            f"{COMMAND}: health sweep not scheduled: {refresh_error}", file=sys.stderr
+        )
     if failed:
         print(f"FAILED applications: {', '.join(failed)}", file=sys.stderr)
         return 1
-    return 0
+    return 1 if refresh_error else 0
 
 
 if __name__ == "__main__":

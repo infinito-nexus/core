@@ -131,6 +131,7 @@ class LookupModule(LookupBase):
         data_paused_dir = _ensure_trailing_slash(_join(www_dir, "paused"))
         data_paused_apps_dir = _ensure_trailing_slash(_join(data_paused_dir, "apps"))
         data_paused_pages_dir = _ensure_trailing_slash(_join(data_paused_dir, "pages"))
+        data_health_dir = _ensure_trailing_slash(_join(www_dir, "health"))
 
         cache_general_dir = "/tmp/cache_nginx_general/"  # noqa: S108
         cache_image_dir = "/tmp/cache_nginx_image/"  # noqa: S108
@@ -153,6 +154,7 @@ class LookupModule(LookupBase):
             _dir_spec(data_paused_dir, "0755"),
             _dir_spec(data_paused_apps_dir, "0755"),
             _dir_spec(data_paused_pages_dir, "0755"),
+            _dir_spec(data_health_dir, "0755"),
             _dir_spec(cache_general_dir, "0700"),
             _dir_spec(cache_image_dir, "0700"),
         ]
@@ -160,6 +162,7 @@ class LookupModule(LookupBase):
         resolved: dict[str, Any] = {
             "files": {
                 "configuration": _join(nginx_dir, "nginx.conf"),
+                "health_status": _join(data_health_dir, "status.json"),
             },
             "directories": {
                 "configuration": {
@@ -185,6 +188,7 @@ class LookupModule(LookupBase):
                     "global": data_global_dir,
                     "paused_apps": data_paused_apps_dir,
                     "paused_pages": data_paused_pages_dir,
+                    "health": data_health_dir,
                 },
                 "cache": {
                     "general": cache_general_dir,

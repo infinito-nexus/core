@@ -102,6 +102,62 @@ exports.register = function (shared) {
   }
 
   /**
+   * Return whether the dashboard's status document already reports the
+   * controlled application, i.e. a health sweep has run on this host.
+   *
+   * Args:
+   *   request: an APIRequestContext.
+   */
+  async function dashboardTracksTarget(request) {
+    if (!shared.env.dashboardStatusEnabled) {
+      return false;
+    }
+    const response = await apiGetOnion(request, `${shared.env.dashboardBaseUrl}/status.json`, {
+      failOnStatusCode: false,
+      timeout: resolveTimeout(30_000),
+    });
+    expect(response.status(), `${label}: the dashboard must serve /status.json`).toBe(200);
+    const document_ = await response.json();
+    return Boolean(document_.applications && document_.applications[target]);
+  }
+
+  /**
+   * Wait until the dashboard's health badge of the controlled application shows
+   * a state.
+   *
+   * Args:
+   *   browser: the Playwright browser.
+   *   state: the expected `data-portui-state` of the badge.
+   */
+  async function assertDashboardBadge(browser, state) {
+    const visitor = await browser.newContext({ ignoreHTTPSErrors: true });
+    try {
+      const page = await visitor.newPage();
+      const badge = page.locator(`.portui-main > [data-portui-id="${target}"] .portui-chip-health`);
+      await expect
+        .poll(
+          async () => {
+            await gotoOnion(page, `${shared.env.dashboardBaseUrl}/`, { waitUntil: "domcontentloaded" });
+            return expect(badge)
+              .toHaveAttribute("data-portui-state", state, { timeout: resolveTimeout(10_000) })
+              .then(
+                () => state,
+                () => badge.getAttribute("data-portui-state", { timeout: resolveTimeout(1_000) }).catch(() => null),
+              );
+          },
+          {
+            timeout: resolveTimeout(TARGET_ANSWER_MS),
+            intervals: [15_000],
+            message: `${label}: the dashboard tile of ${target} must show the health badge "${state}"`,
+          },
+        )
+        .toBe(state);
+    } finally {
+      await visitor.close().catch(() => {});
+    }
+  }
+
+  /**
    * Bring the controlled application back after a failed run left it paused.
    *
    * Args:
@@ -133,7 +189,7 @@ exports.register = function (shared) {
   }) => {
     shared.skipUnlessServiceEnabled("ldap");
     test.setTimeout(
-      resolveTimeout(SIGN_IN_MS + shared.RBAC_SYNC_CONVERGENCE_MS + 2 * shared.TASK_RUN_MS + 2 * TARGET_ANSWER_MS),
+      resolveTimeout(SIGN_IN_MS + shared.RBAC_SYNC_CONVERGENCE_MS + 2 * shared.TASK_RUN_MS + 4 * TARGET_ANSWER_MS),
     );
 
     await shared.withBiberInRoleGroup(browser, "operator", async () => {
@@ -149,11 +205,18 @@ exports.register = function (shared) {
         project = await shared.awaitAppControlProject(page, true, label);
         templates = await shared.appControlTemplates(page, project.id, target);
         await awaitTargetAnswering(ctx.request, "before the stop");
+        const badges = await dashboardTracksTarget(ctx.request);
+        if (!badges) {
+          console.log(`${label}: no dashboard health entry for ${target} yet, the badge round trip is not checked`);
+        }
 
         paused = true;
         const stopTask = await shared.runTemplateFromUi(page, project.id, templates.stop, label);
         await shared.awaitTaskSuccess(page, project.id, stopTask, shared.TASK_RUN_MS, label);
         await assertPausedPage(browser);
+        if (badges) {
+          await assertDashboardBadge(browser, "paused");
+        }
 
         const startTask = await shared.runTemplateFromUi(page, project.id, templates.start, label);
         await shared.awaitTaskSuccess(page, project.id, startTask, shared.TASK_RUN_MS, label);
@@ -162,6 +225,9 @@ exports.register = function (shared) {
           await awaitTargetAnswering(ctx.request, "after the start"),
           `${label}: a resumed ${target} must no longer serve the paused page`,
         ).not.toBe(PAUSED_STATUS);
+        if (badges) {
+          await assertDashboardBadge(browser, "running");
+        }
 
         await shared.logout(page, label);
       } finally {

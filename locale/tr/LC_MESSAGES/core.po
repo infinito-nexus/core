@@ -52,10 +52,13 @@ msgctxt "rbac:web-app-weblate:manager:description"
 msgid "Administers every project through Weblate's Managers team, without site-wide superuser rights"
 msgstr ""
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Yönetim Araçları für sunucular"
+msgid "Administration tools for servers"
+msgstr ""
 
 msgctxt "access_request:form_administrator"
 msgid "Administrator role"
@@ -117,10 +120,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Uygulamalar"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "e-ticaret, biletleme ve satış yönetimi için uygulamalar."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -228,6 +230,10 @@ msgstr "Paylaşılan LLM ağ geçidi için Browser-face admin arayüzü, ön pro
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Paket sırasında yüksek ayrıcalıklar olmadan köke ait dosya operasyonlarını basitleştirmek için zaman aracı"
+
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
@@ -459,6 +465,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "NGINX domains üzerinde şifreli tek domain ve vahşi kartpostal TLS sertifikalarını şifreleyin"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
 msgstr "Diğer oturumlarınız denetleniyor…"
@@ -492,9 +506,8 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Açıklamalı tarih, özel eylemler ve senaryo desteği ile videoboard yöneticisi"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
 msgstr ""
 
 # translated-by: libretranslate
@@ -537,15 +550,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "İletişim İletişim"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Topluluk Topluluğu"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
@@ -687,6 +703,10 @@ msgstr "Müşteri İlişkileri"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Müşteri İlişkileri Yönetimi (CRM CRM) Müşteri ilişkilerini yönetmek için yazılım, satış boru hatları, pazarlama ve destek faaliyetleri."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -899,6 +919,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -1027,15 +1051,9 @@ msgctxt "rbac:web-app-funkwhale:settings-manager:description"
 msgid "Funkwhale settings manager (edits the instance settings)"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Oyunlar"
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Oyun platformları ve eğlence uygulamaları."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -1111,9 +1129,8 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Yardımlı Araçlar"
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
 msgstr ""
 
 msgctxt "rbac:web-app-moodle:coursecreator:description"
@@ -1197,6 +1214,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Enjeksiyon"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -1263,6 +1284,10 @@ msgctxt "rbac:web-app-keycloak:user-manager:description"
 msgid "Keycloak user manager (create, edit and assign groups to users in the application realm)"
 msgstr ""
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -1272,6 +1297,10 @@ msgstr "LLM destekli çeviri motoru konuşması LibreTranslate API, doğrudan ç
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Öğrenme platformları, sınıf işbirliği araçları ve dijital eğitim ortamları."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1363,6 +1392,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Bir web yüzeyi olmadan makine çevirisi motoru, onu doğrudan çağıran boru hatları için"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 msgctxt "role:web-app-email:description"
 msgid "Mail server wrapper that consumers depend on, dispatching to the configured mail provider role"
 msgstr ""
@@ -1429,6 +1462,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-workspace:agent-user:description"
 msgid "May start a personal workspace IDE instance through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
 msgstr ""
 
 # translated-by: libretranslate
@@ -1726,6 +1763,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr "Per-domain NGINX'in TLS sertifikası, vHost şablonları ve Seçmeli OAuth2"
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Tor üzerinden bu daha uzun sürebilir."
@@ -1777,10 +1818,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Gelecekteki XMPP sunucusu / sınırlı bir dağıtım için yer alan pay sahibi, uygulama bekleyen"
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Online mağazaları, ürün kataloglarını ve dijital satış kanallarını yönetmek için platformlar - ödeme, envanter ve müşteri özellikleri dahil."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -2004,11 +2044,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP ağ geçidi Tor's Seiko dinleyicileri aracılığıyla .onion alıcılar"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Satış"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Sandboxed Runtimes"
@@ -2162,10 +2197,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Kendi Domain senkronizasyonu, paylaşım, gerçek zamanlı işbirliği ve takım çalışma alanları kendi domaininizin altında"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "Kendi kendine barındırılan bulut çözümleri dosya senkronizasyonu, işbirliği ve veri paylaşımı için."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -2447,6 +2481,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Sosyal Medya Araçları Araçları"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2648,11 +2686,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "Kimlik ve Access Management için araçlar, kimlik doğrulama, kullanıcı sağlama ve güvenli erişim kontrolü dahil."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "İletişim için Araçlar"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "E-posta kampanyaları, seyirci katılımı, otomasyon ve dijital pazarlama iş akışları için araçlar."
@@ -2730,6 +2763,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Kullanıcılar & Access"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2739,6 +2776,10 @@ msgstr "Kişisel iş istasyonları için sürüm kontrol istemcisi, kimlik ile �
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "CDN teslimat için paylaşılan varlık-ağaç düzeni paylaşılan, satıcı ve per-role sürüm direktörleri"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 msgctxt "rbac:web-app-penpot:viewer:description"
 msgid "Views and comments on the files of the shared platform team without editing them"
@@ -2788,6 +2829,10 @@ msgstr "Web tabanlı yönetim aracı Natasha ve MariaDB için şema yönetimi, s
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Webserver Optimation"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

@@ -43,7 +43,7 @@ dashboard:
   shared: true
   name: dashboard
   image: ghcr.io/kevinveenbirkenbach/port-ui
-  version: 2.2.2
+  version: 2.3.0
   custom: true
   min_storage: 549MB
   cpus: "0.3"
@@ -62,6 +62,14 @@ dashboard:
   run_after:
     - web-app-matomo
   lifecycle: beta
+  folders: true
+  new_days: 14
+  status:
+    enabled: true
+    poll_seconds: 60
+    stale_after_seconds: 28800
+  locks:
+    enabled: true
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
