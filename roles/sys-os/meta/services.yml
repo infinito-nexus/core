@@ -2,22 +2,28 @@
 # nocheck: required-by-coverage -- read by utils/distros.py and the docker updater; no role requires it
 os:
   lifecycle: beta
+# nocheck: image-healthcheck  CI workspace base image; sys-os runs no container
 arch:
   image: manjarolinux/base
   # nocheck: docker-version -- Manjaro publishes rolling builds only, so Arch stays rolling
   version: latest
+# nocheck: image-healthcheck  CI workspace base image; sys-os runs no container
 debian:
   image: debian
   version: "13"
   follow: latest
+# nocheck: image-healthcheck  CI workspace base image; sys-os runs no container
 ubuntu:
   image: ubuntu
   version: "26.04"
   follow: latest
+# nocheck: image-healthcheck  CI workspace base image; sys-os runs no container
 fedora:
   image: fedora
   version: "44"
   follow: latest
+# nocheck: image-healthcheck  CI workspace base image; sys-os runs no container
 centos:
   image: quay.io/centos/centos
+  # nocheck: docker-version -- CentOS Stream tags carry no number the updater can order
   version: stream10
