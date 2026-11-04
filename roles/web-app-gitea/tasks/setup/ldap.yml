@@ -22,7 +22,8 @@
 
 - name: "🧭 Pick the LDAP auth source to keep"
   set_fact:
-    ldap_source_plan: "{{ ldap_source_ids_raw.stdout_lines | gitea_ldap_source_plan(ldap_source_users.rows if ldap_source_ids_raw.stdout_lines | length > 1 else []) }}"
+    ldap_source_plan: "{{ ldap_source_ids_raw.stdout_lines | gitea_ldap_source_plan(ldap_source_users.rows if ldap_source_ids_raw.stdout_lines | length > 1 else [])
+      }}"
 
 - name: "🗑️ Delete the duplicate LDAP auth sources no user is linked to"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
