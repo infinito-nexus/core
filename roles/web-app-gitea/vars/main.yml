@@ -18,6 +18,7 @@ GITEA_LDAP_AUTH_ARGS:
   - '--email-attribute "{{ LDAP.USER.ATTRIBUTES.MAIL }}"'
   - '--public-ssh-key-attribute "{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}"'
   - "--synchronize-users"
+GITEA_OIDC_SOURCE_NAME: "SSO Login"
 GITEA_CONTAINER: "{{ lookup('config', application_id, 'services.gitea.name') }}"
 GITEA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 GITEA_USER: "git"
