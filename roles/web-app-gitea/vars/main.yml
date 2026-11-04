@@ -2,13 +2,14 @@
 application_id: "web-app-gitea"
 entity_name: "{{ application_id | entity_name }}"
 
+GITEA_LDAP_SOURCE_NAME: "LDAP"
+GITEA_LDAP_SOURCE_TYPE: "LDAP (via BindDN)"
 GITEA_LDAP_AUTH_ARGS:
-  - '--name "LDAP ({{ DOMAIN_PRIMARY }})"'
+  - '--name "{{ GITEA_LDAP_SOURCE_NAME }}"'
   - '--host "{{ LDAP.SERVER.DOMAIN }}"'
   - "--port {{ LDAP.SERVER.PORT }}"
   - '--security-protocol "{{ LDAP.SERVER.SECURITY | trim or "unencrypted" }}"'
   - '--bind-dn "{{ LDAP.DN.ADMINISTRATOR.DATA }}"'
-  - '--bind-password "{{ LDAP.BIND_CREDENTIAL }}"'
   - '--user-search-base "{{ LDAP.DN.OU.USERS }}"'
   - '--user-filter "(&(objectClass=inetOrgPerson)(uid=%s))"'
   - '--admin-filter "(memberOf=cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }})"'
