@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Wait for an external CI state to become available, polling at a fixed interval
 # until a timeout, so a routine never needs its own shell loop (requirement
-# 041). Exits 0 when the state is available, non-zero at the timeout.
+# 089). Exits 0 when the state is available, non-zero at the timeout.
 # Inputs (env):
 #   kind     - job-log | run | check: what to wait for
 #   id       - the job, run or check id

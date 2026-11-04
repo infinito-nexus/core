@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 _ID = re.compile(r"[A-Za-z0-9_]+")
-_SPEC = PROJECT_ROOT / "docs" / "requirements" / "041-agents-restructuring.md"
+_SPEC = PROJECT_ROOT / "docs" / "requirements" / "089-agents-restructuring.md"
 _CASES = (
     ("maintainer", maintainer, "Maintainer routine:"),
     ("designer", design, "Designer routine:"),
