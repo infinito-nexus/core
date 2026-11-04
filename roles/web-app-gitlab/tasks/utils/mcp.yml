@@ -2,6 +2,7 @@
 - name: "🔍 Read the MCP token this instance already issued"
   ansible.builtin.set_fact:
     gitlab_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

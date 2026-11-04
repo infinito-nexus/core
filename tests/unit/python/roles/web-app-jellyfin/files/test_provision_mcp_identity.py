@@ -19,7 +19,7 @@ USER_ID = "0e3f1c9a4b8d4f27a1c6d5e2b7a90f13"
 ENV: dict[str, str] = {
     "JELLYFIN_BASE": "http://jellyfin:8096",
     "JELLYFIN_ADMIN_USER": "administrator",
-    "JELLYFIN_ADMIN_PASSWORD": "a" * 32,
+    "ADMIN_PASSWORD": "a" * 32,
     "MCP_USER": MCP_USER,
     "MCP_PASSWORD": "b" * 32,
     "MCP_DEVICE_ID": "infinito-deploy",
@@ -29,7 +29,7 @@ ENV: dict[str, str] = {
 def load(current_token: str = ""):
     spec = importlib.util.spec_from_file_location("provision_mcp_identity", SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
-    with patch.dict("os.environ", {**ENV, "MCP_CURRENT_TOKEN": current_token}):
+    with patch.dict("os.environ", {**ENV, "MCP_TOKEN": current_token}):
         spec.loader.exec_module(module)
     return module
 

@@ -94,12 +94,15 @@
 
 - name: ⬆️ Push the OpenProject OAuth application credentials into Nextcloud
   ansible.builtin.shell:
-    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} sh -s"
-    stdin: |
-      set -eu
-      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_openproject authorization_method --value=oauth2
-      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_openproject openproject_client_id --value={{ nextcloud_op_oauth.openproject_client_id | quote }}
-      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_openproject openproject_client_secret --value={{ nextcloud_op_client_secret | quote }}
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
+    stdin: >-
+      <?php $occBatch = '{{ nextcloud_op_push_config | nextcloud_occ_config_set_batch | to_json | b64encode }}'; ?>{{ lookup('file', 'php/utils/occ_batch.php')
+      }}
+  vars:
+    nextcloud_op_push_config:
+      - { appid: integration_openproject, configkey: authorization_method, type: null, value: oauth2 }
+      - { appid: integration_openproject, configkey: openproject_client_id, type: null, value: "{{ nextcloud_op_oauth.openproject_client_id }}" }
+      - { appid: integration_openproject, configkey: openproject_client_secret, type: null, value: "{{ nextcloud_op_client_secret }}" }
   when: >-
     nextcloud_op_oauth.oauth_application_secret_issued
     or (nextcloud_op_client_id_current.stdout | trim) != nextcloud_op_oauth.openproject_client_id

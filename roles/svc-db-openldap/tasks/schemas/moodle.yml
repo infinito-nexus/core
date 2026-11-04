@@ -30,6 +30,7 @@
         {% endfor %}
     stdin: "{{ OPENLDAP_BIND_PW }}"
   register: ldapsm_moodle_result
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'Created schema entry' in ldapsm_moodle_result.stdout"
   check_mode: false
 

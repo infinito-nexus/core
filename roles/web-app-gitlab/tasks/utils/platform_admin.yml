@@ -7,29 +7,19 @@
     resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
 
 - name: "👤 Ensure the platform administrator holds GitLab admin rights"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - GITLAB_ADMIN_USERNAME
-      - -e
-      - GITLAB_ADMIN_EMAIL
-      - -e
-      - GITLAB_ADMIN_NAME
-      - -e
-      - GITLAB_ADMIN_PASSWORD
-      - "{{ GITLAB_RAILS_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - "{{ GITLAB_RAILS_BIN }}"
-      - runner
-      - "-"
-    stdin: "{{ lookup('file', 'ruby/ensure_platform_admin.rb') }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r GITLAB_ADMIN_PASSWORD && export GITLAB_ADMIN_PASSWORD && container exec -i
+      -e GITLAB_ADMIN_USERNAME -e GITLAB_ADMIN_EMAIL -e GITLAB_ADMIN_NAME -e GITLAB_ADMIN_PASSWORD
+      {{ GITLAB_RAILS_LOCAL_CID | quote }}
+      {{ GITLAB_RAILS_BIN | quote }} runner -
+    stdin: |-
+      {{ GITLAB_ADMIN_PASSWORD }}
+      {{ lookup('file', 'ruby/ensure_platform_admin.rb') }}
   environment:
     GITLAB_ADMIN_USERNAME: "{{ GITLAB_ADMIN_USERNAME }}"
     GITLAB_ADMIN_EMAIL: "{{ GITLAB_ADMIN_EMAIL }}"
     GITLAB_ADMIN_NAME: "{{ GITLAB_ADMIN_NAME }}"
-    GITLAB_ADMIN_PASSWORD: "{{ GITLAB_ADMIN_PASSWORD }}"
   register: gitlab_platform_admin
   changed_when: gitlab_platform_admin.stdout is search('\[CHANGED\]')
   failed_when: >-

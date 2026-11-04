@@ -32,7 +32,7 @@
         cmd: >-
           container exec -i
           {{ MARIADB_CONTAINER_ADDRESS }}
-          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
+          sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" exec mariadb -uroot'
         stdin: |
           SET @db_name   := '{{ database_name }}';
           SET @charset   := '{{ MARIADB_ENCODING }}';
@@ -51,7 +51,7 @@
         cmd: >-
           container exec -i
           {{ MARIADB_CONTAINER_ADDRESS }}
-          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
+          sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" exec mariadb -uroot'
         stdin: |
           SET @db_user := '{{ database_username }}';
           SET @db_pwd  := '{{ database_password | replace("'", "''") }}';
