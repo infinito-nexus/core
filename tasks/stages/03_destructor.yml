@@ -17,16 +17,7 @@
     tasks_from: cloudflare/02_cleanup.yml
   when: cf_zones_to_purge is defined
 
-- name: "🛠️ Finalize services"
-  include_role:
-    name: sys-service-terminator
-
-- name: 🧪 Run CLI tests for deployed roles
-  include_role:
-    name: test-e2e-cli
-  when: RUNTIME in ['dev', 'act', 'github']
-
-- name: "🧹 Decommission stale compose stacks while the timers are still locked"
+- name: "🛠️ Decommission, finalize and test while the timers are still locked"
   block:
     - name: "🧹 Decommission the compose stacks of roles no longer active on this host"
       include_role:
@@ -36,6 +27,15 @@
         - MODE_CLEANUP | bool
         - IS_COMPOSE_MODE | bool
         - lookup('deployment').whitelist | length == 0
+
+    - name: "🛠️ Finalize services"
+      include_role:
+        name: sys-service-terminator
+
+    - name: 🧪 Run CLI tests for deployed roles
+      include_role:
+        name: test-e2e-cli
+      when: RUNTIME in ['dev', 'act', 'github']
   always:
     - name: "🔓 Unlock all timers"
       include_role:

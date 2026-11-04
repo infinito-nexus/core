@@ -42,6 +42,34 @@ _RECAP = re.compile(
     re.MULTILINE,
 )
 
+FINALIZE_PHASE_ROLES = frozenset(
+    {"sys-svc-compose", "sys-service-terminator", "test-e2e-cli"}
+)
+
+
+def _logged(label: str, fails: str | None = None) -> list[dict]:
+    tasks: list[dict] = [
+        {"ansible.builtin.lineinfile": {"path": "{{ STAGE_LOG }}", "line": label}}
+    ]
+    if fails:
+        tasks.append(
+            {"ansible.builtin.fail": {"msg": f"{label} failed"}, "when": fails}
+        )
+    return tasks
+
+
+STUB_ROLES = {
+    ("sys-service-terminator", "main.yml"): [
+        {
+            "ansible.builtin.stat": {"path": "{{ DIR_COMPOSITIONS }}mailu"},
+            "register": "stale_stack",
+        },
+        *_logged("finalize", "stale_stack.stat.exists or FAILING == 'finalize'"),
+    ],
+    ("sys-service-terminator", "02_unlock.yml"): _logged("unlock"),
+    ("test-e2e-cli", "main.yml"): _logged("cli", "FAILING == 'cli'"),
+}
+
 
 def _includes(tasks: list[dict], tasks_from: str) -> bool:
     return any(
@@ -51,11 +79,33 @@ def _includes(tasks: list[dict], tasks_from: str) -> bool:
     )
 
 
+def _walk(tasks: list[dict]):
+    for task in tasks:
+        yield task
+        for key in ("block", "rescue", "always"):
+            yield from _walk(task.get(key, []))
+
+
+def _stage() -> list[dict]:
+    return load_yaml_any(str(PROJECT_ROOT / "tasks" / "stages" / "03_destructor.yml"))
+
+
+def _finalize_phase() -> list[dict]:
+    return [
+        task
+        for task in _stage()
+        if any(
+            isinstance(nested.get("include_role"), dict)
+            and nested["include_role"].get("name") in FINALIZE_PHASE_ROLES
+            for nested in _walk([task])
+        )
+    ]
+
+
 def _destructor_block() -> dict:
-    stage = load_yaml_any(str(PROJECT_ROOT / "tasks" / "stages" / "03_destructor.yml"))
     return next(
         task
-        for task in stage
+        for task in _stage()
         if "block" in task and _includes(task["block"], "decommission.yml")
     )
 
@@ -237,10 +287,72 @@ class TestComposeDecommission(unittest.TestCase):
             if line.startswith("ps --all --quiet")
         ]
 
-    def test_the_timers_unlock_even_when_the_decommission_fails(self):
-        stage = load_yaml_any(
-            str(PROJECT_ROOT / "tasks" / "stages" / "03_destructor.yml")
+    def _stage_play(
+        self, host: str, failing: str = ""
+    ) -> tuple[Path, subprocess.CompletedProcess]:
+        for (role, name), tasks in STUB_ROLES.items():
+            path = self.work / "roles" / role / "tasks" / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            dump_yaml(path, tasks)
+        play = load_yaml_any(str(PROJECT_ROOT / "playbook.yml"))[0]
+        dump_yaml(
+            self.playbook,
+            [
+                {
+                    "hosts": "all",
+                    "gather_facts": False,
+                    "any_errors_fatal": play["any_errors_fatal"],
+                    "tasks": _finalize_phase(),
+                }
+            ],
         )
+        self.compose_log.write_text("")
+        self.leftovers.write_text(
+            "com.docker.compose.project=mailu\n" if failing == "decommission" else ""
+        )
+        root, values = self._host(
+            host, RUNTIME="dev", STAGE_LOG=str(self.compose_log), FAILING=failing
+        )
+        _instance(root, "mailu")
+        _instance(root, "grouped")
+        return root, self._play(self._inventory({host: values}))
+
+    def test_the_decommission_stops_a_stale_stack_before_the_services_start(self):
+        root, result = self._stage_play("open")
+
+        self._assert_ok(result)
+        self.assertEqual(
+            _lines(self.compose_log),
+            [
+                f"--chdir {root}/mailu down --remove-orphans",
+                "finalize",
+                "cli",
+                "unlock",
+            ],
+            "the finalized health checks flag every running container, so a "
+            "stale stack must be down before the terminator starts them",
+        )
+        self.assertFalse((root / "mailu").exists())
+
+    def test_a_failing_phase_still_unlocks_the_timers_and_fails_the_play(self):
+        cases = {
+            "decommission": ([], "0123456789ab"),
+            "finalize": (["finalize"], "finalize failed"),
+            "cli": (["finalize", "cli"], "cli failed"),
+        }
+        for failing, (ran, message) in cases.items():
+            with self.subTest(failing=failing):
+                root, result = self._stage_play(failing, failing)
+
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn(message, result.stdout)
+                self.assertEqual(
+                    _lines(self.compose_log),
+                    [f"--chdir {root}/mailu down --remove-orphans", *ran, "unlock"],
+                )
+
+    def test_the_timers_unlock_even_when_the_decommission_fails(self):
+        stage = _stage()
         block = _destructor_block()
         self.assertIs(stage[-1], block)
         self.assertTrue(_includes(block["always"], "02_unlock.yml"))
