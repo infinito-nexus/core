@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from utils.networks.instances import labelled, labelled_file, network_instances
+from utils.networks.instances import (
+    labelled,
+    labelled_file,
+    network_instances,
+    vhost_label,
+)
 from utils.networks.reachability import network, network_of, sibling_domain
 
 
@@ -34,6 +39,7 @@ class FilterModule:
             "network_suffixes": network_suffixes,
             "in_network": in_network,
             "network_instances": network_instances,
+            "vhost_label": vhost_label,
             "labelled": labelled,
             "labelled_file": labelled_file,
         }

@@ -358,16 +358,27 @@ def _vhost_domain(variables: dict | None, templar: Any) -> str:
     return norm_domain(raw)
 
 
+def serving_network(served: list[str], vhost: str) -> str:
+    """Return the network an application's lookups resolve for a vhost.
+
+    Args:
+        served: the application's normalised domains, at least one.
+        vhost: the normalised vhost being rendered, empty when none is.
+
+    Returns:
+        The network of ``vhost`` when ``served`` holds it, else the network of
+        ``served[0]``.
+    """
+    return network_of(vhost if vhost in served else served[0])
+
+
 def _consumer_network(
     domains: dict, consumer_id: str, variables: dict | None, templar: Any
 ) -> str | None:
     consumer_domains = [norm_domain(d) for d in iter_domains(domains.get(consumer_id))]
     if not consumer_domains:
         return None
-    vhost = _vhost_domain(variables, templar)
-    if vhost in consumer_domains:
-        return network_of(vhost)
-    return network_of(consumer_domains[0])
+    return serving_network(consumer_domains, _vhost_domain(variables, templar))
 
 
 def align_domain_to_consumer(
