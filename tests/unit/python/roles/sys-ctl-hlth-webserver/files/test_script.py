@@ -7,6 +7,8 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
+from utils.cache.files import read_text
+
 
 def load_module_from_path(mod_name: str, path: str):
     """Dynamically load a module from a filesystem path."""
@@ -340,7 +342,7 @@ class TestStandaloneCheckerScript(unittest.TestCase):
         return exit_code, buffer.getvalue()
 
     def _status(self):
-        return json.loads(self.status_file.read_text(encoding="utf-8"))
+        return json.loads(read_text(str(self.status_file)))
 
 
 if __name__ == "__main__":

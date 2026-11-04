@@ -5,10 +5,10 @@ from __future__ import annotations
 import sys
 import unittest
 
-import yaml
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT
+from utils.cache.yaml import dump_yaml_str, load_yaml_any, load_yaml_str
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-dashboard"
 sys.path.insert(0, str(ROLE / "lookup_plugins"))
@@ -35,20 +35,20 @@ def _render(menu_data) -> dict:
         undefined=StrictUndefined,
         autoescape=select_autoescape(),
     )
-    env.filters["to_nice_yaml"] = lambda value, indent: yaml.safe_dump(
-        value, indent=indent, allow_unicode=True, sort_keys=False
+    env.filters["to_nice_yaml"] = lambda value, indent: dump_yaml_str(
+        value, sort_keys=False
     )
     rendered = env.get_template("templates/menu/applications.yml.j2").render(
         portfolio_menu_data=menu_data
     )
-    return yaml.safe_load(rendered)
+    return load_yaml_str(rendered)
 
 
 class TestApplicationsMenu(unittest.TestCase):
     def test_the_apps_menu_nests_folders_and_lists_an_app_in_every_folder(self):
-        folders = yaml.safe_load(
-            (ROLE / "vars" / "menu_categories.yml").read_text(encoding="utf-8")
-        )["portfolio_menu_categories"]
+        folders = load_yaml_any(str(ROLE / "vars" / "menu_categories.yml"))[
+            "portfolio_menu_categories"
+        ]
 
         menu = _render(group([_card("listmonk", "listmonk")], folders))
 

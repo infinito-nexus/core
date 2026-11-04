@@ -1,17 +1,13 @@
 import sys
 import unittest
-from pathlib import Path
 
 from ansible.errors import AnsibleError
 
+from utils.cache.files import PROJECT_ROOT
+
 sys.path.insert(
     0,
-    str(
-        Path(__file__).resolve().parents[6]
-        / "roles"
-        / "web-app-dashboard"
-        / "lookup_plugins"
-    ),
+    str(PROJECT_ROOT / "roles" / "web-app-dashboard" / "lookup_plugins"),
 )
 
 from docker_cards_grouped import LookupModule, group, slugify
