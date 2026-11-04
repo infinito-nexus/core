@@ -1,7 +1,7 @@
 ---
 # nocheck: required-by-coverage — included by sys-svc-wazuh-agent on every host that runs an agent, not through the service loader
 deployed-code:
-  lifecycle: alpha
+  lifecycle: beta
   # Exception: the timer schedule lives with the one role that runs it, not in group_vars/all/07_schedule.yml, so the check owns its own cadence (SRP) and an inventory overrides it under applications.sys-ctl-hlth-deployed-code.services.deployed-code.schedule.
   schedule: "*-*-* *:40:00"
   # Exception: the checkout list lives in this role, not in group_vars/all, because only this check and the Wazuh agent's FIM read it, and both read it from here (SPOT).
