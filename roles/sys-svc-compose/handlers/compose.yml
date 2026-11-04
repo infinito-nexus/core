@@ -62,6 +62,12 @@
   listen:
     - compose-build
 
+- name: "🔁 Update the config and secret hashes in compose.yml"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/rehash_configs.yml') }}"
+  listen:
+    - compose-up
+    - container-recreate
+
 - name: 📝 Generate CA trust override
   ansible.builtin.shell: |
     set -euo pipefail
