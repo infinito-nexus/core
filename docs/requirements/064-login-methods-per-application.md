@@ -26,10 +26,10 @@ As a platform operator, I want the sign-in page of every application to offer on
 ### Schema and lint
 
 - [ ] Every role whose sign-in page offers more than one method in any mode declares `login.method.<method>.enabled` under its entity for every method the app offers, and declares no method the app lacks.
-- [ ] A lint fails when a role's default for any declared method deviates from the mode table, and it fails on a negative control.
-- [ ] A lint fails when a role in scope lacks the `login.method` block, and it fails on a negative control.
-- [ ] An inventory override of a single method flag reaches the rendered app configuration, proven by a unit test per switch kind (environment, config file, database setting, injected CSS or JavaScript).
-- [ ] The existing role-local switches (`discourse.local_login_enabled`, `nextcloud.legacy_login_mask`, `PENPOT_NATIVE_LOGIN_ENABLED`, `MEDIAWIKI_LOCAL_PASSWORD_LOGIN`, `OPENBAO_USERPASS_ENABLED`, `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN`, Taiga's `defaultLoginEnabled`, the Listmonk login script) derive from `login.method.*` and keep no second source.
+- [x] A lint fails when a role's default for any declared method deviates from the mode table, and it fails on a negative control.
+- [x] A lint fails when a role in scope lacks the `login.method` block, and it fails on a negative control.
+- [x] An inventory override of a single method flag reaches the rendered app configuration, proven by a unit test per switch kind (environment, config file, database setting, injected CSS or JavaScript).
+- [x] The existing role-local switches (`discourse.local_login_enabled`, `nextcloud.legacy_login_mask`, `PENPOT_NATIVE_LOGIN_ENABLED`, `MEDIAWIKI_LOCAL_PASSWORD_LOGIN`, `OPENBAO_USERPASS_ENABLED`, `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN`, Taiga's `defaultLoginEnabled`, the Listmonk login script) derive from `login.method.*` and keep no second source.
 
 ### SSO mode
 
@@ -52,4 +52,4 @@ As a platform operator, I want the sign-in page of every application to offer on
 
 - [ ] `make test` passes, including the new lints and unit tests.
 - [ ] Every role in scope deploys green in compose and in swarm with SSO on, and in its LDAP-only and native variants where it has them.
-- [ ] Every role README in scope lists its login methods, the switch behind each one and its break-glass path.
+- [x] Every role README in scope lists its login methods, the switch behind each one and its break-glass path.
