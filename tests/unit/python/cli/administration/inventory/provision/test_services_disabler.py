@@ -8,14 +8,16 @@ from tempfile import TemporaryDirectory
 
 from ruamel.yaml import YAML
 
+from cli.administration.inventory.provision.services_disabled_conflicts import (
+    assert_services_disabled_inventory_consistency_from_env,
+    find_services_disabled_conflicts,
+)
 from cli.administration.inventory.provision.services_disabler import (
     DISABLED_SERVICES_RECORD,
     apply_services_disabled,
     apply_services_disabled_from_env,
-    assert_services_disabled_inventory_consistency_from_env,
     find_presence_dependents,
     find_provider_roles,
-    find_services_disabled_conflicts,
     parse_services_disabled,
     reconcile_services_disabled_from_env,
     remove_roles_from_inventory,

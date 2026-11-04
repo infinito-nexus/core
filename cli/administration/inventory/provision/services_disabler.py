@@ -10,7 +10,6 @@ from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     canonical_service_key,
-    equivalent_service_keys,
     expand_service_tokens,
 )
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -27,7 +26,7 @@ _PRESENCE_TEST = re.compile(
 )
 
 
-def _load_yaml_mapping_tolerant(path: Path) -> dict:
+def load_yaml_mapping_tolerant(path: Path) -> dict:
     """Read a YAML file as a mapping; non-mapping or unparseable content
     silently collapses to ``{}``. Backed by the shared YAML cache.
 
@@ -82,7 +81,7 @@ def find_roles_with_service(service_name: str, roles_dir: Path) -> set[str]:
         services_file = role_dir / ROLE_FILE_META_SERVICES
         if not services_file.exists():
             continue
-        services = _load_yaml_mapping_tolerant(services_file)
+        services = load_yaml_mapping_tolerant(services_file)
         if not services:
             continue
         entry = services.get(service_name)
@@ -102,7 +101,7 @@ def _declared_toggles(app_id: str, svc_name: str, roles_dir: Path) -> list[str]:
     into an inventory the validator refuses. 34 service blocks declare
     `enabled` without `shared`.
     """
-    services = _load_yaml_mapping_tolerant(roles_dir / app_id / ROLE_FILE_META_SERVICES)
+    services = load_yaml_mapping_tolerant(roles_dir / app_id / ROLE_FILE_META_SERVICES)
     entry = services.get(svc_name) if services else None
     if not isinstance(entry, dict):
         return []
@@ -134,7 +133,7 @@ def find_presence_dependents(
     if not provider_roles or not roles_dir.exists():
         return dependents
     for role_dir in sorted(roles_dir.iterdir()):
-        services = _load_yaml_mapping_tolerant(role_dir / ROLE_FILE_META_SERVICES)
+        services = load_yaml_mapping_tolerant(role_dir / ROLE_FILE_META_SERVICES)
         for svc_name, entry in services.items():
             if not isinstance(entry, dict):
                 continue
@@ -428,106 +427,3 @@ def reconcile_services_disabled_from_env(host_vars_file: Path, roles_dir: Path) 
     else:
         del doc[DISABLED_SERVICES_RECORD]
     dump_document(host_vars_file, doc)
-
-
-def _inventory_application_ids(inventory_file: Path) -> set[str]:
-    doc = _load_yaml_mapping_tolerant(inventory_file)
-    all_section = doc.get("all") or {}
-    children = all_section.get("children") or {}
-    if not isinstance(children, dict):
-        return set()
-    return {app_id for app_id, value in children.items() if isinstance(value, dict)}
-
-
-def find_services_disabled_conflicts(
-    inventory_dir: Path,
-    services: list[str],
-    roles_dir: Path,
-) -> list[str]:
-    """
-    Return human-readable conflicts when `disable` disagrees with the
-    existing inventory/host_vars state.
-    """
-    if not services:
-        return []
-
-    inventory_file = inventory_dir / "devices.yml"
-    deployed_app_ids = _inventory_application_ids(inventory_file)
-    host_vars_dir = inventory_dir / "host_vars"
-    host_vars_files = (
-        sorted(host_vars_dir.glob("*.yml")) if host_vars_dir.is_dir() else []
-    )
-    service_registry = build_service_registry_from_roles_dir(roles_dir)
-
-    conflicts: list[str] = []
-    for service in expand_service_tokens(services, roles_dir):
-        primary_service = (
-            canonical_service_key(service_registry, service)
-            if service in service_registry
-            else service
-        )
-        equivalent_keys = (
-            equivalent_service_keys(service_registry, primary_service)
-            if primary_service in service_registry
-            else [service]
-        )
-        provider_role = (service_registry.get(primary_service) or {}).get("role")
-        if isinstance(provider_role, str) and provider_role in deployed_app_ids:
-            conflicts.append(
-                f"service '{service}' is disabled, but provider role "
-                f"'{provider_role}' is still active in {inventory_file}"
-            )
-
-        for host_vars_file in host_vars_files:
-            doc = _load_yaml_mapping_tolerant(host_vars_file)
-            applications = doc.get("applications") or {}
-            if not isinstance(applications, dict):
-                continue
-            for app_id in sorted(deployed_app_ids):
-                app_conf = applications.get(app_id) or {}
-                service_map = app_conf.get("services") or {}
-                if not isinstance(service_map, dict):
-                    continue
-                for service_key in equivalent_keys:
-                    service_conf = service_map.get(service_key) or {}
-                    if not isinstance(service_conf, dict):
-                        continue
-                    enabled = bool(service_conf.get("enabled", False))
-                    shared = bool(service_conf.get("shared", False))
-                    if enabled or shared:
-                        conflicts.append(
-                            f"service '{service}' is disabled, but "
-                            f"{host_vars_file}:{app_id}.services.{service_key} "
-                            f"still has enabled={enabled}, shared={shared}"
-                        )
-
-    return conflicts
-
-
-def assert_services_disabled_inventory_consistency_from_env(
-    inventory_dir: Path,
-    roles_dir: Path,
-) -> None:
-    """Fail fast when `disable` conflicts with the existing inventory."""
-    raw = os.environ.get("disable", "").strip()
-    if not raw:
-        return
-
-    services = parse_services_disabled(raw)
-    conflicts = find_services_disabled_conflicts(
-        inventory_dir=inventory_dir,
-        services=services,
-        roles_dir=roles_dir,
-    )
-    if not conflicts:
-        return
-
-    details = "\n  - ".join(conflicts)
-    raise ServicesDisabledConflictError(
-        "`disable` conflicts with the current inventory state.\n"
-        f"disable={raw!r}\n"
-        "Conflicts:\n"
-        f"  - {details}\n"
-        "Recreate or clean the inventory, or remove the conflicting service from "
-        "`disable`."
-    )

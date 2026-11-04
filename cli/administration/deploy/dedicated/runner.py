@@ -11,9 +11,11 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+from cli.administration.inventory.provision.services_disabled_conflicts import (
+    assert_services_disabled_inventory_consistency_from_env,
+)
 from cli.administration.inventory.provision.services_disabler import (
     ServicesDisabledConflictError,
-    assert_services_disabled_inventory_consistency_from_env,
 )
 from cli.meta.roles.services.called import verify as verify_required_system_services
 from cli.meta.runtime import detect_runtime
