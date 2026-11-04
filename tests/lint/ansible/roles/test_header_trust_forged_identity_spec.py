@@ -36,13 +36,6 @@ INVENTORIED = frozenset(
     }
 )
 
-NOT_HEADER_TRUST: dict[str, str] = {
-    "web-app-kix": (
-        "kix-proxy relays X-Forwarded-User as Remote-User, but KIX signs agents "
-        "in through Auth::LDAP and reads no identity header"
-    ),
-}
-
 _REQUIRES_SPEC = re.compile(
     r"""require\(\s*['"]\./test-forged-identity(?:\.js)?['"]\s*\)"""
 )
@@ -53,8 +46,6 @@ def unwired_roles() -> list[str]:
     """Returns one finding per header-trust role that ships without the probe."""
     findings: list[str] = []
     for role, evidence in sorted(header_trust_roles(ROLES_DIR).items()):
-        if role in NOT_HEADER_TRUST:
-            continue
         suite = ROLES_DIR / role / ROLE_FILE_PLAYWRIGHT_SPEC
         spec = suite.parent / SPEC_NAME
         reason = None
@@ -92,12 +83,6 @@ class TestHeaderTrustForgedIdentitySpec(unittest.TestCase):
         """A detection that drifts blind would pass the rule above vacuously."""
         missed = sorted(INVENTORIED - set(header_trust_roles(ROLES_DIR)))
         self.assertEqual([], missed, "inventoried header-trust roles not detected")
-
-    def test_every_exemption_is_still_detected(self) -> None:
-        stale = sorted(set(NOT_HEADER_TRUST) - set(header_trust_roles(ROLES_DIR)))
-        self.assertEqual(
-            [], stale, "exemptions for roles the detection no longer finds"
-        )
 
     def test_the_helper_forges_every_trusted_header(self) -> None:
         content = read_text(str(HELPER))

@@ -1,3 +1,4 @@
+# nocheck: header-trust  kix-proxy relays X-Forwarded-User as Remote-User, but KIX signs agents in through Auth::LDAP and reads no identity header
 server_tokens off;
 
 map $http_sec_websocket_key $http_upgrade {
