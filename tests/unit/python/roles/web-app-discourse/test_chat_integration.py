@@ -13,11 +13,12 @@ from jinja2.nativetypes import NativeEnvironment
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-discourse"
 TASKS = ROLE / "tasks" / "addons" / "discourse-chat-integration.yml"
 STACK_HOST = ROLE / "tasks" / "04_stack_host.yml"
-VARS = ROLE / "vars" / "main.yml"
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 APPLICATION_ID = "web-app-discourse"
 
 PLUGIN = "chat_integration_enabled"
