@@ -2,7 +2,18 @@
 
 ## Description
 
-`web-app-email` stands for "the mail server" of a deployment. Consumers depend on it instead of on a concrete mail server: they declare `services.email` gated on `'web-app-email' in group_names` and list `web-app-email` under `run_after`. The role itself is a thin wrapper with no containers, domains or surface of its own; it dispatches to the mail provider role it selects, which deploys with its own `application_id` and configuration.
+`web-app-email` stands for "the mail server" of a deployment. Consumers depend on it instead of on a concrete mail server: they declare `services.email` gated on `'web-app-email' in group_names` and list `web-app-email` under `run_after`.
+
+## Overview
+
+The role is a thin wrapper with no containers, domains or surface of its own. It dispatches to the mail provider role it selects, which deploys with its own `application_id` and configuration.
+
+## Features
+
+- **Provider indirection:** Consumers reference `web-app-email` instead of a concrete mail server, so the provider changes without touching any consumer.
+- **Single point of truth:** `email.provider` in [`meta/services.yml`](./meta/services.yml) selects the provider; `MAIL_PROVIDER` and the `mail_provider` and `email` lookups derive from it.
+- **Ordering:** `email.run_after` places the wrapper after its provider, so every consumer that runs after the wrapper also runs after the provider.
+- **Inventory guard:** The inventory validator rejects an inventory that deploys a mail provider without the wrapper.
 
 ## Provider selection
 

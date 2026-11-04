@@ -63,6 +63,7 @@ An application that receives logout tokens declares its own Keycloak client unde
 | `web-app-decidim` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-discourse` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-docs` | - | to verify | to verify | to verify | to verify |
+| `web-app-email` | - | to verify | to verify | to verify | to verify |
 | `web-app-erpnext` | oidc | to verify | to verify | to verify | to verify |
 | `web-app-espocrm` | oidc | yes, but stays on the shared client: the receiver finds the user by the `preferred_username` claim, which a Keycloak logout token does not carry, so it refuses every token | `/api/v1/Oidc/backchannelLogout` | [EspoCRM 10.0.11](https://github.com/espocrm/espocrm/blob/10.0.11/application/Espo/Core/Authentication/Oidc/BackchannelLogout.php#L64-L106) | 48 hours idle (`authTokenMaxIdleTime`), no absolute limit (`authTokenLifetime` 0) |
 | `web-app-fediwall` | - | to verify | to verify | to verify | to verify |
