@@ -52,7 +52,7 @@ class TestFrontendServiceSpot(unittest.TestCase):
         self.assertLess(
             self._index("web-app-stalwart"), self._index("web-app-keycloak")
         )
-        self.assertLess(self._index("web-app-mailu"), self._index("web-app-keycloak"))
+        self.assertLess(self._index("web-app-email"), self._index("web-app-keycloak"))
 
     def test_front_proxy_falls_back_to_canonical_port_and_domain(self):
         content = read_text(

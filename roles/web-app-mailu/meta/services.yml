@@ -23,8 +23,8 @@ matomo:
 # nocheck: dynamic-flag
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 mailu:
   modes:
@@ -80,7 +80,7 @@ mailu:
     service_key: front
   run_after:
     - web-app-matomo
-    - web-app-stalwart
+    - web-app-email
   lifecycle: eol
   cpus: "1.0"
   mem_reservation: 512m

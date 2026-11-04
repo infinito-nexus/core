@@ -138,9 +138,6 @@ def _suppressed_inline_flags(file_path: Path) -> set[tuple[str, str]]:
     return result
 
 
-_MAIL_PROVIDER_INDIRECTION = "MAIL_PROVIDER in group_names"
-
-
 def _references_role_in_group_names(value, role_name: str) -> bool:
     """Return True iff *value* is a Jinja string of the shape
     ``{{ '<role_name>' in group_names }}`` (single or double quotes)."""
@@ -182,9 +179,9 @@ class TestServicesDynamicFlags(unittest.TestCase):
                 if service_key == own_entity:
                     continue
 
-                expected_role = covered_key_to_role.get(
+                expected_role = primary_key_to_role.get(
                     service_key,
-                    primary_key_to_role.get(service_key),
+                    covered_key_to_role.get(service_key),
                 )
 
                 for flag in ("enabled", "shared"):
@@ -202,12 +199,6 @@ class TestServicesDynamicFlags(unittest.TestCase):
                             f"`{service_key}:` for legitimate exceptions like "
                             f"databases)."
                         )
-                        continue
-                    if (
-                        service_key == "email"
-                        and isinstance(value, str)
-                        and _MAIL_PROVIDER_INDIRECTION in value
-                    ):
                         continue
                     if expected_role and not _references_role_in_group_names(
                         value, expected_role

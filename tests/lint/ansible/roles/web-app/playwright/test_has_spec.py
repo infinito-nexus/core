@@ -1,8 +1,19 @@
 import unittest
 
-from utils.roles.mapping import ROLE_FILE_PLAYWRIGHT_SPEC
+from utils.annotations.suppress import is_suppressed_in_head
+from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_PLAYWRIGHT_SPEC
 
 from . import PROJECT_ROOT
+
+_RULE = "playwright-spec"
+
+
+def _opted_out(role_path) -> bool:
+    meta_main = role_path / ROLE_FILE_META_MAIN
+    if not meta_main.is_file():
+        return False
+    return is_suppressed_in_head(read_text(str(meta_main)).splitlines(), _RULE)
 
 
 class TestWebAppRolesHavePlaywrightSpec(unittest.TestCase):
@@ -25,7 +36,7 @@ class TestWebAppRolesHavePlaywrightSpec(unittest.TestCase):
                 continue
 
             spec_file = role_path / ROLE_FILE_PLAYWRIGHT_SPEC
-            if not spec_file.is_file():
+            if not spec_file.is_file() and not _opted_out(role_path):
                 missing.append(role_path.name)
 
         if missing:
@@ -33,6 +44,21 @@ class TestWebAppRolesHavePlaywrightSpec(unittest.TestCase):
                 f"Missing {ROLE_FILE_PLAYWRIGHT_SPEC} in:\n  - "
                 + "\n  - ".join(missing)
             )
+
+    def test_an_opted_out_role_ships_no_spec(self):
+        offenders = [
+            role_path.name
+            for role_path in sorted((PROJECT_ROOT / "roles").iterdir())
+            if role_path.is_dir()
+            and _opted_out(role_path)
+            and (role_path / ROLE_FILE_PLAYWRIGHT_SPEC).is_file()
+        ]
+        self.assertEqual(
+            [],
+            offenders,
+            f"'# nocheck: {_RULE}' in meta/main.yml next to a shipped spec:\n  - "
+            + "\n  - ".join(offenders),
+        )
 
 
 if __name__ == "__main__":

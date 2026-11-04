@@ -24,11 +24,11 @@ Role-level extensions are declared in `meta/addons/`, one file per addon:
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
 | `saml` | `module` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
-| `OutboundEmailAccounts` | `module` | enabled whenever the `email` service is present (`web-app-mailu` co-deployed) | `email` → `web-app-mailu` |
+| `OutboundEmailAccounts` | `module` | enabled whenever the `email` service is present (`web-app-email` co-deployed) | `email` → `web-app-email` |
 
 `saml` names SuiteCRM's own SAML authentication. Its payload stays with [`templates/env.j2`](./templates/env.j2), which renders `AUTH_TYPE=saml` plus the `SAML_*` environment from the same `sso` service flag the addon's `enabled` expression reads.
 
-`OutboundEmailAccounts` names SuiteCRM's outbound mail module and declares the `email` bridge. The role configures no SMTP, so the addon records the bridge rather than a provisioned integration, and [`files/playwright/addons/OutboundEmailAccounts.spec.js`](./files/playwright/addons/OutboundEmailAccounts.spec.js) stays skipped until an install path writes the Mailu transport into the legacy mailer settings.
+`OutboundEmailAccounts` names SuiteCRM's outbound mail module and declares the `email` bridge. The role configures no SMTP, so the addon records the bridge rather than a provisioned integration, and [`files/playwright/addons/OutboundEmailAccounts.spec.js`](./files/playwright/addons/OutboundEmailAccounts.spec.js) stays skipped until an install path writes the transport of the mail server `web-app-email` selects into the legacy mailer settings.
 
 ## Features
 

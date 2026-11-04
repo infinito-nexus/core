@@ -53,7 +53,7 @@ A new key MUST be placed in `RESOLUTION_ORDER` after every key it depends on, an
 
 `_compute` MUST delegate to three other lookup plugins rather than re-reading project state directly:
 
-- `DomainLookup` resolves the SMTP host when `environment` points to an external Mailu deployment. Failures MUST fall back to `localhost`.
+- `DomainLookup` resolves the SMTP host when `environment` points to the external mail provider. Failures MUST fall back to `localhost`.
 - `UsersLookup` yields the `no-reply` user dict used to derive `from` and `password`. Missing entries MUST yield an empty dict. The fallback for `from` is then `root@<inventory_hostname>.localdomain`.
 - `ApplicationsLookup` reads `services.email` for the target `application_id`. Unknown applications MUST yield an empty dict.
 
@@ -91,9 +91,19 @@ Role templates and tasks that consume the lookup MUST follow these rules:
 
 ## Mail Provider Dependency Detection 🚨
 
-Roles that call `lookup('email', ...)` are treated as dependents of the mail provider (`web-app-stalwart`).
+Roles that call `lookup('email', ...)` are treated as dependents of the mail server, [web-app-email](../../../../../roles/web-app-email/).
 The integration check [test_mail_provider_dependency.py](../../../../../tests/integration/infrastructure/services/test_mail_provider_dependency.py) scans every role for the `lookup('email'` pattern and fails if such a role does not declare `services.email` with `enabled: true` and `shared: true` at the file root of its `meta/services.yml`.
-A new email consumer MUST declare that service block in its role's `meta/services.yml`.
+A new email consumer MUST declare that service block in its role's `meta/services.yml`, gated on `"{{ 'web-app-email' in group_names }}"`, and MUST list `web-app-email` under `run_after`.
+
+## Mail Server Wrapper 📮
+
+`web-app-email` owns the `email` service key and dispatches to the provider role named by its `services.email.provider`; the provider still deploys with its own `application_id` and configuration.
+`MAIL_PROVIDER`, `lookup('mail_provider')` and this lookup derive the provider from that key, with the inventory override `applications.web-app-email.services.email.provider` taking precedence.
+Every mail provider role declares `covers: [email]` on its primary entity.
+
+No role other than the wrapper and the providers may name a provider role id.
+[test_mail_provider_reference.py](../../../../../tests/lint/ansible/services/test_mail_provider_reference.py) enforces it, and keeps the wrapper's `provider`, `run_after`, provider service block and variants in agreement.
+A statement about the provider itself, such as a `required_by` entry for a role the provider includes, carries `# nocheck: mail-provider-reference`.
 
 ## See Also 🔗
 

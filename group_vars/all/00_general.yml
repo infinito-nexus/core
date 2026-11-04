@@ -49,7 +49,7 @@ DNS_PROVIDER: "localhost" # The DNS Provider\Registrar for the domain -> Legit v
 
 HOSTING_PROVIDER: "localhost" # Provider which hosts the server -> hetzner
 
-MAIL_PROVIDER: "web-app-stalwart" # Active mail provider role. Set to web-app-mailu to use Mailu instead of Stalwart.
+MAIL_PROVIDER: "{{ lookup('mail_provider') }}" # Active mail provider role id
 
 MAIL_PRODUCTION_HOST: "" # Public FQDN of a reachable mail server; when set, the provider asserts its live DNS/TLS/SMTP hard facts.
 MAIL_PRODUCTION_RESOLVER: "" # Resolver those assertions query; empty uses the host's /etc/resolv.conf.

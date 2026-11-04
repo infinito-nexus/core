@@ -39,6 +39,28 @@ class TestValidateInventoryVariables(unittest.TestCase):
         errors = self.errors("host_vars/echo.yml", "CLOUDFLARE_API_TOKEN: x\n")
         self.assertIn("move its value to API.cloudflare.api_token", errors[0])
 
+    def test_a_hand_set_mail_provider_names_the_wrapper_override(self):
+        (self.root / "host_vars" / "echo.yml").write_text(
+            "MAIL_PROVIDER: web-app-mailu\n", encoding="utf-8"
+        )
+        errors = validate_inventory_variables(
+            self.root, KNOWN | {"MAIL_PROVIDER"}, MOVED
+        )
+        self.assertEqual(len(errors), 1)
+        self.assertIn("'MAIL_PROVIDER' is derived", errors[0])
+        self.assertIn("applications.web-app-email.services.email.provider", errors[0])
+
+    def test_a_marker_does_not_admit_a_hand_set_mail_provider(self):
+        text = "MAIL_PROVIDER: web-app-mailu # nocheck: inventory-variable\n"
+        self.assertEqual(len(self.errors("host_vars/echo.yml", text)), 1)
+
+    def test_the_wrapper_override_passes(self):
+        text = (
+            "applications:\n  web-app-email:\n    services:\n      email:\n"
+            "        provider: web-app-mailu\n"
+        )
+        self.assertEqual(self.errors("host_vars/echo.yml", text), [])
+
     def test_ansible_variables_pass(self):
         text = "ansible_host: x\nansible_become_password: y\n"
         self.assertEqual(self.errors("host_vars/echo.yml", text), [])

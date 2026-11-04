@@ -34,7 +34,8 @@ stalwart:
   bond: 1
   enabled: true
   shared: true
-  provides: email
+  covers:
+    - email
   modes:
     compose:
       enabled: true

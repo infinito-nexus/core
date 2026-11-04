@@ -1,19 +1,23 @@
 # nocheck: comments-valid  explanatory WHY-comments in this SPOT lookup predate the stricter lint
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from plugins.lookup import PROJECT_ROOT
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
 from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.domains.primary_domain import get_domain
-from utils.mail.provider import deployed_roles, resolve_active_provider
+from utils.mail.provider import (
+    configured_provider,
+    deployed_roles,
+    resolve_active_provider,
+)
 from utils.mail.provider_view import provider_view, view_carrier, view_id
 from utils.networks.reachability import network, network_of
 from utils.roles.entity.name import entity_name
@@ -22,9 +26,6 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
-
-# Default mail provider role; overridable per inventory via the MAIL_PROVIDER var.
-DEFAULT_MAIL_PROVIDER = "web-app-stalwart"
 
 # Declared in resolution order so each computed default sees already-resolved
 # predecessors (for example ``port`` depends on ``tls``).
@@ -94,18 +95,24 @@ def _render(
     return value
 
 
-def active_mail_provider(variables: Mapping[str, Any]) -> str:
+def active_mail_provider(variables: Mapping[str, Any], templar: Any = None) -> str:
     """The mail provider role this deploy relays through.
 
     Args:
         variables: Ansible variables of the current host.
+        templar: renders a templated ``MAIL_PROVIDER``; ``None`` takes it as is.
     """
-    value = variables.get("MAIL_PROVIDER")
-    configured = str(value).strip() if value else DEFAULT_MAIL_PROVIDER
+    roles_dir = PROJECT_ROOT / "roles"
+    value = _render(variables.get("MAIL_PROVIDER"), templar, dict(variables))
+    configured = (
+        str(value).strip()
+        if value
+        else configured_provider(variables.get("applications"), roles_dir)
+    )
     return resolve_active_provider(
         configured,
         deployed_roles(variables.get("groups")),
-        Path.cwd() / "roles",
+        roles_dir,
     )
 
 
@@ -131,7 +138,7 @@ def provider_view_carrier(
         or the parked payload or the provider host's own carrier still
         matches the view.
     """
-    resolved = provider_view(variables, active_mail_provider(variables))
+    resolved = provider_view(variables, active_mail_provider(variables, templar))
     if resolved is None:
         return None
     host, view = resolved
@@ -322,7 +329,7 @@ class LookupModule(LookupBase):
         raise AnsibleError(f"email: unknown key {short_key!r}")
 
     def _mail_provider(self, variables: dict[str, Any]) -> str:
-        return active_mail_provider(variables)
+        return active_mail_provider(variables, getattr(self, "_templar", None))
 
     def _provider_services(self, variables: dict[str, Any]) -> dict[str, Any]:
         """The active provider's ``services`` block, or ``{}`` when it cannot be

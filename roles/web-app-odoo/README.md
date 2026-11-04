@@ -77,7 +77,7 @@ Odoo modules are declared as addons in `meta/addons/` per the unified addon cont
 | project | module | enabled (required) | none |
 | stock | module | enabled (required) | none |
 | auth_oauth | module | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
-| mail | module | enabled whenever the `email` service is present (`web-app-mailu` co-deployed) | `email` → `web-app-mailu` |
+| mail | module | enabled whenever the `email` service is present (`web-app-email` co-deployed) | `email` → `web-app-email` |
 | nextcloud_odoo_integration | module | disabled | `nextcloud` → `web-app-nextcloud` |
 
 All core modules carry `required: true` and `group: core`, so they are always installed. The `optional` group is empty today.

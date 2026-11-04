@@ -6,8 +6,10 @@
 > superseded by [`web-app-stalwart`](../web-app-stalwart/), the default email
 > provider. New deployments MUST NOT adopt it and existing ones MUST migrate. Follow
 > [Migration from Mailu](../web-app-stalwart/README.md#migration-from-mailu) to move
-> the mailboxes over. Until then, set `MAIL_PROVIDER: web-app-mailu` to keep routing
-> the mail abstraction (`plugins/lookup/email.py`, `sys-svc-mail`) to Mailu.
+> the mailboxes over. Until then, set
+> `applications.web-app-email.services.email.provider: web-app-mailu` to keep routing
+> the mail abstraction ([web-app-email](../web-app-email/), `plugins/lookup/email.py`,
+> `sys-svc-mail`) to Mailu.
 
 ## Description
 

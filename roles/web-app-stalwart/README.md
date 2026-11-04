@@ -201,7 +201,7 @@ The provider cutover is an inventory change; mailbox data moves with it when the
 > **Compose only.** The import reads the legacy maildir volume on the stack host and submits over the host-published IMAPS port, neither of which holds under swarm. Migrate in compose mode, then move the stack to swarm.
 
 1. Keep `web-app-mailu` in the host's groups and add `web-app-stalwart` — both MUST be present so Mailu re-renders as a legacy instance (`legacy-mail.<domain>`, no public mail ports) and releases `mail.<domain>` to Stalwart.
-2. Remove `MAIL_PROVIDER` from the inventory (Stalwart is the default).
+2. Remove the `applications.web-app-email.services.email.provider` override from the inventory ([web-app-email](../web-app-email/) selects Stalwart by default).
 3. Declare the [aliases](#aliases-and-forwards) the Mailu instance had, and a `mailbox_map` entry for every Mailu mailbox that belongs in another Stalwart account (see below).
 4. Set `applications["web-app-stalwart"].services.stalwart.migration.import_mailu: true` and run the full deploy. The role reads every `<address>/` directory in Mailu's Dovecot Maildir volume, whether or not the address is an inventory user, and per mailbox:
    - skips it and reports the address when Stalwart does not serve its domain; no domain is created,
