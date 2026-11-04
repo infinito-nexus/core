@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from pathlib import PurePosixPath
 
+from utils.networks.reachability import TOR, is_network
+
 _DOMAIN = re.compile(r"^(\*\.)?[a-z0-9-]+(\.[a-z0-9-]+)+$")
 
 
@@ -24,7 +26,7 @@ def unserved_nginx_configs(paths: list[str], served: list[str]) -> list[str]:
         if not name.endswith(".conf"):
             continue
         domain = name[: -len(".conf")].lower()
-        if not _DOMAIN.match(domain) or domain.endswith(".onion"):
+        if not _DOMAIN.match(domain) or is_network(domain, TOR):
             continue
         if domain not in keep:
             unserved.append(path)

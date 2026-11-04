@@ -86,7 +86,7 @@ Verified on the PR 414 worktree; build on these.
 - [x] `meta/networks.yml` accepts `reachability.modes` with values from `clearnet` and `tor`, treats an empty list or a missing key as every network, and a lint rejects any other value including `multi`.
 - [x] `meta/networks.yml` accepts `reachability.single_mode` as a boolean, and a role with `single_mode: true` is served on `tor` when the node runs Tor and on `clearnet` otherwise.
 - [x] `NETWORK_MODE` accepts `clearnet`, `tor` and `multi`, defaults to `multi` when `svc-net-tor` is deployed and to `clearnet` otherwise.
-- [ ] The effective networks of a role follow Decisions 3 and 4, covered by unit tests for every combination of node mode, `modes` and `single_mode` including the explicit failure.
+- [x] The effective networks of a role follow Decisions 3 and 4, covered by unit tests for every combination of node mode, `modes` and `single_mode` including the explicit failure.
 - [x] No `meta/services.yml` contains `exclusive` or `primary` under `tor`, and a lint rejects them.
 - [ ] Network properties (sibling derivation, TLS policy, scheme, browser proxy) are read from the registry, and no `.onion` suffix check remains outside it in plugins, utils, filters and role scripts.
 - [x] The registry reserves `handshake` without implementing it, and the design page documents the steps to add a network.
@@ -104,7 +104,7 @@ Verified on the PR 414 worktree; build on these.
 
 - [x] Every cross-app URL rendered for a vhost (CDN, CSS, Matomo, logout, dashboard iframe origin, simpleicons, mirror) uses the provider domain of that vhost's network, in both directions.
 - [x] Injected snippets and their CSP hashes are rendered per vhost, so the clearnet and the onion vhost of one app serve their own correct snippets.
-- [ ] The CDN-only runtime rewrite in `body_filter.lua.j2` is removed.
+- [x] The CDN-only runtime rewrite in `body_filter.lua.j2` is removed.
 - [x] An application that renders network-bound URLs into one config (the dashboard) runs one instance per network, each with the config and CDN scripts of its network.
 - [ ] The CSP header is built per vhost domain and lists only sources of that vhost's network plus the single SSO issuer.
 - [x] Redirect vhosts (aliases, `www`, node-onion apex) redirect inside the source's network, so source and target share one scheme.

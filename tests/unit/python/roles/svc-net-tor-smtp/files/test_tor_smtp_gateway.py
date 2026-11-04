@@ -1,8 +1,8 @@
 """What the Tor SMTP gateway accepts, and where it routes each recipient.
 
 The gateway is not an open relay: it accepts a recipient ONLY when the domain
-ends with ``.onion``, and it delivers each ``.onion`` domain's recipients in one
-hop. The heavy dependencies (aiosmtpd, PySocks) are stubbed here so the routing
+ends with the Tor suffix of the network registry, and it delivers each onion
+domain's recipients in one hop. The heavy dependencies (aiosmtpd, PySocks) are stubbed here so the routing
 logic is testable without them, and ``_deliver`` is replaced so nothing dials
 the network.
 """
@@ -16,24 +16,28 @@ import types
 import unittest
 import unittest.mock as mock
 
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
+from plugins.filter.network_of import FilterModule as NetworkFilters
+from plugins.filter.network_of import network_suffix
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
 from utils.domains.default_primary import default_domain_primary
+from utils.networks.reachability import TOR, network
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
-MODULE = (
-    PROJECT_ROOT
-    / "roles"
-    / "svc-net-tor-smtp"
-    / "files"
-    / "python"
-    / "tor_smtp_gateway.py"
-)
+ROLE = PROJECT_ROOT / "roles" / "svc-net-tor-smtp"
+MODULE = ROLE / "files" / "python" / "tor_smtp_gateway.py"
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 
 REQUIRED_ENV = {
     "TOR_SMTP_LISTEN_PORT": "1525",
     "TOR_SOCKS_HOST": "tor",
     "TOR_SOCKS_PORT": "9050",
     "TOR_SMTP_HELO": "node.example.onion",
+    "TOR_SMTP_RECIPIENT_SUFFIX": network_suffix(TOR),
 }
 
 
@@ -110,6 +114,15 @@ class TestRcptGate(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(reply.startswith("550"))
         self.assertEqual(env.rcpt_tos, [])
 
+    async def test_the_accepted_suffix_is_the_rendered_one(self):
+        relay = _load({"TOR_SMTP_RECIPIENT_SUFFIX": ".exit"}).OnionRelay()
+        accepted = _Envelope(rcpt_tos=[])
+        refused = _Envelope(rcpt_tos=[])
+        await relay.handle_RCPT(None, None, accepted, "biber@abc.exit", [])
+        reply = await relay.handle_RCPT(None, None, refused, "biber@abc.onion", [])
+        self.assertEqual(accepted.rcpt_tos, ["biber@abc.exit"])
+        self.assertTrue(reply.startswith("550"))
+
 
 class TestDataDelivery(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
@@ -146,6 +159,20 @@ class TestConfiguration(unittest.TestCase):
         silently announce the bind address to the peer."""
         with self.assertRaises(KeyError):
             _load({"TOR_SMTP_HELO": None})
+
+    def test_an_empty_recipient_suffix_refuses_to_start(self):
+        with self.assertRaises(ValueError):
+            _load({"TOR_SMTP_RECIPIENT_SUFFIX": ""})
+
+    def test_a_missing_recipient_suffix_refuses_to_start(self):
+        with self.assertRaises(KeyError):
+            _load({"TOR_SMTP_RECIPIENT_SUFFIX": None})
+
+    def test_the_role_renders_the_registry_tor_suffix(self):
+        expression = load_yaml_str(read_text(str(VARS)))["TOR_SMTP_RECIPIENT_SUFFIX"]
+        env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+        env.filters.update(NetworkFilters().filters())
+        self.assertEqual(env.from_string(expression).render(), network(TOR).suffix)
 
     def test_the_onion_hop_targets_the_well_known_smtp_port(self):
         self.assertEqual(_load().ONION_SMTP_PORT, 25)

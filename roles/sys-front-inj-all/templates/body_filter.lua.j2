@@ -102,20 +102,6 @@ if ngx.ctx.is_css then
     return
 end
 
-{% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.origin') %}
-{% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
-{% set _cdn_onion = (lookup('network_urls', _cdn_base) | select('search', '\\.onion') | list | first) | default(_cdn_base, true) %}
-local function onionize(s)
-{% if _tor_node and _cdn_onion != _cdn_base %}
-    local host = ngx.var.http_host or ""
-    if host:sub(-6) == ".onion" then
-        local pat = ([=[{{ _cdn_base }}]=]):gsub("([^%w])", "%%%1")
-        s = (s:gsub(pat, [=[{{ _cdn_onion }}]=]))
-    end
-{% endif %}
-    return s
-end
-
 local function marked(snippets)
     return "<!--infinito-inj-->" .. table.concat(snippets, "\n") .. "<!--/infinito-inj-->"
 end
@@ -127,7 +113,7 @@ whole = ngx.re.gsub(whole, meta_re, "", "ijo")
 local top_snippets = {}
 {{ push_snippets('top_snippets', inj_top_features) }}
 if #top_snippets > 0 then
-    local top_payload = onionize(marked(top_snippets))
+    local top_payload = marked(top_snippets)
     local function repl_top(m) return m[0] .. top_payload end
     local with_top = ngx.re.sub(whole, [[<head\b[^>]*>]], repl_top, "ijo")
     if with_top then
@@ -138,14 +124,14 @@ end
 -- Build head snippets (rendered by Jinja at template time)
 local head_snippets = {}
 {{ push_snippets('head_snippets', inj_head_features) }}
-local head_payload = onionize(marked(head_snippets)) .. "</head>"
+local head_payload = marked(head_snippets) .. "</head>"
 
 local function repl_head(_) return head_payload end
 local new, n, err = ngx.re.sub(whole, [[</head\s*>]], repl_head, "ijo")
 if n and n > 0 then
     whole = new
 else
-    local head_fallback = onionize(marked(head_snippets))
+    local head_fallback = marked(head_snippets)
     local function repl_body_open(m) return m[0] .. "\n" .. head_fallback end
     new, n, err = ngx.re.sub(whole, [[<body\b[^>]*>]], repl_body_open, "ijo")
     if n and n > 0 then
@@ -157,7 +143,7 @@ end
 
 local body_snippets = {}
 {{ push_snippets('body_snippets', inj_body_features) }}
-local body_payload = onionize(marked(body_snippets)) .. "</body>"
+local body_payload = marked(body_snippets) .. "</body>"
 
 local function repl_body(_) return body_payload end
 new, n, err = ngx.re.sub(whole, [[</body\s*>]], repl_body, "ijo")

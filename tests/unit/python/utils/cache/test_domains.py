@@ -423,8 +423,7 @@ class TestOnionNodeIsRequiredWhenTorIsDeployed(unittest.TestCase):
     """A deploy carrying `svc-net-tor` without a provisioned node used to
     answer the clearnet map and cache it under its own key, because
     `group_names` is part of that key. One scope then served onion while
-    another froze a clearnet asset URL into a stylesheet, which
-    `body_filter.lua`'s `onionize` returns before rewriting.
+    another froze a clearnet asset URL into a stylesheet.
     """
 
     ONION = TestNetworkSiblingInjection.ONION

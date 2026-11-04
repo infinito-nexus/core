@@ -12,7 +12,7 @@ the hostname is resolved by Tor, never locally, which is the whole point.
 Only ``.onion`` recipients are accepted — the gateway is not an open relay and
 never touches clearnet delivery, which stays on the provider's normal MX path.
 
-Environment (compose supplies the first four from the role config; the last two
+Environment (compose supplies the first five from the role config; the last two
 carry operational defaults):
   TOR_SMTP_LISTEN_PORT   bind port (required)
   TOR_SOCKS_HOST         Tor SOCKS host (required)
@@ -20,6 +20,9 @@ carry operational defaults):
   TOR_SMTP_HELO          EHLO name announced to the peer (required — the node's
                          mail identity; never the bind address, which strict
                          receivers reject)
+  TOR_SMTP_RECIPIENT_SUFFIX  domain suffix of the Tor network in the network
+                         registry; only recipients under it are accepted
+                         (required)
   TOR_SMTP_LISTEN_HOST   bind address (default 0.0.0.0)
   TOR_SMTP_TIMEOUT       per-hop seconds (default 120)
 """
@@ -39,12 +42,31 @@ log = logging.getLogger("tor-smtp-gateway")
 
 ONION_SMTP_PORT = 25
 
-# nocheck: environ-get-default  templates/env.j2 writes only the four config-derived keys; nothing renders TOR_SMTP_LISTEN_HOST, so the bind address is this file's own
+# nocheck: environ-get-default  templates/env.j2 writes only the five config-derived keys; nothing renders TOR_SMTP_LISTEN_HOST, so the bind address is this file's own
 LISTEN_HOST = os.environ.get("TOR_SMTP_LISTEN_HOST", "0.0.0.0")  # noqa: S104 - relay bind; reachability is gated by the compose network, not this bind
 LISTEN_PORT = int(os.environ["TOR_SMTP_LISTEN_PORT"])
 SOCKS_HOST = os.environ["TOR_SOCKS_HOST"]
 SOCKS_PORT = int(os.environ["TOR_SOCKS_PORT"])
 HELO_NAME = os.environ["TOR_SMTP_HELO"]
+
+
+def _recipient_suffix(raw: str) -> str:
+    """Return the accepted recipient domain suffix.
+
+    Args:
+        raw: ``TOR_SMTP_RECIPIENT_SUFFIX`` as rendered.
+
+    Raises:
+        ValueError: ``raw`` is no ``.<label>`` suffix; an empty one would
+            make the gateway relay every recipient.
+    """
+    suffix = raw.strip().lower()
+    if len(suffix) < 2 or not suffix.startswith("."):
+        raise ValueError(f"TOR_SMTP_RECIPIENT_SUFFIX {raw!r} is no domain suffix")
+    return suffix
+
+
+RECIPIENT_SUFFIX = _recipient_suffix(os.environ["TOR_SMTP_RECIPIENT_SUFFIX"])
 # nocheck: environ-get-default  no template renders TOR_SMTP_TIMEOUT; the per-hop budget of a Tor circuit is the gateway's own, not the inventory's
 TIMEOUT = int(os.environ.get("TOR_SMTP_TIMEOUT", "120"))
 
@@ -93,8 +115,10 @@ class OnionRelay:
     """aiosmtpd handler that relays each recipient's message over Tor."""
 
     async def handle_RCPT(self, server, session, envelope, address, rcpt_options):  # noqa: N802 - aiosmtpd hook name
-        if not address.rsplit("@", 1)[-1].lower().endswith(".onion"):
-            return "550 5.7.1 tor-smtp-gateway relays .onion recipients only"
+        if not address.rsplit("@", 1)[-1].lower().endswith(RECIPIENT_SUFFIX):
+            return (
+                f"550 5.7.1 tor-smtp-gateway relays {RECIPIENT_SUFFIX} recipients only"
+            )
         envelope.rcpt_tos.append(address)
         return "250 OK"
 
