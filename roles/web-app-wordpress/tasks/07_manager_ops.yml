@@ -42,20 +42,36 @@
     plugin_task_path: "{{ [role_path, 'tasks/addons', plugin_name  ~ '.yml' ] | path_join }}"
   when: plugin_enabled | bool
 
-- name: "⬇️ Get current 'permalink_structure'"
+- name: "⬇️ Read the WordPress options services.wordpress.options pins"
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp option get permalink_structure --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  register: wp_permalink_structure
-  changed_when: false
-  failed_when: false
-
-- name: "🔗 Set the permalink structure the /wp-json routes need"
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp option update permalink_structure "{{ WORDPRESS_PERMALINK_STRUCTURE }}"
+    wp option get {{ item.key | quote }} --format=json
     --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  when: (wp_permalink_structure.stdout | trim) != WORDPRESS_PERMALINK_STRUCTURE
+  loop: "{{ WORDPRESS_OPTIONS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: wp_options_stored
+  changed_when: false
+  failed_when: >-
+    wp_options_stored.rc != 0
+    and 'Could not get' not in wp_options_stored.stderr
+
+- name: "🔧 Write each pinned WordPress option whose stored value differs"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp option update {{ item.item.key | quote }} {{ item.item.value | to_json | quote }}
+    --format=json --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  loop: "{{ wp_options_stored.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+  when: item | wordpress_option_drifted
+  register: wp_options_written
+
+- name: "🚿 Flush the rewrite rules after a pinned option changed"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp rewrite flush --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  when: wp_options_written is changed
 
 - name: 🔍 Detect if WordPress is Multisite
   shell: >
