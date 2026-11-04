@@ -97,11 +97,21 @@ class TestDeclaredModels(unittest.TestCase):
         self.assertEqual(params["api_key"], "os.environ/OPENROUTER_API_KEY")
         self.assertEqual(params["model"], REMOTE["model"])
 
-    def test_a_remote_route_uses_the_shared_output_bound_by_default(self) -> None:
+    def test_a_remote_route_without_its_own_bound_leaves_the_client_limit(
+        self,
+    ) -> None:
         params = by_alias(routes(declared=[REMOTE]))[REMOTE["alias"]]["params"]
-        self.assertEqual(params["max_tokens"], 512)
+        self.assertNotIn("max_tokens", params)
 
-    def test_a_remote_route_may_raise_its_own_output_bound(self) -> None:
+    def test_local_and_mock_routes_keep_the_shared_output_bound(self) -> None:
+        built = by_alias(
+            routes(ollama=[SHARED], lmstudio=[LMSTUDIO_ONLY], declared=[MOCK])
+        )
+        for alias in (SHARED["alias"], LMSTUDIO_ONLY["alias"], MOCK["alias"]):
+            with self.subTest(alias=alias):
+                self.assertEqual(built[alias]["params"]["max_tokens"], 512)
+
+    def test_a_remote_route_may_declare_its_own_output_bound(self) -> None:
         declared = dict(REMOTE, max_output_tokens=64000)
         params = by_alias(routes(declared=[declared]))[REMOTE["alias"]]["params"]
         self.assertEqual(params["max_tokens"], 64000)
