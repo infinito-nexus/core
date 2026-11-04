@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import TYPE_CHECKING
 
 from ruamel.yaml.comments import CommentedMap
@@ -20,6 +21,10 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 DISABLED_SERVICES_RECORD = "_INFINITO_SERVICES_DISABLED"
+
+_PRESENCE_TEST = re.compile(
+    r"""\{\{\s*(['"])(?P<role>[\w.-]+)\1\s+in\s+group_names\s*\}\}"""
+)
 
 
 def _load_yaml_mapping_tolerant(path: Path) -> dict:
@@ -104,6 +109,66 @@ def _declared_toggles(app_id: str, svc_name: str, roles_dir: Path) -> list[str]:
     return [flag for flag in ("enabled", "shared") if flag in entry]
 
 
+def _presence_tested_role(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    match = _PRESENCE_TEST.fullmatch(value.strip())
+    return match.group("role") if match else None
+
+
+def find_presence_dependents(
+    provider_roles: set[str], roles_dir: Path
+) -> list[tuple[str, str, str]]:
+    """Service entries a role switches on only while a provider is deployed.
+
+    Args:
+        provider_roles: application ids of the providers being disabled.
+        roles_dir: roles tree whose ``meta/services.yml`` files are read.
+
+    Returns:
+        ``(app_id, service_key, provider)`` for every entry whose base
+        ``enabled`` is exactly ``'<provider>' in group_names``, in role and
+        file order. Negated and compound gates never match.
+    """
+    dependents: list[tuple[str, str, str]] = []
+    if not provider_roles or not roles_dir.exists():
+        return dependents
+    for role_dir in sorted(roles_dir.iterdir()):
+        services = _load_yaml_mapping_tolerant(role_dir / ROLE_FILE_META_SERVICES)
+        for svc_name, entry in services.items():
+            if not isinstance(entry, dict):
+                continue
+            provider = _presence_tested_role(entry.get("enabled"))
+            if provider in provider_roles:
+                dependents.append((role_dir.name, svc_name, provider))
+    return dependents
+
+
+def _disable_entry(
+    applications: CommentedMap, app_id: str, svc_name: str, flags: list[str]
+) -> bool:
+    app_data = applications.get(app_id)
+    if not isinstance(app_data, CommentedMap):
+        app_data = CommentedMap()
+        applications[app_id] = app_data
+
+    svc_map = app_data.get("services")
+    if not isinstance(svc_map, CommentedMap):
+        svc_map = CommentedMap()
+        app_data["services"] = svc_map
+
+    if not flags:
+        return False
+
+    svc = svc_map.get(svc_name)
+    if not isinstance(svc, CommentedMap):
+        svc = CommentedMap()
+        svc_map[svc_name] = svc
+    for flag in flags:
+        svc[flag] = False
+    return True
+
+
 def find_provider_roles(services: list[str], roles_dir: Path) -> dict[str, str]:
     """
     Return mapping of service_name -> application_id for the provider role of each
@@ -179,7 +244,10 @@ def apply_services_disabled(
     For every role under roles_dir whose meta/services.yml defines a service listed
     in `services`, set enabled: false and shared: false in host_vars_file under
     applications.<app_id>.services.<svc_name>.  Missing application
-    or services blocks are created as needed.
+    or services blocks are created as needed. The same happens to every entry
+    whose base `enabled` is the presence test of a disabled provider role
+    (:func:`find_presence_dependents`), so a variant's literal pin cannot keep
+    it on once that provider leaves the inventory.
 
     Per the materialised path is ``applications.<app>.services.<svc>``
     (no ``compose.services`` wrapper).
@@ -210,26 +278,9 @@ def apply_services_disabled(
     changed = False
     for svc_name in services:
         for app_id in sorted(find_roles_with_service(svc_name, roles_dir)):
-            app_data = applications.get(app_id)
-            if not isinstance(app_data, CommentedMap):
-                app_data = CommentedMap()
-                applications[app_id] = app_data
-
-            svc_map = app_data.get("services")
-            if not isinstance(svc_map, CommentedMap):
-                svc_map = CommentedMap()
-                app_data["services"] = svc_map
-
             flags = _declared_toggles(app_id, svc_name, roles_dir)
-            if not flags:
+            if not _disable_entry(applications, app_id, svc_name, flags):
                 continue
-
-            svc = svc_map.get(svc_name)
-            if not isinstance(svc, CommentedMap):
-                svc = CommentedMap()
-                svc_map[svc_name] = svc
-            for flag in flags:
-                svc[flag] = False
             changed = True
             written = ", ".join(f"{flag}=false" for flag in flags)
             print(f"[INFO] disable: {app_id}.services.{svc_name} → {written}")
@@ -255,12 +306,26 @@ def apply_services_disabled(
                 f"[INFO] disable: {app_id}.services.{svc_name} (variant-baked) → {written}"
             )
 
+    provider_map = find_provider_roles(services, roles_dir)
+    for app_id, svc_name, provider in find_presence_dependents(
+        set(provider_map.values()), roles_dir
+    ):
+        if svc_name in services:
+            continue
+        flags = _declared_toggles(app_id, svc_name, roles_dir)
+        if not _disable_entry(applications, app_id, svc_name, flags):
+            continue
+        changed = True
+        written = ", ".join(f"{flag}=false" for flag in flags)
+        print(
+            f"[INFO] disable: {app_id}.services.{svc_name} (gated on {provider}) → {written}"
+        )
+
     if changed:
         with host_vars_file.open("w", encoding="utf-8") as f:
             yaml_rt.dump(doc, f)
 
     if inventory_file is not None:
-        provider_map = find_provider_roles(services, roles_dir)
         if provider_map:
             print(f"[INFO] disable: provider roles found: {provider_map}")
             remove_roles_from_inventory(inventory_file, list(provider_map.values()))
@@ -284,14 +349,34 @@ def apply_services_disabled_from_env(
     )
 
 
-def _revert_disabled_toggles(applications: CommentedMap, services: list[str]) -> None:
+def _released_dependents(
+    stale: list[str], current: list[str], roles_dir: Path
+) -> list[tuple[str, str]]:
+    released = set(find_provider_roles(stale, roles_dir).values()) - set(
+        find_provider_roles(current, roles_dir).values()
+    )
+    return [
+        (app_id, svc_name)
+        for app_id, svc_name, _provider in find_presence_dependents(released, roles_dir)
+        if svc_name not in current
+    ]
+
+
+def _revert_disabled_toggles(
+    applications: CommentedMap,
+    services: list[str],
+    dependents: list[tuple[str, str]],
+) -> None:
+    gated: dict[str, list[str]] = {}
+    for app_id, svc_name in dependents:
+        gated.setdefault(app_id, []).append(svc_name)
     for app_id, app_data in applications.items():
         if not isinstance(app_data, CommentedMap):
             continue
         svc_map = app_data.get("services")
         if not isinstance(svc_map, CommentedMap):
             continue
-        for svc_name in services:
+        for svc_name in dict.fromkeys([*services, *gated.get(app_id, [])]):
             svc = svc_map.get(svc_name)
             if not isinstance(svc, CommentedMap):
                 continue
@@ -310,7 +395,8 @@ def _revert_disabled_toggles(applications: CommentedMap, services: list[str]) ->
 
 def reconcile_services_disabled_from_env(host_vars_file: Path, roles_dir: Path) -> None:
     """Drop the false toggles of every key the previous `disable` run recorded
-    and this run's `disable` no longer lists, then record this run's keys.
+    and this run's `disable` no longer lists, and of every entry gated on a
+    provider those keys no longer keep disabled, then record this run's keys.
 
     Runs before the variant bake, so a variant that wants a toggle off writes it
     again right after.
@@ -333,7 +419,9 @@ def reconcile_services_disabled_from_env(host_vars_file: Path, roles_dir: Path) 
     stale = [key for key in recorded if key not in current]
     applications = doc.get("applications")
     if stale and isinstance(applications, CommentedMap):
-        _revert_disabled_toggles(applications, stale)
+        _revert_disabled_toggles(
+            applications, stale, _released_dependents(stale, current, roles_dir)
+        )
 
     if current:
         doc[DISABLED_SERVICES_RECORD] = current
