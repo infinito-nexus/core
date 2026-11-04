@@ -135,12 +135,21 @@ function withinDeadline(promise, label) {
   return Promise.race([promise, deadline]).finally(() => clearTimeout(timer));
 }
 
-async function openSession(url) {
+function socketTarget(url) {
   const target = new URL(url);
-  if (target.protocol !== "ldap:" || !target.hostname || !target.port) {
-    throw new Error(`LDAP_URL must read ldap://<host>:<port>, got ${url}`);
+  if (target.protocol === "ldap:" && target.hostname && target.port) {
+    return { endpoint: { host: target.hostname, port: Number(target.port) }, label: target.host };
   }
-  const socket = net.connect({ host: target.hostname, port: Number(target.port) });
+  if (target.protocol === "ldapi:" && target.hostname && !target.port && ["", "/"].includes(target.pathname)) {
+    const path = decodeURIComponent(target.hostname);
+    return { endpoint: { path }, label: path };
+  }
+  throw new Error(`LDAP_URL must read ldap://<host>:<port> or ldapi://<percent-encoded socket path>, got ${url}`);
+}
+
+async function openSession(url) {
+  const { endpoint, label } = socketTarget(url);
+  const socket = net.connect(endpoint);
   socket.setTimeout(resolveTimeout(OPERATION_TIMEOUT_MS));
   let received = Buffer.alloc(0);
   let pending = null;
@@ -157,7 +166,7 @@ async function openSession(url) {
 
   const deliver = (message) => {
     if (message.id === 0) {
-      socket.destroy(new Error(`${target.host} sent an LDAP notice of disconnection`));
+      socket.destroy(new Error(`${label} sent an LDAP notice of disconnection`));
       return;
     }
     if (!pending || message.id !== pending.id) {
@@ -172,9 +181,9 @@ async function openSession(url) {
     resolve({ result: message, entries });
   };
 
-  socket.on("timeout", () => socket.destroy(new Error(`${target.host} did not answer the LDAP request in time`)));
+  socket.on("timeout", () => socket.destroy(new Error(`${label} did not answer the LDAP request in time`)));
   socket.on("error", fail);
-  socket.on("close", () => fail(new Error(`${target.host} closed the LDAP connection`)));
+  socket.on("close", () => fail(new Error(`${label} closed the LDAP connection`)));
   socket.on("data", (chunk) => {
     received = Buffer.concat([received, chunk]);
     try {
