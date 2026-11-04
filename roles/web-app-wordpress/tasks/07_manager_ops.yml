@@ -66,12 +66,33 @@
     label: "{{ item.item.key }}"
   when: item | wordpress_option_drifted
   register: wp_options_written
+  changed_when: >-
+    'option is unchanged.' not in wp_options_written.stdout
 
 - name: "🚿 Flush the rewrite rules after a pinned option changed"
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp rewrite flush --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   when: wp_options_written is changed
+
+- name: "🌍 Verify FreedomTranslate posts to the translation gateway"
+  when: WORDPRESS_TRANSLATE_ENABLED | bool
+  block:
+    - name: "🔎 Read the gateway URL back out of WordPress"
+      ansible.builtin.shell: >
+        container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+        wp option get freedomtranslate_api_url --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+      register: wordpress_translate_readback
+      changed_when: false
+
+    - name: "🛑 Refuse a plugin that translates somewhere else"
+      ansible.builtin.assert:
+        that:
+          - (wordpress_translate_readback.stdout | trim) == WORDPRESS_TRANSLATE_ENDPOINT
+        fail_msg: >-
+          freedomtranslate-wp posts to '{{ wordpress_translate_readback.stdout | trim }}'
+          instead of {{ WORDPRESS_TRANSLATE_ENDPOINT }}, so the content would be
+          translated outside this deployment or not at all.
 
 - name: 🔍 Detect if WordPress is Multisite
   shell: >

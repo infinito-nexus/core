@@ -1,10 +1,12 @@
-"""``services.wordpress.options`` is the one place the role pins WordPress options.
+"""``WORDPRESS_OPTIONS`` is the one map the role pins WordPress options from.
 
-The permalink structure is pinned to the format the blog published its post
-URLs under, the vars read the map through a strict config lookup, every option
-the role writes through another path is refused by name, and the tasks in
-``tasks/07_manager_ops.yml`` read each option, write only the ones that drift
-and flush the rewrite rules after a write.
+The map joins the role's contributions (``admin_email``, the design title as
+``blogname``, the FreedomTranslate options) with ``services.wordpress.options``
+as the strict config lookup resolves it, so the role default and the
+inventory both win over a contribution. Every option another path writes is
+refused by name, and the tasks in ``tasks/07_manager_ops.yml`` read each
+option, write only the ones that drift and flush the rewrite rules after a
+write that changed the stored value.
 """
 
 from __future__ import annotations
@@ -16,8 +18,12 @@ import shlex
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
+from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
+from ansible.plugins.loader import filter_loader, lookup_loader
+from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from plugins.lookup.config import LookupModule
@@ -39,6 +45,13 @@ LITERAL_OPTION_WRITE = re.compile(
     r"wp option (?:update|add) ([a-z_][a-z0-9_]*)\b"
     r"|update_option\(\s*'([a-z_][a-z0-9_]*)'"
 )
+ADMIN_EMAIL = "admin@example.test"
+DESIGN_TITLE = "Blog by Example & Partner"
+DISCOURSE_OPTION = "discourse_connect"
+TRANSLATE_ADDON = ROLE / "meta/addons/freedomtranslate-wp.yml"
+TRANSLATE_TASKS = ROLE / "tasks/addons/freedomtranslate-wp-stack-host.yml"
+
+filter_loader.add_directory(str(ROLE / "filter_plugins"))
 
 
 def _vars() -> dict:
@@ -53,9 +66,87 @@ def _task(fragment: str) -> dict:
     return next(t for t in _manager_tasks() if fragment in t["name"])
 
 
+def _position(fragment: str) -> int:
+    return next(i for i, t in enumerate(_manager_tasks()) if fragment in t["name"])
+
+
 def _render(expression: str, **variables):
     templar = Templar(loader=DataLoader(), variables=variables)
     return templar.template(_trust_as_template(expression))
+
+
+def _translate_options() -> list[dict]:
+    addon = load_yaml_any(str(TRANSLATE_ADDON), default_if_missing={})
+    return addon["config"]["options"]
+
+
+class _Stub(LookupBase):
+    def __init__(self, answer):
+        super().__init__()
+        self._answer = answer
+
+    def run(self, terms, variables=None, **kwargs):
+        return [self._answer(*terms)]
+
+
+ALL_ON = {
+    "configured": {"permalink_structure": PINNED_STRUCTURE},
+    "design": True,
+    "title": DESIGN_TITLE,
+    "translate": True,
+    "translate_options": _translate_options(),
+}
+
+
+def _resolve(name: str, scenario: dict):
+    """Resolve one variable of ``vars/main.yml`` through Ansible's templar.
+
+    Args:
+        name: the variable to resolve.
+        scenario: ``configured`` is what ``services.wordpress.options``
+            resolves to (role default and inventory merged), ``design`` is
+            ``services.design.enabled``, ``title`` is the design lookup's
+            ``title``, ``translate`` is ``addons.freedomtranslate-wp.enabled``
+            and ``translate_options`` is that addon's ``config.options``.
+
+    Returns:
+        The resolved value, with the role's own filter plugins loaded.
+    """
+    config = {
+        "services.wordpress.options": scenario["configured"],
+        "users.platform_administrator.email": ADMIN_EMAIL,
+        "services.design.enabled": scenario["design"],
+        "addons.freedomtranslate-wp.enabled": scenario["translate"],
+        "addons.freedomtranslate-wp.config.options": scenario["translate_options"],
+        "addons.wp-discourse.config.discourse_settings": [{"name": DISCOURSE_OPTION}],
+    }
+    stubs = {
+        "config": lambda _app, path: config[path],
+        "design": lambda _app: {"title": scenario["title"]},
+    }
+    real_get = lookup_loader.get
+
+    def get(lookup_name, *args, **kwargs):
+        if lookup_name in stubs:
+            return _Stub(stubs[lookup_name])
+        return real_get(lookup_name, *args, **kwargs)
+
+    declared = DataLoader().load_from_file(
+        str(ROLE / ROLE_FILE_VARS_MAIN), trusted_as_template=True
+    )
+    templar = Templar(
+        loader=DataLoader(), variables={**declared, "entity_name": "wordpress"}
+    )
+    with mock.patch.object(lookup_loader, "get", side_effect=get):
+        return templar.template(declared[name])
+
+
+def _messages(error: BaseException) -> str:
+    parts = []
+    while error is not None:
+        parts.append(str(error))
+        error = error.__cause__ or error.__context__
+    return "\n".join(parts)
 
 
 class TestPinnedStructure(unittest.TestCase):
@@ -131,6 +222,77 @@ class TestStrictLookup(unittest.TestCase):
         self.assertEqual(out[0]["permalink_structure"], PINNED_STRUCTURE)
 
 
+class TestEffectiveMap(unittest.TestCase):
+    def _options(self, scenario: dict) -> dict:
+        return _resolve("WORDPRESS_OPTIONS", scenario)
+
+    def test_the_role_default_stays_in_the_map(self):
+        self.assertEqual(self._options(ALL_ON)["permalink_structure"], PINNED_STRUCTURE)
+
+    def test_admin_email_is_the_platform_administrators(self):
+        self.assertEqual(self._options(ALL_ON)["admin_email"], ADMIN_EMAIL)
+
+    def test_the_design_title_is_the_blogname_while_the_design_is_on(self):
+        self.assertEqual(self._options(ALL_ON)["blogname"], DESIGN_TITLE)
+
+    def test_no_blogname_while_the_design_is_off(self):
+        self.assertNotIn("blogname", self._options(ALL_ON | {"design": False}))
+
+    def test_no_blogname_when_the_design_replaces_no_title(self):
+        for title in (False, ""):
+            with self.subTest(title=title):
+                self.assertNotIn("blogname", self._options(ALL_ON | {"title": title}))
+
+    def test_the_translate_options_join_while_the_addon_is_on(self):
+        options = self._options(ALL_ON)
+        declared = _translate_options()
+        self.assertTrue(declared, "the addon must declare its options")
+        for entry in declared:
+            with self.subTest(option=entry["name"]):
+                self.assertEqual(options[entry["name"]], entry["value"])
+
+    def test_no_translate_option_while_the_addon_is_off(self):
+        options = self._options(ALL_ON | {"translate": False})
+        for entry in _translate_options():
+            with self.subTest(option=entry["name"]):
+                self.assertNotIn(entry["name"], options)
+
+    def test_an_inventory_entry_wins_over_every_contribution(self):
+        configured = {
+            "permalink_structure": PINNED_STRUCTURE,
+            "admin_email": "ops@example.test",
+            "blogname": "Own name",
+            "freedomtranslate_api_url": "https://translate.example.test/translate",
+        }
+        options = self._options(ALL_ON | {"configured": configured})
+        for name, value in configured.items():
+            with self.subTest(option=name):
+                self.assertEqual(options[name], value)
+
+    def test_the_filter_guards_the_merged_map(self):
+        configured = {"permalink_structure": PINNED_STRUCTURE, "home": "https://x"}
+        with self.assertRaises(AnsibleError) as caught:
+            self._options(ALL_ON | {"configured": configured})
+        self.assertIn("services.wordpress.options.home", _messages(caught.exception))
+
+    def test_a_secret_named_addon_option_is_refused(self):
+        leaked = [
+            *_translate_options(),
+            {"name": "freedomtranslate_api_key", "value": "x"},
+        ]
+        with self.assertRaises(AnsibleError) as caught:
+            self._options(ALL_ON | {"translate_options": leaked})
+        self.assertIn("freedomtranslate_api_key", _messages(caught.exception))
+
+    def test_services_declares_no_option_a_contribution_sets(self):
+        services = load_yaml_any(
+            str(ROLE / ROLE_FILE_META_SERVICES), default_if_missing={}
+        )
+        contributed = _resolve("WORDPRESS_OPTIONS_CONTRIBUTED", ALL_ON)
+        self.assertTrue(contributed)
+        self.assertFalse(set(services["wordpress"]["options"]) & set(contributed))
+
+
 class TestOwnedElsewhere(unittest.TestCase):
     def test_every_option_the_role_writes_by_name_is_refused_by_the_map(self):
         owned = _vars()["WORDPRESS_OPTIONS_OWNED_ELSEWHERE"]
@@ -147,12 +309,80 @@ class TestOwnedElsewhere(unittest.TestCase):
             with self.subTest(option=name):
                 self.assertIn(f"'{name}'", owned)
 
-    def test_install_time_and_addon_options_are_owned(self):
-        owned = _vars()["WORDPRESS_OPTIONS_OWNED_ELSEWHERE"]
-        for name in ("home", "siteurl", "blogname", "admin_email", "active_plugins"):
+    def test_computed_and_wordpress_managed_options_stay_owned(self):
+        owned = _resolve("WORDPRESS_OPTIONS_OWNED_ELSEWHERE", ALL_ON)
+        for name in (
+            "home",
+            "siteurl",
+            "active_plugins",
+            "rewrite_rules",
+            "openid_connect_generic_settings",
+            "mwai_options",
+            "site_icon",
+            "site_logo",
+            DISCOURSE_OPTION,
+        ):
             with self.subTest(option=name):
-                self.assertIn(f"'{name}'", owned)
-        self.assertIn("addons.wp-discourse.config.discourse_settings", owned)
+                self.assertIn(name, owned)
+
+    def test_options_the_map_now_carries_left_the_owned_list(self):
+        owned = _resolve("WORDPRESS_OPTIONS_OWNED_ELSEWHERE", ALL_ON)
+        moved = ["admin_email", "blogname"] + [o["name"] for o in _translate_options()]
+        for name in moved:
+            with self.subTest(option=name):
+                self.assertNotIn(name, owned)
+
+    def test_no_contribution_is_owned_elsewhere(self):
+        owned = _resolve("WORDPRESS_OPTIONS_OWNED_ELSEWHERE", ALL_ON)
+        contributed = _resolve("WORDPRESS_OPTIONS_CONTRIBUTED", ALL_ON)
+        self.assertFalse(set(owned) & set(contributed))
+
+
+class TestOrder(unittest.TestCase):
+    def test_options_are_read_after_the_plugins_are_installed(self):
+        self.assertLess(
+            _position("Iterate through WordPress plugins"),
+            _position("Read the WordPress options"),
+        )
+
+    def test_the_translate_readback_follows_the_options_write(self):
+        self.assertLess(
+            _position("Write each pinned WordPress option"),
+            _position("Verify FreedomTranslate"),
+        )
+
+
+class TestTranslateReadback(unittest.TestCase):
+    def test_the_addon_task_installs_the_plugin_and_writes_no_option(self):
+        tasks = load_yaml_any(str(TRANSLATE_TASKS), default_if_missing=[])
+        self.assertEqual(
+            [t["vars"]["plugin_name"] for t in tasks], ["freedomtranslate-wp"]
+        )
+        self.assertNotIn("wp option", read_text(str(TRANSLATE_TASKS)))
+
+    def test_the_readback_runs_only_with_the_addon(self):
+        self.assertEqual(
+            _task("Verify FreedomTranslate")["when"],
+            "WORDPRESS_TRANSLATE_ENABLED | bool",
+        )
+
+    def test_the_expected_endpoint_follows_the_effective_map(self):
+        declared = {o["name"]: o["value"] for o in _translate_options()}
+        self.assertEqual(
+            _resolve("WORDPRESS_TRANSLATE_ENDPOINT", ALL_ON),
+            declared["freedomtranslate_api_url"],
+        )
+        own = "https://translate.example.test/translate"
+        configured = {
+            "permalink_structure": PINNED_STRUCTURE,
+            "freedomtranslate_api_url": own,
+        }
+        self.assertEqual(
+            _resolve(
+                "WORDPRESS_TRANSLATE_ENDPOINT", ALL_ON | {"configured": configured}
+            ),
+            own,
+        )
 
 
 class TestReadTask(unittest.TestCase):
@@ -198,6 +428,15 @@ class TestWriteTask(unittest.TestCase):
         )
         return shlex.split(rendered)
 
+    def _changed(self, stdout: str) -> bool:
+        changed_when = _task("Write each pinned WordPress option")["changed_when"]
+        return bool(
+            _render(
+                "{{ (" + changed_when + ") | bool }}",
+                wp_options_written={"stdout": stdout},
+            )
+        )
+
     def test_the_structure_reaches_wp_cli_as_one_json_argument(self):
         argv = self._argv("permalink_structure", PINNED_STRUCTURE)
         position = argv.index("update")
@@ -216,6 +455,14 @@ class TestWriteTask(unittest.TestCase):
         self.assertEqual(task["loop"], "{{ wp_options_stored.results }}")
         self.assertEqual(task["when"], "item | wordpress_option_drifted")
         self.assertEqual(task["register"], "wp_options_written")
+
+    def test_an_updated_option_is_a_change(self):
+        self.assertTrue(self._changed("Success: Updated 'blogname' option."))
+
+    def test_a_value_wordpress_already_stores_sanitized_is_no_change(self):
+        self.assertFalse(
+            self._changed("Success: Value passed for 'blogname' option is unchanged.")
+        )
 
 
 class TestFlushTask(unittest.TestCase):
