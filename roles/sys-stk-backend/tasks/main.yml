@@ -44,13 +44,11 @@
   vars:
     engine_consumer_id: "{{ application_id }}"
 
-# Exception: a role that opts in to Wazuh pulls in its host's agent here, because sys-* roles cannot be shared-service providers the service loader would deploy. On the manager's own host web-app-wazuh loads the agent after its manager and the agent pre-registration instead, so an app deployed before it cannot install an agent that has no manager yet.
-- name: "🛡️ For '{{ application_id }}': Load the host's Wazuh agent"
-  include_role:
-    name: sys-svc-wazuh-agent
-  when:
-    - lookup('config', application_id, 'services.wazuh.enabled', False) | bool
-    - "'web-app-wazuh' not in group_names"
+# Exception: roles add per-app backend work through their own tasks/hooks/backend.yml instead of being named here, so this shared role carries no role logic. It runs for every app before its compose stack comes up, with application_id still set to that app.
+- name: "🪝 For '{{ application_id }}': Run the backend hooks"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/hooks/run.yml') }}"
+  vars:
+    stage_hook_point: backend
 
 - name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:

@@ -1,0 +1,6 @@
+---
+- name: "🏁 Mark the deploy end"
+  include_tasks: "{{ role_path }}/tasks/utils/deploy_marker.yml"
+  vars:
+    deploy_marker_phase: end
+  when: WAZUH_AGENT_ON_HOST | bool

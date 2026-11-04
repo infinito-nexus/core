@@ -57,7 +57,7 @@ After every deploy the role reads syscheckd's verdict from the agent log and wri
 
 Per-host switches: `WAZUH_AGENT_FIM_ENABLED` (default `true`), `WAZUH_AGENT_FIM_WHODATA_ENABLED` and `WAZUH_AGENT_FIM_AUDITD_ENABLED` (both default `false`).
 
-**Deploy markers.** Every deploy writes `deploy start run=<id>` at its beginning and `deploy end run=<id>` at its end to journald under `infinito-deploy`, and both become level 3 alerts. FIM alerts keep their normal level; a change whose time falls between the two markers of one run came from that deploy. A deploy that fails or is aborted writes no end marker: a start marker without its end is the signal.
+**Deploy markers.** On a host that runs an agent, every deploy writes `deploy start run=<id>` at its beginning (constructor hook) and `deploy end run=<id>` once every role, the destructor checks and the CLI tests have passed (destructor_post hook), to journald under `infinito-deploy`, and both become level 3 alerts. FIM alerts keep their normal level; a change whose time falls between the two markers of one run came from that deploy. A deploy that fails or is aborted writes no end marker: a start marker without its end is the signal.
 The deploy that first ships rules `100120`/`100121` to the manager logs its start marker before those rules exist, so that one start marker reaches the archive but raises no alert; its end marker does.
 
 ### Arch Linux source build
@@ -135,7 +135,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 This is a `sys-svc` role, so other roles include it; it runs at most once per host:
 
-1. `sys-stk-backend` includes it for every role that opts in with `services.wazuh: {enabled: true, rule_block: ...}`, so the opt-in alone puts the agent on that role's host.
+1. Its backend hook ([tasks/hooks/backend.yml](tasks/hooks/backend.yml)), which `sys-stk-backend` runs for every app, includes it for every role that opts in with `services.wazuh: {enabled: true, rule_block: ...}`, so the opt-in alone puts the agent on that role's host.
 2. `web-app-wazuh` includes it for its own host.
 
 Set `WAZUH_AGENT_ENABLED: false` for a host (host or group vars) to switch its agent off; the role then skips with a message.

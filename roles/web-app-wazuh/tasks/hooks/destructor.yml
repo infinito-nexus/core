@@ -1,0 +1,6 @@
+---
+- name: "🐤 Check the Wazuh canary of this run's opted-in apps"
+  include_tasks: "{{ role_path }}/tasks/05_app_canary.yml"
+  when:
+    - application_id in group_names
+    - lookup('wazuh_ruleset', scope='deployment').entities | length > 0

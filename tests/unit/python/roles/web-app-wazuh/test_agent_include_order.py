@@ -4,10 +4,11 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
-BACKEND_TASKS = PROJECT_ROOT / "roles" / "sys-stk-backend" / ROLE_FILE_TASKS_MAIN
-WAZUH_TASKS = PROJECT_ROOT / "roles" / "web-app-wazuh" / "tasks" / "00_core.yml"
 AGENT_ROLE = "sys-svc-wazuh-agent"
 MANAGER_ROLE = "web-app-wazuh"
+BACKEND_HOOK = PROJECT_ROOT / "roles" / AGENT_ROLE / "tasks" / "hooks" / "backend.yml"
+MAIN_INCLUDE = f"{{{{ role_path }}}}/{ROLE_FILE_TASKS_MAIN}"
+WAZUH_TASKS = PROJECT_ROOT / "roles" / MANAGER_ROLE / "tasks" / "00_core.yml"
 
 
 def agent_includes(tasks):
@@ -19,12 +20,13 @@ def agent_includes(tasks):
 
 
 class TestAgentIncludeOrder(unittest.TestCase):
-    def test_backend_skips_the_agent_on_the_manager_host(self):
-        tasks = load_yaml_any(str(BACKEND_TASKS))
-        includes = agent_includes(tasks)
+    def test_backend_hook_skips_the_agent_on_the_manager_host(self):
+        tasks = load_yaml_any(str(BACKEND_HOOK))
+        includes = [task for task in tasks if task.get("include_tasks") == MAIN_INCLUDE]
         self.assertEqual(len(includes), 1)
-        conditions = tasks[includes[0]]["when"]
-        self.assertIn(f"'{MANAGER_ROLE}' not in group_names", conditions)
+        self.assertIn(
+            "WAZUH_AGENT_MANAGER_ROLE not in group_names", includes[0]["when"]
+        )
 
     def test_manager_loads_the_agent_after_pre_registration(self):
         tasks = load_yaml_any(str(WAZUH_TASKS))
