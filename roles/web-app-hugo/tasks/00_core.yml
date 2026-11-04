@@ -17,6 +17,7 @@
     compose_repository_url: "{{ HUGO_SOURCE_REPO }}"
     compose_repository_pull: true
     compose_repository_ref: "{{ HUGO_SOURCE_REF }}"
+    compose_repository_refspec: "+refs/tags/{{ HUGO_SOURCE_REF }}:refs/tags/{{ HUGO_SOURCE_REF }}"
 
 - name: "🎨 Stage the corporate design for the Hugo build of '{{ application_id }}'"
   include_tasks: 01_design.yml
