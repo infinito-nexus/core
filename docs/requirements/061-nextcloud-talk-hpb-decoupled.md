@@ -13,11 +13,11 @@ As an operator, I want the Nextcloud Talk high-performance backend and recording
 - [x] The recording server runs as its own service from an image the role builds from a semver release tag of `nextcloud/nextcloud-talk-recording`.
 - [x] The role renders the signaling `server.conf`, `janus.jcfg` and the recording `server.conf`; no file inside an image regenerates or overwrites them at container start.
 - [x] The Janus config drift guard in `tasks/01_fullstack.yml` and the `janus_config_drift` filter are removed together with their tests.
-- [ ] `utils/update` reports a newer upstream version for each of the four pins, and `tests/lint/ansible/services/test_version_pins_are_watched` passes for them.
+- [x] `utils/update` reports a newer upstream version for each of the four pins, and `tests/lint/repository/test_version_pins_are_watched.py` passes for them.
 - [x] The public signaling endpoint stays `/standalone-signaling/`, and the Talk admin settings show the pinned signaling version as "Running version" with `chat-relay` not listed as missing.
 - [ ] Direct media keeps working: with `services.talk.network_mode: host`, `nat_1_1_mapping` carries the public IP and `test-talk-call-capacity.js` passes.
 - [x] A recording started from a Talk call through the recording server produces a file, verified by a Playwright or CLI test.
-- [ ] Each new service has its own healthcheck and resource limits, and in swarm the services Janus shares a network namespace with are placed on the same node.
+- [x] Each new service has its own healthcheck and resource limits, and in swarm the services Janus shares a network namespace with are placed on the same node.
 - [ ] Deploying over an existing `aio-talk` installation removes the old container or swarm service and starts the new services with the existing signaling, TURN and recording secrets in one deploy.
 - [x] No secret of the new services appears in a container's argv; secrets reach them through config files or environment.
 - [ ] `web-app-nextcloud` with Talk enabled is green in a compose and a swarm roundtrip, including the Talk Playwright specs.
