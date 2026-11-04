@@ -25,6 +25,7 @@
          if (app_body_css ~ app_logo_css) | length > 0 else '' }}
   set_fact:
     app_style_src: "{{ _app_style_src }}"
+    app_style_file: "{{ css_app_file }}"
     app_style_css: "{{ _app_style_css }}"
     app_style_present: "{{ _app_style_css | length > 0 }}"
 

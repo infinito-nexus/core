@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from utils.networks.reachability import network, network_of
-from utils.tls_common import iter_domains
+from utils.tls_common import iter_domains, norm_domain, serving_network
 
 
 def network_instances(app_domains: Any) -> list[dict[str, str]]:
@@ -32,6 +32,29 @@ def network_instances(app_domains: Any) -> list[dict[str, str]]:
         {"network": name, "label": network(name).label if index else ""}
         for index, name in enumerate(names)
     ]
+
+
+def vhost_label(app_domains: Any, domain: Any) -> str:
+    """Label of the instance an application renders the vhost ``domain`` for.
+
+    Args:
+        app_domains: the application's domains (str, list or mapping).
+        domain: the vhost being rendered.
+
+    Returns:
+        The ``network_instances`` label of the network the application's own
+        lookups resolve for ``domain`` (``utils.tls_common.serving_network``),
+        ``""`` for an application without domains.
+    """
+    served = [norm_domain(item) for item in iter_domains(app_domains)]
+    if not served:
+        return ""
+    name = serving_network(served, norm_domain(domain))
+    return next(
+        instance["label"]
+        for instance in network_instances(app_domains)
+        if instance["network"] == name
+    )
 
 
 def labelled(name: str, label: str, separator: str) -> str:

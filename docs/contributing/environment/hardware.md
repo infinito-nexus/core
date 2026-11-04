@@ -43,7 +43,7 @@ You MAY pass `disable=<csv>` to `make compose-deploy` to disable services automa
 make compose-deploy mode=reinstall apps=web-app-discourse disable=matomo
 ```
 
-This sets `enabled: false` and `shared: false` for every listed service in the generated inventory. See [variables.md](variables.md) for details.
+This sets `enabled: false` and `shared: false` for every listed service in the generated inventory, and for every service entry whose `enabled` is exactly `"{{ '<provider>' in group_names }}"` of a disabled provider role, even where a variant pins that entry on. Negated and compound gates stay untouched. See [variables.md](variables.md) for details.
 
 | Service | Optional | What it provides | Effect of disabling | Safe to disable when |
 |---|---|---|---|---|

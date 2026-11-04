@@ -1,28 +1,35 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import TYPE_CHECKING
 
 from ruamel.yaml.comments import CommentedMap
 
+from cli.administration.inventory.provision.ruamel_io import (
+    dump_document,
+    load_document,
+    round_trip_yaml,
+)
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     canonical_service_key,
-    equivalent_service_keys,
     expand_service_tokens,
 )
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
-
-from .ruamel_io import dump_document, load_document, round_trip_yaml
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 DISABLED_SERVICES_RECORD = "_INFINITO_SERVICES_DISABLED"
 
+_PRESENCE_TEST = re.compile(
+    r"""\{\{\s*(['"])(?P<role>[\w.-]+)\1\s+in\s+group_names\s*\}\}"""
+)
 
-def _load_yaml_mapping_tolerant(path: Path) -> dict:
+
+def load_yaml_mapping_tolerant(path: Path) -> dict:
     """Read a YAML file as a mapping; non-mapping or unparseable content
     silently collapses to ``{}``. Backed by the shared YAML cache.
 
@@ -77,7 +84,7 @@ def find_roles_with_service(service_name: str, roles_dir: Path) -> set[str]:
         services_file = role_dir / ROLE_FILE_META_SERVICES
         if not services_file.exists():
             continue
-        services = _load_yaml_mapping_tolerant(services_file)
+        services = load_yaml_mapping_tolerant(services_file)
         if not services:
             continue
         entry = services.get(service_name)
@@ -97,11 +104,71 @@ def _declared_toggles(app_id: str, svc_name: str, roles_dir: Path) -> list[str]:
     into an inventory the validator refuses. 34 service blocks declare
     `enabled` without `shared`.
     """
-    services = _load_yaml_mapping_tolerant(roles_dir / app_id / ROLE_FILE_META_SERVICES)
+    services = load_yaml_mapping_tolerant(roles_dir / app_id / ROLE_FILE_META_SERVICES)
     entry = services.get(svc_name) if services else None
     if not isinstance(entry, dict):
         return []
     return [flag for flag in ("enabled", "shared") if flag in entry]
+
+
+def _presence_tested_role(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    match = _PRESENCE_TEST.fullmatch(value.strip())
+    return match.group("role") if match else None
+
+
+def find_presence_dependents(
+    provider_roles: set[str], roles_dir: Path
+) -> list[tuple[str, str, str]]:
+    """Service entries a role switches on only while a provider is deployed.
+
+    Args:
+        provider_roles: application ids of the providers being disabled.
+        roles_dir: roles tree whose ``meta/services.yml`` files are read.
+
+    Returns:
+        ``(app_id, service_key, provider)`` for every entry whose base
+        ``enabled`` is exactly ``'<provider>' in group_names``, in role and
+        file order. Negated and compound gates never match.
+    """
+    dependents: list[tuple[str, str, str]] = []
+    if not provider_roles or not roles_dir.exists():
+        return dependents
+    for role_dir in sorted(roles_dir.iterdir()):
+        services = load_yaml_mapping_tolerant(role_dir / ROLE_FILE_META_SERVICES)
+        for svc_name, entry in services.items():
+            if not isinstance(entry, dict):
+                continue
+            provider = _presence_tested_role(entry.get("enabled"))
+            if provider in provider_roles:
+                dependents.append((role_dir.name, svc_name, provider))
+    return dependents
+
+
+def _disable_entry(
+    applications: CommentedMap, app_id: str, svc_name: str, flags: list[str]
+) -> bool:
+    app_data = applications.get(app_id)
+    if not isinstance(app_data, CommentedMap):
+        app_data = CommentedMap()
+        applications[app_id] = app_data
+
+    svc_map = app_data.get("services")
+    if not isinstance(svc_map, CommentedMap):
+        svc_map = CommentedMap()
+        app_data["services"] = svc_map
+
+    if not flags:
+        return False
+
+    svc = svc_map.get(svc_name)
+    if not isinstance(svc, CommentedMap):
+        svc = CommentedMap()
+        svc_map[svc_name] = svc
+    for flag in flags:
+        svc[flag] = False
+    return True
 
 
 def find_provider_roles(services: list[str], roles_dir: Path) -> dict[str, str]:
@@ -179,7 +246,10 @@ def apply_services_disabled(
     For every role under roles_dir whose meta/services.yml defines a service listed
     in `services`, set enabled: false and shared: false in host_vars_file under
     applications.<app_id>.services.<svc_name>.  Missing application
-    or services blocks are created as needed.
+    or services blocks are created as needed. The same happens to every entry
+    whose base `enabled` is the presence test of a disabled provider role
+    (:func:`find_presence_dependents`), so a variant's literal pin cannot keep
+    it on once that provider leaves the inventory.
 
     Per the materialised path is ``applications.<app>.services.<svc>``
     (no ``compose.services`` wrapper).
@@ -210,26 +280,9 @@ def apply_services_disabled(
     changed = False
     for svc_name in services:
         for app_id in sorted(find_roles_with_service(svc_name, roles_dir)):
-            app_data = applications.get(app_id)
-            if not isinstance(app_data, CommentedMap):
-                app_data = CommentedMap()
-                applications[app_id] = app_data
-
-            svc_map = app_data.get("services")
-            if not isinstance(svc_map, CommentedMap):
-                svc_map = CommentedMap()
-                app_data["services"] = svc_map
-
             flags = _declared_toggles(app_id, svc_name, roles_dir)
-            if not flags:
+            if not _disable_entry(applications, app_id, svc_name, flags):
                 continue
-
-            svc = svc_map.get(svc_name)
-            if not isinstance(svc, CommentedMap):
-                svc = CommentedMap()
-                svc_map[svc_name] = svc
-            for flag in flags:
-                svc[flag] = False
             changed = True
             written = ", ".join(f"{flag}=false" for flag in flags)
             print(f"[INFO] disable: {app_id}.services.{svc_name} → {written}")
@@ -255,12 +308,26 @@ def apply_services_disabled(
                 f"[INFO] disable: {app_id}.services.{svc_name} (variant-baked) → {written}"
             )
 
+    provider_map = find_provider_roles(services, roles_dir)
+    for app_id, svc_name, provider in find_presence_dependents(
+        set(provider_map.values()), roles_dir
+    ):
+        if svc_name in services:
+            continue
+        flags = _declared_toggles(app_id, svc_name, roles_dir)
+        if not _disable_entry(applications, app_id, svc_name, flags):
+            continue
+        changed = True
+        written = ", ".join(f"{flag}=false" for flag in flags)
+        print(
+            f"[INFO] disable: {app_id}.services.{svc_name} (gated on {provider}) → {written}"
+        )
+
     if changed:
         with host_vars_file.open("w", encoding="utf-8") as f:
             yaml_rt.dump(doc, f)
 
     if inventory_file is not None:
-        provider_map = find_provider_roles(services, roles_dir)
         if provider_map:
             print(f"[INFO] disable: provider roles found: {provider_map}")
             remove_roles_from_inventory(inventory_file, list(provider_map.values()))
@@ -284,14 +351,34 @@ def apply_services_disabled_from_env(
     )
 
 
-def _revert_disabled_toggles(applications: CommentedMap, services: list[str]) -> None:
+def _released_dependents(
+    stale: list[str], current: list[str], roles_dir: Path
+) -> list[tuple[str, str]]:
+    released = set(find_provider_roles(stale, roles_dir).values()) - set(
+        find_provider_roles(current, roles_dir).values()
+    )
+    return [
+        (app_id, svc_name)
+        for app_id, svc_name, _provider in find_presence_dependents(released, roles_dir)
+        if svc_name not in current
+    ]
+
+
+def _revert_disabled_toggles(
+    applications: CommentedMap,
+    services: list[str],
+    dependents: list[tuple[str, str]],
+) -> None:
+    gated: dict[str, list[str]] = {}
+    for app_id, svc_name in dependents:
+        gated.setdefault(app_id, []).append(svc_name)
     for app_id, app_data in applications.items():
         if not isinstance(app_data, CommentedMap):
             continue
         svc_map = app_data.get("services")
         if not isinstance(svc_map, CommentedMap):
             continue
-        for svc_name in services:
+        for svc_name in dict.fromkeys([*services, *gated.get(app_id, [])]):
             svc = svc_map.get(svc_name)
             if not isinstance(svc, CommentedMap):
                 continue
@@ -310,7 +397,8 @@ def _revert_disabled_toggles(applications: CommentedMap, services: list[str]) ->
 
 def reconcile_services_disabled_from_env(host_vars_file: Path, roles_dir: Path) -> None:
     """Drop the false toggles of every key the previous `disable` run recorded
-    and this run's `disable` no longer lists, then record this run's keys.
+    and this run's `disable` no longer lists, and of every entry gated on a
+    provider those keys no longer keep disabled, then record this run's keys.
 
     Runs before the variant bake, so a variant that wants a toggle off writes it
     again right after.
@@ -333,113 +421,12 @@ def reconcile_services_disabled_from_env(host_vars_file: Path, roles_dir: Path) 
     stale = [key for key in recorded if key not in current]
     applications = doc.get("applications")
     if stale and isinstance(applications, CommentedMap):
-        _revert_disabled_toggles(applications, stale)
+        _revert_disabled_toggles(
+            applications, stale, _released_dependents(stale, current, roles_dir)
+        )
 
     if current:
         doc[DISABLED_SERVICES_RECORD] = current
     else:
         del doc[DISABLED_SERVICES_RECORD]
     dump_document(host_vars_file, doc)
-
-
-def _inventory_application_ids(inventory_file: Path) -> set[str]:
-    doc = _load_yaml_mapping_tolerant(inventory_file)
-    all_section = doc.get("all") or {}
-    children = all_section.get("children") or {}
-    if not isinstance(children, dict):
-        return set()
-    return {app_id for app_id, value in children.items() if isinstance(value, dict)}
-
-
-def find_services_disabled_conflicts(
-    inventory_dir: Path,
-    services: list[str],
-    roles_dir: Path,
-) -> list[str]:
-    """
-    Return human-readable conflicts when `disable` disagrees with the
-    existing inventory/host_vars state.
-    """
-    if not services:
-        return []
-
-    inventory_file = inventory_dir / "devices.yml"
-    deployed_app_ids = _inventory_application_ids(inventory_file)
-    host_vars_dir = inventory_dir / "host_vars"
-    host_vars_files = (
-        sorted(host_vars_dir.glob("*.yml")) if host_vars_dir.is_dir() else []
-    )
-    service_registry = build_service_registry_from_roles_dir(roles_dir)
-
-    conflicts: list[str] = []
-    for service in expand_service_tokens(services, roles_dir):
-        primary_service = (
-            canonical_service_key(service_registry, service)
-            if service in service_registry
-            else service
-        )
-        equivalent_keys = (
-            equivalent_service_keys(service_registry, primary_service)
-            if primary_service in service_registry
-            else [service]
-        )
-        provider_role = (service_registry.get(primary_service) or {}).get("role")
-        if isinstance(provider_role, str) and provider_role in deployed_app_ids:
-            conflicts.append(
-                f"service '{service}' is disabled, but provider role "
-                f"'{provider_role}' is still active in {inventory_file}"
-            )
-
-        for host_vars_file in host_vars_files:
-            doc = _load_yaml_mapping_tolerant(host_vars_file)
-            applications = doc.get("applications") or {}
-            if not isinstance(applications, dict):
-                continue
-            for app_id in sorted(deployed_app_ids):
-                app_conf = applications.get(app_id) or {}
-                service_map = app_conf.get("services") or {}
-                if not isinstance(service_map, dict):
-                    continue
-                for service_key in equivalent_keys:
-                    service_conf = service_map.get(service_key) or {}
-                    if not isinstance(service_conf, dict):
-                        continue
-                    enabled = bool(service_conf.get("enabled", False))
-                    shared = bool(service_conf.get("shared", False))
-                    if enabled or shared:
-                        conflicts.append(
-                            f"service '{service}' is disabled, but "
-                            f"{host_vars_file}:{app_id}.services.{service_key} "
-                            f"still has enabled={enabled}, shared={shared}"
-                        )
-
-    return conflicts
-
-
-def assert_services_disabled_inventory_consistency_from_env(
-    inventory_dir: Path,
-    roles_dir: Path,
-) -> None:
-    """Fail fast when `disable` conflicts with the existing inventory."""
-    raw = os.environ.get("disable", "").strip()
-    if not raw:
-        return
-
-    services = parse_services_disabled(raw)
-    conflicts = find_services_disabled_conflicts(
-        inventory_dir=inventory_dir,
-        services=services,
-        roles_dir=roles_dir,
-    )
-    if not conflicts:
-        return
-
-    details = "\n  - ".join(conflicts)
-    raise ServicesDisabledConflictError(
-        "`disable` conflicts with the current inventory state.\n"
-        f"disable={raw!r}\n"
-        "Conflicts:\n"
-        f"  - {details}\n"
-        "Recreate or clean the inventory, or remove the conflicting service from "
-        "`disable`."
-    )

@@ -70,7 +70,7 @@ if [[ -n "${retire:-}" ]]; then
 	echo ">>> Dropping inventory groups for: ${apps[*]}"
 	for inventory_file in "${INFINITO_INVENTORY_DIR}"/devices.yml "${INFINITO_INVENTORY_DIR}"-*/devices.yml; do
 		[[ -f "${inventory_file}" ]] || continue
-		"${python_bin}" -c 'import sys; from pathlib import Path; from cli.administration.inventory.provision.services_disabler import remove_roles_from_inventory; remove_roles_from_inventory(Path(sys.argv[1]), sys.argv[2:])' "${inventory_file}" "${apps[@]}"
+		"${python_bin}" -c 'import sys; from pathlib import Path; from cli.administration.inventory.provision.services.disabler import remove_roles_from_inventory; remove_roles_from_inventory(Path(sys.argv[1]), sys.argv[2:])' "${inventory_file}" "${apps[@]}"
 	done
 fi
 

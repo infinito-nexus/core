@@ -1,6 +1,7 @@
 const { test, expect } = require("./fixtures/onion-test");
 
 const {
+  escapeRegex,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -8,6 +9,7 @@ const {
 
 const cdnBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.CDN_BASE_URL, "CDN_BASE_URL"));
 const roleCssPrefix = `${cdnBaseUrl.replace(/\/$/, "")}/roles/web-app-dashboard/latest/css`;
+const roleSheet = new RegExp(`${escapeRegex(roleCssPrefix)}/(?:[a-z]+-)?style\\.css`);
 
 exports.register = function (shared) {
   test("dashboard CDN serves role-local stylesheet when cdn service is enabled", async ({ page }) => {
@@ -21,8 +23,9 @@ exports.register = function (shared) {
 
     const documentHtml = await documentResponse.text();
     await shared.waitForDashboardReady(page);
-    await shared.waitForResourceResponse(diagnostics.responses, "/roles/web-app-dashboard/latest/css/style.css", "dashboard role CSS");
 
-    expect(documentHtml).toContain(`${roleCssPrefix}/style.css`);
+    const linked = documentHtml.match(roleSheet);
+    expect(linked, `the document links the role stylesheet of its network under ${roleCssPrefix}`).not.toBeNull();
+    await shared.waitForResourceResponse(diagnostics.responses, new URL(linked[0]).pathname, "dashboard role CSS");
   });
 };

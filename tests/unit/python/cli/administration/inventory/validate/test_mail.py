@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     DISABLED_SERVICES_RECORD,
 )
 from cli.administration.inventory.validate.mail import (

@@ -51,6 +51,7 @@ taiga:
   placement: manager
   repository: https://github.com/taigaio/taiga-docker
   ref: main
+  ref_kind: branch
   version: latest
   min_storage: 10GB
   cpus: "1.0"

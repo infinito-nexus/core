@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     DISABLED_SERVICES_RECORD,
 )
 from utils.mail.provider import MAIL_SERVICE_KEY, MAIL_WRAPPER, provider_roles

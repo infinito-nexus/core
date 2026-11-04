@@ -1,1 +1,36 @@
 ---
+- name: "💬 Enable the chat integration and the bridged partners' providers"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('template', 'chat_integration/enable.rb.j2') }}"
+  register: discourse_chat_integration_enable
+  changed_when: "'chat_integration_changed=true' in discourse_chat_integration_enable.stdout_lines"
+
+- name: "🔎 Read the chat integration settings back out of the running instance"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('template', 'chat_integration/verify.rb.j2') }}"
+  register: discourse_chat_integration_readback
+  changed_when: false
+
+- name: "🛑 Refuse a chat integration that cannot notify the bridged partners"
+  ansible.builtin.assert:
+    that:
+      - "(discourse_chat_integration_setting ~ '=true') in discourse_chat_integration_readback.stdout_lines"
+    fail_msg: >-
+      {{ discourse_chat_integration_setting }} did not stick in the running Discourse,
+      so topic notifications never leave it for the bridged chat partner.
+      Read back: {{ discourse_chat_integration_readback.stdout_lines }}
+  loop: "{{ DISCOURSE_CHAT_INTEGRATION_SETTINGS }}"
+  loop_control:
+    loop_var: discourse_chat_integration_setting

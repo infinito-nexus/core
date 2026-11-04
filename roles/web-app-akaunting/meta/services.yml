@@ -51,6 +51,7 @@ akaunting:
   version: 3.1.21
   repository: https://github.com/akaunting/docker.git
   ref: master
+  ref_kind: branch
   name: akaunting
   min_storage: 527MB
   company:

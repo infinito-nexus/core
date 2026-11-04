@@ -16,7 +16,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from cli.administration.inventory.provision.services_disabler import find_provider_roles
+from cli.administration.inventory.provision.services.disabler import find_provider_roles
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 

@@ -3,7 +3,7 @@
   {{ service_name }}:
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     build:
-      context: "{{ PRETIX_SOURCE_DIR }}"
+      context: "{{ compose_repository_path }}"
       dockerfile: "{{ PRETIX_SOURCE_DOCKERFILE_NAME }}"
       args:
         PRETIX_BASE_IMAGE: "{{ PRETIX_BASE_IMAGE }}"

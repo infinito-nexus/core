@@ -4,7 +4,7 @@ import json
 import os
 from typing import TYPE_CHECKING, Any
 
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     find_provider_roles,
     parse_services_disabled,
 )
