@@ -1,37 +1,65 @@
 ---
-- name: "➕ Add LDAP Authentication Source"
+- name: "🔍 Lookup existing LDAP auth source IDs"
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    set -o pipefail && container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+      gitea admin auth list \
+      | awk -F '\t+' -v source_type={{ GITEA_LDAP_SOURCE_TYPE | quote }} 'NR > 1 && $3 == source_type {print $1}'
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  register: ldap_source_ids_raw
+  failed_when: ldap_source_ids_raw.rc != 0
+  changed_when: false
+
+- name: "🔍 Count the users linked to each auth source"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/auth-source-users.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: ldap_source_users
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: ldap_source_ids_raw.stdout_lines | length > 1
+
+- name: "🧭 Pick the LDAP auth source to keep"
+  set_fact:
+    ldap_source_plan: "{{ ldap_source_ids_raw.stdout_lines | gitea_ldap_source_plan(ldap_source_users.rows if ldap_source_ids_raw.stdout_lines | length > 1 else []) }}"
+
+- name: "🗑️ Delete the duplicate LDAP auth sources no user is linked to"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      gitea admin auth add-ldap \
-      {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
+      gitea admin auth delete --id {{ item | quote }}
+  loop: "{{ ldap_source_plan.delete }}"
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  register: ldap_delete
+  failed_when: ldap_delete.rc != 0
+
+- name: "➕ Add LDAP Authentication Source"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    IFS= read -r GITEA_LDAP_BIND_PASSWORD && export GITEA_LDAP_BIND_PASSWORD && container exec -i -e GITEA_LDAP_BIND_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+      : "${GITEA_LDAP_BIND_PASSWORD:?arrived empty on stdin}" && gitea admin auth add-ldap \
+        --bind-password "$GITEA_LDAP_BIND_PASSWORD" \
+        {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
+    '
+  args:
+    stdin: "{{ LDAP.BIND_CREDENTIAL }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: ldap_manage
   failed_when: ldap_manage.rc != 0 and not (ldap_manage.stderr | gitea_auth_noop)
-
-- name: "🔍 Lookup existing LDAP auth source ID"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      gitea admin auth list \
-      | tail -n +2 \
-      | grep -F "LDAP ({{ DOMAIN_PRIMARY }})" \
-      | awk '{print $1; exit}'
-  delegate_to: "{{ GITEA_HOST_NODE }}"
-  register: ldap_source_id_raw
-  failed_when:
-    - ldap_source_id_raw.rc != 0
-    - ldap_source_id_raw.stdout == ""
-  changed_when: false
-
-- name: "🔧 Set LDAP source ID fact"
-  set_fact:
-    ldap_source_id: "{{ ldap_source_id_raw.stdout }}"
+  when: ldap_source_plan.keep == ""
 
 - name: "🔄 Update LDAP Authentication Source"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      gitea admin auth update-ldap \
-      --id {{ ldap_source_id }} \
-      {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
+    IFS= read -r GITEA_LDAP_BIND_PASSWORD && export GITEA_LDAP_BIND_PASSWORD && container exec -i -e GITEA_LDAP_BIND_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+      : "${GITEA_LDAP_BIND_PASSWORD:?arrived empty on stdin}" && gitea admin auth update-ldap \
+        --id {{ ldap_source_plan.keep }} \
+        --bind-password "$GITEA_LDAP_BIND_PASSWORD" \
+        {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
+    '
+  args:
+    stdin: "{{ LDAP.BIND_CREDENTIAL }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: ldap_manage
   failed_when: ldap_manage.rc != 0
+  when: ldap_source_plan.keep != ""
