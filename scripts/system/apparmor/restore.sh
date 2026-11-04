@@ -12,6 +12,8 @@ if ! apparmor_should_manage; then
 	exit 0
 fi
 
+apparmor_reinstate_unconfined_restriction "${APPARMOR_UNCONFINED_RESTRICTION_SYSCTL}" "${APPARMOR_UNCONFINED_RESTRICTION_STATE}"
+
 if apparmor_service_exists; then
 	systemctl start apparmor
 	systemctl enable apparmor
