@@ -49,6 +49,10 @@
     apply:
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "📂 Load fine-grained admin permission routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/15_admin_permissions.yml"
+  when: KEYCLOAK_ADMIN_PERMISSIONS_ENABLED | bool
+
 - name: "📂 Load Users Update routines for '{{ application_id }}' (emailVerified)"
   include_tasks: "{{ role_path }}/tasks/update/06_users/email_verified.yml"
   when: KEYCLOAK_USER_EMAILS_VERIFIED | bool

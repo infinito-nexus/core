@@ -3,8 +3,8 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from utils.i18n.extract import core_messages, role_messages
-from utils.roles.mapping import ROLE_FILE_META_MAIN
+from utils.i18n.extract import core_messages, rbac_context, rbac_messages, role_messages
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_RBAC
 
 
 def _write(root: Path, relative: str, content: str) -> None:
@@ -73,6 +73,23 @@ class TestCoreMessages(unittest.TestCase):
                 locked: " Managed by your central account. "
                 """,
             )
+            _write(
+                root,
+                "roles/web-svc-access-request/files/access_request_i18n.yml",
+                """\
+                form_title: " Request access "
+                """,
+            )
+            _write(
+                root,
+                f"roles/web-app-wiki/{ROLE_FILE_META_RBAC}",
+                """\
+                roles:
+                  editor:
+                    description: " Edits pages "
+                  reader: {}
+                """,
+            )
 
             messages = core_messages(root)
 
@@ -88,7 +105,33 @@ class TestCoreMessages(unittest.TestCase):
                 ("logout:counter", "{done} of {total} services signed out"),
                 ("paused:title", "Service paused"),
                 ("profile_lock:locked", "Managed by your central account."),
+                ("access_request:form_title", "Request access"),
+                ("rbac:web-app-wiki:editor:description", "Edits pages"),
             ],
+        )
+
+    def test_role_descriptions_use_the_context_the_service_looks_up(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(
+                root,
+                f"roles/web-app-wiki/{ROLE_FILE_META_RBAC}",
+                "roles:\n  editor:\n    description: Edits pages\n",
+            )
+            _write(
+                root,
+                f"roles/web-app-cst-demo/{ROLE_FILE_META_RBAC}",
+                "roles:\n  editor:\n    description: Custom\n",
+            )
+
+            messages = rbac_messages(root)
+
+        self.assertEqual(
+            messages, [(rbac_context("web-app-wiki", "editor"), "Edits pages")]
+        )
+        self.assertEqual(
+            "rbac:web-app-wiki:editor:description",
+            rbac_context("web-app-wiki", "editor"),
         )
 
     def test_a_pulled_custom_role_stays_out_of_the_core_catalogs(self):

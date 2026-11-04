@@ -157,6 +157,12 @@ ZAMMAD_MCP_UPSTREAM_TOKEN_LABEL: "infinito-mcp"
 ZAMMAD_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 ZAMMAD_MCP_UPSTREAM_AUTH_FORMAT: "Token token={key}"
 
+ZAMMAD_ACCESS_REQUEST_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
+ZAMMAD_ACCESS_REQUEST_ACCOUNT: "{{ lookup('users', 'access-request-zammad') }}"
+ZAMMAD_ACCESS_REQUEST_GROUP: "{{ lookup('config', 'web-svc-access-request', 'services.access-request.zammad_group') }}"
+ZAMMAD_ACCESS_REQUEST_TOKEN: "{{ lookup('config', 'web-svc-access-request', 'secrets.credentials.zammad_api_token') }}"
+ZAMMAD_ACCESS_REQUEST_TOKEN_LABEL: "infinito-access-request"
+
 ZAMMAD_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 ZAMMAD_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
 ZAMMAD_LITELLM_MODEL: "{{ LITELLM_CHAT_MODEL }}"

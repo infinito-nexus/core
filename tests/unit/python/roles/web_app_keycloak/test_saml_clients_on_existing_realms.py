@@ -24,6 +24,8 @@ REALM = {
     "smtpServer": SMTP,
     "loginWithEmailAllowed": True,
     "duplicateEmailsAllowed": False,
+    "adminEventsEnabled": True,
+    "adminPermissionsEnabled": True,
 }
 
 
@@ -80,11 +82,18 @@ class TestSettingsSpec(unittest.TestCase):
                         "smtpServer": SMTP,
                         "loginWithEmailAllowed": True,
                         "duplicateEmailsAllowed": False,
+                        "adminEventsEnabled": True,
+                        "adminPermissionsEnabled": True,
                     },
                 },
                 {"realm": "master", "desired": {"smtpServer": SMTP}},
             ],
         )
+
+    def test_an_existing_realm_turns_on_admin_events_and_admin_permissions(self):
+        desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0]["desired"]
+        self.assertIs(desired["adminEventsEnabled"], True)
+        self.assertIs(desired["adminPermissionsEnabled"], True)
 
     def test_the_client_scopes_of_the_realm_dictionary_are_passed_on(self):
         spec = render("KEYCLOAK_SETTINGS_SPEC", [])

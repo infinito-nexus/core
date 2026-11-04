@@ -113,7 +113,7 @@ domains:
 
 ## Keycloak admin console 🖥️
 
-[web-app-keycloak](../../../../roles/web-app-keycloak/meta/rbac.yml) declares `user-manager`, `auditor` and `impersonator`. [09_console_rbac.yml](../../../../roles/web-app-keycloak/tasks/update/09_console_rbac.yml) grants the matching `realm-management` client roles from `KEYCLOAK_CONSOLE_ROLE_GRANTS` to each group after the per-app mapper resync. `KEYCLOAK_RBAC_RUN_APP_IDS` always contains `web-app-keycloak`, so every run of the role provisions these groups, also an update whose `APPLICATIONS_WHITELIST` names only other applications. `realm-admin` is never granted to a group; the local bootstrap account keeps it.
+[web-app-keycloak](../../../../roles/web-app-keycloak/meta/rbac.yml) declares `user-manager`, `auditor` and `impersonator`, each with the `realm-management` client roles it carries under `realm_management`. [09_console_rbac.yml](../../../../roles/web-app-keycloak/tasks/update/09_console_rbac.yml) grants those roles to each group after the per-app mapper resync. A role with a non-empty `realm_management` list counts as an administrator role, so only a platform administrator may grant it through the [access-request service](../../../../roles/web-svc-access-request/README.md). `KEYCLOAK_RBAC_RUN_APP_IDS` always contains `web-app-keycloak`, so every run of the role provisions these groups, also an update whose `APPLICATIONS_WHITELIST` names only other applications. `realm-admin` is never granted to a group; the local bootstrap account keeps it.
 
 ## See also 🔗
 

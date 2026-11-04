@@ -421,7 +421,7 @@ EVENT_SETTINGS = {
     "eventsEnabled": False,
     "eventsListeners": ["jboss-logging"],
     "enabledEventTypes": [],
-    "adminEventsEnabled": False,
+    "adminEventsEnabled": True,
     "adminEventsDetailsEnabled": False,
 }
 
@@ -544,6 +544,9 @@ class TestLogoutTrustBoundary(unittest.TestCase):
             {key: self.realm[key] for key in EVENT_SETTINGS}, EVENT_SETTINGS
         )
         self.assertNotIn("eventsExpiration", self.realm)
+
+    def test_the_realm_enables_fine_grained_admin_permissions(self) -> None:
+        self.assertIs(self.realm["adminPermissionsEnabled"], True)
 
     def test_the_account_api_stays_open_to_the_users_own_token(self) -> None:
         default_roles = next(

@@ -15,9 +15,12 @@
       {% endif %}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_extra_hosts', extra_hosts=(
-         [] if (lookup('domain', 'web-app-keycloak') | network_of) == 'tor'
-         else [lookup('domain', 'web-app-keycloak') ~ ':host-gateway']
-       )) | indent(4) }}
+         ([] if (lookup('domain', 'web-app-keycloak') | network_of) == 'tor'
+          else [lookup('domain', 'web-app-keycloak') ~ ':host-gateway'])
+         + ([lookup('domain', 'web-app-zammad') ~ ':host-gateway']
+            if (ACCESS_REQUEST_ZAMMAD_ENABLED | bool) and IS_COMPOSE_MODE and (lookup('domain', 'web-app-zammad') | network_of) != 'tor'
+            else [])
+       ), onion_peers=([ACCESS_REQUEST_ZAMMAD_URL] if (ACCESS_REQUEST_ZAMMAD_ENABLED | bool) else [])) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 

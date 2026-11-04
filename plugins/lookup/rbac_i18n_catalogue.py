@@ -6,17 +6,8 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils.i18n.extract import rbac_context
 from utils.i18n.keyed import keyed_catalogue
-
-
-def rbac_context(application_id: str, role: str) -> str:
-    """Return the ``msgctxt`` of the description of an application role.
-
-    Args:
-        application_id: the application's role name.
-        role: role name in its ``meta/rbac.yml``.
-    """
-    return f"rbac:{application_id}:{role}:description"
 
 
 class LookupModule(LookupBase):

@@ -4,6 +4,7 @@ import base64
 import importlib
 import io
 import json
+import re
 import sys
 import unittest
 import urllib.parse
@@ -166,6 +167,46 @@ class TestService(unittest.TestCase):
         self.assertNotIn('id="role-administrator" value="administrator" checked', page)
         self.assertIn('data-administrator="true"', page)
 
+    def test_the_form_offers_every_role_with_its_description_as_a_checkbox(self):
+        _, page = self.call(
+            "GET", "/", _headers("sub-biber", "biber"), query="application=web-app-x"
+        )
+
+        for role, description in (("user", "Uses"), ("administrator", "Runs")):
+            with self.subTest(role=role):
+                self.assertIn(
+                    f'type="checkbox" name="roles" id="role-{role}" value="{role}"',
+                    page,
+                )
+                self.assertRegex(
+                    page,
+                    rf'for="role-{role}">.*?<span class="text-muted">{description}</span>',
+                )
+
+    def test_the_review_page_shows_paths_reason_and_the_difference(self):
+        _, page = self.submit(["user", "administrator"])
+        request_id = page.split("/review/")[1].split('"')[0]
+        admin = _headers("sub-admin", "administrator", PLATFORM)
+        with mock.patch.object(
+            app.keycloak, "user_groups", return_value=["/roles/web-app-x/user"]
+        ):
+            status, page = self.call("GET", f"/review/{request_id}", admin)
+
+        self.assertEqual("200 OK", status)
+        self.assertIn('<span id="requester">biber</span>', page)
+        self.assertIn('<span id="application">web-app-x</span>', page)
+        self.assertIn('<blockquote id="reason">need it</blockquote>', page)
+        for role, path, diff in (
+            ("user", "/roles/web-app-x/user", "="),
+            ("administrator", "/roles/web-app-x/administrator", "+"),
+        ):
+            with self.subTest(role=role):
+                self.assertRegex(
+                    page,
+                    rf'<tr data-role="{role}">.*?<code>{path}</code>.*?<td class="diff">{re.escape(diff)}</td>',
+                )
+                self.assertIn(f'id="grant-{role}" checked>', page)
+
     def test_a_request_mails_the_approvers_and_belongs_to_the_session_user(self):
         status, page = self.submit(["user", "administrator"])
         request_id = page.split("/review/")[1].split('"')[0]
@@ -206,6 +247,25 @@ class TestService(unittest.TestCase):
         self.assertEqual(["/roles/web-app-x/user"], grant.call_args.args[3])
         self.assertEqual("partial", self.store.get(request_id)["status"])
         self.assertEqual(["biber@example.org"], self.mail.sent[-1][0])
+
+    def test_a_rejection_grants_nothing_and_tells_the_requester(self):
+        _, page = self.submit(["user"])
+        request_id = page.split("/review/")[1].split('"')[0]
+        admin = _headers("sub-admin", "administrator", PLATFORM)
+        with (
+            mock.patch.object(app.keycloak, "user_groups", return_value=[]),
+            mock.patch.object(app.keycloak, "grant") as grant,
+        ):
+            _, page = self.call(
+                "POST", f"/review/{request_id}", admin, {"action": "reject"}
+            )
+
+        self.assertIn('id="rejected"', page)
+        grant.assert_not_called()
+        self.assertEqual("rejected", self.store.get(request_id)["status"])
+        self.assertEqual(
+            (["biber@example.org"], "rejected web-app-x"), self.mail.sent[-1][:2]
+        )
 
     def test_an_application_administrator_cannot_keep_the_administrator_role(self):
         _, page = self.submit(["administrator"])

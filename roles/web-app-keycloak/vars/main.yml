@@ -200,10 +200,16 @@ KEYCLOAK_REGISTRATION_ALLOWED: false
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 
 KEYCLOAK_CONSOLE_ROLE_CLIENT: "realm-management"
-KEYCLOAK_CONSOLE_ROLE_GRANTS:
-  user-manager: ["view-users", "query-users", "query-groups", "manage-users"]
-  auditor: ["view-realm", "view-users", "query-users", "query-groups", "view-clients", "view-events"]
-  impersonator: ["impersonation", "view-users", "query-users"]
+KEYCLOAK_CONSOLE_ROLE_GRANTS: "{{ lookup('config', application_id, 'rbac.roles') | dict2items | selectattr('value.realm_management', 'defined') | list }}"
+
+KEYCLOAK_ADMIN_PERMISSIONS_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
+KEYCLOAK_ADMIN_PERMISSIONS_PLATFORM_GROUP: "/{{ lookup('rbac_group_path', application_id='web-svc-access-request', role='administrator') }}"
+KEYCLOAK_ADMIN_PERMISSIONS_SPEC:
+  prefix: "access-request"
+  approvers: >-
+    {{ lookup('applications')
+       | rbac_access_catalogue(KEYCLOAK_RBAC_ALL_APP_IDS, KEYCLOAK_RBAC_GROUP_NAME)
+       | rbac_approver_grants(KEYCLOAK_ADMIN_PERMISSIONS_PLATFORM_GROUP) }}
 
 KEYCLOAK_REALM_ROLE_GRANT_APP_IDS: "{{ (KEYCLOAK_RBAC_RUN_APP_IDS | select('in', KEYCLOAK_RBAC_ALL_APP_IDS) | list) if (KEYCLOAK_LDAP_ENABLED | bool) else KEYCLOAK_RBAC_RUN_APP_IDS
   }}"
@@ -259,6 +265,8 @@ KEYCLOAK_SETTINGS_SPEC:
         smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"
         loginWithEmailAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.loginWithEmailAllowed }}"
         duplicateEmailsAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.duplicateEmailsAllowed }}"
+        adminEventsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminEventsEnabled }}"
+        adminPermissionsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminPermissionsEnabled }}"
     - realm: master
       desired:
         smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"

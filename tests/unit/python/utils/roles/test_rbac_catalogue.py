@@ -4,6 +4,7 @@ import unittest
 
 from utils.roles.rbac.catalogue import (
     access_catalogue,
+    approver_grants,
     delegated_groups,
     is_administrator_role,
 )
@@ -142,6 +143,47 @@ class TestDelegatedGroups(unittest.TestCase):
         )
 
         self.assertEqual([], delegations)
+
+
+class TestApproverGrants(unittest.TestCase):
+    PLATFORM = "/roles/web-svc-access-request/administrator"
+
+    def setUp(self):
+        self.grants = approver_grants(
+            access_catalogue(APPLICATIONS, list(APPLICATIONS), "roles"), self.PLATFORM
+        )
+
+    def test_the_platform_group_comes_first_and_may_grant_every_role_group(self):
+        platform = self.grants[0]
+
+        self.assertEqual(self.PLATFORM, platform["approver"])
+        self.assertIn("/roles/web-app-blog/administrator", platform["groups"])
+        self.assertIn("/roles/web-app-multi/network-administrator", platform["groups"])
+        self.assertIn("/roles/web-app-vault/administrator", platform["groups"])
+        self.assertEqual(sorted(platform["groups"]), platform["groups"])
+
+    def test_an_application_administrator_group_gets_only_its_delegation(self):
+        blog = next(
+            g
+            for g in self.grants
+            if g["approver"] == "/roles/web-app-blog/administrator"
+        )
+
+        self.assertEqual(
+            ["/roles/web-app-blog/subscriber", "/roles/web-app-blog/editor"],
+            blog["groups"],
+        )
+
+    def test_the_platform_group_is_listed_once_even_when_it_delegates(self):
+        catalogue = access_catalogue(
+            {"web-svc-access-request": {"rbac": {"roles": {"viewer": {}}}}},
+            ["web-svc-access-request"],
+            "roles",
+        )
+
+        approvers = [g["approver"] for g in approver_grants(catalogue, self.PLATFORM)]
+
+        self.assertEqual([self.PLATFORM], approvers)
 
 
 if __name__ == "__main__":

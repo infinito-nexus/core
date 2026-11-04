@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from ansible.errors import AnsibleFilterError
 
-from utils.roles.rbac.catalogue import access_catalogue
+from utils.roles.rbac.catalogue import access_catalogue, approver_grants
 from utils.roles.validation.invokable import list_invokable_app_ids
 
 
@@ -30,9 +30,20 @@ def rbac_access_catalogue(applications, application_ids, group_root):
         raise AnsibleFilterError(f"rbac_access_catalogue: {error}") from error
 
 
+def rbac_approver_grants(catalogue, platform_group):
+    """Return the role groups each approver group may grant.
+
+    Args:
+        catalogue: what ``rbac_access_catalogue`` returns.
+        platform_group: path of the platform administrators' group.
+    """
+    return approver_grants(catalogue, platform_group)
+
+
 class FilterModule:
     def filters(self):
         return {
             "rbac_access_catalogue": rbac_access_catalogue,
+            "rbac_approver_grants": rbac_approver_grants,
             "rbac_requestable_app_ids": rbac_requestable_app_ids,
         }

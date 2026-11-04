@@ -6,27 +6,34 @@ A central service where a signed-in user requests roles of an application, and a
 
 ## Overview
 
-The service sits behind the oauth2-proxy gate of [web-app-keycloak](../web-app-keycloak/) without a group requirement, so every realm user reaches it. It reads the requester only from the gate's headers, never from the form.
+The service sits behind the oauth2-proxy gate of [web-app-keycloak](../web-app-keycloak/) without a group requirement. Its gate sets `any_email`, so it admits a realm user of any email domain. It reads the requester only from the gate's headers, never from the form.
 
-The 403 page of every SSO-gated application links here with the application preselected.
+While the service is deployed, the 403 page links here with the application preselected:
+
+- An application whose gate requires role groups (`services.sso.oauth2.allowed_groups`) answers with its own oauth2-proxy 403 page, [error.html.j2](templates/sso_proxy/error.html.j2). [sso_proxy.yml](../web-app-keycloak/tasks/sso_proxy.yml) renders it next to the gate's configuration.
+- A restricted location (`services.sso.oauth2.restricted_locations`) redirects its 403 to the request page and preselects the roles of the location's groups.
+
+An application whose gate requires no role group keeps the default oauth2-proxy pages.
 
 ## Features
 
-- **Role catalogue:** [catalogue.py](../../utils/roles/rbac/catalogue.py) builds the roles of every application from its `meta/rbac.yml` when the role deploys. The catalogue preselects the least-privileged role and marks administrator roles. A role is an administrator role when its name is `administrator` or ends in `-administrator`, or when it carries `realm_management` roles.
+- **Role catalogue:** [catalogue.py](../../utils/roles/rbac/catalogue.py) builds the roles of every deployed application from its `meta/rbac.yml` when the role deploys. The catalogue preselects the least-privileged role and marks administrator roles. A role is an administrator role when its name is `administrator` or ends in `-administrator`, or when it carries `realm_management` roles, such as `user-manager` of [web-app-keycloak](../web-app-keycloak/meta/rbac.yml).
 - **Requests:** a user picks several roles and gives a reason, which is mandatory. A user holds one open request per application; a second request updates the open one.
-- **Delivery:** every request mails the platform administrator's secondary address through `lookup('email', application_id)`. With `web-app-zammad` deployed, it also files a Zammad ticket. Both carry the review link and a link to the requester's groups in the Keycloak admin console. The requester gets a mail when the request is granted, partly granted or rejected.
+- **Delivery:** every request mails the platform administrator's secondary address, or the primary one when it has none, through `lookup('email', application_id)`. With `web-app-zammad` deployed, it also files a Zammad ticket as the `access-request-zammad` agent, which [web-app-zammad](../web-app-zammad/) creates with the service's `zammad_api_token`. Both carry the review link and a link to the requester's groups in the Keycloak admin console. The requester gets a mail when the request is granted, partly granted or rejected.
 - **Review:** the review page shows the requester, the application, each requested role with its group path, the reason, and the requester's live groups. The approver can deselect roles before confirming.
 - **Four eyes:** when `services.access-request.four_eyes` is `true`, a grant needs two different approvers. It grants only the roles both kept selected.
 - **Grant:** confirming calls the Keycloak admin REST API with the approver's own access token. The service holds no Keycloak credential. An expired token leads to a sign-in page.
+- **Audit:** the realm records admin events, so every membership the service grants appears under the approver who confirmed it.
+- **Texts:** the service and the 403 page read their texts from the `core` gettext catalogs under the `access_request:` and `rbac:` contexts of [extract.py](../../utils/i18n/extract.py).
 
 ## Approvers
 
 | Approver | Group | May grant |
 |---|---|---|
-| Platform administrator | `/roles/web-svc-access-request/administrator` | every role |
+| Platform administrator | `/roles/web-svc-access-request/administrator` | every role group of the catalogue |
 | Application administrator | `/roles/<application>/administrator` | the non-administrator roles of that application |
 
-Keycloak's fine-grained admin permissions (v2) enforce the table. The service only hides what Keycloak would refuse.
+The realm enables fine-grained admin permissions (v2). While the service is deployed, [admin_permissions.py](../web-app-keycloak/files/python/rbac/admin_permissions.py) generates the table from the catalogue as `access-request:` policies and permissions of the realm's `admin-permissions` client. The service only hides what Keycloak would refuse.
 
 ## Approver Token
 

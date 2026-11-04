@@ -3,7 +3,7 @@
   ansible.builtin.shell: >
     {{ KEYCLOAK_EXEC_KCADM }} get {{ ('group-by-path/' ~ lookup('rbac_group_path', application_id=application_id, role=item.key)) | quote }}
     -r {{ KEYCLOAK_REALM | quote }} --fields id --format json
-  loop: "{{ KEYCLOAK_CONSOLE_ROLE_GRANTS | dict2items }}"
+  loop: "{{ KEYCLOAK_CONSOLE_ROLE_GRANTS }}"
   loop_control:
     label: "{{ item.key }}"
   register: kc_console_rbac_groups
@@ -17,7 +17,7 @@
     {{ KEYCLOAK_EXEC_KCADM }} add-roles -r {{ KEYCLOAK_REALM | quote }}
     --gid {{ (item.stdout | kcadm_json).id | quote }}
     --cclientid {{ KEYCLOAK_CONSOLE_ROLE_CLIENT | quote }}
-    {% for role_name in item.item.value %}--rolename {{ role_name | quote }} {% endfor %}
+    {% for role_name in item.item.value.realm_management %}--rolename {{ role_name | quote }} {% endfor %}
   loop: "{{ kc_console_rbac_groups.results }}"
   loop_control:
     label: "{{ item.item.key }}"

@@ -13,7 +13,7 @@ from pathlib import Path
 from utils.cache.yaml import load_yaml_any
 from utils.i18n.catalog import LOCALE_DIR, read_catalog
 from utils.roles.custom import is_custom
-from utils.roles.mapping import ROLE_FILE_META_MAIN
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_RBAC
 
 CATEGORIES_FILE = Path("meta") / "categories.yml"
 MENU_FILE = Path("roles") / "web-app-dashboard" / "vars" / "menu_categories.yml"
@@ -21,6 +21,9 @@ LOGOUT_FILE = Path("roles") / "web-app-keycloak" / "files" / "logout_i18n.yml"
 PAUSED_FILE = Path("roles") / "sys-svc-app-control" / "files" / "paused_i18n.yml"
 PROFILE_LOCK_FILE = (
     Path("roles") / "sys-front-inj-javascript" / "files" / "profile_lock_i18n.yml"
+)
+ACCESS_REQUEST_FILE = (
+    Path("roles") / "web-svc-access-request" / "files" / "access_request_i18n.yml"
 )
 DOCS_TOOLING = Path("roles") / "web-app-docs" / "files" / "python"
 CATEGORY_FIELDS = ("title", "description")
@@ -101,6 +104,25 @@ def profile_lock_context(key: str) -> str:
     return f"profile_lock:{key}"
 
 
+def access_request_context(key: str) -> str:
+    """Return the ``msgctxt`` of the access-request string ``key``.
+
+    Args:
+        key: key in ``access_request_i18n.yml``.
+    """
+    return f"access_request:{key}"
+
+
+def rbac_context(application_id: str, role: str) -> str:
+    """Return the ``msgctxt`` of the description of an application role.
+
+    Args:
+        application_id: the application's role name.
+        role: role name in its ``meta/rbac.yml``.
+    """
+    return f"rbac:{application_id}:{role}:description"
+
+
 def _load(path: Path):
     return load_yaml_any(path)
 
@@ -172,6 +194,27 @@ def profile_lock_messages(root: Path) -> list[tuple[str, str]]:
     ]
 
 
+def access_request_messages(root: Path) -> list[tuple[str, str]]:
+    return [
+        (access_request_context(key), _text(text))
+        for key, text in _load(root / ACCESS_REQUEST_FILE).items()
+    ]
+
+
+def rbac_messages(root: Path) -> list[tuple[str, str]]:
+    messages = []
+    roles = root / "roles"
+    for declaration in sorted(roles.glob(f"*/{ROLE_FILE_META_RBAC}")):
+        application_id = declaration.relative_to(roles).parts[0]
+        if is_custom(application_id):
+            continue
+        for role, spec in ((_load(declaration) or {}).get("roles") or {}).items():
+            description = _text((spec or {}).get("description"))
+            if description:
+                messages.append((rbac_context(application_id, role), description))
+    return messages
+
+
 def core_messages(root: Path) -> list[tuple[str, str]]:
     """Return every message of the ``core`` domain.
 
@@ -188,6 +231,8 @@ def core_messages(root: Path) -> list[tuple[str, str]]:
         *logout_messages(root),
         *paused_messages(root),
         *profile_lock_messages(root),
+        *access_request_messages(root),
+        *rbac_messages(root),
     ]
 
 

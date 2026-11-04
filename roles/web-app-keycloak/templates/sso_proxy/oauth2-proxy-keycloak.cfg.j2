@@ -11,10 +11,14 @@ cookie_domains          =   {{ _cookie_domains | to_json }}
 whitelist_domains       =   {{ lookup('sso_whitelist_domains', sso_proxy_application_id) | to_json }}
 redirect_url            =   "{{ lookup('tls', _network_primary, 'protocols.web') }}://{{ _network_primary }}/oauth2/callback"
 
-{% if lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') %}
+{% set _allowed_groups = lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') %}
+{% if _allowed_groups or lookup('sso', sso_proxy_application_id, 'oauth2_any_email') %}
 email_domains           =   ["*"]
 {% else %}
 email_domains           =   "{{ DOMAIN_PRIMARY }}"
+{% endif %}
+{% if _allowed_groups and 'web-svc-access-request' in group_names %}
+custom_templates_dir    =   "{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.templates_directory') }}"
 {% endif %}
 
 session_store_type       = "redis"

@@ -103,6 +103,9 @@ def get_sso_config(
         oauth2_pass_access_token bool — ``services.sso.oauth2.pass_access_token``,
                                 default False: the gate hands the upstream a
                                 bearer token only where the app decodes one
+        oauth2_any_email        bool — ``services.sso.oauth2.any_email``,
+                                default False: the gate admits a realm user of
+                                any email domain, not only ``DOMAIN_PRIMARY``
         oauth2_claim_headers    list — ``services.sso.oauth2.claim_headers`` or []:
                                 ``OIDC.ATTRIBUTES`` keys whose ID token claims
                                 the gate forwards as ``X-Forwarded-<Key>``
@@ -137,6 +140,9 @@ def get_sso_config(
     raw_pass_access_token = _get(
         applications, application_id, "services.sso.oauth2.pass_access_token", False
     )
+    raw_any_email = _get(
+        applications, application_id, "services.sso.oauth2.any_email", False
+    )
     raw_claim_headers = _get(
         applications, application_id, "services.sso.oauth2.claim_headers", []
     )
@@ -161,6 +167,7 @@ def get_sso_config(
             else []
         ),
         "oauth2_pass_access_token": _as_bool(raw_pass_access_token),
+        "oauth2_any_email": _as_bool(raw_any_email),
         "oauth2_claim_headers": (
             [str(key) for key in raw_claim_headers]
             if isinstance(raw_claim_headers, (list, tuple))

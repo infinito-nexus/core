@@ -153,3 +153,28 @@ def delegated_groups(catalogue: dict[str, dict[str, Any]]) -> list[dict[str, Any
                 {"application": application_id, "approver": approver, "groups": groups}
             )
     return delegations
+
+
+def approver_grants(
+    catalogue: dict[str, dict[str, Any]], platform_group: str
+) -> list[dict[str, Any]]:
+    """Return the role groups each approver group may grant.
+
+    Args:
+        catalogue: what ``access_catalogue`` returns.
+        platform_group: path of the platform administrators' group.
+
+    Returns:
+        One ``{approver, groups}`` mapping per approver group: the platform
+        group first with every role group of the catalogue, then each
+        application administrator group with what ``delegated_groups`` gives it.
+    """
+    every = sorted({r["path"] for entry in catalogue.values() for r in entry["roles"]})
+    return [
+        {"approver": platform_group, "groups": every},
+        *(
+            {"approver": d["approver"], "groups": d["groups"]}
+            for d in delegated_groups(catalogue)
+            if d["approver"] != platform_group
+        ),
+    ]

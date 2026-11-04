@@ -1,0 +1,22 @@
+---
+- name: "🛂 Converge the admin permissions that let approver groups grant roles"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: rbac/admin_permissions.py
+    rest_script_env: {}
+    rest_script_stdin: "{{ KEYCLOAK_ADMIN_PERMISSIONS_SPEC | to_json }}"
+    rest_script_ok_rcs: [0, 1]
+    rest_script_changed: "(created|updated|deleted)=[1-9]"
+    rest_script_register: kc_admin_permissions
+
+- name: "📊 Report the changed admin permissions and the groups the realm lacks"
+  ansible.builtin.debug:
+    msg: "{{ kc_admin_permissions.stdout_lines | select('match', '^(summary|missing) ') | list }}"
+
+- name: "⚠️ Report the admin permissions that failed"
+  ansible.builtin.fail:
+    msg: "{{ (kc_admin_permissions.stdout_lines | select('match', '^(failed|listing-failed) ') | list) + kc_admin_permissions.stderr_lines }}"
+  when: kc_admin_permissions.rc != 0

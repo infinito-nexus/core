@@ -122,6 +122,15 @@ class Oauth2SubPropertiesTests(unittest.TestCase):
         self.assertEqual(res["oauth2_acl"], {})
         self.assertEqual(res["oauth2_allowed_groups"], [])
         self.assertEqual(res["oauth2_claim_headers"], [])
+        self.assertIs(res["oauth2_any_email"], False)
+
+    def test_any_email_reads_the_declared_switch(self):
+        apps = _apps(enabled=True, flavor="oauth2")
+        for declared, expected in ((True, True), ("true", True), ("False", False)):
+            with self.subTest(declared=declared):
+                apps["web-app-x"]["services"]["sso"]["oauth2"] = {"any_email": declared}
+                res = get_sso_config(apps, "web-app-x")
+                self.assertIs(res["oauth2_any_email"], expected)
 
     def test_claim_headers_pass_through_as_strings(self):
         res = get_sso_config(
