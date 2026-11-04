@@ -143,11 +143,16 @@ def category_messages(root: Path) -> list[tuple[str, str]]:
 
 def menu_messages(root: Path) -> list[tuple[str, str]]:
     messages = []
-    for key, entry in _load(root / MENU_FILE)["portfolio_menu_categories"].items():
-        messages.append((menu_context(key, "title"), key))
-        description = _text(entry.get("description"))
-        if description:
-            messages.append((menu_context(key, "description"), description))
+
+    def walk(folders: dict) -> None:
+        for key, entry in folders.items():
+            messages.append((menu_context(key, "title"), key))
+            description = _text(entry.get("description"))
+            if description:
+                messages.append((menu_context(key, "description"), description))
+            walk(entry.get("children") or {})
+
+    walk(_load(root / MENU_FILE)["portfolio_menu_categories"])
     return messages
 
 

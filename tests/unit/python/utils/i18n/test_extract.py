@@ -49,7 +49,10 @@ class TestCoreMessages(unittest.TestCase):
                 portfolio_menu_categories:
                   Community:
                     description: Tools to manage the community
-                    tags: [forum]
+                    children:
+                      Forums:
+                        description: " Boards to discuss "
+                        tags: [forum]
                 """,
             )
             _write(
@@ -85,6 +88,8 @@ class TestCoreMessages(unittest.TestCase):
                 ("category:web.app:description", "Apps for users"),
                 ("menu:Community:title", "Community"),
                 ("menu:Community:description", "Tools to manage the community"),
+                ("menu:Forums:title", "Forums"),
+                ("menu:Forums:description", "Boards to discuss"),
                 ("logout:counter", "{done} of {total} services signed out"),
                 ("paused:title", "Service paused"),
                 ("profile_lock:locked", "Managed by your central account."),
