@@ -43,10 +43,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-eerste code editor geïnstalleerd op het werkstation, waarvan het eindpunt blijft een operator stap"
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Beheerhulpmiddelen voor servers"
+msgid "Administration tools for servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -100,10 +103,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Aanvragen"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Aanvragen voor e-commerce, ticketing en sales management."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -188,6 +190,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Bouw-tijd tool voor het simuleren van root-owned bestand operaties zonder verhoogde privileges tijdens pakket builds"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -258,6 +264,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Certbot-gedreven ACME-service voor Let's Encrypt single-domain en wildcard TLS-certificaten op NGINX-domeinen"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
 msgstr "Je andere sessies worden gecontroleerd…"
@@ -287,10 +301,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Klembordbeheer met bewerkbare geschiedenis, aangepaste acties en ondersteuning voor scripting"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "Wolk"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -332,15 +345,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Handel"
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "Mededeling"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Gemeenschap"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
@@ -468,6 +484,10 @@ msgstr "Klantenrelatie"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Klantrelatiebeheer (CRM) software voor het beheren van klantrelaties, verkooppijpleidingen, marketing, en ondersteunende activiteiten."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -652,6 +672,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -747,15 +771,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Frontend helpers voor reverse-proxired apps (injectie, gedeelde activa, CDN sanitair)."
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Spelletjes"
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Gaming platforms en entertainment toepassingen."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -817,10 +835,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Hulpmiddelen"
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "High-performance, self-hosted opslagoplossingen voor het beheer, schaalvergroting, en toegang tot ongestructureerde gegevens, inclusief objectopslag compatibel met Amazon S3 API's."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -895,6 +912,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Injectie"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -945,6 +966,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Kernel-niveau NFS-server voor het exporteren van een gedeelde directory-boom met IP-beperkte toegang voor zwerm-node-hosts"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -954,6 +979,10 @@ msgstr "LLM-ondersteunde vertaalmachine spreken de LibreTranslate API, voor pijp
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Leerplatforms, samenwerkingsinstrumenten voor klaslokalen en digitale onderwijsomgevingen."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1035,6 +1064,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Machine vertaling motor zonder weboppervlak, voor pijpleidingen die het direct noemen"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1058,6 +1091,10 @@ msgstr "Marker rol tagging een host als de Docker Swarm manager knooppunt, met d
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Verkoop"
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1321,6 +1358,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr "Orkestpapier voor per-domein NGINX provisioning met TLS certificaten, vHost templates en optionele OAuth2"
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Via Tor kan dit langer duren."
@@ -1364,10 +1405,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Plaatshouder stub rol voor een toekomstige XMPP server/container implementatie, implementatie in afwachting"
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Platforms voor het bouwen en beheren van online winkels, productcatalogi en digitale verkoopkanalen, waaronder betaling, inventaris en klantfuncties."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1535,11 +1575,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP gateway die .onion ontvangers relais via Tor's SOCKS luisteraar"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Verkoop"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Sandboxed Runtimes"
@@ -1684,10 +1719,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Zelfgehost cloudplatform voor bestandssynchronisatie, delen, real-time samenwerking en teamwerkruimtes onder uw eigen domein"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "Zelfgehoste cloudoplossingen voor bestandssynchronisatie, samenwerking en het delen van gegevens."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1923,6 +1957,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Hulpmiddelen voor sociale media"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2104,11 +2142,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "Hulpmiddelen voor Identity and Access Management, inclusief authenticatie, gebruikersprovisioning en veilige toegangscontrole."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "Communicatiemiddelen"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Hulpmiddelen voor e-mailcampagnes, betrokkenheid van het publiek, automatisering en digitale marketingworkflows."
@@ -2186,6 +2219,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Gebruikers & toegang"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2195,6 +2232,10 @@ msgstr "Versie-control client voor persoonlijke werkstations, voorgeconfigureerd
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Versied asset-tree lay-out voor CDN levering met gedeelde, leverancier en per-role release directories"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2240,6 +2281,10 @@ msgstr "Web-based administratie tool voor MySQL en MariaDB met schemabeheer, que
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Optimalisatie van webserver"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

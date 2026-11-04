@@ -20,6 +20,7 @@ DASHBOARD_SIMPLEICONS_PROBE_URLS: >-
 
 DASHBOARD_JS_FILES: >-
   {{ ['iframe.js']
+     + (['chips.js'] if (DASHBOARD_STATUS_ENABLED | bool) or (DASHBOARD_LOCKS_ENABLED | bool) else [])
      + (['oidc.js'] if (DASHBOARD_OIDC_ENABLED | bool) else []) }}
 DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | entity_name }}/{{ 'js' | labelled(DASHBOARD_NETWORK_LABEL, '-') }}"
 DASHBOARD_JS_SERVER_DIR: "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
@@ -32,6 +33,17 @@ DASHBOARD_CONFIG_INV_PATH: "{{ [ inventory_dir, 'files', inventory_hostname ,'do
 DASHBOARD_CONFIG_YML_DEST: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), 'config.yaml' | labelled_file(DASHBOARD_NETWORK_LABEL) ] |
   path_join }}"
 DASHBOARD_I18N_CONTENT_DIR: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.instance'), 'i18n-content' ] | path_join }}"
+DASHBOARD_FIRST_SEEN_FILE: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.instance'), 'first_seen.json' ] | path_join }}"
+DASHBOARD_FOLDERS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.folders') }}"
+DASHBOARD_NEW_DAYS: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.new_days') }}"
+DASHBOARD_STATUS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.status.enabled') }}"
+DASHBOARD_STATUS_PATH: "/status.json"
+DASHBOARD_STATUS_FILE: "{{ lookup('nginx', 'files.health_status') }}"
+DASHBOARD_STATUS_POLL_SECONDS: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.status.poll_seconds') }}"
+DASHBOARD_STATUS_STALE_AFTER_SECONDS: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.status.stale_after_seconds') }}"
+DASHBOARD_LOCKS_ENABLED: "{{ (lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.locks.enabled') | bool) and (DASHBOARD_OIDC_ENABLED | bool) }}"
+DASHBOARD_ACCESS_REQUEST_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
+DASHBOARD_ACCESS_REQUEST_URL: "{{ lookup('tls', 'web-svc-access-request', 'url.base') ~ '?application={id}' }}"
 DASHBOARD_IMAGE: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.image') }}"
 DASHBOARD_VERSION: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.version') }}"
 

@@ -43,10 +43,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-първи редактор на код инсталиран на работната станция, чиято крайна точка за отмяна остава стъпка на оператора"
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Администрация Инструменти für сървъри"
+msgid "Administration tools for servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -100,10 +103,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Приложения"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Заявления за електронна търговия, билети и управление на продажбите."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -188,6 +190,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Инструмент за изграждане на време за симулиране на операции с основни файлове без повишени привилегии по време на изграждане на пакети"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -258,6 +264,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Certbot-задвижвана ACME услуга за шифроване на един домейн и Wildcard TLS сертификати за NGINX домейни"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -288,10 +302,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Clipboard мениджър с редактирана история, потребителски действия и поддръжка на скриптове"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "Облак"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -336,15 +349,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Търговия"
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "Комуникация"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Общност"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
@@ -476,6 +492,10 @@ msgstr "Връзка с клиенти"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Управление на взаимоотношенията с клиентите (CRM) софтуер за управление на взаимоотношения с клиенти, търговски тръбопроводи, маркетинг и спомагателни дейности."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -660,6 +680,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -759,15 +783,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Предни помощници за приложения с обратна връзка (инжектиране, споделени активи, CDN водопровод)."
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Игри"
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Игрови платформи и приложения за забавление."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -829,10 +847,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Полезни инструменти"
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Високопроизводителни, самонастанени решения за съхранение за управление, мащабиране и достъп до неструктурирани данни, включително съхранение на обекти, съвместими с Amazon S3 API-та."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -907,6 +924,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Инжектиране"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -958,6 +979,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "NFS сървър на ниво Kernel за експортиране на споделена директория с IP-ограничен достъп за хостове с рояк"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -967,6 +992,10 @@ msgstr "LLM- подкрепени превод двигател говори Lib
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Учебни платформи, инструменти за сътрудничество в класната стая и цифрова среда за обучение."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1048,6 +1077,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Машинен превод двигател без уеб повърхност, за тръбопроводи, които го наричат директно"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1071,6 +1104,10 @@ msgstr "Маркер роля маркиране на домакин като Do
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Маркетинг"
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1336,6 +1373,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr "Оркестрация опаковка за всеки домейн NGINX предоставяне със сертификати TLS, vHost шаблони, и по избор OAuth2"
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1380,10 +1421,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Placesholder stub роля за бъдещ XMPP сървър/внедряване на контейнери, което предстои"
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Платформи за изграждане и управление на онлайн магазини, продуктови каталози и цифрови канали за продажба, включително плащане, инвентаризация и клиентски функции."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
@@ -1554,11 +1594,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP портал, който релета .onion получатели чрез слушател Tor's SOCKS"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Продажби"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Sandboxed Runtimes"
@@ -1704,10 +1739,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Самоhosted облачна платформа за синхронизация на файлове, споделяне, реално време на сътрудничество и работни пространства под вашия домейн"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "Самостоятелни облачни решения за синхронизиране на файлове, сътрудничество и споделяне на данни."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1947,6 +1981,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Инструменти за социални медии"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2129,11 +2167,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "Инструменти за управление на самоличността и достъпа, включително удостоверяване на автентичността, осигуряване на потребителя и сигурен контрол на достъпа."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "Инструменти за комуникация"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Инструменти за имейл кампании, ангажираност на публиката, автоматизация, и цифрови маркетингови работни потоци."
@@ -2213,6 +2246,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Потребители и достъп"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2222,6 +2259,10 @@ msgstr "Клиент за контрол на версиите за лични �
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Версия на оформлението на актив-дървото за доставка на CDN с споделени, продавачи и директории за освобождаване на роле"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2267,6 +2308,10 @@ msgstr "Уеб базиран инструмент за администрира
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Оптимизация на уебсървъра"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

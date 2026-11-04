@@ -43,10 +43,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "Editor code AI-ti-sebelum ditetapkan pada mesin kerja, penguasaan titik akhir-nya tetap langkah pekerja"
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Alat Pengaturan untuk server"
+msgid "Administration tools for servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -100,10 +103,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Aplikasi"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Sistem aplikasi untuk eceran, tiket, dan pengurusan jualan."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -188,6 +190,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Mashine-time kafter untuk mengira file operasi yang dimiliki oleh pemimpin tanpa hak yang lebih tinggi semasa pembangunan paket"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -258,6 +264,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Certbot pemasangan ACME layanan untuk sokongan sijil TLS SSLCA untuk domain unik dan wildcard Let's Encrypt pada domain NGINX"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -288,10 +302,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Manajemen clipboard dengan sejarah yang dapat diperubahkan, tindakan yang di-custom, dan dukungan skrip"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "Céluai"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -331,13 +344,16 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Komersial"
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "Komunikasi"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 msgctxt "menu:Community:title"
 msgid "Community"
+msgstr ""
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
 msgstr ""
 
 msgctxt "category:sys.front.inj:description"
@@ -464,6 +480,10 @@ msgstr "Rakial Hublot"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Peran Amanah Pelanggan (CRM) untuk mengelola hubungan pelanggan, cadangan penjualan, pemasaran, dan aktiviti sokongan."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -640,6 +660,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
 msgstr ""
@@ -734,15 +758,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Frontend helpers untuk reverse-proxyan aplikasi (injection, aset bersama, pembukitan CDN)."
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Šukma"
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Plataform pel permainan dan aplikasi hiburan."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -803,10 +821,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Alat yang Membantu"
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "High-performance, self-hosted solusi penyimpanan untuk mengelola, membesarkan, dan mengakses data tanpa struktur — termasuk penyimpanan objek kompatibel dengan API-s Amazon S3."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -881,6 +898,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Injeksi"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -930,6 +951,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Kernel jom NFS server untuk membagi direktori saling yang terhubung dengan akses terhad parsalahan IP untuk host-node swarm"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -939,6 +964,10 @@ msgstr "Engineer LLM bastedi tingleat engine sa LibreTranslate API, untuk pipaia
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Platform pembelajaran, alat kemitraan kelas, dan lingkungan pembelajaran digital."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1023,6 +1052,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Máy terbaik engine tanpa surface luaran web untuk pipelines yang memanggilnya langsung"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1046,6 +1079,10 @@ msgstr "Rolem tag pengendali mesin pusat sebagai Docker Swarm, dengan logik inis
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Markahane"
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1308,6 +1345,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr "Orchestirer ka wrapper pihapararer per-domian NGINX pihaparan sertifikat TLS, xHost maketarpan dan ooptional OAuth2"
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1351,10 +1392,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr ""
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Platform pembangunan dan pengelolaan toko online, inventaris, dan saluran penjualan digital — termasuk pembayaran, inventaris, dan fitur pelanggan."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
@@ -1520,11 +1560,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "Gateway SMTP yang meneruskan maklumat suruhanjara .onion melalui listener SOCKS Tor"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Sawan"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Kontorocak Lanjutan"
@@ -1669,10 +1704,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Pemutar awam cloud untuk sabu-sabutan fail, penyerbuan, kerjasama real-time, dan ruang kerja tim di domain anda sendiri"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "Solsel-hosted soluksi awam untuk pendaftaran file, kolaborasi, dan pembagian maklumat."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1911,6 +1945,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Instrument Muslin Sosial"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2092,11 +2130,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "Alat untuk Pengelolaan Identiti dan Akses, termasuk identifikasi, pemprovisionan pengguna, dan kontrol akses yang aman."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "Mekanik untuk komunikasi"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Alat untuk kampanye email, penggerak audience, otomatisasi, dan workflow pemasaran digital."
@@ -2175,6 +2208,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Pengguna & Akses"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2184,6 +2221,10 @@ msgstr "Pemantau versi untuk peranti kerja pribadi yang dipersetujui dengan defa
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Layout em-tree aset untuk pengiriman CDN dengan direktori penyumbangan, vendor, dan per-peran"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
@@ -2228,6 +2269,10 @@ msgstr "Tool web-administratif untuk MySQL dan MariaDB dengan pemeliharaan skema
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Optimasi Webserver"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

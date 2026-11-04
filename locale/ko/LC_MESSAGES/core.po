@@ -43,10 +43,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-First 코드 편집기는 워크스테이션에 설치, 그 endpoint override는 연산자 단계 유지"
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "관리 도구 für 서버"
+msgid "Administration tools for servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -100,10 +103,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "응용프로그램"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "전자 상거래, 티켓 및 판매 관리에 대한 응용."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -189,6 +191,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "패키지 빌드 기간 동안 높은 권한없이 루트 소유 파일 작업을 시뮬레이션하기위한 도구"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -259,6 +265,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Certbot 구동 ACME 서비스는 NGINX 도메인에서 단일 도메인 및 와일드 카드 TLS 인증서를 암호화합니다."
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
 msgstr "다른 세션을 확인하는 중…"
@@ -288,10 +302,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "편집 가능한 역사, 사용자 정의 작업 및 스크립트 지원이있는 클립 보드 관리자"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "클라우드"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # 역할 (옵션 CAA) 웹 스택의 기본 도메인
 # gained=['A/A/A/AAA']
@@ -335,15 +348,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "회사 소개"
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "관련 기사"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "- 연혁"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
@@ -473,6 +489,10 @@ msgstr "고객 관계"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "고객 관계 관리 (사이트맵) 고객 관계, 영업 파이프라인, 마케팅 및 지원 활동을 관리하기위한 소프트웨어."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -658,6 +678,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -755,15 +779,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "프론트엔드 헬스터 (주입, 공유 자산, CDN 배관)·"
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "게임"
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "게임 플랫폼 및 엔터테인먼트 응용 프로그램."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -825,10 +843,8 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "유용한 도구"
 
-# translated-by: libretranslate
-# 포함3 API.
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
 msgstr ""
 
 # translated-by: libretranslate
@@ -904,6 +920,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "제품정보"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -954,6 +974,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Kernel-level NFS 서버는 swarm-node 호스트에 대한 IP 제한 액세스와 공유 디렉토리 트리를 내보내기위한"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -963,6 +987,10 @@ msgstr "LLM 백업 번역 엔진은 말하기 LibreTranslate API그것을 직접
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "학습 플랫폼, 교실 협업 도구 및 디지털 교육 환경."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1044,6 +1072,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "웹 표면없이 기계 번역 엔진, 직접 전화하는 파이프라인"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1067,6 +1099,10 @@ msgstr "Marker 역할은 Docker Swarm Manager 노드로 호스트를 태깅하�
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "회사 소개"
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1332,6 +1368,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Tor를 통하면 더 오래 걸릴 수 있습니다."
@@ -1375,11 +1415,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "향후 XMPP 서버/컨테이너 배포를 위한 Placeholder stub 역할, 구현 종료"
 
-# translated-by: libretranslate
-# 고객 기능.
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "온라인 상점, 제품 카탈로그 및 디지털 판매 채널 구축 및 관리를위한 플랫폼 - 결제, 재고, 고객 기능."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1546,11 +1584,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP 게이트웨이는 Tor의 SOCKS 청취를 통해 .onion 수신자에게"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "영업 및 지원"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Sandboxed 런타임"
@@ -1695,10 +1728,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "자체 호스팅 된 클라우드 플랫폼 파일 동기화, 공유, 실시간 협업 및 자신의 도메인 아래 팀 작업 공간"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "파일 동기화, 협업 및 데이터 공유를 위한 자체 호스팅 클라우드 솔루션."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1937,6 +1969,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "소셜 미디어 도구"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2127,11 +2163,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "인증, 사용자 제공 및 보안 액세스 제어를 포함한 Identity 및 Access Management에 대한 도구."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "통신 도구"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "이메일 캠페인, 청중 참여, 자동화 및 디지털 마케팅 워크플로우를 위한 도구."
@@ -2209,6 +2240,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "사용자 및 액세스"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2218,6 +2253,10 @@ msgstr "개인 워크스테이션을 위한 Version-control 클라이언트, ID�
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "CDN 납품을 위한 Versioned Asset-tree layout with shared, 공급 업체 및 per-role release Directories"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2266,6 +2305,10 @@ msgstr "웹 기반 관리 도구 MySQL 및 MariaDB schema 관리, 쿼리 및 imp
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "웹 서버 최적화"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

@@ -32,6 +32,7 @@ require("./test-oidc-login").register(shared);
 
 // Tile reachability per consumer role declared via roles_with_service('dashboard').
 require("./test-tile-reachability").register(shared);
+require("./test-folders").register(shared);
 
 // Persona scenarios. Bodies live in the shared helper
 // roles/test-e2e-playwright/files/personas.js so every role's persona

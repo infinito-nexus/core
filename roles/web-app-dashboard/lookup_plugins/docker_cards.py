@@ -14,6 +14,7 @@ from utils.roles.applications.dashboard import (
     card_is_displayed,
     card_target_key,
 )
+from utils.roles.applications.services.sso import get_sso_config
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
     ROLE_FILE_META_MAIN,
@@ -176,6 +177,7 @@ class LookupModule(LookupBase):
                 )
 
             card = {
+                "id": application_id,
                 "icon": {"class": icon_class},
                 "title": title,
                 "text": description,
@@ -184,6 +186,13 @@ class LookupModule(LookupBase):
                 "iframe": iframe,
                 "tags": tags,
             }
+
+            sso = get_sso_config(applications, application_id)
+            if sso["is_proxy_gated"] and sso["oauth2_allowed_groups"]:
+                card["allowed_groups"] = [
+                    "/" + str(self._templar.template(group)).strip().lstrip("/")
+                    for group in sso["oauth2_allowed_groups"]
+                ]
 
             cards.append(card)
 

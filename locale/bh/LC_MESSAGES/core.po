@@ -43,10 +43,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-प्रधान कोड इ디टर वेस्टस्केचर पर स्थापित, जिसके अंतर्यावर्ती व्याख्या नागरीय कदम"
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Administration टूल्स फॉर सेवर्स"
+msgid "Administration tools for servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -100,10 +103,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "आर्प्लाइड एचएचएस और बासंस पब्लिकेशन कंट्रोल."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -188,6 +190,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "રचना वापरने फाईल ऑपरेशन्स जो मूल सक्षमता वाली वाहन पैकेज रचनाओं में समस्तयें सर्वैश्रीभावनेमुखी होने के लिए एक सर्वोपरीन तकनीक"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -258,6 +264,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "केट्सर्बॉट सहित लाटेट सेवा के लिए लैटेक्रिप्ट एक्सटेंशन टाइस सेटिंग को एन्गिन्झ डिवाइस्स टाइस कास्टिटेशन पर NGINX डिवाइस्स"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -288,10 +302,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "कास्पीन नोड एजेंट जिसमें रिहाई अद्यतन किया जा सकता है, स्वतंत्र काम किया जा सकता है और स्क्रिप्टिंग समर्थन"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "शांतियोقت"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -333,15 +346,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "कन्मिटेशन"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "समुदाय"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
@@ -469,6 +485,10 @@ msgstr ".customer आयातची लक्षṇ"
 
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr ""
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
 msgstr ""
 
 # translated-by: libretranslate
@@ -657,6 +677,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -752,15 +776,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Frontend उपयोगकर्ताओं (injection, वितरनीय संसाधन, CDN रासायनिक)."
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr ""
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "गेम्स प्लास्टर और नागरिकता एप्लिकेशन્સ."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -822,10 +840,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr ""
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "ढांढांपणे, व्यावसायिक स्टोर्ड योजना संसाधने अनियमित डेटापर डिजळवणे, स्कॅल करणे वरने अपलोड हे व्यवस्थित करणे आणि अपलोड हे प्रकाशन करणे - आणि योजना मॉडल वापरण्यास समक्ष आहे योजना आम्ही Amazon S3 API."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -900,6 +917,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr ""
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -949,6 +970,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Kernel-level एनएफएस व्यवस्था जो साइन्स-नोड होस्ट के लिए एक IP-रेटिंग लेखकी स्तर की शास्त्रीय व्यवस्था करने के लिए shared डिस्क ट्री का उजाज़ाया एकीभूती"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -957,6 +982,10 @@ msgstr "ल्यूक्स-बाइड टेलिंग इन्स्ट
 # translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr ""
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
 msgstr ""
 
 # translated-by: libretranslate
@@ -1039,6 +1068,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "मशीन टेस्टिंग इनडेरल्यूस एनाम्बर, जो बाइद सर्फफ़ॉर से नहीं, पाठवट जो इसे सीधे डिस्कावर करते हैं"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1062,6 +1095,10 @@ msgstr ""
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Marketing"
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1325,6 +1362,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1369,10 +1410,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "खंड उत्तरे XMPP सेवा/कंटेनर लाइनक्रेटिंग, सन्दर्भ पूर्ण करने पूर्व"
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "प्रणालींदेखील ऑनलाइन ख़राबों, परिवर्तन अंकितक्रम आणि डिजिटल सेल्युलरचे फेवर्ट मिळवणे - ते यांचा भुगतान, अंकित आणि चित्रकारांना।."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
@@ -1539,11 +1579,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP गाइडवेट जो .onion प्राप्तांक को टोर के SOCKS सेन्टर पास कोर के गुंजल को से लाइनार"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Sales"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "भाषण"
@@ -1687,8 +1722,7 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
 msgstr ""
 
@@ -1925,6 +1959,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr ""
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2107,11 +2145,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "ऑनलाइ पहिचान और पहिचान उपकरण, जो सिन्हासन, उपकरण सुधारणा और सुरक्षित उपलब्धता कोड़ के लिए भी मदद करते हैं।."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "嘎ॅन सुचवणको सामान"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "तवेल सुविधा, योगाधारा, अतिरिक्त काम एवं डिजिटल मार्किटिंग कार्यक्रमों की साझेदारी。."
@@ -2191,6 +2224,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2199,6 +2236,10 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
+msgstr ""
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
 msgstr ""
 
 # लिंकिंग वर्तनी વિજ્ઞાનપણ સ્ટાવચર એડિટર Code ને સ્થાનિય વિશિષતાઓ છે
@@ -2245,6 +2286,10 @@ msgstr ""
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "વेब सेवा ऑप्टिमि�zacी"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

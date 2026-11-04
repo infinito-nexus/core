@@ -219,10 +219,29 @@ function wireLoginLogoutClicks() {
     }
   }, { capture: true });
 
+  document.addEventListener(LOGIN_EVENT, () => {
+    if (keycloak) keycloak.login({ redirectUri: KC_CONFIG.redirectUri });
+  });
   window.addEventListener("click", onLogoutEverywhere, { capture: true });
   window.addEventListener("hashchange", () => {
     if (keycloak && takeLogoutEverywhereMarker()) requestLogoutEverywhere();
   });
+}
+
+const IDENTITY_EVENT = "dashboard:identity";
+const LOGIN_EVENT = "dashboard:login";
+const GROUPS_CLAIM = {{ RBAC.GROUP.CLAIM | to_json }};
+
+function shareGroups() {
+  const claim = keycloak?.tokenParsed?.[GROUPS_CLAIM];
+  const groups = keycloak?.authenticated
+    ? (Array.isArray(claim) ? claim.filter((group) => typeof group === "string") : [])
+    : null;
+  document.dispatchEvent(new CustomEvent(IDENTITY_EVENT, { detail: { groups } }));
+}
+
+function forgetGroups() {
+  document.dispatchEvent(new CustomEvent(IDENTITY_EVENT, { detail: { groups: null } }));
 }
 
 async function initAuthUI() {
@@ -245,9 +264,9 @@ async function initAuthUI() {
     keycloak = new Keycloak({ url: KC_CONFIG.url, realm: KC_CONFIG.realm, clientId: KC_CONFIG.clientId });
     keycloak.onReady = (nextAuthenticated) => syncAuthMenuVisibility(nextAuthenticated);
     keycloak.onAuthSuccess = () => syncAuthMenuVisibility(true);
-    keycloak.onAuthLogout = () => syncAuthMenuVisibility(false);
+    keycloak.onAuthLogout = () => { syncAuthMenuVisibility(false); forgetGroups(); };
     keycloak.onAuthRefreshSuccess = () => syncAuthMenuVisibility(true);
-    keycloak.onAuthRefreshError = () => syncAuthMenuVisibility(false);
+    keycloak.onAuthRefreshError = () => { syncAuthMenuVisibility(false); forgetGroups(); };
 
     const hasAuthCode = /\bcode=/.test(window.location.search);
     const onLoadMode = hasAuthCode ? "login-required" : "check-sso";
@@ -264,6 +283,7 @@ async function initAuthUI() {
   }
 
   syncAuthMenuVisibility(authenticated);
+  shareGroups();
   wireLoginLogoutClicks();
   // Exception: persona helpers wait on this flag; its name is the OIDC_LOGIN_READY_FLAG constant in
   // roles/test-e2e-playwright/files/personas/utils/keycloak.js and must stay equal to it.
@@ -284,10 +304,12 @@ async function initAuthUI() {
       try {
         const ok = await keycloak.updateToken(60);
         syncAuthMenuVisibility(!!ok || !!keycloak?.authenticated);
+        shareGroups();
         if (DEBUG) console.log("[oidc] token refresh → ok:", ok);
       } catch (e) {
         console.warn("[oidc] token refresh failed:", e);
         syncAuthMenuVisibility(false);
+        forgetGroups();
       }
       scheduleRefresh();
     }, refreshInMs);

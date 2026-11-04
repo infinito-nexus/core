@@ -14,6 +14,29 @@
   set_fact:
     portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
 
+- name: "🆕 Look up the first-deploy registry of the dashboard cards"
+  stat:
+    path: "{{ DASHBOARD_FIRST_SEEN_FILE }}"
+  register: dashboard_first_seen_stat
+
+- name: "🆕 Read the first-deploy registry"
+  slurp:
+    src: "{{ DASHBOARD_FIRST_SEEN_FILE }}"
+  register: dashboard_first_seen_raw
+  when: dashboard_first_seen_stat.stat.exists
+
+- name: "🆕 Merge every new card into the first-deploy registry"
+  set_fact:
+    dashboard_first_seen: >-
+      {{ ((dashboard_first_seen_raw.content | b64decode | from_json) if dashboard_first_seen_stat.stat.exists else None)
+         | first_seen_merge(portfolio_cards, now(utc=true).strftime('%Y-%m-%d')) }}
+
+- name: "🆕 Store the first-deploy registry"
+  copy:
+    content: "{{ dashboard_first_seen | to_nice_json }}\n"
+    dest: "{{ DASHBOARD_FIRST_SEEN_FILE }}"
+    mode: "0644"
+
 - name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
   uri_probe_batch:
     urls: "{{ DASHBOARD_SIMPLEICONS_PROBE_URLS }}"

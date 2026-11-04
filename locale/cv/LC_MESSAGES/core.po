@@ -44,10 +44,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-chökhed khövtrlu khövsgölü системтүр эр bi туура жагылган, чөлөмө урусунун урумчулук таасирини чагатай башкаруу бага"
 
-# translated-by: ollama
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Адміністративні навікuli для серверів"
+msgid "Administration tools for servers"
+msgstr ""
 
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
@@ -102,10 +105,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Аппараты"
 
-# translated-by: ollama
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Аппаратура для электронной коммерции, продаж и управления билетами."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # multifunktionalnui drukatoriiv va snayzgorii va chun escpr va imagescan
 msgctxt "role:drv-epson-multiprinter:description"
@@ -201,6 +203,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Күч-өкүмчүлүктөн жайлашында файл түшүмөн нерселерди өзгөчө жайлылыктар түсүп түшкен операциялоруунун ээ ээ бапка жайлашында эсептөө"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -272,6 +278,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Күчтөөлөрдүн түштөрөгө ACME сервиси Лейтс Актридын өкүмчө TLS күчтөрү NGINX тармаларларына эрежелерин аткарып ээ түштөрөн жеңтишке"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
 msgstr ""
@@ -301,10 +315,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Контрольні елементи з редактируемимою історією, користуваючими додатковими діями та підтримкою скриптів"
 
-# translated-by: ollama
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "Кваал"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-svc-dns:description"
@@ -347,15 +360,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Commerce"
 
-# translated-by: ollama
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "Коммуникацыя"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Коммунальные услуги"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:sys.front.inj:description"
@@ -482,6 +498,10 @@ msgstr "Кэйчунчүүгү"
 
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr ""
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
 msgstr ""
 
 # translated-by: ollama
@@ -665,6 +685,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -760,15 +784,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Frontend helper-рөөнөрдү (инжинирлугу, шары-шарыт, CDN-дын төмөл töö)."
 
-# translated-by: ollama
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Игры"
-
-# translated-by: ollama
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Геймплагстры и күн-экимдүүлүгү."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:gen:title"
@@ -831,10 +849,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Кэвээ Доосавтагч Тулгыт"
 
-# translated-by: ollama
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Хай-эффективны, самостійний храненінг-рішення для керування, розширення і доступу до незакінчених даних — включаючи об'єкт-хранення, який компатівний з API-ми Amazon S3."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-svc-journalctl:description"
@@ -909,6 +926,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr ""
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # video decode and encode across Linux-distributs
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -960,6 +981,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Кернел-схемин NFS сервер для экспорта управляющего деревьев подключения с ограничениями на доступ по IP для хостов swarm-рэдхусы"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # LibreTranslate API, yazykuyet po nyuzhnym, khodymachykh vlyadannym
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -968,6 +993,10 @@ msgstr ""
 # ochidragi edukatsiyan ambasad.
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr ""
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
 msgstr ""
 
 # TLS teikot automātisko telemēka izveidošanu un pieētiņu
@@ -1052,6 +1081,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Машинно эхтешавт хос хос шаар борилган, бул пайдапи нинчи борилган салардан так салор борилган эхтешавт"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1073,6 +1106,10 @@ msgstr "Docker Swarm мендэгч нод мэдээллээр, хийх лог
 
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
+msgstr ""
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
 msgstr ""
 
 # translated-by: ollama
@@ -1335,6 +1372,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1379,10 +1420,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Placeholder stub role для ближайшего XMPP сервер/контейнер-установки, внедрениеpending"
 
-# translated-by: ollama
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Платформы для создания и управления онлайн-магазинами, каталогами товаров и цифровыми каналами продаж — включая платежи, запасы и функции клиентов."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1548,11 +1588,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP gateway, čегех сом ачилор төмөн. Onion ачилорду Тордун SOCKС ачкыркыларында шыгышы"
 
 # translated-by: ollama
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Халчонын"
-
-# translated-by: ollama
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Таныманулуу Рунтинги"
@@ -1701,10 +1736,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Свой облачный платформа для синхронизации, обмениваясь файлами, реальным виртуальным кооперация и командные пространства под собственным доменом"
 
-# translated-by: ollama
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "Свойскія клавінуеры для симхалю шығымдары, көбөрөктери жана буланымдардың бурунтууынің симхалылыš."
+msgstr ""
 
 # netwok ku otkrytomu AT Protocolu, s kymn leningrutovnu svyatoj Serveru
 # Personal Data
@@ -1945,6 +1979,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Социальные медиа инструменты"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2125,11 +2163,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "Инструменты для управления идентификацией и доступом, включая аутентификацию, provisioning пользователей и управление безопасным доступом."
 
 # translated-by: ollama
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "Инструменты для коммуникации"
-
-# translated-by: ollama
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Технолошные инструменты для кампаний по электронной почте, Engagement саудиции, автоматизации и процессов цифровой маркетинга."
@@ -2210,6 +2243,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Ихтарлар жана абайлык"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2219,6 +2256,10 @@ msgstr "Клиент системы контроля версий для лок�
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Сверженная структура ресурсного дерева версий для доставки с CDN с общей, поставщиковой и по ролю релизными директориями"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
@@ -2262,6 +2303,10 @@ msgstr "Веб-базын эмцээтчилүү инструмент нь MySQL
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Веб-сервер Optimation"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:dsk-docker:description"

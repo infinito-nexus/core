@@ -43,10 +43,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "עורך קוד AI-ראשון שהותקן על היצירה, שנקודת הסיום שלו נותרה שלב מפעיל"
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "מנהלי כלים für שרתים"
+msgid "Administration tools for servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -100,10 +103,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "יישומים"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "יישומים עבור מסחר אלקטרוני, כרטיסי טיסה וניהול מכירות."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -188,6 +190,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "בניית כלי לסימול פעולות קובץ בבעלות שורש ללא זכויות גבוהות במהלך החבילה בונה"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -258,6 +264,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "שירות ACME מונע על ידי Certbot עבור Let's Encryptone-domain ו- Wildcard TLS תעודות על תחומים NGINX"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -288,10 +302,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "מנהל לוח מודעות עם היסטוריה מותאמת, פעולות מותאמות אישית, וביקורת"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "עננים"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -333,15 +346,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "מסחר"
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "תקשורת תקשורת"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "קהילה"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # Nginx /OpenResty באמצעות sub_filter*הופנה מהדף CDN-backed Assets.
 # interceptor, analytics, dashboard iframe) for Nginx/OpenResty via
@@ -479,6 +495,10 @@ msgstr "קשרי לקוחות"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "ניהול קשרי לקוחות (CRM CRM) תוכנה לניהול קשרי לקוחות, צינורות מכירות, שיווק ופעילויות תמיכה."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -663,6 +683,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -758,15 +782,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "עוזרי Frontend עבור יישומים מתקדמים (זריקה, נכסים משותפים, CDN צנרת)."
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "משחקי משחקים"
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "משחקים פלטפורמות ויישומים בידור."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -828,10 +846,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "כלי עזר"
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "ביצועים גבוהים, פתרונות אחסון עצמיים עבור ניהול, קנה מידה, וגישה לנתונים שלא מובנים - כולל אחסון אובייקטים תואם אמזון S3 API"
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -906,6 +923,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "הזריקה"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -957,6 +978,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "שרת NFS ברמת Kernel לייצא עץ במאי משותף עם גישה מוגבלת IP למארחים נחילים"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -966,6 +991,10 @@ msgstr "מנוע התרגום של LLM מדבר LibreTranslate APIעבור צי�
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "פלטפורמות למידה, כלי שיתוף פעולה בכיתה וסביבות חינוך דיגיטליות."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1047,6 +1076,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "מנוע תרגום מכונה ללא משטח אינטרנט, עבור צינורות שמכנים אותו ישירות"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1070,6 +1103,10 @@ msgstr "תפקידו של מארקר הוא מארח כמנהל Docker Swarm nod
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Marketing"
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1336,6 +1373,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1380,10 +1421,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "תפקיד בעל מקום לשרת XMPP / פריסה המכילה, יישום"
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "פלטפורמות לבניית וניהול חנויות מקוונות, קטלוג מוצרים וערוצי מכירות דיגיטליים - כולל תשלום, מלאי ותכונות לקוחות."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
@@ -1550,11 +1590,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "שער SMTP שמעביר .onion נמענים דרך ההאזנה של Tor"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "מכירות המכירות"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Sandboxed Runtimes"
@@ -1699,10 +1734,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "פלטפורמת ענן מארחת עצמית לסנכרון קבצים, שיתוף, שיתוף, שיתוף פעולה בזמן אמת ומרחבי עבודה צוות תחת התחום שלך"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "פתרונות ענן עוינים עצמית לסנכרון קבצים, שיתוף פעולה ושיתוף נתונים."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1940,6 +1974,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "כלי מדיה חברתית"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2122,11 +2160,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "כלים עבור Identity and Access Management, כולל אימות, מתן משתמשים ובקרת גישה בטוחה."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "כלים לתקשורת"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "כלים לקמפיינים דואר אלקטרוני, מעורבות קהל, אוטומציה וזרימות עבודה שיווקיות דיגיטליות."
@@ -2206,6 +2239,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "משתמשים וגישה"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2215,6 +2252,10 @@ msgstr "לקוח בקרת גרסאות עבור יצירות אישיות, preco
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "גרסה של פריסת אופניים ל- CDN למשלוח עם ספקים משותפים, ו- Per-role שחרור Directories"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2260,6 +2301,10 @@ msgstr "כלי ניהול מבוסס אינטרנט עבור MySQL ו MariaDB ע
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Webserver Optimation"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

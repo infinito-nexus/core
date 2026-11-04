@@ -43,10 +43,13 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-céad eagarthóir cód suiteáilte ar an stáisiún oibre, a bhfuil a override endpoint tréimhsí céim oibreoir"
 
-# translated-by: libretranslate
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Uirlisí Riaracháin le freastalaithe"
+msgid "Administration tools for servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -100,10 +103,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Amharc ar gach eolas"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Iarratais ar ríomhthráchtáil, ticéadú, agus bainistíocht díolacháin."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -188,6 +190,10 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Tógáil-am uirlis chun insamhladh oibríochtaí comhad fréamh-úinéireacht gan pribhléidí ardaithe le linn tógála pacáiste"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
@@ -258,6 +264,14 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Seirbhís ACME Certbot-tiomáinte do A ligean ar Criptithe aonair-domain agus wildcard teastais TLS ar fearainn NGINX"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -288,9 +302,8 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Clipboard bainisteoir le stair eagarthóireachta, gníomhaíochtaí saincheaptha, agus tacaíocht script"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
 msgstr ""
 
 # translated-by: libretranslate
@@ -333,15 +346,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Trácht a dhéanamh"
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "Cumarsáid agus Cumarsáid"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Pobail agus Fiontair"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
 # via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
@@ -484,6 +500,10 @@ msgstr "Gaol do Chustaiméirí"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Bainistíocht Caidrimh Chustaiméirí (CAD CAD) bogearraí do bhainistiú caidrimh do chustaiméirí, píblínte díolacháin, margaíochta, agus gníomhaíochtaí tacaíochta."
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -668,6 +688,10 @@ msgctxt "paused:channel_email"
 msgid "Email"
 msgstr ""
 
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -763,15 +787,9 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Cúntóirí Tosaigh le haghaidh apps droim ar ais (instealladh, sócmhainní roinnte, pluiméireacht CDN)."
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Cluichí ar líne"
-
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "ardáin cluichíochta agus iarratais siamsaíochta."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -833,10 +851,9 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Uirlisí cabhracha"
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "réitigh stórála féin-óstáil le haghaidh sonraí neamhstruchtúrtha a bhainistiú, a scálú, agus a rochtain — lena n-áirítear stóráil réada atá comhoiriúnach le Amazon S3 APIs."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -911,6 +928,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Instealladh Instealladh"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -961,6 +982,10 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "freastalaí NFS leibhéal Kernel le haghaidh onnmhairiú crann eolaire roinnte le rochtain IP-restricted do hóstach swarm-node"
 
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -970,6 +995,10 @@ msgstr "LLM-backed inneall aistriúcháin ag labhairt ar an LibreTranslate API, 
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "ardáin foghlama, uirlisí comhoibrithe seomra ranga, agus timpeallachtaí oideachais digiteacha."
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -1051,6 +1080,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Inneall aistriúcháin meaisín gan dromchla gréasáin, le haghaidh píblínte a thugann sé go díreach"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1074,6 +1107,10 @@ msgstr "Ról Marker clibeáil óstach mar an Docker Swarm bainisteoir nód, leis
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Margaíocht agus Margaíocht"
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1339,6 +1376,10 @@ msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr "Clúdaigh áirseáil do sholáthar NGINX per-domain le teastais TLS, teimpléid vHost, agus roghnach OAuth2"
 
+msgctxt "menu:Other:title"
+msgid "Other"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1383,10 +1424,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Ról stub sealbhóir Áite do fhreastalaí XMPP sa todhchaí / imscaradh coimeádán, cur i bhfeidhm go dtí go"
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Ardáin do thógáil agus a bhainistiú siopaí ar líne, catalóga táirge, agus cainéil díolacháin digiteach - lena n-áirítear íocaíocht, fardal, agus gnéithe do chustaiméirí."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
@@ -1553,11 +1593,6 @@ msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP geata a Relays .onion faighteoirí trí éisteacht SOCKS Tor"
 
 # translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Díolacháin agus Díolacháin"
-
-# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Ranganna Teagaisc"
@@ -1702,10 +1737,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "ardán scamall Féin-óstach do sync comhad, roinnt, comhoibriú fíor-ama, agus spásanna oibre foirne faoi do bhfearann féin"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "réitigh scamall féin-óstáil le haghaidh sioncrónaithe comhad, comhoibriú, agus sonraí a roinnt."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1943,6 +1977,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Uirlisí na Meán Sóisialta"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -2125,11 +2163,6 @@ msgid "Tools for Identity and Access Management, including authentication, user 
 msgstr "Uirlisí le haghaidh Bainistíocht Aitheantais agus Rochtana, lena n-áirítear fíordheimhniú, soláthar úsáideora, agus rialú rochtana slán."
 
 # translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "Uirlisí le haghaidh cumarsáide"
-
-# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Uirlisí le haghaidh feachtais ríomhphoist, rannpháirtíocht lucht féachana, uathoibriú, agus sreabhadh oibre margaíochta digiteach."
@@ -2209,6 +2242,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Úsáideoirí agus Rochtain"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2218,6 +2255,10 @@ msgstr "Leagan-rialú cliant do stáisiúin oibre pearsanta, preconfigured le f�
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Leagann leagan amach crann sócmhainní le haghaidh seachadadh CDN le roinnt, díoltóir, agus stiúrthóireachtaí scaoileadh per-role"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2263,6 +2304,10 @@ msgstr "Uirlis riaracháin bunaithe ar an nGréasán do MySQL agus MariaDB le ba
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Webserver Optamaithe"
+
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"

@@ -79,7 +79,10 @@ DRIVER = textwrap.dedent(
         querySelector: () => null,
         createElement: () => ({ setAttribute(k, v) { this[k] = v; } }),
         body: { prepend: (node) => prepended.push(node) },
+        dispatchEvent: () => true,
+        addEventListener() {},
       };
+      global.CustomEvent = class { constructor(type, init) { this.type = type; this.detail = init.detail; } };
       Object.defineProperty(globalThis, "navigator", { value: { language: "en" }, configurable: true, writable: true });
       global.fetch = async (url, init) => {
         calls.push([init.method, url.replace(ACCOUNT, ""), init.headers.Authorization]);
@@ -252,6 +255,7 @@ def _context() -> dict:
             "DASHBOARD_LOGOUT_EVERYWHERE_CLASS"
         ],
         "DASHBOARD_LOGOUT_I18N": LOGOUT_I18N,
+        "RBAC": {"GROUP": {"CLAIM": "groups"}},
     }
 
 
