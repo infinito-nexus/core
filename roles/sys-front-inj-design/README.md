@@ -8,6 +8,7 @@ It derives the design tokens from the single base color in `web-svc-design` thro
 ## Overview
 
 The role renders the shared `default.css` and `bootstrap.css` once per deployment onto the CDN, links them with a cache-busting version, and adds the role's own `style.css` and `design.js` when the role ships them.
+The role's `style.css` is rendered per vhost and stored once per network the role is served on: the first network keeps `style.css`, every further one gets `<label>-style.css` (for example `onion-style.css`), and each vhost links the file of its own network.
 Light and dark tokens switch with `prefers-color-scheme`; a role mirrors an app-native theme switch through `<html data-design-theme="light|dark">`.
 
 ## Purpose

@@ -39,6 +39,11 @@ class TestNetworkFilters(unittest.TestCase):
         )
         self.assertEqual(self.filters["in_network"](domains, "tor"), [f"a.{ONION}"])
 
+    def test_vhost_label_names_the_instance_of_the_vhost(self):
+        domains = [f"a.{DOMAIN}", f"a.{ONION}"]
+        self.assertEqual(self.filters["vhost_label"](domains, f"a.{DOMAIN}"), "")
+        self.assertEqual(self.filters["vhost_label"](domains, f"a.{ONION}"), "onion")
+
     def test_network_sibling_is_empty_without_a_node(self):
         self.assertEqual(
             self.filters["network_sibling"](DOMAIN, "tor", DOMAIN, ""),

@@ -5,7 +5,12 @@ from __future__ import annotations
 import unittest
 
 from utils.domains.default_primary import default_domain_primary
-from utils.networks.instances import labelled, labelled_file, network_instances
+from utils.networks.instances import (
+    labelled,
+    labelled_file,
+    network_instances,
+    vhost_label,
+)
 from utils.networks.reachability import CLEARNET, TOR, network
 
 ONION = "abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvw.onion"
@@ -31,6 +36,31 @@ class TestNetworkInstances(unittest.TestCase):
         self.assertEqual(
             network_instances({"app": f"app.{ONION}"}), [{"network": TOR, "label": ""}]
         )
+
+
+class TestVhostLabel(unittest.TestCase):
+    def setUp(self):
+        self.multi = [f"app.{DOMAIN}", f"app.{ONION}"]
+
+    def test_the_first_network_vhost_keeps_an_empty_label(self):
+        self.assertEqual(vhost_label(self.multi, f"app.{DOMAIN}"), "")
+
+    def test_a_further_network_vhost_carries_its_registry_label(self):
+        self.assertEqual(vhost_label(self.multi, f"app.{ONION}"), network(TOR).label)
+
+    def test_the_vhost_is_matched_case_insensitively(self):
+        self.assertEqual(
+            vhost_label(self.multi, f"APP.{ONION.upper()}"), network(TOR).label
+        )
+
+    def test_a_single_network_vhost_keeps_an_empty_label(self):
+        self.assertEqual(vhost_label({"app": f"app.{ONION}"}, f"app.{ONION}"), "")
+
+    def test_a_foreign_vhost_takes_the_label_of_the_first_network(self):
+        self.assertEqual(vhost_label(self.multi, f"other.{ONION}"), "")
+
+    def test_an_application_without_domains_keeps_an_empty_label(self):
+        self.assertEqual(vhost_label([], f"app.{DOMAIN}"), "")
 
 
 class TestLabelled(unittest.TestCase):

@@ -23,6 +23,7 @@ from utils.tls_common import (
     resolve_mode,
     resolve_primary_domain_from_app,
     resolve_term,
+    serving_network,
     uniq_preserve,
     want_get,
 )
@@ -518,6 +519,16 @@ class TestTlsCommon(unittest.TestCase):
     def test_available_flavors(self):
         self.assertIn("letsencrypt", AVAILABLE_FLAVORS)
         self.assertIn("self_signed", AVAILABLE_FLAVORS)
+
+    def test_serving_network_follows_a_served_vhost(self):
+        served = ["wiki.example", "wiki.abc.onion"]
+        self.assertEqual(serving_network(served, "wiki.abc.onion"), "tor")
+        self.assertEqual(serving_network(served, "wiki.example"), "clearnet")
+
+    def test_serving_network_falls_back_to_the_first_domain(self):
+        served = ["wiki.example", "wiki.abc.onion"]
+        self.assertEqual(serving_network(served, "other.abc.onion"), "clearnet")
+        self.assertEqual(serving_network(served, ""), "clearnet")
 
 
 if __name__ == "__main__":
