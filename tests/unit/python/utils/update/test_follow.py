@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import http.client
 import io
 import json
 import unittest
@@ -53,6 +54,20 @@ class TestFollowedTags(unittest.TestCase):
             found = followed_tags("fedora", list(FEDORA), {"follow": "latest"}, "44")
         self.assertEqual(found, [])
         self.assertIn("WARN fedora:44", stderr.getvalue())
+
+    def test_an_incomplete_response_proposes_nothing_and_says_so(self) -> None:
+        stderr = io.StringIO()
+        with (
+            mock.patch(
+                "utils.update.follow.get",
+                side_effect=http.client.IncompleteRead(b"{", 120),
+            ),
+            contextlib.redirect_stderr(stderr),
+        ):
+            found = followed_tags("fedora", list(FEDORA), {"follow": "latest"}, "44")
+        self.assertEqual(found, [])
+        self.assertIn("WARN fedora:44", stderr.getvalue())
+        self.assertIn("IncompleteRead", stderr.getvalue())
 
     def test_a_rate_limited_digest_is_retried(self) -> None:
         limited = urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)

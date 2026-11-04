@@ -9,6 +9,7 @@ rawhide) point elsewhere.
 
 from __future__ import annotations
 
+import http.client
 import json
 import sys
 import time
@@ -69,7 +70,13 @@ def followed_tags(
     try:
         target = tag_digest(image, str(follow))
         kept = [tag for tag in newer if tag_digest(image, tag) == target]
-    except (OSError, ValueError, KeyError, RuntimeError) as exc:
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        RuntimeError,
+        http.client.HTTPException,
+    ) as exc:
         print(
             f"[follow] WARN {image}:{current}: Docker Hub digests unreadable "
             f"({type(exc).__name__}: {exc}); proposing nothing",
