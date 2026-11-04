@@ -1,2 +1,3 @@
 ---
 application_id: update
+UPDATE_PACMAN_XFER: "{{ [ DIR_BIN, 'pacman-xfer' ] | path_join }}"
