@@ -16,9 +16,7 @@ A download the script retries itself counts as retry-hardened only in a
 bounded retry loop: a literal counter header (``for n in 3 2 1 0; do`` or
 ``for ((...)); do``), the download directly in its body leaving the loop on
 success (``&& exit 0``, ``&& break`` or ``&& return``), and a ``sleep``
-directly in the body after it. Scripts that decide per failure whether to
-retry, e.g. failing fast on a 404 that ``--retry-all-errors`` together with
-``-f`` would retry, need that shape.
+directly in the body after it.
 
 Exempt: ``-o /dev/null`` / ``-O-`` stdout probes, ``command -v`` checks, and
 lines suppressed via ``# nocheck: shell-download-retry``.

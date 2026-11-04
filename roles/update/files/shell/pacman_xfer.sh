@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Param: $1 output file (pacman's %o), $2 URL (pacman's %u). Exits 0 only on a complete download, else with curl's exit code. A failed attempt is retried 3 times after its partial bytes are dropped, 2 s apart or as long as the Retry-After seconds of a 429/503 ask (at most 30 s); HTTP 404 and 410 fail at once, because every Arch mirror answers the DatabaseOptional .db.sig probe with 404 and pacman ignores that failure.
+# Param: $1 output file (pacman's %o), $2 URL (pacman's %u). Exits 0 only on a complete download, else with curl's exit code.
 set -euo pipefail
 
 output="$1"
