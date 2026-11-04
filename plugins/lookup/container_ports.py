@@ -52,6 +52,12 @@ Keys:
 A declared value that is a ``{start, end}`` mapping renders as ``start-end`` on
 both sides, so a relay range needs no special term.
 
+In the effective swarm mode (``compose_mode_force`` or ``DEPLOYMENT_MODE``) a
+``ports`` term that carries an ``ip`` and resolves ``ports.local`` is not
+published: the routing mesh ignores the ip and would open the port on every
+node. ``expose`` feeds ``docker run -p``, which honours the ip, so it keeps such
+terms. A block left without entries renders as an empty string.
+
 ``application_id`` is read from the play variables unless given as
 ``application_id=``. ``key='expose'`` names the block instead of ``ports``, for
 Discourse's launcher file, whose ``expose:`` list is what becomes ``docker run
@@ -69,6 +75,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 from ansible.template import trust_as_template
 
+from utils.networks.lookup_context import resolve_var
 from utils.roles.applications.config import get
 
 _TERM_KEYS = frozenset(
@@ -242,10 +249,17 @@ class LookupModule(LookupBase):
             raise AnsibleError(
                 f"container_ports: key must be 'ports' or 'expose', got {block_key!r}"
             )
+        routing_mesh = block_key == "ports" and "swarm" == _as_str(
+            resolve_var(templar, variables.get("compose_mode_force", ""))
+            or resolve_var(templar, variables.get("DEPLOYMENT_MODE", "compose"))
+        )
         lines = [f"{block_key}:"]
         for term in parsed:
             service, protocol = term["service"], term["protocol"]
-            published = _port(service, "local", protocol, required=False) or _port(
+            local = _port(service, "local", protocol, required=False)
+            if routing_mesh and term["ip"] and local:
+                continue
+            published = local or _port(
                 service, "public", protocol, required=term["publish"] != "ephemeral"
             )
             if term["container"] == "same":
@@ -257,4 +271,4 @@ class LookupModule(LookupBase):
                     lines.extend(_host_lines(published, container, transport))
                 else:
                     lines.append(_short_line(term, published, container, transport))
-        return ["\n".join(lines)]
+        return ["\n".join(lines) if len(lines) > 1 else ""]

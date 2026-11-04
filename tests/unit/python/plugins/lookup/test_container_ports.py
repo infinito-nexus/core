@@ -24,13 +24,66 @@ def _apps():
     }
 
 
-def _run(terms, *, app_id="web-app-gitea", **kwargs):
+def _run(terms, *, app_id="web-app-gitea", mode_vars=None, **kwargs):
     lm = LookupModule()
     lm._loader = mock.MagicMock()
     apps = _apps()
     with patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
         loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
-        return lm.run(terms, variables={"application_id": app_id}, **kwargs)
+        return lm.run(
+            terms,
+            variables={"application_id": app_id, **(mode_vars or {})},
+            **kwargs,
+        )
+
+
+class TestContainerPortsSwarmRoutingMesh(unittest.TestCase):
+    SWARM: ClassVar[dict] = {"DEPLOYMENT_MODE": "swarm"}
+
+    def test_swarm_drops_local_term_with_ip(self):
+        self.assertEqual(
+            _run(
+                [["gitea", "http", "127.0.0.1"], ["gitea", "ssh"]],
+                mode_vars=self.SWARM,
+            ),
+            ['ports:\n  - "2201:22"'],
+        )
+
+    def test_swarm_keeps_local_term_without_ip(self):
+        self.assertEqual(
+            _run([["gitea", "http"]], mode_vars=self.SWARM),
+            ['ports:\n  - "8002:3000"'],
+        )
+
+    def test_swarm_block_without_entries_renders_empty(self):
+        self.assertEqual(
+            _run([["gitea", "http", "0.0.0.0"]], mode_vars=self.SWARM),
+            [""],
+        )
+
+    def test_compose_mode_force_compose_keeps_term_in_swarm(self):
+        self.assertEqual(
+            _run(
+                [["gitea", "http", "127.0.0.1"]],
+                mode_vars={**self.SWARM, "compose_mode_force": "compose"},
+            ),
+            ['ports:\n  - "127.0.0.1:8002:3000"'],
+        )
+
+    def test_compose_mode_force_swarm_drops_term_in_compose(self):
+        self.assertEqual(
+            _run(
+                [["gitea", "http", "127.0.0.1"]],
+                mode_vars={"DEPLOYMENT_MODE": "compose", "compose_mode_force": "swarm"},
+            ),
+            [""],
+        )
+
+    def test_expose_block_keeps_term_in_swarm(self):
+        self.assertEqual(
+            _run([["gitea", "http", "127.0.0.1"]], mode_vars=self.SWARM, key="expose"),
+            ['expose:\n  - "127.0.0.1:8002:3000"'],
+        )
 
 
 class TestContainerPortsLookup(unittest.TestCase):
