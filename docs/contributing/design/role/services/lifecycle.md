@@ -7,21 +7,18 @@ For general documentation rules such as links, writing style, RFC 2119 keywords,
 
 ## Overview 🗺️
 
-A role's lifecycle value sits on a single linear axis from `planned` (no code yet) to `eol` (end of life).
-A subset of stages is the **tested** envelope: roles in those stages MUST be exercised by the project's automated test suite on every change, and a failing test blocks the release.
-Stages outside that envelope MAY ship without automated coverage.
+[meta/lifecycle.yml](../../../../../meta/lifecycle.yml) is the SPOT for every status: its `description`, its `predecessors`, its reference-rule `flags` (`production`, `retired`), the CI trigger `contexts` that deploy it (`ci-deploy`), the `actions` the system takes on a role in it, and the `migrations` exemptions.
+Consumers read it through [utils/roles/lifecycle.py](../../../../../utils/roles/lifecycle.py); no consumer spells a status list of its own.
+The linear order below is derived from the predecessor graph, which MUST be acyclic, have exactly one entry, reach every status and sort into exactly one order; [test_lifecycle_spot.py](../../../../../tests/lint/repository/test_lifecycle_spot.py) enforces that.
 
-```
-planned       (no code yet)
-pre-alpha     (early scaffolding, not yet stable enough to test)
-┌─ alpha       ─┐
-│  beta         │   ← TESTED ENVELOPE (CI gates apply)
-│  rc           │
-│  stable       │
-└─ maintenance ─┘
-deprecated    (kept for compatibility, untested, do not adopt for new deploys)
-eol           (end of life: shipped but not tested or maintained)
-```
+A role's lifecycle value sits on a single linear axis from `planned` (no code yet) to `eol` (end of life).
+Which stages CI deploys depends on the trigger context of the run: a push to or a schedule on `main` of the upstream repository deploys `beta`, `rc` and `stable`; every other run (a fork with its `main`, a pull request, any other branch, an act run, a local run) deploys `alpha`, `beta`, `rc`, `stable` and `deprecated`.
+Stages no context deploys MAY ship without automated coverage.
+
+The documentation build renders the lifecycle diagram from `meta/lifecycle.yml` between the two markers below; the committed file keeps the block empty, which [test_lifecycle_diagram_not_committed.py](../../../../../tests/lint/repository/documentation/test_lifecycle_diagram_not_committed.py) enforces.
+
+<!-- lifecycle-diagram:begin -->
+<!-- lifecycle-diagram:end -->
 
 ## Stages 📋
 
@@ -59,7 +56,7 @@ A role tagged `alpha`:
 
 - MUST deploy cleanly via `make compose-deploy mode=reinstall` against the reference distribution.
 - MUST ship `templates/playwright.env.j2` and `files/playwright/playwright.spec.js`, with at least one assertion that covers the role's canonical landing surface.
-- MUST be exercised by the matrix-deploy on every push.
+- MUST be exercised by the matrix-deploy on every run outside upstream `main`; upstream `main` deploys only the production stages.
 - MAY have known minor issues documented in its `README.md` or in an open issue.
 
 ### beta 🌿
@@ -87,20 +84,15 @@ A role tagged `rc`:
 Production-grade.
 The role meets every `rc` criterion AND has shipped in at least one tagged release without a hot-fix to its own `tasks/`, `templates/`, or `files/` tree.
 
-### maintenance 🛠️
-
-The role is feature-frozen.
-Bug fixes and security patches still land, but new features go to a successor role or behind a feature flag.
-Same test coverage as `stable`.
-
 ### deprecated ⚠️
 
-The role still ships, but operators MUST migrate away from it and the project no longer tests it.
+The role still ships, but operators MUST migrate away from it, and the upstream `main` CI no longer deploys it.
 
 A `deprecated` role:
 
 - MUST be tagged with a "Deprecated" banner in its `README.md` pointing at the successor.
-- MUST NOT be exercised by the matrix-deploy, and a failure in it MUST NOT block any release.
+- MUST NOT be referenced by a role whose status carries the `production` flag (`beta`, `rc`, `stable`): `deprecated` sorts beyond every production status, and the upstream `main` runs production roles ship from never deploy it. The `lifecycle-reference` rule enforces it.
+- Is deployed by every run outside upstream `main` (forks, pull requests, other branches, local runs), so its migration path stays exercised until it is removed.
 - SHOULD be removed within a small number of releases.
 
 ### eol 🪦
@@ -113,7 +105,8 @@ A role tagged `eol`:
 - SHOULD link to the upstream project / vendor for support. The link is not mechanical and `test_eol_readme_banner.py` does not check it.
 - MUST store `enabled: false` as a literal on its own primary entity in `meta/services.yml`. A `"{{ '<role>' in group_names }}"` flag turns true the moment the role joins an inventory. `shared` stays at the value the role needs, normally `true`: it is what registers the entity in the service registry, and that registration is what makes `disable=<role-id>` resolve to the service key at all and what keeps the role in the `sys-service-loader` preload order. The literal forces two collateral suppressions, and a demotion that skips them hits two unrelated red lints: the own primary's key needs `# nocheck: playwright-service-flag` on the line above it, because a service stored off carries no `<NAME>_SERVICE_ENABLED=` line in `templates/playwright.env.j2`, and every consumer's literal flag needs `# nocheck: dynamic-flag` on its own line (or one marker in the comment block above the key, which covers both flags at once), because a literal where the dynamic form is the house shape is precisely what `dynamic-flag` reports.
 - MUST NOT be pinned truthy by any variant in any `meta/variants.yml`, its own included, neither under `services:` nor under `addons:`. A variant pin re-enables the role for that round alone, which is the one place where neither the banner nor the stored flag is in view.
-- MUST NOT be enabled as a dependency of a role that is not itself EOL: no `meta/services.yml` block, no variant pin, and no `meta/addons/*.yml` whose `bridges:` list names it. One EOL role MAY name another, because both leave together. The `eol-dependency` rule enforces all three, and `INFINITO_LIFECYCLES` is why: the envelope drops an EOL role from every CI round under the default envelope, so the dependency binds a partner no test deploys and first surfaces on a production host as an unreachable integration. An explicit `lifecycles: eol` workflow dispatch deploys the role standalone, and the literal flags keep every partner unbound even in that round.
+- MUST NOT be enabled as a dependency of any other role, another EOL role included: no `meta/services.yml` block, no variant pin, and no `meta/addons/*.yml` whose `bridges:` list names it. The `eol` status carries the `retired` flag, and a retired role may be referenced only by itself and by a `migrations` pair in `meta/lifecycle.yml` (`web-app-stalwart` importing `web-app-mailu`). The `eol-dependency` rule enforces all three, and `INFINITO_LIFECYCLES` is why: the envelope drops an EOL role from every CI round under the default envelope, so the dependency binds a partner no test deploys and first surfaces on a production host as an unreachable integration. An explicit `lifecycles: eol` workflow dispatch deploys the role standalone, and the literal flags keep every partner unbound even in that round.
+- MUST NOT be named by any other role's role id either: no `run_after` or `required_by` entry, no `meta/main.yml` dependency, no `include_role`/`import_role`, no `'<role>' in group_names` gate and no `lookup(..., '<role>', ...)`. The `lifecycle-reference` rule ([test_lifecycle_references.py](../../../../../tests/lint/ansible/roles/meta/test_lifecycle_references.py)) enforces it; a case that cannot leave yet carries `# nocheck: lifecycle-reference` with a `Reason:`.
 - MUST NOT block any release. CI MAY skip its deploy matrix entry entirely.
 - Is skipped by the version updaters: no update PR bumps its image versions, refs or pins (see [cli/contributing/update](../../../../../cli/contributing/update/README.md)).
 - MAY be removed without a deprecation cycle.
@@ -124,15 +117,17 @@ The generated integration matrix (`roles/web-app-docs/files/python/infinito_docs
 
 ## The tested envelope 🧪
 
-Stages `alpha`, `beta`, `rc`, `stable`, and `maintenance` form the **tested envelope**.
-The matrix-deploy + Playwright pipeline (see [variants.md](../../variants.md) and [inventory.md](../../inventory.md)) MUST exercise every role tagged with one of these values.
-A regression in any tested-envelope role blocks the merge that introduced it.
+Each status's `ci-deploy` list in `meta/lifecycle.yml` names the CI trigger `contexts` that deploy it.
+`contexts` are tried in file order: `upstream-main` matches a real GitHub Actions run whose `GITHUB_REPOSITORY` is `infinito-nexus/core`, whose `GITHUB_REF` is `refs/heads/main` and whose `GITHUB_EVENT_NAME` is `push` or `schedule`; `other` declares no criteria and takes every remaining run, act and local runs included.
+The `INFINITO_LIFECYCLES` env handler derives its default from the run's context in lifecycle order: `beta rc stable` on upstream `main`, `alpha beta rc stable deprecated` everywhere else; a caller environment, a CI dispatch input or `custom.env` still overrides it.
+The union over all contexts is the **tested envelope** that the README overview, the design queue, the Playwright coverage sweep and the complexity filter's default read.
+The matrix-deploy + Playwright pipeline (see [variants.md](../../variants.md) and [inventory.md](../../inventory.md)) MUST exercise every role its run's context deploys.
+A regression in any deployed role blocks the merge that introduced it.
 
-Stages outside the envelope (`planned`, `pre-alpha`, `deprecated`, `eol`) MAY skip the matrix-deploy gate.
-CI MAY still exercise `planned`, `pre-alpha` and `eol` roles on a best-effort basis, but failures MUST NOT block unrelated work.
-`deprecated` roles are not exercised at all.
+Stages no context deploys (`planned`, `pre-alpha`, `eol`) MAY skip the matrix-deploy gate.
+CI MAY still exercise them on a best-effort basis through an explicit `lifecycles` dispatch input, but failures MUST NOT block unrelated work.
 
-Promotion from `eol` back into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch.
+Promotion from `eol` back into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch; it is a fresh entry at `alpha`, not a predecessor edge, because the predecessor graph stays acyclic.
 Promoting also reverses the storage steps, in this order: change `lifecycle`, set the primary entity's `enabled` and `shared` to the values the role needs, restore the `bond` the primary carried before (`test_disabled_service_bond` is what required dropping it, because the resource model never reads a key on an entry stored off, so the number described a cost nobody paid), restore the consumer flags from their literal `false` to the dynamic form and drop the `# nocheck: dynamic-flag` markers that literal needed, re-add the variant pins the EOL ban removed, then re-run the matrix-deploy.
 The consumer blocks themselves were never removed, only pinned off, so there is nothing to re-create; the step is the flag value and its marker.
 Taking the `lifecycle` value off `eol` without the flags leaves the role in the envelope and off on every host, and the deploy matrix picks up a role no inventory enables.
@@ -152,5 +147,5 @@ The exact placement and multi-entity rule live in [layout.md](layout.md#run_afte
   lifecycle: beta
 ```
 
-Any value not listed on this page MUST be treated as a typo and rejected by review.
-Do NOT introduce new values without amending this page first.
+Any value `meta/lifecycle.yml` does not declare is rejected by [test_layout.py](../../../../../tests/lint/ansible/roles/meta/test_layout.py).
+Do NOT introduce new values without amending `meta/lifecycle.yml` and this page together.

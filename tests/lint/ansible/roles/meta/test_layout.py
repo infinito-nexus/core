@@ -6,9 +6,7 @@ Failure modes covered:
   * Any source file references those legacy paths.
   * ``meta/main.yml`` carries ``run_after`` or ``lifecycle``.
   * ``meta/services.yml.<entity>.lifecycle`` carries a value outside the
-    linear axis in
-    ``docs/contributing/design/role/services/lifecycle.md``
-    (``ALLOWED_LIFECYCLES``).
+    statuses ``meta/lifecycle.yml`` declares (``ALLOWED_LIFECYCLES``).
   * ``meta/services.yml.<entity>.ports.{local,public}`` is a bare int
     instead of a category-keyed map.
   * Any host-bound port collides with another (single int + relay span set;
@@ -27,6 +25,7 @@ import yaml
 
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles import lifecycle
 from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
@@ -37,17 +36,7 @@ from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 
-ALLOWED_LIFECYCLES = {
-    "planned",
-    "pre-alpha",
-    "alpha",
-    "beta",
-    "rc",
-    "stable",
-    "maintenance",
-    "deprecated",
-    "eol",
-}
+ALLOWED_LIFECYCLES = frozenset(lifecycle.statuses())
 
 LEGACY_PORT_ALLOWLIST = {
     ("web-app-bigbluebutton", "bigbluebutton", "local", "http"): {48087},
@@ -195,35 +184,20 @@ class TestLifecycleAllowedValues(unittest.TestCase):
             for entity_name, entity in services.items():
                 if not isinstance(entity, dict):
                     continue
-                lifecycle = entity.get("lifecycle")
-                if lifecycle is None:
+                status = entity.get("lifecycle")
+                if status is None:
                     continue
-                value = lifecycle.strip().lower() if isinstance(lifecycle, str) else ""
+                value = status.strip().lower() if isinstance(status, str) else ""
                 if value not in ALLOWED_LIFECYCLES:
                     offenders.append(
-                        f"{role_dir.name}/{entity_name}: lifecycle={lifecycle!r}"
+                        f"{role_dir.name}/{entity_name}: lifecycle={status!r}"
                     )
         if offenders:
             self.fail(
-                "lifecycle must be one of "
-                f"{sorted(ALLOWED_LIFECYCLES)}:\n"
+                f"lifecycle must be one of the statuses {lifecycle.FILE_META_LIFECYCLE} "
+                f"declares, {', '.join(lifecycle.statuses())}:\n"
                 + "\n".join(f"  - {o}" for o in offenders)
             )
-
-    def test_ci_envelope_only_names_allowed_lifecycles(self):
-        """A typo in ``INFINITO_LIFECYCLES`` silently drops every role of that
-        stage from CI test-deploy discovery instead of failing, so the envelope
-        and the allowed-value set must not be able to drift apart."""
-        from utils.roles.lifecycle import tested_lifecycles
-
-        unknown = sorted(tested_lifecycles() - ALLOWED_LIFECYCLES)
-        self.assertEqual(
-            unknown,
-            [],
-            "default.env INFINITO_LIFECYCLES names stages that are not valid "
-            f"lifecycle values: {unknown}. Roles tagged with a valid stage that "
-            "is missing from the envelope are invisible to the deploy matrix.",
-        )
 
 
 class TestPortShape(unittest.TestCase):

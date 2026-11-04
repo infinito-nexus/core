@@ -27,12 +27,12 @@ import os
 import re
 from typing import TYPE_CHECKING
 
+from utils.roles import lifecycle
 from utils.roles.meta_lookup import get_role_lifecycle
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-UNMAINTAINED_LIFECYCLES = frozenset({"eol"})
 _SEMVER_CORE = r"v?\d+(?:\.\d+){0,4}"
 _VERSIONED_TAG_RE = re.compile(
     rf"^(?P<channel>[A-Za-z][A-Za-z0-9]*-)?(?P<semver>{_SEMVER_CORE})"
@@ -137,8 +137,8 @@ def is_maintained(roles_root: Path, role: str) -> bool:
         roles_root: the ``roles/`` directory that holds the role.
         role: role name, the directory name under ``roles_root``.
     """
-    lifecycle = get_role_lifecycle(roles_root / role, role_name=role)
-    return lifecycle not in UNMAINTAINED_LIFECYCLES
+    status = get_role_lifecycle(roles_root / role, role_name=role)
+    return status not in lifecycle.load().without_action(lifecycle.VERSION_UPDATE)
 
 
 def declares_source(config: object, key: str) -> bool:

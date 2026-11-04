@@ -1,0 +1,131 @@
+---
+# contexts: the CI trigger contexts, tried in file order.
+#   description   one sentence: which runs the context covers
+#   repository    the GITHUB_REPOSITORY the run must come from
+#   refs          the GITHUB_REF values the run may carry
+#   events        the GITHUB_EVENT_NAME values the run may carry
+#
+# statuses: one entry per status.
+#   description   one sentence: what the status means for a role and for the
+#                 roles that consume it
+#   predecessors  statuses a role may move to this one from; left out on the
+#                 entry status
+#   flags         reference-rule flags
+#     production    a role in this status may reference no role whose status
+#                   sorts after every production status
+#     retired       no role may reference a role in this status, except the
+#                   role itself and a pair listed under migrations
+#   ci-deploy     the contexts whose CI test-deploy discovery picks a role in
+#                 this status by default
+#   actions       what the system does with a role in this status
+#     image-mirror       image discovery lists its images for the mirror
+#     version-update     the version updaters bump its pins
+#     update-check-warn  the host update check warns about a deployed role
+#     update-check-fail  the host update check fails a deployed role
+#     eol-label          its README carries the end-of-life banner and the
+#                        docs integration matrix labels every edge to it
+#
+# migrations: <consumer role>: {<target role>: <reason>}
+#   a consumer that exists to move data away from a retired or deprecated
+#   target may reference it; the reason names what the consumer migrates.
+
+contexts:
+  upstream-main:
+    description: "A push to or a scheduled run on main of the upstream repository."
+    repository: infinito-nexus/core
+    refs:
+      - refs/heads/main
+    events:
+      - push
+      - schedule
+  other:
+    description: "Every other run: a fork with its main, a pull request, any other branch, an act run and a local run."
+
+statuses:
+  planned:
+    description: "The role is on the roadmap without a working tasks tree, so nothing deploys it and no consumer can bind it yet."
+    actions:
+      - image-mirror
+      - version-update
+  pre-alpha:
+    description: "The role has scaffolding that may still break in obvious ways, so CI does not deploy it and consumers must not rely on it."
+    predecessors:
+      - planned
+    actions:
+      - image-mirror
+      - version-update
+  alpha:
+    description: "The role deploys end-to-end with at least a smoke-level Playwright spec, but neither the deploy nor the spec is production-grade."
+    predecessors:
+      - pre-alpha
+    ci-deploy:
+      - other
+    actions:
+      - image-mirror
+      - version-update
+  beta:
+    description: "The role is functionally complete and production-intended, with its documented integrations exercised end-to-end on every change."
+    predecessors:
+      - alpha
+    flags:
+      - production
+    ci-deploy:
+      - upstream-main
+      - other
+    actions:
+      - image-mirror
+      - version-update
+  rc:
+    description: "The role meets every beta criterion and burns in on the public production instance before it is called stable."
+    predecessors:
+      - beta
+    flags:
+      - production
+    ci-deploy:
+      - upstream-main
+      - other
+    actions:
+      - image-mirror
+      - version-update
+  stable:
+    description: "The role is production-grade and shipped in a tagged release without a hotfix to its own tree."
+    predecessors:
+      - rc
+    flags:
+      - production
+    ci-deploy:
+      - upstream-main
+      - other
+    actions:
+      - image-mirror
+      - version-update
+  deprecated:
+    description: "The role still ships while operators migrate away, so only branch runs still deploy it and no production role may depend on it."
+    predecessors:
+      - beta
+      - rc
+      - stable
+    ci-deploy:
+      - other
+    actions:
+      - image-mirror
+      - version-update
+      - update-check-warn
+  eol:
+    description: "The role has reached end of life: it ships unmaintained and untested at the operator's own risk, and no other role may reference it."
+    predecessors:
+      - pre-alpha
+      - alpha
+      - beta
+      - rc
+      - stable
+      - deprecated
+    flags:
+      - retired
+    actions:
+      - update-check-fail
+      - eol-label
+
+migrations:
+  web-app-stalwart:
+    web-app-mailu: "Stalwart imports the accounts, aliases and maildirs of a Mailu deployment and parks on a legacy hostname while Mailu still owns mail."

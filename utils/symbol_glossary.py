@@ -71,7 +71,6 @@ SYMBOLS: dict[str, str] = {
     "beta": "🌿",
     "rc": "🚦",
     "stable": "🟢",
-    "maintenance": "🔧",
     "deprecated": "🚫",
     "eol": "🪦",
 }

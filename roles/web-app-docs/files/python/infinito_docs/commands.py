@@ -15,6 +15,8 @@ _SPAN = {
 }
 
 APIDOC_EXCLUDED = ("tests", "roles", "library")
+LIFECYCLE_MODULE = "cli.build.docs.lifecycle"
+LIFECYCLE_SPOT = ("meta", "lifecycle.yml")
 
 
 def _module(name, *args):
@@ -23,6 +25,22 @@ def _module(name, *args):
 
 def _generator(name, *args):
     return _module(f"infinito_docs.generators.{name}", *args)
+
+
+def _lifecycle_commands(src):
+    """The lifecycle diagram step, empty for a checkout older than its SPOT.
+
+    Args:
+        src: checkout of the version to document.
+
+    Returns:
+        One argv list when ``src`` ships both ``meta/lifecycle.yml`` and the
+        generator package, else none.
+    """
+    package = src.joinpath(*LIFECYCLE_MODULE.split("."), "__main__.py")
+    if not src.joinpath(*LIFECYCLE_SPOT).is_file() or not package.is_file():
+        return []
+    return [_module(LIFECYCLE_MODULE)]
 
 
 def generate_commands(src):
@@ -125,6 +143,7 @@ def generate_commands(src):
             "--roles-dir",
             src / "roles",
         ),
+        *_lifecycle_commands(src),
     ]
 
 

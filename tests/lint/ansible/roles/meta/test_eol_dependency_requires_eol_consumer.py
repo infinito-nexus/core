@@ -3,7 +3,7 @@
 A role whose primary entity carries ``lifecycle: eol`` receives no upstream
 fixes. Its implementation stays in the tree so an existing deployment keeps its
 migration path, but nothing may switch it back on: the lifecycle envelope
-``INFINITO_LIFECYCLES`` (``default.env:245``) drops it from every CI round under
+``INFINITO_LIFECYCLES`` drops it from every CI round under
 the default envelope, so a consumer that enables it binds a partner no test ever
 deploys, and the dependency surfaces first on a production host as an
 unreachable integration. An explicit ``lifecycles: eol`` workflow dispatch
@@ -59,10 +59,6 @@ read back out of the registry: ``is_provider`` needs ``shared``/``provides``/an
 alias, so ``web-app-phpldapadmin`` - whose primary carries no ``shared`` key -
 is absent from the registry entirely, and a registry-derived set would cover it
 vacuously.
-
-A role that is itself EOL is exempt for FOREIGN keys only: one dead integration
-may name another, and both leave together. Its own key is never exempt, or the
-app re-enables itself.
 
 ``test_clearnet_role_forbids_variant_tor`` is the structural sibling: same
 two-sided walk, a different marker on the bound role.
@@ -167,6 +163,7 @@ import yaml
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles import lifecycle
 from utils.roles.entity.name import entity_name
 from utils.roles.mapping import (
     ROLE_DIR_META_ADDONS,
@@ -184,7 +181,7 @@ if TYPE_CHECKING:
 ROLES_DIR = PROJECT_ROOT / "roles"
 _RULE = "eol-dependency"
 _PROVIDER_RULE = "eol-dependency-provider"
-_EOL = "eol"
+_RETIRED = lifecycle.load().with_flag(lifecycle.RETIRED)
 _FLAG = "enabled"
 _MIN_REASON_CHARS = 10
 _HEAD_LINES = 30
@@ -231,7 +228,9 @@ def _role_dirs() -> list[Path]:
 
 def _eol_role_dirs() -> list[Path]:
     return [
-        role_dir for role_dir in _role_dirs() if get_role_lifecycle(role_dir) == _EOL
+        role_dir
+        for role_dir in _role_dirs()
+        if get_role_lifecycle(role_dir) in _RETIRED
     ]
 
 
@@ -446,14 +445,19 @@ def _keys_to_check(role_dir: Path, eol: dict[str, str]) -> dict[str, str]:
         eol: the output of :func:`eol_service_keys`.
 
     Returns:
-        For an EOL role, only its own block keys, which requirement (a) binds
-        regardless; a foreign key inside an EOL role is omitted, because one
-        dead integration may name another. For every other role, every EOL key.
+        Every foreign EOL key except the keys of a provider the role migrates
+        away from (its ``migrations`` pairs), and for an EOL role also its own
+        block keys.
     """
+    migrated = lifecycle.load().migrations.get(role_dir.name, {})
+    checks = {
+        key: provider
+        for key, provider in eol.items()
+        if provider != role_dir.name and provider not in migrated
+    }
     own = {key for key, provider in eol.items() if provider == role_dir.name}
-    if get_role_lifecycle(role_dir) == _EOL:
-        return dict.fromkeys(own & own_eol_block_keys(role_dir), role_dir.name)
-    return {key: provider for key, provider in eol.items() if key not in own}
+    checks.update(dict.fromkeys(own & own_eol_block_keys(role_dir), role_dir.name))
+    return checks
 
 
 def _key_column(raw: str) -> int:
@@ -885,11 +889,10 @@ class TestEolDependencyRequiresEolConsumer(unittest.TestCase):
         offenders: list[str] = []
 
         for role_dir in _role_dirs():
-            if get_role_lifecycle(role_dir) == _EOL:
-                continue
             addons_dir = role_dir / ROLE_DIR_META_ADDONS
             if not addons_dir.is_dir():
                 continue
+            checks = _keys_to_check(role_dir, eol)
 
             for addon_path in sorted(addons_dir.glob("*.yml")):
                 spec = _load_yaml(addon_path)
@@ -899,7 +902,7 @@ class TestEolDependencyRequiresEolConsumer(unittest.TestCase):
                     {
                         item
                         for item in _addon_bridges(role_dir, addon_path.stem)
-                        if item in eol
+                        if item in checks
                     }
                 )
                 if not bound:
