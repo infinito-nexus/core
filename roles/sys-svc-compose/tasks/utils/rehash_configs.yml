@@ -12,6 +12,7 @@
       ansible.builtin.slurp: # nocheck: stack-host-consumer (the block is gated by the stat of this same file)
         src: "{{ lookup('container', application_id, 'files.compose') }}"
       register: sys_svc_compose_rehash_compose
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: "🔁 Point each hashed name of '{{ application_id }}' at its file's current content"
       ansible.builtin.replace: # nocheck: stack-host-consumer (the block is gated by the stat of this same file)
