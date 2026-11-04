@@ -1,6 +1,9 @@
 ---
 - name: ▶️ Execute OIDC Setup Routine
-  include_tasks: setup/oidc.yml
+  include_tasks:
+    file: setup/oidc.yml
+    apply:
+      delegate_to: "{{ GITEA_HOST_NODE }}"
   when: GITEA_OIDC_ENABLED | bool
 - name: ▶️ Execute LDAP Setup Routine
   include_tasks: setup/ldap.yml

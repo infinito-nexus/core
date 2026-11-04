@@ -1,17 +1,16 @@
 ---
 - name: "🔍 Lookup existing Keycloak auth source ID"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       /app/gitea/gitea admin auth list \
       | awk -F '\t+' 'NR > 1 && $3 == "OAuth2" {print $1; exit}'
-  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_source_id_raw
   failed_when: oidc_source_id_raw.rc != 0
   changed_when: false
 
 - name: "➕ Add Keycloak OIDC Provider"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
     container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth add-oauth \
         --provider openidConnect \
@@ -23,14 +22,13 @@
     '
   environment:
     GITEA_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
-  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_manage
   failed_when: oidc_manage.rc != 0 and not (oidc_manage.stderr | gitea_auth_noop)
   when: oidc_source_id_raw.stdout == ""
 
 - name: "🔄 Update Keycloak OIDC Provider"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
     container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth update-oauth \
         --id {{ oidc_source_id_raw.stdout }} \
@@ -43,7 +41,6 @@
     '
   environment:
     GITEA_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
-  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: oidc_manage
   failed_when: oidc_manage.rc != 0
   when: oidc_source_id_raw.stdout != ""
