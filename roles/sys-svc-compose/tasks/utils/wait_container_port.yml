@@ -1,0 +1,17 @@
+---
+# Param: wait_output_prefix - prefix of swarm/resolve_host_cid.yml; reads <prefix>_HOST_NODE / <prefix>_LOCAL_CID
+# Param: wait_port          - container-internal port
+# Param: wait_timeout       - seconds until the wait fails
+- name: "⏳ wait_container_port | {{ wait_output_prefix }} accepts TCP on {{ wait_port }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      pid="$(container inspect --type container --format '{{ '{{.State.Pid}}' }}' {{ lookup('vars', wait_output_prefix ~ '_LOCAL_CID') | quote }})"
+      && nsenter --net --target "$pid"
+      python3 -c "import socket; socket.create_connection(('127.0.0.1', {{ wait_port | int }}), timeout=5).close()"
+  register: _wait_container_port
+  until: _wait_container_port.rc == 0
+  retries: "{{ (wait_timeout | int / 5) | int }}"
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ lookup('vars', wait_output_prefix ~ '_HOST_NODE') }}"
+  become: true
