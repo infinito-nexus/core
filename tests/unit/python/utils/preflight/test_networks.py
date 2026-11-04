@@ -1,6 +1,6 @@
 import unittest
 
-from utils.networks.ownership import ownership_errors
+from utils.preflight.networks import ownership_errors
 
 DECLARED = {
     "matomo": [("web-app-matomo", "192.168.31.0/24")],

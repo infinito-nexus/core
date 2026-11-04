@@ -1,0 +1,23 @@
+---
+# include-gated: when: preflight_container_cli.stat.exists
+- name: "🔍 List the docker volumes with their project and stack labels"
+  ansible.builtin.command:
+    argv:
+      - container
+      - volume
+      - ls
+      - --format
+      - "{{ '{{.Name}}\t{{.Label \"com.docker.compose.project\"}}\t{{.Label \"com.docker.stack.namespace\"}}' }}"
+  register: preflight_volumes
+  changed_when: false
+
+- name: "🛑 Fail when a declared volume does not belong to its entity"
+  ansible.builtin.assert:
+    that: preflight_volume_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_volume_errors | join('; ') }}.
+      Back up each listed volume, move its data into a volume of the named entity or remove it,
+      then deploy again; compose would reuse it and hand the role another project's data.
+  vars:
+    preflight_volume_errors: "{{ lookup('docker_ownership', 'volume', preflight_volumes, group_names) }}"

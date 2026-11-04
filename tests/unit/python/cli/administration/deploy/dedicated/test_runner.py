@@ -79,9 +79,15 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         allowed_apps = ["web-app-foo", "web-app-bar"]
         password_file = "/etc/inventories/github-ci/.password"
 
-        with unittest.mock.patch(
-            "cli.administration.deploy.dedicated.runner.assert_services_disabled_inventory_consistency_from_env"
-        ) as mock_services_disabled_guard:
+        with (
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.assert_services_disabled_inventory_consistency_from_env"
+            ) as mock_services_disabled_guard,
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.check_enabled",
+                return_value=True,
+            ),
+        ):
             runner.run_ansible_playbook(
                 repo_root=repo_root,
                 playbook_path=playbook_path,
@@ -320,6 +326,75 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         self.assertFalse(
             any(call_cmd and call_cmd[0] == _ANSIBLE_PLAYBOOK for call_cmd, _ in calls)
         )
+
+
+class TestInventoryValidationSwitches(unittest.TestCase):
+    def setUp(self) -> None:
+        for target, kwargs in (
+            ("deploy_ansible_playbook", {"return_value": _ANSIBLE_PLAYBOOK}),
+            ("assert_services_disabled_inventory_consistency_from_env", {}),
+        ):
+            patcher = unittest.mock.patch(
+                f"cli.administration.deploy.dedicated.runner.{target}", **kwargs
+            )
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.calls: list[list[str]] = []
+
+    def _record(self, cmd, *args, **kwargs):
+        self.calls.append(list(cmd))
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    def _deploy(self, modes: dict[str, Any], check: unittest.mock.Mock) -> None:
+        with (
+            unittest.mock.patch("subprocess.run", side_effect=self._record),
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.check_enabled", check
+            ),
+        ):
+            runner.run_ansible_playbook(
+                repo_root="/repo",
+                playbook_path="/repo/playbook.yml",
+                inventory_validator_path="/repo/validate/__main__.py",
+                inventory="/etc/inventories/github-ci/devices.yml",
+                modes=modes,
+                skip_build=True,
+            )
+
+    def _validated(self) -> bool:
+        return any("/repo/validate/__main__.py" in cmd for cmd in self.calls)
+
+    def _deployed(self) -> bool:
+        return any(cmd[0] == _ANSIBLE_PLAYBOOK for cmd in self.calls)
+
+    def test_validation_runs_when_assert_is_not_given(self):
+        check = unittest.mock.Mock(return_value=True)
+        self._deploy({}, check)
+        self.assertTrue(self._validated())
+        check.assert_called_once_with("inventory", Path("/repo") / "roles")
+
+    def test_the_inventory_switch_off_skips_validation_but_still_deploys(self):
+        self._deploy({"VALIDATE": True}, unittest.mock.Mock(return_value=False))
+        self.assertFalse(self._validated())
+        self.assertTrue(self._deployed())
+
+    def test_assert_false_skips_validation_without_reading_the_switch(self):
+        check = unittest.mock.Mock(return_value=True)
+        self._deploy({"VALIDATE": False}, check)
+        self.assertFalse(self._validated())
+        check.assert_not_called()
+        self.assertTrue(self._deployed())
+
+    def test_an_unreadable_switch_stops_the_run_before_ansible(self):
+        check = unittest.mock.Mock(side_effect=TypeError("must be true or false"))
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", io.StringIO()) as err,
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._deploy({}, check)
+        self.assertEqual(ctx.exception.code, 1)
+        self.assertIn("must be true or false", err.getvalue())
+        self.assertFalse(self._deployed())
 
 
 class TestDeployAnsiblePlaybook(unittest.TestCase):

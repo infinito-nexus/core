@@ -71,7 +71,9 @@
   when: IS_SWARM_MODE
 
 - name: "🛫 Pre-flight checks"
-  ansible.builtin.include_tasks: ./tasks/utils/constructor/preflight.yml
+  ansible.builtin.include_role:
+    name: sys-preflight
+  when: VALIDATE | bool
 
 - name: "📦 Install the packages of every role this host may run, in one run"
   package_install:

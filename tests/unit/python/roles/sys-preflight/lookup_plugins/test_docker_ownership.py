@@ -3,10 +3,13 @@ from unittest import mock
 
 from ansible.errors import AnsibleError
 
-from plugins.lookup.docker_ownership import LookupModule
 from utils.preflight.context import DeployClosureContext
 
-MODULE = "plugins.lookup.docker_ownership"
+from . import load_plugin
+
+PLUGIN = load_plugin("docker_ownership")
+LookupModule = PLUGIN.LookupModule
+MODULE = PLUGIN.__name__
 APPLICATIONS = {
     "web-app-matomo": {
         "services": {

@@ -3,10 +3,13 @@ from unittest import mock
 
 from ansible.errors import AnsibleError
 
-from plugins.lookup.public_ports import LookupModule
 from utils.preflight.context import DeployClosureContext
 
-MODULE = "plugins.lookup.public_ports"
+from . import load_plugin
+
+PLUGIN = load_plugin("public_ports")
+LookupModule = PLUGIN.LookupModule
+MODULE = PLUGIN.__name__
 APPLICATIONS = {
     "web-app-mailu": {
         "services": {

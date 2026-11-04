@@ -4,9 +4,11 @@ from unittest import mock
 
 from ansible.errors import AnsibleError
 
-from plugins.lookup.network_ownership import LookupModule
+from . import load_plugin
 
-MODULE = "plugins.lookup.network_ownership"
+PLUGIN = load_plugin("network_ownership")
+LookupModule = PLUGIN.LookupModule
+MODULE = PLUGIN.__name__
 SUBNETS = {"web-app-matomo": "192.168.31.0/24"}
 
 

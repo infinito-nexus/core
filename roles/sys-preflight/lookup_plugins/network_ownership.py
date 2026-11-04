@@ -8,7 +8,7 @@ Args:
     group_names: every group of the host, after the swarm auto-placement.
 
 Returns:
-    The messages of :func:`utils.networks.ownership.ownership_errors` for
+    The messages of :func:`utils.preflight.networks.ownership_errors` for
     every role the deploy may run on the host
     (:func:`utils.roles.invocations.deploy_closure`) that declares
     ``networks.local.subnet``.
@@ -24,7 +24,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils import PROJECT_ROOT
-from utils.networks.ownership import ownership_errors
+from utils.preflight.networks import ownership_errors
 from utils.roles.entity.name import entity_name
 from utils.roles.invocations import deploy_closure
 from utils.roles.validation.invokable import types_from_group_names

@@ -4,10 +4,13 @@ from unittest import mock
 
 from ansible.errors import AnsibleError
 
-from plugins.lookup.address_pool_overlaps import LookupModule
 from utils.preflight.context import DeployClosureContext
 
-MODULE = "plugins.lookup.address_pool_overlaps"
+from . import load_plugin
+
+PLUGIN = load_plugin("address_pool_overlaps")
+LookupModule = PLUGIN.LookupModule
+MODULE = PLUGIN.__name__
 SUBNETS = {"web-app-matomo": "192.168.31.0/24"}
 RESERVED = {"NETWORK_MESH_POOL": "10.100.0.0/16"}
 

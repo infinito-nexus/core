@@ -2,12 +2,13 @@ import unittest
 
 from ansible.errors import AnsibleFilterError
 
-from plugins.filter.preflight import (
-    FilterModule,
-    preflight_disk_usage,
-    preflight_port_cgroups,
-    preflight_port_conflicts,
-)
+from . import load_plugin
+
+PLUGIN = load_plugin("preflight")
+FilterModule = PLUGIN.FilterModule
+preflight_disk_usage = PLUGIN.preflight_disk_usage
+preflight_port_cgroups = PLUGIN.preflight_port_cgroups
+preflight_port_conflicts = PLUGIN.preflight_port_conflicts
 
 SS_LINES = (
     'tcp LISTEN 0 100 0.0.0.0:25 0.0.0.0:* users:(("master",pid=812,fd=13))',

@@ -3,10 +3,13 @@ from unittest import mock
 
 from ansible.errors import AnsibleError
 
-from plugins.lookup.deploy_domains import LookupModule
 from utils.preflight.context import DeployClosureContext
 
-MODULE = "plugins.lookup.deploy_domains"
+from . import load_plugin
+
+PLUGIN = load_plugin("deploy_domains")
+LookupModule = PLUGIN.LookupModule
+MODULE = PLUGIN.__name__
 DOMAINS = {
     "web-app-matomo": ["matomo.example.org", "matomo.abc.onion"],
     "web-app-nextcloud": {"canonical": "cloud.example.org"},
