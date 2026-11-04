@@ -7,7 +7,7 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_WAZUH_AGENT }}"
+    system_service_on_calendar: "{{ HLTH_WAZUH_AGENT_SCHEDULE }}"
     system_service_timer_enabled: true
     system_service_tpl_exec_start: >-
       {{ system_service_script_exec }}

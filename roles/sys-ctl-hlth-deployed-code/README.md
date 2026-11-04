@@ -6,7 +6,7 @@ A scheduled check that the code a host deploys from is what was reviewed: every 
 
 ## Overview
 
-[sys-svc-wazuh-agent](../sys-svc-wazuh-agent/README.md) includes this role on every agent host. It does nothing unless the host lists checkouts in `DEPLOYED_CODE_CHECKOUTS` (default empty, see `group_vars/all/05_paths.yml`), so hosts without a checkout get no timer and no FIM change. For each listed checkout a systemd timer runs the check once per hour, day and night (`SYS_SCHEDULE_HEALTH_DEPLOYED_CODE`), and every deploy runs it once at its end.
+[sys-svc-wazuh-agent](../sys-svc-wazuh-agent/README.md) includes this role on every agent host. It does nothing unless the host lists checkouts in `services.deployed-code.checkouts` (default empty, see [meta/services.yml](meta/services.yml); an inventory sets it under `applications.sys-ctl-hlth-deployed-code`), so hosts without a checkout get no timer and no FIM change. For each listed checkout a systemd timer runs the check once per hour, day and night (`services.deployed-code.schedule`), and every deploy runs it once at its end.
 
 Per checkout:
 
@@ -28,7 +28,7 @@ The signature check uses the read-only `github_settings_token` of [web-svc-githu
 
 ## Development
 
-The dev checkout (`INFINITO_SRC_DIR`, `/opt/src/infinito`) is not in the list: it runs a feature branch, so the check would alert on every run. The development inventory lists only `DEPLOYED_CODE_PROOF_CHECKOUT`, a throwaway clone that the Wazuh role's CLI test (`roles/web-app-wazuh/files/test/deployed_code.sh`) rebuilds from a local origin posing as a GitHub repository. It proves each rule against a local API stub: a clean, verified commit on main raises nothing, a modified tracked file raises 100173 and a FIM alert, a commit only on a feature branch 100172, an unverified commit 100171, and a failing API 100174. The test refuses to rebuild a checkout whose origin is not the proof URL. Real-time FIM cannot watch a directory that is missing when the agent starts (it would only see it at the next full scan, every 12 hours), so `sys-svc-wazuh-agent` creates the proof directory before it starts and restarts the agent when it had to create it. A real checkout listed in `DEPLOYED_CODE_CHECKOUTS` must likewise exist before the agent starts. Between test runs, the hourly check of the proof clone raises 100174, because the dev token is empty.
+The dev checkout (`INFINITO_SRC_DIR`, `/opt/src/infinito`) is not in the list: it runs a feature branch, so the check would alert on every run. The development inventory lists only `services.deployed-code.proof_checkout`, a throwaway clone that the Wazuh role's CLI test (`roles/web-app-wazuh/files/test/deployed_code.sh`) rebuilds from a local origin posing as a GitHub repository. It proves each rule against a local API stub: a clean, verified commit on main raises nothing, a modified tracked file raises 100173 and a FIM alert, a commit only on a feature branch 100172, an unverified commit 100171, and a failing API 100174. The test refuses to rebuild a checkout whose origin is not the proof URL. Real-time FIM cannot watch a directory that is missing when the agent starts (it would only see it at the next full scan, every 12 hours), so `sys-svc-wazuh-agent` creates the proof directory before it starts and restarts the agent when it had to create it. A real checkout listed in `services.deployed-code.checkouts` must likewise exist before the agent starts. Between test runs, the hourly check of the proof clone raises 100174, because the dev token is empty.
 
 ## Cosmos
 

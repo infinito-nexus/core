@@ -162,6 +162,9 @@ WAZUH_DEPLOYED_CODE_UNVERIFIED_LEVEL: 10
 WAZUH_DEPLOYED_CODE_UNMERGED_LEVEL: 12
 WAZUH_DEPLOYED_CODE_MODIFIED_LEVEL: 10
 WAZUH_DEPLOYED_CODE_FAILED_LEVEL: 7
+WAZUH_DEPLOYED_CODE_ROLE: "sys-ctl-hlth-deployed-code"
+WAZUH_DEPLOYED_CODE_CHECKOUTS: "{{ lookup('config', WAZUH_DEPLOYED_CODE_ROLE, 'services.deployed-code.checkouts') }}"
+WAZUH_DEPLOYED_CODE_PROOF_CHECKOUT: "{{ lookup('config', WAZUH_DEPLOYED_CODE_ROLE, 'services.deployed-code.proof_checkout') }}"
 WAZUH_DOCKER_APP_LEVEL: 5
 WAZUH_DOCKER_OOM_LEVEL: 7
 # Exception: Wazuh's own "Docker: Container started" rule; the Docker samples use it to prove a foreign project is not attributed.

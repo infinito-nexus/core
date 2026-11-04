@@ -120,16 +120,16 @@
 # Exception: real-time FIM cannot watch a directory that is missing when the agent starts; it would only see it at the next full scan, so the dev proof checkout, which its CLI test builds later, is created first and a new one restarts the agent.
 - name: "📁 Create the deployed code proof checkout before FIM starts"
   ansible.builtin.file:
-    path: "{{ DEPLOYED_CODE_PROOF_CHECKOUT }}"
+    path: "{{ WAZUH_AGENT_DEPLOYED_CODE_PROOF_CHECKOUT }}"
     state: directory
     mode: "0755"
   notify: wazuh-agent-restart
-  when: DEPLOYED_CODE_PROOF_CHECKOUT | length > 0
+  when: WAZUH_AGENT_DEPLOYED_CODE_PROOF_CHECKOUT | length > 0
 
 - name: "🔍 Read the filesystem type of each deployed code checkout"
   ansible.builtin.command:
     argv: [findmnt, --noheadings, --output, FSTYPE, --target, "{{ item }}"]
-  loop: "{{ DEPLOYED_CODE_CHECKOUTS }}"
+  loop: "{{ WAZUH_AGENT_DEPLOYED_CODE_CHECKOUTS }}"
   register: wazuh_agent_checkout_fstypes
   changed_when: false
   when: WAZUH_AGENT_FIM_ENABLED | bool

@@ -8,7 +8,7 @@
 #
 # Env (all required; test.sh passes them):
 #   ALERTS                   the manager's alerts.json
-#   DEPLOYED_CODE_PROOF      the throwaway checkout, also in DEPLOYED_CODE_CHECKOUTS; empty skips the proof
+#   DEPLOYED_CODE_PROOF      the throwaway checkout, also in the deployed code checkouts; empty skips the proof
 #   DEPLOYED_CODE_SCRIPT     the deployed check
 #   DEPLOYED_CODE_TAG        the journald tag the check logs under
 #   DEPLOYED_CODE_MODIFIED_RULE, DEPLOYED_CODE_UNMERGED_RULE, DEPLOYED_CODE_UNVERIFIED_RULE, DEPLOYED_CODE_FAILED_RULE

@@ -32,11 +32,11 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_DEPLOYED_CODE }}"
+    system_service_on_calendar: "{{ HLTH_DEPLOYED_CODE_SCHEDULE }}"
     system_service_timer_enabled: true
     system_service_tpl_exec_start: >-
       {{ system_service_script_exec }}
-      {{ DEPLOYED_CODE_CHECKOUTS | map('regex_replace', '^', '--checkout ') | join(' ') }}
+      {{ HLTH_DEPLOYED_CODE_CHECKOUTS | map('regex_replace', '^', '--checkout ') | join(' ') }}
       --api-url {{ HLTH_DEPLOYED_CODE_API_URL }}
       --token-file {{ HLTH_DEPLOYED_CODE_TOKEN_FILE }}
       --tag {{ HLTH_DEPLOYED_CODE_TAG }}

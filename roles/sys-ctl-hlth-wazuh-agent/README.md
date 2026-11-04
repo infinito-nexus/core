@@ -6,7 +6,7 @@ An independent health check for the [Wazuh](https://wazuh.com/) agent of [sys-sv
 
 ## Overview
 
-`sys-svc-wazuh-agent` includes this role on every host that runs an agent. The timer runs every 15 minutes, day and night (`SYS_SCHEDULE_HEALTH_WAZUH_AGENT`); deploys stop all timers while they run, so the check never sees a deploy's own restarts.
+`sys-svc-wazuh-agent` includes this role on every host that runs an agent. The timer runs every 15 minutes, day and night (`services.wazuh-agent.schedule` in [meta/services.yml](meta/services.yml)); deploys stop all timers while they run, so the check never sees a deploy's own restarts.
 
 On every agent host the check fails when:
 

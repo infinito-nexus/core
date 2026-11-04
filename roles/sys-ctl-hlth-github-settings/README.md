@@ -6,7 +6,7 @@ A scheduled check that compares the security settings of the GitHub organization
 
 ## Overview
 
-`web-svc-github-webhook` includes this role on its stack host, because it holds the token. A systemd timer runs the check once per hour, day and night (`SYS_SCHEDULE_HEALTH_GITHUB_SETTINGS`), and every deploy runs it once at its end.
+`web-svc-github-webhook` includes this role on its stack host, because it holds the token. A systemd timer runs the check once per hour, day and night (`services.github-settings.schedule` in [meta/services.yml](meta/services.yml)), and every deploy runs it once at its end.
 
 The expected state lives in [files/expected.yml](./files/expected.yml). Per organization and repository the check compares:
 

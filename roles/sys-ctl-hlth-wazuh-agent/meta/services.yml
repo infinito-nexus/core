@@ -2,3 +2,5 @@
 # nocheck: required-by-coverage — included by sys-svc-wazuh-agent on every host that runs an agent, not through the service loader
 wazuh-agent:
   lifecycle: alpha
+  # Exception: the timer schedule lives with the one role that runs it, not in group_vars/all/07_schedule.yml, so the check owns its own cadence (SRP) and an inventory overrides it under applications.sys-ctl-hlth-wazuh-agent.services.wazuh-agent.schedule.
+  schedule: "*-*-* *:00/15:00"

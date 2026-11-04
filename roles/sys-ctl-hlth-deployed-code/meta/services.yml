@@ -2,3 +2,11 @@
 # nocheck: required-by-coverage — included by sys-svc-wazuh-agent on every host that runs an agent, not through the service loader
 deployed-code:
   lifecycle: alpha
+  # Exception: the timer schedule lives with the one role that runs it, not in group_vars/all/07_schedule.yml, so the check owns its own cadence (SRP) and an inventory overrides it under applications.sys-ctl-hlth-deployed-code.services.deployed-code.schedule.
+  schedule: "*-*-* *:40:00"
+  # Exception: the checkout list lives in this role, not in group_vars/all, because only this check and the Wazuh agent's FIM read it, and both read it from here (SPOT).
+  # Param checkouts: absolute paths of the Infinito.Nexus git working copies this host deploys from. For each one, the hourly check (and one run at the end of every deploy) alerts when a tracked file differs from HEAD, when HEAD is not on the origin default branch, or when GitHub does not report HEAD as verified, and a failing check is its own alert; the Wazuh agent watches the same paths in real time, without .git, so tampering shows up at once instead of at the next run. Empty, the default: no timer and no FIM change. A development checkout that runs feature branches does not belong here, because every run would alert.
+  checkouts: []
+  # Exception: the proof checkout lives in this role because it is one of its checkouts, used only by the Wazuh CLI test in dev and CI (SPOT).
+  # Param proof_checkout: a throwaway checkout the Wazuh CLI test may wipe and rebuild to prove each rule; it must also be listed in checkouts. Empty outside dev and CI.
+  proof_checkout: ""

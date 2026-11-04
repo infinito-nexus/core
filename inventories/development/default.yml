@@ -26,10 +26,14 @@ test_e2e_playwright_keep: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }
 MAIL_PRODUCTION_HOST: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_HOST') | default('', true) }}"
 MAIL_PRODUCTION_RESOLVER: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_RESOLVER') | default('', true) }}"
 SYS_TIMEOUT_CONTAINER_EXEC: "60min"
-# Exception: the dev checkout (INFINITO_SRC_DIR) runs a feature branch, so the deployed code check would alert on every run; dev checks only a throwaway clone the Wazuh CLI test builds.
-# Exception: under /opt, not DIR_VAR_LIB, because swarm mounts DIR_VAR_LIB over NFS on every node and real-time FIM cannot watch NFS.
-DEPLOYED_CODE_PROOF_CHECKOUT: "/opt/deployed-code-proof/core"
-DEPLOYED_CODE_CHECKOUTS: ["{{ DEPLOYED_CODE_PROOF_CHECKOUT }}"]
+applications:
+  sys-ctl-hlth-deployed-code:
+    services:
+      deployed-code:
+        # Exception: the dev checkout (INFINITO_SRC_DIR) runs a feature branch, so the deployed code check would alert on every run; dev checks only a throwaway clone the Wazuh CLI test builds.
+        # Exception: under /opt, not DIR_VAR_LIB, because swarm mounts DIR_VAR_LIB over NFS on every node and real-time FIM cannot watch NFS.
+        proof_checkout: &deployed_code_proof "/opt/deployed-code-proof/core"
+        checkouts: [*deployed_code_proof]
 networks:
   internet:
     ip4: "{{ lookup('env', 'INFINITO_IP4') }}"

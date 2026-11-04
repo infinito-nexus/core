@@ -34,7 +34,7 @@
 - include_role:
     name: sys-service
   vars:
-    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_GITHUB_SETTINGS }}"
+    system_service_on_calendar: "{{ HLTH_GITHUB_SETTINGS_SCHEDULE }}"
     system_service_timer_enabled: true
     system_service_tpl_exec_start: >-
       {{ system_service_script_exec }}

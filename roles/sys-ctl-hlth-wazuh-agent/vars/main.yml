@@ -1,6 +1,8 @@
 ---
 system_service_id: sys-ctl-hlth-wazuh-agent
 
+HLTH_WAZUH_AGENT_SCHEDULE: "{{ lookup('config', 'sys-ctl-hlth-wazuh-agent', 'services.wazuh-agent.schedule') }}"
+
 HLTH_WAZUH_AGENT_COLLECTOR_GRACE: 5
 HLTH_WAZUH_AGENT_THRESHOLD: "{{ lookup('wazuh_agent').active_window }}"
 HLTH_WAZUH_AGENT_MANAGER_HOST: "{{ HLTH_WAZUH_AGENT_MANAGER_ROLE in group_names }}"
