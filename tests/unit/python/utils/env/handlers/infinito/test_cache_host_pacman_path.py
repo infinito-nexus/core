@@ -29,6 +29,11 @@ class TestHostPacmanPath(unittest.TestCase):
         self._tmp.cleanup()
 
     def _apply(self, os_release: str | None, distro: str, conf_output: str) -> str:
+        return self._build(os_release, distro, conf_output).values[handler.KEY]
+
+    def _build(
+        self, os_release: str | None, distro: str, conf_output: str
+    ) -> EnvBuilder:
         path = self.tmp / "os-release"
         if os_release is not None:
             path.write_text(os_release)
@@ -46,7 +51,7 @@ class TestHostPacmanPath(unittest.TestCase):
             patch(HELPER, return_value=conf_output),
         ):
             handler.apply(eb, ctx)
-        return eb.values[handler.KEY]
+        return eb
 
     def test_an_arch_host_offers_its_first_cache_dir_to_an_arch_stack(self) -> None:
         self.assertEqual(
@@ -71,6 +76,12 @@ class TestHostPacmanPath(unittest.TestCase):
 
     def test_a_cache_dir_that_does_not_exist_is_not_offered(self) -> None:
         self.assertEqual(self._apply(ARCH, "arch", f"{self.cache}/missing/\n"), "")
+
+    def test_an_arch_host_leaves_the_stack_distro_as_resolved(self) -> None:
+        eb = self._build(ARCH, "debian", f"{self.cache}/\n")
+        self.assertEqual(
+            [eb.values["INFINITO_DISTRO"], eb.values[handler.KEY]], ["debian", ""]
+        )
 
     def test_an_exported_path_wins(self) -> None:
         with patch.dict(os.environ, {handler.KEY: "/elsewhere"}, clear=False):
