@@ -99,6 +99,9 @@ class TestServiceJournaldTag(unittest.TestCase):
     SERVICE_BASE_INCLUDE = (
         "{% include 'roles/sys-svc-container/templates/base.yml.j2' %}"
     )
+    LOGGING_INCLUDE = (
+        "{% include 'roles/sys-svc-container/templates/logging.yml.j2' %}"
+    )
     SERVICE_NAME_RE: ClassVar[re.Pattern] = re.compile(r"\{%\s*set\s+service_name\s*=")
     TEMPLATES: ClassVar[dict[str, tuple[str, str]]] = {
         "roles/sys-svc-container/templates/base.yml.j2": ("services:\n  svc:\n", "svc"),
@@ -168,17 +171,12 @@ class TestServiceJournaldTag(unittest.TestCase):
                         {"driver": "journald", "options": {"tag": "pixelfed"}},
                     )
 
-    def test_sidecar_logging_blocks_match_the_service_base(self):
-        blocks = {}
+    def test_templates_take_logging_from_the_shared_partial(self):
         for template in self.TEMPLATES:
-            lines = read_text(str(PROJECT_ROOT / template)).splitlines()
-            start = lines.index("    logging:")
-            end = lines.index("{% endif %}", start)
-            blocks[template] = lines[start : end + 1]
-        base, *sidecars = self.TEMPLATES
-        for sidecar in sidecars:
-            with self.subTest(template=sidecar):
-                self.assertEqual(blocks[sidecar], blocks[base])
+            text = read_text(str(PROJECT_ROOT / template))
+            with self.subTest(template=template):
+                self.assertIn(self.LOGGING_INCLUDE, text)
+                self.assertNotIn("driver: journald", text)
 
     def test_all_templates_render_the_same_logging(self):
         for mode in self.MODES:
