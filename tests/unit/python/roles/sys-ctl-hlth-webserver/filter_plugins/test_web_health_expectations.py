@@ -708,11 +708,23 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         )
         self.assertEqual(
             targets[f"a.{DOMAIN}"],
-            {"codes": [200], "scheme": "https", "timeout": 10, "paused_marker": ""},
+            {
+                "codes": [200],
+                "scheme": "https",
+                "timeout": 10,
+                "paused_marker": "",
+                "application_id": "app-a",
+            },
         )
         self.assertEqual(
             targets[f"a.{self.ONION}"],
-            {"codes": [200], "scheme": "http", "timeout": 30, "paused_marker": ""},
+            {
+                "codes": [200],
+                "scheme": "http",
+                "timeout": 30,
+                "paused_marker": "",
+                "application_id": "app-a",
+            },
         )
 
     def test_targets_follow_an_app_tls_override(self):
@@ -732,6 +744,7 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         targets = self._targets({"elsewhere.example": [301]}, {}, {})
         self.assertEqual(targets["elsewhere.example"]["scheme"], "https")
         self.assertEqual(targets["elsewhere.example"]["paused_marker"], "")
+        self.assertEqual(targets["elsewhere.example"]["application_id"], "")
 
     def test_a_controlled_app_points_its_targets_at_its_state_marker(self):
         targets = self._targets(

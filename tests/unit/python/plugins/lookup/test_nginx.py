@@ -114,6 +114,18 @@ class TestNginxPathsLookup(unittest.TestCase):
         ):
             self.assertIn({"path": path, "mode": "0755"}, ensure)
 
+    def test_health_status_file_lives_in_an_ensured_world_readable_directory(self):
+        self.assertEqual(
+            self._run(["files.health_status"]), "/opt/mock/www/health/status.json"
+        )
+        self.assertEqual(
+            self._run(["directories.data"])["health"], "/opt/mock/www/health/"
+        )
+        self.assertIn(
+            {"path": "/opt/mock/www/health/", "mode": "0755"},
+            self._run(["directories.ensure"]),
+        )
+
     def test_directories_cache_projection(self):
         out = self._run(["directories.cache"])
         self.assertEqual(out["general"], "/tmp/cache_nginx_general/")

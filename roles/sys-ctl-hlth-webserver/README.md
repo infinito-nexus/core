@@ -13,6 +13,7 @@ The role scans NGINX server block `.conf` files for domains, HEAD-requests each 
 - **Domain Detection:** Scans NGINX server block `.conf` files for configured domains.
 - **HTTP Status Verification:** HEAD-requests each domain and compares the response against per-domain expected codes.
 - **Alerting:** Reports mismatches via `sys-ctl-alm-compose`.
+- **Status Document:** Writes after every sweep the state of each dashboard application (`running`, `paused`, `degraded`, `down`, its worst domain counts) and the check time to `lookup('nginx', 'files.health_status')`, which the dashboard serves as `/status.json`; applications without a dashboard card and the HTTP codes stay out of it, because the document is public.
 - **Scheduled Execution:** Integrates with a systemd timer for periodic health sweeps.
 
 ## Further Resources

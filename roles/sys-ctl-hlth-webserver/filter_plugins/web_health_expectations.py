@@ -283,10 +283,12 @@ def web_health_targets(
 
     Returns:
         ``{domain: {"codes": [...], "scheme": "http"|"https", "timeout": s,
-        "paused_marker": path}}``; the scheme follows the same per-domain
-        resolution as ``lookup('tls')``, the timeout comes from the domain's
-        network, and ``paused_marker`` names the state marker the checker reads
-        to accept the paused page, empty outside app control.
+        "paused_marker": path, "application_id": id}}``; the scheme follows the
+        same per-domain resolution as ``lookup('tls')``, the timeout comes from
+        the domain's network, ``paused_marker`` names the state marker the
+        checker reads to accept the paused page, empty outside app control,
+        and ``application_id`` names the application serving the domain, empty
+        when none does.
     """
     targets = {}
     for domain, codes in (expectations or {}).items():
@@ -307,6 +309,7 @@ def web_health_targets(
             "scheme": "https" if enabled else "http",
             "timeout": network(network_of(domain)).probe_timeout,
             "paused_marker": _paused_marker(app_id, app, compositions_dir, state_file),
+            "application_id": app_id,
         }
     return targets
 
