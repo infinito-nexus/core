@@ -8,6 +8,7 @@ import json
 import runpy
 import unittest
 import urllib.error
+import urllib.request
 from email.message import Message
 from unittest.mock import MagicMock, patch
 
@@ -24,12 +25,21 @@ def _headers(content_type: str) -> Message:
     return headers
 
 
-def _run(urlopen: MagicMock, *, method: str, body: str) -> dict:
+def _run(
+    urlopen: MagicMock, *, method: str, body: str, build_opener: MagicMock | None = None
+) -> dict:
     stdout = io.StringIO()
-    env = {"HTTP_METHOD": method, "HTTP_URL": URL, "HTTP_BODY": body}
+    env = {
+        "HTTP_METHOD": method,
+        "HTTP_URL": URL,
+        "HTTP_BODY": body,
+        "HTTP_PROXY": "http://proxy.invalid:3128",
+    }
+    opener_factory = build_opener or MagicMock()
+    opener_factory.return_value = MagicMock(open=urlopen)
     with (
         patch.dict("os.environ", env, clear=True),
-        patch("urllib.request.urlopen", urlopen),
+        patch("urllib.request.build_opener", opener_factory),
         contextlib.redirect_stdout(stdout),
     ):
         runpy.run_path(str(SCRIPT_PATH))
@@ -45,6 +55,15 @@ def _ok(content: bytes) -> MagicMock:
 
 
 class TestHttpRequest(unittest.TestCase):
+    def test_environment_proxies_are_ignored(self):
+        build_opener = MagicMock()
+
+        _run(_ok(b"ok"), method="GET", body="", build_opener=build_opener)
+
+        (handler,) = build_opener.call_args.args
+        self.assertIsInstance(handler, urllib.request.ProxyHandler)
+        self.assertEqual(handler.proxies, {})
+
     def test_post_sends_json_body_and_reports_answer(self):
         urlopen = _ok(b'{"data": {}}')
 
@@ -57,7 +76,11 @@ class TestHttpRequest(unittest.TestCase):
         self.assertEqual(request.get_header("Content-type"), "application/json")
         self.assertEqual(
             answer,
-            {"status": 200, "content_type": "application/json", "content": '{"data": {}}'},
+            {
+                "status": 200,
+                "content_type": "application/json",
+                "content": '{"data": {}}',
+            },
         )
 
     def test_empty_body_sends_none(self):

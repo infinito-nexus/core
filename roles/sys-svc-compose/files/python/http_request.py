@@ -8,6 +8,7 @@ Args (environment):
 Output:
     ``{"status": int, "content_type": str, "content": str}`` on stdout. An
     HTTP error status is an answer; a connection failure exits non-zero.
+    Proxy variables of the environment are ignored.
 """
 
 import json
@@ -23,8 +24,9 @@ request = urllib.request.Request(  # noqa: S310 - caller-fixed http:// URL insid
     headers={"Content-Type": "application/json"} if body else {},
     method=os.environ["HTTP_METHOD"],
 )
+opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 try:
-    with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310 - caller-fixed http:// URL
+    with opener.open(request, timeout=60) as response:
         status, headers, content = response.status, response.headers, response.read()
 except urllib.error.HTTPError as error:
     status, headers, content = error.code, error.headers, error.read()
