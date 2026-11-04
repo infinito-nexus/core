@@ -5,7 +5,6 @@
  * Required env:
  *   WORDPRESS_DESIGN  base64 of a JSON object
  *     enabled       "true" applies the design, anything else withdraws what an earlier run applied
- *     title          site title, "" for none
  *     directory      directory below wp-content that holds the stylesheets and the rendered logo set
  *     logos          {"site_icon": "<file>", "site_logo": "<file>"}, {} for none
  *     stylesheets    file names the mu-plugin enqueues from the directory
@@ -13,8 +12,8 @@
  *     scheme         {"name", "colors": [<swatch>, ...], "icons": {"base", "focus", "current"}}
  *     tokens         URLs of the token stylesheets the editor canvas loads
  *
- * Title, site icon, site logo and a global styles post are written only while they are unset or still hold what an
- * earlier run wrote. An account moves from the default admin color scheme to the corporate one once.
+ * Site icon, site logo and a global styles post are written only while they are unset or still hold what an earlier
+ * run wrote. An account moves from the default admin color scheme to the corporate one once.
  *
  * Stdout, last line: changed | unchanged
  */
@@ -34,7 +33,7 @@ $config = json_decode((string) base64_decode((string) getenv('WORDPRESS_DESIGN')
 $enabled = filter_var($config['enabled'], FILTER_VALIDATE_BOOLEAN);
 $directory = WP_CONTENT_DIR . '/' . $config['directory'];
 $applied = (get_option(INFINITO_DESIGN_OPTION) ?: [])
-    + ['title' => '', 'logos' => [], 'global_styles' => [], 'stylesheets' => []];
+    + ['logos' => [], 'global_styles' => [], 'stylesheets' => []];
 $changed = false;
 
 $fail = static function (string $message): void {
@@ -42,20 +41,7 @@ $fail = static function (string $message): void {
     exit(1);
 };
 
-$owned = ['title' => '', 'logos' => [], 'global_styles' => [], 'stylesheets' => []];
-
-$title = $enabled ? (string) $config['title'] : '';
-$presentTitle = (string) get_option('blogname');
-if ($title !== '') {
-    if ($presentTitle === '' || ($presentTitle === $applied['title'] && $presentTitle !== $title)) {
-        update_option('blogname', $title);
-        $presentTitle = $title;
-        $changed = true;
-    }
-    if ($presentTitle === $title) {
-        $owned['title'] = $title;
-    }
-}
+$owned = ['logos' => [], 'global_styles' => [], 'stylesheets' => []];
 
 $attachment = static function (string $option, string $file) use (&$changed, $fail): int {
     $bytes = file_get_contents($file);

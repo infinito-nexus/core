@@ -62,18 +62,24 @@ WORDPRESS_PEERTUBE_INSTANCE_URL: >-
 WORDPRESS_S3_UPLOADS_ARCHIVE: >-
   {{ lookup('config', application_id, 'addons.s3-uploads.config.archive')
   if (lookup('config', application_id, 'addons.s3-uploads.enabled') | bool) else '' }}
+WORDPRESS_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'addons.freedomtranslate-wp.enabled') | bool }}"
 WORDPRESS_TRANSLATE_OPTIONS: >-
-  {{ lookup('config', application_id, 'addons.freedomtranslate-wp.config.options')
-  if (lookup('config', application_id, 'addons.freedomtranslate-wp.enabled') | bool) else [] }}
-WORDPRESS_TRANSLATE_ENDPOINT: >-
-  {{ (WORDPRESS_TRANSLATE_OPTIONS | selectattr('name', 'equalto', 'freedomtranslate_api_url')
-  | map(attribute='value') | first) | default('', true) }}
+  {{ (lookup('config', application_id, 'addons.freedomtranslate-wp.config.options') if WORDPRESS_TRANSLATE_ENABLED | bool else [])
+  | items2dict(key_name='name', value_name='value') }}
+WORDPRESS_TRANSLATE_ENDPOINT: "{{ WORDPRESS_OPTIONS.freedomtranslate_api_url }}"
 WORDPRESS_S3_UPLOADS_SRC: "/usr/src/s3-uploads"
 WORDPRESS_S3_UPLOADS_DIR: "{{ [WORDPRESS_PLUGINS_DIR, 's3-uploads'] | path_join }}"
-WORDPRESS_OPTIONS_OWNED_ELSEWHERE: "{{ ['home', 'siteurl', 'blogname', 'admin_email', 'active_plugins', 'rewrite_rules',
-  'openid_connect_generic_settings', 'mwai_options'] + (lookup('config', application_id, 'addons.wp-discourse.config.discourse_settings') |
-  map(attribute='name') | list) + (WORDPRESS_DESIGN_LOGOS.keys() | list) + (WORDPRESS_TRANSLATE_OPTIONS | map(attribute='name') | list) }}"
-WORDPRESS_OPTIONS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.options') | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}"
+WORDPRESS_OPTIONS_OWNED_ELSEWHERE: >-
+  {{ ['home', 'siteurl', 'active_plugins', 'rewrite_rules', 'openid_connect_generic_settings', 'mwai_options']
+  + (lookup('config', application_id, 'addons.wp-discourse.config.discourse_settings') | map(attribute='name') | list)
+  + (WORDPRESS_DESIGN_LOGOS.keys() | list) }}
+WORDPRESS_OPTIONS_CONTRIBUTED: >-
+  {{ {'admin_email': WORDPRESS_ADMIN_EMAIL}
+  | combine({'blogname': WORDPRESS_DESIGN.title} if (WORDPRESS_DESIGN_ENABLED | bool and WORDPRESS_DESIGN.title is string and WORDPRESS_DESIGN.title) else {})
+  | combine(WORDPRESS_TRANSLATE_OPTIONS) }}
+WORDPRESS_OPTIONS: >-
+  {{ WORDPRESS_OPTIONS_CONTRIBUTED | combine(lookup('config', application_id, 'services.' ~ entity_name ~ '.options'))
+  | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}
 
 WORDPRESS_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 WORDPRESS_ADMIN_USER: "{{ lookup('users', 'platform_administrator').username }}"
@@ -94,7 +100,6 @@ WORDPRESS_DESIGN_SYNC: >-
   if cmp -s "$1.new" "$1"; then rm "$1.new"; else mv "$1.new" "$1" && echo CHANGED; fi
 WORDPRESS_DESIGN_CONFIG:
   enabled: "{{ WORDPRESS_DESIGN_ENABLED | string | lower }}"
-  title: "{{ WORDPRESS_DESIGN.title if WORDPRESS_DESIGN.title is string else '' }}"
   directory: "{{ WORDPRESS_DESIGN_DIRECTORY }}"
   logos: "{{ WORDPRESS_DESIGN_LOGOS if WORDPRESS_DESIGN.logo is string else {} }}"
   stylesheets: "{{ WORDPRESS_DESIGN_STYLESHEETS }}"

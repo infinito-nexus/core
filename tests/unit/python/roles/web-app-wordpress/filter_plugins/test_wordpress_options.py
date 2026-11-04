@@ -30,7 +30,7 @@ MODULE = _load_module(
 )
 
 STRUCTURE = "/blog/%year%/%monthnum%/%day%/%postname%/"
-OWNED = ["home", "siteurl", "blogname", "admin_email", "discourse_connect"]
+OWNED = ["home", "siteurl", "active_plugins", "discourse_connect"]
 
 
 def _checked(**options):
@@ -56,6 +56,15 @@ class TestOptionsAccepted(unittest.TestCase):
             sticky_posts=[1, 2],
             activitypub_options={"actor_mode": "blog", "enabled": True},
             moderation_keys="spam",
+        )
+
+    def test_the_options_the_role_contributes_pass(self):
+        _checked(
+            permalink_structure=STRUCTURE,
+            admin_email="admin@example.test",
+            blogname="Blog by Example",
+            freedomtranslate_service="libretranslate",
+            freedomtranslate_api_url="https://translate.example.test/translate",
         )
 
 
@@ -95,7 +104,13 @@ class TestOptionsRefused(unittest.TestCase):
             MODULE.wordpress_options_checked(["permalink_structure"], OWNED)
 
     def test_a_secret_option_name_is_refused(self):
-        for name in ("mailserver_pass", "auth_key", "secure_auth_salt", "api_token"):
+        for name in (
+            "mailserver_pass",
+            "auth_key",
+            "secure_auth_salt",
+            "api_token",
+            "freedomtranslate_api_key",
+        ):
             with self.subTest(name=name):
                 self._refused(
                     f"services.wordpress.options.{name}",
