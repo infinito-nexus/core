@@ -50,6 +50,60 @@ front_nginx_conf:
       target: /etc/nginx/templates/default.conf.template
       when: "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
 
+same_origin_settings:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'same_origin_settings.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &same_origin_settings_target /app/same_origin_settings.py
+      when: &same_origin_when "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
+    - service: celeryworker
+      target: *same_origin_settings_target
+      when: *same_origin_when
+    - service: celerybeat
+      target: *same_origin_settings_target
+      when: *same_origin_when
+    - service: migrate
+      target: *same_origin_settings_target
+      when: *same_origin_when
+
+same_origin_storage:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'same_origin_storage.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &same_origin_storage_target /app/same_origin_storage.py
+      when: *same_origin_when
+    - service: celeryworker
+      target: *same_origin_storage_target
+      when: *same_origin_when
+    - service: celerybeat
+      target: *same_origin_storage_target
+      when: *same_origin_when
+    - service: migrate
+      target: *same_origin_storage_target
+      when: *same_origin_when
+
+same_origin_urls:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'same_origin_urls.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &same_origin_urls_target /app/same_origin_urls.py
+      when: *same_origin_when
+    - service: celeryworker
+      target: *same_origin_urls_target
+      when: *same_origin_when
+    - service: celerybeat
+      target: *same_origin_urls_target
+      when: *same_origin_when
+    - service: migrate
+      target: *same_origin_urls_target
+      when: *same_origin_when
+
 design_admin_template:
   type: config
   source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'design', 'admin_base_site.html'] | path_join }}"

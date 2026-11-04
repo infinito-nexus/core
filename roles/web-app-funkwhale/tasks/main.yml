@@ -15,6 +15,15 @@
         mode: "0444"
   when: FUNKWHALE_OBJSTORE_ENABLED | bool
 
+- name: "🧱 Copy the same-origin media modules of {{ application_id }}"
+  stack_host_copy:
+    src: "python/same_origin/"
+    dest: "{{ FUNKWHALE_SAME_ORIGIN_DIR }}/"
+    mode: "0444"
+    directory_mode: "0755"
+  notify: compose-up
+  when: FUNKWHALE_OBJSTORE_ENABLED | bool
+
 - name: "🎨 Render the Django admin template of {{ application_id }}"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
