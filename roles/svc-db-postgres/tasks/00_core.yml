@@ -17,6 +17,7 @@
   vars:
     package_name: "psycopg2-binary"
     global_install: true
+  when: POSTGRES_EXPOSE_LOCAL | bool
 
 - name: "⏳ POSTGRES | Wait until container is running (not restarting)"
   ansible.builtin.shell: >

@@ -96,36 +96,44 @@
     webserver_proxy_service_key: "{{ 'dashboard' if IS_SWARM_MODE else (application_id | entity_name) }}"
     proxy_internal_port: "{{ WAZUH_DASHBOARD_INTERNAL_PORT if IS_SWARM_MODE else '' }}"
 
+- name: "🔍 Resolve the Wazuh indexer hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: indexer
+    resolve_output_prefix: WAZUH_INDEXER
+    resolve_compose_cid: "{{ WAZUH_INDEXER_CONTAINER }}"
+
 - name: "⏳ Wait for Wazuh indexer to answer HTTPS requests (security plugin loaded)"
-  uri_retry:
-    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
-    method: GET
-    validate_certs: false
-    status_code: [200, 401]
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  WAZUH_INDEXER_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec {{ WAZUH_INDEXER_LOCAL_CID | quote }}
+      {{ lookup('timeout', 30) | curl }} -k -o /dev/null -w '%{http_code}'
+      {{ (WAZUH_INDEXER_INTERNAL_API_URL ~ '/_cluster/health') | quote }}
   register: wazuh_indexer_ready
-  until: wazuh_indexer_ready is succeeded
+  until: (wazuh_indexer_ready.stdout | trim) in ['200', '401']
   retries: 60
   delay: 5
+  changed_when: false
+  delegate_to: "{{ WAZUH_INDEXER_HOST_NODE }}"
 
 - name: "🔄 Apply Wazuh indexer security config via securityadmin.sh"
   include_tasks: 01_securityadmin.yml
 
 - name: "✅ Confirm indexer admin credentials are live post-securityadmin.sh"
-  uri_retry:
-    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
-    method: GET
-    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
-    password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
-    force_basic_auth: true
-    validate_certs: false
-    status_code: 200
-    return_content: true
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  WAZUH_INDEXER_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i {{ WAZUH_INDEXER_LOCAL_CID | quote }}
+      {{ lookup('timeout', 30) | curl }} -fS -k -H @-
+      {{ (WAZUH_INDEXER_INTERNAL_API_URL ~ '/_cluster/health') | quote }}
+    stdin: "Authorization: Basic {{ (WAZUH_INDEXER_ADMIN_USERNAME ~ ':' ~ WAZUH_INDEXER_ADMIN_PASSWORD) | b64encode }}"
   register: wazuh_indexer_health
   until: >-
-    wazuh_indexer_health.json is defined and
-    wazuh_indexer_health.json.status in ['green', 'yellow']
+    wazuh_indexer_health.rc == 0 and
+    (wazuh_indexer_health.stdout | from_json).status in ['green', 'yellow']
   retries: 30
   delay: 5
+  changed_when: false
+  delegate_to: "{{ WAZUH_INDEXER_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔐 Map the platform role groups onto the Wazuh API roles"

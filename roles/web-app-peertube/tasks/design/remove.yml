@@ -15,15 +15,14 @@
   register: peertube_design_marks
 
 - name: "🗑️ PEERTUBE | Delete the logos that are still the ones the role uploaded"
-  uri_retry:
-    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/config/instance-logo/{{ item.0.type }}"
-    method: DELETE
-    headers:
-      Host: "{{ PEERTUBE_HOSTNAME }}"
-      Authorization: "Bearer {{ peertube_design_token.json.access_token }}"
-    status_code: [204]
+  ansible.builtin.command:
+    argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '', headers=peertube_design_headers) }}"
+  environment:
+    HTTP_METHOD: DELETE
+    HTTP_URL: "{{ PEERTUBE_NETNS_URL }}/api/v1/config/instance-logo/{{ item.0.type }}"
   vars:
-    _served: "{{ peertube_design_config.json.instance.logo | selectattr('type', 'equalto', item.0.type) | first }}"
+    _served: "{{ peertube_design_served | selectattr('type', 'equalto', item.0.type) | first }}"
   loop: "{{ PEERTUBE_DESIGN_LOGOS | zip(peertube_design_marks.results) | list }}"
   loop_control:
     label: "{{ item.0.type }}"
@@ -31,7 +30,13 @@
     - item.1 is not skipped
     - not _served.isFallback
     - (item.1.content | b64decode).split()[0] == (_served.fileUrl | urlsplit('path'))
+  register: peertube_design_deletes
+  retries: 30
+  delay: 2
+  until: peertube_design_deletes.rc == 0 and (peertube_design_deletes.stdout | from_json).status == 204
   changed_when: true
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 PEERTUBE | Remove the rendered logos and their marks"

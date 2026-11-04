@@ -6,8 +6,9 @@
     roles_dir: the repository's ``roles`` directory.
     Returns role name -> sorted role-relative paths of the files that name a
     trusted header in any spelling (``X-Remote-User``, ``HTTP_X_REMOTE_USER``,
-    ``$http_x_remote_user``). Docs, Playwright files, lines that blank a header
-    and ``PLATFORM_ROLES`` are skipped.
+    ``$http_x_remote_user``). Docs, Playwright files, lines that blank a header,
+    files carrying ``# nocheck: header-trust`` in their head and
+    ``PLATFORM_ROLES`` are skipped.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text
 
 if TYPE_CHECKING:
@@ -39,6 +41,7 @@ PLATFORM_ROLES: frozenset[str] = frozenset(
     {"sys-svc-proxy", "web-app-keycloak", "test-e2e-playwright"}
 )
 
+_RULE = "header-trust"
 _SKIPPED_PARTS = ("/files/playwright/", "/__pycache__/")
 _SKIPPED_NAMES = frozenset({"playwright.env.j2"})
 _BLANKING = re.compile(r"proxy_set_header\s+\S+\s+\"\"\s*;")
@@ -78,7 +81,9 @@ def header_trust_roles(roles_dir: Path) -> dict[str, list[str]]:
                 text = read_text(str(path))
             except (OSError, UnicodeDecodeError):
                 continue
-            if _names_a_trusted_header(text):
+            if _names_a_trusted_header(text) and not is_suppressed_in_head(
+                text.splitlines(), _RULE
+            ):
                 hits.append(rel)
         if hits:
             found[role_dir.name] = hits

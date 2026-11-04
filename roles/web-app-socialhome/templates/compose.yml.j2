@@ -3,7 +3,7 @@
   {% set service_name = entity_name %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, service_name) }}
-    {{ lookup('compose_only', 'container_name', entity_name) }}
+    {{ lookup('compose_only', 'container_name', SOCIALHOME_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_ports', [service_name, 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}

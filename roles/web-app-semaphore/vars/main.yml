@@ -202,9 +202,11 @@ SEMAPHORE_DEPLOY_FIXTURE_URL: "https://{{ lookup('domain', SEMAPHORE_DEPLOY_FIXT
 SEMAPHORE_DEPLOY_FIXTURE_MARKER: ".infinito-fixture"
 SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY: "{{ SEMAPHORE_DEPLOY_PRIVATE_KEY | ssh_public_key }}"
 SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH: "{{ SEMAPHORE_DEPLOY_REPOSITORY_URL | urlsplit('path') | regex_replace('^/', '') | regex_replace('[.]git$', '') }}"
-SEMAPHORE_DEPLOY_FIXTURE_GITEA_API: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.local.http') }}/api/v1"
+SEMAPHORE_DEPLOY_FIXTURE_GITEA_API: "http://127.0.0.1:{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.internal.http') }}/api/v1"
 SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER: "{{ lookup('users', 'platform_administrator').username }}"
 SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS:
+  Authorization: "Basic {{ (SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER ~ ':' ~ SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD) | b64encode }}"
 SEMAPHORE_DEPLOY_FIXTURE_VARS:
   ansible_host: "{{ semaphore_deploy_fixture_address }}"
   TLS_MODE: "self_signed"

@@ -55,7 +55,8 @@
     if (!CONFIG.status) {
       return null;
     }
-    const entry = statusDocument ? statusDocument.applications[id] : null;
+    const states = statusDocument ? statusDocument.applications : null;
+    const entry = states ? states[id] : null;
     const checked = entry ? Date.parse(entry.checked) : NaN;
     const fresh = !Number.isNaN(checked) && Date.now() - checked <= CONFIG.status.stale_after_seconds * 1000;
     const state = entry && fresh && Object.hasOwn(STATES, entry.state) ? entry.state : "unknown";

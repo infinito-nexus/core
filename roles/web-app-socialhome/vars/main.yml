@@ -2,9 +2,10 @@
 application_id: "web-app-socialhome"
 entity_name: "{{ application_id | entity_name }}"
 
+SOCIALHOME_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 SOCIALHOME_EXTERNAL_URL: "{{ lookup('tls', application_id, 'url.base') }}"
-SOCIALHOME_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.local.http') }}"
 SOCIALHOME_LISTEN_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
+SOCIALHOME_INTERNAL_URL: "http://127.0.0.1:{{ SOCIALHOME_LISTEN_PORT }}"
 SOCIALHOME_INSTANCE_NAME: "{{ lookup('design', application_id).label }}"
 
 SOCIALHOME_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"

@@ -70,17 +70,22 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📤 Commit the inventory to the repository"
-  uri_retry:
-    url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/contents"
-    method: POST
-    url_username: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER }}"
-    url_password: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD }}"
-    force_basic_auth: true
-    body_format: json
-    body:
-      branch: "{{ SEMAPHORE_DEPLOY_REPOSITORY_BRANCH }}"
-      message: "Inventory of the shared target"
-      files: "{{ semaphore_deploy_fixture_commit }}"
-    status_code: [201]
+  ansible.builtin.command:
+    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    stdin: >-
+      {{ lookup('http_request_program', {
+        'branch': SEMAPHORE_DEPLOY_REPOSITORY_BRANCH,
+        'message': 'Inventory of the shared target',
+        'files': semaphore_deploy_fixture_commit,
+      } | to_json, headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/contents"
+  register: semaphore_deploy_fixture_push
+  retries: 30
+  delay: 2
+  until: semaphore_deploy_fixture_push.rc == 0 and (semaphore_deploy_fixture_push.stdout | from_json).status == 201
   changed_when: true
+  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

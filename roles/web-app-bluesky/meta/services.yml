@@ -76,6 +76,7 @@ view:
   mem_limit: 256m
   pids_limit: 256
 pds:
+  name: bluesky-pds
   backup:
     stop_required: true
   image: ghcr.io/bluesky-social/pds

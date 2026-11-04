@@ -15,6 +15,7 @@
  *     request: a Playwright APIRequestContext with no browser session.
  *     baseUrl: vhost base URL; a trailing slash is dropped.
  *     Redirects are not followed, so every field describes the first hop.
+ *     Throws when the /healthz/ready probe answers 500 or above.
  *
  *   parseStrictBoolean(raw, key) -> boolean
  *     raw: "true" or "false"; anything else throws, naming key.
@@ -38,7 +39,8 @@ const FORGED_IDENTITY_HEADER_NAMES = Object.freeze([
   "X-Remote-User",
 ]);
 
-const HEALTHZ_PATHS = Object.freeze(["/healthz/ready", "/healthz/live"]);
+const READY_PATH = "/healthz/ready";
+const HEALTHZ_PATHS = Object.freeze([READY_PATH, "/healthz/live"]);
 
 function requireNonEmpty(value, name) {
   if (typeof value !== "string" || value.trim() === "") {
@@ -110,11 +112,15 @@ async function probeForgedIdentity(request, { baseUrl, paths, identity, promethe
       ignoreHTTPSErrors: true,
       timeout: resolveTimeout(30_000),
     });
+    const status = response.status();
+    if (path === READY_PATH && status >= 500) {
+      throw new Error(`forged-identity: ${url} answered ${status}, so the probe did not reach the backend`);
+    }
     const responseHeaders = response.headers();
     results.push({
       path,
       url,
-      status: response.status(),
+      status,
       location: responseHeaders.location || "",
       setCookieNames: setCookieNamesOf(response),
       contentType: responseHeaders["content-type"] || "",

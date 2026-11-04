@@ -129,5 +129,43 @@ class TestIamShapesPass(unittest.TestCase):
         self.assertEqual([], lint.scan_environment(content, {}))
 
 
+class TestUrlPathSegments(unittest.TestCase):
+    def test_a_path_segment_in_the_literal_around_the_jinja_passes(self) -> None:
+        content = _task('    HTTP_URL: "{{ X_NETNS_URL }}/api/v1/users/token"\n')
+        self.assertEqual([], lint.scan_environment(content, {}))
+
+    def test_a_path_segment_in_a_string_literal_of_the_jinja_passes(self) -> None:
+        content = _task(
+            "    HTTP_URL: \"{{ [X_PAGES, 'objects/XWiki.XWikiUsers/0/properties/password']"
+            ' | url_join }}"\n'
+        )
+        self.assertEqual([], lint.scan_environment(content, {}))
+
+    def test_a_path_segment_reached_through_include_vars_passes(self) -> None:
+        content = (
+            "- ansible.builtin.include_tasks: http.yml\n"
+            "  vars:\n"
+            '    x_http_url: "{{ [X_PAGES, X_ADMIN_USER | urlencode,'
+            " 'objects/XWiki.XWikiUsers/0/properties/password'] | url_join }}\"\n"
+            "- ansible.builtin.command: tool\n"
+            "  environment:\n"
+            '    HTTP_URL: "{{ x_http_url }}"\n'
+        )
+        self.assertEqual([], lint.scan_environment(content, {}))
+
+    def test_a_credential_word_outside_a_path_segment_still_convicts(self) -> None:
+        for value in (
+            "https://user:password@{{ x_host }}/",
+            "{{ x_base }}/api?token=abc",
+            "{{ x_base }}/login?user=a&password=x",
+            "Authorization: Bearer {{ x_token }}",
+            "{{ x_base }}/{{ x_api_token }}",
+            "{{ x_base ~ '/' ~ x_api_token }}",
+        ):
+            with self.subTest(value=value):
+                content = _task(f'    X_VALUE: "{value}"\n')
+                self.assertEqual([(3, "X_VALUE")], lint.scan_environment(content, {}))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -138,7 +138,9 @@ BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 BLUESKY_ADMIN_HANDLE: "{{ lookup('users', 'platform_administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
 BLUESKY_ADMIN_HANDLE_RESERVED: "i8-{{ BLUESKY_ADMIN_HANDLE }}"
-BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_API_PORT }}"
+BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_PDS_INTERNAL_PORT }}"
+BLUESKY_PDS_CONTAINER: "{{ lookup('config', application_id, 'services.pds.name') }}"
+BLUESKY_PDS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'pds') }}"
 
 BLUESKY_FRONT_PROXY_CONTENT: "{{ lookup('template', 'extra_locations.conf.j2') }}"
 BLUESKY_FRONT_PROXY_TIMEOUT: 5s

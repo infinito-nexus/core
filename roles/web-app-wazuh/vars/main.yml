@@ -6,7 +6,6 @@ WAZUH_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id,
 
 WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
 WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
-WAZUH_INDEXER_HTTP_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.local.http') }}"
 WAZUH_INDEXER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.internal.http') }}"
 WAZUH_INDEXER_URL: "https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
 WAZUH_INDEXER_HEAP: "{{ lookup('service_memory_mb', application_id, 'indexer', 0.5) }}m"
@@ -49,7 +48,7 @@ WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearc
 
 WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
 
-WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
+WAZUH_INDEXER_INTERNAL_API_URL: "https://127.0.0.1:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
 
 WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 WAZUH_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"

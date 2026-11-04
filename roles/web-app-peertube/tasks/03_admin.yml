@@ -6,33 +6,48 @@
     resolve_output_prefix: PEERTUBE
     resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
 
+- name: "🔍 Resolve the PeerTube network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: PEERTUBE
+
 - name: "🔑 PEERTUBE | Read the OAuth client of the web interface"
-  uri_retry:
-    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/oauth-clients/local"
-    headers:
-      Host: "{{ PEERTUBE_HOSTNAME }}"
-    return_content: true
+  ansible.builtin.command:
+    argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '', headers=PEERTUBE_API_HEADERS) }}"
+  environment:
+    HTTP_METHOD: GET
+    HTTP_URL: "{{ PEERTUBE_NETNS_URL }}/api/v1/oauth-clients/local"
   register: peertube_admin_client
+  retries: 30
+  delay: 2
+  until: peertube_admin_client.rc == 0 and (peertube_admin_client.stdout | from_json).status == 200
+  changed_when: false
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  become: true
+
+- name: "🔑 PEERTUBE | Keep the OAuth client of the web interface"
+  ansible.builtin.set_fact:
+    peertube_oauth_client: "{{ (peertube_admin_client.stdout | from_json).content | from_json }}"
 
 - name: "🔎 PEERTUBE | Probe whether root signs in with the administrator password"
-  uri_retry:
-    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/users/token"
-    method: POST
-    headers:
-      Host: "{{ PEERTUBE_HOSTNAME }}"
-    body_format: form-urlencoded
-    body:
-      client_id: "{{ peertube_admin_client.json.client_id }}"
-      client_secret: "{{ peertube_admin_client.json.client_secret }}"
-      grant_type: password
-      username: "{{ PEERTUBE_ROOT_USERNAME }}"
-      password: "{{ PEERTUBE_ROOT_PASSWORD }}"
-    status_code: [200, 400]
+  ansible.builtin.command:
+    argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', PEERTUBE_ROOT_TOKEN_FORM, headers=PEERTUBE_TOKEN_HEADERS) }}"
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ PEERTUBE_NETNS_URL }}/api/v1/users/token"
   register: peertube_admin_probe
+  retries: 30
+  delay: 2
+  until: peertube_admin_probe.rc == 0 and (peertube_admin_probe.stdout | from_json).status in [200, 400]
+  changed_when: false
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔐 PEERTUBE | Converge the root password through the reset-password CLI"
-  when: peertube_admin_probe.status != 200
+  when: (peertube_admin_probe.stdout | from_json).status != 200
   block:
     - name: "🔐 PEERTUBE | Hand the administrator password to reset-password on stdin"
       ansible.builtin.command:
@@ -57,18 +72,15 @@
       delegate_to: "{{ PEERTUBE_HOST_NODE }}"
 
     - name: "✅ PEERTUBE | Root signs in with the administrator password"
-      uri_retry:
-        url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/users/token"
-        method: POST
-        headers:
-          Host: "{{ PEERTUBE_HOSTNAME }}"
-        body_format: form-urlencoded
-        body:
-          client_id: "{{ peertube_admin_client.json.client_id }}"
-          client_secret: "{{ peertube_admin_client.json.client_secret }}"
-          grant_type: password
-          username: "{{ PEERTUBE_ROOT_USERNAME }}"
-          password: "{{ PEERTUBE_ROOT_PASSWORD }}"
-        status_code: [200]
-      retries: 0
+      ansible.builtin.command:
+        argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+        stdin: "{{ lookup('http_request_program', PEERTUBE_ROOT_TOKEN_FORM, headers=PEERTUBE_TOKEN_HEADERS) }}"
+      environment:
+        HTTP_METHOD: POST
+        HTTP_URL: "{{ PEERTUBE_NETNS_URL }}/api/v1/users/token"
+      register: peertube_admin_confirm
+      changed_when: false
+      failed_when: peertube_admin_confirm.rc != 0 or (peertube_admin_confirm.stdout | from_json).status != 200
+      delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+      become: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

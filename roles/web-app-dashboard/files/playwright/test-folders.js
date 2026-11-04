@@ -146,6 +146,7 @@ exports.register = function (shared) {
     expect(status.headers()["content-type"]).toMatch(/application\/json/);
     const document_ = await status.json();
     expect(typeof document_.applications, "Expected the status document to map applications").toBe("object");
+    const states = document_.applications;
 
     await openDashboard(page, "/");
     await shared.waitForDashboardReady(page);
@@ -153,13 +154,13 @@ exports.register = function (shared) {
     const ids = data.cards.map((card) => card.key).filter(Boolean);
     expect(ids.length).toBeGreaterThan(0);
     expect(
-      Object.keys(document_.applications).filter((id) => !ids.includes(id)),
+      Object.keys(states).filter((id) => !ids.includes(id)),
       "The public status document must name dashboard applications only",
     ).toEqual([]);
     for (const id of ids) {
       const badge = tile(page, id).locator(".portui-chip-health");
       await expect(badge, `${id}: expected one health badge`).toHaveCount(1, { timeout: resolveTimeout(30_000) });
-      const entry = document_.applications[id];
+      const entry = states[id];
       const fresh = entry && Date.now() - Date.parse(entry.checked) <= statusStaleAfterSeconds * 1000;
       const expected = fresh && HEALTH_STATES.includes(entry.state) ? entry.state : "unknown";
       await expect(badge, `${id}: the badge must show the state of the status document`).toHaveAttribute(

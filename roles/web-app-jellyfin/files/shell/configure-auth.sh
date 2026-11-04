@@ -9,8 +9,9 @@ IFS= read -r JELLYFIN_OIDC_CLIENT_SECRET
 : "${JELLYFIN_ADMIN_PASSWORD:?the admin password arrives on stdin}"
 
 API="${JELLYFIN_API}"
-CURL="curl --connect-timeout 5 --max-time 30"
 CT="${JELLYFIN_CT}"
+CURL="container exec -i ${CT} curl --connect-timeout 5 --max-time 30"
+HOST_CURL="curl --connect-timeout 5 --max-time 30"
 PHASE="${JELLYFIN_PHASE}"
 CLIENT_HDR='X-Emby-Authorization: MediaBrowser Client="infinito", Device="ansible", DeviceId="infinito-deploy", Version="1.0.0"'
 
@@ -26,6 +27,16 @@ post_json() {
   shift 2
   printf '%s' "${body}" | ${CURL} -fsS -X POST "${url}" -H "Content-Type: application/json" "$@" --data-binary @-
 }
+
+AUTH_HEADER_FILE=""
+use_token() {
+  if [ -z "${AUTH_HEADER_FILE}" ]; then
+    AUTH_HEADER_FILE="$(container exec "${CT}" mktemp)" || return 1
+  fi
+  printf 'Authorization: MediaBrowser Token="%s"\n' "$1" \
+    | container exec -i "${CT}" sh -c "cat > ${AUTH_HEADER_FILE}"
+}
+trap '[ -z "${AUTH_HEADER_FILE}" ] || container exec "${CT}" rm -f "${AUTH_HEADER_FILE}" >/dev/null 2>&1 || true' EXIT  # nocheck: shell-or-true -- best-effort removal of a temp file; the container may already be gone
 
 wait_up() {
   for _ in $(seq 1 60); do
@@ -84,9 +95,13 @@ realign_admin_password() {
     log "ERROR: redeeming the reset pin cleared the stored password and the administrator still does not authenticate; the account is now WITHOUT a password"
     return 1
   fi
+  use_token "${pin_token}" || {
+    log "ERROR: could not stage the reset session token inside the container; the administrator is now WITHOUT a password"
+    return 1
+  }
   post_json "${API}/Users/${user_id}/Password" \
     "{\"CurrentPw\":\"$(json_escape "${pin}")\",\"NewPw\":\"$(json_escape "${JELLYFIN_ADMIN_PASSWORD}")\"}" \
-    -H "Authorization: MediaBrowser Token=\"${pin_token}\"" >/dev/null || {
+    -H "@${AUTH_HEADER_FILE}" >/dev/null || {
     log "ERROR: the password change was rejected; the reset already cleared the old one, so the administrator is now WITHOUT a password"
     return 1
   }
@@ -97,17 +112,20 @@ seed_admin_and_get_token() {
   for _ in $(seq 1 40); do
     complete_wizard
     TOKEN="$(get_token || true)"
-    [ -n "${TOKEN:-}" ] && return 0
+    if [ -n "${TOKEN:-}" ]; then
+      use_token "${TOKEN}" || return 1
+      return 0
+    fi
     sleep 3
   done
   realign_admin_password || return 1
   TOKEN="$(get_token)" || TOKEN=""
-  [ -n "${TOKEN:-}" ] && return 0
-  return 1
+  [ -n "${TOKEN:-}" ] || return 1
+  use_token "${TOKEN}"
 }
 
 install_plugin() {
-  if ${CURL} -fsS -X POST "${API}/Packages/Installed/${1}" -H "Authorization: MediaBrowser Token=\"${TOKEN}\"" >/dev/null 2>&1; then
+  if ${CURL} -fsS -X POST "${API}/Packages/Installed/${1}" -H "@${AUTH_HEADER_FILE}" >/dev/null 2>&1; then
     log "requested install: ${1}"
   else
     log "install request failed (already present?): ${1}"
@@ -119,7 +137,7 @@ install_ldap_plugin() {
   : "${JELLYFIN_LDAP_PLUGIN_VERSION:?missing (set via meta/addons/ldap-authentication.yml)}"
   local tmp
   tmp="$(mktemp -d)"
-  if ! ${CURL} --max-time 300 -fsSL -o "${tmp}/ldap.zip" "${JELLYFIN_LDAP_PLUGIN_URL}"; then
+  if ! ${HOST_CURL} --max-time 300 -fsSL -o "${tmp}/ldap.zip" "${JELLYFIN_LDAP_PLUGIN_URL}"; then
     log "ERROR: failed to download LDAP plugin from ${JELLYFIN_LDAP_PLUGIN_URL}"
     rm -rf "${tmp}"; return 1
   fi
@@ -149,7 +167,7 @@ seed_admin_and_get_token || {
 
 if [ -n "${TOKEN:-}" ] && [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then
   ${CURL} -fsS -X POST "${API}/Repositories" -H "Content-Type: application/json" \
-    -H "Authorization: MediaBrowser Token=\"${TOKEN}\"" \
+    -H "@${AUTH_HEADER_FILE}" \
     -d "[{\"Name\":\"jellyfin-plugin-sso\",\"Url\":\"${JELLYFIN_SSO_PLUGIN_MANIFEST}\",\"Enabled\":true}]" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
@@ -207,7 +225,7 @@ if [ -n "${TOKEN:-}" ] && [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then
   SSO_PLUGIN_GUID="505ce9d1-d916-42fa-86ca-673ef241d7df"
   if ${CURL} -fsS -X POST "${API}/Plugins/${SSO_PLUGIN_GUID}/Configuration" \
       -H "Content-Type: application/json" \
-      -H "Authorization: MediaBrowser Token=\"${TOKEN}\"" --data @- >/dev/null 2>&1 <<JSON
+      -H "@${AUTH_HEADER_FILE}" --data @- >/dev/null 2>&1 <<JSON
 {
   "SamlConfigs": {},
   "OidConfigs": {
@@ -255,7 +273,7 @@ fi
 
 if [ -n "${TOKEN:-}" ] && { [ "${JELLYFIN_SSO_ENABLED}" = "true" ] || [ "${JELLYFIN_LOGIN_FORM_ENABLED}" != "true" ]; }; then
   if ${CURL} -fsS -X POST "${API}/System/Configuration/branding" -H "Content-Type: application/json" \
-      -H "Authorization: MediaBrowser Token=\"${TOKEN}\"" --data @- >/dev/null 2>&1 <<JSON
+      -H "@${AUTH_HEADER_FILE}" --data @- >/dev/null 2>&1 <<JSON
 {"LoginDisclaimer":"${LOGIN_DISCLAIMER}","CustomCss":"${LOGIN_CSS}","SplashscreenEnabled":false}
 JSON
   then

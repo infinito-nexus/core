@@ -5,7 +5,7 @@ domain: "{{ lookup('domain',application_id) }}"
 
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
-XWIKI_HOST_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
+XWIKI_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.internal.http') }}"
 
 XWIKI_HOSTNAME: "{{ container_hostname }}"
 XWIKI_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
@@ -36,10 +36,12 @@ XWIKI_ADMIN_GROUP_PAGE: "XWikiAdminGroup"
 
 XWIKI_SUPERADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.superadminpassword') }}"
 XWIKI_SUPERADMIN_USERNAME: "superadmin"
+XWIKI_SUPERADMIN_AUTH_HEADERS:
+  Authorization: "Basic {{ (XWIKI_SUPERADMIN_USERNAME ~ ':' ~ XWIKI_SUPERADMIN_PASSWORD) | b64encode }}"
 
-XWIKI_DOCKER_REACH_URL: "http://{{ DOCKER_REACH_HOST }}:{{ XWIKI_HOST_PORT }}"
+XWIKI_INTERNAL_URL: "http://127.0.0.1:{{ XWIKI_INTERNAL_PORT }}"
 
-XWIKI_REST_BASE: "{{ [XWIKI_DOCKER_REACH_URL, '/rest/'] | url_join  }}"
+XWIKI_REST_BASE: "{{ [XWIKI_INTERNAL_URL, '/rest/'] | url_join  }}"
 XWIKI_REST_XWIKI: "{{ [XWIKI_REST_BASE, 'wikis/xwiki'] | url_join  }}"
 XWIKI_REST_XWIKI_PAGES: "{{ [XWIKI_REST_BASE, 'wikis/xwiki/spaces/XWiki/pages'] | url_join }}"
 XWIKI_REST_DESCRIPTOR: "{{ [XWIKI_REST_XWIKI_PAGES, 'XWikiServerXwiki'] | url_join }}"

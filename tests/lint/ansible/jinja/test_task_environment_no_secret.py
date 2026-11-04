@@ -86,6 +86,10 @@ _DESCRIBING_REFERENCE = re.compile(
     r"(?i)(?<![\w.'\"])[A-Za-z_]\w*_(?:attr|attribute|path)(?![\w.])"
 )
 _PATH_REFERENCE = re.compile(r"(?i)\s*\{\{\s*[A-Za-z_]\w*_path\s*\}\}\s*")
+_PATH_SEGMENT_CREDENTIAL = re.compile(
+    r"(?i)/(?:password|passwd|passphrase|secret|token|credential|bearer|jwt"
+    r"|authorization|basic)(?=[/?#\s'\"]|$)"
+)
 _PUBLIC_ACCESS_KEY = re.compile(r"(?i)^(?!.*secret).*access_?key$")
 _VALUE_CREDENTIAL = re.compile(
     r"(?i)password|passwd|passphrase|secret|token|credential|bearer|jwt"
@@ -283,11 +287,13 @@ def _expression_carries_credential(expression: str) -> bool:
 
     Returns:
       True when a credential keyword is left once every describing name
-      (``*_PASSWORD_FILE``, ``*_TOKEN_NAME``, ``*_PASSWORD_LOGIN``) and every
-      variable named ``*_ATTR``, ``*_ATTRIBUTE`` or ``*_PATH`` is taken out;
-      a ``lookup('file')``/``lookup('path_absolute')`` never is one.
+      (``*_PASSWORD_FILE``, ``*_TOKEN_NAME``, ``*_PASSWORD_LOGIN``), every
+      variable named ``*_ATTR``, ``*_ATTRIBUTE`` or ``*_PATH`` and every
+      keyword that is a whole URL path segment (``/users/token``) is taken
+      out; a ``lookup('file')``/``lookup('path_absolute')`` never is one.
     """
     stripped = _NOT_A_CREDENTIAL.sub("", _STATIC_REFERENCE.sub("", expression))
+    stripped = _PATH_SEGMENT_CREDENTIAL.sub("", stripped)
     stripped = _DESCRIBING_REFERENCE.sub("", stripped)
     stripped = _DESCRIBES_A_FLAG.sub("", _DESCRIBES_CREDENTIAL.sub("", stripped))
     return bool(_VALUE_CREDENTIAL.search(stripped))
@@ -398,8 +404,9 @@ def _entry_carries_credential(
       unless the value is one lone ``{{ *_PATH }}`` var, whose name carries
       one and whose expressions do not all only describe a credential or
       name an attribute, whose literal text around the Jinja says credential
-      (``Bearer {{ x }}``), whose Jinja renders one, or that is a whole
-      neutral loop value under ``no_log``; a literal value never is one.
+      (``Bearer {{ x }}``) outside a URL path segment, whose Jinja renders
+      one, or that is a whole neutral loop value under ``no_log``; a literal
+      value never is one.
     """
     expressions = _spans(value)
     if not expressions:
@@ -417,7 +424,9 @@ def _entry_carries_credential(
         )
     ):
         return True
-    if _LITERAL_CREDENTIAL.search(_JINJA_SPAN.sub(" ", value)):
+    if _LITERAL_CREDENTIAL.search(
+        _PATH_SEGMENT_CREDENTIAL.sub("", _JINJA_SPAN.sub(" ", value))
+    ):
         return True
     if neutral is not None and any(neutral.search(e) for e in expressions):
         return True

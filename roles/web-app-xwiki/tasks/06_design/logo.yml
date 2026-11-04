@@ -5,28 +5,34 @@
   register: _xwiki_design_logo
 
 - name: "🔎 XWIKI | Read the logo attachment of the theme page"
-  uri_retry:
-    url: "{{ [XWIKI_REST_THEME_PAGE, 'attachments', XWIKI_DESIGN_LOGO_FILE] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 404]
-    return_content: true
-  register: _xwiki_design_logo_attachment
-  changed_when: false
+  include_tasks: ../utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_THEME_PAGE, 'attachments', XWIKI_DESIGN_LOGO_FILE] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200, 404]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_logo_attachment
 
 - name: "🖼️ XWIKI | Attach the navbar lockup to the theme page"
-  uri_retry:
-    url: "{{ [XWIKI_REST_THEME_PAGE, 'attachments', XWIKI_DESIGN_LOGO_FILE] | url_join }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [201, 202]
-    headers: "{{ xwiki_rest_headers_write | combine({'Content-Type': 'image/svg+xml'}) }}"
-    body: "{{ _xwiki_design_logo.content | b64decode }}"
+  include_tasks: ../utils/http.yml
+  vars:
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_THEME_PAGE, 'attachments', XWIKI_DESIGN_LOGO_FILE] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write | combine({'Content-Type': 'image/svg+xml'}) }}"
+    xwiki_http_body: "{{ _xwiki_design_logo.content | b64decode }}"
+    xwiki_http_status: [201, 202]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_logo_attached
   when: >-
     _xwiki_design_logo_attachment.status == 404
     or _xwiki_design_logo_attachment.content != (_xwiki_design_logo.content | b64decode)
-  changed_when: true

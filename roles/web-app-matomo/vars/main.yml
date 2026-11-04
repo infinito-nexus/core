@@ -80,4 +80,5 @@ MATOMO_RBAC_LOGIN_SETTINGS:
   view_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='view') }}"
   protected_logins: "{{ MATOMO_RBAC_PROTECTED_LOGINS }}"
 
-matomo_index_php_url: "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}/index.php"
+MATOMO_LOCAL_HOST: "127.0.0.1:{{ lookup('config', application_id, 'services.matomo.ports.internal.http') }}"
+matomo_index_php_url: "http://{{ MATOMO_LOCAL_HOST }}/index.php"

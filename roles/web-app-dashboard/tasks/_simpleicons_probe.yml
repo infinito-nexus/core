@@ -1,0 +1,55 @@
+---
+- name: "🔍 Resolve the Simple Icons hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: simpleicons
+    resolve_service_name: "{{ lookup('container_service', 'web-svc-simpleicons', 'simpleicons') }}"
+    resolve_output_prefix: DASHBOARD_SIMPLEICONS
+    resolve_compose_cid: "{{ DASHBOARD_SIMPLEICONS_CONTAINER_ADDRESS }}"
+
+- name: "🔍 Resolve the Simple Icons network namespace"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: DASHBOARD_SIMPLEICONS
+
+- name: "⏳ Wait for a known Simple Icons asset"
+  ansible.builtin.command:
+    argv: "{{ DASHBOARD_SIMPLEICONS_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '') }}"
+  environment:
+    HTTP_METHOD: HEAD
+    HTTP_URL: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}keycloak.svg"
+  register: dashboard_simpleicons_ready
+  retries: 60
+  delay: 5
+  until: dashboard_simpleicons_ready.rc == 0 and (dashboard_simpleicons_ready.stdout | from_json).status == 200
+  changed_when: false
+  delegate_to: "{{ DASHBOARD_SIMPLEICONS_HOST_NODE }}"
+  become: true
+  run_once: true
+
+- name: "🔍 Probe Simple Icons reachability per card slug"
+  ansible.builtin.command:
+    argv: "{{ DASHBOARD_SIMPLEICONS_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '') }}"
+  environment:
+    HTTP_METHOD: HEAD
+    HTTP_URL: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
+  register: dashboard_simpleicons_probe_raw
+  loop: "{{ portfolio_cards | simpleicon_slugs }}"
+  loop_control:
+    label: "{{ item }}"
+  until: dashboard_simpleicons_probe_raw.rc == 0 and (dashboard_simpleicons_probe_raw.stdout | from_json).status in [200, 404]
+  retries: 30
+  delay: 2
+  changed_when: false
+  delegate_to: "{{ DASHBOARD_SIMPLEICONS_HOST_NODE }}"
+  become: true
+  run_once: true
+
+- name: "📄 Collect the Simple Icons status per card slug"
+  ansible.builtin.set_fact:
+    dashboard_simpleicons_probe:
+      status: >-
+        {{ dict(dashboard_simpleicons_probe_raw.results | map(attribute='item')
+                | zip(dashboard_simpleicons_probe_raw.results | map(attribute='stdout') | map('from_json') | map(attribute='status'))) }}

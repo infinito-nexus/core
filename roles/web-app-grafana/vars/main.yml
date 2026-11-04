@@ -9,7 +9,7 @@ GRAFANA_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.grafana.po
 GRAFANA_LOCAL_PORT: "{{ lookup('config', application_id, 'services.grafana.ports.local.grafana') }}"
 
 GRAFANA_INSTANCES: "{{ lookup('domains')[application_id] | network_instances }}"
-GRAFANA_INSTANCE_LOCAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.grafana.ports.local.' ~ ('grafana' | labelled(grafana_instance.label,
+GRAFANA_INSTANCE_NETNS_URL: "http://127.0.0.1:{{ lookup('config', application_id, 'services.grafana.ports.internal.' ~ ('grafana' | labelled(grafana_instance.label,
   '_'))) }}"
 GRAFANA_INSTANCE_CONTAINER_ADDRESS: "{{ GRAFANA_CONTAINER_ADDRESS | labelled(grafana_instance.label, '-') }}"
 

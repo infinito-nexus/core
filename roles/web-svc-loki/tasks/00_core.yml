@@ -31,16 +31,35 @@
 - name: "🚿 flush handlers for '{{ application_id }}'"
   meta: flush_handlers
 
+- name: "🔍 Resolve the Loki hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: loki
+    resolve_output_prefix: LOKI
+    resolve_compose_cid: "{{ LOKI_CONTAINER_ADDRESS }}"
+
 - name: "⏳ Wait until Loki answers /ready"
-  uri_retry:
-    url: "{{ LOKI_LOCAL_URL }}/ready"
-    method: GET
-    status_code: 200
-  register: loki_ready
-  until: loki_ready is succeeded
-  retries: 60
-  delay: 5
   when: IS_STACK_HOST | bool
+  block:
+    - name: "🔍 Resolve the Loki network namespace"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+      vars:
+        netns_output_prefix: LOKI
+
+    - name: "⏳ Wait until Loki answers /ready inside its network namespace"
+      ansible.builtin.command:
+        argv: "{{ LOKI_NETNS_PYTHON }}"
+        stdin: "{{ lookup('http_request_program', '') }}"
+      environment:
+        HTTP_METHOD: GET
+        HTTP_URL: "{{ LOKI_NETNS_URL }}/ready"
+      register: loki_ready
+      until: loki_ready.rc == 0 and (loki_ready.stdout | from_json).status == 200
+      retries: 60
+      delay: 5
+      changed_when: false
+      delegate_to: "{{ LOKI_HOST_NODE }}"
+      become: true
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:

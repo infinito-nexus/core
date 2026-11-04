@@ -6,6 +6,12 @@
     paths: "{{ [OPENLDAP_LDIF_PATH_HOST] | product(OPENLDAP_LDIF_TYPES) | map('join') | list }}"
     mode: "0755"
 
+- name: "📁 Create the ldapi socket dir before the bind-mount"
+  file:
+    path: "{{ OPENLDAP_SOCKET_PATH_HOST }}"
+    state: directory
+    mode: "0755"
+
 - name: 🎬 Initialize docker
   include_tasks: 01_docker.yml
 

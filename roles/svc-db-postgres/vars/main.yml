@@ -15,7 +15,8 @@ POSTGRES_UPGRADE_IMAGE: "{{ POSTGRES_CONTAINER }}-upgrade"
 POSTGRES_UPGRADE_BACKUP_CONFIRMED: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upgrade.backup_confirmed') }}"
 POSTGRES_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.POSTGRES_PASSWORD') }}"
 POSTGRES_PORT: "{{ database_port | default(lookup('config', application_id, 'services.postgres.ports.local.postgres')) }}"
-POSTGRES_EXPOSE_LOCAL: true
+POSTGRES_EXPOSED: "{{ lookup('config', application_id, 'services.postgres.exposed') | bool }}"
+POSTGRES_EXPOSE_LOCAL: "{{ POSTGRES_EXPOSED | bool or (IS_COMPOSE_MODE | bool and not DOCKER_IN_CONTAINER | bool) }}"
 POSTGRES_LOCAL_HOST: "127.0.0.1"
 POSTGRES_LIBRARIES: "{{ lookup('postgres_libraries', lookup('service_extensions', 'postgres').values() | sum(start=[]) | unique | list) }}"
 POSTGRES_RETRIES: 5

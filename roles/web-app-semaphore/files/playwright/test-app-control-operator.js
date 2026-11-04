@@ -118,7 +118,8 @@ exports.register = function (shared) {
     });
     expect(response.status(), `${label}: the dashboard must serve /status.json`).toBe(200);
     const document_ = await response.json();
-    return Boolean(document_.applications && document_.applications[target]);
+    const states = document_.applications;
+    return Boolean(states && states[target]);
   }
 
   /**

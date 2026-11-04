@@ -3,78 +3,90 @@
   include_tasks: utils/rest_session.yml
 
 - name: "🔎 XWIKI | Read the main wiki descriptor"
-  uri_retry:
-    url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects/XWiki.XWikiServerClass/0'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 404]
-    headers:
-      Accept: application/json
-    return_content: true
-  register: _xwiki_descriptor
-  changed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects/XWiki.XWikiServerClass/0'] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/json'}) }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200, 404]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_descriptor
 
 - name: "📁 XWIKI | Create the main wiki descriptor"
   when: _xwiki_descriptor.status == 404
   block:
     - name: "📁 XWIKI | Ensure the main wiki descriptor page exists"
-      uri_retry:
-        url: "{{ XWIKI_REST_DESCRIPTOR }}"
-        method: PUT
-        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-        force_basic_auth: true
-        status_code: [200, 201, 202, 204]
-        headers: "{{ xwiki_rest_headers_write }}"
-        body: "{{ lookup('template', 'xml/descriptor/page.xml.j2') }}"
+      include_tasks: utils/http.yml
+      vars:
+        xwiki_http_method: PUT
+        xwiki_http_url: "{{ XWIKI_REST_DESCRIPTOR }}"
+        xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+        xwiki_http_body: "{{ lookup('template', 'xml/descriptor/page.xml.j2') }}"
+        xwiki_http_status: [200, 201, 202, 204]
+        xwiki_http_retry_markers: []
+        xwiki_http_retries: 30
+        xwiki_http_delay: 2
+        xwiki_http_timeout: 30
+        xwiki_http_follow_redirects: "safe"
+        xwiki_http_result: _xwiki_descriptor_page
 
     - name: "➕ XWIKI | Add the main wiki descriptor object"
-      uri_retry:
-        url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects'] | url_join }}"
-        method: POST
-        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-        force_basic_auth: true
-        status_code: [200, 201]
-        headers: "{{ xwiki_rest_headers_write }}"
-        body: "{{ lookup('template', 'xml/descriptor/object.xml.j2') }}"
-      changed_when: true
+      include_tasks: utils/http.yml
+      vars:
+        xwiki_http_method: POST
+        xwiki_http_url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects'] | url_join }}"
+        xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+        xwiki_http_body: "{{ lookup('template', 'xml/descriptor/object.xml.j2') }}"
+        xwiki_http_status: [200, 201]
+        xwiki_http_retry_markers: []
+        xwiki_http_retries: 30
+        xwiki_http_delay: 2
+        xwiki_http_timeout: 30
+        xwiki_http_follow_redirects: "safe"
+        xwiki_http_result: _xwiki_descriptor_object
 
 - name: "🌐 XWIKI | Align the existing main wiki descriptor with its canonical origin"
   when: _xwiki_descriptor.status == 200
   block:
     - name: "🔎 XWIKI | Index the main wiki descriptor properties"
       ansible.builtin.set_fact:
-        _xwiki_descriptor_properties: "{{ _xwiki_descriptor.json.properties | items2dict(key_name='name', value_name='value') }}"
+        _xwiki_descriptor_properties: "{{ (_xwiki_descriptor.content | from_json).properties | items2dict(key_name='name', value_name='value') }}"
 
     - name: "🌐 XWIKI | Name the canonical host in the main wiki descriptor"
-      uri_retry:
-        url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects/XWiki.XWikiServerClass/0/properties/server'] | url_join }}"
-        method: PUT
-        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-        force_basic_auth: true
-        status_code: [202]
-        headers: "{{ xwiki_rest_headers_write }}"
-        body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+      include_tasks: utils/http.yml
       vars:
         xwiki_property_value: "{{ XWIKI_DESCRIPTOR_SERVER }}"
+        xwiki_http_method: PUT
+        xwiki_http_url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects/XWiki.XWikiServerClass/0/properties/server'] | url_join }}"
+        xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+        xwiki_http_body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+        xwiki_http_status: [202]
+        xwiki_http_retry_markers: []
+        xwiki_http_retries: 30
+        xwiki_http_delay: 2
+        xwiki_http_timeout: 30
+        xwiki_http_follow_redirects: "safe"
+        xwiki_http_result: _xwiki_descriptor_server
       when: _xwiki_descriptor_properties.get('server') | string != XWIKI_DESCRIPTOR_SERVER
-      changed_when: true
 
     - name: "🔒 XWIKI | Mark the main wiki descriptor secure as its canonical TLS"
-      uri_retry:
-        url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects/XWiki.XWikiServerClass/0/properties/secure'] | url_join }}"
-        method: PUT
-        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-        force_basic_auth: true
-        status_code: [202]
-        headers: "{{ xwiki_rest_headers_write }}"
-        body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+      include_tasks: utils/http.yml
       vars:
         xwiki_property_value: "{{ XWIKI_DESCRIPTOR_SECURE }}"
+        xwiki_http_method: PUT
+        xwiki_http_url: "{{ [XWIKI_REST_DESCRIPTOR, 'objects/XWiki.XWikiServerClass/0/properties/secure'] | url_join }}"
+        xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+        xwiki_http_body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+        xwiki_http_status: [202]
+        xwiki_http_retry_markers: []
+        xwiki_http_retries: 30
+        xwiki_http_delay: 2
+        xwiki_http_timeout: 30
+        xwiki_http_follow_redirects: "safe"
+        xwiki_http_result: _xwiki_descriptor_secure
       when: (_xwiki_descriptor_properties.get('secure') | string | lower in ['1', 'true']) != (XWIKI_DESCRIPTOR_SECURE == '1')
-      changed_when: true

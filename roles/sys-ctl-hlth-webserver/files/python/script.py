@@ -168,15 +168,15 @@ def status_document(
         now: ISO 8601 time of the sweep.
         published: the application ids the document may name.
     """
-    applications = {}
+    states = {}
     for domain, (_, _, state, _) in zip(sorted(targets), results, strict=True):
         application_id = targets[domain]["application_id"]
         if application_id not in published:
             continue
-        known = applications.get(application_id)
+        known = states.get(application_id)
         if known is None or SEVERITY[state] > SEVERITY[known["state"]]:
-            applications[application_id] = {"state": state, "checked": now}
-    return {"generated": now, "applications": applications}
+            states[application_id] = {"state": state, "checked": now}
+    return {"generated": now, "applications": states}
 
 
 def write_status(path: Path, document: dict) -> None:

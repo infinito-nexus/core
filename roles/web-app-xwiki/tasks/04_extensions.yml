@@ -18,16 +18,19 @@
   include_tasks: utils/rest_session.yml
 
 - name: "⬆️ XWIKI | PUT installer page Main.InstallExtensions"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 201, 202, 204]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'xml/install_extensions_page.xml.j2') }}"
-  register: _put_page
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/install_extensions_page.xml.j2') }}"
+    xwiki_http_status: [200, 201, 202, 204]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _put_page
 
 - block:
     - name: "📂 XWIKI | Load installer-page execution + assertion routines"
@@ -47,17 +50,22 @@
 
   always:
     - name: "🗑️ XWIKI | Delete installer page (best effort)"
-      uri_retry:
-        url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
-        method: DELETE
-        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-        force_basic_auth: true
-        status_code: [204, 200, 202, 404]
-        headers: "{{ xwiki_rest_headers_write | default({}) }}"
-      register: _delete_page_best_effort
-      changed_when: _delete_page_best_effort.status != 404
-      failed_when: false
+      include_tasks:
+        file: utils/http.yml
+        apply:
+          ignore_errors: true
+      vars:
+        xwiki_http_method: DELETE
+        xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
+        xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+        xwiki_http_body: ""
+        xwiki_http_status: [204, 200, 202, 404]
+        xwiki_http_retry_markers: []
+        xwiki_http_retries: 30
+        xwiki_http_delay: 2
+        xwiki_http_timeout: 30
+        xwiki_http_follow_redirects: "safe"
+        xwiki_http_result: _delete_page_best_effort
 
 - name: "✅ XWIKI | Verify requested extensions via Groovy checker"
   include_tasks: _check_extension_via_groovy.yml
@@ -87,13 +95,16 @@
   when: missing | length > 0
 
 - name: "🗑️ XWIKI | Delete installer page"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
-    method: DELETE
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [204, 200, 202, 404]
-    headers: "{{ xwiki_rest_headers_write }}"
-  register: _delete_page
-  changed_when: _delete_page.status != 404
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: DELETE
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, 'InstallExtensions'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [204, 200, 202, 404]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _delete_page
