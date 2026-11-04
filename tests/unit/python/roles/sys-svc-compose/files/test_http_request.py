@@ -12,6 +12,8 @@ import urllib.request
 from email.message import Message
 from unittest.mock import MagicMock, patch
 
+from utils.cache.files import read_text
+
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/sys-svc-compose/files/python/http_request.py"
@@ -35,7 +37,7 @@ def _run(
         "HTTP_PROXY": "http://proxy.invalid:3128",
     }
     encoded = base64.b64encode(body.encode()).decode()
-    program = f"BODY_B64 = {json.dumps(encoded)}\n" + SCRIPT_PATH.read_text()
+    program = f"BODY_B64 = {json.dumps(encoded)}\n" + read_text(str(SCRIPT_PATH))
     opener_factory = build_opener or MagicMock()
     opener_factory.return_value = MagicMock(open=urlopen)
     with (

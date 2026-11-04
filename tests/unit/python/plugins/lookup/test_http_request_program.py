@@ -9,6 +9,7 @@ import unittest
 from ansible.errors import AnsibleError
 
 from plugins.lookup.http_request_program import SCRIPT, LookupModule
+from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
 
@@ -27,7 +28,7 @@ class TestHttpRequestProgram(unittest.TestCase):
         namespace: dict = {}
         exec(preamble, namespace)
         self.assertEqual(base64.b64decode(namespace["BODY_B64"]).decode(), BODY)
-        self.assertEqual(script, (PROJECT_ROOT / SCRIPT).read_text())
+        self.assertEqual(script, read_text(str(PROJECT_ROOT / SCRIPT)))
         compile(program, "<stdin>", "exec")
 
     def test_empty_body_encodes_to_an_empty_string(self):

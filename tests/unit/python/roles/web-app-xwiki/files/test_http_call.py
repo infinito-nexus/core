@@ -10,6 +10,8 @@ import urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import patch
 
+from utils.cache.files import read_text
+
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-xwiki/files/python/http_call.py"
@@ -61,7 +63,7 @@ class _XWiki(BaseHTTPRequestHandler):
 def _program(headers: dict) -> str:
     """Returns the stdin program tasks/utils/http.yml builds for ``headers``."""
     encoded = base64.b64encode(json.dumps(headers).encode()).decode()
-    return f"HEADERS_B64 = {json.dumps(encoded)}\n" + SCRIPT_PATH.read_text()
+    return f"HEADERS_B64 = {json.dumps(encoded)}\n" + read_text(str(SCRIPT_PATH))
 
 
 def _call(url: str, method: str, follow: str, headers: dict, body: str) -> dict:
