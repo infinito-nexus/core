@@ -68,7 +68,7 @@ mattermost:
   security:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "12.0.1"
+      - image_tag: "12.0.2"
         until: 2026-12-03
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
