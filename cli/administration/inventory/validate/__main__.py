@@ -22,6 +22,9 @@ from cli.administration.inventory.validate.loaders import (  # noqa: E402
     load_inventory_files,
     load_yaml_file,
 )
+from cli.administration.inventory.validate.mail import (  # noqa: E402
+    validate_mail_wrapper_for_roles,
+)
 from cli.administration.inventory.validate.pinned_passwords import (  # noqa: E402
     validate_pinned_passwords,
 )
@@ -84,6 +87,7 @@ def main() -> None:
     )
     app_errs.extend(validate_api_keys(args.inventory_dir))
     app_errs.extend(validate_pinned_passwords(args.inventory_dir, args.roles_dir))
+    app_errs.extend(validate_mail_wrapper_for_roles(args.inventory_dir, args.roles_dir))
 
     if app_errs or user_errs:
         if app_errs:

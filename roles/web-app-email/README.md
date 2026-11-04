@@ -16,6 +16,12 @@
 
 The default provider is [Stalwart](../web-app-stalwart/), and both variants in [`meta/variants.yml`](./meta/variants.yml) deploy it. An inventory selects another provider only by overriding `applications.web-app-email.services.email.provider` and adding that role to its groups; the operator then owns the result.
 
+## Upgrading an existing inventory
+
+An inventory that predates this role lists only the provider group. Add `web-app-email` to the same hosts before the next deploy, or every consumer deploys with mail switched off. The inventory validator rejects a provider without the wrapper; see [Upgrading an existing inventory](../../docs/administration/configuration/email.md#upgrading-an-existing-inventory-) for the full note.
+
+Every provider declares an `email` service block on `web-app-email`, so a deploy that names only the provider still pulls the wrapper in.
+
 ## Adding a provider
 
 A new mail server becomes selectable without touching any consumer:

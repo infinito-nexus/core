@@ -30,6 +30,33 @@ applications:
 `MAIL_PROVIDER` is derived from this setting through `lookup('mail_provider')`
 and is not set by hand.
 
+### Upgrading an existing inventory ⬆️
+
+Every mail consumer gates on `web-app-email`, so an inventory written before
+the wrapper existed, listing only `web-app-stalwart` (or `web-app-mailu`),
+would deploy with mail switched off everywhere. Before the next deploy:
+
+1. Add `web-app-email` to the inventory groups, on the same hosts that carry
+   the mail provider:
+
+   ```yaml
+   all:
+     children:
+       web-app-email:
+         hosts:
+           <mail host>:
+       web-app-stalwart:
+         hosts:
+           <mail host>:
+   ```
+
+2. Remove a hand-set `MAIL_PROVIDER`; select another provider through the
+   `applications.web-app-email.services.email.provider` override instead.
+
+`cli/administration/inventory/validate` rejects an inventory that carries a
+mail provider without `web-app-email` on the same hosts, and one that sets
+`MAIL_PROVIDER` by hand.
+
 ## Resolved Keys 🔑
 
 Every call returns a flat dict with the following keys. Each key MAY be
