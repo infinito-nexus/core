@@ -12,6 +12,8 @@ FUNKWHALE_API_CONTAINER: "{{ lookup('config', application_id, 'services.api.name
 
 FUNKWHALE_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 FUNKWHALE_FRONT_NGINX_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'nginx.conf'] | path_join }}"
+FUNKWHALE_SAME_ORIGIN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'same_origin'] | path_join }}"
+FUNKWHALE_DJANGO_SETTINGS_MODULE: "{{ 'same_origin_settings' if FUNKWHALE_OBJSTORE_ENABLED | bool else 'config.settings.production' }}"
 
 FUNKWHALE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 FUNKWHALE_DESIGN_LOGO_ENABLED: "{{ FUNKWHALE_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"

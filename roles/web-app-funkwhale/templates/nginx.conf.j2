@@ -103,25 +103,21 @@ server {
         proxy_pass   http://funkwhale-api;
     }
 
-    location /media/__sized__/ {
-        alias ${MEDIA_ROOT}/__sized__/;
-        add_header Access-Control-Allow-Origin '*';
+    location ~ ^/media/(attachments|__sized__|dynamic_preferences|portability)/ {
+        include /etc/nginx/funkwhale_proxy.conf;
+        proxy_pass   http://funkwhale-api;
     }
 
-    location /media/attachments/ {
-        alias ${MEDIA_ROOT}/attachments/;
-        add_header Access-Control-Allow-Origin '*';
-    }
-
-    location /media/dynamic_preferences/ {
-        alias ${MEDIA_ROOT}/dynamic_preferences/;
-        add_header Access-Control-Allow-Origin '*';
+    location ~ ^/_protected/media/(attachments|__sized__|dynamic_preferences)/ {
+        internal;
+        rewrite ^/_protected(/media/.+)$ $1 last;
     }
 
     location ~ /_protected/media/(.+) {
         internal;
         {{ NETWORK_DOCKER_DNS_NGINX_DIRECTIVE }}
         proxy_set_header Authorization "";
+        proxy_set_header X-Forwarded-Host "";
         proxy_set_header Host $proxy_host;
         proxy_ssl_server_name on;
         proxy_pass $1;
