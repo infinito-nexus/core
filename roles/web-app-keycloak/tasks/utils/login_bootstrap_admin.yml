@@ -2,11 +2,10 @@
 - name: 🔑 Login with bootstrap admin (uses container ENV)
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
     container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
-      {{ KEYCLOAK_KCADM }} config credentials \
+      KC_CLI_PASSWORD="$KC_BOOTSTRAP_ADMIN_PASSWORD" {{ KEYCLOAK_KCADM }} config credentials \
         --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
         --realm master \
-        --user "$KC_BOOTSTRAP_ADMIN_USERNAME" \
-        --password "$KC_BOOTSTRAP_ADMIN_PASSWORD"
+        --user "$KC_BOOTSTRAP_ADMIN_USERNAME"
     '
   register: kc_login_bootstrap
   changed_when: false
@@ -33,9 +32,8 @@
 - name: 🔧 Set permanent admin password (by username, no ID needed)
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
     container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
-      {{ KEYCLOAK_KCADM }} set-password -r master \
-        --username "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
-        --new-password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+      KC_CLI_PASSWORD="$KEYCLOAK_PERMANENT_ADMIN_PASSWORD" {{ KEYCLOAK_KCADM }} set-password -r master \
+        --username "$KEYCLOAK_PERMANENT_ADMIN_USERNAME"
     '
   changed_when: true
 
@@ -54,10 +52,9 @@
 - name: ✅ Verify login with permanent admin (after creation)
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
     container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
-      {{ KEYCLOAK_KCADM }} config credentials \
+      KC_CLI_PASSWORD="$KEYCLOAK_PERMANENT_ADMIN_PASSWORD" {{ KEYCLOAK_KCADM }} config credentials \
         --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
         --realm master \
-        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
-        --password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME"
     '
   changed_when: false

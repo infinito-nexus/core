@@ -13,17 +13,18 @@
 - name: "🔐 Converge the sign-in plugin settings ({{ MATOMO_OIDC_STATE }})"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      IFS= read -r MATOMO_CONFIG_SECTIONS && export MATOMO_CONFIG_SECTIONS &&
       container exec -i --user www-data -e MATOMO_CONFIG_SECTIONS -e MATOMO_CONFIG_GENERAL
       {{ MATOMO_LOCAL_CID | quote }} php
-    stdin: "{{ lookup('file', 'php/config_converge.php') }}"
-  environment:
-    MATOMO_CONFIG_SECTIONS: >-
+    stdin: |-
       {{
         {
           MATOMO_OIDC_PLUGIN: (MATOMO_OIDC_SETTINGS if MATOMO_OIDC_ENABLED | bool else {}),
           MATOMO_RBAC_LOGIN_PLUGIN: (MATOMO_RBAC_LOGIN_SETTINGS if MATOMO_OIDC_ENABLED | bool else {})
         } | to_json
       }}
+      {{ lookup('file', 'php/config_converge.php') }}
+  environment:
     MATOMO_CONFIG_GENERAL: "{{ MATOMO_OIDC_GENERAL | to_json }}"
   register: matomo_oidc_config
   changed_when: "'CHANGED' in matomo_oidc_config.stdout"

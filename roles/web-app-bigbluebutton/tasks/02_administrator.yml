@@ -34,28 +34,18 @@
           so Greenlight could not link the administrator's SSO login to its account.
 
 - name: "✅ Ensure Greenlight admin (verified, idempotent)"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - NEW_NAME
-      - -e
-      - NEW_EMAIL
-      - -e
-      - NEW_PASSWORD
-      - -e
-      - NEW_EXTERNAL_ID
-      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
-      - bash
-      - -lc
-      - "bundle exec rails runner -"
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight/ensure_admin.rb') }}"
+  ansible.builtin.shell:
+    cmd: >-
+      IFS= read -r NEW_PASSWORD && export NEW_PASSWORD && container exec -i
+      -e NEW_NAME -e NEW_EMAIL -e NEW_PASSWORD -e NEW_EXTERNAL_ID
+      {{ BBB_GREENLIGHT_CONTAINER_ADDRESS }}
+      bash -lc 'bundle exec rails runner -'
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight/ensure_admin.rb') }}
   environment:
     NEW_NAME: "{{ lookup('users', 'platform_administrator').username | upper }}"
     NEW_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
-    NEW_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     NEW_EXTERNAL_ID: "{{ (keycloak_directory_users | first).id if (BBB_LOGIN_SSO | bool) else '' }}"
   register: greenlight_admin_map
   changed_when: "'CHANGED' in greenlight_admin_map.stdout"

@@ -14,11 +14,11 @@ set -eu
 : "${CONFIG_FILE:?CONFIG_FILE is required}"
 : "${CONFIG_VALUE?CONFIG_VALUE is required}"
 
-if grep -q "'${CONFIG_KEY}' *=> *'${CONFIG_VALUE}'," "$CONFIG_FILE"; then
+if printf '%s\n' "'${CONFIG_KEY}' *=> *'${CONFIG_VALUE}'," | grep -q -f /dev/stdin "$CONFIG_FILE"; then
   exit 0
 fi
 
 escaped=$(printf '%s' "$CONFIG_VALUE" | sed -e 's/[\\&|]/\\&/g' -e 's:/:\\/:g')
 
-sed -i "s/'${CONFIG_KEY}'\\s*=>\\s*[^,]*,/'${CONFIG_KEY}' => '${escaped}',/" "$CONFIG_FILE"
+printf '%s\n' "s/'${CONFIG_KEY}'\\s*=>\\s*[^,]*,/'${CONFIG_KEY}' => '${escaped}',/" | sed -i -f /dev/stdin "$CONFIG_FILE"
 echo CHANGED

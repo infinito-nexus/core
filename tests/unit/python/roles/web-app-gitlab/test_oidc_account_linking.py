@@ -51,8 +51,9 @@ class TestGitlabOidcAccountLinking(unittest.TestCase):
         )
 
         task = load_yaml_str(read_text(str(TASK)))[1]
-        argv = task["ansible.builtin.command"]["argv"]
-        self.assertIn("GITLAB_ADMIN_SSO_UID", argv, reason)
+        self.assertIn(
+            "-e GITLAB_ADMIN_SSO_UID", task["ansible.builtin.shell"]["cmd"], reason
+        )
         self.assertEqual(
             task["environment"]["GITLAB_ADMIN_SSO_UID"],
             "{{ GITLAB_ADMIN_USERNAME if (GITLAB_OIDC_ENABLED | bool and "

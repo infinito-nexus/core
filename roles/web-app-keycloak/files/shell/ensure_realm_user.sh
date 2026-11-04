@@ -11,7 +11,9 @@ set -euo pipefail
 #   KEYCLOAK_KCADM
 #   KEYCLOAK_REALM
 #   KEYCLOAK_USERNAME
-#   KEYCLOAK_CREDENTIAL_JSON  serialized Keycloak CredentialRepresentation
+#
+# REQUIRED on stdin (first line):
+#   the serialized Keycloak CredentialRepresentation
 #
 # OPTIONAL:
 #   KEYCLOAK_EMAIL            written on create only, so a confirmed change stays
@@ -25,7 +27,8 @@ set -euo pipefail
 : "${KEYCLOAK_KCADM:?missing KEYCLOAK_KCADM}"
 : "${KEYCLOAK_REALM:?missing KEYCLOAK_REALM}"
 : "${KEYCLOAK_USERNAME:?missing KEYCLOAK_USERNAME}"
-: "${KEYCLOAK_CREDENTIAL_JSON:?missing KEYCLOAK_CREDENTIAL_JSON}"
+IFS= read -r KEYCLOAK_CREDENTIAL_JSON || : "${KEYCLOAK_CREDENTIAL_JSON:?missing the credential on stdin}"
+: "${KEYCLOAK_CREDENTIAL_JSON:?missing the credential on stdin}"
 
 KEYCLOAK_EMAIL="${KEYCLOAK_EMAIL:-}"
 KEYCLOAK_FIRSTNAME="${KEYCLOAK_FIRSTNAME:-}"

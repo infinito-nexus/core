@@ -160,15 +160,20 @@ PREVIOUS_SHELL_LINE = (
     "{{ occ | quote }} config:app:set {{ item.appid | quote }} "
     "{{ item.configkey | quote }}"
     "{{ (' --no-interaction --type=' ~ item.type) if item.type is not none else '' }}"
-    " --value {{ item.value | quote }}"
+    " --value={{ item.value | quote }}"
 )
 
 
 def _previous_argv(item: dict) -> list[str]:
-    """The argv the former ``sh -s`` line handed to occ for one pending entry.
+    """The argv of the former ``sh -s`` line for one pending entry.
 
     Args:
       item: one ``nextcloud_plugin_config_pending`` entry.
+
+    Returns:
+      The occ argv with the value joined to ``--value=``, which Symfony reads
+      like the former separate token and, unlike it, also accepts when the
+      value starts with ``-``.
     """
     line = Templar(variables={"occ": OCC, "item": item}).template(
         trust_as_template(PREVIOUS_SHELL_LINE)

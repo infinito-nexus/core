@@ -2,11 +2,11 @@
 - name: "➕ Add LDAP Authentication Source"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e GITEA_LDAP_BIND_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+    IFS= read -r GITEA_LDAP_BIND_PASSWORD || : "${GITEA_LDAP_BIND_PASSWORD:?arrived empty on stdin}" && export GITEA_LDAP_BIND_PASSWORD && container exec -i -e GITEA_LDAP_BIND_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth add-ldap {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
     '
-  environment:
-    GITEA_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+  args:
+    stdin: "{{ LDAP.BIND_CREDENTIAL }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: ldap_manage
   failed_when: ldap_manage.rc != 0 and not (ldap_manage.stderr | gitea_auth_noop)
@@ -32,11 +32,11 @@
 - name: "🔄 Update LDAP Authentication Source"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e GITEA_LDAP_BIND_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+    IFS= read -r GITEA_LDAP_BIND_PASSWORD || : "${GITEA_LDAP_BIND_PASSWORD:?arrived empty on stdin}" && export GITEA_LDAP_BIND_PASSWORD && container exec -i -e GITEA_LDAP_BIND_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth update-ldap --id {{ ldap_source_id }} {{ GITEA_LDAP_AUTH_ARGS | join(' ') }}
     '
-  environment:
-    GITEA_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+  args:
+    stdin: "{{ LDAP.BIND_CREDENTIAL }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: ldap_manage
   failed_when: ldap_manage.rc != 0

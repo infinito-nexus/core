@@ -33,6 +33,7 @@
         {% endfor %}
     stdin: "{{ OPENLDAP_BIND_PW }}"
   register: ldapsm_profile_result
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'Created schema entry' in ldapsm_profile_result.stdout"
   check_mode: false
 

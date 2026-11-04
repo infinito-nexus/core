@@ -57,8 +57,7 @@ class GreenlightSubjectLinkTests(unittest.TestCase):
             for task in self.tasks
             if task["name"].startswith("✅ Ensure Greenlight admin")
         )
-        argv = ensure["ansible.builtin.command"]["argv"]
-        self.assertEqual(argv[argv.index("NEW_EXTERNAL_ID") - 1], "-e")
+        self.assertIn("-e NEW_EXTERNAL_ID", ensure["ansible.builtin.shell"]["cmd"])
         self.assertEqual(
             ensure["environment"]["NEW_EXTERNAL_ID"],
             "{{ (keycloak_directory_users | first).id if (BBB_LOGIN_SSO | bool) else '' }}",

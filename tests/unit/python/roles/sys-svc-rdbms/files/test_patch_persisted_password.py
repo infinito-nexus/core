@@ -6,8 +6,9 @@ node holds it. These tests run the script against a stubbed ``container``
 rather than trusting a reading of it: it has to find the volume, refuse to
 touch a mountpoint without the config, and leave a password the app can use.
 
-The parameters come from the environment, so each consuming role's own
-``patch_db_credentials.yml`` supplies them here exactly as the task would.
+The parameters come from the environment and the password from stdin, so
+each consuming role's own ``patch_db_credentials.yml`` supplies them here
+exactly as the task would.
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from utils.cache.yaml import load_yaml_any
 from . import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "roles/sys-svc-rdbms/files/shell/patch_persisted_password.sh"
+PASSWORD_STDIN = "NEWPW\n"
 
 CONSUMERS: ClassVar = {
     "friendica": "<?php\n  'password' => 'OLDPW',\n  'database' => 'friendica',\n",
@@ -63,7 +65,6 @@ def _script_env(app: str, bindir: Path) -> dict[str, str]:
         "PATCH_VOLUME": params["patch_volume"],
         "PATCH_CONFIG_REL": params["patch_config_rel"],
         "PATCH_EXPRESSION": params["patch_expression"],
-        "PATCH_PASSWORD": "NEWPW",
     }
 
 
@@ -106,6 +107,7 @@ class TestPatchPersistedPassword(unittest.TestCase):
         proc = subprocess.run(
             ["/bin/bash", str(SCRIPT)],
             env=_script_env(app, bindir),
+            input=PASSWORD_STDIN,
             capture_output=True,
             text=True,
             check=False,
@@ -161,6 +163,7 @@ class TestPatchPersistedPassword(unittest.TestCase):
         proc = subprocess.run(
             ["/bin/bash", str(SCRIPT)],
             env={**_script_env("kix", bindir), "PATCH_DATA_DIR": str(export)},
+            input=PASSWORD_STDIN,
             capture_output=True,
             text=True,
             check=False,
@@ -184,6 +187,7 @@ class TestPatchPersistedPassword(unittest.TestCase):
                 **_script_env("kix", bindir),
                 "PATCH_DATA_DIR": str(self.tmp / "export"),
             },
+            input=PASSWORD_STDIN,
             capture_output=True,
             text=True,
             check=False,
@@ -205,6 +209,49 @@ class TestPatchPersistedPassword(unittest.TestCase):
         )
         self.assertNotEqual(0, proc.returncode)
         self.assertIn("PATCH_VOLUME", proc.stderr)
+
+    def test_it_refuses_to_run_without_a_password_on_stdin(self) -> None:
+        params = _caller_vars("kix")
+        bindir = self.tmp / "bin"
+        _write_stub(bindir, {params["patch_volume"]: self.tmp / "mount"})
+        proc = subprocess.run(
+            ["/bin/bash", str(SCRIPT)],
+            env=_script_env("kix", bindir),
+            input="",
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertNotEqual(0, proc.returncode)
+        self.assertNotIn("PATCHED", proc.stdout)
+
+    def test_the_password_never_reaches_the_argv_of_sed(self) -> None:
+        """``ps`` shows every argument; sed has to read the expression on stdin."""
+        real_sed = shutil.which("sed")
+        self.assertIsNotNone(real_sed)
+        bindir = self.tmp / "bin"
+        argv_log = self.tmp / "sed-argv.log"
+        _write_stub(bindir, {_caller_vars("kix")["patch_volume"]: self.tmp / "mount"})
+        sed_stub = bindir / "sed"
+        sed_stub.write_text(
+            f'#!/bin/sh\nprintf "%s\\n" "$*" >> "{argv_log}"\nexec "{real_sed}" "$@"\n'
+        )
+        sed_stub.chmod(0o755)
+        target = self.tmp / "mount" / _caller_vars("kix")["patch_config_rel"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(CONSUMERS["kix"])
+        proc = subprocess.run(
+            ["/bin/bash", str(SCRIPT)],
+            env=_script_env("kix", bindir),
+            input=PASSWORD_STDIN,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertIn("PATCHED", proc.stdout, proc.stderr)
+        logged = argv_log.read_text()  # nocheck: cache-read  the stub just wrote it
+        self.assertIn("-f /dev/stdin", logged)
+        self.assertNotIn("NEWPW", logged)
 
 
 if __name__ == "__main__":

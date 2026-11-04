@@ -22,7 +22,6 @@
         jellyfin_auth_env_base:
           JELLYFIN_API: "{{ JELLYFIN_API }}"
           JELLYFIN_ADMIN_USERNAME: "{{ JELLYFIN_ADMIN_USERNAME }}"
-          JELLYFIN_ADMIN_PASSWORD: "{{ JELLYFIN_ADMIN_PASSWORD }}"
           JELLYFIN_SSO_ENABLED: "{{ JELLYFIN_SSO_ENABLED | string | lower }}"
           JELLYFIN_LDAP_ENABLED: "{{ JELLYFIN_LDAP_ENABLED | string | lower }}"
           JELLYFIN_LOGIN_SSO_ENABLED: "{{ JELLYFIN_LOGIN_SSO | string | lower }}"
@@ -34,7 +33,6 @@
           JELLYFIN_LDAP_SERVER: "{{ JELLYFIN_LDAP_SERVER }}"
           JELLYFIN_LDAP_PORT: "{{ JELLYFIN_LDAP_PORT }}"
           JELLYFIN_LDAP_BIND_DN: "{{ JELLYFIN_LDAP_BIND_DN }}"
-          JELLYFIN_LDAP_BIND_PASSWORD: "{{ JELLYFIN_LDAP_BIND_PASSWORD }}"
           JELLYFIN_LDAP_BASE_DN: "{{ JELLYFIN_LDAP_BASE_DN }}"
           JELLYFIN_LDAP_UID_ATTR: "{{ JELLYFIN_LDAP_UID_ATTR }}"
           JELLYFIN_LDAP_SEARCH_FILTER: "{{ JELLYFIN_LDAP_SEARCH_FILTER }}"
@@ -47,7 +45,6 @@
           JELLYFIN_OIDC_ISSUER: "{{ JELLYFIN_OIDC_ISSUER }}"
           JELLYFIN_OIDC_DISABLE_HTTPS: "{{ (JELLYFIN_OIDC_ISSUER | urlsplit('scheme') != 'https') | string | lower }}"
           JELLYFIN_OIDC_CLIENT_ID: "{{ JELLYFIN_OIDC_CLIENT_ID }}"
-          JELLYFIN_OIDC_CLIENT_SECRET: "{{ JELLYFIN_OIDC_CLIENT_SECRET }}"
           JELLYFIN_OIDC_USERNAME_CLAIM: "{{ JELLYFIN_OIDC_USERNAME_CLAIM }}"
           JELLYFIN_OIDC_ROLE_CLAIM: "{{ JELLYFIN_OIDC_ROLE_CLAIM }}"
           JELLYFIN_OIDC_ADMIN_ROLE: "{{ JELLYFIN_OIDC_ADMIN_ROLE }}"
@@ -55,6 +52,10 @@
           {{ jellyfin_auth_env_base
              | combine(jellyfin_auth_env_ldap if JELLYFIN_LDAP_ENABLED | bool else {})
              | combine(jellyfin_auth_env_sso if JELLYFIN_SSO_ENABLED | bool else {}) }}
+        jellyfin_auth_stdin: |-
+          {{ JELLYFIN_ADMIN_PASSWORD }}
+          {{ JELLYFIN_LDAP_BIND_PASSWORD if JELLYFIN_LDAP_ENABLED | bool else '' }}
+          {{ JELLYFIN_OIDC_CLIENT_SECRET if JELLYFIN_SSO_ENABLED | bool else '' }}
       ansible.builtin.include_tasks: 00_core/auth.yml
 
     - name: "🎨 Apply the corporate design of {{ application_id }}"

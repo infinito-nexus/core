@@ -2,6 +2,7 @@
 - name: "🔍 Read the MCP token this hub already issued"
   ansible.builtin.set_fact:
     homeassistant_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🩺 Check the stored token against the running hub"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"

@@ -56,7 +56,7 @@ directory_editor_acl() {
 
 write_slapd_conf() {
   local hash module_path schema_dir editor_acl
-  hash="$(slappasswd -s "${LDAP_ROOT_PW}")"
+  hash="$(printf '%s' "${LDAP_ROOT_PW}" | slappasswd -T /dev/stdin)"
   module_path="$(detect_module_path)"
   schema_dir="$(detect_schema_dir)"
   editor_acl="$(directory_editor_acl)"

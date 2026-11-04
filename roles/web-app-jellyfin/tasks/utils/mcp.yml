@@ -19,7 +19,7 @@
 
 - name: "🔑 Converge the read-only Jellyfin user the MCP adapter authenticates as"
   ansible.builtin.shell:
-    cmd: >- # nocheck: container-exec-resolver, container-exec-stack-host-gate  runtime-resolved CID, run_once delegated to the hosting node
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
       IFS= read -r ADMIN_PASSWORD && IFS= read -r MCP_PASSWORD && IFS= read -r MCP_TOKEN && export ADMIN_PASSWORD MCP_PASSWORD MCP_TOKEN && container exec -i
       -e JELLYFIN_BASE={{ JELLYFIN_MCP_UPSTREAM_URL | quote }}
       -e JELLYFIN_ADMIN_USER={{ JELLYFIN_ADMIN_USERNAME | quote }}
