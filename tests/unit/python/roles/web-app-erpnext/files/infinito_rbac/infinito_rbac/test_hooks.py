@@ -11,7 +11,8 @@ from . import APP_PACKAGE
 from ._fake_frappe import FakeFrappe
 
 HOOKS = runpy.run_path(str(APP_PACKAGE / "hooks.py"))
-UPSTREAM_CALLBACK = "frappe.integrations.oauth2_logins.login_via_keycloak"
+UPSTREAM = "frappe.integrations.oauth2_logins"
+KEYCLOAK_CALLBACKS = (f"{UPSTREAM}.login_via_keycloak", f"{UPSTREAM}.custom")
 
 
 class TestHooks(unittest.TestCase):
@@ -26,25 +27,33 @@ class TestHooks(unittest.TestCase):
             self.assertIsInstance(HOOKS[hook], str, hook)
             self.assertTrue(HOOKS[hook].strip(), hook)
 
-    def test_the_keycloak_callback_resolves_to_a_guest_endpoint_of_the_app(
+    def test_every_callback_that_completes_a_keycloak_sign_in_is_replaced(
         self,
     ) -> None:
-        target = HOOKS["override_whitelisted_methods"][UPSTREAM_CALLBACK]
-        module, _, function = target.rpartition(".")
-        package, _, name = module.partition(".")
-
-        frappe = FakeFrappe()
-        with patch.dict(sys.modules, frappe.modules()):
-            loaded = runpy.run_path(str(APP_PACKAGE / f"{name}.py"), run_name=module)
-
-        self.assertEqual(package, HOOKS["app_name"])
-        self.assertTrue(callable(loaded[function]))
-        self.assertEqual(frappe.whitelisted, {function: True})
-
-    def test_only_the_keycloak_callback_is_replaced(self) -> None:
         self.assertEqual(
-            list(HOOKS["override_whitelisted_methods"]), [UPSTREAM_CALLBACK]
+            sorted(HOOKS["override_whitelisted_methods"]),
+            sorted(KEYCLOAK_CALLBACKS),
+            "Frappe's custom callback completes the sign-in of whichever Social Login "
+            "Key its path names, so replacing login_via_keycloak alone leaves "
+            "custom/keycloak as an unguarded way in",
         )
+
+    def test_each_replacement_is_a_guest_endpoint_of_the_app(self) -> None:
+        for upstream in KEYCLOAK_CALLBACKS:
+            target = HOOKS["override_whitelisted_methods"][upstream]
+            module, _, function = target.rpartition(".")
+            package, _, name = module.partition(".")
+
+            frappe = FakeFrappe()
+            with patch.dict(sys.modules, frappe.modules()):
+                loaded = runpy.run_path(
+                    str(APP_PACKAGE / f"{name}.py"), run_name=module
+                )
+
+            self.assertEqual(package, HOOKS["app_name"], upstream)
+            self.assertEqual(function, upstream.rpartition(".")[2], upstream)
+            self.assertTrue(callable(loaded[function]), upstream)
+            self.assertIs(frappe.whitelisted[function], True, upstream)
 
     def test_the_module_listed_in_modules_txt_exists_as_a_package(self) -> None:
         modules = read_text(str(APP_PACKAGE / "modules.txt")).split()

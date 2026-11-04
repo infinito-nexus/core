@@ -62,7 +62,7 @@ Where WordPress can certify a wildcard (no TLS, self-signed, or the Let's Encryp
 
 On Multisite, `infinito-ai-engine-network` keeps the AI Engine settings to the network administrators and its MCP server to the main site, because an AI Engine bearer token signs in as the first administrator of its site, which can be a network administrator.
 
-The Multisite variant in [meta/variants.yml](meta/variants.yml) sets `rbac.tenancy.axis: domain`, declares `network-administrator` and `site-owner` with `scope: global`, keeps `mcp` global and declares the `domains.served` parent of the `site-owner` sites. [rbac_group_map.json.j2](templates/rbac_group_map.json.j2) builds every group path with `rbac_group_path` and hands the map to the mu-plugin as `WORDPRESS_RBAC_GROUP_MAP`.
+The Multisite variant in [meta/variants.yml](meta/variants.yml) sets `rbac.tenancy.axis: domain`, declares `network-administrator` and `site-owner` with `scope: global`, keeps `mcp` global and declares the `domains.served` parent of the `site-owner` sites. [rbac_group_map.json.j2](templates/rbac_group_map.json.j2) builds every group path with `rbac_group_path` and hands the map to the mu-plugin as `WORDPRESS_RBAC_GROUP_MAP`. A deploy that enables Multisite without `rbac.tenancy.axis: domain` fails in [tasks/00_core.yml](tasks/00_core.yml) with a message naming the missing tenancy, before the role deploys anything.
 
 Operator-facing instructions for assigning these groups live in [Administration RBAC](../../docs/administration/configuration/rbac.md). The design contract is in [RBAC design](../../docs/contributing/design/iam/rbac.md).
 

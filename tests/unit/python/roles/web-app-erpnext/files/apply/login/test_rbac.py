@@ -2,8 +2,14 @@ from __future__ import annotations
 
 import importlib
 import json
+import runpy
+import sys
 import unittest
 from types import ModuleType
+from unittest.mock import patch
+
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -14,6 +20,7 @@ FakeFrappe = _fake_frappe.FakeFrappe
 run_script = _fake_frappe.run_script
 
 SCRIPT = PROJECT_ROOT / "roles/web-app-erpnext/files/python/apply/login/rbac.py"
+ROLE_VARS = PROJECT_ROOT / "roles/web-app-erpnext" / ROLE_FILE_VARS_MAIN
 APP = "infinito_rbac"
 SETTINGS = {
     "groups_claim": "groups",
@@ -22,6 +29,7 @@ SETTINGS = {
     "family_name_claim": "family_name",
     "role_grants": {"/roles/web-app-erpnext/administrator": ["System Manager"]},
     "protected_users": ["Administrator", "Guest"],
+    "directory_provider": "directory",
 }
 
 
@@ -117,6 +125,26 @@ class TestLoginRbac(unittest.TestCase):
         }
 
         with self.assertRaisesRegex(ValueError, "LOGIN_RBAC_SETTINGS_JSON"):
+            self._run(frappe, incomplete)
+
+        self.assertEqual(frappe.calls, [])
+
+    def test_the_role_declares_exactly_the_settings_the_script_accepts(self) -> None:
+        declared = load_yaml(str(ROLE_VARS))["ERPNEXT_LOGIN_RBAC_SETTINGS"]
+        with patch.dict(sys.modules, InstallerFrappe([], {}).modules()):
+            accepted = runpy.run_path(str(SCRIPT), run_name="rbac")["SETTINGS"]
+
+        self.assertEqual(sorted(declared), sorted(accepted))
+
+    def test_settings_without_the_directory_provider_fail_before_touching_the_site(
+        self,
+    ) -> None:
+        frappe = InstallerFrappe(["frappe"], {})
+        incomplete = {
+            key: value for key, value in SETTINGS.items() if key != "directory_provider"
+        }
+
+        with self.assertRaisesRegex(ValueError, "directory_provider"):
             self._run(frappe, incomplete)
 
         self.assertEqual(frappe.calls, [])

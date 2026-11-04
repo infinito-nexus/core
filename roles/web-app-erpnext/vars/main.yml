@@ -103,6 +103,7 @@ ERPNEXT_LOGIN_RBAC_SETTINGS:
          '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ERPNEXT_RBAC_ROLE_GRANTS.customer,
        } }}
   protected_users: "{{ ERPNEXT_RBAC_PROTECTED_USERS }}"
+  directory_provider: "{{ ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME }}"
 
 ERPNEXT_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
 ERPNEXT_LDAP_GROUP_MEMBER_ATTRIBUTE: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"

@@ -24,6 +24,7 @@ SETTINGS = (
     "family_name_claim",
     "role_grants",
     "protected_users",
+    "directory_provider",
 )
 
 

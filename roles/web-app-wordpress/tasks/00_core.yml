@@ -1,6 +1,16 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "✅ Assert Multisite runs with domain tenancy"
+  ansible.builtin.assert:
+    that: WORDPRESS_RBAC_DOMAIN_TENANCY | bool
+    fail_msg: >-
+      {{ application_id }} enables services.wordpress.multisite but declares no
+      domain tenancy: set rbac.tenancy.axis to 'domain', so that every site of
+      the network gets its own role groups.
+    quiet: true
+  when: WORDPRESS_MULTISITE_ENABLED | bool
+
 - name: "✅ Assert every domains.served entry and site owner names a served host"
   ansible.builtin.assert:
     that: WORDPRESS_SITE_OWNER_PROBLEMS | length == 0

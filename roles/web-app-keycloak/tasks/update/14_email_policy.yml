@@ -45,20 +45,21 @@
   ansible.builtin.set_fact:
     kc_email_mailbox_layout: "{{ KEYCLOAK_EMAIL_MAILBOX | bool and KEYCLOAK_LDAP_ENABLED | bool }}"
 
-- name: "🔎 Resolve the secondary addresses the mailbox layout seeds"
-  ansible.builtin.set_fact:
-    kc_email_mailbox_secondaries: >-
-      {{ ((kc_email_policy_captured.stdout | from_json) if kc_email_policy_change == 'switch' else {})
-         | kc_email_sources(KEYCLOAK_EMAIL_INVENTORY_SECONDARIES) }}
+- name: "📮 Seed and apply the mailbox layout of realm '{{ KEYCLOAK_REALM }}'"
   when: kc_email_mailbox_layout | bool
+  block:
+    - name: "🔎 Resolve the secondary addresses the mailbox layout seeds"
+      ansible.builtin.set_fact:
+        kc_email_mailbox_secondaries: >-
+          {{ ((kc_email_policy_captured.stdout | from_json) if kc_email_policy_change == 'switch' else {})
+             | kc_email_sources(KEYCLOAK_EMAIL_INVENTORY_SECONDARIES) }}
 
-- name: "📮 Apply the mailbox layout to the directory"
-  ansible.builtin.include_role:
-    name: svc-db-openldap
-    tasks_from: 06_mailbox.yml
-    apply:
-      delegate_to: "{{ groups['svc-db-openldap'] | first }}"
-  vars:
-    application_id: svc-db-openldap
-    openldap_mailbox_secondaries: "{{ kc_email_mailbox_secondaries }}"
-  when: kc_email_mailbox_layout | bool
+    - name: "📮 Apply the mailbox layout to the directory"
+      ansible.builtin.include_role:
+        name: svc-db-openldap
+        tasks_from: 06_mailbox.yml
+        apply:
+          delegate_to: "{{ groups['svc-db-openldap'] | first }}"
+      vars:
+        application_id: svc-db-openldap
+        openldap_mailbox_secondaries: "{{ kc_email_mailbox_secondaries }}"

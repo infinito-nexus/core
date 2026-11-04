@@ -90,13 +90,38 @@ def link(user, provider, username):
     user.save()
 
 
+def former_account(username, wanted, protected, providers):
+    """Return the one account the providers' rows bind to the username, or None.
+
+    Args:
+        username: the member's username, the rows' user ID.
+        wanted: ``{email: entry}`` of every member, whose accounts stay where they are.
+        protected: lower-cased user names the run never renames.
+        providers: the providers whose rows bind an account to a member.
+    """
+    bound = {
+        name
+        for name in frappe.get_all(
+            "User Social Login",
+            filters={
+                "provider": ["in", sorted(providers)],
+                "parenttype": "User",
+                "userid": username,
+            },
+            pluck="parent",
+        )
+        if name.lower() not in protected and name.lower() not in wanted
+    }
+    return bound.pop() if len(bound) == 1 else None
+
+
 def reconcile(grants, members, protected, sso_provider, directory_provider):
     """Converge every directory-owned account and return one line per change.
 
     Args:
         grants: ``{role: [ERPNext role, ...]}``.
         members: ``{role: [members]}``.
-        protected: lower-cased user names the run never demotes or disables.
+        protected: lower-cased user names the run never demotes, disables or renames.
         sso_provider: the provider of the row a Keycloak sign-in writes.
         directory_provider: the provider of the row this run writes.
     """
@@ -107,6 +132,10 @@ def reconcile(grants, members, protected, sso_provider, directory_provider):
 
     for email, entry in sorted(wanted.items()):
         if frappe.db.exists("User", email):
+            user = frappe.get_doc("User", email)
+        elif former := former_account(entry["username"], wanted, protected, providers):
+            frappe.rename_doc("User", former, email, show_alert=False)
+            lines.append(f"CHANGED {former} renamed to {email}")
             user = frappe.get_doc("User", email)
         else:
             user = provision(email, entry["username"])

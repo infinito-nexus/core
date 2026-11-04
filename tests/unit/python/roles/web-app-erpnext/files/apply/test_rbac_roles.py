@@ -44,6 +44,13 @@ def _links(*providers):
     ]
 
 
+def _bound(*pairs):
+    return [
+        SimpleNamespace(provider=provider, userid=userid, username=userid)
+        for provider, userid in pairs
+    ]
+
+
 def _member(username, email):
     return {"username": username, "email": email, "name": username}
 
@@ -278,6 +285,123 @@ class TestRbacRoles(unittest.TestCase):
         self.assertEqual(
             self._role_names(PLATFORM_ADMIN), ["Customer", "System Manager"]
         )
+
+    def _seed_bound(self, name, *pairs, roles=("Customer",)):
+        self.frappe.seed(
+            "User",
+            name,
+            email=name,
+            enabled=1,
+            roles=_roles(*roles),
+            social_logins=_bound(*pairs),
+        )
+
+    def _renames(self):
+        return [call[1:4] for call in self.frappe.calls if call[0] == "rename_doc"]
+
+    def test_renames_the_directory_account_of_a_member_whose_address_changed(
+        self,
+    ) -> None:
+        self._seed_bound("alice@infinito.example", (DIRECTORY, "alice"))
+
+        output = self._run(
+            {"customer": [_member("alice", "alice.new@infinito.example")]}
+        )
+
+        self.assertEqual(
+            output,
+            ["CHANGED alice@infinito.example renamed to alice.new@infinito.example"],
+        )
+        self.assertNotIn("alice@infinito.example", self.frappe.records["User"])
+        user = self._user("alice.new@infinito.example")
+        self.assertEqual((user["email"], user["enabled"]), (user["name"], 1))
+        self.assertEqual(self._role_names("alice.new@infinito.example"), ["Customer"])
+        self.assertEqual(
+            self._link_rows("alice.new@infinito.example"),
+            [(DIRECTORY, "alice", "alice")],
+        )
+
+    def test_renames_an_account_its_keycloak_sign_in_bound_to_the_member(
+        self,
+    ) -> None:
+        self._seed_bound("alice@infinito.example", (SSO, "alice"))
+
+        self._run({"customer": [_member("alice", "alice.new@infinito.example")]})
+
+        self.assertEqual(
+            self._renames(),
+            [("User", "alice@infinito.example", "alice.new@infinito.example")],
+        )
+
+    def test_the_rename_flashes_nothing_to_a_session(self) -> None:
+        self._seed_bound("alice@infinito.example", (DIRECTORY, "alice"))
+
+        self._run({"customer": [_member("alice", "alice.new@infinito.example")]})
+
+        self.assertEqual(
+            [call[4] for call in self.frappe.calls if call[0] == "rename_doc"],
+            [False],
+        )
+
+    def test_a_renamed_member_is_unchanged_on_the_next_run(self) -> None:
+        self._seed_bound("alice@infinito.example", (DIRECTORY, "alice"))
+        members = {"customer": [_member("alice", "alice.new@infinito.example")]}
+        self._run(members)
+
+        self.assertEqual(self._run(members), ["UNCHANGED"])
+
+    def test_a_row_of_another_provider_binds_no_account(self) -> None:
+        self._seed_bound("alice@infinito.example", ("google", "alice"))
+
+        output = self._run(
+            {"customer": [_member("alice", "alice.new@infinito.example")]}
+        )
+
+        self.assertEqual(self._renames(), [])
+        self.assertIn("CHANGED alice.new@infinito.example created", output)
+
+    def test_an_account_bound_to_another_username_is_not_renamed(self) -> None:
+        self._seed_bound("alice@infinito.example", (DIRECTORY, "alice"))
+
+        self._run({"customer": [_member("mallory", "mallory@infinito.example")]})
+
+        self.assertEqual(self._renames(), [])
+        self.assertIn("alice@infinito.example", self.frappe.records["User"])
+
+    def test_an_account_another_member_holds_by_address_is_not_renamed(
+        self,
+    ) -> None:
+        self._seed_bound("alice@infinito.example", (DIRECTORY, "alice"))
+
+        self._run(
+            {
+                "customer": [
+                    _member("alice", "alice.new@infinito.example"),
+                    _member("bob", "alice@infinito.example"),
+                ]
+            }
+        )
+
+        self.assertEqual(self._renames(), [])
+        self.assertIn("alice@infinito.example", self.frappe.records["User"])
+
+    def test_a_member_bound_to_two_accounts_gets_neither_renamed(self) -> None:
+        self._seed_bound("alice@infinito.example", (DIRECTORY, "alice"))
+        self._seed_bound("alice.old@infinito.example", (SSO, "alice"))
+
+        self._run({"customer": [_member("alice", "alice.new@infinito.example")]})
+
+        self.assertEqual(self._renames(), [])
+
+    def test_a_protected_account_is_never_renamed(self) -> None:
+        self._seed_bound(PLATFORM_ADMIN, (SSO, "platformadmin"), roles=())
+
+        self._run(
+            {"administrator": [_member("platformadmin", "root@infinito.example")]}
+        )
+
+        self.assertEqual(self._renames(), [])
+        self.assertIn(PLATFORM_ADMIN, self.frappe.records["User"])
 
     def test_a_second_run_changes_nothing(self) -> None:
         self._seed_user("biber@infinito.example")

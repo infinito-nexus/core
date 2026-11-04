@@ -225,11 +225,41 @@ class FakeFrappe:
             ]
         if doctype == "User Social Login":
             return [
-                {"parent": name, "parenttype": "User", "provider": row.provider}
+                {
+                    "parent": name,
+                    "parenttype": "User",
+                    "provider": row.provider,
+                    "userid": row.userid,
+                }
                 for name, user in self.db._table("User").items()
                 for row in user.get("social_logins", [])
             ]
         return list(self.db._table(doctype).values())
+
+    def rename_doc(self, doctype, old, new, *, show_alert=True):
+        """Rename a record the way ``frappe.rename_doc`` renames a User.
+
+        Args:
+            doctype: the record's doctype.
+            old: the record's current name.
+            new: the record's new name.
+            show_alert: whether Frappe would flash the rename to the session.
+
+        Returns:
+            The new name.
+        """
+        table = self.db._table(doctype)
+        if old not in table:
+            raise LinkValidationError(f"Can't rename {old} because it doesn't exist")
+        if new in table:
+            raise DuplicateEntryError(f"Another {doctype} with name {new} exists")
+        record = table.pop(old)
+        record["name"] = new
+        if doctype == "User":
+            record["email"] = new
+        table[new] = record
+        self.calls.append(("rename_doc", doctype, old, new, show_alert))
+        return new
 
     def get_all(self, doctype, filters=None, pluck=None):
         rows = [r for r in self._rows(doctype) if _matches(r, filters or {})]

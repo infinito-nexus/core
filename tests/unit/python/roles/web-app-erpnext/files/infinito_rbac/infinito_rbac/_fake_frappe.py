@@ -1,4 +1,10 @@
-"""In-memory stand-in for the slice of Frappe the ``infinito_rbac`` app calls."""
+"""In-memory stand-in for the slice of Frappe the ``infinito_rbac`` app calls.
+
+``login_oauth_user`` behaves like Frappe 16's: it takes the account named after
+the sign-in's e-mail address, refuses a missing one because the Social Login Key
+denies sign-ups, refuses a disabled one, and links an enabled one to the
+signing-in user when it has no ``keycloak`` row yet.
+"""
 
 from __future__ import annotations
 
@@ -11,11 +17,17 @@ class FrappeValidationError(Exception):
     pass
 
 
+class FrappePermissionError(Exception):
+    pass
+
+
 class FakeUser:
     def __init__(self, frappe, values):
         object.__setattr__(self, "_frappe", frappe)
         object.__setattr__(self, "flags", SimpleNamespace())
-        object.__setattr__(self, "_values", {"roles": [], **values})
+        object.__setattr__(
+            self, "_values", {"roles": [], "social_logins": [], **values}
+        )
 
     def __getattr__(self, name):
         if name.startswith("__"):
@@ -59,34 +71,98 @@ class FakeDb:
         self.committed = False
 
     def exists(self, doctype, name):
+        self._frappe.lookups.append((doctype, name))
         return doctype == "User" and name in self._frappe.records
+
+    def get_value(self, doctype, name, fieldname):
+        self._frappe.lookups.append((doctype, name))
+        assert doctype == "Social Login Key"
+        record = self._frappe.social_login_keys.get(name)
+        return record.get(fieldname) if record else None
 
     def commit(self):
         self.committed = True
 
 
+def _matches(row, filters):
+    for field, expected in filters.items():
+        if isinstance(expected, list):
+            operator, operand = expected
+            assert operator == "in"
+            if row[field] not in operand:
+                return False
+        elif row[field] != expected:
+            return False
+    return True
+
+
 class FakeFrappe:
+    PermissionError = FrappePermissionError
+
     def __init__(self):
         self.records = {}
         self.saves = []
+        self.social_login_keys = {
+            "keycloak": {"user_id_property": "preferred_username"}
+        }
         self.conf = {}
         self.userinfo = {}
         self.whitelisted = {}
         self.logged = []
+        self.lookups = []
         self.exchanges = []
         self.handovers = []
+        self.upstream_custom = []
+        self.request = SimpleNamespace(
+            path="/api/method/frappe.integrations.oauth2_logins.login_via_keycloak/keycloak"
+        )
         self.db = FakeDb(self)
 
-    def seed(self, name, **values):
-        self.records[name] = {"roles": [], **values, "name": name}
+    def seed(self, name, *links, **values):
+        """Store an account.
+
+        Args:
+            name: the account's name, its e-mail address.
+            links: ``(provider, userid)`` of each ``User Social Login`` row.
+            values: the account's other fields.
+        """
+        self.records[name] = {
+            "roles": [],
+            **values,
+            "social_logins": [
+                SimpleNamespace(provider=provider, userid=userid)
+                for provider, userid in links
+            ],
+            "name": name,
+        }
+
+    def links(self, name):
+        return [
+            (row.provider, row.userid) for row in self.records[name]["social_logins"]
+        ]
 
     def get_doc(self, doctype, name):
+        self.lookups.append((doctype, name))
         assert doctype == "User"
         return FakeUser(self, copy.deepcopy(self.records[name]))
 
     def new_doc(self, doctype):
         assert doctype == "User"
         return FakeUser(self, {})
+
+    def get_all(self, doctype, filters, pluck):
+        assert doctype == "User Social Login"
+        rows = [
+            {
+                "parent": name,
+                "parenttype": "User",
+                "provider": row.provider,
+                "userid": row.userid,
+            }
+            for name, record in self.records.items()
+            for row in record["social_logins"]
+        ]
+        return [row[pluck] for row in rows if _matches(row, filters)]
 
     def generate_hash(self):
         return "generated-hash"
@@ -99,25 +175,40 @@ class FakeFrappe:
         return register
 
     def logger(self, name):
-        return SimpleNamespace(info=lambda line: self.logged.append((name, line)))
+        def record(message, *args):
+            self.logged.append((name, message % args if args else message))
 
-    def throw(self, message):
-        raise FrappeValidationError(message)
+        return SimpleNamespace(info=record, warning=record)
+
+    def throw(self, message, exc=FrappeValidationError):
+        raise exc(message)
 
     def _info_via_oauth(self, provider, code, decoder=None):
         self.exchanges.append((provider, code, decoder))
-        return self.userinfo
+        return copy.deepcopy(self.userinfo)
 
     def _login_oauth_user(self, data, *, provider=None, state):
-        user = self.records.get(data["email"].lower())
+        name = data["email"].lower()
+        record = self.records.get(name)
         self.handovers.append(
             {
                 "provider": provider,
                 "state": state,
+                "user": name,
                 "committed": self.db.committed,
-                "enabled": user["enabled"] if user else None,
+                "enabled": record["enabled"] if record else None,
             }
         )
+        if not record or not record["enabled"]:
+            return
+        userid_claim = self.social_login_keys[provider]["user_id_property"] or "sub"
+        if provider not in {row.provider for row in record["social_logins"]}:
+            record["social_logins"].append(
+                SimpleNamespace(provider=provider, userid=data[userid_claim])
+            )
+
+    def _upstream_custom(self, code, state):
+        self.upstream_custom.append((code, state))
 
     def modules(self):
         """Return the ``sys.modules`` entries that make this object ``frappe``.
@@ -127,6 +218,7 @@ class FakeFrappe:
         """
         oauth2_logins = ModuleType("frappe.integrations.oauth2_logins")
         oauth2_logins.decoder_compat = json.loads
+        oauth2_logins.custom = self._upstream_custom
         integrations = ModuleType("frappe.integrations")
         integrations.oauth2_logins = oauth2_logins
         oauth = ModuleType("frappe.utils.oauth")
