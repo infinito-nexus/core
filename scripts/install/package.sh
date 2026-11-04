@@ -29,7 +29,7 @@ build_and_install_arch() {
 	pacman-key --populate manjaro 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 	echo "[arch] Installing build toolchain..."
-	pacman -Syu --noconfirm --needed base-devel sudo rsync
+	pacman -Syu --noconfirm --needed base-devel sudo tar
 
 	if ! id "${builder}" >/dev/null 2>&1; then
 		echo "[arch] Creating build user '${builder}'..."
@@ -41,13 +41,7 @@ build_and_install_arch() {
 	chmod 0440 /etc/sudoers.d/99-"${builder}"-pacman
 
 	echo "[arch] Preparing build workspace ${build_root}..."
-	rm -rf "${build_root}"
-	mkdir -p "${build_root}"
-	rsync -a --delete \
-		--exclude '.git' \
-		--exclude '.venv' \
-		--exclude '__pycache__' \
-		"${REPO_ROOT}/" "${build_root}/"
+	bash "${SCRIPT_DIR}/stage.sh" "${REPO_ROOT}" "${build_root}" '.git' '.venv' '__pycache__'
 
 	chown -R "${builder}:${builder}" "${build_root}"
 
@@ -86,15 +80,10 @@ build_and_install_debian_like() {
 		build-essential \
 		debhelper \
 		dpkg-dev \
-		rsync
+		tar
 
 	echo "[debian] Preparing build workspace ${build_root}..."
-	rm -rf "${build_root}"
-	mkdir -p "${build_root}"
-	rsync -a \
-		--exclude 'packaging/debian' \
-		--exclude '.git' \
-		"${REPO_ROOT}/" "${build_root}/"
+	bash "${SCRIPT_DIR}/stage.sh" "${REPO_ROOT}" "${build_root}" 'packaging/debian' '.git'
 	mkdir -p "${build_root}/debian"
 	cp -a "${REPO_ROOT}/packaging/debian/." "${build_root}/debian/"
 

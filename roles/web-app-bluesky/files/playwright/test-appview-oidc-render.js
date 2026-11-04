@@ -7,6 +7,7 @@ const {
   expectNoFailures,
   expectNoLxmRejections,
   reachFollowingFeed,
+  reachNotificationsScreen,
   readPreferences,
   restorePreferences,
   waitForResponseTo,
@@ -44,11 +45,11 @@ exports.register = function (shared) {
 
       const notificationsFrom = seen.length;
       await gotoOnion(page, `${shared.env.baseUrl}/notifications`);
-      const notifications = page.getByTestId("notificationsScreen");
-      await expect(notifications).toBeVisible({ timeout: resolveTimeout(60_000) });
-      await waitForResponseTo(seen, "app.bsky.notification.listNotifications", notificationsFrom);
+      const notifications = await reachNotificationsScreen(page);
+      await waitForResponseTo(seen, notifications.feed, notificationsFrom);
       await expectNoFailures(seen, "app.bsky.notification.listNotifications");
-      await expect(notifications.getByTestId("errorMessageView"), "Notifications must render without an errorMessageView").toHaveCount(0);
+      await expectNoFailures(seen, notifications.feed);
+      await expect(notifications.locator.getByTestId("errorMessageView"), "Notifications must render without an errorMessageView").toHaveCount(0);
 
       await expectNoLxmRejections(seen, pageErrors);
     } finally {

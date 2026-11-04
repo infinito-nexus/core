@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import contextlib
+import http.client
+import io
+import json
 import unittest
+import urllib.error
 from unittest import mock
 
-from utils.update.follow import followed_tags
+from utils.update.follow import followed_tags, tag_digest
 
 UBUNTU = {
     "latest": "sha256:lts",
@@ -40,10 +45,47 @@ class TestFollowedTags(unittest.TestCase):
         self.assertEqual(followed_tags("fedora", tags, {"version": "44"}, "44"), tags)
         self.assertEqual(followed_tags("fedora", tags, None, "44"), tags)
 
-    def test_an_unreadable_registry_proposes_nothing(self) -> None:
-        with mock.patch("utils.update.follow.tag_digest", side_effect=OSError):
+    def test_an_unreadable_registry_proposes_nothing_and_says_so(self) -> None:
+        stderr = io.StringIO()
+        with (
+            mock.patch("utils.update.follow.tag_digest", side_effect=OSError("429")),
+            contextlib.redirect_stderr(stderr),
+        ):
             found = followed_tags("fedora", list(FEDORA), {"follow": "latest"}, "44")
         self.assertEqual(found, [])
+        self.assertIn("WARN fedora:44", stderr.getvalue())
+
+    def test_an_incomplete_response_proposes_nothing_and_says_so(self) -> None:
+        stderr = io.StringIO()
+        with (
+            mock.patch(
+                "utils.update.follow.get",
+                side_effect=http.client.IncompleteRead(b"{", 120),
+            ),
+            contextlib.redirect_stderr(stderr),
+        ):
+            found = followed_tags("fedora", list(FEDORA), {"follow": "latest"}, "44")
+        self.assertEqual(found, [])
+        self.assertIn("WARN fedora:44", stderr.getvalue())
+        self.assertIn("IncompleteRead", stderr.getvalue())
+
+    def test_a_rate_limited_digest_is_retried(self) -> None:
+        limited = urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)
+        body = json.dumps({"digest": "sha256:45"}).encode()
+        with (
+            mock.patch("utils.update.follow.get", side_effect=[limited, body]),
+            mock.patch("utils.update.follow.time.sleep"),
+        ):
+            self.assertEqual(tag_digest("fedora", "latest"), "sha256:45")
+
+    def test_a_persistent_rate_limit_still_raises(self) -> None:
+        limited = urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)
+        with (
+            mock.patch("utils.update.follow.get", side_effect=[limited] * 3),
+            mock.patch("utils.update.follow.time.sleep"),
+            self.assertRaises(urllib.error.HTTPError),
+        ):
+            tag_digest("fedora", "latest")
 
 
 if __name__ == "__main__":

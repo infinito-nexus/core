@@ -9,11 +9,17 @@ rawhide) point elsewhere.
 
 from __future__ import annotations
 
+import http.client
 import json
+import sys
+import time
+import urllib.error
 
 from utils.docker.image.ref import dockerhub_repo
 from utils.update.base import version_depth, version_flavor, version_key
 from utils.update.fetch import get
+
+RETRIES = 3
 
 
 def tag_digest(image: str, tag: str) -> str:
@@ -24,7 +30,14 @@ def tag_digest(image: str, tag: str) -> str:
         tag: the tag to resolve.
     """
     url = f"https://hub.docker.com/v2/repositories/{dockerhub_repo(image)}/tags/{tag}"
-    return str(json.loads(get(url))["digest"])
+    for attempt in range(RETRIES):
+        try:
+            return str(json.loads(get(url))["digest"])
+        except urllib.error.HTTPError as exc:
+            if exc.code != 429 or attempt == RETRIES - 1:
+                raise
+            time.sleep(2**attempt)
+    raise RuntimeError(f"{image}:{tag}: no digest after {RETRIES} attempts")
 
 
 def followed_tags(
@@ -42,7 +55,7 @@ def followed_tags(
     Returns:
         The tags unchanged without ``follow``; otherwise the newer tags of the
         pin's depth and flavor that share the followed tag's digest, and none
-        when Docker Hub cannot be read.
+        when Docker Hub cannot be read, which is reported on stderr.
     """
     follow = config.get("follow") if isinstance(config, dict) else None
     if follow is None:
@@ -56,6 +69,23 @@ def followed_tags(
     ]
     try:
         target = tag_digest(image, str(follow))
-        return [tag for tag in newer if tag_digest(image, tag) == target]
-    except (OSError, ValueError, KeyError):
+        kept = [tag for tag in newer if tag_digest(image, tag) == target]
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        RuntimeError,
+        http.client.HTTPException,
+    ) as exc:
+        print(
+            f"[follow] WARN {image}:{current}: Docker Hub digests unreadable "
+            f"({type(exc).__name__}: {exc}); proposing nothing",
+            file=sys.stderr,
+        )
         return []
+    print(
+        f"[follow] {image}:{current}: {follow} matches {kept or 'none'} "
+        f"among newer {newer or 'none'}",
+        file=sys.stderr,
+    )
+    return kept

@@ -6,6 +6,13 @@ const LXM_PATTERN = /lxm|lexicon method/i;
 const PROXIED_METHODS = ["app.bsky.feed.getTimeline", "app.bsky.notification.listNotifications"];
 const PERSONAL_DETAILS = "app.bsky.actor.defs#personalDetailsPref";
 const ADULT_BIRTHDATE = "1990-01-01";
+const NOTIFICATIONS_FEEDS = {
+  notificationsScreen: "app.bsky.notification.listNotifications",
+  newNotificationsScreen: "app.bsky.notification.getGroupedNotifications",
+};
+const NOTIFICATIONS_SCREEN = Object.keys(NOTIFICATIONS_FEEDS)
+  .map((testId) => `[data-testid="${testId}"]`)
+  .join(", ");
 
 async function expectPdsProxiesAppView(request, pdsBaseUrl, accessJwt) {
   for (const nsid of PROXIED_METHODS) {
@@ -123,13 +130,23 @@ async function reachFollowingFeed(page) {
   }).toPass({ timeout: resolveTimeout(120_000) });
 }
 
+async function reachNotificationsScreen(page) {
+  const screen = page.locator(NOTIFICATIONS_SCREEN);
+  await expect(screen, "social-app must mount its legacy or v2 Notifications screen").toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+  return { locator: screen, feed: NOTIFICATIONS_FEEDS[await screen.getAttribute("data-testid")] };
+}
+
 module.exports = {
+  NOTIFICATIONS_SCREEN,
   brokerAccessJwt,
   collectAppViewResponses,
   expectNoFailures,
   expectNoLxmRejections,
   expectPdsProxiesAppView,
   reachFollowingFeed,
+  reachNotificationsScreen,
   readPreferences,
   restorePreferences,
   waitForResponseTo,

@@ -1,5 +1,8 @@
 ---
 intel:
+  # nocheck: architecture-pin  Reason: the Intel media driver it installs (intel-media-driver, intel-media-va-driver, libva-intel-media-driver) is built for x86_64 only on every supported distro, so no arm64 package exists
+  architectures:
+    - amd64
   modes:
     host:
       enabled: true

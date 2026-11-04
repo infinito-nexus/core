@@ -29,4 +29,6 @@ else
 	echo "[apparmor] ${APPARMOR_FS}/.remove is not writable; skipping profile unload"
 fi
 
+apparmor_lift_unconfined_restriction "${APPARMOR_UNCONFINED_RESTRICTION_SYSCTL}" "${APPARMOR_UNCONFINED_RESTRICTION_STATE}"
+
 echo "[apparmor] teardown complete"
