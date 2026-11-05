@@ -8,6 +8,53 @@
     fail_msg: "services.tor.flavor must be 'public' or 'chutney' (got '{{ TOR_FLAVOR }}')"
     quiet: true
 
+- name: "✅ Assert the Tor egress route and its lists can be deployed"
+  ansible.builtin.assert:
+    that:
+      - _tor_egress_violations | length == 0
+    fail_msg: "services.tor.egress: {{ _tor_egress_violations | join('; ') }}"
+    quiet: true
+  vars:
+    _tor_egress_violations: "{{ TOR_EGRESS_LISTS | tor_egress_violations(TOR_EGRESS_ROUTE, IS_SWARM_MODE) }}"
+
+- name: "🧹 Refuse route none while an earlier route's router is installed"
+  when:
+    - TOR_EGRESS_ROUTE == 'none'
+    - IS_COMPOSE_MODE or (IS_STACK_HOST | bool)
+  block:
+    - name: "📄 Load the fragment naming of svc-net-firewall"
+      ansible.builtin.include_vars:
+        file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/vars/main.yml') }}"
+        name: tor_egress_firewall
+
+    - name: "🔎 Look for the router files an earlier route installed"
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "{{ [ tor_egress_firewall.FIREWALL_FRAGMENT_DIR, application_id ~ '.conf' ] | path_join }}"
+        - "{{ TOR_DNSMASQ_CONF }}"
+      register: _tor_egress_leftovers
+      become: true
+
+    - name: "✅ Refuse route none over a router that would keep running"
+      ansible.builtin.assert:
+        that:
+          - _tor_egress_leftovers.results | selectattr('stat.exists') | list | length == 0
+        fail_msg: >-
+          route none would leave {{ _tor_egress_leftovers.results | selectattr('stat.exists') | map(attribute='item') | join(' and ') }}
+          in place: the packet filter keeps redirecting and, after route all,
+          dropping egress while Tor loses the group its relay traffic is exempted
+          by, so the node loses egress. Keep route onion, or remove the router
+          first: delete the nft table {{ TOR_EGRESS_NFT_TABLE }} and both files,
+          restore /etc/resolv.conf and restart dnsmasq.
+
+- name: "⚠️ Report entries both egress lists include; they take Tor"
+  ansible.builtin.debug:
+    msg: "services.tor.egress: tor.include and direct.include both name {{ _tor_egress_overlaps | join(', ') }}"
+  when: _tor_egress_overlaps | length > 0
+  vars:
+    _tor_egress_overlaps: "{{ TOR_EGRESS_LISTS | tor_egress_overlaps }}"
+
 - name: "📤 Dispatch Tor network flavor '{{ TOR_FLAVOR }}'"
   ansible.builtin.include_tasks: "flavor/{{ TOR_FLAVOR }}/main.yml"
 
