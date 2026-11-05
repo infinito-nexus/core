@@ -14,8 +14,8 @@ the token store digest and ``inventory_hostname``::
 
 ``tasks/stages/01_constructor.yml`` parks three of them: a block-scoped one
 for the merge block, which it drops again at the block's end, one after the
-``add_host`` tasks for the swarm bootstrap roles, parked only when
-``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names``, so a
+``add_host`` tasks for the pre-flight checks, the package batch and the
+bootstrap roles, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names``, so a
 carrier whose groups no longer match is rejected and the reader renders
 afresh. ``merged_users_cache_key`` adds a digest of the tokens the users are
 hydrated from (the tokens file, or the ``sys_token_store_users`` fact once the
