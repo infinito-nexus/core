@@ -316,6 +316,7 @@ def reset_target(compose: Compose, holders: Sequence[Holder], lab: Lab | None) -
     address = os.environ["INFINITO_TARGET_IP"]
     key = os.environ["INFINITO_TARGET_KEY"]
     domain = os.environ["INFINITO_DOMAIN"]
+    prefix = os.environ["INFINITO_RUNNER_PREFIX"]
 
     print(">>> Resetting the shared target to a bare systemd and sshd machine")
     CoreDNSCorefileRenderer(repo_root=compose.repo_root).render(show_preview=False)
@@ -325,6 +326,10 @@ def reset_target(compose: Compose, holders: Sequence[Holder], lab: Lab | None) -
         output_relpath=COREFILE,
     ).render(show_preview=False)
     compose.run(["rm", "--stop", "--force", "--volumes", SERVICE, RESOLVER])
+    subprocess.run(
+        ["docker", "volume", "rm", "--force", f"{prefix}-target-docker"],
+        check=True,
+    )
     compose.run(["up", "-d", "--build", SERVICE, RESOLVER])
     if lab is not None:
         _join_lab(compose, lab)

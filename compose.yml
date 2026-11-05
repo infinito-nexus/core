@@ -148,7 +148,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - .:${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}
-      - /var/lib/docker
+      - target-docker:/var/lib/docker
 
   target-resolver:
     image: coredns/coredns:1.14.4
@@ -168,6 +168,8 @@ volumes:
   docker:
   infinito:
   letsencrypt:
+  target-docker:
+    name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-target-docker
 networks:
   default:
     driver: bridge
