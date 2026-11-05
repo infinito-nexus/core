@@ -19,9 +19,9 @@ UseEntryGuards 0
 %include /run/tor/chutney-net.conf
 {% endif %}
 
-{% if TOR_EGRESS_ROUTER_ENABLED | bool %}
+{% if TOR_EGRESS_ROUTE != 'none' %}
 AutomapHostsOnResolve 1
-AutomapHostsSuffixes .onion
+AutomapHostsSuffixes {{ '.' if TOR_EGRESS_PLAN.automap_all else '.onion' }}
 VirtualAddrNetworkIPv4 {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }}
 {% if IS_SWARM_MODE %}
 TransPort 0.0.0.0:{{ TOR_TRANS_PORT }}

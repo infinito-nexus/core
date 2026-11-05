@@ -4,12 +4,15 @@ from ipaddress import ip_network
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.networks.address import subnet_gateway
+from utils.networks.tor_egress import ROUTE_ALL as _ROUTE_ALL
 from utils.templating.ansible import _trust_as_template
 
 _TOR_ROLE = "svc-net-tor"
+_TOR_ROUTE_PATH = "services.tor.egress.route"
 
 
 def _serves_on_the_bridge(variables: dict[str, Any]) -> bool:
@@ -137,7 +140,23 @@ def public_resolver(variables: dict[str, Any]) -> str:
     return str(resolvers[0])
 
 
-def resolve_container_dns(variables: dict[str, Any], templar: Any = None) -> list[str]:
+def tor_route(variables: dict[str, Any], loader: Any, templar: Any) -> str:
+    """Return the egress route of the Tor node, or an empty string off one.
+
+    Args:
+        variables: the variables in scope for the lookup.
+        loader: the lookup's loader, handed to the config lookup.
+        templar: the lookup's templar, handed to the config lookup.
+    """
+    if _TOR_ROLE not in (variables.get("group_names") or []):
+        return ""
+    config = lookup_loader.get("config", loader=loader, templar=templar)
+    return str(config.run([_TOR_ROLE, _TOR_ROUTE_PATH], variables=variables)[0]).strip()
+
+
+def resolve_container_dns(
+    variables: dict[str, Any], templar: Any = None, route: str = ""
+) -> list[str]:
     """Return the resolver list for the container runtime, most specific first.
 
     On a Tor node the node dnsmasq resolves ``.onion`` through Tor's DNSPort
@@ -169,8 +188,26 @@ def resolve_container_dns(variables: dict[str, Any], templar: Any = None) -> lis
     serves, so it never goes out alone: a list that would carry it by itself
     gets the project's public resolver behind it. Without that the daemon has a
     single dead nameserver and every container and image build loses DNS.
+
+    Under ``route: all`` the bridge is the only entry. Docker falls through to
+    the next nameserver whenever dnsmasq answers SERVFAIL, which is exactly
+    what it answers while Tor is down, so any second entry would be a clearnet
+    fallback for every container.
+
+    Args:
+        variables: the variables in scope for the lookup.
+        templar: the lookup's templar, or None outside a play.
+        route: the Tor node's egress route, empty off a Tor node.
     """
     bridge = bridge_address(variables)
+
+    if route == _ROUTE_ALL:
+        if not bridge:
+            raise AnsibleError(
+                "svc-net-tor route all resolves container names only through the "
+                "bridge dnsmasq, but no docker address pool yields a bridge address"
+            )
+        return [bridge]
 
     clearnet = render(
         ((variables.get("networks") or {}).get("internet") or {}).get("dns"), templar
@@ -195,4 +232,5 @@ class LookupModule(LookupBase):
         if terms:
             raise ValueError("lookup('container_dns') takes no positional terms.")
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
-        return [resolve_container_dns(variables, self._templar)]
+        route = tor_route(variables, getattr(self, "_loader", None), self._templar)
+        return [resolve_container_dns(variables, self._templar, route)]

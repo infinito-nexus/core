@@ -28,7 +28,35 @@ tor: # nocheck: category-modes
     ssh: true
     http: true
   egress:
-    enabled: true
+    route: onion
+    tor:
+      include: []
+      except: []
+    direct:
+      include: "{{ lookup('tor_egress_infrastructure') }}"
+      except: []
+    infrastructure:
+      mirrors:
+        - deb.debian.org
+        - security.debian.org
+        - archive.ubuntu.com
+        - security.ubuntu.com
+        - ports.ubuntu.com
+        - mirrors.fedoraproject.org
+        - dl.fedoraproject.org
+        - mirrors.centos.org
+        - mirror.stream.centos.org
+        - geo.mirror.pkgbuild.com
+      ntp:
+        - pool.ntp.org
+        - ntp.ubuntu.com
+      registry_blob_hosts:
+        docker.io:
+          - production.cloudflare.docker.com
+        ghcr.io:
+          - pkg-containers.githubusercontent.com
+      acme:
+        - acme-v02.api.letsencrypt.org
   timeout_multipliers:
     chutney: 2
     public: 5

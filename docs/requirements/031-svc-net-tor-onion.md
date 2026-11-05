@@ -54,7 +54,7 @@ The `.onion` is a **deploy-time input**: a CLI helper mints the v3 key offline d
 | 7 | SSO needs no special handling: Keycloak domain is onion ⇒ one onion issuer/realm; onion emails match `email_domains`. |
 | 8 | **Tor image built via `files/Dockerfile`** from a pinned Debian `tor` package (`deb.debian.org`; no sandbox-allowlist change). `deb.torproject.org` = documented alternative requiring an allowlist entry. |
 | 9 | **Per-domain TLS via app-level override**: extra public domains under `applications.<app>.server.domains` deploy as additional HTTPS vhosts; flavor from `applications.<app>.tls.mode` (default `TLS_MODE`). `.onion` → always HTTP. No per-domain TLS map. |
-| 10 | **`TOR_EGRESS_ENABLED: false` default.** Flag + plumbing in MVP (SOCKS `127.0.0.1:9050` reachable for containers when enabled, documented); transparent egress torification out of scope. Inbound is always onion. |
+| 10 | Superseded by [091 - Egress Route](091-svc-net-tor-egress-route.md): `services.tor.egress.route` (`none`, `onion`, `all`) with `tor` and `direct` lists replaces the egress flag; `onion` is the default and `all` torifies every outbound connection, fail-closed. Inbound is always onion. |
 | 11 | **CI runs a real Tor E2E** (`torsocks curl` against the minted onion) with retry logic; unit tests remain the merge-blocking base. |
 
 ## Target Schema
@@ -132,7 +132,7 @@ Location: under [`cli/administration/inventory/`](../../cli/administration/inven
 
 ```yaml
 DOMAIN_PRIMARY: "<node>.onion"     # written by the mint helper
-TOR_EGRESS_ENABLED: false          # Decision #10
+TOR_EGRESS_ROUTE: onion            # Decision #10, see 091
 
 applications:
   <app-id>:
@@ -175,7 +175,7 @@ applications:
 
 ### Egress
 
-- [ ] `services.tor.egress.enabled` (`TOR_EGRESS_ROUTER_ENABLED`) defaults `true`, torifying outbound traffic, and `false` leaves outbound untouched; both are documented in the role README.
+- [ ] `services.tor.egress.route` (`TOR_EGRESS_ROUTE`) defaults `onion`, which routes `.onion` through Tor and leaves clearnet direct; `all` routes every outbound connection through Tor, fail-closed; `none` leaves outbound untouched; all three are documented in the role README. Tracked in [091 - Egress Route](091-svc-net-tor-egress-route.md); stays unticked until its criteria hold.
 
 ### CI / E2E
 
@@ -211,7 +211,7 @@ These build on the working onion node and are implemented after the web core is 
 
 ## Out of scope
 
-Dual clearnet+onion with `Onion-Location` bridge and mirrored SSO realms; per-app dedicated onions / Tor Client Authorization; distributed backups over onion; transparent full-egress torification (only `.onion`-destination mail egress is in phase 2); migration of existing clearnet nodes.
+Dual clearnet+onion with `Onion-Location` bridge and mirrored SSO realms; per-app dedicated onions / Tor Client Authorization; distributed backups over onion; transparent full-egress torification here (only `.onion`-destination mail egress is in phase 2; full egress is [091](091-svc-net-tor-egress-route.md)); migration of existing clearnet nodes.
 
 ## Validation
 

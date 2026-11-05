@@ -22,6 +22,9 @@
     {{ lookup('container_networks') | indent(4) }}
     {% else %}
     network_mode: "host"
+    {% if TOR_EGRESS_ROUTE == 'all' %}
+    user: "0:{{ TOR_EGRESS_SOCKET_GID }}"
+    {% endif %}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     healthcheck:
