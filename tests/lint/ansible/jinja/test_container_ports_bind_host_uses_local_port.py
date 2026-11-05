@@ -60,7 +60,9 @@ class TestContainerPortsBindHostUsesLocalPort(unittest.TestCase):
             if "container_ports" not in text or roles_dir not in path.parents:
                 continue
             services_file = (
-                roles_dir / path.relative_to(roles_dir).parts[0] / ROLE_FILE_META_SERVICES
+                roles_dir
+                / path.relative_to(roles_dir).parts[0]
+                / ROLE_FILE_META_SERVICES
             )
             services = load_yaml_any(services_file) if services_file.is_file() else None
             for service, protocol in _bound_terms(text):
@@ -73,7 +75,9 @@ class TestContainerPortsBindHostUsesLocalPort(unittest.TestCase):
 
     def test_detects_a_bound_term_without_local_port(self):
         text = "{{ lookup('container_ports', ['web', 'http', DOCKER_BIND_HOST]) | indent(4) }}"
-        services = {"web": {"ports": {"public": {"http": 80}, "internal": {"http": 8080}}}}
+        services = {
+            "web": {"ports": {"public": {"http": 80}, "internal": {"http": 8080}}}
+        }
         (service, protocol), *_ = _bound_terms(text)
         self.assertIs(_declares_local(services, service, protocol), False)
 

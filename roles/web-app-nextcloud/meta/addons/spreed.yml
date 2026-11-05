@@ -1,5 +1,6 @@
 ---
-enabled: "{{ (lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool) and (lookup('config', 'web-app-nextcloud', 'services.coturn.enabled') | bool) }}"
+enabled: "{{ (lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool) and (lookup('config', 'web-app-nextcloud', 'services.coturn.enabled') | bool)
+  }}"
 required: true
 mechanism: plugin
 source: upstream

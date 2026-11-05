@@ -57,13 +57,13 @@ class TestContainerPortsSwarmRoutingMesh(unittest.TestCase):
 
     def test_swarm_keeps_public_term_with_ip(self):
         self.assertEqual(
-            _run([["gitea", "ssh", "0.0.0.0"]], mode_vars=self.SWARM),
-            ['ports:\n  - "0.0.0.0:2201:22"'],
+            _run([["gitea", "ssh", "203.0.113.10"]], mode_vars=self.SWARM),
+            ['ports:\n  - "203.0.113.10:2201:22"'],
         )
 
     def test_swarm_block_without_entries_renders_empty(self):
         self.assertEqual(
-            _run([["gitea", "http", "0.0.0.0"]], mode_vars=self.SWARM),
+            _run([["gitea", "http", "203.0.113.10"]], mode_vars=self.SWARM),
             [""],
         )
 

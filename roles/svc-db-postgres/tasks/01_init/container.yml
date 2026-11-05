@@ -6,7 +6,8 @@
       -e DB_NAME -e DB_USER -e DB_PASSWORD -e DB_EXTENSIONS
       {{ POSTGRES_LOCAL_CID | quote }}
       psql -v ON_ERROR_STOP=1 -U postgres -d postgres
-    stdin: "{{ postgres_database_password_string ~ '\n' ~ lookup('file', role_path ~ '/files/sql/provision.sql') ~ '\n' ~ lookup('template', 'sql/grant_schema_privileges.sql.j2') }}"
+    stdin: "{{ postgres_database_password_string ~ '\n' ~ lookup('file', role_path ~ '/files/sql/provision.sql') ~ '\n' ~ lookup('template', 'sql/grant_schema_privileges.sql.j2')
+      }}"
   environment:
     DB_NAME: "{{ database_name }}"
     DB_USER: "{{ database_username }}"

@@ -56,6 +56,8 @@ class LookupModule(LookupBase):
         headers_b64 = base64.b64encode(json.dumps(headers).encode()).decode()
         script = read_text(str(Path(str(base)) / SCRIPT))
         return [
-            f"BODY_B64 = {json.dumps(body_b64)}\n"
-            f"HEADERS_B64 = {json.dumps(headers_b64)}\n{script}"
+            (
+                f"BODY_B64 = {json.dumps(body_b64)}\n"
+                f"HEADERS_B64 = {json.dumps(headers_b64)}\n{script}"
+            )
         ]

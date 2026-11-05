@@ -20,11 +20,10 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-from utils.git_refspec import REF_KIND_KEY, REF_KINDS
-
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.git_refspec import REF_KIND_KEY, REF_KINDS
 from utils.roles.entity.name import entity_name
 from utils.roles.invocations import iter_tasks
 from utils.roles.mapping import ROLE_FILE_META_SERVICES

@@ -47,7 +47,8 @@
 - name: "📁 Create the native PDS admin account with the i8- prefix (idempotent)"
   ansible.builtin.command:
     argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', {'handle': BLUESKY_ADMIN_HANDLE_RESERVED, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json) }}"
+    stdin: "{{ lookup('http_request_program', {'handle': BLUESKY_ADMIN_HANDLE_RESERVED, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json)
+      }}"
   environment:
     HTTP_METHOD: POST
     HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"

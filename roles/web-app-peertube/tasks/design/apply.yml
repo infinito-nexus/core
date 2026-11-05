@@ -96,8 +96,7 @@
 - name: "🏷️ PEERTUBE | Mark the logos the role uploaded"
   ansible.builtin.copy:
     dest: "{{ [PEERTUBE_DESIGN_DIR, item.0.type ~ '.mark'] | path_join }}"
-    content: "{{ (peertube_design_served_uploaded | selectattr('type', 'equalto', item.0.type) | first).fileUrl | urlsplit('path') }} {{ item.2.stat.checksum
-      }}\n"
+    content: "{{ (peertube_design_served_uploaded | selectattr('type', 'equalto', item.0.type) | first).fileUrl | urlsplit('path') }} {{ item.2.stat.checksum }}\n"
     mode: "0644"
   loop: "{{ PEERTUBE_DESIGN_LOGOS | zip(peertube_design_uploads.results, peertube_design_rendered.results) | list }}"
   loop_control:

@@ -1,5 +1,6 @@
 ---
-enabled: "{{ (lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool) and (lookup('config', 'web-app-joomla', 'services.joomla.login.method.sso.enabled') | bool) }}"
+enabled: "{{ (lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool) and (lookup('config', 'web-app-joomla', 'services.joomla.login.method.sso.enabled')
+  | bool) }}"
 required: false
 mechanism: plugin
 source: built

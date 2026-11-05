@@ -156,7 +156,9 @@ class TestHeaderTrustTableStep(unittest.TestCase):
     def test_an_old_checkout_builds_unchanged(self) -> None:
         modules = [
             command[3]
-            for command in builders.generate_commands(self._checkout(generator=False))[1:]
+            for command in builders.generate_commands(self._checkout(generator=False))[
+                1:
+            ]
         ]
         self.assertNotIn(builders.HEADER_TRUST_MODULE, modules)
 

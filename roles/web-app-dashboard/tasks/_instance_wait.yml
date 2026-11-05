@@ -3,7 +3,8 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ 'dashboard' | labelled(dashboard_instance.label, '-') }}"
-    resolve_service_name: "{{ (lookup('container_service', DASHBOARD_APPLICATION_ID, 'dashboard') | labelled(dashboard_instance.label, '-')) if IS_SWARM_MODE else '' }}"
+    resolve_service_name: "{{ (lookup('container_service', DASHBOARD_APPLICATION_ID, 'dashboard') | labelled(dashboard_instance.label, '-')) if IS_SWARM_MODE else
+      '' }}"
     resolve_output_prefix: DASHBOARD
     resolve_compose_cid: "{{ DASHBOARD_CONTAINER | labelled(dashboard_instance.label, '-') }}"
 
@@ -18,7 +19,8 @@
     stdin: "{{ lookup('http_request_program', '') }}"
   environment:
     HTTP_METHOD: GET
-    HTTP_URL: "http://127.0.0.1:{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.internal.' ~ ('http' | labelled(dashboard_instance.label, '_'))) }}/"
+    HTTP_URL: "http://127.0.0.1:{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.internal.' ~ ('http' | labelled(dashboard_instance.label,
+      '_'))) }}/"
   register: dashboard_http
   retries: 60
   delay: 5

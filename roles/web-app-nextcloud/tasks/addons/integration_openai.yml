@@ -24,7 +24,7 @@
           }}
       vars:
         nextcloud_openai_api_key_config:
-          - { appid: integration_openai, configkey: api_key, type: null, value: "{{ nextcloud_openai_litellm_api_key }}" }
+          - { appid: integration_openai, configkey: api_key, type: !!null "", value: "{{ nextcloud_openai_litellm_api_key }}" }
       when: IS_STACK_HOST | bool
       register: nextcloud_openai_set_api_key
       changed_when: nextcloud_openai_set_api_key.stdout is search(' set to ')

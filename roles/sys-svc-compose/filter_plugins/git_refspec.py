@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from ansible.errors import AnsibleFilterError
+
 from utils.git_refspec import git_refspec as _git_refspec
 
 

@@ -20,9 +20,7 @@ FORMER_PLUGIN_IDS = (
 class TestPluginConfigAbsorbedIntoAddons(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        defaults = cache_apps.get_application_defaults(
-            roles_dir=PROJECT_ROOT / "roles"
-        )
+        defaults = cache_apps.get_application_defaults(roles_dir=PROJECT_ROOT / "roles")
         cls.addons = defaults["web-app-nextcloud"]["addons"]
 
     def test_no_per_plugin_config_file_remains(self):
