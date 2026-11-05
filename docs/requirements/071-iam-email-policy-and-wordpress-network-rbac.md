@@ -80,14 +80,14 @@ Findings outside the table:
 
 ### Email policy
 
-- [ ] `roles/web-app-keycloak/meta/services.yml` carries the email policy setting, and the realm import, the user profile and the LDAP mappers render from it.
+- [x] `roles/web-app-keycloak/meta/services.yml` carries the email policy setting, and the realm import, the user profile and the LDAP mappers render from it (`roles/web-app-keycloak/meta/services.yml:66-69`, read at `roles/web-app-keycloak/vars/main.yml:178-182`; rendered at `roles/web-app-keycloak/templates/import/realm.json.j2:891,898,2402`, `roles/web-app-keycloak/templates/import/components/org.keycloak.userprofile.UserProfileProvider.json.j2:24-45` and `roles/web-app-keycloak/templates/import/components/org.keycloak.storage.UserStorageProvider.json.j2:67,74`; proven by `tests/unit/python/roles/web-app-keycloak/templates/test_realm_import_json.py:613,642`).
 - [ ] With the mail provider, every user's primary address is `<username>@<DOMAIN_PRIMARY>`, applications receive it in the `email` claim and in LDAP `mail`, and the account console offers no way to change it.
 - [ ] With the mail provider, every user holds a secondary address; self-registration refuses an account without one unless the setting turns the requirement off.
 - [ ] Email verification, password reset and every other Keycloak account mail go to the secondary address when the mail provider is active.
 - [ ] Changing the secondary address takes effect only after the user follows a link sent to the new address; until then the old address stays in force.
 - [ ] Without the mail provider, changing the primary address takes effect only after the user follows a link sent to the new address.
 - [ ] Without any SMTP relay, the account console offers no way to change the address, and an administrator still can.
-- [ ] A deploy onto an existing realm never changes its email mode on its own; a new inventory that holds the mail provider, `svc-db-openldap` and `web-app-keycloak` starts in mailbox mode.
+- [x] A deploy onto an existing realm never changes its email mode on its own; a new inventory that holds the mail provider, `svc-db-openldap` and `web-app-keycloak` starts in mailbox mode (`kc_email_policy_change` in `roles/web-app-keycloak/filter_plugins/email_policy.py:31` keeps an agreeing realm and refuses every other move without `switch`, applied to the full realm read at `roles/web-app-keycloak/tasks/update/14_email_policy.yml:1-12`; `apply_email_policy` in `cli/administration/inventory/provision/email_policy.py:104` writes `mailbox` into a new inventory only, and the realm import records it at `roles/web-app-keycloak/templates/import/realm.json.j2:2402`; proven by `tests/unit/python/roles/web-app-keycloak/filter_plugins/test_email_policy.py:59,67` and `tests/unit/python/cli/administration/inventory/provision/test_email_policy.py:92,101,109`).
 - [ ] A user created at runtime in mailbox mode receives its mailbox address within one run of the `sys-ctl-mtn-rbac-sync` timer, and has no `email` claim until then.
 - [ ] Switching an existing realm to mailbox mode through the setting keeps every existing external address as that user's secondary address and sets the primary address to `<username>@<DOMAIN_PRIMARY>`, and every existing user can still sign in.
 - [ ] A secondary address in the mail provider's domain is refused, so signing in with an email address never resolves to another user's mailbox.
@@ -96,7 +96,7 @@ Findings outside the table:
 - [ ] Every application that links an SSO login to an existing account by email requires the `email_verified` claim to be true where its configuration allows it, and this requirement lists the applications that cannot.
 - [ ] Every application that can link an SSO login to its account by the OIDC `sub` or `preferred_username` does so instead of by email, through its own setting or the role's glue code, and this requirement lists the applications that cannot.
 - [x] Users cannot change their own email in Keycloak and a deploy marks only the inventory address as verified, as the interim gate for every application (e277edf6e7 on `fix/iam/email-takeover-hotfix`).
-- [ ] `duplicateEmailsAllowed` stays `false`.
+- [x] `duplicateEmailsAllowed` stays `false` (rendered at `roles/web-app-keycloak/templates/import/realm.json.j2:36` and converged onto an existing realm through `roles/web-app-keycloak/vars/main.yml:267`; proven for every policy by `tests/unit/python/roles/web-app-keycloak/templates/test_realm_import_json.py:708`).
 - [x] A confirmed address change reaches applications that key their accounts by email (`web-app-erpnext`, `web-app-penpot`) without creating a second account, or this requirement lists each one with its TODO entry as a known limitation (ERPNext: `roles/web-app-erpnext/files/python/apply/rbac_roles.py:93,136`, `roles/web-app-erpnext/files/python/infinito_rbac/infinito_rbac/login.py:92`; Penpot: Known limitations above).
 
 ### WordPress Multisite
@@ -116,7 +116,7 @@ Findings outside the table:
 
 ### Tests
 
-- [ ] A unit test renders the realm, the user profile and the LDAP mappers for each email policy and asserts who may change which address.
+- [x] A unit test renders the realm, the user profile and the LDAP mappers for each email policy and asserts who may change which address (`TestEmailPolicy` in `tests/unit/python/roles/web-app-keycloak/templates/test_realm_import_json.py:612`: external with SMTP `:613`, external without SMTP `:634`, mailbox `:642`).
 - [ ] A Playwright spec in `web-app-keycloak` asserts that biber cannot change the primary address directly and that a change of the changeable address stays pending until the confirmation link is followed.
 - [ ] A Playwright spec in `web-app-listmonk` asserts that a user who claims the administrator's address in Keycloak does not reach the listmonk administrator account.
 - [ ] A Playwright spec in the WordPress Multisite variant asserts the platform administrator's super-admin rights, biber's global role on a site without a site-specific group, and the creation of biber's own site after joining `site-owner`.

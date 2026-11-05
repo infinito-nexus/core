@@ -22,6 +22,7 @@ CLIENT_TEMPLATES = sorted(
     PROJECT_ROOT.glob("roles/*/templates/keycloak/clients.json.j2")
 )
 BACKCHANNEL_LOGOUT_URL = "backchannel.logout.url"
+SERVICE_ACCOUNT_SCOPE = "service_account"
 ONION = "a" * 56 + ".onion"
 SHARED_CLIENT_ID = CONTEXT["KEYCLOAK_CLIENT_ID"]
 CLIENT_ID_CONSUMERS = (
@@ -175,6 +176,46 @@ def shared_client() -> dict:
     return next(c for c in realm["clients"] if c["clientId"] == SHARED_CLIENT_ID)
 
 
+def foreign_app_scopes(role: str) -> set[str]:
+    """The application scopes of the shared client that belong to other applications.
+
+    Args:
+        role: role directory name of the client fragment.
+    """
+    scopes = role_config("web-app-keycloak", "services.keycloak.scopes")
+    own = scopes.get(role.removeprefix("web-app-"))
+    return {scope for scope in scopes.values() if scope != own}
+
+
+def claim_findings(client: dict, shared: dict, foreign_scopes: set[str]) -> list[str]:
+    """What keeps a per-app client from handing its app the claims of the shared client.
+
+    Args:
+        client: the per-app client's representation.
+        shared: the shared client's representation.
+        foreign_scopes: the application scopes of the shared client that other
+            applications read.
+    """
+    granted = {*client["defaultClientScopes"], *client["optionalClientScopes"]}
+    findings = [
+        f"default scope {scope} of the shared client is no default scope"
+        for scope in shared["defaultClientScopes"]
+        if scope != SERVICE_ACCOUNT_SCOPE and scope not in client["defaultClientScopes"]
+    ]
+    findings.extend(
+        f"optional scope {scope} of the shared client is missing"
+        for scope in shared["optionalClientScopes"]
+        if scope not in foreign_scopes and scope not in granted
+    )
+    own_mappers = client.get("protocolMappers", [])
+    findings.extend(
+        f"protocol mapper {mapper['name']} of the shared client is missing"
+        for mapper in shared.get("protocolMappers", [])
+        if mapper not in own_mappers
+    )
+    return findings
+
+
 def client_id_consumers() -> dict[str, str]:
     sources = {}
     for pattern in CLIENT_ID_CONSUMERS:
@@ -250,6 +291,67 @@ class TestBackchannelClients(unittest.TestCase):
             canonical_origin("web-app-matrix", "synapse")
             + "/_synapse/client/oidc/backchannel_logout",
             "Synapse receives logout tokens on this path of its own origin",
+        )
+
+    def test_every_backchannel_client_hands_its_app_the_claims_of_the_shared_client(
+        self,
+    ) -> None:
+        shared = shared_client()
+        for template, clients in self.clients.items():
+            for client in clients:
+                if BACKCHANNEL_LOGOUT_URL not in client["attributes"]:
+                    continue
+                with self.subTest(client=client["clientId"]):
+                    self.assertEqual(
+                        claim_findings(
+                            client, shared, foreign_app_scopes(template.parts[-4])
+                        ),
+                        [],
+                    )
+
+    def test_a_client_without_the_group_claim_scope_fails_the_claims_check(
+        self,
+    ) -> None:
+        group_scope = CONTEXT["KEYCLOAK_RBAC_GROUP_CLAIM"]
+        client = {
+            **self.backchannel[0],
+            "defaultClientScopes": [
+                scope
+                for scope in self.backchannel[0]["defaultClientScopes"]
+                if scope != group_scope
+            ],
+        }
+        self.assertEqual(
+            claim_findings(client, shared_client(), foreign_app_scopes("web-app-x")),
+            [f"default scope {group_scope} of the shared client is no default scope"],
+        )
+
+    def test_a_client_without_its_app_scope_fails_the_claims_check(self) -> None:
+        nextcloud = role_config(
+            "web-app-keycloak", "services.keycloak.scopes.nextcloud"
+        )
+        self.assertEqual(
+            claim_findings(
+                self.backchannel[0],
+                shared_client(),
+                foreign_app_scopes("web-app-nextcloud"),
+            ),
+            [f"optional scope {nextcloud} of the shared client is missing"],
+        )
+
+    def test_a_client_without_a_mapper_of_the_shared_client_fails_the_claims_check(
+        self,
+    ) -> None:
+        mapper = {
+            "name": "username",
+            "protocolMapper": "oidc-usermodel-property-mapper",
+        }
+        shared = {**shared_client(), "protocolMappers": [mapper]}
+        self.assertEqual(
+            claim_findings(
+                self.backchannel[0], shared, foreign_app_scopes("web-app-x")
+            ),
+            ["protocol mapper username of the shared client is missing"],
         )
 
     def test_a_frontchannel_client_fails_the_backchannel_check(self) -> None:
