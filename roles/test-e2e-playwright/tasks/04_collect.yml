@@ -7,7 +7,8 @@
         msg: >-
           {{ application_id }}: {{ _playwright_run.seconds }}s, ended at {{ _playwright_run.ended_at }},
           retries {{ _playwright_run.retries }}, flaky {{ _playwright_run.flaky }},
-          browser crashes {{ _playwright_run.crashes }}{{ (' (' ~ _playwright_run.crash_kinds ~ '; an OOM kill surfaces as one of these, even when a retry passed)') if (_playwright_run.crashes | int) > 0 else '' }}
+          browser crashes {{ _playwright_run.crashes }}{{ (' (' ~ _playwright_run.crash_kinds ~ '; an OOM kill surfaces as one of these, even when a retry passed)')
+          if (_playwright_run.crashes | int) > 0 else '' }}
       changed_when: false
 
     - name: 📋 Keep the parallel run's output and result with its reports

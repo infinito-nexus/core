@@ -75,7 +75,8 @@
 
     - name: 🧹 Remove any handed-over container the scheduler did not stop
       ansible.builtin.command:
-        argv: "{{ ['container', 'rm', '--force'] + (_playwright_submitted | map(attribute='id') | map('regex_replace', '^', TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX) | list) }}"
+        argv: "{{ ['container', 'rm', '--force'] + (_playwright_submitted | map(attribute='id') | map('regex_replace', '^', TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX)
+          | list) }}"
       changed_when: false
       failed_when: false
       when: _playwright_submitted | length > 0
@@ -85,7 +86,8 @@
         src: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/{{ playwright_read }}"
       register: _playwright_reads
       failed_when: false
-      loop: "{{ _playwright_submitted | map(attribute='job') | zip(_playwright_submitted | map(attribute='id') | map('regex_replace', '$', '.result.json')) | flatten }}"
+      loop: "{{ _playwright_submitted | map(attribute='job') | zip(_playwright_submitted | map(attribute='id') | map('regex_replace', '$', '.result.json')) | flatten
+        }}"
       loop_control:
         loop_var: playwright_read
 
