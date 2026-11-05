@@ -20,7 +20,10 @@ MARKER = "==> swarm drill complete: app="
 APP = "svc-db-postgres"
 PYTHON_STUB = (
     "#!/usr/bin/env bash\n"
-    'if [ "$1" = -m ]; then exit "${STUB_MULTI_RC}"; fi\n'
+    'if [ "$1" = -m ]; then\n'
+    '\tcase " $* " in *" --require-discovery "*) exit "${STUB_MULTI_RC}" ;; esac\n'
+    "\texit 0\n"
+    "fi\n"
     'exec "${REAL_PYTHON}" "$@"\n'
 )
 MAKE_STUB = (
@@ -36,7 +39,8 @@ def swarm_network(disable: str, *, multi_accepted: bool) -> str:
     Args:
         disable: the ``disable`` env the roundtrip runs with.
         multi_accepted: whether the stubbed validator accepts the role's
-            ``multi`` row.
+            ``multi`` row; like the real one for a row it never discovers, it
+            refuses only under ``--require-discovery``.
 
     Returns:
         The ``network=`` value the roundtrip hands to ``swarm-zombie``.
@@ -52,7 +56,8 @@ def swarm_make_calls(disable: str, *, multi_accepted: bool, keep: str) -> list[s
     Args:
         disable: the ``disable`` env the roundtrip runs with.
         multi_accepted: whether the stubbed validator accepts the role's
-            ``multi`` row.
+            ``multi`` row; like the real one for a row it never discovers, it
+            refuses only under ``--require-discovery``.
         keep: the ``keep`` env the roundtrip runs with.
 
     Returns:

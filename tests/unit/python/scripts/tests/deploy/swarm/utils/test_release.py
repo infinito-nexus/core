@@ -167,6 +167,16 @@ class TestSwarmZombieWiring(unittest.TestCase):
         ):
             self.assertIn(f"{key}=$${{{key}:-}};", self.recipe)
 
+    def test_a_row_discovery_cannot_return_stops_the_target_before_act(self) -> None:
+        self.assertIn(
+            "-m cli.meta.ci.validate --require-discovery --modes swarm --whitelist",
+            self.recipe,
+        )
+        self.assertLess(
+            self.recipe.index("cli.meta.ci.validate --require-discovery"),
+            self.recipe.index("clean/teardown.sh"),
+        )
+
     def test_keep_decides_whether_the_act_job_keeps_the_nodes(self) -> None:
         self.assertIn("keep='$(keep)'", self.recipe)
         self.assertIn(
