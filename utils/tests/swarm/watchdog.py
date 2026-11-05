@@ -152,7 +152,7 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
         return _watch(proc)
 
 
-def top_processes(rows: int = TOP_ROWS) -> list[str]:
+def top_processes(rows: int) -> list[str]:
     """Return the busiest processes of the runner over a 3 s window.
 
     The lab nodes are containers on the runner's kernel, so this sees every
@@ -226,7 +226,9 @@ def _watch(proc: subprocess.Popen[bytes]) -> int:
             )
             if samples % TOP_EVERY_SAMPLES == 0:
                 print(
-                    "=== swarm-matrix: top cpu " + " | ".join(top_processes()) + " ===",
+                    "=== swarm-matrix: top cpu "
+                    + " | ".join(top_processes(TOP_ROWS))
+                    + " ===",
                     flush=True,
                 )
             if total and avail < total * MEM_FLOOR_RATIO:

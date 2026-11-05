@@ -78,11 +78,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     add("--etcd-password-file", **_from_env("ETCD_PASSWORD_FILE"))
     add("--etcd-ca-file", **_from_env("ETCD_CA_FILE", required=False))
     add("--key", **_from_env("KEY"))
-    add("--listen", default="0.0.0.0")  # noqa: S104 - health endpoint must be reachable from other containers
     add("--port", type=int, **_from_env("PORT"))
-    add("--lease", type=float, default=LEASE_SECONDS)
-    add("--renew-deadline", type=float, default=RENEW_DEADLINE_SECONDS)
-    add("--retry", type=float, default=RETRY_SECONDS)
     add("--mariadb-defaults-file", **_from_env("MARIADB_DEFAULTS_FILE", False))
     add("--mariadb-socket", **_from_env("MARIADB_SOCKET", False))
     add("--mariadb-local-user", **_from_env("MARIADB_LOCAL_USER", False))
@@ -168,7 +164,7 @@ def build_lock(args: argparse.Namespace) -> Lock:
         ),
         args.key,
         args.host_id,
-        ttl=int(args.lease),
+        ttl=LEASE_SECONDS,
         user=args.etcd_user,
         password=_secret(args.etcd_password_file),
     )
@@ -186,15 +182,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         build_lock(args),
         build_role(args),
         args.host_id,
-        lease_seconds=args.lease,
-        renew_deadline=args.renew_deadline,
-        retry_seconds=args.retry,
+        lease_seconds=LEASE_SECONDS,
+        renew_deadline=RENEW_DEADLINE_SECONDS,
+        retry_seconds=RETRY_SECONDS,
     )
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
     server = serve(
-        elector.serving_writer, args.listen, args.port, build_donor(args, elector.role)
+        elector.serving_writer,
+        "0.0.0.0",  # noqa: S104 - health endpoint must be reachable from other containers
+        args.port,
+        build_donor(args, elector.role),
     )
     try:
         elector.run(stop)

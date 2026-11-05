@@ -93,7 +93,7 @@ class TestTopProcesses(unittest.TestCase):
 
     def test_a_missing_top_yields_nothing(self) -> None:
         with mock.patch.object(watchdog.subprocess, "run", side_effect=OSError):
-            self.assertEqual(watchdog.top_processes(), [])
+            self.assertEqual(watchdog.top_processes(watchdog.TOP_ROWS), [])
 
 
 if __name__ == "__main__":
