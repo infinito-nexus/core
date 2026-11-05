@@ -1,11 +1,19 @@
 \getenv plugin PEERTUBE_OIDC_PLUGIN
 \getenv root_username PEERTUBE_ROOT_USERNAME
-\getenv emails PEERTUBE_RBAC_CREATED
-UPDATE public."user"
+\getenv members RBAC_MEMBERS
+UPDATE public."user" AS account
 SET "pluginAuth" = :'plugin'
-WHERE "pluginAuth" IS NULL
-  AND username <> :'root_username'
-  AND lower(email) IN (
-    SELECT lower(value) FROM jsonb_array_elements_text(:'emails'::jsonb)
+WHERE account."pluginAuth" IS NULL
+  AND account.username <> :'root_username'
+  AND account."lastLoginDate" IS NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM public."oAuthToken" AS token WHERE token."userId" = account.id
   )
-RETURNING username;
+  AND EXISTS (
+    SELECT 1
+    FROM jsonb_each(:'members'::jsonb) AS grp
+    CROSS JOIN jsonb_array_elements(grp.value) AS entry
+    WHERE entry->>'username' = account.username
+      AND lower(entry->>'email') = lower(account.email)
+  )
+RETURNING account.username;
