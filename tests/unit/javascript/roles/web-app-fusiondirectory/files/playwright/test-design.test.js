@@ -28,7 +28,11 @@ const { galleryViews } = loadInternals(
       gotoOnion: async () => undefined,
       normalizeBaseUrl: (value) => value,
     },
-    "./service-gating": { isServiceEnabled: () => false },
+    "./service-gating": {
+      isServiceEnabled: () => false,
+      skipUnlessServiceDisabled: () => undefined,
+      skipUnlessServiceEnabled: () => undefined,
+    },
     "./timeouts": { isSplitRealmOidc: () => false, resolveTimeout: (ms) => ms },
   },
   {},

@@ -138,7 +138,7 @@ class TestPick(unittest.TestCase):
         self.assertIs(picked, next(iter(PLATFORMS)))
 
     def test_an_unknown_or_unhashable_platform_resolves_to_none(self):
-        for requested in ("openclaw", None, 7, ["hermes"], {"hermes": 1}):
+        for requested in ("unlisted", None, 7, ["hermes"], {"hermes": 1}):
             with self.subTest(requested=requested):
                 self.assertIsNone(agents.pick(requested, PLATFORMS))
 

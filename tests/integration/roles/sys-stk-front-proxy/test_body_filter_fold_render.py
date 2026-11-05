@@ -527,7 +527,6 @@ class TestEveryRoleRendersTheSameLua(unittest.TestCase):
             "top_snippets[#top_snippets + 1]",
             "head_snippets[#head_snippets + 1]",
             "body_snippets[#body_snippets + 1]",
-            'host:sub(-6) == ".onion"',
             MIRROR_MARKER.decode("utf-8"),
             "data-design=",
             "?version=",

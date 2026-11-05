@@ -12,6 +12,7 @@ one value it returns itself. The module drops the payloads it cached that way.
 from __future__ import annotations
 
 import json
+import re
 import unittest
 from typing import TYPE_CHECKING, Any, ClassVar
 from unittest import mock
@@ -227,9 +228,10 @@ class TestDatabaseSettingSwitchDiscourse(unittest.TestCase):
         )
         task = next(task for task in tasks if task["name"] == cls.TASK)
         cls.templates = {
-            str(argument).split("=", 1)[0]: str(argument)
-            for argument in task["ansible.builtin.command"]["argv"]
-            if "=" in str(argument)
+            name: f"{name}={value}"
+            for name, value in re.findall(
+                r"-e ([A-Z_]+)=(\{\{.*?\}\})", str(task["ansible.builtin.shell"]["cmd"])
+            )
         }
         cls.templates.update(
             {name: f"{name}={value}" for name, value in task["environment"].items()}

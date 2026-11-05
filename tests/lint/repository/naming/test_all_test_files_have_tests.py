@@ -52,7 +52,9 @@ class TestTestFilesContainUnittestTests(unittest.TestCase):
                         testcase_aliases.add(n.asname or "TestCase")
 
         def is_testcase_base(base: ast.expr) -> bool:
-            if isinstance(base, ast.Name) and base.id in testcase_aliases:
+            if isinstance(base, ast.Name) and (
+                base.id in testcase_aliases or base.id in local_testcases
+            ):
                 return True
             return bool(
                 isinstance(base, ast.Attribute)
@@ -67,11 +69,13 @@ class TestTestFilesContainUnittestTests(unittest.TestCase):
             if isinstance(node, ast.AsyncFunctionDef) and node.name.startswith("test_"):
                 return True
 
+        local_testcases: set[str] = set()
         for node in tree.body:
             if not isinstance(node, ast.ClassDef):
                 continue
             if not any(is_testcase_base(b) for b in node.bases):
                 continue
+            local_testcases.add(node.name)
             for item in node.body:
                 if isinstance(
                     item, (ast.FunctionDef, ast.AsyncFunctionDef)

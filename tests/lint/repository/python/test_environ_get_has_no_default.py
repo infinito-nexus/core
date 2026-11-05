@@ -31,7 +31,7 @@ import ast
 import unittest
 
 from utils.annotations.suppress import is_suppressed_at
-from utils.cache.files import iter_project_files, read_text
+from utils.cache.files import iter_non_ignored_files, read_text
 
 from . import PROJECT_ROOT
 
@@ -113,7 +113,7 @@ def _offenders(rel_path: str, content: str) -> list[str]:
 class TestEnvironGetHasNoDefault(unittest.TestCase):
     def test_no_module_defaults_an_environment_variable(self) -> None:
         offenders: list[str] = []
-        for path in iter_project_files(extensions=(".py",)):
+        for path in iter_non_ignored_files(extensions=(".py",)):
             rel = str(path).replace(f"{PROJECT_ROOT}/", "")
             try:
                 content = read_text(str(path))
