@@ -45,6 +45,7 @@ Implementing PR: [infinito-nexus/core#1231](https://github.com/infinito-nexus/co
 
 - [x] A manual change to a monitored host path raises an FIM alert, with deploy start and end markers logged as context.
 - [ ] User and process are reported through who-data where the kernel supports it reliably.
+  - Open: who-data now switches on automatically only under BPF LSM, and stays in real time with a `whodata=unavailable reason=no-bpf-lsm` alert (rule 100130) elsewhere, proven on the VM (run `20261105T100402Z`). No test host runs BPF LSM, so the switched-on path and its handling of renames are unproven. In kprobe mode, upstream wazuh/wazuh#37023 and #39708 still lose renames.
 
 ### G. Source integrity (GitHub, Gitea, GitLab)
 
