@@ -15,6 +15,7 @@ LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
 
 LITELLM_LOOPBACK_HOSTS: "{{ NETWORK_LOOPBACK_HOSTS }}"
 
+# nocheck: swarm-loopback-port open  host consumers (the desktop agents' gateway URL) reach LiteLLM on this published loopback port, which swarm drops; 074 :28 tracks it
 LITELLM_BASE_LOOPBACK_URL: "http://{{ LITELLM_LOOPBACK_HOSTS | first }}:{{ lookup('config','svc-ai-litellm', 'services.litellm.ports.local.http') }}"
 
 LITELLM_OPENAI_BASE_LOOPBACK_URL: "{{ LITELLM_BASE_LOOPBACK_URL }}/v1"

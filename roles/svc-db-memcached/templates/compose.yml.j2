@@ -7,6 +7,7 @@
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if MEMCACHED_EXPOSE_LOCAL %}
+    {# nocheck: swarm-loopback-port overlay  consumers connect through lookup('engine') by service name and container port #}
     {{ lookup('container_ports', ['memcached', 'memcached', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_networks') | indent(4) }}

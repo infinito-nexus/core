@@ -13,6 +13,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
     {% if OPENLDAP_NETWORK_EXPOSE_LOCAL | bool %}
+    {# nocheck: swarm-loopback-port overlay  applications bind through the openldap service name on the shared network; the host-side readers of this port (LDAP.SERVER.HOST_URI, the openresty LDAP stream) are the open OpenLDAP swarm requirement #}
     {{ lookup('container_ports', ['openldap', 'ldap', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
 

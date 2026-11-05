@@ -12,6 +12,7 @@
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if TYPESENSE_EXPOSE_LOCAL %}
+    {# nocheck: swarm-loopback-port overlay  consumers connect through lookup('engine') by service name and container port; the role's own probes run inside the container #}
     {{ lookup('container_ports', ['typesense', 'typesense', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

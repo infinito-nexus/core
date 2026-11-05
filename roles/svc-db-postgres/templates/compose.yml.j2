@@ -22,6 +22,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% if POSTGRES_EXPOSE_LOCAL %}
+    {# nocheck: swarm-loopback-port open  renders under swarm with services.postgres.exposed (variant 0 sets it), and then tasks/01_init.yml provisions through this local port on 127.0.0.1 (01_init/published.yml), which swarm drops; applications connect by service name; 074 :27 tracks it #}
     {{ lookup('container_ports', ['postgres', 'postgres', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

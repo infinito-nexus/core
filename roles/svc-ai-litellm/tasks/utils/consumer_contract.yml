@@ -29,6 +29,7 @@
       rather than its published one.
   when: not (_litellm_consumer_on_host | bool)
 
+# nocheck: swarm-loopback-port open  host consumers reach LiteLLM on this published loopback port, which swarm drops; 074 :28 tracks it
 - name: "✅ Assert the AI base URL of '{{ application_id }}' stays on this machine"
   ansible.builtin.assert:
     that:

@@ -1,6 +1,7 @@
 ---
 # nocheck: run-once
 
+# nocheck: swarm-loopback-port overlay  the default port only feeds proxy_pass, which reaches the app over the overlay in swarm
 - name: 🧊 Freeze front proxy context before nested role loads
   ansible.builtin.set_fact:
     front_proxy_application_id: "{{ application_id }}"
