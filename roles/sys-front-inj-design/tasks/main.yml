@@ -15,13 +15,13 @@
            'files': ['files/logo.css'],
            'paths': [app_role_dir]
          }, errors='ignore') | default('', true) }}
-    app_body_css: "{{ (lookup('template', _app_style_src) | trim) if _app_style_src | length > 0 else '' }}"
-    app_logo_css: "{{ (lookup('template', _app_logo_src) | trim) if _app_logo_src | length > 0 else '' }}"
+    app_body_css: "{{ (lookup('template_shallow', _app_style_src) | trim) if _app_style_src | length > 0 else '' }}"
+    app_logo_css: "{{ (lookup('template_shallow', _app_logo_src) | trim) if _app_logo_src | length > 0 else '' }}"
     _app_compose_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'css', 'app.css.j2') }}"
     _cdn_root: "{{ lookup('cdn', application_id).urls.root }}"
     _cdn_origin: "{{ _cdn_root | urlsplit('scheme') }}://{{ _cdn_root | urlsplit('netloc') }}/"
     _app_style_css: >-
-      {{ (lookup('template', _app_compose_src,
+      {{ (lookup('template_shallow', _app_compose_src,
                  template_vars={'app_body_css': app_body_css, 'app_logo_css': app_logo_css})
           | trim | replace(_cdn_origin, '/'))
          if (app_body_css ~ app_logo_css) | length > 0 else '' }}
@@ -64,12 +64,12 @@
          }, errors='ignore') | default('', true) }}
     _design_compose_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'js', 'design.js.j2') }}"
     _design_config_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'js', 'design-config.json.j2') }}"
-    design_body_js: "{{ (lookup('template', _design_js_src) | trim) if _design_js_src | length > 0 else '' }}"
+    design_body_js: "{{ (lookup('template_shallow', _design_js_src) | trim) if _design_js_src | length > 0 else '' }}"
     _design_js: >-
-      {{ (lookup('template', _design_compose_src, template_vars={'design_body_js': design_body_js}) | trim)
+      {{ (lookup('template_shallow', _design_compose_src, template_vars={'design_body_js': design_body_js}) | trim)
          if 'INFINITO_DESIGN' in design_body_js else design_body_js }}
   set_fact:
-    design_config_json: "{{ (lookup('template', _design_config_src) | trim) if 'INFINITO_DESIGN' in design_body_js else '' }}"
+    design_config_json: "{{ (lookup('template_shallow', _design_config_src) | trim) if 'INFINITO_DESIGN' in design_body_js else '' }}"
     design_js_one_liner: "{{ _design_js | to_one_liner }}"
     design_css_states: "{{ design_css_states | combine({css_app_state_key: css_app_state}) }}"
 
