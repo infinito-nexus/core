@@ -291,7 +291,7 @@ compose-system-purge: compose-entity-purge
 
 .PHONY: compose-up
 # Start the development stack.
-compose-up: install
+compose-up: install fix-dockerignore
 	@"$${PYTHON}" -m cli.administration.deploy.development up
 
 .PHONY: console

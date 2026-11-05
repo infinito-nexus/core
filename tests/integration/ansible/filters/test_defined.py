@@ -92,6 +92,7 @@ BUILTIN_FILTERS: set[str] = {
     "items2dict",
     "password_hash",
     "path_join",
+    "relpath",
     "product",
     "quote",
     "split",
