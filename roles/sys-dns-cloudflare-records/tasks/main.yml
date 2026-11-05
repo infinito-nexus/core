@@ -7,9 +7,17 @@
   no_log: "{{ cloudflare_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: 🗂️ Queue every Cloudflare record for the first attempt
+- name: 🔎 Read each zone once, set aside the records it already holds
+  cloudflare_records_converged:
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
+    records: "{{ cloudflare_records }}"
+    timeout: "{{ lookup('timeout', cloudflare_request_timeout | int) | int }}"
+  no_log: "{{ cloudflare_no_log | bool }}"
+  register: _cf_converged
+
+- name: 🗂️ Queue every drifted Cloudflare record for the first attempt
   ansible.builtin.set_fact:
-    _cf_pending: "{{ cloudflare_records }}"
+    _cf_pending: "{{ _cf_converged.pending }}"
     _cf_retry: []
 
 - name: 🔁 Apply the Cloudflare records, retrying only hung and transiently failed ones
