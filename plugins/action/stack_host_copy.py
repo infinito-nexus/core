@@ -145,7 +145,7 @@ class ActionModule(CopyActionModule):
             trailing_slash_detector=shell.path_has_trailing_slash,
         )
         implicit = {parent for _, rel in tree["files"] for parent in _parents(rel)}
-        leaves = [rel for _, rel in tree["directories"] if rel not in implicit]
+        leaves = sorted(rel for _, rel in tree["directories"] if rel not in implicit)
         directory_mode = args.get("directory_mode")
         if (
             len(tree["files"]) < 2
