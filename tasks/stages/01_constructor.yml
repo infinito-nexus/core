@@ -47,10 +47,6 @@
       applications_carrier:
         clear: true
 
-- name: 🔄 update device
-  ansible.builtin.include_role:
-    name: update
-
 - name: "✅ Ensure correct timezone is '{{ HOST_TIMEZONE }}'"
   community.general.timezone:
     name: "{{ HOST_TIMEZONE }}"
@@ -68,6 +64,10 @@
 
 - name: 🧊 Render the applications SPOT once for the bootstrap section
   applications_carrier: {}
+
+- name: 🔄 update device
+  ansible.builtin.include_role:
+    name: update
 
 - name: "🛫 Pre-flight checks"
   ansible.builtin.include_tasks: ./tasks/utils/constructor/preflight.yml

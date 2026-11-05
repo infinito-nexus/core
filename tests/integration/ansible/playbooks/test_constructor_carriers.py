@@ -60,6 +60,25 @@ class TestConstructorBootstrapCarrier(unittest.TestCase):
             "as in swarm, so the carrier must not depend on the deploy mode",
         )
 
+    def test_the_update_role_runs_with_the_bootstrap_carrier_parked(self):
+        update = next(
+            index
+            for index, task in enumerate(self.tasks)
+            if (task.get("ansible.builtin.include_role") or {}).get("name") == "update"
+        )
+        park = next(
+            index
+            for index in range(self.placement + 1, self.preflight)
+            if _parks(self.tasks[index])
+        )
+
+        self.assertTrue(
+            park < update < self.preflight,
+            "the update role reads the SPOT through lookup('config') in three "
+            "tasks, so it must run after the bootstrap carrier and before the "
+            "pre-flight checks",
+        )
+
     def test_no_carrier_is_dropped_before_the_stage_wide_park(self):
         window = self.tasks[self.placement + 1 : self.stage_wide]
 
