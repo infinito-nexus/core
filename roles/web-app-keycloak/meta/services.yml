@@ -101,11 +101,6 @@ sso_proxy:
   mem_reservation: "64m"
   mem_limit: "128m"
   pids_limit: 256
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "v7.15.5"
-        until: 2026-12-03
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1

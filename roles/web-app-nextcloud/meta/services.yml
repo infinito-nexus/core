@@ -169,11 +169,6 @@ context_agent:
     path: heartbeat
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "2.10.0"
-        until: 2026-12-03
 # nocheck: playwright-service-flag  MCP sidecar, no browser surface
 # nocheck: dynamic-flag  the sidecar fronts this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
 contextagentmcp:
