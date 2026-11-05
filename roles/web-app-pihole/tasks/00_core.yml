@@ -7,6 +7,7 @@
   vars:
     compose_handlers_flush: true
 
+# nocheck: swarm-loopback-port open  waits on the published loopback port, which swarm drops; 074 :27 tracks moving host-side waits off it
 - name: "⏳ Wait for Pi-hole HTTP endpoint"
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"

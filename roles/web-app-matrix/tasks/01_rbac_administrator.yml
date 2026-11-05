@@ -16,6 +16,7 @@
     rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_sync.py') }}"
     rbac_sync_modules: []
     rbac_sync_env:
+      # nocheck: swarm-loopback-port open  the host hook calls Synapse on its published loopback port, which the compose flavor under swarm drops; 074 :27 tracks moving the call into Synapse's network namespace
       MATRIX_SYNAPSE_URL: "{{ MATRIX_SYNAPSE_LOOPBACK_URL }}"
       MATRIX_SERVER_NAME: "{{ MATRIX_SERVER_NAME }}"
       MATRIX_ADMIN_USERNAME: "{{ MATRIX_ADMINISTRATOR_USERNAME }}"

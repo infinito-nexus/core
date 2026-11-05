@@ -13,7 +13,7 @@ import re
 import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.roles.header_trust import TRUSTED_IDENTITY_HEADERS, header_trust_roles
+from utils.roles.header_trust import DETECTED_HEADERS, header_trust_roles
 from utils.roles.mapping import ROLE_FILE_PLAYWRIGHT_SPEC
 
 ROLES_DIR = PROJECT_ROOT / "roles"
@@ -86,7 +86,7 @@ class TestHeaderTrustForgedIdentitySpec(unittest.TestCase):
 
     def test_the_helper_forges_every_trusted_header(self) -> None:
         content = read_text(str(HELPER))
-        for header in TRUSTED_IDENTITY_HEADERS:
+        for header in DETECTED_HEADERS:
             with self.subTest(header=header):
                 self.assertIn(f'"{header}"', content)
 

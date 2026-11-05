@@ -1,0 +1,5 @@
+---
+- name: "🔐 The sociallogin plugin needs no integration beyond its addon config"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: sociallogin reads its Keycloak provider from the addon config the plugin step applies"
+  changed_when: false

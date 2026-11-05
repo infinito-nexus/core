@@ -1,6 +1,6 @@
 ---
 enabled: "{{ (lookup('config', 'web-app-nextcloud', 'services.openwebui.enabled') | bool) or (lookup('config', 'web-app-nextcloud', 'services.litellm.enabled') |
-  bool) }}"
+  bool) or (lookup('config', 'web-app-nextcloud', 'services.flowise.enabled') | bool) }}"
 required: true
 mechanism: plugin
 source: upstream

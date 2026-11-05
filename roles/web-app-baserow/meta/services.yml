@@ -20,6 +20,10 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: false
+    switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [files/sso/infinito_sso.py]
   oauth2:
     origin:
       host: baserow

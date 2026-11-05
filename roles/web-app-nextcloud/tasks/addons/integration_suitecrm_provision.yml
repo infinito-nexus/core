@@ -1,4 +1,5 @@
 ---
+# nocheck: swarm-loopback-port unused  integration_suitecrm.yml includes this file only when its partner probe finds a running container under SuiteCRM's bare compose name, and swarm suffixes every task container's name, so the probe never passes there
 - name: ⏳ Wait for the SuiteCRM web endpoint
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"

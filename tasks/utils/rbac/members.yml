@@ -5,6 +5,7 @@
 
 - name: "👥 Search members of {{ rbac_members_application_id }}/{{ rbac_members_role }}"
   community.general.ldap_search:
+    # nocheck: swarm-loopback-port open  swarm publishes no OpenLDAP port on the stack host; 074 :27 tracks moving this search off the loopback
     server_uri: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}"
     bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
     bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"

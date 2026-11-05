@@ -28,7 +28,9 @@
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+  {% endif %}
 
+  {% if BLUESKY_BROKER_ENABLED | bool %}
   {% set service_name = BLUESKY_BROKER_SERVICE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}

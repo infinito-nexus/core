@@ -3,7 +3,9 @@
  *
  *   forgedIdentityHeaders(identity) -> object
  *     identity: { username, email, groups }, each a non-empty string.
- *     Returns every header in FORGED_IDENTITY_HEADER_NAMES set to that identity.
+ *     Returns every header in FORGED_IDENTITY_HEADER_NAMES set to that identity;
+ *     X-Forwarded-Access-Token carries it as the claims of an unsigned JWT,
+ *     groups split on ",".
  *
  *   forgedIdentityPaths({ paths, prometheusIntegration }) -> string[]
  *     paths: role paths to probe, each starting with "/".
@@ -37,6 +39,7 @@ const FORGED_IDENTITY_HEADER_NAMES = Object.freeze([
   "Remote-Email",
   "Remote-Groups",
   "X-Remote-User",
+  "X-Forwarded-Access-Token",
 ]);
 
 const READY_PATH = "/healthz/ready";
@@ -55,10 +58,19 @@ function parseStrictBoolean(raw, key) {
   throw new Error(`forged-identity: ${key} must be "true" or "false", got ${JSON.stringify(raw)}`);
 }
 
+function base64url(value) {
+  return Buffer.from(JSON.stringify(value)).toString("base64url");
+}
+
 function forgedIdentityHeaders(identity) {
   const username = requireNonEmpty(identity && identity.username, "identity.username");
   const email = requireNonEmpty(identity && identity.email, "identity.email");
   const groups = requireNonEmpty(identity && identity.groups, "identity.groups");
+  const accessToken = [
+    base64url({ alg: "none", typ: "JWT" }),
+    base64url({ preferred_username: username, email, groups: groups.split(","), sub: username }),
+    "",
+  ].join(".");
   const values = {
     "X-Forwarded-User": username,
     "X-Forwarded-Preferred-Username": username,
@@ -72,6 +84,7 @@ function forgedIdentityHeaders(identity) {
     "Remote-Email": email,
     "Remote-Groups": groups,
     "X-Remote-User": username,
+    "X-Forwarded-Access-Token": accessToken,
   };
   return Object.fromEntries(FORGED_IDENTITY_HEADER_NAMES.map((name) => [name, values[name]]));
 }

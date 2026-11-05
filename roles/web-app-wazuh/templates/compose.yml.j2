@@ -38,6 +38,7 @@
     hostname: "{{ WAZUH_INDEXER_CONTAINER }}"
     entrypoint: ["{{ WAZUH_INDEXER_ENTRYPOINT_TARGET }}"]
     command: ["opensearchwrapper"]
+    {# nocheck: swarm-loopback-port overlay  the manager and the dashboard reach the indexer at WAZUH_INDEXER_URL by container name and internal port; host tasks query it from inside the container #}
     {{ lookup('container_ports', ['indexer', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     ulimits:
       nofile:

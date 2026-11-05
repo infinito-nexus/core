@@ -23,6 +23,14 @@ desired AS (
   FROM public."user" AS account
   WHERE account."pluginAuth" = :'plugin'
 ),
+revoked AS (
+  DELETE FROM public."oAuthToken" AS token
+  USING public."user" AS account
+  WHERE token."userId" = account.id
+    AND account."pluginAuth" = :'plugin'
+    AND token."authName" IS NULL
+  RETURNING account.username
+),
 updated AS (
   UPDATE public."user" AS account
   SET role = desired.role
@@ -33,4 +41,7 @@ updated AS (
 )
 SELECT 'CHANGED ' || username || ' role=' || role FROM updated
 UNION ALL
-SELECT 'UNCHANGED' WHERE NOT EXISTS (SELECT 1 FROM updated);
+SELECT DISTINCT 'CHANGED ' || username || ' password tokens revoked' FROM revoked
+UNION ALL
+SELECT 'UNCHANGED'
+WHERE NOT EXISTS (SELECT 1 FROM updated) AND NOT EXISTS (SELECT 1 FROM revoked);

@@ -84,7 +84,9 @@ class TestUploadLogo(unittest.TestCase):
         self.assertEqual(handler.proxies, {})
 
     def test_http_error_is_an_answer_not_a_failure(self):
-        error = urllib.error.HTTPError(URL, 401, "Unauthorized", Message(), io.BytesIO(b""))
+        error = urllib.error.HTTPError(
+            URL, 401, "Unauthorized", Message(), io.BytesIO(b"")
+        )
 
         self.assertEqual(_run(MagicMock(side_effect=error)), "401\n")
 

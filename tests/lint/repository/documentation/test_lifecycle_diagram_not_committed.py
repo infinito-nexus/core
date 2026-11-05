@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import unittest
 
+from cli.build.docs import markers
 from cli.build.docs.lifecycle import BEGIN, DOC, END
 from utils.cache.files import PROJECT_ROOT, read_text
 
@@ -15,22 +16,9 @@ def committed_block_problems(text: str) -> list[str]:
         text: the committed ``lifecycle.md``.
 
     Returns:
-        One line per problem: a missing, repeated or reversed marker, or a
-        non-blank line between the markers. Empty when the file is clean.
+        One line per problem, empty when the file is clean.
     """
-    lines = text.splitlines()
-    begins = [n for n, line in enumerate(lines, start=1) if line.strip() == BEGIN]
-    ends = [n for n, line in enumerate(lines, start=1) if line.strip() == END]
-    if len(begins) != 1 or len(ends) != 1:
-        found = f"found {len(begins)} and {len(ends)}"
-        return [f"expected one {BEGIN} and one {END} line, {found}"]
-    if begins[0] > ends[0]:
-        return [f"{BEGIN} on line {begins[0]} follows {END} on line {ends[0]}"]
-    return [
-        f"line {number} is committed between the markers: {lines[number - 1]!r}"
-        for number in range(begins[0] + 1, ends[0])
-        if lines[number - 1].strip()
-    ]
+    return markers.committed_block_problems(text, begin=BEGIN, end=END)
 
 
 class TestLifecycleDiagramNotCommitted(unittest.TestCase):

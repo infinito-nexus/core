@@ -24,6 +24,10 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: false
+    switch: "services.web.enabled and services.sso.enabled"
+    files: [files/login-broker/server.js]
   oauth2:
     pass_access_token: true
     origin:

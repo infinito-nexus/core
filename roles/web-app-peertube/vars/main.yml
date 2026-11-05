@@ -4,7 +4,6 @@ entity_name: "{{ application_id | entity_name }}"
 
 PEERTUBE_CONTAINER: "{{ lookup('config', application_id, 'services.peertube.name') }}"
 PEERTUBE_HOSTNAME: "{{ lookup('domain', application_id) }}"
-PEERTUBE_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
 PEERTUBE_NETNS_URL: "http://127.0.0.1:{{ lookup('config', application_id, 'services.peertube.ports.internal.http') }}"
 PEERTUBE_API_HEADERS:
   Host: "{{ PEERTUBE_HOSTNAME }}"
@@ -59,6 +58,7 @@ PEERTUBE_ROLE_IDS:
   administrator: 0
   moderator: 1
   user: 2
+PEERTUBE_RBAC_ROLES: [administrator, moderator]
 
 PEERTUBE_LIVE_ENABLED: "{{ lookup('config', application_id, 'services.peertube.live.enabled') | bool }}"
 PEERTUBE_RTMP_PORT: "{{ lookup('config', application_id, 'services.peertube.ports.internal.rtmp') }}"

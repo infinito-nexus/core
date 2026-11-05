@@ -46,32 +46,56 @@ These choices are settled at requirement creation time and bound the implementat
 
 ## Current State Audit
 
-Each row is a migration target. The "Bridges" column is the cross-role dependency this requirement makes explicit. "Today's location" is where the declaration lives before migration.
+Each row was a migration target and now states what its `meta/addons/` declares after the migration. "Addons" counts the addon files, "Required" those with `required: true`, and "Bridged services" are the service keys their `bridges:` lists name, each resolving to a service block of the same role. [test_addons_audit.py](../../tests/lint/ansible/services/test_addons_audit.py) classifies every role under `roles/` and fails when a row no longer matches or a role with addons has no row.
 
-| Role | App-native term (`mechanism`) | Addon ids today | Bridges (service → role) | Today's location |
+| Role | App-native term (`mechanism`) | Addons | Required | Bridged services |
 |---|---|---|---|---|
-| [web-app-friendica](../../roles/web-app-friendica/) | `addon` | `ldapauth` | `ldap` → `svc-db-openldap` | [meta/services.yml](../../roles/web-app-friendica/meta/services.yml) `friendica.addons` |
-| [web-app-odoo](../../roles/web-app-odoo/) | `module` | `crm, contacts, sale_management, account, website, project, stock` (core); `[]` (optional) | none today | [meta/services.yml](../../roles/web-app-odoo/meta/services.yml) `odoo.modules` |
-| [web-app-nextcloud](../../roles/web-app-nextcloud/) | `plugin` | `bbb, onlyoffice, richdocuments, sociallogin, spreed, user_ldap, whiteboard, xwiki` | `sociallogin` → `web-app-keycloak`, `user_ldap` → `svc-db-openldap` | `vars/plugins/` |
-| [web-app-wordpress](../../roles/web-app-wordpress/) | `plugin`, `mu_plugin` | `daggerhart-openid-connect-generic, wp-discourse` (+ mu-plugins) | OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse` | `tasks/plugins/` |
-| [web-app-mediawiki](../../roles/web-app-mediawiki/) | `extension` | `PluggableAuth, OpenIDConnect` | `OpenIDConnect` → `web-app-keycloak` | [vars/main.yml](../../roles/web-app-mediawiki/vars/main.yml) |
-| [web-app-xwiki](../../roles/web-app-xwiki/) | `plugin` | `oidc-authenticator, ldap-authenticator, ai-llm` | `sso` → `web-app-keycloak`, `ldap` → `svc-db-openldap`, `litellm` → `web-app-litellm` | [meta/services.yml](../../roles/web-app-xwiki/meta/services.yml) `xwiki.plugins` |
-| [web-app-joomla](../../roles/web-app-joomla/) | `plugin` | `plg_system_keycloak` | `sso` → `web-app-keycloak` | [tasks/08_oidc_plugin.yml](../../roles/web-app-joomla/tasks/08_oidc_plugin.yml) |
-| [web-app-matrix](../../roles/web-app-matrix/) | `bridge` | `mautrix-whatsapp, mautrix-telegram, mautrix-signal, mautrix-slack, mautrix-meta` | external networks (no in-repo service); each owns a DB credential | `vars/bridges.yml` |
-| [web-app-discourse](../../roles/web-app-discourse/) | `plugin` | `docker_manager, discourse-activity-pub, discourse-akismet, discourse-ldap-auth` | `discourse-ldap-auth` → `svc-db-openldap` | [meta/services.yml](../../roles/web-app-discourse/meta/services.yml) `discourse.plugins` |
-| [web-app-pretix](../../roles/web-app-pretix/) | `plugin` | `oidc` (v2.3.1) | `sso` → `web-app-keycloak` | [meta/services.yml](../../roles/web-app-pretix/meta/services.yml) `pretix.plugins` |
-| [web-app-mattermost](../../roles/web-app-mattermost/) | `plugin` | volume-managed plugins (`plugins`, `client-plugins`) | none declared today | [vars/main.yml](../../roles/web-app-mattermost/vars/main.yml), [meta/volumes.yml](../../roles/web-app-mattermost/meta/volumes.yml) |
-| [dsk-chromium](../../roles/dsk-chromium/) | `extension` | CRX ids, `force_installed` (e.g. uBlock Origin) | none (desktop role) | [meta/services.yml](../../roles/dsk-chromium/meta/services.yml) `plugins` |
-| [dsk-firefox](../../roles/dsk-firefox/) | `extension` | XPI urls (uBlock Origin, KeePassXC) | none (desktop role) | [meta/services.yml](../../roles/dsk-firefox/meta/services.yml) `plugins` |
-| [dsk-gnome](../../roles/dsk-gnome/) | `extension` | gnome-shell extensions (enable/disable tuples) | none (desktop role) | [meta/services.yml](../../roles/dsk-gnome/meta/services.yml) `plugins` |
-| [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) | `extension` | configured list (`services.gnome-extensions.plugins`) | none (desktop role) | [meta/services.yml](../../roles/dsk-gnome-extensions/meta/services.yml) |
+| [web-app-friendica](../../roles/web-app-friendica/) | `addon` | 1 | 0 | `ldap` |
+| [web-app-odoo](../../roles/web-app-odoo/) | `module` | 10 | 7 | `email`, `nextcloud`, `sso` |
+| [web-app-nextcloud](../../roles/web-app-nextcloud/) | `plugin` | 53 | 45 | `bigbluebutton`, `collabora`, `coturn`, `discourse`, `flowise`, `gitlab`, `ldap`, `litellm`, `mastodon`, `matrix`, `mattermost`, `moodle`, `onlyoffice`, `openproject`, `openwebui`, `peertube`, `sso`, `suitecrm`, `talk`, `xwiki`, `zammad` |
+| [web-app-wordpress](../../roles/web-app-wordpress/) | `mu_plugin`, `plugin` | 19 | 11 | `bigbluebutton`, `design`, `discourse`, `listmonk`, `litellm`, `peertube`, `sso`, `translate` |
+| [web-app-mediawiki](../../roles/web-app-mediawiki/) | `extension` | 8 | 3 | `discourse`, `litellm`, `peertube`, `seaweedfs`, `sso`, `translate` |
+| [web-app-xwiki](../../roles/web-app-xwiki/) | `extension` | 3 | 0 | `ldap`, `litellm`, `sso` |
+| [web-app-joomla](../../roles/web-app-joomla/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-matrix](../../roles/web-app-matrix/) | `addon`, `bridge`, `module` | 12 | 0 | `gitlab`, `jira`, `jitsi`, `litellm`, `n8n`, `prometheus` |
+| [web-app-discourse](../../roles/web-app-discourse/) | `plugin`, `theme` | 12 | 1 | `bigbluebutton`, `jitsi`, `ldap`, `litellm`, `mastodon`, `matrix`, `mattermost`, `prometheus`, `sso`, `translate` |
+| [web-app-pretix](../../roles/web-app-pretix/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-mattermost](../../roles/web-app-mattermost/) | `addon`, `plugin` | 7 | 0 | `gitlab`, `jenkins`, `jira`, `jitsi`, `openwebui`, `prometheus`, `sso` |
+| [dsk-chromium](../../roles/dsk-chromium/) | `extension` | 3 | 3 | none (desktop role) |
+| [dsk-firefox](../../roles/dsk-firefox/) | `extension` | 2 | 2 | none (desktop role) |
+| [dsk-gnome](../../roles/dsk-gnome/) | `extension` | 3 | 2 | none (desktop role) |
+| [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) | none | 0 | 0 | none (desktop role) |
+
+These roles were no migration target and gained their addons later through the [integration matrix](027-integration-matrix.md) wiring; the same test keeps their rows current.
+
+| Role | App-native term (`mechanism`) | Addons | Required | Bridged services |
+|---|---|---|---|---|
+| [web-app-baserow](../../roles/web-app-baserow/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-bigbluebutton](../../roles/web-app-bigbluebutton/) | `module` | 1 | 0 | `sso` |
+| [web-app-erpnext](../../roles/web-app-erpnext/) | `module` | 2 | 0 | `email`, `sso` |
+| [web-app-espocrm](../../roles/web-app-espocrm/) | `extension` | 2 | 0 | `email`, `sso` |
+| [web-app-gitlab](../../roles/web-app-gitlab/) | `plugin` | 6 | 0 | `confluence`, `jenkins`, `jira`, `matrix`, `mattermost`, `sso` |
+| [web-app-jellyfin](../../roles/web-app-jellyfin/) | `plugin` | 2 | 0 | none |
+| [web-app-jenkins](../../roles/web-app-jenkins/) | `plugin` | 5 | 5 | `gitea`, `gitlab`, `mattermost`, `prometheus`, `sso` |
+| [web-app-matomo](../../roles/web-app-matomo/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-moodle](../../roles/web-app-moodle/) | `plugin` | 7 | 0 | `bigbluebutton`, `jitsi`, `matrix`, `nextcloud`, `openwebui`, `seaweedfs`, `sso` |
+| [web-app-openbao](../../roles/web-app-openbao/) | `plugin` | 1 | 1 | `ldap` |
+| [web-app-openproject](../../roles/web-app-openproject/) | `module` | 3 | 1 | `gitlab`, `nextcloud`, `sso` |
+| [web-app-peertube](../../roles/web-app-peertube/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-suitecrm](../../roles/web-app-suitecrm/) | `module` | 2 | 0 | `email`, `sso` |
+| [web-app-taiga](../../roles/web-app-taiga/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-zammad](../../roles/web-app-zammad/) | `bridge`, `module` | 2 | 0 | `email`, `sso` |
+| [dsk-blender](../../roles/dsk-blender/) | `addon` | 2 | 0 | none (desktop role) |
+| [dsk-code](../../roles/dsk-code/) | `extension` | 2 | 0 | none (desktop role) |
 
 ### Out of scope: database/runtime engine extensions
 
-Two roles declare an `extensions:` key that is **not** an application addon but a database/cache engine feature, provisioned at the storage layer. These MUST stay where they are and MUST NOT move into `meta/addons/`:
+These roles declare an `extensions:` key that is **not** an application addon but a database/cache engine feature, provisioned at the storage layer. These MUST stay where they are and MUST NOT move into `meta/addons/`:
 
 - [web-app-mobilizon](../../roles/web-app-mobilizon/): PostgreSQL extensions `postgis, pg_trgm, unaccent` ([meta/services.yml](../../roles/web-app-mobilizon/meta/services.yml)).
 - [web-app-bookwyrm](../../roles/web-app-bookwyrm/): engine extension `bloom` ([meta/services.yml](../../roles/web-app-bookwyrm/meta/services.yml)).
+- [web-app-discourse](../../roles/web-app-discourse/): PostgreSQL extension `vector` ([meta/services.yml](../../roles/web-app-discourse/meta/services.yml)), beside its plugin addons.
+- [web-app-kix](../../roles/web-app-kix/): PostgreSQL extension `pg_trgm` ([meta/services.yml](../../roles/web-app-kix/meta/services.yml)).
 
 The audit MUST classify these as `db-extension` (out of scope), so a later sweep does not mistake them for app addons. If a future role mixes app addons and DB extensions under one key, the migration MUST split them by destination.
 
@@ -235,8 +259,8 @@ Rules:
 
 ### Repository-wide audit
 
-- [ ] A deterministic audit command or test enumerates every role under `roles/` and classifies addon support by `mechanism` (`addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`), `db-extension` (out of scope), or `none`.
-- [ ] The audit reproduces every row of the [Current State Audit](#current-state-audit), including the `bridge`-mechanism (`web-app-matrix`), the newly surveyed `plugin`/`extension` roles (`web-app-discourse`, `web-app-pretix`, `web-app-mattermost`, `desk-chromium`, `desk-firefox`, `desk-gnome`), and the out-of-scope `db-extension` roles (`web-app-mobilizon`, `web-app-bookwyrm`), and records, per role, the addon ids, their `mechanism`, their `required` state, and their `bridges`.
+- [x] A deterministic audit command or test enumerates every role under `roles/` and classifies addon support by `mechanism` (`addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`), `db-extension` (out of scope), or `none`. ([test_addons_audit.py](../../tests/lint/ansible/services/test_addons_audit.py) `audit()` walks every role directory; Discourse also ships a `theme` mechanism and is both addon-bearing and `db-extension`.)
+- [x] The audit reproduces every row of the [Current State Audit](#current-state-audit), including the `bridge`-mechanism (`web-app-matrix`), the newly surveyed `plugin`/`extension` roles (`web-app-discourse`, `web-app-pretix`, `web-app-mattermost`, `dsk-chromium`, `dsk-firefox`, `dsk-gnome`), and the out-of-scope `db-extension` roles (`web-app-mobilizon`, `web-app-bookwyrm`, `web-app-discourse`, `web-app-kix`), and records, per role, the addon ids, their `mechanism`, their `required` state, and their `bridges`. (`table_problems()` fails on a stale row, a row for a missing role, an addon-bearing role without a row, and an out-of-scope list that differs from the `db-extension` roles; the fixture test proves each.)
 - [ ] A grep for `meta/addons/` before implementation is recorded in the implementing PR to show the baseline was empty.
 
 ### Shared contract
@@ -268,7 +292,7 @@ Rules:
 - [x] [web-app-mattermost](../../roles/web-app-mattermost/) declares its plugins in `meta/addons/` with `mechanism: plugin`; the plugin volumes remain in `meta/volumes.yml`.
 - [x] [dsk-chromium](../../roles/dsk-chromium/) and [dsk-firefox](../../roles/dsk-firefox/) declare their browser extensions in `meta/addons/` with `mechanism: extension`, no `bridges`, and ship NO Playwright specs (desktop roles have no web surface; the lint forbids specs under `dsk-*`).
 - [x] [dsk-gnome](../../roles/dsk-gnome/) declares its gnome-shell extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
-- [ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
+- [x] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`. (Vacuously true: the role ships the extension manager with `plugins: []` in [meta/services.yml](../../roles/dsk-gnome-extensions/meta/services.yml), so it has no extension to declare; the concrete gnome-shell extensions live in the `meta/addons/` of [dsk-gnome](../../roles/dsk-gnome/). The audit classifies it `none`.)
 - [x] [web-app-mobilizon](../../roles/web-app-mobilizon/) and [web-app-bookwyrm](../../roles/web-app-bookwyrm/) keep their `extensions:` (PostgreSQL/engine extensions) in `meta/services.yml`; they are classified `db-extension` and explicitly NOT migrated to `meta/addons/`.
 
 ### Cross-role integration (matrix backlog)

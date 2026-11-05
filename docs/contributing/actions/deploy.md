@@ -82,6 +82,12 @@ Use [`make compose-exec`](../../../Makefile) to drop into the running container 
 
 For TLS-enabled local sites, run [`make network-trust-ca`](../../../Makefile) once after the first deploy and restart the browser; alternatively use `curl -k` on the command line.
 
+## Backend Port Binding in the Dev Stack 🔌
+
+Production compose publishes every backend port on `DOCKER_BIND_HOST`, which is `127.0.0.1` there. Inside the dev stack (`DOCKER_IN_CONTAINER`) [00_general.yml](../../../group_vars/all/00_general.yml) sets it to `0.0.0.0` on purpose. Host-side provisioning reaches an app through `DOCKER_REACH_HOST`, which [sys-svc-container](../../../roles/sys-svc-container/tasks/00_core.yml) points at the docker bridge gateway, and a port bound to loopback would not answer there.
+
+The exposure stays inside the outer bridge network, because the outer [compose.yml](../../../compose.yml) publishes no backend port out of the dev container. Openresty, not the bind address, is the trust boundary of a header-trust backend. [test_header_trust_backends_bind_loopback.py](../../../tests/lint/ansible/roles/test_header_trust_backends_bind_loopback.py) fails when the outer `compose.yml` publishes a `ports.local` port of a header-trust role, or when `DOCKER_BIND_HOST` stops being `127.0.0.1` outside the dev stack.
+
 ## Reference Files 📌
 
 | File | Purpose |

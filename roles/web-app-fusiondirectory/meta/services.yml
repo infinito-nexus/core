@@ -34,6 +34,10 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: sso_proxy_secret
+    switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [tasks/01_ldap.yml]
   oauth2:
     origin:
       host: fusiondirectory
