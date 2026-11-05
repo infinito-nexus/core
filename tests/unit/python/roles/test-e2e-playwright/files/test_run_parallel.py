@@ -4,6 +4,7 @@ import itertools
 import json
 import os
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -565,6 +566,18 @@ class TestRun(unittest.TestCase):
         pending.unlink()
         runner.join(timeout=10)
         self.assertGreaterEqual(self._stamps("start", "onion")[0], cleared)
+
+
+class TestTorReaders(unittest.TestCase):
+    def test_the_lock_it_creates_is_open_to_its_owner_only_whatever_the_umask(self):
+        tmp = tempfile.TemporaryDirectory(prefix="tor_readers_")
+        self.addCleanup(tmp.cleanup)
+        lock = Path(tmp.name) / "tor.lock"
+        readers = rp.TorReaders(lock, 1)
+        self.addCleanup(os.umask, os.umask(0))
+        self.assertTrue(readers.acquire("onion", 1))
+        readers.release("onion")
+        self.assertEqual(0o600, stat.S_IMODE(lock.stat().st_mode))
 
 
 class TestRunSignals(unittest.TestCase):
