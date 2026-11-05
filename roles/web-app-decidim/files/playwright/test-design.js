@@ -178,9 +178,10 @@ async function assertTokenPixel(page, selector, property, token, label) {
             const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
             const pixel = (value) => {
               ctx.clearRect(0, 0, 1, 1);
-              ctx.fillStyle = "#000";
+              ctx.save();
               ctx.fillStyle = value;
               ctx.fillRect(0, 0, 1, 1);
+              ctx.restore();
               return [...ctx.getImageData(0, 0, 1, 1).data].join(",");
             };
             const probe = document.createElement("span");

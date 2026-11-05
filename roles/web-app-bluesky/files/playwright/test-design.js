@@ -175,9 +175,10 @@ async function contrast(locator) {
     const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
     const rgba = (value) => {
       ctx.clearRect(0, 0, 1, 1);
-      ctx.fillStyle = "#000";
+      ctx.save();
       ctx.fillStyle = value;
       ctx.fillRect(0, 0, 1, 1);
+      ctx.restore();
       return [...ctx.getImageData(0, 0, 1, 1).data];
     };
     const luminance = ([r, g, b]) => {

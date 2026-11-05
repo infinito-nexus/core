@@ -1,3 +1,5 @@
+const { randomUUID } = require("node:crypto");
+
 const { test, expect } = require("@playwright/test");
 
 const {
@@ -138,7 +140,7 @@ function galleryViews() {
       url: `${b}/index.php`,
       prepare: async (p) => {
         await p.context().clearCookies();
-        await submitLogin(p, `nobody${Date.now()}`, `wrong-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+        await submitLogin(p, `nobody${Date.now()}`, `wrong-${randomUUID()}`);
         await ready(p, "div#window-footer");
       },
     },

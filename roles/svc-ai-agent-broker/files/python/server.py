@@ -38,7 +38,7 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from access import AccessError, Keycloak
-from agents import Agents, CapacityError
+from agents import RELAY_PATHS, Agents, CapacityError, pick
 from engine import ComposeBackend, Engine, EngineError
 from swarm import SwarmBackend
 
@@ -52,6 +52,11 @@ PLATFORMS = json.loads(ENV["AGENT_PLATFORMS"])
 USER_ID_HEADER = "X-OpenWebUI-User-Id"
 USER_EMAIL_HEADER = "X-OpenWebUI-User-Email"
 HOP_BY_HOP = {"connection", "transfer-encoding", "keep-alive", "content-length"}
+
+
+def log(event, **fields):
+    print(json.dumps({"ts": time.time(), "event": event, **fields}), flush=True)
+
 
 ENGINE = Engine(ENV["ENGINE_SOCKET"], timeout=120)
 MAX_RUNNING = int(ENV["MAX_RUNNING"])
@@ -77,6 +82,7 @@ AGENTS = Agents(
     idle_seconds=int(ENV["IDLE_MINUTES"]) * 60,
     max_running=MAX_RUNNING,
     start_timeout=int(ENV["START_TIMEOUT"]),
+    log=log,
 )
 ACCESS = Keycloak(
     ENV["KEYCLOAK_URL"],
@@ -85,10 +91,6 @@ ACCESS = Keycloak(
     ENV["KEYCLOAK_ADMIN_PASSWORD"],
     timeout=15,
 )
-
-
-def log(event, **fields):
-    print(json.dumps({"ts": time.time(), "event": event, **fields}), flush=True)
 
 
 def bearer(headers):
@@ -181,9 +183,10 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError:
             self._error(400, "body is not JSON")
             return
-        platform = payload.get("model")
-        if platform not in PLATFORMS:
-            self._error(404, f"unknown agent platform '{platform}'")
+        requested = payload.get("model")
+        platform = pick(requested, PLATFORMS)
+        if platform is None:
+            self._error(404, f"unknown agent platform '{requested}'")
             return
         try:
             allowed = ACCESS.allows(email, PLATFORMS[platform]["group"])
@@ -227,6 +230,12 @@ class Handler(BaseHTTPRequestHandler):
             self._error(401, "unknown agent key")
             return
         owner, platform = entry
+        requested = self.path[len("/llm") :]
+        path = pick(requested, RELAY_PATHS)
+        if path is None:
+            log("relay_refused", owner=owner, platform=platform, path=requested)
+            self._error(404, "path is not relayed")
+            return
         body = self._body()
         if body and self.command == "POST":
             try:
@@ -240,7 +249,6 @@ class Handler(BaseHTTPRequestHandler):
             "Authorization": f"Bearer {LITELLM_KEY}",
             "Content-Type": self.headers.get("Content-Type") or "application/json",
         }
-        path = self.path[len("/llm") :]
         status = self._proxy(
             LITELLM.hostname, LITELLM.port, path, body or None, headers
         )

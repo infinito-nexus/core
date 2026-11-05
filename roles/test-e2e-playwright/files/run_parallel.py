@@ -284,7 +284,7 @@ class TorReaders:
             return False
         if self.pending.exists():
             return False
-        fd = os.open(self.path, os.O_RDONLY | os.O_CREAT, 0o644)
+        fd = os.open(self.path, os.O_RDONLY | os.O_CREAT, 0o600)
         try:
             fcntl.flock(fd, fcntl.LOCK_SH | fcntl.LOCK_NB)
         except BlockingIOError:

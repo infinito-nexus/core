@@ -58,7 +58,7 @@ def write_marker(role: Path, group: str, provenance: str) -> None:
     elif mode is not None:
         marker.unlink()
     descriptor = os.open(
-        marker, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644
+        marker, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600
     )
     with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
         handle.write(marker_text(role.name, group, provenance))
