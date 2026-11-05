@@ -40,7 +40,7 @@
 
 {{ journald(WAZUH_AGENT_RULESET.journald.program, {'_TRANSPORT': '^driver$', 'MESSAGE': '^Suppressed [0-9]+ messages from '}) }}
 
-{% set fim_mode = 'whodata="yes"' if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool else 'realtime="yes"' %}
+{% set fim_mode = 'whodata="yes"' if WAZUH_AGENT_FIM_WHODATA_ACTIVE | bool else 'realtime="yes"' %}
   <syscheck>
     <disabled>{{ 'no' if WAZUH_AGENT_FIM_ENABLED | bool else 'yes' }}</disabled>
     <frequency>{{ WAZUH_AGENT_FIM_FREQUENCY }}</frequency>
@@ -60,7 +60,7 @@
     <ignore>{{ path }}</ignore>
 {% endfor %}
     <nodiff type="sregex">{{ WAZUH_AGENT_FIM_NODIFF }}</nodiff>
-{% if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool %}
+{% if WAZUH_AGENT_FIM_WHODATA_ACTIVE | bool %}
     <whodata>
       <provider>{{ WAZUH_AGENT_FIM_WHODATA_PROVIDER }}</provider>
     </whodata>

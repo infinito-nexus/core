@@ -5,8 +5,8 @@ WAZUH_AGENT_ENABLED: true
 WAZUH_AGENT_DOCKER_LISTENER_ENABLED: true
 # Param WAZUH_AGENT_FIM_ENABLED: enables file integrity monitoring (syscheck).
 WAZUH_AGENT_FIM_ENABLED: true
-# Param WAZUH_AGENT_FIM_WHODATA_ENABLED: adds who-data (the user and process behind a change) to real-time FIM.
-WAZUH_AGENT_FIM_WHODATA_ENABLED: false
+# Param WAZUH_AGENT_FIM_WHODATA_ENABLED: adds who-data (the user and process behind a change) to real-time FIM: true, false, or auto, which switches it on only where the kernel runs BPF LSM.
+WAZUH_AGENT_FIM_WHODATA_ENABLED: auto
 # Param WAZUH_AGENT_FIM_AUDITD_ENABLED: installs auditd, Wazuh's who-data fallback where the eBPF provider does not start.
 WAZUH_AGENT_FIM_AUDITD_ENABLED: false
 # Param WAZUH_AGENT_DOCKER_LISTENER_INTERVAL: seconds between two runs of the Docker listener.

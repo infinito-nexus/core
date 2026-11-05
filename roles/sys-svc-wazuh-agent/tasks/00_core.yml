@@ -87,6 +87,13 @@
 - name: "🐳 Prepare the Docker listener"
   include_tasks: 01_docker_listener.yml
 
+- name: "🔍 Read the kernel's active security modules"
+  ansible.builtin.slurp:
+    src: "{{ WAZUH_AGENT_LSM_FILE }}"
+  register: wazuh_agent_lsm
+  # Exception: a kernel without securityfs has no BPF LSM either, so a missing file means who-data stays off in auto mode instead of failing the deploy.
+  failed_when: false
+
 - name: "📦 Install auditd as the who-data fallback for kernels without eBPF"
   package_install:
     id:
@@ -94,7 +101,7 @@
   notify: wazuh-agent-restart
   when:
     - WAZUH_AGENT_FIM_ENABLED | bool
-    - WAZUH_AGENT_FIM_WHODATA_ENABLED | bool
+    - WAZUH_AGENT_FIM_WHODATA_ACTIVE | bool
     - WAZUH_AGENT_FIM_AUDITD_ENABLED | bool
 
 - name: "✅ Ensure auditd is enabled and running"
@@ -104,7 +111,7 @@
     enabled: true
   when:
     - WAZUH_AGENT_FIM_ENABLED | bool
-    - WAZUH_AGENT_FIM_WHODATA_ENABLED | bool
+    - WAZUH_AGENT_FIM_WHODATA_ACTIVE | bool
     - WAZUH_AGENT_FIM_AUDITD_ENABLED | bool
 
 - name: "🔑 Write the pre-registered agent key"

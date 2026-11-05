@@ -18,7 +18,7 @@
   until: >-
     WAZUH_AGENT_SYSCHECK_STARTED not in wazuh_agent_whodata_log.stdout
     or (('(' ~ WAZUH_AGENT_SYSCHECK_READY_CODE ~ ')') in wazuh_agent_whodata_log.stdout
-        and (not (WAZUH_AGENT_FIM_WHODATA_ENABLED | bool)
+        and (not (WAZUH_AGENT_FIM_WHODATA_ACTIVE | bool)
              or wazuh_agent_whodata_log.stdout is search(WAZUH_AGENT_WHODATA_CODES_PATTERN)))
 
 - name: "🧭 Resolve the who-data state"
@@ -26,7 +26,8 @@
     wazuh_agent_whodata_state: >-
       {%- set log = wazuh_agent_whodata_log.stdout -%}
       {%- set verdicts = WAZUH_AGENT_WHODATA_CODES | dict2items | selectattr('key', 'in', log | regex_findall('[(]([0-9]+)[)]')) | map(attribute='value') | list -%}
-      {%- if not (WAZUH_AGENT_FIM_WHODATA_ENABLED | bool) -%}whodata=unavailable reason=switched-off
+      {%- if WAZUH_AGENT_FIM_WHODATA_MODE == 'auto' and not (WAZUH_AGENT_FIM_WHODATA_ACTIVE | bool) -%}whodata=unavailable reason=no-bpf-lsm
+      {%- elif not (WAZUH_AGENT_FIM_WHODATA_ACTIVE | bool) -%}whodata=unavailable reason=switched-off
       {%- elif WAZUH_AGENT_SYSCHECK_STARTED not in log -%}whodata=unknown reason=no-syscheckd-start-in-log
       {%- elif verdicts -%}{{ verdicts | first }}
       {%- else -%}whodata=unknown reason=no-verdict-in-log

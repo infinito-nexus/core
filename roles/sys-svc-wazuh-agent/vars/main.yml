@@ -153,6 +153,11 @@ WAZUH_AGENT_FIM_REALTIME_DIRS: "{{ [[ WAZUH_AGENT_DIR, 'etc' ] | path_join] + WA
 # Exception: the deployed code check fetches into each checkout's .git every hour, so watching it would alert on the check itself; tracked files stay watched.
 WAZUH_AGENT_FIM_CHECKOUT_GIT_DIRS: "{{ WAZUH_AGENT_DEPLOYED_CODE_CHECKOUTS | map('regex_replace', '/+$', '') | map('regex_replace', '$', '/.git') | list }}"
 WAZUH_AGENT_FIM_WHODATA_PROVIDER: "ebpf"
+WAZUH_AGENT_LSM_FILE: "/sys/kernel/security/lsm"
+WAZUH_AGENT_FIM_WHODATA_MODE: "{{ WAZUH_AGENT_FIM_WHODATA_ENABLED | string | lower }}"
+WAZUH_AGENT_BPF_LSM: "{{ 'bpf' in ((wazuh_agent_lsm.content | default('') | b64decode).strip().split(',')) }}"
+# Exception: auto switches who-data on only under BPF LSM, because in kprobe mode, the eBPF provider's mode on every other kernel, it misses changes made by rename (wazuh/wazuh#37023, #39708), and real time alone sees them at once.
+WAZUH_AGENT_FIM_WHODATA_ACTIVE: "{{ WAZUH_AGENT_FIM_WHODATA_MODE == 'true' or (WAZUH_AGENT_FIM_WHODATA_MODE == 'auto' and (WAZUH_AGENT_BPF_LSM | bool)) }}"
 WAZUH_AGENT_FIM_LOG: "{{ [ WAZUH_AGENT_DIR, 'logs', 'ossec.log' ] | path_join }}"
 WAZUH_AGENT_FIM_STATE_RETRIES: 12
 WAZUH_AGENT_FIM_STATE_DELAY: 5
