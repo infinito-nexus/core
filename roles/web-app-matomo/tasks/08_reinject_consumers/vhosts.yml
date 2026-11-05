@@ -2,6 +2,7 @@
 - name: "📄 Matomo | Re-render injection on every vhost of one web-svc consumer"
   ansible.builtin.include_role:
     name: sys-front-inj-all
+    tasks_from: standalone.yml
   vars:
     application_id: "{{ matomo_inj_dir.matomo_inj_consumer.id }}"
     domain: "{{ matomo_inj_vhost }}"

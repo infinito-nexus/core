@@ -1,5 +1,5 @@
 ---
-# nocheck: run-once  runs once per vhost: every invocation re-applies the CDN dirs, inj-* and the body_filter Lua for the current `domain`.
+# nocheck: run-once  runs once per vhost: every invocation re-applies the CDN dirs and the inj-* injection for the current `domain`.
 - name: 📂 Include dependency 'sys-svc-webserver-core'
   include_role:
     name: sys-svc-webserver-core
@@ -43,10 +43,3 @@
   include_role:
     name: sys-front-inj-javascript
   when: inj_enabled.javascript
-
-- name: "📄 Render body_filter Lua for '{{ domain }}'"
-  stack_host_template:
-    src: body_filter.lua.j2
-    dest: "{{ lookup('nginx', 'files.lua', domain) }}"
-    mode: "0644"
-  notify: reload-openresty

@@ -84,4 +84,5 @@
   stack_host_contents:
     files: "{{ redirect_sources | map(attribute='files') | flatten }}"
     mode: "0644"
+    diff_paths: []
   notify: reload-openresty
