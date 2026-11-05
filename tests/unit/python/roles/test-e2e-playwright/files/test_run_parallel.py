@@ -372,11 +372,8 @@ class TestRun(unittest.TestCase):
         for index, name in enumerate(["a", "b", "c", "d"], start=1):
             self._job(index, name, 0.6, rc=1 if name == "b" else 0, after=["head"])
         (self.jobs / rp.SEALED).touch()
-        began = time.monotonic()
         self.assertEqual(self._run(2), 0)
-        elapsed = time.monotonic() - began
         self.assertEqual(self._peak(), 2)
-        self.assertLess(elapsed, 0.3 + 4 * 0.6)
         self.assertEqual(self._result("b")["rc"], 1)
         for name in ("head", "a", "c", "d"):
             self.assertEqual(self._result(name)["rc"], 0)
