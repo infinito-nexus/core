@@ -43,7 +43,8 @@ def validate_swarm_topology(inv_dir) -> list[str]:
     groups = _collect_groups(inv_dir)
     errs: list[str] = []
     managers = groups.get(MANAGER_GROUP, [])
-    if groups.get(SWARM_NODE_GROUP) and not managers:
+    nodes = set(groups.get(SWARM_NODE_GROUP, []))
+    if len(nodes) > 1 and not managers:
         errs.append(
             f"Group '{SWARM_NODE_GROUP}' has hosts but '{MANAGER_GROUP}' is empty"
         )
@@ -59,8 +60,7 @@ def validate_swarm_topology(inv_dir) -> list[str]:
             f"Group '{store}' has {len(store_members)} hosts; "
             "it must hold 1 member or an odd number of at least 3"
         )
-    nodes = set(groups.get(SWARM_NODE_GROUP, []))
-    if not nodes:
+    if len(nodes) <= 1:
         return errs
     engines = ha_engines()
     for grp, hosts in sorted(groups.items()):

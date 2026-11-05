@@ -52,6 +52,16 @@ class TestValidateSwarmTopology(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("svc-swarm-manager", errors[0])
 
+    def test_a_single_node_inventory_is_compose_and_needs_no_manager(self):
+        self.write(
+            {
+                "svc-swarm-node": ["localhost"],
+                "svc-dcs-etcd": ["localhost"],
+                "svc-db-postgres": ["localhost"],
+            }
+        )
+        self.assertEqual(validate_swarm_topology(self.test_dir), [])
+
     def test_hosts_merge_across_files(self):
         self.write({"svc-swarm-manager": ["m0", "m1"]}, "a.yml")
         self.write({"svc-swarm-manager": ["m2"]}, "b.yml")
