@@ -68,7 +68,6 @@
 
 - name: 🧊 Render the applications SPOT once for the bootstrap section
   applications_carrier: {}
-  when: IS_SWARM_MODE
 
 - name: "🛫 Pre-flight checks"
   ansible.builtin.include_tasks: ./tasks/utils/constructor/preflight.yml
