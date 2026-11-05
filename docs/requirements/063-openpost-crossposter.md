@@ -183,7 +183,7 @@ crossposter:
 - [ ] Unit tests under `tests/unit/python/roles/web-app-openpost/files/crossposter/` cover length counting, adaptation, routing filters, the idempotency key, backoff timing and the state machine with fixtures recorded from Mastodon, Pixelfed and PeerTube responses.
 - [ ] The CLI test posts as a test user on the local Mastodon, Pixelfed and PeerTube instances and asserts within a bounded time exactly one OpenPost publication per route, one delivered post on the local Fediverse target, and the expected simulator requests for X, Facebook, Instagram and YouTube.
 - [ ] The CLI test asserts review mode (draft without delivery), the opt-out hashtag, loop prevention, restart without duplicates, and no forwarding of existing posts on route activation.
-- [ ] The CLI test lets the simulator answer 503 before succeeding and asserts one delivery, then forces a permanent failure and asserts the dead-letter state and the notification in the test mailbox.
+- [ ] The CLI test lets the simulator answer 503 before succeeding and asserts one delivery, then forces a permanent failure and asserts the dead-letter state and that the platform mail server accepted the notification for the configured recipients.
 - [ ] The Playwright spec shows the administrator persona finding a crossposted draft in the desk, editing it and scheduling it.
 - [ ] `make test` and `make roundtrip apps="web-app-openpost"` are green.
 
