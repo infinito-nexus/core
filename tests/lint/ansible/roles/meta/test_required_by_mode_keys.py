@@ -13,7 +13,7 @@ of a production deploy.
 
 Mirror to both modes to preserve the previous (mode-agnostic) behavior; declare
 a single mode only when the role genuinely applies to that mode (e.g.
-sys-ctl-rpr-container-* repair compose compositions and are compose-only).
+sys-ctl-rpr-container-soft repairs compose compositions and is compose-only).
 """
 
 from __future__ import annotations

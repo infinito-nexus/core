@@ -2584,11 +2584,6 @@ msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "Sistematutako garbiketa zerbitzua Docker bolumen anonimoak eta irudiak, edukiontziak, sareak eta cache-a eraikitzeko"
 
-# translated-by: libretranslate
-msgctxt "role:sys-ctl-rpr-container-hard:description"
-msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Docker Compose pilak mantentzeko sistematutako papera berrabiarazi egiten da, Mailu bezalako pilak berrabiatzeko."
-
 msgctxt "role:sys-ctl-hlth-runtime:description"
 msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
 msgstr ""

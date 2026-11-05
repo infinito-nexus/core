@@ -16,7 +16,6 @@ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-volume-2-loc
 SYS_SERVICE_BACKUP_NFS_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-nfs-2-local'       ) }}"
 SYS_SERVICE_BACKUP_SECRETS_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-secrets-2-local'   ) }}"
 SYS_SERVICE_REPAIR_CONTAINER_SOFT: "{{ lookup('unit_name', 'sys-ctl-rpr-container-soft'  ) }}"
-SYS_SERVICE_REPAIR_CONTAINER_HARD: "{{ lookup('unit_name', 'sys-ctl-rpr-container-hard'  ) }}"
 
 SYS_SERVICE_ON_FAILURE_COMPOSE: "{{ lookup('unit_name','sys-ctl-alm-compose@', suffix=False ) }}%n.service"
 

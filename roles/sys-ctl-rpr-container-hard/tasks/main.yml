@@ -1,5 +1,0 @@
----
-- include_tasks: 00_core.yml
-  when:
-    - run_once_sys_ctl_rpr_container_hard is not defined
-    - IS_COMPOSE_MODE
