@@ -15,7 +15,7 @@ Follow the instructions from AGENTS.md, then follow the `iterate_compose` routin
 
 Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Completion gate: the role is green end-to-end in compose; for a full web-app change also drive it through swarm via the `i8-iterate-swarm` skill until green in BOTH modes.
 
-Default `disable=matomo,dashboard,prometheus,email,css`. One `mode=update apps=<roles> purge=true` tests app-state involvement, then back to `mode=update`.
+Default `disable=matomo,dashboard,prometheus,email,design`. One `mode=update apps=<roles> [variant=<idx>] purge=true` tests app-state involvement, then back to `mode=update`.
 
 ## Matrix-variant commands
 
@@ -29,6 +29,16 @@ Do not improvise `mode`/`variant`; pick the row:
 | Final gate, once every variant green | `mode=reinstall apps=<roles> full_cycle=true` (no variant) |
 
 FORBIDDEN: a bare `mode=update` without `variant=` on a matrix-variant role; a no-variant `mode=reinstall` as reaction to a failed variant or a code change.
+
+## Role sync
+
+The role's unit and fixture tests under `tests/unit/*/roles/<role>/` run before any deploy; `make test` waits for the redeploy. The routine's `scope` step picks the redeploy from the diff, with `variant=<idx>` on matrix-variant roles only:
+
+- a fix that stays inside `roles/<role>/` takes `make compose-role-sync role=<role> [variant=<idx>]`, which re-runs only the app role against the running stack; a red that the skipped constructor, system or provider stages cause is a sync limit and sends the rest of the loop to `mode=update`;
+- a change to any role's `meta/variants.yml`, `services.yml`, `secrets.yml` or `users.yml` takes `mode=reinstall apps=<roles> full_cycle=true [variant=<idx>]`, because the inventory bakes them in and `mode=update` reuses it;
+- every other fix takes the `mode=update` row.
+
+A green role sync is never done: the routine runs the `mode=update` redeploy and then the final-gate row above before done. A green reinstall goes straight to the final-gate row, because its `full_cycle=true` pass already ran the update pass.
 
 ## Pre-redeploy gate
 
