@@ -37,3 +37,4 @@ ATMO_BRIDGE_ENABLED: "{{ lookup('config', application_id, 'services.bridge.enabl
 ATMO_BRIDGE_INTERVAL_SECONDS: "{{ lookup('config', application_id, 'services.bridge.interval_seconds') }}"
 ATMO_BRIDGE_STATE_DIR: "{{ lookup('volume', application_id, 'bridge_state').target }}"
 ATMO_MOBILIZON_URL: "{{ lookup('tls', 'web-app-mobilizon', 'url.base') }}"
+ATMO_BRIDGE_ACCOUNT: "{{ lookup('users', 'web-app-mobilizon-atmo-bridge') }}"

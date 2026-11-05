@@ -14,7 +14,7 @@
         dest: "{{ mobilizon_host_conf_exs_file }}"
       notify: compose-up
 
-    - name: "🎨 Mobilizon administrator and corporate design"
+    - name: "🎨 Mobilizon accounts and corporate design"
       ansible.builtin.include_tasks: 01_design.yml
 
 - name: "🛂 Mobilizon roles of the Keycloak accounts"

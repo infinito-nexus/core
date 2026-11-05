@@ -128,7 +128,7 @@ V1 = every service enabled, `sso` and `ldap` included; V2 = every dynamic flag `
 
 - [x] `roles/web-app-semaphore/` exists with the layout in [Target Schema](#role-layout).
 - [x] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`).
-- [ ] `meta/info.yml`, `domains.yml`, `csp.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint.
+- [x] `meta/info.yml`, `domains.yml`, `csp.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint. All nine sit in `roles/web-app-semaphore/meta/`, and the role-meta suite `tests/lint/ansible/roles/meta/` passes over the tree (141 tests, 296 subtests).
 
 ### Database (Decision #3 — central PostgreSQL)
 
@@ -155,7 +155,7 @@ V1 = every service enabled, `sso` and `ldap` included; V2 = every dynamic flag `
 
 ### Variants
 
-- [ ] `meta/variants.yml` defines exactly three variants: V1 every service on, V2 every service off except `docs`, V3 `ldap` only, each with `tor` on.
+- [x] `meta/variants.yml` defines exactly three variants: V1 every service on, V2 every service off except `docs`, V3 `ldap` only, each with `tor` on. [test_variants.py](../../tests/unit/python/roles/web-app-semaphore/meta/test_variants.py) holds the shipped file to this matrix and reports a fourth variant, `sso` in the LDAP round, an integration beside `docs`, a gap in the full round and the onion off. Two refinements of the wording: V1 leaves `docs` off, because the README replay rides each role's smallest round alone (acfc79db94), and V3 turns on `lam`, the LDAP account manager, beside `ldap`.
 - [ ] All three variants deploy cleanly on a fresh box (full matrix gate, all PLAY RECAPs `failed=0`).
 
 ### Playwright (per [playwright.spec.js contract](../contributing/artefact/files/role/playwright.specs.js.md))

@@ -1,2 +1,8 @@
 ---
 platform_administrator: {}
+web-app-mobilizon-atmo-bridge:
+  username: atmo_bridge
+  firstname: Infinito
+  lastname: Atmo Bridge
+  accounts: []
+  description: Local Mobilizon account the atmo bridge signs in with to publish the events it mirrors from AT Protocol; never provisioned in LDAP or Keycloak

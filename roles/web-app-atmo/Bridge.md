@@ -20,7 +20,7 @@ A failed mutation leaves the repository `rev` unstored, so the next cycle plans 
 
 ## Mobilizon identity
 
-The bridge signs in to Mobilizon's GraphQL API with the email and password of the platform administrator, whom `web-app-mobilizon` provisions with a profile. Events are published as that profile. This needs Mobilizon's database login, which `web-app-mobilizon` switches off when its native login method is off.
+The bridge signs in to Mobilizon's GraphQL API as `atmo_bridge`, the local account `web-app-mobilizon-atmo-bridge` that [web-app-mobilizon](../web-app-mobilizon/meta/users.yml) declares. The account holds the Mobilizon role `user` and its own password, which the inventory pins for it like for every declared user, so no credential of the platform administrator reaches the bridge. `web-app-mobilizon` creates it with a profile whenever this role's `bridge` flag is on, and events are published as that profile. This needs Mobilizon's database login, which `web-app-mobilizon` switches off when its native login method is off.
 
 ## Mapping store
 

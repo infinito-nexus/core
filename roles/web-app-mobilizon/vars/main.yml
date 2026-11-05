@@ -11,6 +11,9 @@ MOBILIZON_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.mob
 MOBILIZON_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (lookup('config', application_id, 'services.mobilizon.login.method.sso.enabled')
   | bool) }}"
 MOBILIZON_OIDC_PROVIDER: "keycloak"
+MOBILIZON_ATMO_BRIDGE_ENABLED: "{{ 'web-app-atmo' in group_names and (lookup('config', 'web-app-atmo', 'services.bridge.enabled') | bool) }}"
+MOBILIZON_ACCOUNTS: "{{ [{'user': lookup('users', 'platform_administrator'), 'role': 'administrator'}] + ([{'user': lookup('users', 'web-app-mobilizon-atmo-bridge'),
+  'role': 'user'}] if MOBILIZON_ATMO_BRIDGE_ENABLED | bool else []) }}"
 MOBILIZON_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 MOBILIZON_DESIGN: "{{ lookup('design', application_id) }}"
 MOBILIZON_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
