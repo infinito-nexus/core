@@ -53,6 +53,12 @@ class Stub(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/fail/"):
             status, payload = 502, {"message": "Server Error"}
+        elif self.path.endswith("/signature"):
+            sha = self.path.rsplit("/", 2)[-2]
+            if sha == unverified:
+                status, payload = 404, {"message": "404 GPG Signature Not Found"}
+            else:
+                status, payload = 200, {"signature_type": "PGP", "verification_status": "verified"}
         else:
             sha = self.path.rsplit("/", 1)[-1]
             verified = sha != unverified
@@ -154,14 +160,27 @@ PY
 	pass "FIM reported the modified ${path}"
 }
 
+run_check() {
+	local name="$1" checkout="$2" provider="$3" api="$4"
+	python3 - "${WORK}/${name}.json" "${checkout}" "${provider}" "${api}" "${WORK}/token" <<'PY'
+import json
+import sys
+
+path, checkout, provider, api, token = sys.argv[1:6]
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump({"checkouts": [{"path": checkout, "provider": provider}], "providers": {provider: {"api_url": api, "token_file": token}}}, handle)
+PY
+	python3 "${DEPLOYED_CODE_SCRIPT}" --config="${WORK}/${name}.json" --tag="${DEPLOYED_CODE_TAG}" --timeout=30 \
+		>"${WORK}/${name}.out" || fail "the deployed code check exited non-zero for ${name}"
+}
+
 check() {
 	local name="$1" commit="$2" api="$3"
 	g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet --detach "${commit}"
 	if [[ "${name}" == "modified" ]]; then
 		echo "tampered ${RUN}" >>"${DEPLOYED_CODE_PROOF}/${FILE}"
 	fi
-	python3 "${DEPLOYED_CODE_SCRIPT}" --checkout="${DEPLOYED_CODE_PROOF}" --api-url="${api}" --token-file="${WORK}/token" \
-		--tag="${DEPLOYED_CODE_TAG}" --timeout=30 >"${WORK}/${name}.out" || fail "the deployed code check exited non-zero for ${name}"
+	run_check "${name}" "${DEPLOYED_CODE_PROOF}" github "${api}"
 	if [[ "${name}" == "modified" ]]; then
 		wait_fim
 		g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet -- "${FILE}"
@@ -174,6 +193,31 @@ check unmerged "${FEATURE_SHA}" "${STUB}"
 check unverified "${UNVERIFIED_SHA}" "${STUB}"
 check failed "${VERIFIED_SHA}" "${STUB}/fail"
 g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet --detach "${VERIFIED_SHA}"
+
+# Exception: Gitea and GitLab run on this deployment's own host, so their proof clone's origin names the stub's host; it lives in the scratch directory, outside FIM, because only the provider adapters are under test here.
+FORGE_URL="https://127.0.0.1/proof-org/core.git" # nocheck: repository-declared, url -- a fake origin rewritten to the local bare repository through insteadOf, never fetched
+g clone --quiet "${ORIGIN}" "${WORK}/forge"
+g -C "${WORK}/forge" remote set-url origin "${FORGE_URL}"
+g -C "${WORK}/forge" config "url.file://${ORIGIN}.insteadOf" "${FORGE_URL}"
+for forge in gitea gitlab; do
+	g -C "${WORK}/forge" checkout --quiet --detach "${VERIFIED_SHA}"
+	run_check "${forge}-verified" "${WORK}/forge" "${forge}" "${STUB}"
+	g -C "${WORK}/forge" checkout --quiet --detach "${UNVERIFIED_SHA}"
+	run_check "${forge}-unverified" "${WORK}/forge" "${forge}" "${STUB}"
+done
+python3 - "${WORK}" "${UNVERIFIED_SHA}" <<'PY' || fail "deployed code check of the Gitea and GitLab adapters"
+import json
+import sys
+
+work, unverified = sys.argv[1:3]
+for forge in ("gitea", "gitlab"):
+    for case, expected in (("verified", []), ("unverified", [("unverified", unverified)])):
+        events = [json.loads(line) for line in open(f"{work}/{forge}-{case}.out", encoding="utf-8")]
+        got = sorted((event["dc_kind"], event.get("dc_commit")) for event in events[:-1])
+        if got != expected:
+            sys.exit(f"{forge} {case}: {events}")
+        print(f"PASS: deployed code check {forge} {case}: {[kind for kind, _ in expected] or 'no finding'}")
+PY
 
 python3 - "${WORK}" "${ALERTS}" "${DEPLOYED_CODE_PROOF}" "$((RETRIES * SLEEP_SECONDS))" \
 	"${VERIFIED_SHA}" "${FEATURE_SHA}" "${UNVERIFIED_SHA}" <<'PY' || fail "deployed code check"

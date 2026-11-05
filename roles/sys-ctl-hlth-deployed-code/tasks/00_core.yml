@@ -14,19 +14,28 @@
     state: directory
     mode: "0755"
 
-- name: 🔑 Store the read-only GitHub token for the signature check
+- name: "🔑 Store the read-only {{ item.key }} token for the signature check"
   copy:
-    content: "{{ HLTH_DEPLOYED_CODE_TOKEN }}"
-    dest: "{{ HLTH_DEPLOYED_CODE_TOKEN_FILE }}"
+    content: "{{ item.value }}"
+    dest: "{{ HLTH_DEPLOYED_CODE_TOKEN_FILES[item.key] }}"
     owner: root
     group: root
     mode: "0600"
+  loop: "{{ HLTH_DEPLOYED_CODE_TOKENS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: 📋 Copy the shared GitHub API client next to the check
+# Exception: include_tasks, not include_role, because inside the settings role system_service_id names that role, so HLTH_DEPLOYED_CODE_DIR would resolve to the settings check's directory.
+- name: 📋 Copy the git provider clients next to the check
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-hlth-git-settings/tasks/utils/clients.yml') }}"
+  vars:
+    git_clients_dest: "{{ HLTH_DEPLOYED_CODE_DIR }}"
+
+- name: 📄 Store the checkouts and their providers
   copy:
-    src: "{{ HLTH_DEPLOYED_CODE_API_MODULE_SRC }}"
-    dest: "{{ HLTH_DEPLOYED_CODE_API_MODULE }}"
+    content: "{{ HLTH_DEPLOYED_CODE_CONFIG | to_nice_json }}"
+    dest: "{{ HLTH_DEPLOYED_CODE_CONFIG_FILE }}"
     mode: "0644"
 
 - include_role:
@@ -36,9 +45,7 @@
     system_service_timer_enabled: true
     system_service_tpl_exec_start: >-
       {{ system_service_script_exec }}
-      {{ HLTH_DEPLOYED_CODE_CHECKOUTS | map('regex_replace', '^', '--checkout ') | join(' ') }}
-      --api-url {{ HLTH_DEPLOYED_CODE_API_URL }}
-      --token-file {{ HLTH_DEPLOYED_CODE_TOKEN_FILE }}
+      --config {{ HLTH_DEPLOYED_CODE_CONFIG_FILE }}
       --tag {{ HLTH_DEPLOYED_CODE_TAG }}
       --timeout {{ HLTH_DEPLOYED_CODE_TIMEOUT }}
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"

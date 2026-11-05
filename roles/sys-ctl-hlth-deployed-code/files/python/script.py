@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import os
 import re
 import subprocess
 from pathlib import Path
 
-from github_api import Api, CheckError, emit, read_token
+from git_core import CheckError, emit, provider, read_token
 
 USER_AGENT = "infinito-deployed-code"
 MAX_VALUE = 300
 MAX_MODIFIED = 50
-GITHUB_SLUG = re.compile(
-    r"^(?:https://(?:[^@/]+@)?github\.com/|git@github\.com:|ssh://git@github\.com/)([^/]+/[^/]+?)(?:\.git)?/?$"
-)
 URL_CREDENTIALS = re.compile(r"//[^/@\s]+@")
 
 
@@ -102,11 +100,6 @@ def parse_porcelain(output):
     return entries
 
 
-def github_slug(url):
-    match = GITHUB_SLUG.match(url.strip())
-    return match.group(1) if match else None
-
-
 def check_branch(git, checkout, commit):
     symref = git.out("ls-remote", "--symref", "origin", "HEAD")
     match = re.search(r"^ref: refs/heads/(\S+)\s+HEAD$", symref, re.MULTILINE)
@@ -151,34 +144,51 @@ def check_tree(git, checkout, commit):
     return events
 
 
-def check_signature(git, checkout, commit, api):
-    if not api.token:
-        raise CheckError("the token file is empty")
-    url = git.out("config", "--get", "remote.origin.url")
-    slug = github_slug(url)
-    if not slug:
-        raise CheckError(f"origin {url.strip()} is not a GitHub repository")
-    verification = (api.get(f"/repos/{slug}/commits/{commit}") or {}).get(
-        "commit", {}
-    ).get("verification") or {}
-    if verification.get("verified") is True:
-        return []
-    return [
-        finding(
-            "unverified",
-            checkout,
-            commit=commit,
-            reason=verification.get("reason", "no verification data"),
+class Forge:
+    """One provider's adapter and API client, as a checkout's signature check uses them.
+
+    Args:
+        name: the provider, one of git_core.PROVIDERS.
+        settings: its ``api_url`` and ``token_file``; an empty API URL means the provider is not configured on this host.
+        timeout: seconds per API request.
+    """
+
+    def __init__(self, name, settings, timeout):
+        self.name = name
+        self.adapter = provider(name)
+        self.api_url = settings.get("api_url") or ""
+        token_file = settings.get("token_file") or ""
+        token = (
+            read_token(token_file) if token_file and Path(token_file).exists() else ""
         )
-    ]
+        self.api = (
+            self.adapter.client(self.api_url, token, timeout, USER_AGENT)
+            if self.api_url
+            else None
+        )
 
 
-def check_checkout(checkout, api, timeout):
+def check_signature(git, checkout, commit, forge):
+    if forge.api is None:
+        raise CheckError(f"no {forge.name} API URL is configured")
+    if not forge.api.token:
+        raise CheckError(f"the {forge.name} token file is empty")
+    url = git.out("config", "--get", "remote.origin.url")
+    repo = forge.adapter.repository(url, forge.api_url)
+    if not repo:
+        raise CheckError(f"origin {url.strip()} is not a {forge.name} repository")
+    verified, reason = forge.adapter.commit_verification(forge.api, repo, commit)
+    if verified:
+        return []
+    return [finding("unverified", checkout, commit=commit, reason=reason)]
+
+
+def check_checkout(checkout, forge, timeout):
     """Return the findings and failed checks of one checkout.
 
     Args:
         checkout: the checkout's path.
-        api: the GitHub API client.
+        forge: the provider the checkout's origin lives on.
         timeout: seconds per git command.
     """
     try:
@@ -195,7 +205,7 @@ def check_checkout(checkout, api, timeout):
                 finding("error", checkout, check=name, commit=commit, reason=failure)
             )
     try:
-        events += check_signature(git, checkout, commit, api)
+        events += check_signature(git, checkout, commit, forge)
     except CheckError as failure:
         events.append(
             finding(
@@ -205,19 +215,27 @@ def check_checkout(checkout, api, timeout):
     return events
 
 
-def run(checkouts, api, timeout):
+def run(config, timeout):
     """Return every finding and failed check of every checkout, then the run summary.
 
     Args:
-        checkouts: the checkout paths.
-        api: the GitHub API client.
-        timeout: seconds per git command.
+        config: ``checkouts`` (each a ``path`` and its ``provider``) and ``providers`` (each an ``api_url`` and ``token_file``).
+        timeout: seconds per git command and API request.
     """
-    events = [
-        event
-        for checkout in checkouts
-        for event in check_checkout(checkout, api, timeout)
-    ]
+    checkouts = config["checkouts"]
+    forges = {}
+    events = []
+    for checkout in checkouts:
+        name = checkout.get("provider") or ""
+        try:
+            if name not in forges:
+                forges[name] = Forge(name, config["providers"].get(name) or {}, timeout)
+        except (CheckError, ValueError) as failure:
+            events.append(
+                finding("error", checkout["path"], check="provider", reason=failure)
+            )
+            continue
+        events += check_checkout(checkout["path"], forges[name], timeout)
     errors = sum(event["dc_kind"] == "error" for event in events)
     events.append(
         {
@@ -235,14 +253,9 @@ def parse_args(argv=None):
         description="Check that every deployed checkout is a clean, signed commit on its default branch."
     )
     parser.add_argument(
-        "--checkout",
+        "--config",
         required=True,
-        action="append",
-        help="a deployed checkout; repeat for several",
-    )
-    parser.add_argument("--api-url", required=True, help="GitHub API base URL")
-    parser.add_argument(
-        "--token-file", required=True, help="file holding the read-only GitHub token"
+        help="JSON file with the checkouts (path, provider) and the providers (api_url, token_file)",
     )
     parser.add_argument(
         "--tag", required=True, help="journald tag every event is logged under"
@@ -258,8 +271,8 @@ def parse_args(argv=None):
 
 def main():
     args = parse_args()
-    api = Api(args.api_url, read_token(args.token_file), args.timeout, USER_AGENT)
-    emit(args.tag, run(args.checkout, api, args.timeout), "dc_kind")
+    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    emit(args.tag, run(config, args.timeout), "dc_kind")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,10 @@
+---
+# Param git_clients_dest: directory the check's script runs from; the shared core and every provider adapter are copied next to it, so the script imports them without a package install.
+- name: "📋 Copy the git provider clients to {{ git_clients_dest }}"
+  copy:
+    src: "{{ lookup('path_absolute', 'roles/sys-ctl-hlth-git-settings/files/python', 'git_' ~ git_client ~ '.py') }}"
+    dest: "{{ [git_clients_dest, 'git_' ~ git_client ~ '.py'] | path_join }}"
+    mode: "0644"
+  loop: "{{ ['core'] + (lookup('config', 'sys-ctl-hlth-deployed-code', 'services.deployed-code.providers') | list) }}"
+  loop_control:
+    loop_var: git_client

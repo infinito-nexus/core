@@ -6,7 +6,8 @@ import re
 import urllib.parse
 from pathlib import Path
 
-from github_api import Api, CheckError, emit, read_token
+import git_github
+from git_core import CheckError, emit, read_token
 
 USER_AGENT = "infinito-git-settings"
 ABSENT = "absent"
@@ -404,7 +405,9 @@ def parse_args(argv=None):
 
 def main():
     args = parse_args()
-    api = Api(args.api_url, read_token(args.token_file), args.timeout, USER_AGENT)
+    api = git_github.client(
+        args.api_url, read_token(args.token_file), args.timeout, USER_AGENT
+    )
     expected = json.loads(Path(args.expected).read_text(encoding="utf-8"))
     if args.print_current:
         try:

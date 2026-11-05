@@ -3,12 +3,29 @@ system_service_id: sys-ctl-hlth-deployed-code
 
 HLTH_DEPLOYED_CODE_SCHEDULE: "{{ lookup('config', 'sys-ctl-hlth-deployed-code', 'services.deployed-code.schedule') }}"
 HLTH_DEPLOYED_CODE_CHECKOUTS: "{{ lookup('config', 'sys-ctl-hlth-deployed-code', 'services.deployed-code.checkouts') }}"
-HLTH_DEPLOYED_CODE_API_URL: "{{ lookup('config', 'sys-ctl-hlth-deployed-code', 'services.deployed-code.providers.github.api_url') }}"
+HLTH_DEPLOYED_CODE_PROVIDERS: "{{ lookup('config', 'sys-ctl-hlth-deployed-code', 'services.deployed-code.providers') }}"
 
 HLTH_DEPLOYED_CODE_TOKEN_PROVIDER: "web-svc-git-webhook"
-HLTH_DEPLOYED_CODE_TOKEN: "{{ lookup('config', HLTH_DEPLOYED_CODE_TOKEN_PROVIDER, 'secrets.credentials.github_settings_token', '') }}"
+HLTH_DEPLOYED_CODE_TOKENS:
+  github: "{{ lookup('config', HLTH_DEPLOYED_CODE_TOKEN_PROVIDER, 'secrets.credentials.github_settings_token', '') }}"
+  gitea: "{{ lookup('config', HLTH_DEPLOYED_CODE_TOKEN_PROVIDER, 'secrets.credentials.gitea_token', '') }}"
+  gitlab: "{{ lookup('config', HLTH_DEPLOYED_CODE_TOKEN_PROVIDER, 'secrets.credentials.gitlab_token', '') }}"
 HLTH_DEPLOYED_CODE_TAG: "{{ lookup('wazuh_ruleset', scope='host').deployed_code.program }}"
 HLTH_DEPLOYED_CODE_DIR: "{{ system_service_id | get_service_script_path('py') | dirname }}"
-HLTH_DEPLOYED_CODE_TOKEN_FILE: "{{ [HLTH_DEPLOYED_CODE_DIR, 'token'] | path_join }}"
-HLTH_DEPLOYED_CODE_API_MODULE_SRC: "{{ lookup('path_absolute', 'roles/sys-ctl-hlth-git-settings/files/python/github_api.py') }}"
-HLTH_DEPLOYED_CODE_API_MODULE: "{{ [HLTH_DEPLOYED_CODE_DIR, 'github_api.py'] | path_join }}"
+HLTH_DEPLOYED_CODE_TOKEN_FILES:
+  github: "{{ [HLTH_DEPLOYED_CODE_DIR, 'token-github'] | path_join }}"
+  gitea: "{{ [HLTH_DEPLOYED_CODE_DIR, 'token-gitea'] | path_join }}"
+  gitlab: "{{ [HLTH_DEPLOYED_CODE_DIR, 'token-gitlab'] | path_join }}"
+HLTH_DEPLOYED_CODE_CONFIG_FILE: "{{ [HLTH_DEPLOYED_CODE_DIR, 'config.json'] | path_join }}"
+HLTH_DEPLOYED_CODE_CONFIG:
+  checkouts: "{{ HLTH_DEPLOYED_CODE_CHECKOUTS }}"
+  providers:
+    github:
+      api_url: "{{ HLTH_DEPLOYED_CODE_PROVIDERS.github.api_url }}"
+      token_file: "{{ HLTH_DEPLOYED_CODE_TOKEN_FILES.github }}"
+    gitea:
+      api_url: "{{ HLTH_DEPLOYED_CODE_PROVIDERS.gitea.api_url }}"
+      token_file: "{{ HLTH_DEPLOYED_CODE_TOKEN_FILES.gitea }}"
+    gitlab:
+      api_url: "{{ HLTH_DEPLOYED_CODE_PROVIDERS.gitlab.api_url }}"
+      token_file: "{{ HLTH_DEPLOYED_CODE_TOKEN_FILES.gitlab }}"

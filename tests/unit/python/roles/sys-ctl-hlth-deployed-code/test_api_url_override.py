@@ -37,9 +37,16 @@ class TestDeployedCodeApiUrl(unittest.TestCase):
     def test_the_check_reads_the_url_only_through_the_config_lookup(self):
         role_vars = load_yaml(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
         self.assertIn(
-            f"lookup('config', '{ROLE}', '{PATH}')",
-            role_vars["HLTH_DEPLOYED_CODE_API_URL"],
+            f"lookup('config', '{ROLE}', 'services.deployed-code.providers')",
+            role_vars["HLTH_DEPLOYED_CODE_PROVIDERS"],
         )
+        for name, settings in role_vars["HLTH_DEPLOYED_CODE_CONFIG"][
+            "providers"
+        ].items():
+            self.assertEqual(
+                settings["api_url"],
+                f"{{{{ HLTH_DEPLOYED_CODE_PROVIDERS.{name}.api_url }}}}",
+            )
         defaults = load_yaml(str(ROLE_DIR / ROLE_FILE_DEFAULTS_MAIN))
         self.assertNotIn("HLTH_DEPLOYED_CODE_API_URL", defaults)
 

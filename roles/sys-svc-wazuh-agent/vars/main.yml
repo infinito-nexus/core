@@ -147,7 +147,7 @@ WAZUH_AGENT_FIM_HASH_DIRS: >-
     + ([{'path': WAZUH_AGENT_FIM_NGINX_DIR | regex_replace('/$', ''), 'restrict': ''}] if WAZUH_AGENT_FIM_NGINX_DIR else [])
   }}
 WAZUH_AGENT_DEPLOYED_CODE_ROLE: "sys-ctl-hlth-deployed-code"
-WAZUH_AGENT_DEPLOYED_CODE_CHECKOUTS: "{{ lookup('config', WAZUH_AGENT_DEPLOYED_CODE_ROLE, 'services.deployed-code.checkouts') }}"
+WAZUH_AGENT_DEPLOYED_CODE_CHECKOUTS: "{{ lookup('config', WAZUH_AGENT_DEPLOYED_CODE_ROLE, 'services.deployed-code.checkouts') | map(attribute='path') | list }}"
 WAZUH_AGENT_DEPLOYED_CODE_PROOF_CHECKOUT: "{{ lookup('config', WAZUH_AGENT_DEPLOYED_CODE_ROLE, 'services.deployed-code.proof_checkout') }}"
 WAZUH_AGENT_FIM_REALTIME_DIRS: "{{ [[ WAZUH_AGENT_DIR, 'etc' ] | path_join] + WAZUH_AGENT_DEPLOYED_CODE_CHECKOUTS }}"
 # Exception: the deployed code check fetches into each checkout's .git every hour, so watching it would alert on the check itself; tracked files stay watched.
