@@ -971,7 +971,7 @@ SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 # Note: With keep=true use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>] [network=<mode>] [keep=true]'; exit 2; }
-	@"$${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist '$(app)#$(or $(variant),0)@swarm$(if $(network),+$(network))'
+	@"$${PYTHON}" -m cli.meta.ci.validate --require-discovery --modes swarm --whitelist '$(app)#$(or $(variant),0)@swarm$(if $(network),+$(network))'
 	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
 	@bash scripts/tests/deploy/swarm/utils/clean/lab_subnet.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh

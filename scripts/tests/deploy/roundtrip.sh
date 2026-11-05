@@ -54,7 +54,7 @@ for app in "${_apps[@]}"; do
 			network=""
 			if [[ "${_disabled}" == *",${_tor_key},"* ]]; then
 				network="clearnet"
-			elif "${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist "${app}#0@swarm+multi" >/dev/null 2>&1; then
+			elif "${PYTHON}" -m cli.meta.ci.validate --require-discovery --modes swarm --whitelist "${app}#0@swarm+multi" >/dev/null 2>&1; then
 				network="multi"
 			fi
 			echo "==> roundtrip: ${app} [swarm] network=${network:-rotation}"

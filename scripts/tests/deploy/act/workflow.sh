@@ -15,6 +15,13 @@ set -euo pipefail
 : "${ACT_INPUTS:=}"
 : "${ACT_ENV:=}"
 
+_act_shared_cache=""
+if [[ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]] &&
+	docker inspect infinito-package-cache-frontend >/dev/null 2>&1; then
+	_act_shared_cache="${INFINITO_CACHE_SHARED_HOST_PATH}"
+	ACT_CONTAINER_OPTIONS+=" -v '${_act_shared_cache}:${_act_shared_cache}'"
+fi
+
 if [[ "${ACT_PLATFORM_IMAGE}" == local/act-runner-fixed:latest ]] &&
 	! docker image inspect "${ACT_PLATFORM_IMAGE}" >/dev/null 2>&1; then
 	bash "$(dirname "${BASH_SOURCE[0]}")/build_runner_image.sh"
@@ -47,6 +54,13 @@ if [[ -d "${ACT_WORKFLOW}" ]]; then
 		-exec sed -i -E "/${_act_queue_re}/d" {} +
 else
 	grep -vE "${_act_queue_re}" "${ACT_WORKFLOW}" >"${_act_workflow}"
+fi
+# Exception: setup-python's `cache: pip` follows PIP_CACHE_DIR, so it would tar
+# the whole shared folder after a job and extract an old tarball into it before.
+_act_pip_cache_re="^([[:space:]]*cache:[[:space:]]*)[\"']?pip[\"']?[[:space:]]*$"
+if [[ -n "${_act_shared_cache}" ]]; then
+	find "${_act_sanitized}" -type f -name '*.y*ml' \
+		-exec sed -i -E "s/${_act_pip_cache_re}/\\1\"\"/" {} +
 fi
 
 cmd=(act "${ACT_EVENT}" -W "${_act_workflow}")
@@ -81,6 +95,9 @@ if [[ -n "${ACT_ENV}" ]]; then
 			cmd+=(--env "${pair}")
 		fi
 	done
+fi
+if [[ -n "${_act_shared_cache}" ]]; then
+	cmd+=(--env "PIP_CACHE_DIR=${_act_shared_cache}/pip")
 fi
 if [[ -n "${ACT_CONTAINER_OPTIONS}" ]]; then
 	cmd+=(--container-options "${ACT_CONTAINER_OPTIONS}")
