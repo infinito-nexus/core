@@ -3,7 +3,7 @@ enabled: "{{ lookup('config', 'web-app-moodle', 'services.sso.enabled') | bool }
 required: false
 mechanism: plugin
 source: upstream
-version: "v5.2.1"
+version: "v5.3.0"
 bridges:
   - sso
 update:
