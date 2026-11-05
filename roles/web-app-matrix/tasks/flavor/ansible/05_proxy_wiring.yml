@@ -183,16 +183,6 @@
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
     proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
 
-- name: "🔀 front-proxy: Synapse federation listener and Matrix RTC paths"
-  stack_host_template:
-    src: "flavor/ansible/synapse.conf.j2"
-    dest: "{{ lookup('nginx', 'files.domain', MATRIX_SYNAPSE_DOMAIN) }}"
-  vars:
-    domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
-    http_port: "{{ MATRIX_SYNAPSE_PORT }}"
-    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
-  notify: restart-openresty
-
 - name: "🔀 front-proxy: federation delegation"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/well_known.yml"
 

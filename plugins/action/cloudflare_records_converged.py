@@ -360,9 +360,11 @@ def split(
         zone already holds as declared, and one warning per zone whose
         records could not be read, whose entries all stay pending. Every
         entry of a record set declared more than once stays pending when
-        one of its entries is hazardous or two of them declare the record
-        the module finds by one ``_identity`` differently, since each
-        verdict alone would let the last entry's apply undo the other's.
+        one of its entries is hazardous, ``expected`` cannot judge one of
+        them, whose apply may still write the record set, or two of them
+        declare the record the module finds by one ``_identity`` differently,
+        since each verdict alone would let the last entry's apply undo the
+        other's.
     """
     owners = [_owner(record) for record in records]
     wants = [expected(record) for record in records]
@@ -372,9 +374,10 @@ def split(
     for owner, record, want in zip(owners, records, wants, strict=True):
         if owner is None or sizes[owner] < 2:
             continue
-        if _hazardous(record) or (
-            want is not None
-            and declared.setdefault((owner, _identity(want)), want) != want
+        if (
+            want is None
+            or _hazardous(record)
+            or declared.setdefault((owner, _identity(want)), want) != want
         ):
             blocked.add(owner)
     zones: dict[str, list[Any] | None] = {}
