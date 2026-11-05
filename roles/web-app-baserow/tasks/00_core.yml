@@ -19,7 +19,6 @@
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "0644"
   loop:
-    - { src: "Dockerfile", dest: "Dockerfile" }
     - { src: "sso/infinito_sso.py", dest: "infinito_sso.py" }
     - { src: "sso/settings_patch.py", dest: "settings_patch.py" }
   notify:
