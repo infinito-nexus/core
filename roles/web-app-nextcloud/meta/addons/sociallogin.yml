@@ -1,5 +1,5 @@
 ---
-enabled: "{{ lookup('sso_oidc_plugin') == 'sociallogin' }}"
+enabled: "{{ (lookup('config', 'web-app-nextcloud', 'services.sso.enabled') | bool) and lookup('sso_oidc_plugin') == 'sociallogin' }}"
 required: true
 mechanism: plugin
 source: upstream

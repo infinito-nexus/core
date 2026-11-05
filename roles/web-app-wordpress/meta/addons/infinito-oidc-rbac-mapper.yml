@@ -1,4 +1,5 @@
 ---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
 required: true
 mechanism: mu_plugin
 source: vendored

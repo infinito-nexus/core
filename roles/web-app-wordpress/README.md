@@ -77,8 +77,8 @@ the unified addon contract. The OIDC and WP-Discourse runtime config lives in ea
 | `daggerhart-openid-connect-generic` | `plugin` | enabled with the `sso` login method, which follows the `sso` service | `sso` → `web-app-keycloak` |
 | `wp-discourse` | `plugin` | enabled with the `discourse` service | `discourse` → `web-app-discourse` |
 | `activitypub` | `plugin` | enabled in variant 0 (Fediverse federation); off in later variants | none |
-| `infinito-oidc-rbac-mapper` | `mu_plugin` | `required` (always installed, vendored) | `sso` → `web-app-keycloak` |
-| `infinito-oidc-client` | `mu_plugin` | enabled with the `sso` login method (always copied, vendored) | `sso` → `web-app-keycloak` |
+| `infinito-oidc-rbac-mapper` | `mu_plugin` | `required`, enabled with the `sso` service (always copied, vendored) | `sso` → `web-app-keycloak` |
+| `infinito-oidc-client` | `mu_plugin` | enabled with the `sso` service and login method (always copied, vendored) | `sso` → `web-app-keycloak` |
 | `infinito-ai-engine-network` | `mu_plugin` | enabled with `ai-engine` (always copied, acts only on Multisite, vendored) | none |
 | `infinito-http-ca-trust` | `mu_plugin` | `required` (always installed, vendored) | none |
 | `s3-uploads` | `plugin` | enabled with the `seaweedfs` service | none |

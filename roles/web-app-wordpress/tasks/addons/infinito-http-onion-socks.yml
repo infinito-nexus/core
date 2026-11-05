@@ -1,0 +1,5 @@
+---
+- name: "🧅 The onion SOCKS mu-plugin needs no integration beyond staging"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: the mu-plugin reads its SOCKS settings from the container environment"
+  changed_when: false
