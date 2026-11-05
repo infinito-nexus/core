@@ -55,6 +55,7 @@ GIT_SETTINGS_RULE_IDS = {
     "drift": 100161,
     "pull_request_target": 100162,
     "failed": 100163,
+    "unsupported": 100164,
 }
 DEPLOYED_CODE_RULE_IDS = {
     "run": 100170,

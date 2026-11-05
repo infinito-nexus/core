@@ -4,7 +4,7 @@ import unittest
 from utils import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/sys-ctl-hlth-git-settings/files/python"))
-import git_github
+from git import github as git_github
 
 
 class FakeApi:

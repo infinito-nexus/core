@@ -4,7 +4,7 @@ import unittest
 from utils import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/sys-ctl-hlth-git-settings/files/python"))
-import git_gitlab
+from git import gitlab as git_gitlab
 
 API = "https://gitlab.example.org/api/v4"  # nocheck: url
 
@@ -51,6 +51,38 @@ class TestGitlab(unittest.TestCase):
         self.assertEqual(
             git_gitlab.client(API, "tok", 5, "ua").headers["PRIVATE-TOKEN"], "tok"
         )
+
+
+class TestGitlabSettings(unittest.TestCase):
+    def test_protection_with_approval_settings(self):
+        protection = git_gitlab.protection(
+            {"allow_force_push": False, "code_owner_approval_required": True},
+            {"approvals_before_merge": 2, "reset_approvals_on_push": True},
+        )
+        self.assertIs(protection["required_signatures"], git_gitlab.UNSUPPORTED)
+        self.assertEqual(protection["required_approving_review_count"], 2)
+        self.assertTrue(protection["require_code_owner_review"])
+        self.assertTrue(protection["dismiss_stale_reviews"])
+        self.assertTrue(protection["force_push_blocked"])
+        self.assertTrue(protection["deletion_blocked"])
+
+    def test_edition_without_approvals_reports_them_unsupported(self):
+        protection = git_gitlab.protection(None, None)
+        self.assertIs(
+            protection["required_approving_review_count"], git_gitlab.UNSUPPORTED
+        )
+        self.assertIs(protection["dismiss_stale_reviews"], git_gitlab.UNSUPPORTED)
+        self.assertFalse(protection["force_push_blocked"])
+
+    def test_owners_are_access_level_50(self):
+        class Members:
+            def get_all(self, path):
+                return [
+                    {"username": "owner", "access_level": 50},
+                    {"username": "dev", "access_level": 30},
+                ]
+
+        self.assertEqual(git_gitlab.owners(Members(), "g"), ["owner"])
 
 
 if __name__ == "__main__":

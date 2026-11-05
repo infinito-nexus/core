@@ -37,6 +37,7 @@
     system_service_timer_enabled: true
     system_service_tpl_exec_start: >-
       {{ system_service_script_exec }}
+      --provider github
       --api-url {{ HLTH_GIT_SETTINGS_API_URL }}
       --token-file {{ HLTH_GIT_SETTINGS_TOKEN_FILE }}
       --expected {{ HLTH_GIT_SETTINGS_EXPECTED_FILE }}

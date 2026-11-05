@@ -21,6 +21,8 @@ _spec = importlib.util.spec_from_file_location(
 )
 script = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(script)
+git_core = importlib.import_module("git.core")
+git_github = importlib.import_module("git.github")
 
 SCOPE = "o/r"
 EXPECTED = {
@@ -135,7 +137,7 @@ class FakeApi:
 def findings(values):
     return [
         event
-        for event in script.run(FakeApi(values), EXPECTED)
+        for event in script.run(FakeApi(values), git_github, EXPECTED)
         if event["gs_kind"] != "run"
     ]
 
@@ -182,13 +184,13 @@ class TestDrift(unittest.TestCase):
 class TestProtection(unittest.TestCase):
     def test_rulesets_alone(self):
         self.assertEqual(
-            script.effective_protection(None, RULES),
+            git_github.effective_protection(None, RULES),
             EXPECTED["repositories"]["r"]["branch_protection"],
         )
 
     def test_no_protection_at_all(self):
         self.assertEqual(
-            script.effective_protection(None, []),
+            git_github.effective_protection(None, []),
             {
                 "required_signatures": False,
                 "required_approving_review_count": 0,
@@ -209,7 +211,7 @@ class TestProtection(unittest.TestCase):
             "allow_force_pushes": {"enabled": True},
             "allow_deletions": {"enabled": False},
         }
-        protection = script.effective_protection(classic, [])
+        protection = git_github.effective_protection(classic, [])
         self.assertTrue(protection["required_signatures"])
         self.assertEqual(protection["required_approving_review_count"], 1)
         self.assertFalse(protection["force_push_blocked"])
@@ -220,7 +222,7 @@ class TestProtection(unittest.TestCase):
             "required_pull_request_reviews": {"required_approving_review_count": 3}
         }
         self.assertEqual(
-            script.effective_protection(classic, RULES)[
+            git_github.effective_protection(classic, RULES)[
                 "required_approving_review_count"
             ],
             3,
@@ -235,7 +237,7 @@ class TestPullRequestTarget(unittest.TestCase):
             "on: [push, pull_request_target]\n",
             "'on': pull_request_target\n",
         ):
-            self.assertTrue(script.uses_pull_request_target(workflow), workflow)
+            self.assertTrue(git_core.uses_pull_request_target(workflow), workflow)
 
     def test_mentions_are_not_triggers(self):
         for workflow in (
@@ -243,15 +245,24 @@ class TestPullRequestTarget(unittest.TestCase):
             "jobs:\n  a:\n    if: ${{ github.event_name == 'pull_request_target' }}\n",
             "env:\n  TARGET_EVENT: pull_request_target\n",
         ):
-            self.assertFalse(script.uses_pull_request_target(workflow), workflow)
+            self.assertFalse(git_core.uses_pull_request_target(workflow), workflow)
 
 
 class TestRun(unittest.TestCase):
     def test_matching_state_has_no_findings(self):
-        events = script.run(FakeApi(responses()), EXPECTED)
+        events = script.run(FakeApi(responses()), git_github, EXPECTED)
         self.assertEqual(
             events,
-            [{"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "0"}],
+            [
+                {
+                    "gs_kind": "run",
+                    "gs_provider": "github",
+                    "gs_scope": "o",
+                    "gs_drift": "0",
+                    "gs_errors": "0",
+                    "gs_unsupported": "0",
+                }
+            ],
         )
 
     def test_every_drift_is_reported(self):
@@ -335,6 +346,7 @@ class TestRun(unittest.TestCase):
                     }
                 )
             ),
+            git_github,
             EXPECTED,
         )
         self.assertIn(
@@ -348,7 +360,14 @@ class TestRun(unittest.TestCase):
         )
         self.assertEqual(
             events[-1],
-            {"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "1"},
+            {
+                "gs_kind": "run",
+                "gs_provider": "github",
+                "gs_scope": "o",
+                "gs_drift": "0",
+                "gs_errors": "1",
+                "gs_unsupported": "0",
+            },
         )
 
     def test_unreachable_repository_is_one_error(self):
@@ -370,7 +389,7 @@ class TestRun(unittest.TestCase):
     def test_empty_token(self):
         api = FakeApi({})
         api.token = ""
-        self.assertEqual(script.run(api, EXPECTED)[0]["gs_check"], "token")
+        self.assertEqual(script.run(api, git_github, EXPECTED)[0]["gs_check"], "token")
 
 
 class StubApi:
@@ -423,6 +442,8 @@ class TestPrintCurrent(unittest.TestCase):
         self.addCleanup(stub.close)
         argv = [
             "script",
+            "--provider",
+            "github",
             "--api-url",
             stub.url,
             "--token-file",
@@ -473,8 +494,17 @@ class TestPrintCurrent(unittest.TestCase):
         state = parse_yaml(self.print_current(values))
         self.assertEqual(state["repositories"]["r"]["collaborators"], {})
         self.assertEqual(
-            script.run(FakeApi(values), state),
-            [{"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "0"}],
+            script.run(FakeApi(values), git_github, state),
+            [
+                {
+                    "gs_kind": "run",
+                    "gs_provider": "github",
+                    "gs_scope": "o",
+                    "gs_drift": "0",
+                    "gs_errors": "0",
+                    "gs_unsupported": "0",
+                }
+            ],
         )
 
     def test_failed_read_prints_nothing_and_exits(self):
@@ -496,6 +526,8 @@ class TestPrintCurrent(unittest.TestCase):
         with self.assertRaises(SystemExit), contextlib.redirect_stderr(io.StringIO()):
             script.parse_args(
                 [
+                    "--provider",
+                    "github",
                     "--api-url",
                     "u",
                     "--token-file",
@@ -506,6 +538,59 @@ class TestPrintCurrent(unittest.TestCase):
                     "1",
                 ]
             )
+
+
+class FakeAdapter:
+    NAME = "forge"
+
+    @staticmethod
+    def owners(api, org):
+        return ["alice"]
+
+    @staticmethod
+    def default_branch(api, scope):
+        return "main"
+
+    @staticmethod
+    def collectors(api, scope, branch):
+        return {
+            "branch_protection": lambda: {
+                "required_signatures": git_core.UNSUPPORTED,
+                "required_approving_review_count": 1,
+            },
+            "actions": git_core.UNSUPPORTED,
+        }
+
+
+class TestUnsupported(unittest.TestCase):
+    def test_unsupported_settings_are_reported_and_never_drift(self):
+        expected = {
+            "organization": "o",
+            "owners": ["alice"],
+            "repositories": {
+                "r": {
+                    "branch_protection": {
+                        "required_signatures": True,
+                        "required_approving_review_count": 2,
+                    },
+                    "actions": {"enabled": True},
+                }
+            },
+        }
+        events = script.run(FakeApi({}), FakeAdapter, expected)
+        kinds = [
+            (e["gs_kind"], e.get("gs_check"), e.get("gs_field")) for e in events[:-1]
+        ]
+        self.assertIn(
+            ("unsupported", "branch_protection", "required_signatures"), kinds
+        )
+        self.assertIn(("unsupported", "actions", "*"), kinds)
+        self.assertIn(
+            ("drift", "branch_protection", "required_approving_review_count"), kinds
+        )
+        self.assertNotIn(("drift", "branch_protection", "required_signatures"), kinds)
+        self.assertEqual(events[-1]["gs_unsupported"], "2")
+        self.assertEqual(events[-1]["gs_provider"], "forge")
 
 
 class TestYaml(unittest.TestCase):

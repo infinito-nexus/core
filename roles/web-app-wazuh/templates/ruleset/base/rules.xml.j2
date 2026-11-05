@@ -149,6 +149,12 @@
     <field name="gs_kind">^error$</field>
     <description>GitHub settings check $(gs_check) for $(gs_scope) failed, so its drift is unknown: $(gs_reason).</description>
   </rule>
+
+  <rule id="{{ WAZUH_GIT_SETTINGS_UNSUPPORTED_RULE_ID }}" level="{{ WAZUH_GIT_SETTINGS_UNSUPPORTED_LEVEL }}">
+    <if_sid>{{ WAZUH_GIT_SETTINGS_RULE_ID }}</if_sid>
+    <field name="gs_kind">^unsupported$</field>
+    <description>Git settings check: $(gs_provider) cannot report $(gs_check) $(gs_field) for $(gs_scope), so it is not checked.</description>
+  </rule>
 </group>
 
 <group name="infinito_deployed_code,">

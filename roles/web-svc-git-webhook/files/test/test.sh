@@ -27,9 +27,10 @@
 #   RECEIVER_TARGET          where the receiver's container mounts the receiver script
 #   RECEIVER_URL             the deployed receiver's local base URL
 #   RETRIES, SLEEP_SECONDS   polling for a journald line or an alert
-#   SETTINGS_DRIFT_RULE, SETTINGS_PRT_RULE, SETTINGS_FAILED_RULE
-#                            the Wazuh rule IDs of a drifted field, an enabled pull_request_target and a failed check
-#   SETTINGS_SCRIPT          the deployed GitHub settings check
+#   SETTINGS_DRIFT_RULE, SETTINGS_PRT_RULE, SETTINGS_FAILED_RULE, SETTINGS_UNSUPPORTED_RULE
+#                            the Wazuh rule IDs of a drifted field, an enabled pull_request_target, a failed check and a
+#                            setting the provider cannot report
+#   SETTINGS_SCRIPT          the deployed git settings check
 #   SETTINGS_TAG             the journald tag the settings check logs under
 #   WAZUH_MANAGER_LOCAL      true when the deployment runs the Wazuh manager on this host, else false
 #   WEBHOOK_SECRET           the deployed receiver's webhook secret
@@ -39,7 +40,7 @@ set -euo pipefail
 : "${API_TIMEOUT:?}" "${ENTITY:?}" "${EVENTS_SCRIPT:?}" "${EVENTS_TARGET:?}" "${RECEIVER_TARGET:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
 : "${RECEIVER_IMAGE:?}" "${RECEIVER_PATH:?}" "${RECEIVER_PORT:?}" "${RECEIVER_SCRIPT:?}" "${RECEIVER_URL:?}"
 : "${RETRIES:?}" "${SETTINGS_SCRIPT:?}" "${SETTINGS_TAG:?}" "${SLEEP_SECONDS:?}" "${WAZUH_MANAGER_LOCAL:?}"
-: "${SETTINGS_DRIFT_RULE:?}" "${SETTINGS_PRT_RULE:?}" "${SETTINGS_FAILED_RULE:?}"
+: "${SETTINGS_DRIFT_RULE:?}" "${SETTINGS_PRT_RULE:?}" "${SETTINGS_FAILED_RULE:?}" "${SETTINGS_UNSUPPORTED_RULE:?}"
 : "${WEBHOOK_SECRET:?}"
 
 fail() {
@@ -419,7 +420,7 @@ json.dump({
     }},
 }, open(sys.argv[1], "w", encoding="utf-8"))
 PY
-	python3 "${SETTINGS_SCRIPT}" --api-url="http://127.0.0.1:$(cat "${SETTINGS_DIR}/port")" --token-file="${SETTINGS_DIR}/token" \
+	python3 "${SETTINGS_SCRIPT}" --provider=github --api-url="http://127.0.0.1:$(cat "${SETTINGS_DIR}/port")" --token-file="${SETTINGS_DIR}/token" \
 		--expected="${SETTINGS_DIR}/${mode}.json" --tag="${SETTINGS_TAG}" --timeout=10 >"${SETTINGS_DIR}/${mode}.out" ||
 		fail "the GitHub settings check exited non-zero for ${mode}"
 done
@@ -433,9 +434,126 @@ expected = {"match": ("0", "0", 0), "drift": ("12", "0", 12), "fail": ("0", "2",
 for mode, (drift, errors, findings) in expected.items():
     events = [json.loads(line) for line in open(f"{directory}/{mode}.out", encoding="utf-8")]
     summary = events[-1]
-    if summary != {"gs_kind": "run", "gs_scope": f"{mode}-{run}", "gs_drift": drift, "gs_errors": errors} or len(events) - 1 != findings:
+    if summary != {"gs_kind": "run", "gs_provider": "github", "gs_scope": f"{mode}-{run}", "gs_drift": drift, "gs_errors": errors, "gs_unsupported": "0"} or len(events) - 1 != findings:
         sys.exit(f"{mode}: {events}")
     print(f"PASS: settings check {mode}: {drift} drift, {errors} failed checks")
+PY
+
+FORGE_STUB_CODE='
+import json
+import sys
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
+
+BRANCH = "'"${DEFAULT_BRANCH}"'"
+
+
+def gitea(parts):
+    path = "/".join(parts)
+    org = parts[1] if len(parts) > 1 else ""
+    answers = {
+        f"orgs/{org}/teams": [{"id": 1, "name": "Owners"}],
+        "teams/1/members": [{"login": "owner"}],
+        f"repos/{org}/core": {"default_branch": BRANCH},
+        f"repos/{org}/core/branch_protections": [{"rule_name": BRANCH, "require_signed_commits": True, "required_approvals": 2,
+                                                   "dismiss_stale_approvals": True, "enable_force_push": False}],
+        f"repos/{org}/core/collaborators": [{"login": "bob"}],
+        f"repos/{org}/core/collaborators/bob/permission": {"permission": "write"},
+        f"repos/{org}/core/keys": [{"id": 7, "title": "deploy", "read_only": True}],
+        f"repos/{org}/core/contents/.github/workflows": [],
+    }
+    return answers.get(path)
+
+
+def gitlab(parts):
+    path = "/".join(parts)
+    group = parts[1] if len(parts) > 1 else ""
+    project = f"{group.split(chr(37))[0]}%2Fcore" if parts[0] == "projects" else ""
+    answers = {
+        f"groups/{group}/members": [{"username": "owner", "access_level": 50}],
+        f"projects/{project}": {"default_branch": BRANCH},
+        f"projects/{project}/protected_branches/{BRANCH}": {"allow_force_push": False, "code_owner_approval_required": True},
+        f"projects/{project}/approvals": {"approvals_before_merge": 2, "reset_approvals_on_push": True},
+        f"projects/{project}/members": [{"username": "bob", "access_level": 30}],
+        f"projects/{project}/deploy_keys": [{"id": 7, "title": "deploy", "can_push": False}],
+    }
+    return answers.get(path)
+
+
+class Stub(BaseHTTPRequestHandler):
+    def do_GET(self):
+        provider, *parts = urlsplit(self.path).path.strip("/").split("/")
+        payload = (gitea if provider == "gitea" else gitlab)(parts)
+        status = 200 if payload is not None else 404
+        body = json.dumps(payload if payload is not None else {"message": "Not Found"}).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *args):
+        pass
+
+
+server = ThreadingHTTPServer(("127.0.0.1", 0), Stub)
+with open(sys.argv[1], "w", encoding="utf-8") as port_file:
+    port_file.write(str(server.server_address[1]))
+server.serve_forever()
+'
+
+python3 -c "${FORGE_STUB_CODE}" "${SETTINGS_DIR}/forge-port" &
+echo $! >"${SETTINGS_DIR}/forge.pid"
+for ((attempt = 1; attempt <= RETRIES; attempt++)); do
+	[[ -s "${SETTINGS_DIR}/forge-port" ]] && break
+	sleep "${SLEEP_SECONDS}"
+done
+[[ -s "${SETTINGS_DIR}/forge-port" ]] || fail "the Gitea and GitLab settings API stub did not start"
+for forge in gitea gitlab; do
+	python3 - "${SETTINGS_DIR}/${forge}.json" "forge-${forge}-${RUN}" "${forge}" <<'PY'
+import json
+import sys
+
+collaborator = {"gitea": "write", "gitlab": "developer"}[sys.argv[3]]
+json.dump({
+    "organization": sys.argv[2],
+    "owners": ["owner"],
+    "repositories": {"core": {
+        "branch_protection": {"required_signatures": True, "required_approving_review_count": 2, "require_code_owner_review": True,
+                              "dismiss_stale_reviews": True, "force_push_blocked": True, "deletion_blocked": True},
+        "collaborators": {"bob": collaborator},
+        "deploy_keys": [{"id": 7, "title": "deploy", "read_only": True}],
+        "actions": {"enabled": True},
+        "pull_request_target": [],
+        "open_secret_scanning_alerts": 0,
+        "open_dependabot_alerts": 0,
+    }},
+}, open(sys.argv[1], "w", encoding="utf-8"))
+PY
+	python3 "${SETTINGS_SCRIPT}" --provider="${forge}" --api-url="http://127.0.0.1:$(cat "${SETTINGS_DIR}/forge-port")/${forge}" \
+		--token-file="${SETTINGS_DIR}/token" --expected="${SETTINGS_DIR}/${forge}.json" --tag="${SETTINGS_TAG}" --timeout=10 \
+		>"${SETTINGS_DIR}/${forge}.out" || fail "the ${forge} settings check exited non-zero"
+done
+kill "$(cat "${SETTINGS_DIR}/forge.pid")" 2>/dev/null || [[ $? -eq 1 ]]
+
+python3 - "${SETTINGS_DIR}" <<'PY' || fail "Gitea and GitLab settings check output"
+import json
+import sys
+
+directory = sys.argv[1]
+expected = {
+    "gitea": {("branch_protection", "require_code_owner_review"), ("actions", "*"), ("secret_scanning", "*"), ("dependabot", "*")},
+    "gitlab": {("branch_protection", "required_signatures"), ("actions", "*"), ("pull_request_target", "*"), ("secret_scanning", "*"),
+               ("dependabot", "*")},
+}
+for forge, unsupported in expected.items():
+    events = [json.loads(line) for line in open(f"{directory}/{forge}.out", encoding="utf-8")]
+    summary, findings = events[-1], events[:-1]
+    got = {(event["gs_check"], event["gs_field"]) for event in findings if event["gs_kind"] == "unsupported"}
+    others = [event for event in findings if event["gs_kind"] != "unsupported"]
+    if got != unsupported or others or summary["gs_drift"] != "0" or summary["gs_errors"] != "0" or summary["gs_unsupported"] != str(len(unsupported)):
+        sys.exit(f"{forge}: {events}")
+    print(f"PASS: settings check {forge}: 0 drift, 0 failed checks, {len(unsupported)} unsupported settings reported")
 PY
 
 expect_journal "${SETTINGS_TAG}" "$(python3 -c 'import json, sys; print(json.dumps([json.loads(line) for path in sys.argv[1:] for line in open(path, encoding="utf-8")]))' \
@@ -450,7 +568,7 @@ import time
 
 alerts, directory, run, timeout = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
 wanted = []
-for mode in ("drift", "fail"):
+for mode in ("drift", "fail", "gitea", "gitlab"):
     for line in open(f"{directory}/{mode}.out", encoding="utf-8"):
         event = json.loads(line)
         if event["gs_kind"] == "drift":
@@ -458,6 +576,8 @@ for mode in ("drift", "fail"):
             rule = os.environ["SETTINGS_PRT_RULE" if prt else "SETTINGS_DRIFT_RULE"]
         elif event["gs_kind"] == "error":
             rule = os.environ["SETTINGS_FAILED_RULE"]
+        elif event["gs_kind"] == "unsupported":
+            rule = os.environ["SETTINGS_UNSUPPORTED_RULE"]
         else:
             continue
         wanted.append((rule, event))

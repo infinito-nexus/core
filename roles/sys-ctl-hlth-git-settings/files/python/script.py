@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 import argparse
-import base64
 import json
 import re
-import urllib.parse
 from pathlib import Path
 
-import git_github
-from git_core import CheckError, emit, read_token
+from git.core import UNSUPPORTED, CheckError, emit, provider, read_token
 
 USER_AGENT = "infinito-git-settings"
 ABSENT = "absent"
 MAX_VALUE = 300
-WORKFLOW_DIR = ".github/workflows"
-PRT_KEY = re.compile(r"""^\s*(?:-\s*)?["']?pull_request_target["']?\s*:?\s*$""")
-PRT_INLINE = re.compile(r"""^\s*["']?on["']?\s*:.*\bpull_request_target\b""")
+CHECK_NAMES = {
+    "open_secret_scanning_alerts": "secret_scanning",
+    "open_dependabot_alerts": "dependabot",
+}
+EXTRA_FIELDS = ("collaborators", "deploy_keys", "pull_request_target")
 
 
 def text(value):
@@ -62,110 +61,14 @@ def error(scope, check, reason):
     }
 
 
-def effective_protection(classic, rules):
-    """Return the default branch's protection as classic protection and rulesets enforce it together.
-
-    Args:
-        classic: the classic branch protection, None when the branch has none.
-        rules: the rules every active ruleset applies to the branch.
-    """
-    classic = classic or {}
-    by_type = {rule.get("type"): rule.get("parameters") or {} for rule in rules}
-    reviews = classic.get("required_pull_request_reviews") or {}
-    ruleset_reviews = by_type.get("pull_request", {})
-
-    def enabled(key):
-        return bool((classic.get(key) or {}).get("enabled"))
-
+def unsupported(adapter, scope, check, field):
     return {
-        "required_signatures": enabled("required_signatures")
-        or "required_signatures" in by_type,
-        "required_approving_review_count": max(
-            int(reviews.get("required_approving_review_count") or 0),
-            int(ruleset_reviews.get("required_approving_review_count") or 0),
-        ),
-        "require_code_owner_review": bool(reviews.get("require_code_owner_reviews"))
-        or bool(ruleset_reviews.get("require_code_owner_review")),
-        "dismiss_stale_reviews": bool(reviews.get("dismiss_stale_reviews"))
-        or bool(ruleset_reviews.get("dismiss_stale_reviews_on_push")),
-        "force_push_blocked": (bool(classic) and not enabled("allow_force_pushes"))
-        or "non_fast_forward" in by_type,
-        "deletion_blocked": (bool(classic) and not enabled("allow_deletions"))
-        or "deletion" in by_type,
+        "gs_kind": "unsupported",
+        "gs_provider": adapter.NAME,
+        "gs_scope": scope,
+        "gs_check": check,
+        "gs_field": field,
     }
-
-
-def uses_pull_request_target(workflow):
-    """Return whether a workflow file is triggered by pull_request_target.
-
-    Args:
-        workflow: the workflow file's text.
-    """
-    for line in workflow.splitlines():
-        code = line.split("#", 1)[0].rstrip()
-        if PRT_KEY.match(code) or PRT_INLINE.match(code):
-            return True
-    return False
-
-
-def current_owners(api, org):
-    return sorted(
-        member["login"]
-        for member in api.get_all(f"/orgs/{org}/members?role=admin&per_page=100")
-    )
-
-
-def collectors(api, scope, branch):
-    """Return the expected-file key to a function reading its current value, in expected-file order.
-
-    Args:
-        api: the GitHub API client.
-        scope: ``org/repo``.
-        branch: the repository's default branch.
-    """
-    quoted = urllib.parse.quote(branch, safe="")
-    return {
-        "branch_protection": lambda: effective_protection(
-            api.get(f"/repos/{scope}/branches/{quoted}/protection", missing_ok=True),
-            api.get_all(f"/repos/{scope}/rules/branches/{quoted}?per_page=100"),
-        ),
-        "collaborators": lambda: {
-            user["login"]: user["role_name"]
-            for user in api.get_all(
-                f"/repos/{scope}/collaborators?affiliation=direct&per_page=100"
-            )
-        },
-        "deploy_keys": lambda: [
-            {"id": key["id"], "title": key["title"], "read_only": key["read_only"]}
-            for key in api.get_all(f"/repos/{scope}/keys?per_page=100")
-        ],
-        "actions": lambda: {
-            key: value
-            for key, value in {
-                **api.get(f"/repos/{scope}/actions/permissions"),
-                **api.get(f"/repos/{scope}/actions/permissions/workflow"),
-            }.items()
-            if not key.endswith("_url")
-        },
-        "pull_request_target": lambda: workflows_on_pull_request_target(
-            api, scope, branch
-        ),
-        "open_secret_scanning_alerts": lambda: len(
-            api.get_all(
-                f"/repos/{scope}/secret-scanning/alerts?state=open&per_page=100"
-            )
-        ),
-        "open_dependabot_alerts": lambda: len(
-            api.get_all(f"/repos/{scope}/dependabot/alerts?state=open&per_page=100")
-        ),
-    }
-
-
-CHECK_NAMES = {
-    "open_secret_scanning_alerts": "secret_scanning",
-    "open_dependabot_alerts": "dependabot",
-}
-EXTRA_FIELDS = ("collaborators", "deploy_keys", "pull_request_target")
 
 
 def fields(key, value):
@@ -189,60 +92,46 @@ def fields(key, value):
     return value
 
 
-def check_org(api, org, expected):
+def check_org(api, adapter, org, expected):
     return drift(
         org,
         "owners",
         dict.fromkeys(expected["owners"], "owner"),
-        dict.fromkeys(current_owners(api, org), "owner"),
+        dict.fromkeys(adapter.owners(api, org), "owner"),
         extra=True,
     )
 
 
-def check_repo(api, scope, expected, branch):
+def check_repo(api, adapter, scope, expected, branch):
     events = []
-    for key, collect in collectors(api, scope, branch).items():
+    for key, collect in adapter.collectors(api, scope, branch).items():
         check = CHECK_NAMES.get(key, key)
+        if collect is UNSUPPORTED:
+            events.append(unsupported(adapter, scope, check, "*"))
+            continue
         try:
             current = collect()
         except CheckError as failure:
             events.append(error(scope, check, failure))
             continue
-        events += drift(
-            scope,
-            check,
-            fields(key, expected[key]),
-            fields(key, current),
-            extra=key in EXTRA_FIELDS,
-        )
+        want, have = fields(key, expected[key]), fields(key, current)
+        if isinstance(have, dict):
+            for field in sorted(
+                name for name, value in have.items() if value is UNSUPPORTED
+            ):
+                events.append(unsupported(adapter, scope, check, field))
+                want = {name: value for name, value in want.items() if name != field}
+                have = {name: value for name, value in have.items() if name != field}
+        events += drift(scope, check, want, have, extra=key in EXTRA_FIELDS)
     return events
 
 
-def workflows_on_pull_request_target(api, scope, branch):
-    ref = urllib.parse.quote(branch, safe="")
-    entries = (
-        api.get(f"/repos/{scope}/contents/{WORKFLOW_DIR}?ref={ref}", missing_ok=True)
-        or []
-    )
-    paths = []
-    for entry in entries:
-        if entry.get("type") != "file" or not entry["name"].endswith((".yml", ".yaml")):
-            continue
-        content = api.get(
-            f"/repos/{scope}/contents/{urllib.parse.quote(entry['path'])}?ref={ref}"
-        )
-        if uses_pull_request_target(
-            base64.b64decode(content.get("content", "")).decode("utf-8", "replace")
-        ):
-            paths.append(entry["path"])
-    return paths
-
-
-def run(api, expected):
-    """Return every drift and failure event of one check run, then the run summary.
+def run(api, adapter, expected):
+    """Return every drift, failure and unsupported event of one check run, then the run summary.
 
     Args:
-        api: the GitHub API client.
+        api: the provider's API client.
+        adapter: the provider's adapter module.
         expected: the parsed expected state.
     """
     org = expected["organization"]
@@ -251,37 +140,40 @@ def run(api, expected):
         events.append(error(org, "token", "the token file is empty"))
     else:
         try:
-            events += check_org(api, org, expected)
+            events += check_org(api, adapter, org, expected)
         except CheckError as failure:
             events.append(error(org, "owners", failure))
         for name, repo_expected in sorted(expected["repositories"].items()):
             scope = f"{org}/{name}"
             try:
-                branch = api.get(f"/repos/{scope}")["default_branch"]
+                branch = adapter.default_branch(api, scope)
             except CheckError as failure:
                 events.append(error(scope, "repository", failure))
                 continue
-            events += check_repo(api, scope, repo_expected, branch)
+            events += check_repo(api, adapter, scope, repo_expected, branch)
     count = {
         kind: sum(event["gs_kind"] == kind for event in events)
-        for kind in ("drift", "error")
+        for kind in ("drift", "error", "unsupported")
     }
     events.append(
         {
             "gs_kind": "run",
+            "gs_provider": adapter.NAME,
             "gs_scope": org,
             "gs_drift": str(count["drift"]),
             "gs_errors": str(count["error"]),
+            "gs_unsupported": str(count["unsupported"]),
         }
     )
     return events
 
 
-def current_state(api, expected):
+def current_state(api, adapter, expected):
     """Return the current settings in the expected file's format, for the organization and repositories it lists.
 
     Args:
-        api: the GitHub API client.
+        api: the provider's API client.
+        adapter: the provider's adapter module.
         expected: the parsed expected state; only its organization and repository names are read.
 
     Raises:
@@ -293,22 +185,34 @@ def current_state(api, expected):
     failures = []
     state = {"organization": org, "owners": [], "repositories": {}}
     try:
-        state["owners"] = current_owners(api, org)
+        state["owners"] = adapter.owners(api, org)
     except CheckError as failure:
         failures.append(f"{org} owners: {failure}")
     for name in sorted(expected["repositories"]):
         scope = f"{org}/{name}"
         try:
-            branch = api.get(f"/repos/{scope}")["default_branch"]
+            branch = adapter.default_branch(api, scope)
         except CheckError as failure:
             failures.append(f"{scope} repository: {failure}")
             continue
         repo = state["repositories"][name] = {}
-        for key, collect in collectors(api, scope, branch).items():
+        for key, collect in adapter.collectors(api, scope, branch).items():
+            if collect is UNSUPPORTED:
+                continue
             try:
-                repo[key] = collect()
+                value = collect()
             except CheckError as failure:
                 failures.append(f"{scope} {key}: {failure}")
+                continue
+            repo[key] = (
+                {
+                    field: item
+                    for field, item in value.items()
+                    if item is not UNSUPPORTED
+                }
+                if isinstance(value, dict)
+                else value
+            )
     if failures:
         raise CheckError("; ".join(failures))
     return state
@@ -374,11 +278,14 @@ def to_yaml(value, indent=0):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Compare the GitHub organization and repository settings with their expected state."
+        description="Compare a git provider's organization and repository settings with their expected state."
     )
-    parser.add_argument("--api-url", required=True, help="GitHub API base URL")
     parser.add_argument(
-        "--token-file", required=True, help="file holding the read-only GitHub token"
+        "--provider", required=True, help="the git provider: github, gitea or gitlab"
+    )
+    parser.add_argument("--api-url", required=True, help="the provider's API base URL")
+    parser.add_argument(
+        "--token-file", required=True, help="file holding the read-only token"
     )
     parser.add_argument(
         "--expected",
@@ -405,20 +312,21 @@ def parse_args(argv=None):
 
 def main():
     args = parse_args()
-    api = git_github.client(
+    adapter = provider(args.provider)
+    api = adapter.client(
         args.api_url, read_token(args.token_file), args.timeout, USER_AGENT
     )
     expected = json.loads(Path(args.expected).read_text(encoding="utf-8"))
     if args.print_current:
         try:
-            state = current_state(api, expected)
+            state = current_state(api, adapter, expected)
         except CheckError as failure:
             raise SystemExit(
-                f"cannot read the current GitHub settings: {failure}"
+                f"cannot read the current {args.provider} settings: {failure}"
             ) from failure
         print("\n".join(["---", *to_yaml(state)]))
         return
-    emit(args.tag, run(api, expected), "gs_kind")
+    emit(args.tag, run(api, adapter, expected), "gs_kind")
 
 
 if __name__ == "__main__":

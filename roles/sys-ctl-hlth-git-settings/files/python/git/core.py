@@ -1,3 +1,4 @@
+import base64
 import importlib
 import ipaddress
 import json
@@ -10,6 +11,9 @@ from pathlib import Path
 
 PROVIDERS = ("github", "gitea", "gitlab")
 NEXT_LINK = re.compile(r'<([^>]+)>;\s*rel="next"')
+PRT_KEY = re.compile(r"""^\s*(?:-\s*)?["']?pull_request_target["']?\s*:?\s*$""")
+PRT_INLINE = re.compile(r"""^\s*["']?on["']?\s*:.*\bpull_request_target\b""")
+UNSUPPORTED = object()
 
 
 class CheckError(Exception):
@@ -27,7 +31,7 @@ def provider(name):
     """
     if name not in PROVIDERS:
         raise CheckError(f"unknown git provider {name!r}")
-    return importlib.import_module(f"git_{name}")
+    return importlib.import_module(f"git.{name}")
 
 
 def allowed_url(url):
@@ -158,6 +162,52 @@ class Api:
             match = NEXT_LINK.search(headers.get("Link", "") if headers else "")
             url = match.group(1) if match else None
         return items
+
+
+def uses_pull_request_target(workflow):
+    """Return whether a workflow file is triggered by pull_request_target.
+
+    Args:
+        workflow: the workflow file's text.
+    """
+    for line in workflow.splitlines():
+        code = line.split("#", 1)[0].rstrip()
+        if PRT_KEY.match(code) or PRT_INLINE.match(code):
+            return True
+    return False
+
+
+def workflows_on_pull_request_target(api, scope, branch, directories):
+    """Return the workflow files on a branch that run on pull_request_target, through a GitHub-style contents API.
+
+    Args:
+        api: the client; GitHub and Gitea serve the same contents API shape.
+        scope: ``owner/repo``.
+        branch: the default branch.
+        directories: the workflow directories the provider reads, in order.
+    """
+    ref = urllib.parse.quote(branch, safe="")
+    paths = []
+    for directory in directories:
+        entries = (
+            api.get(f"/repos/{scope}/contents/{directory}?ref={ref}", missing_ok=True)
+            or []
+        )
+        for entry in entries:
+            if entry.get("type") != "file" or not entry["name"].endswith(
+                (".yml", ".yaml")
+            ):
+                continue
+            content = api.get(
+                f"/repos/{scope}/contents/{urllib.parse.quote(entry['path'])}?ref={ref}"
+            )
+            if uses_pull_request_target(
+                base64.b64decode(content.get("content") or "").decode(
+                    "utf-8", "replace"
+                )
+            ):
+                paths.append(entry["path"])
+    return paths
 
 
 def repository_path(url, host):

@@ -6,7 +6,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from git_core import CheckError, emit, provider, read_token
+from git.core import CheckError, emit, provider, read_token
 
 USER_AGENT = "infinito-deployed-code"
 MAX_VALUE = 300

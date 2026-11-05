@@ -55,6 +55,10 @@
   rule: 100163
   level: 7
   program: infinito-git-settings
+- log: '{"gs_kind": "unsupported", "gs_provider": "gitea", "gs_scope": "infinito/core", "gs_check": "secret_scanning", "gs_field": "open_alerts"}'
+  rule: 100164
+  level: 3
+  program: infinito-git-settings
 - log: '{"gs_kind": "run", "gs_scope": "infinito-nexus", "gs_drift": "0", "gs_errors": "0"}'
   rule: 100160
   level: 0

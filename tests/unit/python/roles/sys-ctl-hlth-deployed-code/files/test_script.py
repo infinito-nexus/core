@@ -9,10 +9,10 @@ from unittest import mock
 from utils import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/sys-ctl-hlth-git-settings/files/python"))
-import git_core
-import git_gitea
-import git_github
-import git_gitlab
+from git import core as git_core
+from git import gitea as git_gitea
+from git import github as git_github
+from git import gitlab as git_gitlab
 
 _spec = importlib.util.spec_from_file_location(
     "deployed_code_check",
