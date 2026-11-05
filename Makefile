@@ -338,7 +338,7 @@ compose-target-reset:
 
 .PHONY: compose-up
 # Start the development stack and reset its shared target.
-compose-up: install
+compose-up: install fix-dockerignore
 	@"$${PYTHON}" -m cli.administration.deploy.development up
 
 .PHONY: console
