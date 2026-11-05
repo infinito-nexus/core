@@ -8,7 +8,26 @@ from __future__ import annotations
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
 
+DEFAULT_DISABLE = ("matomo", "dashboard", "prometheus", "email", "design")
+
 STEPS = [
+    Step(
+        "row",
+        "Does the role offer swarm itself (modes.swarm.enabled in its meta/services.yml)?",
+        "decision",
+        branches=(("own row", "disable"), ("host-mode only", "host")),
+    ),
+    Step(
+        "host",
+        "Deploy the role inside the lightest host row python -m cli.meta.ci.host_rows --provides <service key> --mode swarm ranks first, and keep one heavy host for the final or CI round, because a light host does not carry every subject kind",
+        nxt="disable",
+    ),
+    Step(
+        "disable",
+        f"Ask to disable {', '.join(DEFAULT_DISABLE)} and every provider the role under test does not consume via disable=",
+        "ask",
+        nxt="deploy",
+    ),
     Step(
         "deploy",
         "make swarm-zombie app=<app> keep=true builds the DinD cluster and leaves it up; without keep=true it copies the rescue bundle and Playwright artefacts to the host and releases the cluster",

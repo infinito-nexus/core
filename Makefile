@@ -810,9 +810,10 @@ roles-pull:
 # Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
 # Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
 # Param keep: true keeps each swarm cluster, green or failed; empty or false lets swarm-zombie release it once its rescue bundle is on the host.
-# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
+# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,design).
+# Param preflight: false skips the disk pre-flight of every swarm-zombie run the roundtrip starts.
 roundtrip:
-	@apps='$(apps)' modes='$(modes)' keep='$(keep)' disable='$(disable)' bash scripts/tests/deploy/roundtrip.sh
+	@apps='$(apps)' modes='$(modes)' keep='$(keep)' disable='$(disable)' preflight='$(preflight)' bash scripts/tests/deploy/roundtrip.sh
 
 .PHONY: runner-ci-deploy
 # Provision self-hosted CI runner instances on a remote host.
@@ -960,7 +961,8 @@ SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 # Param keep: true keeps the cluster and its act outer container up for post-mortem inspection; otherwise both are released on success and on failure.
 # Param distros: optional single distro the cluster runs on (default: INFINITO_DISTRO from .env).
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
-# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
+# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,design).
+# Param preflight: false skips the disk pre-flight, which prints the include set the provision step derives with the min_storage each role declares and refuses before act starts when that heuristic total plus the watchdog floor exceeds the lowest free space of Docker's data root and the watchdog's storage roots.
 # Param vpn: optional WireGuard axis (auto|enforced|disabled); default disabled.
 # Param meshes: optional WireGuard layout a meshed round deploys (default INFINITO_SWARM_MESHES).
 # Param name: optional cluster-id prefix for the container + network names; release with the same name=.
@@ -969,12 +971,14 @@ SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Param INFINITO_INVENTORY_EXTRA_VARS: optional environment JSON object laid over every round's inventory vars, `applications` merged per app; must not contain ';'.
 # Note: With keep=true use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
+# Note: A host-mode-only role has no swarm row; deploy it inside the lightest host row `python -m cli.meta.ci.host_rows --provides <service key> --mode swarm` ranks first.
 swarm-zombie: install-act
-	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>] [network=<mode>] [keep=true]'; exit 2; }
+	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>] [network=<mode>] [keep=true] [preflight=false]'; exit 2; }
 	@"$${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist '$(app)#$(or $(variant),0)@swarm$(if $(network),+$(network))'
 	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
 	@bash scripts/tests/deploy/swarm/utils/clean/lab_subnet.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
+	@test '$(preflight)' = false || disable='$(disable)' "$${PYTHON}" -m cli.meta.ci.swarm_preflight --app '$(app)' --variant '$(or $(variant),0)'
 	@SWARM_NAME='$(or $(name),$(app))' \
 	 keep='$(keep)' \
 	 ACT_RM=false \

@@ -13,9 +13,10 @@ from __future__ import annotations
 import shutil
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from utils import PROJECT_ROOT
-from utils.cache.applications import get_variants
+from utils.cache.applications import get_variants, with_variants
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
@@ -24,6 +25,15 @@ from utils.roles.applications.services.resources import (
     aggregate,
     collect_role_resources,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+DOCKER_INFO_TIMEOUT_S = 30
+
+
+class StorageDeclarationError(ValueError):
+    """A service sets min_storage to a value that does not parse as a size."""
 
 
 def required_storage_bytes(
@@ -44,12 +54,9 @@ def required_storage_bytes(
     applications = load_applications_from_roles_dir(roles_dir)
 
     if variants:
-        applications = dict(applications)
-        available = get_variants(roles_dir=str(roles_dir))
-        for app_id, index in variants.items():
-            app_variants = available.get(app_id) or []
-            if 0 <= index < len(app_variants):
-                applications[app_id] = app_variants[index] or {}
+        applications = with_variants(
+            applications, get_variants(roles_dir=str(roles_dir)), variants
+        )
 
     service_registry = build_service_registry_from_applications(applications)
 
@@ -67,6 +74,65 @@ def required_storage_bytes(
     return aggregate(rows, ["min_storage"]).get("min_storage_bytes") or 0
 
 
+def closure_storage(
+    roles_dir: Path,
+) -> Callable[[Iterable[str], dict[str, int]], dict[str, int]]:
+    """Return a measure of the min_storage each role of a resolved closure declares.
+
+    The roles tree is read once, so ranking hundreds of closures costs one load.
+
+    Args:
+        roles_dir: the roles tree the declarations are read from.
+
+    Returns:
+        ``measure(roles, variants)``. ``roles`` is a closure a resolver already
+        settled, so no dependency is walked and a provider counts only when it
+        is listed. ``variants`` is the round's per-app variant index, as in
+        required_storage_bytes. The result maps each role to its declared
+        bytes, 0 for a role that declares nothing or is no application.
+
+    Raises:
+        StorageDeclarationError: from ``measure``, when a service of a listed
+            role sets min_storage to a value that does not parse; counting it
+            as 0 would under-state the closure without a trace.
+    """
+    applications = load_applications_from_roles_dir(roles_dir)
+    available = get_variants(roles_dir=str(roles_dir))
+    service_registry = build_service_registry_from_applications(applications)
+
+    def measure(roles: Iterable[str], variants: dict[str, int]) -> dict[str, int]:
+        scoped = with_variants(applications, available, variants)
+        declared: dict[str, int] = {}
+        for role in roles:
+            rows: list[dict] = []
+            collect_role_resources(
+                role_name=role,
+                applications=scoped,
+                service_registry=service_registry,
+                visited=set(),
+                rows=rows,
+                warnings=[],
+                max_depth=1,
+            )
+            unparsable = [
+                f"{row['service']}={row['min_storage_raw']!r}"
+                for row in rows
+                if row["min_storage_raw"] is not None
+                and row["min_storage_bytes"] is None
+            ]
+            if unparsable:
+                raise StorageDeclarationError(
+                    f"{role}: min_storage does not parse as a size: "
+                    + ", ".join(unparsable)
+                )
+            declared[role] = (
+                aggregate(rows, ["min_storage"]).get("min_storage_bytes") or 0
+            )
+        return declared
+
+    return measure
+
+
 def is_constrained(*, free_bytes: int, required_bytes: int) -> bool:
     """Return True when the declared need does not fit into the free space."""
     return required_bytes > free_bytes
@@ -76,16 +142,24 @@ def docker_data_root() -> str:
     """Return Docker's data root as reported by the local daemon.
 
     Raises:
-        RuntimeError: the daemon is unreachable or reports no data root. Guessing
-            a path here would silently measure the wrong filesystem and report a
-            roomy host, which is the failure this module exists to prevent.
+        RuntimeError: the daemon is unreachable, answers no data root, or does
+            not answer within DOCKER_INFO_TIMEOUT_S. Guessing a path here would
+            silently measure the wrong filesystem and report a roomy host, which
+            is the failure this module exists to prevent.
     """
-    proc = subprocess.run(
-        ["docker", "info", "-f", "{{.DockerRootDir}}"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        proc = subprocess.run(
+            ["docker", "info", "-f", "{{.DockerRootDir}}"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=DOCKER_INFO_TIMEOUT_S,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            "cannot determine Docker's data root: `docker info` did not answer "
+            f"within {DOCKER_INFO_TIMEOUT_S}s"
+        ) from exc
     root = (proc.stdout or "").strip()
     if proc.returncode != 0 or not root:
         raise RuntimeError(
@@ -107,6 +181,25 @@ def docker_root_free_bytes(*, local_vantage: str) -> int:
     if Path(root).is_dir():
         return shutil.disk_usage(root).free
     return shutil.disk_usage(local_vantage).free
+
+
+def resolved_docker_root_free_bytes() -> int:
+    """Return the free bytes on Docker's data root, measured where the daemon reports it.
+
+    Raises:
+        RuntimeError: as docker_data_root, or when the data root does not
+            resolve in this mount namespace (a remote DOCKER_HOST, another
+            context, Docker Desktop) or cannot be reached through its parents.
+            Measuring a local filesystem instead would answer for a disk the
+            deploy never writes to.
+    """
+    root = docker_data_root()
+    try:
+        return shutil.disk_usage(root).free
+    except OSError as exc:
+        raise RuntimeError(
+            f"Docker's data root {root!r} cannot be measured here: {exc}"
+        ) from exc
 
 
 def host_storage_constrained(
