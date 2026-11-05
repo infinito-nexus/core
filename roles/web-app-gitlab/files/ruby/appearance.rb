@@ -1,7 +1,6 @@
 # nocheck: mirrored-unit-test - runs in `rails runner` against the Appearance model of the GitLab image; the model is not loadable anywhere else
 # Param: uploads  {field: [extension, base64 content]} prepended on stdin; a field the role owns and that is missing here is removed.
 # Param: GITLAB_DESIGN_TITLE  title, PWA name and short name; empty clears the ones the role set.
-require 'base64'
 require 'digest'
 require 'tmpdir'
 
@@ -32,7 +31,7 @@ Dir.mktmpdir do |dir|
     stored = appearance.public_send(field)
     next if stored.file && !owned.call(field)
 
-    content = Base64.decode64(encoded)
+    content = encoded.unpack1('m')
     next if stored.file&.exists? && Digest::SHA256.hexdigest(stored.read) == Digest::SHA256.hexdigest(content)
 
     path = File.join(dir, "#{mark}#{field}.#{extension}")

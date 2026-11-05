@@ -1,7 +1,7 @@
 ---
 - name: 📄 Load Matomo tracking JS template
   set_fact:
-    matomo_tracking_code: "{{ lookup('template','matomo-tracking.js.j2') }}"
+    matomo_tracking_code: "{{ lookup('template_shallow', 'matomo-tracking.js.j2') }}"
 
 - name: 🗜️ Collapse Matomo code into one-liner
   set_fact:

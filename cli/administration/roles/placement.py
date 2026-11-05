@@ -179,7 +179,7 @@ def _check_role(group: str, staged: Path) -> None:
 def _locked(work_dir: Path) -> Iterator[None]:
     work_dir.mkdir(parents=True, exist_ok=True)
     lock = work_dir / LOCK_FILE
-    descriptor = os.open(lock, os.O_RDONLY | os.O_CREAT | os.O_NOFOLLOW, 0o644)
+    descriptor = os.open(lock, os.O_RDONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)
     try:
         try:
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)

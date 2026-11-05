@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 import re
 import shutil
+import stat
 import tempfile
 import threading
 import unittest
@@ -483,6 +485,12 @@ class TestClean(_PullFixture, unittest.TestCase):
         )
         self.assertTrue((target / "keep.yml").is_file())
         self.assertEqual([], self.leftovers())
+
+    def test_the_lock_is_open_to_its_owner_only_whatever_the_umask(self):
+        self.addCleanup(os.umask, os.umask(0))
+        clean(self.roles, self.work)
+        mode = (self.work / placement.LOCK_FILE).stat().st_mode
+        self.assertEqual(0o600, stat.S_IMODE(mode))
 
 
 if __name__ == "__main__":

@@ -2,7 +2,6 @@
 # CDN structure for the shared web-svc-cdn role (resolved once)
 _cdn_shared: "{{ lookup('cdn', 'web-svc-cdn') }}"
 
-# Global CDN dirs (shared subdirs + vendor) — used by run-once setup in tasks/main.yml
 CDN_GLOBAL_DIRS:
   - "{{ _cdn_shared.shared.root }}"
   - "{{ _cdn_shared.shared.css }}"

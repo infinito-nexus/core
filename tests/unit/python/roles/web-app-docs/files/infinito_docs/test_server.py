@@ -99,6 +99,31 @@ class TestServer(unittest.TestCase):
             self.assertEqual((status, location), (302, "/latest/"), path)
             self.assertNotIn("secret", body)
 
+    def test_line_breaks_in_a_redirect_stay_inside_its_location(self) -> None:
+        site = self.library.translations / "latest" / "de"
+        index = self.library.translations / "latest" / "languages.json"
+        (site / "html" / "docs").mkdir(parents=True)
+        (site / "html" / "index.html").write_text("Hallo", encoding="utf-8")
+        (site / "html" / "docs" / "index.html").write_text("Doku", encoding="utf-8")
+        index.write_text(
+            json.dumps({"known": {"de": "Deutsch"}, "translated": ["de"]}),
+            encoding="utf-8",
+        )
+        try:
+            for prefix, body in (("/latest", "docs"), ("/latest/de", "Doku")):
+                with self.subTest(prefix=prefix):
+                    status, location, _ = self._request(
+                        f"{prefix}/x%0d%0aSet-Cookie:injected=1/%2e%2e/docs"
+                    )
+                    self.assertEqual(
+                        (status, location),
+                        (302, f"{prefix}/x%0D%0ASet-Cookie:injected=1/../docs/"),
+                    )
+                    self.assertEqual(self._request(location), (200, None, body))
+        finally:
+            shutil.rmtree(site)
+            index.unlink(missing_ok=True)
+
     def test_unknown_version_is_not_found(self) -> None:
         self.assertEqual(self._request("/v9.9.9/")[0], 404)
 

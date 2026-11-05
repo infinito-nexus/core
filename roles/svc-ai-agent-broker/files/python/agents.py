@@ -18,10 +18,21 @@ WRITE_CONFIG = (
     'mkdir -p "$(dirname "$AGENT_CONFIG_PATH")" && '
     'printf "%s" "$AGENT_CONFIG" > "$AGENT_CONFIG_PATH" && exec "$@"'
 )
+RELAY_PATHS = ("/v1/chat/completions", "/v1/models")
 
 
 class CapacityError(RuntimeError):
     pass
+
+
+def pick(requested, allowed):
+    """Return the entry of ``allowed`` equal to ``requested``, or None.
+
+    Args:
+        requested: value a request asks for.
+        allowed: server-side names or paths a request may select.
+    """
+    return next((entry for entry in allowed if entry == requested), None)
 
 
 def agent_name(platform, owner):
@@ -114,6 +125,7 @@ class Agents:
         idle_seconds: idle time before a stop.
         max_running: bound on concurrently running agents.
         start_timeout: seconds an agent gets to answer its health endpoint.
+        log: ``log(event, **fields)`` writing one broker log line.
     """
 
     def __init__(
@@ -130,6 +142,7 @@ class Agents:
         idle_seconds,
         max_running,
         start_timeout,
+        log,
     ):
         self.backend = backend
         self.engine = engine
@@ -143,6 +156,7 @@ class Agents:
         self.idle_seconds = idle_seconds
         self.max_running = max_running
         self.start_timeout = start_timeout
+        self.log = log
         self._locks = {}
         self._locks_guard = threading.Lock()
         self._busy = {}
@@ -207,6 +221,7 @@ class Agents:
         spec = self.platforms[platform]
         url = f"http://{name}:{spec['port']}{spec['health']}"
         deadline = time.monotonic() + self.start_timeout
+        last_error = None
         while time.monotonic() < deadline:
             request = urllib.request.Request(url)
             request.add_header("Authorization", f"Bearer {key}")
@@ -214,11 +229,12 @@ class Agents:
                 with urllib.request.urlopen(request, timeout=5) as response:  # noqa: S310 - http:// URL built from the agent name and port
                     if response.status < 400:
                         return
-            except (urllib.error.URLError, OSError):
-                pass
+            except (urllib.error.URLError, OSError) as error:
+                last_error = error
             time.sleep(2)
         raise TimeoutError(
             f"{name} did not answer {spec['health']} within {self.start_timeout}s"
+            f" (last error: {last_error})"
         )
 
     def ensure(self, platform, owner):
@@ -271,8 +287,10 @@ class Agents:
                 listed = json.loads(response.read()).get("data") or []
                 if listed:
                     model = listed[0]["id"]
-        except (urllib.error.URLError, OSError, ValueError, KeyError):
-            pass
+        except (urllib.error.URLError, OSError, ValueError, KeyError) as error:
+            self.log(
+                "agent_model_fallback", platform=platform, model=model, error=str(error)
+            )
         self._agent_models[platform] = model
         return model
 

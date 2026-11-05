@@ -23,15 +23,19 @@
 
   function fillSwitcher(select, versions) {
     const { current, page } = select.dataset;
+    const urls = versions.map((version) => versionUrl(version.name, page));
     select.replaceChildren(
-      ...versions.map((version) => {
+      ...versions.map((version, index) => {
         const option = document.createElement("option");
-        option.value = versionUrl(version.name, page);
+        option.value = urls[index];
         option.textContent = optionLabel(version);
         option.selected = version.name === current;
         return option;
       }),
     );
+    select.onchange = () => {
+      window.location.href = urls[select.selectedIndex];
+    };
   }
 
   function fillOverview(tbody, versions) {
@@ -77,11 +81,6 @@
   }
 
   function start() {
-    document.querySelectorAll("select.docs-version-switcher").forEach((select) => {
-      select.addEventListener("change", () => {
-        window.location.href = select.value;
-      });
-    });
     refresh();
     if (document.querySelector("tbody[data-versions], section[data-build]")) {
       window.setInterval(refresh, POLL_MS);

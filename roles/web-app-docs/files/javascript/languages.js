@@ -11,10 +11,11 @@
       return;
     }
     const { languages } = await response.json();
+    const urls = languages.map((entry) => pageUrl(version, entry.code, page));
     select.replaceChildren(
-      ...languages.map((entry) => {
+      ...languages.map((entry, index) => {
         const option = document.createElement("option");
-        option.value = pageUrl(version, entry.code, page);
+        option.value = urls[index];
         option.textContent = entry.native;
         option.lang = entry.code;
         option.selected = entry.code === language;
@@ -22,7 +23,7 @@
       }),
     );
     select.addEventListener("change", () => {
-      window.location.href = select.value;
+      window.location.href = urls[select.selectedIndex];
     });
   }
 

@@ -144,16 +144,20 @@ def _volumes_legend() -> list[str]:
     return [
         "| Condition | Effect |",
         "| --- | --- |",
-        "| swarm, `storage.backend: nfs`, no `nfs: false`, role not pinned "
-        "| shared over NFS |",
+        (
+            "| swarm, `storage.backend: nfs`, no `nfs: false`, role not pinned "
+            "| shared over NFS |"
+        ),
         "| any one of those missing | node-local |",
         "",
-        "All four conditions must hold, so pinning a role takes every one of "
-        "its volumes node-local. Only the role's primary entry counts as "
-        "pinned here: a `placement` on any other service pins that service "
-        "alone and leaves the backing of every volume unchanged. The chain is "
-        "drawn rather than its result, because that coupling is what makes a "
-        "placement change move data without saying so.",
+        (
+            "All four conditions must hold, so pinning a role takes every one of "
+            "its volumes node-local. Only the role's primary entry counts as "
+            "pinned here: a `placement` on any other service pins that service "
+            "alone and leaves the backing of every volume unchanged. The chain is "
+            "drawn rather than its result, because that coupling is what makes a "
+            "placement change move data without saying so."
+        ),
     ]
 
 
@@ -168,8 +172,10 @@ def _dependencies_legend() -> list[str]:
         f"| {to_emoji('compose')} | deploys under compose |",
         f"| {to_emoji('swarm')} | deploys under swarm |",
         f"| {to_emoji('disabled')} | service explicitly turned off |",
-        f"| {to_emoji('role_dependency')} | Ansible role dependency from "
-        "`meta/main.yml` |",
+        (
+            f"| {to_emoji('role_dependency')} | Ansible role dependency from "
+            "`meta/main.yml` |"
+        ),
         "",
         "Every dependency and dependent is listed; the graph is not truncated.",
     ]
@@ -185,9 +191,7 @@ def derive_architecture_page(role_dir, role_name: str, app_name: str = "") -> st
             after it so both documents name the application the same way.
     """
     role_dir = Path(role_dir)
-    role_placement = (
-        get_role_placement(role_dir, role_name=role_name) or ""
-    ).strip()
+    role_placement = (get_role_placement(role_dir, role_name=role_name) or "").strip()
     sections = [
         f"# {app_name or role_name} Architecture",
         "",

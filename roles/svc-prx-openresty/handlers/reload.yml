@@ -8,6 +8,8 @@
 - name: ✅ Validate OpenResty configuration before reloading
   ansible.builtin.shell: >
     container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }} openresty -t -q
+  vars:
+    compose_mode_force: ""
   register: openresty_test_reload
   changed_when: false
   retries: 10
@@ -22,6 +24,8 @@
 - name: ♻️ Reload OpenResty
   ansible.builtin.shell: >
     container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }} openresty -s reload
+  vars:
+    compose_mode_force: ""
   register: openresty_reload
   changed_when: openresty_reload.rc == 0
   failed_when: >

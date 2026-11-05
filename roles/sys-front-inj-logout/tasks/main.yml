@@ -5,7 +5,7 @@
 
 - name: "📄 Load logout code for '{{ application_id }}'"
   set_fact:
-    logout_code: "{{ lookup('template', 'logout_one_liner.js.j2') }}"
+    logout_code: "{{ lookup('template_shallow', 'logout_one_liner.js.j2') }}"
   changed_when: false
 
 - name: "🗜️ Collapse logout code into one-liner for '{{ application_id }}'"

@@ -20,6 +20,8 @@
     - name: ✅ Validate OpenResty configuration (Post-Flight-Check)
       ansible.builtin.shell: >
         container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }} openresty -t -q
+      vars:
+        compose_mode_force: ""
       register: openresty_test_post
       changed_when: false
       retries: 10
@@ -58,6 +60,8 @@
 
     - ansible.builtin.shell: >
         container logs --tail=200 {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }}
+      vars:
+        compose_mode_force: ""
       register: openresty_logs
       changed_when: false
       failed_when: false

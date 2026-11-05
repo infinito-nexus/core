@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 from pathlib import Path
 
+from utils.cache.files import read_text
 from utils.install.primitives import ensure_dir_on_path, install_with_optional_sudo, log
 
 
@@ -63,4 +65,27 @@ def npm_install_local_in_repo(repo_root: str) -> None:
         raise RuntimeError(f"npm install in {repo_root} failed") from exc
 
 
-__all__ = ["ensure_npm_present", "npm_install_global", "npm_install_local_in_repo"]
+def npm_local_missing(repo_root: str) -> list[str]:
+    """List the declared devDependencies that ``node_modules`` lacks.
+
+    Args:
+        repo_root: directory holding package.json and node_modules.
+
+    Returns:
+        Sorted package names with no installed package.json.
+    """
+    root = Path(repo_root)
+    manifest = json.loads(read_text(str(root / "package.json")))
+    return sorted(
+        name
+        for name in manifest["devDependencies"]
+        if not (root / "node_modules" / name / "package.json").is_file()
+    )
+
+
+__all__ = [
+    "ensure_npm_present",
+    "npm_install_global",
+    "npm_install_local_in_repo",
+    "npm_local_missing",
+]

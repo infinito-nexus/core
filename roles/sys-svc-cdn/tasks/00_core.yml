@@ -1,0 +1,7 @@
+---
+- name: ✅ Ensure shared root and vendor exist (run once)
+  directory_batch:
+    paths: "{{ CDN_GLOBAL_DIRS }}"
+    mode: "0755"
+
+- include_tasks: utils/once/flag.yml

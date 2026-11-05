@@ -59,6 +59,7 @@ const {
   prefixedLabel,
   suggestLabel
 } = require("./handle");
+const { logSafe } = require("./log");
 const { t } = require("./messages");
 const { openStore } = require("./store");
 
@@ -426,11 +427,6 @@ async function syncProfileDisplayName(session, displayName) {
 }
 
 // --- HTTP server ----------------------------------------------------
-
-function logSafe(v) {
-  // eslint-disable-next-line no-control-regex -- intentional: strip control chars to prevent log injection
-  return String(v).replace(/[\r\n]+/g, " ").replace(/[\x00-\x1f\x7f]/g, "");
-}
 
 function escapeHtml(v) {
   return String(v)

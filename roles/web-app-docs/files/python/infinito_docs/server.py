@@ -84,7 +84,7 @@ class DocsHandler(SimpleHTTPRequestHandler):
 
     def _redirect(self, location):
         self.send_response(HTTPStatus.FOUND)
-        self.send_header("Location", location)
+        self.send_header("Location", location.replace("\r", "%0D").replace("\n", "%0A"))
         self.send_header("Content-Length", "0")
         self.end_headers()
 

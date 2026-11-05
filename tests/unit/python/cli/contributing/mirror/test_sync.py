@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 
 import cli.contributing.mirror.sync.__main__ as sync_main
-from cli.contributing.mirror.model import ImageRef
+from utils.docker.image.discovery import ImageRef
 
 
 class TestMirrorSync(unittest.TestCase):

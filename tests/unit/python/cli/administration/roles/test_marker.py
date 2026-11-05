@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -107,6 +108,13 @@ class TestWriteMarker(unittest.TestCase):
         write(self.role / MARKER_FILE / "nested.yml", "nested: true\n")
         write_marker(self.role, PLACED, ORIGIN)
         self.assertTrue((self.role / MARKER_FILE).is_file())
+        self.assertTrue(is_placed(self.role))
+
+    def test_the_marker_is_readable_by_its_owner_only_whatever_the_umask(self):
+        self.addCleanup(os.umask, os.umask(0))
+        write_marker(self.role, PLACED, ORIGIN)
+        mode = (self.role / MARKER_FILE).stat().st_mode
+        self.assertEqual(0o600, stat.S_IMODE(mode))
         self.assertTrue(is_placed(self.role))
 
 

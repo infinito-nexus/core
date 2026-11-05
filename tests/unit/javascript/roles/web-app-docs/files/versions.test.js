@@ -35,7 +35,19 @@ function element(tag, fields = {}) {
     addEventListener(type, handler) {
       this.listeners[type] = handler;
     },
+    fire(type) {
+      this.listeners[type]?.();
+      this[`on${type}`]?.();
+    },
   };
+}
+
+function switcher(dataset) {
+  return Object.defineProperty(element("select", { dataset, selectedIndex: -1 }), "value", {
+    get() {
+      return this.children[this.selectedIndex]?.value ?? "";
+    },
+  });
 }
 
 function load(selectors = {}) {
@@ -136,18 +148,31 @@ test("build page shows progress and the failure log, reloads once built", () => 
 });
 
 test("start wires the switcher and polls only on overview and build pages", async () => {
-  const select = element("select", { dataset: { current: "latest", page: "index" } });
+  const select = switcher({ current: "latest", page: "index" });
   const sidebarOnly = load({ "select.docs-version-switcher": [select] });
   sidebarOnly.start();
   await new Promise((resolve) => setImmediate(resolve));
 
   assert.equal(select.children.length, 4);
   assert.deepEqual(sidebarOnly.window.intervals, []);
-  select.value = "/v14.0.0/index.html";
-  select.listeners.change();
+  select.selectedIndex = 1;
+  select.fire("change");
   assert.equal(sidebarOnly.window.location.href, "/v14.0.0/index.html");
 
   const overview = load({ "tbody[data-versions]": [element("tbody")] });
   overview.start();
   assert.deepEqual(overview.window.intervals, [2000]);
+});
+
+test("switching follows the built version url, never the option value read back from the DOM", async () => {
+  const select = switcher({ current: "latest", page: "index" });
+  const { window, start } = load({ "select.docs-version-switcher": [select] });
+  start();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  select.children[1].value = "javascript:alert(document.domain)";
+  select.selectedIndex = 1;
+  select.fire("change");
+
+  assert.equal(window.location.href, "/v14.0.0/index.html");
 });

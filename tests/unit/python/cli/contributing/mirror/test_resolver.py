@@ -5,8 +5,8 @@ import unittest
 from unittest.mock import patch
 
 import cli.contributing.mirror.resolver.__main__ as resolver_main
-from cli.contributing.mirror.model import ImageRef
 from utils.cache.yaml import load_yaml_str
+from utils.docker.image.discovery import ImageRef
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 

@@ -20,7 +20,10 @@ function select(dataset) {
   return {
     dataset,
     children: [],
-    value: "",
+    selectedIndex: -1,
+    get value() {
+      return this.children[this.selectedIndex]?.value ?? "";
+    },
     listeners: {},
     replaceChildren(...nodes) {
       this.children = nodes;
@@ -72,7 +75,17 @@ test("the switcher lists every built language and keeps the page", async () => {
 test("choosing a language navigates to the same page in it", async () => {
   const { switcher, window } = await load({ version: "v14.1.0", language: "en", page: "index" });
 
-  switcher.value = switcher.children[1].value;
+  switcher.selectedIndex = 1;
+  switcher.listeners.change();
+
+  assert.equal(window.location.href, "/v14.1.0/de/index.html");
+});
+
+test("navigation follows the built page url, never the option value read back from the DOM", async () => {
+  const { switcher, window } = await load({ version: "v14.1.0", language: "en", page: "index" });
+
+  switcher.children[1].value = "javascript:alert(document.domain)";
+  switcher.selectedIndex = 1;
   switcher.listeners.change();
 
   assert.equal(window.location.href, "/v14.1.0/de/index.html");
