@@ -18,7 +18,7 @@
     group: root
     mode: "0755"
 
-- name: "📁 Pre-create the {{ DIR_BACKUPS }} mount point in the shared state, so no two clients create it at once"
+- name: "📁 Pre-create the {{ DIR_BACKUPS }} mount point in the shared state"
   ansible.builtin.file:
     path: "{{ [STORAGE_NFS_STATE_PATH, DIR_BACKUPS | relpath(DIR_VAR_LIB)] | path_join }}"
     state: directory
