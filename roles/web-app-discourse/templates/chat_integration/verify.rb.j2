@@ -1,3 +1,4 @@
+SiteSetting.refresh!
 {% for setting in DISCOURSE_CHAT_INTEGRATION_SETTINGS %}
 puts "{{ setting }}=#{SiteSetting.{{ setting }}}"
 {% endfor %}
