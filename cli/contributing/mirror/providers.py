@@ -10,7 +10,7 @@ from utils.docker.registry import manifest_digest
 if TYPE_CHECKING:
     import argparse
 
-    from .model import ImageRef
+    from utils.docker.image.discovery import ImageRef
 
 
 class RegistryProvider(ABC):

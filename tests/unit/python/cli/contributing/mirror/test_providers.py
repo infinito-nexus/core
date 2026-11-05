@@ -3,8 +3,8 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from cli.contributing.mirror.model import ImageRef
 from cli.contributing.mirror.providers import GHCRProvider
+from utils.docker.image.discovery import ImageRef
 
 
 class TestGHCRProviderImageBase(unittest.TestCase):
