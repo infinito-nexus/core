@@ -53,6 +53,15 @@ ERPNEXT_DB_ROOT_PASSWORD: >-
 
 ERPNEXT_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
+ERPNEXT_COMMON_SITE_CONFIG:
+  db_host: "{{ ERPNEXT_DB_HOST }}"
+  db_port: "{{ ERPNEXT_DB_PORT | int }}"
+  redis_cache: "{{ ERPNEXT_REDIS_URL }}/0"
+  redis_queue: "{{ ERPNEXT_REDIS_URL }}/1"
+  redis_socketio: "{{ ERPNEXT_REDIS_URL }}/2"
+  socketio_port: "{{ ERPNEXT_WEBSOCKET_PORT | int }}"
+  host_name: "{{ lookup('tls', application_id, 'url.origin') }}"
+
 ERPNEXT_MAIL: "{{ lookup('email', application_id) if ERPNEXT_EMAIL_ENABLED else {} }}"
 
 ERPNEXT_OIDC_ROLE_GRANTS:

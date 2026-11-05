@@ -95,6 +95,13 @@
   register: erpnext_server_scripts_apply
   changed_when: (erpnext_server_scripts_apply.stdout_lines | last | from_json).changed
 
-- name: "🔄 Restart Frappe so every worker reads the new server_script_enabled"
+- name: "🔍 Check that the Frappe processes run with the declared site config"
+  ansible.builtin.include_tasks: 02_bench_bootstrap/site_config_revision.yml
+  vars:
+    erpnext_site_config_record: false
+
+- name: "🔄 Restart Frappe on a new server_script_enabled or common site config"
   ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
-  when: erpnext_server_scripts_apply is changed
+  when: >-
+    erpnext_server_scripts_apply is changed
+    or not (erpnext_site_config_revision.stdout_lines | last | from_json).current
