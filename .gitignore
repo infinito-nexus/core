@@ -20,6 +20,8 @@ build/*
 .ruff_cache
 .agents
 .claude/skills/
+.claude/worktrees/
+.worktrees/
 .claude-*
 collections/
 .env
