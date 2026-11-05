@@ -1,5 +1,10 @@
 """Lookup ``proxy_pass``: thin wrapper emitting the mode-aware directive via
-:func:`utils.networks.proxy.resolve_upstream` + :func:`render_proxy_pass`."""
+:func:`utils.networks.proxy.resolve_upstream` + :func:`render_proxy_pass`.
+
+Trip-wire: a role's ``compose_mode_force`` stays in scope while its vhost
+renders locations of other apps (the ``/logout`` location of web-svc-logout),
+so the override applies only when the term names the scope's own
+``application_id``."""
 
 from __future__ import annotations
 
@@ -54,9 +59,15 @@ class LookupModule(LookupBase):
         real_deployment_mode = str(raw_mode).strip()
 
         mode_force = vars_.get("compose_mode_force", "")
+        scope_application_id = vars_.get("application_id", "")
         if templar is not None:
             with contextlib.suppress(Exception):
                 mode_force = templar.template(mode_force)
+            with contextlib.suppress(Exception):
+                scope_application_id = templar.template(scope_application_id)
+        scope_application_id = _as_str(scope_application_id)
+        if scope_application_id and scope_application_id != application_id:
+            mode_force = ""
         deployment_mode = _as_str(mode_force) or real_deployment_mode
 
         applications = lookup_loader.get(

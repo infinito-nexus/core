@@ -8,7 +8,7 @@
   register: _cf_reaped
   until: _cf_reaped.finished or (now(utc=true).timestamp() > (_cf_collect_deadline | float))
   retries: "{{ cloudflare_collect_retries | int }}"
-  delay: 5
+  delay: "{{ cloudflare_collect_interval | int }}"
   changed_when: false
   ignore_errors: true
   when: ASYNC_ENABLED | bool

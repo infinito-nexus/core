@@ -21,13 +21,15 @@
     _cdn_root: "{{ lookup('cdn', application_id).urls.root }}"
     _cdn_origin: "{{ _cdn_root | urlsplit('scheme') }}://{{ _cdn_root | urlsplit('netloc') }}/"
     _app_style_css: >-
-      {{ (lookup('template', _app_compose_src) | trim | replace(_cdn_origin, '/'))
+      {{ (lookup('template', _app_compose_src,
+                 template_vars={'app_body_css': app_body_css, 'app_logo_css': app_logo_css})
+          | trim | replace(_cdn_origin, '/'))
          if (app_body_css ~ app_logo_css) | length > 0 else '' }}
   set_fact:
     app_style_src: "{{ _app_style_src }}"
     app_style_file: "{{ css_app_file }}"
     app_style_css: "{{ _app_style_css }}"
-    app_style_present: "{{ _app_style_css | length > 0 }}"
+    app_style_present: "{{ (app_body_css ~ app_logo_css) | length > 0 }}"
 
 - name: "🚀 Deploy per-app '{{ app_style_src }}' to '{{ css_app_dst }}'"
   when:
@@ -63,13 +65,12 @@
     _design_compose_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'js', 'design.js.j2') }}"
     _design_config_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'js', 'design-config.json.j2') }}"
     design_body_js: "{{ (lookup('template', _design_js_src) | trim) if _design_js_src | length > 0 else '' }}"
-    _design_configured: "{{ 'INFINITO_DESIGN' in design_body_js }}"
     _design_js: >-
-      {{ (lookup('template', _design_compose_src) | trim)
-         if _design_configured | bool else design_body_js }}
+      {{ (lookup('template', _design_compose_src, template_vars={'design_body_js': design_body_js}) | trim)
+         if 'INFINITO_DESIGN' in design_body_js else design_body_js }}
   set_fact:
-    design_config_json: "{{ (lookup('template', _design_config_src) | trim) if _design_configured | bool else '' }}"
-    design_js_one_liner: "{{ (_design_js | to_one_liner) if _design_js | length > 0 else '' }}"
+    design_config_json: "{{ (lookup('template', _design_config_src) | trim) if 'INFINITO_DESIGN' in design_body_js else '' }}"
+    design_js_one_liner: "{{ _design_js | to_one_liner }}"
     design_css_states: "{{ design_css_states | combine({css_app_state_key: css_app_state}) }}"
 
 - name: "➕ Append design script CSP hash for '{{ application_id }}'"
