@@ -31,6 +31,7 @@ ENVIRONMENT = {
     "INFINITO_DOMAIN": DOMAIN,
     "INFINITO_TARGET_IP": TARGET_IP,
     "INFINITO_TARGET_KEY": KEY,
+    "INFINITO_RUNNER_PREFIX": "infinito-test",
 }
 
 
@@ -164,11 +165,19 @@ class TestResetForCompose(unittest.TestCase):
             root = Path(tmp)
             _stack(root)
             stack = _Stack(root)
-            with patch.dict(os.environ, ENVIRONMENT):
+            daemon = _OuterDaemon("")
+            with (
+                patch.dict(os.environ, ENVIRONMENT),
+                patch.object(target.subprocess, "run", daemon),
+            ):
                 target.reset_stack_target(stack)
             self.assertTrue((root / target.COREFILE).is_file())
             self.assertTrue((root / "compose/coredns/Corefile").is_file())
 
+        self.assertEqual(
+            daemon.calls,
+            [("docker", "volume", "rm", "--force", "infinito-test-target-docker")],
+        )
         services = (target.SERVICE, target.RESOLVER)
         self.assertEqual(
             stack.calls[:2],

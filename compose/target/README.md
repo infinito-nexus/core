@@ -9,7 +9,7 @@ Build context and resolver configuration of the `target` and `target-resolver` s
 | `target` | systemd and an ssh server on the distribution base image, nothing else; built from [Dockerfile](Dockerfile) and [init.sh](init.sh) with `INFINITO_PARENT_IMAGE` as base |
 | `target-resolver` | CoreDNS in the target's network namespace; answers `INFINITO_DOMAIN` and every name under it with `INFINITO_TARGET_IP` and forwards the rest to the stack's CoreDNS at `INFINITO_DNS_IP`, which starts with it |
 
-The target carries no container engine and no SSH host key of its own: a deploy under test installs `docker-ce`, and `target-host-keys.service` generates host keys when a container boots. Its `/var/lib/docker` is an anonymous volume, so the engine a deploy installs writes to a real filesystem. The checkout is mounted at `INFINITO_SRC_DIR`, where a host install replays from it.
+The target carries no container engine and no SSH host key of its own: a deploy under test installs `docker-ce`, and `target-host-keys.service` generates host keys when a container boots. Its `/var/lib/docker` is the named volume `INFINITO_RUNNER_PREFIX-target-docker`, so the engine a deploy installs writes to a real filesystem. The volume is named, not anonymous, because `sys-ctl-hlth-volumes` fails on every anonymous volume of the outer daemon, which is the operator's own host on a workstation that also runs a deployed stack. The checkout is mounted at `INFINITO_SRC_DIR`, where a host install replays from it.
 
 ## Addressing 🧭
 
@@ -39,7 +39,7 @@ python -m cli.administration.deploy.development target-reset \
 `coredns` starts with `target-resolver`, so the reset needs no running `infinito` container. A reset:
 
 1. renders the stack's [Corefile.tmpl](../coredns/Corefile.tmpl) and this [Corefile.tmpl](Corefile.tmpl) into their `Corefile`;
-2. removes `target`, `target-resolver` and the anonymous `/var/lib/docker` volume, then builds and starts both again;
+2. removes `target`, `target-resolver` and the `/var/lib/docker` volume, then builds and starts both again;
 3. in a swarm round, connects the new target to the lab network at its lab address, under the alias `target`;
 4. waits until systemd reports `running` or `degraded`;
 5. points the target's `/etc/resolv.conf` at its own address and waits until a name under `INFINITO_DOMAIN` resolves to it;
