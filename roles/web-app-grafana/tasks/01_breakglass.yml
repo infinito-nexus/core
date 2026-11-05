@@ -5,7 +5,7 @@
     resolve_service_key: "{{ 'grafana' | labelled(grafana_instance.label, '-') }}"
     resolve_service_name: "{{ lookup('container_service', application_id, 'grafana') | labelled(grafana_instance.label, '-') }}"
     resolve_output_prefix: GRAFANA
-    resolve_compose_cid: "{{ GRAFANA_INSTANCE_CONTAINER_ADDRESS }}"
+    resolve_compose_cid: "{{ GRAFANA_INSTANCE_CONTAINER }}"
 
 - name: "🔍 Resolve the Grafana network namespace on '{{ grafana_instance.network }}'"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
@@ -28,10 +28,18 @@
   become: true
 
 - name: "🔐 Align the break-glass password on '{{ grafana_instance.network }}'"
-  ansible.builtin.shell: >- # nocheck: container-exec-resolver  the container_address result suffixed with the instance label names the onion instance's container in compose and its service in swarm
-    container exec -i {{ GRAFANA_INSTANCE_CONTAINER_ADDRESS }}
-    grafana cli admin reset-admin-password --password-from-stdin
-  args:
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ GRAFANA_LOCAL_CID }}" # nocheck: container-exec-resolver  resolve_host_cid above resolved the instance's own task on GRAFANA_HOST_NODE
+      - grafana
+      - cli
+      - admin
+      - reset-admin-password
+      - --password-from-stdin
     stdin: "{{ GRAFANA_BREAKGLASS_PASSWORD }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ GRAFANA_HOST_NODE }}"
