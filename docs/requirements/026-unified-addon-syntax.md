@@ -244,7 +244,7 @@ Rules:
 - [x] [layout.md](../contributing/design/role/services/layout.md) documents `meta/addons/`: file-root convention, the addon schema, field defaults, allowed values, and the materialised path; and removes `addons` from the inlined-key list.
 - [x] The application loader reads `meta/addons/` for every role and exposes `applications.<role_id>.addons.<addon_id>` through `lookup('config', application_id, 'addons.<addon_id>')`.
 - [x] Role-meta lint under [`tests/lint/ansible/services/`](../../tests/lint/ansible/services/) rejects an invalid `mechanism` (outside the `addon`/`plugin`/`mu_plugin`/`extension`/`module`/`bridge` set), an invalid `source`, an invalid `update.catalog`, an empty `bridges: []`, a non-string `version`, a non-boolean `required`, `required: true` combined with `enabled: false`, a non-mapping `config`, a literal secret inlined in `config`, and missing required fields, honouring the `# nocheck:` suppression convention.
-- [ ] After the Nextcloud migration, no `roles/web-app-nextcloud/vars/plugins/*.yml` plugin-config file remains; a test asserts the directory's former per-plugin payloads now live under `applications.web-app-nextcloud.addons.<id>.config`.
+- [x] After the Nextcloud migration, no `roles/web-app-nextcloud/vars/plugins/*.yml` plugin-config file remains; a test asserts the directory's former per-plugin payloads now live under `applications.web-app-nextcloud.addons.<id>.config`. (`tests/unit/python/roles/web-app-nextcloud/test_plugin_config_absorbed.py` loads the application defaults and checks the eight payloads `b2fddf70a6` deleted: `bbb`, `onlyoffice`, `richdocuments`, `sociallogin`, `spreed`, `user_ldap`, `whiteboard`, `xwiki`.)
 
 ### Bridge contract
 
