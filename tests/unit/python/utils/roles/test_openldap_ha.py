@@ -1,6 +1,8 @@
 import hashlib
+import re
 import unittest
 
+from utils.cache.files import read_text
 from utils.roles.openldap_ha import (
     SERVER_ID_MAX,
     OpenLDAPHAError,
@@ -10,6 +12,17 @@ from utils.roles.openldap_ha import (
     schema_drops,
     server_id,
     server_ids,
+)
+
+from . import PROJECT_ROOT
+
+STANDALONE_CONFIGURATION = (
+    PROJECT_ROOT / "roles/svc-db-openldap/templates/ldif/configuration"
+)
+STANDALONE_SETTING = re.compile(
+    r"^(olcModuleLoad|olcOverlay|olcPasswordHash|olcConstraintAttribute"
+    r"|olcMemberOf\w+|olcRefintAttribute): (.+)$",
+    re.MULTILINE,
 )
 
 SCHEMAS = [
@@ -162,6 +175,16 @@ class TestRenderCnConfig(unittest.TestCase):
         self.assertIn("olcModuleLoad: {4}constraint", ldif)
         self.assertIn("olcOverlay: {3}constraint", ldif)
         self.assertIn("olcConstraintAttribute: uid size 21", ldif)
+
+    def test_every_standalone_setting_is_in_the_ha_form(self):
+        ldif = re.sub(r"(: )\{\d+\}", r"\1", _render(uid_max_length=21))
+        for template in sorted(STANDALONE_CONFIGURATION.glob("*.ldif.j2")):
+            text = read_text(str(template)).replace(
+                "{{ IAM_USERNAME_MAX_LENGTH }}", "21"
+            )
+            for key, value in STANDALONE_SETTING.findall(text):
+                with self.subTest(template=template.name, key=key):
+                    self.assertIn(f"{key}: {value}", ldif)
 
     def test_secrets_are_placeholders(self):
         ldif = _render()
