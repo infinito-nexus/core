@@ -9,9 +9,8 @@ if TYPE_CHECKING:
 
 KEY = "INFINITO_LIFECYCLES"
 COMMENT = (
-    "Lifecycle envelope the CI test-deploy discovery exercises "
-    "(scripts/meta/resolve/apps.sh --lifecycles), derived from the "
-    f"{CI_DEPLOY} contexts in {FILE_META_LIFECYCLE}; comma/space-separated."
+    "Lifecycles CI deploy discovery covers (apps.sh --lifecycles): "
+    f"the {CI_DEPLOY} contexts of {FILE_META_LIFECYCLE}, comma/space-separated."
 )
 
 
