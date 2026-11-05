@@ -16,7 +16,7 @@ log() {
 
 run() {
   log "RUN: $*"
-  "$@"
+  "$@" >&2
 }
 
 log "Starting CA trust installation"
