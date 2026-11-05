@@ -8,7 +8,6 @@
       public_url: "{{ OPENPOST_URL }}"
       api_headers: "{{ OPENPOST_API_HEADERS }}"
       s3_public_url: "{{ lookup('objstore', application_id, 'public_url') | regex_replace('/?$', '/') if OPENPOST_OBJSTORE_ENABLED | bool else '' }}"
-      mail_host: "{{ lookup('email', application_id).host if OPENPOST_EMAIL_ENABLED | bool else '' }}"
       smtp_enabled: "{{ OPENPOST_SMTP_ENABLED | bool }}"
       relay_targets: >-
         {%- set _targets = {} -%}
