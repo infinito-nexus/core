@@ -9,3 +9,5 @@ css_app_label: "{{ lookup('domains', application_id) | vhost_label(domain) }}"
 # The label leads the name: Playwright specs find the role sheet by `[href*='style.css']`.
 css_app_file: "{{ (css_app_label ~ '-' if css_app_label else '') ~ 'style.css' }}"
 css_app_dst: "{{ [lookup('cdn', application_id).role.release.css, css_app_file] | path_join }}"
+css_app_state_key: "{{ [application_id, app_style_file] | join('/') }}"
+css_app_state: "{{ app_style_css | hash('sha1') }}"
