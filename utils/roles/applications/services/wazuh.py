@@ -24,14 +24,14 @@ SELFTEST_TAG = "infinito-selftest"
 DEPLOY_TAG = "infinito-deploy"
 FIM_TAG = "infinito-fim"
 WATCH_TAG = "infinito-wazuh-watch"
-GITHUB_SETTINGS_TAG = "infinito-github-settings"
+GIT_SETTINGS_TAG = "infinito-git-settings"
 DEPLOYED_CODE_TAG = "infinito-deployed-code"
 OWN_TAGS = (
     SELFTEST_TAG,
     DEPLOY_TAG,
     FIM_TAG,
     WATCH_TAG,
-    GITHUB_SETTINGS_TAG,
+    GIT_SETTINGS_TAG,
     DEPLOYED_CODE_TAG,
 )
 JOURNALD_PROGRAM = "systemd-journald"
@@ -50,7 +50,7 @@ SAMPLES_FILE = "samples.yml"
 AGENT_ID = "001"
 AGENT_TIME_RECONNECT = 60
 AGENT_ACTIVE_RECONNECTS = 3
-GITHUB_SETTINGS_RULE_IDS = {
+GIT_SETTINGS_RULE_IDS = {
     "run": 100160,
     "drift": 100161,
     "pull_request_target": 100162,

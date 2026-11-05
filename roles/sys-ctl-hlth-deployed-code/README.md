@@ -24,7 +24,7 @@ The agent watches each listed checkout in real time, without `report_changes`, s
 
 ## Token
 
-The signature check uses the read-only `github_settings_token` of [web-svc-github-webhook](../web-svc-github-webhook/README.md) (it includes Contents read), stored root-only (mode 0600) next to the script. Without it, every run raises 100174 for the `verification` check.
+The signature check uses the read-only `github_settings_token` of [web-svc-git-webhook](../web-svc-git-webhook/README.md) (it includes Contents read), stored root-only (mode 0600) next to the script. Without it, every run raises 100174 for the `verification` check.
 
 ## Development
 

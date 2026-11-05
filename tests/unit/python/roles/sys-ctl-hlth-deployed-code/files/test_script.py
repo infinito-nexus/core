@@ -8,7 +8,7 @@ from pathlib import Path
 from utils import PROJECT_ROOT
 
 sys.path.insert(
-    0, str(PROJECT_ROOT / "roles/sys-ctl-hlth-github-settings/files/python")
+    0, str(PROJECT_ROOT / "roles/sys-ctl-hlth-git-settings/files/python")
 )
 import github_api
 

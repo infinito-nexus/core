@@ -13,8 +13,8 @@ from utils.roles.applications.services.wazuh import (
     DEPLOYED_CODE_RULE_IDS,
     DEPLOYED_CODE_TAG,
     FIM_TAG,
-    GITHUB_SETTINGS_RULE_IDS,
-    GITHUB_SETTINGS_TAG,
+    GIT_SETTINGS_RULE_IDS,
+    GIT_SETTINGS_TAG,
     JOURNALD_DECODER,
     JOURNALD_PROGRAM,
     OWN_TAGS,
@@ -48,15 +48,15 @@ class LookupModule(LookupBase):
             this host's ``group_names``, which is what its agent collects.
 
     Returns:
-        ``{selftest, deploy, fim, watch, github_settings, deployed_code,
+        ``{selftest, deploy, fim, watch, git_settings, deployed_code,
         rule_ids, own, journald, system_tags, container_comm, entities, files,
         samples}``.
-        ``rule_ids`` is ``{github_settings, deployed_code}``, each mapping a
+        ``rule_ids`` is ``{git_settings, deployed_code}``, each mapping a
         check's event kind (``run``, a finding kind, ``failed``) to the Wazuh
         rule ID it raises, so the rules and the role tests share one source.
         ``system_tags`` lists the host programs the agent collects as root,
         ``container_comm`` the ``_COMM`` of container log lines.
-        ``selftest``, ``deploy``, ``fim``, ``watch``, ``github_settings`` and
+        ``selftest``, ``deploy``, ``fim``, ``watch``, ``git_settings`` and
         ``deployed_code`` are ``{program, decoder}`` of the reserved tags for
         the self-test, the deploy markers, the FIM who-data state, the log
         collector freeze, the GitHub settings check and the deployed code
@@ -180,10 +180,10 @@ class LookupModule(LookupBase):
                 "deploy": own[DEPLOY_TAG],
                 "fim": own[FIM_TAG],
                 "watch": own[WATCH_TAG],
-                "github_settings": own[GITHUB_SETTINGS_TAG],
+                "git_settings": own[GIT_SETTINGS_TAG],
                 "deployed_code": own[DEPLOYED_CODE_TAG],
                 "rule_ids": {
-                    "github_settings": dict(GITHUB_SETTINGS_RULE_IDS),
+                    "git_settings": dict(GIT_SETTINGS_RULE_IDS),
                     "deployed_code": dict(DEPLOYED_CODE_RULE_IDS),
                 },
                 "own": [own[tag] for tag in OWN_TAGS],

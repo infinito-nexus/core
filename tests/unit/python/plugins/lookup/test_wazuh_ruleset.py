@@ -15,8 +15,8 @@ from utils.roles.applications.services.wazuh import (
     DEPLOYED_CODE_RULE_IDS,
     DEPLOYED_CODE_TAG,
     FIM_TAG,
-    GITHUB_SETTINGS_RULE_IDS,
-    GITHUB_SETTINGS_TAG,
+    GIT_SETTINGS_RULE_IDS,
+    GIT_SETTINGS_TAG,
     JOURNALD_DECODER,
     JOURNALD_PROGRAM,
     SELFTEST_TAG,
@@ -28,20 +28,20 @@ _SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
 _DEPLOY = {"program": DEPLOY_TAG, "decoder": DEPLOY_TAG}
 _FIM = {"program": FIM_TAG, "decoder": FIM_TAG}
 _WATCH = {"program": WATCH_TAG, "decoder": WATCH_TAG}
-_GITHUB_SETTINGS = {"program": GITHUB_SETTINGS_TAG, "decoder": GITHUB_SETTINGS_TAG}
+_GIT_SETTINGS = {"program": GIT_SETTINGS_TAG, "decoder": GIT_SETTINGS_TAG}
 _DEPLOYED_CODE = {"program": DEPLOYED_CODE_TAG, "decoder": DEPLOYED_CODE_TAG}
 _EMPTY = {
     "selftest": _SELFTEST,
     "deploy": _DEPLOY,
     "fim": _FIM,
     "watch": _WATCH,
-    "github_settings": _GITHUB_SETTINGS,
+    "git_settings": _GIT_SETTINGS,
     "deployed_code": _DEPLOYED_CODE,
     "rule_ids": {
-        "github_settings": GITHUB_SETTINGS_RULE_IDS,
+        "git_settings": GIT_SETTINGS_RULE_IDS,
         "deployed_code": DEPLOYED_CODE_RULE_IDS,
     },
-    "own": [_SELFTEST, _DEPLOY, _FIM, _WATCH, _GITHUB_SETTINGS, _DEPLOYED_CODE],
+    "own": [_SELFTEST, _DEPLOY, _FIM, _WATCH, _GIT_SETTINGS, _DEPLOYED_CODE],
     "journald": {"program": JOURNALD_PROGRAM, "decoder": JOURNALD_DECODER},
     "system_tags": list(SYSTEM_TAGS),
     "container_comm": CONTAINER_COMM,

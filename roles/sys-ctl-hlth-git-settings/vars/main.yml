@@ -1,0 +1,12 @@
+---
+system_service_id: sys-ctl-hlth-git-settings
+
+HLTH_GIT_SETTINGS_SCHEDULE: "{{ lookup('config', 'sys-ctl-hlth-git-settings', 'services.git-settings.schedule') }}"
+
+HLTH_GIT_SETTINGS_PROVIDER: "web-svc-git-webhook"
+HLTH_GIT_SETTINGS_TOKEN: "{{ lookup('config', HLTH_GIT_SETTINGS_PROVIDER, 'secrets.credentials.github_settings_token') }}"
+HLTH_GIT_SETTINGS_TAG: "{{ lookup('wazuh_ruleset', scope='host').git_settings.program }}"
+HLTH_GIT_SETTINGS_DIR: "{{ system_service_id | get_service_script_path('py') | dirname }}"
+HLTH_GIT_SETTINGS_TOKEN_FILE: "{{ [HLTH_GIT_SETTINGS_DIR, 'token'] | path_join }}"
+HLTH_GIT_SETTINGS_API_MODULE: "{{ [HLTH_GIT_SETTINGS_DIR, 'github_api.py'] | path_join }}"
+HLTH_GIT_SETTINGS_EXPECTED_FILE: "{{ [HLTH_GIT_SETTINGS_DIR, 'expected.json'] | path_join }}"
