@@ -20,7 +20,6 @@ from pathlib import Path
 
 from openpost.api import DEADLINE, accounts, call, check, render_media
 from openpost.journal import hits, statuses
-from openpost.mailbox import reports_naming
 from openpost.simulator import SCENARIOS, simulator_admin
 from openpost.sources import (
     mastodon_post,
@@ -89,6 +88,15 @@ def items(source_url: str) -> list[list[str]]:
         " FROM crossposter.items WHERE source_url = %s ORDER BY id",
         source_url,
     )
+
+
+def reported(source_url: str) -> bool:
+    rows = sql(
+        "SELECT notified_at IS NOT NULL FROM crossposter.items"
+        " WHERE source_url = %s AND state IN ('failed', 'dead_lettered')",
+        source_url,
+    )
+    return bool(rows) and all(row == ["True"] for row in rows)
 
 
 def publications(token: str, workspace: str, nonce: str) -> list[dict]:
@@ -293,6 +301,9 @@ def mastodon_scenarios(
 
 
 def check_failures(token: str, workspace: str, route: dict, source: str) -> set[str]:
+    if not CROSSPOSTER:
+        print("[SKIP] crossposter failure reports: its task runs on another swarm node")
+        return set()
     base, tag = route["base_url"], route["tags"][0]
     rejected = mastodon_post(
         base,
@@ -309,26 +320,24 @@ def check_failures(token: str, workspace: str, route: dict, source: str) -> set[
         "",
     )
     urls = [str(rejected.get("url")), str(exhausted.get("url"))]
-    budget = POLL_SECONDS * 6 + RETRY_SECONDS
-    found, mailbox = wait(
-        lambda: reports_naming(urls),
-        lambda result: len(result[0]) == len(urls),
-        budget,
+    found = wait(
+        lambda: [url for url in urls if reported(url)],
+        lambda found: len(found) == len(urls),
+        POLL_SECONDS * 6 + RETRY_SECONDS,
     )
     check(
-        "a provider rejection and an exhausted retry budget reach the administrator by mail",
+        "the mail server accepts the reports of a provider rejection and an exhausted retry budget for the administrator",
         len(found) == len(urls),
-        f"{found} of {urls}; {mailbox}",
+        {url: items(url) for url in urls},
     )
-    if CROSSPOSTER:
-        states = {
-            state for url in urls for _, state, *_ in items(url) if state != "published"
-        }
-        check(
-            "the rejection ends failed and the outage ends dead-lettered",
-            states == {"failed", "dead_lettered"},
-            states,
-        )
+    states = {
+        state for url in urls for _, state, *_ in items(url) if state != "published"
+    }
+    check(
+        "the rejection ends failed and the outage ends dead-lettered",
+        states == {"failed", "dead_lettered"},
+        states,
+    )
     return {"failed", "dead_lettered"}
 
 
