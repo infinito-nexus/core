@@ -1,0 +1,18 @@
+---
+retroarch:
+  Archlinux:
+    - retroarch
+    - retroarch-assets-ozone
+    - retroarch-assets-xmb
+  Debian:
+    - retroarch
+    - retroarch-assets
+  RedHat:
+    - retroarch
+    - retroarch-assets
+  centos:
+    source: flatpak
+    names:
+      - org.libretro.RetroArch
+    flatpak:
+      command: retroarch

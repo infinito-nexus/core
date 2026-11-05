@@ -1,0 +1,44 @@
+---
+- name: "🛡️ Forget node | Refuse a host the inventory still lists"
+  ansible.builtin.assert:
+    that:
+      - SWARM_FORGET_NODE not in groups['all']
+    fail_msg: >-
+      '{{ SWARM_FORGET_NODE }}' is still in the inventory. Remove it from
+      every group before forgetting it.
+
+- name: "🔍 Forget node | Read the Swarm state and role of the lost node"
+  ansible.builtin.command: >-
+    docker node inspect --format {{ '{{.Status.State}} {{.Spec.Role}}' | quote }}
+    {{ SWARM_FORGET_NODE | quote }}
+  register: _forget_node_inspect
+  changed_when: false
+  failed_when: false
+
+- name: "🛡️ Forget node | Refuse unless Swarm reports the node down"
+  ansible.builtin.set_fact:
+    _forget_node_plan: "{{ _forget_node_inspect.stdout | swarm_forget_node_plan(SWARM_FORGET_NODE) }}"
+
+- name: "⬇️ Forget node | Demote the lost manager"
+  ansible.builtin.command: "docker node demote {{ _forget_node_plan.node | quote }}"
+  when: _forget_node_plan.manager | bool
+  changed_when: true
+
+- name: "🗑️ Forget node | Remove the lost node from Swarm"
+  ansible.builtin.command: "docker node rm {{ _forget_node_plan.node | quote }}"
+  changed_when: true
+
+- name: "🗑️ Forget node | Let every HA engine drop the lost node"
+  ansible.builtin.include_role:
+    name: "{{ forget_engine }}"
+    tasks_from: utils/forget.yml
+  vars:
+    application_id: "{{ forget_engine }}"
+    forget_node_plan: "{{ _forget_node_plan }}"
+  loop: "{{ lookup('db_instances', ha_engines=true) }}"
+  loop_control:
+    loop_var: forget_engine
+  when:
+    - lookup('path_absolute', 'roles/' ~ forget_engine ~ '/tasks/utils/forget.yml') is file
+    - lookup('db_instances', forget_engine).form == 'ha'
+    - not lookup('db_instances', forget_engine).ha.coordination_store or lookup('db_instances', coordination_store_needed=true)

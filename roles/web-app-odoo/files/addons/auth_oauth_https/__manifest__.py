@@ -24,7 +24,7 @@ Standard Odoo uses 'user_id' from the OAuth userinfo response to identify users.
 This claim is non-standard; Keycloak maps its internal UUID to it by default.
 
 This module changes user identification to use a configurable claim field,
-set via the ODOO_OIDC_UID_FIELD environment variable (default: 'preferred_username').
+set via the ODOO_OIDC_UID_FIELD environment variable.
 This aligns Odoo with other applications in the infinito.nexus stack:
 - Mastodon: OIDC_UID_FIELD = preferred_username
 - Pixelfed: PF_OIDC_FIELD_ID = preferred_username
@@ -34,7 +34,7 @@ This aligns Odoo with other applications in the infinito.nexus stack:
 Configuration:
 --------------
 Set ODOO_OIDC_UID_FIELD environment variable to the OIDC claim to use for user
-identification. Defaults to 'preferred_username' if not set.
+identification. The deploy renders it from OIDC.ATTRIBUTES.USERNAME.
 
 Features:
 ---------

@@ -11,16 +11,6 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 test.use({ ignoreHTTPSErrors: true });
 
 test("OIDC: native plg_system_keycloak redirects unauthenticated visitors to Keycloak and logs them back in to Joomla", async ({ page }) => {
-  // The plg_system_keycloak plugin shipped under
-  // roles/web-app-joomla/files/joomla-oidc-plugin/ implements native
-  // OIDC SSO against Keycloak (no oauth2-proxy sidecar). Visiting the
-  // Joomla site root `/` while gated by the plugin redirects the
-  // browser to the Keycloak authorization endpoint. After Keycloak
-  // login, the plugin handles the callback at
-  // /index.php?option=keycloak&task=callback, provisions/updates the
-  // local Joomla user with RBAC group memberships derived from the
-  // Keycloak `groups` claim, and lands the user back on the original
-  // URL.
   expect(joomlaBaseUrl, "JOOMLA_BASE_URL must be set in the Playwright env file").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set in the Playwright env file").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set in the Playwright env file").toBeTruthy();
@@ -49,8 +39,15 @@ test("OIDC: native plg_system_keycloak redirects unauthenticated visitors to Key
     })
     .toContain(expectedJoomlaBaseUrl);
 
-  // Joomla front-end renders after the OIDC handshake. RBAC mapping
-  // gave the administrator persona Super Users (id 8), so the
-  // administrator landing nav link is visible to logged-in users.
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("header.container-header"),
+    "Expected the Joomla front-end template to render after the handshake, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/index.php?option=com_users&view=profile`);
+
+  await expect(
+    page.locator("main .com-users-profile, main .com-users-logout").first(),
+    "Expected an authenticated Joomla session after the handshake: com_users renders the profile only for a logged-in user and answers a guest with the 404 error template, so the plugin's `index.php?fallback=local` SSO-error page cannot satisfy this",
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 });

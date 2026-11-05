@@ -18,7 +18,10 @@ import unittest.mock as mock
 from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests, base
+from utils.domains.default_primary import default_domain_primary
 from utils.paths import FILE_TOKENS
+
+DOMAIN = default_domain_primary()
 
 
 def _write(path: Path, content: str) -> None:
@@ -146,12 +149,12 @@ class TestStableVariablesSignature(unittest.TestCase):
         sig = base._stable_variables_signature(
             {
                 "applications": {"web-app-x": {}},
-                "DOMAIN_PRIMARY": "infinito.test",
-                "SYSTEM_EMAIL_DOMAIN": "mail.infinito.test",
+                "DOMAIN_PRIMARY": DOMAIN,
+                "SYSTEM_EMAIL_DOMAIN": f"mail.{DOMAIN}",
             }
         )
-        self.assertEqual(sig[2], "infinito.test")
-        self.assertEqual(sig[3], "mail.infinito.test")
+        self.assertEqual(sig[2], DOMAIN)
+        self.assertEqual(sig[3], f"mail.{DOMAIN}")
 
 
 class TestTokensFileSignature(unittest.TestCase):

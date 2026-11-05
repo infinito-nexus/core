@@ -1,0 +1,7 @@
+{#
+  Param: ha_client_user      SQL user the option file logs in as.
+  Param: ha_client_password  that user's password.
+#}
+[client]
+user = {{ ha_client_user }}
+password = "{{ ha_client_password }}"

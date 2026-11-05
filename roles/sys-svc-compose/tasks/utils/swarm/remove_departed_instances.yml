@@ -1,0 +1,22 @@
+---
+- name: "🔍 List the declared services of '{{ application_id }}'"
+  ansible.builtin.command: compose config --services
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  register: _departed_declared
+  changed_when: false
+
+- name: "🔍 List the live services of stack '{{ application_id | entity_name }}'"
+  ansible.builtin.command: >-
+    docker stack services --format {{ '{{.Name}}' | quote }}
+    {{ application_id | entity_name | quote }}
+  register: _departed_live
+  changed_when: false
+
+- name: "🗑️ Remove instance services whose host left the '{{ application_id }}' group"
+  ansible.builtin.command: "docker service rm {{ item | quote }}"
+  loop: >-
+    {{ _departed_live.stdout_lines
+       | swarm_departed_instances(application_id, application_id | entity_name,
+                                  _departed_declared.stdout_lines) }}
+  changed_when: true

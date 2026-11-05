@@ -1,0 +1,40 @@
+---
+# Param: rolling_members - `patronictl list --format json` rows
+- name: "🔧 POSTGRES | Split leader and replicas"
+  ansible.builtin.set_fact:
+    postgres_rolling_leader: "{{ (rolling_members | selectattr('Role', 'equalto', 'Leader') | map(attribute='Member') | list | first) | default('') }}"
+    postgres_rolling_replicas: "{{ rolling_members | rejectattr('Role', 'equalto', 'Leader') | map(attribute='Member') | list }}"
+    postgres_rolling_candidate: >-
+      {{ (rolling_members
+          | selectattr('Role', 'in', ['Sync Standby', 'Quorum Standby'])
+          | map(attribute='Member') | list | first) | default('') }}
+
+- name: "🛡️ POSTGRES | A synchronous replica exists to hand the primary to"
+  ansible.builtin.assert:
+    that:
+      - postgres_rolling_leader | length > 0
+      - postgres_rolling_candidate | length > 0
+    fail_msg: "Rolling restart refused: no leader or no synchronous replica to switch over to"
+
+- name: "🔄 POSTGRES | Restart replicas one at a time"
+  ansible.builtin.include_tasks:
+    file: rolling_member.yml
+    apply:
+      delegate_to: "{{ POSTGRES_PRIMARY_NODE }}"
+  loop: "{{ postgres_rolling_replicas }}"
+  loop_control:
+    loop_var: rolling_member
+
+- name: "🔀 POSTGRES | Switch over to a synchronous replica"
+  ansible.builtin.command: # nocheck: container-exec-resolver  POSTGRES_PRIMARY_CID is the Patroni primary resolved at runtime
+    argv: "{{ ['container', 'exec', '--user', 'postgres', POSTGRES_PRIMARY_CID] + (POSTGRES_PATRONICTL | split) + ['switchover', entity_name, '--leader', postgres_rolling_leader,
+      '--candidate', postgres_rolling_candidate, '--force'] }}"
+  delegate_to: "{{ POSTGRES_PRIMARY_NODE }}"
+
+- name: "🔄 POSTGRES | Restart the old primary"
+  ansible.builtin.include_tasks:
+    file: rolling_member.yml
+    apply:
+      delegate_to: "{{ POSTGRES_PRIMARY_NODE }}"
+  vars:
+    rolling_member: "{{ postgres_rolling_leader }}"

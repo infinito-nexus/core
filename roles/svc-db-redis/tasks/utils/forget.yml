@@ -1,0 +1,12 @@
+---
+- name: "🔄 Redis | SENTINEL RESET on every remaining Sentinel"
+  ansible.builtin.shell: |
+    set -eu
+    if ! container inspect --type container {{ lookup('container_address', application_id, 'sentinel', instance=item) }} >/dev/null 2>&1; then echo absent; exit 0; fi
+    container exec {{ lookup('container_address', application_id, 'sentinel', instance=item) }} {{ REDIS_SENTINEL_CLI }} RESET '*'
+  register: redis_sentinel_reset
+  delegate_to: "{{ item.host }}"
+  loop: "{{ REDIS_HA.instances }}"
+  loop_control:
+    label: "{{ item | swarm_instance_service(application_id, 'sentinel') }}"
+  changed_when: redis_sentinel_reset.stdout | trim != 'absent'

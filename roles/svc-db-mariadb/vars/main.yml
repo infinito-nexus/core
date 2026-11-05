@@ -1,6 +1,6 @@
 ---
 application_id: svc-db-mariadb
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 database_type: "{{ entity_name }}"
 
 MARIADB_ROOT_PWD: "{{ lookup('config', application_id, 'secrets.credentials.root_password') }}"
@@ -18,6 +18,37 @@ MARIADB_SWARM_SERVICE: "{{ entity_name }}_{{ MARIADB_NAME }}"
 MARIADB_HEALTHCHECK_DB: "{{ SOFTWARE_DOMAIN | regex_replace('[^a-z0-9]+', '_') }}_healthcheck"
 
 MARIADB_EXPOSED: "{{ lookup('config', application_id, 'services.mariadb.exposed') | bool }}"
-MARIADB_EXPOSE_LOCAL: "{{ MARIADB_EXPOSED | bool or not DOCKER_IN_CONTAINER | bool }}"
+MARIADB_EXPOSE_LOCAL: "{{ (MARIADB_EXPOSED | bool or not DOCKER_IN_CONTAINER | bool) and not MARIADB_HA | bool }}"
 
 MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS: true
+
+MARIADB_INSTANCES: "{{ lookup('db_instances', application_id) }}"
+MARIADB_HA: "{{ MARIADB_INSTANCES.form == 'ha' }}"
+MARIADB_SERVER_IDS: "{{ MARIADB_INSTANCES.instances | mariadb_server_ids if MARIADB_HA | bool else {} }}"
+MARIADB_REPLICATION_USER: replication
+MARIADB_REPLICATION_PWD: "{{ lookup('config', application_id, 'secrets.credentials.replication_password') }}"
+MARIADB_ELECTOR_USER: elector
+MARIADB_ELECTOR_LOCAL_USER: mysql
+MARIADB_HA_PEER_HOSTS: >-
+  {{ [ lookup('config', application_id, 'networks.internal.subnet'),
+       lookup('config', 'svc-dcs-etcd', 'networks.local.subnet') ] | mariadb_host_masks }}
+MARIADB_ELECTOR_PWD: "{{ lookup('config', application_id, 'secrets.credentials.elector_password') }}"
+MARIADB_ELECTOR_ETCD_USER: "{{ lookup('config', application_id, 'services.etcd.user') }}"
+MARIADB_ELECTOR_ETCD_PWD: "{{ lookup('config', application_id, 'secrets.credentials.etcd_password') }}"
+MARIADB_ELECTOR_ETCD_KEY: "{{ lookup('config', application_id, 'services.etcd.prefix') }}writer"
+MARIADB_ELECTOR_PEER_TEMPLATE: "{{ entity_name }}-{host}"
+MARIADB_HA_SOCKET: /run/mysqld/mysqld.sock
+MARIADB_ELECTOR_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.writer') }}"
+MARIADB_SEED_SECRET_FILE: "{{ lookup('volume', application_id, 'ha_replication_password').target }}"
+MARIADB_SEED_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.seed') }}"
+MARIADB_SEED_RELAY: "{{ [DB_ELECTOR_DIR, 'seed_relay.py'] | path_join }}"
+MARIADB_HA_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
+MARIADB_HA_CONTEXT_DIR: ha
+MARIADB_HA_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), MARIADB_HA_CONTEXT_DIR] | path_join }}"
+MARIADB_HA_DATADIR: "{{ lookup('volume', application_id, 'data').target }}"
+MARIADB_HA_READY_MARKER: "{{ [MARIADB_HA_DATADIR, '.infinito-ha-ready'] | path_join }}"
+MARIADB_HA_BOOTSTRAP_MARKER: "{{ [MARIADB_HA_DATADIR, '.infinito-ha-bootstrap'] | path_join }}"
+MARIADB_HA_ROOT_CNF: "{{ lookup('volume', application_id, 'ha_root_cnf').target }}"
+MARIADB_HA_SQL: >-
+  mariadb --defaults-extra-file={{ MARIADB_HA_ROOT_CNF }} -N -B
+MARIADB_HA_PRIMARY_SEED_TIMEOUT: 1800

@@ -1,0 +1,122 @@
+:root {
+{% for role, token in OPENCLOUD_DESIGN_ROLES.items() %}
+  --oc-role-{{ role | regex_replace('([A-Z])', '-\\1') | lower }}: var(--design-{{ token }});
+{% endfor %}
+{% for icon, token in OPENCLOUD_DESIGN_ICON_COLORS.items() %}
+  --oc-color-icon-{{ icon }}: var(--design-{{ token }});
+{% endfor %}
+}
+
+@layer base {
+  :root *,
+  :root ::after,
+  :root ::before,
+  :root ::backdrop,
+  :root ::file-selector-button {
+    border-color: var(--design-border);
+  }
+}
+
+.oc-button-raw:is(:hover, :focus):not([disabled], .active, .no-hover),
+.oc-button-raw-inverse:is(:hover, :focus):not([disabled], .active, .no-hover),
+.oc-button-outline:hover:not([disabled], .no-hover),
+#web .oc-table-hover tr:not(.oc-table-footer-row, .oc-table-header-row, .oc-table-highlighted):hover {
+  background-color: var(--design-surface-hover);
+}
+
+.oc-sidebar-nav-item-link.active {
+  background-color: var(--design-surface-active);
+}
+
+.oc-button-primary-filled:hover:not([disabled], .no-hover) {
+  filter: none;
+  background-color: var(--design-primary-hover);
+}
+.oc-button-primary-filled:active:not([disabled]) {
+  background-color: var(--design-primary-active);
+}
+
+#oc-topbar {
+  --design-focus: var(--design-on-frame);
+}
+#oc-topbar :focus-visible {
+  outline-color: var(--design-on-frame);
+  box-shadow: 0 0 0 4px var(--design-frame-active);
+}
+#oc-topbar .oc-button-chrome-raw-inverse:is(:hover, :focus):not([disabled], .active, .no-hover),
+#oc-topbar #_userMenuButton:is(:hover, :focus) {
+  background-color: var(--design-frame-hover);
+  color: var(--design-on-frame);
+}
+#oc-topbar .oc-button-chrome-raw-inverse:is(:hover, :focus):not([disabled], .active, .no-hover) .oc-icon > svg {
+  fill: var(--design-on-frame);
+}
+#oc-topbar .oc-drop {
+  --design-focus: var(--design-link);
+}
+#oc-topbar .oc-drop :focus-visible {
+  outline-color: var(--design-surface-1);
+  box-shadow: 0 0 0 4px var(--design-link);
+}
+
+{% if lookup('design', application_id).logo is string %}
+.bg-role-chrome > img[alt="OpenCloud logo"] {
+  content: url("{{ OPENCLOUD_URL }}/{{ OPENCLOUD_DESIGN_THEME_URL_PATH }}/assets/logo-mobile.svg");
+}
+
+{% endif %}
+.oc-login > img[alt="OpenCloud emblem"],
+.oc-login-bg .oc-login-bg-icon {
+  display: none;
+}
+
+.oc-login-bg {
+  --design-focus: var(--design-on-frame);
+  background: var(--design-frame);
+}
+.oc-login-bg .oc-footer-message {
+  color: var(--design-on-frame);
+}
+.oc-login-bg .oc-card {
+  --design-focus: var(--design-link);
+  background: var(--design-surface-2);
+  color: var(--design-text);
+}
+.oc-login-bg .oc-input {
+  border: 1px solid var(--design-border-strong);
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}
+.oc-login-bg .oc-input:focus {
+  border-color: var(--design-surface-1);
+  outline: 2px solid var(--design-link);
+}
+.oc-login-bg .oc-input.error {
+  border-color: var(--design-danger);
+}
+.oc-login-bg .MuiTypography-colorError {
+  color: var(--design-danger) !important;
+}
+.oc-login-bg .oc-button-primary {
+  background: var(--design-primary) !important;
+  color: var(--design-on-primary) !important;
+}
+.oc-login-bg .oc-button-primary:hover {
+  background: var(--design-primary-hover) !important;
+}
+.oc-login-bg .oc-button-primary:active {
+  background: var(--design-primary-active) !important;
+}
+.oc-login-bg .oc-button-secondary {
+  background: var(--design-surface-3) !important;
+  color: var(--design-text) !important;
+}
+.oc-login-bg .oc-button-secondary:hover {
+  background: var(--design-surface-hover) !important;
+}
+.oc-login-bg .oc-progress {
+  background-color: var(--design-surface-3) !important;
+}
+.oc-login-bg .oc-progress > div {
+  background-color: var(--design-link) !important;
+}

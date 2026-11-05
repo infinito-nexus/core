@@ -117,7 +117,7 @@ openbao:
     internal: { http: 8200 }
     local:    { http: <allocate via the suggester> }
   backup:
-    no_stop_required: false
+    stop_required: true
   run_after:
     - svc-db-openldap
     - web-app-keycloak
@@ -216,7 +216,7 @@ cluster_addr = "http://127.0.0.1:8201"
 - [x] The raft volume is declared `nfs: false` with a `# nocheck: nfs-false-data-loss` reason; no OpenBao state is placed on an NFS-backed volume in any mode.
 - [x] The role's compose template sets `service_update_order = 'stop-first'`, so a swarm rolling update never runs two tasks against the same raft directory. Confirmed on the live cluster: the service's `UpdateConfig.Order` is `stop-first` with `Replicas 1`.
 - [x] `cluster_addr` renders identically in both modes and is not derived from the container name (see the [listener/seal schema note](#templatesopenbaohclj2-shape)). Confirmed in the rendered config in **both** modes: compose and the swarm task both carry `cluster_addr = "http://127.0.0.1:8201"`, with raft `path = /openbao/file` and `node_id = openbao-1`.
-- [x] Every in-container configuration task reaches the container through [`resolve_host_cid.yml`](../../roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml) — `container exec <resolved CID>` under `ansible.builtin.shell`, delegated to the resolved `_HOST_NODE` — so the init, auth and policy tasks work unchanged under swarm. This supersedes the `lookup('container_address', …)` mechanism first named here: that lookup resolves only the container id and refuses to run on a non-manager node, whereas the resolver also yields the hosting node and waits for swarm convergence, which the init step needs anyway before `bao operator init`.
+- [x] Every in-container configuration task reaches the container through [`resolve/host_cid.yml`](../../roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml) — `container exec <resolved CID>` under `ansible.builtin.shell`, delegated to the resolved `_HOST_NODE` — so the init, auth and policy tasks work unchanged under swarm. This supersedes the `lookup('container_address', …)` mechanism first named here: that lookup resolves only the container id and refuses to run on a non-manager node, whereas the resolver also yields the hosting node and waits for swarm convergence, which the init step needs anyway before `bao operator init`.
 - [x] The role uses no node-local `force_bridge` network, so the swarm Prometheus can reach the native-metrics target (the `native_metrics_apps` lookup gates `force_bridge` apps out of the scrape). Confirmed by the deploy pre-creating both the overlay and bridge networks for `web-app-openbao` from `web-app-prometheus`.
 - [ ] `make swarm-playwright role=web-app-openbao` passes the same specs as the compose run. *Not run: `swarm-playwright` requires the staging directory a completed deploy creates, and the `swarm-zombie` drill was cut short by the runner budget on this machine before its Playwright step. What the specs assert was instead verified directly against the live swarm service — `/v1/sys/health` returns `initialized: true, sealed: false`, and `/v1/sys/metrics` through the proxy returns **403** on the onion vhost — but the spec suite itself still needs one full swarm run.*
 
@@ -286,7 +286,7 @@ cluster_addr = "http://127.0.0.1:8201"
 
 ### Backup & restore
 
-- [x] The `container_backup` service is wired with `backup.no_stop_required: false`, so the container is quiesced for a consistent copy of the raft volume.
+- [x] The `container_backup` service is wired with `backup.stop_required: true`, so the container is quiesced for a consistent copy of the raft volume.
 - [x] A restore procedure is documented and executed once end to end: restore the volume, redeploy, and confirm the instance auto-unseals and a previously stored secret is still readable. Drill run on the variant-2 stack: container quiesced, `openbao_data` archived (33 MB), the live volume **wiped to zero entries**, restored from the archive, and restarted — OpenBao came back `initialized: true, sealed: false` with the secret, the PKI root CA and all five policies recovered. This also confirms the documented dependency: the restored store is only readable because the seal key in the inventory was unchanged.
 - [x] The README states explicitly that the volume backup is **worthless without the seal key**, that the seal key's authoritative home is the encrypted inventory (it is not covered by `svc-bkp-secrets-2-local`, whose sources are `DIR_SECRETS`, the CA and the ACME material), and what the recovery keys can and cannot do.
 - [x] The README states the consequence of Decision #2 that surfaced during implementation: because the root token is revoked and the recovery keys are **not** persisted (persisting them would be the write-back the AppRole bootstrap exists to avoid), the Ansible AppRole is the *only* administrative path into the instance. Losing or out-of-band-changing those credentials means rebuilding from the volume backup plus the seal key.

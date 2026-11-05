@@ -81,9 +81,6 @@ class LookupModule(LookupBase):
                 f"proxy_pass: networks.local.force_bridge for "
                 f"{application_id!r} did not template: {force_bridge_raw!r}"
             )
-        # Exception: keyed on real_deployment_mode, not deployment_mode - a
-        # force_bridge app rewrites the latter to 'compose' via
-        # compose_mode_force, which would silently no-op the host-gateway path.
         host_gateway = _as_bool(force_bridge_raw) and real_deployment_mode == "swarm"
 
         try:

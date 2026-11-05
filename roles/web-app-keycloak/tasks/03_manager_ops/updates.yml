@@ -4,12 +4,12 @@
     kc_update_max_attempts: 5
   block:
     - name: "🔍 Keycloak updates | Resolve live hosting node (swarm may reschedule)"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
       vars:
         resolve_service_key: "{{ entity_name }}"
         resolve_output_prefix: KEYCLOAK
         resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
-      when: DEPLOYMENT_MODE == 'swarm'
+      when: IS_SWARM_MODE
 
     - name: "📂 Run Keycloak object-update routines on the freshly resolved node"
       ansible.builtin.include_tasks:
@@ -28,7 +28,7 @@
     - name: "🐳 Keycloak updates | Re-raise failure unchanged in compose (no swarm recovery)"
       ansible.builtin.fail:
         msg: "{{ ansible_failed_result.msg | default('Keycloak object update failed') }}"
-      when: DEPLOYMENT_MODE == 'compose'
+      when: IS_COMPOSE_MODE
 
     - name: "🛑 Keycloak updates | Fail after exhausting cross-node recovery retries"
       ansible.builtin.fail:

@@ -1,12 +1,17 @@
 ---
-# Rebuild the provider's adapter sidecar after its compose file exists.
-#
-# instance.yml stages the build context without notifying anything, so this is
-# what makes a changed policy.py or server.py reach the running sidecar.
-- name: "🧱 Rebuild the {{ application_id }} MCP adapter image"
+- name: "🧱 Queue the {{ application_id }} MCP adapter for a lone rebuild"
+  ansible.builtin.set_fact:
+    compose_service_up_targets:
+      - "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}" # nocheck: lookup-config-path  application_id is the including provider here
+  changed_when: true
+  notify: compose-service-up
+  when: IS_COMPOSE_MODE
+
+- name: "🧱 Rebuild the {{ application_id }} MCP adapter with its swarm stack"
   ansible.builtin.debug:
     msg: "MCP adapter build context staged for {{ application_id }}"
   changed_when: true
   notify:
     - compose-build
     - compose-up
+  when: IS_SWARM_MODE

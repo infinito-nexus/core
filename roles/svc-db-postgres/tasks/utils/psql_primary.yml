@@ -1,0 +1,19 @@
+---
+# Param: psql_template  - SQL template under templates/sql/, fed on stdin
+# Param: psql_database  - database psql connects to first
+# Param: psql_node      - node the target container runs on
+# Param: psql_cid       - container id to exec into (peer auth as postgres)
+- name: "🐘 POSTGRES | Apply {{ psql_template }} via peer socket"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  psql_cid is the Patroni primary resolved at runtime
+    container exec -i --user postgres {{ psql_cid | quote }}
+    psql -X -q -d {{ psql_database | quote }} -v ON_ERROR_STOP=1 -f -
+  args:
+    stdin: "{{ lookup('template', 'sql/' ~ psql_template) }}"
+  timeout: "{{ lookup('timeout', 300) | int }}"
+  register: _psql_primary_result
+  delegate_to: "{{ psql_node }}"
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+  until: _psql_primary_result.rc == 0
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

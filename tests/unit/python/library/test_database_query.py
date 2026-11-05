@@ -72,6 +72,17 @@ class ResolveExecTargetTests(unittest.TestCase):
             ["/usr/bin/resolve-container-id", "postgres", "postgres"],
         )
 
+    def test_ha_primary_address_equal_to_container_resolves(self):
+        primary = '"$(/usr/bin/resolve-db-primary postgres postgres)"'
+        cfg = dict(_BASE_CONFIG, container=primary, address=primary)
+        fake = mock.Mock(stdout="0123456789ab\n")
+        with mock.patch.object(_DB_MOD.subprocess, "run", return_value=fake) as run:
+            self.assertEqual(_DB_MOD._resolve_exec_target(cfg), "0123456789ab")
+        self.assertEqual(
+            run.call_args.args[0],
+            ["/usr/bin/resolve-db-primary", "postgres", "postgres"],
+        )
+
     def test_swarm_resolver_empty_falls_back_to_container(self):
         cfg = dict(
             _BASE_CONFIG,
@@ -83,6 +94,75 @@ class ResolveExecTargetTests(unittest.TestCase):
             self.assertEqual(_DB_MOD._resolve_exec_target(cfg), "postgres")
 
 
+_HA_ADDRESS = '"$(/usr/bin/resolve-db-primary postgres postgres)"'
+_HA_CONFIG: dict = dict(
+    _BASE_CONFIG,
+    container="",
+    address=_HA_ADDRESS,
+    host="postgres",
+    port=5432,
+    network="postgres",
+)
+
+
+class HaFormTests(unittest.TestCase):
+    def test_the_primary_resolver_address_names_stack_and_engine(self):
+        self.assertEqual(
+            _DB_MOD._ha_stack_engine(_HA_CONFIG),
+            ("/usr/bin/resolve-db-primary", "postgres", "postgres"),
+        )
+
+    def test_a_container_resolver_address_is_not_ha(self):
+        cfg = dict(
+            _BASE_CONFIG,
+            address='"$(/usr/bin/resolve-container-id postgres postgres)"',
+        )
+        self.assertIsNone(_DB_MOD._ha_stack_engine(cfg))
+
+    def test_a_plain_container_is_not_ha(self):
+        self.assertIsNone(_DB_MOD._ha_stack_engine(_BASE_CONFIG))
+
+    def test_ha_needs_the_endpoint_but_no_container(self):
+        self.assertEqual(_DB_MOD._missing_config_keys(_HA_CONFIG, ha=True), [])
+        self.assertEqual(
+            _DB_MOD._missing_config_keys(dict(_HA_CONFIG, network=""), ha=True),
+            ["network"],
+        )
+
+    def test_exec_form_needs_the_container(self):
+        self.assertEqual(_DB_MOD._missing_config_keys(_BASE_CONFIG, ha=False), [])
+        self.assertEqual(
+            _DB_MOD._missing_config_keys(dict(_BASE_CONFIG, container=""), ha=False),
+            ["container"],
+        )
+
+    def test_ha_runs_the_client_helper_against_the_write_endpoint(self):
+        cmd, env = _DB_MOD._build_cmd(
+            _HA_CONFIG,
+            expect_rows=False,
+            ha=("/usr/bin/resolve-db-primary", "postgres", "postgres"),
+        )
+        self.assertEqual(
+            cmd[:5], ["/usr/bin/db-client", "postgres", "postgres", "postgres", "psql"]
+        )
+        self.assertEqual(cmd[cmd.index("-h") + 1], "postgres")
+        self.assertEqual(cmd[cmd.index("-p") + 1], "5432")
+        self.assertNotIn(_HA_ADDRESS, cmd)
+        self.assertEqual(env, {"PGPASSWORD": "s3cret"})
+
+    def test_ha_mariadb_uses_its_port_flag(self):
+        cfg = dict(
+            _HA_CONFIG, type="mariadb", host="mariadb", port=3306, network="mariadb"
+        )
+        cmd, _ = _DB_MOD._build_cmd(
+            cfg,
+            expect_rows=False,
+            ha=("/usr/bin/resolve-db-primary", "mariadb", "mariadb"),
+        )
+        self.assertEqual(cmd[4], "mariadb")
+        self.assertEqual(cmd[cmd.index("-P") + 1], "3306")
+
+
 class BuildCmdPostgresTests(unittest.TestCase):
     def test_postgres_includes_user_db_and_error_stop(self):
         cmd, env = _DB_MOD._build_cmd(_BASE_CONFIG, expect_rows=False)
@@ -92,6 +172,15 @@ class BuildCmdPostgresTests(unittest.TestCase):
         self.assertEqual(cmd[cmd.index("-d") + 1], "peertube")
         self.assertIn("ON_ERROR_STOP=1", cmd)
         self.assertNotIn("s3cret", cmd)
+
+    def test_postgres_logs_in_over_tcp_with_the_password(self):
+        cmd, _ = _DB_MOD._build_cmd(_BASE_CONFIG, expect_rows=False)
+        self.assertEqual(cmd[cmd.index("-h") + 1], "127.0.0.1")
+
+    def test_mariadb_keeps_the_socket(self):
+        cfg = dict(_BASE_CONFIG, type="mariadb")
+        cmd, _ = _DB_MOD._build_cmd(cfg, expect_rows=False)
+        self.assertNotIn("-h", cmd)
 
     def test_postgres_expect_rows_adds_quiet_tuples_only_flag(self):
         cmd, _ = _DB_MOD._build_cmd(_BASE_CONFIG, expect_rows=True)

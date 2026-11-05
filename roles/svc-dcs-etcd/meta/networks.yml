@@ -1,0 +1,11 @@
+---
+meshes: []
+local:
+  subnet: 192.168.235.0/24
+overlay:
+  modes: [swarm]
+  topology: shared_net
+  aliases: [etcd]
+  consumer:
+    kind: services_flags
+    key: etcd

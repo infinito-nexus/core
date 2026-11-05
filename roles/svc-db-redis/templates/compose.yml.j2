@@ -1,31 +1,83 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = 'redis' %}
-  {{ service_name }}:
+  {% set _db = lookup('db_instances') %}
+  {% set _bootstrap = ((_db.instances | selectattr('legacy') | list) or _db.instances) | first %}
+  {% set _sentinels = _db.instances | map('swarm_instance_service', application_id, 'sentinel') | list if _db.form == 'ha' else [] %}
+  {% for db_instance in (_db.instances if _db.form == 'ha' else [none]) %}
+  {# nocheck: compose-structure  HA instance key differs from the meta service name the lookups resolve #}
+  {{ db_instance.service if db_instance else service_name }}:
     {{ lookup('compose_only', 'container_name', REDIS_CONTAINER) }}
     {{ lookup('container_image', application_id, 'redis') }}
+    {% if db_instance %}
+    command: ["sh", "{{ REDIS_HA_START }}"]
+    environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop
+      REDIS_HA_SELF: "{{ db_instance.service }}"
+      REDIS_HA_BOOTSTRAP: "{{ _bootstrap.service }}"
+      REDIS_HA_MASTER_NAME: "{{ REDIS_HA_MASTER_NAME }}"
+      REDIS_HA_SENTINELS: "{{ _sentinels | join(' ') }}"
+      REDIS_HA_INCLUDE: "{{ REDIS_HA_INCLUDE }}"
+      REDIS_HA_CONF: "{{ REDIS_HA_CONF }}"
+      REDIS_HA_PORT: "{{ REDIS_HA_PORT }}"
+      REDIS_HA_SENTINEL_PORT: "{{ REDIS_SENTINEL_PORT }}"
+      REDIS_HA_SENTINEL_PASSWORD_FILE: "{{ REDIS_SENTINEL_PASSWORD_FILE }}"
+    {% else %}
     command:
       - "sh"
       - "-c"
       - >-
         exec redis-server
-        --requirepass {{ REDIS_PASSWORD | quote }}
+        --requirepass "$$REDIS_PASSWORD"
         --appendonly yes
-        --maxmemory {{ lookup('service_memory_mb', application_id, service_name, 0.8) }}mb
+        --maxmemory {{ REDIS_MAXMEMORY_MB }}mb
         --maxmemory-policy allkeys-lru
+    {% endif %}
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% if REDIS_EXPOSE_LOCAL %}
+    {% if REDIS_EXPOSE_LOCAL and not db_instance %}
     {{ lookup('container_ports', ['redis', 'redis', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a {{ REDIS_PASSWORD | quote }} --no-auth-warning ping | grep -q PONG"]
-      interval: 2m
-      timeout: 5s
-      retries: 30
-      start_period: 10m
-      start_interval: 5s
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, instance=db_instance) | indent(4) }}
+    {% if db_instance %}
+    {{ lookup('container_networks', internal=true, roles_only=[], include_default=false) | indent(4) }}
+    {% else %}
     {{ lookup('container_networks') | indent(4) }}
+    {% endif %}
+  {% endfor %}
+  {% if _db.form == 'ha' %}
+  {% for db_instance in _db.instances %}
+  {% set service_name = 'sentinel' %}
+  {% set _self = db_instance | swarm_instance_service(application_id, 'sentinel') %}
+  {# nocheck: compose-structure  one Sentinel per instance host, keyed by host; it runs the redis image, sizing and mounts come from the `sentinel` meta entry #}
+  {{ _self }}:
+    {{ lookup('container_image', application_id, 'redis') }}
+    command: ["sh", "{{ REDIS_SENTINEL_START }}"]
+    user: redis
+    read_only: true
+    environment: # nocheck: compose-environment-from-env-file  values vary per Sentinel of the instance loop
+      SENTINEL_SELF: "{{ _self }}"
+      SENTINEL_PEERS: "{{ _sentinels | reject('equalto', _self) | join(' ') }}"
+      SENTINEL_INSTANCES: "{{ _db.instances | map(attribute='service') | join(' ') }}"
+      SENTINEL_MASTER_NAME: "{{ REDIS_HA_MASTER_NAME }}"
+      SENTINEL_BOOTSTRAP: "{{ _bootstrap.service }}"
+      SENTINEL_AUTH_USER: "{{ REDIS_SENTINEL_USER }}"
+      SENTINEL_PASSWORD_FILE: "{{ REDIS_SENTINEL_PASSWORD_FILE }}"
+      SENTINEL_CONF: "{{ REDIS_SENTINEL_CONF }}"
+      SENTINEL_QUORUM: "{{ REDIS_SENTINEL_QUORUM }}"
+      SENTINEL_DOWN_AFTER_MS: "{{ REDIS_SENTINEL_DOWN_AFTER_MS }}"
+      SENTINEL_FAILOVER_MS: "{{ REDIS_SENTINEL_FAILOVER_TIMEOUT_MS }}"
+      SENTINEL_PARALLEL_SYNCS: "{{ REDIS_SENTINEL_PARALLEL_SYNCS }}"
+      SENTINEL_PEER_WAIT_S: "{{ REDIS_SENTINEL_PEER_WAIT_S }}"
+      SENTINEL_PORT: "{{ REDIS_SENTINEL_PORT }}"
+      REDIS_PORT: "{{ REDIS_HA_PORT }}"
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, instance=db_instance) | indent(4) }}
+    {{ lookup('container_networks', internal=true, roles_only=[], include_default=false) | indent(4) }}
+  {% endfor %}
+  {% set service_name = 'redis' %}
+{% include 'roles/sys-svc-compose/templates/db_endpoint.yml.j2' %}
+  {% endif %}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

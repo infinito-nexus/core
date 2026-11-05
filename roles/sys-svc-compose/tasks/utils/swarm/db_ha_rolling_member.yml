@@ -1,0 +1,33 @@
+---
+# Param: roll_member   - service key of the member to move to its rendered spec
+# Param: _roll_stack   - swarm stack of the engine
+# Param: _roll_config  - registered `docker stack config` output of the engine
+- name: "🔄 db_ha_rolling | move '{{ roll_member }}' to its rendered spec"
+  ansible.builtin.command:
+    argv:
+      - container
+      - stack
+      - deploy
+      - --compose-file
+      - "-"
+      - --resolve-image
+      - never
+      - --with-registry-auth
+      - "{{ _roll_stack }}"
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    stdin: "{{ _roll_document | to_nice_yaml(indent=2) | replace('$', '$$') }}"
+  vars:
+    _roll_full: "{{ _roll_config.stdout | from_yaml }}"
+    _roll_document: "{{ _roll_full | combine({'services': {roll_member: _roll_full.services[roll_member]}}) }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "⏳ db_ha_rolling | wait until '{{ roll_member }}' is healthy again"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ roll_member }}"
+    wait_service_name: "{{ _roll_stack ~ '_' ~ roll_member }}"
+    wait_retries: 150
+    wait_delay: 2

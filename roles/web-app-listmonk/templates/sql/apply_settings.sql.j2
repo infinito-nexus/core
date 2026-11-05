@@ -1,0 +1,13 @@
+{%- set desired = namespace(settings={}) -%}
+{%- for setting in LISTMONK_SETTINGS if (setting.condition | default(true)) | bool -%}
+{%- set desired.settings = desired.settings | combine({setting.key: setting.value | from_json}) -%}
+{%- endfor -%}
+WITH desired AS (
+  SELECT key, value
+  FROM jsonb_each($infinito_settings${{ desired.settings | to_json }}$infinito_settings$::jsonb)
+)
+UPDATE settings AS existing
+SET value = desired.value
+FROM desired
+WHERE existing.key = desired.key
+  AND existing.value IS DISTINCT FROM desired.value;

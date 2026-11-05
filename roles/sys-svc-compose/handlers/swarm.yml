@@ -125,7 +125,7 @@
   listen:
     - compose-up
     - swarm-deploy
-  when: SWARM_CLUSTER_AVAILABLE | bool
+  when: IS_SWARM_MODE | bool
 
 - name: "✅ swarm: validate stack file via docker stack config"
   ansible.builtin.shell: |
@@ -144,6 +144,13 @@
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
+- name: "🔁 swarm: roll HA database members one at a time before the stack deploy"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/db_ha_rolling.yml') }}"
+  listen:
+    - compose-up
+    - swarm-deploy
+  when: lookup('db_instances', application_id).ha.capable
+
 - name: "🚀 swarm: docker stack deploy"
   ansible.builtin.shell: |
     set -euo pipefail
@@ -153,7 +160,7 @@
       --resolve-image never \
       --prune \
       --with-registry-auth \
-      "{{ application_id | get_entity_name }}"
+      "{{ application_id | entity_name }}"
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
@@ -168,10 +175,11 @@
 - name: "⏳ swarm: wait until stack tasks converge"
   ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:
-    STACK: "{{ application_id | get_entity_name }}"
+    STACK: "{{ application_id | entity_name }}"
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
     DEPLOY_SINCE: "{{ swarm_deploy_result.stdout_lines | default([]) | first | default('') }}"
     DEPLOYED_SERVICES: "{{ swarm_deploy_result | swarm_deployed_services | join(' ') }}"
+    SEED_WAIT_LABEL: "{{ SWARM_SERVICE_LABEL_SEED_WAIT }}"
   register: _swarm_stack_ready_handler
   retries: "{{ swarm_stack_converge_retries }}"
   delay: 2
@@ -193,7 +201,7 @@
 - name: "🔄 swarm: force task recreation so in-container state is reloaded"
   ansible.builtin.shell: |
     set -euo pipefail
-    docker stack services --format '{{ "{{.Name}}" }}' {{ application_id | get_entity_name | quote }} \
+    docker stack services --format '{{ "{{.Name}}" }}' {{ application_id | entity_name | quote }} \
       | xargs -r -n1 timeout {{ lookup('timeout', 900) | int }} docker service update --detach=false --force
   args:
     executable: /bin/bash

@@ -23,6 +23,8 @@ from . import PROJECT_ROOT
 
 SWARM = {
     "DEPLOYMENT_MODE": "swarm",
+    "IS_COMPOSE_MODE": False,
+    "IS_SWARM_MODE": True,
     "application_id": "web-app-x",
     "groups": {"web-app-x": ["mgr-01", "wrk-01", "wrk-02"]},
 }
@@ -95,6 +97,31 @@ class TestContainerDeployLookup(unittest.TestCase):
             "    constraints:\n"
             "      - node.role == manager",
         )
+
+    def test_several_managers_pin_manager_placement_to_the_stack_host(self):
+        self.placement = "manager"
+        vars_ = {
+            **SWARM,
+            "groups": {**SWARM["groups"], "svc-swarm-manager": ["m1", "m2", "m3"]},
+            "SWARM_NODE_LABEL_STACK_HOST": "infinito.stack_host",
+        }
+        self.assertEqual(
+            self._run(vars_, replicas=1),
+            "deploy:\n"
+            "  replicas: 1\n"
+            "  placement:\n"
+            "    constraints:\n"
+            "      - node.role == manager\n"
+            "      - node.labels.infinito.stack_host == true",
+        )
+
+    def test_a_single_manager_needs_no_stack_host_pin(self):
+        self.placement = "manager"
+        vars_ = {
+            **SWARM,
+            "groups": {**SWARM["groups"], "svc-swarm-manager": ["m1"]},
+        }
+        self.assertNotIn("stack_host", self._run(vars_, replicas=1))
 
     def test_a_positional_term_is_rejected(self):
         lm = self.mod.LookupModule()

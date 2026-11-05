@@ -1,0 +1,52 @@
+---
+- name: "🖼️ Stage the corporate logo set of {{ application_id }}"
+  when: SNIPE_IT_DESIGN_ENABLED | bool
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ SNIPE_IT_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ SNIPE_IT_DESIGN_DIR }}"
+
+    - name: "📖 Read the corporate logo set of {{ application_id }}"
+      ansible.builtin.slurp:
+        src: "{{ [SNIPE_IT_DESIGN_DIR, item ~ '.png'] | path_join }}"
+      loop: "{{ SNIPE_IT_DESIGN_SETTINGS.assets }}"
+      register: snipe_it_design_assets
+
+- name: "📤 Hand the corporate logo set to the Snipe-IT container"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
+      container exec -i {{ SNIPE_IT_LOCAL_CID | quote }}
+      sh -c {{ ('base64 -d > /tmp/design-' ~ item.item ~ '.png') | quote }}
+    stdin: "{{ item.content }}"
+  loop: "{{ snipe_it_design_assets.results | default([]) | selectattr('content', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.item }}"
+  delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
+  changed_when: false
+
+- name: "🏷️ Apply the corporate branding of {{ application_id }} via Setting model"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
+      container exec -i
+      -e SNIPE_IT_DESIGN={{ (SNIPE_IT_DESIGN_SETTINGS if SNIPE_IT_DESIGN_ENABLED | bool else {}) | to_json | b64encode | quote }}
+      {{ SNIPE_IT_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/apply/design_config.php') }}"
+  delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
+  register: snipe_it_design
+  changed_when: snipe_it_design.stdout | trim == 'changed'
+
+- name: "🧹 Clear the Laravel caches after a branding change of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: "container exec {{ SNIPE_IT_LOCAL_CID | quote }} php artisan optimize:clear" # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
+  delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
+  when: snipe_it_design.stdout | trim == 'changed'
+  changed_when: true

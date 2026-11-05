@@ -2,7 +2,7 @@
 ---
 - name: "⏳ snipe-it: wait until settings table is seeded"
   ansible.builtin.shell:
-    cmd: "container exec -i {{ SNIPE_IT_CONTAINER_ADDRESS }} php"
+    cmd: "container exec -i {{ SNIPE_IT_LOCAL_CID | quote }} php" # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
     stdin: "{{ lookup('file', 'php/wait_settings.php') }}"
   register: snipe_settings_ready
   retries: 60
@@ -13,13 +13,13 @@
 
 - name: "📌 snipe-it: apply LDAP configuration via Setting model"
   ansible.builtin.shell:
-    cmd: >-
-      container exec -i
-      -e APP_KEY={{ SNIPE_IT_APP_KEY | quote }}
+    cmd: >- # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
+      IFS= read -r APP_KEY && IFS= read -r LDAP_BIND_PASSWORD_B64 && export APP_KEY LDAP_BIND_PASSWORD_B64 && container exec -i
+      -e APP_KEY
       -e LDAP_SERVER_URI={{ LDAP.SERVER.URI | quote }}
       -e LDAP_SERVER_PORT={{ LDAP.SERVER.PORT | quote }}
       -e LDAP_BIND_DN={{ LDAP.DN.ADMINISTRATOR.DATA | quote }}
-      -e LDAP_BIND_PASSWORD_B64={{ LDAP.BIND_CREDENTIAL | b64encode | quote }}
+      -e LDAP_BIND_PASSWORD_B64
       -e LDAP_BASEDN={{ LDAP.DN.OU.USERS | quote }}
       -e LDAP_FILTER_USERS_ALL={{ SNIPE_IT_LDAP_FILTER_FRAGMENT | quote }}
       -e LDAP_USER_ID_ATTR={{ LDAP.USER.ATTRIBUTES.ID | quote }}
@@ -28,12 +28,15 @@
       -e LDAP_USER_MAIL_ATTR={{ LDAP.USER.ATTRIBUTES.MAIL | quote }}
       -e LDAP_AUTH_FILTER_QUERY={{ SNIPE_IT_LDAP_AUTH_FILTER_QUERY | quote }}
       -e OIDC_RESET_URL={{ OIDC.CLIENT.RESET_CREDENTIALS | quote }}
-      {{ SNIPE_IT_CONTAINER_ADDRESS }} php
-    stdin: "{{ lookup('file', 'php/apply/ldap_config.php') }}"
+      {{ SNIPE_IT_LOCAL_CID | quote }} php
+    stdin: |-
+      {{ SNIPE_IT_APP_KEY }}
+      {{ LDAP.BIND_CREDENTIAL | b64encode }}
+      {{ lookup('file', 'php/apply/ldap_config.php') }}
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 snipe-it: clear Laravel caches"
   ansible.builtin.shell:
-    cmd: "container exec -i {{ SNIPE_IT_CONTAINER_ADDRESS }} php artisan optimize:clear"
+    cmd: "container exec -i {{ SNIPE_IT_LOCAL_CID | quote }} php artisan optimize:clear" # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
   changed_when: true

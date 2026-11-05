@@ -11,7 +11,7 @@ config:
   issuer_url: "{{ OIDC.CLIENT.ISSUER_URL }}"
   client_id: "{{ OIDC.CLIENT.ID }}"
   client_secret: "{{ OIDC.CLIENT.SECRET }}"
-  redirect_uri: "{{ lookup('tls', 'web-app-joomla', 'url.base') }}/index.php?option=keycloak&task=callback"
+  redirect_uri: "{{ lookup('tls', 'web-app-joomla', 'url.base') }}index.php?option=keycloak&task=callback"
   end_session_url: "{{ OIDC.CLIENT.LOGOUT_URL }}"
   fallback_enabled: "{{ lookup('config', 'web-app-joomla', 'services.sso.oidc.fallback_enabled') | string | lower }}"
   group_admin: "/{{ lookup('rbac_group_path', application_id='web-app-joomla', role='administrator') }}"

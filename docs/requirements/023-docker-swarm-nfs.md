@@ -21,14 +21,14 @@ The implementation MUST keep a clean abstraction line between the render backend
 
 - [x] The deploy resolves `DEPLOYMENT_MODE` per role from inventory: `swarm` iff `len(groups[application_id]) > 1`, else `compose`. Topology is the single source of truth; there is no per-role mode flag.
 - [x] All hosts in `groups[application_id]` MUST also be in `groups['svc-swarm-node']` whenever `DEPLOYMENT_MODE` resolves to `swarm`. The cluster infrastructure is bootstrapped by membership in `svc-swarm-node`; per-role deployment topology is added on top of it by listing hosts in the role's own group.
-- [x] Among the hosts in `svc-swarm-node`, the cluster manager is identified by membership in the additional group `svc-swarm-manager`. Exactly one host MUST be a member of `svc-swarm-manager` in v1; all other `svc-swarm-node` members join as workers. A deploy with zero or more-than-one manager MUST fail at inventory-validation time, not at runtime.
+- [x] Among the hosts in `svc-swarm-node`, the cluster manager is identified by membership in the additional group `svc-swarm-manager`. `svc-swarm-manager` MUST hold 1 host or an odd number of at least 3 ([041](041-database-ha-swarm.md)); all other `svc-swarm-node` members join as workers. A deploy with no manager or an even manager count MUST fail at inventory-validation time, not at runtime.
 
 ### Role: `svc-swarm-node`
 
 - [x] A new role at `roles/svc-swarm-node/` exists and follows the role-meta layout in [layout.md](../contributing/design/role/services/layout.md) (including `meta/services.yml` with a `lifecycle` key, `meta/secrets.yml`, and `tasks/main.yml`).
 - [x] On first application against the host in `svc-swarm-manager`, the role initialises the cluster (`docker swarm init`) with the configured `advertise_addr`, persists the resulting worker and manager join tokens to a documented secret store, and is idempotent on re-runs.
 - [x] On application against any host in `svc-swarm-node` that is NOT in `svc-swarm-manager`, the role joins the cluster as a worker using the persisted worker token. Joining is idempotent.
-- [x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions).
+- [x] The first `svc-swarm-manager` host initialises the cluster; with 3 or more managers the others join with the manager token and the role checks that the Raft member count equals the group size. Multi-manager Raft-quorum HA is specified by [041](041-database-ha-swarm.md).
 - [x] Node labels declared for a host in inventory are applied to the joining node (`docker node update --label-add`).
 - [x] The role exposes stack-management primitives (`deploy`, `update`, `remove`) consumable by the deploy pipeline of any role rendering a swarm stack.
 - [x] The role renders a valid `docker-stack.yml` for any role whose target host is in `svc-swarm-node`, derived from the same per-role inputs as today's `docker-compose.yml`.
@@ -61,6 +61,7 @@ The implementation MUST keep a clean abstraction line between the render backend
 ### Docker volume integration
 
 - [x] NFS-backing is derived from the role's placement, not declared per volume. An unpinned role's volumes MUST be rendered onto the shared export; a role pinned with `placement: manager` MUST keep its volumes node-local. A volume whose payload cannot tolerate NFS semantics opts out with `nfs: false` plus a justification.
+- [x] Role placement is read from the role's primary `meta/services.yml` entry, and only that entry drives the volume derivation above. A `placement` on any other service entry pins that one service and nothing else: it leaves the role unpinned, so the role's volumes stay NFS-backed and every volume the pinned service owns MUST carry its own `nfs: false`. `web-app-gitlab` (`gitaly`) and `svc-cache-package` (`frontend`) are the roles that use this form.
 - [x] A role that runs no RDBMS of its own MUST NOT keep read-write state on an NFS-backed volume unless the payload is share-safe: pair `nfs: false` with a single replica or a manager pin, or externalise the state into a database.
 - [x] When a service runs with `DEPLOYMENT_MODE: swarm` AND `storage.backend: nfs` AND the role is not pinned, each of its volumes MUST be rendered with the NFS driver block:
 
@@ -74,7 +75,8 @@ The implementation MUST keep a clean abstraction line between the render backend
         device: ":{{ storage.nfs.export_base }}/{{ app_volume_name }}"
   ```
 
-- [x] When a service runs with `DEPLOYMENT_MODE: swarm`, ALL its volumes MUST opt into NFS AND `storage.backend: nfs`; otherwise the service's role group should not contain multiple hosts. Mixing local-only volumes into a multi-host role under v1 is a configuration error: either route the role through compose (single host in group) or migrate the volume to NFS. The placement-constraint fallback used in earlier drafts is dropped in favour of free task placement (option 2b from the design brainstorm).
+- [x] When a service runs with `DEPLOYMENT_MODE: swarm`, ALL its volumes MUST opt into NFS AND `storage.backend: nfs`; otherwise the service's role group should not contain multiple hosts. Mixing local-only volumes into a multi-host role is a configuration error unless each local-only volume carries `nfs: false` AND every service mounting it carries a per-service `placement`, so the task cannot be scheduled away from the node holding the data. The placement-constraint fallback used in earlier drafts is dropped in favour of free task placement (option 2b from the design brainstorm).
+- [x] A per-service `placement` does NOT make the role single-node, so a drain or reschedule drill still applies to its unpinned services. Any gate that skips such a drill MUST read the primary entry rather than matching `placement:` anywhere in the file.
 - [x] When a service runs with `DEPLOYMENT_MODE: compose`, the volume block remains identical to today (local docker volumes, no `driver_opts`); the per-volume `nfs` flag is ignored under compose.
 
 ### Docker network integration
@@ -149,7 +151,7 @@ The implementation MUST keep a clean abstraction line between the render backend
 ### CI: pilot validation workflow
 
 - [x] A new GitHub Actions workflow at `.github/workflows/test-deploy-swarm-nfs.yml` (path to be created) provisions a multi-node Swarm cluster on a single **GitHub-hosted** runner using Docker-in-Docker with multiple Docker daemons. The topology is fixed at **three simulated nodes**: exactly one manager (`swarm-mgr-01`) plus exactly two workers (`swarm-wrk-01`, `swarm-wrk-02`). Three nodes are mandatory so that the rescheduling test has a genuine choice of target (drain the worker running the MediaWiki application service → scheduler MUST pick the OTHER worker, not the manager). One additional container hosts the NFS server reachable from all three simulated nodes. Then the workflow deploys `web-app-mediawiki` as a Swarm stack with the MariaDB service pinned to the manager and the application service free to schedule on either worker.
-- [x] The workflow MUST create the inventory via the canonical [cli/administration/inventory/provision/](../../cli/administration/inventory/provision/) CLI (the same `infinito` entry point developers use locally — "Create or update a full inventory for a host"). The workflow MUST NOT hand-roll a YAML inventory from scratch. After the provision step, the workflow's only inventory edits MUST be: adding the three simulated hosts to the `svc-swarm-node` group, adding `swarm-mgr-01` to `svc-swarm-manager`, and adding all three simulated hosts to the `web-app-mediawiki` group so the pilot role's `DEPLOYMENT_MODE` resolves to `swarm`. Any other inventory mutation is forbidden.
+- [x] The workflow MUST create the inventory via the canonical `cli/administration/inventory/provision/` CLI (the same `infinito` entry point developers use locally — "Create or update a full inventory for a host"). The workflow MUST NOT hand-roll a YAML inventory from scratch. After the provision step, the workflow's only inventory edits MUST be: adding the three simulated hosts to the `svc-swarm-node` group, adding `swarm-mgr-01` to `svc-swarm-manager`, and adding all three simulated hosts to the `web-app-mediawiki` group so the pilot role's `DEPLOYMENT_MODE` resolves to `swarm`. Any other inventory mutation is forbidden.
 - [x] The runner choice is fixed to GitHub-hosted DinD for reproducibility — every PR run is identical and depends on no self-hosted infrastructure. Migrating to a self-hosted runner (e.g. [014](014-svc-runner-ci.md)) is a Future Extension, not part of this requirement.
 - [x] The workflow drains the node currently running the MediaWiki container, waits for the swarm scheduler to migrate the container to another node, then asserts:
   1. the new task transitions to `running` within a documented timeout;
@@ -186,7 +188,7 @@ Adding a future `kubernetes` backend MUST be additive (new render path consuming
 
 Explicitly out of scope for this requirement, tracked for later:
 
-- **Multi-manager HA.** v1 is single-manager (one host in `svc-swarm-manager`). A follow-up requirement covers 3+ managers with Raft-quorum and the inventory shape that supports it.
+- **Multi-manager HA.** v1 is single-manager (one host in `svc-swarm-manager`). A follow-up requirement covers 3+ managers with Raft-quorum and the inventory shape that supports it: [041](041-database-ha-swarm.md).
 - **Traefik migration / edge HA.** v1 keeps openresty as the swarm edge (pinned to manager) to preserve the `sys-front-inj-*` Lua body-rewriting pipeline unchanged. Migrating to Traefik for true multi-replica edge HA is a follow-up requirement and is gated on porting the body_filter.lua injection logic (CSP-meta stripping + head/body snippet injection for Matomo / CSS / JavaScript / Dashboard / Logout) to a Traefik Yaegi plugin OR introducing a Traefik → openresty chain. Without one of those, switching the edge to Traefik would silently drop the frontend-injection pipeline.
 - **Self-hosted CI runner for the pilot workflow.** v1 pins `test-deploy-swarm-nfs.yml` to GitHub-hosted DinD. Once [014](014-svc-runner-ci.md) is in place, the workflow MAY be migrated to a self-hosted runner for closer-to-production validation.
 - **NFS for stateful databases.** v1 keeps DB data volumes local-only with node-pinning. Reconsidering this requires a separate requirement covering DB-specific NFS semantics (locking, fsync, version compatibility per engine).

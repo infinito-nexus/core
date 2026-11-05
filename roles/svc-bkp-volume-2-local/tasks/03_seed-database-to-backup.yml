@@ -1,13 +1,7 @@
 ---
-- include_tasks: 01_install.yml
-
-- name: "✅ Ensure /etc/baudolo exists"
-  ansible.builtin.file:
-    path: "{{ DIR_SECRETS }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
+- name: "📖 Read the seeded database definitions once per host"
+  include_tasks: 05_read-seeded-databases.yml
+  when: svc_bkp_volume_2_local_seeded is not defined
 
 - name: "🐛 BKP | Debug seed context (sanitized)"
   ansible.builtin.debug:
@@ -54,9 +48,15 @@
       Note: database_name may be an empty string to represent "all databases".
   changed_when: false
 
-- name: 🌱 Seed database definition via baudolo-seed (system binary)
-  ansible.builtin.command:
-    argv:
+- name: "🧮 Compare the database definition with the seeded one"
+  ansible.builtin.set_fact:
+    svc_bkp_volume_2_local_seed_argv: "{{ svc_bkp_volume_2_local_seed_command }}"
+    svc_bkp_volume_2_local_seed_current: >-
+      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_current(*svc_bkp_volume_2_local_seed_command[2:]) }}
+    svc_bkp_volume_2_local_seeded: >-
+      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_apply(*svc_bkp_volume_2_local_seed_command[2:]) }}
+  vars:
+    svc_bkp_volume_2_local_seed_command:
       - baudolo-seed
       - "{{ FILE_DATABASE_SECRETS | string }}"
       - "{{ database_instance | string }}"
@@ -64,5 +64,44 @@
       - "{{ database_username | string }}"
       - "{{ database_password | string }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🌱 Seed database definition via baudolo-seed (system binary)
+  ansible.builtin.command:
+    argv: "{{ svc_bkp_volume_2_local_seed_argv }}"
+  when: not (svc_bkp_volume_2_local_seed_current | bool)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   # todo: add flock to baudolo-seed upstream, then async seeding becomes safe again.
   throttle: 1
+
+- name: "🔱 Copy databases.csv to every database HA instance host"
+  when: bkp_seed_ha_hosts | length > 0
+  vars:
+    bkp_seed_ha_hosts: "{{ lookup('db_backup', 'hosts') }}"
+  block:
+    - name: "📥 Read databases.csv for the database HA instance hosts"
+      ansible.builtin.slurp:
+        src: "{{ FILE_DATABASE_SECRETS }}"
+      register: bkp_volume_2_local_databases_csv
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "✅ Ensure the secrets directory exists on every database HA instance host"
+      ansible.builtin.file:
+        path: "{{ DIR_SECRETS }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+      delegate_to: "{{ item }}"
+      loop: "{{ bkp_seed_ha_hosts | difference([inventory_hostname]) }}"
+
+    - name: "📤 Seed databases.csv on every database HA instance host"
+      ansible.builtin.copy:
+        content: "{{ bkp_volume_2_local_databases_csv.content | b64decode }}"
+        dest: "{{ FILE_DATABASE_SECRETS }}"
+        owner: root
+        group: root
+        mode: "0600"
+      delegate_to: "{{ item }}"
+      loop: "{{ bkp_seed_ha_hosts | difference([inventory_hostname]) }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      throttle: 1

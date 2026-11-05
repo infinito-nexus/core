@@ -13,11 +13,14 @@ from __future__ import annotations
 import unittest
 from typing import ClassVar
 
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.rbac.scoped import (
     APPLICATION_SCOPED_ROLES,
     granted_roles,
     members_with_role,
 )
+
+DOMAIN = default_domain_primary()
 
 
 class TestGrantedRoles(unittest.TestCase):
@@ -98,12 +101,12 @@ class TestMembersWithRole(unittest.TestCase):
     def test_the_declared_username_wins_over_the_key(self) -> None:
         users = {
             "biber": {
-                "username": "biber@infinito.test",
+                "username": f"biber@{DOMAIN}",
                 "application_roles": {"web-app-baserow": ["mcp"]},
             }
         }
         self.assertEqual(
-            ["biber@infinito.test"],
+            [f"biber@{DOMAIN}"],
             members_with_role(users, "web-app-baserow", "mcp-reader"),
         )
 

@@ -57,6 +57,8 @@ class TestVolumeLookup(unittest.TestCase):
         self.assertEqual(entry["path"], "")
         self.assertEqual(entry["source"], "")
         self.assertIsNone(entry["nfs"])
+        self.assertIsNone(entry["uid"])
+        self.assertIsNone(entry["gid"])
         self.assertEqual(
             entry["mounts"],
             [{"service": "application", "target": "/mattermost/data"}],
@@ -225,6 +227,38 @@ class TestVolumeLookup(unittest.TestCase):
         ):
             LookupModule().run(["web-app-mattermost"], variables={})
         gad.assert_not_called()
+
+    def _field(self, entry: dict[str, Any], field: str) -> list[Any]:
+        with (
+            patch(
+                "plugins.lookup.volume.get_canonical_volumes",
+                return_value={"cfg": entry},
+            ),
+            patch("plugins.lookup.volume.get_application_defaults"),
+            patch(
+                "plugins.lookup.volume._render_with_templar",
+                side_effect=lambda value, **_kw: value.replace("{{ dir }}", "/srv"),
+            ),
+        ):
+            return LookupModule().run(
+                ["svc-db-redis", "cfg"], variables={}, field=field
+            )
+
+    def test_source_field_returns_the_rendered_source(self):
+        entry = {"type": "secret", "source": "{{ dir }}/infinito.conf"}
+        self.assertEqual(self._field(entry, "source"), ["/srv/infinito.conf"])
+
+    def test_source_field_of_an_entry_without_source_raises(self):
+        with self.assertRaises(AnsibleError):
+            self._field({"type": "volume"}, "source")
+
+    def test_an_unrendered_source_raises(self):
+        with self.assertRaises(AnsibleError):
+            self._field({"type": "secret", "source": "{{ other }}/x"}, "source")
+
+    def test_unknown_field_raises(self):
+        with self.assertRaises(AnsibleError):
+            self._field({"type": "secret", "source": "/x"}, "mounts")
 
 
 if __name__ == "__main__":

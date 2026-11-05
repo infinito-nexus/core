@@ -1,15 +1,9 @@
 """Attribution recorded in markdown ``## Credits`` sections.
 
-The link that belongs to a credited person lives nowhere but the Credits
-lines themselves: ``galaxy_info.author`` carries the name without a URL, and
-``galaxy_info.company`` names the project owner rather than the role's
-author, so neither can supply it. This module derives the name -> URL map
-from the linked mentions already present in the repository, which keeps the
-README generator and the ``credits-attribution`` lint reading the same
-source instead of a hand-maintained list.
-
-Adding a contributor therefore needs no code change: one linked credit
-anywhere makes the generator emit that link for every role they author.
+A role's author is declared in ``galaxy_info.author`` and rendered without a
+link, so nothing here feeds the README generator any more. What remains
+backs the ``credits-attribution`` lint: it reads the linked mentions already
+present in prose and holds them to one link per person.
 
 Patterns exported here:
 
@@ -28,7 +22,6 @@ Patterns exported here:
 from __future__ import annotations
 
 import re
-from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from utils.cache.files import iter_non_ignored_files, read_text
@@ -101,18 +94,3 @@ def iter_markdown_documents() -> Iterator[tuple[str, list[str]]]:
             yield path, read_text(path).splitlines()
         except OSError:
             continue
-
-
-@lru_cache(maxsize=1)
-def author_urls() -> dict[str, str]:
-    """Name -> URL for every person credited with exactly one URL repo-wide.
-
-    Names linked to conflicting URLs are omitted, so an ambiguous mapping
-    never silently picks a winner.
-    """
-    documents = [lines for _path, lines in iter_markdown_documents()]
-    return {
-        name: next(iter(seen))
-        for name, seen in collect_author_urls(documents).items()
-        if len(seen) == 1
-    }

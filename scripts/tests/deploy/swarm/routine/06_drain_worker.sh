@@ -25,14 +25,34 @@ if [ -z "${IMAGE_TAG}" ]; then
 	echo "    no '${CUSTOM_IMAGE_REPO}:*' image on manager — role uses an upstream image; skipping distribution"
 else
 	echo "    image: ${IMAGE_TAG}"
-	for worker in "${WRK1}" "${WRK2}"; do
+	# shellcheck disable=SC2086  # the lab worker list is space-separated words
+	for worker in ${SWARM_LAB_WORKERS}; do
 		echo "    -> ${worker}"
 		docker exec "${MGR}" docker save "${IMAGE_TAG}" |
 			docker exec -i "${worker}" docker load
 	done
 fi
 
-docker exec "${MGR}" docker node update --availability drain "${INITIAL_NODE}"
+# Param: $1 availability, $2 node
+set_availability() {
+	local _try _err
+	for _try in 1 2 3 4 5; do
+		if _err="$(docker exec "${MGR}" docker node update --availability "$1" "$2" 2>&1)"; then
+			return 0
+		fi
+		case "${_err}" in
+		*"update out of sequence"*) sleep 2 ;;
+		*)
+			echo "FAILURE: could not set ${2} to ${1}: ${_err}"
+			exit 1
+			;;
+		esac
+	done
+	echo "FAILURE: could not set ${2} to ${1} after ${_try} tries: ${_err}"
+	exit 1
+}
+
+set_availability drain "${INITIAL_NODE}"
 
 NEW_NODE=""
 for i in $(seq 1 "${RESCHED_TIMEOUT}"); do
@@ -42,6 +62,8 @@ for i in $(seq 1 "${RESCHED_TIMEOUT}"); do
 	if [ -n "${NEW_NODE}" ] && [ "${NEW_NODE}" != "${INITIAL_NODE}" ]; then
 		echo "Rescheduled from ${INITIAL_NODE} to ${NEW_NODE} after ${i}s"
 		echo "NEW_NODE=${NEW_NODE}" >>"${SWARM_DRILL_ENV:?SWARM_DRILL_ENV is required (exported by routine/00_one.sh)}"
+		set_availability active "${INITIAL_NODE}"
+		echo "${INITIAL_NODE} is active again"
 		exit 0
 	fi
 	sleep 1

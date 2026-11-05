@@ -28,6 +28,25 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
+def _apply_owner(ref: dict[str, Any], entry: dict[str, Any]) -> None:
+    """Copy the optional numeric owner of a config or secret mount.
+
+    Args:
+        ref: compose long-syntax config/secret reference, updated in place.
+        entry: volumes.yml entry that may declare ``uid`` and ``gid``.
+    """
+    for key in ("uid", "gid"):
+        value = entry.get(key)
+        if value is None or isinstance(value, bool):
+            continue
+        text = str(value).strip()
+        if not text.isdigit():
+            raise AnsibleFilterError(
+                f"container_volumes: {key} must be a numeric id, got {value!r}"
+            )
+        ref[key] = text
+
+
 def _coerce_mode_int(value: Any) -> int:
     if isinstance(value, bool):
         raise AnsibleFilterError(
@@ -91,10 +110,17 @@ def container_volumes(
     extra_configs: list[dict[str, Any]] | None = None,
     extra_secrets: list[dict[str, Any]] | None = None,
     render_jinja: Callable[[str], str] | None = None,
+    instance: dict[str, Any] | None = None,
 ) -> str:
     """Return the per-service mount block (``volumes:`` + ``configs:`` +
     ``secrets:``) as a YAML string starting at column 0.
+
+    Args:
+        instance: an HA database instance from ``db_instances``; named
+            volumes then mount the instance key ``<semantic>_<host_id>``
+            that ``compose_volumes(instances=...)`` declares.
     """
+    instance_suffix = f"_{instance['host_id']}" if instance else ""
     if not isinstance(applications, dict):
         raise AnsibleFilterError("container_volumes: 'applications' must be a dict")
     if not isinstance(application_id, str) or not application_id.strip():
@@ -147,7 +173,9 @@ def container_volumes(
             if vtype == "volume":
                 read_only = bool(mount.get("read_only", volume_level_ro))
                 volumes_block.append(
-                    _short_form_volume(semantic_name, target, read_only)
+                    _short_form_volume(
+                        semantic_name + instance_suffix, target, read_only
+                    )
                 )
 
             elif vtype == "bind":
@@ -178,11 +206,24 @@ def container_volumes(
                     tmpfs_entry["tmpfs"] = tmpfs_options
                 volumes_block.append(tmpfs_entry)
 
+            elif vtype in ("config", "secret") and entry.get("per_instance"):
+                if not instance:
+                    continue
+                ref: dict[str, Any] = {
+                    "source": semantic_name + instance_suffix,
+                    "target": target,
+                }
+                if entry.get("mode"):
+                    ref["mode"] = _coerce_mode_int(entry["mode"])
+                _apply_owner(ref, entry)
+                (configs_block if vtype == "config" else secrets_block).append(ref)
+
             elif vtype == "config":
                 cfg_ref: dict[str, Any] = {"source": semantic_name, "target": target}
                 mode_value = entry.get("mode")
                 if mode_value:
                     cfg_ref["mode"] = _coerce_mode_int(mode_value)
+                _apply_owner(cfg_ref, entry)
                 configs_block.append(cfg_ref)
 
             elif vtype == "secret":
@@ -190,6 +231,7 @@ def container_volumes(
                 mode_value = entry.get("mode")
                 if mode_value:
                     sec_ref["mode"] = _coerce_mode_int(mode_value)
+                _apply_owner(sec_ref, entry)
                 secrets_block.append(sec_ref)
 
     if extra_volumes:
@@ -267,6 +309,7 @@ class LookupModule(LookupBase):
             extra_configs=kwargs.get("extra_configs"),
             extra_secrets=kwargs.get("extra_secrets"),
             render_jinja=render_jinja,
+            instance=kwargs.get("instance"),
         )
         if rendered and not rendered.startswith("\n"):
             rendered = "\n" + rendered

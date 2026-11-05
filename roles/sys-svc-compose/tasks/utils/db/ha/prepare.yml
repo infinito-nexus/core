@@ -1,0 +1,18 @@
+---
+# Param: application_id - central engine role about to render its form
+# Returns: DB_HA_MIGRATING - dict application_id -> bool; true while a standalone service still owns the engine's name and the inventory asks for the HA form
+- name: "🔧 db_ha_prepare | load the instance model of '{{ application_id }}'"
+  ansible.builtin.set_fact:
+    _db_ha_prepare_form: "{{ _db_ha_prepare_model.form }}"
+    _db_ha_prepare_backup_role: "{{ lookup('db_backup', 'role') }}"
+    _db_ha_prepare_backup: "{{ _db_ha_prepare_model.ha.backup is not none and (groups[lookup('db_backup', 'role')] | default([]) | length) > 0 }}"
+    _db_ha_prepare_service: "{{ (application_id | entity_name) ~ '_' ~ (application_id | entity_name) }}"
+    DB_HA_MIGRATING: "{{ DB_HA_MIGRATING | combine({application_id: false}) }}"
+  vars:
+    _db_ha_prepare_model: "{{ lookup('db_instances', application_id) }}"
+
+- name: "🧭 db_ha_prepare | prepare the HA form of '{{ application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/prepare_ha.yml') }}"
+  when:
+    - _db_ha_prepare_form == 'ha'
+    - IS_SWARM_MODE | bool

@@ -1,12 +1,29 @@
 ---
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: mastodon
     resolve_output_prefix: MASTODON
     resolve_compose_cid: "{{ MASTODON_CONTAINER_ADDRESS }}"
 
+- name: "🔐 MASTODON | Hand the media volume root to {{ MASTODON_RUNTIME_OWNER }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - --user
+      - root
+      - "{{ MASTODON_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - chown
+      - --changes
+      - "{{ MASTODON_RUNTIME_OWNER }}"
+      - "{{ MASTODON_PUBLIC_SYSTEM_DIR }}"
+  delegate_to: "{{ MASTODON_HOST_NODE }}"
+  register: mastodon_public_system_owner
+  changed_when: mastodon_public_system_owner.stdout | length > 0
+
 - name: "🌱 MASTODON | Seed database (idempotent)"
+  # nocheck: default-seeder  Mastodon seeds are find_or_create and its admin seed is development-only
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ MASTODON_LOCAL_CID | quote }}
     bash -lc 'bin/rails db:seed'

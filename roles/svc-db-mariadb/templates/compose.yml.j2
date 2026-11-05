@@ -1,6 +1,9 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = 'mariadb' %}
-  {{ service_name }}:
+  {% set _db = lookup('db_instances') %}
+  {% for db_instance in (_db.instances if _db.form == 'ha' else [none]) %}
+  {# nocheck: compose-structure  HA instance key differs from the meta service name the lookups resolve #}
+  {{ db_instance.service if db_instance else service_name }}:
     {{ lookup('compose_only', 'container_name', MARIADB_NAME) }}
     {{ lookup('container_image', application_id, 'mariadb') }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
@@ -10,14 +13,46 @@
     command:
       - "--transaction-isolation=READ-COMMITTED"
       - "--binlog-format=ROW"
+{% if db_instance %}
+      - "--server-id={{ MARIADB_SERVER_IDS[db_instance.host_id] }}"
+    environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop
+      MARIADB_HA_BOOTSTRAP: "{{ '1' if db_instance.legacy else '0' }}"
+      MARIADB_SEED_PORT: "{{ MARIADB_SEED_PORT }}"
+      ELECTOR_ENGINE: "mariadb"
+      ELECTOR_HOST_ID: "{{ db_instance.host_id }}"
+      ELECTOR_PEERS: "{{ _db.instances | map(attribute='host_id') | join(',') }}"
+      ELECTOR_PEER_TEMPLATE: "{{ MARIADB_ELECTOR_PEER_TEMPLATE }}"
+      ELECTOR_ETCD_ENDPOINTS: "{{ ETCD_CLIENT_ENDPOINTS }}"
+      ELECTOR_ETCD_USER: "{{ MARIADB_ELECTOR_ETCD_USER }}"
+      ELECTOR_KEY: "{{ MARIADB_ELECTOR_ETCD_KEY }}"
+      ELECTOR_MARIADB_SOCKET: "{{ MARIADB_HA_SOCKET }}"
+      ELECTOR_MARIADB_LOCAL_USER: "{{ MARIADB_ELECTOR_LOCAL_USER }}"
+      ELECTOR_ETCD_PASSWORD_FILE: "{{ lookup('volume', application_id, 'ha_etcd_password').target }}"
+      ELECTOR_PORT: "{{ MARIADB_ELECTOR_PORT }}"
+      ELECTOR_SEED_PORT: "{{ MARIADB_SEED_PORT }}"
+      ELECTOR_SEED_RELAY: "{{ MARIADB_SEED_RELAY }}"
+      ELECTOR_MARIADB_DEFAULTS_FILE: "{{ lookup('volume', application_id, 'ha_elector_cnf').target }}"
+      ELECTOR_REPLICATION_USER: "{{ MARIADB_REPLICATION_USER }}"
+      ELECTOR_REPLICATION_PASSWORD_FILE: "{{ lookup('volume', application_id, 'ha_replication_password').target }}"
+      ELECTOR_ETCD_CA_FILE: "{{ lookup('volume', application_id, 'ha_etcd_ca').target }}"
+    stop_grace_period: 60s
+{% endif %}
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% if MARIADB_EXPOSE_LOCAL %}
+    {% if MARIADB_EXPOSE_LOCAL and not db_instance %}
     {{ lookup('container_ports', ['mariadb', 'mariadb', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, instance=db_instance) | indent(4) }}
+    {% if db_instance %}
+    {{ lookup('container_networks', internal=true, roles_only=['svc-dcs-etcd'], include_default=false) | indent(4) }}
+    {% else %}
     {{ lookup('container_networks') | indent(4) }}
+    {% endif %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
+  {% endfor %}
+  {% if _db.form == 'ha' %}
+{% include 'roles/sys-svc-compose/templates/db_endpoint.yml.j2' %}
+  {% endif %}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

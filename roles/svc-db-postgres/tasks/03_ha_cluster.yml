@@ -1,0 +1,81 @@
+---
+- name: "🔍 POSTGRES | Members registered in the coordination store"
+  ansible.builtin.shell: >
+    container exec --user postgres {{ lookup('container_address', application_id, entity_name, instance=item) }}
+    {{ POSTGRES_PATRONICTL }} list --format json
+  register: postgres_dcs_members
+  delegate_to: "{{ item.host }}"
+  changed_when: false
+  failed_when: false
+  ignore_unreachable: true
+  retries: 12
+  delay: 5
+  until: postgres_dcs_members.rc is defined and postgres_dcs_members.rc == 0
+  loop: "{{ lookup('db_instances', application_id).instances }}"
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: "📋 POSTGRES | Collect the member lists that answered"
+  ansible.builtin.set_fact:
+    postgres_dcs_answers: >-
+      {{ postgres_dcs_members.results | selectattr('rc', 'defined') | selectattr('rc', 'equalto', 0)
+         | map(attribute='stdout') | list }}
+
+- name: "✅ POSTGRES | Ensure at least one member answered from the coordination store"
+  ansible.builtin.assert:
+    that: postgres_dcs_answers | length > 0
+    fail_msg: >-
+      No Patroni member could list the coordination store, so its state is unknown and no member is restarted:
+      {{ postgres_dcs_members.results | map(attribute='stderr', default='unreachable') | list }}
+    quiet: true
+
+- name: "🔄 POSTGRES | Restart members that lost the rebuilt coordination store"
+  ansible.builtin.include_tasks: utils/dcs_rejoin.yml
+  when: postgres_dcs_answers | map('from_json') | select | list | length == 0
+
+- name: "🔍 POSTGRES | Resolve the Patroni primary"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+  vars:
+    primary_application_id: "{{ application_id }}"
+    primary_output_prefix: POSTGRES
+
+- name: "👤 POSTGRES | Reconcile superuser, replication and rewind roles"
+  ansible.builtin.include_tasks: utils/psql_primary.yml
+  vars:
+    psql_template: ha_roles.sql.j2
+    psql_database: postgres
+    psql_node: "{{ POSTGRES_PRIMARY_NODE }}"
+    psql_cid: "{{ POSTGRES_PRIMARY_CID }}"
+
+- name: "⚙️ POSTGRES | Re-apply the Patroni cluster configuration"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  POSTGRES_PRIMARY_CID is the Patroni primary resolved at runtime
+    container exec -i --user postgres {{ POSTGRES_PRIMARY_CID | quote }}
+    {{ POSTGRES_PATRONICTL }} edit-config --force --apply -
+  args:
+    stdin: "{{ POSTGRES_PATRONI_DYNAMIC | to_nice_yaml }}"
+  register: postgres_edit_config
+  delegate_to: "{{ POSTGRES_PRIMARY_NODE }}"
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+  until: postgres_edit_config.rc == 0
+  changed_when: postgres_edit_config.stdout is search('^[+-][^+-]', multiline=True)
+
+- name: "🔍 POSTGRES | List members waiting for a restart"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  POSTGRES_PRIMARY_CID is the Patroni primary resolved at runtime
+    container exec --user postgres {{ POSTGRES_PRIMARY_CID | quote }}
+    {{ POSTGRES_PATRONICTL }} list --format json
+  register: postgres_members
+  delegate_to: "{{ POSTGRES_PRIMARY_NODE }}"
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+  until: postgres_members.rc == 0
+  changed_when: false
+
+- name: "🔄 POSTGRES | Rolling restart for settings that need one"
+  ansible.builtin.include_tasks: utils/rolling.yml
+  vars:
+    rolling_members: "{{ postgres_members.stdout | from_json }}"
+  when: >-
+    postgres_members.stdout | from_json
+    | map(attribute='Pending restart', default='')
+    | select | list | length > 0

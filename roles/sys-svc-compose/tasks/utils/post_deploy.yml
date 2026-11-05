@@ -1,9 +1,9 @@
 ---
 - name: "⏳ Wait until database container for '{{ application_id }}' is healthy"
-  ansible.builtin.command: >-
+  ansible.builtin.shell: >-
     container inspect --type container
-    --format={% raw %}{{.State.Health.Status}}{% endraw %}
-    {{ lookup('database', application_id, 'container') }}
+    --format={% raw %}'{{.State.Health.Status}}'{% endraw %}
+    {{ lookup('database', application_id, 'address') }}
   register: _app_db_health
   retries: 60
   delay: 2
@@ -16,11 +16,18 @@
 - name: "🔑 For '{{ application_id }}': realign a dedicated postgres"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-rdbms/tasks/utils/realign_dedicated_db.yml') }}"
 
-- name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"
+- name: "🗑️ Remove instance services of hosts that left '{{ application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/remove_departed_instances.yml') }}"
+  when:
+    - application_id in lookup('db_instances', ha_engines=true)
+    - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm'
+
+- name: "⏳ Wait until swarm tasks of '{{ application_id | entity_name }}' are running"
   ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:
-    STACK: "{{ application_id | get_entity_name }}"
+    STACK: "{{ application_id | entity_name }}"
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
+    SEED_WAIT_LABEL: "{{ SWARM_SERVICE_LABEL_SEED_WAIT }}"
   register: _swarm_tasks_ready
   retries: "{{ swarm_stack_converge_retries }}"
   delay: 2

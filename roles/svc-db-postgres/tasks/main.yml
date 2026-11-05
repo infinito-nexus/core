@@ -9,7 +9,7 @@
     handler_role_name: "sys-svc-compose"
 
 - name: "🎬 Initialize dedicated database"
-  include_tasks: 01_init.yml
+  include_tasks: "{{ '04_init_ha.yml' if (POSTGRES_HA | bool) else '01_init.yml' }}"
   when: database_init | bool
   vars:
     application_id: svc-db-postgres

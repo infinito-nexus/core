@@ -4,10 +4,14 @@ HEALTH_CSP_ONION_TIMEOUT_MS: "{{ (HEALTH_CSP_TIMEOUT_MS | int) * (lookup('config
   'services.tor.flavor')] | int) }}"
 HEALTH_CSP_ONION_DOMAIN_SECONDS: "{{ ((HEALTH_CSP_ONION_TIMEOUT_MS | int) // 1000) + (HEALTH_CSP_DOMAIN_RESERVE_SECONDS | int) }}"
 HEALTH_CSP_ACCEPT_STATUS: "{{ lookup('csp_accept_status') }}"
+HEALTH_CSP_ISSUER_HOST: "{{ OIDC.URL | urlsplit('hostname') }}"
+HEALTH_CSP_TOR_PROXY_BYPASS: "{{ lookup('browser_proxy_bypass', 'tor', HEALTH_CSP_ISSUER_HOST) }}"
+HEALTH_CSP_TOR_CONFINE_ALLOW: "{{ [] if (HEALTH_CSP_ISSUER_HOST | network_of) == 'tor' else [HEALTH_CSP_ISSUER_HOST] }}"
 HEALTH_CSP_SKIP_DOMAINS: >-
   {{ (
        lookup('csp_skip_domains', group_names=lookup('deployment').deployed)
        + (CURRENT_PLAY_REDIRECT_DOMAINS | default([])
           | rejectattr('target', 'in', CURRENT_PLAY_DOMAINS_ALL)
           | map(attribute='source') | list)
+       + (CURRENT_PLAY_DOMAINS_ALL | select('match', '[*][.]') | list)
      ) | unique }}

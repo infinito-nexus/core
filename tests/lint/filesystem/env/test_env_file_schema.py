@@ -48,12 +48,11 @@ Style guidance for the one comment line (see `docs/contributing/documentation.md
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -257,25 +256,10 @@ def validate_env_file(path: Path, *, strict: bool) -> list[Violation]:
     return violations
 
 
-def _git_ls_files() -> list[str]:
-    out = subprocess.check_output(
-        [
-            "git",
-            "-c",
-            "safe.directory=*",
-            "-C",
-            str(PROJECT_ROOT),
-            "ls-files",
-        ],
-        text=True,
-    )
-    return [line for line in out.splitlines() if line]
-
-
 def _scan_targets() -> list[tuple[Path, bool]]:
     """Return (path, strict) pairs for every env-file the lint covers."""
     targets: list[tuple[Path, bool]] = []
-    for rel in _git_ls_files():
+    for rel in repository_files():
         if rel.endswith(".env"):
             strict = rel.startswith("env/") or rel == ".env"
             targets.append((PROJECT_ROOT / rel, strict))

@@ -6,6 +6,7 @@ from pathlib import PurePosixPath
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
+from utils.roles.applications.mounts import normalize_volumes_meta
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 STATE_SUBDIR = "infinito-state"
@@ -120,10 +121,120 @@ def swarm_nfs_backed(entry, *, application_id, deployment_mode, storage_backend)
         return False
     if entry.get("nfs") is False:
         return False
-    # Exception: imported lazily because this module stays import-safe for the
-    # .env bootstrap, which runs before PyYAML exists.
     from utils.roles.meta_lookup import get_role_placement
 
     if str(get_role_placement(application_id) or "").strip().lower() == "manager":
         return False
     return not _role_forces_other_mode(application_id)
+
+
+def volume_dir(semantic_name, entry):
+    """Directory under the NFS state path the swarm rewrite binds a volume to.
+
+    Args:
+        semantic_name: the volume's key in the compose ``volumes:`` block.
+        entry: the volume's spec; a pinned ``name`` wins over the key.
+    """
+    pinned = entry.get("name") if isinstance(entry, Mapping) else None
+    return str(pinned) if pinned else str(semantic_name)
+
+
+def _tmpfs_mode(value):
+    if isinstance(value, bool) or not isinstance(value, (int, str)):
+        raise TypeError(f"tmpfs mode must be an octal string or int, got {value!r}")
+    return value if isinstance(value, int) else int(value, 8)
+
+
+def nested_tmpfs_mountpoints(volumes_meta, nfs_dirs):
+    """Tmpfs mountpoints whose innermost volume of the same service is NFS-backed.
+
+    Args:
+        volumes_meta: the role's ``meta/volumes.yml`` mapping.
+        nfs_dirs: NFS state directory per semantic name of every NFS-backed volume.
+
+    Returns:
+        One ``{"path": str, "mode": int}`` per mountpoint, sorted by ``path``,
+        which is relative to the NFS state path.
+
+    Raises:
+        ValueError: a nested tmpfs declares no ``mode``, or two tmpfs mounts
+            declare different modes for the same mountpoint.
+        TypeError: a nested tmpfs ``mode`` is neither an octal string nor an int.
+    """
+    entries = normalize_volumes_meta(volumes_meta)
+    parents: dict[str, list[tuple[str, str]]] = {}
+    for name, entry in entries.items():
+        if entry["type"] != "volume":
+            continue
+        for mount in entry.get("mounts") or []:
+            parents.setdefault(mount["service"], []).append(
+                (str(mount["target"]), name)
+            )
+
+    modes: dict[str, int] = {}
+    for name, entry in entries.items():
+        if entry["type"] != "tmpfs":
+            continue
+        for mount in entry.get("mounts") or []:
+            target = str(mount["target"])
+            enclosing = [
+                (parent.rstrip("/"), volume)
+                for parent, volume in parents.get(mount["service"], [])
+                if target == parent or target.startswith(parent.rstrip("/") + "/")
+            ]
+            if not enclosing:
+                continue
+            base, volume = max(enclosing, key=lambda pair: len(pair[0]))
+            if volume not in nfs_dirs:
+                continue
+            if "mode" not in mount:
+                raise ValueError(
+                    f"tmpfs {name!r} of service {mount['service']!r} at {target} "
+                    f"lies inside the NFS-backed volume {volume!r} and declares "
+                    f"no 'mode'"
+                )
+            relative = target[len(base) :].lstrip("/")
+            path = str(PurePosixPath(nfs_dirs[volume], relative))
+            mode = _tmpfs_mode(mount["mode"])
+            if modes.setdefault(path, mode) != mode:
+                raise ValueError(
+                    f"tmpfs mountpoint {path} is declared with modes "
+                    f"{modes[path]:o} and {mode:o}"
+                )
+    return [{"path": path, "mode": mode} for path, mode in sorted(modes.items())]
+
+
+def backup_disabled_dirs(applications, *, deployment_mode, storage_backend):
+    """State-path directories of the NFS-backed volumes declared ``backup: false``.
+
+    Args:
+        applications: merged applications mapping whose ``volumes`` carry the
+            canonical ``meta/volumes.yml`` entries.
+        deployment_mode: cluster-wide ``compose`` or ``swarm``.
+        storage_backend: the ``storage.backend`` value, e.g. ``local`` or ``nfs``.
+
+    Returns:
+        The sorted directory names, without any a backed-up volume also binds to.
+    """
+    disabled: set[str] = set()
+    kept: set[str] = set()
+    for app_id, app in applications.items():
+        volumes = app.get("volumes") if isinstance(app, Mapping) else None
+        if not isinstance(volumes, Mapping):
+            continue
+        for semantic_name, entry in volumes.items():
+            if (
+                not isinstance(entry, Mapping)
+                or entry.get("type", "volume") != "volume"
+            ):
+                continue
+            if not swarm_nfs_backed(
+                entry,
+                application_id=str(app_id),
+                deployment_mode=deployment_mode,
+                storage_backend=storage_backend,
+            ):
+                continue
+            target = disabled if entry.get("backup") is False else kept
+            target.add(volume_dir(semantic_name, entry))
+    return sorted(disabled - kept)

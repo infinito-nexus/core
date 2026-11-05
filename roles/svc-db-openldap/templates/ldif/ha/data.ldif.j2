@@ -1,0 +1,41 @@
+{% set _dc = (LDAP.DN.ROOT | regex_search('dc=([^,]+)', '\\1')) | first %}
+dn: {{ LDAP.DN.ROOT }}
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+dc: {{ _dc }}
+o: {{ _dc }}
+
+dn: {{ LDAP.DN.OU.USERS }}
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+description: Users container
+
+dn: {{ LDAP.DN.OU.GROUPS }}
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+description: Groups container
+
+dn: {{ LDAP.DN.OU.ROLES }}
+objectClass: top
+objectClass: organizationalUnit
+ou: roles
+description: Container for application access profiles
+{% for key, user in OPENLDAP_USERS.items() %}
+
+dn: {{ LDAP.USER.ATTRIBUTES.ID }}={{ key }},{{ LDAP.DN.OU.USERS }}
+{% for oc in LDAP.USER.OBJECTS.STRUCTURAL %}
+objectClass: {{ oc }}
+{% endfor %}
+uid: {{ user.username }}
+givenName: {{ user.firstname }}
+sn: {{ user.lastname }}
+cn: {{ user.cn | default(key) }}
+loginShell: /bin/bash
+homeDirectory: /home/{{ key }}
+uidNumber: {{ user.uid | int }}
+gidNumber: {{ user.gid | int }}
+{% endfor %}
+{% include 'ldif/groups/01_rbac_roles.ldif.j2' %}

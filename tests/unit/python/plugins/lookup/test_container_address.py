@@ -35,13 +35,30 @@ def _run(
     *,
     variables: dict[str, Any] | None = None,
     applications: dict[str, Any] | None = None,
+    **lookup_kwargs: Any,
 ) -> list[str]:
     apps = applications if applications is not None else _apps()
     with patch("plugins.lookup.container_address.lookup_loader") as loader_mock:
         loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
         lm = LookupModule()
         lm._loader = mock.MagicMock()
-        return lm.run([application_id, service_key], variables=variables or {})
+        return lm.run(
+            [application_id, service_key], variables=variables or {}, **lookup_kwargs
+        )
+
+
+def _redis_apps() -> dict[str, Any]:
+    return {
+        "svc-db-redis": {
+            "services": {
+                "redis": {"name": "redis-central"},
+                "sentinel": {"cpus": "0.1"},
+            },
+        },
+    }
+
+
+_HA_INSTANCE = {"host": "mgr-02", "host_id": "mgr-02", "service": "redis-mgr-02"}
 
 
 class TestContainerExecAddrLookup(unittest.TestCase):
@@ -89,6 +106,8 @@ class TestContainerExecAddrLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "BIN_RESOLVE_CONTAINER_ID": "/usr/bin/resolve-container-id",
             },
         )
@@ -114,6 +133,8 @@ class TestContainerExecAddrLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "BIN_RESOLVE_CONTAINER_ID": "/opt/scripts/resolve-id",
             },
         )
@@ -134,6 +155,48 @@ class TestContainerExecAddrLookup(unittest.TestCase):
             out,
             ['"$(/usr/bin/resolve-container-id mattermost mattermost)"'],
         )
+
+    def test_swarm_mode_names_the_ha_instance(self):
+        out = _run(
+            "svc-db-redis",
+            "redis",
+            variables={"DEPLOYMENT_MODE": "swarm"},
+            applications=_redis_apps(),
+            instance=_HA_INSTANCE,
+        )
+        self.assertEqual(out, ['"$(/usr/bin/resolve-container-id redis redis-mgr-02)"'])
+
+    def test_swarm_mode_names_the_instance_sidecar_without_a_name(self):
+        out = _run(
+            "svc-db-redis",
+            "sentinel",
+            variables={"DEPLOYMENT_MODE": "swarm"},
+            applications=_redis_apps(),
+            instance=_HA_INSTANCE,
+        )
+        self.assertEqual(
+            out, ['"$(/usr/bin/resolve-container-id redis redis-sentinel-mgr-02)"']
+        )
+
+    def test_sidecar_of_a_standalone_instance_raises(self):
+        with self.assertRaises(AnsibleError):
+            _run(
+                "svc-db-redis",
+                "sentinel",
+                variables={"DEPLOYMENT_MODE": "swarm"},
+                applications=_redis_apps(),
+                instance={"host": "mgr-01", "host_id": None, "service": "redis"},
+            )
+
+    def test_compose_mode_ignores_the_instance(self):
+        out = _run(
+            "svc-db-redis",
+            "redis",
+            variables={"DEPLOYMENT_MODE": "compose"},
+            applications=_redis_apps(),
+            instance={"host": "mgr-01", "host_id": None, "service": "redis"},
+        )
+        self.assertEqual(out, ["redis-central"])
 
     def test_service_with_empty_name_raises(self):
         apps = {

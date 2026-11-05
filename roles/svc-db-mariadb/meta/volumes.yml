@@ -5,3 +5,80 @@ data:
   mounts:
     - service: mariadb
       target: /var/lib/mysql
+
+haproxy_cfg:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'haproxy.cfg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: haproxy
+      target: /usr/local/etc/haproxy/haproxy.cfg
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+
+haproxy_tmp:
+  type: tmpfs
+  mounts:
+    - service: haproxy
+      target: /tmp
+      size: 1m
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+
+ha_server_cnf:
+  type: config
+  source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'ha-server.cnf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mariadb
+      target: /etc/mysql/conf.d/zz-infinito-ha.cnf
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+
+ha_root_cnf:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'root.cnf'] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: mariadb
+      target: /run/secrets/mariadb/root.cnf
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+
+ha_elector_cnf:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'elector.cnf'] | path_join }}"
+  mode: "0400"
+  uid: 999
+  gid: 999
+  mounts:
+    - service: mariadb
+      target: /run/secrets/mariadb/elector.cnf
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+
+ha_replication_password:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'replication.password'] | path_join }}"
+  mode: "0400"
+  uid: 999
+  gid: 999
+  mounts:
+    - service: mariadb
+      target: /run/secrets/mariadb/replication.password
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+
+ha_etcd_password:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'etcd.password'] | path_join }}"
+  mode: "0400"
+  uid: 999
+  gid: 999
+  mounts:
+    - service: mariadb
+      target: /run/secrets/mariadb/etcd.password
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+
+ha_etcd_ca: # nocheck: config-volume-producer  svc-dcs-etcd tasks/01_tls.yml writes the etcd CA this entry mounts
+  type: config
+  source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'ca.crt'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mariadb
+      target: /run/secrets/mariadb/etcd-ca.crt
+      when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"

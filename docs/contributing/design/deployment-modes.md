@@ -49,14 +49,15 @@ Refinements:
 
 ## Manager identification
 
-Among the hosts in `svc-swarm-node`, the cluster manager is identified
-by additional membership in `svc-swarm-manager`. v1 scope:
-exactly ONE host. Workers are derived as
+Among the hosts in `svc-swarm-node`, the managers are identified
+by additional membership in `svc-swarm-manager`. The group holds 1 host,
+or an odd number of at least 3 for Raft-quorum HA. Workers are derived as
 `svc-swarm-node − svc-swarm-manager` — no duplicated list in
 `group_vars`.
 
-A deploy with zero or more than one manager fails at
-inventory-validation time, never at runtime.
+Any other manager count fails at inventory-validation time. The first
+host in `svc-swarm-manager` is `STACK_HOST`, the only host with
+`IS_STACK_HOST`, even when there are several managers.
 
 ## Reverse proxy under swarm
 
@@ -142,3 +143,4 @@ and rollback granularity across unrelated apps.
 - [svc-storage-nfs-server](../../../roles/svc-storage-nfs-server/)
 - [svc-storage-nfs-client](../../../roles/svc-storage-nfs-client/)
 - [svc-prx-openresty](../../../roles/svc-prx-openresty/)
+- [Database HA on Swarm](database-ha-swarm.md)

@@ -120,35 +120,35 @@ V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` on
 ### Routing & TLS
 
 - [ ] `semaphore.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to the Semaphore container and `GET /` returns HTTP 200 with the Semaphore SPA shell.
-- [ ] `SEMAPHORE_WEB_ROOT` is set to the canonical `https://` URL so OIDC redirect URLs resolve correctly behind the proxy.
+- [x] `SEMAPHORE_WEB_ROOT` is set to the canonical `https://` URL so OIDC redirect URLs resolve correctly behind the proxy.
 - [ ] The role's `Content-Security-Policy` response header is emitted on the canonical front page and lists any enabled injector hosts.
 
 ### Role layout & image
 
 - [ ] `roles/web-app-semaphore/` exists with the layout in [Target Schema](#role-layout).
-- [ ] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`).
+- [x] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`).
 - [ ] `meta/info.yml`, `server.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint.
 
 ### Database (Decision #3 — central PostgreSQL)
 
-- [ ] `SEMAPHORE_DB_DIALECT=postgres` plus `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB` are wired; when `services.postgres.shared=true` the role consumes the central `svc-db-postgres` (no per-role engine), else `sys-svc-rdbms` templates a per-role Postgres.
+- [x] `SEMAPHORE_DB_DIALECT=postgres` plus `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB` are wired; when `services.postgres.shared=true` the role consumes the central `svc-db-postgres` (no per-role engine), else `sys-svc-rdbms` templates a per-role Postgres.
 - [ ] On a fresh deploy the schema is auto-migrated and the stack reaches a steady running state.
 
 ### First-admin bootstrap (Decision #6 — break-glass local admin)
 
-- [ ] `SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed a break-glass local admin (dedicated `breakglass` login + dedicated email, no collision with the SSO/LDAP identities) in **every** variant; no setup wizard is presented on first load. Its form login is reachable only when LDAP is disabled (Semaphore forces LDAP-only form auth otherwise).
-- [ ] `SEMAPHORE_ACCESS_KEY_ENCRYPTION` and the cookie hash/encryption secrets are generated once and persisted in the role's secret store (idempotent across redeploys).
+- [x] `SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed a break-glass local admin (dedicated `breakglass` login + dedicated email, no collision with the SSO/LDAP identities) in **every** variant; no setup wizard is presented on first load. Its form login is reachable only when LDAP is disabled (Semaphore forces LDAP-only form auth otherwise).
+- [x] `SEMAPHORE_ACCESS_KEY_ENCRYPTION` and the cookie hash/encryption secrets are generated once and persisted in the role's secret store (idempotent across redeploys).
 
 ### SSO / OIDC (Decisions #2, #6)
 
-- [ ] When `web-app-keycloak` is in `group_names`, the Keycloak OIDC client for Semaphore is auto-provisioned with redirect URI `https://semaphore.<DOMAIN_PRIMARY>/api/auth/oidc/keycloak/redirect`.
-- [ ] `SEMAPHORE_OIDC_PROVIDERS` is rendered as valid JSON (`keycloak` provider: `display_name`, `provider_url`=realm issuer, `client_id`, `client_secret`, `redirect_url`).
-- [ ] When OIDC is enabled, the role creates the Keycloak `administrator` as an external Semaphore admin at deploy time (`semaphore user add --admin --external`, matching `preferred_username` + email), so the OIDC callback elevates that operator to admin (verified for the `administrator` persona). Upstream has no native claim→admin mapping; this deploy-time external-admin seed is the documented smallest reconciliation step (README).
-- [ ] A Playwright OIDC flow (biber + administrator) clicks "Sign in with Keycloak", completes the Keycloak chain, and lands on an authenticated Semaphore surface (administrator persona additionally asserts the admin-only `/users` surface).
+- [x] When `web-app-keycloak` is in `group_names`, the Keycloak OIDC client for Semaphore is auto-provisioned with redirect URI `https://semaphore.<DOMAIN_PRIMARY>/api/auth/oidc/keycloak/redirect`.
+- [x] `SEMAPHORE_OIDC_PROVIDERS` is rendered as valid JSON (`keycloak` provider: `display_name`, `provider_url`=realm issuer, `client_id`, `client_secret`, `redirect_url`).
+- [x] When OIDC is enabled, the role creates the Keycloak `administrator` as an external Semaphore admin at deploy time (`semaphore user add --admin --external`, matching `preferred_username` + email), so the OIDC callback elevates that operator to admin (verified for the `administrator` persona). Upstream has no native claim→admin mapping; this deploy-time external-admin seed is the documented smallest reconciliation step (README).
+- [x] A Playwright OIDC flow (biber + administrator) clicks "Sign in with Keycloak", completes the Keycloak chain, and lands on an authenticated Semaphore surface (administrator persona additionally asserts the admin-only `/users` surface).
 
 ### LDAP (V3 + V1 dual)
 
-- [ ] When `svc-db-openldap` is in `group_names`, `SEMAPHORE_LDAP_ENABLE=true` plus `SEMAPHORE_LDAP_SERVER` (host:port), `SEMAPHORE_LDAP_BIND_DN` / `_BIND_PASSWORD`, `SEMAPHORE_LDAP_SEARCH_DN` / `_SEARCH_FILTER`, and the `SEMAPHORE_LDAP_MAPPING_*` attributes are rendered from the central LDAP vars (env names per the v2.x config schema).
+- [x] When `svc-db-openldap` is in `group_names`, `SEMAPHORE_LDAP_ENABLE=true` plus `SEMAPHORE_LDAP_SERVER` (host:port), `SEMAPHORE_LDAP_BIND_DN` / `_BIND_PASSWORD`, `SEMAPHORE_LDAP_SEARCH_DN` / `_SEARCH_FILTER`, and the `SEMAPHORE_LDAP_MAPPING_*` attributes are rendered from the central LDAP vars (env names per the v2.x config schema).
 - [ ] An LDAP-bind login for `biber` succeeds and lands on an authenticated surface (covered by a dedicated Playwright scenario gated on `ldap`).
 - [ ] When both OIDC and LDAP are enabled (V1), OIDC is the primary button and LDAP login still works; the deploy is clean.
 
@@ -161,9 +161,9 @@ V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` on
 
 - [ ] `files/playwright/test-guest.js`: guest never reaches an authenticated surface; empty-credentials submission is rejected by the IdP.
 - [ ] `files/playwright/test-login-oidc-biber.js` and `test-login-oidc-administrator.js`: OIDC personas reach an authenticated surface, drive a role-specific interaction (e.g. open the Projects list / admin Users panel), and log out to a verified unauthenticated landing. Gated on `skipUnlessServiceEnabled('sso')`.
-- [ ] `files/playwright/test-login-ldap-biber.js`: LDAP login path, gated on `skipUnlessServiceEnabled('ldap')`.
-- [ ] `files/playwright/test-login-native-administrator.js`: break-glass local admin login, gated to **ldap-disabled** (Semaphore forces LDAP-only form auth when ldap is enabled); the skip carries a reason naming `LDAP_SERVICE_ENABLED`.
-- [ ] `templates/playwright.env.j2` exposes every env var the specs read; service flags carry `# nocheck` rationale where applicable.
+- [x] `files/playwright/test-login-ldap-biber.js`: LDAP login path, gated on `skipUnlessServiceEnabled('ldap')`.
+- [x] `files/playwright/test-login-native-administrator.js`: break-glass local admin login, gated to **ldap-disabled** (Semaphore forces LDAP-only form auth when ldap is enabled); the skip carries a reason naming `LDAP_SERVICE_ENABLED`.
+- [x] `templates/playwright.env.j2` exposes every env var the specs read; service flags carry `# nocheck` rationale where applicable.
 - [ ] `make compose-playwright role=web-app-semaphore` exits `0` with no stub tests and a clean logged-out final state per the contract.
 
 ### Health & quality
@@ -198,7 +198,7 @@ Before any implementation work, the agent MUST read [AGENTS.md](../../AGENTS.md)
 
 Execute autonomously; open a clarification only when a decision is genuinely ambiguous and blocking.
 
-1. Resolve the [Open Questions](#open-questions-pending-operator-decision) into [Confirmed Decisions](#confirmed-decisions).
+1. Work from the [Confirmed Decisions](#confirmed-decisions); raise anything still open with the operator before implementing it.
 2. Scaffold the role using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (Postgres consumer, LDAP vars, OIDC, three personas).
 3. Template `compose.yml.j2` + `env.j2` with the `SEMAPHORE_*` matrix (DB, admin bootstrap, secrets, `SEMAPHORE_WEB_ROOT`, conditional `SEMAPHORE_OIDC_PROVIDERS` and `SEMAPHORE_LDAP_*`).
 4. Add Keycloak client auto-provisioning for the Semaphore consumer.

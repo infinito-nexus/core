@@ -65,24 +65,25 @@
     or 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([])
     or (matrix_synapse_loopback_probe is not skipped and matrix_synapse_loopback_probe is failed)
 
-- name: "💾 ansible-flavor: dump matrix-mdad diagnostics"
-  ansible.builtin.debug:
-    var: matrix_mdad_diagnostics
+- name: "🛑 ansible-flavor: report the matrix-mdad diagnostics and fail"
   when: matrix_mdad_diagnostics is not skipped
+  block:
+    - name: "💾 ansible-flavor: dump matrix-mdad diagnostics"
+      ansible.builtin.debug:
+        var: matrix_mdad_diagnostics
 
-- name: "🛑 ansible-flavor: fail after diagnostics if Synapse never became reachable"
-  ansible.builtin.fail:
-    msg: >-
-      {% if 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
-      the docker daemon inside matrix-mdad failed to start - see matrix_mdad_diagnostics above.
-      {%- elif 'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
-      matrix-mdad bootstrap failed inside the container, in its galaxy install or its playbook - see matrix_mdad_diagnostics above.
-      {%- elif matrix_mdad_bootstrap_state is failed -%}
-      matrix-mdad bootstrap never reached a terminal state within the wait budget - see matrix_mdad_diagnostics above.
-      {%- else -%}
-      Synapse loopback probe never reached 200 - see matrix_mdad_diagnostics above.
-      {%- endif %}
-  when: matrix_mdad_diagnostics is not skipped
+    - name: "🛑 ansible-flavor: fail after diagnostics if Synapse never became reachable"
+      ansible.builtin.fail:
+        msg: >-
+          {% if 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
+          the docker daemon inside matrix-mdad failed to start - see matrix_mdad_diagnostics above.
+          {%- elif 'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
+          matrix-mdad bootstrap failed inside the container, in its galaxy install or its playbook - see matrix_mdad_diagnostics above.
+          {%- elif matrix_mdad_bootstrap_state is failed -%}
+          matrix-mdad bootstrap never reached a terminal state within the wait budget - see matrix_mdad_diagnostics above.
+          {%- else -%}
+          Synapse loopback probe never reached 200 - see matrix_mdad_diagnostics above.
+          {%- endif %}
 
 - name: "🔍 ansible-flavor: probe Element web client on host loopback"
   uri_retry:
@@ -94,18 +95,56 @@
   delay: 2
   until: matrix_element_loopback_probe.status == 200
 
-- name: "📁 ansible-flavor: create native Synapse admin (DiD, idempotent shared-secret)"
+- name: "🔑 ansible-flavor: converge the native Synapse admin account"
   when: IS_STACK_HOST | bool
-  ansible.builtin.shell:
-    cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved; ansible flavor forces compose mode
-      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-synapse register_new_matrix_user
-      -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
-      -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
-      -a -c {{ lookup('volume', 'web-app-matrix', 'synapse_config').target }} http://localhost:8008
-  register: matrix_admin_create
-  changed_when: matrix_admin_create.rc == 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
-  failed_when: matrix_admin_create.rc != 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  block:
+    - name: "📁 ansible-flavor: create native Synapse admin (DiD, idempotent shared-secret)"
+      ansible.builtin.shell:
+        cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved; ansible flavor forces compose mode
+          container exec -e MATRIX_ADMINISTRATOR_PASSWORD {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} sh -lc 'docker exec matrix-synapse register_new_matrix_user
+          -u "{{ MATRIX_ADMINISTRATOR_USERNAME }}"
+          -p "$MATRIX_ADMINISTRATOR_PASSWORD"
+          -a -c {{ lookup('volume', 'web-app-matrix', 'synapse_config').target }} http://localhost:8008'
+      environment:
+        MATRIX_ADMINISTRATOR_PASSWORD: "{{ MATRIX_ADMINISTRATOR_PASSWORD }}"
+      register: matrix_admin_create
+      changed_when: matrix_admin_create.rc == 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
+      failed_when: matrix_admin_create.rc != 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔑 ansible-flavor: realign the admin password Synapse stored"
+      when: not matrix_admin_create.changed
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      block:
+        - name: "🔑 ansible-flavor: hash the declared admin password"
+          ansible.builtin.shell:
+            cmd: >- # nocheck: raw-docker, container-exec-resolver  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved
+              container exec -i {{ MATRIX_MDAD_CONTAINER_ADDRESS }} docker exec -i matrix-synapse
+              hash_password -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+            stdin: "{{ MATRIX_ADMINISTRATOR_PASSWORD }}"
+            executable: /bin/bash
+          register: matrix_mdad_password_hash
+          changed_when: false
+
+        - name: "🔑 ansible-flavor: point the admin at the declared password"
+          ansible.builtin.shell:
+            cmd: >-
+              container exec -i -e PGPASSWORD
+              {{ lookup('database', application_id, 'address') }}
+              psql -v ON_ERROR_STOP=1 -U {{ MATRIX_POSTGRES_USER | quote }}
+              -d {{ MATRIX_POSTGRES_DATABASE | quote }}
+              -v hash={{ (matrix_mdad_password_hash.stdout_lines | last | trim) | quote }}
+              -v name={{ lookup('mxid', MATRIX_ADMINISTRATOR_USERNAME) | quote }}
+              -f -
+            stdin: "{{ lookup('file', 'sql/realign_user_password.sql') }}"
+            executable: /bin/bash
+          environment:
+            PGPASSWORD: "{{ MATRIX_POSTGRES_PASSWORD }}"
+          register: matrix_mdad_password_update
+          changed_when: "'UPDATE 1' in matrix_mdad_password_update.stdout"
+          failed_when: >-
+            matrix_mdad_password_update.rc != 0
+            or 'UPDATE 1' not in matrix_mdad_password_update.stdout
 
 - name: "🔑 ansible-flavor: align the Jitsi component accounts with their passwords"
   when:
@@ -113,10 +152,11 @@
     - MATRIX_JITSI_INTERNAL | bool
   ansible.builtin.shell:
     cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; Prosody keeps an account's first password, so a rotated secret needs the account recreated
-      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-jitsi-prosody sh -c
-      'prosodyctl --config /run/prosody/config/prosody.cfg.lua deluser "$1@auth.meet.jitsi"
-      && prosodyctl --config /run/prosody/config/prosody.cfg.lua register "$1" auth.meet.jitsi "$2"'
-      _ {{ item.user | quote }} {{ item.password | quote }}
+      container exec -i {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec -i matrix-jitsi-prosody sh -c
+      'IFS= read -r p; prosodyctl --config /run/prosody/config/prosody.cfg.lua deluser "$1@auth.meet.jitsi"
+      && prosodyctl --config /run/prosody/config/prosody.cfg.lua register "$1" auth.meet.jitsi "$p"'
+      _ {{ item.user | quote }}
+    stdin: "{{ item.password }}"
   loop: "{{ MATRIX_JITSI_COMPONENT_ACCOUNTS }}"
   loop_control:
     label: "{{ item.user }}"

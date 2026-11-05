@@ -1,10 +1,13 @@
 import importlib.util
+import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 from types import ModuleType
 from unittest.mock import patch
+
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -43,6 +46,48 @@ class TestComposePull(unittest.TestCase):
         self.assertEqual(rc, 7)
         self.assertEqual(out, "hello\n")
         self.assertEqual(err, "warn: variable is not set\n")
+
+    def test_run_cmd_reports_a_timeout_instead_of_hanging(self) -> None:
+        def fake_run(*args, **kwargs):
+            self.assertEqual(kwargs["timeout"], self.m.RUN_TIMEOUT_SECONDS)
+            raise self.m.subprocess.TimeoutExpired(
+                cmd=["compose", "build"],
+                timeout=self.m.RUN_TIMEOUT_SECONDS,
+                output=b"step 3/4\n",
+                stderr=b"pulling\n",
+            )
+
+        with patch.object(self.m.subprocess, "run", side_effect=fake_run):
+            rc, out, err = self.m.run_cmd(["compose", "build"], cwd=Path("/"), env={})
+
+        self.assertEqual(rc, self.m.TIMEOUT_RC)
+        self.assertEqual(out, "step 3/4\n")
+        self.assertIn(f"timed out after {self.m.RUN_TIMEOUT_SECONDS}s", err)
+        self.assertIn("pulling", err)
+
+    def test_run_streamed_outlives_a_deadline_while_it_keeps_talking(self) -> None:
+        chatty = "import time\nfor step in range(40):\n    print(step, flush=True)\n    time.sleep(0.1)\n"
+
+        with patch.object(self.m, "RUN_SILENCE_SECONDS", 2.0):
+            rc, out, _err = self.m.run_streamed(
+                [sys.executable, "-I", "-S", "-c", chatty],
+                cwd=Path("/"),
+                env=dict(os.environ),
+            )
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(out.split()[-1], "39")
+
+    def test_run_streamed_kills_a_command_that_falls_silent(self) -> None:
+        with patch.object(self.m, "RUN_SILENCE_SECONDS", 0.5):
+            rc, _out, err = self.m.run_streamed(
+                [sys.executable, "-c", "import time; time.sleep(60)"],
+                cwd=Path("/"),
+                env=dict(os.environ),
+            )
+
+        self.assertEqual(rc, self.m.TIMEOUT_RC)
+        self.assertIn("said nothing for 0.5s", err)
 
     def test_base_compose_cmd_delegates_to_wrapper(self) -> None:
         cmd = self.m.base_compose_cmd(project="p", cwd=Path("/x"))
@@ -190,6 +235,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=True),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
                 patch.object(self.m, "run_or_fail", side_effect=fake_run_or_fail),
             ):
@@ -249,6 +295,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=True),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
                 patch.object(self.m, "run_or_fail", side_effect=fake_run_or_fail),
             ):
@@ -296,6 +343,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=False),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
             ):
                 rc = self.m.main()
@@ -344,6 +392,7 @@ services:
                 patch.object(sys, "argv", argv),
                 patch.object(self.m, "has_buildable_services", return_value=False),
                 patch.object(self.m, "run_cmd", side_effect=fake_run_cmd),
+                patch.object(self.m, "run_streamed", side_effect=fake_run_cmd),
                 patch.object(self.m, "base_compose_cmd", return_value=base_cmd),
             ):
                 rc = self.m.main()
@@ -398,6 +447,24 @@ services:
             ):
                 self.m.main()
             self.assertIn("missing locally", str(ctx.exception))
+
+
+class TestBuildHandlersSharePullCache(unittest.TestCase):
+    def test_build_handlers_build_with_pull_and_fall_back_like_pull_py(self) -> None:
+        handlers = {
+            handler["name"]: handler.get("ansible.builtin.shell", "")
+            for handler in load_yaml_any(
+                str(PROJECT_ROOT / "roles/sys-svc-compose/handlers/compose.yml")
+            )
+        }
+        for name in (
+            "🔨 Build compose",
+            "🔨 Build the services queued for a lone recreate",
+        ):
+            with self.subTest(handler=name):
+                self.assertRegex(
+                    handlers[name], r"compose build --pull\b.*\|\| compose build\b"
+                )
 
 
 if __name__ == "__main__":

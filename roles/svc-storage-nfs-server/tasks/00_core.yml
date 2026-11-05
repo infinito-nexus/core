@@ -21,6 +21,6 @@
   ansible.builtin.include_tasks:
     file: 03_controller_mount.yml
     apply:
-      delegate_to: localhost
+      delegate_to: localhost # nocheck: localhost-become  mounting the export on the controller needs root
       run_once: true
       become: true

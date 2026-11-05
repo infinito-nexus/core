@@ -24,7 +24,7 @@ from utils.cache.yaml import load_yaml_str
 from . import PROJECT_ROOT
 
 _RULE = "host-node-resolver"
-_RESOLVER = "swarm/resolve_host_cid.yml"
+_RESOLVER = "swarm/resolve/host_cid.yml"
 _PREFIX_KEY = "resolve_output_prefix"
 _NAME_LINE = re.compile(r"^\s*-\s+name:\s*(.+?)\s*$")
 _BLOCK_KEYS = ("block", "rescue", "always")

@@ -7,7 +7,9 @@ from pathlib import Path
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.applications.services.registry import (
+    GATED_LOOKUPS,
     GROUP_GATED_CONSTANTS,
+    TOPOLOGY_GATED_LOOKUPS,
     ServiceRegistryError,
     build_service_registry_from_applications,
     detect_service_bucket,
@@ -357,9 +359,49 @@ class TestExplicitTruth(unittest.TestCase):
             with self.subTest(constant=constant):
                 self.assertTrue(is_explicit_truth("{{ " + constant + " }}"))
 
+    def test_every_registered_lookup_resolves(self):
+        for token in GATED_LOOKUPS:
+            with self.subTest(token=token):
+                self.assertTrue(is_explicit_truth("{{ " + token + ", 'clearnet') }}"))
+
+    def test_every_registered_lookup_has_a_plugin(self):
+        for token in GATED_LOOKUPS:
+            name = token.split("'")[1]
+            with self.subTest(lookup=name):
+                self.assertTrue(
+                    (PROJECT_ROOT / "plugins" / "lookup" / f"{name}.py").is_file()
+                )
+
     def test_an_unregistered_jinja_expression_does_not_resolve(self):
         self.assertFalse(
             is_explicit_truth("{{ lookup('config', 'web-app-gitea', 'mcp.enabled') }}")
+        )
+
+    def test_the_instance_count_form_resolves(self):
+        self.assertTrue(
+            is_explicit_truth(
+                "{{ lookup('db_instances', 'svc-db-postgres').form == 'ha' }}"
+            )
+        )
+
+    def test_every_registered_topology_lookup_resolves(self):
+        for marker in TOPOLOGY_GATED_LOOKUPS:
+            with self.subTest(marker=marker):
+                self.assertTrue(is_explicit_truth("{{ " + marker + ", 'x') }}"))
+
+    def test_an_ha_engine_pulls_its_coordination_store_into_the_closure(self):
+        registry = {"etcd": {"role": "svc-dcs-etcd"}}
+        config = {
+            "services": {
+                "etcd": {
+                    "enabled": "{{ lookup('db_instances', 'svc-db-postgres').form == 'ha' }}",
+                    "shared": True,
+                }
+            }
+        }
+        self.assertEqual(
+            resolve_service_dependency_roles_from_config(config, registry),
+            ["svc-dcs-etcd"],
         )
 
     def test_a_literal_false_does_not_resolve(self):

@@ -1,6 +1,15 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: 📦 Install compose wrapper
+  become: true
+  ansible.builtin.copy:
+    src: "python/compose.py"
+    dest: "{{ BIN_COMPOSE }}"
+    mode: "0755"
+    owner: root
+    group: root
+
 - include_role:
     name: sys-svc-container
     public: false
@@ -23,33 +32,73 @@
     owner: root
     group: root
 
-- name: "✅ Ensure compose wrapper system deps (PyYAML)"
-  package_install:
-    id: python-yaml
-
-- name: 📦 Install compose wrapper
-  become: true
-  ansible.builtin.copy:
-    src: "python/compose.py"
-    dest: "{{ BIN_COMPOSE }}"
-    mode: "0755"
-    owner: root
-    group: root
-
 - name: 📦 Install resolve-container-id helper (Swarm task → container ID)
   become: true
   ansible.builtin.copy:
-    src: "shell/resolve_container_id.sh"
+    src: "shell/resolve/container_id.sh"
     dest: "{{ BIN_RESOLVE_CONTAINER_ID }}"
     mode: "0755"
     owner: root
     group: root
 
+- name: 📦 Install resolve-db-primary helper (HA database → primary container ID)
+  become: true
+  ansible.builtin.copy:
+    src: "shell/resolve/db/primary.sh"
+    dest: "{{ BIN_RESOLVE_DB_PRIMARY }}"
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: 📦 Install db-client helper (HA database client through the write endpoint)
+  become: true
+  ansible.builtin.copy:
+    src: "shell/resolve/db/client.sh"
+    dest: "{{ BIN_DB_CLIENT }}"
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: 📦 Install the shared HTTP primary probe next to resolve-db-primary
+  become: true
+  ansible.builtin.copy:
+    src: "shell/resolve/http_primary_probe.sh"
+    dest: "{{ BIN_PRIMARY_PROBE_HTTP }}"
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: 📦 Install each HA engine's own primary probe script
+  become: true
+  ansible.builtin.copy:
+    src: "{{ lookup('path_absolute', item.src) }}"
+    dest: "{{ [DIR_BIN, item.name] | path_join }}"
+    mode: "0755"
+    owner: root
+    group: root
+  loop: "{{ lookup('db_instances', primary_probes=true) | selectattr('src') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: 📦 Point each HTTP-checked HA engine's probe at its endpoint check
+  become: true
+  ansible.builtin.copy:
+    content: |
+      #!/bin/sh
+      exec {{ BIN_PRIMARY_PROBE_HTTP | quote }} "$1" "$2" {{ lookup('config', item.application_id, 'services.' ~ item.entity ~ '.ports.internal.' ~ item.check_port) | quote }} {{ item.check_path | quote }}
+    dest: "{{ [DIR_BIN, item.name] | path_join }}"
+    mode: "0755"
+    owner: root
+    group: root
+  loop: "{{ lookup('db_instances', primary_probes=true) | rejectattr('src') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
 - name: "🛡️ Assert the NFS client mount is active on this swarm node"
   ansible.builtin.command: "mountpoint -q {{ DIR_VAR_LIB }}"
   changed_when: false
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
     - inventory_hostname not in (groups['svc-storage-nfs-server'] | default([]))

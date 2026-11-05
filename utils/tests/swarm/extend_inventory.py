@@ -19,7 +19,10 @@ play resolves DEPLOYMENT_MODE=compose and IS_STACK_HOST=true on the backup
 host, so the backup roles run without cluster-membership special cases.
 
 Inputs (env): ``APP_ID``, ``INV_PATH`` (default ``/tmp/inv/devices.yml``).
-Optional ``INFINITO_APP_VARIANTS`` (consumed by ``derive_includes``).
+Optional ``INFINITO_APP_VARIANTS`` (consumed by ``derive_includes``),
+``INFINITO_SWARM_DB_TOPOLOGY`` (``standalone`` or ``ha`` lab shape) and
+``SWARM_DATA_FORM`` (``standalone`` keeps the engines on the first manager of
+an ``ha`` lab).
 """
 
 from __future__ import annotations
@@ -30,6 +33,7 @@ from pathlib import Path
 from utils import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.env.parser import parse_static_env
+from utils.roles.db.instances import ha_engines
 from utils.roles.meta_lookup import get_role_placement
 from utils.tests.swarm.backup_repos import repo_placements
 from utils.tests.swarm.derive_includes import applications_for_round, derive_includes
@@ -42,53 +46,90 @@ _DOCKER_VARS: dict[str, str] = {
 
 _NAMES = parse_static_env(PROJECT_ROOT / "default.env")
 _PREFIX = f"{os.environ['SWARM_NAME']}-" if os.environ.get("SWARM_NAME") else ""
-_MANAGER = f"{_PREFIX}{_NAMES['INFINITO_SWARM_MGR_NAME']}"
+_NFS_SERVER = f"{_PREFIX}{_NAMES['INFINITO_SWARM_NFS_NAME']}"
+_BACKUP = f"{_PREFIX}{_NAMES['INFINITO_SWARM_BACKUP_NAME']}"
 
 
 def mesh_enabled() -> bool:
     return (os.environ.get("INFINITO_SWARM_VPN") or "").strip().lower() == "true"
 
 
-_WORKERS = (
-    f"{_PREFIX}{_NAMES['INFINITO_SWARM_WRK1_NAME']}",
-    f"{_PREFIX}{_NAMES['INFINITO_SWARM_WRK2_NAME']}",
+def lab_shape(topology: str, *, prefix: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Return the swarm managers and workers of one lab shape.
+
+    Args:
+        topology: ``standalone`` (1 manager + 2 workers) or ``ha``
+            (3 managers + 1 spare worker).
+        prefix: the ``SWARM_NAME-`` prefix applied to every node name.
+
+    Returns:
+        ``(managers, workers)``; the first manager is the stack host.
+    """
+    names = {
+        key: f"{prefix}{_NAMES[f'INFINITO_SWARM_{key}_NAME']}"
+        for key in ("MGR", "MGR2", "MGR3", "WRK1", "WRK2")
+    }
+    if topology == "standalone":
+        return (names["MGR"],), (names["WRK1"], names["WRK2"])
+    if topology == "ha":
+        return (names["MGR"], names["MGR2"], names["MGR3"]), (names["WRK1"],)
+    raise SystemExit(
+        f"extend_inventory: INFINITO_SWARM_DB_TOPOLOGY must be standalone or ha, got {topology!r}"
+    )
+
+
+_MANAGERS, _WORKERS = lab_shape(
+    os.environ.get("INFINITO_SWARM_DB_TOPOLOGY")
+    or _NAMES["INFINITO_SWARM_DB_TOPOLOGY"],
+    prefix=_PREFIX,
 )
-_NFS_SERVER = f"{_PREFIX}{_NAMES['INFINITO_SWARM_NFS_NAME']}"
-_BACKUP = f"{_PREFIX}{_NAMES['INFINITO_SWARM_BACKUP_NAME']}"
+_MANAGER = _MANAGERS[0]
 
 
-def _host_topology(app_id: str) -> list[tuple[str, str]]:
-    app_hosts: list[tuple[str, str]] = [(app_id, _MANAGER)]
-    # Exception: svc-swarm-manager is the IS_STACK_HOST marker group; leaking
-    # workers into it flips IS_STACK_HOST true on workers and skips the CA
-    # fetch. Keep it manager-only.
+def _host_topology(
+    app_id: str,
+    managers: tuple[str, ...] = _MANAGERS,
+    workers: tuple[str, ...] = _WORKERS,
+) -> list[tuple[str, str]]:
+    """Return the ``(group, host)`` pairs of the lab's node and app groups.
+
+    Swarm schedules app replicas onto any node their placement allows, while
+    the app's bind sources only reach the hosts of its own group, so an app
+    that may run anywhere joins every node: an HA lab's extra managers carry
+    its bind sources as well. A manager-placed app stays on the stack host
+    only, because some of them force the compose form there.
+    """
+    nodes = (*managers, *workers)
+    app_hosts: list[tuple[str, str]] = [(app_id, managers[0])]
     if app_id != "svc-swarm-manager" and get_role_placement(app_id) != "manager":
-        app_hosts.extend((app_id, w) for w in _WORKERS)
+        app_hosts.extend((app_id, n) for n in (*managers[1:], *workers))
     mesh_hosts: list[tuple[str, str]] = []
     if mesh_enabled():
         mesh_hosts = [
-            ("svc-net-wireguard", _MANAGER),
-            *[("svc-net-wireguard", w) for w in _WORKERS],
+            *[("svc-net-wireguard", n) for n in nodes],
             ("svc-net-wireguard", _NFS_SERVER),
         ]
     return [
-        ("svc-swarm-node", _MANAGER),
-        *[("svc-swarm-node", w) for w in _WORKERS],
-        ("svc-swarm-manager", _MANAGER),
-        ("svc-storage-nfs-client", _MANAGER),
-        *[("svc-storage-nfs-client", w) for w in _WORKERS],
+        *[("svc-swarm-node", n) for n in nodes],
+        *[("svc-swarm-manager", m) for m in managers],
+        *[("svc-storage-nfs-client", n) for n in nodes],
         ("svc-storage-nfs-server", _NFS_SERVER),
         *mesh_hosts,
         *app_hosts,
     ]
 
 
-def _placement_dep_groups(app_id: str) -> list[tuple[str, str]]:
-    return [
-        (role_name, _MANAGER)
-        for role_name in derive_includes(app_id)
-        if get_role_placement(role_name) == "manager"
-    ]
+def _placement_dep_groups(
+    app_id: str, managers: tuple[str, ...] = _MANAGERS
+) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    engines = ha_engines()
+    for role_name in derive_includes(app_id):
+        if role_name in engines and len(managers) > 1:
+            pairs.extend((role_name, m) for m in managers)
+        elif get_role_placement(role_name) == "manager":
+            pairs.append((role_name, managers[0]))
+    return pairs
 
 
 def _sandbox_workers(app_id: str) -> tuple[str, ...]:
@@ -112,10 +153,16 @@ def main() -> int:
     if not os.environ.get("SWARM_NAME"):
         raise SystemExit("extend_inventory: SWARM_NAME is required (cluster id)")
     app_id = os.environ["APP_ID"]
+    # nocheck: environ-get-default  swarm-test base: matrix.py exports INV_PATH per round, a contributor running this step standalone gets the same /tmp/inv base the routine scripts use
     inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_PATH
 
     closure = derive_includes(app_id)
-    group_hosts = _host_topology(app_id) + _placement_dep_groups(app_id)
+    engine_hosts = (
+        _MANAGERS[:1]
+        if os.environ.get("SWARM_DATA_FORM") == "standalone"
+        else _MANAGERS
+    )
+    group_hosts = _host_topology(app_id) + _placement_dep_groups(app_id, engine_hosts)
     if "svc-virt-kata" in closure:
         group_hosts.extend(
             ("svc-virt-kata", host) for host in (_MANAGER, *_sandbox_workers(app_id))
@@ -155,7 +202,20 @@ def main() -> int:
     backup_path = inv_path.parent / "backup.yml"
     dump_yaml(str(backup_path), backup_inv)
     print(backup_path.read_text())  # nocheck: cache-read
+
+    drop_backup_network_mode(inv_path.parent)
     return 0
+
+
+def drop_backup_network_mode(inv_dir: str | Path) -> None:
+    """
+    Args:
+        inv_dir: the inventory directory holding ``host_vars``.
+    """
+    path = Path(inv_dir) / "host_vars" / f"{_BACKUP}.yml"
+    variables = load_yaml_any(str(path), default_if_missing={})
+    if variables.pop("NETWORK_MODE", None) is not None:
+        dump_yaml(str(path), variables)
 
 
 if __name__ == "__main__":

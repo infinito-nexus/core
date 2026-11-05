@@ -29,6 +29,7 @@
         POSTGRES_VERSION: "{{ lookup('database', _database_consumer_id, 'version') }}"
         POSTGRES_VERSION_MAJOR: "{{ lookup('database', _database_consumer_id, 'version') | regex_replace('^([0-9]+).*', '\\1') }}"
         POSTGRES_LIBRARIES: "{{ _database_libraries }}"
+        POSTGRES_HA: false
       notify:
         - compose-build
         - compose-up

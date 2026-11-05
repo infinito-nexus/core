@@ -1,0 +1,14 @@
+---
+enabled: "{{ lookup('config', 'web-app-mediawiki', 'services.seaweedfs.enabled') | bool }}"
+required: true
+mechanism: extension
+source: upstream
+version: v0.14.0
+bridges:
+  - seaweedfs
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: edwardspec/mediawiki-aws-s3
+config:
+  archive: "https://codeload.github.com/edwardspec/mediawiki-aws-s3/tar.gz/refs/tags/v0.14.0"

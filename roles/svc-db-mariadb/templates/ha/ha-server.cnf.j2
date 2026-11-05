@@ -1,0 +1,19 @@
+[mariadbd]
+log_bin = mariadb-bin
+log_basename = mariadb
+binlog_format = ROW
+log_bin_trust_function_creators = 1
+log_slave_updates = 1
+sync_binlog = 1
+relay_log = mariadb-relay-bin
+sync_relay_log = 1
+gtid_strict_mode = 1
+read_only = 1
+rpl_semi_sync_master_enabled = 0
+rpl_semi_sync_slave_enabled = 1
+rpl_semi_sync_slave_kill_conn_timeout = 1
+init_rpl_role = SLAVE
+rpl_semi_sync_master_wait_point = AFTER_SYNC
+rpl_semi_sync_master_wait_no_slave = 1
+rpl_semi_sync_master_timeout = 4294967295
+slave_net_timeout = 4

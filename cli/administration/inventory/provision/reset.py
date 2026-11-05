@@ -160,7 +160,7 @@ def _drop_user_passwords(
     application_ids: list[str],
     exclude: set[str],
 ) -> int:
-    """Remove the pinned password of every user the resolved roles declare.
+    """Remove the pinned password of every user the deployment needs pinned.
 
     Args:
         document: the host_vars document.
@@ -171,9 +171,9 @@ def _drop_user_passwords(
     Returns:
         How many passwords were removed.
 
-    Only declared users are dropped, because only those get a new password
-    pinned afterwards; a user that exists solely in the inventory would lose
-    its password with nothing to put it back.
+    Only the users ``required_user_policies`` names are dropped, because only
+    those get a new password pinned afterwards; a user that exists solely in
+    the inventory would lose its password with nothing to put it back.
     """
     users = document.get("users")
     if not isinstance(users, CommentedMap):

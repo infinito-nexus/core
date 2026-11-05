@@ -1,14 +1,31 @@
 ---
-- name: "🔍 Mailu | Resolve DB hosting node + container ID"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+- name: "🔍 Mailu | Resolve dedicated DB hosting node + container ID"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: mariadb
     resolve_service_name: "{{ lookup('database', application_id, 'service_name') }}"
-    resolve_output_prefix: MAILU_DB
-    resolve_compose_cid: "{{ lookup('database', application_id, 'container') }}"
+    resolve_output_prefix: MAILU_DEDICATED_DB
+    resolve_compose_cid: "{{ lookup('database', application_id, 'address') }}"
+  when: not (lookup('database', application_id, 'shared') | bool)
+
+- name: "🔍 Mailu | Resolve central DB primary node + container ID"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+  vars:
+    primary_application_id: "{{ lookup('database', application_id, 'id') }}"
+    primary_output_prefix: MAILU_CENTRAL_DB
+  when: lookup('database', application_id, 'shared') | bool
+
+- name: "🔧 Mailu | Pick the DB node + container the checks exec into"
+  ansible.builtin.set_fact:
+    MAILU_DB_HOST_NODE: >-
+      {{ MAILU_CENTRAL_DB_PRIMARY_NODE if (lookup('database', application_id, 'shared') | bool)
+         else MAILU_DEDICATED_DB_HOST_NODE }}
+    MAILU_DB_LOCAL_CID: >-
+      {{ MAILU_CENTRAL_DB_PRIMARY_CID if (lookup('database', application_id, 'shared') | bool)
+         else MAILU_DEDICATED_DB_LOCAL_CID }}
 
 - name: "🔍 Mailu | Resolve admin hosting node + container ID"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: admin
     resolve_output_prefix: MAILU_ADMIN
@@ -16,11 +33,13 @@
 
 - name: "🔎 Check for Mailu DB domain table"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  MAILU_DB_LOCAL_CID resolved at delegate_to runtime
-    container exec
-    -e MARIADB_PWD={{ lookup('database', application_id, 'password') | quote }}
+    IFS= read -r MARIADB_PWD && export MARIADB_PWD && container exec
+    -e MARIADB_PWD
     {{ MAILU_DB_LOCAL_CID | quote }} sh -c
     'mariadb -u {{ lookup('database', application_id, 'username') }} -p"$MARIADB_PWD"
     -e "SHOW TABLES FROM {{ lookup('database', application_id, 'name') }} LIKE \"domain\";"'
+  args:
+    stdin: "{{ lookup('database', application_id, 'password') }}"
   register: mailu_db_schema_check
   retries: 30
   delay: 5

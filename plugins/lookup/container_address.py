@@ -22,12 +22,14 @@ Because the lookup emits ``$(...)`` shell syntax, callers MUST use the
 ``container exec`` invocation. A companion lint rule enforces this.
 
 The helper script `BIN_RESOLVE_CONTAINER_ID` is deployed by
-sys-svc-compose during the constructor stage. It refuses to run on
-non-manager nodes (exit 64) and reports clear errors when the service
-has no running task (exit 65) or the task is not yet bound to a
-container (exit 66).
+sys-svc-compose during the constructor stage. It prints the container
+of a running task on the local node on any node; without one it asks
+the Swarm manager API and exits 64 on a non-manager node, 65 when the
+service list fails or the service has no running task, 66 when the task
+is not yet bound to a container and 67 when no service of that name
+exists.
 
-Examples:
+Examples::
 
     # roles/web-app-X/vars/main.yml
     X_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'x') }}"
@@ -39,30 +41,36 @@ Examples:
 Both terms (application_id, service_key) are required.
 ``services.<service_key>.name`` must exist in the resolved application
 config; the stack name is derived from ``application_id`` via the
-``get_entity_name`` filter (matching how ``docker stack deploy``
+``entity_name`` filter (matching how ``docker stack deploy``
 names the stack in ``sys-svc-compose/handlers/main.yml``).
+
+Keyword ``instance``: an HA database instance from ``db_instances``. In
+swarm mode the subshell then names that instance's service, or the
+instance's per-host sidecar when ``service_key`` is a sidecar such as
+``sentinel``.
 """
 
 from __future__ import annotations
 
 import contextlib
-import shlex
 from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.db.instances import DbInstancesError, instance_service
+from utils.roles.db.primary import resolver_subshell
+from utils.roles.entity.name import entity_name
 
 
 def _as_str(value: Any) -> str:
     return "" if value is None else str(value).strip()
 
 
-def _resolve_bare_name(
+def _service_entry(
     applications: dict[str, Any], application_id: str, service_key: str
-) -> str:
+) -> dict[str, Any]:
     app = applications.get(application_id)
     if not isinstance(app, dict):
         raise AnsibleError(
@@ -75,7 +83,7 @@ def _resolve_bare_name(
         )
     entry = services.get(service_key)
     if not isinstance(entry, dict) and service_key == "application":
-        entity = get_entity_name(application_id)
+        entity = entity_name(application_id)
         if entity:
             entry = services.get(entity)
     if not isinstance(entry, dict):
@@ -83,7 +91,13 @@ def _resolve_bare_name(
             f"container_address: service '{service_key}' missing in "
             f"'{application_id}' services config"
         )
-    name = entry.get("name")
+    return entry
+
+
+def _resolve_bare_name(
+    applications: dict[str, Any], application_id: str, service_key: str
+) -> str:
+    name = _service_entry(applications, application_id, service_key).get("name")
     if not isinstance(name, str) or not name.strip():
         raise AnsibleError(
             f"container_address: services.{service_key}.name not set for "
@@ -123,8 +137,6 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
         ).run([], variables=vars_)[0]
 
-        bare_name = _resolve_bare_name(applications, application_id, service_key)
-
         raw_mode = vars_.get("DEPLOYMENT_MODE", "compose")
         if templar is not None:
             with contextlib.suppress(Exception):
@@ -137,10 +149,15 @@ class LookupModule(LookupBase):
                 mode_force = templar.template(mode_force)
         deployment_mode = _as_str(mode_force) or deployment_mode
 
+        instance = kwargs.get("instance")
+        if instance and deployment_mode == "swarm":
+            _service_entry(applications, application_id, service_key)
+        else:
+            bare_name = _resolve_bare_name(applications, application_id, service_key)
         if deployment_mode != "swarm":
             return [bare_name]
 
-        stack_name = get_entity_name(application_id)
+        stack_name = entity_name(application_id)
         if not stack_name:
             raise AnsibleError(
                 f"container_address: cannot derive stack name from "
@@ -153,9 +170,11 @@ class LookupModule(LookupBase):
                 bin_resolver = templar.template(bin_resolver)
         bin_resolver = _as_str(bin_resolver) or "/usr/bin/resolve-container-id"
 
-        return [
-            (
-                f'"$({shlex.quote(bin_resolver)} '
-                f'{shlex.quote(stack_name)} {shlex.quote(service_key)})"'
-            )
-        ]
+        target = service_key
+        if instance:
+            try:
+                target = instance_service(application_id, instance, service_key)
+            except (DbInstancesError, KeyError, TypeError) as exc:
+                raise AnsibleError(f"container_address: {exc}") from exc
+
+        return [resolver_subshell(bin_resolver, stack_name, target)]

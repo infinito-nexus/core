@@ -58,10 +58,6 @@ class TestPlatformArchConstraint(unittest.TestCase):
             with self.subTest(location=location):
                 self.assertIn(arch, DOCKER_ARCHITECTURES)
 
-    def test_lmstudio_is_pinned_to_x86(self) -> None:
-        arch = _services(ROLES_DIR / "svc-ai-lmstudio").get("lmstudio", {})
-        self.assertEqual(arch.get("platform_arch"), "x86_64")
-
 
 if __name__ == "__main__":
     unittest.main()

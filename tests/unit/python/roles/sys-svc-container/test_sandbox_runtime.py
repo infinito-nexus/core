@@ -6,8 +6,10 @@ from types import SimpleNamespace
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
+from utils.domains.default_primary import default_domain_primary
 
 TEMPLATES = Path(PROJECT_ROOT) / "roles" / "sys-svc-container" / "templates"
+DOMAIN = default_domain_primary()
 
 
 def _ansible_bool(value):
@@ -36,14 +38,20 @@ def _lookup(name, *_args, **_kwargs):
 BASE = {
     "DEPLOYMENT_MODE": "swarm",
     "IS_STACK_HOST": False,
+    "IS_SWARM_MANAGER": False,
     "DOCKER_IN_CONTAINER": True,
-    "DOMAIN_PRIMARY": "infinito.test",
+    "DOMAIN_PRIMARY": DOMAIN,
     "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",
     "RUNSC_SHIM_BINARY": "/usr/local/bin/runsc",
+    "NVIDIA_RUNTIME_BINARY": "/usr/bin/nvidia-container-runtime",
     "SANDBOX_RUNTIME": "runsc",
     "SYS_SVC_CONTAINER_DATA_ROOT": "",
     "swarm": {"registry": {"host": "reg", "port": 5000}},
-    "groups": {"svc-registry-cache": []},
+    "inventory_hostname": "wrk-01",
+    "groups": {
+        "svc-registry-cache": [],
+        "svc-swarm-manager": ["mgr-01", "mgr-02", "mgr-03"],
+    },
     "group_names": ["svc-virt-kata"],
     "ansible_facts": {"os_family": "Debian"},
     "SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY": {"Debian": "iptables"},
@@ -52,6 +60,7 @@ BASE = {
     "sys_svc_container_kvm": _shim(False),
     "sys_svc_container_kata_shim": _shim(False),
     "sys_svc_container_runsc_shim": _shim(False),
+    "sys_svc_container_nvidia_shim": _shim(False),
 }
 
 
@@ -67,7 +76,11 @@ class TestSandboxRuntimeRegistration(unittest.TestCase):
         env.filters["bool"] = _ansible_bool
         env.filters["to_json"] = json.dumps
         env.globals["lookup"] = _lookup
-        raw = env.get_template("daemon.json.j2").render({**BASE, **overrides})
+        variables = {**BASE, **overrides}
+        mode = variables["DEPLOYMENT_MODE"]
+        variables["IS_COMPOSE_MODE"] = mode == "compose"
+        variables["IS_SWARM_MODE"] = mode == "swarm"
+        raw = env.get_template("daemon.json.j2").render(variables)
         return json.loads(raw)
 
     def test_absent_shim_is_never_registered(self):
@@ -75,17 +88,34 @@ class TestSandboxRuntimeRegistration(unittest.TestCase):
         self.assertNotIn("runtimes", parsed)
         self.assertNotIn("default-runtime", parsed)
 
+    def test_a_present_nvidia_runtime_is_registered(self):
+        parsed = self._render(sys_svc_container_nvidia_shim=_shim(True))
+        self.assertEqual(
+            parsed["runtimes"]["nvidia"]["path"], "/usr/bin/nvidia-container-runtime"
+        )
+
+    def test_the_nvidia_runtime_never_becomes_the_default(self):
+        parsed = self._render(
+            sys_svc_container_nvidia_shim=_shim(True),
+            sys_svc_container_runsc_shim=_shim(True),
+        )
+        self.assertNotEqual(parsed.get("default-runtime"), "nvidia")
+
     def test_swarm_worker_defaults_to_the_installed_sandbox_runtime(self):
         parsed = self._render(sys_svc_container_runsc_shim=_shim(True))
         self.assertEqual(sorted(parsed["runtimes"]), ["runsc"])
         self.assertEqual(parsed["default-runtime"], "runsc")
 
-    def test_stack_host_keeps_the_shared_kernel(self):
-        parsed = self._render(
-            IS_STACK_HOST=True, sys_svc_container_runsc_shim=_shim(True)
-        )
-        self.assertIn("runsc", parsed["runtimes"])
-        self.assertNotIn("default-runtime", parsed)
+    def test_every_manager_keeps_the_shared_kernel(self):
+        for host in ("mgr-01", "mgr-03"):
+            with self.subTest(host=host):
+                parsed = self._render(
+                    inventory_hostname=host,
+                    IS_SWARM_MANAGER=True,
+                    sys_svc_container_runsc_shim=_shim(True),
+                )
+                self.assertIn("runsc", parsed["runtimes"])
+                self.assertNotIn("default-runtime", parsed)
 
     def test_compose_mode_never_sets_a_default_runtime(self):
         parsed = self._render(
@@ -138,7 +168,11 @@ class TestDaemonStorageDriver(unittest.TestCase):
         env.filters["bool"] = _ansible_bool
         env.filters["to_json"] = json.dumps
         env.globals["lookup"] = _lookup
-        raw = env.get_template("daemon.json.j2").render({**BASE, **overrides})
+        variables = {**BASE, **overrides}
+        mode = variables["DEPLOYMENT_MODE"]
+        variables["IS_COMPOSE_MODE"] = mode == "compose"
+        variables["IS_SWARM_MODE"] = mode == "swarm"
+        raw = env.get_template("daemon.json.j2").render(variables)
         return json.loads(raw)
 
     def test_docker_in_docker_overrides_the_storage_driver(self):

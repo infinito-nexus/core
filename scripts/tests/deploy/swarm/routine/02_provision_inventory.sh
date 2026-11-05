@@ -47,7 +47,8 @@ fi
 
 python3 -m cli.administration.inventory.provision "${INV_DIR}" "${provision_args[@]}"
 
-cp "${INV_DIR}/host_vars/${MGR}.yml" "${INV_DIR}/host_vars/${WRK1}.yml"
-cp "${INV_DIR}/host_vars/${MGR}.yml" "${INV_DIR}/host_vars/${WRK2}.yml"
-cp "${INV_DIR}/host_vars/${MGR}.yml" "${INV_DIR}/host_vars/${NFS_SERVER:?}.yml"
-cp "${INV_DIR}/host_vars/${MGR}.yml" "${INV_DIR}/host_vars/${BACKUP_NODE:?}.yml"
+for node in ${SWARM_LAB_NODES:?run utils/topology/export.sh first}; do
+	if [ "${node}" != "${MGR}" ]; then
+		cp "${INV_DIR}/host_vars/${MGR}.yml" "${INV_DIR}/host_vars/${node}.yml"
+	fi
+done

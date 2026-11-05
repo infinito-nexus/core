@@ -1,0 +1,58 @@
+---
+- name: "🛡️ db_ha_prepare | refuse HA-incompatible exposures of '{{ application_id }}'"
+  ansible.builtin.assert:
+    that:
+      - _db_ha_prepare_conflicts | length == 0
+    fail_msg: >-
+      {{ application_id }} lists more than one host and would render its HA form,
+      which publishes no local port: {{ _db_ha_prepare_conflicts | join('; ') }}.
+      Disable that exposure or list a single host for the engine.
+    quiet: true
+  vars:
+    _db_ha_prepare_conflicts: "{{ lookup('db_instances', application_id, exposure_conflicts=true) }}"
+
+- name: "🗳️ db_ha_prepare | bring the coordination store up before the first HA engine"
+  ansible.builtin.include_role:
+    name: "{{ lookup('db_instances', coordination_store=true) }}"
+
+- name: "💾 db_ha_prepare | install the backup unit on this instance host"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - "{{ _db_ha_prepare_backup_role }}"
+  when:
+    - _db_ha_prepare_backup | bool
+    - inventory_hostname in lookup('db_backup', 'hosts')
+
+- name: "🔍 db_ha_prepare | inspect the service that owns the engine's name"
+  ansible.builtin.command:
+    argv:
+      - container
+      - service
+      - inspect
+      - "{{ _db_ha_prepare_service }}"
+      - --format
+      - "{{ '{{index .Spec.Labels `' ~ SWARM_SERVICE_LABEL_DB_ENDPOINT ~ '`}}' }}"
+  register: _db_ha_prepare_legacy
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔧 db_ha_prepare | a service there that is not the write endpoint is standalone"
+  ansible.builtin.set_fact:
+    DB_HA_MIGRATING: >-
+      {{ DB_HA_MIGRATING | combine({application_id: (_db_ha_prepare_legacy.rc == 0
+         and (_db_ha_prepare_legacy.stdout | trim) != 'true')}) }}
+
+- name: "💾 db_ha_prepare | back up before migrating to the HA form"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/pre_change_backup.yml') }}"
+  vars:
+    backup_application_id: "{{ application_id }}"
+    backup_reason: standalone to HA migration
+    backup_on_stack_host: true
+  when:
+    - DB_HA_MIGRATING[application_id] | bool
+    - _db_ha_prepare_backup | bool

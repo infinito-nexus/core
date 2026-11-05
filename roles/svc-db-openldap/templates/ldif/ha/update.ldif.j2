@@ -1,0 +1,15 @@
+{% for key, user in OPENLDAP_USERS.items() %}
+{% set _dn = LDAP.USER.ATTRIBUTES.ID ~ '=' ~ key ~ ',' ~ LDAP.DN.OU.USERS %}
+dn: {{ _dn }}
+changetype: modify
+replace: mail
+mail: {{ user.email }}
+
+{% for oc in LDAP.USER.OBJECTS.STRUCTURAL %}
+dn: {{ _dn }}
+changetype: modify
+add: objectClass
+objectClass: {{ oc }}
+
+{% endfor %}
+{% endfor %}

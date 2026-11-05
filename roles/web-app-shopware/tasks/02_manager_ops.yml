@@ -38,7 +38,7 @@
   meta: flush_handlers
 
 - name: "🔍 Resolve Shopware web hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: web
     resolve_output_prefix: SHOPWARE_WEB
@@ -75,5 +75,11 @@
 - name: "🧹 Remove the admin auth plugins that are disabled"
   ansible.builtin.include_tasks:
     file: 04_cleanup.yml
+    apply:
+      delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"
+
+- name: "🎨 Feed or withdraw the corporate design of the Storefront"
+  ansible.builtin.include_tasks:
+    file: 05_design.yml
     apply:
       delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"

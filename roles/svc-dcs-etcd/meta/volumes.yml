@@ -1,0 +1,36 @@
+# nocheck: backup-service-flag etcd holds no source data; the disaster-recovery path is bootstrapping an empty store and re-running the deploy
+---
+data:
+  type: volume
+  name: etcd_data
+  # nocheck: nfs-false-data-loss  Reason: each member keeps its own Raft log on its pinned host; a lost member is re-added empty and resyncs from the quorum.
+  nfs: false
+  mounts:
+    - service: etcd
+      target: /var/lib/infinito-etcd
+
+tls_ca: # nocheck: config-volume-producer  tasks/01_tls.yml signs it with openssl into lookup('volume', …, 'tls_ca', field='source')
+  type: config
+  source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'ca.crt'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: etcd
+      target: /etc/etcd/tls/ca.crt
+
+tls_cert: # nocheck: config-volume-producer  tasks/01_tls.yml signs it with openssl into lookup('volume', …, 'tls_cert', field='source')
+  type: config
+  source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'etcd.crt'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: etcd
+      target: /etc/etcd/tls/etcd.crt
+
+tls_key:
+  type: secret
+  source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'etcd.key'] | path_join }}"
+  mode: "0400"
+  uid: 65532
+  gid: 65532
+  mounts:
+    - service: etcd
+      target: /etc/etcd/tls/etcd.key

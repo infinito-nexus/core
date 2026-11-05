@@ -9,10 +9,12 @@
   changed_when: network_connect.rc == 0
 
 - name: "🧹 Remove {{ DISCOURSE_NETWORK }} from DB container {{ application_id }}"
-  command: >
-    container network disconnect {{ DISCOURSE_NETWORK }} {{ lookup('database', application_id, 'container') }}
+  ansible.builtin.shell: >-
+    container network disconnect {{ DISCOURSE_NETWORK | quote }}
+    {{ lookup('database', application_id, 'address') }}
   register: network_disconnect
   failed_when: >
     network_disconnect.rc != 0 and
     not (network_disconnect.stderr | default('') | docker_network_noop('disconnect'))
   changed_when: network_disconnect.rc == 0
+  when: not (DISCOURSE_DATABASE_HA | bool)

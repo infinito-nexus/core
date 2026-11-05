@@ -1,0 +1,32 @@
+---
+- name: "🔄 POSTGRES | Restart '{{ item.service }}' with a fresh coordination-store client"
+  ansible.builtin.command:
+    argv:
+      - container
+      - service
+      - update
+      - --force
+      - --detach=false
+      - "{{ entity_name ~ '_' ~ item.service }}"
+  changed_when: true
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  delegate_to: "{{ STACK_HOST }}"
+  loop: "{{ lookup('db_instances', application_id).instances }}"
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: "⏳ POSTGRES | Wait until every member registered again"
+  ansible.builtin.shell: >
+    container exec --user postgres {{ lookup('container_address', application_id, entity_name, instance=_postgres_dcs_first) }}
+    {{ POSTGRES_PATRONICTL }} list --format json
+  register: postgres_dcs_rejoined
+  delegate_to: "{{ _postgres_dcs_first.host }}"
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: >-
+    postgres_dcs_rejoined.rc == 0
+    and (postgres_dcs_rejoined.stdout | from_json | length) == (_postgres_dcs_model.instances | length)
+  vars:
+    _postgres_dcs_model: "{{ lookup('db_instances', application_id) }}"
+    _postgres_dcs_first: "{{ _postgres_dcs_model.instances | first }}"

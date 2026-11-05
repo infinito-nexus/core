@@ -6,7 +6,9 @@ Usage in any ``compose.yml.j2``:
 
     {{ lookup('compose_networks') }}
 
-The output starts at column 0 (no caller-side indent).
+The output starts at column 0 (no caller-side indent). An engine that declares
+``networks.internal.subnet`` also gets its engine-internal overlay while it
+renders the HA form; ``internal=`` forces either way.
 """
 
 from __future__ import annotations
@@ -18,7 +20,28 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.networks.lookup_context import build_context, resolve_var
 from utils.networks.render import render_compose_networks
-from utils.roles.entity.name import get_entity_name
+from utils.roles.db.instances import (
+    FORM_HA,
+    DbInstancesError,
+    engine_model,
+    ha_engines,
+)
+from utils.roles.entity.name import entity_name
+
+
+def _internal_overlay(ctx: Any, application_id: str, kwargs: dict[str, Any]) -> bool:
+    if "internal" in kwargs:
+        return bool(kwargs["internal"])
+    if ctx.deployment_mode != "swarm" or application_id not in ha_engines():
+        return False
+    if not ctx.lookup_config(application_id, "networks.internal.subnet", ""):
+        return False
+    groups = resolve_var(ctx.templar, ctx.vars.get("groups", {})) or {}
+    try:
+        model = engine_model(application_id, groups, ctx.deployment_mode)
+    except DbInstancesError as exc:
+        raise AnsibleError(str(exc)) from exc
+    return model["form"] == FORM_HA
 
 
 class LookupModule(LookupBase):
@@ -50,10 +73,11 @@ class LookupModule(LookupBase):
                 application_id=str(application_id),
                 deployment_mode=ctx.deployment_mode,
                 registry=ctx.registry,
-                get_entity_name=get_entity_name,
+                entity_name=entity_name,
                 lookup_config=ctx.lookup_config,
                 lookup_database=ctx.lookup_database,
                 swarm_encrypted=swarm_encrypted,
                 node_local=bool(kwargs.get("node_local", False)),
+                internal=_internal_overlay(ctx, str(application_id), kwargs),
             )
         ]

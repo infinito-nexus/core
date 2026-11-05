@@ -17,7 +17,15 @@
 #                rather than read from `hostname`, which returns non-zero in the
 #                node containers; its `unknown` fallback collapses every node
 #                onto one pool name, and they then race for a single pool.
+#   --remount    as a leading flag: only mount the data root prepared earlier
+#                with the same arguments again, as docker does before it starts.
 set -euo pipefail
+
+REMOUNT=false
+if [ "${1:-}" = --remount ]; then
+	REMOUNT=true
+	shift
+fi
 
 FSTYPE="${1:-}"
 REQUIRED="${2:-false}"
@@ -32,6 +40,8 @@ else
 fi
 POOL="infinito_ci_$(printf '%s' "${IDENTITY}" | tr -dc 'A-Za-z0-9_.:-')"
 DAEMON=/etc/docker/daemon.json
+REMOUNT_HOOK=/usr/local/sbin/docker-dataroot
+REMOUNT_DROPIN=/etc/systemd/system/docker.service.d/10-dataroot-remount.conf
 MISC_MAJOR=10
 
 report() { echo "docker-dataroot-filesystem: $*"; }
@@ -70,6 +80,25 @@ arm_autoclear() {
 	armed="$(losetup -l -n -O AUTOCLEAR "${loop}" 2>/dev/null | tr -d '[:space:]')"
 	[ "${armed}" = 1 ] ||
 		report "WARNING: ${loop} did not arm autoclear (AUTOCLEAR='${armed}')"
+}
+
+claim_loop() {
+	local attempt=0 candidate attached
+	LOOP=""
+	while [ -z "${LOOP}" ] && [ "${attempt}" -lt 16 ]; do
+		attempt=$((attempt + 1))
+		[ "${attempt}" -eq 1 ] || sleep 0.5
+		candidate=""
+		candidate="$(losetup -f 2>/dev/null)" || candidate=""
+		candidate="${candidate%% *}"
+		if [ -n "${candidate}" ] && [ ! -b "${candidate}" ]; then
+			mknod "${candidate}" b 7 "${candidate#/dev/loop}" 2>/dev/null || candidate=""
+		fi
+		if attached="$(losetup --find --show "${IMAGE}" 2>/dev/null)"; then
+			LOOP="${attached}"
+		fi
+	done
+	[ -n "${LOOP}" ] || decline "no loop device could be claimed after ${attempt} attempts"
 }
 
 # Make /dev/zfs usable, reporting 1 when the module is not loaded at all.
@@ -179,6 +208,46 @@ esac
 
 [ "$(id -u)" -eq 0 ] || decline "not running as root"
 
+# A restarted node container loses the mount: its loop device autocleared with
+# the old mount namespace, and a zfs pool stays imported in the kernel with its
+# datasets unmounted. dockerd then starts on an empty directory and the node
+# comes back without its swarm state, so it never rejoins. A backing store that
+# is gone was released on purpose and leaves nothing to restore.
+remount() {
+	if [ "${FSTYPE}" = zfs ]; then
+		mountpoint -q "${MOUNT}/docker" && return 0
+		zpool list -H -o name "${POOL}" >/dev/null 2>&1 || return 0
+		zfs_device_ready || {
+			report "FAIL: ${POOL} is imported but /dev/zfs cannot be created"
+			exit 1
+		}
+		mountpoint -q "${MOUNT}" || zfs mount "${POOL}"
+		zfs mount "${POOL}/docker"
+	else
+		mountpoint -q "${MOUNT}" && return 0
+		[ -f "${IMAGE}" ] || return 0
+		claim_loop
+		mount -t "${FSTYPE}" "${LOOP}" "${MOUNT}"
+		arm_autoclear "${LOOP}" "${MOUNT}"
+	fi
+	report "remounted the ${FSTYPE} data root at ${MOUNT}"
+}
+
+install_remount_hook() {
+	[ -d /run/systemd/system ] || return 0
+	install -D -m 0755 "${BASH_SOURCE[0]}" "${REMOUNT_HOOK}"
+	mkdir -p "$(dirname "${REMOUNT_DROPIN}")"
+	printf '%s\n' '[Service]' \
+		"ExecStartPre=${REMOUNT_HOOK} --remount ${FSTYPE} ${REQUIRED} ${SIZE} ${IDENTITY}" |
+		tee "${REMOUNT_DROPIN}" >/dev/null
+	systemctl daemon-reload
+}
+
+if [ "${REMOUNT}" = true ]; then
+	remount
+	exit 0
+fi
+
 install_packages() {
 	if command -v apt-get >/dev/null; then
 		APT_TIMEOUT=10m
@@ -250,6 +319,7 @@ if mountpoint -q "${MOUNT}"; then
 			zfs set acltype=posixacl xattr=sa "${POOL}"
 		fi
 		report "${MOUNT} already carries ${FSTYPE}"
+		install_remount_hook
 		verdict already-prepared
 		exit 0
 	fi
@@ -268,25 +338,10 @@ DOCKER_STOPPED=true
 mkdir -p "${MOUNT}" "$(dirname "${IMAGE}")"
 rm -f "${IMAGE}"
 truncate -s "${SIZE}" "${IMAGE}"
-LOOP=""
-attempt=0
-while [ -z "${LOOP}" ] && [ "${attempt}" -lt 16 ]; do
-	attempt=$((attempt + 1))
-	[ "${attempt}" -eq 1 ] || sleep 0.5
-	candidate=""
-	candidate="$(losetup -f 2>/dev/null)" || candidate=""
-	candidate="${candidate%% *}"
-	if [ -n "${candidate}" ] && [ ! -b "${candidate}" ]; then
-		mknod "${candidate}" b 7 "${candidate#/dev/loop}" 2>/dev/null || candidate=""
-	fi
-	if attached="$(losetup --find --show "${IMAGE}" 2>/dev/null)"; then
-		LOOP="${attached}"
-	fi
-done
-[ -n "${LOOP}" ] || decline "no loop device could be claimed after ${attempt} attempts"
+claim_loop
 
 if [ "${FSTYPE}" = zfs ]; then
-	if ! zpool_out="$(zpool create -f -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
+	if ! zpool_out="$(zpool create -f -o autotrim=on -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
 		losetup -d "${LOOP}" ||
 			report "WARNING: ${LOOP} refused the detach and will leak into the next round"
 		rm -f "${IMAGE}"
@@ -315,6 +370,7 @@ config = json.loads(path.read_text()) if path.is_file() and path.read_text().str
 config["data-root"] = root
 path.write_text(json.dumps(config, indent=2) + "\n")
 PYTHON
+install_remount_hook
 
 if systemctl cat docker.service >/dev/null 2>&1; then
 	systemctl start docker

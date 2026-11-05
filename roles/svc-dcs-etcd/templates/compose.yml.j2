@@ -1,0 +1,45 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_name = 'etcd' %}
+  {% set _db = lookup('db_instances') %}
+  {% for db_instance in (_db.instances if _db.form == 'ha' else [none]) %}
+  {% set _member = db_instance.service if db_instance else service_name %}
+  {# nocheck: compose-structure  HA instance key differs from the meta service name the lookups resolve #}
+  {{ _member }}:
+    {{ lookup('container_image', application_id, 'etcd') }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        ETCD_IMAGE:   "{{ ETCD_IMAGE }}"
+        ETCD_VERSION: "{{ ETCD_VERSION }}"
+        ETCD_UID:     "{{ ETCD_UID }}"
+        ETCD_DATA_TARGET: "{{ ETCD_DATA_TARGET }}"
+    user: "{{ ETCD_UID }}:{{ ETCD_UID }}"
+    command:
+      - "etcd"
+      - "--name={{ _member }}"
+      - "--data-dir={{ ETCD_DATA_TARGET }}"
+      - "--listen-client-urls=https://0.0.0.0:{{ ETCD_CLIENT_PORT }}"
+      - "--advertise-client-urls=https://{{ _member }}:{{ ETCD_CLIENT_PORT }}"
+      - "--listen-peer-urls=https://0.0.0.0:{{ ETCD_PEER_PORT }}"
+      - "--initial-advertise-peer-urls=https://{{ _member }}:{{ ETCD_PEER_PORT }}"
+      - "--initial-cluster={{ ETCD_INITIAL_CLUSTER }}"
+      {# nocheck: compose-argv-secret  etcd's cluster token is a public cluster identifier, not a credential #}
+      - "--initial-cluster-token={{ ETCD_CLUSTER_TOKEN }}"
+      - "--initial-cluster-state={{ 'existing' if _member in ETCD_JOINING_MEMBERS else 'new' }}"
+      - "--cert-file={{ ETCD_CERT_TARGET }}"
+      - "--key-file={{ ETCD_KEY_TARGET }}"
+      - "--peer-cert-file={{ ETCD_CERT_TARGET }}"
+      - "--peer-key-file={{ ETCD_KEY_TARGET }}"
+      - "--peer-trusted-ca-file={{ ETCD_CA_TARGET }}"
+      - "--peer-client-cert-auth=true"
+      - "--peer-skip-client-san-verification=true"
+    read_only: true
+    cap_drop:
+      - ALL
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, instance=db_instance) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+  {% endfor %}
+
+{{ lookup('compose_volumes') }}
+{{ lookup('compose_networks') }}

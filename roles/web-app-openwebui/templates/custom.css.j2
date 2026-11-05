@@ -1,0 +1,168 @@
+{% set covered = 'html:not([data-design-app-theme="oled-dark"]):not([data-design-app-theme="her"])' %}
+{% set light = covered ~ '.light' %}
+{% set dark = covered ~ '.dark' %}
+{% set any = covered ~ ':is(.light, .dark)' %}
+{% set primary_fill = ':is(.bg-black.dark\\:bg-white, .bg-gray-900.dark\\:bg-white)' %}
+{% set brand = ['blue', 'sky', 'indigo'] %}
+{% set status = [('red', 'danger'), ('rose', 'danger'), ('green', 'success'), ('emerald', 'success'), ('yellow', 'warning'), ('amber', 'warning'), ('orange', 'warning'), ('purple', 'info'), ('cyan', 'info')] %}
+{% set prose = ':is(.prose, .markdown-prose, .markdown-prose-sm, .markdown-prose-xs, .input-prose, .input-prose-sm)' %}
+{{ light }} body {
+  --color-white: var(--design-surface-1);
+  --color-black: var(--design-text);
+  --color-gray-50: var(--design-surface-3);
+  --color-gray-100: var(--design-surface-hover);
+  --color-gray-200: var(--design-border);
+  --color-gray-300: var(--design-border-strong);
+  --color-gray-400: var(--design-text-muted);
+  --color-gray-500: var(--design-text-muted);
+  --color-gray-600: var(--design-text-muted);
+  --color-gray-700: var(--design-text);
+  --color-gray-800: var(--design-text);
+  --color-gray-850: var(--design-text);
+  --color-gray-900: var(--design-text);
+  --color-gray-950: var(--design-text);
+}
+{{ dark }} body {
+  --color-white: var(--design-text);
+  --color-black: var(--design-surface-1);
+  --color-gray-50: var(--design-text);
+  --color-gray-100: var(--design-text);
+  --color-gray-200: var(--design-text);
+  --color-gray-300: var(--design-text);
+  --color-gray-400: var(--design-text-muted);
+  --color-gray-500: var(--design-text-muted);
+  --color-gray-600: var(--design-text-muted);
+  --color-gray-700: var(--design-surface-active);
+  --color-gray-800: var(--design-surface-hover);
+  --color-gray-850: var(--design-surface-2);
+  --color-gray-900: var(--design-surface-1);
+  --color-gray-950: var(--design-surface-3);
+}
+{{ any }} body {
+{% for family in brand %}
+  --color-{{ family }}-50: var(--design-primary-50);
+  --color-{{ family }}-100: var(--design-primary-100);
+  --color-{{ family }}-200: var(--design-primary-200);
+{% for step in [300, 400, 500, 600, 700, 800, 900, 950] %}
+  --color-{{ family }}-{{ step }}: var(--design-link);
+{% endfor %}
+{% endfor %}
+{% for family, token in status %}
+  --color-{{ family }}-50: var(--design-{{ token }}-subtle);
+  --color-{{ family }}-100: var(--design-{{ token }}-subtle);
+  --color-{{ family }}-200: var(--design-{{ token }}-border);
+{% for step in [300, 400, 500, 600, 700, 800, 900, 950] %}
+  --color-{{ family }}-{{ step }}: var(--design-{{ token }});
+{% endfor %}
+{% endfor %}
+  background: var(--design-surface-1);
+  color: var(--design-text);
+}
+{{ any }} #splash-screen {
+  background: var(--design-surface-1);
+}
+{{ any }} {{ primary_fill }} {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+{{ any }} {{ primary_fill }}:hover:not(:disabled) {
+  background-color: var(--design-primary-hover);
+}
+{{ any }} {{ primary_fill }}:active:not(:disabled) {
+  background-color: var(--design-primary-active);
+}
+{{ any }} [role="switch"]{{ primary_fill }} > [data-state="checked"] {
+  background-color: var(--design-on-primary);
+}
+{{ any }} :is(.bg-blue-500, .bg-blue-600, .bg-sky-500, .bg-indigo-500):not([class*="/"]) {
+  background-color: var(--design-primary);
+  color: var(--design-on-primary);
+}
+{{ any }} :is([class*="border-gray-50"], [class*="border-gray-100"], [class*="border-gray-200"], [class*="dark:border-gray-7"], [class*="dark:border-gray-8"], [class*="dark:border-gray-9"], [class*="dark:border-white/"]) {
+  border-color: var(--design-border);
+}
+{{ light }} :is(th, td)[class*="border-gray-"] {
+  --color-gray-50: var(--design-border);
+  --color-gray-100: var(--design-border);
+}
+{{ dark }} :is(th, td)[class*="border-gray-"] {
+  --color-gray-800: var(--design-border);
+  --color-gray-850: var(--design-border);
+}
+{{ any }} [class*="focus:border-blue-"]:focus,
+{{ any }} [class*="focus-within:border-blue-"]:focus-within {
+  border-color: var(--design-link);
+}
+{{ any }} :is(input, textarea)::placeholder,
+{{ any }} .ProseMirror p.is-editor-empty:first-child::before,
+{{ any }} .ai-autocompletion::after {
+  color: var(--design-text-muted);
+}
+{{ dark }} .dark\:text-gray-700 {
+  color: var(--design-text-muted);
+}
+{{ any }} #sidebar :is(a, button, [role="button"])[class*="hover:bg-gray-"]:hover {
+  background-color: var(--design-surface-hover);
+}
+{{ any }} {{ prose }} {
+  --tw-prose-body: var(--design-text);
+  --tw-prose-headings: var(--design-text);
+  --tw-prose-lead: var(--design-text-muted);
+  --tw-prose-links: var(--design-link);
+  --tw-prose-bold: var(--design-text);
+  --tw-prose-counters: var(--design-text-muted);
+  --tw-prose-bullets: var(--design-text-muted);
+  --tw-prose-hr: var(--design-border);
+  --tw-prose-quotes: var(--design-text);
+  --tw-prose-quote-borders: var(--design-border-strong);
+  --tw-prose-captions: var(--design-text-muted);
+  --tw-prose-kbd: var(--design-text);
+  --tw-prose-code: var(--design-text);
+  --tw-prose-pre-code: var(--design-text);
+  --tw-prose-pre-bg: var(--design-surface-3);
+  --tw-prose-th-borders: var(--design-border-strong);
+  --tw-prose-td-borders: var(--design-border);
+}
+{{ any }} .cm-editor {
+  color: var(--design-text);
+}
+{{ any }} .cm-editor .cm-gutters {
+  background-color: var(--design-surface-1);
+  border-color: var(--design-border);
+  color: var(--design-text-muted);
+}
+{{ any }} .cm-editor :is(.cm-activeLine, .cm-activeLineGutter) {
+  background-color: var(--design-surface-hover);
+}
+{{ any }} [class*="bg-[#F1F8FE]"] {
+  background-color: var(--design-info-subtle);
+  border-color: var(--design-info-border);
+  color: var(--design-info);
+}
+{{ any }} .tippy-box[data-theme~="dark"] {
+  background-color: var(--design-surface-3);
+  border-color: var(--design-border);
+  color: var(--design-text);
+}
+{{ any }} [data-sonner-toaster] {
+  --normal-bg: var(--design-surface-2);
+  --normal-border: var(--design-border);
+  --normal-text: var(--design-text);
+{% for name, token in [('success', 'success'), ('info', 'info'), ('warning', 'warning'), ('error', 'danger')] %}
+  --{{ name }}-bg: var(--design-{{ token }}-subtle);
+  --{{ name }}-border: var(--design-{{ token }}-border);
+  --{{ name }}-text: var(--design-{{ token }});
+{% endfor %}
+}
+{{ any }} .shimmer {
+  background: none;
+  color: var(--design-text-muted);
+  -webkit-text-fill-color: currentColor;
+}
+{{ any }} ::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--design-text-muted-rgb), 0.4);
+  border-color: var(--design-surface-1);
+}
+{{ any }} .editor-selection {
+  background: rgba(var(--design-link-rgb), 0.3);
+}

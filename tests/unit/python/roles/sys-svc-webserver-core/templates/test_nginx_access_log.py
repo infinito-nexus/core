@@ -35,7 +35,7 @@ def render(debug: bool) -> str:
     env.filters["bool"] = bool
     return env.get_template(TEMPLATE).render(
         MODE_DEBUG=debug,
-        DEPLOYMENT_MODE="compose",
+        IS_SWARM_MODE=False,
         WEBSERVER_PROXY_WORKER_PROCESSES=1,
         WEBSERVER_PROXY_WORKER_CONNECTIONS=256,
         WEBSERVER_PROXY_WORKER_RLIMIT_NOFILE=512,

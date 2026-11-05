@@ -15,6 +15,7 @@ Two call forms:
                          | ``tmpfs``, defaults to ``volume``
     - ``source``         for binds / configs / secrets, ``''`` if absent
     - ``nfs``            NFS opt-in (bool or dict), ``None`` if absent
+    - ``uid`` / ``gid``  numeric owner of a config or secret, ``None`` if absent
     - ``mounts``         the raw mounts list, ``[]`` if absent
     - ``targets``        ``{service: container path}`` built from ``mounts``
     - ``target``         the one container path this entry mounts at, present
@@ -29,6 +30,10 @@ Two call forms:
 
   rather than repeating the literal, which nothing keeps in step with the
   mount it describes.
+
+  ``lookup('volume', application_id, name, field='source')`` — return the
+  entry's host-side ``source`` rendered, so a task that writes a bind,
+  config or secret file derives its destination from the registry too.
 
   ``lookup('volume', application_id)`` — return the WHOLE canonical
   registry as a dict keyed by semantic name. Useful for tasks that loop
@@ -45,6 +50,7 @@ from ansible.plugins.lookup import LookupBase
 
 # nocheck: lookup-cache-import
 from utils.cache.applications import get_application_defaults, get_canonical_volumes
+from utils.cache.base import _render_with_templar
 
 
 class LookupModule(LookupBase):
@@ -88,6 +94,27 @@ class LookupModule(LookupBase):
                 f"meta/volumes.yml for role {application_id!r}"
             )
 
+        field = kwargs.get("field")
+        if field == "source":
+            source = _render_with_templar(
+                entry.get("source", ""),
+                templar=getattr(self, "_templar", None),
+                variables=variables,
+            )
+            if not source:
+                raise AnsibleError(
+                    f"volume lookup: entry {name!r} of role {application_id!r} "
+                    "has no source"
+                )
+            if "{{" in str(source) or "{%" in str(source):
+                raise AnsibleError(
+                    f"volume lookup: source of {name!r} in role {application_id!r} "
+                    f"did not render: {source}"
+                )
+            return [str(source)]
+        if field is not None:
+            raise AnsibleError(f"volume lookup: unknown field {field!r}")
+
         docker_name = entry.get("name", "")
         mounts = entry.get("mounts", [])
         resolved = {
@@ -98,6 +125,8 @@ class LookupModule(LookupBase):
             "type": entry.get("type", "volume"),
             "source": entry.get("source", ""),
             "nfs": entry.get("nfs", None),
+            "uid": entry.get("uid", None),
+            "gid": entry.get("gid", None),
             "mounts": mounts,
             "targets": _targets(mounts),
         }

@@ -1,7 +1,7 @@
 ---
 - block:
-    - name: "📁 Create database: {{ database_name }} (host via mysql_db)"
-      ansible.mysql.mysql_db:
+    - name: "📁 Create database: {{ database_name }} (host via mariadb_db)"
+      ansible.mariadb.mariadb_db:
         name: "{{ database_name }}"
         state: present
         login_user: root
@@ -12,8 +12,8 @@
         collation: "{{ MARIADB_COLLATION }}"
         config_file: ""
 
-    - name: "📁 Create database user: {{ database_username }} (host via mysql_user)"
-      ansible.mysql.mysql_user:
+    - name: "📁 Create database user: {{ database_username }} (host via mariadb_user)"
+      ansible.mariadb.mariadb_user:
         name: "{{ database_username }}"
         password: "{{ database_password }}"
         host: "%"
@@ -64,4 +64,35 @@
       delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
-  when: not (MARIADB_EXPOSE_LOCAL | bool)
+  when: not (MARIADB_EXPOSE_LOCAL | bool) and not (MARIADB_HA | bool)
+
+- name: "📁 Create database {{ database_name }} and its user on the writer (HA form)"
+  when: MARIADB_HA | bool
+  block:
+    - name: "🔍 Resolve the MariaDB writer"
+      include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+      vars:
+        primary_application_id: "{{ role_name }}"
+        primary_output_prefix: "MARIADB"
+
+    - name: "📁 Apply database, user and grant as idempotent SQL on the writer"
+      ansible.builtin.shell: >
+        container exec -i {{ MARIADB_PRIMARY_CID | quote }}
+        {{ MARIADB_HA_SQL }}
+      args:
+        stdin: |
+          SET @db_name   := {{ database_name | mariadb_identifier | mariadb_sql_literal }};
+          SET @charset   := {{ MARIADB_ENCODING | mariadb_sql_literal }};
+          SET @collation := {{ MARIADB_COLLATION | mariadb_sql_literal }};
+          {{ lookup('file', role_path ~ '/files/sql/create/database.sql') }}
+          SET @db_user := {{ database_username | mariadb_sql_body | mariadb_sql_literal }};
+          SET @db_pwd  := {{ database_password | mariadb_sql_literal }};
+          {{ lookup('file', role_path ~ '/files/sql/create/user_grant.sql') }}
+      register: mariadb_ha_provision
+      retries: 30
+      delay: 3
+      until: mariadb_ha_provision.rc == 0
+      delegate_to: "{{ MARIADB_PRIMARY_NODE | default(STACK_HOST) }}"
+      run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: false

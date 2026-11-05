@@ -1,0 +1,18 @@
+---
+zoom:
+  Archlinux:
+    source: aur
+    names:
+      - zoom
+  Debian:
+    source: flatpak
+    names:
+      - us.zoom.Zoom
+    flatpak:
+      command: zoom
+  RedHat:
+    source: flatpak
+    names:
+      - us.zoom.Zoom
+    flatpak:
+      command: zoom

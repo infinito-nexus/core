@@ -5,7 +5,7 @@ mariadb:
       enabled: true
     swarm:
       enabled: true
-  # nocheck: default-placement-manager  central RDBMS, single-node until multi-replica replication (galera / async) is in scope
+  # nocheck: default-placement-manager  the manager placement applies to the standalone form only; HA instances pin per host via the instance model
   placement: manager
   bond: 1
   enabled: true
@@ -17,6 +17,7 @@ mariadb:
   min_storage: 308MB
   backup:
     database_routine: true
+    stop_required: true
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g
@@ -30,7 +31,26 @@ mariadb:
       mariadb: 3306
     internal:
       mariadb: 3306
+      writer: 8009
+      seed: 4444
+  ha:
+    capable: true
+    primary_probe: http
+    backup: sql
+    seeded_after_converge: true
+    endpoint:
+      port: mariadb
+      check: http
+      check_port: writer
+      check_path: /writer
   lifecycle: beta
+# nocheck: dynamic-flag  the writer elector holds its lease in etcd only while the HA form renders
+etcd:
+  bond: 1
+  enabled: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
+  shared: true
+  user: mariadb-elector
+  prefix: /infinito/mariadb/
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
@@ -42,3 +62,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

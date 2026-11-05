@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
+import shlex
 import tempfile
 import unittest
 from pathlib import Path
 
 from cli.administration.recover import full, paths
+from utils.storage.nfs import get_export_base
 
 
 class PlanTest(unittest.TestCase):
@@ -49,6 +53,28 @@ class PlanTest(unittest.TestCase):
     def test_plan_empty_root(self):
         with tempfile.TemporaryDirectory() as td:
             self.assertEqual(full.plan(Path(td)), ([], []))
+
+
+class NfsStepTargetTest(unittest.TestCase):
+    def test_nfs_generation_files_restore_onto_the_export_base(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            files = root / "HASH" / "backup-nfs-to-local" / "20260101000000" / "files"
+            files.mkdir(parents=True)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                full._recover_under(
+                    root, "localhost", preview=True, service_backup=False
+                )
+        line = next(
+            entry
+            for entry in out.getvalue().splitlines()
+            if entry.startswith("# full nfs")
+        )
+        argv = shlex.split(line.split(": ", 1)[1])
+        self.assertEqual(
+            argv[2:], [str(files), get_export_base(), "--no-safety-backup"]
+        )
 
 
 class DeviceDetectTest(unittest.TestCase):

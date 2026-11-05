@@ -1,0 +1,64 @@
+---
+- name: "📁 MariaDB HA | Ensure volumes and build context directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - "{{ MARIADB_HA_DIR }}"
+    - "{{ MARIADB_HA_BUILD_DIR }}"
+
+- name: "📄 MariaDB HA | Render the server profile"
+  stack_host_template:
+    src: ha/ha-server.cnf.j2
+    dest: "{{ lookup('volume', application_id, 'ha_server_cnf', field='source') }}"
+    mode: "0644"
+
+- name: "🔑 MariaDB HA | Render the root and elector option files"
+  stack_host_template:
+    src: ha/client.cnf.j2
+    dest: "{{ lookup('volume', application_id, item.volume, field='source') }}"
+    mode: "0600"
+  vars:
+    ha_client_user: "{{ item.user }}"
+    ha_client_password: "{{ item.password }}"
+  loop:
+    - { volume: ha_root_cnf, user: root, password: "{{ MARIADB_ROOT_PWD }}" }
+    - { volume: ha_elector_cnf, user: "{{ MARIADB_ELECTOR_USER }}", password: "{{ MARIADB_ELECTOR_PWD }}" }
+  loop_control:
+    label: "{{ item.volume }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 MariaDB HA | Write the replication and etcd password files"
+  stack_host_copy:
+    content: "{{ item.password }}"
+    dest: "{{ lookup('volume', application_id, item.volume, field='source') }}"
+    mode: "0600"
+  loop:
+    - { volume: ha_replication_password, password: "{{ MARIADB_REPLICATION_PWD }}" }
+    - { volume: ha_etcd_password, password: "{{ MARIADB_ELECTOR_ETCD_PWD }}" }
+  loop_control:
+    label: "{{ item.volume }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📦 MariaDB HA | Copy the writer elector into the build context"
+  ansible.builtin.copy:
+    src: "{{ lookup('path_absolute', 'files/db-elector/infinito_elector') }}/"
+    dest: "{{ [MARIADB_HA_BUILD_DIR, 'infinito_elector'] | path_join }}/"
+    mode: "0644"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📦 MariaDB HA | Copy the entrypoint and seed relay into the build context"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ [MARIADB_HA_BUILD_DIR, item | basename] | path_join }}"
+    mode: "0644"
+  loop:
+    - shell/ha_entrypoint.sh
+    - python/seed_relay.py
+  notify:
+    - compose-build
+    - compose-up

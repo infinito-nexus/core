@@ -1,0 +1,7 @@
+---
+ETCD_CLIENT_HOSTS: >-
+  {{ lookup('db_instances', 'svc-dcs-etcd').instances
+     | map(attribute='service')
+     | map('regex_replace', '$', ':' ~ lookup('config', 'svc-dcs-etcd', 'services.etcd.ports.internal.client'))
+     | list }}
+ETCD_CLIENT_ENDPOINTS: "{{ ETCD_CLIENT_HOSTS | map('regex_replace', '^', 'https://') | join(',') }}"

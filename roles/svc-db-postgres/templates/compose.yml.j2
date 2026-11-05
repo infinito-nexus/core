@@ -1,9 +1,26 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = 'postgres' %}
-  {{ service_name }}:
+  {% set _db = lookup('db_instances') %}
+  {% for db_instance in (_db.instances if _db.form == 'ha' else [none]) %}
+  {# nocheck: compose-structure  HA instance key differs from the meta service name the lookups resolve #}
+  {{ db_instance.service if db_instance else service_name }}:
     {{ lookup('compose_only', 'container_name', POSTGRES_CONTAINER) }}
     {{ lookup('container_image', application_id, 'postgres') }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+    {% if db_instance %}
+    entrypoint: ["patroni-entrypoint.sh"]
+    command:
+      {# nocheck: compose-argv-secret  the in-container path of the Patroni config secret, not its content #}
+      - "{{ POSTGRES_PATRONI_SECRET_TARGET }}"
+      - "{{ POSTGRES_PATRONI_CONFIG }}"
+    environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop
+      PATRONI_NAME: "{{ db_instance.service }}"
+      DB_REPLICATION_SUBNET: "{{ POSTGRES_REPLICATION_SUBNET }}"
+      DB_POSTGRES_PORT: "{{ POSTGRES_INTERNAL_PORT }}"
+      DB_PATRONI_API_PORT: "{{ POSTGRES_PATRONI_PORT }}"
+      DB_BOOTSTRAP_ALLOWED: "{{ db_instance.legacy | bool | lower }}"
+      DB_BOOTSTRAP_GRACE: "{{ POSTGRES_PATRONI_BOOTSTRAP_GRACE_S }}"
+    {% else %}
     command:
       - "postgres"
       - "-c"
@@ -18,14 +35,23 @@
       - "maintenance_work_mem={{ POSTGRES_MAINTENANCE_WORK_MEM }}"
       - "-c"
       - "max_locks_per_transaction={{ POSTGRES_MAX_LOCKS_PER_TRANSACTION }}"
+    {% endif %}
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
-    {% if POSTGRES_EXPOSE_LOCAL %}
+    {% if POSTGRES_EXPOSE_LOCAL and not db_instance %}
     {{ lookup('container_ports', ['postgres', 'postgres', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, instance=db_instance) | indent(4) }}
+    {% if db_instance %}
+    {{ lookup('container_networks', internal=true, roles_only=['svc-dcs-etcd'], include_default=false) | indent(4) }}
+    {% else %}
     {{ lookup('container_networks') | indent(4) }}
+    {% endif %}
+  {% endfor %}
+  {% if _db.form == 'ha' %}
+{% include 'roles/sys-svc-compose/templates/db_endpoint.yml.j2' %}
+  {% endif %}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

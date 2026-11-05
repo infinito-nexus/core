@@ -1,0 +1,14 @@
+---
+obs-studio:
+  Archlinux:
+    - obs-studio
+  Debian:
+    - obs-studio
+  RedHat:
+    - obs-studio
+  centos:
+    source: flatpak
+    names:
+      - com.obsproject.Studio
+    flatpak:
+      command: obs

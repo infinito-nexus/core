@@ -1,0 +1,22 @@
+[ req ]
+prompt             = no
+distinguished_name = dn
+req_extensions     = req_ext
+
+[ dn ]
+O  = {{ SOFTWARE_NAME }}
+CN = {{ entity_name }}
+
+[ req_ext ]
+basicConstraints = critical,CA:FALSE
+keyUsage         = critical,digitalSignature,keyEncipherment
+extendedKeyUsage = serverAuth,clientAuth
+subjectAltName   = @alt_names
+
+[ alt_names ]
+DNS.1 = localhost
+DNS.2 = {{ entity_name }}
+{% for member in ETCD_MEMBERS %}
+DNS.{{ loop.index + 2 }} = {{ member }}
+{% endfor %}
+IP.1  = 127.0.0.1

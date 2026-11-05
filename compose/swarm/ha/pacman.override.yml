@@ -1,0 +1,10 @@
+---
+x-host-pacman: &host_pacman
+  volumes:
+    - ${INFINITO_CACHE_HOST_PACMAN_PATH:?Run 'make dotenv' on an arch stack whose host has a pacman cache}:${INFINITO_CACHE_HOST_PACMAN_PATH}:ro
+
+services:
+  swarm-mgr-02:
+    <<: *host_pacman
+  swarm-mgr-03:
+    <<: *host_pacman

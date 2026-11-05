@@ -1,6 +1,21 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/prepare.yml') }}"
+
+- name: "📄 Render the HAProxy write endpoint config"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/endpoint.yml') }}"
+  vars:
+    application_id: "svc-db-redis"
+    db_endpoint_check_user: "{{ REDIS_HAPROXY_CHECK_USER }}"
+    db_endpoint_check_password: "{{ REDIS_HAPROXY_CHECK_PASSWORD }}"
+
+- name: "📄 REDIS | Render the HA configuration, Sentinel secret and wrappers"
+  include_tasks: 01_ha.yml
+  when:
+    - REDIS_HA.form == 'ha'
+    - IS_STACK_HOST | bool
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
@@ -8,28 +23,33 @@
     application_id: "svc-db-redis"
     database_consumer_id: "svc-db-redis"
 
-- name: "⏳ REDIS | Wait until container is running (not restarting)"
-  ansible.builtin.shell: >
-    container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ REDIS_CONTAINER_ADDRESS }}
-  register: redis_state
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  retries: 120
-  delay: 2
-  until: >
-    (redis_state.stdout is search('running')) and
-    (redis_state.stdout is not search('true'))
-  changed_when: false
+- name: "🟥 REDIS | Standalone readiness"
+  when: REDIS_HA.form != 'ha'
+  block:
+    - name: "⏳ REDIS | Wait until container is running (not restarting)"
+      ansible.builtin.shell: >
+        container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ REDIS_CONTAINER_ADDRESS }}
+      register: redis_state
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      retries: 120
+      delay: 2
+      until: >
+        (redis_state.stdout is search('running')) and
+        (redis_state.stdout is not search('true'))
+      changed_when: false
 
-- name: "✅ REDIS | Confirm engine answers PING (authenticated)"
-  ansible.builtin.shell: >
-    {{ REDIS_EXEC_SHELL }}
-    '{{ REDIS_CLI }} ping'
-  register: redis_ping_ready
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  retries: 30
-  delay: 2
-  until: redis_ping_ready.stdout is search('PONG')
-  changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    - name: "✅ REDIS | Confirm engine answers PING (authenticated)"
+      ansible.builtin.shell: >
+        {{ REDIS_EXEC_SHELL }}
+        '{{ REDIS_CLI }} ping'
+      register: redis_ping_ready
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      retries: 30
+      delay: 2
+      until: redis_ping_ready.stdout is search('PONG')
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/health_gate.yml') }}"

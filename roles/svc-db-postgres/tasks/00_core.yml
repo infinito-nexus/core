@@ -1,6 +1,38 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "⬆️ POSTGRES | Bring an older cluster in the data volume to the pinned major"
+  include_tasks: upgrade/prepare.yml
+
+- include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/prepare.yml') }}"
+
+- name: "📄 Render the HAProxy write endpoint config"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/endpoint.yml') }}"
+  vars:
+    application_id: "svc-db-postgres"
+
+- name: "🔱 POSTGRES | Prepare the HA form"
+  when: POSTGRES_HA | bool
+  block:
+    - name: "📄 POSTGRES | Write the shared patroni.yml"
+      ansible.builtin.copy:
+        content: "{{ POSTGRES_PATRONI_YML }}"
+        dest: "{{ POSTGRES_PATRONI_CONFIG_SOURCE }}"
+        mode: "0600"
+      when: IS_STACK_HOST | bool
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🚚 POSTGRES | Hand a standalone install over to the HA form"
+      include_tasks: 02_ha_migrate.yml
+      when: DB_HA_MIGRATING[application_id] | bool
+
+    - name: "🔑 POSTGRES | Carry rotated role passwords into the running cluster"
+      include_tasks:
+        file: 05_ha_rotate.yml
+        apply:
+          run_once: true
+      when: not (DB_HA_MIGRATING[application_id] | bool)
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
@@ -15,40 +47,64 @@
     package_name: "psycopg2-binary"
     global_install: true
 
-- name: "⏳ POSTGRES | Wait until container is running (not restarting)"
-  ansible.builtin.shell: >
-    container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ POSTGRES_CONTAINER_ADDRESS }}
-  register: pg_state
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  retries: 120
-  delay: 2
-  until: >
-    (pg_state.stdout is search('running')) and
-    (pg_state.stdout is not search('true'))
-  changed_when: false
+- name: "🐘 POSTGRES | Standalone readiness and superuser password"
+  when: not (POSTGRES_HA | bool)
+  block:
+    - name: "⏳ POSTGRES | Wait until container is running (not restarting)"
+      ansible.builtin.shell: >
+        container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ POSTGRES_CONTAINER_ADDRESS }}
+      register: pg_state
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      retries: 120
+      delay: 2
+      until: >
+        (pg_state.stdout is search('running')) and
+        (pg_state.stdout is not search('true'))
+      changed_when: false
 
-- name: "✅ POSTGRES | Confirm SQL works (socket)"
-  ansible.builtin.shell: >
-    container exec --user postgres {{ POSTGRES_CONTAINER_ADDRESS }} sh -lc
-    'psql -U postgres -d postgres -Atc "SELECT 1" >/dev/null'
-  register: pg_sql_ready
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  retries: 30
-  delay: 2
-  until: pg_sql_ready.rc == 0
-  changed_when: false
+    - name: "✅ POSTGRES | Confirm SQL works (socket)"
+      ansible.builtin.shell: >
+        container exec --user postgres {{ POSTGRES_CONTAINER_ADDRESS }} sh -lc
+        'psql -U postgres -d postgres -Atc "SELECT 1" >/dev/null'
+      register: pg_sql_ready
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      retries: 30
+      delay: 2
+      until: pg_sql_ready.rc == 0
+      changed_when: false
 
-- name: "✅ POSTGRES | Ensure postgres superuser password matches inventory"
-  ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
-    shell/set_postgres_superuser_password.sh {{ POSTGRES_CONTAINER_ADDRESS | quote }} {{ POSTGRES_PASSWORD | quote }} postgres
-  register: postgres_pw_result
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: >
-    postgres_pw_result.stdout is search('\\[CHANGED\\]')
-  failed_when: >
-    postgres_pw_result.rc != 0 or
-    postgres_pw_result.stdout is search('\\[FAIL\\]')
+    - name: "✅ POSTGRES | Ensure postgres superuser password matches inventory"
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -c
+          - "{{ lookup('file', 'shell/set_postgres_superuser_password.sh') }}"
+          - set_postgres_superuser_password.sh
+          - "{{ POSTGRES_CONTAINER_ADDRESS }}"
+          - postgres
+        stdin: "{{ POSTGRES_PASSWORD }}"
+        expand_argument_vars: false
+      register: postgres_pw_result
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: >
+        postgres_pw_result.stdout is search('\\[CHANGED\\]')
+      failed_when: >
+        postgres_pw_result.rc != 0 or
+        postgres_pw_result.stdout is search('\\[FAIL\\]')
+
+- name: "🧹 POSTGRES | Finish an upgrade once the pinned major runs"
+  include_tasks: upgrade/finalize.yml
+  when: IS_COMPOSE_MODE
+
+- name: "🐘 POSTGRES | Patroni cluster roles and configuration"
+  include_tasks:
+    file: 03_ha_cluster.yml
+    apply:
+      run_once: true
+  when: POSTGRES_HA | bool
+
+- include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/health_gate.yml') }}"

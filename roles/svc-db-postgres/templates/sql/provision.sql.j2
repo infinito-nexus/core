@@ -1,0 +1,22 @@
+{#
+  Param: database_name / database_username / database_password / database_consumer_id
+#}
+\set ON_ERROR_STOP on
+SELECT format('CREATE DATABASE %I', '{{ database_name }}')
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{{ database_name }}')\gexec
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '{{ database_username }}') THEN
+    CREATE ROLE "{{ database_username }}";
+  END IF;
+END
+$$;
+ALTER ROLE "{{ database_username }}" WITH LOGIN PASSWORD '{{ database_password | string | replace("'", "''") }}';
+GRANT ALL PRIVILEGES ON DATABASE "{{ database_name }}" TO "{{ database_username }}";
+\connect "{{ database_name }}"
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ database_username }}";
+{% include 'sql/grant_schema_privileges.sql.j2' %}
+
+{% for extension in lookup('service_extensions', 'postgres')[database_consumer_id] | default([]) %}
+CREATE EXTENSION IF NOT EXISTS "{{ extension }}";
+{% endfor %}

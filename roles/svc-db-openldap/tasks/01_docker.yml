@@ -23,6 +23,23 @@
   loop_control:
     label: "{{ item.dest }}"
 
+- name: "🔱 Prepare the OpenLDAP HA build context and config"
+  when: OPENLDAP_HA | bool
+  block:
+    - name: 📋 Copy the writer elector package into the image build context
+      stack_host_copy:
+        src: "{{ lookup('path_absolute', 'files/db-elector/infinito_elector') }}"
+        dest: "{{ lookup('container', application_id, 'directories.instance') }}"
+        mode: "0644"
+        directory_mode: "0755"
+
+    - name: "📄 Render the HA per-instance cn=config and elector credentials"
+      include_tasks: ha/01_config.yml
+      when: IS_STACK_HOST | bool
+
+- name: "📄 Render the HAProxy write endpoint config"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/endpoint.yml') }}"
+
 - name: "🚿 Flush compose handlers"
   meta: flush_handlers
 

@@ -1,14 +1,41 @@
 ---
 application_id: svc-db-redis
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 database_type: "{{ entity_name }}"
 
 REDIS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 REDIS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 REDIS_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_PASSWORD') }}"
+REDIS_HAPROXY_CHECK_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_HAPROXY_CHECK_PASSWORD') }}"
+REDIS_SENTINEL_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_SENTINEL_PASSWORD') }}"
+REDIS_REPLICA_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_REPLICA_PASSWORD') }}"
 REDIS_EXPOSE_LOCAL: true
-REDIS_RETRIES: 5
-REDIS_DELAY: 5
 REDIS_EXEC_SHELL: "container exec {{ REDIS_CONTAINER_ADDRESS }} sh -lc"
-REDIS_CLI: 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning'
+REDIS_CLI: 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli'
+REDIS_MAXMEMORY_SHARE: "{{ 0.6 if REDIS_HA.form == 'ha' else 0.8 }}"
+REDIS_MAXMEMORY_MB: "{{ lookup('service_memory_mb', application_id, 'redis', REDIS_MAXMEMORY_SHARE | float) }}"
+
+REDIS_HA: "{{ lookup('db_instances', application_id) }}"
+REDIS_HA_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
+REDIS_HA_MASTER_NAME: "{{ entity_name }}"
+REDIS_HA_START: "{{ lookup('volume', application_id, 'ha_start').target }}"
+REDIS_HA_INCLUDE: "{{ lookup('volume', application_id, 'ha_include').target }}"
+REDIS_HA_CONF: "{{ [lookup('volume', application_id, 'data').target, 'redis.conf'] | path_join }}"
+REDIS_SENTINEL_START: "{{ lookup('volume', application_id, 'sentinel_start').target }}"
+REDIS_SENTINEL_PASSWORD_FILE: "{{ lookup('volume', application_id, 'sentinel_password').target }}"
+REDIS_SENTINEL_CONF: "{{ [lookup('volume', application_id, 'sentinel').target, 'sentinel.conf'] | path_join }}"
+REDIS_HA_PORT: "{{ lookup('config', application_id, 'services.redis.ports.internal.redis') }}"
+REDIS_SENTINEL_PORT: "{{ lookup('config', application_id, 'services.sentinel.ports.internal.sentinel') }}"
+REDIS_SENTINEL_CLI: >-
+  sh -c 'REDISCLI_AUTH=$(cat "$SENTINEL_PASSWORD_FILE") exec redis-cli -p "$SENTINEL_PORT" SENTINEL "$@"' sentinel
+REDIS_SENTINEL_USER: "sentinel"
+REDIS_HAPROXY_CHECK_USER: "haproxy-check"
+REDIS_REPLICA_USER: "replica"
+REDIS_SENTINEL_QUORUM: 2
+REDIS_SENTINEL_DOWN_AFTER_MS: 5000
+REDIS_SENTINEL_FAILOVER_TIMEOUT_MS: 10000
+REDIS_SENTINEL_PARALLEL_SYNCS: 1
+REDIS_SENTINEL_PEER_WAIT_S: 120
+REDIS_MIN_REPLICAS_TO_WRITE: 1
+REDIS_MIN_REPLICAS_MAX_LAG: 10

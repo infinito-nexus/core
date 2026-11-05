@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import shlex
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -16,14 +15,25 @@ from utils.roles.applications.services.database import (
     get_database_service_config,
     resolve_database_service_key,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.db.instances import DbInstancesError
+from utils.roles.db.primary import (
+    client_command,
+    ha_primary_address,
+    resolver_subshell,
+)
+from utils.roles.entity.name import entity_name
 
-
-def _swarm_address(bin_resolver: str, stack_name: str, service_key: str) -> str:
-    return (
-        f'"$({shlex.quote(bin_resolver)} '
-        f'{shlex.quote(stack_name)} {shlex.quote(service_key)})"'
-    )
+HA_UNAVAILABLE = {
+    "reach_host": "no database port is published, exec into 'address' instead",
+    "service_name": (
+        "it would name the HAProxy endpoint, resolve the primary via "
+        "roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml instead"
+    ),
+    "container": (
+        "the engine has no single container, exec into 'address' or run "
+        "'client' instead"
+    ),
+}
 
 
 class LookupModule(LookupBase):
@@ -75,7 +85,7 @@ class LookupModule(LookupBase):
         ):
             path_instances = self._templar.template(path_instances)
 
-        consumer_entity = get_entity_name(consumer_id)
+        consumer_entity = entity_name(consumer_id)
 
         try:
             dbtype = resolve_database_service_key(applications, consumer_id)
@@ -118,6 +128,7 @@ class LookupModule(LookupBase):
                 "image": "",
                 "version": "",
                 "reach_host": "127.0.0.1",
+                "client": "",
             }
             return [resolved if want == "all" else resolved.get(want, "")]
 
@@ -204,11 +215,11 @@ class LookupModule(LookupBase):
             default=default_image,
         )
 
-        env_dir = f"{path_instances}{get_entity_name(consumer_id)}/.env/"
+        env_dir = f"{path_instances}{entity_name(consumer_id)}/.env/"
         env = f"{env_dir}{dbtype}.env"
         realign_sql = f"{env_dir}{dbtype}-realign.sql"
-        initdb_dir = f"{path_instances}{get_entity_name(consumer_id)}/.initdb.d/"
-        build_dir = f"{path_instances}{get_entity_name(consumer_id)}/.postgres-build/"
+        initdb_dir = f"{path_instances}{entity_name(consumer_id)}/.initdb.d/"
+        build_dir = f"{path_instances}{entity_name(consumer_id)}/.postgres-build/"
 
         jdbc_scheme = dbtype if dbtype == "mariadb" else "postgresql"
         url_jdbc = f"jdbc:{jdbc_scheme}://{host}:{port}/{name}"
@@ -247,9 +258,36 @@ class LookupModule(LookupBase):
                 if bin_resolver
                 else "/usr/bin/resolve-container-id"
             )
-            address = _swarm_address(bin_resolver, db_stack, db_service_key)
+            address = resolver_subshell(bin_resolver, db_stack, db_service_key)
         else:
             address = container
+
+        try:
+            primary = (
+                ha_primary_address(
+                    db_id,
+                    vars_.get("groups"),
+                    deployment_mode,
+                    bin_resolver=_templated(vars_.get("BIN_RESOLVE_DB_PRIMARY", "")),
+                    stack=db_stack,
+                    engine=dbtype,
+                )
+                if central_enabled
+                else None
+            )
+        except DbInstancesError as exc:
+            raise AnsibleError(f"database: {exc}") from exc
+        reach_host = "127.0.0.1"
+        if primary is not None:
+            if want in HA_UNAVAILABLE:
+                raise AnsibleError(
+                    f"database: {want} is unavailable for {db_id} in HA form; "
+                    f"{HA_UNAVAILABLE[want]}"
+                )
+            address = primary
+            container = ""
+            reach_host = ""
+            service_name = ""
 
         resolved = {
             "id": db_id,
@@ -279,7 +317,17 @@ class LookupModule(LookupBase):
             "volume": volume,
             "image": image,
             "version": version,
-            "reach_host": "127.0.0.1",
+            "reach_host": reach_host,
+            "client": client_command(
+                dbtype,
+                address=address,
+                ha=primary is not None,
+                bin_client=_templated(vars_.get("BIN_DB_CLIENT", "")),
+                stack=db_stack,
+                network=network,
+                host=host,
+                port=port,
+            ),
         }
 
         return [resolved if want == "all" else resolved.get(want, "")]

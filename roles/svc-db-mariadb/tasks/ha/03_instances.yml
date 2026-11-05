@@ -1,0 +1,114 @@
+---
+- name: "⏳ MariaDB HA | Wait until every instance task runs"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_RESOLVE_CONTAINER_ID }}"
+      - "{{ entity_name }}"
+      - "{{ item.service }}"
+  register: _mariadb_ha_running
+  until: _mariadb_ha_running.rc == 0
+  retries: 60
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ item.host }}"
+  loop: "{{ MARIADB_INSTANCES.instances }}"
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: "🔍 MariaDB HA | Read each instance's seeding state"
+  ansible.builtin.shell: |
+    container exec {{ lookup('container_address', application_id, entity_name, instance=item) }} sh -c 'if test -e {{ MARIADB_HA_READY_MARKER }}; then echo ready; elif test -d {{ MARIADB_HA_DATADIR }}/mysql; then echo data; else echo empty; fi'
+  register: _mariadb_ha_state
+  until: _mariadb_ha_state.rc == 0
+  retries: 30
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ item.host }}"
+  loop: "{{ MARIADB_INSTANCES.instances }}"
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: "🔧 MariaDB HA | Remember ready and pending instances"
+  ansible.builtin.set_fact:
+    _mariadb_ha_ready: "{{ _mariadb_ha_state.results | selectattr('stdout', 'equalto', 'ready') | map(attribute='item') | list }}"
+    _mariadb_ha_pending: "{{ _mariadb_ha_state.results | rejectattr('stdout', 'equalto', 'ready') | list }}"
+    _mariadb_ha_bootstrap: "{{ MARIADB_INSTANCES.instances | selectattr('legacy') | first }}"
+
+- name: "🔑 MariaDB HA | Carry rotated passwords into the seeded instances"
+  include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/svc-db-mariadb/tasks/utils/rotate_apply.yml') }}"
+    apply:
+      delegate_to: "{{ mariadb_rotate_instance.host }}"
+  loop: "{{ _mariadb_ha_ready }}"
+  loop_control:
+    loop_var: mariadb_rotate_instance
+    label: "{{ mariadb_rotate_instance.service }}"
+
+- name: "🌱 MariaDB HA | Bootstrap the first writer"
+  include_tasks:
+    file: 04_bootstrap.yml
+    apply:
+      delegate_to: "{{ _mariadb_ha_bootstrap.host }}"
+  when: _mariadb_ha_ready | length == 0
+
+- name: "🏁 MariaDB HA | Let a ready minority elect a seeding writer"
+  ansible.builtin.shell: |
+    container exec {{ lookup('container_address', application_id, entity_name, instance=item) }} touch {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }}
+  changed_when: true
+  delegate_to: "{{ item.host }}"
+  loop: "{{ _mariadb_ha_ready }}"
+  loop_control:
+    label: "{{ item.service }}"
+  when: (_mariadb_ha_ready | length) <= ((MARIADB_INSTANCES.instances | length) // 2)
+
+- name: "⏳ MariaDB HA | Wait until exactly one elector holds the writer lease"
+  ansible.builtin.script: >-
+    {{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/wait_single_writer.sh') }}
+    {{ entity_name | quote }} {{ _mariadb_ha_bootstrap.service | quote }}
+    {% for instance in MARIADB_INSTANCES.instances %}http://{{ instance.service }}:{{ MARIADB_ELECTOR_PORT }}/writer {% endfor %}
+  environment:
+    BIN_RESOLVE_CONTAINER_ID: "{{ BIN_RESOLVE_CONTAINER_ID }}"
+  register: _mariadb_ha_writer_wait
+  until: _mariadb_ha_writer_wait.rc == 0
+  retries: 60
+  delay: 3
+  changed_when: false
+  delegate_to: "{{ _mariadb_ha_bootstrap.host }}"
+  when: _mariadb_ha_ready | length > 0
+
+- name: "🔍 MariaDB HA | Resolve the writer"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+  vars:
+    primary_application_id: "{{ application_id }}"
+    primary_output_prefix: "MARIADB"
+
+- name: "🌱 MariaDB HA | Seed and attach the remaining instances"
+  include_tasks: 05_seed.yml
+  loop: >-
+    {{ (_mariadb_ha_pending | rejectattr('item.service', 'equalto', _mariadb_ha_bootstrap.service) | list)
+       if (_mariadb_ha_ready | length == 0) else _mariadb_ha_pending }}
+  loop_control:
+    loop_var: mariadb_seed
+    label: "{{ mariadb_seed.item.service }}"
+
+- name: "🔒 MariaDB HA | Require a majority from now on"
+  ansible.builtin.shell: |
+    container exec {{ lookup('container_address', application_id, entity_name, instance=item) }} rm -f {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }}
+  changed_when: false
+  delegate_to: "{{ item.host }}"
+  loop: "{{ MARIADB_INSTANCES.instances }}"
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: "👤 MariaDB HA | Reconcile the replication and elector users on the writer"
+  ansible.builtin.shell: >
+    container exec -i {{ MARIADB_PRIMARY_CID | quote }}
+    {{ MARIADB_HA_SQL }}
+  args:
+    stdin: |
+      SET @replication_pwd := {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      SET @elector_pwd := {{ MARIADB_ELECTOR_PWD | mariadb_sql_literal }};
+      {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
+  delegate_to: "{{ MARIADB_PRIMARY_NODE }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

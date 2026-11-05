@@ -9,4 +9,4 @@ flags:
     unsafe-eval: true # nocheck: csp-unsafe  Reason: the WebAdmin bundle builds functions dynamically at runtime; blocked, the SPA aborts during boot with an EvalError before it renders.
 whitelist:
   connect-src:
-    - "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$', '') }}"
+    - "{{ lookup('tls', 'web-app-keycloak', 'url.origin') }}"

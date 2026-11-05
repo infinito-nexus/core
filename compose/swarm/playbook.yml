@@ -17,6 +17,8 @@
     lab_mgr: "{{ lookup('env', 'MGR') }}"
     lab_wrk1: "{{ lookup('env', 'WRK1') }}"
     lab_wrk2: "{{ lookup('env', 'WRK2') }}"
+    lab_mgr2: "{{ lookup('env', 'MGR2') }}"
+    lab_mgr3: "{{ lookup('env', 'MGR3') }}"
     lab_nfs: "{{ lookup('env', 'NFS_SERVER') }}"
     lab_backup: "{{ lookup('env', 'BACKUP_NODE') }}"
     lab_domain: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
@@ -26,13 +28,16 @@
     lab_sampler_log: "{{ lookup('env', 'INFINITO_DNS53_SAMPLER_LOG') }}"
     lab_systemd_timeout: "{{ lookup('env', 'SWARM_PILOT_SYSTEMD_TIMEOUT') | default('180', true) }}"
     lab_is_mgr: "{{ inventory_hostname == lab_mgr }}"
-    lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
+    lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2, lab_mgr2, lab_mgr3] }}"
     lab_dns_node: "{{ lab_is_mgr or lab_is_worker or inventory_hostname == lab_nfs }}"
     lab_domain_target: "{{ lookup('env', 'INFINITO_SWARM_MGR_IP') }}"
     lab_filesystem: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM') }}"
     lab_filesystem_required: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM_REQUIRED') | default('false', true) }}"
     lab_dataroot_size: "{{ '60G' if lab_is_mgr else '30G' }}"
-    lab_no_proxy: "localhost,127.0.0.1,::1,infinito-registry-cache,{{ lab_mgr }},{{ lab_wrk1 }},{{ lab_wrk2 }},{{ lab_nfs }},{{ lab_backup }},gcr.io,storage.googleapis.com,googleusercontent.com"
+    lab_shared_cache: "{{ lookup('env', 'INFINITO_CACHE_SHARED_HOST_PATH') }}"
+    lab_host_pacman_cache: "{{ lookup('env', 'INFINITO_CACHE_HOST_PACMAN_PATH') }}"
+    lab_no_proxy: "{{ (NETWORK_LOOPBACK_HOSTS + ['infinito-registry-cache', lab_mgr, lab_wrk1, lab_wrk2, lab_mgr2, lab_mgr3, lab_nfs, lab_backup, 'gcr.io',
+      'storage.googleapis.com', 'googleusercontent.com']) | join(',') }}"
   tasks:
     - name: require the lab manager IP (lookup('env') yields '' for a missing key, and an empty dnsmasq address= is valid syntax)
       assert:
@@ -82,6 +87,23 @@
         name: systemd-user-sessions
         state: started
       timeout: 30
+
+    - name: probe the pacman cache script (mounted by shared-cache.override.yml, absent without a shared cache folder)
+      stat:
+        path: /usr/local/bin/pacman-cache.sh
+      timeout: 30
+      register: lab_pacman_cache_script
+
+    - name: layer the node pacman caches before the first install, host cache read-only first, the node download dir second and the shared cache third
+      command:
+        argv:
+          - /usr/local/bin/pacman-cache.sh
+          - /etc/pacman.conf
+          - "{{ lab_shared_cache }}"
+          - "{{ lab_host_pacman_cache }}"
+      timeout: 60
+      when: lab_pacman_cache_script.stat.exists
+      changed_when: true
 
     - name: put the node docker data root on the stated filesystem (before anything is pulled)
       script: >-

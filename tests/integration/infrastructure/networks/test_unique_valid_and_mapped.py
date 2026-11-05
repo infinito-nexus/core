@@ -1,5 +1,5 @@
 """Per: subnets declared per-role under
-``meta/networks.yml.local.subnet`` MUST be valid, unique, and
+``meta/networks.yml.local.subnet`` and ``internal.subnet`` MUST be valid, unique, and
 non-overlapping across the role tree."""
 
 from __future__ import annotations
@@ -27,20 +27,22 @@ class TestNetworksUniqueValidAndMapped(unittest.TestCase):
             if not networks_file.is_file():
                 continue
             networks_data = load_yaml_any(str(networks_file)) or {}
-            local = networks_data.get("local")
-            if not isinstance(local, dict):
-                continue
-            subnet = local.get("subnet")
-            if not isinstance(subnet, str):
-                continue
-            try:
-                cls.role_to_subnet[role_path.name] = ipaddress.IPv4Network(
-                    subnet.strip()
-                )
-            except (ValueError, ipaddress.AddressValueError) as exc:
-                raise AssertionError(
-                    f"Invalid subnet for role '{role_path.name}': {subnet!r} ({exc})"
-                ) from exc
+            for section, key in (
+                ("local", role_path.name),
+                ("internal", f"{role_path.name}:internal"),
+            ):
+                block = networks_data.get(section)
+                if not isinstance(block, dict):
+                    continue
+                subnet = block.get("subnet")
+                if not isinstance(subnet, str):
+                    continue
+                try:
+                    cls.role_to_subnet[key] = ipaddress.IPv4Network(subnet.strip())
+                except (ValueError, ipaddress.AddressValueError) as exc:
+                    raise AssertionError(
+                        f"Invalid subnet for '{key}': {subnet!r} ({exc})"
+                    ) from exc
 
     def test_unique_subnets(self):
         seen: dict[ipaddress.IPv4Network, str] = {}

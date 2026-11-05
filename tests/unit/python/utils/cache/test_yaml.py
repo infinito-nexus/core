@@ -7,11 +7,13 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from utils.cache.yaml import (
+    TaggedValue,
     _reset_cache_for_tests,
     dump_yaml,
     invalidate,
     load_yaml,
     load_yaml_any,
+    load_yaml_tagged,
 )
 
 
@@ -156,6 +158,39 @@ class TestInvalidate(unittest.TestCase):
 
     def test_invalidate_unknown_path_is_noop(self):
         invalidate(self.tmp / "never-loaded.yml")
+
+
+class TestLoadYamlTagged(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        self._tmp = TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.path = Path(self._tmp.name) / "inventory.yml"
+        self.path.write_text(
+            "motd: !unsafe '{{ literal }}'\n"
+            "secret: !vault |\n"
+            "  $ANSIBLE_VAULT;1.1;AES256\n"
+            "  6162\n"
+            "hosts: !custom [a, b]\n"
+            "plain: value\n",
+            encoding="utf-8",
+        )
+
+    def test_every_local_tag_loads_as_its_raw_value(self):
+        self.assertEqual(
+            {
+                "motd": TaggedValue("!unsafe", "{{ literal }}"),
+                "secret": TaggedValue("!vault", "$ANSIBLE_VAULT;1.1;AES256\n6162\n"),
+                "hosts": TaggedValue("!custom", ["a", "b"]),
+                "plain": "value",
+            },
+            load_yaml_tagged(self.path),
+        )
+
+    def test_load_yaml_any_still_reads_vault_as_its_ciphertext(self):
+        self.path.write_text("secret: !vault abc\n", encoding="utf-8")
+        load_yaml_tagged(self.path)
+        self.assertEqual({"secret": "abc"}, load_yaml_any(self.path))
 
 
 if __name__ == "__main__":

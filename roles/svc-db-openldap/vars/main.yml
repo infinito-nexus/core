@@ -1,6 +1,6 @@
 ---
 application_id: "svc-db-openldap"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
 OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ OPENLDAP_PORT }}"
@@ -20,6 +20,8 @@ OPENLDAP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name
 OPENLDAP_SERVICE: "{{ entity_name }}"
 OPENLDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 OPENLDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
+OPENLDAP_LDAPSM_COMMAND: |-
+  {{ ansible_python_interpreter }} -c 'import sys; from ldapsm.__main__ import main; sys.argv = ["ldapsm", *sys.argv[1:], "-W", sys.stdin.readline().rstrip("\n")]; sys.exit(main())'
 
 OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'services.openldap.network.public') }}"
 OPENLDAP_NETWORK_SWITCH_LOCAL: "{{ lookup('config', application_id, 'services.openldap.network.local') }}"
@@ -33,6 +35,49 @@ OPENLDAP_PROVISION_USERS: "{{ lookup('config', application_id, 'services.openlda
 OPENLDAP_PROVISION_GROUPS: "{{ lookup('config', application_id, 'services.openldap.provision.groups') }}"
 OPENLDAP_PROVISION_UPDATE: "{{ lookup('config', application_id, 'services.openldap.provision.update') }}"
 OPENLDAP_USERS: "{{ lookup('users_non_reserved') }}"
+
+OPENLDAP_SCHEMAS:
+  - name: nextcloud
+    attribute_types:
+      - "( 1.3.6.1.4.1.99999.1 NAME '{{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA }}' DESC 'Quota for Nextcloud' EQUALITY integerMatch ORDERING integerOrderingMatch SYNTAX
+        1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )"
+    object_classes:
+      - "( 1.3.6.1.4.1.99999.2 NAME '{{ LDAP.USER.OBJECTS.AUXILIARY.NEXTCLOUD_USER }}' DESC 'Auxiliary class for Nextcloud attributes' AUXILIARY MAY ( {{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA
+        }} ) )"
+  - name: openssh-lpk
+    attribute_types:
+      - "( 1.3.6.1.4.1.24552.1.1 NAME '{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}' DESC 'OpenSSH Public Key' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40
+        )"
+      - "( 1.3.6.1.4.1.24552.1.2 NAME 'sshFingerprint' DESC 'OpenSSH Public Key Fingerprint' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )"
+    object_classes:
+      - "( 1.3.6.1.4.1.24552.2.1 NAME '{{ LDAP.USER.OBJECTS.AUXILIARY.SSH_PUBLIC_KEY }}' DESC 'Auxiliary class for OpenSSH public keys' SUP top AUXILIARY MAY ( {{
+        LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }} $ sshFingerprint ) )"
+  - name: moodle
+    attribute_types:
+      - "( 1.3.6.1.4.1.99999.10 NAME 'infinitoNamePhoneticGiven' DESC 'Phonetic given name (Moodle field firstnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.11 NAME 'infinitoNamePhoneticFamily' DESC 'Phonetic family name (Moodle field lastnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.12 NAME 'infinitoTimezone' DESC 'IANA timezone name (Moodle field timezone)' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+        SINGLE-VALUE )"
+    object_classes:
+      - "( 1.3.6.1.4.1.99999.13 NAME 'infinitoMoodleUser' DESC 'Auxiliary class for Moodle-only user attributes' AUXILIARY MAY ( infinitoNamePhoneticGiven $ infinitoNamePhoneticFamily
+        $ infinitoTimezone ) )"
+
+OPENLDAP_DB: "{{ lookup('db_instances', application_id) }}"
+OPENLDAP_HA: "{{ OPENLDAP_DB.form == 'ha' }}"
+OPENLDAP_HA_HOST_IDS: "{{ OPENLDAP_DB.instances | map(attribute='host_id') | list }}"
+OPENLDAP_HA_INSTANCE_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.internal.instance') }}"
+OPENLDAP_CONTAINER_PORT: "{{ OPENLDAP_HA_INSTANCE_PORT if OPENLDAP_HA | bool else lookup('config', application_id, 'services.openldap.ports.internal.ldap') }}"
+OPENLDAP_HA_WRITER_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.internal.writer') }}"
+OPENLDAP_HA_PEER_TEMPLATE: "{{ entity_name }}-{host}:{{ OPENLDAP_HA_INSTANCE_PORT }}"
+OPENLDAP_HA_CN_CONFIG_SOURCE: "{{ lookup('volume', application_id, 'cn_config', field='source') }}"
+OPENLDAP_HA_CN_CONFIG_DIR: "{{ OPENLDAP_HA_CN_CONFIG_SOURCE | dirname }}"
+OPENLDAP_HA_ETCD_PASSWORD_FILE: "{{ lookup('volume', application_id, 'elector_etcd_password', field='source') }}"
+OPENLDAP_HA_ETCD_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.etcd_password') }}"
+OPENLDAP_HA_ETCD_USER: "{{ lookup('config', application_id, 'services.etcd.user') }}"
+OPENLDAP_HA_ETCD_KEY: "{{ lookup('config', application_id, 'services.etcd.prefix') }}writer"
+OPENLDAP_HA_DATABASE_DN: "olcDatabase={1}mdb,cn=config"
 
 OPENLDAP_PYTHON_HEADER_PACKAGE_TEMPLATES_BY_OS_FAMILY:
   Debian:

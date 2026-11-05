@@ -98,21 +98,27 @@ def iter_relay_ranges() -> Iterable[tuple[str, str, int, int]]:
 
 
 def iter_subnets() -> Iterable[tuple[str, ipaddress.IPv4Network]]:
-    """Yield ``(role, subnet)`` for every role that declares a local subnet."""
+    """Yield ``(role, subnet)`` for every role that declares a local subnet,
+    plus ``(<role>:internal, subnet)`` for a declared engine-internal overlay.
+    """
     for role_dir in iter_role_dirs():
         networks = _load_yaml(role_dir / ROLE_FILE_META_NETWORKS)
         if not isinstance(networks, dict):
             continue
-        local = networks.get("local")
-        if not isinstance(local, dict):
-            continue
-        subnet_str = local.get("subnet")
-        if not isinstance(subnet_str, str):
-            continue
-        try:
-            yield role_dir.name, ipaddress.IPv4Network(subnet_str.strip())
-        except (ipaddress.AddressValueError, ValueError):
-            continue
+        for section, key in (
+            ("local", role_dir.name),
+            ("internal", f"{role_dir.name}:internal"),
+        ):
+            block = networks.get(section)
+            if not isinstance(block, dict):
+                continue
+            subnet_str = block.get("subnet")
+            if not isinstance(subnet_str, str):
+                continue
+            try:
+                yield key, ipaddress.IPv4Network(subnet_str.strip())
+            except (ipaddress.AddressValueError, ValueError):
+                continue
 
 
 def occupied_ports_for(scope: str, category: str) -> list[int]:

@@ -6,10 +6,12 @@
   ansible.builtin.shell:
     cmd: >
       container exec -i --user {{ WORDPRESS_USER | quote }}
-      -e {{ ('AI_ENGINE_PAYLOAD=' ~ (lookup('config', application_id, 'addons.ai-engine.config') | to_json | b64encode)) | quote }}
+      -e AI_ENGINE_PAYLOAD
       {{ WORDPRESS_CONTAINER_ADDRESS }}
       wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
     stdin: "{{ lookup('file', 'php/ai_engine/configure.php') }}"
+  environment:
+    AI_ENGINE_PAYLOAD: "{{ lookup('config', application_id, 'addons.ai-engine.config') | to_json | b64encode }}"
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

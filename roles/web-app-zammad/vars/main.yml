@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-zammad"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 ZAMMAD_PRECHECK_SERVICE: "precheck"
 ZAMMAD_INIT_SERVICE: "init"
@@ -34,18 +34,27 @@ ZAMMAD_SEARCH_READY_SECONDS: 600
 ZAMMAD_SEARCH_POLL_SECONDS: 5
 ZAMMAD_SEARCH_ALLOCATION_TIMEOUT_SECONDS: 60
 
-# Exception: env.j2 must never set DATABASE_URL. The image's config/pre_initializers/database_url.rb
-# builds it from POSTGRESQL_* only while DATABASE_URL is blank, so presetting it drops
-# POSTGRESQL_OPTIONS and Rails falls back to its default pool of 5, below the thread count
-# BackgroundServices starts in the scheduler.
 ZAMMAD_DB_POOL: 50
 
+ZAMMAD_ADMINISTRATOR: "{{ lookup('users', 'platform_administrator') }}"
 ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
 ZAMMAD_WIZARD_BYPASS_USER: "{{ lookup('users', 'zammad-wizard-bypass-admin') }}"
 ZAMMAD_API_BOT_PASSWORD: "{{ ZAMMAD_API_BOT_USER.password }}"
 ZAMMAD_WIZARD_BYPASS_PASSWORD: "{{ ZAMMAD_WIZARD_BYPASS_USER.password }}"
 ZAMMAD_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.initial_admin_password') }}"
 ZAMMAD_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'secrets.credentials.secret_key_base') }}"
+
+ZAMMAD_PRODUCT_NAME: "{{ SOFTWARE_NAME }} Helpdesk"
+ZAMMAD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+ZAMMAD_DESIGN_LOGO_ENABLED: "{{ ZAMMAD_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+ZAMMAD_DESIGN_TITLE: "{{ lookup('design', application_id).title if ZAMMAD_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+ZAMMAD_DESIGN_DEFAULT_NAMES:
+  - "Zammad Helpdesk"
+  - "{{ ZAMMAD_PRODUCT_NAME }}"
+ZAMMAD_DESIGN_BRAND_FILE: "{{ [lookup('design', application_id).dest, 'brand.svg'] | path_join }}"
+ZAMMAD_DESIGN_BRAND_URL: "{{ lookup('design', application_id).urls.brand.svg if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
+ZAMMAD_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.svg if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
+ZAMMAD_DESIGN_FAVICON_URL: "{{ lookup('design', application_id).urls.favicon_ico if ZAMMAD_DESIGN_LOGO_ENABLED | bool else '' }}"
 
 ZAMMAD_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ZAMMAD_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
@@ -60,14 +69,23 @@ ZAMMAD_TELEGRAM_HELPER_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}telegram_helper.rb"
 ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_role_mapping.rb"
 
 ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_http_discovery.rb"
-ZAMMAD_OIDC_GROUP_ROLE_MAP:
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/administrator": "Admin"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/agent": "Agent"
-  "/{{ RBAC.GROUP.NAME | trim('/') }}/{{ application_id }}/customer": "Customer"
+ZAMMAD_NETWORK_ORIGINS_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_network_origins.rb"
+ZAMMAD_NETWORK_BASE_URLS: "{{ lookup('network_urls', lookup('tls', application_id, 'url.base')) }}"
+ZAMMAD_OIDC_ROLE_GRANTS:
+  administrator: ["Admin", "Agent"]
+  agent: ["Agent"]
+  customer: ["Customer"]
+ZAMMAD_OIDC_GROUP_ROLE_MAP: >-
+  {{ {
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ZAMMAD_OIDC_ROLE_GRANTS.administrator,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='agent'): ZAMMAD_OIDC_ROLE_GRANTS.agent,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ZAMMAD_OIDC_ROLE_GRANTS.customer,
+     } }}
 
 ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
 ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
 ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
+ZAMMAD_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
 ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"

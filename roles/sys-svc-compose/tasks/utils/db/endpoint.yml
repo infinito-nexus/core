@@ -1,0 +1,25 @@
+---
+# Param: application_id             - central engine role rendering its write endpoint; its meta declares ha.endpoint
+# Param: db_endpoint_check_user     - optional ACL user of a redis-type check
+# Param: db_endpoint_check_password - optional password of that user
+- name: "📄 Render the HAProxy write endpoint config for {{ application_id }}"
+  when:
+    - lookup('db_instances').form == 'ha'
+    - IS_STACK_HOST | bool
+  block:
+    - name: "✅ Ensure {{ application_id }} volumes directory exists"
+      # nocheck: path-single-owner  every setter of this path sets the identical mode 0755
+      ansible.builtin.file:
+        path: "{{ lookup('container', application_id, 'directories.volumes') }}"
+        state: directory
+        mode: "0755"
+
+    - name: "📄 Write haproxy.cfg for {{ application_id }}"
+      ansible.builtin.copy:
+        content: >-
+          {{ lookup('db_endpoint',
+                    check_user=db_endpoint_check_user | default(none),
+                    check_password=db_endpoint_check_password | default(none)) }}
+        dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'haproxy.cfg'] | path_join }}"
+        mode: "0600"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

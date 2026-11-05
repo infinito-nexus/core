@@ -1,16 +1,4 @@
 ---
-- name: ⏳ Wait until application container is up
-  ansible.builtin.shell: >-
-    container ps
-    --filter {{ ('label=com.docker.swarm.service.name=' ~ lookup('container_service', application_id, SNIPE_IT_SERVICE)) if DEPLOYMENT_MODE == 'swarm' else ('name=^'
-    ~ lookup('container_service', application_id, SNIPE_IT_SERVICE) ~ '$') }}
-    --format '{% raw %}{{.ID}}{% endraw %}'
-  register: snipeit_app_id
-  retries: 30
-  delay: 5
-  until: snipeit_app_id.stdout | length > 0
-  changed_when: false
-
 - name: "⏳ Wait until the Snipe-IT Service is available"
   uri_retry:
     url: "{{ SNIPE_IT_URL }}"
@@ -23,25 +11,42 @@
   until: snipeit_admin_check.status == 200
 
 - name: ▶️ Run Snipe-IT migrations (idempotent)
-  ansible.builtin.shell: >-
-    container exec -i
-    -e APP_KEY="{{ SNIPE_IT_APP_KEY }}"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE, which may be a worker
+    IFS= read -r APP_KEY && export APP_KEY && container exec -i
+    -e APP_KEY
     -e XDG_CONFIG_HOME=/tmp
-    {{ SNIPE_IT_CONTAINER_ADDRESS }}
+    {{ SNIPE_IT_LOCAL_CID | quote }}
     php artisan migrate --force
+  args:
+    stdin: "{{ SNIPE_IT_APP_KEY }}"
   register: snipeit_migrate
   changed_when: >
     ('Migrating:' in snipeit_migrate.stdout)
     or ('Migrated:' in snipeit_migrate.stdout)
   failed_when: snipeit_migrate.rc != 0
+  delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
 
-- name: 🌱 Seed Snipe-IT database (optional, safe to rerun if seeder is idempotent)
-  ansible.builtin.shell: >-
-    container exec -i
-    -e APP_KEY="{{ SNIPE_IT_APP_KEY }}"
+- name: 🌱 Seed the Snipe-IT demo data
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE, which may be a worker
+    IFS= read -r APP_KEY && export APP_KEY && container exec -i
+    -e APP_KEY
     -e XDG_CONFIG_HOME=/tmp
-    {{ SNIPE_IT_CONTAINER_ADDRESS }}
+    {{ SNIPE_IT_LOCAL_CID | quote }}
     php -d memory_limit={{ lookup('service_memory_mb', application_id, SNIPE_IT_SERVICE, 0.25) }}M artisan db:seed --force
-  register: snipeit_seed
-  changed_when: "'Seeding:' in snipeit_seed.stdout"
-  failed_when: snipeit_seed.rc != 0
+  args:
+    stdin: "{{ SNIPE_IT_APP_KEY }}"
+  register: snipeit_demo_seed
+  changed_when: true
+  delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
+  when: MODE_DEMO | bool
+
+- name: "⚙️ Create the Snipe-IT settings row when none exists"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE, which may be a worker
+      container exec -i
+      -e SNIPE_IT_INITIAL_SETTINGS={{ SNIPE_IT_INITIAL_SETTINGS | to_json | quote }}
+      {{ SNIPE_IT_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/ensure_settings.php') }}"
+  register: snipeit_settings
+  changed_when: snipeit_settings.stdout_lines | last == 'changed'
+  delegate_to: "{{ SNIPE_IT_HOST_NODE }}"

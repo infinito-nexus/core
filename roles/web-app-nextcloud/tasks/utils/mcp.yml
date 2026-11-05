@@ -1,20 +1,20 @@
 ---
 - name: "🔍 Resolve the Nextcloud hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD
     resolve_compose_cid: "{{ NEXTCLOUD_CONTAINER }}"
 
 - name: "🔍 Resolve the proxy hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_PROXY_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD_PROXY
     resolve_compose_cid: "{{ NEXTCLOUD_PROXY_CONTAINER }}"
 
 - name: "🔍 Resolve the Context Agent hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD_CONTEXT_AGENT
@@ -63,19 +63,20 @@
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: nextcloud_mcp_probe is not defined or nextcloud_mcp_probe.stdout != '200'
 
-- name: "♻️ Re-register the ExApp a rotated app secret left behind"
-  ansible.builtin.include_tasks:
-    file: "{{ role_path }}/tasks/utils/mcp/register.yml"
-    apply:
-      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
-      run_once: true
-  vars:
-    nextcloud_exapp_renew: true
+- name: "♻️ Repair the MCP endpoint a rotated app secret left behind"
   when: nextcloud_mcp_probe.stdout != '200'
+  block:
+    - name: "♻️ Re-register the ExApp a rotated app secret left behind"
+      ansible.builtin.include_tasks:
+        file: "{{ role_path }}/tasks/utils/mcp/register.yml"
+        apply:
+          delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+          run_once: true
+      vars:
+        nextcloud_exapp_renew: true
 
-- name: "🩺 Re-check the endpoint behind the re-registered ExApp"
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
-  when: nextcloud_mcp_probe.stdout != '200'
+    - name: "🩺 Re-check the endpoint behind the re-registered ExApp"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
 
 - name: "🛑 Refuse an MCP endpoint that rejects the stored app password"
   ansible.builtin.assert:
@@ -95,6 +96,7 @@
 
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }} now the credential exists"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+  when: not mcp_upstream_written.changed
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers

@@ -123,9 +123,14 @@ The install-test workflows listed in the `Infrastructure tests` table of [workfl
 
 The `test-workspace` stage runs the workspace workflow listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md).
 
-### 12. Done 🏁
+### 12. Swarm Data Failover 🗄️
 
-The final `done` job aggregates all deploy, install, and development gates. CI is considered green only when this job succeeds.
+The `test-swarm-data` stage runs the failover suite listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) against the HA database stack.
+It runs only while the `INFINITO_CI_SWARM_DATA` repository variable is `true`, see [configuration.md](../../tools/github/actions/configuration.md); otherwise it is skipped, which `done` treats as passed.
+
+### 13. Done 🏁
+
+The final `done` job aggregates all deploy, install, swarm data, and development gates. CI is considered green only when this job succeeds.
 
 ## Concurrency 🔀
 

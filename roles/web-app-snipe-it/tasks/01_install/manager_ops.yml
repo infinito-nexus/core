@@ -1,14 +1,33 @@
 ---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ SNIPE_IT_SERVICE }}"
+    resolve_output_prefix: SNIPE_IT
+    resolve_compose_cid: "{{ SNIPE_IT_CONTAINER }}"
+
 - name: "📋 Installation Procedures"
   include_tasks: ../01_install.yml
 
 - name: "🔧 Configure Snipe-IT LDAP settings"
-  include_tasks: ../02_ldap.yml
+  include_tasks:
+    file: ../02_ldap.yml
+    apply:
+      delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
   when: SNIPE_IT_LDAP_ENABLED | bool
 
 - name: "📁 Create bootstrap Snipe-IT administrator"
-  include_tasks: ../03_admin.yml
+  include_tasks:
+    file: ../03_admin.yml
+    apply:
+      delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
 
 - name: "🔧 Configure Snipe-IT trusted-header SSO bridge"
-  include_tasks: ../04_sso.yml
+  include_tasks:
+    file: ../04_sso.yml
+    apply:
+      delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
   when: SNIPE_IT_SSO_ENABLED | bool
+
+- name: "🎨 Apply the corporate design"
+  include_tasks: ../05_design.yml

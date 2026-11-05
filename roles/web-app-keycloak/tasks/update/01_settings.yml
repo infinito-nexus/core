@@ -1,0 +1,28 @@
+---
+- name: "🛑 Refuse clients the realm dictionary of '{{ KEYCLOAK_REALM }}' lacks"
+  ansible.builtin.assert:
+    that: KEYCLOAK_SETTINGS_MISSING_CLIENT_IDS | length == 0
+    fail_msg: "The realm dictionary of '{{ KEYCLOAK_REALM }}' declares no client {{ KEYCLOAK_SETTINGS_MISSING_CLIENT_IDS | join(', ') }}"
+    quiet: true
+
+- name: "🔄 Converge client scopes, clients and realm mail settings over REST"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: realm_settings.py
+    rest_script_env: {}
+    rest_script_stdin: "{{ KEYCLOAK_SETTINGS_SPEC | to_json }}"
+    rest_script_ok_rcs: [0, 1]
+    rest_script_changed: "(created|updated)=[1-9]"
+    rest_script_register: kc_settings
+
+- name: "📊 Report how many client scopes, clients and realms changed"
+  ansible.builtin.debug:
+    msg: "{{ kc_settings.stdout_lines | select('match', '^summary ') | list }}"
+
+- name: "⚠️ Report the client scopes, clients and realms that failed"
+  ansible.builtin.fail:
+    msg: "{{ (kc_settings.stdout_lines | select('match', '^(failed|listing-failed) ') | list) + kc_settings.stderr_lines }}"
+  when: kc_settings.rc != 0

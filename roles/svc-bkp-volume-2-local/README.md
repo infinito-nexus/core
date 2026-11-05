@@ -9,55 +9,7 @@ File payloads are captured with rsync hard-link snapshots; databases register th
 
 This role installs the `baudolo` CLI, lays out the on-host backup tree, deploys the systemd service that drives the periodic run, and wires the cleanup-of-failed-backups dependency so partial snapshots are not retained.
 Database seeding for individual apps is contributed by the consumer roles via `tasks/03_seed-database-to-backup.yml`, which they include conditionally once `svc-bkp-volume-2-local` is in `group_names`.
-
-## Cosmos
-
-The diagram places Backup Docker Volumes in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_secrets_2_local["svc-bkp-secrets-2-local 💻"]
-        dep_sys_ctl_cln_faild_bkps["sys-ctl-cln-faild-bkps 💻 ⚙️"]
-    end
-    subgraph role [svc-bkp-volume-2-local 💻]
-        svc_volume_2_local["volume-2-local"]
-        svc_test["test ❌"]
-        svc_secrets_backup["secrets_backup"]
-    end
-    subgraph dependents [Dependents]
-        dpt_svc_ai_lmstudio["svc-ai-lmstudio 🐳🐝"]
-        dpt_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
-        dpt_svc_db_elasticsearch["svc-db-elasticsearch 🐳🐝"]
-        dpt_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
-        dpt_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dpt_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dpt_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
-        dpt_svc_db_rabbitmq["svc-db-rabbitmq 🐳🐝"]
-        dpt_svc_db_redis["svc-db-redis 🐳🐝"]
-        dpt_svc_db_typesense["svc-db-typesense 🐳🐝"]
-        dpt_svc_dns_unbound["svc-dns-unbound 🐳🐝"]
-        dpt_svc_prx_openresty["svc-prx-openresty 🐳🐝"]
-        dpt_more["..."]
-    end
-    dep_svc_bkp_secrets_2_local -- "1:1" --> svc_secrets_backup
-    dep_sys_ctl_cln_faild_bkps -- "1:1" --> svc_volume_2_local
-    svc_volume_2_local -- "1:1" --> dpt_more
-    svc_volume_2_local -. "0..1" .-> dpt_svc_ai_lmstudio
-    svc_volume_2_local -. "0..1" .-> dpt_svc_ai_ollama
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_elasticsearch
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_mariadb
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_openldap
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_postgres
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_qdrant
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_rabbitmq
-    svc_volume_2_local -- "1:1" --> dpt_svc_db_redis
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_typesense
-    svc_volume_2_local -- "1:1" --> dpt_svc_dns_unbound
-    svc_volume_2_local -- "1:1" --> dpt_svc_prx_openresty
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+The first seed of a play reads `databases.csv` once through `tasks/05_read-seeded-databases.yml`; a consumer whose row already holds its credentials skips `baudolo-seed`, every other consumer still calls it at its own point in the play.
 
 ## Schema
 
@@ -87,7 +39,7 @@ flowchart TD
 
 - **Per-container snapshots:** rsync `--link-dest` snapshots deduplicate unchanged files across runs.
 - **Database-aware:** consumer apps seed their connection metadata into a central `databases.csv`, so the same run can dump SQL state alongside the file payload.
-- **Live-aware:** containers tagged `no_stop_required` stay running during the dump; others stop briefly and resume.
+- **Live-aware:** containers tagged `stop_required: false` stay running during the dump; others stop briefly and resume.
 - **Snapshot-aware:** on a btrfs data root the whole run is captured from one atomic filesystem snapshot with no container stopped; the host is probed before every run and falls back to the live copy when a snapshot would not be faithful.
 - **Systemd-driven:** a generated unit fires on the configured schedule (`SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL`), serialised against other backup/cleanup/repair groups by `sys-lock`.
 - **Self-cleaning:** failed backup attempts are torn down by `sys-ctl-cln-faild-bkps` so a broken run cannot poison the next.
@@ -175,45 +127,6 @@ is the point of stating it. Before every snapshot the launcher also removes the
 To make snapshots possible on a host that refuses them, give the docker data root
 its own btrfs subvolume and install `btrfs-progs`.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Backup Docker Volumes onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=svc-bkp-volume-2-local full_cycle=false
-```
-
-### Production
-
-Install Backup Docker Volumes directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-bash scripts/install/package.sh
-make install
-source scripts/meta/env/load.sh
-
-APP=svc-bkp-volume-2-local
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-INVENTORY=inventories/production
-infinito administration inventory provision "$INVENTORY" \
-  --inventory-file "$INVENTORY/devices.yml" \
-  --host localhost \
-  --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
-infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-  --password-file "$INVENTORY/.password" \
-  --diff -vv
-```
-
 ## NFS-backed volumes
 
 When a host runs Docker Swarm with NFSv4-backed shared volumes
@@ -248,6 +161,21 @@ export on the next mount. The DR drill proves the mounted path once
 per swarm run: it mounts the export at the volume's mountpoint with
 the volume's own driver options, restores through it, and asserts the
 marker on the server's disk.
+
+## Database HA on Swarm
+
+When a database engine lists more than one host in its inventory group, every host holding one of its instances runs this unit, and `databases.csv` is copied from `STACK_HOST` to each of them. The unit starts baudolo through `baudolo-ha-gate`:
+
+- It asks each local Postgres instance (Patroni `GET /primary`) and each local MariaDB or OpenLDAP instance (elector `GET /writer`) whether it is the primary or writer.
+- The data volume of every local instance that is not is passed to `--volumes-no-backup-required`, so replicas are neither dumped nor copied. A failover moves the backup with the primary.
+- When a Postgres or MariaDB primary's volume carries no SQL dump in the new generation, the unit fails and the file copy baudolo fell back to is deleted. A live file copy of a database volume is not a backup. OpenLDAP has no baudolo dump, so its writer's volume is copied as files, as in the standalone form.
+- Redis and etcd are not backed up.
+
+`svc-bkp-remote-2-local` pulls from every instance host in addition to its configured `backup_providers`.
+
+Before migrating an engine from standalone to HA, the deploy starts this unit on `STACK_HOST`, waits for it and aborts when it fails. A restart-requiring change in the HA form does the same on the primary's host through `roles/sys-svc-compose/tasks/utils/db/pre_change_backup.yml`.
+
+After a migration, a health gate requires exactly one reachable primary or writer behind the write endpoint. If it fails before the new instances have joined, remove the added hosts from the engine group and re-run: the engine returns to standalone on the untouched legacy volume. Restore damaged data from the pre-migration backup. Going back from HA to standalone in place is not supported; restore a backup into the standalone form instead.
 
 ## Recover
 
@@ -306,9 +234,3 @@ recover.py <backups>/<machine-hash>/backup-docker-to-local/<generation>/<volume>
 1. Stop the consuming project (`docker compose down` / `docker stack rm <stack>`).
 2. Run the script; it first starts the role's deployed backup unit (a fresh differential baudolo generation of every volume and database), resolves the volume's mountpoint and mirrors the snapshot into it (`rsync -aHAX --delete`). `--no-safety-backup` skips the unit run when the target holds nothing worth saving.
 3. Restore the databases with the `--databases` mode above **while the project is still down**, then start it again; on swarm, NFS-backed volumes are restored via `svc-bkp-nfs-2-local`'s `recover.py` instead (see below).
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

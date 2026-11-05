@@ -8,7 +8,9 @@ Usage in any service template:
 
 Pass ``provider_self_alias=False`` for a sidecar service that must not carry the
 provider's own alias, and ``own_network_only=True`` for one that must not
-inherit the networks its provider joins as a consumer.
+inherit the networks its provider joins as a consumer. ``internal=True`` adds
+the engine-internal overlay; ``roles_only`` / ``roles_exclude`` filter the
+provider overlays by role id; ``include_default=False`` drops ``default``.
 """
 
 from __future__ import annotations
@@ -20,7 +22,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.networks.lookup_context import build_context, resolve_var
 from utils.networks.render import render_container_networks
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -46,11 +48,15 @@ class LookupModule(LookupBase):
                 application_id=str(application_id),
                 deployment_mode=ctx.deployment_mode,
                 registry=ctx.registry,
-                get_entity_name=get_entity_name,
+                entity_name=entity_name,
                 lookup_config=ctx.lookup_config,
                 lookup_database=ctx.lookup_database,
                 provider_self_alias=bool(kwargs.get("provider_self_alias", True)),
                 node_local=bool(kwargs.get("node_local", False)),
                 own_network_only=bool(kwargs.get("own_network_only", False)),
+                internal=bool(kwargs.get("internal", False)),
+                roles_only=kwargs.get("roles_only"),
+                roles_exclude=kwargs.get("roles_exclude"),
+                include_default=bool(kwargs.get("include_default", True)),
             )
         ]

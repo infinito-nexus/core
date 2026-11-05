@@ -7,10 +7,8 @@ from pathlib import Path
 
 # nocheck: project-root-import
 _BASE_DIR = str(Path(__file__).resolve().parents[2])
-_MODULE_UTILS_DIR = str(Path(_BASE_DIR) / "utils")
-for _p in (_BASE_DIR, _MODULE_UTILS_DIR):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+if _BASE_DIR not in sys.path:
+    sys.path.insert(0, _BASE_DIR)
 
 from utils.roles.applications.status_codes import (  # noqa: E402
     accepted_status_codes,

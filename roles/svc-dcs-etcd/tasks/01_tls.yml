@@ -1,0 +1,112 @@
+---
+- name: "📁 ETCD | Ensure TLS directory"
+  ansible.builtin.file:
+    path: "{{ ETCD_TLS_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: "⚙️ ETCD | Generate the coordination-store CA (once)"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -x509
+      - -new
+      - -nodes
+      - -days
+      - "{{ ETCD_TLS_DAYS | string }}"
+      - -newkey
+      - "rsa:{{ ETCD_TLS_KEY_BITS }}"
+      - -keyout
+      - "{{ ETCD_TLS_CA_KEY }}"
+      - -out
+      - "{{ ETCD_TLS_CA_CERT }}"
+      - -subj
+      - "/O={{ SOFTWARE_NAME }}/CN={{ SOFTWARE_NAME }} etcd CA"
+      - -addext
+      - "basicConstraints=critical,CA:TRUE"
+      - -addext
+      - "keyUsage=critical,keyCertSign,cRLSign"
+  args:
+    creates: "{{ ETCD_TLS_CA_CERT }}"
+
+- name: "📄 ETCD | Render member certificate config (SAN = every member)"
+  ansible.builtin.template: # nocheck: stack-host-template (delegated to STACK_HOST + run_once by the parent block)
+    src: openssl.cnf.j2
+    dest: "{{ ETCD_TLS_CONF }}"
+    owner: root
+    group: root
+    mode: "0600"
+  register: etcd_tls_conf
+
+- name: "🗑️ ETCD | Drop the member certificate when the member set changed"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ ETCD_TLS_CSR }}"
+    - "{{ ETCD_TLS_CERT }}"
+  when: etcd_tls_conf.changed
+
+- name: "⚙️ ETCD | Generate member key (if missing)"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - genrsa
+      - -out
+      - "{{ ETCD_TLS_KEY }}"
+      - "{{ ETCD_TLS_KEY_BITS | string }}"
+  args:
+    creates: "{{ ETCD_TLS_KEY }}"
+
+- name: "⚙️ ETCD | Generate member CSR"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -new
+      - -key
+      - "{{ ETCD_TLS_KEY }}"
+      - -out
+      - "{{ ETCD_TLS_CSR }}"
+      - -config
+      - "{{ ETCD_TLS_CONF }}"
+  args:
+    creates: "{{ ETCD_TLS_CSR }}"
+
+- name: "✒️ ETCD | Sign member certificate with the coordination-store CA"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - x509
+      - -req
+      - -in
+      - "{{ ETCD_TLS_CSR }}"
+      - -CA
+      - "{{ ETCD_TLS_CA_CERT }}"
+      - -CAkey
+      - "{{ ETCD_TLS_CA_KEY }}"
+      - -CAcreateserial
+      - -out
+      - "{{ ETCD_TLS_CERT }}"
+      - -days
+      - "{{ ETCD_TLS_DAYS | string }}"
+      - -sha256
+      - -extfile
+      - "{{ ETCD_TLS_CONF }}"
+      - -extensions
+      - req_ext
+  args:
+    creates: "{{ ETCD_TLS_CERT }}"
+
+- name: "🔐 ETCD | Restrict private keys"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop:
+    - "{{ ETCD_TLS_CA_KEY }}"
+    - "{{ ETCD_TLS_KEY }}"

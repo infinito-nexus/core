@@ -1,0 +1,14 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.peertube.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - peertube
+update:
+  monitored: true
+  catalog: wordpress-org
+  upstream_id: video-manager-for-peertube
+config:
+  peertube_settings:
+    instance_url: "{{ lookup('tls', 'web-app-peertube', 'url.base') }}"

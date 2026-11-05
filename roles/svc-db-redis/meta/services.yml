@@ -5,7 +5,7 @@ redis:
       enabled: true
     swarm:
       enabled: true
-  # nocheck: default-placement-manager  central cache engine, node-local on-disk state (ACL file + optional AOF), single-node until redis replication is in scope
+  # nocheck: default-placement-manager  central cache engine, node-local on-disk state (ACL file + optional AOF); the HA form pins each instance to its host instead
   placement: manager
   bond: 1
   enabled: true
@@ -14,6 +14,9 @@ redis:
   name: redis-central
   version: 8.10.3-alpine
   min_storage: 238MB
+  healthcheck:
+    test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+    retries: 30
   backup:
     disabled: true
   cpus: "0.5"
@@ -28,7 +31,30 @@ redis:
     onion:
       # nocheck: onion-flag  the shared cache and queue runs without AUTH inside the stack, so its reachability must stay bounded by the role network
       redis: false
+  ha:
+    capable: true
+    primary_probe: roles/svc-db-redis/files/shell/primary_probe.sh
+    sidecar: sentinel
+    endpoint:
+      port: redis
+      check: redis
   lifecycle: beta
+sentinel:
+  backup:
+    disabled: true
+  cpus: "0.1"
+  mem_reservation: 32m
+  mem_limit: 64m
+  pids_limit: 128
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      # nocheck: volumes-path-single-spot  role meta renders before role vars and the volume lookup are bound
+      - "REDISCLI_AUTH=$$(cat /run/secrets/sentinel_password) redis-cli -p {{ lookup('config', 'svc-db-redis', 'services.sentinel.ports.internal.sentinel') }} ping
+        | grep -q PONG"
+  ports:
+    internal:
+      sentinel: 26379
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
@@ -39,3 +65,9 @@ tor:
 container_backup:
   enabled: false
   shared: true
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

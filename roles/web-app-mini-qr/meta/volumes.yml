@@ -1,0 +1,9 @@
+---
+manifest:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-mini-qr', 'directories.config'), 'manifest.webmanifest' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mini-qr
+      target: /app/dist/manifest.webmanifest
+      when: "{{ lookup('config', 'web-app-mini-qr', 'services.design.enabled') | bool }}"

@@ -1,0 +1,10 @@
+SET SESSION sql_log_bin = 0;
+SET SESSION lock_wait_timeout = 30;
+SET @sql_alter := CONCAT("ALTER USER IF EXISTS 'root'@'%' IDENTIFIED BY ", QUOTE(@root_pwd), ";");
+PREPARE stmt FROM @sql_alter;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+SET @sql_alter := CONCAT("ALTER USER IF EXISTS 'root'@'localhost' IDENTIFIED BY ", QUOTE(@root_pwd), ";");
+PREPARE stmt FROM @sql_alter;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

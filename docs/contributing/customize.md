@@ -18,3 +18,4 @@ Keys MUST already be registered (a default in `default.env` or a handler under `
 | --- | --- |
 | `INFINITO_ALIAS_REPOSITORY` | Use your own terminal alias repository; see [terminal aliases](tools/shell/alias.md). |
 | `INFINITO_SKILLS_REPOSITORY` | Use your own agent skills repository; `make install-skills` copies its skills into the project. |
+| `INFINITO_TEST_GPU` | `false` skips the GPU-only tests on a GPU host. Defaults to `true` where `INFINITO_GPU_COUNT` reserves a GPU, else `false`. |

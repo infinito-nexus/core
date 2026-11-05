@@ -6,13 +6,13 @@ To administer the central Redis instance via the `default` user, execute the fol
 
 ```bash
 # Assuming the container name is redis
-docker exec -it redis redis-cli -a "$REDIS_PASSWORD" --no-auth-warning
+docker exec -it redis sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" exec redis-cli'
 ```
 
-## Inspect a consumer ACL user
+## List ACL users
 
 ```bash
-docker exec -it redis redis-cli -a "$REDIS_PASSWORD" --no-auth-warning ACL GETUSER <entity>
+docker exec -it redis sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" exec redis-cli ACL LIST'
 ```
 
-A consumer user named `<entity>` is restricted to keys matching `<entity>:*`.
+Applications share the `default` user. The HA form adds only the `sentinel` and `haproxy-check` users.

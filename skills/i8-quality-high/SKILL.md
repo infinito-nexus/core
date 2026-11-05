@@ -7,6 +7,8 @@ description: >
   commit, a pull request, or a release. Infinito.Nexus specific.
 ---
 
+# High Quality Gate
+
 Follow the instructions from AGENTS.md, then drive `make quality-high` to green.
 It is `make quality` (docs, autoformat, test) followed by `make lint` — every
 lint target, so budget around ten minutes per pass.

@@ -104,3 +104,15 @@ def fetch_run(run_id: str, repo: str | None = None) -> dict:
     return json.loads(
         _gh(["run", "view", run_id, "--json", "jobs,displayTitle"], repo=repo)
     )
+
+
+def fetch_run_ref(run: str, repo: str) -> dict:
+    """Jobs plus the run title of a run given as a URL or a bare id.
+
+    Args:
+        run: a run URL, or a bare run id that resolves against ``repo``.
+        repo: ``owner/repo`` a bare id belongs to.
+    """
+    if run.isdigit():
+        return fetch_run(run, repo=repo)
+    return fetch_run(run_id_from_url(run), repo=slug_from_url(run))

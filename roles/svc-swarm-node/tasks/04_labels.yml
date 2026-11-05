@@ -1,11 +1,34 @@
 ---
-- name: "⬆️ Push node labels for every swarm member"
+- name: "🔍 Read the labels every swarm member carries"
+  ansible.builtin.command: >-
+    docker node inspect
+    --format {{ '{{json .Description.Hostname}}: {{json .Spec.Labels}}' | quote }}
+    {{ swarm_node_label_names | map('quote') | join(' ') }}
+  vars:
+    swarm_node_label_names: >-
+      {%- set names = [] -%}
+      {%- for host in groups['svc-swarm-node'] -%}
+      {%-   set _ = names.append(hostvars[host].ansible_facts.hostname | default(host)) -%}
+      {%- endfor -%}
+      {{ names }}
+  register: swarm_node_labels_current
+  changed_when: false
+
+- name: "⬆️ Push node labels to the swarm members whose labels differ"
   ansible.builtin.command: >-
     docker node update
-    {% for k, v in hostvars[item].swarm_node_labels.items() %}
+    {% for k, v in swarm_node_labels_wanted.items() %}
     --label-add {{ k }}={{ v }}
     {% endfor %}
-    {{ hostvars[item].ansible_facts.hostname | default(item) }}
+    {{ swarm_node_labels_name }}
+  vars:
+    swarm_node_labels_name: "{{ hostvars[item].ansible_facts.hostname | default(item) }}"
+    swarm_node_labels_wanted: >-
+      {{ {SWARM_NODE_LABEL_HOST_ID: item,
+          SWARM_NODE_LABEL_STACK_HOST: ('true' if item == STACK_HOST else 'false')}
+         | combine(hostvars[item].swarm_node_labels) }}
+    swarm_node_labels_have: >-
+      {{ (('{' ~ (swarm_node_labels_current.stdout_lines | join(', ')) ~ '}') | from_json).get(swarm_node_labels_name) or {} }}
   loop: "{{ groups['svc-swarm-node'] }}"
-  when: hostvars[item].swarm_node_labels is defined
+  when: (swarm_node_labels_have | combine(swarm_node_labels_wanted)) != swarm_node_labels_have
   changed_when: true

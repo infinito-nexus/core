@@ -6,11 +6,24 @@
     package_name: ldapsm
     global_install: true
 
-- name: "📂 Include Nextcloud Schema"
-  include_tasks: schemas/nextcloud.yml
-
-- name: "📂 Include openssh-lpk Schema"
-  include_tasks: schemas/openssh_lpk.yml
-
-- name: "📂 Include Moodle Schema"
-  include_tasks: schemas/moodle.yml
+- name: ✅ Ensure custom LDAP schemas via ldapsm
+  command:
+    cmd: >
+      {{ OPENLDAP_LDAPSM_COMMAND }}
+        -s {{ OPENLDAP_SERVER_URI }}
+        -D '{{ OPENLDAP_BIND_DN }}'
+        -n {{ item.name }}
+        {% for at in item.attribute_types %}
+        -a "{{ at }}"
+        {% endfor %}
+        {% for oc in item.object_classes %}
+        -c "{{ oc }}"
+        {% endfor %}
+    stdin: "{{ OPENLDAP_BIND_PW }}"
+  register: ldapsm_result
+  changed_when: "'Created schema entry' in ldapsm_result.stdout"
+  check_mode: false
+  loop: "{{ OPENLDAP_SCHEMAS }}"
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

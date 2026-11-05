@@ -1,0 +1,31 @@
+---
+# Param: handover_primary - Patroni member that is primary before the roll
+- name: "⏳ POSTGRES | Wait for a streaming synchronous replica of {{ handover_primary }}"
+  ansible.builtin.command: # nocheck: container-exec-resolver  DB_HA_ROLL_PRIMARY_CID is the Patroni primary resolved at runtime
+    argv: "{{ ['container', 'exec', '--user', 'postgres', DB_HA_ROLL_PRIMARY_CID] + (POSTGRES_PATRONICTL | split) + ['list', '--format', 'json'] }}"
+  register: postgres_handover_members
+  delegate_to: "{{ DB_HA_ROLL_PRIMARY_NODE }}"
+  run_once: true
+  retries: 60
+  delay: 2
+  until: >-
+    postgres_handover_members.rc == 0 and
+    (postgres_handover_members.stdout | from_json
+     | selectattr('Role', 'in', ['Sync Standby', 'Quorum Standby'])
+     | selectattr('State', 'equalto', 'streaming')
+     | list | length) > 0
+  changed_when: false
+
+- name: "🔀 POSTGRES | Switch over away from {{ handover_primary }}"
+  ansible.builtin.command: # nocheck: container-exec-resolver  DB_HA_ROLL_PRIMARY_CID is the Patroni primary resolved at runtime
+    argv: "{{ ['container', 'exec', '--user', 'postgres', DB_HA_ROLL_PRIMARY_CID] + (POSTGRES_PATRONICTL | split) + ['switchover', entity_name, '--leader', handover_primary,
+      '--candidate', _postgres_handover_candidate, '--force'] }}"
+  vars:
+    _postgres_handover_candidate: >-
+      {{ postgres_handover_members.stdout | from_json
+         | selectattr('Role', 'in', ['Sync Standby', 'Quorum Standby'])
+         | selectattr('State', 'equalto', 'streaming')
+         | map(attribute='Member') | first }}
+  delegate_to: "{{ DB_HA_ROLL_PRIMARY_NODE }}"
+  run_once: true
+  changed_when: true

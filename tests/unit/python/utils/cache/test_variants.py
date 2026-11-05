@@ -5,6 +5,7 @@ no inventory-level `applications.<app>` override is set."""
 
 import os
 import sys
+import tempfile
 import textwrap
 import unittest
 from pathlib import Path
@@ -292,6 +293,42 @@ class TestMergedApplicationsUsesBaseConfig(unittest.TestCase):
             merged["web-app-multi"]["server"]["domains"]["canonical"],
             ["multi.example"],
         )
+
+
+class TestReadonlyVariants(unittest.TestCase):
+    """``readonly=True`` hands out the cached map itself.
+
+    A sweep resolves one round per matrix row and asks for the variants in
+    each, so the defensive deep copy is paid hundreds of times for data
+    nobody writes to. The guarantee is cheap to lose silently in a later
+    refactor, which is why identity is asserted rather than runtime.
+    """
+
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        self.tmp = Path(tempfile.gettempdir()) / "readonly-variants-roles"
+        _write_role(
+            self.tmp,
+            "web-app-one",
+            config="postgres:\n  enabled: true\n",
+            meta="- services:\n    postgres:\n      enabled: false\n",
+        )
+
+    def test_the_default_hands_out_a_copy(self) -> None:
+        first = get_variants(roles_dir=str(self.tmp))
+        second = get_variants(roles_dir=str(self.tmp))
+        self.assertEqual(first, second)
+        self.assertIsNot(first, second)
+
+    def test_readonly_hands_out_the_cached_object(self) -> None:
+        first = get_variants(roles_dir=str(self.tmp), readonly=True)
+        second = get_variants(roles_dir=str(self.tmp), readonly=True)
+        self.assertIs(first, second)
+
+    def test_a_readonly_caller_sees_what_the_copy_would_have_shown(self) -> None:
+        shared = get_variants(roles_dir=str(self.tmp), readonly=True)
+        copied = get_variants(roles_dir=str(self.tmp))
+        self.assertEqual(shared, copied)
 
 
 if __name__ == "__main__":

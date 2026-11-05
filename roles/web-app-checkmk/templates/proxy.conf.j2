@@ -3,6 +3,7 @@
 server
 {
   server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
   {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
 
   {% if lookup('sso', application_id, 'is_proxy_gated') %}
@@ -13,20 +14,13 @@ server
 
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
-  {% if lookup('sso', application_id, 'is_proxy_gated') %}
-    {% set sso_proxy_enabled = true %}
-    {% set webserver_location_extra_configuration %}
+  {% set sso_gated_location_extra_configuration %}
   proxy_set_header X-Remote-User "${authrequest_username}";
-    {% endset %}
-    {% set location = '/' %}
-    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-    {% set webserver_location_extra_configuration = '' %}
-  {% else %}
-    {% set sso_proxy_enabled = false %}
-    {% set webserver_location_extra_configuration = '' %}
-    {% set location = '/' %}
-    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-  {% endif %}
+  {% endset %}
+  {% set sso_open_location_extra_configuration %}
+  proxy_set_header X-Remote-User "";
+  {% endset %}
+  {% include 'roles/sys-svc-proxy/templates/location/sso_acl.conf.j2' %}
 
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
 

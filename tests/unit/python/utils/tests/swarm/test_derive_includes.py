@@ -155,5 +155,117 @@ class TestApplicationsForActiveVariants(unittest.TestCase):
         self.assertNotIn("web-app-ghost", result)
 
 
+class TestWithoutOptionalCodeploys(unittest.TestCase):
+    def test_group_gated_flags_turn_off_and_hard_flags_stay(self):
+        apps = {
+            "web-app-a": {
+                "services": {
+                    "postgres": {"enabled": True, "shared": True},
+                    "sso": {"enabled": "{{ 'web-app-keycloak' in group_names }}"},
+                    "etcd": {
+                        "enabled": "{{ lookup('db_instances', 'x').form == 'ha' }}"
+                    },
+                }
+            }
+        }
+        services = mod._without_optional_codeploys(apps)["web-app-a"]["services"]
+        self.assertIs(services["postgres"]["enabled"], True)
+        self.assertIs(services["sso"]["enabled"], False)
+        self.assertIn("db_instances", services["etcd"]["enabled"])
+        self.assertIsInstance(apps["web-app-a"]["services"]["sso"]["enabled"], str)
+
+
+class TestLabConsumerClosure(unittest.TestCase):
+    def test_off_without_the_lab_mode(self):
+        with unittest.mock.patch.dict(mod.os.environ, {}, clear=True):
+            self.assertEqual(mod.lab_consumer_closure("svc-db-postgres", {}, {}), [])
+
+    def test_variant_scope_leaves_the_consumer_on_its_base_config(self):
+        with (
+            unittest.mock.patch.object(
+                mod,
+                "derive_includes",
+                return_value=["svc-db-postgres", "svc-dcs-etcd", "web-app-a"],
+            ),
+            unittest.mock.patch.object(
+                mod, "lab_consumer_closure", return_value=["web-app-a", "svc-dcs-etcd"]
+            ),
+        ):
+            self.assertEqual(
+                mod.variant_scope("svc-db-postgres"),
+                ["svc-db-postgres", "svc-dcs-etcd"],
+            )
+
+
+REGISTRY = {
+    "postgres": {"role": "svc-db-postgres"},
+    "sso": {"role": "web-app-keycloak"},
+}
+
+
+class TestLightestConsumer(unittest.TestCase):
+    def _pick(self, apps, has_suite=lambda role: True):
+        with (
+            unittest.mock.patch.object(
+                mod,
+                "applications_if_group_and_all_deps",
+                side_effect=lambda applications, roles, **_: list(roles),
+            ),
+            unittest.mock.patch(
+                "pathlib.Path.is_file",
+                autospec=True,
+                side_effect=lambda path: has_suite(path.parts[-3]),
+            ),
+        ):
+            return mod.lightest_consumer(
+                "svc-db-postgres", apps, REGISTRY, blocked=set()
+            )
+
+    def test_smallest_own_memory_wins(self):
+        apps = {
+            "web-app-big": {
+                "services": {
+                    "postgres": {"enabled": True},
+                    "big": {"mem_reservation": "2g"},
+                }
+            },
+            "web-app-small": {
+                "services": {
+                    "postgres": {"enabled": True},
+                    "small": {"mem_reservation": "128m"},
+                }
+            },
+        }
+        self.assertEqual(self._pick(apps), "web-app-small")
+
+    def test_provider_containers_do_not_count_against_a_consumer(self):
+        apps = {
+            "web-app-a": {
+                "services": {
+                    "postgres": {"enabled": True, "mem_reservation": "8g"},
+                    "a": {"mem_reservation": "128m"},
+                }
+            },
+            "web-app-b": {
+                "services": {
+                    "postgres": {"enabled": True},
+                    "b": {"mem_reservation": "512m"},
+                }
+            },
+        }
+        self.assertEqual(self._pick(apps), "web-app-a")
+
+    def test_gated_or_untested_consumers_are_skipped(self):
+        apps = {
+            "web-app-gated": {
+                "services": {"postgres": {"enabled": "{{ 'x' in group_names }}"}}
+            },
+            "web-app-untested": {"services": {"postgres": {"enabled": True}}},
+        }
+        self.assertIsNone(
+            self._pick(apps, has_suite=lambda role: role != "web-app-untested")
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

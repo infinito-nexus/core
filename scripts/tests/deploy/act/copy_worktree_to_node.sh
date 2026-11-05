@@ -14,6 +14,9 @@ cd "${repo_root}"
 # shellcheck source=scripts/meta/env/load.sh
 source "${repo_root}/scripts/meta/env/load.sh"
 
-git ls-files -z -m -o --exclude-standard |
+{
+	git ls-files -z -m -o --exclude-standard
+	git ls-files -z -o -i --exclude-standard -- 'roles/web-app-cst-*'
+} |
 	tar --null -cf - -T - |
 	docker exec -i "${node}" tar -C "${INFINITO_NODE_SRC_DIR:?}" -xpf -

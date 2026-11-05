@@ -45,14 +45,14 @@ flowchart TB
         chunk0 --> smoke["call-test-runner-smoke.yml"]
         chain --> report["report-main-failures"]
 
-        instmake["call-test-install-make.yml"]
-        instpkgmgr["call-test-install-pkgmgr.yml"]
+        install["call-test-install.yml"]
+        swarmdata["test-swarm-data: call-test-swarm-data.yml (INFINITO_CI_SWARM_DATA)"]
         mirror --> devenv["test-workspace: call-test-workspace.yml"]
 
         chain --> donegate["done"]
         smoke --> donegate
-        instmake --> donegate
-        instpkgmgr --> donegate
+        swarmdata --> donegate
+        install --> donegate
         devenv --> donegate
     end
 
@@ -64,7 +64,7 @@ flowchart TB
 ## Sweeps and chunks
 
 A **sweep** is one orchestrator run. It builds a single ordered list of
-`role#variant` rows, assigns each row a deploy mode and a tor state, and
+`role#variant` rows, assigns each row a deploy mode and a network mode, and
 deploys the list in serial **chunk** blocks.
 
 ### Why chunks exist
@@ -114,20 +114,29 @@ Run `python -m cli.meta.ci.slots --matrix` to see the whole budget.
 split forces a chunk boundary at the priority/regular seam, so a chunk is
 either all priority or all regular — the seam chunk stays short rather than
 being topped up. That is what guarantees every priority row is deployed before
-the first regular one starts. Priority rows wear a trailing `⭐` in their job
-name and never move with the sweep offset.
+the first regular one starts. Priority rows never move with the sweep offset.
+
+Each chunk block shows up as `<keycap> Batch`, from `0️⃣ Batch` to `3️⃣ Batch`,
+and its discover job as `🔍 Batch <index>`. A batch that holds priority rows
+wears a trailing `⭐` on both (`0️⃣ Batch ⭐`, `🔍 Batch 0 ⭐`); its deploy rows
+carry no star of their own. The selection job counts those batches before any
+of them runs and exposes the count as its `starred` output
+(`cli.meta.ci.matrix --priority-chunks`); batch `N` is starred while that count
+exceeds `N`.
 
 They are also the rows a run must not sample. A priority row is deployed in
 **every combination it can take** — each variant, in each mode its role offers,
-and on the modes that carry the onion axis once behind Tor and once on
-clearnet — all within the same sweep. A 3-variant role offering compose and
-swarm therefore becomes 3 × 2 × 2 = **12 jobs**, not 3. That is the point of
-naming a role in `priority`: it is proven everywhere at once instead of over
-four sweeps.
+and on the modes that carry the network axis once per node network mode the
+role can be served in (`clearnet`, `tor`, `multi`) — all within the same sweep.
+A 3-variant role offering compose and swarm therefore becomes
+3 × 2 × 3 = **18 jobs**, not 3. That is the point of naming a role in
+`priority`: it is proven everywhere at once instead of over several sweeps.
 
-An explicit `tor` input still wins over the full coverage: `enforced`,
-`exclusive` and `disabled` are operator narrowings, and a variant that pins
-`services.tor.enabled` to false never gets an onion run regardless.
+An explicit `network` input still wins over the full coverage: `clearnet`,
+`tor` and `multi` are operator narrowings. A variant that pins
+`services.tor.enabled` to false only ever runs on clearnet regardless, and so
+does a role without a `tor` bond unless its deploy pulls the Tor provider in,
+which adds `multi`.
 
 ### Selection tokens
 
@@ -136,46 +145,66 @@ row would otherwise be assigned. Two spellings are accepted:
 
 | Form | Example |
 |---|---|
-| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs` |
-| the job label, pasted back out of the failed run | `🐳🧅🌀🦓网络应用·Nextcloud#0` |
+| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&direct~ha` |
+| the job label, pasted back out of the failed run | `🐳🧅🌀🦓🦾𓏴𓏛Nextcloud#0` |
 
 | Separator | Axis | Values |
 |---|---|---|
 | `#` | variants | comma-separated indices |
 | `@` | deploy mode | `compose`, `swarm`, `host` |
-| `+` | onion state | `tor`, `clearnet` |
+| `+` | network mode | `clearnet`, `tor`, `multi` |
 | `%` | distro | `arch`, `debian`, `ubuntu`, `fedora`, `centos` |
 | `/` | filesystem | `zfs`, `btrfs`, `ext4` |
+| `:` | architecture | `amd64`, `arm64` |
+| `&` | mesh | `vpn`, `direct` |
+| `~` | db topology (needs the axis on) | `standalone`, `ha` |
 
-The onion state is spelled `+clearnet` rather than `-tor` because a role id may
-itself end in `-tor`.
+The network mode is a `+` suffix rather than a `-tor` suffix because a role id
+may itself end in `-tor`.
 
 What a token leaves open belongs to the line it stands in: `priority` covers
 every remaining combination in one sweep, `whitelist` keeps the rotation and
 the row's position in the matrix. A pin the row cannot take aborts the matrix
 rather than dropping the row, because a dropped row would report a green run
 for a combination that never ran. Such a pin is `@swarm` on a role without its
-own stack, `+tor` on a variant that pins `services.tor.enabled` false, or any
-axis that fights the run's own `mode`, `tor`, `distros` or `filesystem` input.
+own stack, `+tor` on a variant that pins `services.tor.enabled` false, `+multi`
+on a role with `reachability.single_mode: true`, or any axis that fights the
+run's own `mode`, `network`, `distros`, `filesystem` or `architectures` input,
+or `:arm64` on a role whose `meta/services.yml` declares
+`architectures: [amd64]`.
 
 That is also what a retrigger replays: `--failed` reads the glyphs off the failed
 job's title and writes them back as a token, so the row comes back in the mode,
-onion state and distribution it died on rather than on whatever the rotation
-would pick next. The filesystem is deliberately left out. A title states the
+network mode, distribution and architecture it died on rather than on whatever
+the rotation would pick next. The architecture is replayed because it is the
+machine the job ran on, not a preference it could fall back from. The
+filesystem is deliberately left out. A title states the
 kind the matrix *assigned*, which a deploy is allowed to fall back from, so
 pinning it would both misstate what the job ran on and turn the kind into a
 demand, failing the retrigger on the very condition the fallback absorbs.
 
-### Mode, tor, distro and filesystem
+### Mode, network, distro, filesystem and architecture
 
-The `tor` input decides what the onion axis is allowed to do at all:
+A row deploys its node in one network mode, handed to the inventory as
+`NETWORK_MODE`. The modes a row can take follow its role
+([network_modes.md](../../docs/contributing/design/network_modes.md)): a
+variant that pins `services.tor.enabled` false only takes `clearnet`; a role
+without a `tor` bond takes `clearnet`, plus `multi` when the `services` closure
+of its discovery row names the Tor provider, where the node runs Tor and the
+role stays on clearnet; `reachability.modes` drops every mode that needs a network
+the role excludes; `reachability.single_mode` drops `multi`; the Tor provider
+never takes `clearnet`. The `network` input decides what the axis is allowed
+to do at all:
 
 | Value | Effect |
 |---|---|
-| `auto` | rotates; a priority row covers both states in one sweep |
-| `enforced` | every capable row runs behind the onion |
-| `exclusive` | as `enforced`, and rows that cannot take an onion are dropped |
-| `disabled` | no row takes the onion |
+| `auto` | rotates over the modes the row can take; a priority row covers all of them in one sweep |
+| `clearnet` | every row runs without Tor, the provider disabled |
+| `tor` | the rows that can be served onion-only run in `tor`; the rest are dropped |
+| `multi` | the rows that can be served on both networks run in `multi`; the rest are dropped |
+
+A `multi` row runs the role's Playwright suite once, on the clearnet or the
+onion URL picked at random, together with the shared cross-network leak spec.
 
 The `vpn` input does the same for the WireGuard mesh on swarm rows: `auto`
 rotates it, `enforced` meshes every swarm row and `disabled` none. A compose
@@ -184,10 +213,33 @@ deploys, empty meaning `INFINITO_SWARM_MESHES` from `default.env`; pointing it a
 an `inventories/examples/*/wireguard.yml` with `vpn: enforced` and `mode: swarm`
 is how an example is deployed in CI.
 
-`distros` and `filesystem` narrow the pools the other two axes draw from. Both
-default to empty, which means the whole declared set. That is what a sweep
-wants, because the rows are spread over the pool rather than all sharing one
-value. Narrowing is for chasing a single distribution or a single filesystem.
+`distros`, `filesystem` and `architectures` narrow the pools the other axes
+draw from. All three default to empty, which means the whole declared set. That
+is what a sweep wants, because the rows are spread over the pool rather than all
+sharing one value. Narrowing is for chasing a single distribution, filesystem or
+architecture.
+
+The architecture is the one axis a deploy job cannot apply to itself: the distro
+is installed and the filesystem is built, but the CPU arrives with the runner.
+The matrix therefore carries the runner label with the row (`ubuntu-26.04` for
+amd64, `ubuntu-24.04-arm` for arm64), `runs-on` reads it, and the job asserts
+`uname -m` against what it was assigned before deploying anything, so a label
+that stops resolving to arm64 hardware fails loudly instead of reporting an
+arm64 row green from an amd64 machine.
+
+A role that only one architecture can run declares it on its primary service
+entity, next to `modes`:
+
+```yaml
+<primary_entity>:
+  architectures:
+    - amd64
+```
+
+The row then draws from that intersection instead of the run's whole pool, and
+so does every row whose variant deploys that role, as the deploy planner resolves it. A
+role and a run that permit nothing in common abort the matrix rather than
+dropping the row.
 
 Whether the assigned filesystem is binding depends on who chose it:
 
@@ -228,31 +280,54 @@ reproduces by re-running the same sweep:
 | Axis | Rotation |
 |---|---|
 | mode | `(position + sweep) % len(modes the role offers)` |
-| tor | `(position + sweep // 2) % 2` |
+| network | `(position + sweep // 2) % len(network modes the row can take)` |
 | vpn (swarm rows) | `(position // 2 + sweep // 4) % 2` |
 | distro | `(position + sweep) % len(distro pool)` |
 | filesystem | `(position // len(distro pool) + sweep) % len(filesystem pool)` |
+| architecture | `(position + sweep) % len(architecture pool)` |
+| db topology (swarm rows, opt-in) | `(position // 4 + sweep // 4) % 2` over `standalone`, `ha` |
+
+The db topology axis is off by default because the HA lab (3 managers, 1 worker, 1 backup host) needs more runner resources than the 1+2 lab.
+Enable it with the `db_topology` dispatch input of `call-test-deploy.yml` or the `INFINITO_CI_DB_TOPOLOGY` repository variable.
+While it is off, the rows, rotations and labels are those of a run without the axis, and every entry still carries `db_topology` (empty) and `kill_primary` (`false`), because the deploy workflow reads both keys.
+While it is on, every swarm row carries `db_topology` (exported to the deploy as `INFINITO_SWARM_DB_TOPOLOGY`) and its glyph (`🔱` HA, `☝️` standalone) after the architecture glyph.
+Priority swarm rows deploy both topologies, and HA rows set `kill_primary` (`INFINITO_CI_KILL_PRIMARY`) for the kill-the-primary probe: it kills the node that holds the database primary. When that node also runs the manager-pinned application, the drill first kills the primary's container there to move the primary to another node and then kills that node; only a primary that stays put, or a node kill that would cost the Raft quorum, ends in a container kill, and the drill log says which.
+An HA row is never meshed, whatever the vpn axis picks: the WireGuard mesh hangs off one `svc-swarm-manager` hub, and the HA lab runs three managers.
+On `sweep // 4` the axis never moves in lockstep with the mode or the network mode, so a row walks every mode/network/topology combination over its sweeps.
+It reads `position // 4` because the mode rotation puts every swarm row of a sweep on one position parity and the vpn axis reads `position // 2`, so one sweep deploys both topologies across its swarm rows.
+
+The HA database stack has its own gate, `call-test-swarm-data.yml`, which injects real faults (primary container kill, node crash, node hang, node partition) into each engine's HA form and checks the write gap and acknowledged-write loss against the failover budget.
+The orchestrator runs it on every pull request, push and manual sweep when the `INFINITO_CI_SWARM_DATA` repository variable is `true`, so it inherits the entry's draft gating, job budget and superseded-run cancellation.
+It is off by default because it runs two jobs per engine, an `in-place` and a `rebuild` part, and each holds a runner for three to four hours.
+`cron-test-swarm-data.yml` runs the same suite nightly on the default branch when `INFINITO_CI_SWARM_DATA_NIGHTLY` is `true`, and on manual dispatch.
+Image bumps of the HA database stack (the engine images and the `haproxy`, `sentinel` and `etcd` pins in `svc-db-*` and `svc-dcs-etcd` `meta/services.yml`) arrive through `cron-update.yml` like any other bump and pass that gate whenever it is switched on.
 
 A role offers at most two modes in practice — swarm needs its own stack, host
 needs the absence of one — so a row flips between its two modes on consecutive
-sweeps. Tor turns on `sweep // 2` so it does not flip in lockstep: a row walks
-all four mode/tor combinations over four sweeps instead of only two. Distro and
+sweeps. The network turns on `sweep // 2` so it does not flip in lockstep: a
+row with two modes and two network modes walks all four combinations over four
+sweeps instead of only two. Distro and
 filesystem read the position like an odometer, the distro as the low digit, so
 consecutive rows walk every pairing of the two pools rather than a diagonal
 through it. Turning both on the position directly would cover only as many
 pairings as the pools are long whenever they happen to be the same length, and
 no sweep would unlock that, because the sweep shifts both by the same amount.
-Priority rows skip the
-mode/tor rotation entirely and take the whole cross-product at once; their
-distro and filesystem walk on across those combinations, so one priority role
-proves several distributions in one sweep.
+The architecture rotates on the position directly rather than as a third
+odometer digit. Two values are coprime with both five distros and the fifteen
+distro/filesystem positions, so walking it fastest still reaches every pairing,
+while making it the slowest digit would hand a role with few rows one
+architecture forever - and the point of the axis is that a role's own variants
+split over both. Priority rows skip the
+mode/network rotation entirely and take the whole cross-product at once; their
+distro, filesystem and architecture walk on across those combinations, so one
+priority role proves several distributions in one sweep.
 
-Because the same variant can run several times in one sweep, the onion state is
-part of what identifies a job: it is in the job label (`🧅` vs `🌐`) and in every
-artifact name. Two jobs uploading under one artifact name is a conflict, not an
-overwrite. The distro and
-filesystem glyphs follow it in the label (`🐳🧅🌀🦓`), so a title says which
-combination died without opening the job.
+Because the same variant can run several times in one sweep, the network mode
+is part of what identifies a job: it is in the job label (`🌐`, `🧅` or `🌈`)
+and in every artifact name. Two jobs uploading under one artifact name is a
+conflict, not an overwrite. The distro, filesystem and architecture glyphs
+follow it in the label (`🐳🧅🌀🦓🦾`), so a title says which combination died
+without opening the job.
 
 ### Stopping on failure
 
@@ -261,10 +336,10 @@ failed chunk:
 
 | Value | Behaviour |
 |---|---|
-| `true` | chunk 0 fails → the remaining chunks are skipped |
+| `true` | the `1️⃣ Gate` job waits for chunk 0 and a running `test-workspace`; when either failed it turns red and the remaining chunks are skipped |
 | `false` | every chunk deploys and reports; the run still ends red |
 
-`skipped` counts as passed, so an empty chunk never blocks the chain. After
+`skipped` counts as passed, so an empty chunk or a workspace test the run does not select never blocks the chain. With `chunk_gate: false` the gate is skipped, but chunk 1 still starts only after chunk 0 and `test-workspace` have finished. After
 fixing what broke a sweep, `resume_from_chunk` re-enters at that index instead
 of re-running the green chunks. Both are inputs on `entry-manual-steer.yml`;
 the other entry points take the defaults, except that a release push on `main`
@@ -272,6 +347,12 @@ the other entry points take the defaults, except that a release push on `main`
 `chunk_gate` over unless `infinito administration deploy ci trigger
 --chunk-gate false` overrides it; the `i8ciallon` alias is `i8ciall` with that
 override, for sweeps that should report every chunk before anyone looks.
+
+`i8civar` is `i8ciallon` without `--strict`. A role that failed outright still
+comes back by name, so the rotation re-picks its axes; a job that never reached
+a verdict comes back as the exact `role#variant@mode+tor` it was given, instead
+of waiting for the regular line to reach it. Use it to finish a run that was
+cancelled with most of its matrix still pending.
 
 ## Cancellation
 
@@ -297,7 +378,7 @@ one, so a run whose only live job is theirs stays outside the entry's group and
 waits for the fallback.
 
 The `deploy` job of `call-test-deploy.yml` holds a job-level group keyed on every
-matrix axis: `mode`, `tor`, `distro`, `filesystem`, `apps` and `variant`. One
+matrix axis: `mode`, `network`, `distro`, `filesystem`, `db_topology`, `apps` and `variant`. One
 deployment runs at a time across all branches; an identical one from another
 run queues behind it (`queue: max`), and a cancel removes a queued one.
 
@@ -320,6 +401,8 @@ flowchart TB
     weekly["schedule: weekly Sat 00:00 UTC"] --> updatewf["cron-update.yml"]
     weekly --> cleanupci["cron-images-cleanup-ci.yml"]
     weeklymon["schedule: weekly Mon 00:00 UTC"] --> scorecard["cron-security-scorecard.yml"]
+    nightly["schedule: daily 02:30 UTC (INFINITO_CI_SWARM_DATA_NIGHTLY)"] --> cronswarm["cron-test-swarm-data.yml"]
+    cronswarm --> callswarm["call-test-swarm-data.yml"]
     branchprot["branch_protection_rule"] --> scorecard
     pushmain["push: main"] --> updatewf
     prtarget["pull_request_target: opened, reopened"] --> depclose["entry-pr-open-dependabot-close.yml"]
@@ -330,6 +413,6 @@ flowchart TB
 ```
 
 Also manually dispatchable: `cron-images-mirror-all.yml`, `cron-images-cleanup-ci.yml`,
-`cron-cleanup-stale.yml`, `cron-update.yml`, `cron-release-highest.yml`, `call-release-version.yml`,
+`cron-cleanup-stale.yml`, `cron-update.yml`, `cron-release-highest.yml`, `cron-test-swarm-data.yml`, `call-release-version.yml`,
 `call-lint.yml`, `call-test.yml`, `call-test-dns.yml`,
 `call-test-workspace.yml`, `call-test-runner-smoke.yml`.

@@ -1,0 +1,42 @@
+x-ha-hosts: &ha-hosts
+  extra_hosts:
+    - "${MGR2:?run utils/topology/export.sh first}:${INFINITO_SWARM_MGR2_IP:?run utils/topology/export.sh first}"
+    - "${MGR3:?run utils/topology/export.sh first}:${INFINITO_SWARM_MGR3_IP:?run utils/topology/export.sh first}"
+
+services:
+  nfs-server:
+    <<: *ha-hosts
+
+  swarm-mgr-01:
+    <<: *ha-hosts
+
+  swarm-wrk-01:
+    <<: *ha-hosts
+
+  swarm-wrk-02:
+    profiles: ["standalone"]
+
+  backup-host:
+    <<: *ha-hosts
+
+  swarm-mgr-02:
+    <<: *ha-hosts
+    extends:
+      file: compose.yml
+      service: swarm-mgr-01
+    container_name: "${MGR2:?run utils/topology/export.sh first}"
+    hostname: "${MGR2:?run utils/topology/export.sh first}"
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_MGR2_IP:?run utils/topology/export.sh first}"
+
+  swarm-mgr-03:
+    <<: *ha-hosts
+    extends:
+      file: compose.yml
+      service: swarm-mgr-01
+    container_name: "${MGR3:?run utils/topology/export.sh first}"
+    hostname: "${MGR3:?run utils/topology/export.sh first}"
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_MGR3_IP:?run utils/topology/export.sh first}"

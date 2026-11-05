@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Role test harness with test.sh as its entry point; the CLI runner stages roles/<id>/files/test/ by path.

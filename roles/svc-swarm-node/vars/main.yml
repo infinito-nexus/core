@@ -1,2 +1,4 @@
 ---
 application_id: "svc-swarm-node"
+# Param: SWARM_FORGET_NODE - inventory name of a lost node to forget; set as extra var by `infinito administration swarm forget_node`
+SWARM_FORGET_NODE: ""

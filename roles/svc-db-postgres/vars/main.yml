@@ -1,6 +1,6 @@
 ---
 application_id: svc-db-postgres
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 database_type: "{{ entity_name }}"
 
@@ -9,6 +9,11 @@ POSTGRES_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, enti
 POSTGRES_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 POSTGRES_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 POSTGRES_VERSION_MAJOR: "{{ POSTGRES_VERSION | regex_replace('^([0-9]+).*', '\\1') }}"
+POSTGRES_PATRONI_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.patroni_version') }}"
+POSTGRES_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
+POSTGRES_VOLUME_TARGET: "{{ lookup('volume', application_id, 'data').target }}"
+POSTGRES_UPGRADE_IMAGE: "{{ POSTGRES_CONTAINER }}-upgrade"
+POSTGRES_UPGRADE_BACKUP_CONFIRMED: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.upgrade.backup_confirmed') }}"
 POSTGRES_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.POSTGRES_PASSWORD') }}"
 POSTGRES_PORT: "{{ database_port | default(lookup('config', application_id, 'services.postgres.ports.local.postgres')) }}"
 POSTGRES_EXPOSE_LOCAL: true
@@ -18,3 +23,61 @@ POSTGRES_RETRIES: 5
 POSTGRES_SHARED_BUFFERS: "{{ lookup('service_memory_mb', application_id, entity_name, 0.25) }}MB"
 POSTGRES_WORK_MEM: "{{ [ (lookup('service_memory_mb', application_id, entity_name, 0.5) | int) // ([ POSTGRES_MAX_CONNECTIONS | int, 1 ] | max), 1 ] | max }}MB"
 POSTGRES_MAINTENANCE_WORK_MEM: "{{ [ lookup('service_memory_mb', application_id, entity_name, 0.05) | int, 64 ] | max }}MB"
+POSTGRES_TUNING:
+  max_connections: "{{ POSTGRES_MAX_CONNECTIONS }}"
+  superuser_reserved_connections: "{{ POSTGRES_SUPERUSER_RESERVED_CONNECTIONS }}"
+  shared_buffers: "{{ POSTGRES_SHARED_BUFFERS }}"
+  work_mem: "{{ POSTGRES_WORK_MEM }}"
+  maintenance_work_mem: "{{ POSTGRES_MAINTENANCE_WORK_MEM }}"
+  max_locks_per_transaction: "{{ POSTGRES_MAX_LOCKS_PER_TRANSACTION }}"
+
+POSTGRES_INSTANCES: "{{ lookup('db_instances', application_id) }}"
+POSTGRES_HA: "{{ POSTGRES_INSTANCES.form == 'ha' }}"
+POSTGRES_SUPERUSER: postgres
+POSTGRES_REPLICATION_USER: replicator
+POSTGRES_REWIND_USER: rewinder
+POSTGRES_REPLICATION_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.POSTGRES_REPLICATION_PASSWORD') }}"
+POSTGRES_REWIND_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.POSTGRES_REWIND_PASSWORD') }}"
+POSTGRES_PATRONI_RESTAPI_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.POSTGRES_PATRONI_RESTAPI_PASSWORD') }}"
+POSTGRES_PATRONI_ETCD_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.etcd_password') }}"
+POSTGRES_PATRONI_ETCD_USER: "{{ lookup('config', application_id, 'services.etcd.user') }}"
+POSTGRES_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.postgres.ports.internal.postgres') }}"
+POSTGRES_PATRONI_PORT: "{{ lookup('config', application_id, 'services.postgres.ports.internal.patroni') }}"
+POSTGRES_PATRONI_USER: patroni
+POSTGRES_PATRONI_SECRET_TARGET: "{{ lookup('volume', application_id, 'patroni_cfg').target }}"
+POSTGRES_PATRONI_ETCD_CA_TARGET: "{{ lookup('volume', application_id, 'etcd_ca').target }}"
+POSTGRES_PATRONI_CONFIG_SOURCE: "{{ lookup('volume', application_id, 'patroni_cfg', field='source') }}"
+POSTGRES_PATRONI_CONFIG: /var/run/postgresql/patroni.yml
+POSTGRES_PATRONICTL: "patronictl -c {{ POSTGRES_PATRONI_CONFIG }}"
+POSTGRES_PATRONI_BOOTSTRAP_GRACE_S: 20
+POSTGRES_DATA_DIR: "/var/lib/postgresql/{{ POSTGRES_VERSION_MAJOR }}/docker"
+POSTGRES_BIN_DIR: "/usr/lib/postgresql/{{ POSTGRES_VERSION_MAJOR }}/bin"
+POSTGRES_REPLICATION_SUBNET: "{{ lookup('config', application_id, 'networks.internal.subnet') }}"
+POSTGRES_PATRONI_DYNAMIC: >-
+  {{ lookup('patroni_config', 'dynamic',
+            parameters=POSTGRES_TUNING,
+            replication_subnet=POSTGRES_REPLICATION_SUBNET,
+            replication_user=POSTGRES_REPLICATION_USER,
+            rewind_user=POSTGRES_REWIND_USER) }}
+POSTGRES_PATRONI_YML: >-
+  {{ lookup('patroni_config', 'file',
+            scope=entity_name,
+            namespace=lookup('config', application_id, 'services.etcd.prefix'),
+            etcd_hosts=ETCD_CLIENT_HOSTS,
+            etcd_cacert=POSTGRES_PATRONI_ETCD_CA_TARGET,
+            etcd_username=POSTGRES_PATRONI_ETCD_USER,
+            etcd_password=POSTGRES_PATRONI_ETCD_PASSWORD,
+            restapi_port=POSTGRES_PATRONI_PORT | int,
+            restapi_username=POSTGRES_PATRONI_USER,
+            restapi_password=POSTGRES_PATRONI_RESTAPI_PASSWORD,
+            superuser=POSTGRES_SUPERUSER,
+            superuser_password=POSTGRES_PASSWORD,
+            replication_user=POSTGRES_REPLICATION_USER,
+            replication_password=POSTGRES_REPLICATION_PASSWORD,
+            rewind_user=POSTGRES_REWIND_USER,
+            rewind_password=POSTGRES_REWIND_PASSWORD,
+            data_dir=POSTGRES_DATA_DIR,
+            bin_dir=POSTGRES_BIN_DIR,
+            postgres_port=POSTGRES_INTERNAL_PORT | int,
+            parameters=POSTGRES_TUNING,
+            replication_subnet=POSTGRES_REPLICATION_SUBNET) }}

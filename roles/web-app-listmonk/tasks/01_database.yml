@@ -1,6 +1,7 @@
 ---
 - name: 🔎 Check that the Listmonk database is reachable
   shell: '{{ LISTMONK_EXEC_DATABASE }} -c "SELECT 1"'
+  environment: "{{ LISTMONK_EXEC_DATABASE_ENV }}"
   register: listmonk_db_probe
   changed_when: false
   failed_when: false
@@ -10,14 +11,15 @@
     msg: |
       Listmonk database is not reachable.
 
-      Container: {{ lookup('database', application_id, 'container') }}
-      Database:  {{ lookup('database', application_id, 'name') }}
+      Instance: {{ lookup('database', application_id, 'instance') }}
+      Database: {{ lookup('database', application_id, 'name') }}
 
       Please ensure the shared PostgreSQL stack is running.
   when: listmonk_db_probe.rc != 0
 
 - name: ⏳ Wait for the listmonk container to seed schema and admin user
   shell: "{{ LISTMONK_EXEC_DATABASE }} -tAc 'SELECT COUNT(*) FROM users'"
+  environment: "{{ LISTMONK_EXEC_DATABASE_ENV }}"
   register: listmonk_seeded
   changed_when: false
   retries: 150

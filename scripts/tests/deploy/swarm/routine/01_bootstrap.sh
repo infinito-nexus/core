@@ -30,6 +30,22 @@ if command -v apt-get >/dev/null 2>&1; then
 	fi
 fi
 
+# Param: $1 sysctl key, $2 lowest value the lab needs
+raise_sysctl() {
+	local have
+	have="$(sysctl -n "$1" 2>/dev/null || echo 0)"
+	[ "${have}" -lt "$2" ] || return 0
+	if [ "$(id -u)" -eq 0 ]; then
+		sysctl -qw "$1=$2"
+	else
+		sudo sysctl -qw "$1=$2"
+	fi
+	echo "==> raised $1 from ${have} to $2"
+}
+raise_sysctl fs.inotify.max_user_instances 8192
+raise_sysctl fs.inotify.max_user_watches 524288
+raise_sysctl fs.inotify.max_queued_events 65536
+
 if docker exec "${INFINITO_CONTAINER}" docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'tor'; then
 	echo "==> quiescing CI compose tor (competing onion publisher)"
 	docker exec "${INFINITO_CONTAINER}" docker stop tor
@@ -37,7 +53,7 @@ fi
 
 bash "${SCRIPT_DIR}/../utils/unmount/nfs_mounts.sh" "${NFS_SERVER}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 bash "${SCRIPT_DIR}/../utils/unmount/host_state.sh" "${INFINITO_DIR_VAR_LIB:?}"
-for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
+for node in ${SWARM_LAB_ALL_NODES}; do
 	docker rm -f "${node}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done
 docker volume rm "${SWARM_NAME}_nfs-export" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
@@ -54,6 +70,10 @@ fi
 
 COMPOSE_FILE="${SCRIPT_DIR}/../../../../../compose/swarm/compose.yml"
 COMPOSE_ARGS=(-f "${COMPOSE_FILE}")
+PROFILE_ARGS=(--profile drill)
+if [ "${INFINITO_SWARM_DB_TOPOLOGY}" = "ha" ]; then
+	COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha.override.yml")
+fi
 CACHE_FRONTEND="infinito-package-cache-frontend"
 REGISTRY_CACHE="infinito-registry-cache"
 CACHE_NET=""
@@ -68,12 +88,30 @@ if docker inspect "${CACHE_FRONTEND}" >/dev/null 2>&1; then
 	fi
 	export INFINITO_CACHE_REGISTRY_CA_HOST_PATH="${registry_ca_src}"
 	echo "==> registry-cache CA source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH}"
+	python3 -m cli.meta.cache
 	COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/cache.override.yml")
+	if [ "${INFINITO_SWARM_DB_TOPOLOGY}" = "ha" ]; then
+		COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha/cache.override.yml")
+	fi
+	if [ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]; then
+		echo "==> shared package cache ${INFINITO_CACHE_SHARED_HOST_PATH} mounted into every node"
+		COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/shared-cache.override.yml")
+		if [ "${INFINITO_SWARM_DB_TOPOLOGY}" = "ha" ]; then
+			COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha/shared-cache.override.yml")
+		fi
+		if [ -n "${INFINITO_CACHE_HOST_PACMAN_PATH:-}" ]; then
+			echo "==> host pacman cache ${INFINITO_CACHE_HOST_PACMAN_PATH} mounted read-only into every node"
+			COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/pacman.override.yml")
+			if [ "${INFINITO_SWARM_DB_TOPOLOGY}" = "ha" ]; then
+				COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha/pacman.override.yml")
+			fi
+		fi
+	fi
 fi
 
 build_attempts=3
 for attempt in $(seq 1 "${build_attempts}"); do
-	docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" --profile drill build && break
+	docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" "${PROFILE_ARGS[@]}" build && break
 	if [ "${attempt}" -eq "${build_attempts}" ]; then
 		echo "FAILURE: node image build failed after ${build_attempts} attempts" >&2
 		exit 1
@@ -81,7 +119,7 @@ for attempt in $(seq 1 "${build_attempts}"); do
 	sleep $((attempt * 5))
 done
 
-docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" --profile drill up -d
+docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" "${PROFILE_ARGS[@]}" up -d
 
 if [ -n "${CACHE_NET}" ]; then
 	cache_subnet="$(docker network inspect "${CACHE_NET}" \
@@ -96,14 +134,16 @@ if [ -n "${CACHE_NET}" ]; then
 	esac
 	cache_prefix="${cache_subnet%.0/24}"
 
-	node_octet=$((200 + INFINITO_INSTANCE * 5))
+	read -ra all_nodes <<<"${SWARM_LAB_ALL_NODES}"
+	node_band="${#all_nodes[@]}"
+	node_octet=$((200 + INFINITO_INSTANCE * node_band))
 	pin_nodes=true
-	if [ "$((node_octet + 4))" -gt 254 ]; then
+	if [ "$((node_octet + node_band - 1))" -gt 254 ]; then
 		echo "==> INFINITO_INSTANCE=${INFINITO_INSTANCE} leaves no pinned node band in ${cache_prefix}.0/24; Docker assigns the node addresses from ${CACHE_NET}'s pool" >&2
 		pin_nodes=false
 	fi
 
-	for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
+	for node in ${SWARM_LAB_NODES}; do
 		connect_args=()
 		if [ "${pin_nodes}" = true ]; then
 			connect_args=(--ip "${cache_prefix}.${node_octet}")
@@ -124,6 +164,6 @@ if [ -n "${CACHE_NET}" ]; then
 fi
 
 ansible-playbook \
-	-i "${MGR},${WRK1},${WRK2},${NFS_SERVER},${BACKUP_NODE}," \
+	-i "${SWARM_LAB_NODES// /,}," \
 	-c docker \
 	"${SCRIPT_DIR}/../../../../../compose/swarm/playbook.yml"

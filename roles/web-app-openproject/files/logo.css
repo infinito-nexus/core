@@ -1,0 +1,7 @@
+body:is([data-color-mode='light'][data-light-theme='light'], [data-color-mode='dark'][data-dark-theme='dark']) .op-app-header .op-logo--link {
+  background-image: var(--design-url-logo-svg);
+}
+
+body:is([data-color-mode='light'][data-light-theme='light'], [data-color-mode='dark'][data-dark-theme='dark']) .op-app-header :is(.op-logo--icon, .op-logo--icon_white) {
+  background-image: var(--design-url-icon-svg);
+}

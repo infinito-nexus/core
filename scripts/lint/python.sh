@@ -11,6 +11,10 @@ cd "${REPO_ROOT}"
 RUFF_CACHE_DIR="build/ruff-cache-$(id -u)"
 export RUFF_CACHE_DIR
 
+# shellcheck source=scripts/lint/diff/files.sh
+source "${SCRIPT_DIR}/diff/files.sh"
+mapfile -t custom_roles < <(lint_custom_roles)
+
 shfmt -w scripts
-ruff format .
-ruff check . --fix
+ruff format . "${custom_roles[@]}"
+ruff check . --fix "${custom_roles[@]}"

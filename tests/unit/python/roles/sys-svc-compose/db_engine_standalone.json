@@ -1,0 +1,217 @@
+{
+  "svc-db-mariadb": {
+    "services": {
+      "mariadb": {
+        "build": {
+          "args": {
+            "MARIADB_IMAGE": "",
+            "MARIADB_VERSION": ""
+          },
+          "context": ".",
+          "dockerfile": "Dockerfile"
+        },
+        "command": [
+          "--transaction-isolation=READ-COMMITTED",
+          "--binlog-format=ROW"
+        ],
+        "deploy": {
+          "placement": {
+            "constraints": [
+              "node.role == manager"
+            ]
+          },
+          "replicas": 1,
+          "resources": {
+            "limits": {
+              "cpus": "1",
+              "memory": "1g",
+              "pids": 512
+            },
+            "reservations": {
+              "memory": "512m"
+            }
+          },
+          "restart_policy": {
+            "condition": "any"
+          },
+          "update_config": {
+            "delay": "0s",
+            "failure_action": "continue",
+            "parallelism": 1
+          }
+        },
+        "logging": {
+          "driver": "journald"
+        },
+        "x-compose_only": "[\"compose_only\", [\"container_name\", \"\"], {}]",
+        "x-compose_restart": "[\"compose_restart\", [\"always\"], {}]",
+        "x-container_healthcheck": "[\"container_healthcheck\", [\"mariadb\"], {}]",
+        "x-container_image": "[\"container_image\", [\"svc-db-mariadb\", \"mariadb\"], {}]",
+        "x-container_networks": "[\"container_networks\", [], {}]",
+        "x-container_volumes": "[\"container_volumes\", [\"mariadb\"], {}]"
+      }
+    },
+    "x-compose_networks": "[\"compose_networks\", [], {}]",
+    "x-compose_volumes": "[\"compose_volumes\", [], {}]"
+  },
+  "svc-db-openldap": {
+    "services": {
+      "openldap": {
+        "build": {
+          "args": {
+            "OPENLDAP_IMAGE": "",
+            "OPENLDAP_VERSION": ""
+          },
+          "context": ".",
+          "dockerfile": "Dockerfile"
+        },
+        "deploy": {
+          "placement": {
+            "constraints": [
+              "node.role == manager"
+            ]
+          },
+          "replicas": 1,
+          "resources": {
+            "limits": {
+              "cpus": "1",
+              "memory": "1g",
+              "pids": 512
+            },
+            "reservations": {
+              "memory": "512m"
+            }
+          },
+          "restart_policy": {
+            "condition": "any"
+          },
+          "update_config": {
+            "delay": "0s",
+            "failure_action": "continue",
+            "parallelism": 1
+          }
+        },
+        "logging": {
+          "driver": "journald"
+        },
+        "x-compose_only": "[\"compose_only\", [\"container_name\", \"\"], {}]",
+        "x-compose_restart": "[\"compose_restart\", [\"always\"], {}]",
+        "x-container_image": "[\"container_image\", [\"svc-db-openldap\", \"openldap\"], {}]",
+        "x-container_networks": "[\"container_networks\", [], {}]",
+        "x-container_volumes": "[\"container_volumes\", [\"openldap\"], {}]"
+      }
+    },
+    "x-compose_networks": "[\"compose_networks\", [], {}]",
+    "x-compose_volumes": "[\"compose_volumes\", [], {}]"
+  },
+  "svc-db-postgres": {
+    "services": {
+      "postgres": {
+        "build": {
+          "context": ".",
+          "dockerfile": "Dockerfile"
+        },
+        "command": [
+          "postgres",
+          "-c",
+          "max_connections=",
+          "-c",
+          "superuser_reserved_connections=",
+          "-c",
+          "shared_buffers=",
+          "-c",
+          "work_mem=",
+          "-c",
+          "maintenance_work_mem=",
+          "-c",
+          "max_locks_per_transaction="
+        ],
+        "deploy": {
+          "placement": {
+            "constraints": [
+              "node.role == manager"
+            ]
+          },
+          "replicas": 1,
+          "resources": {
+            "limits": {
+              "cpus": "1",
+              "memory": "1g",
+              "pids": 512
+            },
+            "reservations": {
+              "memory": "512m"
+            }
+          },
+          "restart_policy": {
+            "condition": "any"
+          },
+          "update_config": {
+            "delay": "0s",
+            "failure_action": "continue",
+            "parallelism": 1
+          }
+        },
+        "logging": {
+          "driver": "journald"
+        },
+        "x-compose_only": "[\"compose_only\", [\"container_name\", \"\"], {}]",
+        "x-compose_restart": "[\"compose_restart\", [\"always\"], {}]",
+        "x-container_healthcheck": "[\"container_healthcheck\", [\"postgres\"], {}]",
+        "x-container_image": "[\"container_image\", [\"svc-db-postgres\", \"postgres\"], {}]",
+        "x-container_networks": "[\"container_networks\", [], {}]",
+        "x-container_volumes": "[\"container_volumes\", [\"postgres\"], {}]"
+      }
+    },
+    "x-compose_networks": "[\"compose_networks\", [], {}]",
+    "x-compose_volumes": "[\"compose_volumes\", [], {}]"
+  },
+  "svc-db-redis": {
+    "services": {
+      "redis": {
+        "command": [
+          "sh",
+          "-c",
+          "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes --maxmemory 820mb --maxmemory-policy allkeys-lru"
+        ],
+        "deploy": {
+          "placement": {
+            "constraints": [
+              "node.role == manager"
+            ]
+          },
+          "replicas": 1,
+          "resources": {
+            "limits": {
+              "cpus": "1",
+              "memory": "1g",
+              "pids": 512
+            },
+            "reservations": {
+              "memory": "512m"
+            }
+          },
+          "restart_policy": {
+            "condition": "any"
+          },
+          "update_config": {
+            "delay": "0s",
+            "failure_action": "continue",
+            "parallelism": 1
+          }
+        },
+        "logging": {
+          "driver": "journald"
+        },
+        "x-compose_only": "[\"compose_only\", [\"container_name\", \"\"], {}]",
+        "x-compose_restart": "[\"compose_restart\", [\"always\"], {}]",
+        "x-container_healthcheck": "[\"container_healthcheck\", [\"redis\"], {}]",
+        "x-container_image": "[\"container_image\", [\"svc-db-redis\", \"redis\"], {}]",
+        "x-container_networks": "[\"container_networks\", [], {}]",
+        "x-container_volumes": "[\"container_volumes\", [\"redis\"], {}]"
+      }
+    },
+    "x-compose_networks": "[\"compose_networks\", [], {}]",
+    "x-compose_volumes": "[\"compose_volumes\", [], {}]"
+  }
+}

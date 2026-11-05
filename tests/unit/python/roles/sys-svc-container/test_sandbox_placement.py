@@ -3,6 +3,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
+from plugins.filter.swarm.placement import swarm_placement_constraints
 from utils import PROJECT_ROOT
 
 TEMPLATES = Path(PROJECT_ROOT) / "roles" / "sys-svc-container" / "templates"
@@ -24,10 +25,12 @@ BASE = {
     "compose_mode": "swarm",
     "application_id": "web-app-hermes",
     "service_name": "hermes",
+    "db_instance": None,
     "RUNTIME": "local",
     "SANDBOX_NODE_LABEL": SANDBOX_LABEL,
     "DOCKER_RESTART_POLICY": "unless-stopped",
     "RESOURCE_CPUS": "1",
+    "RESOURCE_HOST_CPUS": "8",
     "RESOURCE_MEM_LIMIT": "1g",
     "RESOURCE_MEM_RESERVATION": "256m",
     "RESOURCE_PIDS_LIMIT": "512",
@@ -36,7 +39,12 @@ BASE = {
 
 class TestSandboxPlacement(unittest.TestCase):
     def _render(
-        self, kata_enabled, manager_placed=False, sandbox_tier=True, **overrides
+        self,
+        kata_enabled,
+        manager_placed=False,
+        sandbox_tier=True,
+        replicas=3,
+        **overrides,
     ):
         env = Environment(
             loader=FileSystemLoader(str(TEMPLATES)),
@@ -48,12 +56,13 @@ class TestSandboxPlacement(unittest.TestCase):
         env.filters["bool"] = _ansible_bool
         env.filters["resource_filter"] = lambda _apps, *_a, **_k: ""
         env.filters["swarm_restart_condition"] = lambda value: value
+        env.filters["swarm_placement_constraints"] = swarm_placement_constraints
 
         def _lookup(name, *args, **kwargs):
             if name == "applications":
                 return {}
             if name == "compose_replicas":
-                return "replicas: 3"
+                return f"replicas: {replicas}"
             if name == "roles_with_placement":
                 return ["web-app-hermes"] if manager_placed else []
             if name == "config":
@@ -120,6 +129,22 @@ class TestSandboxPlacement(unittest.TestCase):
         """
         rendered = self._render(kata_enabled=False)
         self.assertIn("failure_action: continue", rendered)
+
+    def _update_delay(self, rendered):
+        lines = [line.strip() for line in rendered.splitlines()]
+        return [line for line in lines if line.startswith("delay:")]
+
+    def test_a_single_replica_rolls_without_a_stagger_delay(self):
+        rendered = self._render(kata_enabled=False, replicas=1)
+        self.assertEqual(self._update_delay(rendered), ["delay: 0s"])
+
+    def test_several_replicas_keep_the_stagger_delay(self):
+        for replicas, delay in ((3, "10s"), (2, "30s")):
+            with self.subTest(replicas=replicas):
+                rendered = self._render(
+                    kata_enabled=False, replicas=replicas, service_update_delay=delay
+                )
+                self.assertEqual(self._update_delay(rendered), [f"delay: {delay}"])
 
 
 if __name__ == "__main__":
