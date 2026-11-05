@@ -464,6 +464,9 @@ exports.register = function () {
       for (const mode of ["light", "dark"]) {
         await page.emulateMedia({ colorScheme: mode });
         await expect.poll(() => darkClass(page)).toBe(mode === "dark");
+        await expect
+          .poll(async () => (await qrPaint(page)).fills.length, { timeout: resolveTimeout(20_000) })
+          .toBeGreaterThan(0);
         const paint = await qrPaint(page);
         expect(paint.background, `mini-qr ${mode}: the preview background is the chosen one`).toBe(paint.expectedBackground);
         expect(paint.fills.length, `mini-qr ${mode}: the preview must carry fill colors`).toBeGreaterThan(0);
