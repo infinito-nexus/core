@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import sys
 import unittest
+import urllib.error
+from unittest import mock
 
 import yaml
 
@@ -68,7 +70,7 @@ class FakeBackend:
         detail["running"] = False
 
 
-def make_agents(backend=None, idle_stop=True, context=0):
+def make_agents(backend=None, idle_stop=True, context=0, log=None):
     return agents.Agents(
         backend=backend,
         engine=FakeEngine(),
@@ -82,7 +84,66 @@ def make_agents(backend=None, idle_stop=True, context=0):
         idle_seconds=60,
         max_running=2,
         start_timeout=10,
+        log=log or (lambda event, **fields: None),
     )
+
+
+class TestPick(unittest.TestCase):
+    def test_a_known_platform_resolves_to_the_configured_name(self):
+        requested = json.loads('{"model": "hermes"}')["model"]
+        picked = agents.pick(requested, PLATFORMS)
+        self.assertEqual(picked, "hermes")
+        self.assertIs(picked, next(iter(PLATFORMS)))
+
+    def test_an_unknown_or_unhashable_platform_resolves_to_none(self):
+        for requested in ("openclaw", None, 7, ["hermes"], {"hermes": 1}):
+            with self.subTest(requested=requested):
+                self.assertIsNone(agents.pick(requested, PLATFORMS))
+
+    def test_the_relay_passes_the_paths_the_agents_use(self):
+        for path in ("/v1/chat/completions", "/v1/models"):
+            with self.subTest(path=path):
+                self.assertEqual(agents.pick(path, agents.RELAY_PATHS), path)
+
+    def test_the_relay_refuses_every_other_gateway_route(self):
+        for path in (
+            "/key/generate",
+            "/v1/../key/generate",
+            "/v1/chat/completions?x=1",
+            "/v1/embeddings",
+            "/api/tags",
+            "",
+        ):
+            with self.subTest(path=path):
+                self.assertIsNone(agents.pick(path, agents.RELAY_PATHS))
+
+
+class TestAgentCalls(unittest.TestCase):
+    def test_an_agent_that_never_answers_names_its_last_error(self):
+        broker = make_agents()
+        refused = urllib.error.URLError("connection refused")
+        with (
+            mock.patch.object(agents.urllib.request, "urlopen", side_effect=refused),
+            mock.patch.object(agents.time, "monotonic", side_effect=[0, 0, 100]),
+            mock.patch.object(agents.time, "sleep"),
+            self.assertRaises(TimeoutError) as caught,
+        ):
+            broker._wait_healthy("hermes", "agent-hermes-1", "k")
+        self.assertIn("connection refused", str(caught.exception))
+
+    def test_an_unlisted_agent_model_falls_back_and_is_logged(self):
+        events = []
+        broker = make_agents(log=lambda event, **fields: events.append((event, fields)))
+        refused = urllib.error.URLError("connection refused")
+        with mock.patch.object(agents.urllib.request, "urlopen", side_effect=refused):
+            model = broker.agent_model("hermes", "http://agent-hermes-1:8642", "k")
+        self.assertEqual(model, "hermes-agent")
+        self.assertEqual(len(events), 1)
+        event, fields = events[0]
+        self.assertEqual(event, "agent_model_fallback")
+        self.assertEqual(fields["platform"], "hermes")
+        self.assertEqual(fields["model"], "hermes-agent")
+        self.assertIn("connection refused", fields["error"])
 
 
 class TestNaming(unittest.TestCase):
