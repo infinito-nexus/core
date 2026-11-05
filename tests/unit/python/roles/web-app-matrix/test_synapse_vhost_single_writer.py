@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import unittest
 
 from jinja2 import (
@@ -10,7 +11,7 @@ from jinja2 import (
     StrictUndefined,
 )
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 
 PROXY_TEMPLATE = "roles/web-app-matrix/templates/proxy.conf.j2"
 TASKS_DIR = PROJECT_ROOT / "roles/web-app-matrix/tasks"
@@ -74,10 +75,16 @@ class TestSynapseVhostSingleWriter(unittest.TestCase):
                 )
 
     def test_no_matrix_task_rewrites_the_front_proxy_synapse_vhost(self) -> None:
+        task_files = [
+            path
+            for path in sorted(iter_project_files(extensions=(".yml",)))
+            if path.startswith(f"{TASKS_DIR}{os.sep}")
+        ]
+        self.assertTrue(task_files, f"no task files found under {TASKS_DIR}")
         writers = [
-            str(path.relative_to(PROJECT_ROOT))
-            for path in sorted(TASKS_DIR.rglob("*.yml"))
-            if SYNAPSE_VHOST_DEST in read_text(str(path))
+            os.path.relpath(path, PROJECT_ROOT)
+            for path in task_files
+            if SYNAPSE_VHOST_DEST in read_text(path)
         ]
         self.assertEqual(
             writers,
