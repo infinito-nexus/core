@@ -8,7 +8,7 @@ import unittest.mock as mock
 from pathlib import Path
 from typing import Any
 
-from ansible.errors import AnsibleFilterError
+from ansible.errors import AnsibleError, AnsibleFilterError
 
 from . import PROJECT_ROOT
 
@@ -196,6 +196,21 @@ class TestComposeVolumes(unittest.TestCase):
         self.assertRegex(secrets["other"]["name"], r"^app_other_[0-9a-f]{8}$")
         self.assertNotEqual(secrets["cfg"]["name"][-8:], secrets["other"]["name"][-8:])
         self.assertEqual(secrets["named"]["name"], "kept")
+
+    def test_config_with_an_empty_source_file_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            empty = Path(tmp) / "__init__.py"
+            empty.write_text("", encoding="utf-8")
+            apps = self._base_apps()
+            apps["app"]["volumes"] = {
+                "pkg_init": {
+                    "type": "config",
+                    "source": str(empty),
+                    "mounts": [{"service": "app", "target": "/app/pkg/__init__.py"}],
+                }
+            }
+            with self.assertRaisesRegex(AnsibleError, "empty source"):
+                _call(apps, "app")
 
     def test_database_enabled_not_shared_shared_provider_name_used_when_present(self):
         apps = self._base_apps()

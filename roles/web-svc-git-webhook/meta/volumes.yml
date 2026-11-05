@@ -16,14 +16,6 @@ receiver:
     - service: git-webhook
       target: /app/receiver.py
 
-git_init:
-  type: config
-  source: "{{ [lookup('container', 'web-svc-git-webhook', 'directories.instance'), 'git', '__init__.py'] | path_join }}"
-  mode: "0444"
-  mounts:
-    - service: git-webhook
-      target: /app/git/__init__.py
-
 git_core:
   type: config
   source: "{{ [lookup('container', 'web-svc-git-webhook', 'directories.instance'), 'git', 'core.py'] | path_join }}"
