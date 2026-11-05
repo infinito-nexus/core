@@ -1,0 +1,35 @@
+:root {
+  --bg: #F5F6F2;
+  --card: #FFFFFF;
+  --ink: #151A16;
+  --ink2: #4E574F;
+  --ink3: #66706A;
+  --hair: rgba(21, 26, 22, 0.08);
+  --accent: #2F7D32;
+  --accentSoft: #E3F2E1;
+  --aura1: #D8F0D2;
+  --aura2: #A6DB9B;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+#stage { position: relative; overflow: hidden; background: var(--bg); contain: strict; }
+
+.cam { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.full { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.screen { position: absolute; left: 0; top: 0; width: 402px; height: 874px; }
+.abs { position: absolute; }
+.row { display: flex; align-items: center; }
+.center { display: flex; align-items: center; justify-content: center; }
+.mask { clip-path: inset(-.4em 0); }
+.t { display: inline-block; white-space: nowrap; line-height: 1.3; vertical-align: top; }
+.card { background: var(--card); border-radius: 24px; box-shadow: 0 4px 16px rgba(21, 26, 22, 0.06); }

@@ -1,0 +1,51 @@
+:root {
+  --bg: #F4F1EA;
+  --ink: #17150F;
+  --ink2: #5A5448;
+  --ink3: #8B8475;
+  --accent: #D2622A;
+  --card: #FFFDF8;
+  --hair: rgba(23, 21, 15, 0.08);
+  --hair2: #DDD7CB;
+  --field1: #E4EDE3;
+  --field2: #E7E4F2;
+  --field3: #F5E6D8;
+  --panel: #FBF8F1;
+  --sans: -apple-system, "SF Pro Display", system-ui, sans-serif;
+  --serif: "Iowan Old Style", "New York", Georgia, serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+#stage { position: relative; overflow: hidden; background: var(--bg); contain: strict; }
+
+.full { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.abs { position: absolute; }
+.row { display: flex; align-items: center; }
+.center { display: flex; align-items: center; justify-content: center; }
+.mask { clip-path: inset(-.4em 0); }
+.t { display: inline-block; white-space: nowrap; line-height: 1.14; vertical-align: top; }
+
+.hl { letter-spacing: -0.035em; line-height: 1.14; }
+.hl-line { display: flex; align-items: flex-start; gap: 0.24em; white-space: nowrap; }
+.hl-w { display: inline-block; padding-bottom: 0.12em; }
+.hl-center .hl-line { justify-content: center; }
+.hl-acc { position: relative; display: inline-block; white-space: nowrap; letter-spacing: -0.01em; line-height: 1.14; }
+
+.kit-mono { font-family: var(--mono); font-size: 17px; letter-spacing: 0.02em; color: var(--ink3); white-space: nowrap; line-height: 28px; }
+.kit-card { background: var(--card); border-radius: 22px; box-shadow: 0 1px 0 var(--hair), 0 10px 30px rgba(23, 21, 15, 0.06); border: 1px solid var(--hair); }
+.kit-check { width: 30px; height: 30px; border-radius: 9px; border: 2.5px solid var(--hair2); display: flex; align-items: center; justify-content: center; }
+.kit-toggle { width: 64px; height: 38px; border-radius: 19px; background: var(--hair2); }
+.kit-toggle > span { left: 4px; top: 4px; width: 30px; height: 30px; border-radius: 15px; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18); }
+.kit-bar { background: rgba(23, 21, 15, 0.05); border-radius: 12px; }
+.kit-bar-label { font-family: var(--mono); font-size: 18px; color: var(--ink3); text-align: center; }

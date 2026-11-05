@@ -1,0 +1,43 @@
+:root {
+  --bg: #EEEAE3;
+  --ink: #161617;
+  --ink2: #57534D;
+  --ink3: #8B867E;
+  --hair: rgba(22, 22, 23, 0.08);
+  --accent: #3563E9;
+  --accentSoft: #E5EBFC;
+  --winBg: #FFFFFF;
+  --side: #F5F3EF;
+  --wall1: #E4DCCF;
+  --wall2: #AEB9CB;
+  --menuBg: rgba(255, 255, 255, 0.55);
+  --menuInk: #1B1B1D;
+  --dockBg: rgba(255, 255, 255, 0.42);
+  --tile0: #D9D4CB;
+  --tile1: #C9CFD8;
+  --tile2: #E2DDD5;
+  --metal1: #D7D8DB;
+  --metal2: #A7AAB0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+#stage { position: relative; overflow: hidden; background: var(--bg); contain: strict; }
+
+.cam { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.full { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.abs { position: absolute; }
+.row { display: flex; align-items: center; }
+.center { display: flex; align-items: center; justify-content: center; }
+.mask { clip-path: inset(-.4em 0); }
+.t { display: inline-block; white-space: nowrap; line-height: 1.3; vertical-align: top; }
+i { display: block; font-style: normal; }

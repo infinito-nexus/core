@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preset Playground</title>
+<style>
+  :root { --pg-bg:#0d0f14; --pg-panel:#161a22; --pg-ink:#e8ebf2; --pg-dim:#8a93a6; --pg-acc:#6aa8ff; --pg-line:#262c38;
+    --bg:#0A0D1A; --ink:#EFEFEF; --ink2:#9aa4b2; --accent:#142CAD; --accent2:#4F6BFF; --sans:Inter,system-ui,sans-serif; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--pg-bg); color:var(--pg-ink); font:14px/1.4 system-ui,sans-serif; }
+  header { padding:10px 16px; border-bottom:1px solid var(--pg-line); display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  header a { color:var(--pg-dim); }
+  main { display:grid; grid-template-columns:1fr 320px; gap:16px; padding:16px; }
+  @media (max-width:900px) { main { grid-template-columns:1fr; } }
+  #view { width:100%; background:#000; overflow:hidden; position:relative; border-radius:10px; }
+  #stage { position:absolute; left:0; top:0; transform-origin:0 0; overflow:hidden; background:var(--bg); color:var(--ink); font-family:var(--sans); }
+  .abs { position:absolute; } .full { position:absolute; left:0; top:0; width:100%; height:100%; }
+  .t { display:inline-block; white-space:nowrap; line-height:1.2; vertical-align:top; }
+  .mask { clip-path: inset(-.4em 0); }
+  aside { background:var(--pg-panel); border:1px solid var(--pg-line); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+  label { display:grid; grid-template-columns:1fr 60px; gap:4px; font-size:13px; color:var(--pg-dim); }
+  label input { grid-column:1/3; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  button { background:#232a37; color:var(--pg-ink); border:1px solid var(--pg-line); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  pre { background:#0b0d12; padding:10px; border-radius:8px; font-size:12px; margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  #scrub { flex:1; }
+</style>
+<script src="assets.js"></script>
+<script src="timing.js"></script>
+<script src="core.js"></script>
+<script src="fx.js"></script>
+<script src="preset-defaults.js"></script>
+<script src="presets.js"></script>
+<script src="demos.js"></script>
+</head>
+<body>
+<header><b id="name"></b><span id="what"></span><a href="index.html">all presets</a></header>
+<main>
+  <div>
+    <div id="view"><div id="stage"></div></div>
+    <div class="row" style="margin-top:10px"><button id="play" type="button">Play</button><input id="scrub" type="range" min="0" step="0.001" value="0"><span id="tlab" style="width:60px;text-align:right">0.00s</span></div>
+  </div>
+  <aside>
+    <div id="sliders"></div>
+    <div>State</div>
+    <pre id="state"></pre>
+    <button id="export" type="button">Export defaults</button>
+    <pre id="out" hidden></pre>
+  </aside>
+</main>
+<script>
+(function () {
+  const name = new URLSearchParams(location.search).get("p") || document.body.dataset.preset || Object.keys(PRESETS)[0];
+  const spec = PRESETS[name];
+  if (!spec) throw new Error(`no preset ${name}: register it in demos.js`);
+  const P = JSON.parse(JSON.stringify(window.PRESET_DEFAULTS[name]));
+  film({ W: spec.W || 1440, H: spec.H || 900, FPS: 60, BPM: spec.bpm || 120, BEATS: Math.ceil((spec.dur || 8) * (spec.bpm || 120) / 60) });
+  const stage = document.getElementById("stage"), view = document.getElementById("view");
+  Object.assign(stage.style, { width: FILM.W + "px", height: FILM.H + "px" });
+  view.style.aspectRatio = `${FILM.W}/${FILM.H}`;
+  document.getElementById("name").textContent = name;
+  document.getElementById("what").textContent = spec.what || "";
+  document.title = `${name} preset`;
+  stage.innerHTML = spec.html();
+  collect(stage);
+  if (spec.setup) spec.setup(stage);
+  let T = 0, playing = false, last = 0;
+  const scrub = document.getElementById("scrub");
+  scrub.max = String(FILM.DURATION);
+  window.seek = (t) => { T = t; draw(); return true; };
+  window.PLAYGROUND = { name, P };
+  function draw() {
+    stage.style.transform = `scale(${view.clientWidth / FILM.W})`;
+    const st = spec.frame(T, P);
+    scrub.value = String(T);
+    document.getElementById("tlab").textContent = T.toFixed(2) + "s";
+    document.getElementById("state").textContent = JSON.stringify({ t: +T.toFixed(3), ...(st || {}) }, null, 1);
+  }
+  for (const [key, label, min, max, step] of spec.params) {
+    const l = document.createElement("label");
+    l.innerHTML = `${label} <span>${P[key]}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${P[key]}">`;
+    l.querySelector("input").addEventListener("input", (e) => { P[key] = +e.target.value; l.querySelector("span").textContent = P[key]; draw(); });
+    document.getElementById("sliders").appendChild(l);
+  }
+  scrub.addEventListener("input", () => { T = +scrub.value; draw(); });
+  document.getElementById("play").addEventListener("click", (e) => {
+    playing = !playing; e.target.textContent = playing ? "Pause" : "Play"; last = performance.now();
+    if (playing) requestAnimationFrame(tick);
+  });
+  function tick(now) { if (!playing) return; T += (now - last) / 1000; last = now; if (T > FILM.DURATION) T = 0; draw(); requestAnimationFrame(tick); }
+  document.getElementById("export").addEventListener("click", () => {
+    const json = JSON.stringify({ [name]: P }, null, 1);
+    const out = document.getElementById("out");
+    out.hidden = false;
+    out.textContent = json + "\n\nSaved as " + name + "-defaults.json. Apply: python3 <skill>/tools/film.py playground --apply " + name + "-defaults.json";
+    if (navigator.clipboard) navigator.clipboard.writeText(json).catch(() => {});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    a.download = name + "-defaults.json";
+    a.click();
+  });
+  addEventListener("resize", draw);
+  document.fonts.ready.then(draw);
+})();
+</script>
+</body>
+</html>
