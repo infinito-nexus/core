@@ -37,9 +37,9 @@ class TestEnsure(unittest.TestCase):
                 return_value=["@axe-core/playwright"],
             ),
             mock.patch.object(playwright_mod, "npm_install_local_in_repo"),
+            self.assertRaisesRegex(RuntimeError, "@axe-core/playwright"),
         ):
-            with self.assertRaisesRegex(RuntimeError, "@axe-core/playwright"):
-                playwright_mod.ensure()
+            playwright_mod.ensure()
 
 
 if __name__ == "__main__":
