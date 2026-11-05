@@ -19,6 +19,7 @@ SPEC.loader.exec_module(validator)
 
 
 class ValidationTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("codex"), "needs the Codex CLI")
     def test_native_rejects_legacy_chat_protocol(self):
         with tempfile.TemporaryDirectory(dir="/tmp") as directory:
             home = Path(directory)
@@ -46,6 +47,7 @@ class ValidationTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn(b"startup configuration unavailable", result.stderr)
 
+    @unittest.skipUnless(shutil.which("codex"), "needs the Codex CLI")
     def test_real_cli_accepts_both_modes_and_uses_helper(self):
         with tempfile.TemporaryDirectory(dir="/tmp") as directory:
             home = Path(directory)
@@ -125,8 +127,8 @@ class ValidationTests(unittest.TestCase):
                 "initial_mode": "gateway",
                 "reasoning_effort": "medium",
                 "subscription_model": "",
-                "context_tokens": None,
-                "auto_compact_tokens": None,
+                "context_tokens": 0,
+                "auto_compact_tokens": 0,
                 "editor_data_dir": "",
                 "helper_path": str(SOURCE / "codex_mode.py"),
                 "credential_timeout_ms": 5000,

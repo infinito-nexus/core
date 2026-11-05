@@ -59,7 +59,7 @@ AI_LOCAL_MODELS:
 
 AI_MODEL_CONTEXTS: >-
   {{ (AI_LOCAL_MODELS + (lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')) + AI_FREELLMAPI_MODELS)
-     | selectattr('context', 'defined') | rejectattr('context', 'none') | list | items2dict(key_name='alias', value_name='context') }}
+     | selectattr('context', 'defined') | selectattr('context') | list | items2dict(key_name='alias', value_name='context') }}
 
 AI_MOCK_PROVIDER: mock
 

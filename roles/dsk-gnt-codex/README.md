@@ -53,7 +53,7 @@ stale `model_reasoning_effort: none`, which reasoning-only upstream endpoints
 reject. Subscription mode removes this gateway override. Responses validation
 sends the same reasoning effort as the managed client.
 `context_tokens` and `auto_compact_tokens` apply only in gateway mode; use explicit
-values matching the loaded model or `null` to leave them unmanaged. Configure
+values matching the loaded model or `0` to leave them unmanaged. Configure
 `editor_data_dir` to detect a running editor before writing, or explicitly use
 an empty string on a host without an editor.
 

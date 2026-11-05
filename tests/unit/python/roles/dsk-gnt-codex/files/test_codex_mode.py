@@ -110,6 +110,24 @@ class CodexModeTests(unittest.TestCase):
             )
         self.assertIsNone(manager.read_state(self.home))
 
+    def test_zero_limits_leave_the_window_unmanaged(self):
+        manager.configure(
+            self.home, dict(self.payload, context_tokens=0, auto_compact_tokens=0)
+        )
+        config = self.config()
+        self.assertNotIn("model_context_window", config)
+        self.assertNotIn("model_auto_compact_token_limit", config)
+
+    def test_compaction_without_a_window_refuses_write(self):
+        for limits in (
+            {"context_tokens": 0, "auto_compact_tokens": 1024},
+            {"context_tokens": None, "auto_compact_tokens": 0},
+            {"context_tokens": -1, "auto_compact_tokens": 0},
+        ):
+            with self.subTest(limits=limits), self.assertRaises(ValueError):
+                manager.configure(self.home, dict(self.payload, **limits))
+        self.assertIsNone(manager.read_state(self.home))
+
     def test_disabled_reasoning_is_rejected_before_writing(self):
         with self.assertRaises(ValueError):
             manager.configure(self.home, dict(self.payload, reasoning_effort="none"))

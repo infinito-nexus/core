@@ -100,13 +100,11 @@ def configure(home, payload, mode=None):
         raise ValueError("credential_timeout_ms must be positive")
     context = payload["context_tokens"]
     compact = payload["auto_compact_tokens"]
-    if context is not None and (type(context) is not int or context <= 0):
-        raise ValueError("context_tokens must be positive or null")
-    if compact is not None and (
-        type(compact) is not int or context is None or not 0 < compact < context
-    ):
+    if type(context) is not int or context < 0:
+        raise ValueError("context_tokens must be positive or 0")
+    if type(compact) is not int or (compact and not 0 < compact < context):
         raise ValueError(
-            "auto_compact_tokens must be positive and below context_tokens, or null"
+            "auto_compact_tokens must be positive and below context_tokens, or 0"
         )
     path = home / ".codex/config.toml"
     config = tomllib.loads(path.read_text()) if path.exists() else {}
@@ -125,9 +123,9 @@ def configure(home, payload, mode=None):
         config["model"] = payload["model"]
         config["model_provider"] = "infinito"
         config["model_reasoning_effort"] = payload["reasoning_effort"]
-        if context is not None:
+        if context:
             config["model_context_window"] = context
-        if compact is not None:
+        if compact:
             config["model_auto_compact_token_limit"] = compact
         providers["infinito"] = {
             "name": "Infinito.Nexus gateway",

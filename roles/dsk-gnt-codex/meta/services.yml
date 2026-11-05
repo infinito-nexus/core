@@ -22,8 +22,8 @@ codex:
   initial_mode: gateway
   reasoning_effort: medium
   subscription_model: ""
-  context_tokens:
-  auto_compact_tokens:
+  context_tokens: 0
+  auto_compact_tokens: 0
   editor_data_dir: ""
   credential_timeout_ms: 5000
   validation_timeout: 120
