@@ -88,13 +88,13 @@
     command:
       - >
         ls -1 apps > sites/apps.txt;
-        bench set-config -g db_host "{{ ERPNEXT_DB_HOST }}";
-        bench set-config -gp db_port {{ ERPNEXT_DB_PORT }};
-        bench set-config -g redis_cache    "{{ ERPNEXT_REDIS_URL }}/0";
-        bench set-config -g redis_queue    "{{ ERPNEXT_REDIS_URL }}/1";
-        bench set-config -g redis_socketio "{{ ERPNEXT_REDIS_URL }}/2";
-        bench set-config -gp socketio_port {{ ERPNEXT_WEBSOCKET_PORT }};
-        bench set-config -g host_name "{{ lookup('tls', application_id, 'url.origin') }}";
+        bench set-config -g db_host "{{ ERPNEXT_COMMON_SITE_CONFIG.db_host }}";
+        bench set-config -gp db_port {{ ERPNEXT_COMMON_SITE_CONFIG.db_port }};
+        bench set-config -g redis_cache    "{{ ERPNEXT_COMMON_SITE_CONFIG.redis_cache }}";
+        bench set-config -g redis_queue    "{{ ERPNEXT_COMMON_SITE_CONFIG.redis_queue }}";
+        bench set-config -g redis_socketio "{{ ERPNEXT_COMMON_SITE_CONFIG.redis_socketio }}";
+        bench set-config -gp socketio_port {{ ERPNEXT_COMMON_SITE_CONFIG.socketio_port }};
+        bench set-config -g host_name "{{ ERPNEXT_COMMON_SITE_CONFIG.host_name }}";
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
