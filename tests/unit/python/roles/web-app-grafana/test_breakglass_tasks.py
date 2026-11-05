@@ -2,10 +2,11 @@ import unittest
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-grafana"
 TASKS = load_yaml_any(str(ROLE_DIR / "tasks/01_breakglass.yml"))
-VARS = load_yaml_any(str(ROLE_DIR / "vars/main.yml"))
+VARS = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
 
 
 def _reset_task(tasks):
