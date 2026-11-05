@@ -10,7 +10,7 @@ from pathlib import PurePosixPath
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 FATAL_IO_ERRNOS = frozenset({"1236"})
@@ -54,7 +54,7 @@ def member_of(engine: str, service: str) -> str:
 
 
 def stack_of(engine: str) -> str:
-    return get_entity_name(role_of(engine))
+    return entity_name(role_of(engine))
 
 
 def sql(engine: str, query: str) -> tuple[str | None, list[str]]:

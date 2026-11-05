@@ -23,7 +23,7 @@ from utils.failover.swarm.commands import (
 )
 from utils.failover.targets import RECLONE_CEILING_S
 from utils.roles.db.instances import instance_service
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 REDIS_PREFERRED_PRIORITY = "1"
 REDIS_DEFAULT_PRIORITY = "100"
@@ -34,7 +34,7 @@ class Topology:
     """Mixin of ``SwarmLabBase``: Raft and etcd leaders, inventory edits and redeploys."""
 
     def _etcd_member_on(self, host: str) -> str:
-        etcd_stack = get_entity_name(COORDINATION_ROLE)
+        etcd_stack = entity_name(COORDINATION_ROLE)
         for service in self._stack_services(etcd_stack):
             location = self._locate(service)
             if location and location[0] == host:
@@ -52,7 +52,7 @@ class Topology:
 
     def move_etcd_leader(self, host: str) -> None:
         service = self._etcd_member_on(host)
-        etcd_stack = get_entity_name(COORDINATION_ROLE)
+        etcd_stack = entity_name(COORDINATION_ROLE)
         self._playbook(
             "etcd-operation.yml",
             {
@@ -163,7 +163,7 @@ class Topology:
             raise RuntimeError(
                 f"not at full strength after moving the Raft leader: {detail}"
             )
-        if self._stack_services(get_entity_name(COORDINATION_ROLE)):
+        if self._stack_services(entity_name(COORDINATION_ROLE)):
             self.move_etcd_leader(stack_host)
         self.move_primary_to(stack_host)
         ok, detail = self.wait_full_strength(RECLONE_CEILING_S)
@@ -259,7 +259,7 @@ class Topology:
                 raise RuntimeError(f"volumes of {stack} stayed on {node}")
 
     def wipe_etcd(self) -> None:
-        etcd_stack = get_entity_name(COORDINATION_ROLE)
+        etcd_stack = entity_name(COORDINATION_ROLE)
         members = self._stack_services(etcd_stack)
         if not members:
             raise RuntimeError("no etcd member service to wipe")

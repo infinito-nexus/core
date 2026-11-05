@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_any
 from utils.roles.db.instances import data_engines
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -52,7 +52,7 @@ def without_engine_exposure(variant_payloads: Mapping[str, Any]) -> dict[str, An
         payload = payloads.get(app_id)
         if not isinstance(payload, dict):
             continue
-        service = (payload.get("services") or {}).get(get_entity_name(app_id))
+        service = (payload.get("services") or {}).get(entity_name(app_id))
         if isinstance(service, dict) and "exposed" in service:
             service["exposed"] = False
     return payloads

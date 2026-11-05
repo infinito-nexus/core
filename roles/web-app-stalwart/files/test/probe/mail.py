@@ -14,9 +14,6 @@ every distro the matrix runs.
 and the same recipient is accepted once `<sender>` has authenticated, 1 otherwise.
 Certificate verification is off: the loopback hop reaches Stalwart's bootstrap
 certificate, which matches no hostname.
-A refused connection is retried for up to TIMEOUT seconds: the deploy restarts
-Stalwart for its OIDC and certificate settings just before this probe runs, and
-/healthz/ready answers before the SMTP listeners are bound again.
 """
 
 from __future__ import annotations

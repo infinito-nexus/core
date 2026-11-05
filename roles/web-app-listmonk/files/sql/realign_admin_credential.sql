@@ -2,8 +2,6 @@
 -- without superuser rights.
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-\getenv pw LISTMONK_REALIGN_PASSWORD
-
 \if :create
 INSERT INTO users (username, password_login, password, email, name, type, user_role_id, status)
 SELECT :'login', :'password_login'::boolean, crypt(:'pw', gen_salt('bf')), :'email', :'login',
@@ -25,7 +23,7 @@ WHERE username = :'login'
 
 SELECT CASE
          WHEN length(:'pw') = 0
-           THEN '[FAIL] LISTMONK_REALIGN_PASSWORD did not reach the container'
+           THEN '[FAIL] the administrator password did not reach psql'
          WHEN NOT EXISTS (SELECT 1 FROM users WHERE username = :'login')
            THEN '[FAIL] no account named ' || :'login'
          WHEN :created = 1 THEN '[CHANGED] the Super Admin ' || :'login' || ' was created'

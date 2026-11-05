@@ -47,11 +47,6 @@ ENGINE_OPTIONS = {
 }
 
 
-def _env(name: str, fallback: str = "") -> str:
-    # nocheck: environ-get-default  the variable only seeds an argparse default; an absent one leaves the option to its command-line flag or the elector's own timing constant
-    return os.environ.get(f"ELECTOR_{name}", fallback)
-
-
 def _from_env(name: str, required: bool = True) -> dict[str, Any]:
     """Return the argparse kwargs of an option fed by ``ELECTOR_<name>``.
 
@@ -59,7 +54,7 @@ def _from_env(name: str, required: bool = True) -> dict[str, Any]:
         name: environment suffix of the option.
         required: whether the option must be set when the variable is absent.
     """
-    value = _env(name)
+    value = os.environ.get(f"ELECTOR_{name}")
     return {"default": value or None, "required": required and not value}
 
 
@@ -83,15 +78,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     add("--etcd-password-file", **_from_env("ETCD_PASSWORD_FILE"))
     add("--etcd-ca-file", **_from_env("ETCD_CA_FILE", required=False))
     add("--key", **_from_env("KEY"))
-    add("--listen", default=_env("LISTEN", "0.0.0.0"))  # noqa: S104 - health endpoint must be reachable from other containers
+    add("--listen", default="0.0.0.0")  # noqa: S104 - health endpoint must be reachable from other containers
     add("--port", type=int, **_from_env("PORT"))
-    add("--lease", type=float, default=float(_env("LEASE", str(LEASE_SECONDS))))
-    add(
-        "--renew-deadline",
-        type=float,
-        default=float(_env("RENEW_DEADLINE", str(RENEW_DEADLINE_SECONDS))),
-    )
-    add("--retry", type=float, default=float(_env("RETRY", str(RETRY_SECONDS))))
+    add("--lease", type=float, default=LEASE_SECONDS)
+    add("--renew-deadline", type=float, default=RENEW_DEADLINE_SECONDS)
+    add("--retry", type=float, default=RETRY_SECONDS)
     add("--mariadb-defaults-file", **_from_env("MARIADB_DEFAULTS_FILE", False))
     add("--mariadb-socket", **_from_env("MARIADB_SOCKET", False))
     add("--mariadb-local-user", **_from_env("MARIADB_LOCAL_USER", False))

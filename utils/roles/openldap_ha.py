@@ -82,6 +82,7 @@ def render_cn_config(
     suffix: str,
     root_dn: str,
     schemas: Sequence[Mapping],
+    uid_max_length: int,
 ) -> str:
     """Render one instance's complete ``cn=config`` as LDIF.
 
@@ -95,6 +96,7 @@ def render_cn_config(
         suffix: data tree suffix.
         root_dn: data tree root DN; also the syncrepl bind DN.
         schemas: custom schemas, each ``{name, attribute_types, object_classes}``.
+        uid_max_length: longest ``uid`` the constraint overlay accepts.
     """
     ids = server_ids(host_ids)
     if host_id not in ids:
@@ -126,6 +128,7 @@ def render_cn_config(
             "olcModuleLoad: {1}memberof",
             "olcModuleLoad: {2}refint",
             "olcModuleLoad: {3}syncprov",
+            "olcModuleLoad: {4}constraint",
         ),
         _entry("cn=schema,cn=config", "objectClass: olcSchemaConfig", "cn: schema"),
         "\n\n".join(
@@ -193,6 +196,13 @@ def render_cn_config(
             "objectClass: olcRefintConfig",
             "olcOverlay: {2}refint",
             "olcRefintAttribute: memberOf member manager owner",
+        ),
+        _entry(
+            f"olcOverlay={{3}}constraint,{DATA_DATABASE_DN}",
+            "objectClass: olcOverlayConfig",
+            "objectClass: olcConstraintConfig",
+            "olcOverlay: {3}constraint",
+            f"olcConstraintAttribute: uid size {uid_max_length}",
         ),
     ]
     return "\n\n".join(entries) + "\n"

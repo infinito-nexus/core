@@ -8,7 +8,7 @@
     - IS_STACK_HOST | bool
   block:
     - name: "✅ Ensure {{ application_id }} volumes directory exists"
-      # nocheck: path-single-owner  only HA engines (svc-db-*) call this helper, so the path never is a seaweedfs volumes dir
+      # nocheck: path-single-owner  every setter of this path sets the identical mode 0755
       ansible.builtin.file:
         path: "{{ lookup('container', application_id, 'directories.volumes') }}"
         state: directory

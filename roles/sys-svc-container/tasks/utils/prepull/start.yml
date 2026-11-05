@@ -6,7 +6,7 @@
   when:
     - not (STORAGE_CONSTRAINED | bool)
     - not (MODE_RESET | bool)
-    - IS_STACK_HOST | bool
+    - IS_COMPOSE_MODE | bool or IS_SWARM_MANAGER | bool
   block:
     - name: "🧮 Derive the images the deploy of the host runs"
       ansible.builtin.set_fact:

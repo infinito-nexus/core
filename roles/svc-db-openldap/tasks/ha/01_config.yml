@@ -17,7 +17,8 @@
            'ldap://' ~ OPENLDAP_HA_PEER_TEMPLATE,
            LDAP.DN.ROOT,
            OPENLDAP_BIND_DN,
-           OPENLDAP_SCHEMAS) }}
+           OPENLDAP_SCHEMAS,
+           IAM_USERNAME_MAX_LENGTH) }}
     dest: "{{ OPENLDAP_HA_CN_CONFIG_SOURCE | replace('{host_id}', item) }}"
     mode: "0644"
   loop: "{{ OPENLDAP_HA_HOST_IDS }}"

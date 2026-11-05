@@ -13,24 +13,6 @@ etcd is Swarm-only infrastructure the project owns. On Kubernetes the database o
 - **Static bootstrap:** the `--initial-cluster` list is rendered from the member list.
 - **Lifecycle:** `alpha`. It is promoted to beta only once the failover suite and the HA rows of the CI topology axis are green, with Tor, at the HA size.
 
-## Cosmos
-
-The diagram places etcd in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-    end
-    subgraph role [svc-dcs-etcd 🐝]
-        svc_etcd["etcd"]
-        svc_container_backup["container_backup"]
-    end
-    dep_svc_bkp_volume_2_local -- "1:1" --> svc_container_backup
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Swarm-only coordination store** for Patroni and the writer elector, deployed only when an engine runs in HA form.

@@ -3,7 +3,7 @@ import io
 import unittest
 import unittest.mock as mock
 
-from utils.tests.swarm import matrix, run
+from utils.tests.swarm import matrix, run, watchdog
 
 
 class TestRunReporting(unittest.TestCase):
@@ -76,8 +76,8 @@ class TestTopProcesses(unittest.TestCase):
 
     def _top(self, stdout: str, rows: int = 12) -> list[str]:
         result = mock.Mock(stdout=stdout)
-        with mock.patch.object(run.subprocess, "run", return_value=result):
-            return run.top_processes(rows)
+        with mock.patch.object(watchdog.subprocess, "run", return_value=result):
+            return watchdog.top_processes(rows)
 
     def test_reads_the_second_frame(self) -> None:
         self.assertEqual(
@@ -92,8 +92,8 @@ class TestTopProcesses(unittest.TestCase):
         self.assertEqual(self._top("garbage"), [])
 
     def test_a_missing_top_yields_nothing(self) -> None:
-        with mock.patch.object(run.subprocess, "run", side_effect=OSError):
-            self.assertEqual(run.top_processes(), [])
+        with mock.patch.object(watchdog.subprocess, "run", side_effect=OSError):
+            self.assertEqual(watchdog.top_processes(), [])
 
 
 if __name__ == "__main__":

@@ -40,6 +40,8 @@ STORAGE_ROOTS = ("/", "/var/lib/containerd")
 MEM_FLOOR_RATIO = 0.06
 IO_STALL_CEILING_PCT = 50.0
 SAMPLE_INTERVAL_S = 10
+TOP_ROWS = 12
+TOP_EVERY_SAMPLES = 60
 STALL_WINDOW_S = 60
 WEDGE_SAMPLES = 2
 ABORT_RC = 75
@@ -150,6 +152,45 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
         return _watch(proc)
 
 
+def top_processes(rows: int = TOP_ROWS) -> list[str]:
+    """Return the busiest processes of the runner over a 3 s window.
+
+    The lab nodes are containers on the runner's kernel, so this sees every
+    nested container process too. The first ``top`` frame averages over each
+    process's lifetime; only the second frame covers the window.
+
+    Args:
+        rows: how many process lines to return.
+
+    Returns:
+        ``"<%CPU> <command>"`` lines, busiest first; empty when ``top`` fails.
+    """
+    try:
+        out = subprocess.run(
+            ["top", "-b", "-n", "2", "-d", "3", "-o", "%CPU", "-w", "200"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        ).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    frame = out.rsplit("\n\n", 2)[-1].splitlines()
+    header = next((i for i, line in enumerate(frame) if "%CPU" in line), None)
+    if header is None:
+        return []
+    columns = frame[header].split()
+    cpu, command = columns.index("%CPU"), columns.index("COMMAND")
+    lines = []
+    for line in frame[header + 1 :]:
+        fields = line.split(None, command)
+        if len(fields) > command:
+            lines.append(f"{fields[cpu]} {fields[command]}")
+        if len(lines) == rows:
+            break
+    return lines
+
+
 def _watch(proc: subprocess.Popen[bytes]) -> int:
     samples = 0
     wedged = 0
@@ -183,6 +224,11 @@ def _watch(proc: subprocess.Popen[bytes]) -> int:
                 ),
                 flush=True,
             )
+            if samples % TOP_EVERY_SAMPLES == 0:
+                print(
+                    "=== swarm-matrix: top cpu " + " | ".join(top_processes()) + " ===",
+                    flush=True,
+                )
             if total and avail < total * MEM_FLOOR_RATIO:
                 return _abort(
                     proc,

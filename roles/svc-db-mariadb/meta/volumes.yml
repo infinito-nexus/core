@@ -23,7 +23,7 @@ haproxy_tmp:
       size: 1m
       when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
 
-ha_server_cnf: # nocheck: config-volume-producer  tasks/ha/02_files.yml renders templates/ha/server.cnf.j2 into lookup('volume', …, 'ha_server_cnf', field='source')
+ha_server_cnf:
   type: config
   source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'ha-server.cnf'] | path_join }}"
   mode: "0444"

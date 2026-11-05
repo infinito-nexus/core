@@ -6,7 +6,7 @@ import hashlib
 import re
 from typing import TYPE_CHECKING
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.meta_lookup import (
     get_role_ha,
     get_role_service_keys,
@@ -51,7 +51,7 @@ def data_engines() -> frozenset[str]:
 def coordinated_engines() -> frozenset[str]:
     """Return the data engines that declare the coordination store's
     service in their ``meta/services.yml``, i.e. the ones that use it."""
-    store = get_entity_name(coordination_store())
+    store = entity_name(coordination_store())
     return frozenset(r for r in data_engines() if store in get_role_service_keys(r))
 
 
@@ -88,9 +88,7 @@ def ha_spec(application_id: str) -> dict:
         "coordination_store": capable and raw.get("coordination_store") is True,
         "host_group": raw.get("host_group") if capable else None,
         "probe": (
-            f"{PRIMARY_PROBE_PREFIX}{get_entity_name(application_id)}"
-            if source
-            else None
+            f"{PRIMARY_PROBE_PREFIX}{entity_name(application_id)}" if source else None
         ),
         "primary_probe": source,
         "backup": raw.get("backup") if capable else None,
@@ -122,7 +120,7 @@ def primary_probes() -> list[dict]:
                 "name": spec["probe"],
                 "src": None if http else spec["primary_probe"],
                 "application_id": app_id,
-                "entity": get_entity_name(app_id),
+                "entity": entity_name(app_id),
                 "check_port": endpoint.get("check_port") if http else None,
                 "check_path": endpoint.get("check_path") if http else None,
             }
@@ -136,7 +134,7 @@ def engine_word(application_id: str) -> str:
             f"db_instances: '{application_id}' is not an HA-capable engine role "
             "(its meta/services.yml primary entity declares no ha.capable)"
         )
-    return get_entity_name(application_id)
+    return entity_name(application_id)
 
 
 def sanitize_host_id(hostname: str) -> str:
@@ -179,7 +177,7 @@ def build_instances(
         "ha": ha_spec(application_id)}`` where each instance has ``host``,
         ``host_id``, ``service``, ``volume``.
     """
-    engine = get_entity_name(application_id)
+    engine = entity_name(application_id)
     legacy_volume = f"{engine}_data"
     hosts = list(hosts)
     spec = ha_spec(application_id)
@@ -289,7 +287,7 @@ def instance_service(
         service_key: a sidecar service key such as ``sentinel``; ``None`` or
             the engine word names the instance itself.
     """
-    engine = get_entity_name(application_id)
+    engine = entity_name(application_id)
     if not service_key or service_key == engine:
         return instance["service"]
     if not instance.get("host_id"):

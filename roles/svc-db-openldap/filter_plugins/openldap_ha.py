@@ -21,7 +21,9 @@ def openldap_server_ids(host_ids):
         raise AnsibleFilterError(str(exc)) from exc
 
 
-def openldap_cn_config(host_id, host_ids, peer_template, suffix, root_dn, schemas):
+def openldap_cn_config(
+    host_id, host_ids, peer_template, suffix, root_dn, schemas, uid_max_length
+):
     try:
         return render_cn_config(
             host_id=host_id,
@@ -30,6 +32,7 @@ def openldap_cn_config(host_id, host_ids, peer_template, suffix, root_dn, schema
             suffix=suffix,
             root_dn=root_dn,
             schemas=list(schemas),
+            uid_max_length=int(uid_max_length),
         )
     except OpenLDAPHAError as exc:
         raise AnsibleFilterError(str(exc)) from exc

@@ -10,7 +10,7 @@
 
 - name: "📄 MariaDB HA | Render the server profile"
   stack_host_template:
-    src: ha/server.cnf.j2
+    src: ha/ha-server.cnf.j2
     dest: "{{ lookup('volume', application_id, 'ha_server_cnf', field='source') }}"
     mode: "0644"
 

@@ -39,6 +39,7 @@ def _render(**overrides):
         "suffix": "dc=infinito,dc=example",
         "root_dn": "cn=administrator,dc=infinito,dc=example",
         "schemas": SCHEMAS,
+        "uid_max_length": 32,
     }
     kwargs.update(overrides)
     return render_cn_config(**kwargs)
@@ -155,6 +156,12 @@ class TestRenderCnConfig(unittest.TestCase):
         self.assertIn("olcMemberOfAddCheck: TRUE", ldif)
         self.assertIn("olcOverlay: {2}refint", ldif)
         self.assertIn("olcModuleLoad: {3}syncprov", ldif)
+
+    def test_uid_length_matches_the_standalone_constraint(self):
+        ldif = _render(uid_max_length=21)
+        self.assertIn("olcModuleLoad: {4}constraint", ldif)
+        self.assertIn("olcOverlay: {3}constraint", ldif)
+        self.assertIn("olcConstraintAttribute: uid size 21", ldif)
 
     def test_secrets_are_placeholders(self):
         ldif = _render()

@@ -80,7 +80,7 @@ def mem_total_mb() -> int:
     return _meminfo_mb("MemTotal:")
 
 
-def pressure_pct(resource: str, kind: str = "full") -> float:
+def _pressure_pct(resource: str, kind: str) -> float:
     """`<kind> avg60` from /proc/pressure/<resource> in percent.
 
     Args:
@@ -110,7 +110,7 @@ def pressure_pct(resource: str, kind: str = "full") -> float:
 
 def mem_stall_pct() -> float:
     """`full avg60` from /proc/pressure/memory in percent. 0.0 on failure."""
-    return pressure_pct("memory", "full")
+    return _pressure_pct("memory", "full")
 
 
 def io_stall_pct() -> float:
@@ -119,7 +119,7 @@ def io_stall_pct() -> float:
     `full` is the share of the last minute in which every non-idle task was
     blocked on I/O, which is the signature of a wedged mount rather than of
     a busy one."""
-    return pressure_pct("io", "full")
+    return _pressure_pct("io", "full")
 
 
 def cpu_stall_pct() -> float:
@@ -128,7 +128,7 @@ def cpu_stall_pct() -> float:
     The kernel emits a system-level `full` line for cpu but keeps it pinned
     at 0, so reading cpu like its memory and io siblings would report a
     constant zero."""
-    return pressure_pct("cpu", "some")
+    return _pressure_pct("cpu", "some")
 
 
 def uninterruptible_procs() -> int:

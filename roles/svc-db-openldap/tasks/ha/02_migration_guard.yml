@@ -24,7 +24,8 @@
         _rendered: >-
           {{ OPENLDAP_HA_HOST_IDS[0] | openldap_cn_config(
                OPENLDAP_HA_HOST_IDS, 'ldap://' ~ OPENLDAP_HA_PEER_TEMPLATE,
-               LDAP.DN.ROOT, OPENLDAP_BIND_DN, OPENLDAP_SCHEMAS) }}
+               LDAP.DN.ROOT, OPENLDAP_BIND_DN, OPENLDAP_SCHEMAS,
+               IAM_USERNAME_MAX_LENGTH) }}
         _dropped: "{{ _live_schemas | openldap_schema_drops(_rendered) }}"
       ansible.builtin.assert:
         that: _dropped | length == 0
