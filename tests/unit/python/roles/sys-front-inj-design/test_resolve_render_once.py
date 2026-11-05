@@ -49,7 +49,7 @@ LEGACY_OVERLAY = load_yaml_str(
   set_fact:
     app_style_present: "{{ _app_style_css | length > 0 }}"
 - vars:
-    _design_configured: "{{ 'INFINITO_DESIGN' in design_body_js }}"
+    _design_configured: "{{ 'INFINITO_DESIGN' in design_body_js }}"  # nocheck: JS marker in the embedded legacy task, not an environment key
     _design_js: >-
       {{ (lookup('template', _design_compose_src) | trim)
          if _design_configured | bool else design_body_js }}

@@ -362,6 +362,25 @@ class TestFailures(_Tree):
         self._assert_failed(result, "../evil")
         self.assertFalse((self.root / "evil").exists())
 
+    def test_interior_parent_reference_member_fails(self):
+        result = self._run(
+            {"icon.png": b"new", "evil": b"x"},
+            names={"evil": "nested/../../evil"},
+            digests={"icon.png": _sha1(b"new")},
+        )
+
+        self._assert_failed(result, "nested/../../evil")
+        self.assertFalse((self.root / "evil").exists())
+
+    def test_interior_parent_reference_that_stays_inside_fails(self):
+        result = self._run(
+            {"icon.png": b"new", "evil": b"x"},
+            names={"evil": "a/../b"},
+            digests={"icon.png": _sha1(b"new")},
+        )
+
+        self._assert_failed(result, "a/../b")
+
     def test_absolute_member_fails(self):
         result = self._run(
             {"icon.png": b"new", "evil": b"x"},

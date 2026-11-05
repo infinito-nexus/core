@@ -36,6 +36,7 @@ Returns:
 
 import hashlib
 import os
+import posixpath
 import shutil
 import stat
 import tarfile
@@ -78,7 +79,7 @@ def is_relative(name):
         bool(path.parts)
         and str(path) == name
         and not path.is_absolute()
-        and ".." not in path.parts
+        and posixpath.normpath("/" + name) == "/" + name
     )
 
 

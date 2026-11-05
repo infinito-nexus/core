@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import unittest
 from functools import cache
@@ -7,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from plugins.lookup.role_templates_expanded import DEFAULTS as RENDERER_DEFAULTS
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.invocations import iter_tasks
 from utils.roles.mapping import (
@@ -341,6 +342,7 @@ class TestComposeFileSingleWriter(unittest.TestCase):
     def test_roles_leave_compose_files_to_sys_svc_compose(self) -> None:
         modes = compose_modes()
         found: list[str] = []
+        yml_files = sorted(iter_project_files(extensions=(".yml",)))
         for role_dir in sorted((PROJECT_ROOT / "roles").iterdir()):
             if role_dir.name == COMPOSE_ROLE or not (role_dir / "tasks").is_dir():
                 continue
@@ -348,7 +350,8 @@ class TestComposeFileSingleWriter(unittest.TestCase):
             if not keys:
                 continue
             variables = role_variables(role_dir)
-            for path in sorted((role_dir / "tasks").rglob("*.yml")):
+            tasks_prefix = f"{role_dir / 'tasks'}{os.sep}"
+            for path in (Path(p) for p in yml_files if p.startswith(tasks_prefix)):
                 rel = path.relative_to(PROJECT_ROOT).as_posix()
                 found.extend(
                     violations(
