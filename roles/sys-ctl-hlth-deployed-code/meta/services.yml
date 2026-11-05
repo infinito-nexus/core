@@ -10,3 +10,12 @@ deployed-code:
   # Exception: the proof checkout lives in this role because it is one of its checkouts, used only by the Wazuh CLI test in dev and CI (SPOT).
   # Param proof_checkout: a throwaway checkout the Wazuh CLI test may wipe and rebuild to prove each rule; it must also be listed in checkouts. Empty outside dev and CI.
   proof_checkout: ""
+  # Exception: the API base URLs live in this role's config, not in defaults/main.yml, so the config lookup is the one place an inventory overrides them, per provider, under applications.sys-ctl-hlth-deployed-code.services.deployed-code.providers.<provider>.api_url (SPOT).
+  # Param providers: per git provider, the REST API base URL the signature check asks. Gitea and GitLab default to this deployment's own web-app-gitea and web-app-gitlab when a host runs them, and are empty otherwise.
+  providers:
+    github:
+      api_url: "https://api.github.com"
+    gitea:
+      api_url: "{{ (lookup('tls', 'web-app-gitea', 'url.base') ~ '/api/v1') if (groups['web-app-gitea'] | default([]) | length > 0) else '' }}"
+    gitlab:
+      api_url: "{{ (lookup('tls', 'web-app-gitlab', 'url.base') ~ '/api/v4') if (groups['web-app-gitlab'] | default([]) | length > 0) else '' }}"
