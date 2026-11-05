@@ -4,7 +4,7 @@
 # images-build-ci to capture before/after of large multi-arch builds.
 #
 # Usage:
-#   disk_pressure_report.sh LABEL    # LABEL = "START" / "END" / ...
+#   disk/pressure_report.sh LABEL    # LABEL = "START" / "END" / ...
 set -euo pipefail
 
 LABEL="${1:-snapshot}"
