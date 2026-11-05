@@ -1,5 +1,9 @@
 Logger.put_process_level(self(), :error)
-%{"email" => email, "password" => password, "username" => username} = Jason.decode!(IO.read(:stdio, :eof))
+
+%{"email" => email, "password" => password, "username" => username, "role" => role} =
+  Jason.decode!(IO.read(:stdio, :eof))
+
+role = String.to_existing_atom(role)
 
 {user, changes} =
   case Mobilizon.Users.get_user_by_email(email) do
@@ -10,7 +14,7 @@ Logger.put_process_level(self(), :error)
 
       attrs =
         Map.merge(
-          if(user.role == :administrator, do: %{}, else: %{role: :administrator}),
+          if(user.role == role, do: %{}, else: %{role: role}),
           if(stale_password, do: %{password: password}, else: %{})
         )
 
@@ -26,7 +30,7 @@ Logger.put_process_level(self(), :error)
         Mobilizon.Users.register(%{
           email: email,
           password: password,
-          role: :administrator,
+          role: role,
           confirmed_at: DateTime.utc_now(),
           confirmation_sent_at: nil,
           confirmation_token: nil
@@ -45,4 +49,4 @@ changes =
       changes
   end
 
-IO.puts("MOBILIZON_ADMINISTRATOR=" <> if(changes == [], do: "unchanged", else: "changed"))
+IO.puts("MOBILIZON_ACCOUNT=" <> if(changes == [], do: "unchanged", else: "changed"))

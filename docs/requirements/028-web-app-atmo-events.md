@@ -135,7 +135,7 @@ A long-running worker (own image, gated on both endpoints present) that:
 
 ### Phase 1 — `web-app-atmo` deploys and serves (MVP)
 
-- [ ] `roles/web-app-atmo/` exists with the standard meta surface and passes the repo's role-meta lint (per [008](README.md#archive)/[011](README.md#archive)).
+- [x] `roles/web-app-atmo/` exists with the standard meta surface and passes the repo's role-meta lint (per [008](README.md#archive)/[011](README.md#archive)). `roles/web-app-atmo/meta/` carries `main`, `info`, `domains`, `csp`, `services`, `secrets`, `users`, `variants`, `volumes`, `networks` and `license`, where `domains`, `csp` and `secrets` are the current names of the proposed `server` and `schema` files, and the role-meta suite `tests/lint/ansible/roles/meta/` passes over the tree (141 tests, 296 subtests).
 - [x] Open Question 1 (worker runtime) is resolved and the chosen approach is recorded in the role README.
 - [ ] `rsvp.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` and returns HTTP 200 on `GET /` with the atmo appview HTML.
 - [x] The image is self-built from `files/` and pinned to a concrete upstream git ref in `meta/services.yml` (no `:latest`).
@@ -155,7 +155,7 @@ A long-running worker (own image, gated on both endpoints present) that:
 - [ ] Creating a calendar event on the atmo instance results, within a bounded delay, in a matching event published by [`web-app-mobilizon`](../../roles/web-app-mobilizon/) at `event.{{ DOMAIN_PRIMARY }}` and thus federated over ActivityPub.
 - [ ] Updating the source AT record updates the mirrored Mobilizon event (mapping table resolves the target id); deleting the source record removes or cancels the Mobilizon event.
 - [x] The `{ at_uri ↔ mobilizon_event_id }` mapping persists to a role-local store and is designed to support future dedup for a reverse path (Open Question 4).
-- [ ] Before the role leaves `pre-alpha`, the bridge signs in to Mobilizon with a dedicated account and its own secret, which `web-app-mobilizon` provisions with a profile, and no bridge env file carries a credential of `users.platform_administrator`.
+- [ ] Before the role leaves `pre-alpha`, the bridge signs in to Mobilizon with a dedicated account and its own secret, which `web-app-mobilizon` provisions with a profile, and no bridge env file carries a credential of `users.platform_administrator`. *The bridge's account is `web-app-mobilizon-atmo-bridge` (Mobilizon username `atmo_bridge`, `accounts: []`) in [web-app-mobilizon/meta/users.yml](../../roles/web-app-mobilizon/meta/users.yml), and the inventory pins it its own password. [test_bridge_env.py](../../tests/unit/python/roles/web-app-atmo/templates/test_bridge_env.py) renders [env/bridge.j2](../../roles/web-app-atmo/templates/env/bridge.j2) and finds the account's email and password with no credential of the platform administrator; the same render of the former template reports both keys. [tasks/01_design.yml](../../roles/web-app-mobilizon/tasks/01_design.yml) creates it with a profile and the Mobilizon role `user` through [account.exs](../../roles/web-app-mobilizon/files/elixir/account.exs) whenever the atmo `bridge` flag is on, which [test_accounts.py](../../tests/unit/python/roles/web-app-mobilizon/test_accounts.py) resolves for atmo absent, bridge off and bridge on. Ticking needs one deploy of `web-app-atmo` with `web-app-mobilizon` and `web-app-bluesky` in which the account script runs and the bridge's heartbeat follows a successful login.*
 
 ### Deferred to a follow-up requirement (NOT in scope here)
 
