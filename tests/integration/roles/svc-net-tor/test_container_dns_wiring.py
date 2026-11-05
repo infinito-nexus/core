@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from tests.integration.roles import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
+from utils.networks.tor_egress import plan as tor_egress_plan
 
 ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
 CORE = PROJECT_ROOT / "roles/svc-net-tor/tasks/00_core.yml"
@@ -33,6 +34,14 @@ def _render_dnsmasq(**overrides):
         "TOR_HS_BACKEND_HOST": "172.17.0.1",
         "TOR_DNS_PORT": 9053,
         "TOR_DNS_UPSTREAMS": ["172.30.0.53"],
+        "TOR_EGRESS_ROUTE": "onion",
+        "TOR_EGRESS_PLAN": tor_egress_plan(
+            {
+                "tor": {"include": [], "except": []},
+                "direct": {"include": [], "except": []},
+            },
+            "onion",
+        ),
     }
     variables.update(overrides)
     env = Environment(

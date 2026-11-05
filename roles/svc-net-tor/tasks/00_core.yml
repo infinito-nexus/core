@@ -140,8 +140,8 @@
     - IS_STACK_HOST | bool
     - TOR_RESTART_REQUIRED | bool
 
-- name: "🧅 Bring up the transparent .onion egress router"
-  when: TOR_EGRESS_ROUTER_ENABLED | bool
+- name: "🧅 Bring up the transparent egress router for route '{{ TOR_EGRESS_ROUTE }}'"
+  when: TOR_EGRESS_ROUTE != 'none'
   block:
     - name: "🧅 Wire the host-level transparent .onion egress router"
       include_tasks:

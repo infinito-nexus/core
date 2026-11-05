@@ -12,7 +12,33 @@ TOR_FLAVOR: "{{ lookup('config', application_id, 'services.tor.flavor') }}"
 TOR_ONION_SSH_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.ssh') | bool }}"
 TOR_ONION_HTTP_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.http') | bool }}"
 TOR_ONION_EXTRA_PORTS: "{{ lookup('tor_extra_ports') }}"
-TOR_EGRESS_ROUTER_ENABLED: "{{ lookup('config', application_id, 'services.tor.egress.enabled') | bool }}"
+TOR_EGRESS_ROUTE: "{{ lookup('config', application_id, 'services.tor.egress.route') }}"
+TOR_EGRESS_LISTS: "{{ lookup('config', application_id, 'services.tor.egress') }}"
+TOR_EGRESS_PLAN: "{{ TOR_EGRESS_LISTS | tor_egress_plan(TOR_EGRESS_ROUTE) }}"
+# Repeats the FIREWALL_TABLE derivation of svc-net-firewall: dnsmasq is configured before that role runs, and router.yml asserts both agree.
+TOR_EGRESS_NFT_TABLE: "infinito_{{ application_id | regex_replace('[^a-zA-Z0-9]', '_') }}"
+TOR_EGRESS_SOCKET_UID: 0
+TOR_EGRESS_SOCKET_GID: 9050
+TOR_EGRESS_CT_MARK: "0x544f5200"
+TOR_EGRESS_NFTSET_TIMEOUT: "1h"
+TOR_EGRESS_DNS_MAX_CACHE_TTL: 300
+TOR_EGRESS_RESOLVER_PORTS:
+  - "{{ NETWORK_DNS_PORT }}"
+  - 853
+TOR_EGRESS_RESOLVER_CIDRS: >-
+  {{ [ NETWORK_LOOPBACK_CIDR ]
+     + ([ TOR_CONTAINER_DNS_HOST ] if TOR_CONTAINER_DNS_HOST | length > 0 else [])
+     + (lookup('applications') | tor_egress_role_subnets(group_names)) }}
+TOR_EGRESS_NONROUTABLE_IPV4:
+  - 169.254.0.0/16
+  - 224.0.0.0/4
+  - 255.255.255.255
+TOR_EGRESS_LOCAL_IPV6:
+  - "{{ NETWORK_LOOPBACK_IPV6 }}"
+  - fe80::/10
+  - fc00::/7
+  - ff00::/8
+TOR_DNSMASQ_USER: dnsmasq
 TOR_EGRESS_VIRTUAL_NET_IPV4: "{{ NETWORK_TOR_VIRTUAL_CIDR }}"
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
