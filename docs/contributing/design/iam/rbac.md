@@ -115,6 +115,36 @@ domains:
 
 [web-app-keycloak](../../../../roles/web-app-keycloak/meta/rbac.yml) declares `user-manager`, `auditor` and `impersonator`, each with the `realm-management` client roles it carries under `realm_management`. [09_console_rbac.yml](../../../../roles/web-app-keycloak/tasks/update/09_console_rbac.yml) grants those roles to each group after the per-app mapper resync. A role with a non-empty `realm_management` list counts as an administrator role, so only a platform administrator may grant it through the [access-request service](../../../../roles/web-svc-access-request/README.md). `KEYCLOAK_RBAC_RUN_APP_IDS` always contains `web-app-keycloak`, so every run of the role provisions these groups, also an update whose `APPLICATIONS_WHITELIST` names only other applications. `realm-admin` is never granted to a group; the local bootstrap account keeps it.
 
+## Header-trust roles 🪪
+
+These roles log a user in from an identity header that openresty sets after oauth2-proxy verified the session. Openresty is the trust boundary: every proxying location blanks the headers listed in `TRUSTED_IDENTITY_HEADERS` of [header_trust.py](../../../../utils/roles/header_trust.py) before it sets its own, so a client cannot forge them. A published backend port bypasses that boundary, which is why these backends bind `DOCKER_BIND_HOST` and publish no `ports.local` port in swarm. A proxy secret, where present, is a second gate: the backend accepts the header only together with a secret that only openresty sends.
+
+[header_trust.py](../../../../utils/roles/header_trust.py) detects a header-trust role from its files: any file outside docs and Playwright specs that names a trusted header in any spelling. Each such role declares the rest under its `sso` service block in `meta/services.yml`:
+
+```yaml
+sso:
+  header_trust:
+    proxy_secret: sso_proxy_secret
+    switch: "lookup('sso', application_id, 'is_proxy_gated')"
+```
+
+`proxy_secret` names the `credentials` key of `meta/secrets.yml` whose value openresty sends beside the header, or is `false` when the header alone logs the user in. `switch` is the expression that turns the trust on; every `services.` path it names resolves in the role's `meta/services.yml`. A file that names a header without trusting it carries `# nocheck: header-trust` in its head, and the reason its marker states is the reason listed below.
+
+The docs build renders the table between these markers; git holds them empty:
+
+<!-- header-trust-table:begin -->
+<!-- header-trust-table:end -->
+
+Candidates that trust no header and that no file names, so neither table above lists them:
+
+| Role | Why it trusts no header |
+|---|---|
+| `web-app-funkwhale` | Funkwhale signs users in against LDAP itself (`FUNKWHALE_LDAP_ENABLED`); the SSO gate only guards the front door. |
+| `web-app-fusiondirectory` | FusionDirectory binds to LDAP with the user's own credentials. |
+| `web-app-akaunting` | Akaunting signs users in through LDAP (`AKAUNTING_LDAP_ENABLED`) or its own OIDC login. |
+
+[test_header_trust_declaration.py](../../../../tests/lint/ansible/roles/test_header_trust_declaration.py) fails when a detected role declares nothing, when a declaration sits on a role nothing detects, or when a declaration does not resolve. [test_header_trust_table_not_committed.py](../../../../tests/lint/repository/documentation/test_header_trust_table_not_committed.py) keeps the committed block empty and the candidates above undetected.
+
 ## See also 🔗
 
 - [common.md](common.md)

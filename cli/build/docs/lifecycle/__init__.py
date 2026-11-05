@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cli.build.docs import markers
+
 if TYPE_CHECKING:
     from utils.roles.lifecycle import Lifecycle
 
@@ -48,7 +50,7 @@ def render(spot: Lifecycle) -> str:
 
 
 def replace_block(text: str, block: str) -> str:
-    """*text* with everything between the markers replaced by *block*.
+    """*text* with everything between the lifecycle markers replaced by *block*.
 
     Args:
         text: the document.
@@ -57,11 +59,4 @@ def replace_block(text: str, block: str) -> str:
     Raises:
         ValueError: the markers are missing, repeated or out of order.
     """
-    lines = text.splitlines(keepends=True)
-    begins = [i for i, line in enumerate(lines) if line.strip() == BEGIN]
-    ends = [i for i, line in enumerate(lines) if line.strip() == END]
-    if len(begins) != 1 or len(ends) != 1 or begins[0] > ends[0]:
-        raise ValueError(f"{DOC} needs exactly one {BEGIN} line before one {END} line")
-    head = "".join(lines[: begins[0] + 1])
-    tail = "".join(lines[ends[0] :])
-    return f"{head}\n{block}\n\n{tail}"
+    return markers.replace_block(text, block, begin=BEGIN, end=END, doc=DOC)

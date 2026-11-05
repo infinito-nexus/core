@@ -98,6 +98,9 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: auth_source_sso_secret
+    switch: "lookup('sso', application_id, 'is_proxy_gated') and services.ldap.enabled"
   oauth2:
     origin:
       host: proxy

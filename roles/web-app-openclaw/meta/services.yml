@@ -43,6 +43,9 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: sso_proxy_secret
+    switch: services.sso.enabled
   oauth2:
     origin:
       host: openclaw

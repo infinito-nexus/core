@@ -17,6 +17,8 @@ _SPAN = {
 APIDOC_EXCLUDED = ("tests", "roles", "library")
 LIFECYCLE_MODULE = "cli.build.docs.lifecycle"
 LIFECYCLE_SPOT = ("meta", "lifecycle.yml")
+HEADER_TRUST_MODULE = "cli.build.docs.header_trust"
+HEADER_TRUST_DOC = ("docs", "contributing", "design", "iam", "rbac.md")
 
 
 def _module(name, *args):
@@ -41,6 +43,30 @@ def _lifecycle_commands(src):
     if not src.joinpath(*LIFECYCLE_SPOT).is_file() or not package.is_file():
         return []
     return [_module(LIFECYCLE_MODULE)]
+
+
+def _header_trust_commands(src):
+    """The header-trust table step, empty for a checkout older than its generator.
+
+    Args:
+        src: checkout of the version to document.
+
+    Returns:
+        One argv list when ``src`` ships the generator package, whose commit
+        also put the markers into ``rbac.md``, else none.
+    """
+    package = src.joinpath(*HEADER_TRUST_MODULE.split("."), "__main__.py")
+    if not package.is_file():
+        return []
+    return [
+        _module(
+            HEADER_TRUST_MODULE,
+            "--doc",
+            src.joinpath(*HEADER_TRUST_DOC),
+            "--roles-dir",
+            src / "roles",
+        )
+    ]
 
 
 def generate_commands(src):
@@ -144,6 +170,7 @@ def generate_commands(src):
             src / "roles",
         ),
         *_lifecycle_commands(src),
+        *_header_trust_commands(src),
     ]
 
 
