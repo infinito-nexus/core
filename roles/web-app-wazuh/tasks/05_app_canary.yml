@@ -22,7 +22,8 @@
 - name: "🐤 Send the HTTP canary to every opted-in app on its local port"
   uri_retry:
     url: >-
-      http://{{ WAZUH_APP_CANARY_HOST }}:{{ lookup('config', item.role, 'services.' ~ item.entity ~ '.ports.local.http') }}/{{ WAZUH_CANARY_MARKER }}%20{{ item.entity }}-{{ wazuh_app_canary_run }}
+      http://{{ WAZUH_APP_CANARY_HOST }}:{{ lookup('config', item.role, 'services.' ~ item.entity ~ '.ports.local.http') }}/{{ WAZUH_CANARY_MARKER }}%20{{ item.entity
+      }}-{{ wazuh_app_canary_run }}
     headers:
       Host: "{{ lookup('tls', item.role, 'domain') }}"
     follow_redirects: none

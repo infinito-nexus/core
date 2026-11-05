@@ -180,7 +180,8 @@
       - "{{ WAZUH_AGENT_DOCKER_LISTENER_SCRIPT }}"
   register: wazuh_agent_docker_listener_process
   changed_when: false
-  retries: "{{ ((WAZUH_AGENT_DOCKER_LISTENER_INTERVAL * WAZUH_AGENT_DOCKER_LISTENER_WAIT_INTERVALS) / WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY) | round(0, 'ceil') | int }}"
+  retries: "{{ ((WAZUH_AGENT_DOCKER_LISTENER_INTERVAL * WAZUH_AGENT_DOCKER_LISTENER_WAIT_INTERVALS) / WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY) | round(0, 'ceil') |
+    int }}"
   delay: "{{ WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY }}"
   until: wazuh_agent_docker_listener_process.rc == 0
   when: WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool

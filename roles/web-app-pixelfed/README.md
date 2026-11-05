@@ -42,8 +42,12 @@ flowchart LR
         svc_seaweedfs["seaweedfs"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_wazuh["wazuh"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
+    end
+    subgraph dependents [Dependents]
+        dpt_web_app_wazuh["web-app-wazuh 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
@@ -57,6 +61,7 @@ flowchart LR
     dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
+    svc_sso -. "0..1" .-> dpt_web_app_wazuh
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

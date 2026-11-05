@@ -99,9 +99,7 @@ class TestServiceJournaldTag(unittest.TestCase):
     SERVICE_BASE_INCLUDE = (
         "{% include 'roles/sys-svc-container/templates/base.yml.j2' %}"
     )
-    LOGGING_INCLUDE = (
-        "{% include 'roles/sys-svc-container/templates/logging.yml.j2' %}"
-    )
+    LOGGING_INCLUDE = "{% include 'roles/sys-svc-container/templates/logging.yml.j2' %}"
     SERVICE_NAME_RE: ClassVar[re.Pattern] = re.compile(r"\{%\s*set\s+service_name\s*=")
     TEMPLATES: ClassVar[dict[str, tuple[str, str]]] = {
         "roles/sys-svc-container/templates/base.yml.j2": ("services:\n  svc:\n", "svc"),
