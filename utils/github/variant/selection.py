@@ -15,7 +15,7 @@ back the job title of the run they want repeated:
 * the job label CI emits (``🐝🧅🚇🌀🦓🦾𓏴𓏛Nextcloud#2``) -- the glyphs carry
   mode, network mode, mesh state, distro, filesystem, architecture and db
   topology, the ``#`` shard the variants;
-* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&vpn~ha``).
+* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&direct~ha``).
 
 The network mode spells out as ``+clearnet``/``+tor``/``+multi`` rather than
 as a ``-tor`` suffix: a role id may itself end in ``-tor`` (``svc-net-tor``),

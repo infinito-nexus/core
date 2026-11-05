@@ -247,6 +247,7 @@ def assign(
             pin_filesystem=pin_filesystem,
             pin_architecture=pin_architecture,
             pin_vpn=pin_vpn,
+            pin_topology=pin_topology,
             states=states,
             network_input=network_input,
             vpn_mode=vpn_mode,

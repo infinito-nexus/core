@@ -1067,8 +1067,7 @@ _TOPOLOGY_VARIANTS = {
 
 
 def _assign_topology(rows, **kwargs) -> list[dict[str, str]]:
-    kwargs.setdefault("variants_per_app", _TOPOLOGY_VARIANTS)
-    return _assign(rows, **kwargs)
+    return _assign(rows, variants_per_app=_TOPOLOGY_VARIANTS, **kwargs)
 
 
 class TestDbTopologyAxis(unittest.TestCase):
@@ -1151,6 +1150,20 @@ class TestDbTopologyAxis(unittest.TestCase):
                     rows, sweep=sweep, network_input="auto", db_topology=True
                 )
                 self.assertEqual(entry["db_topology"], topology)
+
+    def test_a_mesh_pin_on_an_ha_row_aborts(self) -> None:
+        rows = [
+            _row(
+                "web-app-t0",
+                0,
+                ("swarm",),
+                pin_mode="swarm",
+                pin_vpn=True,
+                pin_topology="ha",
+            )
+        ]
+        with self.assertRaises(SystemExit):
+            _assign_topology(rows, sweep=0, network_input="auto", db_topology=True)
 
     def test_a_topology_pin_without_the_axis_aborts(self) -> None:
         rows = [_row("web-app-t0", 0, ("swarm",), pin_topology="ha")]

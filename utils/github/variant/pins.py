@@ -44,6 +44,7 @@ def check_pins(
     pin_filesystem: str | None,
     pin_architecture: str | None = None,
     pin_vpn: bool | None = None,
+    pin_topology: str | None,
     states: Sequence[str],
     network_input: str,
     vpn_mode: str = "auto",
@@ -99,6 +100,13 @@ def check_pins(
             f"pinned mesh state {'vpn' if pin_vpn else 'direct'} is impossible "
             f"here (only {'/'.join(VPN_DEPLOY_MODES)} meshes). A held vpn axis "
             f"overrides the pin instead and is not refused here",
+        )
+    if pin_vpn and pin_topology == "ha":
+        _reject(
+            app,
+            variant,
+            "pinned mesh state vpn is impossible on an HA db topology row "
+            "(HA rows never mesh)",
         )
 
 
