@@ -34,7 +34,9 @@ _RULE = "inventory-variable"
 _NAME = r"([A-Za-z_][A-Za-z0-9_]*)"
 _HOOK = re.compile(rf"\b{_NAME}\s+is\s+(?:not\s+)?defined|\b{_NAME}\s*\|\s*default\(")
 _PLUGIN_READ = re.compile(
-    rf"(?:variables|available_variables|hostvars\[[^\]]+\])\s*(?:\.get\(\s*|\[\s*)[\"']{_NAME}[\"']"
+    rf"(?:variables|available_variables|hostvars\[[^\]]+\]"
+    rf"|\(\s*(?:variables|available_variables)\s+or\s+\{{\}}\s*\))"
+    rf"\s*(?:\.get\(\s*|\[\s*)[\"']{_NAME}[\"']"
 )
 _EMAIL_KEYS = re.compile(r"RESOLUTION_ORDER = \(([^)]*)\)")
 

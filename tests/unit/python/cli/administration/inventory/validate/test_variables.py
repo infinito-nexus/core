@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from cli.administration.inventory.validate.variables import (
+    _PLUGIN_READ,
     declared_variables,
     read_variables,
     validate_inventory_variables,
@@ -100,6 +101,16 @@ class TestReadVariables(unittest.TestCase):
     def test_plugin_reads_count(self):
         self.assertIn("networks", self.read)
         self.assertIn("SYSTEM_EMAIL_DOMAIN", self.read)
+
+    def test_a_read_through_an_empty_mapping_guard_counts(self):
+        source = (
+            'a = (variables or {}).get("API")\n'
+            "b = ( available_variables or {} )['NETWORK_MODE']\n"
+            'c = variables.get("networks")\n'
+        )
+        self.assertEqual(
+            ["API", "NETWORK_MODE", "networks"], _PLUGIN_READ.findall(source)
+        )
 
     def test_the_email_lookup_names_count(self):
         self.assertIn("SYSTEM_EMAIL_HOST", self.read)
