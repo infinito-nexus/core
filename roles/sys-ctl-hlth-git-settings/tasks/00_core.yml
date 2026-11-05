@@ -23,6 +23,7 @@
   include_tasks: utils/clients.yml
   vars:
     git_clients_dest: "{{ HLTH_GIT_SETTINGS_DIR }}"
+    git_clients_notify: []
 
 - name: 📄 Store the expected GitHub settings
   copy:

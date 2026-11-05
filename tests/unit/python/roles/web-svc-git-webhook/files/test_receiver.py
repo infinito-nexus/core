@@ -1,11 +1,15 @@
+import base64
 import hashlib
 import hmac
 import http.client
+import importlib
 import importlib.util
 import json
 import sys
 import tempfile
 import threading
+import time
+import types
 import unittest
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -14,14 +18,19 @@ from unittest import mock
 from utils import PROJECT_ROOT
 
 SCRIPT_DIR = PROJECT_ROOT / "roles/web-svc-git-webhook/files/python"
+PACKAGE_DIR = PROJECT_ROOT / "roles/sys-ctl-hlth-git-settings/files/python"
+sys.path.insert(0, str(PACKAGE_DIR))
 sys.path.insert(0, str(SCRIPT_DIR))
 _spec = importlib.util.spec_from_file_location(
     "git_webhook_receiver", SCRIPT_DIR / "receiver.py"
 )
 receiver = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(receiver)
+github = importlib.import_module("git.github")
+core = importlib.import_module("git.core")
 
 SECRET = "test-secret"
+SIGNING = "whsec_" + base64.b64encode(SECRET.encode()).decode()
 REPO = {"full_name": "o/r", "default_branch": "main"}
 
 
@@ -29,36 +38,75 @@ def sign(body):
     return "sha256=" + hmac.new(SECRET.encode(), body, hashlib.sha256).hexdigest()
 
 
-def config(tmp, **overrides):
-    values = {
-        "secret": SECRET.encode(),
-        "port": 0,
-        "path": "/github",
-        "max_bytes": 1024,
-        "state_db": str(Path(tmp) / "state.sqlite"),
-        "keep_seconds": 86400,
-        "api_url": "http://api.invalid",
-        "token": "token",
-        "api_timeout": 1,
-        "pr_attempts": 2,
-        "pr_delay": 0,
+def config(tmp, token=""):
+    providers = {
+        "/github": {
+            "provider": "github",
+            "secret": SECRET,
+            "api_url": "https://api.invalid",
+            "token": token,
+        },
+        "/gitea": {
+            "provider": "gitea",
+            "secret": SECRET,
+            "api_url": "https://gitea.invalid/api/v1",
+            "token": token,
+        },
+        "/gitlab": {
+            "provider": "gitlab",
+            "secret": SIGNING,
+            "api_url": "https://gitlab.invalid/api/v4",
+            "token": token,
+        },
+        "/unset": {"provider": "gitea", "secret": "", "api_url": "", "token": ""},
+    }
+    return {
+        **receiver.load_config(
+            {
+                "WEBHOOK_PROVIDERS": json.dumps(providers),
+                "WEBHOOK_PORT": "0",
+                "WEBHOOK_MAX_BYTES": "1024",
+                "WEBHOOK_STATE_DB": str(Path(tmp) / "state.sqlite"),
+                "WEBHOOK_REPLAY_DAYS": "1",
+                "WEBHOOK_API_TIMEOUT": "1",
+                "WEBHOOK_PR_ATTEMPTS": "2",
+                "WEBHOOK_PR_DELAY": "0",
+            }
+        ),
         "trusted_proxy": None,
     }
-    values.update(overrides)
-    return values
 
 
-class TestSignature(unittest.TestCase):
-    def test_valid_signature_passes(self):
-        self.assertTrue(receiver.signature_valid(SECRET.encode(), b"{}", sign(b"{}")))
+class TestConfig(unittest.TestCase):
+    def test_only_providers_with_a_secret_are_served(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(
+                sorted(config(tmp)["endpoints"]), ["/gitea", "/github", "/gitlab"]
+            )
 
-    def test_wrong_secret_fails(self):
-        header = "sha256=" + hmac.new(b"other", b"{}", hashlib.sha256).hexdigest()
-        self.assertFalse(receiver.signature_valid(SECRET.encode(), b"{}", header))
+    def test_a_refused_api_url_fails_at_start(self):
+        with self.assertRaises(ValueError):
+            receiver.Endpoint(
+                "/github",
+                {"provider": "github", "secret": "s", "api_url": "file:///etc"},
+                1,
+            )
 
-    def test_missing_or_sha1_header_fails(self):
-        self.assertFalse(receiver.signature_valid(SECRET.encode(), b"{}", None))
-        self.assertFalse(receiver.signature_valid(SECRET.encode(), b"{}", "sha1=abc"))
+    def test_unsupported_fields_are_reported_once_per_start(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            lines = []
+            with mock.patch.object(receiver, "emit", lines.append):
+                receiver.report_unsupported(config(tmp)["endpoints"])
+        providers = {line["gh_provider"] for line in lines}
+        self.assertEqual(providers, {"gitea", "gitlab"})
+        self.assertIn(
+            {
+                "gh_kind": "unsupported",
+                "gh_provider": "gitlab",
+                "gh_field": "push.forced",
+            },
+            lines,
+        )
 
 
 class TestLoggedPath(unittest.TestCase):
@@ -96,178 +144,34 @@ class TestDeliveryStore(unittest.TestCase):
             self.assertTrue(store.first_time("a", 1200))
 
 
-class TestEventRecord(unittest.TestCase):
-    def test_force_push_to_default_branch_with_workflow_change(self):
-        payload = {
-            "ref": "refs/heads/main",
-            "forced": True,
-            "deleted": False,
-            "after": "b",
-            "repository": REPO,
-            "commits": [
-                {
-                    "id": "b",
-                    "modified": [".github/workflows/call-lint.yml", "README.md"],
-                    "added": [],
-                    "removed": [],
-                }
-            ],
-        }
-        record = receiver.event_record("push", payload)
-        self.assertEqual(
-            (
-                record["gh_on_default_branch"],
-                record["gh_default_branch"],
-                record["gh_repo"],
-            ),
-            ("true", "main", "o/r"),
-        )
-        self.assertEqual(record["gh_forced"], "true")
-        self.assertEqual(record["gh_workflow_paths"], ".github/workflows/call-lint.yml")
-
-    def test_default_branch_comes_from_each_repository(self):
-        repo = {"full_name": "o/legacy", "default_branch": "trunk"}
-        on_trunk = receiver.event_record(
-            "push", {"ref": "refs/heads/trunk", "repository": repo}
-        )
-        on_main = receiver.event_record(
-            "push", {"ref": "refs/heads/main", "repository": repo}
-        )
-        self.assertEqual(
-            (on_trunk["gh_on_default_branch"], on_main["gh_on_default_branch"]),
-            ("true", "false"),
-        )
-
-    def test_push_to_other_branch_is_not_default(self):
-        record = receiver.event_record(
-            "push", {"ref": "refs/heads/feature", "repository": REPO}
-        )
-        self.assertEqual(record["gh_on_default_branch"], "false")
-
-    def test_payload_without_repository_is_never_on_the_default_branch(self):
-        record = receiver.event_record("push", {"ref": "refs/heads/"})
-        self.assertEqual(
-            (record["gh_on_default_branch"], record["gh_default_branch"]), ("false", "")
-        )
-
-    def test_branch_delete_of_default_branch(self):
-        record = receiver.event_record(
-            "delete", {"ref": "main", "ref_type": "branch", "repository": REPO}
-        )
-        self.assertEqual(
-            (record["gh_on_default_branch"], record["gh_deleted"]), ("true", "true")
-        )
-
-    def test_tag_delete_is_not_default_branch(self):
-        record = receiver.event_record(
-            "delete", {"ref": "main", "ref_type": "tag", "repository": REPO}
-        )
-        self.assertEqual(record["gh_on_default_branch"], "false")
-
-    def test_member_permission_and_deploy_key(self):
-        member = receiver.event_record(
-            "member",
-            {
-                "action": "added",
-                "member": {"login": "m"},
-                "changes": {"permission": {"to": "admin"}},
-                "repository": REPO,
-            },
-        )
-        self.assertEqual(
-            (member["gh_member"], member["gh_permission"], member["gh_repo"]),
-            ("m", "admin", "o/r"),
-        )
-        key = receiver.event_record(
-            "deploy_key",
-            {"action": "created", "key": {"title": "k", "read_only": False}},
-        )
-        self.assertEqual(key["gh_key_read_only"], "false")
-
-    def test_alerts_keep_no_secret_or_raw_payload(self):
-        payload = {
-            "action": "created",
-            "alert": {
-                "number": 3,
-                "secret_type": "t",
-                "secret": "leaked",
-                "html_url": "u",
-            },
-        }
-        record = receiver.event_record("secret_scanning_alert", payload)
-        self.assertNotIn("leaked", json.dumps(record))
-        dependabot = receiver.event_record(
-            "dependabot_alert",
-            {
-                "action": "created",
-                "alert": {
-                    "security_advisory": {"severity": "HIGH"},
-                    "dependency": {"package": {"name": "p"}},
-                },
-            },
-        )
-        self.assertEqual(
-            (dependabot["gh_severity"], dependabot["gh_package"]), ("high", "p")
-        )
-
-
-class TestAllowedUrl(unittest.TestCase):
-    def test_https_and_local_stubs_are_allowed(self):
-        for url in (
-            "https://api.github.example/repos/o/r",
-            "http://127.0.0.1:8080/",
-            "http://github-api-stub:8080/",
-        ):
-            self.assertTrue(receiver.allowed_url(url), url)
-
-    def test_other_schemes_and_public_http_are_refused(self):
-        for url in (
-            "http://api.github.example/",
-            "file:///etc/passwd",
-            "ftp://api.github.example/",
-        ):
-            self.assertFalse(receiver.allowed_url(url), url)
-
-    def test_a_refused_api_url_is_a_failed_lookup(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            cfg = {**config(tmp), "api_url": "file:///etc"}
-            lines = []
-            with mock.patch.object(receiver, "emit", lines.append):
-                receiver.check_direct_push(
-                    cfg, "d", "o/r", {"commits": [{"id": "a"}]}, sleep=lambda _: None
-                )
-        self.assertEqual(
-            (lines[0]["gh_result"], lines[0]["gh_reason"]),
-            ("error", "lookup failed: ValueError"),
-        )
-
-
 class TestDirectPush(unittest.TestCase):
-    def run_check(self, cfg, payload, merged):
+    def run_check(self, payload, merged, token="token"):  # noqa: S107 - a fake endpoint's placeholder token
+        endpoint = types.SimpleNamespace(adapter=github, api=object(), token=token)
         lines = []
         with (
             mock.patch.object(receiver, "emit", lines.append),
-            mock.patch.object(receiver, "merged_into", merged),
+            mock.patch.object(github, "merged_into", merged),
         ):
-            receiver.check_direct_push(cfg, "d", "o/r", payload, sleep=lambda _: None)
+            receiver.check_direct_push(
+                {"pr_attempts": 2, "pr_delay": 0},
+                endpoint,
+                "d",
+                "o/r",
+                payload,
+                sleep=lambda _: None,
+            )
         self.assertEqual(len(lines), 1)
         return lines[0]
 
     def test_commits_from_a_merged_pull_request_are_ok(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            line = self.run_check(
-                config(tmp), {"commits": [{"id": "a"}], "after": "a"}, lambda *a: True
-            )
-        self.assertEqual(line["gh_result"], "ok")
+        line = self.run_check({"commits": [{"id": "a"}], "after": "a"}, lambda *a: True)
+        self.assertEqual((line["gh_result"], line["gh_provider"]), ("ok", "github"))
 
     def test_commit_without_pull_request_is_a_direct_push(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            merged = mock.Mock(return_value=False)
-            line = self.run_check(
-                config(tmp),
-                {"commits": [{"id": "a"}], "after": "a", "repository": REPO},
-                merged,
-            )
+        merged = mock.Mock(return_value=False)
+        line = self.run_check(
+            {"commits": [{"id": "a"}], "after": "a", "repository": REPO}, merged
+        )
         self.assertEqual(
             (line["gh_result"], line["gh_commits"], line["gh_repo"]),
             ("no_pr", "a", "o/r"),
@@ -275,59 +179,44 @@ class TestDirectPush(unittest.TestCase):
         self.assertEqual(merged.call_count, 2)
 
     def test_lookup_asks_for_the_repositorys_own_default_branch(self):
+        merged = mock.Mock(return_value=True)
         repo = {"full_name": "o/legacy", "default_branch": "trunk"}
-        with tempfile.TemporaryDirectory() as tmp:
-            merged = mock.Mock(return_value=True)
-            line = self.run_check(
-                config(tmp), {"commits": [{"id": "a"}], "repository": repo}, merged
-            )
+        line = self.run_check({"commits": [{"id": "a"}], "repository": repo}, merged)
         self.assertEqual(merged.call_args.args[-1], "trunk")
         self.assertEqual(line["gh_default_branch"], "trunk")
 
     def test_late_association_counts_as_merged(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            merged = mock.Mock(side_effect=[False, True])
-            line = self.run_check(
-                config(tmp), {"commits": [{"id": "a"}], "after": "a"}, merged
-            )
+        line = self.run_check(
+            {"commits": [{"id": "a"}], "after": "a"},
+            mock.Mock(side_effect=[False, True]),
+        )
         self.assertEqual(line["gh_result"], "ok")
 
     def test_missing_token_is_an_error_not_a_pass(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            line = self.run_check(
-                config(tmp, token=""), {"commits": [{"id": "a"}]}, lambda *a: True
-            )
+        line = self.run_check({"commits": [{"id": "a"}]}, lambda *a: True, token="")
         self.assertEqual(
             (line["gh_result"], line["gh_reason"]), ("error", "no token configured")
         )
 
     def test_failed_lookup_is_an_error(self):
         def broken(*args):
-            raise OSError("down")
+            raise core.CheckError("HTTP 502")
 
-        with tempfile.TemporaryDirectory() as tmp:
-            line = self.run_check(config(tmp), {"commits": [{"id": "a"}]}, broken)
-        self.assertEqual(line["gh_result"], "error")
+        self.assertEqual(
+            self.run_check({"commits": [{"id": "a"}]}, broken)["gh_result"], "error"
+        )
 
     def test_too_many_commits_is_an_error(self):
-        commits = [{"id": str(n)} for n in range(receiver.MAX_COMMITS + 1)]
-        with tempfile.TemporaryDirectory() as tmp:
-            line = self.run_check(config(tmp), {"commits": commits}, lambda *a: True)
-        self.assertEqual(line["gh_result"], "error")
-
-    def test_only_distinct_commits_are_checked(self):
+        commits = [{"id": str(n)} for n in range(core.MAX_COMMITS + 1)]
         self.assertEqual(
-            receiver.pushed_commits(
-                {"commits": [{"id": "a", "distinct": False}, {"id": "b"}]}
-            ),
-            ["b"],
+            self.run_check({"commits": commits}, lambda *a: True)["gh_result"], "error"
         )
 
 
 class TestHandler(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.cfg = config(self.tmp.name, token="")
+        self.cfg = config(self.tmp.name)
         self.lines = []
         self.patch = mock.patch.object(receiver, "emit", self.lines.append)
         self.patch.start()
@@ -388,16 +277,70 @@ class TestHandler(unittest.TestCase):
         self.assertEqual(self.request("GET", "/"), 200)
         self.assertEqual(self.request("PUT", "/github"), 405)
 
+    def test_provider_without_a_secret_is_not_served(self):
+        self.assertEqual(
+            self.request("POST", "/unset", b"{}", {"Content-Type": "application/json"}),
+            404,
+        )
+
     def test_access_line_carries_the_decoded_path(self):
         self.assertEqual(self.request("GET", "/canary%20app-run"), 404)
         self.assertEqual(
             self.kinds("access")[0]["gh_request"], "GET /canary app-run HTTP/1.1"
         )
 
-    def test_signature_failure_is_not_recorded_as_a_delivery(self):
-        body = json.dumps({"zen": "z"}).encode()
-        self.assertEqual(self.post(body, signature="sha256=00"), 401)
-        self.assertEqual(self.post(body), 202)
+    def test_gitea_delivery_is_verified_with_its_own_header(self):
+        body = json.dumps({"ref": "refs/heads/feature", "repository": REPO}).encode()
+        headers = {
+            "X-Gitea-Event": "push",
+            "X-Gitea-Delivery": "g1",
+            "X-Gitea-Signature": hmac.new(
+                SECRET.encode(), body, hashlib.sha256
+            ).hexdigest(),
+        }
+        self.assertEqual(self.request("POST", "/gitea", body, headers), 202)
+        self.assertEqual(
+            self.request(
+                "POST", "/gitea", body, {**headers, "X-Gitea-Signature": "00"}
+            ),
+            401,
+        )
+        delivery = self.kinds("delivery")[0]
+        self.assertEqual(
+            (delivery["gh_provider"], delivery["gh_forced"]), ("gitea", "unsupported")
+        )
+
+    def test_gitlab_delivery_needs_the_signing_token(self):
+        body = json.dumps(
+            {
+                "object_kind": "push",
+                "ref": "refs/heads/feature",
+                "project": {"path_with_namespace": "g/r"},
+            }
+        ).encode()
+        stamp = str(int(time.time()))
+        key = base64.b64decode(SIGNING.removeprefix("whsec_"))
+        signature = (
+            "v1,"
+            + base64.b64encode(
+                hmac.new(key, f"w1.{stamp}.".encode() + body, hashlib.sha256).digest()
+            ).decode()
+        )
+        headers = {
+            "X-Gitlab-Event": "Push Hook",
+            "webhook-id": "w1",
+            "webhook-timestamp": stamp,
+            "webhook-signature": signature,
+        }
+        self.assertEqual(self.request("POST", "/gitlab", body, headers), 202)
+        plain = {
+            "X-Gitlab-Event": "Push Hook",
+            "webhook-id": "w2",
+            "X-Gitlab-Token": SECRET,
+        }
+        self.assertEqual(self.request("POST", "/gitlab", body, plain), 401)
+        self.assertEqual(self.kinds("delivery")[0]["gh_repo"], "g/r")
+        self.assertEqual(self.kinds("rejected")[0]["gh_reason"], "unsigned")
 
     def test_x_real_ip_from_an_untrusted_peer_is_ignored(self):
         self.request("GET", "/", headers={"X-Real-IP": "203.0.113.9"})

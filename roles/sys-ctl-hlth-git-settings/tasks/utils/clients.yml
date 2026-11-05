@@ -1,5 +1,6 @@
 ---
-# Param git_clients_dest: directory the check's script runs from; the git package (shared core and every provider adapter) is copied into its git/ subdirectory, so the script imports it without a package install.
+# Param git_clients_dest: directory the consumer runs from; the git package (shared core and every provider adapter) is copied into its git/ subdirectory, so the consumer imports it without a package install.
+# Param git_clients_notify: handlers to notify when a package file changes; a container that mounts the package must be recreated to load it, a host script needs none.
 - name: "📁 Create the git package directory in {{ git_clients_dest }}"
   file:
     path: "{{ [git_clients_dest, 'git'] | path_join }}"
@@ -14,3 +15,4 @@
   loop: "{{ ['__init__', 'core'] + (lookup('config', 'sys-ctl-hlth-deployed-code', 'services.deployed-code.providers') | list) }}"
   loop_control:
     loop_var: git_client
+  notify: "{{ git_clients_notify }}"

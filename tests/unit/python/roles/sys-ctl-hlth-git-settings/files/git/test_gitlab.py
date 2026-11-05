@@ -85,5 +85,95 @@ class TestGitlabSettings(unittest.TestCase):
         self.assertEqual(git_gitlab.owners(Members(), "g"), ["owner"])
 
 
+class TestGitlabWebhook(unittest.TestCase):
+    def signed(self, body, stamp, key=b"key"):
+        import base64
+        import hashlib
+        import hmac
+
+        digest = hmac.new(key, f"m1.{stamp}.".encode() + body, hashlib.sha256).digest()
+        return {
+            "webhook-id": "m1",
+            "webhook-timestamp": str(stamp),
+            "webhook-signature": "v1," + base64.b64encode(digest).decode(),
+        }
+
+    def test_signing_token_signature(self):
+        import base64
+
+        secret = "whsec_" + base64.b64encode(b"key").decode()
+        self.assertIsNone(
+            git_gitlab.webhook_verify(self.signed(b"{}", 1000), b"{}", secret, 1000)
+        )
+        self.assertEqual(
+            git_gitlab.webhook_verify(
+                self.signed(b"{}", 1000, b"other"), b"{}", secret, 1000
+            ),
+            "signature",
+        )
+        self.assertEqual(
+            git_gitlab.webhook_verify(
+                self.signed(b"{}", 1000), b"{}", secret, 1000 + 301
+            ),
+            "replay",
+        )
+        self.assertEqual(
+            git_gitlab.webhook_verify({"X-Gitlab-Token": "plain"}, b"{}", secret, 1000),
+            "unsigned",
+        )
+
+    def test_events_and_push_record(self):
+        self.assertEqual(
+            git_gitlab.webhook_event({"X-Gitlab-Event": "Push Hook"}, {}), "push"
+        )
+        record = git_gitlab.webhook_record(
+            "push",
+            {
+                "ref": "refs/heads/main",
+                "before": "0" * 40,
+                "after": "b",
+                "user_username": "u",
+                "project": {"path_with_namespace": "g/r", "default_branch": "main"},
+                "commits": [{"id": "b", "modified": [".gitlab-ci.yml"]}],
+            },
+        )
+        self.assertEqual(
+            (
+                record["gh_repo"],
+                record["gh_created"],
+                record["gh_forced"],
+                record["gh_workflow_paths"],
+            ),
+            ("g/r", "true", "unsupported", ".gitlab-ci.yml"),
+        )
+
+    def test_group_member_event_maps_to_organization(self):
+        record = git_gitlab.webhook_record(
+            "organization",
+            {
+                "event_name": "user_add_to_group",
+                "group_path": "g",
+                "user_username": "m",
+                "group_access": "Owner",
+            },
+        )
+        self.assertEqual(
+            (record["gh_action"], record["gh_member"], record["gh_permission"]),
+            ("member_added", "m", "owner"),
+        )
+
+    def test_merged_lookup_uses_merge_requests_of_the_commit(self):
+        class Requests:
+            def get_all(self, path):
+                self.path = path
+                return [{"state": "merged", "target_branch": "main"}]
+
+        api = Requests()
+        self.assertTrue(git_gitlab.merged_into(api, "g/r", "a", "main"))
+        self.assertEqual(
+            api.path, "/projects/g%2Fr/repository/commits/a/merge_requests"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

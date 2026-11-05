@@ -14,9 +14,9 @@
 # Env (all required; the role's test.env carries them):
 #   API_TIMEOUT              seconds the throwaway receiver's GitHub API request may take
 #   ENTITY                   the receiver's journald tag
-#   EVENTS_SCRIPT            the receiver's payload module on the host, mounted next to it
-#   EVENTS_TARGET            where the receiver's container mounts the payload module
 #   DEFAULT_BRANCH           the default branch the synthetic payloads give their repository
+#   PACKAGE_HOST             the git provider package on the host, mounted next to the receiver
+#   PACKAGE_TARGET           where the receiver's container mounts the git provider package
 #   MANAGER_LOGS_VOLUME      the Docker volume holding the Wazuh manager's logs; empty without a local manager
 #   MAX_BYTES                the receiver's body limit
 #   RECEIVER_HOST            Host header of the receiver's vhost
@@ -37,7 +37,7 @@
 
 set -euo pipefail
 
-: "${API_TIMEOUT:?}" "${ENTITY:?}" "${EVENTS_SCRIPT:?}" "${EVENTS_TARGET:?}" "${RECEIVER_TARGET:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
+: "${API_TIMEOUT:?}" "${ENTITY:?}" "${PACKAGE_HOST:?}" "${PACKAGE_TARGET:?}" "${RECEIVER_TARGET:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
 : "${RECEIVER_IMAGE:?}" "${RECEIVER_PATH:?}" "${RECEIVER_PORT:?}" "${RECEIVER_SCRIPT:?}" "${RECEIVER_URL:?}"
 : "${RETRIES:?}" "${SETTINGS_SCRIPT:?}" "${SETTINGS_TAG:?}" "${SLEEP_SECONDS:?}" "${WAZUH_MANAGER_LOCAL:?}"
 : "${SETTINGS_DRIFT_RULE:?}" "${SETTINGS_PRT_RULE:?}" "${SETTINGS_FAILED_RULE:?}" "${SETTINGS_UNSUPPORTED_RULE:?}"
@@ -86,8 +86,14 @@ BRANCH = "'"${DEFAULT_BRANCH}"'"
 
 class Stub(BaseHTTPRequestHandler):
     def do_GET(self):
-        pulls = [{"number": 1, "merged_at": "2026-10-26T00:00:00Z", "base": {"ref": BRANCH}}] if MERGED in self.path else []
-        body = json.dumps(pulls).encode()
+        merged = MERGED in self.path
+        if self.path.startswith("/gitea/"):
+            answer = {"number": 1, "merged": True, "base": {"ref": BRANCH}} if merged else {"number": 2, "merged": False, "base": {"ref": BRANCH}}
+        elif self.path.startswith("/gitlab/"):
+            answer = [{"iid": 1, "state": "merged", "target_branch": BRANCH}] if merged else []
+        else:
+            answer = [{"number": 1, "merged_at": "2026-10-26T00:00:00Z", "base": {"ref": BRANCH}}] if merged else []
+        body = json.dumps(answer).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
@@ -301,12 +307,25 @@ fi
 container network create --label "${LABEL}" "${NETWORK}" >/dev/null
 container run --detach --name="github-api-stub-${RUN}" --label="${LABEL}" --network="${NETWORK}" \
 	--network-alias=github-api-stub "${RECEIVER_IMAGE}" python3 -c "${STUB_CODE}" >/dev/null
+GITLAB_SIGNING_TOKEN="whsec_$(printf '%s' "${STUB_SECRET}" | base64 -w0)"
+STUB_PROVIDERS="$(python3 - "${STUB_SECRET}" "${GITLAB_SIGNING_TOKEN}" "http://github-api-stub:${STUB_PORT}" <<'PY'
+import json
+import sys
+
+secret, signing, stub = sys.argv[1:4]
+print(json.dumps({
+    "/github": {"provider": "github", "secret": secret, "api_url": stub, "token": "stub-token"},
+    "/gitea": {"provider": "gitea", "secret": secret, "api_url": f"{stub}/gitea", "token": "stub-token"},
+    "/gitlab": {"provider": "gitlab", "secret": signing, "api_url": f"{stub}/gitlab", "token": "stub-token"},
+}))
+PY
+)"
 container run --detach --name="git-webhook-test-${RUN}" --label="${LABEL}" --network="${NETWORK}" \
 	--log-driver=journald --log-opt="tag=${ENTITY}" --publish="127.0.0.1::${RECEIVER_PORT}" \
-	--volume="${RECEIVER_SCRIPT}:${RECEIVER_TARGET}:ro" --volume="${EVENTS_SCRIPT}:${EVENTS_TARGET}:ro" \
-	--env=WEBHOOK_SECRET="${STUB_SECRET}" --env=WEBHOOK_PORT="${RECEIVER_PORT}" --env=WEBHOOK_PATH="${RECEIVER_PATH}" \
+	--volume="${RECEIVER_SCRIPT}:${RECEIVER_TARGET}:ro" --volume="${PACKAGE_HOST}:${PACKAGE_TARGET}:ro" \
+	--env=WEBHOOK_PROVIDERS="${STUB_PROVIDERS}" --env=WEBHOOK_PORT="${RECEIVER_PORT}" \
 	--env=WEBHOOK_MAX_BYTES="${MAX_BYTES}" --env=WEBHOOK_STATE_DB=/tmp/deliveries.sqlite --env=WEBHOOK_REPLAY_DAYS=1 \
-	--env=GITHUB_API_URL="http://github-api-stub:${STUB_PORT}" --env=GITHUB_TOKEN=stub-token --env=WEBHOOK_API_TIMEOUT="${API_TIMEOUT}" \
+	--env=WEBHOOK_API_TIMEOUT="${API_TIMEOUT}" \
 	--env=WEBHOOK_PR_ATTEMPTS=2 --env=WEBHOOK_PR_DELAY=1 --env=PYTHONUNBUFFERED=1 \
 	"${RECEIVER_IMAGE}" python3 "${RECEIVER_TARGET}" >/dev/null
 STUB_URL="http://$(container port "git-webhook-test-${RUN}" "${RECEIVER_PORT}/tcp" | head -1)${RECEIVER_PATH}"
@@ -323,6 +342,79 @@ expect_journal "${ENTITY}" "[
 ]"
 if [[ -n "${ALERTS}" ]]; then
 	wait_alert "test-${RUN}-direct" 101113
+fi
+
+# Param: $1 provider (gitea or gitlab); $2 base URL of the receiver; $3 delivery; $4 commit; $5 how to sign: valid, bad or none.
+forge_post() {
+	SIGN_SECRET="${STUB_SECRET}" GITLAB_SIGNING_TOKEN="${GITLAB_SIGNING_TOKEN}" python3 - "$@" "${DEFAULT_BRANCH}" <<'PY'
+import base64
+import hashlib
+import hmac
+import json
+import os
+import sys
+import time
+import urllib.error
+import urllib.request
+
+provider, base, delivery, sha, mode, branch = sys.argv[1:7]
+commit = {"id": sha, "added": [], "modified": ["README.md"], "removed": []}
+if provider == "gitea":
+    body = json.dumps({"ref": f"refs/heads/{branch}", "before": "a" * 40, "after": sha, "commits": [commit],
+                       "repository": {"full_name": "infinito/core", "default_branch": branch}, "sender": {"login": "gitea-user"}}).encode()
+    headers = {"X-Gitea-Event": "push", "X-Gitea-Delivery": delivery}
+    if mode != "none":
+        digest = hmac.new(os.environ["SIGN_SECRET"].encode(), body, hashlib.sha256).hexdigest()
+        headers["X-Gitea-Signature"] = digest if mode == "valid" else "0" * 64
+else:
+    body = json.dumps({"object_kind": "push", "ref": f"refs/heads/{branch}", "before": "a" * 40, "after": sha, "commits": [commit],
+                       "user_username": "gitlab-user", "project": {"path_with_namespace": "infinito/core", "default_branch": branch}}).encode()
+    headers = {"X-Gitlab-Event": "Push Hook", "webhook-id": delivery, "X-Gitlab-Token": "plain-secret"}
+    if mode != "none":
+        stamp = str(int(time.time()))
+        key = base64.b64decode(os.environ["GITLAB_SIGNING_TOKEN"].removeprefix("whsec_"))
+        signature = base64.b64encode(hmac.new(key, f"{delivery}.{stamp}.".encode() + body, hashlib.sha256).digest()).decode()
+        headers.update({"webhook-timestamp": stamp, "webhook-signature": f"v1,{signature}" if mode == "valid" else "v1,AAAA"})
+request = urllib.request.Request(f"{base}/{provider}", data=body, headers={"Content-Type": "application/json", **headers})
+try:
+    with urllib.request.urlopen(request, timeout=30) as response:
+        print(response.status)
+except urllib.error.HTTPError as error:
+    print(error.code)
+PY
+}
+
+RECEIVER_BASE="${STUB_URL%"${RECEIVER_PATH}"}"
+for forge in gitea gitlab; do
+	expect_status "$(forge_post "${forge}" "${RECEIVER_BASE}" "test-${RUN}-${forge}-direct" "${DIRECT_SHA}" valid)" 202 "${forge} direct push accepted"
+	expect_status "$(forge_post "${forge}" "${RECEIVER_BASE}" "test-${RUN}-${forge}-merged" "${MERGED_SHA}" valid)" 202 "${forge} merged push accepted"
+	expect_status "$(forge_post "${forge}" "${RECEIVER_BASE}" "test-${RUN}-${forge}-unsigned" "${DIRECT_SHA}" none)" 401 "${forge} unsigned"
+	expect_status "$(forge_post "${forge}" "${RECEIVER_BASE}" "test-${RUN}-${forge}-signature" "${DIRECT_SHA}" bad)" 401 "${forge} signature"
+done
+expect_journal "${ENTITY}" "$(python3 - "${RUN}" "${DIRECT_SHA}" "${MERGED_SHA}" <<'PY'
+import json
+import sys
+
+run, direct, merged = sys.argv[1:4]
+records = []
+for forge in ("gitea", "gitlab"):
+    records += [
+        {"gh_kind": "delivery", "gh_provider": forge, "gh_delivery": f"test-{run}-{forge}-direct", "gh_event": "push",
+         "gh_on_default_branch": "true", "gh_forced": "unsupported"},
+        {"gh_kind": "direct_push", "gh_provider": forge, "gh_delivery": f"test-{run}-{forge}-direct", "gh_result": "no_pr", "gh_commits": direct},
+        {"gh_kind": "direct_push", "gh_provider": forge, "gh_delivery": f"test-{run}-{forge}-merged", "gh_result": "ok", "gh_commits": merged},
+        {"gh_kind": "rejected", "gh_provider": forge, "gh_delivery": f"test-{run}-{forge}-unsigned", "gh_reason": "unsigned"},
+        {"gh_kind": "rejected", "gh_provider": forge, "gh_delivery": f"test-{run}-{forge}-signature", "gh_reason": "signature"},
+        {"gh_kind": "unsupported", "gh_provider": forge, "gh_field": "push.forced"},
+    ]
+print(json.dumps(records))
+PY
+)"
+if [[ -n "${ALERTS}" ]]; then
+	for forge in gitea gitlab; do
+		wait_alert "test-${RUN}-${forge}-direct" 101113
+		wait_alert "test-${RUN}-${forge}-unsigned" 101160
+	done
 fi
 
 SETTINGS_STUB_CODE='

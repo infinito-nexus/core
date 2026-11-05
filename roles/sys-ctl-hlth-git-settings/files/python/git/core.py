@@ -1,4 +1,5 @@
 import base64
+import hmac
 import importlib
 import ipaddress
 import json
@@ -14,6 +15,8 @@ NEXT_LINK = re.compile(r'<([^>]+)>;\s*rel="next"')
 PRT_KEY = re.compile(r"""^\s*(?:-\s*)?["']?pull_request_target["']?\s*:?\s*$""")
 PRT_INLINE = re.compile(r"""^\s*["']?on["']?\s*:.*\bpull_request_target\b""")
 UNSUPPORTED = object()
+MAX_COMMITS = 50
+ZERO_SHA = "0" * 40
 
 
 class CheckError(Exception):
@@ -208,6 +211,77 @@ def workflows_on_pull_request_target(api, scope, branch, directories):
             ):
                 paths.append(entry["path"])
     return paths
+
+
+def flag(value):
+    return "true" if value else "false"
+
+
+def signature_matches(expected, received):
+    return hmac.compare_digest(expected.encode(), received.encode())
+
+
+def workflow_paths(commits, prefixes):
+    """Return the CI workflow files a push added, changed or removed, comma-joined and sorted.
+
+    Args:
+        commits: the push payload's commits, each with added, modified and removed path lists.
+        prefixes: the paths, or path prefixes, the provider runs CI workflows from.
+    """
+    paths = set()
+    for commit in commits or []:
+        for key in ("added", "modified", "removed"):
+            paths.update(
+                path for path in commit.get(key) or [] if path.startswith(prefixes)
+            )
+    return ",".join(sorted(paths))
+
+
+def pushed_commits(commits, after):
+    """Return the SHAs a push brought to the branch, or None when the payload lists too many to check.
+
+    Args:
+        commits: the push payload's commits; a commit marked ``distinct: false`` was already on another branch.
+        after: the branch head after the push, checked when the payload lists no commit.
+    """
+    shas = [
+        str(commit["id"])
+        for commit in commits or []
+        if commit.get("distinct", True) and commit.get("id")
+    ]
+    if len(shas) > MAX_COMMITS:
+        return None
+    if not shas and after and after != ZERO_SHA:
+        shas = [str(after)]
+    return shas
+
+
+def push_record(event, ref, before, after, default_branch, forced, commits, prefixes):
+    """Return the shared fields of a push, whichever provider sent it.
+
+    Args:
+        event: the shared event name, ``push``.
+        ref: the pushed ref, e.g. ``refs/heads/main``.
+        before: the branch head before the push.
+        after: the branch head after the push; all zeros for a deleted branch.
+        default_branch: the repository's default branch, empty when the payload has none.
+        forced: ``true``, ``false``, or ``unsupported`` when the provider does not report force pushes.
+        commits: the payload's commits.
+        prefixes: the provider's workflow paths.
+    """
+    default_ref = "refs/heads/" + default_branch if default_branch else ""
+    return {
+        "gh_ref": ref,
+        "gh_default_branch": default_branch,
+        "gh_on_default_branch": flag(bool(default_ref) and ref == default_ref),
+        "gh_forced": forced,
+        "gh_deleted": flag(after == ZERO_SHA),
+        "gh_created": flag(before == ZERO_SHA),
+        "gh_before": before,
+        "gh_after": after,
+        "gh_workflow_paths": workflow_paths(commits, prefixes),
+        "gh_event": event,
+    }
 
 
 def repository_path(url, host):

@@ -149,4 +149,11 @@
     <description>GitHub webhook: malformed request from $(gh_srcip) refused.</description>
     <group>github_receiver,</group>
   </rule>
+
+  <rule id="101170" level="3">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^unsupported$</field>
+    <description>Git webhook: $(gh_provider) cannot deliver $(gh_field), so the receiver cannot watch it.</description>
+    <group>github_receiver,</group>
+  </rule>
 </group>

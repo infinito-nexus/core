@@ -9,10 +9,28 @@ GIT_WEBHOOK_PROXY_MAX_BODY: "{{ ((GIT_WEBHOOK_MAX_BYTES | int) // 1048576 + 1) ~
 GIT_WEBHOOK_STATE_DB: "{{ [lookup('volume', application_id, 'state').target, 'deliveries.sqlite'] | path_join }}"
 GIT_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.webhook_secret') }}"
 GIT_WEBHOOK_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.github_webhook_token') }}"
+GIT_WEBHOOK_PROVIDER_URLS: "{{ lookup('config', 'sys-ctl-hlth-deployed-code', 'services.deployed-code.providers') }}"
+# Exception: one path per provider, so each delivery is verified with the scheme and secret of the provider that signed it; a provider without a secret is not served.
+GIT_WEBHOOK_PROVIDERS:
+  /github:
+    provider: github
+    secret: "{{ GIT_WEBHOOK_SECRET }}"
+    api_url: "{{ GIT_WEBHOOK_API_URL }}"
+    token: "{{ GIT_WEBHOOK_TOKEN | default('', true) }}"
+  /gitea:
+    provider: gitea
+    secret: "{{ lookup('config', application_id, 'secrets.credentials.gitea_webhook_secret', '') }}"
+    api_url: "{{ GIT_WEBHOOK_PROVIDER_URLS.gitea.api_url }}"
+    token: "{{ lookup('config', application_id, 'secrets.credentials.gitea_token', '') }}"
+  /gitlab:
+    provider: gitlab
+    secret: "{{ lookup('config', application_id, 'secrets.credentials.gitlab_webhook_secret', '') }}"
+    api_url: "{{ GIT_WEBHOOK_PROVIDER_URLS.gitlab.api_url }}"
+    token: "{{ lookup('config', application_id, 'secrets.credentials.gitlab_token', '') }}"
 GIT_WEBHOOK_RECEIVER_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'receiver.py'] | path_join }}"
 GIT_WEBHOOK_RECEIVER_TARGET: "{{ lookup('volume', application_id, 'receiver').target }}"
-GIT_WEBHOOK_EVENTS_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'github_events.py'] | path_join }}"
-GIT_WEBHOOK_EVENTS_TARGET: "{{ lookup('volume', application_id, 'events').target }}"
+GIT_WEBHOOK_PACKAGE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'git'] | path_join }}"
+GIT_WEBHOOK_PACKAGE_TARGET: "{{ lookup('volume', application_id, 'git_core').target | dirname }}"
 GIT_WEBHOOK_TEST_WAZUH: "{{ 'web-app-wazuh' in group_names }}"
 GIT_WEBHOOK_SETTINGS_RULE_IDS: "{{ lookup('wazuh_ruleset', scope='host').rule_ids.git_settings }}"
 GIT_WEBHOOK_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}:{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"

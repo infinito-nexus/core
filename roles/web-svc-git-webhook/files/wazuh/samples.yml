@@ -55,3 +55,6 @@
 - log: '{"gh_delivery": "", "gh_kind": "rejected", "gh_reason": "malformed", "gh_srcip": "203.0.113.5"}'
   rule: 101163
   level: 5
+- log: '{"gh_field": "push.forced", "gh_kind": "unsupported", "gh_provider": "gitlab"}'
+  rule: 101170
+  level: 3

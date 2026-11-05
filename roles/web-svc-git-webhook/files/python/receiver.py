@@ -1,23 +1,20 @@
-"""GitHub webhook receiver: verifies each delivery and prints one JSON line per request and per event.
+"""Git webhook receiver: verifies each delivery and prints one JSON line per request and per event.
 
 Every line goes to stdout, so it reaches journald and the Wazuh agent under the container's tag.
-Only an allowlist of fields is logged, never a raw payload.
+Only an allowlist of fields is logged, never a raw payload. Each provider posts to its own path and
+is verified and reduced by its own adapter in the git package; the logged fields are shared.
 
 Env (all required):
-    WEBHOOK_SECRET        HMAC secret shared with the GitHub webhook
+    WEBHOOK_PROVIDERS     JSON: path to {provider, secret, api_url, token}; a provider without a secret is not served
     WEBHOOK_PORT          port to listen on
-    WEBHOOK_PATH          path GitHub posts to, e.g. /github
     WEBHOOK_MAX_BYTES     largest body accepted; a larger one is refused unread
     WEBHOOK_STATE_DB      SQLite file of the delivery IDs already accepted
     WEBHOOK_REPLAY_DAYS   days a delivery ID is remembered
-    GITHUB_API_URL        GitHub REST API base URL
-    GITHUB_TOKEN          read-only token for the pull request lookup; empty logs every lookup as an error
+    WEBHOOK_API_TIMEOUT   seconds one API request of the direct-push check may take
     WEBHOOK_PR_ATTEMPTS   lookups per commit before a push counts as direct
     WEBHOOK_PR_DELAY      seconds between two lookups
 """
 
-import hashlib
-import hmac
 import ipaddress
 import json
 import os
@@ -25,13 +22,11 @@ import sqlite3
 import sys
 import threading
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from github_events import MAX_COMMITS, default_branch, event_record, pushed_commits
+from git.core import CheckError, provider
 
 LOG_LOCK = threading.Lock()
 STATE_LOCK = threading.Lock()
@@ -40,6 +35,7 @@ MAX_DISCARD = 16 * 1024 * 1024
 DISCARD_CHUNK = 64 * 1024
 MAX_DELIVERY_ID = 64
 HEALTH_PATHS = ("/", "/healthz")
+USER_AGENT = "infinito-git-webhook"
 
 
 def request_path(raw_path):
@@ -99,23 +95,6 @@ def client_ip(peer, real_ip, trusted_proxy):
         return peer
 
 
-def signature_valid(secret, body, header):
-    """Check a delivery's X-Hub-Signature-256 header.
-
-    Args:
-        secret: the shared webhook secret as bytes.
-        body: the raw request body.
-        header: the header value, ``sha256=<hex>``, or None.
-
-    Returns:
-        True only for a well-formed header whose digest matches, compared in constant time.
-    """
-    if not header or not header.startswith("sha256="):
-        return False
-    expected = "sha256=" + hmac.new(secret, body, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected.encode(), header.encode())
-
-
 class DeliveryStore:
     """Delivery IDs already accepted, so a replayed delivery is refused.
 
@@ -149,103 +128,63 @@ class DeliveryStore:
             return True
 
 
-def allowed_url(url):
-    """Return whether a URL may be opened: https, or plain http only to a loopback or dotless container-internal host, where the tests run their API stub.
+class Endpoint:
+    """One provider's webhook path: its adapter, secret and the API client of its direct-push check.
 
     Args:
-        url: the GitHub API URL.
+        path: the request path the provider posts to.
+        settings: ``provider``, ``secret``, ``api_url`` and ``token``.
+        timeout: seconds per API request.
     """
-    parts = urllib.parse.urlsplit(url)
-    host = parts.hostname or ""
-    try:
-        internal = ipaddress.ip_address(host).is_loopback
-    except ValueError:
-        internal = host == "localhost" or (host != "" and "." not in host)
-    return parts.scheme == "https" or (parts.scheme == "http" and internal)
 
-
-def merged_into(api_url, token, timeout, repo, sha, branch):
-    """Ask GitHub whether a commit belongs to a pull request merged into the branch.
-
-    Args:
-        api_url: GitHub REST API base URL.
-        token: read-only token.
-        timeout: seconds the API request may take.
-        repo: ``owner/name``.
-        sha: the commit.
-        branch: the repository's default branch.
-
-    Returns:
-        True when a merged pull request into the branch lists the commit.
-
-    Raises:
-        ValueError: the API URL is neither https nor http to a loopback or container-internal host.
-    """
-    url = f"{api_url.rstrip('/')}/repos/{repo}/commits/{sha}/pulls"
-    if not allowed_url(url):
-        raise ValueError(
-            f"refusing GitHub API URL {api_url}: https is required outside loopback and container-internal hosts"
+    def __init__(self, path, settings, timeout):
+        self.path = path
+        self.adapter = provider(settings["provider"])
+        self.secret = settings["secret"]
+        self.token = settings.get("token") or ""
+        api_url = settings.get("api_url") or ""
+        self.api = (
+            self.adapter.client(api_url, self.token, timeout, USER_AGENT)
+            if api_url
+            else None
         )
-    request = urllib.request.Request(  # noqa: S310 - allowed_url admits only https, or http to a loopback or container-internal stub
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 - scheme checked by allowed_url
-        pulls = json.load(response)
-    return any(
-        p.get("merged_at") and (p.get("base") or {}).get("ref") == branch for p in pulls
-    )
 
 
-def check_direct_push(config, delivery, repo, payload, sleep=time.sleep):
-    """Log whether every commit of a push to the default branch came through a merged pull request into it.
+def check_direct_push(config, endpoint, delivery, repo, payload, sleep=time.sleep):
+    """Log whether every commit of a push to the default branch came through a merged pull or merge request into it.
 
     Args:
         config: the receiver settings (see ``load_config``).
+        endpoint: the provider the push came from.
         delivery: the delivery ID, logged for correlation.
-        repo: ``owner/name``.
-        payload: the push payload; its repository names the default branch.
+        repo: the repository path.
+        payload: the push payload; it names the default branch.
         sleep: waits between lookups; replaced in tests.
     """
-    branch = default_branch(payload)
+    adapter = endpoint.adapter
+    branch = adapter.payload_default_branch(payload)
     record = {
         "gh_kind": "direct_push",
+        "gh_provider": adapter.NAME,
         "gh_delivery": delivery,
         "gh_repo": repo,
         "gh_default_branch": branch,
         "gh_after": str(payload.get("after") or ""),
     }
-    shas = pushed_commits(payload)
-    if not config["token"]:
+    shas = adapter.pushed_commits(payload)
+    if endpoint.api is None or not endpoint.token:
         emit({**record, "gh_result": "error", "gh_reason": "no token configured"})
         return
     if shas is None:
-        emit(
-            {
-                **record,
-                "gh_result": "error",
-                "gh_reason": f"more than {MAX_COMMITS} commits",
-            }
-        )
+        emit({**record, "gh_result": "error", "gh_reason": "too many commits"})
         return
     unmatched = []
     for sha in shas:
         for attempt in range(config["pr_attempts"]):
             try:
-                if merged_into(
-                    config["api_url"],
-                    config["token"],
-                    config["api_timeout"],
-                    repo,
-                    sha,
-                    branch,
-                ):
+                if adapter.merged_into(endpoint.api, repo, sha, branch):
                     break
-            except (urllib.error.URLError, OSError, ValueError) as error:
+            except (CheckError, OSError, ValueError, KeyError) as error:
                 emit(
                     {
                         **record,
@@ -265,22 +204,43 @@ def check_direct_push(config, delivery, repo, payload, sleep=time.sleep):
 
 
 def load_config(env):
+    timeout = float(env["WEBHOOK_API_TIMEOUT"])
+    endpoints = {
+        path: Endpoint(path, settings, timeout)
+        for path, settings in json.loads(env["WEBHOOK_PROVIDERS"]).items()
+        if settings.get("secret")
+    }
     return {
-        "secret": env["WEBHOOK_SECRET"].encode(),
+        "endpoints": endpoints,
         "port": int(env["WEBHOOK_PORT"]),
-        "path": env["WEBHOOK_PATH"],
         "max_bytes": int(env["WEBHOOK_MAX_BYTES"]),
         "state_db": env["WEBHOOK_STATE_DB"],
         "keep_seconds": int(env["WEBHOOK_REPLAY_DAYS"]) * 86400,
-        "api_url": env["GITHUB_API_URL"],
-        "token": env["GITHUB_TOKEN"],
-        "api_timeout": float(env["WEBHOOK_API_TIMEOUT"]),
         "pr_attempts": int(env["WEBHOOK_PR_ATTEMPTS"]),
         "pr_delay": float(env["WEBHOOK_PR_DELAY"]),
     }
 
 
+def report_unsupported(endpoints):
+    """Log, once per start, every event field a served provider cannot deliver, so a gap is an alert and never silence.
+
+    Args:
+        endpoints: the served endpoints.
+    """
+    for endpoint in endpoints.values():
+        for field in endpoint.adapter.UNSUPPORTED_WEBHOOK_FIELDS:
+            emit(
+                {
+                    "gh_kind": "unsupported",
+                    "gh_provider": endpoint.adapter.NAME,
+                    "gh_field": field,
+                }
+            )
+
+
 def make_handler(config, store):
+    endpoints = config["endpoints"]
+
     class Handler(BaseHTTPRequestHandler):
         server_version = "git-webhook"
         sys_version = ""
@@ -296,7 +256,7 @@ def make_handler(config, store):
             )
 
         def respond(self, status, body=b""):
-            path = logged_path(self.path, (*HEALTH_PATHS, config["path"]))
+            path = logged_path(self.path, (*HEALTH_PATHS, *endpoints))
             emit(
                 {
                     "gh_kind": "access",
@@ -321,10 +281,11 @@ def make_handler(config, store):
                     return
                 remaining -= len(chunk)
 
-        def reject(self, status, reason, delivery=""):
+        def reject(self, endpoint, status, reason, delivery=""):
             emit(
                 {
                     "gh_kind": "rejected",
+                    "gh_provider": endpoint.adapter.NAME,
                     "gh_reason": reason,
                     "gh_delivery": delivery,
                     "gh_srcip": self.client_ip(),
@@ -341,46 +302,50 @@ def make_handler(config, store):
             self.respond(200 if request_path(self.path) in HEALTH_PATHS else 404)
 
         def do_POST(self):
-            if request_path(self.path) != config["path"]:
+            endpoint = endpoints.get(request_path(self.path))
+            if endpoint is None:
                 self.respond(404)
                 return
-            delivery = (self.headers.get("X-GitHub-Delivery") or "")[:MAX_DELIVERY_ID]
+            adapter = endpoint.adapter
+            delivery = adapter.webhook_delivery(self.headers)[:MAX_DELIVERY_ID]
             try:
                 length = int(self.headers.get("Content-Length") or "")
             except ValueError:
-                self.reject(411, "malformed", delivery)
+                self.reject(endpoint, 411, "malformed", delivery)
                 return
             if length < 0:
-                self.reject(400, "malformed", delivery)
+                self.reject(endpoint, 400, "malformed", delivery)
                 return
             if length > config["max_bytes"]:
                 self.discard(length)
-                self.reject(413, "oversized", delivery)
+                self.reject(endpoint, 413, "oversized", delivery)
                 return
             body = self.rfile.read(length)
-            signature = self.headers.get("X-Hub-Signature-256")
-            if not signature:
-                self.reject(401, "unsigned", delivery)
+            failure = adapter.webhook_verify(
+                self.headers, body, endpoint.secret, time.time()
+            )
+            if failure == "replay":
+                self.reject(endpoint, 409, failure, delivery)
                 return
-            if not signature_valid(config["secret"], body, signature):
-                self.reject(401, "signature", delivery)
-                return
-            event = self.headers.get("X-GitHub-Event") or ""
-            if not delivery or not event:
-                self.reject(400, "malformed", delivery)
+            if failure:
+                self.reject(endpoint, 401, failure, delivery)
                 return
             try:
                 payload = json.loads(body)
             except ValueError:
-                self.reject(400, "malformed", delivery)
+                self.reject(endpoint, 400, "malformed", delivery)
                 return
             if not isinstance(payload, dict):
-                self.reject(400, "malformed", delivery)
+                self.reject(endpoint, 400, "malformed", delivery)
                 return
-            if not store.first_time(delivery, time.time()):
-                self.reject(409, "replay", delivery)
+            event = adapter.webhook_event(self.headers, payload)
+            if not delivery or not event:
+                self.reject(endpoint, 400, "malformed", delivery)
                 return
-            record = event_record(event, payload)
+            if not store.first_time(f"{adapter.NAME}:{delivery}", time.time()):
+                self.reject(endpoint, 409, "replay", delivery)
+                return
+            record = adapter.webhook_record(event, payload)
             emit(
                 {
                     "gh_kind": "delivery",
@@ -397,7 +362,7 @@ def make_handler(config, store):
             ):
                 threading.Thread(
                     target=check_direct_push,
-                    args=(config, delivery, record["gh_repo"], payload),
+                    args=(config, endpoint, delivery, record["gh_repo"], payload),
                     daemon=True,
                 ).start()
 
@@ -415,6 +380,7 @@ def main():
         ),
     }
     store = DeliveryStore(config["state_db"], config["keep_seconds"])
+    report_unsupported(config["endpoints"])
     bind = "0.0.0.0"  # noqa: S104 - binds inside its own container network namespace; the compose port mapping decides what the host exposes
     server = ThreadingHTTPServer((bind, config["port"]), make_handler(config, store))
     server.serve_forever()

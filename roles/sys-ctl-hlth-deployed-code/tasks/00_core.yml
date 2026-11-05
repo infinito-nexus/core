@@ -31,6 +31,7 @@
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-hlth-git-settings/tasks/utils/clients.yml') }}"
   vars:
     git_clients_dest: "{{ HLTH_DEPLOYED_CODE_DIR }}"
+    git_clients_notify: []
 
 - name: 📄 Store the checkouts and their providers
   copy:

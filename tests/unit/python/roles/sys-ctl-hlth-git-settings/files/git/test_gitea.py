@@ -95,5 +95,57 @@ class TestGiteaSettings(unittest.TestCase):
             self.assertIs(collectors[key], git_gitea.UNSUPPORTED, key)
 
 
+class TestGiteaWebhook(unittest.TestCase):
+    def test_signature_is_plain_hex(self):
+        import hashlib
+        import hmac
+
+        body = b"{}"
+        good = hmac.new(b"s", body, hashlib.sha256).hexdigest()
+        self.assertIsNone(
+            git_gitea.webhook_verify({"X-Gitea-Signature": good}, body, "s", 0)
+        )
+        self.assertEqual(
+            git_gitea.webhook_verify({"X-Gitea-Signature": ""}, body, "s", 0),
+            "unsigned",
+        )
+        self.assertEqual(
+            git_gitea.webhook_verify(
+                {"X-Gitea-Signature": "sha256=" + good}, body, "s", 0
+            ),
+            "signature",
+        )
+
+    def test_push_record_marks_force_push_unsupported(self):
+        record = git_gitea.webhook_record(
+            "push",
+            {
+                "ref": "refs/heads/main",
+                "before": "a" * 40,
+                "after": "0" * 40,
+                "repository": {"full_name": "o/r", "default_branch": "main"},
+                "sender": {"login": "u"},
+                "commits": [{"id": "b", "modified": [".gitea/workflows/ci.yml"]}],
+            },
+        )
+        self.assertEqual(
+            (
+                record["gh_provider"],
+                record["gh_forced"],
+                record["gh_deleted"],
+                record["gh_on_default_branch"],
+                record["gh_workflow_paths"],
+            ),
+            ("gitea", "unsupported", "true", "true", ".gitea/workflows/ci.yml"),
+        )
+        self.assertIn("push.forced", git_gitea.UNSUPPORTED_WEBHOOK_FIELDS)
+
+    def test_merged_lookup_uses_the_commit_pull_endpoint(self):
+        api = FakeApi({"merged": True, "base": {"ref": "main"}})
+        self.assertTrue(git_gitea.merged_into(api, "o/r", "a", "main"))
+        self.assertEqual(api.paths, ["/repos/o/r/commits/a/pull"])
+        self.assertFalse(git_gitea.merged_into(FakeApi(None), "o/r", "a", "main"))
+
+
 if __name__ == "__main__":
     unittest.main()

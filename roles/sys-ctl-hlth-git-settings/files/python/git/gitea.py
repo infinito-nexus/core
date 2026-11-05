@@ -1,16 +1,33 @@
+import hashlib
+import hmac
 import urllib.parse
 
 from git.core import (
     UNSUPPORTED,
     Api,
     CheckError,
+    flag,
+    push_record,
     repository_path,
+    signature_matches,
     workflows_on_pull_request_target,
 )
+from git.core import pushed_commits as core_pushed_commits
 
 NAME = "gitea"
 OWNERS_TEAM = "Owners"
 WORKFLOW_DIRS = (".gitea/workflows", ".github/workflows")
+WORKFLOW_PREFIXES = (".gitea/workflows/", ".github/workflows/")
+UNSUPPORTED_WEBHOOK_FIELDS = (
+    "push.forced",
+    "branch_protection_rule",
+    "repository_ruleset",
+    "member",
+    "organization",
+    "deploy_key",
+    "secret_scanning_alert",
+    "dependabot_alert",
+)
 
 
 def client(api_url, token, timeout, user_agent):
@@ -142,3 +159,92 @@ def collectors(api, scope, branch):
         "open_secret_scanning_alerts": UNSUPPORTED,
         "open_dependabot_alerts": UNSUPPORTED,
     }
+
+
+def webhook_delivery(headers):
+    return headers.get("X-Gitea-Delivery") or ""
+
+
+def webhook_event(headers, payload):
+    return headers.get("X-Gitea-Event") or ""
+
+
+def webhook_verify(headers, body, secret, now):
+    """Return why a delivery's X-Gitea-Signature does not hold, None when it does.
+
+    Args:
+        headers: the request headers.
+        body: the raw request body.
+        secret: the shared webhook secret.
+        now: the current time; unused, Gitea signs no timestamp.
+    """
+    header = headers.get("X-Gitea-Signature") or ""
+    if not header:
+        return "unsigned"
+    expected = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+    return None if signature_matches(expected, header) else "signature"
+
+
+def payload_default_branch(payload):
+    return str((payload.get("repository") or {}).get("default_branch") or "")
+
+
+def webhook_record(event, payload):
+    """Reduce a Gitea webhook payload to the shared, allowlisted fields.
+
+    Args:
+        event: the X-Gitea-Event header.
+        payload: the decoded JSON body.
+    """
+    branch = payload_default_branch(payload)
+    default_ref = "refs/heads/" + branch if branch else ""
+    record = {
+        "gh_provider": NAME,
+        "gh_event": event,
+        "gh_action": str(payload.get("action") or ""),
+        "gh_repo": str((payload.get("repository") or {}).get("full_name") or ""),
+        "gh_sender": str((payload.get("sender") or {}).get("login") or ""),
+    }
+    if event == "push":
+        record.update(
+            push_record(
+                event,
+                str(payload.get("ref") or ""),
+                str(payload.get("before") or ""),
+                str(payload.get("after") or ""),
+                branch,
+                "unsupported",
+                payload.get("commits"),
+                WORKFLOW_PREFIXES,
+            )
+        )
+    elif event == "delete":
+        ref = (
+            "refs/heads/" + str(payload.get("ref") or "")
+            if payload.get("ref_type") == "branch"
+            else ""
+        )
+        record.update(
+            gh_ref=ref,
+            gh_default_branch=branch,
+            gh_on_default_branch=flag(bool(default_ref) and ref == default_ref),
+            gh_deleted="true",
+        )
+    return record
+
+
+def pushed_commits(payload):
+    return core_pushed_commits(payload.get("commits"), payload.get("after"))
+
+
+def merged_into(api, repo, sha, branch):
+    """Return whether the pull request Gitea reports for the commit was merged into the branch.
+
+    Args:
+        api: the client.
+        repo: ``owner/name``.
+        sha: the commit.
+        branch: the repository's default branch.
+    """
+    pull = api.get(f"/repos/{repo}/commits/{sha}/pull", missing_ok=True) or {}
+    return bool(pull.get("merged")) and (pull.get("base") or {}).get("ref") == branch
