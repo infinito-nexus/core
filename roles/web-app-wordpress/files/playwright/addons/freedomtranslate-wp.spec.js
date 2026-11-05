@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { gotoOnion, isOnionUrl } = require("../personas");
+const { gotoOnion, isOnionUrl, requireDotenvValue } = require("../personas");
 const shared = require("../_shared");
 
 test("addon freedomtranslate-wp: WordPress translates through the deployed gateway", async ({ browser, playwright }) => {
@@ -11,6 +11,7 @@ test("addon freedomtranslate-wp: WordPress translates through the deployed gatew
   test.setTimeout(resolveTimeout(180_000));
 
   const endpoint = `${shared.env.translateBaseUrl}/translate`;
+  const partnerHost = requireDotenvValue(process.env.TRANSLATE_PARTNER_HOST, "TRANSLATE_PARTNER_HOST");
   expect(
     new URL(shared.env.translateBaseUrl).host,
     "the gateway must be a distinct host, not WordPress itself",
@@ -56,7 +57,9 @@ test("addon freedomtranslate-wp: WordPress translates through the deployed gatew
     await expect(urlField, "Expected the FreedomTranslate API URL field in wp-admin").toBeVisible({
       timeout: resolveTimeout(30_000),
     });
-    expect(await urlField.inputValue(), "Expected the plugin to post to the deployed gateway").toBe(endpoint);
+    const configured = new URL(await urlField.inputValue());
+    expect(configured.host, "Expected the plugin to post to the deployed gateway").toBe(partnerHost);
+    expect(configured.pathname, "Expected the plugin to post to the gateway's translate route").toBe("/translate");
   } finally {
     await context.close();
   }
