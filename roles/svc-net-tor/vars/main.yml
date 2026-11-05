@@ -44,7 +44,9 @@ TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.t
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
 TOR_SOCKS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.socks') }}"
 TOR_DNSMASQ_PORT: "{{ NETWORK_DNS_PORT }}"
+TOR_DNS_UPSTREAMS: "{{ [ networks.internet.dns ] }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+TOR_RESOLVED_DROPIN: "/etc/systemd/resolved.conf.d/infinito-tor-egress.conf"
 
 TOR_EGRESS_GUARDED_PORTS:
   - port: "{{ TOR_TRANS_PORT }}"
