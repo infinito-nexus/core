@@ -1,0 +1,41 @@
+---
+- name: "🔍 Look for the units of the removed container hard repair"
+  become: true
+  ansible.builtin.stat:
+    path: "{{ [DIR_SYSTEM_SERVICE, compose_retired_unit] | path_join }}"
+  loop: "{{ COMPOSE_RETIRED_UNITS }}"
+  loop_control:
+    loop_var: compose_retired_unit
+  register: compose_retired_unit_files
+
+- name: "🧹 Retire the units of the removed container hard repair"
+  vars:
+    compose_retired_units_present: "{{ compose_retired_unit_files.results | selectattr('stat.exists') | map(attribute='compose_retired_unit') | list }}"
+  when: compose_retired_units_present | length > 0
+  block:
+    - name: "⏹️ Stop and disable the retired units (best-effort)"
+      become: true
+      ansible.builtin.command:
+        argv: "{{ ['systemctl', 'disable', '--now'] + compose_retired_units_present }}"
+      changed_when: true
+      failed_when: false
+
+    - name: "🗑️ Delete the retired unit files"
+      become: true
+      ansible.builtin.file:
+        path: "{{ [DIR_SYSTEM_SERVICE, compose_retired_unit] | path_join }}"
+        state: absent
+      loop: "{{ compose_retired_units_present }}"
+      loop_control:
+        loop_var: compose_retired_unit
+
+    - name: "🔄 Reload systemd after retiring the units"
+      become: true
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+- name: "🗑️ Delete the script of the removed container hard repair"
+  become: true
+  ansible.builtin.file:
+    path: "{{ COMPOSE_RETIRED_SCRIPT_DIR }}"
+    state: absent

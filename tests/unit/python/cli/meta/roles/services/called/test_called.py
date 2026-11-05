@@ -164,10 +164,10 @@ class TestRequiredRoleIds(unittest.TestCase):
 
     def test_mode_scoped_required_by_compose_only(self) -> None:
         _write_services_yml(
-            self.roles_dir / "sys-ctl-rpr-container-hard",
+            self.roles_dir / "sys-ctl-rpr-container-soft",
             """
             ---
-            container-hard:
+            container-soft:
               required_by:
                 compose:
                   categories: [web]
@@ -177,7 +177,7 @@ class TestRequiredRoleIds(unittest.TestCase):
             required_role_ids(
                 roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
             ),
-            {"sys-ctl-rpr-container-hard"},
+            {"sys-ctl-rpr-container-soft"},
         )
         self.assertEqual(
             required_role_ids(
