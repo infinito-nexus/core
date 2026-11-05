@@ -17,7 +17,6 @@ from unittest.mock import patch
 from utils.env.runtime import (
     cpu_stall_pct,
     detect_gha_act,
-    df_avail_gb,
     hostname,
     io_stall_pct,
     is_user_writable,
@@ -74,44 +73,6 @@ class TestIsUserWritable(unittest.TestCase):
                 self.assertFalse(is_user_writable(str(sub)))
             finally:
                 sub.chmod(0o700)  # so cleanup can remove it
-
-
-class TestDfAvailGb(unittest.TestCase):
-    def test_parses_df_output(self) -> None:
-        sample = "Avail\n42\n"
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            return_value=sample,
-        ):
-            self.assertEqual(df_avail_gb("/"), 42)
-
-    def test_returns_zero_on_short_output(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            return_value="Avail\n",
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
-
-    def test_returns_zero_on_unparseable_output(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            return_value="Avail\nnot-a-number\n",
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
-
-    def test_returns_zero_on_subprocess_error(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            side_effect=subprocess.CalledProcessError(1, "df"),
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
-
-    def test_returns_zero_when_df_missing(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            side_effect=FileNotFoundError(),
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
 
 
 class TestMemAvailableMb(unittest.TestCase):

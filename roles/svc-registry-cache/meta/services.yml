@@ -39,6 +39,7 @@ cache:
       registry: false
   proxy:
     remote_url: "https://registry-1.docker.io" # nocheck: url
+  max_idle_days: 30
   lifecycle: beta
 # nocheck: dynamic-flag - pull-through cache content is re-fetchable, the backup consumer stays permanently off
 container_backup:

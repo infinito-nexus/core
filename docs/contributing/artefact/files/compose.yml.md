@@ -68,13 +68,14 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 |---|---|
 | `INFINITO_CACHE_REGISTRY_HOST_PATH` | Host path bind-mounted into `registry-cache` for blob/manifest persistence. |
 | `INFINITO_CACHE_REGISTRY_CA_HOST_PATH` | Host path holding the proxy MITM CA bundle. Mounted writable into `registry-cache`, read-only into `infinito`. |
-| `INFINITO_CACHE_REGISTRY_MAX_SIZE` | Maximum on-disk size. Computed by [registry_cache_max_size.py](../../../../utils/env/handlers/infinito/registry_cache_max_size.py) as half the free disk at the cache path, floor `1g`, fallback `2g`. |
+| `INFINITO_CACHE_REGISTRY_MAX_SIZE` | `max_size` of the mirror's nginx cache, fixed `40g` in [default.env](../../../../default.env). |
+| `INFINITO_CACHE_MAX_IDLE_DAYS` | `inactive` window of the mirror's nginx cache in days, fixed `30`; [entrypoint.sh](../../../../compose/registry-cache/entrypoint.sh) writes it into the image's `proxy_cache_path` line. |
 | `INFINITO_CACHE_REGISTRY_AUTH` | `AUTH_REGISTRIES` of `registry-cache`. Consumed bare, because empty is valid and pulls anonymously; `auth.docker.io:<user>:<token>` pulls with that Docker Hub account. Set it in `custom.env` as described in [cache.md](../../environment/cache.md). |
 | `INFINITO_CACHE_REGISTRY_PROXY_CONF` | Bind source for the systemd drop-in inside `infinito`. Set by the dev tooling to the real `proxy.conf` under the `cache` profile. Driver-injected; not produced by `make dotenv`. |
 | `INFINITO_CACHE_PACKAGE_HOST_PATH` | Host path bind-mounted at `/nexus-data`. |
 | `INFINITO_CACHE_PACKAGE_HEAP` | JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`. |
 | `INFINITO_CACHE_PACKAGE_DIRECT_MEM` | `MaxDirectMemorySize`. Mirrors `INFINITO_CACHE_PACKAGE_HEAP`. |
-| `INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX` | Soft quota for the default blobstore. Computed as half free disk at the cache path, floor `2g`. |
+| `INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX` | Cap and soft quota of the default blobstore, fixed `20g` in [default.env](../../../../default.env); `make cache-evict` holds the blob store at or below it. |
 | `INFINITO_CACHE_PACKAGE_MAX_AGE_MIN` | Cache freshness window in minutes, applied to every Nexus proxy repo (`contentMaxAge`/`metadataMaxAge`/negative-cache TTL). Stays strictly below the 7-day `Valid-Until` window Debian / Ubuntu generate in their apt `Release` files, so `apt-get update` never aborts with "Release file ... is expired". |
 | `INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD` | Target value for the rotated Nexus admin password. Default is a stable per-host hash. |
 | `INFINITO_CACHE_PACKAGE_PORT` | Host-side port mapped to Nexus REST/UI. Bound to `${INFINITO_BIND_IP}` only. |

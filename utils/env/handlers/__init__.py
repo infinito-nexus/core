@@ -30,7 +30,6 @@ from .infinito import (
     outer_network_mtu,
     parent_image,
     pull_policy,
-    registry_cache_max_size,
     tor_socks_port,
 )
 from .infinito import (
@@ -61,7 +60,6 @@ from .infinito.gpu import count as gpu_count
 from .infinito.gpu import only_tests as gpu_only_tests
 from .infinito.i18n import tuning as i18n_tuning
 from .infinito.package_cache import admin_password as package_cache_admin_password
-from .infinito.package_cache import blobstore_max as package_cache_blobstore_max
 from .infinito.package_cache import direct_mem as package_cache_direct_mem
 from .infinito.package_cache import heap as package_cache_heap
 from .infinito.playwright import reports_base_dir as playwright_reports_base_dir
@@ -131,7 +129,6 @@ ORDERED_HANDLERS = [
     fork_account,
     fork_repository_url,
     nix_config,
-    registry_cache_max_size,
     git_identity,
     gpu_count,
     gpu_only_tests,
@@ -143,7 +140,6 @@ ORDERED_HANDLERS = [
     i18n_tuning,
     package_cache_heap,
     package_cache_direct_mem,
-    package_cache_blobstore_max,
     package_cache_admin_password,
 ]
 

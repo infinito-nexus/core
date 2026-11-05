@@ -21,6 +21,7 @@ CACHE_PACKAGE_UPSTREAM_RECORDS: "{{ lookup('cache_records') }}"
 
 CACHE_PACKAGE_INIT_IMAGE: "{{ lookup('config', application_id, 'services.frontend.init_image') }}"
 CACHE_PACKAGE_BLOBSTORE_MAX: "{{ lookup('config', application_id, 'services.package.blobstore_max') }}"
+CACHE_PACKAGE_MAX_IDLE_DAYS: "{{ lookup('config', application_id, 'services.package.max_idle_days') }}"
 CACHE_PACKAGE_MAX_AGE_MIN: "{{ lookup('config', application_id, 'services.package.content_max_age_min') }}"
 CACHE_PACKAGE_METADATA_MAX_AGE_MIN: "{{ lookup('config', application_id, 'services.package.metadata_max_age_min') }}"
 CACHE_PACKAGE_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.admin_password') }}"

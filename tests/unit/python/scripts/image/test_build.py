@@ -14,6 +14,9 @@ printf '%s\\n' "$*" >>"${STUB_LOG}"
 if [ "$1 $2" = "image inspect" ]; then
 \texit 1
 fi
+if [ "$1 $2 $3" = "builder prune --help" ]; then
+\tprintf '      --max-used-space bytes   Maximum amount of disk space allowed to keep for cache\\n'
+fi
 """
 
 
@@ -48,6 +51,7 @@ class TestImageBuildLabels(unittest.TestCase):
                     "INFINITO_PACKAGE_INSTALL_SCRIPT": "package.sh",
                     "INFINITO_PYTHON_INSTALL_SCRIPT": "python.sh",
                     "INFINITO_DOCKER_CLI_INSTALL_SCRIPT": "docker-cli.sh",
+                    "INFINITO_BUILD_CACHE_MAX_SIZE": "20g",
                 }
             )
             for key in ("GITHUB_REPOSITORY", "GITHUB_REPOSITORY_OWNER", "OWNER"):
