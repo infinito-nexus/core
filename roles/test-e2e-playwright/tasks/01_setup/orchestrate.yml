@@ -25,7 +25,23 @@
   ansible.builtin.include_tasks: 02_run_one.yml
   vars:
     application_id: "{{ playwright_role_id }}"
+    _playwright_dispatch: false
   loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
+  loop_control:
+    loop_var: playwright_role_id
+    label: "{{ playwright_role_id }}"
+  when: TEST_E2E_PLAYWRIGHT_PARALLEL | int == 1
+
+- name: 🔀 Run the round's Playwright containers in parallel
+  ansible.builtin.include_tasks: 01_setup/parallel.yml
+  when: TEST_E2E_PLAYWRIGHT_PARALLEL | int > 1
+
+- name: ▶️ Run the roles left to the serial runner, in round order, before the retry
+  ansible.builtin.include_tasks: 02_run_one.yml
+  vars:
+    application_id: "{{ playwright_role_id }}"
+    _playwright_dispatch: false
+  loop: "{{ TEST_E2E_PLAYWRIGHT_APPS | select('in', _playwright_serial_roles | default([])) | list }}"
   loop_control:
     loop_var: playwright_role_id
     label: "{{ playwright_role_id }}"
@@ -42,6 +58,7 @@
   ansible.builtin.include_tasks: 02_run_one.yml
   vars:
     application_id: "{{ playwright_role_id }}"
+    _playwright_dispatch: false
   loop: "{{ _playwright_retry_roles | default([]) }}"
   loop_control:
     loop_var: playwright_role_id

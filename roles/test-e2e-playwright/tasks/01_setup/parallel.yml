@@ -1,0 +1,121 @@
+---
+- name: 📁 Recreate the parallel jobs directory
+  ansible.builtin.file:
+    path: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}"
+    state: "{{ playwright_jobs_dir_state }}"
+    mode: "0755"
+  loop: [absent, directory]
+  loop_control:
+    loop_var: playwright_jobs_dir_state
+
+- name: 🧹 Remove parallel Playwright containers a killed scheduler left behind
+  ansible.builtin.command:
+    argv: "{{ ['container', 'rm', '--force'] + (TEST_E2E_PLAYWRIGHT_APPS | map('regex_replace', '^', TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX) | list) }}"
+  changed_when: false
+  failed_when: false
+
+- name: 📝 Start with no run handed to the scheduler or left to the serial runner
+  ansible.builtin.set_fact:
+    _playwright_submitted: []
+    _playwright_serial_roles: []
+
+- name: 📋 Ship the parallel scheduler
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/run_parallel.py"
+    dest: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_SCHEDULER }}"
+    mode: "0755"
+
+- name: 🚦 Start the scheduler that runs the staged containers
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_SCHEDULER }}"
+      - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}"
+      - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL | int }}"
+      - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_POLL_SECONDS }}"
+      - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_MAX_CPU_PRESSURE }}"
+      - "{{ lookup('playwright_parallel', 'ram_fraction') }}"
+      - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_SUSTAIN_SECONDS }}"
+      - "{{ TEST_E2E_PLAYWRIGHT_TOR_LOCK }}"
+      - "{{ lookup('playwright_parallel', 'onion_cap') }}"
+  # rationale: async; runs on the stack host it was started on, and the always section seals, waits for and reaps it before the play goes on, so no container outlives this file
+  async: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_BUDGET | int }}"
+  poll: 0
+  register: _playwright_scheduler
+  changed_when: false
+
+- name: 📦 Stage each role and hand its run to the scheduler
+  block:
+    - name: ▶️ Stage Playwright for each detected role
+      ansible.builtin.include_tasks: 02_run_one.yml
+      vars:
+        application_id: "{{ playwright_role_id }}"
+        _playwright_dispatch: true
+      loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
+      loop_control:
+        loop_var: playwright_role_id
+        label: "{{ playwright_role_id }}"
+  always:
+    - name: 🔏 Seal the job list so the scheduler drains and exits
+      ansible.builtin.file:
+        path: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/sealed"
+        state: touch
+        mode: "0644"
+        modification_time: preserve
+        access_time: preserve
+
+    - name: ⏳ Wait for the scheduler to drain the job list
+      ansible.builtin.async_status:
+        jid: "{{ _playwright_scheduler.ansible_job_id }}"
+      register: _playwright_scheduler_status
+      until: _playwright_scheduler_status.finished | bool
+      retries: "{{ ((TEST_E2E_PLAYWRIGHT_PARALLEL_BUDGET | int) / (TEST_E2E_PLAYWRIGHT_PARALLEL_WAIT_DELAY | int)) | round(0, 'ceil') | int }}"
+      delay: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_WAIT_DELAY }}"
+      failed_when: false
+
+    - name: 🧹 Remove any handed-over container the scheduler did not stop
+      ansible.builtin.command:
+        argv: "{{ ['container', 'rm', '--force'] + (_playwright_submitted | map(attribute='id') | map('regex_replace', '^', TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX) | list) }}"
+      changed_when: false
+      failed_when: false
+      when: _playwright_submitted | length > 0
+
+    - name: 📥 Read each handed-over run's job and result
+      ansible.builtin.slurp:
+        src: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/{{ playwright_read }}"
+      register: _playwright_reads
+      failed_when: false
+      loop: "{{ _playwright_submitted | map(attribute='job') | zip(_playwright_submitted | map(attribute='id') | map('regex_replace', '$', '.result.json')) | flatten }}"
+      loop_control:
+        loop_var: playwright_read
+
+    - name: 🧭 Leave the runs whose dependency never ran here to the serial runner
+      ansible.builtin.set_fact:
+        _playwright_serial_roles: >-
+          {{ _playwright_serial_roles
+             + (_playwright_reads.results | selectattr('content', 'defined')
+                | map(attribute='content') | map('b64decode') | map('from_json')
+                | selectattr('deferred', 'defined') | map(attribute='id') | list) }}
+
+    - name: 📝 Report and archive each handed-over run
+      ansible.builtin.include_tasks: 04_collect.yml
+      vars:
+        application_id: "{{ playwright_submitted.id }}"
+        _playwright_job_read: "{{ _playwright_reads.results[2 * playwright_index] }}"
+        _playwright_result_read: "{{ _playwright_reads.results[2 * playwright_index + 1] }}"
+        _playwright_pass_reports_dir: "{{ (_playwright_job_read.content | b64decode | from_json).meta.reports_dir }}"
+        _playwright_run: >-
+          {{ (_playwright_result_read.content | b64decode | from_json)
+             if _playwright_result_read.content is defined
+             else {'stderr': 'no result: the scheduler ended before this run finished'} }}
+      loop: "{{ _playwright_submitted }}"
+      loop_control:
+        loop_var: playwright_submitted
+        index_var: playwright_index
+        label: "{{ playwright_submitted.id }}"
+      when: _playwright_run.deferred is not defined
+
+    - name: 🛑 Fail when the scheduler itself did not finish cleanly
+      ansible.builtin.fail:
+        msg: "The parallel Playwright scheduler ended abnormally: {{ _playwright_scheduler_status.stderr | default(_playwright_scheduler_status.msg) }}"
+      when: not (_playwright_scheduler_status.finished | bool) or 'rc' not in _playwright_scheduler_status or _playwright_scheduler_status.rc != 0

@@ -59,86 +59,109 @@
     {{ _playwright_pass_domain | quote }}
     {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int }}
     {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int }}
+    {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME | int }}
     {{ lookup('container', 'svc-net-tor', 'directories.instance') | quote }}
+    {{ (TEST_E2E_PLAYWRIGHT_TOR_LOCK if (_playwright_dispatch | bool) else '') | quote }}
+  register: _playwright_probe
   changed_when: false
+  failed_when: _playwright_probe.rc != 0 and not (_playwright_dispatch | bool)
   become: true
   when: TEST_E2E_PLAYWRIGHT_IS_ONION | bool
 
-- name: ▶️ Run Playwright container
-  ansible.builtin.command:
-    argv: >-
-      {{
-        ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
-        + (
-            ['--network', 'host']
-            if IS_SWARM_MODE
-            else (
-              ['--add-host=host.docker.internal:host-gateway']
-              + (
-                  ['--add-host=' ~ lookup('tls', 'web-app-keycloak', 'domain') ~ ':host-gateway']
-                  if 'web-app-keycloak' in group_names
-                  else []
-                )
-            )
-          )
-        + ['--env-file', _playwright_stage_dir ~ '/.env']
-        + ['-e', 'INFINITO_PLAYWRIGHT_KEEP=' ~ test_e2e_playwright_keep]
-        + ['-e', 'INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS=' ~ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS]
-        + ['-e', 'PLAYWRIGHT_PROXY=' ~ TEST_E2E_PLAYWRIGHT_PROXY]
-        + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
-        + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
-        + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]
-        + (['-e', 'PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER=' ~ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER] if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else [])
-        + ['-v', _playwright_stage_dir ~ ':/e2e']
-        + ['-v', _playwright_stage_dir ~ '/volume:/volume']
-        + ['-v', _playwright_pass_reports_dir ~ ':/reports']
-        + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
-        + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS ~ ':/e2e/tests/personas:ro']
-        + ['-w', '/e2e']
-        + [TEST_E2E_PLAYWRIGHT_IMAGE]
-        + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
-      }}
-  timeout: "{{ lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int }}"
-  environment: >-
-    {{
-      {
-        'CA_TRUST_CERT_HOST': _playwright_ca_cert_host,
-        'CA_TRUST_WRAPPER_HOST': _playwright_ca_wrapper_host,
-        'CA_TRUST_NAME': _playwright_ca_trust_name
-      } if (_playwright_ca_required | bool) else {}
-    }}
-  register: _playwright_run
-  changed_when: false
-  failed_when: false
-
-- name: 📝 Report and record the failed Playwright run
-  when: (_playwright_run.rc | default(1)) != 0
+- name: 🏃 Run the Playwright container in this play and report it
+  when: not (_playwright_dispatch | bool)
   block:
-    - name: 💬 Print Playwright output (on failure)
-      ansible.builtin.debug:
-        msg: |
-          rc: {{ _playwright_run.rc | default('<absent: run was aborted>') }}
-
-          stdout:
-          {{ _playwright_run.stdout | default('') }}
-
-          stderr:
-          {{ _playwright_run.stderr | default(_playwright_run.msg | default('')) }}
+    - name: ▶️ Run Playwright container
+      ansible.builtin.command:
+        argv: &playwright_argv >-
+          {{
+            ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
+            + (
+                ['--network', 'host']
+                if IS_SWARM_MODE
+                else (
+                  ['--add-host=host.docker.internal:host-gateway']
+                  + (
+                      ['--add-host=' ~ lookup('tls', 'web-app-keycloak', 'domain') ~ ':host-gateway']
+                      if 'web-app-keycloak' in group_names
+                      else []
+                    )
+                )
+              )
+            + ['--env-file', _playwright_stage_dir ~ '/.env']
+            + ['-e', 'INFINITO_PLAYWRIGHT_KEEP=' ~ test_e2e_playwright_keep]
+            + ['-e', 'INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS=' ~ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS]
+            + ['-e', 'PLAYWRIGHT_PROXY=' ~ TEST_E2E_PLAYWRIGHT_PROXY]
+            + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
+            + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
+            + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]
+            + (['-e', 'PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER=' ~ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER] if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else [])
+            + ['-v', _playwright_stage_dir ~ ':/e2e']
+            + ['-v', _playwright_stage_dir ~ '/volume:/volume']
+            + ['-v', _playwright_pass_reports_dir ~ ':/reports']
+            + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
+            + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS ~ ':/e2e/tests/personas:ro']
+            + ['-w', '/e2e']
+            + [TEST_E2E_PLAYWRIGHT_IMAGE]
+            + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
+          }}
+      timeout: "{{ lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int }}"
+      environment: &playwright_environment >-
+        {{
+          {
+            'CA_TRUST_CERT_HOST': _playwright_ca_cert_host,
+            'CA_TRUST_WRAPPER_HOST': _playwright_ca_wrapper_host,
+            'CA_TRUST_NAME': _playwright_ca_trust_name
+          } if (_playwright_ca_required | bool) else {}
+        }}
+      register: _playwright_run
       changed_when: false
+      failed_when: false
 
-    - name: 📝 Record failure
+    - name: 📝 Report and archive the Playwright run
+      ansible.builtin.include_tasks: 04_collect.yml
+
+- name: 📬 Queue the Playwright run for the parallel scheduler
+  when: _playwright_dispatch | bool
+  block:
+    - name: 📮 Hand the Playwright run to the parallel scheduler
+      ansible.builtin.copy:
+        dest: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/{{ TEST_E2E_PLAYWRIGHT_APPS.index(application_id) }}-{{ application_id }}.job.json"
+        mode: "0644"
+        content: >-
+          {{
+            {
+              'id': application_id,
+              'argv': _playwright_argv[:2] + _playwright_parallel_flags + _playwright_argv[2:],
+              'env': _playwright_environment,
+              'timeout': lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int,
+              'after': ([TEST_E2E_PLAYWRIGHT_APPS | first] + lookup('role_tests', application_id, 'playwright.run_after', default=[]))
+                       | intersect(TEST_E2E_PLAYWRIGHT_APPS) | difference([application_id]),
+              'tor': TEST_E2E_PLAYWRIGHT_IS_ONION | bool,
+              'workers': _playwright_workers | int,
+              'memory_mb': lookup('playwright_parallel', 'memory_mb', workers=_playwright_workers) | int,
+              'stop': ['container', 'rm', '--force', TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX ~ application_id],
+              'meta': {'reports_dir': _playwright_pass_reports_dir}
+            } | to_json
+          }}
+      vars:
+        _playwright_argv: *playwright_argv
+        _playwright_environment: *playwright_environment
+        _playwright_workers: "{{ (_playwright_argv | select('match', '^PLAYWRIGHT_WORKERS=') | first).split('=', 1)[1] }}"
+        _playwright_parallel_flags:
+          - "--name={{ TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX ~ application_id }}"
+          - "--oom-score-adj={{ TEST_E2E_PLAYWRIGHT_PARALLEL_OOM_SCORE_ADJ }}"
+      register: _playwright_job_written
+      when: _playwright_probe is skipped or (_playwright_probe.rc | default(1)) == 0
+
+    - name: 📝 Remember the run the scheduler now owns
       ansible.builtin.set_fact:
-        _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
+        _playwright_submitted: >-
+          {{ _playwright_submitted
+             + [{'id': application_id, 'job': _playwright_job_written.dest | basename}] }}
+      when: _playwright_job_written is not skipped
 
-    - name: 📝 Record a suite-budget timeout, which no retry can change
+    - name: 📝 Leave the run to the serial runner, its onion never answered over Tor
       ansible.builtin.set_fact:
-        _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
-      when: "'for the test suite to run' in (_playwright_run.stdout | default(''))"
-
-- name: 🗄️ Archive Playwright reports for this variant + pass
-  ansible.builtin.script: >-
-    {{ role_path }}/files/archive_playwright_reports.sh
-    {{ _playwright_pass_reports_dir | quote }}
-    {{ VARIANT_INDEX | int }}
-    {{ ASYNC_ENABLED | bool | string | lower }}
-  changed_when: true
+        _playwright_serial_roles: "{{ _playwright_serial_roles + [application_id] }}"
+      when: _playwright_job_written is skipped
