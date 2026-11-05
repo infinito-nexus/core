@@ -1,13 +1,14 @@
 """Unit tests for ``plugins/lookup/mcp_servers.py``.
 
-Only the pure builder and the credential resolver are exercised; the lookup
-wrapper forwards ``roles_with_service``, ``applications`` and ``users`` into
-them.
+The pure builder, the credential resolver and the deploy closure are exercised;
+the lookup wrapper forwards ``roles_with_service``, ``applications`` and ``users``
+into them.
 """
 
 import importlib
 import unittest
 from typing import ClassVar
+from unittest.mock import MagicMock, patch
 
 from ansible.errors import AnsibleError
 
@@ -40,7 +41,13 @@ HOMEASSISTANT = {
     "mutating": ["HassTurnOn"],
 }
 
-CREDENTIALS = {"web-app-homeassistant": ("ha-token", "mcp-web-app-homeassistant")}
+CREDENTIALS = {
+    "web-app-homeassistant": (
+        "ha-token",
+        "mcp-web-app-homeassistant",
+        "mcp-homeassistant",
+    )
+}
 
 
 def reasons(result):
@@ -83,6 +90,34 @@ class TestSelectDeployed(unittest.TestCase):
         self.assertEqual([], plugin_module.select_deployed(None, {"web-app-hermes"}))
 
 
+class TestDeployClosure(unittest.TestCase):
+    def closure(self, deployment):
+        def get(name, **kwargs):
+            plugin = MagicMock()
+            if name == "deployment":
+                plugin.run.return_value = [deployment]
+            else:
+                plugin.run.side_effect = lambda terms, variables=None: [
+                    {*terms[0], "svc-db-postgres"}
+                ]
+            return plugin
+
+        with patch.object(plugin_module.lookup_loader, "get", side_effect=get):
+            return plugin_module.LookupModule()._deploy_closure(None, {})
+
+    def test_a_partial_run_on_a_persistent_host_narrows_nothing(self):
+        self.assertEqual(
+            set(),
+            self.closure({"ephemeral": False, "whitelist": ["web-opt-rdr-domains"]}),
+        )
+
+    def test_an_ephemeral_run_narrows_to_the_whitelist_closure(self):
+        self.assertEqual(
+            {"web-app-hermes", "svc-db-postgres"},
+            self.closure({"ephemeral": True, "whitelist": ["web-app-hermes"]}),
+        )
+
+
 class TestBuildMcpDiscovery(unittest.TestCase):
     def test_no_servers_yields_nothing(self):
         for servers in (None, []):
@@ -99,6 +134,7 @@ class TestBuildMcpDiscovery(unittest.TestCase):
         self.assertEqual(entry["auth"], "bearer_token")
         self.assertEqual(entry["auth_subject"], "service_account")
         self.assertEqual(entry["owner"], "mcp-web-app-homeassistant")
+        self.assertEqual(entry["login"], "mcp-homeassistant")
         self.assertEqual(entry["transport"], "streamable-http")
 
     def test_unlisted_consumer_is_rejected_with_a_reason(self):
@@ -139,7 +175,13 @@ class TestBuildMcpDiscovery(unittest.TestCase):
         twin = dict(HOMEASSISTANT, id="web-app-baserow")
         credentials = dict(
             CREDENTIALS,
-            **{"web-app-baserow": ("ha-token", "mcp-web-app-homeassistant")},
+            **{
+                "web-app-baserow": (
+                    "ha-token",
+                    "mcp-web-app-homeassistant",
+                    "mcp-homeassistant",
+                )
+            },
         )
         with self.assertRaises(AnsibleError):
             build_mcp_discovery([HOMEASSISTANT, twin], CONSUMER, CLIENT, credentials)
@@ -209,7 +251,10 @@ class TestBuildMcpDiscovery(unittest.TestCase):
 
     def test_order_of_the_discovered_servers_is_kept(self):
         jenkins = dict(HOMEASSISTANT, id="web-app-jenkins")
-        credentials = dict(CREDENTIALS, **{"web-app-jenkins": ("jk", "mcp-jenkins")})
+        credentials = dict(
+            CREDENTIALS,
+            **{"web-app-jenkins": ("jk", "mcp-web-app-jenkins", "mcp-jenkins")},
+        )
         result = build_mcp_discovery(
             [jenkins, HOMEASSISTANT], CONSUMER, CLIENT, credentials
         )
@@ -297,7 +342,31 @@ class TestResolveCredential(unittest.TestCase):
             owner="mcp-web-app-baserow", source="token_store", key="web-app-baserow"
         )
         self.assertEqual(
-            resolve_credential(server, self.USERS, {}), ("key", "mcp-web-app-baserow")
+            resolve_credential(server, self.USERS, {}),
+            ("key", "mcp-web-app-baserow", "mcp-web-app-baserow"),
+        )
+
+    def test_the_login_is_the_declared_username_not_the_user_key(self):
+        """A shortened account name must reach the wire, or basic auth 401s.
+
+        web-app-wordpress keeps the key ``mcp-web-app-wordpress`` because the
+        token store writes under it, while the account logs in as
+        ``mcp-wordpress``. Presenting the key authenticated as nobody.
+        """
+        server = self._server(
+            owner="mcp-web-app-wordpress",
+            source="token_store",
+            key="web-app-wordpress",
+        )
+        users = {
+            "mcp-web-app-wordpress": {
+                "username": "mcp-wordpress",
+                "tokens": {"web-app-wordpress": "pw"},
+            }
+        }
+        self.assertEqual(
+            resolve_credential(server, users, {}),
+            ("pw", "mcp-web-app-wordpress", "mcp-wordpress"),
         )
 
     def test_role_credentials_source_reads_the_role_secret(self):
@@ -305,7 +374,8 @@ class TestResolveCredential(unittest.TestCase):
             owner="mcp-web-app-x", source="credentials", key="mcp_token"
         )
         self.assertEqual(
-            resolve_credential(server, {}, {"mcp_token": "v"}), ("v", "mcp-web-app-x")
+            resolve_credential(server, {}, {"mcp_token": "v"}),
+            ("v", "mcp-web-app-x", "mcp-web-app-x"),
         )
 
     def test_the_role_secret_is_read_where_the_inventory_writes_it(self):
@@ -345,7 +415,7 @@ class TestResolveCredential(unittest.TestCase):
             owner="mcp-web-app-prometheus", source="credentials", key="mcp_bearer"
         )
         self.assertEqual(
-            ("resolved", "mcp-web-app-prometheus"),
+            ("resolved", "mcp-web-app-prometheus", "mcp-web-app-prometheus"),
             resolve_credential(
                 server, {}, role_credentials_of(applications, "web-app-prometheus")
             ),
@@ -356,35 +426,44 @@ class TestResolveCredential(unittest.TestCase):
             owner="administrator", source="token_store", key="web-app-baserow"
         )
         users = {"administrator": {"tokens": {"web-app-baserow": "k"}}}
-        self.assertEqual(resolve_credential(server, users, {}), ("", "administrator"))
+        self.assertEqual(
+            resolve_credential(server, users, {}),
+            ("", "administrator", "administrator"),
+        )
 
     def test_unknown_source_resolves_to_nothing(self):
         server = self._server(owner="o", source="vault", key="k")
-        self.assertEqual(resolve_credential(server, {}, {}), ("", "o"))
+        self.assertEqual(resolve_credential(server, {}, {}), ("", "o", "o"))
 
     def test_missing_declaration_resolves_to_nothing(self):
-        self.assertEqual(resolve_credential({}, {}, {}), ("", ""))
+        self.assertEqual(resolve_credential({}, {}, {}), ("", "", ""))
 
     def test_a_blank_stored_token_resolves_to_nothing(self):
         server = self._server(
             owner="mcp-web-app-x", source="token_store", key="web-app-x"
         )
         users = {"mcp-web-app-x": {"tokens": {"web-app-x": "   "}}}
-        self.assertEqual(resolve_credential(server, users, {}), ("", "mcp-web-app-x"))
+        self.assertEqual(
+            resolve_credential(server, users, {}),
+            ("", "mcp-web-app-x", "mcp-web-app-x"),
+        )
 
     def test_a_blank_role_credential_resolves_to_nothing(self):
         server = self._server(
             owner="mcp-web-app-x", source="credentials", key="mcp_token"
         )
         self.assertEqual(
-            resolve_credential(server, {}, {"mcp_token": ""}), ("", "mcp-web-app-x")
+            resolve_credential(server, {}, {"mcp_token": ""}),
+            ("", "mcp-web-app-x", "mcp-web-app-x"),
         )
 
     def test_a_principal_the_store_never_saw_resolves_to_nothing(self):
         server = self._server(
             owner="mcp-web-app-x", source="token_store", key="web-app-x"
         )
-        self.assertEqual(resolve_credential(server, {}, {}), ("", "mcp-web-app-x"))
+        self.assertEqual(
+            resolve_credential(server, {}, {}), ("", "mcp-web-app-x", "mcp-web-app-x")
+        )
 
 
 class TestResolveConsumerId(unittest.TestCase):

@@ -125,8 +125,19 @@ class TestOtherFlavors(unittest.TestCase):
         self.assertIn("grep -q 'HTTP/1'", argv[3])
 
     def test_tcp_keeps_the_escapes_the_shell_needs(self):
-        """echo -e must receive backslash escapes, not real newlines."""
+        """printf must receive backslash escapes, not real newlines."""
         self.assertIn("\\r\\n", probe("tcp", port=80)[3])
+
+    def test_the_request_stops_at_the_header_terminator(self):
+        """A trailing LF makes uvicorn's h11 reader answer 400, not the handler."""
+        with tempfile.TemporaryDirectory() as tmp:
+            sent = Path(tmp) / "request"
+            script = f"exec 3>{sent}\n{Tcp(port=80, path='health').request()}"
+            subprocess.run(["bash", "-c", script], check=True)
+            self.assertEqual(
+                b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n",
+                sent.read_bytes(),  # nocheck: cache-read - bash writes this file inside the test, so a cached read would answer with the previous run's bytes
+            )
 
     def test_http_status_demands_a_2xx_or_3xx_status_line(self):
         argv = probe("http_status", port=80, path="health")

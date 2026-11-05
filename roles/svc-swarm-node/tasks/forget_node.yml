@@ -41,5 +41,4 @@
   when:
     - lookup('path_absolute', 'roles/' ~ forget_engine ~ '/tasks/utils/forget.yml') is file
     - lookup('db_instances', forget_engine).form == 'ha'
-    - not lookup('db_instances', forget_engine).ha.coordination_store
-      or lookup('db_instances', coordination_store_needed=true)
+    - not lookup('db_instances', forget_engine).ha.coordination_store or lookup('db_instances', coordination_store_needed=true)

@@ -1,0 +1,51 @@
+---
+- name: "🎨 Stage the corporate design files of {{ application_id }}"
+  stack_host_template:
+    src: "{{ item.src }}"
+    dest: "{{ [JITSI_WEB_CONFIG_HOST_PATH, item.dest] | path_join }}"
+    mode: "0644"
+  loop: "{{ JITSI_DESIGN_FILES }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify: container-recreate
+  when: JITSI_DESIGN_ENABLED | bool
+
+- name: "🧹 Remove the corporate design files of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ [JITSI_WEB_CONFIG_HOST_PATH, item.dest] | path_join }}"
+    state: absent
+  loop: "{{ JITSI_DESIGN_FILES }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify: container-recreate
+  when: not (JITSI_DESIGN_ENABLED | bool)
+
+- name: "🔍 Look for a custom interface configuration of {{ application_id }}"
+  ansible.builtin.stat:
+    path: "{{ JITSI_INTERFACE_CONFIG_HOST_PATH }}"
+  register: jitsi_interface_config
+
+- name: "🏷️ Converge the corporate title of {{ application_id }}"
+  ansible.builtin.blockinfile:
+    path: "{{ JITSI_INTERFACE_CONFIG_HOST_PATH }}"
+    marker: "// {mark} {{ JITSI_DESIGN_MARK }}"
+    block: "interfaceConfig.APP_NAME = {{ JITSI_DESIGN_TITLE | to_json }};"
+    state: "{{ 'present' if JITSI_DESIGN_TITLE is string else 'absent' }}"
+    create: true
+    mode: "0644"
+  notify: container-recreate
+  when: JITSI_DESIGN_TITLE is string or jitsi_interface_config.stat.exists
+
+- name: "🔍 Measure the custom interface configuration of {{ application_id }}"
+  ansible.builtin.stat:
+    path: "{{ JITSI_INTERFACE_CONFIG_HOST_PATH }}"
+  register: jitsi_interface_config_left
+
+- name: "🧹 Remove the emptied custom interface configuration of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ JITSI_INTERFACE_CONFIG_HOST_PATH }}"
+    state: absent
+  when:
+    - JITSI_DESIGN_TITLE is not string
+    - jitsi_interface_config_left.stat.exists
+    - jitsi_interface_config_left.stat.size == 0

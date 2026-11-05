@@ -14,7 +14,7 @@ from . import PROJECT_ROOT
 
 
 def _load_module():
-    path = PROJECT_ROOT / "roles/web-app-stalwart/files/test/probe_mail.py"
+    path = PROJECT_ROOT / "roles/web-app-stalwart/files/test/probe/mail.py"
     spec = importlib.util.spec_from_file_location("probe_mail", str(path))
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader

@@ -1,4 +1,13 @@
 ---
+python-dev:
+  Archlinux:
+    - python
+  Debian:
+    - python3-dev
+  RedHat:
+    - python3-devel
+  batch: false
+
 python-pip:
   Archlinux:
     - python-pip

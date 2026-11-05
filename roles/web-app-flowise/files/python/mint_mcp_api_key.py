@@ -1,6 +1,3 @@
-# nocheck: mirrored-unit-test - the contract is the register/login/mint order Flowise
-# 3.1.3 enforces over a session cookie; every step is a live HTTP call and a stubbed
-# opener would only replay the order this file already states
 """Mint the scoped Flowise API identity the MCP registry reconciler uses.
 
 Flowise 3.1.3 guards ``/api/v1/apikey`` with ``apikeys:create``, so a key
@@ -53,6 +50,7 @@ KEY_PERMISSIONS = [
     "chatflows:view",
     "chatflows:create",
     "chatflows:update",
+    "chatflows:delete",
 ]
 
 
@@ -129,15 +127,28 @@ def named_key(keys):
     return matches[0] if matches else None
 
 
+def grants_key_permissions(key):
+    """Return whether a listed key carries exactly KEY_PERMISSIONS.
+
+    Args:
+        key: one entry of ``GET /api/v1/apikey``.
+    """
+    return set(key.get("permissions") or []) == set(KEY_PERMISSIONS)
+
+
 def api_key():
-    """Return the managed key, reusing it when a previous run already made it."""
+    """Return the managed key, reused while it grants KEY_PERMISSIONS, else minted anew."""
     status, body = call("/api/v1/apikey")
     if status != 200:
         sys.exit(f"FAILED listing api keys: {status} {body}")
 
     existing = named_key(body)
-    if existing:
+    if existing and grants_key_permissions(existing):
         return str(existing["apiKey"]), False
+    if existing:
+        status, detail = call(f"/api/v1/apikey/{existing['id']}", method="DELETE")
+        if status not in (200, 204):
+            sys.exit(f"FAILED deleting api key {KEY_NAME}: {status} {detail}")
 
     status, body = call(
         "/api/v1/apikey",

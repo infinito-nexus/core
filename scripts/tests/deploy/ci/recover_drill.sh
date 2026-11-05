@@ -20,8 +20,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 DIR_SECRETS="$(PYTHONPATH="${REPO}" python3 -c 'from utils.paths import DIR_SECRETS; print(DIR_SECRETS)')"
-NFS_STATE="$(PYTHONPATH="${REPO}" python3 -c 'from cli.administration.recover.paths import NFS_EXPORT_STATE; print(NFS_EXPORT_STATE)')"
+NFS_BASE="$(PYTHONPATH="${REPO}" python3 -c 'from cli.administration.recover.paths import NFS_EXPORT_BASE; print(NFS_EXPORT_BASE)')"
+NFS_STATE_SUBDIR="$(PYTHONPATH="${REPO}" python3 -c 'from utils.storage.nfs import STATE_SUBDIR; print(STATE_SUBDIR)')"
 VOL="recoverdrill_data"
+NFS_VOL_REL="${NFS_STATE_SUBDIR}/${VOL}"
 TOKEN="compose-recover-drill"
 MARKER=".recoverdrill-marker"
 ROOT="/tmp/recoverdrill-backup"
@@ -43,8 +45,8 @@ fi
 
 echo "==> [1/3] seed backup root"
 rm -rf "${ROOT}"
-mkdir -p "${NFS_FILES}" "${SEC_FILES}" "${NFS_STATE}" "${DIR_SECRETS}"
-printf '%s' "${TOKEN}" >"${NFS_FILES}/${MARKER}"
+mkdir -p "${NFS_FILES}/${NFS_VOL_REL}" "${SEC_FILES}" "${NFS_BASE}" "${DIR_SECRETS}"
+printf '%s' "${TOKEN}" >"${NFS_FILES}/${NFS_VOL_REL}/${MARKER}"
 printf '%s' "${TOKEN}" >"${SEC_FILES}/${MARKER}"
 if [ "${HAVE_DOCKER}" = "1" ]; then
 	mkdir -p "${VOL_FILES}"
@@ -58,8 +60,8 @@ PYTHONPATH="${REPO}" python3 -m cli.administration.recover \
 	full "${ROOT}" localhost --no-safety-backup
 
 echo "==> [3/3] verify restored markers"
-grep -qF "${TOKEN}" "${NFS_STATE}/${MARKER}"
-echo "    OK nfs marker restored to ${NFS_STATE}"
+grep -qF "${TOKEN}" "${NFS_BASE}/${NFS_VOL_REL}/${MARKER}"
+echo "    OK nfs marker restored to ${NFS_BASE}/${NFS_VOL_REL}"
 grep -qF "${TOKEN}" "${DIR_SECRETS}/${MARKER}"
 echo "    OK secrets marker restored to ${DIR_SECRETS}"
 if [ "${HAVE_DOCKER}" = "1" ]; then

@@ -1,18 +1,4 @@
 ---
-- name: "🚀 Deploy '{{ PIXELFED_ENTRYPOINT_HOST_ABS }}'"
-  ansible.builtin.copy:
-    src: "shell/{{ PIXELFED_ENTRYPOINT_FILE }}"
-    dest: "{{ PIXELFED_ENTRYPOINT_HOST_ABS }}"
-    mode: "0755"
-  notify: compose-up
-
-- name: "🚀 Deploy '{{ PIXELFED_WORKER_ENTRYPOINT_HOST_ABS }}'"
-  ansible.builtin.copy:
-    src: "shell/{{ PIXELFED_WORKER_ENTRYPOINT_FILE }}"
-    dest: "{{ PIXELFED_WORKER_ENTRYPOINT_HOST_ABS }}"
-    mode: "0755"
-  notify: compose-up
-
 - name: "✅ Ensure Pixelfed .env ownership and permissions for www-data"
   ansible.builtin.file:
     path: "{{ PIXELFED_ENV_FILE }}"
@@ -39,3 +25,6 @@
 - name: "🥾 Bootstrap the Pixelfed administrator OIDC mapping"
   ansible.builtin.import_tasks: 04_oidc_mapping.yml
   when: PIXELFED_OIDC_ENABLED | bool
+
+- name: "🎨 Converge the Pixelfed design carriers"
+  ansible.builtin.import_tasks: 05_design.yml

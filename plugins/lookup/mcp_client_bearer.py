@@ -26,6 +26,43 @@ from utils.manager.credential_key import CREDENTIALS_KEY, SECRETS_KEY
 from utils.roles.applications.mcp import resolve_credential
 
 
+def resolve_provider_credential(
+    lookup: LookupBase, application_id: str, variables: dict[str, Any]
+) -> tuple[str, str, str]:
+    """Return ``(token, owner, login)`` as every client renderer resolves them.
+
+    Args:
+        lookup: the lookup instance whose loader and templar run the
+            ``config`` and ``users`` sub-lookups.
+        application_id: the provider role whose credential is wanted.
+        variables: the templar variables in scope for those sub-lookups.
+    """
+    templar = getattr(lookup, "_templar", None)
+    config = lookup_loader.get("config", loader=lookup._loader, templar=templar)
+
+    credential = config.run([application_id, "mcp.credential"], variables=variables)[0]
+    if not isinstance(credential, dict):
+        raise AnsibleError(
+            f"mcp credential: {application_id} declares no mcp.credential, "
+            f"so no client could authenticate against it"
+        )
+
+    owner = str(credential.get("owner") or "").strip()
+    users = lookup_loader.get("users", loader=lookup._loader, templar=templar).run(
+        [owner, {}], variables=variables
+    )[0]
+
+    role_credentials = config.run(
+        [application_id, f"{SECRETS_KEY}.{CREDENTIALS_KEY}", {}], variables=variables
+    )[0]
+
+    return resolve_credential(
+        {"credential": credential},
+        {owner: users} if isinstance(users, dict) else {},
+        role_credentials if isinstance(role_credentials, dict) else {},
+    )
+
+
 class LookupModule(LookupBase):
     def run(
         self,
@@ -41,28 +78,6 @@ class LookupModule(LookupBase):
             )
         application_id = str(terms[0]).strip()
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
-        templar = getattr(self, "_templar", None)
-        config = lookup_loader.get("config", loader=self._loader, templar=templar)
 
-        credential = config.run([application_id, "mcp.credential"], variables=vars_)[0]
-        if not isinstance(credential, dict):
-            raise AnsibleError(
-                f"mcp_client_bearer: {application_id} declares no mcp.credential, "
-                f"so no client could authenticate against it"
-            )
-
-        owner = str(credential.get("owner") or "").strip()
-        users = lookup_loader.get("users", loader=self._loader, templar=templar).run(
-            [owner, {}], variables=vars_
-        )[0]
-
-        role_credentials = config.run(
-            [application_id, f"{SECRETS_KEY}.{CREDENTIALS_KEY}", {}], variables=vars_
-        )[0]
-
-        token, _owner = resolve_credential(
-            {"credential": credential},
-            {owner: users} if isinstance(users, dict) else {},
-            role_credentials if isinstance(role_credentials, dict) else {},
-        )
+        token, _owner, _login = resolve_provider_credential(self, application_id, vars_)
         return [token]

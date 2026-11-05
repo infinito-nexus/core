@@ -46,13 +46,23 @@ def _call_task() -> dict:
     return next(_module(t, "shell") for t in _tasks() if _module(t, "shell"))
 
 
+CLIENT_FACTS = ("stalwart_jmap_url", "stalwart_jmap_user_password")
+
+
 def _client_task() -> dict:
-    return next(t for t in _tasks() if "stalwart_jmap_client" in _module(t, "set_fact"))
+    return next(t for t in _tasks() if CLIENT_FACTS[0] in _module(t, "set_fact"))
+
+
+def _client_facts() -> dict:
+    return {
+        key: raw
+        for key, raw in _module(_client_task(), "set_fact").items()
+        if key in CLIENT_FACTS
+    }
 
 
 def _resolved_client(**variables) -> dict:
-    client = _module(_client_task(), "set_fact")["stalwart_jmap_client"]
-    return {key: _render(raw, **variables) for key, raw in client.items()}
+    return {key: _render(raw, **variables) for key, raw in _client_facts().items()}
 
 
 def _assert_task() -> dict:
@@ -233,6 +243,7 @@ class TestJmapSecretsStayOffArgv(unittest.TestCase):
         cmd = self.task["cmd"]
         self.assertNotIn("-u ", cmd)
         self.assertNotIn("STALWART_ADMIN_PASSWORD", cmd)
+        self.assertNotIn("stalwart_jmap_user_password", cmd)
         self.assertNotIn("stalwart_jmap_body", cmd)
         self.assertIn("-K -", cmd)
 
@@ -243,9 +254,7 @@ class TestJmapSecretsStayOffArgv(unittest.TestCase):
             STALWART_ADMIN_USER="stalwartadmin",
             STALWART_ADMIN_PASSWORD=PASSWORD,
         )
-        rendered = _render(
-            self.task["stdin"], stalwart_jmap_client=client, stalwart_jmap_body=body
-        )
+        rendered = _render(self.task["stdin"], **client, stalwart_jmap_body=body)
         config = dict(line.split(" = ", 1) for line in rendered.splitlines())
         self.assertEqual(json.loads(config["user"]), f"stalwartadmin:{PASSWORD}")
         self.assertEqual(json.loads(config["data-binary"]), body)
@@ -262,24 +271,24 @@ class TestJmapClientResolvedOncePerRun(unittest.TestCase):
                 self.assertNotIn(name, self.call[field])
 
     def test_the_client_carries_every_resolved_once_variable(self):
-        client = _module(self.resolve, "set_fact")["stalwart_jmap_client"]
+        facts = _client_facts()
+        self.assertEqual(set(facts), set(CLIENT_FACTS))
         for name in RESOLVED_ONCE:
-            self.assertTrue(any(name in raw for raw in client.values()), name)
+            self.assertTrue(any(name in raw for raw in facts.values()), name)
 
-    def test_the_call_reads_only_keys_the_client_sets(self):
-        client = _module(self.resolve, "set_fact")["stalwart_jmap_client"]
+    def test_the_call_reads_only_facts_the_client_sets(self):
         used = set(
-            re.findall(
-                r"stalwart_jmap_client\.(\w+)", self.call["cmd"] + self.call["stdin"]
-            )
-        )
+            re.findall(r"\b(stalwart_jmap_\w+)", self.call["cmd"] + self.call["stdin"])
+        ) - {"stalwart_jmap_body"}
         self.assertTrue(used)
-        self.assertLessEqual(used, set(client))
+        self.assertLessEqual(used, set(_client_facts()))
 
     def test_the_client_resolves_only_while_undefined(self):
         condition = "{{ (" + str(self.resolve.get("when", True)) + ") | bool }}"
         self.assertTrue(_render(condition))
-        self.assertFalse(_render(condition, stalwart_jmap_client={"url": "u"}))
+        self.assertFalse(
+            _render(condition, stalwart_jmap_url="u", stalwart_jmap_user_password="p")
+        )
 
     def test_the_client_resolution_is_masked(self):
         self.assertEqual(
@@ -295,7 +304,7 @@ class TestJmapClientResolvedOncePerRun(unittest.TestCase):
         cmd = _render(
             self.call["cmd"],
             STALWART_CONTAINER_ADDRESS=SWARM_ADDRESS,
-            stalwart_jmap_client=client,
+            **client,
         )
         self.assertTrue(cmd.startswith(f"container exec -i {SWARM_ADDRESS} curl "))
         self.assertTrue(cmd.endswith(" http://localhost:8080/jmap/"))

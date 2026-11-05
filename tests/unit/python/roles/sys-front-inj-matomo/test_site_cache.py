@@ -6,7 +6,9 @@ from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
-INJECT = PROJECT_ROOT / "roles" / "sys-front-inj-matomo" / "tasks" / "inject.yml"
+RESOLVE_SITE = (
+    PROJECT_ROOT / "roles" / "sys-front-inj-matomo" / "tasks" / "resolve_site.yml"
+)
 INSTALL_PATH = (
     PROJECT_ROOT / "roles" / "web-app-matomo" / "tasks" / "03_install_path.yml"
 )
@@ -35,7 +37,7 @@ def _task(tasks, predicate):
 
 class TestNegativeSiteCache(unittest.TestCase):
     def setUp(self):
-        tasks = _tasks(INJECT)
+        tasks = _tasks(RESOLVE_SITE)
         self.load = _task(tasks, lambda t: t.get("register") == "matomo_site_list")
         self.site_check = _task(tasks, lambda t: t.get("register") == "site_check")
         self.cached_id = _task(
@@ -47,7 +49,8 @@ class TestNegativeSiteCache(unittest.TestCase):
         return {
             "matomo_site_cache": {"scope": scope, "sites": sites},
             "matomo_site_cache_scope": SCOPE,
-            "matomo_site_id": None,
+            "matomo_site_id": "",
+            "matomo_effective_token": "token",
         }
 
     def test_a_cached_absence_skips_both_api_calls(self):

@@ -1,8 +1,8 @@
 ---
 - name: "⏳ Wait for MinIO IAM subsystem before policy attach"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   shell: |
     set -euo pipefail
     container run --rm \
@@ -21,8 +21,8 @@
 
 - name: "📁 Create administrator policy (LDAP variant)"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   shell: |
     set -euo pipefail
     printf '%s' '{{ (MINIO_OIDC_POLICY_CONTENT | from_yaml | to_json) | b64encode }}' \
@@ -39,8 +39,8 @@
 
 - name: "🗂️ Attach MinIO policy to LDAP administrator group"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     MINIO_LDAP_ADMIN_GROUP_DN: "cn=web-app-minio-administrator,ou=roles,{{ LDAP.DN.ROOT }}"
   shell: |
     set -euo pipefail

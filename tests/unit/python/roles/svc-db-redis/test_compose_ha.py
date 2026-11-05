@@ -125,7 +125,10 @@ class TestRedisComposeHa(unittest.TestCase):
     def test_standalone_keeps_the_flag_command_and_no_sentinel(self):
         services = _render(["mgr-01"])
         self.assertEqual(list(services), ["redis"])
-        self.assertIn("--requirepass pw", services["redis"]["command"][2])
+        self.assertIn(
+            '--requirepass "$$REDIS_PASSWORD"', services["redis"]["command"][2]
+        )
+        self.assertNotIn("pw", services["redis"]["command"][2])
         self.assertNotIn("environment", services["redis"])
 
 

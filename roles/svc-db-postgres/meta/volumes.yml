@@ -15,7 +15,7 @@ patroni_cfg:
       target: /run/secrets/patroni.yml
       when: "{{ lookup('db_instances', 'svc-db-postgres').form == 'ha' }}"
 
-etcd_ca:
+etcd_ca: # nocheck: config-volume-producer  svc-dcs-etcd tasks/01_tls.yml writes the etcd CA this entry mounts
   type: config
   source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'ca.crt'] | path_join }}"
   mode: "0444"

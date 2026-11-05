@@ -12,7 +12,6 @@ ARG ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL
 
 RUN cp -a /usr/src/espocrm/. /var/www/html/
 
-# Exception: upstream v10 entrypoint hardcodes `set-password admin`, killing installs with a non-default admin name; the grep guard fails the build if the line changes.
 RUN sed -i 's|bin/command set-password admin |bin/command set-password "$ESPOCRM_ADMIN_USERNAME" |' ${ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL} \
     && grep -qF 'set-password "$ESPOCRM_ADMIN_USERNAME"' ${ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL}
 

@@ -22,19 +22,46 @@
 # delimiter or backreference characters would be read as syntax.
 set -e
 
-if [ -f /etc/infinito/xwiki.properties ]; then
-	mkdir -p /usr/local/xwiki/data
-	cp /etc/infinito/xwiki.properties /usr/local/xwiki/data/xwiki.properties
+: "${XWIKI_PROPERTIES_SOURCE:?set from meta/volumes.yml by the compose environment}"
+
+XWIKI_CFG_NAME=xwiki.cfg
+XWIKI_DATA_DIR=/usr/local/xwiki/data
+XWIKI_WEBINF_DIR="/usr/local/tomcat/webapps/${CONTEXT_PATH:-ROOT}/WEB-INF"
+
+XWIKI_DATA_CFG="${XWIKI_DATA_DIR}/${XWIKI_CFG_NAME}"
+XWIKI_WEBINF_CFG="${XWIKI_WEBINF_DIR}/${XWIKI_CFG_NAME}"
+
+if [ -f "${XWIKI_PROPERTIES_SOURCE}" ]; then
+	mkdir -p "${XWIKI_DATA_DIR}"
+	cp "${XWIKI_PROPERTIES_SOURCE}" "${XWIKI_DATA_DIR}/$(basename "${XWIKI_PROPERTIES_SOURCE}")"
 fi
 
 if [ -n "${XWIKI_SUPERADMIN_PASSWORD:-}" ]; then
-	for cfg in /usr/local/xwiki/data/xwiki.cfg \
-		"/usr/local/tomcat/webapps/${CONTEXT_PATH:-ROOT}/WEB-INF/xwiki.cfg"; do
+	for cfg in "${XWIKI_DATA_CFG}" "${XWIKI_WEBINF_CFG}"; do
 		[ -f "${cfg}" ] || continue
 		sed -i -E '/^#? ?xwiki\.superadmin(password)? ?=/d' "${cfg}"
 		printf '%s\n' \
 			'xwiki.superadmin=1' \
 			"xwiki.superadminpassword=${XWIKI_SUPERADMIN_PASSWORD}" \
+			>>"${cfg}"
+	done
+fi
+
+if [ -n "${XWIKI_CFG_LDAP_SERVER:-}" ]; then
+	for cfg in "${XWIKI_DATA_CFG}" "${XWIKI_WEBINF_CFG}"; do
+		[ -f "${cfg}" ] || continue
+		sed -i -E '/^#? ?xwiki\.authentication\.ldap\./d' "${cfg}"
+		printf '%s\n' \
+			"xwiki.authentication.ldap.server=${XWIKI_CFG_LDAP_SERVER}" \
+			"xwiki.authentication.ldap.port=${XWIKI_CFG_LDAP_PORT}" \
+			"xwiki.authentication.ldap.base_DN=${XWIKI_CFG_LDAP_BASE_DN}" \
+			"xwiki.authentication.ldap.bind_DN=${XWIKI_CFG_LDAP_BIND_DN}" \
+			"xwiki.authentication.ldap.bind_pass=${XWIKI_CFG_LDAP_BIND_PASS}" \
+			"xwiki.authentication.ldap.fields_mapping=${XWIKI_CFG_LDAP_FIELDS_MAPPING}" \
+			"xwiki.authentication.ldap.group_mapping=${XWIKI_CFG_LDAP_GROUP_MAPPING}" \
+			"xwiki.authentication.ldap.mode_group_sync=always" \
+			"xwiki.authentication.ldap.trylocal=${XWIKI_CFG_LDAP_TRYLOCAL}" \
+			"xwiki.authentication.ldap.update_user=1" \
 			>>"${cfg}"
 	done
 fi

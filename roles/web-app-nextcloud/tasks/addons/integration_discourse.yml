@@ -1,7 +1,5 @@
 ---
 - name: "🩹 Let the Discourse settings keep an onion URL on http"
-  # Exception: sed reads a bare & in the replacement as the whole match, so the
-  # && of the injected condition MUST stay escaped as \&\& or the guard breaks.
   # TODO: this patches a vendored bundle and belongs upstream. onInput() in
   # src/components/PersonalSettings.vue:217-224 rewrites http:// to https://
   # unconditionally, which breaks an onion forum that cannot carry TLS (CI run

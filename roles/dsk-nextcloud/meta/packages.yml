@@ -1,0 +1,14 @@
+---
+nextcloud-desktop:
+  Archlinux:
+    - nextcloud-client
+  Debian:
+    - nextcloud-desktop
+  RedHat:
+    - nextcloud-client
+  centos:
+    source: flatpak
+    names:
+      - com.nextcloud.desktopclient.nextcloud
+    flatpak:
+      command: nextcloud

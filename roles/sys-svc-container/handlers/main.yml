@@ -1,10 +1,15 @@
 ---
+- name: 🔄 Reload the systemd units before the Docker daemon restart
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  listen: container-manager-restart
+
 - name: 🔄 Restart the Docker daemon one host at a time and wait until it settled
   ansible.builtin.script: "{{ role_path }}/files/shell/restart_daemon.sh"
   args:
     executable: /bin/bash
   environment:
-    SWARM_NODE: "{{ (DEPLOYMENT_MODE == 'swarm') | string | lower }}"
+    SWARM_NODE: "{{ (IS_SWARM_MODE | bool) | string | lower }}"
     SETTLE_TIMEOUT: "{{ lookup('timeout', 600) | int }}"
   throttle: 1
   changed_when: true
@@ -22,6 +27,7 @@
     - networks.internet.dns | length > 0
   environment:
     BUSYBOX_IMAGE: "{{ lookup('config', 'sys-svc-container', 'services.busybox.image') }}:{{ lookup('config', 'sys-svc-container', 'services.busybox.version') }}"
-    NODE_IMAGE: "{{ '' if DEPLOYMENT_MODE == 'swarm' else lookup('config', 'sys-svc-container', 'services.node.image') ~ ':' ~ lookup('config', 'sys-svc-container',
-      'services.node.version') }}"
+    NODE_IMAGE: "{{ '' if IS_SWARM_MODE else lookup('config', 'sys-svc-container', 'services.node.image') ~ ':' ~ lookup('config', 'sys-svc-container', 'services.node.version')
+      }}"
     DOMAIN: "{{ DOMAIN_PRIMARY }}"
+    CA_CONTAINER_ENABLED: "0"

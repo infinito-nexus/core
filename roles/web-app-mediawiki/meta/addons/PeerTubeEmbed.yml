@@ -1,0 +1,11 @@
+---
+enabled: false
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - peertube
+update:
+  monitored: true
+  catalog: mediawiki-extension
+  upstream_id: PeerTubeEmbed

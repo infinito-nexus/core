@@ -25,11 +25,13 @@
   include_tasks: 02_bench_bootstrap.yml
 
 - name: "🔧 configure OIDC"
-  include_tasks: 03_oidc.yml
+  include_tasks: addons/social_login_key.yml
   when: ERPNEXT_OIDC_ENABLED
 - name: "🔧 configure LDAP"
-  include_tasks: 04_ldap.yml
+  include_tasks: 03_ldap.yml
   when: ERPNEXT_LDAP_ENABLED
 - name: "🔧 configure outbound email"
-  include_tasks: 05_email.yml
+  include_tasks: addons/email_account.yml
   when: ERPNEXT_EMAIL_ENABLED
+- name: "🎨 converge corporate design"
+  include_tasks: 04_design.yml

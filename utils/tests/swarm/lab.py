@@ -14,16 +14,20 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 
-def application_overrides() -> dict:
-    """Return the ``applications`` subtree of the lab-size override file.
+def application_overrides(base: Mapping[str, Any]) -> dict:
+    """Return *base* with the ``applications`` subtree of the lab-size override file laid over it.
 
     The failover suite points ``SWARM_DATA_LAB_VARS`` at that file; unset, the
     drill keeps the production sizes.
+
+    Args:
+        base: ``application_id`` -> overrides the round already carries.
     """
     path = os.environ.get("SWARM_DATA_LAB_VARS")
     if not path:
-        return {}
-    return (load_yaml_any(path, default_if_missing={}) or {}).get("applications") or {}
+        return dict(base)
+    lab_apps = (load_yaml_any(path, default_if_missing={}) or {}).get("applications")
+    return {**base, **(lab_apps or {})}
 
 
 def is_ha_lab() -> bool:

@@ -1,0 +1,8 @@
+model = "{{ agnt_codex_model }}"
+model_provider = "infinito"
+
+[model_providers.infinito]
+name = "{{ SOFTWARE_NAME }} gateway"
+base_url = "{{ agnt_codex_gateway_url }}"
+env_key = "{{ agnt_codex_key_env }}"
+wire_api = "chat"

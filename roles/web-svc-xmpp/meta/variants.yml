@@ -9,6 +9,9 @@
 # variant 0: OIDC variant (canonical default; ejabberd LDAP backend
 # stays on, OIDC marker is on so Playwright runs the OIDC scenario).
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     ldap:
@@ -24,6 +27,9 @@
       enabled: true
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

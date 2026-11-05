@@ -19,7 +19,7 @@ from utils.cache.users import (
     _compute_reserved_usernames,
     _hydrate_users_tokens,
     _load_user_defs,
-    _materialize_builtin_user_aliases,
+    _materialize_domain_label_reservations,
     _merge_users,
     get_user_defaults,
 )
@@ -297,25 +297,32 @@ class TestHydrateUsersTokens(unittest.TestCase):
 
 
 class TestMaterializeBuiltinUserAliases(unittest.TestCase):
-    def test_rewrites_sld_and_tld_usernames(self):
-        users = {
-            "sld": {"username": "{{ DOMAIN_PRIMARY.split('.')[0] }}"},
-            "tld": {"username": "{{ DOMAIN_PRIMARY.split('.')[1] }}"},
-        }
-        result = _materialize_builtin_user_aliases(
-            users, {"DOMAIN_PRIMARY": "example.com"}
+    def test_reserves_one_username_per_domain_label(self):
+        result = _materialize_domain_label_reservations(
+            {}, {"DOMAIN_PRIMARY": "example.com"}
         )
-        self.assertEqual(result["sld"]["username"], "example")
-        self.assertEqual(result["tld"]["username"], "com")
+        self.assertEqual(
+            [result[key]["username"] for key in sorted(result)],
+            ["example", "com"],
+        )
+
+    def test_reserves_every_label_of_a_deep_primary_domain(self):
+        result = _materialize_domain_label_reservations(
+            {}, {"DOMAIN_PRIMARY": "label-a.tld.test"}
+        )
+        self.assertEqual(
+            [result[key]["username"] for key in sorted(result)],
+            ["label-a", "tld", "test"],
+        )
 
     def test_no_domain_primary_is_passthrough(self):
-        users = {"sld": {"username": "{{ DOMAIN_PRIMARY.split('.')[0] }}"}}
-        result = _materialize_builtin_user_aliases(users, {})
+        users = {"alice": {"username": "alice"}}
+        result = _materialize_domain_label_reservations(users, {})
         self.assertEqual(result, users)
 
     def test_non_placeholder_username_untouched(self):
         users = {"sld": {"username": "literal"}}
-        result = _materialize_builtin_user_aliases(
+        result = _materialize_domain_label_reservations(
             users, {"DOMAIN_PRIMARY": "example.com"}
         )
         self.assertEqual(result["sld"]["username"], "literal")

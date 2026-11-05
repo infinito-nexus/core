@@ -19,13 +19,13 @@
 - name: "🗑️ Remove instance services of hosts that left '{{ application_id }}'"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/remove_departed_instances.yml') }}"
   when:
-    - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm'
     - application_id in lookup('db_instances', ha_engines=true)
+    - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm'
 
-- name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"
+- name: "⏳ Wait until swarm tasks of '{{ application_id | entity_name }}' are running"
   ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:
-    STACK: "{{ application_id | get_entity_name }}"
+    STACK: "{{ application_id | entity_name }}"
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
     SEED_WAIT_LABEL: "{{ SWARM_SERVICE_LABEL_SEED_WAIT }}"
   register: _swarm_tasks_ready

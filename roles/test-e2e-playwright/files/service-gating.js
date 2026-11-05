@@ -76,7 +76,7 @@ function assertKnownService(name) {
     // enabled and let individual lookups fall through to the default.
     return;
   }
-  const slug = name.toLowerCase();
+  const slug = envKey(name).slice(0, -SUFFIX.length).toLowerCase();
   if (!registered.has(slug)) {
     throw new Error(
       `service-gating: Unknown service "${name}". ` +

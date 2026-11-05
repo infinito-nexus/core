@@ -29,7 +29,7 @@ service list fails or the service has no running task, 66 when the task
 is not yet bound to a container and 67 when no service of that name
 exists.
 
-Examples:
+Examples::
 
     # roles/web-app-X/vars/main.yml
     X_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'x') }}"
@@ -41,7 +41,7 @@ Examples:
 Both terms (application_id, service_key) are required.
 ``services.<service_key>.name`` must exist in the resolved application
 config; the stack name is derived from ``application_id`` via the
-``get_entity_name`` filter (matching how ``docker stack deploy``
+``entity_name`` filter (matching how ``docker stack deploy``
 names the stack in ``sys-svc-compose/handlers/main.yml``).
 
 Keyword ``instance``: an HA database instance from ``db_instances``. In
@@ -61,7 +61,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.roles.db.instances import DbInstancesError, instance_service
 from utils.roles.db.primary import resolver_subshell
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 def _as_str(value: Any) -> str:
@@ -83,7 +83,7 @@ def _service_entry(
         )
     entry = services.get(service_key)
     if not isinstance(entry, dict) and service_key == "application":
-        entity = get_entity_name(application_id)
+        entity = entity_name(application_id)
         if entity:
             entry = services.get(entity)
     if not isinstance(entry, dict):
@@ -157,7 +157,7 @@ class LookupModule(LookupBase):
         if deployment_mode != "swarm":
             return [bare_name]
 
-        stack_name = get_entity_name(application_id)
+        stack_name = entity_name(application_id)
         if not stack_name:
             raise AnsibleError(
                 f"container_address: cannot derive stack name from "

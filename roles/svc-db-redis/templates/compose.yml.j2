@@ -10,7 +10,7 @@
     {{ lookup('container_image', application_id, 'redis') }}
     {% if db_instance %}
     command: ["sh", "{{ REDIS_HA_START }}"]
-    environment:
+    environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop
       REDIS_HA_SELF: "{{ db_instance.service }}"
       REDIS_HA_BOOTSTRAP: "{{ _bootstrap.service }}"
       REDIS_HA_MASTER_NAME: "{{ REDIS_HA_MASTER_NAME }}"
@@ -26,7 +26,7 @@
       - "-c"
       - >-
         exec redis-server
-        --requirepass {{ REDIS_PASSWORD | quote }}
+        --requirepass "$$REDIS_PASSWORD"
         --appendonly yes
         --maxmemory {{ REDIS_MAXMEMORY_MB }}mb
         --maxmemory-policy allkeys-lru
@@ -36,13 +36,7 @@
     {% if REDIS_EXPOSE_LOCAL and not db_instance %}
     {{ lookup('container_ports', ['redis', 'redis', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a {{ REDIS_PASSWORD | quote }} --no-auth-warning ping | grep -q PONG"]
-      interval: 2m
-      timeout: 5s
-      retries: 30
-      start_period: 10m
-      start_interval: 5s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name, instance=db_instance) | indent(4) }}
     {% if db_instance %}
     {{ lookup('container_networks', internal=true, roles_only=[], include_default=false) | indent(4) }}
@@ -60,7 +54,7 @@
     command: ["sh", "{{ REDIS_SENTINEL_START }}"]
     user: redis
     read_only: true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file  values vary per Sentinel of the instance loop
       SENTINEL_SELF: "{{ _self }}"
       SENTINEL_PEERS: "{{ _sentinels | reject('equalto', _self) | join(' ') }}"
       SENTINEL_INSTANCES: "{{ _db.instances | map(attribute='service') | join(' ') }}"

@@ -13,8 +13,7 @@ const nextcloudTalkSettingsUrl = decodeDotenvQuotedValue(process.env.NEXTCLOUD_T
 const nextcloudTalkExpectedSignalingUrl = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_EXPECTED_SIGNALING_URL);
 const nextcloudTalkExpectedStunServer = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_EXPECTED_STUN_SERVER);
 const nextcloudTalkExpectedTurnServer = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_EXPECTED_TURN_SERVER);
-const nextcloudTalkUnexpectedStunServer = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_UNEXPECTED_STUN_SERVER);
-const nextcloudTalkUnexpectedTurnServer = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_UNEXPECTED_TURN_SERVER);
+const nextcloudTalkExpectedSignalingVersion = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_EXPECTED_SIGNALING_VERSION);
 
 // Error strings emitted by the spreed admin UI when a signaling / STUN / TURN
 // test button reports a failure. Kept in one place so the list stays easy to
@@ -43,8 +42,8 @@ const talkTestServerRequiredOkPattern = /OK:\s*Running version:\s*\S+/i;
 
 // Talk admin settings are partly rendered as plain text and partly as
 // `<input value="...">` fields. `innerText()` alone would miss the input
-// values, so collect both text and form values before asserting presence or
-// absence of configured / legacy endpoints.
+// values, so collect both text and form values before asserting the
+// configured endpoints.
 async function collectNextcloudSettingsText(target) {
   const bodyText = await target.locator("body").innerText().catch(() => "");
   const formValues = await target.locator("input, textarea, select").evaluateAll((elements) => {
@@ -78,18 +77,6 @@ async function expectNextcloudSettingValue(page, expectedValue, label) {
       }
     )
     .toContain(expectedValue);
-}
-
-async function expectNextcloudSettingAbsent(page, unexpectedValue, label) {
-  await expect
-    .poll(
-      async () => collectNextcloudSettingsText(page),
-      {
-        timeout: resolveTimeout(30_000),
-        message: `Expected ${label} to stay absent in the Nextcloud Talk admin settings: ${unexpectedValue}`
-      }
-    )
-    .not.toContain(unexpectedValue);
 }
 
 async function clickAllTalkTestServerButtonsAndVerify(page) {
@@ -154,6 +141,25 @@ async function clickAllTalkTestServerButtonsAndVerify(page) {
   }
 }
 
+function runningVersionPattern(version) {
+  const escaped = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`Running version:\\s*${escaped}(?:~[^;\\s]*)?(?=;|\\s|$)`, "i");
+}
+
+async function expectPinnedSignalingVersion(page) {
+  const connectionSpans = page.locator("span.test-connection");
+  await expect
+    .poll(async () => connectionSpans.allInnerTexts().catch(() => []), {
+      timeout: resolveTimeout(60_000),
+      message: `Expected the HPB signaling row to report the pinned version ${nextcloudTalkExpectedSignalingVersion} as its running version`,
+    })
+    .toEqual(expect.arrayContaining([expect.stringMatching(runningVersionPattern(nextcloudTalkExpectedSignalingVersion))]));
+
+  for (const text of await connectionSpans.allInnerTexts()) {
+    expect(text, `The HPB signaling server reports chat-relay as missing: ${text}`).not.toMatch(/missing features:[^\n]*\bchat-relay\b/i);
+  }
+}
+
 exports.register = function (shared) {
   test("nextcloud talk admin settings", async ({ browser }) => {
     test.skip(!nextcloudTalkSettingsCheckEnabled, "Talk admin checks are disabled in the current Playwright env");
@@ -163,6 +169,7 @@ exports.register = function (shared) {
     expect(nextcloudTalkExpectedSignalingUrl, "NEXTCLOUD_TALK_EXPECTED_SIGNALING_URL must be set when Talk admin checks are enabled").toBeTruthy();
     expect(nextcloudTalkExpectedStunServer, "NEXTCLOUD_TALK_EXPECTED_STUN_SERVER must be set when Talk admin checks are enabled").toBeTruthy();
     expect(nextcloudTalkExpectedTurnServer, "NEXTCLOUD_TALK_EXPECTED_TURN_SERVER must be set when Talk admin checks are enabled").toBeTruthy();
+    expect(nextcloudTalkExpectedSignalingVersion, "NEXTCLOUD_TALK_EXPECTED_SIGNALING_VERSION must be set when Talk admin checks are enabled").toBeTruthy();
 
     const browserContext = await browser.newContext({
       ignoreHTTPSErrors: true
@@ -203,15 +210,8 @@ exports.register = function (shared) {
         await expectNextcloudSettingValue(adminPage, nextcloudTalkExpectedStunServer, "Talk STUN server");
         await expectNextcloudSettingValue(adminPage, nextcloudTalkExpectedTurnServer, "Talk TURN server");
 
-        if (nextcloudTalkUnexpectedStunServer) {
-          await expectNextcloudSettingAbsent(adminPage, nextcloudTalkUnexpectedStunServer, "legacy Talk STUN server");
-        }
-
-        if (nextcloudTalkUnexpectedTurnServer) {
-          await expectNextcloudSettingAbsent(adminPage, nextcloudTalkUnexpectedTurnServer, "legacy Talk TURN server");
-        }
-
         await clickAllTalkTestServerButtonsAndVerify(adminPage);
+        await expectPinnedSignalingVersion(adminPage);
       } finally {
         await adminPage.close().catch(() => {});
       }

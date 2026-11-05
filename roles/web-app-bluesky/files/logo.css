@@ -1,0 +1,9 @@
+svg[viewBox='0 0 64 57'],
+#splash svg {
+  background: var(--design-url-symbol-svg) center / contain no-repeat;
+}
+
+svg[viewBox='0 0 64 57'] path,
+#splash svg path {
+  fill: transparent;
+}

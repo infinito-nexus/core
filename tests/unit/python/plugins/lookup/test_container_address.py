@@ -106,6 +106,8 @@ class TestContainerExecAddrLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "BIN_RESOLVE_CONTAINER_ID": "/usr/bin/resolve-container-id",
             },
         )
@@ -131,6 +133,8 @@ class TestContainerExecAddrLookup(unittest.TestCase):
             "mattermost",
             variables={
                 "DEPLOYMENT_MODE": "swarm",
+                "IS_COMPOSE_MODE": False,
+                "IS_SWARM_MODE": True,
                 "BIN_RESOLVE_CONTAINER_ID": "/opt/scripts/resolve-id",
             },
         )

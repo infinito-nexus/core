@@ -48,7 +48,7 @@ def _render(**variables):
         trim_blocks=True,
         lstrip_blocks=True,
     )
-    env.filters["resource_filter"] = lambda _apps, _app, key, svc, default: (
+    env.filters["resource_filter"] = lambda _apps, _app, key, svc, default, **_kw: (
         default if key == "platform_arch" else f"{svc}-{key}"
     )
     env.filters["swarm_restart_condition"] = lambda value: "any"
@@ -62,6 +62,7 @@ def _render(**variables):
         "hostvars": {},
         "DOCKER_RESTART_POLICY": "always",
         "RESOURCE_CPUS": "1",
+        "RESOURCE_HOST_CPUS": 4,
         "RESOURCE_MEM_LIMIT": "1g",
         "RESOURCE_PIDS_LIMIT": 512,
         "RESOURCE_MEM_RESERVATION": "512m",

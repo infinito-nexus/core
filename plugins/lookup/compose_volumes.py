@@ -15,7 +15,7 @@ from ansible.plugins.lookup import LookupBase
 from plugins.filter.docker.service_enabled import (
     FilterModule as _DockerServiceEnabledFilter,
 )
-from plugins.filter.get.entity_name import get_entity_name
+from plugins.filter.get.entity_name import entity_name
 
 # nocheck: lookup-cache-import (raw-volume accessor: canonical meta/volumes.yml shape)
 from utils.cache.applications import get_canonical_volumes
@@ -37,14 +37,14 @@ from utils.roles.db.instances import (
     ha_engines,
     instance_volume_name,
 )
-from utils.storage.nfs import swarm_nfs_backed
+from utils.storage.nfs import swarm_nfs_backed, volume_dir
 from utils.templating.ansible import _trust_as_template, to_plain
 
 
 def _resolve_database_volume_name(
     applications: dict[str, Any], application_id: str, dbtype: str
 ) -> str:
-    consumer_entity = get_entity_name(application_id)
+    consumer_entity = entity_name(application_id)
     db_id = f"svc-db-{dbtype}"
     central_name = get(
         applications=applications,
@@ -147,7 +147,7 @@ def compose_volumes(
             f"compose_volumes: unknown application_id '{application_id}'"
         )
 
-    role_entity = get_entity_name(application_id)
+    role_entity = entity_name(application_id)
     volumes: dict[str, Any] = {}
     configs: dict[str, Any] = {}
     secrets: dict[str, Any] = {}
@@ -196,7 +196,7 @@ def compose_volumes(
             )
         )
         if engine_enabled and not engine_shared:
-            volumes[engine] = {"name": f"{get_entity_name(application_id)}_{engine}"}
+            volumes[engine] = {"name": f"{entity_name(application_id)}_{engine}"}
 
     sso = get_sso_config(applications, application_id)
 
@@ -240,6 +240,9 @@ def compose_volumes(
 
         if vtype == "volume":
             if semantic_name in volumes:
+                injected = volumes[semantic_name]
+                if "nfs" in entry and isinstance(injected, dict):
+                    injected.setdefault("nfs", entry["nfs"])
                 continue
             spec: dict[str, Any] = {}
             docker_name = entry.get("name")
@@ -299,8 +302,9 @@ def compose_volumes(
             deployment_mode=deployment_mode,
             storage_backend=storage_backend,
         ):
-            named = vol_spec.get("name", vol_name)
-            vol_spec.update(_swarm_nfs_driver_opts(dir_var_lib, str(named)))
+            vol_spec.update(
+                _swarm_nfs_driver_opts(dir_var_lib, volume_dir(vol_name, vol_spec))
+            )
             if isinstance(nfs_meta, dict):
                 vol_spec["x-infinito-nfs"] = dict(nfs_meta)
 
@@ -352,7 +356,7 @@ class LookupModule(LookupBase):
         if not source:
             return extra_configs
 
-        entity = get_entity_name(application_id)
+        entity = entity_name(application_id)
         return {
             **(extra_configs or {}),
             REALIGN_CONFIG_KEY: {

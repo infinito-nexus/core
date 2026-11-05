@@ -12,3 +12,42 @@ openclaw_config:
   mounts:
     - service: openclaw
       target: /home/node/.openclaw/openclaw.json
+
+design_favicon_svg:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-openclaw', 'directories.config'), 'design', 'favicon.svg' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openclaw
+      target: /app/dist/control-ui/favicon.svg
+      when: &openclaw_design_logo_when >-
+        {{ (lookup('config', 'web-app-openclaw', 'services.design.enabled') | bool)
+           and (lookup('config', 'web-app-openclaw', 'services.design.logo', lookup('config', 'web-svc-design', 'services.design.logo')) | string | lower)
+           not in ['false', '0'] }}
+
+design_favicon_png:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-openclaw', 'directories.config'), 'design', 'favicon-32.png' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openclaw
+      target: /app/dist/control-ui/favicon-32.png
+      when: *openclaw_design_logo_when
+
+design_favicon_ico:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-openclaw', 'directories.config'), 'design', 'favicon.ico' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openclaw
+      target: /app/dist/control-ui/favicon.ico
+      when: *openclaw_design_logo_when
+
+design_apple_touch_icon:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-openclaw', 'directories.config'), 'design', 'apple-touch-icon.png' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openclaw
+      target: /app/dist/control-ui/apple-touch-icon.png
+      when: *openclaw_design_logo_when

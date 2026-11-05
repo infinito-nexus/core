@@ -6,10 +6,10 @@
   register: _departed_declared
   changed_when: false
 
-- name: "🔍 List the live services of stack '{{ application_id | get_entity_name }}'"
+- name: "🔍 List the live services of stack '{{ application_id | entity_name }}'"
   ansible.builtin.command: >-
     docker stack services --format {{ '{{.Name}}' | quote }}
-    {{ application_id | get_entity_name | quote }}
+    {{ application_id | entity_name | quote }}
   register: _departed_live
   changed_when: false
 
@@ -17,6 +17,6 @@
   ansible.builtin.command: "docker service rm {{ item | quote }}"
   loop: >-
     {{ _departed_live.stdout_lines
-       | swarm_departed_instances(application_id, application_id | get_entity_name,
+       | swarm_departed_instances(application_id, application_id | entity_name,
                                   _departed_declared.stdout_lines) }}
   changed_when: true

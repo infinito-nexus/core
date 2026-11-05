@@ -15,7 +15,7 @@
       - "--binlog-format=ROW"
 {% if db_instance %}
       - "--server-id={{ MARIADB_SERVER_IDS[db_instance.host_id] }}"
-    environment:
+    environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop
       MARIADB_HA_BOOTSTRAP: "{{ '1' if db_instance.legacy else '0' }}"
       MARIADB_SEED_PORT: "{{ MARIADB_SEED_PORT }}"
       ELECTOR_ENGINE: "mariadb"

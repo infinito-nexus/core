@@ -3,13 +3,13 @@
 - name: "🩺 db_ha_health_gate | HA form health"
   when:
     - lookup('db_instances', application_id).form == 'ha'
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE | bool
   block:
     - name: "⏳ db_ha_health_gate | wait for the write endpoint of '{{ application_id }}'"
       ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
       vars:
-        wait_service_key: "{{ application_id | get_entity_name }}"
-        wait_service_name: "{{ (application_id | get_entity_name) ~ '_' ~ (application_id | get_entity_name) }}"
+        wait_service_key: "{{ application_id | entity_name }}"
+        wait_service_name: "{{ (application_id | entity_name) ~ '_' ~ (application_id | entity_name) }}"
         wait_retries: 150
         wait_delay: 2
 

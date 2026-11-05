@@ -48,8 +48,8 @@
     }
   }
 
-{% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
-{% set prometheus_ready_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='/' ~ lookup('config', application_id, 'services.prometheus.ready_path', ''), local_port=http_port, internal_port=proxy_internal_port | default('')) %}
+{% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
+{% set prometheus_ready_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | entity_name), 'http', tail='/' ~ lookup('config', application_id, 'services.prometheus.ready_path', ''), local_port=http_port, internal_port=proxy_internal_port | default('')) %}
   location = /_live_probe {
     internal;
     {{ prometheus_backend }}
@@ -60,12 +60,22 @@
     proxy_intercept_errors  off;
   }
 
-  location = /healthz/ready {
-    access_log off;
+  location = /_ready_probe {
+    internal;
     {{ prometheus_ready_backend }}
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_connect_timeout   3s;
     proxy_read_timeout      5s;
     proxy_intercept_errors  off;
+  }
+
+  location = /healthz/ready {
+    access_log off;
+    content_by_lua_block {
+      local res = ngx.location.capture("/_ready_probe")
+      ngx.status = res.status
+      ngx.header["Content-Type"] = "text/plain"
+      ngx.print(res.status, "\n")
+    }
   }

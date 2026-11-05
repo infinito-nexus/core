@@ -3,11 +3,11 @@
 - name: "🔁 db_ha_rolling | ordered member roll for '{{ application_id }}'"
   ansible.builtin.include_tasks: db_ha_rolling_run.yml
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE | bool
     - _roll_model.form == 'ha'
     - not (DB_HA_MIGRATING.get(application_id, false) | bool)
   vars:
-    _roll_stack: "{{ application_id | get_entity_name }}"
+    _roll_stack: "{{ application_id | entity_name }}"
     _roll_model: "{{ lookup('db_instances', application_id) }}"
     _roll_instances: "{{ _roll_model.instances | map(attribute='service') | list }}"
     _roll_sidecars: >-

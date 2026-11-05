@@ -1,0 +1,18 @@
+---
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# Only the optional addon (dash-to-dock) is an axis; required addons are always installed.
+- addons:
+    dash-to-dock:
+      enabled: true
+  services:
+    docs:
+      enabled: true
+      shared: true
+- addons:
+    dash-to-dock:
+      enabled: false
+  services:
+    docs:
+      enabled: false
+      shared: false

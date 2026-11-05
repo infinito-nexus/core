@@ -24,7 +24,7 @@
       }}
 
 - name: 📦 Install Nix via package manager on Arch-based systems
-  package_install:
+  package_install: # nocheck: package-install Arch only, other distros take the installer path
     id: nix
   become: true
   when:

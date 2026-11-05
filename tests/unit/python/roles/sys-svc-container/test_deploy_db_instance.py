@@ -30,7 +30,9 @@ def _render(**variables):
         trim_blocks=True,
         lstrip_blocks=True,
     )
-    env.filters["resource_filter"] = lambda _apps, _app, _key, _svc, default: default
+    env.filters["resource_filter"] = lambda _apps, _app, _key, _svc, default, **_kw: (
+        default
+    )
     env.filters["swarm_restart_condition"] = lambda value: "any"
     env.filters["swarm_placement_constraints"] = swarm_placement_constraints
     env.globals["lookup"] = _lookup
@@ -43,6 +45,7 @@ def _render(**variables):
         "hostvars": {},
         "DOCKER_RESTART_POLICY": "always",
         "RESOURCE_CPUS": "1",
+        "RESOURCE_HOST_CPUS": 4,
         "RESOURCE_MEM_LIMIT": "1g",
         "RESOURCE_PIDS_LIMIT": 512,
         "RESOURCE_MEM_RESERVATION": "512m",

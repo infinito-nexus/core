@@ -48,6 +48,7 @@ ENGINE_OPTIONS = {
 
 
 def _env(name: str, fallback: str = "") -> str:
+    # nocheck: environ-get-default  the variable only seeds an argparse default; an absent one leaves the option to its command-line flag or the elector's own timing constant
     return os.environ.get(f"ELECTOR_{name}", fallback)
 
 

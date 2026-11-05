@@ -49,6 +49,7 @@ from utils.roles.applications.services.registry import (
     TOPOLOGY_GATED_LOOKUPS,
     build_service_registry_from_applications,
 )
+from utils.roles.guide import declares_guide, guide_off
 from utils.sizes import to_bytes
 from utils.tests.swarm.force_shared_db import db_provider_service_keys, pinned_local_db
 
@@ -88,6 +89,24 @@ def _active_variant_map(override: dict[str, int] | None = None) -> dict[str, int
         and isinstance(index, int)
         and not isinstance(index, bool)
     }
+
+
+def _guide_only_for(applications: dict[str, Any], primary: str) -> dict[str, Any]:
+    """Switch the guide host off everywhere but a ``primary`` that declares it.
+
+    Args:
+        applications: the round's application configs.
+        primary: the app whose closure is resolved.
+    """
+    result = dict(applications)
+    for app_id, config in applications.items():
+        services = config.get("services") if isinstance(config, dict) else None
+        if not isinstance(services, dict):
+            continue
+        if app_id == primary and declares_guide(services):
+            continue
+        result[app_id] = {**config, "services": guide_off(services)}
+    return result
 
 
 def _applications_for_active_variants(
@@ -184,8 +203,11 @@ def derive_includes(
     """
     base_applications = get_merged_applications(roles_dir=str(_ROLES_DIR))
     service_registry = build_service_registry_from_applications(base_applications)
-    applications = _force_shared_db_view(
-        _applications_for_active_variants(base_applications, variants)
+    applications = _guide_only_for(
+        _force_shared_db_view(
+            _applications_for_active_variants(base_applications, variants)
+        ),
+        app_id,
     )
     disabled_roles = _disabled_provider_roles(service_registry) - {app_id}
     transitive = applications_if_group_and_all_deps(
@@ -392,7 +414,7 @@ def variant_scope(app_id: str, *, variants: dict[str, int] | None = None) -> lis
 
 def _disabled_provider_roles(service_registry: dict[str, Any]) -> set[str]:
     """Provider roles the ``disable`` env removes from the closure, so the
-    swarm include set matches what the provision-time services_disabler
+    swarm include set matches what the provision-time services disabler
     disables (otherwise extend_inventory re-adds the pruned providers via
     this same dep walk). Accepts service keys and provider application ids.
     """

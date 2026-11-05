@@ -1,6 +1,6 @@
 ---
 application_id: svc-db-redis
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 database_type: "{{ entity_name }}"
 
@@ -12,7 +12,7 @@ REDIS_SENTINEL_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentia
 REDIS_REPLICA_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_REPLICA_PASSWORD') }}"
 REDIS_EXPOSE_LOCAL: true
 REDIS_EXEC_SHELL: "container exec {{ REDIS_CONTAINER_ADDRESS }} sh -lc"
-REDIS_CLI: 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning'
+REDIS_CLI: 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli'
 REDIS_MAXMEMORY_SHARE: "{{ 0.6 if REDIS_HA.form == 'ha' else 0.8 }}"
 REDIS_MAXMEMORY_MB: "{{ lookup('service_memory_mb', application_id, 'redis', REDIS_MAXMEMORY_SHARE | float) }}"
 

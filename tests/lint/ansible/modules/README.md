@@ -13,6 +13,6 @@ Tests in this directory MUST only cover Ansible module / task usage rules.
 - `test_package_batch.py` requires that a role's own `package_install` tasks install only ids flagged `batch: false` in `meta/packages.yml`, that every id of a role the constructor runs before the deploy-start batch carries that flag, and that a `shared: true` reference names a root id.
 - `test_run_once_tags.py` requires that every `set_fact` marked `run_once: true` carries the canonical run-once tags so re-runs and `--tags` filters keep the fact populated.
 
-Shell-pipeline rules and SQL formatting rules live in sibling directories; see `../shell/` and `../sql/`.
+Shell-pipeline rules and SQL formatting rules live in sibling directories; see [`../shell/`](../shell/) and [`../sql/`](../sql/).
 
 For framework, directory layout, and `make test-lint` usage see [lint.md](../../../../docs/contributing/actions/testing/lint.md).

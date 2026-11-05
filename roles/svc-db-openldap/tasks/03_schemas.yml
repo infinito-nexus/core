@@ -7,18 +7,19 @@
     global_install: true
 
 - name: ✅ Ensure custom LDAP schemas via ldapsm
-  command: >
-    ldapsm
-      -s {{ OPENLDAP_SERVER_URI }}
-      -D '{{ OPENLDAP_BIND_DN }}'
-      -W '{{ OPENLDAP_BIND_PW }}'
-      -n {{ item.name }}
-      {% for at in item.attribute_types %}
-      -a "{{ at }}"
-      {% endfor %}
-      {% for oc in item.object_classes %}
-      -c "{{ oc }}"
-      {% endfor %}
+  command:
+    cmd: >
+      {{ OPENLDAP_LDAPSM_COMMAND }}
+        -s {{ OPENLDAP_SERVER_URI }}
+        -D '{{ OPENLDAP_BIND_DN }}'
+        -n {{ item.name }}
+        {% for at in item.attribute_types %}
+        -a "{{ at }}"
+        {% endfor %}
+        {% for oc in item.object_classes %}
+        -c "{{ oc }}"
+        {% endfor %}
+    stdin: "{{ OPENLDAP_BIND_PW }}"
   register: ldapsm_result
   changed_when: "'Created schema entry' in ldapsm_result.stdout"
   check_mode: false

@@ -5,8 +5,7 @@
 # service that way and accepts no prefix matching.
 #
 # Compose-mode callers never reach this script: the `container_address`
-# lookup returns the bare service name unchanged when
-# DEPLOYMENT_MODE == 'compose'.
+# lookup returns the bare service name unchanged in compose mode.
 #
 # Uses the project-wide `container` wrapper for every container-engine
 # call (per the no-raw-docker convention) so a podman substitution
@@ -16,7 +15,7 @@
 #   0   success -- prints the 12-char container ID to stdout
 #   64  caller did not pass both args, or no local task and host is not a Swarm manager
 #   65  the service list failed, or the service has no running task
-#   66  task exists but its container is not yet bound (transient)
+#   66  task exists but its container is not usable from this node (transient)
 #   67  the manager answered and no service of that name exists
 set -eu
 
@@ -60,5 +59,9 @@ CONTAINER_ID=$(container inspect \
   "$TASK_ID" 2>/dev/null)
 [ -n "$CONTAINER_ID" ] || {
   echo "resolve-container-id: task $TASK_ID for '$SERVICE' has no container yet" >&2; exit 66; }
+
+container inspect --type=container "${CONTAINER_ID:0:12}" >/dev/null 2>&1 || {
+  echo "resolve-container-id: container ${CONTAINER_ID:0:12} of '$SERVICE' is not on this node" >&2
+  exit 66; }
 
 echo "${CONTAINER_ID:0:12}"

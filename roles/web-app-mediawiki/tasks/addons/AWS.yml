@@ -1,0 +1,5 @@
+---
+- name: "🪣 Extension:AWS needs no integration beyond staging"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: LocalSettings.php renders the whole AWS wiring from the objstore lookup"
+  changed_when: false

@@ -8,38 +8,35 @@
   set_fact:
     cf_zone_id: "{{ (cf_zone_ids | default({})).get(domain | to_primary_domain, false) }}"
 
-- name: "✅ Ensure Cloudflare Zone ID is known for '{{ domain }}'"
-  vars:
-    cf_api_url: "https://api.cloudflare.com/client/v4/zones"
-  uri_retry:
-    url: "{{ cf_api_url }}?name={{ domain | to_primary_domain }}"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
-      Content-Type: "application/json"
-    return_content: true
-  register: cf_zone_lookup_dev
-  changed_when: false
-  when:
-    - not cf_zone_id
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔎 Resolve the Cloudflare Zone ID for '{{ domain }}'"
+  when: not cf_zone_id
+  block:
+    - name: "✅ Ensure Cloudflare Zone ID is known for '{{ domain }}'"
+      vars:
+        cf_api_url: "https://api.cloudflare.com/client/v4/zones"
+      uri_retry:
+        url: "{{ cf_api_url }}?name={{ domain | to_primary_domain }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
+          Content-Type: "application/json"
+        return_content: true
+      register: cf_zone_lookup_dev
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔧 Set fact cf_zone_id and update cache dict"
-  set_fact:
-    cf_zone_id: "{{ cf_zone_lookup_dev.json.result[0].id }}"
-    cf_zone_ids: >-
-      {{ (cf_zone_ids | default({}))
-         | combine({ (domain | to_primary_domain): cf_zone_lookup_dev.json.result[0].id }) }}
-  when:
-    - not cf_zone_id
-    - cf_zone_lookup_dev.json.result | length > 0
+    - name: "🔧 Set fact cf_zone_id and update cache dict"
+      set_fact:
+        cf_zone_id: "{{ cf_zone_lookup_dev.json.result[0].id }}"
+        cf_zone_ids: >-
+          {{ (cf_zone_ids | default({}))
+             | combine({ (domain | to_primary_domain): cf_zone_lookup_dev.json.result[0].id }) }}
+      when: cf_zone_lookup_dev.json.result | length > 0
 
-- name: "🛑 Fail if no Cloudflare zone found for {{ domain | to_primary_domain }}"
-  ansible.builtin.fail:
-    msg: "No Cloudflare zone found for {{ domain | to_primary_domain }} — aborting!"
-  when:
-    - not cf_zone_id
-    - cf_zone_lookup_dev.json.result | length == 0
+    - name: "🛑 Fail if no Cloudflare zone found for {{ domain | to_primary_domain }}"
+      ansible.builtin.fail:
+        msg: "No Cloudflare zone found for {{ domain | to_primary_domain }} — aborting!"
+      when: cf_zone_lookup_dev.json.result | length == 0
 
 - name: 🟢 activate cloudflare cache development mode
   include_tasks:

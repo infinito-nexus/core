@@ -46,7 +46,7 @@ class TestExecTimeoutPrefix(unittest.TestCase):
         with patch.dict(container.os.environ, env, clear=True):
             self.assertEqual(
                 container.exec_timeout_prefix(),
-                ["timeout", "--kill-after=15", "3600"],
+                ["timeout", "--foreground", "--kill-after=15", "3600"],
             )
 
     def test_week_default_builds_prefix(self):
@@ -54,8 +54,13 @@ class TestExecTimeoutPrefix(unittest.TestCase):
         with patch.dict(container.os.environ, env, clear=True):
             self.assertEqual(
                 container.exec_timeout_prefix(),
-                ["timeout", "--kill-after=15", "604800"],
+                ["timeout", "--foreground", "--kill-after=15", "604800"],
             )
+
+    def test_the_prefix_keeps_docker_in_the_callers_process_group(self):
+        env = {"CONTAINER_EXEC_TIMEOUT": "60min"}
+        with patch.dict(container.os.environ, env, clear=True):
+            self.assertIn("--foreground", container.exec_timeout_prefix())
 
 
 class TestMainExecDispatch(unittest.TestCase):
@@ -82,7 +87,17 @@ class TestMainExecDispatch(unittest.TestCase):
         )
         self.assertEqual(
             cmd,
-            ["timeout", "--kill-after=15", "3600", "docker", "exec", "-i", "c1", "ls"],
+            [
+                "timeout",
+                "--foreground",
+                "--kill-after=15",
+                "3600",
+                "docker",
+                "exec",
+                "-i",
+                "c1",
+                "ls",
+            ],
         )
 
     def test_exec_without_env_is_plain_passthrough(self):

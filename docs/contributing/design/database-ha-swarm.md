@@ -31,7 +31,7 @@ Every engine role's `compose.yml.j2` branches on `lookup('db_instances').form`, 
 | Engine | Failover | Coordination |
 |---|---|---|
 | Postgres | Patroni, synchronous quorum replication | etcd |
-| MariaDB | Writer elector in [`files/db-elector/`](../../../files/db-elector/), semi-sync, ranks candidates by `@@gtid_current_pos` | etcd |
+| MariaDB | Writer elector in [`files/db-elector/`](../../../files/db-elector/infinito_elector/elector.py), semi-sync, ranks candidates by `@@gtid_current_pos` | etcd |
 | OpenLDAP | Writer elector, multi-provider syncrepl with one writable instance | etcd |
 | Redis | Sentinel, one per instance host | Sentinel quorum |
 

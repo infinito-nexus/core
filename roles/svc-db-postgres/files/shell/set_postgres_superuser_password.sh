@@ -2,10 +2,8 @@
 set -euo pipefail
 
 # Usage:
-#   set_postgres_superuser_password.sh <container_name> <role>
-#   POSTGRES_SUPERUSER_PASSWORD: the password to write, read from the
-#   environment only, so it reaches neither this script's argv nor that of the
-#   container exec calls it makes.
+#   set_postgres_superuser_password.sh <container_name> <role> < password
+#   stdin: the password to write.
 #
 # The role is the cluster's superuser: "postgres" for the shared engine, and
 # whatever POSTGRES_USER a dedicated one was initialised with. Both are reached
@@ -15,15 +13,16 @@ set -euo pipefail
 
 container_raw="${1:-}"
 role="${2:-}"
-new_pw="${POSTGRES_SUPERUSER_PASSWORD:-}"
 
 if [[ -z "$container_raw" || -z "$role" ]]; then
-  echo "Usage: $0 <container_name> <role>" >&2
+  echo "Usage: $0 <container_name> <role> < password" >&2
   exit 2
 fi
 
+new_pw="$(cat)"
+
 if [[ -z "$new_pw" ]]; then
-  echo "[FAIL] POSTGRES_SUPERUSER_PASSWORD is empty; refusing to set an empty password." >&2
+  echo "[FAIL] no password on stdin; refusing to set an empty password." >&2
   exit 1
 fi
 
@@ -110,7 +109,8 @@ for _ in {1..30}; do
 
   # shellcheck disable=SC2016
   if ! container exec -e NEW_POSTGRES_PASSWORD -e PG_ROLE="$role" "$container" bash -lc '
-    psql -U "$PG_ROLE" -d postgres -v ON_ERROR_STOP=1 -v role="$PG_ROLE" -v password="$NEW_POSTGRES_PASSWORD" <<'"'"'SQL'"'"'
+    psql -U "$PG_ROLE" -d postgres -v ON_ERROR_STOP=1 -v role="$PG_ROLE" <<'"'"'SQL'"'"'
+\set password `printenv NEW_POSTGRES_PASSWORD`
 ALTER USER :"role" WITH PASSWORD :'"'"'password'"'"';
 SQL
 ' 2>/dev/null; then

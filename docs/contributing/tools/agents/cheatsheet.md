@@ -23,10 +23,12 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Iterating on `svc-runner` or the self-hosted runner infrastructure | `i8-iterate-runner` |
 | Iterating on a GitHub Actions workflow | `i8-iterate-workflow` |
 | Writing or updating a Playwright spec for a `web-*` role | `i8-iterate-playwright` |
+| Bringing UI roles into the corporate design, role by role from the design queue | `i8-designer` |
 | Running or validating tests for a specific scope | `i8-test` |
 | Running the quality gate (`make quality`) to green | `i8-quality` |
 | Running the full gate (`make quality-high`: quality plus every lint) to green | `i8-quality-high` |
 | Cleaning up code, docs, or roles after a change | `i8-refactor` |
+| Making CI, a deploy or a gate faster without giving up coverage | `i8-tuner` |
 | Checking a branch out into a parallel worktree | `i8-worktree-create` |
 | Releasing a parallel worktree and its slot | `i8-worktree-down` |
 | Freeing disk space and `/tmp` that agents filled | `i8-cleanup` |
@@ -37,6 +39,8 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Staged changes are ready to be committed | `i8-commit` |
 | A branch is ready to be opened as a pull request | `i8-pull-request` |
 | Pushing a branch through the manual-CI draft → ready-for-review cycle | `i8-push-trigger-pull` |
+| Leading a CI run with a priority line that verifies the branch's open questions | `i8-ci-trigger-priority` |
+| Verifying from both ends at once: the CI run on a triage loop plus local iteration | `i8-verify-parallel` |
 | Writing the blog article, banner image and social posts for a release | `i8-release-article` |
 | Writing a new requirement | `i8-requirement-create` |
 | Implementing an existing requirement file end to end | `i8-requirement-implement` |

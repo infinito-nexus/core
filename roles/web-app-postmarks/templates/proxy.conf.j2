@@ -3,6 +3,7 @@
 server
 {
   server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
   {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
 
   {% if lookup('sso', application_id, 'is_proxy_gated') %}
@@ -17,7 +18,7 @@ server
     {% set sso_proxy_enabled = true %}
     {% set webserver_location_extra_configuration %}
   set $postmarks_needs_sso_handoff 0;
-  if ($cookie_connect_sid = "") { set $postmarks_needs_sso_handoff 1; }
+  if ($http_cookie !~ "(?:^|;\s*)connect\.sid=[^;]") { set $postmarks_needs_sso_handoff 1; }
   if ($http_accept !~* "text/html") { set $postmarks_needs_sso_handoff 0; }
   if ($uri ~ "^/(admin|login|logout|public|images|assets|static|favicon)") { set $postmarks_needs_sso_handoff 0; }
   if ($postmarks_needs_sso_handoff = 1) { return 302 /admin; }

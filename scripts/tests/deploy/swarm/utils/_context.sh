@@ -14,7 +14,7 @@ fi
 
 : "${APP_ID:?APP_ID required}"
 
-ENTITY="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "from utils.roles.entity.name import get_entity_name; print(get_entity_name('${APP_ID}'))")"
+ENTITY="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "from utils.roles.entity.name import entity_name; print(entity_name('${APP_ID}'))")"
 
 STACK_NAME="${ENTITY}"
 CUSTOM_IMAGE_REPO="${ENTITY}_custom"
@@ -55,11 +55,11 @@ if [ -f "${ROLE_DIR}/meta/services.yml" ]; then
 	' "${ROLE_DIR}/meta/services.yml" | paste -sd' ' -)"
 fi
 
-DEFAULT_PLACEMENT_MANAGER=false
-if [ -f "${ROLE_DIR}/meta/services.yml" ] &&
-	grep -qE "placement:[[:space:]]*manager\b" "${ROLE_DIR}/meta/services.yml"; then
-	DEFAULT_PLACEMENT_MANAGER=true
-fi
+DEFAULT_PLACEMENT_MANAGER="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
+from utils.roles.meta_lookup import get_role_placement
+placement = get_role_placement('${ROLE_DIR}', role_name='${APP_ID}') or ''
+print('true' if placement.strip() == 'manager' else 'false')
+")"
 
 PROBE_PORT="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
 import os, yaml
@@ -77,8 +77,9 @@ print(port)
 ")"
 
 NFS_VOLUMES=""
+BACKUP_NFS_VOLUMES=""
 if [ -f "${ROLE_DIR}/meta/volumes.yml" ]; then
-	NFS_VOLUMES="$(python3 -c "
+	_nfs_volumes_py="
 import sys, yaml
 with open('${ROLE_DIR}/meta/volumes.yml') as f:
     data = yaml.safe_load(f) or {}
@@ -93,17 +94,22 @@ for v in entries:
         continue
     if v.get('nfs') is False:
         continue
+    if sys.argv[1:] == ['backed-up'] and v.get('backup') is False:
+        continue
     docker_name = v.get('docker_name') or v.get('name')
     if isinstance(docker_name, str):
         print(docker_name)
-")"
+"
+	NFS_VOLUMES="$(python3 -c "${_nfs_volumes_py}")"
+	BACKUP_NFS_VOLUMES="$(python3 -c "${_nfs_volumes_py}" backed-up)"
 fi
 
 PRIMARY_NFS_VOLUME="${NFS_VOLUMES%%$'\n'*}"
+BACKUP_NFS_VOLUME="${BACKUP_NFS_VOLUMES%%$'\n'*}"
 
 NFS_CHECK_MOUNTPOINT="/mnt/nfs-check"
 
-export APP_ID ENTITY STACK_NAME SERVICE_NAME PRIMARY_SERVICE_KEY CUSTOM_IMAGE_REPO DB_DEP HA_DEPS NFS_VOLUMES PRIMARY_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER PROBE_PORT NFS_CHECK_MOUNTPOINT
+export APP_ID ENTITY STACK_NAME SERVICE_NAME PRIMARY_SERVICE_KEY CUSTOM_IMAGE_REPO DB_DEP HA_DEPS NFS_VOLUMES PRIMARY_NFS_VOLUME BACKUP_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER PROBE_PORT NFS_CHECK_MOUNTPOINT
 
 # Exits the calling chaos step (09/10/11) with success when the role is
 # manager-pinned (no worker task exists to drain).
@@ -121,7 +127,7 @@ has_swarm_service() {
 		--format '{{.Name}}' "${STACK_NAME}" 2>/dev/null)"; then
 		_names=""
 	fi
-	printf '%s\n' "${_names}" | grep -qxF "${SERVICE_NAME}"
+	grep -qxF "${SERVICE_NAME}" <<<"${_names}"
 }
 
 # Prints the swarm service carrying APP_ID's database. A role that pins its own
@@ -134,9 +140,9 @@ resolve_db_service() {
 	if ! _names="$(timeout 30 docker exec "${MGR}" docker service ls --format '{{.Name}}' 2>/dev/null)"; then
 		return 0
 	fi
-	if printf '%s\n' "${_names}" | grep -qxF "${STACK_NAME}_database"; then
+	if grep -qxF "${STACK_NAME}_database" <<<"${_names}"; then
 		printf '%s\n' "${STACK_NAME}_database"
-	elif printf '%s\n' "${_names}" | grep -qxF "${DB_DEP}_${DB_DEP}"; then
+	elif grep -qxF "${DB_DEP}_${DB_DEP}" <<<"${_names}"; then
 		printf '%s\n' "${DB_DEP}_${DB_DEP}"
 	fi
 }
@@ -182,6 +188,7 @@ if [ "${SWARM_NFS_PILOT_VERBOSE:-0}" = "1" ]; then
 	echo "    CUSTOM_IMAGE_REPO=${CUSTOM_IMAGE_REPO}"
 	echo "    DB_DEP=${DB_DEP}"
 	echo "    PRIMARY_NFS_VOLUME=${PRIMARY_NFS_VOLUME}"
+	echo "    BACKUP_NFS_VOLUME=${BACKUP_NFS_VOLUME}"
 	echo "    DEFAULT_PLACEMENT_MANAGER=${DEFAULT_PLACEMENT_MANAGER}"
 	echo "    PROBE_PORT=${PROBE_PORT}"
 fi

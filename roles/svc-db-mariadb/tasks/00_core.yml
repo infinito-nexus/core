@@ -8,22 +8,21 @@
   vars:
     application_id: "svc-db-mariadb"
 
-- name: "📖 MariaDB HA | Remember the root password the running cluster holds"
-  include_tasks:
-    file: ha/01_rotate.yml
-    apply:
-      run_once: true
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔱 MariaDB HA | Prepare the stack host"
   when:
     - MARIADB_HA | bool
     - IS_STACK_HOST | bool
-    - not (DB_HA_MIGRATING[application_id] | bool)
+  block:
+    - name: "📖 MariaDB HA | Remember the root password the running cluster holds"
+      include_tasks:
+        file: ha/01_rotate.yml
+        apply:
+          run_once: true
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      when: not (DB_HA_MIGRATING[application_id] | bool)
 
-- name: "📄 MariaDB HA | Render option files and the image build context"
-  include_tasks: ha/02_files.yml
-  when:
-    - MARIADB_HA | bool
-    - IS_STACK_HOST | bool
+    - name: "📄 MariaDB HA | Render option files and the image build context"
+      include_tasks: ha/02_files.yml
 
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
@@ -49,7 +48,7 @@
     - db_info.container.State.Running
   retries: 30
   delay: 5
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - block:
     - name: "🔎 Root password reset | Check login with desired password (inside container)"
@@ -94,8 +93,8 @@
   until: mariadb_cli.rc == 0
   when: not (MARIADB_HA | bool)
 
-- name: "⏳ Wait until MariaDB accepts root credentials (via mysql_db)"
-  ansible.mysql.mysql_db:
+- name: "⏳ Wait until MariaDB accepts root credentials (via mariadb_db)"
+  ansible.mariadb.mariadb_db:
     name: "{{ MARIADB_HEALTHCHECK_DB }}"
     state: present
     login_user: root

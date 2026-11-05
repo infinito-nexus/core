@@ -7,76 +7,25 @@
   no_log: "{{ cloudflare_no_log | bool }}"
   when: MODE_ASSERT | bool
 
-- name: 📌 Apply A/AAAA
-  community.general.cloudflare_dns:
-    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
-    zone: "{{ item.zone }}"
-    type: "{{ item.type }}"
-    name: "{{ item.name }}"
-    content: "{{ item.content }}"
-    proxied: "{{ item.proxied | default(false) }}"
-    ttl: "{{ item.ttl | default(1) }}"
-    state: "{{ item.state | default('present') }}"
-    solo: "{{ item.solo | default(false) }}"
-  loop: "{{ cloudflare_records | selectattr('type','in',['A','AAAA']) | list }}"
-  loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.content }}" }
-  # rationale: async; records apply overlapped, results reaped at the end of this file
-  async: "{{ cloudflare_async_enabled | ternary(cloudflare_async_time, omit) }}"
-  poll: "{{ cloudflare_async_enabled | ternary(cloudflare_async_poll, omit) }}"
-  no_log: "{{ cloudflare_no_log | bool }}"
-  register: _cf_a
-  changed_when: false
+- name: 🗂️ Queue every Cloudflare record for the first attempt
+  ansible.builtin.set_fact:
+    _cf_pending: "{{ cloudflare_records }}"
+    _cf_retry: []
 
-- name: 📌 Apply CNAME/MX/TXT
-  community.general.cloudflare_dns:
-    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
-    zone: "{{ item.zone }}"
-    type: "{{ item.type }}"
-    name: "{{ item.name }}"
-    value: "{{ item.value }}"
-    ttl: "{{ item.ttl | default(1) }}"
-    priority: "{{ (item.type == 'MX') | ternary(item.priority | default(10), omit) }}"
-    state: "{{ item.state | default('present') }}"
-    solo: "{{ item.solo | default(false) }}"
-  loop: "{{ cloudflare_records | selectattr('type','in',['CNAME','MX','TXT']) | list }}"
-  loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.value }}" }
-  # rationale: async; records apply overlapped, results reaped at the end of this file
-  async: "{{ cloudflare_async_enabled | ternary(cloudflare_async_time, omit) }}"
-  poll: "{{ cloudflare_async_enabled | ternary(cloudflare_async_poll, omit) }}"
-  no_log: "{{ cloudflare_no_log | bool }}"
-  register: _cf_cname
-  changed_when: false
+- name: 🔁 Apply the Cloudflare records, retrying only hung and transiently failed ones
+  ansible.builtin.include_tasks:
+    file: attempt.yml
+    apply:
+      delegate_to: localhost
+      become: false
+  loop: "{{ range(1, (cloudflare_attempts | int) + 1) | list }}"
+  loop_control:
+    loop_var: cloudflare_attempt
 
-- name: 📌 Apply SRV
-  community.general.cloudflare_dns:
-    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
-    zone: "{{ item.zone }}"
-    type: SRV
-    service: "{{ item.service }}"
-    proto: "{{ item.proto }}"
-    name: "{{ item.name }}"
-    priority: "{{ item.priority }}"
-    weight: "{{ item.weight }}"
-    port: "{{ item.port }}"
-    value: "{{ item.value }}"
-    ttl: "{{ item.ttl | default(1) }}"
-    state: "{{ item.state | default('present') }}"
-    solo: "{{ item.solo | default(false) }}"
-  loop: "{{ cloudflare_records | selectattr('type','equalto','SRV') | list }}"
-  loop_control: { label: "SRV {{ item.service }}.{{ item.proto }} {{ item.name }} -> {{ item.value }}:{{ item.port }}" }
-  ignore_errors: "{{ item.ignore_errors | default(true) }}"
-  # rationale: async; best effort per item via ignore_errors, nothing reads the result
-  async: "{{ cloudflare_async_enabled | ternary(cloudflare_async_time, omit) }}"
-  poll: "{{ cloudflare_async_enabled | ternary(cloudflare_async_poll, omit) }}"
-  no_log: "{{ cloudflare_no_log | bool }}"
-  register: _cf_srv
-  changed_when: false
-
-- name: "⏳ Reap the Cloudflare record jobs"
-  ansible.builtin.include_tasks: utils/async/reap.yml
-  vars:
-    async_reap_jobs: "{{ (_cf_a.results | default([])) + (_cf_cname.results | default([])) }}"
-    async_reap_label: "Cloudflare records"
-    async_reap_tolerate:
-      - "An identical record already exists"
-      - "81058"
+- name: 🛑 Fail for every Cloudflare record still failing after its last attempt
+  ansible.builtin.fail:
+    msg: >-
+      Cloudflare records: {{ _cf_retry | length }} record(s) still failed after
+      {{ cloudflare_attempts }} attempt(s) of at most {{ lookup('timeout', cloudflare_attempt_timeout | int) | int }} s each:
+      {% for r in _cf_retry %}{{ r.item.type }} {{ r.item.name }} ({{ r.item.zone }}): {{ r.error }}{{ ' || ' if not loop.last }}{% endfor %}
+  when: _cf_retry | length > 0

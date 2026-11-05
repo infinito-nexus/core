@@ -15,7 +15,7 @@
     {{ lookup('compose_only', 'container_name', OPENLDAP_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 {% if db_instance %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop
       OPENLDAP_HA: "true"
       OPENLDAP_HA_SEED: "{{ db_instance.legacy | bool | lower }}"
       ELECTOR_HOST_ID: "{{ db_instance.host_id }}"

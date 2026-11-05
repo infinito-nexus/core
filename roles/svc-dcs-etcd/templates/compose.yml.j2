@@ -22,6 +22,7 @@
       - "--listen-peer-urls=https://0.0.0.0:{{ ETCD_PEER_PORT }}"
       - "--initial-advertise-peer-urls=https://{{ _member }}:{{ ETCD_PEER_PORT }}"
       - "--initial-cluster={{ ETCD_INITIAL_CLUSTER }}"
+      {# nocheck: compose-argv-secret  etcd's cluster token is a public cluster identifier, not a credential #}
       - "--initial-cluster-token={{ ETCD_CLUSTER_TOKEN }}"
       - "--initial-cluster-state={{ 'existing' if _member in ETCD_JOINING_MEMBERS else 'new' }}"
       - "--cert-file={{ ETCD_CERT_TARGET }}"

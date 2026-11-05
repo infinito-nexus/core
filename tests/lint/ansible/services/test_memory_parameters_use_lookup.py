@@ -33,14 +33,13 @@ written another way is not seen; add its spelling when a role introduces one.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from bisect import bisect_right
 from collections import defaultdict
 from functools import cache
 from typing import TYPE_CHECKING, ClassVar
 
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
@@ -278,22 +277,9 @@ def _scope(rel: str) -> str:
 
 @cache
 def _tracked_texts() -> dict[str, str]:
-    out = subprocess.check_output(
-        [
-            "git",
-            "-c",
-            "safe.directory=*",
-            "-C",
-            str(PROJECT_ROOT),
-            "ls-files",
-            "roles",
-            _SHARED_SCOPE,
-        ],
-        text=True,
-    )
     texts: dict[str, str] = {}
-    for rel in out.splitlines():
-        if rel.endswith(".md"):
+    for rel in repository_files():
+        if not rel.startswith(("roles/", f"{_SHARED_SCOPE}/")) or rel.endswith(".md"):
             continue
         try:
             texts[rel] = read_text(str(PROJECT_ROOT / rel))

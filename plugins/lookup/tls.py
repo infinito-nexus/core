@@ -17,6 +17,7 @@ from utils.tls_common import (
     as_str,
     collect_domains_for_app,
     norm_domain,
+    redirect_targets,
     require,
     resolve_enabled,
     resolve_mode,
@@ -57,11 +58,13 @@ class LookupModule(LookupBase):
             )
 
         forced_mode = as_str(kwargs.get("mode", "auto")).lower()
+        consumer = as_str(kwargs.get("consumer", ""))
 
         app_id, primary_domain = resolve_term(
             term,
             domains=domains,
             applications=applications,
+            redirects=redirect_targets(variables),
             forced_mode=forced_mode,
             err_prefix="tls",
         )
@@ -72,6 +75,7 @@ class LookupModule(LookupBase):
                     domains,
                     app_id,
                     primary_domain,
+                    consumer=consumer,
                     variables=variables,
                     templar=templar,
                 )
@@ -99,7 +103,8 @@ class LookupModule(LookupBase):
         web_protocol = "https" if enabled else "http"
         websocket_protocol = "wss" if enabled else "ws"
         web_port = 443 if enabled else 80
-        base_url = f"{web_protocol}://{primary_domain}/"
+        origin = f"{web_protocol}://{primary_domain}"
+        base_url = f"{origin}/"
 
         resolved: dict[str, Any] = {
             "application_id": app_id,
@@ -109,7 +114,7 @@ class LookupModule(LookupBase):
             "domains": {"primary": primary_domain, "all": all_domains},
             "protocols": {"web": web_protocol, "websocket": websocket_protocol},
             "ports": {"web": web_port},
-            "url": {"base": base_url},
+            "url": {"base": base_url, "origin": origin},
         }
 
         if want:

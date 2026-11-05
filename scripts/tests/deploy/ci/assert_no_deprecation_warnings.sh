@@ -10,7 +10,6 @@ set -euo pipefail
 
 MARKER='[DEPRECATION WARNING]:'
 
-# Exception: exclude ansible-core 2.20 legacy filter/test PluginLoader deprecation; needs a collection migration, not fixable in role YAML.
 FRAMEWORK_NOISE='Instantiating (filter|test) PluginLoader with aliases'
 
 log="${1:?usage: assert_no_deprecation_warnings.sh <deploy-log>}"

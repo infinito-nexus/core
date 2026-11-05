@@ -28,3 +28,5 @@ test("matomo enforces Content-Security-Policy and exposes canonical domain from 
 
   await expectNoCspViolations(page, diagnostics, "matomo login");
 });
+
+require("./test-design");

@@ -101,19 +101,18 @@
   loop_control:
     loop_var: roll_member
 
-- name: "🔀 db_ha_rolling | planned handover away from the old primary"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/' ~ application_id ~ '/tasks/utils/handover.yml') }}"
-  vars:
-    handover_primary: "{{ _roll_primary }}"
+- name: "🔄 db_ha_rolling | hand over and roll the old primary last"
   when:
     - _roll_primary | length > 0
     - _roll_primary in _roll_changed
-    - lookup('path_absolute', 'roles/' ~ application_id ~ '/tasks/utils/handover.yml') is file
+  block:
+    - name: "🔀 db_ha_rolling | planned handover away from the old primary"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/' ~ application_id ~ '/tasks/utils/handover.yml') }}"
+      vars:
+        handover_primary: "{{ _roll_primary }}"
+      when: lookup('path_absolute', 'roles/' ~ application_id ~ '/tasks/utils/handover.yml') is file
 
-- name: "🔄 db_ha_rolling | roll the old primary last"
-  ansible.builtin.include_tasks: db_ha_rolling_member.yml
-  vars:
-    roll_member: "{{ _roll_primary }}"
-  when:
-    - _roll_primary | length > 0
-    - _roll_primary in _roll_changed
+    - name: "🔄 db_ha_rolling | roll the old primary last"
+      ansible.builtin.include_tasks: db_ha_rolling_member.yml
+      vars:
+        roll_member: "{{ _roll_primary }}"

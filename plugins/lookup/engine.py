@@ -39,7 +39,7 @@ from utils.roles.applications.services.engines import (
 )
 from utils.roles.db.instances import DbInstancesError
 from utils.roles.db.primary import ha_primary_address, resolver_subshell
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 _FIELDS = (
     "engine",
@@ -135,7 +135,7 @@ class LookupModule(LookupBase):
         descriptor = ENGINES[engine]
         svc_id = descriptor["svc"]
         port = int(descriptor["port"])
-        entity = get_entity_name(consumer_id)
+        entity = entity_name(consumer_id)
 
         enabled = is_engine_enabled(applications, consumer_id, engine)
         shared = is_engine_shared(applications, consumer_id, engine)
@@ -169,9 +169,6 @@ class LookupModule(LookupBase):
         host = central_name if shared else engine
         instance = central_name if shared else entity
 
-        # Exception: shared redis authenticates as the central `default` user, not
-        # a per-consumer ACL user — ACL users live only in memory and are lost when
-        # a deploy recreates the central redis after the consumer was provisioned.
         if engine == "redis" and shared:
             username = "default"
             password = str(
@@ -225,7 +222,7 @@ class LookupModule(LookupBase):
             return str(value or "").strip()
 
         deployment_mode = _templated(vars_.get("DEPLOYMENT_MODE", "compose"))
-        stack = get_entity_name(svc_id) if shared else entity
+        stack = entity_name(svc_id) if shared else entity
         address = container
         if deployment_mode == "swarm":
             address = resolver_subshell(

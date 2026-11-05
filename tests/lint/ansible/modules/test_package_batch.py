@@ -12,7 +12,12 @@ role's own task installs it. Four rules hold that split together:
   them on hosts where the condition is false;
 * every id of a role the constructor runs ahead of the batch is
   ``batch: false``, because the batch would install it too late;
-* a role file references only ids the shared root file declares.
+* a role file references only ids the shared root file declares;
+* every ``package_install`` task of a role carries
+  ``# nocheck: package-install <reason>`` on its module line or the line
+  above, naming why it cannot ride the batch. The batch cannot see the
+  conditions an include or a role invocation puts around a task file, so an
+  unmarked install would slip past the first two rules.
 
 A ``run_once_<role>`` guard is no condition here: it only keeps a role from
 running twice in one deploy.
@@ -25,7 +30,8 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-from utils.cache.files import iter_project_files
+from utils.annotations.suppress import is_suppressed_at
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.packages.registry import build_registry, load_references
 from utils.roles.invocations import (
@@ -45,6 +51,8 @@ _RUN_ONCE_GUARD_RE = re.compile(
     r"|not\s+\(\s*run_once_\w+\s*\|\s*default\(false\)\s*\|\s*bool\s*\))$"
 )
 _BATCH_LOOKUP = "lookup('package_batch'"
+_RULE = "package-install"
+_MODULE_LINE_RE = re.compile(r"^\s*(?:-\s+)?package_install:")
 
 
 def _conditions(task: dict[str, Any]) -> list[str]:
@@ -176,6 +184,25 @@ class TestPackageBatch(unittest.TestCase):
                 f"{len(offenders)} id(s) belong to a role the constructor runs before "
                 "the deploy-start batch, so the batch installs them too late. Flag "
                 "each 'batch: false' in its meta/packages.yml:\n"
+                + "\n".join(f"  - {o}" for o in offenders)
+            )
+
+    def test_role_package_installs_are_marked(self) -> None:
+        offenders: list[str] = []
+        for path in _role_task_files():
+            lines = read_text(str(path)).splitlines()
+            offenders.extend(
+                f"{path.relative_to(PROJECT_ROOT)}:{number}"
+                for number, line in enumerate(lines, start=1)
+                if _MODULE_LINE_RE.match(line)
+                and not is_suppressed_at(lines, number, _RULE)
+            )
+        if offenders:
+            self.fail(
+                f"{len(offenders)} package_install task(s) in a role bypass the "
+                "deploy-start batch without saying why. Drop the task so the batch "
+                "installs the id, or flag the id 'batch: false' and mark the task "
+                f"'# nocheck: {_RULE} <why it cannot ride the batch>':\n"
                 + "\n".join(f"  - {o}" for o in offenders)
             )
 

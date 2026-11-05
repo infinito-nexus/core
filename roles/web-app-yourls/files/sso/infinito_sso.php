@@ -123,3 +123,43 @@ if (!function_exists('infinito_sso_enabled')) {
         yourls_add_filter('shunt_is_valid_user', 'infinito_sso_shunt');
     }
 }
+
+if (!function_exists('infinito_network_host')) {
+    function infinito_network_host() {
+        return strtolower(explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0]);
+    }
+
+    function infinito_network_site($site) {
+        foreach (preg_split('/,/', (string) getenv('INFINITO_NETWORK_BASE_URLS'), -1, PREG_SPLIT_NO_EMPTY) as $url) {
+            if (strtolower((string) parse_url($url, PHP_URL_HOST)) === infinito_network_host()) {
+                return rtrim($url, '/');
+            }
+        }
+        return $site;
+    }
+
+    yourls_add_filter('get_yourls_site', 'infinito_network_site');
+}
+
+if (!function_exists('infinito_design_title')) {
+    function infinito_design_title($title) {
+        $brand = trim((string) getenv('DESIGN_TITLE'));
+        if ($brand === '' || strpos((string) $title, $brand) !== false) {
+            return $title;
+        }
+        return $title . ' | ' . $brand;
+    }
+
+    function infinito_design_favicon($url) {
+        $icons = json_decode((string) getenv('DESIGN_FAVICON_URLS'), true);
+        $host = infinito_network_host();
+        if (is_array($icons) && isset($icons[$host])) {
+            return $icons[$host];
+        }
+        $icon = trim((string) getenv('DESIGN_FAVICON_URL'));
+        return $icon === '' ? $url : $icon;
+    }
+
+    yourls_add_filter('html_title', 'infinito_design_title');
+    yourls_add_filter('get_favicon_url', 'infinito_design_favicon');
+}

@@ -28,3 +28,6 @@
     apply:
       delegate_to: "{{ SNIPE_IT_HOST_NODE }}"
   when: SNIPE_IT_SSO_ENABLED | bool
+
+- name: "🎨 Apply the corporate design"
+  include_tasks: ../05_design.yml

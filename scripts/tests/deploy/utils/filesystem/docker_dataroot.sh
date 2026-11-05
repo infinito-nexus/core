@@ -33,7 +33,11 @@ SIZE="${3:?SIZE is required - state the loop image size (e.g. 30G) at the call s
 IDENTITY="${4:?IDENTITY is required - state what this machine is called at the call site}"
 
 MOUNT=/mnt/docker-fs
-IMAGE=/var/tmp/docker-fs.img
+if mountpoint -q /mnt; then
+	IMAGE=/mnt/docker-fs.img
+else
+	IMAGE=/var/tmp/docker-fs.img
+fi
 POOL="infinito_ci_$(printf '%s' "${IDENTITY}" | tr -dc 'A-Za-z0-9_.:-')"
 DAEMON=/etc/docker/daemon.json
 REMOUNT_HOOK=/usr/local/sbin/docker-dataroot
@@ -234,8 +238,8 @@ install_remount_hook() {
 	install -D -m 0755 "${BASH_SOURCE[0]}" "${REMOUNT_HOOK}"
 	mkdir -p "$(dirname "${REMOUNT_DROPIN}")"
 	printf '%s\n' '[Service]' \
-		"ExecStartPre=${REMOUNT_HOOK} --remount ${FSTYPE} ${REQUIRED} ${SIZE} ${IDENTITY}" \
-		>"${REMOUNT_DROPIN}"
+		"ExecStartPre=${REMOUNT_HOOK} --remount ${FSTYPE} ${REQUIRED} ${SIZE} ${IDENTITY}" |
+		tee "${REMOUNT_DROPIN}" >/dev/null
 	systemctl daemon-reload
 }
 
@@ -337,7 +341,7 @@ truncate -s "${SIZE}" "${IMAGE}"
 claim_loop
 
 if [ "${FSTYPE}" = zfs ]; then
-	if ! zpool_out="$(zpool create -f -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
+	if ! zpool_out="$(zpool create -f -o autotrim=on -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
 		losetup -d "${LOOP}" ||
 			report "WARNING: ${LOOP} refused the detach and will leak into the next round"
 		rm -f "${IMAGE}"

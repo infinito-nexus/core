@@ -28,6 +28,7 @@ depends=(
   'sudo'
   'systemd'
   'tar'
+  'zstd'
 )
 
 optdepends=(

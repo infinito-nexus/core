@@ -14,16 +14,16 @@ For the canonical Make target index that invokes these helpers, see [make.md](..
 
 ## Naming
 
-The `apps/` subtree is split by verb (the user intent) and scope:
+The [`apps/`](apps/) subtree is split by verb (the user intent) and scope:
 
 - `initialize/` creates or refreshes the inventory; existing entity state is kept.
 - `reinstall/` recreates the inventory and purges existing entities first.
 - `update/` reuses the already-initialized inventory.
 - `all.sh` covers every discovered application; `selection.sh` covers one or more apps passed via `apps` (or a positional argument).
 
-The `bundles/` subtree mirrors the same axes for inventory bundles (`fresh.sh` ≈ initialize, `update.sh` ≈ update).
+The [`bundles/`](bundles/) subtree mirrors the same axes for inventory bundles (`fresh.sh` ≈ initialize, `update.sh` ≈ update).
 
-The `container/` subtree holds the in-container halves invoked by the host wrappers and follows the same verb/scope layout; see [container/](container/README.md).
+The [`container/`](container/) subtree holds the in-container halves invoked by the host wrappers and follows the same verb/scope layout; see [container/](container/README.md).
 
 ## Entry Points
 

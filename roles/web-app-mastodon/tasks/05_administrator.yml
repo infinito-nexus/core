@@ -1,12 +1,16 @@
 ---
-- name: 👑 Ensure the administrator account exists, unblocked and approved
+- name: 👑 Ensure the administrator exists, unblocked, approved and on its password
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i -u root
-    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'administrator').username | quote }}
-    -e MASTODON_ADMIN_EMAIL={{ lookup('users', 'administrator').email | quote }}
+    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'platform_administrator').username | quote }}
+    -e MASTODON_ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
+    -e MASTODON_ADMIN_PASSWORD
     {{ MASTODON_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
     stdin: "{{ lookup('file', 'ruby/ensure_administrator.rb') }}"
+  environment:
+    MASTODON_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   register: mastodon_administrator
   changed_when: mastodon_administrator.stdout_lines | last == 'changed'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

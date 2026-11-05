@@ -11,6 +11,7 @@ import unittest
 
 import jinja2
 
+from plugins.filter.role_path_by_app_id import abs_role_path_by_application_id
 from plugins.filter.swarm.instance_service import swarm_instance_service
 from plugins.filter.swarm.placement import swarm_placement_constraints
 from utils import PROJECT_ROOT
@@ -85,7 +86,9 @@ def render(application_id, model, loader=None, **variables):
         lstrip_blocks=True,
         undefined=jinja2.ChainableUndefined,
     )
-    env.filters["resource_filter"] = lambda _a, _b, _c, _d, default: default
+    env.filters["resource_filter"] = lambda _a, _b, _c, _d, default, **_kw: default
+    env.filters["abs_role_path_by_application_id"] = abs_role_path_by_application_id
+    env.globals["query"] = lambda _name, *_args, **_kwargs: []
     env.filters["swarm_restart_condition"] = lambda _value: "any"
     env.filters["has_env"] = lambda _app: False
     env.filters["bool"] = lambda value: str(value).lower() in ("1", "true", "yes", "on")

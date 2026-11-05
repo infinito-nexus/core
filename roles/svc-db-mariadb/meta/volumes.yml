@@ -23,7 +23,7 @@ haproxy_tmp:
       size: 1m
       when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
 
-ha_server_cnf:
+ha_server_cnf: # nocheck: config-volume-producer  tasks/ha/02_files.yml renders templates/ha/server.cnf.j2 into lookup('volume', …, 'ha_server_cnf', field='source')
   type: config
   source: "{{ [lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'ha-server.cnf'] | path_join }}"
   mode: "0444"
@@ -74,7 +74,7 @@ ha_etcd_password:
       target: /run/secrets/mariadb/etcd.password
       when: "{{ lookup('db_instances', 'svc-db-mariadb').form == 'ha' }}"
 
-ha_etcd_ca:
+ha_etcd_ca: # nocheck: config-volume-producer  svc-dcs-etcd tasks/01_tls.yml writes the etcd CA this entry mounts
   type: config
   source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'ca.crt'] | path_join }}"
   mode: "0444"

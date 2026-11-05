@@ -96,7 +96,7 @@
 
 - name: "🔍 Check whether Tor already runs from an earlier deploy"
   ansible.builtin.command: >-
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     container service ps -q --filter desired-state=running
     {{ lookup('container_service', application_id, 'tor') }}
     {% else %}
@@ -126,7 +126,7 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   become: true
-  when: DEPLOYMENT_MODE == 'compose' and (TOR_RESTART_REQUIRED | bool)
+  when: IS_COMPOSE_MODE and (TOR_RESTART_REQUIRED | bool)
 
 - name: "🔄 Force Tor service redeploy to apply hidden-service key / torrc changes"
   ansible.builtin.command: >-
@@ -136,21 +136,20 @@
   changed_when: _tor_swarm_update.rc == 0
   become: true
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - IS_STACK_HOST | bool
     - TOR_RESTART_REQUIRED | bool
 
-- name: "🧅 Wire the host-level transparent .onion egress router"
-  include_tasks:
-    file: router.yml
-    apply:
-      become: true
-  when:
-    - TOR_EGRESS_ROUTER_ENABLED | bool
-    - DEPLOYMENT_MODE == 'compose' or (IS_STACK_HOST | bool)
+- name: "🧅 Bring up the transparent .onion egress router"
+  when: TOR_EGRESS_ROUTER_ENABLED | bool
+  block:
+    - name: "🧅 Wire the host-level transparent .onion egress router"
+      include_tasks:
+        file: router.yml
+        apply:
+          become: true
+      when: IS_COMPOSE_MODE or (IS_STACK_HOST | bool)
 
-- name: "🧅 Verify the node onion is reachable"
-  ansible.builtin.include_tasks: onion_reach.yml
-  when:
-    - TOR_EGRESS_ROUTER_ENABLED | bool
-    - TOR_NODE_ONION | length > 0
+    - name: "🧅 Verify the node onion is reachable"
+      ansible.builtin.include_tasks: onion_reach.yml
+      when: TOR_NODE_ONION | length > 0

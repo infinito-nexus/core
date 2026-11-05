@@ -22,8 +22,10 @@ logout:
   ports:
     local:
       http: 8048
+      http_onion: 16561
     internal:
       http: 8000
+      http_onion: 8000
   proxy:
     service_key: logout
   lifecycle: beta
@@ -32,11 +34,11 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
-# nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; CSS injection is asserted on the consuming role surfaces
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — web-svc-logout has no user-facing surface; JS injection is asserted on the consuming role surfaces
 javascript:
@@ -53,3 +55,8 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -1,6 +1,15 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: 📦 Install compose wrapper
+  become: true
+  ansible.builtin.copy:
+    src: "python/compose.py"
+    dest: "{{ BIN_COMPOSE }}"
+    mode: "0755"
+    owner: root
+    group: root
+
 - include_role:
     name: sys-svc-container
     public: false
@@ -20,15 +29,6 @@
     path: "{{ DIR_COMPOSITIONS }}"
     state: directory
     mode: "0700"
-    owner: root
-    group: root
-
-- name: 📦 Install compose wrapper
-  become: true
-  ansible.builtin.copy:
-    src: "python/compose.py"
-    dest: "{{ BIN_COMPOSE }}"
-    mode: "0755"
     owner: root
     group: root
 
@@ -98,7 +98,7 @@
   ansible.builtin.command: "mountpoint -q {{ DIR_VAR_LIB }}"
   changed_when: false
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
     - inventory_hostname not in (groups['svc-storage-nfs-server'] | default([]))

@@ -35,7 +35,7 @@ class TestEngineLookupHa(unittest.TestCase):
         lookup._loader = mock.MagicMock()
         entity = mock.patch.object(
             plugin_module,
-            "get_entity_name",
+            "entity_name",
             side_effect=lambda role: role.rsplit("-", 1)[-1],
         )
         loader = mock.patch.object(plugin_module, "lookup_loader")

@@ -1,6 +1,6 @@
 ---
 application_id: svc-dcs-etcd
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 ETCD_INSTANCES: "{{ lookup('db_instances', application_id) }}"
 ETCD_MEMBERS: "{{ ETCD_INSTANCES.instances | map(attribute='service') | list }}"

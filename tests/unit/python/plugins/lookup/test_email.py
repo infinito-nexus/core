@@ -11,12 +11,12 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
-from plugins.lookup.email import LookupModule
+from plugins.lookup.email import RESOLUTION_ORDER, LookupModule, provider_view_carrier
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_applications
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
-from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, PROVIDER_VIEW_RENDERED_FACT
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_META_SERVICES
 
@@ -366,6 +366,77 @@ class TestEmailLookup(unittest.TestCase):
         result = self.lookup.run([], variables=variables)[0]
         self.assertEqual(result["domain"], "mail.example.org")
 
+    def test_key_returns_the_value_the_full_mapping_carries(self) -> None:
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {
+                "mailprov": {
+                    "ports": {"public": {"smtp": 25, "smtps": 465, "submission": 587}}
+                }
+            },
+        )
+        cases = (
+            {"inventory_hostname": "host1"},
+            {"inventory_hostname": "host1", "TLS_ENABLED": True},
+            {
+                "SYSTEM_EMAIL_HOST": "smtp.example.org",
+                "SYSTEM_EMAIL_PORT": 465,
+                "SYSTEM_EMAIL_TLS": True,
+                "SYSTEM_EMAIL_TIMEOUT": "45",
+                "inventory_hostname": "host1",
+            },
+            {
+                "MAIL_PROVIDER": "web-app-mailprov",
+                "group_names": ["web-app-mailprov"],
+                "groups": {"web-app-mailprov": ["host1"]},
+                "SYSTEM_EMAIL_HOST": "mail.x.onion",
+                "TLS_ENABLED": True,
+                "DOMAIN_PRIMARY": "x.onion",
+                "inventory_hostname": "host1",
+            },
+        )
+        roles_dir = str(self._tmp / "roles")
+        for variables in cases:
+            full = self.lookup.run([], variables=variables, roles_dir=roles_dir)[0]
+            for short_key in RESOLUTION_ORDER:
+                with self.subTest(variables=variables, key=short_key):
+                    value = self.lookup.run(
+                        [], variables=variables, roles_dir=roles_dir, key=short_key
+                    )[0]
+                    self.assertEqual(value, full[short_key])
+
+    def test_key_applies_the_application_override(self) -> None:
+        _write_role_config(
+            self._tmp,
+            "web-app-x",
+            {"email": {"HOST": "smtp.app.org", "port": 587}},
+        )
+        variables = {
+            "SYSTEM_EMAIL_HOST": "smtp.global.org",
+            "SYSTEM_EMAIL_PORT": 25,
+            "inventory_hostname": "host1",
+        }
+        roles_dir = str(self._tmp / "roles")
+        full = self.lookup.run(["web-app-x"], variables=variables, roles_dir=roles_dir)[
+            0
+        ]
+        for short_key in ("host", "port", "external", "from"):
+            with self.subTest(key=short_key):
+                value = self.lookup.run(
+                    ["web-app-x"],
+                    variables=variables,
+                    roles_dir=roles_dir,
+                    key=short_key,
+                )[0]
+                self.assertEqual(value, full[short_key])
+        self.assertEqual(full["host"], "smtp.app.org")
+        self.assertEqual(full["port"], 587)
+
+    def test_unknown_key_raises(self) -> None:
+        with self.assertRaises(AnsibleError):
+            self.lookup.run([], variables={}, key="externl")
+
 
 class TestProviderOnionIsClusterWide(unittest.TestCase):
     """In swarm only the manager is in svc-net-tor, so a worker renders the
@@ -417,7 +488,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
             ports: the mail provider's published SMTP ports.
             node: svc-net-tor's node onion; defaults to ``ONION``.
             provider_tor: the mail provider's ``tor`` block; defaults to
-                enabled on svc-net-tor hosts, inheriting exclusive/primary.
+                enabled on svc-net-tor hosts.
         """
         _write_role_config(
             self._tmp,
@@ -426,8 +497,6 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
                 "tor": {
                     "enabled": True,
                     "shared": True,
-                    "exclusive": True,
-                    "primary": True,
                     "node": self.ONION if node is None else node,
                 }
             },
@@ -446,7 +515,10 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def _worker(self, *, tor_hosts=("mgr",)) -> dict:
+    def _worker(self, *, tor_hosts=("mgr",), network_mode="") -> dict:
+        manager = {"group_names": ["web-app-mailprov", "svc-net-tor"]}
+        if network_mode:
+            manager["NETWORK_MODE"] = network_mode
         return {
             "MAIL_PROVIDER": "web-app-mailprov",
             "group_names": ["svc-swarm-node"],
@@ -455,7 +527,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
                 "svc-net-tor": list(tor_hosts),
             },
             "hostvars": {
-                "mgr": {"group_names": ["web-app-mailprov", "svc-net-tor"]},
+                "mgr": manager,
                 "other": {"group_names": ["svc-net-tor"]},
             },
             "SYSTEM_EMAIL_HOST": "mail.x.test",
@@ -472,7 +544,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
     def test_worker_of_an_onion_stalwart_drops_tls_and_auth(self) -> None:
         self._seed(ports=self.STALWART_PORTS)
 
-        result = self._run(self._worker())
+        result = self._run(self._worker(network_mode="tor"))
 
         self.assertFalse(result["tls"])
         self.assertFalse(result["start_tls"])
@@ -482,12 +554,34 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
     def test_worker_of_an_onion_mailu_keeps_plain_submission(self) -> None:
         self._seed(ports=self.MAILU_PORTS)
 
-        result = self._run(self._worker())
+        result = self._run(self._worker(network_mode="tor"))
 
         self.assertFalse(result["tls"])
         self.assertEqual(result["port"], 587)
         self.assertTrue(result["auth"])
         self.assertEqual(result["auth_mechanism"], "plain")
+
+    def test_worker_key_lookup_skips_the_provider_onion_probe(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        variables = self._worker(network_mode="tor")
+        roles_dir = str(self._tmp / "roles")
+
+        with patch.object(
+            LookupModule, "_provider_onion_primary", return_value=True
+        ) as probe:
+            external = self.lookup.run(
+                [], variables=variables, roles_dir=roles_dir, key="external"
+            )[0]
+            timeout = self.lookup.run(
+                [], variables=variables, roles_dir=roles_dir, key="timeout"
+            )[0]
+            probe.assert_not_called()
+            full = self._run(variables)
+            probe.assert_called()
+
+        self.assertIs(external, True)
+        self.assertEqual(external, full["external"])
+        self.assertEqual(timeout, full["timeout"])
 
     def test_tor_on_another_host_keeps_tls(self) -> None:
         self._seed(ports=self.STALWART_PORTS)
@@ -498,10 +592,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
         self.assertEqual(result["port"], 465)
 
     def test_dual_stack_provider_keeps_tls(self) -> None:
-        self._seed(
-            ports=self.STALWART_PORTS,
-            provider_tor={"enabled": self.TOR_ON, "exclusive": False, "primary": False},
-        )
+        self._seed(ports=self.STALWART_PORTS)
 
         result = self._run(self._worker())
 
@@ -522,13 +613,16 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
         )[0]
 
     def _provider_view(self, worker: dict, **overrides) -> dict:
+        manager = worker["hostvars"]["mgr"]
         view = dict(worker, inventory_hostname="mgr")
-        view["group_names"] = worker["hostvars"]["mgr"]["group_names"]
+        view["group_names"] = manager["group_names"]
+        if manager.get("NETWORK_MODE"):
+            view["NETWORK_MODE"] = manager["NETWORK_MODE"]
         view.update(overrides)
         return view
 
     def _worker_with_carrier(self) -> dict:
-        worker = self._worker()
+        worker = self._worker(network_mode="tor")
         worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
         return worker
 
@@ -586,6 +680,126 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
 
         self.assertEqual(renders, 0)
         self.assertEqual(result, expected)
+
+    MESH: ClassVar[dict[str, str]] = {
+        "mgr": "10.13.0.1",
+        "wrk": "10.13.0.2",
+        "wrk2": "10.13.0.3",
+    }
+
+    def _mesh_apps(self, host: str) -> dict:
+        return {
+            "svc-net-wireguard": {
+                "networks": {"interfaces": [{"host": host, "address": self.MESH[host]}]}
+            }
+        }
+
+    def _mesh_worker(self, *, host: str = "wrk", network_mode: str = "tor") -> dict:
+        """A worker with its own mesh interface in ``applications``.
+
+        Args:
+            host: the worker's inventory hostname.
+            network_mode: the manager's ``NETWORK_MODE``.
+        """
+        _write_role_config(
+            self._tmp, "svc-net-wireguard", {"wireguard": {"enabled": True}}
+        )
+        worker = self._worker(network_mode=network_mode)
+        worker["inventory_hostname"] = host
+        worker["applications"] = self._mesh_apps(host)
+        worker["hostvars"]["mgr"]["applications"] = self._mesh_apps("mgr")
+        return worker
+
+    def _park_manager_carrier(self, worker: dict) -> None:
+        worker["hostvars"]["mgr"][APPLICATIONS_RENDERED_FACT] = self._park(
+            self._provider_view(worker, applications=self._mesh_apps("mgr"))
+        )
+
+    def _park_provider_view(self, worker: dict) -> dict | None:
+        return provider_view_carrier(
+            worker,
+            templar=self.lookup._templar,
+            roles_dir=str(self._tmp / "roles"),
+        )
+
+    def test_a_mesh_worker_renders_the_provider_view_the_manager_carrier_misses(
+        self,
+    ) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._mesh_worker()
+        expected, _ = self._run_counting_renders(worker)
+        worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
+        self._park_manager_carrier(worker)
+
+        result, renders = self._run_counting_renders(worker)
+
+        self.assertEqual(renders, 1)
+        self.assertEqual(result, expected)
+
+    def test_a_mesh_worker_reads_the_provider_view_parked_for_it(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._mesh_worker()
+        expected, fresh_renders = self._run_counting_renders(worker)
+        worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
+        self._park_manager_carrier(worker)
+        _reset_cache_for_tests()
+        worker[PROVIDER_VIEW_RENDERED_FACT] = self._park_provider_view(worker)
+
+        result, renders = self._run_counting_renders(worker)
+
+        self.assertGreater(fresh_renders, 0)
+        self.assertIsNotNone(worker[PROVIDER_VIEW_RENDERED_FACT])
+        self.assertEqual(renders, 0)
+        for key in RESOLUTION_ORDER:
+            self.assertEqual(result[key], expected[key], key)
+        self.assertEqual(result, expected)
+        self.assertFalse(result["tls"])
+        self.assertIsNone(self._park_provider_view(worker))
+
+    def test_a_provider_view_parked_for_another_view_is_never_served(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._mesh_worker()
+        worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
+        worker[PROVIDER_VIEW_RENDERED_FACT] = self._park_provider_view(worker)
+        onion, onion_renders = self._run_counting_renders(worker)
+        dual_stack = self._mesh_worker(network_mode="")
+        other_worker = self._mesh_worker(host="wrk2")
+        expected = {
+            "dual_stack": self._run_counting_renders(dual_stack)[0],
+            "other_worker": self._run_counting_renders(other_worker)[0],
+        }
+        stale = {"dual_stack": dual_stack, "other_worker": other_worker}
+        for variables in stale.values():
+            variables[APPLICATIONS_RENDERED_FACT] = self._park(variables)
+            variables[PROVIDER_VIEW_RENDERED_FACT] = worker[PROVIDER_VIEW_RENDERED_FACT]
+
+        results = {name: self._run_counting_renders(v) for name, v in stale.items()}
+
+        self.assertEqual(onion_renders, 0)
+        self.assertFalse(onion["tls"])
+        for name, (result, renders) in results.items():
+            self.assertEqual(renders, 1, name)
+            for key in RESOLUTION_ORDER:
+                self.assertEqual(result[key], expected[name][key], (name, key))
+        self.assertTrue(results["dual_stack"][0]["tls"])
+
+    def test_the_provider_host_and_a_clearnet_provider_park_no_view(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        provider_host = self._provider_view(
+            self._mesh_worker(), applications=self._mesh_apps("mgr")
+        )
+        clearnet = self._mesh_worker()
+        clearnet["groups"] = dict(clearnet["groups"], **{"svc-net-tor": ["other"]})
+
+        with patch.object(
+            cache_applications,
+            "_render_with_templar",
+            wraps=cache_applications._render_with_templar,
+        ) as render:
+            parked = [self._park_provider_view(v) for v in (provider_host, clearnet)]
+
+        self.assertEqual(parked, [None, None])
+        self.assertEqual(render.call_count, 0)
 
 
 class _RawGetHostvars(dict):

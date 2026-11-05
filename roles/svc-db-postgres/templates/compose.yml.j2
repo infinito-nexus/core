@@ -10,9 +10,10 @@
     {% if db_instance %}
     entrypoint: ["patroni-entrypoint.sh"]
     command:
+      {# nocheck: compose-argv-secret  the in-container path of the Patroni config secret, not its content #}
       - "{{ POSTGRES_PATRONI_SECRET_TARGET }}"
       - "{{ POSTGRES_PATRONI_CONFIG }}"
-    environment:
+    environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop
       PATRONI_NAME: "{{ db_instance.service }}"
       DB_REPLICATION_SUBNET: "{{ POSTGRES_REPLICATION_SUBNET }}"
       DB_POSTGRES_PORT: "{{ POSTGRES_INTERNAL_PORT }}"

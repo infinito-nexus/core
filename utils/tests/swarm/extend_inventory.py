@@ -153,6 +153,7 @@ def main() -> int:
     if not os.environ.get("SWARM_NAME"):
         raise SystemExit("extend_inventory: SWARM_NAME is required (cluster id)")
     app_id = os.environ["APP_ID"]
+    # nocheck: environ-get-default  swarm-test base: matrix.py exports INV_PATH per round, a contributor running this step standalone gets the same /tmp/inv base the routine scripts use
     inv_path = Path(os.environ.get("INV_PATH", "/tmp/inv/devices.yml"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_PATH
 
     closure = derive_includes(app_id)
@@ -201,7 +202,20 @@ def main() -> int:
     backup_path = inv_path.parent / "backup.yml"
     dump_yaml(str(backup_path), backup_inv)
     print(backup_path.read_text())  # nocheck: cache-read
+
+    drop_backup_network_mode(inv_path.parent)
     return 0
+
+
+def drop_backup_network_mode(inv_dir: str | Path) -> None:
+    """
+    Args:
+        inv_dir: the inventory directory holding ``host_vars``.
+    """
+    path = Path(inv_dir) / "host_vars" / f"{_BACKUP}.yml"
+    variables = load_yaml_any(str(path), default_if_missing={})
+    if variables.pop("NETWORK_MODE", None) is not None:
+        dump_yaml(str(path), variables)
 
 
 if __name__ == "__main__":

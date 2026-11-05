@@ -88,9 +88,24 @@ if docker inspect "${CACHE_FRONTEND}" >/dev/null 2>&1; then
 	fi
 	export INFINITO_CACHE_REGISTRY_CA_HOST_PATH="${registry_ca_src}"
 	echo "==> registry-cache CA source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH}"
+	python3 -m cli.meta.cache
 	COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/cache.override.yml")
 	if [ "${INFINITO_SWARM_DB_TOPOLOGY}" = "ha" ]; then
-		COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha-cache.override.yml")
+		COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha/cache.override.yml")
+	fi
+	if [ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]; then
+		echo "==> shared package cache ${INFINITO_CACHE_SHARED_HOST_PATH} mounted into every node"
+		COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/shared-cache.override.yml")
+		if [ "${INFINITO_SWARM_DB_TOPOLOGY}" = "ha" ]; then
+			COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha/shared-cache.override.yml")
+		fi
+		if [ -n "${INFINITO_CACHE_HOST_PACMAN_PATH:-}" ]; then
+			echo "==> host pacman cache ${INFINITO_CACHE_HOST_PACMAN_PATH} mounted read-only into every node"
+			COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/pacman.override.yml")
+			if [ "${INFINITO_SWARM_DB_TOPOLOGY}" = "ha" ]; then
+				COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/ha/pacman.override.yml")
+			fi
+		fi
 	fi
 fi
 

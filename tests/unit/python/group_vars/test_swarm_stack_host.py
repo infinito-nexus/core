@@ -23,6 +23,7 @@ class TestSingleStackHost(unittest.TestCase):
         swarm_vars = load_yaml_any(str(SWARM_VARS))
         cls.expr = swarm_vars["IS_STACK_HOST"]
         cls.stack_host_expr = swarm_vars["STACK_HOST"]
+        cls.compose_mode_expr = swarm_vars["IS_COMPOSE_MODE"]
 
     def stack_hosts(self, managers, nodes, mode="swarm"):
         groups = {"svc-swarm-manager": managers, "svc-swarm-node": nodes}
@@ -31,9 +32,10 @@ class TestSingleStackHost(unittest.TestCase):
             stack_host = _render(
                 self.stack_host_expr, inventory_hostname=host, groups=groups
             )
+            compose_mode = _render(self.compose_mode_expr, DEPLOYMENT_MODE=mode)
             rendered = _render(
                 self.expr,
-                DEPLOYMENT_MODE=mode,
+                IS_COMPOSE_MODE=compose_mode == "True",
                 inventory_hostname=host,
                 STACK_HOST=stack_host,
             )

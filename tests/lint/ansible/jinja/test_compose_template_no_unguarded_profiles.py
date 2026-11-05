@@ -1,5 +1,5 @@
 """Flag ``profiles:`` blocks in ``compose.yml.j2`` templates when the
-block is NOT inside a ``{% if DEPLOYMENT_MODE == 'compose' %}`` (or
+block is NOT inside a ``{% if IS_COMPOSE_MODE %}`` (or
 equivalent compose-only) Jinja gate.
 
 ``docker stack deploy`` silently ignores ``profiles:`` — a
@@ -31,14 +31,8 @@ _IF = re.compile(r"\{%\s*if\s+(?P<expr>.+?)\s*%\}")
 _ELIF = re.compile(r"\{%\s*elif\s+(?P<expr>.+?)\s*%\}")
 _ELSE = re.compile(r"\{%\s*else\s*%\}")
 _ENDIF = re.compile(r"\{%\s*endif\s*%\}")
-_COMPOSE_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*!=\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*==\s*['\"]compose['\"]"
-)
-_SWARM_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*==\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*!=\s*['\"]compose['\"]"
-)
+_COMPOSE_ONLY_GATE = re.compile(r"not\s+IS_SWARM_MODE|IS_COMPOSE_MODE")
+_SWARM_ONLY_GATE = re.compile(r"(?<!not )IS_SWARM_MODE|not\s+IS_COMPOSE_MODE")
 
 
 def _frame_is_compose_only(expr: str, in_else: bool) -> bool:
@@ -93,7 +87,7 @@ class TestComposeTemplateNoUnguardedProfiles(unittest.TestCase):
                 "without a compose-only gate. swarm silently ignores "
                 "profiles, so a profile-gated one-shot bootstrap deploys "
                 "as a regular replicated service and restart-loops.\n\n"
-                "Fix: wrap in `{% if DEPLOYMENT_MODE == 'compose' %}` and "
+                "Fix: wrap in `{% if IS_COMPOSE_MODE %}` and "
                 "adjust the swarm path so the bootstrap is either deployed "
                 "as a true one-shot (restart_policy: condition: none) or "
                 "tail-its-logs-driven. Mark with "

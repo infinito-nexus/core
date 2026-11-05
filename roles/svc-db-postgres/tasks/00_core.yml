@@ -1,6 +1,9 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "⬆️ POSTGRES | Bring an older cluster in the data volume to the pinned major"
+  include_tasks: upgrade/prepare.yml
+
 - include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/prepare.yml') }}"
 
 - name: "📄 Render the HAProxy write endpoint config"
@@ -8,30 +11,27 @@
   vars:
     application_id: "svc-db-postgres"
 
-- name: "📄 POSTGRES | Write the shared patroni.yml"
-  ansible.builtin.copy:
-    content: "{{ POSTGRES_PATRONI_YML }}"
-    dest: "{{ POSTGRES_PATRONI_CONFIG_SOURCE }}"
-    mode: "0600"
-  when:
-    - POSTGRES_HA | bool
-    - IS_STACK_HOST | bool
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔱 POSTGRES | Prepare the HA form"
+  when: POSTGRES_HA | bool
+  block:
+    - name: "📄 POSTGRES | Write the shared patroni.yml"
+      ansible.builtin.copy:
+        content: "{{ POSTGRES_PATRONI_YML }}"
+        dest: "{{ POSTGRES_PATRONI_CONFIG_SOURCE }}"
+        mode: "0600"
+      when: IS_STACK_HOST | bool
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🚚 POSTGRES | Hand a standalone install over to the HA form"
-  include_tasks: 02_ha_migrate.yml
-  when:
-    - POSTGRES_HA | bool
-    - DB_HA_MIGRATING[application_id] | bool
+    - name: "🚚 POSTGRES | Hand a standalone install over to the HA form"
+      include_tasks: 02_ha_migrate.yml
+      when: DB_HA_MIGRATING[application_id] | bool
 
-- name: "🔑 POSTGRES | Carry rotated role passwords into the running cluster"
-  include_tasks:
-    file: 05_ha_rotate.yml
-    apply:
-      run_once: true
-  when:
-    - POSTGRES_HA | bool
-    - not (DB_HA_MIGRATING[application_id] | bool)
+    - name: "🔑 POSTGRES | Carry rotated role passwords into the running cluster"
+      include_tasks:
+        file: 05_ha_rotate.yml
+        apply:
+          run_once: true
+      when: not (DB_HA_MIGRATING[application_id] | bool)
 
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
@@ -76,10 +76,16 @@
       changed_when: false
 
     - name: "✅ POSTGRES | Ensure postgres superuser password matches inventory"
-      ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
-        shell/set_postgres_superuser_password.sh {{ POSTGRES_CONTAINER_ADDRESS | quote }} postgres
-      environment:
-        POSTGRES_SUPERUSER_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -c
+          - "{{ lookup('file', 'shell/set_postgres_superuser_password.sh') }}"
+          - set_postgres_superuser_password.sh
+          - "{{ POSTGRES_CONTAINER_ADDRESS }}"
+          - postgres
+        stdin: "{{ POSTGRES_PASSWORD }}"
+        expand_argument_vars: false
       register: postgres_pw_result
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
@@ -89,6 +95,10 @@
       failed_when: >
         postgres_pw_result.rc != 0 or
         postgres_pw_result.stdout is search('\\[FAIL\\]')
+
+- name: "🧹 POSTGRES | Finish an upgrade once the pinned major runs"
+  include_tasks: upgrade/finalize.yml
+  when: IS_COMPOSE_MODE
 
 - name: "🐘 POSTGRES | Patroni cluster roles and configuration"
   include_tasks:

@@ -1,5 +1,5 @@
 <?php
-{% if NEXTCLOUD_SSO_ENABLED and (NEXTCLOUD_OIDC_HOST is search('\.onion$')) %}
+{% if NEXTCLOUD_SSO_ENABLED and ((NEXTCLOUD_OIDC_HOST | network_of) == 'tor') %}
 return [
     'proxy' => '{{ NEXTCLOUD_TOR_SOCKS_PROXY }}',
     'proxyexclude' => [

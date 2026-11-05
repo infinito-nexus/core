@@ -1,0 +1,3 @@
+# Todos
+
+- Rotating `credentials.hmac_secret` breaks the board image of every stored game and move note: the app signs each board URL with that secret when it writes the note into `outbox.object`, and `GET /images/<slug>/<signature>.png` answers `404 Image not found` once the signature no longer matches (measured with a foreign signature). The showcase seed re-signs its own notes on the next deploy, real games keep the broken image. Options: sign on read in upstream `src/front/draw.ts`, keep the previous secret as a second accepted key during a rotation, or re-sign the stored URLs in a role task after a rotation.

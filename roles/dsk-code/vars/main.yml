@@ -1,0 +1,13 @@
+---
+application_id: dsk-code
+code_flavor: "{{ lookup('config', application_id, 'services.code.flavor') }}"
+code_flavors:
+  code-oss:
+    binary: code
+  vscodium:
+    binary: codium
+  vscode:
+    binary: code
+code_binary: "{{ code_flavors[code_flavor].binary }}"
+code_conflicting_flavors: "{{ code_flavors.keys() | reject('equalto', code_flavor) | list }}"
+code_addons: "{{ lookup('config', application_id, 'addons', {}) }}"

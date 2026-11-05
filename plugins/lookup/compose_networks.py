@@ -26,7 +26,7 @@ from utils.roles.db.instances import (
     engine_model,
     ha_engines,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 def _internal_overlay(ctx: Any, application_id: str, kwargs: dict[str, Any]) -> bool:
@@ -73,7 +73,7 @@ class LookupModule(LookupBase):
                 application_id=str(application_id),
                 deployment_mode=ctx.deployment_mode,
                 registry=ctx.registry,
-                get_entity_name=get_entity_name,
+                entity_name=entity_name,
                 lookup_config=ctx.lookup_config,
                 lookup_database=ctx.lookup_database,
                 swarm_encrypted=swarm_encrypted,

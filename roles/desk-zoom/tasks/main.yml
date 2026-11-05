@@ -1,4 +1,0 @@
----
-- block:
-    - include_tasks: utils/once/flag.yml
-  when: run_once_desk_zoom is not defined

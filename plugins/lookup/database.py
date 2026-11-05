@@ -21,7 +21,7 @@ from utils.roles.db.primary import (
     ha_primary_address,
     resolver_subshell,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 HA_UNAVAILABLE = {
     "reach_host": "no database port is published, exec into 'address' instead",
@@ -85,7 +85,7 @@ class LookupModule(LookupBase):
         ):
             path_instances = self._templar.template(path_instances)
 
-        consumer_entity = get_entity_name(consumer_id)
+        consumer_entity = entity_name(consumer_id)
 
         try:
             dbtype = resolve_database_service_key(applications, consumer_id)
@@ -215,11 +215,11 @@ class LookupModule(LookupBase):
             default=default_image,
         )
 
-        env_dir = f"{path_instances}{get_entity_name(consumer_id)}/.env/"
+        env_dir = f"{path_instances}{entity_name(consumer_id)}/.env/"
         env = f"{env_dir}{dbtype}.env"
         realign_sql = f"{env_dir}{dbtype}-realign.sql"
-        initdb_dir = f"{path_instances}{get_entity_name(consumer_id)}/.initdb.d/"
-        build_dir = f"{path_instances}{get_entity_name(consumer_id)}/.postgres-build/"
+        initdb_dir = f"{path_instances}{entity_name(consumer_id)}/.initdb.d/"
+        build_dir = f"{path_instances}{entity_name(consumer_id)}/.postgres-build/"
 
         jdbc_scheme = dbtype if dbtype == "mariadb" else "postgresql"
         url_jdbc = f"jdbc:{jdbc_scheme}://{host}:{port}/{name}"

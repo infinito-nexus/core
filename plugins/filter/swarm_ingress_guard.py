@@ -10,6 +10,33 @@ from typing import Any
 from ansible.errors import AnsibleFilterError
 
 _PROTOCOLS = ("tcp", "udp")
+_READ_SECTIONS = ("port", "node")
+
+
+def swarm_ingress_sections(read_lines: Iterable[str]) -> dict[str, list[str]]:
+    """Split the one ingress guard read into its service and node lines.
+
+    Args:
+        read_lines: ``port <json>`` lines, one per service, and ``node <address>``
+            lines, one per swarm node, as the ingress guard read prints them.
+
+    Returns:
+        ``{"port": [...], "node": [...]}`` holding each line without its tag, in
+        input order; blank lines are left out.
+
+    Raises:
+        AnsibleFilterError: a line carries neither the ``port`` nor the ``node`` tag.
+    """
+    sections: dict[str, list[str]] = {name: [] for name in _READ_SECTIONS}
+    for line in read_lines:
+        text = str(line).strip()
+        if not text:
+            continue
+        tag, _, payload = text.partition(" ")
+        if tag not in sections:
+            raise AnsibleFilterError(f"swarm_ingress_sections: untagged line: {text!r}")
+        sections[tag].append(payload)
+    return sections
 
 
 def swarm_ingress_published(inspect_lines: Iterable[str]) -> list[dict[str, Any]]:
@@ -134,6 +161,7 @@ def swarm_node_addresses(inspect_lines: Iterable[str]) -> dict[str, list[str]]:
 class FilterModule:
     def filters(self) -> dict[str, Any]:
         return {
+            "swarm_ingress_sections": swarm_ingress_sections,
             "swarm_ingress_published": swarm_ingress_published,
             "swarm_public_ports": swarm_public_ports,
             "swarm_ingress_guarded": swarm_ingress_guarded,

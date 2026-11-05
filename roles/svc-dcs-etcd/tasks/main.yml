@@ -2,7 +2,7 @@
 - include_tasks: 00_core.yml
   when:
     - run_once_svc_dcs_etcd is not defined
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE | bool
     - lookup('db_instances', coordination_store_needed=true) | bool
   vars:
     application_id: svc-dcs-etcd

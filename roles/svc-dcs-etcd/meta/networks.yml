@@ -1,7 +1,7 @@
 ---
 meshes: []
 local:
-  subnet: 192.168.230.0/24
+  subnet: 192.168.235.0/24
 overlay:
   modes: [swarm]
   topology: shared_net

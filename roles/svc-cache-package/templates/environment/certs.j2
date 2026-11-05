@@ -1,0 +1,8 @@
+{#
+  Environment for the certificate issuer. The script is shared with the dev
+  stack, so it reads the same INFINITO_* names there; only the values differ.
+#}
+INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR: {{ CACHE_PACKAGE_CA_DIR_HOST | to_json }}
+INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR: {{ CACHE_PACKAGE_CERTS_DIR_HOST | to_json }}
+INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE: {{ CACHE_PACKAGE_INIT_IMAGE | to_json }}
+INFINITO_CACHE_TLS_HOSTS: {{ CACHE_PACKAGE_TLS_HOSTS | join(' ') | to_json }}

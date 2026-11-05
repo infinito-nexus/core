@@ -26,17 +26,7 @@
   changed_when: decidim_migrate_result.stdout_lines | default([]) | length > 0
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
-- name: "🌱 Decidim | Seed database on first deploy"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
-    container exec -e RAILS_ENV={{ ENVIRONMENT | quote }}
-    {{ DECIDIM_LOCAL_CID | quote }}
-    bundle exec rails db:seed
-  register: decidim_seed_result
-  changed_when: decidim_seed_result.stdout_lines | default([]) | length > 0
-  failed_when: false
-  delegate_to: "{{ DECIDIM_HOST_NODE }}"
-
-- name: "🏛️ Decidim | Create the organization that db:seed skips in production"
+- name: "🏛️ Decidim | Create the organization"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
     -e DECIDIM_ORG_HOST={{ domain | quote }}
@@ -47,7 +37,16 @@
     stdin: "{{ lookup('file', 'ruby/ensure/organization.rb') }}"
   register: decidim_organization_result
   changed_when: "'Organization created' in decidim_organization_result.stdout"
-  when: ENVIRONMENT == 'production'
+  delegate_to: "{{ DECIDIM_HOST_NODE }}"
+
+- name: "🌱 Decidim | Seed the demo data"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
+    container exec -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    {{ DECIDIM_LOCAL_CID | quote }}
+    bundle exec rails db:seed
+  register: decidim_demo_seed
+  changed_when: true
+  when: MODE_DEMO | bool
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
 - name: "📄 Decidim | Ensure default static pages exist (terms-of-service)"
@@ -75,13 +74,15 @@
 
 - name: "✅ Decidim | Ensure administrator user exists with correct credentials"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
-    container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
-    -e DECIDIM_ADMIN_EMAIL={{ lookup('users', 'administrator').email | quote }}
-    -e DECIDIM_ADMIN_PASSWORD={{ lookup('users', 'administrator').password | quote }}
+    IFS= read -r DECIDIM_ADMIN_PASSWORD && export DECIDIM_ADMIN_PASSWORD && container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    -e DECIDIM_ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
+    -e DECIDIM_ADMIN_PASSWORD
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
-    stdin: "{{ lookup('file', 'ruby/ensure/admin_user.rb') }}"
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('file', 'ruby/ensure/admin_user.rb') }}
   register: decidim_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'Admin user ready' in decidim_admin_result.stdout"

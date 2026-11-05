@@ -40,7 +40,7 @@ elector_etcd_password:
       target: /run/secrets/elector-etcd-password
       when: "{{ lookup('db_instances', 'svc-db-openldap').form == 'ha' }}"
 
-etcd_ca:
+etcd_ca: # nocheck: config-volume-producer  svc-dcs-etcd tasks/01_tls.yml writes the etcd CA this entry mounts
   type: config
   source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'ca.crt'] | path_join }}"
   mode: "0444"

@@ -6,6 +6,7 @@ import unittest.mock as mock
 from pathlib import Path
 
 from utils.tests.swarm import extend_inventory as ei
+from utils.tests.swarm import matrix
 
 
 class TestBackupLegGating(unittest.TestCase):
@@ -55,6 +56,64 @@ class TestBackupLegGating(unittest.TestCase):
         )
         self.assertIn("svc-bkp-nfs-2-local", children)
         self.assertNotIn("svc-bkp-volume-2-local", children)
+
+
+class TestBackupHostNetworkMode(unittest.TestCase):
+    def _backup_vars(self, seeded: dict) -> dict:
+        with tempfile.TemporaryDirectory() as td:
+            inv_path = Path(td) / "devices.yml"
+            vars_path = Path(td) / "host_vars" / f"{ei._BACKUP}.yml"
+            vars_path.parent.mkdir()
+            ei.dump_yaml(str(vars_path), seeded)
+            env = {
+                "SWARM_NAME": "t",
+                "APP_ID": "svc-registry-docker",
+                "INV_PATH": str(inv_path),
+            }
+            with (
+                mock.patch.dict("os.environ", env),
+                mock.patch.object(ei, "derive_includes", return_value=[]),
+                mock.patch.object(ei, "_host_topology", return_value=[]),
+                mock.patch.object(ei, "get_role_placement", return_value=""),
+            ):
+                ei.main()
+            return ei.load_yaml_any(str(vars_path))
+
+    def test_manager_network_mode_is_dropped_from_the_backup_copy(self):
+        self.assertEqual(
+            self._backup_vars({"NETWORK_MODE": "multi", "keep": 1}), {"keep": 1}
+        )
+
+    def test_backup_vars_without_network_mode_stay_untouched(self):
+        self.assertEqual(self._backup_vars({"keep": 1}), {"keep": 1})
+
+    def test_a_mode_a_later_mirror_copied_back_is_dropped_again(self):
+        with tempfile.TemporaryDirectory() as td:
+            vars_path = Path(td) / "host_vars" / f"{ei._BACKUP}.yml"
+            vars_path.parent.mkdir()
+            ei.dump_yaml(str(vars_path), {"NETWORK_MODE": "multi", "keep": 1})
+
+            ei.drop_backup_network_mode(td)
+
+            self.assertEqual(ei.load_yaml_any(str(vars_path)), {"keep": 1})
+
+    def test_the_backup_deploy_runs_on_host_vars_without_a_network_mode(self):
+        seen: dict = {}
+        with tempfile.TemporaryDirectory() as td:
+            vars_path = Path(td) / "host_vars" / f"{ei._BACKUP}.yml"
+            vars_path.parent.mkdir()
+            ei.dump_yaml(str(vars_path), {"NETWORK_MODE": "multi", "keep": 1})
+
+            def deploy(**_kwargs):
+                seen.update(ei.load_yaml_any(str(vars_path)))
+                return 0
+
+            with mock.patch.object(matrix, "_run", side_effect=deploy):
+                matrix._deploy_backup_host(
+                    app_id="web-app-meta", inv_dir=td, extras_path="extras.yml"
+                )
+
+        self.assertEqual(seen, {"keep": 1})
 
 
 class TestSandboxWorkerLabelling(unittest.TestCase):

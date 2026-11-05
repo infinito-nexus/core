@@ -42,6 +42,8 @@ redis:
   pids_limit: 256
 # nocheck: playwright-service-flag — self-provider entry; test_env_services_match.py:28-32 grants the forbidden-self-gate exemption
 suitecrm:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: curl
     # nocheck: healthcheck-timing-override  boots slower than the ten minute window; the value predates this default and has not been measured against it
@@ -89,10 +91,14 @@ suitecrm:
     - web-app-mailu
     - web-app-matomo
   lifecycle: beta
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 368
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -109,3 +115,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

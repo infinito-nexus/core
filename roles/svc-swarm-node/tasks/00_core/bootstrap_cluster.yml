@@ -52,10 +52,11 @@
     - "'svc-swarm-node' in group_names"
     - "'svc-swarm-manager' not in group_names"
 
-- name: "📌 Apply node labels (bootstrap manager dispatches to all nodes)"
-  ansible.builtin.include_tasks: 04_labels.yml
+- name: "🏷️ Bootstrap manager: label nodes and settle the managers"
   when: inventory_hostname == (groups['svc-swarm-manager'] | first)
+  block:
+    - name: "📌 Apply node labels (bootstrap manager dispatches to all nodes)"
+      ansible.builtin.include_tasks: 04_labels.yml
 
-- name: "🗳️ Promote listed managers and check Raft membership"
-  ansible.builtin.include_tasks: 05_managers.yml
-  when: inventory_hostname == (groups['svc-swarm-manager'] | first)
+    - name: "🗳️ Promote listed managers and check Raft membership"
+      ansible.builtin.include_tasks: 05_managers.yml

@@ -1,0 +1,24 @@
+---
+- name: "📜 PEERTUBE | List the migration scripts the pinned image ships"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  PEERTUBE_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      - ls
+      - "{{ PEERTUBE_MIGRATION_SCRIPTS_DIR }}"
+  register: _peertube_migration_listing
+  changed_when: false
+
+- name: "⬆️ PEERTUBE | Run the migration scripts above the release of the data"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - --user
+      - peertube
+      - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  PEERTUBE_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      - node
+      - "{{ [PEERTUBE_MIGRATION_SCRIPTS_DIR, item] | path_join }}"
+  loop: "{{ _peertube_migration_listing.stdout_lines | peertube_migration_scripts(_peertube_upgrade.data, _peertube_upgrade.pinned) }}"
+  changed_when: true

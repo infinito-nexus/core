@@ -35,7 +35,7 @@
             "condition": "any"
           },
           "update_config": {
-            "delay": "10s",
+            "delay": "0s",
             "failure_action": "continue",
             "parallelism": 1
           }
@@ -86,7 +86,7 @@
             "condition": "any"
           },
           "update_config": {
-            "delay": "10s",
+            "delay": "0s",
             "failure_action": "continue",
             "parallelism": 1
           }
@@ -147,7 +147,7 @@
             "condition": "any"
           },
           "update_config": {
-            "delay": "10s",
+            "delay": "0s",
             "failure_action": "continue",
             "parallelism": 1
           }
@@ -172,7 +172,7 @@
         "command": [
           "sh",
           "-c",
-          "exec redis-server --requirepass '' --appendonly yes --maxmemory 820mb --maxmemory-policy allkeys-lru"
+          "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes --maxmemory 820mb --maxmemory-policy allkeys-lru"
         ],
         "deploy": {
           "placement": {
@@ -195,27 +195,17 @@
             "condition": "any"
           },
           "update_config": {
-            "delay": "10s",
+            "delay": "0s",
             "failure_action": "continue",
             "parallelism": 1
           }
-        },
-        "healthcheck": {
-          "interval": "2m",
-          "retries": 30,
-          "start_interval": "5s",
-          "start_period": "10m",
-          "test": [
-            "CMD-SHELL",
-            "redis-cli -a '' --no-auth-warning ping | grep -q PONG"
-          ],
-          "timeout": "5s"
         },
         "logging": {
           "driver": "journald"
         },
         "x-compose_only": "[\"compose_only\", [\"container_name\", \"\"], {}]",
         "x-compose_restart": "[\"compose_restart\", [\"always\"], {}]",
+        "x-container_healthcheck": "[\"container_healthcheck\", [\"redis\"], {}]",
         "x-container_image": "[\"container_image\", [\"svc-db-redis\", \"redis\"], {}]",
         "x-container_networks": "[\"container_networks\", [], {}]",
         "x-container_volumes": "[\"container_volumes\", [\"redis\"], {}]"

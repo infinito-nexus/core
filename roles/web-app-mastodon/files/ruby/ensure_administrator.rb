@@ -4,6 +4,7 @@
 
 username = ENV.fetch("MASTODON_ADMIN_USERNAME")
 email = ENV.fetch("MASTODON_ADMIN_EMAIL")
+password = ENV.fetch("MASTODON_ADMIN_PASSWORD")
 
 changed = UsernameBlock.where(username: username).delete_all.positive?
 
@@ -11,7 +12,7 @@ account = Account.find_local(username)
 if account.nil?
   user = User.new(
     email: email,
-    password: SecureRandom.hex,
+    password: password,
     agreement: true,
     role_id: UserRole.find_by!(name: "Owner").id,
     confirmed_at: Time.now.utc,
@@ -24,6 +25,11 @@ if account.nil?
   changed = true
 else
   user = account.user || abort("FAILED: the local account #{username} has no user")
+end
+
+unless user.valid_password?(password)
+  user.update!(password: password, password_confirmation: password)
+  changed = true
 end
 
 unless user.approved?

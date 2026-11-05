@@ -1,0 +1,96 @@
+---
+- name: "🩺 Check the database structure of Joomla {{ joomla_core_step.from }}"
+  ansible.builtin.include_tasks: core_update.yml
+  vars:
+    joomla_core_action: schema
+    joomla_core_plugins: ""
+  when: joomla_core_step.check | bool
+
+- name: "🔌 Set the plugin states Joomla demands to leave {{ joomla_core_step.from }}"
+  ansible.builtin.include_tasks: core_update.yml
+  vars:
+    joomla_core_action: plugins
+    joomla_core_plugins: "{{ joomla_core_step.plugins | join(' ') }}"
+  when: joomla_core_step.plugins | length > 0
+
+- name: "📦 Fetch and verify the Joomla {{ joomla_core_step.version }} update package"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ JOOMLA_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - bash
+      - -c
+      - |
+        set -euo pipefail
+        rm -rf "$1"
+        mkdir -p "$1/tree"
+        curl -fsSL --retry 3 --connect-timeout 10 --max-time 600 -o "$1/package.tar.gz" "$2"
+        echo "$3  $1/package.tar.gz" | sha256sum -c -
+        tar -xzf "$1/package.tar.gz" -C "$1/tree" --no-same-owner
+      - bash
+      - "{{ JOOMLA_UPGRADE_STAGING_DIR }}"
+      - "https://github.com/joomla/joomla-cms/releases/download/{{ joomla_core_step.version }}/Joomla_{{ joomla_core_step.version }}-Stable-Update_Package.tar.gz"
+      - "{{ joomla_core_step.sha256 }}"
+  changed_when: true
+  when: joomla_core_step.package | bool
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🗂️ Lay the Joomla {{ joomla_core_step.version }} files over the code volume"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ JOOMLA_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - bash
+      - -c
+      - |
+        set -euo pipefail
+        tar --create --file - --directory "$1" --owner "$3" --group "$3" --anchored \
+          --exclude ./installation --exclude ./administrator/logs --exclude './images/*' . \
+          | tar --extract --file - --directory "$2"
+        rm -f "$2/administrator/cache/autoload_psr4.php"
+      - bash
+      - "{{ (JOOMLA_UPGRADE_STAGING_DIR ~ '/tree') if joomla_core_step.package | bool else JOOMLA_IMAGE_SOURCE_DIR }}"
+      - "{{ JOOMLA_DOCROOT }}"
+      - "{{ JOOMLA_WEB_USER }}"
+  changed_when: true
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🏁 Finalise the Joomla {{ joomla_core_step.version }} update on the database"
+  ansible.builtin.include_tasks: core_update.yml
+  vars:
+    joomla_core_action: finalise
+    joomla_core_plugins: ""
+
+- name: "🩺 Check the database structure of Joomla {{ joomla_core_step.version }}"
+  ansible.builtin.include_tasks: core_update.yml
+  vars:
+    joomla_core_action: schema
+    joomla_core_plugins: ""
+
+- name: "🧹 Remove the Joomla {{ joomla_core_step.version }} update package"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ JOOMLA_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - rm
+      - -rf
+      - "{{ JOOMLA_UPGRADE_STAGING_DIR }}"
+  changed_when: true
+  when: joomla_core_step.package | bool
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🔎 Re-detect the Joomla core after the {{ joomla_core_step.version }} update"
+  ansible.builtin.include_tasks: detect.yml
+
+- name: "✅ Assert the Joomla core reached {{ joomla_core_step.version }}"
+  ansible.builtin.assert:
+    that:
+      - JOOMLA_CORE_DATABASE == joomla_core_step.version
+      - JOOMLA_CORE_FILES == joomla_core_step.version
+    fail_msg: >-
+      Joomla update to {{ joomla_core_step.version }} left the database at
+      {{ JOOMLA_CORE_DATABASE }} and the code volume at {{ JOOMLA_CORE_FILES }}
+    quiet: true

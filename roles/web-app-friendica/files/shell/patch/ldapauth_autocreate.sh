@@ -28,6 +28,8 @@ set -euo pipefail
 EXEC="$1"
 P="$2"
 
+exec </dev/null
+
 ORIG="		return \$user;"
 NEW="		return \$user['user'] ?? \$user;"
 

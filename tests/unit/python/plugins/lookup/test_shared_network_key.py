@@ -61,11 +61,11 @@ class TestSharedNetworkKeyLookup(unittest.TestCase):
         registry_patch, loader_patch, key_patch = _patched(lm, vars_, "seaweedfs")
         with registry_patch, loader_patch as loader_mock, key_patch as key_mock:
             loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
-            result = lm.run(["web-app-seaweedfs"], variables=vars_)
+            result = lm.run(["web-svc-seaweedfs"], variables=vars_)
 
         self.assertEqual(result, ["seaweedfs"])
         kwargs = key_mock.call_args.kwargs
-        self.assertEqual(kwargs["application_id"], "web-app-seaweedfs")
+        self.assertEqual(kwargs["application_id"], "web-svc-seaweedfs")
         self.assertEqual(kwargs["deployment_mode"], "compose")
         self.assertFalse(kwargs["node_local"])
 

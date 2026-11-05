@@ -117,7 +117,7 @@ openbao:
     internal: { http: 8200 }
     local:    { http: <allocate via the suggester> }
   backup:
-    no_stop_required: false
+    stop_required: true
   run_after:
     - svc-db-openldap
     - web-app-keycloak
@@ -286,7 +286,7 @@ cluster_addr = "http://127.0.0.1:8201"
 
 ### Backup & restore
 
-- [x] The `container_backup` service is wired with `backup.no_stop_required: false`, so the container is quiesced for a consistent copy of the raft volume.
+- [x] The `container_backup` service is wired with `backup.stop_required: true`, so the container is quiesced for a consistent copy of the raft volume.
 - [x] A restore procedure is documented and executed once end to end: restore the volume, redeploy, and confirm the instance auto-unseals and a previously stored secret is still readable. Drill run on the variant-2 stack: container quiesced, `openbao_data` archived (33 MB), the live volume **wiped to zero entries**, restored from the archive, and restarted — OpenBao came back `initialized: true, sealed: false` with the secret, the PKI root CA and all five policies recovered. This also confirms the documented dependency: the restored store is only readable because the seal key in the inventory was unchanged.
 - [x] The README states explicitly that the volume backup is **worthless without the seal key**, that the seal key's authoritative home is the encrypted inventory (it is not covered by `svc-bkp-secrets-2-local`, whose sources are `DIR_SECRETS`, the CA and the ACME material), and what the recovery keys can and cannot do.
 - [x] The README states the consequence of Decision #2 that surfaced during implementation: because the root token is revoked and the recovery keys are **not** persisted (persisting them would be the write-back the AppRole bootstrap exists to avoid), the Ansible AppRole is the *only* administrative path into the instance. Losing or out-of-band-changing those credentials means rebuilding from the volume backup plus the seal key.

@@ -10,9 +10,13 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.networks.mesh import (
     APPLICATION_ID,
+    HUB_KEY,
     HUB_ROLE,
     MESHES_KEY,
+    ROAMING_KEY,
+    declared_hub,
     declared_meshes,
+    is_roaming,
     joined_meshes,
 )
 
@@ -53,7 +57,11 @@ def host_applications(host_vars_dir: Path, host: str) -> Any:
     return load_document(path).get("applications") or {}
 
 
-def hub_of(groups: dict[str, list[str]]) -> str | None:
+def _hosts(groups: dict[str, list[str]]) -> list[str]:
+    return sorted({host for members in groups.values() for host in members})
+
+
+def swarm_manager_of(groups: dict[str, list[str]]) -> str | None:
     hubs = sorted(dict.fromkeys(groups.get(HUB_ROLE, [])))
     if not hubs:
         return None
@@ -62,6 +70,54 @@ def hub_of(groups: dict[str, list[str]]) -> str | None:
             f"hub group '{HUB_ROLE}' resolves to {len(hubs)} hosts, expected exactly 1"
         )
     return hubs[0]
+
+
+def named_hub_of(groups: dict[str, list[str]], host_vars_dir: Path) -> str | None:
+    """The host the inventory names in ``networks.hub``, or None.
+
+    Args:
+        groups: group to hosts over every inventory of the deploy.
+        host_vars_dir: directory holding one ``<host>.yml`` per host.
+    """
+    hosts = _hosts(groups)
+    named: dict[str, list[str]] = {}
+    for host in hosts:
+        hub = declared_hub(host_applications(host_vars_dir, host))
+        if hub:
+            named.setdefault(hub, []).append(host)
+    if not named:
+        return None
+    if len(named) != 1:
+        raise ValueError(
+            f"{APPLICATION_ID}.networks.{HUB_KEY} names different hubs: "
+            + "; ".join(
+                f"{hub} by {', '.join(by)}" for hub, by in sorted(named.items())
+            )
+        )
+    hub = next(iter(named))
+    if hub not in hosts:
+        raise ValueError(
+            f"{APPLICATION_ID}.networks.{HUB_KEY} names '{hub}', which no "
+            "inventory of this deploy holds"
+        )
+    return hub
+
+
+def hub_of(groups: dict[str, list[str]], host_vars_dir: Path) -> str | None:
+    """The hub of every mesh: the swarm manager, else the named hub, else None.
+
+    Args:
+        groups: group to hosts over every inventory of the deploy.
+        host_vars_dir: directory holding one ``<host>.yml`` per host.
+    """
+    manager = swarm_manager_of(groups)
+    named = named_hub_of(groups, host_vars_dir)
+    if manager is not None and named is not None and named != manager:
+        raise ValueError(
+            f"{APPLICATION_ID}.networks.{HUB_KEY} names '{named}', but the "
+            f"'{HUB_ROLE}' host '{manager}' is the hub of a swarm deployment"
+        )
+    return manager if manager is not None else named
 
 
 def declared_specs(
@@ -74,11 +130,11 @@ def declared_specs(
         host_vars_dir: directory holding one ``<host>.yml`` per host.
         inventory_files: the inventories of the deploy.
     """
-    hub = hub_of(groups)
+    hub = hub_of(groups, host_vars_dir)
     if hub is not None:
         return specs_of(host_applications(host_vars_dir, hub), inventory_files)
     by_host: dict[str, list[MeshSpec]] = {}
-    for host in sorted({host for members in groups.values() for host in members}):
+    for host in _hosts(groups):
         applications = host_applications(host_vars_dir, host)
         if declared_meshes(applications):
             by_host[host] = specs_of(applications, inventory_files)
@@ -132,12 +188,25 @@ def specs_of(applications: Any, inventory_files: list[Path]) -> list[MeshSpec]:
 def topology_of(
     groups: dict[str, list[str]], host_vars_dir: Path, specs: list[MeshSpec]
 ) -> Topology:
-    hub = hub_of(groups)
+    hub = hub_of(groups, host_vars_dir)
     spokes: dict[str, list[str]] = {spec.name: [] for spec in specs}
-    hosts = sorted({host for members in groups.values() for host in members})
-    for host in hosts:
+    roaming: set[str] = set()
+    for host in _hosts(groups):
+        applications = host_applications(host_vars_dir, host)
+        if is_roaming(applications):
+            if hub is None:
+                raise ValueError(
+                    f"{host} is marked {ROAMING_KEY}, which needs a hub: name one "
+                    f"in {APPLICATION_ID}.networks.{HUB_KEY}"
+                )
+            if host == hub:
+                raise ValueError(
+                    f"{host} is the hub every spoke dials, so it cannot be "
+                    f"marked {ROAMING_KEY}"
+                )
+            roaming.add(host)
         roles = [group for group, members in groups.items() if host in members]
-        joined = joined_meshes(host_applications(host_vars_dir, host), roles)
+        joined = joined_meshes(applications, roles)
         for name, by in sorted(joined.items()):
             if name not in spokes:
                 raise ValueError(
@@ -146,7 +215,11 @@ def topology_of(
                 )
             if host != hub:
                 spokes[name].append(host)
-    return Topology(hub=hub, spokes={name: tuple(h) for name, h in spokes.items()})
+    return Topology(
+        hub=hub,
+        spokes={name: tuple(h) for name, h in spokes.items()},
+        roaming=frozenset(roaming),
+    )
 
 
 _REFERENCE = re.compile(r"^\s*\{\{\s*(?P<name>[A-Z0-9_]+)\s*\}\}\s*$")
