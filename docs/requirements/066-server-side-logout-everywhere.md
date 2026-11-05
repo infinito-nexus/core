@@ -28,7 +28,7 @@ As a user who is signed in through one browser on the clearnet and the onion net
 - [ ] Every app whose pinned upstream receives OIDC back-channel logout tokens declares its own client under `services.sso.oidc.clients` in its `meta/services.yml` and renders it in its `templates/keycloak/clients.json.j2`, the way `web-app-stalwart` does, and `roles/web-app-keycloak/filter_plugins/oidc_clients.py` includes it without a change on the Keycloak side.
 - [x] Each such client has `frontchannelLogout: false`, `backchannel.logout.session.required: "true"` and a `backchannel.logout.url` on the app's canonical origin.
 - [x] Each such client's `redirectUris`, `webOrigins` and `post.logout.redirect.uris` cover every network sibling of the app through `lookup('network_urls', ...)`.
-- [ ] Each such client carries the client scopes and protocol mappers the app read from the shared client, so the app receives the same claims as before (username attribute, RBAC group claim, app scopes such as the Nextcloud scope of the shared client).
+- [x] Each such client carries the client scopes and protocol mappers the app read from the shared client, so the app receives the same claims as before (username attribute, RBAC group claim, app scopes such as the Nextcloud scope of the shared client). `claim_findings` in `tests/unit/python/roles/web-app-keycloak/templates/test_backchannel_clients.py:190` holds every back-channel client to the default scopes of the shared client except `service_account`, its optional scopes except the app scopes of other applications, and its protocol mappers (`:296`); the negative controls drop the group claim scope (`:312`), the app's own scope (`:329`) and a shared mapper (`:342`).
 - [ ] An existing app user who signs in through the app's new client lands in the same app account as before the switch, and no second account appears.
 - [ ] In one browser signed in to the app on the clearnet and on the onion network, a logout started on either network makes the app's next request on the other network ask for a new login.
 - [ ] That back-channel logout also happens when JavaScript is disabled in the browser that logs out.
@@ -46,7 +46,7 @@ As a user who is signed in through one browser on the clearnet and the onion net
 ### oauth2-proxy-gated apps
 
 - [x] `roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2` renders `cookie_refresh` from one configuration key of `web-app-keycloak` that the role config sets explicitly, and the render fails when the key is absent.
-- [ ] The shipped `cookie_refresh` value is the one the operator picks; `1m` is the proposal.
+- [x] The shipped `cookie_refresh` value is the one the operator picks; `1m` is the proposal. The operator picked `1m` (listening round 2026-11-03); it ships at `roles/web-app-keycloak/meta/services.yml:102` and `tests/unit/python/roles/web-app-keycloak/templates/test_sso_proxy_cookie_refresh.py:88` holds it below both session lifetimes.
 - [x] The value is shorter than the realm's `ssoSessionIdleTimeout` and than oauth2-proxy's `cookie_expire`, and a unit test fails on a value that is not.
 - [ ] After Keycloak ends a user session, an oauth2-proxy session of that user on any network or device fails its next refresh, and the first request after one `cookie_refresh` interval redirects to the Keycloak login, never to a 5xx page.
 
