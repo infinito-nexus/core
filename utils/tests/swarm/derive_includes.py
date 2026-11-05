@@ -37,7 +37,11 @@ import sys
 from typing import Any
 
 from utils import PROJECT_ROOT
-from utils.cache.applications import get_merged_applications, get_variants
+from utils.cache.applications import (
+    get_merged_applications,
+    get_variants,
+    with_variants,
+)
 from utils.roles.applications.in_group_deps import applications_if_group_and_all_deps
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
@@ -123,13 +127,9 @@ def _applications_for_active_variants(
     overrides = _active_variant_map(variants)
     if not overrides:
         return base_applications
-    variants_per_app = get_variants(roles_dir=str(_ROLES_DIR))
-    applications = dict(base_applications)
-    for app_id, index in overrides.items():
-        app_variants = variants_per_app.get(app_id) or []
-        if 0 <= index < len(app_variants):
-            applications[app_id] = app_variants[index]
-    return applications
+    return with_variants(
+        base_applications, get_variants(roles_dir=str(_ROLES_DIR)), overrides
+    )
 
 
 def _force_shared_db_view(applications: dict[str, Any]) -> dict[str, Any]:

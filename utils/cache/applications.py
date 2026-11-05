@@ -314,6 +314,27 @@ def get_variants(
     return cached if readonly else copy.deepcopy(cached)
 
 
+def with_variants(
+    applications: Mapping[str, Any],
+    available: Mapping[str, list[Any]],
+    variants: Mapping[str, int],
+) -> dict[str, Any]:
+    """Return applications with every app of variants swapped to that variant.
+
+    Args:
+        applications: the base configurations, left untouched.
+        available: the `get_variants` map of the same roles tree.
+        variants: per-app variant index; an index the app does not declare
+            keeps its base configuration.
+    """
+    result = dict(applications)
+    for app_id, index in variants.items():
+        app_variants = available.get(app_id) or []
+        if 0 <= index < len(app_variants):
+            result[app_id] = app_variants[index]
+    return result
+
+
 def _build_variant_overrides_only(
     roles_dir: Path,
 ) -> dict[str, list[dict[str, Any]]]:

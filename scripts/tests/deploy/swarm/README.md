@@ -183,3 +183,21 @@ distro loop. Run one app locally with
 `make swarm-zombie app=<id>` or the whole matrix via `make roundtrip`. Both
 copy the rescue bundle to the host through `utils/release.sh` and then
 release the cluster; `keep=true` keeps it for inspection.
+
+Before act starts, `make swarm-zombie` runs a disk pre-flight
+([`swarm_preflight.py`](../../../../cli/meta/ci/swarm_preflight.py)): it prints
+the include set the provision step derives for the round, pruned by `disable=`
+as the provision step prunes it, with the `min_storage` each role declares, and
+refuses when that total plus the watchdog floor exceeds the lowest free space
+of Docker's data root and the roots the watchdog samples, so a round that never
+fit fails in seconds instead of at the watchdog an hour in. The total is a
+heuristic: it leaves out the roles `extend_inventory` adds per host and a
+disable list of the CI matrix row, and `min_storage` mixes image bytes with
+data reservations. `preflight=false` skips it. A host-mode-only role such as
+`svc-bkp-volume-2-local` has no swarm row of its own; it rides on a host row,
+and [`host_rows.py`](../../../../cli/meta/ci/host_rows.py) ranks the rows whose
+include set carries it by that same declared storage, lightest first
+(`python -m cli.meta.ci.host_rows --provides container_backup --mode swarm`).
+A light host does not carry every subject kind the role's own restore cycle
+handles, such as the Discourse launcher container, so keep one heavy host for
+the final or CI round.

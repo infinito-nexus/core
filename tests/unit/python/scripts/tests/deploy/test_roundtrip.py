@@ -45,12 +45,16 @@ def swarm_network(disable: str, *, multi_accepted: bool) -> str:
     Returns:
         The ``network=`` value the roundtrip hands to ``swarm-zombie``.
     """
-    calls = swarm_make_calls(disable, multi_accepted=multi_accepted, keep="true")
+    calls = swarm_make_calls(
+        disable, multi_accepted=multi_accepted, keep="true", preflight=""
+    )
     zombie = next(call for call in calls if " swarm-zombie " in call)
     return re.search(r"(?:^| )network=(\S*)", zombie).group(1)
 
 
-def swarm_make_calls(disable: str, *, multi_accepted: bool, keep: str) -> list[str]:
+def swarm_make_calls(
+    disable: str, *, multi_accepted: bool, keep: str, preflight: str
+) -> list[str]:
     """Run the roundtrip's swarm step against stubs and return every make call.
 
     Args:
@@ -59,6 +63,7 @@ def swarm_make_calls(disable: str, *, multi_accepted: bool, keep: str) -> list[s
             ``multi`` row; like the real one for a row it never discovers, it
             refuses only under ``--require-discovery``.
         keep: the ``keep`` env the roundtrip runs with.
+        preflight: the ``preflight`` env the roundtrip runs with.
 
     Returns:
         The argument lines the stubbed ``make`` received, in order.
@@ -93,6 +98,7 @@ def swarm_make_calls(disable: str, *, multi_accepted: bool, keep: str) -> list[s
             modes="swarm",
             keep=keep,
             disable=disable,
+            preflight=preflight,
         )
         done = subprocess.run(
             ["bash", str(script)],
@@ -162,18 +168,30 @@ class TestRoundtripSwarmNetwork(unittest.TestCase):
 
 class TestRoundtripSwarmRelease(unittest.TestCase):
     def test_an_empty_keep_reaches_swarm_zombie_which_releases(self) -> None:
-        calls = swarm_make_calls("", multi_accepted=False, keep="")
+        calls = swarm_make_calls("", multi_accepted=False, keep="", preflight="")
         zombie = next(call for call in calls if " swarm-zombie " in call)
         self.assertRegex(zombie, r"(?:^| )keep=(?: |$)")
 
     def test_keep_true_reaches_swarm_zombie(self) -> None:
-        calls = swarm_make_calls("", multi_accepted=False, keep="true")
+        calls = swarm_make_calls("", multi_accepted=False, keep="true", preflight="")
         zombie = next(call for call in calls if " swarm-zombie " in call)
         self.assertRegex(zombie, r"(?:^| )keep=true(?: |$)")
 
     def test_the_roundtrip_runs_no_release_of_its_own(self) -> None:
-        calls = swarm_make_calls("", multi_accepted=False, keep="")
+        calls = swarm_make_calls("", multi_accepted=False, keep="", preflight="")
         self.assertFalse([call for call in calls if " swarm-down " in call], calls)
+
+
+class TestRoundtripSwarmPreflight(unittest.TestCase):
+    def test_preflight_false_reaches_swarm_zombie(self) -> None:
+        calls = swarm_make_calls("", multi_accepted=False, keep="", preflight="false")
+        zombie = next(call for call in calls if " swarm-zombie " in call)
+        self.assertRegex(zombie, r"(?:^| )preflight=false(?: |$)")
+
+    def test_an_empty_preflight_lets_swarm_zombie_run_it(self) -> None:
+        calls = swarm_make_calls("", multi_accepted=False, keep="", preflight="")
+        zombie = next(call for call in calls if " swarm-zombie " in call)
+        self.assertRegex(zombie, r"(?:^| )preflight=(?: |$)")
 
 
 if __name__ == "__main__":
