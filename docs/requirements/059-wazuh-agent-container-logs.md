@@ -46,14 +46,28 @@ Implementing PR: [infinito-nexus/core#1231](https://github.com/infinito-nexus/co
 - [x] A manual change to a monitored host path raises an FIM alert, with deploy start and end markers logged as context.
 - [ ] User and process are reported through who-data where the kernel supports it reliably.
 
-### G. Source integrity (GitHub)
+### G. Source integrity (GitHub, Gitea, GitLab)
 
 - [x] Signed GitHub webhook deliveries for force pushes, branch deletions, workflow changes, branch protection and ruleset changes, new collaborators, org members and deploy keys, secret-scanning and Dependabot alerts each raise their alert; unsigned, replayed, oversized and malformed deliveries are rejected and alerted.
 - [x] A push to a default branch without a merged pull request raises an alert.
 - [x] An hourly check reports drift of the GitHub settings against a reviewed expected state, and a failed check is its own alert, never "no drift".
 - [x] On hosts with a git checkout, a local change, a commit not on main or a commit GitHub does not verify raises an alert.
 - [ ] Production hosts without a checkout record the deployed commit and are checked the same way.
+  - Open: not built yet; the deploy does not record its commit.
 - [ ] The org webhook and both read-only bot tokens are set up on GitHub, and the expected state is generated with `--print-current` and reviewed.
+  - Open: GitHub organization setup by its owner, not code.
+- [ ] Signed Gitea webhook deliveries (`X-Gitea-Signature`) for pushes and branch deletions to a default branch raise their alert; unsigned and wrongly signed deliveries are rejected and alerted.
+  - Open: proven against a local stub in the CLI test (VM run `20261105T093417Z`); the live proof against `web-app-gitea` runs only in the Wazuh CI variant, which does not exist yet.
+- [ ] Signed GitLab webhook deliveries (signing token, `webhook-signature`, GitLab 19.0 or later) for pushes and branch deletions to a default branch raise their alert; a delivery carrying only `X-Gitlab-Token`, a wrong signature and a stale timestamp are rejected and alerted.
+  - Open: proven against a local stub (run `20261105T093417Z`); the live proof against `web-app-gitlab` (v19.5.3) is CI only, as for Gitea.
+- [ ] A push to a Gitea or GitLab default branch without a merged pull or merge request raises an alert.
+  - Open: proven against a stub (run `20261105T093417Z`); the live proof is CI only.
+- [ ] The hourly settings check covers Gitea and GitLab organizations or groups and repositories against a reviewed expected state; a failed check is its own alert, and a setting the provider cannot report raises an unsupported alert instead of passing.
+  - Open: the adapters and the unsupported alert are proven against a stub (run `20261105T085911Z`, rule 100164). An inventory cannot yet configure a Gitea or GitLab expected state for the timer, and the live proof is CI only.
+- [ ] The deployed code check verifies checkouts whose origin is Gitea or GitLab through that provider's commit-signature API.
+  - Open: proven against a stub (run `20261105T080622Z`); the live proof is CI only.
+- [ ] The provider is chosen per checkout and per webhook path in config; adding a provider takes one adapter and its tests, with no change to the shared core, the rules or the logged fields.
+  - Open: true in the code (`git/` package, registry in `git/core.py`); confirm in review.
 
 ### H. OWASP coverage
 
