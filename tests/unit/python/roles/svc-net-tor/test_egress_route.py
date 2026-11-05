@@ -30,6 +30,7 @@ from ansible.template import Templar
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.networks.tor_egress import plan
+from utils.roles.mapping import ROLE_FILE_META_NETWORKS
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
@@ -48,7 +49,7 @@ DNS_PORTS = "{ 53, 853 }"
 
 
 def _role_subnet(role: str) -> str:
-    return load_yaml_any(str(PROJECT_ROOT / "roles" / role / "meta/networks.yml"))[
+    return load_yaml_any(str(PROJECT_ROOT / "roles" / role / ROLE_FILE_META_NETWORKS))[
         "local"
     ]["subnet"]
 

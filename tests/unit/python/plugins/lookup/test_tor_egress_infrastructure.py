@@ -10,6 +10,7 @@ from plugins.lookup.tor_egress_infrastructure import (
 )
 from utils.cache.yaml import load_yaml_any
 from utils.networks.tor_egress import parse_entry
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
@@ -115,7 +116,7 @@ class TestTorEgressInfrastructure(unittest.TestCase):
 
     def test_the_shipped_declaration_is_complete(self) -> None:
         services = load_yaml_any(
-            str(PROJECT_ROOT / "roles/svc-net-tor/meta/services.yml")
+            str(PROJECT_ROOT / "roles/svc-net-tor" / ROLE_FILE_META_SERVICES)
         )
         entries = infrastructure(
             {"svc-net-tor": {"services": services}}, ["svc-net-tor"]
