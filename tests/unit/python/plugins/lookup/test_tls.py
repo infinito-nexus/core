@@ -85,6 +85,16 @@ class TestTlsResolveLookup(unittest.TestCase):
         )[0]
         self.assertEqual(val, "https://a.example/")
 
+    def test_url_origin_is_the_base_url_without_its_trailing_slash(self):
+        origin, base = (
+            self.lookup.run(["web-app-a", want], variables=self.base_vars, mode="app")[
+                0
+            ]
+            for want in ("url.origin", "url.base")
+        )
+        self.assertEqual(origin, "https://a.example")
+        self.assertEqual(f"{origin}/", base)
+
     def test_protocols_web_path_is_http_for_an_onion_only_app(self):
         onion = dict(self.base_vars)
         onion["domains"] = {**self.domains, "web-app-onion": "abc123.onion"}
