@@ -115,9 +115,9 @@ def _place(declared: dict[str, Source], roles_dir: Path, work_dir: Path) -> list
             staging = _holder(work_dir, group, holders) / group
             origin = stage(group, source, staging)
             _check_role(group, staging)
-            write_marker(staging, group, origin)
+            write_marker(staging, group, origin.provenance, origin.version)
             staged.append((staging, roles_dir / group))
-            lines.append(f"{group}: {origin}")
+            lines.append(f"{group}: {origin.provenance}")
         for _staging, target in staged:
             _check_target(target)
         dropped = [entry for entry in undeclared if is_placed(entry)]
