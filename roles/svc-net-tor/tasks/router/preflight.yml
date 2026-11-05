@@ -1,0 +1,75 @@
+---
+- name: "✅ Egress router | Refuse route all on a dnsmasq another drop-in shapes"
+  ansible.builtin.assert:
+    that:
+      - TOR_DNSMASQ_OWNS_LISTENER | bool
+    fail_msg: >-
+      route all sends every name outside the direct list to Tor's DNSPort,
+      which needs no-resolv and the default upstream of this dnsmasq. Foreign
+      drop-ins in {{ TOR_DNSMASQ_CONF | dirname }} keep their own upstreams,
+      so names would leave the node in clearnet DNS.
+
+- name: "🔎 Egress router | Read the main dnsmasq configuration"
+  ansible.builtin.slurp:
+    src: /etc/dnsmasq.conf
+  register: _tor_dnsmasq_main
+
+- name: "✅ Egress router | Refuse upstreams the main dnsmasq configuration adds"
+  ansible.builtin.assert:
+    that:
+      - _tor_dnsmasq_main.content | b64decode is not search('(?m)^\\s*(server|resolv-file|servers-file|conf-file)\\s*=')
+    fail_msg: >-
+      /etc/dnsmasq.conf names its own server, resolv-file, servers-file or
+      conf-file. Under route all those upstreams would answer names in
+      clearnet DNS beside Tor's DNSPort; remove them first.
+
+- name: "🔎 Egress router | Require the user dnsmasq drops to"
+  ansible.builtin.command:
+    argv: [getent, passwd, "{{ TOR_DNSMASQ_USER }}"]
+  changed_when: false
+
+- name: "🔎 Egress router | Look up the group Tor's sockets carry"
+  ansible.builtin.command:
+    argv: [getent, group, "{{ TOR_EGRESS_SOCKET_GID }}"]
+  register: _tor_egress_gid
+  changed_when: false
+  failed_when: _tor_egress_gid.rc not in [0, 2]
+
+- name: "✅ Egress router | Refuse a Tor group the host already hands out"
+  ansible.builtin.assert:
+    that:
+      - _tor_egress_gid.rc == 2
+    fail_msg: >-
+      Group {{ TOR_EGRESS_SOCKET_GID }} exists on this host
+      ({{ _tor_egress_gid.stdout | trim }}). route all exempts root sockets
+      of that group as Tor's relay traffic, so its members' root processes
+      would leave the node in clearnet. Pick an unused TOR_EGRESS_SOCKET_GID.
+
+- name: "✅ Egress router | Refuse a clearnet resolver every process may reach"
+  ansible.builtin.assert:
+    that:
+      - TOR_DNS_UPSTREAMS | tor_egress_admitted(TOR_EGRESS_RESOLVER_CIDRS) | length == 0
+    fail_msg: >-
+      networks.internet.dns ({{ TOR_DNS_UPSTREAMS | join(', ') }}) lies inside
+      the resolver set the DNS guard admits for every process
+      ({{ TOR_EGRESS_RESOLVER_CIDRS | join(', ') }}). Any program could then
+      resolve in clearnet beside Tor; point dnsmasq at a resolver outside it.
+
+- name: "🔎 Egress router | Require nftset for listed host names"
+  when: TOR_EGRESS_PLAN.dns | length > 0
+  block:
+    - name: "🔎 Egress router | Read the compile options of dnsmasq"
+      ansible.builtin.command:
+        argv: [dnsmasq, --version]
+      register: _tor_dnsmasq_version
+      changed_when: false
+
+    - name: "✅ Egress router | Refuse list rules on a dnsmasq without nftset"
+      ansible.builtin.assert:
+        that:
+          - _tor_dnsmasq_version.stdout is search('(^|\\s)nftset(\\s|$)')
+        fail_msg: >-
+          This dnsmasq is built without nftset, so it cannot hand the addresses
+          of listed host names to the packet filter, and route all would send
+          direct names through Tor or drop them. Keep only addresses and CIDRs
+          in the lists, or install a dnsmasq built with nftset (2.87 or newer).

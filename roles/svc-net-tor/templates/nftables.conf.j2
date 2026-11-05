@@ -116,12 +116,17 @@ table inet {{ FIREWALL_TABLE }} {
 
   chain egress_output {
     type filter hook output priority -10; policy accept;
+{# nocheck: firewall-fragment-accept  skips the tor drops below #}
     ct direction reply accept
+{# nocheck: firewall-fragment-accept  skips the tor drops below #}
     fib daddr type local accept
 {% if _all %}
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
     ct state related meta l4proto { icmp, ipv6-icmp } accept
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
     meta skuid {{ TOR_EGRESS_SOCKET_UID }} meta skgid {{ TOR_EGRESS_SOCKET_GID }} accept
 {% for _ns in TOR_DNS_UPSTREAMS %}
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
     meta skuid {{ TOR_DNSMASQ_UID }} {{ 'ip6' if ':' in _ns else 'ip' }} daddr {{ _ns }} meta l4proto { tcp, udp } th dport {{ TOR_DNSMASQ_PORT }} accept
 {% endfor %}
     ip daddr != @resolvers meta l4proto { tcp, udp } th dport {{ _dns }} drop
@@ -132,24 +137,35 @@ table inet {{ FIREWALL_TABLE }} {
 {% if _all %}
     ip daddr @tor_dns_v4 drop
     ip6 daddr @tor_dns_v6 drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ct mark {{ TOR_EGRESS_CT_MARK }} accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @internal accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @nonroutable_v4 accept
     ip daddr @direct_except_v4 drop
     ip6 daddr @direct_except_v6 drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @direct_v4 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @direct_dns_v4 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip6 daddr @local_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     icmpv6 type { nd-neighbor-solicit, nd-neighbor-advert, nd-router-solicit, nd-router-advert } accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip6 daddr @direct_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip6 daddr @direct_dns_v6 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
     drop
 {% endif %}
   }
 
   chain egress_forward {
+{# nocheck: firewall-fragment-accept  skips the tor drops below #}
     ct direction reply accept
 {% if _all %}
+{# nocheck: firewall-fragment-accept  skips the tor drops and the final drop #}
     ct state related meta l4proto { icmp, ipv6-icmp } accept
 {% endif %}
     ip daddr @tor_v4 drop
@@ -157,17 +173,25 @@ table inet {{ FIREWALL_TABLE }} {
 {% if _all %}
     ip daddr @tor_dns_v4 drop
     ip6 daddr @tor_dns_v6 drop
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
     ct mark {{ TOR_EGRESS_CT_MARK }} accept
     ip saddr @containers ip daddr != @resolvers meta l4proto { tcp, udp } th dport {{ _dns }} drop
     meta nfproto ipv6 meta l4proto { tcp, udp } th dport {{ _dns }} drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @internal accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @nonroutable_v4 accept
     ip daddr @direct_except_v4 drop
     ip6 daddr @direct_except_v6 drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @direct_v4 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip daddr @direct_dns_v4 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip6 daddr @local_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip6 daddr @direct_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
     ip6 daddr @direct_dns_v6 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
     drop
 {% endif %}

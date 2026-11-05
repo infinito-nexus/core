@@ -37,6 +37,8 @@ from . import PROJECT_ROOT
 
 TEMPLATES = PROJECT_ROOT / "roles/svc-net-tor/templates"
 ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
+PREFLIGHT = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/preflight.yml"
+RESOLVERS = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/resolvers.yml"
 CORE = PROJECT_ROOT / "roles/svc-net-tor/tasks/00_core.yml"
 NETWORKS = PROJECT_ROOT / "group_vars/all/08_networks.yml"
 TABLE = "infinito_svc_net_tor"
@@ -549,7 +551,8 @@ class TestResolvedUnderAll(unittest.TestCase):
 
     def test_nsswitch_loses_resolve_under_all(self) -> None:
         task = _task(
-            ROUTER, "🔀 Egress router | Take systemd-resolved out of host name lookups"
+            RESOLVERS,
+            "🔀 Egress router | Take systemd-resolved out of host name lookups",
         )
         spec = task["ansible.builtin.lineinfile"]
         pattern = re.compile(spec["regexp"])
@@ -591,13 +594,13 @@ def _slurped(text: str) -> dict:
 class TestRouteAllPreflight(unittest.TestCase):
     def test_upstreams_in_the_main_dnsmasq_configuration_are_refused(self) -> None:
         task = _task(
-            ROUTER,
+            PREFLIGHT,
             "✅ Egress router | Refuse upstreams the main dnsmasq configuration adds",
         )
         that = task["ansible.builtin.assert"]["that"][0]
         cases = {
-            "conf-dir=/etc/dnsmasq.d/,*.conf\n#server=1.1.1.1\n": True,
-            "server=1.1.1.1\n": False,
+            "conf-dir=/etc/dnsmasq.d/,*.conf\n#server=192.0.2.53\n": True,
+            "server=192.0.2.53\n": False,
             "  resolv-file = /etc/resolv.dnsmasq\n": False,
             "servers-file=/etc/dnsmasq.servers\n": False,
             "conf-file=/etc/dnsmasq.extra\n": False,
@@ -612,7 +615,7 @@ class TestRouteAllPreflight(unittest.TestCase):
                 )
 
     def test_the_effective_uid_of_dnsmasq_is_read(self) -> None:
-        task = _task(ROUTER, "🔎 Egress router | Take the effective UID of dnsmasq")
+        task = _task(RESOLVERS, "🔎 Egress router | Take the effective UID of dnsmasq")
         status = "Name:\tdnsmasq\nUid:\t0\t977\t977\t977\nGid:\t0\t977\t977\t977\n"
         uid = _evaluate(
             task["ansible.builtin.set_fact"]["TOR_DNSMASQ_UID"],

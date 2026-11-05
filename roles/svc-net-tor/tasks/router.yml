@@ -37,81 +37,11 @@
     TOR_DNSMASQ_OWNS_LISTENER: "{{ _tor_dnsmasq_foreign.matched == 0 }}"
 
 - name: "✅ Egress router | Check what route all depends on before touching dnsmasq"
+  ansible.builtin.include_tasks:
+    file: router/preflight.yml
+    apply:
+      become: true
   when: TOR_EGRESS_ROUTE == 'all'
-  block:
-    - name: "✅ Egress router | Refuse route all on a dnsmasq another drop-in shapes"
-      ansible.builtin.assert:
-        that:
-          - TOR_DNSMASQ_OWNS_LISTENER | bool
-        fail_msg: >-
-          route all sends every name outside the direct list to Tor's DNSPort,
-          which needs no-resolv and the default upstream of this dnsmasq. Foreign
-          drop-ins in {{ TOR_DNSMASQ_CONF | dirname }} keep their own upstreams,
-          so names would leave the node in clearnet DNS.
-
-    - name: "🔎 Egress router | Read the main dnsmasq configuration"
-      ansible.builtin.slurp:
-        src: /etc/dnsmasq.conf
-      register: _tor_dnsmasq_main
-
-    - name: "✅ Egress router | Refuse upstreams the main dnsmasq configuration adds"
-      ansible.builtin.assert:
-        that:
-          - _tor_dnsmasq_main.content | b64decode is not search('(?m)^\\s*(server|resolv-file|servers-file|conf-file)\\s*=')
-        fail_msg: >-
-          /etc/dnsmasq.conf names its own server, resolv-file, servers-file or
-          conf-file. Under route all those upstreams would answer names in
-          clearnet DNS beside Tor's DNSPort; remove them first.
-
-    - name: "🔎 Egress router | Require the user dnsmasq drops to"
-      ansible.builtin.command:
-        argv: [getent, passwd, "{{ TOR_DNSMASQ_USER }}"]
-      changed_when: false
-
-    - name: "🔎 Egress router | Look up the group Tor's sockets carry"
-      ansible.builtin.command:
-        argv: [getent, group, "{{ TOR_EGRESS_SOCKET_GID }}"]
-      register: _tor_egress_gid
-      changed_when: false
-      failed_when: _tor_egress_gid.rc not in [0, 2]
-
-    - name: "✅ Egress router | Refuse a Tor group the host already hands out"
-      ansible.builtin.assert:
-        that:
-          - _tor_egress_gid.rc == 2
-        fail_msg: >-
-          Group {{ TOR_EGRESS_SOCKET_GID }} exists on this host
-          ({{ _tor_egress_gid.stdout | trim }}). route all exempts root sockets
-          of that group as Tor's relay traffic, so its members' root processes
-          would leave the node in clearnet. Pick an unused TOR_EGRESS_SOCKET_GID.
-
-    - name: "✅ Egress router | Refuse a clearnet resolver every process may reach"
-      ansible.builtin.assert:
-        that:
-          - TOR_DNS_UPSTREAMS | tor_egress_admitted(TOR_EGRESS_RESOLVER_CIDRS) | length == 0
-        fail_msg: >-
-          networks.internet.dns ({{ TOR_DNS_UPSTREAMS | join(', ') }}) lies inside
-          the resolver set the DNS guard admits for every process
-          ({{ TOR_EGRESS_RESOLVER_CIDRS | join(', ') }}). Any program could then
-          resolve in clearnet beside Tor; point dnsmasq at a resolver outside it.
-
-    - name: "🔎 Egress router | Read the compile options of dnsmasq"
-      ansible.builtin.command:
-        argv: [dnsmasq, --version]
-      register: _tor_dnsmasq_version
-      changed_when: false
-      when: TOR_EGRESS_PLAN.dns | length > 0
-
-    - name: "✅ Egress router | Refuse list rules on a dnsmasq without nftset"
-      ansible.builtin.assert:
-        that:
-          - _tor_dnsmasq_version.stdout is search('(^|\\s)nftset(\\s|$)')
-        fail_msg: >-
-          This dnsmasq is built without nftset, so it cannot hand the addresses
-          of listed host names to the packet filter, and route all would send
-          direct names through Tor or drop them. Keep only addresses and CIDRs
-          in the lists, or install a dnsmasq built with nftset (2.87 or newer).
-      when: TOR_EGRESS_PLAN.dns | length > 0
 
 - name: "📝 Egress router | Render dnsmasq .onion split-DNS drop-in"
   ansible.builtin.template: # nocheck: stack-host-template (per-host dnsmasq system config in /etc/dnsmasq.d)
@@ -145,49 +75,6 @@
     enabled: true
     daemon_reload: "{{ TOR_DNSMASQ_OWNS_LISTENER | bool and _tor_dnsmasq_dropin is changed }}"
     state: "{{ 'restarted' if (_tor_dnsmasq_conf is changed or _tor_dnsmasq_confdir is changed) else 'started' }}"
-- name: "🔎 Egress router | Find the user dnsmasq resolves upstream as"
-  when: TOR_EGRESS_ROUTE == 'all'
-  block:
-    - name: "🔎 Egress router | Read the dnsmasq main PID"
-      ansible.builtin.command:
-        argv: [systemctl, show, --property=MainPID, --value, dnsmasq]
-      register: _tor_dnsmasq_pid
-      changed_when: false
-    - name: "🔎 Egress router | Read the dnsmasq process status"
-      ansible.builtin.slurp:
-        src: "/proc/{{ _tor_dnsmasq_pid.stdout | trim }}/status"
-      register: _tor_dnsmasq_status
-    - name: "🔎 Egress router | Take the effective UID of dnsmasq"
-      ansible.builtin.set_fact:
-        TOR_DNSMASQ_UID: "{{ _tor_dnsmasq_status.content | b64decode | regex_search('(?m)^Uid:\\s+\\d+\\s+(\\d+)', '\\1') | first }}"
-    - name: "✅ Egress router | Refuse a dnsmasq that resolves as root or nobody"
-      ansible.builtin.assert:
-        that:
-          - TOR_DNSMASQ_UID | int not in [0, 65534]
-        fail_msg: >-
-          dnsmasq runs as UID {{ TOR_DNSMASQ_UID }}, and route all admits upstream
-          DNS for the dnsmasq user only. Admitting root or nobody would admit
-          every process running as that user.
-    - name: "🔎 Egress router | List the processes running as the dnsmasq UID"
-      ansible.builtin.command:
-        argv: [pgrep, -u, "{{ TOR_DNSMASQ_UID }}"]
-      register: _tor_dnsmasq_uid_pids
-      changed_when: false
-      failed_when: _tor_dnsmasq_uid_pids.rc not in [0, 1]
-    - name: "🔎 Egress router | List the dnsmasq processes"
-      ansible.builtin.command:
-        argv: [pgrep, -x, dnsmasq]
-      register: _tor_dnsmasq_pids
-      changed_when: false
-    - name: "✅ Egress router | Refuse a dnsmasq UID other processes share"
-      ansible.builtin.assert:
-        that:
-          - (_tor_dnsmasq_uid_pids.stdout_lines | difference(_tor_dnsmasq_pids.stdout_lines)) | length == 0
-        fail_msg: >-
-          Processes other than dnsmasq run as UID {{ TOR_DNSMASQ_UID }}
-          ({{ _tor_dnsmasq_uid_pids.stdout_lines | difference(_tor_dnsmasq_pids.stdout_lines) | join(', ') }}),
-          and route all would let them resolve in clearnet. Give dnsmasq a user
-          of its own.
 - name: "🔀 Egress router | Route host name resolution through dnsmasq"
   when: TOR_DNSMASQ_OWNS_LISTENER | bool
   block:
@@ -207,42 +94,11 @@
         line: "\\1 [SUCCESS=return NOTFOUND=continue TRYAGAIN=return]\\2"
         backrefs: true
 - name: "🔀 Egress router | Keep systemd-resolved from resolving beside Tor"
+  ansible.builtin.include_tasks:
+    file: router/resolvers.yml
+    apply:
+      become: true
   when: TOR_EGRESS_ROUTE == 'all'
-  block:
-    - name: "🔀 Egress router | Take systemd-resolved out of host name lookups"
-      ansible.builtin.lineinfile:
-        path: /etc/nsswitch.conf
-        regexp: "^(hosts:.*?)\\s+resolve(?:\\s+\\[[^\\]]*\\])?(\\s.*)?$"
-        line: "\\1\\2"
-        backrefs: true
-    - name: "🔎 Egress router | Detect systemd-resolved"
-      ansible.builtin.stat:
-        path: /run/systemd/resolve
-      register: _tor_resolved
-    - name: "📁 Egress router | Ensure the systemd-resolved drop-in directory exists"
-      ansible.builtin.file:
-        path: "{{ TOR_RESOLVED_DROPIN | dirname }}"
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
-      when: _tor_resolved.stat.exists
-    - name: "📝 Egress router | Point systemd-resolved at dnsmasq with no fallback"
-      ansible.builtin.template: # nocheck: stack-host-template (per-host resolver config in /etc/systemd)
-        src: resolved-tor-egress.conf.j2
-        dest: "{{ TOR_RESOLVED_DROPIN }}"
-        owner: root
-        group: root
-        mode: "0644"
-      register: _tor_resolved_dropin
-      when: _tor_resolved.stat.exists
-    - name: "🚀 Egress router | Restart systemd-resolved on a changed drop-in"
-      ansible.builtin.systemd:
-        name: systemd-resolved
-        state: restarted
-      when:
-        - _tor_resolved.stat.exists
-        - _tor_resolved_dropin is changed
 - name: "🔀 Egress router | Route .onion traffic and bound the ports that carry no policy"
   ansible.builtin.include_role:
     name: svc-net-firewall
