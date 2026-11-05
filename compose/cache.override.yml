@@ -23,6 +23,10 @@ services:
         target: /ca
         bind:
           create_host_path: true
+      - type: bind
+        source: ./compose/registry-cache/nginx.manifest.stale.conf
+        target: /etc/nginx/nginx.manifest.stale.conf
+        read_only: true
     healthcheck:
       test:
         - CMD-SHELL
