@@ -1,6 +1,18 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🛑 Refuse public LDAPS on a swarm deploy before OpenLDAP starts"
+  ansible.builtin.assert:
+    that:
+      - not (IS_SWARM_MODE | bool and OPENLDAP_NETWORK_SWITCH_PUBLIC | bool)
+    fail_msg: >-
+      services.openldap.network.public is true on a swarm deploy. Public LDAPS
+      relays through the stream module of openresty, and in swarm that relay is
+      not proven to reach slapd: see the requirement 'OpenLDAP LDAPS through
+      openresty in swarm' under docs/requirements/. Set
+      services.openldap.network.public to false for this swarm deploy.
+    quiet: true
+
 - name: "📁 Create LDIF dirs {{ OPENLDAP_LDIF_PATH_HOST }} before swarm bind-mount"
   directory_batch:
     paths: "{{ [OPENLDAP_LDIF_PATH_HOST] | product(OPENLDAP_LDIF_TYPES) | map('join') | list }}"
@@ -28,6 +40,7 @@
   file:
     path: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
     state: absent
+  notify: restart-openresty
   when: not OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
 
 - name: "⏳ Wait for LDAP to be available"

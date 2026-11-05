@@ -5,3 +5,7 @@ local:
 overlay:
   modes: [compose, swarm]
   topology: shared_net
+  stream_relay:
+    switch: services.openldap.network.public
+    ports: [ldaps]
+    subnet: 192.168.105.48/28

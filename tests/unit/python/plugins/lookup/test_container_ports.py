@@ -300,5 +300,93 @@ class TestContainerPortsDictTerms(unittest.TestCase):
             )
 
 
+def _relay_apps():
+    return {
+        "svc-prx-openresty": {
+            "services": {
+                "openresty": {
+                    "ports": {
+                        "internal": {"https": 443},
+                        "public": {"https": 443},
+                    }
+                }
+            }
+        },
+        "svc-db-openldap": {
+            "services": {
+                "openldap": {
+                    "ports": {
+                        "internal": {"ldap": 389},
+                        "local": {"ldap": 389},
+                        "public": {"ldaps": 636},
+                    }
+                }
+            }
+        },
+    }
+
+
+def _run_relay(terms, mode="swarm"):
+    lookup = LookupModule()
+    lookup._loader = mock.MagicMock()
+    apps = _relay_apps()
+    with patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+        loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
+        return lookup.run(
+            terms,
+            variables={"application_id": "svc-prx-openresty", "DEPLOYMENT_MODE": mode},
+        )[0]
+
+
+HTTPS_TERM = {"service": "openresty", "protocol": "https", "mode": "host"}
+LDAPS_TERM = {
+    "service": "openldap",
+    "protocol": "ldaps",
+    "application_id": "svc-db-openldap",
+    "container": "same",
+    "mode": "host",
+}
+
+
+class TestContainerPortsTermApplication(unittest.TestCase):
+    def test_a_term_publishes_the_port_of_the_application_it_names(self):
+        self.assertEqual(
+            _run_relay([HTTPS_TERM, LDAPS_TERM]),
+            "ports:\n"
+            "  - target: 443\n    published: 443\n    protocol: tcp\n    mode: host\n"
+            "  - target: 636\n    published: 636\n    protocol: tcp\n    mode: host",
+        )
+
+    def test_a_term_without_one_reads_the_calls_application(self):
+        self.assertEqual(
+            _run_relay([HTTPS_TERM]),
+            "ports:\n  - target: 443\n    published: 443\n    protocol: tcp\n    mode: host",
+        )
+
+    def test_the_calls_application_does_not_declare_the_named_port(self):
+        term = {
+            key: value for key, value in LDAPS_TERM.items() if key != "application_id"
+        }
+        with self.assertRaisesRegex(AnsibleError, "svc-prx-openresty"):
+            _run_relay([term])
+
+    def test_a_named_application_without_the_port_fails_with_its_name(self):
+        term = {**LDAPS_TERM, "protocol": "ldapx"}
+        with self.assertRaisesRegex(AnsibleError, "is not set for 'svc-db-openldap'"):
+            _run_relay([term])
+
+    def test_the_routing_mesh_rule_reads_the_named_application(self):
+        term = {
+            "service": "openldap",
+            "protocol": "ldap",
+            "application_id": "svc-db-openldap",
+            "ip": "127.0.0.1",
+        }
+        self.assertEqual(_run_relay([term]), "")
+        self.assertEqual(
+            _run_relay([term], mode="compose"), 'ports:\n  - "127.0.0.1:389:389"'
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

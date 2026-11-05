@@ -140,6 +140,28 @@ def render_proxy_pass(
     return f"proxy_pass http://{authority}{_compose_suffix(tail, location)};"
 
 
+def render_stream_proxy_pass(
+    authority: str, deployment_mode: str, host_gateway: bool
+) -> str:
+    """``proxy_pass`` directive of an nginx ``stream`` server.
+
+    Args:
+        authority: upstream ``host:port`` from :func:`resolve_upstream`.
+        deployment_mode: ``compose`` or ``swarm``, after any per-role override.
+        host_gateway: the upstream resolves through ``host.docker.internal``.
+
+    Returns:
+        Under swarm a ``set`` line and a ``proxy_pass`` of that variable, so the
+        stream ``resolver`` looks the upstream up per connection; otherwise
+        the literal directive.
+    """
+    if not authority:
+        raise ValueError("render_stream_proxy_pass: authority must be non-empty")
+    if deployment_mode == "swarm" and not host_gateway:
+        return f'set ${_UPSTREAM_VAR} "{authority}";\n    proxy_pass ${_UPSTREAM_VAR};'
+    return f"proxy_pass {authority};"
+
+
 def proxy_hops(
     application_id: str,
     deployment_mode: str,

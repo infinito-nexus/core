@@ -8,6 +8,7 @@ from utils.networks.proxy import (
     REVERSE_PROXY_APPLICATION_ID,
     proxy_hops,
     render_proxy_pass,
+    render_stream_proxy_pass,
     resolve_upstream,
 )
 
@@ -236,6 +237,38 @@ class TestRenderProxyPassGuards(unittest.TestCase):
     def test_empty_authority_raises(self):
         with self.assertRaises(ValueError):
             render_proxy_pass("", "swarm")
+
+
+class TestRenderStreamProxyPass(unittest.TestCase):
+    def test_swarm_proxies_to_a_variable_resolved_per_connection(self):
+        self.assertEqual(
+            render_stream_proxy_pass("openldap:389", "swarm", False),
+            'set $proxy_pass_upstream "openldap:389";\n'
+            "    proxy_pass $proxy_pass_upstream;",
+        )
+
+    def test_compose_proxies_to_the_literal_authority(self):
+        self.assertEqual(
+            render_stream_proxy_pass("127.0.0.1:389", "compose", False),
+            "proxy_pass 127.0.0.1:389;",
+        )
+
+    def test_a_host_gateway_upstream_stays_literal_in_swarm(self):
+        self.assertEqual(
+            render_stream_proxy_pass("host.docker.internal:389", "swarm", True),
+            "proxy_pass host.docker.internal:389;",
+        )
+
+    def test_no_form_carries_an_http_scheme(self):
+        for mode in ("compose", "swarm"):
+            with self.subTest(mode=mode):
+                self.assertNotIn(
+                    "http://", render_stream_proxy_pass("openldap:389", mode, False)
+                )
+
+    def test_empty_authority_raises(self):
+        with self.assertRaises(ValueError):
+            render_stream_proxy_pass("", "swarm", False)
 
 
 class TestProxyHopsCompose(unittest.TestCase):
