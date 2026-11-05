@@ -151,12 +151,6 @@
     mode: "0755"
   loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
 
-- name: 🚀 Provision runner instances
-  include_tasks: 02_instance.yml
-  loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
-  loop_control:
-    loop_var: runner_instance
-
 - name: 🔍 Look up docker group GID
   ansible.builtin.command: getent group docker
   register: _docker_group_entry
@@ -167,24 +161,32 @@
   ansible.builtin.set_fact:
     _runner_docker_gid: "{{ (_docker_group_entry.stdout | split(':'))[2] | default(RUNNER_DOCKER_GID_FALLBACK) }}"
 
-- name: 🧩 Install compose wrapper
+- name: 🧩 Load the compose flow of the runner stack
   ansible.builtin.include_role:
     name: sys-svc-compose
-    tasks_from: 00_core.yml
-  when: run_once_sys_svc_compose is not defined
+  vars:
+    compose_handlers_flush: false
 
-- name: 📄 Render runner compose file
-  template: # nocheck: stack-host-template (node-local runner: every node renders + deploys its own compose stack)
-    src: compose.yml.j2
-    dest: "{{ RUNNER_INSTALL_DIR }}/compose.yml"
-    owner: "{{ RUNNER_USER }}"
-    group: "{{ RUNNER_USER }}"
-    mode: "0640"
-    lstrip_blocks: true
+- name: 📄 Stage the runner entrypoint into the build context
+  stack_host_copy:
+    src: shell/entrypoint.sh
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'entrypoint.sh'] | path_join }}"
+    mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
 
-- name: 📦 Build and publish the runner image on the stack host
+- name: 🚀 Provision runner instances
+  include_tasks: 02_instance.yml
+  loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
+  loop_control:
+    loop_var: runner_instance
+
+- name: 📦 Build and publish the runner image to the swarm registry
   include_tasks: 03_image.yml
-  when: IS_STACK_HOST | bool
+  when:
+    - IS_SWARM_MODE | bool
+    - IS_STACK_HOST | bool
 
 - name: 📥 Pull runner image from the swarm registry
   ansible.builtin.command:
@@ -195,10 +197,39 @@
   changed_when: true
   when: (SWARM_REGISTRY_PREFIX | length > 0) and not (IS_STACK_HOST | bool)
 
-- name: 🚀 Deploy runner compose stack
-  ansible.builtin.shell: |
-    set -euo pipefail
-    compose --chdir {{ RUNNER_INSTALL_DIR }} --project {{ application_id | entity_name }} up -d --remove-orphans
-  args:
-    executable: /bin/bash
-  changed_when: true
+- name: 🖥️ Prepare the node-local runner stack on a swarm worker
+  include_tasks: 04_node.yml
+  when: not (IS_STACK_HOST | bool)
+
+- name: 📌 Recreate the runner stack when the registry image of this node changed
+  when: SWARM_REGISTRY_PREFIX | length > 0
+  block:
+    - name: 🔍 Read the registry image id of the runner on this node
+      ansible.builtin.command:
+        argv:
+          - container
+          - image
+          - inspect
+          - "--format={% raw %}{{.Id}}{% endraw %}"
+          - "{{ RUNNER_IMAGE_REF }}"
+      register: _runner_image_id
+      changed_when: false
+
+    - name: 📌 Record the registry image id of the runner on this node
+      ansible.builtin.copy: # nocheck: stack-host-copy, stack-host-consumer (node-local runner: every swarm node records the image it runs)
+        content: "{{ _runner_image_id.stdout }}\n"
+        dest: "{{ [lookup('container', application_id, 'directories.instance'), '.image-id'] | path_join }}"
+        mode: "0640"
+      notify: compose-up
+
+- name: 🚿 Flush the compose handlers of the runner stack
+  ansible.builtin.meta: flush_handlers
+
+- name: 🧹 Remove the runner stack files the default instance dir replaced
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ [RUNNER_INSTALL_DIR, 'compose.yml'] | path_join }}"
+    - "{{ [RUNNER_INSTALL_DIR, 'build'] | path_join }}"
+    - /etc/sysctl.d/99-github-runner.conf

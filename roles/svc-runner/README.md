@@ -20,7 +20,7 @@ The `RUNNER_DISTRIBUTION` variable selects distro-specific package installation 
 - **DooD isolation:** Runner containers mount the host Docker socket. Each job gets its own Infinito DinD container with a unique subnet, container names, and Docker volume — parallel jobs never conflict.
 - **Automatic registration:** The runner container fetches a short-lived GitHub registration token from the API at startup using `RUNNER_API_TOKEN`.
 - **Multi-distro:** Supports Debian, Ubuntu (`apt`), Arch Linux (`pacman`), and Fedora/EL (`dnf`) via distro-specific task files.
-- **Idempotent:** Re-running the deploy rebuilds the image and restarts containers cleanly without manual cleanup.
+- **Idempotent:** The compose stack lives in the default instance directory and runs through the default compose handlers; re-running the deploy recreates the containers when their image, compose file or instance environment changed, without manual cleanup.
 - **CI workflow ready:** All deploy-test workflows route to GitHub-hosted runners by default; set `CI_SELF_HOSTED_RUNNER_COUNT` to overflow jobs to your runners.
 
 ## End-to-end guide
@@ -127,13 +127,13 @@ python -m cli.administration.deploy.runner <hostname> \
 | `RUNNER_API_TOKEN` | `GH_TOKEN` env var | GitHub PAT with repo scope for runner registration. Stored in per-instance `.env` (mode `0600`). |
 | `RUNNER_NAME` | `{{ inventory_hostname }}` | Base name; each instance is named `<RUNNER_NAME>-<N>`. |
 | `RUNNER_LABELS` | `self-hosted,linux,{{ RUNNER_DISTRIBUTION }}` | Comma-separated labels assigned to every runner instance. |
-| `RUNNER_INSTALL_DIR` | `/opt/github-runner` | Base installation directory; instances land in `<dir>/<N>/`. |
+| `RUNNER_INSTALL_DIR` | `/opt/github-runner` | Base installation directory; instances land in `<dir>/<N>/`. The compose stack and the image build context live in the default instance directory, `/opt/compose/runner/`. |
 | `RUNNER_USER` | `github-runner` | System user account that owns all runner files and processes. |
 | `RUNNER_COUNT` | auto (`RESOURCE_HOST_CPUS // RUNNER_CPUS`) | Number of runner instances; auto-scales to available CPU cores. |
 | `RUNNER_CPUS` | `2` | CPU limit per runner instance (matches GitHub-hosted 2-core quota). |
 | `RUNNER_DOCKER_BASE` | `/mnt/docker` | Base path for per-instance Docker volume directories. |
 | `RUNNER_PROJECT_PREFIX` | `runner` | Prefix for per-instance Docker Compose project names and `INFINITO_RUNNER_PREFIX`. |
-| `RUNNER_SYSCTL_CONF` | `/etc/sysctl.d/99-github-runner.conf` | Path to the sysctl config file written for inotify tuning. |
+| `RUNNER_SYSCTL_CONF` | `/etc/sysctl.d/99-runner.conf` | Path to the sysctl config file written for inotify tuning. |
 
 `RUNNER_DISTRIBUTION` is **required** and has no default; it is passed automatically by the CLI.
 
@@ -182,7 +182,7 @@ flowchart TB
 ### Swarm mode
 
 The fleet is deployed on **every** cluster node, but not as a `docker stack`
-service (`workload: node-local` in `meta/services.yml`): each runner needs
+service (`compose_mode_force: compose` in `vars/main.yml`): each runner needs
 the docker socket and the registered identity of exactly its node. The image
 is built once on the manager and distributed through the registry dependency
 (`svc-registry-docker`), the only part that runs as a swarm service.
@@ -206,9 +206,8 @@ flowchart TB
 
 Because no stack service exists, the swarm test gates that poll
 `docker service ls` (`converge`, `seed`, `drain`, `assert`) skip themselves
-via the `workload: node-local` declaration
-(`scripts/tests/deploy/swarm/utils/_context.sh` maps `node-local` to
-`HAS_SWARM_SERVICE=false`); the deploy itself, the registry distribution
+(`has_swarm_service` in `scripts/tests/deploy/swarm/utils/_context.sh` finds
+no service of the stack); the deploy itself, the registry distribution
 chain and the CLI e2e suite run in full.
 
 ## Further Resources
