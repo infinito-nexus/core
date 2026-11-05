@@ -8,6 +8,7 @@ sso:
   header_trust:
     proxy_secret: false
     switch: services.sso.enabled
+    files: [files/javascript/hooks.js, templates/env.j2]
   oauth2:
     pass_access_token: true
     origin:

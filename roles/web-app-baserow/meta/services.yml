@@ -23,6 +23,7 @@ sso:
   header_trust:
     proxy_secret: false
     switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [files/sso/infinito_sso.py]
   oauth2:
     origin:
       host: baserow

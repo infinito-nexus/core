@@ -101,6 +101,7 @@ sso:
   header_trust:
     proxy_secret: auth_source_sso_secret
     switch: "lookup('sso', application_id, 'is_proxy_gated') and services.ldap.enabled"
+    files: [templates/env.j2]
   oauth2:
     origin:
       host: proxy

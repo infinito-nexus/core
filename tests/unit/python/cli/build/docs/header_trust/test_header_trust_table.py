@@ -8,11 +8,18 @@ from cli.build.docs.header_trust import BEGIN, END, render, replace_block
 from cli.build.docs.header_trust.__main__ import main
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
-FILES = {"web-app-a": ["files/sso/a.py"], "web-app-b": ["templates/proxy.conf.j2"]}
 HEADERS = {"web-app-a": ["X-Forwarded-User"], "web-app-b": ["X-Remote-User"]}
 DECLARATIONS = {
-    "web-app-a": {"proxy_secret": False, "switch": "services.sso.enabled"},
-    "web-app-b": {"proxy_secret": "sso_proxy_secret", "switch": "x | bool"},
+    "web-app-a": {
+        "proxy_secret": False,
+        "switch": "services.sso.enabled",
+        "files": ["files/sso/a.py"],
+    },
+    "web-app-b": {
+        "proxy_secret": "sso_proxy_secret",
+        "switch": "x | bool",
+        "files": ["templates/env.j2"],
+    },
 }
 EXEMPTIONS = {"web-app-c": [("templates/relay.conf.j2", "reads no header")]}
 
@@ -23,7 +30,7 @@ def _row(text: str, role: str) -> str:
 
 class TestRender(unittest.TestCase):
     def test_every_detected_role_gets_one_row_with_its_declaration(self) -> None:
-        text = render(FILES, HEADERS, DECLARATIONS, EXEMPTIONS)
+        text = render(HEADERS, DECLARATIONS, EXEMPTIONS)
         self.assertEqual(
             "| `web-app-a` | `X-Forwarded-User` | `files/sso/a.py` | no "
             "| `services.sso.enabled` |",
@@ -31,26 +38,40 @@ class TestRender(unittest.TestCase):
         )
         self.assertIn("| yes, `sso_proxy_secret` |", _row(text, "web-app-b"))
 
+    def test_the_files_column_lists_the_declared_trusting_files(self) -> None:
+        moved = {
+            **DECLARATIONS,
+            "web-app-b": {**DECLARATIONS["web-app-b"], "files": ["files/x.php"]},
+        }
+        row = _row(render(HEADERS, moved, {}), "web-app-b")
+        self.assertIn("| `files/x.php` |", row)
+        self.assertNotIn("templates/env.j2", row)
+
     def test_a_pipe_in_a_switch_does_not_split_the_cell(self) -> None:
-        self.assertIn("`x \\| bool`", _row(render(FILES, HEADERS, DECLARATIONS, {}), "web-app-b"))
+        self.assertIn(
+            "`x \\| bool`", _row(render(HEADERS, DECLARATIONS, {}), "web-app-b")
+        )
 
     def test_an_exempted_file_is_listed_with_its_reason(self) -> None:
-        text = render(FILES, HEADERS, DECLARATIONS, EXEMPTIONS)
+        text = render(HEADERS, DECLARATIONS, EXEMPTIONS)
         self.assertEqual(
             "| `web-app-c` | `templates/relay.conf.j2` | reads no header |",
             _row(text, "web-app-c"),
         )
 
     def test_no_exemption_renders_no_exemption_table(self) -> None:
-        self.assertNotIn("nocheck", render(FILES, HEADERS, DECLARATIONS, {}))
+        self.assertNotIn("nocheck", render(HEADERS, DECLARATIONS, {}))
 
     def test_a_changed_declaration_changes_the_render(self) -> None:
-        flipped = {**DECLARATIONS, "web-app-a": {**DECLARATIONS["web-app-a"], "proxy_secret": "s"}}
-        self.assertIn("| yes, `s` |", _row(render(FILES, HEADERS, flipped, {}), "web-app-a"))
+        flipped = {
+            **DECLARATIONS,
+            "web-app-a": {**DECLARATIONS["web-app-a"], "proxy_secret": "s"},
+        }
+        self.assertIn("| yes, `s` |", _row(render(HEADERS, flipped, {}), "web-app-a"))
 
     def test_a_detected_role_without_declaration_fails_the_render(self) -> None:
         with self.assertRaises(KeyError):
-            render(FILES, HEADERS, {"web-app-a": DECLARATIONS["web-app-a"]}, {})
+            render(HEADERS, {"web-app-a": DECLARATIONS["web-app-a"]}, {})
 
 
 class TestReplaceBlock(unittest.TestCase):
@@ -77,12 +98,15 @@ class TestMain(unittest.TestCase):
             services.parent.mkdir()
             services.write_text(
                 "sso:\n  header_trust:\n    proxy_secret: false\n"
-                "    switch: services.sso.enabled\n",
+                "    switch: services.sso.enabled\n"
+                "    files: [templates/proxy.conf.j2]\n",
                 encoding="utf-8",
             )
             doc = Path(tmp) / "rbac.md"
             doc.write_text(f"# T\n{BEGIN}\n{END}\n", encoding="utf-8")
-            self.assertEqual(0, main(["--doc", str(doc), "--roles-dir", str(roles_dir)]))
+            self.assertEqual(
+                0, main(["--doc", str(doc), "--roles-dir", str(roles_dir)])
+            )
             written = doc.read_text(encoding="utf-8")  # nocheck: cache-read
         self.assertIn(
             "| `web-app-a` | `X-Remote-User` | `templates/proxy.conf.j2` | no "

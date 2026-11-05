@@ -8,6 +8,7 @@ sso:
   header_trust:
     proxy_secret: false
     switch: services.sso.enabled
+    files: [files/shell/configure-sso.sh]
   oauth2:
     origin:
       host: checkmk

@@ -91,6 +91,7 @@ sso:
   header_trust:
     proxy_secret: sso_proxy_secret
     switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [files/Dockerfile]
   oauth2:
     origin:
       host: snipe-it

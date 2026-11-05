@@ -26,7 +26,8 @@ sso:
   flavor: oauth2
   header_trust:
     proxy_secret: false
-    switch: services.sso.enabled
+    switch: "services.web.enabled and services.sso.enabled"
+    files: [files/login-broker/server.js]
   oauth2:
     pass_access_token: true
     origin:

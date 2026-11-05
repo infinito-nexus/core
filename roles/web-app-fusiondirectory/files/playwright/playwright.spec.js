@@ -51,6 +51,7 @@ test("OIDC: the Keycloak sign-in lands in FusionDirectory through the header log
 });
 
 require("./test-rbac").register();
+require("./test-forged-identity");
 
 test("guest: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");

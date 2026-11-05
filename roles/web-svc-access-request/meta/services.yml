@@ -37,7 +37,8 @@ sso:
   flavor: oauth2
   header_trust:
     proxy_secret: false
-    switch: services.sso.enabled
+    switch: "always: identity.py trusts the headers on every request the service serves"
+    files: [files/python/access_request/identity.py]
   oauth2:
     origin:
       host: access-request

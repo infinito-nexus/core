@@ -12,7 +12,6 @@ from utils.roles.header_trust import (
     header_trust_declarations,
     header_trust_exemptions,
     header_trust_headers,
-    header_trust_roles,
 )
 
 
@@ -30,7 +29,6 @@ def main(argv: list[str] | None = None) -> int:
 
     roles_dir = Path(args.roles_dir)
     block = render(
-        header_trust_roles(roles_dir),
         header_trust_headers(roles_dir),
         header_trust_declarations(roles_dir),
         header_trust_exemptions(roles_dir),

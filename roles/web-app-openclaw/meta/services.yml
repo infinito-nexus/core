@@ -46,6 +46,7 @@ sso:
   header_trust:
     proxy_secret: sso_proxy_secret
     switch: services.sso.enabled
+    files: [templates/openclaw.json.j2]
   oauth2:
     origin:
       host: openclaw

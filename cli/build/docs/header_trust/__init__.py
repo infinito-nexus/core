@@ -24,7 +24,6 @@ def _secret(proxy_secret: object) -> str:
 
 
 def render(
-    files: dict[str, list[str]],
     headers: dict[str, list[str]],
     declarations: dict[str, dict],
     exemptions: dict[str, list[tuple[str, str]]],
@@ -32,9 +31,10 @@ def render(
     """The managed block: one table of header-trust roles, one of exempted files.
 
     Args:
-        files: role -> files that name a trusted header (``header_trust_roles``).
-        headers: role -> headers those files name (``header_trust_headers``).
-        declarations: role -> its ``sso.header_trust`` declaration.
+        headers: role -> headers its files name (``header_trust_headers``), one
+            entry per detected role.
+        declarations: role -> its ``sso.header_trust`` declaration, whose
+            ``files`` fill the trusting-files column.
         exemptions: role -> ``(file, reason)`` per exempted file.
 
     Raises:
@@ -43,13 +43,13 @@ def render(
     lines = [
         LEGEND,
         "",
-        "| Role | Headers it names | Files that name them | Proxy secret | Switched on by |",
+        "| Role | Headers it names | Files that trust them | Proxy secret | Switched on by |",
         "|---|---|---|---|---|",
     ]
-    for role in sorted(files):
+    for role in sorted(headers):
         declaration = declarations[role]
         lines.append(
-            f"| `{role}` | {_code(headers[role])} | {_code(files[role])} "
+            f"| `{role}` | {_code(headers[role])} | {_code(declaration['files'])} "
             f"| {_secret(declaration['proxy_secret'])} "
             f"| `{_cell(declaration['switch'])}` |"
         )

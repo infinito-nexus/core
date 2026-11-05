@@ -8,6 +8,7 @@ sso:
   header_trust:
     proxy_secret: false
     switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [files/sso/header_auth.js]
   oauth2:
     origin:
       host: postmarks
