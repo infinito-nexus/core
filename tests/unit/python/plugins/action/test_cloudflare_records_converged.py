@@ -471,6 +471,29 @@ class TestCloudflareRecordsConverged(unittest.TestCase):
                     self.assertEqual(pending, records)
                     self.assertEqual(labels, [])
 
+    def test_a_name_with_an_entry_the_plugin_cannot_judge_stays_pending(self):
+        t = f"t.{ZONE}"
+        txt = {"type": "TXT", "zone": ZONE, "name": "t"}
+        groups = {
+            "txt int value": (
+                [dict(txt, value=12345), dict(txt, value="12345", ttl=300)],
+                [rr("TXT", t, "12345", ttl=300)],
+            ),
+            "txt int value last": (
+                [dict(txt, value="12345", ttl=300), dict(txt, value=12345)],
+                [rr("TXT", t, "12345", ttl=300)],
+            ),
+            "a null ttl": (
+                [a("x", ttl=None), a("x", ttl=300)],
+                [rr("A", f"x.{ZONE}", "203.0.113.7", ttl=300)],
+            ),
+        }
+        for group, (records, zone) in groups.items():
+            with self.subTest(group=group):
+                pending, labels, _ = run_split(records, _FakeCloudflare([zone]))
+                self.assertEqual(pending, records)
+                self.assertEqual(labels, [])
+
     def test_entries_of_one_name_the_module_edits_as_distinct_or_equal_records_stay_judged(
         self,
     ):
