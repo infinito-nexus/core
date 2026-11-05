@@ -13,7 +13,7 @@ from ansible.module_utils.urls import ConnectionError as UrlsConnectionError
 from ansible.module_utils.urls import open_url
 from ansible.plugins.action import ActionBase
 
-API = "https://api.cloudflare.com/client/v4"
+ZONES = "https://api.cloudflare.com/client/v4/zones"
 REVIEWED_COMMUNITY_GENERAL = "14.0.0"
 PAGE_SIZE = 5000
 ARGUMENTS = frozenset({"api_token", "records", "timeout"})
@@ -40,7 +40,7 @@ READ_FAILURES = (
 def _get(path: str, token: str, timeout: int) -> dict[str, Any]:
     """
     Args:
-        path: API path below ``API``, query string included.
+        path: API path below ``ZONES``, query string included.
         token: Cloudflare API token, sent in the bearer header only.
         timeout: seconds one socket operation may stall.
 
@@ -48,7 +48,7 @@ def _get(path: str, token: str, timeout: int) -> dict[str, Any]:
         The decoded answer; raises ``ValueError`` when Cloudflare reports no success.
     """
     response = open_url(
-        API + path,
+        ZONES + path,
         method="GET",
         headers={
             "Authorization": f"Bearer {token}",
@@ -59,7 +59,7 @@ def _get(path: str, token: str, timeout: int) -> dict[str, Any]:
     answer = json.loads(response.read())
     if not isinstance(answer, dict) or answer.get("success") is not True:
         errors = answer.get("errors") if isinstance(answer, dict) else answer
-        raise ValueError(f"GET {path} answered without success: {errors}")
+        raise ValueError(f"GET {ZONES + path} answered without success: {errors}")
     return answer
 
 
@@ -74,14 +74,14 @@ def zone_records(zone: str, token: str, timeout: int) -> list[dict[str, Any]]:
         Every DNS record of the zone, across all pages; raises ``ValueError``
         unless exactly one zone carries the name.
     """
-    zones = _get("/zones?" + urlencode({"name": zone}), token, timeout)["result"]
+    zones = _get("?" + urlencode({"name": zone}), token, timeout)["result"]
     if len(zones) != 1:
         raise ValueError(f"{len(zones)} Cloudflare zones match {zone}")
     records: list[dict[str, Any]] = []
     page = 1
     while True:
         answer = _get(
-            f"/zones/{zones[0]['id']}/dns_records?"
+            f"/{zones[0]['id']}/dns_records?"
             + urlencode({"page": page, "per_page": PAGE_SIZE}),
             token,
             timeout,
