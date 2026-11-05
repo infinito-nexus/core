@@ -296,7 +296,7 @@ class TestCloudflareRecordsConverged(unittest.TestCase):
     ):
         records = [a("www"), a("api")]
         error = HTTPError(
-            f"{plugin.API}/zones?name={ZONE}", 429, "Too Many Requests", {}, None
+            f"{plugin.ZONES}?name={ZONE}", 429, "Too Many Requests", {}, None
         )
         cloudflare = _FakeCloudflare([[]], error=error)
 

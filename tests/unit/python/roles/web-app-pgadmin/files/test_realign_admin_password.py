@@ -20,9 +20,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 import jinja2
-import yaml
 from ansible.plugins.filter.core import b64encode as ansible_b64encode
 from passlib.hash import pbkdf2_sha512
+
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -375,7 +377,7 @@ class TestPreCheck(DatabaseCase):
 
     def test_the_database_is_opened_read_only_and_left_untouched(self) -> None:
         write_database(self.database, [CONVERGED])
-        before = hashlib.sha256(self.database.read_bytes()).hexdigest()
+        before = self.database.read_bytes()  # nocheck: cache-read tempdir fixture
         uris = []
         real_connect = sqlite3.connect
 
@@ -388,7 +390,8 @@ class TestPreCheck(DatabaseCase):
         self.assertEqual(len(uris), 1)
         self.assertTrue(uris[0][0].endswith("?mode=ro"))
         self.assertIs(uris[0][1], True)
-        self.assertEqual(hashlib.sha256(self.database.read_bytes()).hexdigest(), before)
+        after = self.database.read_bytes()  # nocheck: cache-read tempdir fixture
+        self.assertEqual(after, before)
 
 
 class TestPreCheckAgreesWithConverge(DatabaseCase):
@@ -506,11 +509,11 @@ class TestRoleEnvironment(unittest.TestCase):
         return dict(re.findall(r"(?m)^([A-Z][A-Z0-9_]*)=(.*)$", template))
 
     def test_the_role_keeps_its_accounts_in_the_sqlite_file(self) -> None:
-        template = ENV_TEMPLATE.read_text(encoding="utf-8")
+        template = read_text(str(ENV_TEMPLATE))
         self.assertFalse(self.module.config_database_overridden(self.keys(template)))
 
     def test_an_env_template_that_moves_the_accounts_disables_the_skip(self) -> None:
-        template = ENV_TEMPLATE.read_text(encoding="utf-8")
+        template = read_text(str(ENV_TEMPLATE))
         for name in self.module.CONFIG_DATABASE_OVERRIDES:
             with self.subTest(name):
                 redirected = f"{template}\n{name}=postgresql://db/pgadmin\n"
@@ -563,7 +566,7 @@ class TestTaskHandover(unittest.TestCase):
             encoding="utf-8",
         )
         shim.chmod(0o755)
-        tasks = yaml.safe_load(TASK_FILE.read_text(encoding="utf-8"))
+        tasks = load_yaml_any(str(TASK_FILE))
         self.task = next(task for task in tasks if "Realign" in task["name"])
 
     def render(self, source: str, password: str) -> str:
@@ -575,7 +578,7 @@ class TestTaskHandover(unittest.TestCase):
         return environment.from_string(source).render(
             PGADMIN_CONTAINER_ADDRESS=CONTAINER,
             PGADMIN_ADMIN_PASSWORD=password,
-            lookup=lambda kind, path: SCRIPT_PATH.read_text(encoding="utf-8").rstrip(),
+            lookup=lambda kind, path: read_text(str(SCRIPT_PATH)).rstrip(),
         )
 
     def run_task(self, password: str, stdin: str | None = None):
