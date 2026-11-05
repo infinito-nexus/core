@@ -3,7 +3,6 @@ application_id: "web-app-grafana"
 entity_name: "{{ application_id | entity_name }}"
 
 GRAFANA_CONTAINER: "{{ lookup('config', application_id, 'services.grafana.name') }}"
-GRAFANA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'grafana') }}"
 GRAFANA_DOMAIN: "{{ lookup('domain', application_id) }}"
 GRAFANA_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.grafana.ports.internal.grafana') }}"
 GRAFANA_LOCAL_PORT: "{{ lookup('config', application_id, 'services.grafana.ports.local.grafana') }}"
@@ -11,7 +10,7 @@ GRAFANA_LOCAL_PORT: "{{ lookup('config', application_id, 'services.grafana.ports
 GRAFANA_INSTANCES: "{{ lookup('domains')[application_id] | network_instances }}"
 GRAFANA_INSTANCE_NETNS_URL: "http://127.0.0.1:{{ lookup('config', application_id, 'services.grafana.ports.internal.' ~ ('grafana' | labelled(grafana_instance.label,
   '_'))) }}"
-GRAFANA_INSTANCE_CONTAINER_ADDRESS: "{{ GRAFANA_CONTAINER_ADDRESS | labelled(grafana_instance.label, '-') }}"
+GRAFANA_INSTANCE_CONTAINER: "{{ GRAFANA_CONTAINER | labelled(grafana_instance.label, '-') }}"
 
 GRAFANA_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
 GRAFANA_DASHBOARDS_DOCKER_DIR: "{{ lookup('volume', application_id, 'dashboard_logs').target | dirname }}"
