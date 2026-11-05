@@ -1,0 +1,54 @@
+---
+- name: 🧾 Account for a run the parallel scheduler finished
+  when: _playwright_run.ended_at is defined
+  block:
+    - name: ⏱️ Show when the parallel run ended, how long it took and what it retried
+      ansible.builtin.debug:
+        msg: >-
+          {{ application_id }}: {{ _playwright_run.seconds }}s, ended at {{ _playwright_run.ended_at }},
+          retries {{ _playwright_run.retries }}, flaky {{ _playwright_run.flaky }},
+          browser crashes {{ _playwright_run.crashes }}{{ (' (' ~ _playwright_run.crash_kinds ~ '; an OOM kill surfaces as one of these, even when a retry passed)') if (_playwright_run.crashes | int) > 0 else '' }}
+      changed_when: false
+
+    - name: 📋 Keep the parallel run's output and result with its reports
+      ansible.builtin.copy:
+        src: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/{{ application_id }}.{{ playwright_output }}"
+        dest: "{{ _playwright_pass_reports_dir }}/run-parallel/"
+        remote_src: true
+        mode: "0644"
+      become: true
+      loop: [result.json, stdout, stderr]
+      loop_control:
+        loop_var: playwright_output
+
+- name: 📝 Report and record the failed Playwright run
+  when: (_playwright_run.rc | default(1)) != 0
+  block:
+    - name: 💬 Print Playwright output (on failure)
+      ansible.builtin.debug:
+        msg: |
+          rc: {{ _playwright_run.rc | default('<absent: run was aborted>') }}
+
+          stdout:
+          {{ _playwright_run.stdout | default('') }}
+
+          stderr:
+          {{ _playwright_run.stderr | default(_playwright_run.msg | default('')) }}
+      changed_when: false
+
+    - name: 📝 Record failure
+      ansible.builtin.set_fact:
+        _playwright_failures: "{{ (_playwright_failures | default([])) + [application_id] }}"
+
+    - name: 📝 Record a suite-budget timeout, which no retry can change
+      ansible.builtin.set_fact:
+        _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
+      when: "'for the test suite to run' in (_playwright_run.stdout | default(''))"
+
+- name: 🗄️ Archive Playwright reports for this variant + pass
+  ansible.builtin.script: >-
+    {{ role_path }}/files/archive_playwright_reports.sh
+    {{ _playwright_pass_reports_dir | quote }}
+    {{ VARIANT_INDEX | int }}
+    {{ ASYNC_ENABLED | bool | string | lower }}
+  changed_when: true
