@@ -46,3 +46,4 @@
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
     mode: "0600"
+  notify: compose-up

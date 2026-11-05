@@ -1,15 +1,17 @@
 ---
 application_id: svc-runner
+compose_mode_force: compose
 RUNNER_USER: "{{ lookup('users', 'github-runner').username }}"
 RUNNER_UID: "{{ lookup('users', 'github-runner').uid }}"
 RUNNER_GID: "{{ lookup('users', 'github-runner').gid }}"
 RUNNER_DOCKER_BASE: "{{ lookup('config', application_id, 'services.runner.docker_base') }}"
 RUNNER_PROJECT_PREFIX: "{{ lookup('config', application_id, 'services.runner.project_prefix') }}"
-RUNNER_SYSCTL_CONF: "{{ lookup('config', application_id, 'services.runner.sysctl_conf') }}"
+RUNNER_SYSCTL_CONF: "/etc/sysctl.d/99-{{ application_id | entity_name }}.conf"
 RUNNER_IMAGE_NAME: "{{ lookup('config', application_id, 'services.runner.image_name') }}"
 RUNNER_IMAGE_TAG: "{{ lookup('config', application_id, 'services.runner.image_tag') }}"
 RUNNER_IMAGE_REF: "{{ SWARM_REGISTRY_PREFIX }}{{ RUNNER_IMAGE_NAME }}:{{ RUNNER_IMAGE_TAG }}"
 RUNNER_INSTALL_DIR: "{{ lookup('config', application_id, 'services.runner.install_dir') }}"
+RUNNER_COMPOSE_UP_PENDING_MARKER: "{{ [lookup('container', application_id, 'directories.instance'), '.compose-up-pending'] | path_join }}"
 RUNNER_CPUS: "{{ lookup('cpus', application_id, 'runner') | int }}"
 RUNNER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.runner.image') }}:{{ lookup('config', application_id, 'services.runner.version') }}"
 RUNNER_DOCKER_GID_FALLBACK: "{{ lookup('config', application_id, 'services.runner.docker_gid_fallback') }}"
