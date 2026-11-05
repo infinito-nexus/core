@@ -28,7 +28,7 @@
     rbac_sync_kind: host
     rbac_sync_user: ""
     rbac_sync_argv: []
-    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_sync.py') }}"
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac/sync.py') }}"
     rbac_sync_modules:
       - { name: link-preprovisioned-accounts.sql, content: "{{ lookup('file', role_path ~ '/files/sql/rbac/link-preprovisioned-accounts.sql') }}" }
       - { name: reconcile-roles.sql, content: "{{ lookup('file', role_path ~ '/files/sql/rbac/reconcile-roles.sql') }}" }

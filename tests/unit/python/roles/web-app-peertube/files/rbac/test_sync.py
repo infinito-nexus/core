@@ -13,7 +13,7 @@ from utils.cache.files import read_text
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-peertube"
-SCRIPT = ROLE / "files" / "python" / "rbac_sync.py"
+SCRIPT = ROLE / "files" / "python" / "rbac" / "sync.py"
 SQL_DIR = ROLE / "files" / "sql" / "rbac"
 SQL_FILES = ("link-preprovisioned-accounts.sql", "reconcile-roles.sql")
 ROLE_IDS = {"administrator": 0, "moderator": 1, "user": 2}

@@ -16,7 +16,7 @@
 - name: "👤 PEERTUBE | Create the missing accounts of the role group members"
   ansible.builtin.command:
     argv: "{{ PEERTUBE_NETNS_PYTHON }}"
-    stdin: "PAYLOAD_B64 = {{ peertube_rbac_payload | to_json | b64encode | to_json }}\n{{ lookup('file', role_path ~ '/files/python/rbac_provision.py') }}"
+    stdin: "PAYLOAD_B64 = {{ peertube_rbac_payload | to_json | b64encode | to_json }}\n{{ lookup('file', role_path ~ '/files/python/rbac/provision.py') }}"
   vars:
     peertube_rbac_payload:
       url: "{{ PEERTUBE_NETNS_URL }}"

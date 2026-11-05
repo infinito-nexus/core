@@ -44,7 +44,7 @@ def _hook_vars():
 
 
 def _api_task():
-    return next(task for task in PROVISION if "rbac_provision.py" in str(task))
+    return next(task for task in PROVISION if "rbac/provision.py" in str(task))
 
 
 class TestPeertubeRbacSplitsByChannel(unittest.TestCase):

@@ -16,7 +16,8 @@ SCRIPT = (
     / "web-app-peertube"
     / "files"
     / "python"
-    / "rbac_provision.py"
+    / "rbac"
+    / "provision.py"
 )
 ROLE_IDS = {"administrator": 0, "moderator": 1, "user": 2}
 
