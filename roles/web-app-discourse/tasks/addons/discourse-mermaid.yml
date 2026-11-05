@@ -1,5 +1,5 @@
 ---
-- name: "📈 Install the Mermaid theme component and attach it to the default theme"
+- name: "📈 Install the Mermaid component on the default theme and read it back"
   ansible.builtin.command:
     argv:
       - container
@@ -7,18 +7,7 @@
       - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
       - rails
       - r
-      - "{{ lookup('template', 'mermaid/install.rb.j2') }}"
-  changed_when: false
-
-- name: "🔎 Read the Mermaid component back out of the running instance"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
-      - rails
-      - r
-      - "{{ lookup('template', 'mermaid/verify.rb.j2') }}"
+      - "{{ lookup('template', 'mermaid/install.rb.j2') }}\n{{ lookup('template', 'mermaid/verify.rb.j2') }}"
   register: discourse_mermaid_readback
   changed_when: false
 
