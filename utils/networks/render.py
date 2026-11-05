@@ -14,7 +14,8 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``aliases``: list of DNS aliases. Default: ``[entity_name]`` for shared_net, ``[]`` for default_net
 * ``consumer``: optional override
    * ``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client``
-     | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when
+     | ``web_facing`` | ``onion_sso``, or a list of them.
+     ``mcp_client`` admits a role only when
      its ``mcp.direction`` is ``client`` or ``both`` AND it declares
      ``services.<own-entity>.mcp_consumer: true`` without the provider
      refusing it through ``mcp_consumer: false`` on that same entry, so a
@@ -28,6 +29,19 @@ discovered into the service_registry by ``discover_role_services``. Keys:
    * ``provider`` / ``provider_key``: for ``onion_sso``, the app whose
       ``services.<provider_key>.enabled`` must also hold. Default provider_key
       ``tor``
+* ``stream_relay``: ``switch`` (a config path on the provider), ``ports``
+   (the ``ports.public`` protocols the reverse proxy listens on and publishes
+   in host mode, through ``lookup('stream_relay_ports')``) and ``subnet`` (the
+   relay network's block, taken from the role subnet pool like
+   ``local.subnet``). All three are required.
+   While the switch is true and the reverse proxy's own overlay applies in the
+   mode, the provider and the reverse proxy join ``<entity>-relay`` and no
+   other role does, independent of ``modes`` and ``topology``. The provider
+   carries its entity name as alias there. That network is not a role network:
+   :func:`compute_external_network_roles` leaves it out, so neither the
+   pre-created role overlays nor ``proxy_hops`` change with the switch. A
+   switch that is on in a mode of ``UNPROVEN_STREAM_RELAY_MODES`` fails every
+   network lookup of the provider and the reverse proxy.
 * ``proxy_resolvable``: beacon flag - the harvested aliases get attached to
    every ``default_net`` provider and every ``collect_proxy_resolvable``
    provider in the same mode.
@@ -45,6 +59,7 @@ if TYPE_CHECKING:
 
 
 from utils.networks.attachments import (
+    STREAM_RELAY,
     _coerce_bool,
     _compute_attachments,
     _is_consumer,
@@ -124,6 +139,8 @@ def compute_external_network_roles(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
+        if att["topology"] == STREAM_RELAY:
+            continue
         role = att["role"]
         if role not in roles:
             roles.append(role)
@@ -150,7 +167,7 @@ def render_compose_networks(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
-        lines.append(f"  {entity_name(att['role'])}:")
+        lines.append(f"  {att.get('network') or entity_name(att['role'])}:")
         lines.append("    external: true")
 
     own_entity = entity_name(application_id)
@@ -215,7 +232,7 @@ def render_container_networks(
             continue
         if own_network_only and not att["is_provider"]:
             continue
-        lines.append(f"  {entity_name(att['role'])}:")
+        lines.append(f"  {att.get('network') or entity_name(att['role'])}:")
         aliases = att["aliases"]
         if att["is_provider"] and not provider_self_alias:
             aliases = []

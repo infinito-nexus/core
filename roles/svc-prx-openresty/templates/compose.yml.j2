@@ -16,7 +16,8 @@
     {% if IS_SWARM_MODE %}
     {{ lookup('container_ports',
               {'service': 'openresty', 'protocol': 'http', 'mode': 'host'},
-              {'service': 'openresty', 'protocol': 'https', 'mode': 'host'}) | indent(4) }}
+              {'service': 'openresty', 'protocol': 'https', 'mode': 'host'},
+              *query('stream_relay_ports')) | indent(4) }}
     {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {% else %}

@@ -40,6 +40,7 @@
   file:
     path: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
     state: absent
+  notify: restart-openresty
   when: not OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
 
 - name: "⏳ Wait for LDAP to be available"

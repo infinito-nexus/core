@@ -48,6 +48,10 @@ Keys:
 ``publish``
     ``ephemeral`` publishes the container port on a host port docker picks, for
     a service addressed only through the compose network.
+``application_id``
+    The application whose ``services.<service>.ports`` the term reads; omit to
+    read the call's application. A stream relay publishes another
+    application's port this way, as ``lookup('stream_relay_ports')`` returns.
 
 A declared value that is a ``{start, end}`` mapping renders as ``start-end`` on
 both sides, so a relay range needs no special term.
@@ -79,7 +83,16 @@ from utils.networks.lookup_context import resolve_var
 from utils.roles.applications.config import get
 
 _TERM_KEYS = frozenset(
-    {"service", "protocol", "ip", "transport", "container", "mode", "publish"}
+    {
+        "service",
+        "protocol",
+        "ip",
+        "transport",
+        "container",
+        "mode",
+        "publish",
+        "application_id",
+    }
 )
 _TRANSPORTS = ("tcp", "udp")
 _CONTAINER_SOURCES = ("internal", "same")
@@ -145,6 +158,7 @@ def _normalised(term: Any) -> dict[str, Any]:
         "container": _as_str(term.get("container")) or "internal",
         "mode": _as_str(term.get("mode")) or "ingress",
         "publish": _as_str(term.get("publish")),
+        "application_id": _as_str(term.get("application_id")),
     }
     if not normalised["service"] or not normalised["protocol"]:
         raise AnsibleError("container_ports: service and protocol must be non-empty")
@@ -227,11 +241,13 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
         ).run([], variables=variables)[0]
 
-        def _port(service: str, scope: str, protocol: str, *, required: bool) -> str:
+        def _port(
+            owner: str, service: str, scope: str, protocol: str, *, required: bool
+        ) -> str:
             value = _rendered(
                 get(
                     applications=applications,
-                    application_id=application_id,
+                    application_id=owner,
                     config_path=f"services.{service}.ports.{scope}.{protocol}",
                     strict=False,
                     default="",
@@ -240,7 +256,7 @@ class LookupModule(LookupBase):
             if not value and required:
                 raise AnsibleError(
                     f"container_ports: services.{service}.ports.{scope}.{protocol} "
-                    f"is not set for '{application_id}'"
+                    f"is not set for '{owner}'"
                 )
             return value
 
@@ -249,23 +265,29 @@ class LookupModule(LookupBase):
             raise AnsibleError(
                 f"container_ports: key must be 'ports' or 'expose', got {block_key!r}"
             )
-        routing_mesh = block_key == "ports" and "swarm" == _as_str(
+        effective_mode = _as_str(
             resolve_var(templar, variables.get("compose_mode_force", ""))
             or resolve_var(templar, variables.get("DEPLOYMENT_MODE", "compose"))
         )
+        routing_mesh = block_key == "ports" and effective_mode == "swarm"
         lines = [f"{block_key}:"]
         for term in parsed:
             service, protocol = term["service"], term["protocol"]
-            local = _port(service, "local", protocol, required=False)
+            owner = term["application_id"] or application_id
+            local = _port(owner, service, "local", protocol, required=False)
             if routing_mesh and term["ip"] and local:
                 continue
             published = local or _port(
-                service, "public", protocol, required=term["publish"] != "ephemeral"
+                owner,
+                service,
+                "public",
+                protocol,
+                required=term["publish"] != "ephemeral",
             )
             if term["container"] == "same":
                 container = published
             else:
-                container = _port(service, "internal", protocol, required=True)
+                container = _port(owner, service, "internal", protocol, required=True)
             for transport in _transports_of(term):
                 if term["mode"] == "host":
                     lines.extend(_host_lines(published, container, transport))

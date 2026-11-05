@@ -1,5 +1,9 @@
 """Lookup ``proxy_pass``: thin wrapper emitting the mode-aware directive via
-:func:`utils.networks.proxy.resolve_upstream` + :func:`render_proxy_pass`."""
+:func:`utils.networks.proxy.resolve_upstream` + :func:`render_proxy_pass`.
+
+``stream=True`` emits the directive of an nginx ``stream`` server through
+:func:`render_stream_proxy_pass` instead; ``tail`` and ``location`` belong to
+HTTP and are refused there."""
 
 from __future__ import annotations
 
@@ -10,7 +14,11 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.networks.proxy import render_proxy_pass, resolve_upstream
+from utils.networks.proxy import (
+    render_proxy_pass,
+    render_stream_proxy_pass,
+    resolve_upstream,
+)
 from utils.roles.applications.config import get as get_app_conf
 from utils.templating.ansible import _trust_as_template
 
@@ -41,6 +49,12 @@ class LookupModule(LookupBase):
         port_kind = _as_str(terms[2]) if len(terms) > 2 else "http"
         if not port_kind:
             port_kind = "http"
+        stream = _as_bool(kwargs.get("stream"))
+        if stream and ("tail" in kwargs or "location" in kwargs):
+            raise AnsibleError(
+                "proxy_pass: stream=True takes no tail or location; both shape "
+                "an HTTP request URI"
+            )
         tail = _as_str(kwargs.get("tail")) or "request"
         location = _as_str(kwargs.get("location")) or "/"
 
@@ -94,6 +108,10 @@ class LookupModule(LookupBase):
                 internal_port=_as_str(kwargs.get("internal_port")),
                 host_gateway=host_gateway,
             )
+            if stream:
+                return [
+                    render_stream_proxy_pass(authority, deployment_mode, host_gateway)
+                ]
             return [
                 render_proxy_pass(
                     authority,

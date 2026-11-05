@@ -65,5 +65,8 @@ http
   {% endfor %}
 }
 stream{
+{% if IS_SWARM_MODE %}
+  {{ NETWORK_DOCKER_DNS_NGINX_DIRECTIVE }}
+{% endif %}
   include {{ lookup('nginx','directories.configuration.streams') }}*.conf;
 }

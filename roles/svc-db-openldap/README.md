@@ -34,6 +34,15 @@ users:
 
 With `password_update: false`, existing LDAP users keep their current password on later runs.
 
+## Public LDAPS
+
+`services.openldap.network.public: true` opens LDAPS on `ports.public.ldaps` (636) through the stream module of openresty, which terminates TLS with the certificate of the role's domain and relays plain LDAP to slapd:
+
+- In compose, openresty runs on the host network and relays to the port OpenLDAP publishes on the loopback (`ports.local.ldap`).
+- In swarm, OpenLDAP publishes no port. Its overlay declares `stream_relay` in `meta/networks.yml`, so openresty and OpenLDAP share the network `openldap-relay` on its pinned subnet and no other role joins it. Openresty publishes 636 in host mode on its node and relays to `openldap:<ports.internal.ldap>`, which the resolver of `stream{}` looks up per connection. The relay leaves the openldap overlay and the trusted proxy addresses of the LDAP clients as they are.
+
+Until the swarm path has its live proof, a swarm deploy with the switch on stops: this role right after its run-once flag, and every other role as soon as it looks up the networks of openresty or OpenLDAP, openresty itself and every proxied application included.
+
 ## Email Addresses
 
 The inventory address only seeds an entry: a deploy writes it into `mail` of an entry that holds no `mail` and never changes an address the entry already holds. A changed inventory `email` therefore does not reach an existing user. Change an existing user's address in the Keycloak console, or in the directory through LAM or phpLDAPadmin.

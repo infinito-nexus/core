@@ -16,16 +16,31 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from utils.cache import PROJECT_ROOT
-from utils.cache.yaml import load_yaml_any
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.templating.ansible import _trust_as_template
 
 CORE = PROJECT_ROOT / "roles/svc-db-openldap/tasks/00_core.yml"
 REQUIREMENT_TITLE = "OpenLDAP LDAPS through openresty in swarm"
 PUBLIC_SWITCH = "services.openldap.network.public"
+GUARD_NAME = '- name: "🛑 Refuse public LDAPS on a swarm deploy'
 
 
 def _tasks() -> list[dict]:
     return load_yaml_any(str(CORE), default_if_missing=[])
+
+
+def _mutated(old: str, new: str) -> list[dict]:
+    """Load the real core tasks with one textual edit applied.
+
+    Args:
+      old: text that must occur in the real file.
+      new: its replacement.
+    """
+    source = read_text(str(CORE))
+    if old not in source:
+        raise AssertionError(f"{CORE} no longer contains {old!r}")
+    return load_yaml_str(source.replace(old, new, 1))
 
 
 def _is_guard(task: dict) -> bool:
@@ -109,6 +124,19 @@ class TestTheGuardFailsFastAndSaysWhy(unittest.TestCase):
         self.assertIn("docs/requirements/", message)
 
 
+class TestOpenrestyReloadsWhenTheStreamConfigChanges(unittest.TestCase):
+    def test_rendering_and_removing_the_stream_config_both_restart_openresty(self):
+        for action in ("📄 Render", "🧹 Remove"):
+            with self.subTest(action=action):
+                task = next(
+                    task
+                    for task in _tasks()
+                    if str(task.get("name", "")).startswith(action)
+                    and ".conf" in str(task.get("name"))
+                )
+                self.assertEqual(task.get("notify"), "restart-openresty")
+
+
 class TestNegativeControl(unittest.TestCase):
     def test_a_guard_without_its_condition_lets_public_ldaps_through(self):
         guard = copy.deepcopy(_guard(_tasks()))
@@ -121,6 +149,37 @@ class TestNegativeControl(unittest.TestCase):
             "not (OPENLDAP_NETWORK_SWITCH_PUBLIC | bool)"
         ]
         self.assertFalse(_passes(guard, swarm=False, public=True))
+
+
+class TestMutationsOfTheRealFileFailTheChecks(unittest.TestCase):
+    def test_dropping_the_mode_from_the_condition_stops_compose(self):
+        guard = _guard(_mutated("IS_SWARM_MODE | bool and ", ""))
+        self.assertFalse(_passes(guard, swarm=False, public=True))
+
+    def test_dropping_the_switch_from_the_condition_stops_every_swarm_deploy(self):
+        guard = _guard(_mutated(" and OPENLDAP_NETWORK_SWITCH_PUBLIC | bool", ""))
+        self.assertFalse(_passes(guard, swarm=True, public=False))
+
+    def test_negating_the_condition_lets_public_ldaps_through_in_swarm(self):
+        guard = _guard(_mutated("- not (IS_SWARM_MODE", "- (IS_SWARM_MODE"))
+        self.assertTrue(_passes(guard, swarm=True, public=True))
+
+    def test_a_guard_behind_the_docker_include_runs_too_late(self):
+        tasks = _mutated(
+            GUARD_NAME,
+            "- name: 🎬 Initialize docker\n  include_tasks: 01_docker.yml\n\n"
+            + GUARD_NAME,
+        )
+        docker = _index(
+            tasks, lambda task: task.get("include_tasks") == "01_docker.yml"
+        )
+        self.assertGreater(_index(tasks, _is_guard), docker)
+        self.assertNotEqual(_index(tasks, _is_guard), 1)
+
+    def test_a_message_without_the_requirement_title_is_no_guard(self):
+        tasks = _mutated("'OpenLDAP LDAPS", "'LDAPS")
+        with self.assertRaises(StopIteration):
+            _guard(tasks)
 
 
 if __name__ == "__main__":

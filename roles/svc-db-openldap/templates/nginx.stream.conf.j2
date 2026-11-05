@@ -1,6 +1,6 @@
 server {
-    listen {{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.public.ldaps') }}ssl;
-    proxy_pass 127.0.0.1:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }};
+    listen {{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.public.ldaps') }} ssl;
+    {{ lookup('proxy_pass', 'svc-db-openldap', 'openldap', 'ldap', stream=True) }}
     
     {% include 'roles/sys-front-tls/templates/ssl_credentials.j2' %}
 }
