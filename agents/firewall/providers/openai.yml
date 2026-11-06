@@ -1,0 +1,8 @@
+---
+base_url: https://api.openai.com
+flavour: model-vendor
+runtimes:
+  - codex
+login_hosts:
+  - api.openai.com
+  - auth.openai.com

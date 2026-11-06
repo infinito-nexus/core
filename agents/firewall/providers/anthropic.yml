@@ -1,0 +1,8 @@
+---
+base_url: https://api.anthropic.com
+flavour: model-vendor
+runtimes:
+  - claude-code
+login_hosts:
+  - api.anthropic.com
+  - console.anthropic.com
