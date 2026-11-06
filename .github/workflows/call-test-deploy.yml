@@ -261,6 +261,15 @@ jobs:
             --offset "${PLAN_OFFSET}" \
             >> "$GITHUB_STEP_SUMMARY"
 
+      - name: ⚠️ Warn that the passed disable can orphan a covered row
+        if: ${{ inputs.disable != '' }}
+        shell: bash
+        env:
+          PASSED_DISABLE: ${{ inputs.disable }}
+        run: |
+          passed="$(printf '%s' "${PASSED_DISABLE}" | tr -d ':%\r\n')"
+          echo "::warning title=disable can orphan covered rows::disable=${passed} is added to every row, but the plan cut its covered rows without it; a covered row whose coverer's deploy this disable prunes runs in no job of this run."
+
   deploy:
     name: "${{ matrix.label }}"
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'

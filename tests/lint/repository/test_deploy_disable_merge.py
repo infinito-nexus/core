@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 import unittest
+
+import yaml
 
 from cli.administration.inventory.provision.services.disabler import (
     parse_services_disabled,
@@ -70,6 +74,44 @@ class TestDeployDisableMerge(unittest.TestCase):
 
     def test_the_old_fallback_drops_the_passed_list(self) -> None:
         self.assertEqual(evaluate(OLD_EXPRESSION, "tor", "docs,matomo"), ["tor"])
+
+    def test_discovery_warns_when_a_passed_list_can_orphan_a_covered_row(
+        self,
+    ) -> None:
+        self.assertTrue(
+            warning_steps(),
+            "the covered-row cut ignores the passed disable, so discovery must "
+            "warn whenever one is passed",
+        )
+
+    def test_the_passed_list_cannot_inject_a_workflow_command(self) -> None:
+        for step in warning_steps():
+            with self.subTest(step=step["name"]):
+                printed = subprocess.run(
+                    ["bash", "-c", step["run"]],
+                    env={
+                        **os.environ,
+                        "PASSED_DISABLE": "docs\n::error::forged%0A::add-mask::x\r",
+                    },
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                ).stdout
+                self.assertEqual(printed.count("\n"), 1, printed)
+                self.assertEqual(printed.count("::"), 2, printed)
+                self.assertNotIn("%", printed)
+                self.assertIn("disable=docserrorforged0Aadd-maskx ", printed)
+
+
+def warning_steps() -> list[dict]:
+    """The discover steps that warn about a passed ``disable``."""
+    steps = yaml.safe_load(read_text(str(DEPLOY_WORKFLOW)))["jobs"]["discover"]["steps"]
+    return [
+        step
+        for step in steps
+        if "inputs.disable" in str(step.get("if", ""))
+        and "::warning" in str(step.get("run", ""))
+    ]
 
 
 if __name__ == "__main__":

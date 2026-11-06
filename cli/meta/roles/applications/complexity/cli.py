@@ -14,6 +14,8 @@ from utils.roles.applications.topics import overridden_providers
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from .reach import Rounds
+
 from .filter import FilterError, compile_predicate
 from .model import (
     TESTED_LIFECYCLES,
@@ -22,6 +24,7 @@ from .model import (
     compute_complexity_rows,
     compute_variant_complexity_rows,
 )
+from .reach import rounds
 from .render import render_json, render_string, render_table, render_yaml
 
 _SORT_KEYS = {
@@ -281,6 +284,8 @@ def _mark_covered(
     rows: list[ComplexityRow],
     overridden: Mapping[tuple[str, int], set[str]] | None = None,
     variant_counts: Mapping[str, int] | None = None,
+    *,
+    planner: Rounds,
 ) -> list[ComplexityRow]:
     """Assign each sorted row its numeric ``id`` (its position in sort order)
     and its ``covered_by`` via a greedy set-cover: the first row is green, and
@@ -288,10 +293,21 @@ def _mark_covered(
     already-green predecessor OF A DIFFERENT ROLE that actually embeds this row
     (its role name is in the predecessor's transitive ``services``); a row with
     no such predecessor becomes green itself, leaving ``covered_by`` at the
-    sentinel ``0`` (no real ``id`` is 0). Because ``services`` is the
-    transitive closure, embedding the row pulls its whole subtree, so the
-    coverer's deploy genuinely brings this row up. Two variants of the same
-    role never cover each other (a role never embeds itself).
+    sentinel ``0`` (no real ``id`` is 0). Two variants of the same role never
+    cover each other (a role never embeds itself).
+
+    ``services`` alone does not prove the coverer's deploy brings the row up:
+    the closure walks every provider's base ``meta/services.yml``, while the
+    round runs each provider in a variant that may switch the edge off, and
+    leaves the primary-only guide and Semaphore edges off for every provider, so
+    a coverer can name a role its round never deploys. ``planner`` is the deploy
+    planner's answer, and a coverer must run the row's role in variant 0 there
+    too, in every network mode the sweep may rotate the coverer to: the deploy
+    and network axes are assigned after this cut, and a network's ``disable``
+    drops the Tor provider from a clearnet node and a clearnet-only partner from
+    a Tor node. A coverer must also offer every deploy mode and network mode the
+    row offers, or the sweep never deploys the row in the ones it lacks; such a
+    row stays green.
 
     Coverage is variant-aware: only a row's variant-0 (or whole-role) form can
     be covered, because a coverer only ever brings a provider up at variant 0.
@@ -314,6 +330,7 @@ def _mark_covered(
             no variant dictates anything.
         variant_counts: ``{role: how many variants it declares}``. A role
             missing from it counts as one, which is the whole-role case.
+        planner: the deploy planner's :class:`~.reach.Rounds` (:func:`rounds`).
     """
     demands = overridden or {}
     counts = variant_counts or {}
@@ -322,7 +339,14 @@ def _mark_covered(
         index = coverer_variant or 0
         return index == 0 or index >= counts.get(provider, 1)
 
-    green: list[tuple[int, str, int | None, set[str]]] = []
+    def deploys_at_zero(coverer: ComplexityRow, row: ComplexityRow) -> bool:
+        return (
+            planner.modes(row) <= planner.modes(coverer)
+            and planner.networks(row) <= planner.networks(coverer)
+            and planner.runs(coverer).get(row.name) == 0
+        )
+
+    green: list[tuple[int, ComplexityRow, set[str]]] = []
     out: list[ComplexityRow] = []
     for index, row in enumerate(rows, start=1):
         coverable = row.variant in (None, 0)
@@ -330,11 +354,12 @@ def _mark_covered(
             next(
                 (
                     gid
-                    for gid, gname, gvariant, gset in green
-                    if gname != row.name
+                    for gid, grow, gset in green
+                    if grow.name != row.name
                     and row.name in gset
-                    and row.name not in demands.get((gname, gvariant or 0), ())
-                    and pulls_at_zero(gvariant, row.name)
+                    and row.name not in demands.get((grow.name, grow.variant or 0), ())
+                    and pulls_at_zero(grow.variant, row.name)
+                    and deploys_at_zero(grow, row)
                 ),
                 None,
             )
@@ -342,7 +367,7 @@ def _mark_covered(
             else None
         )
         if coverer is None:
-            green.append((index, row.name, row.variant, set(row.services)))
+            green.append((index, row, set(row.services)))
         out.append(row._replace(id=index, covered_by=coverer or 0))
     return out
 
@@ -398,6 +423,7 @@ def main(argv: list[str] | None = None) -> int:
             role: max(1, len(entries or [{}]))
             for role, entries in get_variants(roles_dir=roles_dir).items()
         },
+        planner=rounds(roles_dir),
     )
     _apply_sort(rows, sort_spec)
 
