@@ -1,0 +1,5 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+NODE_ENV=production
+PORT={{ FREELLMAPI_MOCK_PORT }}
+MOCK_MODEL={{ FREELLMAPI_MOCK_MODEL | dotenv_quote }}

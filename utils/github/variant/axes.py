@@ -204,7 +204,8 @@ def assign(
         ``NETWORK_MODE`` the deploy runs with, ``vpn`` whether a swarm row
         runs meshed, and ``disable`` carries the provider tokens the deploy
         drill switches off; a ``clearnet`` row disables the Tor provider so no
-        dependency edge can pull it back into the closure.
+        dependency edge can pull it back into the closure, and a ``swarm`` row
+        disables the compose-only partners its variant deploys.
     """
     codec = display_names()
     entries: list[dict[str, str]] = []
@@ -317,7 +318,9 @@ def assign(
                     "enforce_filesystem": "true"
                     if pin_filesystem is not None or len(filesystems) == 1
                     else "false",
-                    "disable": disabled_services(state, row.get("services", ())),
+                    "disable": disabled_services(
+                        state, row.get("services", ()), mode=mode
+                    ),
                     "priority": "true" if priority else "false",
                     "instructions": "",
                     "id": str(row.get("id", 0)),

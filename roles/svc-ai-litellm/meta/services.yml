@@ -108,7 +108,6 @@ lmstudio:
   shared: "{{ 'svc-ai-lmstudio' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
-# nocheck: bond-baseline  FreeLLMAPI answers only through provider keys an operator adds in its dashboard and runs in compose mode only, so no variant 0 round can deploy and validate it
 freellmapi: # nocheck: gateway-backend-registered AI_FREELLMAPI_MODELS joins LITELLM_REMOTE_MODELS before the common route builder; test_freellmapi.py verifies the render
   bond: 1
   enabled: "{{ 'svc-ai-freellmapi' in group_names }}"

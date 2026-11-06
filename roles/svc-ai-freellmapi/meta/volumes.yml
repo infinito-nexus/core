@@ -7,3 +7,12 @@ freellmapi_data:
   mounts:
     - service: freellmapi
       target: /app/server/data
+
+freellmapi_mock_script:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-freellmapi', 'directories.config'), 'mock_upstream.js' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mock
+      target: /opt/infinito/mock_upstream.js
+      when: "{{ lookup('config', 'svc-ai-freellmapi', 'services.mock.enabled') | bool }}"

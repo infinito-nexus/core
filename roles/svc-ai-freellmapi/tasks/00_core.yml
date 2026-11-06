@@ -26,6 +26,30 @@
     quiet: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🧪 Stage the deterministic test upstream"
+  when: FREELLMAPI_MOCK_ENABLED | bool
+  block:
+    - include_tasks: utils/load/handlers.yml
+      vars:
+        handler_role_name: "sys-svc-compose"
+
+    - name: "📁 Create the configuration directory for the test upstream"
+      ansible.builtin.file:
+        path: "{{ FREELLMAPI_MOCK_SCRIPT_HOST | dirname }}"
+        state: directory
+        mode: "0755"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+
+    - name: "🧩 Stage the test upstream server script"
+      stack_host_copy:
+        src: "{{ lookup('path_absolute', 'roles/svc-ai-freellmapi/files/javascript/mock_upstream.js') }}"
+        dest: "{{ FREELLMAPI_MOCK_SCRIPT_HOST }}"
+        mode: "0444"
+      notify:
+        - compose-up
+        - container-recreate
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
