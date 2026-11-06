@@ -28,7 +28,7 @@ RUN set -ex; \
         libwebsockets-dev; \
     git clone --recursive "${JANUS_REPOSITORY}" --depth=1 --single-branch --branch "${JANUS_REF}" /src; \
     /src/autogen.sh; \
-    /src/configure --disable-rabbitmq --disable-mqtt --disable-boringssl; \
+    /src/configure --disable-rabbitmq --disable-mqtt --disable-boringssl --disable-rest; \
     make; \
     make install; \
     make configs; \

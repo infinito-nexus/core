@@ -90,7 +90,7 @@ While `services.talk.enabled` is true, the role runs the Talk high-performance b
 | Service | Component | Source |
 |---------|-----------|--------|
 | `talk_signaling` | signaling server | upstream image `strukturag/nextcloud-spreed-signaling`, semver pin |
-| `talk` | Janus media server | image the role builds from a semver tag of `meetecho/janus-gateway` |
+| `talk` | Janus media server | image the role builds from a semver tag of `meetecho/janus-gateway` with `--disable-rest`, so WebSocket is its only API transport |
 | `talk_nats` | NATS message bus | official image `nats`, semver pin |
 | `talk_recording` | recording server | image the role builds from a semver release tag of `nextcloud/nextcloud-talk-recording` |
 
