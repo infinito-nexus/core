@@ -712,6 +712,7 @@ stateDiagram-v2
 - An `account` grant is active only while its credentials are present in the inventory or provisioned; an inactive grant is skipped, and the next active account becomes the default.
 - User-started agents get `account` grants only for providers the platform provisions, never for manually created external accounts.
 - Agents hold no model provider credential. Anthropic is configured once in `svc-ai-litellm` as upstream, with `auth: api_key` (default) or `auth: subscription` chosen in the inventory.
+  - Exception: a VM workspace in login mode holds its agent's vendor login, see [093](093-agents-vm-workspaces.md).
 - Every agent keeps all its credentials (logins, tokens, keys, signing keys, recovery keys) in its own KeePass database (`.kdbx`); that database is the single source of the agent's credentials. The inventory, and optionally OpenBao, hold only the database's master key and the bootstrap credentials; `sys-token-store` keeps platform secrets only.
 - The `.kdbx` is stored in the agent's Nextcloud account when the agent has a Nextcloud grant, and in its persistent volume otherwise.
 - `keepass.mode` decides who opens the database:
@@ -767,6 +768,7 @@ This naming is a breaking change and ships in a major release; existing accounts
 - Server workspace: a new role `web-app-workspace` runs a browser IDE (Code-OSS based, with the Claude Code extension from Open VSX) per agent and per user, isolated by `svc-virt-kata`, reachable through SSO.
 - Local workspace: a new role `dsk-agentbox` installs agentbox; `dsk-gnt-*` and the editor installed by `dsk-code` work inside an agentbox box instead of on the host. `dsk-code` uses the `vscodium` flavor when the local workspace is enabled, because Code - OSS ships no matching remote server.
 - Both are usable by a human interactively and by an agent autonomously.
+- VM workspaces on Incus and Proxmox VE and the Kata box runtime of `dsk-agentbox` extend this section, see [093](093-agents-vm-workspaces.md).
 - Isolation rules for both:
   - no host home, no sibling repositories, no host Docker socket, no host credentials;
   - Docker access covers the agent's own stack only;
@@ -1752,6 +1754,8 @@ The open acceptance criteria of this requirement moved unchanged into the phase 
 | 10 | [087 - SaaS Integration and Local End to End](087-agents-phase-10-saas-integration.md) | 6 | 12 | 085, 086 |
 | 11 | [088 - CI on Core, Final Acceptance and Board Migration](088-agents-phase-11-ci-and-acceptance.md) | 7 | 11 | 087 |
 
+[093 - Agents: VM Workspaces on Incus and Proxmox](093-agents-vm-workspaces.md) extends the Workspaces section outside the phase order and depends on 082.
+
 Every checked criterion below names its evidence at commit `f22dbca4ec` of `feature/iam-profile-rbac`; a criterion marked "not yet on `feature/agents`" does not hold at the `feature/agents` tip `4a3e31eaf1`.
 
 ## Acceptance Criteria
@@ -1866,4 +1870,5 @@ Every checked criterion below names its evidence at commit `f22dbca4ec` of `feat
 ## Cross-linking
 
 - Phase files: [078](078-agents-phase-1-foundations.md), [079](079-agents-phase-2-tooling-gaps.md), [080](080-agents-phase-3-firewall-compiler.md), [081](081-agents-phase-4-control-plane.md), [082](082-agents-phase-5-identity-and-workspaces.md), [083](083-agents-phase-6-platform-surfaces.md), [084](084-agents-phase-7-roles-at-work.md), [085](085-agents-phase-8-remote-and-detached.md), [086](086-agents-phase-9-ai-role-cleanup.md), [087](087-agents-phase-10-saas-integration.md), [088](088-agents-phase-11-ci-and-acceptance.md).
+- Extension: [093 - Agents: VM Workspaces on Incus and Proxmox](093-agents-vm-workspaces.md).
 - Implementing PR: to be added.
