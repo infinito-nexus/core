@@ -65,7 +65,7 @@ openpost:
     swarm:
       enabled: true
   image: ghcr.io/getopenpost/openpost
-  version: "v7.22.9"
+  version: "v7.37.2"
   update:
     type: registry_tags
     image: ghcr.io/getopenpost/openpost
@@ -92,7 +92,7 @@ openpost:
     - web-app-mastodon
     - web-app-pixelfed
     - web-app-peertube
-  lifecycle: alpha
+  lifecycle: beta
 # nocheck: playwright-service-flag  egress sidecar, covered by the role's CLI test
 # nocheck: dynamic-flag  the relay is part of this role and runs whenever OpenPost runs; no other role's presence decides it
 relay:
