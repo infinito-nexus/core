@@ -165,6 +165,7 @@ class FakeFrappe:
         self.defaults = {}
         self.doctypes = {"System Settings", "Global Defaults"}
         self.tables = set()
+        self.apps_info = []
         self.calls = []
         self.db = FakeDb(self)
 
@@ -279,6 +280,7 @@ class FakeFrappe:
         geo.country_info = country_info
         utils = ModuleType("frappe.utils")
         utils.getdate = lambda: TODAY
+        utils.get_installed_apps_info = lambda: self.apps_info
         return {
             "frappe": self,
             "frappe.geo": geo,

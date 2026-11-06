@@ -14,6 +14,36 @@
   ansible.builtin.include_tasks: 02_bench_bootstrap/create_site.yml
   when: erpnext_site_probe.rc != 0
 
+- name: "🔍 compare the image's app versions with the site's recorded ones"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/pending_migration.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+  register: erpnext_pending_migration
+  changed_when: false
+
+- name: "🚚 bench migrate '{{ ERPNEXT_SITE_NAME }}' onto the image's versions"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} \
+      bench --site {{ ERPNEXT_SITE_NAME }} migrate
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  register: erpnext_migrate
+  changed_when: true
+  timeout: "{{ lookup('timeout', 1800) | int }}"
+  when: (erpnext_pending_migration.stdout_lines | last | from_json).pending | length > 0
+
+- name: "🔄 Restart Frappe so every process runs on the migrated schema"
+  ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
+  when: erpnext_migrate is changed
+
 - name: "🔑 Realign the Administrator password with the declared one"
   ansible.builtin.shell: |
     set -euo pipefail
