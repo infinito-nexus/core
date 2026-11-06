@@ -39,6 +39,9 @@ then usable as `account(<provider>/<label>)`.
 ## Compilation
 
 The compiler lowers these roles into the per-caller policy of
-`svc-ai-mcp-adapter`, the container egress allowlist, the agent account's LDAP
-groups, the agent workspace's read-only managed settings, and the channel
-account's room memberships.
+`svc-ai-mcp-adapter`, the container egress allowlist, the agent account's
+LDAP groups, the agent workspace's read-only managed settings, and the channel
+account's room memberships. `vm_egress_proxy` computes the refuse and admit
+lists of a hypervisor-side egress proxy in front of an agent VM; no deploy
+calls it yet, and its gateway mode does not yet add the model gateway, the
+MCP adapter or the agent's fork, nor pin DNS to the resolver.

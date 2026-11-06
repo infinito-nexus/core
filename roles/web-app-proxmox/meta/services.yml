@@ -1,0 +1,106 @@
+---
+proxmox:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    stop_required: true
+  image: debian
+  version: 13.7-slim
+  custom: true
+  name: proxmox
+  min_storage: 20GB
+  cpus: "2.0"
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 4096
+  lifecycle: pre-alpha
+  ports:
+    local:
+      http: 7992
+      sso: 16503
+    internal:
+      http: 8006
+  ve:
+    repository: http://download.proxmox.com/debian/pve
+    keyring: https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg
+    keyring_sha512: ""
+    suite: trixie
+    packages:
+      pve-manager: "9.1.1"
+      pve-cluster: ""
+      pve-qemu-kvm: ""
+      qemu-server: ""
+  shared_host: false
+  agents:
+    warm_pool: 1
+    reserve:
+      memory: 4GiB
+      disk: 50GiB
+    overhead:
+      cpus: 1
+      memory: 2GiB
+  vm_network:
+    bridge: vmbr1
+    subnet: 192.168.242.0/24
+
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names or (groups.get('web-app-keycloak') or []) | length > 0 }}"
+  shared: "{{ 'web-app-keycloak' in group_names or (groups.get('web-app-keycloak') or []) | length > 0 }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: proxmox
+      port: 8006
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-proxmox', role='administrator') }}"
+
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "Proxmox VE"
+
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: dynamic-flag, sso-variant-tor  the Proxmox VE UI stays behind the front proxy's clearnet gate, so the role has no onion
+tor:
+  bond: 0.5
+  enabled: false
+  shared: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+container_backup:
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

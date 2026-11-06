@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from utils.firewall.parse import Rule, parse_rule
+from utils.firewall.parse import Rule, normalise_host, parse_rule
 
 VERDICTS = ("deny", "ask", "allow")
 
@@ -90,6 +90,57 @@ def egress_allowlist(resolved: Resolved) -> list[str]:
     not also denied."""
     denied = {r.target for r in resolved.deny if r.kind == "egress"}
     return sorted({r.target for r in resolved.allow if r.kind == "egress"} - denied)
+
+
+def login_hosts(providers: dict[str, dict], runtime: str) -> list[str]:
+    """Return the vendor hosts a login-mode workspace of ``runtime`` adds to
+    its egress: the ``login_hosts`` of every declared provider that names the
+    runtime, and nothing else.
+
+    Args:
+        providers: provider name to its parsed agents/firewall/providers/ file.
+        runtime: the agent's runtime.
+    """
+    return sorted(
+        {
+            host
+            for provider in providers.values()
+            if runtime in (provider.get("runtimes") or [])
+            for host in provider.get("login_hosts") or []
+        }
+    )
+
+
+def _egress_denied(resolved: Resolved, host: str) -> bool:
+    return any(
+        _matches(rule, "egress", normalise_host(host), None) for rule in resolved.deny
+    )
+
+
+def vm_egress_proxy(
+    resolved: Resolved, model_access: str, vendor_hosts: list[str]
+) -> dict:
+    """Return the policy of the hypervisor-side egress proxy in front of an
+    agent VM: the hosts the proxy refuses and the hosts it admits by TLS SNI or
+    HTTP Host header, refuse before admit, every other destination refused.
+    Login mode adds the vendor hosts; a deny rule still removes any of them.
+
+    Args:
+        resolved: the agent's resolved firewall role.
+        model_access: ``gateway`` or ``login``.
+        vendor_hosts: the result of ``login_hosts`` for the agent's runtime.
+    """
+    candidates = set(egress_allowlist(resolved))
+    if model_access == "login":
+        candidates |= {normalise_host(host) for host in vendor_hosts}
+    return {
+        "refuse": sorted({r.target for r in resolved.deny if r.kind == "egress"}),
+        "admit": sorted(h for h in candidates if not _egress_denied(resolved, h)),
+        "match": ["sni", "host"],
+        "order": ["refuse", "admit"],
+        "unmatched": "deny",
+        "outside_proxy": ["dns-to-resolver", "dhcp"],
+    }
 
 
 def mcp_policy(resolved: Resolved) -> dict[str, list[str]]:

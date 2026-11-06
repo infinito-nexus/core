@@ -40,6 +40,23 @@ class Rule:
         return set(_VAR.findall(self.target))
 
 
+def normalise_host(target: str) -> str:
+    """Return an egress target in the one spelling the matcher compares:
+    lowercase outside ``${VAR}`` and without the trailing dot of the host.
+    Non-ASCII host names never get here, because the target grammar admits
+    only the IDNA A-label form.
+
+    Args:
+        target: the egress target as written.
+    """
+    parts = _VAR.split(target)
+    joined = "".join(
+        part.lower() if index % 2 == 0 else f"${{{part}}}"
+        for index, part in enumerate(parts)
+    )
+    return re.sub(r"\.(?=$|[:/])", "", joined, count=1)
+
+
 def parse_rule(raw: str) -> Rule:
     """Parse ``raw`` into a :class:`Rule`, or raise ``ValueError``.
 
@@ -69,7 +86,8 @@ def parse_rule(raw: str) -> Rule:
         if bad:
             raise ValueError(f"rule {raw!r}: unknown actions {bad}")
         actions = frozenset(parts)
-    return Rule(kind=kind, target=match["target"], actions=actions, raw=raw.strip())
+    target = normalise_host(match["target"]) if kind == "egress" else match["target"]
+    return Rule(kind=kind, target=target, actions=actions, raw=raw.strip())
 
 
 def _expect(condition: bool, message: object) -> None:

@@ -121,6 +121,7 @@ NONE_NEEDED: dict[str, str] = {
     "web-app-pihole": "gate only, no own profile",
     "web-app-postmarks": "gate only, no own profile",
     "web-app-prometheus": "gate only, no own profile",
+    "web-app-proxmox": "gate only, no own profile",
     "web-app-seaweedfs": "gate only, no own profile",
     "web-app-wazuh": "no stored profile",
     "web-app-workspace": "gate only, no own profile",

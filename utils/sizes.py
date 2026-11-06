@@ -55,3 +55,22 @@ def to_bytes(val):
     if unit not in _MULT:
         raise AnsibleFilterError(f"to_bytes: unknown unit in size: {unit!r}")
     return int(num * _MULT[unit])
+
+
+def docker_to_bytes(val):
+    """Convert a Docker memory size (``mem_limit``, ``memswap_limit``) to bytes
+    the way Docker reads it: every suffix is binary, so ``4g``, ``4gb`` and
+    ``4GiB`` are all 4 GiB.
+
+    Args:
+        val: the size as Docker accepts it, or a number of bytes.
+    """
+    if isinstance(val, (int, float)):
+        return int(val)
+    m = _SIZE_RE.match(val) if isinstance(val, str) else None
+    if not m:
+        raise AnsibleFilterError(f"docker_to_bytes: unrecognized size: {val!r}")
+    prefix = (m.group(2) or "").lower()[:1]
+    if prefix in ("", "b"):
+        return int(float(m.group(1)))
+    return int(float(m.group(1)) * 1024 ** ("kmgtp".index(prefix) + 1))
