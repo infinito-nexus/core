@@ -9,7 +9,7 @@
     {{ lookup('compose_only', 'container_name', XWIKI_CONTAINER) }}
     hostname: '{{ XWIKI_HOSTNAME}}'
     {{ lookup('container_ports', ['xwiki', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    environment: # nocheck: compose-environment-from-env-file the LDAP keys follow xwiki_ldap_enabled_switch, and tasks/02_manager_ops.yml flips it for a second render of compose.yml.j2 alone; env.j2 renders once under tasks/00_core.yml with the switch pinned false, so an env-file copy would freeze the disabled state and LDAP would never reach the container
+    environment: # nocheck: compose-environment-from-env-file the LDAP keys follow xwiki_ldap_enabled_switch, which stays off at bootstrap until the probe finds the authenticator; only compose.yml.j2 is rendered again under the final switch, so env.j2 would keep LDAP off on a fresh wiki
       XWIKI_PROPERTIES_SOURCE: "{{ lookup('volume', application_id, 'properties').target }}"
       {% if xwiki_ldap_enabled_switch | bool and not (xwiki_oidc_enabled_switch | bool) %}
       XWIKI_CFG_LDAP_SERVER: "{{ XWIKI_LDAP_SERVER }}"

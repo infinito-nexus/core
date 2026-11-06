@@ -13,7 +13,7 @@
   changed_when: false
   when:
     - IS_STACK_HOST | bool
-    - XWIKI_SSO_ENABLED | bool
+    - (XWIKI_SSO_ENABLED | bool) or (XWIKI_OBJSTORE_ENABLED | bool)
 
 - name: "🔎 XWIKI | Read the core version of the running wiki"
   uri_retry:
