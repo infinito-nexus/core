@@ -1,0 +1,15 @@
+---
+- services:
+    docs:
+      enabled: true
+      shared: true
+    semaphore:
+      enabled: false
+      shared: false
+- services:
+    docs:
+      enabled: false
+      shared: false
+    semaphore:
+      enabled: true
+      shared: true

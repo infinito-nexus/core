@@ -1,0 +1,8 @@
+---
+incus:
+  Archlinux:
+    - incus
+  Debian:
+    - incus
+  RedHat:
+    - incus

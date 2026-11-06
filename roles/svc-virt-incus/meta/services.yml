@@ -1,0 +1,43 @@
+---
+incus:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  bond: 1
+  enabled: true
+  shared: true
+  min_storage: "20GB"
+  cpus: "0.5"
+  mem_reservation: "256m"
+  mem_limit: "1g"
+  pids_limit: 1024
+  lifecycle: pre-alpha
+  storage_pool:
+    name: agents
+    driver: btrfs
+    size: 100GiB
+  network:
+    name: agentbr0
+    ipv4: 192.168.243.1/24
+  agents:
+    warm_pool: 1
+    reserve:
+      memory: 2GiB
+      disk: 20GiB
+    secure_boot: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  Incus is the host hypervisor daemon; pausing it would stop every running agent VM
+  status: started
