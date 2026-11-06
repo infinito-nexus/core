@@ -95,6 +95,11 @@ nginx:
   ports:
     internal:
       http: 80
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "1.31-alpine"
+        until: 2026-12-03
 cron:
   name: moodle-cron
   custom: true

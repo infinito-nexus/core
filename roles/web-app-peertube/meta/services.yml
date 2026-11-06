@@ -88,6 +88,11 @@ peertube:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v8.3.2"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   bond: 1

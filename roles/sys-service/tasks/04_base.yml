@@ -37,3 +37,14 @@
         | unique
       }}
   when: system_service_force_flush_final | bool
+
+- name: "➕ sys-service | Run '{{ system_service_name }}' once at the end of the play"
+  ansible.builtin.set_fact:
+    system_service_run_once_list: >-
+      {{
+        (system_service_run_once_list | default([]) + [system_service_name])
+        | unique
+      }}
+  when:
+    - system_service_force_flush_final | bool
+    - system_service_run_once | bool

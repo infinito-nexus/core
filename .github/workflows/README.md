@@ -232,6 +232,13 @@ reproduces by re-running the same sweep:
 | vpn (swarm rows) | `(position // 2 + sweep // 4) % 2` |
 | distro | `(position + sweep) % len(distro pool)` |
 | filesystem | `(position // len(distro pool) + sweep) % len(filesystem pool)` |
+| 🔬 vulnerability engine | `(position // (len(distro pool) * len(filesystem pool)) + sweep) % 3` over 🔺 trivy, 🍇 grype, 🐙 osv |
+
+The vulnerability engine is the odometer digit above distro and filesystem, and its glyph follows the filesystem glyph in the label (`🐳🧅🌀🦓🔺`).
+The deploy-time scan of `sys-ctl-hlth-runtime` then runs Syft and that engine only, plus Grype over the source-built runtimes Syft finds.
+The `vulnerability-db` job of [call-test-deploy.yml](call-test-deploy.yml) downloads the Trivy, Grype and OSV databases once per day into the Actions cache; each deploy job restores the Grype database and the drawn engine's into `build/vulnerability-db`, which the stack and every swarm node mount read-only, and fails when one is missing, so no deploy job downloads a database itself.
+Under act these steps are skipped: the deploy draws its engine and refreshes the shared host directory `INFINITO_VULNERABILITY_DB_HOST_PATH`, which [workflow.sh](../../scripts/tests/deploy/act/workflow.sh) binds into the job container at the same path.
+`cron-images-mirror-all.yml` writes the findings of its `scan` job per image and per CVE into the job summary and the `vulnerability-findings` artifact; dispatched with `issues: false` it is a dry run that leaves the issues untouched.
 
 A role offers at most two modes in practice — swarm needs its own stack, host
 needs the absence of one — so a row flips between its two modes on consecutive

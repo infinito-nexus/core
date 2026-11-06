@@ -81,6 +81,11 @@ opentalk:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v2.9.2"
+        until: 2026-12-03
 controller:
   name: opentalk-controller
   image: registry.opencode.de/opentalk/controller
@@ -101,6 +106,11 @@ controller:
       http: 8072
     internal:
       http: 11311
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v0.34.5"
+        until: 2026-12-03
 livekit:
   name: opentalk-livekit
   image: livekit/livekit-server
@@ -119,6 +129,11 @@ livekit:
       relay:
         start: 60000
         end: 60999
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v1.13.11"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-app-minio)
 minio:
   enabled: false # nocheck: dynamic-flag
@@ -148,6 +163,11 @@ rabbit:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "4.4.0"
+        until: 2026-12-03
 recorder:
   name: opentalk-recorder
   image: registry.opencode.de/opentalk/recorder
@@ -164,6 +184,11 @@ recorder:
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v0.17.5"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — verified by web-svc-css provider spec
 css:
   bond: 1

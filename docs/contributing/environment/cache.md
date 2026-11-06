@@ -111,6 +111,10 @@ Per-variable defaults and purposes are in [compose.yml.md](../artefact/files/com
 
 Cache state persists under `/var/cache/infinito/core/cache/`. Paths are configurable via the env scripts above.
 
+## Vulnerability Databases 🔬
+
+Every development stack and every swarm lab node mounts `INFINITO_VULNERABILITY_DB_HOST_PATH` read-only at `INFINITO_VULNERABILITY_DB_DIR`. A local deploy draws one engine and refreshes that engine's and Grype's database there once a day, under a lock file inside that directory, before the deploy starts; the stacks never download one. An act run binds the directory into its job container at the same path, and a refresh as root hands its files to the directory's owner. A CI deploy job points the variable at the databases it restored from the Actions cache instead. See [sys-ctl-hlth-runtime](../../../roles/sys-ctl-hlth-runtime/README.md).
+
 ## Adding a New Upstream ➕
 
 When a new package manager or upstream needs caching:

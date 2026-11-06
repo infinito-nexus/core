@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.distros import distro_names
+from utils.security.engine import SCANNERS
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
 DISTROS = distro_names()
 
 FILESYSTEMS = ("zfs", "btrfs", "ext4")
+
+ENGINES = SCANNERS
 
 
 def resolve_pool(

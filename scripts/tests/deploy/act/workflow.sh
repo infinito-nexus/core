@@ -14,6 +14,7 @@ set -euo pipefail
 : "${ACT_BIND:=false}"
 : "${ACT_INPUTS:=}"
 : "${ACT_ENV:=}"
+: "${INFINITO_VULNERABILITY_DB_HOST_PATH:?INFINITO_VULNERABILITY_DB_HOST_PATH is not set; run 'make dotenv' to generate the .env single source of truth}"
 
 if [[ "${ACT_PLATFORM_IMAGE}" == local/act-runner-fixed:latest ]] &&
 	! docker image inspect "${ACT_PLATFORM_IMAGE}" >/dev/null 2>&1; then
@@ -83,9 +84,9 @@ if [[ -n "${ACT_ENV}" ]]; then
 		fi
 	done
 fi
-if [[ -n "${ACT_CONTAINER_OPTIONS}" ]]; then
-	cmd+=(--container-options "${ACT_CONTAINER_OPTIONS}")
-fi
+mkdir -p "${INFINITO_VULNERABILITY_DB_HOST_PATH}"
+cmd+=(--container-options "${ACT_CONTAINER_OPTIONS} --volume ${INFINITO_VULNERABILITY_DB_HOST_PATH}:${INFINITO_VULNERABILITY_DB_HOST_PATH}")
+cmd+=(--env "INFINITO_VULNERABILITY_DB_HOST_PATH=${INFINITO_VULNERABILITY_DB_HOST_PATH}")
 if [[ -n "${ACT_NETWORK}" ]]; then
 	cmd+=(--network "${ACT_NETWORK}")
 fi

@@ -105,11 +105,11 @@ blackbox-exporter:
     internal:
       http: 9115
 cadvisor:
-  image: gcr.io/cadvisor/cadvisor
-  version: v0.55.1
+  image: ghcr.io/google/cadvisor
+  version: v0.60.6
   update:
     type: registry_tags
-    image: gcr.io/cadvisor/cadvisor
+    image: ghcr.io/google/cadvisor
   name: prometheus-cadvisor
   cpus: "0.25"
   mem_reservation: 128m
@@ -134,6 +134,11 @@ node-exporter:
   ports:
     internal:
       http: 9100
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v1.12.1"
+        until: 2026-12-03
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -165,6 +170,11 @@ prometheusmcp:
   ports:
     internal:
       http: 8080
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.13.15-slim"
+        until: 2026-12-03
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5

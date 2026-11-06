@@ -36,6 +36,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Variables
 
 - `system_service_run_list` (list): list of systemd unit names to run
+- `system_service_run_once_list` (list): units of that list that run once and fail on their first failure, set by `sys-service` for `system_service_run_once=true`
+- `SYS_SERVICE_RUNNER_RETRIES` (int): retries of every other unit
 - `SYS_SERVICE_RUNNER_STATE` (string): desired state (`started`, `restarted`, ...)  
 
 ## Further Resources

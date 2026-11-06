@@ -7,6 +7,57 @@ import cli.contributing.mirror.sync.__main__ as sync_main
 from cli.contributing.mirror.model import ImageRef
 
 
+class TestThrottle(unittest.TestCase):
+    def test_only_docker_hub_copies_wait_for_the_throttle(self) -> None:
+        def image(name: str, registry: str) -> ImageRef:
+            return ImageRef(
+                role="r",
+                service=name,
+                name=name,
+                version="1",
+                source=f"{registry}/{name}:1",
+                registry=registry,
+            )
+
+        images = [
+            image("a", "docker.io"),
+            image("b", "ghcr.io"),
+            image("c", "quay.io"),
+            image("d", "docker.io"),
+        ]
+        with (
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_role_images",
+                return_value=images,
+            ),
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_runner_images",
+                return_value=[],
+            ),
+            patch.object(sync_main.GHCRProvider, "image_base", return_value="g/x"),
+            patch.object(sync_main.GHCRProvider, "mirror") as mock_mirror,
+            patch.object(sync_main.time, "monotonic", return_value=0.0),
+            patch.object(sync_main.time, "sleep") as mock_sleep,
+            patch(
+                "sys.argv",
+                [
+                    "mirror-sync",
+                    "--ghcr-namespace",
+                    "acme",
+                    "--ghcr-repository",
+                    "myrepo",
+                    "--images-per-hour",
+                    "150",
+                ],
+            ),
+        ):
+            result = sync_main.main()
+
+        self.assertEqual(result, 0)
+        self.assertEqual(mock_mirror.call_count, 4)
+        self.assertEqual([call.args for call in mock_sleep.call_args_list], [(24.0,)])
+
+
 class TestMirrorSync(unittest.TestCase):
     def test_only_missing_skips_existing_destination(self) -> None:
         image = ImageRef(

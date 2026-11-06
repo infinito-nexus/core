@@ -1,8 +1,61 @@
 ---
+- name: "🧩 Load docker service required for the 'run' command"
+  include_role:
+    name: sys-svc-container
+    public: false
+  when: run_once_sys_svc_container is not defined
+
 - name: 📂 Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose
   when: run_once_sys_ctl_alm_compose is not defined
+
+- name: 📁 Create the vulnerability cache
+  ansible.builtin.file:
+    path: "{{ HEALTH_RUNTIME_CACHE_DIR }}"
+    state: directory
+    mode: "0700"
+
+- name: 📁 Create the report and findings log directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - "{{ DIR_HEALTH_RUNTIME_REPORT }}"
+    - "{{ DIR_HEALTH_RUNTIME_LOG }}"
+
+- name: 📁 Create the node-exporter textfile directory
+  ansible.builtin.file:
+    path: "{{ DIR_METRICS_TEXTFILE }}"
+    state: directory
+    mode: "0755"
+  when: HEALTH_RUNTIME_METRICS_ENABLED | bool
+
+- name: 📦 install logrotate
+  package_install:
+    id: logrotate
+
+- name: 🔁 Rotate the findings log weekly
+  ansible.builtin.template: # nocheck: stack-host-template (per-node logrotate drop-in, every node scans itself)
+    src: logrotate.j2
+    dest: "{{ HEALTH_RUNTIME_LOGROTATE_FILE }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: ⬇️ Pull the vulnerability engine images (with retries)
+  ansible.builtin.command:
+    argv:
+      - container
+      - pull
+      - "{{ item }}"
+  loop: "{{ HEALTH_RUNTIME_IMAGES.values() | list }}"
+  register: health_runtime_pull
+  changed_when: false
+  retries: 6
+  delay: 20
+  until: health_runtime_pull.rc == 0
 
 - include_role:
     name: sys-service
@@ -12,8 +65,18 @@
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
     system_service_tpl_exec_start: >-
       {{ system_service_script_exec }}
-      --floors '{{ HEALTH_RUNTIME_FLOORS | to_json }}'
       --hardened '{{ HEALTH_RUNTIME_PHP_HARDENED | to_json }}'
+      --scan '{{ HEALTH_RUNTIME_SCAN | to_json }}'
+      --images '{{ HEALTH_RUNTIME_IMAGES | to_json }}'
+      --suppressions '{{ HEALTH_RUNTIME_SUPPRESSIONS | to_json }}'
+      --cache-dir '{{ HEALTH_RUNTIME_CACHE_DIR }}'
+      --database-dir '{{ HEALTH_RUNTIME_DATABASE_DIR }}'
+      --host-excludes '{{ HEALTH_RUNTIME_HOST_EXCLUDES | to_json }}'
+      --environment '{{ ENVIRONMENT }}'
+      --report-dir '{{ DIR_HEALTH_RUNTIME_REPORT }}'
+      --log-dir '{{ DIR_HEALTH_RUNTIME_LOG }}'
+      {{ ("--metrics-file '" ~ HEALTH_RUNTIME_METRICS_FILE ~ "'") if HEALTH_RUNTIME_METRICS_ENABLED | bool else '' }}
     system_service_force_flush_final: true
+    system_service_run_once: true
 
 - include_tasks: utils/once/flag.yml

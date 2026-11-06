@@ -1,6 +1,6 @@
 """Assign the deploy axes to CI matrix rows.
 
-Every row of the CI matrix is one ``role#variant`` selection. Four axes are
+Every row of the CI matrix is one ``role#variant`` selection. Five axes are
 decided here, all as a deterministic rotation over the row's position in the
 *global* discovery order and the sweep number -- never at random, so a red job
 can be reproduced by re-running the same sweep, and so consecutive sweeps
@@ -27,6 +27,10 @@ cover the combinations instead of sampling them:
   ``n x m`` pairs whenever the pools are the same length, and no sweep would
   unlock it.
 
+* **engine** -- which vulnerability engine the row's deploy-time scan runs.
+  It is the odometer digit above distro and filesystem, so it never moves in
+  lockstep with either of them.
+
 A row's position is its index in the uncapped discovery order, not its index
 inside a chunk, so slicing the list into chunks never changes what a row is
 assigned. A priority row, which deploys several mode/tor combinations at once,
@@ -48,6 +52,7 @@ from utils.github.variant.label import (
 )
 from utils.github.variant.pools import (
     DISTROS,
+    ENGINES,
     FILESYSTEMS,
     rotate,
 )
@@ -259,7 +264,7 @@ def assign(
 
     Returns:
         one entry per (row, mode, tor) the run deploys, each stamped with the
-        distro and filesystem its rotation drew, carrying the row's
+        distro, filesystem and vulnerability engine its rotation drew, carrying the row's
         discovery ``id`` and the ``covered`` id of the earlier row that already
         embeds it (``0``: nothing does), so a reader of the plan can tell a
         redundant row from a unique one without a second query. A regular row
@@ -344,6 +349,9 @@ def assign(
             filesystem = pin_filesystem or rotate(
                 filesystems, (position + step) // len(distros), sweep
             )
+            engine = rotate(
+                ENGINES, (position + step) // (len(distros) * len(filesystems)), sweep
+            )
             glyphs = (
                 to_emoji(mode)
                 + (
@@ -358,6 +366,7 @@ def assign(
                 )
                 + to_emoji(distro)
                 + to_emoji(filesystem)
+                + to_emoji(engine)
             )
             entries.append(
                 {
@@ -368,6 +377,7 @@ def assign(
                     "vpn": "true" if meshed else "false",
                     "distro": distro,
                     "filesystem": filesystem,
+                    "engine": engine,
                     "enforce_filesystem": "true"
                     if pin_filesystem is not None or len(filesystems) == 1
                     else "false",

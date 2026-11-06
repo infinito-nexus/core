@@ -6,12 +6,14 @@
   failed_when: false
   when: DEPLOYMENT_MODE == 'swarm'
 
-- name: "🔄 Apply state (retry up to {{ SYS_SERVICE_RUNNER_RETRIES }} times)"
+- name: "🔄 Apply state, retried unless the unit runs once"
   ansible.builtin.systemd:
     name: "{{ system_service_run_unit }}"
     state: "{{ SYS_SERVICE_RUNNER_STATE }}"
+  vars:
+    system_service_run_retries: "{{ 0 if system_service_run_unit in (system_service_run_once_list | default([])) else SYS_SERVICE_RUNNER_RETRIES }}"
   register: result
-  retries: "{{ SYS_SERVICE_RUNNER_RETRIES }}"
+  retries: "{{ system_service_run_retries }}"
   delay: "{{ SYS_SERVICE_RUNNER_DELAY }}"
   until: result is not failed
   when: >-

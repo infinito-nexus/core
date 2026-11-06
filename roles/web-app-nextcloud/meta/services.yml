@@ -115,6 +115,11 @@ nextcloud:
     - web-app-openproject
     - web-app-zammad
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "34-fpm-alpine"
+        until: 2026-12-03
 proxy:
   name: nextcloud-proxy
   healthcheck:
@@ -133,6 +138,11 @@ proxy:
   ports:
     internal:
       http: 80
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "1.31.8-alpine"
+        until: 2026-12-03
 # nocheck: playwright-service-flag
 # nocheck: dynamic-flag  the container serves this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
 context_agent:
@@ -179,6 +189,11 @@ contextagentmcp:
   ports:
     internal:
       http: 8080
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.13.15-slim"
+        until: 2026-12-03
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1
@@ -217,6 +232,11 @@ talk:
     port_key: signaling
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "latest"
+        until: 2026-12-03
 whiteboard:
   name: nextcloud-whiteboard
   image: ghcr.io/nextcloud-releases/whiteboard
@@ -236,6 +256,11 @@ whiteboard:
     flavor: nc
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v1.5.9"
+        until: 2026-12-03
 # nocheck: playwright-service-flag: infrastructural sub-component (collaborative editing)
 onlyoffice:
   bond: 0.5
@@ -283,6 +308,11 @@ talk_recording:
   ports:
     internal:
       recording: 1234
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "latest"
+        until: 2026-12-03
 # nocheck: playwright-service-flag: verified by web-svc-css provider spec
 css:
   bond: 1
