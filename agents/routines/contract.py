@@ -23,15 +23,22 @@ or decision step; a step without one compiles to a passthrough, which is also
 the stub a model node runs as in a unit test. A decision node writes its chosen
 branch label under its own id in the state; the router defaults to the first
 branch, so a stub run with empty state follows the forward path to a terminal.
+A decision may record itself through ``decide``, which writes the branch label
+and appends one audit record to the JSON Lines ledger the state names.
 """
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, MutableMapping
+
+LEDGER_KEY = "ledger"
 
 STEP_KINDS = ("trigger", "deterministic", "decision", "model", "ask", "terminal")
 _SHAPE = {
@@ -73,6 +80,61 @@ class Step:
             raise ValueError(f"step {self.id!r}: unknown kind {self.kind!r}")
         if self.nxt and self.branches:
             raise ValueError(f"step {self.id!r}: set nxt or branches, not both")
+
+
+def _ledger_file(path: str) -> Path:
+    ledger = Path(path)
+    if not ledger.is_absolute():
+        raise ValueError(f"ledger {path!r} must be an absolute path")
+    return ledger
+
+
+def append_record(path: str, step: str, inputs: dict, outcome: str) -> dict:
+    """Append one decision record to the ledger at ``path`` and return it.
+
+    Args:
+        path: the JSON Lines ledger file, an absolute path, by convention
+            under /tmp; its parent is created. ``""`` writes nothing, so a run
+            without a ledger still routes.
+        step: the id of the decision step.
+        inputs: the evidence the step decided on; a set is written as a sorted
+            list. Never a raw log line or a digest of one, which may carry a
+            credential.
+        outcome: the branch label the step chose.
+
+    Raises:
+        ValueError: ``path`` is relative.
+    """
+    record = {
+        "step": step,
+        "inputs": inputs,
+        "outcome": outcome,
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+    if path:
+        ledger = _ledger_file(path)
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        line = json.dumps(record, ensure_ascii=False, sort_keys=True, default=sorted)
+        with ledger.open("a", encoding="utf-8") as handle:
+            handle.write(line + "\n")
+    return record
+
+
+def decide(
+    state: MutableMapping, step: str, inputs: dict, outcome: str
+) -> MutableMapping:
+    """Write ``outcome`` under ``step`` for the router and record the decision
+    in the ledger the state names under ``LEDGER_KEY``.
+
+    Args:
+        state: the routine state; its ``LEDGER_KEY`` entry is the ledger path.
+        step: the id of the decision step.
+        inputs: the evidence the step decided on, as for ``append_record``.
+        outcome: the branch label the step chose.
+    """
+    append_record(state.get(LEDGER_KEY, ""), step, inputs, outcome)
+    state[step] = outcome
+    return state
 
 
 def mermaid(steps: list[Step]) -> str:

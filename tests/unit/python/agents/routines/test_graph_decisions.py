@@ -1,15 +1,20 @@
 """Unit test: the designer, implementer and compose loop routine decision nodes
 route on parsed evidence and default to their forward branch when the evidence
 is absent; the compose loop reaches done only through the reinstall final gate,
-after the mode=update redeploy or a full_cycle reinstall."""
+after the mode=update redeploy or a full_cycle reinstall, and every red
+redeploy enters the red chain."""
 
 from __future__ import annotations
 
+import json
 import re
+import tempfile
 import unittest
+from pathlib import Path
 
 from agents.routines import design, implementer
 from agents.routines.iterate import compose
+from tests.unit.python.agents.routines import written_text
 from utils.roles.mapping import (
     ROLE_FILE_META_CSP,
     ROLE_FILE_META_DOMAINS,
@@ -205,8 +210,9 @@ class TestIterateComposeDecisions(unittest.TestCase):
             dict(sync.branches),
             {
                 "✅ green": "redeploy",
-                "❌ red": "inspect",
+                "❌ red": "hung",
                 compose.SYNC_LIMIT: "redeploy",
+                "⏳ running": "hung",
             },
         )
 
@@ -217,7 +223,8 @@ class TestIterateComposeDecisions(unittest.TestCase):
             rebuild.label,
         )
         self.assertEqual(
-            dict(rebuild.branches), {"✅ green": "gate", "❌ red": "inspect"}
+            dict(rebuild.branches),
+            {"✅ green": "gate", "❌ red": "hung", "⏳ running": "hung"},
         )
 
     def test_scope_names_the_sync_limit_fallback(self) -> None:
@@ -237,23 +244,36 @@ class TestIterateComposeDecisions(unittest.TestCase):
     def test_done_only_after_an_update_pass_and_the_final_gate(self) -> None:
         steps = _steps()
         self.assertEqual(_into("done"), {"gate"})
-        self.assertEqual(_into("gate"), {"redeploy", "rebuild"})
-        self.assertEqual(_into("redeploy"), {"scope", "sync"})
+        self.assertEqual(_into("gate"), {"redeploy", "rebuild", "wait"})
+        self.assertEqual(_into("redeploy"), {"scope", "sync", "wait"})
         self.assertIn(
             "make test, then make compose-deploy mode=update apps=<roles> [variant=<idx>]",
             steps["redeploy"].label,
         )
         self.assertEqual(
-            dict(steps["redeploy"].branches), {"✅ green": "gate", "❌ red": "inspect"}
+            dict(steps["redeploy"].branches),
+            {"✅ green": "gate", "❌ red": "hung", "⏳ running": "hung"},
         )
         self.assertIn(
             "make compose-deploy mode=reinstall apps=<roles> full_cycle=true (no variant)",
             steps["gate"].label,
         )
         self.assertEqual(
-            dict(steps["gate"].branches), {"✅ green": "done", "❌ red": "inspect"}
+            dict(steps["gate"].branches),
+            {"✅ green": "done", "❌ red": "hung", "⏳ running": "hung"},
         )
         self.assertEqual(steps["done"].kind, "terminal")
+
+    def test_the_relevant_delta_decides_before_the_scope(self) -> None:
+        self.assertEqual(_steps()["verify"].nxt, "relevant_delta")
+        self.assertEqual(_into("scope"), {"relevant_delta"})
+
+    def test_scope_records_its_decision_in_the_ledger(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "ledger.jsonl"
+            compose._scope({"ledger": str(ledger), "role": _ROLE})
+            (line,) = written_text(ledger).splitlines()
+        self.assertEqual(json.loads(line)["outcome"], compose.UPDATE)
 
     @unittest.skipUnless(
         _HAVE_LANGGRAPH,

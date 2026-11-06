@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
+from agents.routines.iterate import RUNNING, red_chain, relevant_delta_step
 
 DEFAULT_DISABLE = ("matomo", "dashboard", "prometheus", "email", "design")
 
@@ -40,19 +41,29 @@ STEPS = [
         nxt="fix",
     ),
     Step(
-        "fix", "Apply the real fix in the repository, not on the cluster", nxt="release"
+        "fix",
+        "Apply the real fix in the repository, not on the cluster",
+        nxt="relevant_delta",
     ),
     Step(
         "release",
         "make swarm-down releases the cluster before the next build",
         nxt="rebuild",
     ),
-    Step("rebuild", "Rebuild with a new make swarm-zombie run", nxt="done"),
+    Step(
+        "rebuild",
+        "Rebuild with a new make swarm-zombie run",
+        branches=(("✅ green", "done"), ("❌ red", "hung"), (RUNNING, "hung")),
+    ),
     Step(
         "done",
         "Report green, or stop for make swarm-clean on a wedged NFS mount",
         "terminal",
     ),
+    relevant_delta_step(
+        "iterate_swarm", changed="release", unchanged="inspect", runs_tests=False
+    ),
+    *red_chain("iterate_swarm", "inspect", ("rebuild",)),
 ]
 MERMAID = mermaid(STEPS)
 
