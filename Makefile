@@ -970,6 +970,22 @@ swarm-playwright:
 	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
 	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
 
+.PHONY: swarm-role-sync
+# Re-run only the role of an app against the kept swarm-test cluster from its act job container (no cluster rebuild; the spec runs only with pw=).
+# Usage: make swarm-role-sync app=<application_id> [name=<cluster-id>] [variant=<idx>] [pw="<playwright args>"] [keep=true]
+# Example: make swarm-role-sync app=web-app-baserow pw="--grep baserow"
+# Param app: application id the kept cluster was deployed with
+# Param name: cluster id the swarm-zombie run used (default: the app id)
+# Param variant: variant index of the round the cluster runs (default 0)
+# Param pw: Playwright arguments; when set, make swarm-playwright reruns the spec of the role after a green sync
+# Param keep: true lets that spec run capture the design gallery
+# Note: needs the nodes and the act job container a failed `make swarm-zombie app=<app> keep=true` leaves up; act removes its container after a green job, and ACT_BIND makes the edits of this worktree live in it.
+# Note: a green sync closes no loop; a fresh `make swarm-zombie app=<app>` without keep stays the gate before a role counts as green in swarm.
+swarm-role-sync:
+	@test -n '$(app)' || { echo 'usage: make swarm-role-sync app=<application_id> [name=<cluster-id>] [variant=<idx>] [pw="<playwright args>"] [keep=true]'; exit 2; }
+	@app='$(app)' SWARM_NAME='$(or $(name),$(app))' variant='$(or $(variant),0)' bash scripts/tests/deploy/swarm/sync/role.sh
+	@$(if $(pw),$(MAKE) swarm-playwright role='$(app)' name='$(or $(name),$(app))' pw='$(pw)' $(if $(keep),keep='$(keep)'))
+
 .PHONY: swarm-shell
 # Drop into an interactive shell on one of the swarm-test DinD nodes.
 # Param name: REQUIRED cluster id (the app id when no name= was passed); node defaults to <name>-swarm-mgr-01.

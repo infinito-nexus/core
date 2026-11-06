@@ -32,6 +32,8 @@ _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
 _SWARM_SCRIPTS = _SWARM_DIR / "routine"
 _ROLES_DIR = str(PROJECT_ROOT / "roles")
 _DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108 - ephemeral swarm-test inventory base in CI
+EXTRAS_FILE = "swarm-nfs-extras.yml"
+DEPLOY_EXTRAS_FILE = "swarm-nfs-extras.deploy.yml"
 
 
 def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
@@ -355,8 +357,8 @@ def main(argv: list[str] | None = None) -> int:
             base_overrides=with_extra_vars(base_overrides),
             variant_payloads=variant_payloads,
         )
-        extras_path = f"{inv_root}/swarm-nfs-extras.yml"
-        deploy_extras = f"{inv_root}/swarm-nfs-extras.deploy.yml"
+        extras_path = f"{inv_root}/{EXTRAS_FILE}"
+        deploy_extras = f"{inv_root}/{DEPLOY_EXTRAS_FILE}"
 
         rc = _provision(
             app_id=app_id,

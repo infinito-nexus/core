@@ -1,3 +1,7 @@
+"""Unit test: the swarm loop opens with the row check and the disable ask,
+re-runs a fixed role on the kept cluster, and its done stays reachable only
+through a fresh swarm-zombie without keep."""
+
 from __future__ import annotations
 
 import unittest
@@ -9,6 +13,23 @@ from utils.roles.applications.services.registry import (
 )
 
 _STEPS = {step.id: step for step in STEPS}
+
+
+def _targets(step_id: str) -> set[str]:
+    step = _STEPS[step_id]
+    return ({step.nxt} if step.nxt else set()) | {t for _, t in step.branches}
+
+
+def _reachable(start: str, *, without: str) -> set[str]:
+    seen: set[str] = set()
+    todo = [start]
+    while todo:
+        current = todo.pop()
+        if current in seen or current == without:
+            continue
+        seen.add(current)
+        todo.extend(_targets(current))
+    return seen
 
 
 class TestSwarmRoutineOpening(unittest.TestCase):
@@ -50,6 +71,28 @@ class TestSwarmRoutineOpening(unittest.TestCase):
         for key in DEFAULT_DISABLE:
             with self.subTest(key=key):
                 self.assertIn(key, registry)
+
+
+class TestSwarmLoop(unittest.TestCase):
+    def test_a_changed_fix_goes_to_the_role_sync_on_the_kept_cluster(self) -> None:
+        self.assertEqual(_STEPS["fix"].nxt, "relevant_delta")
+        self.assertIn("sync", _targets("relevant_delta"))
+        self.assertIn("make swarm-role-sync", _STEPS["sync"].label)
+
+    def test_a_red_sync_enters_the_red_chain(self) -> None:
+        self.assertIn("hung", _targets("sync"))
+        self.assertIn("inspect", _reachable("sync", without="rebuild"))
+
+    def test_done_needs_the_fresh_swarm_zombie_without_keep(self) -> None:
+        self.assertNotIn("done", _reachable("deploy", without="rebuild"))
+        rebuild = _STEPS["rebuild"].label
+        self.assertIn("make swarm-zombie", rebuild)
+        self.assertNotIn("keep=true", rebuild)
+        self.assertIn("done", _targets("rebuild"))
+
+    def test_the_sync_cannot_reach_done_without_the_rebuild(self) -> None:
+        self.assertNotIn("done", _reachable("sync", without="rebuild"))
+        self.assertIn("done", _reachable("sync", without=""))
 
 
 if __name__ == "__main__":

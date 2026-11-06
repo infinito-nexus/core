@@ -1,7 +1,8 @@
 """Swarm loop routine: build a DinD cluster with swarm-zombie, reproduce the
-failure on the live cluster, fix in the repository, then rebuild. One model step
-reaches confidence on the live cluster; a wedged NFS mount stops the loop for
-make swarm-clean."""
+failure on the live cluster, fix in the repository, re-run the fixed role on the
+kept cluster with swarm-role-sync until it is green, then rebuild fresh as the
+gate. One model step reaches confidence on the live cluster; a wedged NFS mount
+stops the loop for make swarm-clean."""
 
 from __future__ import annotations
 
@@ -46,13 +47,18 @@ STEPS = [
         nxt="relevant_delta",
     ),
     Step(
+        "sync",
+        "make swarm-role-sync app=<app> [pw=...] re-runs only the fixed role on the kept cluster; a fix outside that role skips straight to release",
+        branches=(("✅ green", "release"), ("❌ red", "hung"), (RUNNING, "hung")),
+    ),
+    Step(
         "release",
         "make swarm-down releases the cluster before the next build",
         nxt="rebuild",
     ),
     Step(
         "rebuild",
-        "Rebuild with a new make swarm-zombie run",
+        "Gate: a fresh make swarm-zombie app=<app> without keep, the only path to done",
         branches=(("✅ green", "done"), ("❌ red", "hung"), (RUNNING, "hung")),
     ),
     Step(
@@ -61,9 +67,9 @@ STEPS = [
         "terminal",
     ),
     relevant_delta_step(
-        "iterate_swarm", changed="release", unchanged="inspect", runs_tests=False
+        "iterate_swarm", changed="sync", unchanged="inspect", runs_tests=False
     ),
-    *red_chain("iterate_swarm", "inspect", ("rebuild",)),
+    *red_chain("iterate_swarm", "deploy", ("sync", "rebuild")),
 ]
 MERMAID = mermaid(STEPS)
 
