@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — the only objects this role writes are the branding images of tasks/01_manager.yml, and files/playwright/test-design.js fetches the sidebar logo through the app's own /media/ path, which the front nginx reads from the bucket, and compares it byte for byte with the configured asset; the document surface the shared scenario drives is the audio-library import flow, which needs a persona-owned library and a real track upload the role does not provision
 funkwhale:
   backup:

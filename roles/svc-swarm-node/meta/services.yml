@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  cluster membership; holds no application data
 node:
   modes:
     host:

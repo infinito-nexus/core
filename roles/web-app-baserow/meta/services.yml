@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"

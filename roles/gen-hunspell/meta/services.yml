@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  installs host packages; holds no application data
 hunspell:
   modes:
     host:

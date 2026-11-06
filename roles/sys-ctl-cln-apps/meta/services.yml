@@ -1,0 +1,8 @@
+---
+apps:
+  lifecycle: beta
+  required_by:
+    compose:
+      categories: [web]
+    swarm:
+      categories: [web]

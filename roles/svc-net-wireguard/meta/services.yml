@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  host network configuration; holds no growing application data
 wireguard:
   modes:
     host:

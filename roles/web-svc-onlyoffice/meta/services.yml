@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
 matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"

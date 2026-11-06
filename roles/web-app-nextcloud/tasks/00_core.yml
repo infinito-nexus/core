@@ -19,6 +19,14 @@
     domain: "{{ NEXTCLOUD_DOMAIN }}"
     http_port: "{{ NEXTCLOUD_PORT }}"
 
+- name: "🧹 Register the garbage collector of {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-cln-apps/tasks/utils/install.yml') }}"
+  vars:
+    gc_service_key: "{{ NEXTCLOUD_SERVICE }}"
+    gc_environment:
+      NEXTCLOUD_GC_USER: "{{ NEXTCLOUD_DOCKER_USER }}"
+      NEXTCLOUD_GC_OCC: "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+
 - name: "🖥️ Nextcloud stack-host post-deploy (config, occ, plugins, admin)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool

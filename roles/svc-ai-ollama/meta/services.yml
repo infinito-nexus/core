@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
 ollama:
   healthcheck:
     flavor: tcp

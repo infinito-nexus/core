@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — S3 backs work-package attachments (embedded FOG storage); no standalone object-browser surface to script, consistent with the playwright-service-flag exemption on the seaweedfs key.
 logout:
   bond: 1

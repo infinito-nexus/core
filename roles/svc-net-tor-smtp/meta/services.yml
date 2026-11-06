@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  host network configuration; holds no growing application data
 # nocheck: dockerfile-custom
 # nocheck: playwright-service-flag — SMTP egress daemon, no browser surface
 tor-smtp: # nocheck: category-modes

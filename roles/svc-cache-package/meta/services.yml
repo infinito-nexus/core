@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  Nexus blobstore carries only a soft quota (blobstore_max) that alerts; no cleanup task is configured yet
 # nocheck: dynamic-flag
 node:
   enabled: true

@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  container runtime install; sys-ctl-cln-docker prunes its images
 kata:
   modes:
     host:

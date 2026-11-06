@@ -23,3 +23,4 @@ The primary purpose of this role is to ensure that disk space remains within saf
 - **Threshold-Based Execution:** Triggers cleanup when disk usage exceeds a defined percentage.
 - **Systemd Integration:** Configures a systemd service to manage the disk cleanup process.
 - **Docker and Backup Integration:** Optionally cleans Docker resources and backups if configured.
+- **Application Collectors:** Runs the [application garbage collection](../sys-ctl-cln-apps/README.md) dispatcher in `pressure` mode instead of knowing any application itself.

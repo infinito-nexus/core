@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  host tuning service; holds no application data
 keyboard-color:
   modes:
     host:

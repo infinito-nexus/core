@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  shared storage plumbing; the data belongs to the applications that mount it
 nfs-server:
   enabled: "{{ 'svc-storage-nfs-server' in group_names }}"
   shared: "{{ 'svc-storage-nfs-server' in group_names }}"

@@ -66,6 +66,16 @@ gitea:
       enable_push_create_user: true
       default_private: last
       default_push_create_private: true
+    git:
+      gc_args: "--prune=1.day.ago"
+      timeout:
+        gc: 1800
+        mirror: 3600
+    cron:
+      git_gc_repos:
+        enabled: true
+        schedule: "@every 72h"
+        timeout: 60m
   ports:
     internal:
       http: 3000
@@ -85,6 +95,12 @@ gitea:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  gc:
+    type: script
+    setting: "[cron.git_gc_repos] and [git] GC_ARGS in templates/env.j2, fed by configuration.cron and configuration.git"
+    minutes:
+      routine: 1440
+      pressure: 120
 # nocheck: playwright-service-flag
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
 # nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment

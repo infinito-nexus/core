@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  host network configuration; holds no growing application data
 # nocheck: playwright-service-flag  host packet filter, no container and no web surface
 firewall:
   modes:

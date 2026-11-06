@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  pull-through blobs are cache, but no registry garbage collection is configured yet
 # nocheck: dynamic-flag
 node:
   enabled: true

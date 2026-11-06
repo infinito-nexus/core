@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  database engine; the rows belong to the consuming applications, which expire their own data
 mariadb:
   modes:
     compose:

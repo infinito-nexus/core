@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: playwright-service-flag — CDN does not appear as a dashboard tile
 # nocheck: dynamic-flag
 dashboard:

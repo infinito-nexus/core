@@ -1,0 +1,41 @@
+---
+# Param: application_id  - role whose files/shell/gc.sh is installed; names the manifest entry
+# Param: gc_service_key  - services.<key> whose container the gc acts on
+# Param: gc_environment  - extra KEY: value pairs the role's gc.sh reads from gc.env
+# Param: compose_mode_force - optional per-role deploy mode (see sys-svc-compose); wins over DEPLOYMENT_MODE in gc.env
+- name: "📁 Create the gc manifest entry of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ gc_manifest_entry }}"
+    state: directory
+    mode: "0755"
+  vars:
+    gc_manifest_entry: "{{ [DIR_GC_MANIFESTS, application_id] | path_join }}"
+
+- name: "📋 Install the gc script of {{ application_id }}"
+  ansible.builtin.copy:
+    src: "{{ [role_path, 'files', 'shell', 'gc.sh'] | path_join }}"
+    dest: "{{ [DIR_GC_MANIFESTS, application_id, 'gc.sh'] | path_join }}"
+    mode: "0755"
+
+- name: "🧾 Write the gc environment of {{ application_id }}"
+  ansible.builtin.copy:
+    content: |
+      {% for gc_key, gc_value in gc_env.items() %}
+      {{ gc_key }}={{ gc_value | string | quote }}
+      {% endfor %}
+    dest: "{{ [DIR_GC_MANIFESTS, application_id, 'gc.env'] | path_join }}"
+    mode: "0644"
+  vars:
+    gc_env: >-
+      {{
+        {
+          'DEPLOYMENT_MODE': (compose_mode_force | default('')) or DEPLOYMENT_MODE,
+          'GC_CONTAINER': lookup('config', application_id, 'services.' ~ gc_service_key ~ '.name'),
+          'GC_STACK': application_id | entity_name,
+          'GC_SERVICE_KEY': gc_service_key,
+        } | combine(gc_environment)
+      }}
+
+- name: "📝 Record {{ application_id }} as a gc manifest entry of this play"
+  ansible.builtin.set_fact:
+    gc_installed_application_ids: "{{ (gc_installed_application_ids | default([])) | union([application_id]) }}"

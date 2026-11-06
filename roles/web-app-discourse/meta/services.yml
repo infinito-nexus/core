@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required — Discourse's aws-sdk-s3 defaults a custom endpoint to virtual-host addressing and exposes no force_path_style option, incompatible with SeaweedFS path-style without a global SeaweedFS virtual-host/wildcard-DNS change affecting all consumers; uploads stay on the local volume
 # nocheck: playwright-service-flag, dynamic-flag - shared gateway consumer; inference wiring is covered by the gateway role, and the gateway is a single shared instance
 litellm:

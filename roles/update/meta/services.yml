@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  runs the package managers; sys-ctl-cln-disc-space prunes their caches
 update:
   modes:
     host:

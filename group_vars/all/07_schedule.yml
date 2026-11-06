@@ -13,6 +13,7 @@ SYS_TIMEOUT_CLEANUP_SERVICES: "15min"
 SYS_TIMEOUT_DOCKER_UPDATE: "20min"
 SYS_TIMEOUT_STORAGE_OPTIMIZER: "{{ SYS_TIMEOUT_DOCKER_UPDATE }}"
 SYS_TIMEOUT_BACKUP_SERVICES: "60min"
+SYS_TIMEOUT_CLEANUP_APP: "3600" # Seconds one application garbage collector may run, without a unit
 SYS_TIMEOUT_CONTAINER_EXEC: "7d" # Hard OS-level kill for `container exec`; a week so it never beats a production migration
 
 SYS_SCHEDULE_HEALTH_BTRFS: "*-*-* 00:00:00" # Check once per day the btrfs for errors
@@ -28,6 +29,7 @@ SYS_SCHEDULE_HEALTH_RUNTIME: "*-*-* 00:00:00" # Check once per day the PHP versi
 SYS_SCHEDULE_CLEANUP_CERTS: "*-*-* 20:00" # Deletes and revokes unused certs once per day
 SYS_SCHEDULE_CLEANUP_BACKUPS: "*-*-* 21:00" # Cleanup backups once per day, MUST be called before disc space cleanup
 SYS_SCHEDULE_CLEANUP_DOCKER: "*-*-* 22:00" # Cleanup docker anonymous volumes and prune ones per day
+SYS_SCHEDULE_CLEANUP_APPS: "*-*-* 23:00" # Run the application garbage collectors once per day, MUST be called before disc space cleanup
 SYS_SCHEDULE_CLEANUP_DISC_SPACE: "*-*-* 23:30" # Cleanup disc space once per day
 SYS_SCHEDULE_CLEANUP_FAILED_BACKUPS: "*-*-* 04:00" # Clean up failed docker backups once per day
 

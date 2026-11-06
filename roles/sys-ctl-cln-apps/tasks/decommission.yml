@@ -1,0 +1,23 @@
+---
+- name: "🔍 Find the gc manifest entries below '{{ DIR_GC_MANIFESTS }}'"
+  ansible.builtin.find:
+    paths: "{{ DIR_GC_MANIFESTS }}"
+    file_type: directory
+  register: gc_manifest_entries
+
+- name: "🗑️ Drop the gc manifest entries of roles no longer active on this host"
+  ansible.builtin.file:
+    path: "{{ gc_manifest_entry }}"
+    state: absent
+  loop: "{{ gc_manifest_entries.files | map(attribute='path') | list }}"
+  loop_control:
+    loop_var: gc_manifest_entry
+  when: (gc_manifest_entry | basename) not in gc_manifest_active_roles
+  vars:
+    gc_manifest_active_roles: >-
+      {{
+        lookup('deployment').inventory
+        + group_names
+        + (CURRENT_PLAY_APPLICATIONS | list)
+        + (gc_installed_application_ids | default([]))
+      }}

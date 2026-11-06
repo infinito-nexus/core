@@ -1,4 +1,5 @@
 ---
+# nocheck: gc-required  backup generations; sys-ctl-cln-bkps owns their retention
 secrets-2-local:
   modes:
     host:

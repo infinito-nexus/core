@@ -177,6 +177,24 @@ def get_role_lifecycle(role: PathLike, *, role_name: str | None = None) -> str |
     return str(raw).strip().lower() if isinstance(raw, str) else None
 
 
+def get_role_gc(role: PathLike, *, role_name: str | None = None) -> object:
+    """Return the role's raw ``gc`` declaration, or ``None`` when absent.
+
+    Args:
+        role: role name below ``roles/`` or a role directory.
+        role_name: canonical role name when ``role`` is an arbitrary path.
+
+    Returns:
+        The value of ``meta/services.yml.<primary_entity>.gc`` unvalidated;
+        :mod:`utils.roles.gc` owns its schema.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    if primary is None:
+        return None
+    return primary.get("gc")
+
+
 def get_role_provides(role: PathLike, *, role_name: str | None = None) -> str | None:
     """Return the service the role's primary entity ``provides`` (or ``None``)."""
     role_dir, name = _resolve_role(role, role_name)
