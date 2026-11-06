@@ -33,3 +33,4 @@
     system_service_force_flush_instant: false
     system_service_force_flush_final: "{{ MODE_BACKUP | bool }}"
     system_service_suppress_flush: true
+    system_service_force_linear_sync: false

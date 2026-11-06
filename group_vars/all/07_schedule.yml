@@ -12,7 +12,8 @@ SYS_TIMEOUT_CONTAINER_RPR_SOFT: "{{ SYS_TIMEOUT_CONTAINER_RPR_HARD }}"
 SYS_TIMEOUT_CLEANUP_SERVICES: "15min"
 SYS_TIMEOUT_DOCKER_UPDATE: "20min"
 SYS_TIMEOUT_STORAGE_OPTIMIZER: "{{ SYS_TIMEOUT_DOCKER_UPDATE }}"
-SYS_TIMEOUT_BACKUP_SERVICES: "60min"
+SYS_TIMEOUT_BACKUP_SERVICES_SECONDS: "{{ 600 if (MODE_DEBUG | bool) else 3600 }}" # MODE_DEBUG: the e2e harness (TEST_E2E_CLI_TIMEOUT 3600s) MUST outlast a backup drill's lock wait plus its run
+SYS_TIMEOUT_BACKUP_SERVICES: "{{ SYS_TIMEOUT_BACKUP_SERVICES_SECONDS }}s"
 SYS_TIMEOUT_CLEANUP_APP: "3600" # Seconds one application garbage collector may run, without a unit
 SYS_TIMEOUT_CONTAINER_EXEC: "7d" # Hard OS-level kill for `container exec`; a week so it never beats a production migration
 
