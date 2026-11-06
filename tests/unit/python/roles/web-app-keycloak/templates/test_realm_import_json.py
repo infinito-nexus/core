@@ -9,13 +9,16 @@ from unittest import mock
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-keycloak"
 IMPORT_DIR = ROLE_DIR / "templates/import"
 ROLE_VARS = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
+ADMIN_EVENTS_DAYS = load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_SERVICES))["keycloak"][
+    "events"
+]["admin"]["expiration_days"]
 LDAP_VARS = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
 LDAP_USER_ATTRIBUTES = {
     **LDAP_VARS["LDAP"]["USER"]["ATTRIBUTES"],
@@ -96,6 +99,7 @@ CONTEXT = {
     "KEYCLOAK_EMAIL_POLICY_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_POLICY_ATTRIBUTE"],
     "KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE"],
     "KEYCLOAK_REGISTRATION_ALLOWED": ROLE_VARS["KEYCLOAK_REGISTRATION_ALLOWED"],
+    "KEYCLOAK_ADMIN_EVENTS_EXPIRATION": ADMIN_EVENTS_DAYS * 86400,
     "LDAP_ONLY": False,
     "OIDC": {
         "CLIENT": {"SECRET": "s3cret", "ID": "example.com"},
@@ -763,6 +767,34 @@ class TestTotpOfferedNotEnforced(unittest.TestCase):
         drifted = drifted_required_actions(desired, forced)
         self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
         self.assertFalse(drifted[0]["defaultAction"])
+
+
+class TestAdminEvents(unittest.TestCase):
+    def test_the_expiration_renders_the_configured_days_in_seconds(self) -> None:
+        env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+        env.filters["int"] = int
+        days = env.from_string(
+            ROLE_VARS["KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS"]
+        ).render(
+            application_id="web-app-keycloak",
+            lookup=lambda _name, _app, path: (
+                ADMIN_EVENTS_DAYS
+                if path == "services.keycloak.events.admin.expiration_days"
+                else None
+            ),
+        )
+        rendered = env.from_string(
+            ROLE_VARS["KEYCLOAK_ADMIN_EVENTS_EXPIRATION"]
+        ).render(KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS=days)
+        self.assertEqual(str(ADMIN_EVENTS_DAYS * 86400), rendered)
+
+    def test_a_new_realm_imports_the_expiration(self) -> None:
+        realm = json.loads(render([]))
+        self.assertTrue(realm["adminEventsEnabled"])
+        self.assertEqual(
+            str(ADMIN_EVENTS_DAYS * 86400),
+            realm["attributes"]["adminEventsExpiration"],
+        )
 
 
 if __name__ == "__main__":

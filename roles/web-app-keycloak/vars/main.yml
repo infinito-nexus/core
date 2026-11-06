@@ -202,6 +202,8 @@ KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 KEYCLOAK_CONSOLE_ROLE_CLIENT: "realm-management"
 KEYCLOAK_CONSOLE_ROLE_GRANTS: "{{ lookup('config', application_id, 'rbac.roles') | dict2items | selectattr('value.realm_management', 'defined') | list }}"
 
+KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS: "{{ lookup('config', application_id, 'services.keycloak.events.admin.expiration_days') }}"
+KEYCLOAK_ADMIN_EVENTS_EXPIRATION: "{{ (KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS | int) * 86400 }}"
 KEYCLOAK_ADMIN_PERMISSIONS_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
 KEYCLOAK_ADMIN_PERMISSIONS_PLATFORM_GROUP: "/{{ lookup('rbac_group_path', application_id='web-svc-access-request', role='administrator') }}"
 KEYCLOAK_ADMIN_PERMISSIONS_SPEC:
@@ -267,6 +269,8 @@ KEYCLOAK_SETTINGS_SPEC:
         duplicateEmailsAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.duplicateEmailsAllowed }}"
         adminEventsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminEventsEnabled }}"
         adminPermissionsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminPermissionsEnabled }}"
+        attributes:
+          adminEventsExpiration: "{{ KEYCLOAK_DICTIONARY_REALM.attributes.adminEventsExpiration }}"
     - realm: master
       desired:
         smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"

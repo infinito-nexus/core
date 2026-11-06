@@ -395,6 +395,35 @@ class TestSharedClientStaysOnTheSweep(unittest.TestCase):
         )
 
 
+class TestAppsDecidedWithoutBackchannelUrl(unittest.TestCase):
+    def test_nextcloud_stays_on_the_shared_client(self) -> None:
+        role = PROJECT_ROOT / "roles" / "web-app-nextcloud"
+        services = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))
+        self.assertNotIn("clients", services["sso"]["oidc"])
+        self.assertFalse((role / "templates" / "keycloak" / "clients.json.j2").exists())
+
+    def test_the_stalwart_clients_carry_no_backchannel_logout_url(self) -> None:
+        clients = render_fragment(
+            PROJECT_ROOT
+            / "roles"
+            / "web-app-stalwart"
+            / "templates"
+            / "keycloak"
+            / "clients.json.j2"
+        )
+        self.assertEqual(
+            sorted(
+                role_config("web-app-stalwart", f"services.sso.oidc.clients.{name}")
+                for name in ("webui", "webmail")
+            ),
+            sorted(client["clientId"] for client in clients),
+        )
+        for client in clients:
+            with self.subTest(client=client["clientId"]):
+                self.assertIs(client["frontchannelLogout"], False)
+                self.assertNotIn(BACKCHANNEL_LOGOUT_URL, client["attributes"])
+
+
 class TestPerAppClientIdsFailLoudly(unittest.TestCase):
     def setUp(self) -> None:
         self.consumers = client_id_consumers()

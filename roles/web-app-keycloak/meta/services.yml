@@ -63,6 +63,9 @@ keycloak:
     totp_enabled: true
   users:
     emails_verified: true
+  events:
+    admin:
+      expiration_days: 365
   email:
     policy: external
     switch: false

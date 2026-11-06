@@ -26,6 +26,7 @@ REALM = {
     "duplicateEmailsAllowed": False,
     "adminEventsEnabled": True,
     "adminPermissionsEnabled": True,
+    "attributes": {"adminEventsExpiration": "31536000", "frontendUrl": ""},
 }
 
 
@@ -84,6 +85,7 @@ class TestSettingsSpec(unittest.TestCase):
                         "duplicateEmailsAllowed": False,
                         "adminEventsEnabled": True,
                         "adminPermissionsEnabled": True,
+                        "attributes": {"adminEventsExpiration": "31536000"},
                     },
                 },
                 {"realm": "master", "desired": {"smtpServer": SMTP}},
@@ -94,6 +96,10 @@ class TestSettingsSpec(unittest.TestCase):
         desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0]["desired"]
         self.assertIs(desired["adminEventsEnabled"], True)
         self.assertIs(desired["adminPermissionsEnabled"], True)
+
+    def test_an_existing_realm_converges_only_the_admin_events_expiration(self):
+        desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0]["desired"]
+        self.assertEqual({"adminEventsExpiration": "31536000"}, desired["attributes"])
 
     def test_the_client_scopes_of_the_realm_dictionary_are_passed_on(self):
         spec = render("KEYCLOAK_SETTINGS_SPEC", [])

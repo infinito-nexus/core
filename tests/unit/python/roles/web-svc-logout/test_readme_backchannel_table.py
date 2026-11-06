@@ -12,6 +12,8 @@ SECTION = "## Back-channel logout per role"
 COLUMNS = 6
 NO_FLAVOR = "-"
 ROW = re.compile(r"^\| `(?P<role>[a-z0-9-]+)` \|(?P<cells>.*)\|$")
+ANSWER = re.compile(r"^(yes|no)\b", re.IGNORECASE)
+PENDING = re.compile(r"to\s+verify|\btbd\b", re.IGNORECASE)
 
 
 def readme_rows(source: str) -> dict[str, list[str]]:
@@ -58,6 +60,29 @@ def table_findings(rows: dict[str, list[str]], flavors: dict[str, str]) -> list[
     return findings
 
 
+def answer_findings(rows: dict[str, list[str]]) -> list[str]:
+    """Return the rows whose back-channel cell answers neither yes nor no, and every pending cell.
+
+    Args:
+        rows: the README rows, keyed by role; a cell is pending when it holds
+            "to verify" or "TBD" in any case.
+    """
+    findings = []
+    for role, cells in sorted(rows.items()):
+        if len(cells) != COLUMNS:
+            continue
+        if not ANSWER.match(cells[2]):
+            findings.append(
+                f"{role}: back-channel cell {cells[2]!r} answers neither yes nor no"
+            )
+        findings.extend(
+            f"{role}: cell {index} is left pending"
+            for index, cell in enumerate(cells)
+            if PENDING.search(cell)
+        )
+    return findings
+
+
 class TestBackchannelTableCoversEverySsoRole(unittest.TestCase):
     def setUp(self) -> None:
         self.rows = readme_rows(read_text(str(README)))
@@ -81,6 +106,33 @@ class TestBackchannelTableCoversEverySsoRole(unittest.TestCase):
                 f"web-app-stalwart: flavor oauth2 is not {self.flavors['web-app-stalwart']}",
             ],
         )
+
+    def test_every_row_answers_yes_or_no_and_leaves_nothing_to_verify(self) -> None:
+        self.assertEqual(answer_findings(self.rows), [])
+
+    def test_a_pending_marker_in_any_cell_and_any_case_is_caught(self) -> None:
+        for index in range(1, COLUMNS):
+            for marker in ("to verify", "To Verify", "TBD", "yes? TBD"):
+                with self.subTest(cell=index, marker=marker):
+                    rows = dict(self.rows)
+                    cells = list(rows["web-app-grafana"])
+                    cells[index] = marker
+                    rows["web-app-grafana"] = cells
+                    expected = [f"web-app-grafana: cell {index} is left pending"]
+                    if index == 2 and not marker.startswith("yes"):
+                        expected.insert(
+                            0,
+                            f"web-app-grafana: back-channel cell {marker!r} "
+                            "answers neither yes nor no",
+                        )
+                    self.assertEqual(answer_findings(rows), expected)
+
+    def test_an_answer_in_another_case_still_counts(self) -> None:
+        rows = dict(self.rows)
+        cells = list(rows["web-app-grafana"])
+        cells[2] = "No, " + cells[2].removeprefix("no, ")
+        rows["web-app-grafana"] = cells
+        self.assertEqual(answer_findings(rows), [])
 
 
 if __name__ == "__main__":

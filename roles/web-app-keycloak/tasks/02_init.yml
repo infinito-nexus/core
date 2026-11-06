@@ -17,6 +17,17 @@
       services.keycloak.email.policy to external.
     quiet: true
 
+- name: "✅ Assert the admin events of '{{ application_id }}' expire after whole days above 0"
+  ansible.builtin.assert:
+    that:
+      - KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS is integer
+      - KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS > 0
+    fail_msg: >-
+      services.keycloak.events.admin.expiration_days is
+      '{{ KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS }}'; it must be a whole number
+      of days above 0, because Keycloak keeps admin events forever at 0.
+    quiet: true
+
 - name: "🔍 Resolve reserved usernames for '{{ application_id }}' at task runtime"
   set_fact:
     KEYCLOAK_RESERVED_USERNAMES_LIST: "{{ lookup('users') | reserved_usernames }}"
