@@ -109,7 +109,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-phpmyadmin
 - [x] web-app-pihole
 - [x] web-app-pixelfed
-- [ ] web-app-postmarks: the server HTML and the Atom feeds keep the title `Postmarks`, because Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode; `design.js` sets the browser title (upstream option in `roles/web-app-postmarks/TODO.md`).
+- [ ] web-app-postmarks: Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode, so the image build patches `server.js` to read `SITE_NAME`, rendered from the design title, into the page title, the header and both Atom feed titles (upstream option in `roles/web-app-postmarks/TODO.md`). Open: one green run of the complete spec on this state, with a design title that differs from `Postmarks`.
 - [x] web-app-pretix
 - [x] web-app-prometheus
 - [x] web-app-roulette-wheel
