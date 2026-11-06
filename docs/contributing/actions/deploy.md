@@ -34,6 +34,7 @@ make compose-deploy mode=update apps="<role>"
 ```
 
 - Reuses the existing inventory, keeps app state, runs the deploy only.
+- The inventory bakes in every included role's `meta/services.yml`, `meta/variants.yml`, `meta/secrets.yml` and `meta/users.yml`, so after a change to any of them `mode=update` deploys the include set, overrides, credentials and users of the old inventory. Such a change MUST take `make compose-deploy mode=reinstall apps="<role>" full_cycle=true [variant=<idx>]` instead, whose `full_cycle` pass is the update pass.
 - For multi-variant roles you MUST set `variant=<idx>` (see [Pinning Variants](#pinning-variants-single-or-bundle-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles.
 
 If the reuse path keeps reproducing the same failure and you want to test whether app entity state is involved:
@@ -44,11 +45,11 @@ make compose-deploy mode=update apps="<role>" purge=true
 
 This purges the app's containers + volumes + Ansible-managed state on the host, then re-deploys. Use it once, then return to `mode=update` without `purge=true`. Do NOT loop with `purge=true`; if the failure survives a single purge it is not a state issue.
 
-Only return to `mode=reinstall` when you have concrete evidence that the inventory or the host stack itself is broken (for example DNS or network failures during the deploy).
+Return to `mode=reinstall` after a change to one of the inventory-baked meta files above, or when you have concrete evidence that the inventory or the host stack itself is broken (for example DNS or network failures during the deploy).
 
 ## Pinning Variants (Single Or Bundle) 🎯
 
-For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to one or more matrix rounds by setting `variant=<csv>` — a single index pins one round, a comma-separated list iterates that subset (the runner-split bundle CI produces), and empty/unset is the full matrix:
+For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to one or more matrix rounds by setting `variant=<csv>`. A single index pins one round, a comma-separated list iterates that subset (the runner-split bundle CI produces), and empty/unset is the full matrix:
 
 ```bash
 # Variant 1 baseline only (no full matrix):

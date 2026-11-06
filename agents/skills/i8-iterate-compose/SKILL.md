@@ -35,7 +35,7 @@ FORBIDDEN: a bare `mode=update` without `variant=` on a matrix-variant role; a n
 The role's unit and fixture tests under `tests/unit/*/roles/<role>/` run before any deploy; `make test` waits for the redeploy. The routine's `scope` step picks the redeploy from the diff, with `variant=<idx>` on matrix-variant roles only:
 
 - a fix that stays inside `roles/<role>/` takes `make compose-role-sync role=<role> [variant=<idx>]`, which re-runs only the app role against the running stack; a red that the skipped constructor, system or provider stages cause is a sync limit and sends the rest of the loop to `mode=update`;
-- a change to any role's `meta/variants.yml`, `services.yml`, `secrets.yml` or `users.yml` takes `mode=reinstall apps=<roles> full_cycle=true [variant=<idx>]`, because the inventory bakes them in and `mode=update` reuses it;
+- a change to any role's `meta/variants.yml`, `meta/services.yml`, `meta/secrets.yml` or `meta/users.yml` takes `mode=reinstall apps=<roles> full_cycle=true [variant=<idx>]`, because the inventory bakes them in and `mode=update` reuses it;
 - every other fix takes the `mode=update` row.
 
 A green role sync is never done: the routine runs the `mode=update` redeploy and then the final-gate row above before done. A green reinstall goes straight to the final-gate row, because its `full_cycle=true` pass already ran the update pass.

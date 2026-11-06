@@ -39,9 +39,9 @@ Use the following table when you need realistic local deployment validation or a
 | Category | Command | What it does | When to use it |
 |---|---|---|---|
 | Local deploy | `make compose-deploy apps=web-app-nextcloud` | Creates the needed inventory and deploys one or more apps. | Fresh deploy for a specific app set. |
-| Local deploy | `make compose-deploy mode=update apps=web-app-nextcloud` | Reuses an existing `devices.yml` inventory and redeploys one or more apps quickly. | Fast reuse path. |
+| Local deploy | `make compose-deploy mode=update apps=web-app-nextcloud` | Reuses an existing `devices.yml` inventory and redeploys one or more apps quickly. | Fast reuse path for a change outside the inventory-baked meta files (`meta/services.yml`, `meta/variants.yml`, `meta/secrets.yml`, `meta/users.yml`). |
 | Local deploy | `make compose-deploy mode=update apps=web-app-nextcloud purge=true` | Reuses an existing `devices.yml` inventory, purges the entity first, and redeploys one or more apps quickly. | Fast reuse path after a state reset. |
-| Local deploy and E2E | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs a dedicated local validation flow for one or more apps against the dev stack, cycling the stack and re-initializing the inventory first. | Baseline and recovery path. |
+| Local deploy and E2E | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs a dedicated local validation flow for one or more apps against the dev stack, cycling the stack and re-initializing the inventory first. | Baseline and recovery path, and the redeploy after a change to an inventory-baked meta file. |
 | Full local validation | `make compose-deploy` | Builds the broader local deployment flow across apps. | Broad coverage when you explicitly need it. |
 | Bundle deploy | `make compose-deploy bundles="<bundle>[,<bundle>]"` | Aggregates the role groups from one or more [inventories/bundles/](../../../inventories/bundles/) entries into `apps` and runs the reinstall flow. Set `full_cycle=true` for the update pass. | One-shot validation of a curated app shape (e.g. `education-suite`). |
 | Bundle redeploy | `make compose-deploy mode=update bundles="<bundle>[,<bundle>]"` | Same bundle resolution as the bundle deploy, but routes through the reuse path (no down/up, no entity purge). | Fast iteration loop after a prior bundle deploy. |
