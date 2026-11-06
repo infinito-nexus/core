@@ -28,8 +28,13 @@
       {{ sys_token_store_users | combine(layers, recursive=True) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🧮 Note whether the merge changed the store"
+  ansible.builtin.set_fact:
+    sys_token_store_changed: "{{ sys_token_store_users_merged != sys_token_store_users }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "💾 Write the token store when the merge changed it"
-  when: sys_token_store_users_merged != sys_token_store_users
+  when: sys_token_store_changed | bool
   block:
     - name: "💾 Persist store (idempotent, single-writer via STACK_HOST)"
       ansible.builtin.copy:
@@ -56,6 +61,17 @@
       register: sys_token_store_mirrored
 
     - name: "🔄 Hand the written store to the lookups of the rest of the play"
+      ansible.builtin.set_fact:
+        sys_token_store_users: "{{ sys_token_store_users_merged }}"
+      delegate_to: "{{ sys_token_store_reader }}"
+      delegate_facts: true
+      loop: "{{ ansible_play_hosts }}"
+      loop_control:
+        loop_var: sys_token_store_reader
+      when: hostvars[sys_token_store_reader].STACK_HOST == STACK_HOST
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "📌 Keep the writer's own merge over a peer writer's hand-over"
       ansible.builtin.set_fact:
         sys_token_store_users: "{{ sys_token_store_users_merged }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
