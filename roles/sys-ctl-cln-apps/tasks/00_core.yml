@@ -23,7 +23,7 @@
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
     system_service_tpl_exec_start: "{{ system_service_script_exec }} routine"
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP | join(" ") }} --timeout
-      "{{ SYS_TIMEOUT_BACKUP_SERVICES }}" --proceed-on-timeout'
+      "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"'
     system_service_tpl_environment:
       - "GARBAGE_COLLECTOR_MANIFEST_DIR={{ DIR_GARBAGE_COLLECTOR_MANIFESTS }}"
       - "GARBAGE_COLLECTOR_APP_TIMEOUT={{ SYS_TIMEOUT_CLEANUP_APP }}"
