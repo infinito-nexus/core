@@ -25,11 +25,10 @@ flowchart TD
     UPDEXEC -.->|reuses inventory, disable = ansible extra-var only| INV
 ```
 
-- `initialize` / `reinstall` rebuild the inventory through `init.py`; this
-  is the only path that prunes the include set. `deploy` re-derives the
-  same pruned set for its deploy ids (see below).
-- `update` reuses the existing inventory; `disable` reaches ansible as an
-  extra-var that renders services disabled, but does not touch the include.
+- `initialize` / `reinstall` rebuild the inventory through `init.py`; this is the only path that prunes the include set.
+  `deploy` re-derives the same pruned set for its deploy ids (see below).
+- `update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include.
+  The inventory bakes in the included roles' `meta/services.yml`, `meta/variants.yml`, `meta/secrets.yml` and `meta/users.yml`, so an `update` after a change to one of them deploys the old include set, overrides, credentials and users; such a change takes `reinstall` with `full_cycle=true`.
 
 ## init.py: plan then prune
 
