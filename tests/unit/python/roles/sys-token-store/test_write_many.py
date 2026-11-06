@@ -15,6 +15,8 @@ EMPTY = "🛑 Abort if a token is empty (do not persist empties)"
 PERSIST = "💾 Persist store (idempotent, single-writer via STACK_HOST)"
 MIRROR = "🪞 Mirror the store onto the controller, where every users lookup reads"
 HAND_OVER = "🔄 Hand the written store to the lookups of the rest of the play"
+KEEP_OWN = "📌 Keep the writer's own merge over a peer writer's hand-over"
+CHANGED = "🧮 Note whether the merge changed the store"
 RERENDER = "🧊 Re-render the users SPOT the new tokens invalidated"
 
 USERS = {
@@ -74,6 +76,15 @@ def _merged(entries: list[dict], users: dict = USERS) -> dict:
     )
 
 
+def _state(merged: dict, users: dict = USERS) -> dict:
+    variables = {"sys_token_store_users_merged": merged, "sys_token_store_users": users}
+    changed = _render(
+        _task(CHANGED)["ansible.builtin.set_fact"]["sys_token_store_changed"],
+        **variables,
+    )
+    return {**variables, "sys_token_store_changed": changed}
+
+
 def _when(name: str, **variables) -> bool:
     conditions = _gated(name)[1]
     if not conditions:
@@ -87,6 +98,14 @@ def _when(name: str, **variables) -> bool:
 
 def _entry(user_key: str, app: str, token: str) -> dict:
     return {"user_key": user_key, "app": app, "token": token}
+
+
+def _reader(reader: str, reader_stack_host: str) -> dict:
+    return {
+        "sys_token_store_reader": reader,
+        "hostvars": {reader: {"STACK_HOST": reader_stack_host}},
+        "STACK_HOST": "mgr",
+    }
 
 
 class TestWriteMany(unittest.TestCase):
@@ -124,10 +143,11 @@ class TestWriteMany(unittest.TestCase):
             ]
         )
         self.assertEqual(merged, USERS)
-        state = {"sys_token_store_users_merged": merged, "sys_token_store_users": USERS}
+        state = _state(merged)
         self.assertFalse(_when(PERSIST, **state))
         self.assertFalse(_when(MIRROR, **state))
         self.assertFalse(_when(HAND_OVER, **state))
+        self.assertFalse(_when(KEEP_OWN, **state))
         self.assertFalse(
             _when(
                 RERENDER,
@@ -138,9 +158,9 @@ class TestWriteMany(unittest.TestCase):
 
     def test_a_changed_store_is_written_and_rerendered_once(self):
         merged = _merged([_entry("bob", "web-app-b", "token-b")])
-        state = {"sys_token_store_users_merged": merged, "sys_token_store_users": USERS}
+        state = _state(merged)
         self.assertTrue(_when(PERSIST, **state))
-        self.assertTrue(_when(HAND_OVER, **state))
+        self.assertTrue(_when(HAND_OVER, **state, **_reader("wrk", "mgr")))
         self.assertTrue(
             _when(
                 RERENDER,
@@ -153,6 +173,37 @@ class TestWriteMany(unittest.TestCase):
         ]
         self.assertEqual(len(rerenders), 1)
         self.assertNotIn("loop", rerenders[0])
+
+    def test_the_written_store_reaches_only_the_readers_of_its_stack_host(self):
+        merged = _merged([_entry("bob", "web-app-b", "token-b")])
+        state = _state(merged)
+        self.assertTrue(_when(HAND_OVER, **state, **_reader("wrk", "mgr")))
+        self.assertFalse(_when(HAND_OVER, **state, **_reader("solo", "solo")))
+        hand_over = _task(HAND_OVER)
+        self.assertEqual(hand_over["delegate_to"], "{{ sys_token_store_reader }}")
+        self.assertIs(hand_over["delegate_facts"], True)
+
+    def test_every_changed_writer_hands_over_its_own_store(self):
+        self.assertNotIn("run_once", _task(HAND_OVER))
+
+    def test_every_writer_ends_on_its_own_merge(self):
+        names = [task.get("name") for task, _ in _flat("write_many.yml")]
+        self.assertGreater(names.index(KEEP_OWN), names.index(HAND_OVER))
+        keep_own = _task(KEEP_OWN)
+        self.assertEqual(
+            keep_own["ansible.builtin.set_fact"],
+            {"sys_token_store_users": "{{ sys_token_store_users_merged }}"},
+        )
+        for keyword in ("delegate_to", "delegate_facts", "run_once", "loop"):
+            with self.subTest(keyword=keyword):
+                self.assertNotIn(keyword, keep_own)
+        merged = _merged([_entry("bob", "web-app-b", "token-b")])
+        self.assertTrue(_when(KEEP_OWN, **_state(merged)))
+
+    def test_the_hand_over_outlives_the_writers_own_fact_update(self):
+        merged = _merged([_entry("bob", "web-app-b", "token-b")])
+        after_writer_item = {**_state(merged), "sys_token_store_users": merged}
+        self.assertTrue(_when(HAND_OVER, **after_writer_item, **_reader("wrk", "mgr")))
 
     def test_the_store_has_one_writer(self):
         persist = _task(PERSIST)
