@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import subprocess
+import sys
 import time
 from datetime import UTC, datetime
 
@@ -27,16 +28,37 @@ def parse_time_to_seconds(time_str):
     return int(number) * units[unit]
 
 
+BUSY_ACTIVE_STATES = {"active", "activating", "deactivating", "reloading"}
+IDLE_SUB_STATES = {"start-pre", "exited"}
+
+
 def check_service_active(service_name):
-    """
-    Check if a systemd service is currently active or activating.
+    """Return whether ``service_name`` holds the lock.
+
+    Args:
+        service_name: systemd unit name.
+
+    Returns:
+        True when the unit runs, starts, reloads or stops, outside ``start-pre``
+        and ``exited``.
     """
     result = subprocess.run(
-        ["systemctl", "is-active", service_name], stdout=subprocess.PIPE, check=False
+        ["systemctl", "show", "-p", "ActiveState", "-p", "SubState", service_name],
+        stdout=subprocess.PIPE,
+        check=False,
     )
-    service_status = result.stdout.decode("utf-8").strip()
-    is_active = service_status in ["active", "activating"]
-    print(f"Service {service_name} is {'active' if is_active else 'not active'}.")
+    states = dict(
+        line.split("=", 1)
+        for line in result.stdout.decode("utf-8").splitlines()
+        if "=" in line
+    )
+    active_state = states.get("ActiveState", "").strip()
+    sub_state = states.get("SubState", "").strip()
+    is_active = active_state in BUSY_ACTIVE_STATES and sub_state not in IDLE_SUB_STATES
+    print(
+        f"Service {service_name} is {active_state}/{sub_state}: "
+        f"{'holds the lock' if is_active else 'does not hold the lock'}."
+    )
     return is_active
 
 
@@ -76,9 +98,17 @@ def get_max_attempts(timeout_sec):
     return timeout_sec // BREAK_TIME_SECONDS
 
 
-def main(services, ignored_services, timeout_sec):
-    """
-    Main function to process the command-line arguments and perform actions.
+def main(services, ignored_services, timeout_sec, proceed_on_timeout=False):
+    """Wait until none of ``services`` outside ``ignored_services`` holds the lock.
+
+    Args:
+        services: systemd units to wait for.
+        ignored_services: units to leave out, such as the caller itself.
+        timeout_sec: longest wait in seconds.
+        proceed_on_timeout: on timeout, warn and return instead of raising.
+
+    Raises:
+        AttemptError: the timeout ran out and ``proceed_on_timeout`` is false.
     """
     filtered_services = filter_services(services, ignored_services)
     print(f"Services to handle: {services}")
@@ -89,16 +119,25 @@ def main(services, ignored_services, timeout_sec):
 
     attempt = 0
     max_attempts = get_max_attempts(timeout_sec)
-    while check_any_service_active(filtered_services):
-        attempt = wait_for_all_services_to_stop(
-            filtered_services, max_attempts, attempt
+    try:
+        while check_any_service_active(filtered_services):
+            attempt = wait_for_all_services_to_stop(
+                filtered_services, max_attempts, attempt
+            )
+    except AttemptError:
+        if not proceed_on_timeout:
+            raise
+        print(
+            f"WARNING: the lock timed out after {timeout_sec}s; proceeding without it.",
+            file=sys.stderr,
         )
+        return
     print("All required services have stopped.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Blocks the code execution as long as defined services are running. Terminates with 0 when all services stopped"
+        description="Waits while any of the given services runs. Exits 0 once they stopped; on timeout it fails, or warns and exits 0 with --proceed-on-timeout."
     )
     parser.add_argument(
         "services", nargs="+", help="List of services to apply the action to."
@@ -114,8 +153,13 @@ if __name__ == "__main__":
         help="Timeout for lock actions (e.g., 1h, 30min, 45s).",
         default="1min",
     )
+    parser.add_argument(
+        "--proceed-on-timeout",
+        action="store_true",
+        help="On timeout, warn and exit 0 instead of failing.",
+    )
     args = parser.parse_args()
     services = args.services
     ignored_services = args.ignore or []
     timeout_seconds = parse_time_to_seconds(args.timeout)
-    main(services, ignored_services, timeout_seconds)
+    main(services, ignored_services, timeout_seconds, args.proceed_on_timeout)

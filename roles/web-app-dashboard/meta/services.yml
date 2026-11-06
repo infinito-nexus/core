@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 sso: # nocheck: login-methods  Reason: the dashboard keeps no accounts; its only sign-in entry is the Keycloak Login link oidc.js renders, and without SSO it has no sign-in at all
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

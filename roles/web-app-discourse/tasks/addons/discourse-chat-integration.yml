@@ -1,5 +1,5 @@
 ---
-- name: "💬 Enable the chat integration and the bridged partners' providers"
+- name: "💬 Enable the chat integration and its partners' providers, then read back"
   ansible.builtin.command:
     argv:
       - container
@@ -7,21 +7,9 @@
       - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
       - rails
       - r
-      - "{{ lookup('template', 'chat_integration/enable.rb.j2') }}"
-  register: discourse_chat_integration_enable
-  changed_when: "'chat_integration_changed=true' in discourse_chat_integration_enable.stdout_lines"
-
-- name: "🔎 Read the chat integration settings back out of the running instance"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
-      - rails
-      - r
-      - "{{ lookup('template', 'chat_integration/verify.rb.j2') }}"
+      - "{{ lookup('template', 'chat_integration/enable.rb.j2') }}\n{{ lookup('template', 'chat_integration/verify.rb.j2') }}"
   register: discourse_chat_integration_readback
-  changed_when: false
+  changed_when: "'chat_integration_changed=true' in discourse_chat_integration_readback.stdout_lines"
 
 - name: "🛑 Refuse a chat integration that cannot notify the bridged partners"
   ansible.builtin.assert:

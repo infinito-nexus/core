@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  database engine; the rows belong to the consuming applications, which expire their own data
 openldap:
   backup:
     stop_required: true

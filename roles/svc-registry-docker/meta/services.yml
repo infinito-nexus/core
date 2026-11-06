@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  pushed images are operator data; no registry garbage collection is configured yet
 # nocheck: dynamic-flag
 node:
   enabled: true

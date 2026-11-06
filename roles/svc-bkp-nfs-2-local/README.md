@@ -7,7 +7,7 @@ Each run stores a discrete snapshot under `<backups>/<machine-hash>/backup-nfs-t
 
 ## Overview
 
-This role installs the backup script and the systemd service that drives it on the configured schedule (`SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL`), and serialises the run against the rest of the manipulation group via [sys-lock](../sys-lock/).
+This role installs the backup script and the systemd service that drives it on the configured schedule (`SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL`), and first waits for the rest of the manipulation group via [sys-lock](../sys-lock/), up to `SYS_TIMEOUT_BACKUP_SERVICES`.
 The source path is the NFS export base resolved from the [svc-storage-nfs-server](../svc-storage-nfs-server/) services SPOT; deploy the role on the host that serves the export.
 Deploy [sys-ctl-cln-bkps](../sys-ctl-cln-bkps/) to keep the snapshot tree bounded and [user-backup](../user-backup/) so downstream hosts can pull the tree.
 

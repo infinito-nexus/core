@@ -30,6 +30,9 @@ loki:
     application: 7d
     system: 7d
     security: 7d
+  garbage_collector:
+    type: native
+    setting: "retention per stream class, rendered as limits_config.retention_period and retention_stream with compactor.retention_enabled in templates/loki.yaml.j2"
   ingestion:
     rate_mb: 16
     burst_mb: 64

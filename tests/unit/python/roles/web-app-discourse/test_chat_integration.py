@@ -38,8 +38,12 @@ class SiteSetting
     return super unless values.key?(key)
     return values[key] unless name.to_s.end_with?('=')
 
-    values[key] = args.first unless ENV.fetch('STUB_DROP_WRITES') == 'true'
-    File.write(ENV.fetch('STUB_STORE'), JSON.generate(values))
+    values[key] = args.first
+    File.write(ENV.fetch('STUB_STORE'), JSON.generate(values)) unless ENV.fetch('STUB_DROP_WRITES') == 'true'
+  end
+
+  def self.refresh!
+    @values = nil
   end
 
   def self.respond_to_missing?(name, include_private = false)
@@ -200,9 +204,10 @@ class TestChatIntegrationTask(unittest.TestCase):
         )
         return result, changed
 
-    def _assertions(self, settings: list[str]) -> dict[str, bool]:
-        readback_task = _task("ansible.builtin.command", 1)
-        result = self._rails_r(readback_task, settings)
+    def _assertions(
+        self, settings: list[str], result: subprocess.CompletedProcess
+    ) -> dict[str, bool]:
+        readback_task = _task("ansible.builtin.command")
         self.assertEqual(result.returncode, 0, result.stderr)
         assert_task = _task("ansible.builtin.assert")
         loop_var = assert_task["loop_control"]["loop_var"]
@@ -242,7 +247,9 @@ class TestChatIntegrationTask(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(changed, result.stdout)
-        self.assertEqual(self._assertions(settings), {PLUGIN: True, MATRIX: True})
+        self.assertEqual(
+            self._assertions(settings, result), {PLUGIN: True, MATRIX: True}
+        )
 
     def test_an_undeployed_partner_keeps_its_provider_setting(self) -> None:
         self._seed({PLUGIN: False, MATRIX: False, MATTERMOST: False})
@@ -269,7 +276,9 @@ class TestChatIntegrationTask(unittest.TestCase):
         result, _ = self._write(settings, drop_writes=True)
 
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(self._assertions(settings), {PLUGIN: False, MATRIX: False})
+        self.assertEqual(
+            self._assertions(settings, result), {PLUGIN: False, MATRIX: False}
+        )
 
     def test_an_image_without_the_plugin_fails_the_write(self) -> None:
         self._seed({MATRIX: False, MATTERMOST: False})

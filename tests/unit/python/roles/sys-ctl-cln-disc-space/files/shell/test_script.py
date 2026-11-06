@@ -53,5 +53,35 @@ class TestPacmanCleanup(unittest.TestCase):
         self.assertEqual(calls, [f"-Sc --cachedir {writable}/"])
 
 
+class TestApplicationCollectors(unittest.TestCase):
+    def test_the_dispatcher_runs_in_pressure_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bin_dir = Path(tmp) / "bin"
+            bin_dir.mkdir()
+            log = Path(tmp) / "dispatcher.log"
+            dispatcher = Path(tmp) / "dispatcher.sh"
+            dispatcher.write_text(f'#!/bin/sh\nprintf "%s\\n" "$*" >>"{log}"\n')
+            dispatcher.chmod(0o755)
+            stubs = {**STUBS, "docker": "#!/bin/sh\nexit 0\n"}
+            for name, body in stubs.items():
+                stub = bin_dir / name
+                stub.write_text(body)
+                stub.chmod(0o755)
+            (bin_dir / "sed").symlink_to(shutil.which("sed"))
+            done = subprocess.run(
+                ["/bin/sh", str(SCRIPT), "90", "--force"],
+                env={
+                    "PATH": str(bin_dir),
+                    "SYS_SERVICE_CLEANUP_APPS_SCRIPT": str(dispatcher),
+                },
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            calls = log.read_text().splitlines()  # nocheck: cache-read  stub call log
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertEqual(calls, ["pressure"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: playwright-service-flag  the role's own provider service must not self-gate from Playwright
 workspace:
   modes:

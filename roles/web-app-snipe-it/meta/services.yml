@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — the role's persona Playwright flow exercises no SeaweedFS storage surface (no object-browser/upload UI to assert against)
 logout:
   bond: 1

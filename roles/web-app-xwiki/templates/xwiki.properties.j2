@@ -1,8 +1,7 @@
 {# nocheck: comments-valid  upstream xwiki.properties reference documentation #}
 ############################################
 # OIDC
-# Render this block only while the OIDC switch is ON in tasks/utils/flush_config.yml.
-# During bootstrap we keep it OFF to avoid ClassNotFoundException before the extension is installed.
+# The OIDC switch stays off until the probe finds the authenticator installed, else XWiki fails with ClassNotFoundException.
 # @see https://extensions.xwiki.org/xwiki/bin/view/Extension/OpenID%20Connect/OpenID%20Connect%20Authenticator/
 {% if xwiki_oidc_enabled_switch | bool %}
 security.authentication.authService=oidc

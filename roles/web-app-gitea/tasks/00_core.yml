@@ -24,6 +24,14 @@
     - compose-build
     - compose-up
 
+- name: "🧹 Register the garbage collector of {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-cln-apps/tasks/utils/install.yml') }}"
+  vars:
+    garbage_collector_service_key: gitea
+    garbage_collector_environment:
+      GITEA_GARBAGE_COLLECTOR_MINUTES_ROUTINE: "{{ lookup('config', application_id, 'services.gitea.garbage_collector.minutes.routine') }}"
+      GITEA_GARBAGE_COLLECTOR_MINUTES_PRESSURE: "{{ lookup('config', application_id, 'services.gitea.garbage_collector.minutes.pressure') }}"
+
 - name: "🎨 Stage the corporate design overrides of {{ application_id }}"
   include_tasks: utils/design.yml
   when: GITEA_DESIGN_ENABLED | bool

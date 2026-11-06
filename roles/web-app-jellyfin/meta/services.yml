@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required - Jellyfin stores its library on a dedicated media volume and metadata in internal SQLite under {{ lookup('volume', 'web-app-jellyfin', 'jellyfin_config').target }}; it has no S3/object-store surface.
 sso:
   bond: 1

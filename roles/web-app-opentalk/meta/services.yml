@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — S3 holds only recordings/whiteboard exports; needs the recorder service + a live multi-party meeting, so no single-user UI action deterministically triggers an S3 write
 # nocheck: dynamic-flag — OpenTalk has no no-auth mode (controller/recorder require the OIDC client), so sso is a hard dependency.
 sso: # nocheck: login-methods  Reason: the frontend is a public-client OIDC single-page app with no form, no local accounts and no no-auth mode, so Keycloak is the only way in

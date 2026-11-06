@@ -7,7 +7,7 @@ The receiving side is the trust anchor: each retrieval is a discrete snapshot, h
 
 ## Overview
 
-This role deploys the Python pull script that talks to each remote provider, installs the systemd service that drives it on the configured schedule (`SYS_SCHEDULE_BACKUP_REMOTE_TO_LOCAL`), and serialises the run against the rest of the manipulation group via `sys-lock`.
+This role deploys the Python pull script that talks to each remote provider, installs the systemd service that drives it on the configured schedule (`SYS_SCHEDULE_BACKUP_REMOTE_TO_LOCAL`), and first waits for the rest of the manipulation group via `sys-lock`, up to `SYS_TIMEOUT_BACKUP_SERVICES`.
 The remote side must expose a chrooted SSH/SFTP endpoint that publishes its backup tree: deploy [user-backup](../user-backup/) for the chrooted pull account and [sys-ctl-cln-bkps](../sys-ctl-cln-bkps/) to keep the published tree bounded.
 
 ## Schema

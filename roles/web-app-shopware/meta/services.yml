@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright - the object store is reached only through the Flysystem amazon-s3 public/private/theme/sitemap adapters; Shopware exposes no object-browser surface to script
 logout:
   bond: 1

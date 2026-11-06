@@ -22,10 +22,11 @@ Because the lookup emits ``$(...)`` shell syntax, callers MUST use the
 ``container exec`` invocation. A companion lint rule enforces this.
 
 The helper script `BIN_RESOLVE_CONTAINER_ID` is deployed by
-sys-svc-compose during the constructor stage. It refuses to run on
-non-manager nodes (exit 64) and reports clear errors when the service
-has no running task (exit 65) or the task is not yet bound to a
-container (exit 66).
+sys-svc-compose during the constructor stage. It answers with a running
+task of the service on the local node first, on any node. Without one, a
+worker gives up (exit 64), while a manager looks the service up and
+reports clear errors when it has no running task (exit 65) or its task
+is not yet bound to a container on this node (exit 66).
 
 Examples::
 

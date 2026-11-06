@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  host tuning service; holds no application data
 swapfile:
   modes:
     host:

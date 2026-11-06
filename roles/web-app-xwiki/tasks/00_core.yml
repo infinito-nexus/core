@@ -31,7 +31,7 @@
   vars:
     xwiki_oidc_enabled_switch: "{{ (XWIKI_LOGIN_SSO | bool) and (xwiki_extensions_ready | bool) }}"
     xwiki_ldap_enabled_switch: "{{ (XWIKI_LOGIN_LDAP | bool) and (xwiki_extensions_ready | bool) }}"
-    xwiki_blobstore_s3_enabled_switch: false
+    xwiki_blobstore_s3_enabled_switch: "{{ (XWIKI_OBJSTORE_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
 
 - name: "👔 XWiki manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml

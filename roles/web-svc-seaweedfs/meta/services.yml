@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: tor-contract — an onion vhost is not servable for this role: the
 # node hidden service publishes http only (svc-prx-openresty
 # ports.onion.https is false) while sys-front-tls/templates/nginx_ssl_header.j2

@@ -9,6 +9,7 @@
     - sys-svc-journalctl # Configure persistent systemd-journald logging
     - sys-svc-log-collector
     - sys-ctl-hlth-disc-space # Monitor disk usage and alert on low free space
+    - sys-ctl-cln-apps
     - sys-ctl-cln-disc-space # Reclaim disk space by cleaning temporary system data
     - sys-ctl-hlth-btrfs # Check Btrfs filesystem health and error counters
     - sys-ctl-rpr-btrfs-balancer # Install and configure automatic Btrfs balancing

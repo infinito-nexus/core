@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required - Checkmk Raw bundles its own monitoring core + RRD storage on a single OMD-site volume; it has no object-store surface.
 sso:
   bond: 1

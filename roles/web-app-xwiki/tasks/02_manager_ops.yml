@@ -63,8 +63,8 @@
 - name: "🫙 XWIKI | Move the blob store to the bucket now the extension exists"
   include_tasks: utils/flush_config.yml
   vars:
-    xwiki_oidc_enabled_switch: false
-    xwiki_ldap_enabled_switch: false
+    xwiki_oidc_enabled_switch: "{{ (XWIKI_OIDC_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
+    xwiki_ldap_enabled_switch: "{{ (XWIKI_LDAP_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
     xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"
 
 - name: "✅ XWIKI | Ensure Main.WebHome exists"
@@ -84,6 +84,7 @@
       stack_host_template:
         src: "compose.yml.j2"
         dest: "{{ lookup('container', application_id, 'files.compose') }}"
+        mode: "0640"
       notify: compose-up
 
     - name: 🚀 Deploy Final Config

@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dynamic-flag  the gateway holds no browser session, so no logout surface can exist in any round
 logout:
   enabled: false

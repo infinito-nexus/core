@@ -2,7 +2,7 @@
 - name: "🔎 XWIKI | Probe whether the running wiki answers the superadmin"
   when:
     - IS_STACK_HOST | bool
-    - XWIKI_SSO_ENABLED | bool
+    - (XWIKI_SSO_ENABLED | bool) or (XWIKI_OBJSTORE_ENABLED | bool)
   block:
     - name: "🔍 XWIKI | Check whether the {{ application_id }} swarm service runs converged"
       ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/service_converged.sh') }}"

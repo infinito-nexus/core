@@ -102,20 +102,16 @@ def _finalize_phase() -> list[dict]:
     ]
 
 
+def _decommissions(task: dict) -> bool:
+    return any(_includes([nested], "decommission.yml") for nested in _walk([task]))
+
+
 def _destructor_block() -> dict:
-    return next(
-        task
-        for task in _stage()
-        if "block" in task and _includes(task["block"], "decommission.yml")
-    )
+    return next(task for task in _stage() if "block" in task and _decommissions(task))
 
 
 def _destructor_task() -> dict:
-    return next(
-        task
-        for task in _destructor_block()["block"]
-        if _includes([task], "decommission.yml")
-    )
+    return next(task for task in _destructor_block()["block"] if _decommissions(task))
 
 
 def _prepared_tasks() -> list[dict]:
@@ -208,6 +204,7 @@ class TestComposeDecommission(unittest.TestCase):
             "ansible_connection": "local",
             "ansible_python_interpreter": sys.executable,
             "DIR_COMPOSITIONS": f"{root}/",
+            "DIR_GARBAGE_COLLECTOR_MANIFESTS": f"{self.work / name / 'garbage-collector'}/",
             "BIN_COMPOSE": str(self.fake_compose),
             "CLEANUP": True,
             "DEPLOYMENT_MODE": "compose",
@@ -333,6 +330,17 @@ class TestComposeDecommission(unittest.TestCase):
             "stale stack must be down before the terminator starts them",
         )
         self.assertFalse((root / "mailu").exists())
+
+    def test_the_stage_drops_the_garbage_collector_manifests_of_inactive_roles(self):
+        manifests = self.work / "garbage-collector-host" / "garbage-collector"
+        for application_id in ("web-app-mailu", "web-app-grouped", "web-app-closure"):
+            (manifests / application_id).mkdir(parents=True)
+
+        self._assert_ok(self._stage_play("garbage-collector-host")[1])
+        self.assertEqual(
+            sorted(entry.name for entry in manifests.iterdir()),
+            ["web-app-closure", "web-app-grouped"],
+        )
 
     def test_a_failing_phase_still_unlocks_the_timers_and_fails_the_play(self):
         cases = {

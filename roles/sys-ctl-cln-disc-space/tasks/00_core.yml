@@ -21,15 +21,10 @@
     system_service_tpl_environment:
       - "SYS_SERVICE_CLEANUP_BACKUPS={{ SYS_SERVICE_CLEANUP_BACKUPS }}"
       - "SYS_SERVICE_CLEANUP_DOCKER={{ SYS_SERVICE_CLEANUP_DOCKER }}"
-      - "DEPLOYMENT_MODE={{ DEPLOYMENT_MODE }}"
+      - "SYS_SERVICE_CLEANUP_APPS_SCRIPT={{ 'sys-ctl-cln-apps' | get_service_script_path('sh') }}"
+      - "GARBAGE_COLLECTOR_MANIFEST_DIR={{ DIR_GARBAGE_COLLECTOR_MANIFESTS }}"
+      - "GARBAGE_COLLECTOR_APP_TIMEOUT={{ SYS_TIMEOUT_CLEANUP_APP }}"
       - "BIN_RESOLVE_CONTAINER_ID={{ BIN_RESOLVE_CONTAINER_ID }}"
-      - "NEXTCLOUD_APPLICATION_CONTAINER={{ lookup('config', 'web-app-nextcloud', 'services.nextcloud.name') }}"
-      - "NEXTCLOUD_APPLICATION_STACK={{ 'web-app-nextcloud' | entity_name }}"
-      - "NEXTCLOUD_APPLICATION_SERVICE_KEY=nextcloud"
-      - "MASTODON_APPLICATION_CONTAINER={{ lookup('config', 'web-app-mastodon', 'services.mastodon.name') }}"
-      - "MASTODON_APPLICATION_STACK={{ 'web-app-mastodon' | entity_name }}"
-      - "MASTODON_APPLICATION_SERVICE_KEY=mastodon"
-      - "MASTODON_CLEANUP_DAYS=1"
     system_service_force_linear_sync: false
 
 - include_tasks: utils/once/flag.yml

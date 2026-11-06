@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 0.5

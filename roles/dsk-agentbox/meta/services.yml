@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dynamic-flag  the desktop base is the premise of every dsk role, not a per-host option
 desktop-base:
   bond: 1

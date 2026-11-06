@@ -49,6 +49,12 @@ def render_env() -> dict[str, str]:
         "services.gitea.configuration.repository.enable_push_create_user": True,
         "services.gitea.configuration.repository.default_private": "last",
         "services.gitea.configuration.repository.default_push_create_private": True,
+        "services.gitea.configuration.git.gc_args": "--prune=1.day.ago",
+        "services.gitea.configuration.git.timeout.gc": 1800,
+        "services.gitea.configuration.git.timeout.mirror": 3600,
+        "services.gitea.configuration.cron.git_gc_repos.enabled": True,
+        "services.gitea.configuration.cron.git_gc_repos.schedule": "@every 72h",
+        "services.gitea.configuration.cron.git_gc_repos.timeout": "60m",
         "services.prometheus.native_metrics.enabled": False,
     }
 

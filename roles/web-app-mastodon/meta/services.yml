@@ -82,6 +82,11 @@ mastodon:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  garbage_collector:
+    type: script
+    days:
+      routine: 14
+      pressure: 1
 # nocheck: container-healthcheck-unused  rendered through the mastodon_service macro, whose service_name is a macro parameter
 streaming:
   image: ghcr.io/mastodon/mastodon-streaming

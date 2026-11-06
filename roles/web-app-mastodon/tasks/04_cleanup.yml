@@ -1,7 +1,8 @@
 ---
-- name: "🧹 Cleanup Mastodon media cache older than 14 days"
+- name: "🧹 Cleanup the Mastodon media cache past the routine garbage collector age"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bin/tootctl media remove --days=14
+    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bin/tootctl media remove --days={{ lookup('config', application_id, 'services.mastodon.garbage_collector.days.routine')
+    | int }}
   delegate_to: "{{ MASTODON_HOST_NODE }}"
   register: mastodon_cleanup
   changed_when: mastodon_cleanup.rc == 0

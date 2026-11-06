@@ -848,6 +848,10 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "Развитие и инструменты CI/CD"
 
+msgctxt "role:sys-ctl-cln-apps:description"
+msgid "Dispatcher for the garbage collectors of deployed application roles, daily and under disc pressure"
+msgstr ""
+
 # per-konsumer bucket koshishta proverting tashkilato vārda-xalqan
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"

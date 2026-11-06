@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required - OpenBao keeps every secret, policy and PKI object in its own encrypted raft store on {{ lookup('volume', 'web-app-openbao', 'data').target }}; it has no S3/object-store surface.
 sso:
   bond: 1
