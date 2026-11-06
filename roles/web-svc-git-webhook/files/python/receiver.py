@@ -205,9 +205,15 @@ def check_direct_push(config, endpoint, delivery, repo, payload, sleep=time.slee
 
 def load_config(env):
     timeout = float(env["WEBHOOK_API_TIMEOUT"])
+    providers = json.loads(env["WEBHOOK_PROVIDERS"])
+    if not isinstance(providers, dict):
+        raise ValueError(
+            "WEBHOOK_PROVIDERS must be a JSON object of path to provider settings, "
+            f"got a JSON {type(providers).__name__}; a value quoted once too often decodes to a str"
+        )
     endpoints = {
         path: Endpoint(path, settings, timeout)
-        for path, settings in json.loads(env["WEBHOOK_PROVIDERS"]).items()
+        for path, settings in providers.items()
         if settings.get("secret")
     }
     return {
