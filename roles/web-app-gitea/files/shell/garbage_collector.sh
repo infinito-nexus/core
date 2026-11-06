@@ -17,6 +17,7 @@ pressure) minutes="${GITEA_GARBAGE_COLLECTOR_MINUTES_PRESSURE:?}" ;;
 	;;
 esac
 
+# shellcheck disable=SC2016  # $1 and $2 expand in the inner sh -c, not here
 container exec -u git "${GARBAGE_COLLECTOR_ADDRESS:?}" timeout "${GARBAGE_COLLECTOR_APP_TIMEOUT:?}" sh -c '
 	[ -d "$1" ] || { echo "$1 does not exist yet, nothing to clean"; exit 0; }
 	exec find "$1" -type f -path "*/objects/pack/tmp_*" -mmin "+$2" -print -exec rm -f -- {} +

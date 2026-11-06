@@ -8,7 +8,6 @@ import unittest
 import warnings
 from typing import TYPE_CHECKING, Any
 
-import yaml
 from ansible.plugins.filter.core import FilterModule as AnsibleFilters
 from ansible.plugins.test.core import TestModule as AnsibleTests
 from jinja2 import (
@@ -836,7 +835,7 @@ class TestRenderStages(unittest.TestCase):
                     origin = "bootstrap" if name == "bootstrap" else "final"
                     text = render_compose(scope, flags, origin)
                     with self.subTest(wiki=wiki.__name__, render=name, **flags):
-                        document = yaml.safe_load(text)
+                        document = load_yaml_str(text)
                         self.assertIsInstance(document, dict)
                         environment = document["services"]["xwiki"]["environment"]
                         self.assertIn("XWIKI_PROPERTIES_SOURCE", environment)
