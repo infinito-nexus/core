@@ -169,6 +169,7 @@ the cluster declaration (image, containers, network, DNS play) in
 | teardown | `utils/collect/topology_summary.sh` | render the node list + service placement into `$GITHUB_STEP_SUMMARY` |
 | teardown | `utils/clean/teardown.sh` | kill the nodes, disconnect the shared target, remove the lab network |
 | teardown | `utils/release.sh` | local runs: copy the act job's rescue and Playwright artefacts to the host, then run `utils/clean/teardown.sh` and remove the act outer container unless `keep=true` |
+| iterate | `sync/role.sh` | `make swarm-role-sync`: refuse unless the manager and exactly one act job container of this worktree run, then run [`utils/tests/swarm/sync.py`](../../../../utils/tests/swarm/sync.py) in that container: `playbook-sync.yml` for the app's group on the round inventory, with the round's extra vars; a fresh `make swarm-zombie` without `keep=true` stays the gate |
 | helper | `utils/_context.sh` | per-app facts (entity, service, NFS volume, probes) |
 | helper | `utils/unmount/nfs_mounts.sh` | best-effort NFS unmount before node removal |
 | helper | `utils/unmount/host_state.sh` | release the host mount of the shared state so the next cycle cannot inherit it |

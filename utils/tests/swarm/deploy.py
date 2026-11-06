@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 import os
 
+from utils import PROJECT_ROOT
 from utils.tests.swarm.extend_inventory import drop_backup_network_mode
 from utils.tests.swarm.run import run_step
 
 _SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
+_SKIPPED_MODES = ("--skip-cleanup", "--skip-backup")
 
 
 def reset_target() -> int:
@@ -59,8 +61,7 @@ def deploy_round(
         f"{inv_dir}/.password",
         "--skip-build",
         "--skip-pull",
-        "--skip-cleanup",
-        "--skip-backup",
+        *_SKIPPED_MODES,
         "-e",
         f"@{_SWARM_EXTRAS_VARS}",
         "-e",
@@ -97,11 +98,57 @@ def deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
         f"{inv_dir}/.password",
         "--skip-build",
         "--skip-pull",
-        "--skip-cleanup",
-        "--skip-backup",
+        *_SKIPPED_MODES,
         "-e",
         f"@{_SWARM_EXTRAS_VARS}",
         "-e",
         f"@{extras_path}",
     ]
     return run_step(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
+
+
+def sync_role(*, app_id: str, inv_dir: str, extras_path: str, round_index: int) -> int:
+    """Run the role of one application again against the live cluster.
+
+    Unlike deploy_round it leaves the shared target as it is: the sync works on
+    the running stack.
+
+    Args:
+        app_id: application whose role runs again.
+        inv_dir: inventory directory of the round the cluster runs.
+        extras_path: the round's deploy extras file.
+        round_index: variant index of that round.
+    """
+    from cli.administration.deploy.dedicated.command import parse_args
+    from cli.administration.deploy.dedicated.modes import build_modes_from_args
+    from cli.administration.deploy.dedicated.runner import deploy_ansible_playbook
+    from cli.administration.deploy.development.deploy.run import pin_deploy_image
+
+    devices = f"{inv_dir}/devices.yml"
+    args, _, modes_spec = parse_args([devices, *_SKIPPED_MODES])
+    env = os.environ.copy()
+    env["APP_ID"] = app_id
+    pin_deploy_image(env)
+    cmd = [
+        deploy_ansible_playbook(str(PROJECT_ROOT)),
+        "-i",
+        devices,
+        "playbook-sync.yml",
+        "-l",
+        app_id,
+        "--vault-password-file",
+        f"{inv_dir}/.password",
+        "-e",
+        json.dumps(build_modes_from_args(modes_spec, args)),
+        "-e",
+        f"@{_SWARM_EXTRAS_VARS}",
+        "-e",
+        f"@{extras_path}",
+        "-e",
+        f"VARIANT_INDEX={json.dumps(round_index)}",
+        "-e",
+        f"PRIMARY_APPS={json.dumps([app_id], separators=(',', ':'))}",
+        "-e",
+        json.dumps({"APPLICATIONS_WHITELIST": [app_id], "sync_scope": "role"}),
+    ]
+    return run_step(env=env, cmd=cmd, label=f"role sync {app_id} (round {round_index})")
