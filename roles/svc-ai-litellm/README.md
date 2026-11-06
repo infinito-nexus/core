@@ -72,6 +72,12 @@ model text. The checks consume provider quota and may incur charges.
 Live compatibility depends on the installed FreeLLMAPI version and configured
 provider pool; the role remains pre-alpha until its full deploy loop is proven.
 
+Matrix variant 0 deploys FreeLLMAPI with every check enabled. Its own variant
+seeds a deterministic test upstream as the only provider, so the checks run
+against the real FreeLLMAPI routing and translation without a provider account.
+Variants 1 and 2 switch FreeLLMAPI off. FreeLLMAPI supports Compose only, so a
+Swarm round disables it through the round's `disable` list.
+
 Remote declarations may set an explicit `api_base`. Such entries must also set
 `traits.local` to a boolean: a remote URL must not be inferred to be a local
 backend just because it has an explicit endpoint.

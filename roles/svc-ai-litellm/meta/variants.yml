@@ -19,6 +19,9 @@
     lmstudio:
       enabled: false
       shared: false
+    freellmapi:
+      enabled: true
+      shared: true
     postgres:
       shared: true
     litellm:
@@ -33,6 +36,9 @@
 
 - services:
     docs:
+      enabled: false
+      shared: false
+    freellmapi:
       enabled: false
       shared: false
     postgres:
@@ -67,6 +73,9 @@
       bond: 0.5
       enabled: true
       shared: true
+    freellmapi:
+      enabled: false
+      shared: false
     postgres:
       shared: true
     s1:

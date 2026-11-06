@@ -299,6 +299,52 @@ class TestNetworkStates(unittest.TestCase):
         )
         self.assertEqual(entry["disable"], "web-svc-relay")
 
+    def test_a_swarm_row_disables_the_compose_only_partners_it_deploys(self) -> None:
+        deployed = ["svc-ai-litellm", "svc-ai-freellmapi", "svc-db-postgres"]
+        self.assertEqual(
+            network.disabled_services("multi", deployed, mode="swarm"),
+            "svc-ai-freellmapi",
+        )
+        self.assertEqual(
+            network.disabled_services("clearnet", deployed, mode="swarm"),
+            "tor svc-ai-freellmapi",
+        )
+        for mode in ("compose", "host", None):
+            with self.subTest(mode=mode):
+                self.assertEqual(
+                    network.disabled_services("multi", deployed, mode=mode), ""
+                )
+
+    def test_host_only_roles_without_a_stack_stay_in_a_swarm_row(self) -> None:
+        self.assertEqual(
+            network.disabled_services(
+                "multi", ["svc-net-wireguard", "svc-opt-swapfile"], mode="swarm"
+            ),
+            "",
+        )
+
+    def test_the_swarm_entry_carries_the_compose_only_token(self) -> None:
+        deployed = ["svc-ai-litellm", "svc-ai-freellmapi"]
+        entries = _assign(
+            [
+                _row(
+                    "web-app-c",
+                    0,
+                    ("compose", "swarm"),
+                    pin_network="clearnet",
+                    priority=True,
+                    services=deployed,
+                )
+            ],
+            sweep=0,
+            network_input="auto",
+            variants_per_app=_VARIANTS,
+        )
+        self.assertEqual(
+            {e["mode"]: e["disable"] for e in entries},
+            {"compose": "tor", "swarm": "tor svc-ai-freellmapi"},
+        )
+
 
 class TestCombinations(unittest.TestCase):
     def test_two_modes_on_the_network_axis_yield_six_runs(self) -> None:

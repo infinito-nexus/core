@@ -34,6 +34,26 @@ freellmapi:
   startup_config: {}
   lifecycle: pre-alpha
 
+# nocheck: playwright-service-flag, dynamic-flag, variants-coverage  own CI-only container, not a shared provider; only the variant 0 matrix round switches it on so production never routes to it
+mock:
+  enabled: false
+  name: freellmapi-mock
+  model: infinito-mock
+  context: 131072
+  healthcheck:
+    test:
+      - CMD
+      - node
+      - -e
+      - "fetch('http://127.0.0.1:' + process.env.PORT + '/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+  ports:
+    internal:
+      http: 3002
+  cpus: "0.25"
+  mem_reservation: 32m
+  mem_limit: 128m
+  pids_limit: 64
+
 # nocheck: playwright-service-flag, dynamic-flag
 container_backup: # nocheck: bond-baseline
   bond: 1

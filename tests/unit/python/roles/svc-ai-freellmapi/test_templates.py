@@ -5,14 +5,56 @@ from types import SimpleNamespace
 
 import jinja2
 from ansible.plugins.filter.core import FilterModule as CoreFilters
+from jinja2.nativetypes import NativeEnvironment
 
 from plugins.filter.dotenv import FilterModule
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml, load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_META_VOLUMES,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = PROJECT_ROOT / "roles/svc-ai-freellmapi"
 MASKED = "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+ADMIN = {"email": "admin@example.test", "password": 'test$secret"\\\nvalue'}
+
+
+def resolve_config(startup, *, mock_enabled):
+    """Evaluate the role's FREELLMAPI_CONFIG the way Ansible's native templar does.
+
+    Args:
+        startup: services.freellmapi.startup_config.
+        mock_enabled: services.mock.enabled.
+
+    Returns:
+        The mapping env.j2 serialises into FREEAPI_CONFIG_JSON.
+    """
+    variables = load_yaml(ROLE / ROLE_FILE_VARS_MAIN)
+    mock = load_yaml(ROLE / ROLE_FILE_META_SERVICES)["mock"]
+    env = NativeEnvironment(undefined=jinja2.StrictUndefined)
+    env.filters.update(CoreFilters().filters())
+    context = {
+        "application_id": "svc-ai-freellmapi",
+        "FREELLMAPI_STARTUP_CONFIG": startup,
+        "FREELLMAPI_ADMIN": ADMIN,
+        "FREELLMAPI_MOCK_ENABLED": mock_enabled,
+        "FREELLMAPI_MOCK_CONTAINER": mock["name"],
+        "FREELLMAPI_MOCK_PORT": mock["ports"]["internal"]["http"],
+        "FREELLMAPI_MOCK_MODEL": mock["model"],
+        "lookup": lambda kind, app, path: {"services.mock.context": mock["context"]}[
+            path
+        ],
+    }
+    context["FREELLMAPI_MOCK_PROVIDER"] = env.from_string(
+        variables["FREELLMAPI_MOCK_PROVIDER"]
+    ).render(**context)
+    return env.from_string(variables["FREELLMAPI_CONFIG"]).render(**context)
 
 
 class TestFreeLlmApiEnvironment(unittest.TestCase):
@@ -37,17 +79,13 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
             "roles/svc-ai-freellmapi/templates/env.j2"
         )
 
-    def render(self, config):
+    def render(self, config, *, mock_enabled=False):
         return self.template.render(
             HOST_TIMEZONE="UTC",
             DEPLOYMENT_MODE="compose",
             FREELLMAPI_PORT=3001,
             FREELLMAPI_ENCRYPTION_KEY="a" * 64,
-            FREELLMAPI_STARTUP_CONFIG=config,
-            FREELLMAPI_ADMIN={
-                "email": "admin@example.test",
-                "password": 'test$secret"\\\nvalue',
-            },
+            FREELLMAPI_CONFIG=resolve_config(config, mock_enabled=mock_enabled),
         )
 
     def startup_config(self, rendered):
@@ -137,8 +175,70 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
                 HOST_TIMEZONE="UTC",
                 DEPLOYMENT_MODE="compose",
                 FREELLMAPI_PORT=3001,
-                FREELLMAPI_STARTUP_CONFIG={},
+                FREELLMAPI_CONFIG=resolve_config({}, mock_enabled=False),
             )
+
+    def test_production_config_never_names_the_test_upstream(self):
+        self.assertNotIn(
+            "customProviders",
+            self.startup_config(self.render({"routing": {"strategy": "balanced"}})),
+        )
+        self.assertIs(
+            load_yaml(ROLE / ROLE_FILE_META_SERVICES)["mock"]["enabled"], False
+        )
+
+    def test_the_matrix_round_seeds_the_test_upstream_as_an_anonymous_tool_pool(self):
+        operator = {"baseUrl": "http://lmstudio.example:1234/v1", "apiKey": "x"}
+        config = self.startup_config(
+            self.render({"customProviders": [operator]}, mock_enabled=True)
+        )
+        mock = load_yaml(ROLE / ROLE_FILE_META_SERVICES)["mock"]
+        self.assertEqual(config["admin"]["email"], "admin@example.test")
+        self.assertEqual(config["customProviders"][0], operator)
+        self.assertEqual(
+            config["customProviders"][1],
+            {
+                "baseUrl": f"http://{mock['name']}:{mock['ports']['internal']['http']}/v1",
+                "apiKey": "no-key",
+                "label": "Infinito.Nexus deterministic test upstream",
+                "models": [
+                    {
+                        "model": mock["model"],
+                        "contextWindow": mock["context"],
+                        "supportsTools": True,
+                    }
+                ],
+            },
+        )
+        self.assertIs(
+            type(config["customProviders"][1]["models"][0]["contextWindow"]), int
+        )
+
+    def test_only_variant_zero_switches_the_test_upstream_on(self):
+        variants = load_yaml_any(ROLE / ROLE_FILE_META_VARIANTS)
+        self.assertIs(variants[0]["services"]["mock"]["enabled"], True)
+        gate = "{{ lookup('config', 'svc-ai-freellmapi', 'services.mock.enabled') | bool }}"
+        mounts = load_yaml(ROLE / ROLE_FILE_META_VOLUMES)["freellmapi_mock_script"][
+            "mounts"
+        ]
+        self.assertEqual([(m["service"], m["when"]) for m in mounts], [("mock", gate)])
+        compose = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
+        self.assertIn("{% if FREELLMAPI_MOCK_ENABLED | bool %}", compose)
+        stage = load_yaml_any(ROLE / "tasks/00_core.yml")[3]
+        self.assertEqual(stage["when"], "FREELLMAPI_MOCK_ENABLED | bool")
+
+    def test_the_test_upstream_receives_no_gateway_secret(self):
+        rendered = self.env.get_template(
+            "roles/svc-ai-freellmapi/templates/env/mock.j2"
+        ).render(
+            HOST_TIMEZONE="UTC",
+            FREELLMAPI_MOCK_PORT=3002,
+            FREELLMAPI_MOCK_MODEL="infinito-mock",
+        )
+        self.assertIn("PORT=3002", rendered)
+        self.assertIn("MOCK_MODEL=", rendered)
+        self.assertNotIn("ENCRYPTION_KEY", rendered)
+        self.assertNotIn("FREEAPI_CONFIG_JSON", rendered)
 
     def test_every_deploy_reconciles_after_start_and_masks_the_login_input(self):
         tasks = load_yaml_any(ROLE / "tasks/00_core.yml")

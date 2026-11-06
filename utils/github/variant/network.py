@@ -25,11 +25,13 @@ from utils.networks.reachability import (
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
 )
+from utils.roles.deploy import role_deploy_modes, role_has_stack
 from utils.roles.mapping import (
     ROLE_FILE_META_DOMAINS,
     ROLE_FILE_META_NETWORKS,
     ROLE_FILE_META_SERVICES,
 )
+from utils.roles.meta_lookup import MetaServicesShapeError
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -228,21 +230,48 @@ def combinations(
     ]
 
 
-def disabled_services(state: str, services: Sequence[str] = ()) -> str:
+def _compose_only(app: str) -> bool:
+    """Whether a role ships a stack that runs in compose but not in swarm.
+
+    Args:
+        app: application id.
+
+    Returns:
+        ``False`` for host roles without a stack and for malformed role meta,
+        which the row must not lose over a lint finding.
+    """
+    role_dir = ROLES_DIR / app
+    if not role_has_stack(role_dir):
+        return False
+    try:
+        offered = role_deploy_modes(role_dir, role_name=app)
+    except MetaServicesShapeError:
+        return False
+    return offered.get("compose") is True and offered.get("swarm") is False
+
+
+def disabled_services(
+    state: str, services: Sequence[str] = (), mode: str | None = None
+) -> str:
     """The ``disable`` tokens a row deploys with.
 
     Args:
         state: the node network mode of the row.
         services: the roles the row's variant deploys.
+        mode: the row's deploy mode; ``None`` when no mode applies.
 
     Returns:
-        Tor when the node serves no network that needs it, and every deployed
+        Tor when the node serves no network that needs it, every deployed
         partner (:func:`_partner_networks`) the node serves none of the
-        networks of, since the deploy refuses that partner there.
+        networks of, since the deploy refuses that partner there, and on a
+        swarm row every deployed compose-only partner (:func:`_compose_only`),
+        which a swarm node cannot host.
     """
     tokens = [] if TOR in NODE_MODES[state] else [TOR_SERVICE]
     for name in services:
         networks = _partner_networks(name)
-        if networks is not None and not set(NODE_MODES[state]) & set(networks):
+        if (networks is not None and not set(NODE_MODES[state]) & set(networks)) or (
+            mode == "swarm" and _compose_only(name)
+        ):
             tokens.append(name)
     return " ".join(tokens)

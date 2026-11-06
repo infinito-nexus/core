@@ -116,5 +116,16 @@ stops the container while copying the SQLite state.
 The role does not mount the Docker socket or install the upstream optional
 Watchtower updater. Image changes are deployed through the inventory.
 
+## Test upstream
+
+`services.mock.enabled` starts a deterministic OpenAI-compatible test upstream
+from the FreeLLMAPI image and adds it as an extra `customProviders` entry. It
+answers `/v1/models` and `/v1/chat/completions`, both streaming and
+non-streaming. It answers a tool request with a call derived from the tool
+schema, and every other request with `OK`. It needs no key and receives none of
+the gateway's secrets. The flag is off by default. Only the matrix variant
+turns it on, so a CI round can route and validate without provider accounts.
+Production inventories must leave it off.
+
 See the upstream [installation guide](https://github.com/tashfeenahmed/freellmapi/blob/v0.16.15/docs/en/install/01-install.md)
 for first-account setup and declarative configuration.

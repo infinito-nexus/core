@@ -11,6 +11,18 @@
     {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
+  {% if FREELLMAPI_MOCK_ENABLED | bool %}
+  {% set service_name = 'mock' %}
+  {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'freellmapi') }}
+    {{ lookup('compose_only', 'container_name', FREELLMAPI_MOCK_CONTAINER) }}
+    command: ["node", "{{ FREELLMAPI_MOCK_SCRIPT_DOCKER }}"]
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% endif %}
 {{ lookup('compose_networks') }}
 
 {{ lookup('compose_volumes') }}
