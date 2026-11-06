@@ -1,3 +1,4 @@
+import functools
 import importlib.util
 import json
 import os
@@ -7,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+from utils.annotations.message import in_github_actions
 
 from . import PROJECT_ROOT
 
@@ -18,8 +21,64 @@ validator = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(validator)
 
 
+def needs_codex(test):
+    """Skip a test without the Codex CLI on PATH, but fail it in GitHub Actions.
+
+    Args:
+        test: test method that drives the real client.
+    """
+
+    @functools.wraps(test)
+    def guarded(self):
+        if shutil.which("codex") is None:
+            if in_github_actions():
+                self.fail(
+                    "needs the Codex CLI, which `make install-codex` puts on PATH "
+                    "before `make test` in CI"
+                )
+            self.skipTest("needs the Codex CLI")
+        return test(self)
+
+    return guarded
+
+
+class NeedsCodexTests(unittest.TestCase):
+    def _run(self, codex, actions):
+        ran = []
+
+        class Probe(unittest.TestCase):
+            @needs_codex
+            def test_probe(self):
+                ran.append(True)
+
+        result = unittest.TestResult()
+        with (
+            patch.object(shutil, "which", return_value=codex),
+            patch.dict(os.environ),
+        ):
+            os.environ.pop("GITHUB_ACTIONS", None)
+            if actions:
+                os.environ["GITHUB_ACTIONS"] = actions
+            Probe("test_probe").run(result)
+        return result, ran
+
+    def test_a_missing_client_fails_in_github_actions(self):
+        result, ran = self._run(None, "true")
+        self.assertEqual((len(result.failures), len(result.skipped), ran), (1, 0, []))
+
+    def test_a_missing_client_skips_outside_github_actions(self):
+        result, ran = self._run(None, "")
+        self.assertEqual((len(result.failures), len(result.skipped), ran), (0, 1, []))
+
+    def test_a_present_client_runs_in_github_actions(self):
+        result, ran = self._run("/usr/bin/codex", "true")
+        self.assertEqual(
+            (result.wasSuccessful(), len(result.skipped), ran), (True, 0, [True])
+        )
+
+
 class ValidationTests(unittest.TestCase):
-    @unittest.skipUnless(shutil.which("codex"), "needs the Codex CLI")
+    @needs_codex
     def test_native_rejects_legacy_chat_protocol(self):
         with tempfile.TemporaryDirectory(dir="/tmp") as directory:
             home = Path(directory)
@@ -47,7 +106,7 @@ class ValidationTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn(b"startup configuration unavailable", result.stderr)
 
-    @unittest.skipUnless(shutil.which("codex"), "needs the Codex CLI")
+    @needs_codex
     def test_real_cli_accepts_both_modes_and_uses_helper(self):
         with tempfile.TemporaryDirectory(dir="/tmp") as directory:
             home = Path(directory)
