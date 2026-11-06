@@ -18,6 +18,7 @@ ERPNEXT_SITE_NAME: "{{ ERPNEXT_HOSTNAME }}"
 
 ERPNEXT_SITES_DIR: "{{ lookup('volume', application_id, 'sites').target }}"
 ERPNEXT_BENCH_PYTHON: "bash -c 'cd {{ ERPNEXT_SITES_DIR }} && {{ ERPNEXT_SITES_DIR | dirname }}/env/bin/python -'"
+ERPNEXT_MIGRATE_MARKER: "{{ ERPNEXT_SITES_DIR }}/{{ ERPNEXT_SITE_NAME }}/migrate.pending"
 
 ERPNEXT_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.initial_admin_password') }}"
 ERPNEXT_API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_USER.password }}"

@@ -38,7 +38,7 @@ Both name a Frappe doctype the image already ships, and the per-addon hooks [`ta
 
 - **Image**: `frappe/erpnext` (the official single-image, multi-role build from [frappe_docker](https://github.com/frappe/frappe_docker)).
 - **Pin**: a concrete stable v15.x semver (no `:latest`, no `:edge`, no v14 LTS, no v16 pre-release line).
-- **Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. The image's entrypoint does not migrate. Every deploy compares the app versions the image ships with the ones the site recorded at its last install or migration, and on a difference runs `bench migrate` and restarts the Frappe processes. The services keep running during the migration, and a failed migration fails the deploy. A deploy with `--skip-backup` migrates without a fresh backup.
+- **Bump path**: update `services.erpnext.version` in `meta/services.yml`, redeploy. The image's entrypoint does not migrate. Every deploy compares the app versions the image ships with the ones the site recorded at its last install or migration, and when the image is newer runs `bench migrate` and restarts the Frappe processes. An image older than the recorded version fails the deploy instead of migrating downward: a downgrade needs the site backup taken before the newer version. The services keep running during the migration, and a failed migration fails the deploy. Frappe records the new versions before its `after_migrate` hooks run, so the deploy keeps `migrate.pending` in the site directory until a migration succeeds and migrates again on every deploy while that file exists. A deploy with `--skip-backup` migrates without a fresh backup.
 
 ## Central-service consumer pattern
 

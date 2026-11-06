@@ -56,6 +56,27 @@ class TestPendingMigration(unittest.TestCase):
 
         self.assertEqual(self._pending(), [])
 
+    def test_releases_compare_by_number_not_by_text(self) -> None:
+        self._record(erpnext="16.9.0")
+        self._ship(erpnext="16.10.0")
+
+        self.assertEqual(self._pending(), ["erpnext"])
+
+    def test_an_older_image_fails_instead_of_migrating_down(self) -> None:
+        self._record(frappe="16.20.0", erpnext="16.54.0")
+        self._ship(frappe="16.20.0", erpnext="16.53.0")
+
+        with self.assertRaises(SystemExit) as raised:
+            self._pending()
+
+        self.assertIn("erpnext 16.53.0 < 16.54.0", str(raised.exception.code))
+
+    def test_an_unparsable_version_still_migrates(self) -> None:
+        self._record(custom="UNVERSIONED")
+        self._ship(custom="1.0.0")
+
+        self.assertEqual(self._pending(), ["custom"])
+
     def test_the_site_connection_closes(self) -> None:
         self._record(erpnext="16.54.0")
         self._ship(erpnext="16.54.0")
