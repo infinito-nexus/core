@@ -31,7 +31,8 @@ async function firingLogAlert(page) {
 }
 
 /**
- * Write a critical probe line and wait until the log alert fires for it.
+ * Write a critical probe line into the proxy's error log, the application
+ * log class the alert reads, and wait until the log alert fires for it.
  *
  * Args:
  *   page: a Playwright page whose context carries an admin session.
@@ -40,7 +41,7 @@ async function firingLogAlert(page) {
  *   The firing alert instance.
  */
 async function fireLogAlert(page) {
-  await shared.writeProbeLine(page, [ALERT_WORD]);
+  await shared.writeProbeErrorLine(page, [ALERT_WORD]);
   let instance = null;
   await expect
     .poll(

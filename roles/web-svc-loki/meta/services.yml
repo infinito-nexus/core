@@ -26,6 +26,7 @@ loki:
   pids_limit: 1024
   tenant: infinito
   retention:
+    access: 7d
     application: 7d
     system: 7d
     security: 7d
