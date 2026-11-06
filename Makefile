@@ -539,6 +539,11 @@ install-ansible:
 	@ANSIBLE_COLLECTIONS_DIR="$(HOME)/.ansible/collections" \
 	bash scripts/install/ansible.sh
 
+.PHONY: install-codex
+# Install the Codex CLI at the version roles/dsk-gnt-codex pins, for the unit tests that drive the real client.
+install-codex: install
+	@"$${PYTHON}" -m utils.install.codex
+
 .PHONY: install-force
 # Force a full reinstall.
 # Note: drops the install stamp and rebuilds it.

@@ -1,6 +1,6 @@
 ---
 application_id: dsk-gnt-codex
-agnt_codex_package: "@openai/codex"
+agnt_codex_package: "{{ lookup('config', application_id, 'services.codex.update.package') }}"
 agnt_codex_version: "{{ lookup('config', application_id, 'services.codex.npm_version') }}"
 agnt_codex_user: "{{ lookup('users', WORKSTATION_USER).username }}"
 agnt_codex_home: "/home/{{ agnt_codex_user }}"

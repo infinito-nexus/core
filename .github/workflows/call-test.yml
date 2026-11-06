@@ -28,6 +28,12 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
+      - name: 🤖 Install the pinned Codex CLI
+        continue-on-error: true
+        timeout-minutes: 5
+        shell: bash
+        run: make install-codex
+
       - name: ▶️ Run the full test suite via make
         shell: bash
         run: |
