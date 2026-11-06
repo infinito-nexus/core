@@ -10,8 +10,8 @@
 #   SYS_SERVICE_CLEANUP_BACKUPS           systemd unit name to start for backup cleanup
 #   SYS_SERVICE_CLEANUP_DOCKER            systemd unit name to start for docker cleanup
 #   SYS_SERVICE_CLEANUP_APPS_SCRIPT       sys-ctl-cln-apps dispatcher, run here in pressure mode
-#   GC_MANIFEST_DIR                       read by the dispatcher
-#   GC_APP_TIMEOUT                        read by the dispatcher
+#   GARBAGE_COLLECTOR_MANIFEST_DIR        read by the dispatcher
+#   GARBAGE_COLLECTOR_APP_TIMEOUT         read by the dispatcher
 #   BIN_RESOLVE_CONTAINER_ID              read by the dispatcher
 
 minimum_percent_cleanup_disc_space="$1"

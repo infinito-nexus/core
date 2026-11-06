@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  host network configuration; holds no growing application data
+# nocheck: garbage-collector-required  host network configuration; holds no growing application data
 # nocheck: playwright-service-flag — Tor Browser users need third-party assets
 # served first-party; deploying tor therefore always deploys the mirror.
 # nocheck: dynamic-flag — hard dependency: every tor deployment serves the mirror.

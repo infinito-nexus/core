@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required  Weblate keeps its VCS checkouts and its cache on a volume and offers no object-store backend for them
 sso:
   bond: 1

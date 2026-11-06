@@ -24,10 +24,10 @@
 - name: "🧹 Register the garbage collector of {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-cln-apps/tasks/utils/install.yml') }}"
   vars:
-    gc_service_key: mastodon
-    gc_environment:
-      MASTODON_GC_DAYS_ROUTINE: "{{ lookup('config', application_id, 'services.mastodon.gc.days.routine') }}"
-      MASTODON_GC_DAYS_PRESSURE: "{{ lookup('config', application_id, 'services.mastodon.gc.days.pressure') }}"
+    garbage_collector_service_key: mastodon
+    garbage_collector_environment:
+      MASTODON_GARBAGE_COLLECTOR_DAYS_ROUTINE: "{{ lookup('config', application_id, 'services.mastodon.garbage_collector.days.routine') }}"
+      MASTODON_GARBAGE_COLLECTOR_DAYS_PRESSURE: "{{ lookup('config', application_id, 'services.mastodon.garbage_collector.days.pressure') }}"
 
 - name: "📌 MASTODON | Apply overrides"
   include_tasks: 01_overrides.yml

@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  redirect-only vhost; holds no data
+# nocheck: garbage-collector-required  redirect-only vhost; holds no data
 # nocheck: tor-contract -- redirect-only role, no onion surface
 rdr-domains:
   modes:

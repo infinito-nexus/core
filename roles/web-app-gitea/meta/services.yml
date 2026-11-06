@@ -95,7 +95,7 @@ gitea:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
-  gc:
+  garbage_collector:
     type: script
     setting: "[cron.git_gc_repos] and [git] GC_ARGS in templates/env.j2, fed by configuration.cron and configuration.git"
     minutes:

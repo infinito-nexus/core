@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — the console stores no objects of its own; this flag exists to join
 # the engine's shared_net (meta/networks.yml consumer key), and files/playwright/test-storage-buckets.js
 # already asserts every consumer bucket through the filer it serves.

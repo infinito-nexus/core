@@ -33,9 +33,9 @@ remote) exit 66 ;;
 esac
 """
 
-GC_SCRIPT = """#!/bin/sh
-printf '%s %s\\n' "$1" "$GC_ADDRESS" >"$MARKER_DIR/{app}"
-printf '%s\\n' "$GC_APP_TIMEOUT" >"$MARKER_DIR/{app}.timeout"
+GARBAGE_COLLECTOR_SCRIPT = """#!/bin/sh
+printf '%s %s\\n' "$1" "$GARBAGE_COLLECTOR_ADDRESS" >"$MARKER_DIR/{app}"
+printf '%s\\n' "$GARBAGE_COLLECTOR_APP_TIMEOUT" >"$MARKER_DIR/{app}.timeout"
 {body}
 """
 
@@ -50,7 +50,7 @@ class DispatcherCase:
         self._tmp = tempfile.TemporaryDirectory()
         root = Path(self._tmp.name)
         self.bin = root / "bin"
-        self.manifest = root / "gc"
+        self.manifest = root / "garbage-collector"
         self.markers = root / "markers"
         for directory in (self.bin, self.manifest, self.markers):
             directory.mkdir()
@@ -71,11 +71,15 @@ class DispatcherCase:
     ) -> None:
         entry = self.manifest / name
         entry.mkdir()
-        _write(entry / "gc.sh", GC_SCRIPT.format(app=name, body=body), 0o755)
+        _write(
+            entry / "garbage_collector.sh",
+            GARBAGE_COLLECTOR_SCRIPT.format(app=name, body=body),
+            0o755,
+        )
         stack = name if stack is None else stack
         _write(
-            entry / "gc.env",
-            f"DEPLOYMENT_MODE={mode}\nGC_CONTAINER={container}\nGC_STACK={stack}\nGC_SERVICE_KEY={container}\n",
+            entry / "garbage_collector.env",
+            f"DEPLOYMENT_MODE={mode}\nGARBAGE_COLLECTOR_CONTAINER={container}\nGARBAGE_COLLECTOR_STACK={stack}\nGARBAGE_COLLECTOR_SERVICE_KEY={container}\n",
         )
 
     def marker(self, name: str) -> str | None:
@@ -91,8 +95,8 @@ class DispatcherCase:
             ["/bin/bash", str(SCRIPT), mode],
             env={
                 "PATH": f"{self.bin}{os.pathsep}{os.environ['PATH']}",
-                "GC_MANIFEST_DIR": str(self.manifest),
-                "GC_APP_TIMEOUT": timeout,
+                "GARBAGE_COLLECTOR_MANIFEST_DIR": str(self.manifest),
+                "GARBAGE_COLLECTOR_APP_TIMEOUT": timeout,
                 "BIN_RESOLVE_CONTAINER_ID": str(self.bin / "resolver"),
                 "FAKE_RUNNING": "pass-c fail-c",
                 "MARKER_DIR": str(self.markers),
@@ -117,7 +121,7 @@ class TestDispatcher(DispatcherCase, unittest.TestCase):
 
     def test_the_failing_app_is_named(self) -> None:
         done = self.run_dispatcher("routine")
-        self.assertIn("gc failed for: b-fail", done.stderr)
+        self.assertIn("garbage collector failed for: b-fail", done.stderr)
 
     def test_one_failure_fails_the_run(self) -> None:
         self.assertEqual(self.run_dispatcher("routine").returncode, 1)
@@ -163,7 +167,7 @@ class TestDispatcherSwarm(DispatcherCase, unittest.TestCase):
         self.app("swarm-app", container="broken", mode="swarm")
         done = self.run_dispatcher("routine")
         self.assertEqual(done.returncode, 1)
-        self.assertIn("gc failed for: swarm-app", done.stderr)
+        self.assertIn("garbage collector failed for: swarm-app", done.stderr)
 
     def test_a_worker_without_a_local_task_is_skipped_quietly(self) -> None:
         self.app("swarm-app", container="worker", mode="swarm")
@@ -184,8 +188,11 @@ class TestDispatcherSwarm(DispatcherCase, unittest.TestCase):
         done = self.run_dispatcher("routine")
         self.assertEqual(done.returncode, 1)
         self.assertIsNone(self.marker("swarm-app"))
-        self.assertIn("gc.env of swarm-app leaves GC_STACK empty", done.stdout)
-        self.assertIn("gc failed for: swarm-app", done.stderr)
+        self.assertIn(
+            "garbage_collector.env of swarm-app leaves GARBAGE_COLLECTOR_STACK empty",
+            done.stdout,
+        )
+        self.assertIn("garbage collector failed for: swarm-app", done.stderr)
 
 
 class TestDispatcherTimeout(DispatcherCase, unittest.TestCase):
@@ -193,7 +200,7 @@ class TestDispatcherTimeout(DispatcherCase, unittest.TestCase):
         self.app("hang", container="pass-c", body="sleep 30")
         done = self.run_dispatcher("routine", timeout="1")
         self.assertEqual(done.returncode, 1)
-        self.assertIn("gc failed for: hang", done.stderr)
+        self.assertIn("garbage collector failed for: hang", done.stderr)
 
     def test_the_budget_reaches_every_script(self) -> None:
         self.app("a-pass", container="pass-c")

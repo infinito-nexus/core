@@ -8,9 +8,9 @@
   loop_control:
     loop_var: sys_ctl_cln_apps_dependency
 
-- name: "📁 Create the gc manifest directory {{ DIR_GC_MANIFESTS }}"
+- name: "📁 Create the garbage collector manifest directory"
   ansible.builtin.file:
-    path: "{{ DIR_GC_MANIFESTS }}"
+    path: "{{ DIR_GARBAGE_COLLECTOR_MANIFESTS }}"
     state: directory
     mode: "0755"
 
@@ -25,8 +25,8 @@
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP | join(" ") }} --timeout
       "{{ SYS_TIMEOUT_BACKUP_SERVICES }}" --proceed-on-timeout'
     system_service_tpl_environment:
-      - "GC_MANIFEST_DIR={{ DIR_GC_MANIFESTS }}"
-      - "GC_APP_TIMEOUT={{ SYS_TIMEOUT_CLEANUP_APP }}"
+      - "GARBAGE_COLLECTOR_MANIFEST_DIR={{ DIR_GARBAGE_COLLECTOR_MANIFESTS }}"
+      - "GARBAGE_COLLECTOR_APP_TIMEOUT={{ SYS_TIMEOUT_CLEANUP_APP }}"
       - "BIN_RESOLVE_CONTAINER_ID={{ BIN_RESOLVE_CONTAINER_ID }}"
     system_service_force_linear_sync: false
 

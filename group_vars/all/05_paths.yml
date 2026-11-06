@@ -3,7 +3,7 @@
 DIR_HOME_ADMINISTRATOR: "/home/administrator/"
 DIR_SCRIPTS_ROOT: "/opt/scripts/"
 DIR_SCRIPTS_SYSTEMCTL: "{{ [ DIR_SCRIPTS_ROOT, 'systemctl' ] | path_join }}"
-DIR_GC_MANIFESTS: "{{ [ DIR_SCRIPTS_ROOT, 'gc' ] | path_join }}"
+DIR_GARBAGE_COLLECTOR_MANIFESTS: "{{ [ DIR_SCRIPTS_ROOT, 'garbage-collector' ] | path_join }}"
 DIR_COMPOSITIONS: "/opt/compose/"
 DIR_SYSTEM_SERVICE: "/etc/systemd/system"
 DIR_SYSTEM_SERVICE_USER: "$HOME/.config/systemd/user"

@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  backup generations; sys-ctl-cln-bkps owns their retention
+# nocheck: garbage-collector-required  backup generations; sys-ctl-cln-bkps owns their retention
 # nocheck: variants-coverage — the export is what this role backs up, so the false polarity has no variant to live in: without the server there is no /srv/nfs and the unit's own guard aborts.
 nfs-server:
   enabled: "{{ 'svc-storage-nfs-server' in group_names }}"

@@ -66,7 +66,7 @@ bigbluebutton:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-  gc:
+  garbage_collector:
     type: native
     setting: "recording.cleanup and recording.max_age_days, rendered as REMOVE_OLD_RECORDING and RECORDING_MAX_AGE_DAYS in templates/env.j2"
   cpus: "4.0"

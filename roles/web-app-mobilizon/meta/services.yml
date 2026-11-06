@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright, seaweedfs-required — Mobilizon (mainline, incl. 5.2.3) ships only Mobilizon.Web.Upload.Uploader.Local (no ex_aws/Uploader.S3 backend per upstream docs), so uploads cannot be routed to the object store and no S3 write surface exists to drive
 sso:
   bond: 1

@@ -26,13 +26,13 @@ class TestGiteaGcAges(unittest.TestCase):
         }
 
     def test_both_ages_outlast_every_git_timeout(self) -> None:
-        for mode, minutes in self.gitea["gc"]["minutes"].items():
+        for mode, minutes in self.gitea["garbage_collector"]["minutes"].items():
             for name, seconds in self.timeouts.items():
                 with self.subTest(mode=mode, timeout=name):
                     self.assertGreater(minutes * 60, seconds)
 
     def test_pressure_only_shortens_the_routine_age(self) -> None:
-        minutes = self.gitea["gc"]["minutes"]
+        minutes = self.gitea["garbage_collector"]["minutes"]
         self.assertLessEqual(minutes["pressure"], minutes["routine"])
 
     def test_the_mirror_timeout_exceeds_the_upstream_default(self) -> None:

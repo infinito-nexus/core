@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  resolver cache lives in memory
+# nocheck: garbage-collector-required  resolver cache lives in memory
 unbound:
   modes:
     compose:

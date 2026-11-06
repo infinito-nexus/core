@@ -6,11 +6,11 @@ Long-running applications leave data behind that they never clean up themselves:
 
 ## Overview
 
-This role installs a systemd service and a daily timer that run the `gc.sh` of every application role deployed on the host in `routine` mode.
-Application roles register their script through `tasks/utils/install.yml`, which writes one entry per application id below `DIR_GC_MANIFESTS`.
+This role installs a systemd service and a daily timer that run the `garbage_collector.sh` of every application role deployed on the host in `routine` mode.
+Application roles register their script through `tasks/utils/install.yml`, which writes one entry per application id below `DIR_GARBAGE_COLLECTOR_MANIFESTS`.
 The [disc space cleaner](../sys-ctl-cln-disc-space/README.md) runs the same dispatcher in `pressure` mode when a disk crosses its threshold.
 The destructor stage drops the entries of roles no longer active on the host through `tasks/decommission.yml`.
-The script contract and the per-role `gc` declaration are documented in [gc.sh.md](../../docs/contributing/artefact/files/role/gc.sh.md).
+The script contract and the per-role `garbage_collector` declaration are documented in [garbage_collector.sh.md](../../docs/contributing/artefact/files/role/garbage_collector.sh.md).
 
 ## Features
 

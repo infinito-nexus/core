@@ -30,7 +30,7 @@
             tasks_from: decommission.yml
           when: IS_COMPOSE_MODE | bool
 
-        - name: "🧹 Drop the gc manifests of roles no longer active on this host"
+        - name: "🧹 Drop the garbage collector manifests of roles no longer active on this host"
           include_role:
             name: sys-ctl-cln-apps
             tasks_from: decommission.yml

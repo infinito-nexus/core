@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — Magento remote storage is wired into bin/magento setup:install at first boot and read back through the same PHP process, so the bucket has no persona-reachable upload surface
 logout:
   bond: 1

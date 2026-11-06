@@ -9,7 +9,14 @@ from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
 
-SCRIPT = PROJECT_ROOT / "roles" / "web-app-gitea" / "files" / "shell" / "gc.sh"
+SCRIPT = (
+    PROJECT_ROOT
+    / "roles"
+    / "web-app-gitea"
+    / "files"
+    / "shell"
+    / "garbage_collector.sh"
+)
 CONTAINER_ROOT = "/data/git/repositories"
 
 FAKE_CONTAINER = f"""#!/bin/sh
@@ -56,10 +63,10 @@ class TestGiteaGcScript(unittest.TestCase):
             ["/bin/bash", str(SCRIPT), mode],
             env={
                 "PATH": f"{self.bin}{os.pathsep}{os.environ['PATH']}",
-                "GC_ADDRESS": "gitea",
-                "GC_APP_TIMEOUT": "30",
-                "GITEA_GC_MINUTES_ROUTINE": "60",
-                "GITEA_GC_MINUTES_PRESSURE": "10",
+                "GARBAGE_COLLECTOR_ADDRESS": "gitea",
+                "GARBAGE_COLLECTOR_APP_TIMEOUT": "30",
+                "GITEA_GARBAGE_COLLECTOR_MINUTES_ROUTINE": "60",
+                "GITEA_GARBAGE_COLLECTOR_MINUTES_PRESSURE": "10",
                 "FAKE_ROOT": str(self.root),
                 **extra,
             },

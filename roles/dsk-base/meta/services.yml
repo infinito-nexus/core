@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  workstation software; its caches belong to the desktop user, not to a server collector
+# nocheck: garbage-collector-required  workstation software; its caches belong to the desktop user, not to a server collector
 base:
   provides: desktop-base
   modes:

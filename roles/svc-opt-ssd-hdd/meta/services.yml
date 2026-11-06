@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  host tuning service; holds no application data
+# nocheck: garbage-collector-required  host tuning service; holds no application data
 ssd-hdd:
   modes:
     host:

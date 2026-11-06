@@ -8,7 +8,14 @@ from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
 
-SCRIPT = PROJECT_ROOT / "roles" / "web-app-nextcloud" / "files" / "shell" / "gc.sh"
+SCRIPT = (
+    PROJECT_ROOT
+    / "roles"
+    / "web-app-nextcloud"
+    / "files"
+    / "shell"
+    / "garbage_collector.sh"
+)
 
 FAKE_CONTAINER = """#!/bin/sh
 printf '%s\\n' "$*" >>"$FAKE_LOG"
@@ -36,10 +43,10 @@ class TestNextcloudGcScript(unittest.TestCase):
             ["/bin/bash", str(SCRIPT), mode],
             env={
                 "PATH": f"{self.bin}{os.pathsep}{os.environ['PATH']}",
-                "GC_ADDRESS": "nextcloud",
-                "GC_APP_TIMEOUT": "30",
-                "NEXTCLOUD_GC_USER": "www-data",
-                "NEXTCLOUD_GC_OCC": "/var/www/html/occ",
+                "GARBAGE_COLLECTOR_ADDRESS": "nextcloud",
+                "GARBAGE_COLLECTOR_APP_TIMEOUT": "30",
+                "NEXTCLOUD_GARBAGE_COLLECTOR_USER": "www-data",
+                "NEXTCLOUD_GARBAGE_COLLECTOR_OCC": "/var/www/html/occ",
                 "FAKE_LOG": str(self.log),
                 "FAKE_FAIL_ON": "",
                 **extra,

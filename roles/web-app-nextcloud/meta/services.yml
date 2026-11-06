@@ -109,7 +109,7 @@ nextcloud:
     - web-app-openproject
     - web-app-zammad
   lifecycle: beta
-  gc:
+  garbage_collector:
     type: script
     setting: "the cron service in templates/compose.yml.j2 runs the background jobs that auto-expire trash and versions and drop orphaned previews; vars/system.yml sets their maintenance_window_start"
 proxy:

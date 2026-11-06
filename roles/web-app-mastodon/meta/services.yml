@@ -72,7 +72,7 @@ mastodon:
   run_after:
     - web-app-keycloak
   lifecycle: beta
-  gc:
+  garbage_collector:
     type: script
     days:
       routine: 14

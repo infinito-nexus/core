@@ -52,7 +52,7 @@ same file-root rule as every other `meta/<topic>.yml`.
 
 All non-compose top-level keys (everything except `compose:`, `server:`, `rbac:`, and `credentials:`) MUST be inlined into `meta/services.yml` under `<primary_entity>.<key>`, where `<primary_entity>` is the value returned by `entity_name(role_name)`.
 
-Inlined keys observed today (non-exhaustive): `plugins`, `plugins_enabled`, `email`, `ldap`, `accounts`, `scopes`, `alerting`, `languages`, `company`, `default_quota`, `legacy_login_mask`, `site_name`, `token`, `modules`, `network`, `performance`, `preload_models`, `provision`, `features`, `gc` (see [gc.sh.md](../../../artefact/files/role/gc.sh.md)).
+Inlined keys observed today (non-exhaustive): `plugins`, `plugins_enabled`, `email`, `ldap`, `accounts`, `scopes`, `alerting`, `languages`, `company`, `default_quota`, `legacy_login_mask`, `site_name`, `token`, `modules`, `network`, `performance`, `preload_models`, `provision`, `features`, `garbage_collector` (see [garbage_collector.sh.md](../../../artefact/files/role/garbage_collector.sh.md)).
 
 `addons` is **not inlined** under the primary entity: role-level extensions are a first-class, per-file topic under `meta/addons/` (see [Unified Addons](#unified-addons-metaaddons-)).
 The same applies to a role that spells the concept `plugins`/`extensions`/`modules`/`mu_plugins`: those declarations live under `meta/addons/`.

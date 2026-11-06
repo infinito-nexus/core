@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required - Semaphore stores all state in PostgreSQL and clones repos to ephemeral tmp; it has no uploads/media/attachment surface that needs object storage.
 sso:
   bond: 1

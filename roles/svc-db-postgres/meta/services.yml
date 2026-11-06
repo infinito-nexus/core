@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  database engine; the rows belong to the consuming applications, which expire their own data
+# nocheck: garbage-collector-required  database engine; the rows belong to the consuming applications, which expire their own data
 postgres:
   modes:
     compose:

@@ -204,7 +204,7 @@ class TestComposeDecommission(unittest.TestCase):
             "ansible_connection": "local",
             "ansible_python_interpreter": sys.executable,
             "DIR_COMPOSITIONS": f"{root}/",
-            "DIR_GC_MANIFESTS": f"{self.work / name / 'gc'}/",
+            "DIR_GARBAGE_COLLECTOR_MANIFESTS": f"{self.work / name / 'garbage-collector'}/",
             "BIN_COMPOSE": str(self.fake_compose),
             "MODE_CLEANUP": True,
             "DEPLOYMENT_MODE": "compose",
@@ -331,12 +331,12 @@ class TestComposeDecommission(unittest.TestCase):
         )
         self.assertFalse((root / "mailu").exists())
 
-    def test_the_stage_drops_the_gc_manifests_of_inactive_roles(self):
-        manifests = self.work / "gc-host" / "gc"
+    def test_the_stage_drops_the_garbage_collector_manifests_of_inactive_roles(self):
+        manifests = self.work / "garbage-collector-host" / "garbage-collector"
         for application_id in ("web-app-mailu", "web-app-grouped", "web-app-closure"):
             (manifests / application_id).mkdir(parents=True)
 
-        self._assert_ok(self._stage_play("gc-host")[1])
+        self._assert_ok(self._stage_play("garbage-collector-host")[1])
         self.assertEqual(
             sorted(entry.name for entry in manifests.iterdir()),
             ["web-app-closure", "web-app-grouped"],

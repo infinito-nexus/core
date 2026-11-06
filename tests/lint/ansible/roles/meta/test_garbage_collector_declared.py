@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from utils.roles.gc import gc_findings
+from utils.roles.garbage_collector import garbage_collector_findings
 from utils.roles.validation.invokable import (
     _get_invokable_paths,
     _is_role_invokable,
@@ -21,12 +21,12 @@ class TestGcDeclared(unittest.TestCase):
             required = _is_role_invokable(role_dir.name, invokable_paths)
             offenders.extend(
                 f"  - {role_dir.name}: {finding}"
-                for finding in gc_findings(role_dir, required=required)
+                for finding in garbage_collector_findings(role_dir, required=required)
             )
         if offenders:
             self.fail(
-                "Roles whose meta/services.yml.<primary_entity>.gc is missing or "
-                "inconsistent (see docs/contributing/artefact/files/role/gc.sh.md):\n"
+                "Roles whose meta/services.yml.<primary_entity>.garbage_collector is missing or "
+                "inconsistent (see docs/contributing/artefact/files/role/garbage_collector.sh.md):\n"
                 + "\n".join(offenders)
             )
 

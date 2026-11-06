@@ -1,5 +1,5 @@
 ---
-# nocheck: gc-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — the bucket write happens in the admin Media view (upload.provider=s3, vars/main.yml), but this role blocks BOTH authenticated personas (PERSONA_ADMINISTRATOR_BLOCKED / PERSONA_BIBER_BLOCKED = true in templates/playwright.env.j2), so no Playwright session can reach that view; see TODO.md
 asset:
   bond: 1
