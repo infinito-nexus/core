@@ -19,6 +19,7 @@ set -euo pipefail
 : "${BKP_TEST_SERVICE:?}"
 : "${BKP_TEST_HEALTH_SCRIPT:?}"
 : "${BKP_TEST_HEALTH_TIMEOUT:?}"
+: "${BKP_TEST_LOCK_TIMEOUT:?}"
 : "${BKP_TEST_PYTHON:?}"
 
 if [[ "${BKP_TEST_IS_STACK_HOST}" != "true" ]]; then
@@ -42,13 +43,13 @@ bash "${DIR}/probe/snapshot.sh"
 wait_service_terminated() {
     local stale_failure_ok="${1:-}"
     local deadline state
-    deadline=$(( $(date +%s) + BKP_TEST_HEALTH_TIMEOUT ))
+    deadline=$(( $(date +%s) + BKP_TEST_LOCK_TIMEOUT + BKP_TEST_HEALTH_TIMEOUT ))
     while :; do
         state="$(systemctl is-active "${BKP_TEST_SERVICE}" 2>/dev/null || true)"
         case "${state}" in
             active | activating | deactivating)
                 if (( $(date +%s) >= deadline )); then
-                    echo "FAIL: ${BKP_TEST_SERVICE} still ${state} after ${BKP_TEST_HEALTH_TIMEOUT}s"
+                    echo "FAIL: ${BKP_TEST_SERVICE} still ${state} after $(( BKP_TEST_LOCK_TIMEOUT + BKP_TEST_HEALTH_TIMEOUT ))s"
                     exit 1
                 fi
                 sleep 5
