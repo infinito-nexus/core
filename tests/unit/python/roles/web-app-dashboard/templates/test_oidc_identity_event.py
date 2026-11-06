@@ -26,7 +26,7 @@ DRIVER = textwrap.dedent(
       const listeners = {};
       const kc = {
         authenticated, token: "secret-token", tokenParsed, logins: [],
-        init: async () => authenticated,
+        init: async (options) => { kc.initOptions = options; return authenticated; },
         updateToken: async () => true,
         logout: () => Promise.resolve(),
         login(options) { this.logins.push(options); return Promise.resolve(); },
@@ -82,6 +82,7 @@ DRIVER = textwrap.dedent(
         assert.strictEqual(page.listeners["dashboard:login"].length, 1, "oidc.js listens for the lock's sign-in request");
         page.listeners["dashboard:login"][0]();
         assert.strictEqual(page.kc.logins.length, 1, "the sign-in request starts the PKCE login");
+        assert.strictEqual(page.kc.initOptions.pkceMethod, "S256", "the adapter runs the login with PKCE");
       }
       console.log("OK");
     })().catch((error) => { console.error(error); process.exit(1); });
