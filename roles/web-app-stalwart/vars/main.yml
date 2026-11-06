@@ -40,7 +40,7 @@ STALWART_WEB_DOMAIN: "{{ lookup('domain', application_id) }}"
 STALWART_HOSTNAME_DNS_ZONE: "{{ STALWART_HOSTNAME | to_zone }}"
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
-STALWART_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+STALWART_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 STALWART_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if STALWART_OIDC_ONION_ISSUER | bool else '' }}"
 # Keycloak access tokens carry neither a Stalwart audience nor a urn:ietf:params:oauth:scope:mail scope, so the v1 defaults reject every one of them.
 STALWART_OIDC_TOKEN_VALIDATION:

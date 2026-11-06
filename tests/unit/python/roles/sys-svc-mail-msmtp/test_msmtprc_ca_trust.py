@@ -22,6 +22,7 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.domains.default_primary import default_domain_primary
+from utils.networks.reachability import network_of
 
 from . import PROJECT_ROOT
 
@@ -52,6 +53,7 @@ def _env() -> Environment:
         autoescape=select_autoescape(default_for_string=False),
     )
     env.filters["bool"] = bool
+    env.filters["network_of"] = network_of
     env.filters["on_off"] = lambda value: "on" if value else "off"
     env.filters["regex_replace"] = lambda value, pattern, repl="": re.sub(
         pattern, repl, str(value)
