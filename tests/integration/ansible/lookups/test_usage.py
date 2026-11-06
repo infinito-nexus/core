@@ -31,6 +31,7 @@ import re
 import unittest
 from typing import TYPE_CHECKING
 
+from utils.annotations.suppress import marker_reason
 from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
@@ -41,6 +42,26 @@ if TYPE_CHECKING:
 LOOKUP_PLUGINS_DIR = PROJECT_ROOT / "plugins" / "lookup"
 
 USAGE_EXTS = (".yml", ".yaml", ".j2", ".jinja2", ".tmpl", ".py")
+
+EXTERNAL_CONSUMER_RULE = "lookup-external-consumer"
+HEAD_LINES = 30
+
+
+def external_consumer_reason(path: Path) -> str | None:
+    """Return the reason of the plugin's ``lookup-external-consumer`` marker.
+
+    Args:
+        path: the lookup plugin file.
+
+    Returns:
+        The reason stated by the first marker in the file's head, an empty
+        string for a bare marker, or None when the head carries no marker.
+    """
+    for line in read_text(str(path)).splitlines()[:HEAD_LINES]:
+        reason = marker_reason(line, EXTERNAL_CONSUMER_RULE)
+        if reason is not None:
+            return reason
+    return None
 
 
 def _defines_lookup_module(path: Path) -> bool:
@@ -146,9 +167,18 @@ class TestLookupDefinitionsAreUsed(unittest.TestCase):
         unused: list[tuple[str, Path, str]] = []
         for name in sorted(defined):
             s = state[name]
-            if not s["used_any"]:
+            if s["used_outside"]:
+                continue
+            reason = external_consumer_reason(defined[name])
+            if reason:
+                continue
+            if reason == "":
+                unused.append(
+                    (name, defined[name], f"bare `{EXTERNAL_CONSUMER_RULE}` marker")
+                )
+            elif not s["used_any"]:
                 unused.append((name, defined[name], "not used anywhere"))
-            elif not s["used_outside"]:
+            else:
                 unused.append((name, defined[name], "only used in tests"))
 
         if unused:

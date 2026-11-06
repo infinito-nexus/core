@@ -9,6 +9,8 @@ Returns:
     as recorded in the role's pull marker, e.g. ``0.4.3``.
 """
 
+# nocheck: lookup-external-consumer -- called by pulled web-app-cst-* roles
+
 from __future__ import annotations
 
 from pathlib import Path
