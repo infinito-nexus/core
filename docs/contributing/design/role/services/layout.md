@@ -417,7 +417,7 @@ Consumers MUST treat a missing file or missing field as absent / default.
 applications.<role>.info.{logo,homepage,video}
 ```
 
-The dashboard's `web-app-dashboard/lookup_plugins/docker_cards.py` reads `logo.class` from this location, while `description` and `galaxy_tags` continue to come from `galaxy_info` (Galaxy-spec fields).
+The dashboard's `plugins/lookup/docker_cards.py` reads `logo.class` from this location, while `description` and `galaxy_tags` continue to come from `galaxy_info` (Galaxy-spec fields).
 
 ## Unified Addons: `meta/addons/` 🧩
 

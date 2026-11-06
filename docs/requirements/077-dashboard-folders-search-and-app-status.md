@@ -166,7 +166,7 @@ flowchart TD
 
 ### Health badge (core)
 
-- [ ] The webserver health sweep writes, after every run, one JSON status document keyed by application id with the state and the check time, limited to the applications that have a dashboard card and without HTTP codes, because the dashboard serves it publicly; a unit test covers every state and the limit (core).
+- [x] The webserver health sweep writes, after every run, one JSON status document keyed by application id with the state and the check time, limited to the applications that have a dashboard card and without HTTP codes, because the dashboard serves it publicly; a unit test covers every state and the limit (core).
 - [ ] While no sweep has written the document yet, the dashboard serves an empty one instead of a 404, so every badge reads `unknown` and the page logs no error (core).
 - [x] An application whose app-control marker reads `stopped` has the state `paused`, regardless of the HTTP answer (core).
 - [ ] The dashboard's vhost serves that document on its own origin, so fetching it needs no CSP change (core).

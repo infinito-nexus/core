@@ -1,5 +1,5 @@
+import importlib.util
 import shutil
-import sys
 import tempfile
 import unittest
 import unittest.mock as mock
@@ -8,22 +8,20 @@ from pathlib import Path
 from ansible.errors import AnsibleError
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
-sys.path.insert(
-    0,
-    str(
-        Path(str(Path(__file__).parent))
-        / "../../../../../roles/web-app-dashboard/lookup_plugins"
-    ),
-)
-
-import docker_cards as docker_cards_module
-from docker_cards import LookupModule
-
+from utils.cache.files import PROJECT_ROOT
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
     ROLE_FILE_META_MAIN,
     ROLE_FILE_VARS_MAIN,
 )
+
+_SPEC = importlib.util.spec_from_file_location(
+    "lookup_plugins_docker_cards",
+    PROJECT_ROOT / "plugins" / "lookup" / "docker_cards.py",
+)
+docker_cards_module = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(docker_cards_module)
+LookupModule = docker_cards_module.LookupModule
 
 
 def _ansible_bool(value):

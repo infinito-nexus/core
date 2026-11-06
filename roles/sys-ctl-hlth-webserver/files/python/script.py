@@ -11,7 +11,9 @@ After every sweep it writes the status document
 {"generated": iso, "applications": {id: {"state", "checked"}}} to
 ``--status-file``, limited to the ids of ``--status-applications``; ``state``
 is ``running``, ``paused``, ``degraded`` or ``down``, and an application with
-several domains takes its worst one.
+several domains takes its worst one. A listed id without any target, such as
+a card without a domain, gets no entry and a ``NO TARGET`` line, so its badge
+reads unknown on purpose.
 """
 
 import argparse
@@ -215,6 +217,9 @@ def main(argv=None) -> int:
         )
     for line, *_ in results:
         print(line)
+    probed = {target["application_id"] for target in targets.values()}
+    for application_id in sorted(published - probed):
+        print(f"{application_id}: NO TARGET: its dashboard badge reads unknown.")
     errors = sum(failed for _, failed, *_ in results)
     now = datetime.now(UTC).isoformat(timespec="seconds")
     write_status(
