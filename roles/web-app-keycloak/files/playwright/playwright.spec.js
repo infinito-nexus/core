@@ -330,6 +330,7 @@ test("the logout panel carries the German catalogue from the core translations",
     .toBe(true);
   const catalogue = await page.evaluate(() => window.__INFINITO_LOGOUT__.i18n);
   expect(catalogue.de, "Expected the German strings of core.po in the served panel").toEqual(expected);
+  await page.locator("#kc-logout").click({ timeout: resolveTimeout(30_000) });
   await expect(page.locator("#infinito-logout-status")).toBeVisible({ timeout: resolveTimeout(30_000) });
 });
 
