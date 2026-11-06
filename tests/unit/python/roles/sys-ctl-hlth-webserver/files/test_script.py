@@ -159,6 +159,29 @@ class TestStandaloneCheckerScript(unittest.TestCase):
         self.assertEqual(set(applications["web-app-ok"]), {"state", "checked"})
 
     @patch("requests.head")
+    def test_a_published_card_without_a_target_is_reported_and_left_unknown(
+        self, mock_head
+    ):
+        mock_head.side_effect = lambda url, **_: _Response(200)
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = self.script.main(
+                self._argv(
+                    json.dumps(
+                        {"ok.example.org": _target([200], application_id="web-app-ok")}
+                    ),
+                    published=["web-app-ok", "web-app-headless"],
+                )
+            )
+        self.assertEqual(code, 0)
+        self.assertIn(
+            "web-app-headless: NO TARGET: its dashboard badge reads unknown.",
+            buffer.getvalue().splitlines(),
+        )
+        self.assertNotIn("web-app-ok: NO TARGET", buffer.getvalue())
+        self.assertEqual(list(self._status()["applications"]), ["web-app-ok"])
+
+    @patch("requests.head")
     def test_status_document_names_the_state_of_every_application(self, mock_head):
         codes = {"ok.example.org": 200, "odd.example.org": 404, "bad.example.org": 502}
         mock_head.side_effect = lambda url, **_: _Response(
@@ -332,7 +355,12 @@ class TestStandaloneCheckerScript(unittest.TestCase):
         exit_code, output = self._run_main(targets)
         self.assertEqual(exit_code, 0)
         self.assertEqual(
-            output.splitlines(), [f"d{i:02d}.example.org: OK" for i in range(40)]
+            output.splitlines(),
+            [f"d{i:02d}.example.org: OK" for i in range(40)]
+            + [
+                f"{application_id}: NO TARGET: its dashboard badge reads unknown."
+                for application_id in sorted(PUBLISHED)
+            ],
         )
 
     def _run_main(self, targets):

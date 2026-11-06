@@ -36,7 +36,7 @@
       node_onion=lookup('config', 'svc-net-tor', 'services.tor.node', ''), served_domains=lookup('domains'))
       | web_health_targets(lookup('applications'), lookup('domains'), TLS_ENABLED, DIR_COMPOSITIONS, APP_CONTROL_STATE_FILE) | to_json }}'
       --status-file '{{ lookup('nginx', 'files.health_status') }}'
-      --status-applications '{{ lookup('roles_with_service', 'dashboard') | map(attribute='id') | unique | list | to_json }}'
+      --status-applications '{{ lookup('docker_cards', 'roles') | map(attribute='id') | list | to_json }}'
     system_service_force_flush_final: true
 
 - include_tasks: utils/once/flag.yml
