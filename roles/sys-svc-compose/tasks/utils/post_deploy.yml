@@ -21,6 +21,7 @@
   environment:
     STACK: "{{ application_id | get_entity_name }}"
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
+    STUCK_LOG_LINES: "{{ swarm_stack_stuck_log_lines }}"
   register: _swarm_tasks_ready
   retries: "{{ swarm_stack_converge_retries }}"
   delay: 2

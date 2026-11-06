@@ -59,6 +59,10 @@ case "$1 $2" in
 	*) printf '%s' "${SERVICE_INSPECT_PLAIN:-${SERVICE_INSPECT}}" ;;
 	esac
 	;;
+"service logs")
+	[ -n "${SERVICE_LOGS_FAILS}" ] && { echo "logs unavailable"; exit 1; }
+	printf '%s' "${SERVICE_LOGS}"
+	;;
 "service ps")
 	case "$*" in
 	*'desired-state=running'*)
@@ -92,6 +96,8 @@ class TestStackReady(unittest.TestCase):
         deployed_services: str = "",
         inspect_startedat_fails: bool = False,
         service_inspect_plain: str = "",
+        service_logs: str = "",
+        service_logs_fails: bool = False,
     ) -> subprocess.CompletedProcess:
         """Poll the gate once, ``churning`` seconds into a non-converged deploy.
 
@@ -110,6 +116,8 @@ class TestStackReady(unittest.TestCase):
             inspect_startedat_fails: reject the StartedAt format, as an older
                 docker would.
             service_inspect_plain: rows the fallback format returns.
+            service_logs: output ``docker service logs`` returns.
+            service_logs_fails: make ``docker service logs`` fail.
         """
         if updated_at is None:
             updated_at = str(int(time.time()) - churning)
@@ -137,6 +145,9 @@ class TestStackReady(unittest.TestCase):
                 DEPLOYED_SERVICES=deployed_services,
                 INSPECT_STARTEDAT_FAILS="1" if inspect_startedat_fails else "",
                 SERVICE_INSPECT_PLAIN=service_inspect_plain,
+                STUCK_LOG_LINES="50",
+                SERVICE_LOGS=service_logs,
+                SERVICE_LOGS_FAILS="1" if service_logs_fails else "",
                 PATH=f"{stub_bin}:{env['PATH']}",
                 BASH_ENV="",
             )
@@ -363,6 +374,38 @@ class TestStackReady(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, 2)
         self.assertIn("stuck: demo_flap", proc.stderr)
+
+    def _flapping(self, **kwargs) -> subprocess.CompletedProcess:
+        return self._run(
+            "demo_flap 0/1\n",
+            "demo_flap.1 desired=Running current=Starting error=\n",
+            "demo_flap.1|Ready 1 second ago|\n"
+            "demo_flap.1|Failed 2 seconds ago|task: non-zero exit (1)\n"
+            "demo_flap.1|Failed 8 seconds ago|task: non-zero exit (1)\n"
+            "demo_flap.1|Failed 14 seconds ago|task: non-zero exit (1)\n",
+            **kwargs,
+        )
+
+    def test_a_stuck_service_prints_its_last_log_lines(self) -> None:
+        proc = self._flapping(
+            churning=600,
+            service_logs="demo_flap.1.abc@node | ModuleNotFoundError: No module named 'git'\n",
+        )
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("last 50 log lines of demo_flap:", proc.stderr)
+        self.assertIn("ModuleNotFoundError: No module named 'git'", proc.stderr)
+
+    def test_a_service_still_in_its_grace_window_prints_no_logs(self) -> None:
+        proc = self._flapping(churning=0, service_logs="should not appear\n")
+        self.assertEqual(proc.returncode, 1)
+        self.assertNotIn("should not appear", proc.stderr)
+
+    def test_unreadable_logs_are_reported_without_changing_the_verdict(self) -> None:
+        proc = self._flapping(churning=600, service_logs_fails=True)
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn(
+            "demo_flap: docker service logs failed: logs unavailable", proc.stderr
+        )
 
     def test_three_attempts_inside_the_grace_window_still_wait(self) -> None:
         proc = self._run(
