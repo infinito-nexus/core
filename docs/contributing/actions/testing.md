@@ -55,6 +55,23 @@ Important:
 - For act-based workflow checks, see [Act Workflow Checks](../tools/act.md).
 - After a successful local deploy, run `make network-trust-ca` and restart your browser.
 
+## Iteration Plan 🧭
+
+`make iterate-plan [base=<ref>] [loop=auto]` prints what an iteration on a diff has to run and names every cut: each role, mode or test it leaves out, with the reason. See the [Makefile](../../../Makefile) for every parameter. Each changed path is classified: a role path seeds its role, a format-only edit reaches nothing, a changed lint directive runs the lint suite, a shared plugin, module, script or `group_vars` key reaches whatever consumes it, and an unknown path widens to every role. An edit is format-only when the Python tree, or the YAML or JSON data with every value's type, stays the same and neither side carries a comment a deploy or a deployed program reads: a `# variant-pin:` comment, a `# nocheck:` rule whose reader is not a lint (`inventory-open-subtree`, `inventory-variable`, `header-trust`, `license-declared`), a Python coding cookie or Ansible's `WANT_JSON` marker. YAML and JSON a role ships under `files/` or `templates/` must keep an identical text. A role path also runs the unit tests that name the role. A module or script that a Makefile target outside deploys (lint, test, `iterate-plan` and the like) runs lists that target in T0; one that any other target runs widens to every role, and so does an edit of the Makefile itself.
+
+| Tier | Holds | When to run it |
+|---|---|---|
+| T0 | The unit tests and lint commands of the changed files, plus the tooling make targets that run them, listed to pick from since one may be interactive. | After every edit. |
+| T1 | One inner-loop row per changed path that seeds roles: the cheapest row across that path's roles in the chosen loop, such as `make compose-role-sync`, `make compose-deploy mode=update` or `make swarm-zombie`. Identical rows merge; the full set takes its cheapest base-cluster row. | While iterating. |
+| T2 | The pre-push rows (the compose gate and one `make swarm-zombie` per swarm variant, or `make roundtrip` for the full set) and `make test`. | Before a push. |
+| T3 | The CI whitelist of the diff. | In CI. |
+
+- `cuts` names, with the reason, every role a tier leaves out, the test suites T0 leaves to `make test`, and every changed path other than a document or a format-only edit that nothing in the plan exercises. A role that `scripts/meta/resolve/diff/affected_roles.sh` deploys for the same diff but the plan narrows away sits in a cut of tier `all`, with the paths that allowed it.
+- That baseline is narrower than the truth. Its closure follows `run_after`, dependency and service edges, so a cross-role Jinja include is covered only where such an edge matches, and a renamed role path seeds only the new role. The plan lists changed paths with rename detection off, so a move counts both its old and its new path.
+- Every row carries a footprint (the declared `min_storage` against the free space and its floor) and a cost. The output names the cost source: the declared storage, or the measured seconds of the deploy log or role-runtimes CSV passed as `timings=`.
+- `format=json` prints the machine-readable plan with the keys `base`, `head`, `loop`, `mode`, `variant`, `network`, `disable`, `kept`, `full`, `seeds`, `roles`, `baseline`, `changed`, `tiers`, `rows`, `footprint`, `cost`, `cuts` and `elapsed_s`.
+- The plan fetches nothing and reads the refs as they are. The symbol index and the resolver read the current tree.
+
 ## Suite Selection 🎯
 
 - When exactly one test file changes inside one test family, you MAY scope the run with `INFINITO_TEST_PATTERN`.
