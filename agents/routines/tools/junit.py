@@ -8,10 +8,9 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 
 
-def first_failure(junit_xml: str) -> dict | None:
-    """Return ``{"name", "message", "system_out"}`` of the first testcase that
-    carries a ``<failure>`` or ``<error>`` child, or ``None`` when every case
-    passed.
+def failures(junit_xml: str) -> list[dict]:
+    """Return ``{"name", "message", "system_out"}`` of every testcase that
+    carries a ``<failure>`` or ``<error>`` child, in report order.
 
     The message is the fault element's ``message`` attribute, falling back to
     its text body; ``system_out`` is the testcase's ``<system-out>`` text.
@@ -20,6 +19,7 @@ def first_failure(junit_xml: str) -> dict | None:
         junit_xml: the JUnit XML report as a string.
     """
     root = ET.fromstring(junit_xml)  # noqa: S314  CI-generated reports, not untrusted input
+    found: list[dict] = []
     for testcase in root.iter("testcase"):
         fault = testcase.find("failure")
         if fault is None:
@@ -30,11 +30,24 @@ def first_failure(junit_xml: str) -> dict | None:
         if message is None:
             message = (fault.text or "").strip()
         system_out = testcase.find("system-out")
-        return {
-            "name": testcase.get("name"),
-            "message": message,
-            "system_out": (system_out.text or "").strip()
-            if system_out is not None
-            else "",
-        }
-    return None
+        found.append(
+            {
+                "name": testcase.get("name"),
+                "message": message,
+                "system_out": (system_out.text or "").strip()
+                if system_out is not None
+                else "",
+            }
+        )
+    return found
+
+
+def first_failure(junit_xml: str) -> dict | None:
+    """Return the first entry of ``failures``, or ``None`` when every case
+    passed.
+
+    Args:
+        junit_xml: the JUnit XML report as a string.
+    """
+    found = failures(junit_xml)
+    return found[0] if found else None

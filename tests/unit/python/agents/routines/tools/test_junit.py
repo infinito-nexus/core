@@ -1,11 +1,12 @@
 """Unit test: the JUnit reader returns the first failing testcase's name,
-message and system-out from a recorded report, and None when all cases pass."""
+message and system-out from a recorded report, every failing case in order, and
+nothing when all cases pass."""
 
 from __future__ import annotations
 
 import unittest
 
-from agents.routines.tools.junit import first_failure
+from agents.routines.tools.junit import failures, first_failure
 
 _WITH_FAILURE = """<testsuites>
   <testsuite name="e2e" tests="3" failures="1" errors="0">
@@ -46,6 +47,20 @@ class TestFirstFailure(unittest.TestCase):
 
     def test_none_when_all_pass(self) -> None:
         self.assertIsNone(first_failure(_ALL_PASS))
+
+
+class TestFailures(unittest.TestCase):
+    def test_every_failing_case_in_report_order(self) -> None:
+        report = _WITH_FAILURE.replace(
+            "</testsuite>",
+            '<testcase name="logout"><error message="boom"/></testcase></testsuite>',
+        )
+        self.assertEqual(
+            [case["name"] for case in failures(report)], ["password rejected", "logout"]
+        )
+
+    def test_empty_when_all_pass(self) -> None:
+        self.assertEqual(failures(_ALL_PASS), [])
 
 
 if __name__ == "__main__":
