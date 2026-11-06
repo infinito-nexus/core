@@ -9,6 +9,7 @@
     keycloak:
       realm:
         totp_enabled: false
+        totp_enforced: false
     dashboard:
       enabled: true
       shared: true
@@ -39,6 +40,8 @@
       enabled: true
       shared: true
     keycloak:
+      realm:
+        totp_enforced: false
       email:
         policy: external
     dashboard:
@@ -71,6 +74,8 @@
       enabled: false
       shared: false
     keycloak:
+      realm:
+        totp_enforced: false
       email:
         policy: external
     dashboard:

@@ -56,7 +56,7 @@ No deploy moves a realm from `mailbox` back to `external`. An operator who has t
 | Key | Default | Effect |
 |---|---|---|
 | `totp_enabled` | `true` | Enables the `CONFIGURE_TOTP` required action: a user can enroll an authenticator app in the account console. The browser flow asks every user who holds an OTP credential for a code, whatever this key says. |
-| `totp_enforced` | `false` | Makes `CONFIGURE_TOTP` a default action, which Keycloak attaches to every user it creates while the key is `true`; see [Enforcing TOTP](#enforcing-totp). Needs `totp_enabled: true`, otherwise the deploy fails. |
+| `totp_enforced` | `true` | Makes `CONFIGURE_TOTP` a default action, which Keycloak attaches to every user it creates while the key is `true`; see [Enforcing TOTP](#enforcing-totp). Needs `totp_enabled: true`, otherwise the deploy fails. |
 | `otp_policy.type` | `totp` | `totp` (time-based) or `hotp` (counter-based). |
 | `otp_policy.algorithm` | `HmacSHA1` | `HmacSHA1`, `HmacSHA256` or `HmacSHA512`. |
 | `otp_policy.digits` | `6` | Code length, `6` or `8`. |
@@ -69,10 +69,22 @@ With the defaults the enrollment page lists FreeOTP, Google Authenticator and Mi
 
 ### Enforcing TOTP
 
-- Keycloak attaches its default actions when it creates a user: on `kcadm.sh create users`, through which the deploy provisions the inventory users, among them the administrator and biber personas, while LDAP is off, and on the first import of a directory user from LDAP. A user Keycloak holds already keeps its required actions.
-- Such a user completes no sign-in before enrolling an authenticator app, so the Playwright SSO personas and every other automated login stop at the enrollment page. CI and automation inventories keep `totp_enforced: false`.
+TOTP is enforced by default. Only an inventory override switches it off:
+
+```yaml
+applications:
+  web-app-keycloak:
+    services:
+      keycloak:
+        realm:
+          totp_enforced: false
+```
+
+- Keycloak attaches its default actions when it creates a user: on `kcadm.sh create users`, through which the deploy provisions the inventory users, among them the administrator and biber personas, while LDAP is off, and on the first import of a directory user from LDAP. Each such user enrolls an authenticator app before its first sign-in completes.
+- A user Keycloak holds already keeps its required actions, so an existing user who never enrolled keeps signing in with the password alone until it enrolls in the account console.
 - Switching back to `false` stops tagging new users, but every user tagged meanwhile keeps `CONFIGURE_TOTP` until an administrator removes it under Users, the user, Required user actions.
 - The deploy converges the required actions before it creates or imports any user, so a changed key reaches the users of the same deploy.
+- Development and CI switch it off, because the Playwright SSO personas and every other automated login would stop at the enrollment page. The development inventory vars file (`INFINITO_INVENTORY_VARS_FILE`) sets `totp_enforced: false` for every inventory `infinito administration inventory provision` builds from it, including `make compose-deploy` without `apps=` and `make compose-inventory-refresh`. Every variant in [variants.yml](meta/variants.yml) sets it as well, and the CI inventory build bakes the variant of every deployed app, providers included. A production inventory keeps the enforced default.
 
 ## Admin Console Access
 

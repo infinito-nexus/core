@@ -47,6 +47,11 @@ applications:
     secrets:
       credentials:
         admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"
+  web-app-keycloak:
+    services:
+      keycloak:
+        realm:
+          totp_enforced: false
 
 service_provider:
   company:

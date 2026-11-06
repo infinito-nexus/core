@@ -11,12 +11,20 @@ from jinja2 import Environment
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = Path(PROJECT_ROOT) / "roles" / "web-app-keycloak"
 INIT = ROLE / "tasks" / "02_init.yml"
-POLICY_ASSERT = "✅ Assert the OTP policy of '{{ application_id }}' is one Keycloak supports"
-ENFORCED_ASSERT = "✅ Assert '{{ application_id }}' enforces TOTP only where it offers it"
+POLICY_ASSERT = (
+    "✅ Assert the OTP policy of '{{ application_id }}' is one Keycloak supports"
+)
+ENFORCED_ASSERT = (
+    "✅ Assert '{{ application_id }}' enforces TOTP only where it offers it"
+)
 ROLE_VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
 SERVICES = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
 POLICY = SERVICES["keycloak"]["realm"]["otp_policy"]
@@ -102,7 +110,7 @@ class TestOtpPolicyAssert(unittest.TestCase):
 
     def test_the_message_names_the_raw_value_the_operator_set(self) -> None:
         message = (
-            Environment(autoescape=False)
+            Environment(autoescape=True)
             .from_string(_task(POLICY_ASSERT)["fail_msg"])
             .render(**_policy({"period": "30s", "digits": "eight"}))
         )
@@ -179,6 +187,31 @@ class TestOtpAssertsAsDeployed(unittest.TestCase):
     def test_a_quoted_number_in_the_policy_fails_the_integer_test(self) -> None:
         results = _deploy_holds({"digits": "6"})
         self.assertIs(False, results["KEYCLOAK_REALM_OTP_POLICY_DIGITS is integer"])
+
+
+class TestVariantsSwitchEnforcementOff(unittest.TestCase):
+    def test_the_shipped_default_enforces_totp(self) -> None:
+        self.assertIs(True, SERVICES["keycloak"]["realm"]["totp_enforced"])
+
+    def test_every_variant_switches_enforcement_off_and_passes_the_assert(
+        self,
+    ) -> None:
+        variants = load_yaml_any(str(ROLE / ROLE_FILE_META_VARIANTS))
+        self.assertTrue(variants)
+        for index, variant in enumerate(variants):
+            with self.subTest(variant=index):
+                realm = variant["services"]["keycloak"].get("realm", {})
+                self.assertIs(False, realm.get("totp_enforced"))
+                effective = {**SERVICES["keycloak"]["realm"], **realm}
+                self.assertTrue(
+                    _holds(
+                        ENFORCED_ASSERT,
+                        {
+                            "KEYCLOAK_REALM_TOTP_ENABLED": effective["totp_enabled"],
+                            "KEYCLOAK_REALM_TOTP_ENFORCED": effective["totp_enforced"],
+                        },
+                    )
+                )
 
 
 class TestTotpEnforcedAssert(unittest.TestCase):

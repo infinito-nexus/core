@@ -61,7 +61,7 @@ keycloak:
   realm:
     import_enabled: true
     totp_enabled: true
-    totp_enforced: false
+    totp_enforced: true
     otp_policy:
       type: totp
       algorithm: HmacSHA1

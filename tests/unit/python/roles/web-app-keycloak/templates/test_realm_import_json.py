@@ -114,7 +114,7 @@ CONTEXT = {
     "KEYCLOAK_RECAPTCHA_KEY": "",
     "KEYCLOAK_RECAPTCHA_SECRET": "",
     "KEYCLOAK_RECAPTCHA_ENABLED": False,
-    **otp_context({"totp_enabled": False}),
+    **otp_context({"totp_enabled": False, "totp_enforced": False}),
     "KEYCLOAK_LDAP_ENABLED": True,
     "KEYCLOAK_MOODLE_ENABLED": True,
     "KEYCLOAK_RESERVED_USERNAMES_REGEX": "^(root|admin)$",
@@ -777,8 +777,8 @@ def otp_realm(realm_overrides: dict | None = None) -> dict:
     return json.loads(render([], overrides=otp_context(realm_overrides)))
 
 
-def totp_realm(enabled: bool) -> dict:
-    return otp_realm({"totp_enabled": enabled})
+OFFERED = {"totp_enforced": False}
+DISABLED = {"totp_enabled": False, "totp_enforced": False}
 
 
 def configure_totp(realm: dict) -> dict:
@@ -804,24 +804,24 @@ OTP_POLICY_DEFAULTS = {
 }
 
 
-class TestTotpOfferedNotEnforced(unittest.TestCase):
-    def test_the_shipped_realm_offers_otp_without_forcing_it(self) -> None:
+class TestTotpEnforcement(unittest.TestCase):
+    def test_the_shipped_realm_sends_every_new_user_to_otp_enrollment(self) -> None:
         action = configure_totp(otp_realm())
+        self.assertIs(True, action["enabled"])
+        self.assertIs(True, action["defaultAction"])
+
+    def test_an_override_offers_otp_without_forcing_it(self) -> None:
+        action = configure_totp(otp_realm(OFFERED))
         self.assertIs(True, action["enabled"])
         self.assertIs(False, action["defaultAction"])
 
     def test_a_disabled_realm_does_not_offer_otp(self) -> None:
-        action = configure_totp(totp_realm(False))
+        action = configure_totp(otp_realm(DISABLED))
         self.assertIs(False, action["enabled"])
         self.assertIs(False, action["defaultAction"])
 
-    def test_an_enforced_realm_sends_every_new_user_to_otp_enrollment(self) -> None:
-        action = configure_totp(otp_realm({"totp_enforced": True}))
-        self.assertIs(True, action["enabled"])
-        self.assertIs(True, action["defaultAction"])
-
     def test_no_imported_user_starts_with_a_required_action(self) -> None:
-        for overrides in ({}, {"totp_enabled": False}, {"totp_enforced": True}):
+        for overrides in ({}, OFFERED, DISABLED):
             for user in otp_realm(overrides)["users"]:
                 with self.subTest(overrides=overrides, user=user["username"]):
                     self.assertEqual([], user["requiredActions"])
@@ -832,21 +832,16 @@ class TestTotpOfferedNotEnforced(unittest.TestCase):
         self.assertIn(
             "CONFIGURE_TOTP", ROLE_VARS["KEYCLOAK_RECONCILED_REQUIRED_ACTIONS"]
         )
-        desired = reconciled(otp_realm())
-        forced = [
-            {**a, "defaultAction": True} if a["alias"] == "CONFIGURE_TOTP" else a
-            for a in desired
-        ]
-        drifted = drifted_required_actions(desired, forced)
+        desired = reconciled(otp_realm(OFFERED))
+        drifted = drifted_required_actions(desired, reconciled(otp_realm()))
         self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
-        self.assertFalse(drifted[0]["defaultAction"])
+        self.assertIs(False, drifted[0]["defaultAction"])
 
     def test_an_existing_realm_that_offers_otp_converges_to_not_offering_it(
         self,
     ) -> None:
-        offered = reconciled(otp_realm())
-        desired = reconciled(totp_realm(False))
-        drifted = drifted_required_actions(desired, offered)
+        desired = reconciled(otp_realm(DISABLED))
+        drifted = drifted_required_actions(desired, reconciled(otp_realm(OFFERED)))
         self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
         self.assertIs(False, drifted[0]["enabled"])
 
@@ -867,16 +862,14 @@ class TestTotpOfferedNotEnforced(unittest.TestCase):
         creators = [
             i
             for i, path in enumerate(includes)
-            if any(
-                step in path for step in ("06_users", "03_ldap", "14_email_policy")
-            )
+            if any(step in path for step in ("06_users", "03_ldap", "14_email_policy"))
         ]
         self.assertTrue(creators)
         self.assertLess(required, min(creators))
 
     def test_an_existing_realm_converges_to_enforcing_otp(self) -> None:
-        desired = reconciled(otp_realm({"totp_enforced": True}))
-        drifted = drifted_required_actions(desired, reconciled(otp_realm()))
+        desired = reconciled(otp_realm())
+        drifted = drifted_required_actions(desired, reconciled(otp_realm(OFFERED)))
         self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
         self.assertIs(True, drifted[0]["defaultAction"])
 
