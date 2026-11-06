@@ -64,7 +64,7 @@ async function awaitCrosspostedDraft(page, shared, headers, workspace, marker, l
 
 async function openDraftInDesk(page, shared, marker, label) {
   await gotoOnion(page, `${shared.env.appBaseUrl}/publications?tab=drafts`, { waitUntil: "domcontentloaded" });
-  await page.getByRole("textbox", { name: /search posts/i }).fill(marker);
+  await page.getByRole("searchbox", { name: /search posts/i }).fill(marker);
   const listed = page.getByRole("link", { name: new RegExp(marker, "i") }).first();
   await expect(listed, `${label}: the crossposted draft must be listed among the drafts`).toBeVisible({
     timeout: resolveTimeout(60_000),
