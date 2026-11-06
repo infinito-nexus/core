@@ -86,7 +86,7 @@ class TestConfig(unittest.TestCase):
 
     def test_providers_that_do_not_decode_to_an_object_fail_at_start(self):
         double_encoded = json.dumps(json.dumps({"/github": {"secret": SECRET}}))
-        with self.assertRaisesRegex(ValueError, "JSON object.*got a JSON str"):
+        with self.assertRaisesRegex(TypeError, "JSON object.*got a JSON str"):
             receiver.load_config(
                 {"WEBHOOK_API_TIMEOUT": "1", "WEBHOOK_PROVIDERS": double_encoded}
             )
