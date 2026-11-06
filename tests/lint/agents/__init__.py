@@ -16,6 +16,9 @@ from utils.cache.yaml import load_yaml_any
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 AGENTS_DIR = PROJECT_ROOT / "agents"
 ROLES_DIR = AGENTS_DIR / "roles"
+AGENTS_INVENTORY = (
+    PROJECT_ROOT / "inventories" / "bundles" / "servers" / "agents" / "inventory.yml"
+)
 
 REQUIRED_AGENT_FIELDS = (
     "runtime",
@@ -30,6 +33,7 @@ REQUIRED_AGENT_FIELDS = (
     "triggers",
     "quotas",
     "credentials",
+    "workspace",
 )
 RUNTIMES = ("hermes", "openclaw", "claude-code")
 LIFECYCLES = ("on_demand", "always_on")

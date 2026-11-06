@@ -20,6 +20,7 @@ As an operator, I want every agent to act under its own account with its own cre
 - [ ] Every agent has its own LiteLLM virtual key, and the gateway logs show spend per agent key.
 - [ ] Claude Code in a workspace completes a request through the gateway's Anthropic upstream, once with `auth: api_key` and once with `auth: subscription`.
 - [ ] No agent workspace or agent container holds a model provider credential (probe recorded).
+  - Exception: a VM workspace in login mode holds its agent's vendor login, see [093](093-agents-vm-workspaces.md).
 - [ ] A `github` account grant without credentials in the inventory is inactive, and the next active account is the default.
 - [ ] Overriding a credential under `agents.<role>.credentials` in the inventory replaces the generated default.
 - [ ] Every agent credential lives in the agent's `.kdbx`; a grep over `sys-token-store` and the inventory finds no agent credential except the master key and the bootstrap credentials.

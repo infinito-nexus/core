@@ -1,5 +1,7 @@
 """L01: agent.yml has every field; runtime, lifecycle and firewall_roles name
-known values; write_enabled defaults false; keepass.mode is broker or agent."""
+known values; write_enabled defaults false; keepass.mode is broker or agent;
+workspace names a known kind, a VM kind names an inventory host, runs on
+demand, runs a runtime of the VM template and takes its size from resources."""
 
 from __future__ import annotations
 
@@ -8,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import (
+    AGENTS_INVENTORY,
     KEEPASS_MODES,
     LIFECYCLES,
     REQUIRED_AGENT_FIELDS,
@@ -16,6 +19,10 @@ from tests.lint.agents import (
     load,
     role_names,
 )
+from utils.agents import vm_template, workspace
+
+INVENTORY_HOSTS = workspace.inventory_hosts(load(AGENTS_INVENTORY))
+TEMPLATE_RUNTIMES = vm_template.runtimes(vm_template.TEMPLATE_DIR)
 
 KNOWN_TRIGGERS = frozenset(
     {
@@ -56,10 +63,22 @@ write_enabled: false
 triggers: []
 quotas: {requests_per_minute: 60}
 credentials: {}
+workspace: {kind: server, model_access: gateway}
 """
+SERVER = "{kind: server, model_access: gateway}"
+
+VM = MINIMAL.replace("runtime: hermes", "runtime: claude-code").replace(
+    SERVER,
+    "{kind: incus, model_access: gateway, target: server, "
+    "resources: {vcpu: 4, memory: 8g, disk: 64g}}",
+)
 
 
-def check(roles_dir: Path) -> list[str]:
+def check(
+    roles_dir: Path,
+    inventory_hosts: frozenset[str],
+    template_runtimes: frozenset[str],
+) -> list[str]:
     problems: list[str] = []
     for role in role_names(roles_dir):
         agent = load(roles_dir / role / "agent.yml")
@@ -71,6 +90,13 @@ def check(roles_dir: Path) -> list[str]:
             for field in REQUIRED_AGENT_FIELDS
             if field not in agent
         )
+        if "workspace" in agent:
+            problems.extend(
+                f"{role}: {problem}"
+                for problem in workspace.problems(
+                    agent, inventory_hosts, template_runtimes
+                )
+            )
         if agent.get("runtime") not in RUNTIMES:
             problems.append(f"{role}: runtime '{agent.get('runtime')}' unknown")
         if agent.get("lifecycle") not in LIFECYCLES:
@@ -93,9 +119,17 @@ def check(roles_dir: Path) -> list[str]:
     return problems
 
 
+def _check_one(text: str) -> list[str]:
+    with tempfile.TemporaryDirectory() as tmp:
+        role = Path(tmp) / "r"
+        role.mkdir()
+        role.joinpath("agent.yml").write_text(text, encoding="utf-8")
+        return check(Path(tmp), frozenset({"server"}), TEMPLATE_RUNTIMES)
+
+
 class TestL01(unittest.TestCase):
     def test_real_tree_passes(self):
-        self.assertEqual(check(ROLES_DIR), [])
+        self.assertEqual(check(ROLES_DIR, INVENTORY_HOSTS, TEMPLATE_RUNTIMES), [])
 
     def test_red_fixture_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -110,20 +144,133 @@ class TestL01(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            self.assertNotEqual(check(Path(tmp)), [])
+            self.assertNotEqual(
+                check(Path(tmp), INVENTORY_HOSTS, TEMPLATE_RUNTIMES), []
+            )
 
     def test_unknown_trigger_fails(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            role = Path(tmp) / "r"
-            role.mkdir()
-            role.joinpath("agent.yml").write_text(
-                MINIMAL.replace("triggers: []", "triggers: [not_an_event]"),
-                encoding="utf-8",
+        self.assertTrue(
+            any(
+                "not a known event" in p
+                for p in _check_one(
+                    MINIMAL.replace("triggers: []", "triggers: [not_an_event]")
+                )
+            ),
+            "unknown trigger not flagged",
+        )
+
+    def test_vm_workspace_passes(self):
+        self.assertEqual(_check_one(VM), [])
+
+    def test_missing_workspace_fails(self):
+        self.assertIn(
+            "r: agent.yml missing field 'workspace'",
+            _check_one(MINIMAL.replace(f"workspace: {SERVER}\n", "")),
+        )
+
+    def test_empty_or_partial_workspace_fails(self):
+        for partial, missing in (
+            ("{}", "workspace.kind is required"),
+            ("{kind: server}", "workspace.model_access is required"),
+            ("{model_access: gateway}", "workspace.kind is required"),
+        ):
+            self.assertIn(f"r: {missing}", _check_one(MINIMAL.replace(SERVER, partial)))
+
+    def test_unknown_kind_fails(self):
+        self.assertTrue(
+            any(
+                "workspace.kind 'docker'" in p
+                for p in _check_one(MINIMAL.replace("kind: server", "kind: docker"))
             )
+        )
+
+    def test_unknown_workspace_key_fails(self):
+        self.assertTrue(
+            any(
+                "workspace.vram is not a workspace key" in p
+                for p in _check_one(
+                    MINIMAL.replace(
+                        SERVER, "{kind: server, model_access: gateway, vram: 8g}"
+                    )
+                )
+            )
+        )
+
+    def test_host_kind_for_autonomous_role_fails(self):
+        host = MINIMAL.replace("kind: server", "kind: host")
+        autonomous = host.replace("[interactive]", "[autonomous-contributor]")
+        self.assertEqual(_check_one(host), [])
+        self.assertTrue(
+            any("interactive role only" in p for p in _check_one(autonomous))
+        )
+
+    def test_vm_kind_needs_inventory_host_target(self):
+        for broken in (
+            VM.replace("target: server, ", ""),
+            VM.replace("target: server", "target: ghost"),
+        ):
             self.assertTrue(
-                any("not a known event" in p for p in check(Path(tmp))),
-                "unknown trigger not flagged",
+                any("names an inventory host" in p for p in _check_one(broken)),
+                broken,
             )
+
+    def test_vm_kind_refused_always_on(self):
+        self.assertTrue(
+            any(
+                "cannot run always_on" in p
+                for p in _check_one(
+                    VM.replace("lifecycle: on_demand", "lifecycle: always_on")
+                )
+            )
+        )
+
+    def test_vm_kind_refused_for_runtime_outside_template(self):
+        self.assertTrue(
+            any(
+                "is not in the VM template" in p
+                for p in _check_one(
+                    VM.replace("runtime: claude-code", "runtime: hermes")
+                )
+            )
+        )
+
+    def test_vm_size_comes_from_resources(self):
+        self.assertTrue(
+            any(
+                "workspace.resources.disk is missing" in p
+                for p in _check_one(VM.replace(", disk: 64g", ""))
+            )
+        )
+        self.assertTrue(
+            any(
+                "workspace.resources.vcpu must be positive" in p
+                for p in _check_one(VM.replace("vcpu: 4", "vcpu: 0"))
+            )
+        )
+        self.assertTrue(
+            any(
+                "applies to a VM kind only" in p
+                for p in _check_one(
+                    MINIMAL.replace(
+                        SERVER,
+                        "{kind: server, model_access: gateway, "
+                        "resources: {vcpu: 1, memory: 1g, disk: 1g}}",
+                    )
+                )
+            )
+        )
+
+    def test_model_access_is_gateway_or_login(self):
+        login = MINIMAL.replace("model_access: gateway", "model_access: login")
+        self.assertTrue(
+            any("model_access login applies to" in p for p in _check_one(login))
+        )
+        self.assertTrue(
+            any(
+                "workspace.model_access 'apikey'" in p
+                for p in _check_one(login.replace("login", "apikey"))
+            )
+        )
 
 
 if __name__ == "__main__":
