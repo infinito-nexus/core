@@ -20,6 +20,10 @@ GATE = "/roles/web-app-gated/administrator"
 CARDS = [
     {"id": "web-app-gated", "allowed_groups": [GATE]},
     {"id": "web-app-open"},
+    {"id": "web-app-degraded"},
+    {"id": "web-app-down"},
+    {"id": "web-app-missing"},
+    {"id": "web-app-odd"},
 ]
 
 DRIVER = textwrap.dedent(
@@ -88,6 +92,42 @@ DRIVER = textwrap.dedent(
         const [lock] = page.chips["web-app-gated"];
         assert.strictEqual(lock.state, "denied");
         assert.strictEqual(lock.href, undefined, "without the access request service the lock links nowhere");
+        assert.strictEqual(lock.label, "No access", "the lock explains itself in its label");
+      } else if (scenario === "realm") {
+        const page = mount({ api: true, reply: null });
+        const lookalikes = ["administrator", "offline_access", "default-roles-example", "web-app-gated",
+          GATE_PATH.slice(1), GATE_PATH.split("/").slice(0, -1).join("/"), `${GATE_PATH}/`, GATE_PATH.toUpperCase()];
+        page.emit("dashboard:identity", { groups: lookalikes });
+        assert.deepStrictEqual(states(page.chips["web-app-gated"]), ["lock:denied"], "only the full group path opens the card");
+        page.emit("dashboard:identity", { groups: [...lookalikes, GATE_PATH] });
+        assert.deepStrictEqual(page.chips["web-app-gated"], [], "the full group path opens the card");
+      } else if (scenario === "tones") {
+        const reply = { applications: {
+          "web-app-gated": { state: "paused", checked: now },
+          "web-app-open": { state: "running", checked: now },
+          "web-app-degraded": { state: "degraded", checked: now },
+          "web-app-down": { state: "down", checked: now },
+          "web-app-odd": { state: "exploded", checked: now },
+        } };
+        const page = mount({ api: true, reply });
+        await settle();
+        const tone = (id) => page.chips[id].map((chip) => `${chip.state}:${chip.tone}:${chip.label}`);
+        assert.deepStrictEqual(tone("web-app-open"), ["running:success:Running"]);
+        assert.deepStrictEqual(tone("web-app-gated"), ["paused:info:Paused"]);
+        assert.deepStrictEqual(tone("web-app-degraded"), ["degraded:warning:Degraded"]);
+        assert.deepStrictEqual(tone("web-app-down"), ["down:danger:Down"]);
+        assert.deepStrictEqual(tone("web-app-missing"), ["unknown:secondary:Unknown"], "a missing entry is unknown");
+        assert.deepStrictEqual(tone("web-app-odd"), ["unknown:secondary:Unknown"], "an unknown state is unknown");
+        assert.match(page.chips["web-app-down"][0].detail, /^ · .+/, "the badge names its check time");
+      } else if (scenario === "empty") {
+        const page = mount({ api: true, reply: { generated: null, applications: {} } });
+        await settle();
+        assert.deepStrictEqual(page.fetches, ["/status.json"]);
+        for (const id of Object.keys(page.chips)) {
+          assert.deepStrictEqual(states(page.chips[id]), ["health:unknown"], `${id} before the first sweep`);
+          assert.strictEqual(page.chips[id][0].detail, "", "no check time before the first sweep");
+        }
+        assert.strictEqual(Object.keys(page.chips).length, 6);
       } else if (scenario === "health") {
         const reply = { applications: {
           "web-app-gated": { state: "paused", checked: now, code: 503 },
@@ -170,6 +210,15 @@ class TestChips(unittest.TestCase):
 
     def test_a_lock_without_the_access_request_service_links_nowhere(self) -> None:
         self._run("denied", locks=True, status=False, request=False)
+
+    def test_only_the_full_group_path_opens_a_gated_card(self) -> None:
+        self._run("realm", locks=True, status=False, request=False)
+
+    def test_every_state_takes_its_status_tone(self) -> None:
+        self._run("tones", locks=False, status=True, request=False)
+
+    def test_the_empty_document_before_the_first_sweep_reads_unknown(self) -> None:
+        self._run("empty", locks=False, status=True, request=False)
 
     def test_badges_show_fresh_states_and_stale_entries_as_unknown(self) -> None:
         self._run("health", locks=False, status=True, request=False)
