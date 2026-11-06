@@ -60,21 +60,11 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       register: sys_token_store_mirrored
 
-    - name: "🔄 Hand the written store to the lookups of the rest of the play"
-      ansible.builtin.set_fact:
-        sys_token_store_users: "{{ sys_token_store_users_merged }}"
-      delegate_to: "{{ sys_token_store_reader }}"
-      delegate_facts: true
-      loop: "{{ ansible_play_hosts }}"
-      loop_control:
-        loop_var: sys_token_store_reader
-      when: hostvars[sys_token_store_reader].STACK_HOST == STACK_HOST
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-    - name: "📌 Keep the writer's own merge over a peer writer's hand-over"
-      ansible.builtin.set_fact:
-        sys_token_store_users: "{{ sys_token_store_users_merged }}"
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    - name: "🔄 Hand the written store to every reader on its stack host"
+      ansible.builtin.include_tasks:
+        file: utils/hand_over.yml
+        apply:
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧊 Re-render the users SPOT the new tokens invalidated"
   applications_carrier: {}

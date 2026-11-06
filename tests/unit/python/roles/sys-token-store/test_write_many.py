@@ -44,6 +44,9 @@ def _walk(tasks: list[dict], gates: list[str]) -> list[tuple[dict, list[str]]]:
         flat.append((task, conditions))
         if "block" in task:
             flat.extend(_walk(task["block"], conditions))
+        if "ansible.builtin.include_tasks" in task:
+            included = task["ansible.builtin.include_tasks"]["file"]
+            flat.extend(_walk(_tasks(included), conditions))
     return flat
 
 
@@ -199,6 +202,20 @@ class TestWriteMany(unittest.TestCase):
                 self.assertNotIn(keyword, keep_own)
         merged = _merged([_entry("bob", "web-app-b", "token-b")])
         self.assertTrue(_when(KEEP_OWN, **_state(merged)))
+
+    def test_every_task_carrying_the_merged_store_is_masked(self):
+        masked = "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        include = next(
+            task
+            for task, _ in _flat("write_many.yml")
+            if "ansible.builtin.include_tasks" in task
+        )
+        self.assertEqual(
+            include["ansible.builtin.include_tasks"]["apply"]["no_log"], masked
+        )
+        for name in (MERGE, CHANGED, PERSIST, MIRROR):
+            with self.subTest(task=name):
+                self.assertEqual(_task(name)["no_log"], masked)
 
     def test_the_hand_over_outlives_the_writers_own_fact_update(self):
         merged = _merged([_entry("bob", "web-app-b", "token-b")])
