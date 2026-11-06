@@ -1,0 +1,72 @@
+---
+# Exception: curl reads the API credentials and the token from a config that bash's printf builtin writes into a process substitution inside the manager container, so they come from the environment and never appear in an argv the host's ps or Docker's exec events would show; the register call keeps stdin for its JSON body.
+- name: "🔑 Authenticate to the Wazuh manager API"
+  ansible.builtin.shell:
+    cmd: >-
+      {{ WAZUH_MANAGER_EXEC }}
+      bash -c 'user="$API_USERNAME:$API_PASSWORD"; user="${user//\\/\\\\}";
+      {{ WAZUH_API_TIMEOUT | curl }} -k -K <(printf "user = \"%s\"\n" "${user//\"/\\\"}")
+      -X POST "{{ WAZUH_API_URL }}/security/user/authenticate?raw=true"'
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_api_token
+  changed_when: false
+  retries: 30
+  delay: 10
+  until: wazuh_api_token.rc == 0 and wazuh_api_token.stdout.startswith('ey')
+
+- name: "🔍 Read the registered key of each Wazuh agent"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      bash -c '{{ WAZUH_API_TIMEOUT | curl }} -k {{ WAZUH_API_BEARER_CONFIG }}
+      "{{ WAZUH_API_URL }}/agents/{{ item.id }}/key"'
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  environment:
+    WAZUH_API_TOKEN: "{{ wazuh_api_token.stdout }}"
+  loop: "{{ WAZUH_AGENTS }}"
+  loop_control:
+    label: "{{ item.id }}"
+  register: wazuh_agent_keys
+  changed_when: false
+
+- name: "🧮 Select the Wazuh agents whose registration differs"
+  ansible.builtin.set_fact:
+    wazuh_agent_changes: "{{ WAZUH_AGENTS | wazuh_agent_changes(wazuh_agent_keys.results) }}"
+
+- name: "🗑️ Remove Wazuh agents registered with a different name or key"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      bash -c '{{ WAZUH_API_TIMEOUT | curl(retries=0) }} -k {{ WAZUH_API_BEARER_CONFIG }}
+      -X DELETE "{{ WAZUH_API_URL }}/agents?agents_list={{ item.id }}&status=all&older_than=0s&purge=true"'
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  environment:
+    WAZUH_API_TOKEN: "{{ wazuh_api_token.stdout }}"
+  loop: "{{ wazuh_agent_changes | selectattr('action', 'equalto', 'replace') | list }}"
+  loop_control:
+    label: "{{ item.id }}"
+  register: wazuh_agent_delete
+  changed_when: true
+  failed_when: >-
+    wazuh_agent_delete.rc != 0 or
+    (wazuh_agent_delete.stdout | from_json).data.total_affected_items != 1
+
+- name: "➕ Register Wazuh agents with their vault key"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      bash -c '{{ WAZUH_API_TIMEOUT | curl(retries=0) }} -k {{ WAZUH_API_BEARER_CONFIG }}
+      -H "Content-Type: application/json"
+      -X POST "{{ WAZUH_API_URL }}/agents/insert" --data-binary @-'
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+    stdin: "{{ {'id': item.id, 'name': item.name, 'key': item.key, 'ip': 'any'} | to_json }}"
+  environment:
+    WAZUH_API_TOKEN: "{{ wazuh_api_token.stdout }}"
+  loop: "{{ wazuh_agent_changes }}"
+  loop_control:
+    label: "{{ item.id }}"
+  register: wazuh_agent_insert
+  changed_when: true
+  failed_when: >-
+    wazuh_agent_insert.rc != 0 or
+    (wazuh_agent_insert.stdout | from_json).error != 0

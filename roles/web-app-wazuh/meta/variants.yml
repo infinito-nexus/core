@@ -17,6 +17,9 @@
     matomo:
       enabled: true
       shared: true
+    pixelfed:
+      enabled: true
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -43,6 +46,9 @@
       enabled: false
       shared: false
     matomo:
+      enabled: false
+      shared: false
+    pixelfed:
       enabled: false
       shared: false
     prometheus:

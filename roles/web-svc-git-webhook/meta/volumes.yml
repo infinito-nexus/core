@@ -1,0 +1,49 @@
+---
+state:
+  type: volume
+  name: git_webhook_state
+  backup: false
+  nfs: false
+  mounts:
+    - service: git-webhook
+      target: /data
+
+receiver:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-git-webhook', 'directories.instance'), 'receiver.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: git-webhook
+      target: /app/receiver.py
+
+git_core:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-git-webhook', 'directories.instance'), 'git', 'core.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: git-webhook
+      target: /app/git/core.py
+
+git_github:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-git-webhook', 'directories.instance'), 'git', 'github.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: git-webhook
+      target: /app/git/github.py
+
+git_gitea:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-git-webhook', 'directories.instance'), 'git', 'gitea.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: git-webhook
+      target: /app/git/gitea.py
+
+git_gitlab:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-git-webhook', 'directories.instance'), 'git', 'gitlab.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: git-webhook
+      target: /app/git/gitlab.py

@@ -1,0 +1,38 @@
+---
+auditd:
+  Archlinux:
+    - audit
+  Debian:
+    - auditd
+  RedHat:
+    - audit
+
+python3-venv:
+  Archlinux: [] # nocheck: empty - Arch's python package ships the venv module and ensurepip
+  Debian:
+    - python3-venv
+  RedHat: [] # nocheck: empty - Fedora's and EL's python3 packages ship the venv module and ensurepip
+
+wazuh-agent:
+  Archlinux: [] # nocheck: empty - Wazuh ships no Arch package; the role builds it from pinned source (tasks/01_install/archlinux.yml)
+  Debian:
+    names:
+      - wazuh-agent
+    repo:
+      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com and holds the package
+    version: "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
+  RedHat:
+    names:
+      - wazuh-agent
+    repo:
+      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com with the package excluded
+    version: "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
+
+# Exception: gcc15 because Wazuh recommends GCC 14, which Arch no longer ships; vars WAZUH_AGENT_ARCH_CC/_CXX name its binaries, and a missing gcc15 fails this install. cmake comes from its shared id, and curl ships with every Arch host as a pacman dependency.
+wazuh-agent-build:
+  Archlinux:
+    - base-devel
+    - gcc15
+    - python
+  Debian: [] # nocheck: empty - the Debian family installs the Wazuh package, no build
+  RedHat: [] # nocheck: empty - the RedHat family installs the Wazuh package, no build

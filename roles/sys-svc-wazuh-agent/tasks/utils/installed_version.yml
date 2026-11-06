@@ -1,0 +1,13 @@
+---
+- name: "🔍 Read the installed agent's {{ WAZUH_AGENT_VERSION_FILE | basename }}"
+  ansible.builtin.slurp:
+    src: "{{ WAZUH_AGENT_VERSION_FILE }}"
+  register: wazuh_agent_version_file
+  failed_when: false
+
+# Exception: VERSION.json also carries "stage" (the 4.14.6 package says "rc2"), so only "version" is compared.
+- name: "🔍 Resolve the installed agent version"
+  ansible.builtin.set_fact:
+    wazuh_agent_installed_version: >-
+      {{ (wazuh_agent_version_file.content | b64decode | from_json).version
+         if 'content' in wazuh_agent_version_file else '' }}

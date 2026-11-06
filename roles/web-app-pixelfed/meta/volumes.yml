@@ -34,6 +34,15 @@ worker_entrypoint:
     - service: worker
       target: /infinito-pixelfed-worker-entrypoint.sh
 
+apache_vhost:
+  type: config
+  source: "{{ [lookup('container', 'web-app-pixelfed', 'directories.instance'), 'apache-vhost.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: pixelfed
+      target: /etc/apache2/sites-available/000-default.conf
+      when: "{{ lookup('config', 'web-app-pixelfed', 'services.wazuh.enabled') | bool }}"
+
 php_hardening:
   type: config
   source: "{{ FILE_PHP_HARDENING_INI }}"

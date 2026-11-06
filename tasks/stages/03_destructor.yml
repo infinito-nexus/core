@@ -10,12 +10,27 @@
   include_role:
     name: sys-service-terminator
 
-- name: 🧪 Run CLI tests for deployed roles
-  include_role:
-    name: test-e2e-cli
-  when: RUNTIME in ['dev', 'act', 'github']
+# Exception: the destructor hooks and the CLI tests may fail the deploy; the timers are unlocked either way, so a failed check never leaves them stopped.
+- name: "🔎 Check the deployed apps, then unlock the timers"
+  block:
+    # Exception: roles add their post-deploy work through their own tasks/hooks/destructor.yml instead of being named here, so this stage carries no role logic. It runs after every role and the service flush, and before the CLI tests, so a hook sees the finished deploy and may still fail it.
+    - name: "🪝 Run the destructor hooks"
+      include_tasks: ./tasks/utils/hooks/run.yml
+      vars:
+        stage_hook_point: destructor
 
-- name: "🔓 Unlock all timers"
-  include_role:
-    name: sys-service-terminator
-    tasks_from: 02_unlock.yml
+    - name: 🧪 Run CLI tests for deployed roles
+      include_role:
+        name: test-e2e-cli
+      when: RUNTIME in ['dev', 'act', 'github']
+
+    # Exception: roles add work that must only happen once every check has passed through their own tasks/hooks/destructor_post.yml. It sits last in the block, so a failed destructor hook or CLI test skips it and its absence marks the deploy as failed.
+    - name: "🪝 Run the destructor_post hooks"
+      include_tasks: ./tasks/utils/hooks/run.yml
+      vars:
+        stage_hook_point: destructor_post
+  always:
+    - name: "🔓 Unlock all timers"
+      include_role:
+        name: sys-service-terminator
+        tasks_from: 02_unlock.yml

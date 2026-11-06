@@ -1,0 +1,35 @@
+---
+- name: "📦 Install the agent build tools"
+  package_install:
+    id:
+      - wazuh-agent-build
+      - cmake
+
+- name: "🔍 Require the pinned compiler {{ WAZUH_AGENT_ARCH_CC }}"
+  ansible.builtin.command:
+    argv: ["{{ WAZUH_AGENT_ARCH_CC }}", --version]
+  changed_when: false
+
+- name: "👤 Ensure the unprivileged build user"
+  ansible.builtin.user:
+    name: "{{ WAZUH_AGENT_BUILD_USER }}"
+    system: true
+    create_home: false
+    shell: /usr/bin/nologin
+
+- name: "📂 Create a temporary build directory"
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: wazuh-agent-build.
+  register: wazuh_agent_build_dir
+
+- name: "🔨 Compile and install in the build directory, then remove it"
+  block:
+    - name: "🔨 Compile and install"
+      include_tasks: compile.yml
+
+  always:
+    - name: "🧹 Remove the build directory"
+      ansible.builtin.file:
+        path: "{{ wazuh_agent_build_dir.path }}"
+        state: absent

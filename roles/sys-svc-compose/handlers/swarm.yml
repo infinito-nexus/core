@@ -170,6 +170,7 @@
   environment:
     STACK: "{{ application_id | get_entity_name }}"
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
+    STUCK_LOG_LINES: "{{ swarm_stack_stuck_log_lines }}"
     DEPLOY_SINCE: "{{ swarm_deploy_result.stdout_lines | default([]) | first | default('') }}"
     DEPLOYED_SERVICES: "{{ swarm_deploy_result | swarm_deployed_services | join(' ') }}"
   register: _swarm_stack_ready_handler

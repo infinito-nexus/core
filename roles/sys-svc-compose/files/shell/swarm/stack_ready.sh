@@ -3,6 +3,7 @@ set -euo pipefail
 
 : "${STACK:?STACK env var is required}"
 : "${FATAL_GRACE:?FATAL_GRACE env var is required}"
+: "${STUCK_LOG_LINES:?STUCK_LOG_LINES env var is required}"
 : "${DEPLOY_SINCE:=}"
 : "${DEPLOYED_SERVICES:=}"
 
@@ -49,6 +50,19 @@ report_task_states() {
 	fi
 	[ -n "${inspect}" ] || return 0
 	printf '%s\n' "${inspect}" | sed 's/^/    /' >&2
+}
+
+# Exception: a task that crashes on start exits before swarm records why, so the only trace of the cause is the container's own output; it is printed once, for the service the gate gives up on, because the caller stops polling on rc 2 and the deploy log is then the only place it survives.
+report_logs() {
+	local logs
+	if ! logs=$(timeout 15 docker service logs --no-trunc --timestamps \
+		--tail "${STUCK_LOG_LINES}" "$1" 2>&1); then
+		printf '  %s: docker service logs failed: %s\n' "$1" "$logs" >&2
+		return 0
+	fi
+	[ -n "${logs}" ] || return 0
+	printf '  last %s log lines of %s:\n' "${STUCK_LOG_LINES}" "$1" >&2
+	printf '%s\n' "${logs}" | sed 's/^/    /' >&2
 }
 
 churned_past_grace() {
@@ -191,6 +205,7 @@ if [ -n "$not_running" ]; then
 		report_tasks "$svc"
 		if has_fatal_task "$svc"; then
 			echo "stuck: $svc" >&2
+			report_logs "$svc"
 			fatal=1
 		fi
 	done

@@ -1,0 +1,42 @@
+---
+# Param: wazuh_app_node_entities - opted-in entities ({role, entity}) whose task node to check
+# Sets wazuh_app_remote_nodes: entity to the other nodes its running tasks are on, {} in compose mode.
+- name: "🔍 Read this node's swarm name"
+  ansible.builtin.command:
+    argv: [container, info, --format, "{{ '{{.Name}}' }}"]
+  register: wazuh_app_self_node
+  changed_when: false
+  failed_when: wazuh_app_self_node.rc != 0 or (wazuh_app_self_node.stdout | trim) == ''
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔍 Find the nodes of every opted-in app's running tasks"
+  ansible.builtin.command:
+    argv:
+      - container
+      - service
+      - ps
+      - --filter
+      - desired-state=running
+      - --format
+      - "{{ '{{.Node}}' }}"
+      - "{{ lookup('container_service', item.role, item.entity) }}"
+  register: wazuh_app_nodes
+  changed_when: false
+  retries: 30
+  delay: 2
+  until: wazuh_app_nodes.rc == 0 and (wazuh_app_nodes.stdout | trim) != ''
+  loop: "{{ wazuh_app_node_entities if DEPLOYMENT_MODE == 'swarm' else [] }}"
+  loop_control:
+    label: "{{ item.entity }}"
+
+- name: "🔧 Keep the apps whose tasks run on another node"
+  ansible.builtin.set_fact:
+    wazuh_app_remote_nodes: >-
+      {{
+        (dict(wazuh_app_nodes.results | map(attribute='item.entity')
+          | zip(wazuh_app_nodes.results | map(attribute='stdout_lines')
+            | map('reject', 'equalto', wazuh_app_self_node.stdout | trim)
+            | map('unique') | map('join', ', ')))
+         | dict2items | selectattr('value') | items2dict)
+        if DEPLOYMENT_MODE == 'swarm' else {}
+      }}

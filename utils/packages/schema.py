@@ -41,6 +41,26 @@ which counts as covered; a *missing* key is a coverage gap.
 ``virtual: true`` records that the package manager satisfies the name
 through an RPM ``Provides`` rather than a package of that name, so an index
 lookup by name legitimately finds nothing while the install works.
+
+``version`` pins the one name of a ``repo`` entry to an exact version, as a
+literal or a Jinja expression that ``package_install`` renders with the
+calling task's variables::
+
+    wazuh-agent:
+      Debian:
+        names: [wazuh-agent]
+        version: "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
+        repo:
+          managed_externally: ...
+
+Like every meta file, the expression may not use role variables (they are not
+bound when meta is read); config lookups are fine. The rendered value is the package manager's full version string
+(``4.14.6-1``), installed as ``name=version`` by apt and ``name-version`` by
+dnf. An exact pin overrides the role's own hold or exclude for that one
+install: apt runs it with ``allow_change_held_packages``, and on the dnf
+family the role passes its repository id as ``package_install``'s
+``disable_excludes``, which lifts only that repository's excludes. The role
+keeps setting the hold or exclude itself.
 """
 
 from __future__ import annotations
@@ -107,6 +127,26 @@ class PackageSpec:
     repo: dict[str, Any] | None = None
     virtual: bool = False
     build: dict[str, Any] | None = None
+    version: str | None = None
+
+
+def _validate_version(
+    package_id: str, key: str, version: Any, names: list[str], source: str, path: Path
+) -> None:
+    if not isinstance(version, str) or not version.strip():
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.version must be a non-empty string when set."
+        )
+    if len(names) != 1:
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.version pins exactly one name, "
+            f"got {len(names)}."
+        )
+    if source != SOURCE_REPO:
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.version needs source '{SOURCE_REPO}', "
+            f"got {source!r}."
+        )
 
 
 def _validate_repo(package_id: str, key: str, repo: Any, path: Path) -> None:
@@ -169,4 +209,8 @@ def normalize_entry(package_id: str, key: str, value: Any, path: Path) -> Packag
     build = value.get("build")
     _validate_build(package_id, key, source, build, path)
 
-    return PackageSpec(tuple(names), str(source), repo, virtual, build)
+    version = value.get("version")
+    if version is not None:
+        _validate_version(package_id, key, version, names, source, path)
+
+    return PackageSpec(tuple(names), str(source), repo, virtual, build, version)

@@ -1,0 +1,6 @@
+---
+# nocheck: required-by-coverage — included by web-svc-git-webhook, which holds its token, not through the service loader
+git-settings:
+  lifecycle: alpha
+  # Exception: the timer schedule lives with the one role that runs it, not in group_vars/all/07_schedule.yml, so the check owns its own cadence (SRP) and an inventory overrides it under applications.sys-ctl-hlth-git-settings.services.git-settings.schedule.
+  schedule: "*-*-* *:30:00"

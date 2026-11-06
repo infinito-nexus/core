@@ -1,0 +1,9 @@
+---
+# Param stage_hook_point: name of the hook point. Every role that ships tasks/hooks/<stage_hook_point>.yml runs that file, in role-name order; the file itself decides whether it applies to this host.
+- name: "🪝 Run the '{{ stage_hook_point }}' hooks"
+  ansible.builtin.include_role:
+    name: "{{ stage_hook_role }}"
+    tasks_from: "hooks/{{ stage_hook_point }}.yml"
+  loop: "{{ query('stage_hooks', stage_hook_point) }}"
+  loop_control:
+    loop_var: stage_hook_role

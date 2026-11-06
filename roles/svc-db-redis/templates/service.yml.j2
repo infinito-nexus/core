@@ -3,8 +3,9 @@
     {{ lookup('container_image', 'svc-db-redis', 'redis') }}
     {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-redis')) }}
     {{ lookup('compose_restart') }}
-    logging:
-      driver: journald
+{% filter indent(4, True) %}
+{% include 'roles/sys-svc-container/templates/logging.yml.j2' %}
+{% endfilter %}
     volumes:
       - redis:/data
     command:

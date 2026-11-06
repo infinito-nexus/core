@@ -1,0 +1,126 @@
+---
+- name: "🔒 Hand the build directory to the build user"
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_build_dir.path }}"
+    owner: "{{ WAZUH_AGENT_BUILD_USER }}"
+    group: "{{ WAZUH_AGENT_BUILD_USER }}"
+    mode: "0700"
+
+- name: "⬇️ Download and verify the Wazuh {{ WAZUH_AGENT_VERSION }} source"
+  get_url_retry:
+    url: "{{ WAZUH_AGENT_SOURCE_URL }}"
+    dest: "{{ [wazuh_agent_build_dir.path, 'source.tar.gz'] | path_join }}"
+    checksum: "sha256:{{ WAZUH_AGENT_SOURCE_PINS[WAZUH_AGENT_VERSION].source }}"
+    owner: "{{ WAZUH_AGENT_BUILD_USER }}"
+    mode: "0600"
+
+- name: "📁 Create the source directory"
+  ansible.builtin.file:
+    path: "{{ [wazuh_agent_build_dir.path, 'src'] | path_join }}"
+    state: directory
+    owner: "{{ WAZUH_AGENT_BUILD_USER }}"
+    group: "{{ WAZUH_AGENT_BUILD_USER }}"
+    mode: "0700"
+
+# Exception: GNU tar's --one-top-level does not prefix members that already start with that directory, so the source's own src/ would land at src/ instead of src/src/.
+- name: "📦 Unpack the source"
+  ansible.builtin.command:
+    argv: [tar, -xzf, source.tar.gz, --strip-components=1, -C, src]
+    chdir: "{{ wazuh_agent_build_dir.path }}"
+  become: true
+  become_user: "{{ WAZUH_AGENT_BUILD_USER }}"
+  changed_when: true
+
+- name: "⬇️ Fetch the agent's external dependencies"
+  ansible.builtin.command:
+    argv: [make, -C, src/src, TARGET=agent, deps]
+    chdir: "{{ wazuh_agent_build_dir.path }}"
+  become: true
+  become_user: "{{ WAZUH_AGENT_BUILD_USER }}"
+  register: wazuh_agent_build_deps
+  retries: "{{ WAZUH_AGENT_BUILD_DEPS_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
+  until: wazuh_agent_build_deps is succeeded
+  changed_when: true
+
+# Exception: make deps verifies nothing it downloads, and Wazuh replaces files under the same deps version, so every top-level entry of the extracted tree is hashed on its own and compared to its pin.
+- name: "🔍 Hash each external dependency"
+  ansible.builtin.script:
+    cmd: shell/deps_manifest.sh
+    chdir: "{{ [wazuh_agent_build_dir.path, 'src', 'src'] | path_join }}"
+    executable: /bin/bash
+  become: true
+  become_user: "{{ WAZUH_AGENT_BUILD_USER }}"
+  register: wazuh_agent_build_manifest
+  changed_when: false
+
+- name: "🛑 Require every dependency to match its pin"
+  vars:
+    wazuh_agent_deps_problems: >-
+      {{ wazuh_agent_build_manifest.stdout_lines | wazuh_agent_deps_problems(WAZUH_AGENT_SOURCE_PINS[WAZUH_AGENT_VERSION].deps) }}
+  ansible.builtin.assert:
+    that: wazuh_agent_deps_problems | length == 0
+    fail_msg: >-
+      The external dependencies of Wazuh {{ WAZUH_AGENT_VERSION }} differ from WAZUH_AGENT_SOURCE_PINS:
+      {{ wazuh_agent_deps_problems | join('; ') }}. Check what changed upstream before re-pinning;
+      the role README ("Pinning a new version") shows how to compute the hashes.
+    quiet: true
+
+- name: "🔨 Compile the agent"
+  ansible.builtin.command:
+    argv:
+      - make
+      - -C
+      - src/src
+      - "-j{{ ansible_facts['processor_vcpus'] }}"
+      - TARGET=agent
+      - "CC={{ WAZUH_AGENT_ARCH_CC }}"
+      - "CXX={{ WAZUH_AGENT_ARCH_CXX }}"
+    chdir: "{{ wazuh_agent_build_dir.path }}"
+  become: true
+  become_user: "{{ WAZUH_AGENT_BUILD_USER }}"
+  changed_when: true
+
+- name: "📝 Write the unattended install answers"
+  ansible.builtin.copy:
+    dest: "{{ [wazuh_agent_build_dir.path, 'src', 'etc', 'preloaded-vars.conf'] | path_join }}"
+    content: |
+      USER_LANGUAGE="en"
+      USER_NO_STOP="y"
+      USER_INSTALL_TYPE="agent"
+      USER_DIR="{{ WAZUH_AGENT_DIR }}"
+      USER_AUTO_START="n"
+      USER_ENABLE_ACTIVE_RESPONSE="n"
+      USER_AGENT_SERVER_IP="{{ WAZUH_AGENT_MANAGER_ADDRESS }}"
+      {% if wazuh_agent_installed_version != '' %}
+      USER_UPDATE="y"
+      {% endif %}
+    mode: "0644"
+
+- name: "⏹️ Stop the running agent before the upgrade"
+  ansible.builtin.systemd:
+    name: "{{ WAZUH_AGENT_SERVICE }}"
+    state: stopped
+  when: wazuh_agent_installed_version != ''
+
+# Exception: install.sh still reads answers from stdin despite preloaded-vars; the command module gives it none.
+- name: "📦 Install the agent with install.sh"
+  ansible.builtin.command:
+    argv: [./install.sh]
+    chdir: "{{ [wazuh_agent_build_dir.path, 'src'] | path_join }}"
+  changed_when: true
+  notify: wazuh-agent-restart
+
+- name: "🔍 Read the systemd unit install.sh registered"
+  ansible.builtin.command:
+    argv: [systemctl, show, --property=FragmentPath, --value, "{{ WAZUH_AGENT_SERVICE }}"]
+  register: wazuh_agent_build_unit
+  changed_when: false
+
+- name: "🛑 Require the systemd unit from install.sh"
+  ansible.builtin.assert:
+    that: wazuh_agent_build_unit.stdout | trim != ''
+    fail_msg: >-
+      install.sh registered no {{ WAZUH_AGENT_SERVICE }} unit, so the agent cannot be started;
+      see the role README ("Arch Linux source build", plan B).
+    quiet: true

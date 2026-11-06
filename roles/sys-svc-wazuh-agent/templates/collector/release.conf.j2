@@ -1,0 +1,7 @@
+[Service]
+ExecStop=
+ExecStop={{ WAZUH_AGENT_FREEZE_SCRIPT }} release {{ WAZUH_AGENT_FREEZE_ARGS }}
+ExecStop=/usr/bin/env {{ WAZUH_AGENT_CONTROL }} stop
+ExecReload=
+ExecReload={{ WAZUH_AGENT_FREEZE_SCRIPT }} release {{ WAZUH_AGENT_FREEZE_ARGS }}
+ExecReload=/usr/bin/env {{ WAZUH_AGENT_CONTROL }} reload

@@ -81,7 +81,14 @@ def _read_file_for_hash(source: str) -> str:
 
 def _config_secret_name(role_entity: str, user_name: str, source: str) -> str:
     """Build a swarm-rotation-safe name: ``{role}_{name}_{sha8(content)}``."""
-    digest = content_hash(_read_file_for_hash(source))
+    content = _read_file_for_hash(source)
+    if not content:
+        raise AnsibleError(
+            f"compose_volumes: '{user_name}' of '{role_entity}' has an empty "
+            f"source '{source}'; swarm rejects empty configs and secrets, so "
+            "give the file content or do not declare it"
+        )
+    digest = content_hash(content)
     return f"{role_entity}_{user_name}_{digest}"
 
 

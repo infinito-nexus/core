@@ -1,0 +1,82 @@
+<group name="pixelfed,">
+  <rule id="101001" level="5">
+    <if_sid>101000</if_sid>
+    <field name="laravel_level">^ERROR$</field>
+    <description>Pixelfed application error.</description>
+  </rule>
+
+  <rule id="101002" level="10">
+    <if_sid>101000</if_sid>
+    <field name="laravel_level" type="pcre2">^(CRITICAL|ALERT|EMERGENCY)$</field>
+    <description>Pixelfed critical application error.</description>
+  </rule>
+
+  <rule id="101003" level="7">
+    <if_sid>101001</if_sid>
+    <match>SQLSTATE[</match>
+    <description>Pixelfed database error.</description>
+  </rule>
+
+  <rule id="101010" level="3">
+    <if_sid>101000</if_sid>
+    <field name="http_method">^POST$</field>
+    <field name="http_path">^/login$</field>
+    <description>Pixelfed login attempt.</description>
+    <group>authentication_attempt,</group>
+  </rule>
+
+  <rule id="101011" level="10" frequency="8" timeframe="120">
+    <if_matched_sid>101010</if_matched_sid>
+    <same_srcip />
+    <description>Pixelfed: many login attempts from one address, possible brute force.</description>
+    <group>authentication_failures,</group>
+  </rule>
+
+  <rule id="101020" level="3">
+    <if_sid>101000</if_sid>
+    <field name="http_method">^POST$</field>
+    <field name="http_path">^/password/email$</field>
+    <description>Pixelfed password reset requested.</description>
+  </rule>
+
+  <rule id="101021" level="5">
+    <if_sid>101000</if_sid>
+    <field name="http_method">^POST$</field>
+    <field name="http_path">^/password/reset$</field>
+    <description>Pixelfed password reset submitted.</description>
+  </rule>
+
+  <rule id="101030" level="5">
+    <if_sid>101000</if_sid>
+    <field name="http_method" type="pcre2">^(POST|PUT|PATCH|DELETE)$</field>
+    <field name="http_path" type="pcre2">^/i/admin/</field>
+    <description>Pixelfed admin action.</description>
+  </rule>
+
+  <rule id="101040" level="3">
+    <if_sid>101000</if_sid>
+    <field name="http_method">^POST$</field>
+    <field name="http_path">^/oauth/token$</field>
+    <description>Pixelfed OAuth token request.</description>
+  </rule>
+
+  <!-- Exception: level 1, not 0: Wazuh keeps no level-0 match for if_matched_sid, so 101042 would never fire; 1 stays below the alert threshold. -->
+  <rule id="101041" level="1">
+    <if_sid>101000</if_sid>
+    <field name="http_status" type="pcre2">^40[13]$</field>
+    <field name="http_path" type="pcre2">^/api/</field>
+    <description>Pixelfed API request denied.</description>
+  </rule>
+
+  <rule id="101042" level="7" frequency="20" timeframe="60">
+    <if_matched_sid>101041</if_matched_sid>
+    <same_srcip />
+    <description>Pixelfed: many denied API requests from one address.</description>
+  </rule>
+
+  <rule id="101050" level="5">
+    <if_sid>101000</if_sid>
+    <field name="http_status">^429$</field>
+    <description>Pixelfed rate limit hit.</description>
+  </rule>
+</group>

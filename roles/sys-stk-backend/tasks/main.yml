@@ -44,6 +44,12 @@
   vars:
     engine_consumer_id: "{{ application_id }}"
 
+# Exception: roles add per-app backend work through their own tasks/hooks/backend.yml instead of being named here, so this shared role carries no role logic. It runs for every app before its compose stack comes up, with application_id still set to that app.
+- name: "🪝 For '{{ application_id }}': Run the backend hooks"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/hooks/run.yml') }}"
+  vars:
+    stage_hook_point: backend
+
 - name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:
     name: sys-svc-compose

@@ -1,4 +1,10 @@
 ---
+# Exception: the docker.service journald rate limit must exist before the package first starts Docker, because systemd applies it only at a start.
+- name: "🔧 Set docker.service's journald log rate limit before Docker first starts"
+  include_role:
+    name: sys-svc-journalctl
+    tasks_from: utils/docker_rate_limit.yml
+
 - name: 🔧 Setup Docker repository on Debian and Ubuntu
   include_tasks: 00_core/debian.yml
   when: ansible_facts['distribution'] in ['Debian', 'Ubuntu']

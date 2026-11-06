@@ -21,6 +21,7 @@
   package_install:
     id:
       - wireguard
+      - procps
       - iproute
       - iputils-ping
 

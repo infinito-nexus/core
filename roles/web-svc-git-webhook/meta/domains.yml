@@ -1,0 +1,4 @@
+---
+canonical:
+  - git-webhook.{{ DOMAIN_PRIMARY }}
+aliases: []

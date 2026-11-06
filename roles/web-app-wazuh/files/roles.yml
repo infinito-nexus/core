@@ -24,6 +24,19 @@ security_analyst:
       allowed_actions:
         - "kibana_all_read"
 
+wazuh_dashboard_jobs:
+  reserved: false
+  description: "Dashboard service account: the monitoring and statistics jobs check, create and write their own indices; templates and bulk come from kibana_server."
+  index_permissions:
+    - index_patterns:
+        - "wazuh-monitoring-*"
+        - "wazuh-statistics-*"
+      allowed_actions:
+        - "indices:admin/get"
+        - "indices:admin/settings/update"
+        - "create_index"
+        - "index"
+
 readonly_auditor:
   reserved: false
   description: "Read-only Auditor: read-only access to dashboards and alerts across all Wazuh indices, no agent/rule/configuration actions."

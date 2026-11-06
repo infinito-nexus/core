@@ -1,0 +1,19 @@
+<IfModule !remoteip_module>
+	LoadModule remoteip_module /usr/lib/apache2/modules/mod_remoteip.so
+</IfModule>
+RemoteIPHeader X-Real-IP
+RemoteIPInternalProxy {{ PIXELFED_PROXY_GATEWAY }}
+
+# Exception: Apache's default ErrorLogFormat appends the Referer, which carries password-reset tokens after a reset link was opened.
+ErrorLogFormat "[%{u}t] [%-m:%l] [pid %P] %7F: %E: [client %a] %M"
+# Exception: path without query string and no Referer, so tokens in query strings or a Referer never reach the log.
+LogFormat "%a %l %u %t \"%m %U %H\" %>s %O \"%{User-Agent}i\"" infinito_redacted
+SetEnvIf Request_URI "^/password/reset/" infinito_nolog
+SetEnvIf Request_URI "^/i/confirm-email/" infinito_nolog
+
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	DocumentRoot /var/www/html
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+	CustomLog ${APACHE_LOG_DIR}/access.log infinito_redacted env=!infinito_nolog
+</VirtualHost>

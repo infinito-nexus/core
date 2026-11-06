@@ -7,8 +7,57 @@
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_svc_journalctl is not defined
 
+- name: "📏 Read the size of the journal's filesystem"
+  ansible.builtin.command:
+    argv: [df, --block-size=1, --output=size, "{{ SYS_SVC_JOURNALCTL_JOURNAL_FS_PATH }}"]
+  register: sys_svc_journalctl_fs_size
+  changed_when: false
+
+- name: "📐 Cap the journal at its target, but at most its share of the filesystem"
+  ansible.builtin.set_fact:
+    sys_svc_journalctl_system_max_use: >-
+      {{ SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE
+         if (SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE | human_to_bytes) <= sys_svc_journalctl_fs_cap | int
+         else sys_svc_journalctl_fs_cap }}
+  vars:
+    sys_svc_journalctl_fs_cap: >-
+      {{ (sys_svc_journalctl_fs_size.stdout_lines[-1] | trim | int) * SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE_FS_PERCENT // 100 }}
+
 - name: 📋 copy journald.conf
   template: # nocheck: stack-host-template (per-host /etc/systemd/journald.conf, not stack-host-only)
     src: templates/journald.conf.j2
     dest: /etc/systemd/journald.conf
   notify: restart-systemd-journald
+
+- name: "🔧 Set the journald log rate limit of {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }}"
+  include_tasks: utils/docker_rate_limit.yml
+
+- name: "🔍 Read whether {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }} is running"
+  ansible.builtin.command:
+    argv: [systemctl, is-active, "{{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }}"]
+  register: sys_svc_journalctl_docker_state
+  changed_when: false
+  failed_when: false
+
+- name: "🔍 Read the log rate limit active on {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }}"
+  ansible.builtin.script:
+    cmd: "python/active_rate_limit.py {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }}"
+    executable: python3
+  register: sys_svc_journalctl_docker_active
+  changed_when: false
+  when: sys_svc_journalctl_docker_state.stdout | trim == 'active'
+
+- name: "⚠️ Warn when Docker's active log rate limit differs from the configured one"
+  vars:
+    sys_svc_journalctl_docker_expected: >-
+      {{ (SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC * 1000000) | string ~ ' ' ~ SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_BURST | string }}
+  ansible.builtin.debug:
+    msg: >-
+      {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }} runs with log rate limit '{{ sys_svc_journalctl_docker_active.stdout | trim }}'
+      (interval usec, burst; '-' means none of its own), but {{ SYS_SVC_JOURNALCTL_DOCKER_DROPIN }} sets
+      {{ sys_svc_journalctl_docker_expected }}.
+      systemd applies it at the next start of {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }}; the role does not restart Docker,
+      because that restarts every container.
+  when:
+    - sys_svc_journalctl_docker_active is not skipped
+    - (sys_svc_journalctl_docker_active.stdout | trim) != sys_svc_journalctl_docker_expected

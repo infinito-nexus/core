@@ -103,6 +103,12 @@
       applications_carrier:
         clear: true
 
+# Exception: roles add constructor work through their own tasks/hooks/constructor.yml instead of being named here, so this stage carries no role logic. It sits after the variable merge, so a hook already sees the merged applications and domains.
+- name: "🪝 Run the constructor hooks"
+  ansible.builtin.include_tasks: ./tasks/utils/hooks/run.yml
+  vars:
+    stage_hook_point: constructor
+
 - name: "💾 Persist {{ SOFTWARE_NAME }} version"
   ansible.builtin.include_role:
     name: sys-version

@@ -1,0 +1,34 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 Load docker and proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    webserver_vhost_flavour: "basic"
+    webserver_client_max_body_size: "{{ GIT_WEBHOOK_PROXY_MAX_BODY }}"
+
+- name: "📋 Copy the webhook receiver"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
+    src: python/receiver.py
+    dest: "{{ GIT_WEBHOOK_RECEIVER_HOST }}"
+    mode: "0444"
+  when: IS_STACK_HOST | bool
+  notify: compose-up
+
+# Exception: include_tasks, not include_role, so the copy runs in this role's scope and its compose-up handler.
+- name: "📋 Copy the git provider package the receiver imports"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-hlth-git-settings/tasks/utils/clients.yml') }}"
+  vars:
+    git_clients_dest: "{{ lookup('container', application_id, 'directories.instance') }}"
+    git_clients_notify: [compose-up]
+  when: IS_STACK_HOST | bool
+
+- meta: flush_handlers
+
+- name: "📂 Include the GitHub settings check"
+  include_role:
+    name: sys-ctl-hlth-git-settings
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_ctl_hlth_git_settings is not defined

@@ -1,0 +1,6 @@
+[Unit]
+Description=Freeze the Wazuh log collector while the agent is offline, resume it once online
+
+[Service]
+Type=oneshot
+ExecStart={{ WAZUH_AGENT_FREEZE_SCRIPT }} sync {{ WAZUH_AGENT_FREEZE_ARGS }}

@@ -1,0 +1,4 @@
+---
+- name: "🔨 Build and install Wazuh agent {{ WAZUH_AGENT_VERSION }} from source"
+  include_tasks: archlinux/build.yml
+  when: wazuh_agent_installed_version != WAZUH_AGENT_VERSION

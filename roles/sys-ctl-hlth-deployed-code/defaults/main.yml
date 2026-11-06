@@ -1,0 +1,3 @@
+---
+# Param HLTH_DEPLOYED_CODE_TIMEOUT: seconds one git command or GitHub API request may take.
+HLTH_DEPLOYED_CODE_TIMEOUT: 120

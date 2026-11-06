@@ -120,6 +120,14 @@ wazuh_manager_conf:
   mounts:
     - service: manager
       target: /wazuh-config-mount/etc/ossec.conf
+# Exception: the image copies /wazuh-config-mount into /var/ossec with a plain `cp -r` at start: a new file lands root:root with this mode, an existing one keeps its own. wazuh-authd runs as root, so root-only read is enough.
+wazuh_authd_pass:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'authd.pass' ] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: manager
+      target: /wazuh-config-mount/etc/authd.pass
 wazuh_indexer_yml:
   type: config
   source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'wazuh.indexer.yml' ] | path_join }}"
@@ -206,6 +214,15 @@ manager_filebeat_key_pem:
   mounts:
     - service: manager
       target: /etc/ssl/filebeat.key
+# Exception: a directory bind outside every path the image seeds or overwrites at start (PERMANENT_DATA, PERMANENT_DATA_EXCP, /wazuh-config-mount), so Ansible alone decides which rule files exist.
+manager_ruleset:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'ruleset' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: manager
+      target: /var/ossec/infinito
 # nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack; placement: manager guarantees the bind source exists on the scheduled node.
 root_ca_pem:
   type: bind

@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch the Wazuh agent's offline lock to freeze or resume its log collector
+After={{ WAZUH_AGENT_SERVICE }}
+
+[Path]
+PathChanged={{ WAZUH_AGENT_SOCKETS_DIR }}
+Unit={{ WAZUH_AGENT_FREEZE_UNIT }}.service
+
+[Install]
+WantedBy=multi-user.target

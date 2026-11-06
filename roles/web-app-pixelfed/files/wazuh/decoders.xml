@@ -1,0 +1,13 @@
+<decoder name="pixelfed-laravel">
+  <parent>infinito-pixelfed</parent>
+  <prematch type="pcre2">^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] \w+\.[A-Z]+: </prematch>
+  <regex type="pcre2">^\[[^\]]+\] (\w+)\.([A-Z]+): </regex>
+  <order>laravel_env, laravel_level</order>
+</decoder>
+
+<decoder name="pixelfed-access">
+  <parent>infinito-pixelfed</parent>
+  <prematch type="pcre2">^\S+ \S+ \S+ \[\d{2}/\w{3}/\d{4}:\d{2}:\d{2}:\d{2} [+-]\d{4}\] "</prematch>
+  <regex type="pcre2">^(\S+) \S+ \S+ \[[^\]]+\] "(\w+) (\S+) HTTP/[\d.]+" (\d{3}) </regex>
+  <order>srcip, http_method, http_path, http_status</order>
+</decoder>
