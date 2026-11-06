@@ -124,7 +124,7 @@ class TestWriteMarker(unittest.TestCase):
 
     def test_the_marker_is_readable_by_its_owner_only_whatever_the_umask(self):
         self.addCleanup(os.umask, os.umask(0))
-        write_marker(self.role, PLACED, ORIGIN)
+        write_marker(self.role, PLACED, ORIGIN, VERSION)
         mode = (self.role / MARKER_FILE).stat().st_mode
         self.assertEqual(0o600, stat.S_IMODE(mode))
         self.assertTrue(is_placed(self.role))

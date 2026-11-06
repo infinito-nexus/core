@@ -10,6 +10,21 @@ import unittest
 
 from agents.routines import design, implementer
 from agents.routines.iterate import compose
+from utils.roles.mapping import (
+    ROLE_FILE_META_CSP,
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_INFO,
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_MCP,
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_RBAC,
+    ROLE_FILE_META_SECRETS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_TESTS,
+    ROLE_FILE_META_USERS,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_TASKS_MAIN,
+)
 
 try:
     import langgraph  # noqa: F401
@@ -19,28 +34,29 @@ except ImportError:
     _HAVE_LANGGRAPH = False
 
 _ROLE = "web-app-gitea"
+_ROLE_TASKS_MAIN = f"roles/{_ROLE}/{ROLE_FILE_TASKS_MAIN}"
 _INVENTORY_FILES = {
-    "meta/variants.yml",
-    "meta/services.yml",
-    "meta/secrets.yml",
-    "meta/users.yml",
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_SECRETS,
+    ROLE_FILE_META_USERS,
 }
 _OUTSIDE_SYNC_FILES = {
-    "meta/main.yml",
-    "meta/info.yml",
-    "meta/networks.yml",
-    "meta/domains.yml",
-    "meta/rbac.yml",
-    "meta/mcp.yml",
-    "meta/tests.yml",
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_INFO,
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_RBAC,
+    ROLE_FILE_META_MCP,
+    ROLE_FILE_META_TESTS,
     "templates/test.env.j2",
 }
 _OUTSIDE_SYNC_DIRS = ("files/test/",)
 _ROLE_LOCAL = (
-    f"roles/{_ROLE}/tasks/main.yml",
+    _ROLE_TASKS_MAIN,
     f"roles/{_ROLE}/templates/app.ini.j2",
     f"roles/{_ROLE}/files/javascript.js",
-    f"roles/{_ROLE}/meta/csp.yml",
+    f"roles/{_ROLE}/{ROLE_FILE_META_CSP}",
     f"roles/{_ROLE}/README.md",
     f"tests/unit/python/roles/{_ROLE}/test_app_ini.py",
     f"tests/unit/javascript/roles/{_ROLE}/test_javascript.js",
@@ -50,9 +66,9 @@ _ROLE_LOCAL = (
 _NEEDS_UPDATE = (
     *(f"roles/{_ROLE}/{inner}" for inner in sorted(_OUTSIDE_SYNC_FILES)),
     *(f"roles/{_ROLE}/{inner}test.sh" for inner in _OUTSIDE_SYNC_DIRS),
-    "roles/svc-db-postgres/tasks/main.yml",
+    f"roles/svc-db-postgres/{ROLE_FILE_TASKS_MAIN}",
     "roles/svc-db-postgres/README.md",
-    "roles/web-app-gitea-runner/tasks/main.yml",
+    f"roles/web-app-gitea-runner/{ROLE_FILE_TASKS_MAIN}",
     "group_vars/all/00_general.yml",
     "inventories/localhost/devices.yml",
     "plugins/lookup/applications.py",
@@ -147,7 +163,7 @@ class TestIterateComposeDecisions(unittest.TestCase):
             compose.UPDATE,
         )
         self.assertEqual(
-            compose.redeploy_target("", [f"roles/{_ROLE}/tasks/main.yml"]),
+            compose.redeploy_target("", [_ROLE_TASKS_MAIN]),
             compose.UPDATE,
         )
 
@@ -163,18 +179,21 @@ class TestIterateComposeDecisions(unittest.TestCase):
             },
         )
         self.assertEqual(node.branches[0][0], compose.UPDATE)
-        state = {"role": _ROLE, "changed_paths": [f"roles/{_ROLE}/tasks/main.yml"]}
+        state = {"role": _ROLE, "changed_paths": [_ROLE_TASKS_MAIN]}
         self.assertEqual(node.fn(dict(state))["scope"], compose.ROLE_SYNC)
         self.assertEqual(node.fn({})["scope"], compose.UPDATE)
 
     def test_a_sync_limit_ends_the_role_sync_for_the_loop(self) -> None:
         node = _steps()["scope"]
-        local = {"role": _ROLE, "changed_paths": [f"roles/{_ROLE}/tasks/main.yml"]}
+        local = {"role": _ROLE, "changed_paths": [_ROLE_TASKS_MAIN]}
         limited = node.fn({**local, "sync": compose.SYNC_LIMIT})
         self.assertEqual(limited["scope"], compose.UPDATE)
         red = node.fn({**local, "sync": "❌ red"})
         self.assertEqual(red["scope"], compose.ROLE_SYNC)
-        baked = {"role": _ROLE, "changed_paths": [f"roles/{_ROLE}/meta/variants.yml"]}
+        baked = {
+            "role": _ROLE,
+            "changed_paths": [f"roles/{_ROLE}/{ROLE_FILE_META_VARIANTS}"],
+        }
         self.assertEqual(
             node.fn({**baked, "sync": compose.SYNC_LIMIT})["scope"], compose.REBUILD
         )

@@ -7,6 +7,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from utils.cache.files import PROJECT_ROOT
 
@@ -43,9 +44,19 @@ def alive(pid: int) -> bool:
     """
     try:
         stat = Path(f"/proc/{pid}/stat").read_text()  # nocheck: cache-read  live /proc
-    except FileNotFoundError:
+    except (FileNotFoundError, ProcessLookupError):
         return False
     return stat.rsplit(")", 1)[1].split()[0] != "Z"
+
+
+class TestAlive(unittest.TestCase):
+    def test_a_process_that_exits_while_its_stat_is_read_is_gone(self) -> None:
+        with mock.patch.object(Path, "read_text", side_effect=ProcessLookupError):
+            self.assertFalse(alive(1))
+
+    def test_a_process_whose_stat_is_missing_is_gone(self) -> None:
+        with mock.patch.object(Path, "read_text", side_effect=FileNotFoundError):
+            self.assertFalse(alive(1))
 
 
 class GuardCase(unittest.TestCase):
