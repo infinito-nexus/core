@@ -10,6 +10,7 @@
 #     root, shared.{root,css,js,img,fonts}, vendor,
 #     role.{id,root,version,release.{root,css,js,img,fonts}},
 #     urls: <same structure with URLs instead of filesystem paths>
+#     relative_urls: <same structure with host-relative URLs every vhost serves>
 #   }
 #
 # Examples:
@@ -29,6 +30,8 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.tls_common import as_str
+
+SAME_ORIGIN_PATH = "/_infinito/cdn"
 
 
 def _cdn_paths(cdn_root: str, application_id: str, version: str) -> dict:
@@ -109,5 +112,6 @@ class LookupModule(LookupBase):
         paths = _cdn_paths(cdn_root, application_id, "latest")
         result = dict(paths)
         result["urls"] = _to_url_tree(paths, paths["root"], cdn_base_url)
+        result["relative_urls"] = _to_url_tree(paths, paths["root"], SAME_ORIGIN_PATH)
 
         return [result]

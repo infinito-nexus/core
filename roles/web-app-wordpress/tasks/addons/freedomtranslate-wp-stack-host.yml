@@ -1,0 +1,5 @@
+---
+- name: "📦 Install the FreedomTranslate plugin"
+  ansible.builtin.include_tasks: ../utils/install/plugin.yml
+  vars:
+    plugin_name: freedomtranslate-wp

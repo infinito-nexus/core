@@ -28,6 +28,7 @@ exports.register = function (shared) {
     if (decodeDotenvQuotedValue(process.env.JITSI_SSO_ENABLED) === "true") {
       const { adminUsername, adminPassword } = shared.env;
       await performKeycloakLogin(page, adminUsername, adminPassword, new URL(jitsiBaseUrl).hostname);
+      await gotoOnion(page, "about:blank");
       await gotoOnion(page, roomUrl, { waitUntil: "domcontentloaded" });
     }
 

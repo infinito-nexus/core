@@ -2,6 +2,8 @@
 # nocheck: seaweedfs-required, object storage not implemented for this role
 # nocheck: playwright-service-flag, self-provider
 friendica:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: msmtp_curl
   modes:
@@ -20,6 +22,7 @@ friendica:
   ports:
     local:
       sso: 16501
+      sso_onion: 16526
       http: 8028
     internal:
       http: 80
@@ -93,11 +96,21 @@ mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
-# nocheck: playwright-service-flag, verified by web-svc-css provider spec
-css:
+# nocheck: playwright-service-flag, verified by web-svc-design provider spec
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
+  slots:
+    logo:
+      width: 25
+      height: 25
+      frame: true
+    brand:
+      width: 160
+      height: 32
+      frame: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -114,3 +127,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

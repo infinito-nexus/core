@@ -70,112 +70,42 @@
       description: "Container for application access profiles"
     state: present
 
-- name: 🔎 Check whether LDAP users already exist
-  community.general.ldap_search:
-    server_uri: "{{ OPENLDAP_SERVER_URI }}"
-    bind_dn: "{{ OPENLDAP_BIND_DN }}"
-    bind_pw: "{{ OPENLDAP_BIND_PW }}"
-    dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"
-    scope: base
-    filter: "(objectClass=*)"
-    attrs:
-      - dn
-  loop: "{{ OPENLDAP_USERS | dict2items }}"
-  loop_control:
-    label: "{{ item.key }}"
-  register: openldap_users_existence_before
-  changed_when: false
-  failed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: 🔨 Build map of users that existed before this run
-  ansible.builtin.set_fact:
-    openldap_user_existed_before: >-
-      {{
-        (openldap_user_existed_before | default({}))
-        | combine({
-            item.item.key: ((item.results | default([])) | length > 0)
-          })
-      }}
-  loop: "{{ openldap_users_existence_before.results }}"
-  loop_control:
-    label: "{{ item.item.key }}"
-
 - name: ✅ Ensure LDAP users exist
-  community.general.ldap_entry:
-    dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"
+  ldap_entries:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
     bind_pw: "{{ OPENLDAP_BIND_PW }}"
-    objectClass: "{{ LDAP.USER.OBJECTS.STRUCTURAL }}"
-    attributes:
-      uid: "{{ item.value.username }}"
-      givenName: "{{ item.value.firstname }}"
-      sn: "{{ item.value.lastname }}"
-      cn: "{{ item.value.cn  | default(item.key) }}"
-      loginShell: /bin/bash
-      homeDirectory: "/home/{{ item.key }}"
-      uidNumber: "{{ item.value.uid | int }}"
-      gidNumber: "{{ item.value.gid | int }}"
-    state: present
+    state: create
+    entries: >-
+      {{ OPENLDAP_USERS | openldap_user_entries(LDAP.USER.ATTRIBUTES.ID,
+                                                LDAP.DN.OU.USERS,
+                                                LDAP.USER.OBJECTS.STRUCTURAL) }}
   register: openldap_users_created
   changed_when: false
-  # rationale: async; user creation runs overlapped, reaped right below before the password task
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   throttle: 1
-  loop: "{{ OPENLDAP_USERS | dict2items }}"
-  loop_control:
-    label: "{{ item.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "⏳ Reap the LDAP user creation jobs"
-  ansible.builtin.include_tasks: utils/async/reap.yml
-  vars:
-    async_reap_jobs: "{{ openldap_users_created.results | default([]) }}"
-    async_reap_label: "LDAP users"
-    async_reap_tolerate: []
-
-- name: 🔧 Set LDAP user password (per-user update policy)
-  community.general.ldap_passwd:
+- name: 🔧 Set LDAP user passwords (per-user update policy)
+  ldap_passwords:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
     bind_pw: "{{ OPENLDAP_BIND_PW }}"
-    dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"
-    passwd: "{{ item.value.password }}"
-  loop: "{{ OPENLDAP_USERS | dict2items }}"
-  loop_control:
-    label: "{{ item.key }}"
-  when:
-    - >
-      (item.value.password_update | default(true) | bool)
-      or not ((openldap_user_existed_before | default({})).get(item.key, false) | bool)
+    entries: >-
+      {{ OPENLDAP_USERS | openldap_user_passwords(LDAP.USER.ATTRIBUTES.ID,
+                                                  LDAP.DN.OU.USERS,
+                                                  openldap_users_created.changed_dns) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: ✅ Ensure required objectClass values and mail address are present
-  community.general.ldap_attrs:
-    dn: "{{ LDAP.USER.ATTRIBUTES.ID }}={{ item.key }},{{ LDAP.DN.OU.USERS }}"
+  ldap_entries:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
     bind_pw: "{{ OPENLDAP_BIND_PW }}"
-    attributes:
-      objectClass: "{{ LDAP.USER.OBJECTS.STRUCTURAL }}"
-      mail: "{{ item.value.email }}"
     state: "{{ 'exact' if MODE_CLEANUP | bool else 'present' }}"
-  register: openldap_users_attrs
+    entries: >-
+      {{ OPENLDAP_USERS | openldap_user_mail_entries(LDAP.USER.ATTRIBUTES.ID,
+                                                     LDAP.DN.OU.USERS,
+                                                     LDAP.USER.OBJECTS.STRUCTURAL) }}
   changed_when: false
-  # rationale: async; attribute updates run overlapped, reaped at the end of this file
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   throttle: 1
-  loop: "{{ OPENLDAP_USERS | dict2items }}"
-  loop_control:
-    label: "{{ item.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "⏳ Reap the LDAP attribute jobs"
-  ansible.builtin.include_tasks: utils/async/reap.yml
-  vars:
-    async_reap_jobs: "{{ openldap_users_attrs.results | default([]) }}"
-    async_reap_label: "LDAP user attributes"
-    async_reap_tolerate: []

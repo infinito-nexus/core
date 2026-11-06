@@ -1,0 +1,19 @@
+---
+libreoffice:
+  Archlinux:
+    - libreoffice-fresh
+    - ttf-liberation
+  Debian:
+    - fonts-liberation
+    - libreoffice
+  RedHat:
+    - liberation-mono-fonts
+    - liberation-sans-fonts
+    - liberation-serif-fonts
+    - libreoffice
+  centos:
+    source: flatpak
+    names:
+      - org.libreoffice.LibreOffice
+    flatpak:
+      command: libreoffice

@@ -17,6 +17,7 @@ from utils.tls_common import (
     as_str,
     collect_domains_for_app,
     norm_domain,
+    redirect_targets,
     require,
     resolve_enabled,
     resolve_mode,
@@ -57,11 +58,13 @@ class LookupModule(LookupBase):
             )
 
         forced_mode = as_str(kwargs.get("mode", "auto")).lower()
+        consumer = as_str(kwargs.get("consumer", ""))
 
         app_id, primary_domain = resolve_term(
             term,
             domains=domains,
             applications=applications,
+            redirects=redirect_targets(variables),
             forced_mode=forced_mode,
             err_prefix="tls",
         )
@@ -72,6 +75,7 @@ class LookupModule(LookupBase):
                     domains,
                     app_id,
                     primary_domain,
+                    consumer=consumer,
                     variables=variables,
                     templar=templar,
                 )

@@ -1,13 +1,7 @@
 ---
-- include_tasks: 01_install.yml
-
-- name: "✅ Ensure /etc/baudolo exists"
-  ansible.builtin.file:
-    path: "{{ DIR_SECRETS }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
+- name: "📖 Read the seeded database definitions once per host"
+  include_tasks: 05_read-seeded-databases.yml
+  when: svc_bkp_volume_2_local_seeded is not defined
 
 - name: "🐛 BKP | Debug seed context (sanitized)"
   ansible.builtin.debug:
@@ -54,15 +48,27 @@
       Note: database_name may be an empty string to represent "all databases".
   changed_when: false
 
-- name: 🌱 Seed database definition via baudolo-seed (system binary)
-  ansible.builtin.command:
-    argv:
+- name: "🧮 Compare the database definition with the seeded one"
+  ansible.builtin.set_fact:
+    svc_bkp_volume_2_local_seed_argv: "{{ svc_bkp_volume_2_local_seed_command }}"
+    svc_bkp_volume_2_local_seed_current: >-
+      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_current(*svc_bkp_volume_2_local_seed_command[2:]) }}
+    svc_bkp_volume_2_local_seeded: >-
+      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_apply(*svc_bkp_volume_2_local_seed_command[2:]) }}
+  vars:
+    svc_bkp_volume_2_local_seed_command:
       - baudolo-seed
       - "{{ FILE_DATABASE_SECRETS | string }}"
       - "{{ database_instance | string }}"
       - "{{ '*' if (database_name | string | length) == 0 else (database_name | string) }}"
       - "{{ database_username | string }}"
       - "{{ database_password | string }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🌱 Seed database definition via baudolo-seed (system binary)
+  ansible.builtin.command:
+    argv: "{{ svc_bkp_volume_2_local_seed_argv }}"
+  when: not (svc_bkp_volume_2_local_seed_current | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   # todo: add flock to baudolo-seed upstream, then async seeding becomes safe again.
   throttle: 1

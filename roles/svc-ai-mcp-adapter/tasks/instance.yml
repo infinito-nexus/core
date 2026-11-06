@@ -18,24 +18,25 @@
 # Param: mcp_adapter_instance_dir  build context to stage into.
 # Param: mcp_adapter_upstream_key  whether the sidecar reads a captured
 #                                  credential from an env file.
-- name: "📁 Create the MCP build context of {{ application_id }}"
-  ansible.builtin.file:
-    path: "{{ mcp_adapter_instance_dir }}"
-    state: directory
-    mode: "0755"
-  delegate_to: "{{ STACK_HOST }}"
-  become: true
+- name: "🔑 Prepare the upstream credential of {{ application_id }}"
   when: mcp_adapter_upstream_key | default(false) | bool
+  block:
+    - name: "📁 Create the MCP build context of {{ application_id }}"
+      ansible.builtin.file:
+        path: "{{ mcp_adapter_instance_dir }}"
+        state: directory
+        mode: "0755"
+      delegate_to: "{{ STACK_HOST }}"
+      become: true
 
-- name: "📄 Create the upstream credential file of {{ application_id }}"
-  ansible.builtin.copy:
-    content: ""
-    dest: "{{ [mcp_adapter_instance_dir, 'upstream.env'] | path_join }}"
-    mode: "0600"
-    force: false
-  delegate_to: "{{ STACK_HOST }}"
-  become: true
-  when: mcp_adapter_upstream_key | default(false) | bool
+    - name: "📄 Create the upstream credential file of {{ application_id }}"
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ [mcp_adapter_instance_dir, 'upstream.env'] | path_join }}"
+        mode: "0600"
+        force: false
+      delegate_to: "{{ STACK_HOST }}"
+      become: true
 
 - name: "📦 Stage the MCP adapter build context for {{ application_id }}"
   ansible.builtin.include_tasks:

@@ -1,6 +1,9 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "⬆️ POSTGRES | Bring an older cluster in the data volume to the pinned major"
+  include_tasks: upgrade/prepare.yml
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
@@ -41,8 +44,16 @@
   changed_when: false
 
 - name: "✅ POSTGRES | Ensure postgres superuser password matches inventory"
-  ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
-    shell/set_postgres_superuser_password.sh {{ POSTGRES_CONTAINER_ADDRESS | quote }} {{ POSTGRES_PASSWORD | quote }} postgres
+  ansible.builtin.command:
+    argv:
+      - bash
+      - -c
+      - "{{ lookup('file', 'shell/set_postgres_superuser_password.sh') }}"
+      - set_postgres_superuser_password.sh
+      - "{{ POSTGRES_CONTAINER_ADDRESS }}"
+      - postgres
+    stdin: "{{ POSTGRES_PASSWORD }}"
+    expand_argument_vars: false
   register: postgres_pw_result
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
@@ -52,3 +63,7 @@
   failed_when: >
     postgres_pw_result.rc != 0 or
     postgres_pw_result.stdout is search('\\[FAIL\\]')
+
+- name: "🧹 POSTGRES | Finish an upgrade once the pinned major runs"
+  include_tasks: upgrade/finalize.yml
+  when: IS_COMPOSE_MODE

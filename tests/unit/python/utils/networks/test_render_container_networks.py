@@ -55,7 +55,7 @@ class TestComputeExternalNetworkRoles(unittest.TestCase):
             application_id="web-app-gitea",
             deployment_mode="swarm",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=cfg,
             lookup_database=_const_lookup_database(),
         )
@@ -100,7 +100,7 @@ class TestRenderContainerNetworks(unittest.TestCase):
             application_id="svc-prx-openresty",
             deployment_mode="swarm",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -120,7 +120,7 @@ class TestRenderContainerNetworks(unittest.TestCase):
             application_id="web-app-bookwyrm",
             deployment_mode="swarm",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(
                 **{"services.ldap.enabled": True, "services.ldap.shared": True}
             ),
@@ -150,7 +150,7 @@ class TestRenderContainerNetworks(unittest.TestCase):
             application_id="svc-prx-openresty",
             deployment_mode="swarm",
             registry=registry,
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -163,7 +163,7 @@ class TestRenderContainerNetworks(unittest.TestCase):
             application_id="web-app-plain",
             deployment_mode="swarm",
             registry={},
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
         )
@@ -176,7 +176,7 @@ class TestRenderEncryption(unittest.TestCase):
             application_id="web-app-x",
             deployment_mode="swarm",
             registry={},
-            get_entity_name=_entity_name,
+            entity_name=_entity_name,
             lookup_config=_const_lookup_config(),
             lookup_database=_const_lookup_database(),
             swarm_encrypted=False,

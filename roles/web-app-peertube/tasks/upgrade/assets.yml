@@ -1,0 +1,42 @@
+---
+- name: "🧹 PEERTUBE | Empty the client assets an earlier release seeded"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  PEERTUBE_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      - find
+      - "{{ PEERTUBE_ASSETS_DIR }}"
+      - -mindepth
+      - "1"
+      - -delete
+  changed_when: true
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  notify: container-recreate
+
+- name: "🚿 PEERTUBE | Recreate the container so the pinned image seeds the assets"
+  ansible.builtin.meta: flush_handlers
+
+- name: "⏳ PEERTUBE | Wait for the recreated peertube container"
+  ansible.builtin.include_tasks: utils/wait_healthy.yml
+  vars:
+    peertube_health_retries: 60
+
+- name: "🛑 PEERTUBE | Fail unless the pinned image seeded the client assets"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  PEERTUBE_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      - find
+      - "{{ PEERTUBE_ASSETS_DIR }}"
+      - -mindepth
+      - "1"
+      - -maxdepth
+      - "1"
+      - -print
+      - -quit
+  register: _peertube_assets_seeded
+  changed_when: false
+  failed_when: _peertube_assets_seeded.rc != 0 or (_peertube_assets_seeded.stdout | trim | length) == 0
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"

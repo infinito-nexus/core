@@ -85,11 +85,12 @@ CONFIG_INPUTS = (
     "mode",
     "lifecycles",
     "filesystem",
+    "architectures",
     "chunk_gate",
     "workspace",
 )
 
-LOG_INPUTS = ("tor",)
+LOG_INPUTS = ("network",)
 """Inputs the retrigger reads from the job log rather than the run title.
 
 The title renders these as glyphs, so recovering one means translating a

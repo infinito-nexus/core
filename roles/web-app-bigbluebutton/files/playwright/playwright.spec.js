@@ -5,6 +5,8 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 const { assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
+require("./test-design");
+
 function attachDiagnostics(page) {
   const consoleErrors = [];
   const pageErrors = [];

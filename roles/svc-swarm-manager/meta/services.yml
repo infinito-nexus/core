@@ -17,3 +17,8 @@ manager:
   pids_limit: 8
   run_after:
     - svc-swarm-node
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

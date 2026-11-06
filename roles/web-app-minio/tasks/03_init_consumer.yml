@@ -15,8 +15,8 @@
 
 - name: "🔧 Provision bucket + scoped service account for '{{ objstore_consumer_id }}'"
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     MINIO_CONSUMER_ACCESS_KEY: "{{ _minio_consumer_access_key }}"
     MINIO_CONSUMER_SECRET_KEY: "{{ _minio_consumer_secret_key }}"
     MINIO_CONSUMER_POLICY_B64: "{{ lookup('template', 'consumer-policy.json.j2') | b64encode }}"
@@ -51,8 +51,8 @@
 - name: "🔐 Allow anonymous downloads on public bucket for '{{ objstore_consumer_id }}'"
   when: lookup('objstore', objstore_consumer_id, 'public') | bool
   environment:
-    MINIO_ROOT_USER: "{{ lookup('users', 'administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+    MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
+    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   ansible.builtin.shell: |
     set -euo pipefail
     container run --rm \

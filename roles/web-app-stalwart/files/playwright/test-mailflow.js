@@ -48,10 +48,8 @@ test("stalwart: biber and the administrator exchange mail both ways", async ({ b
 
   const outbound = `Playwright stalwart ${Date.now()}`;
   const answer = `Playwright stalwart answer ${Date.now()}`;
-  const proxyServer = process.env.PLAYWRIGHT_PROXY;
   const contextOptions = {
     ignoreHTTPSErrors: true,
-    ...(proxyServer ? { proxy: { server: proxyServer } } : {}),
     ...recordVideoOptions(testInfo),
   };
   const biberContext = await browser.newContext(contextOptions);

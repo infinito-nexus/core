@@ -1,12 +1,24 @@
 const { test, expect } = require("@playwright/test");
 
-const { assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvQuotedValue, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const {
+  assertInjectedAssetLoadsWithoutCspBlock,
+  decodeDotenvJsonList,
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
+const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
 
+require("./test-design").register();
+
 const appBaseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
-const cdnBaseUrl = decodeDotenvQuotedValue(process.env.CDN_BASE_URL || "");
+const cdnBaseUrl = requireDotenvValue(process.env.CDN_BASE_URL, "CDN_BASE_URL");
 
 const cdnAssetHosts = [cdnBaseUrl]
   .filter(Boolean)
@@ -28,15 +40,10 @@ test.beforeEach(() => {
   ).toBeGreaterThan(0);
 });
 
-const logoutTargetRoles = (() => {
-  const raw = process.env.LOGOUT_TARGET_ROLES_JSON || "[]";
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
+const logoutTargetRoles = decodeDotenvJsonList(
+  process.env.LOGOUT_TARGET_ROLES_JSON,
+  "LOGOUT_TARGET_ROLES_JSON"
+);
 
 for (const target of logoutTargetRoles) {
   test(`universal-logout: ${target.id} actually loads logout.js without CSP block`, async ({ page }) => {
@@ -56,6 +63,23 @@ for (const target of logoutTargetRoles) {
       `${target.id}: GET ${url} returned ${referenceResp.status()} — surface must respond for the logout assertion to be meaningful`
     ).toBeLessThan(500);
     const referenceHtml = await referenceResp.text();
+    const ownHost = new URL(url).host;
+    let landedHost = new URL(referenceResp.url()).host;
+    if (landedHost === ownHost && !referenceHtml.includes("logout.js")) {
+      await gotoOnion(page, url, { waitUntil: "domcontentloaded" });
+      await page
+        .waitForURL((landed) => new URL(landed).host !== ownHost, { timeout: resolveTimeout(15_000) })
+        .catch(() => {});
+      landedHost = new URL(page.url()).host;
+    }
+    if (landedHost !== ownHost && !referenceHtml.includes("logout.js")) {
+      const idpHost = new URL(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL")).host;
+      expect(
+        landedHost,
+        `${target.id}: anonymous GET ${url} landed on ${landedHost}, which is neither its own host nor the IdP ${idpHost} — that is a routing fault, not an SSO handoff`
+      ).toBe(idpHost);
+      test.skip(true, `${target.id}: its anonymous surface auto-redirects to the IdP (app-level SSO, the same condition is_proxy_gated already declares above), so no anonymous HTML of this role exists for the injected logout.js to appear in`);
+    }
     expect(
       referenceHtml,
       `${target.id}: HTML response from ${url} does not contain a 'logout.js' script reference`

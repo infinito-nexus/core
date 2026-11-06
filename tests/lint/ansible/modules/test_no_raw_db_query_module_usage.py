@@ -1,5 +1,5 @@
-"""Forbid `community.postgresql.postgresql_query` / `community.mysql.mysql_query`
-in role tasks; redirect callers to the project's `database_query` module
+"""Forbid `community.postgresql.postgresql_query` / `ansible.mysql.mysql_query` /
+`ansible.mariadb.mariadb_query` in role tasks; redirect callers to the project's `database_query` module
 (``library/database_query.py``).
 
 Rationale
@@ -36,8 +36,10 @@ _RAW_DB_QUERY_MODULE_PATTERN = re.compile(
     r"^\s*("
     r"community\.postgresql\.postgresql_query"
     r"|postgresql_query"
-    r"|community\.mysql\.mysql_query"
+    r"|(?:community|ansible)\.mysql\.mysql_query"
     r"|mysql_query"
+    r"|ansible\.mariadb\.mariadb_query"
+    r"|mariadb_query"
     r")\s*:\s*(?:#.*)?$"
 )
 

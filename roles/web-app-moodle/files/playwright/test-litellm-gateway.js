@@ -1,87 +1,20 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, performKeycloakLogin, readEnv, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-
-const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
 
 const providerName = decodeDotenvQuotedValue(process.env.MOODLE_AI_PROVIDER_NAME || "");
 
 const ENDPOINT_FIELD = "#id_endpoint";
 const GENERATE_TEXT_ACTION = "core_ai\\aiactions\\generate_text";
-const USER_MENU = ".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']";
 const GATEWAY_PROMPT = "Reply with the single word: pong";
-
-/**
- * Open an authenticated site-administrator session.
- *
- * `tasks/04_oidc.yml` rewrites `mdl_user.auth` to `oidc` for every account but
- * `guest`, and `auth_oidc` grants a login only when the request carries an
- * authorization code, so with the sso service enabled no password reaches the
- * account through the native form. Without sso that task never runs, the
- * accounts stay on `auth_manual` and the password `install_database.php`
- * provisioned is the only way in.
- *
- * @param {import('@playwright/test').Page} page browser page to authenticate
- * @param {object} shared role-shared env and persona helpers
- */
-async function loginAsSiteAdmin(page, shared) {
-  if (shared.env.ssoEnabled) {
-    await gotoOnion(page, `${shared.env.moodleBaseUrl}/auth/oidc/?source=loginpage`, {
-      waitUntil: "domcontentloaded",
-      timeout: resolveTimeout(60_000),
-    });
-    await performKeycloakLogin(
-      page,
-      shared.env.adminUsername,
-      shared.env.adminPassword,
-      readEnv("CANONICAL_DOMAIN"),
-    );
-  } else {
-    expect(
-      adminNativePassword,
-      "ADMIN_NATIVE_PASSWORD must be rendered from the administrator user; with the sso service off it is the only secret that authenticates the Moodle site administrator",
-    ).toBeTruthy();
-
-    await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`, {
-      waitUntil: "domcontentloaded",
-      timeout: resolveTimeout(60_000),
-    });
-    await page
-      .locator("input[name='username'], input#username")
-      .first()
-      .fill(shared.env.adminUsername);
-
-    const passwordInput = page
-      .locator(
-        ".toggle-sensitive-wrapper input[name='password'], .toggle-sensitive-wrapper input#password, input[name='password']",
-      )
-      .first();
-    await expect(
-      passwordInput,
-      "the native Moodle login form must expose a password field; its absence means the login page no longer serves the manual auth form",
-    ).toBeAttached({ timeout: resolveTimeout(30_000) });
-    await expect(async () => {
-      await passwordInput.fill(adminNativePassword);
-      await expect(passwordInput).toHaveValue(adminNativePassword);
-    }).toPass({ timeout: resolveTimeout(30_000) });
-
-    await page.locator("#loginbtn, button[type='submit'], input[type='submit']").first().click();
-    await page.waitForLoadState("load");
-  }
-
-  await expect(
-    page.locator(USER_MENU).first(),
-    "the site administrator must reach an authenticated session; a failure here means the auth chain the deploy configured does not admit the administrator account",
-  ).toBeVisible({ timeout: resolveTimeout(60_000) });
-}
 
 exports.register = function (shared) {
   test("litellm: Moodle answers a prompt through the in-cluster gateway", async ({ page }) => {
     skipUnlessServiceEnabled("litellm");
     test.setTimeout(resolveTimeout(240_000));
 
-    await loginAsSiteAdmin(page, shared);
+    await shared.loginAsSiteAdmin(page);
 
     expect(
       providerName,

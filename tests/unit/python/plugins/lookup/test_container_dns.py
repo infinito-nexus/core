@@ -42,6 +42,8 @@ def _vars(**overrides):
         "group_names": ["svc-net-tor"],
         "networks": _CLEARNET,
         "DEPLOYMENT_MODE": "compose",
+        "IS_COMPOSE_MODE": True,
+        "IS_SWARM_MODE": False,
         "NETWORK_DOCKER_ADDRESS_POOLS": _POOLS,
         "NETWORK_PUBLIC_DNS_RESOLVERS": _PUBLIC,
     }
@@ -168,7 +170,7 @@ class TestTheBridgeSurvivesTheFirstRun(unittest.TestCase):
     ``ansible_facts.docker0`` is still absent. Deriving the address from the
     fact alone emitted the clearnet resolver on its own, and the inner
     containers then asked a public resolver for a domain only the node dnsmasq
-    knows: ``server can't find infinito.test: NXDOMAIN``.
+    knows: ``server can't find <domain>: NXDOMAIN``.
     """
 
     POOLS: ClassVar[list] = [{"base": "10.208.0.0/12", "size": 24}]

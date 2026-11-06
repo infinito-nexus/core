@@ -1,17 +1,28 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const {
+  expectHstsWhenTls,
+  gotoOnion,
+  ownResponseHeaders,
+  normalizeBaseUrl,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
   await page.context().clearCookies();
 });
+
+require("./test-design").register();
 
 test("phpMyAdmin front page is served under canonical domain with TLS", async ({ page }) => {
   const response = await gotoOnion(page, `${appBaseUrl}/`);
@@ -21,8 +32,7 @@ test("phpMyAdmin front page is served under canonical domain with TLS", async ({
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the phpMyAdmin URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "phpMyAdmin");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "phpMyAdmin");
 });
 
 test("phpMyAdmin returns HTML content under canonical domain", async ({ request }) => {
@@ -50,18 +60,13 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-phpmyadmin admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(databases|sql|export|admin)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /database|sql|table|export|phpmyadmin/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      const link = interactivePage.locator('#topmenu a[href*="route=/server/privileges"]').first();
+      await expect(link).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await link.click({ timeout: resolveTimeout(30_000) });
+      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(interactivePage).toHaveURL(/route=\/server\/privileges/, {
+        timeout: resolveTimeout(30_000),
+      });
     },
   });
 });

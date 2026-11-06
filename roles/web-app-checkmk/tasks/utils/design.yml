@@ -1,0 +1,96 @@
+---
+- name: "📖 Read the dark icon variants of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ CHECKMK_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - find
+      - "{{ CHECKMK_DESIGN_DARK_ICON_DIR }}"
+      - -maxdepth
+      - "1"
+      - -name
+      - "*.svg"
+      - -printf
+      - "%f\\n"
+  register: checkmk_design_dark_icons
+  changed_when: false
+  delegate_to: "{{ CHECKMK_HOST_NODE }}"
+  when: CHECKMK_DESIGN_ENABLED | bool
+
+- name: "📖 Read the corporate logo set of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, item.value] | path_join }}"
+  loop: "{{ CHECKMK_DESIGN_IMAGES | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: checkmk_design_logo_set
+  when: CHECKMK_DESIGN_LOGO_ENABLED | bool
+
+- name: "📖 Read the built-in favicon of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ CHECKMK_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - base64
+      - -w0
+      - "{{ CHECKMK_DESIGN_BUILTIN_FAVICON }}"
+  register: checkmk_design_builtin_favicon
+  changed_when: false
+  delegate_to: "{{ CHECKMK_HOST_NODE }}"
+  when:
+    - CHECKMK_DESIGN_ENABLED | bool
+    - not (CHECKMK_DESIGN_LOGO_ENABLED | bool)
+
+- name: "🖼️ Converge the corporate theme images of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ CHECKMK_SITE | quote }} {{ CHECKMK_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/theme_sync.sh') | quote }} theme_sync
+      {{ [CHECKMK_DESIGN_THEME_DIR, 'images', item.key] | path_join | quote }}
+      {{ CHECKMK_DESIGN_THEME_DIR | quote }}
+      {{ CHECKMK_DESIGN_THEME_MARKER | quote }}
+      {{ application_id | quote }}
+    stdin: "{{ item.value }}"
+  loop: "{{ checkmk_design_image_payloads | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  vars:
+    checkmk_design_image_payloads: >-
+      {{ dict(checkmk_design_logo_set.results | map(attribute='item.key') | zip(checkmk_design_logo_set.results | map(attribute='content')))
+         if CHECKMK_DESIGN_LOGO_ENABLED | bool
+         else dict(CHECKMK_DESIGN_IMAGES.keys() | product(['']))
+              | combine({'favicon.ico': checkmk_design_builtin_favicon.stdout} if CHECKMK_DESIGN_ENABLED | bool else {}) }}
+  register: checkmk_design_images
+  changed_when: "'CHANGED' in checkmk_design_images.stdout"
+  delegate_to: "{{ CHECKMK_HOST_NODE }}"
+
+- name: "🎨 Converge the corporate theme and its selection of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ CHECKMK_SITE | quote }} {{ CHECKMK_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/theme_sync.sh') | quote }} theme_sync
+      {{ item.path | quote }}
+      {{ item.root | quote }}
+      {{ item.marker | quote }}
+      {{ application_id | quote }}
+    stdin: "{{ item.content | b64encode }}"
+  loop:
+    - path: "{{ [CHECKMK_DESIGN_THEME_DIR, 'theme.css'] | path_join }}"
+      root: "{{ CHECKMK_DESIGN_THEME_DIR }}"
+      marker: "{{ CHECKMK_DESIGN_THEME_MARKER }}"
+      content: "{{ lookup('template', 'theme.css.j2') if CHECKMK_DESIGN_ENABLED | bool else '' }}"
+    - path: "{{ CHECKMK_DESIGN_THEME_MARKER }}"
+      root: "{{ CHECKMK_DESIGN_THEME_DIR }}"
+      marker: "{{ CHECKMK_DESIGN_THEME_MARKER }}"
+      content: "{{ ({'title': CHECKMK_DESIGN_THEME_TITLE, 'managed_by': application_id} | to_json) if CHECKMK_DESIGN_ENABLED | bool else '' }}"
+    - path: "{{ CHECKMK_DESIGN_CONFIG }}"
+      root: ""
+      marker: ""
+      content: "{{ lookup('template', 'design.mk.j2') if CHECKMK_DESIGN_ENABLED | bool else '' }}"
+  loop_control:
+    label: "{{ item.path }}"
+  register: checkmk_design_files
+  changed_when: "'CHANGED' in checkmk_design_files.stdout"
+  delegate_to: "{{ CHECKMK_HOST_NODE }}"

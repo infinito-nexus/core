@@ -7,10 +7,21 @@
     global_install: true
 
 - name: ✅ Ensure 'ip' and 'ping' commands are available for automtu
-  package_install:
+  package_install: # nocheck: package-install only for the automtu measurement this file is included for
     id:
       - iproute
       - iputils-ping
+
+- name: 📏 Read the egress MTU automtu measures against
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_python_interpreter }}"
+      - -m
+      - automtu
+      - --print-mtu
+      - egress
+  register: automtu_egress
+  changed_when: false
 
 - name: 🔍 Detect safe Docker MTU
   ansible.builtin.command:
@@ -20,20 +31,29 @@
       - automtu
       - --pmtu-target
       - "{{ SYS_SVC_DOCKER_AUTOMTU_TARGETS | join(',') }}"
+      - --pmtu-min-payload
+      - "{{ automtu_probe_payload }}"
+      - --pmtu-max-payload
+      - "{{ automtu_probe_payload }}"
       - --pmtu-policy
-      - min
+      - max
       - --print-mtu
       - effective
+  vars:
+    automtu_probe_payload: >-
+      {{ (([SYS_SVC_DOCKER_AUTOMTU_MTU_CEILING, automtu_egress.stdout | int] | min)
+          - SYS_SVC_DOCKER_AUTOMTU_ICMP_HEADER_BYTES) | string }}
   register: automtu_mtu
   changed_when: false
 
 - name: ✅ Assert automtu returned an integer MTU
   ansible.builtin.assert:
     that:
+      - automtu_egress.stdout is match('^[0-9]+$')
       - automtu_mtu.stdout is match('^[0-9]+$')
       - (automtu_mtu.stdout | int) >= 576
       - (automtu_mtu.stdout | int) <= 9000
-    fail_msg: "automtu returned unexpected MTU output: '{{ automtu_mtu.stdout | default('') }}'"
+    fail_msg: "automtu returned unexpected MTU output: egress '{{ automtu_egress.stdout }}', effective '{{ automtu_mtu.stdout }}'"
 
 - name: 🔧 Set docker daemon MTU fact
   ansible.builtin.set_fact:

@@ -7,7 +7,7 @@ address reached through the Tor SOCKS proxy. The standalone ``request`` fixture
 cold Tor circuit + descriptor fetch on first contact: the request times out
 before the circuit is built. This was observed deterministically (30s ×3) for
 ``web-svc-simpleicons``, ``web-app-prometheus`` (``/metricz``) and
-``web-svc-css`` — and ``web-svc-css`` flaked across jobs (green in one batch,
+``web-svc-design`` — and ``web-svc-design`` flaked across jobs (green in one batch,
 red in another), confirming a timing gap rather than a broken fixture.
 
 ``page.request`` / ``ctx.request`` inherit the browser context (which already
@@ -28,12 +28,11 @@ never an onion host (localhost, an external clearnet API, ...).
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -53,14 +52,6 @@ class Violation:
     file: str
     line_no: int
     detail: str
-
-
-def _git_ls_files() -> list[str]:
-    out = subprocess.check_output(
-        ["git", "-c", "safe.directory=*", "-C", str(PROJECT_ROOT), "ls-files"],
-        text=True,
-    )
-    return [line for line in out.splitlines() if line]
 
 
 def _call_end(text: str, open_idx: int) -> int:
@@ -139,7 +130,7 @@ def _scan_file(path: Path) -> list[Violation]:
 def _scan_targets() -> list[Path]:
     return [
         PROJECT_ROOT / rel
-        for rel in _git_ls_files()
+        for rel in repository_files()
         if rel.endswith(".js") and "/files/playwright/" in rel
     ]
 

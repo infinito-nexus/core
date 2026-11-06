@@ -1,0 +1,110 @@
+---
+all:
+  vars:
+    infinito:
+      bundle:
+        title: "Workstation Blender"
+        description: >
+          Blender with the Model Context Protocol bridge, wired to the coding
+          agents and to a gateway that routes to locally served models through
+          System One.
+        logo:
+          class: "fa-solid fa-cube"
+        tags: []
+        categories: []
+    applications:
+      svc-ai-ollama:
+        services:
+          ollama:
+            preload_models:
+              - alias: llama3.2:1b
+                context: 65536
+                name: llama-3.2-1b-instruct
+                repo: lmstudio-community/Llama-3.2-1B-Instruct-GGUF
+                url: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf
+                source: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF
+                quant: q4_k_m
+                file: Llama-3.2-1B-Instruct-Q4_K_M.gguf
+                sha256: "f7ede42862ceca07ad1c88a97b67520019c4ac7e5ced250d2e696fa62ab189af"
+                bytes: 807690688
+              - alias: llama3.2:3b
+                context: 65536
+                name: llama-3.2-3b-instruct
+                repo: lmstudio-community/Llama-3.2-3B-Instruct-GGUF
+                url: https://huggingface.co/lmstudio-community/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf
+                source: https://huggingface.co/lmstudio-community/Llama-3.2-3B-Instruct-GGUF
+                quant: q4_k_m
+                file: Llama-3.2-3B-Instruct-Q4_K_M.gguf
+                sha256: "e4f1a04d927b09ec18eb2f233d85ecd760fc2d35cec97e37f8604d3632210d9a"
+                bytes: 2019377440
+              - alias: qwen2.5:7b
+                context: 32768
+                name: qwen2.5-7b-instruct
+                repo: lmstudio-community/Qwen2.5-7B-Instruct-GGUF
+                url: https://huggingface.co/lmstudio-community/Qwen2.5-7B-Instruct-GGUF/resolve/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf
+                source: https://huggingface.co/lmstudio-community/Qwen2.5-7B-Instruct-GGUF
+                quant: q4_k_m
+                file: Qwen2.5-7B-Instruct-Q4_K_M.gguf
+                sha256: "3e357ab3eda2c442f25c0080bb8998eedc05fd16ce1728eacff9ccc5c3d240c6"
+                bytes: 4683073952
+              - alias: qwen2.5-coder:7b
+                context: 32768
+                name: qwen2.5-coder-7b-instruct
+                repo: lmstudio-community/Qwen2.5-Coder-7B-Instruct-GGUF
+                url: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/main/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf
+                source: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-7B-Instruct-GGUF
+                quant: q4_k_m
+                file: Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf
+                sha256: "7ec3d5cfd560c5eac34e6c377c0bbc2bda389b282dca2b28bc31e621d26929a7"
+                bytes: 4683074048
+              - alias: qwen2.5-coder:1.5b
+                context: 32768
+                name: qwen2.5-coder-1.5b-instruct
+                repo: lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF
+                url: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF/resolve/main/Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf
+                source: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF
+                quant: q4_k_m
+                file: Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf
+                sha256: "1d83cb9a0d38610fd6e44a56f92856eb96ae12304edf67b6fed023345928f5a5"
+                bytes: 986048512
+              - alias: gemma2:2b
+                context: 8192
+                name: gemma-2-2b-it
+                repo: lmstudio-community/gemma-2-2b-it-GGUF
+                url: https://huggingface.co/lmstudio-community/gemma-2-2b-it-GGUF/resolve/main/gemma-2-2b-it-Q4_K_M.gguf
+                source: https://huggingface.co/lmstudio-community/gemma-2-2b-it-GGUF
+                quant: q4_k_m
+                file: gemma-2-2b-it-Q4_K_M.gguf
+                sha256: "e0aee85060f168f0f2d8473d7ea41ce2f3230c1bc1374847505ea599288a7787"
+                bytes: 1708582752
+              - alias: nomic-embed-text:v1.5
+                context: 2048
+                name: nomic-embed-text-v1.5
+                repo: nomic-ai/nomic-embed-text-v1.5-GGUF
+                url: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/main/nomic-embed-text-v1.5.Q4_K_M.gguf
+                source: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF
+                quant: q4_k_m
+                file: nomic-embed-text-v1.5.Q4_K_M.gguf
+                sha256: "d4e388894e09cf3816e8b0896d81d265b55e7a9fff9ab03fe8bf4ef5e11295ac"
+                bytes: 84106624
+  hosts:
+    workstation:
+  children:
+    svc-ai-ollama:
+      hosts:
+        workstation:
+    svc-ai-s1:
+      hosts:
+        workstation:
+    svc-ai-litellm:
+      hosts:
+        workstation:
+    dsk-code:
+      hosts:
+        workstation:
+    dsk-gnt-claude:
+      hosts:
+        workstation:
+    dsk-blender:
+      hosts:
+        workstation:

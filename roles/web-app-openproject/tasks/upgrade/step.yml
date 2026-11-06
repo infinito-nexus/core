@@ -1,0 +1,13 @@
+# include-gated: when: IS_COMPOSE_MODE
+---
+- name: "⬆️ OpenProject {{ openproject_upgrade_major }} | Migrate and seed the schema"
+  ansible.builtin.command:
+    argv: "{{ OPENPROJECT_UPGRADE_RUN + [OPENPROJECT_IMAGE ~ ':' ~ openproject_upgrade_major, './docker/prod/seeder'] }}"
+  changed_when: true
+  notify: compose-up
+
+- name: "⬆️ OpenProject {{ openproject_upgrade_major }} | Work off the queued jobs"
+  ansible.builtin.command:
+    argv: "{{ OPENPROJECT_UPGRADE_RUN + ['-i', OPENPROJECT_IMAGE ~ ':' ~ openproject_upgrade_major, 'bundle', 'exec', 'rails', 'runner', '-'] }}"
+    stdin: "{{ lookup('file', 'ruby/drain_jobs.rb') }}"
+  changed_when: true

@@ -1,0 +1,14 @@
+---
+# Matrix-deploy variant overrides for dsk-code.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    docs:
+      enabled: true
+      shared: true
+    claude:
+      enabled: true
+      shared: true
+    codex:
+      enabled: true
+      shared: true

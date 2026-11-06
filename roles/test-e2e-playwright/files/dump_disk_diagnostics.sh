@@ -14,6 +14,18 @@ echo "== df -h / /mnt /mnt/docker /var/lib/docker =="
 df -h / /mnt /mnt/docker /var/lib/docker || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
+echo "== free -h =="
+free -h
+echo
+
+echo "== swapon --show =="
+swapon --show
+echo
+
+echo "== container stats --no-stream =="
+container stats --no-stream --format '{{.Name}} {{.MemUsage}} {{.MemPerc}}'
+echo
+
 echo '== container info | grep "Docker Root Dir" =='
 container info | grep "Docker Root Dir" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo

@@ -19,5 +19,5 @@
   ansible.builtin.debug:
     msg: >-
       Qdrant consumer '{{ database_consumer_id }}' uses collection prefix
-      '{{ database_consumer_id | get_entity_name }}_' on central instance
+      '{{ database_consumer_id | entity_name }}_' on central instance
       '{{ QDRANT_CONTAINER }}'; nothing to provision server-side.

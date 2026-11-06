@@ -20,6 +20,7 @@ set -euo pipefail
 #   variant                             optional matrix variant pin
 #   disable                             optional provider keys to render disabled,
 #                                       minus SWARM_REQUIRED_SERVICES
+#   network                             optional node NETWORK_MODE of the row
 #   INFINITO_SWARM_VPN                  'true' deploys the WireGuard mesh with the
 #                                       cluster; anything else leaves it out entirely
 #
@@ -110,7 +111,7 @@ collect_and_teardown() {
 			run_within_deadline 900 "$((collect_floor_seconds + index_floor_seconds * 2 + teardown_floor_seconds))" \
 			bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 		run_within_deadline 300 "$((collect_floor_seconds + index_floor_seconds + teardown_floor_seconds))" \
-			bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_index.sh" "${rescue_dir}" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+			bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue/index.sh" "${rescue_dir}" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 	fi
 
 	run_within_deadline 900 "$((index_floor_seconds + teardown_floor_seconds))" \
@@ -176,6 +177,7 @@ if [ "$(id -u)" -ne 0 ]; then
 		"NFS_IP=${NFS_IP}"
 		"variant=${variant:-}"
 		"disable=${disable:-}"
+		"network=${network:-}"
 		"INFINITO_SWARM_VPN=${INFINITO_SWARM_VPN:-}"
 		"${matrix_cmd[@]}"
 	)

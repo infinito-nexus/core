@@ -4,7 +4,7 @@
 # Inputs via env (forwarded to scripts/meta/resolve/apps.sh):
 #   INFINITO_CI_CHUNK — chunk index to emit
 #   INFINITO_CI_SWEEP — sweep number
-#   INFINITO_WHITELIST / INFINITO_PRIORITY / INFINITO_MODES / INFINITO_TOR
+#   INFINITO_WHITELIST / INFINITO_PRIORITY / INFINITO_MODES / INFINITO_NETWORK
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -1,8 +1,8 @@
 #!/bin/sh
-# Serialize the image entrypoint's first-boot install/upgrade across N swarm
+# Serialize the image entrypoint's install/upgrade per image version across N swarm
 # replicas that share the /var/www/html NFS volume, then start the server
 # ourselves on every replica. With --wait-ready <cmd...> instead: block until
-# the ready marker exists, then exec cmd. Swarm ignores depends_on, and any
+# the ready marker names this image version, then exec cmd. Swarm ignores depends_on, and any
 # EspoCRM PHP run mid-install (daemon/websocket app-check) leaves NFS
 # silly-rename files in data/cache that make the installer's rm/rebuild fail.
 set -eu
@@ -24,9 +24,26 @@ BOOT_LOCK="${APP_DIR}/data/.infinito-espocrm-boot.lock.d"
 READY_MARKER="${APP_DIR}/data/.infinito-espocrm-boot.ready"
 : "${ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL:?ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL is required}"
 ORIG_ENTRYPOINT="$ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL"
+: "${ESPOCRM_VERSION:?ESPOCRM_VERSION is required (set by the espocrm/espocrm image)}"
 : "${ESPOCRM_CONFIG_LOGGER__PATH:?ESPOCRM_CONFIG_LOGGER__PATH is required}"
 LOG_DIR="${APP_DIR}/$(dirname "$ESPOCRM_CONFIG_LOGGER__PATH")"
 LOG_STEM="$(basename "$ESPOCRM_CONFIG_LOGGER__PATH" .log)"
+
+marker_current() {
+  [ -f "$READY_MARKER" ] && [ "$(cat "$READY_MARKER")" = "$ESPOCRM_VERSION" ]
+}
+
+ensure_currency_list() {
+  _currencies="$("${APP_DIR}/bin/command" config:get currencyList --json)"
+  _default_currency="$("${APP_DIR}/bin/command" config:get defaultCurrency)"
+  _base_currency="$("${APP_DIR}/bin/command" config:get baseCurrency)"
+  # shellcheck disable=SC2016
+  _merged="$(php -r '$list = json_decode($argv[1], true); $merged = array_values(array_unique(array_merge($list, [$argv[2], $argv[3]]))); if ($merged !== $list) { echo json_encode($merged); }' "$_currencies" "$_default_currency" "$_base_currency")"
+  if [ -n "$_merged" ]; then
+    "${APP_DIR}/bin/command" config:set currencyList "$_merged" --type=json
+    log "Added the default currency ${_default_currency} and base currency ${_base_currency} to currencyList: ${_merged}"
+  fi
+}
 
 if [ "${1:-}" = "--wait-ready" ]; then
   shift
@@ -34,13 +51,13 @@ if [ "${1:-}" = "--wait-ready" ]; then
     log "ERROR: --wait-ready requires a command to exec."
     exit 1
   fi
-  if [ ! -f "$READY_MARKER" ]; then
-    log "Waiting for the boot ready marker before starting: $*"
+  if ! marker_current; then
+    log "Waiting for the boot ready marker of ${ESPOCRM_VERSION} before starting: $*"
   fi
   waited=0
-  until [ -f "$READY_MARKER" ]; do
+  until marker_current; do
     if [ "$waited" -ge "${ESPOCRM_WAIT_READY_TIMEOUT_S:-1800}" ]; then
-      log "ERROR: ready marker did not appear within ${ESPOCRM_WAIT_READY_TIMEOUT_S:-1800}s; giving up."
+      log "ERROR: ready marker of ${ESPOCRM_VERSION} did not appear within ${ESPOCRM_WAIT_READY_TIMEOUT_S:-1800}s; giving up."
       exit 1
     fi
     sleep 5
@@ -61,7 +78,7 @@ SEED_CONFIG_SCRIPT="${ESPOCRM_SCRIPT_SEED}"
 _have_lock=0
 _lock_tries=0
 while :; do
-  if [ -f "$READY_MARKER" ]; then
+  if marker_current; then
     break
   fi
   if mkdir "$BOOT_LOCK" 2>/dev/null; then
@@ -89,11 +106,23 @@ if [ "$_have_lock" = "1" ]; then
   mkdir -p "$SESSION_DIR"
   chown www-data:www-data "$SESSION_DIR" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
+  if [ -f "${APP_DIR}/data/config.php" ]; then
+    rm -rf "${APP_DIR}/data/cache"
+    _data_version="$("${APP_DIR}/bin/command" config:get version)"
+    log "Data version ${_data_version}, image version ${ESPOCRM_VERSION}"
+    # shellcheck disable=SC2016
+    if php -r 'exit(version_compare($argv[1], $argv[2], ">") ? 0 : 1);' "$_data_version" "$ESPOCRM_VERSION"; then
+      log "ERROR: the data was written by EspoCRM ${_data_version}, newer than this image (${ESPOCRM_VERSION}); refusing the downgrade. Pin ${_data_version} or newer."
+      exit 1
+    fi
+    ensure_currency_list
+  fi
+
   if [ -x "$ORIG_ENTRYPOINT" ]; then
     log "Running image entrypoint init via $ORIG_ENTRYPOINT"
     _init_rc=0
     _init_trace="/tmp/espocrm-init-trace.log"
-    bash -x "$ORIG_ENTRYPOINT" apache2 -v 2>"$_init_trace" >/dev/null || _init_rc=$?
+    bash -x "$ORIG_ENTRYPOINT" apache2 -v 2>"$_init_trace" || _init_rc=$?
     grep -E '^(info|warning|error):' "$_init_trace" >&2 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
     if [ "$_init_rc" -ne 0 ]; then
       log "ERROR: image entrypoint init failed (rc=$_init_rc); last trace lines:"
@@ -121,6 +150,7 @@ if [ "$_have_lock" = "1" ]; then
     log "ERROR: ${APP_DIR}/data/config.php is missing after the image entrypoint ran; its install action did not execute."
     exit 1
   fi
+  ensure_currency_list
 
   log "Applying runtime flags via seed_config.php..."
   if ! php "${SEED_CONFIG_SCRIPT}"; then
@@ -137,11 +167,11 @@ if [ "$_have_lock" = "1" ]; then
   chown -R www-data:www-data \
     "${APP_DIR}/data" "${APP_DIR}/custom" "${APP_DIR}/client/custom" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
-  touch "$READY_MARKER"
+  printf '%s\n' "$ESPOCRM_VERSION" > "$READY_MARKER"
   rmdir "$BOOT_LOCK" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   trap - EXIT TERM INT
 else
-  log "Init done by another replica - skipping image init and seed."
+  log "Init already done for ${ESPOCRM_VERSION} - skipping image init and seed."
   if [ ! -f "${APP_DIR}/bootstrap.php" ]; then
     log "ERROR: ${APP_DIR}/bootstrap.php is missing despite the ready marker."
     exit 1

@@ -34,6 +34,7 @@ from ansible.template import Templar, trust_as_template
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import (
     ROLE_FILE_DEFAULTS_MAIN,
     ROLE_FILE_META_MCP,
@@ -42,7 +43,7 @@ from utils.roles.mapping import (
 )
 
 _SHARED = "roles/test-e2e-cli/templates/mcp/test.env.j2"
-_DOMAIN = "infinito.test"
+_DOMAIN = default_domain_primary()
 _SERVER_DIRECTIONS = frozenset({"server", "both"})
 _CLIENT_DIRECTIONS = frozenset({"client"})
 _MODES = ("compose", "swarm")

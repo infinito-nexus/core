@@ -9,7 +9,9 @@ together:
 * one concrete distro package name belongs to exactly one id;
 * a role installs only its own ids or shared ones;
 * every id resolves for all five default distributions;
-* an empty mapping carries a ``nocheck`` justification;
+* an empty mapping carries a ``nocheck`` justification, and that
+  justification states why nothing is installed rather than deferring the
+  install to a TODO;
 * every id an inventory lists in ``PACKAGES`` is actually declared.
 """
 
@@ -34,6 +36,7 @@ from . import PROJECT_ROOT
 
 _EMPTY_ENTRY_RE = re.compile(r"^\s*(?P<key>[A-Za-z0-9_.-]+):\s*\[\s*\]\s*(?P<rest>.*)$")
 _NOCHECK_RE = re.compile(r"#\s*nocheck:\s*(?P<reason>\S.*)$")
+_DEFERRAL_RE = re.compile(r"\bTODO\b", re.IGNORECASE)
 _ID_RE = re.compile(
     r"^\s*(?:id:\s*(?P<inline>[A-Za-z0-9_.-]+)|-\s*(?P<item>[A-Za-z0-9_.-]+))\s*$"
 )
@@ -189,6 +192,33 @@ class TestPackagesRegistry(unittest.TestCase):
                 f"{len(offenders)} empty package mapping(s) are unjustified. An "
                 "empty list means 'deliberately nothing to install here' and MUST "
                 "say why:\n" + "\n".join(f"  - {o}" for o in offenders)
+            )
+
+    def test_empty_entries_do_not_defer_the_work(self) -> None:
+        offenders: list[str] = []
+        for _role, path in iter_package_files(PROJECT_ROOT):
+            rel = path.relative_to(PROJECT_ROOT)
+            for number, line in enumerate(read_text(str(path)).splitlines(), start=1):
+                match = _EMPTY_ENTRY_RE.match(line)
+                if not match:
+                    continue
+                reason = _NOCHECK_RE.search(match.group("rest") or "")
+                if reason is None:
+                    continue
+                if _DEFERRAL_RE.search(reason.group("reason")):
+                    offenders.append(
+                        f"{rel}:{number}: '{match.group('key')}' defers its "
+                        "install instead of justifying the gap"
+                    )
+
+        if offenders:
+            self.fail(
+                f"{len(offenders)} empty package mapping(s) park an install path "
+                "behind a TODO. The package manager skips a package that declares "
+                "nothing, so the role deploys and the binary is simply missing. "
+                "Declare a real source - a repo, copr, ppa, aur, build or flatpak "
+                "entry - or state why nothing is installed there at all:\n"
+                + "\n".join(f"  - {o}" for o in offenders)
             )
 
     def test_inventory_packages_are_declared_ids(self) -> None:

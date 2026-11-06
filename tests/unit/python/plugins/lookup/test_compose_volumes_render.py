@@ -343,6 +343,49 @@ class TestComposeVolumes(unittest.TestCase):
         self.assertEqual(data["volumes"]["repositories"], {"name": "app_repositories"})
         self.assertIn("driver_opts", data["volumes"]["shared"])
 
+    def test_swarm_meta_nfs_false_survives_extra_volume_with_same_key(self):
+        apps = self._base_apps()
+        apps["app"]["volumes"] = {
+            "scratch": {
+                "type": "volume",
+                "name": "app_scratch",
+                "nfs": False,
+                "mounts": [{"service": "recorder", "target": "/tmp"}],
+            },
+            "shared_tmp": {
+                "type": "volume",
+                "name": "app_shared_tmp",
+                "mounts": [{"service": "board", "target": "/tmp"}],
+            },
+        }
+        swarm_nfs = {
+            "deployment_mode": "swarm",
+            "storage": {
+                "backend": "nfs",
+                "nfs": {"server": "10.0.0.20", "export_base": "/srv/nfs"},
+            },
+        }
+        stack = self._parse_yaml(
+            _call(
+                apps,
+                "app",
+                extra_volumes={
+                    "scratch": {"name": "app_scratch"},
+                    "shared_tmp": {"name": "app_shared_tmp"},
+                },
+                **swarm_nfs,
+            )
+        )
+        prep = self._parse_yaml(_call(apps, "app", **swarm_nfs))
+
+        self.assertEqual(stack["volumes"]["scratch"], {"name": "app_scratch"})
+        self.assertEqual(stack["volumes"]["scratch"], prep["volumes"]["scratch"])
+        self.assertEqual(
+            stack["volumes"]["shared_tmp"]["driver_opts"]["device"],
+            f"{_DIR_VAR_LIB}/app_shared_tmp",
+        )
+        self.assertEqual(stack["volumes"]["shared_tmp"], prep["volumes"]["shared_tmp"])
+
     def test_swarm_nfs_dict_value_keeps_rewrite(self):
         apps = self._base_apps()
         apps["app"]["volumes"] = {

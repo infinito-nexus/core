@@ -25,6 +25,10 @@ http {
     fastcgi_send_timeout  900s;
     fastcgi_read_timeout  900s;
     proxy_buffering       off;
+    map $http_x_forwarded_proto $nextcloud_forwarded_https {
+        https   on;
+        default off;
+    }
     server {
         listen 80;
         {% if lookup('tls', application_id, 'enabled') | bool %}
@@ -76,6 +80,7 @@ http {
             set $path_info $fastcgi_path_info;
             try_files $fastcgi_script_name =404;
             include fastcgi_params;
+            fastcgi_param HTTPS $nextcloud_forwarded_https;
             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
             fastcgi_param PATH_INFO $path_info;
             fastcgi_param modHeadersAvailable true;         # Avoid sending the security headers twice
@@ -114,13 +119,9 @@ http {
         }
 {% if NEXTCLOUD_HPB_SIGNALING_ENABLED | bool %}
         location {{ NEXTCLOUD_HPB_SIGNALING_LOCATION }} {
-{% if NEXTCLOUD_HPB_NETWORK_MODE == 'host' %}
-            proxy_pass          http://host.docker.internal:{{ NEXTCLOUD_HPB_SIGNALING_PORT }}/;
-{% else %}
-            set $upstream_nextcloud_talk http://talk:{{ NEXTCLOUD_HPB_SIGNALING_PORT }};
+            set $upstream_nextcloud_talk http://{{ NEXTCLOUD_HPB_SIGNALING_SERVICE }}:{{ NEXTCLOUD_HPB_SIGNALING_PORT }};
             rewrite ^{{ NEXTCLOUD_HPB_SIGNALING_LOCATION }}(.*)$ /$1 break;
             proxy_pass          $upstream_nextcloud_talk;
-{% endif %}
             proxy_http_version  1.1;
             proxy_set_header    Host              $host;
             proxy_set_header    Upgrade           $http_upgrade;

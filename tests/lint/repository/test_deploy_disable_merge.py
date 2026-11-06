@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import unittest
 
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     parse_services_disabled,
 )
 from tests.utils import PROJECT_ROOT

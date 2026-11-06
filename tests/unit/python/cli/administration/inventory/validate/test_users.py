@@ -24,6 +24,15 @@ class TestCompareUserKeys(unittest.TestCase):
         self.assertEqual(result, [])
         self.assertIn("Unknown user 'bob'", buf.getvalue())
 
+    def test_an_inventory_only_user_with_its_own_username_does_not_warn(self):
+        users = {"biber": {"username": "biber", "email": "b@example.org"}}
+        defaults = {"alice": {"email": "default"}}
+        buf = io.StringIO()
+        with redirect_stderr(buf):
+            result = compare_user_keys(users, defaults, "src")
+        self.assertEqual(result, [])
+        self.assertEqual(buf.getvalue(), "")
+
     def test_missing_default_for_extra_key(self):
         users = {"alice": {"email": "a@example.org", "extra": True}}
         defaults = {"alice": {"email": "default"}}

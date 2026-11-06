@@ -1,8 +1,4 @@
 ---
-- name: 📦 install hunspell
-  package_install:
-    id: hunspell
-
 - name: 📦 install hunspell language packages
   package: # nocheck: dynamic-package
     name: "hunspell-{{ item }}"

@@ -20,14 +20,19 @@ from . import PROJECT_ROOT
 
 ALLOWED_MODULES: frozenset[str] = frozenset(
     {
+        "ansible.builtin.apt",
         "ansible.builtin.command",
         "ansible.builtin.dnf",
+        "ansible.builtin.file",
+        "ansible.builtin.get_url",
         "ansible.builtin.lineinfile",
         "ansible.builtin.package",
         "ansible.builtin.replace",
         "ansible.builtin.user",
         "ansible.builtin.yum_repository",
         "community.general.copr",
+        "community.general.flatpak",
+        "community.general.flatpak_remote",
         "community.general.pacman",
         "kewlfft.aur.aur",
     }

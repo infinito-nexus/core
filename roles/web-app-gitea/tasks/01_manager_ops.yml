@@ -6,62 +6,50 @@
     resolve_output_prefix: GITEA
     resolve_compose_cid: "{{ GITEA_CONTAINER_ADDRESS }}"
 
-- name: ⏳ Wait for Gitea HTTP endpoint
-  ansible.builtin.shell: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ GITEA_LOCAL_CID | quote }}
-    {{ 10 | curl(retries=0) }} -S -o /dev/null {{ GITEA_LOOPBACK_VERSION_URL | quote }}
-  delegate_to: "{{ GITEA_HOST_NODE }}"
-  register: gitea_http_ready
-  changed_when: false
-  retries: "{{ ((lookup('timeout', 300) | int) / 5) | round(0, 'ceil') | int }}"
-  delay: 5
-  until: gitea_http_ready.rc == 0
-
-- name: "⏳ Wait for Gitea app.ini to be present after redeploy"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      test -f {{ GITEA_CONFIG }}
-  delegate_to: "{{ GITEA_HOST_NODE }}"
-  register: gitea_config_ready
-  changed_when: false
-  retries: 30
-  delay: 2
-  until: gitea_config_ready.rc == 0
-
-- name: "▶️ Run DB migrations inside Gitea container"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      /app/gitea/gitea migrate -c {{ GITEA_CONFIG }}
-  delegate_to: "{{ GITEA_HOST_NODE }}"
-  register: migrate
-  changed_when: "'migrations completed' in migrate.stdout"
-
-- name: "📁 Create initial admin user"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      /app/gitea/gitea admin user create \
-        --admin \
-        --username "{{ lookup('users', 'administrator').username }}" \
-        --password {{ lookup('users', 'administrator').password | quote }} \
-        --email    "{{ lookup('users', 'administrator').email }}" \
-        -c {{ GITEA_CONFIG }}
-  delegate_to: "{{ GITEA_HOST_NODE }}"
-  register: create_admin
-  changed_when: "'has been successfully created' in create_admin.stdout"
-  failed_when: create_admin.rc != 0 and 'user already exists' not in create_admin.stderr
-
-- name: "⏳ Wait until Gitea setup and migrations are ready"
+- name: "⏳ Wait until Gitea has migrated its database and serves the API"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ GITEA_LOCAL_CID | quote }}
     {{ 10 | curl(retries=0) }} -fS -o /dev/null {{ GITEA_LOOPBACK_VERSION_URL | quote }}
   delegate_to: "{{ GITEA_HOST_NODE }}"
   register: gitea_ready
   changed_when: false
-  until: gitea_ready.rc == 0
-  retries: 20
+  retries: "{{ ((lookup('timeout', 600) | int) / 5) | round(0, 'ceil') | int }}"
   delay: 5
-  when: (GITEA_OIDC_ENABLED | bool) or (GITEA_LDAP_ENABLED | bool)
+  until: gitea_ready.rc == 0
+
+- name: "📁 Create initial admin user"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+      /app/gitea/gitea admin user create \
+        --admin \
+        --username "{{ lookup('users', 'platform_administrator').username }}" \
+        --password "$GITEA_ADMIN_PASSWORD" \
+        --email    "{{ lookup('users', 'platform_administrator').email }}" \
+        --must-change-password=false \
+        -c {{ GITEA_CONFIG }}
+    '
+  environment:
+    GITEA_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  register: create_admin
+  changed_when: "'has been successfully created' in create_admin.stdout"
+  failed_when: create_admin.rc != 0 and 'user already exists' not in create_admin.stderr
+
+- name: "🔑 Realign the administrator password Gitea persisted at install"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+      /app/gitea/gitea admin user change-password \
+        --username "{{ lookup('users', 'platform_administrator').username }}" \
+        --password "$GITEA_ADMIN_PASSWORD" \
+        --must-change-password=false \
+        -c {{ GITEA_CONFIG }}
+    '
+  environment:
+    GITEA_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  changed_when: true
 
 - name: ▶️ Execute Setup Routines
   include_tasks: 02_setup.yml

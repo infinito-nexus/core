@@ -5,7 +5,7 @@
     {{ lookup('compose_only', 'container_name', UNBOUND_CONTAINER) }}
     {{ lookup('container_image', application_id, 'unbound') }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% if DEPLOYMENT_MODE == 'compose' and not (DOCKER_IN_CONTAINER | bool) %}
+    {% if IS_COMPOSE_MODE and not (DOCKER_IN_CONTAINER | bool) %}
     {{ lookup('container_ports',
               {'service': 'unbound', 'protocol': 'unbound', 'ip': DOCKER_BIND_HOST,
                'transport': ['udp', 'tcp']}) | indent(4) }}

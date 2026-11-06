@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-espocrm', 'services.email.enabled') | bool }}"
+required: false
+mechanism: extension
+source: bundled
+bridges:
+  - email

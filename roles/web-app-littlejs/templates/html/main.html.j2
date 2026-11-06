@@ -1,7 +1,7 @@
 <main class="container py-4">
   <header class="mb-4">
     <h1 class="h3 mb-2">{{ LITTLEJS_HEADLINE }}</h1>
-    <p class="text-secondary small mb-0">
+    <p class="text-body-secondary small mb-0">
       Browse and launch LittleJS demos rendered dynamically through {{ SOFTWARE_NAME }}.
     </p>
   </header>
@@ -20,7 +20,7 @@
                   <div class="app-icon text-primary-emphasis">
                     <i class="{{ ex.icon }}"></i>
                   </div>
-                  <span class="badge rounded-pill bg-primary-subtle text-primary app-badge">
+                  <span class="badge rounded-pill app-badge">
                     {{ cat.label|replace('---','')|trim }}
                   </span>
                 </div>
@@ -28,11 +28,11 @@
                 <h2 class="h5 mb-2">{{ ex.name }}</h2>
 
                 {% if ex.description %}
-                <p class="small text-secondary mb-3">{{ ex.description }}</p>
+                <p class="small text-body-secondary mb-3">{{ ex.description }}</p>
                 {% endif %}
 
                 {% if ex.tags %}
-                <p class="small text-muted mb-3">{{ ex.tags }}</p>
+                <p class="small text-body-secondary mb-3">{{ ex.tags }}</p>
                 {% endif %}
 
                 <div class="mt-auto">
