@@ -8,6 +8,7 @@ const SESSION_COOKIE = "grafana_session";
 const env = {
   appBaseUrl: normalizeBaseUrl(process.env.APP_BASE_URL || "").replace(/\/$/, ""),
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
+  cdnRelativeRoot: decodeDotenvQuotedValue(process.env.CDN_RELATIVE_ROOT),
   keycloakBaseUrl: normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL || ""),
   realmName: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME),
   superAdminUsername: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME),
@@ -106,23 +107,64 @@ async function withBiberInGroup(browser, groupPath, fn) {
 }
 
 /**
+ * A unique probe value and the request path that carries it. The proxy logs
+ * the request path without its query string, so the value travels as a path
+ * segment.
+ *
+ * Args:
+ *   words: path segments appended after the unique value, e.g. a word the
+ *     log alert matches; an empty list yields the bare probe.
+ *
+ * Returns:
+ *   `{ runId, path }`, the path without a leading slash.
+ */
+function probePath(words) {
+  const runId = `probe${Date.now()}${Math.floor(Math.random() * 1_000_000)}`;
+  const path = [LOG_PROBE_SEGMENT, runId, ...words].map(encodeURIComponent).join("/");
+  return { runId, path };
+}
+
+/**
  * Write one access-log line into the reverse proxy's journal and return
- * the unique value it carries. The proxy logs the request path without its
- * query string, so the value travels as a path segment.
+ * the unique value it carries. The collector classes it `access`.
  *
  * Args:
  *   page: a Playwright page whose request context sends the probe.
- *   words: path segments appended after the unique value, e.g. a word the
- *     log alert matches; an empty list writes the bare probe.
+ *   words: see `probePath`.
  */
 async function writeProbeLine(page, words) {
-  const runId = `probe${Date.now()}${Math.floor(Math.random() * 1_000_000)}`;
-  const path = [LOG_PROBE_SEGMENT, runId, ...words].map(encodeURIComponent).join("/");
+  const { runId, path } = probePath(words);
   await page.request.get(`${env.appBaseUrl}/${path}`, {
     failOnStatusCode: false,
     maxRedirects: 0,
     timeout: resolveTimeout(30_000),
   });
+  return runId;
+}
+
+/**
+ * Write one error-log line into the reverse proxy's journal and return the
+ * unique value it carries. The request asks the CDN location every vhost
+ * serves for a file it does not hold, so the proxy answers 404 and logs the
+ * failed open() of that path to stderr, which the collector classes
+ * `application`; the access-log line of the same request is classed `access`,
+ * which the log alerts do not read.
+ *
+ * Args:
+ *   page: a Playwright page whose request context sends the probe.
+ *   words: see `probePath`.
+ */
+async function writeProbeErrorLine(page, words) {
+  const { runId, path } = probePath(words);
+  const response = await page.request.get(`${env.appBaseUrl}${env.cdnRelativeRoot}${path}`, {
+    failOnStatusCode: false,
+    maxRedirects: 0,
+    timeout: resolveTimeout(30_000),
+  });
+  expect(
+    response.status(),
+    `the proxy MUST answer the missing CDN file ${env.cdnRelativeRoot}${path} with 404, the answer that logs its path to the error log`,
+  ).toBe(404);
   return runId;
 }
 
@@ -170,5 +212,6 @@ module.exports = {
   hasGrafanaSession,
   loginViaOidc,
   withBiberInGroup,
+  writeProbeErrorLine,
   writeProbeLine,
 };

@@ -69,6 +69,13 @@ loki.relabel "journal" {
     target_label  = "log_class"
     replacement   = "application"
   }
+
+  rule {
+    source_labels = [{{ journal_application_field | to_json }}, "__journal_priority"]
+    regex         = {{ ('(' ~ (LOG_COLLECTOR_ACCESS_LOG_APPLICATIONS | join('|')) ~ ');' ~ LOG_COLLECTOR_STDOUT_PRIORITY) | to_json }}
+    target_label  = "log_class"
+    replacement   = "access"
+  }
 }
 
 loki.source.journal "host" {

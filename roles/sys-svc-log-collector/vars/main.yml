@@ -22,4 +22,7 @@ LOG_COLLECTOR_SELF_EXCLUDED:
   - "{{ LOG_COLLECTOR_ROLE }}"
   - "{{ LOG_COLLECTOR_LOKI_ROLE }}"
   - "web-app-grafana"
+LOG_COLLECTOR_ACCESS_LOG_APPLICATIONS:
+  - "svc-prx-openresty"
+LOG_COLLECTOR_STDOUT_PRIORITY: "6"
 LOG_COLLECTOR_CA_ENABLED: "{{ (TLS_MODE | lower) == 'self_signed' }}"
