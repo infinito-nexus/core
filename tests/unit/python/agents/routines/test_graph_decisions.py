@@ -1,15 +1,35 @@
 """Unit test: the designer, implementer and compose loop routine decision nodes
 route on parsed evidence and default to their forward branch when the evidence
 is absent; the compose loop reaches done only through the reinstall final gate,
-after the mode=update redeploy or a full_cycle reinstall."""
+after the mode=update redeploy or a full_cycle reinstall, and every red
+redeploy enters the red chain."""
 
 from __future__ import annotations
 
+import json
 import re
+import tempfile
 import unittest
+from pathlib import Path
 
 from agents.routines import design, implementer
 from agents.routines.iterate import compose
+from tests.unit.python.agents.routines import written_text
+from utils.roles.mapping import (
+    ROLE_FILE_META_CSP,
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_INFO,
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_MCP,
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_RBAC,
+    ROLE_FILE_META_SECRETS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_TESTS,
+    ROLE_FILE_META_USERS,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_TASKS_MAIN,
+)
 
 try:
     import langgraph  # noqa: F401
@@ -20,27 +40,28 @@ except ImportError:
 
 _ROLE = "web-app-gitea"
 _INVENTORY_FILES = {
-    "meta/variants.yml",
-    "meta/services.yml",
-    "meta/secrets.yml",
-    "meta/users.yml",
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_SECRETS,
+    ROLE_FILE_META_USERS,
 }
 _OUTSIDE_SYNC_FILES = {
-    "meta/main.yml",
-    "meta/info.yml",
-    "meta/networks.yml",
-    "meta/domains.yml",
-    "meta/rbac.yml",
-    "meta/mcp.yml",
-    "meta/tests.yml",
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_INFO,
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_RBAC,
+    ROLE_FILE_META_MCP,
+    ROLE_FILE_META_TESTS,
     "templates/test.env.j2",
 }
 _OUTSIDE_SYNC_DIRS = ("files/test/",)
+_ROLE_TASKS = f"roles/{_ROLE}/{ROLE_FILE_TASKS_MAIN}"
 _ROLE_LOCAL = (
-    f"roles/{_ROLE}/tasks/main.yml",
+    _ROLE_TASKS,
     f"roles/{_ROLE}/templates/app.ini.j2",
     f"roles/{_ROLE}/files/javascript.js",
-    f"roles/{_ROLE}/meta/csp.yml",
+    f"roles/{_ROLE}/{ROLE_FILE_META_CSP}",
     f"roles/{_ROLE}/README.md",
     f"tests/unit/python/roles/{_ROLE}/test_app_ini.py",
     f"tests/unit/javascript/roles/{_ROLE}/test_javascript.js",
@@ -50,9 +71,9 @@ _ROLE_LOCAL = (
 _NEEDS_UPDATE = (
     *(f"roles/{_ROLE}/{inner}" for inner in sorted(_OUTSIDE_SYNC_FILES)),
     *(f"roles/{_ROLE}/{inner}test.sh" for inner in _OUTSIDE_SYNC_DIRS),
-    "roles/svc-db-postgres/tasks/main.yml",
+    f"roles/svc-db-postgres/{ROLE_FILE_TASKS_MAIN}",
     "roles/svc-db-postgres/README.md",
-    "roles/web-app-gitea-runner/tasks/main.yml",
+    f"roles/web-app-gitea-runner/{ROLE_FILE_TASKS_MAIN}",
     "group_vars/all/00_general.yml",
     "inventories/localhost/devices.yml",
     "plugins/lookup/applications.py",
@@ -146,10 +167,7 @@ class TestIterateComposeDecisions(unittest.TestCase):
             compose.redeploy_target(_ROLE, [f"tests/unit/python/roles/{_ROLE}/x.py"]),
             compose.UPDATE,
         )
-        self.assertEqual(
-            compose.redeploy_target("", [f"roles/{_ROLE}/tasks/main.yml"]),
-            compose.UPDATE,
-        )
+        self.assertEqual(compose.redeploy_target("", [_ROLE_TASKS]), compose.UPDATE)
 
     def test_scope_node_writes_its_branch(self) -> None:
         node = _steps()["scope"]
@@ -163,18 +181,21 @@ class TestIterateComposeDecisions(unittest.TestCase):
             },
         )
         self.assertEqual(node.branches[0][0], compose.UPDATE)
-        state = {"role": _ROLE, "changed_paths": [f"roles/{_ROLE}/tasks/main.yml"]}
+        state = {"role": _ROLE, "changed_paths": [_ROLE_TASKS]}
         self.assertEqual(node.fn(dict(state))["scope"], compose.ROLE_SYNC)
         self.assertEqual(node.fn({})["scope"], compose.UPDATE)
 
     def test_a_sync_limit_ends_the_role_sync_for_the_loop(self) -> None:
         node = _steps()["scope"]
-        local = {"role": _ROLE, "changed_paths": [f"roles/{_ROLE}/tasks/main.yml"]}
+        local = {"role": _ROLE, "changed_paths": [_ROLE_TASKS]}
         limited = node.fn({**local, "sync": compose.SYNC_LIMIT})
         self.assertEqual(limited["scope"], compose.UPDATE)
         red = node.fn({**local, "sync": "❌ red"})
         self.assertEqual(red["scope"], compose.ROLE_SYNC)
-        baked = {"role": _ROLE, "changed_paths": [f"roles/{_ROLE}/meta/variants.yml"]}
+        baked = {
+            "role": _ROLE,
+            "changed_paths": [f"roles/{_ROLE}/{ROLE_FILE_META_VARIANTS}"],
+        }
         self.assertEqual(
             node.fn({**baked, "sync": compose.SYNC_LIMIT})["scope"], compose.REBUILD
         )
@@ -186,8 +207,9 @@ class TestIterateComposeDecisions(unittest.TestCase):
             dict(sync.branches),
             {
                 "✅ green": "redeploy",
-                "❌ red": "inspect",
+                "❌ red": "hung",
                 compose.SYNC_LIMIT: "redeploy",
+                "⏳ running": "hung",
             },
         )
 
@@ -198,7 +220,8 @@ class TestIterateComposeDecisions(unittest.TestCase):
             rebuild.label,
         )
         self.assertEqual(
-            dict(rebuild.branches), {"✅ green": "gate", "❌ red": "inspect"}
+            dict(rebuild.branches),
+            {"✅ green": "gate", "❌ red": "hung", "⏳ running": "hung"},
         )
 
     def test_scope_names_the_sync_limit_fallback(self) -> None:
@@ -218,23 +241,36 @@ class TestIterateComposeDecisions(unittest.TestCase):
     def test_done_only_after_an_update_pass_and_the_final_gate(self) -> None:
         steps = _steps()
         self.assertEqual(_into("done"), {"gate"})
-        self.assertEqual(_into("gate"), {"redeploy", "rebuild"})
-        self.assertEqual(_into("redeploy"), {"scope", "sync"})
+        self.assertEqual(_into("gate"), {"redeploy", "rebuild", "wait"})
+        self.assertEqual(_into("redeploy"), {"scope", "sync", "wait"})
         self.assertIn(
             "make test, then make compose-deploy mode=update apps=<roles> [variant=<idx>]",
             steps["redeploy"].label,
         )
         self.assertEqual(
-            dict(steps["redeploy"].branches), {"✅ green": "gate", "❌ red": "inspect"}
+            dict(steps["redeploy"].branches),
+            {"✅ green": "gate", "❌ red": "hung", "⏳ running": "hung"},
         )
         self.assertIn(
             "make compose-deploy mode=reinstall apps=<roles> full_cycle=true (no variant)",
             steps["gate"].label,
         )
         self.assertEqual(
-            dict(steps["gate"].branches), {"✅ green": "done", "❌ red": "inspect"}
+            dict(steps["gate"].branches),
+            {"✅ green": "done", "❌ red": "hung", "⏳ running": "hung"},
         )
         self.assertEqual(steps["done"].kind, "terminal")
+
+    def test_the_relevant_delta_decides_before_the_scope(self) -> None:
+        self.assertEqual(_steps()["verify"].nxt, "relevant_delta")
+        self.assertEqual(_into("scope"), {"relevant_delta"})
+
+    def test_scope_records_its_decision_in_the_ledger(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "ledger.jsonl"
+            compose._scope({"ledger": str(ledger), "role": _ROLE})
+            (line,) = written_text(ledger).splitlines()
+        self.assertEqual(json.loads(line)["outcome"], compose.UPDATE)
 
     @unittest.skipUnless(
         _HAVE_LANGGRAPH,
