@@ -1,6 +1,9 @@
 ---
+# Exception: the Playwright stage before this hook include_vars each tested app's vars/main.yml, and those outrank this role's vars for the rest of the play, so application_id still names the last tested app; the include pins it, or every WAZUH_* var resolves against that app.
 - name: "🐤 Check the Wazuh canary of this run's opted-in apps"
   include_tasks: "{{ role_path }}/tasks/05_app_canary.yml"
+  vars:
+    application_id: web-app-wazuh
   when:
     - application_id in group_names
     - lookup('wazuh_ruleset', scope='deployment').entities | length > 0
