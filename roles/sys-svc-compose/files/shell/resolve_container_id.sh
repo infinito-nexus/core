@@ -13,7 +13,7 @@
 #
 # Exit codes:
 #   0   success -- prints the 12-char container ID to stdout
-#   64  caller did not pass both args, or host is not a Swarm manager
+#   64  caller did not pass both args, or a worker runs no task of the service
 #   65  service exists but has no running task
 #   66  task exists but its container is not usable from this node (transient)
 set -eu
@@ -27,9 +27,6 @@ fi
 
 SERVICE="${STACK}_${SERVICE_KEY}"
 
-container node ls >/dev/null 2>&1 || {
-  echo "resolve-container-id: must run on a Swarm manager node" >&2; exit 64; }
-
 LOCAL_ID=$(container ps \
   --filter "label=com.docker.swarm.service.name=$SERVICE" \
   --filter status=running \
@@ -38,6 +35,9 @@ if [ -n "$LOCAL_ID" ]; then
   echo "${LOCAL_ID:0:12}"
   exit 0
 fi
+
+container node ls >/dev/null 2>&1 || {
+  echo "resolve-container-id: no local task of '$SERVICE', and only a Swarm manager can look further" >&2; exit 64; }
 
 TASK_ID=$(container service ps \
   --filter desired-state=running \
