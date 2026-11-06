@@ -711,5 +711,59 @@ class TestEmailPolicy(unittest.TestCase):
                 self.assertFalse(realm_for(overrides)["duplicateEmailsAllowed"])
 
 
+def drifted_required_actions(desired: list, current: list) -> list:
+    """Run the role's required-action drift filter on *desired* and *current*."""
+    spec = importlib.util.spec_from_file_location(
+        "keycloak_required_actions", ROLE_DIR / "filter_plugins/required_actions.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.kc_drifted_required_actions(desired, current)
+
+
+def totp_realm(enabled: bool) -> dict:
+    return json.loads(render([], overrides={"KEYCLOAK_REALM_TOTP_ENABLED": enabled}))
+
+
+class TestTotpOfferedNotEnforced(unittest.TestCase):
+    def test_an_enabled_realm_offers_otp_without_forcing_it(self) -> None:
+        action = next(
+            a
+            for a in totp_realm(True)["requiredActions"]
+            if a["alias"] == "CONFIGURE_TOTP"
+        )
+        self.assertTrue(action["enabled"])
+        self.assertFalse(action["defaultAction"])
+
+    def test_a_disabled_realm_does_not_offer_otp(self) -> None:
+        aliases = [a["alias"] for a in totp_realm(False)["requiredActions"]]
+        self.assertNotIn("CONFIGURE_TOTP", aliases)
+
+    def test_no_imported_user_starts_with_a_required_action(self) -> None:
+        for enabled in (True, False):
+            for user in totp_realm(enabled)["users"]:
+                with self.subTest(enabled=enabled, user=user["username"]):
+                    self.assertEqual([], user["requiredActions"])
+
+    def test_an_existing_realm_that_forces_otp_converges_to_offering_it(
+        self,
+    ) -> None:
+        self.assertIn(
+            "CONFIGURE_TOTP", ROLE_VARS["KEYCLOAK_RECONCILED_REQUIRED_ACTIONS"]
+        )
+        desired = [
+            a
+            for a in totp_realm(True)["requiredActions"]
+            if a["alias"] in ROLE_VARS["KEYCLOAK_RECONCILED_REQUIRED_ACTIONS"]
+        ]
+        forced = [
+            {**a, "defaultAction": True} if a["alias"] == "CONFIGURE_TOTP" else a
+            for a in desired
+        ]
+        drifted = drifted_required_actions(desired, forced)
+        self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
+        self.assertFalse(drifted[0]["defaultAction"])
+
+
 if __name__ == "__main__":
     unittest.main()

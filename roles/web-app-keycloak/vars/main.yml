@@ -194,7 +194,7 @@ KEYCLOAK_EMAIL_INVENTORY_ADDRESSES: >-
 KEYCLOAK_EMAIL_INVENTORY_SECONDARIES: >-
   {{ lookup('users_non_reserved') | dict2items | map(attribute='value')
      | items2dict(key_name='username', value_name='secondary_email') }}
-KEYCLOAK_RECONCILED_REQUIRED_ACTIONS: ["UPDATE_EMAIL"]
+KEYCLOAK_RECONCILED_REQUIRED_ACTIONS: ["UPDATE_EMAIL", "CONFIGURE_TOTP"]
 KEYCLOAK_REGISTRATION_ALLOWED: false
 
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"

@@ -447,11 +447,7 @@
       "totp": false,
       "serviceAccountClientId": "{{ KEYCLOAK_REALM }}",
       "disableableCredentialTypes": [],
-      "requiredActions": [
-{% if KEYCLOAK_REALM_TOTP_ENABLED | bool %}
-        "CONFIGURE_TOTP"
-{% endif %}
-      ],
+      "requiredActions": [],
       "realmRoles": [
         "default-roles-{{ KEYCLOAK_REALM }}"
       ],
@@ -2270,7 +2266,7 @@
       "name": "Configure OTP",
       "providerId": "CONFIGURE_TOTP",
       "enabled": true,
-      "defaultAction": true,
+      "defaultAction": false,
       "priority": 10,
       "config": {}
     },
