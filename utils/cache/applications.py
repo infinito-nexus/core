@@ -16,7 +16,11 @@ from typing import TYPE_CHECKING, Any
 
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.roles.applications.mcp import derive_mcp_presence
-from utils.roles.mapping import ROLE_FILE_META_VARIANTS, ROLE_FILE_META_VOLUMES
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_META_VOLUMES,
+)
 
 from .addons import META_ADDONS_DIR, load_addons_dir
 from .base import (
@@ -42,6 +46,8 @@ _VARIANT_OVERRIDES_ONLY_CACHE: dict[str, dict[str, list[dict[str, Any]]]] = {}
 _MERGED_APPLICATIONS_CACHE: dict[tuple, dict[str, Any]] = {}
 
 _CANONICAL_VOLUMES_BY_ROLE: dict[str, dict[str, Any]] = {}
+
+_UNRENDERED_FORMS_KEY = ROLE_FILE_META_FORMS.rsplit("/", 1)[-1].removesuffix(".yml")
 
 _META_TOPICS: tuple[str, ...] = (
     "server",
@@ -380,6 +386,10 @@ def get_merged_applications(
     is therefore memoised on the render guard instead, which drops it when the
     guard releases. Without that, one template render recomputed the payload
     for every ``lookup('applications')`` it made.
+
+    ``forms`` stays out of the templar like ``volumes``: the merged managed
+    fields, inventory overrides included, come back unrendered, so a template
+    in a field's ``source`` can never surface a decrypted value.
     """
     from .users import get_merged_users
 
@@ -420,6 +430,12 @@ def get_merged_applications(
         if isinstance(app_cfg, dict):
             app_cfg.pop("volumes", None)
 
+    raw_forms = {
+        app_id: app_cfg.pop(_UNRENDERED_FORMS_KEY)
+        for app_id, app_cfg in merged.items()
+        if isinstance(app_cfg, dict) and _UNRENDERED_FORMS_KEY in app_cfg
+    }
+
     _RENDER_GUARD.applications = True
     try:
         raw_users = get_merged_users(
@@ -442,6 +458,9 @@ def get_merged_applications(
         raw_volumes = get_canonical_volumes(app_id)
         if raw_volumes and isinstance(rendered[app_id], dict):
             rendered[app_id]["volumes"] = copy.deepcopy(raw_volumes)
+    for app_id, forms in raw_forms.items():
+        if isinstance(rendered.get(app_id), dict):
+            rendered[app_id][_UNRENDERED_FORMS_KEY] = copy.deepcopy(forms)
 
     _MERGED_APPLICATIONS_CACHE[cache_key] = rendered
     return rendered
