@@ -602,6 +602,18 @@ install-system-python:
 install-venv: install-system-python
 	@bash scripts/install/venv.sh
 
+.PHONY: iterate-plan
+# Plan what an iteration on a diff must run: the unit and lint commands (T0), the inner-loop rows (T1), the pre-push rows and gate (T2) and the CI whitelist (T3), with every cut named.
+# Usage: make iterate-plan [base=<ref>] [head=<ref>] [loop=auto] [disable=<keys>|none] [timings=<log|csv>] [format=json]
+# Param base: ref the diff starts from (empty: merge base of origin/main and HEAD; nothing is fetched)
+# Param head: ref the diff ends at (empty: the working tree, untracked files included)
+# Param loop: auto | compose | swarm | playwright | workflow | runner (empty: auto, derived from the diff)
+# Param disable: comma-separated provider keys rendered disabled in T1 and T2 (empty: the compose loop's default; none: nothing)
+# Param timings: deploy log or role-runtimes CSV that prices the rows in seconds (empty: the declared min_storage)
+# Param format: json prints the machine-readable plan (empty: the human form)
+iterate-plan:
+	@"$${PYTHON}" -m cli.meta.ci.iterate $(if $(base),--base "$(base)") $(if $(head),--head "$(head)") $(if $(loop),--loop "$(loop)") $(if $(disable),--disable "$(disable)") $(if $(timings),--timings "$(timings)") $(if $(format),--format "$(format)")
+
 .PHONY: kernel-loop-load
 # Load the kernel loop driver the swarm backup DR drill needs.
 # Note: run this on the host; container environments have no modprobe.
