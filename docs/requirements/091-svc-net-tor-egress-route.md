@@ -80,28 +80,28 @@ The plan is computed once in [`utils/networks/tor_egress.py`](../../utils/networ
 ### Flag and migration
 
 - [ ] `services.tor.egress.route` with `tor` and `direct` lists replaces `egress.enabled`; `TOR_EGRESS_ROUTE` replaces `TOR_EGRESS_ROUTER_ENABLED`; no reference to the old key or variable remains.
-- [ ] `onion` with the default lists renders torrc, the dnsmasq drop-in, the nft fragment, resolv.conf and compose byte-identical to `enabled: true` on the same inputs; `none` renders torrc and compose identical to `enabled: false`.
+- [x] `onion` with the default lists renders torrc, the dnsmasq drop-in, the nft fragment, resolv.conf and compose byte-identical to `enabled: true` on the same inputs; `none` renders torrc and compose identical to `enabled: false`. Proven by rendering the templates of `40b118f178^1` and the current ones through the render path of `test_egress_route.py`: 7 of 7 identical, with the same lookup calls and no undeclared variable. As a control, the old torrc with `enabled: false` differs from `onion`.
 
 ### Lists and precedence
 
-- [ ] A host-name entry covers the name and its subdomains, a sibling suffix (`badexample.org`) is not covered, and only one leading `*.` is accepted.
-- [ ] `except` removes matches from its own `include` for names, addresses and CIDRs, and never from the other list.
-- [ ] A destination both lists keep takes Tor, at the DNS layer and at the nft layer.
-- [ ] For every name, the dnsmasq rule with the longest matching domain gives the same path as the plan.
+- [x] A host-name entry covers the name and its subdomains, a sibling suffix (`badexample.org`) is not covered, and only one leading `*.` is accepted. Proven by `test_a_name_covers_its_subdomains_but_not_a_sibling_suffix`, `test_a_wildcard_and_a_bare_name_cover_the_same_tree` and `test_a_wildcard_inside_a_name_is_refused`.
+- [x] `except` removes matches from its own `include` for names, addresses and CIDRs, and never from the other list. Proven by `test_except_removes_matches_from_its_own_include`, `test_address_entries_match_by_network_with_excepts`, `test_literal_sets_subtract_the_excepts` and `test_except_does_not_reach_into_the_other_list`.
+- [x] A destination both lists keep takes Tor, at the DNS layer and at the nft layer. Proven by `test_a_destination_in_both_lists_takes_tor`, `test_every_name_gets_the_path_of_its_deepest_rule` and `test_tor_wins_over_direct_for_an_address_in_both`.
+- [x] For every name, the dnsmasq rule with the longest matching domain gives the same path as the plan. Proven by `test_every_name_gets_the_path_of_its_deepest_rule` under `onion` and `all`.
 
 ### Route all
 
-- [ ] The nft filter output and forward chains end in `drop`, and only reply-direction packets and flows this table marked skip the rules. The output chain accepts the node's own addresses, Tor's sockets (`skuid 0`, `skgid TOR_EGRESS_SOCKET_GID`), dnsmasq to its upstream, internal, non-routable, local IPv6, neighbour discovery and direct destinations; the forward chain jumps nowhere. The nat output chain redirects every remaining IPv4 TCP flow to the TransPort, and container traffic is redirected or dropped the same way.
-- [ ] DNS (53 and 853, UDP and TCP) reaches only the resolver set, checked before the internal accept, so a LAN resolver inside a container pool gets no query.
-- [ ] dnsmasq's default upstream is Tor's DNSPort only, and it runs as `user=dnsmasq` with `max-cache-ttl=300`. Direct names resolve through the clearnet upstream and fill the expiring `direct_dns_*` sets; tor-listed names and carve-outs fill `tor_dns_*`. resolv.conf, systemd-resolved and the docker daemon carry no clearnet fallback, and nsswitch no longer consults `resolve`.
-- [ ] Tor runs as `0:TOR_EGRESS_SOCKET_GID` and its relay traffic is neither redirected nor dropped.
-- [ ] The deploy refuses `all` in swarm mode, on a shared dnsmasq, with upstreams in `/etc/dnsmasq.conf`, on a dnsmasq without nftset when direct host names exist, on a dnsmasq that resolves as root or nobody or shares its UID, when the Tor group exists on the host, and when the clearnet upstream lies inside the resolver set.
-- [ ] `none` is refused while an earlier route's fragment or dnsmasq drop-in exists.
+- [x] The nft filter output and forward chains end in `drop`, and only reply-direction packets and flows this table marked skip the rules. The output chain accepts the node's own addresses, Tor's sockets (`skuid 0`, `skgid TOR_EGRESS_SOCKET_GID`), dnsmasq to its upstream, internal, non-routable, local IPv6, neighbour discovery and direct destinations; the forward chain jumps nowhere. The nat output chain redirects every remaining IPv4 TCP flow to the TransPort, and container traffic is redirected or dropped the same way. Proven on the rendered fragment by `test_all_fails_closed`, `test_only_flows_this_table_admitted_skip_the_rules`, `test_forwarded_ipv6_and_foreign_sources_meet_the_drop`, `test_neighbour_discovery_keeps_working` and `test_dns_leaves_only_from_dnsmasq_to_its_upstream`.
+- [x] DNS (53 and 853, UDP and TCP) reaches only the resolver set, checked before the internal accept, so a LAN resolver inside a container pool gets no query. Proven by `test_the_dns_guard_refuses_lan_resolvers_inside_the_pools`.
+- [x] dnsmasq's default upstream is Tor's DNSPort only, and it runs as `user=dnsmasq` with `max-cache-ttl=300`. Direct names resolve through the clearnet upstream and fill the expiring `direct_dns_*` sets; tor-listed names and carve-outs fill `tor_dns_*`. resolv.conf, systemd-resolved and the docker daemon carry no clearnet fallback, and nsswitch no longer consults `resolve`. Proven by `test_all_resolves_unlisted_names_only_through_tor`, `test_dnsmasq_drops_to_its_own_user_and_bounds_its_cache`, `test_listed_names_fill_the_expiring_sets`, `test_resolved_forwards_to_dnsmasq_without_fallback`, `test_nsswitch_loses_resolve_under_all`, `test_route_all_leaves_the_host_no_clearnet_fallback` and `test_route_all_hands_containers_only_the_bridge`.
+- [x] Tor runs as `0:TOR_EGRESS_SOCKET_GID` and its relay traffic is neither redirected nor dropped. Proven by `test_all_gives_tor_its_own_group` and by the `skuid`/`skgid` accept and the nat return in `test_all_fails_closed`.
+- [x] The deploy refuses `all` in swarm mode, on a shared dnsmasq, with upstreams in `/etc/dnsmasq.conf`, on a dnsmasq without nftset when direct host names exist, on a dnsmasq that resolves as root or nobody or shares its UID, when the Tor group exists on the host, and when the clearnet upstream lies inside the resolver set. Every refusal is evaluated with a passing and a refused input by `test_all_is_refused_in_swarm` and the `TestRouteAllPreflight` tests, and `test_the_preflight_runs_under_route_all_only` pins the gate.
+- [x] `none` is refused while an earlier route's fragment or dnsmasq drop-in exists. Proven by `test_none_is_refused_over_an_installed_router`.
 
 ### Validation and lint
 
-- [ ] Deploy-time validation refuses an unknown route, the removed `enabled` key, unknown keys, a misshapen `infrastructure` block, a malformed entry or block (host bits and all-digit names included), lists under `none` and `.onion` in `direct.include`; it reports literal overlaps without failing.
-- [ ] A lint checks every shipped `tor.egress` block (services and variants) for the same mistakes and for literal overlaps, with negative controls.
+- [x] Deploy-time validation refuses an unknown route, the removed `enabled` key, unknown keys, a misshapen `infrastructure` block, a malformed entry or block (host bits and all-digit names included), lists under `none` and `.onion` in `direct.include`; it reports literal overlaps without failing. Proven by the `TestViolations` tests, `test_an_unknown_route_is_refused_at_deploy` among them; `tasks/00_core.yml` asserts the violations and reports the overlaps as a debug message.
+- [x] A lint checks every shipped `tor.egress` block (services and variants) for the same mistakes and for literal overlaps, with negative controls. Proven by `tests/lint/ansible/roles/meta/test_tor_egress_lists.py`.
 
 ### Live proofs (open for the single IAM run; split worktrees do not deploy)
 
@@ -116,8 +116,8 @@ The plan is computed once in [`utils/networks/tor_egress.py`](../../utils/networ
 
 ### Documentation
 
-- [ ] The role README documents the three modes, both lists, the precedence, the infrastructure pre-fill and its exposure, and the limitations below.
-- [ ] [031](031-svc-net-tor-onion.md) decision 10, its egress criterion and its out-of-scope line point here.
+- [x] The role README documents the three modes, both lists, the precedence, the infrastructure pre-fill and its exposure, and the limitations below.
+- [x] [031](031-svc-net-tor-onion.md) decision 10, its egress criterion and its out-of-scope line point here.
 
 ## Limitations
 
