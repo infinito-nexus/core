@@ -10,7 +10,7 @@
     app_dir="$({{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:getpath integration_discourse)"
     bundle="${app_dir}/js/integration_discourse-personalSettings.mjs"
     {{ NEXTCLOUD_DOCKER_EXEC }} grep -q 'startsWith("https://")&&(' "$bundle" || exit 0
-    {{ NEXTCLOUD_DOCKER_EXEC }} sed -i 's|startsWith("https://")&&(|startsWith("https://")\&\&!this.state.url.includes(".onion")\&\&(|' "$bundle"
+    {{ NEXTCLOUD_DOCKER_EXEC }} sed -i 's|startsWith("https://")&&(|startsWith("https://")\&\&!this.state.url.includes("{{ 'tor' | network_suffix }}")\&\&(|' "$bundle"
     echo PATCHED
   args:
     executable: /bin/bash

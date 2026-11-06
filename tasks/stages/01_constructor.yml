@@ -20,7 +20,7 @@
   failed_when: dns_check.rc != 0
   when:
     - VALIDATE | bool
-    - not (DOMAIN_PRIMARY is search('\.onion$'))
+    - (DOMAIN_PRIMARY | network_of) != 'tor'
 
 - name: 🔀 Merge variables
   ansible.builtin.include_tasks: ./tasks/utils/constructor/variables.yml

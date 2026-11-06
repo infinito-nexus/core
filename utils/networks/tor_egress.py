@@ -38,6 +38,8 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
+from utils.networks import reachability
+
 ROUTE_NONE = "none"
 ROUTE_ONION = "onion"
 ROUTE_ALL = "all"
@@ -50,7 +52,7 @@ INCLUDE = "include"
 EXCEPT = "except"
 PARTS: tuple[str, ...] = (INCLUDE, EXCEPT)
 
-ONION_DOMAIN = "onion"
+ONION_DOMAIN = reachability.network(reachability.TOR).suffix.removeprefix(".")
 WILDCARD_PREFIX = "*."
 SET_NAMES: tuple[str, ...] = (
     "tor_v4",

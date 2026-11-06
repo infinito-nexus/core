@@ -242,6 +242,11 @@ class TestViolations(unittest.TestCase):
         self.assertEqual(violations(_egress(direct=["docker.io"]), "all", False), [])
         self.assertEqual(violations(_egress(), "none", True), [])
 
+    def test_an_unknown_route_is_refused_at_deploy(self) -> None:
+        found = violations(_egress(), "everything", False)
+        self.assertEqual(len(found), 1)
+        self.assertIn("egress.route must be one of", found[0])
+
     def test_lists_under_none_are_refused(self) -> None:
         found = violations(_egress(direct=["docker.io"]), "none", False)
         self.assertEqual(len(found), 1)
