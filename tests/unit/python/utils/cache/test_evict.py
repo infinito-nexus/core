@@ -316,7 +316,8 @@ class TestSharedFolders(unittest.TestCase):
             remove(Unit(paths=(outside,), size=1, used_at=0), self.shared)
         with self.assertRaises(OutsideCacheError):
             remove(Unit(paths=(self.shared,), size=1, used_at=0), self.shared)
-        for parent in (self.shared / "pip" / "..", self.shared / ".."):
+        for p in ("pip/..", ".."):  # nocheck: project-root-import  deliberate traversal
+            parent = self.shared / p
             with self.subTest(path=parent), self.assertRaises(OutsideCacheError):
                 remove(Unit(paths=(parent,), size=1, used_at=0), self.shared)
         self.assertTrue(outside.exists())

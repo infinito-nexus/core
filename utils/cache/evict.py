@@ -546,10 +546,8 @@ def plan(
 
 
 def _inside(path: Path, root: Path) -> bool:
-    if path.name in ("", ".."):
-        return False
     anchor = root.resolve()
-    candidate = path.parent.resolve() / path.name
+    candidate = Path(os.path.normpath(path.parent.resolve() / path.name))
     return candidate != anchor and candidate.is_relative_to(anchor)
 
 
