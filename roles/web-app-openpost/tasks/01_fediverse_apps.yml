@@ -1,10 +1,16 @@
 ---
+- name: "🔎 Check for the OpenPost apps registered on sibling Fediverse instances"
+  ansible.builtin.stat:
+    path: "{{ OPENPOST_FEDIVERSE_APPS_HOST }}"
+  register: openpost_fediverse_apps_file
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
 - name: "📖 Read the OpenPost apps already registered on the sibling Fediverse instances"
   ansible.builtin.slurp:
     src: "{{ OPENPOST_FEDIVERSE_APPS_HOST }}"
   register: openpost_fediverse_apps_raw
-  failed_when: false
-  changed_when: false
+  when: openpost_fediverse_apps_file.stat.exists
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -13,7 +19,7 @@
   ansible.builtin.set_fact:
     openpost_fediverse_apps: >-
       {{ (openpost_fediverse_apps_raw.content | b64decode | from_json)
-         if openpost_fediverse_apps_raw.content is defined else {} }}
+         if openpost_fediverse_apps_file.stat.exists else {} }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📝 Register an OpenPost app on each sibling instance that has none yet"
