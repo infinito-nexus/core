@@ -1,0 +1,24 @@
+---
+application_id: "web-app-proxmox"
+entity_name: "{{ application_id | entity_name }}"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', application_id, 'services.proxmox.ports.local.http') }}"
+
+PROXMOX_CONTAINER: "{{ lookup('config', application_id, 'services.proxmox.name') }}"
+PROXMOX_BASE_IMAGE: "{{ lookup('config', application_id, 'services.proxmox.image') }}"
+PROXMOX_BASE_VERSION: "{{ lookup('config', application_id, 'services.proxmox.version') }}"
+PROXMOX_VE: "{{ lookup('config', application_id, 'services.proxmox.ve') }}"
+PROXMOX_PACKAGE_PINS: "{{ PROXMOX_VE.packages | proxmox_package_pins }}"
+PROXMOX_AGENTS: "{{ lookup('config', application_id, 'services.proxmox.agents') }}"
+PROXMOX_SHARED_HOST: "{{ lookup('config', application_id, 'services.proxmox.shared_host') }}"
+PROXMOX_LIMITS:
+  cpus: "{{ lookup('config', application_id, 'services.proxmox.cpus') }}"
+  mem_limit: "{{ lookup('config', application_id, 'services.proxmox.mem_limit') }}"
+
+PROXMOX_EXCLUSIVE_PEERS:
+  - web-app-keycloak
+  - svc-ai-litellm
+  - web-app-openbao
+PROXMOX_COHOSTED_PEERS: "{{ PROXMOX_EXCLUSIVE_PEERS | proxmox_cohosted(inventory_hostname, groups, hostvars) }}"
+PROXMOX_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+PROXMOX_TOR_ENABLED: "{{ lookup('config', application_id, 'services.tor.enabled') }}"
