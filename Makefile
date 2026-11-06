@@ -807,9 +807,9 @@ roles-pull:
 
 .PHONY: roundtrip
 # Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
-# Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
+# Param apps: space-separated entries, each <role> or <role>#<variant> (e.g. web-app-nextcloud#8); compose and swarm both deploy that variant, whose logs carry a -v<variant> suffix, a bare <role> deploys variant 0, and an unknown role or undeclared variant exits 2 before the first deploy; default = one role per base cluster, most-complex first (complexity --unique).
 # Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
-# Param keep: true keeps each swarm cluster, green or failed; empty or false lets swarm-zombie release it once its rescue bundle is on the host.
+# Param keep: true keeps the last entry's swarm cluster, green or failed, because every swarm-zombie run first reclaims the lab subnet and the act outer container an earlier entry kept; empty or false lets swarm-zombie release it once its rescue bundle is on the host.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,design).
 # Param preflight: false skips the disk pre-flight of every swarm-zombie run the roundtrip starts.
 roundtrip:
