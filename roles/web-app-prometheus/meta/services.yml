@@ -105,11 +105,11 @@ blackbox-exporter:
     internal:
       http: 9115
 cadvisor:
-  image: gcr.io/cadvisor/cadvisor
-  version: v0.55.1
+  image: ghcr.io/google/cadvisor
+  version: v0.60.6
   update:
     type: registry_tags
-    image: gcr.io/cadvisor/cadvisor
+    image: ghcr.io/google/cadvisor
   name: prometheus-cadvisor
   cpus: "0.25"
   mem_reservation: 128m
