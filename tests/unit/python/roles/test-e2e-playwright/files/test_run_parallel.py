@@ -523,13 +523,19 @@ class TestRun(unittest.TestCase):
         (self.jobs / rp.SEALED).touch()
         runner = threading.Thread(target=self._run, args=(2,))
         runner.start()
-        time.sleep(0.6)
-        self.assertEqual(self._stamps("start", "onion"), [])
-        self.assertEqual(len(self._stamps("end", "clear")), 1)
-        released = time.time()
-        fcntl.flock(writer, fcntl.LOCK_UN)
-        os.close(writer)
-        runner.join(timeout=10)
+        try:
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline and not (
+                self.trace.exists() and self._stamps("end", "clear")
+            ):
+                time.sleep(0.05)
+            self.assertEqual(len(self._stamps("end", "clear")), 1)
+            self.assertEqual(self._stamps("start", "onion"), [])
+            released = time.time()
+        finally:
+            fcntl.flock(writer, fcntl.LOCK_UN)
+            os.close(writer)
+            runner.join(timeout=10)
         self.assertGreaterEqual(self._stamps("start", "onion")[0], released)
 
     def test_onion_jobs_share_tor_with_each_other(self):
