@@ -18,6 +18,7 @@ TARGETS = (
     "agents-integration",
     "agents-stop",
     "agents-preseed",
+    "agents-vm-template",
     "ci-wait",
     "test-ref",
     "i18n-pause",

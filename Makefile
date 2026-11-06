@@ -64,6 +64,15 @@ agents-stop:
 agents-verify:
 	@mode='$(mode)' scenario='$(scenario)' bash scripts/agents/verify.sh
 
+.PHONY: agents-vm-template
+# Build the agent VM template of one VM kind from the template directory and its pinned package list only.
+# Usage: make agents-vm-template kind=incus|proxmox out=<dir> [dry_run=true]
+# Param kind: incus | proxmox
+# Param out: directory the build project and the image land in
+# Param dry_run: true prints the build commands without running them
+agents-vm-template:
+	@kind='$(kind)' out='$(out)' dry_run='$(dry_run)' bash scripts/agents/vm-template.sh
+
 .PHONY: alias
 # Print the portable agent shortcuts and the operator's terminal aliases.
 alias:
