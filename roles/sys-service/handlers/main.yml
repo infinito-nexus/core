@@ -7,7 +7,7 @@
     enabled: true
     daemon_reload: true
   become: "{{ system_service_unit_become }}"
-  # rationale: async; opt-out per caller, a role that reads the unit state sets system_service_force_linear_sync
+  # rationale: async; only without a requested state, so no handler starts the unit before the reload lands
   async: "{{ system_service_async }}"
   poll: "{{ system_service_poll }}"
 
@@ -18,9 +18,6 @@
     scope: "{{ system_service_scope }}"
     state: "{{ system_service_state }}"
   become: "{{ system_service_unit_become }}"
-  # rationale: async; the Result gate below only runs meaningfully for callers that set system_service_force_linear_sync
-  async: "{{ system_service_async }}"
-  poll: "{{ system_service_poll }}"
   when: not (system_service_suppress_flush | bool)
   register: systemd_set_state
   failed_when: false
