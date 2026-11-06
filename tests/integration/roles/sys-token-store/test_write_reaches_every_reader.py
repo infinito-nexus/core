@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
+from utils.cache.files import read_text
 from utils.cache.yaml import dump_yaml, load_yaml_any
 
 from . import PROJECT_ROOT
@@ -17,6 +18,7 @@ from . import PROJECT_ROOT
 WRITE_MANY = PROJECT_ROOT / "roles" / "sys-token-store" / "tasks" / "write_many.yml"
 MERGE = "🔨 Build merged structure"
 CHANGED = "🧮 Note whether the merge changed the store"
+INCLUDE = "ansible.builtin.include_tasks"
 WRITES = (
     "💾 Persist store (idempotent, single-writer via STACK_HOST)",
     "🪞 Mirror the store onto the controller, where every users lookup reads",
@@ -62,17 +64,30 @@ def _writer_tasks() -> list[dict]:
 
     Returns:
         The real merge and change-check tasks, then the block with its own
-        ``when`` gate minus the stack host write and the controller mirror.
+        ``when`` gate minus the stack host write and the controller mirror,
+        its hand-over include pointed at the role's own task file.
     """
     tasks = load_yaml_any(str(WRITE_MANY))
     named = {task.get("name"): task for task in tasks}
     blocks = [task for task in tasks if "block" in task]
     if MERGE not in named or CHANGED not in named or len(blocks) != 1:
         raise AssertionError(f"{WRITE_MANY} lost {MERGE!r}, {CHANGED!r} or its block")
-    kept = [task for task in blocks[0]["block"] if task.get("name") not in WRITES]
+    kept = [
+        _rooted(task) for task in blocks[0]["block"] if task.get("name") not in WRITES
+    ]
     if len(kept) != len(blocks[0]["block"]) - len(WRITES):
         raise AssertionError(f"{WRITE_MANY} lost one of {WRITES!r}")
     return [named[MERGE], named[CHANGED], {**blocks[0], "block": kept}]
+
+
+def _rooted(task: dict) -> dict:
+    included = task.get(INCLUDE)
+    if included is None:
+        return task
+    return {
+        **task,
+        INCLUDE: {**included, "file": str(WRITE_MANY.parent / included["file"])},
+    }
 
 
 def _host(stack_host: str, loaded: dict, entries: list[dict] | None) -> dict:
@@ -165,7 +180,7 @@ def _run_plays(workdir: Path) -> dict[str, dict]:
             f"ansible-playbook failed\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
         )
     return {
-        name: json.loads((views / f"{name}.json").read_text())
+        name: json.loads(read_text(str(views / f"{name}.json")))
         for hosts in PLAYS.values()
         for name in hosts
     }
