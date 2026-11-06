@@ -8,6 +8,7 @@ set -euo pipefail
 
 : "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX:?Source scripts/meta/env/load.sh first}"
+: "${INFINITO_CACHE_MAX_IDLE_DAYS:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_UPSTREAMS:?Source scripts/meta/env/load.sh first}"
@@ -18,9 +19,13 @@ set -euo pipefail
 
 CACHE_CONTENT_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN}"
 CACHE_METADATA_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN}"
+CACHE_MAX_IDLE_DAYS="${INFINITO_CACHE_MAX_IDLE_DAYS}"
+CLEANUP_POLICY="infinito-idle"
 
 PKGCACHE_CONTAINER="${INFINITO_CACHE_PACKAGE_CONTAINER}"
 NEXUS_REST="http://${INFINITO_CACHE_PACKAGE_REST_HOST}:${INFINITO_CACHE_PACKAGE_PORT}/service/rest"
+NEXUS_EXTDIRECT="http://${INFINITO_CACHE_PACKAGE_REST_HOST}:${INFINITO_CACHE_PACKAGE_PORT}/service/extdirect"
+CSRF_TOKEN="infinito-bootstrap"
 
 BOOTSTRAP_DONE_FILE="/nexus-data/.infinito-bootstrap-done"
 NEXUS_ADMIN_PW_FILE="/nexus-data/.infinito-admin-password"
@@ -168,7 +173,7 @@ ensure_proxy_repo() { ensure_repo "$1" proxy "$2" "$3"; }
 # cannot determine. A `.gguf` model has no mapping, so strict validation
 # turns every such fetch into a dead URL.
 ensure_all_proxies() {
-	local common='"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":false}'
+	local common='"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":false},"cleanup":{"policyNames":["'"${CLEANUP_POLICY}"'"]}'
 
 	local record name flavor url distribution depth content_max_age content extra strict storage
 
@@ -189,6 +194,80 @@ ensure_all_proxies() {
 		ensure_proxy_repo "${flavor}" "${name}" \
 			'{"name":"'"${name}"'","online":true,'"${storage}"','"${common}"',"proxy":{"remoteUrl":"'"${url}"'","contentMaxAge":'"${content}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'}'"${extra}"'}'
 	done
+}
+
+ensure_cleanup_policy() {
+	local payload code
+	payload='{"name":"'"${CLEANUP_POLICY}"'","format":"*","criteriaLastDownloaded":'"${CACHE_MAX_IDLE_DAYS}"'}'
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
+		-H "Content-Type: application/json" \
+		-X POST "${NEXUS_REST}/internal/cleanup-policies" \
+		--data "${payload}" || true)"
+	case "${code}" in
+	200 | 201 | 204) log "cleanup policy ${CLEANUP_POLICY} created (HTTP ${code})" ;;
+	400 | 409)
+		code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
+			-H "Content-Type: application/json" \
+			-X PUT "${NEXUS_REST}/internal/cleanup-policies/${CLEANUP_POLICY}" \
+			--data "${payload}" || true)"
+		case "${code}" in
+		200 | 204) log "cleanup policy ${CLEANUP_POLICY} updated (HTTP ${code})" ;;
+		*)
+			log "unexpected HTTP ${code} updating cleanup policy ${CLEANUP_POLICY}"
+			return 1
+			;;
+		esac
+		;;
+	*)
+		log "unexpected HTTP ${code} creating cleanup policy ${CLEANUP_POLICY}"
+		return 1
+		;;
+	esac
+}
+
+# Param: $1 the Nexus task type
+task_scheduled() {
+	local listing
+	listing="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -fsS "${NEXUS_REST}/v1/tasks?type=$1" || true)"
+	grep -q '"id"' <<<"${listing}"
+}
+
+ensure_cleanup_task() {
+	local _attempt
+	for _attempt in $(seq 1 30); do
+		if task_scheduled repository.cleanup; then
+			log "task repository.cleanup scheduled by Nexus"
+			return 0
+		fi
+		sleep 2
+	done
+	log "Nexus lists no repository.cleanup task; it schedules one daily at startup and no API creates it"
+	return 1
+}
+
+ensure_compact_task() {
+	local payload response
+	if task_scheduled blobstore.compact; then
+		log "task blobstore.compact already scheduled"
+		return 0
+	fi
+	payload='{"action":"coreui_Task","method":"create","type":"rpc","tid":1,"data":[{"enabled":true,"name":"infinito compact default","typeId":"blobstore.compact","alertEmail":"","notificationCondition":"FAILURE","schedule":"advanced","timeZoneOffset":"+00:00","cronExpression":"0 0 2 * * ?","properties":{"blobstoreName":"default","blobsOlderThan":"0"}}]}'
+	response="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS \
+		-H "Content-Type: application/json" \
+		-H "NX-ANTI-CSRF-TOKEN: ${CSRF_TOKEN}" \
+		-H "Cookie: NX-ANTI-CSRF-TOKEN=${CSRF_TOKEN}" \
+		-X POST "${NEXUS_EXTDIRECT}" \
+		--data "${payload}" || true)"
+	if ! grep -q '"success":true' <<<"${response}"; then
+		log "Nexus refused the blobstore.compact task: ${response}"
+		return 1
+	fi
+	log "task blobstore.compact created"
+}
+
+ensure_eviction_tasks() {
+	ensure_cleanup_task
+	ensure_compact_task
 }
 
 ensure_eula_accepted() {
@@ -228,7 +307,9 @@ main() {
 	ensure_eula_accepted
 	ensure_anonymous_access
 	ensure_blobstore
+	ensure_cleanup_policy
 	ensure_all_proxies
+	ensure_eviction_tasks
 	log "bootstrap done"
 }
 

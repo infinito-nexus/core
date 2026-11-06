@@ -336,3 +336,5 @@ else
 	echo "[build] Running: ${local_args[*]}"
 	"${local_args[@]}"
 fi
+
+bash "${_build_script_dir}/prune.sh"

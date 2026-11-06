@@ -148,6 +148,16 @@ build-no-cache-all:
 cache-apply:
 	@bash scripts/system/cache/apply.sh
 
+.PHONY: cache-evict
+# Evict idle cache entries, then the least recently used ones, until every cache fits its cap; refuses when the caps leave less than INFINITO_CACHE_DISK_FLOOR free.
+cache-evict:
+	@"$${PYTHON}" -m cli.meta.cache.evict
+
+.PHONY: cache-status
+# Print one JSON object per cache with its path, used bytes, cap, headroom and access-time fallback.
+cache-status:
+	@"$${PYTHON}" -m cli.meta.cache.status
+
 .PHONY: cheat
 # Print the operator prompt cheatsheet from docs/contributing/tools/agents/cheatsheet.md.
 cheat:
@@ -425,7 +435,6 @@ diagnose-network:
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
-# Note: runtime context covers distro, cache sizes, secrets, and the like.
 dotenv:
 	@python3 -m cli.meta.env
 	@python3 -m cli.meta.cache
