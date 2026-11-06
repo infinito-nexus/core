@@ -185,7 +185,7 @@ applications:
 
 - [ ] Whole flow idempotent (second run: no changes); reloads handler-driven; clear failure if Tor cannot bootstrap.
 - [ ] `make test` green tree-wide.
-- [ ] README documents: model, mint helper usage, key backup/restore, limitations — no LE for `.onion`; outbound public mail undeliverable from `@onion` senders; fresh-node only (no clearnet migration); extra public domains = per-app opt-in.
+- [x] README documents: model, mint helper usage, key backup/restore, limitations: no LE for `.onion`; outbound public mail undeliverable from `@onion` senders; fresh-node only (no clearnet migration); extra public domains = per-app opt-in. The fresh-node and per-app opt-in parts are superseded by [055](055-multi-network-serving.md): the node keeps its clearnet `DOMAIN_PRIMARY`, so its LDAP base DN and identities stay put when the onion is added, and every canonical domain of a role with a Tor bond gains its onion sibling rather than being an extra opt-in.
 
 ## Onion service extensions (phase 2, layered on a green onion core)
 
