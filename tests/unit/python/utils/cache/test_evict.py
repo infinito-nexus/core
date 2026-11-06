@@ -316,8 +316,12 @@ class TestSharedFolders(unittest.TestCase):
             remove(Unit(paths=(outside,), size=1, used_at=0), self.shared)
         with self.assertRaises(OutsideCacheError):
             remove(Unit(paths=(self.shared,), size=1, used_at=0), self.shared)
+        for parent in (self.shared / "pip" / "..", self.shared / ".."):
+            with self.subTest(path=parent), self.assertRaises(OutsideCacheError):
+                remove(Unit(paths=(parent,), size=1, used_at=0), self.shared)
         self.assertTrue(outside.exists())
         self.assertTrue(self.shared.is_dir())
+        self.assertTrue((self.shared / "pip").is_dir())
 
 
 class TestModels(unittest.TestCase):
