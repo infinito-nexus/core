@@ -30,3 +30,6 @@ quotas:
   comments_per_hour: 20
   emails_per_hour: 10
 credentials: {}
+workspace:
+  kind: server
+  model_access: gateway
