@@ -30,7 +30,7 @@ from ansible.template import Templar
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.networks.tor_egress import plan
-from utils.roles.mapping import ROLE_FILE_META_NETWORKS
+from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
@@ -366,13 +366,52 @@ class TestNone(unittest.TestCase):
         block = _task(
             CORE, "🧹 Refuse route none while an earlier route's router is installed"
         )
-        self.assertIn("TOR_EGRESS_ROUTE == 'none'", block["when"])
-        assertion = next(
-            t for t in _walk(block["block"]) if "ansible.builtin.assert" in t
+        self.assertEqual(
+            block["when"],
+            [
+                "TOR_EGRESS_ROUTE == 'none'",
+                "IS_COMPOSE_MODE or (IS_STACK_HOST | bool)",
+            ],
         )
-        self.assertIn(
-            "selectattr('stat.exists')", assertion["ansible.builtin.assert"]["that"][0]
+        firewall = load_yaml_any(
+            str(PROJECT_ROOT / "roles" / "svc-net-firewall" / ROLE_FILE_VARS_MAIN)
         )
+        dropin = load_yaml_any(
+            str(PROJECT_ROOT / "roles" / "svc-net-tor" / ROLE_FILE_VARS_MAIN)
+        )["TOR_DNSMASQ_CONF"]
+        lookup = _task(CORE, "🔎 Look for the router files an earlier route installed")
+        loop_variables = {
+            "tor_egress_firewall": {
+                "FIREWALL_FRAGMENT_DIR": firewall["FIREWALL_FRAGMENT_DIR"]
+            },
+            "application_id": "svc-net-tor",
+            "TOR_DNSMASQ_CONF": dropin,
+        }
+        paths = [_evaluate(item, loop_variables, False) for item in lookup["loop"]]
+        self.assertEqual(
+            paths,
+            [f"{firewall['FIREWALL_FRAGMENT_DIR']}/svc-net-tor.conf", dropin],
+        )
+        that = _that(CORE, "✅ Refuse route none over a router that would keep running")
+        for leftovers, passes in (
+            ((False, False), True),
+            ((True, False), False),
+            ((False, True), False),
+            ((True, True), False),
+        ):
+            results = [
+                {"item": path, "stat": {"exists": exists}}
+                for path, exists in zip(paths, leftovers, strict=True)
+            ]
+            with self.subTest(leftovers=leftovers):
+                self.assertEqual(
+                    _evaluate(
+                        that,
+                        {"_tor_egress_leftovers": {"results": results}},
+                        conditional=True,
+                    ),
+                    passes,
+                )
 
 
 class TestOnion(unittest.TestCase):
@@ -591,7 +630,165 @@ def _slurped(text: str) -> dict:
     return {"content": base64.b64encode(text.encode()).decode()}
 
 
+def _role_filters() -> dict:
+    path = PROJECT_ROOT / "roles/svc-net-tor/filter_plugins/tor_egress.py"
+    spec = importlib.util.spec_from_file_location("tor_egress_filters_for_routes", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.FilterModule().filters()
+
+
+def _that(path, name: str) -> str:
+    return _task(path, name)["ansible.builtin.assert"]["that"][0]
+
+
 class TestRouteAllPreflight(unittest.TestCase):
+    def test_the_preflight_runs_under_route_all_only(self) -> None:
+        include = _task(
+            ROUTER,
+            "✅ Egress router | Check what route all depends on before touching dnsmasq",
+        )
+        self.assertEqual(
+            include["ansible.builtin.include_tasks"]["file"], "router/preflight.yml"
+        )
+        self.assertEqual(include["when"], "TOR_EGRESS_ROUTE == 'all'")
+
+    def test_only_a_dnsmasq_without_foreign_drop_ins_is_ours(self) -> None:
+        derive = _task(
+            ROUTER, "🔧 Egress router | Decide whether this dnsmasq is ours to reshape"
+        )["ansible.builtin.set_fact"]["TOR_DNSMASQ_OWNS_LISTENER"]
+        for matched, owns in ((0, True), (1, False), (3, False)):
+            with self.subTest(matched=matched):
+                self.assertEqual(
+                    _evaluate(
+                        derive,
+                        {"_tor_dnsmasq_foreign": {"matched": matched}},
+                        conditional=False,
+                    ),
+                    owns,
+                )
+
+    def test_a_dnsmasq_other_drop_ins_shape_is_refused(self) -> None:
+        that = _that(
+            PREFLIGHT,
+            "✅ Egress router | Refuse route all on a dnsmasq another drop-in shapes",
+        )
+        for owns, passes in ((True, True), (False, False)):
+            with self.subTest(owns=owns):
+                self.assertEqual(
+                    _evaluate(
+                        that, {"TOR_DNSMASQ_OWNS_LISTENER": owns}, conditional=True
+                    ),
+                    passes,
+                )
+
+    def test_a_tor_group_the_host_already_knows_is_refused(self) -> None:
+        lookup = _task(
+            PREFLIGHT, "🔎 Egress router | Look up the group Tor's sockets carry"
+        )
+        self.assertEqual(lookup["failed_when"], "_tor_egress_gid.rc not in [0, 2]")
+        that = _that(
+            PREFLIGHT,
+            "✅ Egress router | Refuse a Tor group the host already hands out",
+        )
+        for rc, passes in ((2, True), (0, False)):
+            with self.subTest(rc=rc):
+                self.assertEqual(
+                    _evaluate(that, {"_tor_egress_gid": {"rc": rc}}, conditional=True),
+                    passes,
+                )
+
+    def test_a_clearnet_upstream_inside_the_resolver_set_is_refused(self) -> None:
+        that = _that(
+            PREFLIGHT,
+            "✅ Egress router | Refuse a clearnet resolver every process may reach",
+        )
+        environment = jinja2.Environment(
+            autoescape=jinja2.select_autoescape(default_for_string=False)
+        )
+        environment.filters.update(_role_filters())
+        check = environment.compile_expression(that)
+        tor_subnet_host = str(
+            next(ipaddress.ip_network(_role_subnet("svc-net-tor")).hosts())
+        )
+        cases = {
+            UPSTREAM: True,
+            "127.0.0.53": False,
+            "172.17.0.1": False,
+            tor_subnet_host: False,
+        }
+        for upstream, passes in cases.items():
+            with self.subTest(upstream=upstream):
+                self.assertEqual(
+                    check(
+                        TOR_DNS_UPSTREAMS=[upstream],
+                        TOR_EGRESS_RESOLVER_CIDRS=RESOLVER_CIDRS,
+                    ),
+                    passes,
+                )
+
+    def test_listed_host_names_need_a_dnsmasq_built_with_nftset(self) -> None:
+        block = _task(
+            PREFLIGHT, "🔎 Egress router | Require nftset for listed host names"
+        )
+        self.assertEqual(block["when"], "TOR_EGRESS_PLAN.dns | length > 0")
+        self.assertTrue(plan(_egress(direct=["deb.debian.org"]), "all")["dns"])
+        self.assertFalse(plan(_egress(direct=["198.51.100.0/24"]), "all")["dns"])
+        that = _that(
+            PREFLIGHT,
+            "✅ Egress router | Refuse list rules on a dnsmasq without nftset",
+        )
+        options = "Compile time options: IPv6 GNU-getopt DBus i18n IDN2 DHCP conntrack ipset {} auth DNSSEC"
+        cases = {
+            options.format("nftset"): True,
+            options.format("no-nftset"): False,
+            options.format(""): False,
+        }
+        for stdout, passes in cases.items():
+            with self.subTest(stdout=stdout):
+                self.assertEqual(
+                    _evaluate(
+                        that,
+                        {"_tor_dnsmasq_version": {"stdout": stdout}},
+                        conditional=True,
+                    ),
+                    passes,
+                )
+
+    def test_a_dnsmasq_resolving_as_root_or_nobody_is_refused(self) -> None:
+        that = _that(
+            RESOLVERS,
+            "✅ Egress router | Refuse a dnsmasq that resolves as root or nobody",
+        )
+        for uid, passes in ((DNSMASQ_UID, True), (0, False), (65534, False)):
+            with self.subTest(uid=uid):
+                self.assertEqual(
+                    _evaluate(that, {"TOR_DNSMASQ_UID": str(uid)}, conditional=True),
+                    passes,
+                )
+
+    def test_a_dnsmasq_uid_other_processes_share_is_refused(self) -> None:
+        that = _that(
+            RESOLVERS, "✅ Egress router | Refuse a dnsmasq UID other processes share"
+        )
+        cases = {
+            ("4711",): True,
+            ("4711", "4712"): False,
+        }
+        for uid_pids, passes in cases.items():
+            with self.subTest(uid_pids=uid_pids):
+                self.assertEqual(
+                    _evaluate(
+                        that,
+                        {
+                            "_tor_dnsmasq_uid_pids": {"stdout_lines": list(uid_pids)},
+                            "_tor_dnsmasq_pids": {"stdout_lines": ["4711"]},
+                        },
+                        conditional=True,
+                    ),
+                    passes,
+                )
+
     def test_upstreams_in_the_main_dnsmasq_configuration_are_refused(self) -> None:
         task = _task(
             PREFLIGHT,
