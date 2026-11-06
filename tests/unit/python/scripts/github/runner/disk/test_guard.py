@@ -22,6 +22,10 @@ SLOW_INTERVAL_S = "10"
 PROMPT_S = 3
 DF_STUB = (
     "#!/usr/bin/env bash\n"
+    "for _ in $(seq 200); do\n"
+    '  [ -z "${STUB_DF_WAIT_FOR:-}" ] || [ -s "${STUB_DF_WAIT_FOR}" ] && break\n'
+    "  sleep 0.05\n"
+    "done\n"
     'printf "%s\\n" "$*" >>"${STUB_DF_LOG}"\n'
     'printf "Avail\\n%s\\n" "$(cat "${STUB_FREE_GB_FILE}")"\n'
 )
@@ -125,9 +129,14 @@ class GuardCase(unittest.TestCase):
     def sleeper(self) -> list[str]:
         """A command that runs until killed and records its own and a child's pid.
 
+        The df stub then answers only once the child's pid is recorded: the
+        guard samples at start, so a floor already crossed would otherwise
+        stop the command before it records its pids.
+
         Returns:
             The argv of that command.
         """
+        self.env["STUB_DF_WAIT_FOR"] = str(self.child_file)
         return [
             "bash",
             "-c",
