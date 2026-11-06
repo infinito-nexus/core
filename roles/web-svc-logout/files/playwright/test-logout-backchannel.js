@@ -78,7 +78,7 @@ exports.register = function () {
       }) => {
         test.skip(
           logoutEnv.proxyTargetUrls.length < 2,
-          "PROXY_TARGET_URLS_JSON names no oauth2-proxy app with an onion sibling: the node serves one network",
+          "this pass reaches one network only: no oauth2-proxy app has an onion sibling, or the clearnet pass has no Tor proxy to reach it",
         );
         test.setTimeout(resolveTimeout(900_000)); // three OIDC round trips over two networks plus one cookie_refresh interval
         const context = await openContext(browser, javaScriptEnabled);

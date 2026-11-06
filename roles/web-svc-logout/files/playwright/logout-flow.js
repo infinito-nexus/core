@@ -10,12 +10,23 @@ const {
   performKeycloakLoginForm,
   requireDotenvValue,
 } = require("./personas");
-const { resolveTimeout } = require("./timeouts");
+const { isOnionTarget, resolveTimeout } = require("./timeouts");
 
 const SYNAPSE_IDP = "oidc-keycloak";
 const DURATION_UNITS_MS = { s: 1_000, m: 60_000, h: 3_600_000 };
 const HEADER = "nav.menu-header";
 const RESULT = "#infinito-logout-result";
+
+/**
+ * Return the URLs this pass can reach: the onion pass goes through Tor and
+ * reaches every network, the clearnet pass has no Tor proxy.
+ *
+ * Args:
+ *   urls: the URLs of every network the node serves.
+ */
+function reachableThisPass(urls) {
+  return isOnionTarget() ? urls : urls.filter((url) => !/\.onion$/i.test(new URL(url).hostname));
+}
 
 const logoutEnv = {
   accountUrl: requireDotenvValue(process.env.KEYCLOAK_ACCOUNT_URL, "KEYCLOAK_ACCOUNT_URL"),
@@ -24,11 +35,11 @@ const logoutEnv = {
   biberUsername: requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_USERNAME"),
   clientId: requireDotenvValue(process.env.OIDC_CLIENT_ID, "OIDC_CLIENT_ID"),
   cookieRefresh: requireDotenvValue(process.env.SSO_PROXY_COOKIE_REFRESH, "SSO_PROXY_COOKIE_REFRESH"),
-  dashboardUrls: decodeDotenvJsonList(process.env.DASHBOARD_URLS_JSON, "DASHBOARD_URLS_JSON"),
+  dashboardUrls: reachableThisPass(decodeDotenvJsonList(process.env.DASHBOARD_URLS_JSON, "DASHBOARD_URLS_JSON")),
   everywhereMarker: requireDotenvValue(process.env.LOGOUT_EVERYWHERE_MARKER, "LOGOUT_EVERYWHERE_MARKER"),
   issuerUrl: requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"),
   logoutUrl: requireDotenvValue(process.env.KEYCLOAK_LOGOUT_URL, "KEYCLOAK_LOGOUT_URL"),
-  proxyTargetUrls: decodeDotenvJsonList(process.env.PROXY_TARGET_URLS_JSON, "PROXY_TARGET_URLS_JSON"),
+  proxyTargetUrls: reachableThisPass(decodeDotenvJsonList(process.env.PROXY_TARGET_URLS_JSON, "PROXY_TARGET_URLS_JSON")),
   keycloakThemeEnabled: decodeDotenvQuotedValue(process.env.KEYCLOAK_THEME_ENABLED || "") === "true",
   synapseUrl: decodeDotenvQuotedValue(process.env.MATRIX_SYNAPSE_URL || ""),
   tokenUrl:requireDotenvValue(process.env.KEYCLOAK_TOKEN_URL, "KEYCLOAK_TOKEN_URL"),
