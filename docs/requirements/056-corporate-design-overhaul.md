@@ -109,7 +109,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-phpmyadmin
 - [x] web-app-pihole
 - [x] web-app-pixelfed
-- [ ] web-app-postmarks: the server HTML and the Atom feeds keep the title `Postmarks`, because Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode; `design.js` sets the browser title (upstream option in `roles/web-app-postmarks/TODO.md`).
+- [ ] web-app-postmarks: Postmarks reads `site_name` only from `account.json`, which switches on fediverse mode, so the image build patches `server.js` to read `SITE_NAME`, rendered from the design title, into the page title, the header and both Atom feed titles (upstream option in `roles/web-app-postmarks/TODO.md`). Open: one green run of the complete spec on this state, with a design title that differs from `Postmarks`.
 - [x] web-app-pretix
 - [x] web-app-prometheus
 - [x] web-app-roulette-wheel
@@ -119,7 +119,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-snipe-it
 - [x] web-app-socialhome
 - [x] web-app-sphinx
-- [ ] web-app-stalwart: handed over to `feature/store-i18n`. Under `sso` the web administration specs need its administrator group grant (`199f2a6d41`), which `feature/designer` does not carry, so `feature/store-i18n` ticks this item after a green run of the stalwart spec with `design`, `sso` and `email` on its merged state.
+- [ ] web-app-stalwart: under `sso` the web administration specs need its administrator group grant (`199f2a6d41`), which `feature/designer` does not carry and `feature/store-i18n` and `feature/iam-profile-rbac` do. Open: one green run of the complete stalwart spec with `design`, `sso` and `email` (variant 0) on the merged state of either line.
 - [x] web-app-suitecrm
 - [x] web-app-taiga
 - [x] web-app-wordpress
