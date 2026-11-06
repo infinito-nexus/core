@@ -103,11 +103,10 @@ class TestTemplate(unittest.TestCase):
         self._refused("already holds files")
 
     def test_spec_key_the_build_does_not_read_fails_the_build(self):
-        spec_file = self.template / vm_template.SPEC_FILE
-        spec_file.write_text(
-            spec_file.read_text(encoding="utf-8") + "extra_files:\n  - x.txt\n",
-            encoding="utf-8",
-        )
+        with (self.template / vm_template.SPEC_FILE).open(
+            "a", encoding="utf-8"
+        ) as spec:
+            spec.write("extra_files:\n  - x.txt\n")
         self._refused("keys the build does not read: extra_files")
 
     def test_runtime_pins_come_from_the_installing_roles(self):
@@ -121,7 +120,7 @@ class TestTemplate(unittest.TestCase):
         self.assertNotIn("mkosi.postinst", files)
         script = files["mkosi.postinst.chroot"]
         self.assertIn(
-            "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.2.3.tgz",
+            f"{vm_template.NPM_REGISTRY}/@anthropic-ai/claude-code/-/claude-code-1.2.3.tgz",
             script,
         )
         self.assertIn(
@@ -148,7 +147,7 @@ class TestTemplate(unittest.TestCase):
         )
         roles = self.tmp / "roles"
         (roles / "nested" / "role").mkdir(parents=True)
-        for role in ("../elsewhere", "nested/role", ".", ".."):
+        for role in ("../elsewhere", "nested/role", ".", "nested/../.."):
             spec = {"runtimes": {"x": {"role": role, "entity": "claude", "sha256": ""}}}
             with self.assertRaises(vm_template.VmTemplateError, msg=role):
                 vm_template.runtime_pins(spec, roles)

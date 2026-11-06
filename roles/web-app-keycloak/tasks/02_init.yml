@@ -17,7 +17,7 @@
       services.keycloak.email.policy to external.
     quiet: true
 
-- name: "✅ Assert the admin events of '{{ application_id }}' expire after whole days above 0"
+- name: "✅ Assert admin events of '{{ application_id }}' expire after whole days above 0"
   ansible.builtin.assert:
     that:
       - KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS is integer

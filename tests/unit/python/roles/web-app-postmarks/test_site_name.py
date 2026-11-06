@@ -10,6 +10,7 @@ from jinja2 import Environment, StrictUndefined
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml, load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = "web-app-postmarks"
 ROLE_DIR = Path(PROJECT_ROOT) / "roles" / ROLE
@@ -23,7 +24,7 @@ def _ansible_bool(value) -> bool:
 
 
 class TestPostmarksSiteName(unittest.TestCase):
-    variables: ClassVar[dict] = load_yaml(str(ROLE_DIR / "vars" / "main.yml"))
+    variables: ClassVar[dict] = load_yaml(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
 
     def _site_name(self, design_enabled) -> str:
         """Render POSTMARKS_SITE_NAME against stubbed lookups.

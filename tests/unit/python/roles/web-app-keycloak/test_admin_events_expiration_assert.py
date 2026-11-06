@@ -7,7 +7,9 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 
 INIT = Path(PROJECT_ROOT) / "roles" / "web-app-keycloak" / "tasks" / "02_init.yml"
-ASSERT_NAME = "✅ Assert the admin events of '{{ application_id }}' expire after whole days above 0"
+ASSERT_NAME = (
+    "✅ Assert admin events of '{{ application_id }}' expire after whole days above 0"
+)
 KEY = "KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS"
 
 

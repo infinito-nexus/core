@@ -5,13 +5,12 @@ import re
 import subprocess
 import unittest
 
-import yaml
-
 from cli.administration.inventory.provision.services.disabler import (
     parse_services_disabled,
 )
 from tests.utils import PROJECT_ROOT
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 DEPLOY_WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "call-test-deploy.yml"
 
@@ -105,7 +104,7 @@ class TestDeployDisableMerge(unittest.TestCase):
 
 def warning_steps() -> list[dict]:
     """The discover steps that warn about a passed ``disable``."""
-    steps = yaml.safe_load(read_text(str(DEPLOY_WORKFLOW)))["jobs"]["discover"]["steps"]
+    steps = load_yaml_any(str(DEPLOY_WORKFLOW))["jobs"]["discover"]["steps"]
     return [
         step
         for step in steps
