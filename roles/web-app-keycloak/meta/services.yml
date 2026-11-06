@@ -61,6 +61,15 @@ keycloak:
   realm:
     import_enabled: true
     totp_enabled: true
+    totp_enforced: true
+    otp_policy:
+      type: totp
+      algorithm: HmacSHA1
+      digits: 6
+      period: 30
+      look_ahead_window: 1
+      initial_counter: 0
+      code_reusable: false
   users:
     emails_verified: true
   events:

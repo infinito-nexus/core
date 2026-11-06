@@ -99,6 +99,17 @@ KEYCLOAK_REALM_IMPORT_FILENAME: "realm.json"
 KEYCLOAK_REALM_IMPORT_FILE_DST: "{{ [KEYCLOAK_REALM_IMPORT_DIR_HOST,KEYCLOAK_REALM_IMPORT_FILENAME] | path_join }}"
 KEYCLOAK_REALM_IMPORT_FILE_DOCKER: "{{ [KEYCLOAK_REALM_IMPORT_DIR_DOCKER,KEYCLOAK_REALM_IMPORT_FILENAME] | path_join }}"
 KEYCLOAK_REALM_TOTP_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.totp_enabled') | bool }}"
+KEYCLOAK_REALM_TOTP_ENFORCED: "{{ lookup('config', application_id, 'services.keycloak.realm.totp_enforced') | bool }}"
+KEYCLOAK_REALM_OTP_POLICY_TYPE: "{{ lookup('config', application_id, 'services.keycloak.realm.otp_policy.type') }}"
+KEYCLOAK_REALM_OTP_POLICY_TYPES: ["totp", "hotp"]
+KEYCLOAK_REALM_OTP_POLICY_ALGORITHM: "{{ lookup('config', application_id, 'services.keycloak.realm.otp_policy.algorithm') }}"
+KEYCLOAK_REALM_OTP_POLICY_ALGORITHMS: ["HmacSHA1", "HmacSHA256", "HmacSHA512"]
+KEYCLOAK_REALM_OTP_POLICY_DIGITS: "{{ lookup('config', application_id, 'services.keycloak.realm.otp_policy.digits') }}"
+KEYCLOAK_REALM_OTP_POLICY_DIGIT_COUNTS: [6, 8]
+KEYCLOAK_REALM_OTP_POLICY_PERIOD: "{{ lookup('config', application_id, 'services.keycloak.realm.otp_policy.period') }}"
+KEYCLOAK_REALM_OTP_POLICY_LOOK_AHEAD_WINDOW: "{{ lookup('config', application_id, 'services.keycloak.realm.otp_policy.look_ahead_window') }}"
+KEYCLOAK_REALM_OTP_POLICY_INITIAL_COUNTER: "{{ lookup('config', application_id, 'services.keycloak.realm.otp_policy.initial_counter') }}"
+KEYCLOAK_REALM_OTP_POLICY_CODE_REUSABLE: "{{ lookup('config', application_id, 'services.keycloak.realm.otp_policy.code_reusable') | bool }}"
 
 KEYCLOAK_ENV_FILE: "{{ lookup('container', application_id, 'files.env') }}"
 
@@ -271,6 +282,13 @@ KEYCLOAK_SETTINGS_SPEC:
         adminPermissionsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminPermissionsEnabled }}"
         attributes:
           adminEventsExpiration: "{{ KEYCLOAK_DICTIONARY_REALM.attributes.adminEventsExpiration }}"
+        otpPolicyType: "{{ KEYCLOAK_DICTIONARY_REALM.otpPolicyType }}"
+        otpPolicyAlgorithm: "{{ KEYCLOAK_DICTIONARY_REALM.otpPolicyAlgorithm }}"
+        otpPolicyInitialCounter: "{{ KEYCLOAK_DICTIONARY_REALM.otpPolicyInitialCounter }}"
+        otpPolicyDigits: "{{ KEYCLOAK_DICTIONARY_REALM.otpPolicyDigits }}"
+        otpPolicyLookAheadWindow: "{{ KEYCLOAK_DICTIONARY_REALM.otpPolicyLookAheadWindow }}"
+        otpPolicyPeriod: "{{ KEYCLOAK_DICTIONARY_REALM.otpPolicyPeriod }}"
+        otpPolicyCodeReusable: "{{ KEYCLOAK_DICTIONARY_REALM.otpPolicyCodeReusable }}"
     - realm: master
       desired:
         smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"

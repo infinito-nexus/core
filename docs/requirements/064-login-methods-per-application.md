@@ -11,15 +11,47 @@ As a platform operator, I want the sign-in page of every application to offer on
 
    | Mode | sso | ldap | native | 2fa | extras and registration |
    |---|---|---|---|---|---|
-   | SSO on | true | false | false | false (Keycloak carries the second factor) | false |
-   | SSO off, LDAP on | false | true | false | true | false |
-   | SSO off, LDAP off (native) | false | false | true | true | false |
+   | SSO on | true | false | false | false (Keycloak is the only second factor and enforces it) | false |
+   | SSO off, LDAP on | false | true | false | true (enforced where the app can) | false |
+   | SSO off, LDAP off (native) | false | false | true | true (enforced where the app can) | false |
 
    The inventory may override any flag.
-3. **2FA is offered, never enforced.** `2fa: true` makes the app's own second factor available for enrollment; no account is forced to enroll.
+3. **2FA is enforced unless switched off (operator decision 2026-11-06; supersedes the 2026-10-30 offer-only rule).** An account without a second factor enrolls one at its next sign-in before it gets in.
+   - With Keycloak enabled as a service of the app (`services.sso.enabled`), Keycloak is by default the only second factor: the realm enforces TOTP enrollment through `services.keycloak.realm.totp_enforced` of `web-app-keycloak` (default `true`), and the app's own `2fa` is off.
+   - Without Keycloak, the app's own second factor is on and enforced through `services.<entity>.login.method.2fa.enforced` (default `true`) wherever the app can enforce it; the research table below lists which apps can.
+   - The app's `meta/services.yml`, like the inventory, may override either default: `login.method.2fa.enabled: true` runs the app's own second factor beside Keycloak, and `login.method.2fa.enforced: false` only offers it. Keycloak's enforcement is realm-wide, so `totp_enforced: false` switches it off for every app of the realm at once, as every Keycloak variant and the development inventory do for automated logins.
 4. **Shared form.** Where one form serves local and LDAP accounts (Gitea, Open WebUI, Matrix, MinIO, Semaphore, Zammad, Odoo), the LDAP mode keeps the form for LDAP, and `native: false` means no local account signs in except the break-glass admin wherever the app can tell the two apart; where it cannot, the role README states that the form is shared.
 5. **Hiding.** A disabled method is switched off through the app's own setting where one exists, otherwise hidden by role-injected CSS or JavaScript through the role's `javascript` service. Every app keeps a documented break-glass path for its local admin (URL parameter, recovery account, CLI or token).
 6. **Gitea OpenID 2.0.** `[openid] ENABLE_OPENID_SIGNIN` and `ENABLE_OPENID_SIGNUP` enable OpenID 2.0, not the OIDC source, and follow `login.method.openid2.enabled`.
+
+## App-native 2FA enforcement research (2026-11-06)
+
+Upstream support for enforcing each app's own second factor, for the 22 roles that declare `login.method.2fa`. "Switch today" is where the role reads `login.method.2fa.enabled`; none of these roles enforces its second factor yet.
+
+| Role | Switch today | Can enforce | Upstream enforcement setting | Source |
+|---|---|---|---|---|
+| web-app-discourse | read: roles/web-app-discourse/vars/main.yml:71 | yes | site setting `enforce_second_factor` (`no`, `staff`, `all`) | <https://review.discourse.org/t/feature-enforce-two-factor-authentication-6348/2198> |
+| web-app-erpnext | read: roles/web-app-erpnext/vars/main.yml:51 | yes | System Settings `enable_two_factor_auth` plus the `Two Factor Authentication` box of a Role (Role "All" covers every user); the role checks no box today | <https://docs.frappe.io/erpnext/setup-two-factor-authentication> |
+| web-app-espocrm | read: roles/web-app-espocrm/vars/main.yml:42 | yes, regular users only | config `auth2FAForced`; portal users cannot be forced | <https://github.com/espocrm/espocrm/blob/master/application/Espo/Resources/layouts/Settings/authentication.json>, <https://forum.espocrm.com/forum/developer-help/100132-need-to-force-2fa-authentication-on-portal-users> |
+| web-app-gitea | read: roles/web-app-gitea/vars/main.yml:129 | yes | `[security] TWO_FACTOR_AUTH = enforced` (Gitea 1.24 and later) | <https://docs.gitea.com/administration/config-cheat-sheet/>, <https://github.com/go-gitea/gitea/pull/34187> |
+| web-app-gitlab | read: roles/web-app-gitlab/vars/main.yml:33 | yes | application settings `require_two_factor_authentication` and `two_factor_grace_period` | <https://docs.gitlab.com/security/two_factor_authentication> |
+| web-app-joomla | read: roles/web-app-joomla/vars/main.yml:47 | yes | com_users option `forceMFAUserGroups` ("Enforce Multi-factor Authentication"; Super Users selectable since Joomla 6.1) | <https://docs.joomla.org/Help5.x:Users:_Options>, <https://mysites.guru/blog/force-mfa-on-joomla-super-users-across-every-site/> |
+| web-app-listmonk | read: roles/web-app-listmonk/vars/main.yml:15 | no | none found: each user enrolls TOTP on its own, no setting requires it | <https://github.com/knadh/listmonk/releases> |
+| web-app-mastodon | read: roles/web-app-mastodon/vars/main.yml:24 | no | none found: each user enables 2FA in its own preferences | <https://docs.framasoft.org/en/mastodon/User-guide.html> |
+| web-app-matomo | read: roles/web-app-matomo/vars/main.yml:42 | yes | TwoFactorAuth plugin system setting `twoFactorAuthRequired` | <https://matomo.org/faq/general/faq_27245/> |
+| web-app-mattermost | read: roles/web-app-mattermost/vars/main.yml:19 | unconfirmed | `ServiceSettings.EnforceMultifactorAuthentication`, reported without effect on the Team Edition the role installs | <https://docs.mattermost.com/administration-guide/configure/authentication-configuration-settings.html>, <https://forum.mattermost.com/t/mfa-enforcement-not-working-no-effect/25571> |
+| web-app-moodle | read: roles/web-app-moodle/vars/main.yml:80 | yes | tool_mfa without `factor_nosetup`, with `factor_grace` and its `forcesetup` | <https://docs.moodle.org/503/en/Multi-factor_authentication> |
+| web-app-nextcloud | read: roles/web-app-nextcloud/meta/addons/twofactor_totp.yml:2 | yes | `occ twofactorauth:enforce --on` (config.php `twofactor_enforced`) | <https://docs.nextcloud.com/server/stable/admin_manual/configuration_user/two_factor-auth.html> |
+| web-app-odoo | read: roles/web-app-odoo/vars/main.yml:40 | yes | system parameter `auth_totp.policy` (`employee_required`, `all_required`) of the `auth_totp_mail` module | <https://github.com/odoo/odoo/pull/83256> |
+| web-app-peertube | read: roles/web-app-peertube/vars/main.yml:55 | no | none found: each account enables 2FA on its own | <https://docs.joinpeertube.org/use/setup-account> |
+| web-app-pgadmin | read: roles/web-app-pgadmin/vars/main.yml:19 | yes | `MFA_FORCE_REGISTRATION` (`PGADMIN_CONFIG_MFA_FORCE_REGISTRATION`), set to `False` by the role today | <https://www.pgadmin.org/docs/pgadmin4/latest/mfa.html> |
+| web-app-pixelfed | read: roles/web-app-pixelfed/vars/main.yml:13 | no | none found: each account enables 2FA on its own | <https://pixelfed.social/site/kb/your-profile> |
+| web-app-pretix | read: roles/web-app-pretix/vars/main.yml:12 | yes | `obligatory_2fa` of the `[pretix]` section in pretix.cfg; teams also offer `require_2fa` | <https://docs.pretix.eu/self-hosting/config/>, <https://docs.pretix.eu/guides/teams/> |
+| web-app-semaphore | read: roles/web-app-semaphore/vars/main.yml:31 | no | none found: `SEMAPHORE_TOTP_ENABLED` only lets users enroll | <https://semaphoreui.com/docs/admin-guide/authentication/local> |
+| web-app-stalwart | read: roles/web-app-stalwart/vars/main.yml:120 | no | none found: accounts enroll TOTP in the Account Manager and the server has no switch for it | read: roles/web-app-stalwart/README.md:116; <https://github.com/stalwartlabs/stalwart> |
+| web-app-suitecrm | read: roles/web-app-suitecrm/vars/main.yml:44 | no | none in core (per-user `factor_auth`); only a paid store add-on has a "Required" mode | <https://community.suitecrm.com/t/make-two-factor-authentication-2fa-mandatory-for-users/99570> |
+| web-app-weblate | read: roles/web-app-weblate/vars/main.yml:13 | yes, per team or project | `enforced_2fa` of a team or project (Weblate 5.7 and later), no site-wide switch | <https://docs.weblate.org/en/latest/admin/auth.html> |
+| web-app-zammad | read: roles/web-app-zammad/vars/main.yml:126 | yes | setting `two_factor_authentication_enforce_role_ids`, empty today | <https://admin-docs.zammad.org/en/latest/settings/security/two-factor.html> |
 
 ## Acceptance Criteria
 
@@ -41,7 +73,19 @@ As a platform operator, I want the sign-in page of every application to offer on
 
 - [ ] With SSO off and LDAP on, every role with a native LDAP path signs an LDAP account in through its form, and shows no registration, passkey or third-party entry.
 - [ ] With SSO off and LDAP on, a local account other than the break-glass admin cannot sign in wherever the app separates local from LDAP accounts, and the README of every other shared-form role says so.
-- [ ] With SSO and LDAP off, every role signs a local account in through its form and offers its own second factor for enrollment where the app has one, without enforcing it.
+- [ ] With SSO and LDAP off, every role signs a local account in through its form, and its own second factor is on wherever the app has one.
+
+### Second factor
+
+- [x] With Keycloak deployed, the shipped realm sends every account without a second factor to TOTP enrollment (`services.keycloak.realm.totp_enforced: true`, `CONFIGURE_TOTP` as default action), an existing realm converges to it, and the required actions converge before any user is created or imported: `TestTotpEnforcement` in [test_realm_import_json.py](../../tests/unit/python/roles/web-app-keycloak/templates/test_realm_import_json.py), `test_the_shipped_default_enforces_totp` and `test_the_shipped_defaults_pass_every_type_test_and_assert` in [test_otp_assert.py](../../tests/unit/python/roles/web-app-keycloak/test_otp_assert.py).
+- [x] Every automated login path switches Keycloak's enforcement off while a production inventory keeps it: every Keycloak variant, the development inventory vars file and every CI compose round that deploys Keycloak set `totp_enforced: false`: `test_every_variant_switches_enforcement_off_and_passes_the_assert` in [test_otp_assert.py](../../tests/unit/python/roles/web-app-keycloak/test_otp_assert.py), `TestDevInventorySwitchesTotpEnforcementOff` in [test_dev_inventory_totp.py](../../tests/unit/python/roles/web-app-keycloak/test_dev_inventory_totp.py), `test_every_compose_round_that_deploys_keycloak_switches_enforcement_off` in [test_variant_payload_scope.py](../../tests/integration/meta/workflows/test_variant_payload_scope.py).
+- [ ] Every role that declares `login.method.2fa` declares `login.method.2fa.enforced` beside `enabled`, defaulting to `true`.
+- [ ] The lint in [test_login_methods.py](../../tests/lint/ansible/services/test_login_methods.py), which today requires every method block to hold exactly `enabled`, fails on a `2fa` block without `enforced` or with an `enforced` default other than `true`, and it fails on a negative control.
+- [ ] With the app's own `2fa` on, every role whose app can enforce its second factor (research table: yes) renders that setting from `login.method.2fa.enforced`, proven by a unit test per role on the rendered setting.
+- [ ] With the app's own `2fa` and `enforced` on, a local account without a second factor is sent to enrollment before it gets in, proven by a Playwright assertion in each such role's native variant.
+- [ ] Every variant whose Playwright spec signs a local account in sets `login.method.2fa.enforced: false`, so automated logins skip enrollment while a production inventory keeps the default.
+- [ ] Every role whose app cannot enforce its own second factor (research table: no or unconfirmed) states in its README that `enforced` only offers it there.
+- [ ] [login.md](../contributing/design/iam/login.md) documents `login.method.2fa.enforced` and its default, and no longer says that `2fa` never enforces.
 
 ### Break-glass
 

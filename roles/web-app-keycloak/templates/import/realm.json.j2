@@ -397,13 +397,13 @@
     "password"
   ],
   "passwordPolicy": "length(16) and notEmail(undefined) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1)",
-  "otpPolicyType": "totp",
-  "otpPolicyAlgorithm": "HmacSHA1",
-  "otpPolicyInitialCounter": 0,
-  "otpPolicyDigits": 6,
-  "otpPolicyLookAheadWindow": 1,
-  "otpPolicyPeriod": 30,
-  "otpPolicyCodeReusable": false,
+  "otpPolicyType": {{ KEYCLOAK_REALM_OTP_POLICY_TYPE | to_json }},
+  "otpPolicyAlgorithm": {{ KEYCLOAK_REALM_OTP_POLICY_ALGORITHM | to_json }},
+  "otpPolicyInitialCounter": {{ KEYCLOAK_REALM_OTP_POLICY_INITIAL_COUNTER | to_json }},
+  "otpPolicyDigits": {{ KEYCLOAK_REALM_OTP_POLICY_DIGITS | to_json }},
+  "otpPolicyLookAheadWindow": {{ KEYCLOAK_REALM_OTP_POLICY_LOOK_AHEAD_WINDOW | to_json }},
+  "otpPolicyPeriod": {{ KEYCLOAK_REALM_OTP_POLICY_PERIOD | to_json }},
+  "otpPolicyCodeReusable": {{ KEYCLOAK_REALM_OTP_POLICY_CODE_REUSABLE | bool | to_json }},
   "otpSupportedApplications": [
     "totpAppFreeOTPName",
     "totpAppGoogleName",
@@ -2260,17 +2260,15 @@
     }
   ],
   "requiredActions": [
-{% if KEYCLOAK_REALM_TOTP_ENABLED | bool %}
     {
       "alias": "CONFIGURE_TOTP",
       "name": "Configure OTP",
       "providerId": "CONFIGURE_TOTP",
-      "enabled": true,
-      "defaultAction": false,
+      "enabled": {{ KEYCLOAK_REALM_TOTP_ENABLED | bool | to_json }},
+      "defaultAction": {{ KEYCLOAK_REALM_TOTP_ENFORCED | bool | to_json }},
       "priority": 10,
       "config": {}
     },
-{% endif %}
     {
       "alias": "TERMS_AND_CONDITIONS",
       "name": "Terms and Conditions",
