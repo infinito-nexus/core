@@ -17,11 +17,14 @@
 
 - name: "🧭 Remember the provisioned workspace, API token and CI source tokens"
   ansible.builtin.set_fact:
-    openpost_crossposter_workspace: "{{ openpost_crossposter_state.workspace | default('') }}"
-    openpost_crossposter_token: "{{ openpost_crossposter_state.token | default('') }}"
-    openpost_crossposter_sources: "{{ openpost_crossposter_state.sources | default({}) }}"
+    openpost_crossposter_workspace: "{{ openpost_crossposter_state.workspace }}"
+    openpost_crossposter_token: "{{ openpost_crossposter_state.token }}"
+    openpost_crossposter_sources: "{{ openpost_crossposter_state.sources }}"
   vars:
-    openpost_crossposter_state: "{{ (openpost_crossposter_state_raw.content | b64decode | from_json) if openpost_crossposter_state_file.stat.exists else {} }}"
+    openpost_crossposter_state: >-
+      {{ (openpost_crossposter_state_raw.content | b64decode | from_json)
+         if openpost_crossposter_state_file.stat.exists
+         else {'workspace': '', 'token': '', 'sources': {}} }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📦 Stage the crossposter build context"
