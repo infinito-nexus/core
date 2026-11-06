@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import re
@@ -9,13 +10,59 @@ from unittest import mock
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-keycloak"
 IMPORT_DIR = ROLE_DIR / "templates/import"
 ROLE_VARS = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
+ROLE_SERVICES = load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_SERVICES))
+OTP_VARIABLES = (
+    "KEYCLOAK_REALM_TOTP_ENABLED",
+    "KEYCLOAK_REALM_TOTP_ENFORCED",
+    "KEYCLOAK_REALM_OTP_POLICY_TYPE",
+    "KEYCLOAK_REALM_OTP_POLICY_ALGORITHM",
+    "KEYCLOAK_REALM_OTP_POLICY_DIGITS",
+    "KEYCLOAK_REALM_OTP_POLICY_PERIOD",
+    "KEYCLOAK_REALM_OTP_POLICY_LOOK_AHEAD_WINDOW",
+    "KEYCLOAK_REALM_OTP_POLICY_INITIAL_COUNTER",
+    "KEYCLOAK_REALM_OTP_POLICY_CODE_REUSABLE",
+)
+
+
+def otp_context(realm_overrides: dict | None = None) -> dict:
+    """Resolve the role's OTP variables through ``vars/main.yml`` from ``meta/services.yml``.
+
+    Args:
+        realm_overrides: values replacing those below ``services.keycloak.realm``,
+            keyed by their dotted path below it.
+    """
+    services = copy.deepcopy(ROLE_SERVICES)
+    for path, value in (realm_overrides or {}).items():
+        *parents, leaf = path.split(".")
+        target = services["keycloak"]["realm"]
+        for parent in parents:
+            target = target[parent]
+        target[leaf] = value
+
+    def lookup(name, _application_id, path):
+        assert name == "config", name
+        value = {"services": services}
+        for part in path.split("."):
+            value = value[part]
+        return value
+
+    env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+    env.filters["bool"] = bool
+    return {
+        name: env.compile_expression(
+            ROLE_VARS[name].strip().removeprefix("{{").removesuffix("}}")
+        )(lookup=lookup, application_id="web-app-keycloak")
+        for name in OTP_VARIABLES
+    }
+
+
 LDAP_VARS = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
 LDAP_USER_ATTRIBUTES = {
     **LDAP_VARS["LDAP"]["USER"]["ATTRIBUTES"],
@@ -67,7 +114,7 @@ CONTEXT = {
     "KEYCLOAK_RECAPTCHA_KEY": "",
     "KEYCLOAK_RECAPTCHA_SECRET": "",
     "KEYCLOAK_RECAPTCHA_ENABLED": False,
-    "KEYCLOAK_REALM_TOTP_ENABLED": False,
+    **otp_context({"totp_enabled": False}),
     "KEYCLOAK_LDAP_ENABLED": True,
     "KEYCLOAK_MOODLE_ENABLED": True,
     "KEYCLOAK_RESERVED_USERNAMES_REGEX": "^(root|admin)$",
@@ -721,28 +768,62 @@ def drifted_required_actions(desired: list, current: list) -> list:
     return module.kc_drifted_required_actions(desired, current)
 
 
+def otp_realm(realm_overrides: dict | None = None) -> dict:
+    """Render the realm from ``meta/services.yml`` with *realm_overrides* applied.
+
+    Args:
+        realm_overrides: see ``otp_context``.
+    """
+    return json.loads(render([], overrides=otp_context(realm_overrides)))
+
+
 def totp_realm(enabled: bool) -> dict:
-    return json.loads(render([], overrides={"KEYCLOAK_REALM_TOTP_ENABLED": enabled}))
+    return otp_realm({"totp_enabled": enabled})
+
+
+def configure_totp(realm: dict) -> dict:
+    return next(a for a in realm["requiredActions"] if a["alias"] == "CONFIGURE_TOTP")
+
+
+def reconciled(realm: dict) -> list:
+    return [
+        a
+        for a in realm["requiredActions"]
+        if a["alias"] in ROLE_VARS["KEYCLOAK_RECONCILED_REQUIRED_ACTIONS"]
+    ]
+
+
+OTP_POLICY_DEFAULTS = {
+    "otpPolicyType": "totp",
+    "otpPolicyAlgorithm": "HmacSHA1",
+    "otpPolicyDigits": 6,
+    "otpPolicyPeriod": 30,
+    "otpPolicyLookAheadWindow": 1,
+    "otpPolicyInitialCounter": 0,
+    "otpPolicyCodeReusable": False,
+}
 
 
 class TestTotpOfferedNotEnforced(unittest.TestCase):
-    def test_an_enabled_realm_offers_otp_without_forcing_it(self) -> None:
-        action = next(
-            a
-            for a in totp_realm(True)["requiredActions"]
-            if a["alias"] == "CONFIGURE_TOTP"
-        )
-        self.assertTrue(action["enabled"])
-        self.assertFalse(action["defaultAction"])
+    def test_the_shipped_realm_offers_otp_without_forcing_it(self) -> None:
+        action = configure_totp(otp_realm())
+        self.assertIs(True, action["enabled"])
+        self.assertIs(False, action["defaultAction"])
 
     def test_a_disabled_realm_does_not_offer_otp(self) -> None:
-        aliases = [a["alias"] for a in totp_realm(False)["requiredActions"]]
-        self.assertNotIn("CONFIGURE_TOTP", aliases)
+        action = configure_totp(totp_realm(False))
+        self.assertIs(False, action["enabled"])
+        self.assertIs(False, action["defaultAction"])
+
+    def test_an_enforced_realm_sends_every_new_user_to_otp_enrollment(self) -> None:
+        action = configure_totp(otp_realm({"totp_enforced": True}))
+        self.assertIs(True, action["enabled"])
+        self.assertIs(True, action["defaultAction"])
 
     def test_no_imported_user_starts_with_a_required_action(self) -> None:
-        for enabled in (True, False):
-            for user in totp_realm(enabled)["users"]:
-                with self.subTest(enabled=enabled, user=user["username"]):
+        for overrides in ({}, {"totp_enabled": False}, {"totp_enforced": True}):
+            for user in otp_realm(overrides)["users"]:
+                with self.subTest(overrides=overrides, user=user["username"]):
                     self.assertEqual([], user["requiredActions"])
 
     def test_an_existing_realm_that_forces_otp_converges_to_offering_it(
@@ -751,11 +832,7 @@ class TestTotpOfferedNotEnforced(unittest.TestCase):
         self.assertIn(
             "CONFIGURE_TOTP", ROLE_VARS["KEYCLOAK_RECONCILED_REQUIRED_ACTIONS"]
         )
-        desired = [
-            a
-            for a in totp_realm(True)["requiredActions"]
-            if a["alias"] in ROLE_VARS["KEYCLOAK_RECONCILED_REQUIRED_ACTIONS"]
-        ]
+        desired = reconciled(otp_realm())
         forced = [
             {**a, "defaultAction": True} if a["alias"] == "CONFIGURE_TOTP" else a
             for a in desired
@@ -763,6 +840,75 @@ class TestTotpOfferedNotEnforced(unittest.TestCase):
         drifted = drifted_required_actions(desired, forced)
         self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
         self.assertFalse(drifted[0]["defaultAction"])
+
+    def test_an_existing_realm_that_offers_otp_converges_to_not_offering_it(
+        self,
+    ) -> None:
+        offered = reconciled(otp_realm())
+        desired = reconciled(totp_realm(False))
+        drifted = drifted_required_actions(desired, offered)
+        self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
+        self.assertIs(False, drifted[0]["enabled"])
+
+    def test_required_actions_converge_before_any_user_is_created_or_imported(
+        self,
+    ) -> None:
+        routines = load_yaml_any(
+            str(ROLE_DIR / "tasks/03_manager_ops/update_routines.yml")
+        )
+        includes = [
+            str(task.get("include_tasks", ""))
+            for routine in routines
+            for task in routine.get("block", [routine])
+        ]
+        required = next(
+            i for i, path in enumerate(includes) if "12_required_actions" in path
+        )
+        creators = [
+            i
+            for i, path in enumerate(includes)
+            if any(
+                step in path for step in ("06_users", "03_ldap", "14_email_policy")
+            )
+        ]
+        self.assertTrue(creators)
+        self.assertLess(required, min(creators))
+
+    def test_an_existing_realm_converges_to_enforcing_otp(self) -> None:
+        desired = reconciled(otp_realm({"totp_enforced": True}))
+        drifted = drifted_required_actions(desired, reconciled(otp_realm()))
+        self.assertEqual(["CONFIGURE_TOTP"], [a["alias"] for a in drifted])
+        self.assertIs(True, drifted[0]["defaultAction"])
+
+
+class TestOtpPolicy(unittest.TestCase):
+    def test_the_shipped_policy_is_the_authenticator_app_default(self) -> None:
+        realm = otp_realm()
+        self.assertEqual(
+            OTP_POLICY_DEFAULTS, {field: realm[field] for field in OTP_POLICY_DEFAULTS}
+        )
+        self.assertIs(int, type(realm["otpPolicyDigits"]))
+        self.assertIs(bool, type(realm["otpPolicyCodeReusable"]))
+
+    def test_every_policy_key_of_the_services_config_reaches_the_realm(self) -> None:
+        cases = {
+            "otp_policy.type": ("otpPolicyType", "hotp"),
+            "otp_policy.algorithm": ("otpPolicyAlgorithm", "HmacSHA512"),
+            "otp_policy.digits": ("otpPolicyDigits", 8),
+            "otp_policy.period": ("otpPolicyPeriod", 60),
+            "otp_policy.look_ahead_window": ("otpPolicyLookAheadWindow", 3),
+            "otp_policy.initial_counter": ("otpPolicyInitialCounter", 5),
+            "otp_policy.code_reusable": ("otpPolicyCodeReusable", True),
+        }
+        for path, (field, value) in cases.items():
+            with self.subTest(path=path):
+                self.assertNotEqual(value, OTP_POLICY_DEFAULTS[field])
+                realm = otp_realm({path: value})
+                self.assertEqual(value, realm[field])
+                self.assertEqual(
+                    {f: v for f, v in OTP_POLICY_DEFAULTS.items() if f != field},
+                    {f: realm[f] for f in OTP_POLICY_DEFAULTS if f != field},
+                )
 
 
 if __name__ == "__main__":

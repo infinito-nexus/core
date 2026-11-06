@@ -77,18 +77,18 @@ class TestVariantPayloadScope(unittest.TestCase):
                 include=variant_scope(primary, variants=round_variants),
                 active_variants=round_variants,
             )
-            realm = (
+            tor = (
                 payloads.get("web-app-keycloak", {})
                 .get("services", {})
-                .get("keycloak", {})
-                .get("realm", {})
+                .get("tor", {})
             )
             self.assertIs(
-                realm.get("totp_enabled"),
-                False,
+                tor.get("enabled"),
+                True,
                 f"{primary}#{round_index} deploys keycloak with "
-                f"{len(round_include)} planned app(s); without its variant override "
-                f"the realm demands CONFIGURE_TOTP and every SSO persona times out",
+                f"{len(round_include)} planned app(s), but the payload lacks the "
+                f"services.tor.enabled override every keycloak variant declares, so "
+                f"keycloak silently runs on its base config",
             )
 
 

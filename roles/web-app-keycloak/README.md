@@ -49,6 +49,31 @@ No deploy moves a realm from `mailbox` back to `external`. An operator who has t
 4. Set `services.keycloak.email.policy` to `external` in the inventory, drop `switch`, and deploy. The deploy points the `email` mapper back at `mail`, renders the user profile and the claims without the mailbox attribute, and removes the RBAC sync timer's mailbox seed.
 5. Read every user again through the new mappers: `kcadm.sh create user-storage/<ldap-component-id>/sync?action=triggerFullSync -r <realm>`.
 
+## Two-Factor Authentication
+
+`services.keycloak.realm` in [services.yml](meta/services.yml) decides how the application realm offers one-time passwords. A fresh realm imports these values and every deploy converges an existing realm to them.
+
+| Key | Default | Effect |
+|---|---|---|
+| `totp_enabled` | `true` | Enables the `CONFIGURE_TOTP` required action: a user can enroll an authenticator app in the account console. The browser flow asks every user who holds an OTP credential for a code, whatever this key says. |
+| `totp_enforced` | `false` | Makes `CONFIGURE_TOTP` a default action, which Keycloak attaches to every user it creates while the key is `true`; see [Enforcing TOTP](#enforcing-totp). Needs `totp_enabled: true`, otherwise the deploy fails. |
+| `otp_policy.type` | `totp` | `totp` (time-based) or `hotp` (counter-based). |
+| `otp_policy.algorithm` | `HmacSHA1` | `HmacSHA1`, `HmacSHA256` or `HmacSHA512`. |
+| `otp_policy.digits` | `6` | Code length, `6` or `8`. |
+| `otp_policy.period` | `30` | Seconds a `totp` code stays valid. |
+| `otp_policy.look_ahead_window` | `1` | Codes before and after the current one that Keycloak still accepts, for clock skew or skipped counters. |
+| `otp_policy.initial_counter` | `0` | Starting counter of a `hotp` credential. |
+| `otp_policy.code_reusable` | `false` | Whether a code may sign in more than once within its period. |
+
+With the defaults the enrollment page lists FreeOTP, Google Authenticator and Microsoft Authenticator. Type `hotp` drops Microsoft Authenticator, and another algorithm, digit count or period leaves FreeOTP as the only app it lists. A credential keeps the type, algorithm, digits and period it was enrolled with, so a changed value of these reaches only credentials enrolled after the deploy. The look-ahead window and code reuse apply to every credential at once.
+
+### Enforcing TOTP
+
+- Keycloak attaches its default actions when it creates a user: on `kcadm.sh create users`, through which the deploy provisions the inventory users, among them the administrator and biber personas, while LDAP is off, and on the first import of a directory user from LDAP. A user Keycloak holds already keeps its required actions.
+- Such a user completes no sign-in before enrolling an authenticator app, so the Playwright SSO personas and every other automated login stop at the enrollment page. CI and automation inventories keep `totp_enforced: false`.
+- Switching back to `false` stops tagging new users, but every user tagged meanwhile keeps `CONFIGURE_TOTP` until an administrator removes it under Users, the user, Required user actions.
+- The deploy converges the required actions before it creates or imports any user, so a changed key reaches the users of the same deploy.
+
 ## Admin Console Access
 
 `services.keycloak.admin.allowed_networks` limits every path under `/admin`, which carries the admin console and the admin REST API under `/admin/realms`, to the listed source networks. Each entry is an IPv4 or IPv6 address or a CIDR block. The vhost renders one `allow` per entry followed by `deny all`, so any other client gets `403`. The list ships empty, and an empty list leaves `/admin` open. Declare it in the inventory:

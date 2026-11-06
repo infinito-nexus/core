@@ -1,4 +1,8 @@
 ---
+# Required actions converge first: every user this run creates or imports gets the default actions the realm holds at that moment.
+- name: "📂 Load required action routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/12_required_actions.yml"
+
 - name: "📂 Load email policy routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/14_email_policy.yml"
 
@@ -64,9 +68,6 @@
   loop: "{{ KEYCLOAK_SAML_CLIENT_IDS }}"
   loop_control:
     loop_var: saml_client
-
-- name: "📂 Load required action routines for '{{ application_id }}'"
-  include_tasks: "{{ role_path }}/tasks/update/12_required_actions.yml"
 
 - name: "📂 Converge the email client scope of existing realms"
   include_tasks: "{{ role_path }}/tasks/update/13_email_scope.yml"

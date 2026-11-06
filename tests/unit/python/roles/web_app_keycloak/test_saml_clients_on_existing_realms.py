@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from ansible.parsing.dataloader import DataLoader
@@ -13,6 +14,15 @@ ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 
 SMTP = {"host": "mail.example", "password": "pw"}
+OTP_POLICY = {
+    "otpPolicyType": "hotp",
+    "otpPolicyAlgorithm": "HmacSHA256",
+    "otpPolicyInitialCounter": 2,
+    "otpPolicyDigits": 8,
+    "otpPolicyLookAheadWindow": 3,
+    "otpPolicyPeriod": 60,
+    "otpPolicyCodeReusable": True,
+}
 REALM = {
     "clients": [
         {"clientId": "account", "protocol": "openid-connect"},
@@ -26,6 +36,7 @@ REALM = {
     "duplicateEmailsAllowed": False,
     "adminEventsEnabled": True,
     "adminPermissionsEnabled": True,
+    **OTP_POLICY,
 }
 
 
@@ -84,6 +95,7 @@ class TestSettingsSpec(unittest.TestCase):
                         "duplicateEmailsAllowed": False,
                         "adminEventsEnabled": True,
                         "adminPermissionsEnabled": True,
+                        **OTP_POLICY,
                     },
                 },
                 {"realm": "master", "desired": {"smtpServer": SMTP}},
@@ -94,6 +106,12 @@ class TestSettingsSpec(unittest.TestCase):
         desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0]["desired"]
         self.assertIs(desired["adminEventsEnabled"], True)
         self.assertIs(desired["adminPermissionsEnabled"], True)
+
+    def test_an_existing_realm_converges_to_the_otp_policy_of_the_dictionary(self):
+        desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0]["desired"]
+        for field, value in OTP_POLICY.items():
+            with self.subTest(field=field):
+                self.assertEqual(json.dumps(value), json.dumps(desired[field]))
 
     def test_the_client_scopes_of_the_realm_dictionary_are_passed_on(self):
         spec = render("KEYCLOAK_SETTINGS_SPEC", [])
