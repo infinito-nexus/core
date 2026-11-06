@@ -121,6 +121,52 @@ class TestContainerVolumesConfigSecret(unittest.TestCase):
             },
         )
 
+    def test_a_mount_hands_its_secret_to_the_service_user(self) -> None:
+        meta = {
+            "tlskey": {
+                "type": "secret",
+                "source": "/etc/ssl/key.pem",
+                "mode": "0400",
+                "mounts": [
+                    {
+                        "service": "app",
+                        "target": "/run/secrets/key",
+                        "uid": "10001",
+                        "gid": "10001",
+                    }
+                ],
+            }
+        }
+        data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+        self.assertEqual(
+            data["secrets"],
+            [
+                {
+                    "source": "tlskey",
+                    "target": "/run/secrets/key",
+                    "mode": 0o400,
+                    "uid": "10001",
+                    "gid": "10001",
+                }
+            ],
+        )
+
+    def test_a_mount_hands_its_config_to_the_service_user(self) -> None:
+        meta = {
+            "settings": {
+                "type": "config",
+                "source": "/etc/app.json",
+                "mounts": [
+                    {"service": "app", "target": "/config/app.json", "uid": "33"}
+                ],
+            }
+        }
+        data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+        self.assertEqual(
+            data["configs"],
+            [{"source": "settings", "target": "/config/app.json", "uid": "33"}],
+        )
+
 
 class TestContainerVolumesTmpfs(unittest.TestCase):
     def test_tmpfs_size_renders_as_the_byte_count_the_long_form_takes(self) -> None:

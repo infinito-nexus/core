@@ -5,7 +5,14 @@ import unittest
 from io import StringIO
 from unittest.mock import patch
 
-from utils.annotations.message import error, error_each, notice, warning, warning_each
+from utils.annotations.message import (
+    error,
+    error_each,
+    mask,
+    notice,
+    warning,
+    warning_each,
+)
 
 GHA_ENV = {"GITHUB_ACTIONS": "true"}
 NO_GHA_ENV = {"GITHUB_ACTIONS": ""}
@@ -110,6 +117,36 @@ class TestAnnotationsPlainText(unittest.TestCase):
         self.assertEqual(len(lines), 2)
         self.assertIn("alpha", lines[0])
         self.assertIn("beta", lines[1])
+
+
+class TestMask(unittest.TestCase):
+    def _capture(self, env: dict[str, str], value: str) -> tuple[str, str]:
+        with (
+            patch.dict(os.environ, env),
+            patch("sys.stdout", new_callable=StringIO) as out,
+            patch("sys.stderr", new_callable=StringIO) as err,
+        ):
+            mask(value)
+            return out.getvalue(), err.getvalue()
+
+    def test_a_secret_is_registered_on_stderr_only(self) -> None:
+        out, err = self._capture(GHA_ENV, "s3cr€t")
+        self.assertEqual(out, "")
+        self.assertEqual(err, "::add-mask::s3cr€t\n")
+
+    def test_each_line_of_a_multiline_secret_is_registered(self) -> None:
+        _, err = self._capture(GHA_ENV, "-----BEGIN-----\nabc\n\n-----END-----\n")
+        self.assertEqual(
+            err.splitlines(),
+            [
+                "::add-mask::-----BEGIN-----",
+                "::add-mask::abc",
+                "::add-mask::-----END-----",
+            ],
+        )
+
+    def test_nothing_is_printed_outside_github_actions(self) -> None:
+        self.assertEqual(self._capture(NO_GHA_ENV, "s3cret"), ("", ""))
 
 
 if __name__ == "__main__":

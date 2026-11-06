@@ -1,0 +1,89 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_name = 'openpost' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'openpost') }}
+    {{ lookup('compose_only', 'container_name', OPENPOST_NAME) }}
+    {{ lookup('container_ports', ['openpost', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'relay' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'relay') }}
+    {{ lookup('compose_only', 'container_name', OPENPOST_RELAY_NAME) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts', host_alias=True) | indent(4) }}
+    {{ lookup('container_networks', aliases=OPENPOST_RELAY_DOMAINS) | indent(4) }}
+
+  {% if OPENPOST_CROSSPOSTER_ENABLED | bool %}
+  {% set service_name = 'crossposter' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    build:
+      context: "{{ OPENPOST_CROSSPOSTER_BUILD_CONTEXT }}"
+      dockerfile: Dockerfile
+      args:
+        CROSSPOSTER_BASE_IMAGE: "{{ OPENPOST_CROSSPOSTER_BASE_IMAGE }}"
+        CROSSPOSTER_BASE_VERSION: "{{ OPENPOST_CROSSPOSTER_BASE_VERSION }}"
+        CROSSPOSTER_UID: "{{ OPENPOST_CROSSPOSTER_UID }}"
+    {{ lookup('container_image', application_id, service_name, image=OPENPOST_CROSSPOSTER_IMAGE) }}
+    {{ lookup('compose_only', 'container_name', OPENPOST_CROSSPOSTER_NAME) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('compose_restart') }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+  {% endif %}
+
+  {% if OPENPOST_SIMULATOR_ENABLED | bool %}
+  {% set service_name = 'simulator' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('container_image', application_id, 'simulator') }}
+    {{ lookup('compose_only', 'container_name', OPENPOST_SIMULATOR_NAME) }}
+    {{ lookup('compose_restart') }}
+    command:
+      - --https-port
+      - "{{ lookup('config', application_id, 'services.simulator.ports.internal.https') }}"
+      - --https-keystore
+      - "{{ lookup('volume', application_id, 'simulator_keystore').target }}"
+      - --keystore-type
+      - PKCS12
+      - --keystore-password
+      - "{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}"
+      - --key-manager-password
+      - "{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}"
+      - --disable-banner
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks', aliases=OPENPOST_SIMULATOR_HOSTS) | indent(4) }}
+  {% endif %}
+
+  {% if OPENPOST_PROVIDER_ENABLED | bool %}
+  {% set service_name = 'provider' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    build:
+      context: "{{ OPENPOST_PROVIDER_BUILD_CONTEXT }}"
+      dockerfile: Dockerfile
+      args:
+        PROVIDER_BASE_IMAGE: "{{ OPENPOST_PROVIDER_BASE_IMAGE }}"
+        PROVIDER_BASE_VERSION: "{{ OPENPOST_PROVIDER_BASE_VERSION }}"
+        PROVIDER_UID: "{{ OPENPOST_PROVIDER_UID }}"
+    {{ lookup('container_image', application_id, service_name, image=OPENPOST_PROVIDER_IMAGE) }}
+    {{ lookup('compose_only', 'container_name', OPENPOST_PROVIDER_NAME) }}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('compose_restart') }}
+    {{ lookup('container_ports', ['provider', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks', aliases=OPENPOST_PROVIDER_HOSTS) | indent(4) }}
+  {% endif %}
+
+{{ lookup('compose_volumes') }}
+
+{{ lookup('compose_networks') }}

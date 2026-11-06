@@ -1,0 +1,108 @@
+---
+- name: "📁 Ensure the provider simulator directory exists"
+  ansible.builtin.file:
+    path: "{{ OPENPOST_SIMULATOR_DIR }}"
+    state: directory
+    mode: "0750"
+
+- name: "🔐 Create the test CA the simulator certificate chains to"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -x509
+      - -newkey
+      - rsa:2048
+      - -nodes
+      - -days
+      - "365"
+      - -subj
+      - "/CN=OpenPost provider simulator CA"
+      - -keyout
+      - "{{ OPENPOST_SIMULATOR_DIR }}/ca.key"
+      - -out
+      - "{{ OPENPOST_SIMULATOR_DIR }}/ca.crt"
+    creates: "{{ OPENPOST_SIMULATOR_DIR }}/ca.crt"
+
+- name: "📄 Write the subject alternative names of the simulated provider hosts"
+  ansible.builtin.copy:
+    dest: "{{ OPENPOST_SIMULATOR_DIR }}/server.ext"
+    content: |
+      subjectAltName={{ (OPENPOST_SIMULATOR_HOSTS + OPENPOST_PROVIDER_HOSTS) | map('regex_replace', '^', 'DNS:') | join(',') }}
+      extendedKeyUsage=serverAuth
+    mode: "0640"
+  register: openpost_simulator_ext
+
+- name: "🗑️ Drop the simulator certificate when its host list changed"
+  ansible.builtin.file:
+    path: "{{ OPENPOST_SIMULATOR_DIR }}/{{ item }}"
+    state: absent
+  loop:
+    - server.crt
+    - keystore.p12
+  when: openpost_simulator_ext.changed
+
+- name: "🔑 Create the simulator key and signing request"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -newkey
+      - rsa:2048
+      - -nodes
+      - -subj
+      - "/CN=openpost-simulator"
+      - -keyout
+      - "{{ OPENPOST_SIMULATOR_DIR }}/server.key"
+      - -out
+      - "{{ OPENPOST_SIMULATOR_DIR }}/server.csr"
+    creates: "{{ OPENPOST_SIMULATOR_DIR }}/server.csr"
+
+- name: "✒️ Sign the simulator certificate with the test CA"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - x509
+      - -req
+      - -in
+      - "{{ OPENPOST_SIMULATOR_DIR }}/server.csr"
+      - -CA
+      - "{{ OPENPOST_SIMULATOR_DIR }}/ca.crt"
+      - -CAkey
+      - "{{ OPENPOST_SIMULATOR_DIR }}/ca.key"
+      - -CAcreateserial
+      - -days
+      - "365"
+      - -sha256
+      - -extfile
+      - "{{ OPENPOST_SIMULATOR_DIR }}/server.ext"
+      - -out
+      - "{{ OPENPOST_SIMULATOR_DIR }}/server.crt"
+    creates: "{{ OPENPOST_SIMULATOR_DIR }}/server.crt"
+
+- name: "📦 Bundle the simulator certificate into the WireMock keystore"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - pkcs12
+      - -export
+      - -name
+      - simulator
+      - -in
+      - "{{ OPENPOST_SIMULATOR_DIR }}/server.crt"
+      - -inkey
+      - "{{ OPENPOST_SIMULATOR_DIR }}/server.key"
+      - -certfile
+      - "{{ OPENPOST_SIMULATOR_DIR }}/ca.crt"
+      - -passout
+      - "pass:{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}"
+      - -out
+      - "{{ OPENPOST_SIMULATOR_DIR }}/keystore.p12"
+    creates: "{{ OPENPOST_SIMULATOR_DIR }}/keystore.p12"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗺️ Deploy the simulator stub mappings"
+  ansible.builtin.copy:
+    src: simulator/openpost.json
+    dest: "{{ OPENPOST_SIMULATOR_DIR }}/openpost.json"
+    mode: "0644"

@@ -1,0 +1,15 @@
+{{ {
+  'http_port': OPENPOST_PROVIDER.ports.internal.http,
+  'https_port': OPENPOST_PROVIDER.ports.internal.https,
+  'certificate': lookup('volume', application_id, 'provider_certificate').target,
+  'key': lookup('volume', application_id, 'provider_key').target,
+  'linkedin': {
+    'clients': {
+      OPENPOST_PROVIDER_CREDENTIALS.linkedin.client_id: {
+        'secret': OPENPOST_PROVIDER_CREDENTIALS.linkedin.client_secret,
+        'name': 'OpenPost',
+        'redirect_uris': [OPENPOST_LINKEDIN_CALLBACK],
+      },
+    },
+  },
+} | to_nice_json }}

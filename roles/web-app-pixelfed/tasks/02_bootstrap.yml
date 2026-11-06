@@ -115,27 +115,6 @@
   until: pixelfed_passport_keys.rc == 0
   delegate_to: "{{ PIXELFED_HOST_NODE }}"
 
-- name: "✅ Ensure the Pixelfed public storage symlink exists"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -u
-      - "{{ PIXELFED_APP_USER }}"
-      - "{{ PIXELFED_LOCAL_CID }}" # nocheck: container-exec-resolver  PIXELFED_LOCAL_CID resolved at delegate_to runtime
-      - sh
-      - -lc
-      - |
-        if [ ! -L /var/www/public/storage ]; then
-          php artisan storage:link
-        fi
-  register: pixelfed_storage_link
-  changed_when: false
-  retries: 20
-  delay: 5
-  until: pixelfed_storage_link.rc == 0
-  delegate_to: "{{ PIXELFED_HOST_NODE }}"
-
 - name: "🎬 Initialize the Pixelfed instance actor"
   ansible.builtin.command:
     argv:

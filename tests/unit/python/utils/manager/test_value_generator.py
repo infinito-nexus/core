@@ -1,6 +1,7 @@
 import base64
 import re
 import unittest
+from unittest.mock import patch
 
 from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from cryptography.hazmat.primitives.serialization import (
@@ -9,6 +10,7 @@ from cryptography.hazmat.primitives.serialization import (
     load_pem_private_key,
 )
 
+from utils.manager import value_generator
 from utils.manager.value_generator import ValueGenerator
 
 
@@ -19,6 +21,22 @@ def _b64url_decode(value: str) -> bytes:
 class TestValueGenerator(unittest.TestCase):
     def setUp(self):
         self.vg = ValueGenerator()
+
+    def test_every_generated_value_is_registered_for_masking(self):
+        with patch.object(value_generator, "mask") as masked:
+            values = [
+                self.vg.generate_strong_password(32),
+                self.vg.generate_secure_alphanumeric(16),
+                self.vg.generate_value("random_hex_16"),
+            ]
+        registered = [call.args[0] for call in masked.call_args_list]
+        for value in values:
+            self.assertIn(value, registered)
+
+    def test_an_unknown_algorithm_masks_nothing(self):
+        with patch.object(value_generator, "mask") as masked:
+            self.assertEqual(self.vg.generate_value("nope"), "undefined")
+        masked.assert_not_called()
 
     def test_generate_secure_alphanumeric(self):
         s = self.vg.generate_secure_alphanumeric(64)

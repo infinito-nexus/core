@@ -1,0 +1,83 @@
+[
+  {
+    "id": "109000000000000101",
+    "created_at": "2026-10-22T08:00:00.000Z",
+    "in_reply_to_id": null,
+    "in_reply_to_account_id": null,
+    "sensitive": false,
+    "spoiler_text": "",
+    "visibility": "public",
+    "language": "en",
+    "uri": "https://microblog.example/users/press/statuses/109000000000000101",
+    "url": "https://microblog.example/@press/109000000000000101",
+    "content": "<p>Launching our <a href=\"https://microblog.example/tags/fediverse\" class=\"mention hashtag\" rel=\"tag\">#<span>fediverse</span></a> presence</p>",
+    "reblog": null,
+    "application": {"name": "Web", "website": null},
+    "media_attachments": [],
+    "mentions": [],
+    "tags": [{"name": "fediverse", "url": "https://microblog.example/tags/fediverse"}]
+  },
+  {
+    "id": "109000000000000102",
+    "created_at": "2026-10-22T08:05:00.000Z",
+    "in_reply_to_id": null,
+    "in_reply_to_account_id": null,
+    "sensitive": false,
+    "spoiler_text": "",
+    "visibility": "public",
+    "language": "en",
+    "uri": "https://microblog.example/users/press/statuses/109000000000000102",
+    "url": "https://microblog.example/@press/109000000000000102",
+    "content": "<p>A picture</p>",
+    "reblog": null,
+    "application": {"name": "Web", "website": null},
+    "media_attachments": [
+      {
+        "id": "109000000000000500",
+        "type": "image",
+        "url": "https://microblog.example/system/media_attachments/files/109/000/000/000/000/500/original/square.png",
+        "preview_url": "https://microblog.example/system/media_attachments/files/109/000/000/000/000/500/small/square.png",
+        "description": "A red square",
+        "meta": {"original": {"width": 32, "height": 32}}
+      }
+    ],
+    "mentions": [],
+    "tags": []
+  },
+  {
+    "id": "109000000000000103",
+    "created_at": "2026-10-22T08:10:00.000Z",
+    "in_reply_to_id": null,
+    "in_reply_to_account_id": null,
+    "sensitive": false,
+    "spoiler_text": "",
+    "visibility": "public",
+    "language": "en",
+    "uri": "https://microblog.example/users/press/statuses/109000000000000103",
+    "url": "https://microblog.example/@press/109000000000000103",
+    "content": "<p>Published by the desk</p>",
+    "reblog": null,
+    "application": {"name": "OpenPost", "website": "https://publish.example"},
+    "media_attachments": [],
+    "mentions": [],
+    "tags": []
+  },
+  {
+    "id": "109000000000000104",
+    "created_at": "2026-10-22T08:15:00.000Z",
+    "in_reply_to_id": "109000000000000001",
+    "in_reply_to_account_id": "109000000000000077",
+    "sensitive": true,
+    "spoiler_text": "politics",
+    "visibility": "public",
+    "language": "en",
+    "uri": "https://microblog.example/users/press/statuses/109000000000000104",
+    "url": "https://microblog.example/@press/109000000000000104",
+    "content": "<p><span class=\"h-card\"><a href=\"https://social.example/@alice\" class=\"u-url mention\">@<span>alice</span></a></span> agreed</p>",
+    "reblog": null,
+    "application": {"name": "Web", "website": null},
+    "media_attachments": [],
+    "mentions": [{"id": "109000000000000077", "username": "alice", "acct": "alice@social.example", "url": "https://social.example/@alice"}],
+    "tags": []
+  }
+]

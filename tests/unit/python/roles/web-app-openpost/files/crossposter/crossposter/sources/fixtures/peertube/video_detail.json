@@ -1,0 +1,29 @@
+{
+  "id": 31,
+  "uuid": "6a1c6b54-0e3b-4c0e-9b9e-1a2b3c4d5e6f",
+  "name": "Conference talk",
+  "description": "Full description of the conference talk",
+  "tags": ["talk", "fediverse"],
+  "files": [],
+  "streamingPlaylists": [
+    {
+      "id": 7,
+      "type": 1,
+      "playlistUrl": "https://video.example/static/streaming-playlists/hls/6a1c6b54/master.m3u8",
+      "files": [
+        {
+          "resolution": {"id": 480, "label": "480p"},
+          "size": 20971520,
+          "fileUrl": "https://video.example/static/streaming-playlists/hls/6a1c6b54/6a1c6b54-480-fragmented.mp4",
+          "fileDownloadUrl": "https://video.example/download/streaming-playlists/hls/videos/6a1c6b54-480.mp4"
+        },
+        {
+          "resolution": {"id": 1080, "label": "1080p"},
+          "size": 52428800,
+          "fileUrl": "https://video.example/static/streaming-playlists/hls/6a1c6b54/6a1c6b54-1080-fragmented.mp4",
+          "fileDownloadUrl": "https://video.example/download/streaming-playlists/hls/videos/6a1c6b54-1080.mp4"
+        }
+      ]
+    }
+  ]
+}

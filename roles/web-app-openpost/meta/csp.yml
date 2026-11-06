@@ -1,0 +1,9 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: OpenPost's SvelteKit shell boots through inline scripts whose hashes change with every upstream release, and the unmodified image cannot carry a nonce
+whitelist:
+  connect-src:
+    - "{{ lookup('tls', 'web-app-seaweedfs', 'protocols.web') }}://{{ lookup('config', 'web-app-seaweedfs', 'domains.canonical.api') }}"
+  font-src:
+    - "data:"

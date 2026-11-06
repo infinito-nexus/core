@@ -205,12 +205,14 @@ def render_container_networks(
     provider_self_alias: bool = True,
     node_local: bool = False,
     own_network_only: bool = False,
+    aliases: list[str] | None = None,
 ) -> str:
     if node_local:
         deployment_mode = "compose"
     attachments, default_aliases = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
+    default_aliases = list(dict.fromkeys([*default_aliases, *(aliases or [])]))
     lines: list[str] = ["networks:"]
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":

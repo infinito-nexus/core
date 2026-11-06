@@ -1,0 +1,143 @@
+---
+application_id: "web-app-openpost"
+container_port: "{{ lookup('config', application_id, 'services.openpost.ports.internal.http') }}"
+
+OPENPOST_NAME: "{{ lookup('config', application_id, 'services.openpost.name') }}"
+OPENPOST_RELAY_NAME: "{{ lookup('config', application_id, 'services.relay.name') }}"
+OPENPOST_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+OPENPOST_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if DEPLOYMENT_MODE == 'compose' else '127.0.0.1' }}:{{ lookup('config', application_id, 'services.openpost.ports.local.http') }}"
+OPENPOST_API_HEADERS:
+  Host: "{{ lookup('domain', application_id) }}"
+  X-Forwarded-Proto: "{{ OPENPOST_URL | urlsplit('scheme') }}"
+OPENPOST_RELAY_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'relay.conf'] | path_join }}"
+
+OPENPOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+OPENPOST_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+OPENPOST_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if OPENPOST_OIDC_ONION_ISSUER | bool else '' }}"
+OPENPOST_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') }}"
+OPENPOST_SMTP_ENABLED: "{{ OPENPOST_EMAIL_ENABLED | bool and (lookup('email', application_id).tls | bool or lookup('email', application_id).start_tls | bool) }}"
+OPENPOST_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
+OPENPOST_ROOT_CA_TRUSTED: "{{ OPENPOST_OBJSTORE_ENABLED | bool and TLS_MODE == 'self_signed' }}"
+
+OPENPOST_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_secret') }}"
+OPENPOST_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.encryption_key') }}"
+OPENPOST_MEDIA_SIGNING_KEY: "{{ lookup('config', application_id, 'secrets.credentials.media_signing_key') }}"
+
+OPENPOST_TRUSTED_PROXY_CIDRS: >-
+  {%- set _cidrs = [] -%}
+  {%- for _entry in NETWORK_TRUSTED_PROXY_CIDRS + [lookup('config', application_id, 'networks.local.subnet')] -%}
+  {%- set _ = _cidrs.append(_entry if '/' in _entry else _entry ~ ('/128' if ':' in _entry else '/32')) -%}
+  {%- endfor -%}
+  {{ _cidrs }}
+
+OPENPOST_ADMIN_USERNAME: "{{ lookup('users', 'web-app-openpost-breakglass').username }}"
+OPENPOST_ADMIN_PASSWORD: "{{ lookup('users', 'web-app-openpost-breakglass').password }}"
+OPENPOST_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email | regex_replace('@', '+' ~ OPENPOST_ADMIN_USERNAME ~ '@') }}"
+OPENPOST_ORGANISATION_WORKSPACE: "{{ SOFTWARE_NAME }}"
+
+OPENPOST_BOOTSTRAP_ADMINS:
+  - "{{ lookup('users', 'administrator').email }}"
+
+OPENPOST_RELAY_SIBLINGS:
+  mastodon: web-app-mastodon
+  pixelfed: web-app-pixelfed
+  peertube: web-app-peertube
+OPENPOST_RELAY_DOMAINS: >-
+  {%- set _domains = [] -%}
+  {%- for _key, _role in OPENPOST_RELAY_SIBLINGS.items() -%}
+  {%- if lookup('config', application_id, 'services.' ~ _key ~ '.enabled') | bool -%}
+  {%- set _ = _domains.append(lookup('domain', _role)) -%}
+  {%- endif -%}
+  {%- endfor -%}
+  {%- if OPENPOST_OBJSTORE_ENABLED | bool -%}
+  {%- set _ = _domains.append(lookup('objstore', application_id, 'public_domain')) -%}
+  {%- endif -%}
+  {{ _domains }}
+OPENPOST_PINNED_INSTANCES: >-
+  {%- set _instances = [] -%}
+  {%- for _key in ['mastodon', 'pixelfed'] -%}
+  {%- if lookup('config', application_id, 'services.' ~ _key ~ '.enabled') | bool -%}
+  {%- set _url = lookup('tls', OPENPOST_RELAY_SIBLINGS[_key], 'url.base') | regex_replace('/+$', '') -%}
+  {%- if _url is not search('\\.onion$') -%}
+  {%- set _ = _instances.append({'platform': _key, 'url': _url, 'name': _url ~ '/'}) -%}
+  {%- endif -%}
+  {%- endif -%}
+  {%- endfor -%}
+  {{ _instances }}
+OPENPOST_PINNED_PIXELFED: "{{ OPENPOST_PINNED_INSTANCES | selectattr('platform', 'equalto', 'pixelfed') | list }}"
+OPENPOST_FEDIVERSE_APPS_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'fediverse-apps.json'] | path_join }}"
+OPENPOST_RELAY_UPSTREAM_HOST: "host.docker.internal"
+OPENPOST_RELAY_UPSTREAM_PORT: "{{ lookup('config', 'svc-prx-openresty', 'services.openresty.ports.public.https') }}"
+OPENPOST_RELAY_UPSTREAM_HTTP_PORT: "{{ lookup('config', 'svc-prx-openresty', 'services.openresty.ports.public.http') }}"
+
+OPENPOST_SIMULATOR_ENABLED: "{{ lookup('config', application_id, 'services.simulator.enabled') | bool }}"
+OPENPOST_SIMULATOR_NAME: "{{ lookup('config', application_id, 'services.simulator.name') }}"
+OPENPOST_SIMULATOR_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'simulator'] | path_join }}"
+OPENPOST_SIMULATOR_HOSTS: "{{ lookup('config', application_id, 'services.simulator.hosts') }}"
+OPENPOST_PROVIDER: "{{ lookup('config', application_id, 'services.provider') }}"
+OPENPOST_PROVIDER_ENABLED: "{{ lookup('config', application_id, 'services.provider.enabled') | bool }}"
+OPENPOST_PROVIDER_NAME: "{{ OPENPOST_PROVIDER.name }}"
+OPENPOST_PROVIDER_UID: "{{ OPENPOST_PROVIDER.uid }}"
+OPENPOST_PROVIDER_HOSTS: "{{ OPENPOST_PROVIDER.hosts }}"
+OPENPOST_PROVIDER_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'provider'] | path_join }}"
+OPENPOST_PROVIDER_CONFIG_HOST: "{{ [OPENPOST_PROVIDER_DIR, 'provider.json'] | path_join }}"
+OPENPOST_PROVIDER_KEY_HOST: "{{ [OPENPOST_PROVIDER_DIR, 'server.key'] | path_join }}"
+OPENPOST_PROVIDER_BUILD_CONTEXT: "{{ [lookup('container', application_id, 'directories.services'), 'provider'] | path_join }}"
+OPENPOST_PROVIDER_IMAGE: "openpost_provider_custom"
+OPENPOST_PROVIDER_BASE_IMAGE: "{{ OPENPOST_PROVIDER.image }}"
+OPENPOST_PROVIDER_BASE_VERSION: "{{ OPENPOST_PROVIDER.version }}"
+OPENPOST_PROVIDER_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if DEPLOYMENT_MODE == 'compose' else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
+OPENPOST_PROVIDER_BROWSER_URL: "http://{{ 'host.docker.internal' if DEPLOYMENT_MODE == 'compose' else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
+OPENPOST_LINKEDIN_CALLBACK: "{{ OPENPOST_URL }}/api/v1/accounts/linkedin/callback"
+OPENPOST_SIMULATOR_KEYSTORE_PASSWORD: "simulator"
+
+OPENPOST_PROVIDER_CREDENTIALS: >-
+  {%- set _credentials = {} -%}
+  {%- for _provider in ['x', 'meta', 'threads', 'linkedin', 'youtube', 'tiktok'] -%}
+  {%- if OPENPOST_SIMULATOR_ENABLED | bool and _provider in lookup('config', application_id, 'services.simulator.providers') -%}
+  {%- set _ = _credentials.update({_provider: {'client_id': 'simulator-' ~ _provider, 'client_secret': 'simulator-' ~ _provider ~ '-secret'}}) -%}
+  {%- elif lookup('api_enabled', _provider) -%}
+  {%- set _ = _credentials.update({_provider: {'client_id': lookup('api', _provider ~ '.client_id'), 'client_secret': lookup('api', _provider ~ '.client_secret')}}) -%}
+  {%- endif -%}
+  {%- endfor -%}
+  {{ _credentials }}
+OPENPOST_PROVIDER_APP_KEYS:
+  meta:
+    - facebook
+    - instagram
+  youtube:
+    - youtube
+  tiktok:
+    - tiktok
+OPENPOST_PROVIDER_APPS: >-
+  {%- set _apps = [] -%}
+  {%- for _provider, _keys in OPENPOST_PROVIDER_APP_KEYS.items() if _provider in OPENPOST_PROVIDER_CREDENTIALS -%}
+  {%- for _key in _keys -%}
+  {%- set _ = _apps.append({'provider': _key} | combine(OPENPOST_PROVIDER_CREDENTIALS[_provider])) -%}
+  {%- endfor -%}
+  {%- endfor -%}
+  {{ _apps }}
+
+OPENPOST_CROSSPOSTER: "{{ lookup('config', application_id, 'services.crossposter') }}"
+OPENPOST_CROSSPOSTER_ROUTES: "{{ OPENPOST_CROSSPOSTER.routes }}"
+OPENPOST_CROSSPOSTER_ENABLED: "{{ lookup('config', application_id, 'services.crossposter.enabled') | bool }}"
+OPENPOST_CROSSPOSTER_NAME: "{{ OPENPOST_CROSSPOSTER.name }}"
+OPENPOST_CROSSPOSTER_UID: "{{ OPENPOST_CROSSPOSTER.uid }}"
+OPENPOST_CROSSPOSTER_TOKEN_NAME: "crossposter"
+OPENPOST_CROSSPOSTER_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'crossposter'] | path_join }}"
+OPENPOST_CROSSPOSTER_STATE_FILE: "{{ [OPENPOST_CROSSPOSTER_DIR, 'state.json'] | path_join }}"
+OPENPOST_CROSSPOSTER_CONFIG_HOST: "{{ [OPENPOST_CROSSPOSTER_DIR, 'crossposter.json'] | path_join }}"
+OPENPOST_CROSSPOSTER_SECRETS_HOST: "{{ [OPENPOST_CROSSPOSTER_DIR, 'crossposter-secrets.json'] | path_join }}"
+OPENPOST_CROSSPOSTER_CONFIG_TARGET: "{{ lookup('volume', application_id, 'crossposter_config').target }}"
+OPENPOST_CROSSPOSTER_SECRETS_TARGET: "{{ lookup('volume', application_id, 'crossposter_secrets').target }}"
+OPENPOST_CROSSPOSTER_BUILD_CONTEXT: "{{ [lookup('container', application_id, 'directories.services'), 'crossposter'] | path_join }}"
+OPENPOST_CROSSPOSTER_IMAGE: "openpost_crossposter_custom"
+OPENPOST_CROSSPOSTER_BASE_IMAGE: "{{ OPENPOST_CROSSPOSTER.image }}"
+OPENPOST_CROSSPOSTER_BASE_VERSION: "{{ OPENPOST_CROSSPOSTER.version }}"
+OPENPOST_CROSSPOSTER_ADDRESS: "{{ lookup('container_address', application_id, 'crossposter') }}"
+OPENPOST_CROSSPOSTER_SEED_PROBES:
+  mastodon: /api/v1/accounts/verify_credentials
+  pixelfed: /api/v1/accounts/verify_credentials
+  peertube: /api/v1/users/me
+OPENPOST_PIXELFED_PHP_USER: "33"
+OPENPOST_SEED_PEERTUBE_USERNAME: "root"

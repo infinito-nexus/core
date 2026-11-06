@@ -82,6 +82,29 @@ def _short_form_volume(source_name: str, target: str, read_only: bool) -> str:
     return f"{source_name}:{target}{suffix}"
 
 
+def _with_owner(
+    reference: dict[str, Any], mount: dict[str, Any], render_jinja: Any
+) -> dict[str, Any]:
+    """Add the mount's ``uid``/``gid`` to a config or secret reference.
+
+    Args:
+        reference: long-syntax ``configs:``/``secrets:`` entry of the service.
+        mount: the meta/volumes.yml mount that may name the owning user and group.
+        render_jinja: renderer for templated values, or ``None`` outside Ansible.
+
+    Returns:
+        The reference with ``uid``/``gid`` as strings when the mount sets them.
+    """
+    for key in ("uid", "gid"):
+        if mount.get(key) is None:
+            continue
+        text = str(mount[key])
+        if render_jinja is not None and ("{{" in text or "{%" in text):
+            text = str(render_jinja(text))
+        reference[key] = text
+    return reference
+
+
 def container_volumes(
     applications: dict[str, Any],
     application_id: str,
@@ -183,14 +206,14 @@ def container_volumes(
                 mode_value = entry.get("mode")
                 if mode_value:
                     cfg_ref["mode"] = _coerce_mode_int(mode_value)
-                configs_block.append(cfg_ref)
+                configs_block.append(_with_owner(cfg_ref, mount, render_jinja))
 
             elif vtype == "secret":
                 sec_ref: dict[str, Any] = {"source": semantic_name, "target": target}
                 mode_value = entry.get("mode")
                 if mode_value:
                     sec_ref["mode"] = _coerce_mode_int(mode_value)
-                secrets_block.append(sec_ref)
+                secrets_block.append(_with_owner(sec_ref, mount, render_jinja))
 
     if extra_volumes:
         volumes_block.extend(to_plain(extra_volumes))
