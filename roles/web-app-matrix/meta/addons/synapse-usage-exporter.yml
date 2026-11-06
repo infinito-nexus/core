@@ -7,3 +7,5 @@ mechanism: addon
 source: upstream
 bridges:
   - prometheus
+config:
+  nofile: 65536 # uwsgi's HTTP router sizes an 8 B per fd table from RLIMIT_NOFILE; uncapped, the nested daemon hands it 2147483584 and the exporter pins 16 GiB (run 42239638356)
