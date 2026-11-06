@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import unittest
 
-from plugins.lookup.network_siblings import served_siblings
+from plugins.lookup.network_siblings import network_family, served_siblings
 from utils.domains.default_primary import default_domain_primary
 
 ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
@@ -88,6 +88,29 @@ class TestServedSiblings(unittest.TestCase):
         self.assertEqual(
             served_siblings(f"x.{PRIMARY}", domains, PRIMARY, ""),
             [f"x.{PRIMARY}"],
+        )
+
+
+class TestNetworkFamily(unittest.TestCase):
+    def test_every_sibling_names_the_same_family_canonical_first(self) -> None:
+        domains = {"web-app-bluesky": [f"x.{PRIMARY}", f"x.{ONION}"]}
+        for domain in domains["web-app-bluesky"]:
+            with self.subTest(domain=domain):
+                self.assertEqual(
+                    network_family(domain, domains, PRIMARY, ONION),
+                    [f"x.{PRIMARY}", f"x.{ONION}"],
+                )
+
+    def test_tor_only_app_maps_a_raw_clearnet_domain_to_its_onion(self) -> None:
+        domains = {"web-app-bluesky": [f"x.{ONION}"]}
+        self.assertEqual(
+            network_family(f"x.{PRIMARY}", domains, PRIMARY, ONION), [f"x.{ONION}"]
+        )
+
+    def test_unknown_domain_is_its_own_family(self) -> None:
+        self.assertEqual(
+            network_family("elsewhere.example", {}, PRIMARY, ONION),
+            ["elsewhere.example"],
         )
 
 

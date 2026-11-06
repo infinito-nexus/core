@@ -30,16 +30,17 @@ MULTI_DOMAINS = {
     "web-svc-collabora": [COLLABORA, COLLABORA_ONION],
     "web-svc-cdn": ["cdn." + PRIMARY, "cdn." + NODE],
 }
-MULTI_SIBLINGS = {NEXTCLOUD: [NEXTCLOUD, NEXTCLOUD_ONION]}
 
 
-def frame_ancestors(domains, siblings):
+def frame_ancestors(domains):
     variables = {
         "domains": domains,
         "applications": {},
         "TLS_ENABLED": True,
         "TLS_MODE": "letsencrypt",
         "application_id": "web-svc-collabora",
+        "DOMAIN_PRIMARY": PRIMARY,
+        "group_names": ["svc-net-tor"],
     }
     tls = TlsLookup()
     tls._loader = mock.MagicMock()
@@ -51,12 +52,10 @@ def frame_ancestors(domains, siblings):
         )
 
     def _network_urls_loader(name, *_args, **_kwargs):
-        if name == "network_siblings":
-            return mock.MagicMock(
-                run=lambda terms, variables=None, **_: [
-                    siblings.get(terms[0], [terms[0]])
-                ]
-            )
+        if name == "domains":
+            return mock.MagicMock(run=lambda terms, variables=None, **_: [domains])
+        if name == "config":
+            return mock.MagicMock(run=lambda terms, variables=None, **_: [NODE])
         if name == "tls":
             return mock.MagicMock(
                 run=lambda terms, variables=None, **_: tls.run(
@@ -114,7 +113,7 @@ def ancestors_of(vhost, extra):
 class TestFrameAncestors(unittest.TestCase):
     def test_every_nextcloud_sibling_with_its_own_scheme(self):
         self.assertEqual(
-            frame_ancestors(MULTI_DOMAINS, MULTI_SIBLINGS),
+            frame_ancestors(MULTI_DOMAINS),
             [f"https://{NEXTCLOUD}", f"http://{NEXTCLOUD_ONION}"],
         )
 
@@ -123,17 +122,17 @@ class TestFrameAncestors(unittest.TestCase):
             "web-app-nextcloud": [NEXTCLOUD],
             "web-svc-collabora": [COLLABORA],
         }
-        self.assertEqual(frame_ancestors(domains, {}), [f"https://{NEXTCLOUD}"])
+        self.assertEqual(frame_ancestors(domains), [f"https://{NEXTCLOUD}"])
 
     def test_a_tor_only_nextcloud(self):
         domains = {
             "web-app-nextcloud": [NEXTCLOUD_ONION],
             "web-svc-collabora": [COLLABORA_ONION],
         }
-        self.assertEqual(frame_ancestors(domains, {}), [f"http://{NEXTCLOUD_ONION}"])
+        self.assertEqual(frame_ancestors(domains), [f"http://{NEXTCLOUD_ONION}"])
 
     def test_the_clearnet_editor_admits_the_onion_nextcloud_page(self):
-        union = frame_ancestors(MULTI_DOMAINS, MULTI_SIBLINGS)
+        union = frame_ancestors(MULTI_DOMAINS)
         self.assertNotIn(f"http://{NEXTCLOUD_ONION}", ancestors_of(COLLABORA, None))
         ancestors = ancestors_of(COLLABORA, union)
         self.assertIn(f"http://{NEXTCLOUD_ONION}", ancestors)
@@ -141,9 +140,7 @@ class TestFrameAncestors(unittest.TestCase):
         self.assertIn("*." + PRIMARY, ancestors)
 
     def test_the_onion_editor_translates_the_clearnet_sibling_away(self):
-        ancestors = ancestors_of(
-            COLLABORA_ONION, frame_ancestors(MULTI_DOMAINS, MULTI_SIBLINGS)
-        )
+        ancestors = ancestors_of(COLLABORA_ONION, frame_ancestors(MULTI_DOMAINS))
         self.assertEqual(ancestors.count(f"http://{NEXTCLOUD_ONION}"), 1)
         self.assertNotIn(f"https://{NEXTCLOUD}", ancestors)
 

@@ -9,6 +9,8 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from plugins.lookup.network_siblings import network_family, sibling_scope
+
 
 class LookupModule(LookupBase):
     """
@@ -16,8 +18,9 @@ class LookupModule(LookupBase):
       {{ lookup('network_urls', url) }}
 
     Returns ``url`` once per network sibling of its host, canonical network
-    first, each with that sibling's scheme. A URL whose host has no sibling
-    comes back alone and unchanged.
+    first, each with that sibling's scheme, whichever sibling ``url`` names:
+    a non-canonical sibling gets the same list as its canonical twin. A URL
+    whose host has no sibling comes back alone and unchanged.
     """
 
     def run(self, terms, variables: dict[str, Any] | None = None, **kwargs):
@@ -33,7 +36,12 @@ class LookupModule(LookupBase):
 
         url = str(terms[0])
         parts = urlsplit(url)
-        siblings = _run("network_siblings", parts.hostname) if parts.hostname else []
+        host = parts.hostname
+        siblings = (
+            network_family(host, *sibling_scope(variables, _run, templar))
+            if host
+            else []
+        )
         if len(siblings) < 2:
             return [[url]]
         urls = []
