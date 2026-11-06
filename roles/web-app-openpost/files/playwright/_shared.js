@@ -216,7 +216,7 @@ async function uploadMedia(page, fileName, label) {
 }
 
 async function openMastodonConnectDialog(page, label) {
-  await gotoOnion(page, `${env.appBaseUrl}/settings?tab=accounts`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${env.appBaseUrl}/accounts`, { waitUntil: "domcontentloaded" });
   const card = page.locator('[data-testid="provider-card-mastodon"]');
   await expect(card, `${label}: the Mastodon provider card must render`).toBeVisible({ timeout: resolveTimeout(60_000) });
   await card.getByRole("button", { name: /^connect$/i }).click();
@@ -238,8 +238,8 @@ function skipOnOnionSibling(platform) {
 }
 
 async function disconnectAccount(page, account) {
-  await gotoOnion(page, `${env.appBaseUrl}/settings?tab=accounts`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: /connected channels/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await gotoOnion(page, `${env.appBaseUrl}/accounts`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: /connected accounts/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
   const actions = mastodonChannelActions(page, account);
   if (!(await actions.isVisible())) {
     return;
@@ -251,7 +251,7 @@ async function disconnectAccount(page, account) {
     timeout: resolveTimeout(30_000),
   });
   await confirm.getByRole("button", { name: /^remove connection$/i }).click();
-  await expect(actions, `${account.handle} must disappear from the connected channels`).toBeHidden({
+  await expect(actions, `${account.handle} must disappear from the connected accounts`).toBeHidden({
     timeout: resolveTimeout(60_000),
   });
 }
@@ -295,10 +295,10 @@ async function connectMastodonAccount(page, context, label) {
       message: `${label}: OpenPost must leave the code page after the exchange`,
     })
     .not.toContain("/accounts/mastodon/callback");
-  await gotoOnion(page, `${env.appBaseUrl}/settings?tab=accounts`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${env.appBaseUrl}/accounts`, { waitUntil: "domcontentloaded" });
   await expect(
     mastodonChannelActions(page, account),
-    `${label}: ${account.handle} must be listed among the connected channels`,
+    `${label}: ${account.handle} must be listed among the connected accounts`,
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
   return account;
 }
@@ -329,7 +329,7 @@ async function mastodonStatusExists(page, account, marker) {
 }
 
 async function openPixelfedConnectDialog(page, label) {
-  await gotoOnion(page, `${env.appBaseUrl}/settings?tab=accounts`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${env.appBaseUrl}/accounts`, { waitUntil: "domcontentloaded" });
   const card = page.locator('[data-testid="provider-card-pixelfed"]');
   await expect(card, `${label}: the Pixelfed provider card must render`).toBeVisible({ timeout: resolveTimeout(60_000) });
   await card.getByRole("button", { name: /^connect$/i }).click();
@@ -410,7 +410,7 @@ async function connectPixelfedAccount(page, label) {
       message: `${label}: OpenPost must leave the code page after the exchange`,
     })
     .not.toContain("/accounts/pixelfed/callback");
-  await gotoOnion(page, `${env.appBaseUrl}/settings?tab=accounts`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${env.appBaseUrl}/accounts`, { waitUntil: "domcontentloaded" });
   await expect(
     pixelfedChannelActions(page, account),
     `${label}: ${account.handle} must be listed among the connected Pixelfed channels`,
