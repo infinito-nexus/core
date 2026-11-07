@@ -5,7 +5,9 @@ import unittest
 from tests.utils.ansible_assert import assert_task, holds, message
 from utils import PROJECT_ROOT
 
-TASKS = PROJECT_ROOT / "roles" / "svc-virt-kata" / "tasks" / "utils" / "assert_kvm.yml"
+TASKS = (
+    PROJECT_ROOT / "roles" / "svc-virt-kata" / "tasks" / "utils" / "assert" / "kvm.yml"
+)
 TASK = assert_task(TASKS, "🛑 Refuse a host without hardware virtualization")
 
 

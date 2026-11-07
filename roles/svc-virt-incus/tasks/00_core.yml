@@ -13,7 +13,7 @@
     quiet: true
 
 - name: "🛡️ Prove hardware virtualization for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_kvm.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert/kvm.yml') }}"
   vars:
     assert_kvm_consumer: "{{ application_id }}"
 

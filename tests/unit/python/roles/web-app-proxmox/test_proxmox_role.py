@@ -297,7 +297,7 @@ class TestGates(unittest.TestCase):
 
 class TestHostChecks(unittest.TestCase):
     def test_kvm_is_required(self):
-        task = _include("svc-virt-kata/tasks/utils/assert_kvm.yml")
+        task = _include("svc-virt-kata/tasks/utils/assert/kvm.yml")
         self.assertEqual(task["vars"]["assert_kvm_consumer"], "{{ application_id }}")
 
     def test_container_limits_are_proven_against_the_vm_demand(self):

@@ -25,7 +25,7 @@
   ansible.builtin.include_tasks: utils/mcp.yml
 
 - name: "🛡️ Prove the isolation {{ application_id }} promises"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert/isolated.yml') }}"
   vars:
     assert_isolated_container: "{{ OPENCLAW_CONTAINER }}"
   when:

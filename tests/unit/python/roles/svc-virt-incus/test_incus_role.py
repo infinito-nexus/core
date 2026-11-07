@@ -32,7 +32,7 @@ def _task_with(text: str) -> dict:
 
 class TestIncusHost(unittest.TestCase):
     def test_kvm_is_required(self):
-        task = _task_with("svc-virt-kata/tasks/utils/assert_kvm.yml")
+        task = _task_with("svc-virt-kata/tasks/utils/assert/kvm.yml")
         self.assertEqual(task["vars"]["assert_kvm_consumer"], "{{ application_id }}")
 
     def test_copy_on_write_drivers_pass(self):

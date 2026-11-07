@@ -262,7 +262,7 @@ flowchart TB
 
 | Guarantee | Enforced by |
 | --- | --- |
-| Isolation is real in compose | `svc-virt-kata/tasks/utils/assert_isolated.yml` reads `HostConfig.Runtime` off the running container and refuses `runc` |
+| Isolation is real in compose | `svc-virt-kata/tasks/utils/assert/isolated.yml` reads `HostConfig.Runtime` off the running container and refuses `runc` |
 | Isolation is real in swarm | `svc-virt-kata/tasks/00_core.yml` reads `container info --format DefaultRuntime` and refuses `runc` **before** labelling the node, so the label never promises what the node cannot deliver |
 | The sandbox cannot be escaped through the host daemon | [test_sandboxed_no_host_socket.py](../../tests/lint/ansible/services/test_sandboxed_no_host_socket.py), scoped to the roles whose templates pin `SANDBOX_RUNTIME` |
 | Inference reaches only the gateway | [test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) and [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py) |
