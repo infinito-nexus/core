@@ -230,6 +230,35 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
   {% endif %}
 
+  {% if NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool %}
+  {% set service_name = NEXTCLOUD_NOTIFY_PUSH_SERVICE %}
+  {% set container_port = NEXTCLOUD_NOTIFY_PUSH_PORT %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'nextcloud') }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_NOTIFY_PUSH_CONTAINER) }}
+    init: true
+    user: "{{ NEXTCLOUD_DOCKER_USER_ID }}:{{ NEXTCLOUD_DOCKER_USER_ID }}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    entrypoint: ["{{ NEXTCLOUD_NOTIFY_PUSH_LAUNCHER }}", "run"]
+    environment: # nocheck: compose-environment-from-env-file the shared env.j2 binds NEXTCLOUD_URL to the public URL, which these keys override with the internal proxy URL, and PORT, DATABASE_URL and REDIS_URL there would reach every other service that loads it
+      PORT: "{{ container_port }}"
+      NOTIFY_PUSH_APP_DIRECTORY: "{{ NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY }}"
+      NEXTCLOUD_URL: "{{ NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL }}"
+      DATABASE_URL: {{ lookup('database', application_id, 'url_full') | to_json | replace('$', '$$') }}
+      REDIS_URL: {{ lookup('engine', 'redis', application_id, 'url') | to_json | replace('$', '$$') }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    expose:
+      - "{{ container_port }}"
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
+  {% endif %}
+
   {% if NEXTCLOUD_MCP_ENABLED | bool %}
   {% set service_name = NEXTCLOUD_MCP_ADAPTER_SERVICE %}
   {% set container_port = NEXTCLOUD_MCP_ADAPTER_PORT %}

@@ -38,6 +38,14 @@
     - compose-build
     - compose-up
 
+- name: "📄 Deploy the notify_push launcher to {{ NEXTCLOUD_NOTIFY_PUSH_LAUNCHER_HOST }}"
+  stack_host_copy:
+    src: shell/addons/notify_push/notify-push.sh
+    dest: "{{ NEXTCLOUD_NOTIFY_PUSH_LAUNCHER_HOST }}"
+    mode: "0555"
+  when: NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool
+  notify: compose-up
+
 - when: NEXTCLOUD_WHITEBOARD_ENABLED | bool
   block:
     - name: "📁 Create '{{ NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY }}' Directory"

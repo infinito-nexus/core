@@ -358,6 +358,21 @@ talk_recording:
   healthcheck:
     flavor: nc
     port_key: recording
+# nocheck: playwright-service-flag  the notify_push addon spec covers the daemon and skips with the addon
+# nocheck: dynamic-flag  the push daemon reads Nextcloud's events from redis, so it follows the redis entry rather than a role's presence
+notify_push:
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.redis.enabled') | bool }}"
+  shared: false
+  name: nextcloud-notify-push
+  cpus: "0.25"
+  mem_reservation: 32m
+  mem_limit: 256m
+  pids_limit: 256
+  ports:
+    internal:
+      http: 7867
+  healthcheck:
+    test: ["CMD", "{{ lookup('volume', 'web-app-nextcloud', 'notify_push_launcher').target }}", "health"]
 # nocheck: playwright-service-flag: verified by web-svc-design provider spec
 design:
   bond: 1

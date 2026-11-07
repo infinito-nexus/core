@@ -27,6 +27,12 @@ server
     {% include 'roles/sys-svc-proxy/templates/location/ws.conf.j2' %}
   {% endif %}
 
+  {% if NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool %}
+    {% set webserver_websocket_location = '^~ ' ~ NEXTCLOUD_NOTIFY_PUSH_LOCATION %}
+    {% set websocket_port     = NEXTCLOUD_PORT %}
+    {% include 'roles/sys-svc-proxy/templates/location/ws.conf.j2' %}
+  {% endif %}
+
   {% if NEXTCLOUD_ONLYOFFICE_ENABLED | bool %}
   location ~* ^{{ NEXTCLOUD_ONLYOFFICE_LOCATION }} {
     {{ lookup('proxy_pass', 'web-svc-onlyoffice', 'onlyoffice', 'http', tail='oauth2') }}

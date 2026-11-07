@@ -131,5 +131,19 @@ http {
             proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 {% endif %}
+{% if NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool %}
+        location ^~ {{ NEXTCLOUD_NOTIFY_PUSH_LOCATION }} {
+            set $upstream_nextcloud_notify_push http://{{ NEXTCLOUD_NOTIFY_PUSH_SERVICE }}:{{ NEXTCLOUD_NOTIFY_PUSH_PORT }};
+            rewrite ^{{ NEXTCLOUD_NOTIFY_PUSH_LOCATION }}(.*)$ /$1 break;
+            proxy_pass          $upstream_nextcloud_notify_push;
+            proxy_http_version  1.1;
+            proxy_set_header    Host              $host;
+            proxy_set_header    Upgrade           $http_upgrade;
+            proxy_set_header    Connection        "upgrade";
+            proxy_read_timeout  3600;
+            proxy_buffering     off;
+            proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+{% endif %}
     }
 }

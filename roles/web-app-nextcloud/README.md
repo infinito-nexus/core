@@ -36,6 +36,7 @@ The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.
 | `onlyoffice` | `plugin` | enabled with the `onlyoffice` partner | `onlyoffice` → `web-svc-onlyoffice` |
 | `richdocuments` | `plugin` | enabled with the `collabora` partner | `collabora` → `web-svc-collabora` |
 | `spreed` | `plugin` | enabled with the `talk` service | `talk`, `coturn` |
+| `notify_push` | `plugin` | enabled with the `notify_push` daemon, which follows `redis` | none (self-hosted daemon behind `/push/`) |
 | `whiteboard` | `plugin` | `required` (always installed) | none (self-hosted backend) |
 | `xwiki` | `plugin` | enabled with the `xwiki` partner | `xwiki` → `web-app-xwiki` |
 | `app_api` | `plugin` | enabled while `services.context_agent.enabled` is true (it follows `mcp.enabled` unless the inventory sets it), disabled otherwise | none |
