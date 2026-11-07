@@ -16,7 +16,9 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 ### Layout
 
 - [ ] Every role's scheduled starts live in its `cron.yml`, a role may list several entries, and the orchestrator runs each entry at its schedule (fixture clock).
+  - Partial: `TestRoleCronEntries` in `tests/unit/python/utils/orchestrator/test_cron.py:46` fires the real `cron.yml` entries, read through `lookup('agent_config', ...)`, at their schedules on a fixture clock. Open: the `scheduler` of `roles/svc-ai-agent-orchestrator/files/python/server.py` only logs `cron_due` and starts no routine.
 - [ ] An inventory override under `agents.<role>` changes a field of `agent.yml` and an entry of `cron.yml` on the next deploy, and every consumer reads the merged value through `lookup('agent_config', ...)`.
+  - Partial: `test_the_inventory_override_changes_a_field_and_a_cron_entry` in `tests/unit/python/plugins/lookup/test_agent_config.py`; the lookup no longer fails on a `cron.yml` list root (`plugins/lookup/agent_config.py`, `load_yaml_any`). Live: deploy `svc-ai-agent-orchestrator` with an `agents.translator.cron` override and read the rendered cron entries from the container.
 
 ### Routines
 
@@ -25,7 +27,9 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 - [ ] An operator override of a routine policy is accepted, recorded in the run and shown in its result.
 - [ ] Two stack commands of one agent never run at the same time, and nothing starts on the machine while the quality gate runs.
 - [ ] Starting a quality gate pauses a running translation through `make i18n-pause` before the first gate step and resumes it after the gate; the translator's night and day crons start nothing while the gate lock is held (fixture clock and lock).
+  - Partial: `test_the_gate_lock_starts_no_translator_cron` in `tests/unit/python/utils/orchestrator/test_cron.py:64`. Open: no gate lock and no `make i18n-pause` call around the quality gate exist yet.
 - [ ] An owner hold on a routine survives every later cron firing of that routine and a restart of the orchestrator until the owner lifts it through the management API (fixture: pause instruction, two cron firings, restart).
+  - Partial: `test_an_owner_hold_outlasts_two_firings` in `tests/unit/python/utils/orchestrator/test_cron.py:76`. Open: the orchestrator's `scheduler` (`roles/svc-ai-agent-orchestrator/files/python/server.py:265`) calls `cron.due` without holds, blockers or the gate lock, and no hold survives a restart.
 - [ ] A routine with a recorded owner-only blocker is reported once and not restarted by its cron until the owner clears the blocker through the management API (fixture).
 - [ ] The orchestrator reads the gate lock before every routine step and cron start; a routine started while the lock is held waits (fixture lock).
 

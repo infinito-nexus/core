@@ -9,7 +9,7 @@ from ansible.plugins.lookup import LookupBase
 from utils import PROJECT_ROOT
 
 # nocheck: lookup-cache-import (this lookup IS the agent-config SPOT accessor)
-from utils.cache.yaml import load_yaml
+from utils.cache.yaml import load_yaml, load_yaml_any
 
 ROLES_DIR = PROJECT_ROOT / "agents" / "roles"
 
@@ -48,7 +48,7 @@ def _config_of(role: str, roles_dir: Path, override: dict) -> dict:
         )
     config = dict(load_yaml(agent_file) or {})
     cron_file = role_dir / "cron.yml"
-    config["cron"] = load_yaml(cron_file) or [] if cron_file.is_file() else []
+    config["cron"] = list(load_yaml_any(cron_file) or []) if cron_file.is_file() else []
     return _merge(config, override or {})
 
 
