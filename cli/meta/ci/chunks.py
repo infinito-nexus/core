@@ -49,7 +49,7 @@ def plan(
     *,
     size: int,
     blocks: int,
-    budget: int,
+    budget: int | None,
     offset: int = 0,
 ) -> list[list[T]]:
     """The chunks one sweep deploys, priority blocks first.
@@ -60,6 +60,7 @@ def plan(
         size: rows one chunk may hold (``slots.chunk_size``).
         blocks: chunk blocks the workflow declares (``slots.chunk_blocks``).
         budget: rows the run job cap allows in total (``slots.available``).
+            ``None`` lifts the cap: every row from *offset* on is planned.
         offset: how many regular rows to skip before filling the chunks. ``0``
             (the default) starts at the head of the ranking. A value past the
             end of the list leaves the regular chunks empty rather than
@@ -70,7 +71,13 @@ def plan(
         at most *blocks* chunks, none larger than *size*, together holding at
         most *budget* rows. Priority chunks come first and are never topped up
         with regular rows.
+
+    Raises:
+        SystemExit: *budget* is ``None`` and the rows need more than *blocks*
+            chunks.
     """
+    if budget is None:
+        return _every_row(priority, regular[max(offset, 0) :], size=size, blocks=blocks)
     priority_chunks = slice_chunks(priority[:budget], size)[:blocks]
     spent = sum(len(chunk) for chunk in priority_chunks)
     capacity = max(min((blocks - len(priority_chunks)) * size, budget - spent), 0)
@@ -78,3 +85,19 @@ def plan(
         return priority_chunks
     start = max(offset, 0)
     return priority_chunks + slice_chunks(regular[start : start + capacity], size)
+
+
+def _every_row(
+    priority: Sequence[T], regular: Sequence[T], *, size: int, blocks: int
+) -> list[list[T]]:
+    chunks = slice_chunks(priority, size) + slice_chunks(regular, size)
+    if len(chunks) > blocks:
+        raise SystemExit(
+            f"an unlimited job budget (INFINITO_CI_JOB_LIMIT=0) needs "
+            f"{len(chunks)} chunk blocks for {len(priority)} priority and "
+            f"{len(regular)} regular rows at {size} rows per chunk, but "
+            f"call-orchestrator.yml declares {blocks}: declare "
+            f"{len(chunks)} test-deploy-chunk-* blocks and set "
+            f"INFINITO_CI_MAX_CHUNKS={len(chunks)}"
+        )
+    return chunks

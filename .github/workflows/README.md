@@ -95,14 +95,21 @@ chunks. Rows beyond that roll into the next sweep, which starts reading the
 regular line at an offset (`cli.meta.ci.chunks`), so consecutive sweeps walk
 the whole list instead of re-testing the same head forever.
 
+`INFINITO_CI_JOB_LIMIT=0`, the default, sets no such cap: `available` reads
+`unlimited` and the split plans every row of the job list from the offset on.
+Each chunk is still one matrix, so the chunk size never exceeds GitHub's
+256-job matrix cap. When the declared blocks cannot hold every row, the plan
+fails and names the block count it needs instead of dropping the tail.
+
 GitHub Actions cannot generate a variable number of jobs, so the chunk blocks
 are written out in the orchestrator. `INFINITO_CI_MAX_CHUNKS` must equal how
 many exist there — `slots` plans a sweep against that key, and a sweep planned
-larger than the chain silently drops its tail. Declare one block more than
-`available` fills (`ceil(available / chunk size) + 1`): the split receives
-every declared block, so after a short priority chunk the regular rows still
-fill the rest of the budget. Blocks whose slice comes back empty skip
-themselves and cost nothing.
+larger than the chain silently drops its tail. Declare one block more than the
+planned rows fill (`ceil(rows / chunk size) + 1`, where rows is `available`,
+or the whole job list without a job limit): the split receives every declared
+block, so after a short priority chunk the regular rows still fill the rest of
+the budget. Blocks whose slice comes back empty skip themselves and cost
+nothing.
 
 Run `python -m cli.meta.ci.slots --matrix` to see the whole budget.
 

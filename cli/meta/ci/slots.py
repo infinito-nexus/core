@@ -30,13 +30,17 @@ independent ceilings bound it, and the smaller one wins:
   The worst entry point (``entry-*.yml``) adds its own jobs to the same run
   before calling the orchestrator; that overhead is subtracted too.
 
+  ``INFINITO_CI_JOB_LIMIT=0`` lifts this cap: :func:`available` is then
+  ``None`` and every row of the job list is planned.
+
 What is left is :func:`available`, the rows one sweep can deploy. It is spent
 by :func:`chunk_count` blocks of :func:`chunk_size` rows. Because the
 orchestrator cannot generate a variable number of jobs, the block count is
 also capped by ``INFINITO_CI_MAX_CHUNKS``, the number of chunk blocks the
 workflow YAML actually declares (:func:`chunk_blocks`); a sweep that would
 need more rows than those blocks hold leaves the rest to the next sweep's
-offset.
+offset, or, with the cap lifted, fails the plan
+(:func:`cli.meta.ci.chunks.plan`) naming the block count it needs.
 """
 
 from __future__ import annotations
@@ -59,6 +63,7 @@ _DEPLOY_WORKFLOW = ".github/workflows/call-test-deploy.yml"
 _DEPLOY_JOB = "deploy"
 _CHUNK_JOB_PREFIX = "test-deploy-chunk-"
 _DYNAMIC_MATRIX_ESTIMATE = 5
+MATRIX_CAP = 256
 
 
 def setting(key: str) -> int:
@@ -146,12 +151,12 @@ def chunk_size(repo_root: Path | None = None) -> int:
 
     ``INFINITO_CI_CHUNK_SIZE`` takes precedence when set; 0 derives the value
     from the runner slots a chunk may assume and the waves the queue window
-    affords.
+    affords. Either way the result stops at ``MATRIX_CAP``.
     """
     override = setting("INFINITO_CI_CHUNK_SIZE")
     if override > 0:
-        return override
-    return setting("INFINITO_CI_CONCURRENCY") * waves(repo_root)
+        return min(override, MATRIX_CAP)
+    return min(setting("INFINITO_CI_CONCURRENCY") * waves(repo_root), MATRIX_CAP)
 
 
 def reserved_breakdown(repo_root: Path | None = None) -> list[tuple[str, int]]:
@@ -193,9 +198,12 @@ def entry_overhead(repo_root: Path | None = None) -> int:
     return max(totals)
 
 
-def available(repo_root: Path | None = None) -> int:
-    """Deploy rows one run may spend across all its chunks."""
+def available(repo_root: Path | None = None) -> int | None:
+    """Deploy rows one run may spend across all its chunks; ``None`` when
+    ``INFINITO_CI_JOB_LIMIT`` is 0, which sets no such limit."""
     limit = setting("INFINITO_CI_JOB_LIMIT")
+    if limit == 0:
+        return None
     return max(limit - reserved_slots(repo_root) - entry_overhead(repo_root), 1)
 
 
@@ -205,18 +213,25 @@ def chunk_blocks() -> int:
 
 
 def chunk_count(repo_root: Path | None = None) -> int:
-    """Chunk blocks a sweep fills, capped by the blocks the YAML declares."""
-    needed = math.ceil(available(repo_root) / chunk_size(repo_root))
+    """Chunk blocks a sweep fills, capped by the blocks the YAML declares.
+    Without a job limit a sweep may fill every declared block."""
+    rows = available(repo_root)
+    if rows is None:
+        return chunk_blocks()
+    needed = math.ceil(rows / chunk_size(repo_root))
     return max(min(needed, chunk_blocks()), 1)
 
 
 def rows_per_sweep(repo_root: Path | None = None) -> int:
     """Rows one sweep covers: the chunk blocks it fills, bounded by the run
-    job cap. Rows beyond this roll into the next sweep via its offset."""
-    return min(chunk_count(repo_root) * chunk_size(repo_root), available(repo_root))
+    job cap. Rows beyond this roll into the next sweep via its offset, or,
+    without a job limit, fail the plan."""
+    capacity = chunk_count(repo_root) * chunk_size(repo_root)
+    rows = available(repo_root)
+    return capacity if rows is None else min(capacity, rows)
 
 
-def budget(repo_root: Path | None = None) -> dict[str, int]:
+def budget(repo_root: Path | None = None) -> dict[str, int | None]:
     return {
         "reserved": reserved_slots(repo_root),
         "entry_overhead": entry_overhead(repo_root),
@@ -252,8 +267,16 @@ def render_matrix() -> str:
     lines = [f"{'job':<{width}}  jobs", f"{'-' * width}  ----"]
     lines += [f"{name:<{width}}  {count:>4}" for name, count in breakdown]
     lines.append(f"{'-' * width}  ----")
-    lines += [f"{name:<{width}}  {count:>4}" for name, count in rows[len(breakdown) :]]
+    lines += [
+        f"{name:<{width}}  {describe(count):>4}"
+        for name, count in rows[len(breakdown) :]
+    ]
     return "\n".join(lines)
+
+
+def describe(count: int | None) -> str:
+    """A budget figure as text, ``None`` reading as ``unlimited``."""
+    return "unlimited" if count is None else str(count)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -274,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     values = budget()
     if args.field:
-        print(values[args.field])
+        print(describe(values[args.field]))
         return 0
     print(json.dumps(values) if args.fmt == "json" else json.dumps(values, indent=2))
     return 0
