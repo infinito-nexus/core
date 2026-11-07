@@ -230,7 +230,7 @@ class TestFederation(unittest.TestCase):
 
 
 ROUTINES = PROJECT_ROOT / "roles/web-app-keycloak/tasks/03_manager_ops/update_routines.yml"
-TRUST = "tasks/update/06_users/email_federated.yml"
+TRUST = "tasks/update/06_users/email/federated.yml"
 SETTINGS = "tasks/update/01_settings.yml"
 
 

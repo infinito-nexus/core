@@ -8,7 +8,7 @@
 
 # Exception: directory users must be verified before the settings converge turns verifyEmail on, or each one gets VERIFY_EMAIL at its next login.
 - name: "📂 Load directory email trust routines for '{{ application_id }}'"
-  include_tasks: "{{ role_path }}/tasks/update/06_users/email_federated.yml"
+  include_tasks: "{{ role_path }}/tasks/update/06_users/email/federated.yml"
   when:
     - KEYCLOAK_LDAP_ENABLED | bool
     - KEYCLOAK_DICTIONARY_REALM.verifyEmail | bool
@@ -69,7 +69,7 @@
   when: KEYCLOAK_ADMIN_PERMISSIONS_ENABLED | bool
 
 - name: "📂 Load Users Update routines for '{{ application_id }}' (emailVerified)"
-  include_tasks: "{{ role_path }}/tasks/update/06_users/email_verified.yml"
+  include_tasks: "{{ role_path }}/tasks/update/06_users/email/verified.yml"
   when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
 
 - name: "📂 Converge the protocol mappers of SAML and declared clients"
