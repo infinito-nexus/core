@@ -83,8 +83,10 @@ As an operator, I want the `agents/` tree, the lint catalog and the deterministi
 
 ### Lint tests
 
-- [ ] Every lint of the catalog (L01 to L34) exists under `tests/lint/agents/` and runs in `make test-lint`.
-- [ ] `agents/criteria.yml` names a catalog lint id for every lint-proven criterion, and a criterion pointing to a missing lint id fails L22.
+- [x] Every lint of the catalog (L01 to L34) exists under `tests/lint/agents/` and runs in `make test-lint`.
+  - Evidence: `tests/lint/agents/test_l01_agent_fields.py` to `test_l34_tuner_rules.py`, one file per id; `make test-lint` discovers `tests/lint` recursively (`scripts/tests/code/run.sh:27,39`); `catalog` in `tests/lint/agents/test_l22_criteria_map.py:32` reads the ids from those file names.
+- [x] `agents/criteria.yml` names a catalog lint id for every lint-proven criterion, and a criterion pointing to a missing lint id fails L22.
+  - Evidence: `lint_id_problems` in `tests/lint/agents/test_l22_criteria_map.py:46`, proven by `test_real_tree_passes` and `test_a_criterion_naming_a_missing_lint_id_fails`.
 
 ### End to end
 

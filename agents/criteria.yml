@@ -60,7 +60,7 @@ L14:
   proof: tests/lint/agents/test_l14_routine_command_hygiene.py
   red_fixture: yes
 L15:
-  statement: "a routine push step names its remote explicitly, never remote.pushDefault"
+  statement: "a routine push step names its remote and its ref explicitly, never remote.pushDefault or push.default"
   proof_kind: lint
   proof: tests/lint/agents/test_l15_routine_push.py
   red_fixture: yes
@@ -75,12 +75,12 @@ L17:
   proof: tests/lint/agents/test_l17_model_nodes_only_gateway.py
   red_fixture: yes
 L18:
-  statement: "environment differences are declared capabilities, never a branch on"
+  statement: "environment differences are declared capabilities, never a branch on runs_on_github or a RUNTIME identity in agents/ or role logic"
   proof_kind: lint
   proof: tests/lint/agents/test_l18_declared_capabilities.py
   red_fixture: yes
 L19:
-  statement: "no private-use or surrogate characters in agent source files. The Edit"
+  statement: "no private-use or surrogate characters in agents/ or any other source file of the project"
   proof_kind: lint
   proof: tests/lint/agents/test_l19_no_private_use_chars.py
   red_fixture: yes
@@ -94,6 +94,16 @@ L21:
     exists"
   proof_kind: lint
   proof: tests/lint/agents/test_l21_translator_decider.py
+  red_fixture: yes
+L22:
+  statement: "criteria.yml maps every criterion to one proof kind and an existing proof, and every scenario and catalog lint to the criterion it proves"
+  proof_kind: lint
+  proof: tests/lint/agents/test_l22_criteria_map.py
+  red_fixture: yes
+L23:
+  statement: "every lint and unit proof in criteria.yml ships a red fixture"
+  proof_kind: lint
+  proof: tests/lint/agents/test_l23_red_fixtures.py
   red_fixture: yes
 L24:
   statement: "the agents bundle inventory deploys every named agent-platform role; the vulnerable fixture app appears in no other inventory"
@@ -151,6 +161,16 @@ L34:
   proof_kind: lint
   proof: tests/lint/agents/test_l34_tuner_rules.py
   red_fixture: yes
+UT-TRANSLATOR-ENGINE-MARK:
+  statement: "the machine-translation marker of every catalog entry names the engine that answered, fixture with two engines"
+  proof_kind: unit
+  proof: tests/unit/python/utils/i18n/test_translate.py
+  red_fixture: yes
+UT-TRANSLATE-STRATEGY:
+  statement: "web-svc-translate reads its router strategy without a code-level fallback value, and an unknown strategy is an error"
+  proof_kind: unit
+  proof: tests/unit/python/roles/web-svc-translate/files/translate_gateway/test_router.py
+  red_fixture: yes
 SC-HACKER-BRUTE:
   statement: "hacker credential brute forcing stays under the lockout threshold, stops at the first proof and locks no account out of service"
   proof_kind: scenario
@@ -160,9 +180,10 @@ SC-COUNSEL-BLOCKER:
   proof_kind: scenario
   proof: agents/scenarios/counsel-blocker.yml
 L06:
-  statement: "every identity account username matches [a-z1-9]{3,15}; reserved non-identity accounts exempt"
+  statement: "every identity account username matches [a-z1-9]{3,15}; reserved non-identity accounts exempt; every agent account is <role code>0<suffix> within IAM_ACCOUNT_MAX_LENGTH;
+    instance ids match [a-z1-9]{1,15}"
   proof_kind: lint
-  proof: tests/lint/ansible/roles/meta/test_identity_username_charset.py
+  proof: tests/lint/agents/test_l06_account_names.py
   red_fixture: yes
 L07:
   statement: "every account-creating role declares its username length ceiling and whether an agent may hold an account there; IAM_ACCOUNT_MAX_LENGTH equals the smallest
