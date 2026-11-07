@@ -725,6 +725,22 @@ class TestEmailPolicy(unittest.TestCase):
         self.assertEqual(saml_email["protocolMapper"], "saml-user-attribute-mapper")
         self.assertEqual(saml_email["config"]["user.attribute"], "mailbox")
 
+    def test_saml_carries_the_same_primary_as_the_oidc_email_claim(self) -> None:
+        for name, overrides, attribute in (
+            ("external", SMTP, "email"),
+            ("external without smtp", {}, "email"),
+            ("mailbox", {**MAILBOX, **SMTP}, "mailbox"),
+        ):
+            with self.subTest(policy=name):
+                realm = realm_for(overrides, saml_apps=["web-app-suitecrm"])
+                oidc = email_scope_mappers_of(realm)["email"]["config"]
+                saml = next(c for c in realm["clients"] if c.get("protocol") == "saml")
+                saml_email = next(
+                    m for m in saml["protocolMappers"] if m["name"] == "email"
+                )
+                self.assertEqual(oidc["user.attribute"], attribute)
+                self.assertEqual(saml_email["config"]["user.attribute"], attribute)
+
     def test_a_secondary_address_in_the_mailbox_domain_is_refused(self) -> None:
         email = profile_of(realm_for({**MAILBOX, **SMTP}))["email"]
         pattern = re.compile(email["validations"]["pattern"]["pattern"])
