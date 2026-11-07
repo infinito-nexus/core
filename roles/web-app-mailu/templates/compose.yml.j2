@@ -143,7 +143,7 @@
   {% set service_name = 'webmail' %}
   {{ service_name }}:
     {{ lookup('compose_only', 'container_name', MAILU_WEBMAIL_CONTAINER_ADDRESS) }}
-    {{ lookup('container_image', application_id, 'webmail', image=MAILU_DOCKER_FLAVOR ~ '/webmail', version=MAILU_VERSION) }}
+    {{ lookup('container_image', application_id, 'webmail', version=MAILU_VERSION) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('depends_on', ['imap', 'front']) }}

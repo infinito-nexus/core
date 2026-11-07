@@ -60,4 +60,6 @@ sso:
   flavor: oidc
 ```
 
+With OIDC enabled, every Mailu service runs its Mailu-OIDC image except the webmail, which runs the upstream `ghcr.io/mailu/webmail` image.
+
 For more details, check out the [Mailu-OIDC repository](https://github.com/heviat/Mailu-OIDC/tree/2024.06).

@@ -209,9 +209,12 @@ fetchmail:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 webmail:
+  backup:
+    stop_required: true
   name: mailu-webmail
   enabled: true # nocheck: dynamic-flag
   shared: false
+  image: ghcr.io/mailu/webmail
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 1g
