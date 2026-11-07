@@ -10,7 +10,8 @@ A rule is ``Kind(target):actions``:
 
 Evaluation of a rule set is deny over ask over allow, and an unmatched request
 is denied; that lives in the compiler, not here. This module only parses and
-validates one rule and exposes the ``${VAR}`` names it references.
+validates one rule, exposes the ``${VAR}`` names it references and substitutes
+them from the deploy variables.
 """
 
 from __future__ import annotations
@@ -38,6 +39,17 @@ class Rule:
     @property
     def variables(self) -> set[str]:
         return set(_VAR.findall(self.target))
+
+
+def substitute(text: str, variables: dict[str, str]) -> str:
+    """Return ``text`` with every ``${VAR}`` replaced by ``variables[VAR]``.
+
+    Args:
+        text: a rule or rule target.
+        variables: the deploy variables by name; each referenced name must be
+            present.
+    """
+    return _VAR.sub(lambda match: str(variables[match.group(1)]), text)
 
 
 def normalise_host(target: str) -> str:

@@ -14,9 +14,13 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from utils.firewall.parse import Rule, normalise_host, parse_rule
+from utils.firewall.parse import Rule, normalise_host, parse_rule, substitute
 
 VERDICTS = ("deny", "ask", "allow")
+MISCONFIGURATION = "misconfiguration"
+WRITE_ACTIONS = frozenset({"create", "update", "delete"})
+WRITE_GATE_SCENARIOS = ("deny", "kill-switch", "audit", "identity")
+LOCAL_APPS = ("workspace",)
 
 
 @dataclass(frozen=True)
@@ -83,6 +87,136 @@ def decide(
         ):
             return verdict
     return "deny"
+
+
+def expand(resolved: Resolved, variables: dict[str, str]) -> Resolved:
+    """Return ``resolved`` with every ``${VAR}`` in a rule target replaced by
+    its deploy variable, so a rule like
+    ``egress(${INFINITO_BIND_IP}:${INFINITO_TOOLS_LIBRETRANSLATE_PORT})``
+    grants the address the deploy renders.
+
+    Args:
+        resolved: a resolved firewall role.
+        variables: the deploy variables by name.
+
+    Raises:
+        KeyError: a rule names a variable the deploy does not set.
+    """
+
+    def _expanded(rule: Rule) -> Rule:
+        if not rule.variables:
+            return rule
+        missing = sorted(rule.variables - set(variables))
+        if missing:
+            raise KeyError(f"rule {rule.raw!r}: no deploy variable {missing}")
+        return parse_rule(substitute(rule.raw, variables))
+
+    return Resolved(
+        tuple(map(_expanded, resolved.allow)),
+        tuple(map(_expanded, resolved.ask)),
+        tuple(map(_expanded, resolved.deny)),
+    )
+
+
+def write_gate(
+    resolved: Resolved, *, write_enabled: bool, scenarios_passed: dict[str, bool]
+) -> Resolved:
+    """Return ``resolved`` without any write grant unless the agent may write.
+
+    A write grant is a ``create``, ``update`` or ``delete`` on anything that
+    leaves the agent's own workspace (push, comment, email, ticket reply, work
+    package write). It survives only with ``write_enabled`` and every gate
+    scenario passed for the deployed revision; otherwise the allow and ask
+    rules keep their read action alone, and a rule left without an action is
+    dropped. Deny rules and egress are untouched.
+
+    Args:
+        resolved: a resolved firewall role.
+        write_enabled: the agent's ``write_enabled`` field.
+        scenarios_passed: the result of each gate scenario by name, one of
+            ``WRITE_GATE_SCENARIOS``.
+    """
+    if write_enabled and all(
+        scenarios_passed.get(name) is True for name in WRITE_GATE_SCENARIOS
+    ):
+        return resolved
+
+    def _read_only(rules: tuple[Rule, ...]) -> tuple[Rule, ...]:
+        kept: list[Rule] = []
+        for rule in rules:
+            local = rule.target.split("/")[0] in LOCAL_APPS
+            if rule.kind == "egress" or local or not rule.actions & WRITE_ACTIONS:
+                kept.append(rule)
+                continue
+            actions = rule.actions - WRITE_ACTIONS
+            if actions:
+                kept.append(
+                    Rule(
+                        kind=rule.kind,
+                        target=rule.target,
+                        actions=actions,
+                        raw=f"{rule.kind}({rule.target}):{'+'.join(sorted(actions))}",
+                    )
+                )
+        return tuple(kept)
+
+    return Resolved(_read_only(resolved.allow), _read_only(resolved.ask), resolved.deny)
+
+
+def decide_intersection(
+    profile: Resolved,
+    owner: Resolved,
+    kind: str,
+    target: str,
+    action: str | None = None,
+) -> str:
+    """Return the verdict for a user-started agent: the intersection of its
+    profile's grants and its owner's rights. The stricter verdict of the two
+    wins, so the agent gets nothing its owner lacks.
+
+    Args:
+        profile: the resolved firewall role of the agent's profile.
+        owner: the owner's rights, resolved the same way.
+        kind: the request kind.
+        target: the request target.
+        action: the request action, ``None`` for egress.
+    """
+    verdicts = (
+        decide(profile, kind, target, action),
+        decide(owner, kind, target, action),
+    )
+    return min(verdicts, key=VERDICTS.index)
+
+
+def at_step(verdict: str, step_kind: str) -> str:
+    """Return the verdict a routine step acts on: an ``ask`` met anywhere but
+    at a declared gate node (a step of kind ``ask``) is a firewall
+    misconfiguration, reported instead of asked.
+
+    Args:
+        verdict: the firewall's ``deny``, ``ask`` or ``allow``.
+        step_kind: the kind of the routine step that made the request.
+    """
+    if verdict == "ask" and step_kind != "ask":
+        return MISCONFIGURATION
+    return verdict
+
+
+def account_grants(roles: dict, firewall_roles: list[str]) -> list[str]:
+    """Return an agent's allowed ``account`` grants in their order: the order
+    of its ``firewall_roles`` binding, then the rule order inside each role.
+    The first active one is the agent's default account.
+
+    Args:
+        roles: the parsed agents/firewall/roles.yml mapping.
+        firewall_roles: the agent's bound firewall roles, in order.
+    """
+    ordered: list[str] = []
+    for name in firewall_roles:
+        for rule in resolve(roles, name).allow:
+            if rule.kind == "account" and rule.target not in ordered:
+                ordered.append(rule.target)
+    return ordered
 
 
 def egress_allowlist(resolved: Resolved) -> list[str]:

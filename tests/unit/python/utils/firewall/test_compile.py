@@ -1,18 +1,33 @@
 from __future__ import annotations
 
 import unittest
+from typing import ClassVar
 
+from agents.routines.debug import ci as debug_ci
+from tests.lint.agents.test_l09_firewall_roles_exist import BASELINE
 from utils import PROJECT_ROOT
+from utils.agents.accounts import default_account
 from utils.cache.yaml import load_yaml
 from utils.firewall.compile import (
+    MISCONFIGURATION,
+    WRITE_GATE_SCENARIOS,
+    Resolved,
+    account_grants,
+    at_step,
     decide,
+    decide_intersection,
     egress_allowlist,
+    expand,
     login_hosts,
     resolve,
     vm_egress_proxy,
+    write_gate,
 )
 
 PROVIDERS_DIR = PROJECT_ROOT / "agents" / "firewall" / "providers"
+FIREWALL_ROLES = PROJECT_ROOT / "agents" / "firewall" / "roles.yml"
+FIREWALL_VARIABLES = PROJECT_ROOT / "agents" / "firewall" / "variables.yml"
+_ALL_PASSED = dict.fromkeys(WRITE_GATE_SCENARIOS, True)
 ROLES = {
     "contributor": {
         "allow": ["egress(github.com)", "egress(registry.example)"],
@@ -104,6 +119,273 @@ class TestVmEgressProxy(unittest.TestCase):
             "other": {"runtimes": ["codex"], "login_hosts": ["other.test"]},
         }
         self.assertEqual(login_hosts(providers, "pi"), ["login.acme.test"])
+
+
+class TestPrecedence(unittest.TestCase):
+    ROLES: ClassVar[dict] = {
+        "r": {
+            "allow": ["app(forge/issue):crud", "app(forge/tag):create"],
+            "ask": ["app(forge/issue):delete", "app(forge/tag):create"],
+            "deny": ["app(forge/issue):delete"],
+        }
+    }
+
+    def test_deny_beats_ask_beats_allow(self):
+        resolved = resolve(self.ROLES, "r")
+        self.assertEqual(decide(resolved, "app", "forge/issue", "delete"), "deny")
+        self.assertEqual(decide(resolved, "app", "forge/tag", "create"), "ask")
+        self.assertEqual(decide(resolved, "app", "forge/issue", "read"), "allow")
+
+    def test_an_unmatched_request_is_denied(self):
+        resolved = resolve(self.ROLES, "r")
+        self.assertEqual(decide(resolved, "app", "forge/wiki", "read"), "deny")
+        self.assertEqual(decide(resolved, "egress", "example.org"), "deny")
+        self.assertEqual(decide(resolve({}, "missing"), "app", "x/y", "read"), "deny")
+
+
+def deploy_variables() -> dict[str, str]:
+    """Return a value for every variable agents/firewall/variables.yml lists:
+    the lane's bind address and port, and ``<name>.test`` for the rest."""
+    values = {
+        name: f"{name.lower().replace('_', '-')}.test"
+        for name in load_yaml(FIREWALL_VARIABLES)
+    }
+    values.update(
+        {"INFINITO_BIND_IP": "127.0.0.1", "INFINITO_TOOLS_LIBRETRANSLATE_PORT": "5555"}
+    )
+    return values
+
+
+class TestExpand(unittest.TestCase):
+    VARIABLES: ClassVar[dict] = deploy_variables()
+
+    def test_the_translation_lane_address_is_granted_by_its_variables(self):
+        translator = expand(
+            resolve(load_yaml(FIREWALL_ROLES), "translator"), self.VARIABLES
+        )
+        self.assertEqual(decide(translator, "egress", "127.0.0.1:5555"), "allow")
+        self.assertEqual(decide(translator, "egress", "127.0.0.1:5556"), "deny")
+        self.assertIn("127.0.0.1:5555", egress_allowlist(translator))
+
+    def test_a_variable_the_deploy_lacks_is_refused(self):
+        roles = {"r": {"allow": ["egress(${INFINITO_BIND_IP}:${UNSET_PORT})"]}}
+        with self.assertRaises(KeyError):
+            expand(resolve(roles, "r"), self.VARIABLES)
+
+    def test_a_rule_without_variables_is_kept(self):
+        roles = {"r": {"allow": ["app(fork/push):create"]}}
+        resolved = resolve(roles, "r")
+        self.assertEqual(expand(resolved, {}), resolved)
+
+
+class TestWriteGate(unittest.TestCase):
+    ROLES: ClassVar[dict] = {
+        "r": {
+            "allow": [
+                "app(fork/push):create",
+                "app(github/issue-comment):create+read",
+                "app(workspace/worktree):crud",
+                "mcp(openproject/work_packages):crud",
+                "egress(github.com)",
+            ],
+            "ask": ["app(github/issue):delete"],
+            "deny": ["app(upstream/push):create"],
+        }
+    }
+
+    def _gated(self, write_enabled: bool, scenarios: dict) -> Resolved:
+        return write_gate(
+            resolve(self.ROLES, "r"),
+            write_enabled=write_enabled,
+            scenarios_passed=scenarios,
+        )
+
+    def _writes(self, resolved: Resolved) -> list[tuple]:
+        return [
+            (kind, target, action)
+            for kind, target, action in (
+                ("app", "fork/push", "create"),
+                ("app", "github/issue-comment", "create"),
+                ("mcp", "openproject/work_packages", "update"),
+                ("app", "github/issue", "delete"),
+            )
+            if decide(resolved, kind, target, action) != "deny"
+        ]
+
+    def test_write_disabled_emits_no_write_grant(self):
+        gated = self._gated(False, _ALL_PASSED)
+        self.assertEqual(self._writes(gated), [])
+        self.assertEqual(decide(gated, "app", "github/issue-comment", "read"), "allow")
+        self.assertEqual(decide(gated, "app", "workspace/worktree", "update"), "allow")
+        self.assertEqual(decide(gated, "egress", "github.com"), "allow")
+        self.assertEqual(gated.deny, resolve(self.ROLES, "r").deny)
+
+    def test_a_failed_gate_scenario_emits_no_write_grant(self):
+        for failed in WRITE_GATE_SCENARIOS:
+            with self.subTest(failed=failed):
+                gated = self._gated(True, {**_ALL_PASSED, failed: False})
+                self.assertEqual(self._writes(gated), [])
+
+    def test_a_missing_scenario_result_emits_no_write_grant(self):
+        gated = self._gated(True, {"deny": True})
+        self.assertEqual(self._writes(gated), [])
+
+    def test_write_enabled_with_every_scenario_passed_keeps_the_grants(self):
+        gated = self._gated(True, _ALL_PASSED)
+        self.assertEqual(len(self._writes(gated)), 4)
+
+
+class TestIntersection(unittest.TestCase):
+    PROFILE: ClassVar[dict] = {
+        "p": {
+            "allow": [
+                "app(web-app-nextcloud/files):crud",
+                "app(web-app-gitea/repos):read",
+                "mcp(gitea/issues):read",
+            ]
+        }
+    }
+    OWNER: ClassVar[dict] = {
+        "o": {
+            "allow": ["app(web-app-nextcloud/files):crud", "mcp(gitea/issues):read"],
+            "ask": ["app(web-app-nextcloud/files):delete"],
+        }
+    }
+
+    def _verdict(self, kind, target, action):
+        return decide_intersection(
+            resolve(self.PROFILE, "p"), resolve(self.OWNER, "o"), kind, target, action
+        )
+
+    def test_a_right_both_hold_is_granted(self):
+        self.assertEqual(
+            self._verdict("app", "web-app-nextcloud/files", "read"), "allow"
+        )
+        self.assertEqual(self._verdict("mcp", "gitea/issues", "read"), "allow")
+
+    def test_a_right_the_owner_lacks_is_denied(self):
+        self.assertEqual(self._verdict("app", "web-app-gitea/repos", "read"), "deny")
+
+    def test_a_right_the_profile_lacks_is_denied(self):
+        self.assertEqual(self._verdict("mcp", "gitea/issues", "create"), "deny")
+
+    def test_the_stricter_verdict_wins(self):
+        self.assertEqual(
+            self._verdict("app", "web-app-nextcloud/files", "delete"), "ask"
+        )
+
+
+class TestAskAtGate(unittest.TestCase):
+    def test_an_ask_at_a_gate_node_is_asked(self):
+        approve = {step.id: step for step in debug_ci.STEPS}["approve"]
+        self.assertEqual(at_step("ask", approve.kind), "ask")
+
+    def test_an_ask_outside_a_gate_node_is_a_misconfiguration(self):
+        push = {step.id: step for step in debug_ci.STEPS}["push"]
+        self.assertEqual(at_step("ask", push.kind), MISCONFIGURATION)
+        self.assertEqual(at_step("ask", "deterministic"), MISCONFIGURATION)
+
+    def test_allow_and_deny_pass_unchanged(self):
+        self.assertEqual(at_step("allow", "deterministic"), "allow")
+        self.assertEqual(at_step("deny", "ask"), "deny")
+
+
+class TestAccountGrants(unittest.TestCase):
+    ROLES: ClassVar[dict] = {
+        "forge": {
+            "allow": [
+                "account(github/maintainer):crud",
+                "account(gitea/maintainer):crud",
+            ]
+        },
+        "lab": {"allow": ["account(gitlab/maintainer):crud"]},
+    }
+
+    def test_the_grants_follow_the_binding_then_the_rule_order(self):
+        self.assertEqual(
+            account_grants(self.ROLES, ["forge", "lab"]),
+            ["github/maintainer", "gitea/maintainer", "gitlab/maintainer"],
+        )
+
+    def test_a_step_without_an_account_uses_the_first_active_grant(self):
+        grants = account_grants(self.ROLES, ["forge", "lab"])
+        everything = set(grants)
+        self.assertEqual(default_account(grants, everything), "github/maintainer")
+        self.assertEqual(
+            default_account(grants, everything - {"github/maintainer"}),
+            "gitea/maintainer",
+        )
+        self.assertIsNone(default_account(grants, set()))
+
+    def test_reordering_the_binding_switches_the_default(self):
+        grants = account_grants(self.ROLES, ["lab", "forge"])
+        self.assertEqual(default_account(grants, set(grants)), "gitlab/maintainer")
+
+
+class TestBaselineRoles(unittest.TestCase):
+    """The shipped baseline roles grant what the design's baseline table lists."""
+
+    VARIABLES: ClassVar[dict] = deploy_variables()
+    TABLE = (
+        ("workspace", "app", "workspace/worktree", "update", "allow"),
+        ("workspace", "app", "docker/exec", "create", "deny"),
+        ("workspace", "app", "workspace/foreign-stack", "read", "deny"),
+        ("forge-reader", "egress", "api.github.com", None, "allow"),
+        ("forge-reader", "app", "github/runs", "read", "allow"),
+        ("package-consumer", "egress", "infinito-registry-cache.test", None, "allow"),
+        ("package-consumer", "egress", "registry-1.docker.io", None, "deny"),
+        ("interactive", "app", "workspace/worktree", "create", "allow"),
+        ("interactive", "channel", "cross-session/all", "create", "allow"),
+        ("interactive", "app", "github/commit", "create", "ask"),
+        ("interactive", "app", "github/push", "create", "deny"),
+        ("autonomous-contributor", "app", "fork/push", "create", "allow"),
+        ("autonomous-contributor", "app", "fork/force-push", "create", "ask"),
+        ("autonomous-contributor", "app", "upstream/push", "create", "deny"),
+        ("autonomous-contributor", "app", "github/merge", "create", "deny"),
+        ("autonomous-contributor", "app", "github/secrets", "read", "deny"),
+        ("maintainer", "app", "github/review-reply", "create", "allow"),
+        ("maintainer", "app", "github/alert", "delete", "ask"),
+        ("designer", "app", "artifact/gallery", "create", "allow"),
+        ("designer", "app", "github/foreign-pull_request-comment", "create", "deny"),
+        ("reviewer", "app", "github/review-comment", "create", "allow"),
+        ("reviewer", "app", "github/own-pull_request-review", "create", "deny"),
+        ("planner", "app", "openproject/work_packages", "update", "allow"),
+        ("planner", "app", "openproject/approved", "update", "deny"),
+        ("coordinator", "app", "ci/lock", "create", "allow"),
+        ("coordinator", "app", "github/workflow", "delete", "ask"),
+        ("coordinator", "app", "upstream/default-merge", "create", "deny"),
+        ("operator", "app", "instance/metrics", "read", "allow"),
+        ("operator", "app", "instance/backup-restore", "create", "ask"),
+        ("operator", "app", "foreign-instance/all", "read", "deny"),
+        ("tester", "app", "fork/push", "create", "allow"),
+        ("documenter", "app", "fork/push", "create", "allow"),
+        ("translator", "app", "weblate/suggestion", "create", "allow"),
+        ("translator", "app", "weblate/reviewed", "update", "deny"),
+        ("translator", "egress", "127.0.0.1:5555", None, "allow"),
+        ("release", "app", "github/tag", "create", "ask"),
+        ("release", "app", "upstream/default-push", "create", "deny"),
+        ("security", "app", "openproject/security-project", "create", "allow"),
+        ("security", "egress", "cloud.infinito-primary-domain.test", None, "deny"),
+        ("hacker", "egress", "agents-hacker-targets.test", None, "allow"),
+        ("hacker", "egress", "elsewhere.example", None, "deny"),
+        ("hacker", "app", "hacker/production-run", "create", "ask"),
+        ("hacker", "app", "hacker/denial-of-service", "create", "deny"),
+        ("counsel", "app", "openproject/legal-project", "read", "allow"),
+        ("counsel", "app", "fork/push", "create", "deny"),
+        ("support", "app", "zammad/tickets", "read", "allow"),
+        ("support", "app", "zammad/customer-reply", "create", "ask"),
+        ("support", "app", "workspace/secrets", "read", "deny"),
+    )
+
+    def test_every_baseline_role_grants_its_table_row(self):
+        roles = load_yaml(FIREWALL_ROLES)
+        for role, kind, target, action, verdict in self.TABLE:
+            with self.subTest(role=role, target=target, action=action):
+                resolved = expand(resolve(roles, role), self.VARIABLES)
+                self.assertEqual(decide(resolved, kind, target, action), verdict)
+
+    def test_the_table_covers_every_baseline_role(self):
+        self.assertEqual({row[0] for row in self.TABLE}, set(BASELINE))
 
 
 if __name__ == "__main__":

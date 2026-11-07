@@ -32,6 +32,7 @@ As an operator, I want every agent to act under its own account with its own cre
 - [ ] A team agent with a manually supplied GitHub token forks `infinito-nexus/core` into its account, pushes a signed commit to a branch of the fork and opens a pull request against the upstream.
 - [ ] The same flow works through a Gitea account and through a GitLab account of the platform, both created and keyed at deploy time.
 - [ ] The first `account` grant is the agent's default account: a routine step without an explicit account uses it (unit test), and reordering the grants in the inventory switches the default on the next deploy.
+  - Partial: `account_grants` in `utils/firewall/compile.py:205` with `default_account`, proven by `TestAccountGrants` in `tests/unit/python/utils/firewall/test_compile.py:293`. Live: reorder the grants in the inventory, redeploy and read the default account the agent uses.
 - [ ] A `repositories` entry that names an account is worked through that account instead of the default.
 - [ ] A push from an agent to the upstream remote is refused by the agent firewall.
 - [ ] A merge attempt by an agent is refused by the agent firewall.

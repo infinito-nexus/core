@@ -13,6 +13,7 @@ from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR, load
 from utils.cache.yaml import dump_yaml_str
+from utils.firewall.compile import decide, resolve
 from utils.firewall.parse import BUILTIN_PROVIDERS, parse_rule
 
 FIREWALL = AGENTS_DIR / "firewall"
@@ -119,6 +120,41 @@ class TestL08(unittest.TestCase):
                 encoding="utf-8",
             )
             self.assertNotEqual(check(fw), [])
+
+    def test_a_declared_provider_is_usable_in_an_account_grant(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fw = Path(tmp)
+            (fw / "providers").mkdir(parents=True)
+            (fw / "providers" / "codeberg.yml").write_text(
+                dump_yaml_str({"base_url": "https://codeberg.org", "api": "gitea"}),
+                encoding="utf-8",
+            )
+            (fw / "variables.yml").write_text("{}\n", encoding="utf-8")
+            roles = {
+                "r": {
+                    "allow": [
+                        "account(codeberg/maintainer):crud",
+                        "account(github/maintainer):read",
+                    ]
+                }
+            }
+            (fw / "roles.yml").write_text(dump_yaml_str(roles), encoding="utf-8")
+            self.assertEqual(check(fw), [])
+            resolved = resolve(roles, "r")
+            self.assertEqual(
+                decide(resolved, "account", "codeberg/maintainer", "create"), "allow"
+            )
+            roles["r"]["allow"].append("account(bitbucket/maintainer):read")
+            (fw / "roles.yml").write_text(dump_yaml_str(roles), encoding="utf-8")
+            self.assertEqual(
+                check(fw),
+                [
+                    (
+                        "rule 'account(bitbucket/maintainer):read': provider "
+                        "'bitbucket' not built in or declared"
+                    )
+                ],
+            )
 
     def test_non_normalised_egress_spellings_fail(self):
         with tempfile.TemporaryDirectory() as tmp:

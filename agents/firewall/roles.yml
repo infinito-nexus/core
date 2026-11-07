@@ -147,6 +147,7 @@ translator:
     - app(weblate/suggestion):create
     - app(web-svc-translate/translate):crud
     - app(make/i18n):crud
+    - egress(${INFINITO_BIND_IP}:${INFINITO_TOOLS_LIBRETRANSLATE_PORT})
   deny:
     - app(weblate/reviewed):update
 
