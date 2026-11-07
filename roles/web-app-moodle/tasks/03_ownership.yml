@@ -20,7 +20,8 @@
   changed_when: false
 
 - name: "✅ Ensure ownership is correct on Moodle code dir"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -exec chown -h {{ MOODLE_RUNTIME_USER_GROUP }} {} +"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -exec chown -h {{ MOODLE_RUNTIME_USER_GROUP
+    }} {} +"
   changed_when: false
 
 - name: "✅ Ensure ownership is correct on Moodle data dir"
@@ -28,11 +29,13 @@
   changed_when: false
 
 - name: "📁 Code dir: 0755 dirs (nginx-readable)"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -type d -exec chmod 0755 {} +"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -type d -exec chmod 0755
+    {} +"
   changed_when: false
 
 - name: "📁 Code dir: 0644 files (nginx-readable)"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -type f -exec chmod 0644 {} +"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -type f -exec chmod 0644
+    {} +"
   changed_when: false
 
 - name: "📁 Code dir: 0640 config.php (FPM-only)"
