@@ -1,5 +1,8 @@
 ---
 application_id: "web-app-magento"
+MAGENTO_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+MAGENTO_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
 
 MAGENTO_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
 MAGENTO_USER: "app"

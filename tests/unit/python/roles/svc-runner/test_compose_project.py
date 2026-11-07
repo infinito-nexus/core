@@ -19,6 +19,7 @@ from utils.roles.mapping import (
 
 ROLE = PROJECT_ROOT / "roles" / "svc-runner"
 COMPOSE_ROLE = PROJECT_ROOT / "roles" / "sys-svc-compose"
+SYSCTL_ROLE = PROJECT_ROOT / "roles" / "sys-sysctl"
 WRAPPER = COMPOSE_ROLE / "files" / "python" / "compose.py"
 COMPOSE_HANDLERS = COMPOSE_ROLE / "handlers" / "compose.yml"
 INSTANCE_LOOKUP = "lookup('container', application_id, 'directories.instance')"
@@ -183,8 +184,12 @@ class TestRunnerComposeProject(unittest.TestCase):
             autoescape=select_autoescape(default_for_string=False),
         )
         environment.filters["entity_name"] = entity_name
-        rendered = environment.from_string(self.vars["RUNNER_SYSCTL_CONF"]).render(
+        owner = environment.from_string(self.vars["RUNNER_SYSCTL_OWNER"]).render(
             application_id=self.application_id
+        )
+        sysctl_vars = load_yaml_any(str(SYSCTL_ROLE / ROLE_FILE_VARS_MAIN))
+        rendered = environment.from_string(sysctl_vars["sys_sysctl_file"]).render(
+            sys_sysctl_owner=owner
         )
         self.assertEqual(rendered, f"/etc/sysctl.d/99-{self.entity}.conf")
 

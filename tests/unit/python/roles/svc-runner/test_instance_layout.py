@@ -20,6 +20,7 @@ from utils.roles.mapping import (
 
 ROLE = PROJECT_ROOT / "roles" / "svc-runner"
 COMPOSE_ROLE = PROJECT_ROOT / "roles" / "sys-svc-compose"
+SYSCTL_ROLE = PROJECT_ROOT / "roles" / "sys-sysctl"
 NODE_TASKS = "04_node.yml"
 LEGACY_SYSCTL_CONF = "/etc/sysctl.d/99-github-runner.conf"
 IDENTIFIER = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
@@ -240,8 +241,12 @@ class TestRunnerInstanceLayout(unittest.TestCase):
                 LEGACY_SYSCTL_CONF,
             },
         )
-        live_sysctl = environment.from_string(self.vars["RUNNER_SYSCTL_CONF"]).render(
+        owner = environment.from_string(self.vars["RUNNER_SYSCTL_OWNER"]).render(
             application_id=self.vars["application_id"]
+        )
+        sysctl_vars = load_yaml_any(str(SYSCTL_ROLE / ROLE_FILE_VARS_MAIN))
+        live_sysctl = environment.from_string(sysctl_vars["sys_sysctl_file"]).render(
+            sys_sysctl_owner=owner
         )
         self.assertNotIn(live_sysctl, removed)
 

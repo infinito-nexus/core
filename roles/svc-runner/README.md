@@ -133,7 +133,8 @@ python -m cli.administration.deploy.runner <hostname> \
 | `RUNNER_CPUS` | `2` | CPU limit per runner instance (matches GitHub-hosted 2-core quota). |
 | `RUNNER_DOCKER_BASE` | `/mnt/docker` | Base path for per-instance Docker volume directories. |
 | `RUNNER_PROJECT_PREFIX` | `runner` | Prefix for per-instance Docker Compose project names and `INFINITO_RUNNER_PREFIX`. |
-| `RUNNER_SYSCTL_CONF` | `/etc/sysctl.d/99-runner.conf` | Path to the sysctl config file written for inotify tuning. |
+| `RUNNER_SYSCTL_OWNER` | `runner` | Owner name under which [sys-sysctl](../sys-sysctl/) writes the runner-host kernel tuning to `/etc/sysctl.d/99-runner.conf`. |
+| `RUNNER_SYSCTL_PARAMETERS` | three `fs.inotify.*` limits and `vm.max_map_count: 262144` | Inotify limits for parallel runner containers, and the memory-map floor Wazuh, OpenSearch and Elasticsearch need inside DiD; host-global, so skipped inside a container. |
 
 `RUNNER_DISTRIBUTION` is **required** and has no default; it is passed automatically by the CLI.
 

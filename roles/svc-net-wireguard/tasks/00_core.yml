@@ -117,12 +117,12 @@
   register: wireguard_rendered
 
 - name: "🔀 Enable forwarding on the hub"
-  ansible.posix.sysctl:
-    name: net.ipv4.ip_forward
-    value: "1"
-    sysctl_set: true
-    state: present
-    reload: true
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ WIREGUARD_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ WIREGUARD_SYSCTL_PARAMETERS }}"
+    sys_sysctl_retired_files: "{{ WIREGUARD_SYSCTL_RETIRED_FILES }}"
   when: WIREGUARD_IS_HUB | bool
 
 - name: "🚿 Bring every rendered interface up"

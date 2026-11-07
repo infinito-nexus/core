@@ -77,13 +77,11 @@
     - IS_SWARM_MODE
 
 - name: "🔧 Set vm.max_map_count for the Wazuh indexer (OpenSearch requirement)"
-  ansible.posix.sysctl:
-    name: vm.max_map_count
-    value: "262144"
-    state: present
-    reload: true
-    sysctl_file: "{{ WAZUH_SYSCTL_CONF }}"
-  when: not (DOCKER_IN_CONTAINER | bool)
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ WAZUH_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ WAZUH_SYSCTL_PARAMETERS }}"
 
 - name: "🔄 Flush compose-up before front-proxy can shadow application_id"
   ansible.builtin.meta: flush_handlers

@@ -1,5 +1,8 @@
 ---
 application_id: "web-app-zammad"
+ZAMMAD_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+ZAMMAD_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
 entity_name: "{{ application_id | entity_name }}"
 
 ZAMMAD_PRECHECK_SERVICE: "precheck"

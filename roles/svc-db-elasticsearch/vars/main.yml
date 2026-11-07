@@ -2,6 +2,10 @@
 application_id: svc-db-elasticsearch
 entity_name: "{{ application_id | entity_name }}"
 
+ELASTICSEARCH_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+ELASTICSEARCH_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
+
 database_type: "{{ entity_name }}"
 
 ELASTICSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"

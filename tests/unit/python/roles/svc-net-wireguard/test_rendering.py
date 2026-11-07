@@ -9,7 +9,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 from jinja2.nativetypes import NativeEnvironment
 
 from utils.cache.files import PROJECT_ROOT
-from utils.cache.yaml import load_yaml
+from utils.cache.yaml import load_yaml, load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = Path(PROJECT_ROOT) / "roles" / "svc-net-wireguard"
@@ -209,3 +209,49 @@ class TestTheGateWiring(unittest.TestCase):
             {"alpha": ["k2", "k3"]},
             self._awaited(["svc-net-wireguard"], {"alpha": FULL_MEMBER}),
         )
+
+
+class TestTheHubForwards(unittest.TestCase):
+    """Only the hub forwards, so a spoke reaches the other spokes through it."""
+
+    VARS: ClassVar[dict]
+    TASK: ClassVar[dict]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.VARS = load_yaml(ROLE / ROLE_FILE_VARS_MAIN)
+        cls.TASK = next(
+            task
+            for task in load_yaml_any(ROLE / "tasks" / "00_core.yml")
+            if task.get("ansible.builtin.include_role", {}).get("name") == "sys-sysctl"
+        )
+
+    def _is_hub(self, meshes: dict) -> bool:
+        env = NativeEnvironment(undefined=StrictUndefined)
+        return env.from_string(self.VARS["WIREGUARD_IS_HUB"]).render(
+            WIREGUARD_ACTIVE_MESHES=meshes
+        )
+
+    def test_a_host_that_is_the_hub_of_a_mesh_is_the_hub(self):
+        self.assertIs(True, self._is_hub({"wg0": HUB, "alpha": FULL_MEMBER}))
+
+    def test_spokes_and_full_mesh_members_are_no_hub(self):
+        for meshes in ({"wg0": ROAMER}, {"alpha": FULL_MEMBER}, {}):
+            with self.subTest(meshes=sorted(meshes)):
+                self.assertIs(False, self._is_hub(meshes))
+
+    def test_the_hub_turns_ip_forwarding_on(self):
+        self.assertEqual(
+            "{{ WIREGUARD_SYSCTL_PARAMETERS }}",
+            self.TASK["vars"]["sys_sysctl_parameters"],
+        )
+        self.assertEqual(
+            {"net.ipv4.ip_forward": "1"}, self.VARS["WIREGUARD_SYSCTL_PARAMETERS"]
+        )
+
+    def test_only_the_hub_turns_ip_forwarding_on(self):
+        self.assertEqual("WIREGUARD_IS_HUB | bool", self.TASK["when"])
+
+    def test_a_spoke_sends_the_whole_subnet_to_the_hub(self):
+        hub = _peer_blocks(render_interface(ROAMER))["key-galaxy"]
+        self.assertIn("AllowedIPs = 10.0.0.0/24", hub)

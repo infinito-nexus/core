@@ -1,5 +1,8 @@
 ---
 application_id: "web-app-shopware"
+SHOPWARE_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+SHOPWARE_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
 entity_name: "{{ application_id | entity_name }}"
 
 container_port: "{{ lookup('config', application_id, 'services.web.ports.internal.http') }}"

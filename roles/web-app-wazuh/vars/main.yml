@@ -46,7 +46,9 @@ WAZUH_CERTS_REQUIRED_FILES:
 WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs" # nocheck: container-var-name-lookup  in-container path, not a container name
 WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security" # nocheck: container-var-name-lookup  in-container path, not a container name
 
-WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
+WAZUH_SYSCTL_OWNER: "wazuh-indexer"
+WAZUH_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
 
 WAZUH_INDEXER_INTERNAL_API_URL: "https://127.0.0.1:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
 

@@ -1,6 +1,13 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔧 Set vm.max_map_count for Elasticsearch"
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ ELASTICSEARCH_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ ELASTICSEARCH_SYSCTL_PARAMETERS }}"
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:

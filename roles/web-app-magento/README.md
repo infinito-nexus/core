@@ -18,6 +18,7 @@ This role deploys **Magento 2** via Docker Compose. It is aligned with the Infin
 ## Features
 
 - **Modern search:** OpenSearch out of the box (single-node).
+- **Memory-map floor:** the bundled OpenSearch gets `vm.max_map_count: 262144` (`MAGENTO_SYSCTL_PARAMETERS`) through [sys-sysctl](../sys-sysctl/), persisted in `/etc/sysctl.d/99-magento.conf`; the key is host-global, so it is skipped inside a container.
 - **Flexible DB:** Use platform's central MariaDB or app-local DB.
 - **Optional Redis:** Toggle cache/session backend.
 - **Proxy-aware:** Exposes HTTP on localhost, picked up by front proxy role.

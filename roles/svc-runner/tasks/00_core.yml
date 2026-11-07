@@ -7,18 +7,12 @@
     tasks_from: 00_core.yml
   when: run_once_sys_svc_container is not defined
 
-- name: 🔧 Tune kernel inotify limits for parallel runner containers
-  ansible.posix.sysctl:
-    name: "{{ item.key }}"
-    value: "{{ item.value }}"
-    state: present
-    reload: true
-    sysctl_file: "{{ RUNNER_SYSCTL_CONF }}"
-  loop:
-    - { key: fs.inotify.max_user_instances, value: "8192" }
-    - { key: fs.inotify.max_user_watches, value: "524288" }
-    - { key: fs.inotify.max_queued_events, value: "65536" }
-  when: not (DOCKER_IN_CONTAINER | bool)
+- name: 🔧 Tune the runner-host kernel limits for parallel DiD containers
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ RUNNER_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ RUNNER_SYSCTL_PARAMETERS }}"
 
 - name: 👥 Create GitHub Actions runner system group
   group:
