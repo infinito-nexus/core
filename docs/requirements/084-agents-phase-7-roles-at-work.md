@@ -78,8 +78,8 @@ As an operator, I want the reviewer, planner, coordinator, operator, tester, tra
 
 ### End to end
 
-- [ ] The tuner discards a before and after comparison that was measured while another gate, deploy or translation shared the machine (fixture).
-- [ ] The tuner keeps a hot path in Python when the measured cost is process spawns or round trips, and proposes another language only for a measured CPU-bound loop that runs on every deploy (fixture).
+- [ ] The tuner discards a before and after comparison that was measured while another gate, deploy or translation shared the machine (fixture). Partly met: the routine's guard step discards it (`agents/routines/perf_sweep.py`, `agents/routines/tools/bench_guard.py`, `tests/unit/python/agents/routines/test_perf_sweep.py`); the bench step does not record the machine's other jobs yet.
+- [ ] The tuner keeps a hot path in Python when the measured cost is process spawns or round trips, and proposes another language only for a measured CPU-bound loop that runs on every deploy (fixture). Partly met: `language_reason` in `agents/routines/tools/bench_guard.py`, applied by the guard step; the pick step does not yet report the measured cost it chose from.
 
 ## Cross-linking
 
