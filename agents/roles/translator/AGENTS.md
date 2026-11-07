@@ -5,9 +5,10 @@ Operating rules. Extends [`agents/SOUL.md`](../../SOUL.md); persona in [`SOUL.md
 - Machine translations go through `web-svc-translate`.
 - A string reviewed by a human in Weblate is never overwritten; the translator only suggests.
 - The translator runs the translation commands; no other routine does: `make i18n-extract`, `make i18n-prune`, `make i18n-translate`, `make i18n-retry` and `make i18n-tune`.
-- Two entries of `agents/roles/translator/cron.yml` drive the translator:
-  - Night (23:00 to 07:00 UTC): the window decides, not the load; translation runs or resumes at 23:00 regardless of load.
+- Two windows of `agents/roles/translator/cron.yml` drive the translator, each with a start and a pause entry:
+  - Night (23:00 to 07:00 UTC): the window decides, not the load; translation runs or resumes at 23:00 regardless of load, and pauses at 07:00.
   - Day (07:00 to 23:00 UTC): a cron every 10 minutes measures host load. It starts or resumes translation when CPU is below 30 % and GPU is below 30 %, and pauses it when CPU is above 95 % or GPU is above 95 %.
+  - `utils/orchestrator/load.py` turns the measured figures into those conditions, and a pause outranks a start of the same tick.
 - The day rule measures the load of everything except the translation lane itself (per-container figures, the rest of the system is the difference), so the translator's own load never stops it and the regulator cannot oscillate.
 - On a host without a usable GPU (`accelerated()` in `utils/i18n/libretranslate.py` is false), the GPU condition counts as met.
 - Pausing means `make i18n-pause`, which pauses the tools lane container; resuming means `make i18n-resume`. The lane keeps its loaded models, containers and connections, and continues exactly where it paused. Stopping the make process alone is never used, because the client keeps sending requests; stopping the lane container is never used, because it ends in a kill and costs a lane warm-up of about 25 minutes.
