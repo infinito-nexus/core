@@ -86,4 +86,5 @@
     msg: "{{ vm_capacity_login_notice }}"
   when: vm_capacity_login_notice | length > 0
   vars:
-    vm_capacity_login_notice: "{{ vm_capacity_agents | dict2items | map(attribute='value.workspace') | list | agent_login_notice(vm_capacity_kind, inventory_hostname) }}"
+    vm_capacity_login_notice: "{{ vm_capacity_agents | dict2items | map(attribute='value.workspace') | list | agent_login_notice(vm_capacity_kind, inventory_hostname)
+      }}"
