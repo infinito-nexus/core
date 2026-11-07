@@ -13,8 +13,6 @@ from utils.cache.files import iter_project_files_with_content, read_text
 
 NEEDLE = "docs/" + "agents"
 
-# Exception: the generated i18n catalogs and the requirement and changelog specs
-# keep the old path in prose until re-extraction; they are not live links.
 _EXEMPT_PREFIXES = (
     "docs/changelog/",
     "docs/requirements/",

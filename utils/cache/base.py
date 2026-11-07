@@ -142,16 +142,6 @@ def _scoped_fingerprint(obj: Any) -> str:
 
     Args:
         obj: the ``applications`` or ``users`` value of a variables scope.
-
-    Exception: the memo holds *obj* itself and matches it with ``is``, so a
-    freed mapping's address can never answer for another one, and the
-    scope's exit check turns an in-place write during the render into
-    `ScopedFingerprintMutatedError` instead of a stale key. Keying it on
-    ``id(obj)`` alone is the unsound memo `_fingerprint_mapping` forbids.
-    Blind spot: a mapping changed and reverted between two hits of one
-    render is served its pre-change digest, and the exit check, which sees
-    the reverted content, cannot tell; the unscoped key read before and
-    after such a revert is that same digest.
     """
     memo = getattr(_RENDER_GUARD, "fingerprints", None)
     if memo is None or obj is None:

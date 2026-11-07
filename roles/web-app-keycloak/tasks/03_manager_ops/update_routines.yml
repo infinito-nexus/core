@@ -6,7 +6,6 @@
 - name: "📂 Load email policy routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/14_email_policy.yml"
 
-# Exception: directory users must be verified before the settings converge turns verifyEmail on, or each one gets VERIFY_EMAIL at its next login.
 - name: "📂 Load directory email trust routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/06_users/email/federated.yml"
   when:

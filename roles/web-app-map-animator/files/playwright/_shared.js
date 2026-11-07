@@ -74,7 +74,6 @@ async function endSsoSession(page) {
 async function logout(page) {
   await gotoRenders(page);
   await page.getByRole("button", { name: "Log out" }).click({ timeout: resolveTimeout(30_000) });
-  // Exception: a renders.js refresh in flight can see the 401 first and redirect with ?next=, racing the logout redirect.
   await expect(page, "logout must return to the login form").toHaveURL(/\/renders\/login(\?next=[^&]*)?$/, {
     timeout: resolveTimeout(30_000),
   });

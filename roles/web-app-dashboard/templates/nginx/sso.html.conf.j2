@@ -1,5 +1,4 @@
 {% if DASHBOARD_STATUS_ENABLED | bool %}
-{# Exception: `expires` instead of `add_header Cache-Control`; any add_header here would drop the server-level Strict-Transport-Security header. #}
 location = {{ DASHBOARD_STATUS_PATH }} {
     alias {{ DASHBOARD_STATUS_FILE }};
     default_type application/json;

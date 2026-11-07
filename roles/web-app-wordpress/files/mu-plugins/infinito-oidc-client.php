@@ -20,7 +20,6 @@ if ($infinito_oidc_client_sso !== 'true') {
     return;
 }
 
-// Exception: infinito_oidc_env() and infinito_rbac_* come from infinito-oidc-rbac-mapper.php, which WordPress loads after this file, so only the hooks below may call them.
 const INFINITO_OIDC_CLIENT_OPTION = 'openid_connect_generic_settings';
 const INFINITO_OIDC_CLIENT_PAGE = 'openid-connect-generic-settings';
 const INFINITO_OIDC_CLIENT_ROUTED_ACTIONS = array('login', 'logout', 'lostpassword', 'rp', 'resetpass');

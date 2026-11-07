@@ -14,8 +14,6 @@ const KC_MIRROR_BASE = null;
 const KC_JS_ASSET_URL = "{{ lookup('asset', application_id, 'keycloak-js', 'lib/keycloak.js') }}";
 
 const DEBUG = {{ lookup('debug') | string | lower }};
-// Exception: Keycloak's hidden session-status iframe is noisy on newer Chromium builds and
-// collides with dashboard-embedded OIDC flows, so the explicit token refresh below replaces it.
 const KEYCLOAK_IFRAME_POLLING_ENABLED = false;
 
 const ACCOUNT_API = `${KC_CONFIG.url}/realms/${encodeURIComponent(KC_CONFIG.realm)}/account`;
@@ -192,10 +190,6 @@ function choosesLogoutEverywhere(link) {
   return !!link?.querySelector("." + LOGOUT_EVERYWHERE_CLASS);
 }
 
-// Exception: the listener sits on window in the capture phase, because sys-front-inj-logout patches
-// every link that reads "log out" with its own capture listener and rewrites its href; stopping the
-// event here keeps that patch from turning "Log out everywhere" into a plain logout. "Log out on this
-// device" is deliberately left alone, so it navigates to the confirmation page without an id_token_hint.
 function onLogoutEverywhere(ev) {
   if (!keycloak || !choosesLogoutEverywhere(ev.target?.closest?.("a"))) return;
   ev.preventDefault();
@@ -285,8 +279,6 @@ async function initAuthUI() {
   syncAuthMenuVisibility(authenticated);
   shareGroups();
   wireLoginLogoutClicks();
-  // Exception: persona helpers wait on this flag; its name is the OIDC_LOGIN_READY_FLAG constant in
-  // roles/test-e2e-playwright/files/personas/utils/keycloak.js and must stay equal to it.
   window.__oidcLoginReady = true;
 
   if (wantsLogoutEverywhere && keycloak) {

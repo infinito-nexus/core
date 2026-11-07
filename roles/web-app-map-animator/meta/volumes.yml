@@ -5,7 +5,6 @@ map_animator_data:
     - service: map-animator
       target: /data
 
-# Exception: the image inherits VOLUME /out from its renderer stage although the server writes every video below /data; without this tmpfs Docker creates an anonymous volume there, which sys-ctl-hlth-volumes reports.
 map_animator_out:
   type: tmpfs
   mounts:

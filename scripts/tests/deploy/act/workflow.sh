@@ -55,8 +55,6 @@ if [[ -d "${ACT_WORKFLOW}" ]]; then
 else
 	grep -vE "${_act_queue_re}" "${ACT_WORKFLOW}" >"${_act_workflow}"
 fi
-# Exception: setup-python's `cache: pip` follows PIP_CACHE_DIR, so it would tar
-# the whole shared folder after a job and extract an old tarball into it before.
 _act_pip_cache_re="^([[:space:]]*cache:[[:space:]]*)[\"']?pip[\"']?[[:space:]]*$"
 if [[ -n "${_act_shared_cache}" ]]; then
 	find "${_act_sanitized}" -type f -name '*.y*ml' \
