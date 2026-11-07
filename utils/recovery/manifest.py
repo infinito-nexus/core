@@ -66,15 +66,35 @@ def layout_of(generation_dir: Path | str) -> dict[str, str]:
     }
 
 
-def globs_of(names: dict[str, str]) -> tuple[str, str]:
-    """``(files_glob, dump_glob)`` for the layout *names* describe.
+def dump_suffixes(suffix: str) -> tuple[str, ...]:
+    """Every name ending a dump stated as *suffix* is found under.
 
-    Takes the names rather than the directory so a caller that needs both
-    reads the manifest once.
+    Args:
+        suffix: a ``dump_suffix`` or ``cluster_suffix`` of a layout.
+
+    Returns:
+        *suffix*, then the plain name it compresses when it ends in
+        ``COMPRESSED_SUFFIX``: the pair ``baudolo-restore`` tries, so a dump
+        written before baudolo 8 is still found where the layout states the
+        compressed name.
+    """
+    return tuple(
+        dict.fromkeys((suffix, suffix.removesuffix(fallback.COMPRESSED_SUFFIX)))
+    )
+
+
+def globs_of(names: dict[str, str]) -> tuple[str, tuple[str, ...]]:
+    """``(files_glob, dump_globs)`` for the layout *names* describe.
+
+    One dump glob per name in :func:`dump_suffixes`. Takes the names rather
+    than the directory so a caller that needs both reads the manifest once.
     """
     return (
         f"*/{names['files_dir']}",
-        f"*/{names['sql_dir']}/*{names['dump_suffix']}",
+        tuple(
+            f"*/{names['sql_dir']}/*{suffix}"
+            for suffix in dump_suffixes(names["dump_suffix"])
+        ),
     )
 
 

@@ -59,11 +59,11 @@ def plan(root: Path) -> tuple[list[tuple[str, str]], list[str]]:
         except ValueError as error:
             unreadable.append(f"{repo}: {error}")
             continue
-        files_glob, dump_glob = manifest.globs_of(names)
+        files_glob, dump_globs = manifest.globs_of(names)
         files_dir = names["files_dir"]
         if rtype == "volume":
             steps += [(rtype, str(vol)) for vol in sorted(generation.glob(files_glob))]
-            if any(generation.glob(dump_glob)):
+            if any(hit for glob in dump_globs for hit in generation.glob(glob)):
                 steps.append(("database", str(generation)))
         elif (generation / files_dir).is_dir():
             steps.append((rtype, str(generation / files_dir)))

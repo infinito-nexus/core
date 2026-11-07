@@ -50,15 +50,16 @@
 
 - name: "🧮 Compare the database definition with the seeded one"
   ansible.builtin.set_fact:
-    svc_bkp_volume_2_local_seed_argv: "{{ svc_bkp_volume_2_local_seed_command }}"
+    svc_bkp_volume_2_local_seed_argv: >-
+      {{ ['baudolo-seed', FILE_DATABASE_SECRETS | string]
+         + svc_bkp_volume_2_local_seed_row[:3]
+         + ['--password-stdin'] }}
     svc_bkp_volume_2_local_seed_current: >-
-      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_current(*svc_bkp_volume_2_local_seed_command[2:]) }}
+      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_current(*svc_bkp_volume_2_local_seed_row) }}
     svc_bkp_volume_2_local_seeded: >-
-      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_apply(*svc_bkp_volume_2_local_seed_command[2:]) }}
+      {{ svc_bkp_volume_2_local_seeded | baudolo_seed_apply(*svc_bkp_volume_2_local_seed_row) }}
   vars:
-    svc_bkp_volume_2_local_seed_command:
-      - baudolo-seed
-      - "{{ FILE_DATABASE_SECRETS | string }}"
+    svc_bkp_volume_2_local_seed_row:
       - "{{ database_instance | string }}"
       - "{{ '*' if (database_name | string | length) == 0 else (database_name | string) }}"
       - "{{ database_username | string }}"
@@ -68,6 +69,7 @@
 - name: 🌱 Seed database definition via baudolo-seed (system binary)
   ansible.builtin.command:
     argv: "{{ svc_bkp_volume_2_local_seed_argv }}"
+    stdin: "{{ database_password | string }}"
   when: not (svc_bkp_volume_2_local_seed_current | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   # todo: add flock to baudolo-seed upstream, then async seeding becomes safe again.

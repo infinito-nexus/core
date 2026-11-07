@@ -5,6 +5,10 @@ baudolo owns these values and writes them into every generation's manifest, so
 answer only for generations written before the manifest existed - those cannot
 describe themselves, and nothing else can tell a reader what they used.
 
+``COMPRESSED_SUFFIX`` is what baudolo 8 appended to the dump names: a dump is
+looked up under the name a layout states and under that name without it, the
+pair ``baudolo-restore`` itself tries, so generations from before 8 restore.
+
 Literals rather than an import because the code that reads a generation runs on
 swarm nodes, the NFS server and bare rescue hosts, which carry a git checkout
 and no baudolo; this module must stay import-free for that reason. The
@@ -16,8 +20,9 @@ from __future__ import annotations
 
 SQL_DIR = "sql"
 FILES_DIR = "files"
-DUMP_SUFFIX = ".backup.sql"
-CLUSTER_SUFFIX = ".cluster.backup.sql"
+DUMP_SUFFIX = ".backup.sql.gz"
+CLUSTER_SUFFIX = ".cluster.backup.sql.gz"
+COMPRESSED_SUFFIX = ".gz"
 
 MANIFEST_FILE = "manifest.json"
 MANIFEST_SCHEMA = 1

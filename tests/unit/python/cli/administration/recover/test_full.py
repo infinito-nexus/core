@@ -40,6 +40,30 @@ class PlanTest(unittest.TestCase):
             self.assertTrue(any(s.endswith("pg_data/files") for _, s in steps))
             self.assertTrue(any(s.endswith("redis/files") for _, s in steps))
 
+    def test_a_dump_compressed_or_plain_adds_the_database_step(self):
+        for name in ("zammad.backup.sql.gz", "zammad.backup.sql"):
+            with self.subTest(dump=name), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                self._tree(root)
+                generation = root / "HASH/backup-docker-to-local/20260101000000"
+                (generation / "pg_data/sql").mkdir()
+                (generation / "pg_data/sql" / name).write_bytes(b"")
+                steps, _unreadable = full.plan(root)
+                self.assertEqual(
+                    [t for t, _ in steps],
+                    ["nfs", "volume", "volume", "database", "secrets"],
+                )
+
+    def test_negative_control_a_file_that_is_no_dump_adds_no_database_step(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._tree(root)
+            generation = root / "HASH/backup-docker-to-local/20260101000000"
+            (generation / "pg_data/sql").mkdir()
+            (generation / "pg_data/sql/zammad.backup.sql.tmp").write_bytes(b"")
+            steps, _unreadable = full.plan(root)
+            self.assertNotIn("database", [t for t, _ in steps])
+
     def test_plan_picks_newest_generation(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

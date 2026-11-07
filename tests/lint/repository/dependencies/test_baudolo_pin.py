@@ -79,11 +79,17 @@ class TestBaudoloPin(unittest.TestCase):
         self.assertEqual(layout.MANIFEST_SCHEMA, generation.MANIFEST_SCHEMA)
 
     def test_the_layout_literals_match_baudolo(self) -> None:
+        from baudolo import generation
         from baudolo.restore.paths import BackupPaths
 
         installed = version(_PACKAGE)
         paths = BackupPaths("", "", "", repo_name="", backups_dir="")
         for name, ours, theirs in (
+            (
+                "COMPRESSED_SUFFIX",
+                layout.COMPRESSED_SUFFIX,
+                generation.COMPRESSED_SUFFIX,
+            ),
             ("SQL_DIR", layout.SQL_DIR, PurePath(paths.sql_file("")).parent.name),
             ("FILES_DIR", layout.FILES_DIR, PurePath(paths.files_dir()).name),
             ("DUMP_SUFFIX", layout.DUMP_SUFFIX, PurePath(paths.sql_file("")).name),
