@@ -87,6 +87,11 @@ MATRIX_MDAD_DAEMON_JSON:
   log-opts:
     max-size: "10m"
     max-file: "3"
+  default-ulimits:
+    nofile:
+      Name: nofile
+      Soft: 1048576
+      Hard: 1048576
 
 MATRIX_TELEGRAM_USABLE: >-
   {{ (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_id', '') | string | trim | length > 0)
