@@ -1,0 +1,10 @@
+---
+# host-wide kernel parameters, name to value, applied by the constructor under the owner `host`
+SYS_SYSCTL_PARAMETERS:
+  kernel.core_pattern: "{{ SYS_SYSCTL_CORE_PATTERN }}"
+# owner of one call; names its drop-in /etc/sysctl.d/99-<owner>.conf
+sys_sysctl_owner: "host"
+# kernel parameters of one call, name to value
+sys_sysctl_parameters: "{{ SYS_SYSCTL_PARAMETERS }}"
+# files an owner wrote its parameters to before, cleaned of them once the drop-in holds them
+sys_sysctl_retired_files: []

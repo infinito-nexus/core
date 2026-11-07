@@ -52,6 +52,10 @@
     name: "{{ HOST_TIMEZONE }}"
   when: not DOCKER_IN_CONTAINER | bool
 
+- name: "🔧 Apply the host-wide kernel parameters"
+  ansible.builtin.include_role:
+    name: sys-sysctl
+
 - name: 🧹 System Cleanup
   ansible.builtin.include_role:
     name: sys-cleanup

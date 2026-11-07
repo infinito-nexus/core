@@ -1,0 +1,8 @@
+---
+sysctl:
+  lifecycle: beta
+  required_by:
+    compose:
+      roles: [svc-db-elasticsearch, svc-net-wireguard, svc-runner, web-app-magento, web-app-shopware, web-app-wazuh, web-app-zammad]
+    swarm:
+      roles: [svc-db-elasticsearch, svc-net-wireguard, svc-runner, web-app-magento, web-app-shopware, web-app-wazuh, web-app-zammad]
