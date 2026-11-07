@@ -772,7 +772,7 @@ This naming is a breaking change and ships in a major release; existing accounts
 - Isolation rules for both:
   - no host home, no sibling repositories, no host Docker socket, no host credentials;
   - Docker access covers the agent's own stack only;
-  - nested Docker runs unprivileged (sysbox or gVisor); a privileged fallback is refused;
+  - nested Docker runs unprivileged (sysbox, gVisor or kata); a privileged fallback is refused;
   - configuration keys that widen reach (mounts, run args, init commands) require an approval stored outside the agent's writable paths;
   - the nested Docker daemon MTU is pinned to the uplink MTU;
   - egress is limited by the agent firewall.

@@ -196,7 +196,8 @@ flowchart LR
 
 - [ ] `dsk-agentbox` requires an agentbox version with the Kata runtime and a clone-based workspace. `[unit]`
 - [ ] A role installs the Kata shim for Docker; the role is named in the `dsk-agentbox` README. `[ci]`
-- [ ] 089's isolation rule for nested Docker allows `kata` next to sysbox and gVisor. `[unit]`
+- [x] 089's isolation rule for nested Docker allows `kata` next to sysbox and gVisor. `[unit]`
+  - Evidence: `089-agents-restructuring.md:775` names sysbox, gVisor and kata and keeps the refusal of a privileged fallback.
 - [ ] Without the runtime the inventory sets, the box start is refused; there is no privileged fallback. `[ci]`
 - [ ] Under `kata`, `docker inspect` reports the Kata runtime for the box, and `systemd-detect-virt` inside it reports `kvm`. `[ci]`
 - [ ] A box works on its own clone of each repository, never on a bind mount of a host checkout or its `.git`. `[ci]`
