@@ -46,9 +46,14 @@ class TestPruneScript(unittest.TestCase):
             else:
                 env["PRUNE_FREE_FLOOR_MIB"] = floor_mib
             proc = subprocess.run(
-                ["bash", str(SCRIPT)], env=env, capture_output=True, text=True
+                ["bash", str(SCRIPT)],
+                check=False,
+                env=env,
+                capture_output=True,
+                text=True,
             )
-            return proc, calls.read_text().splitlines()  # nocheck: cache-read the stub writes this tempdir log during the run
+            logged = calls.read_text()  # nocheck: cache-read stub log written per run
+            return proc, logged.splitlines()
 
     def prunes(self, calls):
         return [call for call in calls if call.endswith(("prune -f", "prune -af"))]
