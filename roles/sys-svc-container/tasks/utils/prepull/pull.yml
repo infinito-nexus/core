@@ -25,6 +25,22 @@
          + (sys_svc_container_prepull_images | map(attribute='Repository')
           | zip(sys_svc_container_prepull_images | map(attribute='Digest')) | map('join', '@') | list) }}
 
+- name: "🐝 Leave out the images the swarm registry already serves"
+  when: SWARM_REGISTRY_PREFIX | length > 0
+  block:
+    - name: "🔎 Ask the swarm registry for the missing images"
+      ansible.builtin.command:
+        argv: [container, manifest, inspect, --insecure, "{{ SWARM_REGISTRY_PREFIX ~ item }}"]
+      loop: "{{ sys_svc_container_prepull_missing }}"
+      register: sys_svc_container_prepull_registry
+      changed_when: false
+      failed_when: false
+
+    - name: "🧮 Keep only the images the swarm registry cannot serve"
+      ansible.builtin.set_fact:
+        sys_svc_container_prepull_missing: >-
+          {{ sys_svc_container_prepull_registry.results | rejectattr('rc', 'eq', 0) | map(attribute='item') | list }}
+
 - name: "📥 Pull the missing images, three at a time"
   ansible.builtin.command:
     argv: [xargs, -r, -P, "3", -n, "1", container, pull, --quiet]
