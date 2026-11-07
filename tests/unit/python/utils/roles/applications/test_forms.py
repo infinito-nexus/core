@@ -772,7 +772,38 @@ class TestDriftShowsOnlyPlainValues(unittest.TestCase):
             frozenset(
                 {"SYNTH-CRED-1", "SYNTH-CRED-2", "SYNTH-CRED-3", "SYNTH-USER-PW"}
             ),
-            forms.secret_values(application, users),
+            forms.secret_values({"web-app-x": application}, users),
+        )
+
+    def test_secret_values_collects_the_credentials_of_every_application(self):
+        applications = {
+            "web-app-x": {"credentials": {"own": "SYNTH-OWN-CRED"}},
+            "web-app-other": {
+                "credentials": {"api": "SYNTH-FOREIGN-CRED"},
+                "secrets": {"credentials": {"bind": "SYNTH-FOREIGN-BIND"}},
+            },
+            "web-app-plain": {"design": {"label": "Plain"}},
+        }
+        self.assertEqual(
+            frozenset({"SYNTH-OWN-CRED", "SYNTH-FOREIGN-CRED", "SYNTH-FOREIGN-BIND"}),
+            forms.secret_values(applications, {}),
+        )
+
+    def test_another_roles_credential_in_a_harmless_field_hides_its_values(self):
+        spec = {"source": "design.label", "type": "text"}
+        foreign = "SYNTH-FOREIGN-CRED"
+        applications = {
+            "web-app-x": {"design": {"label": foreign}},
+            "web-app-other": {"credentials": {"api": foreign}},
+        }
+        secrets = forms.secret_values(applications, {})
+        self.assert_hidden(
+            _drift_raw(spec, "old", foreign, {}, foreign, secrets), foreign
+        )
+        own_only = forms.secret_values({"web-app-x": applications["web-app-x"]}, {})
+        self.assertEqual(
+            [f"web-app-x: page.f (design.label): 'old' -> {foreign!r}"],
+            _drift_raw(spec, "old", foreign, {}, foreign, own_only),
         )
 
     def test_a_mapping_a_list_or_a_str_subclass_hides_its_values(self):

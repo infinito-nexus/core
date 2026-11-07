@@ -342,24 +342,26 @@ def _credential_names(node: Any) -> set[str]:
     return names
 
 
-def secret_values(application: Mapping, users: Mapping) -> frozenset[str]:
+def secret_values(applications: Mapping, users: Mapping) -> frozenset[str]:
     """Collect the values the drift report must never show or contain.
 
     Args:
-        application: the resolved ``applications.<role>``; every string leaf
-            under its ``credentials`` and ``secrets.credentials`` counts.
+        applications: every resolved application by id, the reporting role's
+            own included; every string leaf under the ``credentials`` and
+            ``secrets.credentials`` of each one counts, so a credential of
+            another role copied into a harmless field stays hidden.
         users: the resolved global users; every ``users.<key>.password`` counts.
 
     Returns:
         The non-empty secret strings, for an in-memory comparison only.
     """
     found: set[str] = set()
-    secrets = application.get("secrets")
-    for tree in (
-        application.get("credentials"),
-        secrets.get("credentials") if isinstance(secrets, Mapping) else None,
-    ):
-        found |= _string_leaves(tree)
+    for application in applications.values():
+        if isinstance(application, Mapping):
+            secrets = application.get("secrets")
+            found |= _string_leaves(application.get("credentials"))
+            if isinstance(secrets, Mapping):
+                found |= _string_leaves(secrets.get("credentials"))
     for user in users.values():
         password = user.get("password") if isinstance(user, Mapping) else None
         if isinstance(password, str):
@@ -466,7 +468,8 @@ def drift(
         raw_application: the unrendered ``applications.<role>``, defaults and
             inventory overrides merged; without it no value and no source is
             shown.
-        secrets: ``secret_values`` of the role; without it no value is shown.
+        secrets: ``secret_values`` of every application; without it no value
+            is shown.
 
     Returns:
         ``<role>: <form>.<field> (<source>): <old> -> <new>`` for a field the
