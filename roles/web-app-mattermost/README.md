@@ -36,7 +36,7 @@ Each sign-in method follows `services.mattermost.login.method.<method>.enabled` 
 |---|---|
 | `sso` | `MM_GITLABSETTINGS_*` (the Keycloak entry in the GitLab slot), the Keycloak mappers of `tasks/02_keycloak.yml` and the conversion of the administrator to GitLab auth in `tasks/03_oidc_admin.yml` |
 | `native` | `MM_EMAILSETTINGS_ENABLESIGNINWITHEMAIL` and `MM_EMAILSETTINGS_ENABLESIGNINWITHUSERNAME`; while both are off the sign-in page shows only the Keycloak entry |
-| `2fa` | `MM_SERVICESETTINGS_ENABLEMULTIFACTORAUTHENTICATION`, offered to email accounts and never enforced |
+| `2fa` | `MM_SERVICESETTINGS_ENABLEMULTIFACTORAUTHENTICATION`, offered to email accounts. `login.method.2fa.enforced` only offers it here: `ServiceSettings.EnforceMultifactorAuthentication` is reported without effect on the Team Edition this role installs, so the role does not render it |
 | `registration` | `MM_EMAILSETTINGS_ENABLESIGNUPWITHEMAIL` and `MM_TEAMSETTINGS_ENABLEOPENSERVER`; Keycloak accounts are still created at their first sign-in |
 
 Team Edition has no LDAP, so `ldap` is not declared.

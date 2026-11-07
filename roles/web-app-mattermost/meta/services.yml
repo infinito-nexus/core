@@ -73,6 +73,7 @@ mattermost:
         enabled: "{{ lookup('login_method', 'web-app-mattermost', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-mattermost', '2fa') }}"
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-mattermost', 'registration') }}"
   run_after:

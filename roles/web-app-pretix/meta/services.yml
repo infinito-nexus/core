@@ -91,6 +91,7 @@ pretix:
         enabled: "{{ lookup('login_method', 'web-app-pretix', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-pretix', '2fa') }}"
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-pretix', 'registration') }}"
 design:

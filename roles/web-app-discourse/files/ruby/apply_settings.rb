@@ -4,10 +4,15 @@
 require "json"
 
 SiteSetting.force_https = ENV.fetch("DISCOURSE_FORCE_HTTPS") == "true"
+# Exception: Discourse refuses enable_local_logins = false while enforce_second_factor
+# is not "no", and an enforcement while local logins are off: lift it first, set it last.
+second_factor_enforcement = ENV.fetch("DISCOURSE_ENFORCE_SECOND_FACTOR")
+SiteSetting.enforce_second_factor = second_factor_enforcement if second_factor_enforcement == "no"
 SiteSetting.enable_local_logins = ENV.fetch("DISCOURSE_LOCAL_LOGINS") == "true"
 SiteSetting.enable_local_logins_via_email = ENV.fetch("DISCOURSE_LOGIN_EMAIL") == "true"
 SiteSetting.enable_passkeys = ENV.fetch("DISCOURSE_LOGIN_PASSKEY") == "true"
 SiteSetting.allow_new_registrations = ENV.fetch("DISCOURSE_ALLOW_NEW_REGISTRATIONS") == "true"
+SiteSetting.enforce_second_factor = second_factor_enforcement unless second_factor_enforcement == "no"
 
 JSON.parse(ENV.fetch("DISCOURSE_SITE_SETTINGS")).each do |key, value|
   SiteSetting.public_send("#{key}=", value)

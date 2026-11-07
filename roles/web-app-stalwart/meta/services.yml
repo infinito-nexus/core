@@ -106,6 +106,7 @@ stalwart:
         enabled: "{{ lookup('login_method', 'web-app-stalwart', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-stalwart', '2fa') }}"
+        enforced: true
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g

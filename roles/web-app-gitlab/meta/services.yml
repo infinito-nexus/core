@@ -77,6 +77,7 @@ gitlab:
         enabled: "{{ lookup('login_method', 'web-app-gitlab', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-gitlab', '2fa') }}"
+        enforced: true
       passkey:
         enabled: "{{ lookup('login_method', 'web-app-gitlab', 'passkey') }}"
       registration:

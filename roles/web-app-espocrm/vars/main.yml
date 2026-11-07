@@ -40,6 +40,7 @@ ESPOCRM_LOGIN_SSO: "{{ lookup('config', application_id, 'services.espocrm.login.
 ESPOCRM_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.espocrm.login.method.ldap.enabled') | bool }}"
 ESPOCRM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.espocrm.login.method.native.enabled') | bool }}"
 ESPOCRM_LOGIN_2FA: "{{ lookup('config', application_id, 'services.espocrm.login.method.2fa.enabled') | bool }}"
+ESPOCRM_LOGIN_2FA_ENFORCED: "{{ ESPOCRM_LOGIN_2FA | bool and lookup('config', application_id, 'services.espocrm.login.method.2fa.enforced') | bool }}"
 ESPOCRM_LDAP_AUTOCREATE: "{{ lookup('config', application_id, 'services.ldap.autocreate') }}"
 ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
 ESPOCRM_LDAP_USER_LOGIN_FILTER: >-

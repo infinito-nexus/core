@@ -20,6 +20,9 @@ login_methods = {
 }
 puts "login_methods_applied=#{login_methods.all? { |setting, env| SiteSetting.public_send(setting) == (ENV.fetch(env) == 'true') }}"
 
+enforcement = ENV.fetch("DISCOURSE_ENFORCE_SECOND_FACTOR")
+puts "second_factor_enforcement_applied=#{SiteSetting.enforce_second_factor.to_s == enforcement}"
+
 if ENV.fetch("DISCOURSE_OIDC_ENABLED") == "true"
   puts "oidc_secret_matches=#{SiteSetting.openid_connect_client_secret == ENV.fetch('DISCOURSE_OIDC_CLIENT_SECRET')}"
   puts "oidc_enabled=#{SiteSetting.openid_connect_enabled == (ENV.fetch('DISCOURSE_LOGIN_SSO') == 'true')}"

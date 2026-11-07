@@ -101,6 +101,7 @@ erpnext:
         enabled: "{{ lookup('login_method', 'web-app-erpnext', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-erpnext', '2fa') }}"
+        enforced: true
       email:
         enabled: "{{ lookup('login_method', 'web-app-erpnext', 'email') }}"
       registration:

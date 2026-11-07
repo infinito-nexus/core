@@ -25,9 +25,18 @@
     moodle_plugin_config_settings:
       enabled: "{{ MOODLE_MFA_ENABLED }}"
 
-- name: "🔐 Let accounts without an enrolled factor pass, so MFA is never enforced"
+- name: "🔐 Let accounts without an enrolled factor pass while MFA is only offered"
   include_tasks: utils/plugin_config.yml
   vars:
     moodle_plugin_config_component: factor_nosetup
     moodle_plugin_config_settings:
-      enabled: "{{ MOODLE_MFA_ENABLED }}"
+      enabled: "{{ MOODLE_MFA_NOSETUP_ENABLED }}"
+
+- name: "🔐 Send accounts without a factor to setup while MFA is enforced"
+  include_tasks: utils/plugin_config.yml
+  vars:
+    moodle_plugin_config_component: factor_grace
+    moodle_plugin_config_settings:
+      enabled: "{{ MOODLE_MFA_GRACE_ENABLED }}"
+      forcesetup: 1
+  when: MOODLE_LOGIN_2FA | bool

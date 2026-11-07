@@ -66,6 +66,10 @@
       enabled: true
       shared: true
     stalwart:
+      login:
+        method:
+          2fa:
+            enforced: false
       migration:
         import_mailu: true
         mailbox_map:

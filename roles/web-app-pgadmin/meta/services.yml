@@ -39,6 +39,7 @@ pgadmin:
         enabled: "{{ lookup('login_method', 'web-app-pgadmin', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-pgadmin', '2fa') }}"
+        enforced: true
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

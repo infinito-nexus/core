@@ -20,7 +20,7 @@ The role deploys the Semaphore server and a dedicated task runner and wires them
   Semaphore renders its own "Sign in with Keycloak" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`.
 
 - **Login methods:**
-  `services.semaphore.login.method.*` of [meta/services.yml](./meta/services.yml) switches each sign-in method on its own. `sso` renders the Keycloak provider through `SEMAPHORE_OIDC_PROVIDERS`; `ldap` sets `SEMAPHORE_LDAP_ENABLE`; `native` and `ldap` share one form, which `SEMAPHORE_PASSWORD_LOGIN_DISABLED` hides while both are off; `2fa` offers TOTP enrollment through `SEMAPHORE_TOTP_ENABLED`. With SSO on, the sign-in page shows only the Keycloak entry and LDAP accounts sign in through Keycloak's LDAP federation.
+  `services.semaphore.login.method.*` of [meta/services.yml](./meta/services.yml) switches each sign-in method on its own. `sso` renders the Keycloak provider through `SEMAPHORE_OIDC_PROVIDERS`; `ldap` sets `SEMAPHORE_LDAP_ENABLE`; `native` and `ldap` share one form, which `SEMAPHORE_PASSWORD_LOGIN_DISABLED` hides while both are off; `2fa` offers TOTP enrollment through `SEMAPHORE_TOTP_ENABLED`, and Semaphore has no setting that requires it, so `login.method.2fa.enforced` only offers it here. With SSO on, the sign-in page shows only the Keycloak entry and LDAP accounts sign in through Keycloak's LDAP federation.
 
 - **LDAP login:**
   With the `ldap` method on (SSO off and `svc-db-openldap` present), Semaphore's login form binds against the central OpenLDAP directory (`SEMAPHORE_LDAP_*`). The form is then LDAP-only: Semaphore cannot tell local from LDAP accounts at the form, so no local account signs in, the break-glass account included.

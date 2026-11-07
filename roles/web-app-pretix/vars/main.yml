@@ -10,6 +10,7 @@ PRETIX_NATIVE_ADMIN: "{{ lookup('users', 'web-app-pretix-breakglass' if PRETIX_O
 PRETIX_LOGIN_SSO: "{{ lookup('config', application_id, 'services.pretix.login.method.sso.enabled') | bool }}"
 PRETIX_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.pretix.login.method.native.enabled') | bool }}"
 PRETIX_LOGIN_2FA: "{{ lookup('config', application_id, 'services.pretix.login.method.2fa.enabled') | bool }}"
+PRETIX_LOGIN_2FA_ENFORCED: "{{ PRETIX_LOGIN_2FA | bool and lookup('config', application_id, 'services.pretix.login.method.2fa.enforced') | bool }}"
 PRETIX_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.pretix.login.method.registration.enabled') | bool }}"
 
 PRETIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"

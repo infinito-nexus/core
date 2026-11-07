@@ -75,6 +75,7 @@ pixelfed:
         enabled: "{{ lookup('login_method', 'web-app-pixelfed', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-pixelfed', '2fa') }}"
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-pixelfed', 'registration') }}"
 worker:

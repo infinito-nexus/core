@@ -113,6 +113,7 @@ zammad:
         enabled: "{{ lookup('login_method', 'web-app-zammad', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-zammad', '2fa') }}"
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-zammad', 'registration') }}"
   cpus: "1.0"

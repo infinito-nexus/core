@@ -45,6 +45,8 @@ JOOMLA_PROFILE_SHOWN: >-
 
 JOOMLA_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.joomla.login.method.native.enabled') | bool }}"
 JOOMLA_LOGIN_2FA: "{{ lookup('config', application_id, 'services.joomla.login.method.2fa.enabled') | bool }}"
+JOOMLA_LOGIN_2FA_ENFORCED: "{{ JOOMLA_LOGIN_2FA | bool and lookup('config', application_id, 'services.joomla.login.method.2fa.enforced') | bool }}"
+JOOMLA_ROOT_USER_GROUP: "1"
 JOOMLA_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.joomla.login.method.passkey.enabled') | bool }}"
 JOOMLA_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.joomla.login.method.registration.enabled') | bool }}"
 JOOMLA_LOGIN_BREAKGLASS: >-

@@ -28,6 +28,7 @@ ODOO_UPDATE_MARKER: "/var/lib/odoo/.odoo-update-pending"
 ODOO_LANGUAGE: "{{ HOST_LL_CC }}"
 ODOO_LANGUAGE_SCRIPT: "{{ [role_path, 'files/python/apply/language.py'] | path_join }}"
 ODOO_SIGNUP_PORTAL_SCRIPT: "{{ [role_path, 'files/python/apply/signup_portal.py'] | path_join }}"
+ODOO_TWO_FACTOR_POLICY_SCRIPT: "{{ [role_path, 'files/python/apply/two_factor_policy.py'] | path_join }}"
 
 ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
@@ -38,6 +39,13 @@ ODOO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.odoo.login.method
 ODOO_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.odoo.login.method.ldap.enabled') | bool }}"
 ODOO_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.odoo.login.method.native.enabled') | bool }}"
 ODOO_LOGIN_2FA: "{{ lookup('config', application_id, 'services.odoo.login.method.2fa.enabled') | bool }}"
+ODOO_LOGIN_2FA_ENFORCEMENT: "{{ ODOO_LOGIN_2FA | bool and lookup('config', application_id, 'services.odoo.login.method.2fa.enforced') | bool }}"
+ODOO_LOGIN_2FA_STATE: >-
+  {{ 'off' if not (ODOO_LOGIN_2FA | bool)
+     else ('offer' if not (ODOO_LOGIN_2FA_ENFORCEMENT | bool)
+     else ('enforce' if (ODOO_EMAIL_ENABLED | bool) else 'hold')) }}
+ODOO_LOGIN_2FA_POLICY: "all_required"
+ODOO_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
 ODOO_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.odoo.login.method.passkey.enabled') | bool }}"
 ODOO_LOGIN_ODOO_COM: "{{ lookup('config', application_id, 'services.odoo.login.method.odoo_com.enabled') | bool }}"
 ODOO_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.odoo.login.method.registration.enabled') | bool }}"

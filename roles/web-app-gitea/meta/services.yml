@@ -99,6 +99,7 @@ gitea:
         enabled: "{{ lookup('login_method', 'web-app-gitea', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-gitea', '2fa') }}"
+        enforced: false
       passkey:
         enabled: "{{ lookup('login_method', 'web-app-gitea', 'passkey') }}"
       openid2:

@@ -96,6 +96,7 @@ def render_env() -> dict[str, str]:
         GITEA_LOGIN_PASSKEY=False,
         GITEA_LOGIN_REGISTRATION=False,
         GITEA_LOGIN_2FA=False,
+        GITEA_LOGIN_2FA_ENFORCED=False,
     )
     return dict(
         line.split("=", 1)

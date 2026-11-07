@@ -99,6 +99,7 @@ moodle:
         enabled: "{{ lookup('login_method', 'web-app-moodle', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-moodle', '2fa') }}"
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-moodle', 'registration') }}"
 nginx:

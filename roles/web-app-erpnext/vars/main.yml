@@ -49,6 +49,8 @@ ERPNEXT_LOGIN_SSO: "{{ lookup('config', application_id, 'services.erpnext.login.
 ERPNEXT_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.erpnext.login.method.ldap.enabled') | bool }}"
 ERPNEXT_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.erpnext.login.method.native.enabled') | bool }}"
 ERPNEXT_LOGIN_2FA: "{{ lookup('config', application_id, 'services.erpnext.login.method.2fa.enabled') | bool }}"
+ERPNEXT_LOGIN_2FA_ENFORCEMENT: "{{ ERPNEXT_LOGIN_2FA | bool and lookup('config', application_id, 'services.erpnext.login.method.2fa.enforced') | bool }}"
+ERPNEXT_LOGIN_2FA_ENFORCED: "{{ ERPNEXT_LOGIN_2FA_ENFORCEMENT | bool and ERPNEXT_EMAIL_ENABLED | bool }}"
 ERPNEXT_LOGIN_EMAIL: "{{ lookup('config', application_id, 'services.erpnext.login.method.email.enabled') | bool }}"
 ERPNEXT_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.erpnext.login.method.registration.enabled') | bool }}"
 

@@ -8,7 +8,9 @@ SITE_NAME = os.environ["SITE_NAME"]
 NATIVE = os.environ["LOGIN_NATIVE"] == "true"
 EMAIL_LINK = os.environ["LOGIN_EMAIL"] == "true"
 SECOND_FACTOR = os.environ["LOGIN_2FA"] == "true"
+SECOND_FACTOR_ENFORCED = os.environ["LOGIN_2FA_ENFORCED"] == "true"
 REGISTRATION = os.environ["LOGIN_REGISTRATION"] == "true"
+EVERY_USER_ROLE = "All"
 
 
 def apply_system_settings():
@@ -27,11 +29,26 @@ def apply_website_settings():
     )
 
 
+def apply_role_settings():
+    frappe.db.set_value(
+        "Role", EVERY_USER_ROLE, "two_factor_auth", 1 if SECOND_FACTOR_ENFORCED else 0
+    )
+
+
+def release_role_settings():
+    if frappe.db.get_value("Role", EVERY_USER_ROLE, "two_factor_auth"):
+        frappe.db.set_value("Role", EVERY_USER_ROLE, "two_factor_auth", 0)
+
+
 frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")
 frappe.connect()
 try:
     apply_system_settings()
     apply_website_settings()
+    if SECOND_FACTOR:
+        apply_role_settings()
+    else:
+        release_role_settings()
     frappe.db.commit()
     frappe.clear_cache()
 finally:

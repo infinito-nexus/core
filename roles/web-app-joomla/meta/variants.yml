@@ -44,6 +44,11 @@
     tor:
       enabled: true
 - services:
+    joomla:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true

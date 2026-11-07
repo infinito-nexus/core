@@ -214,7 +214,7 @@
     cmd: |
       set -euo pipefail
       container exec -i \
-        -e LOGIN_SSO -e LOGIN_FORM -e LOGIN_REGISTRATION -e LOGIN_2FA \
+        -e LOGIN_SSO -e LOGIN_FORM -e LOGIN_REGISTRATION -e LOGIN_2FA -e LOGIN_2FA_ENFORCED \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
     stdin: "{{ lookup('file', 'ruby/apply/login_methods.rb') }}"
@@ -223,6 +223,7 @@
     LOGIN_FORM: "{{ ZAMMAD_LOGIN_FORM | string | lower }}"
     LOGIN_REGISTRATION: "{{ ZAMMAD_LOGIN_REGISTRATION | string | lower }}"
     LOGIN_2FA: "{{ ZAMMAD_LOGIN_2FA | string | lower }}"
+    LOGIN_2FA_ENFORCED: "{{ ZAMMAD_LOGIN_2FA_ENFORCED | string | lower }}"
   register: zammad_login_methods_apply
   changed_when: false
 

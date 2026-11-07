@@ -31,6 +31,13 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | map(attribute='key') | list }}
 NEXTCLOUD_PLUGINS_PINNED: "{{ NEXTCLOUD_PINNED_PLUGINS | length > 0 }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
+NEXTCLOUD_LOGIN_2FA: "{{ lookup('config', application_id, 'services.nextcloud.login.method.2fa.enabled') | bool }}"
+NEXTCLOUD_LOGIN_2FA_ENFORCED: "{{ NEXTCLOUD_LOGIN_2FA | bool and lookup('config', application_id, 'services.nextcloud.login.method.2fa.enforced') | bool }}"
+NEXTCLOUD_TWOFACTOR_APP: "twofactor_totp"
+NEXTCLOUD_TWOFACTOR_OWNER: "infinito twofactor_enforced_by_deploy"
+NEXTCLOUD_TWOFACTOR_PROVIDER_APPS:
+  - privacyidea
+NEXTCLOUD_TWOFACTOR_ENFORCED_FOR_ALL: "Two-factor authentication is enforced for all users"
 NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME: "{{ lookup('timeout', 604800) | int }}"
 NEXTCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 NEXTCLOUD_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"

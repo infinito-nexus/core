@@ -17,6 +17,7 @@ PGADMIN_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled
 PGADMIN_LOGIN_SSO: "{{ lookup('config', application_id, 'services.pgadmin.login.method.sso.enabled') | bool }}"
 PGADMIN_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.pgadmin.login.method.native.enabled') | bool }}"
 PGADMIN_LOGIN_2FA: "{{ lookup('config', application_id, 'services.pgadmin.login.method.2fa.enabled') | bool }}"
+PGADMIN_LOGIN_2FA_ENFORCED: "{{ PGADMIN_LOGIN_2FA | bool and lookup('config', application_id, 'services.pgadmin.login.method.2fa.enforced') | bool }}"
 PGADMIN_AUTHENTICATION_SOURCES: "{{ (['oauth2'] if PGADMIN_LOGIN_SSO | bool else []) + (['internal'] if PGADMIN_LOGIN_NATIVE | bool else []) }}"
 PGADMIN_OAUTH2_LOGIN_GROUPS:
   - "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"

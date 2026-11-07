@@ -91,6 +91,7 @@ suitecrm:
         enabled: "{{ lookup('login_method', 'web-app-suitecrm', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-suitecrm', '2fa') }}"
+        enforced: true
   ports:
     local:
       http: 8062

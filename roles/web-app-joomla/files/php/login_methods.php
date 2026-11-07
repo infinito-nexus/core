@@ -14,6 +14,8 @@ use Joomla\Database\ParameterType;
 
 $plugins      = json_decode((string) getenv('J_LOGIN_PLUGINS'), true);
 $registration = getenv('J_LOGIN_REGISTRATION') === '1' ? '1' : '0';
+$secondFactor = getenv('J_LOGIN_2FA') === '1';
+$forcedGroups = getenv('J_LOGIN_2FA_ENFORCED') === '1' ? [getenv('J_LOGIN_2FA_ROOT_GROUP')] : [];
 
 if (!is_array($plugins) || $plugins === []) {
     fwrite(STDERR, "J_LOGIN_PLUGINS is not a JSON object\n");
@@ -67,8 +69,25 @@ if ($component === null) {
 }
 
 $params = json_decode((string) $component->params, true) ?: [];
+$dirty  = false;
 if ((string) ($params['allowUserRegistration'] ?? '') !== $registration) {
     $params['allowUserRegistration'] = $registration;
+    $dirty = true;
+}
+$query = $db->getQuery(true)
+    ->select('COUNT(*)')
+    ->from($db->quoteName('#__extensions'))
+    ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
+    ->where($db->quoteName('folder') . ' = ' . $db->quote('multifactorauth'))
+    ->where($db->quoteName('enabled') . ' = 1');
+$methodsLeft = (int) $db->setQuery($query)->loadResult();
+
+$currentForced = array_map('strval', (array) ($params['forceMFAUserGroups'] ?? []));
+if (($secondFactor || $methodsLeft === 0) && $currentForced !== $forcedGroups) {
+    $params['forceMFAUserGroups'] = $forcedGroups;
+    $dirty = true;
+}
+if ($dirty) {
     $encoded = json_encode((object) $params, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $id      = (int) $component->extension_id;
     $update  = $db->getQuery(true)

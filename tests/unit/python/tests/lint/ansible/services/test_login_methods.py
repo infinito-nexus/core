@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest import mock
 
 from tests.lint.ansible.services import PROJECT_ROOT
 from tests.lint.ansible.services import test_login_methods as lint
@@ -12,6 +13,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TASKS_MAIN
 
 ROLE = "web-app-fixture"
 OBSERVED = "web-app-discourse"
+DISCOURSE_2FA = "\"{{ lookup('login_method', 'web-app-discourse', '2fa') }}\""
 MARKER = f"# nocheck: {lint.RULE}  Reason: the fixture signs in through Keycloak only"
 
 SSO_LOOKUP = "\"{{ lookup('login_method', 'web-app-fixture', 'sso') }}\""
@@ -31,6 +33,10 @@ fixture:
       native:
         enabled: {NATIVE_LOOKUP}
 """
+
+SECOND_FACTOR_LOOKUP = "\"{{ lookup('login_method', 'web-app-fixture', '2fa') }}\""
+ENFORCED = "        enforced: true\n"
+VALID_2FA = VALID + f"      2fa:\n        enabled: {SECOND_FACTOR_LOOKUP}\n" + ENFORCED
 
 
 def without_login(text: str) -> str:
@@ -118,12 +124,140 @@ class TestLoginMethodDefaults(unittest.TestCase):
         self.assertEqual(1, len(findings))
         self.assertIn("must hold exactly `enabled`", findings[0])
 
+    def test_an_enforced_second_factor_passes(self) -> None:
+        self.assertEqual([], defaults(VALID_2FA))
+
+    def test_a_second_factor_without_enforced_fails(self) -> None:
+        findings = defaults(VALID_2FA.replace(ENFORCED, ""))
+        self.assertEqual(1, len(findings))
+        self.assertIn(
+            "login.method.2fa must hold exactly `enabled` and `enforced`", findings[0]
+        )
+
+    def test_an_enforced_default_other_than_true_fails(self) -> None:
+        for value in (
+            "false",
+            '"true"',
+            "1",
+            "\"{{ 'web-app-keycloak' in group_names }}\"",
+        ):
+            with self.subTest(value=value):
+                findings = defaults(
+                    VALID_2FA.replace(ENFORCED, f"        enforced: {value}\n")
+                )
+                self.assertEqual(1, len(findings))
+                self.assertIn("login.method.2fa.enforced is", findings[0])
+
+    def test_an_offered_only_role_defaults_to_false(self) -> None:
+        offered = VALID_2FA.replace(ENFORCED, "        enforced: false\n")
+        with mock.patch.dict(
+            lint.OFFERED_ONLY, {ROLE: "the fixture's bot cannot enroll"}
+        ):
+            self.assertEqual([], defaults(offered))
+            findings = defaults(VALID_2FA)
+        self.assertEqual(1, len(findings))
+        self.assertIn("login.method.2fa.enforced is True, expected False", findings[0])
+
+    def test_moodle_enforces_its_second_factor_by_default(self) -> None:
+        moodle = "web-app-moodle"
+        text = read_text(str(PROJECT_ROOT / "roles" / moodle / ROLE_FILE_META_SERVICES))
+        self.assertNotIn(moodle, lint.OFFERED_ONLY)
+        self.assertEqual([], role_defaults(moodle, text))
+        offered = text.replace(
+            "'2fa') }}\"\n        enforced: true\n",
+            "'2fa') }}\"\n        enforced: false\n",
+        )
+        self.assertNotEqual(text, offered)
+        findings = role_defaults(moodle, offered)
+        self.assertEqual(1, len(findings))
+        self.assertIn("login.method.2fa.enforced is False, expected True", findings[0])
+
+    def test_enforced_on_another_method_fails(self) -> None:
+        text = VALID.replace(
+            f"        enabled: {NATIVE_LOOKUP}\n",
+            f"        enabled: {NATIVE_LOOKUP}\n        enforced: true\n",
+        )
+        findings = defaults(text)
+        self.assertEqual(1, len(findings))
+        self.assertIn("login.method.native must hold exactly `enabled`", findings[0])
+
     def test_an_empty_method_mapping_fails(self) -> None:
         text = without_login(VALID) + "  login:\n    method: {}\n"
         self.assertEqual(
             [f"{ROLE}/fixture: login.method is not a non-empty mapping"],
             defaults(text),
         )
+
+
+SSO_ON = {"services": {"sso": {"enabled": True, "shared": True}}}
+SSO_OFF = {"services": {"sso": {"enabled": False, "shared": False}}}
+ENFORCEMENT_OFF = {"fixture": {"login": {"method": {"2fa": {"enforced": False}}}}}
+
+
+def sso_off(**services: object) -> dict:
+    return {"services": {**SSO_OFF["services"], **services}}
+
+
+class TestLoginMethodVariants(unittest.TestCase):
+    def test_the_entities_with_a_second_factor_are_found(self) -> None:
+        self.assertEqual(
+            ["fixture"], lint.second_factor_entities(load_yaml_str(VALID_2FA))
+        )
+        self.assertEqual([], lint.second_factor_entities(load_yaml_str(VALID)))
+
+    def test_a_variant_without_sso_that_switches_enforcement_off_passes(self) -> None:
+        variants = [SSO_ON, sso_off(**ENFORCEMENT_OFF)]
+        self.assertEqual([], lint.variant_findings(ROLE, "fixture", variants))
+
+    def test_a_variant_without_sso_that_keeps_enforcement_fails(self) -> None:
+        findings = lint.variant_findings(ROLE, "fixture", [SSO_ON, SSO_OFF])
+        self.assertEqual(1, len(findings))
+        self.assertIn(f"{ROLE} variant 1: SSO is off", findings[0])
+        self.assertIn("services.fixture.login.method.2fa.enforced: false", findings[0])
+
+    def test_an_enforcement_left_on_fails(self) -> None:
+        kept = {"fixture": {"login": {"method": {"2fa": {"enforced": True}}}}}
+        findings = lint.variant_findings(ROLE, "fixture", [sso_off(**kept)])
+        self.assertEqual(1, len(findings))
+
+    def test_the_enforcement_of_another_entity_does_not_count(self) -> None:
+        other = {"sidecar": ENFORCEMENT_OFF["fixture"]}
+        findings = lint.variant_findings(ROLE, "fixture", [sso_off(**other)])
+        self.assertEqual(1, len(findings))
+
+    def test_a_variant_with_sso_on_needs_nothing(self) -> None:
+        self.assertEqual([], lint.variant_findings(ROLE, "fixture", [SSO_ON, {}]))
+
+    def test_a_non_literal_sso_off_needs_the_switch_too(self) -> None:
+        for value in ("false", "False", "no", "{{ false }}", "{{ 'false' }}"):
+            with self.subTest(value=value):
+                variant = {"services": {"sso": {"enabled": value}}}
+                findings = lint.variant_findings(ROLE, "fixture", [variant])
+                self.assertEqual(1, len(findings))
+                variant["services"].update(ENFORCEMENT_OFF)
+                self.assertEqual([], lint.variant_findings(ROLE, "fixture", [variant]))
+
+    def test_a_non_literal_enforcement_off_counts(self) -> None:
+        off = {"fixture": {"login": {"method": {"2fa": {"enforced": "{{ false }}"}}}}}
+        self.assertEqual([], lint.variant_findings(ROLE, "fixture", [sso_off(**off)]))
+
+    def test_true_and_unknown_values_are_not_off(self) -> None:
+        for value in (True, None, "true", "{{ true }}", "{{ sso_flag }}", 1):
+            with self.subTest(value=value):
+                self.assertFalse(lint.is_false(value))
+
+    def test_the_observed_role_fails_without_its_variant_switch(self) -> None:
+        text = read_text(
+            str(PROJECT_ROOT / "roles" / OBSERVED / lint.ROLE_FILE_META_VARIANTS)
+        )
+        self.assertEqual(
+            [], lint.variant_findings(OBSERVED, "discourse", load_yaml_str(text))
+        )
+        stripped = text.replace(
+            "            enforced: false\n", "            enforced: true\n"
+        )
+        findings = lint.variant_findings(OBSERVED, "discourse", load_yaml_str(stripped))
+        self.assertEqual(2, len(findings))
 
 
 class TestLoginMethodScope(unittest.TestCase):
@@ -281,6 +415,17 @@ class TestLoginMethodObserved(unittest.TestCase):
 
     def test_the_role_fails_without_its_block(self) -> None:
         self.assertTrue(role_lacks(OBSERVED, without_login(self.text)))
+
+    def test_the_role_enforces_its_second_factor(self) -> None:
+        self.assertIn(
+            f"      2fa:\n        enabled: {DISCOURSE_2FA}\n{ENFORCED}", self.text
+        )
+
+    def test_the_role_fails_without_enforced(self) -> None:
+        text = self.text.replace(f"{DISCOURSE_2FA}\n{ENFORCED}", f"{DISCOURSE_2FA}\n")
+        findings = role_defaults(OBSERVED, text)
+        self.assertEqual(1, len(findings))
+        self.assertIn("login.method.2fa must hold exactly", findings[0])
 
 
 if __name__ == "__main__":

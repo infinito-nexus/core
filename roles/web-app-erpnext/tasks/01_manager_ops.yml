@@ -30,11 +30,19 @@
 - name: "🔧 configure LDAP"
   include_tasks: 03_ldap.yml
   when: ERPNEXT_LDAP_ENABLED
+- name: "⚠️ Hold the 2FA enforcement while no mail delivers the OTP setup"
+  ansible.builtin.debug:
+    msg: >-
+      services.erpnext.login.method.2fa.enforced is true, but web-app-email is not deployed.
+      ERPNext mails every account its first OTP setup link, so enforcing without mail would
+      lock every account out of the web login, Administrator included. The deploy keeps
+      the two_factor_auth flag of Role All off until web-app-email joins the deployment.
+  when: ERPNEXT_LOGIN_2FA_ENFORCEMENT | bool and not ERPNEXT_EMAIL_ENABLED | bool
 - name: "🚪 apply the login methods of the sign-in page"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i
-      -e SITE_NAME -e LOGIN_NATIVE -e LOGIN_EMAIL -e LOGIN_2FA -e LOGIN_REGISTRATION
+      -e SITE_NAME -e LOGIN_NATIVE -e LOGIN_EMAIL -e LOGIN_2FA -e LOGIN_2FA_ENFORCED -e LOGIN_REGISTRATION
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/methods.py') }}"
@@ -44,6 +52,7 @@
     LOGIN_NATIVE: "{{ ERPNEXT_LOGIN_NATIVE | string | lower }}"
     LOGIN_EMAIL: "{{ ERPNEXT_LOGIN_EMAIL | string | lower }}"
     LOGIN_2FA: "{{ ERPNEXT_LOGIN_2FA | string | lower }}"
+    LOGIN_2FA_ENFORCED: "{{ ERPNEXT_LOGIN_2FA_ENFORCED | string | lower }}"
     LOGIN_REGISTRATION: "{{ ERPNEXT_LOGIN_REGISTRATION | string | lower }}"
   register: erpnext_login_methods_apply
   changed_when: false

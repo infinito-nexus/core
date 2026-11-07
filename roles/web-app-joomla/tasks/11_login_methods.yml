@@ -6,6 +6,9 @@
     -e J_ROOT={{ JOOMLA_DOCROOT | quote }}
     -e J_LOGIN_PLUGINS={{ JOOMLA_LOGIN_PLUGINS | to_json | quote }}
     -e J_LOGIN_REGISTRATION={{ JOOMLA_LOGIN_REGISTRATION | bool | ternary('1', '0') }}
+    -e J_LOGIN_2FA={{ JOOMLA_LOGIN_2FA | bool | ternary('1', '0') }}
+    -e J_LOGIN_2FA_ENFORCED={{ JOOMLA_LOGIN_2FA_ENFORCED | bool | ternary('1', '0') }}
+    -e J_LOGIN_2FA_ROOT_GROUP={{ JOOMLA_ROOT_USER_GROUP | quote }}
     {{ JOOMLA_LOCAL_CID | quote }} php --
   args:
     stdin: "{{ lookup('file', role_path ~ '/files/php/login_methods.php') }}"

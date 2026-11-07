@@ -87,6 +87,7 @@ joomla:
         enabled: "{{ lookup('login_method', 'web-app-joomla', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-joomla', '2fa') }}"
+        enforced: true
       passkey:
         enabled: "{{ lookup('login_method', 'web-app-joomla', 'passkey') }}"
       registration:

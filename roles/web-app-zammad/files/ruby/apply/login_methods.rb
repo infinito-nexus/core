@@ -13,4 +13,7 @@ Setting.set("user_show_password_login", enabled?("LOGIN_FORM"))
 Setting.set("user_create_account", enabled?("LOGIN_REGISTRATION"))
 Setting.set("two_factor_authentication_method_authenticator_app", second_factor)
 Setting.set("two_factor_authentication_method_security_keys", second_factor)
-Setting.set("two_factor_authentication_enforce_role_ids", [])
+Setting.set(
+  "two_factor_authentication_enforce_role_ids",
+  enabled?("LOGIN_2FA_ENFORCED") ? Role.where(active: true).pluck(:id).sort : []
+)

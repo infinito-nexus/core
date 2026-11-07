@@ -75,6 +75,7 @@ odoo:
         enabled: "{{ lookup('login_method', 'web-app-odoo', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-odoo', '2fa') }}"
+        enforced: true
       passkey:
         enabled: "{{ lookup('login_method', 'web-app-odoo', 'passkey') }}"
       odoo_com:

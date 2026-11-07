@@ -91,6 +91,7 @@ nextcloud:
         enabled: "{{ lookup('login_method', 'web-app-nextcloud', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-nextcloud', '2fa') }}"
+        enforced: true
       passkey:
         enabled: "{{ lookup('login_method', 'web-app-nextcloud', 'passkey') }}"
   performance:

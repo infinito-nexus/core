@@ -36,6 +36,11 @@
     tor:
       enabled: true
 - services:
+    pgadmin:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true

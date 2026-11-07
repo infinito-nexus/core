@@ -127,6 +127,7 @@ GITEA_IAM_ENABLED: "{{ (GITEA_OIDC_ENABLED | bool) or ( GITEA_LDAP_ENABLED | boo
 GITEA_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.gitea.login.method.ldap.enabled') | bool }}"
 GITEA_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.gitea.login.method.native.enabled') | bool }}"
 GITEA_LOGIN_2FA: "{{ lookup('config', application_id, 'services.gitea.login.method.2fa.enabled') | bool }}"
+GITEA_LOGIN_2FA_ENFORCED: "{{ GITEA_LOGIN_2FA | bool and lookup('config', application_id, 'services.gitea.login.method.2fa.enforced') | bool }}"
 GITEA_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.gitea.login.method.passkey.enabled') | bool }}"
 GITEA_LOGIN_OPENID2: "{{ lookup('config', application_id, 'services.gitea.login.method.openid2.enabled') | bool }}"
 GITEA_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.gitea.login.method.registration.enabled') | bool }}"

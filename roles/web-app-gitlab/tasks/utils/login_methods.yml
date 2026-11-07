@@ -25,6 +25,10 @@
       - GITLAB_LOGIN_NATIVE
       - -e
       - GITLAB_LOGIN_REGISTRATION
+      - -e
+      - GITLAB_LOGIN_2FA
+      - -e
+      - GITLAB_LOGIN_2FA_ENFORCED
       - "{{ GITLAB_RAILS_LOCAL_CID }}" # nocheck: container-exec-resolver
       - "{{ GITLAB_RAILS_BIN }}"
       - runner
@@ -33,6 +37,8 @@
   environment:
     GITLAB_LOGIN_NATIVE: "{{ GITLAB_LOGIN_NATIVE | bool | string | lower }}"
     GITLAB_LOGIN_REGISTRATION: "{{ GITLAB_LOGIN_REGISTRATION | bool | string | lower }}"
+    GITLAB_LOGIN_2FA: "{{ GITLAB_LOGIN_2FA | bool | string | lower }}"
+    GITLAB_LOGIN_2FA_ENFORCED: "{{ GITLAB_LOGIN_2FA_ENFORCED | bool | string | lower }}"
   register: gitlab_login_methods
   changed_when: gitlab_login_methods.stdout is search('\[CHANGED\]')
   failed_when: >-

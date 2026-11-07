@@ -5,7 +5,11 @@ A role whose own sign-in page sits behind native OIDC or SAML declares
 method the page can offer, and each default is the ``login_method`` lookup of
 that role and method. The lookup holds the one table that decides which methods
 a mode turns on (``utils.roles.applications.login``), so a role cannot drift
-from it; an inventory still overrides a single flag.
+from it; an inventory still overrides a single flag. The ``2fa`` method also
+declares ``enforced``, whose default is ``true``, or ``false`` for a role in
+``OFFERED_ONLY`` whose enforcement would lock out the deploy's own accounts;
+every variant of the role with SSO off sets it to ``false``, so its automated
+logins skip enrollment.
 
 Every declared flag is read by deploy code: a template, task, meta or file of a
 role reads it, directly or through the ``vars/main.yml`` variables built on it.
@@ -32,10 +36,27 @@ from utils.cache.yaml import load_yaml_any
 from utils.meta.scan import ROLES_DIR, iter_role_dirs
 from utils.roles.applications.login import METHODS
 from utils.roles.entity.name import entity_name
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_VARS_MAIN,
+)
 
 RULE = "login-methods"
 NATIVE_SSO_FLAVORS = frozenset({"oidc", "saml"})
+SECOND_FACTOR = "2fa"
+FALSE_WORDS = frozenset({"false", "no", "off", "0"})
+OFFERED_ONLY = {
+    "web-app-gitea": "TWO_FACTOR_AUTH=enforced takes repository access from every "
+    "individual account without a second factor, token requests included, so the "
+    "MCP account the deploy provisions would lose it",
+    "web-app-matomo": "TwoFactorAuth sends every request of an account it requires to "
+    "set up a second factor to the setup page, token_auth API requests included, so "
+    "the deploy's own token_auth calls would fail",
+    "web-app-weblate": "Weblate enforces a second factor per team or project only, "
+    "and such a team drops its permissions for every member without one, API token "
+    "requests included",
+}
 UNSWITCHED = {
     (
         "web-app-minio",
@@ -54,8 +75,22 @@ def expected(application_id: str, method: str) -> str:
     return f"{{{{ lookup('login_method', '{application_id}', '{method}') }}}}"
 
 
+def enforced_default(application_id: str) -> bool:
+    return application_id not in OFFERED_ONLY
+
+
+def keys(method: str) -> frozenset[str]:
+    if method == SECOND_FACTOR:
+        return frozenset({"enabled", "enforced"})
+    return frozenset({"enabled"})
+
+
 def _normalized(value: object) -> str:
     return " ".join(str(value).split())
+
+
+def _key_list(method: str) -> str:
+    return " and ".join(f"`{key}`" for key in sorted(keys(method)))
 
 
 def _services(role_dir) -> tuple[Mapping, list[str]] | None:
@@ -87,13 +122,21 @@ def method_findings(application_id: str, login: object) -> list[str]:
         if method not in METHODS:
             findings.append(f"login.method.{method} is not one of {', '.join(METHODS)}")
             continue
-        if not isinstance(spec, Mapping) or set(spec) != {"enabled"}:
-            findings.append(f"login.method.{method} must hold exactly `enabled`")
+        if not isinstance(spec, Mapping) or set(spec) != keys(method):
+            findings.append(
+                f"login.method.{method} must hold exactly {_key_list(method)}"
+            )
             continue
         default = expected(application_id, method)
         if _normalized(spec["enabled"]) != default:
             findings.append(
                 f"login.method.{method}.enabled is {spec['enabled']!r}, expected {default!r}"
+            )
+        enforced = enforced_default(application_id)
+        if "enforced" in spec and spec["enforced"] is not enforced:
+            findings.append(
+                f"login.method.{method}.enforced is {spec['enforced']!r}, "
+                f"expected {enforced!r}"
             )
     return findings
 
@@ -113,6 +156,73 @@ def default_findings(application_id: str, services: object) -> list[str]:
         if isinstance(config, Mapping) and "login" in config
         for finding in method_findings(application_id, config["login"])
     ]
+
+
+def second_factor_entities(services: object) -> list[str]:
+    """The entities of one ``meta/services.yml`` whose login declares ``2fa``.
+
+    Args:
+        services: the file's parsed content.
+    """
+    if not isinstance(services, Mapping):
+        return []
+    return [
+        str(entity)
+        for entity, config in services.items()
+        if isinstance(config, Mapping)
+        and isinstance(config.get("login"), Mapping)
+        and isinstance(config["login"].get("method"), Mapping)
+        and SECOND_FACTOR in config["login"]["method"]
+    ]
+
+
+def _dig(node: object, *path: str) -> object:
+    for key in path:
+        if not isinstance(node, Mapping):
+            return None
+        node = node.get(key)
+    return node
+
+
+def is_false(value: object) -> bool:
+    """Whether a variant value turns a flag off once the role reads it with ``| bool``.
+
+    Args:
+        value: a literal, a string such as ``"false"`` or ``"no"``, or a Jinja
+            expression of a false constant such as ``"{{ false }}"``.
+    """
+    if value is False:
+        return True
+    if value is None or value is True:
+        return False
+    text = "".join(str(value).split()).lower()
+    if text.startswith("{{") and text.endswith("}}"):
+        text = text[2:-2].strip("'\"")
+    return text in FALSE_WORDS
+
+
+def variant_findings(role: str, entity: str, variants: object) -> list[str]:
+    """Findings for the variants of one role whose entity declares ``2fa``.
+
+    Args:
+        role: the role the variants belong to.
+        entity: the entity whose ``login.method`` declares ``2fa``.
+        variants: the parsed ``meta/variants.yml``.
+    """
+    if not isinstance(variants, list):
+        return []
+    findings = []
+    for index, entry in enumerate(variants):
+        services = _dig(entry, "services")
+        if not is_false(_dig(services, "sso", "enabled")):
+            continue
+        enforced = _dig(services, entity, "login", "method", SECOND_FACTOR, "enforced")
+        if not is_false(enforced):
+            findings.append(
+                f"{role} variant {index}: SSO is off, so it sets "
+                f"services.{entity}.login.method.{SECOND_FACTOR}.enforced: false"
+            )
+    return findings
 
 
 def lacks_block(application_id: str, services: object, lines: list[str]) -> bool:
@@ -241,6 +351,18 @@ class TestLoginMethods(unittest.TestCase):
             loaded = _services(role_dir)
             if loaded is not None:
                 violations.extend(default_findings(role_dir.name, loaded[0]))
+        self.assertEqual(violations, [], "\n".join(violations))
+
+    def test_variants_without_sso_switch_the_enforcement_off(self):
+        violations = []
+        for role_dir in iter_role_dirs():
+            loaded = _services(role_dir)
+            variants_path = role_dir / ROLE_FILE_META_VARIANTS
+            if loaded is None or not variants_path.is_file():
+                continue
+            variants = load_yaml_any(str(variants_path))
+            for entity in second_factor_entities(loaded[0]):
+                violations.extend(variant_findings(role_dir.name, entity, variants))
         self.assertEqual(violations, [], "\n".join(violations))
 
     def test_native_sso_roles_declare_their_methods(self):

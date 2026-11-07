@@ -49,6 +49,11 @@
       enabled: true
       shared: true
 - services:
+    listmonk:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true

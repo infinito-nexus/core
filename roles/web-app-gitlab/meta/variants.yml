@@ -118,6 +118,11 @@
       enabled: false
       shared: false
 - services:
+    gitlab:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true

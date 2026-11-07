@@ -74,6 +74,7 @@ listmonk:
         enabled: "{{ lookup('login_method', 'web-app-listmonk', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-listmonk', '2fa') }}"
+        enforced: true
 # nocheck: playwright-service-flag — object store, no Playwright surface
 minio:
   enabled: false # nocheck: dynamic-flag

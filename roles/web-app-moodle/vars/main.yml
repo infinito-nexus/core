@@ -93,6 +93,9 @@ MOODLE_CORE_LOGIN_SETTINGS:
   - name: registerauth
     value: "{{ 'email' if MOODLE_LOGIN_REGISTRATION | bool else '' }}"
 MOODLE_MFA_ENABLED: "{{ MOODLE_LOGIN_2FA | bool | ternary(1, 0) }}"
+MOODLE_LOGIN_2FA_ENFORCED: "{{ MOODLE_LOGIN_2FA | bool and lookup('config', application_id, 'services.moodle.login.method.2fa.enforced') | bool }}"
+MOODLE_MFA_NOSETUP_ENABLED: "{{ (MOODLE_LOGIN_2FA | bool and not MOODLE_LOGIN_2FA_ENFORCED | bool) | ternary(1, 0) }}"
+MOODLE_MFA_GRACE_ENABLED: "{{ MOODLE_LOGIN_2FA_ENFORCED | bool | ternary(1, 0) }}"
 MOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
 MOODLE_LDAP_ROLE_GROUP_DNS:
   manager: "cn={{ application_id }}-manager,{{ LDAP.DN.OU.ROLES }}"

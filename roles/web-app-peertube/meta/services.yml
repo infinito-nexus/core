@@ -97,6 +97,7 @@ peertube:
         enabled: "{{ lookup('login_method', 'web-app-peertube', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-peertube', '2fa') }}"
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-peertube', 'registration') }}"
 # nocheck: playwright-service-flag — verified by web-svc-design provider spec

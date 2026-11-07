@@ -59,6 +59,7 @@ espocrm:
         enabled: "{{ lookup('login_method', 'web-app-espocrm', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-espocrm', '2fa') }}"
+        enforced: true
   maintenance_mode: false
   ports:
     internal:

@@ -64,6 +64,7 @@ mastodon:
         enabled: "{{ lookup('login_method', 'web-app-mastodon', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-mastodon', '2fa') }}"
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-mastodon', 'registration') }}"
   single_user_mode: false

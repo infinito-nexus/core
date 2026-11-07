@@ -41,6 +41,11 @@
     tor:
       enabled: true
 - services:
+    mastodon:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true

@@ -69,6 +69,11 @@
       enabled: false
       shared: false
 - services:
+    discourse:
+      login:
+        method:
+          2fa:
+            enforced: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -127,6 +132,11 @@
       enabled: false
 
 - services:
+    discourse:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true
