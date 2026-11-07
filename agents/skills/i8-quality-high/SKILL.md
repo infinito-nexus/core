@@ -53,5 +53,6 @@ breaks a neighbouring target is not a fix.
 Begin by clarifying every open requirement with the `active-listening` skill,
 escalating any root-cause question you are not ~99% sure of to the `dialectic`
 skill, then work under the `robot` skill until both phases pass clean. Report
-calibrated confidence per the `confidence` skill. Do not commit unless the
-operator asked for a commit.
+fix confidence and break risk as the `kvb-check-score` block: the two lines
+`score.py` prints, pasted verbatim. Do not commit unless the operator asked for
+a commit.

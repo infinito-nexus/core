@@ -76,4 +76,6 @@ here is stricter, it wins. This skill never runs under the `robot` skill.
 
 Begin by clarifying every open requirement with the `active-listening` skill.
 The task is finished when the `cleanup` report shows the before and after sizes
-and every peer that answered has been told what was removed near its items.
+and every peer that answered has been told what was removed near its items,
+through the `kvb-org-radio` skill: `radio.py post "<text>" --to <name>`, without
+`--wake`.
