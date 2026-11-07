@@ -12,3 +12,4 @@ incus:
       - incus
     repo:
       copr: neelc/incus
+      chroot: rhel+epel-10-x86_64

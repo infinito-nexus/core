@@ -252,7 +252,11 @@ def repository_calls(repo: dict[str, Any], names: list[str]) -> list[ModuleCall]
         return [
             ModuleCall(
                 "community.general.copr",
-                {"name": repo["copr"], "state": "enabled"},
+                {
+                    "name": repo["copr"],
+                    "state": "enabled",
+                    "chroot": repo.get("chroot"),
+                },
                 retry=EXTERNAL_FETCH,
             ),
             package_call(names, STATE_PRESENT),

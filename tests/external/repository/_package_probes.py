@@ -23,7 +23,12 @@ import urllib.parse
 import urllib.request
 from typing import NamedTuple
 
-from utils.packages.schema import SOURCE_AUR, SOURCE_DOWNLOAD, SOURCE_FLATPAK
+from utils.packages.schema import (
+    SOURCE_AUR,
+    SOURCE_COPR,
+    SOURCE_DOWNLOAD,
+    SOURCE_FLATPAK,
+)
 
 from ._host_gate import host_gate
 
@@ -290,6 +295,54 @@ def _probe_fedora(name: str) -> tuple[bool | None, str]:
     return _probe_mdapi(FEDORA_RELEASE, name)
 
 
+def _copr_chroot(repo: dict, distro: str) -> str:
+    """The chroot the install enables for a COPR declaration.
+
+    Args:
+        repo: the declaration's repository; an explicit ``chroot`` wins.
+        distro: the probed distribution key; without an explicit chroot it
+            selects the one ``community.general.copr`` falls back to.
+    """
+    if repo.get("chroot"):
+        return str(repo["chroot"])
+    if distro == "fedora":
+        return f"fedora-{FEDORA_RELEASE.removeprefix('f')}-x86_64"
+    return f"epel-{CENTOS_STREAM.split('-', maxsplit=1)[0]}-x86_64"
+
+
+def _probe_copr(repo: dict, distro: str, name: str) -> tuple[bool | None, str]:
+    """Ask the COPR API whether the project built ``name`` for the enabled chroot.
+
+    Args:
+        repo: the declaration's repository, ``copr`` being ``owner/project``.
+        distro: the probed distribution key.
+        name: the binary package name as the declaration spells it.
+
+    Returns:
+        Availability, or None with the reason the index stayed unknown.
+    """
+    owner, project = str(repo["copr"]).split("/", maxsplit=1)
+    chroot = _copr_chroot(repo, distro)
+    query = urllib.parse.urlencode(
+        {
+            "ownername": owner,
+            "projectname": project,
+            "packagename": name,
+            "with_latest_succeeded_build": "True",
+        }
+    )
+    status, body = _get(f"https://copr.fedorainfracloud.org/api_3/package/?{query}")
+    if status == 404:
+        return False, f"copr {repo['copr']} has no package {name}"
+    if status != 200:
+        return None, f"copr API returned HTTP {status}"
+    build = json.loads(body)["builds"]["latest_succeeded"]
+    built = sorted(build["chroots"]) if build else []
+    if chroot in built:
+        return True, f"copr {repo['copr']} {chroot}"
+    return False, f"copr {repo['copr']} builds {name} for {built}, not {chroot}"
+
+
 def _centos_repo_baseurl(repo: dict | None) -> str | None:
     if not isinstance(repo, dict):
         return None
@@ -388,6 +441,8 @@ def _probe(probe: Probe) -> Outcome:
             available, detail = _probe_aur(probe.name)
         elif probe.source == SOURCE_FLATPAK:
             available, detail = _probe_flathub(probe.name)
+        elif probe.source == SOURCE_COPR:
+            available, detail = _probe_copr(probe.repo, probe.distro, probe.name)
         elif probe.distro == "arch":
             available, detail = _probe_arch(probe.name)
         elif probe.distro in APT_INDEX:
