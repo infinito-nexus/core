@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034
+APPARMOR_UNCONFINED_RESTRICTION_SYSCTL=/proc/sys/kernel/apparmor_restrict_unprivileged_unconfined
+# shellcheck disable=SC2034
+APPARMOR_UNCONFINED_RESTRICTION_STATE=/run/infinito/apparmor-restrict-unprivileged-unconfined
+
 apparmor_log() {
 	printf '%s\n' "$*"
 }
@@ -45,6 +50,52 @@ apparmor_should_manage() {
 
 apparmor_removable_profiles() {
 	sed -E 's/ \([a-z]+\)$//' | grep -v -E '//|^docker-default$'
+}
+
+# Param: $1 sysctl file of kernel.apparmor_restrict_unprivileged_unconfined
+# Param: $2 state file that keeps the value found before lifting it
+apparmor_lift_unconfined_restriction() {
+	local sysctl="$1"
+	local state="$2"
+	local current=""
+
+	if [[ ! -e "${sysctl}" ]]; then
+		apparmor_log "[apparmor] ${sysctl} absent; containers are not stacked onto unconfined"
+		return 0
+	fi
+
+	current="$(tr -d '[:space:]' <"${sysctl}")"
+	if [[ "${current}" == "0" ]]; then
+		apparmor_log "[apparmor] unprivileged-unconfined restriction already off"
+		return 0
+	fi
+
+	if ! printf '0\n' 2>/dev/null >"${sysctl}"; then
+		apparmor_log "[apparmor] ${sysctl} is not writable here; the unprivileged-unconfined restriction stays ${current}"
+		return 0
+	fi
+	mkdir -p "$(dirname "${state}")"
+	printf '%s\n' "${current}" >"${state}"
+	apparmor_log "[apparmor] lifted unprivileged-unconfined restriction (was ${current}); containers keep plain docker-default"
+}
+
+# Param: $1 sysctl file of kernel.apparmor_restrict_unprivileged_unconfined
+# Param: $2 state file written by apparmor_lift_unconfined_restriction
+apparmor_reinstate_unconfined_restriction() {
+	local sysctl="$1"
+	local state="$2"
+
+	if [[ ! -f "${state}" ]]; then
+		apparmor_log "[apparmor] no lifted unprivileged-unconfined restriction to reinstate"
+		return 0
+	fi
+
+	if ! tr -d '[:space:]' <"${state}" 2>/dev/null >"${sysctl}"; then
+		apparmor_log "[apparmor] ${sysctl} is not writable here; ${state} stays for a later restore"
+		return 0
+	fi
+	rm -f "${state}"
+	apparmor_log "[apparmor] reinstated unprivileged-unconfined restriction"
 }
 
 systemd_is_operational() {
