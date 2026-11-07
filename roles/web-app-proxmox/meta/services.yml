@@ -1,5 +1,6 @@
 ---
 # nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: playwright-service-flag  self-provider
 proxmox:
   modes:
     compose:
@@ -15,6 +16,7 @@ proxmox:
   version: 13.7-slim
   custom: true
   name: proxmox
+  # nocheck: min-storage-headroom  Reason: the declared image is only the Dockerfile base; the built image adds the Proxmox VE packages with QEMU, and the proxmox_templates and proxmox_vm_disks volumes hold the ISO and container templates, the base disks of the agent VM templates and the disks of the running agent VMs
   min_storage: 20GB
   cpus: "2.0"
   mem_reservation: 2g
@@ -83,9 +85,9 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
+# nocheck: playwright-service-flag
 # nocheck: dynamic-flag, sso-variant-tor  the Proxmox VE UI stays behind the front proxy's clearnet gate, so the role has no onion
 tor:
-  bond: 0.5
   enabled: false
   shared: false
 
@@ -94,10 +96,11 @@ docs:
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
 
-container_backup:
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
-  shared: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
 
 semaphore:
   bond: 0.5

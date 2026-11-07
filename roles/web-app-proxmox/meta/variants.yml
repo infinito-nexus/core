@@ -20,7 +20,6 @@
       shared: true
     container_backup:
       enabled: true
-      shared: true
     semaphore:
       enabled: true
       shared: true
@@ -45,7 +44,7 @@
       shared: false
     container_backup:
       enabled: false
-      shared: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     semaphore:
       enabled: false
       shared: false
