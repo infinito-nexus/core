@@ -55,6 +55,12 @@ def is_agent_name(name: str) -> bool:
     )
 
 
+def is_instance_id(value: str) -> bool:
+    """Return whether ``value`` is a valid instance id: the team agent's
+    account suffix, ``[a-z1-9]{1,15}``, no ``0``."""
+    return bool(_SUFFIX.match(value))
+
+
 def is_human_name(name: str) -> bool:
     """Return whether ``name`` is a valid human username: [a-z1-9]{3,15}, no
     ``0``."""

@@ -78,7 +78,8 @@ As an operator, I want the `agents/` tree, the lint catalog and the deterministi
 
 ### Account naming
 
-- [ ] Agent account names match `<role code>0<suffix>` within `IAM_ACCOUNT_MAX_LENGTH`, and instance ids match `[a-z1-9]{1,15}` (lint).
+- [x] Agent account names match `<role code>0<suffix>` within `IAM_ACCOUNT_MAX_LENGTH`, and instance ids match `[a-z1-9]{1,15}` (lint).
+  - Evidence: `tests/lint/agents/test_l06_account_names.py` (`test_every_role_code_fits_the_longest_agent_name`, `test_instance_ids_follow_the_rule`, `test_the_generator_ceilings_equal_the_account_policy`, `test_red_fixture_fails`) over `is_instance_id` in `utils/agents/naming.py`.
 
 ### Lint tests
 
