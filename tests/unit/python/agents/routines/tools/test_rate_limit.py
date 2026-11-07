@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import unittest
 
-from agents.routines.tools.rate_limit import classify
+from agents.routines.tools.rate_limit import EXTERNAL_STRUCTURAL, classify, report
 
 _JOBS = {
     "build-via-mirror": """Pulling from the registry mirror docker.io
@@ -30,6 +30,28 @@ class TestRateLimit(unittest.TestCase):
         result = classify(_JOBS)
         self.assertEqual(result["via_mirror"], ["build-via-mirror"])
         self.assertEqual(result["via_cache"], ["build-via-cache"])
+
+    def test_a_seeded_rate_limit_is_external_but_structural(self) -> None:
+        self.assertEqual(classify(_JOBS)["class"], EXTERNAL_STRUCTURAL)
+        self.assertIsNone(classify({"unit-tests": _JOBS["unit-tests"]})["class"])
+
+    def test_the_report_states_the_pull_path(self) -> None:
+        self.assertEqual(
+            report(classify(_JOBS)),
+            [
+                "build-via-mirror: external but structural, pulled through the mirror",
+                "build-via-cache: external but structural, pulled through the cache",
+            ],
+        )
+
+    def test_the_report_names_a_pull_outside_mirror_and_cache(self) -> None:
+        direct = {"build-direct": "toomanyrequests: pull rate limit\n"}
+        self.assertEqual(
+            report(classify(direct)),
+            [
+                "build-direct: external but structural, pulled through neither the mirror nor the cache"
+            ],
+        )
 
 
 if __name__ == "__main__":

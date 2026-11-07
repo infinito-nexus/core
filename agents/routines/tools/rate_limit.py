@@ -14,6 +14,7 @@ _RATE_LIMIT = re.compile(
 )
 _MIRROR = re.compile(r"\bmirror\b", re.IGNORECASE)
 _CACHE = re.compile(r"\bcache\b", re.IGNORECASE)
+EXTERNAL_STRUCTURAL = "external but structural"
 
 
 def classify(jobs: dict[str, str]) -> dict:
@@ -23,10 +24,12 @@ def classify(jobs: dict[str, str]) -> dict:
         jobs: a mapping of job name to that job's captured log.
 
     Returns:
-        a mapping with ``rate_limited`` (the jobs whose log shows a registry
-        rate limit), ``via_mirror`` and ``via_cache`` (the rate-limited jobs
-        whose log names the mirror or the cache pull path) and ``passed`` (the
-        jobs with no rate-limit signal).
+        a mapping with ``class`` (``external but structural`` when any job
+        hit a rate limit: a retry is no fix), ``rate_limited`` (the jobs
+        whose log shows a registry rate limit), ``via_mirror`` and
+        ``via_cache`` (the rate-limited jobs whose log names the mirror or
+        the cache pull path) and ``passed`` (the jobs with no rate-limit
+        signal).
     """
     rate_limited: list[str] = []
     via_mirror: list[str] = []
@@ -42,8 +45,31 @@ def classify(jobs: dict[str, str]) -> dict:
         if _CACHE.search(log):
             via_cache.append(name)
     return {
+        "class": EXTERNAL_STRUCTURAL if rate_limited else None,
         "rate_limited": rate_limited,
         "via_mirror": via_mirror,
         "via_cache": via_cache,
         "passed": passed,
     }
+
+
+def report(verdict: dict) -> list[str]:
+    """Return one report line per rate-limited job, stating its failure class
+    and whether its pull went through the mirror, the cache or neither.
+
+    Args:
+        verdict: the result of ``classify``.
+    """
+    lines = []
+    for name in verdict["rate_limited"]:
+        paths = [
+            path
+            for path, jobs in (
+                ("the mirror", verdict["via_mirror"]),
+                ("the cache", verdict["via_cache"]),
+            )
+            if name in jobs
+        ]
+        through = " and ".join(paths) if paths else "neither the mirror nor the cache"
+        lines.append(f"{name}: {verdict['class']}, pulled through {through}")
+    return lines

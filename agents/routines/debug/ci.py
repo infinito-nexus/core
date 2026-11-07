@@ -43,7 +43,7 @@ STEPS = [
     ),
     Step(
         "push",
-        "git push origin the fix branch, file an issue for anything left unresolved",
+        "git push origin <fix-branch>, file an issue for anything left unresolved",
         "terminal",
     ),
 ]

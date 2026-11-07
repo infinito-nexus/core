@@ -66,7 +66,11 @@ STEPS = [
     ),
     Step("D7", "Upstream limit: reason in role TODO, item stays open", "terminal"),
     Step("D8", "Role logic defect: TODO line, handover to the logic owner", "terminal"),
-    Step("D9", "Purge stack, quality gate, signed commit, push to fork", nxt="D10"),
+    Step(
+        "D9",
+        "Purge stack, quality gate, signed commit, git push fork <branch>",
+        nxt="D10",
+    ),
     Step("D10", "Pull request with before and after gallery", "terminal"),
 ]
 MERMAID = mermaid(STEPS)

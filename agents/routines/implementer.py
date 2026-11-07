@@ -51,7 +51,7 @@ STEPS = [
         branches=(("🌩️ infra race", "D6"), ("🐞 defect", "L2")),
     ),
     Step("D6", "Preseed or fix the order, rerun once", nxt="D3"),
-    Step("D7", "Check off criteria, signed commit, push to fork", nxt="D8"),
+    Step("D7", "Check off criteria, signed commit, git push fork <branch>", nxt="D8"),
     Step("D8", "Pull request open, ticket to Review", "terminal"),
 ]
 MERMAID = mermaid(STEPS)

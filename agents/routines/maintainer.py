@@ -93,7 +93,7 @@ STEPS = [
         branches=(("✅ yes", "D8"), ("❌ no", "L4")),
         fn=_probe_verdict,
     ),
-    Step("D8", "Comment audit, signed commit, push to own fork", nxt="L5"),
+    Step("D8", "Comment audit, signed commit, git push fork <branch>", nxt="L5"),
     Step("L5", "Write the pull request text", "model", nxt="D10"),
     Step(
         "D10",
