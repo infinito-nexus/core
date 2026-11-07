@@ -16,7 +16,7 @@ Scope: ``.py``, ``.yml``, ``.yaml``, ``.sh`` and ``.j2`` files under
 ``plugins/``, ``utils/``, ``cli/``, ``group_vars/``, ``roles/`` and ``tasks/``,
 the registry itself excluded. Plain ``.js``, ``.php``, ``.rb`` and ``.lua``
 files and everything under ``scripts/`` are not scanned. The checks there stay
-open under requirement 055 :91 until the operator decides the migration scope:
+open until the operator decides the migration scope:
 ``logout-panel.js:78`` of web-app-keycloak,
 ``doorkeeper_allow_onion_redirect.rb:7`` of web-app-nextcloud,
 ``infinito-http-onion-socks.php:21`` of web-app-wordpress, ``Keycloak.php:613``

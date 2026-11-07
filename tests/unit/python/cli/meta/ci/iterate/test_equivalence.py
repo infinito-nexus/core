@@ -133,7 +133,7 @@ class TestReadComments(unittest.TestCase):
     def test_dropped_deploy_read_rule_is_real(self) -> None:
         for marker in (
             *(f"# nocheck: {rule} why" for rule in DEPLOY_READ_RULES),
-            "# NOQA: url, inventory-variable why",
+            "# NOCHECK: url, inventory-variable why",
         ):
             with self.subTest(marker=marker):
                 self.assertFalse(

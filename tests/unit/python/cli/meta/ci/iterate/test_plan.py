@@ -1,3 +1,4 @@
+# nocheck: workflow-references  fixture workflow names, not real files
 from __future__ import annotations
 
 import copy

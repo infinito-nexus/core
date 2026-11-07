@@ -1,5 +1,5 @@
 ---
-base_url: https://api.openai.com
+base_url: https://api.openai.com # nocheck: url  API host whose root path answers 421 by design
 flavour: model-vendor
 runtimes:
   - codex

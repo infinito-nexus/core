@@ -19,6 +19,11 @@ FILLED_SPEC = read_text(str(vm_template.TEMPLATE_DIR / vm_template.SPEC_FILE)).r
 )
 
 
+def _tree(root: Path) -> list[Path]:
+    walk = root.rglob("*")  # nocheck: project-walk  callers pass tempdir trees
+    return sorted(p.relative_to(root) for p in walk)
+
+
 class TestCli(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
@@ -69,15 +74,9 @@ class TestCli(unittest.TestCase):
         self.assertTrue((project / "metadata.yaml").is_file())
         self.assertTrue((project / "mkosi.finalize").stat().st_mode & 0o100)
         self.assertTrue((project / "mkosi.postinst.chroot").stat().st_mode & 0o100)
-        source = sorted(
-            p.relative_to(self.template / vm_template.ROOTFS)
-            for p in (self.template / vm_template.ROOTFS).rglob("*")
+        self.assertEqual(
+            _tree(self.template / vm_template.ROOTFS), _tree(out / vm_template.ROOTFS)
         )
-        staged = sorted(
-            p.relative_to(out / vm_template.ROOTFS)
-            for p in (out / vm_template.ROOTFS).rglob("*")
-        )
-        self.assertEqual(source, staged)
 
     def test_hard_link_added_after_the_plan_stops_the_render(self):
         out = self.tmp / "out"

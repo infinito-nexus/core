@@ -1,5 +1,5 @@
 ---
-base_url: https://api.anthropic.com
+base_url: https://api.anthropic.com # nocheck: url  API host whose root path answers 404 by design
 flavour: model-vendor
 runtimes:
   - claude-code

@@ -22,9 +22,9 @@ CLEANUP = "repository.cleanup"
 COMPACT = "blobstore.compact"
 DAILY = re.compile(r"^0 \d{1,2} \d{1,2} \* \* \?$")
 UPSTREAMS = (
-    "pypi-proxy|pypi|https://pypi.org/|||,"
-    "apt-debian|apt|http://deb.debian.org/debian|bookworm||,"
-    "raw-githubusercontent|raw|https://raw.githubusercontent.com/|||"
+    "pypi-proxy|pypi|https://pypi.org/|||,"  # nocheck: url  upstream list fixture
+    "apt-debian|apt|http://deb.debian.org/debian|bookworm||,"  # nocheck: url  fixture
+    "raw-githubusercontent|raw|https://raw.githubusercontent.com/|||"  # nocheck: url
 )
 
 FAKE_CURL = r"""#!/usr/bin/env python3
