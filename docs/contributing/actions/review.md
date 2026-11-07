@@ -2,7 +2,7 @@
 
 You MUST open a Pull Request only when it is ready for real review.
 
-The matching Pull Request template defines PR structure, required author input, and review context. You MUST use the guidance in [Pull Request Templates](../artefact/git/pull-request.md) and orient your Pull Request to it.
+The Pull Request template, rendered for the area of the change, defines PR structure, required author input, and review context. You MUST use the guidance in [Pull Request Template](../artefact/git/pull-request.md) and orient your Pull Request to it.
 
 The [lint.md](testing/lint.md) page covers repository-wide code quality expectations such as diff quality, maintainability, and conventions.
 

@@ -40,7 +40,7 @@ As a <role>, I want <goal> so that <benefit>.
 ## Cross-linking
 
 - You MUST cross-link from the requirement to any PR or issue that implements it.
-- You MUST cross-link from the implementing PR template back to the requirement file.
+- You MUST cross-link from the implementing PR description back to the requirement file.
 
 ## See Also
 

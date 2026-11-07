@@ -67,7 +67,7 @@ STEPS = [
     ),
     Step(
         "draft",
-        "gh pr list --head <branch>, create a draft pull request or demote the ready one, freeze its number",
+        "gh pr list --head <branch>, create a draft pull request with the body from python -m cli.contributing.pull_request render and the predicted matrix size line in its text, or demote the ready one, freeze its number",
         nxt="trigger",
     ),
     Step(

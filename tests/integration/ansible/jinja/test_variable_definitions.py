@@ -37,6 +37,7 @@ class TestVariableDefinitions(unittest.TestCase):
         roles_prefix = str(Path(self.project_root) / "roles") + "/"
         group_vars_prefix = str(Path(self.project_root) / "group_vars" / "all") + "/"
         inventory_prefix = str(Path(self.project_root) / "inventories") + "/"
+        self.github_prefix = str(Path(self.project_root) / ".github") + "/"
 
         def _is_role_var_file(p: str) -> bool:
             if not p.startswith(roles_prefix):
@@ -69,7 +70,7 @@ class TestVariableDefinitions(unittest.TestCase):
         self.jinja_set_block_def = re.compile(r"{%\s*-?\s*set\s+([a-zA-Z_]\w*)\s*-?%}")
 
         self.jinja_for_def = re.compile(
-            r"{%\s*-?\s*for\s+([a-zA-Z_]\w*)(?:\s*,\s*([a-zA-Z_]\w*))?\s+in"
+            r"{%\s*-?\s*for\s+([a-zA-Z_]\w*(?:\s*,\s*[a-zA-Z_]\w*)*)\s+in"
         )
 
         self.jinja_macro_def = re.compile(
@@ -103,9 +104,7 @@ class TestVariableDefinitions(unittest.TestCase):
                     exc,
                 )
 
-        for path, content in iter_project_files_with_content(
-            extensions=tuple(self.scan_extensions)
-        ):
+        for path, content in self._ansible_templates():
             in_set_fact = False
             set_fact_indent = 0
             in_vars_block = False
@@ -170,9 +169,9 @@ class TestVariableDefinitions(unittest.TestCase):
                         self.defined.add(m.group(1))
 
                     for m in self.jinja_for_def.finditer(line):
-                        self.defined.add(m.group(1))
-                        if m.group(2):
-                            self.defined.add(m.group(2))
+                        self.defined.update(
+                            name.strip() for name in m.group(1).split(",")
+                        )
 
                     for m in self.jinja_macro_def.finditer(line):
                         params_blob = m.group(1)
@@ -196,6 +195,14 @@ class TestVariableDefinitions(unittest.TestCase):
             except Exception:
                 logger.warning("Failed to parse file: %s", path, exc_info=True)
 
+    def _ansible_templates(self):
+        for path, content in iter_project_files_with_content(
+            extensions=tuple(self.scan_extensions)
+        ):
+            if path.startswith(self.github_prefix) and path.endswith(".j2"):
+                continue
+            yield path, content
+
     def _add_dynamic_pattern(self, key_text: str) -> None:
         """Turn a templated fact key like '{{ prefix }}_HOST_NODE' into a name
         pattern '^[A-Za-z0-9_]+_HOST_NODE$' so every concrete fact it sets counts
@@ -216,9 +223,7 @@ class TestVariableDefinitions(unittest.TestCase):
         """
         undefined_uses = []
 
-        for path, content in iter_project_files_with_content(
-            extensions=tuple(self.scan_extensions)
-        ):
+        for path, content in self._ansible_templates():
             try:
                 # Mask {% raw %} ... {% endraw %} blocks
                 def _mask_raw(m):

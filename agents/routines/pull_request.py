@@ -1,6 +1,6 @@
-"""Pull request routine: choose the matching template, resolve the canonical
-repository the short link redirects to, and open the pull request only when
-origin points at that same repository."""
+"""Pull request routine: fill the template values, render the body from the
+one template, resolve the canonical repository the short link redirects to,
+and open the pull request only when origin points at that same repository."""
 
 from __future__ import annotations
 
@@ -9,8 +9,13 @@ from agents.routines.contract import build as _build
 
 STEPS = [
     Step(
-        "template",
-        "Choose the matching template from .github/PULL_REQUEST_TEMPLATE per CONTRIBUTING.md",
+        "values",
+        "Write every variable of the contract in docs/contributing/artefact/git/pull-request.md to a /tmp values file: scope per its table, score_table from kvb-check-score --table",
+        nxt="render",
+    ),
+    Step(
+        "render",
+        "python -m cli.contributing.pull_request render --values <values-file> --output <body-file>, fix the values on an error",
         nxt="resolve",
     ),
     Step(
@@ -31,7 +36,7 @@ STEPS = [
     ),
     Step(
         "create",
-        "Write the description from the template and open the pull request against the canonical repo",
+        "Open the pull request against the canonical repo with the rendered body file as its description",
         "terminal",
     ),
 ]
