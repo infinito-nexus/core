@@ -14,6 +14,7 @@ from utils.i18n.catalog import (
     REJECTED_PREFIX,
     TRANSLATION_REFUSED,
     build_template,
+    is_machine_translation,
     machine_translation,
     merge,
     render,
@@ -386,6 +387,46 @@ class TestDuplicateTranslation(unittest.TestCase):
         catalog.add(self.SHORT_A, "Kurz")
 
         self.assertEqual(taken_translations(catalog), {"Schon vergeben"})
+
+
+class TestTheMarkNamesTheAnsweringEngine(unittest.TestCase):
+    def _messages(self, *sources: str) -> list:
+        catalog = Catalog(locale="de")
+        for source in sources:
+            catalog.add(source, "")
+        return [message for message in catalog if message.id]
+
+    def _marks(self, message) -> list[str]:
+        return [
+            comment
+            for comment in message.user_comments
+            if is_machine_translation(comment)
+        ]
+
+    def test_each_entry_names_the_engine_that_answered(self) -> None:
+        first, second = self._messages("Save the file", "Open the file")
+
+        apply([first, second], ["Speichern", "Öffnen"], engines=("lt", "nllb"))
+
+        self.assertEqual(self._marks(first), [machine_translation("lt")])
+        self.assertEqual(self._marks(second), [machine_translation("nllb")])
+
+    def test_a_later_answer_replaces_the_mark_of_the_earlier_engine(self) -> None:
+        (message,) = self._messages("Save the file")
+
+        apply([message], ["Speichern"], engines=("lt",))
+        apply([message], ["Datei speichern"], engines=("nllb",))
+
+        self.assertEqual(self._marks(message), [machine_translation("nllb")])
+
+    def test_red_fixture_an_unreported_engine_is_never_guessed(self) -> None:
+        first, second = self._messages("Save the file", "Open the file")
+
+        apply([first, second], ["Speichern", "Öffnen"], engines=("lt",))
+
+        self.assertEqual(self._marks(first), [machine_translation("lt")])
+        self.assertEqual(self._marks(second), [machine_translation("")])
+        self.assertNotEqual(self._marks(second), [machine_translation("lt")])
 
 
 class TestOverSharedTranslation(unittest.TestCase):
