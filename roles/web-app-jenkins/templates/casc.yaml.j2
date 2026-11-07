@@ -17,6 +17,7 @@ jenkins:
       serverConfiguration:
         wellKnown:
           wellKnownOpenIDConfigurationUrl: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+          scopesOverride: "openid profile email"
       userNameField: "{{ OIDC.ATTRIBUTES.USERNAME }}"
       groupsFieldName: "groups"
       logoutFromOpenidProvider: true
