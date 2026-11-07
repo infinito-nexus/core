@@ -47,7 +47,7 @@ postgres:
 litellm:
   bond: 1
   enabled: true
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 
 docs:
   bond: 0.5

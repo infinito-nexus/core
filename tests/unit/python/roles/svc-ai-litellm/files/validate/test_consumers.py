@@ -415,7 +415,7 @@ class TestValidateConsumers(unittest.TestCase):
             "litellm_consumer_validation.rc == 0",
             assertion["ansible.builtin.assert"]["that"],
         )
-        key_tasks = load_yaml_any(ROLE / "tasks/01_keys.yml")
+        key_tasks = load_yaml_any(ROLE / "tasks/utils/prove_keys.yml")
         self.assertTrue(
             any(
                 task.get("ansible.builtin.include_tasks")

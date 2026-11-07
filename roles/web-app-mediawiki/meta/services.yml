@@ -4,7 +4,7 @@
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

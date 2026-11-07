@@ -11,7 +11,7 @@ OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.openwebui
 OPENWEBUI_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.openwebui.login.method.native.enabled') | bool }}"
 OPENWEBUI_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.openwebui.login.method.registration.enabled') | bool }}"
 OPENWEBUI_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
-OPENWEBUI_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+OPENWEBUI_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 OPENWEBUI_COMFYUI_URL: "{{ lookup('config', application_id, 'services.openwebui.comfyui_url') }}"
 OPENWEBUI_COMFYUI_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.comfyui_api_key') }}"
 OPENWEBUI_IMAGE_MODEL: "{{ lookup('config', application_id, 'services.openwebui.image_model') }}"

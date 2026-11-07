@@ -114,7 +114,7 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5

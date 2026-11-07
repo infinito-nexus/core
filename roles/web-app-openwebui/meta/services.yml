@@ -103,7 +103,7 @@ javascript:
 litellm:
   bond: 1
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 agent-broker:
   bond: 1
   enabled: "{{ 'svc-ai-agent-broker' in group_names }}"

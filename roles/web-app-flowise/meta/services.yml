@@ -33,7 +33,7 @@ ldap:
 litellm:
   bond: 1
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 qdrant:
   bond: 1

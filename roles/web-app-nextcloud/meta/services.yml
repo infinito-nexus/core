@@ -409,7 +409,7 @@ openwebui:
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag: bridged mastodon partner, covered by partner role spec
 mastodon:
   bond: 0.5

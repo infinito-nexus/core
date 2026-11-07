@@ -7,7 +7,7 @@ AGENT_ORCHESTRATOR_PORT: "{{ lookup('config', application_id, 'services.agent-or
 AGENT_ORCHESTRATOR_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
 AGENT_ORCHESTRATOR_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.webhook_secret') }}"
 AGENT_ORCHESTRATOR_CHECKPOINT_KEY: "{{ lookup('config', application_id, 'secrets.credentials.checkpoint_encryption_key') }}"
-AGENT_ORCHESTRATOR_LITELLM_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+AGENT_ORCHESTRATOR_LITELLM_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 AGENT_ORCHESTRATOR_BASE_IMAGE: "{{ lookup('config', application_id, 'services.agent-orchestrator.image') }}"
 AGENT_ORCHESTRATOR_BASE_VERSION: "{{ lookup('config', application_id, 'services.agent-orchestrator.version') }}"
 AGENT_ORCHESTRATOR_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"

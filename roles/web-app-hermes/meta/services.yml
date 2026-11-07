@@ -77,7 +77,7 @@ logout:
 litellm:
   bond: 1
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 
 dashboard:
   bond: 1

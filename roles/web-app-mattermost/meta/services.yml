@@ -140,7 +140,7 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP spec
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
 # nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment

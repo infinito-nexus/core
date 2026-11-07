@@ -39,8 +39,8 @@ MATRIX_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.e
 MATRIX_CHATGPT_BRIDGE_ENDPOINT: "{{ (LITELLM_OPENAI_BASE_LOCAL_URL ~ '/chat/completions') if (MATRIX_LITELLM_ENABLED | bool) else 'https://api.openai.com/v1/chat/completions'
   }}"
 MATRIX_CHATGPT_BRIDGE_MODEL: "{{ LITELLM_CHAT_MODEL if (MATRIX_LITELLM_ENABLED | bool) else 'gpt-3.5-turbo' }}"
-MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') if (MATRIX_LITELLM_ENABLED | bool) else lookup('config',
-  application_id, 'secrets.credentials.chatgpt_bridge_openai_api_key') }}"
+MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('litellm_api_key', application_id) if (MATRIX_LITELLM_ENABLED | bool) else lookup('config', application_id,
+  'secrets.credentials.chatgpt_bridge_openai_api_key') }}"
 
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
 MATRIX_SYNAPSE_IMAGE: "{{ lookup('config', application_id, 'services.synapse.image') }}:{{ lookup('config', application_id, 'services.synapse.version') }}"

@@ -29,7 +29,7 @@
       {{ {
         'gateway_url': code_addons['claude-code'].config.gateway_url,
         'gateway_key': (lookup('config', 'dsk-gnt-claude', 'secrets.credentials.gateway_key')
-          or lookup('config', 'dsk-gnt-claude', 'secrets.credentials.litellm_api_key')),
+          or lookup('litellm_api_key', 'dsk-gnt-claude')),
         'profiles': code_addons['claude-code'].config.profiles,
         'unified': code_addons['claude-code'].config.unified,
         'extensions': (code_addons | dict2items | selectattr('value.enabled', 'equalto', true)

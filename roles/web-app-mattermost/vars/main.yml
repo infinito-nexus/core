@@ -28,7 +28,7 @@ MATTERMOST_DESIGN_TITLE: "{{ lookup('design', application_id).title[:MATTERMOST_
 
 MATTERMOST_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 MATTERMOST_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
-MATTERMOST_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+MATTERMOST_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 MATTERMOST_LITELLM_SERVICE_ID: infinito-litellm
 MATTERMOST_LITELLM_BOT_ID: infinito-litellm-agent
 MATTERMOST_LITELLM_BOT_NAME: agent

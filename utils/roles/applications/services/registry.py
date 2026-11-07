@@ -28,9 +28,14 @@ def _normalized_name(value: Any) -> str:
     return value.strip()
 
 
-GROUP_GATED_CONSTANTS: tuple[str, ...] = ("LITELLM_USABLE", "OFFICE_SUITE")
+GROUP_GATED_CONSTANTS: tuple[str, ...] = (
+    "LITELLM_USABLE",
+    "LITELLM_SHARED",
+    "OFFICE_SUITE",
+)
 """Group_vars constants whose own definition carries an ``in group_names``
-gate, so a flag referencing one is dynamic even though its own text is not.
+gate, or turns false only on a host that names another host's gateway, so a
+flag referencing one is dynamic even though its own text is not.
 
 A constant hides the role id the substring rule looks for, so every SPOT of
 this kind MUST be listed here or the roles referencing it silently drop their

@@ -21,6 +21,7 @@ from .mirror_overrides import apply_mirror_overrides
 from .network_mode import apply_network_mode_from_env
 from .passwords import generate_random_password
 from .project import build_env_with_project_root, detect_project_root
+from .remote_gateway import drop_gateway_role, named_gateway_host
 from .services.disabler import (
     apply_services_disabled_from_env,
     reconcile_services_disabled_from_env,
@@ -227,6 +228,17 @@ def main(argv: list[str] | None = None) -> int:
         legacy_roles_filter=legacy_roles_filter,
     )
 
+    gateway_host = named_gateway_host(
+        host_vars_file,
+        args.vars,
+        Path(args.vars_file).resolve() if args.vars_file else None,
+    )
+    if gateway_host and drop_gateway_role(dyn_inv):
+        print(
+            f"[INFO] {args.host} uses the gateway on {gateway_host}: "
+            "svc-ai-litellm is not provisioned here"
+        )
+
     dyn_children = (dyn_inv.get("all", {}) or {}).get("children", {}) or {}
     application_ids = sorted(dyn_children.keys())
 
@@ -242,6 +254,8 @@ def main(argv: list[str] | None = None) -> int:
         base_inv = {}
 
     merged_inv = _merge_inventories(base_inv, dyn_inv, host=args.host)
+    if gateway_host and drop_gateway_role(merged_inv):
+        print(f"[INFO] Removed svc-ai-litellm from {inventory_file}")
     dump_yaml(inventory_file, merged_inv)
 
     print(f"[INFO] Ensuring host_vars for host '{args.host}' at {host_vars_file}")

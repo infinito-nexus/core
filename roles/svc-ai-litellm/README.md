@@ -19,6 +19,69 @@ This role deploys LiteLLM as a shared gateway container in Compose and Swarm dep
 - **File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off.
 - **Managed credentials:** The gateway master key and the admin UI password are generated and kept as role credentials, and the admin UI username is the platform administrator name.
 
+## Central gateway for several hosts
+
+One host can serve the gateway to every other host of a deployment over the
+WireGuard mesh, so a small host such as a Raspberry Pi runs no gateway of its
+own and models, provider keys and spend stay in one place.
+
+1. Put every host on one mesh with `cli.administration.inventory.mesh`. A
+   consuming host reaches the gateway at the mesh address its own interface
+   lists for the gateway host, so the gateway host is the hub of that mesh or
+   a member of a full mesh.
+2. In the host_vars of each consuming host, name the gateway host by its
+   inventory hostname, and leave `svc-ai-litellm` out of that host's
+   inventory:
+
+   ```yaml
+   applications:
+     svc-ai-litellm:
+       services:
+         litellm:
+           gateway_host: echoserver
+   ```
+
+3. Run the pass over every inventory of the deployment, naming the
+   `LITELLM_CHAT_MODEL` of the gateway host once:
+
+   ```bash
+   python -m cli.administration.inventory.gateway \
+     --inventory inventories/echoserver/devices.yml \
+     --inventory inventories/galaxyserver/devices.yml \
+     --host-vars-dir inventories/host_vars \
+     --vault-password-file inventories/.password \
+     --host-vault-password-file galaxyserver=inventories/galaxyserver/.password \
+     --chat-model echoserver=llama3.2:1b
+   ```
+
+   It writes `gateway_url` and `gateway_model` into each consuming host's
+   `services.litellm`, one key per consuming host into that host's
+   `credentials.gateway_key` and into the gateway host's
+   `credentials.host_keys`, each encrypted with the vault password of the host
+   that holds it. A re-run changes no file.
+4. Deploy the gateway host first: it registers each consuming host's key
+   under the alias `host:<hostname>` and publishes its port on its mesh
+   address beside the loopback one. Then deploy each consuming host. Its
+   deploy asks the gateway for its model list over the mesh before any
+   consumer is configured and stops with the gateway host and URL named when
+   the gateway does not answer, refuses the key or does not serve the chat
+   model.
+
+On a consuming host every consumer uses the mesh URL and the host's key, so
+no consumer role carries a branch of its own. Inventory provisioning leaves
+`svc-ai-litellm` out of such a host, and a host that carries it while naming
+a gateway host fails its deploy. The mesh publish is a compose feature: in
+swarm the engine does not honour a bind address, so a swarm gateway host does
+not answer on its mesh address.
+
+**Rotate the key of one host:** re-run the pass with `--rotate <hostname>`,
+then deploy the gateway host and that consuming host. Every other host keeps
+its key.
+
+**Revoke a host:** clear its `gateway_host`, re-run the pass and deploy the
+gateway host. The pass drops the host's URL, model and key, and the gateway
+deletes every `host:` key no consuming host holds any more.
+
 ## Provider validation during setup
 
 ### Optional FreeLLMAPI upstream

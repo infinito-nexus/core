@@ -27,7 +27,7 @@ N8N_MCP_PROVIDERS: "{{ MCP_DISCOVERED_SERVERS if N8N_MCP_ENABLED else [] }}"
 
 N8N_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 N8N_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
-N8N_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+N8N_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 N8N_LITELLM_CREDENTIAL_NAME: "infinito:litellm"
 
 N8N_HOOKS_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'hooks.js' ] | path_join }}"

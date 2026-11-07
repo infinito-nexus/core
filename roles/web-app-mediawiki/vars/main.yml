@@ -74,7 +74,7 @@ MEDIAWIKI_LITELLM_CONNECTION:
   url: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
   endpoint: "chat/completions"
   model: "{{ LITELLM_CHAT_MODEL }}"
-  secret: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+  secret: "{{ lookup('litellm_api_key', application_id) }}"
 MEDIAWIKI_LITELLM_HTTP_TIMEOUT: 120
 
 MEDIAWIKI_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.translate.enabled') | bool }}"

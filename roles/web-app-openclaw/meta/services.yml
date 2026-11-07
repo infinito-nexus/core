@@ -60,7 +60,7 @@ sso:
 litellm:
   bond: 1
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 
 logout:
   bond: 1

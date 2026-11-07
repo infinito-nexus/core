@@ -23,7 +23,7 @@ OPENCLAW_TRUSTED_PROXY_SOURCES: "{{ [NETWORK_ROLE_SUBNET_POOL] if (IS_COMPOSE_MO
 
 OPENCLAW_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
 OPENCLAW_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
-OPENCLAW_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+OPENCLAW_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 OPENCLAW_LITELLM_PROVIDER: litellm
 OPENCLAW_LITELLM_MODEL: "{{ LITELLM_CHAT_MODEL }}"
 

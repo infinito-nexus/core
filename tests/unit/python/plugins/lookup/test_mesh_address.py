@@ -46,6 +46,65 @@ class TestMeshAddress(unittest.TestCase):
         self.assertEqual("", _run("wrk", {"wrk": {}}))
         self.assertEqual("", _run("absent", {}))
 
+    def test_a_peer_is_found_in_the_hosts_own_interfaces(self):
+        hostvars = _hostvars(
+            "galaxyserver",
+            {
+                "name": "alpha",
+                "host": "galaxyserver",
+                "address": "10.100.0.2",
+                "primary": True,
+                "peers": [
+                    {"host": "echoserver", "address": "10.100.0.1", "is_hub": True}
+                ],
+            },
+        )
+        found = module.LookupModule().run(
+            ["galaxyserver"], variables={"hostvars": hostvars}, peer="echoserver"
+        )
+        self.assertEqual(["10.100.0.1"], found)
+
+    def test_a_peer_the_host_does_not_list_has_no_address(self):
+        hostvars = _hostvars(
+            "galaxyserver",
+            {
+                "name": "alpha",
+                "host": "galaxyserver",
+                "address": "10.100.0.2",
+                "primary": True,
+                "peers": [
+                    {"host": "echoserver", "address": "10.100.0.1", "is_hub": True}
+                ],
+            },
+        )
+        found = module.LookupModule().run(
+            ["galaxyserver"], variables={"hostvars": hostvars}, peer="hotelserver"
+        )
+        self.assertEqual([""], found)
+
+    def test_the_primary_interface_answers_before_another_mesh(self):
+        hostvars = _hostvars(
+            "galaxyserver",
+            {
+                "name": "beta",
+                "host": "galaxyserver",
+                "address": "10.100.11.2",
+                "primary": False,
+                "peers": [{"host": "echoserver", "address": "10.100.11.1"}],
+            },
+            {
+                "name": "alpha",
+                "host": "galaxyserver",
+                "address": "10.100.0.2",
+                "primary": True,
+                "peers": [{"host": "echoserver", "address": "10.100.0.1"}],
+            },
+        )
+        found = module.LookupModule().run(
+            ["galaxyserver"], variables={"hostvars": hostvars}, peer="echoserver"
+        )
+        self.assertEqual(["10.100.0.1"], found)
+
     def test_exactly_one_hostname_is_required(self):
         for terms in ([], ["a", "b"]):
             with self.subTest(terms=terms), self.assertRaises(AnsibleError):

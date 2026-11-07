@@ -5,7 +5,7 @@
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag — static-asset provider, no Playwright surface
 asset:
   bond: 1

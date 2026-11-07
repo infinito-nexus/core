@@ -9,6 +9,8 @@ from contextlib import redirect_stdout
 from typing import ClassVar
 from unittest.mock import patch
 
+from utils.cache.yaml import load_yaml_any
+
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-litellm/files/python/ensure_keys.py"
@@ -38,19 +40,22 @@ class RecordingProxy:
 
     def __call__(self, method: str, path: str, body: dict | None = None):
         self.paths.append(path)
+        if path.startswith("/key/list"):
+            listed = [{"key_alias": alias} for alias in sorted(self.held_aliases)]
+            return io.StringIO(json.dumps({"keys": listed, "total_pages": 1}))
         if path.startswith("/key/info"):
             if path.split("=", 1)[1] not in self.known_keys:
                 raise http_error(404)
-            return
+            return None
         if path == "/key/delete":
             if not set(body["key_aliases"]) & self.held_aliases:
                 raise http_error(404)
             self.held_aliases -= set(body["key_aliases"])
-            return
+            return None
         if body["key_alias"] in self.held_aliases:
             raise http_error(400)
         self.held_aliases.add(body["key_alias"])
-        return
+        return None
 
 
 class TestEnsureKey(unittest.TestCase):
@@ -83,6 +88,110 @@ class TestEnsureKey(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError) as raised:
             MODULE.ensure_key(self.ENTRY, call)
         self.assertEqual(raised.exception.code, 500)
+
+
+class TestRevokeStaleHostKeys(unittest.TestCase):
+    def test_a_host_the_inventory_no_longer_names_loses_its_key(self):
+        proxy = RecordingProxy(
+            set(), {"web-app-flowise", "host:galaxyserver", "host:hotelserver"}
+        )
+        revoked = MODULE.revoke_stale_host_keys(
+            ["web-app-flowise", "host:galaxyserver"], proxy
+        )
+        self.assertEqual(revoked, ["host:hotelserver"])
+        self.assertEqual(proxy.held_aliases, {"web-app-flowise", "host:galaxyserver"})
+
+    def test_a_local_consumer_is_never_revoked_here(self):
+        proxy = RecordingProxy(set(), {"web-app-flowise", "web-app-hermes"})
+        self.assertEqual(MODULE.revoke_stale_host_keys([], proxy), [])
+        self.assertEqual(proxy.held_aliases, {"web-app-flowise", "web-app-hermes"})
+        self.assertNotIn("/key/delete", proxy.paths)
+
+    def test_every_page_of_the_key_list_is_read(self):
+        pages = {
+            1: {"keys": [{"key_alias": "host:galaxyserver"}], "total_pages": 2},
+            2: {
+                "keys": [{"key_alias": "host:hotelserver"}, "hashed"],
+                "total_pages": 2,
+            },
+        }
+        deleted: list[list[str]] = []
+
+        def call(method, path, body=None):
+            if path.startswith("/key/list"):
+                page = int(path.rsplit("page=", 1)[1])
+                return io.StringIO(json.dumps(pages[page]))
+            deleted.append(body["key_aliases"])
+            return None
+
+        self.assertEqual(
+            MODULE.revoke_stale_host_keys([], call),
+            ["host:galaxyserver", "host:hotelserver"],
+        )
+        self.assertEqual(deleted, [["host:galaxyserver", "host:hotelserver"]])
+
+
+def _conditions(task) -> list[str]:
+    when = task.get("when") or []
+    return [when] if isinstance(when, str) else list(when)
+
+
+def _flatten(tasks, inherited=()):
+    for task in tasks or []:
+        conditions = (*inherited, *_conditions(task))
+        yield task, conditions
+        yield from _flatten(task.get("block"), conditions)
+
+
+def _gated_on_consumers(conditions) -> bool:
+    return any("LITELLM_CONSUMER_KEYS" in condition for condition in conditions)
+
+
+def _revocation_runs_without_consumers(core_tasks, key_tasks) -> bool:
+    include = next(
+        conditions
+        for task, conditions in _flatten(core_tasks)
+        if task.get("ansible.builtin.include_tasks") == "01_keys.yml"
+    )
+    ensure = next(
+        conditions
+        for task, conditions in _flatten(key_tasks)
+        if "ensure_keys.py" in str(task.get("ansible.builtin.shell", ""))
+    )
+    return not _gated_on_consumers(include) and not _gated_on_consumers(ensure)
+
+
+class TestRevocationRunsWheneverTheGatewayRuns(unittest.TestCase):
+    ROLE = PROJECT_ROOT / "roles/svc-ai-litellm/tasks"
+
+    def test_a_gateway_without_local_consumers_still_revokes(self):
+        self.assertTrue(
+            _revocation_runs_without_consumers(
+                load_yaml_any(self.ROLE / "00_core.yml"),
+                load_yaml_any(self.ROLE / "01_keys.yml"),
+            )
+        )
+
+    def test_the_check_refuses_the_key_step_gated_on_local_consumers(self):
+        key_tasks = load_yaml_any(self.ROLE / "01_keys.yml")
+        include = {"ansible.builtin.include_tasks": "01_keys.yml"}
+        gated_task = [{**include, "when": "LITELLM_CONSUMER_KEYS | length > 0"}]
+        gated_block = [
+            {"when": ["LITELLM_CONSUMER_KEYS | length > 0"], "block": [include]}
+        ]
+        for core_tasks in (gated_task, gated_block):
+            with self.subTest(core_tasks=core_tasks):
+                self.assertFalse(
+                    _revocation_runs_without_consumers(core_tasks, key_tasks)
+                )
+
+    def test_the_steps_that_need_a_consumer_key_stay_gated(self):
+        conditions = next(
+            conditions
+            for task, conditions in _flatten(load_yaml_any(self.ROLE / "01_keys.yml"))
+            if task.get("ansible.builtin.include_tasks") == "utils/prove_keys.yml"
+        )
+        self.assertTrue(_gated_on_consumers(conditions))
 
 
 class TestHttpCall(unittest.TestCase):
@@ -134,6 +243,32 @@ class TestMain(unittest.TestCase):
         ):
             MODULE.main()
         self.assertEqual(buffer.getvalue(), "CHANGED web-app-flowise\n")
+
+    def test_a_revoked_host_key_is_announced(self):
+        proxy = RecordingProxy({"sk-new", "sk-known"}, {"host:hotelserver"})
+        buffer = io.StringIO()
+        with (
+            patch.dict("os.environ", self.ENV, clear=True),
+            patch.object(MODULE.sys, "stdin", io.StringIO(json.dumps(self.PAYLOAD))),
+            patch.object(MODULE, "http_call", return_value=proxy),
+            redirect_stdout(buffer),
+        ):
+            MODULE.main()
+        self.assertEqual(buffer.getvalue(), "REVOKED host:hotelserver\n")
+        self.assertNotIn("host:hotelserver", proxy.held_aliases)
+
+    def test_without_local_consumers_a_removed_host_still_loses_its_key(self):
+        proxy = RecordingProxy(set(), {"host:hotelserver"})
+        buffer = io.StringIO()
+        with (
+            patch.dict("os.environ", self.ENV, clear=True),
+            patch.object(MODULE.sys, "stdin", io.StringIO("[]")),
+            patch.object(MODULE, "http_call", return_value=proxy),
+            redirect_stdout(buffer),
+        ):
+            MODULE.main()
+        self.assertEqual(buffer.getvalue(), "REVOKED host:hotelserver\n")
+        self.assertEqual(proxy.held_aliases, set())
 
     def test_the_master_key_reaches_the_proxy_as_a_bearer_header(self):
         with (

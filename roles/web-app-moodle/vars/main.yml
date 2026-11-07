@@ -110,7 +110,7 @@ MOODLE_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | net
 MOODLE_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if MOODLE_OIDC_ONION_ISSUER | bool else '' }}"
 
 MOODLE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
-MOODLE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+MOODLE_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 MOODLE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
 MOODLE_LITELLM_IMAGE_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/images/generations"
 MOODLE_LITELLM_PROVIDER_NAME: "LiteLLM gateway"

@@ -19,6 +19,9 @@ litellm:
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
+  gateway_host: ""
+  gateway_url: ""
+  gateway_model: ""
   freellmapi:
     alias: freellmapi/auto
     model: auto

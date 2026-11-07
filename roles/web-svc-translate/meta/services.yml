@@ -96,7 +96,7 @@ ollama:
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag: the decider answers typed choices, covered by svc-ai-s1's own tests
 s1:
   bond: 0.5

@@ -1,0 +1,45 @@
+---
+- name: "🛰️ Ask the gateway on '{{ LITELLM_GATEWAY_HOST }}' for its models over the mesh"
+  uri_retry:
+    url: "{{ LITELLM_GATEWAY_URL }}/v1/models"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ LITELLM_GATEWAY_KEY }}"
+    return_content: true
+    status_code: 200
+    timeout: "{{ lookup('timeout', 30) | int }}"
+  register: litellm_remote_models
+  retries: 5
+  delay: 5
+  until: (litellm_remote_models.status | int) in [200, 401, 403]
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Read what the gateway on '{{ LITELLM_GATEWAY_HOST }}' answered"
+  ansible.builtin.set_fact:
+    _litellm_remote_status: "{{ litellm_remote_models.status | int }}"
+    _litellm_remote_served: >-
+      {{ (litellm_remote_models.json.data | map(attribute='id') | list)
+         if ((litellm_remote_models.status | int) == 200 and (litellm_remote_models.json is defined) and (litellm_remote_models.json.data is defined))
+         else [] }}
+
+- name: "✅ Require '{{ LITELLM_GATEWAY_HOST }}' to serve this host's chat model"
+  ansible.builtin.assert:
+    that:
+      - _litellm_remote_status | int == 200
+      - LITELLM_GATEWAY_MODEL in _litellm_remote_served
+    fail_msg: >-
+      {{ inventory_hostname }} uses the gateway on {{ LITELLM_GATEWAY_HOST }}
+      at {{ LITELLM_GATEWAY_URL }}, which
+      {% if _litellm_remote_status | int == 200 -%}
+      does not list the chat model '{{ LITELLM_GATEWAY_MODEL }}' this host is
+      configured with
+      {%- elif _litellm_remote_status | int in [401, 403] -%}
+      refuses this host's key; re-run cli.administration.inventory.gateway and
+      redeploy {{ LITELLM_GATEWAY_HOST }}
+      {%- else -%}
+      does not answer over the mesh (status {{ _litellm_remote_status }});
+      deploy {{ LITELLM_GATEWAY_HOST }} first and check the mesh
+      {%- endif %}. No consumer is configured until it does, and this host
+      starts no gateway of its own.
+    quiet: true
