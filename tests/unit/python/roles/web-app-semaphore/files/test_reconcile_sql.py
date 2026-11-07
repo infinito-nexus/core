@@ -2,18 +2,44 @@
 
 from __future__ import annotations
 
+import copy
 import re
 import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_RBAC, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
 SQL = ROLE / "files" / "sql" / "rbac" / "reconcile.sql"
 RBAC_TASKS = ROLE / "tasks" / "03_rbac.yml"
+OPERATOR = "operator"
 
 
 def statements(text):
     return [part.strip() for part in re.split(r"\\set \w+ :ROW_COUNT", text)]
+
+
+def login_roles():
+    return load_yaml(ROLE / ROLE_FILE_VARS_MAIN)["SEMAPHORE_RBAC_LOGIN_ROLES"]
+
+
+def operator_findings(rbac, login_roles, sql):
+    """Return why members of the operator role group would get no task_runner grant.
+
+    Args:
+        rbac: the role's ``meta/rbac.yml``.
+        login_roles: ``SEMAPHORE_RBAC_LOGIN_ROLES``, the groups the hook reads.
+        sql: the reconcile script.
+    """
+    findings = []
+    if OPERATOR not in (rbac.get("roles") or {}):
+        findings.append(f"meta/rbac.yml declares no {OPERATOR} role")
+    if OPERATOR not in login_roles:
+        findings.append(f"SEMAPHORE_RBAC_LOGIN_ROLES leaves {OPERATOR} out")
+    if f"->'{OPERATOR}'" not in sql:
+        findings.append(f"the reconcile reads no {OPERATOR} members")
+    return findings
 
 
 class ReconcileSqlTests(unittest.TestCase):
@@ -75,6 +101,18 @@ class ReconcileSqlTests(unittest.TestCase):
         self.assertIn("'owner'", grant)
         self.assertIn("DELETE FROM public.project__user", revoke)
         self.assertIn("AND NOT account.admin", revoke)
+
+    def test_the_operator_role_is_declared_read_and_granted(self):
+        rbac = load_yaml(ROLE / ROLE_FILE_META_RBAC)
+        self.assertEqual(operator_findings(rbac, login_roles(), self.text), [])
+
+    def test_negative_control_an_undeclared_operator_role_is_reported(self):
+        rbac = copy.deepcopy(load_yaml(ROLE / ROLE_FILE_META_RBAC))
+        del rbac["roles"][OPERATOR]
+        self.assertEqual(
+            operator_findings(rbac, login_roles(), self.text),
+            [f"meta/rbac.yml declares no {OPERATOR} role"],
+        )
 
 
 if __name__ == "__main__":
