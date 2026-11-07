@@ -20,5 +20,5 @@ whitelist:
     - "https:"
   frame-src:
     - https://www.youtube.com
-    - https://www.youtube-nocookie.com
+    - https://www.youtube-nocookie.com # nocheck: url  Reason: CSP origin, not a page; its root answers HTTP 404
     - https://webcams.windy.com
