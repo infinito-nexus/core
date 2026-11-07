@@ -271,19 +271,19 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 1: Bounded caches
 
-- [ ] `make dotenv` writes `INFINITO_CACHE_REGISTRY_MAX_SIZE=40g`, `INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX=20g`, `INFINITO_CACHE_SHARED_MAX_SIZE=10g`, `INFINITO_TOOLS_MODELS_MAX_SIZE=30g`, `INFINITO_BUILD_CACHE_MAX_SIZE=20g`, `INFINITO_CACHE_MAX_IDLE_DAYS=30` and `INFINITO_CACHE_DISK_FLOOR=15g` unless the environment or `custom.env` sets them, and no written value depends on the free disk space. `[unit]`
-- [ ] The registry mirror's effective nginx configuration carries `max_size` equal to `INFINITO_CACHE_REGISTRY_MAX_SIZE` and `inactive` equal to the idle window in days. `[unit]`
-- [ ] Every Nexus proxy repository the bootstrap creates is attached to a cleanup policy on last download older than the idle window, and Nexus holds scheduled tasks that run the cleanup and a blob store compaction at least once a day. `[unit]`
-- [ ] With the Nexus blob store above its cap after the age cleanup, `make cache-evict` deletes the least recently downloaded assets and compacts until the blob store is at or below the cap. `[unit]`
-- [ ] `make cache-evict` removes shared-folder files and model units without access in the idle window, then the least recently accessed ones until the shared folders together and the models folder are each at or below their cap; it deletes nothing outside the four cache paths and no model unit while a tools service runs. `[unit]`
-- [ ] On a cache above its cap, the first `make cache-evict` leaves it at or below the cap, keeps entries accessed inside the idle window as far as the cap allows, and keeps the cache root directory (same inode) and the service's metadata. `[unit]`
-- [ ] `make cache-evict` exits non-zero and names every cap variable when `free + used - sum(caps)` is below `INFINITO_CACHE_DISK_FLOOR`, and passes otherwise. `[unit]`
-- [ ] `make cache-status` prints one JSON object per cache, the build cache included, with path, used bytes, cap bytes, headroom and the access-time fallback flag, and exits 0 without any running stack. `[unit]`
-- [ ] Every image build ends with a builder prune that leaves the host build cache at or below `INFINITO_BUILD_CACHE_MAX_SIZE`; the prune fails the build loudly when the engine accepts none of the known keep-storage flags. `[unit]`
-- [ ] `svc-registry-cache` and `svc-cache-package` default to the 30-day idle window in every inventory, and their server size defaults (`blobstore_max: 40g`, no size cap for the `registry` flavor) are unchanged. `[unit]`
+- [x] `make dotenv` writes `INFINITO_CACHE_REGISTRY_MAX_SIZE=40g`, `INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX=20g`, `INFINITO_CACHE_SHARED_MAX_SIZE=10g`, `INFINITO_TOOLS_MODELS_MAX_SIZE=30g`, `INFINITO_BUILD_CACHE_MAX_SIZE=20g`, `INFINITO_CACHE_MAX_IDLE_DAYS=30` and `INFINITO_CACHE_DISK_FLOOR=15g` unless the environment or `custom.env` sets them, and no written value depends on the free disk space. `[unit]`
+- [x] The registry mirror's effective nginx configuration carries `max_size` equal to `INFINITO_CACHE_REGISTRY_MAX_SIZE` and `inactive` equal to the idle window in days. `[unit]`
+- [x] Every Nexus proxy repository the bootstrap creates is attached to a cleanup policy on last download older than the idle window, and Nexus holds scheduled tasks that run the cleanup and a blob store compaction at least once a day. `[unit]`
+- [x] With the Nexus blob store above its cap after the age cleanup, `make cache-evict` deletes the least recently downloaded assets and compacts until the blob store is at or below the cap. `[unit]`
+- [x] `make cache-evict` removes shared-folder files and model units without access in the idle window, then the least recently accessed ones until the shared folders together and the models folder are each at or below their cap; it deletes nothing outside the four cache paths and no model unit while a tools service runs. `[unit]`
+- [x] On a cache above its cap, the first `make cache-evict` leaves it at or below the cap, keeps entries accessed inside the idle window as far as the cap allows, and keeps the cache root directory (same inode) and the service's metadata. `[unit]`
+- [x] `make cache-evict` exits non-zero and names every cap variable when `free + used - sum(caps)` is below `INFINITO_CACHE_DISK_FLOOR`, and passes otherwise. `[unit]`
+- [x] `make cache-status` prints one JSON object per cache, the build cache included, with path, used bytes, cap bytes, headroom and the access-time fallback flag, and exits 0 without any running stack. `[unit]`
+- [x] Every image build ends with a builder prune that leaves the host build cache at or below `INFINITO_BUILD_CACHE_MAX_SIZE`; the prune fails the build loudly when the engine accepts none of the known keep-storage flags. `[unit]`
+- [x] `svc-registry-cache` and `svc-cache-package` default to the 30-day idle window in every inventory, and their server size defaults (`blobstore_max: 40g`, no size cap for the `registry` flavor) are unchanged. `[unit]`
 - [ ] On the workstation, after the first `make cache-evict`, each cache measures at or below its cap (registry mirror measured from inside its container), and a pull of an image pulled before the migration is a cache hit. `[host]`
-- [ ] No target other than `make clean-cache` removes a cache directory, and `make clean-cache` is called by no other target. `[unit]`
-- [ ] [cache.md](../contributing/environment/cache.md) documents the caps, the idle window, the eviction per cache, the build cache cap, `make cache-evict`, `make cache-status` and the floor, and no longer names a `cache` profile. `[unit]`
+- [x] No target other than `make clean-cache` removes a cache directory, and `make clean-cache` is called by no other target. `[unit]`
+- [x] [cache.md](../contributing/environment/cache.md) documents the caps, the idle window, the eviction per cache, the build cache cap, `make cache-evict`, `make cache-status` and the floor, and no longer names a `cache` profile. `[unit]`
 
 ### Phase 2: Stack addressing
 
