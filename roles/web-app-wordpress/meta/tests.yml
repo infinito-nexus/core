@@ -2,4 +2,4 @@
 cli:
   timeout: 900
 playwright:
-  parallel: [3, 1, 1]
+  parallel: [3, 1, 1, 3]
