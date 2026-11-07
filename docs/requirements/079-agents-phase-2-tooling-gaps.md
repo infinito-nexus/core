@@ -28,7 +28,8 @@ As an operator, I want every make target the routine tool nodes need to exist an
 - [ ] The quality gate reports a lint failure in a new untracked file.
 - [ ] npm installs succeed inside the sandbox.
 - [ ] The slot picker refuses a slot whose subnet a leftover network still holds.
-- [ ] `agents/skills/` holds a rule for writing escapes in code (`\U0000XXXX` or `\N{NAME}`, never `\uXXXX` through the Edit or Write tool), and a lint flags private-use or surrogate characters in source files.
+- [x] `agents/skills/` holds a rule for writing escapes in code (`\U0000XXXX` or `\N{NAME}`, never `\uXXXX` through the Edit or Write tool), and a lint flags private-use or surrogate characters in source files.
+  - Evidence: the rule in `agents/skills/i8-develop/SKILL.md`; L19 scans every source file of the project (`pua_problems` over `source_files` in `tests/lint/agents/test_l19_no_private_use_chars.py`), proven by `test_every_source_file_passes` and `test_red_fixture_fails` (a private-use and a surrogate case).
 - [ ] A routine fetch succeeds when a fork tag is clobbered.
 
 ### Lint tests
