@@ -20,7 +20,8 @@ As an operator, I want the AI roles to run one LibreTranslate engine, consume th
 - [ ] `web-app-mediawiki` consumes `web-svc-translate`, and translation through it works in a Playwright spec.
 - [ ] `web-svc-translate` uses `libretranslate-engine` consistently in its README, `router.order` and consumer key.
 - [ ] `web-app-openwebui` enables tika, searxng and jupyter, and Playwright specs cover a RAG upload, a web search and a code execution.
-- [ ] The `web-app-openwebui` description no longer names Ollama as its backend.
+- [x] The `web-app-openwebui` description no longer names Ollama as its backend.
+  - Evidence: `roles/web-app-openwebui/README.md:5,25` and the galaxy description in `roles/web-app-openwebui/meta/main.yml:4` name the `svc-ai-litellm` gateway; the role's model connections are the gateway and the agent broker only (`roles/web-app-openwebui/vars/main.yml:39-41`).
 - [ ] `svc-ai-robot` reads its persona from `agents/roles/robot/`.
 - [ ] A grep over the `tasks/`, `templates/` and `vars/` of the AI roles finds no `in group_names` peer-presence test; the service flags in `meta/services.yml` keep theirs.
 - [ ] `web-svc-translate` reads its router strategy without a code-level fallback value.

@@ -2,7 +2,7 @@
 
 ## Description
 
-**Open WebUI** provides a clean, fast chat interface for working with local AI models (e.g., via Ollama). It delivers a ChatGPT-like experience on your own infrastructure to keep prompts and data private.
+**Open WebUI** provides a clean, fast chat interface for working with AI models through the platform's model gateway [`svc-ai-litellm`](../svc-ai-litellm/). It delivers a ChatGPT-like experience on your own infrastructure to keep prompts and data private.
 
 ## Overview
 
@@ -22,7 +22,7 @@ applications:
 ## Features
 
 - Familiar multi-chat interface with quick model switching
-- Supports local backends (Ollama) and OpenAI-compatible APIs
+- Reaches every model, local or remote, through the `svc-ai-litellm` gateway's OpenAI-compatible API
 - Optional **offline mode** for air-gapped environments
 - File/paste input for summaries and extraction (model dependent)
 - Suitable for teams: predictable, private, reproducible
