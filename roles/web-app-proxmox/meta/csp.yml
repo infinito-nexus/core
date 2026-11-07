@@ -1,0 +1,7 @@
+---
+flags:
+  script-src:
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: the Proxmox VE UI is built on Ext JS, whose XTemplate compiles every template through the Function constructor; without eval no panel or grid renders.
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: pveproxy renders index.html with inline scripts that carry the per-request CSRFPreventionToken and boot the workspace, so no hash can be pinned.
+whitelist: {}

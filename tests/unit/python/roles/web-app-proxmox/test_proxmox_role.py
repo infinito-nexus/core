@@ -14,6 +14,7 @@ from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
+    ROLE_FILE_META_CSP,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_META_VARIANTS,
     ROLE_FILE_META_VOLUMES,
@@ -178,10 +179,11 @@ class TestGrants(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, COMPOSE)
 
-    def test_readme_names_the_tls_and_websocket_gaps(self):
+    def test_readme_names_the_websocket_gap_and_no_longer_the_tls_one(self):
         gaps = _readme_section("Known gaps")
-        self.assertIn("speaks only HTTPS", gaps)
         self.assertIn("websocket", gaps)
+        self.assertNotIn("TLS upstream", gaps)
+        self.assertIn("**HTTPS upstream:**", _readme_section("Features"))
 
 
 HOSTVARS = {
@@ -318,6 +320,71 @@ class TestHostChecks(unittest.TestCase):
         self.assertNotIn("backup", volumes["proxmox_config"])
         self.assertNotIn("backup", volumes["proxmox_templates"])
         self.assertIn("base disks of the agent VM templates", README)
+
+
+CSP = load_yaml_any(str(ROLE / ROLE_FILE_META_CSP), default_if_missing={})
+PLAYWRIGHT_ENV = read_text(str(ROLE / "templates" / "playwright.env.j2"))
+ADMIN_SPEC = read_text(
+    str(ROLE / "files" / "playwright" / "test-administrator-persona.js")
+)
+
+
+def _persona_blocked(env_text: str, persona: str) -> bool:
+    return bool(re.search(rf"(?m)^PERSONA_{persona}_BLOCKED=true$", env_text))
+
+
+class TestLogin(unittest.TestCase):
+    def test_pveproxy_is_reached_over_https_behind_the_oauth2_gate(self):
+        self.assertEqual(PROXMOX["upstream_scheme"], "https")
+        self.assertEqual(PROXMOX["ports"]["internal"]["http"], 8006)
+        self.assertEqual(SERVICES["sso"]["flavor"], "oauth2")
+
+    def test_the_realm_uses_the_shared_client_and_is_the_default(self):
+        config = VARS["PROXMOX_REALM_CONFIG"]
+        self.assertEqual(config["issuer-url"], "{{ OIDC.CLIENT.ISSUER_URL }}")
+        self.assertEqual(config["client-id"], "{{ OIDC.CLIENT.ID }}")
+        self.assertEqual(config["username-claim"], "{{ OIDC.ATTRIBUTES.USERNAME }}")
+        self.assertEqual((config["autocreate"], config["default"]), (1, 1))
+        self.assertNotIn("client-key", config)
+        self.assertEqual(VARS["PROXMOX_OIDC_CLIENT_SECRET"], "{{ OIDC.CLIENT.SECRET }}")
+        self.assertEqual(VARS["PROXMOX_ADMIN_ROLE"], "Administrator")
+        self.assertEqual(
+            VARS["PROXMOX_ADMIN_GROUP"], "{{ application_id }}-administrator"
+        )
+
+    def test_access_follows_the_stack_and_the_sync_follows_access(self):
+        names = [task.get("name", "") for task in TASK_LIST]
+        access = names.index(_include("01_access.yml")["name"])
+        sync_task = _include("tasks/utils/rbac/sync.yml")
+        self.assertGreater(access, names.index("🚿 Flush compose for {{ application_id }}"))
+        self.assertGreater(names.index(sync_task["name"]), access)
+        sync = sync_task["vars"]
+        self.assertEqual(sync["rbac_sync_roles"], ["administrator"])
+        self.assertEqual(sync["rbac_sync_env"]["PROXMOX_GROUP"], "{{ PROXMOX_ADMIN_GROUP }}")
+        self.assertEqual(
+            sync["rbac_sync_members_env"],
+            [{"name": "PROXMOX_RBAC_ADMINISTRATORS", "role": "administrator", "field": ""}],
+        )
+        self.assertIn("files/perl/rbac.pl", sync["rbac_sync_script"])
+
+    def test_csp_opens_only_what_ext_js_needs(self):
+        self.assertEqual(
+            CSP["flags"],
+            {"script-src": {"unsafe-eval": True}, "script-src-elem": {"unsafe-inline": True}},
+        )
+
+    def test_administrator_persona_runs_and_biber_stays_blocked(self):
+        self.assertFalse(_persona_blocked(PLAYWRIGHT_ENV, "ADMINISTRATOR"))
+        self.assertTrue(_persona_blocked(PLAYWRIGHT_ENV, "BIBER"))
+        self.assertIn("runProxmoxAdminFlow(page)", ADMIN_SPEC)
+        self.assertNotIn("runAdminFlow", ADMIN_SPEC)
+
+    def test_negative_control_a_restored_administrator_block_is_seen(self):
+        self.assertTrue(
+            _persona_blocked(
+                PLAYWRIGHT_ENV + "PERSONA_ADMINISTRATOR_BLOCKED=true\n", "ADMINISTRATOR"
+            )
+        )
 
 
 if __name__ == "__main__":

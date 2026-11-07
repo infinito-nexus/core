@@ -16,6 +16,11 @@ This role runs Proxmox VE as one Docker container, in a data center or locally, 
 - **Hardware virtualization only:** The deploy refuses a host without `/dev/kvm` and says how to enable it.
 - **Sized limits:** The deploy refuses container limits (`cpus`, `mem_limit`) below the warm pool plus `agents.max_running` times the largest agent VM size plus `services.proxmox.agents.overhead`, and a host whose free memory or storage is below that demand plus `services.proxmox.agents.reserve`.
 - **Front proxy and group gate:** The UI is reached only through the front proxy on port 443, behind an OAuth2 proxy that admits only members of this role's administrator group. The SSO flags turn on as soon as any inventory host runs `web-app-keycloak`, and the deploy refuses to run while they resolve to false.
+- **HTTPS upstream:** `pveproxy` speaks only HTTPS, so `services.proxmox.upstream_scheme: https` makes the front proxy location reach `127.0.0.1:7992` over TLS. The hop stays on the loopback, and nginx does not verify the self-signed `pveproxy` certificate. The OAuth2 proxy runs in `auth_request` mode and forwards no request to the upstream, so its `http://proxmox:8006` upstream entry carries no traffic.
+- **OpenID realm:** The deploy converges the OpenID realm `services.proxmox.realm.id` against the shared Keycloak client: issuer, client id and secret, the username claim, user autocreation, and the realm as the default of the login window. A realm whose username claim differs is refused, because Proxmox VE fixes that claim at creation.
+- **Administrator group:** The group `web-app-proxmox-administrator` holds the `Administrator` role on `/`, propagated. Proxmox VE accepts only `[A-Za-z0-9._-]` in an OpenID group claim, so the role cannot map the full-path RBAC claim; instead the RBAC sync (`tasks/utils/rbac/sync.yml`) adds every member of the Keycloak administrator group to it, at deploy and on its timer, and removes every other account from it.
+- **Secret path:** The client secret reaches the container base64-encoded on the task's stdin and travels on as an environment variable named by `container exec -e`, so it is never on an argv. Proxmox VE stores it as `client-key` in `/etc/pve/domains.cfg`, where its own `pveum realm add` keeps it.
+- **Content Security Policy:** `meta/csp.yml` allows `unsafe-eval` for Ext JS templates and inline scripts for the `index.html` that `pveproxy` renders with a per-request CSRF token.
 - **No onion:** The deploy refuses to run while `services.tor.enabled` resolves to true, so the hypervisor UI never gets an onion address.
 - **Backup scope:** The backup covers the cluster configuration (`proxmox_config`, the `pmxcfs` database) and the ISO and container templates (`proxmox_templates`, `/var/lib/vz/template`). Everything under `/var/lib/vz/images` (`proxmox_vm_disks`) is not backed up: that covers the agent VM disks, which are destroyed when their task ends, and the base disks of the agent VM templates, which `make agents-vm-template` rebuilds.
 - **Broker channel:** Secrets and tool calls reach an agent VM through the QEMU guest agent, and only after the broker assigned the VM to a task; never through cloud-init, the VM configuration or a snippet.
@@ -37,8 +42,8 @@ The container publishes one port: the web UI port 8006 as `127.0.0.1:7992` (`ser
 
 ## Known gaps
 
-- **TLS upstream:** `pveproxy` on port 8006 speaks only HTTPS, but the OAuth2 proxy (`web-app-keycloak` `sso_proxy` templates) and the front proxy location (`sys-svc-proxy`) reach the upstream over plain HTTP, and this role cannot change that scheme through its own meta. Until those shared templates take an HTTPS upstream, the web UI does not load through the front proxy.
 - **Console websocket:** the noVNC and xterm.js consoles need a websocket location; the role sets no websocket proxy flavour yet.
+- **Two sessions:** the OAuth2 proxy cookie and the Proxmox VE ticket live independently. The universal logout ends both in the browser, but no back-channel logout reaches Proxmox VE: a copied ticket stays valid for up to two hours after its last renewal.
 
 ## Broker token
 
@@ -51,6 +56,18 @@ The broker gets one privilege-separated API token per Infinito.Nexus instance, b
 - `Pool.Audit` on the agent pool
 
 `VM.Config.Network`, `VM.Config.Disk`, `VM.Config.HWType`, `Sys.*` and every privilege outside the pool are left out, so the token cannot move a VM to another bridge, add a host or foreign-storage disk, or touch a VM outside the pool.
+
+## Login
+
+1. The OAuth2 proxy sends the visitor to Keycloak and admits only members of the administrator group.
+2. Proxmox VE shows its login window with the OpenID realm preselected; `Login (OpenID redirect)` completes silently through the Keycloak session and creates the account `<username>@<realm>` on first login.
+3. The user menu's `Logout` triggers the universal logout, which ends the Keycloak session and deletes both the OAuth2 proxy cookie and `PVEAuthCookie`.
+
+Break-glass access goes through the container shell (`pveum` as root inside the container), never through the public domain.
+
+## Persona contract opt-outs
+
+The `administrator` persona runs the role-local flow [`files/playwright/proxmox-flow.js`](./files/playwright/proxmox-flow.js): the OAuth2 proxy login, the OpenID realm login, the `Administrator` grant of its group on `/`, and the logout. [`meta/services.yml`](./meta/services.yml) admits only the `web-app-proxmox` administrator RBAC group to the OAuth2 proxy (`sso.oauth2.allowed_groups`) and `biber` carries no roles, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `guest` persona and the baseline assertion run unconditionally.
 
 ## Further Resources
 

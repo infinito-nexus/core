@@ -22,3 +22,17 @@ PROXMOX_EXCLUSIVE_PEERS:
 PROXMOX_COHOSTED_PEERS: "{{ PROXMOX_EXCLUSIVE_PEERS | proxmox_cohosted(inventory_hostname, groups, hostvars) }}"
 PROXMOX_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 PROXMOX_TOR_ENABLED: "{{ lookup('config', application_id, 'services.tor.enabled') }}"
+PROXMOX_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.proxmox.ports.internal.http') }}"
+
+PROXMOX_REALM: "{{ lookup('config', application_id, 'services.proxmox.realm.id') }}"
+PROXMOX_REALM_CONFIG:
+  issuer-url: "{{ OIDC.CLIENT.ISSUER_URL }}"
+  client-id: "{{ OIDC.CLIENT.ID }}"
+  username-claim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+  autocreate: 1
+  default: 1
+  comment: "{{ lookup('config', application_id, 'services.proxmox.realm.comment') }}"
+PROXMOX_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+PROXMOX_ADMIN_ROLE: Administrator
+PROXMOX_ADMIN_GROUP: "{{ application_id }}-administrator"
+PROXMOX_ADMIN_GROUP_COMMENT: "Members of {{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}, reconciled by Infinito.Nexus"
