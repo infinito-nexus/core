@@ -24,8 +24,8 @@ As an operator, I want the reviewer, planner, coordinator, operator, tester, tra
 
 ### Additional agent roles
 
-- [ ] reviewer: an agent pull request with a missing evidence comment gets `changes requested`; a clean one gets `recommend merge`; the reviewer never reviews its own pull request.
-- [ ] reviewer: a pull request whose new spec has no negative control gets `changes requested`.
+- [ ] reviewer: an agent pull request with a missing evidence comment gets `changes requested`; a clean one gets `recommend merge`; the reviewer never reviews its own pull request. Partly met: the routine decides all three (`agents/routines/reviewer.py`, `agents/routines/tools/review_checklist.py`, `tests/unit/python/agents/routines/test_reviewer.py`); posting the verdict on the forge from the deployed orchestrator is not wired yet.
+- [ ] reviewer: a pull request whose new spec has no negative control gets `changes requested`. Partly met: the routine routes a changed spec without a passing control to `changes requested` (`tests/unit/python/agents/routines/test_reviewer.py`); posting the verdict is not wired yet.
 - [ ] planner: an issue becomes a `Proposed` work package with user story and checkable criteria, linked to the issue.
 - [ ] planner: a second issue with the same content is linked to the existing work package instead of creating a new one.
 - [ ] coordinator: two agents requesting a CI deploy of the same repository at once get the slot one after the other.

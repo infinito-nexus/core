@@ -1053,7 +1053,7 @@ flowchart TD
   T1(["🔔 An agent opened or updated a pull request"])
   D1{"🙅 Did I author it?"}
   D0(["⏭️ Skip, another reviewer takes it"])
-  D2["📋 Checklist: evidence comment, number check,<br/>comment audit, firewall compliance"]
+  D2{"📋 Checklist passes: evidence comment, number check,<br/>comment audit, firewall compliance?"}
   D3{"🕵️ Negative control done<br/>for every changed spec?"}
   D4{"🔍 CI log shows<br/>the change ran?"}
   L1{{"🧠 Read the diff:<br/>correct, minimal, in scope?"}}
@@ -1061,7 +1061,9 @@ flowchart TD
   D6(["✅ Recommend merge to the human"])
   T1 --> D1
   D1 -->|"✅ yes"| D0
-  D1 -->|"❌ no"| D2 --> D3
+  D1 -->|"❌ no"| D2
+  D2 -->|"❌ no"| D5
+  D2 -->|"✅ yes"| D3
   D3 -->|"❌ no"| D5
   D3 -->|"✅ yes"| D4
   D4 -->|"❌ no"| D5
