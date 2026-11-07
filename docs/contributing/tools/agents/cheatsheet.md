@@ -29,6 +29,8 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Running the full gate (`make quality-high`: quality plus every lint) to green | `i8-quality-high` |
 | Cleaning up code, docs, or roles after a change | `i8-refactor` |
 | Making CI, a deploy or a gate faster without giving up coverage | `i8-tuner` |
+| Splitting an over-budget CI row into variants that keep its coverage | `i8-variant-split` |
+| Inspecting the variant tree one CI row really deploys | `i8-variant-tree` |
 | Checking a branch out into a parallel worktree | `i8-worktree-create` |
 | Releasing a parallel worktree and its slot | `i8-worktree-down` |
 | Freeing disk space and `/tmp` that agents filled | `i8-cleanup` |
