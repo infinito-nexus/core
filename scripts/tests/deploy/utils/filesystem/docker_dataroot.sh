@@ -65,6 +65,15 @@ verdict() {
 		>>"${GITHUB_STEP_SUMMARY}"
 }
 
+# Param: $1 loop device backed by the image
+mount_image() {
+	if [ "${FSTYPE}" = ext4 ]; then
+		mount -t ext4 -o discard "$1" "${MOUNT}"
+	else
+		mount -t "${FSTYPE}" "$1" "${MOUNT}"
+	fi
+}
+
 # Param: $1 loop device to detach
 # Param: $2 mount point it backs
 arm_autoclear() {
@@ -227,7 +236,7 @@ remount() {
 		mountpoint -q "${MOUNT}" && return 0
 		[ -f "${IMAGE}" ] || return 0
 		claim_loop
-		mount -t "${FSTYPE}" "${LOOP}" "${MOUNT}"
+		mount_image "${LOOP}"
 		arm_autoclear "${LOOP}" "${MOUNT}"
 	fi
 	report "remounted the ${FSTYPE} data root at ${MOUNT}"
@@ -350,7 +359,7 @@ if [ "${FSTYPE}" = zfs ]; then
 	zfs create -o mountpoint="${MOUNT}/docker" "${POOL}/docker"
 else
 	"mkfs.${FSTYPE}" -q "${LOOP}"
-	mount -t "${FSTYPE}" "${LOOP}" "${MOUNT}"
+	mount_image "${LOOP}"
 	arm_autoclear "${LOOP}" "${MOUNT}"
 	if [ "${FSTYPE}" = btrfs ]; then
 		btrfs subvolume create "${MOUNT}/docker" >/dev/null
