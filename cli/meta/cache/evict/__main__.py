@@ -8,16 +8,14 @@ from functools import partial
 
 from utils.cache.evict import (
     CacheConfigError,
-    build_cache_usage,
     evict,
     free_bytes,
     load_settings,
-    nexus_from_env,
-    run_command,
     status,
-    tools_running,
     usages,
 )
+from utils.cache.eviction.docker import build_cache_usage, run_command, tools_running
+from utils.cache.eviction.nexus import nexus_from_env
 
 POLL_SECONDS = 2.0
 TASK_TIMEOUT_SECONDS = 3600.0

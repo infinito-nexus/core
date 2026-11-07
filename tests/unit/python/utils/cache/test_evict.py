@@ -21,18 +21,17 @@ from utils.cache import evict
 from utils.cache.evict import (
     CACHES,
     FLOOR_KEY,
-    Asset,
     Cache,
     OutsideCacheError,
     Settings,
-    Unit,
     Usage,
     measure,
-    model_units,
     plan,
     remove,
-    shared_units,
 )
+from utils.cache.eviction.docker import build_cache_usage
+from utils.cache.eviction.nexus import Asset, NexusRest, nexus_from_env
+from utils.cache.eviction.units import Unit, model_units, shared_units
 from utils.cache.files import read_text
 
 DAY = 86400
@@ -147,7 +146,7 @@ def _npm_bucket(
     bucket_hash = hashlib.sha256(key.encode()).hexdigest()
     bucket = cacache / "index-v5" / bucket_hash[:2] / bucket_hash[2:4] / bucket_hash[4:]
     bucket.parent.mkdir(parents=True, exist_ok=True)
-    bucket.write_text(f"{hashlib.sha1(entry.encode()).hexdigest()}\t{entry}\n")  # noqa: S324
+    bucket.write_text(f"{hashlib.sha1(entry.encode()).hexdigest()}\t{entry}\n")  # noqa: S324 - fixture mimics the sha1 line checksum of npm cacache index buckets, no security use
     stamp = NOW - days_ago * DAY
     os.utime(bucket, (stamp, stamp))
     return bucket, content
@@ -627,7 +626,7 @@ class TestNexusEviction(unittest.TestCase):
 
     def test_the_rest_client_uses_only_the_routes_of_the_pinned_nexus(self) -> None:
         nexus = NexusHttp({"old": (100, 1), "mid": (100, 2), "new": (100, 3)})
-        client = evict.NexusRest("http://nexus/service/rest", "admin", "pw", 0, 5)
+        client = NexusRest("http://nexus/service/rest", "admin", "pw", 0, 5)
         with patch("urllib.request.urlopen", nexus.urlopen):
             before, after = evict.evict_package(client, 150)
         self.assertEqual((before, after), (300, 100))
@@ -636,6 +635,26 @@ class TestNexusEviction(unittest.TestCase):
             [path for method, path in nexus.calls if method == "POST"][:3],
             [f"/v1/tasks/{task}/run" for task in NEXUS_TASK_ORDER],
         )
+
+    def test_the_client_needs_a_host_a_port_and_a_password(self) -> None:
+        env = {
+            "INFINITO_CACHE_PACKAGE_REST_HOST": " 127.0.0.1 ",
+            "INFINITO_CACHE_PACKAGE_PORT": " 8081 ",
+            "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD": " pw ",
+        }
+        with patch.object(NexusRest, "reachable", return_value=True):
+            client = nexus_from_env(env, 0, 5)
+            self.assertEqual(client.base, "http://127.0.0.1:8081/service/rest")
+            self.assertEqual(client.headers, NexusRest("", "admin", "pw", 0, 5).headers)
+            for key in env:
+                for value in (None, "", "  "):
+                    lacking = {k: v for k, v in env.items() if k != key}
+                    if value is not None:
+                        lacking[key] = value
+                    with self.subTest(key=key, value=value):
+                        self.assertIsNone(nexus_from_env(lacking, 0, 5))
+        with patch.object(NexusRest, "reachable", return_value=False):
+            self.assertIsNone(nexus_from_env(env, 0, 5))
 
     def test_a_store_left_above_its_cap_fails_the_eviction(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -715,7 +734,7 @@ class TestStatus(unittest.TestCase):
 
     def test_the_build_cache_size_comes_from_docker_system_df(self) -> None:
         line = json.dumps({"Type": "Build Cache", "Size": "28.5GB"})
-        usage = evict.build_cache_usage(
+        usage = build_cache_usage(
             lambda _command: f'{{"Type":"Images","Size":"1GB"}}\n{line}\n'
         )
         self.assertEqual(usage, Usage(used=28_500_000_000, complete=True))

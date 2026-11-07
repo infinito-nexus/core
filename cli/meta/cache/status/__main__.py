@@ -4,14 +4,8 @@ import json
 import os
 import sys
 
-from utils.cache.evict import (
-    CacheConfigError,
-    build_cache_usage,
-    load_settings,
-    run_command,
-    status,
-    usages,
-)
+from utils.cache.evict import CacheConfigError, load_settings, status, usages
+from utils.cache.eviction.docker import build_cache_usage, run_command
 
 
 def main() -> int:
