@@ -77,6 +77,28 @@ class TestSamlClientsReachExistingRealms(unittest.TestCase):
         )
 
 
+class TestDeclaredClientMappersReachExistingRealms(unittest.TestCase):
+    def test_only_declared_clients_with_mappers_are_selected(self):
+        mapper = {"name": "roles", "protocolMapper": "oidc-usermodel-client-role-mapper"}
+        realm = {
+            **REALM,
+            "clients": [
+                {"clientId": "account", "protocolMappers": [mapper]},
+                {"clientId": "stalwart-webui"},
+                {"clientId": "nextcloud-user-oidc", "protocolMappers": [mapper]},
+            ],
+        }
+        with mock.patch.dict(globals(), {"REALM": realm}):
+            selected = render(
+                "KEYCLOAK_DECLARED_MAPPER_CLIENT_IDS",
+                ["stalwart-webui", "nextcloud-user-oidc"],
+            )
+        self.assertEqual(["nextcloud-user-oidc"], selected)
+
+    def test_no_declared_client_selects_nothing(self):
+        self.assertEqual([], render("KEYCLOAK_DECLARED_MAPPER_CLIENT_IDS", []))
+
+
 class TestSettingsSpec(unittest.TestCase):
     def test_main_declared_and_saml_clients_are_converged_built_ins_are_not(self):
         clients = render("KEYCLOAK_SETTINGS_SPEC", ["stalwart-webui"])["clients"]

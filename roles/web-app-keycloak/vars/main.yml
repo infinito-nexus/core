@@ -266,6 +266,10 @@ KEYCLOAK_PROFILE_ATTRIBUTES:
 KEYCLOAK_DECLARED_CLIENT_APPS: "{{ lookup('applications') | kc_declared_client_apps(lookup('deployment').groups) }}"
 KEYCLOAK_DECLARED_CLIENT_IDS: "{{ lookup('applications') | kc_declared_client_ids(lookup('deployment').groups) }}"
 KEYCLOAK_SAML_CLIENT_IDS: "{{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('protocol', 'equalto', 'saml') | map(attribute='clientId') | list }}"
+KEYCLOAK_DECLARED_MAPPER_CLIENT_IDS: >-
+  {{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'in', KEYCLOAK_DECLARED_CLIENT_IDS)
+     | selectattr('protocolMappers', 'defined') | map(attribute='clientId') | list }}
+KEYCLOAK_CLIENT_ROLE_GRANTS: "{{ lookup('applications') | kc_declared_client_role_grants(KEYCLOAK_REALM_ROLE_GRANT_APP_IDS, KEYCLOAK_RBAC_GROUP_NAME) }}"
 KEYCLOAK_SETTINGS_CLIENT_IDS: "{{ ([KEYCLOAK_CLIENT_ID] + KEYCLOAK_DECLARED_CLIENT_IDS + KEYCLOAK_SAML_CLIENT_IDS) | unique | list }}"
 KEYCLOAK_SETTINGS_MISSING_CLIENT_IDS: "{{ KEYCLOAK_SETTINGS_CLIENT_IDS | reject('in', KEYCLOAK_DICTIONARY_REALM.clients | map(attribute='clientId') | list) | list
   }}"

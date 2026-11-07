@@ -109,6 +109,62 @@ def _client(url):
     return {"clientId": "x", "attributes": {"backchannel.logout.url": url}}
 
 
+def _app_with_roles(clients, client_roles):
+    app = _app(clients)
+    app["services"]["sso"]["oidc"]["client_roles"] = client_roles
+    return app
+
+
+class TestDeclaredClientRoleGrants(unittest.TestCase):
+    def setUp(self):
+        self.grants = _load().kc_declared_client_role_grants
+
+    def test_a_declared_client_role_is_granted_to_the_rbac_group(self):
+        apps = {
+            "web-app-nextcloud": _app_with_roles(
+                {"user_oidc": "nextcloud-user-oidc"},
+                {"user_oidc": {"admin": "administrator"}},
+            )
+        }
+        self.assertEqual(
+            self.grants(apps, ["web-app-nextcloud"], "roles"),
+            [
+                {
+                    "client_id": "nextcloud-user-oidc",
+                    "role": "admin",
+                    "group_path": "/roles/web-app-nextcloud/administrator",
+                }
+            ],
+        )
+
+    def test_a_client_absent_in_this_mode_grants_nothing(self):
+        apps = {
+            "web-app-nextcloud": _app_with_roles(
+                {}, {"user_oidc": {"admin": "administrator"}}
+            )
+        }
+        self.assertEqual(self.grants(apps, ["web-app-nextcloud"], "roles"), [])
+
+    def test_an_app_outside_the_run_grants_nothing(self):
+        apps = {
+            "web-app-nextcloud": _app_with_roles(
+                {"user_oidc": "nextcloud-user-oidc"},
+                {"user_oidc": {"admin": "administrator"}},
+            )
+        }
+        self.assertEqual(self.grants(apps, ["web-app-other"], "roles"), [])
+
+    def test_the_group_root_is_normalized(self):
+        apps = {"web-app-x": _app_with_roles({"a": "x-a"}, {"a": {"r": "editor"}})}
+        (grant,) = self.grants(apps, ["web-app-x"], "/roles/")
+        self.assertEqual(grant["group_path"], "/roles/web-app-x/editor")
+
+    def test_malformed_declarations_are_survivable(self):
+        self.assertEqual(self.grants(None, ["web-app-x"], "roles"), [])
+        apps = {"web-app-x": _app_with_roles({"a": "x-a"}, {"a": ["admin"]})}
+        self.assertEqual(self.grants(apps, ["web-app-x"], "roles"), [])
+
+
 class TestBackchannelLogoutUrls(unittest.TestCase):
     def setUp(self):
         self.urls = _load().kc_backchannel_logout_urls

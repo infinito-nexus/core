@@ -1,0 +1,44 @@
+---
+- name: "⬇️ Resolve the client of client role '{{ item.client_id }}/{{ item.role }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get clients -r {{ KEYCLOAK_REALM | quote }}
+    -q clientId={{ item.client_id | quote }} --fields id --format json
+  loop: "{{ KEYCLOAK_CLIENT_ROLE_GRANTS }}"
+  loop_control:
+    label: "{{ item.client_id }}/{{ item.role }}"
+  register: kc_client_role_clients
+  changed_when: false
+
+- name: "🧩 Create client role '{{ item.item.client_id }}/{{ item.item.role }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} create {{ ('clients/' ~ (item.stdout | kcadm_json | first).id ~ '/roles') | quote }}
+    -r {{ KEYCLOAK_REALM | quote }} -s name={{ item.item.role | quote }}
+  loop: "{{ kc_client_role_clients.results }}"
+  loop_control:
+    label: "{{ item.item.client_id }}/{{ item.item.role }}"
+  register: kc_client_role_create
+  changed_when: kc_client_role_create.rc == 0
+  failed_when: kc_client_role_create.rc != 0 and ('exists' not in (kc_client_role_create.stderr | lower))
+
+- name: "⬇️ Resolve the RBAC group '{{ item.group_path }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get {{ ('group-by-path' ~ item.group_path) | quote }}
+    -r {{ KEYCLOAK_REALM | quote }} --fields id --format json
+  loop: "{{ KEYCLOAK_CLIENT_ROLE_GRANTS }}"
+  loop_control:
+    label: "{{ item.group_path }}"
+  register: kc_client_role_groups
+  retries: 5
+  delay: 10
+  until: kc_client_role_groups.rc == 0
+  changed_when: false
+
+- name: "🛂 Grant client role '{{ item.item.client_id }}/{{ item.item.role }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} add-roles -r {{ KEYCLOAK_REALM | quote }}
+    --gid {{ (item.stdout | kcadm_json).id | quote }}
+    --cclientid {{ item.item.client_id | quote }} --rolename {{ item.item.role | quote }}
+  loop: "{{ kc_client_role_groups.results }}"
+  loop_control:
+    label: "{{ item.item.group_path }}"
+  changed_when: true

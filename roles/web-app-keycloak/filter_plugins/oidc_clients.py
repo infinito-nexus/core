@@ -13,6 +13,16 @@ own ``meta/services.yml``::
 Keycloak converges whatever it finds, so no application id is named on this
 side. The realm's built-in clients (``account``, ``broker``, ...) are not
 declared by anybody and therefore never touched.
+
+A declared client may also carry client roles, each granted to one RBAC role
+group of the declaring application::
+
+    services:
+      sso:
+        oidc:
+          client_roles:
+            webui:
+              admin: administrator
 """
 
 from __future__ import annotations
@@ -22,15 +32,19 @@ from typing import Any
 BACKCHANNEL_LOGOUT_URL = "backchannel.logout.url"
 
 
-def _declared(app: Any) -> dict[str, Any]:
+def _oidc_node(app: Any, key: str) -> dict[str, Any]:
     if not isinstance(app, dict):
         return {}
     node: Any = app
-    for key in ("services", "sso", "oidc", "clients"):
+    for part in ("services", "sso", "oidc", key):
         if not isinstance(node, dict):
             return {}
-        node = node.get(key)
+        node = node.get(part)
     return node if isinstance(node, dict) else {}
+
+
+def _declared(app: Any) -> dict[str, Any]:
+    return _oidc_node(app, "clients")
 
 
 def kc_declared_client_apps(applications: Any, app_ids: Any = None) -> list[str]:
@@ -73,6 +87,46 @@ def kc_declared_client_ids(applications: Any, app_ids: Any = None) -> list[str]:
     return sorted(found)
 
 
+def kc_declared_client_role_grants(
+    applications: Any, app_ids: Any, group_root: str
+) -> list[dict[str, str]]:
+    """One grant per client role a declared client carries.
+
+    Args:
+        applications: the ``lookup('applications')`` map, application id -> config.
+        app_ids: applications whose RBAC groups exist in this run.
+        group_root: the RBAC group root name, ``RBAC.GROUP.NAME``.
+
+    Returns:
+        ``{client_id, role, group_path}`` dicts sorted by application, client
+        key and role. A client key the application does not declare under
+        ``services.sso.oidc.clients`` grants nothing, so a client that exists
+        only in one mode carries its roles only in that mode.
+    """
+    if not isinstance(applications, dict):
+        return []
+    root = "/" + str(group_root).strip("/")
+    grants = []
+    for app_id in sorted(set(app_ids or [])):
+        app = applications.get(app_id)
+        clients = _declared(app)
+        for key, roles in sorted(_oidc_node(app, "client_roles").items()):
+            client_id = clients.get(key)
+            if not isinstance(client_id, str) or not client_id.strip():
+                continue
+            if not isinstance(roles, dict):
+                continue
+            grants.extend(
+                {
+                    "client_id": client_id.strip(),
+                    "role": str(role),
+                    "group_path": f"{root}/{app_id}/{rbac_role}",
+                }
+                for role, rbac_role in sorted(roles.items())
+            )
+    return grants
+
+
 def kc_backchannel_logout_urls(clients: Any) -> list[str]:
     """Every back-channel logout URL the given clients carry, sorted and deduped.
 
@@ -101,4 +155,5 @@ class FilterModule:
             "kc_backchannel_logout_urls": kc_backchannel_logout_urls,
             "kc_declared_client_apps": kc_declared_client_apps,
             "kc_declared_client_ids": kc_declared_client_ids,
+            "kc_declared_client_role_grants": kc_declared_client_role_grants,
         }

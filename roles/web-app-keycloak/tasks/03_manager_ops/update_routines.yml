@@ -60,6 +60,10 @@
     apply:
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "📂 Load client role grant routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/16_client_role_grants.yml"
+  when: KEYCLOAK_CLIENT_ROLE_GRANTS | length > 0
+
 - name: "📂 Load fine-grained admin permission routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/15_admin_permissions.yml"
   when: KEYCLOAK_ADMIN_PERMISSIONS_ENABLED | bool
@@ -68,13 +72,13 @@
   include_tasks: "{{ role_path }}/tasks/update/06_users/email_verified.yml"
   when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
 
-- name: "📂 Converge the protocol mappers of the SAML clients of existing realms"
-  include_tasks: "{{ role_path }}/tasks/update/11_saml_client_mappers.yml"
+- name: "📂 Converge the protocol mappers of SAML and declared clients"
+  include_tasks: "{{ role_path }}/tasks/update/11_client_mappers.yml"
   vars:
-    kc_saml_client_id: "{{ saml_client }}"
-  loop: "{{ KEYCLOAK_SAML_CLIENT_IDS }}"
+    kc_mapper_client_id: "{{ mapper_client }}"
+  loop: "{{ (KEYCLOAK_SAML_CLIENT_IDS + KEYCLOAK_DECLARED_MAPPER_CLIENT_IDS) | unique | list }}"
   loop_control:
-    loop_var: saml_client
+    loop_var: mapper_client
 
 - name: "📂 Converge the email client scope of existing realms"
   include_tasks: "{{ role_path }}/tasks/update/13_email_scope.yml"
