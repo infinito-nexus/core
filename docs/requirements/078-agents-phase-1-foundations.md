@@ -88,7 +88,8 @@ As an operator, I want the `agents/` tree, the lint catalog and the deterministi
 
 ### End to end
 
-- [ ] `python -m cli.tune.logscan` reports per-task cost, per-item loops by their count and retry waits from a fixture deploy log.
+- [x] `python -m cli.tune.logscan` reports per-task cost, per-item loops by their count and retry waits from a fixture deploy log.
+  - Evidence: `cli/tune/logscan.py` (`RETRYING` keyed per task), proven by `test_reports_the_cost_per_task_slowest_first`, `test_reports_a_per_item_loop_by_its_count`, `test_reports_the_retry_waits_per_task` and `test_retries_are_counted_per_task_not_per_host` in `tests/unit/python/cli/tune/test_logscan.py:57-80`.
 
 ## Cross-linking
 

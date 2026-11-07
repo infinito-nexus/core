@@ -20,7 +20,9 @@ from pathlib import Path
 
 HEADER = re.compile(r"^(?:TASK|RUNNING HANDLER) \[(?P<label>.+?)\]\s*\**\s*$")
 DURATION = re.compile(r"\((?P<h>\d+):(?P<m>\d\d):(?P<s>\d\d\.\d+)\)")
-RETRYING = re.compile(r"FAILED - RETRYING: \[?(?P<item>.+?)[\]:]")
+RETRYING = re.compile(
+    r"FAILED - RETRYING: (?:\[[^\]]*\]: )?(?P<item>.+?)(?: \(\d+ retries left\))?\.?\s*$"
+)
 
 
 def _seconds(match: re.Match) -> float:
@@ -76,8 +78,10 @@ def aggregate(durations: list[tuple[str, str, float]]) -> list[tuple[str, int, f
 
 
 def retries(text: str) -> dict[str, int]:
-    """Return a count of ``FAILED - RETRYING`` lines per item: a wait that hides
-    a failure rather than slowness."""
+    """Return a count of ``FAILED - RETRYING`` lines per retried task: a wait
+    that hides a failure rather than slowness. The host prefix and the
+    ``(N retries left)`` suffix are dropped, so every retry of one task counts
+    under its name."""
     counts: dict[str, int] = defaultdict(int)
     for line in text.splitlines():
         hit = RETRYING.search(line)
@@ -133,7 +137,7 @@ def _demo() -> None:
     _expect(top["web-app-keycloak : create client"] == (1, 7.0), top)
     _expect(top["web-app-keycloak : configure realm"] == (1, 2.0), top)
     _expect("openresty : reload" not in top, top)
-    _expect(retries(sample) == {"localhost": 1}, retries(sample))
+    _expect(retries(sample) == {"wait for marker": 1}, retries(sample))
     print("logscan self-check ok")
 
 
