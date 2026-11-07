@@ -33,6 +33,17 @@
     loop_var: role_group
     label: "{{ role_group }}"
 
+- name: "🔑 Retire the Redis passwords a rotation replaced, once consumers redeployed"
+  ansible.builtin.include_role:
+    name: svc-db-redis
+    tasks_from: utils/rotation/retire.yml
+  vars:
+    application_id: svc-db-redis
+  when:
+    - "'svc-db-redis' in group_names"
+    - redis_retired_password_hashes is defined
+    - redis_retired_password_hashes | length > 0
+
 - name: "🔍 Probe the vhosts the server roles queued, in one parallel batch"
   ansible.builtin.include_role:
     name: sys-stk-front-proxy
@@ -52,3 +63,15 @@
   include_role:
     name: "test-e2e-playwright"
   when: RUNTIME in ['dev', 'act', 'github']
+
+- name: "✅ Fail on every Redis consumer that still presents a retired password"
+  ansible.builtin.include_role:
+    name: svc-db-redis
+    tasks_from: utils/rotation/verify.yml
+  vars:
+    application_id: svc-db-redis
+  when:
+    - "'svc-db-redis' in group_names"
+    - RUNTIME in ['dev', 'act', 'github']
+    - redis_retired_password_hashes is defined
+    - redis_retired_password_hashes | length > 0
