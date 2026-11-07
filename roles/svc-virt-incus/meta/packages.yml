@@ -6,3 +6,9 @@ incus:
     - incus
   RedHat:
     - incus
+  centos:
+    source: copr
+    names:
+      - incus
+    repo:
+      copr: neelc/incus

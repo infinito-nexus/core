@@ -33,20 +33,20 @@
     path: "{{ INCUS_STORAGE_PATH }}/unix.socket"
   register: svc_virt_incus_socket
 
-- name: "🔍 Read the agent VMs that run in {{ INCUS_PROJECT }}"
-  ansible.builtin.command: incus list --all-projects --format json
-  register: svc_virt_incus_instances
-  changed_when: false
+- name: "🔍 Read what the running Incus daemon already holds"
   when: svc_virt_incus_socket.stat.exists
   become: true
+  block:
+    - name: "🔍 Read the agent VMs that run in {{ INCUS_PROJECT }}"
+      ansible.builtin.command: incus list --all-projects --format json
+      register: svc_virt_incus_instances
+      changed_when: false
 
-- name: "🔍 Read the space the agent storage pool already holds"
-  ansible.builtin.command: incus storage info {{ INCUS_STORAGE_POOL.name }} --bytes
-  register: svc_virt_incus_pool_info
-  changed_when: false
-  failed_when: false
-  when: svc_virt_incus_socket.stat.exists
-  become: true
+    - name: "🔍 Read the space the agent storage pool already holds"
+      ansible.builtin.command: incus storage info {{ INCUS_STORAGE_POOL.name }} --bytes
+      register: svc_virt_incus_pool_info
+      changed_when: false
+      failed_when: false
 
 - name: "🧮 Prove {{ inventory_hostname }} can hold its agent VMs"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm_capacity.yml') }}"

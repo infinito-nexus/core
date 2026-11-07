@@ -6,7 +6,7 @@ from tests.utils.ansible_assert import assert_task, holds, message
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.packages.schema import ROLE_FILE_META_PACKAGES
+from utils.packages.schema import DISTRO_FAMILY, ROLE_FILE_META_PACKAGES
 from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
@@ -131,7 +131,10 @@ class TestIncusHost(unittest.TestCase):
         packages = load_yaml_any(
             str(ROLE / ROLE_FILE_META_PACKAGES), default_if_missing={}
         )
-        self.assertEqual(set(packages["incus"]), set(VARS["INCUS_OS_FAMILIES"]))
+        self.assertEqual(
+            {DISTRO_FAMILY.get(key, key) for key in packages["incus"]},
+            set(VARS["INCUS_OS_FAMILIES"]),
+        )
 
     def test_readme_names_the_broker_channel_and_secure_boot(self):
         self.assertIn("vsock", README)
