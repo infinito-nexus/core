@@ -4,9 +4,4 @@ test-e2e-playwright:
   lifecycle: beta
 playwright:
   image: mcr.microsoft.com/playwright
-  version: "v1.64.1-noble"
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "v1.64.1-noble"
-        until: 2026-12-03
+  version: "v1.65.0-noble"

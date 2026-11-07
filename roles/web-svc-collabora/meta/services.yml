@@ -25,7 +25,7 @@ collabora:
   enabled: true
   shared: true
   image: collabora/code
-  version: "26.04.5.2.1"
+  version: "26.04.6.1.1"
   name: collabora
   min_storage: 734MB
   cpus: 2
@@ -43,7 +43,7 @@ collabora:
   security:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "26.04.5.2.1"
+      - image_tag: "26.04.6.1.1"
         until: 2026-12-03
 prometheus:
   bond: 1
