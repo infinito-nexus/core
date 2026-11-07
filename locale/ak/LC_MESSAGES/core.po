@@ -1178,6 +1178,10 @@ msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr "Cache d'ivory et d'utilisateur en mémoire et stockage, partagé centrallement avec l'isolation par consommateur ACL ou intégré en tant que cordon de côté"
 
+msgctxt "role:svc-virt-incus:description"
+msgid "Incus VM host for agent workspaces with a copy-on-write storage pool, an agent bridge and a restricted project"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
@@ -1250,6 +1254,10 @@ msgstr "Sistemy kernel WireGuard , makhinegho zonkan na swam manager na nentum n
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
 msgstr "Kernel backend yaa ṣallā mōkona ṭawūfī yaa ṣallā kāna kafin ka kaafiye ka nemi ṭawūfī ya karta ka aiso ka konteyen, kāna aiso kafin ka kaafiye ka nemi ṭawūfī yaa ṣallā mōkona"
+
+msgctxt "role:sys-sysctl:description"
+msgid "Kernel parameters in one sysctl.d drop-in per owner, applied at once, host-global ones never from a container"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
@@ -1427,6 +1435,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-opencloud:spaceadmin:description"
 msgid "Manages every project space in OpenCloud, including its members and quota"
+msgstr ""
+
+msgctxt "rbac:web-app-proxmox:administrator:description"
+msgid "Manages the Proxmox VE node and every agent VM through the web UI"
 msgstr ""
 
 # translated-by: libretranslate
@@ -1892,6 +1904,10 @@ msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr "Provisioning role fo per-user env setup, mange shell dotfiles na SSH authorized_keys"
 
+msgctxt "role:web-app-proxmox:description"
+msgid "Proxmox VE in a Docker container as the hypervisor for agent VMs, behind the front proxy and a Keycloak group gate"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
@@ -1936,6 +1952,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-minio:readonly:description"
 msgid "Reads objects and bucket locations in every bucket"
+msgstr ""
+
+msgctxt "role:web-app-worldmonitor:description"
+msgid "Real-time global intelligence dashboard that maps public data feeds, self-hosted behind the platform SSO gate"
 msgstr ""
 
 msgctxt "access_request:form_reason"
@@ -2188,10 +2208,9 @@ msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "Tool self-hosted browser kramaar da ghira qr koma kramaar dwa a text ni a URL na ghira daga lokacin gabei kuma ri-ri a lokacin lokacin na lokacin"
 
-# translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
-msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr "Self-hosted chat interface fo interact bi med delai ai moddel na lokali na privé fifanisi kake fi bakentsey suka Ollama"
+msgid "Self-hosted chat interface for interacting with local and private AI models through the platform's model gateway"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"

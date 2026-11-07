@@ -1177,6 +1177,10 @@ msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr "Memorarna ključno-vrijednosti cache i magacin, zajednički prijavično s per-korisnika ACL ogranicenjem ili ugrađen kao sidecar"
 
+msgctxt "role:svc-virt-incus:description"
+msgid "Incus VM host for agent workspaces with a copy-on-write storage pool, an agent bridge and a restricted project"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
@@ -1249,6 +1253,10 @@ msgstr "Kernel WireGuard tanye, hrbati mreže pod swamovim管理员，和Compose
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
 msgstr "Kernel backend koji izvrtava kôd koja piše hrvat, u kontejneru umjesto u zauzetnom prozoru za pregledu u browseru"
+
+msgctxt "role:sys-sysctl:description"
+msgid "Kernel parameters in one sysctl.d drop-in per owner, applied at once, host-global ones never from a container"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-hermes:description"
@@ -1424,6 +1432,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-opencloud:spaceadmin:description"
 msgid "Manages every project space in OpenCloud, including its members and quota"
+msgstr ""
+
+msgctxt "rbac:web-app-proxmox:administrator:description"
+msgid "Manages the Proxmox VE node and every agent VM through the web UI"
 msgstr ""
 
 # translated-by: ollama
@@ -1889,6 +1901,10 @@ msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr "Provisioning role za per-korisničko okruženje postavki, upravljanje shell dot failovima i SSH authorized_keys"
 
+msgctxt "role:web-app-proxmox:description"
+msgid "Proxmox VE in a Docker container as the hypervisor for agent VMs, behind the front proxy and a Keycloak group gate"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
@@ -1932,6 +1948,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-minio:readonly:description"
 msgid "Reads objects and bucket locations in every bucket"
+msgstr ""
+
+msgctxt "role:web-app-worldmonitor:description"
+msgid "Real-time global intelligence dashboard that maps public data feeds, self-hosted behind the platform SSO gate"
 msgstr ""
 
 msgctxt "access_request:form_reason"
@@ -2182,10 +2202,9 @@ msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "Sloborni pregledni računaločni alat za generiranje QR koda s tekstom ili URL-ovima s lokalnim prikaživanjem privatnog važenja"
 
-# translated-by: ollama
 msgctxt "role:web-app-openwebui:description"
-msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr "Self-hosted chat interface za interakciju s lojalnim i privatnim AI modelima preko načina upravljanja takvimiškim kao Ollama"
+msgid "Self-hosted chat interface for interacting with local and private AI models through the platform's model gateway"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-nextcloud:description"

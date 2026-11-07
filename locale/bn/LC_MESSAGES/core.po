@@ -1182,6 +1182,10 @@ msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr "Gnome-কি-র মালিকানার মধ্যে উপস্থিত মান ও স্টোরের মধ্যে মধ্য দিয়ে কেন্দ্রীয়ভাবে বিভক্ত"
 
+msgctxt "role:svc-virt-incus:description"
+msgid "Incus VM host for agent workspaces with a copy-on-write storage pool, an agent bridge and a restricted project"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
@@ -1254,6 +1258,10 @@ msgstr "কার্নেল WireGuard টানেল, দুর-এবং-আ
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
 msgstr "ব্রাউজার স্যান্ডবক্সের পরিবর্তে কনটেইনারে একটি কনটেইনারে লেখার সুবিধা উপলব্ধ করা হয়"
+
+msgctxt "role:sys-sysctl:description"
+msgid "Kernel parameters in one sysctl.d drop-in per owner, applied at once, host-global ones never from a container"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
@@ -1430,6 +1438,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-opencloud:spaceadmin:description"
 msgid "Manages every project space in OpenCloud, including its members and quota"
+msgstr ""
+
+msgctxt "rbac:web-app-proxmox:administrator:description"
+msgid "Manages the Proxmox VE node and every agent VM through the web UI"
 msgstr ""
 
 # নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
@@ -1893,6 +1905,10 @@ msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr "প্রতিটি ব্যবহারকারীর জন্য বৈশিষ্ট্য নির্ধারণ, শেল ডট ও SSH-কির ব্যবস্থাপনার জন্য সহায়তা ব্যবস্থা authorized_keys"
 
+msgctxt "role:web-app-proxmox:description"
+msgid "Proxmox VE in a Docker container as the hypervisor for agent VMs, behind the front proxy and a Keycloak group gate"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
@@ -1936,6 +1952,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-minio:readonly:description"
 msgid "Reads objects and bucket locations in every bucket"
+msgstr ""
+
+msgctxt "role:web-app-worldmonitor:description"
+msgid "Real-time global intelligence dashboard that maps public data feeds, self-hosted behind the platform SSO gate"
 msgstr ""
 
 msgctxt "access_request:form_reason"
@@ -2187,10 +2207,9 @@ msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "টেক্সট থেকে CR অথবা গোপনীয়তা-র মাধ্যমে নিরাপদ বার্তা পাঠের উদ্দেশ্যে ব্যবহৃত স্বতন্ত্র ব্রাউজার টুল"
 
-# translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
-msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr "স্থানীয় ও ব্যক্তিগত AI মডেলের সাথে যোগাযোগ করার জন্য স্ব-পরীক্ষণ ইন্টারফেস Ollama"
+msgid "Self-hosted chat interface for interacting with local and private AI models through the platform's model gateway"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"

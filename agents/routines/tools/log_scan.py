@@ -43,8 +43,8 @@ _FAILED_RECAP = "failed recap"
 
 def log_lines(log: str) -> list[str]:
     """Return the non-empty lines of ``log`` in output order, ANSI colour codes
-    and the act ``[workflow/job]   | `` prefix stripped, surrounding whitespace
-    cut.
+    and the act ``[workflow/job]   |`` prefix with its trailing space stripped,
+    surrounding whitespace cut.
 
     Args:
         log: a run's log.

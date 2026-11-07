@@ -1,7 +1,7 @@
 """Lookup ``stream_relay_ports``: the ``container_ports`` terms of the streams
 the reverse proxy relays over dedicated relay networks.
 
-Usage in the reverse proxy's compose template:
+Usage in the reverse proxy's compose template::
 
     {{ lookup('container_ports',
               {'service': 'openresty', 'protocol': 'https', 'mode': 'host'},

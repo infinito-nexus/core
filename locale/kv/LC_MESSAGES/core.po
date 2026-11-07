@@ -1027,6 +1027,10 @@ msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr ""
 
+msgctxt "role:svc-virt-incus:description"
+msgid "Incus VM host for agent workspaces with a copy-on-write storage pool, an agent bridge and a restricted project"
+msgstr ""
+
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
 msgstr ""
@@ -1085,6 +1089,10 @@ msgstr ""
 
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr ""
+
+msgctxt "role:sys-sysctl:description"
+msgid "Kernel parameters in one sysctl.d drop-in per owner, applied at once, host-global ones never from a container"
 msgstr ""
 
 msgctxt "role:web-app-hermes:description"
@@ -1241,6 +1249,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-opencloud:spaceadmin:description"
 msgid "Manages every project space in OpenCloud, including its members and quota"
+msgstr ""
+
+msgctxt "rbac:web-app-proxmox:administrator:description"
+msgid "Manages the Proxmox VE node and every agent VM through the web UI"
 msgstr ""
 
 msgctxt "role:svc-swarm-manager:description"
@@ -1631,6 +1643,10 @@ msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr ""
 
+msgctxt "role:web-app-proxmox:description"
+msgid "Proxmox VE in a Docker container as the hypervisor for agent VMs, behind the front proxy and a Keycloak group gate"
+msgstr ""
+
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr ""
@@ -1669,6 +1685,10 @@ msgstr ""
 
 msgctxt "rbac:web-app-minio:readonly:description"
 msgid "Reads objects and bucket locations in every bucket"
+msgstr ""
+
+msgctxt "role:web-app-worldmonitor:description"
+msgid "Real-time global intelligence dashboard that maps public data feeds, self-hosted behind the platform SSO gate"
 msgstr ""
 
 msgctxt "access_request:form_reason"
@@ -1880,7 +1900,7 @@ msgid "Self-hosted browser tool for generating QR codes from text or URLs with p
 msgstr ""
 
 msgctxt "role:web-app-openwebui:description"
-msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
+msgid "Self-hosted chat interface for interacting with local and private AI models through the platform's model gateway"
 msgstr ""
 
 msgctxt "role:web-app-nextcloud:description"
