@@ -42,6 +42,26 @@ The deploy's `kcadm.sh` logins need no entry: every one, including the ones `web
 - Onion visitors reach the vhost from the Tor daemon's address.
 - The Playwright suites of several roles read and change realm groups through the admin REST API.
 
+## OAuth2 Proxy Gate
+
+A consumer role with `services.sso.flavor: oauth2` sits behind an oauth2-proxy rendered from [`templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2`](./templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2). Two keys under the consumer's `services.sso.oauth2` decide who passes:
+
+- `allowed_groups` admits only members of the listed RBAC groups. The proxy requests the groups claim and forwards it as `X-Forwarded-Groups`.
+- `allow_all_users: true` admits every authenticated realm user and still requests and forwards the groups claim, so the application derives roles from `X-Forwarded-Groups` itself.
+- With neither, the proxy admits only accounts whose e-mail address belongs to `DOMAIN_PRIMARY` and requests no groups claim.
+
+`allow_all_users: true` together with a non-empty `allowed_groups` fails the deploy. A list in the inventory replaces the list the role ships, so an inventory that opens the gate clears the groups as well:
+
+```yaml
+applications:
+  web-app-example:
+    services:
+      sso:
+        oauth2:
+          allowed_groups: []
+          allow_all_users: true
+```
+
 ## Further Resources
 
 - [Keycloak Official Website](https://www.keycloak.org/)
