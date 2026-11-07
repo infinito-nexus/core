@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import unittest
 
 from . import SIGNATURE
@@ -89,6 +90,40 @@ class CacheKeyTestCase(unittest.TestCase):
         self.assertNotEqual(
             cache_key("alpha", "de", "en", '<x id="0"></x>', "text"),
             cache_key("alpha", "de", "en", '<x id="0"></x>', "html"),
+        )
+
+    def test_another_set_of_protected_spans_is_another_entry(self) -> None:
+        """A glossary change must miss the answers taken under the old one."""
+        self.assertNotEqual(
+            cache_key("alpha", "en", "de", "Open Nextcloud", "text", ("Nextcloud",)),
+            cache_key("alpha", "en", "de", "Open Nextcloud", "text"),
+        )
+        self.assertNotEqual(
+            cache_key("alpha", "en", "de", "Open Nextcloud", "text", ("Nextcloud",)),
+            cache_key("alpha", "en", "de", "Open Nextcloud", "text", ("Open",)),
+        )
+
+    def test_the_order_and_repeats_of_the_spans_do_not_matter(self) -> None:
+        self.assertEqual(
+            cache_key("alpha", "en", "de", "a b", "text", ("b", "a", "b")),
+            cache_key("alpha", "en", "de", "a b", "text", ("a", "b")),
+        )
+
+    def test_spans_joined_differently_are_different_entries(self) -> None:
+        self.assertNotEqual(
+            cache_key("alpha", "en", "de", "a b c", "text", ("a b", "c")),
+            cache_key("alpha", "en", "de", "a b c", "text", ("a", "b c")),
+        )
+
+    def test_no_spans_keep_the_key_the_stored_rows_were_written_under(self) -> None:
+        self.assertEqual(
+            cache_key("alpha", "de", "en", "Haus", "text", ()),
+            f"alpha:de:en:text:{hashlib.sha256(b'Haus').hexdigest()}",
+        )
+
+    def test_the_spans_themselves_do_not_travel_in_the_key(self) -> None:
+        self.assertNotIn(
+            "Nextcloud", cache_key("alpha", "en", "de", "x", "text", ("Nextcloud",))
         )
 
 

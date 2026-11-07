@@ -62,6 +62,7 @@ translate:
     saturation_share: 0.8
     sample_trigger: requests
     sample_interval: 20
+    resample_interval: 200
     failure_threshold: 3
   engine_timeout: 30
   history_table: infinito_translate_history

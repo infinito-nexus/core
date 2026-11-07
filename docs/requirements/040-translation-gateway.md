@@ -185,7 +185,7 @@ flowchart TD
 - [x] An engine that errors repeatedly leaves the candidate set, and its failure count is stored separately from its lost comparisons.
 - [x] An answer rejected for a mangled protected term sends the same request to the next candidate engine, and the first answer that survives the check is returned.
 - [x] A request every candidate refuses is reported as a refusal, and no mangled translation is returned or cached.
-- [ ] Refusals, failures and lost comparisons are three separate counts, and the criteria line of the next decision can tell them apart.
+- [x] Refusals, failures and lost comparisons are three separate counts, and the criteria line of the next decision can tell them apart.
 
 ### Backends
 
@@ -201,26 +201,26 @@ flowchart TD
 - [x] One row per offered engine per decision is stored, marking which engine won, keyed on a signature of source language, target language and content class.
 - [x] Earlier outcomes reach the next decision as a clause in the criteria line.
 - [x] While sampling, several engines answer the same request and the decider chooses between the returned translations, labelled so that no engine name is visible to it.
-- [ ] A signature with a clear leader over the configured number of comparisons routes directly to that engine without a decider call, and the configured re-sample rate still re-opens it.
-- [ ] A log that cannot be read is logged and the decision proceeds without it; no request fails because of it.
+- [x] A signature with a clear leader over the configured number of comparisons routes directly to that engine without a decider call, and the configured re-sample rate still re-opens it.
+- [x] A log that cannot be read is logged and the decision proceeds without it; no request fails because of it.
 
 ### Weblate
 
 - [x] A `web-app-weblate` role exists with translation memory, glossaries and a review workflow.
 - [x] The gateway returns a reviewed Weblate translation verbatim without calling any engine.
 - [x] Machine output never overwrites a reviewed translation.
-- [ ] Glossary terms are passed to engines that accept them, and an answer that mangles a protected term is rejected and not cached.
+- [x] Glossary terms are passed to engines that accept them, and an answer that mangles a protected term is rejected and not cached.
 
 ### Cache
 
 - [x] A translation is cached on engine, source language, target language and the digest of the source text, in the gateway's own database.
-- [ ] A repeated identical request is answered from the cache without reaching an engine.
+- [x] A repeated identical request is answered from the cache without reaching an engine.
 
 ### Shared mechanism
 
-- [ ] `Sampler`, `History`, `record_of` and `judge_answers` live in one package owned by `svc-ai-s1` and are staged into both `svc-ai-litellm` and `web-svc-translate`.
-- [ ] No second copy of that mechanism remains in the repository.
-- [ ] The existing `svc-ai-litellm` router tests pass unchanged after the extraction.
+- [x] `Sampler`, `History`, `record_of` and `judge_answers` live in one package owned by `svc-ai-s1` and are staged into both `svc-ai-litellm` and `web-svc-translate`.
+- [x] No second copy of that mechanism remains in the repository.
+- [x] The existing `svc-ai-litellm` router tests pass unchanged after the extraction.
 
 ### Consumers
 
@@ -241,7 +241,7 @@ flowchart TD
 - [x] A Playwright spec asserts a reviewed Weblate override wins over the engine.
 - [x] Unit tests cover the saturation rule, the unreadable log, the blind verdict and the loud failure.
 - [x] Each new role carries a `README.md` describing what it does and how it is wired.
-- [ ] This requirement's boundary against [054](054-gettext-catalogs-libretranslate.md) and [039](039-core-i18n-consumers.md) is stated in the gateway's README.
+- [x] This requirement's boundary against [054](054-gettext-catalogs-libretranslate.md) and [039](039-core-i18n-consumers.md) is stated in the gateway's README.
 
 ## Cross-linking
 

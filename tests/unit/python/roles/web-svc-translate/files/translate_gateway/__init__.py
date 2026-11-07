@@ -10,6 +10,7 @@ PROJECT_ROOT: Path = Path(__file__).resolve().parents[7]
 PACKAGE_DIR: Path = (
     PROJECT_ROOT / "roles/web-svc-translate/files/python/translate_gateway"
 )
+DECIDER_PARENT: str = str(PROJECT_ROOT / "roles/svc-ai-s1/files/python")
 
 
 def _load(name: str):
@@ -35,5 +36,11 @@ CACHE = _load("cache")
 ENGINES = _load("engines")
 FAILURES = _load("failures")
 MEMORY = _load("memory")
-ROUTER = _load("router")
+REJECTIONS = _load("rejections")
+LEDGER = _load("ledger")
+sys.path.insert(0, DECIDER_PARENT)
+try:
+    ROUTER = _load("router")
+finally:
+    sys.path.remove(DECIDER_PARENT)
 GATEWAY = _load("gateway")

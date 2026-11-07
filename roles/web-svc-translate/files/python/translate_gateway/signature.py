@@ -43,7 +43,7 @@ def signature(source, target, text):
     return f"{source or 'auto'}:{target}:{length_class(text)}:{shape}"
 
 
-def cache_key(engine, source, target, text, fmt="text"):
+def cache_key(engine, source, target, text, fmt="text", protected=()):
     """What identifies a cached translation.
 
     The engine is part of the key: two engines answer the same request
@@ -51,7 +51,14 @@ def cache_key(engine, source, target, text, fmt="text"):
     learning log describe something that never happened. The format is part
     of it for the same reason: an engine asked in text mode translates a tag
     that the same engine in html mode leaves alone, so the two answers are
-    not interchangeable.
+    not interchangeable. The protected spans are part of it because an engine
+    told to keep a glossary term answers differently from one that was not;
+    a request without any keeps the key it had before spans were keyed, so
+    the rows already stored stay valid.
     """
     digest = hashlib.sha256((text or "").encode()).hexdigest()
-    return f"{engine}:{source or 'auto'}:{target}:{fmt}:{digest}"
+    key = f"{engine}:{source or 'auto'}:{target}:{fmt}:{digest}"
+    if not protected:
+        return key
+    spans = "\x00".join(sorted(set(protected)))
+    return f"{key}:{hashlib.sha256(spans.encode()).hexdigest()}"

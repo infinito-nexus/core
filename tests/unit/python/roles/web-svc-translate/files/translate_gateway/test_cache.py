@@ -96,6 +96,22 @@ class WriteTestCase(unittest.TestCase):
         keys = [p[0] for s, p in client.executed if s.startswith("INSERT")]
         self.assertEqual(len(set(keys)), 2)
 
+    def test_the_protected_spans_key_both_the_write_and_the_read(self) -> None:
+        client = FakeClient([])
+        cache = TranslationCache(client, "c")
+
+        run(
+            cache.set(
+                "alpha", "en", "de", "Open Nextcloud", "x", "text", ("Nextcloud",)
+            )
+        )
+        run(cache.get("alpha", "en", "de", "Open Nextcloud", "text", ("Nextcloud",)))
+        run(cache.get("alpha", "en", "de", "Open Nextcloud"))
+
+        written, read, unprotected = (params[0] for _s, params in client.executed[1:])
+        self.assertEqual(written, read)
+        self.assertNotEqual(written, unprotected)
+
 
 if __name__ == "__main__":
     unittest.main()
