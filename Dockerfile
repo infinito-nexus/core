@@ -72,7 +72,8 @@ RUN set -euo pipefail; \
   systemd-machine-id-setup || true
 
 RUN set -euo pipefail; \
-  systemctl mask getty.target console-getty.service getty-static.service getty@.service
+  systemctl mask getty.target console-getty.service getty-static.service getty@.service \
+    systemd-sysctl.service
 
 ENV container=docker
 STOPSIGNAL SIGRTMIN+3

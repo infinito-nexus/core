@@ -8,7 +8,7 @@ HOST_KEYS_UNIT=target-host-keys.service
 SSHD_DROP_IN=/etc/ssh/sshd_config.d/00-target.conf
 
 mask_units_that_escape_the_container() {
-	systemctl mask getty.target console-getty.service getty-static.service getty@.service tmp.mount
+	systemctl mask getty.target console-getty.service getty-static.service getty@.service tmp.mount systemd-sysctl.service
 }
 
 apt_install() {
