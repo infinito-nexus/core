@@ -90,6 +90,8 @@ These choices are settled at requirement creation time and bound the implementat
 
     Neither strategy is chosen by hand. `services.litellm.router.strategy` derives from `services.s1.enabled`: with the System One service deployed the gateway asks it, and without it there is nothing to ask, so the gateway falls to `weighted`, the strategy it can compute itself. Reading the service flag rather than `group_names` keeps one path from the deployment to the behaviour.
 
+    Superseded by [089](089-agents-restructuring.md#superseded-criteria): `router_strategy` derives from `services.s1.enabled`, no longer from `services.jeff.enabled`.
+
     A jeff that cannot be reached rejects the request. It is not routed around, because the caller named an alias precisely so it would not have to know which model answered, and substituting a different decider would make that answer mean something else.
 
 12. **Variant 2 of `svc-ai-litellm` carries `system_one` on three mocks, and no fourth variant is added.** The strategy is only observable when the routes differ in the one thing it ranks on, so that variant publishes mocks with windows of 4096, 16384 and 131072. Mocks pull no model and cost no wall clock, and they carry no measured rate, so nothing but the window separates them and the round tests exactly the axis the strategy adds. `mock/deterministic` keeps its name and its 131072 window, because the agent broker runs its agents on it in every round.

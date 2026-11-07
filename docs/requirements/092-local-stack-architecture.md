@@ -383,7 +383,7 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 - [ ] [i8-iterate-compose](../../agents/skills/i8-iterate-compose/SKILL.md), [i8-iterate-playwright](../../agents/skills/i8-iterate-playwright/SKILL.md), [i8-iterate-roundtrip](../../agents/skills/i8-iterate-roundtrip/SKILL.md), [i8-iterate-swarm](../../agents/skills/i8-iterate-swarm/SKILL.md), [i8-iterate-runner](../../agents/skills/i8-iterate-runner/SKILL.md) and [i8-iterate-workflow](../../agents/skills/i8-iterate-workflow/SKILL.md) deploy with `hold=true`, iterate against the held stack, and release it when the iteration ends. `[unit]`
 - [ ] [i8-test](../../agents/skills/i8-test/SKILL.md) and the routines `testing` and `iterate/compose` under [agents/routines](../../agents/routines/__init__.py) name the shared test runner, pool jobs and the release step. `[unit]`
 - [ ] [cache.md](../contributing/environment/cache.md), [setup.md](../contributing/environment/setup.md), [variables.md](../contributing/environment/variables.md), [compose.yml.md](../contributing/artefact/files/compose.yml.md), [sandbox.md](../contributing/tools/agents/claude/sandbox.md), [cheatsheet.md](../contributing/tools/agents/cheatsheet.md) and the [svc-runner README](../../roles/svc-runner/README.md) describe the stack kinds, their classes, the pool, the make targets and the override. `[unit]`
-- [ ] [089](089-agents-restructuring.md) line 545 carries a one-line pointer to this file. `[unit]`
+- [x] [089](089-agents-restructuring.md) line 545 carries a one-line pointer to this file. `[unit]`
 
 ## Tests
 

@@ -29,7 +29,8 @@ As an operator, I want the AI roles to run one LibreTranslate engine, consume th
 
 ### Requirement hygiene
 
-- [ ] Every superseded criterion listed above carries a pointer to this file in its earlier requirement.
+- [x] Every superseded criterion listed above carries a pointer to this file in its earlier requirement.
+  - Evidence: a `Superseded by [089](089-agents-restructuring.md#superseded-criteria)` line next to every row of 089's Superseded Criteria table: 032 (agent count, both Flowise criteria), 037 (`agent-user` grant, hard-enabled runtimes and the `hermes`/`openclaw` models, the broker's own key and the `user` field, the `model` key), 035 (the `administrator` and `mcp` gate), 036 and 040 (peer presence), 038 (`router_strategy`), 050 (MCP facts, three places) and `docs/requirements/README.md` (requirements as work packages).
 - [ ] [050](050-mcp-role-integration.md) and [035](035-mcp-proxy-expansion.md) agree on one disposition per application, matching its `meta/mcp.yml`.
 - [ ] [035](035-mcp-proxy-expansion.md) names `dsk-*` roles, has no stray fragment, and lists the AI roles added since it was written.
 

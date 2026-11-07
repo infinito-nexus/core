@@ -3,6 +3,8 @@
 This directory contains project requirements documents.
 Its scope is user stories and acceptance criteria that define what the project must do and that guide agent-assisted implementation.
 
+Superseded by [089](089-agents-restructuring.md#superseded-criteria): requirements become OpenProject work packages once the board migration ran; until then this directory stays the source.
+
 ## Archive
 
 - 001 - Nextcloud Talk TURN relay

@@ -31,6 +31,7 @@ These choices are settled at requirement creation time and bound the implementat
 5. **Lint reuses the suppression model.** New MCP lint rules live under [`tests/lint/ansible/services/`](../../tests/lint/ansible/services/) and honour the existing `# nocheck:` marker convention (see [suppression docs](../contributing/actions/testing/suppression.md)).
 6. **First slice.** The first end-to-end slice is `web-app-baserow` (server) plus `web-app-openwebui` (client).
 7. **The role tree is the audit.** Every fact about a role's MCP surface lives in its own `meta/services.yml`; no separate artifact duplicates it.
+   - Superseded by [089](089-agents-restructuring.md#superseded-criteria): the MCP facts live in the role's own `meta/mcp.yml`, not in `meta/services.yml`.
 8. **Every MCP implementation ships a Playwright test.** Each role that gains an MCP surface MUST add a matching Playwright spec under `roles/<role>/files/playwright/` that exercises its MCP surface (a server role's authenticated endpoint, a client role's configured-server list). No MCP role is considered implemented until its Playwright test is present and green.
 9. **Authorization subject.** MCP integrations prefer user-scoped authorization. Service-account or administrator-scoped MCP credentials are allowed only for read-only default tool sets, or when the role README documents the upstream limitation and the operator explicitly enables mutating tools.
 
@@ -66,6 +67,8 @@ Each declares a `services.mcp` block carrying only `blocker`, `source_url` and `
 ### Shared MCP service flag
 
 Every MCP-capable role MUST expose a role-local `mcp` service block in `meta/services.yml`.
+
+Superseded by [089](089-agents-restructuring.md#superseded-criteria): the MCP facts live in the role's own `meta/mcp.yml`, not in `meta/services.yml`.
 The block MUST be absent from roles that have no upstream MCP surface at all. A role whose upstream surface exists but cannot be served by this deployment MUST carry a block declaring `blocker` instead of `direction`, so the audit reports the reason rather than an absence.
 
 ```yaml
@@ -176,6 +179,8 @@ Direction gates the wiring: a `server` role only exposes `/mcp`, a `client` role
 ### Repository-wide audit
 
 The audit is the role tree itself: every fact about a role's MCP surface lives in its own `meta/services.yml`, so a separate artifact would be a copy that can go stale. `grep -l '^mcp:' roles/*/meta/services.yml` enumerates the integrated roles.
+
+Superseded by [089](089-agents-restructuring.md#superseded-criteria): the MCP facts live in the role's own `meta/mcp.yml`, not in `meta/services.yml`.
 
 - [x] Every role with an `application_id` has an explicit audit disposition as required by requirement 035. Absence of an `mcp` block is not accepted as evidence that the role was reviewed.
 - [x] A role whose upstream path exists but is unreachable here declares the precise blocker instead of being silently absent, and MUST NOT also declare a served surface. Each `blocked` role carries a row naming its reason token and the concrete obstacle, drawn from the per-role guidance the requirement already held. A lint enforced the three halves of that (a blocked role without a row, a token outside the documented vocabulary, and a blocked role shipping an enabled surface) by parsing the audit; it was removed together with the other two document-parsing lints, so the rows are now held by review rather than by a test.
