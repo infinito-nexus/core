@@ -1,0 +1,12 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+PORT={{ WORLDMONITOR_RELAY_PORT_INTERNAL }}
+RELAY_SHARED_SECRET={{ WORLDMONITOR_RELAY_SHARED_SECRET | dotenv_quote }}
+WORLDMONITOR_RELAY_KEY={{ WORLDMONITOR_RELAY_KEY | dotenv_quote }}
+UPSTASH_REDIS_REST_URL={{ WORLDMONITOR_REST_URL | dotenv_quote }}
+UPSTASH_REDIS_REST_TOKEN={{ WORLDMONITOR_REDIS_TOKEN | dotenv_quote }}
+UPSTASH_ALLOW_INSECURE_HTTP=true
+API_BASE_URL={{ WORLDMONITOR_APP_URL | dotenv_quote }}
+{% for name in WORLDMONITOR_RELAY_API_KEY_NAMES %}
+{{ name }}={{ WORLDMONITOR_API_KEYS[name] | dotenv_quote }}
+{% endfor %}

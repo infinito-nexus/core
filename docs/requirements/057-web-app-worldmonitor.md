@@ -44,13 +44,15 @@ The operator MUST confirm or change these before implementation starts. Once con
 | 2 | SSO is the **oauth2-proxy gate only**. No native OIDC, no user mapping, no in-app accounts. | Upstream self-hosted mode has no user model to map onto. A later native OIDC switch is the existing `sso.flavor` field, so nothing extra is built for it now. |
 | 3 | Every authenticated Keycloak user may enter. No `allowed_groups`, no `meta/rbac.yml`. | The dashboard has no per-user state or admin surface in Docker mode. |
 | 4 | The upstream internal mechanisms stay as shipped: the anonymous `wms_` session, the relay shared secret, Redis `requirepass`, the REST proxy bearer token. | They protect service-to-service traffic and are independent of the user boundary. |
-| 5 | `worldmonitor` uses the published GHCR image pinned to a concrete semver tag. `ais-relay` and `redis-rest` are built from the same pinned upstream tag. | Only one image is published. No fork is maintained. |
+| 5 | **Decided 2026-11-07:** `worldmonitor`, `ais-relay`, `redis-rest` and the seeder are all built from the pinned upstream `v2.11.8` source. The published GHCR image is not used. | The GHCR image is frontend-only and proxies `/api` to `api.worldmonitor.app` (evidence below). No fork is maintained. |
 | 6 | Redis and the REST proxy run **inside the role stack** with their own generated credentials, not on the shared `svc-db-redis`. | The app speaks only the Upstash REST dialect through the bundled proxy, and upstream runs Redis with `allkeys-lru` eviction that must not apply to other consumers. |
 | 7 | Seeding runs **inside the stack** as a periodic seeder service. No host Node, no host cron, no published REST proxy port. | The upstream host-side flow needs a host-bound port and a host runtime, which breaks in swarm and violates service isolation. |
 | 8 | The Redis volume persists but is **excluded from backup**. | Content is re-fetchable cache. A restore is a re-seed. |
 | 9 | The LLM is wired to the shared LiteLLM gateway when `LITELLM_USABLE`. `OPENROUTER_API_KEY` is not used. | One platform gateway instead of a per-app provider key. |
 | 10 | External data-source API keys are optional operator-supplied inventory values, empty when unset. | Upstream degrades gracefully per feed. |
 | 11 | `/api/mcp` is **not** registered as a platform MCP server in this requirement. It stays behind the gate and `WORLDMONITOR_VALID_KEYS` stays empty. | The MCP path authenticates with a static key, not with the platform identity. Tracked separately if wanted. |
+
+**Decision #5, decided by the operator on 2026-11-07:** the implementation builds `worldmonitor`, `ais-relay`, `redis-rest` and the seeder from the pinned `v2.11.8` clone instead of pulling the GHCR image. Evidence at `v2.11.8`: the upstream image publish workflow (`docker-publish`, line 171) builds `ghcr.io/koala73/worldmonitor` from `docker/Dockerfile`, which bakes `VITE_WS_API_URL=https://api.worldmonitor.app` (line 26) and `ENV API_UPSTREAM=https://api.worldmonitor.app` (line 69). That image therefore serves only the frontend and proxies `/api/*` to the upstream cloud, which contradicts the in-stack Redis, seeding and isolation of Decisions #6 to #8. The root `Dockerfile` of the same tag builds the full app with its Node API, and `Dockerfile.relay` and `docker/Dockerfile.redis-rest` build the other two services. Keeping the GHCR image would have needed `API_UPSTREAM` pointed at an in-stack API, which upstream does not ship as a separate image.
 
 ## Target Schema
 
@@ -74,8 +76,10 @@ worldmonitor:
   modes:
     compose: { enabled: true }
     swarm:   { enabled: true }
-  image:   ghcr.io/koala73/worldmonitor
-  version: "X.Y.Z"
+  custom:  true
+  version: "2.11.8"
+  source_repository: https://github.com/koala73/worldmonitor.git
+  source_version: v2.11.8
   name:    worldmonitor
   ports:
     internal: { http: 8080 }
@@ -103,8 +107,8 @@ litellm:
 ### Role layout & images
 
 - [ ] `roles/web-app-worldmonitor/` exists per the [Target Schema](#role-layout) and all `meta/*.yml` pass the role-meta lint.
-- [ ] `worldmonitor` runs `ghcr.io/koala73/worldmonitor` pinned to a concrete semver tag whose existence in GHCR was verified. No `:latest`.
-- [ ] `ais-relay` and `redis-rest` are built from the same pinned upstream tag, with every external value passed as a Docker `ARG` per [dockerfile.md](../contributing/artefact/files/role/dockerfile.md).
+- [ ] `worldmonitor` is built from the root `Dockerfile` of the pinned upstream `v2.11.8` source (Decision #5). No `:latest`, no GHCR pull.
+- [ ] `ais-relay`, `redis-rest` and the seeder are built from the same pinned upstream tag, with every external value passed as a Docker `ARG` per [dockerfile.md](../contributing/artefact/files/role/dockerfile.md).
 - [ ] Every image used by the role is declared once in `meta/services.yml` and is found by the image discovery.
 
 ### Compose
@@ -152,7 +156,7 @@ litellm:
 ### Persistence & backup (Decision #8)
 
 - [ ] Seeded data survives a recreate of every container in the stack, in compose and on the swarm storage layer.
-- [ ] The Redis volume is excluded from the platform backup.
+- [x] The Redis volume is excluded from the platform backup.
 
 ### LLM (Decision #9)
 
@@ -171,15 +175,15 @@ litellm:
 
 ### Playwright
 
-- [ ] `test-guest.js` asserts the redirect to Keycloak for the root path and for an `/api/` path.
-- [ ] `test-oidc-login.js` logs in as `biber`, asserts the map renders, and ends logged out with the dashboard gated again.
-- [ ] `test-isolation.js` asserts that no internal service answers on the canonical host.
+- [x] `test-guest.js` asserts the redirect to Keycloak for the root path and for an `/api/` path.
+- [x] `test-oidc-login.js` logs in as `biber`, asserts the map renders, and ends logged out with the dashboard gated again.
+- [x] `test-isolation.js` asserts that no internal service answers on the canonical host.
 - [ ] `templates/playwright.env.j2` exposes every environment variable the specs read, and `make compose-playwright role=web-app-worldmonitor` exits 0 with no stub test.
 - [ ] The same specs pass against the swarm deploy.
 
 ### Documentation & quality
 
-- [ ] `README.md` documents the gate-only SSO model, the retained internal secrets, the in-stack seeding, the optional API keys with their effect, the image pin and bump policy, and the AGPL-3.0 licence of the upstream.
+- [x] `README.md` documents the gate-only SSO model, the retained internal secrets, the in-stack seeding, the optional API keys with their effect, the image pin and bump policy, and the AGPL-3.0 licence of the upstream.
 - [ ] `make test` is green tree-wide.
 - [ ] This requirement is cross-linked from the implementing PR.
 

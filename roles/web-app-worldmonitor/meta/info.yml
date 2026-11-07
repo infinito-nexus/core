@@ -1,0 +1,5 @@
+---
+# nocheck: info-media the upstream README of v2.11.8 links no demo video
+logo:
+  class: fa-solid fa-earth-americas
+homepage: https://github.com/koala73/worldmonitor

@@ -125,6 +125,7 @@ NONE_NEEDED: dict[str, str] = {
     "web-app-seaweedfs": "gate only, no own profile",
     "web-app-wazuh": "no stored profile",
     "web-app-workspace": "gate only, no own profile",
+    "web-app-worldmonitor": "gate only, no own profile",
     "web-app-yourls": "gate only, no own profile",
     "web-svc-access-request": "identity per request from the gate, no own profile",
     "web-svc-libretranslate": "gate only, no own profile",
