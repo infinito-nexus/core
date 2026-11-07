@@ -37,6 +37,17 @@ from typing import TYPE_CHECKING
 import yaml
 
 from cli.meta.ci.iterate import surface
+from cli.meta.ci.iterate.names import (
+    MODULE,
+    NAME,
+    PACKAGE_FILES,
+    PATH,
+    is_test_file,
+    module_name,
+    path_words,
+    plugin_names,
+    start_symbols,
+)
 from utils.cache.files import read_text, repository_files
 from utils.cache.yaml import load_yaml_all_str
 
@@ -72,9 +83,7 @@ CORPUS_FILES = frozenset(
 )
 CORPUS_SUFFIXES = (".yml", ".yaml", ".j2", ".py", ".sh", ".json", ".cfg", ".ini")
 MODULE_UTILS = "ansible.module_utils."
-PLUGIN_CLASSES = {"lookup": "LookupModule", "action": "ActionModule"}
 
-PACKAGE_FILES = ("__init__", "__main__")
 FULL_CONSUMERS = (surface.GLOBAL, surface.WORKFLOW, surface.UNKNOWN)
 MAKEFILE = "Makefile"
 UNIT_TESTS = "tests/unit/"
@@ -96,10 +105,6 @@ TOOLING_TARGETS = (
 )
 MAKE_TARGET = re.compile(r"^(?:\.PHONY:\s*([\w-]+)|([\w-]+)\s*:(?!=))")
 INTERPOLATED = r"/(?:\$\{[^}\n]+\}|\$\w+)([\w.-]*)"
-
-MODULE = "module"
-NAME = "name"
-PATH = "path"
 
 
 @dataclass
@@ -123,45 +128,6 @@ class Reach:
     tooling: set[str] = field(default_factory=set)
     targets: set[str] = field(default_factory=set)
     bound: dict[str, set[str]] = field(default_factory=dict)
-
-
-def module_name(path: str) -> str:
-    """Return the dotted import name of a repository Python file, empty when
-    no import can name it (a role file, a directory with a dash).
-
-    A package's ``__init__`` and ``__main__`` both answer to the package name:
-    ``python -m pkg`` runs ``pkg/__main__.py``.
-
-    Args:
-        path: repository-relative POSIX path ending in ``.py``.
-    """
-    parts = path[: -len(".py")].split("/")
-    if parts[-1] in PACKAGE_FILES:
-        parts = parts[:-1]
-    if not parts or any(not part.isidentifier() for part in parts):
-        return ""
-    return ".".join(parts)
-
-
-def is_test_file(rel: str) -> bool:
-    """Return True for a pytest test module (``test_*.py``).
-
-    Args:
-        rel: repository-relative POSIX path.
-    """
-    name = rel.rpartition("/")[2]
-    return name.startswith("test_") and name.endswith(".py")
-
-
-def path_words(rel: str) -> set[str]:
-    """Return the spellings that name *rel* by path anywhere in the tree: the
-    repository path and every shorter tail that keeps a directory.
-
-    Args:
-        rel: repository-relative POSIX path.
-    """
-    parts = rel.split("/")
-    return {"/".join(parts[index:]) for index in range(max(len(parts) - 1, 1))}
 
 
 def _imported(tree: ast.AST, package: str) -> set[str]:
@@ -226,48 +192,6 @@ def make_targets(text: str, pattern: re.Pattern[str], values: set[str]) -> set[s
         if pattern.search(line) and (passed is None or passed.search(line)):
             found.add(target)
     return found
-
-
-def _dict_keys(node: ast.AST) -> list[str] | None:
-    if not isinstance(node, ast.Dict):
-        return None
-    keys = [key.value for key in node.keys if isinstance(key, ast.Constant)]
-    return keys if len(keys) == len(node.keys) else None
-
-
-def plugin_names(rel: str, kind: str, text: str) -> tuple[str, ...] | None:
-    """Return the names a plugin file registers; None when they cannot be read.
-
-    A filter file registers the keys of the literal dict its
-    ``FilterModule.filters`` returns; a lookup or action file registers its
-    stem when it defines the plugin class; a module registers its stem. A
-    file without the plugin class is a helper and registers nothing.
-
-    Args:
-        rel: repository-relative path of the plugin file.
-        kind: ``filter``, ``lookup``, ``action`` or ``module``.
-        text: the file's content on the side of the diff being read.
-    """
-    stem = Path(rel).stem
-    if kind == "module":
-        return (stem,)
-    try:
-        tree = ast.parse(text)
-    except SyntaxError:
-        return None
-    classes = {n.name: n for n in tree.body if isinstance(n, ast.ClassDef)}
-    if kind in PLUGIN_CLASSES:
-        return (stem,) if PLUGIN_CLASSES[kind] in classes else ()
-    module = classes.get("FilterModule")
-    if module is None:
-        return ()
-    for node in ast.walk(module):
-        if isinstance(node, ast.FunctionDef) and node.name == "filters":
-            returns = [n for n in ast.walk(node) if isinstance(n, ast.Return)]
-            keys = [_dict_keys(r.value) for r in returns if r.value]
-            if keys and all(k is not None for k in keys):
-                return tuple(sorted({name for k in keys for name in k or ()}))
-    return None
 
 
 class Index:
@@ -537,21 +461,3 @@ class Index:
             return set()
         result.targets |= targets
         return set()
-
-
-def start_symbols(rel: str) -> set[tuple[str, str]]:
-    """Return the symbols a module or tooling file is named by: a Python file
-    by its import name (and its path where no import can name it), any other
-    file by its path.
-
-    Args:
-        rel: repository-relative POSIX path.
-    """
-    if not rel.endswith(".py"):
-        return {(PATH, rel)}
-    dotted = module_name(rel)
-    if not dotted:
-        return {(PATH, rel)}
-    if Path(rel).stem == "__main__":
-        return {(MODULE, dotted), (MODULE, f"{dotted}.__main__")}
-    return {(MODULE, dotted)}

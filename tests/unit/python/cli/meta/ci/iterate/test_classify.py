@@ -4,7 +4,8 @@ import unittest
 
 from cli.meta.ci.iterate import classify as subject
 from cli.meta.ci.iterate.classify import changed_keys, classify
-from cli.meta.ci.iterate.symbols import MODULE, NAME, Reach
+from cli.meta.ci.iterate.names import MODULE, NAME
+from cli.meta.ci.iterate.symbols import Reach
 from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 OLD = "a: 1\n"

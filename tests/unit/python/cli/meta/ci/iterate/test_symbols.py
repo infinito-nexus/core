@@ -4,15 +4,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cli.meta.ci.iterate.symbols import (
+from cli.meta.ci.iterate.names import (
     MODULE,
     NAME,
-    Index,
     module_name,
     path_words,
     plugin_names,
     start_symbols,
 )
+from cli.meta.ci.iterate.symbols import Index
 from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_VARS_MAIN
 
 FILTER = """

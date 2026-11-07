@@ -20,7 +20,7 @@ import yaml
 
 from cli.meta.ci.iterate import surface
 from cli.meta.ci.iterate.equivalence import directives_changed, equivalent
-from cli.meta.ci.iterate.symbols import (
+from cli.meta.ci.iterate.names import (
     MODULE,
     NAME,
     is_test_file,
