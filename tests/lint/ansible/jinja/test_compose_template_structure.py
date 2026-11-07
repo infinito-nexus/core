@@ -57,6 +57,12 @@ The rules this test enforces, distilled from that skeleton:
    that only includes ``deploy.yml.j2`` renders ``deploy.restart_policy`` for
    swarm and NOTHING for compose, so Docker applies its own ``no`` default and
    the container stays down after any daemon restart.
+9. **logging-contract** - every service body carries the application's journald
+   tag and ``DOCKER_LOG_LABEL`` label, either by including
+   ``roles/sys-svc-container/templates/base.yml.j2`` or by rendering
+   ``roles/sys-svc-container/templates/logging.yml.j2`` directly. A bare
+   ``logging: driver: journald`` block leaves the line tagged with the
+   container name, so the collector cannot attribute it to its application.
 
 Scope: every ``roles/*/templates/*compose.yml.j2`` (the canonical
 per-role stack file). ``compose.override.yml.j2`` and
@@ -92,6 +98,10 @@ _CONTAINER_BASE_INCLUDE = re.compile(
 )
 
 _RESTART_LOOKUP = re.compile(r"lookup\(\s*'compose_restart'")
+
+_LOGGING_TEMPLATE = re.compile(
+    r"lookup\(\s*'template'\s*,\s*'roles/sys-svc-container/templates/logging\.yml\.j2'"
+)
 
 _SERVICE_KEY = re.compile(r"^  (?P<key>(?:\{\{.*?\}\}|[A-Za-z0-9_.-])+):[ \t]*$")
 
@@ -358,6 +368,28 @@ def find_structure_violations(lines: list[str]) -> list[tuple[int, str]]:
             )
         )
 
+    for k in key_idxs:
+        nxt = min((b for b in boundaries if b > k), default=region_end)
+        body = lines[k + 1 : nxt]
+        if any(
+            _CONTAINER_BASE_INCLUDE.search(w) or _LOGGING_TEMPLATE.search(w)
+            for w in body
+        ):
+            continue
+        findings.append(
+            (
+                k + 1,
+                (
+                    "service body carries no application log tag: include "
+                    "`roles/sys-svc-container/templates/base.yml.j2` or add "
+                    "`{{ lookup('template', "
+                    "'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}`; "
+                    "without it journald tags the lines with the container name and "
+                    "the collector cannot attribute them to the application"
+                ),
+            )
+        )
+
     for i in region:
         line = lines[i]
         match = _SET_LINE.match(line)
@@ -448,7 +480,7 @@ class TestComposeTemplateStructure(unittest.TestCase):
                 "header, each service declared as `{{ service_name }}:` with its "
                 "`{% set service_name = ... %}` and all per-service `{% set %}` knobs "
                 "on column-0, dash-free lines directly above the key, a restart "
-                "policy in every service body, and the "
+                "policy and the application log tag in every service body, and the "
                 "`compose_volumes` / `compose_networks` lookups closing the "
                 "file at column 0.\n\n"
                 "Opt a template out with `{# nocheck: compose-structure #}` (whole file "
