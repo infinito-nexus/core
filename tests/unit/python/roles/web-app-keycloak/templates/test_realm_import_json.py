@@ -613,6 +613,7 @@ class TestLogoutTrustBoundary(unittest.TestCase):
 
 MAILBOX = {"KEYCLOAK_EMAIL_POLICY": "mailbox", "KEYCLOAK_EMAIL_MAILBOX": True}
 SMTP = {"KEYCLOAK_EMAIL_SMTP": True}
+LDAP_PROVIDER = "org.keycloak.storage.UserStorageProvider"
 
 
 def email_verify(context: dict) -> bool:
@@ -656,6 +657,30 @@ def email_scope_mappers_of(realm: dict) -> dict:
 
 def update_email_of(realm: dict) -> dict:
     return next(a for a in realm["requiredActions"] if a["alias"] == "UPDATE_EMAIL")
+
+
+def email_verification_findings(realm: dict) -> list[str]:
+    """What lets an unproven address into the ``email`` claim or holds a directory user.
+
+    Args:
+        realm: the rendered realm import; a mailbox realm emits the platform-owned
+            mailbox with a hardcoded ``email_verified`` and passes.
+    """
+    scope = email_scope_mappers_of(realm)
+    if scope["email verified"]["protocolMapper"] == "oidc-hardcoded-claim-mapper":
+        return []
+    findings = []
+    if realm["verifyEmail"] is not True:
+        findings.append(
+            "verifyEmail is off, so a sign-in finishes with an unverified address"
+        )
+    if LDAP_PROVIDER in realm["components"]:
+        provider = realm["components"][LDAP_PROVIDER][0]
+        if provider["config"]["trustEmail"] != ["true"]:
+            findings.append(
+                "trustEmail is off, so every user the federation imports waits on VERIFY_EMAIL"
+            )
+    return findings
 
 
 class TestEmailPolicy(unittest.TestCase):
@@ -769,6 +794,43 @@ class TestEmailPolicy(unittest.TestCase):
             )
         )["email"]
         self.assertNotIn("required", switched_off)
+
+    def test_the_federation_trusts_the_directory_addresses_in_every_policy(
+        self,
+    ) -> None:
+        for overrides in ({}, SMTP, {**MAILBOX, **SMTP}):
+            with self.subTest(overrides=overrides):
+                provider = realm_for(overrides)["components"][
+                    LDAP_PROVIDER
+                ][0]
+                self.assertEqual(provider["config"]["trustEmail"], ["true"])
+
+    def test_with_mail_no_unverified_address_reaches_the_email_claim(self) -> None:
+        for name, overrides in (
+            ("external with ldap", SMTP),
+            ("external without ldap", {**SMTP, "KEYCLOAK_LDAP_ENABLED": False}),
+            ("mailbox", {**MAILBOX, **SMTP}),
+        ):
+            with self.subTest(policy=name):
+                self.assertEqual(email_verification_findings(realm_for(overrides)), [])
+
+    def test_without_mail_the_realm_cannot_demand_a_verification(self) -> None:
+        self.assertEqual(
+            email_verification_findings(realm_for({})),
+            ["verifyEmail is off, so a sign-in finishes with an unverified address"],
+        )
+
+    def test_an_untrusted_federation_fails_the_check(self) -> None:
+        realm = realm_for(SMTP)
+        realm["components"][LDAP_PROVIDER][0]["config"]["trustEmail"] = [
+            "false"
+        ]
+        self.assertEqual(
+            email_verification_findings(realm),
+            [
+                "trustEmail is off, so every user the federation imports waits on VERIFY_EMAIL"
+            ],
+        )
 
     def test_no_policy_allows_duplicate_emails(self) -> None:
         for overrides in ({}, SMTP, {**MAILBOX, **SMTP}):

@@ -276,6 +276,7 @@ KEYCLOAK_SETTINGS_SPEC:
     - realm: "{{ KEYCLOAK_REALM }}"
       desired:
         smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"
+        verifyEmail: "{{ KEYCLOAK_DICTIONARY_REALM.verifyEmail }}"
         loginWithEmailAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.loginWithEmailAllowed }}"
         duplicateEmailsAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.duplicateEmailsAllowed }}"
         adminEventsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminEventsEnabled }}"

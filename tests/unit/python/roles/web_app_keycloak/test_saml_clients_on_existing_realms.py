@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
@@ -32,6 +33,7 @@ REALM = {
     ],
     "clientScopes": [{"name": "rbac"}],
     "smtpServer": SMTP,
+    "verifyEmail": True,
     "loginWithEmailAllowed": True,
     "duplicateEmailsAllowed": False,
     "adminEventsEnabled": True,
@@ -92,6 +94,7 @@ class TestSettingsSpec(unittest.TestCase):
                     "realm": "cymais",
                     "desired": {
                         "smtpServer": SMTP,
+                        "verifyEmail": True,
                         "loginWithEmailAllowed": True,
                         "duplicateEmailsAllowed": False,
                         "adminEventsEnabled": True,
@@ -103,6 +106,22 @@ class TestSettingsSpec(unittest.TestCase):
                 {"realm": "master", "desired": {"smtpServer": SMTP}},
             ],
         )
+
+    def test_an_existing_realm_converges_to_the_verify_email_flag_of_the_dictionary(
+        self,
+    ):
+        for flag in (True, False):
+            with self.subTest(verify_email=flag):
+                realm = {**REALM, "verifyEmail": flag}
+                with mock.patch.dict(globals(), {"REALM": realm}):
+                    desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0][
+                        "desired"
+                    ]
+                self.assertIs(desired["verifyEmail"], flag)
+
+    def test_the_master_realm_gets_no_verify_email_flag(self):
+        master = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][1]["desired"]
+        self.assertNotIn("verifyEmail", master)
 
     def test_an_existing_realm_turns_on_admin_events_and_admin_permissions(self):
         desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0]["desired"]

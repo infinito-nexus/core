@@ -1,0 +1,18 @@
+---
+- name: "🔧 Trust the directory addresses of realm '{{ KEYCLOAK_REALM }}'"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: email_verified.py
+    rest_script_env:
+      FEDERATION: "{{ KEYCLOAK_LDAP_CMP_NAME }}"
+    rest_script_stdin: ""
+    rest_script_ok_rcs: [0]
+    rest_script_changed: "updated=[1-9]"
+    rest_script_register: kc_email_federated
+
+- name: "📊 Report how many directory users got their email marked verified"
+  ansible.builtin.debug:
+    msg: "{{ kc_email_federated.stdout_lines | select('match', '^summary ') | list }}"

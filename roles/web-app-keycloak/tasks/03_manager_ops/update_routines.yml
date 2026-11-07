@@ -6,6 +6,13 @@
 - name: "📂 Load email policy routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/14_email_policy.yml"
 
+# Exception: directory users must be verified before the settings converge turns verifyEmail on, or each one gets VERIFY_EMAIL at its next login.
+- name: "📂 Load directory email trust routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/06_users/email_federated.yml"
+  when:
+    - KEYCLOAK_LDAP_ENABLED | bool
+    - KEYCLOAK_DICTIONARY_REALM.verifyEmail | bool
+
 - name: "📂 Load client and mail settings routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/01_settings.yml"
 
