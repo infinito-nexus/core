@@ -18,6 +18,7 @@ proxy_buffering on;
 proxy_request_buffering off;
 proxy_read_timeout {{ CACHE_PACKAGE_READ_TIMEOUT }};
 proxy_connect_timeout {{ CACHE_PACKAGE_CONNECT_TIMEOUT }};
+add_header {{ CACHE_PACKAGE_BACKEND_MARKER }} $upstream_header_time always;
 
 resolver {{ CACHE_PACKAGE_RESOLVER }} ipv6=off valid=30s;
 {% for host in CACHE_PACKAGE_UPSTREAMS %}

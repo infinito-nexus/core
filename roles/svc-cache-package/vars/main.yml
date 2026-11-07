@@ -27,6 +27,7 @@ CACHE_PACKAGE_METADATA_MAX_AGE_MIN: "{{ lookup('config', application_id, 'servic
 CACHE_PACKAGE_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.admin_password') }}"
 
 CACHE_PACKAGE_BACKEND: "http://{{ CACHE_PACKAGE_CONTAINER }}:{{ CACHE_PACKAGE_PORT }}"
+CACHE_PACKAGE_BACKEND_MARKER: X-Cache-Backend-Header-Time
 CACHE_PACKAGE_CERTS_DIR: "{{ lookup('volume', application_id, 'frontend_certs').target }}"
 CACHE_PACKAGE_RESOLVER: 127.0.0.11
 CACHE_PACKAGE_READ_TIMEOUT: 300s

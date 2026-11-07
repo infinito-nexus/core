@@ -7,6 +7,7 @@
 # Variables sourced from test.env.j2 by test-e2e-cli.
 set -euo pipefail
 
+: "${CACHE_PACKAGE_TEST_BACKEND_MARKER:?}"
 : "${CACHE_PACKAGE_TEST_CONTAINER:?}"
 : "${CACHE_PACKAGE_TEST_FRONTEND:?}"
 : "${CACHE_PACKAGE_TEST_PORT:?}"
