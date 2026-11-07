@@ -22,6 +22,14 @@ function tile(page, id) {
   return page.locator(`.portui-main > [data-portui-id="${id}"]`);
 }
 
+function folderLink(page, path) {
+  return page.locator(`.portui-main > [data-portui-folder="${path}"] a.portui-folder-link`);
+}
+
+function urlParam(page, name) {
+  return new URL(page.url()).searchParams.get(name);
+}
+
 async function openDashboard(page, path) {
   await page.addInitScript(() => {
     document.addEventListener("dashboard:identity", (event) => {
@@ -81,6 +89,31 @@ async function expectLocks(page, shared, groups) {
   return locked;
 }
 
+/**
+ * Args:
+ *   page: a dashboard page of a signed-in visitor.
+ *   id: the application id of a tile that shows a lock chip.
+ */
+async function expectLockedTileOpens(page, shared, id) {
+  await shared.revealCard(page, id);
+  const card = tile(page, id);
+  await expect(card.locator(".portui-chip-lock"), `${id}: expected the lock in the opened folder`).toHaveCount(1, {
+    timeout: resolveTimeout(30_000),
+  });
+  await expect(card, `${id}: a lock must never hide its tile`).toBeVisible();
+  const link = card.locator("a.stretched-link");
+  await expect(link, `${id}: a lock must never disable its tile`).toBeEnabled();
+  expect(await link.evaluate((element) => getComputedStyle(element).pointerEvents)).not.toBe("none");
+  const before = page.url();
+  await link.click();
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(30_000),
+      message: `${id}: the locked tile must still open its application`,
+    })
+    .not.toBe(before);
+}
+
 exports.register = function (shared) {
   test("folders: the top level shows folders, a folder opens by URL, and back and forward walk the history", async ({
     page,
@@ -112,6 +145,67 @@ exports.register = function (shared) {
     await page.reload({ waitUntil: "domcontentloaded" });
     await shared.waitForDashboardReady(page);
     await expect(page.locator(`.portui-breadcrumb a[data-portui-folder-link="${path}"]`)).toBeVisible();
+  });
+
+  test("folders: a nested folder opens from its parent, back and forward walk between them, and a reload keeps it", async ({
+    page,
+  }) => {
+    await openDashboard(page, "/");
+    await shared.waitForDashboardReady(page);
+    const data = await shared.dashboardData(page);
+    const nested = (data ? data.cards : []).flatMap((card) => card.folders || []).find((path) => path.includes("/"));
+    test.skip(!nested, "this deployment files no application in a subfolder");
+    const segments = nested.split("/");
+    const parent = segments.slice(0, -1).join("/");
+
+    for (let depth = 1; depth <= segments.length; depth += 1) {
+      const path = segments.slice(0, depth).join("/");
+      await folderLink(page, path).click();
+      await expect.poll(() => urlParam(page, "folder"), { message: `Expected ?folder=${path}` }).toBe(path);
+    }
+    await expect(page.locator(".portui-breadcrumb .breadcrumb-item a")).toHaveCount(segments.length + 1);
+
+    await page.locator("button.portui-back").click();
+    await expect.poll(() => urlParam(page, "folder")).toBe(parent);
+    await page.locator("button.portui-forward").click();
+    await expect.poll(() => urlParam(page, "folder")).toBe(nested);
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await shared.waitForDashboardReady(page);
+    expect(urlParam(page, "folder")).toBe(nested);
+    await expect(page.locator(`.portui-breadcrumb a[data-portui-folder-link="${nested}"]`)).toBeVisible();
+  });
+
+  test("search: Enter on the selected picker hit opens the application exactly as its tile would", async ({ page }) => {
+    await openDashboard(page, "/");
+    await shared.waitForDashboardReady(page);
+    const target = await page.evaluate(() => {
+      const link = document.querySelector(".portui-main > [data-portui-card] a.stretched-link.iframe-link");
+      const card = link ? link.closest("[data-portui-card]") : null;
+      return card
+        ? { position: card.dataset.portuiCard, title: card.querySelector(".card-title").textContent.trim(), href: link.href }
+        : null;
+    });
+    test.skip(!target, "this deployment opens no application in the dashboard's iframe");
+
+    const field = page.locator("#portui-search");
+    await field.fill(target.title);
+    const selected = page.locator("#portui-picker [role='option'][aria-selected='true']");
+    await expect(selected).toHaveCount(1, { timeout: resolveTimeout(10_000) });
+    for (let step = 0; step < 8 && (await selected.getAttribute("data-portui-hit")) !== target.position; step += 1) {
+      await field.press("ArrowDown");
+    }
+    await expect(selected).toHaveAttribute("data-portui-hit", target.position);
+
+    await field.press("Enter");
+    await expect
+      .poll(() => {
+        const framed = urlParam(page, "iframe");
+        return framed ? new URL(framed).href : null;
+      }, { timeout: resolveTimeout(30_000), message: `Expected the picker to frame ${target.href} like its tile` })
+      .toBe(new URL(target.href).href);
+    expect(urlParam(page, "q")).toBe(target.title);
+    await expect(page.locator("main iframe")).toHaveCount(1);
   });
 
   test("search: typing lists matching applications in the picker and Enter keeps the query in the URL", async ({
@@ -194,6 +288,8 @@ exports.register = function (shared) {
     const groups = await identity(page);
     expect(Array.isArray(groups), "Expected a signed-in visitor's groups to be a list").toBe(true);
     expect(await expectLocks(page, shared, groups), "Expected biber to meet at least one locked tile").toBeGreaterThan(0);
+    const locked = gatedTiles.find((gated) => !groups.some((group) => gated.allowed_groups.includes(group)));
+    await expectLockedTileOpens(page, shared, locked.id);
   });
 
   test("locks: the administrator opens gated tiles of the administrator groups without a lock", async ({ page }) => {

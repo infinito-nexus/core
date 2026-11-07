@@ -95,23 +95,23 @@ flowchart TD
 
 ### Frame and corners (port-ui)
 
-- [ ] The header box and the footer box show a left and a right border whose color a deployment sets through one CSS custom property.
+- [x] The header box and the footer box show a left and a right border whose color a deployment sets through one CSS custom property. port-ui 2.3.0 `app/static/css/dashboard.css` draws both sides of both boxes from `--portui-frame-border`, asserted by `dashboard_frame.spec.js` ("gives header and footer side borders from one custom property"); core sets it to `--design-primary` in `files/style.css`.
 - [x] With the page scrolled to the top and a gap of at least `R` between the header box and the first card row, the header box's bottom-left and bottom-right corners have radius `R`.
 - [x] When a card's top edge touches the header box's bottom edge under a corner, that corner's computed radius is `0px`, while the opposite corner keeps the radius its own column allows.
-- [ ] The footer box's top corners follow the same rule against the bottom edge of the cards above it.
+- [x] The footer box's top corners follow the same rule against the bottom edge of the cards above it. port-ui `frame.js` computes them with `gapAbove`, the mirror of the header's `gapBelow`; `dashboard_frame.spec.js` asserts `R` for cards far above the footer and `0px` for a card running under it.
 - [ ] Scrolling recomputes the radii at most once per animation frame, and the corner logic adds no visible jank on a page with 60 tiles.
 - [x] Fullscreen and full-width mode keep working: their existing Cypress specs stay green.
 - [ ] The frame boxes carry one shadow and the header, navigation bars and toolbar inside them none of their own; cards have one resting and one hover shadow, and dropdowns and the search picker one popup shadow; each of the four is a CSS custom property a deployment can set, and core maps them to the design's shadow tokens.
 
 ### Corporate color (core)
 
-- [ ] `roles/web-app-dashboard/files/style.css` paints the header and footer boxes in a tint of `--design-primary` over `--design-surface-1` (so it follows light and dark mode), their side borders and the navigation separator in `--design-primary`, and card hover borders, card icons, focus rings, the search field and the badge accents from the primary scale.
+- [x] `roles/web-app-dashboard/files/style.css` paints the header and footer boxes in a tint of `--design-primary` over `--design-surface-1` (so it follows light and dark mode), their side borders and the navigation separator in `--design-primary`, and card hover borders, card icons, focus rings, the search field and the badge accents from the primary scale. [test_style_css.py](../../tests/unit/python/roles/web-app-dashboard/test_style_css.py) pins each declaration; the badges take the primary through the Bootstrap mapping of `sys-front-inj-design`. Refinement: a Font Awesome card icon takes the primary on hover and focus; at rest every icon keeps the one neutral tone `test-design.js` asserts.
 - [ ] Card surfaces stay on `--design-surface-2`, and text on every painted surface meets WCAG AA contrast in the role's design Playwright spec.
 - [x] `style.css` carries no comment above `.card-img-top img[src$='.svg']` and passes the comments lint.
 
 ### Taxonomy and assignment (core)
 
-- [ ] `roles/web-app-dashboard/vars/menu_categories.yml` holds the nested default tree; every folder has a title, a description, an icon and tags.
+- [x] `roles/web-app-dashboard/vars/menu_categories.yml` holds the nested default tree; every folder has a title, a description, an icon and tags. [test_menu_categories.py](../../tests/unit/python/roles/web-app-dashboard/test_menu_categories.py) pins the top level and every folder's description and icon. Refinement: the title is the folder's key, and tags sit on the leaf folders; a parent folder holds the applications of its subfolders, and `Other` is the tagless fallback.
 - [x] The grouping lookup places an application in every folder whose tags match one of its galaxy tags, and in an `Other` folder only when no folder matches.
 - [x] Each card in the rendered `config.yaml` carries its application id and the list of folder paths it belongs to, and the folder tree is emitted once.
 - [x] The header's Apps menu renders the same nested tree as submenus, with an application listed under every folder it belongs to.
@@ -120,35 +120,35 @@ flowchart TD
 
 ### Folder view and navigation (port-ui)
 
-- [ ] With a folder tree configured, the dashboard opens at the top level and shows the top-level folders as tiles with icon, name, description and the number of distinct applications they contain, counted recursively.
+- [x] With a folder tree configured, the dashboard opens at the top level and shows the top-level folders as tiles with icon, name, description and the number of distinct applications they contain, counted recursively. port-ui `templates/moduls/dashboard.html.j2` renders icon, name and count; `dashboard_folders.spec.js` ("opens at the top level with the folders that hold applications and their counts") asserts the description and a count of 5 for a folder whose two subfolders share one application.
 - [x] A folder without any application in its subtree is not shown.
 - [x] Opening a folder shows its subfolders first, then its applications, and a breadcrumb from the top level to the open folder whose every segment is a link.
-- [ ] Opening a folder writes `?folder=` with `pushState`; loading a URL with `?folder=` opens that folder directly; an unknown folder path falls back to the top level and drops the parameter with `replaceState`.
+- [x] Opening a folder writes `?folder=` with `pushState`; loading a URL with `?folder=` opens that folder directly; an unknown folder path falls back to the top level and drops the parameter with `replaceState`. port-ui `dashboard.js` pushes on open and replaces on an unknown path; `dashboard_folders.spec.js` covers the three cases.
 - [x] The dashboard's back and forward buttons step through the same history as the browser's, and each is disabled when no step in its direction exists within the dashboard session.
-- [ ] Opening an application in the iframe keeps `?folder=` and `?q=`, so closing the iframe or going back returns to the same folder and search.
+- [x] Opening an application in the iframe keeps `?folder=` and `?q=`, so closing the iframe or going back returns to the same folder and search. `dashboard_folders.spec.js` ("keeps the folder while an application is framed and returns to it", "keeps folder and search when the frame is closed from the navbar").
 
 ### Search (port-ui)
 
 - [x] A search field sits in the header's navigation bar and filters live while typing, across all folders.
 - [ ] It matches title, description, tags and folder names, in the displayed language and in the English source text.
 - [x] It tolerates one typo in words of five or more letters, and ranks prefix matches of the title above other matches.
-- [ ] Hits appear in a picker attached to the field: it starts at the field's bottom edge with the field's left edge and width, the field's bottom corners and the picker's top corners are square while it is open, and it shows icon, title, folder path and the tile's chips, at most 8 rows, the best match preselected.
-- [ ] `↑` and `↓` move the selection, `Enter` opens the selected application exactly as its tile would (iframe or new tab), and `Esc` closes the picker and then clears the field.
+- [x] Hits appear in a picker attached to the field: it starts at the field's bottom edge with the field's left edge and width, the field's bottom corners and the picker's top corners are square while it is open, and it shows icon, title, folder path and the tile's chips, at most 8 rows, the best match preselected. `dashboard_search.spec.js` ("attaches the picker to the field" on desktop and mobile, "matches tags and folder names, and shows icon, folder path and at most eight rows", the preselected first row) and `dashboard_chips.spec.js` (the chips in the picker row).
+- [x] `↑` and `↓` move the selection, `Enter` opens the selected application exactly as its tile would (iframe or new tab), and `Esc` closes the picker and then clears the field. port-ui `search.js` launches a pick by clicking its tile's link; `dashboard_search.spec.js` ("moves the selection with the arrow keys and opens the pick like its tile", "closes the picker on the first Escape and clears the field on the second").
 - [x] Committing a search writes `?q=`, and loading a URL with `?q=` restores the field and the result list.
 - [x] An empty result shows a "no applications found" message instead of an empty picker.
 
 ### Usability extras (port-ui unless noted)
 
-- [ ] `/` and `Ctrl+K` focus the search field from anywhere on the page except inside other inputs; `Backspace` in the empty search field opens the parent folder.
+- [x] `/` and `Ctrl+K` focus the search field from anywhere on the page except inside other inputs; `Backspace` in the empty search field opens the parent folder. `dashboard_search.spec.js` ("focuses the field with / and Ctrl+K, but not from inside another input", "opens the parent folder on Backspace in the empty field").
 - [x] Every tile has a star that pins it; pinned applications appear in a "Favourites" row at the top level, the pins survive a reload through `localStorage`, and a visitor without `localStorage` sees no star and no error.
-- [ ] Opening an application records it in a "Recently used" row at the top level that holds the last 8 distinct applications, newest first, and offers a control that clears it.
+- [x] Opening an application records it in a "Recently used" row at the top level that holds the last 8 distinct applications, newest first, and offers a control that clears it. `dashboard_extras.spec.js` ("records an opened application, newest first, and clears on request", "holds the last eight distinct applications").
 - [x] A toggle switches between tile view and a compact list view, and the choice survives a reload.
 - [ ] In the list view all rows share one column grid: icon, title, description, New badge, star, URL and chips each start at the same horizontal position in every row, and an absent badge, star or chip keeps its column empty (screenshot round 1b).
-- [ ] A tile shows a "New" badge for 14 days after its application was first deployed on the host; core records the first-deploy date per application so that a redeploy keeps it, and the applications present when the host's record is created form the baseline that never shows the badge (core).
+- [x] A tile shows a "New" badge for 14 days after its application was first deployed on the host; core records the first-deploy date per application so that a redeploy keeps it, and the applications present when the host's record is created form the baseline that never shows the badge (core). Core: `filter_plugins/first_seen.py` with `tasks/02_manager_ops.yml` and `new_days: 14` in `meta/services.yml` ([test_first_seen.py](../../tests/unit/python/roles/web-app-dashboard/filter_plugins/test_first_seen.py): baseline, redeploy, new card); port-ui: `dashboard_extras.spec.js` ("marks an application during the configured days after it was added", "drops the badge once the window has passed").
 
 ### Chip API (port-ui)
 
-- [ ] port-ui exposes `window.portui.chips.set(id, chips)` and `window.portui.chips.clear(id)` and dispatches `portui:ready` once they exist; a chip has a kind, a tone, an icon, a label translated through the interface catalog, an untranslated detail, an optional link with an optional new tab, and an optional state.
+- [x] port-ui exposes `window.portui.chips.set(id, chips)` and `window.portui.chips.clear(id)` and dispatches `portui:ready` once they exist; a chip has a kind, a tone, an icon, a label translated through the interface catalog, an untranslated detail, an optional link with an optional new tab, and an optional state. port-ui `static/js/chips.js`; `dashboard_chips.spec.js` ("exists when portui:ready fires, and fires it once", "renders kind, tone, state, label and detail as a link or a button", "translates the label through the interface catalogue", "rejects malformed chips and drops an unsafe link").
 - [ ] The chips of an application render on its tile, its Favourites and Recently-used copies, its picker row and its list row, survive re-rendering, and carry a tooltip on hover and keyboard focus.
 - [x] Clicking a chip never opens the application; without any caller of the API no chip shows.
 - [ ] port-ui carries no RBAC or health logic and no configuration for them.
@@ -161,15 +161,15 @@ flowchart TD
 - [x] With `web-svc-access-request` deployed, clicking the lock of a signed-in visitor opens the access-request service with that application preselected; without it, the lock only explains itself in its tooltip.
 - [ ] The lock never hides or disables the tile: the tile still opens the application, whose gate decides.
 - [x] `roles/web-app-dashboard/templates/javascript/oidc.js.j2` hands the token's `groups` to `chips.js` through a `dashboard:identity` DOM event dispatched next to the init success and the token refresh success, and starts the login on a `dashboard:login` event; the identity event carries only the `groups` array, never the token or another claim, and the existing logout functions keep their structure.
-- [ ] The dashboard's token refresh re-evaluates the locks, so a granted role removes the lock without a page reload.
+- [x] The dashboard's token refresh re-evaluates the locks, so a granted role removes the lock without a page reload. `oidc.js.j2` re-dispatches the groups after every refresh ([test_oidc_identity_event.py](../../tests/unit/python/roles/web-app-dashboard/templates/test_oidc_identity_event.py)), and `chips.js.j2` re-renders the locks on every identity event, a later event with the gate's group clearing the lock ([test_chips.py](../../tests/unit/python/roles/web-app-dashboard/templates/test_chips.py), `test_only_the_full_group_path_opens_a_gated_card`).
 - [x] `services.dashboard.locks.enabled: false` switches the locks off; without SSO they are off.
 
 ### Health badge (core)
 
 - [x] The webserver health sweep writes, after every run, one JSON status document keyed by application id with the state and the check time, limited to the applications that have a dashboard card and without HTTP codes, because the dashboard serves it publicly; a unit test covers every state and the limit (core).
-- [ ] While no sweep has written the document yet, the dashboard serves an empty one instead of a 404, so every badge reads `unknown` and the page logs no error (core).
+- [x] While no sweep has written the document yet, the dashboard serves an empty one instead of a 404, so every badge reads `unknown` and the page logs no error (core). `templates/nginx/sso.html.conf.j2` answers a missing file with `{"generated": null, "applications": {}}` ([test_status_location.py](../../tests/unit/python/roles/web-app-dashboard/templates/test_status_location.py), `test_a_missing_document_answers_with_an_empty_one_instead_of_a_404`), which `chips.js` reads as `unknown` on every tile ([test_chips.py](../../tests/unit/python/roles/web-app-dashboard/templates/test_chips.py), `test_the_empty_document_before_the_first_sweep_reads_unknown`).
 - [x] An application whose app-control marker reads `stopped` has the state `paused`, regardless of the HTTP answer (core).
-- [ ] The dashboard's vhost serves that document on its own origin, so fetching it needs no CSP change (core).
+- [x] The dashboard's vhost serves that document on its own origin, so fetching it needs no CSP change (core). `chips.js` fetches the relative `/status.json` that the dashboard's own vhost serves ([test_status_location.py](../../tests/unit/python/roles/web-app-dashboard/templates/test_status_location.py), `test_the_dashboard_serves_the_sweep_document_on_its_own_vhost`), and every CSP `connect-src` starts with `'self'` ([test_build_basic.py](../../tests/unit/python/plugins/filter/test_csp_filters/test_build_basic.py)).
 - [x] `chips.js` polls that document at the configured interval and sets per tile a health chip: `running` as success, `paused` as info, `degraded` as warning, `down` as danger, and `unknown` as secondary, the last one also for a missing entry or one older than the configured staleness threshold, which bridges the sweep's nightly pause.
 - [x] `services.dashboard.status.enabled: false` switches the badges off and removes the status location from the vhost.
 - [x] A successful `stop` or `start` through app-control schedules one webserver health sweep `health_delay_seconds` after the last such action where its unit is installed (a later action moves the pending sweep behind it, so a resumed application answers first and the sweep unit's start limit is not hit), and reports a failure to schedule it on stderr and in its exit code without undoing the pause or resume (core).
@@ -185,7 +185,7 @@ flowchart TD
 
 - [ ] Every folder tile, application tile, breadcrumb link, star, lock and picker row is reachable and operable by keyboard, with a visible focus ring in the primary color.
 - [x] A polite `aria-live` region announces the number of search hits.
-- [ ] Under `prefers-reduced-motion: reduce`, tile hover lifts and all transitions are off.
+- [x] Under `prefers-reduced-motion: reduce`, tile hover lifts and all transitions are off. port-ui `dashboard.css` turns every transition and animation off and the card hover transform to `none`, both `!important`, so core's `.card` transition cannot win; `dashboard_extras.spec.js` ("turns hover lifts and transitions off under reduced motion").
 
 ### Internationalisation
 
@@ -201,7 +201,7 @@ flowchart TD
 
 ### Delivery and tests
 
-- [ ] port-ui ships the change in a new minor release, and `roles/web-app-dashboard/meta/services.yml` pins that version.
+- [x] port-ui ships the change in a new minor release, and `roles/web-app-dashboard/meta/services.yml` pins that version. port-ui `v2.3.0` (CHANGELOG 2026-11-04) carries the folders, search, frame and chips; `meta/services.yml` pins `version: 2.3.0`.
 - [x] port-ui's `make test` passes, with Cypress specs for the corners, folder navigation with back and forward and `?folder=`, the search picker with keyboard use and `?q=`, favourites, recent list and density toggle.
 - [ ] A Playwright spec in `roles/web-app-dashboard` walks into a nested folder, uses back and forward, reloads a `?folder=` and a `?q=` URL, and opens an application from the picker.
 - [ ] A Playwright spec signs in as biber without the role group of a gated application and asserts its lock, and as the administrator and asserts no lock on the same tile.
