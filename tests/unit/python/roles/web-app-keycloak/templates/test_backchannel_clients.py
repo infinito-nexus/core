@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import re
 import unittest
 from typing import TYPE_CHECKING
+from unittest import mock
 from urllib.parse import urlsplit
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2.nativetypes import NativeEnvironment
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -34,6 +37,26 @@ CLIENT_ID_LOOKUP = re.compile(
     r"lookup\(\s*'config'\s*,\s*[^,()]+,\s*'services\.sso\.oidc\.clients\.\w+'\s*"
     r"(?P<tail>[,)])(?P<fallback>\s*\|\s*default\b)?"
 )
+SSO_OIDC_PLUGIN = "user_oidc"
+NEXTCLOUD = "web-app-nextcloud"
+USER_OIDC_BACKCHANNEL_PATH = "/index.php/apps/user_oidc/backchannel-logout/"
+NEXTCLOUD_ADMIN_GROUP = "admin"
+RBAC_GROUP_ROOT = "roles"
+GROUP_MAPPER = "oidc-group-membership-mapper"
+CLIENT_ROLE_MAPPER = "oidc-usermodel-client-role-mapper"
+TOKEN_FLAGS = ("id.token.claim", "access.token.claim", "userinfo.token.claim")
+
+
+def resolved(node):
+    """A ``meta/services.yml`` node, with a single Jinja expression evaluated.
+
+    Args:
+        node: the raw node; a ``{{ ... }}`` string renders through the stubbed
+            lookups to its native value.
+    """
+    if isinstance(node, str) and node.lstrip().startswith("{{"):
+        return NativeEnvironment().from_string(node).render(lookup=lookup)
+    return node
 
 
 def role_config(role: str, path: str):
@@ -48,8 +71,109 @@ def role_config(role: str, path: str):
         raise AssertionError(f"unexpected config path {path!r} for {role}")
     node = load_yaml_any(str(PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES))
     for key in rest.split("."):
-        node = node[key]
-    return node
+        node = resolved(node)[key]
+    return resolved(node)
+
+
+def oidc_clients_filters():
+    spec = importlib.util.spec_from_file_location(
+        "oidc_clients",
+        PROJECT_ROOT / "roles/web-app-keycloak/filter_plugins/oidc_clients.py",
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def declarations(apps: list[str]) -> dict:
+    """The ``services.sso.oidc`` declarations of the deployed apps, resolved.
+
+    Args:
+        apps: the deployed role directory names.
+    """
+    return {
+        app: {
+            "services": {
+                "sso": {
+                    "oidc": {
+                        key: resolved(value)
+                        for key, value in role_config(app, "services.sso.oidc").items()
+                    }
+                }
+            }
+        }
+        for app in apps
+    }
+
+
+def declared_client_apps(apps: list[str]) -> list[str]:
+    """What Keycloak's ``kc_declared_client_apps`` filter makes of the declarations.
+
+    Args:
+        apps: the deployed role directory names.
+    """
+    return oidc_clients_filters().kc_declared_client_apps(declarations(apps), apps)
+
+
+def declared_client_role_grants(apps: list[str]) -> list[dict]:
+    """What Keycloak's ``kc_declared_client_role_grants`` filter makes of the declarations.
+
+    Args:
+        apps: the deployed role directory names, all with RBAC groups in the run.
+    """
+    return oidc_clients_filters().kc_declared_client_role_grants(
+        declarations(apps), apps, RBAC_GROUP_ROOT
+    )
+
+
+def group_claim_mapper() -> dict:
+    """The group membership mapper of the RBAC client scope, as the realm renders it."""
+    realm = json.loads(render([]))
+    scope = next(
+        s for s in realm["clientScopes"] if s["name"] == CONTEXT["KEYCLOAK_RBAC_GROUP_CLAIM"]
+    )
+    return next(
+        m for m in scope["protocolMappers"] if m["protocolMapper"] == GROUP_MAPPER
+    )
+
+
+def client_role_claim_findings(client: dict, group_mapper: dict) -> list[str]:
+    """What keeps a client's role mapper from adding its roles to the group claim.
+
+    Keycloak 26.8.2 adds a client role list to a collection the claim already
+    holds and replaces anything else (``AbstractUserRoleMappingMapper.mapClaim``,
+    services/.../oidc/mappers/AbstractUserRoleMappingMapper.java:111-116); a
+    mapper that is not multivalued hands it one String
+    (``OIDCAttributeMapperHelper.mapAttributeValue``, :176-180), which replaces
+    the group paths.
+
+    Args:
+        client: the client representation carrying the mapper.
+        group_mapper: the group membership mapper that writes the claim first.
+    """
+    mappers = [
+        m
+        for m in client.get("protocolMappers", [])
+        if m["protocolMapper"] == CLIENT_ROLE_MAPPER
+    ]
+    if len(mappers) != 1:
+        return [f"{len(mappers)} client role mappers instead of one"]
+    config = mappers[0]["config"]
+    findings = []
+    if config.get("usermodel.clientRoleMapping.clientId") != client["clientId"]:
+        findings.append("the mapper reads the roles of another client")
+    if config.get("usermodel.clientRoleMapping.rolePrefix"):
+        findings.append("a role prefix renames the Nextcloud group")
+    if config.get("claim.name") != group_mapper["config"]["claim.name"]:
+        findings.append("the mapper writes another claim than the group claim")
+    if config.get("multivalued") != "true":
+        findings.append("the mapper is not multivalued and replaces the group paths")
+    findings.extend(
+        f"{flag} differs from the group claim"
+        for flag in TOKEN_FLAGS
+        if config.get(flag) != group_mapper["config"].get(flag)
+    )
+    return findings
 
 
 def canonical_origin(app: str, key: str = "") -> str:
@@ -89,6 +213,8 @@ def lookup(name, *args, **_kwargs):
         return canonical_origin(args[0])
     if name == "network_urls":
         return onion_sibling(args[0])
+    if name == "sso_oidc_plugin":
+        return SSO_OIDC_PLUGIN
     raise AssertionError(f"unexpected lookup {name}{args}")
 
 
@@ -397,10 +523,48 @@ class TestSharedClientStaysOnTheSweep(unittest.TestCase):
 
 class TestAppsDecidedWithoutBackchannelUrl(unittest.TestCase):
     def test_nextcloud_stays_on_the_shared_client(self) -> None:
-        role = PROJECT_ROOT / "roles" / "web-app-nextcloud"
-        services = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))
-        self.assertNotIn("clients", services["sso"]["oidc"])
-        self.assertFalse((role / "templates" / "keycloak" / "clients.json.j2").exists())
+        for plugin in ("oidc_login", "sociallogin", ""):
+            with (
+                self.subTest(plugin=plugin),
+                mock.patch.dict(globals(), {"SSO_OIDC_PLUGIN": plugin}),
+            ):
+                self.assertEqual(
+                    role_config(NEXTCLOUD, "services.sso.oidc.clients"), {}
+                )
+                self.assertEqual(declared_client_apps([NEXTCLOUD]), [])
+
+    def test_user_oidc_brings_the_own_nextcloud_client(self) -> None:
+        self.assertEqual(declared_client_apps([NEXTCLOUD]), [NEXTCLOUD])
+        (client,) = render_fragment(
+            PROJECT_ROOT / "roles" / NEXTCLOUD / "templates/keycloak/clients.json.j2"
+        )
+        self.assertEqual(
+            client["clientId"],
+            role_config(NEXTCLOUD, "services.sso.oidc.clients.user_oidc"),
+        )
+        self.assertEqual(
+            client["attributes"][BACKCHANNEL_LOGOUT_URL],
+            canonical_origin(NEXTCLOUD) + USER_OIDC_BACKCHANNEL_PATH + "keycloak",
+            "user_oidc receives logout tokens per provider identifier",
+        )
+        self.assertEqual(backchannel_findings(client), [])
+        self.assertEqual(
+            claim_findings(client, shared_client(), foreign_app_scopes(NEXTCLOUD)),
+            [],
+        )
+
+    def test_the_default_plugins_render_the_realm_byte_identically(self) -> None:
+        without_nextcloud = render([])
+        for plugin in ("oidc_login", "sociallogin"):
+            with (
+                self.subTest(plugin=plugin),
+                mock.patch.dict(globals(), {"SSO_OIDC_PLUGIN": plugin}),
+            ):
+                self.assertEqual(declared_client_role_grants([NEXTCLOUD]), [])
+                self.assertEqual(
+                    render([], client_apps=declared_client_apps([NEXTCLOUD])),
+                    without_nextcloud,
+                )
 
     def test_the_stalwart_clients_carry_no_backchannel_logout_url(self) -> None:
         clients = render_fragment(
@@ -422,6 +586,102 @@ class TestAppsDecidedWithoutBackchannelUrl(unittest.TestCase):
             with self.subTest(client=client["clientId"]):
                 self.assertIs(client["frontchannelLogout"], False)
                 self.assertNotIn(BACKCHANNEL_LOGOUT_URL, client["attributes"])
+
+
+class TestNextcloudAdminClientRole(unittest.TestCase):
+    def setUp(self) -> None:
+        (self.client,) = render_fragment(
+            PROJECT_ROOT / "roles" / NEXTCLOUD / "templates/keycloak/clients.json.j2"
+        )
+        self.group_mapper = group_claim_mapper()
+
+    def test_the_rbac_administrator_group_gets_the_admin_client_role(self) -> None:
+        self.assertEqual(
+            declared_client_role_grants([NEXTCLOUD]),
+            [
+                {
+                    "client_id": self.client["clientId"],
+                    "role": NEXTCLOUD_ADMIN_GROUP,
+                    "group_path": f"/{RBAC_GROUP_ROOT}/{NEXTCLOUD}/administrator",
+                }
+            ],
+        )
+
+    def test_the_grant_targets_the_group_sociallogin_maps_to_admin(self) -> None:
+        sociallogin = read_text(
+            str(PROJECT_ROOT / "roles" / NEXTCLOUD / "meta/addons/sociallogin.yml")
+        )
+        self.assertIn(
+            "'/' ~ lookup('rbac_group_path', application_id=application_id, "
+            "role='administrator'): 'admin'",
+            sociallogin,
+        )
+        (grant,) = declared_client_role_grants([NEXTCLOUD])
+        self.assertEqual(grant["role"], NEXTCLOUD_ADMIN_GROUP)
+
+    def test_the_admin_role_joins_the_group_claim_instead_of_replacing_it(
+        self,
+    ) -> None:
+        self.assertEqual(self.group_mapper["config"]["multivalued"], "true")
+        self.assertEqual(
+            client_role_claim_findings(self.client, self.group_mapper), []
+        )
+
+    def test_a_single_valued_role_mapper_fails_the_claim_check(self) -> None:
+        client = json.loads(json.dumps(self.client))
+        client["protocolMappers"][0]["config"]["multivalued"] = "false"
+        self.assertEqual(
+            client_role_claim_findings(client, self.group_mapper),
+            ["the mapper is not multivalued and replaces the group paths"],
+        )
+
+    def test_a_role_mapper_on_another_claim_or_client_fails_the_check(self) -> None:
+        client = json.loads(json.dumps(self.client))
+        config = client["protocolMappers"][0]["config"]
+        config["claim.name"] = "nextcloud_roles"
+        config["usermodel.clientRoleMapping.clientId"] = SHARED_CLIENT_ID
+        config["usermodel.clientRoleMapping.rolePrefix"] = "nextcloud-"
+        config["userinfo.token.claim"] = "false"
+        self.assertEqual(
+            client_role_claim_findings(client, self.group_mapper),
+            [
+                "the mapper reads the roles of another client",
+                "a role prefix renames the Nextcloud group",
+                "the mapper writes another claim than the group claim",
+                "userinfo.token.claim differs from the group claim",
+            ],
+        )
+
+    def test_a_client_without_the_role_mapper_fails_the_check(self) -> None:
+        client = {**self.client, "protocolMappers": []}
+        self.assertEqual(
+            client_role_claim_findings(client, self.group_mapper),
+            ["0 client role mappers instead of one"],
+        )
+
+    def test_a_role_of_an_undeclared_client_grants_nothing(self) -> None:
+        module = oidc_clients_filters()
+        apps = {
+            "web-app-x": {
+                "services": {
+                    "sso": {
+                        "oidc": {
+                            "clients": {"webui": "x-webui"},
+                            "client_roles": {
+                                "webmail": {"admin": "administrator"},
+                                "webui": "administrator",
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        self.assertEqual(
+            module.kc_declared_client_role_grants(apps, ["web-app-x"], "roles"), []
+        )
+        self.assertEqual(
+            module.kc_declared_client_role_grants(apps, [], "roles"), []
+        )
 
 
 class TestPerAppClientIdsFailLoudly(unittest.TestCase):

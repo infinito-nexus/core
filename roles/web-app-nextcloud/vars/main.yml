@@ -58,6 +58,22 @@ NEXTCLOUD_HOST_FPM_POOL_PATH: "{{ [ lookup('container', application_id, 'directo
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 
+NEXTCLOUD_USER_OIDC_PROVIDER: "{{ lookup('config', application_id, 'services.sso.oidc.backchannel_logout_path') | basename }}"
+NEXTCLOUD_USER_OIDC_OPTIONS:
+  - "--clientid={{ lookup('config', application_id, 'services.sso.oidc.clients').user_oidc }}"
+  - "--discoveryuri={{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+  - "--endsessionendpointuri={{ OIDC.CLIENT.LOGOUT_URL }}"
+  - "--postlogouturi={{ NEXTCLOUD_URL }}"
+  - "--scope=openid email profile {{ RBAC.GROUP.CLAIM }} {{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.nextcloud') }}"
+  - "--unique-uid=0"
+  - "--mapping-uid={{ OIDC.ATTRIBUTES.USERNAME }}"
+  - "--mapping-display-name={{ OIDC.ATTRIBUTES.NAME }}"
+  - "--mapping-email={{ OIDC.ATTRIBUTES.EMAIL }}"
+  - "--mapping-quota={{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA }}"
+  - "--mapping-groups={{ RBAC.GROUP.CLAIM }}"
+  - "--group-provisioning=1"
+  - "--send-id-token-hint=1"
+
 NEXTCLOUD_DOCKER_WORK_DIRECTORY: "{{ lookup('volume', 'web-app-nextcloud', 'data').target }}"
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ lookup('volume', 'web-app-nextcloud', 'infinito_conf').target }}"
 NEXTCLOUD_DOCKER_CONF_LOADER_PATH: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'config/zzz-infinito.config.php'] | path_join }}"
