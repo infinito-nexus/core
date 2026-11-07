@@ -6,6 +6,7 @@ import importlib.util
 import json
 import time
 import unittest
+from unittest import mock
 
 from . import PROJECT_ROOT
 
@@ -141,6 +142,22 @@ class TestAuthorizeClient(unittest.TestCase):
     def test_an_unset_bearer_refuses_everyone(self):
         with self.assertRaises(PermissionError):
             policy.authorize_client("", "Bearer anything")
+
+    def test_the_bearer_is_compared_in_constant_time(self):
+        with mock.patch.object(
+            policy.hmac, "compare_digest", wraps=policy.hmac.compare_digest
+        ) as compare:
+            policy.authorize_client("s3cret", "Bearer s3cret")
+            with self.assertRaises(PermissionError):
+                policy.authorize_client("s3cret", "Bearer s3creT")
+        self.assertEqual(
+            compare.call_args_list,
+            [mock.call(b"s3cret", b"s3cret"), mock.call(b"s3creT", b"s3cret")],
+        )
+
+    def test_a_non_ascii_bearer_is_refused_not_raised(self):
+        with self.assertRaises(PermissionError):
+            policy.authorize_client("s3cret", "Bearer s3crét")
 
 
 class TestAuthorizeCall(unittest.TestCase):

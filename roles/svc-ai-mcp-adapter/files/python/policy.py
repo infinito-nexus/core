@@ -17,6 +17,7 @@ testable without a live upstream.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import re
 from datetime import datetime
@@ -323,7 +324,11 @@ def authorize_client(expected: str, presented: str) -> None:
     """
     prefix = "Bearer "
     token = presented[len(prefix) :] if presented.startswith(prefix) else ""
-    if not expected or not token or token != expected:
+    if (
+        not expected
+        or not token
+        or not hmac.compare_digest(token.encode(), expected.encode())
+    ):
         raise PermissionError(DENY_UNAUTHENTICATED)
 
 

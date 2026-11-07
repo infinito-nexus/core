@@ -62,6 +62,7 @@ As an operator, I want every agent to act under its own account with its own cre
 - [ ] In `keepass.mode: broker`, no file inside a workspace contains a long-lived credential, and git operations in the workspace succeed through the broker's credential helper and `ssh-agent` socket (probe recorded).
 - [ ] A diff containing a seeded secret is stopped by the pre-push secret scan, and nothing reaches the remote.
 - [ ] Every agent authenticates to `svc-ai-mcp-adapter` with its own token; a token of one agent is refused for another, and the comparison is constant-time (unit test).
+  - Partial: `authorize_client` in `roles/svc-ai-mcp-adapter/files/python/policy.py:314` compares through `hmac.compare_digest`, proven by `test_the_bearer_is_compared_in_constant_time` and `test_a_non_ascii_bearer_is_refused_not_raised` in `tests/unit/python/roles/svc-ai-mcp-adapter/files/test_policy.py:146-162`. Open: the adapter holds one bearer, not one token per agent.
 - [ ] An MCP call to Gitea, GitLab, Zammad or Nextcloud reaches the application under the calling agent's own identity, visible in the application's log.
 - [ ] Exceeding a quota in `agent.yml` stops the agent's next model call, tool call or forge write and reports the quota.
 - [ ] A request for a model outside the agent's `models` list is refused by `svc-ai-litellm`, and `support`, `planner`, `operator` and user-started agents reach no external model by default.
