@@ -42,7 +42,7 @@ env:
 
   ## How many concurrent web requests are supported? Depends on memory and CPU cores.
   ## will be set automatically by bootstrap based on detected CPUs, or you can override
-  UNICORN_WORKERS: 8
+  UNICORN_WORKERS: "{{ DISCOURSE_UNICORN_WORKERS }}"
 
   ## Required. Discourse will not work with a bare IP number.
   DISCOURSE_HOSTNAME: {{ lookup('domain',application_id) }}
