@@ -316,6 +316,11 @@ jobs:
         shell: bash
         run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
 
+      - name: "📈 Sample host memory, pressure and top RSS into the rescue diagnostics"
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: nohup ./scripts/tests/deploy/ci/host-metrics-sampler.sh "${INFINITO_RESCUE_DIAGNOSTICS_BASE}/host-metrics.log" >/dev/null 2>&1 &
+
       - name: 💽 Mount the empty spare disk at /mnt
         if: ${{ !env.ACT }}
         shell: bash
