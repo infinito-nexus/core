@@ -23,6 +23,7 @@ from utils.networks.proxy import (
     render_proxy_pass,
     render_stream_proxy_pass,
     resolve_upstream,
+    resolve_upstream_scheme,
 )
 from utils.roles.applications.config import get as get_app_conf
 from utils.templating.ansible import _trust_as_template
@@ -130,6 +131,9 @@ class LookupModule(LookupBase):
                     tail=tail,
                     location=location,
                     host_gateway=host_gateway,
+                    scheme=resolve_upstream_scheme(
+                        applications, application_id, service_key
+                    ),
                 )
             ]
         except ValueError as exc:
