@@ -884,6 +884,11 @@ runner-ci-enable:
 		$${OWNER:+--repo "$${OWNER}/$${REPO:-infinito-nexus}"}
 	@echo "Self-hosted runners enabled (count=$${COUNT}, multiplier=$${MULTIPLIER:-30}). CI will split deploy jobs proportionally across GitHub-hosted and self-hosted runners."
 
+.PHONY: runner-count
+# Print the default local runner pool size and its RAM, CPU and disk terms as JSON; INFINITO_RUNNER_COUNT overrides it.
+runner-count:
+	@"$${PYTHON}" -m cli.meta.runner.count
+
 .PHONY: security-apparmor-restore
 # Restore AppArmor profiles.
 security-apparmor-restore:

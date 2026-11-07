@@ -155,6 +155,7 @@ alias i8ropu='m roles-pull'
 alias i8ru='m runner-ci-deploy'
 alias i8ruci='m runner-ci-disable'
 alias i8rucine='m runner-ci-enable'
+alias i8ruco='m runner-count'
 alias i8s='i8nilas' # shortcut for i8nilas
 alias i8sa='m swarm-clean'
 alias i8saae='m swarm-app-exec'
