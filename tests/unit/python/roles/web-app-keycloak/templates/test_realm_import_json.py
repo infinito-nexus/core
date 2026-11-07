@@ -171,16 +171,24 @@ def path_join(parts):
     return "/".join([head.rstrip("/"), *[p.strip("/") for p in tail]])
 
 
+class _EchoKeys(dict):
+    def __missing__(self, key):
+        return key
+
+
 def fake_lookup(name, *_args, **_kwargs):
     """Stub the lookups the realm import performs.
 
     Args:
-        name: the lookup plugin the template asked for.
+        name: the lookup plugin the template asked for; a ``config`` path
+            answers with its last segment, and a ``...clients`` mapping answers
+            every client key with the key itself.
     """
     if name == "email":
         return {"enabled": False}
     if name == "config":
-        return str(_args[-1]).rsplit(".", 1)[-1]
+        key = str(_args[-1]).rsplit(".", 1)[-1]
+        return _EchoKeys() if key == "clients" else key
     if name == "network_urls":
         return [_args[0]]
     return APP_URL
