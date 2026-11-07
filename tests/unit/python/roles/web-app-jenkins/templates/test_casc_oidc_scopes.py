@@ -5,8 +5,9 @@ import re
 import unittest
 from types import SimpleNamespace
 
-import yaml
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+
+from utils.cache.yaml import load_yaml_str
 
 from . import PROJECT_ROOT
 
@@ -57,7 +58,7 @@ def requested_scopes() -> list[str]:
             lookup=lookup,
         )
     )
-    well_known = yaml.safe_load(rendered)["jenkins"]["securityRealm"]["oic"][
+    well_known = load_yaml_str(rendered)["jenkins"]["securityRealm"]["oic"][
         "serverConfiguration"
     ]["wellKnown"]
     return well_known["scopesOverride"].split()
