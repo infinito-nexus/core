@@ -808,7 +808,7 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
-      enabled: true
+      enabled: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

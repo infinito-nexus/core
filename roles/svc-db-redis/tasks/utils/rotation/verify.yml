@@ -1,0 +1,23 @@
+---
+- name: "📖 REDIS | Read the authentications the engine refused since the retire"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} ACL LOG'
+  register: redis_acl_log
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: false
+  failed_when: >-
+    redis_acl_log.rc != 0 or
+    (redis_acl_log.stdout_lines | length > 0 and redis_acl_log.stdout_lines[0] != 'count')
+
+- name: "✅ REDIS | Assert no consumer still presents a retired password"
+  ansible.builtin.assert:
+    that:
+      - redis_acl_log.stdout_lines | select('match', '^id=') | list | length == 0
+    fail_msg: >-
+      Redis refused authentications after the rotated REDIS_PASSWORD was retired:
+      a consumer still holds the old secret. Redis groups repeated refusals, so
+      only the latest client of each group is named:
+      {{ redis_acl_log.stdout_lines | select('match', '^id=') | map('regex_search', 'addr=\S+') | list | unique | join(', ') }}
+  run_once: true

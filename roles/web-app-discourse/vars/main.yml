@@ -18,6 +18,7 @@ DISCOURSE_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'passwor
 DISCOURSE_REPOSITORY_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
 DISCOURSE_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ref') }}"
 DISCOURSE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.application.ref') }}"
+DISCOURSE_UNICORN_WORKERS: "{{ [[[2 * (RESOURCE_HOST_CPUS | int), (lookup('resource', 'host_mem_mb') | int) // 4096] | min, 2] | max, 8] | min }}"
 
 DISCOURSE_DATABASE: "{{ lookup('database', application_id ) }}"
 DISCOURSE_DATABASE_TYPE: "{{ DISCOURSE_DATABASE.type }}"

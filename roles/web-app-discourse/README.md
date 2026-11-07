@@ -41,6 +41,10 @@ The bridged partners are co-deployed by variant 1 of [`meta/variants.yml`](./met
 
 The `ldap` service block in [`meta/services.yml`](./meta/services.yml) is intentionally pinned to literal `false` (see [TODO.md](./TODO.md)): the `jonmbake/discourse-ldap-auth` plugin breaks Discourse bootstrap on recent versions. `discourse-ldap-auth` therefore resolves to disabled until that block is flipped back to the dynamic group-membership form.
 
+## Web workers
+
+`UNICORN_WORKERS` follows the host the same way in production and CI: two per vCPU as upstream's [setup wizard](https://github.com/discourse/discourse_docker/blob/775903891a8c34e87de66f747bd98ea48fa32eff/image/setup_wizard/lib/discourse_setup/resource_scaler.rb) sizes a dedicated host, but at most one per 4 GiB of host RAM, because the host is shared with the other applications and every web worker holds about 500 MiB. The count stays between 2 and upstream's ceiling of 8: a 4 vCPU runner with 16 GB gets 3, a host with at least 4 vCPU and 32 GiB visible RAM gets 8. Sidekiq keeps upstream's single process (`UNICORN_SIDEKIQS: 1`).
+
 ## Further Resources
 
 - [Discourse Official Website](https://www.discourse.org/)

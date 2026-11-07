@@ -1,6 +1,28 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+# Exception: a first deploy has no container and a crash-looping one is no healthy engine; both mean nothing to carry, and the routine below still has to run to heal them.
+- name: "📖 REDIS | Read whether an earlier deploy left a healthy engine"
+  ansible.builtin.shell: >
+    container inspect --type container --format '{{ "{{.State.Status}} {{.State.Health.Status}}" }}' {{ REDIS_CONTAINER_ADDRESS }}
+  register: redis_health_before
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: false
+  failed_when: false
+
+- name: "📖 REDIS | Read the passwords the healthy engine accepts"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} ACL LIST'
+  register: redis_acl_before_restart
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: false
+  failed_when: redis_acl_before_restart.rc != 0 or redis_acl_before_restart.stdout_lines | select('match', '^user default ') | list | length != 1
+  when: redis_health_before.stdout | trim == 'running healthy'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
@@ -32,4 +54,31 @@
   delay: 2
   until: redis_ping_ready.stdout is search('PONG')
   changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧮 REDIS | Pick the passwords a rotated REDIS_PASSWORD replaced"
+  ansible.builtin.set_fact:
+    redis_retired_password_hashes: >-
+      {{
+        (redis_acl_before_restart.stdout_lines if redis_acl_before_restart.stdout_lines is defined else [])
+        | select('match', '^user default ')
+        | join(' ')
+        | regex_findall('(?:^|\s)#([0-9a-f]{64})(?=\s|$)')
+        | difference([REDIS_PASSWORD | hash('sha256')])
+        | sort
+      }}
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+# Exception: the restart dropped every password but the new one, while the shared consumers deployed later in this pass still hold the old one. tasks/utils/rotation/retire.yml drops them once every server role has redeployed.
+- name: "🔁 REDIS | Keep accepting the replaced passwords until the roles redeployed"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} ACL SETUSER default{% for retired_hash in redis_retired_password_hashes %} "#{{ retired_hash }}"{% endfor %}'
+  register: redis_acl_carried
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: true
+  failed_when: redis_acl_carried.rc != 0 or redis_acl_carried.stdout | trim != 'OK'
+  when: redis_retired_password_hashes | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

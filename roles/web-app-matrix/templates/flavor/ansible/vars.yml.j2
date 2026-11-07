@@ -196,6 +196,8 @@ matrix_bot_baibot_config_initial_global_config_handler_catch_all: "static/{{ MAT
 {% endif %}
 
 matrix_synapse_usage_exporter_enabled: {{ MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED | string | lower }}
+matrix_synapse_usage_exporter_container_extra_arguments:
+  - "--ulimit=nofile={{ MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_NOFILE }}:{{ MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_NOFILE }}"
 matrix_synapse_metrics_enabled: true
 matrix_synapse_container_metrics_api_host_bind_port: "0.0.0.0:{{ MATRIX_SYNAPSE_METRICS_PORT }}"
 matrix_synapse_metrics_port: {{ MATRIX_SYNAPSE_METRICS_PORT }}
