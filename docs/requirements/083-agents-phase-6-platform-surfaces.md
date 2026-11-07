@@ -54,7 +54,8 @@ As an operator, I want agents to take work from the OpenProject board, talk and 
 - [ ] A failed run and a new pull request produce a Matrix notification.
 - [ ] A Matrix reply from the owner's exact local account with the valid nonce approves an `ask` match; a reply without the nonce, from another account, after expiry, as a reaction, or reusing the nonce is refused.
 - [ ] No channel reply and no agent account can set a work package to `Approved` or `Rejected`.
-- [ ] The channel contract has an email and a Zammad implementation, and one unit test drives all three implementations through the same interface.
+- [x] The channel contract has an email and a Zammad implementation, and one unit test drives all three implementations through the same interface.
+  - Evidence: the `Channel` protocol with `MatrixChannel`, `EmailChannel`, `ZammadChannel` and `dispatch` in `utils/orchestrator/channels.py`, proven by `tests/unit/python/utils/orchestrator/test_channels.py` (all three through one interface, refusal of a non-account recipient, dispatch order).
 
 ### Management surfaces
 
