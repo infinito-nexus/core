@@ -6,7 +6,7 @@ import re
 
 from .signature import cache_key
 
-IDENTIFIER = re.compile(r"^[a-z_][a-z0-9_]*$")
+IDENTIFIER = re.compile(r"[a-z_][a-z0-9_]*")
 
 
 class TranslationCache:
@@ -27,7 +27,7 @@ class TranslationCache:
     """
 
     def __init__(self, client, table):
-        if not IDENTIFIER.match(table or ""):
+        if not IDENTIFIER.fullmatch(table or ""):
             raise ValueError(f"{table!r} is not a bare lowercase SQL identifier")
         self._client = client
         self._table = table

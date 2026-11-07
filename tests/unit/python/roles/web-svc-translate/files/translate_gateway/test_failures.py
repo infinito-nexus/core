@@ -39,6 +39,10 @@ class TableNameTestCase(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 FailureLog(FakeClient(), name)
 
+    def test_a_trailing_newline_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            FailureLog(FakeClient(), "translate_failures\n")
+
 
 class CountingTestCase(unittest.TestCase):
     def test_a_failure_lengthens_the_streak_and_the_total(self) -> None:

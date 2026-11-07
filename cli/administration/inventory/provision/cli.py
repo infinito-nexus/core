@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import os
 import sys
@@ -35,6 +36,22 @@ def _fatal(msg: str) -> None:
     raise SystemExit(f"[FATAL] {msg}")
 
 
+def _read_become_password(stream) -> str:
+    """The become password: prompted on a terminal, else the first line of *stream*.
+
+    Args:
+        stream: the text stream the operator piped the password into.
+    """
+    if stream.isatty():
+        secret = getpass.getpass("Become password: ")
+    else:
+        line = stream.readline()
+        secret = line[:-2] if line.endswith("\r\n") else line.removesuffix("\n")
+    if not secret:
+        _fatal("--become-password-stdin read no password from stdin")
+    return secret
+
+
 def _resolve_inventory_file(
     inventory_dir: Path, inventory_file_arg: str | None
 ) -> Path:
@@ -66,7 +83,8 @@ def main(argv: list[str] | None = None) -> int:
         description=(
             "Create or update a full inventory for a host and generate credentials "
             "for all selected applications."
-        )
+        ),
+        allow_abbrev=False,
     )
     parser.add_argument(
         "inventory_dir", help="Inventory directory (e.g. inventories/galaxyserver)."
@@ -77,7 +95,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Hostname to use in the inventory (default: localhost).",
     )
     parser.add_argument(
-        "--become-password", default=None, help="Optional become password (vaulted)."
+        "--become-password-stdin",
+        action="store_true",
+        help=(
+            "Read the become password (vaulted) as the first line of stdin "
+            "instead of keeping or generating one."
+        ),
     )
     parser.add_argument(
         "--vars",
@@ -162,7 +185,18 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
 
-    args = parser.parse_args(argv)
+    raw_args = sys.argv[1:] if argv is None else argv
+    if any(arg.startswith("--become-password-stdin=") for arg in raw_args):
+        _fatal("--become-password-stdin takes no value: pipe the password on stdin")
+    args, unknown = parser.parse_known_args(argv)
+    if unknown:
+        _fatal(
+            f"{len(unknown)} unrecognized argument(s), not echoed; the become "
+            "password goes on stdin with --become-password-stdin"
+        )
+    become_password = (
+        _read_become_password(sys.stdin) if args.become_password_stdin else None
+    )
 
     include_filter = parse_roles_list(args.include)
     exclude_filter = parse_roles_list(args.exclude)
@@ -277,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
     ensure_become_password(
         host_vars_file=host_vars_file,
         vault_password_file=vault_password_file,
-        become_password=args.become_password,
+        become_password=become_password,
     )
 
     print(

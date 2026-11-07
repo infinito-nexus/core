@@ -19,13 +19,18 @@ def ensure_key(entry, call):
 
     Args:
         entry: mapping with an ``alias`` and the ``key`` it must carry.
-        call: ``(method, path, body=None)`` performing one HTTP request.
+        call: ``(method, path, body=None)`` performing one HTTP request and
+            returning a readable JSON response.
 
     Returns:
         True when the key had to be created, False when it already existed.
+
+    Raises:
+        urllib.error.HTTPError: the lookup or ``/key/generate`` failed.
+        urllib.error.URLError: the proxy could not be reached at all.
     """
-    with contextlib.suppress(urllib.error.HTTPError):
-        call("GET", "/key/info?key=" + entry["key"])
+    found = json.load(call("POST", "/v2/key/info", {"keys": [entry["key"]]}))
+    if found.get("info"):
         return False
     with contextlib.suppress(urllib.error.HTTPError):
         call("POST", "/key/delete", {"key_aliases": [entry["alias"]]})

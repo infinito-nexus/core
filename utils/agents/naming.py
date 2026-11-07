@@ -14,12 +14,12 @@ import re
 IAM_ACCOUNT_MAX_LENGTH = 20
 IAM_USERNAME_MAX_LENGTH = 15
 
-_CODE = re.compile(r"^[a-z1-9]{4}$")
-_SUFFIX = re.compile(rf"^[a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}}$")
+_CODE = re.compile(r"[a-z1-9]{4}")
+_SUFFIX = re.compile(rf"[a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}}")
 _AGENT = re.compile(
-    rf"^(?P<code>[a-z1-9]{{4}})0(?P<suffix>[a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}})$"
+    rf"(?P<code>[a-z1-9]{{4}})0(?P<suffix>[a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}})"
 )
-_HUMAN = re.compile(rf"^[a-z1-9]{{3,{IAM_USERNAME_MAX_LENGTH}}}$")
+_HUMAN = re.compile(rf"[a-z1-9]{{3,{IAM_USERNAME_MAX_LENGTH}}}")
 
 
 def agent_account_name(code: str, suffix: str) -> str:
@@ -33,9 +33,9 @@ def agent_account_name(code: str, suffix: str) -> str:
         ValueError: if code or suffix is malformed or the name overflows
             ``IAM_ACCOUNT_MAX_LENGTH``.
     """
-    if not _CODE.match(code):
+    if not _CODE.fullmatch(code):
         raise ValueError(f"role code {code!r} is not four of [a-z1-9]")
-    if not _SUFFIX.match(suffix):
+    if not _SUFFIX.fullmatch(suffix):
         raise ValueError(
             f"suffix {suffix!r} is not [a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}}"
         )
@@ -49,7 +49,7 @@ def is_agent_name(name: str) -> bool:
     """Return whether ``name`` is a valid agent account name: exactly one ``0``,
     at the separator, and within the length bound."""
     return (
-        bool(_AGENT.match(name))
+        bool(_AGENT.fullmatch(name))
         and name.count("0") == 1
         and len(name) <= IAM_ACCOUNT_MAX_LENGTH
     )
@@ -58,13 +58,13 @@ def is_agent_name(name: str) -> bool:
 def is_instance_id(value: str) -> bool:
     """Return whether ``value`` is a valid instance id: the team agent's
     account suffix, ``[a-z1-9]{1,15}``, no ``0``."""
-    return bool(_SUFFIX.match(value))
+    return bool(_SUFFIX.fullmatch(value))
 
 
 def is_human_name(name: str) -> bool:
     """Return whether ``name`` is a valid human username: [a-z1-9]{3,15}, no
     ``0``."""
-    return bool(_HUMAN.match(name))
+    return bool(_HUMAN.fullmatch(name))
 
 
 def _expect(condition: bool, message: object) -> None:

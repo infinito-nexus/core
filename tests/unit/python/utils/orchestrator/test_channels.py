@@ -51,6 +51,14 @@ class TestChannelContract(unittest.TestCase):
                 ):
                     channel.envelope(recipient, "hello")
 
+    def test_a_trailing_newline_never_reaches_a_header(self):
+        for recipient in ("biber\n", "mant0alice\n"):
+            with self.subTest(recipient=recipient):
+                self.assertFalse(is_addressable(recipient))
+                for channel in CHANNELS:
+                    with self.assertRaises(ValueError):
+                        channel.envelope(recipient, "hello")
+
     def test_a_human_username_is_addressable_on_every_channel(self):
         self.assertTrue(is_addressable("biber"))
         for channel in CHANNELS:

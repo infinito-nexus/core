@@ -31,22 +31,31 @@ def http_error(code: int) -> urllib.error.HTTPError:
 
 
 class RecordingProxy:
-    """A `call` answering from a declared key state, recording what it was asked."""
-
     def __init__(self, known_keys: set[str], held_aliases: set[str]) -> None:
         self.known_keys = known_keys
         self.held_aliases = held_aliases
-        self.paths: list[str] = []
+        self.requests: list[tuple[str, str]] = []
+        self.bodies: list[dict | None] = []
+
+    @property
+    def paths(self) -> list[str]:
+        return [path for _method, path in self.requests]
 
     def __call__(self, method: str, path: str, body: dict | None = None):
-        self.paths.append(path)
+        self.requests.append((method, path))
+        self.bodies.append(body)
         if path.startswith("/key/list"):
             listed = [{"key_alias": alias} for alias in sorted(self.held_aliases)]
             return io.StringIO(json.dumps({"keys": listed, "total_pages": 1}))
         if path.startswith("/key/info"):
-            if path.split("=", 1)[1] not in self.known_keys:
-                raise http_error(404)
-            return None
+            raise http_error(404)
+        if path == "/v2/key/info":
+            if method != "POST":
+                raise http_error(405)
+            info = [
+                {"key_alias": "x"} for key in body["keys"] if key in self.known_keys
+            ]
+            return io.StringIO(json.dumps({"key": body["keys"], "info": info}))
         if path == "/key/delete":
             if not set(body["key_aliases"]) & self.held_aliases:
                 raise http_error(404)
@@ -61,7 +70,7 @@ class RecordingProxy:
 class TestEnsureKey(unittest.TestCase):
     ENTRY: ClassVar[dict[str, str]] = {"alias": "web-app-flowise", "key": "sk-new"}
     REPLACED: ClassVar[list[str]] = [
-        "/key/info?key=sk-new",
+        "/v2/key/info",
         "/key/delete",
         "/key/generate",
     ]
@@ -69,7 +78,27 @@ class TestEnsureKey(unittest.TestCase):
     def test_registered_key_is_left_alone(self):
         proxy = RecordingProxy({"sk-new"}, {"web-app-flowise"})
         self.assertFalse(MODULE.ensure_key(self.ENTRY, proxy))
-        self.assertEqual(proxy.paths, ["/key/info?key=sk-new"])
+        self.assertEqual(proxy.requests, [("POST", "/v2/key/info")])
+
+    def test_the_key_travels_in_the_body_never_in_the_url(self):
+        for known in ({"sk-new"}, set()):
+            with self.subTest(known=known):
+                proxy = RecordingProxy(known, {"web-app-flowise"})
+                MODULE.ensure_key(self.ENTRY, proxy)
+                self.assertEqual([path for path in proxy.paths if "sk-new" in path], [])
+                self.assertEqual(proxy.requests[0], ("POST", "/v2/key/info"))
+                self.assertEqual(proxy.bodies[0], {"keys": ["sk-new"]})
+
+    def test_a_failing_lookup_releases_no_alias(self):
+        calls: list[tuple[str, str]] = []
+
+        def call(method, path, body=None):
+            calls.append((method, path))
+            raise http_error(500)
+
+        with self.assertRaises(urllib.error.HTTPError):
+            MODULE.ensure_key(self.ENTRY, call)
+        self.assertEqual(calls, [("POST", "/v2/key/info")])
 
     def test_held_alias_is_released_before_the_key_is_created(self):
         proxy = RecordingProxy(set(), {"web-app-flowise"})
@@ -83,6 +112,8 @@ class TestEnsureKey(unittest.TestCase):
 
     def test_a_failing_creation_is_not_swallowed(self):
         def call(method, path, body=None):
+            if path == "/v2/key/info":
+                return io.StringIO(json.dumps({"key": body["keys"], "info": []}))
             raise http_error(500 if path == "/key/generate" else 404)
 
         with self.assertRaises(urllib.error.HTTPError) as raised:
@@ -217,7 +248,7 @@ class TestHttpCall(unittest.TestCase):
         self.assertEqual(captured["timeout"], MODULE.TIMEOUT)
 
     def test_a_bodyless_request_carries_no_payload(self):
-        captured = self._capture("GET", "/key/info?key=x", None)
+        captured = self._capture("GET", "/key/list?page=1", None)
         self.assertEqual(captured["method"], "GET")
         self.assertIsNone(captured["data"])
 

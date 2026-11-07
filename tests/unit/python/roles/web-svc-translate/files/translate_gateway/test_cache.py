@@ -39,6 +39,10 @@ class TableNameTestCase(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 TranslationCache(FakeClient(), name)
 
+    def test_a_trailing_newline_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            TranslationCache(FakeClient(), "translation_cache\n")
+
 
 class ReadTestCase(unittest.TestCase):
     def test_a_stored_answer_comes_back(self) -> None:

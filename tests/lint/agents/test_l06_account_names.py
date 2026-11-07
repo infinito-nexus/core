@@ -97,6 +97,18 @@ class TestL06(unittest.TestCase):
     def test_instance_ids_follow_the_rule(self):
         self.assertEqual(instance_id_problems(INSTANCE_IDS_OK, INSTANCE_IDS_BAD), [])
 
+    def test_a_trailing_newline_is_refused_by_every_check(self):
+        for check, value in (
+            (naming.is_agent_name, "mant0alice\n"),
+            (naming.is_human_name, "alice\n"),
+            (naming.is_instance_id, "dev1\n"),
+        ):
+            with self.subTest(check=check.__name__):
+                self.assertFalse(check(value))
+        for code, suffix in (("mant\n", "alice"), ("mant", "alice\n")):
+            with self.subTest(code=code, suffix=suffix), self.assertRaises(ValueError):
+                naming.agent_account_name(code, suffix)
+
     def test_red_fixture_fails(self):
         self.assertNotEqual(code_problems({"ghost": "gh0s"}), [])
         self.assertNotEqual(instance_id_problems(("dev-laptop",), ("dev1",)), [])
