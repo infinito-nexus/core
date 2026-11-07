@@ -304,7 +304,7 @@ Rules:
 
 ### External drift and update PRs
 
-- [ ] `tests/external/update/addons/` contains a warn-only external test that checks every addon with `update.monitored=true` for newer upstream versions.
+- [x] `tests/external/update/addons/` contains a warn-only external test that checks every addon with `update.monitored=true` for newer upstream versions. (`tests/external/update/addons/test_addon_versions.py::test_monitored_addon_pins_are_current` resolves every addon pin through `utils/update/source.py` `addon_entries` and `outdated` and warns per outdated pin; a monitored addon without a pin tracks the application's default. `tests/lint/repository/test_version_pins_are_watched.py` keeps every pinned addon resolvable, so no monitored pin escapes the check. `tests/external/update/source/test_version_sources.py` reads `service_entries` only, so no addon is checked twice; `tests/unit/python/utils/update/test_source.py::TestEntriesSplitByOwner` pins the split.)
 - [ ] The external addon test emits GitHub Actions warning annotations for outdated addon versions and for relevant new catalog entries that are not listed in `meta/addons/`.
 - [x] The external addon test is runnable through `make test-external`, which the default `make test` flow runs, and stays warn-only inside it.
 - [x] The supported catalog adapters are documented and bounded so broad marketplaces do not produce unreviewable warning noise.

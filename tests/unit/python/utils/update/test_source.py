@@ -234,6 +234,34 @@ class TestPulledImage(unittest.TestCase):
         self.assertEqual(entries, {"app_version": "", "version": "example"})
 
 
+class TestEntriesSplitByOwner(unittest.TestCase):
+    """The service and the addon drift checks each read their own half."""
+
+    def setUp(self) -> None:
+        self.root = _repo()
+        directory = self.root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+        directory.mkdir(parents=True)
+        (directory / "released.yml").write_text(ADDONS["released"], encoding="utf-8")
+
+    def test_service_entries_hold_no_addon_pin(self) -> None:
+        self.assertEqual(
+            [(e.entity, e.addon) for e in module.service_entries(self.root)],
+            [("app", False), ("app", False)],
+        )
+
+    def test_addon_entries_hold_no_service_pin(self) -> None:
+        self.assertEqual(
+            [(e.entity, e.addon) for e in module.addon_entries(self.root)],
+            [("released", True)],
+        )
+
+    def test_collect_entries_is_both_halves_in_order(self) -> None:
+        self.assertEqual(
+            module.collect_entries(self.root),
+            module.service_entries(self.root) + module.addon_entries(self.root),
+        )
+
+
 class TestAddons(unittest.TestCase):
     def test_only_a_declared_or_github_released_addon_pin_is_collected(self) -> None:
         entries = module.collect_entries(_addon_repo())

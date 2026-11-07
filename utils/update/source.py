@@ -357,7 +357,12 @@ def invalid_declarations(repo_root: Path) -> list[str]:
     return problems
 
 
-def _addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
+def addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
+    """Return every addon version source that is not suppressed.
+
+    Args:
+        repo_root: repository root.
+    """
     roles_root = repo_root / "roles"
     entries: list[VersionSourceEntry] = []
     for role, addon_path in iter_addon_files(roles_root):
@@ -391,8 +396,12 @@ def _addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
     return entries
 
 
-def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
-    """Return every declared version source that is not suppressed."""
+def service_entries(repo_root: Path) -> list[VersionSourceEntry]:
+    """Return every ``meta/services.yml`` version source that is not suppressed.
+
+    Args:
+        repo_root: repository root.
+    """
     roles_root = repo_root / "roles"
     entries: list[VersionSourceEntry] = []
     for config_path in sorted(roles_root.glob(f"*/{ROLE_FILE_META_SERVICES}")):
@@ -425,7 +434,12 @@ def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
                         image=config.get("image", "") if key == DEFAULT_KEY else "",
                     )
                 )
-    return entries + _addon_entries(repo_root)
+    return entries
+
+
+def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
+    """Return every declared version source that is not suppressed."""
+    return service_entries(repo_root) + addon_entries(repo_root)
 
 
 def outdated(

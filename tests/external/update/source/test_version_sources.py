@@ -2,7 +2,9 @@
 
 A pin outside the Docker and repository updaters names its upstream in an
 ``update:`` block of ``roles/*/meta/services.yml``. This test resolves each
-declared source and warns when it offers a newer version.
+declared source and warns when it offers a newer version. Addon pins declare
+the same blocks in ``meta/addons/<id>.yml``;
+``tests/external/update/addons/test_addon_versions.py`` checks those.
 
 Counterpart to ``tests/external/update/docker/test_image_versions.py`` and
 ``tests/external/update/repository/test_repository_versions.py``. The shared
@@ -23,7 +25,7 @@ from __future__ import annotations
 import unittest
 
 from utils.annotations.message import warning
-from utils.update.source import collect_entries, find_outdated_updates
+from utils.update.source import outdated, service_entries
 
 from . import PROJECT_ROOT
 
@@ -32,8 +34,8 @@ class TestVersionSources(unittest.TestCase):
     """Warn about outdated pins that declare their own upstream source."""
 
     def test_declared_version_sources_are_current(self) -> None:
-        entries = collect_entries(PROJECT_ROOT)
-        updates = find_outdated_updates(PROJECT_ROOT)
+        entries = service_entries(PROJECT_ROOT)
+        updates = outdated(entries, PROJECT_ROOT)
 
         if updates:
             rows = "\n".join(
