@@ -20,12 +20,12 @@ in the display name; both are tolerated.
 from __future__ import annotations
 
 import json
-import re
 
 from cli.administration.deploy.ci.gh import (
     _gh,
     fetch_jobs,
 )
+from cli.administration.deploy.ci.job_inputs import parse_inputs
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.github import run_name
@@ -222,26 +222,6 @@ def failed_roles(
     return sorted(app for app, modes in statuses.items() if fails(modes))
 
 
-_INPUT_RE = re.compile(r"^\S+\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*): ?(?P<value>.*)$")
-
-
-def _parse_inputs(log: str) -> dict[str, str]:
-    """The ``##[group] Inputs`` block of a job log, as name -> value."""
-    inputs: dict[str, str] = {}
-    inside = False
-    for line in log.splitlines():
-        if line.endswith("##[group] Inputs"):
-            inside = True
-            continue
-        if inside:
-            if line.endswith("##[endgroup]"):
-                break
-            match = _INPUT_RE.match(line)
-            if match:
-                inputs[match["name"]] = match["value"].strip()
-    return inputs
-
-
 def inputs_from_jobs(
     jobs: list[dict], repo: str, errors: list[str] | None = None
 ) -> dict[str, str]:
@@ -286,7 +266,7 @@ def inputs_from_jobs(
         key=lambda job: str(job["name"]).count(" / "),
     )
     for job in candidates:
-        inputs = _parse_inputs(
+        inputs = parse_inputs(
             _gh(
                 [
                     "api",

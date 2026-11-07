@@ -23,13 +23,14 @@ import requests
 
 from utils.annotations.message import warning
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
-_SERVICES = PROJECT_ROOT / "roles/web-app-matrix/meta/services.yml"
+_SERVICES = PROJECT_ROOT / "roles/web-app-matrix" / ROLE_FILE_META_SERVICES
 _VAR = "matrix_synapse_usage_exporter_container_extra_arguments"
 _ROLE = "roles/custom/matrix-synapse-usage-exporter"
-_DEFAULTS = f"{_ROLE}/defaults/main.yml"
+_DEFAULTS = f"{_ROLE}/{ROLE_FILE_DEFAULTS_MAIN}"
 _SERVICE_UNIT = f"{_ROLE}/templates/systemd/matrix-synapse-usage-exporter.service.j2"
 _TIMEOUT_SECONDS = 20
 
