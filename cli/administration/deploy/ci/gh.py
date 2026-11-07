@@ -60,21 +60,31 @@ def resolve_repo() -> str:
     return slug_from_url(_run(["git", "remote", "get-url", _branch_remote()]))
 
 
-def _gh(args: list[str], repo: str | None = None, check: bool = True) -> str:
+def _gh(
+    args: list[str], repo: str | None = None, errors: list[str] | None = None
+) -> str:
     """Run ``gh`` and return its stdout.
 
     Args:
         args: the ``gh`` arguments, without the ``gh`` itself.
         repo: appended as ``--repo`` when given.
-        check: abort the command on a non-zero exit. Pass ``False`` for calls
-            whose failure the caller handles, which then yields ``""``.
+        errors: when given, a non-zero exit appends gh's last stderr line to it
+            and yields ``""`` instead of aborting the command. URL query strings
+            are cut from that line: job logs redirect to signed blob URLs whose
+            query string is the signature.
     """
     cmd = ["gh", *args]
     if repo:
         cmd += ["--repo", repo]
     proc = subprocess.run(cmd, check=False, capture_output=True, text=True)
     if proc.returncode != 0:
-        if not check:
+        if errors is not None:
+            lines = proc.stderr.strip().splitlines()
+            errors.append(
+                re.sub(r"\?\S*", "", lines[-1])
+                if lines
+                else f"gh exited {proc.returncode}"
+            )
             return ""
         sys.stderr.write(
             proc.stderr or f"gh exited {proc.returncode}: {' '.join(cmd)}\n"

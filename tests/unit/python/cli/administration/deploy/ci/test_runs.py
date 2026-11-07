@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import subprocess
 import unittest
+import unittest.mock as mock
 from typing import ClassVar
 
 from cli.administration.deploy.ci import gh, runs
@@ -237,8 +239,13 @@ class TestInputsFromJobs(unittest.TestCase):
         ]
     )
 
+    NOT_FOUND: ClassVar[str] = "gh: Not Found (HTTP 404)"
+
     def _read(
-        self, jobs: list[dict], logs: dict[int, str]
+        self,
+        jobs: list[dict],
+        logs: dict[int, str],
+        errors: list[str] | None = None,
     ) -> tuple[dict[str, str], list[int]]:
         """Read *jobs* against a fake ``gh`` serving *logs* by job id.
 
@@ -246,6 +253,7 @@ class TestInputsFromJobs(unittest.TestCase):
             jobs: the run's jobs.
             logs: job id -> log body. A missing id stands for a job whose log
                 blob does not exist, which ``gh`` reports as a bare HTTP 404.
+            errors: passed through to the reader.
 
         Returns:
             the parsed inputs and the job ids the reader asked for, in order.
@@ -253,18 +261,21 @@ class TestInputsFromJobs(unittest.TestCase):
         asked: list[int] = []
 
         def fake_gh(
-            args: list[str], repo: str | None = None, check: bool = True
+            args: list[str], repo: str | None = None, errors: list[str] | None = None
         ) -> str:
             self.assertIn("--allow-escape-sequences", args)
-            self.assertFalse(check)
+            self.assertIsNotNone(errors)
             job_id = int(args[-1].split("/")[-2])
             asked.append(job_id)
-            return logs.get(job_id, "")
+            if job_id not in logs:
+                errors.append(self.NOT_FOUND)
+                return ""
+            return logs[job_id]
 
         original = runs._gh
         runs._gh = fake_gh
         try:
-            return runs.inputs_from_jobs(jobs, "o/r"), asked
+            return runs.inputs_from_jobs(jobs, "o/r", errors), asked
         finally:
             runs._gh = original
 
@@ -353,13 +364,73 @@ class TestInputsFromJobs(unittest.TestCase):
             },
         ]
 
-        inputs, asked = self._read(jobs, {})
+        errors: list[str] = []
+        inputs, asked = self._read(jobs, {}, errors)
 
         self.assertEqual(asked, [2])
         self.assertEqual(inputs, {})
+        self.assertEqual(errors, [self.NOT_FOUND])
 
     def test_a_run_without_a_called_job_reads_nothing(self) -> None:
         self.assertEqual(runs.inputs_from_jobs([{"name": "🎲 Pick"}], "o/r"), {})
+
+    def test_the_guard_names_the_gh_error_of_the_failed_reads(self) -> None:
+        source = {
+            "jobs": [
+                {
+                    "name": "🎛️ Orchestrate CI (manual) / 🏁 Finish pipeline",
+                    "databaseId": 1,
+                    "conclusion": "success",
+                }
+            ],
+            "displayTitle": render({"priority": "web-app-x"}),
+        }
+
+        def failing(jobs: list[dict], repo: str, errors: list[str]) -> dict[str, str]:
+            errors.append(self.NOT_FOUND)
+            return {}
+
+        with (
+            mock.patch.object(runs, "inputs_from_jobs", side_effect=failing),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            runs.dispatched_priority(source, "o/r")
+
+        self.assertIn(
+            f"1 log read(s) failed, the last with: {self.NOT_FOUND}",
+            str(raised.exception),
+        )
+
+
+class TestGhErrors(unittest.TestCase):
+    def _fail(self, stderr: str) -> list[str]:
+        errors: list[str] = []
+        failed = subprocess.CompletedProcess([], 1, stdout="{}", stderr=stderr)
+        with mock.patch.object(gh.subprocess, "run", return_value=failed):
+            self.assertEqual(gh._gh(["api", "x"], errors=errors), "")
+        return errors
+
+    def test_a_failure_with_errors_given_yields_empty_and_its_last_line(self) -> None:
+        self.assertEqual(
+            self._fail("warning\ngh: Not Found (HTTP 404)\n"),
+            ["gh: Not Found (HTTP 404)"],
+        )
+
+    def test_a_signed_redirect_url_loses_its_query_string(self) -> None:
+        self.assertEqual(
+            self._fail("HTTP 403: (https://blob.example/log.txt?sv=1&sig=secret)"),
+            ["HTTP 403: (https://blob.example/log.txt"],
+        )
+
+    def test_a_failure_without_errors_aborts(self) -> None:
+        failed = subprocess.CompletedProcess([], 4, stdout="", stderr="boom\n")
+        with (
+            mock.patch.object(gh.subprocess, "run", return_value=failed),
+            mock.patch.object(gh.sys, "stderr"),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            gh._gh(["api", "x"])
+        self.assertEqual(raised.exception.code, 4)
 
 
 class TestConfigFromTitle(unittest.TestCase):
