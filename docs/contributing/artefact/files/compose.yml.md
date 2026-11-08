@@ -38,8 +38,9 @@ The per-variable default + comment lives next to the key in [default.env](../../
 
 ### Resource Caps (OOM Reproduction)
 
-These variables cap the `infinito` container so local runs can reproduce GitHub-hosted runner pressure.
-Each default is `0`, which Docker interprets as "unlimited" and is identical to omitting the key.
+These variables cap the `infinito` container, so a runaway deploy hits the container's own limit before the host runs out of memory, and local runs can reproduce GitHub-hosted runner pressure.
+Outside GitHub Actions and act, `make dotenv` sets `INFINITO_MEM_LIMIT` and `INFINITO_MEMSWAP_LIMIT` to 75 % of the host's `MemTotal` ([memory.py](../../../../utils/env/handlers/infinito/memory.py)); there, and wherever a value is `0`, Docker reads the key as "unlimited".
+`INFINITO_OOM_SCORE_ADJ` sets `oom_score_adj` on the `infinito` and `target` containers, so the kernel's OOM killer picks the stack before the editor and the rest of the host.
 See [ci.md](../../actions/debugging/ci.md) for runner specs and reproduction profiles.
 
 | Variable | Compose key | Example override |
@@ -47,6 +48,7 @@ See [ci.md](../../actions/debugging/ci.md) for runner specs and reproduction pro
 | `INFINITO_MEM_LIMIT` | `mem_limit` | `16g` |
 | `INFINITO_MEMSWAP_LIMIT` | `memswap_limit` | `16g` |
 | `INFINITO_CPUS` | `cpus` | `4` |
+| `INFINITO_OOM_SCORE_ADJ` | `oom_score_adj` | `1000` |
 
 You SHOULD set `INFINITO_MEMSWAP_LIMIT` to the same value as `INFINITO_MEM_LIMIT` to disable swap inflation.
 Allowing swap masks OOM conditions that the real runner would hit.

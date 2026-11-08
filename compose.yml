@@ -60,6 +60,7 @@ services:
     restart: "no"
     mem_limit: ${INFINITO_MEM_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     memswap_limit: ${INFINITO_MEMSWAP_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
+    oom_score_adj: ${INFINITO_OOM_SCORE_ADJ:?Run 'make dotenv' to generate the .env single source of truth}
     cpus: ${INFINITO_CPUS:?Run 'make dotenv' to generate the .env single source of truth}
     <<: *ci_defaults
     volumes:
@@ -141,6 +142,7 @@ services:
     privileged: true
     cgroup: host
     pids_limit: 32768
+    oom_score_adj: ${INFINITO_OOM_SCORE_ADJ:?Run 'make dotenv' to generate the .env single source of truth}
     tmpfs:
       - /run
       - /run/lock
