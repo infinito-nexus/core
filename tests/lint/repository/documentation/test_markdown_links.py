@@ -65,7 +65,7 @@ def _tracked_files() -> frozenset[str]:
     return frozenset(entry for entry in listed.stdout.split("\0") if entry)
 
 
-def _unresolvable(resolved: Path) -> str:
+def _unresolvable(resolved: Path, source: Path) -> str:
     """Return why ``resolved`` cannot back a link, empty when it can.
 
     A directory is only a link target because an index page stands in for it:
@@ -75,10 +75,14 @@ def _unresolvable(resolved: Path) -> str:
 
     A generated file is present for whoever ran the generator and absent
     everywhere else, including the documentation build, which reads what
-    git would track. Existing on this disk is therefore not enough.
+    git would track. Existing on this disk is therefore not enough. An
+    untracked source, such as a role `make roles-pull` checked out, arrives
+    and leaves together with its untracked targets, so only a tracked source
+    needs a tracked target.
 
     Args:
         resolved: the absolute path a link target resolved to.
+        source: the absolute path of the markdown file holding the link.
     """
     if not resolved.exists():
         return "no such path"
@@ -86,7 +90,11 @@ def _unresolvable(resolved: Path) -> str:
         if index_page(resolved) is None:
             return f"directory without any of {', '.join(INDEX_FILES)}"
         return ""
-    if resolved.relative_to(PROJECT_ROOT).as_posix() not in _tracked_files():
+    tracked = _tracked_files()
+    if (
+        source.relative_to(PROJECT_ROOT).as_posix() in tracked
+        and resolved.relative_to(PROJECT_ROOT).as_posix() not in tracked
+    ):
         return "untracked, so it is absent from a fresh checkout and the docs build"
     return ""
 
@@ -170,7 +178,7 @@ def _check_file(file: Path, root: Path) -> list[BrokenLink]:
         else:
             resolved = (base / path_part).resolve()
 
-        reason = _unresolvable(resolved)
+        reason = _unresolvable(resolved, file)
         if reason:
             broken.append(
                 BrokenLink(
