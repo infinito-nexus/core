@@ -100,12 +100,12 @@ class TestRunnerMirror(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             compose = Compose(_repo(Path(tmp)), "arch")
             with patch("subprocess.run") as run:
-                compose._generate_package_frontend_certs(
-                    {INIT_IMAGE_KEY: "alpine:latest"}
-                )
+                run.return_value.returncode = 0
+                compose._prepare_pinned_cache({INIT_IMAGE_KEY: "alpine:latest"})
+                compose._apply_pinned_cache({INIT_IMAGE_KEY: "alpine:latest"})
         self.assertEqual(
-            run.call_args.kwargs["env"][INIT_IMAGE_KEY],
-            "ghcr.io/acme/core/mirror/docker.io/alpine:latest",
+            [call.kwargs["env"][INIT_IMAGE_KEY] for call in run.call_args_list],
+            ["ghcr.io/acme/core/mirror/docker.io/alpine:latest"] * 2,
         )
 
 

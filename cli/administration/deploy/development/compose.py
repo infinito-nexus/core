@@ -5,7 +5,7 @@ import subprocess
 import time
 from pathlib import Path
 
-from utils.cache.render import ROLE_DIR as CACHE_ROLE_DIR
+from utils.cache import pin
 from utils.cache.render import render_artifacts
 from utils.env.handlers.infinito.cache.conf import KEY as CACHE_CONF_KEY
 from utils.env.handlers.infinito.cache.conf import RELATIVE as CACHE_CONF
@@ -18,7 +18,8 @@ from .profile import Profile
 from .runner_mirror import env_image
 from .target import reset_stack_target
 
-CACHE_ROLE_SHELL_DIR = CACHE_ROLE_DIR / "files" / "shell"
+CACHE_APPLY = Path("scripts") / "system" / "cache" / "apply.sh"
+CACHE_PIN_DOC = "docs/requirements/096-cache-stack-pin.md"
 
 INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
 
@@ -119,63 +120,52 @@ class Compose:
         if last_exc is not None:
             raise last_exc
 
-    def _bootstrap_package_cache(self, env: dict[str, str]) -> None:
-        """Run the host-side Nexus bootstrap helper. Idempotent."""
-        helper = CACHE_ROLE_SHELL_DIR / "bootstrap.sh"
-        print(">>> Bootstrapping package-cache proxy repos")
+    def _cache_apply_helper(self) -> Path:
+        return self.repo_root / CACHE_APPLY
+
+    def _cache_apply_env(self, env: dict[str, str]) -> dict[str, str]:
+        if not self.profile.image_mirror_enabled():
+            return env
+        return {**env, INIT_IMAGE_KEY: env_image(self.repo_root, INIT_IMAGE_KEY)}
+
+    def _prepare_pinned_cache(self, env: dict[str, str]) -> None:
+        """
+        Raises:
+            SystemExit: no pin exists yet, `.env` predates the pin, or the
+                pinned commit cannot be materialized; the stack does not start.
+        """
+        print(">>> Preparing the cache stack from the pinned commit")
         r = subprocess.run(
-            [str(helper)],
+            ["bash", str(self._cache_apply_helper()), "prepare"],
             cwd=self.repo_root,
-            env=env,
+            env=self._cache_apply_env(env),
             check=False,
             text=True,
         )
         if r.returncode != 0:
-            print(
-                f">>> WARNING: package-cache bootstrap exited rc={r.returncode}; "
-                f"re-run {helper} manually or inspect docker logs infinito-package-cache"
+            raise SystemExit(
+                ">>> ERROR: the cache stack does not start without its pin "
+                f"(apply.sh prepare exited rc={r.returncode}, reason above). "
+                "Run `make dotenv` if it names an unset key; before the first "
+                "pin the declarer runs `make cache-declare ref=<commit>`. "
+                f"See {CACHE_PIN_DOC}."
             )
 
-    def _generate_package_frontend_certs(self, env: dict[str, str]) -> None:
-        """Generate frontend CA + leaf certs before nginx starts."""
-        helper = CACHE_ROLE_SHELL_DIR / "certs.sh"
-        if self.profile.image_mirror_enabled():
-            env = {
-                **env,
-                INIT_IMAGE_KEY: env_image(self.repo_root, INIT_IMAGE_KEY),
-            }
-        print(">>> Generating package-cache-frontend CA + per-hostname certs")
-        subprocess.run(
-            [str(helper)],
-            cwd=self.repo_root,
-            env=env,
-            check=True,
-            text=True,
-        )
-
-    def _apply_shared_cache(self, env: dict[str, str]) -> None:
-        """Serve this checkout's cache declarations from the shared stack.
-
-        The owner creates the proxy repositories and the certificates while
-        it brings its own containers up. An instance that only joins the
-        network starts none of them, so without this its `cache:` entries
-        exist on disk and nowhere else: the hijacked hostname resolves to a
-        frontend that has no server block for it.
-        """
-        helper = self.repo_root / "scripts" / "system" / "cache" / "apply.sh"
-        print(">>> Applying this checkout's cache declarations to the shared stack")
+    def _apply_pinned_cache(self, env: dict[str, str]) -> None:
+        helper = self._cache_apply_helper()
+        print(">>> Applying the pinned cache declarations to the cache stack")
         r = subprocess.run(
             ["bash", str(helper)],
             cwd=self.repo_root,
-            env=env,
+            env=self._cache_apply_env(env),
             check=False,
             text=True,
         )
         if r.returncode != 0:
             print(
-                f">>> WARNING: cache apply exited rc={r.returncode}; the shared "
-                "frontend keeps serving the map it already had. Start the owning "
-                f"stack and re-run `make cache-apply` ({helper})."
+                f">>> WARNING: cache apply exited rc={r.returncode}; the cache "
+                "frontend keeps serving the map it already had. See the message "
+                f"above, then re-run `make cache-apply` ({helper})."
             )
 
     def _install_package_frontend_ca_in_runner(self) -> None:
@@ -225,7 +215,8 @@ class Compose:
         reaches `extends: compose.cache-consumer.yml` with the file absent.
         """
         conf = Path(os.environ.get(CACHE_CONF_KEY, "") or (self.repo_root / CACHE_CONF))
-        for path in render_artifacts(self.repo_root, conf):
+        served = pin.served_hosts(os.environ)
+        for path in render_artifacts(self.repo_root, conf, served):
             print(f"[compose] cache file generated at: {path}")
 
     def up(self, *, run_entry_init: bool = True) -> None:
@@ -253,7 +244,7 @@ class Compose:
         if no_build:
             args.append("--no-build")
         if self.profile.owns_cache_stack():
-            self._generate_package_frontend_certs(env)
+            self._prepare_pinned_cache(env)
             args += ["registry-cache", "package-cache", "package-cache-frontend"]
         args += ["coredns", "infinito"]
 
@@ -261,11 +252,8 @@ class Compose:
 
         self.wait_for_healthy()
 
-        if self.profile.owns_cache_stack():
-            self._bootstrap_package_cache(env)
-        elif self.profile.cache_stack_enabled():
-            self._apply_shared_cache(env)
         if self.profile.cache_stack_enabled():
+            self._apply_pinned_cache(env)
             self._install_package_frontend_ca_in_runner()
             if self.profile.shared_package_cache():
                 self._layer_pacman_cache_in_runner()
