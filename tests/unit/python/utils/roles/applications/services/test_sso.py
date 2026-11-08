@@ -4,7 +4,9 @@ import unittest
 
 from jinja2.filters import do_urlencode
 
+from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.roles.applications.services.sso import (
+    SsoConfigConflictError,
     get_sso_config,
     is_potentially_enabled,
     logout_url,
@@ -14,6 +16,7 @@ from utils.roles.applications.services.sso import (
 KEYCLOAK_LOGOUT = "https://auth.example.org/realms/r/protocol/openid-connect/logout"
 ONION = "a" * 56 + ".onion"
 CONFIG_FILE = "oauth2-proxy-keycloak.cfg"
+ADMIN_GROUPS = ["/roles/web-app-x/administrator"]
 
 
 def _apps(
@@ -25,6 +28,7 @@ def _apps(
     oauth2_origin_port=None,
     oauth2_acl=None,
     oauth2_allowed_groups=None,
+    oauth2_allow_all_users=None,
 ) -> dict:
     sso: dict = {"enabled": enabled, "shared": shared}
     if flavor is not None:
@@ -39,6 +43,8 @@ def _apps(
         oauth2_sub["acl"] = oauth2_acl
     if oauth2_allowed_groups is not None:
         oauth2_sub["allowed_groups"] = oauth2_allowed_groups
+    if oauth2_allow_all_users is not None:
+        oauth2_sub["allow_all_users"] = oauth2_allow_all_users
     if oauth2_sub:
         sso["oauth2"] = oauth2_sub
     return {"web-app-x": {"services": {"sso": sso}}}
@@ -182,6 +188,98 @@ class Oauth2SubPropertiesTests(unittest.TestCase):
         )
         self.assertEqual(res["oauth2_origin_host"], "application")
         self.assertFalse(res["is_proxy_gated"])  # still oidc
+
+
+class Oauth2AllowAllUsersTests(unittest.TestCase):
+    def test_defaults_to_false_when_absent(self):
+        res = get_sso_config(_apps(enabled=True, flavor="oauth2"), "web-app-x")
+        self.assertIs(res["oauth2_allow_all_users"], False)
+
+    def test_reads_the_declared_opt_in(self):
+        res = get_sso_config(
+            _apps(enabled=True, flavor="oauth2", oauth2_allow_all_users=True),
+            "web-app-x",
+        )
+        self.assertIs(res["oauth2_allow_all_users"], True)
+
+    def test_parses_rendered_strings_like_pass_access_token(self):
+        for value, expected in (("True", True), ("yes", True), ("False", False)):
+            with self.subTest(value=value):
+                res = get_sso_config(
+                    _apps(enabled=True, flavor="oauth2", oauth2_allow_all_users=value),
+                    "web-app-x",
+                )
+                self.assertIs(res["oauth2_allow_all_users"], expected)
+
+    def test_coexists_with_an_empty_allowed_groups_list(self):
+        res = get_sso_config(
+            _apps(
+                enabled=True,
+                flavor="oauth2",
+                oauth2_allowed_groups=[],
+                oauth2_allow_all_users=True,
+            ),
+            "web-app-x",
+        )
+        self.assertEqual(
+            (res["oauth2_allow_all_users"], res["oauth2_allowed_groups"]), (True, [])
+        )
+
+    def test_false_keeps_the_allowed_groups(self):
+        res = get_sso_config(
+            _apps(
+                enabled=True,
+                flavor="oauth2",
+                oauth2_allowed_groups=ADMIN_GROUPS,
+                oauth2_allow_all_users=False,
+            ),
+            "web-app-x",
+        )
+        self.assertEqual(res["oauth2_allowed_groups"], ADMIN_GROUPS)
+
+    def test_together_with_allowed_groups_raises(self):
+        with self.assertRaises(SsoConfigConflictError):
+            get_sso_config(
+                _apps(
+                    enabled=True,
+                    flavor="oauth2",
+                    oauth2_allowed_groups=ADMIN_GROUPS,
+                    oauth2_allow_all_users=True,
+                ),
+                "web-app-x",
+            )
+
+    def test_the_conflict_names_the_application_and_both_keys(self):
+        with self.assertRaises(SsoConfigConflictError) as ctx:
+            get_sso_config(
+                _apps(
+                    enabled=True,
+                    flavor="oauth2",
+                    oauth2_allowed_groups=ADMIN_GROUPS,
+                    oauth2_allow_all_users=True,
+                ),
+                "web-app-x",
+            )
+        for name in (
+            "web-app-x",
+            "services.sso.oauth2.allow_all_users",
+            "services.sso.oauth2.allowed_groups",
+        ):
+            with self.subTest(name=name):
+                self.assertIn(name, str(ctx.exception))
+
+    def test_an_inventory_empty_list_replaces_the_role_groups(self):
+        role = _apps(enabled=True, flavor="oauth2", oauth2_allowed_groups=ADMIN_GROUPS)
+        inventory = _apps(
+            enabled=True,
+            flavor="oauth2",
+            oauth2_allowed_groups=[],
+            oauth2_allow_all_users=True,
+        )
+        res = get_sso_config(merge_with_defaults(role, inventory), "web-app-x")
+        self.assertEqual(
+            (res["oauth2_allow_all_users"], res["oauth2_allowed_groups"]), (True, [])
+        )
 
 
 class IsPotentiallyEnabledTests(unittest.TestCase):

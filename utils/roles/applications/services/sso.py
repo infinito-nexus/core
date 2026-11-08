@@ -21,6 +21,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
+from ansible.errors import AnsibleFilterError
+
 from utils.networks.instances import labelled, labelled_file, network_instances
 from utils.roles.applications.config import get
 
@@ -31,6 +33,10 @@ if TYPE_CHECKING:
 _DEFAULT_FLAVOR = "oidc"
 _VALID_FLAVORS = frozenset({"oidc", "oauth2", "saml"})
 OAUTH2_SIGN_OUT_PATH = "/oauth2/sign_out"
+
+
+class SsoConfigConflictError(AnsibleFilterError, ValueError):
+    """Raised when an application's ``services.sso`` keys contradict each other."""
 
 
 def is_potentially_enabled(value: Any) -> bool:
@@ -81,6 +87,38 @@ def _get(applications: Mapping[str, Any], app_id: str, path: str, default: Any) 
     )
 
 
+def _oauth2_admission(
+    applications: Mapping[str, Any], app_id: str
+) -> tuple[list[Any], bool]:
+    """Resolve who the oauth2 gate admits.
+
+    Args:
+        applications: the merged applications payload.
+        app_id: the consumer application.
+
+    Returns:
+        ``(allowed_groups, allow_all_users)``.
+
+    Raises:
+        SsoConfigConflictError: ``allow_all_users`` is true and
+            ``allowed_groups`` is non-empty.
+    """
+    raw_groups = _get(applications, app_id, "services.sso.oauth2.allowed_groups", [])
+    allowed_groups = list(raw_groups) if isinstance(raw_groups, (list, tuple)) else []
+    allow_all_users = _as_bool(
+        _get(applications, app_id, "services.sso.oauth2.allow_all_users", False)
+    )
+    if allow_all_users and allowed_groups:
+        raise SsoConfigConflictError(
+            f"{app_id}: services.sso.oauth2.allow_all_users is true while "
+            f"services.sso.oauth2.allowed_groups is non-empty ({allowed_groups}). "
+            "allow_all_users admits every authenticated realm user, allowed_groups "
+            "admits only its members. Set allowed_groups: [] in the inventory to "
+            "admit everyone, or drop allow_all_users to keep the restriction."
+        )
+    return allowed_groups, allow_all_users
+
+
 def get_sso_config(
     applications: Mapping[str, Any],
     application_id: str,
@@ -100,9 +138,19 @@ def get_sso_config(
         oauth2_origin_port      str  — ``services.sso.oauth2.origin.port`` or ''
         oauth2_acl              dict — ``services.sso.oauth2.acl`` or {}
         oauth2_allowed_groups   list — ``services.sso.oauth2.allowed_groups`` or []
+        oauth2_allow_all_users  bool - ``services.sso.oauth2.allow_all_users``,
+                                default False: the gate admits every
+                                authenticated realm user and still forwards
+                                the groups claim, so the app derives roles
+                                from the groups header itself
         oauth2_pass_access_token bool — ``services.sso.oauth2.pass_access_token``,
                                 default False: the gate hands the upstream a
                                 bearer token only where the app decodes one
+
+    ``allow_all_users`` true together with a non-empty ``allowed_groups``
+    raises ``SsoConfigConflictError``. A list in the inventory replaces the
+    role's list, so ``allowed_groups: []`` there clears what
+    ``meta/services.yml`` ships.
 
     The compound predicates are the documented call surface — call sites
     should prefer ``is_proxy_gated`` over manually combining
@@ -124,12 +172,10 @@ def get_sso_config(
     raw_host = _get(applications, application_id, "services.sso.oauth2.origin.host", "")
     raw_port = _get(applications, application_id, "services.sso.oauth2.origin.port", "")
     raw_acl = _get(applications, application_id, "services.sso.oauth2.acl", {})
-    raw_allowed_groups = _get(
-        applications, application_id, "services.sso.oauth2.allowed_groups", []
-    )
     raw_pass_access_token = _get(
         applications, application_id, "services.sso.oauth2.pass_access_token", False
     )
+    allowed_groups, allow_all_users = _oauth2_admission(applications, application_id)
 
     return {
         "enabled": enabled,
@@ -142,11 +188,8 @@ def get_sso_config(
         "oauth2_origin_host": str(raw_host) if raw_host else "",
         "oauth2_origin_port": str(raw_port) if raw_port not in (None, "") else "",
         "oauth2_acl": raw_acl if isinstance(raw_acl, dict) else {},
-        "oauth2_allowed_groups": (
-            list(raw_allowed_groups)
-            if isinstance(raw_allowed_groups, (list, tuple))
-            else []
-        ),
+        "oauth2_allowed_groups": allowed_groups,
+        "oauth2_allow_all_users": allow_all_users,
         "oauth2_pass_access_token": _as_bool(raw_pass_access_token),
     }
 
