@@ -83,6 +83,8 @@ security-check:
   version: "{{ lookup('role_version', 'web-app-cst-security-check') }}"
 ```
 
+A role with an `sso` service declares its row of the back-channel logout table in [web-svc-logout's README](../../roles/web-svc-logout/README.md) in its own repository's `meta/services.yml`, as `sso.backchannel` with the string values `logout` (starting with `yes` or `no`), `endpoint`, `documentation` and `session`, while its `sso.flavor` fills the flavor cell. Quote every value, because YAML reads a bare `yes` or `no` as a boolean, a bare number as an integer, and an unquoted `-` does not parse; an empty cell, `to verify` or `TBD` in any cell and an unknown key are refused, and `sso.backchannel` on a core role is a finding, since a core role keeps its row in the README.
+
 For the local compose stack, `INFINITO_EXTRA_MOUNTS=<dir>[,<dir>]` mounts each directory read-only at the same path into the `infinito` container, so a local `url` resolves inside it.
 
 ### Private Repositories 🔐
