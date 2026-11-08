@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.github.variant.network import network_states
+from utils.github.variant.network import combinations, network_states
 from utils.github.variant.pools import ARCHITECTURES
 from utils.github.variant.vpn import VPN_DEPLOY_MODES, pinned_vpn_states
 from utils.roles.display import VARIANT_SEPARATOR
@@ -18,7 +18,7 @@ from utils.roles.meta_lookup import get_role_architectures
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-__all__ = ["check_pins", "row_architectures"]
+__all__ = ["check_pins", "priority_picks", "row_architectures"]
 
 
 def _reject(app: str, variant: str, reason: str) -> None:
@@ -100,6 +100,39 @@ def check_pins(
             f"here (only {'/'.join(VPN_DEPLOY_MODES)} meshes). A held vpn axis "
             f"overrides the pin instead and is not refused here",
         )
+
+
+def priority_picks(
+    offered: Sequence[str],
+    *,
+    pin_mode: str | None,
+    pin_network: str | None,
+    pin_vpn: bool | None,
+    states: Sequence[str],
+    network_input: str,
+    vpn_mode: str,
+) -> list[tuple[str, str, bool]]:
+    """Args:
+        offered: the deploy modes the row offers in this run.
+        pin_mode: the token's pinned deploy mode, ``None`` for any.
+        pin_network: the token's pinned network mode, ``None`` for any.
+        pin_vpn: the token's pinned mesh state, ``None`` for any.
+        states: the network modes the row's role can be served in.
+        network_input: the run's network axis.
+        vpn_mode: the run's mesh axis.
+
+    Returns:
+        ``(mode, network, meshed)`` per job, empty when the row cannot deploy
+        in this run at all.
+    """
+    return [
+        (mode, state, meshed)
+        for mode, state in combinations(
+            offered, states=states, network_input=network_input
+        )
+        if pin_mode in (None, mode) and pin_network in (None, state)
+        for meshed in pinned_vpn_states(mode, pin=pin_vpn, vpn_mode=vpn_mode)
+    ]
 
 
 def row_architectures(

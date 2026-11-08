@@ -31,7 +31,11 @@ _NOTHING_DEPLOYED = ((), ())
 
 
 def _problems(
-    tokens: str, *, network_input: str = "auto", vpn_mode: str = "auto"
+    tokens: str,
+    *,
+    network_input: str = "auto",
+    vpn_mode: str = "auto",
+    whitelist: bool = False,
 ) -> tuple[list[str], list[str]]:
     with (
         mock.patch.object(validate.query, "discover_rows", return_value=_ROWS),
@@ -48,8 +52,12 @@ def _problems(
             distros=axes.DISTROS,
             filesystems=axes.FILESYSTEMS,
             lifecycles="",
-            label="priority",
+            label="whitelist" if whitelist else "priority",
+            priority=not whitelist,
         )
+
+
+_NOTHING_LEFT = "leaves no (mode, network, mesh) combination"
 
 
 class TestProblems(unittest.TestCase):
@@ -186,6 +194,32 @@ class TestProblems(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("matches no discovered row", errors[0])
 
+    def test_a_priority_variant_the_network_axis_leaves_nothing_is_an_error(
+        self,
+    ) -> None:
+        errors, _warnings = _problems("web-app-b#0@swarm", network_input="multi")
+        self.assertEqual(len(errors), 1)
+        self.assertIn(_NOTHING_LEFT, errors[0])
+
+    def test_the_same_priority_variant_under_a_network_it_can_take_passes(
+        self,
+    ) -> None:
+        self.assertEqual(_problems("web-app-b#0@swarm", network_input="auto"), ([], []))
+
+    def test_a_bare_priority_role_no_variant_can_deploy_is_an_error(self) -> None:
+        errors, _warnings = _problems("web-app-b", network_input="multi")
+        self.assertEqual(len(errors), 1)
+        self.assertIn(_NOTHING_LEFT, errors[0])
+
+    def test_a_bare_priority_role_passes_while_one_variant_can_deploy(self) -> None:
+        self.assertEqual(_problems("web-app-a", network_input="tor"), ([], []))
+
+    def test_a_whitelist_token_is_not_held_to_the_priority_rule(self) -> None:
+        self.assertEqual(
+            _problems("web-app-b#0@swarm", network_input="multi", whitelist=True),
+            ([], []),
+        )
+
 
 class TestMain(unittest.TestCase):
     def _main(self, argv: list[str]) -> tuple[int, str, str]:
@@ -226,6 +260,21 @@ class TestMain(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("whitelist:", err)
         self.assertIn("priority:", err)
+
+    def test_a_priority_token_left_without_a_combination_fails_the_run(
+        self,
+    ) -> None:
+        code, _out, err = self._main(
+            ["--network", "multi", "--priority", "web-app-b#0@swarm"]
+        )
+        self.assertEqual(code, 1)
+        self.assertIn(_NOTHING_LEFT, err)
+
+    def test_the_same_token_in_the_whitelist_does_not_fail_the_run(self) -> None:
+        code, _out, _err = self._main(
+            ["--network", "multi", "--whitelist", "web-app-b#0@swarm"]
+        )
+        self.assertEqual(code, 0)
 
     def test_a_warning_alone_does_not_fail_the_run(self) -> None:
         code, out, _err = self._main(["--whitelist", "web-app-gone"])

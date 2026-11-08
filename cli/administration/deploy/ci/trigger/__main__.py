@@ -79,6 +79,7 @@ def _refused(whitelist: str, priority: str, config: dict[str, str]) -> bool:
             filesystems=pools.resolve_filesystems(config.get("filesystem")),
             lifecycles=config.get("lifecycles", ""),
             label=label,
+            priority=label == "priority",
         )
         errors += found
         warnings += warned

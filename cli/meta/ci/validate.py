@@ -53,6 +53,7 @@ def problems(
     architectures: tuple[str, ...] = pools.ARCHITECTURES,
     lifecycles: str,
     label: str,
+    priority: bool = False,
 ) -> tuple[list[str], list[str]]:
     """Every reason the tokens of one input cannot deploy on this branch.
 
@@ -74,6 +75,7 @@ def problems(
             that declares its own narrows it further.
         lifecycles: the run's lifecycle envelope.
         label: the input's name, for the messages.
+        priority: whether the tokens lead the priority line.
 
     Returns:
         ``(errors, warnings)``.
@@ -93,6 +95,31 @@ def problems(
     declared = get_variants()
     errors: list[str] = []
     warnings: list[str] = []
+
+    def states_of(app: str, variant: int | None) -> list[str]:
+        deployed = matrix.with_deployed_services(discovered[(app, variant)])
+        return network.row_states(
+            app, variant, declared, pulls_tor=network.row_pulls_tor(deployed)
+        )
+
+    def deploys(pin: selection.Pin, variant: int | None) -> bool:
+        return bool(
+            axes.priority_picks(
+                rows[(pin.app, variant)],
+                pin_mode=pin.mode,
+                pin_network=pin.network,
+                pin_vpn=pin.vpn,
+                states=states_of(pin.app, variant),
+                network_input=network_input,
+                vpn_mode=vpn_mode,
+            )
+        )
+
+    nothing_left = (
+        "leaves no (mode, network, mesh) combination to deploy in this run "
+        "(the role's reachability or the run's network or mesh axis rules out "
+        "every one), so the run would report green for a selection that never ran"
+    )
     for pin in pins:
         token = selection.describe(pin)
         if pin.app not in discovered_apps:
@@ -102,6 +129,10 @@ def problems(
             )
             continue
         if not pin.pinned:
+            if priority and not any(
+                deploys(pin, variant) for app, variant in rows if app == pin.app
+            ):
+                errors.append(f"{label}: {token!r} {nothing_left}")
             continue
         variants = pin.variants or (None,)
         for variant in variants:
@@ -128,12 +159,7 @@ def problems(
                     pin_filesystem=pin.filesystem,
                     pin_architecture=pin.architecture,
                     pin_vpn=pin.vpn,
-                    states=network.row_states(
-                        pin.app,
-                        variant,
-                        declared,
-                        pulls_tor=network.row_pulls_tor(deployed),
-                    ),
+                    states=states_of(pin.app, variant),
                     network_input=network_input,
                     vpn_mode=vpn_mode,
                     distros=distros,
@@ -144,6 +170,9 @@ def problems(
                 )
             except SystemExit as refusal:
                 errors.append(f"{label}: {token!r} {str(refusal).split(': ', 1)[-1]}")
+                continue
+            if priority and not deploys(pin, variant):
+                errors.append(f"{label}: {token!r} {nothing_left}")
     return errors, warnings
 
 
@@ -182,6 +211,7 @@ def main(argv: list[str] | None = None) -> int:
             architectures=architectures,
             lifecycles=args.lifecycles,
             label=label,
+            priority=label == "priority",
         )
         errors += found
         warnings += warned
@@ -193,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
     if errors:
         print(
             f"\n{len(errors)} unusable selection(s). Every one of them would abort a "
-            f"chunk's discovery, so the run is refused here instead.",
+            f"chunk's discovery or never deploy, so the run is refused here instead.",
             file=sys.stderr,
         )
         return 1
