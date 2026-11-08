@@ -1,0 +1,11 @@
+---
+required: false
+enabled: false
+mechanism: extension
+source: upstream
+config:
+  extension_id: ms-python.python
+  ripgrep_max_threads: 4
+  watcher_exclude:
+    - "**/.worktrees/**"
+    - "**/.claude/worktrees/**"

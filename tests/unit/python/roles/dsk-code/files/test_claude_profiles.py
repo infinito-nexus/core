@@ -29,6 +29,7 @@ class ClaudeProfilesTest(unittest.TestCase):
         self.payload = {
             "gateway_url": "http://127.0.0.1:18081",
             "gateway_key": "test-gateway-key",
+            "code_settings": {},
             "profiles": [
                 {
                     "name": "Local",
@@ -132,6 +133,33 @@ class ClaudeProfilesTest(unittest.TestCase):
             default.read_text(),  # nocheck: cache-read
             '{"editor.fontSize": 19}',
         )
+
+    def test_every_named_profile_receives_the_editor_settings(self):
+        self.payload["code_settings"] = {
+            "search.ripgrep.maxThreads": 4,
+            "files.watcherExclude": {"**/.worktrees/**": True},
+        }
+        profiles.configure(self.directory, self.payload)
+        path = self.settings_path("Local")
+        path.write_text(
+            json.dumps(
+                {
+                    "editor.fontSize": 17,
+                    "files.watcherExclude": {"**/node_modules/**": True},
+                }
+            )
+        )
+        profiles.configure(self.directory, self.payload)
+        for name in ("Local", "Cloud", "Subscription"):
+            with self.subTest(profile=name):
+                settings = json.loads(
+                    self.settings_path(name).read_text()  # nocheck: cache-read
+                )
+                self.assertEqual(settings["search.ripgrep.maxThreads"], 4)
+                self.assertTrue(settings["files.watcherExclude"]["**/.worktrees/**"])
+        settings = json.loads(path.read_text())  # nocheck: cache-read
+        self.assertEqual(settings["editor.fontSize"], 17)
+        self.assertTrue(settings["files.watcherExclude"]["**/node_modules/**"])
 
     def test_unrelated_environment_variables_are_preserved(self):
         profiles.configure(self.directory, self.payload)

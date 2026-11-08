@@ -29,7 +29,7 @@
       become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
       register: code_extension
       changed_when: "'successfully installed' in (code_extension.stdout | lower)"
-      loop: "{{ code_addons | dict2items }}"
+      loop: "{{ code_addons | dict2items | selectattr('value.mechanism', 'equalto', 'extension') | list }}"
       loop_control:
         label: "{{ item.key }}"
       when:
@@ -41,3 +41,12 @@
       when:
         - code_addons['claude-code'].enabled | bool
         - (code_addons['claude-code'].config.profiles | length > 0) or (code_addons['claude-code'].config.unified | length > 0)
+
+    - name: 🛡️ Guard the editor against the Python extension's file-search storm
+      ansible.builtin.include_tasks: addons/python.yml
+      when: code_addons.python.enabled | bool
+
+- name: 🛡️ Shield Code - OSS from the OOM killer and its ripgrep storms
+  ansible.builtin.include_tasks: 02_protect.yml
+  vars:
+    code_protect: "{{ code_flavor == 'code-oss' and code_install is not skipped }}"
