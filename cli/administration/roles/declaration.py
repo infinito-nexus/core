@@ -13,6 +13,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
 from utils.cache.yaml import TaggedValue
+from utils.digests import COMMIT, SHA256
 from utils.roles.custom import CUSTOM_KEY, PREFIX, SOURCE_KEY, is_custom
 from utils.roles.entity.name import get_entity_name
 
@@ -21,7 +22,6 @@ from .inventory import read_inventory
 SOURCE_FIELDS: tuple[str, ...] = ("url", "version", "path")
 
 _JINJA = re.compile(r"{{|{%|{#")
-_FULL_SHA = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
 _GIT_URL = re.compile(r"^(?:(?:https|ssh)://\S+|(?:[\w.-]+@)?[\w.-]+:(?!//)\S+)$")
 _CONFLICT = object()
 
@@ -47,7 +47,9 @@ class Source:
 
     @property
     def commit(self) -> bool:
-        return self.version is not None and bool(_FULL_SHA.match(self.version))
+        return self.version is not None and any(
+            pattern.fullmatch(self.version) for pattern in (COMMIT, SHA256)
+        )
 
     def describe(self) -> str:
         """Return the source as the pull reports it, without the resolved commit."""

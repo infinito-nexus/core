@@ -449,5 +449,6 @@ None. O1 to O14 of the first draft are closed as D9 to D22, and N1 to N3 of the 
 ## Cross-linking
 
 - Related: [065 - Shared stack caches](065-shared-stack-caches.md) (folder layout and mount contract stay), [089 - Agents and AI Restructuring](089-agents-restructuring.md) (translator pause rule), [svc-runner](../../roles/svc-runner/README.md) (per-job DinD scheme the pool reuses).
+- Follow-up: [095 - Shared artefact cache](095-shared-artefact-cache.md) builds the pinned model store, the missing upstreams, the speech role and the host cache sync on this infra base.
 - Hotfix: pull request #1384.
 - Implementing PR: to be added.

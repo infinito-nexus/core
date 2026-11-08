@@ -39,6 +39,7 @@ from typing import TYPE_CHECKING
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.digests import COMMIT
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update.base import (
     declares_source,
@@ -56,8 +57,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 _NOCHECK_MARKER = "repository-version"
-
-_COMMIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 _REF_VALUE_RE = re.compile(
     r"^(?P<prefix>\s*ref\s*:\s*)"
@@ -116,7 +115,7 @@ def is_commit_sha(value: str) -> bool:
     Args:
         value: a `ref:` value.
     """
-    return _COMMIT_SHA_RE.match(value) is not None
+    return COMMIT.fullmatch(value) is not None
 
 
 def _ls_remote(*args: str) -> str | None:

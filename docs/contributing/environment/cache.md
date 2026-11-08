@@ -25,6 +25,7 @@ Pulls only. Pushes are not intercepted.
 | `helm` | `helm-bitnami` | `charts.bitnami.com/bitnami` |
 | `yum` | `yum-rocky`, `yum-fedora` | `download.rockylinux.org`, `download.fedoraproject.org` |
 | `raw` | `raw-githubusercontent`, `raw-codeload-github`, `raw-packagist`, `raw-alpine` | `raw.githubusercontent.com`, `codeload.github.com`, `repo.packagist.org`, `dl-cdn.alpinelinux.org` |
+| `raw` (no hijacked host) | `raw-nixos-cache` | `cache.nixos.org` |
 
 A proxy repo that holds a cached copy serves it when its remote is unreachable, regardless of `metadataMaxAge` (measured). `autoBlock` is therefore off: while a remote is auto-blocked Nexus answers `404 Remote Auto Blocked` instead of falling back to that cached copy. The mirror repos below only come into play when nothing is cached either.
 
@@ -215,6 +216,33 @@ cache:
 A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `ports: ["80"]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix.
 
 A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged.
+
+### Pinned Artefacts 📌
+
+A file a role downloads whole, a model weight above all, is declared under `cache: artefacts:` in the `meta/networks.yml` of any one role. This section is the contract the skills orchestrator image, the security check and the store consume ([095](../../requirements/095-shared-artefact-cache.md)); [artefacts.py](../../../utils/cache/artefacts.py) implements it and the lint [test_cache_artefacts_pinned.py](../../../tests/lint/ansible/roles/meta/test_cache_artefacts_pinned.py) enforces it over every role.
+
+```yaml
+cache:
+  artefacts:
+    example-model:
+      url: https://huggingface.co/<org>/<repo>/resolve/<commit>/<file>
+      revision: "<commit>"
+      sha256: "<64 lowercase hex digits>"
+      bytes: "807690688"
+```
+
+The three pins are double-quoted, because the bootstrap reader of `meta/networks.yml` refuses a plain scalar that starts with a digit. A `url` with `~` is double-quoted too, because a plain scalar of that reader starts with a letter, `_` or `/` and holds only letters, digits, spaces and `_./+@:-`.
+
+- The name matches `[a-z0-9][a-z0-9._-]*` and is declared by one role only. The collection compares whole declarations, the declaring role included, so a second role declaring the name fails it naming both roles, even with identical keys. The url, not the declaring role, ties an artefact to its repository.
+- The `artefacts:` section and every entry in it are mappings, and an entry carries only the keys `url`, `revision`, `sha256` and `bytes`; any other shape or key is a contract breach, not an empty declaration.
+- `url` is the absolute `https` URL of exactly one upstream file at the pinned revision. Its path holds only `A-Z a-z 0-9 . _ ~ / -` and no empty or all-dot segment (`.`, `..`). It carries no `%` anywhere, no query, no fragment, no userinfo, no port and no whitespace, because it ends up in shell lines and Dockerfiles.
+- `url` resolves to exactly one repository: the one whose `upstream` is its longest prefix ending at a segment, so the prefetch knows which Nexus repository holds it; two repositories with that same upstream refuse it. An `https` url reaches its host's TLS listener, which routes every path to that host's repository: its `repo`, else the repository of its first `paths:` route, because `paths:` routes serve the plain-HTTP listeners only. So the url's host is declared under `cache: hosts:` with `443` among its `ports` (the default), its repository is this repository, and that repository's upstream is the host's root, so `<base>/<host>/<path>` reaches the same file through the same repository.
+- `revision` is a 40-digit lowercase hex commit, because branches and tags move, and sits in the segment where the host keeps the ref. On `huggingface.co` that is the segment after `resolve` in `<org>/<repo>/resolve/<commit>/<file>`, optionally under `datasets/` or `spaces/`, with org, repo and file present and `resolve` once. On `raw.githubusercontent.com` it is the third segment of `<owner>/<repo>/<commit>/<file>`. A host with no known layout is refused.
+- `sha256` is the 64-digit lowercase hex digest of the file's bytes, and `bytes` its exact size as a positive decimal integer without a leading zero. One digest declared with two sizes is refused; two names may carry one digest, and the store then holds that file once.
+
+A consumer fetches `<base>/<host>/<path>`, where `<host>` is the url's host and `<path>` its path without the leading slash. The base is an `http` or `https` URL of a host with an optional port from 1 to 65535 and an optional path prefix, without a trailing slash, whitespace, `%`, userinfo, query or fragment; the value `https:/` makes the expression the url itself, an empty base makes `url_for` and `records` keep the upstream, and both refuse any other shape. Core reads the base bare, as `${INFINITO_ARTEFACT_BASE}`: phase 2 of 095 declares the key in `default.env` with the value `https:/`, and `make dotenv` replaces it with the frontend's base while the cache stack runs. A consumer outside core reads no `default.env` and writes `${INFINITO_ARTEFACT_BASE:-https:/}`.
+
+A consumer verifies the sha256 of what it fetched and fails on a mismatch; it never accepts a different file. A matching digest pins the size too, so in a Dockerfile `ADD --checksum=sha256:<sha256>`, which checks the digest only, is enough; `bytes` feeds the store's size accounting. A consumer may retry the upstream when the base does not answer or answers 5xx.
 
 ## Background 📚
 

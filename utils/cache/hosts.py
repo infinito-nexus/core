@@ -112,6 +112,14 @@ class CachedHost:
         """Return the (path, repository) pairs this host serves."""
         return self.paths or ((("/"), self.repo),)
 
+    def tls_route(self) -> tuple[str, str]:
+        """
+        Returns:
+            The one (path, repository) pair every TLS listener of this host
+            serves.
+        """
+        return ("/", self.repo or self.routes()[0][1])
+
     def listeners(self) -> tuple[tuple[int, bool], ...]:
         """Return the (port, terminates TLS) pairs this host is served on."""
         return tuple((port, port == HTTPS_PORT) for port in self.listen)
@@ -173,8 +181,40 @@ def _cache_block(role_dir: Path) -> dict:
     return block if isinstance(block, dict) else {}
 
 
-def _section(role_dir: Path, name: str) -> Iterator[tuple[str, dict]]:
-    entries = _cache_block(role_dir).get(name)
+def role_dirs() -> list[Path]:
+    """
+    Returns:
+        Every role directory, sorted; none where ``roles/`` is absent.
+    """
+    if not ROLES_DIR.is_dir():
+        return []
+    return sorted(p for p in ROLES_DIR.iterdir() if p.is_dir())
+
+
+def raw_section(role_dir: Path, name: str) -> object:
+    """
+    Args:
+        role_dir: the role directory whose networks file is read.
+        name: the section under ``cache:``, such as ``artefacts``.
+
+    Returns:
+        The section as written, whatever its shape, or None where the role
+        declares no such section.
+    """
+    return _cache_block(role_dir).get(name)
+
+
+def section(role_dir: Path, name: str) -> Iterator[tuple[str, dict]]:
+    """
+    Args:
+        role_dir: the role directory whose networks file is read.
+        name: the section under ``cache:``, such as ``repos``.
+
+    Yields:
+        The (key, mapping) entries of the section; a section or an entry that
+        is not a mapping yields nothing.
+    """
+    entries = raw_section(role_dir, name)
     if not isinstance(entries, dict):
         return
     for key, entry in entries.items():
@@ -183,7 +223,7 @@ def _section(role_dir: Path, name: str) -> Iterator[tuple[str, dict]]:
 
 
 def _repos(role_dir: Path) -> Iterator[CachedRepo]:
-    for name, entry in _section(role_dir, "repos"):
+    for name, entry in section(role_dir, "repos"):
         yield CachedRepo(
             name=name,
             flavor=str(entry.get("flavor", "raw")),
@@ -197,7 +237,7 @@ def _repos(role_dir: Path) -> Iterator[CachedRepo]:
 
 
 def _hosts(role_dir: Path) -> Iterator[CachedHost]:
-    for host, entry in _section(role_dir, "hosts"):
+    for host, entry in section(role_dir, "hosts"):
         paths = entry.get("paths") or {}
         yield CachedHost(
             host=host,
@@ -214,18 +254,16 @@ def declarations() -> Declarations:
     """Return every declared repository and host.
 
     Raises:
-        ValueError: two roles declare the same repository or host differently,
-            or a host names a repository nobody declares.
+        ValueError: two roles declare the same repository or host, or a host
+            names a repository nobody declares.
     """
     repos: dict[str, CachedRepo] = {}
     hosts: dict[str, CachedHost] = {}
-    if not ROLES_DIR.is_dir():
-        return Declarations()
-    for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
+    for role_dir in role_dirs():
         for repo in _repos(role_dir):
-            _claim(repos, repo.name, repo, "repository")
+            claim(repos, repo.name, repo, "repository")
         for host in _hosts(role_dir):
-            _claim(hosts, host.host, host, "host")
+            claim(hosts, host.host, host, "host")
     missing = sorted(
         f"{host.host} (declared by {host.role}) -> {name or '<none>'}"
         for host in hosts.values()
@@ -268,7 +306,7 @@ def host_records() -> dict[str, dict]:
     return {
         entry.host: {
             "host": entry.host,
-            "repo": entry.repo or entry.routes()[0][1],
+            "repo": entry.tls_route()[1],
             "routes": [{"path": path, "repo": repo} for path, repo in entry.routes()],
             "listen": [{"port": port, "tls": tls} for port, tls in entry.listeners()],
             "tls": HTTPS_PORT in entry.listen,
@@ -297,10 +335,20 @@ def repo_records() -> dict[str, dict]:
     }
 
 
-def _claim(seen: dict, key: str, found, kind: str) -> None:
+def claim(seen: dict, key: str, found, kind: str) -> None:
+    """
+    Args:
+        seen: the declarations collected so far, keyed by *key*.
+        key: the name the declaration claims.
+        found: the declaration, carrying the ``role`` that made it.
+        kind: what is declared, for the error message.
+
+    Raises:
+        ValueError: *key* is already claimed by another role's declaration.
+    """
     first = seen.setdefault(key, found)
     if first != found:
         raise ValueError(
-            f"{kind} {key} is declared by {first.role} and again, differently, "
-            f"by {found.role}"
+            f"{kind} {key} is declared by {first.role} and again by {found.role}; "
+            f"one role declares each {kind}"
         )
