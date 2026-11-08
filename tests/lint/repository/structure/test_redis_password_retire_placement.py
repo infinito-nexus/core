@@ -24,6 +24,7 @@ import unittest
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -106,6 +107,27 @@ class TestRedisPasswordRetirePlacement(unittest.TestCase):
             verify,
             "the refused-authentication log is read last, so every client had the "
             "whole test run to authenticate again",
+        )
+
+    def test_the_verify_after_the_tests_keeps_the_cluster_mode(self) -> None:
+        tasks = load_yaml_any(_STAGE)
+        verify = next(
+            (
+                task
+                for task in tasks
+                if (task.get("ansible.builtin.include_role") or {}).get("tasks_from")
+                == _VERIFY_REF
+            ),
+            None,
+        )
+        self.assertIsNotNone(verify, f"{_STAGE.name} no longer includes the verify")
+        self.assertEqual(
+            (verify.get("vars") or {}).get("compose_mode_force"),
+            "",
+            f"{_E2E} include_vars every tested app's vars/main.yml for the rest of "
+            "the play, and web-app-matrix's compose_mode_force then makes "
+            "container_address return the compose name, so the log read finds no "
+            "container on a swarm host",
         )
 
     def test_nothing_of_the_rotation_is_deferred_to_the_destructor(self) -> None:
