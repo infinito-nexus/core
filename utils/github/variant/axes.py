@@ -62,13 +62,12 @@ from utils.github.variant.label import (
 )
 from utils.github.variant.network import (
     NETWORK_DEPLOY_MODES,
-    combinations,
     disabled_services,
     network_states,
     row_pulls_tor,
     row_states,
 )
-from utils.github.variant.pins import check_pins, row_architectures
+from utils.github.variant.pins import check_pins, priority_picks, row_architectures
 from utils.github.variant.pools import (
     ARCHITECTURES,
     DISTROS,
@@ -79,7 +78,6 @@ from utils.github.variant.pools import (
 )
 from utils.github.variant.vpn import (
     VPN_DEPLOY_MODES,
-    pinned_vpn_states,
     rotated_vpn,
 )
 from utils.networks.reachability import NODE_MODES
@@ -98,6 +96,7 @@ __all__ = [
     "check_pins",
     "parse_label",
     "pick_mode",
+    "priority_picks",
     "resolve_sweep",
     "row_architectures",
     "sort_key",
@@ -198,7 +197,7 @@ def assign(
         embeds it (``0``: nothing does), so a reader of the plan can tell a
         redundant row from a unique one without a second query. A regular row
         yields exactly one -- the rotation picks its combination for this
-        sweep. A priority row yields every combination :func:`combinations`
+        sweep. A priority row yields every combination :func:`priority_picks`
         allows, so the roles a run is told to prove are proven everywhere at
         once rather than sampled over several sweeps. ``network`` is the node
         ``NETWORK_MODE`` the deploy runs with, ``vpn`` whether a swarm row
@@ -244,14 +243,15 @@ def assign(
             architectures=offered_architectures,
         )
         if priority:
-            picked = [
-                (mode, state, meshed)
-                for mode, state in combinations(
-                    offered, states=states, network_input=network_input
-                )
-                if pin_mode in (None, mode) and pin_network in (None, state)
-                for meshed in pinned_vpn_states(mode, pin=pin_vpn, vpn_mode=vpn_mode)
-            ]
+            picked = priority_picks(
+                offered,
+                pin_mode=pin_mode,
+                pin_network=pin_network,
+                pin_vpn=pin_vpn,
+                states=states,
+                network_input=network_input,
+                vpn_mode=vpn_mode,
+            )
         else:
             modes = _offering(
                 offered, pin_network, states=states, network_input=network_input
