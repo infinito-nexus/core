@@ -10,7 +10,7 @@ import time
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
 
 CACHE_SCRIPTS = PROJECT_ROOT / "scripts" / "system" / "cache"
 APPLY = CACHE_SCRIPTS / "apply.sh"
@@ -29,6 +29,11 @@ PIN_ENV = (
     "INFINITO_CACHE_TLS_HOSTS=pinned.example",
     "INFINITO_CACHE_UPSTREAMS=raw-pinned|raw|https://pinned.example/|||",
 )
+
+
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")  # nocheck: cache-read
+
 
 PYTHON_STUB = f"""#!/usr/bin/env bash
 printf 'python %s %s\\n' "$PWD" "$*" >>"$STUB_LOG"
@@ -199,7 +204,7 @@ class ApplyRun:
     def lines(self) -> list[str]:
         if not self.log.exists():
             return []
-        return self.log.read_text(encoding="utf-8").splitlines()
+        return _read(self.log).splitlines()
 
     def close(self) -> None:
         self.tmp.cleanup()
@@ -217,7 +222,7 @@ class TestApply(unittest.TestCase):
     def test_apply_serves_the_pinned_checkout_and_never_the_caller(self) -> None:
         run = self._run()
         self.assertEqual(run.done.returncode, 0, run.done.stderr)
-        self.assertEqual(run.mounted.read_text(encoding="utf-8"), "pinned map\n")
+        self.assertEqual(_read(run.mounted), "pinned map\n")
         self.assertFalse(run.mounted.stat().st_mode & stat.S_IWUSR)
         roles = [line for line in run.lines if line.startswith(("bootstrap", "certs"))]
         self.assertEqual(
@@ -242,8 +247,8 @@ class TestApply(unittest.TestCase):
     def test_prepare_installs_the_pinned_map_before_the_stack_starts(self) -> None:
         run = self._run(stage="prepare")
         self.assertEqual(run.done.returncode, 0, run.done.stderr)
-        self.assertEqual(run.served.read_text(encoding="utf-8"), "pinned map\n")
-        self.assertEqual(run.mounted.read_text(encoding="utf-8"), "old map\n")
+        self.assertEqual(_read(run.served), "pinned map\n")
+        self.assertEqual(_read(run.mounted), "old map\n")
         self.assertEqual(
             [
                 line.split(" ", 2)[:2]
@@ -258,7 +263,7 @@ class TestApply(unittest.TestCase):
         run = self._run(sha="")
         self.assertNotEqual(run.done.returncode, 0)
         self.assertIn("make cache-declare", run.done.stderr)
-        self.assertEqual(run.mounted.read_text(encoding="utf-8"), "old map\n")
+        self.assertEqual(_read(run.mounted), "old map\n")
         self.assertFalse(
             any(line.startswith(("bootstrap", "certs")) for line in run.lines)
         )
@@ -271,7 +276,7 @@ class TestApply(unittest.TestCase):
         self.assertEqual(run.done.returncode, 4, run.done.stderr)
         self.assertIn(f"from {foreign}, outside", run.done.stderr)
         self.assertIn(str(run.pin_root), run.done.stderr)
-        self.assertEqual(foreign.read_text(encoding="utf-8"), "caller map\n")
+        self.assertEqual(_read(foreign), "caller map\n")
         self.assertFalse(
             any(line.startswith(("bootstrap", "certs")) for line in run.lines)
         )
@@ -283,7 +288,7 @@ class TestApply(unittest.TestCase):
         self.assertEqual(run.done.returncode, 1)
         self.assertIn("docker ps failed", run.done.stderr)
         self.assertNotIn("is not running", run.done.stderr)
-        self.assertEqual(run.mounted.read_text(encoding="utf-8"), "old map\n")
+        self.assertEqual(_read(run.mounted), "old map\n")
 
     def test_apply_waits_for_the_lock_and_applies_the_pin_it_then_reads(
         self,
@@ -309,7 +314,7 @@ class TestApply(unittest.TestCase):
             run.sha_file.write_text(SHA2, encoding="utf-8")
             fcntl.flock(lock, fcntl.LOCK_UN)
         self.assertEqual(proc.wait(timeout=30), 0)
-        self.assertEqual(run.mounted.read_text(encoding="utf-8"), "second map\n")
+        self.assertEqual(_read(run.mounted), "second map\n")
         self.assertIn(
             f"python {run.caller} -m cli.meta.cache.pin applied {SHA2}", run.lines
         )
@@ -385,10 +390,10 @@ class TestMaterialize(unittest.TestCase):
         checkout = Path(done.stdout.strip())
         self.assertEqual(checkout, self.root / self.temp.sha)
         self.assertEqual(
-            (checkout / "roles" / "networks.yml").read_text(encoding="utf-8"),
+            _read(checkout / "roles" / "networks.yml"),
             "committed\n",
         )
-        self.assertEqual((checkout / MAP).read_text(encoding="utf-8"), "rendered map\n")
+        self.assertEqual(_read(checkout / MAP), "rendered map\n")
         self.assertFalse((checkout / "locale").exists())
         self.assertFalse(checkout.is_relative_to(self.temp.repo))
         self.assertEqual(sorted(p.name for p in self.root.iterdir()), [self.temp.sha])
@@ -401,7 +406,7 @@ class TestMaterialize(unittest.TestCase):
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(Path(done.stdout.strip()), self.root / self.temp.sha)
         self.assertEqual(
-            (self.root / self.temp.sha / MAP).read_text(encoding="utf-8"),
+            _read(self.root / self.temp.sha / MAP),
             "rendered map\n",
         )
 
@@ -420,9 +425,7 @@ class TestMaterialize(unittest.TestCase):
             str(self.root), INFINITO_CACHE_PIN_FILE=str(self.temp.base / "cache.ref")
         )
         self.assertEqual(done.returncode, 0, done.stderr)
-        self.assertEqual(
-            (self.root / self.temp.sha / "pin-file").read_text(encoding="utf-8"), ""
-        )
+        self.assertEqual(_read(self.root / self.temp.sha / "pin-file"), "")
 
     def test_a_symlinked_checkout_is_refused(self) -> None:
         self.root.mkdir()
@@ -484,11 +487,7 @@ class DeclareRun:
             text=True,
             check=False,
         )
-        self.lines = (
-            self.log.read_text(encoding="utf-8").splitlines()
-            if self.log.exists()
-            else []
-        )
+        self.lines = _read(self.log).splitlines() if self.log.exists() else []
 
 
 class TestDeclare(unittest.TestCase):
@@ -505,7 +504,7 @@ class TestDeclare(unittest.TestCase):
         self.assertIn("docker ps failed", run.done.stderr)
         self.assertIn("pinned but not applied", run.done.stderr)
         self.assertNotIn("is not running", run.done.stdout)
-        self.assertEqual(run.pin_file.read_text(encoding="utf-8").strip(), temp.sha)
+        self.assertEqual(_read(run.pin_file).strip(), temp.sha)
 
     def test_a_frontend_serving_another_pin_root_fails_the_declare(self) -> None:
         live = Path("/live/upstreams.conf")
@@ -514,7 +513,7 @@ class TestDeclare(unittest.TestCase):
         self.assertIn(f"from {live}, outside", run.done.stderr)
         self.assertIn("pinned but not applied", run.done.stderr)
         self.assertFalse(any(" read" in line for line in run.lines))
-        self.assertEqual(run.pin_file.read_text(encoding="utf-8").strip(), temp.sha)
+        self.assertEqual(_read(run.pin_file).strip(), temp.sha)
 
     def test_a_commit_without_the_pin_cli_is_refused_and_nothing_is_pinned(
         self,
@@ -530,24 +529,22 @@ class TestDeclare(unittest.TestCase):
     ) -> None:
         temp, run = self._declare(with_pin_cli=True)
         self.assertEqual(run.done.returncode, 0, run.done.stderr)
-        self.assertEqual(run.pin_file.read_text(encoding="utf-8").strip(), temp.sha)
-        self.assertEqual(
-            (run.root / temp.sha / MAP).read_text(encoding="utf-8"), "rendered map\n"
-        )
+        self.assertEqual(_read(run.pin_file).strip(), temp.sha)
+        self.assertEqual(_read(run.root / temp.sha / MAP), "rendered map\n")
         self.assertIn("next make compose-up", run.done.stdout)
         self.assertFalse(any(" read" in line for line in run.lines))
 
 
 class TestWorkspaceBootstrap(unittest.TestCase):
     def test_the_fresh_ci_host_declares_its_own_head_before_compose_up(self) -> None:
-        lines = WORKSPACE_BOOTSTRAP.read_text(encoding="utf-8").splitlines()
+        lines = read_text(str(WORKSPACE_BOOTSTRAP)).splitlines()
         declare = lines.index('make cache-declare ref="$(git rev-parse HEAD)"')
         self.assertLess(declare, lines.index("make compose-up"))
 
     def test_the_pin_root_is_the_same_path_for_the_container_and_the_daemon(
         self,
     ) -> None:
-        workflow = WORKSPACE_WORKFLOW.read_text(encoding="utf-8")
+        workflow = read_text(str(WORKSPACE_WORKFLOW))
         self.assertIn("INFINITO_CACHE_PIN_ROOT: /mnt/cache/pin", workflow)
         self.assertIn("-e INFINITO_CACHE_PIN_ROOT \\", workflow)
         self.assertIn(
