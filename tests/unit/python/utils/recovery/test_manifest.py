@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -162,7 +163,7 @@ class TestLayoutNamesStayInsideTheGeneration(unittest.TestCase):
             manifest.layout_of(self._layout(files_dir="/etc"))
 
     def test_a_parent_reference_is_refused(self) -> None:
-        for name in ("..", "../outside", "files/.."):
+        for name in (os.path.pardir, "../outside", "files/.."):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 manifest.layout_of(self._layout(files_dir=name))
 

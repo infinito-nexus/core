@@ -13,6 +13,7 @@ database volume, 2 when the generation carries no manifest, 64 on bad usage.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -74,7 +75,7 @@ def layout_of(generation_dir: Path | str) -> dict[str, str]:
             name = names[field]
             if (
                 not isinstance(name, str)
-                or name in ("", ".", "..")
+                or name in ("", os.path.curdir, os.path.pardir)
                 or name != Path(name).name
             ):
                 raise ValueError(
