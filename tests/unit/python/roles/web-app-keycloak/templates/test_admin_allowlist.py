@@ -82,7 +82,6 @@ def stub_lookup(networks, deployment_mode: str = "compose"):
                 f"127.0.0.1:{kwargs['local_port']}",
                 deployment_mode,
                 tail=kwargs["tail"],
-                location=kwargs["location"],
             )
         raise AssertionError(f"unexpected lookup({kind!r}, ...)")
 
@@ -268,9 +267,7 @@ class TestRestrictedLocation(unittest.TestCase):
 
     def test_compose_passes_the_request_path_unchanged(self):
         _, directives = location_block(render(list(NETWORKS)), "/admin")
-        self.assertIn(
-            f"proxy_pass http://127.0.0.1:{LOCAL_HTTP_PORT}/admin;", directives
-        )
+        self.assertIn(f"proxy_pass http://127.0.0.1:{LOCAL_HTTP_PORT};", directives)
 
     def test_swarm_passes_the_raw_request_uri(self):
         _, directives = location_block(render(list(NETWORKS), "swarm"), "/admin")

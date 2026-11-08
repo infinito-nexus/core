@@ -58,7 +58,6 @@ class TestProxyPassLookup(unittest.TestCase):
             ["web-app-baserow"],
             variables={"DEPLOYMENT_MODE": "swarm"},
             tail="request",
-            location="/",
         )
         self.assertEqual(
             out[0],
@@ -71,9 +70,8 @@ class TestProxyPassLookup(unittest.TestCase):
             ["web-app-baserow", "application", "http"],
             variables={"DEPLOYMENT_MODE": "compose"},
             tail="request",
-            location="/",
         )
-        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8017/;")
+        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8017;")
 
     def test_oauth2_internal_port_override_swarm(self):
         out = _run(
@@ -106,7 +104,7 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={"DEPLOYMENT_MODE": "swarm"},
             )
-        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021;")
 
     def test_swarm_force_bridge_template_string_is_resolved(self):
         apps = {
@@ -129,7 +127,7 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={"DEPLOYMENT_MODE": "swarm"},
             )
-        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021;")
 
     def test_unresolved_force_bridge_template_hard_fails(self):
         apps = {
@@ -174,7 +172,7 @@ class TestProxyPassLookup(unittest.TestCase):
                     "compose_mode_force": "compose",
                 },
             )
-        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021;")
 
     def test_force_bridge_compose_real_mode_stays_loopback(self):
         apps = {
@@ -199,7 +197,7 @@ class TestProxyPassLookup(unittest.TestCase):
                     "compose_mode_force": "compose",
                 },
             )
-        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8021;")
 
     def test_a_forced_scope_leaves_a_foreign_app_at_the_cluster_mode(self):
         out = _run(
@@ -226,9 +224,8 @@ class TestProxyPassLookup(unittest.TestCase):
                 "application_id": "web-app-baserow",
             },
             tail="request",
-            location="/",
         )
-        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8017/;")
+        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8017;")
 
     def test_resolution_error_becomes_ansible_error(self):
         lm = LookupModule()
