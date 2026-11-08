@@ -808,9 +808,7 @@ class TestEmailPolicy(unittest.TestCase):
     ) -> None:
         for overrides in ({}, SMTP, {**MAILBOX, **SMTP}):
             with self.subTest(overrides=overrides):
-                provider = realm_for(overrides)["components"][
-                    LDAP_PROVIDER
-                ][0]
+                provider = realm_for(overrides)["components"][LDAP_PROVIDER][0]
                 self.assertEqual(provider["config"]["trustEmail"], ["true"])
 
     def test_with_mail_no_unverified_address_reaches_the_email_claim(self) -> None:
@@ -830,9 +828,7 @@ class TestEmailPolicy(unittest.TestCase):
 
     def test_an_untrusted_federation_fails_the_check(self) -> None:
         realm = realm_for(SMTP)
-        realm["components"][LDAP_PROVIDER][0]["config"]["trustEmail"] = [
-            "false"
-        ]
+        realm["components"][LDAP_PROVIDER][0]["config"]["trustEmail"] = ["false"]
         self.assertEqual(
             email_verification_findings(realm),
             [

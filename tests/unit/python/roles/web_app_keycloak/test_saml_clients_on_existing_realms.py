@@ -79,7 +79,10 @@ class TestSamlClientsReachExistingRealms(unittest.TestCase):
 
 class TestDeclaredClientMappersReachExistingRealms(unittest.TestCase):
     def test_only_declared_clients_with_mappers_are_selected(self):
-        mapper = {"name": "roles", "protocolMapper": "oidc-usermodel-client-role-mapper"}
+        mapper = {
+            "name": "roles",
+            "protocolMapper": "oidc-usermodel-client-role-mapper",
+        }
         realm = {
             **REALM,
             "clients": [

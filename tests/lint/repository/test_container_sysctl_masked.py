@@ -17,10 +17,16 @@ from utils.cache.yaml import load_yaml_any
 UNIT = "systemd-sysctl.service"
 MASKERS = ("Dockerfile", "compose/target/init.sh")
 INHERITORS = {
-    "compose/swarm/Dockerfile": re.compile(r"^FROM \$\{INFINITO_IMAGE\}\s*$", re.M),
+    "compose/swarm/Dockerfile": re.compile(
+        r"^FROM \$\{INFINITO_IMAGE\}\s*$", re.MULTILINE
+    ),
     "compose/tools.override.yml": re.compile(r"image: \"\$\{INFINITO_IMAGE[:?}]"),
 }
-COMPOSE_FILES = ("compose.yml", "compose/swarm/compose.yml", "compose/tools.override.yml")
+COMPOSE_FILES = (
+    "compose.yml",
+    "compose/swarm/compose.yml",
+    "compose/tools.override.yml",
+)
 MASKED_BUILD_CONTEXTS = {".", "compose/target"}
 
 
@@ -66,7 +72,9 @@ class TestContainerSysctlMasked(unittest.TestCase):
 
     def test_negative_control_a_dropped_mask_is_flagged(self):
         self.assertFalse(_masks("RUN systemctl mask getty.target \\\n    tmp.mount\n"))
-        self.assertTrue(_masks("RUN systemctl mask getty.target \\\n    systemd-sysctl.service\n"))
+        self.assertTrue(
+            _masks("RUN systemctl mask getty.target \\\n    systemd-sysctl.service\n")
+        )
         self.assertFalse(_masks("RUN systemctl unmask systemd-sysctl.service.d\n"))
 
     def test_negative_control_a_foreign_privileged_image_is_flagged(self):

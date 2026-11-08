@@ -20,7 +20,9 @@ SCRIPT = read_text(str(SCRIPTS / "access.pl"))
 VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN), default_if_missing={})
 TASK = next(
     task
-    for task in load_yaml_any(str(ROLE / "tasks" / "01_access.yml"), default_if_missing=[])
+    for task in load_yaml_any(
+        str(ROLE / "tasks" / "01_access.yml"), default_if_missing=[]
+    )
     if "Converge the OpenID realm" in task.get("name", "")
 )
 
@@ -48,7 +50,9 @@ def _env(secret: str = SECRET, **overrides: str) -> dict[str, str]:
     return env
 
 
-def _state(realm: dict | None = None, group: dict | None = None, acl: dict | None = None) -> dict:
+def _state(
+    realm: dict | None = None, group: dict | None = None, acl: dict | None = None
+) -> dict:
     return {
         "domains.cfg": {"ids": {REALM: realm} if realm else {}},
         "user.cfg": {"groups": {GROUP: group} if group else {}, **(acl or {})},
@@ -116,7 +120,9 @@ class TestAccessScript(unittest.TestCase):
     def test_a_rotated_secret_is_written_but_never_printed(self):
         run = run_script(SCRIPT, _converged(), _env(secret="rotated-Secret_7"))
         self.assertEqual(run.returncode, 0, run.stderr)
-        self.assertEqual(run.calls[0]["param"], {"realm": REALM, "client-key": "rotated-Secret_7"})
+        self.assertEqual(
+            run.calls[0]["param"], {"realm": REALM, "client-key": "rotated-Secret_7"}
+        )
         self.assertIn("client-key", run.stdout)
         self.assertFalse(_leaks(run, "rotated-Secret_7"))
         self.assertFalse(_leaks(run_script(SCRIPT, _state(), _env())))
@@ -152,23 +158,27 @@ class TestAccessScript(unittest.TestCase):
         state = _converged()
         state["user.cfg"].pop("acl_root")
         run = run_script(SCRIPT, state, _env())
-        self.assertEqual([call["method"] for call in run.calls], ["PVE::API2::ACL->update_acl"])
+        self.assertEqual(
+            [call["method"] for call in run.calls], ["PVE::API2::ACL->update_acl"]
+        )
 
 
 def _fake_container(root: Path) -> Path:
     tool = root / "container"
     tool.write_text(
         "#!/bin/sh\n"
-        "printf '%s\\n' \"$@\" > \"$OUT/argv\"\n"
-        "printf '%s' \"$PROXMOX_REALM_CLIENT_SECRET_B64\" > \"$OUT/env\"\n"
-        "cat > \"$OUT/stdin\"\n",
+        'printf \'%s\\n\' "$@" > "$OUT/argv"\n'
+        'printf \'%s\' "$PROXMOX_REALM_CLIENT_SECRET_B64" > "$OUT/env"\n'
+        'cat > "$OUT/stdin"\n',
         encoding="utf-8",
     )
     tool.chmod(tool.stat().st_mode | stat.S_IXUSR)
     return tool
 
 
-def _run_cmd(cmd: str, stdin: str) -> tuple[subprocess.CompletedProcess, dict[str, str]]:
+def _run_cmd(
+    cmd: str, stdin: str
+) -> tuple[subprocess.CompletedProcess, dict[str, str]]:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         _fake_container(root)
@@ -181,7 +191,9 @@ def _run_cmd(cmd: str, stdin: str) -> tuple[subprocess.CompletedProcess, dict[st
             env={"PATH": f"{root}:{os.environ['PATH']}", "OUT": str(root)},
         )
         seen = {
-            name: (root / name).read_text() if (root / name).exists() else ""  # nocheck: cache-read tempdir fixture
+            name: (root / name).read_text()  # nocheck: cache-read tempdir fixture
+            if (root / name).exists()
+            else ""
             for name in ("argv", "env", "stdin")
         }
     return result, seen
@@ -195,7 +207,9 @@ class TestSecretTransport(unittest.TestCase):
         return re.sub(r"\{\{.*?\}\}", "pve-cid", cmd or self.CMD)
 
     def test_the_secret_is_templated_only_into_stdin(self):
-        self.assertEqual(re.findall(r"\{\{.*?\}\}", self.CMD), ["{{ PROXMOX_LOCAL_CID | quote }}"])
+        self.assertEqual(
+            re.findall(r"\{\{.*?\}\}", self.CMD), ["{{ PROXMOX_LOCAL_CID | quote }}"]
+        )
         self.assertEqual(
             self.STDIN.splitlines(),
             [

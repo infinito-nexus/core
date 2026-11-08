@@ -15,7 +15,6 @@ sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python"))
 
 import email_verified as m
 
-
 LDAP_NAME = "example.com"
 LDAP_ID = "ldap-1"
 
@@ -229,7 +228,9 @@ class TestFederation(unittest.TestCase):
         self.assertEqual(lines[0], f"missing {LDAP_NAME}")
 
 
-ROUTINES = PROJECT_ROOT / "roles/web-app-keycloak/tasks/03_manager_ops/update_routines.yml"
+ROUTINES = (
+    PROJECT_ROOT / "roles/web-app-keycloak/tasks/03_manager_ops/update_routines.yml"
+)
 TRUST = "tasks/update/06_users/email/federated.yml"
 SETTINGS = "tasks/update/01_settings.yml"
 

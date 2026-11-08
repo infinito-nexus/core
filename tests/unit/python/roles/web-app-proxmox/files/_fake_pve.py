@@ -99,5 +99,6 @@ def run_script(source: str, state: dict, env: dict[str, str]) -> Run:
                 "FAKE_PVE_CALLS": str(calls),
             },
         )
-        recorded = [json.loads(line) for line in calls.read_text().splitlines()]  # nocheck: cache-read tempdir fixture
+        lines = calls.read_text().splitlines()  # nocheck: cache-read tempdir fixture
+        recorded = [json.loads(line) for line in lines]
     return Run(result.returncode, result.stdout, result.stderr, recorded)

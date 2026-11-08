@@ -198,7 +198,9 @@ class TestUserOidcProvider(unittest.TestCase):
         self.assertEqual("admin", provisioned_group_id(role, self.options))
         self.assertEqual(
             "/roles/web-app-nextcloud/administrator",
-            provisioned_group_id("/roles/web-app-nextcloud/administrator", self.options),
+            provisioned_group_id(
+                "/roles/web-app-nextcloud/administrator", self.options
+            ),
         )
 
     def test_a_hashed_or_filtered_group_id_misses_the_admin_group(self) -> None:
@@ -209,7 +211,9 @@ class TestUserOidcProvider(unittest.TestCase):
             ["--unique-uid=0", "--group-whitelist-regex=^/roles/"],
         ):
             with self.subTest(options=extra):
-                self.assertNotEqual("admin", provisioned_group_id("admin", base + extra))
+                self.assertNotEqual(
+                    "admin", provisioned_group_id("admin", base + extra)
+                )
 
     def test_the_provider_identifier_is_the_one_keycloak_logs_out_on(self) -> None:
         self.assertEqual("keycloak", self.provider)

@@ -21,10 +21,12 @@ def _env(members: list[dict]) -> dict[str, str]:
     }
 
 
-def _state(holders: list[str], users: list[str], other_groups: dict | None = None) -> dict:
-    groups = {GROUP: {"users": {userid: 1 for userid in holders}}}
+def _state(
+    holders: list[str], users: list[str], other_groups: dict | None = None
+) -> dict:
+    groups = {GROUP: {"users": dict.fromkeys(holders, 1)}}
     for name, members in (other_groups or {}).items():
-        groups[name] = {"users": {userid: 1 for userid in members}}
+        groups[name] = {"users": dict.fromkeys(members, 1)}
     return {"user.cfg": {"groups": groups, "users": {userid: {} for userid in users}}}
 
 
@@ -91,16 +93,25 @@ class TestRbacScript(unittest.TestCase):
         run = run_script(SCRIPT, state, _env([]))
         self.assertEqual(
             run.calls,
-            [{"method": "PVE::API2::User->update_user", "param": {"userid": "root@pam", "groups": ""}}],
+            [
+                {
+                    "method": "PVE::API2::User->update_user",
+                    "param": {"userid": "root@pam", "groups": ""},
+                }
+            ],
         )
 
     def test_a_member_without_username_is_skipped(self):
-        run = run_script(SCRIPT, _state([], []), _env([{"username": "", "email": "x@example.org"}]))
+        run = run_script(
+            SCRIPT, _state([], []), _env([{"username": "", "email": "x@example.org"}])
+        )
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(run.calls, [])
 
     def test_a_missing_group_is_refused(self):
-        run = run_script(SCRIPT, {"user.cfg": {"groups": {}, "users": {}}}, _env([ALICE]))
+        run = run_script(
+            SCRIPT, {"user.cfg": {"groups": {}, "users": {}}}, _env([ALICE])
+        )
         self.assertNotEqual(run.returncode, 0)
         self.assertIn("[FAIL]", run.stderr)
         self.assertEqual(run.calls, [])

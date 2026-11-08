@@ -274,13 +274,17 @@ class TestUpstreamScheme(unittest.TestCase):
 
     def test_sidecars_stay_plaintext(self):
         self.assertEqual(
-            resolve_upstream_scheme(_scheme_apps("https"), "web-app-proxmox", "sso-proxy"),
+            resolve_upstream_scheme(
+                _scheme_apps("https"), "web-app-proxmox", "sso-proxy"
+            ),
             "http",
         )
 
     def test_declared_scheme_is_case_insensitive(self):
         self.assertEqual(
-            resolve_upstream_scheme(_scheme_apps("HTTPS"), "web-app-proxmox", "proxmox"),
+            resolve_upstream_scheme(
+                _scheme_apps("HTTPS"), "web-app-proxmox", "proxmox"
+            ),
             "https",
         )
 
@@ -290,7 +294,9 @@ class TestUpstreamScheme(unittest.TestCase):
 
     def test_compose_renders_the_scheme(self):
         self.assertEqual(
-            render_proxy_pass("127.0.0.1:7992", "compose", location="/", scheme="https"),
+            render_proxy_pass(
+                "127.0.0.1:7992", "compose", location="/", scheme="https"
+            ),
             "proxy_pass https://127.0.0.1:7992/;",
         )
 

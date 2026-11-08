@@ -111,7 +111,7 @@ SYSCTL_MODULE = (
 
 
 def _env():
-    env = Environment(undefined=StrictUndefined)
+    env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders ansible expressions, not markup
     env.filters["path_join"] = lambda parts: posixpath.join(*parts)
     env.filters["bool"] = boolean
     env.filters["entity_name"] = entity_name
@@ -164,7 +164,9 @@ def _resolve(overrides=None, handler_exists=True, in_container=False):
 
 
 def _writable_keys(parameters, in_container):
-    resolved = _resolve({"sys_sysctl_parameters": parameters}, in_container=in_container)
+    resolved = _resolve(
+        {"sys_sysctl_parameters": parameters}, in_container=in_container
+    )
     return {item["key"] for item in resolved["sys_sysctl_writable"]}
 
 
@@ -181,7 +183,9 @@ def _sorts_last(dropin):
 
 
 def _calls_sysctl_module(text):
-    return re.search(r"^\s*(ansible\.posix\.)?sysctl:\s*$", text, re.M) is not None
+    return (
+        re.search(r"^\s*(ansible\.posix\.)?sysctl:\s*$", text, re.MULTILINE) is not None
+    )
 
 
 def _map_count_floor_met(applied):
@@ -300,7 +304,9 @@ class TestCorePatternDefault(unittest.TestCase):
     def test_constructor_applies_the_option_under_the_host_owner(self):
         resolved = _resolve()
         self.assertEqual(resolved["sys_sysctl_owner"], "host")
-        self.assertEqual(resolved["sys_sysctl_parameters"], resolved["SYS_SYSCTL_PARAMETERS"])
+        self.assertEqual(
+            resolved["sys_sysctl_parameters"], resolved["SYS_SYSCTL_PARAMETERS"]
+        )
         self.assertEqual(resolved["sys_sysctl_file"], "/etc/sysctl.d/99-host.conf")
 
 
@@ -317,7 +323,7 @@ class TestContainerRule(unittest.TestCase):
 
     def test_every_key_is_written_on_a_host(self):
         keys = set(NAMESPACED_KEYS + GLOBAL_KEYS)
-        self.assertEqual(_writable_keys({k: "1" for k in keys}, False), keys)
+        self.assertEqual(_writable_keys(dict.fromkeys(keys, "1"), False), keys)
 
     def test_skipped_keys_are_the_complement(self):
         parameters = {"net.ipv4.ip_forward": "1", "vm.max_map_count": "262144"}
@@ -360,8 +366,16 @@ class TestDropIn(unittest.TestCase):
 
     def test_retired_files_are_cleaned_only_after_the_apply(self):
         names = [t["name"] for t in _tasks()]
-        apply = next(i for i, t in enumerate(_tasks()) if t.get("ansible.posix.sysctl", {}).get("state") == "present")
-        retire = next(i for i, t in enumerate(_tasks()) if t.get("ansible.posix.sysctl", {}).get("state") == "absent")
+        apply = next(
+            i
+            for i, t in enumerate(_tasks())
+            if t.get("ansible.posix.sysctl", {}).get("state") == "present"
+        )
+        retire = next(
+            i
+            for i, t in enumerate(_tasks())
+            if t.get("ansible.posix.sysctl", {}).get("state") == "absent"
+        )
         self.assertLess(apply, retire, names)
         self.assertFalse(_tasks()[retire]["ansible.posix.sysctl"]["reload"])
 
@@ -376,7 +390,9 @@ class TestConsumers(unittest.TestCase):
                 self.assertEqual(_differences(role, expected), [])
 
     def test_runner_host_keeps_the_map_count_the_container_leak_provided(self):
-        parameters, dropin, _retired, applied_host = _consumer_effect("svc-runner", False)
+        _parameters, dropin, _retired, applied_host = _consumer_effect(
+            "svc-runner", False
+        )
         _p, _d, _r, applied_container = _consumer_effect("svc-runner", True)
         self.assertEqual(applied_host["vm.max_map_count"], "262144")
         self.assertEqual(dropin, "/etc/sysctl.d/99-runner.conf")
@@ -384,10 +400,14 @@ class TestConsumers(unittest.TestCase):
 
     def test_negative_control_the_old_runner_set_lacks_the_map_count(self):
         self.assertNotIn("vm.max_map_count", OLD_CONSUMERS["svc-runner"]["parameters"])
-        self.assertIn("host values", _differences("svc-runner", OLD_CONSUMERS["svc-runner"]))
+        self.assertIn(
+            "host values", _differences("svc-runner", OLD_CONSUMERS["svc-runner"])
+        )
 
     def test_negative_control_a_drifted_value_is_flagged(self):
-        old = dict(OLD_CONSUMERS["web-app-wazuh"], parameters={"vm.max_map_count": "65530"})
+        old = dict(
+            OLD_CONSUMERS["web-app-wazuh"], parameters={"vm.max_map_count": "65530"}
+        )
         self.assertIn("host values", _differences("web-app-wazuh", old))
 
     def test_negative_control_a_changed_container_behaviour_is_flagged(self):
@@ -455,7 +475,9 @@ class TestConsumers(unittest.TestCase):
 
     def test_negative_control_a_direct_sysctl_call_is_detected(self):
         self.assertTrue(_calls_sysctl_module("- name: x\n  ansible.posix.sysctl:\n"))
-        self.assertFalse(_calls_sysctl_module("- include_role:\n    name: sys-sysctl\n"))
+        self.assertFalse(
+            _calls_sysctl_module("- include_role:\n    name: sys-sysctl\n")
+        )
 
 
 class TestIdempotence(unittest.TestCase):

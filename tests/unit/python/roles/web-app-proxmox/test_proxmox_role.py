@@ -356,21 +356,34 @@ class TestLogin(unittest.TestCase):
         names = [task.get("name", "") for task in TASK_LIST]
         access = names.index(_include("01_access.yml")["name"])
         sync_task = _include("tasks/utils/rbac/sync.yml")
-        self.assertGreater(access, names.index("🚿 Flush compose for {{ application_id }}"))
+        self.assertGreater(
+            access, names.index("🚿 Flush compose for {{ application_id }}")
+        )
         self.assertGreater(names.index(sync_task["name"]), access)
         sync = sync_task["vars"]
         self.assertEqual(sync["rbac_sync_roles"], ["administrator"])
-        self.assertEqual(sync["rbac_sync_env"]["PROXMOX_GROUP"], "{{ PROXMOX_ADMIN_GROUP }}")
+        self.assertEqual(
+            sync["rbac_sync_env"]["PROXMOX_GROUP"], "{{ PROXMOX_ADMIN_GROUP }}"
+        )
         self.assertEqual(
             sync["rbac_sync_members_env"],
-            [{"name": "PROXMOX_RBAC_ADMINISTRATORS", "role": "administrator", "field": ""}],
+            [
+                {
+                    "name": "PROXMOX_RBAC_ADMINISTRATORS",
+                    "role": "administrator",
+                    "field": "",
+                }
+            ],
         )
         self.assertIn("files/perl/rbac.pl", sync["rbac_sync_script"])
 
     def test_csp_opens_only_what_ext_js_needs(self):
         self.assertEqual(
             CSP["flags"],
-            {"script-src": {"unsafe-eval": True}, "script-src-elem": {"unsafe-inline": True}},
+            {
+                "script-src": {"unsafe-eval": True},
+                "script-src-elem": {"unsafe-inline": True},
+            },
         )
 
     def test_administrator_persona_runs_and_biber_stays_blocked(self):

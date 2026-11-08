@@ -130,7 +130,9 @@ def group_claim_mapper() -> dict:
     """The group membership mapper of the RBAC client scope, as the realm renders it."""
     realm = json.loads(render([]))
     scope = next(
-        s for s in realm["clientScopes"] if s["name"] == CONTEXT["KEYCLOAK_RBAC_GROUP_CLAIM"]
+        s
+        for s in realm["clientScopes"]
+        if s["name"] == CONTEXT["KEYCLOAK_RBAC_GROUP_CLAIM"]
     )
     return next(
         m for m in scope["protocolMappers"] if m["protocolMapper"] == GROUP_MAPPER
@@ -623,9 +625,7 @@ class TestNextcloudAdminClientRole(unittest.TestCase):
         self,
     ) -> None:
         self.assertEqual(self.group_mapper["config"]["multivalued"], "true")
-        self.assertEqual(
-            client_role_claim_findings(self.client, self.group_mapper), []
-        )
+        self.assertEqual(client_role_claim_findings(self.client, self.group_mapper), [])
 
     def test_a_single_valued_role_mapper_fails_the_claim_check(self) -> None:
         client = json.loads(json.dumps(self.client))
@@ -679,9 +679,7 @@ class TestNextcloudAdminClientRole(unittest.TestCase):
         self.assertEqual(
             module.kc_declared_client_role_grants(apps, ["web-app-x"], "roles"), []
         )
-        self.assertEqual(
-            module.kc_declared_client_role_grants(apps, [], "roles"), []
-        )
+        self.assertEqual(module.kc_declared_client_role_grants(apps, [], "roles"), [])
 
 
 class TestPerAppClientIdsFailLoudly(unittest.TestCase):

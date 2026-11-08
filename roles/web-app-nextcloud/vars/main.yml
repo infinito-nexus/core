@@ -303,7 +303,8 @@ NEXTCLOUD_NOTIFY_PUSH_PORT: "{{ lookup('config', application_id, 'services.' ~ N
 NEXTCLOUD_NOTIFY_PUSH_LOCATION: "/push/"
 NEXTCLOUD_NOTIFY_PUSH_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_NOTIFY_PUSH_LOCATION ] | url_join }}"
 NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY: "{{ [ NEXTCLOUD_APPS_DIRECTORY, NEXTCLOUD_NOTIFY_PUSH_SERVICE ] | path_join }}"
-NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_PROXY_DNS_NAME }}:{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.ports.internal.http') }}"
+NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_PROXY_DNS_NAME }}:{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.ports.internal.http')
+  }}"
 NEXTCLOUD_NOTIFY_PUSH_LAUNCHER_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'notify-push.sh' ] | path_join }}"
 NEXTCLOUD_NOTIFY_PUSH_LAUNCHER: "{{ lookup('volume', application_id, 'notify_push_launcher').target }}"
 

@@ -51,15 +51,18 @@ def resolve_upstream_scheme(
     entity = entity_name(application_id)
     if (_as_str(service_key) or entity) != entity:
         return UPSTREAM_SCHEMES[0]
-    scheme = _as_str(
-        get(
-            applications=applications,
-            application_id=application_id,
-            config_path=f"services.{entity}.upstream_scheme",
-            strict=False,
-            default="",
-        )
-    ).lower() or UPSTREAM_SCHEMES[0]
+    scheme = (
+        _as_str(
+            get(
+                applications=applications,
+                application_id=application_id,
+                config_path=f"services.{entity}.upstream_scheme",
+                strict=False,
+                default="",
+            )
+        ).lower()
+        or UPSTREAM_SCHEMES[0]
+    )
     if scheme not in UPSTREAM_SCHEMES:
         raise ValueError(
             f"resolve_upstream_scheme: services.{entity}.upstream_scheme of "

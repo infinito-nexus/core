@@ -96,9 +96,9 @@ LITELLM_CHAT_MODEL: "{{ LITELLM_GATEWAY_MODEL if (LITELLM_GATEWAY_REMOTE | bool)
 
 LITELLM_GATEWAY_MODEL: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.gateway_model') }}"
 
-LITELLM_LOCAL_CHAT_MODEL: "{{ (((lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | map(attribute='alias') | reject('search', 'embed') | list) if 'svc-ai-ollama'
-  in LITELLM_BACKEND_ROLES else []) + ((lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') | map(attribute='alias') | reject('search', 'embed')
-  | list) if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else []) + AI_REMOTE_ALIASES) | first | default('') }}"
+LITELLM_LOCAL_CHAT_MODEL: "{{ (((lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | map(attribute='alias') | reject('search', 'embed') | list)
+  if 'svc-ai-ollama' in LITELLM_BACKEND_ROLES else []) + ((lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') | map(attribute='alias') | reject('search',
+  'embed') | list) if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else []) + AI_REMOTE_ALIASES) | first | default('') }}"
 
 AI_AGENT_MODEL: "{{ AI_MOCK_ALIASES | first | default(LITELLM_CHAT_MODEL, true) }}"
 
@@ -111,8 +111,8 @@ LITELLM_CHAT_MODEL_SERVED: >-
                | map(attribute='alias') | reject('search', 'embed') | list) | length > 0))
      or ((AI_REMOTE_ALIASES | length) > 0) }}
 
-LITELLM_USABLE: "{{ ((LITELLM_GATEWAY_URL | length > 0) and (LITELLM_GATEWAY_KEY | length > 0) and (LITELLM_GATEWAY_MODEL | length > 0)) if (LITELLM_GATEWAY_REMOTE | bool)
-  else (('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool)) }}"
+LITELLM_USABLE: "{{ ((LITELLM_GATEWAY_URL | length > 0) and (LITELLM_GATEWAY_KEY | length > 0) and (LITELLM_GATEWAY_MODEL | length > 0)) if (LITELLM_GATEWAY_REMOTE
+  | bool) else (('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool)) }}"
 
 MCP_DISCOVERY: "{{ lookup('mcp_servers') }}"
 MCP_DISCOVERED_SERVERS: "{{ MCP_DISCOVERY.selected }}"
