@@ -37,7 +37,6 @@ for procs in "${cgroups}"/user.slice/user-*.slice/user@*.service/app.slice/app-*
 		[[ "${current}" == "${target}" ]] || echo "${target}" 2>/dev/null >"${proc}/${pid}/oom_score_adj"
 		read -r comm 2>/dev/null <"${proc}/${pid}/comm" || continue
 		[[ "${comm}" == rg ]] || continue
-		# nice and ioprio are per thread and rg starts its search threads at once, so every tid is idled.
 		for task in "${proc}/${pid}/task/"*; do
 			rg_tids+=("${task##*/}")
 		done
