@@ -35,7 +35,7 @@
         'extensions': (code_addons | dict2items | selectattr('value.enabled', 'equalto', true)
           | selectattr('value.mechanism', 'equalto', 'extension')
           | map(attribute='value.config.extension_id') | list),
-        'code_settings': lookup('config', 'dsk-code', 'services.code.settings')
+        'code_settings': code_settings
       } | to_json }}
   become: true
   become_user: "{{ lookup('users', WORKSTATION_USER).username }}"

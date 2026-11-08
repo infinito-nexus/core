@@ -49,6 +49,17 @@ def read_settings(path):
     return result
 
 
+def merge(settings, enforced):
+    merged = dict(settings)
+    for key, value in enforced.items():
+        current = merged.get(key)
+        if isinstance(value, dict) and isinstance(current, dict):
+            merged[key] = merge(current, value)
+        else:
+            merged[key] = value
+    return merged
+
+
 def write_json(path, value):
     content = json.dumps(value, ensure_ascii=False, indent=2) + "\n"
     if path.exists() and path.read_text() == content:
@@ -143,7 +154,7 @@ def configure(user_data_dir, payload):
             raise ValueError(
                 "Profile settings must stay inside the editor profiles directory"
             )
-        settings = read_settings(path)
+        settings = merge(read_settings(path), payload["code_settings"])
         managed = profile_settings(
             profile, payload["gateway_url"], payload["gateway_key"]
         )

@@ -12,3 +12,6 @@
     codex:
       enabled: true
       shared: true
+  addons:
+    python:
+      enabled: true
