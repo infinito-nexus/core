@@ -44,6 +44,7 @@ Neither choice uses a Keycloak service account, a `realm-management` role, the K
 Each role with an `sso` service, whether its upstream receives OIDC back-channel logout tokens, and how long its session lives on another network or device when nothing ends it.
 A link names the version the role pins; a link marked "floating" names the newest tag or branch head read on 2026-11-06, because the role does not pin that component.
 An application that receives logout tokens declares its own Keycloak client under `services.sso.oidc.clients`; every other one stays on the shared client.
+A custom `roles/web-app-cst-*` role declares its row under `sso.backchannel` in its own `meta/services.yml` instead, as [deploy.md](../../docs/administration/deploy.md) describes.
 
 | Role | Flavor | Back-channel logout | Endpoint | Upstream documentation | Session on another network or device |
 | --- | --- | --- | --- | --- | --- |
