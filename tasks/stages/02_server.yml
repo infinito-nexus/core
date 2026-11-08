@@ -70,6 +70,7 @@
     tasks_from: utils/rotation/verify.yml
   vars:
     application_id: svc-db-redis
+    compose_mode_force: ""
   when:
     - "'svc-db-redis' in group_names"
     - RUNTIME in ['dev', 'act', 'github']
