@@ -731,6 +731,12 @@ class TestStatus(unittest.TestCase):
         self.assertEqual(
             [build["path"], build["used_bytes"], build["complete"]], [None, None, False]
         )
+        pin_rows = [
+            json.loads(line)
+            for line in done.stderr.splitlines()
+            if line.startswith("{")
+        ]
+        self.assertEqual([row["cache"] for row in pin_rows], ["pin"])
 
     def test_the_build_cache_size_comes_from_docker_system_df(self) -> None:
         line = json.dumps({"Type": "Build Cache", "Size": "28.5GB"})

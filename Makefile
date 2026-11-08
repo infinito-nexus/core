@@ -142,11 +142,20 @@ build-no-cache-all:
 	done
 
 .PHONY: cache-apply
-# Install this checkout's cache declarations into the running cache stack.
-# Note: creates the Nexus proxy repos, issues the frontend certs, installs the upstream map the frontend mounts and reloads it.
-# Note: `make compose-up` runs it for a checkout that shares another one's cache stack; call it directly after changing a `cache:` declaration.
+# Install the pinned commit's cache declarations into the running cache stack, never this checkout's own.
+# Note: creates the Nexus proxy repos, issues the frontend certs, installs the upstream map the frontend mounts and reloads it, all from the checkout of the pin below INFINITO_CACHE_PIN_ROOT.
+# Note: `make compose-up` runs it for every checkout; it names this checkout's `cache:` declarations that differ from the pin and fails while no pin exists. See docs/requirements/096-cache-stack-pin.md.
 cache-apply:
 	@bash scripts/system/cache/apply.sh
+
+.PHONY: cache-declare
+# Pin the commit the shared cache stack runs from, materialize it outside every worktree and apply its cache declarations to the running stack.
+# Usage: make cache-declare ref=<commit>
+# Note: only the declarer runs it, after the new or changed `cache:` declaration landed on that commit; every worktree then applies the same commit, and the checkouts of earlier commits but the previous pin are pruned.
+# Param ref: branch, tag or commit SHA, resolved to the full commit written to INFINITO_CACHE_PIN_FILE; a ref that names no commit, or a commit without the cache pin, is refused.
+cache-declare:
+	@test -n '$(ref)' || { echo 'usage: make cache-declare ref=<commit>'; exit 2; }
+	@bash scripts/system/cache/declare.sh '$(ref)'
 
 .PHONY: cache-evict
 # Evict idle cache entries, then the least recently used ones, until every cache fits its cap; refuses when the caps leave less than INFINITO_CACHE_DISK_FLOOR free.
@@ -154,7 +163,7 @@ cache-evict:
 	@"$${PYTHON}" -m cli.meta.cache.evict
 
 .PHONY: cache-status
-# Print one JSON object per cache with its path, used bytes, cap, headroom and access-time fallback.
+# Print one JSON object per cache with its path, used bytes, cap, headroom and access-time fallback; the cache pin (pinned and applied commit) goes to stderr.
 cache-status:
 	@"$${PYTHON}" -m cli.meta.cache.status
 
@@ -1186,7 +1195,7 @@ worktree-prune:
 .PHONY: worktree-up
 # Check a branch out into an isolated worktree with its own subnet, ports and container names.
 # Usage: make worktree-up branch=<name> [base=<dir>]
-# Note: the worktree shares the primary checkout's cache stack instead of starting its own; `make cache-apply` serves its own cache declarations from it.
+# Note: the worktree shares the primary checkout's cache stack instead of starting its own; that stack serves the pinned commit's cache declarations, never the worktree's (see `make cache-declare`).
 # Param branch: branch to check out (required).
 # Param base: parent directory for the worktree (default ~/.local/share/worktrees/<domain>/<account>/<repo>).
 worktree-up:

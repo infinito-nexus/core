@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from cli.administration.deploy.development.compose import Compose
+from utils.cache import pin
 
 
 class TestComposeUpRetries(unittest.TestCase):
@@ -221,7 +222,8 @@ class TestComposeUpRetries(unittest.TestCase):
         compose.wait_for_healthy = MagicMock()
         compose.reset_target = MagicMock()
 
-        compose.up(run_entry_init=False)
+        with patch.object(pin, "served_hosts", return_value=None):
+            compose.up(run_entry_init=False)
 
         compose._compose_up_with_retries.assert_called_once_with(
             ["up", "-d", "coredns", "infinito"],
@@ -251,7 +253,8 @@ class TestComposeUpRetries(unittest.TestCase):
         compose.wait_for_healthy = MagicMock()
         compose.reset_target = MagicMock()
 
-        compose.up(run_entry_init=False)
+        with patch.object(pin, "served_hosts", return_value=None):
+            compose.up(run_entry_init=False)
 
         compose._compose_up_with_retries.assert_called_once_with(
             [
@@ -289,8 +292,8 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
         compose.reset_target = MagicMock()
-        compose._bootstrap_package_cache = MagicMock()
-        compose._generate_package_frontend_certs = MagicMock()
+        compose._apply_pinned_cache = MagicMock()
+        compose._prepare_pinned_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
         compose._layer_pacman_cache_in_runner = MagicMock()
 
@@ -310,8 +313,8 @@ class TestComposeUpRetries(unittest.TestCase):
             delay_s=30,
         )
         compose.wait_for_healthy.assert_called_once_with()
-        compose._bootstrap_package_cache.assert_called_once()
-        compose._generate_package_frontend_certs.assert_called_once()
+        compose._apply_pinned_cache.assert_called_once()
+        compose._prepare_pinned_cache.assert_called_once()
         compose._install_package_frontend_ca_in_runner.assert_called_once()
         compose._layer_pacman_cache_in_runner.assert_called_once()
 
@@ -331,15 +334,16 @@ class TestComposeUpRetries(unittest.TestCase):
         },
         clear=False,
     )
-    def test_up_applies_the_declarations_to_a_cache_stack_it_shares(self) -> None:
+    def test_up_applies_the_pinned_declarations_to_a_cache_stack_it_shares(
+        self,
+    ) -> None:
         compose = self._compose()
         compose._render_coredns_corefile = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
         compose.reset_target = MagicMock()
-        compose._bootstrap_package_cache = MagicMock()
-        compose._generate_package_frontend_certs = MagicMock()
-        compose._apply_shared_cache = MagicMock()
+        compose._prepare_pinned_cache = MagicMock()
+        compose._apply_pinned_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
         compose._layer_pacman_cache_in_runner = MagicMock()
 
@@ -348,9 +352,8 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._compose_up_with_retries.assert_called_once_with(
             ["up", "-d", "coredns", "infinito"], attempts=6, delay_s=30
         )
-        compose._generate_package_frontend_certs.assert_not_called()
-        compose._bootstrap_package_cache.assert_not_called()
-        compose._apply_shared_cache.assert_called_once()
+        compose._prepare_pinned_cache.assert_not_called()
+        compose._apply_pinned_cache.assert_called_once()
         compose._install_package_frontend_ca_in_runner.assert_called_once()
         compose._layer_pacman_cache_in_runner.assert_called_once()
 
@@ -376,8 +379,8 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._render_coredns_corefile = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
-        compose._bootstrap_package_cache = MagicMock()
-        compose._generate_package_frontend_certs = MagicMock()
+        compose._apply_pinned_cache = MagicMock()
+        compose._prepare_pinned_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
         compose._layer_pacman_cache_in_runner = MagicMock()
         compose.reset_target = MagicMock()
@@ -410,6 +413,45 @@ class TestComposeUpRetries(unittest.TestCase):
             ],
             live=False,
         )
+
+    @patch.dict(os.environ, {"INFINITO_GHCR_MIRROR": ""}, clear=False)
+    def test_the_cache_stack_starts_and_applies_through_the_pinned_apply(
+        self,
+    ) -> None:
+        compose = self._compose()
+        helper = str(compose.repo_root / "scripts" / "system" / "cache" / "apply.sh")
+        with patch("subprocess.run") as run:
+            run.return_value.returncode = 0
+            compose._prepare_pinned_cache({})
+            compose._apply_pinned_cache({})
+        prepare, apply = run.call_args_list
+        self.assertEqual(prepare.args[0], ["bash", helper, "prepare"])
+        self.assertEqual(apply.args[0], ["bash", helper])
+
+    @patch.dict(os.environ, {"INFINITO_GHCR_MIRROR": ""}, clear=False)
+    def test_no_pin_stops_the_owner_with_the_declarer_hint_but_never_a_sharer(
+        self,
+    ) -> None:
+        compose = self._compose()
+        with patch("subprocess.run") as run:
+            run.return_value.returncode = 3
+            with self.assertRaises(SystemExit) as stopped:
+                compose._prepare_pinned_cache({})
+            compose._apply_pinned_cache({})
+        self.assertIn("make cache-declare ref=<commit>", str(stopped.exception.code))
+        self.assertIn("make dotenv", str(stopped.exception.code))
+
+    def test_the_hijacks_are_rendered_against_the_pinned_declarations(self) -> None:
+        compose = self._compose()
+        served = {"a.example": {"repo": "raw-a"}}
+        module = "cli.administration.deploy.development.compose"
+        with (
+            patch(f"{module}.pin.served_hosts", return_value=served) as pinned,
+            patch(f"{module}.render_artifacts", return_value=[]) as render,
+        ):
+            compose._render_cache_artifacts()
+        pinned.assert_called_once_with(os.environ)
+        self.assertIs(render.call_args.args[2], served)
 
 
 if __name__ == "__main__":  # pragma: no cover

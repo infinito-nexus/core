@@ -77,6 +77,7 @@ jobs:
       INFINITO_CACHE_PACKAGE_HEAP: 1g
       INFINITO_CACHE_PACKAGE_DIRECT_MEM: 1g
       INFINITO_CACHE_PACKAGE_HOST_PATH: /mnt/cache/package/data
+      INFINITO_CACHE_PIN_ROOT: /mnt/cache/pin
       INFINITO_GHCR_MIRROR: "true"
       INFINITO_GHCR_MIRROR_PREFIX: mirror
 
@@ -146,10 +147,12 @@ jobs:
             -e INFINITO_CACHE_PACKAGE_HEAP \
             -e INFINITO_CACHE_PACKAGE_DIRECT_MEM \
             -e INFINITO_CACHE_PACKAGE_HOST_PATH \
+            -e INFINITO_CACHE_PIN_ROOT \
             -e INFINITO_GHCR_MIRROR \
             -e INFINITO_GHCR_MIRROR_PREFIX \
             --network host \
             -v "${HOST_WORKDIR}:${HOST_WORKDIR}" \
+            -v "${INFINITO_CACHE_PIN_ROOT}:${INFINITO_CACHE_PIN_ROOT}" \
             -v "/mnt/docker:/var/lib/docker" \
             -v "/var/run/docker.sock:/var/run/docker.sock" \
             -w "${HOST_WORKDIR}" \

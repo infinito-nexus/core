@@ -4,11 +4,16 @@ import json
 import os
 import sys
 
+from utils.cache import pin
 from utils.cache.evict import CacheConfigError, load_settings, status, usages
 from utils.cache.eviction.docker import build_cache_usage, run_command
 
 
 def main() -> int:
+    row = pin.status(os.environ)
+    print(json.dumps(row, sort_keys=True), file=sys.stderr)
+    if row["error"]:
+        print(f"[cache-status] {row['error']}", file=sys.stderr)
     try:
         settings = load_settings(os.environ)
     except CacheConfigError as exc:

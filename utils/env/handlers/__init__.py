@@ -40,11 +40,11 @@ from .infinito import (
 )
 from .infinito.ca import bundle_candidates as ca_bundle_candidates
 from .infinito.ca import cert_host as ca_cert_host
-from .infinito.cache import conf as cache_conf
 from .infinito.cache import host_pacman_path as cache_host_pacman_path
 from .infinito.cache import hosts as cache_hosts
 from .infinito.cache import http_hosts as cache_http_hosts
 from .infinito.cache import paths as cache_paths
+from .infinito.cache import pin as cache_pin
 from .infinito.cache import registries as cache_registries
 from .infinito.cache import stack as cache_stack
 from .infinito.cache import tls as cache_tls
@@ -100,7 +100,7 @@ ORDERED_HANDLERS = [
     domain,
     running_on_act,
     running_on_github,
-    cache_conf,
+    cache_pin,
     cache_hosts,
     cache_http_hosts,
     cache_tls,
