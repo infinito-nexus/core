@@ -47,6 +47,13 @@ class TestCheckVersion(_SourceFixture, unittest.TestCase):
     def test_full_commit_sha_needs_no_ref_lookup(self):
         self.check(Source("https://example.invalid/widgets.git", "a" * 40, ROLE_PATH))
 
+    def test_a_sha_one_digit_too_long_is_no_commit(self):
+        self.assertFalse(Source(str(self.repo), "a" * 41, ROLE_PATH).commit)
+        with self.assertRaisesRegex(
+            CustomRoleError, "'a{41}' is neither a tag nor a full commit SHA"
+        ):
+            self.check(Source(str(self.repo), "a" * 41, ROLE_PATH))
+
     def test_branch_is_refused(self):
         with self.assertRaisesRegex(
             CustomRoleError, f"{ROLE}: source.version 'feature' names a branch"

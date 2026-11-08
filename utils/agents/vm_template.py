@@ -8,7 +8,6 @@ installs them on a workstation, so a bump there reaches the template too.
 
 from __future__ import annotations
 
-import re
 import shlex
 import shutil
 import stat
@@ -17,6 +16,7 @@ from pathlib import Path, PurePosixPath
 from utils import PROJECT_ROOT
 from utils.agents.workspace import VM_KINDS
 from utils.cache.yaml import load_yaml
+from utils.digests import SHA256
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 TEMPLATE_DIR = PROJECT_ROOT / "roles" / "svc-ai-agent-broker" / "files" / "vm-template"
@@ -27,7 +27,6 @@ IMAGE_ID = "infinito-agent"
 VERSION_FILE = "/etc/infinito/vm-template-version"
 NPM_REGISTRY = "https://registry.npmjs.org"
 DOWNLOAD_DIR = "/root/vm-template-downloads"
-SHA256 = re.compile(r"[0-9a-f]{64}")
 SPEC_KEYS = frozenset(
     {
         "version",

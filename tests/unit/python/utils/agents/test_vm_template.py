@@ -133,7 +133,16 @@ class TestTemplate(unittest.TestCase):
 
     def test_a_sum_that_is_not_64_lowercase_hex_digits_fails_the_render(self):
         crafted = f"{'ab' * 32}  /etc/hostname\n#"
-        for value in ("", "  ", crafted, "AB" * 32, "ab" * 31):
+        digest = "ab" * 32
+        for value in (
+            "",
+            "  ",
+            crafted,
+            "AB" * 32,
+            "ab" * 31,
+            digest[:-1],
+            digest + "0",
+        ):
             pins = {"claude-code": ("@anthropic-ai/claude-code", "1.2.3", value)}
             with self.assertRaises(vm_template.VmTemplateError, msg=repr(value)):
                 vm_template.mkosi_files(self._spec(), pins)

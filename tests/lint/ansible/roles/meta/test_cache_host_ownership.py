@@ -1,7 +1,7 @@
 """Lint guard for a cached upstream a role reaches but does not declare.
 
 ``meta/networks.yml.cache.hosts`` routes an upstream through the package
-cache, and exactly one role may own each host: ``utils.cache.hosts._claim``
+cache, and exactly one role may own each host: ``utils.cache.hosts.claim``
 raises as soon as a second role declares it.
 
 The routing itself is repository-global, not per-deployment:
