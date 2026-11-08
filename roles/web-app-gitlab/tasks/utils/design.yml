@@ -21,5 +21,7 @@
       loop: "{{ GITLAB_DESIGN_UPLOADS }}"
       loop_control:
         label: "{{ item.file }}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
       register: gitlab_design_files
       when: design_branding.logo is string
