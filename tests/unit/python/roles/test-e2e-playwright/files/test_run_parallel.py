@@ -305,10 +305,17 @@ class TestRun(unittest.TestCase):
         timeout=60,
         tor=False,
         name=None,
+        until=None,
     ):
+        wait = (
+            f"\nwhile 'start {until} ' not in open({str(self.trace)!r}).read(): time.sleep(0.01)\n"
+            if until
+            else ""
+        )
         script = (
             "import sys,time;"
             f"open({str(self.trace)!r},'a').write('start {job_id} %f\\n' % time.time());"
+            f"{wait}"
             f"time.sleep({seconds});"
             f"open({str(self.trace)!r},'a').write('end {job_id} %f\\n' % time.time());"
             f"print('out-{job_id}');print('err-{job_id}',file=sys.stderr);sys.exit({rc})"
@@ -371,7 +378,15 @@ class TestRun(unittest.TestCase):
     def test_jobs_run_concurrently_within_the_cap_and_keep_their_own_results(self):
         self._job(0, "head", 0.3)
         for index, name in enumerate(["a", "b", "c", "d"], start=1):
-            self._job(index, name, 0.6, rc=1 if name == "b" else 0, after=["head"])
+            self._job(
+                index,
+                name,
+                0.6,
+                rc=1 if name == "b" else 0,
+                after=["head"],
+                timeout=10,
+                until="b" if name == "a" else None,
+            )
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(2), 0)
         self.assertEqual(self._peak(), 2)
@@ -433,9 +448,9 @@ class TestRun(unittest.TestCase):
         self._job(0, "a", 0.2)
         self._job(1, "b", 0.1, after=["a"])
         (self.jobs / rp.SEALED).touch()
-        self.assertEqual(self._run(1, poll=1.0), 0)
+        self.assertEqual(self._run(1, poll=30.0), 0)
         self.assertLess(
-            self._stamps("start", "b")[0] - self._stamps("end", "a")[0], 0.6
+            self._stamps("start", "b")[0] - self._stamps("end", "a")[0], 15.0
         )
 
     def test_a_scheduler_crash_stops_every_running_container(self):
@@ -518,15 +533,23 @@ class TestRun(unittest.TestCase):
         self.assertGreaterEqual(self._stamps("start", "onion")[0], released)
 
     def test_onion_jobs_share_tor_with_each_other(self):
-        self._job(0, "onion-a", 0.5, tor=True)
-        self._job(1, "onion-b", 0.5, tor=True)
+        self._job(0, "onion-a", 0.1, tor=True, timeout=10, until="onion-b")
+        self._job(1, "onion-b", 0.1, tor=True)
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(2), 0)
+        self.assertFalse(self._result("onion-a")["timed_out"])
         self.assertEqual(self._peak(), 2)
 
     def test_onion_jobs_stay_within_the_tor_cap(self):
         for index, name in enumerate(["onion-a", "onion-b", "onion-c"]):
-            self._job(index, name, 0.4, tor=True)
+            self._job(
+                index,
+                name,
+                0.4,
+                tor=True,
+                timeout=10,
+                until="clear" if name == "onion-a" else None,
+            )
         self._job(3, "clear", 0.4)
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(4, onion_cap=1), 0)
