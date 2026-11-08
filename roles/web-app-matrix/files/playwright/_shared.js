@@ -9,11 +9,12 @@ const {
   installCspViolationObserver,
   normalizeBaseUrl,
   performKeycloakLoginForm,
+  requireDotenvValue,
   runGuestFlow,
 } = require("./personas");
 
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
-const elementBaseUrl = normalizeBaseUrl(process.env.ELEMENT_BASE_URL || "");
+const elementBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.ELEMENT_BASE_URL, "ELEMENT_BASE_URL"));
 const matrixBaseUrl = normalizeBaseUrl(process.env.MATRIX_BASE_URL || "");
 const matrixServerName = decodeDotenvQuotedValue(process.env.MATRIX_SERVER_NAME);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -365,6 +366,7 @@ async function signInViaElementPassword(page, username, password, personaLabel) 
   const pwField = page
     .locator('input[name="password"], #mx_LoginForm_password, input[type="password"]')
     .first();
+  await expect(pwField, `${personaLabel}: Element password field must accept input`).toBeEditable({ timeout: resolveTimeout(30_000) });
   await pwField.fill(password);
 
   const submitBtn = page

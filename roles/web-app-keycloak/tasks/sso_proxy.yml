@@ -32,6 +32,12 @@
     src: "{{ lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2') }}"
     dest: >-
       {{ (sso_proxy_application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
-         }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}
+         }}{{ sso_proxy_instance.config_file }}
+  vars:
+    sso_proxy_network: "{{ sso_proxy_instance.network }}"
+  loop: "{{ lookup('sso', sso_proxy_application_id, 'proxy_instances') }}"
+  loop_control:
+    loop_var: sso_proxy_instance
+    label: "{{ sso_proxy_instance.service }}"
   notify:
     - compose-up

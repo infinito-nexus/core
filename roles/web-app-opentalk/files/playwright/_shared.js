@@ -31,8 +31,23 @@ function attachDiagnostics(page) {
   return d;
 }
 
+function signedInUserStatus(page) {
+  return page
+    .waitForResponse(
+      async (resp) =>
+        new URL(resp.url()).pathname === "/v1/users/me" &&
+        Boolean(await resp.request().headerValue("authorization")),
+      { timeout: resolveTimeout(120_000) },
+    )
+    .then(
+      (resp) => resp.status(),
+      () => 0,
+    );
+}
+
 async function ssoLoginAndAssertDashboard(page, username, password) {
   const diagnostics = attachDiagnostics(page);
+  const userStatus = signedInUserStatus(page);
   await gotoOnion(page, baseUrl);
 
   // The OpenTalk frontend either auto-redirects to Keycloak or renders a
@@ -49,11 +64,15 @@ async function ssoLoginAndAssertDashboard(page, username, password) {
     await page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) });
   }
 
-  await page.locator('input[name="username"], #username').fill(username);
-  await page.locator('input[name="password"], #password').fill(password);
+  const usernameField = page.locator('input[name="username"], #username');
+  const passwordField = page.locator('input[name="password"], #password');
+  await expect(usernameField).toBeEditable({ timeout: resolveTimeout(30_000) });
+  await usernameField.fill(username);
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(30_000) });
+  await passwordField.fill(password);
   // Submit via Enter to avoid Playwright's post-click stability wait that
   // races with the multi-step OIDC redirect chain back to OpenTalk.
-  await page.locator('input[name="password"], #password').press("Enter");
+  await passwordField.press("Enter");
 
   await page.waitForURL(baseUrlPattern, { timeout: resolveTimeout(60_000) });
   // The dashboard renders a left-side navigation list with a Home link plus
@@ -75,6 +94,7 @@ async function ssoLoginAndAssertDashboard(page, username, password) {
     ].join("\n");
     throw new Error(`OpenTalk dashboard never appeared.\n${summary}\nOriginal: ${err}`, { cause: err });
   }
+  expect(await userStatus, "GET /v1/users/me with the signed-in access token").toBe(200);
 }
 
 module.exports = {

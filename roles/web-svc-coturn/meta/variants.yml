@@ -6,6 +6,9 @@
 # matrix exercises the in-group_names branch of web-svc-coturn.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     prometheus:
@@ -16,6 +19,9 @@
     tor:
       enabled: false # nocheck: variants-static-override
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

@@ -74,8 +74,8 @@ class ServicesResolver:
     Resolve shared-provider roles transitively from role meta/services.yml.
 
     Note:
-    - Transitively follows provider roles by reading THEIR configs and applying the same
-      resolve_direct_service_roles_from_config() logic.
+        Transitively follows provider roles by reading THEIR configs and applying
+        the same resolve_direct_service_roles_from_config() logic.
     """
 
     def __init__(

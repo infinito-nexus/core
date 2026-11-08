@@ -80,16 +80,24 @@ def mem_total_mb() -> int:
     return _meminfo_mb("MemTotal:")
 
 
-def mem_stall_pct() -> float:
-    """`full avg60` from /proc/pressure/memory in percent. 0.0 on failure."""
+def _pressure_pct(resource: str, kind: str) -> float:
+    """`<kind> avg60` from /proc/pressure/<resource> in percent.
+
+    Args:
+        resource: PSI resource file name (``memory``, ``io``, ``cpu``).
+        kind: pressure line to read (``some`` or ``full``).
+
+    Returns:
+        The avg60 percentage, 0.0 when the file or the field is unreadable.
+    """
     try:
         text = Path(
-            "/proc/pressure/memory"
+            f"/proc/pressure/{resource}"
         ).read_text()  # nocheck: cache-read -- live kernel pseudo-file
     except OSError:
         return 0.0
     for line in text.splitlines():
-        if not line.startswith("full "):
+        if not line.startswith(f"{kind} "):
             continue
         for field in line.split():
             if field.startswith("avg60="):
@@ -98,6 +106,61 @@ def mem_stall_pct() -> float:
                 except ValueError:
                     return 0.0
     return 0.0
+
+
+def mem_stall_pct() -> float:
+    """`full avg60` from /proc/pressure/memory in percent. 0.0 on failure."""
+    return _pressure_pct("memory", "full")
+
+
+def io_stall_pct() -> float:
+    """`full avg60` from /proc/pressure/io in percent. 0.0 on failure.
+
+    `full` is the share of the last minute in which every non-idle task was
+    blocked on I/O, which is the signature of a wedged mount rather than of
+    a busy one."""
+    return _pressure_pct("io", "full")
+
+
+def cpu_stall_pct() -> float:
+    """`some avg60` from /proc/pressure/cpu in percent. 0.0 on failure.
+
+    The kernel emits a system-level `full` line for cpu but keeps it pinned
+    at 0, so reading cpu like its memory and io siblings would report a
+    constant zero."""
+    return _pressure_pct("cpu", "some")
+
+
+def uninterruptible_procs() -> int:
+    """Count the processes in uninterruptible (`D`) state via /proc/<pid>/stat.
+
+    A process stuck in `D` cannot be killed and is the host-visible trace of
+    a wedged mount. Only the state field is evaluated; the command name is
+    never retained, so the count can be logged without leaking process
+    command lines. The comm field may itself contain spaces and `)`, so the
+    state is read after the last closing parenthesis rather than by index.
+
+    Returns:
+        The number of `D`-state processes, 0 when /proc is unreadable.
+    """
+    try:
+        entries = os.listdir("/proc")
+    except OSError:
+        return 0
+    count = 0
+    for entry in entries:
+        if not entry.isdigit():
+            continue
+        try:
+            stat = Path(
+                f"/proc/{entry}/stat"
+            ).read_text()  # nocheck: cache-read -- live kernel pseudo-file
+        except OSError:
+            continue
+        fields = stat.rpartition(")")[2].split()
+        if fields and fields[0] == "D":
+            count += 1
+    return count
 
 
 def is_wsl2() -> bool:

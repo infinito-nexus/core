@@ -13,7 +13,6 @@ from utils.distros import (
     distro_of_dev_runtime_image,
     environment_image,
     galaxy_platforms,
-    pkgmgr_image,
 )
 
 
@@ -50,12 +49,6 @@ class TestDistroSpot(unittest.TestCase):
         first[0]["versions"].append("mutated")
         self.assertEqual(galaxy_platforms()[0]["versions"], ["all"])
 
-    def test_pkgmgr_image_renders_the_template(self) -> None:
-        self.assertEqual(
-            pkgmgr_image("arch", owner="acme", tag="stable"),
-            "ghcr.io/acme/pkgmgr-arch:stable",
-        )
-
     def test_environment_image_renders_the_template(self) -> None:
         self.assertEqual(
             environment_image("centos", owner="acme", repository="nexus", tag="ci-1"),
@@ -64,7 +57,7 @@ class TestDistroSpot(unittest.TestCase):
 
     def test_unknown_distro_is_rejected(self) -> None:
         with self.assertRaises(UnknownDistroError):
-            pkgmgr_image("gentoo", owner="acme", tag="stable")
+            environment_image("gentoo", owner="acme", repository="nexus", tag="stable")
 
     def test_dev_runtime_image_round_trips_to_its_distro(self) -> None:
         for name in distro_names():

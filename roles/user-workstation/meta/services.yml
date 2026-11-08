@@ -1,4 +1,11 @@
 ---
-# nocheck: required-by-coverage — TODO: declare proper required_by
 workstation:
   lifecycle: beta
+  bond: 1
+  enabled: true
+  shared: true
+  required_by:
+    compose:
+      categories: [dsk]
+    swarm:
+      categories: [dsk]

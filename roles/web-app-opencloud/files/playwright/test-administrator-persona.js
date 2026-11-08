@@ -1,25 +1,9 @@
-const { test, expect } = require("./onion-test");
-const { resolveTimeout } = require("./timeouts");
+const { test } = require("./onion-test");
 
 const { runAdminFlow } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-opencloud admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(admin|users|spaces|files)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /admin|users|spaces|files|sharing|members/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page);
 });

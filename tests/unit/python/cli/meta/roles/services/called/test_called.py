@@ -34,7 +34,7 @@ class TestCategoriesOf(unittest.TestCase):
         self.assertEqual(categories_of("web-app-yourls"), {"web", "web-app"})
 
     def test_web_svc(self) -> None:
-        self.assertEqual(categories_of("web-svc-css"), {"web", "web-svc"})
+        self.assertEqual(categories_of("web-svc-design"), {"web", "web-svc"})
 
     def test_svc_db(self) -> None:
         self.assertEqual(categories_of("svc-db-postgres"), {"svc", "svc-db"})
@@ -43,7 +43,7 @@ class TestCategoriesOf(unittest.TestCase):
         self.assertEqual(categories_of("sys-ctl-hlth-csp"), {"sys", "sys-ctl"})
 
     def test_single_segment(self) -> None:
-        self.assertEqual(categories_of("desk"), {"desk"})
+        self.assertEqual(categories_of("dsk"), {"dsk"})
 
     def test_empty(self) -> None:
         self.assertEqual(categories_of(""), set())
@@ -272,6 +272,50 @@ class TestRequiredRoleIds(unittest.TestCase):
         )
         self.assertEqual(result, set())
 
+    def _runtime_scoped(self) -> None:
+        _write_services_yml(
+            self.roles_dir / "test-e2e-cli",
+            """
+            ---
+            test-e2e-cli:
+              required_by:
+                runtimes: [dev, act, github]
+                compose:
+                  categories: [web]
+            """,
+        )
+
+    def test_a_runtime_the_list_names_still_requires_the_role(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir,
+            deployed_role_ids=["web-app-yourls"],
+            runtime="act",
+        )
+
+        self.assertEqual(result, {"test-e2e-cli"})
+
+    def test_a_runtime_the_list_omits_waives_the_role(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir,
+            deployed_role_ids=["web-app-yourls"],
+            runtime="host",
+        )
+
+        self.assertEqual(result, set())
+
+    def test_an_unknown_runtime_waives_nothing(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
+        )
+
+        self.assertEqual(result, {"test-e2e-cli"})
+
 
 class TestHostLogSlice(unittest.TestCase):
     def test_reads_full_file_at_zero_offset(self) -> None:
@@ -466,11 +510,13 @@ class TestCLIMain(unittest.TestCase):
                 "--logfile",
                 "/tmp/dummy.log",
                 "--apps",
-                " web-app-yourls , web-svc-css ",
+                " web-app-yourls , web-svc-design ",
             ]
         )
         kwargs = mock_verify.call_args.kwargs
-        self.assertEqual(kwargs["deployed_role_ids"], ["web-app-yourls", "web-svc-css"])
+        self.assertEqual(
+            kwargs["deployed_role_ids"], ["web-app-yourls", "web-svc-design"]
+        )
 
 
 if __name__ == "__main__":

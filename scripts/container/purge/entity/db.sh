@@ -90,7 +90,7 @@ SQL
 	local rc=$?
 	set -e
 
-	[[ $rc -ne 0 ]] && warn "Postgres DROP DATABASE failed for '${db_name}' (rc=${rc})"
+	if [[ $rc -ne 0 ]]; then warn "Postgres DROP DATABASE failed for '${db_name}' (rc=${rc})"; fi
 }
 
 truncate_postgres_db_best_effort() {
@@ -121,7 +121,7 @@ SQL
 	local rc=$?
 	set -e
 
-	[[ $rc -ne 0 ]] && warn "Postgres TRUNCATE failed for '${db_name}' (rc=${rc})"
+	if [[ $rc -ne 0 ]]; then warn "Postgres TRUNCATE failed for '${db_name}' (rc=${rc})"; fi
 }
 
 # ---------------------------------------------------------------------------
@@ -164,7 +164,7 @@ drop_mariadb_db_best_effort() {
 	local rc=$?
 	set -e
 
-	[[ $rc -ne 0 ]] && warn "MariaDB DROP DATABASE failed for '${db_name}' (rc=${rc})"
+	if [[ $rc -ne 0 ]]; then warn "MariaDB DROP DATABASE failed for '${db_name}' (rc=${rc})"; fi
 }
 
 truncate_mariadb_db_best_effort() {
@@ -213,7 +213,7 @@ truncate_mariadb_db_best_effort() {
 	local rc=$?
 	set -e
 
-	[[ $rc -ne 0 ]] && warn "MariaDB TRUNCATE failed for '${db_name}' (rc=${rc})"
+	if [[ $rc -ne 0 ]]; then warn "MariaDB TRUNCATE failed for '${db_name}' (rc=${rc})"; fi
 }
 
 purge_db_both_backends_best_effort() {

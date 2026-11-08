@@ -23,10 +23,10 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[str]:
-        email_cfg = _instantiate(EmailLookup, self._templar).run(
-            [], variables=variables
+        external = _instantiate(EmailLookup, self._templar).run(
+            [], variables=variables, key="external"
         )[0]
-        if _as_bool(email_cfg.get("external")):
+        if _as_bool(external):
             admin = _instantiate(UsersLookup, self._templar).run(
                 ["administrator"], variables=variables
             )[0]

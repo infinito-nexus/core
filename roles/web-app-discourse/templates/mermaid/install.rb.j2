@@ -1,0 +1,7 @@
+url = '{{ DISCOURSE_MERMAID_REPOSITORY }}'
+branch = '{{ DISCOURSE_MERMAID_REF }}'
+theme = Theme.joins(:remote_theme).find_by(remote_themes: { remote_url: url })
+theme ||= RemoteTheme.import_theme(url, Discourse.system_user, branch: branch)
+theme.update!(enabled: true) unless theme.enabled?
+parent = Theme.find_by(id: SiteSetting.default_theme_id)
+parent.add_relative_theme!(:child, theme) if parent && !parent.child_themes.include?(theme)

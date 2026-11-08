@@ -1,13 +1,23 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const {
+  expectHstsWhenTls,
+  ownResponseHeaders,
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 require("./test-mcp-guest").register();
+require("./test-design").register();
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -23,8 +33,7 @@ test("Listmonk front page is served under canonical domain with TLS", async ({ p
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Listmonk URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Listmonk");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Listmonk");
 });
 
 test("Listmonk returns HTML content under canonical domain", async ({ request }) => {
@@ -52,18 +61,26 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // web-app-listmonk admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(campaigns|subscribers|lists|admin)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /campaign|subscriber|list|template|listmonk/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      const menu = interactivePage.locator(".b-sidebar .menu-list");
+      const settingsGroup = menu.locator("li > a[data-cy='settings']");
+      await expect(
+        settingsGroup,
+        "the administration sidebar offers the admin-only settings group",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await settingsGroup.click({ timeout: resolveTimeout(30_000) });
+      const logsEntry = menu.locator("ul a[data-cy='logs']");
+      await expect(
+        logsEntry,
+        "clicking the settings group expands its entries",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await logsEntry.click({ timeout: resolveTimeout(30_000) });
+      await expect(interactivePage).toHaveURL(/\/admin\/settings\/logs(?:[?#]|$)/, {
+        timeout: resolveTimeout(30_000),
+      });
+      await expect(
+        interactivePage.locator(".log-view .lines .line").first(),
+        "the administrator reads the server log the application serves to administrators only",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
     },
   });
 });

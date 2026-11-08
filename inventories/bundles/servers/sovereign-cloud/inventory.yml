@@ -30,9 +30,6 @@ all:
     web-app-keycloak:
       hosts:
         server:
-    web-app-minio:
-      hosts:
-        server:
     web-app-matrix:
       hosts:
         server:

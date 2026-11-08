@@ -9,6 +9,7 @@
     cert_deploy_remote_endpoints: >-
       {{ (STALWART_PRODUCTION_HOST ~ ':465 ' ~ STALWART_PRODUCTION_HOST ~ ':993')
          if STALWART_PRODUCTION_HOST | length > 0 else '' }}
+  when: run_once_sys_ctl_mtn_cert_deploy is not defined
 
 - name: "🔐 Register the platform TLS certificate with Stalwart"
   when: lookup('tls', application_id, 'enabled') | bool

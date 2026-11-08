@@ -35,7 +35,6 @@ needs_install=0
 if [[ ! -f "${STAMP}" ]]; then
 	needs_install=1
 elif [[ ! -x "${VENV}/bin/python" ]]; then
-	# Exception: repo copies (docker cp / tar into containers) carry the stamp but not the venv; a stamp without its venv is stale and would silently skip the whole install chain.
 	echo "[install] stamp present but venv missing at ${VENV}; reinstalling" >&2
 	needs_install=1
 else

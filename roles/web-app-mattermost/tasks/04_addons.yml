@@ -1,0 +1,7 @@
+---
+- name: "🧩 Mattermost | Provision the enabled addons"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/addon.yml"
+  loop: "{{ MATTERMOST_ADDONS_ENABLED }}"
+  loop_control:
+    loop_var: mattermost_addon
+    label: "{{ mattermost_addon.key }}"

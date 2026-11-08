@@ -107,10 +107,12 @@ Worktree ready.
   bind IP    127.0.0.$((slot + 1))
   container  infinito_nexus_${slug//[.-]/_}
   cache net  ${cache_network:-<none>}
+  domain     $(awk -F= '$1 == "INFINITO_DOMAIN" { print $2 }' "${path}/.env")
 
 Next:
   cd ${path}
   make compose-up
+  make network-dns-setup   # routes the domain above to the bind IP
 
 Release with:
   make worktree-down branch=${branch}

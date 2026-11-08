@@ -1,0 +1,7 @@
+{% if domain == MATRIX_SYNAPSE_DOMAIN and matrix_flavor == 'ansible' %}
+{% include 'roles/web-app-matrix/templates/flavor/ansible/synapse.conf.j2' %}
+{% elif domain == MATRIX_SYNAPSE_DOMAIN %}
+{% include 'roles/web-app-matrix/templates/synapse.conf.j2' %}
+{% else %}
+{% include 'roles/sys-svc-proxy/templates/vhost/basic.conf.j2' %}
+{% endif %}

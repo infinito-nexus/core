@@ -13,7 +13,7 @@
 - name: "▶️ Execute service routines for '{{ system_service_id }}'"
   block:
     - name: "🧩 Load base routine for '{{ system_service_id }}'"
-      include_tasks: 04_base.yml
+      import_tasks: 04_base.yml
     - name: "🚿 Flush system service handlers for '{{ system_service_id }}'"
       meta: flush_handlers
   when: system_service_id is defined

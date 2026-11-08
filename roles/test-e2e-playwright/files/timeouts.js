@@ -5,15 +5,23 @@
  * (Tor) service, by an extra multiplier — Tor circuits add per-request latency.
  */
 
-function _canonicalDomain() {
-  const raw = process.env.CANONICAL_DOMAIN || "";
+function _unquoted(name) {
+  const raw = process.env[name] || "";
   const unquoted =
     raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
   return unquoted.trim();
 }
 
+function _targetHost() {
+  try {
+    return new URL(_unquoted("APP_BASE_URL")).hostname;
+  } catch {
+    return _unquoted("CANONICAL_DOMAIN");
+  }
+}
+
 function isOnionTarget() {
-  return /\.onion$/i.test(_canonicalDomain());
+  return /\.onion$/i.test(_targetHost());
 }
 
 function isSplitRealmOidc() {
@@ -31,18 +39,43 @@ function onionTimeoutMultiplier() {
 }
 
 /**
+ * Milliseconds held back from the suite budget so a waiter that exhausts its
+ * timeout reports which predicate it was waiting on. Without it the global
+ * timeout fires first and Playwright counts the in-flight test, and every
+ * test behind it, as "did not run" — naming nothing.
+ *
+ * The cap below is measured from the waiter's own start while the global
+ * timeout runs from the suite's, so this reserve must also absorb every test
+ * that ran before the waiter plus the post-failure trace and report write. At
+ * 60_000 a 86 s prefix already pushed the cap past the global timeout and the
+ * failure went unnamed.
+ */
+const SUITE_RESERVE_MS = 180_000;
+
+function suiteBudgetMs() {
+  const budget = Number(process.env.INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS);
+  return Number.isFinite(budget) && budget > 0 ? budget : 0;
+}
+
+/**
  * Effective timeout (ms) for the current run: `base * TIMEOUT_FACTOR`, times the
- * onion multiplier when the target is a `.onion` service.
+ * onion multiplier when the target is a `.onion` service, capped so no single
+ * waiter can outlive the suite that contains it.
  */
 function resolveTimeout(baseMs) {
   const onionMult = isOnionTarget() ? onionTimeoutMultiplier() : 1;
-  return Math.round(baseMs * timeoutFactor() * onionMult);
+  const scaled = Math.round(baseMs * timeoutFactor() * onionMult);
+  const budget = suiteBudgetMs();
+  if (budget <= SUITE_RESERVE_MS) return scaled;
+  return Math.min(scaled, budget - SUITE_RESERVE_MS);
 }
 
 module.exports = {
+  SUITE_RESERVE_MS,
   isOnionTarget,
   isSplitRealmOidc,
   timeoutFactor,
   onionTimeoutMultiplier,
+  suiteBudgetMs,
   resolveTimeout,
 };

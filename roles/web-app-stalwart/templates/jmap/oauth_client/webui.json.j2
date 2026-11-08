@@ -5,13 +5,19 @@
   "firstParty": true,
   "grantTypes": {"authorizationCode": true, "refreshToken": true},
   "redirectUris": {
+{% for origin in stalwart_webui_origins %}
+{% set last_origin = loop.last %}
 {% for prefix in stalwart_webui_url_prefixes %}
-    {{ (STALWART_WEBUI_BASE_URL ~ '/' ~ (prefix | trim('/')) ~ '/oauth/callback') | to_json }}: true{{ '' if loop.last else ',' }}
+    {{ (origin ~ '/' ~ (prefix | trim('/')) ~ '/oauth/callback') | to_json }}: true{{ '' if last_origin and loop.last else ',' }}
+{% endfor %}
 {% endfor %}
   },
   "postLogoutRedirectUris": {
+{% for origin in stalwart_webui_origins %}
+{% set last_origin = loop.last %}
 {% for prefix in stalwart_webui_url_prefixes %}
-    {{ (STALWART_WEBUI_BASE_URL ~ '/' ~ (prefix | trim('/')) ~ '/login') | to_json }}: true{{ '' if loop.last else ',' }}
+    {{ (origin ~ '/' ~ (prefix | trim('/')) ~ '/login') | to_json }}: true{{ '' if last_origin and loop.last else ',' }}
+{% endfor %}
 {% endfor %}
   }
 }

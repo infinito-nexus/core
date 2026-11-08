@@ -1,13 +1,14 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "📂 Include front proxy for domain '{{ domain }}'"
+- name: "📂 Include the front proxy for every {{ application_id }} domain"
   include_role:
     name: sys-stk-front-proxy
   loop: "{{ lookup('domains', application_id) }}"
   loop_control:
-    loop_var: domain # nocheck: loop-var-shadow  sys-stk-front-proxy takes the vhost through this name, see its tasks/main.yml front_proxy_domain
+    loop_var: front_proxy_vhost
   vars:
+    domain: "{{ front_proxy_vhost }}"
     http_port: "{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
     websocket_port: "{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
 
@@ -15,7 +16,14 @@
   include_role:
     name: sys-stk-backend
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+
+- name: "🔎 Detect the release the existing PeerTube data was written by"
+  include_tasks: upgrade/detect.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
 - name: "▶️ Execute stack host routines"
   include_tasks: 01_stack_host.yml

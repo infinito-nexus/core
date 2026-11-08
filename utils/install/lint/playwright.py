@@ -5,19 +5,21 @@ from __future__ import annotations
 from pathlib import Path
 
 from utils.cache import PROJECT_ROOT
-from utils.install.npm import npm_install_local_in_repo
+from utils.install.npm import npm_install_local_in_repo, npm_local_missing
 from utils.install.primitives import log
 
 
 def ensure() -> None:
     repo_root = Path(PROJECT_ROOT)
-    if (repo_root / "node_modules" / "@playwright" / "test").is_dir():
+    missing = npm_local_missing(str(repo_root))
+    if not missing:
         return
 
-    log("Missing local '@playwright/test'. Installing via npm (in repo root).")
+    log(f"Missing local {', '.join(missing)}. Installing via npm (in repo root).")
     npm_install_local_in_repo(str(repo_root))
 
-    if not (repo_root / "node_modules" / "@playwright" / "test").is_dir():
+    still_missing = npm_local_missing(str(repo_root))
+    if still_missing:
         raise RuntimeError(
-            "Local '@playwright/test' is still unavailable after installation."
+            f"Local {', '.join(still_missing)} still unavailable after installation."
         )

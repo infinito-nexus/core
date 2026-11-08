@@ -1,6 +1,33 @@
 ---
-- name: "🗑️ Uninstall auth-openid-connect plugin for Peertube"
-  shell: >
-    container exec {{ PEERTUBE_CONTAINER_ADDRESS }} \
-    npm run plugin:uninstall -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }}
-  ignore_errors: true
+- name: "🧭 Resolve PeerTube host node + local container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: PEERTUBE
+    resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
+
+- name: "🔎 Check whether the OIDC plugin is installed"
+  ansible.builtin.shell: |
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ PEERTUBE_LOCAL_CID | quote }} test -d /data/plugins/node_modules/{{ PEERTUBE_OIDC_PLUGIN }}
+  register: peertube_oidc_plugin_state
+  changed_when: false
+  failed_when: peertube_oidc_plugin_state.rc not in [0, 1]
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+
+- name: "🗑️ Uninstall the OIDC plugin PeerTube still carries"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - npm
+      - run
+      - "plugin:uninstall"
+      - --
+      - --npm-name
+      - "{{ PEERTUBE_OIDC_PLUGIN }}"
+  register: peertube_oidc_uninstall
+  changed_when: peertube_oidc_uninstall.rc == 0
+  when: peertube_oidc_plugin_state.rc == 0
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"

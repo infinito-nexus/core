@@ -1,0 +1,4 @@
+---
+OFFICE_SUITE: >-
+  {{ 'web-svc-collabora' if 'web-svc-collabora' in group_names
+     else ('web-svc-onlyoffice' if 'web-svc-onlyoffice' in group_names else '') }}

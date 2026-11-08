@@ -88,15 +88,20 @@ def build_domain_index(
     Build a case-insensitive domain -> application_id index.
     If the same domain appears in multiple apps (case-insensitive), raises an error.
 
-    Cached keyed on (applications fingerprint, include_aliases); the result is
-    returned as-is, so callers MUST treat it as read-only.
+    Cached keyed on (fingerprint of every application's ``domains``,
+    include_aliases); the result is returned as-is, so callers MUST treat it
+    as read-only.
     """
     if not isinstance(applications, dict):
         raise AnsibleError("application_domain_index: applications must be a dict")
 
     from utils.cache.base import _fingerprint_mapping
 
-    cache_key = (_fingerprint_mapping(applications), bool(include_aliases))
+    domains_only = {
+        app_id: app_conf.get("domains") if isinstance(app_conf, dict) else None
+        for app_id, app_conf in applications.items()
+    }
+    cache_key = (_fingerprint_mapping(domains_only), bool(include_aliases))
     cached = _DOMAIN_INDEX_CACHE.get(cache_key)
     if cached is not None:
         return cached

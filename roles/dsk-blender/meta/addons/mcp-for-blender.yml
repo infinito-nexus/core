@@ -1,0 +1,14 @@
+---
+enabled: true
+required: false
+mechanism: addon
+source: upstream
+version: "2.1.3"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: ahujasid/mcp-for-blender
+config:
+  distribution: mcp-for-blender
+  command: mcp-for-blender
+  server_name: blender

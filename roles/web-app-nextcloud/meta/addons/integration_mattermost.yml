@@ -9,4 +9,4 @@ config:
   plugin_configuration:
     - appid: "integration_mattermost"
       configkey: "url"
-      configvalue: "{{ lookup('tls', 'web-app-mattermost', 'url.base') }}"
+      configvalue: "{{ lookup('tls', 'web-app-mattermost', 'url.origin') }}"

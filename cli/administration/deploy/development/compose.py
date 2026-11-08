@@ -3,7 +3,12 @@ from __future__ import annotations
 import os
 import subprocess
 import time
-from typing import TYPE_CHECKING
+from pathlib import Path
+
+from utils.cache.render import ROLE_DIR as CACHE_ROLE_DIR
+from utils.cache.render import render_artifacts
+from utils.env.handlers.infinito.cache.conf import KEY as CACHE_CONF_KEY
+from utils.env.handlers.infinito.cache.conf import RELATIVE as CACHE_CONF
 
 from .coredns import CoreDNSCorefileRenderer
 from .env import compose_file_args
@@ -12,10 +17,12 @@ from .proc import run_streaming
 from .profile import Profile
 from .runner_mirror import env_image
 
-if TYPE_CHECKING:
-    from pathlib import Path
+CACHE_ROLE_SHELL_DIR = CACHE_ROLE_DIR / "files" / "shell"
 
 INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
+
+PACMAN_CACHE_SCRIPT = "/usr/local/bin/pacman-cache.sh"
+PACMAN_CONF = "/etc/pacman.conf"
 
 
 class Compose:
@@ -113,7 +120,7 @@ class Compose:
 
     def _bootstrap_package_cache(self, env: dict[str, str]) -> None:
         """Run the host-side Nexus bootstrap helper. Idempotent."""
-        helper = self.repo_root / "scripts" / "docker" / "cache" / "package.sh"
+        helper = CACHE_ROLE_SHELL_DIR / "bootstrap.sh"
         print(">>> Bootstrapping package-cache proxy repos")
         r = subprocess.run(
             [str(helper)],
@@ -130,14 +137,7 @@ class Compose:
 
     def _generate_package_frontend_certs(self, env: dict[str, str]) -> None:
         """Generate frontend CA + leaf certs before nginx starts."""
-        helper = (
-            self.repo_root
-            / "scripts"
-            / "docker"
-            / "cache"
-            / "package-frontend"
-            / "certs.sh"
-        )
+        helper = CACHE_ROLE_SHELL_DIR / "certs.sh"
         if self.profile.image_mirror_enabled():
             env = {
                 **env,
@@ -151,6 +151,31 @@ class Compose:
             check=True,
             text=True,
         )
+
+    def _apply_shared_cache(self, env: dict[str, str]) -> None:
+        """Serve this checkout's cache declarations from the shared stack.
+
+        The owner creates the proxy repositories and the certificates while
+        it brings its own containers up. An instance that only joins the
+        network starts none of them, so without this its `cache:` entries
+        exist on disk and nowhere else: the hijacked hostname resolves to a
+        frontend that has no server block for it.
+        """
+        helper = self.repo_root / "scripts" / "system" / "cache" / "apply.sh"
+        print(">>> Applying this checkout's cache declarations to the shared stack")
+        r = subprocess.run(
+            ["bash", str(helper)],
+            cwd=self.repo_root,
+            env=env,
+            check=False,
+            text=True,
+        )
+        if r.returncode != 0:
+            print(
+                f">>> WARNING: cache apply exited rc={r.returncode}; the shared "
+                "frontend keeps serving the map it already had. Start the owning "
+                f"stack and re-run `make cache-apply` ({helper})."
+            )
 
     def _install_package_frontend_ca_in_runner(self) -> None:
         """Install the frontend CA in the runner trust store. Idempotent."""
@@ -168,6 +193,19 @@ class Compose:
                 "runner manually."
             )
 
+    def _layer_pacman_cache_in_runner(self) -> None:
+        """Point the runner's pacman at the host cache and the shared folder."""
+        print(">>> Layering the pacman caches in the runner")
+        self.exec(
+            [
+                PACMAN_CACHE_SCRIPT,
+                PACMAN_CONF,
+                self.profile.shared_package_cache(),
+                self.profile.host_pacman_cache(),
+            ],
+            live=False,
+        )
+
     def _render_coredns_corefile(self) -> None:
         renderer = CoreDNSCorefileRenderer(repo_root=self.repo_root)
         out = renderer.render(show_preview=True, preview_lines=25)
@@ -177,7 +215,22 @@ class Compose:
             f"size={out.stat().st_size if out.exists() else 'n/a'}"
         )
 
+    def _render_cache_artifacts(self) -> None:
+        """Render the generated cache files the overrides mount.
+
+        `make dotenv` renders them too, but `scripts/meta/env/load.sh` only
+        auto-generates `.env` — it runs on the bare bootstrap python, which
+        has no Jinja. Without this, a checkout that never ran `make dotenv`
+        reaches `extends: compose.cache-consumer.yml` with the file absent.
+        """
+        conf = Path(os.environ.get(CACHE_CONF_KEY, "") or (self.repo_root / CACHE_CONF))
+        for path in render_artifacts(self.repo_root, conf):
+            print(f"[compose] cache file generated at: {path}")
+
     def up(self, *, run_entry_init: bool = True) -> None:
+        print(">>> Rendering the derived cache files from the cache: declarations")
+        self._render_cache_artifacts()
+
         print(">>> Rendering CoreDNS Corefile from template")
         self._render_coredns_corefile()
 
@@ -209,8 +262,12 @@ class Compose:
 
         if self.profile.owns_cache_stack():
             self._bootstrap_package_cache(env)
+        elif self.profile.cache_stack_enabled():
+            self._apply_shared_cache(env)
         if self.profile.cache_stack_enabled():
             self._install_package_frontend_ca_in_runner()
+            if self.profile.shared_package_cache():
+                self._layer_pacman_cache_in_runner()
 
         if run_entry_init:
             print(">>> Running infinito entry.sh init")

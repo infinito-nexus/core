@@ -36,6 +36,7 @@ PATHS=(
 	"${INFINITO_CACHE_REGISTRY_HOST_PATH}"
 	"${INFINITO_CACHE_REGISTRY_CA_HOST_PATH}"
 	"${INFINITO_CACHE_PACKAGE_HOST_PATH}"
+	"${INFINITO_CACHE_SHARED_HOST_PATH}"
 )
 
 # Remove each cache path individually (keeps the parent /var/cache/
@@ -62,5 +63,6 @@ remove_path() {
 remove_path "${PATHS[0]}"
 remove_path "${PATHS[1]}"
 remove_path "${PATHS[2]}"
+remove_path "${PATHS[3]}"
 
 echo "[clean-cache] done. Re-run 'make compose-up' to recreate empty caches."

@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from utils import PROJECT_ROOT
+from utils.domains.default_primary import default_domain_primary
 
 SCRIPT = PROJECT_ROOT / "roles/sys-ca-selfsigned/files/shell/with-ca-trust.sh"
 
@@ -54,7 +55,7 @@ class TestWithCaTrust(unittest.TestCase):
         env["TMPDIR"] = str(self.tmpdir)
         env["VERBOSE"] = "0"
         env["CA_TRUST_CERT"] = str(self.ca_cert)
-        env["CA_TRUST_NAME"] = "infinito.test"
+        env["CA_TRUST_NAME"] = default_domain_primary()
         env.pop("CA_TRUST_BUNDLE", None)
         env.pop("CA_TRUST_CERT_EXTRA", None)
         env.update(extra_env)

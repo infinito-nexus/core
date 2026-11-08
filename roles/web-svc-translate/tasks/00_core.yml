@@ -1,0 +1,69 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: TRANSLATE_LITELLM_ENABLED | bool
+
+- name: "🎬 Stage the gateway into the build context of {{ application_id }}"
+  stack_host_copy:
+    src: "python/"
+    dest: "{{ [TRANSLATE_BUILD_DIR, 'python'] | path_join }}/"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📁 Create the decider package directory"
+  ansible.builtin.file:
+    path: "{{ TRANSLATE_DECIDER_DIR }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🧩 Stage the decider package beside the gateway"
+  stack_host_copy:
+    src: "{{ [ TRANSLATE_DECIDER_SOURCE_DIR, item ] | path_join }}"
+    dest: "{{ [ TRANSLATE_DECIDER_DIR, item ] | path_join }}"
+    mode: "0644"
+  loop: "{{ TRANSLATE_DECIDER_MODULES }}"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📦 Stage the gateway's requirements into the build context"
+  stack_host_copy:
+    src: requirements.txt
+    dest: "{{ [TRANSLATE_BUILD_DIR, 'requirements.txt'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔐 Stage the package-cache CA into the build context of {{ application_id }}"
+  stack_host_copy:
+    content: "{{ lookup('file', TRANSLATE_CACHE_CA_FILE) if TRANSLATE_CACHE_CA_FILE is file else '' }}"
+    dest: "{{ [TRANSLATE_BUILD_DIR, 'package-frontend-ca.crt'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔐 Stage the package-cache CA installer of {{ application_id }}"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', TRANSLATE_CACHE_CA_INSTALLER) }}"
+    dest: "{{ [TRANSLATE_BUILD_DIR, 'package-frontend-ca.sh'] | path_join }}"
+    mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers

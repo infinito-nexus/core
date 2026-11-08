@@ -1,7 +1,21 @@
 ---
-cloudflare_async_enabled: "{{ ASYNC_ENABLED | bool }}"
-cloudflare_async_time: "{{ ASYNC_TIME }}"
-cloudflare_async_poll: "{{ ASYNC_POLL }}"
 cloudflare_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 cloudflare_records: []
+
+cloudflare_request_timeout: 20 # Seconds one Cloudflare HTTP socket operation may stall before the module call fails
+cloudflare_attempt_timeout: 60 # Seconds one record job may run before async_wrapper kills it as hung
+cloudflare_attempts: 3 # Attempts per record; only hangs, timeouts, connection errors, 429 and 5xx earn another
+cloudflare_retry_delay: 10 # Seconds between two attempts
+cloudflare_collect_interval: 1 # Seconds between two polls of one record job while collecting
+cloudflare_collect_retries: "{{ ((lookup('timeout', cloudflare_attempt_timeout | int) | int) / (cloudflare_collect_interval | int)) | round(0, 'ceil') | int + 2 }}" # Cap on polls per job; the attempt's collect deadline ends them sooner
+cloudflare_tolerate: # Substrings of an answer that mean the record already stands as wanted
+  - "An identical record already exists"
+  - "code: 81058"
+cloudflare_transient: # Regexes on a failed job's message that earn another attempt; anything else fails at once
+  - "unexpected HTTP code (-1|5[0-9][0-9])"
+  - "Status: 429"
+  - "Timeout exceeded"
+  - "did not complete within the requested time"
+  - "timed out"
+  - "could not find job"

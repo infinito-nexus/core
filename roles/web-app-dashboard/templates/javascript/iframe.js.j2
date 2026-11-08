@@ -12,9 +12,9 @@ window.addEventListener("message", function(event) {
   if (data && data.type === "iframeLocationChange" && typeof data.href === "string") {
     try {
       const hrefUrl = new URL(data.href);
-
-      // 3. Only allow redirects to an allowed domain suffix
-      if (!allowedSuffixes.some(function (suffix) { return hrefUrl.hostname.endsWith(suffix); })) return;
+      const reopenable = new Set([window.location.origin]);
+      document.querySelectorAll("a.iframe-link[href]").forEach(function (link) { reopenable.add(link.origin); });
+      if (!reopenable.has(hrefUrl.origin)) return;
 
       // 4. Update the ?iframe= parameter in the browser URL
       const newUrl = new URL(window.location);

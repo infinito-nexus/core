@@ -10,10 +10,12 @@ Only literal `https://<host>` tokens count as external assets:
   - tokens containing unresolved Jinja (`{{ ... }}`) point at deployment-own
     domains and are skipped,
   - wildcard tokens (`*`) cannot be mirrored deterministically,
-  - hosts on the deployment's primary domain (or `.onion`) are already local.
+  - hosts on the deployment's primary domain or outside clearnet are already local.
 """
 
 from urllib.parse import urlsplit
+
+from utils.networks.reachability import CLEARNET, network_of
 
 
 def _iter_whitelist_tokens(app_config):
@@ -35,7 +37,7 @@ def _external_host(token, primary_domain):
     host = urlsplit(token).hostname or ""
     if not host or "." not in host:
         return None
-    if host.endswith(".onion"):
+    if network_of(host) != CLEARNET:
         return None
     if primary_domain and (
         host == primary_domain or host.endswith("." + primary_domain)

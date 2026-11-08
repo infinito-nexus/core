@@ -28,6 +28,7 @@ from typing import Any
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
+from cli.administration.inventory.provision.ruamel_io import round_trip_yaml
 from utils.manager.inventory import InventoryManager
 
 from .emit import (
@@ -112,8 +113,7 @@ def main() -> int:
         variant=args.variant,
     )
 
-    yaml_rt = YAML(typ="rt")
-    yaml_rt.preserve_quotes = True
+    yaml_rt = round_trip_yaml()
 
     schema_inventory: dict[str, Any] = manager.apply_schema()
     schema_apps = schema_inventory.get("applications", {}) or {}

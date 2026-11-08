@@ -12,7 +12,7 @@ Examples:
 - `web-app-keycloak` provides `oidc`
 - `svc-db-mariadb` provides `mariadb`
 
-Each service entry lives in the provider role's own [meta/services.yml](../../../../../roles), where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper).
+Each service entry lives in the provider role's own `meta/services.yml`, where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper).
 See [layout.md](layout.md) for the full per-role meta layout.
 
 ## Role-Local Service Metadata 🏷️
@@ -52,10 +52,45 @@ javascript:
 
 Rules:
 
-- The primary service entry is the role entity name returned by `get_entity_name`.
+- The primary service entry is the role entity name returned by `entity_name`.
 - `provides:` is only used when the public service name differs from the entity name.
 - `canonical:` is only used on alias entries that resolve back to the primary service key.
 - `frontend` vs. `backend` is derived from the role name prefix, not stored in config.
+
+## Dashboard Card Target 🃏
+
+A consumer's `dashboard` binding MAY name `card: <key>` to point its dashboard card, its Apps menu entry and its tile-reachability target at a domain other than the primary one:
+
+```yaml
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+  card: element
+```
+
+Rules:
+
+- `card:` MUST be a key of the role's `canonical` mapping in `meta/domains.yml`; the card URL is `lookup('canonical_url', <role>, <key>)`.
+- Without `card:` the card targets the primary domain via `lookup('tls', <role>, 'url.base')`.
+
+## Dashboard Card Display 👀
+
+`enabled: false` on a consumer's `dashboard` binding takes the role out of the dashboard: no card, no Apps menu entry, no tile-reachability target and no dashboard origin in its CSP `frame-ancestors`.
+The flag is read from the merged applications, so an inventory MAY set it per host without touching the role:
+
+```yaml
+applications:
+  web-app-gitea:
+    services:
+      dashboard:
+        enabled: false
+```
+
+Rules:
+
+- `enabled:` MUST render to a boolean; any other value fails the card lookup.
+- A `web-app-*` role without a `dashboard` binding still gets a card.
 
 ## Service Discovery 🔍
 
@@ -68,7 +103,7 @@ Primary implementation files:
 
 The discovery layer:
 
-- scans role configs from [roles/](../../../../../roles)
+- scans role configs from [roles/](../../../../../roles/)
 - discovers provider entries from `services`
 - derives deploy type and loader bucket from the role name
 - resolves `provides:` and `canonical:`
@@ -88,7 +123,7 @@ Global bucket order:
 4. `web-svc`
 5. `web-app`
 
-Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in [meta/services.yml](../../../../../roles) (i.e. `services.<primary_entity>.run_after`).
+Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in `meta/services.yml` (i.e. `services.<primary_entity>.run_after`).
 
 Rules:
 

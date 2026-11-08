@@ -1,4 +1,18 @@
 ---
+- name: 📖 Read PID 1 process name
+  ansible.builtin.slurp:
+    src: /proc/1/comm
+  register: pid1_comm
+
+- name: 🛑 Fail if PID1 is not systemd
+  ansible.builtin.assert:
+    that:
+      - pid1_comm.content | b64decode | trim == "systemd"
+    fail_msg: >-
+      PID 1 is {{ pid1_comm.content | b64decode | trim }}, not systemd. docker-ce ships
+      only a systemd unit, so the package install below notifies a handler that would
+      fail with "Could not find the requested service docker.service".
+
 - name: 🔧 Setup Docker repository on Debian and Ubuntu
   include_tasks: 00_core/debian.yml
   when: ansible_facts['distribution'] in ['Debian', 'Ubuntu']
@@ -8,13 +22,39 @@
   when: ansible_facts['os_family'] == 'RedHat'
 
 - name: 📦 Install Docker packages
-  package_install:
+  package_install: # nocheck: package-install needs the Docker repository the role adds first
     id: docker-cli
   register: sys_svc_container_packages_install
   retries: 5
   delay: 15
   until: sys_svc_container_packages_install is succeeded
   notify: container-manager-restart
+
+- name: "🎮 Check whether this host carries an NVIDIA GPU"
+  ansible.builtin.stat:
+    path: /dev/nvidia0
+  register: sys_svc_container_nvidia_device
+
+- name: "🎮 Check whether this host carries the NVIDIA driver"
+  ansible.builtin.stat:
+    path: "{{ SYS_SVC_CONTAINER_GPU_DRIVER }}"
+  register: sys_svc_container_nvidia_driver
+
+- name: "🛑 Refuse a bare host whose NVIDIA GPU has no driver"
+  ansible.builtin.assert:
+    that:
+      - not sys_svc_container_nvidia_device.stat.exists or sys_svc_container_nvidia_driver.stat.exists
+    fail_msg: >-
+      This host shows /dev/nvidia0 but has no {{ SYS_SVC_CONTAINER_GPU_DRIVER }}.
+      Install the NVIDIA driver utilities, or unload the nvidia kernel module to
+      run every service on the CPU.
+  when: not (DOCKER_IN_CONTAINER | bool)
+
+- name: "🎮 Hand this host's GPUs to the containers that asked for one"
+  include_tasks: 00_core/gpu.yml
+  when:
+    - sys_svc_container_nvidia_device.stat.exists
+    - sys_svc_container_nvidia_driver.stat.exists
 
 - name: 📦 Install Docker Python SDK dependencies via pip
   include_role:
@@ -78,7 +118,7 @@
       register: gw
       changed_when: false
 
-    - name: "🔧 Set docker bridge gateway fact to '{{ gw.gateway }}'"
+    - name: "🔧 Set the docker bridge gateway fact"
       set_fact:
         DOCKER_REACH_HOST: "{{ gw.gateway }}"
       changed_when: false
@@ -93,5 +133,16 @@
 - name: "📂 Load reset tasks when MODE_RESET is enabled"
   include_tasks: "03_reset.yml"
   when: MODE_RESET | bool
+
+- name: "🧭 Route docker cleanup/health deps through service-loader"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - sys-ctl-cln-docker
+      - sys-ctl-hlth-container
+      - sys-ctl-hlth-runtime
+      - sys-ctl-hlth-volumes
 
 - include_tasks: utils/once/flag.yml

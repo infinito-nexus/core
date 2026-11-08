@@ -23,12 +23,12 @@ on:
         type: string
         default: "auto"
       priority:
-        description: "Optional space-separated app ids for the priority line: sorted to the head of the list and cut into chunks of their own, so every priority row is deployed before the first regular one starts. Priority rows skip the sweep rotation and run every combination they can take (each variant, each offered mode, Tor and clearnet)."
+        description: "Optional space-separated app ids for the priority line: sorted to the head of the list and cut into chunks of their own, so every priority row is deployed before the first regular one starts. Priority rows skip the sweep rotation and run every combination they can take (each variant, each offered mode, each network mode)."
         required: false
         type: string
         default: ""
       sweep:
-        description: "Sweep number driving the mode and tor rotation. Empty: the run number."
+        description: "Sweep number driving the mode and network rotation. Empty: the run number."
         required: false
         type: string
         default: ""
@@ -48,12 +48,17 @@ on:
         type: string
         default: "0"
       chunk_gate:
-        description: "🛑 Stop the chunk chain at its first failed chunk. Off: keep deploying the remaining chunks."
+        description: "🛑 Stop the chunk chain at its first failed chunk; batch 1 also waits for a running workspace test and stops when it failed. Off: keep deploying the remaining chunks."
         required: false
         type: boolean
         default: true
       filesystem:
         description: "🗄️ Filesystem pool the deploy matrix spreads its rows over (ext4, btrfs, zfs). Empty: all three."
+        required: false
+        type: string
+        default: ""
+      architectures:
+        description: "🏗️ Architecture pool the deploy matrix spreads its rows over (amd64, arm64). Empty: both."
         required: false
         type: string
         default: ""
@@ -77,8 +82,8 @@ on:
         required: false
         type: string
         default: "rotate"
-      tor:
-        description: "Tor axis of the deploy matrix: 'auto' rotates the onion over the tor-capable rows, 'enforced' onions all of them, 'exclusive' also drops the rows that cannot, 'disabled' onions none."
+      network:
+        description: "Network axis of the deploy matrix: 'auto' rotates every row over the node network modes its role can be served in; 'clearnet', 'tor' or 'multi' keeps only the rows that can take that mode."
         required: false
         type: string
         default: "auto"
@@ -111,10 +116,14 @@ jobs:
       whitelist: ${{ inputs.whitelist }}
       priority: ${{ inputs.priority }}
       mode: ${{ inputs.mode }}
-      tor: ${{ inputs.tor }}
+      network: ${{ inputs.network }}
+      vpn: ${{ inputs.vpn }}
       distros: ${{ inputs.distros }}
       filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
       lifecycles: ${{ inputs.lifecycles }}
+      sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
+      chunk_size: ${{ inputs.chunk_size }}
       fork_prereqs: true
       trusted_pr: ${{ inputs.trusted_pr }}
       image_wait_attempts: ${{ inputs.image_wait_attempts }}
@@ -145,6 +154,7 @@ jobs:
     uses: ./.github/workflows/call-images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
+      architectures: ${{ inputs.architectures }}
       concurrency_channel: ci-orchestrator-build-consumer
     secrets: inherit
 
@@ -170,7 +180,7 @@ jobs:
     secrets: inherit
 
   test-deploy-chunk-0:
-    name: 🧱 Chunk 0
+    name: "0️⃣ Batch${{ needs.validate-selection.outputs.starred > 0 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 0
@@ -188,6 +198,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "0"
+      marker: ${{ needs.validate-selection.outputs.starred > 0 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}
@@ -196,12 +207,31 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      architectures: ${{ inputs.architectures }}
+      network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
+  test-deploy-chunk-1-gate:
+    name: "1️⃣ Gate"
+    if: ${{ !cancelled() && inputs.chunk_gate && inputs.resume_from_chunk <= 1 }}
+    needs:
+      - test-deploy-chunk-0
+      - test-workspace
+    runs-on: ubuntu-26.04
+    steps:
+      - name: "🛑 Refuse batch 1 after a failed batch 0 or workspace test"
+        if: >-
+          ${{ !contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+              || !contains(fromJSON('["success","skipped"]'), needs.test-workspace.result) }}
+        run: |
+          echo "Batch 0: ${{ needs.test-deploy-chunk-0.result }}, workspace: ${{ needs.test-workspace.result }}" >&2
+          exit 1
+      - name: "✅ Batch 0 and workspace passed"
+        run: echo "Batch 0 and workspace passed."
+
   test-deploy-chunk-1:
-    name: 🧱 Chunk 1
+    name: "1️⃣ Batch${{ needs.validate-selection.outputs.starred > 1 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 1
@@ -210,7 +240,8 @@ jobs:
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
           && (!inputs.chunk_gate
-              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)) }}
+              || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result == 'success')) }}
     needs:
       - lint
       - test
@@ -218,10 +249,12 @@ jobs:
       - images-mirror-missing
       - validate-selection
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
     uses: ./.github/workflows/call-test-deploy.yml
     with:
       distros: ${{ inputs.distros }}
       index: "1"
+      marker: ${{ needs.validate-selection.outputs.starred > 1 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}
@@ -230,12 +263,13 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      architectures: ${{ inputs.architectures }}
+      network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
   test-deploy-chunk-2:
-    name: 🧱 Chunk 2
+    name: "2️⃣ Batch${{ needs.validate-selection.outputs.starred > 2 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 2
@@ -245,6 +279,7 @@ jobs:
           && needs.images-mirror-missing.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result != 'failure'
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result))) }}
     needs:
       - lint
@@ -253,11 +288,13 @@ jobs:
       - images-mirror-missing
       - validate-selection
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
     uses: ./.github/workflows/call-test-deploy.yml
     with:
       distros: ${{ inputs.distros }}
       index: "2"
+      marker: ${{ needs.validate-selection.outputs.starred > 2 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}
@@ -266,12 +303,13 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      architectures: ${{ inputs.architectures }}
+      network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
   test-deploy-chunk-3:
-    name: 🧱 Chunk 3
+    name: "3️⃣ Batch${{ needs.validate-selection.outputs.starred > 3 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 3
@@ -281,6 +319,7 @@ jobs:
           && needs.images-mirror-missing.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result != 'failure'
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-2.result))) }}
     needs:
@@ -290,12 +329,14 @@ jobs:
       - images-mirror-missing
       - validate-selection
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
       - test-deploy-chunk-2
     uses: ./.github/workflows/call-test-deploy.yml
     with:
       distros: ${{ inputs.distros }}
       index: "3"
+      marker: ${{ needs.validate-selection.outputs.starred > 3 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}
@@ -304,7 +345,8 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
-      tor: ${{ inputs.tor }}
+      architectures: ${{ inputs.architectures }}
+      network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
@@ -317,12 +359,9 @@ jobs:
       ref: ${{ github.sha }}
     secrets: inherit
 
-  test-install-make:
+  test-install:
     needs: validate-selection
-    uses: ./.github/workflows/call-test-install-make.yml
-  test-install-pkgmgr:
-    needs: validate-selection
-    uses: ./.github/workflows/call-test-install-pkgmgr.yml
+    uses: ./.github/workflows/call-test-install.yml
 
   test-workspace:
     if: ${{ inputs.workspace == 'true' || (inputs.workspace == 'auto' && (inputs.whitelist == '' || inputs.whitelist == '__ALL__')) }}
@@ -362,9 +401,9 @@ jobs:
       - build-ci-images
       - images-mirror-missing
       - test-dns
-      - test-install-make
-      - test-install-pkgmgr
+      - test-install
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
       - test-deploy-chunk-2
       - test-deploy-chunk-3

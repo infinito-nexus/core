@@ -8,3 +8,5 @@ overlay:
   aliases: ["nginx"]
   consumer:
     kind: mcp_client
+reachability:
+  handover: true # nocheck: network-reachability  Moodle answers every host other than its one wwwroot with a 303 to that wwwroot, so the onion sibling only ever hands over to clearnet

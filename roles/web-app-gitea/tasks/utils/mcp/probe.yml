@@ -1,10 +1,12 @@
 ---
 - name: "🩺 Ask Gitea whether the stored token still authenticates"
-  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ GITEA_API_LOCAL_CID | quote }} \
-      {{ lookup('timeout', 30) | curl(5, 0) }} -f -o /dev/null \
-        -H {{ ('Authorization: token ' ~ gitea_mcp_token) | quote }} \
-        {{ (GITEA_INTERNAL_API_URL ~ '/user') | quote }}
+  ansible.builtin.shell:
+    cmd: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ GITEA_API_LOCAL_CID | quote }} \
+        {{ lookup('timeout', 30) | curl(5, 0) }} -f -o /dev/null \
+          -H @- \
+          {{ (GITEA_INTERNAL_API_URL ~ '/user') | quote }}
+    stdin: "Authorization: token {{ gitea_mcp_token }}"
   register: gitea_mcp_token_probe
   changed_when: false
   failed_when: false

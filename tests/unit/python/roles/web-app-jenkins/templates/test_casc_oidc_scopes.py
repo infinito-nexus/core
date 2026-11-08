@@ -18,7 +18,8 @@ OIDC = {
         "ID": "infinito.nexus",
         "SECRET": "secret",
         "DISCOVERY_DOCUMENT": "https://auth.example.org/realms/infinito.nexus/.well-known/openid-configuration",
-    }
+    },
+    "ATTRIBUTES": {"USERNAME": "preferred_username"},
 }
 
 

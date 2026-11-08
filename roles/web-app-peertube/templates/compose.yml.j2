@@ -14,9 +14,6 @@
     {{ lookup('container_ports', ['peertube', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    environment:
-      - NODE_OPTIONS=--max-old-space-size={{ PEERTUBE_MAX_OLD_SPACE_SIZE }}
-      - PEERTUBE_TRANSCODING_CONCURRENCY={{ PEERTUBE_TRANSCODING_CONCURRENCY }}
     shm_size: "512m"
     tmpfs:
       - /tmp:size=1g,exec

@@ -3,11 +3,17 @@
   {% set service_name = LIBRETRANSLATE_SERVICE %}
   {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      cache_from:
+        - "{{ lookup('image', application_id, 'libretranslate') }}"
       args:
+        BUILDKIT_INLINE_CACHE: "1"
         LIBRETRANSLATE_IMAGE: "{{ LIBRETRANSLATE_IMAGE }}"
         LIBRETRANSLATE_VERSION: "{{ LIBRETRANSLATE_VERSION }}"
         LIBRETRANSLATE_LOAD_ONLY: "{{ LIBRETRANSLATE_LOAD_ONLY }}"
+        LIBRETRANSLATE_DIRECTIONS: "{{ LIBRETRANSLATE_DIRECTIONS }}"
+        APP_USER: "{{ LIBRETRANSLATE_APP_USER }}"
     {{ lookup('container_image', application_id, 'libretranslate') }}
+    {{ lookup('compose_only', 'container_name', LIBRETRANSLATE_CONTAINER_ADDRESS) }}
     volumes: []
     {{ lookup('container_ports', ['libretranslate', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
@@ -31,7 +37,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file libretranslatemcp-only keys; this role sets no docker_compose_env, so its single templates/env.j2 is also the env_file of the primary libretranslate container, which must not receive ADAPTER_BEARER or ADAPTER_UPSTREAM_KEY
       ADAPTER_CONTRACT: {{ LIBRETRANSLATE_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ LIBRETRANSLATE_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ LIBRETRANSLATE_MCP_PORT }}"

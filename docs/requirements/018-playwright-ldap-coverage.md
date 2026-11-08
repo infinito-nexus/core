@@ -75,7 +75,7 @@ consistently across the role tree is what this requirement tracks.
   the `service-gating.js` helper from
   [006](README.md#archive). Direct
   `process.env.LDAP_SERVICE_ENABLED` reads in the spec are forbidden.
-- [ ] No role MAY ship a role-local `<ROLE>_LDAP_ENABLED` env key as
+- [x] No role MAY ship a role-local `<ROLE>_LDAP_ENABLED` env key as
   a workaround for the helper. The
   [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py)
   lint MUST stay green: any custom flag that survives must be
@@ -97,19 +97,19 @@ reachable login UI).
 - [ ] [web-app-opencloud](../../roles/web-app-opencloud/): trigger role for this requirement; variant 1 is LDAP-only by design but the spec gates everything on `oidcEnabled`.
 - [ ] [web-app-joomla](../../roles/web-app-joomla/): Joomla's core LDAP authentication plugin is the LDAP-variant surface per [006 audit row](README.md#archive). Pairs with the missing biber scenario from [017](017-playwright-biber-rbac-coverage.md).
 - [ ] [web-app-jenkins](../../roles/web-app-jenkins/): Jenkins LDAP security realm is a separate auth provider from the OIDC plugin.
-- [ ] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): declares both `oidc` and `ldap` gates.
-- [ ] [web-app-mattermost](../../roles/web-app-mattermost/): AD/LDAP login surface independent of OIDC.
-- [ ] [web-app-friendica](../../roles/web-app-friendica/): LDAP module surface.
+- [x] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): declares both `oidc` and `ldap` gates.
+- [x] [web-app-mattermost](../../roles/web-app-mattermost/): AD/LDAP login surface independent of OIDC.
+- [x] [web-app-friendica](../../roles/web-app-friendica/): LDAP module surface.
 - [ ] [web-app-bigbluebutton](../../roles/web-app-bigbluebutton/): confirm whether the LDAP path has a Playwright-drivable surface; document the outcome.
-- [ ] [web-app-akaunting](../../roles/web-app-akaunting/): LDAP authentication plugin.
-- [ ] [web-app-discourse](../../roles/web-app-discourse/): LDAP plugin.
-- [ ] [web-app-minio](../../roles/web-app-minio/): MinIO LDAP IDP.
-- [ ] [web-app-flowise](../../roles/web-app-flowise/): confirm scope.
+- [x] [web-app-akaunting](../../roles/web-app-akaunting/): LDAP authentication plugin.
+- [x] [web-app-discourse](../../roles/web-app-discourse/): LDAP plugin.
+- [x] [web-app-minio](../../roles/web-app-minio/): MinIO LDAP IDP.
+- [x] [web-app-flowise](../../roles/web-app-flowise/): confirm scope.
 - [ ] [web-app-espocrm](../../roles/web-app-espocrm/): built-in LDAP authentication.
-- [ ] [web-app-shopware](../../roles/web-app-shopware/): confirm scope.
+- [x] [web-app-shopware](../../roles/web-app-shopware/): confirm scope.
 - [ ] [web-app-odoo](../../roles/web-app-odoo/): `auth_ldap` module.
 - [ ] [web-app-mobilizon](../../roles/web-app-mobilizon/): confirm scope.
-- [ ] [web-app-openwebui](../../roles/web-app-openwebui/): confirm scope.
+- [x] [web-app-openwebui](../../roles/web-app-openwebui/): confirm scope.
 
 #### Out of scope: no LDAP scenario
 
@@ -118,9 +118,9 @@ test-drivable LDAP login surface (consumer-side only, infrastructural,
 or already covered by their own service-level test). Closing each
 item is a NOOP unless a stale env key shows up.
 
-- [ ] [web-app-keycloak](../../roles/web-app-keycloak/): IS the OIDC provider; LDAP federation is tested via Keycloak's own user-storage spec, not via a per-role Playwright surface.
-- [ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): IS the LDAP admin UI; its admin login already covers the LDAP bind path by construction.
-- [ ] [svc-db-openldap](../../roles/svc-db-openldap/): backend service with no end-user UI; covered by integration tests, not Playwright.
+- [x] [web-app-keycloak](../../roles/web-app-keycloak/): IS the OIDC provider; LDAP federation is tested via Keycloak's own user-storage spec, not via a per-role Playwright surface.
+- [x] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): IS the LDAP admin UI; its admin login already covers the LDAP bind path by construction.
+- [x] [svc-db-openldap](../../roles/svc-db-openldap/): backend service with no end-user UI; covered by integration tests, not Playwright.
 
 ### Verification
 

@@ -38,7 +38,7 @@ from utils.roles.applications.mcp import (
     MCP_CONSUMER_FLAG,
     declares_mcp_consumer,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -84,7 +84,7 @@ def missing_entries() -> list[str]:
         for consumer in consumers:
             if consumer == role:
                 continue
-            key = get_entity_name(consumer)
+            key = entity_name(consumer)
             entry = services.get(key)
             if not isinstance(entry, Mapping):
                 findings.append(
