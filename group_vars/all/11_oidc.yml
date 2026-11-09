@@ -14,8 +14,7 @@
 # Helper Variables:
 _oidc_client_realm: "{{ OIDC_OVERRIDE.CLIENT.REALM if OIDC_OVERRIDE is defined and OIDC_OVERRIDE.CLIENT is defined and OIDC_OVERRIDE.CLIENT.REALM is defined else
   SOFTWARE_DOMAIN }}"
-_oidc_url: "{{ ( OIDC_OVERRIDE.URL if (OIDC_OVERRIDE is defined and OIDC_OVERRIDE.URL is defined) else (lookup('tls', 'web-app-keycloak', 'url.base')) ).rstrip('/')
-  }}"
+_oidc_url: "{{ OIDC_OVERRIDE.URL.rstrip('/') if (OIDC_OVERRIDE is defined and OIDC_OVERRIDE.URL is defined) else lookup('tls', 'web-app-keycloak', 'url.origin') }}"
 _oidc_client_issuer_url: "{{ _oidc_url ~ '/realms/' ~ _oidc_client_realm }}"
 _oidc_client_id: "{{ OIDC_OVERRIDE.CLIENT.ID if OIDC_OVERRIDE is defined and OIDC_OVERRIDE.CLIENT is defined and OIDC_OVERRIDE.CLIENT.ID is defined else SOFTWARE_DOMAIN
   }}"
@@ -50,6 +49,8 @@ defaults_oidc:
 
   # Keycloak's own built-in admin realm/client (password-grant Admin REST API automation), distinct from the app's own CLIENT.REALM/CLIENT.ID above.
   ADMIN:
+    USERNAME: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
+    PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     REALM: "master"
     CLI_CLIENT_ID: "admin-cli"
 

@@ -1,0 +1,5 @@
+---
+# The API answers POST /v1/systemone and GET /health; its root has no handler.
+status_codes:
+  default:
+    - 404

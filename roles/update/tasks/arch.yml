@@ -1,14 +1,83 @@
 ---
+- name: "📦 update (pacman) | install the downloader that retries transient failures"
+  become: true
+  ansible.builtin.copy:
+    src: shell/pacman_xfer.sh
+    dest: "{{ UPDATE_PACMAN_XFER }}"
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: "🔁 update (pacman) | make pacman retry transient mirror/egress failures natively"
   become: true
   ansible.builtin.lineinfile:
     path: /etc/pacman.conf
     regexp: "^XferCommand\\s*="
-    # nocheck: curl-timeout  pacman package downloads are size-unbounded; a --max-time would truncate large transfers
-    line: "XferCommand = /usr/bin/curl -L -C - -f --connect-timeout 5 --retry 3 --retry-all-errors --retry-delay 2 -o %o %u"
+    line: "XferCommand = {{ UPDATE_PACMAN_XFER }} %o %u"
     insertafter: "^\\[options\\]"
 
-- name: "🔄 update (pacman) | refresh pacman cache and upgrade all installed packages"
-  community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
+- name: "🔍 update (pacman) | read pacman.conf for the download sandbox switch"
+  ansible.builtin.slurp:
+    src: /etc/pacman.conf
+  register: update_pacman_conf
+
+- name: "🔓 update (pacman) | run XferCommand as root where the download sandbox is off"
+  become: true
+  ansible.builtin.replace:
+    path: /etc/pacman.conf
+    regexp: "^DownloadUser\\s*="
+    replace: "#DownloadUser ="
+  when: "'DisableSandbox' in (update_pacman_conf.content | b64decode).splitlines()"
+
+- name: "🔄 update (pacman) | refresh the pacman package databases"
+  community.general.pacman: # nocheck: dynamic-package - database refresh, not a package install
     update_cache: true
+
+- name: "🧷 update (pacman) | keep the running kernel's modules across the upgrade"
+  when:
+    - UPDATE_KERNEL_MODULES_HOOK_ENABLED | bool
+    - not (DOCKER_IN_CONTAINER | bool)
+  block:
+    - name: "📦 update (pacman) | install kernel-modules-hook before the upgrade"
+      become: true
+      package_install: # nocheck: package-install the hook must be in place before the pacman upgrade, which runs ahead of the batch
+        id: kernel-modules-hook
+
+    - name: "🧹 update (pacman) | enable the boot-time cleanup of kept module trees"
+      become: true
+      ansible.builtin.systemd:
+        name: linux-modules-cleanup.service
+        enabled: true
+      when: not ansible_check_mode
+
+- name: "🔄 update (pacman) | upgrade all installed packages"
+  community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
     upgrade: true
+
+- name: "🛑 update (pacman) | reboot or guard when the running kernel was upgraded"
+  ansible.builtin.include_tasks: arch/reboot.yml
+  when: not (DOCKER_IN_CONTAINER | bool)
+  vars:
+    update_module_trees: "{{ update_module_indexes.files | map(attribute='path') | map('dirname') | map('basename') | sort }}"
+    update_kernel_modules_missing: >-
+      {{ update_proc_modules.stat.exists
+         and update_module_trees | length > 0
+         and ansible_facts['kernel'] not in update_module_trees }}
+    update_kernel_reboot_pending: "{{ update_kernel_owner is not skipped and update_kernel_owner.rc == 1 }}"
+    update_mesh_up_in_play: "{{ run_once_svc_net_wireguard is defined }}"
+    update_controller_is_target: >-
+      {{ ansible_connection in ['local', 'ansible.builtin.local']
+         or (update_boot_id.content | b64decode | trim)
+            == (lookup('ansible.builtin.file', '/proc/sys/kernel/random/boot_id', errors='ignore') | trim) }}
+    update_reboot_skip_reason: >-
+      {% if update_reboot is changed -%}
+      The role rebooted the host, and it came back on this kernel: make the bootloader start an installed kernel.
+      {%- elif not (UPDATE_REBOOT_ENABLED | bool) -%}
+      The role does not reboot the host because applications.update.services.update.reboot.enabled is false.
+      {%- elif update_mesh_up_in_play | bool -%}
+      The role does not reboot the host because svc-net-wireguard brought its mesh up with wg-quick in this play, and the mesh does not come back after a reboot.
+      {%- elif update_controller_is_target | bool -%}
+      The role does not reboot the host because it runs this Ansible controller, so the reboot would kill this run.
+      {%- else -%}
+      The role does not reboot the host in check mode.
+      {%- endif %}

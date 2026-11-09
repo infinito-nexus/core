@@ -21,8 +21,9 @@ redis:
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: design-off  Reason: icon API; '/' redirects to the docs or answers plain text, every other route returns an SVG or PNG
+design:
   enabled: false
   shared: false
 # nocheck: dynamic-flag
@@ -69,3 +70,8 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

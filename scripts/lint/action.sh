@@ -8,8 +8,6 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-# Exception: actionlint 1.7.12 rejects the `queue` concurrency property that
-# GitHub shipped on 2026-05-07; its schema predates the key.
 # TODO: drop the queue ignore once actionlint knows it --
 # https://github.com/rhysd/actionlint/issues/654.
 actionlint \

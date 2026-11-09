@@ -26,7 +26,7 @@ class _DummyTemplar:
 
 def _app(service_enabled, domain="filer.example.com"):
     return {
-        "server": {"domains": {"canonical": {"filer": domain}}},
+        "domains": {"canonical": {"filer": domain}},
         "services": {"filer": {"enabled": service_enabled, "domains": ["filer"]}},
     }
 
@@ -39,15 +39,27 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
             "csp_skip_domains_lookup",
         )
 
-    def _run(self, applications, **kwargs):
+    def _run(self, applications, domains=None, **kwargs):
         lm = self.module.LookupModule()
         lm._templar = _DummyTemplar()
         lm._loader = mock.MagicMock()
+        results = {"applications": applications, "domains": domains or {}}
         with patch.object(self.module, "lookup_loader") as loader_mock:
-            loader_mock.get.return_value = mock.MagicMock(
-                run=lambda *_a, **_k: [applications]
+            loader_mock.get.side_effect = lambda name, **_k: mock.MagicMock(
+                run=lambda *_a, **_kw: [results[name]]
             )
             return lm.run(terms=[], variables={}, **kwargs)[0]
+
+    def test_a_handover_role_skips_its_siblings_outside_the_canonical_network(self):
+        apps = {
+            "web-app-chat": {"networks": {"reachability": {"handover": True}}},
+            "web-app-wiki": {},
+        }
+        domains = {
+            "web-app-chat": ["chat.example.com", "chat.node.onion"],
+            "web-app-wiki": ["wiki.example.com", "wiki.node.onion"],
+        }
+        self.assertEqual(self._run(apps, domains), ["chat.node.onion"])
 
     def test_empty_applications_returns_empty_list(self):
         self.assertEqual(self._run({}), [])
@@ -57,17 +69,17 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
 
     def test_a_disabled_service_hides_its_canonical_domain(self):
         self.assertEqual(
-            self._run({"web-app-seaweedfs": _app(False)}),
+            self._run({"web-svc-seaweedfs": _app(False)}),
             ["filer.example.com"],
         )
 
     def test_an_enabled_service_keeps_its_domain_under_probe(self):
-        self.assertEqual(self._run({"web-app-seaweedfs": _app(True)}), [])
+        self.assertEqual(self._run({"web-svc-seaweedfs": _app(True)}), [])
 
     def test_a_service_without_domains_is_ignored(self):
         apps = {
             "web-app-foo": {
-                "server": {"domains": {"canonical": {"web": "foo.example.com"}}},
+                "domains": {"canonical": {"web": "foo.example.com"}},
                 "services": {"worker": {"enabled": False}},
             }
         }

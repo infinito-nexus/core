@@ -17,7 +17,15 @@ ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: XMPP clients connect over 5222/5269; the only HTTP page is ejabberd's built-in web admin on /admin behind HTTP Basic (templates/configuration.yml.j2)
+design:
+  enabled: false
+  shared: false
 xmpp:
+  backup:
+    stop_required: true
   healthcheck:
     test: ["CMD", "ejabberdctl", "status"]
     # nocheck: healthcheck-timing-override  ejabberdctl starts an Erlang CLI node, which does not finish inside the 5s default
@@ -30,7 +38,7 @@ xmpp:
       enabled: true
   # nocheck: single-replica
   replicas: 1
-  image: ejabberd/ecs
+  image: ghcr.io/processone/ejabberd
   version: "26.09"
   name: ejabberd
   ports:
@@ -72,3 +80,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

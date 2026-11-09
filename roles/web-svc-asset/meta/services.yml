@@ -28,7 +28,8 @@ matomo:
   # nocheck: matomo-track
   track: false
 # nocheck: dynamic-flag
-css:
+# nocheck: design-off  Reason: the asset domain redirects onto web-svc-file, which serves the copied assets; no page of its own
+design:
   enabled: false
   shared: false
 prometheus:
@@ -43,3 +44,8 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

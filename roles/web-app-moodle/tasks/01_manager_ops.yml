@@ -28,14 +28,17 @@
 
 - name: "▶️ Run Moodle install (idempotent)"
   shell: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
-    php {{ MOODLE_CLI_DIR }}/install_database.php
+    container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
+    {{ MOODLE_CONTAINER_ADDRESS }}
+    sh -lc 'php {{ MOODLE_CLI_DIR }}/install_database.php
     --agree-license
-    --adminuser={{ MOODLE_ADMIN_USERNAME | quote }}
-    --adminpass={{ MOODLE_ADMIN_PASSWORD | quote }}
-    --adminemail={{ MOODLE_ADMIN_EMAIL | quote }}
+    --adminuser="{{ MOODLE_ADMIN_USERNAME }}"
+    --adminpass="$MOODLE_ADMIN_PASSWORD"
+    --adminemail="{{ MOODLE_ADMIN_EMAIL }}"
     --fullname="{{ MOODLE_SITE_TITLE }}"
-    --shortname=Academy
+    --shortname=Academy'
+  environment:
+    MOODLE_ADMIN_PASSWORD: "{{ MOODLE_ADMIN_PASSWORD }}"
   register: moodle_install
   retries: 20
   delay: 15
@@ -59,28 +62,35 @@
   when: not (MOODLE_OIDC_ENABLED | bool)
   # nocheck: password-quote  the token is upstream's CLI filename, not a credential
   shell: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
-    php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
-    --username={{ MOODLE_ADMIN_USERNAME | quote }}
-    --password={{ MOODLE_ADMIN_PASSWORD | quote }}
-    --ignore-password-policy
+    container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
+    {{ MOODLE_CONTAINER_ADDRESS }}
+    sh -lc 'php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
+    --username="{{ MOODLE_ADMIN_USERNAME }}"
+    --password="$MOODLE_ADMIN_PASSWORD"
+    --ignore-password-policy'
+  environment:
+    MOODLE_ADMIN_PASSWORD: "{{ MOODLE_ADMIN_PASSWORD }}"
   register: moodle_admin_password
   changed_when: moodle_admin_password.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "⚙️ Apply Moodle's cURL egress policy and debug level to the site config"
+- name: "⚙️ Apply Moodle's debug level to the site config"
   ansible.builtin.shell: >
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}
     --name={{ item.name | quote }}
     --set={{ item.value | quote }}
-  loop: "{{ MOODLE_EGRESS_SETTINGS + MOODLE_DEBUG_SETTINGS }}"
+  loop: "{{ MOODLE_DEBUG_SETTINGS }}"
   loop_control:
     label: "{{ item.name }}"
   changed_when: false
 
 - name: "📂 Include ownership settings tasks for moodle"
   include_tasks: 03_ownership.yml
+
+- name: "🪣 Publish the object-store plugin and register it"
+  include_tasks: utils/objectfs.yml
+  when: MOODLE_OBJECTFS_ENABLED | bool
 
 - name: "🔧 Configure OIDC login for Moodle (variant 0 only)"
   include_tasks: 04_oidc.yml
@@ -97,6 +107,9 @@
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml
   when: MOODLE_MCP_ENABLED | bool
+
+- name: "🎨 Align the Boost theme with the corporate design"
+  include_tasks: 06_design.yml
 
 - name: "📧 Verify the relay accepts Moodle's mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool

@@ -23,7 +23,6 @@ and enterprises seeking a compliant cloud alternative.
 - web-app-nextcloud
 - web-svc-onlyoffice
 - web-app-keycloak
-- web-app-minio
 - web-app-matrix
 - svc-prx-openresty
 

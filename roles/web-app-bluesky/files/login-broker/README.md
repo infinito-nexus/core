@@ -7,13 +7,17 @@ The broker sits behind `web-app-keycloak`'s SSO-proxy sidecar and in front of th
 official `@bluesky-social/social-app` web client. On a user's first
 OIDC-authenticated visit, the broker:
 
-1. Looks up the Keycloak user via the Admin REST API. The
-   service-account credentials are mounted as env, see `KC_ADMIN_*`.
+1. Derives the handle `<username>.<PDS_HANDLE_DOMAIN>` from the
+   Keycloak username, or `i8-<username>.<PDS_HANDLE_DOMAIN>` when the
+   PDS answers `Reserved handle`. A first label longer than 18
+   characters cannot be a handle; the broker then shows a form at
+   `/sso/handle` where the user picks one of 3 to 18 characters from
+   `[a-z0-9-]` that contains a hyphen and never contains `i8-`.
 2. Provisions a Bluesky PDS account via
-   `com.atproto.server.createAccount` if no encrypted app-password is
-   recorded on the user yet, encrypts the synthesised app-password
-   with **AES-256-GCM**, and stores the ciphertext as the
-   `bluesky_app_password_enc` user attribute.
+   `com.atproto.server.createAccount` if `BROKER_STORE_PATH` holds no
+   entry for the username yet, encrypts the synthesised app-password
+   with **AES-256-GCM**, and records the handle, the DID and the
+   ciphertext there, keyed by the Keycloak username.
 3. Decrypts the stored app-password in-process and exchanges it for
    a PDS session via `com.atproto.server.createSession`.
 4. Renders an HTML handoff page that drops the resulting session
@@ -35,6 +39,7 @@ synthesised app-password.
 | `PDS_URL`                         | Public Bluesky PDS base URL (`https://api.bluesky.<domain>`), written into the browser `service` field. |
 | `PDS_INTERNAL_URL`                | In-stack PDS URL for server-side XRPC calls (`http://pds:3000`); defaults to `PDS_URL` when unset.       |
 | `PDS_HANDLE_DOMAIN`               | Suffix for synthesised handles (`<DOMAIN_PRIMARY>`).                      |
+| `BROKER_STORE_PATH`               | JSON file in the broker volume that maps usernames to their PDS account.  |
 | `PDS_INVITE_CODE`                 | Optional invite code for gated PDS deployments.                           |
 | `KC_ADMIN_BASE_URL`               | Keycloak base URL (`https://auth.<domain>`).                              |
 | `KC_ADMIN_REALM`                  | Realm of the broker's service account (typically the same as user realm).|
@@ -45,6 +50,35 @@ synthesised app-password.
 | `HANDOFF_COOKIE_NAME`             | Override the cookie name (default `bsky_handoff_done`).                   |
 | `HANDOFF_COOKIE_MAX_AGE`          | Cookie lifetime in seconds (default `3300`, roughly 55 minutes).          |
 | `INSECURE_TLS`                    | If `true`, skip TLS verification on outbound calls (for local CA).        |
+
+## Handle form
+
+`GET` on any path for a user without a usable derived handle renders the
+form. It prefills the first label `suggestLabel` (`handle.js`) builds from
+the username, then from the local part of the e-mail address, with middle
+words cut to their initial (`kevin.veen.birkenbach` becomes
+`kevin-v-birkenbach`), and previews the full handle
+`@<label>.<PDS_HANDLE_DOMAIN>` while the user types. The input carries
+`minlength`, `maxlength` and `CHOSEN_LABEL_PATTERN`, which accept exactly
+what `chosenLabelError` accepts. The page takes its colours, font and dark
+mode from the `--design-*` variables the front proxy injects.
+
+Every rendering carries a hidden `token`: the issue time and an HMAC-SHA256
+over the Keycloak username and that time, keyed from
+`BLUESKY_BRIDGE_ENCRYPTION_KEY`, valid for one hour. `POST /sso/handle`
+answers:
+
+- **403 text** when `Origin` names a host other than `X-Forwarded-Host`
+  (or `Host`). `Origin: null` and a missing `Origin` pass this step.
+- **403 form** with a fresh token when the token is missing, belongs to
+  another username, does not verify or has expired.
+- **400 form** when `chosenLabelError` rejects the label, **409 form** when
+  the PDS reports the handle as taken.
+
+The page sets the referrer policy `same-origin` through its `meta` tag; the
+browser then sends the page's own origin as `Origin` with the `POST`.
+
+User-facing texts live in `messages.js`, keyed, with `{placeholder}` tokens.
 
 ## Forwarded identity
 
@@ -59,11 +93,10 @@ broker returns HTTP 401, there is no anonymous fallback by design.
   createSession failure and the user sees an HTML error page on the
   handoff route. Re-trying the visit after PDS recovery completes
   the handoff.
-- **Encrypted attribute decrypt failure:** indicates a key mismatch
-  between the SPI and the broker. The broker rejects the request
-  with HTTP 500 rather than risk silently re-provisioning a fresh
-  PDS account that loses the user's existing posts. Recovery: rotate
-  the key and clear the attribute (manual op for now, key rotation
-  is in the doc 013 Future Hardening section).
+- **Stored app-password does not decrypt:** `BLUESKY_BRIDGE_ENCRYPTION_KEY`
+  changed since the entry in `BROKER_STORE_PATH` was written. The
+  broker resets the password of the stored DID through the PDS admin
+  API (`PDS_ADMIN_PASSWORD`), stores it encrypted with the current key
+  and completes the handoff. Account, handle and posts stay.
 - **social-app upstream error:** the broker forwards the upstream's
   error response.

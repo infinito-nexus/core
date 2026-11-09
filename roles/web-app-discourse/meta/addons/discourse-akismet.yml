@@ -10,4 +10,4 @@ update:
   upstream_id: discourse-akismet
 config:
   repository: https://github.com/discourse/discourse-akismet.git
-  ref: main
+  ref: 21ff08f0f1bd1bb4ea5773ceb0691f267fee0b2f

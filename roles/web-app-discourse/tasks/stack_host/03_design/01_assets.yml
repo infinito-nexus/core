@@ -1,0 +1,28 @@
+---
+- name: "📁 Ensure the design directory of {{ application_id }} exists"
+  ansible.builtin.file:
+    path: "{{ DISCOURSE_DESIGN_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🖼️ Render the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_role:
+    name: sys-front-inj-design
+    tasks_from: assets.yml
+  vars:
+    design_assets_dest: "{{ DISCOURSE_DESIGN_DIR }}"
+
+- name: "📥 Read the rendered logo set of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [DISCOURSE_DESIGN_DIR, item.value] | path_join }}"
+  loop: "{{ DISCOURSE_DESIGN_UPLOADS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: discourse_design_files
+
+- name: "🧾 Hand the logo set of {{ application_id }} to the payload"
+  ansible.builtin.set_fact:
+    discourse_design_upload_payload: "{{ discourse_design_upload_payload | combine({item.item.key: {'name': item.item.value, 'b64': item.content}}) }}"
+  loop: "{{ discourse_design_files.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"

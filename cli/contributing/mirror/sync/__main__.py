@@ -95,10 +95,26 @@ def main() -> int:
 
         try:
             if args.only_missing and provider.tag_exists(img):
+                if not provider.is_stale(img):
+                    print(
+                        f"[mirror] {label}: destination exists, skipping ({dest})",
+                        flush=True,
+                    )
+                    continue
                 print(
-                    f"[mirror] {label}: destination exists, skipping ({dest})",
+                    f"[mirror] {label}: upstream re-pushed the tag, refreshing "
+                    f"{src} -> {dest}",
                     flush=True,
                 )
+                try:
+                    provider.mirror(img)
+                except subprocess.CalledProcessError as e:
+                    print(
+                        f"[mirror] {label}: refresh FAILED (exit={e.returncode}), "
+                        "keeping the existing copy",
+                        file=sys.stderr,
+                        flush=True,
+                    )
                 continue
 
             print(f"[mirror] {label}: {src} -> {dest}", flush=True)

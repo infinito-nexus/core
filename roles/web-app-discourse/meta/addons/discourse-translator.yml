@@ -1,0 +1,16 @@
+---
+# nocheck: addons-variant-pinning: compiled into the image from the addon's ref, so an addon-level disable saves no deploy time and only silences the spec
+enabled: "{{ lookup('config', 'web-app-discourse', 'services.translate.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - translate
+update:
+  monitored: true
+  catalog: discourse-meta
+  upstream_id: discourse-translator
+config:
+  repository: https://github.com/discourse/discourse-translator.git
+  ref: main
+  provider: LibreTranslate

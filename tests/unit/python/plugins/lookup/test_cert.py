@@ -25,7 +25,7 @@ class TestCertPlanLookup(unittest.TestCase):
         }
 
         self.applications = {
-            "web-app-a": {},
+            "web-app-a": {"domains": {"aliases": ["alias-a.example"]}},
             "web-app-b": {"server": {"tls": {"flavor": "self_signed"}}},
             "web-app-c": {
                 "server": {
@@ -40,6 +40,7 @@ class TestCertPlanLookup(unittest.TestCase):
             "applications": self.applications,
             "TLS_ENABLED": True,
             "TLS_MODE": "letsencrypt",
+            "CERTBOT_FLAVOR": "san",
             "LETSENCRYPT_LIVE_PATH": "/etc/letsencrypt/live/",
             "TLS_SELFSIGNED_BASE_PATH": "/etc/infinito.nexus/selfsigned",
             "TLS_SELFSIGNED_SCOPE": "global",
@@ -84,6 +85,13 @@ class TestCertPlanLookup(unittest.TestCase):
         )
         self.assertEqual(out["domains"]["san"], ["a.example"])
 
+    def test_sans_leave_out_networks_without_tls(self):
+        v = dict(self.vars)
+        v["domains"] = dict(self.domains)
+        v["domains"]["web-app-a"] = ["a.example", "a.abc.onion"]
+        out = self.lookup.run(["web-app-a"], variables=v, mode="app")[0]
+        self.assertEqual(out["domains"]["san"], ["a.example"])
+
     def test_letsencrypt_plan_uses_cert_name_override(self):
         v = dict(self.vars)
         v["applications"] = dict(self.applications)
@@ -96,6 +104,43 @@ class TestCertPlanLookup(unittest.TestCase):
         self.assertEqual(
             out["files"]["cert"], "/etc/letsencrypt/live/mycert/fullchain.pem"
         )
+
+    def test_letsencrypt_alias_vhost_gets_its_own_lineage_link(self):
+        for flavor in ("san", "dedicated"):
+            v = dict(self.vars, CERTBOT_FLAVOR=flavor)
+            out = self.lookup.run(["alias-a.example"], variables=v)[0]
+            self.assertEqual(out["application_id"], "web-app-a")
+            self.assertEqual(out["domain"], "a.example")
+            self.assertEqual(
+                out["files"]["cert"],
+                "/etc/letsencrypt/live/alias-a.example/fullchain.pem",
+            )
+
+    def test_letsencrypt_wildcard_redirect_source_gets_its_own_lineage_link(self):
+        v = dict(
+            self.vars,
+            CURRENT_PLAY_REDIRECT_DOMAINS=[
+                {"source": "*.legacy.example", "target": "legacy.example"},
+                {"source": "legacy.example", "target": "a.example"},
+            ],
+        )
+        out = self.lookup.run(["*.legacy.example", "files.key"], variables=v)[0]
+        self.assertEqual(out, "/etc/letsencrypt/live/*.legacy.example/privkey.pem")
+
+    def test_letsencrypt_wildcard_flavor_keeps_the_app_lineage(self):
+        v = dict(self.vars, CERTBOT_FLAVOR="wildcard")
+        out = self.lookup.run(["alias-a.example", "files.cert"], variables=v)[0]
+        self.assertEqual(out, "/etc/letsencrypt/live/a.example/fullchain.pem")
+
+    def test_letsencrypt_app_term_keeps_the_primary_lineage(self):
+        out = self.lookup.run(["web-app-a", "files.cert"], variables=self.vars)[0]
+        self.assertEqual(out, "/etc/letsencrypt/live/a.example/fullchain.pem")
+
+    def test_letsencrypt_requires_the_certbot_flavor(self):
+        v = dict(self.vars)
+        del v["CERTBOT_FLAVOR"]
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(["web-app-a"], variables=v, mode="app")
 
     def test_selfsigned_global_scope(self):
         out = self.lookup.run(["web-app-b"], variables=self.vars, mode="app")[0]
@@ -155,6 +200,46 @@ class TestCertPlanLookup(unittest.TestCase):
             out["files"]["key"],
             "/etc/infinito.nexus/selfsigned/web-app-b/b.example/privkey.pem",
         )
+
+    def test_primary_domain_term_matches_the_application_term(self):
+        cases = [
+            ("web-app-a", "a.example", dict(self.vars, CERTBOT_FLAVOR="san")),
+            ("web-app-a", "a.example", dict(self.vars, CERTBOT_FLAVOR="dedicated")),
+            ("web-app-a", "a.example", dict(self.vars, CERTBOT_FLAVOR="wildcard")),
+            ("web-app-b", "b.example", dict(self.vars)),
+            ("web-app-b", "b.example", dict(self.vars, TLS_SELFSIGNED_SCOPE="app")),
+            ("web-app-c", "c.example", dict(self.vars, TLS_SELFSIGNED_SCOPE="app")),
+        ]
+        for app_id, primary, v in cases:
+            by_app = self.lookup.run([app_id, "files"], variables=v)[0]
+            by_domain = self.lookup.run([primary, "files"], variables=v)[0]
+            self.assertEqual(by_domain, by_app, (app_id, primary))
+
+    def test_selfsigned_app_scope_secondary_domain_uses_the_app_leaf(self):
+        v = dict(self.vars, TLS_SELFSIGNED_SCOPE="app")
+        cases = [
+            ("b-alt.example", "/etc/infinito.nexus/selfsigned/web-app-b/b.example"),
+            ("api.c.example", "/etc/infinito.nexus/selfsigned/web-app-c/c.example"),
+        ]
+        for term, leaf in cases:
+            out = self.lookup.run([term, "files"], variables=v)[0]
+            self.assertEqual(out["cert"], f"{leaf}/fullchain.pem")
+            self.assertEqual(out["key"], f"{leaf}/privkey.pem")
+
+    def test_letsencrypt_secondary_domain_gets_its_own_lineage_link(self):
+        v = dict(
+            self.vars,
+            applications=dict(self.applications, **{"web-app-b": {}}),
+        )
+        out = self.lookup.run(["b-alt.example", "files.cert"], variables=v)[0]
+        self.assertEqual(out, "/etc/letsencrypt/live/b-alt.example/fullchain.pem")
+
+    def test_letsencrypt_onion_domain_keeps_the_app_lineage(self):
+        domains = dict(self.domains, **{"web-app-a": ["a.example", "a.node.onion"]})
+        for flavor in ("san", "dedicated", "wildcard"):
+            v = dict(self.vars, CERTBOT_FLAVOR=flavor, domains=domains)
+            out = self.lookup.run(["a.node.onion", "files.cert"], variables=v)[0]
+            self.assertEqual(out, "/etc/letsencrypt/live/a.example/fullchain.pem")
 
     def test_selfsigned_san_override(self):
         v = dict(self.vars)

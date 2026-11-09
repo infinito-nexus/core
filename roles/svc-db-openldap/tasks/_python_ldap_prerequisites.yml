@@ -1,8 +1,4 @@
 ---
-- name: 📦 Install python-ldap native library build dependencies
-  package_install:
-    id: openldap-dev
-
 - name: 🔍 Resolve Python include directory for active interpreter
   ansible.builtin.command:
     argv:

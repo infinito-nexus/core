@@ -6,9 +6,12 @@
 # the phpMyAdmin home view without re-entering the dev password.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     phpmyadmin:
       autologin: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
@@ -18,6 +21,8 @@
       enabled: true
       shared: true
     mariadb:
+      shared: true
+    redis:
       shared: true
     matomo:
       enabled: true
@@ -31,7 +36,10 @@
     tor:
       enabled: true
 - services:
-    css:
+    docs:
+      enabled: true
+      shared: true
+    design:
       enabled: false
       shared: false
     dashboard:
@@ -41,6 +49,8 @@
       enabled: false
       shared: false
     mariadb:
+      shared: false
+    redis:
       shared: false
     matomo:
       enabled: false

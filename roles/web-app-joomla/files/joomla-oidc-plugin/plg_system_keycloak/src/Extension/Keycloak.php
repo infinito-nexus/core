@@ -4,6 +4,7 @@ namespace Joomla\Plugin\System\Keycloak\Extension;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Access\Access;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Log\Log;
@@ -168,7 +169,7 @@ class Keycloak extends CMSPlugin
         if ($socksProxy !== '') {
             $client->setHttpProxy($socksProxy);
         }
-        $client->setRedirectURL($redirectUri);
+        $client->setRedirectURL($this->redirectUriForRequest($redirectUri));
         $client->addScope(['openid', 'profile', 'email', 'groups']);
         $client->setVerifyHost(true);
         $client->setVerifyPeer(true);
@@ -177,6 +178,28 @@ class Keycloak extends CMSPlugin
             $client->setCertPath($caPath);
         }
         return $client;
+    }
+
+    /**
+     * Move the configured redirect URI onto the host the request reached.
+     *
+     * @param string $configured redirect URI of the canonical domain.
+     * @return string the same path and query on the request's host, over
+     *                plaintext for an .onion; $configured when the request
+     *                carries no host or already uses the canonical one.
+     *                Keycloak still checks the result against the client's
+     *                redirect URIs, which list every network sibling.
+     */
+    private function redirectUriForRequest(string $configured): string
+    {
+        $host  = strtolower((string) $this->app->getInput()->server->getString('HTTP_HOST', ''));
+        $parts = parse_url($configured);
+        if ($host === '' || !is_array($parts) || !isset($parts['host']) || $host === strtolower($parts['host'])) {
+            return $configured;
+        }
+        $scheme = str_ends_with($host, '.onion') ? 'http' : ($parts['scheme'] ?? 'https');
+        $query  = isset($parts['query']) ? '?' . $parts['query'] : '';
+        return $scheme . '://' . $host . ($parts['path'] ?? '/') . $query;
     }
 
     /**
@@ -235,25 +258,65 @@ class Keycloak extends CMSPlugin
             return;
         }
 
-        $userId = (int) UserHelper::getUserId($username);
-        if ($userId === 0) {
-            $userId = $this->createJoomlaUser($username, $email, $name, $mappedGroups);
-        }
-        $user = User::getInstance($userId);
-        $user->name   = $name;
-        $user->email  = $email;
-        $user->groups = $mappedGroups;
-        if (!$user->save()) {
-            throw new \RuntimeException('Keycloak: failed to update Joomla user: ' . implode(' ', $user->getErrors()));
-        }
+        $user = $this->withProvisioningIdentity(
+            function () use ($username, $email, $name, $mappedGroups): User {
+                $userId = (int) UserHelper::getUserId($username);
+                if ($userId === 0) {
+                    $userId = $this->createJoomlaUser($username, $email, $name, $mappedGroups);
+                }
+                $user = User::getInstance($userId);
+                $user->name   = $name;
+                $user->email  = $email;
+                $user->groups = $mappedGroups;
+                if (!$user->save()) {
+                    throw new \RuntimeException('Keycloak: failed to update Joomla user: ' . implode(' ', $user->getErrors()));
+                }
+                return $user;
+            }
+        );
 
         $session = Factory::getSession();
         $session->set('user', $user);
+        $this->app->loadIdentity($user);
         $this->app->checkSession();
 
         $returnTo = (string) ($session->get('keycloak.return_to', 'index.php'));
         $session->clear('keycloak.return_to');
         $this->app->redirect($returnTo);
+    }
+
+    /**
+     * Args:
+     *   $operation: callable performing the provisioning writes.
+     * Returns:
+     *   User: the provisioned account returned by the callable.
+     */
+    private function withProvisioningIdentity(callable $operation): User
+    {
+        $session          = Factory::getSession();
+        $previousUser     = $session->get('user');
+        $previousIdentity = $this->app->getIdentity();
+        $provisioner      = $this->resolveProvisioningIdentity();
+
+        $session->set('user', $provisioner);
+        $this->app->loadIdentity($provisioner);
+        try {
+            return $operation();
+        } finally {
+            $session->set('user', $previousUser);
+            $this->app->loadIdentity($previousIdentity);
+        }
+    }
+
+    private function resolveProvisioningIdentity(): User
+    {
+        foreach (Access::getUsersByGroup(self::JOOMLA_GROUP_SUPER) as $candidateId) {
+            $candidateId = (int) $candidateId;
+            if ($candidateId > 0 && Access::check($candidateId, 'core.admin')) {
+                return User::getInstance($candidateId);
+            }
+        }
+        throw new \RuntimeException('Keycloak: no Super User account available to provision the SSO account');
     }
 
     private function createJoomlaUser(string $username, string $email, string $name, array $groups): int

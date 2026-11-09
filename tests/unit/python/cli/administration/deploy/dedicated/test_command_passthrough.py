@@ -7,6 +7,7 @@ from cli.administration.deploy.dedicated import command as dedicated_command
 
 
 class TestDedicatedCommandPassthrough(unittest.TestCase):
+    @unittest.mock.patch("cli.administration.deploy.dedicated.command.pull_or_exit")
     @unittest.mock.patch(
         "cli.administration.deploy.dedicated.command.validate_application_ids"
     )
@@ -29,6 +30,7 @@ class TestDedicatedCommandPassthrough(unittest.TestCase):
         mock_load_modes_from_yaml,
         mock_run_ansible_playbook,
         mock_validate_application_ids,
+        _mock_pull_or_exit,
     ):
         mock_load_modes_from_yaml.return_value = []
         mock_add_dynamic_mode_args.return_value = {}

@@ -5,10 +5,10 @@ collections:
     type: git
     version: 2.2.2
 
-  - name: ansible.mysql
-    source: https://github.com/ansible-collections/ansible.mysql.git
+  - name: ansible.mariadb
+    source: https://github.com/ansible-collections/ansible.mariadb.git
     type: git
-    version: 5.2.0
+    version: 6.0.2
 
   - name: kewlfft.aur
     source: https://github.com/kewlfft/ansible-aur.git

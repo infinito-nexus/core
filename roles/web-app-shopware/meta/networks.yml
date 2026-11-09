@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.58.0/24
+reachability:
+  handover: true # nocheck: network-reachability  Shopware answers every host that is not a sales channel domain with 400

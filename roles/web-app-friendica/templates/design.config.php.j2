@@ -1,0 +1,24 @@
+{% set design = lookup('design', application_id) %}
+<?php
+
+return [
+	'frio' => [
+		'scheme'           => '---',
+		'nav_bg'           => '{{ FRIENDICA_DESIGN_PALETTE['--design-frame'] }}',
+		'nav_icon_color'   => '{{ FRIENDICA_DESIGN_PALETTE['--design-on-frame'] }}',
+		'link_color'       => '{{ FRIENDICA_DESIGN_PALETTE['--design-link'] }}',
+		'background_color' => '{{ FRIENDICA_DESIGN_PALETTE['--design-surface-1'] }}',
+		'login_bg_color'   => '{{ FRIENDICA_DESIGN_PALETTE['--design-surface-1'] }}',
+		'contentbg_transp' => 100,
+	],
+{% if design.title is string %}
+	'config' => [
+		'sitename' => '{{ design.title | replace("\\", "\\\\") | replace("'", "\\'") }}',
+	],
+{% endif %}
+{% if design.logo is string %}
+	'system' => [
+		'shortcut_icon' => '{{ design.urls.favicon_ico }}',
+	],
+{% endif %}
+];

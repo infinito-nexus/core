@@ -1,0 +1,19 @@
+---
+- name: "🎨 Reconcile theme selection and display name of the realms"
+  ansible.builtin.script: shell/sync_realm_design.sh
+  environment:
+    KEYCLOAK_EXEC_CONTAINER: "{{ KEYCLOAK_EXEC_CONTAINER }}"
+    KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"
+    KEYCLOAK_REALM: "{{ item.realm }}"
+    KEYCLOAK_THEME: "{{ KEYCLOAK_DESIGN_THEME }}"
+    KEYCLOAK_THEME_ENABLED: "{{ KEYCLOAK_DESIGN_ENABLED | string | lower }}"
+    KEYCLOAK_DISPLAY_NAME_MANAGED: "{{ item.display_name | string | lower }}"
+    KEYCLOAK_DISPLAY_NAME: "{{ KEYCLOAK_DESIGN_TITLE }}"
+    KEYCLOAK_DISPLAY_NAME_HTML: "{{ KEYCLOAK_DESIGN_TITLE_HTML }}"
+  loop:
+    - { realm: "{{ KEYCLOAK_REALM }}", display_name: true }
+    - { realm: "master", display_name: false }
+  loop_control:
+    label: "{{ item.realm }}"
+  register: kc_design_realm
+  changed_when: "'[keycloak][design] updated' in kc_design_realm.stdout"

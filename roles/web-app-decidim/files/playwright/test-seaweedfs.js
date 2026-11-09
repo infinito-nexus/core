@@ -1,15 +1,3 @@
-// SeaweedFS object-store scenario for Decidim.
-//
-// Decidim is configured with ActiveStorage on the S3 service (env.j2:
-// STORAGE_PROVIDER=s3, AWS_BUCKET/AWS_ENDPOINT/...; storage.yml patched with
-// force_path_style: true), so a user-uploaded avatar is written to the
-// consumer bucket. Decidim's account avatar control uses an ActiveStorage
-// direct upload (modal file_field with direct_upload: true), so the moment the
-// file is attached the blob is streamed straight to S3 — a new object lands in
-// the bucket before the account form is even submitted. The action logs the
-// administrator in via the native form and attaches a PNG avatar; the shared
-// check proves the bucket grew via the Filer UI.
-
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
@@ -75,7 +63,16 @@ test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", 
       await fileInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
 
       const marker = `infinito-storage-check-${Date.now()}.png`;
+      const directUpload = appPage.waitForRequest((request) => request.method() === "PUT", {
+        timeout: resolveTimeout(60_000),
+      });
       await fileInput.setInputFiles({ name: marker, mimeType: "image/png", buffer: PNG_64x64 });
+      const put = await directUpload;
+      expect(
+        put.url().startsWith(`${baseUrl}/rails/active_storage/disk/`),
+        `the browser PUTs the avatar to the app's own disk-service route, not to the object store: ${put.url()}`,
+      ).toBe(true);
+      expect((await put.response()).status(), "the app writes the direct upload through to the bucket").toBe(204);
 
       const saveModal = appPage.locator("[data-dropzone-save]").first();
       if (await saveModal.isVisible().catch(() => false)) {

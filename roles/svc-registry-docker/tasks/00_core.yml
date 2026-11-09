@@ -2,7 +2,7 @@
 - include_tasks: utils/once/flag.yml
 
 - name: "🔒 Pin the registry bind address to the resolved endpoint"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
   block:
     - name: "🔎 Resolve the registry endpoint address on the stack host"
       ansible.builtin.command: "getent ahostsv4 {{ swarm.registry.host }}"

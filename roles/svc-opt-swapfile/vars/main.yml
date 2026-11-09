@@ -5,3 +5,17 @@ SWAPFILE_SIZE: "{{ lookup('config', application_id, 'services.swapfile.swapfile_
 SWAPFILE_PKG: "swap-forge"
 SWAPFILE_REPO: "{{ lookup('config', application_id, 'services.swapfile.repository') }}"
 SWAPFILE_REF: "{{ lookup('config', application_id, 'services.swapfile.ref') }}"
+
+SWAPFILE_TOLERANCE_PERCENT: 5
+SWAPFILE_SIZE_BYTES: "{{ SWAPFILE_SIZE | upper | human_to_bytes }}"
+SWAPFILE_ACTIVE_MATCH: >-
+  {{
+    swapfile_active.stdout_lines
+    | map('split')
+    | selectattr(1, 'equalto', 'file')
+    | map(attribute=2)
+    | map('int')
+    | select('ge', (SWAPFILE_SIZE_BYTES | int) * (100 - SWAPFILE_TOLERANCE_PERCENT) // 100)
+    | select('le', (SWAPFILE_SIZE_BYTES | int) * (100 + SWAPFILE_TOLERANCE_PERCENT) // 100)
+    | list
+  }}

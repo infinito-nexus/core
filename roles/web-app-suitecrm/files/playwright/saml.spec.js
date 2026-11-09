@@ -5,12 +5,11 @@ const {
   assertCspInjections,
   assertUnauthenticatedLanding,
   decodeDotenvQuoted,
-  gotoOnion,
   inAppLogout,
   normalizeBaseUrl,
-  performKeycloakLoginForm,
   safeIsEnabled,
 } = require("./personas");
+const { samlLogin } = require("./saml-login");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -32,43 +31,8 @@ test.beforeEach(async ({ page }) => {
   await page.context().clearCookies();
 });
 
-/** Drive the whole SAML round trip and return SuiteCRM's session state. */
-async function samlLogin(page, username, password) {
-  const landing = await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
-  expect(landing, "the app must answer the initial navigation").toBeTruthy();
-  expect(landing.status(), "the app must not error before handing over to Keycloak").toBeLessThan(400);
-
-  await expect
-    .poll(() => page.url(), {
-      timeout: resolveTimeout(60_000),
-      message:
-        "with AUTH_TYPE=saml the Symfony firewall's entry point must redirect an " +
-        "unauthenticated request to Keycloak",
-    })
-    .toMatch(/\/protocol\/saml|\/login-actions\//);
-
-  const assertionPosted = page.waitForResponse(
-    (response) => response.url().includes("/saml/acs"),
-    { timeout: resolveTimeout(120_000) },
-  );
-  await performKeycloakLoginForm(page, username, password);
-  const acs = await assertionPosted;
-  expect(
-    acs.status(),
-    "the assertion consumer must accept the assertion and redirect, not error",
-  ).toBeLessThan(400);
-
-  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
-
-  const response = await page.request.get(`${appBaseUrl}/session-status`, {
-    timeout: resolveTimeout(30_000),
-  });
-  expect(response.status(), "session-status must answer").toBeLessThan(400);
-  return response.json();
-}
-
 test("biber: the SAML round trip establishes a SuiteCRM session carrying the assertion's attributes", async ({ page }) => {
-  const status = await samlLogin(page, biberUsername, biberPassword);
+  const status = await samlLogin(page, appBaseUrl, biberUsername, biberPassword);
 
   expect(
     status.active,
@@ -82,14 +46,14 @@ test("biber: the SAML round trip establishes a SuiteCRM session carrying the ass
 });
 
 test("administrator: the SAML round trip establishes a SuiteCRM session", async ({ page }) => {
-  const status = await samlLogin(page, adminUsername, adminPassword);
+  const status = await samlLogin(page, appBaseUrl, adminUsername, adminPassword);
 
   expect(status.active, "SuiteCRM must own a session after the assertion").toBe(true);
   expect(status.userName).toBe(adminUsername);
 });
 
 test("biber: the authenticated surface carries the injector CSP and the in-app logout ends the session", async ({ page }) => {
-  const before = await samlLogin(page, biberUsername, biberPassword);
+  const before = await samlLogin(page, appBaseUrl, biberUsername, biberPassword);
   expect(before.active, "the session must exist before a logout can mean anything").toBe(true);
 
   await assertCspInjections(page, { isEnabled: safeIsEnabled });

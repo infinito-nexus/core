@@ -41,7 +41,7 @@ def _is_ansible_task_file(rel_path: str) -> bool:
         return False
     if not rel_path.endswith((".yml", ".yaml")):
         return False
-    return "/tasks/" in rel_path or "/handlers/" in rel_path
+    return "/tasks/" in "/" + rel_path or "/handlers/" in "/" + rel_path
 
 
 def _iter_rescue_seqs(node):

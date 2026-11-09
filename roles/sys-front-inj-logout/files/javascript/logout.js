@@ -140,6 +140,7 @@
         const tagName = el.tagName.toLowerCase();
         const isPotential = ['a','button','input','use'].includes(tagName);
         if (!isPotential) return;
+        if (el.hasAttribute('data-injected-logout')) return;
 
         // Prevent massive matches on huge containers
         let text = el.innerText;

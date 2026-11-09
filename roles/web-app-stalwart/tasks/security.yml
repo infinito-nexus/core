@@ -1,30 +1,28 @@
 ---
-- name: "📖 Read Stalwart's ban settings"
+- name: "📖 Read Stalwart's ban settings, allowed addresses and HTTP settings"
   include_tasks: jmap_call.yml
   vars:
     stalwart_jmap_body: >-
       {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-          'methodCalls': [['x:Security/get', {'ids': ['singleton']}, 'c0']]} | to_json }}
+          'methodCalls': [['x:Security/get', {'ids': ['singleton']}, 'Security'],
+                          ['x:AllowedIp/get', {'ids': none}, 'AllowedIp'],
+                          ['x:Http/get', {'ids': ['singleton']}, 'Http']]} | to_json }}
 
-- name: "🔍 Resolve Stalwart's current ban periods"
+- name: "🔍 Resolve Stalwart's current ban periods, unlisted addresses and HTTP settings"
   ansible.builtin.set_fact:
     stalwart_ban_periods_current: >-
       {{ stalwart_jmap.methodResponses[0][1].list[0]
          | dict2items | selectattr('key', 'in', STALWART_BAN_PERIODS) | items2dict }}
+    stalwart_allowed_ips_missing: >-
+      {{ STALWART_ALLOWED_IPS
+         | difference(stalwart_jmap.methodResponses[1][1].list | map(attribute='address') | list) }}
+    stalwart_http_settings_current: >-
+      {{ stalwart_jmap.methodResponses[2][1].list[0]
+         | dict2items | selectattr('key', 'in', STALWART_HTTP_SETTINGS) | items2dict }}
 
-- name: "⏱️ Let Stalwart's address bans expire"
-  when: stalwart_ban_periods_current != STALWART_BAN_PERIODS
-  block:
-    - name: "🔧 Set Stalwart's ban periods"
-      include_tasks: jmap_call.yml
-      vars:
-        stalwart_jmap_body: >-
-          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-              'methodCalls': [['x:Security/set',
-                {'update': {'singleton': STALWART_BAN_PERIODS}},
-                'c0']]} | to_json }}
-
-    - name: "🔄 Reload Stalwart's settings"
-      include_tasks: jmap_call.yml
-      vars:
-        stalwart_jmap_body: "{{ STALWART_JMAP_RELOAD_SETTINGS }}"
+- name: "🛡️ Apply Stalwart's ban periods, allowed addresses and client address source"
+  include_tasks: security/apply.yml
+  when: >-
+    (stalwart_ban_periods_current != STALWART_BAN_PERIODS)
+    or (stalwart_allowed_ips_missing | length > 0)
+    or (stalwart_http_settings_current != STALWART_HTTP_SETTINGS)

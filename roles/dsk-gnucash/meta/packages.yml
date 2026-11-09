@@ -1,0 +1,14 @@
+---
+gnucash:
+  Archlinux:
+    - gnucash
+  Debian:
+    - gnucash
+  RedHat:
+    - gnucash
+  centos:
+    source: flatpak
+    names:
+      - org.gnucash.GnuCash
+    flatpak:
+      command: gnucash

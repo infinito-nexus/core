@@ -1,0 +1,48 @@
+---
+- name: "🔍 Resolve the Matomo container that carries the design"
+  ansible.builtin.include_tasks: utils/resolve/host_cid.yml
+
+- name: "🖼️ Stage the corporate logo set of {{ application_id }}"
+  when: MATOMO_DESIGN_ENABLED | bool
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ MATOMO_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ MATOMO_DESIGN_DIR }}"
+
+    - name: "📖 Read the corporate logo set of {{ application_id }}"
+      ansible.builtin.slurp:
+        src: "{{ [MATOMO_DESIGN_DIR, item] | path_join }}"
+      loop: "{{ MATOMO_DESIGN_ASSETS if design_branding.logo is string else [] }}"
+      register: matomo_design_assets
+
+- name: "🎨 Sync the {{ MATOMO_DESIGN_THEME }} theme of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/design_sync.sh') | quote }} design_sync
+      {{ ('present' if MATOMO_DESIGN_ENABLED | bool else 'absent') | quote }}
+      {{ MATOMO_DESIGN_THEME | quote }}
+    stdin: "{{ lookup('template', 'design_plugin.j2') if MATOMO_DESIGN_ENABLED | bool else '' }}"
+  register: matomo_design_sync
+  changed_when: "'CHANGED' in matomo_design_sync.stdout"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🌓 Let the accounts of {{ application_id }} follow the browser color scheme"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      php -- {{ ('present' if MATOMO_DESIGN_ENABLED | bool else 'absent') | quote }}
+      {{ MATOMO_DESIGN_THEME_MODE_LOGINS | map('quote') | join(' ') }}
+    stdin: "{{ lookup('file', 'php/design_theme_mode.php') }}"
+  register: matomo_design_theme_mode
+  changed_when: "'CHANGED' in matomo_design_theme_mode.stdout"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"

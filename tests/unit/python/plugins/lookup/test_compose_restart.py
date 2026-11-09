@@ -122,6 +122,8 @@ class TestComposeRestartLookup(unittest.TestCase):
         explicitly when the Jinja-scope override matters."""
         vars_ = {
             "DEPLOYMENT_MODE": "compose",
+            "IS_COMPOSE_MODE": True,
+            "IS_SWARM_MODE": False,
             "docker_restart_policy": "no",
             "DOCKER_RESTART_POLICY": "always",
         }

@@ -6,6 +6,7 @@ btrfs-tools:
     - btrfs-progs
   RedHat:
     - btrfs-progs
+  batch: false
   centos:
     names:
       - btrfs-progs

@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 import cli.contributing.mirror.wait.__main__ as wait_main
-from cli.contributing.mirror.model import ImageRef
+from utils.docker.image.discovery import ImageRef
 
 
 class TestMirrorWait(unittest.TestCase):

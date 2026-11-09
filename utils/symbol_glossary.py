@@ -27,6 +27,9 @@ SYMBOLS: dict[str, str] = {
     "zfs": "🦓",
     "btrfs": "🦋",
     "ext4": "🐘",
+    "architectures": "🏗️",
+    "amd64": "🖥️",
+    "arm64": "🦾",
     "unavailable": "➖",
     "integrated": "🧩",
     "role_dependency": "⚙️",
@@ -34,6 +37,7 @@ SYMBOLS: dict[str, str] = {
     "swarm": "🐝",
     "tor": "🧅",
     "clearnet": "🌐",
+    "multi": "🌈",
     "vpn": "🚇",
     "direct": "🛣️",
     "stack": "🥞",
@@ -45,7 +49,7 @@ SYMBOLS: dict[str, str] = {
     "lifecycle": "🌱",
     "variant": "🎯",
     "variants": "🔀",
-    "chunk": "📦",
+    "batch": "#️⃣",
     "mode": "🚀",
     "test_compose": "🐋",
     "test_swarm": "🍯",
@@ -85,3 +89,11 @@ def to_emoji(word: str) -> str:
 def to_word(emoji: str) -> str:
     """Return the canonical word for *emoji*, or *emoji* itself when unmapped."""
     return _BY_EMOJI.get(emoji, emoji)
+
+
+def keycap(number: int) -> str:
+    """Return *number* spelled in keycap emojis, one keycap per digit."""
+    return "".join(
+        f"{digit}\N{VARIATION SELECTOR-16}\N{COMBINING ENCLOSING KEYCAP}"
+        for digit in str(number)
+    )

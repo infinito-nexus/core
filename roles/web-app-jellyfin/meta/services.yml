@@ -21,10 +21,18 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    brand:
+      width: 192
+      height: 64
+      frame: true
+    splash:
+      width: 192
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -47,7 +55,7 @@ jellyfin:
   image: jellyfin/jellyfin
   version: "10.11.11"
   backup:
-    no_stop_required: true
+    stop_required: false
   # nocheck: single-replica Jellyfin persists all state in embedded SQLite under the shared {{ lookup('volume', 'web-app-jellyfin', 'jellyfin_config').target }} volume; concurrent replicas corrupt the database (SQLite disk I/O error, malformed image in CI) and upstream has no multi-instance support
   replicas: 1
   name: jellyfin
@@ -115,3 +123,8 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

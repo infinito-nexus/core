@@ -1,0 +1,13 @@
+---
+enabled: false
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - discourse
+update:
+  monitored: true
+  catalog: mediawiki-extension
+  upstream_id: DiscourseSsoConsumer
+config:
+  archive: "https://codeberg.org/centertap/DiscourseSsoConsumer/archive/5.0.2.tar.gz"

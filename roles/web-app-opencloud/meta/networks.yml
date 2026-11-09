@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.43.0/24
+reachability:
+  single_mode: true # nocheck: network-reachability  OC_URL is one origin and the web client takes its server from it, so an onion sibling requests the clearnet origin; upstream opencloud-eu/opencloud#3468

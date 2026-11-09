@@ -1,0 +1,14 @@
+<?php
+return (static function (array $siteUrls): array {
+    $host = strtolower(explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0]);
+    foreach ($siteUrls as $siteUrl) {
+        if (strtolower((string) parse_url($siteUrl, PHP_URL_HOST)) === $host) {
+            return ['siteUrl' => $siteUrl];
+        }
+    }
+    return [];
+})([
+{% for url in ESPOCRM_SIBLING_SITE_URLS %}
+    '{{ url }}',
+{% endfor %}
+]);

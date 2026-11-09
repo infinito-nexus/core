@@ -1,0 +1,17 @@
+---
+torbrowser:
+  Archlinux:
+    - tor
+    - torbrowser-launcher
+  Debian:
+    - tor
+    - torbrowser-launcher
+  RedHat:
+    - tor
+    - torbrowser-launcher
+  centos:
+    source: flatpak
+    names:
+      - org.torproject.torbrowser-launcher
+    flatpak:
+      command: torbrowser-launcher

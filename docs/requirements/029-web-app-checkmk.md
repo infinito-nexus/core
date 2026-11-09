@@ -83,7 +83,7 @@ checkmk:
 
 - [ ] `monitoring.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` (and, when SSO is on, the oauth2-proxy gate) to the Checkmk site Apache; `GET /<site>/check_mk/` returns the Checkmk login/GUI.
 - [ ] The site-path redirect (`/` → `/<site>/check_mk/`) works behind the proxy.
-- [ ] The role emits a `Content-Security-Policy` header on the canonical surface.
+- [x] The role emits a `Content-Security-Policy` header on the canonical surface.
 - [ ] The agent receiver (container port `8000`) is mapped to a host port (Decision #4) and reachable for TLS agent registration.
 
 ### Role layout & image
@@ -97,8 +97,8 @@ checkmk:
 
 ### SSO / oauth2 + header auth (Decision #3)
 
-- [ ] When SSO is enabled, the oauth2-proxy gate fronts Checkmk and authenticates against Keycloak (client auto-provisioned via the `redirect_uris` filter).
-- [ ] Checkmk's `auth_by_http_header = "X-Remote-User"` is configured so the proxy-supplied user is logged in without a second login.
+- [x] When SSO is enabled, the oauth2-proxy gate fronts Checkmk and authenticates against Keycloak (client auto-provisioned via the `redirect_uris` filter).
+- [x] Checkmk's `auth_by_http_header = "X-Remote-User"` is configured so the proxy-supplied user is logged in without a second login.
 - [ ] A Playwright OIDC flow (biber + administrator) passes the oauth2-proxy → Keycloak chain and lands authenticated in the Checkmk GUI (administrator additionally reaches a Setup/admin-only surface).
 
 ### LDAP (Decision #3)
@@ -119,7 +119,7 @@ checkmk:
 
 ### Documentation
 
-- [ ] `README.md` documents edition + bump policy, the oauth2-proxy+header-auth+LDAP model, the site-path routing, the agent-receiver decision, and the no-external-DB design.
+- [x] `README.md` documents edition + bump policy, the oauth2-proxy+header-auth+LDAP model, the site-path routing, the agent-receiver decision, and the no-external-DB design.
 - [ ] This requirement is cross-linked from the implementing PR.
 
 ## Validation Apps

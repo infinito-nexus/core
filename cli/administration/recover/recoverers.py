@@ -130,13 +130,13 @@ class DeviceRecoverer(Recoverer):
 class NfsRecoverer(Recoverer):
     name = "nfs"
     role = "svc-bkp-nfs-2-local"
-    summary = "Snapshot -> live NFS export subtree"
+    summary = "Snapshot -> live NFS export base"
 
     def args(self, source: str, target: str) -> list[str]:
         snapshot, override = split_target(source)
         if not snapshot:
             raise ValueError("nfs: empty source snapshot")
-        dest = override or paths.NFS_EXPORT_STATE
+        dest = override or paths.NFS_EXPORT_BASE
         if remote_target(target):
             dest = f"{target}:{dest}"
         return [snapshot, dest]

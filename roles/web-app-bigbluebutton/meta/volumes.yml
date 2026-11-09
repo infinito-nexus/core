@@ -62,3 +62,11 @@ coturn:
   mounts:
     - service: coturn
       target: /var/lib/coturn
+# nocheck: meta-volume-file-bind-should-be-config  Reason: compose_mode_force role, and the upstream compose binds this target, which only a volume entry replaces
+html5_settings:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-bigbluebutton', 'directories.instance'), 'bbb-html5.yml'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: apps-akka
+      target: /etc/bigbluebutton/bbb-html5.yml

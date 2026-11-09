@@ -1,0 +1,35 @@
+---
+- name: "🎨 Install the corporate theme of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ OPENCLOUD_CONTAINER_ADDRESS }}
+      sh -c {{ lookup('file', 'shell/theme_sync.sh') | quote }} theme_sync
+      {{ OPENCLOUD_DESIGN_THEME_DIR | quote }} theme.json
+    stdin: "{{ lookup('template', 'theme.json.j2') }}"
+  register: opencloud_theme_install
+  changed_when: "'CHANGED' in opencloud_theme_install.stdout"
+  retries: 30
+  delay: 2
+  until: opencloud_theme_install.rc in [0, 3]
+  failed_when: opencloud_theme_install.rc != 0
+
+- name: "📖 Read the corporate logo set of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ [lookup('design', application_id).dest, item] | path_join }}"
+  loop: "{{ OPENCLOUD_DESIGN_LOGO_FILES }}"
+  register: opencloud_design_logos
+  when: lookup('design', application_id).logo is string
+
+- name: "🖼️ Install the corporate logo set of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ OPENCLOUD_CONTAINER_ADDRESS }}
+      sh -c {{ lookup('file', 'shell/theme_sync.sh') | quote }} theme_sync
+      {{ OPENCLOUD_DESIGN_THEME_DIR | quote }} {{ ('assets/' ~ item.item) | quote }}
+    stdin: "{{ item.content | b64decode }}"
+  loop: "{{ opencloud_design_logos.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  register: opencloud_logo_install
+  changed_when: "'CHANGED' in opencloud_logo_install.stdout"
+  when: item is not skipped

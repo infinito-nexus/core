@@ -8,7 +8,7 @@ from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
-TASKS = PROJECT_ROOT / "roles/test-e2e-playwright/tasks/02_run_one.yml"
+TASKS = PROJECT_ROOT / "roles/test-e2e-playwright/tasks/03_run_pass.yml"
 TASK_NAME = "⏳ Wait until application is ready (any non-error response)"
 
 

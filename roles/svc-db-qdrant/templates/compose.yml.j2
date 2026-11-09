@@ -29,7 +29,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file qdrantmcp is not the service env.j2 covers; that single env file is also loaded by the primary qdrant container, so moving these would hand qdrant ADAPTER_BEARER and ADAPTER_UPSTREAM_KEY
       ADAPTER_CONTRACT: {{ QDRANT_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ QDRANT_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ QDRANT_MCP_PORT }}"

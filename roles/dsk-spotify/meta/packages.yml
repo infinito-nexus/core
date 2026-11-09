@@ -1,0 +1,18 @@
+---
+spotify:
+  Archlinux:
+    source: aur
+    names:
+      - spotify
+  Debian:
+    source: flatpak
+    names:
+      - com.spotify.Client
+    flatpak:
+      command: spotify
+  RedHat:
+    source: flatpak
+    names:
+      - com.spotify.Client
+    flatpak:
+      command: spotify

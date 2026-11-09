@@ -1,6 +1,5 @@
 import json
 from collections.abc import Iterable
-from copy import deepcopy
 
 
 class FilterModule:
@@ -70,7 +69,7 @@ class FilterModule:
         if not isinstance(ldap_cmp_id, str):
             raise TypeError("ldap_roles_mapper_payload: 'ldap_cmp_id' must be a string")
 
-        payload = deepcopy(desired_group_mapper)
+        payload = dict(desired_group_mapper)
         payload.update(
             {
                 "name": "ldap-roles",

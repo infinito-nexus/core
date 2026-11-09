@@ -1,66 +1,54 @@
-/* Global Base Styling */
-body {
-    background-color: var(--color-01-90);
-    color: var(--color-01-05);
-    min-height: 100vh;
-    padding-bottom: 4rem;
+:root,
+:root[data-theme="light"] {
+  --bg: var(--design-surface-1);
+  --panel: var(--design-surface-2);
+  --panel2: var(--design-surface-hover);
+  --line: var(--design-border);
+  --line2: var(--design-border-strong);
+  --strong: var(--design-text);
+  --text: var(--design-text);
+  --muted: var(--design-text-muted);
+  --accent: var(--design-link);
+  --code: var(--design-link);
+  --code-bg: var(--design-surface-3);
+  --pink: var(--design-primary);
+  --yellow: var(--design-warning);
 }
 
-/* Card Styling (Infinito.Nexus Homepage Style) */
-.app-card {
-    border-radius: 1rem;
-    background: radial-gradient(
-    circle at top left,
-    rgba(var(--color-rgb-01-10), 0.95),
-    rgba(var(--color-rgb-01-20), 0.90)
-    );
-    border: 1px solid rgba(var(--color-rgb-01-40), 0.35);
-    box-shadow: 0 18px 45px rgba(var(--color-rgb-01-90), 0.65);
-    transition: transform .12s ease-out, box-shadow .12s ease-out, border-color .12s ease-out;
+#container1 button,
+#container1 select,
+#container1 input[type="search"] {
+  border-color: var(--design-border-strong);
 }
 
-.app-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 22px 60px rgba(var(--color-rgb-01-90), 0.90);
-    border-color: rgba(var(--color-rgb-01-30), 0.70);
+#container1 input[type="search"]:focus {
+  border-color: var(--design-link);
+  box-shadow: var(--design-focus-ring-inset);
 }
 
-.app-icon {
-    font-size: 2.6rem;
+#container1 button:active:not(:disabled) {
+  background: var(--design-surface-active);
 }
 
-.app-badge {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: .12em;
+#listExamples .item.selected {
+  background: var(--design-surface-active);
+  border-left-color: var(--design-primary);
 }
 
-/* Footer Bar */
-.footer-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1030;
+#textareaCode {
+  background: var(--design-surface-2);
+  color: var(--design-text);
 }
 
-.footer-bar .btn-link {
-    text-decoration: none;
-    font-size: 0.8rem;
+#textareaCode:focus-visible {
+  outline-offset: -2px;
 }
 
-.footer-bar .btn-link:hover {
-    text-decoration: underline;
+#textareaError,
+#textareaConsole {
+  background: var(--design-surface-3);
 }
 
-/* Nested dropdown - open to the left */
-.dropdown-menu .dropdown-submenu {
-    position: relative;
-}
-
-.dropdown-menu .dropdown-submenu > .dropdown-menu {
-    top: 0;
-    right: 100%;
-    left: auto;
-    margin-right: .1rem;
+#textareaError {
+  color: var(--design-danger);
 }

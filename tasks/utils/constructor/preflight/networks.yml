@@ -1,0 +1,24 @@
+---
+# include-gated: when: preflight_container_cli.stat.exists
+- name: "🔍 List the docker networks"
+  ansible.builtin.command:
+    argv: [container, network, ls, --quiet]
+  register: preflight_network_ids
+  changed_when: false
+
+- name: "🔍 Inspect the docker networks"
+  ansible.builtin.command:
+    argv: "{{ ['container', 'network', 'inspect'] + preflight_network_ids.stdout_lines }}"
+  register: preflight_networks
+  changed_when: false
+
+- name: "🛑 Fail when a docker network does not belong to its entity"
+  ansible.builtin.assert:
+    that: preflight_network_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_network_errors | join('; ') }}.
+      Stop the containers on each listed network and remove or re-address it,
+      then deploy again; the deploy recreates its own networks.
+  vars:
+    preflight_network_errors: "{{ lookup('network_ownership', preflight_networks, group_names) }}"

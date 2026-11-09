@@ -28,6 +28,7 @@ def load_script(
             "OPENWEBUI_MCP_MEMBERS": json.dumps(members or {}),
             "OPENWEBUI_MCP_CONNECTIONS": json.dumps(declared or []),
             "OPENWEBUI_ADMIN_EMAIL": "administrator@example.org",
+            "OPENWEBUI_ADMIN_NAME": "openwebui-api-bot",
             "OPENWEBUI_ADMIN_PASSWORD": "x" * 32,
         },
     ):

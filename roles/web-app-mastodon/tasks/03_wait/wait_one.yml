@@ -1,12 +1,12 @@
 ---
-- name: "🔍 Resolve '{{ item }}' hosting node + container id"
+- name: "🔍 Resolve '{{ wait_container }}' hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
-    resolve_service_key: "{{ item }}"
+    resolve_service_key: "{{ wait_container }}"
     resolve_output_prefix: MASTODON_WAIT
-    resolve_compose_cid: "{{ lookup('container_address', application_id, item) }}"
+    resolve_compose_cid: "{{ lookup('container_address', application_id, wait_container) }}"
 
-- name: "🔎 Check health status of '{{ item }}' container"
+- name: "🔎 Check health status of '{{ wait_container }}' container"
   ansible.builtin.shell: >
     container inspect --type container --format '{{ "{{.State.Health.Status}}" }}'
     {{ MASTODON_WAIT_LOCAL_CID | quote }}

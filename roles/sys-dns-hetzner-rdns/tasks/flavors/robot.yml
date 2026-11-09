@@ -1,21 +1,22 @@
 ---
 # Robot flavor (Robot Webservice API)
-- name: ✅ Assert Robot credentials present
-  ansible.builtin.assert:
-    that:
-      - (HETZNER_ROBOT_USER | default('') | length) > 0
-      - (HETZNER_ROBOT_PASSWORD | default('') | length) > 0
-    fail_msg: "Robot credentials required: HETZNER_ROBOT_USER / HETZNER_ROBOT_PASSWORD."
+- name: ✅ Validate the Robot credentials and rDNS records
   when: MODE_ASSERT | bool
+  block:
+    - name: ✅ Assert Robot credentials present
+      ansible.builtin.assert:
+        that:
+          - (HETZNER_ROBOT_USER | default('') | length) > 0
+          - (HETZNER_ROBOT_PASSWORD | default('') | length) > 0
+        fail_msg: "Robot credentials required: HETZNER_ROBOT_USER / HETZNER_ROBOT_PASSWORD."
 
-- name: ✅ Validate records (robot)
-  ansible.builtin.assert:
-    that:
-      - rdns_records | length > 0
-      - (rdns_records | selectattr('ip_address','defined') | list | length) == (rdns_records | length)
-      - (rdns_records | selectattr('dns_ptr','defined') | list | length) == (rdns_records | length)
-    fail_msg: "Each record must have ip_address and dns_ptr for Robot rDNS."
-  when: MODE_ASSERT | bool
+    - name: ✅ Validate records (robot)
+      ansible.builtin.assert:
+        that:
+          - rdns_records | length > 0
+          - (rdns_records | selectattr('ip_address','defined') | list | length) == (rdns_records | length)
+          - (rdns_records | selectattr('dns_ptr','defined') | list | length) == (rdns_records | length)
+        fail_msg: "Each record must have ip_address and dns_ptr for Robot rDNS."
 
 - name: 📌 Apply rDNS via Hetzner Robot API
   vars:
