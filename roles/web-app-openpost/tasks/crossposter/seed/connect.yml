@@ -7,7 +7,7 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
     resolve_service_key: mastodon
-    resolve_service_name: "{{ lookup('container_service', 'web-app-mastodon', 'mastodon') if DEPLOYMENT_MODE == 'swarm' else '' }}"
+    resolve_service_name: "{{ lookup('container_service', 'web-app-mastodon', 'mastodon') if IS_SWARM_MODE else '' }}"
     resolve_output_prefix: OPENPOST_SEED_MASTODON
     resolve_compose_cid: "{{ lookup('container_address', 'web-app-mastodon', 'mastodon') }}"
 
