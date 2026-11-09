@@ -20,10 +20,10 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -35,8 +35,8 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
 mastodon:
   bond: 1
@@ -77,16 +77,16 @@ openpost:
   pids_limit: 512
   min_storage: 600MB
   backup:
-    no_stop_required: true
+    stop_required: false
   ports:
     internal:
       http: 8080
     local:
-      http: 8100
+      http: 8106
   run_after:
     - svc-db-postgres
     - web-app-keycloak
-    - web-app-seaweedfs
+    - web-svc-seaweedfs
     - web-app-stalwart
     - web-app-mailu
     - web-app-mastodon
@@ -173,7 +173,7 @@ provider:
       http: 8080
       https: 443
     local:
-      http: 8101
+      http: 8107
   hosts:
     - www.linkedin.com
     - api.linkedin.com
@@ -215,3 +215,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
