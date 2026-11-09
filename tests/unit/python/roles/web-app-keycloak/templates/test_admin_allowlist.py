@@ -173,7 +173,7 @@ def location_block(rendered: str, path: str) -> tuple[str, list[str]]:
         path: the path the location's matcher names, modifier excluded.
     """
     for match in re.finditer(
-        r"^location\s+([^{\n]+?)\s*\{([^{}]*)\}", rendered, re.MULTILINE
+        r"^location\s+([^{\n]+?)\s*\{((?:[^{}]|\{[^{}]*\})*)\}", rendered, re.MULTILINE
     ):
         matcher = match.group(1).strip()
         if matcher.split()[-1] == path:
@@ -268,6 +268,15 @@ class TestRestrictedLocation(unittest.TestCase):
     def test_compose_passes_the_request_path_unchanged(self):
         _, directives = location_block(render(list(NETWORKS)), "/admin")
         self.assertIn(f"proxy_pass http://127.0.0.1:{LOCAL_HTTP_PORT};", directives)
+
+    def test_dot_dot_semicolon_paths_never_reach_the_upstream(self):
+        for mode in ("compose", "swarm"):
+            with self.subTest(mode=mode):
+                _, directives = location_block(render(list(NETWORKS), mode), "/admin")
+                self.assertIn(
+                    'if ($request_uri ~* "(^|/)(\\.|%2e){2}(;|%3b)") {', directives
+                )
+                self.assertIn("return 400;", directives)
 
     def test_swarm_passes_the_raw_request_uri(self):
         _, directives = location_block(render(list(NETWORKS), "swarm"), "/admin")
