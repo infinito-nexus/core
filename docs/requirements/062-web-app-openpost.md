@@ -88,7 +88,7 @@ Sources:
 - [`svc-net-wireguard`](../../roles/svc-net-wireguard/) carries swarm overlay traffic inside its `swarm` mesh, so the role's overlay network is tunnelled without extra configuration.
 - [`web-app-semaphore`](../../roles/web-app-semaphore/) consumes Keycloak through `sso.flavor: oidc`.
 - [`web-app-mastodon`](../../roles/web-app-mastodon/), [`web-app-pixelfed`](../../roles/web-app-pixelfed/) and [`web-app-peertube`](../../roles/web-app-peertube/) provide the local Fediverse accounts used as publishing targets in tests.
-- [`web-app-seaweedfs`](../../roles/web-app-seaweedfs/) provides S3 object storage through the `seaweedfs` service with `public: true`, as in `web-app-mastodon`.
+- [`web-svc-seaweedfs`](../../roles/web-svc-seaweedfs/) provides S3 object storage through the `seaweedfs` service with `public: true`, as in `web-app-mastodon`.
 - [18_api.yml](../../group_vars/all/18_api.yml) is the central SPOT for proprietary API credentials, read through `lookup('api', ...)` and gated by `lookup('api_enabled', ...)`.
 
 ## Confirmed Decisions
@@ -102,7 +102,7 @@ These decisions were confirmed by the operator before implementation starts and 
 | 3 | The role runs the official `ghcr.io/getopenpost/openpost` image unmodified, pinned to a release tag and configured through environment variables only. | The application is integrated like every other role; the project does not maintain OpenPost. |
 | 4 | OpenPost reaches the deployment's own sibling vhosts only through an always-on, role-local egress relay on the role network `192.88.99.0/24` (declared in `meta/networks.yml`, listed in `NETWORK_ROLE_SUBNET_EXCEPTION_ROLES`), with exact aliases and an SNI allowlist, forwarding to the shared proxy. | One proven path for development, CI and production, including split-horizon DNS and WireGuard meshes, with the guard intact for every other destination; the existing role-subnet exception mechanism already carries out-of-pool blocks, so no new SPOT is needed. |
 | 5 | Keycloak SSO through native OIDC (`sso.flavor: oidc`); publishing permissions are enforced through OpenPost workspace roles. | OpenPost ships an OIDC adapter and does not consume group claims. |
-| 6 | Shared `svc-db-postgres`; media on `web-app-seaweedfs` S3 when deployed, a role volume otherwise. | Postgres is the only multi-process database; S3 gives public media URLs for Meta. |
+| 6 | Shared `svc-db-postgres`; media on `web-svc-seaweedfs` S3 when deployed, a role volume otherwise. | Postgres is the only multi-process database; S3 gives public media URLs for Meta. |
 | 7 | One `all` process with one replica in compose and swarm. | State lives in Postgres and S3, so rescheduling is safe; split `web`/`worker` scaling is out of scope. |
 | 8 | Provider app credentials live in the central `API` SPOT. | One place for proprietary credentials. |
 | 9 | Diagnostics, update check, PostHog telemetry, feedback and public profiles are disabled. | No unnecessary transmission of internal data. |
@@ -211,7 +211,7 @@ simulator:
 - [x] `publish.{{ DOMAIN_PRIMARY }}` serves the OpenPost UI through the shared OpenResty proxy with TLS and a `Content-Security-Policy` header, and `/api/v1/ready` returns HTTP 200.
 - [ ] The role deploys green in compose (`make compose-deploy mode=reinstall apps=web-app-openpost full_cycle=true`) and in swarm, with one `all` replica and no reliance on `container_name`.
 - [x] OpenPost stores its data in `svc-db-postgres`, and no SQLite database exists in the container.
-- [x] With `web-app-seaweedfs` deployed, media lands in S3 and an uploaded file is fetchable anonymously over HTTPS from its public URL; without it, media lands in a role volume served under `/media/`.
+- [x] With `web-svc-seaweedfs` deployed, media lands in S3 and an uploaded file is fetchable anonymously over HTTPS from its public URL; without it, media lands in a role volume served under `/media/`.
 - [x] Media URLs and `/api/v1/accounts/<provider>/callback` are reachable without a session, while every other UI and API route requires authentication.
 - [x] The container healthcheck probes `/api/v1/health`, and the deploy waits for `/api/v1/ready`.
 - [x] Database and media are part of the platform backup, and a restore drill (purge, restore, redeploy) brings back users, connected accounts and publications.
