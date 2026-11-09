@@ -56,9 +56,9 @@
       - --keystore-type
       - PKCS12
       - --keystore-password
-      - "{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}"
+      - "{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}" # nocheck: compose-argv-secret  fixed literal of the CI-only WireMock keystore around a throwaway self-signed key; WireMock reads it only as a flag
       - --key-manager-password
-      - "{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}"
+      - "{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}" # nocheck: compose-argv-secret  same keystore literal
       - --disable-banner
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks', aliases=OPENPOST_SIMULATOR_HOSTS) | indent(4) }}
