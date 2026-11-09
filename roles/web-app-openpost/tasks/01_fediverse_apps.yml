@@ -59,21 +59,20 @@
   when: OPENPOST_PINNED_PIXELFED | length > 0
   run_once: true
 
-- name: "📁 Ensure the directory for the registered apps exists"
-  ansible.builtin.file:
-    path: "{{ OPENPOST_FEDIVERSE_APPS_HOST | dirname }}"
-    state: directory
-    mode: "0755"
+- name: "💾 Persist the apps registered in this run"
+  when: openpost_fediverse_registrations.results | length > 0
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
-  when: openpost_fediverse_registrations.results | length > 0
+  block:
+    - name: "📁 Ensure the directory for the registered apps exists"
+      ansible.builtin.file:
+        path: "{{ OPENPOST_FEDIVERSE_APPS_HOST | dirname }}"
+        state: directory
+        mode: "0755"
 
-- name: "💾 Persist the registered apps"
-  ansible.builtin.copy:
-    dest: "{{ OPENPOST_FEDIVERSE_APPS_HOST }}"
-    content: "{{ openpost_fediverse_apps | to_nice_json }}"
-    mode: "0600"
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  when: openpost_fediverse_registrations.results | length > 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    - name: "💾 Persist the registered apps"
+      ansible.builtin.copy:
+        dest: "{{ OPENPOST_FEDIVERSE_APPS_HOST }}"
+        content: "{{ openpost_fediverse_apps | to_nice_json }}"
+        mode: "0600"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
