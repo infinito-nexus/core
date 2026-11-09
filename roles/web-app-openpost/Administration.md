@@ -16,7 +16,7 @@ The role configures OpenPost's instance-wide OIDC provider against the shared Ke
 
 - Users sign in with the Keycloak button on the login page.
   OpenPost provisions them just in time on their first verified login (`OPENPOST_OIDC_JIT_ENABLED=true`) and matches later logins by issuer and subject.
-- The platform `administrator` is listed in `OPENPOST_OIDC_BOOTSTRAP_ALLOWLIST` and becomes instance admin on its first SSO login.
+- The `platform_administrator` is listed in `OPENPOST_OIDC_BOOTSTRAP_ALLOWLIST` and becomes instance admin on its first SSO login.
 - A just-in-time user starts without access to existing workspaces.
   Grant access by inviting the user from the workspace's team settings; OpenPost does not consume Keycloak groups.
 - Password self-registration is closed.
@@ -223,12 +223,12 @@ A dead-lettered item stays in that state; publish the post again from the OpenPo
 | OpenPost cannot connect a Mastodon or Pixelfed instance served only on a `.onion` name: its Go resolver refuses to look up `.onion` names (RFC 7686), and its own app registration accepts only `https://` instances. The deploy therefore pins no app for an onion sibling, and the CI connect checks skip it. | Connect the instance through a clearnet name. The crossposter still reads onion sources, because Python resolves them through the relay. |
 | On a compose deployment served on `.onion`, single sign-on fails: OpenPost reaches the onion Keycloak only through Tor's SOCKS port, which `svc-net-tor` opens to the internal ranges, and OpenPost's role subnet `192.88.99.0/24` is not one of them. The CI round with SSO therefore runs clearnet only. | Sign in with a native OpenPost account on onion deployments. |
 | OpenPost's X budget guardrail (`OPENPOST_X_MONTHLY_BUDGET_MICROUSD`) applies only in its cloud edition. | Cap X spending through the prepaid credits of the X developer account. |
-| Instagram accepts JPEG only and fetches media from a public URL. | Deploy `web-app-seaweedfs` so media gets public HTTPS URLs; convert other image formats before upload. |
-| Facebook, Instagram, Threads and TikTok fetch media from public HTTPS URLs. | Same as above; without `web-app-seaweedfs` media is served under `/media/` of the public OpenPost domain, which also works when that domain is reachable from the internet. |
+| Instagram accepts JPEG only and fetches media from a public URL. | Deploy `web-svc-seaweedfs` so media gets public HTTPS URLs; convert other image formats before upload. |
+| Facebook, Instagram, Threads and TikTok fetch media from public HTTPS URLs. | Same as above; without `web-svc-seaweedfs` media is served under `/media/` of the public OpenPost domain, which also works when that domain is reachable from the internet. |
 | LinkedIn requires vetting of the legal entity and re-authorisation every 60 days. | Plan the vetting before launch and schedule a re-authorisation reminder. |
 | YouTube projects in testing status lose refresh tokens after 7 days. | Move the Google OAuth client to production status and complete verification. |
 | Bluesky is also reachable without OpenPost through `web-app-bridgy-fed`. | Use the bridge for automatic federation and OpenPost for deliberate Bluesky-native posts. |
-| OpenPost connects PeerTube only through the OAuth password grant, and PeerTube accounts that sign in through Keycloak have no local password. | Connect a local PeerTube account: the `root` account, which a fresh `web-app-peertube` instance creates with the platform administrator's password, or one the PeerTube administrator creates for publishing. PeerTube then asks for the channel each video goes to. |
+| OpenPost connects PeerTube only through the OAuth password grant, and PeerTube accounts that sign in through Keycloak have no local password. | Connect a local PeerTube account: the `root` account, which a fresh `web-app-peertube` instance creates with the first 50 characters of the platform administrator's password, or one the PeerTube administrator creates for publishing. PeerTube then asks for the channel each video goes to. |
 | Sibling Fediverse instances are reachable only over TLS on port 443. | Keep TLS enabled for `web-app-mastodon`, `web-app-pixelfed` and `web-app-peertube`. |
 
 ## Data processing and dependencies
@@ -243,9 +243,9 @@ A dead-lettered item stays in that state; publish the post again from the OpenPo
 
 ## Backup, restore and upgrades
 
-- With `web-app-seaweedfs` deployed, browsers upload media directly to its public S3 vhost through presigned URLs, which is why `OPENPOST_S3_ENDPOINT` is the public endpoint and the CSP allows it in `connect-src`; OpenPost deduplicates identical files by content hash.
+- With `web-svc-seaweedfs` deployed, browsers upload media directly to its public S3 vhost through presigned URLs, which is why `OPENPOST_S3_ENDPOINT` is the public endpoint and the CSP allows it in `connect-src`; OpenPost deduplicates identical files by content hash.
   With `TLS_MODE=self_signed` the role always mounts the root CA into OpenPost and adds it to `SSL_CERT_DIR`, because an onion-primary OpenPost receives no CA injection while that vhost and the local Fediverse siblings behind the relay stay on clearnet HTTPS.
-- The platform backup covers the OpenPost database in the shared Postgres and the `openpost_media` volume; media in `web-app-seaweedfs` is covered by that role's backup.
+- The platform backup covers the OpenPost database in the shared Postgres and the `openpost_media` volume; media in `web-svc-seaweedfs` is covered by that role's backup.
 - A restore needs the database, the media and the inventory secrets, especially `encryption_key`; without it the stored provider tokens cannot be decrypted and every network has to be reconnected. The key is pinned `rotatable: false` because OpenPost refuses to start once a stored row no longer decrypts; the other secrets rotate freely.
 - Changing the pinned version in `meta/services.yml` and redeploying runs OpenPost's own migrations, which take a Postgres advisory lock.
   Only the latest upstream release receives security fixes, so follow new release tags promptly.
