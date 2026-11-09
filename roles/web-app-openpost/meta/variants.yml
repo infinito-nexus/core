@@ -12,13 +12,13 @@
         cap_seconds: 30
       notify:
         recipients:
-          - "{{ lookup('users', 'administrator').email }}"
+          - "{{ lookup('users', 'platform_administrator').email }}"
       routes:
         - name: ci-review
           source:
             platform: mastodon
-            base_url: "{{ lookup('tls', 'web-app-mastodon', 'url.base') | regex_replace('/+$', '') }}"
-            account: "{{ lookup('users', 'administrator').username }}"
+            base_url: "{{ lookup('tls', 'web-app-mastodon', 'url.origin') }}"
+            account: "{{ lookup('users', 'platform_administrator').username }}"
             token: ""
           filters:
             visibility: [public]
@@ -35,8 +35,8 @@
         - name: ci-auto
           source:
             platform: mastodon
-            base_url: "{{ lookup('tls', 'web-app-mastodon', 'url.base') | regex_replace('/+$', '') }}"
-            account: "{{ lookup('users', 'administrator').username }}"
+            base_url: "{{ lookup('tls', 'web-app-mastodon', 'url.origin') }}"
+            account: "{{ lookup('users', 'platform_administrator').username }}"
             token: ""
           filters:
             visibility: [public]
@@ -50,12 +50,15 @@
           attribution:
             default: "{text}\n\n{source_url}"
             x: "{text}"
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
       enabled: true
       shared: true
+    docs:
+      enabled: false
+      shared: false
     email:
       enabled: true
       shared: true
@@ -87,7 +90,7 @@
     sso:
       enabled: true
       shared: true
-    tor:
+    tor: # nocheck: variant-tor-off, variant-tor-collateral the SSO round runs clearnet only: OpenPost reaches an onion Keycloak only through Tor's SOCKS port, which svc-net-tor opens to the internal ranges and not to the role subnet 192.88.99.0/24, so its partners ride along on clearnet and are proven over the onion in their own variants
       enabled: false
 
 - services:
@@ -104,8 +107,8 @@
         - name: ci-pixelfed
           source:
             platform: pixelfed
-            base_url: "{{ lookup('tls', 'web-app-pixelfed', 'url.base') | regex_replace('/+$', '') }}"
-            account: "{{ lookup('users', 'administrator').username }}"
+            base_url: "{{ lookup('tls', 'web-app-pixelfed', 'url.origin') }}"
+            account: "{{ lookup('users', 'platform_administrator').username }}"
             token: ""
           filters:
             visibility: [public]
@@ -122,7 +125,7 @@
         - name: ci-peertube
           source:
             platform: peertube
-            base_url: "{{ lookup('tls', 'web-app-peertube', 'url.base') | regex_replace('/+$', '') }}"
+            base_url: "{{ lookup('tls', 'web-app-peertube', 'url.origin') }}"
             account: root_channel
             token: ""
           filters:
@@ -137,10 +140,13 @@
           attribution:
             default: "{text}\n\n{source_url}"
             x: "{text}"
-    css:
+    design:
       enabled: false
       shared: false
     dashboard:
+      enabled: false
+      shared: false
+    docs:
       enabled: false
       shared: false
     email:
@@ -181,12 +187,15 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false
     dashboard:
       enabled: false
       shared: false
+    docs:
+      enabled: true
+      shared: true
     email:
       enabled: false
       shared: false
