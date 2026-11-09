@@ -29,9 +29,11 @@ providers:
     caFiles:
       - {{ CA_TRUST.cert_container | to_json }}
 {% endif %}
-{% if _allowed_groups %}
+{% if _allowed_groups or lookup('sso', sso_proxy_application_id, 'oauth2_allow_all_users') %}
     scope: {{ ('openid email profile ' ~ RBAC.GROUP.CLAIM) | to_json }}
+{% if _allowed_groups %}
     allowedGroups: {{ _allowed_groups | map('regex_replace', '^/*', '/') | list | to_json }}
+{% endif %}
 {% else %}
     scope: "openid email profile"
 {% endif %}

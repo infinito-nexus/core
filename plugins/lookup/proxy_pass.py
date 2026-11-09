@@ -2,8 +2,8 @@
 :func:`utils.networks.proxy.resolve_upstream` + :func:`render_proxy_pass`.
 
 ``stream=True`` emits the directive of an nginx ``stream`` server through
-:func:`render_stream_proxy_pass` instead; ``tail`` and ``location`` belong to
-HTTP and are refused there.
+:func:`render_stream_proxy_pass` instead; ``tail`` belongs to HTTP and is
+refused there.
 
 Trip-wire: a role's ``compose_mode_force`` stays in scope while its vhost
 renders locations of other apps (the ``/logout`` location of web-svc-logout),
@@ -56,13 +56,11 @@ class LookupModule(LookupBase):
         if not port_kind:
             port_kind = "http"
         stream = _as_bool(kwargs.get("stream"))
-        if stream and ("tail" in kwargs or "location" in kwargs):
+        if stream and "tail" in kwargs:
             raise AnsibleError(
-                "proxy_pass: stream=True takes no tail or location; both shape "
-                "an HTTP request URI"
+                "proxy_pass: stream=True takes no tail; it shapes an HTTP request URI"
             )
         tail = _as_str(kwargs.get("tail")) or "request"
-        location = _as_str(kwargs.get("location")) or "/"
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
@@ -129,7 +127,6 @@ class LookupModule(LookupBase):
                     authority,
                     deployment_mode,
                     tail=tail,
-                    location=location,
                     host_gateway=host_gateway,
                     scheme=resolve_upstream_scheme(
                         applications, application_id, service_key

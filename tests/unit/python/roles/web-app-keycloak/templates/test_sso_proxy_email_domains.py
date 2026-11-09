@@ -56,6 +56,8 @@ def _render(
             return allowed_groups
         if name == "sso" and terms[1] == "oauth2_any_email":
             return any_email
+        if name == "sso" and terms[1] == "oauth2_allow_all_users":
+            return False
         if name in ("sso_cookie_domains", "engine"):
             return ""
         if name == "sso_whitelist_domains":

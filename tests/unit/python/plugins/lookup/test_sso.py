@@ -52,6 +52,7 @@ def _apps(
     oauth2_acl=None,
     oauth2_allowed_groups=None,
     oauth2_pass_access_token=None,
+    oauth2_allow_all_users=None,
     include_app=True,
 ):
     if not include_app:
@@ -71,6 +72,8 @@ def _apps(
         oauth2_sub["allowed_groups"] = oauth2_allowed_groups
     if oauth2_pass_access_token is not None:
         oauth2_sub["pass_access_token"] = oauth2_pass_access_token
+    if oauth2_allow_all_users is not None:
+        oauth2_sub["allow_all_users"] = oauth2_allow_all_users
     if oauth2_sub:
         sso["oauth2"] = oauth2_sub
     return {"web-app-x": {"services": {"sso": sso}}}
@@ -196,6 +199,33 @@ class SsoLookupTests(unittest.TestCase):
             ["web-app-x", "oauth2_pass_access_token"],
         )
         self.assertEqual(result, [False])
+
+    def test_allow_all_users_defaults_to_false(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2"),
+            ["web-app-x", "oauth2_allow_all_users"],
+        )
+        self.assertEqual(result, [False])
+
+    def test_allow_all_users_reads_the_declared_opt_in(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2", oauth2_allow_all_users="True"),
+            ["web-app-x", "oauth2_allow_all_users"],
+        )
+        self.assertEqual(result, [True])
+
+    def test_allow_all_users_with_allowed_groups_fails_the_lookup(self):
+        with self.assertRaises(AnsibleError) as ctx:
+            self._run(
+                _apps(
+                    enabled=True,
+                    flavor="oauth2",
+                    oauth2_allowed_groups=["/roles/web-app-x/admin"],
+                    oauth2_allow_all_users=True,
+                ),
+                ["web-app-x", "oauth2_allowed_groups"],
+            )
+        self.assertIn("web-app-x", str(ctx.exception))
 
     def test_is_proxy_gated_false_for_oidc(self):
         result = self._run(
