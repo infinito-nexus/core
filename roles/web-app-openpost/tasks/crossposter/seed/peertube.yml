@@ -20,7 +20,7 @@
       client_secret: "{{ item.json.client_secret }}"
       grant_type: password
       username: "{{ OPENPOST_SEED_PEERTUBE_USERNAME }}"
-      password: "{{ lookup('users', 'administrator').password }}"
+      password: "{{ OPENPOST_SEED_PEERTUBE_PASSWORD }}"
     status_code: 200
   loop: "{{ openpost_crossposter_peertube_clients.results }}"
   loop_control:
