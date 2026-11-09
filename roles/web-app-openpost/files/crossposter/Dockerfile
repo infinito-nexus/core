@@ -11,7 +11,8 @@ RUN groupadd --system --gid "${CROSSPOSTER_UID}" crossposter \
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir "psycopg[binary]==3.2.10" "pillow==11.3.0"
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY crossposter ./crossposter
 
