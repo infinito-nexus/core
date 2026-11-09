@@ -17,7 +17,6 @@ location {{location}}
 
   client_max_body_size {{ webserver_client_max_body_size | default(lookup('config', application_id, 'server.client_max_body_size', '100m')) }};
 
-  {# proxy_pass forwards the raw URI, and a Java upstream reads `..;` as `..`, which walks past a location ACL nginx matched on the normalized path. #}
   if ($request_uri ~* "(^|/)(\.|%2e){2}(;|%3b)") {
     return 400;
   }
