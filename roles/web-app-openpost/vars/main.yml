@@ -4,8 +4,8 @@ container_port: "{{ lookup('config', application_id, 'services.openpost.ports.in
 
 OPENPOST_NAME: "{{ lookup('config', application_id, 'services.openpost.name') }}"
 OPENPOST_RELAY_NAME: "{{ lookup('config', application_id, 'services.relay.name') }}"
-OPENPOST_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
-OPENPOST_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if DEPLOYMENT_MODE == 'compose' else '127.0.0.1' }}:{{ lookup('config', application_id, 'services.openpost.ports.local.http') }}"
+OPENPOST_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
+OPENPOST_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ lookup('config', application_id, 'services.openpost.ports.local.http') }}"
 OPENPOST_API_HEADERS:
   Host: "{{ lookup('domain', application_id) }}"
   X-Forwarded-Proto: "{{ OPENPOST_URL | urlsplit('scheme') }}"
@@ -32,11 +32,11 @@ OPENPOST_TRUSTED_PROXY_CIDRS: >-
 
 OPENPOST_ADMIN_USERNAME: "{{ lookup('users', 'web-app-openpost-breakglass').username }}"
 OPENPOST_ADMIN_PASSWORD: "{{ lookup('users', 'web-app-openpost-breakglass').password }}"
-OPENPOST_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email | regex_replace('@', '+' ~ OPENPOST_ADMIN_USERNAME ~ '@') }}"
+OPENPOST_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email | regex_replace('@', '+' ~ OPENPOST_ADMIN_USERNAME ~ '@') }}"
 OPENPOST_ORGANISATION_WORKSPACE: "{{ SOFTWARE_NAME }}"
 
 OPENPOST_BOOTSTRAP_ADMINS:
-  - "{{ lookup('users', 'administrator').email }}"
+  - "{{ lookup('users', 'platform_administrator').email }}"
 
 OPENPOST_RELAY_SIBLINGS:
   mastodon: web-app-mastodon
@@ -57,7 +57,7 @@ OPENPOST_PINNED_INSTANCES: >-
   {%- set _instances = [] -%}
   {%- for _key in ['mastodon', 'pixelfed'] -%}
   {%- if lookup('config', application_id, 'services.' ~ _key ~ '.enabled') | bool -%}
-  {%- set _url = lookup('tls', OPENPOST_RELAY_SIBLINGS[_key], 'url.base') | regex_replace('/+$', '') -%}
+  {%- set _url = lookup('tls', OPENPOST_RELAY_SIBLINGS[_key], 'url.origin') -%}
   {%- if _url is not search('\\.onion$') -%}
   {%- set _ = _instances.append({'platform': _key, 'url': _url, 'name': _url ~ '/'}) -%}
   {%- endif -%}
@@ -86,8 +86,8 @@ OPENPOST_PROVIDER_BUILD_CONTEXT: "{{ [lookup('container', application_id, 'direc
 OPENPOST_PROVIDER_IMAGE: "openpost_provider_custom"
 OPENPOST_PROVIDER_BASE_IMAGE: "{{ OPENPOST_PROVIDER.image }}"
 OPENPOST_PROVIDER_BASE_VERSION: "{{ OPENPOST_PROVIDER.version }}"
-OPENPOST_PROVIDER_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if DEPLOYMENT_MODE == 'compose' else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
-OPENPOST_PROVIDER_BROWSER_URL: "http://{{ 'host.docker.internal' if DEPLOYMENT_MODE == 'compose' else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
+OPENPOST_PROVIDER_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
+OPENPOST_PROVIDER_BROWSER_URL: "http://{{ 'host.docker.internal' if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
 OPENPOST_LINKEDIN_CALLBACK: "{{ OPENPOST_URL }}/api/v1/accounts/linkedin/callback"
 OPENPOST_SIMULATOR_KEYSTORE_PASSWORD: "simulator"
 
@@ -140,4 +140,6 @@ OPENPOST_CROSSPOSTER_SEED_PROBES:
   pixelfed: /api/v1/accounts/verify_credentials
   peertube: /api/v1/users/me
 OPENPOST_PIXELFED_PHP_USER: "33"
+OPENPOST_PIXELFED_APP_DIR: "{{ lookup('volume', 'web-app-pixelfed', 'data').target | dirname }}"
 OPENPOST_SEED_PEERTUBE_USERNAME: "root"
+OPENPOST_SEED_PEERTUBE_PASSWORD: "{{ (lookup('users', 'platform_administrator').password | string)[:50] }}"
