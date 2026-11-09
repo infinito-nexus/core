@@ -184,43 +184,21 @@ class TestRenderProxyPassSwarm(unittest.TestCase):
             "    proxy_pass http://$proxy_pass_upstream/logout;",
         )
 
-    def test_location_ignored_in_swarm(self):
-        a = render_proxy_pass("x_app:80", "swarm", tail="request", location="/sub")
-        b = render_proxy_pass("x_app:80", "swarm", tail="request", location="/")
-        self.assertEqual(a, b)
-
     def test_host_gateway_renders_literal_not_resolver(self):
         out = render_proxy_pass(
             "host.docker.internal:8021", "swarm", tail="request", host_gateway=True
         )
-        self.assertEqual(out, "proxy_pass http://host.docker.internal:8021/;")
+        self.assertEqual(out, "proxy_pass http://host.docker.internal:8021;")
         self.assertNotIn("set $", out)
 
 
 class TestRenderProxyPassCompose(unittest.TestCase):
-    def test_app_root_location_keeps_slash(self):
-        out = render_proxy_pass(
-            "127.0.0.1:8017", "compose", tail="request", location="/"
-        )
-        self.assertEqual(out, "proxy_pass http://127.0.0.1:8017/;")
-
-    def test_app_regex_location_no_suffix(self):
-        out = render_proxy_pass(
-            "127.0.0.1:8032",
-            "compose",
-            tail="request",
-            location="~ ^/realms/[^/]+/protocol/",
-        )
-        self.assertEqual(out, "proxy_pass http://127.0.0.1:8032;")
-
-    def test_app_modifier_stripped(self):
-        out = render_proxy_pass(
-            "127.0.0.1:80", "compose", tail="request", location="^~ /assets"
-        )
-        self.assertEqual(out, "proxy_pass http://127.0.0.1:80/assets;")
+    def test_app_request_forwards_the_raw_uri(self):
+        out = render_proxy_pass("127.0.0.1:8017", "compose", tail="request")
+        self.assertEqual(out, "proxy_pass http://127.0.0.1:8017;")
 
     def test_plain_no_suffix(self):
-        out = render_proxy_pass("127.0.0.1:8017", "compose", tail="plain", location="/")
+        out = render_proxy_pass("127.0.0.1:8017", "compose", tail="plain")
         self.assertEqual(out, "proxy_pass http://127.0.0.1:8017;")
 
     def test_oauth2_no_suffix(self):
