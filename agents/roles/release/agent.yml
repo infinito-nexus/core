@@ -7,7 +7,14 @@ repositories:
 firewall_roles:
   - release
 skills:
+  - i8-release
+  - i8-release-changelog
   - i8-release-article
+  - i8-release-linkedin
+  - i8-release-mastodon
+  - i8-release-whatsapp
+  - i8-release-newsletter
+  - i8-release-instagram
 models:
   local:
     - ollama
