@@ -4,7 +4,7 @@
 - name: "🧭 Remember the public view of this deploy for the CLI probe"
   ansible.builtin.set_fact:
     openpost_public_view:
-      proxy_address: "{{ hostvars[STACK_HOST].ansible_facts.default_ipv4.address if DEPLOYMENT_MODE == 'swarm' else '' }}"
+      proxy_address: "{{ hostvars[STACK_HOST].ansible_facts.default_ipv4.address if IS_SWARM_MODE else '' }}"
       public_url: "{{ OPENPOST_URL }}"
       api_headers: "{{ OPENPOST_API_HEADERS }}"
       s3_public_url: "{{ lookup('objstore', application_id, 'public_url') | regex_replace('/?$', '/') if OPENPOST_OBJSTORE_ENABLED | bool else '' }}"
@@ -66,12 +66,12 @@
   include_tasks: 03_breakglass.yml
   when: IS_STACK_HOST | bool
 
-- name: "🔑 Provision the crossposter API token"
-  include_tasks: crossposter/provision.yml
-  when:
-    - OPENPOST_CROSSPOSTER_ENABLED | bool
-    - IS_STACK_HOST | bool
-
-- name: "✅ Apply and validate the crossposter"
-  include_tasks: crossposter/apply.yml
+- name: "📮 Provision, apply and validate the crossposter"
   when: OPENPOST_CROSSPOSTER_ENABLED | bool
+  block:
+    - name: "🔑 Provision the crossposter API token"
+      include_tasks: crossposter/provision.yml
+      when: IS_STACK_HOST | bool
+
+    - name: "✅ Apply and validate the crossposter"
+      include_tasks: crossposter/apply.yml
