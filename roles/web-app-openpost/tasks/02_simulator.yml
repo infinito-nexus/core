@@ -95,9 +95,10 @@
       - -certfile
       - "{{ OPENPOST_SIMULATOR_DIR }}/ca.crt"
       - -passout
-      - "pass:{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}"
+      - stdin
       - -out
       - "{{ OPENPOST_SIMULATOR_DIR }}/keystore.p12"
+    stdin: "{{ OPENPOST_SIMULATOR_KEYSTORE_PASSWORD }}"
     creates: "{{ OPENPOST_SIMULATOR_DIR }}/keystore.p12"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
