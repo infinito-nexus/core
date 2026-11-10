@@ -12,7 +12,8 @@ from . import PROJECT_ROOT
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Update semver-based git `ref:` values in roles/*/meta/services.yml."
+            "Update semver and commit-SHA git `ref:` values in "
+            "roles/*/meta/services.yml and roles/*/meta/addons/*.yml."
         )
     )
     parser.add_argument(

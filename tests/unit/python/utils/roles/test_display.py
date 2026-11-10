@@ -12,7 +12,7 @@ class TestRoleDisplayName(unittest.TestCase):
 
     def test_encode_runs_the_category_labels_together_before_the_heading(self):
         self.assertEqual(
-            f"{''.join(self.codec.category_labels(APP))}·{self.codec.title(APP)}",
+            f"{''.join(self.codec.category_labels(APP))}{self.codec.title(APP)}",
             self.codec.encode(APP),
         )
 
@@ -22,15 +22,12 @@ class TestRoleDisplayName(unittest.TestCase):
             len(self.codec.title(long_heading)),
             len(self.codec.id_fragment(long_heading)),
         )
-        self.assertTrue(
-            self.codec.encode(long_heading).endswith(
-                f"·{self.codec.id_fragment(long_heading)}"
-            ),
+        self.assertEqual(
+            "".join(self.codec.category_labels(long_heading))
+            + self.codec.id_fragment(long_heading),
             self.codec.encode(long_heading),
         )
-        self.assertEqual(
-            "系统控制告警·compose", self.codec.encode("sys-ctl-alm-compose")
-        )
+        self.assertEqual("𓉐𓌀𓌉compose", self.codec.encode("sys-ctl-alm-compose"))
 
     def test_the_id_section_drops_what_the_categories_already_say(self):
         self.assertEqual("nextcloud", self.codec.id_fragment(APP))
@@ -44,6 +41,13 @@ class TestRoleDisplayName(unittest.TestCase):
     def test_decode_reverses_encode_with_and_without_a_variant(self):
         for variant in ("", "0", "0,1"):
             self.assertEqual(APP, self.codec.decode(self.codec.encode(APP, variant)))
+
+    def test_decode_still_reads_the_dotted_name_of_older_runs(self):
+        glyphs = "".join(self.codec.category_labels(APP))
+        dotted = self.codec.encode(APP).replace(glyphs, f"{glyphs}·", 1)
+        self.assertNotEqual(dotted, self.codec.encode(APP))
+        self.assertEqual(APP, self.codec.decode(dotted))
+        self.assertEqual(APP, self.codec.decode(f"{dotted}#2"))
 
     def test_decode_passes_a_role_id_through(self):
         self.assertEqual(APP, self.codec.decode(APP))

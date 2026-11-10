@@ -1,7 +1,18 @@
-"""Integration guard: every ``<NAME>_SERVICE_ENABLED=`` flag declared
-in a role's ``templates/playwright.env.j2`` MUST be gated by at least
-one ``service-gating`` helper call in the role's
+"""Integration guard on the two directions of the service-gate contract.
+
+Forwards: every ``<NAME>_SERVICE_ENABLED=`` flag declared in a role's
+``templates/playwright.env.j2`` MUST be gated by at least one
+``service-gating`` helper call in the role's
 ``files/playwright/playwright.spec.js``.
+
+Backwards: every service a role's own specs gate through one of the
+STRICT helpers MUST have its flag declared in that role's env
+template. The strict helpers raise on a service the env registry does
+not know, so an undeclared gate fails the scenario at runtime — in a
+swarm round that costs a two-hour job to learn a typo. The tolerant
+``safeSkipUnlessEnabled`` / ``safeIsEnabled`` pair exists precisely to
+read an unknown service as disabled, so gates made through them are
+exempt.
 
 Scope
 -----
@@ -76,9 +87,28 @@ _BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
 
 _FLAG_LINE_RE = re.compile(r"^\s*([A-Z][A-Z0-9_]*)_SERVICE_ENABLED\s*=")
 _HELPER_CALL_RE = re.compile(
-    r"\b(?:requireService|skipUnlessServiceEnabled|isServiceEnabled|"
+    r"\b(?:requireService|skipUnlessServiceEnabled|skipUnlessServiceDisabled|isServiceEnabled|"
     r"isServiceDisabledReason|safeSkipUnlessEnabled|safeIsEnabled)\s*\(\s*['\"]([^'\"]+)['\"]"
 )
+_STRICT_HELPER_CALL_RE = re.compile(
+    r"\b(?:requireService|skipUnlessServiceEnabled|skipUnlessServiceDisabled|isServiceEnabled|"
+    r"isServiceDisabledReason)\s*\(\s*['\"]([^'\"]+)['\"]"
+)
+_LINE_COMMENT_RE = re.compile(r"^\s*//.*$", re.MULTILINE)
+
+
+def _js_files_under(spec_dir: Path) -> list[str]:
+    """Return every ``.js`` path beneath one role's playwright directory.
+
+    Args:
+        spec_dir: the role's ``files/playwright`` directory.
+    """
+    prefix = f"{spec_dir}/"
+    return sorted(
+        path
+        for path in iter_project_files(extensions=(".js",))
+        if path.startswith(prefix)
+    )
 
 
 def _service_to_env_key_root(name: str) -> str:
@@ -125,9 +155,7 @@ def _gated_roots_in_spec(spec_path: Path) -> set[str]:
     and crediting those would exempt EMAIL, SSO and OICD for every role that
     requires it.
     """
-    spec_dir_texts = [
-        read_text(str(js_path)) for js_path in sorted(spec_path.parent.glob("*.js"))
-    ]
+    spec_dir_texts = [read_text(path) for path in _js_files_under(spec_path.parent)]
     for name in {m for text in spec_dir_texts for m in _LOCAL_REQUIRE_RE.findall(text)}:
         harness_path = (
             PROJECT_ROOT / _SHARED_HARNESS_DIR / f"{name.removesuffix('.js')}.js"
@@ -154,6 +182,26 @@ def _gated_roots_in_spec(spec_path: Path) -> set[str]:
             )
 
     return roots
+
+
+def _strict_gates_in_role_specs(spec_path: Path) -> dict[str, set[str]]:
+    """``{env_key_root: {spec file names}}`` for every strict gate made by
+    the role's OWN playwright files.
+
+    The shared harness and the personas directory are deliberately not
+    credited here: they gate services of whichever role stages them, so
+    their calls say nothing about what this role's env template must
+    declare. Comments are stripped first, since several specs quote a
+    helper call in their header to describe the scenario.
+    """
+    gates: dict[str, set[str]] = {}
+    for js_path in _js_files_under(spec_path.parent):
+        text = _LINE_COMMENT_RE.sub("", _BLOCK_COMMENT_RE.sub("", read_text(js_path)))
+        for name in _STRICT_HELPER_CALL_RE.findall(text):
+            gates.setdefault(_service_to_env_key_root(name), set()).add(
+                js_path.rsplit("/", 1)[-1]
+            )
+    return gates
 
 
 class TestPlaywrightSpecGatesEnvFlags(unittest.TestCase):
@@ -191,6 +239,38 @@ class TestPlaywrightSpecGatesEnvFlags(unittest.TestCase):
             self.fail(
                 "Playwright env flags declared but never gated by the "
                 "spec:\n" + "\n".join(f"  - {o}" for o in offenders)
+            )
+
+    def test_every_strict_gate_has_a_declared_flag(self):
+        offenders: list[str] = []
+
+        for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
+            env_path = role_dir / _ENV_TEMPLATE_REL
+            spec_path = role_dir / _SPEC_FILE_REL
+            if not env_path.is_file() or not spec_path.is_file():
+                continue
+
+            declared = {root for _, root in _flag_lines_in_env(env_path)}
+
+            for root, files in sorted(_strict_gates_in_role_specs(spec_path).items()):
+                if root in declared:
+                    continue
+
+                offenders.append(
+                    f"{role_dir.name}: {', '.join(sorted(files))} gates "
+                    f'"{root.lower()}" through a strict helper, but '
+                    f"{_ENV_TEMPLATE_REL} declares no "
+                    f"`{root}_SERVICE_ENABLED=`. The helper raises on an "
+                    f"unknown service, so the scenario fails at runtime. "
+                    f"Declare the flag, correct the service name, or use "
+                    f"`safeSkipUnlessEnabled` when the service is "
+                    f"legitimately absent from the registry."
+                )
+
+        if offenders:
+            self.fail(
+                "Playwright gates on services no env template declares:\n"
+                + "\n".join(f"  - {o}" for o in offenders)
             )
 
 

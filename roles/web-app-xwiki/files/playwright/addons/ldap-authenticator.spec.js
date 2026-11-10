@@ -4,15 +4,15 @@ const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
-  decodeDotenvQuotedValue,
-  normalizeBaseUrl,
   gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
 } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
 
 test("ldap-authenticator: XWiki enforces its LDAP-backed native credential form on protected pages", async ({ page }) => {

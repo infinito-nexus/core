@@ -10,9 +10,10 @@ Forbidden (with fix):
   Write the ``.list`` via ``ansible.builtin.copy`` (the repo's apt_repo.sh keeps
   the canonical .list and deletes .sources, so deb822_repository is unusable
   here) plus an explicit ``apt: update_cache``.
-* ``community.mysql.*`` -- the collection moved to ``ansible.mysql`` (community
-  removes it in 6.0.0). Use ``ansible.mysql.<module>`` and keep ``ansible.mysql``
-  in requirements/requirements.galaxy.yml.
+* ``community.mysql.*`` / ``ansible.mysql.*`` -- every database this project
+  runs is MariaDB, which ``ansible.mysql`` warns about and drops in 6.0.0. Use
+  ``ansible.mariadb.mariadb_<module>`` and keep ``ansible.mariadb`` in both
+  requirements files.
 * top-level injected gathered facts (``ansible_os_family`` and friends) --
   ``INJECT_FACTS_AS_VARS`` default is deprecated. Use ``ansible_facts['<name>']``.
   Only gathered facts are denied; magic/connection vars (ansible_version, host,
@@ -86,9 +87,9 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
         "deprecated module -> write the .list via ansible.builtin.copy + apt update_cache",
     ),
     (
-        "community.mysql",
-        re.compile(r"\bcommunity\.mysql\."),
-        "collection renamed -> use ansible.mysql.<module> (add ansible.mysql to galaxy reqs)",
+        "mysql-collection",
+        re.compile(r"\b(?:community|ansible)\.mysql\."),
+        "MariaDB leaves the mysql collection in 6.0.0 -> use ansible.mariadb.mariadb_<module> (ansible.mariadb in both requirements files)",
     ),
     (
         "injected-fact",

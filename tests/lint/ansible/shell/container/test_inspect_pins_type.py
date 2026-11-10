@@ -6,7 +6,7 @@ Rationale
 ``docker inspect`` without ``--type`` searches every object kind and
 returns the first match. This repository names a role's overlay network
 after the role entity (``sys-svc-compose/tasks/utils/network/create.yml``
-uses ``network_role_id | get_entity_name``), which for a role whose main
+uses ``network_role_id | entity_name``), which for a role whose main
 service carries the entity name is byte-identical to its container name.
 
 An untyped inspect can therefore resolve the *network* and report

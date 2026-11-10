@@ -2,9 +2,40 @@ import re
 import unittest
 
 from utils.packages.calls import STATE_ABSENT, STATE_PRESENT
-from utils.packages.plan import build_plan
-from utils.packages.schema import SOURCE_AUR, SOURCE_BUILD, SOURCE_COPR, PackageSpec
-from utils.packages.sources import AUR_BUILDER_USER, PACMAN_CONF
+from utils.packages.installed import deb_pin_argv
+from utils.packages.plan import build_plan, merge_plans
+from utils.packages.schema import (
+    SOURCE_AUR,
+    SOURCE_BUILD,
+    SOURCE_COPR,
+    SOURCE_DOWNLOAD,
+    SOURCE_FLATPAK,
+    PackageSpec,
+)
+from utils.packages.sources import (
+    AUR_BUILDER_USER,
+    DOWNLOAD_CACHE_DIR,
+    FLATPAK_COMMAND_DIR,
+    FLATPAK_EXPORT_DIR,
+    PACMAN_CONF,
+)
+
+
+def _only(plan, module):
+    """Return the single call to *module*, failing when it is not unique."""
+    calls = [call for call in plan if call.module == module]
+    assert len(calls) == 1, f"{module} appears {len(calls)} times"
+    return calls[0]
+
+
+_DEB = {
+    "url": "https://vendor.example/pool/editor_1.2.3_amd64.deb",
+    "checksum": "sha256:" + "a" * 64,
+}
+_RPM = {
+    "url": "https://vendor.example/pool/editor-1.2.3.el8.x86_64.rpm",
+    "checksum": "sha256:" + "b" * 64,
+}
 
 
 class TestExternalFetchRetries(unittest.TestCase):
@@ -187,6 +218,221 @@ class TestBuildPlan(unittest.TestCase):
             _modules(plan),
             ["ansible.builtin.yum_repository", "ansible.builtin.package"],
         )
+
+
+class TestDownloadSource(unittest.TestCase):
+    """A vendor artefact is fetched against its pin and installed from disk,
+    so what the package manager receives is the file the registry describes."""
+
+    def test_the_deb_is_fetched_with_its_checksum_then_installed(self):
+        plan = build_plan(
+            PackageSpec(("editor",), source=SOURCE_DOWNLOAD, download=_DEB),
+            STATE_PRESENT,
+        )
+        self.assertEqual(
+            _modules(plan),
+            [
+                "ansible.builtin.package",
+                "ansible.builtin.file",
+                "ansible.builtin.get_url",
+                "ansible.builtin.apt",
+                "ansible.builtin.package",
+            ],
+        )
+        tools, cache, fetch, install, confirm = plan
+        self.assertEqual(tools.args["name"], ["xz-utils"])
+        self.assertEqual(cache.args["path"], DOWNLOAD_CACHE_DIR)
+        self.assertEqual(cache.args["owner"], "root")
+        self.assertEqual(confirm.args["name"], ["editor"])
+        self.assertEqual(fetch.args["url"], _DEB["url"])
+        self.assertEqual(fetch.args["checksum"], _DEB["checksum"])
+        self.assertEqual(
+            fetch.args["dest"], f"{DOWNLOAD_CACHE_DIR}/editor_1.2.3_amd64.deb"
+        )
+        self.assertEqual(install.args, {"deb": fetch.args["dest"]})
+
+    def test_the_deb_install_is_the_call_the_minimum_check_reads(self):
+        plan = build_plan(
+            PackageSpec(("editor",), source=SOURCE_DOWNLOAD, download=_DEB),
+            STATE_PRESENT,
+        )
+        install = _only(plan, "ansible.builtin.apt")
+        self.assertEqual(
+            deb_pin_argv(install),
+            [
+                "dpkg-deb",
+                "--field",
+                f"{DOWNLOAD_CACHE_DIR}/editor_1.2.3_amd64.deb",
+                "Package",
+                "Version",
+            ],
+        )
+
+    def test_the_rpm_is_installed_from_the_fetched_path(self):
+        plan = build_plan(
+            PackageSpec(("editor",), source=SOURCE_DOWNLOAD, download=_RPM),
+            STATE_PRESENT,
+        )
+        self.assertEqual(
+            _modules(plan),
+            [
+                "ansible.builtin.file",
+                "ansible.builtin.get_url",
+                "ansible.builtin.dnf",
+                "ansible.builtin.package",
+            ],
+        )
+        _cache, fetch, install, confirm = plan
+        self.assertEqual(install.args["name"], [fetch.args["dest"]])
+        self.assertEqual(install.args["state"], STATE_PRESENT)
+        self.assertEqual(confirm.args["name"], ["editor"])
+
+    def test_an_unsupported_artefact_is_refused(self):
+        spec = PackageSpec(
+            ("editor",),
+            source=SOURCE_DOWNLOAD,
+            download={"url": "https://vendor.example/editor.AppImage", "checksum": "x"},
+        )
+        with self.assertRaises(ValueError) as caught:
+            build_plan(spec, STATE_PRESENT)
+        self.assertIn(".AppImage", str(caught.exception))
+
+    def test_a_query_string_does_not_hide_the_artefact_type(self):
+        spec = PackageSpec(
+            ("editor",),
+            source=SOURCE_DOWNLOAD,
+            download={**_DEB, "url": _DEB["url"] + "?token=abc"},
+        )
+        plan = build_plan(spec, STATE_PRESENT)
+        self.assertIn("ansible.builtin.apt", _modules(plan))
+        fetch = _only(plan, "ansible.builtin.get_url")
+        self.assertEqual(
+            fetch.args["dest"], f"{DOWNLOAD_CACHE_DIR}/editor_1.2.3_amd64.deb"
+        )
+
+    def test_the_source_without_its_block_is_refused(self):
+        spec = PackageSpec(("editor",), source=SOURCE_DOWNLOAD)
+        with self.assertRaises(ValueError):
+            build_plan(spec, STATE_PRESENT)
+
+    def test_the_fetch_is_retried(self):
+        plan = build_plan(
+            PackageSpec(("editor",), source=SOURCE_DOWNLOAD, download=_DEB),
+            STATE_PRESENT,
+        )
+        self.assertIsNotNone(_only(plan, "ansible.builtin.get_url").retry)
+
+    def test_removal_goes_through_the_host_manager(self):
+        plan = build_plan(
+            PackageSpec(("editor",), source=SOURCE_DOWNLOAD, download=_DEB),
+            STATE_ABSENT,
+        )
+        self.assertEqual(_modules(plan), ["ansible.builtin.package"])
+        self.assertEqual(plan[0].args["name"], ["editor"])
+
+
+class TestFlatpakSource(unittest.TestCase):
+    """A Flatpak id is installed from a remote and exposed under the name the
+    role actually invokes."""
+
+    def test_the_runtime_and_remote_come_before_the_application(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        self.assertEqual(
+            _modules(build_plan(spec, STATE_PRESENT)),
+            [
+                "ansible.builtin.package",
+                "community.general.flatpak_remote",
+                "community.general.flatpak",
+            ],
+        )
+
+    def test_a_declared_command_is_linked_onto_the_path(self):
+        spec = PackageSpec(
+            ("org.blender.Blender",),
+            source=SOURCE_FLATPAK,
+            flatpak={"command": "blender"},
+        )
+        link = build_plan(spec, STATE_PRESENT)[-1]
+        self.assertEqual(link.module, "ansible.builtin.file")
+        self.assertEqual(link.args["state"], "link")
+        self.assertEqual(link.args["dest"], f"{FLATPAK_COMMAND_DIR}/blender")
+        self.assertEqual(link.args["src"], f"{FLATPAK_EXPORT_DIR}/org.blender.Blender")
+
+    def test_without_a_command_nothing_is_linked(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        self.assertNotIn(
+            "ansible.builtin.file", _modules(build_plan(spec, STATE_PRESENT))
+        )
+
+    def test_the_remote_and_the_install_are_retried(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        retried = {
+            call.module for call in build_plan(spec, STATE_PRESENT) if call.retry
+        }
+        self.assertEqual(
+            retried,
+            {
+                "ansible.builtin.package",
+                "community.general.flatpak_remote",
+                "community.general.flatpak",
+            },
+        )
+
+    def test_removal_goes_through_the_host_manager(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        self.assertEqual(
+            _modules(build_plan(spec, STATE_ABSENT)), ["ansible.builtin.package"]
+        )
+
+
+def _plan(*names, **spec):
+    return build_plan(PackageSpec(tuple(names), **spec), STATE_PRESENT)
+
+
+def _names(call):
+    return call.args["name"]
+
+
+class TestMergePlans(unittest.TestCase):
+    def test_plain_plans_share_one_call(self):
+        merged = merge_plans([_plan("git"), _plan("curl", "jq")])
+        self.assertEqual(len(merged), 1)
+        self.assertEqual([_names(call) for call in merged[0]], [["git", "curl", "jq"]])
+
+    def test_a_name_requested_twice_is_installed_once(self):
+        merged = merge_plans([_plan("git"), _plan("git")])
+        self.assertEqual(_names(merged[0][0]), ["git"])
+
+    def test_bootstrap_packages_install_before_every_name(self):
+        epel = {"repo": {"bootstrap_package": "epel-release"}}
+        merged = merge_plans(
+            [_plan("git"), _plan("micro", **epel), _plan("jq", **epel)]
+        )
+        self.assertEqual(
+            [_names(call) for call in merged[0]],
+            [["epel-release"], ["git", "micro", "jq"]],
+        )
+
+    def test_a_plan_with_other_modules_runs_unchanged_after_the_merged_one(self):
+        aur = _plan("caffeine", source=SOURCE_AUR)
+        merged = merge_plans([aur, _plan("git")])
+        self.assertEqual([_names(call) for call in merged[0]], [["git"]])
+        self.assertEqual(merged[1], aur)
+
+    def test_plans_of_different_states_never_merge(self):
+        absent = build_plan(PackageSpec(("postfix",)), STATE_ABSENT)
+        merged = merge_plans([_plan("git"), absent])
+        self.assertEqual(
+            [(call.args["state"], _names(call)) for plan in merged for call in plan],
+            [(STATE_PRESENT, ["git"]), (STATE_ABSENT, ["postfix"])],
+        )
+
+    def test_no_plans_merge_to_nothing(self):
+        self.assertEqual(merge_plans([]), [])
+
+    def test_the_merged_call_keeps_the_retry_policy(self):
+        merged = merge_plans([_plan("git"), _plan("curl")])
+        self.assertIsNotNone(merged[0][0].retry)
 
 
 if __name__ == "__main__":

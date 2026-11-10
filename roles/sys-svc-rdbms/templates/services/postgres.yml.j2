@@ -5,9 +5,9 @@
 {% set _libraries = lookup('postgres_libraries', _extensions) %}
   {{ lookup('database', application_id, 'host') }}:
     {{ lookup('container_deploy', replicas=1) | indent(4) }}
-    {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-database')) }}
+    {{ lookup('compose_only', 'container_name', ((application_id | entity_name) ~ '-database')) }}
 {% if _libraries | length > 0 %}
-    {{ lookup('container_image', 'svc-db-postgres', 'postgres', image=(application_id | get_entity_name ~ '-database'), version=lookup('database', application_id, 'version')) }}
+    {{ lookup('container_image', 'svc-db-postgres', 'postgres', image=(application_id | entity_name ~ '-database'), version=lookup('database', application_id, 'version')) }}
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     build:
       context: {{ lookup('database', application_id, 'build_dir') }}

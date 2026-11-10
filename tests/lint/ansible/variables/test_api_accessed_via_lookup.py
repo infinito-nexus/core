@@ -4,7 +4,7 @@ Rationale
 =========
 A bare ``API.github.client_id`` resolves against whatever the scope happens to
 hold, and an inventory override replaces the declaration rather than merging
-into it -- ``utils/api.py`` carries the mechanism and the consequences.
+into it -- ``utils/cache/api.py`` carries the mechanism and the consequences.
 ``lookup('api', '<provider>.<key>')`` and ``lookup('api_enabled', '<provider>')``
 merge the override over ``group_vars/all/18_api.yml``, so an override narrows
 values and never the provider set. Routing every access through them also keeps

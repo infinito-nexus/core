@@ -1,7 +1,7 @@
 """Contract of the retried image builds in the sys-svc-compose handlers.
 
-Both build tasks retry a transient network fault instead of immediately
-rebuilding without cache, and fall back to a cache-discarding rebuild only once
+Every build task retries a transient network fault instead of immediately
+rebuilding without cache, and falls back to a cache-discarding rebuild only once
 the spaced retries are exhausted. Two properties keep that safe and are pinned
 here: the worst-case wall clock of the ladder plus its fallback must stay under
 the per-distro sweep budget and the deploy step cap, and the fallback must exist
@@ -30,6 +30,7 @@ DEPLOY_WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "call-test-deploy.yml
 BUILDS = {
     "_swarm_pre_deploy_build": SWARM,
     "compose_build": COMPOSE,
+    "compose_service_up_build": COMPOSE,
 }
 TIMEOUT_LOOKUP = re.compile(r"lookup\('timeout',\s*(\d+)\s*\)")
 

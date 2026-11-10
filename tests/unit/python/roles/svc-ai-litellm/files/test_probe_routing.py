@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+from typing import ClassVar
+
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
@@ -210,6 +214,149 @@ class TestNoBackendDeployment(unittest.TestCase):
 
     def test_the_chat_model_is_not_demanded_when_nothing_serves_it(self) -> None:
         self.assertEqual(verdict(chat_model=ALIAS), [])
+
+
+class TestRouterAlias(unittest.TestCase):
+    """The router alias is served by no backend, so it is accounted separately."""
+
+    def test_a_served_router_alias_is_not_read_as_an_unbacked_route(self) -> None:
+        self.assertEqual(
+            verdict(
+                served={ALIAS, "auto"},
+                expected=[ALIAS, "auto"],
+                chat_model=ALIAS,
+                chat_model_served=True,
+                ollama_enabled=True,
+                router_alias="auto",
+            ),
+            [],
+        )
+
+    def test_a_declared_router_alias_the_gateway_withholds_fails(self) -> None:
+        failures = verdict(
+            served={ALIAS},
+            expected=[ALIAS],
+            chat_model=ALIAS,
+            chat_model_served=True,
+            ollama_enabled=True,
+            router_alias="auto",
+        )
+        self.assertTrue(
+            any("router alias 'auto'" in failure for failure in failures), failures
+        )
+
+
+class TestRouteVerdict(unittest.TestCase):
+    """An answer is only evidence of routing when it names a model that fits."""
+
+    WINDOWS: ClassVar[dict] = {"small": 4096, "medium": 16384, "large": 65536}
+
+    MOCKS: ClassVar[tuple] = ("medium",)
+
+    def verdict(self, served, needed=5461, counted=0, sent=0, mocks=()):
+        return probe.route_verdict(
+            "auto", self.WINDOWS, served, needed, counted, sent, mocks
+        )
+
+    def test_a_backend_that_evaluated_less_than_was_sent_fails(self) -> None:
+        self.assertIn(
+            "silently dropped the rest",
+            self.verdict("medium", counted=4098, sent=8192),
+            "ollama truncates a prompt past the trained window instead of "
+            "refusing it, and reports only the tokens it kept, so the declared "
+            "window cannot show the loss",
+        )
+
+    def test_a_backend_that_evaluated_everything_passes(self) -> None:
+        self.assertEqual(self.verdict("large", counted=8227, sent=8192), "")
+
+    def test_a_backend_that_reports_no_usage_is_not_accused(self) -> None:
+        self.assertEqual(self.verdict("large", counted=0, sent=8192), "")
+
+    def test_a_tokenizer_disagreeing_by_a_few_tokens_is_not_truncation(self) -> None:
+        self.assertEqual(
+            self.verdict("large", counted=8185, sent=8192),
+            "",
+            "a chat template shifts the total either way, so an exact "
+            "comparison would fail a healthy route",
+        )
+
+    def test_a_mock_is_not_accused_of_truncating(self) -> None:
+        self.assertEqual(
+            self.verdict("medium", counted=10, sent=8192, mocks=self.MOCKS),
+            "",
+            "litellm answers a mock route from a canned string and reports its "
+            "own constant prompt token count, so the number carries nothing to "
+            "compare the prompt against",
+        )
+
+    def test_a_mock_is_still_held_to_its_declared_window(self) -> None:
+        self.assertIn(
+            "did not exclude it",
+            self.verdict("small", needed=8192, counted=10, sent=8192, mocks=("small",)),
+            "the exemption covers the truncation number only; a mock routed a "
+            "prompt its declared window cannot hold is still a routing failure, "
+            "which is why the exemption sits after the window check",
+        )
+
+    def test_an_alias_outside_the_mock_list_is_still_accused(self) -> None:
+        self.assertIn(
+            "silently dropped the rest",
+            self.verdict("medium", counted=10, sent=8192, mocks=("other",)),
+        )
+
+    def test_a_model_whose_window_holds_the_prompt_passes(self) -> None:
+        self.assertEqual(self.verdict("medium"), "")
+
+    def test_answering_as_the_alias_itself_fails(self) -> None:
+        self.assertIn("did not rewrite", self.verdict("auto"))
+
+    def test_naming_no_model_fails(self) -> None:
+        self.assertIn("without naming a model", self.verdict(""))
+
+    def test_a_window_too_small_for_the_prompt_fails(self) -> None:
+        self.assertIn("did not exclude it", self.verdict("small"))
+
+    def test_an_undeclared_window_is_not_second_guessed(self) -> None:
+        self.assertEqual(self.verdict("openrouter/auto"), "")
+
+    def test_a_provider_prefixed_answer_is_matched_to_its_window(self) -> None:
+        self.assertIn(
+            "did not exclude it",
+            self.verdict("ollama/small"),
+            "litellm names the resolved model, not the alias, so a literal "
+            "lookup would miss the window and pass every answer",
+        )
+
+    def test_a_provider_prefixed_answer_that_fits_passes(self) -> None:
+        self.assertEqual(self.verdict("ollama/large"), "")
+
+
+SHIPPED_MIN_CHARS_PER_TOKEN = load_yaml(
+    PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
+)["litellm"]["router"]["min_chars_per_token"]
+
+
+class TestOversizedPrompt(unittest.TestCase):
+    """The prompt has to clear the smallest window by the hook's own floor."""
+
+    def test_the_demand_exceeds_the_window_it_targets(self) -> None:
+        _, needed = probe.oversized_prompt(4096, SHIPPED_MIN_CHARS_PER_TOKEN)
+        self.assertGreater(needed, 4096)
+
+    def test_the_demand_stays_inside_the_next_window_up(self) -> None:
+        _, needed = probe.oversized_prompt(4096, SHIPPED_MIN_CHARS_PER_TOKEN)
+        self.assertLess(needed, 65536)
+
+    def test_the_demand_matches_what_the_prompt_really_tokenizes_to(self) -> None:
+        prompt, needed = probe.oversized_prompt(4096, SHIPPED_MIN_CHARS_PER_TOKEN)
+        self.assertGreaterEqual(
+            needed,
+            len(prompt) // 2,
+            "'x ' costs one token per two characters on every tokenizer served "
+            "here, so a demand computed on a larger divisor understates the "
+            "prompt and admits a model that cannot hold it",
+        )
 
 
 if __name__ == "__main__":

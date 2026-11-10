@@ -2,11 +2,15 @@
 application_id: "web-app-matomo"
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.matomo.ports.local.http') }}"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 MATOMO_SERVICE: "{{ entity_name }}"
 MATOMO_NAME: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"
-MATOMO_CONFIG: "/var/www/html/config/config.ini.php"
+MATOMO_HTML_DIR: "{{ lookup('volume', application_id, 'data').target }}"
+MATOMO_RELEASE_DIR: "/usr/src/matomo"
+MATOMO_RUNTIME_OWNER: "www-data:www-data"
+MATOMO_CONFIG: "{{ [MATOMO_HTML_DIR, 'config/config.ini.php'] | path_join }}"
+MATOMO_CONSOLE: "{{ [MATOMO_HTML_DIR, 'console'] | path_join }}"
 MATOMO_SERVICE_URL: "http://{{ MATOMO_SERVICE }}"
 
 MATOMO_BOOTSTRAP_SERVICE: "bootstrap"
@@ -19,14 +23,19 @@ MATOMO_BOOTSTRAP_ATTEMPTS: 3
 MATOMO_INSTALLER_STEP_DEADLINE_S: 420
 MATOMO_BOOTSTRAP_SWARM_POLL_DELAY_S: 15
 
-MATOMO_ADMIN_USER_KEY: "administrator"
-MATOMO_ADMIN_USER_NAME: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).username }}"
-MATOMO_ADMIN_PASSWORD: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).password }}"
-MATOMO_ADMIN_EMAIL: "{{ lookup('users', MATOMO_ADMIN_USER_KEY).email }}"
-MATOMO_SITE_NAME: "{{ lookup('config', application_id, 'services.matomo.site_name') }}"
+MATOMO_ADMIN_USER_NAME: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).username }}"
+MATOMO_ADMIN_PASSWORD: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password }}"
+MATOMO_ADMIN_EMAIL: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).email }}"
+MATOMO_SITE_NAME: "{{ lookup('design', application_id).label }}"
 MATOMO_SITE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 MATOMO_EXCLUDED_IPS: "{{ lookup('config', application_id, 'services.matomo.excluded_ips') }}"
 
 MATOMO_TOKEN_DESCRIPTION: "{{ lookup('config', application_id, 'services.matomo.token.description') }}"
+
+MATOMO_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
+MATOMO_DESIGN_THEME: "InfinitoDesign"
+MATOMO_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'design'] | path_join }}"
+MATOMO_DESIGN_ASSETS: ["logo.svg", "logo.png", "favicon.png"]
+MATOMO_DESIGN_THEME_MODE_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
 
 matomo_index_php_url: "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}/index.php"

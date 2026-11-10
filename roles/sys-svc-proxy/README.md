@@ -10,19 +10,6 @@ It provides automatic TLS integration, WebSocket support, and a flexible templat
 Optimised for Arch Linux, the role installs NGINX, prepares opinionated configuration snippets and exposes a simple interface for other roles to drop in new virtual-hosts.  
 It plays well with **Let’s Encrypt**, **OAuth2 Proxy**, and your existing Docker stack.
 
-## Cosmos
-
-The diagram places NGINX Docker Reverse Proxy in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-svc-proxy 💻]
-        svc_svc_proxy["svc-proxy"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Purpose
 
 The goal of this role is to deliver a **hassle-free, production-ready reverse proxy** for self-hosted containers, suitable for homelabs and small-scale production workloads.
@@ -59,9 +46,3 @@ security_headers:
 | `hsts.*` | `Strict-Transport-Security` | the server block of every TLS vhost, via [nginx_ssl_header.j2](../sys-front-tls/templates/nginx_ssl_header.j2); an onion vhost has no TLS and gets none |
 
 The `security_headers` filter rejects unknown keys, wrong types, unknown `Referrer-Policy` tokens, and `preload` without `include_subdomains` or below a one-year `max_age`.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

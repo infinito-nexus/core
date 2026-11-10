@@ -15,13 +15,15 @@
   changed_when: false
 
 - name: "⏳ Wait until Stalwart leaves bootstrap mode and accepts management calls"
-  ansible.builtin.shell: >-
-    container exec -i {{ STALWART_CONTAINER_ADDRESS }}
-    {{ 30 | curl }} -sS -f
-    -u {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | quote }}
-    -H "Content-Type:application/json"
-    --data-binary {{ STALWART_JMAP_APPLICATION_GET | quote }}
-    {{ STALWART_JMAP_URL }}
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+      {{ 30 | curl }} -sS -f -K -
+      -H "Content-Type:application/json"
+      {{ STALWART_JMAP_URL }}
+    stdin: |-
+      user = {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | to_json(ensure_ascii=False) }}
+      data-binary = {{ STALWART_JMAP_APPLICATION_GET | to_json(ensure_ascii=False) }}
   register: stalwart_manage_check
   retries: 30
   delay: 5

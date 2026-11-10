@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, Any, NamedTuple
 
 from utils.cache.applications import get_variants
 from utils.env.parser import env_setting
+from utils.roles.deploy import role_deploy_modes
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
-    get_role_mode_enabled,
     get_role_test_skips,
 )
 from utils.roles.validation.invokable import list_invokables_by_type
@@ -291,13 +291,10 @@ def compute_complexity_rows(
     rows = []
     for name in names:
         stack = role_has_stack(roles_dir / name)
-        compose = name in compose_apps
-        swarm = name in swarm_apps and stack
-        host = (
-            name in host_apps
-            and not stack
-            and get_role_mode_enabled(roles_dir / name, mode="host", role_name=name)
-        )
+        offered = role_deploy_modes(roles_dir / name, role_name=name)
+        compose = name in compose_apps and offered.get("compose", False)
+        swarm = name in swarm_apps and offered.get("swarm", False)
+        host = name in host_apps and offered.get("host", False)
         skips = _role_test_skips(roles_dir, name)
         rows.append(
             _build_row(name, forward, reverse, max_level)._replace(
@@ -354,14 +351,11 @@ def compute_variant_complexity_rows(
             continue
         name = role_dir.name
         lifecycle = _role_lifecycle(variants.get(name))
-        compose = name in compose_apps
-        swarm_role = name in swarm_apps
         stack = role_has_stack(role_dir)
-        host = (
-            name in host_apps
-            and not stack
-            and get_role_mode_enabled(role_dir, mode="host", role_name=name)
-        )
+        offered = role_deploy_modes(role_dir, role_name=name)
+        compose = name in compose_apps and offered.get("compose", False)
+        swarm_role = name in swarm_apps and offered.get("swarm", False)
+        host = name in host_apps and offered.get("host", False)
         skips = _role_test_skips(roles_dir, name)
         for index, variant_config in enumerate(variants.get(name) or []):
             providers = direct_dep_roles(
@@ -375,11 +369,11 @@ def compute_variant_complexity_rows(
                 )._replace(
                     lifecycle=lifecycle,
                     compose=compose,
-                    swarm=swarm_role and stack,
+                    swarm=swarm_role,
                     stack=stack,
                     host=host,
                     test_compose=compose and "compose" not in skips,
-                    test_swarm=swarm_role and stack and "swarm" not in skips,
+                    test_swarm=swarm_role and "swarm" not in skips,
                     test_host=host and "host" not in skips,
                 )
             )

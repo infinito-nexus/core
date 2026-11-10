@@ -1,0 +1,3 @@
+# TODO
+
+- `tasks/03_administrator.yml` passes the administrator password in argv (`php artisan user:create --password=...`), so it is visible in the process list and in deploy logs with `MASK_CREDENTIALS_IN_LOGS` off; Pixelfed's `user:create` has no stdin or file option. Options: pass `-e PIXELFED_ADMIN_PASSWORD` without a value plus the task's `environment:` and run `sh -c 'exec php artisan user:create "$@" --password="$PIXELFED_ADMIN_PASSWORD"' sh <other options>` (keeps it out of the host argv and the `-vv` deploy log, pattern: `roles/web-app-erpnext/tasks/02_bench_bootstrap.yml`), or create the account through `php` on stdin with `Artisan::call`.

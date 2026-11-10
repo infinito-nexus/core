@@ -1,6 +1,6 @@
 ---
 application_id: svc-db-typesense
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 database_type: "{{ entity_name }}"
 
 TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"

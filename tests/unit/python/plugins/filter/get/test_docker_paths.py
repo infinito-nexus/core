@@ -6,9 +6,7 @@ class TestGetDockerPaths(unittest.TestCase):
     def test_get_docker_paths_uses_entity_name_and_builds_layout(self):
         import plugins.filter.get.docker_paths as m
 
-        with patch(
-            "utils.docker.paths_utils.get_entity_name", lambda app_id: "myentity"
-        ):
+        with patch("utils.docker.paths_utils.entity_name", lambda app_id: "myentity"):
             out = m.get_docker_paths("web-app-anything", "/opt/compose/")
 
         self.assertEqual(out["directories"]["instance"], "/opt/compose/myentity/")

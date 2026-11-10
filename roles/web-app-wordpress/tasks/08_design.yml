@@ -1,0 +1,49 @@
+---
+- name: "🎨 Stage the corporate stylesheets and logo set of {{ application_id }}"
+  when: WORDPRESS_DESIGN_ENABLED | bool
+  block:
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ WORDPRESS_DESIGN_HOST_DIR }}"
+
+    - name: "📤 Hand the corporate logo set to WordPress"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i --user {{ WORDPRESS_USER | quote }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+          sh -c {{ WORDPRESS_DESIGN_SYNC | quote }} sync
+          {{ [WORDPRESS_DESIGN_PATH, item] | path_join | quote }}
+          < {{ [WORDPRESS_DESIGN_HOST_DIR, item] | path_join | quote }}
+      loop: "{{ WORDPRESS_DESIGN_CONFIG.logos.values() | list }}"
+      register: wordpress_design_logos
+      changed_when: "'CHANGED' in wordpress_design_logos.stdout"
+
+    - name: "📤 Hand the corporate stylesheets to WordPress"
+      ansible.builtin.shell:
+        cmd: >-
+          container exec -i --user {{ WORDPRESS_USER | quote }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+          sh -c {{ WORDPRESS_DESIGN_SYNC | quote }} sync
+          {{ [WORDPRESS_DESIGN_PATH, item] | path_join | quote }}
+        stdin: "{{ lookup('file', 'css/' ~ item) }}"
+      loop: "{{ WORDPRESS_DESIGN_STYLESHEETS }}"
+      register: wordpress_design_stylesheets
+      changed_when: "'CHANGED' in wordpress_design_stylesheets.stdout"
+
+- name: "🎨 Apply or withdraw the corporate design of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      -e {{ ('WORDPRESS_DESIGN=' ~ (WORDPRESS_DESIGN_CONFIG | to_json | b64encode)) | quote }}
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+    stdin: "{{ lookup('file', 'php/design.php') }}"
+  register: wordpress_design
+  changed_when: wordpress_design.stdout_lines | last != 'unchanged'
+
+- name: "🧹 Remove the rendered corporate logo set of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ WORDPRESS_DESIGN_HOST_DIR }}"
+    state: absent
+  when: not (WORDPRESS_DESIGN_ENABLED | bool)

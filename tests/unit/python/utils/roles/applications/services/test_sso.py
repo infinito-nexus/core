@@ -8,9 +8,12 @@ from utils.roles.applications.services.sso import (
     get_sso_config,
     is_potentially_enabled,
     logout_url,
+    proxy_instances,
 )
 
 KEYCLOAK_LOGOUT = "https://auth.example.org/realms/r/protocol/openid-connect/logout"
+ONION = "a" * 56 + ".onion"
+CONFIG_FILE = "oauth2-proxy-keycloak.cfg"
 
 
 def _apps(
@@ -222,6 +225,67 @@ class TestLogoutUrl(unittest.TestCase):
         self.assertEqual(
             logout_url(KEYCLOAK_LOGOUT, True),
             f"/oauth2/sign_out?rd={do_urlencode(KEYCLOAK_LOGOUT)}",
+        )
+
+
+class TestProxyInstances(unittest.TestCase):
+    def test_a_clearnet_app_keeps_the_single_unsuffixed_instance(self):
+        self.assertEqual(
+            proxy_instances(["app.example.org"], CONFIG_FILE),
+            [
+                {
+                    "network": "clearnet",
+                    "service": "sso-proxy",
+                    "port_key": "sso",
+                    "config_file": CONFIG_FILE,
+                }
+            ],
+        )
+
+    def test_an_onion_sibling_gets_its_own_labelled_instance(self):
+        instances = proxy_instances(["app.example.org", f"app.{ONION}"], CONFIG_FILE)
+        self.assertEqual([i["network"] for i in instances], ["clearnet", "tor"])
+        self.assertEqual(
+            instances[1],
+            {
+                "network": "tor",
+                "service": "sso-proxy-onion",
+                "port_key": "sso_onion",
+                "config_file": "oauth2-proxy-keycloak-onion.cfg",
+            },
+        )
+
+    def test_an_onion_only_app_runs_one_unsuffixed_instance_on_tor(self):
+        self.assertEqual(
+            proxy_instances([f"app.{ONION}"], CONFIG_FILE),
+            [
+                {
+                    "network": "tor",
+                    "service": "sso-proxy",
+                    "port_key": "sso",
+                    "config_file": CONFIG_FILE,
+                }
+            ],
+        )
+
+    def test_named_canonical_domains_yield_one_instance_per_network(self):
+        instances = proxy_instances(
+            {
+                "filer": "filer.example.org",
+                "master": "master.example.org",
+                "filer_onion": f"filer.{ONION}",
+                "master_onion": f"master.{ONION}",
+            },
+            CONFIG_FILE,
+        )
+        self.assertEqual(
+            [i["service"] for i in instances], ["sso-proxy", "sso-proxy-onion"]
+        )
+
+    def test_a_config_file_without_extension_takes_the_label_as_suffix(self):
+        instances = proxy_instances(["app.example.org", f"app.{ONION}"], "proxy")
+        self.assertEqual(
+            [i["config_file"] for i in instances], ["proxy", "proxy-onion"]
         )
 
 

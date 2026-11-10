@@ -33,6 +33,9 @@ class DevInventorySpec:
     for every app in `include` is baked into the inventory as an
     `applications.<app>` override, so the deploy stage no longer needs
     a runtime variant selector — the inventory itself is variant-resolved.
+
+    `network_mode` is the node `NETWORK_MODE` provisioning writes; empty
+    leaves it to the derivation from the deployed providers.
     """
 
     inventory_dir: str
@@ -42,6 +45,7 @@ class DevInventorySpec:
     extra_vars: Mapping[str, Any] | None = None
     services_disabled: str = ""
     active_variants: Mapping[str, int] | None = None
+    network_mode: str = ""
 
     def __post_init__(self) -> None:
         if not self.include:

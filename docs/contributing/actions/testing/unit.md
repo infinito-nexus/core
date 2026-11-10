@@ -13,8 +13,8 @@ Run unit tests with `make test-unit`.
 
 - You MUST add or update unit tests for every `*.py` file you touch.
 - Each test MUST cover one isolated behavior. Do not test multiple concerns in a single test method.
-- You MUST NOT write tests that only assert a file contains a string.
-- You MUST NOT write tests for non-executable files such as `.yml` or `.j2`. Test the code that consumes them instead.
+- You MAY write tests for non-executable files such as `.yml`, `.j2` or patch files when they pin a value the deploy depends on, for example a security setting or a build step. Assert the parsed or rendered value where the file has one, and the raw text only where it has none, as in a patch.
+- Each test MUST fail when the behavior or value it pins changes.
 - You SHOULD name test methods after the behavior they verify, not the function name alone (e.g. `test_needed_false_when_disabled`).
 - You SHOULD cover edge cases: empty inputs, missing keys, and boundary values, not only the happy path.
 - You MAY use `unittest.mock` to isolate the unit under test from Ansible internals or external state.

@@ -20,7 +20,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.networks.lookup_context import build_context, resolve_var
 from utils.networks.render import render_container_networks
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 class LookupModule(LookupBase):
@@ -46,7 +46,7 @@ class LookupModule(LookupBase):
                 application_id=str(application_id),
                 deployment_mode=ctx.deployment_mode,
                 registry=ctx.registry,
-                get_entity_name=get_entity_name,
+                entity_name=entity_name,
                 lookup_config=ctx.lookup_config,
                 lookup_database=ctx.lookup_database,
                 provider_self_alias=bool(kwargs.get("provider_self_alias", True)),

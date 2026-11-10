@@ -1,0 +1,29 @@
+---
+- name: "🔎 Read Version.php of the code volume and of the image tree"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ JOOMLA_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - cat
+      - "{{ [joomla_core_tree, JOOMLA_VERSION_PHP] | path_join }}"
+  loop:
+    - "{{ JOOMLA_DOCROOT }}"
+    - "{{ JOOMLA_IMAGE_SOURCE_DIR }}"
+  loop_control:
+    loop_var: joomla_core_tree
+  register: joomla_version_php
+  changed_when: false
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🔎 Read the core version the Joomla database was finalised for"
+  ansible.builtin.include_tasks: core_update.yml
+  vars:
+    joomla_core_action: version
+    joomla_core_plugins: ""
+
+- name: "📌 Record the Joomla core versions of database, code volume and image"
+  ansible.builtin.set_fact:
+    JOOMLA_CORE_DATABASE: "{{ joomla_core_update.stdout | joomla_core_database_version }}"
+    JOOMLA_CORE_FILES: "{{ joomla_version_php.results[0].stdout | joomla_core_version }}"
+    JOOMLA_CORE_TARGET: "{{ joomla_version_php.results[1].stdout | joomla_core_version }}"

@@ -80,7 +80,6 @@
     dest: "{{ TOR_ENTRYPOINT_HOST }}"
     mode: "0755"
   become: true
-  register: _tor_entrypoint
 
 - name: "🩺 Stage the Tor container healthcheck into the build context"
   stack_host_copy:
@@ -88,7 +87,28 @@
     dest: "{{ TOR_HEALTHCHECK_HOST }}"
     mode: "0755"
   become: true
-  register: _tor_healthcheck
+
+- name: "🧩 Load the container CLI the Tor run probe calls"
+  include_role:
+    name: sys-svc-container
+    public: false
+  when: run_once_sys_svc_container is not defined
+
+- name: "🔍 Check whether Tor already runs from an earlier deploy"
+  ansible.builtin.command: >-
+    {% if IS_SWARM_MODE %}
+    container service ps -q --filter desired-state=running
+    {{ lookup('container_service', application_id, 'tor') }}
+    {% else %}
+    container ps -q --filter status=running --filter name=^{{ TOR_CONTAINER }}$
+    {% endif %}
+  register: _tor_running_before
+  changed_when: false
+  failed_when:
+    - _tor_running_before.rc != 0
+    - "'no such service' not in (_tor_running_before.stderr | lower)"
+  become: true
+  when: IS_STACK_HOST | bool
 
 - name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:
@@ -106,7 +126,7 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   become: true
-  when: DEPLOYMENT_MODE == 'compose' and (TOR_RESTART_REQUIRED | bool)
+  when: IS_COMPOSE_MODE and (TOR_RESTART_REQUIRED | bool)
 
 - name: "🔄 Force Tor service redeploy to apply hidden-service key / torrc changes"
   ansible.builtin.command: >-
@@ -116,21 +136,20 @@
   changed_when: _tor_swarm_update.rc == 0
   become: true
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - IS_STACK_HOST | bool
     - TOR_RESTART_REQUIRED | bool
 
-- name: "🧅 Wire the host-level transparent .onion egress router"
-  include_tasks:
-    file: router.yml
-    apply:
-      become: true
-  when:
-    - TOR_EGRESS_ROUTER_ENABLED | bool
-    - DEPLOYMENT_MODE == 'compose' or (IS_STACK_HOST | bool)
+- name: "🧅 Bring up the transparent .onion egress router"
+  when: TOR_EGRESS_ROUTER_ENABLED | bool
+  block:
+    - name: "🧅 Wire the host-level transparent .onion egress router"
+      include_tasks:
+        file: router.yml
+        apply:
+          become: true
+      when: IS_COMPOSE_MODE or (IS_STACK_HOST | bool)
 
-- name: "🧅 Verify the node onion is reachable"
-  ansible.builtin.include_tasks: onion_reach.yml
-  when:
-    - TOR_EGRESS_ROUTER_ENABLED | bool
-    - TOR_NODE_ONION | length > 0
+    - name: "🧅 Verify the node onion is reachable"
+      ansible.builtin.include_tasks: onion_reach.yml
+      when: TOR_NODE_ONION | length > 0

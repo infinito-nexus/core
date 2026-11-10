@@ -16,10 +16,11 @@ missing="false"
 for distro in ${INFINITO_DISTROS}; do
 	img="${REGISTRY}/${OWNER}/${REPO_PREFIX}/${distro}:${CI_TAG}"
 	echo "Check: ${img}" >&2
-	if docker manifest inspect "${img}" >/dev/null 2>&1; then
+	absent="$("${script_dir}/architectures.sh" "${img}")"
+	if [[ -z "${absent}" ]]; then
 		echo "  OK" >&2
 	else
-		echo "  MISSING" >&2
+		echo "  MISSING ${absent}" >&2
 		missing="true"
 	fi
 done

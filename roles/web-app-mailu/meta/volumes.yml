@@ -10,6 +10,7 @@ admin_data:
 clamav_db:
   type: volume
   name: mailu_clamav_db
+  backup: false
   mounts:
     - service: antivirus
       target: /var/lib/clamav

@@ -257,6 +257,7 @@ async function loginToPixelfed(page, loginScenario) {
   await expect(visibleUsernameField).toBeVisible();
   await visibleUsernameField.click();
   await visibleUsernameField.fill(loginScenario.username);
+  await expect(passwordField.first()).toBeEditable({ timeout: resolveTimeout(30_000) });
   await passwordField.first().fill(loginScenario.password);
 
   if (await rememberMeCheckbox.first().isVisible().catch(() => false)) {

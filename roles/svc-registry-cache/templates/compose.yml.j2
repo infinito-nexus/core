@@ -2,11 +2,9 @@
   {% set service_name = entity_name %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'cache') }}
-    {% if DEPLOYMENT_MODE == 'compose' %}
+    {% if IS_COMPOSE_MODE %}
     {{ lookup('compose_only', 'container_name', REGISTRY_CACHE_CONTAINER) }}
     {% endif %}
-    environment:
-      REGISTRY_PROXY_REMOTEURL: "{{ REGISTRY_CACHE_PROXY_REMOTE_URL }}"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports', ['cache', 'registry']) | indent(4) }}

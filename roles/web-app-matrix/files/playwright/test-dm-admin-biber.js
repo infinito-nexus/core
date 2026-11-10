@@ -99,7 +99,7 @@ exports.register = function (shared) {
 
       await expect
         .poll(async () => {
-          return await biberPage.evaluate(() => {
+          return await biberPage.evaluate((adminName) => {
             const sections = document.querySelectorAll(
               'button[aria-expanded="false"][aria-label^="Toggle "]',
             );
@@ -113,8 +113,8 @@ exports.register = function (shared) {
               'button[aria-label^="Open room"]',
             );
             for (const tile of roomTiles) {
-              const name = `${tile.getAttribute("aria-label") || ""} ${tile.textContent || ""}`;
-              if (/administrator/i.test(name)) {
+              const name = `${tile.getAttribute("aria-label") || ""} ${tile.textContent || ""}`.toLowerCase();
+              if (name.includes(adminName)) {
                 tile.click();
                 break;
               }
@@ -134,10 +134,13 @@ exports.register = function (shared) {
             return !!document.querySelector(
               "div[role='textbox'][contenteditable='true'], textarea[aria-label*='message' i]",
             );
-          }).catch(() => false);
+          }, adminUsername.toLowerCase()).catch(() => false);
         }, {
           timeout: resolveTimeout(120_000),
-          message: "biber: expected invite acceptance to produce a message composer",
+          message:
+            `biber: expected invite acceptance to produce a message composer. Element names the DM tile after ` +
+            `the inviter's Synapse display name, which stays the ${adminUsername} localpart because the deploy ` +
+            `registers the account natively and allow_existing_users grandfathers the OIDC login onto it`,
         })
         .toBe(true);
 

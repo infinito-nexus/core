@@ -1,6 +1,7 @@
 ---
-administrator: {}
+no-reply: {}
 stalwartadmin:
   description: Recovery administrator the role authenticates the management API and WebAdmin with
   username: stalwartadmin
   accounts: []
+platform_administrator: {}

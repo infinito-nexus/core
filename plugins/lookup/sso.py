@@ -10,6 +10,8 @@ API (STRICT):
   - {{ lookup('sso', application_id, 'shared') }}          → bool
   - {{ lookup('sso', application_id, 'logout_url') }}      → str, oauth2-proxy
     sign-out wrapping OIDC.CLIENT.LOGOUT_URL when the app is proxy-gated
+  - {{ lookup('sso', application_id, 'proxy_instances') }} → list, one
+    oauth2-proxy instance per network the app is served on
 
 Wraps ``utils.roles.applications.services.sso.get_sso_config`` so
 templates and tasks share one source of truth with Python callers
@@ -24,7 +26,12 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.applications.services.sso import get_sso_config, logout_url
+from utils.roles.applications.config import get
+from utils.roles.applications.services.sso import (
+    get_sso_config,
+    logout_url,
+    proxy_instances,
+)
 
 
 class LookupModule(LookupBase):
@@ -64,6 +71,19 @@ class LookupModule(LookupBase):
                     str(oidc["CLIENT"]["LOGOUT_URL"]), bool(resolved["is_proxy_gated"])
                 )
             ]
+        if want == "proxy_instances":
+            domains = lookup_loader.get(
+                "domains",
+                loader=self._loader,
+                templar=getattr(self, "_templar", None),
+            ).run([], variables=vars_)[0]
+            config_file = get(
+                applications=applications,
+                application_id="web-app-keycloak",
+                config_path="services.sso_proxy.configuration_file",
+                strict=True,
+            )
+            return [proxy_instances(domains.get(application_id), str(config_file))]
         if want == "all":
             return [resolved]
         if want not in resolved:

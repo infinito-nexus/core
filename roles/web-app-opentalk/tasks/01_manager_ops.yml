@@ -38,29 +38,30 @@
 - name: "🚿 Flush handlers for '{{ application_id }}' so compose up sees rendered configs"
   meta: flush_handlers
 
-- name: "⏳ Wait until the embedded object store answers"
-  ansible.builtin.shell: >
-    container exec {{ OPENTALK_OBJSTORE_CONTAINER_ADDRESS }}
-    wget -q -O - http://127.0.0.1:{{ lookup('objstore', application_id, 'port') }}/status
-  args:
-    executable: /bin/bash
-  register: objstore_ready
-  retries: 60
-  delay: 3
-  until: objstore_ready.rc == 0
-  changed_when: false
+- name: "🪣 Provision the embedded object store for '{{ application_id }}'"
   when: lookup('objstore', application_id, 'local') | bool
+  block:
+    - name: "⏳ Wait until the embedded object store answers"
+      ansible.builtin.shell: >
+        container exec {{ OPENTALK_OBJSTORE_CONTAINER_ADDRESS }}
+        wget -q -O - http://127.0.0.1:{{ lookup('objstore', application_id, 'port') }}/status
+      args:
+        executable: /bin/bash
+      register: objstore_ready
+      retries: 60
+      delay: 3
+      until: objstore_ready.rc == 0
+      changed_when: false
 
-# Exception: the sidecar creates the bucket itself (seaweedfs_sidecar_script); a second creator here races it into "bucket already exists".
-- name: "⏳ Wait until the sidecar created the embedded OpenTalk bucket"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    echo 's3.bucket.list' | container exec -i {{ OPENTALK_OBJSTORE_CONTAINER_ADDRESS }} weed shell -master=localhost:9333
-  args:
-    executable: /bin/bash
-  register: objstore_buckets
-  retries: 60
-  delay: 3
-  until: lookup('objstore', application_id, 'bucket') in (objstore_buckets.stdout | seaweedfs_bucket_names)
-  changed_when: false
-  when: lookup('objstore', application_id, 'local') | bool
+    # Exception: the sidecar creates the bucket itself (seaweedfs_sidecar_script); a second creator here races it into "bucket already exists".
+    - name: "⏳ Wait until the sidecar created the embedded OpenTalk bucket"
+      ansible.builtin.shell: |
+        set -euo pipefail
+        echo 's3.bucket.list' | container exec -i {{ OPENTALK_OBJSTORE_CONTAINER_ADDRESS }} weed shell -master=localhost:9333
+      args:
+        executable: /bin/bash
+      register: objstore_buckets
+      retries: 60
+      delay: 3
+      until: lookup('objstore', application_id, 'bucket') in (objstore_buckets.stdout | seaweedfs_bucket_names)
+      changed_when: false

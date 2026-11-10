@@ -134,7 +134,7 @@ flowchart TD
     KC --> MDB["svc-db-mariadb"]
     KC --> LDAP["svc-db-openldap"]
     MAILU --> MDB
-    KC --> CSS["web-svc-css"]
+    KC --> CSS["web-svc-design"]
     KC --> LOGOUT["web-svc-logout"]
     MAT --> DASH["web-app-dashboard"]
     CDN --> FILE["web-svc-file"]

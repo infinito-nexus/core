@@ -15,3 +15,4 @@ require("./test-native-admin").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-biber-persona").register(shared);
 require("./test-administrator-persona").register(shared);
+require("./test-design").register(shared);

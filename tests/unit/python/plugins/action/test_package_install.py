@@ -1,11 +1,28 @@
 import unittest
 import unittest.mock as mock
+from typing import ClassVar
 
-from ansible.errors import AnsibleActionFail
+from ansible.errors import AnsibleActionFail, AnsibleConnectionFailure
+from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import become_loader, shell_loader
 
 from plugins.action.package_install import ActionModule
-from utils.packages.calls import GENERIC_PACKAGE, ModuleCall, RetryPolicy
+from utils.packages.calls import (
+    GENERIC_PACKAGE,
+    STATE_ABSENT,
+    STATE_PRESENT,
+    ModuleCall,
+    RetryPolicy,
+    package_call,
+)
+from utils.packages.outcome import aggregate
+from utils.packages.schema import PackageSpec
+
+QUERY = "ansible.builtin.command"
+
+
+def _modules(execute) -> list[str]:
+    return [call.kwargs["module_name"] for call in execute.call_args_list]
 
 
 def _action(args) -> ActionModule:
@@ -61,12 +78,12 @@ class TestOwningRole(unittest.TestCase):
 
     def test_foreign_role_id_fails(self):
         with self.assertRaises(AnsibleActionFail) as caught:
-            self._spec_for("nfs-ganesha", "desk-micro")
+            self._spec_for("nfs-ganesha", "dsk-micro")
         self.assertIn("svc-storage-nfs-server", str(caught.exception))
 
     def test_unknown_id_fails(self):
         with self.assertRaises(AnsibleActionFail):
-            self._spec_for("nope", "desk-micro")
+            self._spec_for("nope", "dsk-micro")
 
     def test_own_id_resolves(self):
         with mock.patch(
@@ -78,7 +95,7 @@ class TestOwningRole(unittest.TestCase):
 
     def test_shared_id_resolves_for_any_role(self):
         with mock.patch("plugins.action.package_install.resolve", return_value="spec"):
-            spec = self._spec_for("git", "desk-micro")
+            spec = self._spec_for("git", "dsk-micro")
         self.assertEqual(spec, "spec")
 
     def test_no_role_context_skips_the_check(self):
@@ -236,6 +253,170 @@ class TestTargetFacts(unittest.TestCase):
         with self.assertRaises(AnsibleActionFail) as caught:
             action._target_facts({"inventory_hostname": "nfs-node"})
         self.assertIn("localhost", str(caught.exception))
+
+
+class TestRunMergesPlainPlans(unittest.TestCase):
+    FACTS: ClassVar[dict[str, str]] = {
+        "distribution": "Debian",
+        "os_family": "Debian",
+        "pkg_mgr": "apt",
+    }
+
+    def _run(self, package_ids, specs, query=None):
+        action = _action({"id": package_ids})
+        action._task._role = None
+        action._task.delegate_to = None
+        action._connection = mock.Mock(become=None, transport="local")
+        action._execute_module = mock.Mock(
+            side_effect=lambda module_name, **_: (
+                query or {} if module_name == QUERY else {"changed": False}
+            )
+        )
+        registry = {
+            package_id: mock.Mock(package_id=package_id, role=None, shared=True)
+            for package_id in package_ids
+        }
+        with (
+            mock.patch.object(ActionBase, "run", return_value={}),
+            mock.patch(
+                "plugins.action.package_install.build_registry", return_value=registry
+            ),
+            mock.patch(
+                "plugins.action.package_install.resolve",
+                side_effect=lambda declaration, *_: specs[declaration.package_id],
+            ),
+        ):
+            result = action.run(task_vars={"ansible_facts": self.FACTS})
+        return action._execute_module, result
+
+    def test_two_repository_ids_cost_one_package_manager_call(self):
+        execute, _result = self._run(
+            ["git", "curl"],
+            {"git": PackageSpec(("git",)), "curl": PackageSpec(("curl",))},
+        )
+        self.assertEqual(_modules(execute), [QUERY, "apt"])
+        self.assertEqual(
+            execute.call_args.kwargs["module_args"]["name"], ["git", "curl"]
+        )
+
+    def test_one_query_covers_the_merged_names_and_skips_the_call(self):
+        execute, result = self._run(
+            ["git", "curl"],
+            {"git": PackageSpec(("git",)), "curl": PackageSpec(("curl",))},
+            {"rc": 0, "stdout": "git\tii \ncurl\tii ", "stderr": ""},
+        )
+        self.assertEqual(_modules(execute), [QUERY])
+        self.assertEqual(
+            execute.call_args.kwargs["module_args"]["argv"][-2:], ["git", "curl"]
+        )
+        self.assertFalse(result["changed"])
+        self.assertNotIn("failed", result)
+
+    def test_an_id_without_names_is_reported_skipped(self):
+        _execute, result = self._run(
+            ["git", "mhwd"], {"git": PackageSpec(("git",)), "mhwd": PackageSpec(())}
+        )
+        self.assertEqual(result["skipped_ids"], ["mhwd"])
+
+
+class TestStateAlreadyHeld(unittest.TestCase):
+    def _attempt(self, names, state, query, pkg_mgr="apt"):
+        def execute(module_name, **_kwargs):
+            if module_name != QUERY:
+                return {"changed": True}
+            if isinstance(query, Exception):
+                raise query
+            return query
+
+        action = _action({})
+        action._connection = mock.Mock(become=None, transport="local")
+        action._execute_module = mock.Mock(side_effect=execute)
+        result = action._attempt(package_call(names, state), {}, {"pkg_mgr": pkg_mgr})
+        return action._execute_module, result
+
+    def test_all_installed_skips_the_package_manager(self):
+        execute, result = self._attempt(
+            ["git", "curl"],
+            STATE_PRESENT,
+            {"rc": 0, "stdout": "git\tii \ncurl\tii ", "stderr": ""},
+        )
+        self.assertEqual(_modules(execute), [QUERY])
+        self.assertFalse(result["changed"])
+        self.assertEqual(result["module"], GENERIC_PACKAGE)
+        self.assertFalse(aggregate([result], [], "debian")["changed"])
+
+    def test_the_query_runs_without_a_shell_or_variable_expansion(self):
+        execute, _result = self._attempt(
+            ["git"], STATE_PRESENT, {"rc": 0, "stdout": "git\tii ", "stderr": ""}
+        )
+        args = execute.call_args.kwargs["module_args"]
+        self.assertEqual(args["argv"][-1], "git")
+        self.assertFalse(args["expand_argument_vars"])
+
+    def test_one_missing_name_runs_the_package_manager(self):
+        execute, result = self._attempt(
+            ["git", "curl"],
+            STATE_PRESENT,
+            {
+                "rc": 1,
+                "stdout": "git\tii ",
+                "stderr": "dpkg-query: no packages found matching curl",
+            },
+        )
+        self.assertEqual(_modules(execute), [QUERY, "apt"])
+        self.assertTrue(result["changed"])
+
+    def test_a_failing_query_runs_the_package_manager(self):
+        execute, _result = self._attempt(
+            ["git"],
+            STATE_PRESENT,
+            {"rc": 2, "stdout": "", "stderr": "dpkg-query: error", "failed": True},
+        )
+        self.assertEqual(_modules(execute), [QUERY, "apt"])
+
+    def test_an_unexpected_answer_runs_the_package_manager(self):
+        execute, _result = self._attempt(
+            ["git"], STATE_PRESENT, {"rc": 0, "stdout": "garbage", "stderr": ""}
+        )
+        self.assertEqual(_modules(execute), [QUERY, "apt"])
+
+    def test_a_raising_query_runs_the_package_manager(self):
+        execute, _result = self._attempt(
+            ["git"], STATE_PRESENT, AnsibleConnectionFailure("gone")
+        )
+        self.assertEqual(_modules(execute), [QUERY, "apt"])
+
+    def test_a_name_that_is_not_plain_is_never_queried(self):
+        execute, _result = self._attempt(["nginx=1.24"], STATE_PRESENT, {})
+        self.assertEqual(_modules(execute), ["apt"])
+
+    def test_absent_with_no_name_installed_skips_the_package_manager(self):
+        execute, result = self._attempt(
+            ["postfix", "postfix-lmdb"],
+            STATE_ABSENT,
+            {
+                "rc": 1,
+                "stdout": "",
+                "stderr": "error: package 'postfix' was not found\n"
+                "error: package 'postfix-lmdb' was not found",
+            },
+            pkg_mgr="pacman",
+        )
+        self.assertEqual(_modules(execute), [QUERY])
+        self.assertFalse(result["changed"])
+
+    def test_absent_with_one_name_installed_runs_the_package_manager(self):
+        execute, _result = self._attempt(
+            ["postfix", "postfix-lmdb"],
+            STATE_ABSENT,
+            {
+                "rc": 1,
+                "stdout": "postfix\npackage postfix-lmdb is not installed",
+                "stderr": "",
+            },
+            pkg_mgr="dnf",
+        )
+        self.assertEqual(_modules(execute), [QUERY, "dnf"])
 
 
 class TestAttempt(unittest.TestCase):

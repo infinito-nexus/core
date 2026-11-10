@@ -21,6 +21,7 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
+  from_name: "{{ service_provider.company.titel }} - Snipe-IT"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — cache engine, no Playwright surface
@@ -42,11 +43,13 @@ mariadb:
 # nocheck: playwright-service-flag — object store, no Playwright surface
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
 # nocheck: playwright-service-flag  self-provider
 snipe-it:
+  backup:
+    stop_required: false
   healthcheck:
     test: ["CMD", "wget", "-q", "-O-", "http://localhost/health"]
     retries: 12
@@ -70,6 +73,7 @@ snipe-it:
   ports:
     local:
       sso: 16489
+      sso_onion: 16545
       http: 8035
     internal:
       http: 80
@@ -93,11 +97,20 @@ sso:
     acl:
       blacklist:
         - /login
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "Snipe-IT"
+  slots:
+    logo:
+      width: 320
+      height: 80
+      frame: true
+    favicon:
+      width: 96
+      height: 96
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -154,3 +167,8 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

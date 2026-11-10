@@ -99,6 +99,8 @@ def _upstream_digests(repo_path: str) -> tuple[str, object]:
         size = (sibling.get("lfs") or {}).get("size") or sibling.get("size")
         if isinstance(name, str) and isinstance(digest, str):
             digests[name] = {"sha256": digest, "size": size}
+    if not digests:
+        return "unverified", "answer carried no file digests (blobs expansion missing)"
     return "ok", digests
 
 

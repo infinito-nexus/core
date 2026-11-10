@@ -1,0 +1,6 @@
+---
+- name: 🧊 Forget the Postgres container whose TCP auth was verified
+  ansible.builtin.set_fact:
+    postgres_verified_target: ""
+  changed_when: false
+  listen: container-manager-restart

@@ -1,0 +1,10 @@
+{% set design = lookup('design', application_id) %}
+{% if design.title is string %}
+window.addDecorator("tgAppMetaService", ["$delegate", function ($delegate) {
+  var setTitle = $delegate.setTitle;
+  $delegate.setTitle = function (title) {
+    return setTitle.call($delegate, typeof title === "string" ? title.replace(/ - Taiga$/, " - " + {{ design.title | to_json }}) : title);
+  };
+  return $delegate;
+}]);
+{% endif %}

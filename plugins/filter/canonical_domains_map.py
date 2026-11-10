@@ -5,7 +5,7 @@ from ansible.errors import AnsibleError, AnsibleFilterError
 
 from utils.domains.list import render_domain_value
 from utils.roles.dependency_resolver import RoleDependencyResolver
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.templating.ansible import render_ansible_strict
 
 
@@ -120,14 +120,14 @@ class FilterModule:
         return result
 
     def _add_default_domain(self, app_id, domain_primary, seen_domains, result):
-        entity_name = get_entity_name(app_id)
+        entity = entity_name(app_id)
         dp = str(domain_primary)
         if "{{" in dp or "}}" in dp or "{%" in dp:
             raise AnsibleFilterError(
                 f"canonical_domains_map: domain_primary is not rendered "
                 f"(contains Jinja expression): {domain_primary!r}"
             )
-        default_domain = f"{entity_name}.{dp}"
+        default_domain = f"{entity}.{dp}"
         if default_domain in seen_domains:
             raise AnsibleFilterError(
                 f"Domain '{default_domain}' is already configured for "

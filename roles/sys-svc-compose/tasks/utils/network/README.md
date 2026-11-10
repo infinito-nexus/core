@@ -1,7 +1,7 @@
 # Network utils 🕸️
 
 Reusable task files for creating Docker networks in a uniform way.
-Both helpers derive the docker-side network name from `role_id | get_entity_name` and the subnet from `meta/server.yml.networks.local.subnet`, so the name and the subnet pinning live in exactly one place.
+Both helpers derive the docker-side network name from `role_id | entity_name` and the subnet from `meta/server.yml.networks.local.subnet`, so the name and the subnet pinning live in exactly one place.
 
 Ad-hoc `community.docker.docker_network` calls or `docker network create` / `container network create` shell-outs in role tasks are forbidden by [test_network_create_via_util.py](../../../../../tests/lint/ansible/modules/test_network_create_via_util.py).
 

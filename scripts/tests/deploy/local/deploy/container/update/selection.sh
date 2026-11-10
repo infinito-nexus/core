@@ -53,6 +53,7 @@ read -ra app_ids <<<"${apps}"
 cmd=(infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}"
 	--skip-backup
 	--skip-cleanup
+	--skip-pull
 	--id "${app_ids[@]}"
 	-l localhost
 	--diff

@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-moodle', 'services.bigbluebutton.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - bigbluebutton

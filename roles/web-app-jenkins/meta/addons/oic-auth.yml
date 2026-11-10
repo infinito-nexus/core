@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-jenkins', 'services.sso.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: upstream
+version: "latest"
+bridges:
+  - sso
+config:
+  plugin_id: oic-auth
+  server_url: "{{ lookup('tls', 'web-app-keycloak', 'url.base') }}"

@@ -27,9 +27,3 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Hardening verification:** Runs `php` inside every service that mounts `php_hardening` and fails while `expose_php` or `session.upload_progress.enabled` is on, which catches a wrong scan dir, a later ini that overrides the hardening, and an image change.
 - **Sidecar report:** Lists other PHP containers of a hardened stack, such as cron or worker sidecars, as info without failing.
 - **Registry report:** `make security-runtimes` lists the PHP runtime of every pinned image from registry metadata, without pulling, against the same floors.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
