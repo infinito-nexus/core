@@ -59,7 +59,7 @@ semaphore:
   pids_limit: 1024
   min_storage: 530MB
   image: semaphoreui/semaphore
-  version: "v2.19.17"
+  version: "v2.20.23"
   backup:
     stop_required: false
   name: semaphore
