@@ -24,7 +24,7 @@ ltengine:
   version: 12.6.3-runtime-ubuntu24.04
   builder_image: nvidia/cuda
   builder_version: 12.6.3-devel-ubuntu24.04
-  rust_version: 1.99.0
+  rust_version: 1.99.1
   update:
     - key: builder_version
       type: registry_tags
