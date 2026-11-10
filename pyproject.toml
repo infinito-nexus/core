@@ -18,6 +18,7 @@ dependencies = [
   "bcrypt",
   "cryptography",
   "humanfriendly",
+  "Jinja2",
   "PyMySQL",
   "psycopg2-binary",
   "ldap3",
