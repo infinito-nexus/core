@@ -9,7 +9,7 @@ pi:
     host:
       enabled: true
   lifecycle: alpha
-  npm_version: 1.4.0
+  npm_version: 1.5.2
   update:
     key: npm_version
     type: npm
