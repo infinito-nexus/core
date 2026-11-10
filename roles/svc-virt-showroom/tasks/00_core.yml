@@ -99,6 +99,15 @@
   changed_when: true
   become: true
 
+- name: "🧱 Let the showroom bridge past Docker's FORWARD drop on every Docker start"
+  ansible.builtin.include_role:
+    name: sys-service
+  vars:
+    system_service_state: started
+    system_service_tpl_after: docker.service
+    system_service_tpl_wanted_by: docker.service
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} {{ SHOWROOM_BRIDGE }}"
+
 - name: "🔍 Read the instances of every project"
   ansible.builtin.command: incus list --all-projects --format json
   register: svc_virt_showroom_list
