@@ -32,6 +32,9 @@ VERSION_MANIFESTS: tuple[str, ...] = ("Cargo.toml", "pyproject.toml", "package.j
 
 _MARKER_LIMIT = 4096
 _SEMVER = re.compile(r"\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.+-]+)?", re.ASCII)
+_ROLE_VERSION_LOOKUP = re.compile(
+    r"\{\{\s*lookup\(\s*(['\"])role_version\1\s*,\s*(['\"])(?P<role>[^'\"]+)\2\s*\)\s*\}\}"
+)
 
 
 class CustomRoleError(Exception):
@@ -80,6 +83,26 @@ def marker_fields(role: Path) -> dict[str, str]:
     if not lines or lines[0] != MARKER_HEADER:
         return {}
     return dict(line.split(": ", 1) for line in lines[1:] if ": " in line)
+
+
+def resolve_role_version(value: str, roles_dir: Path) -> str:
+    """Replace each ``{{ lookup('role_version', '<id>') }}`` with the version the pull recorded.
+
+    Args:
+        value: a ``meta/services.yml`` field, e.g.
+            ``v{{ lookup('role_version', 'web-app-cst-store') }}``.
+        roles_dir: the ``roles/`` directory holding the pulled role.
+
+    Returns:
+        *value* with every lookup whose role marker carries a version replaced
+        by it; a lookup without one stays as written.
+    """
+    return _ROLE_VERSION_LOOKUP.sub(
+        lambda match: (
+            marker_fields(roles_dir / match["role"]).get("version") or match[0]
+        ),
+        value,
+    )
 
 
 def manifest_version(read: Callable[[str], str | None]) -> str:
