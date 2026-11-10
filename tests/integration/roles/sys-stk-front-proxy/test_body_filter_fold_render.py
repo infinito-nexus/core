@@ -328,10 +328,13 @@ class _Harness:
         """
         variables = self.base(app, tls, tor, providers)
         variables.update(_yaml(FRONT / ROLE_FILE_VARS_MAIN))
+        vhosts = self.vhosts(variables, app)
+        if not vhosts:
+            return
         main_facts = Templar(loader=DataLoader(), variables=variables).template(
             _trusted(self.main["ansible.builtin.set_fact"])
         )
-        for vhost in self.vhosts(variables, app):
+        for vhost in vhosts:
             shared = {
                 **variables,
                 **main_facts,

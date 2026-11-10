@@ -1,0 +1,24 @@
+---
+application_id: "svc-virt-showroom"
+
+SHOWROOM_OS_FAMILIES:
+  - Archlinux
+  - Debian
+SHOWROOM_PROJECTS: "{{ lookup('config', application_id, 'services.showroom.projects') }}"
+SHOWROOM_BUDGET_MEMORY: "{{ lookup('config', application_id, 'services.showroom.budget.memory') }}"
+SHOWROOM_STORAGE_POOL: "{{ lookup('config', application_id, 'services.showroom.storage_pool') }}"
+SHOWROOM_BRIDGE: "{{ lookup('config', application_id, 'services.showroom.bridge') }}"
+SHOWROOM_SUBNET: "{{ lookup('config', application_id, 'networks.local.subnet') }}"
+SHOWROOM_CANONICAL_DOMAINS: "{{ lookup('config', application_id, 'domains.canonical') }}"
+SHOWROOM_INSTANCES: "{{ SHOWROOM_PROJECTS | showroom_instances(SHOWROOM_STORAGE_POOL.name, SHOWROOM_BRIDGE) }}"
+SHOWROOM_PRESEED:
+  networks:
+    - name: "{{ SHOWROOM_BRIDGE }}"
+      type: bridge
+      config:
+        ipv4.address: "{{ lookup('subnet_gateway') }}/{{ SHOWROOM_SUBNET.split('/') | last }}"
+        ipv4.nat: "true"
+        ipv6.address: none
+  storage_pools:
+    - name: "{{ SHOWROOM_STORAGE_POOL.name }}"
+      driver: "{{ SHOWROOM_STORAGE_POOL.driver }}"

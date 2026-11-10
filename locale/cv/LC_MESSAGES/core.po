@@ -1196,6 +1196,10 @@ msgctxt "role:svc-virt-incus:description"
 msgid "Incus VM host for agent workspaces with a copy-on-write storage pool, an agent bridge and a restricted project"
 msgstr ""
 
+msgctxt "role:svc-virt-showroom:description"
+msgid "Incus showroom host that runs one isolated server per customer demo project behind the host's reverse proxy"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
