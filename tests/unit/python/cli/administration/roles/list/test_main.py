@@ -20,7 +20,8 @@ class TestListMain(unittest.TestCase):
             marker = roles / "web-app-cst-a" / MARKER_FILE
             marker.parent.mkdir()
             marker.write_text(
-                marker_text("web-app-cst-a", "web-app-cst-a", ORIGIN), encoding="utf-8"
+                marker_text("web-app-cst-a", "web-app-cst-a", ORIGIN, "1.0.0"),
+                encoding="utf-8",
             )
             (roles / "web-app-cst-hand").mkdir()
             (roles / "web-app-nextcloud").mkdir()

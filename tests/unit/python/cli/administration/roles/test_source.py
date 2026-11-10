@@ -108,7 +108,25 @@ class TestStage(_SourceFixture, unittest.TestCase):
         sha = git(self.repo, "rev-parse", "v1.0.0^{commit}").strip()
         self.assertEqual("release: v1\n", read_text(str(target / ROLE_FILE_TASKS_MAIN)))
         self.assertFalse((target / "README.md").exists())
-        self.assertIn(f"(commit {sha})", origin)
+        self.assertFalse((target / "Cargo.toml").exists())
+        self.assertIn(f"(commit {sha})", origin.provenance)
+        self.assertEqual("1.0.0", origin.version)
+
+    def test_tag_reads_the_version_its_own_commit_declares(self):
+        write(self.repo / "Cargo.toml", '[package]\nname = "demo"\nversion = "2.0.0"\n')
+        git(self.repo, "commit", "-q", "-am", "bump")
+        git(self.repo, "tag", "v2.0.0")
+        target = self.root / "staged"
+        origin = stage(ROLE, Source(str(self.repo), "v1.0.0", ROLE_PATH), target)
+        self.assertEqual("1.0.0", origin.version)
+
+    def test_tag_without_a_version_manifest_records_none(self):
+        git(self.repo, "rm", "-q", "Cargo.toml")
+        git(self.repo, "commit", "-q", "-m", "drop manifest")
+        git(self.repo, "tag", "v3.0.0")
+        target = self.root / "staged"
+        origin = stage(ROLE, Source(str(self.repo), "v3.0.0", ROLE_PATH), target)
+        self.assertEqual("", origin.version)
 
     def test_full_commit_sha_is_staged(self):
         sha = git(self.repo, "rev-parse", "v1.0.0^{commit}").strip()
@@ -125,7 +143,17 @@ class TestStage(_SourceFixture, unittest.TestCase):
             "release: uncommitted\n", read_text(str(target / ROLE_FILE_TASKS_MAIN))
         )
         self.assertFalse((target / "__pycache__").exists())
-        self.assertIn("(working tree)", origin)
+        self.assertIn("(working tree)", origin.provenance)
+        self.assertEqual("1.0.0", origin.version)
+
+    def test_local_directory_reads_the_version_of_its_working_tree(self):
+        write(
+            self.repo / "Cargo.toml",
+            '[package]\nname = "demo"\nversion = "1.1.0-rc.1"\n',
+        )
+        target = self.root / "staged"
+        origin = stage(ROLE, Source(str(self.repo), None, ROLE_PATH), target)
+        self.assertEqual("1.1.0-rc.1", origin.version)
 
     def test_local_directory_skips_unreadable_agent_harness_state(self):
         harness = self.repo / ROLE_PATH / ".claude" / ".cc-writes"

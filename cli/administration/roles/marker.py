@@ -12,31 +12,29 @@ import shutil
 import stat
 from typing import TYPE_CHECKING
 
-from utils.roles.custom import PREFIX
+from utils.roles.custom import MARKER_FILE, MARKER_HEADER, PREFIX, marker_fields
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-MARKER_FILE = ".infinito-custom-role"
-MARKER_HEADER = "# infinito-nexus custom role"
-_MARKER_LIMIT = 4096
 
-
-def marker_text(directory: str, group: str, provenance: str) -> str:
+def marker_text(directory: str, group: str, provenance: str, version: str) -> str:
     """Return the content of the marker file.
 
     Args:
         directory: the name the role directory is placed as under ``roles/``.
         group: the inventory group the role was pulled for.
         provenance: the source and resolved commit the role was placed from.
+        version: the semver the source's manifests declare; empty for none.
     """
-    return (
+    text = (
         f"{MARKER_HEADER}\ndirectory: {directory}\ngroup: {group}\n"
         f"source: {provenance}\n"
     )
+    return f"{text}version: {version}\n" if version else text
 
 
-def write_marker(role: Path, group: str, provenance: str) -> None:
+def write_marker(role: Path, group: str, provenance: str, version: str) -> None:
     """Write the marker into a staged role, replacing whatever entry holds its name.
 
     The entry is removed without following it and the marker is created
@@ -47,6 +45,7 @@ def write_marker(role: Path, group: str, provenance: str) -> None:
         role: the staged role directory, named as it is placed.
         group: the inventory group the role was pulled for.
         provenance: the source and resolved commit the role was placed from.
+        version: the semver the source's manifests declare; empty for none.
     """
     marker = role / MARKER_FILE
     try:
@@ -61,7 +60,7 @@ def write_marker(role: Path, group: str, provenance: str) -> None:
         marker, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600
     )
     with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-        handle.write(marker_text(role.name, group, provenance))
+        handle.write(marker_text(role.name, group, provenance, version))
 
 
 def is_placed(path: Path) -> bool:
@@ -70,7 +69,7 @@ def is_placed(path: Path) -> bool:
     Args:
         path: an entry of the role search directory.
     """
-    return not path.is_symlink() and _fields(path).get("directory") == path.name
+    return not path.is_symlink() and marker_fields(path).get("directory") == path.name
 
 
 def provenance(path: Path) -> str:
@@ -79,7 +78,7 @@ def provenance(path: Path) -> str:
     Args:
         path: a role directory :func:`is_placed` accepts.
     """
-    return _fields(path).get("source", "")
+    return marker_fields(path).get("source", "")
 
 
 def custom_entries(roles_dir: Path) -> list[Path]:
@@ -98,19 +97,3 @@ def placed_roles(roles_dir: Path) -> list[Path]:
         roles_dir: the role search directory.
     """
     return [entry for entry in custom_entries(roles_dir) if is_placed(entry)]
-
-
-def _fields(role: Path) -> dict[str, str]:
-    try:
-        descriptor = os.open(
-            role / MARKER_FILE, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
-        )
-    except OSError:
-        return {}
-    with os.fdopen(descriptor, encoding="utf-8", errors="replace") as handle:
-        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-            return {}
-        lines = handle.read(_MARKER_LIMIT).splitlines()
-    if not lines or lines[0] != MARKER_HEADER:
-        return {}
-    return dict(line.split(": ", 1) for line in lines[1:] if ": " in line)
