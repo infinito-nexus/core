@@ -44,7 +44,7 @@ stalwart:
   placement: manager
   image: stalwartlabs/stalwart
   webui_version: "v2.0.5"
-  version: "v1.0.3"
+  version: "v1.1.0"
   update:
     - key: webui_version
       type: git_tags
@@ -115,7 +115,7 @@ webmail:
   image: roundcube/roundcubemail
   healthcheck:
     flavor: curl
-  version: "1.7.5-apache"
+  version: "1.7.6-apache"
   backup:
     stop_required: false
   cpus: "0.3"
@@ -149,7 +149,7 @@ stalwart_migrate:
   enabled: false
   shared: false
   image: stalwartlabs/stalwart-migrate
-  version: "1.0.4"
+  version: "1.0.7"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
