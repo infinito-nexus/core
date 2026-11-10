@@ -58,7 +58,7 @@ weblate:
     host:
       enabled: false
   image: weblate/weblate
-  version: "2026.9"
+  version: "2026.11"
   min_storage: 1GB
   ports:
     local:
@@ -86,7 +86,7 @@ beat:
     host:
       enabled: false
   image: weblate/weblate
-  version: "2026.9"
+  version: "2026.11"
   min_storage: 1GB
   lifecycle: beta
   # nocheck: single-replica weblate-beat. It is the only task upstream lets run Django's migrate, and the beat scheduler itself must stay singular or every periodic task fires once per replica.
@@ -109,7 +109,7 @@ worker:
     host:
       enabled: false
   image: weblate/weblate
-  version: "2026.9"
+  version: "2026.11"
   min_storage: 1GB
   lifecycle: beta
   cpus: "1.0"
