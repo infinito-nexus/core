@@ -163,6 +163,61 @@ class TestAffected(unittest.TestCase):
                 got = affected_main.affected_selection(["web-app-keycloak"])
             self.assertIn("web-app-consumer#0", got)
 
+    def test_each_variant_is_judged_with_the_pins_its_own_round_runs(self) -> None:
+        """Variant 1 reaches the seed only through its own pin moving the
+        partner, and an unrelated role's pin would move the subject itself;
+        only the round the planner deploys for each variant keeps both."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for role in (
+                "web-app-keycloak",
+                "web-app-matomo",
+                "web-app-consumer",
+                "web-app-other",
+            ):
+                _mk_app_role(root, role, role)
+            off = {"enabled": False, "shared": False}
+            on = {"enabled": True, "shared": True}
+            dump_yaml(
+                root / "roles" / "web-app-matomo" / ROLE_FILE_META_SERVICES,
+                {"matomo": {}, "sso": off},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-matomo" / ROLE_FILE_META_VARIANTS,
+                [{}, {}, {"services": {"sso": on}}],
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_SERVICES,
+                {"consumer": {}, "sso": on, "matomo": on},
+            )
+            (root / "roles" / "web-app-consumer" / ROLE_FILE_META_VARIANTS).write_text(
+                "- services:\n"
+                "    matomo: {enabled: false, shared: false}\n"
+                "- services:\n"
+                "    sso: {enabled: false, shared: false}\n"
+                "    # variant-pin: web-app-matomo#2\n"
+                "    matomo: {enabled: true, shared: true}\n"
+                "- services:\n"
+                "    sso: {enabled: false, shared: false}\n"
+                "    matomo: {enabled: false, shared: false}\n",
+                encoding="utf-8",
+            )
+            dump_yaml(
+                root / "roles" / "web-app-other" / ROLE_FILE_META_SERVICES,
+                {"other": {}, "matomo": off},
+            )
+            (root / "roles" / "web-app-other" / ROLE_FILE_META_VARIANTS).write_text(
+                "- services:\n"
+                "    # variant-pin: web-app-consumer#2\n"
+                "    matomo: {enabled: false, shared: false}\n"
+                "- {}\n",
+                encoding="utf-8",
+            )
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["web-app-keycloak"])
+            self.assertIn("web-app-consumer#0,1", got)
+
     def test_a_seed_keeps_every_variant_of_its_own_role(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

@@ -1,0 +1,34 @@
+---
+- name: ⏳ Collect the Cloudflare record jobs of this attempt
+  ansible.builtin.async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ _cf_judged | selectattr('ansible_job_id', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.item.type }} {{ item.item.name }}"
+  register: _cf_reaped
+  until: _cf_reaped.finished or (now(utc=true).timestamp() > (_cf_collect_deadline | float))
+  retries: "{{ cloudflare_collect_retries | int }}"
+  delay: "{{ cloudflare_collect_interval | int }}"
+  changed_when: false
+  ignore_errors: true
+  when: ASYNC_ENABLED | bool
+
+- name: 🧮 Split this attempt's failures into records to retry and records to stop for
+  ansible.builtin.set_fact:
+    _cf_split: >-
+      {{ ((_cf_reaped.results + (_cf_judged | rejectattr('ansible_job_id', 'defined') | list))
+          if ASYNC_ENABLED | bool else _cf_judged)
+         | async_retry_split(cloudflare_tolerate, cloudflare_transient) }}
+
+- name: 🛑 Fail at once for every Cloudflare record a retry cannot fix
+  ansible.builtin.fail:
+    msg: >-
+      Cloudflare records: {{ _cf_split.failed | length }} record(s) failed for good
+      on attempt {{ cloudflare_attempt }}:
+      {% for f in _cf_split.failed %}{{ f.item.type }} {{ f.item.name }} ({{ f.item.zone }}): {{ f.error }}{{ ' || ' if not loop.last }}{% endfor %}
+  when: _cf_split.failed | length > 0
+
+- name: 🗂️ Queue the hung and transiently failed records for the next attempt
+  ansible.builtin.set_fact:
+    _cf_retry: "{{ _cf_split.retry }}"
+    _cf_pending: "{{ _cf_split.retry | map(attribute='item') | list }}"

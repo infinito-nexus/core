@@ -1,10 +1,54 @@
-"""Tests for utils.networks.proxy: resolve_upstream + render_proxy_pass."""
+"""Tests for utils.networks.proxy: resolve_upstream, render_proxy_pass, proxy_hops."""
 
 from __future__ import annotations
 
 import unittest
 
-from utils.networks.proxy import render_proxy_pass, resolve_upstream
+from utils.networks.proxy import (
+    REVERSE_PROXY_APPLICATION_ID,
+    proxy_hops,
+    render_proxy_pass,
+    resolve_upstream,
+)
+
+_APP = "web-app-nextcloud"
+_SUBNETS = {
+    _APP: "192.168.41.0/24",
+    "svc-db-mariadb": "192.168.201.0/24",
+    "svc-db-openldap": "192.168.202.0/24",
+    REVERSE_PROXY_APPLICATION_ID: "192.168.107.0/24",
+}
+_JOINED = {
+    "compose": {
+        _APP: ["svc-db-mariadb", "svc-db-openldap", _APP],
+        REVERSE_PROXY_APPLICATION_ID: [],
+    },
+    "swarm": {
+        _APP: [
+            "svc-db-mariadb",
+            "svc-db-openldap",
+            REVERSE_PROXY_APPLICATION_ID,
+            _APP,
+        ],
+        REVERSE_PROXY_APPLICATION_ID: [REVERSE_PROXY_APPLICATION_ID],
+    },
+}
+
+
+def _hops(mode: str, joined: dict[str, list[str]] | None = None) -> list[str]:
+    """``proxy_hops`` over the fixture topology.
+
+    Args:
+        mode: ``compose`` or ``swarm``.
+        joined: role id to the networks it joins; ``None`` means ``_JOINED[mode]``.
+    """
+    networks = _JOINED[mode] if joined is None else joined
+    return proxy_hops(
+        _APP,
+        mode,
+        lambda role: list(networks[role]),
+        lambda roles: [_SUBNETS[role] for role in roles],
+    )
 
 
 def _apps():
@@ -192,6 +236,46 @@ class TestRenderProxyPassGuards(unittest.TestCase):
     def test_empty_authority_raises(self):
         with self.assertRaises(ValueError):
             render_proxy_pass("", "swarm")
+
+
+class TestProxyHopsCompose(unittest.TestCase):
+    def test_gateway_of_every_network_the_app_joins(self):
+        self.assertEqual(
+            _hops("compose"),
+            ["192.168.41.1", "192.168.201.1", "192.168.202.1"],
+        )
+
+    def test_own_network_counts_when_the_app_provides_no_shared_net(self):
+        joined = {_APP: ["svc-db-mariadb"], REVERSE_PROXY_APPLICATION_ID: []}
+        self.assertEqual(_hops("compose", joined), ["192.168.41.1", "192.168.201.1"])
+
+    def test_network_the_app_does_not_join_is_not_trusted(self):
+        joined = {_APP: [_APP], REVERSE_PROXY_APPLICATION_ID: []}
+        self.assertEqual(_hops("compose", joined), ["192.168.41.1"])
+
+    def test_whole_subnets_are_not_trusted(self):
+        for hop in _hops("compose"):
+            with self.subTest(hop=hop):
+                self.assertNotIn("/", hop)
+
+
+class TestProxyHopsSwarm(unittest.TestCase):
+    def test_subnet_of_the_overlay_shared_with_the_proxy(self):
+        self.assertEqual(_hops("swarm"), ["192.168.107.0/24"])
+
+    def test_overlay_only_the_app_joins_is_not_trusted(self):
+        hops = _hops("swarm")
+        for role in ("svc-db-mariadb", "svc-db-openldap", _APP):
+            with self.subTest(role=role):
+                self.assertNotIn(_SUBNETS[role], hops)
+
+    def test_no_shared_overlay_raises(self):
+        joined = {
+            _APP: ["svc-db-mariadb", _APP],
+            REVERSE_PROXY_APPLICATION_ID: [REVERSE_PROXY_APPLICATION_ID],
+        }
+        with self.assertRaises(ValueError):
+            _hops("swarm", joined)
 
 
 if __name__ == "__main__":

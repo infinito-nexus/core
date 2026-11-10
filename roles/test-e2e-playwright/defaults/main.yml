@@ -3,7 +3,9 @@
 #
 # Param test_e2e_playwright_run_timeout: hard cap per role in seconds; Ansible
 #   kills the sidecar when it is exceeded. Sized for addon-heavy roles that run
-#   many per-addon specs, e.g. nextcloud (~50 addons).
+#   many per-addon specs, e.g. nextcloud (~50 addons). A role whose specs
+#   legitimately outlast it raises its own cap with `playwright.timeout` in
+#   `meta/tests.yml`, the way `cli.timeout` raises the CLI harness cap.
 # Param test_e2e_playwright_test_timeout: per-test timeout in ms
 #   (config.timeout); caps a single spec.
 # Param test_e2e_playwright_workers: parallel Playwright workers. Spec FILES run
@@ -21,6 +23,11 @@
 #   mask the result of the deploy that actually ran.
 # Param test_e2e_playwright_skip_roles: roles excluded from the run.
 # Param test_e2e_playwright_keep: keep the sidecar and cluster after the run.
+# Param PLAYWRIGHT_MAPACHE_PASSWORD: password the provisioning spec sets on the
+#   mapache persona and every consumer spec logs in with. The inventory owns it
+#   rather than `secrets.credentials`, because a generated credential rotates
+#   between the matrix's two passes and pass 2 would then face the password
+#   pass 1 stored.
 # Param VARIANT_INDEX: 0-based matrix-deploy round id, pushed as an extra var by
 #   `cli/administration/deploy/development/deploy.py` when the matrix
 #   orchestrator runs. Defaults to 0 for dev / non-matrix invocations so
@@ -29,6 +36,10 @@
 test_e2e_playwright_run_timeout: 3600
 
 test_e2e_playwright_test_timeout: 300000
+
+# Front-proxy readiness probe (test-e2e-playwright/tasks/03_run_pass.yml); role-overridable via each app's vars/main.yml.
+test_e2e_playwright_wait_retries: 30
+test_e2e_playwright_wait_delay: 5
 
 test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
 
@@ -39,5 +50,7 @@ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS: "{{ (((TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EF
 test_e2e_playwright_only_roles: "{{ lookup('deployment').running }}"
 test_e2e_playwright_skip_roles: []
 test_e2e_playwright_keep: false
+
+PLAYWRIGHT_MAPACHE_PASSWORD: ""
 
 VARIANT_INDEX: 0

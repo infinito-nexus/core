@@ -1,0 +1,30 @@
+{% set design = lookup('design', application_id) %}
+import Svg, {Image, type PathProps, type SvgProps} from 'react-native-svg'
+
+const ratio = 17 / 64
+const DESIGN_LOGOTYPE = {{ design.urls.logotype.svg | to_json }}
+const DESIGN_LOGOTYPE_LABEL = {{ design.title | to_json }}
+
+export function Logotype({
+  fill: _fill,
+  ...rest
+}: {fill?: PathProps['fill']} & SvgProps) {
+  const size = Number(rest.width ?? 32)
+
+  return (
+    <Svg
+      fill="none"
+      viewBox="0 0 64 17"
+      accessibilityLabel={DESIGN_LOGOTYPE_LABEL}
+      {...rest}
+      width={size}
+      height={size * ratio}>
+      <Image
+        href={DESIGN_LOGOTYPE}
+        width={64}
+        height={17}
+        preserveAspectRatio="xMidYMid meet"
+      />
+    </Svg>
+  )
+}

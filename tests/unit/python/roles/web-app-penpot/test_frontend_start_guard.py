@@ -10,6 +10,7 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-penpot"
@@ -17,7 +18,7 @@ ROLE_DIR = PROJECT_ROOT / "roles/web-app-penpot"
 GETENT_STUB = """#!/usr/bin/env bash
 name="${2:-}"
 if [[ "${name}" != *. ]]; then
-\techo "172.30.0.10 ${name}.infinito.test"
+\techo "172.30.0.10 ${name}.__DOMAIN__"
 \texit 0
 fi
 echo "${name}" >>"${STUB_DIR}/absolute-names"
@@ -27,7 +28,7 @@ if [ "${lookups}" -le "${STUB_UNKNOWN_LOOKUPS}" ]; then
 \texit 2
 fi
 echo "192.168.48.5 ${name%.}"
-"""
+""".replace("__DOMAIN__", default_domain_primary())
 
 NGINX_STUB = """#!/usr/bin/env bash
 cat "${STUB_DIR}/absolute-lookups" 2>/dev/null || echo 0

@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        16.2.3
+Version:        17.0.0
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -35,6 +35,7 @@ Requires:       rsync
 Requires:       sudo
 Requires:       systemd
 Requires:       tar
+Requires:       zstd
 Recommends:     bind-utils
 Recommends:     shellcheck
 Recommends:     shfmt
@@ -58,6 +59,156 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Sun Nov 08 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 17.0.0-1
+- Breaking:
+
+- - Credentials: apps sign in with their own platform administrator account
+- - Roles: prefix *desk-* is now *dsk-*, *web-app-mig* is now *web-app-meta*
+- - Roles: *web-svc-css* is now *web-svc-design*; *web-app-sphinx* is removed
+- - SeaweedFS: the S3 server is now *web-svc-seaweedfs*; the console stays
+
+- Added:
+
+- - i18n: gettext catalogs for 182 languages, machine-translated per PR
+- - Docs: *web-app-docs* serves every release as a translated site per language
+- - Dashboard: role descriptions and menus show in every translated language
+- - Dashboard: *services.dashboard.display: false* hides a role's tile
+- - Design: one corporate design is derived from a single base color
+- - Design: 79 apps carry the palette, title and logo through their own themes
+- - Networks: clearnet and onion come from one registry, one instance each
+- - Keycloak: one oauth2-proxy per network; */admin* only for declared networks
+- - Storage: seven apps keep uploads and attachments in SeaweedFS buckets
+- - API: *web-svc-api* serves a public REST API over role data and translations
+- - Translation: *web-svc-translate* is one gateway with memory and a glossary
+- - Translation: an NLLB model covers 136 languages
+- - AI: LiteLLM routes one alias to the model that can serve the request
+- - AI: *svc-ai-agent-broker* starts a personal agent per user and platform
+- - Open WebUI: retrieval, web search and code execution come from the platform
+- - Mattermost: Agents, Alertmanager, GitLab, Jenkins, Jira and Jitsi plugins
+- - PostgreSQL: an older cluster is upgraded in place with *pg_upgrade --link*
+- - Upgrades: Nextcloud, Moodle, OpenProject and Joomla step old data to the pin
+- - Stalwart: a 0.16 store is migrated to 1.0 during the deploy
+- - Stalwart: the platform administrator manages Stalwart through SSO
+- - Mail: a DMARC aggregate report address (rua) is published
+- - Playbooks: host-wide stop, start and report playbooks
+- - Update: the update checks host and inventory and pulls images ahead
+- - Update: an Arch host whose kernel lost its modules is rebooted safely
+- - Cleanup: stacks and nginx configs of roles no longer served are removed
+- - Licensing: every role declares the licence of the software it deploys
+- - Proxy: per-app nosniff, Referrer-Policy, Permissions-Policy and HSTS
+- - Health: an alert fires on end-of-life or unpatched PHP runtimes
+- - GPU: an NVIDIA GPU is handed through to nested containers
+- - Roles: custom roles are pulled from sources declared in the inventory
+- - Workstation: coding agents, Blender and Laya install against the gateway
+- - CI: the deploy matrix runs on amd64 and arm64
+
+- Changed:
+
+- - Wazuh: the SIEM console is reachable over Tor as well as on clearnet
+- - Lifecycle: Confluence, Jira, MinIO and phpLDAPadmin are end of life
+- - Lifecycle: Akaunting and Mailu are end of life; Stalwart stays the default
+- - Odoo: the image is back on 19.0, the line its storage modules support
+- - BigBlueButton: shared notes replace the Etherpad and bbb-pads containers
+- - Pretix: the image is built from the tagged source on Python 3.13
+- - LM Studio: the preview image is replaced by an own llmster build
+
+- Fixed:
+
+- - Keycloak: a self-service e-mail change can no longer take over an account
+- - Keycloak: a rotated admin password is absorbed instead of locking out
+- - Keycloak: an SSO login returns to the page that asked for it
+- - Passwords: admin passwords converge on every deploy, not only at install
+- - Passwords: database and admin secrets stay off process command lines
+- - Backup: restores keep extended attributes and the volume mountpoint
+- - Deploy: a hung image pull or build no longer stalls a deploy
+- - Deploy: self-built images rebuild when their build inputs change
+- - Swarm: services roll when a local image changes under the same tag
+- - Baserow, Pixelfed: containers are no longer recreated on every deploy
+- - Demo: demo data is seeded only with *MODE_DEMO*
+- - MediaWiki: the login session is shared across replicas
+- - Magento: catalog changes reach the storefront without a cron
+- - Matomo, Shopware, EspoCRM: data volumes follow an image upgrade
+- - Onion: Jenkins and Joomla logins return to the onion host they began on
+- - Mail: */root/.msmtprc* is written with mode 0600
+- - Update: a host stops before a restart when its kernel lost its modules
+- - Odoo: object storage works again
+
+- Version jumps (net since 16.2.3):
+
+- - *pkgmgr*: v2.0.4 to v2.4.0
+- - *svc-ai-lmstudio*: preview image to llmster 0.0.25-1
+- - *svc-ai-ollama*: 0.40.7 to 0.40.15
+- - *svc-db-qdrant*: v1.19.2 to v1.20.0
+- - *svc-db-redis*: 8.10.2 to 8.10.3
+- - *svc-opt-swapfile*: v1.0.0 to v1.0.1
+- - *svc-prx-openresty*: 1.31.1.1 to 1.31.8.1
+- - *svc-runner*: BuildKit v0.34.1 to v0.34.2
+- - *sys-ctl-hlth-csp*: csp-checker 3.1.0 to 3.2.0
+- - *test-e2e-playwright*: v1.64.1 to v1.65.0
+- - *web-app-bigbluebutton*: v3.0.23 to v3.0.39, webrtc-sfu v2.22.0 to v2.24.0
+- - *web-app-bigbluebutton*: FreeSWITCH v1.10.12 to v1.11.3
+- - *web-app-bluesky*: view 1.135.0 to 1.137.0
+- - *web-app-bookwyrm*: v0.9.3 to v0.9.4
+- - *web-app-checkmk*: 2.4.0p37 to 2.4.0p39
+- - *web-app-discourse*: v2026.9.0 to v2026.10.0, core and plugins on commits
+- - *web-app-erpnext*: v16.52.0 to v16.54.0
+- - *web-app-espocrm*: 10.0.10 to 10.0.11
+- - *web-app-fider*: stable to v0.39.0
+- - *web-app-funkwhale*: 2.0.12 to 2.0.13
+- - *web-app-gitea*: 28.2.0 to 28.3.0, MCP server 1.10.0 to 1.13.0
+- - *web-app-gitlab*: v19.5.1 to v19.5.3
+- - *web-app-hugo*: builder v0.168.0 to v0.169.0
+- - *web-app-jenkins*: 2.580.1 to 2.580.2
+- - *web-app-joomla*: 6.1.4 to 6.2.0
+- - *web-app-keycloak*: 26.8.1 to 26.8.2, oauth2-proxy v7.15.5 to v7.15.6
+- - *web-app-matomo*: 5.14.0 to 5.14.2
+- - *web-app-matrix*: Synapse v1.163.0 to v1.164.2, Element v1.12.32 to v1.12.33
+- - *web-app-mattermost*: 12.0.0 to 13.7
+- - *web-app-meta*: latest to v2.0.4
+- - *web-app-moodle*: auth_oidc v5.2.1 to v5.3.0
+- - *web-app-n8n*: 2.45.1 to 3.1.0
+- - *web-app-nextcloud*: Talk pinned to 3.23.3, context_agent 2.9.1 to 2.11.0
+- - *web-app-odoo*: 20.0 to 19.0
+- - *web-app-openbao*: 2.7.1 to 2.7.2, auth-ldap v0.1.0 to v0.2.0
+- - *web-app-opentalk*: LiveKit v1.13.10 to v1.13.11
+- - *web-app-peertube*: v8.3.1 to v8.3.2
+- - *web-app-penpot*: 2.18.3 to 2.18.6
+- - *web-app-pgadmin*: 9.18 to 9.19
+- - *web-app-pihole*: 2026.10.0 to 2026.10.1
+- - *web-app-pixelfed*: 20261021 to v0.15.2
+- - *web-app-pretix*: 2026.8.0 to v2026.9.0
+- - *web-app-prometheus*: v3.15.1 to v3.16.0, Alertmanager v0.34.1 to v0.34.2
+- - *web-app-prometheus*: blackbox-exporter v0.29.0 to v0.29.1
+- - *web-app-shopware*: 2.10 to 2.11, PHP 8.3 to 8.3.36
+- - *web-app-snipe-it*: v8.8.1 to v8.8.3
+- - *web-app-socialhome*: 2026.10.20 to 2026.11.7
+- - *web-app-stalwart*: v0.16.27 to v1.0.3, WebUI v1.0.11 to v2.0.5
+- - *web-app-wazuh*: 4.14.9 to 4.14.10, certs generator 0.0.4 to 0.0.5
+- - *web-app-wordpress*: 7.1.3 to 7.1.4
+- - *web-app-xwiki*: 18.8.0 to 18.9.0
+- - *web-app-xwiki*: OIDC 2.29.1 to 2.30.0, LDAP 9.16.6 to 9.16.7
+- - *web-app-zammad*: Elasticsearch 9.5.5 to 9.5.6
+- - *web-svc-collabora*: 26.04.5.1.1 to 26.04.6.1.1
+- - *web-svc-logout*: v1.4.2 to v1.5.2
+- - *web-svc-seaweedfs*: 4.48 to 4.52
+- - nginx 1.31.7 to 1.31.8: Coturn, Fediwall, LittleJS, Nextcloud, Taiga
+- - Ansible: *ansible.mysql* 5.2.0 replaced by *ansible.mariadb* 6.0.2
+- - Ansible: *community.general* 13.5.0 to 14.0.0, *ansible* pinned to 14.4.0
+
+- Upgrade notes:
+
+- - Credentials: 30 roles keep their old admin account until it is reset
+- - Roles: rename *desk-*, *web-app-mig* and *web-svc-css* in the inventory
+- - Odoo: an instance already on 20.0 cannot be moved back to 19.0
+- - Stalwart: the first deploy migrates a 0.16 store to the 1.0 format
+- - Lifecycle: Confluence, Jira, MinIO and phpLDAPadmin no longer deploy
+- - n8n 3, Mattermost 13 and community.general 14 are major upgrades
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): i18n, design, networks, AI
+- - [Prageeth Panicker](https://github.com/pragepani): Wazuh over Tor, Pixelfed
+
 * Wed Oct 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.3-1
 - Added:
 

@@ -1,0 +1,4 @@
+---
+canonical:
+  api: api.seaweedfs.s3.{{ DOMAIN_PRIMARY }}
+aliases: []

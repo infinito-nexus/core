@@ -38,12 +38,85 @@ static:
     - service: api
       target: *var_lib_funkwhale_static_target
     - service: front
-      target: *var_lib_funkwhale_static_target
+      target: /usr/share/nginx/html/staticfiles
       read_only: true
+
+front_nginx_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'nginx.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: front
+      target: /etc/nginx/templates/default.conf.template
+      when: "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
+
+same_origin_settings:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'settings.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &same_origin_settings_target /app/same_origin_settings.py
+      when: &same_origin_when "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
+    - service: celeryworker
+      target: *same_origin_settings_target
+      when: *same_origin_when
+    - service: celerybeat
+      target: *same_origin_settings_target
+      when: *same_origin_when
+    - service: migrate
+      target: *same_origin_settings_target
+      when: *same_origin_when
+
+same_origin_storage:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'storage.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &same_origin_storage_target /app/same_origin_storage.py
+      when: *same_origin_when
+    - service: celeryworker
+      target: *same_origin_storage_target
+      when: *same_origin_when
+    - service: celerybeat
+      target: *same_origin_storage_target
+      when: *same_origin_when
+    - service: migrate
+      target: *same_origin_storage_target
+      when: *same_origin_when
+
+same_origin_urls:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'urls.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &same_origin_urls_target /app/same_origin_urls.py
+      when: *same_origin_when
+    - service: celeryworker
+      target: *same_origin_urls_target
+      when: *same_origin_when
+    - service: celerybeat
+      target: *same_origin_urls_target
+      when: *same_origin_when
+    - service: migrate
+      target: *same_origin_urls_target
+      when: *same_origin_when
+
+design_admin_template:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'design', 'admin_base_site.html'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: /app/funkwhale_api/templates/admin/base_site.html
+      when: "{{ lookup('config', 'web-app-funkwhale', 'services.design.enabled') | bool }}"
 
 typesense_data:
   type: volume
   name: funkwhale_typesense_data
+  backup: false
   mounts:
     - service: typesense
       target: /data

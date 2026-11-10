@@ -1,4 +1,0 @@
----
-- name: 📦 Install torbrowser
-  package_install:
-    id: torbrowser

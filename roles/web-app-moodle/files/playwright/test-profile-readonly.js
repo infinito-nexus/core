@@ -31,7 +31,10 @@ exports.register = function (shared) {
       await expect(userMenu, "login must succeed before the read-only checks mean anything").toBeVisible({ timeout: resolveTimeout(30_000) });
 
       await gotoOnion(page, `${shared.env.moodleBaseUrl}/user/edit.php`);
-      await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await expect(
+        page.locator("#id_submitbutton"),
+        "the profile-edit form must render before an absent field can mean anything",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
       for (const fieldName of moodleLdapBackedProfileFields) {
         const input = page

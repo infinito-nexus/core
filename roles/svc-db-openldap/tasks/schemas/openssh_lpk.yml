@@ -14,18 +14,19 @@
           SUP top
           AUXILIARY
           MAY ( {{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }} $ sshFingerprint ) )
-  command: >
-    ldapsm
-      -s {{ OPENLDAP_SERVER_URI }}
-      -D '{{ OPENLDAP_BIND_DN }}'
-      -W '{{ OPENLDAP_BIND_PW }}'
-      -n {{ schema_name }}
-      {% for at in attribute_defs %}
-      -a "{{ at }}"
-      {% endfor %}
-      {% for oc in objectclass_defs %}
-      -c "{{ oc }}"
-      {% endfor %}
+  command:
+    cmd: >
+      {{ OPENLDAP_LDAPSM_COMMAND }}
+        -s {{ OPENLDAP_SERVER_URI }}
+        -D '{{ OPENLDAP_BIND_DN }}'
+        -n {{ schema_name }}
+        {% for at in attribute_defs %}
+        -a "{{ at }}"
+        {% endfor %}
+        {% for oc in objectclass_defs %}
+        -c "{{ oc }}"
+        {% endfor %}
+    stdin: "{{ OPENLDAP_BIND_PW }}"
   register: opensshlpk_ldapsm
   changed_when: "'Created schema entry' in opensshlpk_ldapsm.stdout"
   check_mode: false

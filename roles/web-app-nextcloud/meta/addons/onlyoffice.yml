@@ -33,4 +33,4 @@ config:
       configvalue: "false"
     - appid: "onlyoffice"
       configkey: "DocumentServerUrl"
-      configvalue: "{{ NEXTCLOUD_ONLYOFFICE_URL }}"
+      configvalue: "{{ NEXTCLOUD_ONLYOFFICE_LOCATION }}"

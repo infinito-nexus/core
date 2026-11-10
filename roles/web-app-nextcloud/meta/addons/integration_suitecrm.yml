@@ -9,4 +9,4 @@ config:
   plugin_configuration:
     - appid: "integration_suitecrm"
       configkey: "url"
-      configvalue: "{{ lookup('tls', 'web-app-suitecrm', 'url.base') }}"
+      configvalue: "{{ lookup('tls', 'web-app-suitecrm', 'url.origin') }}"

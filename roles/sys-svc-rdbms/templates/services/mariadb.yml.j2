@@ -3,7 +3,7 @@
 
   {{ lookup('database', application_id, 'host') }}:
     {{ lookup('container_deploy', replicas=1) | indent(4) }}
-    {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-database')) }}
+    {{ lookup('compose_only', 'container_name', ((application_id | entity_name) ~ '-database')) }}
     logging:
       driver: journald
     {{ lookup('container_image', 'svc-db-mariadb', 'mariadb', image=lookup('database', application_id, 'image'), version=lookup('database', application_id, 'version')) }}

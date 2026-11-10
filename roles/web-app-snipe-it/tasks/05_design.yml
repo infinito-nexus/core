@@ -1,0 +1,42 @@
+---
+- name: "🖼️ Stage the corporate logo set of {{ application_id }}"
+  when: SNIPE_IT_DESIGN_ENABLED | bool
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ SNIPE_IT_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ SNIPE_IT_DESIGN_DIR }}"
+
+    - name: "📤 Hand the corporate logo set to the Snipe-IT container"
+      ansible.builtin.shell: >-
+        cat {{ [SNIPE_IT_DESIGN_DIR, item ~ '.png'] | path_join | quote }}
+        | container exec -i {{ SNIPE_IT_CONTAINER_ADDRESS }}
+        sh -c {{ ('cat > /tmp/design-' ~ item ~ '.png') | quote }}
+      args:
+        executable: /bin/bash
+      loop: "{{ SNIPE_IT_DESIGN_SETTINGS.assets }}"
+      changed_when: false
+
+- name: "🏷️ Apply the corporate branding of {{ application_id }} via Setting model"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e SNIPE_IT_DESIGN={{ (SNIPE_IT_DESIGN_SETTINGS if SNIPE_IT_DESIGN_ENABLED | bool else {}) | to_json | b64encode | quote }}
+      {{ SNIPE_IT_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'php/apply/design_config.php') }}"
+  register: snipe_it_design
+  changed_when: snipe_it_design.stdout | trim == 'changed'
+
+- name: "🧹 Clear the Laravel caches after a branding change of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: "container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} php artisan optimize:clear"
+  when: snipe_it_design.stdout | trim == 'changed'
+  changed_when: true

@@ -1,0 +1,8 @@
+---
+# Matrix-deploy variant overrides for dsk-neovim.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    docs:
+      enabled: true
+      shared: true

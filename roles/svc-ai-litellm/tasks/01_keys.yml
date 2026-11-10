@@ -18,7 +18,9 @@
 
 - name: "🔑 Ensure a virtual key exists per consumer"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e LITELLM_KEYS_PAYLOAD={{ LITELLM_CONSUMER_KEYS | to_json | quote }} -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/ensure_keys.py')) | quote }}
+    container exec -i -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/ensure_keys.py')) | quote }}
+  args:
+    stdin: "{{ LITELLM_CONSUMER_KEYS | to_json }}"
   register: litellm_keys_result
   retries: 10
   delay: 6
@@ -29,7 +31,9 @@
 
 - name: "🛡️ Prove the gateway is closed and revocation stays per consumer"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_KEY={{ (LITELLM_CONSUMER_KEYS | first).key | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/probe_auth.py')) | quote }}
+    container exec -i -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/probe_auth.py')) | quote }}
+  args:
+    stdin: "{{ {'key': (LITELLM_CONSUMER_KEYS | first).key} | to_json }}"
   register: litellm_auth_probe
   retries: 5
   delay: 10
@@ -40,12 +44,17 @@
 
 - name: "🔥 Warm the chat model so the first prompt is not a cold load"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_MODEL={{ LITELLM_CHAT_MODEL | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/warm_model.py')) | quote }}
+    container exec -i -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_MODEL={{ LITELLM_CHAT_MODEL | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/warm_model.py')) | quote }}
   register: litellm_warm_result
   retries: 5
   delay: 10
   until: litellm_warm_result.rc == 0
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ LITELLM_HOST_NODE }}"
   when: LITELLM_CHAT_MODEL_SERVED | bool
+
+- name: "⏱️ Rank the served models on measured generation speed"
+  ansible.builtin.include_tasks: 02_speed.yml
+  when:
+    - LITELLM_ROUTER_ALIAS | length > 0
+    - LITELLM_CHAT_MODEL_SERVED | bool

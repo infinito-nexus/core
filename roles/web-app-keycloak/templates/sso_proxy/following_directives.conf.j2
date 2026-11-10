@@ -2,7 +2,7 @@
 
 auth_request /oauth2/auth;
 
-error_page 401 = /oauth2/start;
+error_page 401 = @oauth2_start;
 
 auth_request_set $authrequest_user        $upstream_http_x_auth_request_user;
 auth_request_set $authrequest_username    $upstream_http_x_auth_request_preferred_username;

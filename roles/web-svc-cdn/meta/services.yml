@@ -48,6 +48,12 @@ javascript:
   enabled: false
   shared: true
   canonical: cdn
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: serves the shared stylesheets and the npm-mirrored libraries the other roles load; its only HTML is nginx's autoindex listing (templates/proxy.conf.j2)
+design:
+  enabled: false
+  shared: false
 # nocheck: playwright-service-flag — /metrics endpoint covered by web-app-prometheus's own spec
 prometheus:
   bond: 1
@@ -62,3 +68,8 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

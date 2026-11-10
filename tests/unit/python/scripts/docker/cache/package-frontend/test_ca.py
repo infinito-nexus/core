@@ -9,7 +9,7 @@ from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
 
-SCRIPT = PROJECT_ROOT / "scripts" / "docker" / "cache" / "package-frontend" / "ca.sh"
+SCRIPT = PROJECT_ROOT / "roles" / "svc-cache-package" / "files" / "shell" / "ca.sh"
 NAME = "infinito-package-frontend.crt"
 STUB = '#!/usr/bin/env bash\nprintf "%s\\n" "$0 $*" >>"${STUB_LOG}"\n'
 PKI = "etc/pki/ca-trust/source/anchors"

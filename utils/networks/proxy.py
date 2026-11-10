@@ -1,21 +1,27 @@
-"""Mode-aware nginx ``proxy_pass`` directive renderer (compose/swarm), SPOT.
+"""Mode-aware nginx ``proxy_pass`` directive renderer and the addresses its
+requests reach an application from (compose/swarm), SPOT.
 
 Trip-wire: the swarm oauth2 endpoint must forward ``$uri$is_args$args``, not
-``$request_uri`` — during ``error_page 401 = /oauth2/start`` the original
+``$request_uri`` — during the ``error_page 401 = @oauth2_start`` jump the original
 ``$request_uri`` stays ``/`` and oauth2-proxy 403s instead of redirecting.
 """
 
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from utils.networks.address import subnet_gateway
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 _REGEX_OR_NAMED_LOCATION = re.compile(r"^[@~]")
 _LOCATION_MODIFIER = re.compile(r"^(?:=|\^~)\s*")
 _UPSTREAM_VAR = "proxy_pass_upstream"
+REVERSE_PROXY_APPLICATION_ID = "svc-prx-openresty"
 
 
 def _as_str(value: Any) -> str:
@@ -40,7 +46,7 @@ def resolve_upstream(
     ``host.docker.internal:<local>`` via the host gateway (the caller sets
     this off the real DEPLOYMENT_MODE, since such apps force a compose-style
     render). Missing swarm internal port hard-fails."""
-    entity = get_entity_name(application_id)
+    entity = entity_name(application_id)
     if not entity:
         raise ValueError(
             f"resolve_upstream: cannot derive entity from {application_id!r}"
@@ -132,3 +138,42 @@ def render_proxy_pass(
             f"    proxy_pass http://${_UPSTREAM_VAR}{_swarm_tail(tail)};"
         )
     return f"proxy_pass http://{authority}{_compose_suffix(tail, location)};"
+
+
+def proxy_hops(
+    application_id: str,
+    deployment_mode: str,
+    network_roles: Callable[[str], list[str]],
+    subnets: Callable[[list[str]], list[str]],
+) -> list[str]:
+    """Addresses the reverse proxy's requests reach ``application_id`` from.
+
+    Args:
+        application_id: the proxied application.
+        deployment_mode: ``compose`` or ``swarm``, after any per-role override.
+        network_roles: role id to the provider roles whose networks it joins.
+        subnets: role ids to their ``networks.local.subnet``, in order.
+
+    Returns:
+        Under compose the gateway of the application's own network and of
+        every network it joins: the proxy runs on the host network and reaches
+        a published port, which Docker forwards from the gateway of whichever
+        of those networks it routes the container through. Under swarm the
+        subnets of the overlays the application shares with the proxy, which
+        reaches it from its task address there.
+
+    Raises:
+        ValueError: under swarm the application shares no overlay with the
+            proxy.
+    """
+    if deployment_mode != "swarm":
+        roles = list(dict.fromkeys([application_id, *network_roles(application_id)]))
+        return list(dict.fromkeys(subnet_gateway(subnet) for subnet in subnets(roles)))
+    proxy_networks = network_roles(REVERSE_PROXY_APPLICATION_ID)
+    shared = [role for role in network_roles(application_id) if role in proxy_networks]
+    if not shared:
+        raise ValueError(
+            f"{application_id} shares no overlay with "
+            f"{REVERSE_PROXY_APPLICATION_ID}, so no address carries its proxied requests"
+        )
+    return list(dict.fromkeys(subnets(shared)))

@@ -34,7 +34,7 @@ flowchart TD
     PIMG --> DEV
     DIR --> ROOT
 
-    ROOT --> NFS["nfs -> export subtree"]
+    ROOT --> NFS["nfs -> export base"]
     NFS --> VOL["volume -> docker volume(s)"]
     VOL --> SEC["secrets -> system paths"]
     SEC --> T["target host recovered"]
@@ -45,7 +45,7 @@ flowchart TD
 | type | restores | source |
 |---|---|---|
 | `device` | LUKS device/image → local backup root | `<device>[:subpath][:gen][:/restore-dir]` |
-| `nfs` | snapshot → NFS export subtree | files-dir or `[user@]host:/path` |
+| `nfs` | `<generation>/files` → NFS export base (`/srv/nfs`); `<generation>/files/<subtree>:<export-base>/<subtree>` → one subtree | files-dir or `[user@]host:/path` |
 | `volume` | snapshot → docker volume | `.../<volume>/files` or host |
 | `secrets` | snapshot → host secret paths | `<generation>/files` |
 | `full` | every backup-stored type, in order | backup-root, host, or device |
@@ -89,7 +89,7 @@ disposable). `--preview` prints the exact commands without running them.
 |---|---|
 | `recoverers.py` | abstract `Recoverer` + one subclass per type, source parsing/validation |
 | `full.py` | `full` orchestration: resolve source, discover repos, recover in order |
-| `paths.py` | standard filesystem layout (backup root, export state, secrets, mount) |
+| `paths.py` | standard filesystem layout (backup root, export base, secrets, mount) |
 | `__main__.py` | argparse entry + dispatch |
 | `schema.yml` | the recovery schema |
 

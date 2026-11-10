@@ -1,0 +1,4 @@
+---
+canonical:
+  - api.translate.{{ DOMAIN_PRIMARY }}
+aliases: []

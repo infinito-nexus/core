@@ -1,0 +1,8 @@
+changed = false
+{% for setting in DISCOURSE_CHAT_INTEGRATION_SETTINGS %}
+unless SiteSetting.{{ setting }}
+  SiteSetting.{{ setting }} = true
+  changed = true
+end
+{% endfor %}
+puts "chat_integration_changed=#{changed}"

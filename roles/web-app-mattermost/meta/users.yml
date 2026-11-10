@@ -1,4 +1,4 @@
 ---
-administrator:
+platform_administrator:
   tokens:
     web-app-mattermost: ""

@@ -92,7 +92,10 @@ async function assertAuthenticated(page) {
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected the SPA to reach a #/ route after sign-in" })
     .toContain("#/");
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("[data-testid='dashboard-sidebar']"),
+    "Expected the Penpot dashboard shell, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 // In-app OIDC (flavor: oidc): the login page renders an "OpenID" provider entry

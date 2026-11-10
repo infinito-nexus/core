@@ -5,6 +5,7 @@ const { resolveTimeout } = require("./timeouts");
 // test module per scenario so each test stays atomar.
 
 const { expect } = require("@playwright/test");
+const { assertToken } = require("./design");
 const { decodeDotenvQuotedValue, escapeRegex, gotoOnion, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
@@ -220,17 +221,18 @@ async function getComputedStyleValue(locator, propertyName) {
     .evaluate((element, cssProperty) => getComputedStyle(element).getPropertyValue(cssProperty), propertyName);
 }
 
-async function expectGradientBackground(locator, message) {
+async function expectTokenSurface(page, selector, token, message) {
+  const locator = page.locator(selector);
   await expect(locator.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
-  await expect
-    .poll(
-      async () => getComputedStyleValue(locator, "background-image"),
-      {
-        timeout: resolveTimeout(60_000),
-        message
-      }
-    )
-    .toMatch(/gradient/i);
+  expect(await getComputedStyleValue(locator, "background-image"), `${message}: no gradient or image`).toBe("none");
+  await assertToken(page, selector, "background-color", token, message);
+}
+
+async function loginToTaigaForVariant(page) {
+  if (taigaOauth2Enabled || taigaOidcEnabled) {
+    return loginToTaiga(page);
+  }
+  return loginToTaigaNative(page);
 }
 
 async function loginToTaiga(page) {
@@ -302,6 +304,7 @@ async function loginToTaiga(page) {
 
   await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.first().fill(loginUsername);
+  await expect(passwordField.first()).toBeEditable({ timeout: resolveTimeout(30_000) });
   await passwordField.first().fill(loginPassword);
   await signInButton.first().click({ timeout: resolveTimeout(30_000) });
 
@@ -473,6 +476,7 @@ async function loginToTaigaNative(page) {
 
   await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.first().fill(loginUsername);
+  await expect(passwordField.first()).toBeEditable({ timeout: resolveTimeout(30_000) });
   await passwordField.first().fill(loginPassword);
   await signInButton.first().click({ timeout: resolveTimeout(30_000) });
 
@@ -505,9 +509,10 @@ module.exports = {
   loginToTaiga,
   logoutFromTaiga,
   loginToTaigaNative,
+  loginToTaigaForVariant,
   logoutFromTaigaNative,
   getTaigaUrls,
-  expectGradientBackground,
+  expectTokenSurface,
   reachTopLevelTaigaAuthEntry,
   runAdminFlow,
   runBiberFlow,

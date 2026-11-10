@@ -1,0 +1,6 @@
+[sqlfluff]
+dialect = mysql
+templater = placeholder
+
+[sqlfluff:templater:placeholder]
+param_style = pyformat

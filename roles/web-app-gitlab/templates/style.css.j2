@@ -1,0 +1,211 @@
+:root,
+:root.gl-dark {
+  --gl-application-chrome-background-color: var(--design-frame);
+  --gl-background-color-default: var(--design-surface-2);
+  --gl-background-color-subtle: var(--design-surface-1);
+  --gl-background-color-strong: var(--design-surface-3);
+  --gl-background-color-section: var(--design-surface-2);
+  --gl-background-color-overlap: var(--design-surface-2);
+  --gl-background-color-disabled: var(--design-surface-3);
+  --gl-text-color-default: var(--design-text);
+  --gl-text-color-heading: var(--design-text);
+  --gl-text-color-strong: var(--design-text);
+  --gl-text-color-subtle: var(--design-text-muted);
+  --gl-text-color-disabled: var(--design-text-muted);
+  --gl-text-color-link: var(--design-link);
+  --gl-text-color-success: var(--design-success);
+  --gl-text-color-warning: var(--design-warning);
+  --gl-text-color-danger: var(--design-danger);
+  --gl-icon-color-default: var(--design-text);
+  --gl-icon-color-strong: var(--design-text);
+  --gl-icon-color-subtle: var(--design-text-muted);
+  --gl-icon-color-disabled: var(--design-text-muted);
+  --gl-icon-color-link: var(--design-link);
+  --gl-icon-color-info: var(--design-info);
+  --gl-icon-color-success: var(--design-success);
+  --gl-icon-color-warning: var(--design-warning);
+  --gl-icon-color-danger: var(--design-danger);
+  --gl-border-color-default: var(--design-border);
+  --gl-border-color-subtle: var(--design-border);
+  --gl-border-color-section: var(--design-border);
+  --gl-border-color-strong: var(--design-border-strong);
+  --gl-control-background-color-default: var(--design-surface-2);
+  --gl-control-background-color-disabled: var(--design-surface-3);
+  --gl-control-background-color-concatenation: var(--design-surface-3);
+  --gl-control-background-color-selected-default: var(--design-primary);
+  --gl-control-background-color-selected-hover: var(--design-primary-hover);
+  --gl-control-background-color-selected-focus: var(--design-primary-hover);
+  --gl-control-border-color-default: var(--design-border-strong);
+  --gl-control-border-color-hover: var(--design-text-muted);
+  --gl-control-border-color-focus: var(--design-link);
+  --gl-control-border-color-disabled: var(--design-border);
+  --gl-control-border-color-selected-default: var(--design-primary);
+  --gl-control-border-color-selected-hover: var(--design-primary-hover);
+  --gl-control-border-color-selected-focus: var(--design-primary-hover);
+  --gl-control-indicator-color-selected: var(--design-on-primary);
+  --gl-control-placeholder-color: var(--design-text-muted);
+  --gl-focus-ring-outer-color: var(--design-link);
+  --gl-focus-ring-inner-color: var(--design-surface-2);
+{% for state, token in [('default', ''), ('hover', '-hover'), ('focus', '-hover'), ('active', '-active')] %}
+  --gl-button-confirm-primary-background-color-{{ state }}: var(--design-primary{{ token }});
+  --gl-button-confirm-primary-border-color-{{ state }}: var(--design-primary{{ token }});
+  --gl-button-confirm-primary-foreground-color-{{ state }}: var(--design-on-primary);
+  --gl-action-selected-background-color-{{ state }}: var(--design-primary{{ token }});
+  --gl-action-selected-border-color-{{ state }}: var(--design-primary{{ token }});
+  --gl-action-selected-foreground-color-{{ state }}: var(--design-on-primary);
+  --gl-button-default-primary-foreground-color-{{ state }}: var(--design-text);
+  --gl-button-default-primary-border-color-{{ state }}: var(--design-border-strong);
+  --gl-button-default-tertiary-foreground-color-{{ state }}: var(--design-text);
+  --gl-action-neutral-foreground-color-{{ state }}: var(--design-text);
+{% endfor %}
+  --gl-button-default-primary-background-color-default: var(--design-surface-2);
+{% for state, token in [('hover', 'hover'), ('focus', 'hover'), ('active', 'active')] %}
+  --gl-button-default-primary-background-color-{{ state }}: var(--design-surface-{{ token }});
+  --gl-button-default-tertiary-background-color-{{ state }}: var(--design-surface-{{ token }});
+  --gl-action-neutral-background-color-{{ state }}: var(--design-surface-{{ token }});
+  --gl-nav-item-background-color-{{ state }}: var(--design-surface-{{ token }});
+{% endfor %}
+  --gl-nav-item-foreground-color-default: var(--design-text-muted);
+  --gl-nav-item-foreground-color-hover: var(--design-text);
+  --gl-nav-item-foreground-color-focus: var(--design-text);
+  --gl-nav-item-foreground-color-active: var(--design-text);
+  --gl-nav-item-selected-background-color-default: var(--design-surface-3);
+  --gl-nav-item-selected-foreground-color-default: var(--design-text);
+  --gl-dropdown-option-background-color-selected-default: var(--design-surface-3);
+  --gl-table-row-background-color-hover: var(--design-surface-hover);
+  --gl-highlight-target-background-color: var(--design-info-subtle);
+  --gl-highlight-target-border-color: var(--design-info-border);
+  --gl-link-mention-background-color-default: var(--design-info-subtle);
+  --gl-link-mention-text-color-default: var(--design-info);
+  --gl-link-mention-background-color-current: var(--design-warning-subtle);
+  --gl-link-mention-text-color-current: var(--design-warning);
+  --gl-feedback-neutral-background-color: var(--design-surface-3);
+  --gl-feedback-neutral-border-color: var(--design-border);
+  --gl-feedback-neutral-text-color: var(--design-text);
+  --gl-feedback-neutral-icon-color: var(--design-text-muted);
+{% for status in ['success', 'warning', 'danger', 'info'] %}
+  --gl-feedback-{{ status }}-text-color: var(--design-{{ status }});
+  --gl-feedback-{{ status }}-icon-color: var(--design-{{ status }});
+  --gl-feedback-{{ status }}-background-color: var(--design-{{ status }}-subtle);
+  --gl-feedback-{{ status }}-border-color: var(--design-{{ status }}-border);
+  --gl-status-{{ status }}-text-color: var(--design-{{ status }});
+  --gl-status-{{ status }}-icon-color: var(--design-{{ status }});
+  --gl-status-{{ status }}-background-color: var(--design-{{ status }}-subtle);
+{% for state in ['default', 'hover', 'focus', 'active'] %}
+  --gl-badge-{{ status }}-background-color-{{ state }}: var(--design-{{ status }}-subtle);
+  --gl-badge-{{ status }}-border-color-{{ state }}: var(--design-{{ status }}-border);
+  --gl-badge-{{ status }}-text-color-{{ state }}: var(--design-{{ status }});
+  --gl-badge-{{ status }}-icon-color-{{ state }}: var(--design-{{ status }});
+{% endfor %}
+{% endfor %}
+{% for state in ['default', 'hover', 'focus', 'active'] %}
+  --gl-badge-neutral-background-color-{{ state }}: var(--design-surface-3);
+  --gl-badge-neutral-border-color-{{ state }}: var(--design-border);
+  --gl-badge-neutral-text-color-{{ state }}: var(--design-text);
+  --gl-badge-neutral-icon-color-{{ state }}: var(--design-text);
+  --gl-badge-muted-background-color-{{ state }}: var(--design-surface-3);
+  --gl-badge-muted-border-color-{{ state }}: var(--design-border);
+  --gl-badge-muted-text-color-{{ state }}: var(--design-text-muted);
+  --gl-badge-muted-icon-color-{{ state }}: var(--design-text-muted);
+{% endfor %}
+  --gl-status-neutral-background-color: var(--design-surface-3);
+  --gl-status-neutral-text-color: var(--design-text);
+  --gl-status-neutral-icon-color: var(--design-text-muted);
+}
+
+:root.html-devise-layout body {
+  background-color: var(--design-surface-1);
+  background-image: none;
+}
+
+.gl-form-input:focus-visible,
+.gl-form-input.form-control:focus-visible {
+  border-color: var(--gl-control-border-color-focus);
+}
+
+.super-topbar,
+.super-sidebar {
+  --gl-text-color-default: var(--design-on-frame);
+  --gl-text-color-heading: var(--design-on-frame);
+  --gl-text-color-strong: var(--design-on-frame);
+  --gl-text-color-subtle: var(--design-on-frame);
+  --gl-text-color-link: var(--design-on-frame);
+  --gl-icon-color-default: var(--design-on-frame);
+  --gl-icon-color-strong: var(--design-on-frame);
+  --gl-icon-color-subtle: var(--design-on-frame);
+  --gl-border-color-default: var(--design-frame-active);
+  --gl-border-color-subtle: var(--design-frame-active);
+  --gl-border-color-section: var(--design-frame-active);
+  --gl-border-color-strong: var(--design-on-frame);
+  --gl-focus-ring-outer-color: var(--design-on-frame);
+  --gl-focus-ring-inner-color: var(--design-frame);
+  --design-focus: var(--design-on-frame);
+{% for state in ['default', 'hover', 'focus', 'active'] %}
+  --gl-nav-item-foreground-color-{{ state }}: var(--design-on-frame);
+  --gl-nav-item-selected-foreground-color-{{ state }}: var(--design-on-frame);
+  --gl-button-default-tertiary-foreground-color-{{ state }}: var(--design-on-frame);
+  --gl-action-neutral-foreground-color-{{ state }}: var(--design-on-frame);
+{% endfor %}
+{% for state, token in [('hover', 'hover'), ('focus', 'hover'), ('active', 'active')] %}
+  --gl-nav-item-background-color-{{ state }}: var(--design-frame-{{ token }});
+  --gl-nav-item-selected-background-color-{{ state }}: var(--design-frame-{{ token }});
+  --gl-button-default-tertiary-background-color-{{ state }}: var(--design-frame-{{ token }});
+  --gl-action-neutral-background-color-{{ state }}: var(--design-frame-{{ token }});
+{% endfor %}
+{% for state, token in [('default', 'frame'), ('hover', 'frame-hover'), ('focus', 'frame-hover'), ('active', 'frame-active')] %}
+  --gl-button-default-primary-background-color-{{ state }}: var(--design-{{ token }});
+  --gl-button-default-primary-foreground-color-{{ state }}: var(--design-on-frame);
+  --gl-button-default-primary-border-color-{{ state }}: rgba(var(--design-on-frame-rgb), 0.4);
+{% endfor %}
+  --gl-nav-item-selected-background-color-default: var(--design-frame-active);
+  --super-sidebar-hr-border-color: var(--design-frame-active);
+  color: var(--design-on-frame);
+}
+
+.super-topbar .topbar-search-button {
+  --gl-text-color-default: var(--design-text);
+  --gl-text-color-subtle: var(--design-text-muted);
+  --gl-icon-color-default: var(--design-text);
+  --gl-icon-color-subtle: var(--design-text-muted);
+  color: var(--design-text);
+}
+
+.super-topbar .gl-new-dropdown-panel,
+.super-sidebar .gl-new-dropdown-panel,
+.super-sidebar .gl-popover,
+.super-topbar .gl-popover {
+  --gl-text-color-default: var(--design-text);
+  --gl-text-color-heading: var(--design-text);
+  --gl-text-color-strong: var(--design-text);
+  --gl-text-color-subtle: var(--design-text-muted);
+  --gl-text-color-link: var(--design-link);
+  --gl-icon-color-default: var(--design-text);
+  --gl-icon-color-strong: var(--design-text);
+  --gl-icon-color-subtle: var(--design-text-muted);
+  --gl-border-color-default: var(--design-border);
+  --gl-border-color-subtle: var(--design-border);
+  --gl-border-color-section: var(--design-border);
+  --gl-border-color-strong: var(--design-border-strong);
+  --gl-focus-ring-outer-color: var(--design-link);
+  --gl-focus-ring-inner-color: var(--design-surface-2);
+  --design-focus: var(--design-link);
+{% for state in ['default', 'hover', 'focus', 'active'] %}
+  --gl-nav-item-selected-foreground-color-{{ state }}: var(--design-text);
+  --gl-button-default-tertiary-foreground-color-{{ state }}: var(--design-text);
+  --gl-button-default-primary-foreground-color-{{ state }}: var(--design-text);
+  --gl-button-default-primary-border-color-{{ state }}: var(--design-border-strong);
+  --gl-action-neutral-foreground-color-{{ state }}: var(--design-text);
+{% endfor %}
+  --gl-button-default-primary-background-color-default: var(--design-surface-2);
+  --gl-nav-item-foreground-color-default: var(--design-text-muted);
+{% for state, token in [('hover', 'hover'), ('focus', 'hover'), ('active', 'active')] %}
+  --gl-button-default-primary-background-color-{{ state }}: var(--design-surface-{{ token }});
+  --gl-nav-item-foreground-color-{{ state }}: var(--design-text);
+  --gl-nav-item-background-color-{{ state }}: var(--design-surface-{{ token }});
+  --gl-nav-item-selected-background-color-{{ state }}: var(--design-surface-{{ token }});
+  --gl-button-default-tertiary-background-color-{{ state }}: var(--design-surface-{{ token }});
+  --gl-action-neutral-background-color-{{ state }}: var(--design-surface-{{ token }});
+{% endfor %}
+  --gl-nav-item-selected-background-color-default: var(--design-surface-3);
+  color: var(--design-text);
+}

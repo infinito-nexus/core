@@ -1,5 +1,4 @@
 ---
-administrator: {}
 no-reply:
   username: no-reply
   roles:
@@ -9,7 +8,9 @@ no-reply:
     rate: 60 / 1min
     burst: 3600
 mcp-web-app-nextcloud:
+  username: mcp-nextcloud
   firstname: Infinito
   lastname: MCP
   accounts: []
   description: Account the Nextcloud MCP app password is issued for; an app password carries the full rights of its account
+platform_administrator: {}

@@ -9,8 +9,13 @@
 $email = getenv('ADMIN_EMAIL');
 $password = getenv('ADMIN_PASSWORD');
 $user = $email ? \App\Models\Auth\User::where('email', $email)->first() : null;
-if (!$user) {
-    echo "FAILED: no user with email " . var_export($email, true) . "\n";
+if (!$email) {
+    echo "FAILED: ADMIN_EMAIL is empty, so no account can be addressed\n";
+} elseif (!$user) {
+    echo "FAILED: no Akaunting account carries " . var_export($email, true)
+        . "; an instance installed before the platform administrator split still holds"
+        . " its only account under the previous address. Open Akaunting, change that"
+        . " account's e-mail to this one, then deploy again.\n";
 } elseif (\Illuminate\Support\Facades\Hash::check($password, (string) $user->password)) {
     echo "UNCHANGED\n";
 } else {

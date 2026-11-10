@@ -31,7 +31,7 @@ When you add OIDC or LDAP support to a role, you MUST:
    identifier on both sides.
 4. Keep app-specific Keycloak protocol mappers in a per-client scope file
    under the Keycloak
-   [scopes](../../../../roles/web-app-keycloak/templates/import/scopes/)
+   `roles/web-app-keycloak/templates/import/scopes/`
    directory. Do not extend
    [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2).
 5. Hide or disable application UI fields that are sourced from OIDC or LDAP,

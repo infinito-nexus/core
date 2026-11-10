@@ -27,13 +27,13 @@
 - name: "♻️ Jellyfin auth | Restart to load installed plugins (compose)"
   ansible.builtin.command: container restart {{ JELLYFIN_NAME }}
   changed_when: true
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "♻️ Jellyfin auth | Restart to load installed plugins (swarm)"
   ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'jellyfin') }}"
   changed_when: true
   timeout: "{{ lookup('timeout', 600) | int }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔍 Re-resolve hosting node + container id after plugin restart"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
@@ -50,16 +50,56 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
 
+- name: "🛂 Jellyfin auth | Trust the forwarded headers of the front proxy"
+  delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  vars:
+    jellyfin_proxy_authorization: 'MediaBrowser Token="{{ jellyfin_proxy_session.json.AccessToken }}"'
+  block:
+    - name: "🔑 Sign in to {{ application_id }} for its network configuration"
+      uri_retry:
+        url: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
+        method: POST
+        headers:
+          X-Emby-Authorization: "{{ JELLYFIN_API_CLIENT }}"
+        body_format: json
+        body:
+          Username: "{{ JELLYFIN_ADMIN_USERNAME }}"
+          Pw: "{{ JELLYFIN_ADMIN_PASSWORD }}"
+      register: jellyfin_proxy_session
+      until: jellyfin_proxy_session.status == 200
+      retries: 60
+      delay: 5
+
+    - name: "📖 Read the network configuration of {{ application_id }}"
+      uri_retry:
+        url: "{{ JELLYFIN_API }}/System/Configuration/network"
+        headers:
+          Authorization: "{{ jellyfin_proxy_authorization }}"
+      register: jellyfin_network
+
+    - name: "🛂 Trust X-Forwarded-* from the private proxy networks"
+      uri_retry:
+        url: "{{ JELLYFIN_API }}/System/Configuration/network"
+        method: POST
+        headers:
+          Authorization: "{{ jellyfin_proxy_authorization }}"
+        body_format: json
+        body: "{{ jellyfin_network.json | combine({'KnownProxies': NETWORK_TRUSTED_PROXY_CIDRS}) }}"
+        status_code: [200, 204]
+      when: jellyfin_network.json.KnownProxies != NETWORK_TRUSTED_PROXY_CIDRS
+      changed_when: true
+
 - name: "♻️ Jellyfin auth | Final restart to apply auth configuration (compose)"
   ansible.builtin.command: container restart {{ JELLYFIN_NAME }}
   changed_when: true
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "♻️ Jellyfin auth | Final restart to apply auth configuration (swarm)"
   ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'jellyfin') }}"
   changed_when: true
   timeout: "{{ lookup('timeout', 600) | int }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔍 Wait for {{ application_id }} to reconverge after the final restart"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

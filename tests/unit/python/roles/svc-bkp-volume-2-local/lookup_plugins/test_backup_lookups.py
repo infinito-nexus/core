@@ -32,11 +32,26 @@ APPS = {
                 "name": "mastodon",
                 "image": "ghcr.io/mastodon/mastodon",
                 "version": "v4.6.2",
-                "backup": {"no_stop_required": True},
+                "backup": {"stop_required": False},
             },
             "redis": {
                 "name": "mastodon-redis",
                 "backup": {"disabled": True},
+            },
+        }
+    },
+    "svc-db-postgres": {
+        "services": {
+            "postgres": {
+                "name": "postgres",
+                "image": "postgres",
+                "version": "18",
+                "backup": {"stop_required": True},
+            },
+            "pgbouncer": {
+                "name": "pgbouncer",
+                "image": "edoburu/pgbouncer",
+                "version": "1.24",
             },
         }
     },
@@ -139,26 +154,33 @@ def _image_loader(apps, prefix=""):
 
 
 class TestBackupImage(unittest.TestCase):
-    def test_no_stop_required_compose(self):
-        lm = _bare(img_mod, ["no_stop_required"])
+    def test_stop_not_required_compose(self):
+        lm = _bare(img_mod, ["stop_required", False])
         with mock.patch.object(img_mod, "lookup_loader") as ll:
             ll.get.side_effect = _image_loader(APPS)
-            out = lm.run(["no_stop_required"], variables={})
+            out = lm.run(["stop_required", False], variables={})
         self.assertEqual(out, [["ghcr.io/mastodon/mastodon:v4.6.2"]])
 
-    def test_disabled_skips_imageless_refs(self):
-        lm = _bare(img_mod, ["disabled"])
+    def test_stop_required_lists_only_explicit_true(self):
+        lm = _bare(img_mod, ["stop_required", True])
         with mock.patch.object(img_mod, "lookup_loader") as ll:
             ll.get.side_effect = _image_loader(APPS)
-            out = lm.run(["disabled"], variables={})
+            out = lm.run(["stop_required", True], variables={})
+        self.assertEqual(out, [["postgres:18"]])
+
+    def test_disabled_skips_imageless_refs(self):
+        lm = _bare(img_mod, ["disabled", True])
+        with mock.patch.object(img_mod, "lookup_loader") as ll:
+            ll.get.side_effect = _image_loader(APPS)
+            out = lm.run(["disabled", True], variables={})
         self.assertEqual(out, [["redis:alpine"]])
 
     def test_swarm_prefix_flows_through_image_lookup(self):
         prefix = "mgr:5000/"
-        lm = _bare(img_mod, ["no_stop_required"])
+        lm = _bare(img_mod, ["stop_required", False])
         with mock.patch.object(img_mod, "lookup_loader") as ll:
             ll.get.side_effect = _image_loader(APPS, prefix=prefix)
-            out = lm.run(["no_stop_required"], variables={})
+            out = lm.run(["stop_required", False], variables={})
         self.assertEqual(out, [[prefix + "ghcr.io/mastodon/mastodon:v4.6.2"]])
 
     def test_forwards_custom_for_custom_built_service(self):
@@ -170,15 +192,15 @@ class TestBackupImage(unittest.TestCase):
                         "image": "mediawiki",
                         "version": "1.46",
                         "custom": True,
-                        "backup": {"no_stop_required": True},
+                        "backup": {"stop_required": False},
                     }
                 }
             }
         }
-        lm = _bare(img_mod, ["no_stop_required"])
+        lm = _bare(img_mod, ["stop_required", False])
         with mock.patch.object(img_mod, "lookup_loader") as ll:
             ll.get.side_effect = _image_loader(apps, prefix="mgr:5000/")
-            out = lm.run(["no_stop_required"], variables={})
+            out = lm.run(["stop_required", False], variables={})
         self.assertEqual(out, [["mgr:5000/mediawiki_custom:1.46"]])
 
     def test_forwards_string_custom_for_distinct_custom_image(self):
@@ -190,15 +212,15 @@ class TestBackupImage(unittest.TestCase):
                         "image": "ghcr.io/nextcloud-releases/whiteboard",
                         "version": "v1.5.9",
                         "custom": "nextcloud-whiteboard",
-                        "backup": {"no_stop_required": True},
+                        "backup": {"stop_required": False},
                     }
                 }
             }
         }
-        lm = _bare(img_mod, ["no_stop_required"])
+        lm = _bare(img_mod, ["stop_required", False])
         with mock.patch.object(img_mod, "lookup_loader") as ll:
             ll.get.side_effect = _image_loader(apps, prefix="mgr:5000/")
-            out = lm.run(["no_stop_required"], variables={})
+            out = lm.run(["stop_required", False], variables={})
         self.assertEqual(out, [["mgr:5000/nextcloud-whiteboard_custom:v1.5.9"]])
 
     def test_includes_custom_service_without_image_field(self):
@@ -209,23 +231,30 @@ class TestBackupImage(unittest.TestCase):
                         "name": "x",
                         "version": "1.0",
                         "custom": True,
-                        "backup": {"no_stop_required": True},
+                        "backup": {"stop_required": False},
                     }
                 }
             }
         }
-        lm = _bare(img_mod, ["no_stop_required"])
+        lm = _bare(img_mod, ["stop_required", False])
         with mock.patch.object(img_mod, "lookup_loader") as ll:
             ll.get.side_effect = _image_loader(apps)
-            out = lm.run(["no_stop_required"], variables={})
+            out = lm.run(["stop_required", False], variables={})
         self.assertEqual(out, [["x_custom:1.0"]])
 
-    def test_requires_exactly_one_term(self):
+    def test_requires_marker_and_wanted_value(self):
         lm = _bare(img_mod, [])
         with self.assertRaises(AnsibleError):
             lm.run([], variables={})
         with self.assertRaises(AnsibleError):
-            lm.run(["a", "b"], variables={})
+            lm.run(["stop_required"], variables={})
+        with self.assertRaises(AnsibleError):
+            lm.run(["stop_required", False, True], variables={})
+
+    def test_wanted_value_must_be_boolean(self):
+        lm = _bare(img_mod, [])
+        with self.assertRaises(AnsibleError):
+            lm.run(["stop_required", "false"], variables={})
 
 
 if __name__ == "__main__":

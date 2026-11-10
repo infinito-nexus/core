@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 from utils.domains.application_domain_index import iter_app_domains
 from utils.domains.default_primary import default_domain_primary
 from utils.domains.list import ROLES_DIR, build_applications_from_roles
+from utils.networks.reachability import TOR, sibling_domain
 from utils.roles.entity.apps import apps_for_entity
 from utils.tor_onion import identity_hs_dir
 
@@ -69,17 +70,6 @@ def _read_node_onion(base_dir: Path) -> str:
         return ""
 
 
-def _swap_to_onion(domain: str, primary: str, node_onion: str) -> str | None:
-    """Dual-stack: the onion vhost of a clearnet domain, with the primary
-    suffix swapped for the node onion. None when not under the primary."""
-    if domain == primary:
-        return node_onion
-    suffix = "." + primary
-    if domain.endswith(suffix):
-        return domain[: -len(primary)] + node_onion
-    return None
-
-
 def iter_vhost_files_for_entity(
     entity: str,
     *,
@@ -109,9 +99,7 @@ def iter_vhost_files_for_entity(
             domain_variants = [domain]
             if not domain.startswith("www."):
                 domain_variants.append(f"www.{domain}")
-            if node_onion and (
-                onion := _swap_to_onion(domain, domain_primary, node_onion)
-            ):
+            if onion := sibling_domain(domain, TOR, domain_primary, node_onion):
                 domain_variants.append(onion)
                 if not onion.startswith("www."):
                     domain_variants.append(f"www.{onion}")

@@ -10,8 +10,9 @@ Tests in this directory MUST only cover Ansible module / task usage rules.
 - `test_no_legacy_uri_module_usage.py` forbids the unqualified `uri:` module name; tasks MUST use `ansible.builtin.uri`.
 - `test_no_literal_no_log.py` forbids literal `no_log: true` / `no_log: false`; every gate MUST flow through the `MASK_CREDENTIALS_IN_LOGS` variable.
 - `test_no_redundant_default_on_module_io.py` forbids `| default(...)` on a task's own `register:` output or input arguments inside its own conditionals, where the value is provably set.
+- `test_package_batch.py` requires that a role's own `package_install` tasks install only ids flagged `batch: false` in `meta/packages.yml`, that every id of a role the constructor runs before the deploy-start batch carries that flag, and that a `shared: true` reference names a root id.
 - `test_run_once_tags.py` requires that every `set_fact` marked `run_once: true` carries the canonical run-once tags so re-runs and `--tags` filters keep the fact populated.
 
-Shell-pipeline rules and SQL formatting rules live in sibling directories; see `../shell/` and `../sql/`.
+Shell-pipeline rules and SQL formatting rules live in sibling directories; see [`../shell/`](../shell/) and [`../sql/`](../sql/).
 
 For framework, directory layout, and `make test-lint` usage see [lint.md](../../../../docs/contributing/actions/testing/lint.md).

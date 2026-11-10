@@ -16,9 +16,9 @@ Per-line opt-out
 Add ``# nocheck: container-address-quote`` on the same line as the
 ``| quote`` usage or on the immediately preceding non-empty line.
 Reserved for sites that provably never see the swarm fragment
-(``DEPLOYMENT_MODE == 'compose'``-gated tasks, roles pinned via
+(``IS_COMPOSE_MODE``-gated tasks, roles pinned via
 ``compose_mode_force``) or consumers that re-evaluate the argument
-themselves (e.g. ``set_postgres_superuser_password.sh``).
+themselves.
 """
 
 from __future__ import annotations

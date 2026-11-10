@@ -177,7 +177,7 @@ class TestInventoryManagerIntegration(TestCase):
 
     def test_apply_schema_skips_schema_less_transitive_provider_role(self):
         """
-        Shared provider roles without schema/main.yml must be ignored gracefully.
+        Shared provider roles without meta/secrets.yml must be ignored gracefully.
         This matters for roles like web-svc-asset that participate in dependency
         discovery but do not define credentials.
         """

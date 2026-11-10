@@ -1,0 +1,7 @@
+---
+enabled: "{{ lookup('config', 'web-app-matrix', 'services.n8n.enabled') | bool }}"
+required: false
+mechanism: bridge
+source: upstream
+bridges:
+  - n8n

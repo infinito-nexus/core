@@ -8,10 +8,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from plugins.filter.invokable_paths import get_invokable_paths
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.validation.invokable import _is_role_invokable
 
 from . import PROJECT_ROOT
 
@@ -21,21 +23,16 @@ def _default_roles_dir(roles_dir: str | Path | None) -> Path:
 
 
 def role_is_invokable(role_id: str, roles_dir: str | Path | None = None) -> bool:
-    """True when any node along `role_id`'s category path has `invokable: true`."""
+    """True when `role_id` sits at or below a category marked ``invokable: true``.
+
+    Args:
+        role_id: the role to classify.
+        roles_dir: the roles directory whose sibling ``categories.yml`` decides.
+    """
     if not role_id:
         return False
     spot = categories_file(_default_roles_dir(roles_dir).parent)
-    tree_doc = load_yaml_any(str(spot), default_if_missing={})
-    tree = tree_doc.get("roles") or {} if isinstance(tree_doc, dict) else {}
-
-    node = tree
-    for seg in str(role_id).split("-"):
-        if not seg or not isinstance(node, dict) or seg not in node:
-            break
-        node = node[seg]
-        if isinstance(node, dict) and node.get("invokable") is True:
-            return True
-    return False
+    return _is_role_invokable(role_id, [str(p) for p in get_invokable_paths(str(spot))])
 
 
 def role_has_required_by(role_id: str, roles_dir: str | Path | None = None) -> bool:

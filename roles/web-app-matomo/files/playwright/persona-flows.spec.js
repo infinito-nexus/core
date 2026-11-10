@@ -1,7 +1,6 @@
-const { test, expect } = require("@playwright/test");
+const { test } = require("@playwright/test");
 
 const { setupMatomoPage } = require("./_shared");
-const { resolveTimeout } = require("./timeouts");
 const { runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -19,22 +18,5 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // Matomo admin-only interaction: open the Websites admin page from the
-      // topbar / admin gear. Confirms the admin reaches the management surface;
-      // biber's deny-check at matomo is the symmetric counter assertion.
-      const settingsLink = interactivePage
-        .getByRole("link", { name: /administration|settings|websites/i })
-        .first();
-      if (await settingsLink.isVisible().catch(() => false)) {
-        await settingsLink.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /websites|administration|users|general settings/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page);
 });

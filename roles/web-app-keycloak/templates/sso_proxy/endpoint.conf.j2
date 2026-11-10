@@ -1,13 +1,32 @@
 # OAuth2-Proxy-Endpoint
+{% set sso_proxy_instance = lookup('sso', application_id, 'proxy_instances') | selectattr('network', 'equalto', domain | network_of) | first %}
 location /oauth2/ {
-    {{ lookup('proxy_pass', application_id, 'sso-proxy', 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso'), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
+    {{ lookup('proxy_pass', application_id, sso_proxy_instance.service, 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.' ~ sso_proxy_instance.port_key), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
 
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
+
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+}
+
+location @oauth2_start {
+    {{ lookup('proxy_pass', application_id, sso_proxy_instance.service, 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.' ~ sso_proxy_instance.port_key), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
+
+    set $oauth2_start_redirect $request_uri;
+    if ($request_method !~ ^(GET|HEAD)$) {
+        set $oauth2_start_redirect "";
+    }
+    if ($request_uri ~ "^.{3500}") {
+        set $oauth2_start_redirect "";
+    }
+    rewrite ^ /oauth2/start? break;
+    proxy_set_header X-Auth-Request-Redirect $oauth2_start_redirect;
 
     proxy_pass_request_body off;
     proxy_set_header Content-Length "";
