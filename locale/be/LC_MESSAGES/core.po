@@ -871,6 +871,10 @@ msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr ""
 
+msgctxt "role:svc-virt-showroom:description"
+msgid "Incus showroom host that runs one isolated server per customer demo project behind the host's reverse proxy"
+msgstr ""
+
 # i każdej wersji, wybudowana na żądanie za pomocą Sphinx
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"

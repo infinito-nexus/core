@@ -961,6 +961,10 @@ msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr ""
 
+msgctxt "role:svc-virt-showroom:description"
+msgid "Incus showroom host that runs one isolated server per customer demo project behind the host's reverse proxy"
+msgstr ""
+
 # translated-by: libretranslate
 # allar réttsetjandi, byggður á þjóðum með Sphinx
 msgctxt "role:web-app-docs:description"
