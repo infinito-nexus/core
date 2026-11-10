@@ -28,7 +28,7 @@ docs:
     swarm:
       enabled: true
   image: python
-  version: 3.13-slim
+  version: 3.15-slim
   custom: true
   source_repository: "{{ SOFTWARE_REPOSITORY }}"
   mermaid_version: 12.1.0
