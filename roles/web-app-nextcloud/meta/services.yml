@@ -199,7 +199,7 @@ talk:
   version: 3.23.3
   custom: nextcloud-talk-janus
   repository: https://github.com/meetecho/janus-gateway.git
-  ref: v1.4.0
+  ref: v1.4.3
   # nocheck: single-replica  the signaling server addresses exactly one Janus by URL and keeps every media session on it
   replicas: 1
   turn_server:
@@ -324,7 +324,7 @@ talk_recording:
   version: 3.14.3-alpine3.23
   custom: nextcloud-talk-recording
   repository: https://github.com/nextcloud/nextcloud-talk-recording.git
-  ref: v0.2.1
+  ref: v0.3.1
   # nocheck: single-replica  Talk starts and stops a recording on the server it reached; a second replica behind the VIP would receive half of the stop requests
   replicas: 1
   cpus: "2.0"
