@@ -467,9 +467,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         if rc == 0 and meshed:
             rc = _mesh_prologue(
-                app_id=app_id,
-                inv_dir=inv_root,
-                round_variants=round_variants,
+                app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
         if rc == 0:
             rc = _deploy(**deploy_args)

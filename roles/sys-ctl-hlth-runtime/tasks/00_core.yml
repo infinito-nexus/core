@@ -29,12 +29,7 @@
   ansible.builtin.file:
     path: "{{ DIR_METRICS_TEXTFILE }}"
     state: directory
-    mode: "0755"
   when: HEALTH_RUNTIME_METRICS_ENABLED | bool
-
-- name: 📦 install logrotate
-  package_install:
-    id: logrotate
 
 - name: 🔁 Rotate the findings log weekly
   ansible.builtin.template: # nocheck: stack-host-template (per-node logrotate drop-in, every node scans itself)
