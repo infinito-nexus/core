@@ -30,15 +30,21 @@ and appends one audit record to the JSON Lines ledger the state names.
 from __future__ import annotations
 
 import json
+import os
+import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from utils.orchestrator.locks import wait_gate
+
 if TYPE_CHECKING:
     from collections.abc import Callable, MutableMapping
 
 LEDGER_KEY = "ledger"
+LOCK_DIR_ENV = "ORCHESTRATOR_LOCK_DIR"
+GATE_POLL_SECONDS = 5.0
 
 STEP_KINDS = ("trigger", "deterministic", "decision", "model", "ask", "terminal")
 _SHAPE = {
@@ -159,6 +165,25 @@ def _passthrough(state: dict) -> dict:
     return state
 
 
+def gated(
+    fn: Callable[[dict], dict], lock_dir: Path, sleep: Callable[[float], None]
+) -> Callable[[dict], dict]:
+    """Return a node that reads the machine's gate lock and waits while it is
+    held before it runs ``fn``.
+
+    Args:
+        fn: the node callable ``(state) -> state``.
+        lock_dir: the machine's lock directory.
+        sleep: the wait between two reads of the gate lock.
+    """
+
+    def node(state: dict) -> dict:
+        wait_gate(lock_dir, poll=GATE_POLL_SECONDS, sleep=sleep)
+        return fn(state)
+
+    return node
+
+
 def _router(step: Step):
     """Return a LangGraph router that reads the branch label the decision node
     wrote under ``step.id`` and falls back to the first branch."""
@@ -176,7 +201,8 @@ def build(name: str, steps: list[Step]):
 
     Imported lazily: a caller that only renders the routine never loads
     LangGraph. The orchestrator container ships it; the lint and ``show`` do
-    not need it.
+    not need it. Where the orchestrator names its lock directory in
+    ``ORCHESTRATOR_LOCK_DIR``, every node waits for a free gate lock first.
 
     Args:
         name: the routine name.
@@ -185,9 +211,13 @@ def build(name: str, steps: list[Step]):
     """
     from langgraph.graph import END, START, StateGraph
 
+    lock_dir = os.environ.get(LOCK_DIR_ENV)
     graph = StateGraph(dict)
     for step in steps:
-        graph.add_node(step.id, step.fn if step.fn is not None else _passthrough)
+        fn = step.fn if step.fn is not None else _passthrough
+        graph.add_node(
+            step.id, gated(fn, Path(lock_dir), time.sleep) if lock_dir else fn
+        )
     graph.add_edge(START, steps[0].id)
     for step in steps:
         if step.branches:

@@ -3,18 +3,24 @@
 
 The server is a thin transport: every decision lives in the committed,
 stack-free libraries under ``utils.orchestrator``. It terminates webhooks and
-validates them (``webhook``), deduplicates delivery ids and re-fetches by id,
-appends a hash-chained audit entry per action (``audit``), registers detached
-instances (``instance_api``), evaluates cron schedules (``cron``) and addresses
-channel messages to accounts rather than session names (``channels``). Graph
-state keeps secret handles, never values; the handle for the checkpoint key is
-read from the environment and never logged.
+validates them (``webhook``), deduplicates delivery ids, re-fetches the named
+object by id and routes the trigger it raises to the agent roles
+(``dispatch``), appends a hash-chained audit entry per action (``audit``),
+registers detached instances (``instance_api``), folds the cron schedules
+into one action per routine and starts the routines of the deployed revision
+under the gate and stack locks (``scheduler``, ``locks``), keeps the owner's
+holds and blockers across restarts (``holds``), grants the CI slot in request
+order and addresses channel messages to accounts rather than session names
+(``channels``). Graph state keeps secret handles, never values; the handle for
+the checkpoint key is read from the environment and never logged.
 
 Environment:
     ORCHESTRATOR_PORT:          port to listen on.
     ORCHESTRATOR_KEY:           bearer a management-API caller presents.
     ORCHESTRATOR_ALIAS:         name peers resolve the orchestrator by.
-    ORCHESTRATOR_STATE_DIR:     writable dir for the routines checkout cache.
+    ORCHESTRATOR_STATE_DIR:     writable dir for the holds and blockers file.
+    ORCHESTRATOR_LOCK_DIR:      the machine's lock dir (gate and stack locks);
+                                every routine run reads it before each step.
     WEBHOOK_SECRET:             shared secret webhook signatures are checked against.
     PUBLICLY_REACHABLE:         ``true`` receives webhooks; ``false`` also polls.
     POLL_INTERVAL:              seconds between provider polls when not reachable.
@@ -24,7 +30,12 @@ Environment:
     LITELLM_URL:                gateway base URL a model node relays to.
     LITELLM_KEY:                the orchestrator's own gateway key; never logged.
     CHANNELS:                   JSON list of channels in priority order.
-    CRON_ENTRIES:               JSON list of the deployed revision's cron entries.
+    CRON_ENTRIES:               JSON list of the deployed revision's cron entries,
+                                each tagged with the ``role`` it belongs to.
+    AGENTS:                     JSON object of every role's ``triggers`` and ``owner``.
+    BOARD_URL:                  origin of the OpenProject board every agent uses.
+    GITHUB_TOKEN:               token the re-fetch of a GitHub event reads with;
+                                absent, a webhook is audited but not acted on.
     REQUEST_TIMEOUT:            seconds a proxied request may take.
 """
 
@@ -33,13 +44,27 @@ from __future__ import annotations
 import json
 import os
 import random
+import subprocess
 import sys
 import threading
 import time
+import urllib.request
 from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
-from utils.orchestrator import audit, channels, cron, instance_api, webhook
+from agents.routines import discover
+from utils.orchestrator import (
+    audit,
+    channels,
+    dispatch,
+    holds,
+    instance_api,
+    locks,
+    scheduler,
+    webhook,
+)
+from utils.orchestrator.load import START
 
 ENV = os.environ
 PORT = int(ENV["ORCHESTRATOR_PORT"])
@@ -47,17 +72,45 @@ ORCHESTRATOR_KEY = ENV["ORCHESTRATOR_KEY"]
 WEBHOOK_SECRET = ENV["WEBHOOK_SECRET"].encode()
 PUBLICLY_REACHABLE = ENV["PUBLICLY_REACHABLE"].lower() == "true"
 POLL_INTERVAL = int(ENV["POLL_INTERVAL"])
+REQUEST_TIMEOUT = int(ENV["REQUEST_TIMEOUT"])
 CRON_ENTRIES = json.loads(ENV["CRON_ENTRIES"] or "[]")
 CHANNELS = json.loads(ENV["CHANNELS"] or "[]")
+AGENTS = json.loads(ENV["AGENTS"] or "{}")
+TRIGGERS = {role: agent["triggers"] for role, agent in AGENTS.items()}
+OWNERS = {role: agent["owner"] for role, agent in AGENTS.items()}
+ROUTINE_ROLE = {
+    entry["routine"]: entry.get("role") or entry["routine"] for entry in CRON_ENTRIES
+}
+LOCK_DIR = Path(ENV["ORCHESTRATOR_LOCK_DIR"])
+BOARD_URL = ENV["BOARD_URL"]
+GITHUB_TOKEN = ENV.get("GITHUB_TOKEN")
+GITHUB_API = "https://api.github.com"
+GATE_POLL_SECONDS = 5.0
+HERE = Path(__file__).resolve().parent
 
 SIGNATURE_HEADER = "X-Hub-Signature-256"
-DELIVERY_HEADER = "X-Delivery-Id"
+DELIVERY_HEADERS = ("X-GitHub-Delivery", "X-Gitea-Delivery", "X-Delivery-Id")
+EVENT_HEADERS = ("X-GitHub-Event", "X-Gitea-Event")
 WEBHOOK_PREFIX = "/webhooks/"
 
 AUDIT = audit.HashChain()
 DEDUP = webhook.Deduplicator()
 REGISTRY = instance_api.Registry()
+HOLDS = holds.Store(Path(ENV["ORCHESTRATOR_STATE_DIR"]) / "holds.json")
+SLOTS = locks.SlotQueue()
+ROUTINES = discover()
 STATE_LOCK = threading.Lock()
+
+
+def _spawn(argv):
+    return subprocess.Popen(argv, cwd=HERE, start_new_session=True)
+
+
+def _wait_gate():
+    locks.wait_gate(LOCK_DIR, poll=GATE_POLL_SECONDS, sleep=time.sleep)
+
+
+RUNNER = scheduler.Runner(_spawn, _wait_gate, LOCK_DIR)
 
 OPENAPI = {
     "openapi": "3.0.3",
@@ -67,6 +120,12 @@ OPENAPI = {
         "/status": {"get": {"summary": "Control-plane status"}},
         "/routines": {"get": {"summary": "Routines of the deployed revision"}},
         "/routines/run": {"post": {"summary": "Start a routine run"}},
+        "/routines/hold": {"post": {"summary": "Owner hold on a routine"}},
+        "/routines/lift": {"post": {"summary": "Lift an owner hold"}},
+        "/routines/block": {"post": {"summary": "Record an owner-only blocker"}},
+        "/routines/clear": {"post": {"summary": "Clear an owner-only blocker"}},
+        "/ci/slot": {"post": {"summary": "Request a repository's CI slot"}},
+        "/ci/release": {"post": {"summary": "Release a repository's CI slot"}},
         "/audit": {"get": {"summary": "Audit chain head and verification"}},
         "/webhooks/{provider}": {"post": {"summary": "Provider webhook intake"}},
         "/instances/register": {"post": {"summary": "Register a detached instance"}},
@@ -82,6 +141,61 @@ def log(event, **fields):
 def bearer(headers):
     value = headers.get("Authorization") or ""
     return value[7:] if value.startswith("Bearer ") else ""
+
+
+def first_header(headers, names):
+    for name in names:
+        value = (headers.get(name) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def github_fetch(path):
+    request = urllib.request.Request(  # noqa: S310 - fixed https GitHub API origin
+        f"{GITHUB_API}{path}",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {GITHUB_TOKEN}",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:  # noqa: S310 - fixed https GitHub API origin
+        return json.loads(response.read())
+
+
+def act(routine, role, action, source, scope=()):
+    with STATE_LOCK:
+        AUDIT.append(
+            "routine",
+            {"routine": routine, "role": role, "action": action, "source": source},
+        )
+    log(f"routine_{action}", routine=routine, role=role, source=source)
+    if action == START:
+        threading.Thread(
+            target=RUNNER.start, args=(routine, role, tuple(scope)), daemon=True
+        ).start()
+
+
+def queue_message(recipient, text):
+    channel = CHANNELS[0] if CHANNELS else None
+    with STATE_LOCK:
+        AUDIT.append("channel", {"recipient": recipient, "channel": channel})
+    log("channel_dispatch", recipient=recipient, channel=channel, length=len(text))
+    return channel
+
+
+def start_event(event):
+    roles = dispatch.route(event, TRIGGERS)
+    for role in roles:
+        routine = dispatch.routine_of(role, CRON_ENTRIES, ROUTINES)
+        if routine is None:
+            log("agent_without_routine", role=role, trigger=event.trigger)
+            continue
+        act(routine, role, START, event.trigger, event.scope)
+    for owner, text in dispatch.notices(event, roles, OWNERS):
+        if channels.is_addressable(owner):
+            queue_message(owner, text)
+    return roles
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -131,7 +245,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, self._status())
             return
         if self.path == "/routines":
-            self._json(200, {"routines": self._routines()})
+            self._json(200, {"routines": ROUTINES})
             return
         if self.path == "/audit":
             entries = AUDIT.entries
@@ -163,6 +277,12 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/routines/run":
             self._run_routine()
             return
+        if self.path in OWNER_ACTIONS:
+            self._owner_action(OWNER_ACTIONS[self.path])
+            return
+        if self.path in ("/ci/slot", "/ci/release"):
+            self._slot(self.path == "/ci/slot")
+            return
         self._error(404, "unknown path")
 
     def _status(self):
@@ -171,14 +291,14 @@ class Handler(BaseHTTPRequestHandler):
             "publicly_reachable": PUBLICLY_REACHABLE,
             "poll_interval": POLL_INTERVAL,
             "channels": CHANNELS,
-            "routines": self._routines(),
+            "board": BOARD_URL,
+            "routines": ROUTINES,
+            "running": RUNNER.running(),
+            "held": sorted(HOLDS.held()),
+            "blocked": HOLDS.blockers(),
+            "gate_locked": locks.held(LOCK_DIR, locks.GATE),
             "audit_entries": len(AUDIT.entries),
         }
-
-    def _routines(self):
-        return sorted(
-            {entry["routine"] for entry in CRON_ENTRIES if entry.get("routine")}
-        )
 
     def _webhook(self):
         provider = self.path[len(WEBHOOK_PREFIX) :].strip("/")
@@ -189,10 +309,13 @@ class Handler(BaseHTTPRequestHandler):
             log("webhook_rejected", provider=provider)
             self._error(401, "invalid signature")
             return
-        delivery = (self.headers.get(DELIVERY_HEADER) or "").strip()
+        delivery = first_header(self.headers, DELIVERY_HEADERS)
+        if not delivery:
+            log("webhook_rejected", provider=provider, reason="no delivery id")
+            self._error(400, "a webhook without a delivery id cannot be deduplicated")
+            return
         with STATE_LOCK:
-            fresh = DEDUP.seen(delivery) if delivery else True
-            if not fresh:
+            if not DEDUP.seen(delivery):
                 log("webhook_duplicate", provider=provider, delivery=delivery)
                 self._json(200, {"status": "duplicate"})
                 return
@@ -205,7 +328,72 @@ class Handler(BaseHTTPRequestHandler):
                 },
             )
         log("webhook_accepted", provider=provider, delivery=delivery)
-        self._json(202, {"status": "accepted", "refetch": webhook.refetch_required()})
+        roles = self._act_on(provider, body)
+        self._json(
+            202,
+            {
+                "status": "accepted",
+                "refetch": webhook.refetch_required(),
+                "roles": roles,
+            },
+        )
+
+    def _act_on(self, provider, body):
+        if provider != "github" or not GITHUB_TOKEN:
+            return []
+        try:
+            payload = json.loads(body)
+            event = webhook.intake(
+                first_header(self.headers, EVENT_HEADERS), payload, github_fetch
+            )
+        except (OSError, ValueError, TypeError) as error:
+            log("webhook_refetch_failed", provider=provider, error=type(error).__name__)
+            return []
+        return start_event(event) if event is not None else []
+
+    def _owner_action(self, action):
+        payload = self._payload()
+        if payload is None:
+            self._error(400, "body is not a JSON object")
+            return
+        routine = (payload.get("routine") or "").strip()
+        if routine not in ROUTINES:
+            self._error(404, "unknown routine")
+            return
+        reason = (payload.get("reason") or "").strip()
+        if action == "hold":
+            changed = HOLDS.hold(routine, reason)
+        elif action == "lift":
+            changed = HOLDS.lift(routine)
+        elif action == "block":
+            changed = HOLDS.block(routine, reason)
+            if changed:
+                owner = OWNERS.get(ROUTINE_ROLE.get(routine, routine))
+                if owner and channels.is_addressable(owner):
+                    queue_message(owner, f"{routine} is blocked: {reason}")
+        else:
+            changed = HOLDS.clear(routine)
+        with STATE_LOCK:
+            AUDIT.append("owner", {"routine": routine, "action": action})
+        log(f"routine_{action}", routine=routine, changed=changed)
+        self._json(200, {"routine": routine, "action": action, "changed": changed})
+
+    def _slot(self, request):
+        payload = self._payload()
+        if payload is None:
+            self._error(400, "body is not a JSON object")
+            return
+        repository = (payload.get("repository") or "").strip()
+        agent = (payload.get("agent") or "").strip()
+        if not repository or not channels.is_addressable(agent):
+            self._error(422, "repository and an agent account are required")
+            return
+        if request:
+            place = SLOTS.request(repository, agent)
+            self._json(200, {"repository": repository, "agent": agent, "place": place})
+            return
+        holder = SLOTS.release(repository, agent)
+        self._json(200, {"repository": repository, "holder": holder})
 
     def _register(self):
         payload = self._payload()
@@ -235,10 +423,7 @@ class Handler(BaseHTTPRequestHandler):
         if not CHANNELS:
             self._error(503, "no channel configured")
             return
-        channel = CHANNELS[0]
-        with STATE_LOCK:
-            AUDIT.append("channel", {"recipient": recipient, "channel": channel})
-        log("channel_dispatch", recipient=recipient, channel=channel)
+        channel = queue_message(recipient, payload.get("text") or "")
         self._json(
             202, {"status": "queued", "channel": channel, "recipient": recipient}
         )
@@ -249,29 +434,43 @@ class Handler(BaseHTTPRequestHandler):
             self._error(400, "body is not a JSON object")
             return
         routine = (payload.get("routine") or "").strip()
-        if routine not in self._routines():
+        role = (payload.get("role") or "").strip()
+        if routine not in ROUTINES:
             self._error(404, "unknown routine")
             return
-        with STATE_LOCK:
-            AUDIT.append("routine", {"routine": routine, "action": "run"})
-        log("routine_run", routine=routine)
+        if role not in AGENTS:
+            self._error(422, "role must name an agent role")
+            return
+        act(routine, role, START, "management")
         self._json(202, {"status": "started", "routine": routine})
 
 
-def scheduler():
+OWNER_ACTIONS = {
+    "/routines/hold": "hold",
+    "/routines/lift": "lift",
+    "/routines/block": "block",
+    "/routines/clear": "clear",
+}
+
+
+def cron_loop():
     while True:
-        time.sleep(60)
+        time.sleep(60 - time.time() % 60)
         try:
-            due = cron.due(CRON_ENTRIES, datetime.now(UTC))
+            actions = scheduler.tick(
+                CRON_ENTRIES,
+                datetime.now(UTC).replace(second=0, microsecond=0),
+                sample=None,
+                accelerated=False,
+                gate_locked=locks.held(LOCK_DIR, locks.GATE),
+                held=HOLDS.held(),
+                blocked=HOLDS.blocked(),
+            )
         except (KeyError, ValueError) as error:
             log("cron_failed", error=str(error))
             continue
-        for entry in due:
-            log("cron_due", name=entry.get("name"), routine=entry.get("routine"))
-            with STATE_LOCK:
-                AUDIT.append(
-                    "cron", {"name": entry.get("name"), "routine": entry.get("routine")}
-                )
+        for routine, action in actions.items():
+            act(routine, ROUTINE_ROLE[routine], action, "cron")
 
 
 def poller():
@@ -282,7 +481,7 @@ def poller():
 
 
 def main():
-    threading.Thread(target=scheduler, daemon=True).start()
+    threading.Thread(target=cron_loop, daemon=True).start()
     if not PUBLICLY_REACHABLE:
         threading.Thread(target=poller, daemon=True).start()
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)  # noqa: S104 - listens only on the orchestrator's container networks

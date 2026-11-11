@@ -7,7 +7,14 @@
 
 - name: "🗓️  Collect the deploy-time cron schedules from every agent role"
   ansible.builtin.set_fact:
-    AGENT_ORCHESTRATOR_CRON_ENTRIES: "{{ AGENT_ORCHESTRATOR_CRON_ENTRIES + lookup('agent_config', item, 'cron', []) }}"
+    AGENT_ORCHESTRATOR_CRON_ENTRIES: "{{ AGENT_ORCHESTRATOR_CRON_ENTRIES + (lookup('agent_config', item, 'cron', []) | map('combine', {'role': item}) | list) }}"
+  loop: "{{ AGENT_ORCHESTRATOR_AGENT_ROLES }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: "🎯 Collect the triggers and the owner of every agent role"
+  ansible.builtin.set_fact:
+    AGENT_ORCHESTRATOR_AGENTS: "{{ AGENT_ORCHESTRATOR_AGENTS | combine({item: {'triggers': lookup('agent_config', item, 'triggers'), 'owner': lookup('agent_config', item, 'owner')}}) }}"
   loop: "{{ AGENT_ORCHESTRATOR_AGENT_ROLES }}"
   loop_control:
     label: "{{ item }}"
@@ -28,9 +35,7 @@
     path: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, item] | path_join }}"
     state: directory
     mode: "0755"
-  loop:
-    - utils/orchestrator
-    - utils/agents
+  loop: "{{ AGENT_ORCHESTRATOR_STAGED_DIRS }}"
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
 
@@ -40,6 +45,25 @@
     dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, item] | path_join }}"
     mode: "0644"
   loop: "{{ AGENT_ORCHESTRATOR_LIBS }}"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🧭 Stage the routines of the deployed revision beside the server"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', AGENT_ORCHESTRATOR_ROUTINES_DIR) }}/"
+    dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, AGENT_ORCHESTRATOR_ROUTINES_DIR] | path_join }}/"
+    directory_mode: "0755"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📦 Stage the orchestrator's pinned Python requirements"
+  stack_host_copy:
+    src: requirements.txt
+    dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, 'requirements.txt'] | path_join }}"
+    mode: "0644"
   notify:
     - compose-build
     - compose-up

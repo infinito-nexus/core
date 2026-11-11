@@ -28,7 +28,8 @@ As an operator, I want the reviewer, planner, coordinator, operator, tester, tra
 - [ ] reviewer: a pull request whose new spec has no negative control gets `changes requested`. Partly met: the routine routes a changed spec without a passing control to `changes requested` (`tests/unit/python/agents/routines/test_reviewer.py`); posting the verdict is not wired yet.
 - [ ] planner: an issue becomes a `Proposed` work package with user story and checkable criteria, linked to the issue.
 - [ ] planner: a second issue with the same content is linked to the existing work package instead of creating a new one.
-- [ ] coordinator: two agents requesting a CI deploy of the same repository at once get the slot one after the other.
+- [x] coordinator: two agents requesting a CI deploy of the same repository at once get the slot one after the other.
+  - Evidence: `SlotQueue` in `utils/orchestrator/locks.py` behind the orchestrator's `POST /ci/slot` and `/ci/release`; `test_two_concurrent_requests_are_served_in_turn` in `tests/unit/python/utils/orchestrator/test_locks.py`.
 - [ ] coordinator: diverging version pins between two feature branches are reported to both owners before they meet.
 - [ ] operator: a seeded alarm (full disk, expiring certificate, failed backup) starts its runbook routine and ends as a work package with timeline and cause.
 - [ ] operator: a backup restore waits for the owner's approval.
@@ -67,7 +68,8 @@ As an operator, I want the reviewer, planner, coordinator, operator, tester, tra
 - [ ] counsel: a second run over the unchanged fixture tree updates the existing work packages and opens none.
 - [ ] counsel: the seeded build-only copyleft dependency is refuted as a blocker by the dialectic and filed as a finding (fixture).
 - [ ] counsel: a new blocker sends an email to the legal contact that carries only severity and link, and the release role refuses to tag while that blocker is open (fixture).
-- [ ] counsel: the Monday 02:00 UTC cron entry starts a full run, and a changed lockfile on the default branch starts a run scoped to that change (fixture clock and webhook).
+- [x] counsel: the Monday 02:00 UTC cron entry starts a full run, and a changed lockfile on the default branch starts a run scoped to that change (fixture clock and webhook).
+  - Evidence: `test_the_counsel_starts_a_full_run_on_monday_at_0200` in `tests/unit/python/utils/orchestrator/test_scheduler.py`; a push whose re-fetched commit changes a lockfile raises `dependency_manifest_changed` with the changed files as scope (`test_a_lockfile_change_on_the_default_branch_is_a_scoped_trigger` in `test_webhook.py`), which `dispatch.route` sends to the counsel's `legal_audit` (`test_dispatch.py`) and `Runner` starts with one `--scope` per file (`test_a_scoped_start_passes_every_changed_file`).
 - [ ] counsel: the instance probe reports the fixture app's third-party font host and its cookie set before consent; without `agents.counsel.targets` the report names the instance checks as skipped.
 - [ ] counsel: a request to a target outside `agents.counsel.targets` and any write request to an instance are refused by the firewall (probe recorded), and a full run leaves no commit, push or file change.
 - [ ] hacker: no scan sends more requests per second than its configured rate limit.
