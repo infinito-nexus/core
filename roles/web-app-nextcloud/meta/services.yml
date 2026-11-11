@@ -196,10 +196,10 @@ talk:
   shared: "{{ 'web-svc-coturn' in group_names }}"
   name: nextcloud-talk-janus
   image: alpine
-  version: 3.23.3
+  version: 3.24.4
   custom: nextcloud-talk-janus
   repository: https://github.com/meetecho/janus-gateway.git
-  ref: v1.4.0
+  ref: v1.4.3
   # nocheck: single-replica  the signaling server addresses exactly one Janus by URL and keeps every media session on it
   replicas: 1
   turn_server:
@@ -228,7 +228,7 @@ talk_signaling:
   shared: false
   name: nextcloud-talk-signaling
   image: strukturag/nextcloud-spreed-signaling
-  version: 2.1.1
+  version: 2.2.0
   # nocheck: single-replica  sessions live in this process; a second replica behind the VIP would split one call across servers
   replicas: 1
   max_stream_bitrate: 1048576
@@ -252,7 +252,7 @@ talk_nats:
   shared: false
   name: nextcloud-talk-nats
   image: nats
-  version: 2.12.6-alpine
+  version: 2.15.2-alpine
   # nocheck: single-replica  an unclustered NATS server; the signaling server connects to exactly one
   replicas: 1
   cpus: "0.5"
@@ -321,10 +321,10 @@ talk_recording:
   shared: false
   name: nextcloud-talk-recording
   image: python
-  version: 3.14.3-alpine3.23
+  version: 3.15.2-alpine3.23
   custom: nextcloud-talk-recording
   repository: https://github.com/nextcloud/nextcloud-talk-recording.git
-  ref: v0.2.1
+  ref: v0.3.1
   # nocheck: single-replica  Talk starts and stops a recording on the server it reached; a second replica behind the VIP would receive half of the stop requests
   replicas: 1
   cpus: "2.0"
