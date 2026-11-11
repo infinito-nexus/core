@@ -1,0 +1,8 @@
+{% set _sources = [{'name': 'platform', 'root': 'platform', 'url': ASSISTANT_INDEX.link_base ~ '/' ~ ASSISTANT_INDEX.platform_docs}] %}
+{% for _role in ASSISTANT_DEPLOYED_ROLES %}
+{% set _ = _sources.append({'name': _role, 'root': 'roles/' ~ _role, 'url': ASSISTANT_INDEX.link_base ~ '/roles/' ~ _role}) %}
+{% endfor %}
+{% for _tenant in ASSISTANT_INDEX.tenant_sources %}
+{% set _ = _sources.append({'name': _tenant.name, 'root': 'tenant/' ~ _tenant.name, 'url': _tenant.url}) %}
+{% endfor %}
+{{ _sources | to_nice_json }}

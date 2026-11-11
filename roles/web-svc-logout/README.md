@@ -143,6 +143,7 @@ A custom `roles/web-app-cst-*` role declares its row under `sso.backchannel` in 
 | `web-app-zammad` | oidc | yes, own client not switched yet; it ends the session whose stored `oidc_sid` matches the token's `sid` | `/auth/openid_connect/backchannel_logout` on the Zammad origin | [Zammad 7.1.2](https://github.com/zammad/zammad/blob/7.1.2/app/controllers/concerns/handles_oidc_authorization.rb#L9-L22), [routes](https://github.com/zammad/zammad/blob/7.1.2/config/routes/auth.rb#L9) | 4 weeks idle (`session_timeout`, Zammad default; the role does not set it) |
 | `web-svc-access-request` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-svc-api` | - | no, SSO is off for this role (`sso.enabled: false`) | - | - | no SSO session |
+| `web-svc-assistant` | - | no, SSO is off for this role (`sso.enabled: false`); it reads the persona per request from the consumer gate's headers | - | - | no SSO session |
 | `web-svc-libretranslate` | oauth2 | no, gated by oauth2-proxy | - | [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/configuration/overview) | until the gate's next `cookie_refresh` fails |
 | `web-svc-simpleicons` | - | no, SSO is off for this role (`sso.enabled: false`) | - | - | no SSO session |
 

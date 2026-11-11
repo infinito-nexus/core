@@ -37,6 +37,6 @@ As a user of an Infinito.Nexus deployment, I want to ask the beaver in the corne
 
 ### Tests
 
-- [ ] A unit test checks the rate limit, the persona selection by RBAC group and the refusal to answer outside the index.
-- [ ] An integration test builds the index from a fixture documentation tree and asserts that no secret pattern reaches it.
+- [x] A unit test checks the rate limit, the persona selection by RBAC group and the refusal to answer outside the index.
+- [x] An integration test builds the index from a fixture documentation tree and asserts that no secret pattern reaches it.
 - [ ] A Playwright spec asks the assistant a question from the lodge as an anonymous user and as an administrator and asserts a sourced answer for each.

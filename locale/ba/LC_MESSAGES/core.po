@@ -1238,6 +1238,10 @@ msgctxt "menu:Help:title"
 msgid "Help"
 msgstr ""
 
+msgctxt "role:web-svc-assistant:description"
+msgid "Help assistant answering from the deployment's own documentation, with sources"
+msgstr ""
+
 # translated-by: libretranslate
 # Docker Compose dan memvalidasi pahitikan CA projek
 msgctxt "role:sys-svc-compose-ca:description"
