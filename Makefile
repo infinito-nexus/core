@@ -668,6 +668,7 @@ legal-probe:
 # Run all lint checks in parallel.
 # Note: each check runs on host or in docker per INFINITO_LINT_RUNNER.
 lint: install-lint
+	@bash scripts/install/wrapper.sh css packages php ruby sql
 	@bash scripts/make/parallel.sh lint-action \
 		lint-ansible \
 		lint-css \

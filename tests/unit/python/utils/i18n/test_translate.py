@@ -15,6 +15,8 @@ from utils.i18n.catalog import (
     TRANSLATION_REFUSED,
     build_template,
     is_machine_translation,
+    judge_failure,
+    judged_engines,
     machine_translation,
     merge,
     render,
@@ -24,7 +26,9 @@ from utils.i18n.placeholders import Rejected
 from utils.i18n.translate import (
     URL_SUPPRESSION,
     apply,
+    by_exclusion,
     damaged,
+    fail_judgement,
     over_shared,
     pending,
     retry,
@@ -541,6 +545,67 @@ class TestAnotherEngineIsAskedAfterARejection(unittest.TestCase):
             [request["exclude"] for request in EngineAwareGateway.requests],
             [[], ["alpha"]],
         )
+
+    def test_an_exclusion_the_caller_names_reaches_the_first_request(self) -> None:
+        outcome = self.client.translate([self.SOURCE], "de", exclude=("alpha",))
+
+        self.assertEqual(
+            [request["exclude"] for request in EngineAwareGateway.requests],
+            [["alpha"]],
+        )
+        self.assertEqual(outcome.engines, ("beta",))
+
+
+class TestAJudgedFailureNamesItsEngine(unittest.TestCase):
+    SOURCE: ClassVar[str] = "Save the file"
+
+    def _catalog(self, engine: str) -> Catalog:
+        catalog = Catalog(locale="de")
+        catalog.add(self.SOURCE, "Speichern")
+        self._message(catalog).user_comments = [machine_translation(engine)]
+        return catalog
+
+    def _message(self, catalog: Catalog):
+        return next(message for message in catalog if message.id)
+
+    def test_the_failed_entry_is_pending_again_without_its_engine(self) -> None:
+        catalog = self._catalog("engine-a")
+        message = self._message(catalog)
+
+        self.assertTrue(fail_judgement(message))
+
+        self.assertEqual(pending(catalog), [message])
+        self.assertEqual(judged_engines(message.user_comments), ("engine-a",))
+        self.assertEqual(by_exclusion([message]), {("engine-a",): [message]})
+
+    def test_every_engine_that_failed_stays_excluded(self) -> None:
+        catalog = self._catalog("engine-a")
+        message = self._message(catalog)
+
+        fail_judgement(message)
+        apply([message], ["Datei speichern"], engines=("engine-b",))
+        fail_judgement(message)
+
+        self.assertEqual(
+            judged_engines(message.user_comments), ("engine-a", "engine-b")
+        )
+
+    def test_an_unnamed_engine_is_not_sent_as_an_exclusion(self) -> None:
+        catalog = self._catalog("")
+        message = self._message(catalog)
+
+        fail_judgement(message)
+
+        self.assertIn(judge_failure(""), message.user_comments)
+        self.assertEqual(judged_engines(message.user_comments), ())
+
+    def test_red_fixture_a_hand_translation_is_never_failed(self) -> None:
+        catalog = self._catalog("engine-a")
+        message = self._message(catalog)
+        message.user_comments = []
+
+        self.assertFalse(fail_judgement(message))
+        self.assertEqual(message.string, "Speichern")
 
 
 if __name__ == "__main__":

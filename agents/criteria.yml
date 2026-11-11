@@ -166,6 +166,11 @@ UT-TRANSLATOR-ENGINE-MARK:
   proof_kind: unit
   proof: tests/unit/python/utils/i18n/test_translate.py
   red_fixture: yes
+UT-TRANSLATOR-JUDGE-EXCLUDE:
+  statement: "an entry the judge pass failed is translated again with every engine that produced a failed answer excluded, fixture"
+  proof_kind: unit
+  proof: tests/unit/python/utils/i18n/test_translate.py
+  red_fixture: yes
 UT-TRANSLATE-STRATEGY:
   statement: "web-svc-translate reads its router strategy without a code-level fallback value, and an unknown strategy is an error"
   proof_kind: unit

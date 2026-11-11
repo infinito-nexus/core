@@ -44,6 +44,12 @@ but the file it was extracted from does not reach here, because
 ``utils/i18n/catalog.py`` builds the template without locations and the
 catalogs therefore carry none. Naming the source file in the question would
 mean changing extraction and rewriting every catalog, which is its own change.
+
+Unlike the rest of the suite this check writes: every sample it fails is
+emptied in its catalog with the engine behind it recorded, so the next
+``make i18n-translate`` asks the gateway for it again without that engine, and
+a language that passes ``utils.i18n.levels.gate`` stores its sampled level as
+the one the next pass has to reach.
 """
 
 from __future__ import annotations
@@ -56,8 +62,10 @@ from utils.cache.yaml import load_yaml
 from utils.i18n.catalog import catalog_path, is_machine_translation, read_catalog
 from utils.i18n.judge import MIDDLE, ChatJudge
 from utils.i18n.languages import DOMAINS, domain_languages, load_languages
+from utils.i18n.levels import gate
 from utils.i18n.libretranslate import GATEWAY_ROLE, GATEWAY_SERVICE_KEY
 from utils.i18n.spans import prose
+from utils.i18n.translate import record_judged
 from utils.inventory.tools import LITELLM_KEY, lane_url
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -84,8 +92,8 @@ def _model() -> str:
     return load_yaml(JUDGE_SERVICES_FILE)[JUDGE_SERVICE_KEY]["router"]["alias"]
 
 
-def _pairs(code: str, domain: str) -> list[tuple[str, str]]:
-    """Return machine-translated (source, translation) pairs worth judging.
+def _pairs(code: str, domain: str) -> list[tuple[str | None, str, str]]:
+    """Return machine-translated (context, source, translation) entries worth judging.
 
     Args:
         code: ISO 639-1 code of the catalog.
@@ -95,7 +103,7 @@ def _pairs(code: str, domain: str) -> list[tuple[str, str]]:
     if not path.is_file():
         return []
     return [
-        (str(m.id), str(m.string))
+        (m.context, str(m.id), str(m.string))
         for m in read_catalog(path)
         if m.id
         and m.string
@@ -177,6 +185,9 @@ class TestTranslationScore(unittest.TestCase):
         verdicts: dict[str, str] = {}
         offenders: list[str] = []
         refused: list[str] = []
+        failed: dict[tuple[str, str], set[tuple[str | None, str, str]]] = {}
+        sampled: dict[str, list[int]] = {}
+        aborted: dict[str, str] = {}
         judged = 0
 
         for domain in DOMAINS:
@@ -191,21 +202,25 @@ class TestTranslationScore(unittest.TestCase):
                         SUITE,
                         f"{code}: {verdicts[code] or 'the judge separates the fixture'}",
                     )
-                if verdicts[code]:
+                if verdicts[code] or code in aborted:
                     continue
 
                 stride = max(1, len(pairs) // SAMPLES_PER_LANGUAGE)
                 sample = pairs[::stride][:SAMPLES_PER_LANGUAGE]
                 _progress(SUITE, f"scoring {len(sample)} samples of {where}")
                 name = self.names.get(code, code)
-                for source, translation in sample:
+                for context, source, translation in sample:
                     try:
                         level = judge.score(source, translation)
                     except ValueError as exc:
                         refused.append(f"{where}: {exc}")
-                        continue
+                        aborted[code] = str(exc)
+                        break
                     judged += 1
+                    sampled.setdefault(code, []).append(level)
+                    entry = (context, source, translation)
                     if level < MIDDLE:
+                        failed.setdefault((domain, code), set()).add(entry)
                         offenders.append(
                             f"{where}: {level} below the middle level {MIDDLE}: "
                             f"{source[:60]!r} -> {translation[:60]!r}"
@@ -218,13 +233,25 @@ class TestTranslationScore(unittest.TestCase):
                         spoken = judge.speaks(written, name)
                     except ValueError as exc:
                         refused.append(f"{where}: {exc}")
-                        continue
+                        aborted[code] = str(exc)
+                        break
                     if spoken < MIDDLE:
+                        failed.setdefault((domain, code), set()).add(entry)
                         offenders.append(
                             f"{where}: states its source but was placed at "
                             f"{spoken} on being written in {name}: "
                             f"{translation[:60]!r}"
                         )
+
+        for (domain, code), entries in sorted(failed.items()):
+            emptied = record_judged(PROJECT_ROOT, domain, code, entries)
+            _progress(SUITE, f"{domain}/{code}: {emptied} failed entries queued")
+        held: list[str] = []
+        for code in sorted(set(sampled) | set(aborted)):
+            why = gate(PROJECT_ROOT, code, sampled.get(code, []), aborted.get(code, ""))
+            if why:
+                held.append(f"{code}: {why}")
+                _progress(SUITE, f"{code}: no pull request, {why}")
 
         unjudged = {code: why for code, why in sorted(verdicts.items()) if why}
         if not judged:
@@ -239,6 +266,11 @@ class TestTranslationScore(unittest.TestCase):
                 f"{len(offenders)} of {judged} sampled translations state "
                 "something other than their source:\n"
                 + "\n".join(f"  - {o}" for o in offenders)
+            )
+        if held:
+            self.fail(
+                f"{len(held)} language(s) failed their verification and get no "
+                "pull request:\n" + "\n".join(f"  - {h}" for h in held)
             )
         if len(refused) > judged * MAX_REFUSED_SHARE:
             self.fail(

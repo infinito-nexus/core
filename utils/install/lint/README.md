@@ -60,3 +60,5 @@ def ensure() -> None:
 The `all` mode honors a per-interpreter stamp at `build/install-lint-<hash>.stamp` (the suffix is the first 8 chars of `sha256(sys.executable)`, so host and container track independently even though `build/` is bind-mounted).
 Stamp dependencies are [lint.sh](../../../scripts/install/lint.sh) and [pyproject.toml](../../../pyproject.toml).
 Group-targeted invocations always run and never touch the stamp.
+Every invocation, `all` or group-targeted, holds `build/install-lint.lock` for its whole run, so parallel lint targets never install one tool at the same time.
+`make lint` installs every group its targets name before the parallel dispatch starts.
