@@ -24,7 +24,7 @@ function isProfileRead(response) {
 }
 
 exports.register = function () {
-  test("email policy: biber cannot change the primary address directly", async ({ page }) => {
+  test("biber: email policy: biber cannot change the primary address directly", async ({ page }) => {
     skipUnlessServiceEnabled("ldap");
     test.setTimeout(resolveTimeout(180_000));
     const primary = emailMailbox ? mailboxAttribute : "email";

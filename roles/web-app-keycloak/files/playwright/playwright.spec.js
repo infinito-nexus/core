@@ -242,7 +242,7 @@ test("super administrator onboards mapache in the admin console and mapache sign
   await expectNoCspViolations(page, diagnostics, "keycloak normal-realm account (mapache)");
 });
 
-test("normal-realm biber logs in through account interface and logs out", async ({ page }) => {
+test("biber: normal-realm biber logs in through account interface and logs out", async ({ page }) => {
   safeSkipUnlessEnabled("ldap");
   const diagnostics = attachDiagnostics(page);
 
@@ -305,8 +305,8 @@ test("normal-realm biber logs in through account interface and logs out", async 
 //     console and logs out"   → administrator persona equivalent.
 //   - "normal-realm administrator logs in through account interface
 //     and logs out"            → administrator persona via account UI.
-//   - "normal-realm biber logs in through account interface and logs
-//     out"                     → biber persona via account UI.
+//   - "biber: normal-realm biber logs in through account interface and
+//     logs out"                → biber persona via account UI.
 //
 // No generic persona scenarios are emitted; the auth-provider role is
 // part of the auth-less / circular-dependency persona-collapse

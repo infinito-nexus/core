@@ -28,6 +28,7 @@ test("biber: signs in via the ldap-authentication addon and lands on the Jellyfi
 
 test("addon ldap-authentication: the LDAP plugin reads passwords from the directory password attribute", async ({ page }) => {
   skipUnlessAddonEnabled("ldap-authentication");
+  skipUnlessServiceEnabled("ldap");
   test.setTimeout(resolveTimeout(60_000));
   const passwordAttribute = decodeDotenvQuotedValue(process.env.LDAP_PASSWORD_ATTRIBUTE);
   expect(passwordAttribute, "LDAP_PASSWORD_ATTRIBUTE must be set").toBeTruthy();

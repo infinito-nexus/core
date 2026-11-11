@@ -32,7 +32,7 @@ consistently across the role tree is what this requirement tracks.
 
 ### Policy
 
-- [ ] Any role whose `meta/services.yml` declares `ldap.enabled` (literal
+- [x] Any role whose `meta/services.yml` declares `ldap.enabled` (literal
   `true` or the dynamic `"{{ 'svc-db-openldap' in group_names }}"`
   form per
   [test_dynamic_flags.py](../../tests/integration/roles/meta/services/test_dynamic_flags.py))
@@ -42,7 +42,7 @@ consistently across the role tree is what this requirement tracks.
   in-app LDAP auth surface the role exposes (Joomla core LDAP plugin,
   Jenkins LDAP security realm, OpenCloud built-in identity provider bind,
   EspoCRM LDAP sign-in form, etc.).
-- [ ] The LDAP scenario MUST be gated via
+- [x] The LDAP scenario MUST be gated via
   `skipUnlessServiceEnabled('ldap')` so a deploy with
   `disable=ldap` reports the scenario as
   `skipped: LDAP_SERVICE_ENABLED=false`, never `failed`.
@@ -56,7 +56,7 @@ consistently across the role tree is what this requirement tracks.
   [017](017-playwright-biber-rbac-coverage.md)). A role that only
   asserts the admin path under LDAP MUST flag the biber follow-up
   in its README until it is added.
-- [ ] Every LDAP scenario that signs a persona in is its own `skipUnlessServiceEnabled('ldap')`-gated test next to the shared persona bodies (which run the SSO journey and skip only through `PERSONA_<X>_BLOCKED` or the auth-less collapse under [test_strict_mode.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_strict_mode.py)) and carries the persona token (`administrator:` / `biber:`) at the start of its title per 019 Rule 3, so the reporter groups it with that persona. An ungated `ldap login` test is forbidden by 019 Rule 5.
+- [x] Every LDAP scenario that signs a persona in is its own `skipUnlessServiceEnabled('ldap')`-gated test next to the shared persona bodies (which run the SSO journey and skip only through `PERSONA_<X>_BLOCKED` or the auth-less collapse under [test_strict_mode.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_strict_mode.py)) and carries the persona token (`administrator:` / `biber:`) at the start of its title per 019 Rule 3, so the reporter groups it with that persona. An ungated `ldap login` test is forbidden by 019 Rule 5.
 
 ### Env contract
 

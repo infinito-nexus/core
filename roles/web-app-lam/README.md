@@ -23,6 +23,10 @@ This role deploys LAM in a Docker environment and integrates it with an NGINX re
 - [LDAP Account Manager Official Website](https://www.ldap-account-manager.org/)
 - [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/E9doW8UWynLbGQFEfuhREo)
 
+## LDAP coverage
+
+No Playwright scenario gates on `ldap`. [`meta/services.yml`](./meta/services.yml) pins `ldap.enabled` to `true`, because LAM manages the `svc-db-openldap` directory and has no variant without it, so a deploy with `disable=ldap` never ships this role. Every sign-in at LAM's own form is the LDAP bind itself: [`files/playwright/test-directory-login.js`](./files/playwright/test-directory-login.js) drives that bind without Keycloak, signs the administrator in through the search login and asserts that the group filter refuses `biber`.
+
 ## Persona contract opt-outs
 
 [`meta/services.yml`](./meta/services.yml) admits only the `web-app-lam` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list in the development inventory. The proxy denies `biber` before LAM is ever reached, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`.
