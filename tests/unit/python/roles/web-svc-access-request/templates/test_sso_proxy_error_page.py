@@ -20,6 +20,8 @@ OAUTH2_PROXY_FORBIDDEN = "You do not have permission to access this resource."
 SERVICE_URL = "https://access.example.com/"
 REQUEST_LINK = re.compile(r'id="request-access" href="([^"]+)"')
 CATALOGUE = re.compile(r"var catalogue = (\{.*?\});")
+BUTTON = re.compile(r"<button([^>]*)>([^<]*)</button>")
+I18N_KEY = re.compile(r'data-i18n="([^"]+)"')
 
 
 def _render(role: str = "") -> str:
@@ -98,11 +100,33 @@ class TestSsoProxyErrorPage(unittest.TestCase):
                 "forbidden_text",
                 "forbidden_action",
                 "forbidden_back",
+                "signin_action",
                 "dir",
             },
             set(catalogue["ar"]),
         )
         self.assertEqual("rtl", catalogue["ar"]["dir"])
+
+    def test_every_button_of_the_other_refusals_is_a_catalogue_message(self):
+        rendered = _render()
+        other = rendered[rendered.index("{{ else }}") :]
+        catalogue = json.loads(CATALOGUE.search(rendered).group(1))
+
+        buttons = BUTTON.findall(other)
+        self.assertEqual(2, len(buttons))
+        for attributes, text in buttons:
+            with self.subTest(text=text):
+                key = I18N_KEY.search(attributes)
+                self.assertIsNotNone(key, f"button {text!r} names no catalogue key")
+                self.assertEqual(SOURCE[key.group(1)], text)
+                self.assertIn(key.group(1), catalogue["ar"])
+
+    def test_the_language_pick_runs_on_every_branch(self):
+        rendered = _render()
+
+        self.assertGreater(
+            rendered.index("var catalogue"), rendered.rindex("{{ end }}")
+        )
 
 
 if __name__ == "__main__":

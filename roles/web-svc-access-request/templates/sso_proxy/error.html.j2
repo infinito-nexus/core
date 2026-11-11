@@ -1,7 +1,7 @@
 {# Param sso_proxy_application_id: the gated application whose oauth2-proxy serves this page. #}
 {# Param access_request_role: role id the request page preselects; empty for the application's least-privileged role. #}
 {% set _texts = lookup('i18n_catalogue', 'access_request', 'roles/web-svc-access-request/files/access_request_i18n.yml') %}
-{% set _keys = ['forbidden_title', 'forbidden_text', 'forbidden_action', 'forbidden_back', 'dir'] %}
+{% set _keys = ['forbidden_title', 'forbidden_text', 'forbidden_action', 'forbidden_back', 'signin_action', 'dir'] %}
 {% set _catalogue = {} %}
 {% for _code, _strings in _texts.items() %}
 {% set _ = _catalogue.update({_code: _strings | dict2items | selectattr('key', 'in', _keys) | list | items2dict}) %}
@@ -41,6 +41,29 @@
         <a class="button is-light is-fullwidth" href="{% raw %}{{.Redirect}}{% endraw %}" data-i18n="forbidden_back">{{ _texts.en.forbidden_back }}</a>
       </div>
     </div>
+{% raw %}    {{ else }}
+    <div class="block">
+      <h1 class="subtitle is-1">{{.Title}}</h1>
+    </div>
+    {{ if .Message }}<div class="content">{{.Message}}</div>{{ end }}
+    {{ if .RequestID }}<div class="content">Request ID: {{.RequestID}}</div>{{ end }}
+    {{ if .Redirect }}
+    <hr>
+    <div class="columns">
+      <div class="column">
+        <form method="GET" action="{{.Redirect}}">
+          <button type="submit" class="button is-danger is-fullwidth"{% endraw %} data-i18n="forbidden_back">{{ _texts.en.forbidden_back }}</button>
+{% raw %}        </form>
+      </div>
+      <div class="column">
+        <form method="GET" action="{{.ProxyPrefix}}/sign_in">
+          <input type="hidden" name="rd" value="{{.Redirect}}">
+          <button type="submit" class="button is-primary is-fullwidth"{% endraw %} data-i18n="signin_action">{{ _texts.en.signin_action }}</button>
+{% raw %}        </form>
+      </div>
+    </div>
+    {{ end }}
+    {{ end }}{% endraw %}
     <script>
       (function () {
         var catalogue = {{ _catalogue | to_inline_js }};
@@ -57,30 +80,6 @@
         });
       })();
     </script>
-{% raw %}    {{ else }}
-    <div class="block">
-      <h1 class="subtitle is-1">{{.Title}}</h1>
-    </div>
-    {{ if .Message }}<div class="content">{{.Message}}</div>{{ end }}
-    {{ if .RequestID }}<div class="content">Request ID: {{.RequestID}}</div>{{ end }}
-    {{ if .Redirect }}
-    <hr>
-    <div class="columns">
-      <div class="column">
-        <form method="GET" action="{{.Redirect}}">
-          <button type="submit" class="button is-danger is-fullwidth">Go back</button>
-        </form>
-      </div>
-      <div class="column">
-        <form method="GET" action="{{.ProxyPrefix}}/sign_in">
-          <input type="hidden" name="rd" value="{{.Redirect}}">
-          <button type="submit" class="button is-primary is-fullwidth">Sign in</button>
-        </form>
-      </div>
-    </div>
-    {{ end }}
-    {{ end }}{% endraw %}
-
   </div>
 </section>
 </body>
