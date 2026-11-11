@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import unittest
 import unittest.mock as mock
+from typing import ClassVar
 
 from utils.github.variant import axes, network, pins, pools
+from utils.packages.schema import PackagesShapeError
 from utils.roles.display import display_names
 from utils.roles.mapping import (
     ROLE_FILE_META_DOMAINS,
@@ -1021,6 +1023,98 @@ class TestArchitectureAxis(unittest.TestCase):
             self.assertRaises(SystemExit),
         ):
             _assign(rows, sweep=0, network_input="auto", variants_per_app=_VARIANTS)
+
+    _CENTOS_AMD64_ONLY: ClassVar[dict] = {"web-app-b": {"centos": frozenset({"amd64"})}}
+
+    def _pairs(self, rows, published, sweeps=range(1)) -> set[tuple[str, str]]:
+        with mock.patch.object(pins, "published_architectures", return_value=published):
+            return {
+                (entry["distro"], entry["architecture"])
+                for sweep in sweeps
+                for entry in _assign(
+                    rows,
+                    sweep=sweep,
+                    network_input="clearnet",
+                    variants_per_app=_VARIANTS,
+                )
+            }
+
+    def test_an_unpublished_pair_is_never_planned_and_every_other_is(self) -> None:
+        rows = [_row("web-app-b", index, ("compose",)) for index in range(10)]
+        drawn = self._pairs(rows, self._CENTOS_AMD64_ONLY, sweeps=range(4))
+        self.assertNotIn(("centos", "arm64"), drawn)
+        self.assertEqual(
+            drawn,
+            {
+                (distro, architecture)
+                for distro in pools.DISTROS
+                for architecture in pools.ARCHITECTURES
+            }
+            - {("centos", "arm64")},
+        )
+
+    def test_a_service_package_narrows_the_row_like_its_own(self) -> None:
+        rows = [
+            {**_row("web-app-c", index, ("compose",)), "services": ["web-app-b"]}
+            for index in range(10)
+        ]
+        self.assertNotIn(
+            ("centos", "arm64"),
+            self._pairs(rows, self._CENTOS_AMD64_ONLY, sweeps=range(4)),
+        )
+
+    def test_a_published_everywhere_row_draws_what_it_drew_before(self) -> None:
+        rows = [_row("web-app-b", index, ("compose",)) for index in range(10)]
+        entries = _assign(
+            rows, sweep=3, network_input="clearnet", variants_per_app=_VARIANTS
+        )
+        self.assertEqual(
+            [(entry["distro"], entry["architecture"]) for entry in entries],
+            [
+                (
+                    pools.rotate(pools.DISTROS, index, 3),
+                    pools.rotate(pools.ARCHITECTURES, index, 3),
+                )
+                for index in range(10)
+            ],
+        )
+
+    def test_a_pinned_distro_keeps_the_architecture_it_is_published_for(self) -> None:
+        rows = [
+            _row("web-app-b", index, ("compose",), pin_distro="centos")
+            for index in range(4)
+        ]
+        self.assertEqual(
+            self._pairs(rows, self._CENTOS_AMD64_ONLY), {("centos", "amd64")}
+        )
+
+    def test_a_pinned_unpublished_pair_aborts_the_matrix(self) -> None:
+        rows = [
+            _row(
+                "web-app-b",
+                0,
+                ("compose",),
+                pin_distro="centos",
+                pin_architecture="arm64",
+            )
+        ]
+        with self.assertRaises(SystemExit) as caught:
+            self._pairs(rows, self._CENTOS_AMD64_ONLY)
+        self.assertIn("not published", str(caught.exception))
+
+    def test_an_unparsable_registry_refuses_in_one_line(self) -> None:
+        with (
+            mock.patch.object(
+                pins,
+                "published_architectures",
+                side_effect=PackagesShapeError("meta/packages.yml: app.centos bad"),
+            ),
+            self.assertRaises(SystemExit) as caught,
+        ):
+            pins.row_pairs("web-app-b", pools.DISTROS, pools.ARCHITECTURES)
+        self.assertEqual(
+            str(caught.exception), "web-app-b: meta/packages.yml: app.centos bad"
+        )
 
     def test_the_architecture_survives_the_label_round_trip(self) -> None:
         entry = _assign(
