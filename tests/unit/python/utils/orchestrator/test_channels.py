@@ -74,5 +74,24 @@ class TestChannelContract(unittest.TestCase):
             dispatch([], "biber", "hi")
 
 
+REMOTE = "https://live.infinito.example"
+
+
+class TestRemoteInstanceChannel(unittest.TestCase):
+    def test_a_remote_channel_with_credentials_carries_the_message(self):
+        remote = MatrixChannel(
+            homeserver="matrix.live.example", remote=REMOTE, credential="kdbx:matrix"
+        )
+        request = dispatch([CHANNELS[0], remote], "mant0alice", "hi")
+        self.assertEqual(request["to"], "@mant0alice:matrix.live.example")
+
+    def test_without_credentials_the_local_channel_is_used(self):
+        remote = MatrixChannel(homeserver="matrix.live.example", remote=REMOTE)
+        request = dispatch([remote, *CHANNELS], "mant0alice", "hi")
+        self.assertEqual(request["to"], "@mant0alice:matrix.infinito.example")
+        with self.assertRaises(ValueError):
+            dispatch([remote], "mant0alice", "hi")
+
+
 if __name__ == "__main__":
     unittest.main()

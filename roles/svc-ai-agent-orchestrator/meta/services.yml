@@ -33,6 +33,7 @@ agent-orchestrator:
   publicly_reachable: false
   checkpoint_retention_days: 30
   cron_entries: []
+  board_url: "{{ lookup('tls', 'web-app-openproject', 'url.origin') }}"
   run_after:
     - svc-db-postgres
     - svc-ai-litellm

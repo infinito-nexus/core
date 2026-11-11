@@ -3,7 +3,9 @@
 - ``python -m agents.routines list`` prints every routine.
 - ``python -m agents.routines show <routine>`` prints the ordered steps and
   the Mermaid diagram, needing no LangGraph.
-- ``python -m agents.routines run <routine>`` builds and invokes the graph.
+- ``python -m agents.routines run <routine>`` builds and invokes the graph;
+  each ``--scope <path>`` scopes the run to that changed file, under the
+  state key ``scope``.
 - ``python -m agents.routines decide <routine> <step> --state <json>`` runs one
   decision step over a JSON state file for an agent following the routine by
   hand, writes the state back and prints the chosen branch label; a missing
@@ -23,6 +25,8 @@ from agents.routines.iterate import STATE_KEYS, check_state
 from agents.routines.tools.log_scan import run_status
 from agents.routines.tools.watchdog import process_ticks
 
+SCOPE_KEY = "scope"
+
 
 def _show(name: str) -> int:
     module = load(name)
@@ -39,10 +43,10 @@ def _show(name: str) -> int:
     return 0
 
 
-def _run(name: str) -> int:
+def _run(name: str, scope: list[str]) -> int:
     module = load(name)
     graph = module.build()
-    graph.invoke({})
+    graph.invoke({SCOPE_KEY: scope} if scope else {})
     return 0
 
 
@@ -150,6 +154,9 @@ def main(argv: list[str] | None = None) -> int:
     show.add_argument("routine")
     run = sub.add_parser("run")
     run.add_argument("routine")
+    run.add_argument(
+        "--scope", action="append", default=[], help="a changed file the run covers"
+    )
     decide = sub.add_parser(
         "decide",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -182,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
             return _show(args.routine)
         if args.command == "decide":
             return _decide(args)
-        return _run(args.routine)
+        return _run(args.routine, args.scope)
     except KeyError:
         print(f"no routine '{args.routine}'", file=sys.stderr)
         return 1

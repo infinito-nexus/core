@@ -7,13 +7,15 @@ from __future__ import annotations
 
 import json
 import tempfile
+import threading
 import unittest
 from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
-from agents.routines.contract import LEDGER_KEY, append_record, decide
+from agents.routines.contract import LEDGER_KEY, append_record, decide, gated
 from tests.unit.python.agents.routines import written_text
+from utils.orchestrator.locks import GATE, hold
 
 
 def _records(path: Path) -> list[dict]:
@@ -72,6 +74,43 @@ class TestLedger(unittest.TestCase):
             decide({LEDGER_KEY: str(path)}, "signature", {"red_runs": 1}, "🆕 new")
             (record,) = _records(path)
         self.assertEqual(record["inputs"], {"red_runs": 1})
+
+
+class TestGateBeforeEveryStep(unittest.TestCase):
+    """Each node reads the machine's gate lock first and waits while it is held."""
+
+    def test_a_step_started_under_the_gate_lock_waits_for_its_release(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            lock_dir = Path(tmp)
+            held = threading.Event()
+            release = threading.Event()
+
+            def gate() -> None:
+                with hold(lock_dir, GATE):
+                    held.set()
+                    release.wait(5)
+
+            thread = threading.Thread(target=gate)
+            thread.start()
+            held.wait(5)
+            order: list[str] = []
+
+            def sleep(_seconds: float) -> None:
+                order.append("waited")
+                release.set()
+                thread.join(5)
+
+            def step(state: dict) -> dict:
+                order.append("ran")
+                return {**state, "done": True}
+
+            self.assertEqual(gated(step, lock_dir, sleep)({}), {"done": True})
+        self.assertEqual(order, ["waited", "ran"])
+
+    def test_a_free_gate_runs_the_step_at_once(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            node = gated(lambda state: state, Path(tmp), self.fail)
+            self.assertEqual(node({"a": 1}), {"a": 1})
 
 
 if __name__ == "__main__":

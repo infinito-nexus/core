@@ -15,8 +15,8 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 
 ### Layout
 
-- [ ] Every role's scheduled starts live in its `cron.yml`, a role may list several entries, and the orchestrator runs each entry at its schedule (fixture clock).
-  - Partial: `TestRoleCronEntries` in `tests/unit/python/utils/orchestrator/test_cron.py:46` fires the real `cron.yml` entries, read through `lookup('agent_config', ...)`, at their schedules on a fixture clock. Open: the `scheduler` of `roles/svc-ai-agent-orchestrator/files/python/server.py` only logs `cron_due` and starts no routine.
+- [x] Every role's scheduled starts live in its `cron.yml`, a role may list several entries, and the orchestrator runs each entry at its schedule (fixture clock).
+  - Evidence: `TestRoleCronEntries` in `tests/unit/python/utils/orchestrator/test_cron.py` fires the real `cron.yml` entries at their schedules; `tick` in `utils/orchestrator/scheduler.py` folds them into one action per routine and `Runner` starts the routine as `python -m agents.routines run <routine>` under the agent's stack lock, which the orchestrator's minute loop (`cron_loop` in `roles/svc-ai-agent-orchestrator/files/python/server.py`) calls (`tests/unit/python/utils/orchestrator/test_scheduler.py`). The image installs LangGraph from `roles/svc-ai-agent-orchestrator/files/requirements.txt` and ships `agents/routines/` with every module it imports (`tests/unit/python/roles/svc-ai-agent-orchestrator/files/test_image.py`).
 - [ ] An inventory override under `agents.<role>` changes a field of `agent.yml` and an entry of `cron.yml` on the next deploy, and every consumer reads the merged value through `lookup('agent_config', ...)`.
   - Partial: `test_the_inventory_override_changes_a_field_and_a_cron_entry` in `tests/unit/python/plugins/lookup/test_agent_config.py`; the lookup no longer fails on a `cron.yml` list root (`plugins/lookup/agent_config.py`, `load_yaml_any`). Live: deploy `svc-ai-agent-orchestrator` with an `agents.translator.cron` override and read the rendered cron entries from the container.
 
@@ -26,12 +26,15 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 - [ ] A failed log write aborts the routine and leaves no orphaned child process.
 - [ ] An operator override of a routine policy is accepted, recorded in the run and shown in its result.
 - [ ] Two stack commands of one agent never run at the same time, and nothing starts on the machine while the quality gate runs.
+  - Partial: every routine run takes its agent's `flock` stack lock and waits for a free gate lock (`utils/orchestrator/locks.py`, `Runner` in `utils/orchestrator/scheduler.py`, `tests/unit/python/utils/orchestrator/test_scheduler.py`, `test_locks.py`). Open: the lock directory is the orchestrator's state volume, not a host path the quality gate and the workspaces share, and the gate does not take the lock yet (next item).
 - [ ] Starting a quality gate pauses a running translation through `make i18n-pause` before the first gate step and resumes it after the gate; the translator's night and day crons start nothing while the gate lock is held (fixture clock and lock).
-  - Partial: `test_the_gate_lock_starts_no_translator_cron` in `tests/unit/python/utils/orchestrator/test_cron.py:64`. Open: no gate lock and no `make i18n-pause` call around the quality gate exist yet.
-- [ ] An owner hold on a routine survives every later cron firing of that routine and a restart of the orchestrator until the owner lifts it through the management API (fixture: pause instruction, two cron firings, restart).
-  - Partial: `test_an_owner_hold_outlasts_two_firings` in `tests/unit/python/utils/orchestrator/test_cron.py:76`. Open: the orchestrator's `scheduler` (`roles/svc-ai-agent-orchestrator/files/python/server.py:265`) calls `cron.due` without holds, blockers or the gate lock, and no hold survives a restart.
-- [ ] A routine with a recorded owner-only blocker is reported once and not restarted by its cron until the owner clears the blocker through the management API (fixture).
-- [ ] The orchestrator reads the gate lock before every routine step and cron start; a routine started while the lock is held waits (fixture lock).
+  - Partial: `test_the_gate_lock_starts_no_translator_cron` in `tests/unit/python/utils/orchestrator/test_cron.py:70`. Open: no gate lock and no `make i18n-pause` call around the quality gate exist yet.
+- [x] An owner hold on a routine survives every later cron firing of that routine and a restart of the orchestrator until the owner lifts it through the management API (fixture: pause instruction, two cron firings, restart).
+  - Evidence: `Store` in `utils/orchestrator/holds.py` writes holds through to the orchestrator's state volume, `POST /routines/hold` and `/routines/lift` set and lift them, and the minute loop passes them to `tick`; `test_a_hold_outlasts_two_firings_and_a_restart` in `tests/unit/python/utils/orchestrator/test_holds.py` and `test_an_owner_hold_outlasts_two_firings` in `tests/unit/python/utils/orchestrator/test_cron.py:82`.
+- [x] A routine with a recorded owner-only blocker is reported once and not restarted by its cron until the owner clears the blocker through the management API (fixture).
+  - Evidence: `POST /routines/block` records the blocker and messages the owner only for a new one, `POST /routines/clear` clears it (`Store.block`, `Store.clear`); `test_a_blocker_is_reported_once_and_starts_nothing_until_cleared` in `tests/unit/python/utils/orchestrator/test_holds.py`.
+- [x] The orchestrator reads the gate lock before every routine step and cron start; a routine started while the lock is held waits (fixture lock).
+  - Evidence: the minute loop passes `locks.held(..., GATE)` to `tick`, `Runner.start` waits through `locks.wait_gate`, and `contract.build` wraps every node in `gated` when `ORCHESTRATOR_LOCK_DIR` is set; `test_a_start_while_the_gate_lock_is_held_waits` in `tests/unit/python/utils/orchestrator/test_scheduler.py` and `TestGateBeforeEveryStep` in `tests/unit/python/agents/routines/test_contract.py`.
 
 ### Runtime contract and lifecycle
 
@@ -52,13 +55,17 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 - [ ] `svc-ai-agent-orchestrator` deploys in compose and swarm and passes lint.
 - [ ] A routine resumes from its Postgres checkpoint after the orchestrator container restarts.
 - [ ] A failed GitHub workflow run starts the maintainer routine.
-- [ ] A schedule from `agent.yml` starts the designer and the tuner routines.
+  - Partial: the webhook re-fetches the run, `classify` raises `workflow_run_failed` and `dispatch.route` starts the maintainer routine (`utils/orchestrator/webhook.py`, `utils/orchestrator/dispatch.py`, `tests/unit/python/utils/orchestrator/test_webhook.py`, `test_dispatch.py`). Open: the deploy passes no `GITHUB_TOKEN`, so the deployed orchestrator audits the webhook without the re-fetch and starts nothing.
+- [x] A schedule from the role's `cron.yml` starts the designer and the tuner routines.
+  - Evidence: `test_the_designer_and_the_tuner_start_on_their_schedule` in `tests/unit/python/utils/orchestrator/test_scheduler.py` (`agents/roles/designer/cron.yml`, `agents/roles/tuner/cron.yml`).
 - [ ] Tool nodes run inside the agent's workspace, not inside the orchestrator container.
 
 ### Security controls
 
 - [ ] An issue from a non-collaborator and a fork pull request run start the planner, not the maintainer's ungated path.
-- [ ] A webhook without a valid signature, with a replayed delivery id, or with forged payload content is rejected or acted on only through the re-fetched event.
+  - Partial: `classify` marks both as an outsider's from the re-fetched object and `dispatch.route` sends them to the planner only (`test_an_outsiders_issue_and_a_fork_run_start_only_the_planner` in `tests/unit/python/utils/orchestrator/test_dispatch.py`). Open: the planner has no routine under `agents/routines/`, so the orchestrator logs `agent_without_routine` instead of starting it.
+- [x] A webhook without a valid signature, with a replayed delivery id, or with forged payload content is rejected or acted on only through the re-fetched event.
+  - Evidence: the orchestrator answers `401` to a bad signature, `400` to a missing delivery id and `200 duplicate` to a replayed one, and `webhook.intake` decides only on the object it re-fetches by id (`tests/unit/python/utils/orchestrator/test_webhook.py`: forged conclusion and author association).
 - [ ] `make agents-bootstrap` prints every setup item with its state, fails on a missing required item, shows missing optional items as inactive, and runs as a preflight of the broker deploy.
 - [ ] Every tool call, firewall decision, approval and agent channel message appears in the audit database; an update or delete through the audit role is refused, and a tampered entry breaks the hash chain check.
 - [ ] Orchestrator checkpoints are encrypted, contain no secret value (fixture test), and expire after the retention period.

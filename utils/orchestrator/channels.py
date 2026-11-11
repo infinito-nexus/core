@@ -41,9 +41,13 @@ def _addressable(recipient: str) -> str:
 
 
 class Channel(Protocol):
-    """The channel contract: ``name`` and the request for one message."""
+    """The channel contract: ``name``, the remote live instance it reaches
+    (``""`` for the local one), the handle of its login credential (``""``
+    for none) and the request for one message."""
 
     name: str
+    remote: str
+    credential: str
 
     def envelope(self, recipient: str, text: str) -> dict:
         """Return the request that delivers ``text`` to ``recipient``.
@@ -62,10 +66,14 @@ class MatrixChannel:
     """A direct message on the platform's Matrix homeserver.
 
     Args:
-        homeserver: the server name of the local homeserver.
+        homeserver: the server name of the homeserver.
+        remote: the remote live instance the homeserver belongs to, or ``""``.
+        credential: the handle of the adapter's login credential, or ``""``.
     """
 
     homeserver: str
+    remote: str = ""
+    credential: str = ""
     name: str = "matrix"
 
     def envelope(self, recipient: str, text: str) -> dict:
@@ -83,10 +91,14 @@ class EmailChannel:
     Args:
         domain: the mail domain of the platform's accounts.
         sender: the orchestrator's own sender address.
+        remote: the remote live instance the mail domain belongs to, or ``""``.
+        credential: the handle of the submission credential, or ``""``.
     """
 
     domain: str
     sender: str
+    remote: str = ""
+    credential: str = ""
     name: str = "email"
 
     def envelope(self, recipient: str, text: str) -> dict:
@@ -106,9 +118,13 @@ class ZammadChannel:
 
     Args:
         group: the Zammad group the ticket belongs to.
+        remote: the remote live instance the Zammad belongs to, or ``""``.
+        credential: the handle of the API credential, or ``""``.
     """
 
     group: str
+    remote: str = ""
+    credential: str = ""
     name: str = "zammad"
 
     def envelope(self, recipient: str, text: str) -> dict:
@@ -124,7 +140,9 @@ class ZammadChannel:
 
 
 def dispatch(channels: list[Channel], recipient: str, text: str) -> dict:
-    """Return the request of the first channel in priority order.
+    """Return the request of the channel that carries the message: the first
+    remote-instance channel holding a credential, else the first local one,
+    in priority order. A remote channel without a credential carries nothing.
 
     Args:
         channels: the enabled channels, highest priority first.
@@ -132,11 +150,14 @@ def dispatch(channels: list[Channel], recipient: str, text: str) -> dict:
         text: the message body.
 
     Raises:
-        ValueError: no channel is enabled or ``recipient`` is not addressable.
+        ValueError: no channel is usable or ``recipient`` is not addressable.
     """
-    if not channels:
+    remote = [channel for channel in channels if channel.remote and channel.credential]
+    local = [channel for channel in channels if not channel.remote]
+    usable = remote or local
+    if not usable:
         raise ValueError("no channel configured")
-    return channels[0].envelope(recipient, text)
+    return usable[0].envelope(recipient, text)
 
 
 def _expect(condition: bool, message: object) -> None:
