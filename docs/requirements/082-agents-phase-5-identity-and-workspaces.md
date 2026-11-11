@@ -37,6 +37,7 @@ As an operator, I want every agent to act under its own account with its own cre
 - [x] A `repositories` entry that names an account is worked through that account instead of the default.
   - Evidence: `repository_entry`, `repository_accounts` and `worked_through` in `utils/agents/accounts.py` (entry `<provider>/<label>:<owner>/<name>`), lint L01 refuses a malformed entry or one naming an ungranted account; proven by `TestRepositoryAccounts` in `tests/unit/python/utils/agents/test_accounts.py` and `test_a_malformed_or_ungranted_repositories_entry_fails` in `tests/lint/agents/test_l01_agent_fields.py`.
 - [ ] A push from an agent to the upstream remote is refused by the agent firewall.
+  - Partial: `utils/agents/pre_push.py` refuses a push unless `decide` allows `app(<remote>/push):create` for the agent's firewall roles, proven as a `pre-push` hook against temporary bare remotes by `test_push_to_the_upstream_is_refused_and_nothing_lands` in `tests/unit/python/utils/agents/test_pre_push.py`. Open: the workspace installs the hook.
 - [ ] A merge attempt by an agent is refused by the agent firewall.
 - [ ] Setting `repositories` in the inventory makes the agent work on the listed repositories only.
 
@@ -63,6 +64,7 @@ As an operator, I want every agent to act under its own account with its own cre
 
 - [ ] In `keepass.mode: broker`, no file inside a workspace contains a long-lived credential, and git operations in the workspace succeed through the broker's credential helper and `ssh-agent` socket (probe recorded).
 - [ ] A diff containing a seeded secret is stopped by the pre-push secret scan, and nothing reaches the remote.
+  - Partial: the same hook scans the added lines of every unpushed commit with the patterns of `utils/agents/redact.py` and prints each hit masked, proven by `test_seeded_secret_is_refused_masked_and_nothing_lands` in `tests/unit/python/utils/agents/test_pre_push.py`. Open: the workspace installs the hook.
 - [ ] Every agent authenticates to `svc-ai-mcp-adapter` with its own token; a token of one agent is refused for another, and the comparison is constant-time (unit test).
   - Partial: `authorize_client` in `roles/svc-ai-mcp-adapter/files/python/policy.py:314` compares through `hmac.compare_digest`, proven by `test_the_bearer_is_compared_in_constant_time` and `test_a_non_ascii_bearer_is_refused_not_raised` in `tests/unit/python/roles/svc-ai-mcp-adapter/files/test_policy.py:146-162`. Open: the adapter holds one bearer, not one token per agent.
 - [ ] An MCP call to Gitea, GitLab, Zammad or Nextcloud reaches the application under the calling agent's own identity, visible in the application's log.

@@ -26,6 +26,8 @@ TARGETS = (
     "i18n-load",
     "legal-inventory",
     "legal-probe",
+    "lint-file",
+    "lint-role",
 )
 
 _COMMENT = re.compile(r"^\s*#")

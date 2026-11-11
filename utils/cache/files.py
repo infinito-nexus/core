@@ -205,7 +205,7 @@ def iter_non_ignored_files(
 
 
 @lru_cache(maxsize=2)
-def repository_files(*, untracked: bool = False) -> tuple[str, ...]:
+def repository_files(*, untracked: bool = True) -> tuple[str, ...]:
     """Repository-relative POSIX paths of every file ``git ls-files`` lists.
 
     A tracked file deleted in the worktree is left out. Git ignores the custom
@@ -213,7 +213,8 @@ def repository_files(*, untracked: bool = False) -> tuple[str, ...]:
     in-tree roles, so their files are listed as well.
 
     Args:
-        untracked: also list the untracked files ``.gitignore`` does not exclude.
+        untracked: also list the untracked files ``.gitignore`` does not
+            exclude, so a lint sees a new file before it is staged.
 
     Raises:
         OSError: git is not installed.
@@ -229,6 +230,27 @@ def repository_files(*, untracked: bool = False) -> tuple[str, ...]:
         if is_custom_path(rel := os.path.relpath(path, root).replace(os.sep, "/"))
     )
     return tuple(sorted(rels))
+
+
+LINT_SCOPE_ENV = "lint_scope"
+
+
+def lint_scope() -> tuple[str, ...]:
+    """Repository-relative paths ``make lint-file`` and ``make lint-role``
+    narrow the scope-aware lints to, read from the ``lint_scope`` environment
+    variable (space separated); empty for the whole tree."""
+    raw = os.environ.get(LINT_SCOPE_ENV, "")
+    return tuple(part.strip("/") for part in raw.split() if part.strip("/"))
+
+
+def in_lint_scope(rel: str) -> bool:
+    """Return whether a scope-aware lint checks *rel*.
+
+    Args:
+        rel: repository-relative POSIX path of a file or directory.
+    """
+    scope = lint_scope()
+    return not scope or any(rel == s or rel.startswith(f"{s}/") for s in scope)
 
 
 @lru_cache(maxsize=1)

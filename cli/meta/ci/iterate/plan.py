@@ -12,7 +12,6 @@ leaves to a later one.
 
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING
 
 from cli.meta.ci.iterate import commands, tiers
@@ -70,7 +69,6 @@ EXTERNAL_CUT = (
     "make test-external runs it"
 )
 PYTEST = "PYTHONPATH=. python3 -m pytest --import-mode=importlib -q "
-_TESTED_ROLE = re.compile(r"^tests/.+?/roles/([^/]+)/")
 
 
 def baseline_widens(paths: list[str]) -> bool:
@@ -87,6 +85,23 @@ def baseline_widens(paths: list[str]) -> bool:
         and not p.startswith("tests/")
         for p in paths
     )
+
+
+def seeded_role(path: str, roles: frozenset[str]) -> str:
+    """Return the role a test path seeds in ``affected_roles.sh``, else empty.
+
+    A path under ``tests/`` seeds the role named by the segment after its
+    first ``/roles/``, when that role exists.
+
+    Args:
+        path: repository-relative POSIX path.
+        roles: every role of the checkout.
+    """
+    if not path.startswith("tests/"):
+        return ""
+    _, marker, rest = path.partition("/roles/")
+    role, slash, _ = rest.partition("/")
+    return role if marker and slash and role in roles else ""
 
 
 def token_roles(tokens: list[str]) -> set[str]:
@@ -112,17 +127,13 @@ def accounted(result: dict) -> set[str]:
     }
 
 
-def tested_role(path: str) -> str:
-    """Return the role a ``tests/**/roles/<role>/`` path names, else an empty string."""
-    match = _TESTED_ROLE.match(path)
-    return match.group(1) if match else ""
-
-
 def _baseline(paths: list[str], catalog: Catalog) -> tuple[set[str], str]:
     if baseline_widens(paths):
         return set(catalog.roles), "affected_roles.sh widens this diff to __ALL__"
-    seeds = {p.split("/", 2)[1] for p in paths if p.startswith("roles/")}
-    seeds |= {tested_role(p) for p in paths} & set(catalog.roles)
+    known = frozenset(catalog.roles)
+    seeds = {p.split("/", 2)[1] for p in paths if p.startswith("roles/")} | {
+        role for p in paths if (role := seeded_role(p, known))
+    }
     if not seeds:
         return set(
             catalog.roles

@@ -6,7 +6,8 @@ share a common leading prefix delimited by ``_`` or ``-`` (e.g.
 LONGEST token run common to the whole group (the least common denominator),
 not every delimiter position: ``swarm_registry_sync.py`` and
 ``swarm_secret_rotate.py`` group under ``swarm``, never under
-``swarm_registry``.
+``swarm_registry``. Under ``make lint-file`` or ``make lint-role`` only the
+directories that hold a scoped file are scanned.
 
 A group of ``MIN_GROUP_SIZE`` or more such files fails the test with the
 instruction to move them into a subfolder named after the shared prefix
@@ -34,7 +35,7 @@ from collections import defaultdict
 from pathlib import Path, PurePosixPath
 
 from utils.annotations.suppress import is_suppressed_anywhere, is_suppressed_in_head
-from utils.cache.files import read_text, repository_files
+from utils.cache.files import in_lint_scope, read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -72,7 +73,9 @@ _DELIMITERS = re.compile(r"[_-]")
 
 
 def _tracked_files() -> list[PurePosixPath]:
-    return [PurePosixPath(rel) for rel in repository_files()]
+    tracked = [PurePosixPath(rel) for rel in repository_files()]
+    scoped = {path.parent for path in tracked if in_lint_scope(path.as_posix())}
+    return [path for path in tracked if path.parent in scoped]
 
 
 def _dir_opts_out(root: Path, directory: str) -> bool:

@@ -26,6 +26,7 @@ class TestDiffAffectedRoles(unittest.TestCase):
         base_files: dict[str, str],
         feature_files: dict[str, str],
         fake_resolver_stdout: str = "",
+        echo_seeds: bool = False,
     ) -> tuple[Path, dict[str, str]]:
         tmp = Path(tempfile.mkdtemp(prefix="affected-roles-"))
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
@@ -81,11 +82,12 @@ class TestDiffAffectedRoles(unittest.TestCase):
         bin_dir = tmp / "bin"
         bin_dir.mkdir()
         fake_python = bin_dir / "python-fake-resolver"
+        output = '"${*:4}"' if echo_seeds else shlex.quote(fake_resolver_stdout)
         fake_python.write_text(
             textwrap.dedent(
                 f"""\
                 #!/usr/bin/env bash
-                printf '%s\\n' {shlex.quote(fake_resolver_stdout)}
+                printf '%s\\n' {output}
                 """
             ),
             encoding="utf-8",
@@ -158,21 +160,33 @@ class TestDiffAffectedRoles(unittest.TestCase):
         )
         self.assertEqual(self._run_script(repo, env), "__ALL__")
 
-    def test_only_a_role_test_keeps_the_role_matrix(self):
+    def test_only_a_role_test_seeds_its_role(self):
+        repo, env = self._setup_repo(
+            base_files={ROLE_TASKS_MAIN_REL: "- debug: msg=v1\n"},
+            feature_files={
+                "tests/unit/python/roles/web-app-foo/files/test_x.py": "x = 1\n",
+                "tests/integration/roles/web-app-foo/test_y.py": "y = 1\n",
+            },
+            echo_seeds=True,
+        )
+        self.assertEqual(self._run_script(repo, env), "web-app-foo")
+
+    def test_a_tests_roles_segment_without_a_role_is_skipped(self):
         repo, env = self._setup_repo(
             base_files={ROLE_TASKS_MAIN_REL: "- debug: msg=v1\n"},
             feature_files={
                 "tests/unit/python/roles/web-app-foo/test_x.py": "x = 1\n",
+                "tests/lint/ansible/roles/meta/test_y.py": "y = 1\n",
             },
-            fake_resolver_stdout="web-app-foo",
+            echo_seeds=True,
         )
         self.assertEqual(self._run_script(repo, env), "web-app-foo")
 
-    def test_a_roles_test_dir_naming_no_role_falls_back_to_all(self):
+    def test_negative_control_a_test_of_no_role_still_falls_back_to_all(self):
         repo, env = self._setup_repo(
             base_files={ROLE_TASKS_MAIN_REL: "- debug: msg=v1\n"},
-            feature_files={"tests/integration/roles/meta/test_x.py": "x = 1\n"},
-            fake_resolver_stdout="web-app-foo",
+            feature_files={"tests/lint/ansible/roles/meta/test_y.py": "y = 1\n"},
+            echo_seeds=True,
         )
         self.assertEqual(self._run_script(repo, env), "__ALL__")
 

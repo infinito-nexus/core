@@ -714,6 +714,19 @@ lint-css: install-lint
 lint-dockerfile: install-lint
 	@bash scripts/lint/wrapper.sh dockerfile
 
+.PHONY: lint-file
+# Run the scope-aware lint tests on one file or directory, without the full gate.
+# Usage: make lint-file file=<path> [test=<lint module>]
+# Param file: the repository-relative file or directory the lints read
+# Param test: one lint module to run alone instead of every scope-aware lint
+lint-file: install
+	$(if $(file),,$(error lint-file needs file=<path>))
+	@lint_scope='$(file)' \
+	test_paths='$(or $(test),$(shell grep -rl in_lint_scope tests/lint))' \
+	INFINITO_TEST_TYPE="lint" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
+
 .PHONY: lint-javascript
 # Run ESLint over the project's JavaScript files.
 # Note: covers Playwright specs and persona helpers.
@@ -758,6 +771,15 @@ lint-playwright: install-lint
 # Run Python lint checks.
 lint-python: install-lint
 	@bash scripts/lint/wrapper.sh python
+
+.PHONY: lint-role
+# Run the scope-aware lint tests on one role, without the full gate.
+# Usage: make lint-role role=<role> [test=<lint module>]
+# Param role: the role directory name under roles/
+# Param test: one lint module to run alone instead of every scope-aware lint
+lint-role:
+	$(if $(role),,$(error lint-role needs role=<role>))
+	@$(MAKE) --no-print-directory lint-file file='roles/$(role)' test='$(test)'
 
 .PHONY: lint-ruby
 # Check that every Ruby file parses, via `ruby -c`.

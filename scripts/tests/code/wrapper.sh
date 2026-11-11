@@ -49,6 +49,8 @@ docker)
 		-e GITHUB_SHA="${GITHUB_SHA:-}"
 		-e INFINITO_TEST_PATTERN="${INFINITO_TEST_PATTERN}"
 		-e INFINITO_TEST_TYPE="${INFINITO_TEST_TYPE}" # nocheck: makefile-supplied
+		-e lint_scope="${lint_scope:-}"
+		-e test_paths="${test_paths:-}"
 	)
 	if [[ -z "${INFINITO_STACK_NAME:-}" ]]; then
 		infinito_test_runner_exec "${REPO_ROOT}" "${exec_env_args[@]}" -- bash --login "${RUN_SCRIPT_IN_CONTAINER}"

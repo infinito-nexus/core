@@ -208,7 +208,7 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
         _touch(self.root / self.TRACKED, "- y")
         _touch(self.root / self.CUSTOM, "- x")
         _touch(self.root / "roles/web-app-cst-demo/__pycache__/x.pyc", "")
-        with self._git(f"{self.TRACKED}\0".encode(), b""):
+        with self._git(f"{self.TRACKED}\0".encode(), b"", b""):
             self.assertEqual(
                 (self.CUSTOM, self.TRACKED),
                 files_module.repository_files(),
@@ -217,27 +217,34 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
     def test_lists_only_the_tracked_files_without_placed_custom_roles(self) -> None:
         _touch(self.root / self.TRACKED, "- y")
         _touch(self.root / "build/install.stamp", "")
-        with self._git(f"{self.TRACKED}\0".encode(), b""):
+        with self._git(f"{self.TRACKED}\0".encode(), b"", b""):
             self.assertEqual((self.TRACKED,), files_module.repository_files())
 
     def test_leaves_out_a_tracked_file_deleted_in_the_worktree(self) -> None:
         gone = "roles/web-app-nextcloud/filter_plugins/gone.py"
         with self._git(
-            f"{self.TRACKED}\0{gone}\0".encode(), f"{gone}\0".encode()
+            f"{self.TRACKED}\0{gone}\0".encode(), f"{gone}\0".encode(), b""
         ) as run:
             self.assertEqual((self.TRACKED,), files_module.repository_files())
         self.assertEqual(["--deleted"], run.call_args_list[1].args[0][-1:])
 
-    def test_untracked_adds_the_files_gitignore_does_not_exclude(self) -> None:
+    def test_default_adds_the_files_gitignore_does_not_exclude(self) -> None:
         with self._git(f"{self.TRACKED}\0".encode(), b"", b"new.py\0") as run:
             self.assertEqual(
                 ("new.py", self.TRACKED),
-                files_module.repository_files(untracked=True),
+                files_module.repository_files(),
             )
         self.assertEqual(
             ["--others", "--exclude-standard"],
             run.call_args_list[2].args[0][-2:],
         )
+
+    def test_negative_control_tracked_only_leaves_a_new_file_out(self) -> None:
+        with self._git(f"{self.TRACKED}\0".encode(), b"") as run:
+            self.assertEqual(
+                (self.TRACKED,), files_module.repository_files(untracked=False)
+            )
+        self.assertEqual(len(run.call_args_list), 2)
 
     def test_a_git_failure_propagates(self) -> None:
         with (
@@ -249,6 +256,34 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
             self.assertRaises(subprocess.CalledProcessError),
         ):
             files_module.repository_files()
+
+
+class TestLintScope(unittest.TestCase):
+    def _scope(self, value: str):
+        return patch.dict(files_module.os.environ, {files_module.LINT_SCOPE_ENV: value})
+
+    def test_unset_scope_keeps_every_path(self) -> None:
+        with patch.dict(files_module.os.environ, clear=True):
+            self.assertTrue(files_module.in_lint_scope("roles/a/tasks/main.yml"))
+
+    def test_a_role_scope_keeps_its_files_only(self) -> None:
+        with self._scope("roles/web-app-a/"):
+            self.assertEqual(
+                [
+                    files_module.in_lint_scope(rel)
+                    for rel in (
+                        "roles/web-app-a/handlers/main.yml",
+                        "roles/web-app-ab/handlers/main.yml",
+                        "default.env",
+                    )
+                ],
+                [True, False, False],
+            )
+
+    def test_a_file_scope_keeps_that_file(self) -> None:
+        with self._scope("default.env Makefile"):
+            self.assertEqual(files_module.lint_scope(), ("default.env", "Makefile"))
+            self.assertTrue(files_module.in_lint_scope("Makefile"))
 
 
 class TestWalkIsKeyedOnTheRoot(_ProjectRootFixture, unittest.TestCase):
