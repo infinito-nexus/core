@@ -50,7 +50,7 @@ socket-proxy:
   bond: 1
   enabled: true
   image: wollomatic/socket-proxy
-  version: 1.13.1
+  version: 1.13.2
   name: agent-socket-proxy
   cpus: "0.25"
   mem_reservation: 16m

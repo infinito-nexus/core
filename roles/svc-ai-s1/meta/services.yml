@@ -12,7 +12,7 @@ s1:
   # nocheck: dockerfile-custom  upstream ships a pyproject and no image, so the role builds one
   # nocheck: docker-version  base of the self-built server, not the served application
   image: python
-  version: "3.12.14-slim"
+  version: "3.15.2-slim"
   custom: true
   name: s1
   model_alias: s1-latest
