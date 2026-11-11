@@ -2,6 +2,7 @@
 data:
   type: volume
   name: bookwyrm_data
+  backup: false
   mounts:
     - service: bookwyrm
       target: &app_data_target /app/data

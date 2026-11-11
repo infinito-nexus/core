@@ -49,49 +49,46 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   Debian, Ubuntu, Fedora, CentOS) without duplicated task code.
 - **Loud on unsupported hosts:** Fails with a clear message instead of
   silently skipping when the host runs an unmapped distribution.
+- **Reboot guard on Arch:** After the upgrade, `arch.yml` checks whether the
+  running kernel loads modules and `/usr/lib/modules` holds a `modules.dep`
+  for other kernels but not for it, before any later role restarts Docker.
+  When it does not, the role reboots the host one at a time
+  (`throttle: 1`), waits until `systemctl is-system-running` reports
+  `running` or `degraded`, re-reads the booted kernel, checks again and fails
+  when the booted kernel still has no `modules.dep`. It fails with
+  "Reboot required" instead of rebooting when
+  `services.update.reboot.enabled` is `false`, in check mode, when
+  `svc-net-wireguard` brought its mesh up with `wg-quick` in the same play,
+  and when the host shares its boot id with the Ansible controller (local
+  connection, SSH to itself, or a controller container on the host).
+  Containers (`DOCKER_IN_CONTAINER`) skip the check.
+- **Reboot switch:** `services.update.reboot.enabled` defaults to `false`.
+  Switch it on per host in the `applications` block of its `host_vars`; a
+  `group_vars` value is replaced by any `host_vars` `applications` block:
+
+  ```yaml
+  applications:
+    update:
+      services:
+        update:
+          reboot:
+            enabled: true
+  ```
+
 - **Once-per-play idempotency:** Wraps the dispatch in
   `when: run_once_update is not defined` and writes the flag via
   `tasks/utils/once/flag.yml`, so repeated invocations within one play are
   no-ops.
+- **Kernel modules hook on Arch:** Before the upgrade, `arch.yml` installs [kernel-modules-hook](https://github.com/saber-nyan/kernel-modules-hook) from the official `extra` repository and enables its `linux-modules-cleanup.service`. During a kernel upgrade the package's pacman hooks keep the module tree of the running kernel in `/usr/lib/modules`, so the reboot guard passes and the deploy runs to the end. When no package owns the module tree of the running kernel, the role reboots into the installed kernel under the conditions of the reboot guard, and otherwise prints a "Reboot pending" notice that names the running and the installed kernel. On the next boot `linux-modules-cleanup.service` deletes every module tree in `/usr/lib/modules` that belongs to neither the running kernel nor an installed package, so a hand-built kernel's modules go too. `services.update.kernel_modules_hook.enabled` defaults to `true` and is set per host like the reboot switch; `false` stops the install and the enable but removes neither. Containers (`DOCKER_IN_CONTAINER`) skip it:
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Package update onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=update full_cycle=false
-```
-
-### Production
-
-Install Package update directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-bash scripts/install/package.sh
-make install
-source scripts/meta/env/load.sh
-
-APP=update
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-INVENTORY=inventories/production
-infinito administration inventory provision "$INVENTORY" \
-  --inventory-file "$INVENTORY/devices.yml" \
-  --host localhost \
-  --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
-infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-  --password-file "$INVENTORY/.password" \
-  --diff -vv
-```
+  ```yaml
+  applications:
+    update:
+      services:
+        update:
+          kernel_modules_hook:
+            enabled: false
+  ```
 
 ## Developer Notes
 
@@ -99,7 +96,7 @@ To extend support for a new distribution, add the distribution name to the
 lookup dict in [main.yml](./tasks/main.yml). When the new distribution shares
 a package manager with an existing entry, point it at that entry's task file.
 When it brings a new package manager, add a new family file under
-[tasks/](./tasks/) and keep [meta/main.yml](./meta/main.yml) `platforms` in
+`tasks/` and keep [meta/main.yml](./meta/main.yml) `platforms` in
 sync.
 
 ## Further Resources
@@ -110,9 +107,3 @@ sync.
 - [community.general.pacman](https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html)
 - [ansible.builtin.apt](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html)
 - [ansible.builtin.dnf](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -1,17 +1,17 @@
 ---
-- name: "🔍 Lookup existing LDAP auth source ID"
+- name: "🔍 Lookup existing LDAP auth source IDs"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       gitea admin auth list \
-      | awk -v name="LDAP ({{ SOFTWARE_NAME }})" '$0 ~ name {print $1; exit}'
-  register: ldap_source_id_raw
+      | awk -F '\t+' -v source_type={{ GITEA_LDAP_SOURCE_TYPE | quote }} 'NR > 1 && $3 == source_type {print $1}'
+  register: ldap_source_ids_raw
   failed_when: false
   changed_when: false
 
-- name: "🗑️ Delete existing LDAP auth source if present"
+- name: "🗑️ Delete existing LDAP auth sources"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      gitea admin auth delete --id {{ ldap_source_id_raw.stdout }}
-  when: ldap_source_id_raw.stdout != ""
+      gitea admin auth delete --id {{ item | quote }}
+  loop: "{{ ldap_source_ids_raw.stdout_lines }}"
   register: ldap_delete
   failed_when: ldap_delete.rc != 0

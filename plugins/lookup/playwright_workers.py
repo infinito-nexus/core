@@ -3,19 +3,21 @@ from __future__ import annotations
 import contextlib
 import os
 from typing import Any
+from urllib.parse import urlsplit
 
 from ansible.plugins.lookup import LookupBase
 from ansible.template import trust_as_template
 
 from utils.env.runtime import mem_available_mb, mem_total_mb
+from utils.networks.reachability import TOR, network_of
 
-_PER_WORKER_GB = 1.5
-_RAM_FRACTION = 0.5
+PER_WORKER_GB = 1.5
+RAM_FRACTION = 0.5
 _CPU_DIVISOR = 4
 _HARD_CAP = 6
 _CI_CAP = 2
 _ONION_FACTOR = 2
-_ONION_CAP = 3
+ONION_CAP = 3
 _CI_ENV = ("CI", "GITHUB_ACTIONS", "GITLAB_CI", "BUILDKITE", "JENKINS_URL")
 
 
@@ -53,13 +55,13 @@ def compute_workers(
     ci: bool,
     *,
     onion: bool = False,
-    per_worker_gb: float = _PER_WORKER_GB,
-    ram_fraction: float = _RAM_FRACTION,
+    per_worker_gb: float = PER_WORKER_GB,
+    ram_fraction: float = RAM_FRACTION,
     cpu_divisor: int = _CPU_DIVISOR,
     hard_cap: int = _HARD_CAP,
     ci_cap: int = _CI_CAP,
     onion_factor: int = _ONION_FACTOR,
-    onion_cap: int = _ONION_CAP,
+    onion_cap: int = ONION_CAP,
 ) -> int:
     """Workers the host can carry, and the transport can use.
 
@@ -123,7 +125,7 @@ class LookupModule(LookupBase):
                     "{{ lookup('tls', " + repr(str(application_id)) + ", 'url.base') }}"
                 )
             )
-            return ".onion" in str(base)
+            return network_of(urlsplit(str(base)).hostname or "") == TOR
         return False
 
     def run(self, terms, variables: dict[str, Any] | None = None, **kwargs):
@@ -133,12 +135,12 @@ class LookupModule(LookupBase):
                 _ram_gb(),
                 _is_ci(),
                 onion=bool(kwargs.get("onion", self._targets_onion(variables))),
-                per_worker_gb=float(kwargs.get("per_worker_gb", _PER_WORKER_GB)),
-                ram_fraction=float(kwargs.get("ram_fraction", _RAM_FRACTION)),
+                per_worker_gb=float(kwargs.get("per_worker_gb", PER_WORKER_GB)),
+                ram_fraction=float(kwargs.get("ram_fraction", RAM_FRACTION)),
                 cpu_divisor=int(kwargs.get("cpu_divisor", _CPU_DIVISOR)),
                 hard_cap=int(kwargs.get("hard_cap", _HARD_CAP)),
                 ci_cap=int(kwargs.get("ci_cap", _CI_CAP)),
                 onion_factor=int(kwargs.get("onion_factor", _ONION_FACTOR)),
-                onion_cap=int(kwargs.get("onion_cap", _ONION_CAP)),
+                onion_cap=int(kwargs.get("onion_cap", ONION_CAP)),
             )
         ]

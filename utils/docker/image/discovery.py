@@ -39,13 +39,14 @@ _MIRRORABLE_REGISTRIES = frozenset(
         "registry.gitlab.com",
     }
 )
+RETIRED = "eol"
 
 
 @dataclass(frozen=True)
 class ImageRef:
     """Role-declared container image reference.
 
-    Fields:
+    Attributes:
         role: e.g. ``svc-db-postgres``
         service: e.g. ``postgres``
         name: canonical image name without registry, e.g. ``postgis/postgis``
@@ -54,6 +55,10 @@ class ImageRef:
         registry: source registry hostname, e.g. ``docker.io``, ``quay.io``
         source_file: file the ref was read from, role-relative for a role
             image and repository-relative for a ``runner`` image
+        derived: the ref carries a ``version_variants`` suffix rather than the
+            version the service declares, so it is a tag the mirror must carry
+            but never the version a role deploys
+
     """
 
     role: str
@@ -63,6 +68,18 @@ class ImageRef:
     source: str
     registry: str = "docker.io"
     source_file: str = ROLE_FILE_META_SERVICES
+    derived: bool = False
+
+    @property
+    def addressable(self) -> str:
+        """``name`` with its registry back in front, as a probe must ask for it.
+
+        ``name`` is stripped of the registry so roles can be compared across
+        sources. A probe that passes it on reaches docker.io, where an image
+        published only on ghcr.io or quay.io does not exist, and reads the
+        404 as an indeterminate answer.
+        """
+        return f"{self.registry}/{self.name}"
 
 
 def load_yaml(path: Path) -> dict:
@@ -188,12 +205,39 @@ def canonical_image_name(image: str) -> str:
     return base
 
 
+def role_lifecycle(services: dict) -> str:
+    """The role's lifecycle stage, empty when no service names one.
+
+    Args:
+        services: the parsed ``meta/services.yml`` of one role.
+
+    Returns:
+        The stage of the one entry that carries a ``lifecycle`` field, which
+        is the role's primary service.
+    """
+    for entry in services.values():
+        if isinstance(entry, dict) and entry.get("lifecycle"):
+            return str(entry["lifecycle"])
+    return ""
+
+
 def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     """
-    Yield all ImageRef entries discovered across all roles in *repo_root*.
+    Yield all ImageRef entries discovered across all roles in ``repo_root``.
 
-    Source: roles/**/meta/services.yml → <entity>.{image,version}. Roles the
-    updaters do not maintain (``is_maintained``) are left out.
+    Source: ``roles/**/meta/services.yml`` -> ``<entity>.{image,version}``.
+
+    A role whose vars derive a further tag from ``version`` lists the suffixes
+    under ``<entity>.version_variants``; each yields its own ref, because this
+    function is the only enumeration the mirror sees and a tag it never emits
+    can never be mirrored.
+
+    Two kinds of role are left out. One the updaters do not maintain
+    (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits
+    outside the lifecycle envelope ``default.env`` tests, so no deploy can reach
+    its images, and its upstream is free to withdraw them. MinIO's quay tags
+    answer 401 to anonymous pulls and exist nowhere else, which failed the
+    mirror job on every run while nothing could have consumed the result.
 
     See docs/contributing/artefact/image.md for the full format reference.
     """
@@ -209,6 +253,9 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
         if not isinstance(services, dict):
             continue
 
+        if role_lifecycle(services) == RETIRED:
+            continue
+
         for service_name, service in services.items():
             if not isinstance(service, dict):
                 continue
@@ -222,15 +269,25 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
             if not is_mirrorable_image(image):
                 continue
 
-            yield ImageRef(
-                role=role_name,
-                service=str(service_name),
-                name=canonical_image_name(image),
-                version=version,
-                source=image_source(image, version),
-                registry=_detect_registry(image),
-                source_file=ROLE_FILE_META_SERVICES,
-            )
+            variants = service.get("version_variants")
+            suffixes = [""] + [
+                str(suffix)
+                for suffix in (variants if isinstance(variants, list) else [])
+                if str(suffix).strip()
+            ]
+
+            for suffix in suffixes:
+                tag = version + suffix
+                yield ImageRef(
+                    role=role_name,
+                    service=str(service_name),
+                    name=canonical_image_name(image),
+                    version=tag,
+                    source=image_source(image, tag),
+                    registry=_detect_registry(image),
+                    source_file=ROLE_FILE_META_SERVICES,
+                    derived=bool(suffix),
+                )
 
 
 RUNNER_ROLE = "runner"

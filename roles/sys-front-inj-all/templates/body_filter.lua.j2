@@ -1,4 +1,3 @@
-{# Jinja macro: expands feature snippets into Lua array pushes at render time #}
 {% macro push_snippets(list_name, features) -%}
 {% set kind = list_name | regex_replace('_snippets$','') %}
 {% for f in features if inj_enabled.get(f) -%}
@@ -12,7 +11,6 @@ if not (ngx.ctx.is_html or ngx.ctx.is_css) then
     return
 end
 
--- Buffer all chunks until EOF
 ngx.ctx.buf = ngx.ctx.buf or {}
 local chunk, eof = ngx.arg[1], ngx.arg[2]
 
@@ -21,42 +19,92 @@ if chunk ~= "" then
 end
 
 if not eof then
-    -- Swallow intermediate chunks; emit once at EOF
     ngx.arg[1] = nil
     return
 end
 
--- Concatenate the full HTML
 local whole = table.concat(ngx.ctx.buf)
 ngx.ctx.buf = nil
 
-{% set _mirror_tor_enabled = lookup('config', application_id, 'services.tor.enabled', False) | bool %}
-{% if _mirror_tor_enabled %}
-{% set _mirror_origins = lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY) %}
-{% set _mirror_tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
-{% set _mirror_onion = lookup('tls', 'web-svc-mirror', 'url.base') | regex_replace('/+$', '') | to_onion_url(_mirror_tor_node, DOMAIN_PRIMARY) %}
-{% if _mirror_origins %}
--- Onion sessions: rewrite external asset origins to the local mirror (privacy proxy)
-do
-    local host = ngx.var.http_host or ""
-    if host:sub(-6) == ".onion" then
-{% for origin in _mirror_origins %}
-        do
-            local pat = ([=[https://{{ origin }}]=]):gsub("([^%w])", "%%%1")
-            whole = (whole:gsub(pat, [=[{{ _mirror_onion }}/{{ origin }}]=]))
+if ngx.ctx.gunzip and whole ~= "" then
+    local gunzip = package.loaded.infinito_gunzip
+    if not gunzip then
+        local ffi = require("ffi")
+        ffi.cdef([[
+            typedef struct {
+                const unsigned char *next_in;
+                unsigned int avail_in;
+                unsigned long total_in;
+                unsigned char *next_out;
+                unsigned int avail_out;
+                unsigned long total_out;
+                const char *msg;
+                void *state;
+                void *zalloc;
+                void *zfree;
+                void *opaque;
+                int data_type;
+                unsigned long adler;
+                unsigned long reserved;
+            } infinito_z_stream;
+            const char *zlibVersion(void);
+            int inflateInit2_(infinito_z_stream *strm, int windowBits, const char *version, int stream_size);
+            int inflate(infinito_z_stream *strm, int flush);
+            int inflateEnd(infinito_z_stream *strm);
+        ]])
+        local zlib = ffi.load("libz.so.1")
+        gunzip = function(data)
+            local stream = ffi.new("infinito_z_stream")
+            if zlib.inflateInit2_(stream, 47, zlib.zlibVersion(), ffi.sizeof(stream)) ~= 0 then
+                return nil, "inflateInit2_ failed"
+            end
+            local size = 65536
+            local buffer = ffi.new("unsigned char[?]", size)
+            local parts = {}
+            stream.next_in = ffi.cast("const unsigned char *", data)
+            stream.avail_in = #data
+            local status
+            repeat
+                stream.next_out = buffer
+                stream.avail_out = size
+                status = zlib.inflate(stream, 0)
+                if status ~= 0 and status ~= 1 then
+                    zlib.inflateEnd(stream)
+                    return nil, "inflate returned " .. status
+                end
+                parts[#parts + 1] = ffi.string(buffer, size - stream.avail_out)
+            until status == 1
+            zlib.inflateEnd(stream)
+            return table.concat(parts)
         end
-{% endfor %}
+        package.loaded.infinito_gunzip = gunzip
+    end
+    local plain, err = gunzip(whole)
+    if plain then
+        whole = plain
+    else
+        ngx.log(ngx.ERR, "gunzip of the upstream markup failed: ", err)
     end
 end
-{% endif %}
+
+{% if (lookup('config', application_id, 'services.tor.enabled', False) | bool) and (domain | network_of) == 'tor' %}
+{% set _mirror_origins = lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY) %}
+{% set _mirror_base = lookup('tls', 'web-svc-mirror', 'url.origin') %}
+{% for origin in _mirror_origins %}
+do
+    local pat = ([=[https://{{ origin }}]=]):gsub("([^%w])", "%%%1")
+    whole = (whole:gsub(pat, [=[{{ _mirror_base }}/{{ origin }}]=]))
+end
+{% endfor %}
 {% endif %}
 if ngx.ctx.is_css then
     ngx.arg[1] = whole
     return
 end
-{% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.base') | regex_replace('/+$', '') %}
+
+{% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.origin') %}
 {% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
-{% set _cdn_onion = _cdn_base | to_onion_url(_tor_node, DOMAIN_PRIMARY) %}
+{% set _cdn_onion = (lookup('network_urls', _cdn_base) | select('search', '\\.onion') | list | first) | default(_cdn_base, true) %}
 local function onionize(s)
 {% if _tor_node and _cdn_onion != _cdn_base %}
     local host = ngx.var.http_host or ""
@@ -68,46 +116,55 @@ local function onionize(s)
     return s
 end
 
+local function marked(snippets)
+    return "<!--infinito-inj-->" .. table.concat(snippets, "\n") .. "<!--/infinito-inj-->"
+end
+
 -- Remove inline CSP <meta http-equiv="Content-Security-Policy"> (case-insensitive)
 local meta_re = [[<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>\s*]]
 whole = ngx.re.gsub(whole, meta_re, "", "ijo")
 
--- Build head snippets (rendered by Jinja at template time)
-local head_snippets = {}
-{{ push_snippets('head_snippets', inj_head_features) }}
-local head_payload = onionize(table.concat(head_snippets, "\n")) .. "</head>"
-
--- Inject before </head> (first occurrence)
-local function repl_head(_) return head_payload end
-local new, n, err = ngx.re.sub(whole, [[</head\s*>]], repl_head, "ijo")
-if new then
-    whole = new
-else
-    ngx.log(ngx.WARN, "No </head> found; trying <body> fallback: ", err or "nil")
-    -- Fallback: inject right AFTER the opening <body ...> tag
-    local body_open_re = [[<body\b[^>]*>]]
-    new, n, err = ngx.re.sub(whole, body_open_re, "$0\n" .. table.concat(head_snippets, "\n"), "ijo")
-    if new then
-        whole = new
-    else
-        ngx.log(ngx.ERR, "Head-fallback failed: ", err or "nil")
+local top_snippets = {}
+{{ push_snippets('top_snippets', inj_top_features) }}
+if #top_snippets > 0 then
+    local top_payload = onionize(marked(top_snippets))
+    local function repl_top(m) return m[0] .. top_payload end
+    local with_top = ngx.re.sub(whole, [[<head\b[^>]*>]], repl_top, "ijo")
+    if with_top then
+        whole = with_top
     end
 end
 
--- Build body snippets (rendered by Jinja at template time)
-local body_snippets = {}
-{{ push_snippets('body_snippets', inj_body_features) }}
-local body_payload = onionize(table.concat(body_snippets, "\n")) .. "</body>"
+-- Build head snippets (rendered by Jinja at template time)
+local head_snippets = {}
+{{ push_snippets('head_snippets', inj_head_features) }}
+local head_payload = onionize(marked(head_snippets)) .. "</head>"
 
--- Inject before </body> (first occurrence), or append if missing
-local function repl_body(_) return body_payload end
-new, n, err = ngx.re.sub(whole, [[</body\s*>]], repl_body, "ijo")
-if new then
+local function repl_head(_) return head_payload end
+local new, n, err = ngx.re.sub(whole, [[</head\s*>]], repl_head, "ijo")
+if n and n > 0 then
     whole = new
 else
-    ngx.log(ngx.WARN, "No </body> found; appending body snippets at end: ", err or "nil")
-    whole = whole .. table.concat(body_snippets, "\n")
+    local head_fallback = onionize(marked(head_snippets))
+    local function repl_body_open(m) return m[0] .. "\n" .. head_fallback end
+    new, n, err = ngx.re.sub(whole, [[<body\b[^>]*>]], repl_body_open, "ijo")
+    if n and n > 0 then
+        whole = new
+    elseif err then
+        ngx.log(ngx.ERR, "Head-fallback failed: ", err)
+    end
 end
 
--- Emit the modified HTML
+local body_snippets = {}
+{{ push_snippets('body_snippets', inj_body_features) }}
+local body_payload = onionize(marked(body_snippets)) .. "</body>"
+
+local function repl_body(_) return body_payload end
+new, n, err = ngx.re.sub(whole, [[</body\s*>]], repl_body, "ijo")
+if n and n > 0 then
+    whole = new
+elseif err then
+    ngx.log(ngx.ERR, "Body injection failed: ", err)
+end
+
 ngx.arg[1] = whole or ""

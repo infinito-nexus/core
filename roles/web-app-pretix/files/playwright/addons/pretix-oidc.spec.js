@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { runAdminFlow, gotoOnion } = require("../personas");
+const { runAdminFlow, gotoOnion, normalizeBaseUrl } = require("../personas");
 
 // pretix-oidc is Pretix's OIDC SSO plugin. It is pip-installed at image-build
 // time and activated purely through environment: the role appends
@@ -23,7 +23,7 @@ test("addon pretix-oidc: login affordance routes to the Keycloak authorization e
   skipUnlessAddonEnabled("pretix-oidc");
   skipUnlessServiceEnabled("sso");
 
-  const appBaseUrl = (process.env.APP_BASE_URL || "").replace(/\/$/, "");
+  const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL);
   test.skip(!appBaseUrl, "APP_BASE_URL not set for this role");
 
   await page.context().clearCookies();

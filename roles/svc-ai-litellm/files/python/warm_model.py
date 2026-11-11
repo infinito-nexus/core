@@ -6,7 +6,8 @@ timeout, so the first consumer request comes back as a 504 instead of an answer
 while every later one succeeds. Warming here moves the cost into the deploy.
 
 Environment:
-    LITELLM_MK:    master key the gateway accepts.
+    LITELLM_MASTER_KEY: master key the gateway accepts, read from its own
+        environment rather than passed in.
     LITELLM_PORT:  port the gateway listens on inside its own container.
     LITELLM_MODEL: model name to warm.
 """
@@ -17,7 +18,7 @@ import json
 import os
 import urllib.request
 
-MASTER_KEY = os.environ["LITELLM_MK"]
+MASTER_KEY = os.environ["LITELLM_MASTER_KEY"]
 PORT = os.environ["LITELLM_PORT"]
 MODEL = os.environ["LITELLM_MODEL"]
 TIMEOUT = 900

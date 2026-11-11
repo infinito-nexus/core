@@ -14,7 +14,7 @@ from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.docker.image.discovery import ImageRef, iter_role_images
 from utils.docker.mirror import mirror_image
-from utils.docker.registry import platform_digest
+from utils.docker.registry import image_platform_digest
 from utils.security.engine import ROLE, SBOM_BUILDER, SCANNERS
 from utils.security.pipeline import engine_image, pipeline, role_services, user_runtime
 from utils.security.suppressions import role_suppressions
@@ -331,7 +331,7 @@ def main(argv=None) -> int:
     )
     grouped, sources, errors = resolve_digests(
         refs,
-        lambda image, tag: platform_digest(
+        lambda image, tag: image_platform_digest(
             image, tag, os_name=OS_NAME, architecture=ARCHITECTURE
         ),
         config.workers,

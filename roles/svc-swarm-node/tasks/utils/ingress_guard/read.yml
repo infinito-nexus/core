@@ -1,22 +1,12 @@
 ---
-- name: "🔎 Swarm ingress guard | Read the ports the routing mesh publishes"
+- name: "🔎 Swarm ingress guard | Read the published ports and the node addresses"
   ansible.builtin.shell: |
     set -euo pipefail
     if [ "$(container info --format '{{ '{{.Swarm.ControlAvailable}}' }}')" = "true" ]; then
-      container service ls -q | xargs -r container service inspect --format '{{ '{{json .Endpoint.Ports}}' }}'
+      container service ls -q | xargs -r container service inspect --format 'port {{ '{{json .Endpoint.Ports}}' }}'
+      container node ls -q | xargs -r container node inspect --format 'node {{ '{{.Status.Addr}}' }}'
     fi
   args:
     executable: /bin/bash
-  register: swarm_ingress_endpoints
-  changed_when: false
-
-- name: "🔎 Swarm ingress guard | Read the addresses the swarm nodes reach each other from"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    if [ "$(container info --format '{{ '{{.Swarm.ControlAvailable}}' }}')" = "true" ]; then
-      container node ls -q | xargs -r container node inspect --format '{{ '{{.Status.Addr}}' }}'
-    fi
-  args:
-    executable: /bin/bash
-  register: swarm_ingress_nodes
+  register: swarm_ingress_read
   changed_when: false

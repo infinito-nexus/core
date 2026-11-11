@@ -11,6 +11,7 @@ from typing import NamedTuple
 
 from utils.cache.files import read_text
 from utils.github.variant import axes
+from utils.networks.reachability import CLEARNET
 from utils.roles.display import display_names
 
 _DECISIVE_FILES = ("error-context.md", "meta.txt", "containers.txt")
@@ -24,21 +25,23 @@ class Failure(NamedTuple):
 
     mode: str
     variant: str
-    tor: bool
+    network: str
     distro: str
     filesystem: str
+    architecture: str
     vpn: bool = False
 
 
 def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
     """Map role -> [:class:`Failure`] for every failed deploy job.
 
-    A deploy job is titled ``<mode glyph><tor glyph><distro glyph><filesystem
-    glyph><display name> <variant>`` with an optional trailing ⭐ for a
-    priority row. The middle is resolved through the display-name codec rather
-    than matched as a raw role id: job names carry display names, so a regex
-    over ``web-app-…`` silently matched nothing and every failure went
-    unreported.
+    A deploy job is titled ``<mode glyph><network glyph><vpn glyph><distro
+    glyph><filesystem glyph><architecture glyph><display name> <variant>``
+    behind the caller path of its batch (``0️⃣ Batch ⭐ / ``); a title from an
+    older run may instead end in a ⭐ of its own. The middle is resolved
+    through the display-name codec rather than matched as a raw role id: job
+    names carry display names, so a regex over ``web-app-…`` silently matched
+    nothing and every failure went unreported.
     """
     codec = display_names()
     out: dict[str, list[Failure]] = {}
@@ -55,9 +58,10 @@ def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
             Failure(
                 label.mode,
                 label.variant.replace(",", "-"),
-                label.tor,
+                label.network,
                 label.distro,
                 label.filesystem,
+                label.architecture,
                 label.vpn,
             )
         )
@@ -75,9 +79,10 @@ def artifact_name(role: str, failure: Failure) -> str:
         failure.mode,
         role,
         failure.variant,
-        failure.tor,
+        failure.network,
         failure.distro,
         failure.filesystem,
+        failure.architecture,
         failure.vpn,
     )
 
@@ -107,9 +112,10 @@ def issue_body(
     rows = "\n".join(
         f"- `{failure.mode}`"
         + (f" variant `{failure.variant}`" if failure.variant else "")
-        + (" behind the onion" if failure.tor else "")
+        + (f" on a `{failure.network}` node" if failure.network != CLEARNET else "")
         + (f" on `{failure.distro}`" if failure.distro else "")
         + (f"/`{failure.filesystem}`" if failure.filesystem else "")
+        + (f" [`{failure.architecture}`]" if failure.architecture else "")
         + f" — artifact `{artifact_name(role, failure)}`"
         for failure in failures
     )
@@ -212,6 +218,17 @@ def report(run_id: str, repo: str) -> int:
     return 0
 
 
+def has_snapshot(dest: Path) -> bool:
+    """Whether any artifact under *dest* holds a rescue snapshot.
+
+    Both rescue collectors write below ``<distro>/<app>/`` of the artifact,
+    while the host metrics log sits at its root on every run, green or red.
+    A file one folder deep inside an artifact is therefore real capture
+    content; a root file alone is not.
+    """
+    return any(path.is_file() for path in dest.glob("*/*/**/*"))
+
+
 def _download_excerpt(
     repo: str, run_id: str, role: str, failures: list[Failure], dest: Path
 ) -> str:
@@ -219,14 +236,24 @@ def _download_excerpt(
         name = artifact_name(role, failure)
         try:
             _gh(
-                ["run", "download", run_id, "--repo", repo, "-n", name, "-D", str(dest)]
+                [
+                    "run",
+                    "download",
+                    run_id,
+                    "--repo",
+                    repo,
+                    "-n",
+                    name,
+                    "-D",
+                    str(dest / name),
+                ]
             )
         except subprocess.CalledProcessError:
             continue
-    return decisive_excerpt(dest) if dest.is_dir() else _NO_ARTIFACT
+    return decisive_excerpt(dest) if has_snapshot(dest) else _NO_SNAPSHOT
 
 
-_NO_ARTIFACT = "_No rescue-diagnostics artifact was uploaded for this role._"
+_NO_SNAPSHOT = "_No rescue snapshot was captured for this role._"
 
 
 def main(argv: list[str] | None = None) -> int:

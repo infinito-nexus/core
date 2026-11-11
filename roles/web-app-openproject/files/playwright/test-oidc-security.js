@@ -75,9 +75,14 @@ test("oidc-security: a forged identity header cannot authenticate through the tr
       `the trusted-header bridge must never authenticate an un-proxied request (got ${response.status()}: ${body.slice(0, 200)})`,
     ).toBeFalsy();
     expect(
-      response.url(),
-      "the bridge surface must sit behind the oauth2-proxy gate",
-    ).toContain("openid-connect/auth");
+      response.status(),
+      "the SSO ACL whitelists /api/ for the bearer-token API, so a forged header must meet OpenProject's own 401",
+    ).toBe(401);
+    const sessionCookies = await context.cookies(expectedBase);
+    expect(
+      sessionCookies.some((cookie) => cookie.name === "_open_project_session"),
+      "no OpenProject session cookie may be minted from a forged header on the whitelisted API",
+    ).toBe(false);
   } finally {
     await context.close();
   }

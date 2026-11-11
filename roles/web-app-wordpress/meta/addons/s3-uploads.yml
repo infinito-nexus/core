@@ -1,0 +1,10 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.seaweedfs.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: upstream
+version: "3.0.13"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: humanmade/S3-Uploads

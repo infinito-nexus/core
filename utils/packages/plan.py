@@ -2,14 +2,19 @@
 
 Turns a resolved :class:`~utils.packages.registry.PackageSpec` into the
 ordered module calls that acquire it. Keeping this pure means every
-acquisition path - distribution repository, AUR, COPR, PPA, source build -
-is unit-testable without an Ansible connection; the action plugin only
-executes what it is handed.
+acquisition path - distribution repository, AUR, COPR, PPA, source build,
+pinned vendor download, Flatpak remote - is unit-testable without an Ansible connection; the action
+plugin only executes what it is handed.
 """
 
 from __future__ import annotations
 
+from dataclasses import replace
+from typing import TYPE_CHECKING
+
+from utils.github.variant.pools import ARCHITECTURES
 from utils.packages.calls import (
+    GENERIC_PACKAGE,
     STATE_ABSENT,
     STATE_PRESENT,
     ModuleCall,
@@ -19,10 +24,66 @@ from utils.packages.schema import (
     SOURCE_AUR,
     SOURCE_BUILD,
     SOURCE_COPR,
+    SOURCE_DOWNLOAD,
+    SOURCE_FLATPAK,
     SOURCE_PPA,
     PackageSpec,
 )
-from utils.packages.sources import aur_calls, build_calls, repository_calls
+from utils.packages.sources import (
+    aur_calls,
+    build_calls,
+    download_calls,
+    flatpak_calls,
+    repository_calls,
+)
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+HOST_ARCHITECTURE_VAR = "HOST_ARCHITECTURE_BY_KERNEL"
+"""The group_vars map from kernel machine names to architecture tokens."""
+
+
+def ensure_published(
+    package_id: str,
+    distribution: str,
+    kernel: str,
+    by_kernel: Mapping[str, str],
+    spec: PackageSpec,
+) -> None:
+    """Refuse a package whose source publishes nothing for the host.
+
+    Args:
+        package_id: the logical id, named in the refusal.
+        distribution: the host's distribution, named in the refusal.
+        kernel: the host's ``ansible_facts.architecture``, ``""`` when absent.
+        by_kernel: :data:`HOST_ARCHITECTURE_VAR`, read from the inventory.
+        spec: the entry resolved for that distribution.
+
+    Raises:
+        ValueError: the entry narrows its architectures and the host's is
+            either not among them or cannot be mapped to judge it.
+    """
+    if set(ARCHITECTURES) <= set(spec.architectures):
+        return
+    architecture = by_kernel.get(kernel)
+    if architecture is None:
+        raise ValueError(
+            f"Package '{package_id}' is published for "
+            f"{', '.join(spec.architectures)} only on {distribution}, and "
+            f"{HOST_ARCHITECTURE_VAR} ({dict(by_kernel)}) maps no architecture "
+            f"for this host's kernel architecture {kernel or '(fact missing)'!r}."
+        )
+    if architecture in spec.architectures:
+        return
+    raise ValueError(
+        f"Package '{package_id}' cannot be installed on {distribution} "
+        f"{architecture}: its {spec.source} source "
+        f"({', '.join(spec.names)}) is published for "
+        f"{', '.join(spec.architectures)} only. Deploy it on "
+        f"{' or '.join(spec.architectures)}, or on a distribution whose "
+        f"entry ships it for {architecture}."
+    )
 
 
 def build_plan(spec: PackageSpec, state: str) -> list[ModuleCall]:
@@ -42,9 +103,63 @@ def build_plan(spec: PackageSpec, state: str) -> list[ModuleCall]:
             raise ValueError("source 'build' requires a 'build' block")
         return build_calls(spec.build)
 
+    if spec.source == SOURCE_DOWNLOAD:
+        if not spec.download:
+            raise ValueError("source 'download' requires a 'download' block")
+        return download_calls(names, spec.download)
+
+    if spec.source == SOURCE_FLATPAK:
+        return flatpak_calls(names, spec.flatpak)
+
     if spec.source in (SOURCE_COPR, SOURCE_PPA) and not spec.repo:
         raise ValueError(f"source '{spec.source}' requires a 'repo' block")
 
     if spec.repo:
         return repository_calls(spec.repo, names)
     return [package_call(names, STATE_PRESENT)]
+
+
+def _plain(plan: list[ModuleCall]) -> bool:
+    if not plan or any(
+        call.module != GENERIC_PACKAGE
+        or call.become_user is not None
+        or set(call.args) != {"name", "state"}
+        for call in plan
+    ):
+        return False
+    return len({call.args["state"] for call in plan}) == 1
+
+
+def merge_plans(plans: list[list[ModuleCall]]) -> list[list[ModuleCall]]:
+    """Fold the plans that only call the host's package manager into one plan.
+
+    The plain plans are aligned on their last call, so the n-th call from
+    the end of every plan lands in the same merged call and each plan's own
+    order survives: a bootstrap package still installs before the names it
+    unlocks. Every other plan follows unchanged, in request order.
+
+    Args:
+        plans: one plan per package id, in request order.
+
+    Returns:
+        one merged plan per state the plain plans bring their names into,
+        then every other plan.
+    """
+    groups: dict[str, list[list[ModuleCall]]] = {}
+    for plan in plans:
+        if _plain(plan):
+            groups.setdefault(plan[-1].args["state"], []).append(plan)
+    return [_merge(group) for group in groups.values()] + [
+        plan for plan in plans if not _plain(plan)
+    ]
+
+
+def _merge(plain: list[list[ModuleCall]]) -> list[ModuleCall]:
+    merged: list[ModuleCall] = []
+    for offset in range(max(len(plan) for plan in plain), 0, -1):
+        calls = [plan[-offset] for plan in plain if len(plan) >= offset]
+        names = list(
+            dict.fromkeys(name for call in calls for name in call.args["name"])
+        )
+        merged.append(replace(calls[0], args={**calls[0].args, "name": names}))
+    return merged

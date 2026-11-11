@@ -1,0 +1,25 @@
+{% set objstore = lookup('objstore', application_id) %}
+{% if objstore.relative_url %}
+  location ^~ {{ objstore.relative_url }}/ {
+    location ~ /$ {
+      return 404;
+    }
+    limit_except GET {
+      deny all;
+    }
+    set $args "";
+    proxy_pass {{ objstore.upstream_scheme }}://127.0.0.1/{{ objstore.bucket }}/;
+    proxy_ssl_server_name on;
+    proxy_ssl_name {{ objstore.upstream_domain }};
+    proxy_set_header Host {{ objstore.upstream_domain }};
+    proxy_set_header Authorization "";
+    proxy_set_header Cookie "";
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_hide_header Content-Security-Policy;
+    proxy_hide_header Set-Cookie;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Content-Security-Policy "sandbox; default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'" always;
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+  }
+{% endif %}

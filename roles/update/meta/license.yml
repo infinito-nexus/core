@@ -1,0 +1,2 @@
+# nocheck: license-declared Dispatches the host's own package manager (apt/pacman/dnf) to refresh and upgrade already-installed OS packages; it installs no software of its own, so there is no single licence to declare.
+---

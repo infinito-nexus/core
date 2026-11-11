@@ -15,6 +15,7 @@ class TestDedicatedMainParser(unittest.TestCase):
         self.assertIn("limit", opts)
         self.assertIn("password_file", opts)
         self.assertIn("skip_build", opts)
+        self.assertIn("skip_pull", opts)
         self.assertIn("id", opts)
         self.assertIn("verbose", opts)
         self.assertIn("diff", opts)

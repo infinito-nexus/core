@@ -19,10 +19,12 @@
 
 - name: "🔑 Realign the break-glass administrator password"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ SEMAPHORE_LOCAL_CID | quote }}
-    semaphore user change-by-login
-    --login {{ SEMAPHORE_ADMIN_USERNAME | quote }}
-    --password {{ SEMAPHORE_ADMIN_PASSWORD | quote }}
+    container exec -e SEMAPHORE_ADMIN_PASSWORD {{ SEMAPHORE_LOCAL_CID | quote }} sh -lc
+    'semaphore user change-by-login
+    --login "{{ SEMAPHORE_ADMIN_USERNAME }}"
+    --password "$SEMAPHORE_ADMIN_PASSWORD"'
+  environment:
+    SEMAPHORE_ADMIN_PASSWORD: "{{ SEMAPHORE_ADMIN_PASSWORD }}"
   register: semaphore_breakglass_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: semaphore_breakglass_password.rc == 0

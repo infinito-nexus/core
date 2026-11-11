@@ -10,7 +10,7 @@ Module._load = function (request, ...rest) {
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../../..");
 const { apiFetchOnion, apiGetOnion } = require(
-  path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/personas/utils/env.js"),
+  path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/personas/utils/onion.js"),
 );
 
 Module._load = loadModule;

@@ -1,6 +1,7 @@
 server
 {
   server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
 
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
@@ -26,6 +27,24 @@ server
     {% include 'roles/sys-svc-proxy/templates/location/ws.conf.j2' %}
   {% endif %}
 
+  {% if NEXTCLOUD_ONLYOFFICE_ENABLED | bool %}
+  location ~* ^{{ NEXTCLOUD_ONLYOFFICE_LOCATION }} {
+    {{ lookup('proxy_pass', 'web-svc-onlyoffice', 'onlyoffice', 'http', tail='oauth2') }}
+    rewrite ^{{ NEXTCLOUD_ONLYOFFICE_LOCATION }}(.*) /$1 break;
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host{{ NEXTCLOUD_ONLYOFFICE_LOCATION | regex_replace('/$', '') }};
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $proxy_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_buffering off;
+  }
+  {% endif %}
+
   {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
 
   location ^~ /.well-known {
@@ -43,6 +62,8 @@ server
   }
 
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/web-svc-seaweedfs/templates/nginx/locations.conf.j2' %}
 
   {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
 }

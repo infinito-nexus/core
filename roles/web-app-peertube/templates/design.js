@@ -1,0 +1,16 @@
+(function () {
+  const root = document.documentElement;
+  const browserDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  function mirror() {
+    const theme = root.getAttribute("data-pt-theme") || "";
+    if (theme === "peertube-core-light-beige") {
+      root.setAttribute("data-design-theme", "light");
+    } else if (theme === "peertube-core-dark-brown" && !browserDark) {
+      root.setAttribute("data-design-theme", "dark");
+    } else {
+      root.removeAttribute("data-design-theme");
+    }
+  }
+  mirror();
+  new MutationObserver(mirror).observe(root, { attributes: true, attributeFilter: ["data-pt-theme"] });
+})();

@@ -15,15 +15,52 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OWNER="$("${script_dir}/../repository/owner.sh")"
 REPO_PREFIX="${REPO_PREFIX,,}"
 
+below_floor() {
+	[[ "$(printf '%s\n' "$1" "${oldest_buildable_tag}" | sort -V | head -n 1)" != "${oldest_buildable_tag}" ]]
+}
+
+serves_pool() {
+	local img="$1"
+	local absent
+	echo "Check: ${img}" >&2
+	absent="$("${script_dir}/architectures.sh" "${img}")"
+	if [[ -z "${absent}" ]]; then
+		echo "  OK" >&2
+		return 0
+	fi
+	echo "  MISSING ${absent}" >&2
+	return 1
+}
+
 mapfile -t tags < <("${script_dir}/../version_tags.sh")
 
 if [[ ${#tags[@]} -eq 0 ]]; then
 	exit 0
 fi
 
+latest_incomplete="false"
+
+for distro in ${INFINITO_DISTROS}; do
+	if ! serves_pool "${REGISTRY}/${OWNER}/${REPO_PREFIX}/${distro}:latest"; then
+		latest_incomplete="true"
+	fi
+done
+
+if ! serves_pool "${REGISTRY}/${OWNER}/${REPO_PREFIX}:latest"; then
+	latest_incomplete="true"
+fi
+
+if [[ "${latest_incomplete}" == "true" ]]; then
+	newest="${tags[$((${#tags[@]} - 1))]}"
+	if ! below_floor "${newest}"; then
+		printf '%s\n' "${newest}"
+	fi
+	exit 0
+fi
+
 for ((i = ${#tags[@]} - 1; i >= 0; i--)); do
 	tag="${tags[$i]}"
-	if [[ "$(printf '%s\n' "${tag}" "${oldest_buildable_tag}" | sort -V | head -n 1)" != "${oldest_buildable_tag}" ]]; then
+	if below_floor "${tag}"; then
 		exit 0
 	fi
 	tag_missing="false"

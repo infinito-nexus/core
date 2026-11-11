@@ -1,6 +1,0 @@
----
-# Install ONCE per play/host, but allow apply multiple times with different mappings
-- include_tasks: 01_install.yml
-  when: run_once_desk_dotlinker is not defined
-
-- include_tasks: 02_apply.yml

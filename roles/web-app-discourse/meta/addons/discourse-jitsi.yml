@@ -1,0 +1,14 @@
+---
+enabled: "{{ lookup('config', 'web-app-discourse', 'services.jitsi.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - jitsi
+update:
+  monitored: true
+  catalog: discourse-meta
+  upstream_id: discourse-jitsi
+config:
+  repository: https://github.com/discourse/discourse-jitsi.git
+  ref: main

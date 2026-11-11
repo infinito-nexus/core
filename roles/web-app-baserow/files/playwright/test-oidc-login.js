@@ -28,7 +28,10 @@ test("OIDC: oauth2-proxy + trusted-header bridge mint a Baserow JWT session", as
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator(".sidebar, .auth__wrapper form").first(),
+    "Expected Baserow's own shell or sign-in form, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const tokenResponse = await page.request.get(`${expectedBase}/api/infinito/sso/token/`);
   const tokenBody = await tokenResponse.text();

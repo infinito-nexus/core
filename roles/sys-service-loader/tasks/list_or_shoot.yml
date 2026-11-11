@@ -24,12 +24,24 @@
   ansible.builtin.set_fact:
     service_loader_post_run: "{{ (service_loader_post_run | default([])) + list_or_shoot_roles }}"
   changed_when: false
+  run_once: false
   when: (service_loader_preloading | default(false) | bool)
 
-- name: "🎯 Shoot post-load roles directly (no preload context active)"
-  ansible.builtin.include_role:
-    name: "{{ list_or_shoot_role }}"
-  loop: "{{ list_or_shoot_roles }}"
-  loop_control:
-    loop_var: list_or_shoot_role
+- name: "🎯 Shoot the post-load roles directly (no preload context active)"
   when: not (service_loader_preloading | default(false) | bool)
+  block:
+    - name: "🎯 Shoot the single post-load role"
+      ansible.builtin.include_role:
+        name: "{{ list_or_shoot_roles | first }}"
+      vars:
+        application_id: "{{ list_or_shoot_roles | first }}"
+      when: list_or_shoot_roles | length == 1
+
+    - name: "🎯 Shoot each of several post-load roles"
+      ansible.builtin.include_role:
+        name: "{{ list_or_shoot_role }}"
+      vars:
+        application_id: "{{ list_or_shoot_role }}"
+      loop: "{{ list_or_shoot_roles if list_or_shoot_roles | length > 1 else [] }}"
+      loop_control:
+        loop_var: list_or_shoot_role

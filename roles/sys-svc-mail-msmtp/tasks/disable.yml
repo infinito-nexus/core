@@ -1,6 +1,6 @@
 ---
 - name: "✅ Ensure msmtp-mta is absent (conflicts with postfix smtp-forwarder)"
-  package_install:
+  package_install: # nocheck: package-install removes msmtp-mta, the batch only installs
     id: msmtp-mta
     state: absent
 

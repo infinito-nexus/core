@@ -61,7 +61,7 @@ UPSTREAM_URL = policy.upstream_url(
     os.environ.get("ADAPTER_UPSTREAM_PATH_KEY", ""),
     os.environ.get("ADAPTER_UPSTREAM_PATH_SUFFIX", ""),
 )
-PORT = int(os.environ.get("ADAPTER_PORT", "8080"))
+PORT = int(os.environ["ADAPTER_PORT"])
 
 policy.assert_no_drift(CONTRACT)
 

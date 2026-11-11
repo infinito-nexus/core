@@ -10,13 +10,16 @@
 
 - name: "👤 Create the account the MCP token belongs to"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} \
+    container exec -i -e GITEA_MCP_USER_PASSWORD --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} sh -lc '
       /app/gitea/gitea admin user create \
-        --username {{ GITEA_MCP_USERNAME | quote }} \
-        --password {{ GITEA_MCP_USER_PASSWORD | quote }} \
-        --email {{ GITEA_MCP_USER_EMAIL | quote }} \
+        --username "{{ GITEA_MCP_USERNAME }}" \
+        --password "$GITEA_MCP_USER_PASSWORD" \
+        --email "{{ GITEA_MCP_USER_EMAIL }}" \
         --must-change-password=false \
         -c {{ GITEA_CONFIG }}
+    '
+  environment:
+    GITEA_MCP_USER_PASSWORD: "{{ GITEA_MCP_USER_PASSWORD }}"
   when: GITEA_MCP_USERNAME not in gitea_mcp_accounts.stdout.split()
   changed_when: true
   delegate_to: "{{ GITEA_API_HOST_NODE }}"
@@ -25,12 +28,15 @@
 
 - name: "🔑 Set the account's password to the one this deployment declares"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} \
+    container exec -i -e GITEA_MCP_USER_PASSWORD --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} sh -lc '
       /app/gitea/gitea admin user change-password \
-        --username {{ GITEA_MCP_USERNAME | quote }} \
-        --password {{ GITEA_MCP_USER_PASSWORD | quote }} \
+        --username "{{ GITEA_MCP_USERNAME }}" \
+        --password "$GITEA_MCP_USER_PASSWORD" \
         --must-change-password=false \
         -c {{ GITEA_CONFIG }}
+    '
+  environment:
+    GITEA_MCP_USER_PASSWORD: "{{ GITEA_MCP_USER_PASSWORD }}"
   changed_when: true
   delegate_to: "{{ GITEA_API_HOST_NODE }}"
   run_once: true
@@ -38,11 +44,14 @@
 
 - name: "🗑 Revoke an access token left over under the same name"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ GITEA_API_LOCAL_CID | quote }} \
-      {{ lookup('timeout', 30) | curl(5, 0) }} -o /dev/null -w '%{http_code}' \
+    container exec -i -e GITEA_MCP_BASIC_AUTH {{ GITEA_API_LOCAL_CID | quote }} sh -lc '
+      {{ lookup('timeout', 30) | curl(5, 0) }} -o /dev/null -w "%{http_code}" \
         -X DELETE \
-        -u {{ (GITEA_MCP_USERNAME ~ ':' ~ GITEA_MCP_USER_PASSWORD) | quote }} \
-        {{ (GITEA_INTERNAL_API_URL ~ '/users/' ~ GITEA_MCP_USERNAME ~ '/tokens/' ~ GITEA_MCP_TOKEN_NAME) | quote }}
+        -u "$GITEA_MCP_BASIC_AUTH" \
+        "{{ GITEA_INTERNAL_API_URL ~ '/users/' ~ GITEA_MCP_USERNAME ~ '/tokens/' ~ GITEA_MCP_TOKEN_NAME }}"
+    '
+  environment:
+    GITEA_MCP_BASIC_AUTH: "{{ GITEA_MCP_USERNAME ~ ':' ~ GITEA_MCP_USER_PASSWORD }}"
   register: gitea_mcp_token_revoke
   changed_when: gitea_mcp_token_revoke.stdout | trim == '204'
   failed_when: gitea_mcp_token_revoke.stdout | trim not in ['204', '404']

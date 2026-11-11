@@ -8,6 +8,8 @@ description: >
   this repository. Infinito.Nexus specific.
 ---
 
+# Cleanup After Agents
+
 Follow the instructions from AGENTS.md, then run the `cleanup` skill (installed
 by `make install-skills`) and apply the rules below on top of it; where a rule
 here is stricter, it wins. This skill never runs under the `robot` skill.

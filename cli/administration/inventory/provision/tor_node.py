@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 
 from cli.administration.inventory.onion import ensure_node_onion
 
-from .yaml_io import dump_yaml, load_yaml
+from .ruamel_io import dump_document, ensure_map, load_document
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -33,12 +33,8 @@ def apply_tor_node_onion(
     if _PROVIDER not in application_ids:
         return
     address = ensure_node_onion(base_dir)
-    data = load_yaml(host_vars_file) if host_vars_file.exists() else {}
-    if not isinstance(data, dict):
-        data = {}
-    apps = data.setdefault("applications", {})
-    svc = apps.setdefault(_PROVIDER, {})
-    services = svc.setdefault("services", {})
-    tor = services.setdefault("tor", {})
-    tor["node"] = address
-    dump_yaml(host_vars_file, data)
+    document = load_document(host_vars_file)
+    apps = ensure_map(document, "applications")
+    services = ensure_map(ensure_map(apps, _PROVIDER), "services")
+    ensure_map(services, "tor")["node"] = address
+    dump_document(host_vars_file, document)

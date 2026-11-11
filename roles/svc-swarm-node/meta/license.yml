@@ -1,0 +1,2 @@
+# nocheck: license-declared ships no payload and installs nothing; it runs swarm commands against the Docker Engine another role installs, which declares the engine's licence.
+---

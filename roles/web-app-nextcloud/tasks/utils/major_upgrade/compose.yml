@@ -1,0 +1,41 @@
+---
+# include-gated: when: IS_COMPOSE_MODE
+- name: "🌐 Pre-create the external networks the upgrade runs join"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: "{{ external_network_role }}"
+  loop: "{{ lookup('compose_external_networks') }}"
+  loop_control:
+    loop_var: external_network_role
+
+- name: 🔍 List the running containers that mount the Nextcloud data volume
+  ansible.builtin.command:
+    argv:
+      - container
+      - ps
+      - --quiet
+      - --filter
+      - "volume={{ NEXTCLOUD_DATA_VOLUME }}"
+  register: nextcloud_volume_containers
+  changed_when: false
+
+- name: ⏹️ Stop the containers that still run the old Nextcloud code
+  ansible.builtin.command:
+    argv: "{{ ['container', 'stop'] + nextcloud_volume_containers.stdout_lines }}"
+  changed_when: true
+  when: nextcloud_volume_containers.stdout_lines | length > 0
+
+- name: ⏫ Run one Nextcloud upgrade step per major
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/major_upgrade/step.yml"
+  loop: "{{ nextcloud_upgrade_tags }}"
+  loop_control:
+    loop_var: nextcloud_upgrade_tag
+
+- name: 🧹 Remove the Nextcloud upgrade compose override
+  ansible.builtin.file:
+    path: "{{ NEXTCLOUD_UPGRADE_COMPOSE_HOST }}"
+    state: absent
+
+- name: 🧩 Report the apps the Nextcloud major upgrades disabled
+  ansible.builtin.debug:
+    msg: "{{ nextcloud_upgrade_disabled_apps }}"

@@ -8,16 +8,22 @@ from tempfile import TemporaryDirectory
 
 from ruamel.yaml import YAML
 
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabled_conflicts import (
+    assert_services_disabled_inventory_consistency_from_env,
+    find_services_disabled_conflicts,
+)
+from cli.administration.inventory.provision.services.disabler import (
+    DISABLED_SERVICES_RECORD,
     apply_services_disabled,
     apply_services_disabled_from_env,
-    assert_services_disabled_inventory_consistency_from_env,
+    find_presence_dependents,
     find_provider_roles,
-    find_services_disabled_conflicts,
     parse_services_disabled,
+    reconcile_services_disabled_from_env,
     remove_roles_from_inventory,
 )
 from utils.cache.yaml import dump_yaml
+from utils.roles.applications.services.registry import discover_role_services
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 
@@ -318,6 +324,44 @@ class TestApplyServicesDisabled(unittest.TestCase):
             result["applications"]["web-app-matomo"]["services"],
         )
 
+    def test_flips_a_service_a_variant_baked_without_the_role_declaring_it(self):
+        self._write_host_vars(
+            {
+                "applications": {
+                    "web-app-openbao": {
+                        "services": {"lam": {"enabled": True, "shared": True}}
+                    }
+                }
+            }
+        )
+        self._make_role("web-app-openbao", {"ldap": {"enabled": True, "shared": True}})
+
+        apply_services_disabled(self.host_vars, ["lam"], roles_dir=self.roles_dir)
+
+        lam = self._read_host_vars()["applications"]["web-app-openbao"]["services"][
+            "lam"
+        ]
+        self.assertFalse(lam["enabled"])
+        self.assertFalse(lam["shared"])
+
+    def test_a_variant_baked_service_keeps_the_flag_set_it_already_had(self):
+        self._write_host_vars(
+            {
+                "applications": {
+                    "web-app-moodle": {"services": {"lam": {"enabled": True}}}
+                }
+            }
+        )
+        self._make_role("web-app-moodle", {"ldap": {"enabled": True}})
+
+        apply_services_disabled(self.host_vars, ["lam"], roles_dir=self.roles_dir)
+
+        lam = self._read_host_vars()["applications"]["web-app-moodle"]["services"][
+            "lam"
+        ]
+        self.assertFalse(lam["enabled"])
+        self.assertNotIn("shared", lam)
+
     def test_creates_compose_section_for_app_without_compose(self):
         self._write_host_vars(
             {
@@ -369,6 +413,175 @@ class TestApplyServicesDisabled(unittest.TestCase):
         result = self._read_host_vars()
         self.assertFalse(result["applications"]["app-a"]["services"]["oidc"]["enabled"])
         self.assertFalse(result["applications"]["app-b"]["services"]["ldap"]["enabled"])
+
+
+COTURN_GATE = "{{ 'web-svc-coturn' in group_names }}"
+
+
+class TestPresenceDependents(unittest.TestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.yaml_rt = YAML(typ="rt")
+        self.yaml_rt.preserve_quotes = True
+        self.host_vars = self.root / "host_vars.yml"
+        self.roles_dir = self.root / "roles"
+        self.roles_dir.mkdir()
+        self._make_role(
+            "web-svc-coturn", {"coturn": {"image": "coturn", "shared": True}}
+        )
+        self._make_role(
+            "web-app-matomo", {"matomo": {"image": "matomo", "shared": True}}
+        )
+
+    def _make_role(self, role_name: str, services: dict) -> None:
+        role_dir = self.roles_dir / role_name
+        (role_dir / "meta").mkdir(parents=True)
+        (role_dir / "vars").mkdir(parents=True)
+        dump_yaml(role_dir / ROLE_FILE_META_SERVICES, services)
+        dump_yaml(role_dir / ROLE_FILE_VARS_MAIN, {"application_id": role_name})
+
+    def _consumer(self, key: str, enabled: str, *, shared: bool) -> None:
+        entry = {"enabled": enabled, **({"shared": enabled} if shared else {})}
+        self._make_role(
+            "web-app-nextcloud", {"coturn": {"enabled": COTURN_GATE}, key: entry}
+        )
+        pinned = {"enabled": True, **({"shared": True} if shared else {})}
+        with self.host_vars.open("w") as f:
+            self.yaml_rt.dump(
+                {"applications": {"web-app-nextcloud": {"services": {key: pinned}}}}, f
+            )
+
+    def _disable(self, tokens: list[str]) -> dict:
+        apply_services_disabled(self.host_vars, tokens, roles_dir=self.roles_dir)
+        with self.host_vars.open("r") as f:
+            return dict(
+                self.yaml_rt.load(f)["applications"]["web-app-nextcloud"]["services"]
+            )
+
+    def test_an_entry_gated_on_the_disabled_provider_is_flipped(self):
+        self._consumer("talk", COTURN_GATE, shared=True)
+
+        services = self._disable(["web-svc-coturn"])
+
+        self.assertEqual({"enabled": False, "shared": False}, dict(services["talk"]))
+
+    def test_the_service_key_of_the_provider_flips_the_gated_entry_too(self):
+        self._consumer("talk", COTURN_GATE, shared=True)
+
+        services = self._disable(["coturn"])
+
+        self.assertEqual({"enabled": False, "shared": False}, dict(services["talk"]))
+
+    def test_double_quotes_and_tight_spacing_still_match(self):
+        self._consumer("talk", '{{"web-svc-coturn" in group_names}}', shared=True)
+
+        services = self._disable(["web-svc-coturn"])
+
+        self.assertEqual({"enabled": False, "shared": False}, dict(services["talk"]))
+
+    def test_a_negated_gate_is_left_alone(self):
+        self._consumer(
+            "fallback", "{{ 'web-svc-coturn' not in group_names }}", shared=True
+        )
+
+        services = self._disable(["web-svc-coturn"])
+
+        self.assertEqual({"enabled": True, "shared": True}, dict(services["fallback"]))
+
+    def test_a_compound_gate_is_left_alone(self):
+        self._consumer(
+            "talk",
+            "{{ 'web-svc-coturn' in group_names and 'svc-net-tor' not in group_names }}",
+            shared=True,
+        )
+
+        services = self._disable(["web-svc-coturn"])
+
+        self.assertEqual({"enabled": True, "shared": True}, dict(services["talk"]))
+
+    def test_a_gate_on_a_variable_is_left_alone(self):
+        self._consumer("talk", "{{ TURN_PROVIDER in group_names }}", shared=True)
+
+        services = self._disable(["web-svc-coturn"])
+
+        self.assertEqual({"enabled": True, "shared": True}, dict(services["talk"]))
+
+    def test_a_gate_on_another_provider_is_left_alone(self):
+        self._consumer("talk", "{{ 'web-app-matomo' in group_names }}", shared=True)
+
+        services = self._disable(["web-svc-coturn"])
+
+        self.assertEqual({"enabled": True, "shared": True}, dict(services["talk"]))
+
+    def test_a_gated_entry_without_shared_does_not_get_one(self):
+        self._consumer("talk", COTURN_GATE, shared=False)
+
+        services = self._disable(["web-svc-coturn"])
+
+        self.assertEqual({"enabled": False}, dict(services["talk"]))
+
+    def test_dependents_report_the_entry_and_its_provider(self):
+        self._consumer("talk", COTURN_GATE, shared=True)
+
+        self.assertEqual(
+            [("web-app-nextcloud", "talk", "web-svc-coturn")],
+            [
+                dependent
+                for dependent in find_presence_dependents(
+                    {"web-svc-coturn"}, self.roles_dir
+                )
+                if dependent[1] != "coturn"
+            ],
+        )
+
+    def _provision(self, disable: str) -> None:
+        with unittest.mock.patch.dict(os.environ, {"disable": disable}):
+            reconcile_services_disabled_from_env(self.host_vars, self.roles_dir)
+            apply_services_disabled_from_env(self.host_vars, roles_dir=self.roles_dir)
+
+    def test_a_provider_dropped_from_disable_releases_its_gated_entry(self):
+        self._make_role(
+            "web-app-nextcloud",
+            {"coturn": {"enabled": COTURN_GATE}, "talk": {"enabled": COTURN_GATE}},
+        )
+        with self.host_vars.open("w") as f:
+            self.yaml_rt.dump({"applications": {}}, f)
+
+        self._provision("web-svc-coturn,matomo")
+        self._provision("matomo")
+
+        with self.host_vars.open("r") as f:
+            services = self.yaml_rt.load(f)["applications"]["web-app-nextcloud"][
+                "services"
+            ]
+        self.assertNotIn("talk", services)
+
+    def test_a_provider_another_listed_key_keeps_disabled_holds_its_gated_entry(self):
+        dump_yaml(
+            self.roles_dir / "web-svc-coturn" / ROLE_FILE_META_SERVICES,
+            {
+                "coturn": {"image": "coturn", "shared": True},
+                "turn": {"enabled": True, "shared": True, "canonical": "coturn"},
+            },
+        )
+        self._make_role(
+            "web-app-nextcloud",
+            {"coturn": {"enabled": COTURN_GATE}, "talk": {"enabled": COTURN_GATE}},
+        )
+        with self.host_vars.open("w") as f:
+            self.yaml_rt.dump({"applications": {}}, f)
+        self._provision("web-svc-coturn")
+
+        with unittest.mock.patch.dict(os.environ, {"disable": "coturn"}):
+            reconcile_services_disabled_from_env(self.host_vars, self.roles_dir)
+
+        with self.host_vars.open("r") as f:
+            services = self.yaml_rt.load(f)["applications"]["web-app-nextcloud"][
+                "services"
+            ]
+        self.assertEqual({"enabled": False}, dict(services["talk"]))
 
 
 class TestApplyServicesDisabledFromEnv(unittest.TestCase):
@@ -542,6 +755,109 @@ class TestServicesDisabledConflicts(unittest.TestCase):
                 inventory_dir=self.inventory_dir,
                 roles_dir=self.roles_dir,
             )
+
+
+class TestReconcileServicesDisabledFromEnv(unittest.TestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.yaml_rt = YAML(typ="rt")
+        self.yaml_rt.preserve_quotes = True
+        self.host_vars = self.root / "host_vars.yml"
+        self.roles_dir = self.root / "roles"
+        self.roles_dir.mkdir()
+        self.provider_entry = {"image": "seaweedfs", "enabled": True, "shared": True}
+        self._make_role("web-svc-seaweedfs", {"seaweedfs": self.provider_entry})
+        self._make_role(
+            "web-app-bookwyrm",
+            {
+                "seaweedfs": {
+                    "enabled": "{{ 'web-svc-seaweedfs' in group_names }}",
+                    "shared": "{{ 'web-svc-seaweedfs' in group_names }}",
+                },
+                "minio": {"enabled": False, "shared": False},
+            },
+        )
+        self._make_role("web-app-minio", {"minio": {"enabled": True, "shared": True}})
+        self._write({"applications": {}})
+
+    def _make_role(self, role_name: str, services: dict) -> None:
+        role_dir = self.roles_dir / role_name
+        (role_dir / "meta").mkdir(parents=True)
+        (role_dir / "vars").mkdir(parents=True)
+        dump_yaml(role_dir / ROLE_FILE_META_SERVICES, services)
+        dump_yaml(role_dir / ROLE_FILE_VARS_MAIN, {"application_id": role_name})
+
+    def _write(self, data: dict) -> None:
+        with self.host_vars.open("w") as f:
+            self.yaml_rt.dump(data, f)
+
+    def _read(self) -> dict:
+        with self.host_vars.open("r") as f:
+            return self.yaml_rt.load(f)
+
+    def _provision(self, disable: str) -> None:
+        with unittest.mock.patch.dict(os.environ, {"disable": disable}):
+            reconcile_services_disabled_from_env(self.host_vars, self.roles_dir)
+            apply_services_disabled_from_env(self.host_vars, roles_dir=self.roles_dir)
+
+    def _services(self, app_id: str) -> dict:
+        return self._read()["applications"][app_id].get("services", {})
+
+    def test_a_provider_dropped_from_disable_is_a_registry_provider_again(self):
+        self._provision("minio,seaweedfs")
+        self._provision("minio")
+
+        override = self._services("web-svc-seaweedfs").get("seaweedfs", {})
+        self.assertNotIn("enabled", override)
+        self.assertNotIn("shared", override)
+        config = {"services": {"seaweedfs": {**self.provider_entry, **override}}}
+        self.assertIn("seaweedfs", discover_role_services("web-svc-seaweedfs", config))
+        self.assertNotIn("seaweedfs", self._services("web-app-bookwyrm"))
+
+    def test_a_key_still_listed_stays_disabled(self):
+        self._provision("minio,seaweedfs")
+        self._provision("minio")
+
+        self.assertEqual(
+            {"enabled": False, "shared": False},
+            dict(self._services("web-app-minio")["minio"]),
+        )
+        self.assertEqual(["minio"], list(self._read()[DISABLED_SERVICES_RECORD]))
+
+    def test_a_toggle_written_true_after_the_disable_survives(self):
+        self._provision("seaweedfs")
+        hv = self._read()
+        consumer = hv["applications"]["web-app-bookwyrm"]["services"]["seaweedfs"]
+        consumer["enabled"] = True
+        self._write(hv)
+
+        self._provision("")
+
+        self.assertEqual(
+            {"enabled": True},
+            dict(self._services("web-app-bookwyrm")["seaweedfs"]),
+        )
+        self.assertNotIn(DISABLED_SERVICES_RECORD, self._read())
+
+    def test_a_false_toggle_no_disable_run_recorded_is_left_alone(self):
+        self._write(
+            {
+                "applications": {
+                    "web-app-bookwyrm": {
+                        "services": {"seaweedfs": {"enabled": False, "shared": False}}
+                    }
+                }
+            }
+        )
+
+        self._provision("")
+
+        self.assertEqual(
+            {"enabled": False, "shared": False},
+            dict(self._services("web-app-bookwyrm")["seaweedfs"]),
+        )
 
 
 if __name__ == "__main__":

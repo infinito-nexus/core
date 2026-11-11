@@ -20,12 +20,12 @@ in the display name; both are tolerated.
 from __future__ import annotations
 
 import json
-import re
 
 from cli.administration.deploy.ci.gh import (
     _gh,
     fetch_jobs,
 )
+from cli.administration.deploy.ci.job_inputs import parse_inputs
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.github import run_name
@@ -85,11 +85,12 @@ CONFIG_INPUTS = (
     "mode",
     "lifecycles",
     "filesystem",
+    "architectures",
     "chunk_gate",
     "workspace",
 )
 
-LOG_INPUTS = ("tor",)
+LOG_INPUTS = ("network",)
 """Inputs the retrigger reads from the job log rather than the run title.
 
 The title renders these as glyphs, so recovering one means translating a
@@ -221,27 +222,9 @@ def failed_roles(
     return sorted(app for app, modes in statuses.items() if fails(modes))
 
 
-_INPUT_RE = re.compile(r"^\S+\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*): ?(?P<value>.*)$")
-
-
-def _parse_inputs(log: str) -> dict[str, str]:
-    """The ``##[group] Inputs`` block of a job log, as name -> value."""
-    inputs: dict[str, str] = {}
-    inside = False
-    for line in log.splitlines():
-        if line.endswith("##[group] Inputs"):
-            inside = True
-            continue
-        if inside:
-            if line.endswith("##[endgroup]"):
-                break
-            match = _INPUT_RE.match(line)
-            if match:
-                inputs[match["name"]] = match["value"].strip()
-    return inputs
-
-
-def inputs_from_jobs(jobs: list[dict], repo: str) -> dict[str, str]:
+def inputs_from_jobs(
+    jobs: list[dict], repo: str, errors: list[str] | None = None
+) -> dict[str, str]:
     """The dispatch inputs a called job's log records verbatim.
 
     GitHub cuts ``display_title`` at 512 UTF-8 bytes (measured on two runs,
@@ -264,11 +247,14 @@ def inputs_from_jobs(jobs: list[dict], repo: str) -> dict[str, str]:
     Args:
         jobs: the run's jobs, as ``gh run view --json jobs`` returns them.
         repo: ``owner/repo`` the run lives in.
+        errors: collects gh's error line of every log read that failed.
 
     Returns:
         input name -> value, empty when no job of the run records an ``Inputs``
         block -- including when the logs have expired.
     """
+    if errors is None:
+        errors = []
     candidates = sorted(
         (
             job
@@ -280,14 +266,14 @@ def inputs_from_jobs(jobs: list[dict], repo: str) -> dict[str, str]:
         key=lambda job: str(job["name"]).count(" / "),
     )
     for job in candidates:
-        inputs = _parse_inputs(
+        inputs = parse_inputs(
             _gh(
                 [
                     "api",
                     "--allow-escape-sequences",
                     f"repos/{repo}/actions/jobs/{job['databaseId']}/logs",
                 ],
-                check=False,
+                errors=errors,
             )
         )
         if inputs:
@@ -307,12 +293,18 @@ def dispatched_priority(source: dict, repo: str) -> str:
         source: the run as :func:`fetch_run` returns it.
         repo: ``owner/repo`` the run lives in.
     """
-    priority = inputs_from_jobs(source["jobs"], repo).get("priority", "")
+    errors: list[str] = []
+    priority = inputs_from_jobs(source["jobs"], repo, errors).get("priority", "")
     if not priority and run_name.value_from_title(source["displayTitle"], "priority"):
         raise SystemExit(
             "Source run has a priority line but its job log records no inputs; "
             "the Inputs block moved or the log expired. Retriggering now would "
             "silently drop every priority role."
+            + (
+                f" {len(errors)} log read(s) failed, the last with: {errors[-1]}"
+                if errors
+                else " No log read failed; none of the logs held an Inputs block."
+            )
         )
     return priority
 

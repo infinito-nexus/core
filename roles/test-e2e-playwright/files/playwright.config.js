@@ -22,6 +22,15 @@ function onionSecureOrigins() {
 
 const onionSecure = onionSecureOrigins();
 
+const proxy = process.env.PLAYWRIGHT_PROXY
+  ? {
+      server: process.env.PLAYWRIGHT_PROXY,
+      ...(process.env.PLAYWRIGHT_PROXY_BYPASS
+        ? { bypass: process.env.PLAYWRIGHT_PROXY_BYPASS }
+        : {}),
+    }
+  : undefined;
+
 /**
  * The timeout the harness renders into the staged .env under this name.
  *
@@ -68,7 +77,7 @@ module.exports = defineConfig({
     // Route the browser through a SOCKS proxy when set (e.g. Tor for .onion
     // targets, which Chromium cannot resolve over normal DNS). Empty/unset =
     // direct connection (unchanged default for clearnet targets).
-    proxy: process.env.PLAYWRIGHT_PROXY ? { server: process.env.PLAYWRIGHT_PROXY } : undefined,
+    proxy,
     launchOptions: onionSecure.length
       ? { args: [`--unsafely-treat-insecure-origin-as-secure=${onionSecure.join(",")}`] }
       : undefined,

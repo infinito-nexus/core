@@ -8,7 +8,7 @@
     repo: "{{ compose_repository_url }}"
     dest: "{{ compose_repository_path }}"
     version: "{{ compose_repository_ref | default('main') }}"
-    single_branch: true
+    refspec: "{{ compose_repository_refspec or omit }}"
     depth: 1
     update: true
     recursive: "{{ compose_repository_recursive | default(true) }}"

@@ -1,6 +1,6 @@
 ---
 - name: 📦 install certbot
-  package_install:
+  package_install: # nocheck: package-install only hosts with Let's Encrypt certificates run this role
     id: certbot
 
 - name: "📂 Include tasks for 'No-Webroot-ACME-CHALLENGE-METHOD'"

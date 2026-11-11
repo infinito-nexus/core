@@ -59,7 +59,11 @@ def load(tools=None, *, mutating=False, transport=None):
         }
         if transport is not None:
             contract["upstream_transport"] = transport
-        env = {"ADAPTER_CONTRACT": json.dumps(contract), "ADAPTER_BEARER": "real"}
+        env = {
+            "ADAPTER_CONTRACT": json.dumps(contract),
+            "ADAPTER_BEARER": "real",
+            "ADAPTER_PORT": "8080",
+        }
         with patch.dict("os.environ", env, clear=False):
             spec.loader.exec_module(module)
     finally:
