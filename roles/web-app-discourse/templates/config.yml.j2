@@ -68,12 +68,6 @@ env:
 
   DISCOURSE_LOAD_MINI_PROFILER: "false"
 
-  # Set Logo
-{% if service_provider.platform.logo | length > 0 %}
-  DISCOURSE_LOGO_URL:       "{{ service_provider.platform.logo  }}"
-  DISCOURSE_LOGO_SMALL_URL: "{{ service_provider.platform.logo  }}"
-{% endif %}
-
 {% set email = lookup('email', application_id) %}
 {% if email.enabled | bool %}
   # SMTP ADDRESS, username, and password are required

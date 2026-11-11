@@ -1426,6 +1426,10 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "Funciones de mantenimiento para certificados, mantenimiento del sistema y tareas operacionales recurrentes."
 
+msgctxt "profile_lock:managed"
+msgid "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+msgstr ""
+
 msgctxt "profile_lock:locked"
 msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
 msgstr "Gestionado por su cuenta central. Cámbielo allí, porque su próximo inicio de sesión sobrescribe los cambios realizados aquí."
@@ -2652,6 +2656,14 @@ msgstr "Editor de texto basado en terminal con llaveros modernos y sintaxis dest
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Función de prueba de daño que ejecuta scripts de prueba CLI de extremo a extremo para roles que declaran una plantilla de entorno de prueba"
+
+msgctxt "profile_lock:banner"
+msgid "The deployment manages these fields of this page:"
+msgstr ""
+
+msgctxt "profile_lock:unlock"
+msgid "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"
+msgstr ""
 
 msgctxt "paused:notice"
 msgid "The operator has paused this service. It will be back as soon as it is resumed."

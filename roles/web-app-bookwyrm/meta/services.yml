@@ -70,8 +70,6 @@ bookwyrm:
   repository: https://github.com/bookwyrm-social/bookwyrm.git
   ref: v0.9.4
   min_storage: 579MB
-  registration_open: false
-  allow_invite_request: false
   ports:
     local:
       http: 8049

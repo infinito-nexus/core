@@ -1424,6 +1424,10 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "Peran pemeliharaan untuk sertifikat, perbaikan sistem, dan tugas operasional berulang."
 
+msgctxt "profile_lock:managed"
+msgid "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+msgstr ""
+
 msgctxt "profile_lock:locked"
 msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
 msgstr "Dikelola oleh akun pusat Anda. Ubah di sana, karena proses masuk berikutnya akan menimpa perubahan yang dibuat di sini."
@@ -2649,6 +2653,14 @@ msgstr "Penyunting teks berbasis-Terminal- dengan keybinding modern dan penandaa
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Mencoba-harness role running end-to-end CLI test script untuk peran yang mendeklarasikan template lingkungan uji"
+
+msgctxt "profile_lock:banner"
+msgid "The deployment manages these fields of this page:"
+msgstr ""
+
+msgctxt "profile_lock:unlock"
+msgid "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"
+msgstr ""
 
 msgctxt "paused:notice"
 msgid "The operator has paused this service. It will be back as soon as it is resumed."

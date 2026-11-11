@@ -1,7 +1,8 @@
-"""The shared SSO profile lock renderer, rendered and run against a stub DOM.
+"""The shared lock renderer, rendered and run against a stub DOM.
 
-The template is rendered with the selectors and languages of
-``services.sso.profile`` and a catalogue, collapsed by ``to_one_liner`` as the
+The template is rendered with the entries ``lookup('field_locks', ...)`` builds
+from ``services.sso.profile`` and from the ``enforced`` fields of a
+``meta/forms.yml``, and a catalogue, collapsed by ``to_one_liner`` as the
 injector does, and executed by node behind a minimal ``document``.
 """
 
@@ -17,7 +18,9 @@ from ansible.plugins.filter.core import FilterModule as CoreFilters
 from jinja2 import Environment
 
 from plugins.filter.text_filters import to_inline_js, to_one_liner
+from plugins.lookup.field_locks import profile_entry
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.applications import forms
 
 TEMPLATES = "roles/sys-front-inj-javascript/templates"
 RENDERER = f"{TEMPLATES}/profile_lock.js.j2"
@@ -27,36 +30,113 @@ APPLICATION = "web-app-demo"
 SELECTORS = {"name": "#name[data-locked]", "language": "#language[data-locked]"}
 LANGUAGES = ["en", "de"]
 CATALOGUE = {
-    "en": {"locked": "Managed centrally.", "dir": "ltr"},
-    "de": {"locked": "Zentral verwaltet.", "dir": "ltr"},
+    "en": {
+        "locked": "Managed centrally.",
+        "managed": "Managed by the deployment at",
+        "banner": "Managed here:",
+        "unlock": "Edit anyway?",
+        "dir": "ltr",
+    },
+    "de": {
+        "locked": "Zentral verwaltet.",
+        "managed": "Vom Deployment verwaltet unter",
+        "banner": "Hier verwaltet:",
+        "unlock": "Trotzdem bearbeiten?",
+        "dir": "ltr",
+    },
     "fr": {"locked": "Géré de manière centrale.", "dir": "ltr"},
 }
 HOSTILE_TEXT = ']=] /*x*/ </script> // a=b "q" \\ end'
 HOSTILE_SELECTOR = '#name[data-note="]=] /*x*/ </script>"]'
+PAGE = "/admin/settings"
+FORMS = {
+    "general": {
+        "path": PAGE,
+        "fields": {
+            "title": {
+                "source": "design.label",
+                "mode": "enforced",
+                "selector": "#title",
+                "label": "Site title",
+                "type": "text",
+            },
+            "smtp_password": {
+                "source": "secrets.credentials.smtp_password",
+                "mode": "enforced",
+                "selector": "#smtp_password",
+                "type": "password",
+            },
+            "admin_email": {
+                "source": "users.administrator.email",
+                "mode": "seeded",
+                "selector": "#admin_email",
+                "type": "email",
+            },
+        },
+    },
+    "mail": {
+        "path": "/admin/mail",
+        "fields": {
+            "sender": {
+                "source": "mail.sender",
+                "mode": "enforced",
+                "selector": "#sender",
+                "type": "email",
+            },
+        },
+    },
+}
+TITLE_PATH = f"applications.{APPLICATION}.design.label"
+SECRET_PATH = f"applications.{APPLICATION}.secrets.credentials.smtp_password"
 
 HARNESS = """
 const fields = {};
 const observers = [];
 const frames = [];
 const queries = [];
+const listeners = new Map();
+const confirms = [];
+const created = [];
+function listenable(target) {
+  target.addEventListener = function (type, callback) {
+    const known = listeners.get(this) || [];
+    known.push({ type, callback });
+    listeners.set(this, known);
+  };
+  return target;
+}
 function element(tagName) {
-  return {
+  return listenable({
     tagName,
+    type: "text",
     readOnly: false,
     disabled: false,
     title: "",
     style: {},
     attributes: {},
-    labels: [{ title: "" }],
+    labels: [listenable({ title: "" })],
     parentElement: { title: "" },
+    form: CONFIG.form ? { name: "settings", parentNode: body } : null,
     setAttribute(name, value) { this.attributes[name] = String(value); },
-  };
+    removeAttribute(name) { delete this.attributes[name]; },
+  });
 }
+const body = {
+  children: [],
+  firstChild: null,
+  insertBefore(child, anchor) {
+    child.parentName = anchor && anchor.name ? anchor.name : "body";
+    this.children.push(child);
+  },
+};
 // Node 21+ ships a getter-only global navigator that ignores plain assignment.
 Object.defineProperty(globalThis, "navigator", {
   value: { language: CONFIG.navigator },
   configurable: true,
 });
+globalThis.window = globalThis;
+globalThis.location = { pathname: CONFIG.pathname, search: CONFIG.search };
+globalThis.confirm = (text) => { confirms.push(text); return CONFIG.confirm; };
 globalThis.MutationObserver = class {
   constructor(callback) { observers.push(callback); }
   observe() {}
@@ -65,7 +145,22 @@ globalThis.requestAnimationFrame = (callback) => frames.push(callback);
 globalThis.document = {
   readyState: "complete",
   documentElement: { lang: CONFIG.lang },
+  body,
   addEventListener() {},
+  getElementById(id) { return body.children.find((child) => child.id === id) || null; },
+  createElement(tagName) {
+    const child = {
+      tagName,
+      id: "",
+      textContent: "",
+      style: {},
+      attributes: {},
+      setAttribute(name, value) { this.attributes[name] = String(value); },
+      remove() { body.children.splice(body.children.indexOf(this), 1); },
+    };
+    created.push(tagName);
+    return child;
+  },
   querySelectorAll(selector) {
     queries.push(selector);
     return CONFIG.selectors.filter((known) => selector.split(",").includes(known))
@@ -86,28 +181,56 @@ for (let batch = 0; batch < CONFIG.batches; batch += 1) {
 }
 const scheduled = frames.length;
 frames.splice(0).forEach((callback) => callback(0));
-process.stdout.write(JSON.stringify({ fields, queries, scheduled }));
+if (CONFIG.dblclick.length) {
+  for (const selector of CONFIG.dblclick) {
+    for (const field of fields[selector] || []) {
+      const target = CONFIG.onLabel ? field.labels[0] : field;
+      for (const { type, callback } of listeners.get(target) || []) {
+        if (type === "dblclick") { callback(); }
+      }
+    }
+  }
+  observers.forEach((callback) => callback([]));
+  frames.splice(0).forEach((callback) => callback(0));
+}
+const banners = body.children.map((child) => ({
+  id: child.id,
+  role: child.attributes.role,
+  text: child.textContent,
+  parent: child.parentName,
+}));
+process.stdout.write(JSON.stringify({ fields, queries, scheduled, confirms, created, banners }));
 """
 
 
-def _render(selectors: dict, catalogue: dict) -> str:
+def _render(
+    selectors: dict,
+    catalogue: dict,
+    managed: dict | None = None,
+    languages: list[str] | None = LANGUAGES,
+) -> str:
     """Render the renderer the way the injector serves it.
 
     Args:
-        selectors: ``services.sso.profile.locked``.
+        selectors: ``services.sso.profile.locked``; empty for a role without.
         catalogue: what ``lookup('i18n_catalogue', ...)`` returns.
+        managed: the role's ``meta/forms.yml``, if it ships one.
+        languages: ``services.sso.profile.languages``; ``None`` for a role
+            that declares none.
     """
     environment = Environment(autoescape=False)  # noqa: S701 - renders JavaScript, not HTML
     environment.filters.update(CoreFilters().filters())
     environment.filters["to_inline_js"] = to_inline_js
-    config = {
-        "services.sso.profile.locked": selectors,
-        "services.sso.profile.languages": LANGUAGES,
+    application = {"services": {"sso": {"profile": {"locked": selectors}}}}
+    field_locks = {
+        "locks": profile_entry(application)
+        + forms.locks(APPLICATION, managed or {}, application, {}, {}),
+        "languages": languages,
     }
 
     def lookup(name: str, *terms: str):
-        if name == "config" and terms[0] == APPLICATION and terms[1] in config:
-            return config[terms[1]]
+        if name == "field_locks" and terms == (APPLICATION,):
+            return field_locks
         if name == "i18n_catalogue" and terms == ("profile_lock", CATALOGUE_FILE):
             return catalogue
         if name == "template" and terms == (CATALOGUE_TEMPLATE,):
@@ -129,6 +252,11 @@ def _run(
     late: dict | None = None,
     *,
     batches: int,
+    page: str = PAGE,
+    dblclick: tuple[str, ...] = (),
+    on_label: bool = False,
+    confirm: bool = True,
+    form: bool = False,
 ) -> dict:
     """Run a rendered renderer and return what the stub document saw.
 
@@ -139,12 +267,21 @@ def _run(
         fields: selector mapped to the tag names of the elements it matches at load.
         late: selector mapped to the tag names of elements added after the first run.
         batches: mutation batches delivered before the next animation frame.
+        page: ``location.pathname`` plus ``location.search``.
+        dblclick: selectors whose fields get a double-click after the first
+            frame; one more mutation batch and frame follow.
+        on_label: double-click the first label of each field instead.
+        confirm: what the confirmation dialog answers.
+        form: whether every field sits in a form.
 
     Returns:
         ``fields``: selector mapped to its elements afterwards; ``queries``:
         every ``querySelectorAll`` argument in order; ``scheduled``: the
-        animation frames requested by the mutation batches.
+        animation frames requested by the mutation batches; ``confirms``: the
+        text of every confirmation dialog; ``created``: the tag of every
+        created element; ``banners``: the banners in the body.
     """
+    pathname, _, search = page.partition("?")
     config = json.dumps(
         {
             "lang": lang,
@@ -153,6 +290,12 @@ def _run(
             "late": late or {},
             "selectors": sorted({*fields, *(late or {})}),
             "batches": batches,
+            "pathname": pathname,
+            "search": f"?{search}" if search else "",
+            "dblclick": list(dblclick),
+            "onLabel": on_label,
+            "confirm": confirm,
+            "form": form,
         }
     )
     program = f"const CONFIG = {config};\n{HARNESS}\n{script}\n{EPILOGUE}"
@@ -280,6 +423,144 @@ class TestProfileLock(unittest.TestCase):
         self.assertEqual(
             "Managed  centrally.", seen["fields"][SELECTORS["name"]][0]["title"]
         )
+
+
+def _managed(**kwargs) -> dict:
+    """Run the renderer of a role with the profile lock and ``FORMS``.
+
+    Args:
+        kwargs: passed to ``_run``; ``fields`` defaults to one input per
+            declared selector.
+    """
+    fields = kwargs.pop(
+        "fields",
+        {
+            SELECTORS["name"]: ["INPUT"],
+            "#title": ["INPUT"],
+            "#smtp_password": ["INPUT"],
+            "#admin_email": ["INPUT"],
+            "#sender": ["INPUT"],
+        },
+    )
+    script = _render(SELECTORS, CATALOGUE, FORMS)
+    return _run(script, "en", "en", fields, batches=1, **kwargs)
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestManagedFieldLock(unittest.TestCase):
+    def test_an_enforced_field_names_the_deployment_and_its_inventory_path(self):
+        title = _managed()["fields"]["#title"][0]
+
+        self.assertTrue(title["readOnly"])
+        self.assertEqual(f"Managed by the deployment at {TITLE_PATH}", title["title"])
+        self.assertEqual([{"title": title["title"]}], title["labels"])
+
+    def test_the_sentence_follows_the_page_language(self):
+        script = _render(SELECTORS, CATALOGUE, FORMS)
+        seen = _run(script, "de", "en", {"#title": ["INPUT"]}, batches=1)
+
+        self.assertEqual(
+            f"Vom Deployment verwaltet unter {TITLE_PATH}",
+            seen["fields"]["#title"][0]["title"],
+        )
+
+    def test_a_role_without_profile_languages_carries_every_language(self):
+        script = _render({}, CATALOGUE, FORMS, languages=None)
+        seen = _run(script, "fr", "fr", {"#title": ["INPUT"]}, batches=1)
+
+        self.assertIn(to_inline_js(CATALOGUE["fr"]["locked"])[1:-1], script)
+        self.assertTrue(seen["fields"]["#title"][0]["readOnly"])
+
+    def test_the_profile_field_keeps_the_profile_warning(self):
+        name = _managed()["fields"][SELECTORS["name"]][0]
+
+        self.assertEqual("Managed centrally.", name["title"])
+
+    def test_a_seeded_field_carries_no_marker(self):
+        email = _managed()["fields"]["#admin_email"][0]
+
+        self.assertFalse(email["readOnly"])
+        self.assertEqual("", email["title"])
+        self.assertEqual({}, email["attributes"])
+
+    def test_a_field_of_another_page_is_neither_locked_nor_listed(self):
+        seen = _managed()
+
+        self.assertFalse(seen["fields"]["#sender"][0]["readOnly"])
+        self.assertNotIn("#sender", seen["queries"])
+        self.assertNotIn("mail.sender", seen["banners"][0]["text"])
+
+    def test_a_page_query_string_still_matches_its_form(self):
+        seen = _managed(page=f"{PAGE}?updated=true")
+
+        self.assertTrue(seen["fields"]["#title"][0]["readOnly"])
+
+    def test_the_page_shows_one_banner_listing_its_managed_fields(self):
+        seen = _managed(form=True, late={"#title": ["INPUT"]})
+
+        self.assertEqual(
+            [
+                {
+                    "id": "infinito-managed-fields",
+                    "role": "note",
+                    "text": (
+                        f"Managed here: Site title: {TITLE_PATH}; "
+                        f"smtp_password: {SECRET_PATH}"
+                    ),
+                    "parent": "settings",
+                }
+            ],
+            seen["banners"],
+        )
+        self.assertEqual(["div"], seen["created"])
+
+    def test_a_page_without_a_managed_field_shows_no_banner(self):
+        seen = _managed(fields={SELECTORS["name"]: ["INPUT"], "#title": []})
+
+        self.assertEqual([], seen["banners"])
+        self.assertEqual([], seen["created"])
+
+    def test_a_double_click_unlocks_the_field_after_the_confirmation(self):
+        seen = _managed(dblclick=("#title",))
+        title = seen["fields"]["#title"][0]
+
+        self.assertEqual(["Edit anyway?"], seen["confirms"])
+        self.assertFalse(title["readOnly"])
+        self.assertEqual("", title["title"])
+        self.assertEqual({}, title["attributes"])
+        self.assertEqual("", title["style"]["cursor"])
+
+    def test_a_double_click_on_the_label_unlocks_a_disabled_select(self):
+        seen = _managed(
+            fields={"#title": ["SELECT"]}, dblclick=("#title",), on_label=True
+        )
+        title = seen["fields"]["#title"][0]
+
+        self.assertEqual(["Edit anyway?"], seen["confirms"])
+        self.assertFalse(title["disabled"])
+
+    def test_a_declined_confirmation_keeps_the_field_locked(self):
+        seen = _managed(dblclick=("#title",), confirm=False)
+        title = seen["fields"]["#title"][0]
+
+        self.assertEqual(["Edit anyway?"], seen["confirms"])
+        self.assertTrue(title["readOnly"])
+        self.assertEqual(f"Managed by the deployment at {TITLE_PATH}", title["title"])
+
+    def test_a_profile_field_offers_no_unlock(self):
+        seen = _managed(dblclick=(SELECTORS["name"],))
+
+        self.assertEqual([], seen["confirms"])
+        self.assertTrue(seen["fields"][SELECTORS["name"]][0]["readOnly"])
+
+    def test_a_secret_input_is_locked_with_its_value_hidden(self):
+        seen = _managed()
+        secret = seen["fields"]["#smtp_password"][0]
+        title = seen["fields"]["#title"][0]
+
+        self.assertTrue(secret["readOnly"])
+        self.assertEqual("password", secret["type"])
+        self.assertEqual("text", title["type"])
 
 
 if __name__ == "__main__":
