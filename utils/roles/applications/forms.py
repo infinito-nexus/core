@@ -19,12 +19,16 @@ overrides a single field under
 ``applications.<role>.forms.<form>.fields.<field>``; the forms stay out of the
 templar, so an override is never rendered.
 
+``locks`` hands every ``enforced`` field whose ``when`` holds to the shared
+lock renderer of ``sys-front-inj-javascript``; a ``seeded`` field never
+reaches the page.
+
 The drift report fails closed: it shows old and new values only for a field
 that declares a type from ``SHOWN_TYPES``, whose source lies outside ``users``
 and the credentials, has no segment matching ``SECRET_SEGMENT`` or naming a
 declared credential, resolves in the unrendered application to a plain scalar
 with no template, and whose values are plain scalars that hold no URL userinfo and
-neither equal nor contain a secret of ``secret_values``. Every other change
+neither equal nor contain a secret of ``drift.secret_values``. Every other change
 reads ``changed`` without either value. No finding, error or line repeats a
 source that did not resolve. Every forms string must hold no template, since
 the forms are never rendered.
@@ -35,6 +39,8 @@ from __future__ import annotations
 import re
 from collections.abc import Iterator, Mapping
 from typing import Any
+
+from ansible.module_utils.parsing.convert_bool import boolean
 
 from utils.roles.mapping import ROLE_FILE_META_FORMS
 
@@ -69,9 +75,7 @@ SECRET_SEGMENT = re.compile(
     r"pass|secret|token|key|pin|credential|bind|pw|salt|bearer|webhook",
     re.IGNORECASE,
 )
-URL_USERINFO = re.compile(r"[a-z][a-z0-9+.-]*://[^/?#\s]*@", re.IGNORECASE)
 TEMPLATE_MARKERS = ("{{", "{%")
-PLAIN_VALUE_TYPES = (str, int, float, bool, type(None))
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
 _PATH = re.compile(r"^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+$")
@@ -342,57 +346,6 @@ def _credential_names(node: Any) -> set[str]:
     return names
 
 
-def secret_values(applications: Mapping, users: Mapping) -> frozenset[str]:
-    """Collect the values the drift report must never show or contain.
-
-    Args:
-        applications: every resolved application by id, the reporting role's
-            own included; every string leaf under the ``credentials`` and
-            ``secrets.credentials`` of each one counts, so a credential of
-            another role copied into a harmless field stays hidden.
-        users: the resolved global users; every ``users.<key>.password`` counts.
-
-    Returns:
-        The non-empty secret strings, for an in-memory comparison only.
-    """
-    found: set[str] = set()
-    for application in applications.values():
-        if isinstance(application, Mapping):
-            secrets = application.get("secrets")
-            found |= _string_leaves(application.get("credentials"))
-            if isinstance(secrets, Mapping):
-                found |= _string_leaves(secrets.get("credentials"))
-    for user in users.values():
-        password = user.get("password") if isinstance(user, Mapping) else None
-        if isinstance(password, str):
-            found.add(password)
-    return frozenset(value for value in found if value)
-
-
-def _string_leaves(node: Any) -> set[str]:
-    if isinstance(node, str):
-        return {node}
-    if isinstance(node, Mapping):
-        return set().union(*(_string_leaves(child) for child in node.values()))
-    if isinstance(node, list):
-        return set().union(*(_string_leaves(child) for child in node))
-    return set()
-
-
-def _raw_value(raw_application: Mapping, source: Any) -> tuple[bool, Any]:
-    if not (isinstance(source, str) and _PATH.fullmatch(source)):
-        return False, None
-    try:
-        return True, _walk(raw_application, source.split("."), source)
-    except SourceError:
-        return False, None
-
-
-def _value_reveals(value: Any, secrets: frozenset[str]) -> bool:
-    text = str(value)
-    return bool(URL_USERINFO.search(text)) or any(secret in text for secret in secrets)
-
-
 def is_secret(source: str, credentials: Mapping) -> bool:
     """Whether the drift report must not show the values of a source.
 
@@ -418,82 +371,70 @@ def is_secret(source: str, credentials: Mapping) -> bool:
     )
 
 
-def _shows_values(
-    spec: Mapping,
-    old: Any,
-    new: Any,
-    credentials: Mapping,
-    raw: tuple[bool, Any],
-    secrets: frozenset[str] | None,
-) -> bool:
+def _plain_field(spec: Mapping, credentials: Mapping) -> bool:
     field_type = spec.get("type")
-    resolved, raw_value = raw
     return (
         isinstance(field_type, str)
         and field_type in SHOWN_TYPES
         and not is_secret(spec.get("source"), credentials)
-        and type(old) in PLAIN_VALUE_TYPES
-        and type(new) in PLAIN_VALUE_TYPES
-        and resolved
-        and type(raw_value) in PLAIN_VALUE_TYPES
-        and not _holds_template(raw_value)
-        and secrets is not None
-        and not _value_reveals(old, secrets)
-        and not _value_reveals(new, secrets)
     )
 
 
-def drift(
-    role: str,
-    forms: Mapping,
-    desired: Mapping[str, Any],
-    current: Mapping[str, Any],
-    credentials: Mapping,
-    *,
-    raw_application: Mapping | None = None,
-    secrets: frozenset[str] | None = None,
-) -> list[str]:
-    """Return one deploy-log line per enforced field the run is about to overwrite.
+def inventory_path(role: str, source: str) -> str:
+    """Return the inventory path that holds the value of a field.
 
     Args:
-        role: role name, used in the lines.
+        role: role name; every source outside ``users`` lies under
+            ``applications.<role>``.
+        source: the field's ``source``.
+    """
+    if _is_user_path(source.split(".")):
+        return source
+    return f"applications.{role}.{source}"
+
+
+def _applies(spec: Mapping, application: Mapping, users: Mapping) -> bool:
+    if "when" not in spec:
+        return True
+    return boolean(resolve(spec["when"], application, users), strict=False)
+
+
+def locks(
+    role: str,
+    forms: Mapping,
+    application: Mapping,
+    users: Mapping,
+    credentials: Mapping,
+) -> list[dict[str, Any]]:
+    """Return what the shared lock renderer locks in the application's pages.
+
+    Args:
+        role: role name.
         forms: ``applications.<role>.forms``.
-        desired: ``"<form>.<field>"`` mapped to the value its source resolves to.
-        current: ``"<form>.<field>"`` mapped to the value the application holds;
-            a field missing here was not read and is not reported. Values are
-            shown only as plain ``str``, ``int``, ``float``, ``bool`` or
-            ``None``; any other type, a ``str`` subclass included, is reported
-            without values.
+        application: the rendered ``applications.<role>``; a field's ``when``
+            resolves against it.
+        users: the rendered global users.
         credentials: the ``credentials`` tree of the role's ``meta/secrets.yml``.
-        raw_application: the unrendered ``applications.<role>``, defaults and
-            inventory overrides merged; without it no value and no source is
-            shown.
-        secrets: ``secret_values`` of every application; without it no value
-            is shown.
 
     Returns:
-        ``<role>: <form>.<field> (<source>): <old> -> <new>`` for a field the
-        module docstring's fail-closed rule lets show its values, and
-        ``<role>: <form>.<field> (<source>): changed`` without either value for
-        every other field. ``(<source>)`` appears only when the source resolved
-        in ``raw_application``.
+        One entry per ``enforced`` field whose ``when`` holds, in YAML order:
+        its form's ``page`` path, its ``selector``, its ``label`` (the field
+        key when it declares none), the inventory ``path`` of its value and
+        whether the page must hide that value (``secret``), which holds for
+        every field the type and path half of the fail-closed rule does not
+        clear. A ``seeded`` field yields nothing.
+
+    Raises:
+        SourceError: when a ``when`` names nothing in the inventory.
     """
-    lines = []
-    for form, field, spec in iter_fields(forms):
-        key = f"{form}.{field}"
-        if spec.get("mode") != "enforced" or key not in desired or key not in current:
-            continue
-        old, new = current[key], desired[key]
-        if old == new:
-            continue
-        raw = (
-            _raw_value(raw_application, spec.get("source"))
-            if raw_application is not None
-            else (False, None)
-        )
-        label = f"{key} ({spec['source']})" if raw[0] else key
-        if _shows_values(spec, old, new, credentials, raw, secrets):
-            lines.append(f"{role}: {label}: {old!r} -> {new!r}")
-        else:
-            lines.append(f"{role}: {label}: changed")
-    return lines
+    return [
+        {
+            "page": forms[form]["path"],
+            "selector": spec["selector"],
+            "label": spec.get("label", field),
+            "path": inventory_path(role, spec["source"]),
+            "secret": not _plain_field(spec, credentials),
+        }
+        for form, field, spec in iter_fields(forms)
+        if spec.get("mode") == "enforced" and _applies(spec, application, users)
+    ]

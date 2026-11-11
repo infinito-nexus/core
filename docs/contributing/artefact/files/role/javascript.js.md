@@ -51,3 +51,13 @@ sso:
 - The renderer sets every match read-only (`disabled` for a `select`) and `aria-readonly`, and shows the `locked` text of [profile_lock_i18n.yml](../../../../../roles/sys-front-inj-javascript/files/profile_lock_i18n.yml) in the page language as the hover title of the field, its labels and its wrapping element. It matches every selector with one query at load and again once per animation frame after the page adds elements. Selectors and catalogue reach the page through the `to_inline_js` filter. New texts reach the other languages through `make i18n-extract domain=core` and `make i18n-translate`.
 - The renderer changes the page only. The role MUST also keep the stored value on the server when a form POST or an API request submits another one.
 - [test_sso_profile_lock.py](../../../../../tests/lint/ansible/roles/meta/test_sso_profile_lock.py) checks the declaration, fails when a field a treated role overwrites is neither locked nor written back, and fails for a role with `sso` or `ldap`, a custom role included, that neither its inventory lists nor its own `overwritten` or `none_needed` classify.
+
+## Managed Field Lock 🔐
+
+The same renderer locks every `enforced` field of the role's `meta/forms.yml` whose `when` holds, as `lookup('field_locks', application_id)` lists them after the profile lock (requirement [072](../../../../../docs/requirements/072-sso-profile-field-sync-or-lock.md)). A role without `services.sso.profile.languages` embeds every language of the catalogue:
+
+- It locks a field only on the page whose path and query start with the field's form `path`, and shows the `managed` text of the catalogue followed by the field's inventory path, `applications.<role>.<source>` or `users.<key>.<attr>`, as the hover title.
+- One banner with the `banner` text lists the label and inventory path of every managed field the page shows, above the form of the first one.
+- A double-click on a managed field or its label asks the `unlock` text in a confirmation dialog; after the confirmation the field stays editable. A profile field offers no unlock, because the next sign-in overwrites it anyway.
+- An `input` of a field the fail-closed rule of `utils/roles/applications/forms.py` does not clear turns into a password input, so its value stays hidden on screen. The value still reaches the page source, so the role MUST NOT render a secret into the form where the application allows it.
+- A `seeded` field gets no marker.

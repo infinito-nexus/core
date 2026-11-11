@@ -5,9 +5,6 @@ entity_name: "{{ application_id | entity_name }}"
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
-BOOKWYRM_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.bookwyrm.registration_open') | string | lower }}"
-BOOKWYRM_ALLOW_INVITE_REQUESTS: "{{ lookup('config', application_id, 'services.bookwyrm.allow_invite_request') | string | lower }}"
-
 BOOKWYRM_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
 
 BOOKWYRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"

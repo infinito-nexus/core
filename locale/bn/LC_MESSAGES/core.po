@@ -1428,6 +1428,10 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "সার্টিফিকেটের জন্য দায়ী ভূমিকা, সিস্টেমের জন্য রাখা এবং ধারাবাহিক কাজ করা।"
 
+msgctxt "profile_lock:managed"
+msgid "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+msgstr ""
+
 msgctxt "profile_lock:locked"
 msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
 msgstr ""
@@ -2656,6 +2660,14 @@ msgstr "টার্মিনাল-ভিত্তিক টেক্সট- �
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "একটি পরীক্ষামূলক পরিবেশ টেমপ্লেট ঘোষণা করার জন্য CLI পরীক্ষামূলক স্ক্রিপ্ট প্রয়োগ করা হচ্ছে"
+
+msgctxt "profile_lock:banner"
+msgid "The deployment manages these fields of this page:"
+msgstr ""
+
+msgctxt "profile_lock:unlock"
+msgid "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"
+msgstr ""
 
 msgctxt "paused:notice"
 msgid "The operator has paused this service. It will be back as soon as it is resumed."

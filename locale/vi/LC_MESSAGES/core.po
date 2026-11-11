@@ -1425,6 +1425,10 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "Vai trò bảo trì cho chứng nhận, quản lý hệ thống, và lặp lại các nhiệm vụ hoạt động."
 
+msgctxt "profile_lock:managed"
+msgid "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+msgstr ""
+
 msgctxt "profile_lock:locked"
 msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
 msgstr ""
@@ -2653,6 +2657,14 @@ msgstr "Trình soạn thảo văn bản dựa trên thiết bị cuối với c�
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Chức năng thử ra chạy từ đầu đến cuối các tập lệnh thử nghiệm CRI cho các vai trò mà tuyên bố một mẫu môi trường thử"
+
+msgctxt "profile_lock:banner"
+msgid "The deployment manages these fields of this page:"
+msgstr ""
+
+msgctxt "profile_lock:unlock"
+msgid "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"
+msgstr ""
 
 msgctxt "paused:notice"
 msgid "The operator has paused this service. It will be back as soon as it is resumed."

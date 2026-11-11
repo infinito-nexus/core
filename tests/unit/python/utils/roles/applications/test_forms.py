@@ -9,7 +9,7 @@ from unittest import mock
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
-from utils.roles.applications import forms
+from utils.roles.applications import drift, forms
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 FORMS = {
@@ -379,9 +379,107 @@ class TestSecret(unittest.TestCase):
         self.assertFalse(forms.is_secret("design.label", CREDENTIALS))
 
 
+class TestLocks(unittest.TestCase):
+    def test_every_enforced_field_reaches_the_renderer_with_page_and_path(self):
+        self.assertEqual(
+            [
+                {
+                    "page": "/wp-admin/options-general.php",
+                    "selector": "#blogname",
+                    "label": "Site Title",
+                    "path": "applications.web-app-x.design.label",
+                    "secret": False,
+                },
+                {
+                    "page": "/settings/admin",
+                    "selector": "#mail_smtppassword",
+                    "label": "password",
+                    "path": "applications.web-app-x.secrets.credentials.smtp.password",
+                    "secret": True,
+                },
+            ],
+            forms.locks("web-app-x", FORMS, APPLICATION, USERS, CREDENTIALS),
+        )
+
+    def test_a_seeded_field_never_reaches_the_renderer(self):
+        selectors = [
+            entry["selector"]
+            for entry in forms.locks("web-app-x", FORMS, APPLICATION, USERS, {})
+        ]
+        self.assertNotIn("#new_admin_email", selectors)
+
+    def test_a_user_source_keeps_its_users_path(self):
+        spec = {**_field("general", "admin_email"), "mode": "enforced"}
+        managed = _with_field("general", "admin_email", spec)
+        entry = next(
+            entry
+            for entry in forms.locks("web-app-x", managed, APPLICATION, USERS, {})
+            if entry["selector"] == "#new_admin_email"
+        )
+        self.assertEqual("users.platform_administrator.email", entry["path"])
+        self.assertTrue(entry["secret"])
+
+    def test_a_field_whose_when_does_not_hold_is_not_locked(self):
+        for value, locked in (
+            (True, True),
+            ("True", True),
+            (False, False),
+            ("", False),
+        ):
+            with self.subTest(value=value):
+                application = {**APPLICATION, "services": {"design": {"on": value}}}
+                managed = _with_field(
+                    "general",
+                    "blogname",
+                    {**_field("general", "blogname"), "when": "services.design.on"},
+                )
+                selectors = [
+                    entry["selector"]
+                    for entry in forms.locks("web-app-x", managed, application, {}, {})
+                ]
+                self.assertEqual(locked, "#blogname" in selectors)
+
+    def test_a_when_that_names_nothing_raises_without_repeating_it(self):
+        managed = _with_field(
+            "general",
+            "blogname",
+            {**_field("general", "blogname"), "when": "services.SYNTH-SECRET-1"},
+        )
+        with self.assertRaises(forms.SourceError) as caught:
+            forms.locks("web-app-x", managed, APPLICATION, USERS, {})
+        self.assertNotIn(SYNTH, str(caught.exception))
+
+    def test_the_page_hides_every_value_the_fail_closed_rule_does_not_clear(self):
+        relay = {"relay": {"algorithm": "alphanumeric", "length": 32}}
+        cases = {
+            "an untyped field": ({}, True),
+            "a password field": ({"type": "password"}, True),
+            "a secret-looking segment": (
+                {"type": "text", "source": "services.ldap.bind_dn"},
+                True,
+            ),
+            "a declared credential's name": (
+                {"type": "text", "source": "services.relay.host"},
+                True,
+            ),
+            "a plain text field": ({"type": "text"}, False),
+        }
+        for case, (override, secret) in cases.items():
+            with self.subTest(case=case):
+                spec = {
+                    "source": "design.label",
+                    "mode": "enforced",
+                    "selector": "#blogname",
+                    **override,
+                }
+                managed = {"general": {"path": "/", "fields": {"blogname": spec}}}
+                entry = forms.locks("web-app-x", managed, {}, {}, relay)[0]
+                self.assertEqual(secret, entry["secret"])
+
+
 class TestDrift(unittest.TestCase):
     def test_an_enforced_field_that_differs_names_old_and_new(self):
-        lines = forms.drift(
+        lines = drift.drift(
             "web-app-x",
             FORMS,
             {"general.blogname": "Infinito.Nexus"},
@@ -403,7 +501,7 @@ class TestDrift(unittest.TestCase):
                 label = "general.blogname (design.label)" if raw else "general.blogname"
                 self.assertEqual(
                     [f"web-app-x: {label}: changed"],
-                    forms.drift(
+                    drift.drift(
                         "web-app-x",
                         FORMS,
                         {"general.blogname": "Infinito.Nexus"},
@@ -415,7 +513,7 @@ class TestDrift(unittest.TestCase):
                 )
 
     def test_a_seeded_or_unchanged_or_unread_field_is_not_reported(self):
-        lines = forms.drift(
+        lines = drift.drift(
             "web-app-x",
             FORMS,
             {"general.admin_email": "admin@example.com", "general.blogname": "A"},
@@ -425,7 +523,7 @@ class TestDrift(unittest.TestCase):
         self.assertEqual([], lines)
         self.assertEqual(
             [],
-            forms.drift("web-app-x", FORMS, {"general.blogname": "A"}, {}, CREDENTIALS),
+            drift.drift("web-app-x", FORMS, {"general.blogname": "A"}, {}, CREDENTIALS),
         )
 
     def test_no_drift_line_carries_a_secret_value(self):
@@ -437,7 +535,7 @@ class TestDrift(unittest.TestCase):
         ]
         for old, new in pairs:
             with self.subTest(old=old, new=new):
-                lines = forms.drift(
+                lines = drift.drift(
                     "web-app-x",
                     FORMS,
                     {"smtp.password": new},
@@ -475,7 +573,7 @@ def _drift_raw(
     secrets: frozenset[str],
 ) -> list[str]:
     field = {"mode": "enforced", "selector": "#f", **spec}
-    return forms.drift(
+    return drift.drift(
         "web-app-x",
         {"page": {"path": "/a", "fields": {"f": field}}},
         {"page.f": new},
@@ -663,7 +761,7 @@ class TestDriftShowsOnlyPlainValues(unittest.TestCase):
     def test_a_source_that_did_not_resolve_is_never_echoed(self):
         for source in ("SYNTH-SECRET-JINJA-1", JWT_SHAPED, SENDGRID_SHAPED):
             with self.subTest(source=source[:12]):
-                lines = forms.drift(
+                lines = drift.drift(
                     "web-app-x",
                     {
                         "page": {
@@ -772,7 +870,7 @@ class TestDriftShowsOnlyPlainValues(unittest.TestCase):
             frozenset(
                 {"SYNTH-CRED-1", "SYNTH-CRED-2", "SYNTH-CRED-3", "SYNTH-USER-PW"}
             ),
-            forms.secret_values({"web-app-x": application}, users),
+            drift.secret_values({"web-app-x": application}, users),
         )
 
     def test_secret_values_collects_the_credentials_of_every_application(self):
@@ -786,7 +884,7 @@ class TestDriftShowsOnlyPlainValues(unittest.TestCase):
         }
         self.assertEqual(
             frozenset({"SYNTH-OWN-CRED", "SYNTH-FOREIGN-CRED", "SYNTH-FOREIGN-BIND"}),
-            forms.secret_values(applications, {}),
+            drift.secret_values(applications, {}),
         )
 
     def test_another_roles_credential_in_a_harmless_field_hides_its_values(self):
@@ -796,11 +894,11 @@ class TestDriftShowsOnlyPlainValues(unittest.TestCase):
             "web-app-x": {"design": {"label": foreign}},
             "web-app-other": {"credentials": {"api": foreign}},
         }
-        secrets = forms.secret_values(applications, {})
+        secrets = drift.secret_values(applications, {})
         self.assert_hidden(
             _drift_raw(spec, "old", foreign, {}, foreign, secrets), foreign
         )
-        own_only = forms.secret_values({"web-app-x": applications["web-app-x"]}, {})
+        own_only = drift.secret_values({"web-app-x": applications["web-app-x"]}, {})
         self.assertEqual(
             [f"web-app-x: page.f (design.label): 'old' -> {foreign!r}"],
             _drift_raw(spec, "old", foreign, {}, foreign, own_only),

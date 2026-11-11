@@ -1431,6 +1431,10 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "인증서, 시스템 가동 및 재발동 작업을위한 유지 관리 역할."
 
+msgctxt "profile_lock:managed"
+msgid "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+msgstr ""
+
 msgctxt "profile_lock:locked"
 msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
 msgstr "중앙 계정에서 관리됩니다. 다음 로그인 시 여기에서 변경한 내용이 덮어쓰이므로 중앙 계정에서 변경하세요."
@@ -2672,6 +2676,14 @@ msgstr "Pacman 기반 워크스테이션을 위한 현대 keybinding 및 syntax 
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Test-harness role running end-to-end CLI test scripts for role that 선언 테스트 환경 템플릿"
+
+msgctxt "profile_lock:banner"
+msgid "The deployment manages these fields of this page:"
+msgstr ""
+
+msgctxt "profile_lock:unlock"
+msgid "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"
+msgstr ""
 
 msgctxt "paused:notice"
 msgid "The operator has paused this service. It will be back as soon as it is resumed."
