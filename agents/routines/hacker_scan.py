@@ -1,10 +1,10 @@
 """Hacker routine: test the authorised running instances like an attacker, inside
 the firewall bounds. Only targets in agents.hacker.targets, only through the front
 proxy, a production run only after the owner approves it; analysers and credential
-brute forcing against seeded test accounts only. A deterministic decision reads
-whether the scan run itself failed, one model node judges the findings, and the
-owner ask gates a production run. The nodes and edges match the hacker diagram; a
-decision node defaults to its forward branch so a stub run reaches a terminal.
+brute forcing against seeded test accounts only. A deterministic decision skips
+the run when no targets are configured, another reads whether the scan run itself
+failed, one model node judges the findings, and the owner ask gates a production
+run. The nodes and edges match the hacker diagram.
 """
 
 from __future__ import annotations
@@ -18,6 +18,15 @@ from agents.routines.tools.log_scan import failing_line
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
 
+TARGETS_KEY = "targets"
+HAS_TARGETS = "🎯 set"
+NO_TARGETS = "🚫 none"
+
+
+def _targets(state: MutableMapping) -> MutableMapping:
+    state["D1"] = HAS_TARGETS if state.get(TARGETS_KEY) else NO_TARGETS
+    return state
+
 
 def _scan_failed(state: MutableMapping) -> MutableMapping:
     state["D4"] = "✅ yes" if failing_line(state.get("scan_log", "")) else "❌ no"
@@ -26,7 +35,13 @@ def _scan_failed(state: MutableMapping) -> MutableMapping:
 
 STEPS = [
     Step("T1", "Deploy finished or schedule", "trigger", nxt="D1"),
-    Step("D1", "Read agents.hacker.targets (no default)", nxt="D2"),
+    Step(
+        "D1",
+        "Read agents.hacker.targets (no default): any set?",
+        "decision",
+        branches=((HAS_TARGETS, "D2"), (NO_TARGETS, "D0")),
+        fn=_targets,
+    ),
     Step(
         "D2",
         "Firewall: egress only to those targets, only through the front proxy",

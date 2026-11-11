@@ -31,6 +31,7 @@ As an operator, I want agents to take work from the OpenProject board, talk and 
 
 - [ ] The agent is member of exactly the channel rooms derived from its `channel` grants.
 - [ ] An `ask` match pauses the routine, the owner receives an approval request, approve resumes and reject aborts.
+  - Partial: `build` wraps every `ask` step in `asked` (`agents/routines/contract.py`); `run --owner <account> --homeserver <server>` sends the step's question through the channel contract and waits for the answer, approve resumes and any other answer, none or a missing owner aborts (`TestAsk` in `tests/unit/python/agents/routines/test_contract.py` and `test_main.py`, stub channel). Open: the orchestrator neither delivers the printed request to the owner's Matrix account nor feeds the reply back, and a firewall `ask` hit inside a tool node does not pause yet.
 - [ ] An Open WebUI override that would widen a rule is refused.
 
 ### Security controls

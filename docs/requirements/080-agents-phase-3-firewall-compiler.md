@@ -38,8 +38,8 @@ As an operator, I want the agent firewall compiler to turn the `allow`, `ask` an
 
 ### Security controls
 
-- [ ] A node that reads untrusted content runs without an agent runtime and without tools, and only its schema output reaches tool-using nodes (unit test).
-  - Open: model nodes carry no callable (`test_no_model_node_carries_a_callable` in `tests/unit/python/agents/routines/test_model_nodes.py`), but no schema contract for their output exists yet; it lands with the orchestrator's model-node runner (081).
+- [x] A node that reads untrusted content runs without an agent runtime and without tools, and only its schema output reaches tool-using nodes (unit test).
+  - Evidence: model nodes carry no callable (`test_no_model_node_carries_a_callable` in `tests/unit/python/agents/routines/test_model_nodes.py`); `build` in `agents/routines/contract.py` wraps every model node in `screened`, which runs it on a copy of the state and passes on only the keys of its `output_schema` and a branch label, refusing a schema value of another type (`TestModelOutputSchema` and `test_the_model_node_is_screened` in `tests/unit/python/agents/routines/test_contract.py`).
 - [x] With `write_enabled: false`, or with a failed deny, kill-switch, audit or identity scenario, the compiler emits no write grant for the agent.
   - Evidence: `write_gate` in `utils/firewall/compile.py:121`, proven by `test_write_disabled_emits_no_write_grant`, `test_a_failed_gate_scenario_emits_no_write_grant`, `test_a_missing_scenario_result_emits_no_write_grant` and `test_write_enabled_with_every_scenario_passed_keeps_the_grants` in `tests/unit/python/utils/firewall/test_compile.py:181-236`.
 - [x] The lint flags an `app` grant that maps to a privileged group.

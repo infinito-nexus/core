@@ -23,8 +23,10 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 ### Routines
 
 - [ ] A second run of a routine keeps the first run's output, and both survive a host reboot.
-- [ ] A failed log write aborts the routine and leaves no orphaned child process.
-- [ ] An operator override of a routine policy is accepted, recorded in the run and shown in its result.
+- [x] A failed log write aborts the routine and leaves no orphaned child process.
+  - Evidence: `python -m agents.routines run <routine> --log <file>` runs the routine in its own process group through `supervise` (`agents/routines/__main__.py`), which kills that whole group on a failed log write; `test_a_failed_log_write_aborts_and_leaves_no_child` in `tests/unit/python/agents/routines/test_main.py` writes to `/dev/full` and finds neither the child nor its grandchild alive.
+- [x] An operator override of a routine policy is accepted, recorded in the run and shown in its result.
+  - Evidence: `run --override <policy>=<value>` hands the overrides to the run under `overrides`, records them in the run's `--ledger` and prints them in the result line; a pair without a value is refused (`TestOverride` in `tests/unit/python/agents/routines/test_main.py`).
 - [ ] Two stack commands of one agent never run at the same time, and nothing starts on the machine while the quality gate runs.
   - Partial: every routine run takes its agent's `flock` stack lock and waits for a free gate lock (`utils/orchestrator/locks.py`, `Runner` in `utils/orchestrator/scheduler.py`, `tests/unit/python/utils/orchestrator/test_scheduler.py`, `test_locks.py`). Open: the lock directory is the orchestrator's state volume, not a host path the quality gate and the workspaces share, and the gate does not take the lock yet (next item).
 - [ ] Starting a quality gate pauses a running translation through `make i18n-pause` before the first gate step and resumes it after the gate; the translator's night and day crons start nothing while the gate lock is held (fixture clock and lock).

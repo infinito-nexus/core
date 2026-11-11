@@ -10,11 +10,17 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
+from agents.routines.tools.affected import matrix_line
 from agents.routines.tools.quality_gate import gate_green
 
 
 def _gate(state: dict) -> dict:
     state["D2"] = "✅ green" if gate_green(state.get("gate_output", "")) else "❌ red"
+    return state
+
+
+def _predict(state: dict) -> dict:
+    state["matrix_line"] = matrix_line(state.get("resolver_output", ""))
     return state
 
 
@@ -40,8 +46,14 @@ STEPS = [
         "D4",
         "Watch the step log (silence watchdog)",
         "decision",
-        branches=(("🟢 all green", "D7"), ("🔴 app red", "D5")),
+        branches=(("🟢 all green", "D9"), ("🔴 app red", "D5")),
         fn=_watch,
+    ),
+    Step(
+        "D9",
+        "Run scripts/meta/resolve/diff/affected_roles.sh and keep its predicted matrix size for the pull request text",
+        nxt="D7",
+        fn=_predict,
     ),
     Step("D5", "Pull spec error, trace chain, probes", nxt="L3"),
     Step(
@@ -52,7 +64,11 @@ STEPS = [
     ),
     Step("D6", "Preseed or fix the order, rerun once", nxt="D3"),
     Step("D7", "Check off criteria, signed commit, git push fork <branch>", nxt="D8"),
-    Step("D8", "Pull request open, ticket to Review", "terminal"),
+    Step(
+        "D8",
+        "Pull request open with the predicted matrix size, ticket to Review",
+        "terminal",
+    ),
 ]
 MERMAID = mermaid(STEPS)
 

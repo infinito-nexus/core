@@ -11,9 +11,10 @@ A step's ``kind`` shapes its node and states what it may do:
   no untrusted input into a tool; a rectangle.
 - ``decision``: a deterministic yes/no check that branches; a diamond.
 - ``model``: the only kind that calls the gateway; it reads untrusted input and
-  holds no tools; a hexagon.
-- ``ask``: a node that pauses for an owner approval through the orchestrator; a
-  diamond.
+  holds no tools; only the keys of its ``output_schema`` and its branch label
+  leave it; a hexagon.
+- ``ask``: a node that pauses for an owner approval through the orchestrator;
+  approve resumes the routine, reject aborts it; a diamond.
 - ``terminal``: an end state (a report, a pull request, a skip); a stadium.
 
 A step reaches the next through ``nxt`` (one target) or ``branches`` (ordered
@@ -24,11 +25,13 @@ the stub a model node runs as in a unit test. A decision node writes its chosen
 branch label under its own id in the state; the router defaults to the first
 branch, so a stub run with empty state follows the forward path to a terminal.
 A decision may record itself through ``decide``, which writes the branch label
-and appends one audit record to the JSON Lines ledger the state names.
+and appends one audit record, naming the state's evidence source, to the JSON
+Lines ledger the state names.
 """
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import time
@@ -43,6 +46,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, MutableMapping
 
 LEDGER_KEY = "ledger"
+EVIDENCE_SOURCE_KEY = "evidence_source"
 LOCK_DIR_ENV = "ORCHESTRATOR_LOCK_DIR"
 GATE_POLL_SECONDS = 5.0
 
@@ -72,6 +76,9 @@ class Step:
             follows.
         fn: the node callable ``(state) -> state`` for a deterministic or
             decision step; ``None`` compiles to a passthrough.
+        output_schema: for a model step, the ``(key, type)`` pairs its output
+            may set; every other key it writes is dropped before the next
+            node.
     """
 
     id: str
@@ -80,12 +87,27 @@ class Step:
     nxt: str | None = None
     branches: tuple[tuple[str, str], ...] = ()
     fn: Callable[[dict], dict] | None = None
+    output_schema: tuple[tuple[str, type], ...] = ()
 
     def __post_init__(self) -> None:
         if self.kind not in STEP_KINDS:
             raise ValueError(f"step {self.id!r}: unknown kind {self.kind!r}")
         if self.nxt and self.branches:
             raise ValueError(f"step {self.id!r}: set nxt or branches, not both")
+        if self.output_schema and self.kind != "model":
+            raise ValueError(f"step {self.id!r}: only a model step has a schema")
+
+
+class AbortError(RuntimeError):
+    """The owner rejected an ``ask`` step, or no owner answered it.
+
+    Args:
+        step: the id of the ``ask`` step.
+    """
+
+    def __init__(self, step: str) -> None:
+        super().__init__(f"step {step!r}: the owner did not approve")
+        self.step = step
 
 
 def _ledger_file(path: str) -> Path:
@@ -95,7 +117,9 @@ def _ledger_file(path: str) -> Path:
     return ledger
 
 
-def append_record(path: str, step: str, inputs: dict, outcome: str) -> dict:
+def append_record(
+    path: str, step: str, inputs: dict, outcome: str, source: str = ""
+) -> dict:
     """Append one decision record to the ledger at ``path`` and return it.
 
     Args:
@@ -107,6 +131,8 @@ def append_record(path: str, step: str, inputs: dict, outcome: str) -> dict:
             list. Never a raw log line or a digest of one, which may carry a
             credential.
         outcome: the branch label the step chose.
+        source: where the evidence came from (a log path, a CI run); ``""``
+            when the step decided on the state alone.
 
     Raises:
         ValueError: ``path`` is relative.
@@ -115,6 +141,7 @@ def append_record(path: str, step: str, inputs: dict, outcome: str) -> dict:
         "step": step,
         "inputs": inputs,
         "outcome": outcome,
+        "evidence_source": source,
         "timestamp": datetime.now(UTC).isoformat(),
     }
     if path:
@@ -130,7 +157,8 @@ def decide(
     state: MutableMapping, step: str, inputs: dict, outcome: str
 ) -> MutableMapping:
     """Write ``outcome`` under ``step`` for the router and record the decision
-    in the ledger the state names under ``LEDGER_KEY``.
+    in the ledger the state names under ``LEDGER_KEY``, with the evidence
+    source it names under ``EVIDENCE_SOURCE_KEY``.
 
     Args:
         state: the routine state; its ``LEDGER_KEY`` entry is the ledger path.
@@ -138,7 +166,13 @@ def decide(
         inputs: the evidence the step decided on, as for ``append_record``.
         outcome: the branch label the step chose.
     """
-    append_record(state.get(LEDGER_KEY, ""), step, inputs, outcome)
+    append_record(
+        state.get(LEDGER_KEY, ""),
+        step,
+        inputs,
+        outcome,
+        state.get(EVIDENCE_SOURCE_KEY, ""),
+    )
     state[step] = outcome
     return state
 
@@ -184,6 +218,68 @@ def gated(
     return node
 
 
+def screened(step: Step, fn: Callable[[dict], dict]) -> Callable[[dict], dict]:
+    """Return the node of the model step ``step``: it runs ``fn`` on a copy of
+    the state and passes on only the keys of ``step.output_schema`` and a
+    branch label under ``step.id``; every other key keeps the value it had
+    before, so no raw untrusted content reaches a node with tools.
+
+    Args:
+        step: the model step.
+        fn: the model callable ``(state) -> state``.
+
+    Raises:
+        TypeError: the output holds a schema key with a value of another type.
+    """
+    schema = dict(step.output_schema)
+    labels = {label for label, _ in step.branches}
+
+    def node(state: dict) -> dict:
+        output = fn(copy.deepcopy(state))
+        passed = {}
+        for key, kind in schema.items():
+            if key not in output:
+                continue
+            if not isinstance(output[key], kind):
+                raise TypeError(
+                    f"step {step.id!r}: output {key!r} is no {kind.__name__}"
+                )
+            passed[key] = output[key]
+        if output.get(step.id) in labels:
+            passed[step.id] = output[step.id]
+        return {**state, **passed}
+
+    return node
+
+
+def asked(
+    step: Step,
+    fn: Callable[[dict], dict],
+    approve: Callable[[Step, dict], bool],
+) -> Callable[[dict], dict]:
+    """Return the node of the ``ask`` step ``step``: it pauses on ``approve``
+    until the owner answers, resumes on the first branch on approval and
+    aborts the routine otherwise.
+
+    Args:
+        step: the ask step.
+        fn: the node callable ``(state) -> state`` run after the approval.
+        approve: asks the owner about ``step`` and returns the answer.
+
+    Raises:
+        AbortError: the owner did not approve.
+    """
+
+    def node(state: dict) -> dict:
+        if not approve(step, state):
+            raise AbortError(step.id)
+        if step.branches:
+            state = {**state, step.id: step.branches[0][0]}
+        return fn(state)
+
+    return node
+
+
 def _router(step: Step):
     """Return a LangGraph router that reads the branch label the decision node
     wrote under ``step.id`` and falls back to the first branch."""
@@ -196,18 +292,25 @@ def _router(step: Step):
     return route
 
 
-def build(name: str, steps: list[Step]):
+def build(
+    name: str,
+    steps: list[Step],
+    approve: Callable[[Step, dict], bool] | None = None,
+):
     """Compile ``steps`` into a compiled LangGraph graph.
 
     Imported lazily: a caller that only renders the routine never loads
     LangGraph. The orchestrator container ships it; the lint and ``show`` do
     not need it. Where the orchestrator names its lock directory in
     ``ORCHESTRATOR_LOCK_DIR``, every node waits for a free gate lock first.
+    A model node passes on only its schema output (``screened``).
 
     Args:
         name: the routine name.
         steps: the ordered steps; each step becomes a node, linear steps a plain
             edge and branching steps a conditional edge.
+        approve: asks the owner about an ``ask`` step (``asked``); ``None``
+            runs an ask step as a stub on its first branch.
     """
     from langgraph.graph import END, START, StateGraph
 
@@ -215,6 +318,10 @@ def build(name: str, steps: list[Step]):
     graph = StateGraph(dict)
     for step in steps:
         fn = step.fn if step.fn is not None else _passthrough
+        if step.kind == "model":
+            fn = screened(step, fn)
+        if step.kind == "ask" and approve is not None:
+            fn = asked(step, fn, approve)
         graph.add_node(
             step.id, gated(fn, Path(lock_dir), time.sleep) if lock_dir else fn
         )

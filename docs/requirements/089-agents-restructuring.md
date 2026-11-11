@@ -913,6 +913,8 @@ Failure classes of the maintainer routine:
 | Unattributed | a red job whose log returns `404` or whose diagnostics show only the outer runner and `exit code 1` | no attribution without a citable line; ask the operator for a re-run after the run ended |
 | Starved queue cancellation | a job stays queued without steps and with an empty `runner_name` until the run is cancelled; the pull request keeps only its old red check | report "CI not active" for the head and hand the operator the `gh run rerun` command |
 
+The deterministic node `C1` of the maintainer routine routes the classes the logs alone show (starved queue cancellation, superseded run, budget kill, external but structural, unattributed) to their branch before any model call; every other class goes to the model nodes `L1` and `L2`.
+
 Legend for the routine diagrams: 🔵 trigger, 🟢 ⚙️ deterministic step (no model call), 🟣 🧠 model judgement, 🟡 👤 human or owner, ✅ finished, 🛑 stops with a report. Diamonds are yes/no checks, hexagons are judgement calls.
 
 Maintainer routine:
@@ -922,6 +924,12 @@ flowchart TD
   T1(["🔔 CI run failed, new issue or security alert"])
   D1["📥 Download failed jobs, logs and artifacts"]
   D2["🔎 Find the failing line in every job"]
+  C1{"🧭 Failure class shown<br/>by the logs alone?"}
+  C2(["🛑 Report CI not active,<br/>hand the operator gh run rerun"])
+  C3(["⏭️ Not a failure:<br/>wait for the superseding run"])
+  C4(["🛑 Attribute nothing, ask the operator<br/>for a re-run after the run ended"])
+  C5["⏱️ Rank the task classes that grew<br/>against earlier runs, never raise the budget"]
+  C6["🚧 Prove why the other jobs are protected<br/>(mirror or cache), no retry as fix"]
   L1{{"🧠 Which jobs share one cause?"}}
   D3{"🗂️ Fix already on some branch?"}
   D9(["🔗 Link the existing fix, tell the owner"])
@@ -932,16 +940,26 @@ flowchart TD
   D5["🧪 Run the targeted tests"]
   D6{"🚦 Quality gate green?<br/>(read the table)"}
   D7{"🚀 Role deployed and<br/>probe inside container OK?"}
+  D16["📐 Predict the CI matrix size<br/>(affected_roles.sh)"]
+  D17["🏷️ Set the pull request labels,<br/>never after the push"]
   D8["✍️ Comment audit, signed commit,<br/>push to own fork"]
   L5["🧠 Write the pull request text"]
   D10{"🔢 Every number backed<br/>by evidence?"}
-  D11["📝 Open pull request<br/>with evidence comment"]
+  D11["📝 Open pull request with evidence comment<br/>and the predicted matrix size"]
+  D18{"📖 Next automated review<br/>of the pushed head read?"}
+  D19["⏳ Wait through make ci-wait<br/>for that review"]
   L6{{"🧠 Is the review finding real?"}}
   D12["💬 Reply to the review"]
   D13{"🔍 CI log shows<br/>the change ran?"}
   D14(["🛑 Report: run is silent on the change"])
   D15(["✅ Tell the owner, ticket to Review"])
-  T1 --> D1 --> D2 --> L1 --> D3
+  T1 --> D1 --> D2 --> C1
+  C1 -->|"🧠 needs judgement"| L1 --> D3
+  C1 -->|"🪫 starved queue"| C2
+  C1 -->|"⏭️ superseded run"| C3
+  C1 -->|"🫥 unattributed"| C4
+  C1 -->|"⏱️ budget kill"| C5 --> L4
+  C1 -->|"🚧 external but structural"| C6 --> L4
   D3 -->|"✅ yes"| D9
   D3 -->|"❌ no"| L2
   L2 -->|"🌍 host tool drift"| L3
@@ -951,9 +969,11 @@ flowchart TD
   D6 -->|"❌ red"| L4
   D6 -->|"✅ green"| D7
   D7 -->|"❌ no"| L4
-  D7 -->|"✅ yes"| D8 --> L5 --> D10
+  D7 -->|"✅ yes"| D16 --> D17 --> D8 --> L5 --> D10
   D10 -->|"❌ no"| L5
-  D10 -->|"✅ yes"| D11 --> L6
+  D10 -->|"✅ yes"| D11 --> D18
+  D18 -->|"⏳ not yet"| D19 --> D18
+  D18 -->|"✅ read"| L6
   L6 -->|"🐞 real"| L4
   L6 -->|"🙅 wrong"| D12 --> D13
   D13 -->|"❌ no"| D14
@@ -964,10 +984,10 @@ flowchart TD
   classDef good fill:#ccfbf1,stroke:#0f766e,color:#042f2e
   classDef stop fill:#fee2e2,stroke:#b91c1c,color:#450a0a
   class T1 trigger
-  class D1,D2,D3,D4,D5,D6,D7,D8,D10,D11,D12,D13 det
+  class D1,D2,D3,D4,D5,D6,D7,D8,D10,D11,D12,D13,D16,D17,D18,D19,C1,C5,C6 det
   class L1,L2,L3,L4,L5,L6 llm
-  class D9,D15 good
-  class D14 stop
+  class D9,D15,C3 good
+  class D14,C2,C4 stop
 ```
 
 Designer routine:
@@ -1027,21 +1047,22 @@ flowchart TD
   D5["🔎 Pull spec error, trace chain, probes"]
   L3{{"🧠 Infra race or real defect?"}}
   D6["📦 Preseed or fix the order,<br/>rerun once"]
+  D9["📐 Predict the CI matrix size<br/>(affected_roles.sh)"]
   D7["☑️ Check off criteria, signed commit,<br/>push to fork"]
-  D8(["✅ Pull request open, ticket to Review"])
+  D8(["✅ Pull request open with the predicted<br/>matrix size, ticket to Review"])
   T1 --> D1 --> L1 --> L2 --> D2
   D2 -->|"❌ red"| L2
   D2 -->|"✅ green"| D3 --> D4
   D4 -->|"🔴 app red"| D5 --> L3
   L3 -->|"🌩️ infra race"| D6 --> D3
   L3 -->|"🐞 defect"| L2
-  D4 -->|"🟢 all green"| D7 --> D8
+  D4 -->|"🟢 all green"| D9 --> D7 --> D8
   classDef trigger fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
   classDef det fill:#dcfce7,stroke:#15803d,color:#052e16
   classDef llm fill:#ede9fe,stroke:#6d28d9,color:#2e1065
   classDef good fill:#ccfbf1,stroke:#0f766e,color:#042f2e
   class T1 trigger
-  class D1,D2,D3,D4,D5,D6,D7 det
+  class D1,D2,D3,D4,D5,D6,D7,D9 det
   class L1,L2,L3 llm
   class D8 good
 ```
@@ -1087,7 +1108,7 @@ Hacker routine:
 ```mermaid
 flowchart TD
   T1(["🔔 Deploy finished or schedule"])
-  D1["🗺️ Read agents.hacker.targets<br/>(no default)"]
+  D1{"🗺️ Read agents.hacker.targets<br/>(no default): any set?"}
   D2["🛡️ Firewall: egress only to those targets,<br/>only through the front proxy"]
   H1{"👤 Production target:<br/>owner approves this run?"}
   D0(["🛑 Run skipped"])
@@ -1098,7 +1119,9 @@ flowchart TD
   D6["📋 Work package in the confidential<br/>security project"]
   D7["📧 Email: severity and link only"]
   D8(["✅ Report: nothing found"])
-  T1 --> D1 --> D2 --> H1
+  T1 --> D1
+  D1 -->|"🎯 set"| D2 --> H1
+  D1 -->|"🚫 none"| D0
   H1 -->|"👍 yes or not production"| D3
   H1 -->|"👎 no"| D0
   D3 --> D4

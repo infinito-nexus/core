@@ -71,6 +71,11 @@ STATE_KEYS = {
         None,
         "CPU ticks of the run's process tree at the poll before",
     ),
+    "evidence_source": (
+        str,
+        None,
+        "where this iteration's evidence came from; the decide command sets it from its files",
+    ),
     "run_log": (str, None, "the run's log"),
     "junit_xml": (str, None, "the run's JUnit report"),
     "change_marker": (
