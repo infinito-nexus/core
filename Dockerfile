@@ -31,8 +31,10 @@ COPY scripts/install ${INFINITO_SRC_DIR}/scripts/install
 
 # hadolint ignore=SC1090
 RUN set -euo pipefail; \
-  source <(grep -hE '^INFINITO_(FILESYSTEM_INSTALL_SCRIPT|APT_UBUNTU_MIRRORS)=' "${INFINITO_SRC_DIR}/default.env"); \
-  INFINITO_APT_UBUNTU_MIRRORS="${INFINITO_APT_UBUNTU_MIRRORS:?}" /bin/bash "${INFINITO_SRC_DIR}/scripts/install/apt-mirrors.sh"; \
+  source <(grep -hE '^INFINITO_(FILESYSTEM_INSTALL_SCRIPT|APT_UBUNTU_MIRRORS|APT_UBUNTU_PORTS_MIRRORS)=' "${INFINITO_SRC_DIR}/default.env"); \
+  INFINITO_APT_UBUNTU_MIRRORS="${INFINITO_APT_UBUNTU_MIRRORS:?}" \
+  INFINITO_APT_UBUNTU_PORTS_MIRRORS="${INFINITO_APT_UBUNTU_PORTS_MIRRORS:?}" \
+  /bin/bash "${INFINITO_SRC_DIR}/scripts/install/apt-mirrors.sh"; \
   /bin/bash "${INFINITO_SRC_DIR}/scripts/install/dnf-mirrors.sh"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_FILESYSTEM_INSTALL_SCRIPT:?}"
 
