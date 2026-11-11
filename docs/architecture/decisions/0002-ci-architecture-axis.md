@@ -61,6 +61,13 @@ machine, not just a value the job applies to itself.
   role the deploy planner brings up for that variant, because the deploy pulls
   those in too; an empty intersection aborts the matrix.
 
+- **A package may narrow one distro and architecture pair.** A distro entry in
+  `meta/packages.yml` may declare `architectures` when its source publishes
+  nothing elsewhere, such as a Flathub app shipped for x86_64 only. The row
+  keeps both architectures; a draw of the unpublished pair moves to another
+  architecture of the same distro, a pin naming it aborts the matrix, and
+  `package_install` refuses it by name on a host before any module runs.
+
 - **CI images are built natively per architecture and published as one tag per
   distro.** Each architecture builds on its own runner, and
   [push.sh](../../../scripts/image/push.sh) pushes the result by digest only, so

@@ -167,13 +167,19 @@ own stack, `+tor` on a variant that pins `services.tor.enabled` false, `+multi`
 on a role with `reachability.single_mode: true`, or any axis that fights the
 run's own `mode`, `network`, `distros`, `filesystem` or `architectures` input,
 or `:arm64` on a role whose `meta/services.yml` declares
-`architectures: [amd64]`.
+`architectures: [amd64]`, or `%centos:arm64` on a row installing a package whose
+`meta/packages.yml` centos entry declares `architectures: [amd64]`. Such a
+package entry narrows only its own distro and architecture pair: an unpinned
+row that draws it moves to another architecture of the same distro, so the
+role keeps every other pair.
 
 That is also what a retrigger replays: `--failed` reads the glyphs off the failed
 job's title and writes them back as a token, so the row comes back in the mode,
 network mode, distribution and architecture it died on rather than on whatever
 the rotation would pick next. The architecture is replayed because it is the
-machine the job ran on, not a preference it could fall back from. The
+machine the job ran on, not a preference it could fall back from, unless a
+package entry no longer publishes that pair: the replay then keeps the distro,
+drops the architecture and warns. The
 filesystem is deliberately left out. A title states the
 kind the matrix *assigned*, which a deploy is allowed to fall back from, so
 pinning it would both misstate what the job ran on and turn the kind into a
