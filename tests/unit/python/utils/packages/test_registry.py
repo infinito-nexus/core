@@ -3,11 +3,13 @@ import unittest
 from pathlib import Path
 
 from utils.cache.yaml import dump_yaml
+from utils.github.variant.pools import ARCHITECTURES
 from utils.packages.registry import (
     build_registry,
     iter_inventory_package_lists,
     load_declarations,
     load_references,
+    published_architectures,
     resolve,
 )
 from utils.packages.schema import (
@@ -254,6 +256,72 @@ class TestRegistry(unittest.TestCase):
         spec = resolve(self._declaration("editor"), "debian")
         self.assertEqual(spec.source, "download")
         self.assertEqual(spec.download["url"], "https://vendor.example/editor.deb")
+
+    def _architectures(self, value):
+        entry = {"names": ["org.example.App"], "source": "flatpak"}
+        if value is not None:
+            entry["architectures"] = value
+        _write_role(self.root, "role-a", {"app": {"centos": entry}})
+        return resolve(self._declaration("app"), "centos").architectures
+
+    def test_an_entry_without_architectures_takes_every_one(self):
+        self.assertEqual(self._architectures(None), ARCHITECTURES)
+
+    def test_an_entry_narrows_to_its_declared_architectures(self):
+        self.assertEqual(self._architectures(["amd64"]), ("amd64",))
+
+    def test_an_unknown_entry_key_is_refused(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {"app": {"centos": {"names": ["app"], "architecture": ["amd64"]}}},
+        )
+        with self.assertRaises(PackagesShapeError) as ctx:
+            resolve(self._declaration("app"), "centos")
+        self.assertIn("architecture", str(ctx.exception))
+
+    def test_an_entry_key_beside_the_distro_keys_is_refused(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {"app": {"centos": ["app"], "architectures": ["amd64"]}},
+        )
+        with self.assertRaises(PackagesShapeError) as ctx:
+            build_registry(self.root)
+        self.assertIn("architectures", str(ctx.exception))
+
+    def test_architectures_reject_what_no_host_can_match(self):
+        for value in ("amd64", [], ["x86_64"]):
+            with (
+                self.subTest(value=value),
+                self.assertRaises(PackagesShapeError) as ctx,
+            ):
+                self._architectures(value)
+            self.assertIn("architectures", str(ctx.exception))
+
+    def test_published_architectures_lists_only_the_narrowed_pairs(self):
+        _write_shared(
+            self.root,
+            {
+                "app": {
+                    "Debian": ["app"],
+                    "Archlinux": ["app"],
+                    "RedHat": ["app"],
+                    "centos": {
+                        "names": ["org.example.App"],
+                        "source": "flatpak",
+                        "architectures": ["amd64"],
+                    },
+                },
+                "lib": {"Debian": ["lib"], "Archlinux": ["lib"], "RedHat": ["lib"]},
+            },
+        )
+        _write_role(self.root, "role-a", {"app": {"shared": True}})
+        _write_role(self.root, "role-b", {"lib": {"shared": True}})
+        self.assertEqual(
+            published_architectures(self.root),
+            {"role-a": {"centos": frozenset({"amd64"})}},
+        )
 
     def test_unknown_distro_raises_without_family(self):
         _write_role(self.root, "role-a", {"git": {"Debian": ["git"]}})

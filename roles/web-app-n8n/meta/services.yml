@@ -75,7 +75,7 @@ n8n:
   backup:
     stop_required: true
   image: docker.n8n.io/n8nio/n8n
-  version: "3.1.0"
+  version: "3.2.0"
   update:
     type: registry_tags
     image: docker.n8n.io/n8nio/n8n
