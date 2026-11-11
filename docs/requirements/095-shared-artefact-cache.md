@@ -125,10 +125,10 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 - [ ] A prefetch task fetches every artefact of the deployed roles once through Nexus into `<DIR_CACHE>/models/<sha256>`, verifies digest and size, and fails naming the artefact on a mismatch; a second run downloads nothing. `[unit]`
 - [ ] In swarm, the store lives on NFS state (or is seeded on every node before any consumer starts), and no consumer container downloads an artefact on first use; a consumer whose artefact is missing fails before start instead (C1). `[unit]`
 - [ ] The store's `min_storage` is `store_bytes` of the deployed artefacts, declared once by `svc-ai-models` (D9) and never by an engine, so the round sum of `STORAGE_CONSTRAINED` counts each digest once (C2). `[unit]`
-- [ ] The frontend answers `/<host>/<path>` for every served host by routing to that host's repository, the one its TLS listener serves under the [TLS route rule](../contributing/environment/cache.md#pinned-artefacts-). `[unit]`
-- [ ] `default.env` declares `INFINITO_ARTEFACT_BASE` with the value `https:/`, and `make dotenv` writes the frontend's base only while the cache stack runs. `[unit]`
+- [x] The frontend answers `/<host>/<path>` for every served host by routing to that host's repository, the one its TLS listener serves under the [TLS route rule](../contributing/environment/cache.md#pinned-artefacts-). `[unit]`
+- [x] `default.env` declares `INFINITO_ARTEFACT_BASE` with the value `https:/`, and `make dotenv` writes the frontend's base only while the cache stack runs. `[unit]`
 - [ ] A pinned `huggingface.co` file fetched through `raw-huggingface` lands in the blob store although the Hub redirects it to its LFS or Xet host; if Nexus does not follow the redirect, those hosts get their own declarations. `[host]`
-- [ ] Eviction under 092's models cap never removes an artefact that a deployed role still declares. `[unit]`
+- [x] Eviction under 092's models cap never removes an artefact that a deployed role still declares. `[unit]`
 
 ### Phase 3: Engine migration and dedupe
 

@@ -20,10 +20,20 @@ DECLARE_HINT = "the declarer runs `make cache-declare ref=<commit>`"
 BUMP_HINT = "ask the declarer to bump the pin"
 FULL_SHA = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?")
 IGNORED_FIELDS = frozenset({"role"})
+ARTEFACTS = "artefacts"
 
 
 class PinError(Exception):
     pass
+
+
+UNREADABLE = (
+    PinError,
+    OSError,
+    subprocess.CalledProcessError,
+    json.JSONDecodeError,
+    KeyError,
+)
 
 
 def env_path(key: str, environ: Mapping[str, str] = os.environ) -> Path:
@@ -245,8 +255,9 @@ def pinned_declarations(directory: Path) -> dict:
         directory: a materialized checkout of the pin.
 
     Returns:
-        ``{"repos": {...}, "hosts": {...}}`` as the code of *directory* reads
-        its own declarations.
+        ``{"repos": {...}, "hosts": {...}, "artefacts": {...}}`` as the code
+        of *directory* reads its own declarations; a commit older than the
+        ``artefacts`` key lacks it.
     """
     result = subprocess.run(
         [sys.executable, "-m", "cli.meta.cache.pin", "declarations"],
@@ -282,18 +293,36 @@ def served_hosts(environ: Mapping[str, str]) -> dict | None:
         return None
     try:
         return pinned_declarations(_pinned_checkout(environ))["hosts"]
-    except (
-        PinError,
-        OSError,
-        subprocess.CalledProcessError,
-        json.JSONDecodeError,
-        KeyError,
-    ) as exc:
+    except UNREADABLE as exc:
         print(
             f"[cache-pin] WARNING: {exc}; no host is hijacked to the cache frontend",
             file=sys.stderr,
         )
         return {}
+
+
+def pinned_digests(environ: Mapping[str, str]) -> frozenset[str] | None:
+    """Args:
+        environ: the environment to read the pin paths from.
+
+    Returns:
+        The sha256 of every artefact the pinned commit declares. Empty while
+        no pin exists, because then no commit is pinned. None, with a warning
+        on stderr, while the pin's checkout or its declarations cannot be
+        read, so a caller cannot tell which stored artefact is still declared.
+    """
+    named = environ.get(PIN_FILE_KEY, "").strip()
+    if not named or not Path(named).is_file():
+        return frozenset()
+    try:
+        declared = pinned_declarations(_pinned_checkout(environ)).get(ARTEFACTS) or {}
+        return frozenset(str(entry["sha256"]) for entry in declared.values())
+    except (*UNREADABLE, AttributeError, TypeError) as exc:
+        print(
+            f"[cache-pin] WARNING: {exc}; the pinned artefacts are unknown",
+            file=sys.stderr,
+        )
+        return None
 
 
 def _comparable(records: dict) -> dict:

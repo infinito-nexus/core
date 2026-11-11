@@ -16,8 +16,10 @@ from types import SimpleNamespace
 from typing import Self
 from unittest.mock import patch
 
+from cli.meta.cache.evict import __main__ as evict_cli
 from utils import PROJECT_ROOT
 from utils.cache import evict
+from utils.cache.artefacts import Artefact
 from utils.cache.evict import (
     CACHES,
     FLOOR_KEY,
@@ -88,13 +90,18 @@ def _measured(settings: Settings) -> dict[str, Usage]:
 
 
 def _run(
-    settings: Settings, free: int, tools: bool | None, nexus: object
+    settings: Settings,
+    free: int,
+    tools: bool | None,
+    nexus: object,
+    declared: frozenset[str] | None = frozenset(),
 ) -> tuple[int, str]:
     """Args:
         settings: the caches under test.
         free: the free bytes the floor check sees.
         tools: what the tools probe answers for the models folder.
         nexus: the Nexus store the eviction opens, None when it does not answer.
+        declared: the artefact digests a role still declares, None when unknown.
 
     Returns:
         The exit code and the report.
@@ -108,6 +115,7 @@ def _run(
         lambda _models: tools,
         lambda: nexus,
         out,
+        lambda: declared,
     )
     return code, out.getvalue()
 
@@ -403,6 +411,68 @@ class TestModels(unittest.TestCase):
             self.assertEqual(code, 0)
             self.assertTrue(idle.exists())
             self.assertIn("skipped", report)
+
+
+class TestDeclaredArtefacts(unittest.TestCase):
+    DIGEST = "a" * 64
+    STALE = "b" * 64
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        self.models = self.root / "models"
+        self.models.mkdir()
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def test_a_declared_artefact_stays_however_idle_and_above_the_cap(self) -> None:
+        kept = _file(self.models / self.DIGEST, 400)
+        stale = _file(self.models / self.STALE, 400)
+        model = _file(self.models / "libretranslate" / "idle" / "model.bin", 400)
+        code, _ = _run(
+            _settings(self.root, AMPLE, 0, 0),
+            FREE,
+            False,
+            None,
+            frozenset({self.DIGEST}),
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            [kept.exists(), stale.exists(), model.exists()], [True, False, False]
+        )
+
+    def test_only_a_store_entry_named_by_the_digest_is_kept(self) -> None:
+        nested = _file(self.models / "libretranslate" / self.DIGEST, 400)
+        _run(
+            _settings(self.root, AMPLE, 0, 0),
+            FREE,
+            False,
+            None,
+            frozenset({self.DIGEST}),
+        )
+        self.assertFalse(nested.exists())
+
+    def test_unknown_declarations_skip_the_models_and_say_so(self) -> None:
+        stored = _file(self.models / self.DIGEST, 400)
+        code, report = _run(_settings(self.root, AMPLE, 0, 0), FREE, False, None, None)
+        self.assertEqual(code, 0)
+        self.assertTrue(stored.exists())
+        self.assertIn("skipped, the declared artefacts are unknown", report)
+
+    def test_the_cli_keeps_what_the_checkout_and_the_pin_declare(self) -> None:
+        own = Artefact("own", "https://h/f", "c" * 40, self.DIGEST, "1", "role")
+        with patch.object(evict_cli, "artefacts", return_value=[own]):
+            for pinned, expected in (
+                (frozenset({self.STALE}), frozenset({self.DIGEST, self.STALE})),
+                (frozenset(), frozenset({self.DIGEST})),
+                (None, None),
+            ):
+                with (
+                    self.subTest(pinned=pinned),
+                    patch.object(evict_cli.pin, "pinned_digests", return_value=pinned),
+                ):
+                    self.assertEqual(evict_cli.declared_digests(), expected)
 
 
 class TestDiskFloor(unittest.TestCase):

@@ -1,0 +1,68 @@
+---
+# Param stacks: every local stack, keyed by name.
+# Param class: always-on, on-demand or long-lived (092, Lifecycle classes).
+# Param needs: the stacks it runs against, started before it.
+# Param targets: the make targets whose own recipe reaches it; a target that
+#   only calls other targets inherits their stacks through the Makefile.
+stacks:
+  cache:
+    class: always-on
+    needs: []
+    targets:
+      - cache-apply
+      - cache-evict
+  tools:
+    class: on-demand
+    needs:
+      - cache
+    targets:
+      - i18n-translate
+      - i18n-tune
+      - test-oracle
+  test-runner:
+    class: long-lived
+    needs:
+      - cache
+    targets:
+      - autoformat
+      - lint-action
+      - lint-ansible
+      - lint-css
+      - lint-dockerfile
+      - lint-javascript
+      - lint-makefile
+      - lint-markdown
+      - lint-mermaid
+      - lint-packages
+      - lint-php
+      - lint-playwright
+      - lint-python
+      - lint-ruby
+      - lint-shellcheck
+      - lint-sql
+      - test-external
+      - test-integration
+      - test-lint
+      - test-oracle
+      - test-performance
+      - test-unit-javascript
+      - test-unit-php
+      - test-unit-python
+      - test-unit-ruby
+  deploy:
+    class: on-demand
+    needs:
+      - cache
+    targets:
+      - compose-app-exec
+      - compose-app-logs
+      - compose-app-restart
+      - compose-deploy
+      - compose-exec
+      - compose-inner-run
+      - compose-playwright
+      - compose-role-sync
+      - compose-up
+      - design-gallery
+      - design-palette
+      - design-sync
