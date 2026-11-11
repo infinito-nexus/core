@@ -36,6 +36,8 @@ if [[ -f "scripts/meta/env/load.sh" ]]; then
 	# shellcheck source=scripts/meta/env/load.sh
 	source "scripts/meta/env/load.sh"
 fi
+# shellcheck source=scripts/meta/compose.sh
+source scripts/meta/compose.sh
 
 json_compact_array() {
 	jq -c 'if type=="array" then . else [] end'
@@ -49,7 +51,7 @@ run_meta_cli() {
 	docker)
 		NIX_CONFIG="${NIX_CONFIG:-}" \
 			INFINITO_DISTRO="${INFINITO_DISTRO}" \
-			docker compose exec -T infinito "${PYTHON}" "$@"
+			infinito_compose exec -T infinito "${PYTHON}" "$@"
 		;;
 	*)
 		echo "apps.sh: unknown INFINITO_APP_DISCOVERY_RUNNER='${INFINITO_APP_DISCOVERY_RUNNER}' (expected: host|docker)" >&2

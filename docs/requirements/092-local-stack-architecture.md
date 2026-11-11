@@ -287,9 +287,9 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 2: Stack addressing
 
-- [ ] Every `docker compose` call in `scripts/`, `cli/` and `utils/` goes through one helper that passes `-p` and the `-f` list; a lint fails on any other `docker compose` call, the two wrappers included. `[unit]`
-- [ ] Without `INFINITO_STACK_NAME`, the helper's project name equals the name compose derives from the checkout directory today, so a running stack is adopted with its volumes. `[unit]`
-- [ ] With `INFINITO_STACK_NAME=<name>`, `compose-up`, `compose-exec`, `compose-deploy`, `compose-down`, `test*` and `lint*` address the project `<name>`, its container names derive from `<name>`, and the checkout's default stack stays untouched. `[unit]`
+- [x] Every `docker compose` call in `scripts/`, `cli/` and `utils/` goes through one helper that passes `-p` and the `-f` list; a lint fails on any other `docker compose` call, the two wrappers included. `[unit]`
+- [x] Without `INFINITO_STACK_NAME`, the helper's project name equals the name compose derives from the checkout directory today, so a running stack is adopted with its volumes. `[unit]`
+- [x] With `INFINITO_STACK_NAME=<name>`, `compose-up`, `compose-exec`, `compose-deploy`, `compose-down`, `test*` and `lint*` address the project `<name>`, its container names derive from `<name>`, and the checkout's default stack stays untouched. `[unit]`
 - [ ] The slot allocator keys slots by stack name: one stack keeps its slot across a down and an up, two stack names from one checkout get two slots, and `make worktree-up` records the slot under the worktree's default stack name. `[unit]`
 - [ ] [default.env](../../default.env) and [variables.md](../contributing/environment/variables.md) document `INFINITO_STACK_NAME` and the slot registry. `[unit]`
 

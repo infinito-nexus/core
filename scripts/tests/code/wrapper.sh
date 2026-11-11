@@ -15,6 +15,8 @@ RUN_SCRIPT="${REPO_ROOT}/${RUNNER_REL}"
 cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
+# shellcheck source=scripts/meta/compose.sh
+source scripts/meta/compose.sh
 
 : "${INFINITO_TEST_PATTERN:?INFINITO_TEST_PATTERN must be set}"
 : "${INFINITO_TEST_RUNNER:?INFINITO_TEST_RUNNER must be set}"
@@ -28,11 +30,11 @@ docker)
 	echo ">>> Running ${INFINITO_TEST_TYPE^^} tests in ${INFINITO_DISTRO} container (compose stack)" # nocheck: makefile-supplied
 	echo "============================================================"
 
-	if ! docker compose ps -q infinito 2>/dev/null | grep -q .; then
+	if ! infinito_compose ps -q infinito 2>/dev/null | grep -q .; then
 		echo ">>> 'infinito' container not running; starting the stack via 'make compose-up'..."
 		exec {lockfd}>"${REPO_ROOT}/.compose-up.lock"
 		flock "${lockfd}"
-		docker compose ps -q infinito 2>/dev/null | grep -q . || "${MAKE:-make}" compose-up
+		infinito_compose ps -q infinito 2>/dev/null | grep -q . || "${MAKE:-make}" compose-up
 		exec {lockfd}>&-
 	fi
 
@@ -47,7 +49,7 @@ docker)
 		-e INFINITO_TEST_TYPE="${INFINITO_TEST_TYPE}" # nocheck: makefile-supplied
 	)
 	INFINITO_DISTRO="${INFINITO_DISTRO}" \
-		docker compose exec -T \
+		infinito_compose exec -T \
 		"${exec_env_args[@]}" \
 		--workdir "${INFINITO_SRC_DIR}" \
 		infinito \
