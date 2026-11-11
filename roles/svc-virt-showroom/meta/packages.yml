@@ -1,12 +1,3 @@
 ---
 incus:
-  Archlinux:
-    - edk2-ovmf
-    - incus
-    - qemu-base
-  Debian:
-    - incus
-    - ovmf
-    - qemu-system-x86
-  RedHat: [] # nocheck: empty - the showroom refuses the RedHat family before the install, Incus there needs a COPR repository the role does not provision
-  batch: false
+  shared: true

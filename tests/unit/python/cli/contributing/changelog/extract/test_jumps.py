@@ -3,10 +3,11 @@ import unittest
 from pathlib import Path
 
 from cli.contributing.changelog.extract.jumps import Jump, extract, lines, section
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from ._repo import FixtureRepo
 
-SERVICES = "roles/web-app-demo/meta/services.yml"
+SERVICES = f"roles/web-app-demo/{ROLE_FILE_META_SERVICES}"
 
 
 class TestExtract(unittest.TestCase):
@@ -89,14 +90,14 @@ class TestExtract(unittest.TestCase):
         stable = "".join(f"  key_{index}: value {index}\n" for index in range(12))
         jumps = self._release(
             {
-                "roles/web-svc-css/meta/services.yml": f"css:\n{stable}  version: 1.0.0\n"
+                f"roles/web-svc-css/{ROLE_FILE_META_SERVICES}": f"css:\n{stable}  version: 1.0.0\n"
             },
             {},
         )
         self.assertEqual(jumps, [])
         self.repo.git("mv", "roles/web-svc-css", "roles/web-svc-design")
         self.repo.write(
-            "roles/web-svc-design/meta/services.yml",
+            f"roles/web-svc-design/{ROLE_FILE_META_SERVICES}",
             f"css:\n{stable}  version: 1.1.0\n",
         )
         self.repo.commit("rename")
@@ -127,7 +128,9 @@ class TestExtract(unittest.TestCase):
     def test_a_new_role_adds_no_rows(self) -> None:
         jumps = self._release(
             {SERVICES: "demo:\n  version: 1.0.0\n"},
-            {"roles/web-app-new/meta/services.yml": "new:\n  version: 2.0.0\n"},
+            {
+                f"roles/web-app-new/{ROLE_FILE_META_SERVICES}": "new:\n  version: 2.0.0\n"
+            },
         )
         self.assertEqual(jumps, [])
 

@@ -74,10 +74,15 @@ class TestPlaywrightScansReadCustomRoles(_CustomRoleFixture, unittest.TestCase):
 
 class TestMarkdownLinksResolveIntoCustomRoles(_CustomRoleFixture, unittest.TestCase):
     def test_a_link_to_a_custom_role_file_resolves(self) -> None:
-        self.assertEqual("", links._unresolvable(self.root / CUSTOM_SPEC))
+        self.assertEqual(
+            "", links._unresolvable(self.root / CUSTOM_SPEC, self.root / TRACKED_SPEC)
+        )
 
     def test_a_link_to_an_untracked_file_stays_broken(self) -> None:
-        self.assertIn("untracked", links._unresolvable(self.root / UNTRACKED))
+        self.assertIn(
+            "untracked",
+            links._unresolvable(self.root / UNTRACKED, self.root / TRACKED_SPEC),
+        )
 
 
 class TestFolderItemLimitCountsCustomRoles(_CustomRoleFixture, unittest.TestCase):

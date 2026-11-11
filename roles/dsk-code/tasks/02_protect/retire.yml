@@ -1,0 +1,24 @@
+---
+- name: 🔍 Look for an installed Code - OSS protection timer
+  ansible.builtin.stat:
+    path: "{{ [DIR_SYSTEM_SERVICE, 'protect-code-oss.timer'] | path_join }}"
+  register: code_protect_timer
+
+- name: 🛑 Stop and disable the Code - OSS protection timer
+  ansible.builtin.systemd:
+    name: protect-code-oss.timer
+    state: stopped
+    enabled: false
+  when: code_protect_timer.stat.exists
+
+- name: 🗑️ Remove the Code - OSS protection script and units
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ [code_protect_script] + ([DIR_SYSTEM_SERVICE] | product(code_protect_units) | map('path_join') | list) }}"
+  register: code_protect_removed
+
+- name: 🔄 Reload systemd after removing the Code - OSS protection units
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: code_protect_removed is changed

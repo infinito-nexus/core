@@ -12,8 +12,9 @@ from utils.design.film_theme import (
     theme,
 )
 from utils.design.palette import build_palette
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
-SERVICES = PROJECT_ROOT / "roles" / "web-svc-design" / "meta" / "services.yml"
+SERVICES = PROJECT_ROOT / "roles" / "web-svc-design" / ROLE_FILE_META_SERVICES
 SKILLS = PROJECT_ROOT / "agents" / "skills"
 TEMPLATES = (
     SKILLS / "i8-release-article" / "templates" / "banner.svg",

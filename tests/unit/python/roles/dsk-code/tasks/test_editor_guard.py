@@ -17,6 +17,7 @@ ROLE = PROJECT_ROOT / "roles" / "dsk-code"
 VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
 CORE = load_yaml_any(str(ROLE / "tasks" / "00_core.yml"))
 PROTECT = load_yaml_any(str(ROLE / "tasks" / "02_protect.yml"))
+RETIRE = load_yaml_any(str(ROLE / "tasks" / "02_protect" / "retire.yml"))
 PROFILES = load_yaml_any(str(ROLE / "tasks" / "01_claude_profiles.yml"))
 GUARD_TASK = load_yaml_any(str(ROLE / "tasks" / "addons" / "python.yml"))[0]
 PYTHON_ADDON = load_yaml_any(str(ROLE / ROLE_DIR_META_ADDONS / "python.yml"))
@@ -243,13 +244,16 @@ class CodeOssProtectionTest(unittest.TestCase):
 
     def test_install_and_retirement_never_run_together(self):
         install, retire = PROTECT
+        self.assertEqual(
+            retire["ansible.builtin.include_tasks"], "02_protect/retire.yml"
+        )
         for wanted in (True, False):
             with self.subTest(wanted=wanted):
                 self.assertEqual(holds(install, code_protect=wanted), wanted)
                 self.assertEqual(holds(retire, code_protect=wanted), not wanted)
 
     def test_retirement_removes_everything_the_install_puts_in_place(self):
-        install, retire = PROTECT
+        install, _ = PROTECT
         context = {
             "DIR_SYSTEM_SERVICE": UNITS,
             "code_protect_script": VARS["code_protect_script"],
@@ -260,15 +264,12 @@ class CodeOssProtectionTest(unittest.TestCase):
             render(copies[1]["ansible.builtin.copy"]["dest"], item=item, **context)
             for item in render(copies[1]["loop"], **context)
         }
-        removal = next(
-            task for task in retire["block"] if "ansible.builtin.file" in task
-        )
+        removal = next(task for task in RETIRE if "ansible.builtin.file" in task)
         self.assertEqual(len(installed), 3)
         self.assertEqual(set(render(removal["loop"], **context)), installed)
 
     def test_retirement_stops_the_timer_only_when_it_is_installed(self):
-        _, retire = PROTECT
-        look, stop = retire["block"][:2]
+        look, stop = RETIRE[:2]
         self.assertEqual(
             render(look["ansible.builtin.stat"]["path"], DIR_SYSTEM_SERVICE=UNITS),
             f"{UNITS}/protect-code-oss.timer",
