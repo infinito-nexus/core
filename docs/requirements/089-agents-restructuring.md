@@ -1867,7 +1867,7 @@ Every checked criterion below names its evidence at commit `f22dbca4ec` of `feat
 ### Local setup and integration workflows
 
 - [x] The run prints the result table, and a single failed scenario makes the run fail.
-  - Evidence: `cli/agents/scenarios.py:175-210` prints the table and returns 1 when any scenario failed.
+  - Evidence: `cli/agents/scenarios.py:285-329` prints the table and returns 1 when any scenario failed.
 
 ## Cross-linking
 

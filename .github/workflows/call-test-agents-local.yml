@@ -2,19 +2,7 @@ name: "🤖 Test: Agents (local)"
 
 on:
   workflow_call:
-    inputs:
-      swarm_slot:
-        description: "Worktree slot (3-10) the swarm row deploys on."
-        required: false
-        type: string
-        default: "3"
   workflow_dispatch:
-    inputs:
-      swarm_slot:
-        description: "🐝 Worktree slot (3-10) the swarm row deploys on."
-        required: false
-        type: string
-        default: "3"
 
 permissions:
   contents: read
@@ -47,7 +35,6 @@ jobs:
 
     env:
       INFINITO_DEPLOY_MODE: ${{ matrix.mode }}
-      INFINITO_AGENTS_SWARM_SLOT: ${{ inputs.swarm_slot }}
 
     steps:
       - name: 🧹 Free disk space
@@ -92,21 +79,18 @@ jobs:
         shell: bash
         run: make compose-deploy bundles=agents
 
-      - name: 🧪 Verify every agent scenario (compose)
-        if: ${{ matrix.mode == 'compose' }}
+      - name: 🐝 Deploy the agents bundle (swarm)
+        if: ${{ matrix.mode == 'swarm' }}
+        timeout-minutes: 230
+        shell: bash
+        run: make compose-deploy bundles=agents
+
+      - name: 🧪 Play every agent scenario (${{ matrix.mode }})
         timeout-minutes: 120
         shell: bash
         run: |
           set -euo pipefail
-          make agents-verify mode=compose 2>&1 | tee "/tmp/agents-verify-${{ matrix.mode }}.log"
-
-      - name: 🐝 Deploy the agents bundle and verify on a swarm slot (3-10)
-        if: ${{ matrix.mode == 'swarm' }}
-        timeout-minutes: 350
-        shell: bash
-        run: |
-          set -euo pipefail
-          make agents-verify mode=swarm 2>&1 | tee "/tmp/agents-verify-${{ matrix.mode }}.log"
+          python -m cli.agents.scenarios --mode "${{ matrix.mode }}" 2>&1 | tee "/tmp/agents-verify-${{ matrix.mode }}.log"
 
       - name: 📊 Result table (id, mode, result, duration, log)
         if: always()
@@ -125,7 +109,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: agents-verify-${{ matrix.mode }}
-          path: /tmp/agents-verify-${{ matrix.mode }}.log
+          path: |
+            /tmp/agents-verify-${{ matrix.mode }}.log
+            /tmp/agents-scenarios/
           if-no-files-found: ignore
 
       - name: 🧹 Cleanup (swarm)

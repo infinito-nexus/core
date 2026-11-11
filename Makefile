@@ -56,12 +56,12 @@ agents-stop:
 	@orchestrator='$(orchestrator)' cmd='$(cmd)' bash scripts/agents/stop.sh
 
 .PHONY: agents-verify
-# Deploy the agents bundle and run the agent verification scenarios, printing the result table (id, mode, result, duration, log).
+# Run call-test-agents-local.yml through act (the file the CI runs): deploy the agents bundle and play every agent scenario, printing the result table (id, mode, result, duration, log).
 # Usage: make agents-verify [mode=compose|swarm] [scenario=<id>]
 # Example: make agents-verify scenario=hacker-bruteforce
-# Param mode: compose | swarm; omitted runs both in sequence
-# Param scenario: a single scenario id run against the already-running stack (no redeploy)
-agents-verify:
+# Param mode: compose | swarm; omitted runs both in sequence; swarm needs a worktree slot in 3..10
+# Param scenario: a single scenario id replayed against the already-running stack (no act, no redeploy)
+agents-verify: $(if $(scenario),,install-act)
 	@mode='$(mode)' scenario='$(scenario)' bash scripts/agents/verify.sh
 
 .PHONY: agents-vm-template

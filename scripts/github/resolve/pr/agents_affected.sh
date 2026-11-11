@@ -10,8 +10,9 @@
 #
 # Outputs (GITHUB_OUTPUT):
 #   affected=true|false  true when a changed path is under agents/, the agents
-#                        CLI, an AI service role, an agent-platform role or the
-#                        agents bundle inventory.
+#                        CLI, an AI role (a role whose meta/main.yml carries
+#                        the galaxy tag `ai`), an AI service role, an
+#                        agent-platform role or the agents bundle inventory.
 
 set -euo pipefail
 
@@ -22,7 +23,18 @@ pattern='^(agents/|cli/agents/|roles/svc-ai-|roles/web-app-workspace/|roles/web-
 
 changed="$(git diff --name-only "${BASE_SHA}" HEAD)"
 
-if grep -qE "${pattern}" <<<"${changed}"; then
+ai_role_changed() {
+	local role meta
+	while read -r role; do
+		meta="roles/${role}/meta/main.yml"
+		if [ -f "${meta}" ] && grep -qxE '[[:space:]]*-[[:space:]]*ai[[:space:]]*' "${meta}"; then
+			return 0
+		fi
+	done < <(sed -nE 's#^roles/([^/]+)/.*#\1#p' <<<"${changed}" | sort -u)
+	return 1
+}
+
+if grep -qE "${pattern}" <<<"${changed}" || ai_role_changed; then
 	affected=true
 else
 	affected=false
