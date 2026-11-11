@@ -7,6 +7,7 @@ from ansible.errors import AnsibleFilterError
 
 from utils.cache.yaml import dump_yaml_str
 from utils.sizes import to_bytes
+from utils.templating.ansible import to_plain
 
 FLAVOR_VM = "vm"
 FLAVOR_CONTAINER = "container"
@@ -169,7 +170,7 @@ def creation_yaml(instance: Mapping[str, Any]) -> str:
         },
         "devices": instance["devices"],
     }
-    return dump_yaml_str(document, sort_keys=True)
+    return dump_yaml_str(to_plain(document), sort_keys=True)
 
 
 def settings(instances_: list[Mapping[str, Any]]) -> list[dict[str, str]]:

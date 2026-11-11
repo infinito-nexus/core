@@ -93,6 +93,10 @@ class TestKvm(unittest.TestCase):
             showroom.kvm_errors({"karakalpak": {**KARAKALPAK, "flavor": "lxc"}}, True)
 
 
+class AnsibleLazyDictStandIn(dict):
+    pass
+
+
 class TestInstances(unittest.TestCase):
     def setUp(self):
         self.instances = {
@@ -144,6 +148,17 @@ class TestInstances(unittest.TestCase):
         self.assertFalse(cloud["disable_root"])
         self.assertEqual("12GiB", document["config"]["limits.memory"])
         self.assertEqual("80GiB", document["devices"]["root"]["size"])
+
+    def test_the_creation_document_accepts_ansible_dict_subclasses(self):
+        vm = self.instances["karakalpak"]
+        looped = AnsibleLazyDictStandIn(
+            vm,
+            devices=AnsibleLazyDictStandIn(
+                {name: AnsibleLazyDictStandIn(d) for name, d in vm["devices"].items()}
+            ),
+        )
+        document = load_yaml_str(showroom.creation_yaml(looped))
+        self.assertEqual(vm["devices"], document["devices"])
 
     def test_settings_cover_limits_size_and_address(self):
         rows = {
