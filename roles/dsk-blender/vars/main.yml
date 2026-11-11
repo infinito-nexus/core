@@ -9,8 +9,12 @@ blender_mcp_distribution: "{{ lookup('config', application_id, 'addons.mcp-for-b
 blender_mcp_version: "{{ lookup('config', application_id, 'addons.mcp-for-blender.version') }}"
 blender_mcp_command: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.command') }}"
 blender_mcp_bin: "{{ [blender_pipx_bin_dir, blender_mcp_command] | path_join }}"
+blender_mcp_addon_module: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.module') }}"
+blender_mcp_addons_dir: "{{ blender_addons_probe.stdout | regex_search('ADDONS=(\\S+)', '\\1') | first }}"
+blender_mcp_addon_file: "{{ [blender_mcp_addons_dir, blender_mcp_addon_module ~ '.py'] | path_join }}"
 blender_mcp_server_name: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.server_name') }}"
 blender_mcp_claude_enabled: "{{ lookup('config', application_id, 'services.claude.enabled') | bool }}"
+blender_mcp_codex_enabled: "{{ lookup('config', application_id, 'services.codex.enabled') | bool }}"
 blender_mcp_code_enabled: "{{ lookup('config', application_id, 'services.code.enabled') | bool }}"
 blender_mcp_code_binary: "{{ lookup('config', 'dsk-code', 'services.code.flavor') | replace('vscodium', 'codium') | replace('code-oss', 'code') | replace('vscode',
   'code') }}"

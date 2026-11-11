@@ -10,6 +10,8 @@ This role installs the pinned `@openai/codex` CLI on a workstation and manages t
 
 The local gateway may forward requests to external providers according to the chosen model. A local gateway URL does not imply local inference.
 
+The switch rewrites only the keys it owns in `config.toml` (`model`, `model_provider`, `model_reasoning_effort`, `forced_login_method`, the context limits and `[model_providers.infinito]`), so trusted projects, personal settings and every `[mcp_servers.*]` table that Codex or another role such as `dsk-blender` added survive a redeploy; comments in the file do not. The provider speaks the `responses` wire API, the only one the pinned Codex accepts.
+
 ## Features
 
 - **Pinned CLI:** the `@openai/codex` package is installed at the version `services.codex.npm_version` pins.

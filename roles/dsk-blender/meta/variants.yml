@@ -9,6 +9,9 @@
     claude:
       enabled: true
       shared: true
+    codex:
+      enabled: true
+      shared: true
     code:
       enabled: true
       shared: true

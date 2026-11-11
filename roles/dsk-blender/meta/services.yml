@@ -21,6 +21,11 @@ claude:
   enabled: "{{ 'dsk-gnt-claude' in group_names }}"
   shared: "{{ 'dsk-gnt-claude' in group_names }}"
 # nocheck: playwright-service-flag, dynamic-flag  MCP client on the same workstation, registered when the host deploys it
+codex:
+  bond: 0.5
+  enabled: "{{ 'dsk-gnt-codex' in group_names }}"
+  shared: "{{ 'dsk-gnt-codex' in group_names }}"
+# nocheck: playwright-service-flag, dynamic-flag  MCP client on the same workstation, registered when the host deploys it
 code:
   bond: 0.5
   enabled: "{{ 'dsk-code' in group_names }}"

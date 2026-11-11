@@ -7,8 +7,10 @@
 # Env (rendered into test.env from templates/test.env.j2):
 #   BONSAI_EXPECTED      whether the IFC and BIM extension is declared
 #   BONSAI_EXTENSION_ID  the id blender lists it under
+#   MCP_ADDON_MODULE     the module the saved preferences enable
 #   MCP_CLAUDE_EXPECTED  whether dsk-gnt-claude is deployed on this host
 #   MCP_CLAUDE_REGISTRY  the user-scope MCP registry claude writes
+#   MCP_CODEX_EXPECTED   whether dsk-gnt-codex is deployed on this host
 #   MCP_CODE_BINARY      the editor binary of the deployed flavor
 #   MCP_CODE_EXPECTED    whether dsk-code is deployed on this host
 #   MCP_SERVER_COMMAND   absolute path of the MCP server entry point
@@ -18,8 +20,10 @@ set -euo pipefail
 
 : "${BONSAI_EXPECTED:?}"
 : "${BONSAI_EXTENSION_ID?}"
+: "${MCP_ADDON_MODULE:?}"
 : "${MCP_CLAUDE_EXPECTED:?}"
 : "${MCP_CLAUDE_REGISTRY:?}"
+: "${MCP_CODEX_EXPECTED:?}"
 : "${MCP_CODE_BINARY?}"
 : "${MCP_CODE_EXPECTED:?}"
 : "${MCP_SERVER_COMMAND:?}"
@@ -35,9 +39,18 @@ echo "[dsk-blender] the server completes an MCP initialize handshake"
 served="$(python3 "${here}/initialize.py" "${MCP_SERVER_COMMAND}")"
 echo "[dsk-blender] served by: ${served}"
 
+echo "[dsk-blender] the saved preferences enable the add-on"
+grep -aqs "${MCP_ADDON_MODULE}" "${MCP_USER_HOME}"/.config/blender/*/config/userpref.blend
+
 if [[ "${MCP_CLAUDE_EXPECTED}" == "true" ]]; then
 	echo "[dsk-blender] claude carries the server"
 	grep -q "\"${MCP_SERVER_NAME}\"" "${MCP_CLAUDE_REGISTRY}"
+fi
+
+if [[ "${MCP_CODEX_EXPECTED}" == "true" ]]; then
+	echo "[dsk-blender] codex carries the server"
+	python3 -c 'import sys, tomllib; sys.exit(sys.argv[2] not in tomllib.load(open(sys.argv[1], "rb")).get("mcp_servers", {}))' \
+		"${MCP_USER_HOME}/.codex/config.toml" "${MCP_SERVER_NAME}"
 fi
 
 if [[ "${MCP_CODE_EXPECTED}" == "true" ]] && command -v "${MCP_CODE_BINARY}" >/dev/null; then
