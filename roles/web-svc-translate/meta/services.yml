@@ -54,7 +54,7 @@ translate:
     strategy: "{{ 'system_one' if (lookup('config', 'web-svc-translate', 'services.s1.enabled') | bool) else 'preference' }}"
     question: translation-verdict
     order:
-      - libretranslate
+      - libretranslate-engine
       - nllb
       - ltengine
       - ollama

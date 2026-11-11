@@ -18,7 +18,7 @@ As an operator, I want the AI roles to run one LibreTranslate engine, consume th
 
 - [ ] Only `svc-ai-libretranslate-engine` runs a LibreTranslate container; `web-svc-libretranslate` starts none and `prefetch_models.py` exists once.
 - [ ] `web-app-mediawiki` consumes `web-svc-translate`, and translation through it works in a Playwright spec.
-- [ ] `web-svc-translate` uses `libretranslate-engine` consistently in its README, `router.order` and consumer key.
+- [x] `web-svc-translate` uses `libretranslate-engine` consistently in its README, `router.order` and consumer key.
 - [ ] `web-app-openwebui` enables tika, searxng and jupyter, and Playwright specs cover a RAG upload, a web search and a code execution.
 - [x] The `web-app-openwebui` description no longer names Ollama as its backend.
   - Evidence: `roles/web-app-openwebui/README.md:5,25` and the galaxy description in `roles/web-app-openwebui/meta/main.yml:4` name the `svc-ai-litellm` gateway; the role's model connections are the gateway and the agent broker only (`roles/web-app-openwebui/vars/main.yml:39-41`).
@@ -31,8 +31,8 @@ As an operator, I want the AI roles to run one LibreTranslate engine, consume th
 
 - [x] Every superseded criterion listed above carries a pointer to this file in its earlier requirement.
   - Evidence: a `Superseded by [089](089-agents-restructuring.md#superseded-criteria)` line next to every row of 089's Superseded Criteria table: 032 (agent count, both Flowise criteria), 037 (`agent-user` grant, hard-enabled runtimes and the `hermes`/`openclaw` models, the broker's own key and the `user` field, the `model` key), 035 (the `administrator` and `mcp` gate), 036 and 040 (peer presence), 038 (`router_strategy`), 050 (MCP facts, three places) and `docs/requirements/README.md` (requirements as work packages).
-- [ ] [050](050-mcp-role-integration.md) and [035](035-mcp-proxy-expansion.md) agree on one disposition per application, matching its `meta/mcp.yml`.
-- [ ] [035](035-mcp-proxy-expansion.md) names `dsk-*` roles, has no stray fragment, and lists the AI roles added since it was written.
+- [x] [050](050-mcp-role-integration.md) and [035](035-mcp-proxy-expansion.md) agree on one disposition per application, matching its `meta/mcp.yml`.
+- [x] [035](035-mcp-proxy-expansion.md) names `dsk-*` roles, has no stray fragment, and lists the AI roles added since it was written.
 
 ## Cross-linking
 
