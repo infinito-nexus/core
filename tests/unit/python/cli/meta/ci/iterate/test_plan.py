@@ -336,6 +336,16 @@ class TestBaselineRule(unittest.TestCase):
             (["web-app-light"], False),
         )
 
+    def test_a_test_under_a_role_seeds_that_role(self) -> None:
+        path = "tests/unit/python/roles/web-app-light/test_y.py"
+        change = Change(path, "test", TESTS, tests=(path,))
+        self.assertEqual(_build([change])["baseline"]["roles"], ["web-app-light"])
+
+    def test_negative_control_a_roles_dir_naming_no_role_widens(self) -> None:
+        path = "tests/integration/roles/meta/test_y.py"
+        change = Change(path, "test", TESTS, tests=(path,))
+        self.assertEqual(_build([change])["baseline"]["roles"], list(ROLES))
+
 
 if __name__ == "__main__":
     unittest.main()

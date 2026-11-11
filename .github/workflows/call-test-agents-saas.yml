@@ -273,12 +273,12 @@ jobs:
         shell: bash
         run: make compose-playwright role='${{ matrix.apps }}'
 
-      - name: 🧪 Run every agent scenario
+      - name: 🧪 Play every agent scenario
         timeout-minutes: 120
         shell: bash
         run: |
           set -euo pipefail
-          make agents-verify mode='${{ matrix.mode }}' 2>&1 | tee "/tmp/agents-verify-${{ matrix.apps }}.log"
+          python -m cli.agents.scenarios --mode '${{ matrix.mode }}' 2>&1 | tee "/tmp/agents-verify-${{ matrix.apps }}.log"
 
       - name: 📊 Result table (id, mode, result, duration, log)
         if: always()
@@ -321,7 +321,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: agents-verify-${{ matrix.artifact }}
-          path: /tmp/agents-verify-${{ matrix.apps }}.log
+          path: |
+            /tmp/agents-verify-${{ matrix.apps }}.log
+            /tmp/agents-scenarios/
           if-no-files-found: ignore
 
       - name: "⬆️ Upload rescue diagnostics"

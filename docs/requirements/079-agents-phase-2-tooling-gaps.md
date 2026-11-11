@@ -18,6 +18,7 @@ As an operator, I want every make target the routine tool nodes need to exist an
 - [ ] Each make target listed under Tooling gaps exists, is documented in `make help` and is called by the routine that needs it.
 - [ ] The lint for one role or one file reports a key-order error in `default.env` and a prefix-group error in a handler file name within one minute, without the full gate.
 - [ ] The affected-roles resolver keeps a pull request that only adds a test under `tests/` at its real matrix instead of `__ALL__`.
+  - Partial: a test under `tests/**/roles/<role>/` seeds `<role>` in `scripts/meta/resolve/diff/affected_roles.sh` and in `_baseline` of `cli/meta/ci/iterate/plan.py`, proven by `test_only_a_role_test_keeps_the_role_matrix` in `tests/integration/meta/workflows/test_diff_affected_roles.py` and `test_a_test_under_a_role_seeds_that_role` in `tests/unit/python/cli/meta/ci/iterate/test_plan.py`. Open: a test outside every role still widens to `__ALL__` by the resolver's documented fail-safe; narrowing it needs a decision on an empty deploy matrix.
 - [ ] `make compose-role-sync task=<task> pw=<args>` runs the spec.
 - [ ] `make compose-playwright` runs the current spec and `.env`.
 - [ ] `make design-palette sync=role` re-renders `.env`.

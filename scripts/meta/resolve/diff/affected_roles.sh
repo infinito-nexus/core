@@ -13,7 +13,10 @@
 #                                        (the `.md`/`.rst` skip-list mirrors
 #                                        scripts/meta/resolve/pr/scope.sh's
 #                                        `is_markdown_or_rst`) nor under
-#                                        tests/, OR
+#                                        tests/ (a test under
+#                                        tests/**/roles/<role>/ seeds
+#                                        <role> when roles/<role>/ exists),
+#                                        OR
 #                                      * the diff contains only such
 #                                        skipped paths and no role seeds
 #                                        could be derived, OR
@@ -76,6 +79,14 @@ for path in "${changed_paths[@]}"; do
 	[[ -z "${path}" ]] && continue
 	if [[ "${path}" != roles/*/* ]]; then
 		case "${path}" in
+		tests/*/roles/*/*)
+			role="${path#tests/*/roles/}"
+			role="${role%%/*}"
+			if [[ -d "roles/${role}" ]]; then
+				seed_roles["${role}"]=1
+			fi
+			continue
+			;;
 		*.md | *.rst | tests/*)
 			continue
 			;;

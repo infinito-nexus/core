@@ -76,13 +76,18 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 ### Local setup and integration workflows
 
 - [ ] `call-test-agents-local.yml` runs on pull requests touching `agents/` or an AI role, and `make agents-verify` runs the same file through act.
+  - Partial: `scripts/github/resolve/pr/agents_affected.sh` also matches every role whose `meta/main.yml` carries the galaxy tag `ai` (`tests/unit/python/scripts/github/resolve/pr/test_agents_affected.py`), and `scripts/agents/verify.sh` hands `call-test-agents-local.yml` to act (`act_problems` in `tests/lint/agents/test_l25_workflows.py`, `tests/unit/python/scripts/agents/test_verify.py`). Open: a pull request run and an act run of `make agents-verify`.
 - [ ] The iteration plan's inner loop works: a change to one role is verified by `make compose-deploy mode=update`, an in-container probe and `make agents-verify scenario=<id>` without a full workflow run.
 - [ ] `make agents-verify` deploys the agent infrastructure through act in compose and runs every scenario; the same workflow deploys and runs it in swarm in the CI.
 - [ ] `make agents-verify scenario=<id>` reruns one scenario against the running stack without a redeploy.
+  - Partial: `play` in `cli/agents/scenarios.py` runs a scenario's `steps` through the script behind `make compose-exec` and fails on a wrong exit or a missing `expect` match, proven on recorded step outputs in `tests/unit/python/cli/agents/test_scenarios.py`; `scenario=<id>` starts neither act nor a deploy (`test_one_scenario_replays_without_act_or_slot_check`). Open: no scenario declares steps yet, and a run against a deployed stack.
 - [ ] Scenarios replay recorded stub replies for model nodes; `make agents-rerecord` refreshes them; an injection scenario with a hostile stub that follows the injection still makes no tool call outside the agent's grants.
-- [ ] Without GitHub or Anthropic credentials in the inventory, their scenarios report `skipped`.
-- [ ] The CI runs the same workflow file as `make agents-verify`.
-- [ ] `make agents-verify mode=swarm` refuses to start on a worktree slot above 10 and names the fix.
+- [x] Without GitHub or Anthropic credentials in the inventory, their scenarios report `skipped`.
+  - Evidence: a scenario names the inventory paths of its credentials under `requires`; `missing_credentials` in `cli/agents/scenarios.py` reads them from the deploy inventory, resolving `lookup('env', ...)`, and `play` reports `skipped` without touching the stack, proven by `test_an_unset_credential_skips_without_touching_the_stack`, `test_a_set_credential_plays_the_scenario` and `test_literal_env_and_absent_values` in `tests/unit/python/cli/agents/test_scenarios.py`.
+- [x] The CI runs the same workflow file as `make agents-verify`.
+  - Evidence: `scripts/agents/verify.sh` runs `call-test-agents-local.yml` through act, the file `entry-pr-change-orchestrate.yml` calls, and neither agents workflow calls `make agents-verify` back; `act_problems` in `tests/lint/agents/test_l25_workflows.py` checks both, red case `test_red_fixture_a_make_target_off_the_ci_file_fails`.
+- [x] `make agents-verify mode=swarm` refuses to start on a worktree slot above 10 and names the fix.
+  - Evidence: `scripts/agents/verify.sh` reads the worktree slot `INFINITO_INSTANCE` before act starts, proven by `test_swarm_above_slot_ten_is_refused_and_names_the_fix` and `test_swarm_below_slot_three_or_no_number_is_refused` in `tests/unit/python/scripts/agents/test_verify.py`.
 - [ ] The Ollama images are preseeded and no deploy step waits on the registry cache for them.
 
 ## Cross-linking

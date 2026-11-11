@@ -111,8 +111,8 @@ L24:
   proof: tests/lint/agents/test_l24_bundle_inventory.py
   red_fixture: yes
 L25:
-  statement: "the agents CI workflows exist and are wired: the pull-request orchestrator calls the local agents workflow and a nightly cron caller runs the SaaS agents
-    workflow"
+  statement: "the agents CI workflows exist and are wired: the pull-request orchestrator calls the local agents workflow, a nightly cron caller runs the SaaS agents
+    workflow, and make agents-verify and make agents-integration run those same files through act"
   proof_kind: lint
   proof: tests/lint/agents/test_l25_workflows.py
   red_fixture: yes
