@@ -149,7 +149,7 @@ stalwart_migrate:
   enabled: false
   shared: false
   image: stalwartlabs/stalwart-migrate
-  version: "1.0.7"
+  version: "1.0.8"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
