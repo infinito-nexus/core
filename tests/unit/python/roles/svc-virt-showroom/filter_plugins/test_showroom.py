@@ -146,6 +146,7 @@ class TestInstances(unittest.TestCase):
             cloud["users"],
         )
         self.assertFalse(cloud["disable_root"])
+        self.assertEqual(["openssh-server", "systemd-timesyncd"], cloud["packages"])
         self.assertEqual("12GiB", document["config"]["limits.memory"])
         self.assertEqual("80GiB", document["devices"]["root"]["size"])
 
@@ -159,6 +160,24 @@ class TestInstances(unittest.TestCase):
         )
         document = load_yaml_str(showroom.creation_yaml(looped))
         self.assertEqual(vm["devices"], document["devices"])
+
+    def test_password_logins_go_off_through_a_drop_in_not_the_main_config(self):
+        cloud = load_yaml_str(
+            load_yaml_str(showroom.creation_yaml(self.instances["karakalpak"]))[
+                "config"
+            ]["cloud-init.user-data"]
+        )
+        self.assertNotIn("ssh_pwauth", cloud)
+        self.assertEqual(
+            [
+                {
+                    "path": "/etc/ssh/sshd_config.d/60-showroom.conf",
+                    "permissions": "0644",
+                    "content": "PasswordAuthentication no\n",
+                }
+            ],
+            cloud["write_files"],
+        )
 
     def test_settings_cover_limits_size_and_address(self):
         rows = {
