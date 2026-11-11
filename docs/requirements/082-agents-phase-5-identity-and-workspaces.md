@@ -21,7 +21,8 @@ As an operator, I want every agent to act under its own account with its own cre
 - [ ] Claude Code in a workspace completes a request through the gateway's Anthropic upstream, once with `auth: api_key` and once with `auth: subscription`.
 - [ ] No agent workspace or agent container holds a model provider credential (probe recorded).
   - Exception: a VM workspace in login mode holds its agent's vendor login, see [093](093-agents-vm-workspaces.md).
-- [ ] A `github` account grant without credentials in the inventory is inactive, and the next active account is the default.
+- [x] A `github` account grant without credentials in the inventory is inactive, and the next active account is the default.
+  - Evidence: `available_accounts` in `utils/agents/accounts.py` derives the active grants from `agents.<role>.credentials`, the shipped roles in `agents/firewall/roles.yml` grant `account(github/<role>)` before Gitea and GitLab; proven by `TestAvailableAccounts` in `tests/unit/python/utils/agents/test_accounts.py`, including the inventory override through `lookup('agent_config')`.
 - [ ] Overriding a credential under `agents.<role>.credentials` in the inventory replaces the generated default.
 - [ ] Every agent credential lives in the agent's `.kdbx`; a grep over `sys-token-store` and the inventory finds no agent credential except the master key and the bootstrap credentials.
 - [ ] With a Nextcloud grant the `.kdbx` is stored in the agent's Nextcloud account; without one it stays in the agent's persistent volume.
@@ -33,7 +34,8 @@ As an operator, I want every agent to act under its own account with its own cre
 - [ ] The same flow works through a Gitea account and through a GitLab account of the platform, both created and keyed at deploy time.
 - [ ] The first `account` grant is the agent's default account: a routine step without an explicit account uses it (unit test), and reordering the grants in the inventory switches the default on the next deploy.
   - Partial: `account_grants` in `utils/firewall/compile.py:205` with `default_account`, proven by `TestAccountGrants` in `tests/unit/python/utils/firewall/test_compile.py:293`. Live: reorder the grants in the inventory, redeploy and read the default account the agent uses.
-- [ ] A `repositories` entry that names an account is worked through that account instead of the default.
+- [x] A `repositories` entry that names an account is worked through that account instead of the default.
+  - Evidence: `repository_entry`, `repository_accounts` and `worked_through` in `utils/agents/accounts.py` (entry `<provider>/<label>:<owner>/<name>`), lint L01 refuses a malformed entry or one naming an ungranted account; proven by `TestRepositoryAccounts` in `tests/unit/python/utils/agents/test_accounts.py` and `test_a_malformed_or_ungranted_repositories_entry_fails` in `tests/lint/agents/test_l01_agent_fields.py`.
 - [ ] A push from an agent to the upstream remote is refused by the agent firewall.
 - [ ] A merge attempt by an agent is refused by the agent firewall.
 - [ ] Setting `repositories` in the inventory makes the agent work on the listed repositories only.

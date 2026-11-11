@@ -332,6 +332,20 @@ def authorize_client(expected: str, presented: str) -> None:
         raise PermissionError(DENY_UNAUTHENTICATED)
 
 
+def authorize_agent(tokens: Mapping[str, str], agent: str, presented: str) -> None:
+    """Refuse a caller whose bearer is not the token of the agent it names.
+
+    Args:
+        tokens: agent account name to the token issued to that agent.
+        agent: the agent the caller names in ``X-Infinito-Agent``.
+        presented: the ``Authorization`` header value the caller sent.
+
+    The bearer is compared against the named agent's token only, in constant
+    time, so one agent's token never authenticates another agent.
+    """
+    authorize_client(tokens.get(agent, ""), presented)
+
+
 def authorize_call(
     contract: Mapping[str, Any], name: str, arguments: Mapping[str, Any] | None
 ) -> tuple[str, str]:
@@ -424,3 +438,27 @@ def audit_event(
         "duration_ms": duration_ms,
         "correlation_id": correlation_id,
     }
+
+
+def refusal(
+    contract: Mapping[str, Any],
+    consumer: str,
+    request: Mapping[str, Any],
+    error: PermissionError,
+    correlation_id: str,
+) -> dict[str, Any]:
+    """Return the audit record of a refused call: no upstream call ran, so the
+    duration is 0 and the status is the deny reason.
+
+    Args:
+        contract: the loaded contract.
+        consumer: the calling client's application id.
+        request: the decoded JSON-RPC request object.
+        error: the refusal; its message is the deny reason.
+        correlation_id: identifier tying the record to the client request.
+    """
+    params = request.get("params")
+    name = params.get("name") if isinstance(params, dict) else None
+    return audit_event(
+        contract, consumer, str(name or ""), str(error), 0, correlation_id
+    )

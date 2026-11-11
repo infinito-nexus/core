@@ -2,7 +2,9 @@
 declared under agents/firewall/providers/; every ${VAR} names a variable
 listed in agents/firewall/variables.yml; every vendor ``login_hosts`` entry is
 an exact host name, never a wildcard and never a host that serves user
-content."""
+content; no role grants egress to the board or an mcp write on it, because the
+orchestrator writes the board on the agent's behalf after checking the
+agent's app(openproject/...) grant."""
 
 from __future__ import annotations
 
@@ -13,7 +15,7 @@ from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR, load
 from utils.cache.yaml import dump_yaml_str
-from utils.firewall.compile import decide, resolve
+from utils.firewall.compile import WRITE_ACTIONS, decide, resolve
 from utils.firewall.parse import BUILTIN_PROVIDERS, parse_rule
 
 FIREWALL = AGENTS_DIR / "firewall"
@@ -21,6 +23,30 @@ EXACT_HOST = re.compile(r"^(?=.{1,253}$)([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{
 USER_CONTENT_HOSTS = frozenset(
     {"claude.ai", "chatgpt.com", "gemini.google.com", "copilot.microsoft.com"}
 )
+BOARD = "openproject"
+
+
+def board_problems(roles: dict) -> list[str]:
+    """Return every allow or ask rule that lets an agent reach the board
+    itself: egress to a board host or an mcp write on a board server.
+
+    Args:
+        roles: the parsed agents/firewall/roles.yml.
+    """
+    problems: list[str] = []
+    for name, role in (roles or {}).items():
+        for bucket in ("allow", "ask"):
+            for raw in (role or {}).get(bucket) or []:
+                try:
+                    rule = parse_rule(raw)
+                except ValueError:
+                    continue
+                on_board = BOARD in rule.target.split("/")[0].lower()
+                if rule.kind == "egress" and on_board:
+                    problems.append(f"{name}: {raw!r} grants egress to the board")
+                if rule.kind == "mcp" and on_board and rule.actions & WRITE_ACTIONS:
+                    problems.append(f"{name}: {raw!r} writes the board directly")
+    return problems
 
 
 def login_host_problems(firewall_dir: Path) -> list[str]:
@@ -75,6 +101,7 @@ def check(firewall_dir: Path) -> list[str]:
             for var in rule.variables
             if var not in known_vars
         )
+    problems.extend(board_problems(roles))
     return problems
 
 
@@ -155,6 +182,30 @@ class TestL08(unittest.TestCase):
                     )
                 ],
             )
+
+    def test_board_egress_and_direct_board_writes_fail(self):
+        roles = {
+            "r": {
+                "allow": [
+                    "egress(openproject.example.org)",
+                    "mcp(web-app-openproject/work_packages):create",
+                    "mcp(openproject/work_packages):read",
+                    "app(openproject/work_packages):crud",
+                ],
+                "ask": ["mcp(openproject/approved):update"],
+            }
+        }
+        self.assertEqual(
+            board_problems(roles),
+            [
+                "r: 'egress(openproject.example.org)' grants egress to the board",
+                (
+                    "r: 'mcp(web-app-openproject/work_packages):create' writes the "
+                    "board directly"
+                ),
+                "r: 'mcp(openproject/approved):update' writes the board directly",
+            ],
+        )
 
     def test_non_normalised_egress_spellings_fail(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -18,10 +18,15 @@ from utils.firewall.compile import (
     decide_intersection,
     egress_allowlist,
     expand,
-    login_hosts,
+    narrow,
     resolve,
-    vm_egress_proxy,
     write_gate,
+)
+from utils.firewall.egress import (
+    account_hosts,
+    login_hosts,
+    remote_egress,
+    vm_egress_proxy,
 )
 
 PROVIDERS_DIR = PROJECT_ROOT / "agents" / "firewall" / "providers"
@@ -34,6 +39,13 @@ ROLES = {
         "deny": ["egress(registry.example)"],
     }
 }
+PLATFORM = {
+    "model_gateway": "litellm.infinito.test",
+    "mcp_adapter": "MCP.infinito.test.",
+    "forks": ["gitea.infinito.test"],
+    "resolver": "10.0.0.53",
+}
+PLATFORM_HOSTS = {"mcp.infinito.test", "gitea.infinito.test"}
 
 
 def _providers() -> dict[str, dict]:
@@ -41,23 +53,35 @@ def _providers() -> dict[str, dict]:
 
 
 class TestVmEgressProxy(unittest.TestCase):
-    def test_gateway_mode_admits_exactly_the_compiled_grants(self):
+    def test_gateway_mode_admits_the_grants_the_gateway_the_adapter_and_the_fork(
+        self,
+    ):
         resolved = resolve(ROLES, "contributor")
         policy = vm_egress_proxy(
-            resolved, "gateway", login_hosts(_providers(), "claude-code")
+            resolved, "gateway", login_hosts(_providers(), "claude-code"), PLATFORM
         )
-        self.assertEqual(policy["admit"], egress_allowlist(resolved))
-        self.assertEqual(policy["admit"], ["github.com"])
+        self.assertEqual(
+            set(policy["admit"]),
+            {*egress_allowlist(resolved), *PLATFORM_HOSTS, "litellm.infinito.test"},
+        )
+        self.assertNotIn("api.anthropic.com", policy["admit"])
         self.assertEqual(policy["match"], ["sni", "host"])
         self.assertEqual(policy["unmatched"], "deny")
+        self.assertEqual(policy["resolver"], "10.0.0.53")
 
     def test_login_mode_adds_only_the_declared_vendor_hosts(self):
         resolved = resolve(ROLES, "contributor")
         vendor = login_hosts(_providers(), "claude-code")
         self.assertIn("api.anthropic.com", vendor)
         self.assertNotIn("chatgpt.com", vendor)
-        policy = vm_egress_proxy(resolved, "login", vendor)
-        self.assertEqual(set(policy["admit"]), {"github.com", *vendor})
+        policy = vm_egress_proxy(resolved, "login", vendor, PLATFORM)
+        self.assertEqual(set(policy["admit"]), {"github.com", *vendor, *PLATFORM_HOSTS})
+
+    def test_a_deny_rule_removes_a_platform_host(self):
+        roles = {"r": {"deny": ["egress(gitea.infinito.test)"]}}
+        policy = vm_egress_proxy(resolve(roles, "r"), "gateway", [], PLATFORM)
+        self.assertNotIn("gitea.infinito.test", policy["admit"])
+        self.assertIn("gitea.infinito.test", policy["refuse"])
 
     def test_login_mode_never_readmits_a_denied_vendor_host(self):
         roles = {
@@ -69,7 +93,7 @@ class TestVmEgressProxy(unittest.TestCase):
         resolved = resolve(roles, "r")
         self.assertEqual(decide(resolved, "egress", "console.anthropic.com"), "deny")
         policy = vm_egress_proxy(
-            resolved, "login", login_hosts(_providers(), "claude-code")
+            resolved, "login", login_hosts(_providers(), "claude-code"), PLATFORM
         )
         self.assertNotIn("console.anthropic.com", policy["admit"])
         self.assertIn("console.anthropic.com", policy["refuse"])
@@ -82,7 +106,7 @@ class TestVmEgressProxy(unittest.TestCase):
                 "deny": ["egress(evil.example.com)"],
             }
         }
-        policy = vm_egress_proxy(resolve(roles, "r"), "gateway", [])
+        policy = vm_egress_proxy(resolve(roles, "r"), "gateway", [], PLATFORM)
         self.assertEqual(policy["refuse"], ["evil.example.com"])
         self.assertEqual(policy["order"], ["refuse", "admit"])
         self.assertIn("*.example.com", policy["admit"])
@@ -95,7 +119,10 @@ class TestVmEgressProxy(unittest.TestCase):
         ):
             roles = {"r": {"deny": [f"egress({spelling})"]}}
             policy = vm_egress_proxy(
-                resolve(roles, "r"), "login", login_hosts(_providers(), "claude-code")
+                resolve(roles, "r"),
+                "login",
+                login_hosts(_providers(), "claude-code"),
+                PLATFORM,
             )
             self.assertNotIn("api.anthropic.com", policy["admit"], spelling)
             self.assertEqual(policy["refuse"], ["api.anthropic.com"], spelling)
@@ -273,6 +300,80 @@ class TestIntersection(unittest.TestCase):
         self.assertEqual(
             self._verdict("app", "web-app-nextcloud/files", "delete"), "ask"
         )
+
+
+class TestRemoteEgress(unittest.TestCase):
+    def test_every_role_with_account_grants_reaches_exactly_its_account_hosts(self):
+        roles = load_yaml(FIREWALL_ROLES)
+        granted = [name for name in roles if account_grants(roles, [name])]
+        self.assertIn("maintainer", granted)
+        for name in granted:
+            with self.subTest(role=name):
+                self.assertEqual(
+                    remote_egress(resolve(roles, name)),
+                    account_hosts(account_grants(roles, [name]), {}),
+                )
+
+    def test_a_provider_on_a_remote_instance_adds_its_exact_host(self):
+        self.assertEqual(
+            account_hosts(
+                ["gitea/maintainer", "gitlab/maintainer"],
+                {"gitea": "https://Git.Live.Example./api"},
+            ),
+            ["git.live.example"],
+        )
+
+    def test_an_egress_grant_beyond_the_accounts_is_caught(self):
+        roles = {
+            "r": {
+                "allow": [
+                    "account(github/r):crud",
+                    "egress(github.com)",
+                    "egress(api.github.com)",
+                    "egress(pastebin.example)",
+                    "egress(${INFINITO_PACKAGE_CACHE})",
+                ]
+            }
+        }
+        self.assertNotEqual(
+            remote_egress(resolve(roles, "r")),
+            account_hosts(account_grants(roles, ["r"]), {}),
+        )
+
+
+class TestNarrowOverride(unittest.TestCase):
+    ROLES: ClassVar[dict] = {
+        "r": {
+            "allow": ["app(forge/issue):crud", "egress(github.com)"],
+            "deny": ["app(upstream/push):create"],
+        }
+    }
+
+    def _base(self) -> Resolved:
+        return resolve(self.ROLES, "r")
+
+    def test_an_added_deny_narrows(self):
+        narrowed = narrow(self._base(), {"deny": ["app(forge/issue):delete"]})
+        self.assertEqual(decide(narrowed, "app", "forge/issue", "delete"), "deny")
+        self.assertEqual(decide(narrowed, "app", "forge/issue", "read"), "allow")
+
+    def test_an_ask_on_a_granted_rule_narrows_allow_to_ask(self):
+        narrowed = narrow(self._base(), {"ask": ["app(forge/issue):update"]})
+        self.assertEqual(decide(narrowed, "app", "forge/issue", "update"), "ask")
+
+    def test_every_widening_override_is_refused(self):
+        for override in (
+            {"allow": ["app(upstream/push):create"]},
+            {"includes": ["maintainer"]},
+            {"ask": ["app(upstream/push):create"]},
+            {"ask": ["egress(evil.example)"]},
+            {"ask": ["app(forge/*):read"]},
+        ):
+            with self.subTest(override=override), self.assertRaises(PermissionError):
+                narrow(self._base(), override)
+
+    def test_an_empty_override_changes_nothing(self):
+        self.assertEqual(narrow(self._base(), {}), self._base())
 
 
 class TestAskAtGate(unittest.TestCase):
