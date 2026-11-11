@@ -160,6 +160,37 @@ class TestAuthorizeClient(unittest.TestCase):
             policy.authorize_client("s3cret", "Bearer s3crét")
 
 
+AGENT_TOKENS = {"mant0a": "token-of-mant", "impl0a": "token-of-impl"}
+
+
+class TestAuthorizeAgent(unittest.TestCase):
+    def test_an_agent_presenting_its_own_token_is_accepted(self):
+        policy.authorize_agent(AGENT_TOKENS, "mant0a", "Bearer token-of-mant")
+        policy.authorize_agent(AGENT_TOKENS, "impl0a", "Bearer token-of-impl")
+
+    def test_a_token_of_one_agent_is_refused_for_another(self):
+        with self.assertRaises(PermissionError) as error:
+            policy.authorize_agent(AGENT_TOKENS, "impl0a", "Bearer token-of-mant")
+        self.assertEqual(str(error.exception), policy.DENY_UNAUTHENTICATED)
+
+    def test_an_agent_without_a_token_is_refused(self):
+        with self.assertRaises(PermissionError):
+            policy.authorize_agent(AGENT_TOKENS, "ghost0a", "Bearer token-of-mant")
+
+    def test_the_agent_token_is_compared_in_constant_time(self):
+        with (
+            mock.patch.object(
+                policy.hmac, "compare_digest", wraps=policy.hmac.compare_digest
+            ) as compare,
+            self.assertRaises(PermissionError),
+        ):
+            policy.authorize_agent(AGENT_TOKENS, "impl0a", "Bearer token-of-mant")
+        self.assertEqual(
+            compare.call_args_list,
+            [mock.call(b"token-of-mant", b"token-of-impl")],
+        )
+
+
 class TestAuthorizeCall(unittest.TestCase):
     def test_a_listed_read_tool_resolves_to_its_upstream_operation(self):
         method, path = policy.authorize_call(contract(), "checkmk_list_hosts", {})

@@ -70,6 +70,9 @@ maintainer:
   includes:
     - autonomous-contributor
   allow:
+    - account(github/maintainer):crud
+    - account(gitea/maintainer):crud
+    - account(gitlab/maintainer):crud
     - app(github/pull_request-comment):create
     - app(github/issue-comment):create
     - app(github/review-reply):create
@@ -82,6 +85,9 @@ designer:
   includes:
     - autonomous-contributor
   allow:
+    - account(github/designer):crud
+    - account(gitea/designer):crud
+    - account(gitlab/designer):crud
     - app(artifact/gallery):create
   deny:
     - app(github/foreign-pull_request-comment):create
@@ -90,6 +96,9 @@ reviewer:
   includes:
     - forge-reader
   allow:
+    - account(github/reviewer):crud
+    - account(gitea/reviewer):crud
+    - account(gitlab/reviewer):crud
     - app(github/review-comment):create
   deny:
     - app(github/push):create
@@ -111,6 +120,9 @@ coordinator:
   includes:
     - forge-reader
   allow:
+    - account(github/coordinator):crud
+    - account(gitea/coordinator):crud
+    - account(gitlab/coordinator):crud
     - app(ci/lock):crud
     - app(github/workflow-dispatch):create
     - app(fork/feature-merge):create
@@ -135,15 +147,26 @@ operator:
 tester:
   includes:
     - autonomous-contributor
+  allow:
+    - account(github/tester):crud
+    - account(gitea/tester):crud
+    - account(gitlab/tester):crud
 
 documenter:
   includes:
     - autonomous-contributor
+  allow:
+    - account(github/documenter):crud
+    - account(gitea/documenter):crud
+    - account(gitlab/documenter):crud
 
 translator:
   includes:
     - autonomous-contributor
   allow:
+    - account(github/translator):crud
+    - account(gitea/translator):crud
+    - account(gitlab/translator):crud
     - app(weblate/suggestion):create
     - app(web-svc-translate/translate):crud
     - app(make/i18n):crud
@@ -154,6 +177,10 @@ translator:
 release:
   includes:
     - forge-reader
+  allow:
+    - account(github/release):crud
+    - account(gitea/release):crud
+    - account(gitlab/release):crud
   ask:
     - app(github/tag):create
     - app(github/release):create

@@ -47,6 +47,10 @@ The deployment renders one `ADAPTER_CONTRACT` JSON document per instance:
 
 `files/python/policy.py` validates it at startup. A contract missing a limit, carrying an empty allowlist, naming a wildcard path or lacking a pinned schema hash is refused before the process serves anything.
 
+## Agent callers
+
+A caller that names an agent in `X-Infinito-Agent` MUST present that agent's own bearer from `ADAPTER_AGENT_TOKENS`, compared in constant time; another agent's token and the shared `ADAPTER_BEARER` are refused with `401`. Its `tools/call` is then decided by the agent's compiled firewall policy from `ADAPTER_AGENT_POLICIES` (the `mcp_policy` surface of [compile.py](../../utils/firewall/compile.py)) on the target `<provider>/<tool>`, deny over ask over allow, an unmatched call denied. A refusal answers `403` with `firewall_refused: <verdict> by <rule>`, naming the matched rule.
+
 ## Endpoints
 
 | Path | Method | Purpose |

@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from utils.firewall.parse import Rule, normalise_host, parse_rule, substitute
+from utils.firewall.parse import Rule, parse_rule, substitute
 
 VERDICTS = ("deny", "ask", "allow")
 MISCONFIGURATION = "misconfiguration"
@@ -226,65 +226,52 @@ def egress_allowlist(resolved: Resolved) -> list[str]:
     return sorted({r.target for r in resolved.allow if r.kind == "egress"} - denied)
 
 
-def login_hosts(providers: dict[str, dict], runtime: str) -> list[str]:
-    """Return the vendor hosts a login-mode workspace of ``runtime`` adds to
-    its egress: the ``login_hosts`` of every declared provider that names the
-    runtime, and nothing else.
-
-    Args:
-        providers: provider name to its parsed agents/firewall/providers/ file.
-        runtime: the agent's runtime.
-    """
-    return sorted(
-        {
-            host
-            for provider in providers.values()
-            if runtime in (provider.get("runtimes") or [])
-            for host in provider.get("login_hosts") or []
-        }
-    )
-
-
-def _egress_denied(resolved: Resolved, host: str) -> bool:
-    return any(
-        _matches(rule, "egress", normalise_host(host), None) for rule in resolved.deny
-    )
-
-
-def vm_egress_proxy(
-    resolved: Resolved, model_access: str, vendor_hosts: list[str]
-) -> dict:
-    """Return the policy of the hypervisor-side egress proxy in front of an
-    agent VM: the hosts the proxy refuses and the hosts it admits by TLS SNI or
-    HTTP Host header, refuse before admit, every other destination refused.
-    Login mode adds the vendor hosts; a deny rule still removes any of them.
+def narrow(resolved: Resolved, override: dict) -> Resolved:
+    """Return ``resolved`` with an inventory or Open WebUI override folded in,
+    refusing every override rule that could widen a verdict. An override may
+    add ``deny`` rules, and ``ask`` rules only on a target a base ``allow``
+    rule of the same kind grants verbatim with at least those actions; an
+    override ``allow``, ``includes`` or any other key is refused.
 
     Args:
         resolved: the agent's resolved firewall role.
-        model_access: ``gateway`` or ``login``.
-        vendor_hosts: the result of ``login_hosts`` for the agent's runtime.
+        override: the override mapping, keys ``ask`` and ``deny``.
+
+    Raises:
+        PermissionError: an override rule or key could widen a verdict.
     """
-    candidates = set(egress_allowlist(resolved))
-    if model_access == "login":
-        candidates |= {normalise_host(host) for host in vendor_hosts}
+    widening = sorted(set(override) - {"ask", "deny"})
+    if widening:
+        raise PermissionError(f"override keys {widening} could widen the firewall")
+    asks: list[Rule] = []
+    for raw in override.get("ask") or []:
+        rule = parse_rule(raw)
+        if not any(
+            base.kind == rule.kind
+            and base.target == rule.target
+            and rule.actions <= base.actions
+            for base in resolved.allow
+        ):
+            raise PermissionError(f"override ask {raw!r} asks for what no allow grants")
+        asks.append(rule)
+    denies = tuple(parse_rule(raw) for raw in override.get("deny") or [])
+    return Resolved(resolved.allow, resolved.ask + tuple(asks), resolved.deny + denies)
+
+
+def mcp_policy(resolved: Resolved) -> dict[str, list[dict]]:
+    """Return the per-caller policy of svc-ai-mcp-adapter: every mcp rule under
+    its verdict as ``{"rule", "target", "actions"}``, in rule order. The
+    adapter answers a tool call from it exactly as ``decide`` answers the
+    request, deny over ask over allow and unmatched denied, and names the
+    matched rule."""
     return {
-        "refuse": sorted({r.target for r in resolved.deny if r.kind == "egress"}),
-        "admit": sorted(h for h in candidates if not _egress_denied(resolved, h)),
-        "match": ["sni", "host"],
-        "order": ["refuse", "admit"],
-        "unmatched": "deny",
-        "outside_proxy": ["dns-to-resolver", "dhcp"],
+        verdict: [
+            {"rule": r.raw, "target": r.target, "actions": sorted(r.actions)}
+            for r in resolved.bucket(verdict)
+            if r.kind == "mcp"
+        ]
+        for verdict in VERDICTS
     }
-
-
-def mcp_policy(resolved: Resolved) -> dict[str, list[str]]:
-    """Return the per-caller policy of svc-ai-mcp-adapter: the mcp tool targets
-    under each verdict, with deny over ask over allow applied so a target
-    appears under only its highest-precedence verdict."""
-    deny = {r.target for r in resolved.deny if r.kind == "mcp"}
-    ask = {r.target for r in resolved.ask if r.kind == "mcp"} - deny
-    allow = {r.target for r in resolved.allow if r.kind == "mcp"} - deny - ask
-    return {"allow": sorted(allow), "ask": sorted(ask), "deny": sorted(deny)}
 
 
 def ldap_groups(resolved: Resolved) -> list[str]:
@@ -395,9 +382,17 @@ def _demo() -> None:
         }
     }
     p = resolve(surfaces, "planner")
-    _expect(mcp_policy(p)["allow"] == ["openproject/work_packages"], mcp_policy(p))
     _expect(
-        mcp_policy(p)["deny"] == ["shell/run"], "deny precedence not applied to mcp"
+        [r["target"] for r in mcp_policy(p)["allow"]]
+        == ["openproject/work_packages", "shell/run"],
+        mcp_policy(p),
+    )
+    _expect(
+        mcp_policy(p)["deny"]
+        == [
+            {"rule": "mcp(shell/run):read", "target": "shell/run", "actions": ["read"]}
+        ],
+        "denied mcp rule missing",
     )
     _expect(ldap_groups(p) == ["web-app-openproject"], ldap_groups(p))
     _expect(
