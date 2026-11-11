@@ -1,6 +1,8 @@
 import importlib.util
 import io
 import json
+import os
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -133,6 +135,29 @@ class TestStandaloneCheckerScript(unittest.TestCase):
         self.assertEqual(
             output.splitlines(), [f"d{i:02d}.example.org: OK" for i in range(40)]
         )
+
+    @patch("requests.head")
+    def test_verifies_against_the_trust_bundle(self, mock_head):
+        mock_head.return_value = _Response(200)
+
+        with (
+            tempfile.NamedTemporaryFile(suffix=".crt") as bundle,
+            patch.dict(os.environ, {"CA_TRUST_BUNDLE": bundle.name}),
+        ):
+            exit_code, _ = self._run_main({"a.example.org": _target([200])})
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(mock_head.call_args.kwargs["verify"], bundle.name)
+
+    @patch("requests.head")
+    def test_missing_trust_bundle_fails(self, mock_head):
+        mock_head.return_value = _Response(200)
+
+        with patch.dict(os.environ, {"CA_TRUST_BUNDLE": "/nonexistent/ca-bundle.crt"}):
+            exit_code, output = self._run_main({"a.example.org": _target([200])})
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("missing bundle: /nonexistent/ca-bundle.crt", output)
 
     def _run_main(self, targets):
         buffer = io.StringIO()

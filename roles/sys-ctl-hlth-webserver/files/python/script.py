@@ -91,14 +91,12 @@ def main(argv=None) -> int:
     args = parse_args(argv)
     targets = _parse_targets(args.targets)
     verify = True
-    ca_trust_cert_host = os.environ.get("CA_TRUST_CERT_HOST", "").strip()
-    if ca_trust_cert_host:
-        if not Path(ca_trust_cert_host).is_file():
-            print(
-                f"CA_TRUST_CERT_HOST points to a missing certificate: {ca_trust_cert_host}"
-            )
+    ca_trust_bundle = os.environ.get("CA_TRUST_BUNDLE", "").strip()
+    if ca_trust_bundle:
+        if not Path(ca_trust_bundle).is_file():
+            print(f"CA_TRUST_BUNDLE points to a missing bundle: {ca_trust_bundle}")
             return 1
-        verify = ca_trust_cert_host
+        verify = ca_trust_bundle
 
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
         results = list(
