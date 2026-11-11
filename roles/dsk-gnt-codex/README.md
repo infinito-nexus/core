@@ -10,6 +10,8 @@ The role installs the `@openai/codex` npm package at the version pinned in `serv
 
 Codex reads its key from an environment variable rather than from its config file, so the role writes the key to a `0600` file under `~/.config/environment.d/` and names that variable in `config.toml`. A workstation whose gateway lives in another inventory leaves `services.codex.gateway_url` and `credentials.gateway_key` set by hand instead, and the loopback wiring stays out of the way.
 
+The role owns only `model`, `model_provider` and the keys of `[model_providers.infinito]` in `config.toml`. It merges them into the file the user already has, so trusted projects, personal settings and every `[mcp_servers.*]` table that Codex or another role added survive a redeploy. The provider speaks the `responses` wire API, the only one the pinned Codex accepts.
+
 ## Features
 
 - **Feature:** Describe a capability.

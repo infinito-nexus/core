@@ -10,13 +10,27 @@
     - "{{ agnt_codex_config_path }}"
     - "{{ agnt_codex_env_path }}"
 
-- name: 🔐 Write the gateway profile
-  ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
-    src: config.toml.j2
+- name: 🔎 Look for a Codex config the user already has
+  ansible.builtin.stat:
+    path: "{{ agnt_codex_config_path }}"
+  register: agnt_codex_config_stat
+
+- name: 📖 Read the Codex config the gateway profile merges into
+  ansible.builtin.slurp:
+    src: "{{ agnt_codex_config_path }}"
+  register: agnt_codex_config_current
+  when: agnt_codex_config_stat.stat.exists
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🔐 Merge the gateway profile into the Codex config
+  ansible.builtin.copy:
+    content: "{{ (agnt_codex_config_current.content | b64decode if agnt_codex_config_stat.stat.exists else '') | codex_config_merge(lookup('template', 'config.toml.j2'))
+      }}"
     dest: "{{ agnt_codex_config_path }}"
     owner: "{{ agnt_codex_user }}"
     group: "{{ agnt_codex_user }}"
     mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔑 Write the key the agent reads from {{ agnt_codex_key_env }}"
   ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)

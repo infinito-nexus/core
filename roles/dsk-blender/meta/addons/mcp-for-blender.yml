@@ -11,4 +11,5 @@ update:
 config:
   distribution: mcp-for-blender
   command: mcp-for-blender
+  module: blender_mcp
   server_name: blender
