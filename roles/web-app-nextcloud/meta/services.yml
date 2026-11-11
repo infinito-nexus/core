@@ -252,7 +252,7 @@ talk_nats:
   shared: false
   name: nextcloud-talk-nats
   image: nats
-  version: 2.15.2-alpine
+  version: 2.15.3-alpine
   # nocheck: single-replica  an unclustered NATS server; the signaling server connects to exactly one
   replicas: 1
   cpus: "0.5"
