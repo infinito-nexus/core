@@ -152,3 +152,15 @@ semaphore:
   shared: "{{ 'web-app-semaphore' in group_names }}"
   control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
   status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

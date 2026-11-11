@@ -113,7 +113,7 @@ Everything an application role does today before its stack include must be avail
 
 ### Provider and loading
 
-- [ ] One role provides the `stack` service: its `vars/main.yml` declares `application_id` and its `meta/services.yml` declares the primary entity `stack` with `shared: true` and `enabled: true`.
+- [x] One role provides the `stack` service: its `vars/main.yml` declares `application_id` and its `meta/services.yml` declares the primary entity `stack` with `shared: true` and `enabled: true`.
 - [ ] `sys-service-loader` runs the `stack` service in the dependency phase, and the deploy log shows the provider's tasks ahead of every `web-app-*` and `web-svc-*` role task.
 - [ ] The `stack` provider is invoked once per play and host and processes every stack consumer of the play in that invocation; its log shows one task header per stage, not one stack block per application.
 - [ ] Host-wide work listed under "Measured cost" runs at most once per host per play.
@@ -121,7 +121,7 @@ Everything an application role does today before its stack include must be avail
 
 ### Consumers
 
-- [ ] Every role that included `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy` on `origin/main` declares `stack: {enabled: true, shared: true}` in its own `meta/services.yml`.
+- [x] Every role that included `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy` on `origin/main` declares `stack: {enabled: true, shared: true}` in its own `meta/services.yml`.
 - [ ] Every role that serves a vhost declares `openresty: {enabled: true, shared: true}`; a role without that key gets no vhost.
 - [ ] A role gets its database exactly when it enables and shares `postgres` or `mariadb`; objstore and engines follow their own keys.
 - [ ] No file under `roles/`, `tasks/`, `playbooks/` or `plugins/` includes, imports or names `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy`, and the three role directories are removed.
