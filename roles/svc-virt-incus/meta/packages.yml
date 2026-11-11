@@ -1,15 +1,3 @@
 ---
 incus:
-  Archlinux:
-    - incus
-  Debian:
-    - incus
-  RedHat:
-    - incus
-  centos:
-    source: copr
-    names:
-      - incus
-    repo:
-      copr: neelc/incus
-      chroot: rhel+epel-10-x86_64
+  shared: true

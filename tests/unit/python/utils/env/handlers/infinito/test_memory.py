@@ -64,6 +64,17 @@ class TestApply(unittest.TestCase):
                 eb = _applied(ctx, 65536, {})
                 self.assertEqual({key: eb.values[key] for key in handler.KEYS}, STATIC)
 
+    def test_ci_without_a_static_value_writes_no_key(self) -> None:
+        ctx = BuildContext(
+            static={},
+            static_comments={},
+            repo_root=Path("/repo"),
+            on_gha=True,
+            on_act=False,
+        )
+        eb = _applied(ctx, 65536, {})
+        self.assertEqual(set(handler.KEYS) & set(eb.values), set())
+
     def test_the_caller_env_wins_over_the_share(self) -> None:
         eb = _applied(_ctx(), 65536, {"INFINITO_MEM_LIMIT": "16g"})
         self.assertEqual(eb.values["INFINITO_MEM_LIMIT"], "16g")

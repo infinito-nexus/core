@@ -288,14 +288,14 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         ):
             sample = {
                 "INFINITO_BIND_IP": "127.0.0.1",
-                "INFINITO_MEM_LIMIT": "0",
+                "INFINITO_OOM_SCORE_ADJ": "800",
                 "INFINITO_DISTRO": "debian",
             }
             for k in sample:
                 self.assertIn(k, PASSTHROUGH_STATIC_KEYS)
             eb = build_env(sample, repo_root=Path("/repo"))
         self.assertEqual(eb.values["INFINITO_BIND_IP"], "127.0.0.1")
-        self.assertEqual(eb.values["INFINITO_MEM_LIMIT"], "0")
+        self.assertEqual(eb.values["INFINITO_OOM_SCORE_ADJ"], "800")
 
 
 if __name__ == "__main__":

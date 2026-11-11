@@ -19,8 +19,13 @@ OIDC = {
         "SECRET": "secret",
         "DISCOVERY_DOCUMENT": "https://auth.example.org/realms/infinito.nexus/.well-known/openid-configuration",
     },
-    "ATTRIBUTES": {"USERNAME": "preferred_username"},
+    "ATTRIBUTES": {
+        "USERNAME": "preferred_username",
+        "NAME": "name",
+        "EMAIL": "email",
+    },
 }
+RBAC = {"GROUP": {"NAME": "/roles", "CLAIM": "groups"}}
 
 
 def environment() -> Environment:
@@ -54,7 +59,9 @@ def requested_scopes() -> list[str]:
             SOFTWARE_NAME="Infinito.Nexus",
             JENKINS_OIDC_ENABLED=True,
             JENKINS_LDAP_ENABLED=False,
+            JENKINS_AUTHORIZATION_ROLES=[],
             OIDC=OIDC,
+            RBAC=RBAC,
             application_id="web-app-jenkins",
             lookup=lookup,
         )

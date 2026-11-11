@@ -13,6 +13,8 @@ server
   {
     {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
 
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
 
     proxy_pass            https://{{ showroom_upstream }};

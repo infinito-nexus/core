@@ -540,7 +540,7 @@ class TestRun(unittest.TestCase):
 
     def test_onion_jobs_share_tor_with_each_other(self):
         self._job(0, "onion-a", 0.1, tor=True, timeout=10, until="onion-b")
-        self._job(1, "onion-b", 0.1, tor=True)
+        self._job(1, "onion-b", 0.1, tor=True, timeout=10, until="onion-a")
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(2), 0)
         self.assertFalse(self._result("onion-a")["timed_out"])

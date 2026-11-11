@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import unittest
 
-import yaml
 from ansible.plugins.filter.core import FilterModule as CoreFilters
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
@@ -10,6 +9,7 @@ from plugins.filter.cookie_scope import FilterModule as CookieScopeFilters
 from plugins.filter.get.entity_name import FilterModule as EntityNameFilters
 from plugins.filter.network_of import FilterModule as NetworkFilters
 from plugins.filter.oauth2_claim_headers import FilterModule as ClaimHeaderFilters
+from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.services.sso import (
     SsoConfigConflictError,
     get_sso_config,
@@ -152,7 +152,7 @@ def provider(apps: dict) -> dict:
     Args:
         apps: the merged applications payload.
     """
-    return yaml.safe_load(render(ALPHA_TEMPLATE, apps))["providers"][0]
+    return load_yaml_str(render(ALPHA_TEMPLATE, apps))["providers"][0]
 
 
 class TestAllowedGroups(unittest.TestCase):
@@ -191,9 +191,7 @@ class TestAllowAllUsers(unittest.TestCase):
         cleared = applications(allowed_groups=[], allow_all_users=True)
         for template in (CONFIG_TEMPLATE, ALPHA_TEMPLATE):
             with self.subTest(template=template):
-                self.assertEqual(
-                    render(template, cleared), render(template, self.apps)
-                )
+                self.assertEqual(render(template, cleared), render(template, self.apps))
 
 
 class TestNeitherKey(unittest.TestCase):

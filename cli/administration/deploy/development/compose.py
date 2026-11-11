@@ -19,7 +19,7 @@ from .runner_mirror import env_image
 from .target import reset_stack_target
 
 CACHE_APPLY = Path("scripts") / "system" / "cache" / "apply.sh"
-CACHE_PIN_DOC = "docs/requirements/096-cache-stack-pin.md"
+CACHE_PIN_DOC = "docs/contributing/environment/cache.md"
 
 INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
 

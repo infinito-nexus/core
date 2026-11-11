@@ -31,6 +31,7 @@ def host_share(ctx: BuildContext) -> str:
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     share = host_share(ctx)
     for key in KEYS:
-        eb.setdefault(
-            key, share or ctx.static[key], comment=ctx.static_comments.get(key, "")
-        )
+        if share or key in ctx.static:
+            eb.setdefault(
+                key, share or ctx.static[key], comment=ctx.static_comments.get(key, "")
+            )

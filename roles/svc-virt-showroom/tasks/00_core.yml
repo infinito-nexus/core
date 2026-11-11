@@ -48,11 +48,6 @@
       so list every project domain there too.
     quiet: true
 
-- name: "📦 Install Incus"
-  package_install: # nocheck: package-install the distribution refusal above must run before the install, which the deploy-start batch would precede
-    id:
-      - incus
-
 - name: "🚀 Start the Incus daemon"
   ansible.builtin.systemd_service:
     name: incus.socket

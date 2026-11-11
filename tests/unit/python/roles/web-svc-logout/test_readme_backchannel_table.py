@@ -6,10 +6,8 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.roles.custom import is_custom
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -440,19 +438,15 @@ class TestCustomRoleDeclaresItsOwnRow(unittest.TestCase):
     def test_the_declaration_is_read_from_the_roles_own_services_file(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             services = Path(root) / CUSTOM_ROLE / ROLE_FILE_META_SERVICES
-            services.parent.mkdir(parents=True)
-            services.write_text(
-                yaml.safe_dump(
-                    {
-                        "sso": {
-                            "enabled": True,
-                            "flavor": "oidc",
-                            BACKCHANNEL: CUSTOM_DECLARATION,
-                        }
-                    },
-                    sort_keys=False,
-                ),
-                encoding="utf-8",
+            dump_yaml(
+                services,
+                {
+                    "sso": {
+                        "enabled": True,
+                        "flavor": "oidc",
+                        BACKCHANNEL: CUSTOM_DECLARATION,
+                    }
+                },
             )
             self.assertEqual(
                 declared_rows(sso_services(Path(root))),

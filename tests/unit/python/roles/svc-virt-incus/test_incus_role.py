@@ -6,7 +6,8 @@ from tests.utils.ansible_assert import assert_task, holds, message
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.packages.schema import DISTRO_FAMILY, ROLE_FILE_META_PACKAGES
+from utils.packages.registry import build_registry
+from utils.packages.schema import DISTRO_FAMILY
 from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
@@ -128,11 +129,9 @@ class TestIncusHost(unittest.TestCase):
         }
         families = {family_of[name] for name in galaxy}
         self.assertEqual(families, set(VARS["INCUS_OS_FAMILIES"]))
-        packages = load_yaml_any(
-            str(ROLE / ROLE_FILE_META_PACKAGES), default_if_missing={}
-        )
+        incus = build_registry(PROJECT_ROOT)["incus"]
         self.assertEqual(
-            {DISTRO_FAMILY.get(key, key) for key in packages["incus"]},
+            {DISTRO_FAMILY.get(key, key) for key in incus.mapping},
             set(VARS["INCUS_OS_FAMILIES"]),
         )
 
