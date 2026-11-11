@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import unittest
 from typing import ClassVar
 
@@ -303,3 +305,25 @@ class TestCollapseFailures(unittest.TestCase):
             selections.collapse_failures(hard, hard),
             selections.collapse_to_roles(hard),
         )
+
+
+class TestFailedSelectionsOnUnpublishedPairs(unittest.TestCase):
+    """A replayed pin the check refuses would abort the whole dispatch."""
+
+    def _replay(self, distro: str, architecture: str) -> tuple[selection.Pin, str]:
+        name = deploy_job_name(
+            "host", "dsk-blender", "0", distro=distro, architecture=architecture
+        )
+        with contextlib.redirect_stderr(io.StringIO()) as stderr:
+            (token,) = selections.failed_selections([_job(name, "failure")])
+        return selection.parse(token), stderr.getvalue()
+
+    def test_an_unpublished_pair_drops_only_its_architecture_and_warns(self) -> None:
+        pin, warned = self._replay("centos", "arm64")
+        self.assertEqual((pin.distro, pin.architecture), ("centos", None))
+        self.assertIn("centos:arm64", warned)
+
+    def test_a_published_pair_is_replayed_as_it_ran(self) -> None:
+        pin, warned = self._replay("debian", "arm64")
+        self.assertEqual((pin.distro, pin.architecture), ("debian", "arm64"))
+        self.assertEqual(warned, "")
