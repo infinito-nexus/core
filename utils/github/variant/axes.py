@@ -67,7 +67,13 @@ from utils.github.variant.network import (
     row_pulls_tor,
     row_states,
 )
-from utils.github.variant.pins import check_pins, priority_picks, row_architectures
+from utils.github.variant.pins import (
+    check_pins,
+    draw_pair,
+    priority_picks,
+    row_architectures,
+    row_pairs,
+)
 from utils.github.variant.pools import (
     ARCHITECTURES,
     DISTROS,
@@ -99,6 +105,7 @@ __all__ = [
     "priority_picks",
     "resolve_sweep",
     "row_architectures",
+    "row_pairs",
     "sort_key",
 ]
 
@@ -225,6 +232,7 @@ def assign(
         offered_architectures = row_architectures(
             app, architectures, row.get("services", ())
         )
+        pairs = row_pairs(app, distros, offered_architectures, row.get("services", ()))
         check_pins(
             app,
             variant_csv,
@@ -241,6 +249,7 @@ def assign(
             distros=distros,
             filesystems=filesystems,
             architectures=offered_architectures,
+            pairs=pairs,
         )
         if priority:
             picked = priority_picks(
@@ -284,12 +293,17 @@ def assign(
             ]
         label = codec.encode(app, variant_csv)
         for step, (mode, state, meshed) in enumerate(picked):
-            distro = pin_distro or rotate(distros, position + step, sweep)
+            distro, architecture = draw_pair(
+                pairs,
+                distros,
+                offered_architectures,
+                pin_distro=pin_distro,
+                pin_architecture=pin_architecture,
+                index=position + step,
+                sweep=sweep,
+            )
             filesystem = pin_filesystem or rotate(
                 filesystems, (position + step) // len(distros), sweep
-            )
-            architecture = pin_architecture or rotate(
-                offered_architectures, position + step, sweep
             )
             glyphs = (
                 to_emoji(mode)
