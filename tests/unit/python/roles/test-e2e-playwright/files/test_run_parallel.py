@@ -385,7 +385,7 @@ class TestRun(unittest.TestCase):
                 rc=1 if name == "b" else 0,
                 after=["head"],
                 timeout=10,
-                until="b" if name == "a" else None,
+                until={"a": "b", "b": "a"}.get(name),
             )
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(2), 0)
@@ -544,6 +544,7 @@ class TestRun(unittest.TestCase):
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(2), 0)
         self.assertFalse(self._result("onion-a")["timed_out"])
+        self.assertFalse(self._result("onion-b")["timed_out"])
         self.assertEqual(self._peak(), 2)
 
     def test_onion_jobs_stay_within_the_tor_cap(self):
@@ -554,7 +555,7 @@ class TestRun(unittest.TestCase):
                 0.4,
                 tor=True,
                 timeout=10,
-                until="clear" if name == "onion-a" else None,
+                until="clear",
             )
         self._job(3, "clear", 0.4)
         (self.jobs / rp.SEALED).touch()
