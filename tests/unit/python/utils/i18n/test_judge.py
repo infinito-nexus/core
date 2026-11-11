@@ -10,6 +10,8 @@ import unittest.mock
 from utils.i18n import judge
 from utils.i18n.judge import LEVELS, MIDDLE, ChatJudge, parse_level, question
 
+ORIGIN = "roles/web-app-wiki/README.md"
+
 
 def _answer(content):
     payload = {"choices": [{"message": {"content": content}}]}
@@ -18,13 +20,18 @@ def _answer(content):
 
 class QuestionTestCase(unittest.TestCase):
     def test_both_texts_reach_the_model(self) -> None:
-        asked = question("The backup runs at two.", "Das Backup läuft um zwei.")
+        asked = question("The backup runs at two.", "Das Backup läuft um zwei.", ORIGIN)
 
         self.assertIn("The backup runs at two.", asked)
         self.assertIn("Das Backup läuft um zwei.", asked)
 
+    def test_the_file_the_source_came_from_reaches_the_model(self) -> None:
+        asked = question("The backup runs at two.", "Das Backup läuft um zwei.", ORIGIN)
+
+        self.assertIn(f"First text, from {ORIGIN}:", asked)
+
     def test_every_level_is_offered_under_its_index(self) -> None:
-        asked = question("a", "b")
+        asked = question("a", "b", ORIGIN)
 
         for index, level in enumerate(LEVELS):
             with self.subTest(level=index):
@@ -63,13 +70,18 @@ class ScoreTestCase(unittest.TestCase):
     def _call(self, content):
         with unittest.mock.patch.object(judge.urllib.request, "urlopen") as urlopen:
             urlopen.return_value.__enter__.return_value = _answer(content)
-            result = self.judge.score("source", "translation")
+            result = self.judge.score("source", "translation", ORIGIN)
         self.request = urlopen.call_args[0][0]
         self.sent = json.loads(self.request.data)
         return result
 
     def test_it_returns_the_level_the_model_named(self) -> None:
         self.assertEqual(self._call("0"), 0)
+
+    def test_the_file_the_source_came_from_travels_with_the_question(self) -> None:
+        self._call("2")
+
+        self.assertIn(ORIGIN, self.sent["messages"][0]["content"])
 
     def test_the_trailing_slash_of_the_base_url_is_not_doubled(self) -> None:
         self._call("2")
