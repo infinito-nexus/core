@@ -28,11 +28,11 @@ docs:
     swarm:
       enabled: true
   image: python
-  version: 3.13-slim
+  version: 3.15-slim
   custom: true
   source_repository: "{{ SOFTWARE_REPOSITORY }}"
-  mermaid_version: 12.1.0
-  mermaid_sha256: 6484afc32872a3aa16cac9a76ba1816a1ed4cc870a6593cc2e17757750f518b2
+  mermaid_version: 12.3.0
+  mermaid_sha256: 336df803d87a38b70a01e736e666c8f7601d2ce42f5e47c8fafe5d721074b9a3
   update:
     - key: mermaid_version
       type: npm
