@@ -22,7 +22,7 @@ nllb-engine:
   # nocheck: dockerfile-custom  upstream publishes model weights and no server, so the role builds one
   # nocheck: docker-version  base of the self-built inference server, not the served application
   image: python
-  version: "3.13.15-slim"
+  version: "3.15.2-slim"
   custom: true
   gpu: true
   model: facebook/nllb-200-distilled-600M

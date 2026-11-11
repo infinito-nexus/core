@@ -10,7 +10,7 @@ tika:
   enabled: true
   shared: true
   image: apache/tika
-  version: 4.0.0-full
+  version: 4.2.0-full
   name: tika
   healthcheck:
     flavor: http_status

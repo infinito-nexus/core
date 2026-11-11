@@ -15,10 +15,34 @@ ROLE = "web-app-nextcloud"
 SERVICES_FILE = PROJECT_ROOT / "roles" / ROLE / ROLE_FILE_META_SERVICES
 JANUS = "https://github.com/meetecho/janus-gateway.git"
 RECORDING = "https://github.com/nextcloud/nextcloud-talk-recording.git"
+NEWER_HEAD = "f" * 40
+FOREIGN_VARIANT_TAG = "1000.0.0-foreign"
 
 
 def _pinned(service: str, key: str) -> str:
     return str(load_yaml_any(str(SERVICES_FILE))[service][key])
+
+
+def _outranking(pin: str) -> str:
+    """
+    Args:
+        pin: a pinned image tag or git ref.
+
+    Returns:
+        ``pin`` with its leading version raised to ``999.0...`` of the same
+        depth, so prefix, variant and patch suffix stay the pin's own and the
+        result outranks every real release; a commit SHA yields a newer tip.
+    """
+    if repository.is_commit_sha(pin):
+        return NEWER_HEAD
+    return re.sub(
+        r"^(v?)(\d+(?:\.\d+)*)",
+        lambda match: (
+            match.group(1) + ".".join(["999"] + ["0"] * match.group(2).count("."))
+        ),
+        pin,
+        count=1,
+    )
 
 
 class TestTalkPinsAreWatched(unittest.TestCase):
@@ -66,26 +90,38 @@ class TestTalkPinsAreWatched(unittest.TestCase):
                     self.assertNotIn("nocheck", line)
 
     def test_a_newer_upstream_release_is_reported_for_every_pin(self):
-        newer = {
-            "strukturag/nextcloud-spreed-signaling": ["2.1.1", "9.0.0", "9.0.0-proxy"],
-            "nats": ["2.12.6-alpine", "9.0.0-alpine", "9.1.0"],
-            "alpine": ["3.23.3", "9.0.0"],
-            "python": ["3.14.3-alpine3.23", "3.14.9-alpine3.23", "3.15.0-slim"],
+        newer: dict[str, list[str]] = {}
+        for entry in docker.collect_entries(PROJECT_ROOT):
+            if entry.role == ROLE:
+                newer.setdefault(entry.image, [FOREIGN_VARIANT_TAG]).extend(
+                    [entry.version, _outranking(entry.version)]
+                )
+        pinned_refs = {service: _pinned(service, "ref") for service in self.REFS}
+        tags = {
+            self.REFS[service]: [ref, _outranking(ref)]
+            for service, ref in pinned_refs.items()
         }
-        tags = {JANUS: ["v1.4.0", "v9.0.0"], RECORDING: ["v0.2.1", "v9.0.0"]}
+        heads = {self.REFS[service]: NEWER_HEAD for service in pinned_refs}
         with (
             mock.patch.dict(os.environ, {"INFINITO_WORKER_FETCH": "2"}),
             mock.patch.object(
                 docker, "fetch_dockerhub_tags", lambda image: newer.get(image, [])
             ),
-            mock.patch.object(docker, "fetch_ghcr_tags", lambda image: []),
-            mock.patch.object(docker, "fetch_mcr_tags", lambda image: []),
             mock.patch.object(
-                docker, "fetch_registry_tags", lambda image, last=None: []
+                docker, "fetch_ghcr_tags", lambda image: newer.get(image, [])
+            ),
+            mock.patch.object(
+                docker, "fetch_mcr_tags", lambda image: newer.get(image, [])
+            ),
+            mock.patch.object(
+                docker,
+                "fetch_registry_tags",
+                lambda image, last=None: newer.get(image, []),
             ),
             mock.patch.object(
                 repository, "git_ls_remote_tags", lambda url: tags.get(url, [])
             ),
+            mock.patch.object(repository, "git_ls_remote_head", heads.get),
         ):
             images = {
                 (update.entry.service, update.latest)
@@ -99,15 +135,16 @@ class TestTalkPinsAreWatched(unittest.TestCase):
             }
         self.assertTrue(
             {
-                ("talk_signaling", "9.0.0"),
-                ("talk_nats", "9.0.0-alpine"),
-                ("talk", "9.0.0"),
-                ("talk_recording", "3.14.9-alpine3.23"),
+                (service, _outranking(_pinned(service, "version")))
+                for service in self.IMAGES
             }
             <= images,
             images,
         )
-        self.assertEqual(refs, {(("talk",), "v9.0.0"), (("talk_recording",), "v9.0.0")})
+        self.assertEqual(
+            refs,
+            {((service,), _outranking(ref)) for service, ref in pinned_refs.items()},
+        )
 
     def test_negative_control_current_tags_report_nothing(self):
         current = {
