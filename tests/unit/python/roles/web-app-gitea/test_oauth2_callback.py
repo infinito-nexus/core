@@ -32,8 +32,20 @@ def source_name() -> str:
     ]
 
 
-def render_env() -> dict[str, str]:
-    """Render the role's env.j2 for an SSO-enabled Gitea served on ``DOMAIN``.
+def shipped_oauth2_client() -> dict:
+    services = load_yaml_str(read_text(str(ROLE_DIR / "meta" / "services.yml")))
+    return services["gitea"]["configuration"]["oauth2_client"]
+
+
+def render_env(
+    oauth2_client: dict | None = None, without_oidc: bool = False
+) -> dict[str, str]:
+    """Render the role's env.j2 for a Gitea served on ``DOMAIN``.
+
+    Args:
+        oauth2_client: the ``services.gitea.configuration.oauth2_client`` block
+            an inventory sets; None renders the one meta/services.yml ships.
+        without_oidc: render a Gitea without the Keycloak source.
 
     Returns:
         The rendered KEY=VALUE pairs.
@@ -44,7 +56,12 @@ def render_env() -> dict[str, str]:
         autoescape=select_autoescape(),
         keep_trailing_newline=True,
     )
+    client = shipped_oauth2_client() if oauth2_client is None else oauth2_client
     config = {
+        **{
+            f"services.gitea.configuration.oauth2_client.{key}": value
+            for key, value in client.items()
+        },
         "services.gitea.ports.public.ssh": 2201,
         "services.gitea.configuration.repository.enable_push_create_user": True,
         "services.gitea.configuration.repository.default_private": "last",
@@ -80,9 +97,9 @@ def render_env() -> dict[str, str]:
         GITEA_DESIGN_ENABLED=False,
         GITEA_THEMES={"auto": "corporate-auto"},
         GITEA_THEMES_OFFERED=[],
-        GITEA_OIDC_ENABLED=True,
+        GITEA_OIDC_ENABLED=not without_oidc,
         GITEA_LDAP_ENABLED=False,
-        GITEA_IAM_ENABLED=True,
+        GITEA_IAM_ENABLED=not without_oidc,
     )
     return dict(
         line.split("=", 1)
@@ -216,6 +233,39 @@ class TestGiteaOAuth2Callback(unittest.TestCase):
         env = render_env()
         self.assertEqual(env["GITEA__openid__ENABLE_OPENID_SIGNIN"], "false")
         self.assertEqual(env["GITEA__openid__ENABLE_OPENID_SIGNUP"], "false")
+
+
+class TestGiteaOAuth2AccountLinking(unittest.TestCase):
+    def test_a_keycloak_login_links_the_existing_account(self) -> None:
+        env = render_env()
+        self.assertEqual(env["GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION"], "true")
+        self.assertEqual(env["GITEA__oauth2_client__ACCOUNT_LINKING"], "auto")
+        self.assertEqual(env["GITEA__oauth2_client__USERNAME"], "preferred_username")
+
+    def test_an_inventory_override_reaches_gitea(self) -> None:
+        env = render_env(
+            {
+                "enable_auto_registration": False,
+                "account_linking": "login",
+                "username": "email",
+            }
+        )
+        self.assertEqual(env["GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION"], "false")
+        self.assertEqual(env["GITEA__oauth2_client__ACCOUNT_LINKING"], "login")
+        self.assertEqual(env["GITEA__oauth2_client__USERNAME"], "email")
+
+    def test_without_keycloak_gitea_gets_no_oauth2_client_settings(self) -> None:
+        env = render_env(without_oidc=True)
+        self.assertEqual(
+            [key for key in env if key.startswith("GITEA__oauth2_client__")], []
+        )
+
+    def test_the_source_requests_the_claims_auto_linking_matches(self) -> None:
+        task = read_text(str(ROLE_DIR / "tasks" / "setup" / "oidc.yml"))
+        scopes = re.findall(r'--scopes\s+"([^"]+)"', task)
+        self.assertTrue(scopes)
+        for requested in scopes:
+            self.assertTrue({"profile", "email"} <= set(requested.split()))
 
 
 class TestGiteaAuthSourceConvergence(unittest.TestCase):
