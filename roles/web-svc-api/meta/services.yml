@@ -39,7 +39,7 @@ api:
   enabled: true
   shared: true
   image: python
-  version: 3.13-slim
+  version: 3.15-slim
   custom: true
   name: api
   source_repository: "{{ SOFTWARE_REPOSITORY }}"

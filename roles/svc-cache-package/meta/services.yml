@@ -20,7 +20,7 @@ package:
   shared: true
   bond: 1
   image: sonatype/nexus3
-  version: 3.91.1-ubi
+  version: 3.98.1-ubi
   name: package-cache
   # nocheck: min-storage-headroom  Reason: the image transfers 0.373 GiB, but the service is the blobstore itself and fills up to blobstore_max (40g); sizing the host to the image alone would let the deploy prune a cache it has no room to refill
   min_storage: 4GB
