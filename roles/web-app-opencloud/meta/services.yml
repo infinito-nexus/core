@@ -56,6 +56,11 @@ opencloud:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "7.2.4"
+        until: 2026-12-03
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"

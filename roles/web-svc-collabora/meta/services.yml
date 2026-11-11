@@ -40,6 +40,11 @@ collabora:
   proxy:
     service_key: collabora
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "26.04.6.1.1"
+        until: 2026-12-03
 # nocheck: dynamic-flag
 # nocheck: design-off  Reason: '/' answers a plain OK, the admin console is off and the editor opens only as a POST from the WOPI host (Nextcloud)
 design:

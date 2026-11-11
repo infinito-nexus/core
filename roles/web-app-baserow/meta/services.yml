@@ -90,6 +90,11 @@ baserow:
     - web-app-mailu
     - web-svc-seaweedfs
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2.4.1"
+        until: 2026-12-03
 # nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP spec
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged into this role's instance directory
 # nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment
@@ -111,6 +116,11 @@ baserowmcp:
   ports:
     internal:
       http: 8080
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.13.15-slim"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1

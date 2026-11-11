@@ -341,6 +341,31 @@ def config_blob(
     return fetch_blob(image, config_digest)
 
 
+def image_platform_digest(
+    image: str, reference: str, *, os_name: str, architecture: str
+) -> str | None:
+    """Return the digest of the ``os_name``/``architecture`` manifest.
+
+    Args:
+        image: image name, with or without registry host.
+        reference: tag or digest.
+        os_name: platform a multi-arch index is resolved to.
+        architecture: platform a multi-arch index is resolved to.
+
+    Returns:
+        The platform manifest's digest, or ``None`` on any indeterminate
+        outcome (see :func:`fetch_manifest`) and on an index without a
+        matching platform.
+    """
+    doc = fetch_manifest(image, reference)
+    if doc is None:
+        return None
+    manifests = doc.get("manifests")
+    if isinstance(manifests, list) and manifests:
+        return platform_digest(manifests, os_name, architecture)
+    return manifest_digest(image, reference)
+
+
 def _platforms_at(image: str, reference: str) -> set[str] | None:
     doc = fetch_manifest(image, reference)
     if doc is None:
