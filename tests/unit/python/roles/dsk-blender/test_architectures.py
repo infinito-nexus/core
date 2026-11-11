@@ -36,8 +36,9 @@ class TestBlenderArchitectures(unittest.TestCase):
             UNPUBLISHED,
             _drawn(),
             "centos installs org.blender.Blender from Flathub, which publishes "
-            "it for x86_64 only (https://flathub.org/api/v2/summary/"
-            "org.blender.Blender), so the flatpak task aborts there with "
+            "it for x86_64 only "
+            "(https://flathub.org/api/v2/summary/org.blender.Blender), "
+            "so the flatpak task aborts there with "
             "'Nothing matches org.blender.Blender in remote flathub'",
         )
 
