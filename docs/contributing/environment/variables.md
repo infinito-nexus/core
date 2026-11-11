@@ -41,6 +41,22 @@ Every `docker compose` call MUST go through [stack.py](../../../cli/administrati
 - Set it per call (`INFINITO_STACK_NAME=<name> make compose-up`) or in `custom.env`; `make dotenv` writes an exported value into `.env` like every other key.
 - The named stack still uses the checkout's slot, so its subnet and bind IP equal those of the default stack; run one of them at a time until the slot registry of [092](../../requirements/092-local-stack-architecture.md) lands.
 
+## Toolchain image and shared test runner
+
+- [local.sh](../../../scripts/meta/resolve/image/local.sh) resolves the local image as `<name>/<distro>:<hash>`.
+  `<name>` names the primary checkout, so every worktree of it uses the same name.
+  `<hash>` digests the Dockerfile, every file the `toolchain` stage copies, the stage's build arguments and the ID of the local parent image ([toolchain.py](../../../utils/docker/image/toolchain.py)).
+  Worktrees with equal inputs share one image, and a local build sends only those files as its context.
+- With `INFINITO_TEST_RUNNER=docker` and `INFINITO_LINT_RUNNER=docker`, `make test*`, `make lint*` and `make install-lint` run in the shared test runner `infinito-test-<hash>`.
+  The first call builds the image when it is missing and starts the runner; later calls from every checkout with the same hash reuse it.
+  No test or lint target starts a deploy stack.
+- The runner mounts every root of `INFINITO_WORKTREE_ROOTS` (colon-separated) at its host path; empty mounts the primary checkout and `~/.local/share/worktrees`.
+  The wrappers exec with the invoking checkout as working directory and `INFINITO_SRC_DIR`, and with a `TMPDIR` of that checkout under `/tmp/infinito-test/` inside the runner.
+  A checkout outside the mounted roots is refused.
+- `make test-runner-down` removes the runner of the checkout's hash; the next call starts a new one with the current roots.
+  `make build-cleanup` removes the toolchain images no registered worktree resolves and no container uses.
+- With `INFINITO_STACK_NAME` set, the wrappers exec into that stack's `infinito` container instead, starting the stack when it is down.
+
 ## Variables NOT in `default.env`
 
 A handful of variables are documented next to their consumer because they cannot have a static default:
