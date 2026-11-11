@@ -13,7 +13,7 @@
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if MARIADB_EXPOSE_LOCAL %}
-    {# nocheck: swarm-loopback-port open  renders under swarm with services.mariadb.exposed (variant 0 sets it), and then tasks/00_core.yml and tasks/01_init.yml reach MariaDB through this local port on 127.0.0.1, which swarm drops; applications connect by service name; 074 :27 tracks it #}
+    {# nocheck: swarm-loopback-port exec  renders under swarm with services.mariadb.exposed (variant 0 sets it), where tasks/00_core.yml waits and tasks/01_init.yml provisions inside the container and applications connect by service name #}
     {{ lookup('container_ports', ['mariadb', 'mariadb', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

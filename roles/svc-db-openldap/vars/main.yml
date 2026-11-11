@@ -4,7 +4,7 @@ entity_name: "{{ application_id | entity_name }}"
 
 OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
 OPENLDAP_SOCKET_PATH_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'run'] | path_join }}"
-OPENLDAP_SERVER_URI: "ldapi://{{ [OPENLDAP_SOCKET_PATH_HOST, 'ldapi'] | path_join | replace('/', '%2F') }}"
+OPENLDAP_SERVER_URI: "{{ LDAP.SERVER.SOCKET_URI }}"
 
 OPENLDAP_CONFIG_URI: "ldapi:///"
 

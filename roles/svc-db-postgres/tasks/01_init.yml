@@ -27,8 +27,10 @@
 
 - name: "📁 Provision {{ database_name }} through the published port"
   ansible.builtin.include_tasks: 01_init/published.yml
-  when: POSTGRES_EXPOSE_LOCAL | bool
+  when:
+    - IS_COMPOSE_MODE | bool
+    - POSTGRES_EXPOSE_LOCAL | bool
 
 - name: "📁 Provision {{ database_name }} inside the container"
   ansible.builtin.include_tasks: 01_init/container.yml
-  when: not (POSTGRES_EXPOSE_LOCAL | bool)
+  when: not (IS_COMPOSE_MODE | bool and POSTGRES_EXPOSE_LOCAL | bool)

@@ -1,7 +1,7 @@
 """Converge the Synapse admin flag on the administrator role group.
 
 Environment:
-    MATRIX_SYNAPSE_URL: Synapse's loopback URL on the node.
+    MATRIX_SYNAPSE_URL: Synapse's loopback URL on the node, or its internal URL inside the Synapse container.
     MATRIX_SERVER_NAME: the homeserver name of the user ids.
     MATRIX_ADMIN_USERNAME, MATRIX_ADMIN_PASSWORD: the platform administrator.
     MATRIX_RBAC_PROTECTED_MXIDS: JSON list of user ids that keep the flag.
