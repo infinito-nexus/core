@@ -39,21 +39,25 @@ whose control does not separate is reported as unjudged rather than as an
 offender, which is what ``tests/oracle/__init__.py`` means by declaring a run
 inconclusive instead of letting it return green.
 
-Context is thin on purpose for now: an entry's catalog and domain identify it,
-but the file it was extracted from does not reach here, because
-``utils/i18n/catalog.py`` builds the template without locations and the
-catalogs therefore carry none. Naming the source file in the question would
-mean changing extraction and rewriting every catalog, which is its own change.
+Every question carries the file its first text came from, and every line of
+the report names it. The catalogs carry no locations, so that a moved page
+leaves them byte-stable, and the file is asked of the extraction instead: a
+``core`` entry's context names it, a ``docs`` entry is found by its words in
+the files the extraction reads. A ``docs`` entry no such file carries any
+more is named as an unknown file rather than given a guessed one, and the
+fixture names this module, which is where its text lives.
 """
 
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 from tests.utils.services import answers as serves
 from tests.utils.services import progress as _progress
 from utils.cache.yaml import load_yaml
 from utils.i18n.catalog import catalog_path, is_machine_translation, read_catalog
+from utils.i18n.extract import core_source, docs_sources
 from utils.i18n.judge import MIDDLE, ChatJudge
 from utils.i18n.languages import DOMAINS, domain_languages, load_languages
 from utils.i18n.libretranslate import GATEWAY_ROLE, GATEWAY_SERVICE_KEY
@@ -77,6 +81,8 @@ FIXTURE_SOURCE = (
 FIXTURE_UNRELATED = (
     "The small bakery near the station closes early on Saturday afternoon."
 )
+FIXTURE_ORIGIN = str(Path(__file__).resolve().relative_to(PROJECT_ROOT))
+UNSOURCED = "an unknown file"
 
 
 def _model() -> str:
@@ -84,8 +90,36 @@ def _model() -> str:
     return load_yaml(JUDGE_SERVICES_FILE)[JUDGE_SERVICE_KEY]["router"]["alias"]
 
 
-def _pairs(code: str, domain: str) -> list[tuple[str, str]]:
-    """Return machine-translated (source, translation) pairs worth judging.
+def origin(domain: str, context: str | None, source: str) -> str:
+    """Return the file a catalog entry was extracted from, as the report names it.
+
+    Args:
+        domain: catalog domain.
+        context: the entry's ``msgctxt``; ``None`` in the ``docs`` domain.
+        source: the entry's ``msgid``.
+
+    Returns:
+        One path, several joined by commas when the words of a ``docs`` entry
+        stand in more than one file, or :data:`UNSOURCED`.
+    """
+    if domain == "core":
+        return str(core_source(context))
+    return ", ".join(docs_sources(PROJECT_ROOT, source)) or UNSOURCED
+
+
+def offence(where: str, source_file: str, finding: str) -> str:
+    """Return the report line of one sample the judge did not pass.
+
+    Args:
+        where: the catalog, as ``<domain>/<code>``.
+        source_file: what :func:`origin` named for the entry.
+        finding: what the judge said about it.
+    """
+    return f"{where} ({source_file}): {finding}"
+
+
+def _pairs(code: str, domain: str) -> list[tuple[str | None, str, str]]:
+    """Return machine-translated (context, source, translation) entries worth judging.
 
     Args:
         code: ISO 639-1 code of the catalog.
@@ -95,7 +129,7 @@ def _pairs(code: str, domain: str) -> list[tuple[str, str]]:
     if not path.is_file():
         return []
     return [
-        (str(m.id), str(m.string))
+        (m.context, str(m.id), str(m.string))
         for m in read_catalog(path)
         if m.id
         and m.string
@@ -137,8 +171,8 @@ class TestTranslationScore(unittest.TestCase):
         if not all(isinstance(value, str) and value for value in values):
             return f"the gateway rendered no usable fixture: {values!r}"
         faithful, unrelated = values
-        kept = judge.score(FIXTURE_SOURCE, faithful)
-        other = judge.score(FIXTURE_SOURCE, unrelated)
+        kept = judge.score(FIXTURE_SOURCE, faithful, FIXTURE_ORIGIN)
+        other = judge.score(FIXTURE_SOURCE, unrelated, FIXTURE_ORIGIN)
         if kept < MIDDLE:
             return (
                 f"a faithful rendering of the fixture scored {kept}, below the "
@@ -198,17 +232,22 @@ class TestTranslationScore(unittest.TestCase):
                 sample = pairs[::stride][:SAMPLES_PER_LANGUAGE]
                 _progress(SUITE, f"scoring {len(sample)} samples of {where}")
                 name = self.names.get(code, code)
-                for source, translation in sample:
+                for context, source, translation in sample:
+                    source_file = origin(domain, context, source)
                     try:
-                        level = judge.score(source, translation)
+                        level = judge.score(source, translation, source_file)
                     except ValueError as exc:
-                        refused.append(f"{where}: {exc}")
+                        refused.append(offence(where, source_file, str(exc)))
                         continue
                     judged += 1
                     if level < MIDDLE:
                         offenders.append(
-                            f"{where}: {level} below the middle level {MIDDLE}: "
-                            f"{source[:60]!r} -> {translation[:60]!r}"
+                            offence(
+                                where,
+                                source_file,
+                                f"{level} below the middle level {MIDDLE}: "
+                                f"{source[:60]!r} -> {translation[:60]!r}",
+                            )
                         )
                         continue
                     written = prose(translation).strip()
@@ -217,13 +256,16 @@ class TestTranslationScore(unittest.TestCase):
                     try:
                         spoken = judge.speaks(written, name)
                     except ValueError as exc:
-                        refused.append(f"{where}: {exc}")
+                        refused.append(offence(where, source_file, str(exc)))
                         continue
                     if spoken < MIDDLE:
                         offenders.append(
-                            f"{where}: states its source but was placed at "
-                            f"{spoken} on being written in {name}: "
-                            f"{translation[:60]!r}"
+                            offence(
+                                where,
+                                source_file,
+                                f"states its source but was placed at {spoken} "
+                                f"on being written in {name}: {translation[:60]!r}",
+                            )
                         )
 
         unjudged = {code: why for code, why in sorted(verdicts.items()) if why}

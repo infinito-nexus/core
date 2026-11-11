@@ -234,7 +234,7 @@ flowchart TD
 - [x] The oracle test `tests/oracle/test_translation_score.py`, run by `make test-oracle`, samples machine-translated entries per language and asks a LiteLLM chat judge (`utils/i18n/judge.py`) one score question per sampled entry.
 - [x] That question carries the source text and the translation, and places the answer on an ordered scale whose middle level is "states the first text but distorts a detail".
 - [x] Every sampled entry the judge places below the middle level fails the test, and the report names each one with its language and its catalogue.
-- [ ] The question also carries the file the entry was extracted from, and the report names that source file for every failing entry.
+- [x] The question also carries the file the entry was extracted from, and the report names that source file for every failing entry.
 - [x] The test skips rather than fails when the judge or the translation gateway does not answer.
 
 ### Tests and documentation

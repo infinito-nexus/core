@@ -46,7 +46,7 @@ Rate how faithfully the second text states what the first text states.
 Answer with one digit and nothing else, choosing the line that fits best:
 {levels}
 
-First text:
+First text, from {origin}:
 {source}
 
 Second text:
@@ -64,15 +64,18 @@ Text:
 """
 
 
-def question(source: str, translation: str) -> str:
+def question(source: str, translation: str, origin: str) -> str:
     """Return the prompt that asks for a level index.
 
     Args:
         source: the English source.
         translation: the text to judge against it.
+        origin: the file the source was extracted from.
     """
     levels = "\n".join(f"{index} {level}" for index, level in enumerate(LEVELS))
-    return PROMPT.format(levels=levels, source=source, translation=translation)
+    return PROMPT.format(
+        levels=levels, source=source, translation=translation, origin=origin
+    )
 
 
 def language_question(text: str, language: str) -> str:
@@ -132,18 +135,19 @@ class ChatJudge:
         self._api_key = api_key
         self._timeout = timeout
 
-    def score(self, source: str, translation: str) -> int:
+    def score(self, source: str, translation: str, origin: str) -> int:
         """Return the level the judge places this pair on.
 
         Args:
             source: the English source.
             translation: the text to judge against it.
+            origin: the file the source was extracted from.
 
         Raises:
             OSError: the gateway cannot be reached.
             ValueError: it answered without a completion, or with no level.
         """
-        return self._ask(question(source, translation))
+        return self._ask(question(source, translation, origin))
 
     def speaks(self, text: str, language: str) -> int:
         """Return the level the judge places this text's language on.
