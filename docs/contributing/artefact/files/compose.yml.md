@@ -29,7 +29,7 @@ The per-variable default + comment lives next to the key in [default.env](../../
 
 | Variable | Purpose |
 |---|---|
-| `INFINITO_IMAGE` | Image reference used by the `infinito` service. Composed at runtime by the env generator on GHA, empty locally so the `build:` block builds from source. |
+| `INFINITO_IMAGE` | Image reference used by the `infinito` service. Composed at runtime by the env generator on GHA, empty locally so the `build:` block builds the Dockerfile's `toolchain` stage under the tag of [local.sh](../../../../scripts/meta/resolve/image/local.sh); the checkout is bind-mounted over it. |
 | `INFINITO_PARENT_IMAGE` | Distribution base image both the `infinito` and the `target` builds start from. |
 | `INFINITO_BUILD` | `1` builds the `infinito` image from source before `up`; the env generator sets `0` on GHA, where the service runs the published `INFINITO_IMAGE`, unless the job sets it. |
 | `INFINITO_PULL_POLICY` | Compose `pull_policy`, also exported into the `infinito` container. Defaults to `never` for local builds, generator overrides to `always` on GHA. |

@@ -111,9 +111,10 @@ build: fix-dockerignore
 		bash scripts/image/build.sh
 
 .PHONY: build-cleanup
-# Clean up image artifacts.
+# Remove the local toolchain images no registered worktree resolves and no container uses.
+# Note: the GHCR package cleanup runs from cron-images-cleanup-ci.yml through scripts/image/cleanup.sh.
 build-cleanup:
-	@bash scripts/image/cleanup.sh
+	@bash scripts/image/cleanup_local.sh
 
 .PHONY: build-dependency
 # Pull the build dependency image.
@@ -1142,6 +1143,11 @@ test-performance: install
 # Param test: the test path (relative to the repo) to run inside that ref's tree
 test-ref:
 	@ref='$(ref)' test='$(test)' bash scripts/tests/ref.sh
+
+.PHONY: test-runner-down
+# Remove the shared test runner infinito-test-<hash> of this checkout's toolchain image; the next test or lint call starts a new one.
+test-runner-down:
+	@bash scripts/tests/runner/down.sh
 
 .PHONY: test-signed
 # Verify HEAD is signed.

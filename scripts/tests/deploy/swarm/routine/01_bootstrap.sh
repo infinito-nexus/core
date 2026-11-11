@@ -44,7 +44,7 @@ docker volume rm "${SWARM_NAME}_nfs-export" >/dev/null 2>&1 || true # nocheck: s
 
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
 if [ -z "${INFINITO_IMAGE:-}" ]; then
-	INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh"):${INFINITO_IMAGE_TAG:?}"
+	INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh")"
 	export INFINITO_IMAGE
 	if ! docker image inspect "${INFINITO_IMAGE}" >/dev/null 2>&1; then
 		echo "==> building local infinito image ${INFINITO_IMAGE} for distro ${INFINITO_DISTRO}"

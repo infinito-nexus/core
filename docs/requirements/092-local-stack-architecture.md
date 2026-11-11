@@ -295,25 +295,25 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 3: Shared image
 
-- [ ] [local.sh](../../scripts/meta/resolve/image/local.sh) returns a tag whose name part is the same in every worktree and whose hash covers the Dockerfile, every file the toolchain stage copies, the build arguments and the parent image digest. `[unit]`
+- [x] [local.sh](../../scripts/meta/resolve/image/local.sh) returns a tag whose name part is the same in every worktree and whose hash covers the Dockerfile, every file the toolchain stage copies, the build arguments and the parent image digest. `[unit]`
 - [ ] The hashed file set is derived from the toolchain stage's `COPY` sources; a lint fails when the stage reads a repository path at build time that is not in the set. `[unit]`
-- [ ] Two checkouts with identical inputs resolve the same tag; a change to a file outside the set leaves the tag unchanged; a change inside the set, to a build argument or to the parent digest changes it. `[unit]`
+- [x] Two checkouts with identical inputs resolve the same tag; a change to a file outside the set leaves the tag unchanged; a change inside the set, to a build argument or to the parent digest changes it. `[unit]`
 - [ ] The local build context holds exactly the input set: a 1 GB file under `.claude/worktrees/`, `.worktrees/` or an untracked directory leaves the context size the build reports unchanged. `[unit]`
 - [ ] The published image is the toolchain stage plus a final stage that copies the tree, and its build passes in CI. `[ci]`
 - [ ] A second worktree with the same inputs runs `make build-missing` without building. `[host]`
-- [ ] `make build-cleanup` removes local toolchain images that no registered worktree resolves and no container runs, and keeps the others. `[unit]`
+- [x] `make build-cleanup` removes local toolchain images that no registered worktree resolves and no container runs, and keeps the others. `[unit]`
 
 ### Phase 4: Shared test runner
 
 - [ ] The first `make test-unit` on the machine starts one `infinito-test-<hash>` and no `coredns`, `target`, `target-resolver` or deploy runner; a later `make test` from another checkout with the same tag reuses it (same container ID). `[host]`
-- [ ] The test runner mounts the primary checkout and `~/.local/share/worktrees` by default and the roots of `INFINITO_WORKTREE_ROOTS` when set. `[unit]`
-- [ ] The wrapper execs with the invoking checkout as working directory, `INFINITO_SRC_DIR` and a per-checkout `TMPDIR`, and never calls `make compose-up`. `[unit]`
+- [x] The test runner mounts the primary checkout and `~/.local/share/worktrees` by default and the roots of `INFINITO_WORKTREE_ROOTS` when set. `[unit]`
+- [x] The wrapper execs with the invoking checkout as working directory, `INFINITO_SRC_DIR` and a per-checkout `TMPDIR`, and never calls `make compose-up`. `[unit]`
 - [ ] Two checkouts running `make test-unit` at the same time both finish, each writes its JUnit reports into its own `build/test-reports`, and a probe test in each prints a module `__file__` inside its own checkout. `[host]`
-- [ ] A checkout outside the mounted worktree roots is refused with a message naming the root and the target that recreates the runner. `[unit]`
+- [x] A checkout outside the mounted worktree roots is refused with a message naming the root and the target that recreates the runner. `[unit]`
 - [ ] A checkout with a different input hash gets its own runner, and the first runner keeps running. `[host]`
 - [ ] The test runner survives `make compose-down` and `make worktree-down` of every checkout; `make test-runner-down` stops it. `[host]`
-- [ ] `make lint*` with `INFINITO_LINT_RUNNER=docker` runs in the same runner. `[unit]`
-- [ ] With `INFINITO_STACK_NAME` set, `make test*` and `make lint*` run in that stack's `infinito` container instead. `[unit]`
+- [x] `make lint*` with `INFINITO_LINT_RUNNER=docker` runs in the same runner. `[unit]`
+- [x] With `INFINITO_STACK_NAME` set, `make test*` and `make lint*` run in that stack's `infinito` container instead. `[unit]`
 - [ ] On a warm runner, `make quality-high` builds no image, sends no build context and starts no container. `[host]`
 - [ ] [call-test.yml](../../.github/workflows/call-test.yml) keeps `INFINITO_TEST_RUNNER: host`, and a CI test run starts no container. `[ci]`
 

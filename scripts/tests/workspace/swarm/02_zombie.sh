@@ -8,7 +8,7 @@ source "${SCRIPT_DIR}/../utils/common.sh"
 
 cd "${REPO_ROOT}"
 
-node_image="$(bash scripts/meta/resolve/image/local.sh):${INFINITO_IMAGE_TAG:?}"
+node_image="$(bash scripts/meta/resolve/image/local.sh)"
 docker image inspect "${node_image}" >/dev/null 2>&1 || {
 	echo "FAILURE: ${node_image} is missing. 03_build.sh builds it for ${INFINITO_DISTRO:?}; the swarm nodes must run that image, not a published one." >&2
 	exit 1

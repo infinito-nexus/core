@@ -4,9 +4,7 @@
 # Example values:
 #   INFINITO_PARENT_IMAGE=ghcr.io/kevinveenbirkenbach/pkgmgr-arch:stable
 ARG INFINITO_PARENT_IMAGE
-FROM ${INFINITO_PARENT_IMAGE} AS full
-
-ARG NIX_CONFIG
+FROM ${INFINITO_PARENT_IMAGE} AS toolchain
 
 ARG INFINITO_SRC_DIR
 ENV INFINITO_SRC_DIR=${INFINITO_SRC_DIR}
@@ -41,8 +39,9 @@ COPY pyproject.toml ${INFINITO_SRC_DIR}/pyproject.toml
 COPY roles/update/files/shell/centos_mirror.sh ${INFINITO_SRC_DIR}/roles/update/files/shell/centos_mirror.sh
 COPY requirements ${INFINITO_SRC_DIR}/requirements
 COPY utils/__init__.py ${INFINITO_SRC_DIR}/utils/__init__.py
-COPY utils/install/__init__.py ${INFINITO_SRC_DIR}/utils/install/__init__.py
-COPY utils/install/collections.py ${INFINITO_SRC_DIR}/utils/install/collections.py
+COPY utils/install/__init__.py utils/install/collections.py utils/install/interpreters.py \
+  utils/install/php.py utils/install/primitives.py utils/install/ruby.py utils/install/system_pkg.py \
+  ${INFINITO_SRC_DIR}/utils/install/
 
 # hadolint ignore=DL3008,DL3033,DL3041,SC1090,SC3040
 RUN set -euo pipefail; \
@@ -55,7 +54,9 @@ RUN set -euo pipefail; \
   ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" \
     bash "${INFINITO_SRC_DIR}/scripts/install/ansible.sh"
 
-COPY . ${INFINITO_SRC_DIR}
+COPY packaging ${INFINITO_SRC_DIR}/packaging
+COPY roles/sys-svc-container/files/shell/apt_repo.sh roles/sys-svc-container/files/shell/install-cli.sh \
+  ${INFINITO_SRC_DIR}/roles/sys-svc-container/files/shell/
 
 # hadolint ignore=DL3008,DL3033,DL3041,SC1090
 RUN set -euo pipefail; \
@@ -78,10 +79,12 @@ RUN set -euo pipefail; \
 ENV container=docker
 STOPSIGNAL SIGRTMIN+3
 
-# hadolint ignore=SC3040
+COPY README.md LICENSE.md ${INFINITO_SRC_DIR}/
+
 RUN set -euo pipefail; \
-  export NIX_CONFIG="${NIX_CONFIG:-}"; \
-  "${INFINITO_SRC_DIR}/scripts/docker/entry.sh" --compile -- true
+  bash "${INFINITO_SRC_DIR}/scripts/install/python.sh" deploy
+
+COPY scripts/docker/entry.sh ${INFINITO_SRC_DIR}/scripts/docker/entry.sh
 
 WORKDIR /
 
@@ -93,3 +96,14 @@ HEALTHCHECK --interval=5s --timeout=20s --start-period=30s --retries=20 \
 ENTRYPOINT ["/bin/bash", "-c", "exec \"${INFINITO_SRC_DIR}/scripts/docker/entry.sh\" \"$@\"", "--"]
 
 CMD ["/sbin/init"]
+
+FROM toolchain AS full
+
+ARG NIX_CONFIG
+
+COPY . ${INFINITO_SRC_DIR}
+
+# hadolint ignore=SC3040
+RUN set -euo pipefail; \
+  export NIX_CONFIG="${NIX_CONFIG:-}"; \
+  "${INFINITO_SRC_DIR}/scripts/docker/entry.sh" --compile -- true

@@ -39,7 +39,7 @@ Usage: INFINITO_DISTRO=<distro> $0 [options]
 Build options:
   --missing             Build only if the image does not already exist (local build only)
   --no-cache            Build with --no-cache
-  --target <name>       Override Dockerfile target (advanced; default: full).
+  --target <name>       Override Dockerfile target (advanced; default: toolchain locally, full with --push).
   --tag <image>         Override the output image tag (default: ${default_tag})
   --label <key=value>   Add an image label (repeatable)
 
@@ -55,6 +55,7 @@ Publish options:
 Notes:
 - --publish implies --push and requires --registry, --owner, and --version.
 - Local build (no --push) uses "docker build" and creates local images like "<repo>/arch".
+- A toolchain build sends only the toolchain stage's inputs as its context, never the whole tree.
 - If you set NIX_CONFIG in the environment (e.g. access-tokens), it will be forwarded into the build.
 EOF
 }
@@ -170,8 +171,10 @@ if [[ -n "${OWNER}" || -n "${GITHUB_REPOSITORY_OWNER:-}" || -n "${GITHUB_REPOSIT
 	OWNER="$(OWNER="${OWNER}" GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-}" GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-}" scripts/meta/resolve/repository/owner.sh)"
 fi
 
-if [[ -z "${TARGET}" ]]; then
+if [[ -z "${TARGET}" && "${PUSH}" == "1" ]]; then
 	TARGET="full"
+elif [[ -z "${TARGET}" ]]; then
+	TARGET="toolchain"
 fi
 
 if [[ -z "${IMAGE_TAG}" ]]; then
@@ -311,6 +314,16 @@ prepull_build_frontend() {
 
 prepull_build_frontend
 
+build_context="."
+if [[ "${TARGET}" == "toolchain" ]]; then
+	_build_repo_root="$(cd "${_build_script_dir}/../.." && pwd)"
+	build_context="$(mktemp -d)"
+	trap 'rm -rf "${build_context}" "${build_context}.files"' EXIT
+	PYTHONPATH="${_build_repo_root}" "${PYTHON}" -m utils.docker.image.toolchain files >"${build_context}.files"
+	tar -C "${_build_repo_root}" --format=posix -cf - -T "${build_context}.files" | tar -C "${build_context}" -xf -
+	build_args+=(--file "${_build_repo_root}/Dockerfile")
+fi
+
 if [[ "${PUSH}" == "1" ]]; then
 	bx_args=(docker buildx build --push)
 
@@ -323,7 +336,7 @@ if [[ "${PUSH}" == "1" ]]; then
 	fi
 
 	bx_args+=("${build_args[@]}")
-	bx_args+=(.)
+	bx_args+=("${build_context}")
 
 	echo "[build] Running: ${bx_args[*]}"
 	"${bx_args[@]}"
@@ -331,7 +344,7 @@ else
 	local_args=(docker build)
 	local_args+=("${build_args[@]}")
 	local_args+=(-t "${IMAGE_TAG}")
-	local_args+=(.)
+	local_args+=("${build_context}")
 
 	echo "[build] Running: ${local_args[*]}"
 	"${local_args[@]}"
