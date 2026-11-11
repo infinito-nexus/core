@@ -117,7 +117,7 @@ synapse:
 element:
   healthcheck:
     flavor: wget
-  version: v1.12.33
+  version: v1.12.34
   image: vectorim/element-web
   name: matrix-element
   force_verification: true
