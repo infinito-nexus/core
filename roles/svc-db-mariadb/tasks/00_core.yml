@@ -69,7 +69,6 @@
   delay: 5
   until: mariadb_cli.rc == 0
 
-# nocheck: swarm-loopback-port open  runs whenever MARIADB_EXPOSE_LOCAL holds, which variant 0 sets under swarm too, where this local port on 127.0.0.1 is dropped; 074 :27 tracks it
 - name: "⏳ Wait until MariaDB accepts root credentials (via mariadb_db)"
   ansible.mariadb.mariadb_db:
     name: "{{ MARIADB_HEALTHCHECK_DB }}"
@@ -84,4 +83,6 @@
   delay: 5
   until: mariadb_ready is succeeded
   changed_when: false
-  when: MARIADB_EXPOSE_LOCAL | bool
+  when:
+    - IS_COMPOSE_MODE | bool
+    - MARIADB_EXPOSE_LOCAL | bool

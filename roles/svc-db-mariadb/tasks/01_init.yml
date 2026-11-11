@@ -1,5 +1,4 @@
 ---
-# nocheck: swarm-loopback-port open  this block runs whenever MARIADB_EXPOSE_LOCAL holds, which variant 0 sets under swarm too, where this local port on 127.0.0.1 is dropped; 074 :27 tracks it
 - block:
     - name: "📁 Create database: {{ database_name }} (host via mariadb_db)"
       ansible.mariadb.mariadb_db:
@@ -25,7 +24,9 @@
         login_host: "{{ MARIADB_HOST }}"
         login_port: "{{ MARIADB_PORT }}"
         config_file: ""
-  when: MARIADB_EXPOSE_LOCAL | bool
+  when:
+    - IS_COMPOSE_MODE | bool
+    - MARIADB_EXPOSE_LOCAL | bool
 
 - block:
     - name: "📁 Create database: {{ database_name }} (container via mariadb CLI)"
@@ -65,4 +66,4 @@
       delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
-  when: not (MARIADB_EXPOSE_LOCAL | bool)
+  when: not (IS_COMPOSE_MODE | bool and MARIADB_EXPOSE_LOCAL | bool)

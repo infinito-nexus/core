@@ -1,5 +1,4 @@
 ---
-# nocheck: swarm-loopback-port file open  01_init.yml includes this file whenever POSTGRES_EXPOSE_LOCAL holds, which variant 0 sets under swarm too, where this local port on 127.0.0.1 is dropped; 074 :27 tracks it
 - name: "📁 Create database: {{ database_name }}"
   community.postgresql.postgresql_db:
     name: "{{ database_name }}"
