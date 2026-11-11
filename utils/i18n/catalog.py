@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import datetime as dt
+import fcntl
 import io
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -21,12 +23,13 @@ from utils.software import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator
 
 LOCALE_DIR = Path("locale")
 PROJECT = "infinito-nexus"
 ENGINE = "libretranslate"
 MACHINE_PREFIX = "translated-by:"
+JUDGED_PREFIX = "judge-failed:"
 UNNAMED_ENGINE = "unnamed"
 REFUSAL_PREFIX = "translation-refused:"
 REJECTED_PREFIX = "translation-rejected:"
@@ -63,6 +66,58 @@ def is_machine_translation(comment: str) -> bool:
         comment: one ``user_comments`` entry of a message.
     """
     return comment.startswith(MACHINE_PREFIX)
+
+
+def judge_failure(engine: str) -> str:
+    """Return the comment recording that the judge failed an engine's answer.
+
+    Args:
+        engine: the engine the failed translation's mark named.
+    """
+    return f"{JUDGED_PREFIX} {engine or UNNAMED_ENGINE}"
+
+
+def judged_engines(comments: Iterable[str]) -> tuple[str, ...]:
+    """Return the engines the judge failed an entry with, sorted.
+
+    ``unnamed`` is left out: the gateway knows no engine by that name, so
+    excluding it would change nothing but the request.
+
+    Args:
+        comments: one message's ``user_comments``.
+    """
+    named = {
+        comment.removeprefix(JUDGED_PREFIX).strip()
+        for comment in comments
+        if comment.startswith(JUDGED_PREFIX)
+    }
+    return tuple(sorted(named - {UNNAMED_ENGINE}))
+
+
+@contextmanager
+def exclusive(root: Path, domain: str, code: str) -> Iterator[None]:
+    """Hold the one lock that admits a writer to a catalog.
+
+    A writer reads the catalog once, keeps it in memory, and writes the whole
+    file back. Two writers over the same catalog therefore each hold a private
+    view and overwrite each other's entries, which is how distinct sources end
+    up sharing one translation with every per-entry predicate passing, and how
+    a judge pass's failures vanish under a translation run.
+
+    Args:
+        root: repository root.
+        domain: catalog domain.
+        code: ISO 639-1 code of the catalog.
+    """
+    lock = root / "build" / "i18n" / f"{domain}-{code}.lock"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    with lock.open("w") as handle:
+        try:
+            fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            print(f"{domain}/{code}: another run holds it, waiting", flush=True)
+            fcntl.flock(handle, fcntl.LOCK_EX)
+        yield
 
 
 def catalog_path(root: Path, code: str, domain: str) -> Path:

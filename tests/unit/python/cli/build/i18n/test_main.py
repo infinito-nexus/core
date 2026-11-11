@@ -9,9 +9,17 @@ import unittest.mock as mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from utils.i18n.catalog import catalog_path, new_catalog, write_catalog
+from utils.i18n.catalog import (
+    catalog_path,
+    judge_failure,
+    machine_translation,
+    new_catalog,
+    read_catalog,
+    write_catalog,
+)
 from utils.i18n.languages import LANGUAGES_FILE
 from utils.i18n.libretranslate import SERVICE_KEY, SERVICES_FILE, Outcome
+from utils.i18n.translate import record_judged
 
 cli = importlib.import_module("cli.build.i18n.__main__")
 
@@ -77,8 +85,8 @@ class TestTranslate(unittest.TestCase):
     def _run(self, requested: list[str] | None = None) -> tuple[int, mock.Mock, mock.Mock]:
         started = mock.Mock(return_value=contextlib.nullcontext("http://lt"))
         client = mock.Mock()
-        client.return_value.translate.side_effect = lambda texts, code: Outcome(
-            ["Bonjour"] * len(texts), 0, 0, ""
+        client.return_value.translate.side_effect = lambda texts, code, exclude=(): (
+            Outcome(["Bonjour"] * len(texts), 0, 0, "")
         )
         with (
             mock.patch.object(cli, "PROJECT_ROOT", self.root),
@@ -143,6 +151,65 @@ class TestTranslate(unittest.TestCase):
 
         self.assertEqual(status, 0)
         started.assert_not_called()
+
+
+class TestAJudgedFailureIsRetranslatedWithoutItsEngine(unittest.TestCase):
+    """The judge pass of ``make test-oracle`` failed ``Hello``'s translation by
+    ``engine-a``; the next ``i18n-translate`` asks for it with that engine
+    excluded, and for every untouched pending entry with nothing excluded."""
+
+    def setUp(self) -> None:
+        self.root = _checkout(self)
+        catalog = new_catalog("core", "de")
+        catalog.add("Hello", "Hallo Welt", context="menu:x:title")
+        catalog.add("Goodbye", "", context="menu:y:title")
+        for message in catalog:
+            if message.id == "Hello":
+                message.user_comments = [machine_translation("engine-a")]
+        self.path = catalog_path(self.root, "de", "core")
+        self.path.parent.mkdir(parents=True)
+        write_catalog(self.path, catalog)
+        self.asked: dict[tuple[str, ...], tuple[str, ...]] = {}
+
+    def _translate(self, texts, code, exclude=()):
+        self.asked[tuple(texts)] = tuple(exclude)
+        return Outcome(
+            [f"DE {text}" for text in texts], 0, 0, "", ("engine-b",) * len(texts)
+        )
+
+    def _judge_and_translate(self) -> None:
+        failed = {("menu:x:title", "Hello", "Hallo Welt")}
+        self.assertEqual(record_judged(self.root, "core", "de", failed), 1)
+        client = mock.Mock()
+        client.translate.side_effect = self._translate
+        with (
+            mock.patch.object(cli, "PROJECT_ROOT", self.root),
+            mock.patch("sys.stdout", new_callable=io.StringIO),
+        ):
+            cli.one_catalog(client, "core", "de")
+
+    def _entry(self, msgid: str):
+        return next(m for m in read_catalog(self.path) if m.id == msgid)
+
+    def test_the_failed_engine_is_excluded_from_its_retranslation(self) -> None:
+        self._judge_and_translate()
+
+        self.assertEqual(self.asked, {("Hello",): ("engine-a",), ("Goodbye",): ()})
+
+    def test_the_retranslation_keeps_the_failure_on_record(self) -> None:
+        self._judge_and_translate()
+
+        hello = self._entry("Hello")
+        self.assertEqual(hello.string, "DE Hello")
+        self.assertIn(judge_failure("engine-a"), hello.user_comments)
+        self.assertIn(machine_translation("engine-b"), hello.user_comments)
+        self.assertNotIn(machine_translation("engine-a"), hello.user_comments)
+
+    def test_a_verdict_on_a_translation_since_replaced_is_dropped(self) -> None:
+        stale = {("menu:x:title", "Hello", "Hallo")}
+
+        self.assertEqual(record_judged(self.root, "core", "de", stale), 0)
+        self.assertEqual(self._entry("Hello").string, "Hallo Welt")
 
 
 if __name__ == "__main__":
