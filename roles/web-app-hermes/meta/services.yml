@@ -18,6 +18,9 @@ hermes:
   image: nousresearch/hermes-agent
   version: "v2026.9.24"
   name: hermes
+  agent_runtime:
+    name: hermes
+    host: broker
   min_context: 64000
   min_storage: 1146MB
   cpus: "2.0"

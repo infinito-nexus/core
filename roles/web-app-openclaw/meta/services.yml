@@ -17,6 +17,9 @@ openclaw:
   image: ghcr.io/openclaw/openclaw
   version: "2026.7.1"
   name: openclaw
+  agent_runtime:
+    name: openclaw
+    host: broker
   min_storage: 562MB
   cpus: "2.0"
   mem_reservation: 2g

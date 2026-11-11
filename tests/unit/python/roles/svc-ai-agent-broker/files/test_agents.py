@@ -3,11 +3,18 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import threading
+import time
 import unittest
 import urllib.error
 from unittest import mock
 
 import yaml
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar, trust_as_template
+
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -112,7 +119,33 @@ class FakeBackend:
         detail["running"] = False
 
 
-def make_agents(backend=None, idle_stop=True, context=0, log=None):
+class FakeStartBackend(FakeBackend):
+    def __init__(self, details):
+        super().__init__(details)
+        self.started = []
+
+    def network_for(self, name, labels, self_container, broker_alias):
+        return name
+
+    def create(self, spec, network_id):
+        detail = {"Name": f"/{spec['name']}", "running": False, "env": spec["env"]}
+        self.details[spec["name"]] = detail
+        return detail
+
+    def start(self, detail, network_id):
+        self.started.append(detail["Name"].lstrip("/"))
+        detail["running"] = True
+
+    def labels_of(self, detail):
+        return {}
+
+    def env_of(self, detail):
+        return detail.get("env", [])
+
+
+def make_agents(
+    backend=None, idle_stop=True, context=0, log=None, max_running=2, queue_timeout=5
+):
     return agents.Agents(
         backend=backend,
         engine=FakeEngine(),
@@ -124,8 +157,9 @@ def make_agents(backend=None, idle_stop=True, context=0, log=None):
         context=context,
         idle_stop=idle_stop,
         idle_seconds=60,
-        max_running=2,
+        max_running=max_running,
         start_timeout=10,
+        queue_timeout=queue_timeout,
         log=log or (lambda event, **fields: None),
     )
 
@@ -158,6 +192,81 @@ class TestPick(unittest.TestCase):
         ):
             with self.subTest(path=path):
                 self.assertIsNone(agents.pick(path, agents.RELAY_PATHS))
+
+
+AGENT_ROLES_DIR = PROJECT_ROOT / "agents" / "roles"
+
+
+def real_role_runtimes():
+    return {
+        path.parent.name: load_yaml_any(str(path))["runtime"]
+        for path in sorted(AGENT_ROLES_DIR.glob("*/agent.yml"))
+    }
+
+
+class TestProfileCatalog(unittest.TestCase):
+    def test_every_agent_role_is_listed_as_an_agent_model(self):
+        roles = real_role_runtimes()
+        self.assertTrue(roles)
+        listed = [
+            entry["id"]
+            for entry in agents.model_list(PLATFORMS, agents.profile_catalog(roles))
+        ]
+        for role in roles:
+            with self.subTest(role=role):
+                self.assertIn(f"agent/{role}", listed)
+        self.assertEqual(listed[:2], ["hermes", "openclaw"])
+
+    def test_a_profile_resolves_to_its_runtime_and_an_agent_of_its_own(self):
+        profiles = agents.profile_catalog(
+            {"planner": "hermes", "tester": "claude-code"}
+        )
+        self.assertEqual(
+            agents.resolve("agent/planner", PLATFORMS, profiles),
+            ("hermes", "hermes-planner"),
+        )
+        self.assertEqual(
+            agents.resolve("hermes", PLATFORMS, profiles), ("hermes", "hermes")
+        )
+        self.assertNotEqual(
+            agents.agent_name("hermes-planner", "u1"), agents.agent_name("hermes", "u1")
+        )
+
+    def test_a_profile_on_a_runtime_not_offered_or_an_unknown_model_resolves_to_none(
+        self,
+    ):
+        profiles = agents.profile_catalog({"tester": "claude-code"})
+        self.assertEqual(
+            agents.resolve("agent/tester", PLATFORMS, profiles),
+            (None, "claude-code-tester"),
+        )
+        for requested in ("agent/unlisted", "agent/", None, ["agent/tester"]):
+            with self.subTest(requested=requested):
+                self.assertEqual(
+                    agents.resolve(requested, PLATFORMS, profiles), (None, None)
+                )
+
+    def test_a_profile_agent_is_spawned_from_its_runtime_under_its_own_name(self):
+        spec = make_agents()._spec("hermes", "owner", "secret", "hermes-planner")
+        self.assertEqual(spec["name"], agents.agent_name("hermes-planner", "owner"))
+        self.assertEqual(spec["labels"][engine.LABEL_PLATFORM], "hermes")
+        self.assertEqual(spec["image"], PLATFORMS["hermes"]["image"])
+
+    def test_the_broker_env_carries_every_agent_role_and_its_runtime(self):
+        broker = PROJECT_ROOT / "roles" / "svc-ai-agent-broker"
+        env = read_text(str(broker / "templates" / "env.j2"))
+        self.assertIn(
+            "AGENT_ROLES={{ AGENT_BROKER_ROLE_RUNTIMES | to_json | dotenv_quote }}", env
+        )
+        variables = load_yaml_any(str(broker / "vars" / "main.yml"))
+        collected = {
+            role: {"runtime": runtime, "lifecycle": "on_demand"}
+            for role, runtime in real_role_runtimes().items()
+        }
+        rendered = Templar(
+            loader=DataLoader(), variables={"vm_capacity_agents": collected}
+        ).template(trust_as_template(variables["AGENT_BROKER_ROLE_RUNTIMES"]))
+        self.assertEqual(rendered, real_role_runtimes())
 
 
 class TestAgentCalls(unittest.TestCase):
@@ -291,6 +400,127 @@ class TestReap(unittest.TestCase):
         broker._lock_for = touch_then_lock
         broker.reap()
         self.assertEqual(backend.stopped, [])
+
+
+class CountingBackend(FakeStartBackend):
+    def __init__(self, details):
+        super().__init__(details)
+        self.listed = 0
+
+    def list_agents(self):
+        self.listed += 1
+        return super().list_agents()
+
+
+class TestOwnerOfKey(unittest.TestCase):
+    def setUp(self):
+        self.backend = CountingBackend(
+            {
+                "agent-hermes-1": {
+                    "Name": "/agent-hermes-1",
+                    "running": False,
+                    "env": [f"{agents.KEY_ENV}=known"],
+                }
+            }
+        )
+        self.broker = make_agents(self.backend)
+
+    def test_an_agent_from_before_a_restart_is_found_on_the_first_miss(self):
+        self.assertIsNotNone(self.broker.owner_of_key("known"))
+        self.assertEqual(self.backend.listed, 1)
+
+    def test_unknown_keys_read_the_agents_once_per_window(self):
+        for junk in ("junk-1", "junk-2", "junk-3"):
+            self.assertIsNone(self.broker.owner_of_key(junk))
+        self.assertEqual(self.backend.listed, 1)
+
+    def test_a_miss_after_the_window_reads_the_agents_again(self):
+        self.broker.owner_of_key("junk-1")
+        self.broker._keys_refreshed -= agents.KEYS_REFRESH_SECONDS
+        self.broker.owner_of_key("junk-2")
+        self.assertEqual(self.backend.listed, 2)
+
+    def test_a_failed_read_leaves_the_window_open(self):
+        failing = self.backend.list_agents
+
+        def fail_once():
+            self.backend.list_agents = failing
+            raise RuntimeError("engine gone")
+
+        self.backend.list_agents = fail_once
+        with self.assertRaises(RuntimeError):
+            self.broker.owner_of_key("known")
+        self.assertIsNotNone(self.broker.owner_of_key("known"))
+
+    def test_an_agent_started_inside_the_window_is_known_without_a_read(self):
+        self.broker._wait_healthy = lambda platform, name, key: None
+        self.broker.owner_of_key("junk-1")
+        _, key = self.broker.ensure("hermes", "a")
+        listed = self.backend.listed
+        self.assertIsNotNone(self.broker.owner_of_key(key))
+        self.assertEqual(self.backend.listed, listed)
+
+
+class TestStartQueue(unittest.TestCase):
+    def setUp(self):
+        self.busy = agents.agent_name("hermes", "busy")
+        self.backend = FakeStartBackend(
+            {self.busy: {"Name": f"/{self.busy}", "running": True, "env": []}}
+        )
+        self.broker = make_agents(self.backend, max_running=1)
+        self.broker._wait_healthy = lambda platform, name, key: None
+        self.errors = []
+
+    def start(self, owner):
+        def run():
+            try:
+                self.broker.ensure("hermes", owner)
+            except agents.CapacityError as error:
+                self.errors.append(error)
+
+        thread = threading.Thread(target=run, daemon=True)
+        thread.start()
+        return thread
+
+    def wait_for(self, condition):
+        deadline = time.monotonic() + 5
+        while not condition():
+            self.assertLess(time.monotonic(), deadline, "condition never held")
+            time.sleep(0.01)
+
+    def test_a_start_beyond_max_running_waits_and_runs_when_a_slot_frees(self):
+        waiting = self.start("a")
+        self.wait_for(lambda: len(self.broker._queue) == 1)
+        self.assertEqual(self.backend.started, [])
+        self.broker.stop_owner("hermes", "busy")
+        waiting.join(5)
+        self.assertEqual(self.errors, [])
+        self.assertEqual(self.backend.started, [agents.agent_name("hermes", "a")])
+
+    def test_queued_starts_run_in_trigger_order(self):
+        first = self.start("a")
+        self.wait_for(lambda: len(self.broker._queue) == 1)
+        second = self.start("b")
+        self.wait_for(lambda: len(self.broker._queue) == 2)
+        self.broker.stop_owner("hermes", "busy")
+        first.join(5)
+        self.assertEqual(self.backend.started, [agents.agent_name("hermes", "a")])
+        self.assertEqual(len(self.broker._queue), 1)
+        self.broker.stop_owner("hermes", "a")
+        second.join(5)
+        self.assertEqual(
+            self.backend.started,
+            [agents.agent_name("hermes", "a"), agents.agent_name("hermes", "b")],
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_a_start_that_outwaits_the_queue_timeout_is_refused(self):
+        self.broker.queue_timeout = 0
+        with self.assertRaises(agents.CapacityError) as caught:
+            self.broker.ensure("hermes", "a")
+        self.assertIn("start queue", str(caught.exception))
+        self.assertEqual(len(self.broker._queue), 0)
+        self.assertEqual(self.broker._starting, 0)
 
 
 class TestSpec(unittest.TestCase):

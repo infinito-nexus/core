@@ -49,7 +49,7 @@
       failed_when: false
 
 - name: "🧮 Prove {{ inventory_hostname }} can hold its agent VMs"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm_capacity.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm/capacity.yml') }}"
   vars:
     vm_capacity_kind: incus
     vm_capacity_warm_pool: "{{ INCUS_AGENTS.warm_pool }}"

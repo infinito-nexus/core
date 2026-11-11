@@ -113,3 +113,5 @@ AGENT_BROKER_PLATFORMS_REFUSED: "{{ (AGENT_BROKER_PLATFORMS_DECLARED | dict2item
   AGENT_BROKER_CONTEXT | int) | map(attribute='key') | list) if (AGENT_BROKER_CONTEXT | string | length) > 0 else [] }}"
 
 AGENT_BROKER_PLATFORMS: "{{ AGENT_BROKER_PLATFORMS_DECLARED | dict2items | rejectattr('key', 'in', AGENT_BROKER_PLATFORMS_REFUSED) | items2dict }}"
+
+AGENT_BROKER_ROLE_RUNTIMES: "{{ dict(vm_capacity_agents | list | zip(vm_capacity_agents.values() | map(attribute='runtime'))) }}"

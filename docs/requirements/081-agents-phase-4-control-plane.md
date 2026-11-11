@@ -35,12 +35,14 @@ As an operator, I want the broker and the orchestrator to discover runtimes, run
 
 ### Runtime contract and lifecycle
 
-- [ ] `web-app-hermes` and `web-app-openclaw` declare themselves as agent runtimes, and Claude Code in `web-app-workspace` does too.
+- [x] `web-app-hermes` and `web-app-openclaw` declare themselves as agent runtimes, and Claude Code in `web-app-workspace` does too.
+  - Evidence: `agent_runtime` (`name`, `host`) on each runtime's service entry in `meta/services.yml`, read by `utils/agents/runtimes.py`; `tests/lint/ansible/services/test_agent_runtime_declared.py` and L01, whose runtime list now comes from these declarations.
 - [ ] The broker and the orchestrator find runtimes through a lookup; a grep finds no hardcoded runtime list in either role.
 - [ ] `svc-ai-agent-broker` no longer sets `enabled: true` on `hermes` or `openclaw`, and deploys with only one of them in the inventory.
 - [ ] An `always_on` agent (the robot) is running after deploy and is restarted after its container is killed.
 - [ ] A trigger for an `on_demand` team agent wakes it through the orchestrator, and the agent is reaped after its idle timeout.
-- [ ] With `agents.max_running` reached, a further start waits in the queue and runs when a slot frees, in trigger order.
+- [x] With `agents.max_running` reached, a further start waits in the queue and runs when a slot frees, in trigger order.
+  - Evidence: FIFO start queue in `roles/svc-ai-agent-broker/files/python/agents.py` (`_acquire_slot`, freed on stop and reap, bounded by `REQUEST_TIMEOUT`); `TestStartQueue` in `tests/unit/python/roles/svc-ai-agent-broker/files/test_agents.py`.
 - [ ] A test proves that `agents.max_running` times the largest runtime reservation plus the infrastructure of the agents bundle fits the per-variant resource budget, and fails when it does not.
 - [ ] An `on_demand` user-started agent is spawned on first Open WebUI request and reaped after the idle timeout.
 - [ ] Changing `runtime` of a team agent in the inventory switches its runtime on the next deploy.

@@ -109,7 +109,7 @@ class TestIncusHost(unittest.TestCase):
         )
 
     def test_capacity_counts_the_pool_and_the_running_vms(self):
-        task = _task_with("svc-ai-agent-broker/tasks/utils/vm_capacity.yml")
+        task = _task_with("svc-ai-agent-broker/tasks/utils/vm/capacity.yml")
         self.assertEqual(
             task["vars"]["vm_capacity_pool_size"], "{{ INCUS_STORAGE_POOL.size }}"
         )

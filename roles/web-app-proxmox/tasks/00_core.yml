@@ -53,7 +53,7 @@
   changed_when: false
 
 - name: "🧮 Prove the container limits of {{ application_id }} hold its agent VMs"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm_capacity.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm/capacity.yml') }}"
   vars:
     vm_capacity_kind: proxmox
     vm_capacity_warm_pool: "{{ PROXMOX_AGENTS.warm_pool }}"
