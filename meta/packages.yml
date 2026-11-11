@@ -37,6 +37,9 @@ blender:
       - org.blender.Blender
     flatpak:
       command: blender
+    # Flathub publishes org.blender.Blender for x86_64 only, and EL 10 has no other source
+    architectures:
+      - amd64
   fedora:
     - blender
 
