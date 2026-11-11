@@ -93,6 +93,10 @@ class TestKvm(unittest.TestCase):
             showroom.kvm_errors({"karakalpak": {**KARAKALPAK, "flavor": "lxc"}}, True)
 
 
+class AnsibleLazyDictStandIn(dict):
+    pass
+
+
 class TestInstances(unittest.TestCase):
     def setUp(self):
         self.instances = {
@@ -142,8 +146,38 @@ class TestInstances(unittest.TestCase):
             cloud["users"],
         )
         self.assertFalse(cloud["disable_root"])
+        self.assertEqual(["openssh-server", "systemd-timesyncd"], cloud["packages"])
         self.assertEqual("12GiB", document["config"]["limits.memory"])
         self.assertEqual("80GiB", document["devices"]["root"]["size"])
+
+    def test_the_creation_document_accepts_ansible_dict_subclasses(self):
+        vm = self.instances["karakalpak"]
+        looped = AnsibleLazyDictStandIn(
+            vm,
+            devices=AnsibleLazyDictStandIn(
+                {name: AnsibleLazyDictStandIn(d) for name, d in vm["devices"].items()}
+            ),
+        )
+        document = load_yaml_str(showroom.creation_yaml(looped))
+        self.assertEqual(vm["devices"], document["devices"])
+
+    def test_password_logins_go_off_through_a_drop_in_not_the_main_config(self):
+        cloud = load_yaml_str(
+            load_yaml_str(showroom.creation_yaml(self.instances["karakalpak"]))[
+                "config"
+            ]["cloud-init.user-data"]
+        )
+        self.assertNotIn("ssh_pwauth", cloud)
+        self.assertEqual(
+            [
+                {
+                    "path": "/etc/ssh/sshd_config.d/60-showroom.conf",
+                    "permissions": "0644",
+                    "content": "PasswordAuthentication no\n",
+                }
+            ],
+            cloud["write_files"],
+        )
 
     def test_settings_cover_limits_size_and_address(self):
         rows = {

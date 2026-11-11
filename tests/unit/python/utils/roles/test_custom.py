@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
 
-from utils.roles.custom import is_custom, is_custom_path, manifest_version
+from utils.roles.custom import (
+    MARKER_FILE,
+    MARKER_HEADER,
+    is_custom,
+    is_custom_path,
+    manifest_version,
+    resolve_role_version,
+)
 from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 CARGO = '[package]\nname = "x"\nversion = "0.4.3"\n'
@@ -117,6 +126,36 @@ class TestIsCustomPath(unittest.TestCase):
 
     def test_roles_directory_itself(self):
         self.assertFalse(is_custom_path("roles"))
+
+
+class TestResolveRoleVersion(unittest.TestCase):
+    PIN = "full-v{{ lookup('role_version', 'web-app-cst-store') }}"
+
+    def _roles(self, marker: str | None) -> Path:
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        roles = Path(tmp.name)
+        if marker is not None:
+            role = roles / "web-app-cst-store"
+            role.mkdir()
+            (role / MARKER_FILE).write_text(marker, encoding="utf-8")
+        return roles
+
+    def test_a_pulled_version_replaces_the_lookup(self):
+        roles = self._roles(
+            f"{MARKER_HEADER}\ndirectory: web-app-cst-store\nversion: 0.3.4\n"
+        )
+        self.assertEqual(resolve_role_version(self.PIN, roles), "full-v0.3.4")
+
+    def test_a_marker_without_version_keeps_the_lookup(self):
+        roles = self._roles(f"{MARKER_HEADER}\ndirectory: web-app-cst-store\n")
+        self.assertEqual(resolve_role_version(self.PIN, roles), self.PIN)
+
+    def test_a_role_without_marker_keeps_the_lookup(self):
+        self.assertEqual(resolve_role_version(self.PIN, self._roles(None)), self.PIN)
+
+    def test_a_plain_version_passes_unchanged(self):
+        self.assertEqual(resolve_role_version("1.2.3", self._roles(None)), "1.2.3")
 
 
 if __name__ == "__main__":

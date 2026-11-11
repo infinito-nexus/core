@@ -7,6 +7,7 @@ from ansible.errors import AnsibleFilterError
 
 from utils.cache.yaml import dump_yaml_str
 from utils.sizes import to_bytes
+from utils.templating.ansible import to_plain
 
 FLAVOR_VM = "vm"
 FLAVOR_CONTAINER = "container"
@@ -14,6 +15,7 @@ FLAVORS = (FLAVOR_VM, FLAVOR_CONTAINER)
 ROOT_DEVICE = "root"
 NIC_DEVICE = "eth0"
 UPSTREAM_PORT = 443
+SSHD_DROP_IN = "/etc/ssh/sshd_config.d/60-showroom.conf"
 
 
 def _entries(projects: Any) -> list[tuple[str, Mapping[str, Any]]]:
@@ -100,9 +102,15 @@ def user_data(entry: Mapping[str, Any]) -> str:
     keys = [str(key) for key in entry.get("ssh_authorized_keys") or []]
     document = {
         "disable_root": False,
-        "ssh_pwauth": False,
-        "packages": ["openssh-server"],
+        "packages": ["openssh-server", "systemd-timesyncd"],
         "users": [{"name": "root", "ssh_authorized_keys": keys}],
+        "write_files": [
+            {
+                "path": SSHD_DROP_IN,
+                "permissions": "0644",
+                "content": "PasswordAuthentication no\n",
+            }
+        ],
     }
     return "#cloud-config\n" + dump_yaml_str(document, sort_keys=True)
 
@@ -169,7 +177,7 @@ def creation_yaml(instance: Mapping[str, Any]) -> str:
         },
         "devices": instance["devices"],
     }
-    return dump_yaml_str(document, sort_keys=True)
+    return dump_yaml_str(to_plain(document), sort_keys=True)
 
 
 def settings(instances_: list[Mapping[str, Any]]) -> list[dict[str, str]]:

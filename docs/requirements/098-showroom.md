@@ -18,6 +18,7 @@ As an operator who presents Infinito.Nexus to a prospective customer, I want one
 
 - [ ] A role `svc-virt-showroom` installs Incus on an Arch Linux or Debian host and refuses every other distribution with a message naming the supported ones.
 - [ ] The role creates one Incus bridge with IPv4 NAT on the subnet the role's network allocation assigns, and one storage pool.
+- [ ] On a host running Docker, a server reaches the internet through the bridge before its first boot and after every restart of Docker, because the role inserts `DOCKER-USER` accept rules for the bridge in both directions.
 - [ ] For every entry of `services.showroom.projects` the role creates one Incus project and one instance named after the entry, with the entry's CPU, memory and disk limits and a fixed IPv4 address on the bridge.
 - [ ] A project with flavor `vm` on a host without `/dev/kvm` fails the deploy with a message that names the project and the `container` flavor as the way out.
 - [ ] A project list whose memory sum exceeds `services.showroom.budget.memory` fails the deploy before any instance is created, naming every project and its memory.

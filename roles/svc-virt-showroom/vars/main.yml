@@ -1,5 +1,6 @@
 ---
 application_id: "svc-virt-showroom"
+system_service_id: "{{ application_id }}"
 
 SHOWROOM_OS_FAMILIES:
   - Archlinux
