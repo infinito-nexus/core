@@ -3,8 +3,10 @@ const { test, expect } = require("@playwright/test");
 const { apiFetchOnion, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 const {
+  biberTokens,
   confirmLogoutOnThisDevice,
   durationMs,
+  endTokenSession,
   expectSynapseSession,
   forgedLogoutToken,
   logoutEnv,
@@ -49,20 +51,32 @@ exports.register = function () {
       );
     });
 
-    test("logout-backchannel: a logout token signed with a foreign key ends no session", async ({ browser }) => {
-      test.setTimeout(resolveTimeout(300_000)); // one Synapse SSO round trip plus a POST per back-channel endpoint
+    test("logout-backchannel: a forged or foreign logout token ends no session", async ({ browser }) => {
+      test.setTimeout(resolveTimeout(300_000)); // one Synapse SSO round trip plus two POSTs per back-channel endpoint
       const context = await openContext(browser);
       try {
         const page = await context.newPage();
         const synapse = await signInToSynapse(page);
-        for (const target of logoutEnv.backchannelTargets) {
-          const response = await apiFetchOnion(context.request, target.url, {
-            method: "POST",
-            form: { logout_token: forgedLogoutToken(target.client_id) },
-            timeout: resolveTimeout(30_000),
-          });
-          expect(response.status(), `${target.id}: a forged logout token must be refused`).toBeGreaterThanOrEqual(400);
-          expect(response.status(), `${target.id}: refused as a client error, not a crash`).toBeLessThan(500);
+        const keycloakSigned = await biberTokens(context.request);
+        try {
+          expect(keycloakSigned.id_token, "Keycloak must hand biber an ID token to replay as a logout token").toBeTruthy();
+          for (const target of logoutEnv.backchannelTargets) {
+            const probes = [
+              ["signed with a foreign key", forgedLogoutToken(target.client_id)],
+              ["signed by Keycloak for the shared client, without the events claim", keycloakSigned.id_token],
+            ];
+            for (const [kind, token] of probes) {
+              const response = await apiFetchOnion(context.request, target.url, {
+                method: "POST",
+                form: { logout_token: token },
+                timeout: resolveTimeout(30_000),
+              });
+              expect(response.status(), `${target.id}: a token ${kind} must be refused`).toBeGreaterThanOrEqual(400);
+              expect(response.status(), `${target.id}: a token ${kind} is a client error, not a crash`).toBeLessThan(500);
+            }
+          }
+        } finally {
+          await endTokenSession(context.request, keycloakSigned.refresh_token);
         }
         await expectSynapseSession(context.request, synapse, 200);
         await confirmLogoutOnThisDevice(page);

@@ -1304,7 +1304,7 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-# Variant 13: litellm
+# Variant 13: litellm, signed in through user_oidc and Nextcloud's own Keycloak client
 - services:
     container_backup:
       enabled: false
@@ -1312,6 +1312,8 @@
     sso:
       enabled: true
       shared: true
+      oidc:
+        plugin: user_oidc
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

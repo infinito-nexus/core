@@ -279,14 +279,14 @@ async function expectSynapseSession(request, accessToken, expected) {
 }
 
 /**
- * Return the applications Keycloak lists for biber, read with a fresh token of
- * biber and the Account REST API.
+ * Return a fresh token set of biber from the shared client, in a Keycloak
+ * session of its own that endTokenSession ends.
  *
  * Args:
  *   request: an API request context.
  */
-async function accountApplications(request) {
-  const tokenResponse = await apiFetchOnion(request, logoutEnv.tokenUrl, {
+async function biberTokens(request) {
+  const response = await apiFetchOnion(request, logoutEnv.tokenUrl, {
     method: "POST",
     form: {
       client_id: logoutEnv.clientId,
@@ -297,8 +297,32 @@ async function accountApplications(request) {
     },
     timeout: resolveTimeout(30_000),
   });
-  expect(tokenResponse.status(), "biber must get a fresh token").toBe(200);
-  const { access_token: accessToken, refresh_token: refreshToken } = await tokenResponse.json();
+  expect(response.status(), "biber must get a fresh token").toBe(200);
+  return response.json();
+}
+
+/**
+ * Args:
+ *   request: an API request context.
+ *   refreshToken: the refresh token of the session biberTokens opened.
+ */
+async function endTokenSession(request, refreshToken) {
+  await apiFetchOnion(request, logoutEnv.logoutUrl, {
+    method: "POST",
+    form: { client_id: logoutEnv.clientId, refresh_token: refreshToken },
+    timeout: resolveTimeout(30_000),
+  }).catch((error) => console.warn(`ending the token session of the check failed: ${error}`));
+}
+
+/**
+ * Return the applications Keycloak lists for biber, read with a fresh token of
+ * biber and the Account REST API.
+ *
+ * Args:
+ *   request: an API request context.
+ */
+async function accountApplications(request) {
+  const { access_token: accessToken, refresh_token: refreshToken } = await biberTokens(request);
   try {
     const response = await apiFetchOnion(request, `${logoutEnv.accountUrl.replace(/\/$/, "")}/applications`, {
       method: "GET",
@@ -308,11 +332,7 @@ async function accountApplications(request) {
     expect(response.status(), "the Account REST API must list biber's applications").toBe(200);
     return await response.json();
   } finally {
-    await apiFetchOnion(request, logoutEnv.logoutUrl, {
-      method: "POST",
-      form: { client_id: logoutEnv.clientId, refresh_token: refreshToken },
-      timeout: resolveTimeout(30_000),
-    }).catch((error) => console.warn(`ending the token session of the check failed: ${error}`));
+    await endTokenSession(request, refreshToken);
   }
 }
 
@@ -349,9 +369,11 @@ module.exports = {
   accountApplications,
   accountChoice,
   awaitDashboardReturn,
+  biberTokens,
   chooseFromAccountMenu,
   confirmLogoutOnThisDevice,
   durationMs,
+  endTokenSession,
   expectDashboardSignedIn,
   expectDashboardSignedOut,
   expectLoginAsksForCredentials,
