@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import shutil
+import tempfile
 import unittest
+from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
-from utils.inventory.tools import LANE_MODEL_ALIAS, render
+from utils.inventory.tools import LANE_MODEL_ALIAS, TEMPLATE, render
 
 OLLAMA_ROLE = "svc-ai-ollama"
 
@@ -21,8 +24,16 @@ class TestLaneModel(unittest.TestCase):
         deploy that writes the rendered file. A lane serving one model while
         the probe expects another never reports ready and redeploys on every
         call.
+
+        The render runs in a scratch root: inside the test container a render
+        into the real tree leaves a nobody-owned tools.rendered.yml behind,
+        and the host-side test-oracle then dies writing it (EACCES).
         """
-        rendered = load_yaml_any(str(render(PROJECT_ROOT, ["en"])))
+        with tempfile.TemporaryDirectory() as scratch:
+            root = Path(scratch)
+            (root / TEMPLATE).parent.mkdir(parents=True)
+            shutil.copy(Path(PROJECT_ROOT) / TEMPLATE, root / TEMPLATE)
+            rendered = load_yaml_any(str(render(root, ["en"])))
         ollama = rendered["applications"][OLLAMA_ROLE]["services"]["ollama"]
 
         self.assertEqual(

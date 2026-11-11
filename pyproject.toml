@@ -18,6 +18,7 @@ dependencies = [
   "bcrypt",
   "cryptography",
   "humanfriendly",
+  "Jinja2",
   "PyMySQL",
   "psycopg2-binary",
   "ldap3",
@@ -35,7 +36,7 @@ deploy = [
   "requests",
 ]
 dev = [
-  "ruff==0.17.3",
+  "ruff==0.17.4",
   "import-linter",
   "pre-commit",
   "git-maintainer-tools",

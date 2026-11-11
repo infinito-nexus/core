@@ -155,6 +155,9 @@ def problems(
                 continue
             deployed = matrix.with_deployed_services(discovered[(pin.app, variant)])
             try:
+                row_architectures = axes.row_architectures(
+                    pin.app, architectures, deployed["services"]
+                )
                 axes.check_pins(
                     pin.app,
                     "" if variant is None else str(variant),
@@ -170,8 +173,9 @@ def problems(
                     vpn_mode=vpn_mode,
                     distros=distros,
                     filesystems=filesystems,
-                    architectures=axes.row_architectures(
-                        pin.app, architectures, deployed["services"]
+                    architectures=row_architectures,
+                    pairs=axes.row_pairs(
+                        pin.app, distros, row_architectures, deployed["services"]
                     ),
                 )
             except SystemExit as refusal:
