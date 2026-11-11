@@ -1,5 +1,6 @@
 ---
 # nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: openresty-vhost  web-opt-rdr-domains redirects the domain to web-svc-file, the stack renders no vhost for it
 asset:
   modes:
     host:

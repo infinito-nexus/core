@@ -1,5 +1,6 @@
 ---
 # nocheck: garbage-collector-required  redirect-only vhost; holds no data
+# nocheck: openresty-vhost  web-opt-rdr-domains renders the redirect server block, the stack renders no vhost for it
 rdr-www:
   modes:
     host:
