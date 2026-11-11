@@ -4,6 +4,7 @@ the deployed revision under its agent's stack lock once the gate is free."""
 
 from __future__ import annotations
 
+import signal
 import subprocess
 import tempfile
 import threading
@@ -13,9 +14,16 @@ from pathlib import Path
 
 from plugins.lookup.agent_config import LookupModule
 from tests.lint.agents import ROLES_DIR, role_names
-from utils.orchestrator import locks
+from utils.orchestrator import locks, scheduler
 from utils.orchestrator.load import Load
-from utils.orchestrator.scheduler import RUNNING, STARTED, Runner, tick
+from utils.orchestrator.scheduler import (
+    PAUSED,
+    RESUMED,
+    RUNNING,
+    STARTED,
+    Runner,
+    tick,
+)
 
 IDLE = Load(cpu=5.0, gpu=5.0)
 BUSY = Load(cpu=99.0, gpu=99.0)
@@ -113,7 +121,8 @@ class TestRoleSchedules(unittest.TestCase):
 
 
 class _Process:
-    def __init__(self) -> None:
+    def __init__(self, pid: int) -> None:
+        self.pid = pid
         self.code: int | None = None
 
     def poll(self) -> int | None:
@@ -127,14 +136,18 @@ class TestRunner(unittest.TestCase):
         self.lock_dir = Path(self.tmp.name)
         self.spawned: list[list[str]] = []
         self.processes: list[_Process] = []
+        self.signals: list[tuple[int, int]] = []
 
     def _spawn(self, argv: list[str]) -> _Process:
         self.spawned.append(argv)
-        self.processes.append(_Process())
+        self.processes.append(_Process(4000 + len(self.processes)))
         return self.processes[-1]
 
+    def _send(self, pid: int, sig: int) -> None:
+        self.signals.append((pid, sig))
+
     def _runner(self, wait_gate=lambda: None) -> Runner:
-        return Runner(self._spawn, wait_gate, self.lock_dir)
+        return Runner(self._spawn, wait_gate, self.lock_dir, self._send)
 
     def test_a_start_runs_the_routine_under_its_agent_stack_lock(self) -> None:
         self.assertEqual(self._runner().start("maintainer", "maintainer", ()), STARTED)
@@ -194,6 +207,64 @@ class TestRunner(unittest.TestCase):
         self.assertEqual(runner.start("translate", "translator", ()), STARTED)
         self.assertEqual(polls, [False])
         self.assertEqual(len(self.spawned), 1)
+
+    def _act(self, runner: Runner, when: datetime, **overrides) -> list[str]:
+        return [
+            runner.apply(routine, "translator", action, ())
+            for routine, action in _tick(when, **overrides).items()
+        ]
+
+    def test_the_night_starts_the_morning_pauses_and_the_day_resumes(self) -> None:
+        runner = self._runner()
+        self.assertEqual(
+            self._act(runner, datetime(2026, 11, 10, 23, 0, tzinfo=UTC), sample=None),
+            [STARTED],
+        )
+        self.assertEqual(
+            self._act(
+                runner, datetime(2026, 11, 11, 7, 0, tzinfo=UTC), sample=(IDLE, LANE)
+            ),
+            [PAUSED],
+        )
+        self.assertEqual(self.signals, [(4000, signal.SIGSTOP)])
+        self.assertEqual(
+            self._act(
+                runner, datetime(2026, 11, 11, 7, 10, tzinfo=UTC), sample=(IDLE, LANE)
+            ),
+            [RESUMED],
+        )
+        self.assertEqual(self.signals[-1], (4000, signal.SIGCONT))
+        self.assertEqual(len(self.spawned), 1)
+
+    def test_the_night_resumes_a_day_pause_regardless_of_load(self) -> None:
+        runner = self._runner()
+        noon = datetime(2026, 11, 10, 12, 10, tzinfo=UTC)
+        self.assertEqual(self._act(runner, noon, sample=(IDLE, LANE)), [STARTED])
+        self.assertEqual(self._act(runner, noon, sample=(BUSY, LANE)), [PAUSED])
+        night = datetime(2026, 11, 10, 23, 0, tzinfo=UTC)
+        self.assertEqual(self._act(runner, night, sample=(BUSY, LANE)), [RESUMED])
+        self.assertEqual(
+            [sig for _, sig in self.signals], [signal.SIGSTOP, signal.SIGCONT]
+        )
+
+    def test_a_pause_without_a_live_run_does_nothing(self) -> None:
+        runner = self._runner()
+        self.assertEqual(runner.pause("translate"), scheduler.IDLE)
+        runner.start("translate", "translator", ())
+        self.processes[0].code = 0
+        self.assertEqual(runner.pause("translate"), scheduler.IDLE)
+        self.assertEqual(self.signals, [])
+
+    def test_a_second_pause_sends_no_second_stop(self) -> None:
+        runner = self._runner()
+        runner.start("translate", "translator", ())
+        runner.pause("translate")
+        self.assertEqual(runner.pause("translate"), PAUSED)
+        self.assertEqual(len(self.signals), 1)
+
+    def test_an_unknown_action_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            self._runner().apply("translate", "translator", "stop", ())
 
     def test_a_second_stack_command_of_one_agent_waits_for_the_first(self) -> None:
         stack = locks.stack_file(self.lock_dir, "maintainer")

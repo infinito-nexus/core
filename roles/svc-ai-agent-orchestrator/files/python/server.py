@@ -7,8 +7,9 @@ validates them (``webhook``), deduplicates delivery ids, re-fetches the named
 object by id and routes the trigger it raises to the agent roles
 (``dispatch``), appends a hash-chained audit entry per action (``audit``),
 registers detached instances (``instance_api``), folds the cron schedules
-into one action per routine and starts the routines of the deployed revision
-under the gate and stack locks (``scheduler``, ``locks``), keeps the owner's
+and the measured host and lane load into one action per routine, and starts,
+pauses and resumes the routines of the deployed revision under the gate and
+stack locks (``scheduler``, ``probe``, ``locks``), keeps the owner's
 holds and blockers across restarts (``holds``), grants the CI slot in request
 order and addresses channel messages to accounts rather than session names
 (``channels``). Graph state keeps secret handles, never values; the handle for
@@ -36,6 +37,10 @@ Environment:
     BOARD_URL:                  origin of the OpenProject board every agent uses.
     GITHUB_TOKEN:               token the re-fetch of a GitHub event reads with;
                                 absent, a webhook is audited but not acted on.
+    TOOLS_LANE_CONTAINER:       the translation lane container whose own load the
+                                day rule leaves out; absent, or without the
+                                ``docker`` CLI, no load is measured and no load
+                                rule fires.
     REQUEST_TIMEOUT:            seconds a proxied request may take.
 """
 
@@ -61,10 +66,12 @@ from utils.orchestrator import (
     holds,
     instance_api,
     locks,
+    openapi,
+    probe,
     scheduler,
     webhook,
 )
-from utils.orchestrator.load import START
+from utils.orchestrator.load import PAUSE, START
 
 ENV = os.environ
 PORT = int(ENV["ORCHESTRATOR_PORT"])
@@ -84,6 +91,7 @@ ROUTINE_ROLE = {
 LOCK_DIR = Path(ENV["ORCHESTRATOR_LOCK_DIR"])
 BOARD_URL = ENV["BOARD_URL"]
 GITHUB_TOKEN = ENV.get("GITHUB_TOKEN")
+LANE_CONTAINER = ENV.get("TOOLS_LANE_CONTAINER")
 GITHUB_API = "https://api.github.com"
 GATE_POLL_SECONDS = 5.0
 HERE = Path(__file__).resolve().parent
@@ -110,28 +118,7 @@ def _wait_gate():
     locks.wait_gate(LOCK_DIR, poll=GATE_POLL_SECONDS, sleep=time.sleep)
 
 
-RUNNER = scheduler.Runner(_spawn, _wait_gate, LOCK_DIR)
-
-OPENAPI = {
-    "openapi": "3.0.3",
-    "info": {"title": "Agent Orchestrator", "version": "1.0.0"},
-    "paths": {
-        "/health": {"get": {"summary": "Liveness probe"}},
-        "/status": {"get": {"summary": "Control-plane status"}},
-        "/routines": {"get": {"summary": "Routines of the deployed revision"}},
-        "/routines/run": {"post": {"summary": "Start a routine run"}},
-        "/routines/hold": {"post": {"summary": "Owner hold on a routine"}},
-        "/routines/lift": {"post": {"summary": "Lift an owner hold"}},
-        "/routines/block": {"post": {"summary": "Record an owner-only blocker"}},
-        "/routines/clear": {"post": {"summary": "Clear an owner-only blocker"}},
-        "/ci/slot": {"post": {"summary": "Request a repository's CI slot"}},
-        "/ci/release": {"post": {"summary": "Release a repository's CI slot"}},
-        "/audit": {"get": {"summary": "Audit chain head and verification"}},
-        "/webhooks/{provider}": {"post": {"summary": "Provider webhook intake"}},
-        "/instances/register": {"post": {"summary": "Register a detached instance"}},
-        "/channels/dispatch": {"post": {"summary": "Dispatch a channel message"}},
-    },
-}
+RUNNER = scheduler.Runner(_spawn, _wait_gate, LOCK_DIR, os.killpg)
 
 
 def log(event, **fields):
@@ -170,9 +157,9 @@ def act(routine, role, action, source, scope=()):
             {"routine": routine, "role": role, "action": action, "source": source},
         )
     log(f"routine_{action}", routine=routine, role=role, source=source)
-    if action == START:
+    if action in (START, PAUSE):
         threading.Thread(
-            target=RUNNER.start, args=(routine, role, tuple(scope)), daemon=True
+            target=RUNNER.apply, args=(routine, role, action, tuple(scope)), daemon=True
         ).start()
 
 
@@ -236,7 +223,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(200, {"status": "ok"})
             return
         if self.path == "/openapi.json":
-            self._json(200, OPENAPI)
+            self._json(200, openapi.OPENAPI)
             return
         if not self._authed():
             self._error(401, "invalid management key")
@@ -454,19 +441,23 @@ OWNER_ACTIONS = {
 
 
 def cron_loop():
+    stat = None
     while True:
         time.sleep(60 - time.time() % 60)
         try:
+            stat, pair, accelerated = probe.lane_load(
+                stat, container=LANE_CONTAINER, timeout=REQUEST_TIMEOUT, log=log
+            )
             actions = scheduler.tick(
                 CRON_ENTRIES,
                 datetime.now(UTC).replace(second=0, microsecond=0),
-                sample=None,
-                accelerated=False,
+                sample=pair,
+                accelerated=accelerated,
                 gate_locked=locks.held(LOCK_DIR, locks.GATE),
                 held=HOLDS.held(),
                 blocked=HOLDS.blocked(),
             )
-        except (KeyError, ValueError) as error:
+        except (KeyError, ValueError, OSError) as error:
             log("cron_failed", error=str(error))
             continue
         for routine, action in actions.items():

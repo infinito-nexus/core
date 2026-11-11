@@ -2,7 +2,10 @@
 routine over a JSON state file, refuses a missing state file without
 ``--init`` and a mistyped state key by name, lists the state keys in its help,
 reads the run's log, exit status and poll, writes the polled run step and the
-state back without the raw log, records the ledger and prints the label."""
+state back without the raw log, records the ledger with the evidence source
+and prints the label. ``run`` records and shows an operator override, pauses an
+``ask`` step on the owner's answer, and a failed log write kills the run's
+whole process group."""
 
 from __future__ import annotations
 
@@ -10,11 +13,23 @@ import contextlib
 import io
 import json
 import os
+import signal
+import sys
 import tempfile
 import unittest
+from dataclasses import dataclass
 from pathlib import Path
+from unittest import mock
 
-from agents.routines.__main__ import main
+from agents.routines import load
+from agents.routines.__main__ import (
+    ABORTED_EXIT,
+    LOG_FAILED_EXIT,
+    ask_owner,
+    main,
+    supervise,
+)
+from agents.routines.contract import asked
 from agents.routines.iterate import (
     ENDED,
     GREEN,
@@ -302,6 +317,192 @@ class TestDecideCommand(unittest.TestCase):
                 1,
             )
             self.assertFalse(state.exists())
+
+    def test_the_ledger_names_the_evidence_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "ledger.jsonl"
+            state = Path(tmp) / "state.json"
+            state.write_text(json.dumps({"ledger": str(ledger)}), encoding="utf-8")
+            log = Path(tmp) / "run.log"
+            log.write_text(_FAILED, encoding="utf-8")
+            _decide(
+                "iterate_compose", "signature", "--state", str(state), "--log", str(log)
+            )
+            (line,) = written_text(ledger).splitlines()
+            saved = json.loads(written_text(state))
+        self.assertEqual(json.loads(line)["evidence_source"], f"log:{log}")
+        self.assertNotIn("evidence_source", saved)
+
+
+@dataclass(frozen=True)
+class _StubChannel:
+    name: str = "stub"
+    remote: str = ""
+    credential: str = ""
+
+    def envelope(self, recipient: str, text: str) -> dict:
+        return {"to": recipient, "text": text}
+
+
+_SEEN: dict = {}
+
+
+class _Graph:
+    """Runs a routine's ask steps in order, as the compiled graph does."""
+
+    def __init__(self, name: str, steps: list, approve) -> None:
+        self._nodes = [
+            asked(step, lambda state: state, approve)
+            for step in steps
+            if step.kind == "ask"
+        ]
+
+    def invoke(self, state: dict) -> dict:
+        _SEEN.clear()
+        _SEEN.update(state)
+        for node in self._nodes:
+            state = node(state)
+        return state
+
+
+def _run(*argv: str, stdin: str = "") -> tuple[int, str, str]:
+    out = io.StringIO()
+    err = io.StringIO()
+    with (
+        mock.patch("agents.routines.__main__.build", _Graph),
+        mock.patch("sys.stdin", io.StringIO(stdin)),
+        contextlib.redirect_stdout(out),
+        contextlib.redirect_stderr(err),
+    ):
+        code = main(["run", *argv])
+    return code, out.getvalue().strip(), err.getvalue().strip()
+
+
+class TestOverride(unittest.TestCase):
+    def test_an_override_is_handed_on_recorded_and_shown(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "ledger.jsonl"
+            code, out, _ = _run(
+                "translate", "--override", "mode=compose-only", "--ledger", str(ledger)
+            )
+            (line,) = written_text(ledger).splitlines()
+        record = json.loads(line)
+        self.assertEqual(code, 0)
+        self.assertEqual(_SEEN["overrides"], {"mode": "compose-only"})
+        self.assertEqual(
+            (record["step"], record["inputs"], record["outcome"]),
+            ("overrides", {"mode": "compose-only"}, "accepted"),
+        )
+        self.assertEqual(out, "translate: done; overrides: mode=compose-only")
+
+    def test_an_override_without_a_value_is_refused(self) -> None:
+        code, _, err = _run("translate", "--override", "compose-only")
+        self.assertEqual(code, 1)
+        self.assertIn("'compose-only'", err)
+
+
+class TestAsk(unittest.TestCase):
+    def _approve(self, answer: str, sent: list):
+        return ask_owner(_StubChannel(), "kevin", sent.append, lambda: answer)
+
+    def test_the_owner_gets_the_request_and_approve_resumes(self) -> None:
+        sent: list = []
+        step = next(s for s in _hacker_steps() if s.id == "H1")
+        ran: list = []
+        node = asked(
+            step,
+            lambda state: ran.append(state) or state,
+            self._approve("approve\n", sent),
+        )
+        state = node({})
+        self.assertEqual(sent, [{"to": "kevin", "text": f"H1: {step.label}"}])
+        self.assertEqual(state["H1"], step.branches[0][0])
+        self.assertEqual(len(ran), 1)
+
+    def test_reject_and_no_answer_abort_the_run(self) -> None:
+        for answer in ("reject\n", ""):
+            with self.subTest(answer=answer):
+                code, out, _ = _run(
+                    "hacker_scan",
+                    "--owner",
+                    "kevin",
+                    "--homeserver",
+                    "hs.example",
+                    stdin=answer,
+                )
+                self.assertEqual(code, ABORTED_EXIT)
+                self.assertEqual(out.splitlines()[-1], "hacker_scan: aborted at H1")
+
+    def test_approve_on_stdin_resumes_the_run(self) -> None:
+        code, out, _ = _run(
+            "hacker_scan",
+            "--owner",
+            "kevin",
+            "--homeserver",
+            "hs.example",
+            stdin="approve\n",
+        )
+        request = json.loads(out.splitlines()[0])["approval_request"]
+        self.assertEqual(code, 0)
+        self.assertIn("H1", json.dumps(request))
+        self.assertEqual(out.splitlines()[-1], "hacker_scan: done")
+
+    def test_without_an_owner_an_ask_aborts(self) -> None:
+        code, _, err = _run("hacker_scan")
+        self.assertEqual(code, ABORTED_EXIT)
+        self.assertIn("'H1'", err)
+
+
+def _hacker_steps() -> list:
+    return load("hacker_scan").STEPS
+
+
+_FAMILY = """
+import os, subprocess, sys, time
+grandchild = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+with open(sys.argv[1], "w") as handle:
+    handle.write(f"{os.getpid()} {grandchild.pid}")
+print("started", flush=True)
+time.sleep(5)
+"""
+
+
+def _alive(pid: int) -> bool:
+    try:
+        with Path(f"/proc/{pid}/stat").open(encoding="utf-8") as handle:
+            stat = handle.read()
+    except FileNotFoundError:
+        return False
+    return stat.rsplit(")", 1)[1].split()[0] != "Z"
+
+
+class TestLogWrite(unittest.TestCase):
+    def test_a_failed_log_write_aborts_and_leaves_no_child(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            pids = Path(tmp) / "pids"
+            with contextlib.redirect_stderr(io.StringIO()) as err:
+                code = supervise(
+                    [sys.executable, "-c", _FAMILY, str(pids)], Path("/dev/full")
+                )
+            family = [int(pid) for pid in written_text(pids).split()]
+        try:
+            self.assertEqual(code, LOG_FAILED_EXIT)
+            self.assertIn("/dev/full", err.getvalue())
+            self.assertEqual([pid for pid in family if _alive(pid)], [])
+        finally:
+            for pid in family:
+                with contextlib.suppress(ProcessLookupError):
+                    os.kill(pid, signal.SIGKILL)
+
+    def test_the_output_reaches_the_log_and_the_status_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "run.log"
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = supervise(
+                    [sys.executable, "-c", "print('hello'); raise SystemExit(5)"], log
+                )
+            self.assertEqual(code, 5)
+            self.assertEqual(written_text(log), "hello\n")
 
 
 if __name__ == "__main__":
