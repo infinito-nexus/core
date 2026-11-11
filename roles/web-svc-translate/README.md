@@ -12,7 +12,7 @@ Four backends are declared as consumer entries in `meta/services.yml`, each swit
 
 | Backend | Provider | Reached over |
 | --- | --- | --- |
-| `libretranslate` | [`svc-ai-libretranslate-engine`](../svc-ai-libretranslate-engine/) | the LibreTranslate API |
+| `libretranslate-engine` | [`svc-ai-libretranslate-engine`](../svc-ai-libretranslate-engine/) | the LibreTranslate API |
 | `nllb` | [`svc-ai-nllb-engine`](../svc-ai-nllb-engine/) | FLORES-200 codes, mapped from ISO 639-1 by `translate_gateway/flores.py` |
 | `ltengine` | [`svc-ai-ltengine`](../svc-ai-ltengine/) | the LibreTranslate API |
 | `ollama` | [`svc-ai-ollama`](../svc-ai-ollama/) | the chat API of [`svc-ai-litellm`](../svc-ai-litellm/), as a prompt |

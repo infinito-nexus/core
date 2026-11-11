@@ -127,6 +127,24 @@ class SaturatedSignatureSkipsTheDeciderTestCase(unittest.TestCase):
         self.assertEqual(decider.seen, [], "a settled signature must not be judged")
         self.assertEqual(alpha.calls, 0, "the loser must not even be called")
 
+    def test_a_leader_no_longer_deployed_is_passed_over(self) -> None:
+        engine = FakeEngine("engine")
+        router = Router(
+            {"libretranslate-engine": engine},
+            history=FakeHistory({"libretranslate": (9, 10)}),
+            sampler=AlwaysSampler(),
+            saturation=(10, 0.8),
+        )
+
+        answered, answer = run(router.translate("de", "en", "Haus"))
+
+        self.assertEqual(
+            (answered, answer),
+            ("libretranslate-engine", "engine:Haus"),
+            "a history row naming a renamed or removed engine must not fail "
+            "the request",
+        )
+
     def test_an_open_signature_is_compared(self) -> None:
         decider = FakeDecider(pick="beta")
         router = Router(

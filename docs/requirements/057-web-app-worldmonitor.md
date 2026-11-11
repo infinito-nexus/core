@@ -61,13 +61,15 @@ The operator MUST confirm or change these before implementation starts. Once con
 ```
 roles/web-app-worldmonitor/
 ├── README.md
-├── files/Dockerfile
 ├── files/playwright/{_shared,playwright.spec,test-guest,test-oidc-login,test-isolation}.js
-├── meta/{main,info,domains,networks,csp,services,secrets,variants,volumes}.yml
+├── meta/{main,info,account,domains,networks,csp,license,server,services,secrets,variants,volumes}.yml
 ├── tasks/{main,00_core}.yml
-├── templates/{compose.yml.j2,env.j2,playwright.env.j2}
+├── templates/{compose.yml.j2,playwright.env.j2}
+├── templates/env/{worldmonitor,ais-relay,redis-rest,cache,seeder}.j2
 └── vars/main.yml
 ```
+
+The role ships no `Dockerfile` of its own: per Decision #5 every image builds from an upstream `Dockerfile` inside the pinned clone. Each container reads its own environment file under `templates/env/`.
 
 ### `meta/services.yml` excerpt
 
@@ -100,15 +102,15 @@ litellm:
 
 ### `meta/secrets.yml` credentials
 
-`relay_shared_secret`, `redis_password`, `redis_token`, `session_secret`, `litellm_api_key`.
+`relay_shared_secret`, `relay_key`, `redis_password`, `redis_token`, `session_secret`, `litellm_api_key`, plus one optional, operator-supplied credential per external API key of Decision #10.
 
 ## Acceptance Criteria
 
 ### Role layout & images
 
-- [ ] `roles/web-app-worldmonitor/` exists per the [Target Schema](#role-layout) and all `meta/*.yml` pass the role-meta lint.
-- [ ] `worldmonitor` is built from the root `Dockerfile` of the pinned upstream `v2.11.8` source (Decision #5). No `:latest`, no GHCR pull.
-- [ ] `ais-relay`, `redis-rest` and the seeder are built from the same pinned upstream tag, with every external value passed as a Docker `ARG` per [dockerfile.md](../contributing/artefact/files/role/dockerfile.md).
+- [x] `roles/web-app-worldmonitor/` exists per the [Target Schema](#role-layout) and all `meta/*.yml` pass the role-meta lint.
+- [x] `worldmonitor` is built from the root `Dockerfile` of the pinned upstream `v2.11.8` source (Decision #5). No `:latest`, no GHCR pull.
+- [x] `ais-relay`, `redis-rest` and the seeder are built from the same pinned upstream tag, with every external value passed as a Docker `ARG` per [dockerfile.md](../contributing/artefact/files/role/dockerfile.md).
 - [ ] Every image used by the role is declared once in `meta/services.yml` and is found by the image discovery.
 
 ### Compose
@@ -124,7 +126,7 @@ litellm:
 ### Secrets
 
 - [ ] `RELAY_SHARED_SECRET`, `REDIS_PASSWORD`, `REDIS_TOKEN` and `WM_SESSION_SECRET` are generated through `meta/secrets.yml` and no literal secret value is committed.
-- [ ] `I_UNDERSTAND_THIS_DISABLES_AUTH` and `ALLOW_UNAUTHENTICATED_RELAY` are not set anywhere in the role.
+- [x] `I_UNDERSTAND_THIS_DISABLES_AUTH` and `ALLOW_UNAUTHENTICATED_RELAY` are not set anywhere in the role.
 - [ ] Optional external API keys (`FINNHUB_API_KEY`, `ALPHA_VANTAGE_API_KEY`, `FRED_API_KEY`, `EIA_API_KEY`, `ACLED_*`, `NASA_FIRMS_API_KEY`, `AVIATIONSTACK_API`, `TRAVELPAYOUTS_API_TOKEN`, `AISSTREAM_API_KEY`, `CLOUDFLARE_API_TOKEN`) reach the containers that read them when the operator sets them, and the stack is healthy when all are empty.
 
 ### Routing & TLS
@@ -144,7 +146,7 @@ litellm:
 
 ### Service isolation
 
-- [ ] Only the `worldmonitor` HTTP port is published, bound to the platform bind host. `redis`, `redis-rest` and `ais-relay` publish no port.
+- [x] Only the `worldmonitor` HTTP port is published, bound to the platform bind host. `redis`, `redis-rest` and `ais-relay` publish no port.
 - [ ] From outside the role's network, `redis:6379`, `redis-rest:80` and `ais-relay:3004` are unreachable.
 - [ ] Redis rejects an unauthenticated command, and `redis-rest` rejects a request without the bearer token.
 
