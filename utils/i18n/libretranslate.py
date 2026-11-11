@@ -263,13 +263,11 @@ def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
     Returns:
         The gateway's base URL, empty when it stays unreachable.
     """
-    from cli.administration.deploy.development.env import compose_file_args
+    from cli.administration.deploy.development.stack import compose_argv
 
     loaded = environment(root)
     inside = [
-        "docker",
-        "compose",
-        *compose_file_args(),
+        *compose_argv(root),
         "exec",
         "-T",
         "-w",
@@ -281,9 +279,7 @@ def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
     bootstrap = "scripts/tests/deploy/local/utils/entry-bootstrap.sh"
     steps = [
         [
-            "docker",
-            "compose",
-            *compose_file_args(),
+            *compose_argv(root),
             "--profile",
             LANE_SERVICE,
             "up",

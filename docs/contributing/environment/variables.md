@@ -29,6 +29,18 @@ Already-set env vars take precedence over `default.env` defaults.
 - [`load.sh`](../../../scripts/meta/env/load.sh) is the shell loader; it sources `.env` and auto-generates it on a cold clone.
   When the exported `INFINITO_DISTRO` differs from the one `.env` was generated for, it loads a set generated for that distro through `python -m cli.meta.env --output <file>` and leaves `.env` as it is.
 
+## Stack name
+
+`INFINITO_STACK_NAME` names the compose project of the development stack.
+Every `docker compose` call MUST go through [stack.py](../../../cli/administration/deploy/development/stack.py) (Python) or `infinito_compose` from [compose.sh](../../../scripts/meta/compose.sh) (shell), which pass `-p` and the `-f` list.
+
+- Unset, the project name equals the one compose derived before: `COMPOSE_PROJECT_NAME` when set, else the normalized basename of the checkout directory.
+  Running stacks, their volumes and their networks are adopted unchanged.
+- Set, `make compose-up`, `compose-exec`, `compose-deploy`, `compose-down`, `test*` and `lint*` address the project `<name>`.
+  [load.sh](../../../scripts/meta/env/load.sh) derives `INFINITO_CONTAINER=infinito_nexus_<name>` and `INFINITO_RUNNER_PREFIX=infinito-<name>` from it, so the checkout's default stack stays untouched.
+- Set it per call (`INFINITO_STACK_NAME=<name> make compose-up`) or in `custom.env`; `make dotenv` writes an exported value into `.env` like every other key.
+- The named stack still uses the checkout's slot, so its subnet and bind IP equal those of the default stack; run one of them at a time until the slot registry of [092](../../requirements/092-local-stack-architecture.md) lands.
+
 ## Variables NOT in `default.env`
 
 A handful of variables are documented next to their consumer because they cannot have a static default:

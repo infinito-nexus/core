@@ -22,6 +22,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
+# shellcheck source=scripts/meta/compose.sh
+source scripts/meta/compose.sh
 
 : "${INFINITO_LINT_RUNNER:?INFINITO_LINT_RUNNER must be set}"
 
@@ -30,13 +32,13 @@ host)
 	exec python3 -m utils.install.lint "$@"
 	;;
 docker)
-	if ! docker compose ps -q infinito 2>/dev/null | grep -q .; then
+	if ! infinito_compose ps -q infinito 2>/dev/null | grep -q .; then
 		echo ">>> 'infinito' container not running; starting the stack via 'make compose-up'..."
 		"${MAKE:-make}" compose-up
 	fi
 
 	INFINITO_DISTRO="${INFINITO_DISTRO}" \
-		docker compose exec -T \
+		infinito_compose exec -T \
 		-e BASH_ENV="${INFINITO_SRC_DIR}/scripts/meta/env/load.sh" \
 		--workdir "${INFINITO_SRC_DIR}" \
 		infinito \

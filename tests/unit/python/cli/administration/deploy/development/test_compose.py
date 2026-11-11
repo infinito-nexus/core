@@ -98,6 +98,8 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_CACHE_STACK": "",
             "INFINITO_GPU_COUNT": "0",
             "INFINITO_GHCR_MIRROR": "",
+            "INFINITO_STACK_NAME": "",
+            "COMPOSE_PROJECT_NAME": "",
         },
         clear=False,
     )
@@ -131,6 +133,8 @@ class TestComposeUpRetries(unittest.TestCase):
             [
                 "docker",
                 "compose",
+                "-p",
+                "infinito-nexus",
                 "-f",
                 "compose.yml",
                 "-f",
@@ -159,6 +163,8 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_CACHE_HOST_PACMAN_PATH": "",
             "INFINITO_GPU_COUNT": "0",
             "INFINITO_GHCR_MIRROR": "",
+            "INFINITO_STACK_NAME": "",
+            "COMPOSE_PROJECT_NAME": "",
         },
         clear=False,
     )
@@ -180,6 +186,8 @@ class TestComposeUpRetries(unittest.TestCase):
             [
                 "docker",
                 "compose",
+                "-p",
+                "infinito-nexus",
                 "-f",
                 "compose.yml",
                 "-f",

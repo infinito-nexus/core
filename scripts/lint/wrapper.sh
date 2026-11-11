@@ -15,6 +15,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
+# shellcheck source=scripts/meta/compose.sh
+source scripts/meta/compose.sh
 
 : "${1:?lint type required (e.g. ansible, python, shellcheck, markdown, action, galaxy, makefile, javascript, autoformat)}"
 : "${INFINITO_LINT_RUNNER:?INFINITO_LINT_RUNNER must be set}"
@@ -42,13 +44,13 @@ docker)
 	echo ">>> Running lint '${lint_type}' in ${INFINITO_DISTRO} container (compose stack)"
 	echo "============================================================"
 
-	if ! docker compose ps -q infinito 2>/dev/null | grep -q .; then
+	if ! infinito_compose ps -q infinito 2>/dev/null | grep -q .; then
 		echo ">>> 'infinito' container not running; starting the stack via 'make compose-up'..."
 		"${MAKE:-make}" compose-up
 	fi
 
 	INFINITO_DISTRO="${INFINITO_DISTRO}" \
-		docker compose exec -T \
+		infinito_compose exec -T \
 		-e ACT="${ACT:-}" \
 		-e BASH_ENV="${INFINITO_SRC_DIR}/scripts/meta/env/load.sh" \
 		-e GITHUB_ACTIONS="${GITHUB_ACTIONS:-}" \

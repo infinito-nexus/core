@@ -11,11 +11,11 @@ from utils.env.handlers.infinito.cache.conf import KEY as CACHE_CONF_KEY
 from utils.env.handlers.infinito.cache.conf import RELATIVE as CACHE_CONF
 
 from .coredns import CoreDNSCorefileRenderer
-from .env import compose_file_args
 from .network import detect_outer_network_mtu
 from .proc import run_streaming
 from .profile import Profile
 from .runner_mirror import env_image
+from .stack import compose_argv
 from .target import reset_stack_target
 
 CACHE_APPLY = Path("scripts") / "system" / "cache" / "apply.sh"
@@ -66,7 +66,7 @@ class Compose:
         text: bool = True,
         extra_env: dict[str, str] | None = None,
     ) -> subprocess.CompletedProcess:
-        cmd = ["docker", "compose", *compose_file_args(), *args]
+        cmd = [*compose_argv(self.repo_root), *args]
         env = self._base_env()
         if extra_env:
             env.update({k: str(v) for k, v in extra_env.items()})
