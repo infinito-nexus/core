@@ -11,7 +11,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from utils.agents import runtimes as agent_runtimes
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 AGENTS_DIR = PROJECT_ROOT / "agents"
@@ -35,7 +37,27 @@ REQUIRED_AGENT_FIELDS = (
     "credentials",
     "workspace",
 )
-RUNTIMES = ("hermes", "openclaw", "claude-code")
+
+
+def declared_runtimes(project_root: Path) -> dict[str, dict]:
+    """Return the agent runtimes the roles under ``project_root`` declare.
+
+    Args:
+        project_root: the tree whose ``roles/*/meta/services.yml`` are read.
+    """
+    return agent_runtimes.declared(
+        {
+            path.parent.parent.name: {
+                "services": load_yaml_any(str(path), default_if_missing={})
+            }
+            for path in sorted(
+                (project_root / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
+            )
+        }
+    )
+
+
+RUNTIMES = tuple(sorted(declared_runtimes(PROJECT_ROOT)))
 LIFECYCLES = ("on_demand", "always_on")
 KEEPASS_MODES = ("broker", "agent")
 LOCAL_ONLY_ROLES = ("support", "planner", "operator")

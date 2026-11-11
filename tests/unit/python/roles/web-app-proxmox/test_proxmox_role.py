@@ -303,7 +303,7 @@ class TestHostChecks(unittest.TestCase):
         self.assertEqual(task["vars"]["assert_kvm_consumer"], "{{ application_id }}")
 
     def test_container_limits_are_proven_against_the_vm_demand(self):
-        task = _include("svc-ai-agent-broker/tasks/utils/vm_capacity.yml")
+        task = _include("svc-ai-agent-broker/tasks/utils/vm/capacity.yml")
         self.assertEqual(task["vars"]["vm_capacity_kind"], "proxmox")
         self.assertEqual(task["vars"]["vm_capacity_limits"], "{{ PROXMOX_LIMITS }}")
         self.assertIn("services.proxmox.cpus", VARS["PROXMOX_LIMITS"]["cpus"])

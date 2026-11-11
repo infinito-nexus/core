@@ -191,7 +191,7 @@ exports.register = function (shared) {
       return listedModels(adminPage, admin, "/openai/models");
     });
     const models = await listedModels(page, session, "/api/models?refresh=true");
-    const gatewayModels = servedModels.filter((id) => !(id in agentGroups()));
+    const gatewayModels = servedModels.filter((id) => !(id in agentGroups()) && !id.startsWith("agent/"));
     if (isServiceEnabled("litellm")) {
       expect(gatewayModels.length, "the connections must serve the gateway models").toBeGreaterThan(0);
     }

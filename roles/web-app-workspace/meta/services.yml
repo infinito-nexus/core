@@ -18,6 +18,9 @@ workspace:
   version: "1.99.3"
   custom: true
   name: workspace
+  agent_runtime:
+    name: claude-code
+    host: workspace
   min_storage: 900MB
   cpus: "1.0"
   mem_reservation: 1g

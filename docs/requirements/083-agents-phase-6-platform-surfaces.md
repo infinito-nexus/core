@@ -40,7 +40,8 @@ As an operator, I want agents to take work from the OpenProject board, talk and 
 
 ### Profile catalog
 
-- [ ] The broker lists every role of `agents/roles/` as an OpenAI-compatible model `agent/<role>`.
+- [x] The broker lists every role of `agents/roles/` as an OpenAI-compatible model `agent/<role>`.
+  - Evidence: `AGENT_ROLES` in the broker env, `profile_catalog`, `model_list` and `resolve` in `roles/svc-ai-agent-broker/files/python/agents.py`; `TestProfileCatalog` in `tests/unit/python/roles/svc-ai-agent-broker/files/test_agents.py` renders the role vars and lists the real catalog.
 - [ ] Open WebUI, n8n and Flowise each start a profile through that endpoint (one Playwright spec each).
 - [ ] A user without the group `agent-<role>` cannot start that profile.
 - [ ] A started agent gets its own accounts on every provisioned provider when it starts, and the reaper removes them when the agent is deleted.

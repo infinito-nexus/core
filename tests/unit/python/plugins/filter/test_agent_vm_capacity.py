@@ -12,7 +12,20 @@ from utils import PROJECT_ROOT
 from utils.agents.workspace import WorkspaceError
 from utils.cache.yaml import load_yaml_any
 
-CAPACITY_TASKS = PROJECT_ROOT / "roles/svc-ai-agent-broker/tasks/utils/vm_capacity.yml"
+CAPACITY_TASKS = PROJECT_ROOT / "roles/svc-ai-agent-broker/tasks/utils/vm/capacity.yml"
+AGENT_TASKS = PROJECT_ROOT / "roles/svc-ai-agent-broker/tasks/utils/vm/agents.yml"
+BROKER_TASKS = PROJECT_ROOT / "roles/svc-ai-agent-broker/tasks/00_core.yml"
+STRAY_CHECK = (
+    "🛑 Refuse an agent VM workspace whose target runs no hypervisor of its kind"
+)
+
+
+def _includes(tasks_file, included) -> bool:
+    tasks = load_yaml_any(str(tasks_file), default_if_missing=[])
+    return any(
+        included in str(task.get("ansible.builtin.include_tasks", "")) for task in tasks
+    )
+
 
 GIB = 1024**3
 WORKSPACES = [
@@ -180,16 +193,17 @@ class TestAgentVmProblems(unittest.TestCase):
         stray = agent_vm_stray_targets(agents, {"proxmox": ["dc1", "dc2"], "incus": []})
         self.assertEqual(len(stray), 1)
         self.assertTrue(stray[0].startswith("typo: "), stray)
-        tasks = load_yaml_any(str(CAPACITY_TASKS), default_if_missing=[])
+        tasks = load_yaml_any(str(AGENT_TASKS), default_if_missing=[])
         names = [task.get("name", "") for task in tasks]
-        check = tasks[
-            names.index(
-                "🛑 Refuse an agent VM workspace whose target runs no hypervisor of its kind"
-            )
-        ]
+        check = tasks[names.index(STRAY_CHECK)]
         self.assertIs(check["run_once"], True)
         for group in ("groups.get('svc-virt-incus')", "groups.get('web-app-proxmox')"):
             self.assertIn(group, check["vars"]["vm_capacity_stray"])
+
+    def test_the_hypervisor_and_the_broker_deploy_run_the_target_check(self):
+        for tasks_file in (CAPACITY_TASKS, BROKER_TASKS):
+            with self.subTest(tasks=tasks_file.name):
+                self.assertTrue(_includes(tasks_file, "tasks/utils/vm/agents.yml"))
 
     def test_target_of_the_wrong_kind_is_refused(self):
         agents = {"wrong": _agent({**WORKSPACES[1], "kind": "incus"})}
@@ -215,8 +229,15 @@ class TestAgentVmProblems(unittest.TestCase):
         self.assertIn(
             "agent_vm_problems", tasks[contract]["vars"]["vm_capacity_problems"]
         )
+        self.assertLess(
+            names.index(
+                "📋 Collect the agent configs {{ inventory_hostname }} may serve"
+            ),
+            contract,
+        )
+        collect = load_yaml_any(str(AGENT_TASKS), default_if_missing=[])[1]
         self.assertIn(
-            "'workspace': lookup('agent_config', item, 'workspace')", str(tasks[1])
+            "'workspace': lookup('agent_config', item, 'workspace')", str(collect)
         )
 
 
