@@ -1,4 +1,5 @@
 ---
+# nocheck: addons-variant-pinning OpenProject Enterprise feature, CI runs the community edition
 enabled: false
 required: false
 mechanism: module

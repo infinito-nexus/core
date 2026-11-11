@@ -33,11 +33,20 @@ from utils.roles.order import find_roles
 AXIS_PREFIXES = ["web-app-", "web-svc-"]
 GROUP_MEMBER = re.compile(r"'([a-z0-9-]+)' in group_names")
 EOL_MARK = " (end of life)"
+CENTRAL_SSO_KEY = "sso"
+CENTRAL_MARK = " (central SSO)"
 
 EOL_NOTE = """\
 A target marked ``(end of life)`` is a role the project no longer maintains or
 tests. The integration stays declared, but the partner's service flag is a
 literal ``false`` no inventory turns on, so the edge is dormant.
+
+"""
+
+CENTRAL_NOTE = """\
+An edge marked ``(central SSO)`` runs through the ``sso`` service, which the
+shared Keycloak realm satisfies for every role at once. A role's OIDC or SAML
+add-on is the client side of that realm, never a second per-role provider.
 
 """
 
@@ -65,6 +74,7 @@ under the service key that declares the link.
 
 """
     + EOL_NOTE
+    + CENTRAL_NOTE
 )
 
 ADDONS_HEADER = (
@@ -77,6 +87,7 @@ key it bridges and the role that key resolves to.
 
 """
     + EOL_NOTE
+    + CENTRAL_NOTE
 )
 
 
@@ -156,6 +167,18 @@ def render_target(role: str, eol: set[str]) -> str:
     return f"``{role}``{EOL_MARK if role in eol else ''}"
 
 
+def render_edge(key: str, target: str, eol: set[str]) -> str:
+    """Return one service key and its target, marked when the key is the central SSO.
+
+    Args:
+        key: the service key the edge runs through.
+        target: the target role name.
+        eol: the role names :func:`eol_roles` reported.
+    """
+    mark = CENTRAL_MARK if key == CENTRAL_SSO_KEY else ""
+    return f"``{key}`` -> {render_target(target, eol)}{mark}"
+
+
 def service_edges(role_path: Path, targets: dict[str, str]) -> list[tuple[str, str]]:
     """Return ``(service key, role)`` for every native integration of a role.
 
@@ -219,19 +242,13 @@ def generate(roles_dir: Path, output_dir: Path) -> int:
         )
         overview.append(_block(role, [render_target(t, eol) for t in reached]))
         services.append(
-            _block(
-                role,
-                [
-                    f"``{key}`` -> {render_target(target, eol)}"
-                    for key, target in native
-                ],
-            )
+            _block(role, [render_edge(key, target, eol) for key, target in native])
         )
         addons.append(
             _block(
                 role,
                 [
-                    f"``{addon}``: ``{key}`` -> {render_target(target, eol)}"
+                    f"``{addon}``: {render_edge(key, target, eol)}"
                     for addon, key, target in bridged
                 ],
             )

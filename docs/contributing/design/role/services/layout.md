@@ -457,7 +457,8 @@ config: {}                  # optional, opaque, role-interpreted runtime payload
 | `version` | no | string | `""` | A pin MUST be a quoted string, never an unquoted number. `""` tracks the app default. |
 | `group` | no | string | — | Free grouping label (e.g. Odoo `core`/`optional`). MUST NOT affect enablement. |
 | `update` | no | map | — | `monitored` (bool, default `false`), `catalog` (a supported adapter), `upstream_id` (defaults to the addon id). A `version` pin MUST also name its version source here, or carry `# nocheck: unwatched-version` with a reason: either `type` with its fields, or `monitored: true` with `catalog: github-releases` and the `owner/repository` as `upstream_id`. See [Declared version sources](../../../../../cli/contributing/update/README.md#declared-version-sources). |
-| `config` | no | map | — | Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally. |
+| `config` | no | map | — | Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally. A `config.tier` (or `config.*_tier`) of `paid` or `enterprise` marks a commercial-tier integration: it MUST stay disabled and optional, and the role README MUST name the addon and the tier ([test_addons_paid_tier.py](../../../../../tests/lint/ansible/services/test_addons_paid_tier.py)). |
+| `skipped` | no | string | — | The reason a surveyed integration is deliberately not wired. A skipped addon MUST stay disabled, MUST NOT be `required: true` and MUST NOT declare `bridges` ([test_addons_skipped.py](../../../../../tests/lint/ansible/services/test_addons_skipped.py)). |
 
 Any credential an addon needs is declared in `meta/secrets.yml` `credentials:`
 and read via `lookup('config', application_id, 'secrets.credentials.<name>')`. There
@@ -481,6 +482,11 @@ Two distinct meanings of "bridge" MUST NOT be conflated:
 A single addon MAY be both: a `mechanism: bridge` addon MAY also declare a
 `bridges:` dependency on an in-repo service it relies on.
 
+An OIDC or SAML client addon MUST bridge the role's `sso` service, which the
+shared Keycloak realm serves centrally; a `keycloak`, `oidc`, `openid` or
+`saml` bridge key fails
+[test_addons_sso_central.py](../../../../../tests/lint/ansible/services/test_addons_sso_central.py).
+
 Front-door auth gates (e.g. an oauth2-proxy `sso` service in front of the
 vhost) are NOT addon bridges unless the addon itself talks to that service;
 they stay in `meta/services.yml` and MUST NOT appear under `bridges:`.
@@ -501,6 +507,8 @@ they stay in `meta/services.yml` and MUST NOT appear under `bridges:`.
   block above the addon key) or `# nocheck: addon-secret` (on a `config` leaf).
 - Optional (`required: false`) addons express their enabled/disabled split as
   a [`meta/variants.yml`](#) axis so the CI matrix exercises both states.
+  [test_addons_variant_pinning.py](../../../../../tests/lint/ansible/services/test_addons_variant_pinning.py)
+  warns for every optional addon its role's variants never switch on and off.
 
 > The Ansible-level `plugins/` directory (filters, lookups, modules) is a
 > different concept from the application-level `addons` topic. See the

@@ -21,10 +21,12 @@ It mirrors the Docker image / repository-ref external checks:
 
 The version resolution is :func:`utils.update.source.addon_entries` plus
 :func:`utils.update.source.outdated`, which the CI auto-update job reuses to
-open pull requests. The catalog reconciliation core
-(``discover_addon_updates``) is pure and is exercised with fixture catalogs by
-the unit suite (``tests/unit/python/utils/update/test_addons.py``); a catalog
-without a live adapter degrades to "monitored, not yet checked" warnings.
+open pull requests. Catalog discovery is
+:func:`utils.update.catalog.discover_catalog_entries` over
+``utils.update.catalog.CATALOG_ADAPTERS``; its parsers and relevance rule are
+exercised with fixture catalogs by ``tests/unit/python/utils/update/test_catalog.py``
+and the reconciliation core by ``tests/unit/python/utils/update/test_addons.py``.
+A catalog without an adapter degrades to "monitored, not yet checked".
 """
 
 from __future__ import annotations
@@ -32,7 +34,10 @@ from __future__ import annotations
 import unittest
 
 from utils.annotations.message import warning as gha_warning
+from utils.roles.mapping import ROLE_DIR_META_ADDONS
 from utils.update.addons import collect_addon_entries
+from utils.update.catalog import discover_catalog_entries
+from utils.update.fetch import document
 from utils.update.source import addon_entries, outdated
 
 from . import PROJECT_ROOT
@@ -102,6 +107,32 @@ class TestAddonVersions(unittest.TestCase):
                 )
 
         self.assertIsNotNone(entries)
+
+    def test_relevant_catalog_entries_are_declared(self) -> None:
+        found = discover_catalog_entries(PROJECT_ROOT / "roles", document)
+
+        for problem in found.unreachable:
+            gha_warning(problem, title="Addon catalog unreachable")
+        for suggestion in found.new_addons:
+            gha_warning(
+                f"{suggestion.role}/addons/{suggestion.addon_id}: catalog "
+                f"{suggestion.catalog} lists {suggestion.upstream_id} "
+                f"(mechanism {suggestion.mechanism}, source {suggestion.source}, "
+                f"{suggestion.catalog_url}) and meta/addons/ does not declare it; "
+                f"relevant because {suggestion.reason}",
+                title="Undeclared catalog addon",
+                file=f"roles/{suggestion.role}/{ROLE_DIR_META_ADDONS}",
+            )
+        for update in found.version_updates:
+            gha_warning(
+                f"{update.role}/addons/{update.addon_id} is at {update.current}, "
+                f"catalog {update.catalog} offers {update.latest}",
+                title="Outdated addon version",
+                file=str(update.config_path.relative_to(PROJECT_ROOT)),
+                line=update.line,
+            )
+
+        self.assertIsNotNone(found)
 
 
 if __name__ == "__main__":  # pragma: no cover

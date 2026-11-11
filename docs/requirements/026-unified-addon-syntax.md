@@ -86,7 +86,7 @@ These roles were no migration target and gained their addons later through the [
 | [web-app-taiga](../../roles/web-app-taiga/) | `plugin` | 1 | 0 | `sso` |
 | [web-app-zammad](../../roles/web-app-zammad/) | `bridge`, `module` | 2 | 0 | `email`, `sso` |
 | [dsk-blender](../../roles/dsk-blender/) | `addon` | 2 | 0 | none (desktop role) |
-| [dsk-code](../../roles/dsk-code/) | `extension` | 2 | 0 | none (desktop role) |
+| [dsk-code](../../roles/dsk-code/) | `extension` | 3 | 0 | none (desktop role) |
 
 ### Out of scope: database/runtime engine extensions
 
