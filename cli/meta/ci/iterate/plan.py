@@ -87,6 +87,23 @@ def baseline_widens(paths: list[str]) -> bool:
     )
 
 
+def seeded_role(path: str, roles: frozenset[str]) -> str:
+    """Return the role a test path seeds in ``affected_roles.sh``, else empty.
+
+    A path under ``tests/`` seeds the role named by the segment after its
+    first ``/roles/``, when that role exists.
+
+    Args:
+        path: repository-relative POSIX path.
+        roles: every role of the checkout.
+    """
+    if not path.startswith("tests/"):
+        return ""
+    _, marker, rest = path.partition("/roles/")
+    role, slash, _ = rest.partition("/")
+    return role if marker and slash and role in roles else ""
+
+
 def token_roles(tokens: list[str]) -> set[str]:
     """Return the roles a list of selection tokens names."""
     return {tiers.split_token(token)[0] for token in tokens}
@@ -113,7 +130,10 @@ def accounted(result: dict) -> set[str]:
 def _baseline(paths: list[str], catalog: Catalog) -> tuple[set[str], str]:
     if baseline_widens(paths):
         return set(catalog.roles), "affected_roles.sh widens this diff to __ALL__"
-    seeds = {p.split("/", 2)[1] for p in paths if p.startswith("roles/")}
+    known = frozenset(catalog.roles)
+    seeds = {p.split("/", 2)[1] for p in paths if p.startswith("roles/")} | {
+        role for p in paths if (role := seeded_role(p, known))
+    }
     if not seeds:
         return set(
             catalog.roles

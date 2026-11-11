@@ -11,6 +11,7 @@ from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
 from agents.routines.tools.affected import matrix_line
 from agents.routines.tools.branch_prefix import prefix_ok
+from agents.routines.tools.fetch import fetch_argv
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -26,6 +27,11 @@ def _prefix(state: MutableMapping) -> MutableMapping:
 
 def _predict(state: MutableMapping) -> MutableMapping:
     state["matrix_line"] = matrix_line(state.get("resolver_output", ""))
+    return state
+
+
+def _fetch(state: MutableMapping) -> MutableMapping:
+    state["fetch"] = " ".join(fetch_argv("origin", "main"))
     return state
 
 
@@ -72,8 +78,9 @@ STEPS = [
     ),
     Step(
         "trigger",
-        "git fetch origin main, compute scope, gh workflow run entry-manual-steer.yml --ref <branch>",
+        "Run the fetch command the node writes (git fetch --no-tags origin main), compute scope, gh workflow run entry-manual-steer.yml --ref <branch>",
         nxt="watch",
+        fn=_fetch,
     ),
     Step(
         "watch",

@@ -65,6 +65,7 @@ class _Script:
             target = root / rel
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(PROJECT_ROOT / rel, target)
+        (root / "roles").symlink_to(PROJECT_ROOT / "roles")
         stub = root / "bin" / "git"
         stub.parent.mkdir()
         stub.write_text(STUB.format(git=shutil.which("git")), encoding="utf-8")

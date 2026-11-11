@@ -329,6 +329,27 @@ class TestBaselineRule(unittest.TestCase):
             (list(ROLES), True),
         )
 
+    def test_a_role_test_seeds_the_baseline_like_the_script(self) -> None:
+        path = "tests/unit/python/roles/web-app-light/files/test_y.py"
+        change = Change(path, "test", TESTS, tests=(path,))
+        result = _build([change])
+        self.assertEqual(
+            (result["baseline"]["roles"], result["tiers"]["T3"]["push_widens"]),
+            (["web-app-light"], False),
+        )
+
+    def test_seeded_role_reads_the_first_roles_segment_of_a_test(self) -> None:
+        roles = frozenset(ROLES)
+        cases = {
+            "tests/unit/python/roles/web-app-light/test_x.py": "web-app-light",
+            "tests/lint/ansible/roles/meta/test_x.py": "",
+            "tests/unit/python/utils/roles/test_mapping.py": "",
+            "roles/web-app-light/tasks/main.yml": "",
+        }
+        for path, role in cases.items():
+            with self.subTest(path=path):
+                self.assertEqual(plan.seeded_role(path, roles), role)
+
     def test_negative_control_a_role_seed_keeps_the_baseline_narrow(self) -> None:
         result = _build([_task("web-app-light")])
         self.assertEqual(

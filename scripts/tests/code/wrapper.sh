@@ -45,6 +45,8 @@ docker)
 		-e GITHUB_SHA="${GITHUB_SHA:-}"
 		-e INFINITO_TEST_PATTERN="${INFINITO_TEST_PATTERN}"
 		-e INFINITO_TEST_TYPE="${INFINITO_TEST_TYPE}" # nocheck: makefile-supplied
+		-e lint_scope="${lint_scope:-}"
+		-e test_paths="${test_paths:-}"
 	)
 	INFINITO_DISTRO="${INFINITO_DISTRO}" \
 		docker compose exec -T \
