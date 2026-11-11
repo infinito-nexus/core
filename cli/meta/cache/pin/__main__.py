@@ -3,7 +3,7 @@ resolve REF: print the full commit REF names; refuse a ref that is no commit.
 read: print the pinned commit; fail loudly while no pin exists.
 declare SHA: pin SHA and remove the checkouts of every commit but SHA and the previous pin.
 applied [SHA]: record SHA as applied, or print the commit last applied.
-declarations: print this checkout's cache declarations as JSON.
+declarations: print this checkout's cache repositories, hosts and artefacts as JSON.
 env: print the declaration-derived .env keys of this checkout.
 drift DIR: name every declaration of this checkout that differs from the checkout in DIR.
 """
@@ -11,11 +11,13 @@ drift DIR: name every declaration of this checkout that differs from the checkou
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import sys
 from pathlib import Path
 
 from utils.cache import PROJECT_ROOT, pin
+from utils.cache.artefacts import artefacts
 from utils.cache.hosts import host_records, repo_records
 from utils.env.builder import BuildContext, EnvBuilder
 from utils.env.handlers.infinito.cache import hosts, tls, upstreams
@@ -26,7 +28,11 @@ PREFIX = "[cache-pin]"
 
 
 def _declarations() -> dict:
-    return {"repos": repo_records(), "hosts": host_records()}
+    return {
+        "repos": repo_records(),
+        "hosts": host_records(),
+        pin.ARTEFACTS: {item.name: dataclasses.asdict(item) for item in artefacts()},
+    }
 
 
 def _derived_env() -> list[str]:

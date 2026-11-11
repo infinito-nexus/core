@@ -6,12 +6,13 @@ import os
 import subprocess
 import tempfile
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
 from cli.meta.cache.pin import __main__ as cli
 from utils.cache import pin
+from utils.cache.artefacts import Artefact
 from utils.cache.files import PROJECT_ROOT
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
@@ -252,7 +253,66 @@ class TestServed(unittest.TestCase):
             self.assertIn("no host is hijacked", err.getvalue())
 
 
+class TestPinnedDigests(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tmp = Path(self._tmp.name)
+        self.pin_file = self.tmp / "cache.ref"
+        self.environ = {
+            pin.PIN_FILE_KEY: str(self.pin_file),
+            pin.PIN_ROOT_KEY: str(self.tmp),
+        }
+
+    def test_without_a_pin_nothing_is_pinned(self) -> None:
+        self.assertEqual(pin.pinned_digests({pin.PIN_FILE_KEY: ""}), frozenset())
+        self.assertEqual(pin.pinned_digests(self.environ), frozenset())
+
+    def test_the_pinned_commit_names_its_artefact_digests(self) -> None:
+        pin.write(self.pin_file, SHA)
+        (self.tmp / SHA).mkdir()
+        for declared, expected in (
+            ({pin.ARTEFACTS: {"m": {"sha256": SHA256}}}, frozenset({SHA256})),
+            ({"repos": {}, "hosts": {}}, frozenset()),
+        ):
+            with (
+                self.subTest(declared=declared),
+                patch.object(pin, "pinned_declarations", return_value=declared),
+            ):
+                self.assertEqual(pin.pinned_digests(self.environ), expected)
+
+    def test_an_unreadable_pinned_checkout_leaves_the_digests_unknown(self) -> None:
+        pin.write(self.pin_file, SHA)
+        err = io.StringIO()
+        with redirect_stderr(err):
+            self.assertIsNone(pin.pinned_digests(self.environ))
+        (self.tmp / SHA).mkdir()
+        for error in (
+            subprocess.CalledProcessError(1, ["python"]),
+            json.JSONDecodeError("not json", "", 0),
+        ):
+            with (
+                self.subTest(error=type(error).__name__),
+                patch.object(pin, "pinned_declarations", side_effect=error),
+                redirect_stderr(err),
+            ):
+                self.assertIsNone(pin.pinned_digests(self.environ))
+        self.assertIn("the pinned artefacts are unknown", err.getvalue())
+
+
 class TestCli(unittest.TestCase):
+    def test_the_declarations_carry_the_artefacts(self) -> None:
+        out = io.StringIO()
+        stored = Artefact("model", "https://h/f", SHA, SHA256, "7", "svc-ai-x")
+        with (
+            patch.object(cli, "artefacts", return_value=[stored]),
+            redirect_stdout(out),
+        ):
+            self.assertEqual(cli.main(["declarations"]), 0)
+        declared = json.loads(out.getvalue())
+        self.assertEqual(declared[pin.ARTEFACTS]["model"]["sha256"], SHA256)
+        self.assertEqual(set(declared), {"repos", "hosts", pin.ARTEFACTS})
+
     def test_read_without_a_pin_exits_non_zero_with_the_declarer_hint(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             missing = str(Path(tmp) / "cache.ref")

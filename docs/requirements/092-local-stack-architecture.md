@@ -343,8 +343,8 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 7: Lifecycle declarations
 
-- [ ] `compose/stacks.yml` lists every stack with its class (`always-on`, `on-demand`, `long-lived`) and the targets that need it. `[unit]`
-- [ ] A dry-run resolver prints the stacks a target starts: `test`, `lint` and `quality-high` the test runner and the cache; `compose-deploy` the cache and the deploy stack; `i18n-translate` and `test-oracle` the cache and the tools. A unit test pins the table. `[unit]`
+- [x] `compose/stacks.yml` lists every stack with its class (`always-on`, `on-demand`, `long-lived`) and the targets that need it. `[unit]`
+- [x] A dry-run resolver prints the stacks a target starts: `test`, `lint` and `quality-high` the test runner and the cache; `compose-deploy` the cache and the deploy stack; `i18n-translate` and `test-oracle` the cache and the tools. A unit test pins the table. `[unit]`
 - [ ] A lint fails on a make target that reaches the compose helper and is missing from the declaration. `[unit]`
 - [ ] With `INFINITO_CACHE_STACK=false`, no target starts the infra runner, renders the infra inventory, submits a pool job or attaches to the infra network. `[unit]`
 - [ ] A deploy stack keeps running between deploy targets and is removed only by `make compose-down`, `make worktree-down` or a release; no timer removes it. `[unit]`
@@ -355,12 +355,12 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 - [ ] The infra inventory deploys one runner stack with N `local` runners into the infra runner; `make runner-status` lists N idle runners afterwards. `[host]`
 - [ ] `make runner-count` prints N and its RAM, CPU and disk terms, computed from the calibration file and the host values; the disk term subtracts the sum over the caches of `max(0, cap - current use)` and the floor from the free disk, never the full cap sum; N is at least 1, and `INFINITO_RUNNER_COUNT` overrides it. `[unit]`
 - [ ] The calibration file records the measured full deploy it comes from (applications, commit, date, peak memory, CPU, disk growth), and a lint fails on a budget without that record. `[unit]`
-- [ ] A deploy target with `INFINITO_DEPLOY_VIA_POOL=true` submits a job, prints its id, follows its log and exits with the job's status, on success and on failure. `[unit]`
+- [x] A deploy target with `INFINITO_DEPLOY_VIA_POOL=true` submits a job, prints its id, follows its log and exits with the job's status, on success and on failure. `[unit]`
 - [ ] Two worktrees deploying at the same time run in two runners with distinct project names, prefixes, subnets and volumes, and both finish green. `[host]`
 - [ ] A job's DinD pulls through the shared registry mirror and installs through Nexus (cache hits after a first pull), and no per-instance cache service starts. `[host]`
 - [ ] With `hold=true`, the job's DinD stays after the deploy, its runner reports `held` and takes no job, `INFINITO_STACK_NAME=<job stack>` (or `job=<id>`) points `compose-exec`, `compose-inner-run`, `compose-playwright` and `compose-role-sync` at it, and `make runner-release job=<id>` removes it and returns the runner to `idle`. `[host]`
-- [ ] With every runner busy or held, a submitted job waits in the queue, and make prints its position, the held jobs and the release command; without `timeout=` it keeps waiting. `[unit]`
-- [ ] With `timeout=<duration>`, a job still queued when the duration ends is withdrawn from the queue, and make exits non-zero with a message naming the timeout and the queue position. `[unit]`
+- [x] With every runner busy or held, a submitted job waits in the queue, and make prints its position, the held jobs and the release command; without `timeout=` it keeps waiting. `[unit]`
+- [x] With `timeout=<duration>`, a job still queued when the duration ends is withdrawn from the queue, and make exits non-zero with a message naming the timeout and the queue position. `[unit]`
 - [ ] The cleanup lists every held job with its age and every job stack without a job record. `[unit]`
 - [ ] Every CI deploy step calls the job entry script, and a lint fails on a workflow deploy step that bypasses it. `[unit]`
 - [ ] A CI deploy through the job entry is green, and its log shows the entry's start line. `[ci]`

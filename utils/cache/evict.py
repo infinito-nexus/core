@@ -397,6 +397,11 @@ def status(
     return rows
 
 
+def _stored(unit: Unit, root: Path, digests: frozenset[str]) -> bool:
+    (path, *rest) = unit.paths
+    return not rest and path.parent == root and path.name in digests
+
+
 def evict(
     settings: Settings,
     measured: Mapping[str, Usage],
@@ -405,6 +410,7 @@ def evict(
     tools: Callable[[Path], bool | None],
     nexus: Callable[[], NexusStore | None],
     out: TextIO,
+    declared: Callable[[], frozenset[str] | None],
 ) -> int:
     """Args:
         settings: the caches with their paths, caps, the idle window and the floor.
@@ -414,6 +420,8 @@ def evict(
         tools: tells whether a tools service runs on the models folder, None when unknown.
         nexus: opens the Nexus blob store, None when it does not answer.
         out: where the report goes.
+        declared: the sha256 of every artefact a role still declares, whose
+            store entry ``<models>/<sha256>`` the sweep keeps; None when unknown.
 
     Returns:
         The exit code: 1 on a floor violation, an unremovable unit, or a blob store
@@ -438,21 +446,28 @@ def evict(
     models = settings.cache(MODELS)
     if models.path is not None and models.path.is_dir():
         running = tools(models.path)
-        if running is False:
+        digests = declared() if running is False else None
+        if digests is not None:
             fallback = atime_fallback(models.path)
             failed += sweep(
                 models.path,
-                model_units(models.path, fallback),
+                [
+                    unit
+                    for unit in model_units(models.path, fallback)
+                    if not _stored(unit, models.path, digests)
+                ],
                 models.cap,
                 now,
                 settings.idle_seconds,
                 out,
             )
         else:
-            print(
-                f"[cache-evict] {models.path}: skipped, a tools service may hold the models",
-                file=out,
+            reason = (
+                "the declared artefacts are unknown"
+                if running is False
+                else "a tools service may hold the models"
             )
+            print(f"[cache-evict] {models.path}: skipped, {reason}", file=out)
     package = settings.cache(PACKAGE)
     store = nexus()
     if store is None:

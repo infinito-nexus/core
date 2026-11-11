@@ -103,7 +103,7 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation.
 - [ ] `make cache-status` prints the pinned and the applied commit. `[unit]`
 - [ ] `INFINITO_CACHE_PACKAGE_FRONTEND_CONF` lies outside the checkout, so `make dotenv` in a worktree never writes the map the frontend mounts. `[unit]`
 - [ ] After the first `make cache-declare` and the owner's next `make compose-up`, `docker inspect infinito-package-cache-frontend` shows the map mounted from `INFINITO_CACHE_PIN_ROOT`, two worktrees on different branches are served the same map, and `make cache-status` shows pin and applied commit equal. `[host]`
-- [ ] [cache.md](../contributing/environment/cache.md) documents the pin, `make cache-declare`, the behaviour without a pin and the rollout. `[unit]`
+- [x] [cache.md](../contributing/environment/cache.md) documents the pin, `make cache-declare`, the behaviour without a pin and the rollout. `[unit]`
 
 ## Tests
 

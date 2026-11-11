@@ -7,11 +7,13 @@ import json
 import re
 import secrets
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
+
+from utils.paths import read_group_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-    from pathlib import Path
     from typing import TextIO
 
 QUEUED = "queued"
@@ -63,6 +65,15 @@ def parse_duration(value: str) -> int:
     if match is None:
         raise JobError(f"'{value}' is no duration like 30m, 24h or 7d")
     return int(match[1]) * _SECONDS[match[2]]
+
+
+def queue_root() -> Path:
+    """Return the machine-wide queue every checkout submits to.
+
+    It sits beside ``DIR_CACHE``, not below it, so neither ``make cache-evict``
+    nor ``make clean-cache`` ever touches a job record.
+    """
+    return Path(read_group_path("DIR_CACHE")).parent / "jobs"
 
 
 def _jobs(root: Path) -> Path:

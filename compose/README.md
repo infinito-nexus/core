@@ -8,7 +8,10 @@ testing stack.
 
 - The directory MUST contain only files that are bind-mounted into a
   service defined in `compose.yml`, or that form the build context of
-  one, such as [target/](target/README.md).
+  one, such as [target/](target/README.md), and the stack declaration
+  [stacks.yml](stacks.yml), which names every local stack, its lifecycle
+  class and the make targets that start it;
+  `python -m cli.meta.stacks <target>` prints the stacks a target starts.
 - The directory MUST NOT host application configuration that belongs to
   an Ansible role. Per-role compose payloads live under
   `roles/<role>/templates/`.

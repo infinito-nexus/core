@@ -261,7 +261,7 @@ compose-app-restart:
 
 .PHONY: compose-deploy
 # Run the local deploy router.
-# Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
+# Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...] [hold=...] [timeout=...]
 # Example: make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true
 # Note: see scripts/tests/deploy/local/deploy/main.sh for the full routing table.
 # Param mode: initialize | reinstall | update (default: initialize)
@@ -273,8 +273,15 @@ compose-app-restart:
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
 # Param skip_compile: true | false — skip the in-container entry.sh recompile (use when the venv is prebuilt)
+# Param hold: true keeps the job's stack after a pool deploy until its release (INFINITO_DEPLOY_VIA_POOL=true only)
+# Param timeout: withdraw a pool job still queued after this long, e.g. 30m; unset waits (INFINITO_DEPLOY_VIA_POOL=true only)
 compose-deploy:
-	@$(if $(debug),INFINITO_DEBUG="$(debug)") \
+	@if [ "$${INFINITO_DEPLOY_VIA_POOL:-}" = "true" ]; then \
+		exec "$${PYTHON}" -m cli.administration.deploy.pool compose-deploy \
+			--hold '$(or $(hold),false)' --timeout '$(timeout)' \
+			$(filter-out hold=% timeout=% INFINITO_DEPLOY_VIA_POOL=%,$(MAKEOVERRIDES)); \
+	fi; \
+	$(if $(debug),INFINITO_DEBUG="$(debug)") \
 	 $(if $(skip_compile),INFINITO_SKIP_COMPILE="$(skip_compile)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
