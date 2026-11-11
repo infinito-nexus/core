@@ -14,7 +14,7 @@ const moodleLdapBackedProfileFields = [
 
 exports.register = function (shared) {
   test.describe("moodle profile fields are read-only", () => {
-    test("biber profile-edit form locks all 19 Moodle profile-mapping fields", async ({ page }) => {
+    test("biber: profile-edit form locks all 19 Moodle profile-mapping fields", async ({ page }) => {
       skipUnlessServiceEnabled("ldap");
       skipUnlessServiceDisabled("sso");
       await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`);
