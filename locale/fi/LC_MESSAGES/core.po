@@ -1116,6 +1116,10 @@ msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "Ohje"
 
+msgctxt "role:web-svc-assistant:description"
+msgid "Help assistant answering from the deployment's own documentation, with sources"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"

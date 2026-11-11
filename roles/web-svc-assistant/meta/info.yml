@@ -1,0 +1,4 @@
+---
+# nocheck: info-media no upstream project: the assistant ships with this role
+logo:
+  class: fa-solid fa-circle-question

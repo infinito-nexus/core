@@ -96,6 +96,7 @@ These roles declare an `extensions:` key that is **not** an application addon bu
 - [web-app-bookwyrm](../../roles/web-app-bookwyrm/): engine extension `bloom` ([meta/services.yml](../../roles/web-app-bookwyrm/meta/services.yml)).
 - [web-app-discourse](../../roles/web-app-discourse/): PostgreSQL extension `vector` ([meta/services.yml](../../roles/web-app-discourse/meta/services.yml)), beside its plugin addons.
 - [web-app-kix](../../roles/web-app-kix/): PostgreSQL extension `pg_trgm` ([meta/services.yml](../../roles/web-app-kix/meta/services.yml)).
+- [web-svc-assistant](../../roles/web-svc-assistant/): PostgreSQL extension `vector` for its knowledge index ([meta/services.yml](../../roles/web-svc-assistant/meta/services.yml)).
 
 The audit MUST classify these as `db-extension` (out of scope), so a later sweep does not mistake them for app addons. If a future role mixes app addons and DB extensions under one key, the migration MUST split them by destination.
 

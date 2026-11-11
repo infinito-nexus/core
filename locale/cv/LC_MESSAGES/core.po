@@ -1126,6 +1126,10 @@ msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "Хоохуй"
 
+msgctxt "role:web-svc-assistant:description"
+msgid "Help assistant answering from the deployment's own documentation, with sources"
+msgstr ""
+
 # xitxari Docker Compose xitxari va xitxari xitxaryan va xitxar xitxaryan
 # xitxar-xitxari xitxar-xitxaryan xitxar-xitxaryan xitxar-xitxari
 msgctxt "role:sys-svc-compose-ca:description"

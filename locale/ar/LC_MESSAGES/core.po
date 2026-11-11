@@ -1143,6 +1143,10 @@ msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "النجدة"
 
+msgctxt "role:web-svc-assistant:description"
+msgid "Help assistant answering from the deployment's own documentation, with sources"
+msgstr ""
+
 # الفساد Docker Compose (ج) أكياس المشروع وإثباته
 # Docker Compose stacks and validating the project CA certificate --- نقل
 # ترخيص CA من دایره را می‌كنیم برای Docker Compose سpires و صحت certifiable

@@ -1,0 +1,8 @@
+---
+knowledge:
+  type: bind
+  source: "{{ [lookup('container', 'web-svc-assistant', 'directories.instance'), 'knowledge'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: assistant
+      target: /app/knowledge
