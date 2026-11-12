@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, escapeRegex, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -335,7 +335,7 @@ exports.register = function (shared) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, `${base}/ui/?page=new_usage`);
       await ready(page);
-      const outline = (await tokenValue(page, "--design-border", "color")).replace(/[()]/g, "\\$&");
+      const outline = escapeRegex(await tokenValue(page, "--design-border", "color"));
       await expect(
         page.locator(CARD).first(),
         `card ${mode}: the outline ring must take --design-border`,
