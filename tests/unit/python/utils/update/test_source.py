@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import io
 import tempfile
 import unittest
 import unittest.mock as mock
+import urllib.error
+from email.message import Message
 from pathlib import Path
 
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
@@ -148,6 +151,25 @@ class TestCandidates(unittest.TestCase):
             module, "git_ls_remote_tags", return_value=["v2.1.0", "2.0.5", "nightly"]
         ):
             self.assertEqual(module.candidates(entry, root), ["2.1.0"])
+
+
+class TestRegistryV2Tags(unittest.TestCase):
+    def test_a_realm_other_than_https_is_never_read(self) -> None:
+        for realm in ("file:///tmp/token.json", "http://169.254.169.254/token"):
+            headers = Message()
+            headers["WWW-Authenticate"] = f'Bearer realm="{realm}",service="reg"'
+            denied = urllib.error.HTTPError(
+                "https://reg.example/v2", 401, "err", headers, io.BytesIO(b"")
+            )
+            with (
+                self.subTest(realm=realm),
+                mock.patch.object(module, "get", side_effect=denied) as get,
+            ):
+                self.assertEqual(module.registry_v2_tags("reg.example/foo/bar"), [])
+                self.assertEqual(
+                    [call.args[0] for call in get.call_args_list],
+                    ["https://reg.example/v2/foo/bar/tags/list"],
+                )
 
 
 class TestOutdated(unittest.TestCase):
