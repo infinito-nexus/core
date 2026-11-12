@@ -86,6 +86,12 @@
           become: true
           when: _playwright_rbac_hook.stat.exists
 
+        - name: ⏱️ Read the stack host clock the pass starts on
+          ansible.builtin.command:
+            argv: [date, +%s.%N]
+          register: _playwright_pass_clock
+          changed_when: false
+
         - name: ▶️ Run Playwright container
           ansible.builtin.command:
             argv: &playwright_argv >-
@@ -142,6 +148,8 @@
 
     - name: 📝 Report and archive the Playwright run
       ansible.builtin.include_tasks: 04_collect.yml
+      vars:
+        _playwright_pass_started: "{{ _playwright_pass_clock.stdout }}"
 
 - name: 📬 Queue the Playwright run for the parallel scheduler
   when: _playwright_dispatch | bool

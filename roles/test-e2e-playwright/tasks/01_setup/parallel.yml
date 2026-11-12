@@ -138,6 +138,7 @@
           {{ (_playwright_result_read.content | b64decode | from_json)
              if _playwright_result_read.content is defined
              else {'stderr': 'no result: the scheduler ended before this run finished'} }}
+        _playwright_pass_started: "{{ (_playwright_run.ended_at - _playwright_run.seconds) if _playwright_run.ended_at is defined else '' }}"
       loop: "{{ _playwright_submitted }}"
       loop_control:
         loop_var: playwright_submitted

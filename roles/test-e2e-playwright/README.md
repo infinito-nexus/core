@@ -59,6 +59,8 @@ roles/<application_id>/
 
 For the file-level contract, use [Contributing `playwright.env.j2`](../../agents/skills/i8-file-role-playwright-env/SKILL.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md).
 
+A role may also ship `tasks/utils/playwright_post_pass.yml` (`TEST_E2E_PLAYWRIGHT_POST_PASS_CHECK`), a check of what its pass left behind outside the browser. The runner includes it after every pass of the role that recorded a start, serial and parallel alike, with one input: `playwright_pass_started`, the Unix time the pass started on the stack host clock. The serial runner reads that clock right before the Playwright container starts, and the parallel scheduler's result gives it as `ended_at` minus `seconds`. The check reports by failing. The runner then prints the failed task's message and records the role in `_playwright_failures` once, so the flake retry reruns the pass with a new start, and the play fails when the retry fails too. The check reads only `playwright_pass_started` and lookups. It does not read its role's `vars/main.yml`, because during the parallel report the loaded application vars belong to the last staged role. In a parallel round, its window runs to the end of the round.
+
 `package.json` and `playwright.config.js` are provided centrally by this role:
 
 - `roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy; pins `@playwright/test` from `meta/services.yml.playwright.version`)
