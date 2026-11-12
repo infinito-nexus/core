@@ -10,9 +10,8 @@
 - block:
     - name: "🧩 load docker, db and proxy for {{ application_id }}"
       include_role:
-        name: sys-stk-full
-      vars:
-        compose_handlers_flush: false
+        name: svc-stack
+        tasks_from: consumer.yml
 
     - name: "🎬 Stage and bootstrap the XWiki config on the stack host"
       when: IS_STACK_HOST | bool
