@@ -373,7 +373,7 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
 
     /**
      * Returns:
-     *   string[]: the services.sso.profile.locked keys JOOMLA_OIDC_PROFILE_LOCKED lists; anything but a non-empty
+     *   string[]: the sso.<claim> field keys of meta/forms.yml JOOMLA_OIDC_PROFILE_LOCKED lists; anything but a non-empty
      *   JSON list of non-empty strings raises.
      */
     private function lockedKeys(): array
@@ -392,7 +392,7 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
 
     /**
      * Args:
-     *   $keys: services.sso.profile.locked keys.
+     *   $keys: sso.<claim> field keys of meta/forms.yml.
      *   $scalarClaims: plg_user_profile key => name of a string claim.
      *   $addressFields: plg_user_profile key => member of the address claim.
      * Returns:

@@ -7,8 +7,9 @@ input ``selector``, optionally ``when``, ``label``, ``type``, ``enum``,
 the role's ``applications.<role>`` defaults or a credential its
 ``meta/secrets.yml`` declares; a path under ``users`` must be exactly
 ``users.<key>.<attr>`` with an attr other than ``tokens``, and resolves
-against the global user defaults. The schema lives in
-``utils.roles.applications.forms``.
+against the global user defaults; ``sso.<claim>`` names a claim of
+``OIDC.ATTRIBUTES`` on an ``enforced`` field without ``when``. The schema lives
+in ``utils.roles.applications.forms`` and ``utils.roles.applications.sso_fields``.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ from typing import TYPE_CHECKING, Any
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import read_text
 from utils.cache.users import get_user_defaults
-from utils.roles.applications import forms
+from utils.roles.applications import forms, sso_fields
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SECRETS
 
 from . import load_role_meta, role_dirs
@@ -67,6 +68,7 @@ def findings(
                     _credentials(role),
                 )
             )
+            errors.extend(sso_fields.errors(role.name, data))
     return errors
 
 
@@ -83,14 +85,19 @@ def convergence_findings(roles: list[Path]) -> list[str]:
     """Return every form a role declares but does not converge, or converges undeclared.
 
     Args:
-        roles: role directories to check.
+        roles: role directories to check; a form of ``sso.<claim>`` fields
+            only needs no converge.
     """
     errors = []
     for role in roles:
         if not (role / ROLE_FILE_META_FORMS).is_file():
             continue
         data = load_role_meta(role / ROLE_FILE_META_FORMS)
-        declared = set(data) if isinstance(data, dict) else set()
+        declared = (
+            {form for form, block in data.items() if not sso_fields.only_sso(block)}
+            if isinstance(data, dict)
+            else set()
+        )
         converged = _converged_forms(role)
         errors.extend(
             f"{role.name}: {ROLE_FILE_META_FORMS} declares the form {form!r}, but no "

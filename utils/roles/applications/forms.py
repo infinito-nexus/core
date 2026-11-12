@@ -13,15 +13,17 @@ the fields the role converges into it::
 
 ``source`` is an inventory path relative to ``applications.<role>``; a path
 under ``users`` points to the global users and must be exactly
-``users.<key>.<attr>``, with an attr other than ``tokens``. The generic meta
+``users.<key>.<attr>``, with an attr other than ``tokens``; ``sso.<claim>``
+names the claim the SSO sign-in writes into a profile field, which no
+converge, drift line or banner covers. The generic meta
 loader places the file at ``applications.<role>.forms``, so an inventory
 overrides a single field under
 ``applications.<role>.forms.<form>.fields.<field>``; the forms stay out of the
 templar, so an override is never rendered.
 
 ``locks`` hands every ``enforced`` field whose ``when`` holds to the shared
-lock renderer of ``sys-front-inj-javascript``; a ``seeded`` field never
-reaches the page.
+lock renderer of ``sys-front-inj-javascript``, an ``sso.<claim>`` field as a
+profile lock without unlock; a ``seeded`` field never reaches the page.
 
 The drift report fails closed: it shows old and new values only for a field
 that declares a type from ``SHOWN_TYPES``, whose source lies outside ``users``
@@ -66,6 +68,7 @@ OPTIONAL_FIELD_KEYS = frozenset(
     {"when", "label", "type", "enum", "validation", "description"}
 )
 USERS_ROOT = "users"
+SSO_ROOT = "sso"
 USER_SOURCE_PARTS = 3
 USER_REFUSED_ATTRIBUTES = frozenset({"tokens"})
 CREDENTIALS_ROOT = ("secrets", "credentials")
@@ -228,6 +231,15 @@ def _is_user_path(parts: list[str]) -> bool:
     return parts[0] == USERS_ROOT
 
 
+def is_sso_source(source: Any) -> bool:
+    """Whether a field's ``source`` names a claim of the SSO sign-in.
+
+    Args:
+        source: the field's ``source``.
+    """
+    return isinstance(source, str) and source.split(".", 1)[0] == SSO_ROOT
+
+
 def _is_allowed_user_path(parts: list[str]) -> bool:
     return (
         len(parts) == USER_SOURCE_PARTS
@@ -250,12 +262,14 @@ def resolve(source: str, application: Mapping, users: Mapping) -> Any:
         users: the global users.
 
     Raises:
-        SourceError: when the source is no dotted path, names nothing, or names
-            a user path of another shape or a refused user attribute; the
-            message never repeats the source.
+        SourceError: when the source is no dotted path, names nothing, names
+            a user path of another shape or a refused user attribute, or names
+            an SSO claim; the message never repeats the source.
     """
     if not (isinstance(source, str) and _PATH.fullmatch(source)):
         raise SourceError("the source is no dotted inventory path")
+    if is_sso_source(source):
+        raise SourceError("an sso source has no deploy-time value")
     parts = source.split(".")
     if not _is_user_path(parts):
         return _walk(application, parts, source)
@@ -331,13 +345,16 @@ def source_errors(
 
     Returns:
         One finding per refused or unresolved path, naming the
-        ``<form>.<field>.<key>`` coordinate and never the path itself.
+        ``<form>.<field>.<key>`` coordinate and never the path itself; an
+        ``sso.<claim>`` source is left to ``sso_fields.errors``.
     """
     errors = []
     for form, field, spec in iter_fields(forms):
         for key in ("source", "when"):
             path = spec.get(key)
             if not (isinstance(path, str) and _PATH.fullmatch(path)):
+                continue
+            if key == "source" and is_sso_source(path):
                 continue
             where = f"{role}: {form}.{field}.{key}"
             parts = path.split(".")
@@ -434,24 +451,45 @@ def locks(
         credentials: the ``credentials`` tree of the role's ``meta/secrets.yml``.
 
     Returns:
-        One entry per ``enforced`` field whose ``when`` holds, in YAML order:
-        its form's ``page`` path, its ``selector``, its ``label`` (the field
-        key when it declares none), the inventory ``path`` of its value and
-        whether the page must hide that value (``secret``), which holds for
-        every field the type and path half of the fail-closed rule does not
-        clear. A ``seeded`` field yields nothing.
+        First one profile lock per form ``page`` path that holds
+        ``sso.<claim>`` fields: their ``selector`` parts joined by commas,
+        with the ``label`` and ``path`` ``None`` and never ``secret``. Then
+        one entry per other ``enforced`` field whose ``when`` holds, in YAML
+        order: its form's ``page`` path, its ``selector``, its ``label`` (the
+        field key when it declares none), the inventory ``path`` of its value
+        and whether the page must hide that value (``secret``), which holds
+        for every field the type and path half of the fail-closed rule does
+        not clear. A ``seeded`` field yields nothing.
 
     Raises:
         SourceError: when a ``when`` names nothing in the inventory.
     """
+    enforced = [
+        (forms[form]["path"], field, spec)
+        for form, field, spec in iter_fields(forms)
+        if spec.get("mode") == "enforced" and _applies(spec, application, users)
+    ]
+    profile: dict[str, list[str]] = {}
+    for page, _field, spec in enforced:
+        if is_sso_source(spec["source"]):
+            profile.setdefault(page, []).append(spec["selector"])
     return [
         {
-            "page": forms[form]["path"],
+            "page": page,
+            "selector": ",".join(selectors),
+            "label": None,
+            "path": None,
+            "secret": False,
+        }
+        for page, selectors in profile.items()
+    ] + [
+        {
+            "page": page,
             "selector": spec["selector"],
             "label": spec.get("label", field),
             "path": inventory_path(role, spec["source"]),
             "secret": not _plain_field(spec, credentials),
         }
-        for form, field, spec in iter_fields(forms)
-        if spec.get("mode") == "enforced" and _applies(spec, application, users)
+        for page, field, spec in enforced
+        if not is_sso_source(spec["source"])
     ]

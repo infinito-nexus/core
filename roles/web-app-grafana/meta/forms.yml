@@ -1,0 +1,16 @@
+---
+profile:
+  path: /profile
+  fields:
+    name:
+      source: sso.name
+      mode: enforced
+      selector: "#edit-user-profile-name:disabled"
+    email:
+      source: sso.email
+      mode: enforced
+      selector: "#edit-user-profile-email:disabled"
+    username:
+      source: sso.preferred_username
+      mode: enforced
+      selector: "#edit-user-profile-username:disabled"

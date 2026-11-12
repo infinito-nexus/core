@@ -26,23 +26,37 @@ For browser-side validation requirements after visible behavior changes, see [Pl
 
 ## SSO Profile Lock 🔒
 
-A role whose SSO login, timer or deploy overwrites profile fields declares them under `services.sso.profile` in its `meta/services.yml`:
+A role whose SSO login, timer or deploy overwrites profile fields declares each of them as a field of its `meta/forms.yml` whose `source` is `sso.<claim>`, the claim of `OIDC.ATTRIBUTES` the sign-in writes into it:
+
+```yaml
+profile:
+  path: /
+  fields:
+    name:
+      source: sso.name
+      mode: enforced
+      selector: "#jform_name[data-infinito-sso-locked]"
+    email:
+      source: sso.email
+      mode: enforced
+      selector: "#jform_email1[data-infinito-sso-locked]"
+```
+
+The rest stays under `services.sso.profile` in its `meta/services.yml`:
 
 ```yaml
 sso:
   profile:
-    locked:
-      name: "#jform_name[data-infinito-sso-locked]"
-      email: "#jform_email1[data-infinito-sso-locked]"
     languages: [en]
 ```
 
-- `locked` maps each field to the CSS selector of its input. The selector MUST match only while the field is locked for the account the form edits, through a marker the role's server side renders for SSO accounts only. Every comma-separated part of it MUST match the role's pattern in `MANAGED_MARKER` of the lint below.
+- An `sso.<claim>` field is `enforced`, takes no `when`, and gets no converge, drift line or banner. Its form `path` is the prefix of every page that shows the field, `/` when the application routes them freely.
+- The `selector` MUST match only while the field is locked for the account the form edits, through a marker the role's server side renders for SSO accounts only. Every comma-separated part of it MUST match the role's pattern in `MANAGED_MARKER` of the lint below.
 - `languages` lists the UI languages the application serves, `en` included. The renderer embeds only these languages of the catalogue; any other page language falls back to English. Every listed language other than `en` MUST translate each message of the catalogue in `locale/<code>/LC_MESSAGES/core.po`.
 - `write_back` lists the fields the application writes back to Keycloak or LDAP itself. A role MAY declare it only with an entry in `WRITE_BACK` of the lint below that names the evidence.
-- `overwritten` lists the fields the role's login, timer or deploy overwrites without writing them back; each MUST appear in `locked` or `write_back`. `none_needed` states why no field needs treatment and stands alone. Either key classifies the role in its own meta instead of the inventory lists of the lint below, and a role MUST NOT be classified in both. A custom `roles/web-app-cst-*` role classifies itself this way in the `meta/services.yml` of its source repository, because the lint's lists live in core.
-- `marker` is the regular expression every part of a `locked` selector MUST match, for a role that has no entry in `MANAGED_MARKER` of the lint below.
-- A role with `locked` MUST enable `services.javascript`, include the shared renderer in its `templates/javascript.js.j2`, and prove the lock in `files/playwright/test-profile-lock.js`, required from its `playwright.spec.js`; the spec reads the selectors from `PROFILE_LOCK_SELECTORS_JSON` of its `playwright.env.j2` and asserts that each matches a locked field:
+- `overwritten` lists the fields the role's login, timer or deploy overwrites without writing them back; each MUST be an `sso.<claim>` field or appear in `write_back`. `none_needed` states why no field needs treatment and stands alone. Either key classifies the role in its own meta instead of the inventory lists of the lint below, and a role MUST NOT be classified in both. A custom `roles/web-app-cst-*` role classifies itself this way in the `meta/services.yml` of its source repository, because the lint's lists live in core.
+- `marker` is the regular expression every part of an `sso.<claim>` selector MUST match, for a role that has no entry in `MANAGED_MARKER` of the lint below.
+- A role with an `sso.<claim>` field MUST enable `services.javascript`, include the shared renderer in its `templates/javascript.js.j2`, and prove the lock in `files/playwright/test-profile-lock.js`, required from its `playwright.spec.js`; the spec reads the selectors from `PROFILE_LOCK_SELECTORS_JSON` of its `playwright.env.j2`, which renders `lookup('field_locks', application_id).profile`, and asserts that each matches a locked field. The role's server guard reads the field keys from the same lookup:
 
   ```jinja
   {% include 'roles/sys-front-inj-javascript/templates/profile_lock.js.j2' %}
@@ -54,7 +68,7 @@ sso:
 
 ## Managed Field Lock 🔐
 
-The same renderer locks every `enforced` field of the role's `meta/forms.yml` whose `when` holds, as `lookup('field_locks', application_id)` lists them after the profile lock (requirement [072](../../../../../docs/requirements/072-sso-profile-field-sync-or-lock.md)). A role without `services.sso.profile.languages` embeds every language of the catalogue:
+The same renderer locks every other `enforced` field of the role's `meta/forms.yml` whose `when` holds, as `lookup('field_locks', application_id)` lists them next to the profile lock (requirement [072](../../../../../docs/requirements/072-sso-profile-field-sync-or-lock.md)). A role without `services.sso.profile.languages` embeds every language of the catalogue:
 
 - It locks a field only on the page whose path and query start with the field's form `path`, and shows the `managed` text of the catalogue followed by the field's inventory path, `applications.<role>.<source>` or `users.<key>.<attr>`, as the hover title.
 - One banner with the `banner` text lists the label and inventory path of every managed field the page shows, above the form of the first one.

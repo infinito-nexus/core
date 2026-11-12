@@ -1,7 +1,3 @@
-"""``WORDPRESS_OPTIONS`` is the one map the role pins WordPress options from.
-
-"""
-
 from __future__ import annotations
 
 import copy
@@ -27,6 +23,7 @@ from utils.cache.files import iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.config import AppConfigKeyError
 from utils.roles.applications.converge import values
+from utils.roles.applications.forms import is_sso_source
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SERVICES,
@@ -344,7 +341,12 @@ class TestEffectiveMap(unittest.TestCase):
                 )
 
     def test_the_managed_options_are_the_fields_of_meta_forms(self):
-        fields = {field for block in _forms().values() for field in block["fields"]}
+        fields = {
+            field
+            for block in _forms().values()
+            for field, spec in block["fields"].items()
+            if not is_sso_source(spec["source"])
+        }
         self.assertEqual(fields, set(_resolve("WORDPRESS_OPTIONS_MANAGED", ALL_ON)))
 
     def test_no_option_is_declared_by_two_forms(self):

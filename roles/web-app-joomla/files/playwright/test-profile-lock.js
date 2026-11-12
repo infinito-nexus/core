@@ -86,7 +86,7 @@ async function expectEverySelectorLocked(page, warning) {
   for (const [field, selector] of Object.entries(lockedSelectors)) {
     const matches = page.locator(selector);
     await expect
-      .poll(() => matches.count(), { message: `services.sso.profile.locked.${field} must match a field of this form`, ...ACTION })
+      .poll(() => matches.count(), { message: `the sso field ${field} of meta/forms.yml must match a field of this form`, ...ACTION })
       .toBeGreaterThan(0);
     const count = await matches.count();
     for (let index = 0; index < count; index += 1) {

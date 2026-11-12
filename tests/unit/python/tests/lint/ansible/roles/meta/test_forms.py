@@ -151,7 +151,49 @@ class TestFormsLint(unittest.TestCase):
         )
         self.assertEqual([], self._findings_with(allowed, DEFAULTS, users))
 
+    def test_an_sso_claim_source_passes(self) -> None:
+        self.assertEqual([], self._findings(VALID + PROFILE))
 
+    def test_an_sso_source_outside_the_oidc_claims_fails(self) -> None:
+        for source in ("sso.shoe_size", "sso.email.domain"):
+            with self.subTest(source=source):
+                findings = self._findings(VALID + PROFILE.replace("sso.email", source))
+                self.assertEqual(1, len(findings))
+                self.assertIn(
+                    f"{ROLE}: profile.email.source must be sso.<claim> with a claim "
+                    "of OIDC.ATTRIBUTES",
+                    findings[0],
+                )
+                self.assertNotIn(source, findings[0])
+
+    def test_a_seeded_sso_field_fails(self) -> None:
+        seeded = PROFILE.replace("mode: enforced", "mode: seeded")
+        self.assertEqual(
+            [
+                f"{ROLE}: profile.email.mode must be enforced, since the sign-in writes it"
+            ],
+            self._findings(VALID + seeded),
+        )
+
+    def test_an_sso_field_with_when_fails(self) -> None:
+        guarded = PROFILE.replace(
+            "      mode: enforced", "      when: design.label\n      mode: enforced"
+        )
+        self.assertEqual(
+            [f"{ROLE}: profile.email takes no `when`; the selector's marker decides"],
+            self._findings(VALID + guarded),
+        )
+
+
+PROFILE = """
+profile:
+  path: /profile
+  fields:
+    email:
+      source: sso.email
+      mode: enforced
+      selector: "#email[data-sso]"
+"""
 CONVERGES_GENERAL = """
 - name: Write the general settings
   ansible.builtin.debug:
@@ -205,6 +247,13 @@ class TestConvergenceLint(unittest.TestCase):
     def test_a_form_named_through_a_variable_does_not_count(self) -> None:
         dynamic = CONVERGES_GENERAL.replace("'general'", "form_name")
         self.assertEqual(1, len(self._findings({"tasks/main.yml": dynamic})))
+
+    def test_a_form_of_sso_fields_only_needs_no_converge(self) -> None:
+        files = {
+            ROLE_FILE_META_FORMS: VALID + PROFILE,
+            "tasks/main.yml": CONVERGES_GENERAL,
+        }
+        self.assertEqual([], self._findings(files))
 
 
 if __name__ == "__main__":

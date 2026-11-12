@@ -16,7 +16,7 @@
   }
 
   function onPage(page) {
-    return page === null || (location.pathname + location.search).indexOf(page) === 0;
+    return (location.pathname + location.search).indexOf(page) === 0;
   }
 
   function toggles(field) {

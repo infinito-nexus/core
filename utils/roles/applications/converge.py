@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from utils.roles.applications.forms import _applies, iter_fields, resolve
+from utils.roles.applications.forms import (
+    _applies,
+    is_sso_source,
+    iter_fields,
+    resolve,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -26,7 +31,7 @@ def values(
 
     Returns:
         Each field whose ``when`` holds mapped to the value its ``source``
-        resolves to, in YAML order.
+        resolves to, in YAML order; an ``sso.<claim>`` field is left out.
 
     Raises:
         SourceError: when a ``source`` or ``when`` names nothing.
@@ -35,6 +40,7 @@ def values(
         field: resolve(spec["source"], application, users)
         for name, field, spec in iter_fields(forms)
         if name == form
+        and not is_sso_source(spec.get("source"))
         and (mode is None or spec.get("mode") == mode)
         and _applies(spec, application, users)
     }

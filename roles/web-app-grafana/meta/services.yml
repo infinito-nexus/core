@@ -10,10 +10,6 @@ sso:
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
   profile:
-    locked:
-      name: "#edit-user-profile-name:disabled"
-      email: "#edit-user-profile-email:disabled"
-      username: "#edit-user-profile-username:disabled"
     languages: [cs, de, en, es, fr, hu, id, it, ja, ko, nl, pl, pt, ru, sv, tr, zh]
 # nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
 javascript:

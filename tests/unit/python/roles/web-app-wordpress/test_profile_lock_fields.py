@@ -1,12 +1,3 @@
-"""Every ``services.sso.profile.locked`` key locks the same input on both sides.
-
-``templates/env.j2`` renders the keys of ``services.sso.profile.locked`` into
-``WORDPRESS_OIDC_PROFILE_LOCKED``; ``infinito-oidc-rbac-mapper.php`` resolves
-each key through ``INFINITO_OIDC_LOCKABLE_FIELDS`` to the stored field it keeps
-and the ``profile.php`` input it resets. The key's selector must name that
-input, so neither side can lock a field alone.
-"""
-
 from __future__ import annotations
 
 import json
@@ -17,14 +8,15 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.applications import sso_fields
+from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 from . import PROJECT_ROOT
 
 APP = "web-app-wordpress"
 ROLE = PROJECT_ROOT / "roles" / APP
 MAPPER = ROLE / "files/mu-plugins/infinito-oidc-rbac-mapper.php"
-SERVICES = ROLE / ROLE_FILE_META_SERVICES
+FORMS = ROLE / ROLE_FILE_META_FORMS
 ENV = ROLE / "templates/env.j2"
 ENV_KEY = "WORDPRESS_OIDC_PROFILE_LOCKED"
 FORM = "body.infinito-sso-managed #your-profile"
@@ -38,7 +30,7 @@ ENTRY = re.compile(
 
 
 def _locked() -> dict[str, str]:
-    return load_yaml_any(SERVICES)["sso"]["profile"]["locked"]
+    return sso_fields.selectors(load_yaml_any(FORMS))
 
 
 def _input_by_key() -> dict[str, str]:
@@ -61,8 +53,8 @@ def _rendered_env_keys() -> list[str]:
     )
 
     def lookup(name: str, *terms: str):
-        if (name, *terms) == ("config", APP, "services.sso.profile.locked"):
-            return _locked()
+        if (name, *terms) == ("field_locks", APP):
+            return {"profile": _locked()}
         raise AssertionError(f"{ENV_KEY} renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup

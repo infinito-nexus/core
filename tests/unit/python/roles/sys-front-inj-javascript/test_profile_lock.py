@@ -1,8 +1,8 @@
 """The shared lock renderer, rendered and run against a stub DOM.
 
 The template is rendered with the entries ``lookup('field_locks', ...)`` builds
-from ``services.sso.profile`` and from the ``enforced`` fields of a
-``meta/forms.yml``, and a catalogue, collapsed by ``to_one_liner`` as the
+from the ``enforced`` fields of a ``meta/forms.yml``, its ``sso.<claim>``
+fields included, and a catalogue, collapsed by ``to_one_liner`` as the
 injector does, and executed by node behind a minimal ``document``.
 """
 
@@ -18,7 +18,6 @@ from ansible.plugins.filter.core import FilterModule as CoreFilters
 from jinja2 import Environment
 
 from plugins.filter.text_filters import to_inline_js, to_one_liner
-from plugins.lookup.field_locks import profile_entry
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.roles.applications import forms
 
@@ -224,19 +223,24 @@ def _render(
     """Render the renderer the way the injector serves it.
 
     Args:
-        selectors: ``services.sso.profile.locked``; empty for a role without.
+        selectors: the selector of each ``sso.<claim>`` field of a profile
+            form on every page; empty for a role without.
         catalogue: what ``lookup('i18n_catalogue', ...)`` returns.
-        managed: the role's ``meta/forms.yml``, if it ships one.
+        managed: the other forms of the role's ``meta/forms.yml``, if it
+            ships one.
         languages: ``services.sso.profile.languages``; ``None`` for a role
             that declares none.
     """
     environment = Environment(autoescape=False)  # noqa: S701 - renders JavaScript, not HTML
     environment.filters.update(CoreFilters().filters())
     environment.filters["to_inline_js"] = to_inline_js
-    application = {"services": {"sso": {"profile": {"locked": selectors}}}}
+    profile = {
+        field: {"source": f"sso.{field}", "mode": "enforced", "selector": selector}
+        for field, selector in selectors.items()
+    }
+    declared = {"profile": {"path": "/", "fields": profile}} if profile else {}
     field_locks = {
-        "locks": profile_entry(application)
-        + forms.locks(APPLICATION, managed or {}, application, {}, {}),
+        "locks": forms.locks(APPLICATION, declared | (managed or {}), {}, {}, {}),
         "languages": languages,
     }
 
