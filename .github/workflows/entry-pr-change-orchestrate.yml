@@ -106,6 +106,7 @@ jobs:
       - detect-pr-scope
       - validation
       - detect-affected-roles
+      - detect-role-skeleton-scope
     if: ${{ github.event_name == 'pull_request' && needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
     permissions:
       actions: read
@@ -118,6 +119,7 @@ jobs:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
       trusted_pr: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
+      role_skeleton: ${{ needs.detect-role-skeleton-scope.outputs.affected == 'true' }}
 
   detect-agents-scope:
     name: 🤖 Detect agent changes
@@ -166,12 +168,6 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: ./scripts/github/resolve/pr/role_skeleton_affected.sh
-
-  role-skeleton:
-    name: "🧩 Role skeleton"
-    needs: [detect-pr-scope, validation, detect-role-skeleton-scope]
-    if: ${{ github.event_name == 'pull_request' && needs.detect-role-skeleton-scope.outputs.affected == 'true' }}
-    uses: ./.github/workflows/call-test-role-skeleton.yml
 
   prepare-fork-merge-ref:
     needs:

@@ -50,5 +50,5 @@ As a developer who wants to run an existing web application on Infinito.Nexus, I
 
 - [ ] `make role-skeleton-check` renders one sample manifest per database and login choice into `roles/web-app-cst-*`, runs `make test` and `make lint` against them, and removes them afterwards, also when a check fails.
 - [ ] Unit tests cover the manifest validation, the schema output and the file set of a rendered role.
-- [ ] CI runs `make role-skeleton-check` whenever `templates/roles/skeleton/`, `cli/contributing/role/` or a role lint changes.
+- [ ] Whenever `templates/roles/skeleton/`, `cli/contributing/role/` or a role lint changes, the regular CI test and lint jobs render the sample roles with `make role-skeleton-samples` first, so no second full suite runs.
 - [ ] `make test` passes.
