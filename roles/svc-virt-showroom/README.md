@@ -17,6 +17,7 @@ This role turns an Arch Linux or Debian host into a showroom: one isolated serve
 - **SSH keys and clock:** cloud-init installs `openssh-server`, `systemd-timesyncd` and the entry's `ssh_authorized_keys` for root on first boot. The cloud image ships no time sync, and the Infinito.Nexus preflight inside the server waits for `NTPSynchronized=yes`. Password logins go off through the drop-in `/etc/ssh/sshd_config.d/60-showroom.conf`, not through `ssh_pwauth`: that key writes `sshd_config` before `openssh-server` exists, the package then keeps the minimal file without `UsePAM yes`, and sshd refuses the key login of the locked root account.
 - **Egress next to Docker:** Docker sets the FORWARD policy to DROP, which cuts the servers off the internet (cloud-init's package install, apt, image pulls) while SSH from the host and the proxy hop keep working. Before the first server boots, a oneshot unit inserts two `DOCKER-USER` rules for the showroom bridge (forward from it, return traffic to it), and it runs again on every start of `docker.service`. On a host without Docker the unit changes nothing.
 - **Layer 7 routing:** The host's reverse proxy terminates TLS for every domain of a project with the host's certificate and forwards each request, Host header and WebSocket upgrade included, to port 443 of the project's server. The hop is HTTPS with the original host name as SNI and without certificate verification, because the demo instance inside the server answers with its own self-signed certificate. SNI passthrough is out of scope, because every vhost on the host terminates port 443 itself.
+- **Zero-trust access on the host:** Two users with the least rights replace the host administrator on the way into a server, and root on the host stays locked. `incus-bastion` has no shell and no TTY; an sshd `Match` block lets it forward to port 22 of the showroom servers and nowhere else, and it cannot listen on the host. `incus-operator` may run exactly one command per server through sudo with its own password, `incus exec --project <project> <server> -- /bin/bash -l`, as the break-glass path when SSH into a server fails. The role empties the group `incus-admin`, so no user drives Incus without that password; the host administrator reaches it only through its own sudo password. Both users need at least one key in `users.<name>.authorized_keys` of the host's inventory, or the deploy fails.
 - **Idempotent:** A second deploy with an unchanged project list reports no change; a changed CPU, memory, disk size or address is set on the existing instance.
 
 ## Use cases
@@ -62,16 +63,28 @@ applications:
 
 ### Inventory of a project's server
 
-The server has no public address. The operator reaches it with an SSH ProxyJump through the showroom host, so its inventory entry points at the bridge address and jumps through the host:
+The server has no public address. The operator reaches it with an SSH ProxyJump through the showroom host's jump user, so its inventory entry points at the bridge address and jumps through the host:
 
 ```yaml
 karakalpak:
   ansible_host: 192.168.245.10
   ansible_user: root
-  ansible_ssh_common_args: "-J administrator@echoserver.example"
+  ansible_ssh_common_args: "-J incus-bastion@echoserver.example"
 ```
 
-The same works by hand with `ssh -J administrator@echoserver.example root@192.168.245.10`.
+The same works by hand with `ssh -J incus-bastion@echoserver.example root@192.168.245.10`. When SSH into the server is broken, the break-glass path is `ssh -t incus-operator@echoserver.example sudo incus exec --project karakalpak karakalpak -- /bin/bash -l`.
+
+The host's inventory names the keys of both access users:
+
+```yaml
+users:
+  incus-bastion:
+    authorized_keys:
+      - ssh-ed25519 AAAA... operator@workstation
+  incus-operator:
+    authorized_keys:
+      - ssh-ed25519 AAAA... operator@workstation
+```
 
 ## Further resources
 

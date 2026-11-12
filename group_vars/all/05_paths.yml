@@ -40,6 +40,8 @@ FILE_PHP_HARDENING_INI: "{{ [DIR_PHP_HARDENING, 'hardening-' ~ PHP_HARDENING_INI
 FILE_PHP_MEMORY_UNLIMITED_INI: "{{ [DIR_PHP_HARDENING, 'memory-unlimited-' ~ PHP_MEMORY_UNLIMITED_INI_DIGEST ~ '.ini'] | path_join }}"
 FILE_PHP_FPM_HARDENING_CONF: "{{ [DIR_PHP_HARDENING, 'fpm-hardening-' ~ PHP_FPM_HARDENING_CONF_DIGEST ~ '.conf'] | path_join }}"
 
+DIR_SSHD_DROPINS: "/etc/{{ SOFTWARE_DOMAIN }}/sshd" # Read by the main sshd_config last; distribution drop-ins stay ignored
+
 DIR_RESCUE_DIAGNOSTICS: "/tmp/infinito-rescue-diagnostics"
 FILE_DNS53_SAMPLER_LOG: "/var/log/infinito/dns53-sampler.log"
 

@@ -1,0 +1,11 @@
+Match User {{ SHOWROOM_BASTION_USER }}
+	AllowTcpForwarding local
+	PermitOpen {% for entry in SHOWROOM_PROJECTS.values() %}{{ entry.address }}:22{{ ' ' if not loop.last }}{% else %}none{% endfor %}
+
+	PermitListen none
+	AllowAgentForwarding no
+	AllowStreamLocalForwarding no
+	X11Forwarding no
+	PermitTunnel no
+	PermitTTY no
+	ForceCommand /usr/sbin/nologin

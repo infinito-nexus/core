@@ -186,3 +186,5 @@
   loop_control:
     loop_var: showroom_vhost
     label: "{{ showroom_vhost.domain }} -> {{ showroom_vhost.upstream }}"
+
+- include_tasks: 01_access.yml

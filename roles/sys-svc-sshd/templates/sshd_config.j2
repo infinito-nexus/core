@@ -13,3 +13,4 @@ Subsystem	sftp /usr/lib/ssh/sftp-server
 {% else %}
 Subsystem	sftp /usr/lib/openssh/sftp-server
 {% endif %}
+Include {{ DIR_SSHD_DROPINS }}/*.conf
