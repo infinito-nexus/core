@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
-const { networkSites, networkTenants } = require(
+const { networkSites, networkTenants, canonicalMainOrigin } = require(
   path.join(PROJECT_ROOT, "roles/web-app-wordpress/files/playwright/network-sites.js"),
 );
 const { DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
@@ -41,6 +41,13 @@ test("a network sibling in the group map never becomes a site of its own", () =>
 test("the onion pass resolves its canonical domain to the main site's domain", () => {
   const env = { networkBaseUrls: BASE_URLS, rbacGroupMapJson: groupMap(SITES), canonicalDomain: SIBLINGS[0].toUpperCase() };
   assert.deepEqual(networkTenants(env), { primary: SITES[0], children: SITES.slice(1) });
+});
+
+test("both passes reach the main site on the canonical network, where the own sites are served", () => {
+  for (const canonicalDomain of [SITES[0], SIBLINGS[0]]) {
+    const env = { networkBaseUrls: BASE_URLS, rbacGroupMapJson: groupMap(SITES), canonicalDomain };
+    assert.equal(canonicalMainOrigin(env), `https://${SITES[0]}`);
+  }
 });
 
 test("a network site without a per-site group fails loudly", () => {

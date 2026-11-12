@@ -2,9 +2,9 @@
  * Args:
  *   networkBaseUrls: WORDPRESS_NETWORK_BASE_URLS, the sites separated by ";", each site's URLs by ",", canonical network first.
  * Returns:
- *   One host list per network site, the site domain first, then its network siblings.
+ *   One URL list per network site, the canonical URL first, then its network siblings.
  */
-function networkSites(networkBaseUrls) {
+function networkSiteUrls(networkBaseUrls) {
   if (!networkBaseUrls) {
     throw new Error("WORDPRESS_NETWORK_BASE_URLS must be set");
   }
@@ -15,12 +15,22 @@ function networkSites(networkBaseUrls) {
       siblings
         .split(",")
         .filter(Boolean)
-        .map((url) => new URL(url).hostname.toLowerCase())
+        .map((url) => new URL(url))
     );
   if (sites.length === 0) {
     throw new Error("WORDPRESS_NETWORK_BASE_URLS lists no site of the network");
   }
   return sites;
+}
+
+/**
+ * Args:
+ *   networkBaseUrls: as networkSiteUrls takes it.
+ * Returns:
+ *   One host list per network site, the site domain first, then its network siblings.
+ */
+function networkSites(networkBaseUrls) {
+  return networkSiteUrls(networkBaseUrls).map((urls) => urls.map((url) => url.hostname.toLowerCase()));
 }
 
 /**
@@ -54,4 +64,15 @@ function networkTenants(env) {
   return { primary, children: domains.filter((domain) => domain !== primary) };
 }
 
-module.exports = { networkSites, networkTenants };
+/**
+ * Args:
+ *   env: as networkTenants takes it.
+ * Returns:
+ *   The origin of the main site on the canonical network, the one network that serves the own sites in every pass.
+ */
+function canonicalMainOrigin(env) {
+  const { primary } = networkTenants(env);
+  return networkSiteUrls(env.networkBaseUrls).find(([url]) => url.hostname.toLowerCase() === primary)[0].origin;
+}
+
+module.exports = { networkSites, networkTenants, canonicalMainOrigin };
