@@ -13,6 +13,7 @@ This role deploys Ollama as a local model server using Docker Compose. It integr
 - **Local model execution:** Run popular open models (chat, code, embeddings) on your own hardware.
 - **HTTP API:** Simple, predictable HTTP API for application developers.
 - **Local caching:** Models are cached locally to avoid repeated downloads.
+- **Pinned model files:** Every entry of `services.ollama.preload_models` names one GGUF file fixed to one commit, with its `sha256` and `bytes`, as `AI_LOCAL_MODELS` in `group_vars/all/16_ai.yml` declares them. The role downloads the file on the hosting node with `get_url_retry` against that checksum, creates the model from it with `ollama create`, and fails unless Ollama then holds the model at that digest. It never pulls a tag from the Ollama library, and an entry without these pins fails the deploy.
 - **Integrations:** Works seamlessly with Open WebUI and Flowise.
 - **Offline support:** Fully offline-capable for air-gapped deployments.
 

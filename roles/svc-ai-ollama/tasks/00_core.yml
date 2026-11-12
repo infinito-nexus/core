@@ -6,6 +6,6 @@
   vars:
     compose_handlers_flush: true
 
-- name: "⬇️ Manager-side model pre-pull on the hosting node"
+- name: "📥 Manager-side model import on the hosting node"
   ansible.builtin.include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool

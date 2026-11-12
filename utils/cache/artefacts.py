@@ -211,6 +211,32 @@ def _url_problems(url: str, parts: SplitResult) -> list[str]:
     return found
 
 
+def pin_problems(url: str, revision: str, sha256: str, size: str) -> list[str]:
+    """
+    Args:
+        url: the upstream URL at the pinned revision.
+        revision: the immutable revision, the ref segment of ``url``.
+        sha256: the lowercase hex digest of the file.
+        size: its size in bytes as declared.
+
+    Returns:
+        Every way the four pins break the manifest contract; empty when none.
+    """
+    parts = _split(url)
+    if parts is None:
+        found = [f"url {url!r} is not an absolute {SCHEME} URL"]
+        host, segments = "", []
+    else:
+        found = _url_problems(url, parts)
+        host, segments = parts.hostname or "", _segments(parts.path)
+    found.append(_revision_problem(revision, host, segments))
+    if not SHA256.fullmatch(sha256):
+        found.append("sha256 is not 64 lowercase hex digits")
+    if not SIZE.fullmatch(size):
+        found.append(f"bytes {size!r} is not a positive decimal integer")
+    return [problem for problem in found if problem]
+
+
 def problems(artefact: Artefact, cache: Declarations) -> list[str]:
     """
     Args:
@@ -220,21 +246,14 @@ def problems(artefact: Artefact, cache: Declarations) -> list[str]:
     Returns:
         Every way *artefact* breaks the manifest contract; empty when none.
     """
+    found = pin_problems(
+        artefact.url, artefact.revision, artefact.sha256, artefact.size
+    )
     parts = _split(artefact.url)
-    if parts is None:
-        found = [f"url {artefact.url!r} is not an absolute {SCHEME} URL"]
-        host, segments = "", []
-    else:
-        found = _url_problems(artefact.url, parts)
+    if parts is not None:
         found.append(_repository_problem(artefact.url, parts, cache))
-        host, segments = parts.hostname or "", _segments(parts.path)
     if not NAME.fullmatch(artefact.name):
         found.append(f"name {artefact.name!r} does not match {NAME.pattern}")
-    found.append(_revision_problem(artefact.revision, host, segments))
-    if not SHA256.fullmatch(artefact.sha256):
-        found.append("sha256 is not 64 lowercase hex digits")
-    if not SIZE.fullmatch(artefact.size):
-        found.append(f"bytes {artefact.size!r} is not a positive decimal integer")
     return [problem for problem in found if problem]
 
 
