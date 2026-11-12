@@ -8,6 +8,15 @@
     }) -%}
 {%- endfor -%}
 {%- endfor -%}
+{%- for wordpress_rbac_role in WORDPRESS_RBAC_SITE_ROLES -%}
+{%- set wordpress_rbac_global_role = 'global-' ~ wordpress_rbac_role -%}
+{%- if wordpress_rbac_global_role in WORDPRESS_RBAC_CONFIG.roles -%}
+{%- set wordpress_rbac.map = wordpress_rbac.map | combine({
+      '/' ~ lookup('rbac_group_path', application_id=application_id, role=wordpress_rbac_global_role):
+        {'role': wordpress_rbac_role}
+    }) -%}
+{%- endif -%}
+{%- endfor -%}
 {%- set wordpress_rbac.map = wordpress_rbac.map | combine({
       '/' ~ lookup('rbac_group_path', application_id=application_id, role=WORDPRESS_RBAC_NETWORK_ADMIN_ROLE):
         {'network': true}
