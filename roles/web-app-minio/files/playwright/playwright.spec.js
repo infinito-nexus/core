@@ -173,4 +173,5 @@ test("biber: app → universal logout", async ({ page }) => {
   await runBiberFlow(page);
 });
 
+require("./test-login-methods");
 require("./test-rbac-roles");
