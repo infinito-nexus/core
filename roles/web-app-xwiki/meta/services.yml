@@ -86,7 +86,7 @@ xwiki:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "18.9.0-postgres-tomcat"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
