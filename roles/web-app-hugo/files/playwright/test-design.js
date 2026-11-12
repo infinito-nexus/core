@@ -118,9 +118,17 @@ async function freshSettings(page) {
 async function stubSearch(page) {
   await page.addInitScript((rows) => {
     const original = window.fetch.bind(window);
+    const isAlgolia = (url) => {
+      try {
+        const { hostname } = new URL(url);
+        return hostname === "algolia.net" || hostname.endsWith(".algolia.net");
+      } catch {
+        return false;
+      }
+    };
     window.fetch = (input, init) => {
       const url = typeof input === "string" ? input : input.url;
-      if (!/algolia\.net\//.test(url)) return original(input, init);
+      if (!isAlgolia(url)) return original(input, init);
       const hits = rows.map(([lvl0, lvl1, lvl2, lvl3, path], index) => ({
         objectID: `fixture-${index}`,
         url: path,
