@@ -14,6 +14,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import TestCase, main, mock
 
+from cli.administration.deploy.development.common import DEV_INVENTORY_VARS_FILE
+from plugins.filter.merge.with_defaults import merge_with_defaults
+from utils.cache.yaml import load_yaml
+from utils.security.engine import ROLE
+from utils.security.pipeline import role_services
+
 from . import PROJECT_ROOT
 
 
@@ -1738,6 +1744,21 @@ MAIN_SCAN = {
     "workers": 1,
     "db_update": True,
 }
+SHIPPED_SCAN = {
+    **MAIN_SCAN,
+    "severity": role_services()["runtime"]["severity"],
+}
+DEVELOPMENT_SCAN = {
+    **MAIN_SCAN,
+    "severity": merge_with_defaults(
+        {ROLE: {"services": role_services()}},
+        {
+            ROLE: load_yaml(str(PROJECT_ROOT / DEV_INVENTORY_VARS_FILE))[
+                "applications"
+            ].get(ROLE, {})
+        },
+    )[ROLE]["services"]["runtime"]["severity"],
+}
 CRITICAL_FINDING = _finding(engine="grype", severity="CRITICAL")
 HIGH_FINDING = _finding(engine="grype", ids=("CVE-2026-0002",))
 
@@ -1786,7 +1807,15 @@ class TestMain(TestCase):
             code = SCRIPT.main(self._args(scan, NO_SUPPRESSIONS, []))
         return code, out.getvalue()
 
-    def _main(self, findings, *, errors=(), suppressions=NO_SUPPRESSIONS, metrics=None):
+    def _main(
+        self,
+        findings,
+        *,
+        errors=(),
+        suppressions=NO_SUPPRESSIONS,
+        metrics=None,
+        scan=MAIN_SCAN,
+    ):
         flags = ["--metrics-file", str(self.metrics)] if metrics is None else metrics
         with (
             mock.patch.object(SCRIPT, "running_containers", return_value=[]),
@@ -1798,7 +1827,7 @@ class TestMain(TestCase):
             mock.patch.object(SCRIPT.socket, "gethostname", return_value="node"),
             contextlib.redirect_stdout(io.StringIO()) as out,
         ):
-            code = SCRIPT.main(self._args(MAIN_SCAN, suppressions, flags))
+            code = SCRIPT.main(self._args(scan, suppressions, flags))
         return code, out.getvalue()
 
     def _report(self):
@@ -1854,6 +1883,40 @@ class TestMain(TestCase):
 
     def test_an_engine_error_still_fails_the_check(self):
         code, output = self._main([], errors=["grype database: exited 1"])
+        self.assertEqual(code, 1)
+        self.assertIn("❌ grype database: exited 1", output)
+
+    def test_the_shipped_threshold_fails_on_a_critical(self):
+        code, output = self._main([CRITICAL_FINDING], scan=SHIPPED_SCAN)
+        self.assertEqual((SHIPPED_SCAN["severity"]["CRITICAL"], code), ("fail", 1))
+        self.assertIn(
+            "❌ grype host node: CVE-2026-0001 CRITICAL openssl 1.0 (fixed in 1.1)",
+            output,
+        )
+
+    def test_the_development_inventory_maps_critical_to_warn(self):
+        self.assertEqual(
+            DEVELOPMENT_SCAN["severity"], {"CRITICAL": "warn", "HIGH": "warn"}
+        )
+
+    def test_the_development_inventory_reports_a_critical_without_failing(self):
+        code, output = self._main([CRITICAL_FINDING], scan=DEVELOPMENT_SCAN)
+        self.assertEqual((code, "❌" in output), (0, False))
+        self.assertIn(
+            "⚠️ grype host node: CVE-2026-0001 CRITICAL openssl 1.0 (fixed in 1.1)",
+            output,
+        )
+        self.assertEqual(
+            [(item["id"], item["verdict"]) for item in self._report()["findings"]],
+            [("CVE-2026-0001", "warn")],
+        )
+
+    def test_the_development_inventory_still_fails_on_an_engine_error(self):
+        code, output = self._main(
+            [CRITICAL_FINDING],
+            errors=["grype database: exited 1"],
+            scan=DEVELOPMENT_SCAN,
+        )
         self.assertEqual(code, 1)
         self.assertIn("❌ grype database: exited 1", output)
 
