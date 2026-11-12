@@ -29,18 +29,12 @@
     state: absent
   delegate_to: "{{ OLLAMA_HOST_NODE }}"
 
-- name: "📝 Write the Modelfile that names the handed file"
+- name: "🧩 Create each model from its Modelfile over the handed file"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OLLAMA_LOCAL_CID | quote }}
-    sh -c {{ ('cat > ' ~ (ollama_modelfile | quote)) | quote }}
+    sh -c {{ ('cat > ' ~ (ollama_modelfile | quote) ~ ' && ollama create ' ~ (model.alias | quote) ~ ' -f ' ~ (ollama_modelfile | quote)) | quote }}
   args:
-    stdin: "FROM {{ ollama_handed }}"
-  changed_when: true
-  delegate_to: "{{ OLLAMA_HOST_NODE }}"
-
-- name: "🧩 Create each model from the handed file"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ OLLAMA_LOCAL_CID | quote }} ollama create {{ model.alias | quote }} -f {{ ollama_modelfile | quote }}
+    stdin: "{{ model | local_model_modelfile(ollama_handed) }}"
   changed_when: true
   loop: "{{ ollama_models }}"
   loop_control:
