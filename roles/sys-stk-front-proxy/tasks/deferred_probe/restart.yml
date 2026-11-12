@@ -30,7 +30,8 @@
     msg: >-
       OpenResty does not serve {{ front_proxy_deferred_unreachable | join(', ') }} even after a restart.
       Last status per vhost, -1 meaning no answer:
-      {{ dict(front_proxy_deferred_unreachable | zip(front_proxy_deferred_unreachable | map('extract', front_proxy_deferred_verify.status))) }}
+      {{ dict(front_proxy_deferred_unreachable | zip(front_proxy_deferred_unreachable | map('extract', front_proxy_deferred_verify.status))) }}.
+      Why each -1 got no answer: {{ front_proxy_deferred_verify.errors }}
   vars:
     front_proxy_deferred_unreachable: >-
       {{
