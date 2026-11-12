@@ -38,6 +38,13 @@ class _Manager(dict):
         self.writes.append(key)
         super().__setitem__(key, value)
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, _Manager)
+            and dict.__eq__(self, other)
+            and self.writes == other.writes
+        )
+
 
 def _fake_modules(manager: _Manager) -> dict[str, ModuleType]:
     registries = ModuleType("dynamic_preferences.registries")
