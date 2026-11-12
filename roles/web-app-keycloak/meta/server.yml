@@ -1,0 +1,4 @@
+---
+vhosts:
+  default:
+    extra_template: nginx/vhost_extra.conf.j2
