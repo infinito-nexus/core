@@ -1,5 +1,3 @@
-"""Unit tests for plugins/lookup/form_values.py; the SPOT lookups are stubbed."""
-
 from __future__ import annotations
 
 import unittest

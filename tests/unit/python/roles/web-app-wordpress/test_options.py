@@ -1,14 +1,5 @@
 """``WORDPRESS_OPTIONS`` is the one map the role pins WordPress options from.
 
-The map joins the options ``meta/forms.yml`` manages (``admin_email``, the
-design title as ``blogname``, ``permalink_structure`` and the FreedomTranslate
-options), each read from its field's ``source`` through
-``lookup('form_values', ...)``, with ``services.wordpress.options`` as the
-strict config lookup resolves it; a pin that contradicts a managed option is
-refused. Every option another path writes is refused by name, and the tasks
-in ``tasks/07_manager_ops.yml`` read each option, report the managed ones an
-admin changed, write only the ones that drift and flush the rewrite rules
-after a write that changed the stored value.
 """
 
 from __future__ import annotations
@@ -124,9 +115,7 @@ def _resolve(name: str, scenario: dict):
             replaces the role's ``meta/forms.yml``.
 
     Returns:
-        The resolved value, with the role's own filter plugins loaded and
-        ``lookup('form_values', ...)`` answered by ``converge.values`` over
-        the role's forms.
+        The resolved value, with the role's own filter plugins loaded.
     """
     config = {
         "services.wordpress.options": scenario["configured"],

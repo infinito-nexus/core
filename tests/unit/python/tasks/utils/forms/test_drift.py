@@ -1,12 +1,3 @@
-"""The shared drift report logs each overwritten managed field and raises its journal event.
-
-``tasks/utils/forms/drift.yml`` turns ``forms_drift_current`` into the lines
-of ``lookup('form_drift', ...)``, prints them into the deploy log and writes
-one journal entry per line whose ``SYSLOG_IDENTIFIER`` the Loki ruler rule of
-``roles/web-svc-loki/templates/rules.yaml.j2`` counts, labelled with the
-application the way the log collector labels a container line.
-"""
-
 from __future__ import annotations
 
 import unittest

@@ -268,7 +268,7 @@ def role_credentials(role_dir: Path) -> Mapping:
     """Return the ``credentials`` tree of a role's ``meta/secrets.yml``.
 
     Args:
-        role_dir: the role's directory; a role without the file declares none.
+        role_dir: the role's directory.
     """
     secrets = load_yaml_any(
         str(role_dir / ROLE_FILE_META_SECRETS), default_if_missing={}

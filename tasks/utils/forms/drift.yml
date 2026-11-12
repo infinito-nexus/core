@@ -1,5 +1,5 @@
 ---
-# Param forms_drift_current: each form of the role's meta/forms.yml mapped to the enforced fields the run read from the application and is about to overwrite, each mapped to the value the application holds; include it before the write.
+# Param forms_drift_current: each form of the role's meta/forms.yml mapped to the enforced fields the run read from the application and is about to overwrite, each mapped to the value the application holds.
 # Output forms_drift_lines: the drift report, one line per overwritten field, values only where the fail-closed rule of utils/roles/applications/forms.py allows.
 
 - name: "🔎 Compare the managed fields of {{ application_id }} with their sources"

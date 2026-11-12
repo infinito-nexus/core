@@ -1,5 +1,3 @@
-"""Unit tests for utils/roles/applications/converge.py."""
-
 from __future__ import annotations
 
 import unittest

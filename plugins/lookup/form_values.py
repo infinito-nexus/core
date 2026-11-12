@@ -1,16 +1,3 @@
-"""Lookup `form_values`: what a role converges into one form of its ``meta/forms.yml``.
-
-    {{ lookup('form_values', application_id, 'general') }}
-    {{ lookup('form_values', application_id, 'general', mode='seeded') }}
-
-Returns each field of the form whose ``when`` holds mapped to the value its
-``source`` resolves to in the rendered ``applications.<role>`` and the global
-users; ``mode`` keeps only the fields of that mode. A role reads every value
-it converges into the form through this lookup, so the lint of
-``tests/lint/ansible/roles/meta/test_forms.py`` can match the forms a role
-converges against the forms it declares.
-"""
-
 from __future__ import annotations
 
 from collections.abc import Mapping

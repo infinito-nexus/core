@@ -1,5 +1,3 @@
-"""The Loki ruler alerts on a critical application line and on every managed-field drift event."""
-
 from __future__ import annotations
 
 import json

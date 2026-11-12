@@ -165,8 +165,7 @@ def wordpress_options_overwritten(results, forms):
 
     Returns:
         Each form mapped to its fields that WordPress stores with a value
-        other than the pinned one, each mapped to the stored value. An option
-        WordPress does not store yet was never edited and is left out.
+        other than the pinned one, each mapped to the stored value.
     """
     stored = {
         result["item"]["key"]: _stored(result)

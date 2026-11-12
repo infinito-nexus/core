@@ -9,12 +9,6 @@ the role's ``applications.<role>`` defaults or a credential its
 ``users.<key>.<attr>`` with an attr other than ``tokens``, and resolves
 against the global user defaults. The schema lives in
 ``utils.roles.applications.forms``.
-
-A role converges a form by reading its values through
-``lookup('form_values', application_id, '<form>')`` with the form as a
-literal, which returns exactly the declared fields whose ``when`` holds. So
-the role converges every declared field and nothing else when each declared
-form has such a lookup and each lookup names a declared form.
 """
 
 from __future__ import annotations
@@ -89,7 +83,7 @@ def convergence_findings(roles: list[Path]) -> list[str]:
     """Return every form a role declares but does not converge, or converges undeclared.
 
     Args:
-        roles: role directories to check; a role without the file is skipped.
+        roles: role directories to check.
     """
     errors = []
     for role in roles:

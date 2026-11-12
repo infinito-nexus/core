@@ -1,10 +1,3 @@
-"""The values a role converges into one form of its ``meta/forms.yml``.
-
-A role reads every value it writes into a form through ``values``, so the
-value it writes and the lock the shared renderer shows name the same
-``source``.
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -27,8 +20,7 @@ def values(
     Args:
         form: key of the form in ``meta/forms.yml``.
         forms: ``applications.<role>.forms``.
-        application: the rendered ``applications.<role>``; every ``source``
-            and ``when`` resolves against it.
+        application: the rendered ``applications.<role>``.
         users: the rendered global users.
         mode: keep only the fields of this mode; ``None`` keeps both.
 

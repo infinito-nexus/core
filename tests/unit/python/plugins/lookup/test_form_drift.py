@@ -1,10 +1,3 @@
-"""Unit tests for plugins/lookup/form_drift.py.
-
-The ``applications`` and ``users`` SPOT lookups and the role defaults are
-stubbed; the role's ``meta/secrets.yml`` is read from a temporary roles tree.
-Every value is synthetic.
-"""
-
 from __future__ import annotations
 
 import copy

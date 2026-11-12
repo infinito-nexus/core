@@ -1,17 +1,3 @@
-"""Lookup `form_drift`: the deploy-log lines of the managed fields a run is about to overwrite.
-
-    {{ lookup('form_drift', application_id, current) }}
-
-``current`` maps each form of the role's ``meta/forms.yml`` to the fields the
-run read from the application, each mapped to the value the application holds;
-a field the run did not read is not reported. The lookup compares those values
-with what the sources of the ``enforced`` fields resolve to and returns the
-lines of ``utils.roles.applications.drift.drift``: old and new values appear
-only for a field the fail-closed rule of ``utils.roles.applications.forms``
-clears against the unrendered application and the credentials of every
-application, every other line only says that the field changed.
-"""
-
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -41,8 +27,7 @@ def raw_application(
     Args:
         application_id: the role.
         variables: the play variables that carry the inventory's ``applications``.
-        templar: the lookup's templar; it only coerces an ``applications``
-            that is no mapping, the values stay unrendered.
+        templar: the lookup's templar.
     """
     overrides = _resolve_override_mapping(variables, "applications", templar=templar)
     override = overrides.get(application_id)
