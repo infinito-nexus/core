@@ -54,6 +54,11 @@ lam:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "9.7"
+        until: 2026-12-03
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
