@@ -168,19 +168,10 @@
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔀 front-proxy: Element web client and Synapse client/federation"
+- name: "🔀 front-proxy: Element web client, Synapse client/federation and the own Jitsi web"
   ansible.builtin.include_role:
     name: svc-stack
     tasks_from: consumer/front.yml
 
 - name: "🔀 front-proxy: federation delegation"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/well_known.yml"
-
-- name: "🔀 front-proxy: Jitsi web"
-  ansible.builtin.include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ MATRIX_JITSI_DOMAIN }}"
-    http_port: "{{ MATRIX_JITSI_PORT }}"
-    proxy_internal_port: "{{ MATRIX_JITSI_CONTAINER_PORT }}"
-  when: MATRIX_JITSI_INTERNAL | bool
