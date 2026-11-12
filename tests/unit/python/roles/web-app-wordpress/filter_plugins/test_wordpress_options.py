@@ -185,5 +185,74 @@ class TestDrift(unittest.TestCase):
         )
 
 
+MANAGED = {"blogname": "Blog by Example", "permalink_structure": STRUCTURE}
+
+
+class TestUnmanaged(unittest.TestCase):
+    def test_a_pin_no_form_manages_passes(self):
+        pinned = {"permalink_structure": STRUCTURE, "blogdescription": "Tag"}
+        self.assertIs(MODULE.wordpress_options_unmanaged(pinned, MANAGED), pinned)
+
+    def test_a_pin_equal_to_the_managed_value_passes(self):
+        pinned = {"blogname": "Blog by Example"}
+        self.assertIs(MODULE.wordpress_options_unmanaged(pinned, MANAGED), pinned)
+
+    def test_a_pin_that_contradicts_the_managed_value_is_refused(self):
+        with self.assertRaises(AnsibleFilterError) as caught:
+            MODULE.wordpress_options_unmanaged({"blogname": "Own"}, MANAGED)
+        self.assertIn("services.wordpress.options.blogname", str(caught.exception))
+        self.assertIn("meta/forms.yml", str(caught.exception))
+
+
+FORMS = {
+    "general": {"path": "/wp-admin/options-general.php", "fields": {"blogname": {}}},
+    "permalink": {
+        "path": "/wp-admin/options-permalink.php",
+        "fields": {"permalink_structure": {}},
+    },
+}
+
+
+def _read(key: str, desired, stored, *, rc: int = 0) -> dict:
+    return {
+        "rc": rc,
+        "stdout": json.dumps(stored),
+        "item": {"key": key, "value": desired},
+    }
+
+
+class TestOverwritten(unittest.TestCase):
+    def test_a_managed_option_an_admin_changed_is_grouped_under_its_form(self):
+        results = [
+            _read("blogname", "Blog by Example", "Admin title"),
+            _read("permalink_structure", STRUCTURE, STRUCTURE),
+        ]
+        self.assertEqual(
+            {"general": {"blogname": "Admin title"}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+    def test_a_value_wordpress_stores_as_a_string_is_no_change(self):
+        results = [_read("blogname", 42, "42")]
+        self.assertEqual(
+            {"general": {}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+    def test_an_option_wordpress_does_not_store_yet_is_left_out(self):
+        results = [_read("blogname", "Blog by Example", None, rc=1)]
+        self.assertEqual(
+            {"general": {}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+    def test_an_option_no_form_manages_is_left_out(self):
+        results = [_read("blogdescription", "Tag", "Admin tag")]
+        self.assertEqual(
+            {"general": {}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

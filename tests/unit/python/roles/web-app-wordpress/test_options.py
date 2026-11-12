@@ -1,16 +1,19 @@
 """``WORDPRESS_OPTIONS`` is the one map the role pins WordPress options from.
 
-The map joins the role's contributions (``admin_email``, the design title as
-``blogname``, the FreedomTranslate options) with ``services.wordpress.options``
-as the strict config lookup resolves it, so the role default and the
-inventory both win over a contribution. Every option another path writes is
-refused by name, and the tasks in ``tasks/07_manager_ops.yml`` read each
-option, write only the ones that drift and flush the rewrite rules after a
-write that changed the stored value.
+The map joins the options ``meta/forms.yml`` manages (``admin_email``, the
+design title as ``blogname``, ``permalink_structure`` and the FreedomTranslate
+options), each read from its field's ``source`` through
+``lookup('form_values', ...)``, with ``services.wordpress.options`` as the
+strict config lookup resolves it; a pin that contradicts a managed option is
+refused. Every option another path writes is refused by name, and the tasks
+in ``tasks/07_manager_ops.yml`` read each option, report the managed ones an
+admin changed, write only the ones that drift and flush the rewrite rules
+after a write that changed the stored value.
 """
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -32,7 +35,12 @@ from utils.cache import base as cache_base
 from utils.cache.files import iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.config import AppConfigKeyError
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+from utils.roles.applications.converge import values
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
@@ -75,9 +83,13 @@ def _render(expression: str, **variables):
     return templar.template(_trust_as_template(expression))
 
 
-def _translate_options() -> list[dict]:
+def _translate_options() -> dict:
     addon = load_yaml_any(str(TRANSLATE_ADDON), default_if_missing={})
     return addon["config"]["options"]
+
+
+def _forms() -> dict:
+    return load_yaml_any(str(ROLE / ROLE_FILE_META_FORMS), default_if_missing={})
 
 
 class _Stub(LookupBase):
@@ -105,24 +117,42 @@ def _resolve(name: str, scenario: dict):
         name: the variable to resolve.
         scenario: ``configured`` is what ``services.wordpress.options``
             resolves to (role default and inventory merged), ``design`` is
-            ``services.design.enabled``, ``title`` is the design lookup's
-            ``title``, ``translate`` is ``addons.freedomtranslate-wp.enabled``
-            and ``translate_options`` is that addon's ``config.options``.
+            ``services.design.enabled``, ``title`` is ``services.design.title``
+            and the design lookup's ``title``, ``translate`` is
+            ``addons.freedomtranslate-wp.enabled``, ``translate_options`` is
+            that addon's ``config.options`` and the optional ``forms``
+            replaces the role's ``meta/forms.yml``.
 
     Returns:
-        The resolved value, with the role's own filter plugins loaded.
+        The resolved value, with the role's own filter plugins loaded and
+        ``lookup('form_values', ...)`` answered by ``converge.values`` over
+        the role's forms.
     """
     config = {
         "services.wordpress.options": scenario["configured"],
         "users.platform_administrator.email": ADMIN_EMAIL,
         "services.design.enabled": scenario["design"],
         "addons.freedomtranslate-wp.enabled": scenario["translate"],
-        "addons.freedomtranslate-wp.config.options": scenario["translate_options"],
         "addons.wp-discourse.config.discourse_settings": [{"name": DISCOURSE_OPTION}],
     }
+    application = {
+        "services": {
+            "design": {"enabled": scenario["design"], "title": scenario["title"]},
+            "wordpress": {"options": scenario["configured"]},
+        },
+        "addons": {
+            "freedomtranslate-wp": {
+                "enabled": scenario["translate"],
+                "config": {"options": scenario["translate_options"]},
+            }
+        },
+    }
+    users = {"platform_administrator": {"email": ADMIN_EMAIL}}
+    forms = scenario.get("forms") or _forms()
     stubs = {
         "config": lambda _app, path: config[path],
         "design": lambda _app: {"title": scenario["title"]},
+        "form_values": lambda _app, form: values(form, forms, application, users),
     }
     real_get = lookup_loader.get
 
@@ -238,36 +268,58 @@ class TestEffectiveMap(unittest.TestCase):
     def test_no_blogname_while_the_design_is_off(self):
         self.assertNotIn("blogname", self._options(ALL_ON | {"design": False}))
 
-    def test_no_blogname_when_the_design_replaces_no_title(self):
-        for title in (False, ""):
-            with self.subTest(title=title):
-                self.assertNotIn("blogname", self._options(ALL_ON | {"title": title}))
+    def test_a_boolean_design_title_is_refused_while_the_design_is_on(self):
+        for title in (False, True):
+            with self.subTest(title=title), self.assertRaises(AnsibleError) as caught:
+                self._options(ALL_ON | {"title": title})
+            self.assertIn("blogname", _messages(caught.exception))
 
     def test_the_translate_options_join_while_the_addon_is_on(self):
         options = self._options(ALL_ON)
         declared = _translate_options()
         self.assertTrue(declared, "the addon must declare its options")
-        for entry in declared:
-            with self.subTest(option=entry["name"]):
-                self.assertEqual(options[entry["name"]], entry["value"])
+        for name, value in declared.items():
+            with self.subTest(option=name):
+                self.assertEqual(options[name], value)
 
     def test_no_translate_option_while_the_addon_is_off(self):
         options = self._options(ALL_ON | {"translate": False})
-        for entry in _translate_options():
-            with self.subTest(option=entry["name"]):
-                self.assertNotIn(entry["name"], options)
-
-    def test_an_inventory_entry_wins_over_every_contribution(self):
-        configured = {
-            "permalink_structure": PINNED_STRUCTURE,
-            "admin_email": "ops@example.test",
-            "blogname": "Own name",
-            "freedomtranslate_api_url": "https://translate.example.test/translate",
-        }
-        options = self._options(ALL_ON | {"configured": configured})
-        for name, value in configured.items():
+        for name in _translate_options():
             with self.subTest(option=name):
-                self.assertEqual(options[name], value)
+                self.assertNotIn(name, options)
+
+    def test_an_addon_option_no_form_declares_is_not_written(self):
+        extra = _translate_options() | {"freedomtranslate_cache": "1"}
+        self.assertNotIn(
+            "freedomtranslate_cache",
+            self._options(ALL_ON | {"translate_options": extra}),
+        )
+
+    def test_a_pin_that_contradicts_a_managed_option_is_refused(self):
+        for name, value in (
+            ("admin_email", "ops@example.test"),
+            ("blogname", "Own name"),
+            ("freedomtranslate_api_url", "https://translate.example.test/translate"),
+        ):
+            configured = {"permalink_structure": PINNED_STRUCTURE, name: value}
+            with self.subTest(option=name), self.assertRaises(AnsibleError) as caught:
+                self._options(ALL_ON | {"configured": configured})
+            message = _messages(caught.exception)
+            self.assertIn(f"services.wordpress.options.{name}", message)
+            self.assertIn("meta/forms.yml", message)
+
+    def test_a_pin_equal_to_its_managed_option_passes(self):
+        configured = {"permalink_structure": PINNED_STRUCTURE, "blogname": DESIGN_TITLE}
+        self.assertEqual(
+            self._options(ALL_ON | {"configured": configured})["blogname"],
+            DESIGN_TITLE,
+        )
+
+    def test_an_option_no_form_manages_is_written_as_pinned(self):
+        configured = {"permalink_structure": PINNED_STRUCTURE, "blogdescription": "Tag"}
+        self.assertEqual(
+            self._options(ALL_ON | {"configured": configured})["blogdescription"], "Tag"
+        )
 
     def test_the_filter_guards_the_merged_map(self):
         configured = {"permalink_structure": PINNED_STRUCTURE, "home": "https://x"}
@@ -275,22 +327,40 @@ class TestEffectiveMap(unittest.TestCase):
             self._options(ALL_ON | {"configured": configured})
         self.assertIn("services.wordpress.options.home", _messages(caught.exception))
 
-    def test_a_secret_named_addon_option_is_refused(self):
-        leaked = [
-            *_translate_options(),
-            {"name": "freedomtranslate_api_key", "value": "x"},
-        ]
+    def test_a_secret_named_managed_option_is_refused(self):
+        forms = copy.deepcopy(_forms())
+        forms["translate"]["fields"]["freedomtranslate_api_key"] = {
+            "source": "addons.freedomtranslate-wp.config.options.freedomtranslate_api_key",
+            "mode": "enforced",
+            "selector": "#key",
+        }
+        leaked = _translate_options() | {"freedomtranslate_api_key": "x"}
         with self.assertRaises(AnsibleError) as caught:
-            self._options(ALL_ON | {"translate_options": leaked})
+            self._options(ALL_ON | {"translate_options": leaked, "forms": forms})
         self.assertIn("freedomtranslate_api_key", _messages(caught.exception))
 
-    def test_services_declares_no_option_a_contribution_sets(self):
+    def test_every_pinned_default_is_managed_from_its_own_pin(self):
         services = load_yaml_any(
             str(ROLE / ROLE_FILE_META_SERVICES), default_if_missing={}
         )
-        contributed = _resolve("WORDPRESS_OPTIONS_CONTRIBUTED", ALL_ON)
-        self.assertTrue(contributed)
-        self.assertFalse(set(services["wordpress"]["options"]) & set(contributed))
+        sources = {
+            field: spec["source"]
+            for block in _forms().values()
+            for field, spec in block["fields"].items()
+        }
+        for name in services["wordpress"]["options"]:
+            with self.subTest(option=name):
+                self.assertEqual(
+                    sources.get(name), f"services.wordpress.options.{name}"
+                )
+
+    def test_the_managed_options_are_the_fields_of_meta_forms(self):
+        fields = {field for block in _forms().values() for field in block["fields"]}
+        self.assertEqual(fields, set(_resolve("WORDPRESS_OPTIONS_MANAGED", ALL_ON)))
+
+    def test_no_option_is_declared_by_two_forms(self):
+        names = [field for block in _forms().values() for field in block["fields"]]
+        self.assertEqual(len(names), len(set(names)))
 
 
 class TestOwnedElsewhere(unittest.TestCase):
@@ -327,15 +397,19 @@ class TestOwnedElsewhere(unittest.TestCase):
 
     def test_options_the_map_now_carries_left_the_owned_list(self):
         owned = _resolve("WORDPRESS_OPTIONS_OWNED_ELSEWHERE", ALL_ON)
-        moved = ["admin_email", "blogname"] + [o["name"] for o in _translate_options()]
+        moved = ["admin_email", "blogname", *_translate_options()]
         for name in moved:
             with self.subTest(option=name):
                 self.assertNotIn(name, owned)
 
-    def test_no_contribution_is_owned_elsewhere(self):
+    def test_no_managed_option_is_owned_elsewhere(self):
         owned = _resolve("WORDPRESS_OPTIONS_OWNED_ELSEWHERE", ALL_ON)
-        contributed = _resolve("WORDPRESS_OPTIONS_CONTRIBUTED", ALL_ON)
-        self.assertFalse(set(owned) & set(contributed))
+        managed = _resolve("WORDPRESS_OPTIONS_MANAGED", ALL_ON)
+        self.assertFalse(set(owned) & set(managed))
+
+    def test_the_contributed_map_is_gone(self):
+        self.assertNotIn("WORDPRESS_OPTIONS_CONTRIBUTED", _vars())
+        self.assertNotIn("WORDPRESS_TRANSLATE_OPTIONS", _vars())
 
 
 class TestOrder(unittest.TestCase):
@@ -349,6 +423,30 @@ class TestOrder(unittest.TestCase):
         self.assertLess(
             _position("Write each pinned WordPress option"),
             _position("Verify FreedomTranslate"),
+        )
+
+    def test_the_drift_report_runs_between_the_read_and_the_write(self):
+        self.assertLess(
+            _position("Read the WordPress options"),
+            _position("Report the managed WordPress options"),
+        )
+        self.assertLess(
+            _position("Report the managed WordPress options"),
+            _position("Write each pinned WordPress option"),
+        )
+
+
+class TestDriftReport(unittest.TestCase):
+    def test_it_hands_the_overwritten_managed_options_to_the_shared_report(self):
+        task = _task("Report the managed WordPress options")
+        self.assertEqual(
+            task["include_tasks"],
+            "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}",
+        )
+        self.assertEqual(
+            task["vars"]["forms_drift_current"],
+            "{{ wp_options_stored.results | wordpress_options_overwritten("
+            "lookup('config', application_id, 'forms')) }}",
         )
 
 
@@ -367,19 +465,16 @@ class TestTranslateReadback(unittest.TestCase):
         )
 
     def test_the_expected_endpoint_follows_the_effective_map(self):
-        declared = {o["name"]: o["value"] for o in _translate_options()}
         self.assertEqual(
             _resolve("WORDPRESS_TRANSLATE_ENDPOINT", ALL_ON),
-            declared["freedomtranslate_api_url"],
+            _translate_options()["freedomtranslate_api_url"],
         )
         own = "https://translate.example.test/translate"
-        configured = {
-            "permalink_structure": PINNED_STRUCTURE,
-            "freedomtranslate_api_url": own,
-        }
+        overridden = _translate_options() | {"freedomtranslate_api_url": own}
         self.assertEqual(
             _resolve(
-                "WORDPRESS_TRANSLATE_ENDPOINT", ALL_ON | {"configured": configured}
+                "WORDPRESS_TRANSLATE_ENDPOINT",
+                ALL_ON | {"translate_options": overridden},
             ),
             own,
         )

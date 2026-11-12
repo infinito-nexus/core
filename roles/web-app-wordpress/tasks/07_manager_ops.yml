@@ -60,6 +60,11 @@
     wp_options_stored.rc != 0
     and 'Could not get' not in wp_options_stored.stderr
 
+- name: "📣 Report the managed WordPress options the write reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ wp_options_stored.results | wordpress_options_overwritten(lookup('config', application_id, 'forms')) }}"
+
 - name: "🔧 Write each pinned WordPress option whose stored value differs"
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}

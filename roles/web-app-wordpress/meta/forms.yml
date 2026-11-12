@@ -1,0 +1,44 @@
+---
+general:
+  path: /wp-admin/options-general.php
+  fields:
+    blogname:
+      source: services.design.title
+      when: services.design.enabled
+      mode: enforced
+      selector: "#blogname"
+      type: text
+      label: Site Title
+    admin_email:
+      source: users.platform_administrator.email
+      mode: enforced
+      selector: "#new_admin_email"
+      type: email
+      label: Administration Email Address
+permalink:
+  path: /wp-admin/options-permalink.php
+  fields:
+    permalink_structure:
+      source: services.wordpress.options.permalink_structure
+      mode: enforced
+      selector: "#permalink_structure"
+      type: text
+      label: Permalink structure
+translate:
+  path: /wp-admin/options-general.php?page=freedomtranslate
+  fields:
+    freedomtranslate_service:
+      source: addons.freedomtranslate-wp.config.options.freedomtranslate_service
+      when: addons.freedomtranslate-wp.enabled
+      mode: enforced
+      selector: 'input[name="translation_service"]'
+      type: select
+      enum: [ollama, libretranslate, google_official, googlehash]
+      label: Translation service
+    freedomtranslate_api_url:
+      source: addons.freedomtranslate-wp.config.options.freedomtranslate_api_url
+      when: addons.freedomtranslate-wp.enabled
+      mode: enforced
+      selector: "#freedomtranslate_api_url"
+      type: url
+      label: Translation API URL
