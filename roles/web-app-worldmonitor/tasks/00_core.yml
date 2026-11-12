@@ -7,8 +7,5 @@
 
 - name: "🧩 Load docker, the pinned sources and the proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_repository_url: "{{ WORLDMONITOR_SOURCE_REPOSITORY }}"
-    compose_repository_pull: true
-    compose_repository_ref: "{{ WORLDMONITOR_SOURCE_VERSION }}"
+    name: svc-stack
+    tasks_from: consumer.yml
