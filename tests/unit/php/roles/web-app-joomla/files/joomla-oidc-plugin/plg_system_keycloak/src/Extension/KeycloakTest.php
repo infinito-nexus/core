@@ -373,5 +373,32 @@ namespace {
             self::assertFalse(Keycloak::isManagedRecord('{"language":"en-GB"}'));
             self::assertFalse(Keycloak::isManagedRecord(''));
         }
+
+        public function testTheRedirectUriFollowsTheSiblingTheRequestReached(): void
+        {
+            $siblings = [
+                'https://joomla.example.org/index.php?option=keycloak&task=callback',
+                'http://joomla.' . str_repeat('a', 56) . '.onion/index.php?option=keycloak&task=callback',
+            ];
+
+            self::assertSame($siblings[1], Keycloak::redirectUriForHost('JOOMLA.' . str_repeat('a', 56) . '.onion', $siblings, $siblings[0]));
+            self::assertSame($siblings[0], Keycloak::redirectUriForHost('joomla.example.org', $siblings, $siblings[0]));
+        }
+
+        public function testAHostOutsideTheSiblingsKeepsTheConfiguredRedirectUri(): void
+        {
+            $siblings = ['https://joomla.example.org/index.php?option=keycloak&task=callback'];
+
+            self::assertSame($siblings[0], Keycloak::redirectUriForHost('intruder.' . str_repeat('b', 56) . '.onion', $siblings, $siblings[0]));
+            self::assertSame($siblings[0], Keycloak::redirectUriForHost('', $siblings, $siblings[0]));
+        }
+
+        public function testAPortIsPartOfTheSiblingAuthority(): void
+        {
+            $siblings = ['https://joomla.example.org:8443/index.php?option=keycloak&task=callback'];
+
+            self::assertSame($siblings[0], Keycloak::redirectUriForHost('joomla.example.org:8443', $siblings, 'configured'));
+            self::assertSame('configured', Keycloak::redirectUriForHost('joomla.example.org', $siblings, 'configured'));
+        }
     }
 }

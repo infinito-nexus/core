@@ -1,56 +1,6 @@
-"""Lint: code asks the network registry which network a domain belongs to.
-
-``utils/networks/reachability.py`` is the network registry. It owns the domain
-suffix of every network and answers ``network_of(domain)``. A module that tests
-``.endswith('.onion')`` on its own is a second definition of the tor network,
-one that the next network (``handshake`` is reserved) or a changed suffix
-leaves behind without a failing test.
-
-The registry is reached three ways: Python imports ``utils.networks.reachability``,
-Ansible and Jinja use the ``network_of`` and ``network_suffix`` filters, and code
-that runs inside a container receives the suffix as an argument or environment
-value rendered from ``network_suffix`` (``--proxy-suffix`` of the CSP crawler,
-``TOR_SMTP_RECIPIENT_SUFFIX`` of the Tor SMTP gateway).
-
-Scope: ``.py``, ``.yml``, ``.yaml``, ``.sh`` and ``.j2`` files under
-``plugins/``, ``utils/``, ``cli/``, ``group_vars/``, ``roles/`` and ``tasks/``,
-the registry itself excluded. Plain ``.js``, ``.php``, ``.rb`` and ``.lua``
-files and everything under ``scripts/`` are not scanned. The checks there stay
-open until the operator decides the migration scope:
-``logout-panel.js:78`` of web-app-keycloak,
-``doorkeeper_allow_onion_redirect.rb:7`` of web-app-nextcloud,
-``infinito-http-onion-socks.php:21`` of web-app-wordpress, ``Keycloak.php:613``
-of web-app-joomla, ``scripts/tests/e2e/onion.sh:23`` and ``rerun-spec.sh:123``.
-
-A check is one of these regex shapes, matched in any letter case:
-``endswith`` and its relatives (``ends_with``, ``end_with?``, ``endsWith``,
-``removesuffix``) or ``includes``/``contains`` with the quoted suffix; a quoted
-``'.onion'`` in an ``in`` test, a comparison or a tuple, list or set element; an
-escaped or bracketed regex on the suffix, a pattern ending in ``onion$`` and a
-SQL ``LIKE '%.onion'``; a constant or list item that holds the suffix; a
-``*_SUFFIX``/``*_DOMAIN``/``*_TLD`` constant or a ``covers``/``endswith`` call
-with the dotless label; a comparison with ``'onion'`` on a line that names no
-route (the egress route value ``onion`` is not the suffix); ``'onion' in
-<x>.split(``; a quoted ``"*.onion"`` and the shell globs ``== *.onion`` and
-``*.onion)``. A shape that needs a parser, such as a split label taken through
-a variable or a YAML data key called ``name`` that holds a check, is not seen.
-
-Comments and prose are not checks. Python is read with ``tokenize``: comments
-are dropped, and so are strings that contain whitespace, unless they carry Jinja
-or name ``onion`` beside a comparison operator, ``search(``, ``match(``,
-``LIKE`` or ``*.onion``. A bare quote does not keep a string, because messages
-quote the suffix (``"'.onion' in direct.include ..."``), and a verbose regex
-with spaces inside a Python string is not seen. ``#`` comments outside
-quotes are dropped in YAML, shell and configuration templates only, so the Lua
-length operator ``#host`` stays code. ``{# #}`` comments are always dropped, and
-so are the values of the YAML prose keys (``name``, ``msg``, ``fail_msg``,
-``success_msg``, ``description``) apart from the Jinja inside them. The patterns
-then run over the whole file, so a call that black splits over several lines is
-still seen.
-"""
-
 from __future__ import annotations
 
+import functools
 import io
 import re
 import tokenize
@@ -62,7 +12,43 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 _REGISTRY = "utils/networks/reachability.py"
 _ROOTS = ("plugins/", "utils/", "cli/", "group_vars/", "roles/", "tasks/")
-_EXTENSIONS = (".py", ".yml", ".yaml", ".j2", ".sh")
+_EXTENSIONS = (".py", ".yml", ".yaml", ".j2", ".sh", ".js", ".php", ".rb", ".lua")
+_PREDATING_TEST_CHECKS = frozenset(
+    {
+        (
+            "roles/test-e2e-playwright/files/onion-test.js",
+            r"""(value) => typeof value === "string" && /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(value)""",
+        ),
+        (
+            "roles/test-e2e-playwright/files/personas/utils/onion.js",
+            r"/\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical())",
+        ),
+        (
+            "roles/test-e2e-playwright/files/playwright.config.js",
+            r"""for (const match of value.match(/https?:\/\/[^/,\s"']+\.onion/gi) || []) {""",
+        ),
+        (
+            "roles/test-e2e-playwright/files/timeouts.js",
+            r"return /\.onion$/i.test(_targetHost());",
+        ),
+        (
+            "roles/test-e2e-playwright/files/timeouts.js",
+            r"""return !isOnionTarget() && /\.onion(?::\d+)?(?:\/|$)/i.test(process.env.OIDC_ISSUER_URL || "");""",
+        ),
+        (
+            "roles/web-app-mini-qr/files/playwright/test-design.js",
+            'test.skip(new URL(baseUrl()).hostname.endsWith(".onion"), "the camera browser runs without the onion proxy");',
+        ),
+        (
+            "roles/web-app-odoo/files/playwright/_shared.js",
+            r"""const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)""",
+        ),
+        (
+            "roles/web-svc-logout/files/playwright/logout-flow.js",
+            r"return isOnionTarget() ? urls : urls.filter((url) => !/\.onion$/i.test(new URL(url).hostname));",
+        ),
+    }
+)
 
 _DOTTED = r"""['"]\.onion['"]"""
 _DOTLESS = r"""['"]onion['"]"""
@@ -101,7 +87,8 @@ _SCANNED_PROSE = re.compile(
     re.IGNORECASE,
 )
 _YAML_TYPES = (".yml", ".yaml", ".yml.j2", ".yaml.j2")
-_HASH_COMMENT_TYPES = (".yml", ".yaml", ".sh", ".py")
+_HASH_COMMENT_TYPES = (".yml", ".yaml", ".sh", ".py", ".rb")
+_C_COMMENT_TYPES = {".js": False, ".php": True}
 _HASH_COMMENT_TEMPLATES = ("", ".yml", ".yaml", ".sh", ".conf", ".cfg", ".ini", ".env")
 
 
@@ -181,6 +168,35 @@ def _without_hash_comment(line: str) -> str:
     return line
 
 
+def _without_c_comments(text: str, hash_comments: bool) -> str:
+    code = list(text)
+    quote = ""
+    index = 0
+    while index < len(text):
+        char = text[index]
+        end = -1
+        if quote:
+            if char == "\\":
+                index += 2
+                continue
+            if char == quote or (char == "\n" and quote != "`"):
+                quote = ""
+        elif char in "'\"`":
+            quote = char
+        elif text.startswith("/*", index):
+            end = text.find("*/", index + 2)
+            end = len(text) if end == -1 else end + 2
+        elif text.startswith("//", index) or (hash_comments and char == "#"):
+            end = text.find("\n", index)
+            end = len(text) if end == -1 else end
+        if end == -1:
+            index += 1
+            continue
+        code[index:end] = _blank(text[index:end])
+        index = end
+    return "".join(code)
+
+
 def _markup_code(text: str, yaml: bool, hash_comments: bool) -> str:
     lines = _without_jinja_comments(text).split("\n")
     if hash_comments:
@@ -219,6 +235,8 @@ def code_of(text: str, extension: str) -> str:
         code = _python_code(text)
         if code is not None:
             return code
+    if extension in _C_COMMENT_TYPES:
+        return _without_c_comments(text, hash_comments=_C_COMMENT_TYPES[extension])
     hash_comments = extension in _HASH_COMMENT_TYPES or (
         extension.endswith(".j2") and extension[:-3] in _HASH_COMMENT_TEMPLATES
     )
@@ -264,6 +282,22 @@ def _scan_targets() -> list[str]:
     return sorted(targets)
 
 
+@functools.cache
+def _findings() -> tuple[tuple[str, int, str], ...]:
+    found = []
+    for path_str in _scan_targets():
+        text = read_text(path_str)
+        if "onion" not in text.lower():
+            continue
+        lines = text.splitlines()
+        rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
+        found.extend(
+            (rel, number, lines[number - 1].strip())
+            for number in suffix_checks(text, _extension(path_str))
+        )
+    return tuple(found)
+
+
 class TestOnionSuffixRegistry(unittest.TestCase):
     def test_the_scan_reaches_the_former_call_sites(self) -> None:
         targets = {
@@ -276,23 +310,21 @@ class TestOnionSuffixRegistry(unittest.TestCase):
             "roles/sys-svc-mail-msmtp/templates/msmtprc.conf.j2",
             "roles/web-app-stalwart/tasks/14_onion_route.yml",
             "tasks/stages/01_constructor.yml",
+            "roles/web-app-keycloak/files/javascript/logout-panel.js",
+            "roles/web-app-nextcloud/files/ruby/utils/doorkeeper_allow_onion_redirect.rb",
+            "roles/web-app-wordpress/files/mu-plugins/infinito-http-onion-socks.php",
+            "roles/web-app-joomla/files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php",
         ):
             with self.subTest(rel=rel):
                 self.assertIn(rel, targets)
         self.assertNotIn(_REGISTRY, targets)
 
     def test_no_module_tests_the_onion_suffix_itself(self) -> None:
-        findings = []
-        for path_str in _scan_targets():
-            text = read_text(path_str)
-            if "onion" not in text.lower():
-                continue
-            lines = text.splitlines()
-            rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
-            findings.extend(
-                f"- {rel}:{number}: {lines[number - 1].strip()}"
-                for number in suffix_checks(text, _extension(path_str))
-            )
+        findings = [
+            f"- {rel}:{number}: {line}"
+            for rel, number, line in _findings()
+            if (rel, line) not in _PREDATING_TEST_CHECKS
+        ]
         self.assertEqual(
             [],
             findings,
@@ -301,6 +333,14 @@ class TestOnionSuffixRegistry(unittest.TestCase):
             "  Python:     network_of(domain) == TOR, network(TOR).suffix\n"
             "  Jinja:      (domain | network_of) == 'tor', 'tor' | network_suffix\n"
             "  container:  hand the suffix in, rendered from network_suffix\n",
+        )
+
+    def test_every_listed_playwright_check_is_still_there(self) -> None:
+        found = {(rel, line) for rel, _, line in _findings()}
+        self.assertEqual(
+            [],
+            sorted(_PREDATING_TEST_CHECKS - found),
+            "These checks left their file; drop them from _PREDATING_TEST_CHECKS.",
         )
 
     def test_the_scan_catches_every_check_shape(self) -> None:
@@ -375,6 +415,14 @@ class TestOnionSuffixRegistry(unittest.TestCase):
             (".yml", "X: \"{{ 'onion' in host.split('.') }}\""),
             (".yml", "X: \"{{ host | regex_replace('^.*[.]', '') == 'onion' }}\""),
             (".lua.j2", 'if #host > 6 and host:sub(-6) == ".onion" then'),
+            (".lua", 'if #host > 6 and host:sub(-6) == ".onion" then'),
+            (".js", '  if (window.location.hostname.slice(-6) === ".onion") {'),
+            (".js", "  return /\\.onion$/i.test(host);"),
+            (".js", 'const proxied = url.hostname.endsWith(".onion");'),
+            (".js", 'const s = "a // b"; if (host.endsWith(".onion")) {}'),
+            (".php", "  $s = str_ends_with($host, '.onion') ? 'http' : 'https';"),
+            (".php", "  if (preg_match('/\\.onion$/i', $host) === 1) {"),
+            (".rb", '  return false if uri.host.to_s.downcase.end_with?(".onion")'),
         )
         for extension, text in caught:
             with self.subTest(extension=extension, caught=text):
@@ -471,6 +519,18 @@ class TestOnionSuffixRegistry(unittest.TestCase):
             (
                 ".py",
                 'raise ValueError("a tor-listed .onion host stays in tor.include")',
+            ),
+            (".js", '  // window.location.hostname.slice(-6) === ".onion"'),
+            (".js", '/*\n * host.endsWith(".onion") was the old check\n */'),
+            (".js", 'const url = "https://x"; // host.endsWith(".onion")'),
+            (".js", "if (torSuffix && window.location.hostname.endsWith(torSuffix)) {"),
+            (".php", "  # str_ends_with($host, '.onion') was the old check"),
+            (".php", "  // preg_match('/\\.onion$/i', $host)"),
+            (".php", "  if ($host !== '' && str_ends_with($host, $suffix)) {"),
+            (".rb", '  # uri.host.end_with?(".onion") was the old check'),
+            (
+                ".rb",
+                "  return false if plaintext_hosts.include?(uri.host.to_s.downcase)",
             ),
         )
         for extension, text in ignored:

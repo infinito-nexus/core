@@ -32,6 +32,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
 from utils.i18n.extract import logout_context
 from utils.i18n.keyed import keyed_catalogue
+from utils.networks.reachability import TOR, network
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 LOADER = ROLE / "templates" / "javascript.js.j2"
@@ -63,6 +64,8 @@ def _render_panel() -> str:
             return read_text(str(PANEL))
         if "'tls'" in expression:
             return json.dumps(ORIGIN)
+        if "network_suffix" in expression:
+            return json.dumps(network(TOR).suffix)
         raise AssertionError(f"unrenderable expression in the assembly: {expression}")
 
     return re.sub(r"\{\{.*?\}\}", resolve, source, flags=re.DOTALL)
