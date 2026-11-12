@@ -5,7 +5,7 @@
 
 const shared = require("./_shared");
 const { resolveTimeout } = require("./timeouts");
-const { expectHstsWhenTls, gotoOnion } = require("./personas");
+const { expectHstsWhenTls, ownResponseHeaders, gotoOnion } = require("./personas");
 const { test, expect, skipUnlessServiceEnabled, runGuestFlow, runBiberFlow, runAdminFlow, env, penpotOidcLogin } = shared;
 
 test.use({ ignoreHTTPSErrors: true });
@@ -24,7 +24,7 @@ test("baseline: Penpot responds on the canonical domain with TLS", async ({ page
     r.url().includes(env.canonicalDomain),
     `Expected canonical domain "${env.canonicalDomain}" to back the Penpot URL`,
   ).toBe(true);
-  expectHstsWhenTls(r.headers(), env.baseUrl, "Penpot");
+  expectHstsWhenTls(await ownResponseHeaders(r), env.baseUrl, "Penpot");
 });
 
 // Login surfaces — one companion per method × persona.
@@ -34,6 +34,7 @@ require("./test-login-oidc-biber").register(shared);
 require("./test-login-ldap-admin").register(shared);
 require("./test-login-ldap-biber").register(shared);
 require("./test-seaweedfs");
+require("./test-design").register(shared);
 
 test("project: administrator creates a design project", async ({ page }) => {
   skipUnlessServiceEnabled("sso");

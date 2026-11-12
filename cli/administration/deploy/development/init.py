@@ -4,11 +4,13 @@ import json
 import os
 from typing import TYPE_CHECKING, Any
 
-from cli.administration.inventory.provision.services_disabler import (
+from cli.administration.inventory.provision.services.disabler import (
     find_provider_roles,
     parse_services_disabled,
 )
 from cli.meta.runtime import detect_runtime
+from plugins.filter.merge.with_defaults import merge_with_defaults
+from utils.security.deploy import deploy_inventory_overrides
 
 from .common import make_compose
 from .inventory import (
@@ -21,7 +23,11 @@ from .inventory import (
     _build_services_overrides_for_round as build_services_overrides_for_round,
 )
 from .storage import detect_storage_constrained
-from .variant_select import add_variant_args, apply_variant_filter
+from .variant_select import (
+    add_variant_args,
+    apply_variant_filter,
+    env_guide_host_pin,
+)
 
 if TYPE_CHECKING:
     import argparse
@@ -106,16 +112,23 @@ def handler(args: argparse.Namespace) -> int:
             raise SystemExit("--vars must be a JSON object")
         extra_vars = parsed
 
+    extra_vars = dict(extra_vars or {})
+    extra_vars["applications"] = merge_with_defaults(
+        extra_vars.get("applications") or {}, deploy_inventory_overrides()
+    )
+
     forced_storage_constrained = (
         None
         if args.force_storage_constrained is None
         else args.force_storage_constrained == "true"
     )
 
+    roles_dir = str(compose.repo_root / "roles")
     plan = plan_dev_inventory_matrix(
-        roles_dir=str(compose.repo_root / "roles"),
+        roles_dir=roles_dir,
         primary_apps=primary_apps,
         base_inventory_dir=str(args.inventory_dir),
+        pinned_variants=env_guide_host_pin(roles_dir, primary_apps),
     )
     try:
         plan = apply_variant_filter(plan, args)
@@ -170,6 +183,7 @@ def handler(args: argparse.Namespace) -> int:
             extra_vars=extra_vars,
             services_disabled=services_disabled,
             active_variants=round_variants,
+            network_mode=os.environ.get("network", ""),
         )
         build_dev_inventory(compose, spec)
 

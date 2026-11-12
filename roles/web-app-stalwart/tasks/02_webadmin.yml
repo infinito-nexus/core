@@ -2,10 +2,13 @@
 # The WebUI bundle (a JMAP "Application" record) is staged locally in 00_core;
 # point the record's resourceUrl at that file:// path and re-unpack.
 
-- name: "📖 List Stalwart Application records"
+- name: "📖 List Stalwart Application records and OAuth clients"
   include_tasks: jmap_call.yml
   vars:
-    stalwart_jmap_body: "{{ STALWART_JMAP_APPLICATION_GET }}"
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Application/get', {'ids': none}, 'Application'],
+                          ['x:OAuthClient/get', {'ids': none}, 'OAuthClient']]} | to_json }}
 
 - name: "🔍 Resolve the WebUI Application record"
   ansible.builtin.set_fact:
@@ -29,19 +32,15 @@
   ansible.builtin.set_fact:
     stalwart_webui_app_id: "{{ stalwart_webui_apps[0].id }}"
 
-- name: "📖 List Stalwart OAuth clients"
-  include_tasks: jmap_call.yml
-  vars:
-    stalwart_jmap_body: "{{ lookup('template', 'jmap/oauth_client/get.json.j2') }}"
-
 - name: "🔍 Resolve the WebUI OAuth client"
   ansible.builtin.set_fact:
     stalwart_webui_oauth_client: "{{ lookup('template', 'jmap/oauth_client/webui.json.j2') | from_json }}"
     stalwart_webui_oauth_clients: >-
-      {{ stalwart_jmap.methodResponses[0][1].list
+      {{ stalwart_jmap.methodResponses[1][1].list
          | selectattr('clientId', 'equalto', STALWART_WEBUI_OAUTH_CLIENT_ID)
          | list }}
   vars:
+    stalwart_webui_origins: "{{ lookup('network_urls', STALWART_WEBUI_BASE_URL) }}"
     stalwart_webui_url_prefixes: "{{ stalwart_webui_apps[0].urlPrefix | list }}"
 
 - name: "📁 Register the WebUI OAuth client"

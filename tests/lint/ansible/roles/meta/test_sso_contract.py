@@ -31,7 +31,7 @@ import yaml
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.services.sso import is_potentially_enabled
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -125,7 +125,7 @@ class TestSsoRoleContract(unittest.TestCase):
                         f"{role_name}: meta/services.yml.sso.oauth2.origin.port is missing or empty."
                     )
 
-            entity = get_entity_name(role_name)
+            entity = entity_name(role_name)
             if not entity:
                 continue
             entity_block = services.get(entity)

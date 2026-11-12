@@ -1,0 +1,37 @@
+---
+- name: "🐳 Bring the container daemon up before the pulls start"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/00_core.yml"
+  when: run_once_sys_svc_container is not defined
+
+- name: "🔎 List the images the host already holds"
+  ansible.builtin.command:
+    argv: [container, image, ls, --digests, --format, json]
+  register: sys_svc_container_prepull_local
+  changed_when: false
+
+- name: "🧮 Keep only the images the host does not hold yet"
+  ansible.builtin.set_fact:
+    sys_svc_container_prepull_missing: >-
+      {{ sys_svc_container_prepull_plan.pull
+         | reject('in', sys_svc_container_prepull_held
+                        + (sys_svc_container_prepull_held | map('regex_replace', '^', 'docker.io/') | list)
+                        + (sys_svc_container_prepull_held | map('regex_replace', '^', 'docker.io/library/') | list))
+         | list }}
+  vars:
+    sys_svc_container_prepull_images: "{{ sys_svc_container_prepull_local.stdout_lines | map('from_json') | list }}"
+    sys_svc_container_prepull_held: >-
+      {{ (sys_svc_container_prepull_images | map(attribute='Repository')
+          | zip(sys_svc_container_prepull_images | map(attribute='Tag')) | map('join', ':') | list)
+         + (sys_svc_container_prepull_images | map(attribute='Repository')
+          | zip(sys_svc_container_prepull_images | map(attribute='Digest')) | map('join', '@') | list) }}
+
+- name: "📥 Pull the missing images, three at a time"
+  ansible.builtin.command:
+    argv: [xargs, -r, -P, "3", -n, "1", container, pull, --quiet]
+    stdin: "{{ sys_svc_container_prepull_missing | join(' ') }}"
+  register: sys_svc_container_prepull_job
+  changed_when: false
+  # rationale: async; only fills the image cache, every app still runs its own pull, and the reap before playwright collects the job
+  async: "{{ SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME }}"
+  poll: 0
+  when: sys_svc_container_prepull_missing | length > 0

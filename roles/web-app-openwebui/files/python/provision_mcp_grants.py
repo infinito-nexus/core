@@ -15,7 +15,7 @@ MEMBERS = json.loads(os.environ.get("OPENWEBUI_MCP_MEMBERS", "{}"))
 
 DECLARED = json.loads(os.environ.get("OPENWEBUI_MCP_CONNECTIONS", "[]"))
 ADMIN_EMAIL = os.environ.get("OPENWEBUI_ADMIN_EMAIL", "")
-ADMIN_NAME = os.environ.get("OPENWEBUI_ADMIN_NAME", "administrator")
+ADMIN_NAME = os.environ["OPENWEBUI_ADMIN_NAME"]
 ADMIN_PASSWORD = os.environ.get("OPENWEBUI_ADMIN_PASSWORD", "")
 
 

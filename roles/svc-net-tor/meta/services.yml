@@ -17,8 +17,6 @@ tor: # nocheck: category-modes
   bond: 0.5
   enabled: true
   shared: true
-  exclusive: true
-  primary: true
   image: debian
   version: 13.7-slim
   custom: true
@@ -47,8 +45,13 @@ tor: # nocheck: category-modes
       # nocheck: onion-flag  publishing the resolver would answer recursive queries for anyone holding the onion address
       dns: false
   min_storage: 100MB
-  cpus: "0.25"
+  cpus: "1.0"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
   lifecycle: beta
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

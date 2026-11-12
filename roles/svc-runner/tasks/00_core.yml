@@ -60,6 +60,7 @@
     return_content: true
   register: _runner_latest_release
   delegate_to: localhost
+  become: false
   changed_when: false
 
 - name: 🏷️ Set resolved runner version
@@ -197,7 +198,7 @@
 - name: 🚀 Deploy runner compose stack
   ansible.builtin.shell: |
     set -euo pipefail
-    compose --chdir {{ RUNNER_INSTALL_DIR }} up -d --remove-orphans
+    compose --chdir {{ RUNNER_INSTALL_DIR }} --project {{ application_id | entity_name }} up -d --remove-orphans
   args:
     executable: /bin/bash
   changed_when: true

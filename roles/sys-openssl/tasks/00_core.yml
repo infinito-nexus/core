@@ -1,7 +1,2 @@
 ---
-- name: 📦 Install OpenSSL
-  become: true
-  package_install:
-    id: openssl
-
 - include_tasks: utils/once/flag.yml

@@ -1,0 +1,18 @@
+---
+- name: "🔐 Grant the Wazuh API administrator role to the platform administrators"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e WAZUH_RBAC_RULE_NAME
+      -e WAZUH_RBAC_BACKEND_ROLES
+      {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      /var/ossec/framework/python/bin/python3 -
+    stdin: "{{ lookup('file', 'python/api_administrators.py') }}"
+  environment:
+    WAZUH_RBAC_RULE_NAME: "{{ WAZUH_API_ADMIN_RULE }}"
+    WAZUH_RBAC_BACKEND_ROLES: "{{ WAZUH_API_ADMIN_BACKEND_ROLES | to_json }}"
+  register: wazuh_api_administrators
+  changed_when: wazuh_api_administrators.stdout == 'CHANGED'
+  retries: 30
+  delay: 10
+  until: wazuh_api_administrators.rc == 0

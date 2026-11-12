@@ -10,7 +10,7 @@
       server IP/hostname is mandatory.
 
 - name: "📦 Install the NFS client"
-  package_install:
+  package_install: # nocheck: package-install the controller installs it too, by delegation from the NFS server role
     id: nfs-client
 
 - name: "🔧 Match NFSv4 idmap to the ganesha test server"
@@ -45,7 +45,8 @@
     path: "{{ SVC_STORAGE_NFS_CLIENT_PROBE_DIR }}"
     src: "{{ STORAGE_NFS_CLIENT_SRC }}"
     fstype: "{{ STORAGE_NFS_FSTYPE }}"
-    opts: "{{ STORAGE_NFS_MOUNT_OPTS }},_netdev,noauto"
+    opts: "{{ STORAGE_NFS_MOUNT_OPTS }},_netdev"
+    boot: false
     state: ephemeral
   register: svc_storage_nfs_client_probe
   failed_when:

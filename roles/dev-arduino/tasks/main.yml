@@ -1,8 +1,4 @@
 ---
-- name: 📦 install arduino developer tools
-  package_install:
-    id: arduino-ide
-
 - name: "🔧 Add user {{ lookup('users', WORKSTATION_USER).username }} to arduino groups"
   ansible.builtin.user:
     name: "{{ lookup('users', WORKSTATION_USER).username }}"

@@ -27,7 +27,7 @@ class OAuthLoginHTTPS(OAuthLogin):
         Returns the configured web.base.url, or falls back to
         request.httprequest.url_root if not set.
         """
-        base_url = request.env["ir.config_parameter"].sudo().get_str("web.base.url")
+        base_url = request.env["ir.config_parameter"].get_base_url()
         if base_url:
             if not base_url.endswith("/"):
                 base_url += "/"

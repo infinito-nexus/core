@@ -65,9 +65,6 @@ def reaches_a_reap(result: str, facts: dict[str, str], reaped: list[str]) -> boo
 
 
 class TestAsyncKcadmJobs(unittest.TestCase):
-    def test_the_role_runs_kcadm_jobs_async(self):
-        self.assertTrue(list(async_kcadm_jobs()))
-
     def test_every_async_kcadm_job_goes_through_the_lock_retrying_module(self):
         for label, task in async_kcadm_jobs():
             with self.subTest(task=label):

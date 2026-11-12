@@ -1,0 +1,25 @@
+---
+- name: "📈 Install the Mermaid component on the default theme and read it back"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('template', 'mermaid/install.rb.j2') }}\n{{ lookup('template', 'mermaid/verify.rb.j2') }}"
+  register: discourse_mermaid_readback
+  changed_when: false
+
+- name: "🛑 Refuse a Mermaid component the default theme does not carry"
+  ansible.builtin.assert:
+    that:
+      - "'mermaid_installed=true' in discourse_mermaid_readback.stdout_lines"
+      - "'mermaid_component=true' in discourse_mermaid_readback.stdout_lines"
+      - "'mermaid_enabled=true' in discourse_mermaid_readback.stdout_lines"
+      - "'mermaid_attached=true' in discourse_mermaid_readback.stdout_lines"
+    fail_msg: >-
+      The Mermaid theme component from {{ DISCOURSE_MERMAID_REPOSITORY }} is not an
+      enabled child of the default theme, so a ```mermaid fence renders as plain code
+      instead of a diagram.
+      Read back: {{ discourse_mermaid_readback.stdout_lines }}

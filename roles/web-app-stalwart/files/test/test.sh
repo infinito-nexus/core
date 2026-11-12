@@ -5,4 +5,5 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 bash "${SCRIPT_DIR}/relay.sh"
-bash "${SCRIPT_DIR}/verify_migration.sh"
+bash "${SCRIPT_DIR}/verify/routing.sh"
+bash "${SCRIPT_DIR}/verify/migration.sh"

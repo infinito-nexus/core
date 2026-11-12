@@ -44,6 +44,9 @@ class TestFrontendServiceSpot(unittest.TestCase):
     def test_dashboard_is_loaded_after_matomo(self):
         self.assertLess(self._index("web-app-matomo"), self._index("web-app-dashboard"))
 
+    def test_discourse_is_loaded_after_matomo(self):
+        self.assertLess(self._index("web-app-matomo"), self._index("web-app-discourse"))
+
     def test_keycloak_respects_run_after_dependencies(self):
         self.assertLess(self._index("web-app-matomo"), self._index("web-app-keycloak"))
         self.assertLess(

@@ -1,0 +1,73 @@
+---
+- name: 📌 Define the paths every role's run shares
+  ansible.builtin.set_fact:
+    _playwright_default_package_template: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/templates/package.json.j2') }}"
+    _playwright_default_config_js: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files/playwright.config.js') }}"
+    _playwright_ca_required: "{{ (TLS_MODE | lower) == 'self_signed' }}"
+    _playwright_ca_cert_host: "{{ CA_TRUST.cert_host }}"
+    _playwright_ca_wrapper_host: "{{ CA_TRUST.wrapper_host }}"
+    _playwright_ca_trust_name: "{{ CA_TRUST.trust_name }}"
+
+- name: ✅ Validate CA_TRUST configuration for self-signed TLS
+  ansible.builtin.fail:
+    msg: >-
+      TLS_MODE=self_signed requires CA_TRUST.cert_host, CA_TRUST.wrapper_host and CA_TRUST.trust_name
+      to inject trust into the Playwright container.
+  when: >-
+    (_playwright_ca_required | bool) and
+    (
+      (_playwright_ca_cert_host | length == 0) or
+      (_playwright_ca_wrapper_host | length == 0) or
+      (_playwright_ca_trust_name | length == 0)
+    )
+
+- name: 🔎 Check the CA assets required for Playwright injection
+  when: _playwright_ca_required | bool
+  block:
+    - name: 🔎 Check CA certificate for Playwright injection
+      ansible.builtin.stat:
+        path: "{{ _playwright_ca_cert_host }}"
+      register: _playwright_ca_cert_stat
+
+    - name: 🔎 Check CA wrapper for Playwright injection
+      ansible.builtin.stat:
+        path: "{{ _playwright_ca_wrapper_host }}"
+      register: _playwright_ca_wrapper_stat
+
+- name: 🛑 Fail if CA certificate is missing on host
+  ansible.builtin.fail:
+    msg: >-
+      TLS_MODE=self_signed requires CA injection, but certificate is missing:
+      {{ _playwright_ca_cert_host }}
+  when: (_playwright_ca_required | bool) and not (_playwright_ca_cert_stat.stat.exists | default(false))
+
+- name: 🛑 Fail if CA wrapper script is missing on host
+  ansible.builtin.fail:
+    msg: >-
+      TLS_MODE=self_signed requires CA injection, but wrapper script is missing:
+      {{ _playwright_ca_wrapper_host }}
+  when: (_playwright_ca_required | bool) and not (_playwright_ca_wrapper_stat.stat.exists | default(false))
+
+- name: 🔎 Check central default package.json template
+  ansible.builtin.stat:
+    path: "{{ _playwright_default_package_template }}"
+  register: _default_package_stat
+  delegate_to: localhost
+  become: false
+
+- name: 🛑 Fail when central default package.json template is missing
+  ansible.builtin.fail:
+    msg: "Missing central Playwright package.json template: {{ _playwright_default_package_template }}"
+  when: not _default_package_stat.stat.exists
+
+- name: 🔎 Check central default playwright.config.js
+  ansible.builtin.stat:
+    path: "{{ _playwright_default_config_js }}"
+  register: _default_config_stat
+  delegate_to: localhost
+  become: false
+
+- name: 🛑 Fail when central default playwright.config.js is missing
+  ansible.builtin.fail:
+    msg: "Missing central Playwright config: {{ _playwright_default_config_js }}"
+  when: not _default_config_stat.stat.exists

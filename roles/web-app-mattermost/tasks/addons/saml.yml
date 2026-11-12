@@ -1,0 +1,8 @@
+---
+- name: "🛑 SAML is licence-gated and never installed by this role"
+  ansible.builtin.fail:
+    msg: >-
+      {{ application_id }}: SAML 2.0 is a {{ mattermost_addon.value.config.licence_tier }}
+      tier feature of the Mattermost server, not a marketplace plugin, so no task can
+      install it. The free tier reaches {{ mattermost_addon.value.config.partner_url }}
+      through the OIDC path in tasks/02_keycloak.yml instead; keep this addon off.

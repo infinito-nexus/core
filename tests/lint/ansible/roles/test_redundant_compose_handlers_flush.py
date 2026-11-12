@@ -136,9 +136,6 @@ class TestRedundantComposeHandlersFlush(unittest.TestCase):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
             if not _is_scan_target(rel):
                 continue
-            # Exception: instantiate the loader directly, not via yaml.load — a
-            # yaml.load call trips the direct-yaml / S506 guards even though
-            # _LineLoader is a SafeLoader subclass.
             loader = _LineLoader(content)
             try:
                 doc = loader.get_single_data()

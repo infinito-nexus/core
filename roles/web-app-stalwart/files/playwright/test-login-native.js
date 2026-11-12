@@ -1,14 +1,34 @@
 const { test, expect } = require("@playwright/test");
 
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 const {
   appBaseUrl,
+  webmailBaseUrl,
   canonicalDomain,
   oidcIssuerUrl,
+  adminEmail,
+  adminPassword,
   stalwartAdminUsername,
   stalwartAdminPassword,
 } = require("./env");
 const { resolveTimeout } = require("./timeouts");
+
+test("administrator: webmail password login reaches the mailbox (no sso)", async ({ page }) => {
+  skipUnlessServiceDisabled("sso");
+  expect(webmailBaseUrl, "WEBMAIL_BASE_URL must be set").toBeTruthy();
+  expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
+
+  await gotoOnion(page, `${webmailBaseUrl}/?_task=login`);
+  await page.locator("#rcmloginuser").fill(adminEmail);
+  await page.locator("#rcmloginpwd").fill(adminPassword);
+  await page.locator("#rcmloginsubmit").click();
+
+  await expect(
+    page.locator("#mailboxlist li.mailbox.inbox"),
+    "the webmail must reach the mailbox over its internal IMAP hop instead of reporting a storage connection failure",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+});
 
 // The account is Stalwart's recovery admin (STALWART_ADMIN_USER), not the platform's administrator:
 // discovery sends it to Stalwart's own OAuth server even when Keycloak serves the mail domain, so this

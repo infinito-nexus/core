@@ -29,6 +29,13 @@ def _apps() -> dict[str, Any]:
                 },
             },
         },
+        "web-svc-logout": {
+            "services": {
+                "logout": {
+                    "ports": {"local": {"http": 8048}, "internal": {"http": 8000}},
+                },
+            },
+        },
     }
 
 
@@ -51,7 +58,6 @@ class TestProxyPassLookup(unittest.TestCase):
             ["web-app-baserow"],
             variables={"DEPLOYMENT_MODE": "swarm"},
             tail="request",
-            location="/",
         )
         self.assertEqual(
             out[0],
@@ -64,9 +70,8 @@ class TestProxyPassLookup(unittest.TestCase):
             ["web-app-baserow", "application", "http"],
             variables={"DEPLOYMENT_MODE": "compose"},
             tail="request",
-            location="/",
         )
-        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8017/;")
+        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8017;")
 
     def test_oauth2_internal_port_override_swarm(self):
         out = _run(
@@ -99,7 +104,7 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={"DEPLOYMENT_MODE": "swarm"},
             )
-        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021;")
 
     def test_swarm_force_bridge_template_string_is_resolved(self):
         apps = {
@@ -122,7 +127,7 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={"DEPLOYMENT_MODE": "swarm"},
             )
-        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021;")
 
     def test_unresolved_force_bridge_template_hard_fails(self):
         apps = {
@@ -162,10 +167,12 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={
                     "DEPLOYMENT_MODE": "swarm",
+                    "IS_COMPOSE_MODE": False,
+                    "IS_SWARM_MODE": True,
                     "compose_mode_force": "compose",
                 },
             )
-        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://host.docker.internal:8021;")
 
     def test_force_bridge_compose_real_mode_stays_loopback(self):
         apps = {
@@ -185,10 +192,40 @@ class TestProxyPassLookup(unittest.TestCase):
                 ["web-app-matrix", "matrix", "http"],
                 variables={
                     "DEPLOYMENT_MODE": "compose",
+                    "IS_COMPOSE_MODE": True,
+                    "IS_SWARM_MODE": False,
                     "compose_mode_force": "compose",
                 },
             )
-        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8021/;")
+        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8021;")
+
+    def test_a_forced_scope_leaves_a_foreign_app_at_the_cluster_mode(self):
+        out = _run(
+            ["web-svc-logout", "logout", "http"],
+            variables={
+                "DEPLOYMENT_MODE": "swarm",
+                "compose_mode_force": "compose",
+                "application_id": "web-app-baserow",
+            },
+            tail="/logout",
+        )
+        self.assertEqual(
+            out[0],
+            'set $proxy_pass_upstream "logout:8000";\n'
+            "    proxy_pass http://$proxy_pass_upstream/logout;",
+        )
+
+    def test_a_forced_scope_still_forces_its_own_app(self):
+        out = _run(
+            ["web-app-baserow", "application", "http"],
+            variables={
+                "DEPLOYMENT_MODE": "swarm",
+                "compose_mode_force": "compose",
+                "application_id": "web-app-baserow",
+            },
+            tail="request",
+        )
+        self.assertEqual(out[0], "proxy_pass http://127.0.0.1:8017;")
 
     def test_resolution_error_becomes_ansible_error(self):
         lm = LookupModule()

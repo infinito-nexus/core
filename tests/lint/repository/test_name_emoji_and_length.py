@@ -1,5 +1,6 @@
 """Lint: every task / job / step / workflow name starts with an emoji (a
-non-alphanumeric character) and is at most 80 characters long.
+non-alphanumeric character, or a keycap emoji such as ``0️⃣``) and is at most
+80 characters long.
 
 Scope
 =====
@@ -28,6 +29,7 @@ matching `name:` keys that were no task at all.
 
 from __future__ import annotations
 
+import re
 import string
 import unittest
 from pathlib import Path
@@ -40,6 +42,7 @@ from . import PROJECT_ROOT
 
 _MAX_LEN = 80
 _ALNUM = frozenset(string.ascii_letters + string.digits)
+_KEYCAP = re.compile("^[0-9]\N{VARIATION SELECTOR-16}?\N{COMBINING ENCLOSING KEYCAP}")
 _TASK_LIST_KEYS = (
     "block",
     "rescue",
@@ -119,7 +122,7 @@ def _issues(name: str) -> list[str]:
     found: list[str] = []
     if len(name) > _MAX_LEN:
         found.append(f"{len(name)}>{_MAX_LEN} chars")
-    if not name or name[0] in _ALNUM:
+    if not name or (name[0] in _ALNUM and not _KEYCAP.match(name)):
         found.append("no emoji prefix")
     return found
 

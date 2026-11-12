@@ -15,7 +15,12 @@ const isOnion = Object.values(process.env).some(
 const test = base.test.extend({
   browser: async ({ playwright }, use) => {
     const proxy = process.env.PLAYWRIGHT_PROXY
-      ? { server: process.env.PLAYWRIGHT_PROXY }
+      ? {
+          server: process.env.PLAYWRIGHT_PROXY,
+          ...(process.env.PLAYWRIGHT_PROXY_BYPASS
+            ? { bypass: process.env.PLAYWRIGHT_PROXY_BYPASS }
+            : {}),
+        }
       : undefined;
     let browser;
     if (isOnion) {

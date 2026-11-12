@@ -18,8 +18,11 @@ from utils.cleanup.nginx_vhosts import (
     main,
     purge_vhost_files_for_entities,
 )
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.categories import categories_file
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_VARS_MAIN
+
+DOMAIN_PRIMARY = default_domain_primary()
 
 
 class NginxVhostsTestBase(unittest.TestCase):
@@ -82,15 +85,15 @@ class TestIterVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="web-app-matomo",
-            canonical=["matomo.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
         )
-        existing = self._touch_vhost("matomo.infinito.test", "https")
+        existing = self._touch_vhost(f"matomo.{DOMAIN_PRIMARY}", "https")
 
         got = list(
             iter_vhost_files_for_entity(
                 "matomo",
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -100,17 +103,17 @@ class TestIterVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="web-app-matomo",
-            canonical=["matomo.infinito.test"],
-            aliases=["stats.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
+            aliases=[f"stats.{DOMAIN_PRIMARY}"],
         )
-        f1 = self._touch_vhost("matomo.infinito.test", "https")
-        f2 = self._touch_vhost("stats.infinito.test", "https")
+        f1 = self._touch_vhost(f"matomo.{DOMAIN_PRIMARY}", "https")
+        f2 = self._touch_vhost(f"stats.{DOMAIN_PRIMARY}", "https")
 
         got = sorted(
             iter_vhost_files_for_entity(
                 "matomo",
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -120,15 +123,15 @@ class TestIterVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="web-app-matomo",
-            canonical=["matomo.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
         )
-        self._touch_vhost("matomo.infinito.test", "https")
+        self._touch_vhost(f"matomo.{DOMAIN_PRIMARY}", "https")
 
         got = list(
             iter_vhost_files_for_entity(
                 "no-such-entity",
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -138,16 +141,16 @@ class TestIterVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-svc-cdn",
             application_id="web-svc-cdn",
-            canonical=["cdn.infinito.test"],
+            canonical=[f"cdn.{DOMAIN_PRIMARY}"],
         )
-        bare = self._touch_vhost("cdn.infinito.test", "https")
-        redirect = self._touch_vhost("www.cdn.infinito.test", "https")
+        bare = self._touch_vhost(f"cdn.{DOMAIN_PRIMARY}", "https")
+        redirect = self._touch_vhost(f"www.cdn.{DOMAIN_PRIMARY}", "https")
 
         got = sorted(
             iter_vhost_files_for_entity(
                 "cdn",
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -157,16 +160,16 @@ class TestIterVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-opt-rdr-www",
             application_id="web-opt-rdr-www",
-            canonical=["www.w3redirect.infinito.test"],
+            canonical=[f"www.w3redirect.{DOMAIN_PRIMARY}"],
         )
-        existing = self._touch_vhost("www.w3redirect.infinito.test", "https")
-        self._touch_vhost("www.www.w3redirect.infinito.test", "https")
+        existing = self._touch_vhost(f"www.w3redirect.{DOMAIN_PRIMARY}", "https")
+        self._touch_vhost(f"www.www.w3redirect.{DOMAIN_PRIMARY}", "https")
 
         got = list(
             iter_vhost_files_for_entity(
                 "opt-rdr-www",
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -178,22 +181,22 @@ class TestPurgeVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="web-app-matomo",
-            canonical=["matomo.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
         )
         self._mk_role(
             "web-app-dashboard",
             application_id="web-app-dashboard",
-            canonical=["dashboard.infinito.test"],
+            canonical=[f"dashboard.{DOMAIN_PRIMARY}"],
         )
 
-        matomo_https = self._touch_vhost("matomo.infinito.test", "https")
-        dashboard_https = self._touch_vhost("dashboard.infinito.test", "https")
-        unrelated = self._touch_vhost("unrelated.infinito.test", "https")
+        matomo_https = self._touch_vhost(f"matomo.{DOMAIN_PRIMARY}", "https")
+        dashboard_https = self._touch_vhost(f"dashboard.{DOMAIN_PRIMARY}", "https")
+        unrelated = self._touch_vhost(f"unrelated.{DOMAIN_PRIMARY}", "https")
 
         removed = purge_vhost_files_for_entities(
             ["dashboard"],
             nginx_dir=self.nginx_dir,
-            domain_primary="infinito.test",
+            domain_primary=DOMAIN_PRIMARY,
             roles_dir=self.roles_dir,
         )
 
@@ -206,13 +209,13 @@ class TestPurgeVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="web-app-matomo",
-            canonical=["matomo.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
         )
 
         removed = purge_vhost_files_for_entities(
             ["matomo"],
             nginx_dir=self.nginx_dir,
-            domain_primary="infinito.test",
+            domain_primary=DOMAIN_PRIMARY,
             roles_dir=self.roles_dir,
         )
         self.assertEqual(removed, [])
@@ -221,17 +224,17 @@ class TestPurgeVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-svc-cdn",
             application_id="web-svc-cdn",
-            canonical=["cdn.infinito.test"],
+            canonical=[f"cdn.{DOMAIN_PRIMARY}"],
         )
-        bare = self._touch_vhost("cdn.infinito.test", "https")
-        redirect = self._touch_vhost("www.cdn.infinito.test", "https")
-        unrelated = self._touch_vhost("www.unrelated.infinito.test", "https")
+        bare = self._touch_vhost(f"cdn.{DOMAIN_PRIMARY}", "https")
+        redirect = self._touch_vhost(f"www.cdn.{DOMAIN_PRIMARY}", "https")
+        unrelated = self._touch_vhost(f"www.unrelated.{DOMAIN_PRIMARY}", "https")
 
         removed = sorted(
             purge_vhost_files_for_entities(
                 ["cdn"],
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -245,22 +248,22 @@ class TestPurgeVhostFiles(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="web-app-matomo",
-            canonical=["matomo.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
         )
         self._mk_role(
             "web-app-dashboard",
             application_id="web-app-dashboard",
-            canonical=["dashboard.infinito.test"],
+            canonical=[f"dashboard.{DOMAIN_PRIMARY}"],
         )
 
-        matomo_https = self._touch_vhost("matomo.infinito.test", "https")
-        dashboard_https = self._touch_vhost("dashboard.infinito.test", "https")
+        matomo_https = self._touch_vhost(f"matomo.{DOMAIN_PRIMARY}", "https")
+        dashboard_https = self._touch_vhost(f"dashboard.{DOMAIN_PRIMARY}", "https")
 
         removed = sorted(
             purge_vhost_files_for_entities(
                 ["matomo", "dashboard"],
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -300,16 +303,16 @@ class TestOnionVhostVariant(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="matomo",
-            canonical=["matomo.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
         )
-        clearnet = self._touch_vhost("matomo.infinito.test", "https")
+        clearnet = self._touch_vhost(f"matomo.{DOMAIN_PRIMARY}", "https")
         onion = self._touch_vhost(f"matomo.{self.ONION}", "http")
         self._write_node_onion(self.ONION)
         found = set(
             iter_vhost_files_for_entity(
                 "matomo",
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -320,14 +323,14 @@ class TestOnionVhostVariant(NginxVhostsTestBase, unittest.TestCase):
         self._mk_role(
             "web-app-matomo",
             application_id="matomo",
-            canonical=["matomo.infinito.test"],
+            canonical=[f"matomo.{DOMAIN_PRIMARY}"],
         )
         onion = self._touch_vhost(f"matomo.{self.ONION}", "http")
         found = set(
             iter_vhost_files_for_entity(
                 "matomo",
                 nginx_dir=self.nginx_dir,
-                domain_primary="infinito.test",
+                domain_primary=DOMAIN_PRIMARY,
                 roles_dir=self.roles_dir,
             )
         )
@@ -365,7 +368,7 @@ class TestResolveDomainPrimary(unittest.TestCase):
             if k not in ("DOMAIN", "INFINITO_DOMAIN")
         }
         with patch.dict(os.environ, env, clear=True):
-            self.assertEqual(mod._resolve_domain_primary(None), "infinito.test")
+            self.assertEqual(mod._resolve_domain_primary(None), DOMAIN_PRIMARY)
 
 
 if __name__ == "__main__":  # pragma: no cover

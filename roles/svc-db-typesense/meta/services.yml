@@ -16,6 +16,7 @@ typesense:
   min_storage: 428MB
   backup:
     database_routine: true
+    stop_required: true
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g
@@ -32,6 +33,11 @@ typesense:
       # nocheck: onion-flag  the search index is queried by the app containers holding its API key, and the apps themselves are served through the onion's port 80
       typesense: false
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "0.25.2"
+        until: 2026-12-03
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
@@ -43,3 +49,9 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

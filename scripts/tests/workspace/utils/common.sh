@@ -9,10 +9,8 @@ DASHBOARD_APP="web-app-dashboard"
 MATOMO_APP="web-app-matomo"
 MARIADB_APP="svc-db-mariadb"
 POSTGRES_APP="svc-db-postgres"
-DASHBOARD_URL="https://dashboard.infinito.test"
-MATOMO_URL="https://matomo.infinito.test"
 
-: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}" "${DASHBOARD_URL}" "${MATOMO_URL}"
+: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}"
 
 UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${UTILS_DIR}/../../../.." && pwd)"
@@ -57,19 +55,11 @@ load_repo_env() {
 load_repo_env
 ensure_git_safe_directory
 
-if [[ -z "${INFINITO_DOMAIN:-}" ]]; then
-	for _env_file in "${REPO_ROOT}/.env" "${REPO_ROOT}/default.env"; do
-		if [[ -f "${_env_file}" ]]; then
-			INFINITO_DOMAIN="$(sed -n 's/^INFINITO_DOMAIN=//p' "${_env_file}" | head -n1)"
-			[[ -n "${INFINITO_DOMAIN}" ]] && break
-		fi
-	done
-	unset _env_file
-fi
-DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?Missing INFINITO_DOMAIN in .env and default.env}"
-MATOMO_URL="https://matomo.${INFINITO_DOMAIN}"
-
-: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}" "${DASHBOARD_URL}" "${MATOMO_URL}"
+# Param: $1 subdomain under the stack domain, e.g. dashboard
+# Output: its https URL
+stack_url() {
+	printf 'https://%s.%s\n' "$1" "${INFINITO_DOMAIN:?load_repo_env did not provide INFINITO_DOMAIN}"
+}
 
 # Print the generated inventory and host_vars for debugging and verification.
 #

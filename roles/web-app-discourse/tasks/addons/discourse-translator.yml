@@ -1,0 +1,37 @@
+---
+- name: "🌍 Point the Discourse translator at the translation gateway"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('template', 'translator/register.rb.j2') }}"
+  changed_when: false
+
+- name: "🔎 Read the translator settings back out of the running instance"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('template', 'translator/verify.rb.j2') }}"
+  register: discourse_translator_readback
+  changed_when: false
+
+- name: "🛑 Refuse a translator that does not translate through the gateway"
+  ansible.builtin.assert:
+    that:
+      - "'translator_enabled=true' in discourse_translator_readback.stdout_lines"
+      - "('translator_provider=' ~ DISCOURSE_TRANSLATE_PROVIDER) in discourse_translator_readback.stdout_lines"
+      - "('translator_endpoint=' ~ DISCOURSE_TRANSLATE_ENDPOINT) in discourse_translator_readback.stdout_lines"
+      - "'translator_host_allowed=true' in discourse_translator_readback.stdout_lines"
+      - "('translator_support_uri=' ~ DISCOURSE_TRANSLATE_ENDPOINT ~ '/languages') in discourse_translator_readback.stdout_lines"
+    fail_msg: >-
+      The Discourse translator does not resolve to {{ DISCOURSE_TRANSLATE_ENDPOINT }}
+      with '{{ DISCOURSE_TRANSLATE_HOST }}' allowlisted in allowed_internal_hosts, so
+      a translate request would either leave the deployment or hit a dead surface.
+      Read back: {{ discourse_translator_readback.stdout_lines }}

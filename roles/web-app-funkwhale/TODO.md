@@ -1,0 +1,4 @@
+# To-dos
+
+- `templates/compose.yml.j2:62` passes `FUNKWHALE_TYPESENSE_API_KEY` as `--api-key` in the `command` of the `typesense` service (compose profile `typesense`, always in swarm), so the key shows in the container argv and in `docker inspect`; options: hand it over as `TYPESENSE_API_KEY` through an env file, or drop the role-local sidecar since `templates/env.j2` wires no `TYPESENSE_*` variable and the api logs "Typesense is not activated".
+- The 2.0.11 front fetches its icons at runtime from `https://api.iconify.design` (measured on `/library/playlists`: `ooui/arrow-previous-ltr.svg`, `ooui/arrow-next-ltr.svg`), so every visitor contacts a third-party host and the icons break offline or behind a strict `connect-src`; options: serve the iconify collections locally (front build option or a proxied `/iconify` location) or report it upstream.

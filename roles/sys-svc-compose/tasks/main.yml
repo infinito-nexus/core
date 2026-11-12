@@ -2,17 +2,14 @@
 - include_tasks: 00_core.yml
   when: run_once_sys_svc_compose is not defined
 
-- name: "🧭 Route docker cleanup/health deps through service-loader"
+- name: "🧭 Route the compose hard repair through service-loader"
   ansible.builtin.include_role:
     name: sys-service-loader
     tasks_from: list_or_shoot.yml
   vars:
     list_or_shoot_roles:
-      - sys-ctl-cln-docker
-      - sys-ctl-hlth-container
-      - sys-ctl-hlth-runtime
-      - sys-ctl-hlth-volumes
       - sys-ctl-rpr-container-hard
+  when: SERVICE_LOADER_ROUTE_PENDING | bool
 
 - name: "🧭 Route svc-bkp-volume-2-local through service-loader (when deployed)"
   ansible.builtin.include_role:
@@ -21,7 +18,9 @@
   vars:
     list_or_shoot_roles:
       - svc-bkp-volume-2-local
-  when: "'svc-bkp-volume-2-local' in group_names"
+  when:
+    - "'svc-bkp-volume-2-local' in group_names"
+    - SERVICE_LOADER_ROUTE_PENDING | bool
 
 - name: "🖥️ Stack-host-only prep (dirs, repo, files, CA trust) for '{{ application_id }}'"
   include_tasks: "02_stack_host_prep.yml"
@@ -29,6 +28,7 @@
 
 - name: "📁 Pre-create NFS subdirs for '{{ application_id }}' (swarm + NFS only)"
   include_tasks: "utils/nfs_prep.yml"
+  when: IS_SWARM_MODE
 
 - name: "✅ Ensure instance dir for '{{ application_id }}' is up"
   include_tasks: "utils/up.yml"

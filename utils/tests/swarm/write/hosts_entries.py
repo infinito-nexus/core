@@ -7,8 +7,8 @@ Inputs (env): ``APP_ID``, ``INFINITO_DOMAIN`` (the SPOT for the
 deployment domain; defined in ``default.env`` and exported by
 ``scripts/meta/env/load.sh``; the development inventory reads the
 same env var for the play's ``DOMAIN_PRIMARY``),
-``HOSTS_ENTRY_IP`` (optional; address the domains map to,
-default ``127.0.0.1``).
+``HOSTS_ENTRY_IP`` (address the domains map to; the swarm play
+sets it from ``INFINITO_SWARM_MGR_IP``).
 """
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ def _derived_domains(app_id: str, domain_primary: str) -> list[str]:
 def main() -> int:
     app_id = os.environ["APP_ID"]
     domain_primary = os.environ["INFINITO_DOMAIN"]
-    ip = os.environ.get("HOSTS_ENTRY_IP", "127.0.0.1")
+    ip = os.environ["HOSTS_ENTRY_IP"]
     for domain in _derived_domains(app_id, domain_primary):
         print(f"{ip} {domain}")
     return 0

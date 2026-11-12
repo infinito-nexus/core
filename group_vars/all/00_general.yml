@@ -5,14 +5,20 @@ ansible_shell_executable: /bin/bash # Required so shell tasks with `set -euo pip
 SOFTWARE_NAME: "Infinito.Nexus" # Name of the software
 SOFTWARE_DOMAIN: "{{ SOFTWARE_NAME | lower }}" # Software domain
 SOFTWARE_URL: "https://{{ SOFTWARE_DOMAIN }}" # Url of the software provicer
+SOFTWARE_REPOSITORY: "https://github.com/infinito-nexus/core.git"
 
 ORGANIZATION: "{{ SOFTWARE_NAME }}"
+INVENTOR: "Kevin Veen-Birkenbach" # Author of the software
 
 ENVIRONMENT: "production" # Possible values: production, development
 RUNTIME: "host" # Where does this instance run in? Valid: act, github, dev, host
 STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefers free storage space over cache
 
 MASK_CREDENTIALS_IN_LOGS: true
+
+IAM_USERNAME_MAX_LENGTH: 20 # Discourse refuses a longer one with ActiveRecord::RecordInvalid, and it is the tightest consumer
+IAM_PLATFORM_ADMIN_USER_KEY: "platform_administrator" # the account every application administers itself with, as declared in roles/user-administrator/meta/users.yml
+IAM_HOST_ADMIN_USER_KEY: "administrator" # the host account; only roles/user-administrator may consume it
 
 HOST_CURRENCY: "EUR"
 HOST_TIMEZONE: "UTC"
@@ -26,6 +32,10 @@ HOST_LANG: "{{HOST_LL_CC}}.{{HOST_CS}}"
 
 HOST_DATE_FORMAT: "YYYY-MM-DD"
 HOST_TIME_FORMAT: "HH:mm"
+
+HOST_ARCHITECTURE_BY_KERNEL: # kernel machine names to the OCI tokens the deploy matrix rotates; index it with the fact of the node that runs the container
+  x86_64: amd64
+  aarch64: arm64
 
 WWW_REDIRECT_ENABLED: "{{ ('web-opt-rdr-www' in group_names) | bool }}"
 
@@ -73,8 +83,8 @@ CAPTCHA:
     KEY: ""
     SECRET: ""
 
-RECAPTCHA_ENABLED: "{{ (CAPTCHA.RECAPTCHA.KEY | length > 0) and (CAPTCHA.RECAPTCHA.SECRET | length > 0) }}"
+RECAPTCHA_ENABLED: "{{ (CAPTCHA.RECAPTCHA is defined) and (CAPTCHA.RECAPTCHA.KEY | length > 0) and (CAPTCHA.RECAPTCHA.SECRET | length > 0) }}"
 
-HCAPTCHA_ENABLED: "{{ (CAPTCHA.HCAPTCHA.KEY | length > 0) and (CAPTCHA.HCAPTCHA.SECRET | length > 0) }}"
+HCAPTCHA_ENABLED: "{{ (CAPTCHA.HCAPTCHA is defined) and (CAPTCHA.HCAPTCHA.KEY | length > 0) and (CAPTCHA.HCAPTCHA.SECRET | length > 0) }}"
 
 WORKSTATION_USER: "administrator"

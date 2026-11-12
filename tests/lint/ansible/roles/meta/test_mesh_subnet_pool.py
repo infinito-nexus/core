@@ -7,7 +7,13 @@ import jinja2
 
 from cli.administration.inventory.mesh.inventory import specs_of
 from utils.cache.yaml import load_yaml_any
-from utils.networks.mesh import APPLICATION_ID, INTERFACES_KEY, MESHES_KEY
+from utils.networks.mesh import (
+    APPLICATION_ID,
+    HUB_KEY,
+    INTERFACES_KEY,
+    MESHES_KEY,
+    ROAMING_KEY,
+)
 from utils.roles.deploy import role_has_stack
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS
 
@@ -82,12 +88,15 @@ class TestTheRolesShipNoMesh(unittest.TestCase):
                     "through it",
                 )
 
-    def test_the_declaring_role_carries_both_fields(self) -> None:
+    def test_the_declaring_role_ships_every_field_empty(self) -> None:
         networks = load_yaml_any(
             str(PROJECT_ROOT / "roles" / APPLICATION_ID / ROLE_FILE_META_NETWORKS),
             default_if_missing={},
         )
-        self.assertEqual({MESHES_KEY: [], INTERFACES_KEY: []}, networks)
+        self.assertEqual(
+            {MESHES_KEY: [], INTERFACES_KEY: [], HUB_KEY: "", ROAMING_KEY: False},
+            networks,
+        )
 
 
 class TestTheShippedLayouts(unittest.TestCase):

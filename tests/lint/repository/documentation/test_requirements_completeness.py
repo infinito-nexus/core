@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 REQUIREMENTS_DIR = PROJECT_ROOT / "docs" / "requirements"
-ARCHIVE_CLI = "make requirements-archive"
+ARCHIVE_CLI = "pkgmgr archive docs/requirements"
 TEMPLATE_FILENAME = "000-template.md"
 
 REQUIREMENT_FILENAME_RE = re.compile(r"^\d{3}-[^/]+\.md$")

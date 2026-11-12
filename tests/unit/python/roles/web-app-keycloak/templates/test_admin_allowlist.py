@@ -82,7 +82,6 @@ def stub_lookup(networks, deployment_mode: str = "compose"):
                 f"127.0.0.1:{kwargs['local_port']}",
                 deployment_mode,
                 tail=kwargs["tail"],
-                location=kwargs["location"],
             )
         raise AssertionError(f"unexpected lookup({kind!r}, ...)")
 
@@ -124,7 +123,7 @@ def render(networks, deployment_mode: str = "compose") -> str:
         if isinstance(value, bool)
         else str(value).strip().lower() in {"true", "1", "yes", "on"}
     )
-    env.filters["get_entity_name"] = lambda value: value.rsplit("-", 1)[-1]
+    env.filters["entity_name"] = lambda value: value.rsplit("-", 1)[-1]
     return env.get_template(TEMPLATE).render(
         application_id="web-app-keycloak",
         lookup=stub_lookup(networks, deployment_mode),
@@ -174,7 +173,7 @@ def location_block(rendered: str, path: str) -> tuple[str, list[str]]:
         path: the path the location's matcher names, modifier excluded.
     """
     for match in re.finditer(
-        r"^location\s+([^{\n]+?)\s*\{([^{}]*)\}", rendered, re.MULTILINE
+        r"^location\s+([^{\n]+?)\s*\{((?:[^{}]|\{[^{}]*\})*)\}", rendered, re.MULTILINE
     ):
         matcher = match.group(1).strip()
         if matcher.split()[-1] == path:
@@ -268,9 +267,16 @@ class TestRestrictedLocation(unittest.TestCase):
 
     def test_compose_passes_the_request_path_unchanged(self):
         _, directives = location_block(render(list(NETWORKS)), "/admin")
-        self.assertIn(
-            f"proxy_pass http://127.0.0.1:{LOCAL_HTTP_PORT}/admin;", directives
-        )
+        self.assertIn(f"proxy_pass http://127.0.0.1:{LOCAL_HTTP_PORT};", directives)
+
+    def test_dot_dot_semicolon_paths_never_reach_the_upstream(self):
+        for mode in ("compose", "swarm"):
+            with self.subTest(mode=mode):
+                _, directives = location_block(render(list(NETWORKS), mode), "/admin")
+                self.assertIn(
+                    'if ($request_uri ~* "(^|/)(\\.|%2e){2}(;|%3b)") {', directives
+                )
+                self.assertIn("return 400;", directives)
 
     def test_swarm_passes_the_raw_request_uri(self):
         _, directives = location_block(render(list(NETWORKS), "swarm"), "/admin")

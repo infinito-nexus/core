@@ -1,4 +1,6 @@
 ---
+application_id: user-workstation
+
 # Selected workstation user key (in users dict)
 USER_WORKSTATION_KEY: "{{ WORKSTATION_USER }}"
 USER_WORKSTATION_CONFIG: "{{ lookup('users', USER_WORKSTATION_KEY) }}"

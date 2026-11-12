@@ -1,0 +1,20 @@
+---
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    prometheus:
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
+- services:
+    docs:
+      enabled: true
+      shared: true
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false

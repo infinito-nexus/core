@@ -1,0 +1,9 @@
+---
+- name: "🎥 Jitsi plugin embeds the partner meeting server"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: tasks/utils/addon.yml installed and enabled
+      {{ mattermost_addon.value.config.plugin_id }}. Set the Jitsi server URL to
+      {{ mattermost_addon.value.config.partner_url }} in System Console > Plugins >
+      Jitsi to complete the coupling.
+  changed_when: false

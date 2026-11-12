@@ -13,6 +13,11 @@ on:
       workspace_track:
         type: string
         default: rotate
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: false
+      DOCKERHUB_TOKEN:
+        required: false
 
 permissions:
   contents: read
@@ -60,6 +65,8 @@ jobs:
 
     env:
       DEV_RUNTIME_IMAGE: ${{ matrix.image }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       INFINITO_WORKSPACE_TRACKS: base ${{ matrix.track }}
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
@@ -88,10 +95,19 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
-      - name: 🛡️ Tear down host AppArmor profiles (dev-host parity)
-        if: ${{ !env.ACT }}
+      - name: 🔑 Login to Docker Hub (optional)
+        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: "📥 Resolve the workspace distro"
         shell: bash
-        run: make security-apparmor-teardown
+        run: |
+          set -euo pipefail
+          distro="$(python3 -m cli.meta.ci.dev_runtime distro --image "${DEV_RUNTIME_IMAGE}")"
+          echo "INFINITO_DISTRO=${distro}" >> "$GITHUB_ENV"
 
       - name: "📥 Load the rescue paths into job env"
         shell: bash
@@ -105,18 +121,17 @@ jobs:
           } >> "$GITHUB_ENV"
           rm -f .env
 
-      - name: "📥 Resolve the workspace distro"
-        shell: bash
-        run: |
-          set -euo pipefail
-          distro="$(python3 -m cli.meta.ci.dev_runtime distro --image "${DEV_RUNTIME_IMAGE}")"
-          echo "INFINITO_DISTRO=${distro}" >> "$GITHUB_ENV"
-
       - name: ▶️ Run workspace routine
         shell: bash
         run: |
           set -euo pipefail
           HOST_WORKDIR="$(pwd -P)"
+          if [[ "${ACT:-}" == "true" ]]; then
+            db_host_path="${INFINITO_VULNERABILITY_DB_HOST_PATH:?scripts/tests/deploy/act/workflow.sh passes the shared host directory}"
+          else
+            db_host_path="${RUNNER_TEMP:?GitHub sets RUNNER_TEMP for every job}/vulnerability-db"
+          fi
+          mkdir -p "${db_host_path}"
 
           docker run --rm \
             -e GITHUB_ACTIONS=true \
@@ -139,8 +154,10 @@ jobs:
             -e INFINITO_CACHE_PACKAGE_HOST_PATH \
             -e INFINITO_GHCR_MIRROR \
             -e INFINITO_GHCR_MIRROR_PREFIX \
+            -e INFINITO_VULNERABILITY_DB_HOST_PATH="${db_host_path}" \
             --network host \
             -v "${HOST_WORKDIR}:${HOST_WORKDIR}" \
+            -v "${db_host_path}:${db_host_path}" \
             -v "/mnt/docker:/var/lib/docker" \
             -v "/var/run/docker.sock:/var/run/docker.sock" \
             -w "${HOST_WORKDIR}" \
@@ -159,7 +176,7 @@ jobs:
           INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
             python3 utils/diagnostics/container.py \
             "${INFINITO_WORKSPACE_SLUG}" "workspace suite failure" || true
-          bash ./scripts/tests/deploy/utils/rescue_index.sh "${rescue_dir}"
+          bash ./scripts/tests/deploy/utils/rescue/index.sh "${rescue_dir}"
 
       - name: ⬆️ Upload rescue diagnostics
         if: always()

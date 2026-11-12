@@ -1,27 +1,79 @@
 from __future__ import annotations
 
+import subprocess
 import unittest
 from unittest.mock import patch
 
 import cli.contributing.mirror.sync.__main__ as sync_main
-from cli.contributing.mirror.model import ImageRef
+from utils.docker.image.discovery import ImageRef
 
 
-class TestMirrorSync(unittest.TestCase):
-    def test_only_missing_skips_existing_destination(self) -> None:
-        image = ImageRef(
-            role="web-app-nextcloud",
-            service="app",
-            name="nextcloud",
-            version="31.0.0",
-            source="docker.io/library/nextcloud:31.0.0",
-            registry="docker.io",
-        )
+class TestThrottle(unittest.TestCase):
+    def test_only_docker_hub_copies_wait_for_the_throttle(self) -> None:
+        def image(name: str, registry: str) -> ImageRef:
+            return ImageRef(
+                role="r",
+                service=name,
+                name=name,
+                version="1",
+                source=f"{registry}/{name}:1",
+                registry=registry,
+            )
 
+        images = [
+            image("a", "docker.io"),
+            image("b", "ghcr.io"),
+            image("c", "quay.io"),
+            image("d", "docker.io"),
+        ]
         with (
             patch(
                 "cli.contributing.mirror.sync.__main__.iter_role_images",
-                return_value=[image],
+                return_value=images,
+            ),
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_runner_images",
+                return_value=[],
+            ),
+            patch.object(sync_main.GHCRProvider, "image_base", return_value="g/x"),
+            patch.object(sync_main.GHCRProvider, "mirror") as mock_mirror,
+            patch.object(sync_main.time, "monotonic", return_value=0.0),
+            patch.object(sync_main.time, "sleep") as mock_sleep,
+            patch(
+                "sys.argv",
+                [
+                    "mirror-sync",
+                    "--ghcr-namespace",
+                    "acme",
+                    "--ghcr-repository",
+                    "myrepo",
+                    "--images-per-hour",
+                    "150",
+                ],
+            ),
+        ):
+            result = sync_main.main()
+
+        self.assertEqual(result, 0)
+        self.assertEqual(mock_mirror.call_count, 4)
+        self.assertEqual([call.args for call in mock_sleep.call_args_list], [(24.0,)])
+
+
+class TestMirrorSync(unittest.TestCase):
+    IMAGE = ImageRef(
+        role="web-app-nextcloud",
+        service="app",
+        name="nextcloud",
+        version="31.0.0",
+        source="docker.io/library/nextcloud:31.0.0",
+        registry="docker.io",
+    )
+
+    def _run_only_missing(self, *, stale: bool, mirror_error=None):
+        with (
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_role_images",
+                return_value=[self.IMAGE],
             ),
             patch(
                 "cli.contributing.mirror.sync.__main__.iter_runner_images",
@@ -35,7 +87,12 @@ class TestMirrorSync(unittest.TestCase):
             patch.object(
                 sync_main.GHCRProvider, "tag_exists", return_value=True
             ) as mock_tag_exists,
-            patch.object(sync_main.GHCRProvider, "mirror") as mock_mirror,
+            patch.object(
+                sync_main.GHCRProvider, "is_stale", return_value=stale
+            ) as mock_is_stale,
+            patch.object(
+                sync_main.GHCRProvider, "mirror", side_effect=mirror_error
+            ) as mock_mirror,
             patch(
                 "sys.argv",
                 [
@@ -49,10 +106,29 @@ class TestMirrorSync(unittest.TestCase):
             ),
         ):
             result = sync_main.main()
+        mock_tag_exists.assert_called_once_with(self.IMAGE)
+        mock_is_stale.assert_called_once_with(self.IMAGE)
+        return result, mock_mirror
+
+    def test_only_missing_skips_current_destination(self) -> None:
+        result, mock_mirror = self._run_only_missing(stale=False)
 
         self.assertEqual(result, 0)
-        mock_tag_exists.assert_called_once_with(image)
         mock_mirror.assert_not_called()
+
+    def test_only_missing_refreshes_a_stale_destination(self) -> None:
+        result, mock_mirror = self._run_only_missing(stale=True)
+
+        self.assertEqual(result, 0)
+        mock_mirror.assert_called_once_with(self.IMAGE)
+
+    def test_failed_refresh_keeps_the_existing_copy_without_failing(self) -> None:
+        error = subprocess.CalledProcessError(1, ["skopeo", "copy"])
+
+        result, mock_mirror = self._run_only_missing(stale=True, mirror_error=error)
+
+        self.assertEqual(result, 0)
+        mock_mirror.assert_called_once_with(self.IMAGE)
 
     def test_runner_images_are_mirrored_with_the_role_images(self) -> None:
         image = ImageRef(

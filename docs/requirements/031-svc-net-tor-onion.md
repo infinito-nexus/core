@@ -93,7 +93,7 @@ tor:
   version: "<pinned tor x.y.z>"
   name: tor
   backup:
-    no_stop_required: false     # stop for consistent key-volume copy
+    stop_required: true         # stop for consistent key-volume copy
   lifecycle: alpha
   # no public ports; SocksPort/ControlPort bind 127.0.0.1 only
 ```
@@ -153,7 +153,7 @@ applications:
 ### Mint helper & key persistence
 
 - [ ] Helper mints offline, vaults `hostname` + `hs_ed25519_{public,secret}_key`, emits `DOMAIN_PRIMARY`; re-running reuses the key (address unchanged).
-- [ ] Unit tests: known-vector address determinism, idempotent reuse, byte-exact file formats.
+- [x] Unit tests: known-vector address determinism, idempotent reuse, byte-exact file formats.
 - [ ] `01_restore_key.yml` restores keys with strict perms before Tor starts; never overwrites existing keys; Tor serves exactly the minted address.
 - [ ] Address survives redeploy, update, full-cycle reinstall; restoring the vault on a fresh box reproduces the same address; key volume covered by `svc-bkp-container-2-local`.
 
@@ -171,7 +171,7 @@ applications:
 ### Per-domain TLS
 
 - [ ] Extra domain under `applications.<app>.server.domains` + `tls.mode` deploys as a separate HTTPS vhost (correct flavor) alongside the onion vhost, same upstream.
-- [ ] `tls.py` unit tests: onion→forced off; foreign→app-level flavor; unset→`TLS_MODE`.
+- [x] `tls.py` unit tests: onion→forced off; foreign→app-level flavor; unset→`TLS_MODE`.
 
 ### Egress
 

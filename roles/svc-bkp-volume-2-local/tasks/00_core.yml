@@ -3,28 +3,22 @@
 
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ item }}"
+    name: "{{ svc_bkp_volume_2_local_dependency }}"
   loop:
     - sys-svc-container
     - sys-lock
     - user-backup
     - sys-ctl-alm-compose
     - sys-ctl-cln-bkps
+  loop_control:
+    loop_var: svc_bkp_volume_2_local_dependency
 
 - include_tasks: 01_install.yml
-  when: backup_docker_to_local_folder is not defined
+  when: run_once_svc_bkp_volume_2_local_install is not defined
 
 - name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 02_reset.yml
   when: MODE_RESET | bool
-
-- name: ✅ Ensure secrets directory exists (root only)
-  ansible.builtin.file:
-    path: "{{ DIR_SECRETS }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0700"
 
 - name: ✅ Ensure databases.csv exists (root only)
   ansible.builtin.file:
@@ -33,14 +27,13 @@
     owner: root
     group: root
     mode: "0600"
+    modification_time: preserve
+    access_time: preserve
 
 - name: ✅ Ensure compositions dir exists (baudolo scans it; absent on fresh host)
   ansible.builtin.file:
     path: "{{ DIR_COMPOSITIONS }}"
     state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - name: ✅ Assert the configured snapshot_mode names a snapshot mode
   ansible.builtin.assert:
@@ -55,7 +48,7 @@
 
 - name: 📦 Install the btrfs tools the snapshot launcher shells out to
   become: true
-  package_install:
+  package_install: # nocheck: package-install only on hosts with a btrfs mount
     id: btrfs-tools
   when: ansible_facts.mounts | selectattr('fstype', 'equalto', 'btrfs') | list | length > 0
 

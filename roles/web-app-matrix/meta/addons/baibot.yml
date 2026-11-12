@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.plugins.chatgpt') | bool }}"
+required: false
+mechanism: addon
+source: upstream
+bridges:
+  - litellm
+config:
+  user_localpart: baibot
+  agent_id: litellm
+  user_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.baibot_user_password', '') }}"

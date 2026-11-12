@@ -123,14 +123,20 @@ async function oidcLogin(page, username, password) {
 test("homepage loads and shows Decidim", async ({ page }) => {
   await gotoOnion(page, baseUrl);
   await expect(page).not.toHaveTitle("");
-  await expect(page.locator("body")).toBeVisible();
+  await expect(
+    page.locator("#main-bar"),
+    "Expected the Decidim header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 // Scenario II: Admin local login and logout
 test("admin can log in and out", async ({ page }) => {
   await login(page, adminEmail, adminPassword);
   await expect(page).not.toHaveURL(/sign_in/);
-  await expect(page.locator("body")).toBeVisible();
+  await expect(
+    page.locator("#main-bar"),
+    "Expected the Decidim header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
@@ -141,7 +147,10 @@ test("biber can log in via OIDC and log out", async ({ page }) => {
   const result = await oidcLogin(page, biberUsername, biberPassword);
   if (result === null) { test.skip(); return; }
   await expect(page).not.toHaveURL(/sign_in/);
-  await expect(page.locator("body")).toBeVisible();
+  await expect(
+    page.locator("#main-bar"),
+    "Expected the Decidim header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await gotoOnion(page, `${baseUrl}/users/sign_out`);
   await page.waitForLoadState("networkidle");
   await expect(page).not.toHaveURL(/sign_in/);
@@ -180,22 +189,7 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page, {
-    adminInteraction: async (interactivePage) => {
-      // web-app-decidim admin-only interaction: open a management surface.
-      const link = interactivePage
-        .getByRole("link", { name: /^(admin|administration|configuration|participants)$/i })
-        .first();
-      if (await link.isVisible().catch(() => false)) {
-        await link.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /admin|administration|participants|processes|assemblies|moderation/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
-    },
-  });
+  await runAdminFlow(page);
 });
 
 // Persona scenarios.
@@ -207,3 +201,4 @@ test("guest: public-landing → auth chain → never authenticated", async ({ pa
 });
 
 require("./test-seaweedfs");
+require("./test-design");

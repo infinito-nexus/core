@@ -3,6 +3,7 @@
 data:
   name: coturn_data
   type: volume
+  backup: false
   mounts:
     - service: coturn
       target: /var/lib/coturn

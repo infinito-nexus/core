@@ -1,0 +1,13 @@
+---
+- name: "🔍 POSTGRES | Detect the cluster after the start"
+  ansible.builtin.include_tasks:
+    file: detect.yml
+    apply:
+      run_once: true
+
+- name: "🧹 POSTGRES | Finish the upgrade on the running pinned major"
+  ansible.builtin.include_tasks:
+    file: complete.yml
+    apply:
+      run_once: true
+  when: postgres_cluster.leftovers | length > 0

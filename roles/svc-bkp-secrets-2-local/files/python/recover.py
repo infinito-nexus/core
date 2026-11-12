@@ -7,7 +7,7 @@
 Runs the role's deployed backup unit first (a fresh differential
 ``backup-secrets-to-local`` generation of the live material), then
 mirrors each present subtree of the snapshot back to its fixed system
-path (``rsync -a --delete``): secrets, the self-signed CA, the Let's
+path (``rsync -aHAX --delete``): secrets, the self-signed CA, the Let's
 Encrypt tree and the ACME DNS credentials. The ``node`` subtree (ssh
 host keys + machine-id) is restored only with ``--restore-node-identity``
 because overwriting the running machine-id / ssh host keys changes the

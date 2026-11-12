@@ -26,11 +26,18 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 216
+      height: 60
+      frame: true
+    symbol:
+      width: 60
+      height: 60
 # nocheck: dynamic-flag — gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag — runtime DOM patch, no probe-able surface flag
 javascript:
@@ -39,6 +46,8 @@ javascript:
   shared: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag — self-provider
 prometheus:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: wget
     path: -/healthy
@@ -67,6 +76,7 @@ prometheus:
   ports:
     local:
       sso: 16492
+      sso_onion: 16544
       http: 8066
     internal:
       http: 9090
@@ -75,11 +85,13 @@ prometheus:
   lifecycle: beta
   min_storage: 307MB
 alertmanager:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: wget
     path: -/healthy
   image: prom/alertmanager # nocheck: volumes-path-single-spot: the repository path of an image name, not a mount target
-  version: v0.34.2
+  version: v0.35.0
   name: prometheus-alertmanager
   cpus: "0.25"
   mem_reservation: 64m
@@ -105,11 +117,11 @@ blackbox-exporter:
     internal:
       http: 9115
 cadvisor:
-  image: gcr.io/cadvisor/cadvisor
-  version: v0.55.1
+  image: ghcr.io/google/cadvisor
+  version: v0.60.6
   update:
     type: registry_tags
-    image: gcr.io/cadvisor/cadvisor
+    image: ghcr.io/google/cadvisor
   name: prometheus-cadvisor
   cpus: "0.25"
   mem_reservation: 128m
@@ -134,6 +146,11 @@ node-exporter:
   ports:
     internal:
       http: 9100
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v1.12.1"
+        until: 2026-12-03
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -165,6 +182,11 @@ prometheusmcp:
   ports:
     internal:
       http: 8080
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.13.15-slim"
+        until: 2026-12-03
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -185,3 +207,8 @@ flowise:
   bond: 0.5
   enabled: "{{ 'web-app-flowise' in group_names }}"
   shared: "{{ 'web-app-flowise' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

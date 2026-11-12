@@ -69,6 +69,13 @@
     mode: "0644"
   register: stalwart_webmail_conf
 
+- name: 🎨 Render Roundcube corporate design configuration
+  stack_host_template:
+    src: webmail-design.inc.php.j2
+    dest: "{{ STALWART_WEBMAIL_DESIGN_CONFIG }}"
+    mode: "0644"
+  register: stalwart_webmail_design_conf
+
 - name: 📄 Render clamav-milter configuration
   stack_host_template:
     src: clamav-milter.conf.j2
@@ -83,7 +90,8 @@
   vars:
     compose_handlers_flush: true
     webserver_vhost_flavour: "basic"
-    webserver_extra_configuration: "client_max_body_size 31M;"
+    webserver_extra_configuration: "location ^~ /webmail { return 301 {{ STALWART_WEBMAIL_BASE_URL }}/; }"
+    proxy_forwarded_client_address: true
     domain: "{{ STALWART_WEB_DOMAIN }}"
 
 - name: "🚿 Flush Docker Compose handlers"
@@ -95,8 +103,8 @@
   vars:
     domain: "{{ STALWART_WEBMAIL_DOMAIN }}"
     http_port: "{{ STALWART_WEBMAIL_HTTP_PORT }}"
-    webserver_proxy_service_key: "{{ 'webmail' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
-    proxy_internal_port: "{{ lookup('config', application_id, 'services.webmail.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
+    webserver_proxy_service_key: "{{ 'webmail' if IS_SWARM_MODE else (application_id | entity_name) }}"
+    proxy_internal_port: "{{ lookup('config', application_id, 'services.webmail.ports.internal.http') if IS_SWARM_MODE else '' }}"
     webserver_vhost_flavour: "basic"
 
 - name: "👔 Stalwart manager-side operations (container exec + provisioning)"

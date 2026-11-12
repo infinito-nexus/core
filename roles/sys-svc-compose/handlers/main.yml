@@ -3,7 +3,10 @@
   become: true
   ansible.builtin.script:
     cmd: shell/prune.sh
-  changed_when: true
+  environment:
+    PRUNE_FREE_FLOOR_MIB: "{{ compose_prune_free_floor_mib }}"
+  register: compose_prune_result
+  changed_when: "'prune skipped' not in compose_prune_result.stdout"
   when: STORAGE_CONSTRAINED | bool
   listen:
     - compose-up

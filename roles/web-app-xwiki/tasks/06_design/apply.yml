@@ -1,0 +1,93 @@
+---
+- name: "🛑 XWIKI | Refuse a theme page this role did not create"
+  ansible.builtin.assert:
+    that:
+      - _xwiki_design_page.status == 404 or _xwiki_design_previous.status == 200
+    fail_msg: >-
+      The page {{ XWIKI_DESIGN_THEME_REFERENCE }} exists without the XWiki.XWikiPreferences object
+      this role stores on it. Rename or delete that page, then deploy again.
+
+- name: "✅ XWIKI | Assert the theme values are six-digit hex colors"
+  ansible.builtin.assert:
+    that:
+      - XWIKI_DESIGN_THEME_COLORS.values() | reject('match', '^#[0-9a-fA-F]{6}$') | list | length == 0
+      - XWIKI_DESIGN_LESS_COLORS.values() | reject('match', '^#[0-9a-fA-F]{6}$') | list | length == 0
+    fail_msg: "A value less4j cannot type breaks the whole skin stylesheet."
+
+- name: "📁 XWIKI | Ensure the design directory exists"
+  ansible.builtin.file:
+    path: "{{ XWIKI_DESIGN_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🖼️ XWIKI | Render the corporate logo set"
+  ansible.builtin.include_role:
+    name: sys-front-inj-design
+    tasks_from: assets.yml
+  vars:
+    design_assets_dest: "{{ XWIKI_DESIGN_DIR }}"
+
+- name: "📄 XWIKI | Create the corporate theme page"
+  uri_retry:
+    url: "{{ XWIKI_REST_THEME_PAGE }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [201]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/design/theme/page.xml.j2') }}"
+  when: _xwiki_design_page.status == 404
+  changed_when: true
+
+- name: "💾 XWIKI | Remember the preferences the wiki had"
+  uri_retry:
+    url: "{{ [XWIKI_REST_THEME_PAGE, 'objects'] | url_join }}"
+    method: POST
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [201]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/design/previous_preferences_object.xml.j2') }}"
+  when: _xwiki_design_previous.status == 404
+  changed_when: true
+
+- name: "📂 XWIKI | Write the theme object"
+  include_tasks: theme.yml
+
+- name: "📂 XWIKI | Attach the navbar lockup"
+  include_tasks: logo.yml
+  when: design_branding.logo is string
+
+- name: "📌 XWIKI | Make the corporate theme the wiki default"
+  uri_retry:
+    url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [202]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  vars:
+    xwiki_property_value: "{{ XWIKI_DESIGN_THEME_REFERENCE }}"
+  when: _xwiki_design_color_theme.json.value != XWIKI_DESIGN_THEME_REFERENCE
+  changed_when: true
+
+- name: "🏷️ XWIKI | Set the wiki title"
+  uri_retry:
+    url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [202]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  vars:
+    xwiki_property_value: "{{ XWIKI_DESIGN_TITLE }}"
+  when:
+    - design_branding.title is string
+    - _xwiki_design_title.json.value != XWIKI_DESIGN_TITLE
+  changed_when: true

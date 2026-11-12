@@ -4,7 +4,7 @@
 # Runs INSIDE the Shopware web container (piped via
 # `container exec -i ... sh < this-file`).
 #
-# Required env, supplied via `container exec -e KEY=VALUE`:
+# Required env, supplied by the calling task via `container exec -e KEY`:
 #   SHOPWARE_ROOT     absolute path to the Shopware install
 #   ADMIN_USER        username of the admin user
 #   ADMIN_PASSWORD    password to set/enforce

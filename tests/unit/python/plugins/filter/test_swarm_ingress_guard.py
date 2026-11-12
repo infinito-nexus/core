@@ -1,4 +1,5 @@
 import ipaddress
+import re
 import unittest
 
 from ansible.errors import AnsibleFilterError
@@ -7,9 +8,65 @@ from plugins.filter.swarm_ingress_guard import (
     FilterModule,
     swarm_ingress_guarded,
     swarm_ingress_published,
+    swarm_ingress_sections,
     swarm_node_addresses,
     swarm_public_ports,
 )
+from utils import PROJECT_ROOT
+from utils.cache.files import read_text
+
+READ_TASK = PROJECT_ROOT / "roles/svc-swarm-node/tasks/utils/ingress_guard/read.yml"
+
+
+class TestSwarmIngressSections(unittest.TestCase):
+    def test_the_read_task_prints_exactly_the_tags_the_filter_splits(self):
+        tags = set(re.findall(r"--format '(\w+) ", read_text(str(READ_TASK))))
+        self.assertEqual(tags, set(swarm_ingress_sections([])))
+
+    def test_splits_the_one_read_into_service_and_node_lines(self):
+        ports = '[{"Protocol":"tcp","TargetPort":5432,"PublishedPort":5432,"PublishMode":"ingress"}]'
+        lines = [
+            f"port {ports}",
+            "port null",
+            "",
+            "node 10.0.0.7",
+            "node fd00::2",
+        ]
+        self.assertEqual(
+            swarm_ingress_sections(lines),
+            {"port": [ports, "null"], "node": ["10.0.0.7", "fd00::2"]},
+        )
+
+    def test_feeds_the_published_and_address_filters_unchanged(self):
+        ports = '[{"Protocol":"udp","TargetPort":3478,"PublishedPort":3478,"PublishMode":"ingress"}]'
+        sections = swarm_ingress_sections([f"port {ports}", "node 10.0.0.3"])
+        self.assertEqual(
+            swarm_ingress_published(sections["port"]),
+            swarm_ingress_published([ports]),
+        )
+        self.assertEqual(
+            swarm_node_addresses(sections["node"]),
+            swarm_node_addresses(["10.0.0.3"]),
+        )
+
+    def test_a_node_without_an_address_yields_no_peer(self):
+        sections = swarm_ingress_sections(["node"])
+        self.assertEqual(sections, {"port": [], "node": [""]})
+        self.assertEqual(
+            swarm_node_addresses(sections["node"]), {"ipv4": [], "ipv6": []}
+        )
+
+    def test_no_output_means_empty_sections(self):
+        self.assertEqual(swarm_ingress_sections([]), {"port": [], "node": []})
+
+    def test_refuses_an_untagged_line(self):
+        with self.assertRaises(AnsibleFilterError):
+            swarm_ingress_sections(["Error: This node is not a swarm manager."])
+
+    def test_a_tagged_line_that_is_not_json_still_fails_downstream(self):
+        sections = swarm_ingress_sections(["port Error: no such service"])
+        with self.assertRaises(AnsibleFilterError):
+            swarm_ingress_published(sections["port"])
 
 
 class TestSwarmIngressPublished(unittest.TestCase):
@@ -113,10 +170,11 @@ class TestSwarmNodeAddresses(unittest.TestCase):
 
 
 class TestFilterModule(unittest.TestCase):
-    def test_registers_the_four_filters(self):
+    def test_registers_the_five_filters(self):
         self.assertEqual(
             set(FilterModule().filters()),
             {
+                "swarm_ingress_sections",
                 "swarm_ingress_published",
                 "swarm_public_ports",
                 "swarm_ingress_guarded",

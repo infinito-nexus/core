@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.42.0/24
+reachability:
+  handover: true # nocheck: network-reachability  Odoo builds its links and the OAuth redirect_uri from its one web.base.url, so an onion login returns on the clearnet host

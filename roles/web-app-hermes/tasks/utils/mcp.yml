@@ -10,6 +10,14 @@
         dest: "{{ HERMES_CONFIG_PATH_HOST }}"
         owner: "{{ HERMES_DOCKER_USER_ID }}"
         group: "{{ HERMES_DOCKER_USER_ID }}"
+      - src: "{{ lookup('path_absolute', 'roles/web-app-hermes/files/shell/config-seed.sh') }}"
+        dest: "{{ HERMES_CONFIG_SEED_HOOK_PATH_HOST }}"
+        mode: "0755"
+      - src: "dashboard-theme.yaml.j2"
+        dest: "{{ HERMES_DESIGN_THEME_PATH_HOST }}"
+        owner: "{{ HERMES_DOCKER_USER_ID }}"
+        group: "{{ HERMES_DOCKER_USER_ID }}"
+        condition: "{{ HERMES_DESIGN_THEME_ENABLED }}"
 
 - name: "🔄 Start the stack so the agent reads the config"
   ansible.builtin.meta: flush_handlers
