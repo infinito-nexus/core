@@ -67,18 +67,17 @@ WORDPRESS_TRANSLATE_ENDPOINT: "{{ WORDPRESS_OPTIONS.freedomtranslate_api_url }}"
 WORDPRESS_S3_UPLOADS_SRC: "/usr/src/s3-uploads"
 WORDPRESS_S3_UPLOADS_DIR: "{{ [WORDPRESS_PLUGINS_DIR, 's3-uploads'] | path_join }}"
 WORDPRESS_OPTIONS_OWNED_ELSEWHERE: >-
-  {{ ['home', 'siteurl', 'active_plugins', 'rewrite_rules', 'openid_connect_generic_settings', 'mwai_options', 'users_can_register']
+  {{ ['home', 'siteurl', 'active_plugins', 'rewrite_rules', 'openid_connect_generic_settings', 'mwai_options']
   + (lookup('config', application_id, 'addons.wp-discourse.config.discourse_settings') | map(attribute='name') | list)
   + (WORDPRESS_DESIGN_LOGOS.keys() | list) }}
-WORDPRESS_OPTIONS_MANAGED: >-
+WORDPRESS_OPTIONS: >-
   {{ lookup('form_values', application_id, 'general')
   | combine(lookup('form_values', application_id, 'permalink'))
   | combine(lookup('form_values', application_id, 'translate')) }}
-WORDPRESS_OPTIONS: >-
+WORDPRESS_NETWORK_OPTIONS: "{{ lookup('form_values', application_id, 'network') }}"
+WORDPRESS_OPTION_PINS_UNREAD: >-
   {{ lookup('config', application_id, 'services.' ~ entity_name ~ '.options')
-  | wordpress_options_unmanaged(WORDPRESS_OPTIONS_MANAGED)
-  | combine(WORDPRESS_OPTIONS_MANAGED)
-  | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}
+  | wordpress_options_unread(lookup('config', application_id, 'forms')) }}
 
 WORDPRESS_RBAC_SITE_ROLES: ["administrator", "editor", "author", "contributor", "subscriber"]
 WORDPRESS_RBAC_NETWORK_ADMIN_ROLE: "network-administrator"

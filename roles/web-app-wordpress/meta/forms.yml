@@ -15,6 +15,14 @@ general:
       selector: "#new_admin_email"
       type: email
       label: Administration Email Address
+    users_can_register:
+      source: services.wordpress.login.method.registration.enabled
+      when: "!services.wordpress.multisite.enabled"
+      mode: enforced
+      selector: "#users_can_register"
+      type: checkbox
+      map: {true: "1", false: "0"}
+      label: Membership
 permalink:
   path: /wp-admin/options-permalink.php
   fields:
@@ -42,6 +50,18 @@ translate:
       selector: "#freedomtranslate_api_url"
       type: url
       label: Translation API URL
+network:
+  path: /wp-admin/network/settings.php
+  fields:
+    registration:
+      source: services.wordpress.login.method.registration.enabled
+      when: services.wordpress.multisite.enabled
+      mode: enforced
+      selector: 'input[name="registration"]'
+      type: select
+      enum: [none, user, blog, all]
+      map: {true: user, false: none}
+      label: Allow new registrations
 profile:
   path: /wp-admin/
   fields:

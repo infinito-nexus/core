@@ -58,12 +58,22 @@ def _manager_tasks() -> list[dict]:
     return load_yaml_any(str(ROLE / "tasks/07_manager_ops.yml"), default_if_missing=[])
 
 
-def _task(fragment: str) -> dict:
-    return next(t for t in _manager_tasks() if fragment in t["name"])
+def _option_tasks() -> list[dict]:
+    return load_yaml_any(str(ROLE / "tasks/utils/options.yml"), default_if_missing=[])
 
 
-def _position(fragment: str) -> int:
-    return next(i for i, t in enumerate(_manager_tasks()) if fragment in t["name"])
+def _task(fragment: str, tasks: list[dict] | None = None) -> dict:
+    return next(t for t in tasks or _manager_tasks() if fragment in t["name"])
+
+
+def _option_task(fragment: str) -> dict:
+    return _task(fragment, _option_tasks())
+
+
+def _position(fragment: str, tasks: list[dict] | None = None) -> int:
+    return next(
+        i for i, t in enumerate(tasks or _manager_tasks()) if fragment in t["name"]
+    )
 
 
 def _render(expression: str, **variables):
@@ -95,10 +105,13 @@ ALL_ON = {
     "title": DESIGN_TITLE,
     "translate": True,
     "translate_options": _translate_options(),
+    "registration": False,
+    "multisite": False,
 }
+CHECKED = "{{ WORDPRESS_OPTIONS | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}"
 
 
-def _resolve(name: str, scenario: dict):
+def _resolve(name: str, scenario: dict, expression: str | None = None):
     """Resolve one variable of ``vars/main.yml`` through Ansible's templar.
 
     Args:
@@ -108,23 +121,34 @@ def _resolve(name: str, scenario: dict):
             ``services.design.enabled``, ``title`` is ``services.design.title``
             and the design lookup's ``title``, ``translate`` is
             ``addons.freedomtranslate-wp.enabled``, ``translate_options`` is
-            that addon's ``config.options`` and the optional ``forms``
-            replaces the role's ``meta/forms.yml``.
+            that addon's ``config.options``, ``registration`` is the
+            ``registration`` login method, ``multisite`` is
+            ``services.wordpress.multisite.enabled`` and the optional
+            ``forms`` replaces the role's ``meta/forms.yml``.
+        expression: a template to render instead of the variable ``name``.
 
     Returns:
         The resolved value, with the role's own filter plugins loaded.
     """
+    forms = scenario.get("forms") or _forms()
     config = {
         "services.wordpress.options": scenario["configured"],
         "users.platform_administrator.email": ADMIN_EMAIL,
         "services.design.enabled": scenario["design"],
         "addons.freedomtranslate-wp.enabled": scenario["translate"],
         "addons.wp-discourse.config.discourse_settings": [{"name": DISCOURSE_OPTION}],
+        "forms": forms,
     }
     application = {
         "services": {
             "design": {"enabled": scenario["design"], "title": scenario["title"]},
-            "wordpress": {"options": scenario["configured"]},
+            "wordpress": {
+                "options": scenario["configured"],
+                "login": {
+                    "method": {"registration": {"enabled": scenario["registration"]}}
+                },
+                "multisite": {"enabled": scenario["multisite"]},
+            },
         },
         "addons": {
             "freedomtranslate-wp": {
@@ -134,7 +158,6 @@ def _resolve(name: str, scenario: dict):
         },
     }
     users = {"platform_administrator": {"email": ADMIN_EMAIL}}
-    forms = scenario.get("forms") or _forms()
     stubs = {
         "config": lambda _app, path: config[path],
         "design": lambda _app: {"title": scenario["title"]},
@@ -153,8 +176,9 @@ def _resolve(name: str, scenario: dict):
     templar = Templar(
         loader=DataLoader(), variables={**declared, "entity_name": "wordpress"}
     )
+    template = _trust_as_template(expression) if expression else declared[name]
     with mock.patch.object(lookup_loader, "get", side_effect=get):
-        return templar.template(declared[name])
+        return templar.template(template)
 
 
 def _messages(error: BaseException) -> str:
@@ -196,20 +220,20 @@ class TestStrictLookup(unittest.TestCase):
         _reset_cache_for_tests()
 
     def _terms(self) -> list[str]:
-        match = OPTIONS_LOOKUP.search(_vars()["WORDPRESS_OPTIONS"])
+        match = OPTIONS_LOOKUP.search(_vars()["WORDPRESS_OPTION_PINS_UNREAD"])
         self.assertIsNotNone(
-            match, "WORDPRESS_OPTIONS must read services.<entity>.options"
+            match, "WORDPRESS_OPTION_PINS_UNREAD must read services.<entity>.options"
         )
         return [term.strip() for term in match.group(1).split(",")]
 
     def test_the_lookup_carries_no_default(self):
         self.assertEqual(len(self._terms()), 3, "lookup('config', app, path) only")
 
-    def test_the_vars_pass_the_map_through_the_validating_filter(self):
-        self.assertRegex(
-            _vars()["WORDPRESS_OPTIONS"],
-            r"\| wordpress_options_checked\(WORDPRESS_OPTIONS_OWNED_ELSEWHERE\)",
-        )
+    def test_the_site_write_receives_the_map_through_the_validating_filter(self):
+        task = _task("Converge the managed options of the WordPress site")
+        self.assertEqual(task["include_tasks"], "utils/options.yml")
+        self.assertEqual(task["vars"]["wordpress_options"], CHECKED)
+        self.assertEqual(task["vars"]["wordpress_options_command"], "option")
 
     def _path(self) -> str:
         return _render("{{ " + self._terms()[2] + " }}", entity_name="wordpress")
@@ -240,7 +264,7 @@ class TestStrictLookup(unittest.TestCase):
 
 class TestEffectiveMap(unittest.TestCase):
     def _options(self, scenario: dict) -> dict:
-        return _resolve("WORDPRESS_OPTIONS", scenario)
+        return _resolve("WORDPRESS_OPTIONS", scenario, CHECKED)
 
     def test_the_role_default_stays_in_the_map(self):
         self.assertEqual(self._options(ALL_ON)["permalink_structure"], PINNED_STRUCTURE)
@@ -281,36 +305,61 @@ class TestEffectiveMap(unittest.TestCase):
             self._options(ALL_ON | {"translate_options": extra}),
         )
 
-    def test_a_pin_that_contradicts_a_managed_option_is_refused(self):
+    def _unread(self, configured: dict, forms: dict | None = None) -> list[str]:
+        scenario = ALL_ON | {"configured": configured}
+        if forms:
+            scenario["forms"] = forms
+        return _resolve("WORDPRESS_OPTION_PINS_UNREAD", scenario)
+
+    def test_a_pin_of_an_option_another_source_manages_is_unread(self):
         for name, value in (
             ("admin_email", "ops@example.test"),
             ("blogname", "Own name"),
             ("freedomtranslate_api_url", "https://translate.example.test/translate"),
         ):
             configured = {"permalink_structure": PINNED_STRUCTURE, name: value}
-            with self.subTest(option=name), self.assertRaises(AnsibleError) as caught:
-                self._options(ALL_ON | {"configured": configured})
-            message = _messages(caught.exception)
-            self.assertIn(f"services.wordpress.options.{name}", message)
-            self.assertIn("meta/forms.yml", message)
+            with self.subTest(option=name):
+                self.assertEqual([name], self._unread(configured))
+                self.assertNotEqual(
+                    value, self._options(ALL_ON | {"configured": configured})[name]
+                )
 
-    def test_a_pin_equal_to_its_managed_option_passes(self):
-        configured = {"permalink_structure": PINNED_STRUCTURE, "blogname": DESIGN_TITLE}
-        self.assertEqual(
-            self._options(ALL_ON | {"configured": configured})["blogname"],
-            DESIGN_TITLE,
-        )
-
-    def test_an_option_no_form_manages_is_written_as_pinned(self):
+    def test_a_pin_no_field_reads_is_not_written(self):
         configured = {"permalink_structure": PINNED_STRUCTURE, "blogdescription": "Tag"}
-        self.assertEqual(
-            self._options(ALL_ON | {"configured": configured})["blogdescription"], "Tag"
+        self.assertEqual(["blogdescription"], self._unread(configured))
+        self.assertNotIn(
+            "blogdescription", self._options(ALL_ON | {"configured": configured})
         )
 
-    def test_the_filter_guards_the_merged_map(self):
+    def test_the_role_pins_are_all_read(self):
+        self.assertEqual([], self._unread({"permalink_structure": PINNED_STRUCTURE}))
+
+    def test_a_pin_with_an_inventory_field_is_written(self):
+        configured = {"permalink_structure": PINNED_STRUCTURE, "blogdescription": "Tag"}
+        forms = copy.deepcopy(_forms())
+        forms["general"]["fields"]["blogdescription"] = {
+            "source": "services.wordpress.options.blogdescription",
+            "mode": "enforced",
+            "selector": "#blogdescription",
+        }
+        self.assertEqual([], self._unread(configured, forms))
+        self.assertEqual(
+            "Tag",
+            self._options(ALL_ON | {"configured": configured, "forms": forms})[
+                "blogdescription"
+            ],
+        )
+
+    def test_the_filter_guards_a_field_the_role_writes_elsewhere(self):
         configured = {"permalink_structure": PINNED_STRUCTURE, "home": "https://x"}
+        forms = copy.deepcopy(_forms())
+        forms["general"]["fields"]["home"] = {
+            "source": "services.wordpress.options.home",
+            "mode": "enforced",
+            "selector": "#home",
+        }
         with self.assertRaises(AnsibleError) as caught:
-            self._options(ALL_ON | {"configured": configured})
+            self._options(ALL_ON | {"configured": configured, "forms": forms})
         self.assertIn("services.wordpress.options.home", _messages(caught.exception))
 
     def test_a_secret_named_managed_option_is_refused(self):
@@ -341,13 +390,39 @@ class TestEffectiveMap(unittest.TestCase):
                 )
 
     def test_the_managed_options_are_the_fields_of_meta_forms(self):
-        fields = {
-            field
-            for block in _forms().values()
-            for field, spec in block["fields"].items()
-            if not is_sso_source(spec["source"])
-        }
-        self.assertEqual(fields, set(_resolve("WORDPRESS_OPTIONS_MANAGED", ALL_ON)))
+        def fields(*forms: str) -> set[str]:
+            return {
+                field
+                for form in forms
+                for field, spec in _forms()[form]["fields"].items()
+                if not is_sso_source(spec["source"])
+            }
+
+        self.assertEqual(
+            fields("general", "permalink", "translate"),
+            set(_resolve("WORDPRESS_OPTIONS", ALL_ON)),
+        )
+        self.assertEqual(
+            fields("network"),
+            set(_resolve("WORDPRESS_NETWORK_OPTIONS", ALL_ON | {"multisite": True})),
+        )
+
+    def test_registration_maps_to_the_option_of_a_single_site(self):
+        for registration, stored in ((True, "1"), (False, "0")):
+            with self.subTest(registration=registration):
+                scenario = ALL_ON | {"registration": registration}
+                self.assertEqual(stored, self._options(scenario)["users_can_register"])
+                self.assertEqual({}, _resolve("WORDPRESS_NETWORK_OPTIONS", scenario))
+
+    def test_registration_maps_to_the_network_option_under_multisite(self):
+        for registration, stored in ((True, "user"), (False, "none")):
+            with self.subTest(registration=registration):
+                scenario = ALL_ON | {"registration": registration, "multisite": True}
+                self.assertEqual(
+                    {"registration": stored},
+                    _resolve("WORDPRESS_NETWORK_OPTIONS", scenario),
+                )
+                self.assertNotIn("users_can_register", self._options(scenario))
 
     def test_no_option_is_declared_by_two_forms(self):
         names = [field for block in _forms().values() for field in block["fields"]]
@@ -388,15 +463,22 @@ class TestOwnedElsewhere(unittest.TestCase):
 
     def test_options_the_map_now_carries_left_the_owned_list(self):
         owned = _resolve("WORDPRESS_OPTIONS_OWNED_ELSEWHERE", ALL_ON)
-        moved = ["admin_email", "blogname", *_translate_options()]
+        moved = ["admin_email", "blogname", "users_can_register", *_translate_options()]
         for name in moved:
             with self.subTest(option=name):
                 self.assertNotIn(name, owned)
 
     def test_no_managed_option_is_owned_elsewhere(self):
         owned = _resolve("WORDPRESS_OPTIONS_OWNED_ELSEWHERE", ALL_ON)
-        managed = _resolve("WORDPRESS_OPTIONS_MANAGED", ALL_ON)
-        self.assertFalse(set(owned) & set(managed))
+        managed = set(_resolve("WORDPRESS_OPTIONS", ALL_ON)) | set(
+            _resolve("WORDPRESS_NETWORK_OPTIONS", ALL_ON | {"multisite": True})
+        )
+        self.assertFalse(set(owned) & managed)
+
+    def test_no_task_writes_the_registration_options_by_name(self):
+        tasks = read_text(str(ROLE / "tasks/07_manager_ops.yml"))
+        self.assertNotIn("users_can_register", tasks)
+        self.assertNotIn("option update registration", tasks)
 
     def test_the_contributed_map_is_gone(self):
         self.assertNotIn("WORDPRESS_OPTIONS_CONTRIBUTED", _vars())
@@ -407,29 +489,106 @@ class TestOrder(unittest.TestCase):
     def test_options_are_read_after_the_plugins_are_installed(self):
         self.assertLess(
             _position("Iterate through WordPress plugins"),
-            _position("Read the WordPress options"),
+            _position("Converge the managed options of the WordPress site"),
+        )
+
+    def test_unread_pins_are_refused_before_any_write(self):
+        self.assertLess(
+            _position("Refuse a services.wordpress.options pin"),
+            _position("Converge the managed options of the WordPress site"),
+        )
+
+    def test_the_multisite_state_is_checked_before_any_write(self):
+        self.assertLess(
+            _position("Iterate through WordPress plugins"),
+            _position("Detect if WordPress is Multisite"),
+        )
+        self.assertLess(
+            _position("Detect if WordPress is Multisite"),
+            _position("Refuse a Multisite state"),
+        )
+        self.assertLess(
+            _position("Refuse a Multisite state"),
+            _position("Converge the managed options of the WordPress site"),
         )
 
     def test_the_translate_readback_follows_the_options_write(self):
         self.assertLess(
-            _position("Write each pinned WordPress option"),
+            _position("Converge the managed options of the WordPress site"),
             _position("Verify FreedomTranslate"),
         )
 
     def test_the_drift_report_runs_between_the_read_and_the_write(self):
+        tasks = _option_tasks()
         self.assertLess(
-            _position("Read the WordPress options"),
-            _position("Report the managed WordPress options"),
+            _position("Read the stored WordPress", tasks),
+            _position("Report the managed WordPress", tasks),
         )
         self.assertLess(
-            _position("Report the managed WordPress options"),
-            _position("Write each pinned WordPress option"),
+            _position("Report the managed WordPress", tasks),
+            _position("Write each managed WordPress", tasks),
         )
+
+
+class TestUnreadPins(unittest.TestCase):
+    def test_the_refusal_names_the_unread_pins(self):
+        task = _task("Refuse a services.wordpress.options pin")
+        self.assertEqual(
+            ["WORDPRESS_OPTION_PINS_UNREAD | length == 0"],
+            task["ansible.builtin.assert"]["that"],
+        )
+        self.assertIn(
+            "WORDPRESS_OPTION_PINS_UNREAD | join(', ')",
+            task["ansible.builtin.assert"]["fail_msg"],
+        )
+
+
+class TestNetworkOptions(unittest.TestCase):
+    def test_the_network_write_runs_only_with_a_network_option(self):
+        task = _task("Converge the managed options of the WordPress network")
+        self.assertEqual(task["include_tasks"], "utils/options.yml")
+        self.assertEqual(
+            task["vars"],
+            {
+                "wordpress_options": "{{ WORDPRESS_NETWORK_OPTIONS }}",
+                "wordpress_options_command": "site option",
+            },
+        )
+        self.assertEqual(task["when"], "WORDPRESS_NETWORK_OPTIONS | length > 0")
+
+
+class TestMultisiteState(unittest.TestCase):
+    def _holds(self, stdout: str, enabled: bool) -> bool:
+        (condition,) = _task("Refuse a Multisite state")["ansible.builtin.assert"][
+            "that"
+        ]
+        return bool(
+            _render(
+                "{{ (" + condition + ") | bool }}",
+                wp_is_multisite={"stdout": stdout},
+                WORDPRESS_MULTISITE_ENABLED=enabled,
+            )
+        )
+
+    def test_an_installation_the_configuration_declares_passes(self):
+        self.assertTrue(self._holds("1\n", True))
+        self.assertTrue(self._holds("0", False))
+
+    def test_an_installation_the_configuration_contradicts_fails(self):
+        self.assertFalse(self._holds("1", False))
+        self.assertFalse(self._holds("0\n", True))
+
+    def test_the_refusal_names_both_states(self):
+        message = _task("Refuse a Multisite state")["ansible.builtin.assert"][
+            "fail_msg"
+        ]
+        self.assertIn("wp_is_multisite.stdout | trim", message)
+        self.assertIn("services.wordpress.multisite.enabled", message)
 
 
 class TestDriftReport(unittest.TestCase):
     def test_it_hands_the_overwritten_managed_options_to_the_shared_report(self):
-        task = _task("Report the managed WordPress options")
+        task = _option_task("Report the managed WordPress")
         self.assertEqual(
             task["include_tasks"],
             "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}",
@@ -473,7 +632,7 @@ class TestTranslateReadback(unittest.TestCase):
 
 class TestReadTask(unittest.TestCase):
     def _fails(self, rc: int, stderr: str) -> bool:
-        failed_when = _task("Read the WordPress options")["failed_when"]
+        failed_when = _option_task("Read the stored WordPress")["failed_when"]
         return bool(
             _render(
                 "{{ (" + failed_when + ") | bool }}",
@@ -481,9 +640,10 @@ class TestReadTask(unittest.TestCase):
             )
         )
 
-    def test_it_loops_over_the_validated_map(self):
-        task = _task("Read the WordPress options")
-        self.assertEqual(task["loop"], "{{ WORDPRESS_OPTIONS | dict2items }}")
+    def test_it_loops_over_the_map_it_receives(self):
+        task = _option_task("Read the stored WordPress")
+        self.assertEqual(task["loop"], "{{ wordpress_options | dict2items }}")
+        self.assertIn("wp {{ wordpress_options_command }} get", task["shell"])
         self.assertIn("--format=json", task["shell"])
         self.assertIs(task["changed_when"], False)
 
@@ -504,10 +664,11 @@ class TestReadTask(unittest.TestCase):
 
 
 class TestWriteTask(unittest.TestCase):
-    def _argv(self, key: str, value) -> list[str]:
+    def _argv(self, key: str, value, command: str = "option") -> list[str]:
         rendered = _render(
-            _task("Write each pinned WordPress option")["shell"],
+            _option_task("Write each managed WordPress")["shell"],
             item={"item": {"key": key, "value": value}},
+            wordpress_options_command=command,
             WORDPRESS_USER="www-data",
             WORDPRESS_CONTAINER_ADDRESS="wordpress",
             WORDPRESS_DOCKER_HTML_PATH="/var/www/html",
@@ -515,7 +676,7 @@ class TestWriteTask(unittest.TestCase):
         return shlex.split(rendered)
 
     def _changed(self, stdout: str) -> bool:
-        changed_when = _task("Write each pinned WordPress option")["changed_when"]
+        changed_when = _option_task("Write each managed WordPress")["changed_when"]
         return bool(
             _render(
                 "{{ (" + changed_when + ") | bool }}",
@@ -536,8 +697,15 @@ class TestWriteTask(unittest.TestCase):
         position = argv.index("update")
         self.assertEqual(json.loads(argv[position + 2]), value)
 
+    def test_a_network_option_reaches_wp_cli_as_a_site_option(self):
+        argv = self._argv("registration", "user", "site option")
+        position = argv.index("update")
+        self.assertEqual(argv[position - 2 : position], ["site", "option"])
+        self.assertEqual(argv[position + 1], "registration")
+        self.assertEqual(json.loads(argv[position + 2]), "user")
+
     def test_only_drifted_options_are_written(self):
-        task = _task("Write each pinned WordPress option")
+        task = _option_task("Write each managed WordPress")
         self.assertEqual(task["loop"], "{{ wp_options_stored.results }}")
         self.assertEqual(task["when"], "item | wordpress_option_drifted")
         self.assertEqual(task["register"], "wp_options_written")
@@ -549,15 +717,22 @@ class TestWriteTask(unittest.TestCase):
         self.assertFalse(
             self._changed("Success: Value passed for 'blogname' option is unchanged.")
         )
+        self.assertFalse(
+            self._changed(
+                "Success: Value passed for 'registration' site option is unchanged."
+            )
+        )
 
 
 class TestFlushTask(unittest.TestCase):
     def _flushes(self, written: dict) -> bool:
-        when = _task("Flush the rewrite rules")["when"]
+        when = _option_task("Flush the rewrite rules")["when"]
         return bool(_render("{{ (" + when + ") | bool }}", wp_options_written=written))
 
     def test_a_write_flushes_the_rewrite_rules(self):
-        self.assertIn("wp rewrite flush", _task("Flush the rewrite rules")["shell"])
+        self.assertIn(
+            "wp rewrite flush", _option_task("Flush the rewrite rules")["shell"]
+        )
         self.assertTrue(self._flushes({"changed": True, "results": []}))
 
     def test_no_write_leaves_the_rewrite_rules_alone(self):

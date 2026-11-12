@@ -95,31 +95,24 @@ def wordpress_options_checked(options, owned_elsewhere):
     return options
 
 
-def wordpress_options_unmanaged(options, managed):
-    """Refuse a ``services.wordpress.options`` pin that contradicts ``meta/forms.yml``.
+def wordpress_options_unread(pins, forms) -> list[str]:
+    """Return the ``services.wordpress.options`` pins no field of the forms reads.
 
     Args:
-        options: WordPress option name mapped to the value the inventory pins.
-        managed: option name mapped to the value ``meta/forms.yml`` converges
-            from the field's ``source``.
+        pins: WordPress option name mapped to the value the inventory pins.
+        forms: ``applications.web-app-wordpress.forms``.
 
     Returns:
-        ``options`` unchanged.
-
-    Raises:
-        AnsibleFilterError: naming the first pin whose value differs from the
-            managed one.
+        The sorted names of the pins that are no field's ``source``.
     """
-    if not isinstance(options, Mapping):
-        return options
-    for name, value in options.items():
-        if name in managed and managed[name] != value:
-            raise AnsibleFilterError(
-                f"{_where(name)}: meta/forms.yml converges this option from the "
-                "source of its field; change that source, or override the field "
-                "under applications.web-app-wordpress.forms, instead of pinning it here"
-            )
-    return options
+    sources = {
+        spec.get("source")
+        for block in forms.values()
+        if isinstance(block, Mapping) and isinstance(block.get("fields"), Mapping)
+        for spec in block["fields"].values()
+        if isinstance(spec, Mapping)
+    }
+    return sorted(str(name) for name in pins if _where(name) not in sources)
 
 
 def _stored(result):
@@ -184,7 +177,7 @@ class FilterModule:
     def filters(self):
         return {
             "wordpress_options_checked": wordpress_options_checked,
-            "wordpress_options_unmanaged": wordpress_options_unmanaged,
+            "wordpress_options_unread": wordpress_options_unread,
             "wordpress_option_drifted": wordpress_option_drifted,
             "wordpress_options_overwritten": wordpress_options_overwritten,
         }

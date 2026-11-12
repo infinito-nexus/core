@@ -185,23 +185,42 @@ class TestDrift(unittest.TestCase):
         )
 
 
-MANAGED = {"blogname": "Blog by Example", "permalink_structure": STRUCTURE}
+READING_FORMS = {
+    "general": {
+        "path": "/wp-admin/options-general.php",
+        "fields": {"blogname": {"source": "services.design.title"}},
+    },
+    "permalink": {
+        "path": "/wp-admin/options-permalink.php",
+        "fields": {
+            "permalink_structure": {
+                "source": "services.wordpress.options.permalink_structure"
+            }
+        },
+    },
+    "broken": "no mapping",
+}
 
 
-class TestUnmanaged(unittest.TestCase):
-    def test_a_pin_no_form_manages_passes(self):
-        pinned = {"permalink_structure": STRUCTURE, "blogdescription": "Tag"}
-        self.assertIs(MODULE.wordpress_options_unmanaged(pinned, MANAGED), pinned)
+class TestUnread(unittest.TestCase):
+    def test_a_pin_a_field_reads_is_not_listed(self):
+        self.assertEqual(
+            [],
+            MODULE.wordpress_options_unread(
+                {"permalink_structure": STRUCTURE}, READING_FORMS
+            ),
+        )
 
-    def test_a_pin_equal_to_the_managed_value_passes(self):
-        pinned = {"blogname": "Blog by Example"}
-        self.assertIs(MODULE.wordpress_options_unmanaged(pinned, MANAGED), pinned)
-
-    def test_a_pin_that_contradicts_the_managed_value_is_refused(self):
-        with self.assertRaises(AnsibleFilterError) as caught:
-            MODULE.wordpress_options_unmanaged({"blogname": "Own"}, MANAGED)
-        self.assertIn("services.wordpress.options.blogname", str(caught.exception))
-        self.assertIn("meta/forms.yml", str(caught.exception))
+    def test_every_pin_no_field_reads_is_listed_sorted(self):
+        pins = {
+            "permalink_structure": STRUCTURE,
+            "blogname": "Own",
+            "blogdescription": "Tag",
+        }
+        self.assertEqual(
+            ["blogdescription", "blogname"],
+            MODULE.wordpress_options_unread(pins, READING_FORMS),
+        )
 
 
 FORMS = {
