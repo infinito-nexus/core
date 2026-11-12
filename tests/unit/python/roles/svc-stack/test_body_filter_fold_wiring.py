@@ -16,7 +16,8 @@ from utils.roles.mapping import (
 )
 
 ROLES = PROJECT_ROOT / "roles"
-VHOST = ROLES / "sys-stk-front-proxy" / "tasks" / "vhost.yml"
+STACK = ROLES / "svc-stack"
+VHOST = STACK / "tasks" / "proxy" / "vhost.yml"
 INJ_TASKS = ROLES / "sys-front-inj-all" / ROLE_FILE_TASKS_MAIN
 INJ_STANDALONE = ROLES / "sys-front-inj-all" / "tasks" / "standalone.yml"
 LUA_PATH = "lookup('nginx', 'files.lua', front_proxy_domain)"
@@ -76,7 +77,7 @@ class TestEveryCallerDecidesWhoWritesTheLua(unittest.TestCase):
         self.assertEqual(
             entries,
             {
-                "roles/sys-stk-front-proxy/tasks/vhost.yml": None,
+                "roles/svc-stack/tasks/proxy/vhost.yml": None,
                 "roles/web-app-matomo/tasks/08_reinject_consumers/vhosts.yml": "standalone.yml",
             },
         )
@@ -161,9 +162,9 @@ class TestTheVhostWriteCarriesTheLua(unittest.TestCase):
 
 class TestALuaOnlyChangeSkipsTheVhostRecheck(unittest.TestCase):
     def _vhost_changed(self, changed, paths):
-        expression = load_yaml_any(
-            str(ROLES / "sys-stk-front-proxy" / ROLE_FILE_VARS_MAIN)
-        )["front_proxy_vhost_changed"]
+        expression = load_yaml_any(str(STACK / ROLE_FILE_VARS_MAIN))[
+            "front_proxy_vhost_changed"
+        ]
         variables = {
             "nginx_conf": {"changed": changed, "changed_paths": paths},
             "front_proxy_domain_conf_dst_resolved": "/etc/nginx/conf.d/x.conf",

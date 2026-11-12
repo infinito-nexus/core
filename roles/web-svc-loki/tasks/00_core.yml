@@ -3,9 +3,8 @@
 
 - name: "🧩 load docker for {{ application_id }}"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "🕸️ Pre-create the Prometheus network the ruler reaches Alertmanager on"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
@@ -63,9 +62,5 @@
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ LOKI_DOMAIN }}"
-    http_port: "{{ LOKI_GATEWAY_LOCAL_PORT }}"
-    proxy_internal_port: "{{ LOKI_GATEWAY_INTERNAL_PORT }}"
-    webserver_proxy_service_key: gateway
+    name: svc-stack
+    tasks_from: consumer/front.yml

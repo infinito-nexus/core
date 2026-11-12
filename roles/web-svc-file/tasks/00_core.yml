@@ -9,3 +9,4 @@
 - name: "🧩 load dev-git for {{ application_id }}"
   include_role:
     name: dev-git
+  when: run_once_dev_git is not defined

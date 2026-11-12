@@ -24,7 +24,7 @@ untranslated_yaml = importlib.import_module(
 
 def _document(source: str):
     document = new_document(source, get_default_settings(Parser))
-    document.append(nodes.paragraph(text="name: sys-stk-front-proxy"))
+    document.append(nodes.paragraph(text="name: svc-stack"))
     document.append(nodes.title(text="Heading"))
     return document
 

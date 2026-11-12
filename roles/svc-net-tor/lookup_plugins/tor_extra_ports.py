@@ -1,25 +1,3 @@
-"""Lookup `tor_extra_ports`: every port the node onion forwards.
-
-Two of them are flags rather than derivations, because no inventory carries
-them. ``lookup('tor_ports')`` walks ``group_names`` and collects what the roles
-listed there declare under ``ports.onion``; SSH belongs to no role at all, and
-HTTP belongs to ``svc-prx-openresty``, which a node acquires through
-``sys-stk-front-proxy`` and which therefore appears in no dependency list an
-inventory holds. A node provisioned with ``--include svc-net-tor`` alone
-published an onion forwarding SSH and nothing else, leaving every app it serves
-unreachable over that onion.
-
-Forwarding HTTP is what this role exists for, so it is declared, and a node that
-must not answer HTTP over its onion turns ``TOR_ONION_HTTP_ENABLED`` off.
-
-The derived ports still come from ``tor_ports``; a port named twice collapses,
-since ``torrc.j2`` writes one ``HiddenServicePort`` line per entry.
-
-Usage:
-
-    {{ lookup('tor_extra_ports') }}
-"""
-
 from __future__ import annotations
 
 from typing import Any

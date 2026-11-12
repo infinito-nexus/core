@@ -5,7 +5,6 @@ entity_name: "{{ application_id | entity_name }}"
 LOKI_CONTAINER: "{{ lookup('config', application_id, 'services.loki.name') }}"
 LOKI_GATEWAY_CONTAINER: "{{ lookup('config', application_id, 'services.gateway.name') }}"
 LOKI_SERVICE_HOST: "loki"
-LOKI_DOMAIN: "{{ lookup('domain', application_id) }}"
 
 LOKI_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
 LOKI_CONFIG_HOST: "{{ [LOKI_CONFIG_DIR, 'loki.yaml'] | path_join }}"

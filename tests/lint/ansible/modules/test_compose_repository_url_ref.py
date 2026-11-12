@@ -1,20 +1,3 @@
-"""Enforce contract for ``sys-svc-compose`` repository-clone variables.
-
-Every ``include_role: { name: sys-stk-* }`` that drives a git clone via
-``compose_repository_url`` must:
-
-1. Pass the URL as a Jinja expression (no inline literal URLs in task
-   files — keeps repo coordinates in ``vars/main.yml`` or inventory).
-2. Pair the URL with a ``compose_repository_ref`` in the same vars
-   block — pinning a clone source without pinning the ref leaves
-   deploys non-reproducible (clones drift with upstream HEAD).
-3. Pass the ref as a Jinja expression too, for the same SPOT reason.
-
-The lint walks every dict in every .yml/.yaml file rather than only
-``include_role`` task shapes, so the rule holds wherever the variables
-appear (defaults, vars files, host_vars, …).
-"""
-
 from __future__ import annotations
 
 import unittest

@@ -184,7 +184,8 @@ account (or the Keycloak SSO token when SSO is enabled).
   an `x:AllowedIp` entry): every container that reaches the published ports
   through the host arrives from that address.
 - **HTTP clients are rate-limited and banned by their own address.** The
-  vhost sets `proxy_forwarded_client_address`, so OpenResty sends
+  default vhost sets `proxy_forwarded_client_address` in its
+  `server.vhosts.default.vars` (`meta/server.yml`), so OpenResty sends
   `Forwarded: for=$remote_addr` on every location and replaces any
   client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`:
   `clientIpSource: forwarded` with one trusted hop, `forwardedHops: 1`).

@@ -2,7 +2,7 @@
 
 ## Description
 
-Provider of the shared `stack` service: the front proxy, the backend and the deferred vhost probe of every application that ships a compose project or serves a vhost, as specified in [045 Stack Service](../../docs/requirements/045-stack-service.md).
+Provider of the shared `stack` service: the front proxy, the backend and the deferred vhost probe of every application that ships a compose project or serves a vhost.
 
 ## Overview
 

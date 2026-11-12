@@ -122,13 +122,13 @@ Everything an application role does today before its stack include must be avail
 ### Consumers
 
 - [x] Every role that included `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy` on `origin/main` declares `stack: {enabled: true, shared: true}` in its own `meta/services.yml`.
-- [ ] Every role that serves a vhost declares `openresty: {enabled: true, shared: true}`; a role without that key gets no vhost.
+- [x] Every role that serves a vhost declares `openresty: {enabled: true, shared: true}`; a role without that key gets no vhost.
 - [ ] A role gets its database exactly when it enables and shares `postgres` or `mariadb`; objstore and engines follow their own keys.
-- [ ] No file under `roles/`, `tasks/`, `playbooks/` or `plugins/` includes, imports or names `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy`, and the three role directories are removed.
+- [x] No file under `roles/`, `tasks/`, `playbooks/` or `plugins/` includes, imports or names `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy`, and the three role directories are removed.
 
 ### Per-domain data
 
-- [ ] Every per-vhost parameter from the call-site list is declared per domain in the role's meta, and the provider reads it only from there.
+- [x] Every per-vhost parameter from the call-site list is declared per domain in the role's meta, and the provider reads it only from there.
 - [ ] `web-app-matrix` (both flavours), `web-app-stalwart`, `web-app-bluesky`, `web-app-mastodon`, `web-app-peertube`, `web-app-wordpress`, `web-app-joomla`, `web-app-minio`, `web-svc-seaweedfs`, `web-svc-cdn`, `web-svc-html` and `web-svc-file` get every vhost from their meta, with no loop or front proxy call in the role.
 - [ ] Every pre-include step found in the 115 call sites (MCP adapter build contexts, role Dockerfiles, facts the stack reads) is provided through templates or meta and is in place before the provider needs it.
 
@@ -141,10 +141,10 @@ Everything an application role does today before its stack include must be avail
 
 ### Tests and lints
 
-- [ ] A lint fails when any file names a removed stack role, when a role with a compose project lacks the `stack` key, or when a role with a vhost lacks the `openresty` key.
-- [ ] A lint fails when a role's meta lacks the per-domain vhost data for a domain the role serves.
-- [ ] Every test that pinned the include shape is updated to the new contract: `tests/unit/python/roles/sys-stk-backend/test_handler_registration_order.py`, `tests/lint/ansible/roles/test_docker_calls_follow_the_stack.py`, `tests/lint/ansible/roles/test_stack_vars_resolve_in_their_own_role.py`, `test_redundant_compose_handlers_flush.py`, `test_no_leaky_proxy_role_vars.py`, `test_vhost_cross_cutting_includes.py`, `meta/test_sso_contract.py`, `modules/test_compose_repository_url_ref.py`, `tests/integration/infrastructure/services/test_frontend_spot.py`, `tests/integration/roles/run_once/test_shared_primary_entity_run_once.py`, `tests/lint/ansible/roles/test_service_core_first_task_run_once.py`, `tests/unit/python/roles/web-app-openbao/test_credential_rotation.py`.
-- [ ] The post-deploy `required_by` verifier (`cli/meta/roles/services/called/__init__.py`) checks the new provider's task headers instead of the removed roles.
+- [x] A lint fails when any file names a removed stack role, when a role with a compose project lacks the `stack` key, or when a role with a vhost lacks the `openresty` key.
+- [x] A lint fails when a role's meta lacks the per-domain vhost data for a domain the role serves.
+- [x] Every test that pinned the include shape is updated to the new contract: `tests/unit/python/roles/sys-stk-backend/test_handler_registration_order.py`, `tests/lint/ansible/roles/test_docker_calls_follow_the_stack.py`, `tests/lint/ansible/roles/test_stack_vars_resolve_in_their_own_role.py`, `test_redundant_compose_handlers_flush.py`, `test_no_leaky_proxy_role_vars.py`, `test_vhost_cross_cutting_includes.py`, `meta/test_sso_contract.py`, `modules/test_compose_repository_url_ref.py`, `tests/integration/infrastructure/services/test_frontend_spot.py`, `tests/integration/roles/run_once/test_shared_primary_entity_run_once.py`, `tests/lint/ansible/roles/test_service_core_first_task_run_once.py`, `tests/unit/python/roles/web-app-openbao/test_credential_rotation.py`.
+- [x] The post-deploy `required_by` verifier (`cli/meta/roles/services/called/__init__.py`) checks the new provider's task headers instead of the removed roles.
 - [ ] `make test` passes.
 
 ### Measurement

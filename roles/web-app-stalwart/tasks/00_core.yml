@@ -101,26 +101,11 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-    webserver_vhost_flavour: "basic"
-    webserver_extra_configuration: "location ^~ /webmail { return 301 {{ STALWART_WEBMAIL_BASE_URL }}/; }"
-    proxy_forwarded_client_address: true
-    domain: "{{ STALWART_WEB_DOMAIN }}"
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🚿 Flush Docker Compose handlers"
   meta: flush_handlers
-
-- name: "🌐 Proxy the Roundcube webmail at {{ STALWART_WEBMAIL_DOMAIN }}"
-  include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ STALWART_WEBMAIL_DOMAIN }}"
-    http_port: "{{ STALWART_WEBMAIL_HTTP_PORT }}"
-    webserver_proxy_service_key: "{{ 'webmail' if IS_SWARM_MODE else (application_id | entity_name) }}"
-    proxy_internal_port: "{{ lookup('config', application_id, 'services.webmail.ports.internal.http') if IS_SWARM_MODE else '' }}"
-    webserver_vhost_flavour: "basic"
 
 - name: "👔 Stalwart manager-side operations (container exec + provisioning)"
   include_tasks: manager_ops.yml

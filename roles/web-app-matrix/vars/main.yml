@@ -72,9 +72,7 @@ MATRIX_CHATGPT_ENCRYPTION: "false"
 MATRIX_SYNAPSE_LISTEN_FLAGS: "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
 MATRIX_ELEMENT_NAME: "{{ lookup('config', application_id, 'services.element.name') }}"
-MATRIX_ELEMENT_DOMAIN: "{{ lookup('domains', application_id).element }}"
 MATRIX_ELEMENT_PORT: "{{ lookup('config', 'web-app-matrix', 'services.element.ports.local.http') }}"
-MATRIX_ELEMENT_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.element.ports.internal.http') }}"
 MATRIX_ELEMENT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'element-config.json' ] | path_join }}"
 MATRIX_ELEMENT_FORCE_VERIFICATION: "{{ lookup('config', application_id, 'services.element.force_verification') | bool }}"
 
@@ -128,12 +126,10 @@ MATRIX_BRIDGE_ADDONS: >-
 MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') | combine(dict(MATRIX_BRIDGE_ADDONS | map(attribute='value.config.bridge_name') | map('regex_replace',
   '^', 'mautrix_') | zip(MATRIX_BRIDGE_ADDONS | map(attribute='value.enabled')))) }}"
 
-MATRIX_JITSI_ENABLED: "{{ lookup('config', application_id, 'services.jitsi.enabled') | bool and lookup('config', application_id, 'services.matrix.flavor') == 'ansible'
-  and not MATRIX_ONION_PRIMARY }}"
+MATRIX_JITSI_ENABLED: "{{ lookup('config', application_id, 'services.jitsi.enabled') | bool and lookup('config', application_id, 'services.matrix.flavor') == 'ansible' }}"
 MATRIX_JITSI_SHARED: "{{ MATRIX_JITSI_ENABLED and lookup('config', application_id, 'services.jitsi.shared') | bool }}"
 MATRIX_JITSI_INTERNAL: "{{ MATRIX_JITSI_ENABLED and not MATRIX_JITSI_SHARED }}"
 MATRIX_JITSI_DOMAIN: "{{ lookup('domain', 'web-app-jitsi') if MATRIX_JITSI_SHARED else lookup('domains', application_id).jitsi }}"
-MATRIX_JITSI_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.local.http') }}"
 MATRIX_JITSI_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.internal.http') }}"
 MATRIX_JITSI_MEDIA_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.public.media') }}"
 MATRIX_JITSI_COMPONENT_ACCOUNTS:

@@ -1,8 +1,0 @@
----
-front-proxy:
-  lifecycle: beta
-  required_by:
-    compose:
-      categories: [web-app, web-svc]
-    swarm:
-      categories: [web-app, web-svc]

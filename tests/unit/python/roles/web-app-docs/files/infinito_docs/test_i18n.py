@@ -31,9 +31,7 @@ class TestExtract(unittest.TestCase):
                 "Title\n=====\n\nThe platform welcomes you.\n\n.. toctree::\n\n   config\n",
                 encoding="utf-8",
             )
-            (src / "config.yml").write_text(
-                "name: sys-stk-front-proxy\n", encoding="utf-8"
-            )
+            (src / "config.yml").write_text("name: svc-stack\n", encoding="utf-8")
             images = src / "assets" / "img"
             images.mkdir(parents=True)
             (images / "favicon.ico").write_bytes(b"")
@@ -49,7 +47,7 @@ class TestExtract(unittest.TestCase):
                 messages = {message.id for message in read_po(handle) if message.id}
 
         self.assertIn("The platform welcomes you.", messages)
-        self.assertNotIn("name: sys-stk-front-proxy", messages)
+        self.assertNotIn("name: svc-stack", messages)
 
 
 if __name__ == "__main__":

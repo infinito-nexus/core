@@ -5,6 +5,6 @@
     domain: "{{ www_redirect.target }}"
     www_fqdn: "{{ www_redirect.source }}"
     apex_url: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ www_redirect.target }}"
-  loop: "{{ REDIRECT_WWW_DOMAINS }}"
+  loop: "{{ REDIRECT_WWW_EDGE_DOMAINS }}"
   loop_control:
     loop_var: www_redirect

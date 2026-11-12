@@ -71,13 +71,13 @@
     proxy_service_key: "{{ front_proxy_service_key }}"
     proxy_internal_port: "{{ front_proxy_internal_port }}"
     webserver_extra_configuration: >-
-      {{ lookup('template', front_proxy_extra_template) if front_proxy_extra_template else front_proxy_extra_configuration }}
+      {{ (lookup('template', front_proxy_extra_template) | default('', true)) if front_proxy_extra_template else front_proxy_extra_configuration }}
     webserver_websocket_location: "{{ front_proxy_websocket_location }}"
     webserver_client_max_body_size: "{{ front_proxy_client_max_body_size }}"
     front_proxy_render_vars: >-
       {{
         front_proxy_template_vars
-        | combine({'webserver_location_extra_configuration': lookup('template', front_proxy_location_extra_template)}
+        | combine({'webserver_location_extra_configuration': lookup('template', front_proxy_location_extra_template) | default('', true)}
                   if front_proxy_location_extra_template else {})
       }}
   register: nginx_conf
