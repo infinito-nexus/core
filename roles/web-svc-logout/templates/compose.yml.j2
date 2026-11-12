@@ -1,4 +1,8 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set logout_gate_peers = [OIDC.CLIENT.CERTS] if LOGOUT_GATE_APPS else [] %}
+  {% for gate_app in LOGOUT_GATE_APPS %}
+  {% set _ = logout_gate_peers.append(lookup('tls', gate_app, 'url.origin')) %}
+  {% endfor %}
   {% for logout_instance in LOGOUT_INSTANCES %}
   {% set service_name = 'logout' | labelled(logout_instance.label, '-') %}
   {% set logout_urls = [] %}
@@ -13,6 +17,7 @@
     environment: # nocheck: compose-environment-from-env-file  one conductor per served network and LOGOUT_DOMAINS is derived rather than configured; a per-service env file is possible but costs a render loop and a second name binding for this one computed line
       LOGOUT_DOMAINS: "{{ logout_urls | join(',') }}"
     {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_extra_hosts', onion_peers=logout_gate_peers) | indent(4) }}
     {{ lookup('container_healthcheck', 'logout') | indent(4) }}
 
   {% endfor %}

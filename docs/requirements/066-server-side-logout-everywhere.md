@@ -9,7 +9,7 @@ As a user who is signed in through one browser on the clearnet and the onion net
 ### Trust boundary
 
 - [x] No Keycloak client that this requirement adds or changes has `serviceAccountsEnabled: true`, and no service-account user of the realm gains a `realm-management` role through this requirement.
-- [x] `web-svc-logout` owns no Keycloak client, its env file holds no Keycloak client secret, it serves no route it did not serve before this change, and it sends no request to Keycloak.
+- [x] `web-svc-logout` owns no Keycloak client and its env file holds no Keycloak client secret. Its vhost adds exactly one route, the logout gate `^~ /backchannel/`, which admits POST only, and the only Keycloak values its container reads are the realm issuer, which the gate compares, and the public JWKS URL, the one Keycloak request it sends (operator pick of 2026-11-12, logout gate in universal-logout, replacing "it serves no route it did not serve before this change, and it sends no request to Keycloak"). `tests/unit/python/roles/web-svc-logout/test_trust_boundary.py` holds the env keys, the credential reads, the Keycloak values and the served locations; its negative controls catch the Keycloak client secret, a token endpoint call, an admin API call and a second new route.
 - [x] The final state holds no `/everywhere` route, no `LOGOUT_EVERYWHERE_*` key, no `web-svc-logout` client in the realm render and no update routine that maps `realm-management` roles to a service account.
 - [x] The realm keeps the values of `eventsEnabled`, `enabledEventTypes`, `eventsExpiration`, `adminEventsEnabled`, `adminEventsDetailsEnabled` and `eventsListeners` it had before this change.
 - [x] No choice, nor any later replacement, uses a Keycloak service account, a `realm-management` role, the Keycloak admin REST API, stored realm events or a Keycloak extension (SPI provider); "Log out everywhere" uses only the user's own access token and the `manage-account` role of the `account` client.
@@ -117,5 +117,5 @@ The operator decided that the user gets two explicit choices at logout, "Log out
 
 - [ ] Each app switches to its own client in its own change with its own Playwright proof. Switching an app back to the shared client is an explicit change of its client id in its `meta/services.yml`, and a missing `services.sso.oidc.clients` entry fails the render loudly; no lookup falls back to the shared client silently.
 - [x] On an existing realm, the update routine `roles/web-app-keycloak/tasks/update/01_settings.yml`, fed by `KEYCLOAK_SETTINGS_CLIENT_IDS`, creates and converges each per-app client without a realm re-import.
-- [x] This requirement needs no universal-logout release, and the image pin in `roles/web-svc-logout/meta/services.yml` keeps the version it had before this change.
+- [ ] The logout gate ships in a universal-logout release, and the image pin in `roles/web-svc-logout/meta/services.yml` names that release (operator pick of 2026-11-12, logout gate in universal-logout, replacing "This requirement needs no universal-logout release").
 - [ ] The unit tests, the lint suite and ruff pass on every change of this rollout.

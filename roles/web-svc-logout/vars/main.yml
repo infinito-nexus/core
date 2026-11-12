@@ -10,3 +10,4 @@ LOGOUT_URLS: "{{ LOGOUT_DOMAINS | map('regex_replace', '^(.*)$', lookup('tls', a
 LOGOUT_CONNECT_SRC_OLD: "{{ lookup('config', application_id, 'csp.whitelist.connect-src') }}"
 LOGOUT_CONNECT_SRC_NEW: "{{ (LOGOUT_CONNECT_SRC_OLD + LOGOUT_URLS) | unique }}"
 LOGOUT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+LOGOUT_GATE_APPS: "{{ lookup('applications') | logout_gate_apps(group_names) }}"

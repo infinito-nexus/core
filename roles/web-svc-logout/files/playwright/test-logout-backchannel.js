@@ -88,6 +88,10 @@ exports.register = function () {
                 form: { logout_token: token },
                 timeout: resolveTimeout(30_000),
               });
+              if (target.sealed_url) {
+                expect(response.status(), `${target.id}: the logout gate must refuse a token ${kind}`).toBe(400);
+                continue;
+              }
               expect(response.status(), `${target.id}: a token ${kind} must be refused`).toBeGreaterThanOrEqual(400);
               expect(response.status(), `${target.id}: a token ${kind} is a client error, not a crash`).toBeLessThan(500);
             }
@@ -99,6 +103,30 @@ exports.register = function () {
           await expectSynapseSession(context.request, synapse, 200);
           await confirmLogoutOnThisDevice(page);
           await expectSynapseSession(context.request, synapse, 401);
+        }
+      } finally {
+        await context.close();
+      }
+    });
+
+    test("logout-backchannel: a receiver behind the logout gate refuses a request that skips the gate", async ({ browser }) => {
+      const gated = logoutEnv.backchannelTargets.filter((target) => target.sealed_url);
+      test.skip(gated.length === 0, "no deployed application has its back-channel receiver behind the logout gate");
+      const context = await openContext(browser);
+      try {
+        for (const target of gated) {
+          for (const [kind, headers] of [
+            ["without the gate key", {}],
+            ["with a wrong gate key", { "X-Logout-Gate-Key": "infinito-forged-gate-key" }],
+          ]) {
+            const response = await apiFetchOnion(context.request, target.sealed_url, {
+              method: "POST",
+              headers,
+              form: { logout_token: forgedLogoutToken(target.client_id) },
+              timeout: resolveTimeout(30_000),
+            });
+            expect(response.status(), `${target.id}: a POST ${kind} must stop at the proxy`).toBe(403);
+          }
         }
       } finally {
         await context.close();

@@ -149,6 +149,15 @@ A custom `roles/web-app-cst-*` role declares its row under `sso.backchannel` in 
 
 When a back-channel endpoint is unreachable or refuses the token, Keycloak still ends the user session and names the client in its log; that application keeps its session until its own expiry as listed above.
 
+## Back-channel logout gate
+
+Some upstreams receive back-channel logout tokens without the checks OIDC Back-Channel Logout 1.0 requires. Their own Keycloak client sends the token to the gate of this service, `/backchannel/<application_id>` on the logout origin, instead of to the application.
+
+- An application opts in with `services.sso.oidc.backchannel_logout_gate: true`, its own client under `services.sso.oidc.clients.web`, its receiver path under `services.sso.oidc.backchannel_logout_path` and the `logout_gate_key` credential in its `meta/secrets.yml`.
+- The gate checks the signature against the realm's public JWKS, `iss`, `aud` (the application's own client), the `events` claim, the token age, the absence of `nonce` and the presence of `sub` or `sid`. It answers every other token with 400 and forwards a valid one to the application's receiver with the application's gate key in `X-Logout-Gate-Key`.
+- The application's vhost seals the receiver path through [`templates/backchannel-seal.conf.j2`](./templates/backchannel-seal.conf.j2): it admits only a POST that carries the gate key, compares the key by its SHA-256 digest, answers every other request with 403 and strips the header before the request reaches the application.
+- The gate owns no Keycloak client and holds no Keycloak secret; its only Keycloak request is the JWKS fetch.
+
 ## Further Resources
 
 - [Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)  
@@ -162,5 +171,5 @@ When a back-channel endpoint is unreachable or refuses the token, Keycloak still
 
 ## Persona contract opt-outs
 
-[`meta/services.yml`](./meta/services.yml) declares no `sso` service, so this role is never registered as a Keycloak client. Its only HTTP surface is the anonymous logout conductor and the `/logout` endpoints proxied by [`templates/logout-proxy.conf.j2`](./templates/logout-proxy.conf.j2) — there is no login form, no account and no session to end.
+[`meta/services.yml`](./meta/services.yml) declares no `sso` service, so this role is never registered as a Keycloak client. Its only HTTP surface is the anonymous logout conductor, the `/logout` endpoints proxied by [`templates/logout-proxy.conf.j2`](./templates/logout-proxy.conf.j2) and the back-channel logout gate `/backchannel/<application_id>` in [`templates/proxy.conf.j2`](./templates/proxy.conf.j2), which takes logout tokens from Keycloak. There is no login form, no account and no session to end.
 [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The service's real coverage is per consumer: [`files/playwright/playwright.spec.js`](./files/playwright/playwright.spec.js) parameterises the injected logout JS over `roles_with_service('logout')`.

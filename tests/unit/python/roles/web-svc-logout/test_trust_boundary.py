@@ -6,7 +6,7 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
 
 APP = "web-svc-logout"
 ROLE = PROJECT_ROOT / "roles" / APP
@@ -15,14 +15,22 @@ ENV_TEMPLATES = (
     ROLE / "templates" / "env.j2",
     PROJECT_ROOT / "roles" / "sys-svc-container" / "templates" / "env.j2",
 )
+CONTAINER_TEMPLATES = (*ENV_TEMPLATES, ROLE / ROLE_FILE_TEMPL_COMPOSE)
 VHOST_TEMPLATES = (
     ROLE / "templates" / "logout-proxy.conf.j2",
     ROLE / "templates" / "proxy.conf.j2",
 )
-SERVED_LOCATIONS = ["= /logout"]
-KEYCLOAK_COUPLING = re.compile(r"KEYCLOAK|OIDC|SECRET|CLIENT|REALM|TOKEN")
+SERVED_LOCATIONS = ["= /logout", "^~ /backchannel/"]
+BASIC_ENV_KEYS = {"LOGOUT_PORT", "TZ", "LANG"}
+GATE_ENV_KEYS = {"LOGOUT_GATE_ISSUER", "LOGOUT_GATE_JWKS_URL", "LOGOUT_GATE_CLIENTS"}
+GATE_KEYCLOAK_VALUES = {"OIDC.CLIENT.ISSUER_URL", "OIDC.CLIENT.CERTS"}
+KEYCLOAK_REFERENCE = re.compile(
+    r"\bOIDC(?:\.[A-Z_]+)+|\bKEYCLOAK_[A-Z0-9_]+|web-app-keycloak"
+)
+CREDENTIAL = re.compile(r"secrets\.credentials\.([a-z0-9_]+)")
 ENV_KEY = re.compile(r"(?m)^([A-Z][A-Z0-9_]*)=")
 LOCATION = re.compile(r"(?m)^\s*location\s+([^{]+?)\s*\{")
+GATE_LOCATION = re.compile(r"(?ms)^location \^~ /backchannel/ \{(?P<body>.*?)^\}")
 
 
 def _load_filter(path, name: str):
@@ -55,13 +63,22 @@ def env_keys(sources: list[str]) -> set[str]:
     return {key for source in sources for key in ENV_KEY.findall(source)}
 
 
-def keycloak_coupled(keys: set[str]) -> list[str]:
-    """Return the env keys that would tie the conductor to Keycloak.
+def keycloak_references(sources: list[str]) -> set[str]:
+    """Return every Keycloak value the conductor's container templates read.
 
     Args:
-        keys: the env keys of the conductor.
+        sources: the raw text of the container's env and compose templates.
     """
-    return sorted(key for key in keys if KEYCLOAK_COUPLING.search(key))
+    return {ref for source in sources for ref in KEYCLOAK_REFERENCE.findall(source)}
+
+
+def credentials_read(sources: list[str]) -> set[str]:
+    """Return the names of the credentials the conductor's env file reads.
+
+    Args:
+        sources: the raw text of the env template and of every template it includes.
+    """
+    return {name for source in sources for name in CREDENTIAL.findall(source)}
 
 
 def served_locations(sources: list[str]) -> list[str]:
@@ -92,34 +109,68 @@ class TestLogoutConductorOwnsNoKeycloakClient(unittest.TestCase):
 
 class TestLogoutConductorHoldsNoKeycloakSecret(unittest.TestCase):
     def setUp(self) -> None:
-        self.keys = env_keys([read_text(str(path)) for path in ENV_TEMPLATES])
+        self.sources = [read_text(str(path)) for path in ENV_TEMPLATES]
 
-    def test_the_env_file_holds_only_the_port_and_the_container_basics(self) -> None:
-        self.assertEqual(self.keys, {"LOGOUT_PORT", "TZ", "LANG"})
+    def test_the_env_file_holds_the_port_the_basics_and_the_gate(self) -> None:
+        self.assertEqual(env_keys(self.sources), BASIC_ENV_KEYS | GATE_ENV_KEYS)
 
-    def test_no_env_key_ties_the_conductor_to_keycloak(self) -> None:
-        self.assertEqual(keycloak_coupled(self.keys), [])
+    def test_the_env_file_reads_only_the_gate_keys_as_credentials(self) -> None:
+        self.assertEqual(credentials_read(self.sources), {"logout_gate_key"})
 
-    def test_a_client_secret_in_the_env_file_is_caught(self) -> None:
+    def test_the_keycloak_client_secret_in_the_env_file_is_caught(self) -> None:
+        leaked = [*self.sources, "LOGOUT_GATE_SECRET={{ OIDC.CLIENT.SECRET }}"]
         self.assertEqual(
-            keycloak_coupled(self.keys | {"LOGOUT_EVERYWHERE_CLIENT_SECRET"}),
-            ["LOGOUT_EVERYWHERE_CLIENT_SECRET"],
+            keycloak_references(leaked) - GATE_KEYCLOAK_VALUES, {"OIDC.CLIENT.SECRET"}
         )
 
+    def test_a_client_secret_credential_in_the_env_file_is_caught(self) -> None:
+        leaked = [
+            *self.sources,
+            "LOGOUT_GATE_SECRET={{ lookup('config', app, 'secrets.credentials.client_secret') }}",
+        ]
+        self.assertEqual(credentials_read(leaked), {"logout_gate_key", "client_secret"})
 
-class TestLogoutConductorServesNoNewRoute(unittest.TestCase):
+
+class TestLogoutConductorCallsKeycloakOnlyForItsPublicKeys(unittest.TestCase):
     def setUp(self) -> None:
-        self.locations = served_locations(
-            [read_text(str(path)) for path in VHOST_TEMPLATES]
+        self.sources = [read_text(str(path)) for path in CONTAINER_TEMPLATES]
+
+    def test_the_container_reads_only_the_issuer_and_jwks_of_keycloak(self) -> None:
+        self.assertEqual(keycloak_references(self.sources), GATE_KEYCLOAK_VALUES)
+
+    def test_a_token_endpoint_call_is_caught(self) -> None:
+        calling = [*self.sources, "LOGOUT_GATE_TOKEN_URL={{ OIDC.CLIENT.TOKEN_URL }}"]
+        self.assertEqual(
+            keycloak_references(calling) - GATE_KEYCLOAK_VALUES,
+            {"OIDC.CLIENT.TOKEN_URL"},
         )
 
-    def test_the_vhost_serves_only_the_logout_endpoint(self) -> None:
-        self.assertEqual(self.locations, SERVED_LOCATIONS)
-
-    def test_an_everywhere_route_is_caught(self) -> None:
-        source = read_text(str(VHOST_TEMPLATES[0])) + "\nlocation = /everywhere {\n}\n"
+    def test_an_admin_api_call_is_caught(self) -> None:
+        calling = [
+            *self.sources,
+            "LOGOUT_GATE_ADMIN_URL={{ lookup('tls', 'web-app-keycloak', 'url.origin') }}/admin",
+        ]
         self.assertEqual(
-            served_locations([source]), [*SERVED_LOCATIONS, "= /everywhere"]
+            keycloak_references(calling) - GATE_KEYCLOAK_VALUES, {"web-app-keycloak"}
+        )
+
+
+class TestLogoutConductorServesOnlyTheGateAsNewRoute(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sources = [read_text(str(path)) for path in VHOST_TEMPLATES]
+
+    def test_the_vhost_serves_the_logout_endpoint_and_the_gate_only(self) -> None:
+        self.assertEqual(served_locations(self.sources), SERVED_LOCATIONS)
+
+    def test_the_gate_admits_post_only(self) -> None:
+        gate = GATE_LOCATION.search(read_text(str(VHOST_TEMPLATES[1])))
+        self.assertIsNotNone(gate)
+        self.assertRegex(gate.group("body"), r"limit_except POST \{\s*deny all;\s*\}")
+
+    def test_a_second_new_route_is_caught(self) -> None:
+        widened = [*self.sources, "location = /everywhere {\n}\n"]
+        self.assertEqual(
+            served_locations(widened), [*SERVED_LOCATIONS, "= /everywhere"]
         )
 
 
