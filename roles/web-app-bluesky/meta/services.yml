@@ -86,6 +86,11 @@ pds:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "0.4.66"
+        until: 2026-12-03
 broker:
   backup:
     stop_required: false

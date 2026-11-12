@@ -1940,14 +1940,14 @@ msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr "Función de mantenimiento programada con sistema para los reinicios completos de Docker Compose, con remanentes duros para pilas como Mailu"
 
-msgctxt "role:sys-ctl-hlth-runtime:description"
-msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
-msgstr ""
-
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "Monitor sistematizado para detectar contenedores Docker insalubres o no extraídos y alertas de fallos"
+
+msgctxt "role:sys-ctl-hlth-runtime:description"
+msgid "Systemd-timed vulnerability scan of the node and its containers, plus the shared PHP hardening check"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"
