@@ -12,11 +12,22 @@
   import_tasks: 07_timer.yml
   when: system_service_timer_enabled | bool
 
-- name: "➕ sys-service | Add '{{ system_service_name }}' to final run list"
-  ansible.builtin.set_fact:
-    system_service_run_list: >-
-      {{
-        (system_service_run_list | default([]) + [system_service_name])
-        | unique
-      }}
+- name: "➕ sys-service | Queue '{{ system_service_name }}' for the end of the play"
   when: system_service_force_flush_final | bool
+  block:
+    - name: "➕ sys-service | Add '{{ system_service_name }}' to final run list"
+      ansible.builtin.set_fact:
+        system_service_run_list: >-
+          {{
+            (system_service_run_list | default([]) + [system_service_name])
+            | unique
+          }}
+
+    - name: "➕ sys-service | Run '{{ system_service_name }}' once at the end of the play"
+      ansible.builtin.set_fact:
+        system_service_run_once_list: >-
+          {{
+            (system_service_run_once_list | default([]) + [system_service_name])
+            | unique
+          }}
+      when: system_service_run_once | bool

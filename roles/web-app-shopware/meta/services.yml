@@ -69,6 +69,11 @@ shopware:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2.11"
+        until: 2026-12-03
 php:
   image: ghcr.io/shopware/docker-base
   version: "8.3.36-caddy"
@@ -77,6 +82,11 @@ php:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "8.3.36-caddy"
+        until: 2026-12-03
 web:
   name: shopware-web
   cpus: 1.0
