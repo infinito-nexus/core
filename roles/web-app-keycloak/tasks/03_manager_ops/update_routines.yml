@@ -63,6 +63,14 @@
   include_tasks: "{{ role_path }}/tasks/update/16_client_role_grants.yml"
   when: KEYCLOAK_CLIENT_ROLE_GRANTS | length > 0
 
+- name: "📂 Load directory client routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/17_directory_client/enabled.yml"
+  when: KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool
+
+- name: "🧹 Remove the directory client of '{{ application_id }}' while its switch is off"
+  include_tasks: "{{ role_path }}/tasks/update/17_directory_client/disabled.yml"
+  when: not KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool
+
 - name: "📂 Load fine-grained admin permission routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/15_admin_permissions.yml"
   when: KEYCLOAK_ADMIN_PERMISSIONS_ENABLED | bool
