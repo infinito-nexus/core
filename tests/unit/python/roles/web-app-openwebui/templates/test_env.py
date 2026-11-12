@@ -13,7 +13,13 @@ SOURCES = {
     "vars": ROLE / ROLE_FILE_VARS_MAIN,
     "services": ROLE / ROLE_FILE_META_SERVICES,
     "client": ROLE / "templates/keycloak/clients.json.j2",
+    "realm": PROJECT_ROOT / "roles/web-app-keycloak/templates/import/realm.json.j2",
 }
+UNIT_SECONDS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+REALM_LIFESPAN = re.compile(r'"ssoSessionMaxLifespan": (\d+),')
+LIFETIME_FINDING = (
+    "JWT_EXPIRES_IN is not the realm's ssoSessionMaxLifespan in every variant"
+)
 OIDC_BLOCK = "{% if OPENWEBUI_OIDC_ENABLED | bool %}"
 OIDC_ENV = {
     "OAUTH_CLIENT_ID": "{{ OPENWEBUI_OIDC_CLIENT_ID }}",
@@ -60,12 +66,26 @@ def env_entries(source: str) -> dict[str, tuple[str, str]]:
     return entries
 
 
+def seconds(duration: str) -> int:
+    match = re.fullmatch(r"(\d+)([smhdw])", duration)
+    if match is None:
+        raise AssertionError(f"unparsable Open WebUI duration {duration!r}")
+    return int(match.group(1)) * UNIT_SECONDS[match.group(2)]
+
+
+def realm_lifespan(realm: str) -> int:
+    match = REALM_LIFESPAN.search(realm)
+    if match is None:
+        raise AssertionError("ssoSessionMaxLifespan is missing from the realm import")
+    return int(match.group(1))
+
+
 def findings(sources: dict[str, str]) -> list[str]:
     """What keeps Open WebUI from its own public client and its revocation store.
 
     Args:
         sources: the env template, vars, services and Keycloak client fragment
-            of the role, keyed as in ``SOURCES``.
+            of the role and the realm import, keyed as in ``SOURCES``.
     """
     entries = env_entries(sources["env"])
     variables = load_yaml_str(sources["vars"])
@@ -83,6 +103,11 @@ def findings(sources: dict[str, str]) -> list[str]:
     )
     if entries.get(REDIS_ENV[0]) != (REDIS_ENV[1], ""):
         found.append("REDIS_URL is not rendered in every variant")
+    lifetime, block = entries.get("JWT_EXPIRES_IN", ("", None))
+    if block != "" or seconds(lifetime) != realm_lifespan(sources["realm"]):
+        found.append(LIFETIME_FINDING)
+    if entries.get("ENABLE_PERSISTENT_CONFIG") != ("false", ""):
+        found.append("ENABLE_PERSISTENT_CONFIG is not false in every variant")
     found.extend(
         f"{key} is not {value}"
         for key, value in VARS.items()
@@ -159,6 +184,31 @@ class TestOpenWebuiBackchannelLogout(unittest.TestCase):
                 "    disabled: true\n  enabled: false",
             ),
             ["services.redis is not enabled in every variant"],
+        )
+
+    def test_a_token_that_outlives_the_longest_sso_session_is_caught(self) -> None:
+        line = "JWT_EXPIRES_IN=10h\n"
+        self.assertEqual(
+            planted("env", line, "JWT_EXPIRES_IN=4w\n"), [LIFETIME_FINDING]
+        )
+        self.assertEqual(planted("env", line, ""), [LIFETIME_FINDING])
+        self.assertEqual(
+            planted(
+                "realm",
+                '"ssoSessionMaxLifespan": 36000,',
+                '"ssoSessionMaxLifespan": 72000,',
+            ),
+            [LIFETIME_FINDING],
+        )
+
+    def test_a_persistent_config_is_caught(self) -> None:
+        self.assertEqual(
+            planted(
+                "env",
+                "ENABLE_PERSISTENT_CONFIG=false",
+                "ENABLE_PERSISTENT_CONFIG=true",
+            ),
+            ["ENABLE_PERSISTENT_CONFIG is not false in every variant"],
         )
 
     def test_a_client_id_with_a_fallback_is_caught(self) -> None:
