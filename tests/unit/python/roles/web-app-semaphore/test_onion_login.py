@@ -26,9 +26,9 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from plugins.lookup.tls import LookupModule as TlsLookup
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
 
 filter_loader.add_directory(str(PROJECT_ROOT / "plugins" / "filter"))
 
@@ -36,6 +36,7 @@ ROLE = "web-app-semaphore"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
 VARS = ROLE_DIR / ROLE_FILE_VARS_MAIN
 CORE = ROLE_DIR / "tasks" / "00_core.yml"
+SERVER = ROLE_DIR / ROLE_FILE_META_SERVER
 HTML_LOCATION = "roles/sys-svc-proxy/templates/location/html.conf.j2"
 
 CLEAR = "semaphore.example.test"
@@ -322,12 +323,14 @@ class TestStackWiring(unittest.TestCase):
         stack = next(
             task
             for task in load_yaml_any(str(CORE))
-            if task.get("include_role", {}).get("name") == "sys-stk-full"
+            if task.get("include_role", {}).get("name") == "svc-stack"
         )
+        self.assertEqual(stack["include_role"]["tasks_from"], "consumer.yml")
+        vhost = load_yaml_any(str(SERVER))["vhosts"]["default"]
         self.assertEqual(
-            (
-                stack["vars"]["webserver_location_extra_configuration"],
-                stack["vars"]["webserver_extra_configuration"],
+            tuple(
+                read_text(str(ROLE_DIR / "templates" / vhost[key])).strip()
+                for key in ("location_extra_template", "extra_template")
             ),
             (
                 "{{ SEMAPHORE_LOCATION_CONFIGURATION }}",
