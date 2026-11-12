@@ -1,0 +1,5 @@
+---
+vhosts:
+  default:
+    internal_port: 80
+    service_key: nginx

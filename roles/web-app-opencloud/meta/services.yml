@@ -115,6 +115,7 @@ semaphore:
 stack:
   bond: 1
   enabled: true
+  flush: true
   shared: true
 
 # nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it

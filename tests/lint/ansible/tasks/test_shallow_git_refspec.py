@@ -46,10 +46,20 @@ REF_KEY = "compose_repository_ref"
 PULL_KEY = "compose_repository_pull"
 REFSPEC_KEY = "compose_repository_refspec"
 REF_KEYS = ("ref", "source_version")
+STACK_KEY = "stack"
+CHECKOUT_KEY = "checkout"
+CHECKOUT_REF_PATH = f"services.{STACK_KEY}.{CHECKOUT_KEY}.ref"
+SET_FACT_MODULES = ("set_fact", "ansible.builtin.set_fact")
 
 _TRUE_WORDS = frozenset({"true", "yes", "on", "1"})
 _FALSE_WORDS = frozenset({"false", "no", "off", "0"})
 _EMPTY = re.compile(r"""^\s*(\{\{\s*(''|"")\s*\}\})?\s*$""")
+_VARIABLE = re.compile(r"^\s*\{\{\s*([A-Za-z_]\w*)\s*\}\}\s*$")
+_FORWARD = re.compile(
+    r"lookup\(\s*'config'\s*,\s*application_id\s*,\s*'"
+    + re.escape(CHECKOUT_REF_PATH)
+    + "'"
+)
 
 
 def _is_true(value: Any) -> bool:
@@ -90,6 +100,30 @@ def _clones(variables: dict[str, Any]) -> bool:
     return not _EMPTY.match(str(variables.get(URL_KEY, "")))
 
 
+def forwarded_refs(tasks: Any) -> set[str]:
+    """
+    Args:
+        tasks: a parsed task file.
+
+    Returns:
+        the facts the task file sets from its consumer's checkout ref.
+    """
+    names: set[str] = set()
+    for task in iter_tasks(tasks):
+        facts = next(
+            (task[m] for m in SET_FACT_MODULES if isinstance(task.get(m), dict)), {}
+        )
+        names.update(
+            name for name, value in facts.items() if _FORWARD.search(str(value))
+        )
+    return names
+
+
+def _forwards(variables: dict[str, Any], forwarded: set[str]) -> bool:
+    match = _VARIABLE.match(str(variables.get(REF_KEY, "")))
+    return match is not None and match.group(1) in forwarded
+
+
 def clone_offenders(tasks: Any, declared_kind: Any) -> list[tuple[str, str, str]]:
     """Return ``(task name, module, missing fix)`` of every include that hands
     a ref to the shared clone without a declared kind.
@@ -100,6 +134,7 @@ def clone_offenders(tasks: Any, declared_kind: Any) -> list[tuple[str, str, str]
             when it declares none.
     """
     found: list[tuple[str, str, str]] = []
+    forwarded = forwarded_refs(tasks)
     for task in iter_tasks(tasks):
         module = next((m for m in INCLUDE_MODULES if m in task), None)
         variables = task.get("vars")
@@ -108,9 +143,30 @@ def clone_offenders(tasks: Any, declared_kind: Any) -> list[tuple[str, str, str]
         name = str(task.get("name", ""))
         if REFSPEC_KEY in variables:
             found.append((name, module, f"drop {REFSPEC_KEY}"))
-        if _clones(variables) and declared_kind not in REF_KINDS:
+        if (
+            _clones(variables)
+            and not _forwards(variables, forwarded)
+            and declared_kind not in REF_KINDS
+        ):
             found.append((name, module, f"declare {REF_KIND_KEY}"))
     return found
+
+
+def misses_checkout_kind(role: str, services: Any) -> bool:
+    """
+    Args:
+        role: the role name.
+        services: its parsed ``meta/services.yml``.
+
+    Returns:
+        whether the role hands the stack a checkout ref without a kind.
+    """
+    stack = services.get(STACK_KEY) if isinstance(services, dict) else None
+    checkout = stack.get(CHECKOUT_KEY) if isinstance(stack, dict) else None
+    ref = checkout.get("ref") if isinstance(checkout, dict) else None
+    if not ref or _EMPTY.match(str(ref)):
+        return False
+    return _entity_kind(role, services) not in REF_KINDS
 
 
 def kind_offenders(services: Any) -> list[tuple[str, str]]:
@@ -140,15 +196,19 @@ def kind_offenders(services: Any) -> list[tuple[str, str]]:
     return found
 
 
-def _primary_entity_kind(role: str) -> Any:
-    services = load_yaml_any(
-        str(PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES),
-        default_if_missing={},
-    )
-    if not isinstance(services, dict):
-        return None
-    entity = services.get(entity_name(role))
+def _entity_kind(role: str, services: Any) -> Any:
+    entity = services.get(entity_name(role)) if isinstance(services, dict) else None
     return entity.get(REF_KIND_KEY) if isinstance(entity, dict) else None
+
+
+def _primary_entity_kind(role: str) -> Any:
+    return _entity_kind(
+        role,
+        load_yaml_any(
+            str(PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES),
+            default_if_missing={},
+        ),
+    )
 
 
 def _task_files() -> list[tuple[str, str]]:
@@ -158,6 +218,9 @@ def _task_files() -> list[tuple[str, str]]:
         if "/tasks/" in "/" + rel:
             found.append((path, rel))
     return found
+
+
+_FORWARDED = f"{{{{ lookup('config', application_id, '{CHECKOUT_REF_PATH}', '') }}}}"
 
 
 class TestShallowGitRefspec(unittest.TestCase):
@@ -206,6 +269,26 @@ class TestShallowGitRefspec(unittest.TestCase):
                 f"`{ROLE_FILE_META_SERVICES}` (check it with `git ls-remote`), "
                 f"and drop `{REFSPEC_KEY}`."
             )
+
+    def test_every_stack_checkout_ref_declares_its_kind(self) -> None:
+        findings = [
+            f"- {config_path.relative_to(PROJECT_ROOT)}"
+            for config_path in sorted(
+                (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
+            )
+            if misses_checkout_kind(
+                config_path.parts[-3], load_yaml_any(str(config_path))
+            )
+        ]
+        self.assertEqual(
+            findings,
+            [],
+            f"These roles hand `{CHECKOUT_REF_PATH}` to the stack, which clones "
+            "it through sys-svc-compose:\n"
+            + "\n".join(findings)
+            + f"\n\nFix: set `{REF_KIND_KEY}: tag` or `{REF_KIND_KEY}: branch` "
+            "beside the ref on the role's primary entity.",
+        )
 
     def test_every_declared_ref_kind_is_valid(self) -> None:
         findings: list[str] = []
@@ -320,6 +403,47 @@ class TestShallowGitRefspec(unittest.TestCase):
         self.assertEqual(clone_offenders(declared, "tag"), [])
         self.assertEqual(clone_offenders(declared, "branch"), [])
         self.assertEqual(clone_offenders(no_clone, None), [])
+
+    def test_forwarded_checkout_ref_is_judged_on_its_consumer(self) -> None:
+        provider = [
+            {"set_fact": {"checkout_ref": _FORWARDED}},
+            {
+                "include_role": {"name": "sys-svc-compose"},
+                "vars": {URL_KEY: "{{ checkout_url }}", REF_KEY: "{{ checkout_ref }}"},
+            },
+        ]
+        self.assertEqual(clone_offenders(provider, None), [])
+        consumer = {
+            STACK_KEY: {CHECKOUT_KEY: {"url": "r", "ref": "v1"}},
+            "hugo": {"source_version": "v1"},
+        }
+        self.assertTrue(misses_checkout_kind("web-app-hugo", consumer))
+        consumer["hugo"][REF_KIND_KEY] = "Tag"
+        self.assertTrue(misses_checkout_kind("web-app-hugo", consumer))
+        consumer["hugo"][REF_KIND_KEY] = "tag"
+        self.assertFalse(misses_checkout_kind("web-app-hugo", consumer))
+
+    def test_direct_clone_beside_a_forwarded_ref_is_found(self) -> None:
+        tasks = [
+            {"ansible.builtin.set_fact": {"checkout_ref": _FORWARDED}},
+            {
+                "name": "hugo",
+                "include_role": {"name": "sys-svc-compose"},
+                "vars": {URL_KEY: "{{ REPO }}", REF_KEY: "{{ REF }}"},
+            },
+        ]
+        self.assertEqual(
+            clone_offenders(tasks, None),
+            [("hugo", "include_role", f"declare {REF_KIND_KEY}")],
+        )
+
+    def test_checkout_without_a_ref_needs_no_kind(self) -> None:
+        for checkout in ({"url": "r"}, {"url": "r", "ref": "{{ '' }}"}, "r"):
+            self.assertFalse(
+                misses_checkout_kind(
+                    "web-app-hugo", {STACK_KEY: {CHECKOUT_KEY: checkout}, "hugo": {}}
+                )
+            )
 
     def test_invalid_ref_kind_is_found(self) -> None:
         services = {

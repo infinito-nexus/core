@@ -77,7 +77,7 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
                 self.assertEqual(
                     _NOTIFY.findall(read_text(str(path))),
                     [],
-                    "staging runs before sys-stk-backend, where any flush (the "
+                    "staging runs before the svc-stack backend, where any flush (the "
                     "container runtime's first one on a fresh host) would run "
                     "the compose handlers before ca-inject and compose.yml exist",
                 )
@@ -87,7 +87,8 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         backend = next(
             index
             for index, task in enumerate(tasks)
-            if _role_include(task).get("name") == "sys-stk-backend"
+            if _role_include(task)
+            == {"name": "svc-stack", "tasks_from": "consumer/back.yml"}
         )
         rebuild = next(
             index
@@ -117,7 +118,8 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         proxy = next(
             index
             for index, task in enumerate(tasks)
-            if _role_include(task).get("name") == "sys-stk-front-proxy"
+            if _role_include(task)
+            == {"name": "svc-stack", "tasks_from": "consumer/front.yml"}
         )
         self.assertLess(
             flush,

@@ -7,3 +7,8 @@ status_codes:
   master:
     - 302
     - 403
+vhosts:
+  filer:
+    http_port: &seaweedfs_console_sso_port "{{ lookup('config', 'web-app-seaweedfs', 'services.seaweedfs-console.ports.local.sso') }}"
+  master:
+    http_port: *seaweedfs_console_sso_port

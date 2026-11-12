@@ -1,3 +1,6 @@
 ---
 status_codes:
   default: [200, 301, 302]
+vhosts:
+  default:
+    location_extra_template: nginx/trusted_proxy_header.conf.j2

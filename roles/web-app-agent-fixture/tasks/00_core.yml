@@ -13,9 +13,8 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🌱 Stage the fixture web root for '{{ application_id }}'"
   include_tasks: 01_manager_ops.yml

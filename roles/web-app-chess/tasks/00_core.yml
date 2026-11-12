@@ -1,9 +1,8 @@
 ---
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "♟️ Converge the showcase games of {{ application_id }}"
   include_tasks: 01_showcase.yml

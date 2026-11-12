@@ -11,12 +11,8 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_url: "{{ HUGO_SOURCE_REPO }}"
-    compose_repository_pull: true
-    compose_repository_ref: "{{ HUGO_SOURCE_REF }}"
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎨 Stage the corporate design for the Hugo build of '{{ application_id }}'"
   include_tasks: 01_design.yml

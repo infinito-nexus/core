@@ -6,7 +6,11 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_VOLUMES, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VOLUMES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-weblate"
 OVERRIDE_TARGET = "/app/data/settings-override.py"
@@ -18,6 +22,7 @@ class WeblateSubjectLinkTests(unittest.TestCase):
         self.core = load_yaml_any(str(ROLE / "tasks" / "00_core.yml"))
         self.token = load_yaml_any(str(ROLE / "tasks" / "utils" / "token.yml"))
         self.vars = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
+        self.services = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
 
     def test_every_service_reads_the_override_where_upstream_looks_for_it(self):
         override = self.volumes["settings_override"]
@@ -40,9 +45,10 @@ class WeblateSubjectLinkTests(unittest.TestCase):
         stack = next(
             i
             for i, task in enumerate(self.core)
-            if task.get("include_role", {}).get("name") == "sys-stk-full"
+            if task.get("include_role", {}).get("name") == "svc-stack"
         )
-        self.assertIs(self.core[stack]["vars"]["compose_handlers_flush"], False)
+        self.assertEqual(self.core[stack]["include_role"]["tasks_from"], "consumer.yml")
+        self.assertFalse(self.services["stack"].get("flush", False))
         stage = next(
             i
             for i, task in enumerate(self.core)

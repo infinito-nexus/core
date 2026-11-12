@@ -2,13 +2,51 @@
 
 ## Description
 
-Provider of the shared `stack` service. Every application that ships a compose project or serves a vhost declares `stack` in its own `meta/services.yml`, so [sys-service-loader](../sys-service-loader/README.md) resolves the service as required and loads this role once per host in the dependency phase, ahead of the application roles.
+Provider of the shared `stack` service: the front proxy, the backend and the deferred vhost probe of every application that ships a compose project or serves a vhost, as specified in [045 Stack Service](../../docs/requirements/045-stack-service.md).
 
 ## Overview
 
-The role is the single point of truth the stack consumers bind to, as specified in [045 Stack Service](../../docs/requirements/045-stack-service.md). The per-application stack work still runs through the stack includes in each application role until the batch moves into this role.
+Every consumer declares `stack` in its own `meta/services.yml`, so [sys-service-loader](../sys-service-loader/README.md) resolves the service as required and loads this role once per host in the dependency phase. The consumer then enters the stack from its own tasks, without parameters, where its stack must be up:
+
+```yaml
+- name: "🧱 Load the stack"
+  ansible.builtin.include_role:
+    name: svc-stack
+    tasks_from: consumer.yml
+```
+
+| Entry | Runs |
+|---|---|
+| `consumer.yml` | The front proxy on the first OpenResty host with `run_once`, then the backend. |
+| `consumer/front.yml` | The front proxy on the current host, for a consumer that serves its vhosts at another point than its backend. |
+| `consumer/back.yml` | The backend alone. |
+
+Each entry takes the consumer from the role that includes it, derives what the consumer needs from the files it ships and the services it enables, and reads every per-vhost value from the consumer's meta. The play runs `tasks_from: deferred_probe.yml` after the shared-service preload and after the server roles.
 
 ## Features
 
-- **Service provider:** Owns the `stack` service key; its primary entity is enabled and shared, so the service registry discovers it.
-- **Once per host:** Sets its run-once flag on the first load, so later loads in the same play skip it.
+- **Front proxy:** Runs when the consumer enables and shares `openresty`. It serves every vhost the consumer's `server.vhosts` declares and every network sibling of each.
+- **Backend:** Runs when the consumer ships `templates/compose.yml.j2` or declares `services.stack.checkout.url`. It provisions the database when `postgres` or `mariadb` is enabled and shared, the object store and the engines by their own keys, then the compose project, the SSO proxy sidecar and the dedicated-database realign on `STACK_HOST`.
+- **Compose flush:** `services.stack.flush: true` flushes the compose handlers at the end of the stack run; without it the consumer's own flush picks them up.
+- **Repository checkout:** `services.stack.checkout.url`, `.ref` and `.recursive` (default `true`) clone the consumer's sources into its compose instance. A consumer that sets `.ref` declares `ref_kind` (`tag` or `branch`) on its primary entity, from which [sys-svc-compose](../sys-svc-compose/README.md) derives the refspec.
+- **Deferred reachability probe:** Every vhost is queued, and `tasks_from: deferred_probe.yml` probes the queue in one parallel batch and empties it. A vhost answering like a stale config restarts OpenResty once; one still unserved after that fails the deploy by name. A vhost whose config changed is additionally verified right after its reload.
+
+## Vhost meta
+
+`server.vhosts` in the consumer's `meta/server.yml` maps a vhost key to its parameters. A key of `domains.canonical` serves that canonical domain, `default` serves the primary domain, and a consumer without `vhosts` gets one vhost for its primary domain.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `domain` | the canonical domain of the key | One domain or a list, overriding the key's domain. |
+| `domains` | none | A list of the selectors `primary`, `canonical` and `served`, resolved in the listed order. |
+| `enabled` | `true` | A false value drops the vhost. |
+| `http_port` | `services.<entity>.ports.local.http` | Local port the vhost proxies to. |
+| `service_key` | `services.<entity>.proxy.service_key`, else the entity | Swarm service the vhost proxies to. |
+| `internal_port` | `services.<entity>.proxy.internal_port` | Container port the swarm overlay reaches. |
+| `flavour` | `basic` | Vhost template of `sys-svc-proxy`: `basic` or `ws_generic`. |
+| `websocket_location` | empty | Websocket location of the `ws_generic` flavour. |
+| `client_max_body_size` | `server.client_max_body_size`, else `100m` | Request body limit. |
+| `extra_configuration` | empty | Literal server-block configuration. |
+| `extra_template` | none | Role template rendered as the server-block configuration. |
+| `location_extra_template` | none | Role template rendered into the proxied location. |
+| `vars` | `{}` | Further template variables, such as `websocket_port` or the `aca_*` CORS values. |

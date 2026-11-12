@@ -1,0 +1,7 @@
+---
+vhosts:
+  default:
+    domains:
+      - canonical
+      - served
+    extra_configuration: "client_max_body_size {{ lookup('config', 'web-app-wordpress', 'services.wordpress.max_upload_size') }};"

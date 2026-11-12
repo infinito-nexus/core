@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via `sys-stk-full`. Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via the mail server ([web-app-email](../web-app-email/)) are wired when their providers are present.
+This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via [svc-stack](../svc-stack/README.md). Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via the mail server ([web-app-email](../web-app-email/)) are wired when their providers are present.
 
 ## Features
 

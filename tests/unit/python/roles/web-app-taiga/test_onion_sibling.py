@@ -13,7 +13,11 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from plugins.lookup.tls import LookupModule as TlsLookup
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_TASKS_MAIN,
+    ROLE_FILE_VARS_MAIN,
+)
 
 filter_loader.add_directory(str(PROJECT_ROOT / "plugins" / "filter"))
 
@@ -21,6 +25,7 @@ ROLE = "web-app-taiga"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
 VARS = ROLE_DIR / ROLE_FILE_VARS_MAIN
 MAIN = ROLE_DIR / ROLE_FILE_TASKS_MAIN
+SERVER = ROLE_DIR / ROLE_FILE_META_SERVER
 SHEET = ROLE_DIR / "templates" / "design" / "infinito-design.css.j2"
 
 CLEAR = "taiga.kanban.example.test"
@@ -144,10 +149,14 @@ class TestStackWiring(unittest.TestCase):
         stack = next(
             task
             for task in load_yaml_any(str(MAIN))
-            if task.get("include_role", {}).get("name") == "sys-stk-full"
+            if task.get("include_role", {}).get("name") == "svc-stack"
         )
+        self.assertEqual(stack["include_role"]["tasks_from"], "consumer.yml")
+        template = load_yaml_any(str(SERVER))["vhosts"]["default"][
+            "location_extra_template"
+        ]
         self.assertEqual(
-            stack["vars"]["webserver_location_extra_configuration"],
+            read_text(str(ROLE_DIR / "templates" / template)).strip(),
             "{{ TAIGA_LOCATION_CONFIGURATION }}",
         )
 

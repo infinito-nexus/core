@@ -102,6 +102,9 @@ semaphore:
 # nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
 stack:
   bond: 1
+  checkout:
+    ref: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.ref') }}"
+    url: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.repository') }}"
   enabled: true
   shared: true
 

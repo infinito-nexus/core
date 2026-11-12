@@ -15,9 +15,8 @@
   when: ZAMMAD_MCP_ENABLED | bool
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"

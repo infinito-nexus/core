@@ -8,7 +8,8 @@
   when: LIBRETRANSLATE_MCP_ENABLED | bool
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📦 Stage the model prefetch of {{ application_id }}"
   stack_host_copy:

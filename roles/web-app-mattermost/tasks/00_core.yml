@@ -9,9 +9,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📁 Create the build context of '{{ application_id }}'"
   ansible.builtin.file:
