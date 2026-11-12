@@ -157,7 +157,7 @@ if [[ -n "${REPO_PREFIX}" ]]; then
 fi
 
 if [[ -n "${OWNER}" || -n "${GITHUB_REPOSITORY_OWNER:-}" || -n "${GITHUB_REPOSITORY:-}" ]]; then
-	OWNER="$(OWNER="${OWNER}" GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-}" GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-}" scripts/meta/resolve/repository/owner.sh)"
+	OWNER="$(OWNER="${OWNER}" GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-}" GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-}" "${_build_script_dir}/../meta/resolve/repository/owner.sh")"
 fi
 
 if [[ -z "${TARGET}" ]]; then

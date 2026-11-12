@@ -57,9 +57,10 @@ def _build(prune_help: str, cap: str) -> tuple[int, list[str], str]:
                 "INFINITO_PYTHON_INSTALL_SCRIPT": "python.sh",
                 "INFINITO_DOCKER_CLI_INSTALL_SCRIPT": "docker-cli.sh",
                 "INFINITO_BUILD_CACHE_MAX_SIZE": cap,
+                "GITHUB_REPOSITORY_OWNER": "probe-owner",
             }
         )
-        for key in ("GITHUB_REPOSITORY", "GITHUB_REPOSITORY_OWNER", "OWNER"):
+        for key in ("GITHUB_REPOSITORY", "OWNER"):
             env.pop(key, None)
         done = subprocess.run(
             ["bash", str(SCRIPT), "--tag", "probe/debian:dev-1"],
