@@ -544,9 +544,10 @@ class TestMoodle(_EnforcementCase, unittest.TestCase):
     ROLE = "web-app-moodle"
     ENTITY = "moodle"
     TASKS = "tasks/05_login_methods.yml"
-    ON = "nosetup=0 grace=1 expired=1"
-    OFF = "nosetup=1 grace=0 expired=0"
-    UNMANAGED = "nosetup=0 grace=untouched expired=0"
+    ON = "nosetup=0 grace=enforced expired=1"
+    OFF = "nosetup=1 grace=offered expired=0"
+    UNMANAGED = "nosetup=0 grace=off expired=0"
+    GRACE = "-e MOODLE_MFA_GRACE_MODE="
 
     def _task(self, component: str) -> dict:
         tasks = load_yaml_str(read_text(str(ROLES / self.ROLE / self.TASKS)))
@@ -573,13 +574,22 @@ class TestMoodle(_EnforcementCase, unittest.TestCase):
 
     def _value(self, mode: tuple[str, ...], second_factor: dict[str, bool]) -> str:
         nosetup = self._setting("factor_nosetup", mode, second_factor)
-        grace = self._setting("factor_grace", mode, second_factor)
+        line = line_with(self.ROLE, self.TASKS, self.GRACE).removeprefix("-e ")
+        grace = value_of(render(self.ROLE, line, mode, self.ENTITY, second_factor))
         expired = self._setting("local_mfaenforce", mode, second_factor)
         return f"nosetup={nosetup} grace={grace} expired={expired}"
 
-    def test_the_grace_factor_forces_setup(self) -> None:
-        settings = self._task("factor_grace")["vars"]["moodle_plugin_config_settings"]
-        self.assertEqual(1, settings["forcesetup"])
+    def test_the_grace_factor_converges_on_every_deploy_through_its_script(
+        self,
+    ) -> None:
+        tasks = load_yaml_str(read_text(str(ROLES / self.ROLE / self.TASKS)))
+        task = next(
+            t for t in tasks if self.GRACE in str(t.get("ansible.builtin.shell"))
+        )
+        self.assertNotIn("when", task)
+        self.assertEqual(
+            "{{ lookup('file', 'php/provision/mfa_grace.php') }}", task["args"]["stdin"]
+        )
 
     def test_the_plugin_reaches_the_code_volume_before_the_database_upgrade(
         self,

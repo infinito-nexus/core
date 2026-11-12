@@ -32,14 +32,16 @@
     moodle_plugin_config_settings:
       enabled: "{{ MOODLE_MFA_NOSETUP_ENABLED }}"
 
-- name: "🔐 Send accounts without a factor to setup while MFA is enforced"
-  include_tasks: utils/plugin_config.yml
-  vars:
-    moodle_plugin_config_component: factor_grace
-    moodle_plugin_config_settings:
-      enabled: "{{ MOODLE_MFA_GRACE_ENABLED }}"
-      forcesetup: 1
-  when: MOODLE_LOGIN_2FA | bool
+- name: "🔐 Send accounts without a factor to setup while MFA is enforced, clearing only a grace factor the deploy owns"
+  ansible.builtin.shell: >
+    container exec -i --user {{ MOODLE_RUNTIME_USER }}
+    -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
+    -e MOODLE_MFA_GRACE_MODE={{ MOODLE_MFA_GRACE_MODE | quote }}
+    {{ MOODLE_CONTAINER_ADDRESS }} php
+  args:
+    stdin: "{{ lookup('file', 'php/provision/mfa_grace.php') }}"
+  register: moodle_mfa_grace
+  changed_when: moodle_mfa_grace.stdout is search('^CHANGED [1-9]', multiline=True)
 
 - name: "🔐 Start the grace period as expired at every sign-in while MFA is enforced"
   include_tasks: utils/plugin_config.yml
