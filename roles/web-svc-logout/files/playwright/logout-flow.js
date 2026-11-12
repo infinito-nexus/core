@@ -341,13 +341,13 @@ function base64url(value) {
 }
 
 /**
- * Return a logout token that carries valid claims but is signed with a key
- * Keycloak never published.
+ * Return a logout token signed with a key Keycloak never published.
  *
  * Args:
  *   audience: the client id the token pretends to be for.
+ *   overrides: claims that replace the valid ones, such as a foreign `iss`.
  */
-function forgedLogoutToken(audience) {
+function forgedLogoutToken(audience, overrides = {}) {
   const { privateKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
   const now = Math.floor(Date.now() / 1000);
   const header = base64url({ alg: "RS256", typ: "logout+jwt", kid: crypto.randomUUID() });
@@ -359,6 +359,7 @@ function forgedLogoutToken(audience) {
     jti: crypto.randomUUID(),
     sid: crypto.randomUUID(),
     events: { "http://schemas.openid.net/event/backchannel-logout": {} },
+    ...overrides,
   });
   const signature = crypto.sign("sha256", Buffer.from(`${header}.${claims}`), privateKey).toString("base64url");
   return `${header}.${claims}.${signature}`;
