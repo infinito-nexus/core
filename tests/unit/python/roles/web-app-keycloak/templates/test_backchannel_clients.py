@@ -620,11 +620,9 @@ class TestBackchannelClients(unittest.TestCase):
                 self.assertEqual(shared_client_id_reads(role_client_readers(role)), [])
 
     def test_a_gated_role_that_keeps_the_shared_client_id_is_caught(self) -> None:
-        sources = {"roles/web-app-x/vars/main.yml": 'X_ID: "{{ OIDC.CLIENT.ID }}"'}
-        self.assertEqual(
-            shared_client_id_reads(sources),
-            ["roles/web-app-x/vars/main.yml: OIDC.CLIENT.ID"],
-        )
+        path = f"roles/web-app-x/{ROLE_FILE_VARS_MAIN}"
+        sources = {path: 'X_ID: "{{ OIDC.CLIENT.ID }}"'}
+        self.assertEqual(shared_client_id_reads(sources), [f"{path}: OIDC.CLIENT.ID"])
 
     def test_a_gated_client_that_skips_the_gate_fails_the_check(self) -> None:
         direct = canonical_origin(XWIKI) + UPSTREAM_BACKCHANNEL_ENDPOINTS[XWIKI][1]
