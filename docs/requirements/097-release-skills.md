@@ -104,21 +104,21 @@ The collector is `kvb-create-release`. The general names follow the skills repos
 ### Core (this repository)
 
 - [ ] PR #997 carries a comment with the fork link and the move of its commits; core contains no file of it.
-- [ ] A theme renderer under `utils/design/` maps `build_palette(design.colors.base)` and `design.font` to the motion-presenter theme tokens, takes the logo from `assets/img/logo.png`, and a unit test proves the mapping against the SPOT.
+- [x] A theme renderer under `utils/design/` maps `build_palette(design.colors.base)` and `design.font` to the motion-presenter theme tokens, takes the logo from `assets/img/logo.png`, and a unit test proves the mapping against the SPOT. (`theme` in `utils/design/film_theme.py`; `test_every_contract_token_is_set`, `test_colours_come_from_the_dark_palette_of_the_base`, `test_fonts_come_from_the_design_font` and `test_logo_is_the_design_logo` in `tests/unit/python/utils/design/test_film_theme.py`.)
 - [ ] One `make` target installs the pinned motion-presenter tag and its tools, using the existing headless shell installer ([mermaid_cli.py](../../utils/install/lint/mermaid_cli.py)) instead of a second Chrome download.
 - [ ] `agents/skills/i8-release/SKILL.md` exists, asks for the languages once (default English), writes `brief.yml` and calls every subskill in the table above.
 - [ ] Each `i8-release-<channel>` skill in the table exists, holds only project facts (channel, voice, measured length bounds, links, hashtags, templates) and names its general method.
-- [ ] `i8-release-article` writes only the blog article and banner; the Mastodon and LinkedIn texts move to their own subskills, so no channel is written by two skills; `banner.svg` takes its colours from the theme renderer.
+- [x] `i8-release-article` writes only the blog article and banner; the Mastodon and LinkedIn texts move to their own subskills, so no channel is written by two skills; `banner.svg` takes its colours from the theme renderer. (`agents/skills/i8-release-article/SKILL.md` beside `i8-release-mastodon` and `i8-release-linkedin`; `test_every_channel_is_written_by_exactly_one_skill` in `tests/unit/python/agents/routines/test_release.py`, `test_templates_carry_no_colour_literal` in `tests/unit/python/utils/design/test_film_theme.py`.)
 - [ ] `i8-release-video` writes the scene data from `brief.yml`, renders the theme, and calls motion-presenter; no theme, logo or scene data is checked in.
-- [ ] `i8-release-changelog` runs a deterministic extractor before any prose step:
+- [x] `i8-release-changelog` runs a deterministic extractor before any prose step (`cli/contributing/changelog/extract`, called first in `agents/skills/i8-release-changelog/SKILL.md`; `test_jumps.py`, `test_pins.py`, `test_contributors.py` and `test_entry.py` in `tests/unit/python/cli/contributing/changelog/extract/`):
   - version jumps from the net diff between the last tag and the target, across `roles/*/meta/**/*.yml`, `requirements.yml` collections, `pyproject.toml` and Dockerfiles under `roles/*/files`, including renamed and added pins and versions inside URLs;
   - per-role rows collapsed into one line per role;
   - contributors from `git shortlog -sne` over the range, mapped to their GitHub profile URL, without bots, with co-author trailers counted;
   - the entry inserted into a scratch copy of `CHANGELOG.md` and checked with markdownlint;
   - a unit test per source proves the extraction.
-- [ ] The routine behind `i8-release` reads the changelog in one step and every channel step reads `brief.yml`; `python -m agents.routines show release` prints the steps.
-- [ ] The routine's check step is deterministic: it fails on a leftover placeholder, an em dash, a length outside the channel's bounds or a number absent from the brief, and a unit test proves each failure.
-- [ ] The investor newsletter omits a section the repository and the facts file cannot prove, and a test proves the omission.
+- [x] The routine behind `i8-release` reads the changelog in one step and every channel step reads `brief.yml`; `python -m agents.routines show release` prints the steps. (`agents/routines/release.py`; `test_show_prints_every_step` and `test_every_channel_step_reads_the_brief_only` in `tests/unit/python/agents/routines/test_release.py`.)
+- [x] The routine's check step is deterministic: it fails on a leftover placeholder, an em dash, a length outside the channel's bounds or a number absent from the brief, and a unit test proves each failure. (`problems` in `agents/routines/tools/release.py`; `test_a_leftover_placeholder_fails`, `test_an_em_dash_fails`, `test_a_length_outside_the_bounds_fails` and `test_a_number_absent_from_the_brief_fails` in `tests/unit/python/agents/routines/tools/test_release.py`.)
+- [x] The investor newsletter omits a section the repository and the facts file cannot prove, and a test proves the omission. (`outline` in `agents/routines/tools/release.py`; `test_a_section_without_evidence_is_omitted` in `tests/unit/python/agents/routines/tools/test_release.py`.)
 - [ ] `agents/roles/release/agent.yml`, the [cheatsheet](../contributing/tools/agents/cheatsheet.md) and every other reference name the new skills.
 - [ ] The lints under `tests/lint/agents/` and the repository lints pass for every new file, and its Markdown follows [documentation.md](../contributing/documentation.md).
 
