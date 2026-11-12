@@ -125,7 +125,7 @@ litellm:
 
 ### Secrets
 
-- [ ] `RELAY_SHARED_SECRET`, `REDIS_PASSWORD`, `REDIS_TOKEN` and `WM_SESSION_SECRET` are generated through `meta/secrets.yml` and no literal secret value is committed.
+- [x] `RELAY_SHARED_SECRET`, `REDIS_PASSWORD`, `REDIS_TOKEN` and `WM_SESSION_SECRET` are generated through `meta/secrets.yml` and no literal secret value is committed.
 - [x] `I_UNDERSTAND_THIS_DISABLES_AUTH` and `ALLOW_UNAUTHENTICATED_RELAY` are not set anywhere in the role.
 - [ ] Optional external API keys (`FINNHUB_API_KEY`, `ALPHA_VANTAGE_API_KEY`, `FRED_API_KEY`, `EIA_API_KEY`, `ACLED_*`, `NASA_FIRMS_API_KEY`, `AVIATIONSTACK_API`, `TRAVELPAYOUTS_API_TOKEN`, `AISSTREAM_API_KEY`, `CLOUDFLARE_API_TOKEN`) reach the containers that read them when the operator sets them, and the stack is healthy when all are empty.
 
@@ -169,7 +169,7 @@ litellm:
 
 - [ ] `worldmonitor` has a container healthcheck that fails when either nginx or the Node API is down.
 - [ ] `redis` and `redis-rest` have container healthchecks, and the `redis-rest` check fails when Redis is unreachable.
-- [ ] `ais-relay` has a container healthcheck.
+- [x] `ais-relay` has a container healthcheck.
 
 ### Variants
 
