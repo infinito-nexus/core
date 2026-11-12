@@ -6,12 +6,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 import cli.contributing.security.issues.__main__ as issues_main
 from cli.meta.ci import runtime_vulnerabilities as rv
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml
 from utils.security.pipeline import pipeline
 
 P = pipeline()
@@ -385,7 +383,7 @@ class TestMainGuard(unittest.TestCase):
 
     def test_the_workflow_job_runs_only_on_main_and_hands_the_ref_on(self):
         workflow = PROJECT_ROOT / ".github" / "workflows" / "call-orchestrator.yml"
-        job = yaml.safe_load(read_text(str(workflow)))["jobs"]["report-main-failures"]
+        job = load_yaml(str(workflow))["jobs"]["report-main-failures"]
         self.assertTrue(self.guarded(job))
         self.assertFalse(self.guarded({**job, "if": "${{ always() }}"}))
 
