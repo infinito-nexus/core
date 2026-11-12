@@ -130,7 +130,7 @@ class ProbeTests(unittest.TestCase):
         params = {**PARAMS, "status_codes": [200, 302]}
         opener = mock.Mock(side_effect=_replies(found))
         with mock.patch.object(_MOD, "open_url", opener):
-            self.assertEqual(_MOD.probe("http://x/", params), 302)
+            self.assertEqual(_MOD.probe("http://x/", params), (302, None))
         self.assertEqual(opener.call_count, 1)
 
 

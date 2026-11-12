@@ -125,7 +125,7 @@
       }}
   changed_when: false
 
-- name: "⚙️ TLS | (self_signed) generate leaf cert (only when missing, SAN drift or no AKID)"
+- name: "⚙️ TLS | (self_signed) generate leaf cert (missing, SAN drift or no AKID)"
   ansible.builtin.include_tasks:
     file: 01_generate_leaf.yml
     apply:
