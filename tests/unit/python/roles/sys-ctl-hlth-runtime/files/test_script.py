@@ -1263,8 +1263,8 @@ class ExportingEngines(FakeEngines):
             self.exports += 1
             self.overlap.notify_all()
             self.overlap.wait_for(lambda: self.exporting >= 2, timeout=0.1)
-            on_disk = len(list(self.layout.work.rglob("*.tar")))
-            self.on_disk_peak = max(self.on_disk_peak, on_disk)
+            tars = self.layout.work.rglob("*.tar")  # nocheck: project-walk tempdir
+            self.on_disk_peak = max(self.on_disk_peak, len(list(tars)))
         try:
             if archive:
                 return SimpleNamespace(returncode=0, stdout="", stderr="")
@@ -1309,7 +1309,7 @@ class TestScratch(TestCase):
     def _left_on_disk(self):
         return sorted(
             path.relative_to(self.layout.work).as_posix()
-            for path in self.layout.work.rglob("*")
+            for path in self.layout.work.rglob("*")  # nocheck: project-walk tempdir
             if path.suffix == ".tar" or path.name.startswith("tmp-")
         )
 
