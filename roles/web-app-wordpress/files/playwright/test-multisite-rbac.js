@@ -347,6 +347,49 @@ exports.register = function (shared) {
     });
   });
 
+  test("biber: the global editor group grants WordPress Editor on every site without a site-specific group and leaving it takes Editor away (multisite)", async ({
+    browser,
+  }) => {
+    skipUnlessServiceEnabled("sso");
+    test.skip(!shared.env.multisiteEnabled, MULTISITE_SKIP_REASON);
+    test.setTimeout(resolveTimeout(360_000));
+    const { primary, children } = networkTenants(shared.env);
+    const domains = [primary, ...children];
+    const groupPath = shared.rbacGroupPath({ role: "editor" });
+    const asBiber = (body) =>
+      withWordPressLogin(browser, shared, shared.env.biberUsername, shared.env.biberPassword, body);
+    const asAdmin = (body) =>
+      withWordPressLogin(browser, shared, shared.env.adminUsername, shared.env.adminPassword, body);
+
+    await withBiberInGroup(browser, shared, groupPath, async (leaveGroup) => {
+      await asBiber((page) => expectNoSuperAdmin(page, shared, `biber in ${groupPath}`));
+      await asAdmin(async (page) => {
+        for (const domain of domains) {
+          const rows = await siteUserRows(page, shared, domain);
+          await expect(rows.first(), `biber in ${groupPath} MUST be a member of ${domain}`).toBeVisible({
+            timeout: resolveTimeout(30_000),
+          });
+          await expect(
+            rows.first().locator("td.column-role"),
+            `biber in ${groupPath} MUST hold Editor on ${domain}`
+          ).toContainText("Editor");
+        }
+      });
+
+      await leaveGroup();
+      await asBiber((page) => expectNoSuperAdmin(page, shared, `biber after leaving ${groupPath}`));
+      await asAdmin(async (page) => {
+        for (const domain of domains) {
+          const rows = await siteUserRows(page, shared, domain);
+          await expect(
+            rows.filter({ has: page.locator("td.column-role", { hasText: "Editor" }) }),
+            `biber after leaving ${groupPath} MUST NOT hold Editor on ${domain}`
+          ).toHaveCount(0);
+        }
+      });
+    });
+  });
+
   test("biber: joining site-owner creates biber's own site on the first login, leaving archives it and rejoining restores it (multisite)", async ({
     browser,
   }) => {
