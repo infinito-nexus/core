@@ -113,8 +113,8 @@ function element(spec) {
     value: shape.value || "",
     checked: Boolean(shape.checked),
     selectedOptions: (shape.selected || []).map((value) => ({ value })),
-    readOnly: false,
-    disabled: false,
+    readOnly: Boolean(shape.readOnly),
+    disabled: Boolean(shape.disabled),
     title: "",
     style: {},
     attributes: {},
@@ -187,12 +187,22 @@ for (const [selector, tags] of Object.entries(CONFIG.fields)) {
 """
 
 EPILOGUE = """
-for (const [selector, tags] of Object.entries(CONFIG.late)) {
-  fields[selector] = (fields[selector] || []).concat(tags.map(element));
+function add(late) {
+  for (const [selector, tags] of Object.entries(late)) {
+    fields[selector] = (fields[selector] || []).concat(tags.map(element));
+  }
 }
-for (const [selector, value] of Object.entries(CONFIG.valuesAfter)) {
-  (fields[selector] || []).forEach((field) => { field.value = value; });
+function assign(values) {
+  for (const [selector, value] of Object.entries(values)) {
+    (fields[selector] || []).forEach((field) => { field.value = value; });
+  }
 }
+function settle() {
+  observers.forEach((callback) => callback([]));
+  frames.splice(0).forEach((callback) => callback(0));
+}
+add(CONFIG.late);
+assign(CONFIG.valuesAfter);
 if (CONFIG.hashAfter !== null) {
   location.hash = CONFIG.hashAfter;
   routes.filter(({ type }) => type === "hashchange").forEach(({ callback }) => callback());
@@ -206,13 +216,18 @@ if (CONFIG.dblclick.length) {
   for (const selector of CONFIG.dblclick) {
     for (const field of fields[selector] || []) {
       const target = CONFIG.onLabel ? field.labels[0] : field;
+      if (target.disabled) { continue; }
       for (const { type, callback } of listeners.get(target) || []) {
         if (type === "dblclick") { callback(); }
       }
     }
   }
-  observers.forEach((callback) => callback([]));
-  frames.splice(0).forEach((callback) => callback(0));
+  settle();
+}
+for (const stage of CONFIG.then) {
+  add(stage.late || {});
+  assign(stage.values || {});
+  settle();
 }
 const banners = body.children.map((child) => ({
   id: child.id,
@@ -289,6 +304,7 @@ def _run(
     form: bool = False,
     hash_after: str | None = None,
     values_after: dict | None = None,
+    then: tuple[dict, ...] = (),
 ) -> dict:
     """Run a rendered renderer and return what the stub document saw.
 
@@ -302,12 +318,17 @@ def _run(
         batches: mutation batches delivered before the next animation frame.
         page: ``location.pathname`` plus ``location.search`` and ``location.hash``.
         dblclick: selectors whose fields get a double-click after the first
-            frame; one more mutation batch and frame follow.
+            frame, except a disabled target, which a browser leaves without
+            one; one more mutation batch and frame follow.
         on_label: double-click the first label of each field instead.
         confirm: what the confirmation dialog answers.
         form: whether every field sits in a form.
         hash_after: the ``location.hash`` a ``hashchange`` sets after the first run.
         values_after: selector mapped to the value its elements hold after the first run.
+        then: stages after the double-click, each a mapping of ``late``
+            (selector mapped to the tag names or element specs it adds) and
+            ``values`` (selector mapped to the value its elements hold), each
+            followed by one mutation batch and frame.
 
     Returns:
         ``fields``: selector mapped to its elements afterwards; ``queries``:
@@ -324,7 +345,13 @@ def _run(
             "navigator": browser,
             "fields": fields,
             "late": late or {},
-            "selectors": sorted({*fields, *(late or {})}),
+            "selectors": sorted(
+                {
+                    *fields,
+                    *(late or {}),
+                    *(key for stage in then for key in stage.get("late", {})),
+                }
+            ),
             "batches": batches,
             "pathname": pathname,
             "search": f"?{search}" if search else "",
@@ -335,6 +362,7 @@ def _run(
             "onLabel": on_label,
             "confirm": confirm,
             "form": form,
+            "then": list(then),
         }
     )
     program = f"const CONFIG = {config};\n{HARNESS}\n{script}\n{EPILOGUE}"
@@ -819,9 +847,9 @@ class TestToggleLock(unittest.TestCase):
 
     def test_the_unlock_removes_the_carrier_so_the_edit_posts_alone(self):
         radio = _toggle("radio", "libretranslate", checked=True)
-        field = _managed(fields={"#title": [radio]}, dblclick=("#title",))["fields"][
-            "#title"
-        ][0]
+        field = _managed(
+            fields={"#title": [radio]}, dblclick=("#title",), on_label=True
+        )["fields"]["#title"][0]
 
         self.assertFalse(field["disabled"])
         self.assertEqual(1, len(field.get("carriers", [])))
@@ -834,6 +862,98 @@ class TestToggleLock(unittest.TestCase):
 
         self.assertEqual("radio", field["type"])
         self.assertTrue(field["disabled"])
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestControlLock(unittest.TestCase):
+    def test_a_button_is_disabled_and_carries_nothing(self):
+        seen = _managed(fields={"#title": [{"tagName": "BUTTON", "name": "add"}]})
+        button = seen["fields"]["#title"][0]
+
+        self.assertTrue(button["disabled"])
+        self.assertFalse(button["readOnly"])
+        self.assertEqual(f"Managed by the deployment at {TITLE_PATH}", button["title"])
+        self.assertNotIn("input", seen["created"])
+
+    def test_an_input_read_only_does_not_hold_is_disabled_and_carried(self):
+        color = {"tagName": "INPUT", "type": "color", "name": "accent", "value": "#336"}
+        field = _managed(fields={"#title": [color]})["fields"]["#title"][0]
+
+        self.assertTrue(field["disabled"])
+        self.assertFalse(field["readOnly"])
+        self.assertEqual(["#336"], _carried(field))
+
+    def test_a_control_that_posts_no_value_gets_no_carrier(self):
+        controls = [
+            {"tagName": "INPUT", "type": "submit", "name": "save", "value": "Save"},
+            {"tagName": "INPUT", "type": "file", "name": "logo"},
+        ]
+        seen = _managed(fields={"#title": controls})
+
+        for field in seen["fields"]["#title"]:
+            self.assertTrue(field["disabled"])
+            self.assertEqual([], _carried(field))
+        self.assertNotIn("input", seen["created"])
+
+    def test_a_textarea_turns_read_only(self):
+        field = _managed(fields={"#title": ["TEXTAREA"]})["fields"]["#title"][0]
+
+        self.assertTrue(field["readOnly"])
+        self.assertFalse(field["disabled"])
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestFieldUnlock(unittest.TestCase):
+    def test_one_double_click_frees_every_control_of_the_field(self):
+        seen = _managed(
+            fields={"#title": ["INPUT", {"tagName": "BUTTON"}]}, dblclick=("#title",)
+        )
+        text, button = seen["fields"]["#title"]
+
+        self.assertEqual(["Edit anyway?"], seen["confirms"])
+        self.assertFalse(text["readOnly"])
+        self.assertFalse(button["disabled"])
+        self.assertEqual("", button["title"])
+        self.assertEqual(1, len(seen["banners"]))
+        self.assertIn(TITLE_PATH, seen["banners"][0]["text"])
+
+    def test_a_control_rendered_while_the_field_is_unlocked_stays_free(self):
+        seen = _managed(
+            fields={"#title": ["INPUT"]},
+            dblclick=("#title",),
+            then=({"late": {"#title": ["INPUT"]}},),
+        )
+        first, added = seen["fields"]["#title"]
+
+        self.assertFalse(first["readOnly"])
+        self.assertFalse(added["readOnly"])
+        self.assertEqual("", added["title"])
+
+    def test_the_unlock_ends_when_the_page_turns_to_another_record(self):
+        seen = _routed(
+            forms=RECORD_FORMS,
+            fields=_client(CREATED[0]),
+            page=CONSOLE + CLIENT_HASH,
+            dblclick=("#redirects",),
+            then=(
+                {"values": {"#clientId": CREATED[1]}},
+                {"values": {"#clientId": CREATED[0]}},
+            ),
+        )
+
+        self.assertEqual(["Edit anyway?"], seen["confirms"])
+        self.assertTrue(seen["fields"]["#redirects"][0]["readOnly"])
+
+    def test_an_unlock_leaves_a_control_the_page_disabled_itself_disabled(self):
+        select = {"tagName": "SELECT", "disabled": True}
+        seen = _managed(
+            fields={"#title": [select]}, dblclick=("#title",), on_label=True
+        )
+        field = seen["fields"]["#title"][0]
+
+        self.assertEqual(["Edit anyway?"], seen["confirms"])
+        self.assertTrue(field["disabled"])
+        self.assertEqual("", field["title"])
 
 
 if __name__ == "__main__":

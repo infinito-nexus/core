@@ -2,6 +2,8 @@
   const LOCKS = {{ lookup('field_locks', application_id).locks | to_inline_js }};
   const CATALOGUE = {{ lookup('template', 'roles/sys-front-inj-javascript/templates/profile_lock_catalogue.json.j2') }};
   const BANNER = "infinito-managed-fields";
+  const TYPED = ["text", "search", "url", "tel", "email", "password", "date", "month", "week", "time", "datetime-local", "number"];
+  const UNPOSTED = ["button", "submit", "reset", "image", "file"];
   let scheduled = false;
   let locked = [];
 
@@ -31,8 +33,16 @@
     return field.tagName === "INPUT" && (field.type === "radio" || field.type === "checkbox");
   }
 
+  function typed(field) {
+    return field.tagName === "TEXTAREA" || (field.tagName === "INPUT" && TYPED.indexOf(field.type) !== -1);
+  }
+
   function lockProperty(field) {
-    return field.tagName === "SELECT" || toggles(field) ? "disabled" : "readOnly";
+    return typed(field) ? "readOnly" : "disabled";
+  }
+
+  function posts(field) {
+    return field.tagName === "SELECT" || (field.tagName === "INPUT" && UNPOSTED.indexOf(field.type) === -1);
   }
 
   function submitted(field) {
@@ -43,7 +53,7 @@
   }
 
   function carry(field) {
-    if (!field.name || lockProperty(field) !== "disabled") { return; }
+    if (!field.name || lockProperty(field) !== "disabled" || !posts(field)) { return; }
     field.infinitoCarriers = submitted(field).map(function (value) {
       const carrier = document.createElement("input");
       carrier.type = "hidden";
@@ -52,18 +62,6 @@
       field.insertAdjacentElement("afterend", carrier);
       return carrier;
     });
-  }
-
-  function unlock(field) {
-    if (!field.infinitoWarning || field.infinitoUnlocked || !window.confirm(speak().unlock)) { return; }
-    field.infinitoUnlocked = true;
-    field.infinitoHeld = false;
-    field[lockProperty(field)] = false;
-    (field.infinitoCarriers || []).forEach(function (carrier) { carrier.remove(); });
-    field.infinitoCarriers = [];
-    field.removeAttribute("aria-readonly");
-    field.title = "";
-    field.style.cursor = "";
   }
 
   function release(field) {
@@ -78,8 +76,13 @@
     field.infinitoHeld = false;
     field.infinitoCarriers = [];
     field.infinitoWarning = "";
-    field.infinitoUnlocked = false;
     field.infinitoRecord = undefined;
+  }
+
+  function unlock(entry, field) {
+    if (!field.infinitoWarning || !window.confirm(speak().unlock)) { return; }
+    entry.unlocked = field.infinitoRecord;
+    document.querySelectorAll(entry.selector).forEach(function (control) { release(control); });
   }
 
   function lock(field, entry, warning) {
@@ -90,7 +93,7 @@
       carry(field);
     }
     field.infinitoWarning = warning;
-    if (entry.secret && field.tagName === "INPUT" && !toggles(field)) { field.type = "password"; }
+    if (entry.secret && field.tagName === "INPUT" && typed(field)) { field.type = "password"; }
     field.setAttribute("aria-readonly", "true");
     field.title = warning;
     field.style.cursor = "not-allowed";
@@ -99,7 +102,7 @@
     if (entry.path === null || field.infinitoUnlockable) { return; }
     field.infinitoUnlockable = true;
     [field].concat(labels).forEach(function (target) {
-      target.addEventListener("dblclick", function () { unlock(field); });
+      target.addEventListener("dblclick", function () { unlock(entry, field); });
     });
   }
 
@@ -129,6 +132,7 @@
     let anchor = null;
     LOCKS.forEach(function (entry) {
       const key = onPage(entry.page) ? editing(entry) : null;
+      if (key !== entry.unlocked) { entry.unlocked = undefined; }
       if (key === null) { return; }
       const warning = entry.path === null ? messages.locked : messages.managed + " " + entry.path;
       const fields = document.querySelectorAll(entry.selector);
@@ -136,13 +140,11 @@
         managed.push(entry.label + ": " + entry.path);
         anchor = anchor || fields[0].form || null;
       }
+      if (key === entry.unlocked) { return; }
       fields.forEach(function (field) {
         current.push(field);
-        if (field.infinitoRecord !== key) {
-          field.infinitoRecord = key;
-          field.infinitoUnlocked = false;
-        }
-        if (!field.infinitoUnlocked && field.title !== warning) { lock(field, entry, warning); }
+        field.infinitoRecord = key;
+        if (field.title !== warning) { lock(field, entry, warning); }
       });
     });
     locked.forEach(function (field) {
