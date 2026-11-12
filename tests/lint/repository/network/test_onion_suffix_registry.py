@@ -16,36 +16,12 @@ _EXTENSIONS = (".py", ".yml", ".yaml", ".j2", ".sh", ".js", ".php", ".rb", ".lua
 _PREDATING_TEST_CHECKS = frozenset(
     {
         (
-            "roles/test-e2e-playwright/files/onion-test.js",
-            r"""(value) => typeof value === "string" && /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(value)""",
-        ),
-        (
-            "roles/test-e2e-playwright/files/personas/utils/onion.js",
-            r"/\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical())",
-        ),
-        (
-            "roles/test-e2e-playwright/files/playwright.config.js",
-            r"""for (const match of value.match(/https?:\/\/[^/,\s"']+\.onion/gi) || []) {""",
-        ),
-        (
-            "roles/test-e2e-playwright/files/timeouts.js",
-            r"return /\.onion$/i.test(_targetHost());",
-        ),
-        (
-            "roles/test-e2e-playwright/files/timeouts.js",
-            r"""return !isOnionTarget() && /\.onion(?::\d+)?(?:\/|$)/i.test(process.env.OIDC_ISSUER_URL || "");""",
-        ),
-        (
             "roles/web-app-mini-qr/files/playwright/test-design.js",
             'test.skip(new URL(baseUrl()).hostname.endsWith(".onion"), "the camera browser runs without the onion proxy");',
         ),
         (
             "roles/web-app-odoo/files/playwright/_shared.js",
             r"""const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)""",
-        ),
-        (
-            "roles/web-svc-logout/files/playwright/logout-flow.js",
-            r"return isOnionTarget() ? urls : urls.filter((url) => !/\.onion$/i.test(new URL(url).hostname));",
         ),
     }
 )

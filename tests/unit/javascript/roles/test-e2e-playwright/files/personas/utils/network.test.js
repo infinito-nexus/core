@@ -3,12 +3,13 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../../..");
-const { networkOf, crossNetworkLeaks } = require(
+const { networkOf, isTorHost, isTorUrl, torOrigins, crossNetworkLeaks } = require(
   path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/personas/utils/network.js"),
 );
 const { DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
 
 const SUFFIXES = { tor: ".onion" };
+process.env.PLAYWRIGHT_NETWORK_SUFFIXES = JSON.stringify(SUFFIXES);
 const NODE = "b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion";
 const CLEARNET_PAGE = `https://wazuh.${DOMAIN}/app/wz-home`;
 const ONION_PAGE = `http://wazuh.${NODE}/app/wz-home`;
@@ -20,6 +21,37 @@ test("a host is classified by the registry suffixes", () => {
   assert.equal(networkOf(`cdn.${NODE}`, SUFFIXES), "tor");
   assert.equal(networkOf(`cdn.${DOMAIN}`, SUFFIXES), "clearnet");
   assert.equal(networkOf(`CDN.${NODE.toUpperCase()}.`, SUFFIXES), "tor");
+});
+
+test("tor hosts and URLs are classified by the rendered registry table", () => {
+  assert.equal(isTorHost(`cdn.${NODE}`), true);
+  assert.equal(isTorHost(`cdn.${DOMAIN}`), false);
+  assert.equal(isTorHost(""), false);
+  assert.equal(isTorUrl(`http://cdn.${NODE}:8080/x?y=1`), true);
+  assert.equal(isTorUrl(`https://cdn.${DOMAIN}/?next=http://cdn.${NODE}/`), false);
+  assert.equal(isTorUrl("/relative/path"), false);
+});
+
+test("tor origins are collected from free text and JSON lists", () => {
+  assert.deepEqual(
+    torOrigins([
+      `["http://a.${NODE}/x","https://b.${DOMAIN}/"]`,
+      `see http://c.${NODE}:8080/ now`,
+      42,
+      `http://a.${NODE}/y`,
+    ]),
+    [`http://a.${NODE}`, `http://c.${NODE}:8080`],
+  );
+});
+
+test("a run without the rendered table fails loudly", () => {
+  const rendered = process.env.PLAYWRIGHT_NETWORK_SUFFIXES;
+  delete process.env.PLAYWRIGHT_NETWORK_SUFFIXES;
+  try {
+    assert.throws(() => isTorHost(`cdn.${NODE}`), /PLAYWRIGHT_NETWORK_SUFFIXES is missing/);
+  } finally {
+    process.env.PLAYWRIGHT_NETWORK_SUFFIXES = rendered;
+  }
 });
 
 test("the wazuh regression of fork run 35925283225 is reported", () => {

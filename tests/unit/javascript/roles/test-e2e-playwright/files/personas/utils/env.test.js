@@ -3,6 +3,8 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 const Module = require("node:module");
 
+process.env.PLAYWRIGHT_NETWORK_SUFFIXES = JSON.stringify({ tor: ".onion" });
+
 const loadModule = Module._load;
 Module._load = function (request, ...rest) {
   return request === "@playwright/test" ? { expect: () => ({}) } : loadModule.call(this, request, ...rest);

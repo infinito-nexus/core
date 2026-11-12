@@ -24,7 +24,7 @@
       {{ name }}={{ value }}
       {% endfor %}
       PLAYWRIGHT_NETWORK_LEAK={{ (_playwright_passes | length > 1) | string | lower }}
-      PLAYWRIGHT_NETWORK_SUFFIXES={{ _playwright_passes | map('network_of') | network_suffixes | to_json }}
+      PLAYWRIGHT_NETWORK_SUFFIXES={{ lookup('network_suffixes') | to_json }}
       PLAYWRIGHT_NETWORK_ALLOWED_HOSTS={{ OIDC.URL | urlsplit('hostname') }}
       {% set _bypass = lookup('browser_proxy_bypass', _playwright_pass_domain | network_of, OIDC.URL | urlsplit('hostname')) %}
       {% if _bypass %}

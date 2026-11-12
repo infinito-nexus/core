@@ -10,6 +10,7 @@ const {
   performKeycloakLoginForm,
   requireDotenvValue,
 } = require("./personas");
+const { isTorUrl } = require("./personas/utils/network");
 const { isOnionTarget, resolveTimeout } = require("./timeouts");
 
 const SYNAPSE_IDP = "oidc-keycloak";
@@ -25,7 +26,7 @@ const RESULT = "#infinito-logout-result";
  *   urls: the URLs of every network the node serves.
  */
 function reachableThisPass(urls) {
-  return isOnionTarget() ? urls : urls.filter((url) => !/\.onion$/i.test(new URL(url).hostname));
+  return isOnionTarget() ? urls : urls.filter((url) => !isTorUrl(url));
 }
 
 const logoutEnv = {

@@ -1,10 +1,4 @@
-"""Unit tests for roles/test-e2e-playwright/files/timeouts.js.
-
-The helper is dependency-free plain CommonJS. We copy it into a temp dir
-and call it from a short Node script with controlled env, then assert the
-computed timeout / onion detection.
-"""
-
+import json
 import os
 import shutil
 import subprocess
@@ -13,6 +7,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
+from plugins.lookup.network_suffixes import LookupModule as NetworkSuffixes
 from utils.domains.default_primary import default_domain_primary
 
 from . import PROJECT_ROOT
@@ -20,6 +15,10 @@ from . import PROJECT_ROOT
 HELPER_PATH = str(
     PROJECT_ROOT / "roles" / "test-e2e-playwright" / "files" / "timeouts.js"
 )
+NETWORK_PATH = (
+    PROJECT_ROOT / "roles/test-e2e-playwright/files/personas/utils/network.js"
+)
+SUFFIXES = json.dumps(NetworkSuffixes().run([])[0])
 DOMAIN = default_domain_primary()
 
 
@@ -32,11 +31,14 @@ class TestTimeoutsHelper(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix="timeouts-helper-")
         shutil.copy(HELPER_PATH, str(Path(self.tmpdir) / "timeouts.js"))
+        utils = Path(self.tmpdir) / "personas" / "utils"
+        utils.mkdir(parents=True)
+        shutil.copy(NETWORK_PATH, str(utils / "network.js"))
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
-    def _run(self, expr, env):
+    def _node(self, expr, env):
         script = textwrap.dedent(
             f"""
             const t = require("./timeouts");
@@ -46,15 +48,18 @@ class TestTimeoutsHelper(unittest.TestCase):
         script_path = str(Path(self.tmpdir) / "run.js")
         with Path(script_path).open("w") as f:
             f.write(script)
-        proc = subprocess.run(
+        return subprocess.run(
             ["node", "run.js"],
             capture_output=True,
             text=True,
-            env={**os.environ, **env},
+            env={**os.environ, "PLAYWRIGHT_NETWORK_SUFFIXES": SUFFIXES, **env},
             cwd=self.tmpdir,
             timeout=10,
             check=False,
         )
+
+    def _run(self, expr, env):
+        proc = self._node(expr, env)
         self.assertEqual(
             proc.returncode, 0, msg=f"stderr={proc.stderr}\nstdout={proc.stdout}"
         )
@@ -169,6 +174,32 @@ class TestTimeoutsHelper(unittest.TestCase):
                 },
             ),
         )
+
+    def test_a_split_realm_is_a_clearnet_target_with_a_tor_issuer(self):
+        issuer = '"https://auth.abc.onion/realms/main"'
+        cases = (
+            (f'"https://x.{DOMAIN}/"', issuer, "true"),
+            ('"https://x.abc.onion/"', issuer, "false"),
+            (f'"https://x.{DOMAIN}/"', f'"https://auth.{DOMAIN}/realms/main"', "false"),
+            (f'"https://x.{DOMAIN}/"', "", "false"),
+        )
+        for base_url, issuer_url, expected in cases:
+            with self.subTest(base_url=base_url, issuer_url=issuer_url):
+                self.assertIn(
+                    f"RESULT:{expected}",
+                    self._run(
+                        "t.isSplitRealmOidc()",
+                        {"APP_BASE_URL": base_url, "OIDC_ISSUER_URL": issuer_url},
+                    ),
+                )
+
+    def test_a_run_without_the_suffix_table_fails_loudly(self):
+        proc = self._node(
+            "t.isOnionTarget()",
+            {"CANONICAL_DOMAIN": '"x.abc.onion"', "PLAYWRIGHT_NETWORK_SUFFIXES": ""},
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("PLAYWRIGHT_NETWORK_SUFFIXES is missing", proc.stderr)
 
 
 if __name__ == "__main__":

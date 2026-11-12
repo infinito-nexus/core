@@ -141,7 +141,7 @@ lint_one_role() {
 
 	ln -sfn "${REPO_ROOT}/node_modules" "${stage_dir}/node_modules"
 
-	local stub_env=("${CONFIG_TIMEOUT_ENV[@]}")
+	local stub_env=("${CONFIG_TIMEOUT_ENV[@]}" "PLAYWRIGHT_NETWORK_SUFFIXES={}")
 	local env_template="roles/${role}/templates/playwright.env.j2"
 	if [[ -f "${env_template}" ]]; then
 		local key

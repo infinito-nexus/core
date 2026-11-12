@@ -7,10 +7,9 @@
  * `.onion` through the SOCKS proxy. Chromium/clearnet launches unchanged.
  */
 const base = require("@playwright/test");
+const { torOrigins } = require("./personas/utils/network");
 
-const isOnion = Object.values(process.env).some(
-  (value) => typeof value === "string" && /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(value)
-);
+const isOnion = torOrigins(Object.values(process.env)).length > 0;
 
 const test = base.test.extend({
   browser: async ({ playwright }, use) => {
