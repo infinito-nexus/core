@@ -1,26 +1,3 @@
-"""Lint: the stack consumers declare the ``stack`` and ``openresty`` keys.
-
-Requirement ``docs/requirements/045-stack-service.md`` replaces the ``sys-stk-full``, ``sys-stk-backend`` and
-``sys-stk-front-proxy`` includes with one shared ``stack`` service. The
-declaration side of that contract is enforced here:
-
-- One role provides the ``stack`` service, with an enabled and shared
-  primary entity, so the service registry discovers it.
-- Every role with a compose project (a ``web-app-*`` or ``web-svc-*`` role
-  shipping ``templates/compose.yml.j2``) and every role that includes one
-  of the three stack roles declares ``stack`` with literal ``enabled: true``
-  and ``shared: true`` in its own ``meta/services.yml`` (decision 2).
-- Every role that serves a vhost (a non-empty ``canonical`` list in
-  ``meta/domains.yml``, or an include of ``sys-stk-full`` or
-  ``sys-stk-front-proxy``) declares ``openresty`` the same way
-  (decision 3).
-
-A role whose domains are served by something other than the stack, such
-as a redirect rendered by ``web-opt-rdr-domains``, opts out of the
-``openresty`` check with ``# nocheck: openresty-vhost <reason>`` anywhere
-in its ``meta/services.yml``.
-"""
-
 from __future__ import annotations
 
 import re
