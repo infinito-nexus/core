@@ -1,4 +1,4 @@
-"""Multisite declares site-owner and the global site roles, serves the members' hosts and maps their groups."""
+"""Multisite declares site-owner, serves its members' hosts and maps its group."""
 
 from __future__ import annotations
 

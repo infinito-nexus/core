@@ -148,8 +148,6 @@ final class InfinitoOidcRbacMapperMultisiteTest extends TestCase
         PHP;
 
     /**
-     * Sign biber in once in a fresh PHP process against a stubbed WordPress network.
-     *
      * @param array<string, mixed> $state      sites (blog id => domain, archived), members (blog id => user id => roles),
      *                                         site_meta (blog id => key => value), user_meta of biber (user id 7) and
      *                                         refuse_site_updates

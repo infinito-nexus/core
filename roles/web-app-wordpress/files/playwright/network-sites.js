@@ -68,7 +68,7 @@ function networkTenants(env) {
  * Args:
  *   env: as networkTenants takes it.
  * Returns:
- *   The origin of the main site on the canonical network, the one network that serves the own sites in every pass.
+ *   The origin of the main site on the canonical network.
  */
 function canonicalMainOrigin(env) {
   const { primary } = networkTenants(env);

@@ -392,13 +392,11 @@ function infinito_rbac_granted_own_site($domain, $login, $is_site_owner, $subjec
 }
 
 /**
- * A failure on the own site is logged and skips only the own site step, because it
- * must not block the sign-in to every other site of the network; the per-site loop
- * still leaves the own site to an owner the groups grant it.
+ * A failure on the own site is logged and skips only that site, because it
+ * must not block the sign-in to every other site of the network.
  *
  * @param \WP_User $user    The user signing in.
- * @param array    $parsed  The result of infinito_rbac_parse_claim(); its global roles apply on every site, next to
- *                          the per-tenant roles of that site.
+ * @param array    $parsed  The result of infinito_rbac_parse_claim().
  * @param string   $subject The OIDC subject of the user, '' when the claim carries none.
  * @param string   $login   The raw username claim, '' when the claim carries none.
  */
