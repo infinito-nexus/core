@@ -1,17 +1,3 @@
-"""Lint guard: every ``meta/forms.yml`` follows the managed-field schema.
-
-Each form names its admin page ``path`` and its ``fields``; each field names
-its inventory ``source``, its ``mode`` (``enforced`` or ``seeded``) and its
-input ``selector``, optionally ``when``, ``label``, ``type``, ``enum``,
-``validation`` and ``description``. A ``source`` or ``when`` resolves against
-the role's ``applications.<role>`` defaults or a credential its
-``meta/secrets.yml`` declares; a path under ``users`` must be exactly
-``users.<key>.<attr>`` with an attr other than ``tokens``, and resolves
-against the global user defaults; ``sso.<claim>`` names a claim of
-``OIDC.ATTRIBUTES`` on an ``enforced`` field without ``when``. The schema lives
-in ``utils.roles.applications.forms`` and ``utils.roles.applications.sso_fields``.
-"""
-
 from __future__ import annotations
 
 import re
@@ -24,7 +10,7 @@ from jinja2 import Environment, TemplateSyntaxError, nodes
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import read_text
 from utils.cache.users import get_user_defaults
-from utils.roles.applications import forms, sso_fields
+from utils.roles.applications import form_schema, forms, sso_fields
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SECRETS,
@@ -133,7 +119,7 @@ def findings(
         if not (role / ROLE_FILE_META_FORMS).is_file():
             continue
         data = load_role_meta(role / ROLE_FILE_META_FORMS)
-        schema = forms.schema_errors(role.name, data)
+        schema = form_schema.schema_errors(role.name, data)
         errors.extend(schema)
         if isinstance(data, dict):
             errors.extend(

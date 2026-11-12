@@ -9,7 +9,7 @@ from unittest import mock
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
-from utils.roles.applications import drift, forms
+from utils.roles.applications import drift, form_schema, forms
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 FORMS = {
@@ -63,14 +63,14 @@ def _with_field(form: str, field: str, spec: dict) -> dict:
 
 class TestSchema(unittest.TestCase):
     def test_a_well_formed_file_passes(self):
-        self.assertEqual([], forms.schema_errors("web-app-x", FORMS))
+        self.assertEqual([], form_schema.schema_errors("web-app-x", FORMS))
 
     def test_each_required_key_is_enforced(self):
-        for key in forms.REQUIRED_FIELD_KEYS:
+        for key in form_schema.REQUIRED_FIELD_KEYS:
             with self.subTest(key=key):
                 spec = _field("general", "blogname")
                 del spec[key]
-                errors = forms.schema_errors(
+                errors = form_schema.schema_errors(
                     "web-app-x", _with_field("general", "blogname", spec)
                 )
                 self.assertEqual(
@@ -79,7 +79,7 @@ class TestSchema(unittest.TestCase):
 
     def test_an_unknown_mode_is_refused(self):
         spec = {**_field("general", "blogname"), "mode": "locked"}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(1, len(errors))
@@ -87,7 +87,7 @@ class TestSchema(unittest.TestCase):
 
     def test_an_unknown_field_key_is_refused(self):
         spec = {**_field("general", "blogname"), "secret": True}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(1, len(errors))
@@ -95,7 +95,7 @@ class TestSchema(unittest.TestCase):
 
     def test_a_source_must_be_a_dotted_path(self):
         spec = {**_field("general", "blogname"), "source": "{{ design.label }}"}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(
@@ -111,7 +111,7 @@ class TestSchema(unittest.TestCase):
 
     def test_an_empty_selector_is_refused(self):
         spec = {**_field("general", "blogname"), "selector": " "}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(
@@ -124,7 +124,7 @@ class TestSchema(unittest.TestCase):
         data["general"]["path"] = "wp-admin/options-general.php"
         self.assertEqual(
             ["web-app-x: general.path must be the admin page path, starting with /"],
-            forms.schema_errors("web-app-x", data),
+            form_schema.schema_errors("web-app-x", data),
         )
 
     def test_a_form_without_fields_is_refused(self):
@@ -132,7 +132,7 @@ class TestSchema(unittest.TestCase):
         data["general"]["fields"] = {}
         self.assertEqual(
             ["web-app-x: general.fields must map each field to its spec"],
-            forms.schema_errors("web-app-x", data),
+            form_schema.schema_errors("web-app-x", data),
         )
 
     def test_an_unknown_type_and_a_broken_validation_are_refused(self):
@@ -141,7 +141,7 @@ class TestSchema(unittest.TestCase):
             "type": "slider",
             "validation": "([a-z]",
         }
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(2, len(errors))
@@ -161,7 +161,7 @@ class TestSchema(unittest.TestCase):
                 self.assertIn(
                     f"web-app-x: general.fields.blogname.{key} must hold no template;"
                     f" {ROLE_FILE_META_FORMS} is never rendered",
-                    forms.schema_errors(
+                    form_schema.schema_errors(
                         "web-app-x", _with_field("general", "blogname", spec)
                     ),
                 )
@@ -169,12 +169,12 @@ class TestSchema(unittest.TestCase):
         data["general"]["path"] = "/{{ admin_path }}"
         self.assertIn(
             f"web-app-x: general.path must hold no template; {ROLE_FILE_META_FORMS} is never rendered",
-            forms.schema_errors("web-app-x", data),
+            form_schema.schema_errors("web-app-x", data),
         )
 
     def test_an_empty_file_is_refused(self):
-        self.assertEqual(1, len(forms.schema_errors("web-app-x", {})))
-        self.assertEqual(1, len(forms.schema_errors("web-app-x", None)))
+        self.assertEqual(1, len(form_schema.schema_errors("web-app-x", {})))
+        self.assertEqual(1, len(form_schema.schema_errors("web-app-x", None)))
 
     def test_a_scalar_map_and_a_negated_when_pass(self):
         spec = {
@@ -184,7 +184,9 @@ class TestSchema(unittest.TestCase):
         }
         self.assertEqual(
             [],
-            forms.schema_errors("web-app-x", _with_field("general", "blogname", spec)),
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
         )
 
     def test_a_map_that_maps_nothing_or_to_a_structure_is_refused(self):
@@ -198,7 +200,7 @@ class TestSchema(unittest.TestCase):
                             "source value to a scalar the app stores"
                         )
                     ],
-                    forms.schema_errors(
+                    form_schema.schema_errors(
                         "web-app-x", _with_field("general", "blogname", spec)
                     ),
                 )
@@ -214,7 +216,7 @@ class TestSchema(unittest.TestCase):
                             "inventory path"
                         )
                     ],
-                    forms.schema_errors(
+                    form_schema.schema_errors(
                         "web-app-x", _with_field("general", "blogname", spec)
                     ),
                 )
@@ -222,7 +224,7 @@ class TestSchema(unittest.TestCase):
     def test_a_form_naming_its_sinks_passes(self):
         data = copy.deepcopy(FORMS)
         data["general"]["sinks"] = ["WORDPRESS_OPTIONS", "WP_NETWORK_2"]
-        self.assertEqual([], forms.schema_errors("web-app-x", data))
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
 
     def test_sinks_that_are_no_distinct_role_variables_are_refused(self):
         for sinks in (
@@ -242,13 +244,13 @@ class TestSchema(unittest.TestCase):
                         "web-app-x: general.sinks must list distinct UPPER_SNAKE_CASE "
                         "role variables that carry the form's values"
                     ),
-                    forms.schema_errors("web-app-x", data),
+                    form_schema.schema_errors("web-app-x", data),
                 )
 
     def test_a_form_naming_its_record_passes(self):
         data = copy.deepcopy(FORMS)
         data["general"]["record"] = {"selector": "#clientId", "source": "clients.ids"}
-        self.assertEqual([], forms.schema_errors("web-app-x", data))
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
 
     def test_a_record_without_its_input_or_ids_is_refused(self):
         for record in (
@@ -268,7 +270,7 @@ class TestSchema(unittest.TestCase):
                         " that shows the edited record's id and source to the"
                         " inventory path of the ids the deployment created"
                     ),
-                    forms.schema_errors("web-app-x", data),
+                    form_schema.schema_errors("web-app-x", data),
                 )
 
     def test_a_template_in_the_record_selector_is_refused(self):
@@ -281,7 +283,7 @@ class TestSchema(unittest.TestCase):
                     " meta/forms.yml is never rendered"
                 )
             ],
-            forms.schema_errors("web-app-x", data),
+            form_schema.schema_errors("web-app-x", data),
         )
 
 
