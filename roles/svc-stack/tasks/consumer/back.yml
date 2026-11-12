@@ -1,0 +1,22 @@
+---
+# ansible_parent_role_names, not application_id: this role's own vars/main.yml
+# shadows the consumer's application_id whenever no include param names it.
+- name: "🧊 Freeze the consumer whose backend the stack loads"
+  ansible.builtin.set_fact:
+    stack_application_id: "{{ ansible_parent_role_names | default([application_id]) | first }}"
+  changed_when: false
+
+- name: "🛑 Refuse a stack run outside a consumer role"
+  ansible.builtin.assert:
+    that:
+      - stack_application_id != 'svc-stack'
+    fail_msg: "svc-stack resolved no consumer: include it from the consumer role's own tasks."
+    quiet: true
+
+- name: "🧩 For '{{ stack_application_id }}': load docker and db"
+  ansible.builtin.include_tasks: backend.yml
+  vars:
+    application_id: "{{ stack_application_id }}"
+  when: >-
+    (lookup('fileglob', (stack_application_id | abs_role_path_by_application_id) ~ '/templates/compose.yml.j2', wantlist=True) | length > 0)
+    or (lookup('config', stack_application_id, 'services.stack.checkout.url', '') | length > 0)

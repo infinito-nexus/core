@@ -8,7 +8,7 @@ def _load_filter():
     path = (
         PROJECT_ROOT
         / "roles"
-        / "sys-stk-front-proxy"
+        / "svc-stack"
         / "filter_plugins"
         / "front_proxy_unserved.py"
     )
