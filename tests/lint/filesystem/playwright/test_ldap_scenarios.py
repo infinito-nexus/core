@@ -437,8 +437,7 @@ class TestLdapScenarios(unittest.TestCase):
                 f"Roles with ldap.enabled and an authenticated spec but no ldap-gated test ({len(offenders)}):\n\n"
                 'Add a scenario gated by skipUnlessServiceEnabled("ldap") that drives the role\'s own\n'
                 "LDAP-bind login, or state the exemption in a '## LDAP coverage' README section.\n\n"
-                "Offenders:\n"
-                + "\n".join(f"  roles/{r}" for r in offenders)
+                "Offenders:\n" + "\n".join(f"  roles/{r}" for r in offenders)
             )
 
     def test_admin_only_ldap_roles_flag_the_biber_follow_up(self) -> None:
