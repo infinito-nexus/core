@@ -26,19 +26,14 @@ from utils.roles.mapping import (
     ROLE_FILE_TASKS_MAIN,
     ROLE_FILE_VARS_MAIN,
 )
-from utils.tls_common import iter_domains
 
 ROLES = PROJECT_ROOT / "roles"
 STACK = ROLES / "svc-stack"
-FRONT = ROLES / "sys-stk-front-proxy"
 INJ = ROLES / "sys-front-inj-all"
-VHOST_TASKS = {STACK: "tasks/proxy/vhost.yml", FRONT: "tasks/vhost.yml"}
+VHOST_TASKS = STACK / "tasks" / "proxy" / "vhost.yml"
 LUA_TEMPLATE = INJ / "templates" / "body_filter.lua.j2"
 DOMAIN = default_domain_primary()
 ONION = "b" * 56 + ".onion"
-STARTERS = re.compile(
-    r"name:\s*['\"]?(sys-stk-full|sys-stk-front-proxy)['\"]?\s*$", re.MULTILINE
-)
 INJECTION_PROVIDERS = (
     "web-svc-design",
     "web-app-matomo",
@@ -180,10 +175,8 @@ class _SharedLoader:
 
 
 def render_action(task_vars: dict, src: str, dest: str, search_path, **args) -> dict:
-    """Run the real ``stack_host_template`` action up to the copy it hands off to.
-
-    Args:
-        task_vars: the variables the task sees.
+    """Args:
+        task_vars: the variables the real ``stack_host_template`` task sees.
         src: the ``src`` argument, resolved like the task resolves it.
         dest: the ``dest`` argument.
         search_path: the task's role search path.
@@ -225,15 +218,14 @@ def _outcome(render):
         return ("error", causes[-1])
 
 
-def front_proxy_roles() -> dict[str, Path]:
+def front_proxy_roles() -> list[str]:
     """
     Returns:
-        Every role that requires the ``openresty`` service, mapped to the role
-        directory of the stack writer that writes its vhosts.
+        Every role that requires the ``openresty`` service, in name order.
     """
     registry = build_service_registry_from_roles_dir(ROLES)
     provider = registry["openresty"]["role"]
-    found: dict[str, Path] = {}
+    found: list[str] = []
     for name in iter_project_files(extensions=(".yml",), exclude_tests=True):
         path = Path(name)
         if not path.is_relative_to(ROLES):
@@ -242,20 +234,18 @@ def front_proxy_roles() -> dict[str, Path]:
         if tuple(rest) != Path(ROLE_FILE_META_SERVICES).parts or role == provider:
             continue
         services = load_yaml_any(name, default_if_missing={})
-        if provider not in resolve_service_dependency_roles_from_config(
+        if provider in resolve_service_dependency_roles_from_config(
             {"services": services}, registry
         ):
-            continue
-        legacy = any(
-            STARTERS.search(read_text(str(task)))
-            for task in (ROLES / role).glob("tasks/**/*.yml")
-        )
-        found[role] = FRONT if legacy else STACK
-    return dict(sorted(found.items()))
+            found.append(role)
+    return sorted(found)
 
 
 def lua_include_tree() -> list[Path]:
-    """Return the Lua template and every template its includes can reach."""
+    """
+    Returns:
+        The Lua template and every template its includes can reach.
+    """
     seen: list[Path] = []
     pending = [LUA_TEMPLATE]
     while pending:
@@ -279,13 +269,7 @@ class _Harness:
         self.group_vars: dict = {}
         for path in sorted((PROJECT_ROOT / "group_vars" / "all").glob("*.yml")):
             self.group_vars.update(_yaml(path))
-        self.deploy = {
-            writer: _task_with(writer / tasks, "stack_host_contents")
-            for writer, tasks in VHOST_TASKS.items()
-        }
-        self.front_facts = _task_with(
-            FRONT / ROLE_FILE_TASKS_MAIN, "ansible.builtin.set_fact"
-        )["ansible.builtin.set_fact"]
+        self.deploy = _task_with(VHOST_TASKS, "stack_host_contents")
         self.stack_gate = _task_with(
             STACK / "tasks" / "consumer" / "front.yml", "ansible.builtin.include_tasks"
         )["when"]
@@ -302,9 +286,7 @@ class _Harness:
         filter_loader.add_directory(str(INJ / "filter_plugins"))
         filter_loader.add_directory(str(STACK / "filter_plugins"))
 
-    def base(
-        self, app: str, writer: Path, tls: bool, tor: bool, providers: bool
-    ) -> dict:
+    def base(self, app: str, tls: bool, tor: bool, providers: bool) -> dict:
         groups = (
             ["svc-prx-openresty"]
             + (["svc-net-tor"] if tor else [])
@@ -312,7 +294,7 @@ class _Harness:
         )
         return {
             **self.group_vars,
-            **_yaml(writer / ROLE_FILE_DEFAULTS_MAIN),
+            **_yaml(STACK / ROLE_FILE_DEFAULTS_MAIN),
             **_yaml(ROLES / app / ROLE_FILE_DEFAULTS_MAIN),
             **_yaml(ROLES / app / ROLE_FILE_VARS_MAIN),
             "playbook_dir": str(PROJECT_ROOT),
@@ -332,34 +314,16 @@ class _Harness:
             "application_id": app,
         }
 
-    def vhosts(self, variables: dict, app: str) -> list[str]:
-        domains = render_expression(variables, "{{ lookup('domains') }}").get(app)
-        found: list[str] = []
-        for domain in iter_domains(domains) if domains else []:
-            for vhost in render_expression(
-                variables, f"{{{{ lookup('network_siblings', '{domain}') }}}}"
-            ):
-                if vhost not in found:
-                    found.append(vhost)
-        return found
-
-    def writer_vhosts(self, writer: Path, variables: dict, app: str):
+    def stack_vhosts(self, variables: dict, app: str):
         """
         Args:
-            writer: the role directory of the stack writer.
-            variables: the variables the writer's entry sees.
-            app: the application whose vhosts the writer writes.
+            variables: the variables the svc-stack front entry sees.
+            app: the application whose vhosts svc-stack writes.
 
         Returns:
-            An iterator of ``(vhost, facts)``, one per vhost the writer writes,
-            with the facts its entry froze for that vhost.
+            An iterator of ``(vhost, facts)``, one per vhost svc-stack writes,
+            with the facts its proxy entry froze for that vhost.
         """
-        if writer == FRONT:
-            vhosts = self.vhosts(variables, app)
-            facts = _template(variables, self.front_facts) if vhosts else {}
-            for vhost in vhosts:
-                yield vhost, facts
-            return
         gate = {**variables, "stack_application_id": app}
         if not render_expression(variables, "{{ lookup('domains') }}").get(
             app
@@ -377,13 +341,10 @@ class _Harness:
             for vhost in vhost_facts["front_proxy_vhost_domains"]:
                 yield vhost, {**pinned, **vhost_facts}
 
-    def scopes(
-        self, app: str, writer: Path, tls: bool, tor: bool, providers: bool, facts
-    ):
+    def scopes(self, app: str, tls: bool, tor: bool, providers: bool, facts):
         """
         Args:
             app: the application whose vhosts are rendered.
-            writer: the role directory of the stack writer that writes them.
             tls: the inventory ``TLS_ENABLED``.
             tor: whether ``svc-net-tor`` serves the host with a node onion.
             providers: whether the injection providers run on the host.
@@ -393,13 +354,13 @@ class _Harness:
             An iterator of ``(vhost, action_task_vars, fold_task_vars)``, one
             per vhost of ``app``.
         """
-        variables = self.base(app, writer, tls, tor, providers)
-        variables.update(_yaml(writer / ROLE_FILE_VARS_MAIN))
+        variables = self.base(app, tls, tor, providers)
+        variables.update(_yaml(STACK / ROLE_FILE_VARS_MAIN))
         variables["application_id"] = app
-        for vhost, writer_facts in self.writer_vhosts(writer, variables, app):
+        for vhost, stack_facts in self.stack_vhosts(variables, app):
             shared = {
                 **variables,
-                **writer_facts,
+                **stack_facts,
                 "front_proxy_domain": vhost,
                 "domain": vhost,
             }
@@ -429,12 +390,12 @@ class _Harness:
             }
             fold_vars = {
                 **shared,
-                **_trusted(self.deploy[writer]["vars"]),
-                "ansible_search_path": [str(writer), str(PROJECT_ROOT)],
+                **_trusted(self.deploy["vars"]),
+                "ansible_search_path": [str(STACK), str(PROJECT_ROOT)],
             }
             yield vhost, action_vars, fold_vars
 
-    def render_pair(self, writer: Path, action_vars: dict, fold_vars: dict):
+    def render_pair(self, action_vars: dict, fold_vars: dict):
         def action():
             dest = render_expression(
                 action_vars, self.lua_task["stack_host_template"]["dest"]
@@ -448,29 +409,26 @@ class _Harness:
             )
             return (result["dest"], result["bytes"], result["mode"])
 
-        return _outcome(action), self.fold(writer, fold_vars, LUA_ENTRY)
+        return _outcome(action), self.fold(fold_vars, LUA_ENTRY)
 
-    def fold(self, writer: Path, fold_vars: dict, entry: str):
+    def fold(self, fold_vars: dict, entry: str):
         def render():
             [rendered] = render_expression(fold_vars, "{{ " + entry + " }}")
             return (
                 rendered["path"],
                 rendered["content"].encode("utf-8"),
-                self.deploy[writer]["stack_host_contents"]["mode"],
+                self.deploy["stack_host_contents"]["mode"],
             )
 
         return _outcome(render)
 
 
 class TestTheFoldRendersTheExactCallSite(unittest.TestCase):
-    def test_every_deploy_task_carries_the_rendered_lua_entry(self) -> None:
-        harness = _Harness()
-        for writer, deploy in harness.deploy.items():
-            with self.subTest(writer=writer.name):
-                self.assertIn(
-                    _normalised(LUA_ENTRY),
-                    _normalised(deploy["stack_host_contents"]["files"]),
-                )
+    def test_the_deploy_task_carries_the_rendered_lua_entry(self) -> None:
+        self.assertIn(
+            _normalised(LUA_ENTRY),
+            _normalised(_Harness().deploy["stack_host_contents"]["files"]),
+        )
 
     def test_no_template_of_the_lua_tree_reads_template_action_only_vars(self) -> None:
         tree = lua_include_tree()
@@ -546,17 +504,16 @@ class TestEveryRoleRendersTheSameLua(unittest.TestCase):
         for tls, tor, providers in SCENARIOS:
             _reset_cache_for_tests()
             index = 0
-            for app, writer in cls.roles.items():
+            for app in cls.roles:
                 for vhost, action_vars, fold_vars in harness.scopes(
                     app,
-                    writer,
                     tls,
                     tor,
                     providers,
                     RICH if index % 2 == 0 else SPARSE,
                 ):
                     snapshot = copy.deepcopy(fold_vars)
-                    action, fold = harness.render_pair(writer, action_vars, fold_vars)
+                    action, fold = harness.render_pair(action_vars, fold_vars)
                     if fold_vars != snapshot:
                         cls.mutated.append((app, vhost, tls, tor, providers))
                     case = (app, vhost, tls, tor, providers, index % 2)
@@ -566,13 +523,13 @@ class TestEveryRoleRendersTheSameLua(unittest.TestCase):
                         and MIRROR_MARKER in action[1][1]
                         and len(cls.mirrored) < 3
                     ):
-                        cls.mirrored.append((case, writer, action, fold_vars))
+                        cls.mirrored.append((case, action, fold_vars))
                     index += 1
         _reset_cache_for_tests()
 
     def test_the_scan_finds_every_front_proxy_role(self) -> None:
         self.assertGreater(len(self.roles), 90)
-        self.assertEqual(self.roles["web-app-wordpress"], STACK)
+        self.assertIn("web-app-wordpress", self.roles)
         self.assertIn("web-svc-html", self.roles)
 
     def test_the_action_and_the_fold_agree_byte_for_byte(self) -> None:
@@ -619,16 +576,14 @@ class TestEveryRoleRendersTheSameLua(unittest.TestCase):
 
     def test_an_outranking_include_param_cannot_reach_the_lua(self) -> None:
         self.assertEqual(len(self.mirrored), 3)
-        for case, writer, action, fold_vars in self.mirrored:
+        for case, action, fold_vars in self.mirrored:
             _reset_cache_for_tests()
             for drift in ({"domain": DOMAIN}, {"application_id": "web-svc-html"}):
                 drifted = {**fold_vars, **drift}
                 with self.subTest(case=case, drift=drift):
-                    self.assertEqual(
-                        self.harness.fold(writer, drifted, LUA_ENTRY), action
-                    )
+                    self.assertEqual(self.harness.fold(drifted, LUA_ENTRY), action)
                     self.assertNotEqual(
-                        self.harness.fold(writer, drifted, UNPINNED_ENTRY), action
+                        self.harness.fold(drifted, UNPINNED_ENTRY), action
                     )
         _reset_cache_for_tests()
 

@@ -554,7 +554,7 @@ _MAIN_TASKS = (
     '- name: through a role variable\n  ansible.builtin.uri:\n    url: "{{ A_URL }}"\n'
     '- name: through group_vars\n  community.general.ldap_search:\n    server_uri: "{{ LDAP.SERVER.HOST_URI }}"\n'
     '- name: gated\n  ansible.builtin.uri:\n    url: "{{ A_URL }}"\n  when: IS_COMPOSE_MODE | bool\n'
-    '- name: vhost\n  ansible.builtin.include_role:\n    name: sys-stk-front-proxy\n  vars:\n    http_port: "{{ A_URL }}"\n'
+    '- name: vhost\n  ansible.builtin.include_role:\n    name: svc-stack\n  vars:\n    http_port: "{{ A_URL }}"\n'
     "- name: answered\n  ansible.builtin.uri:\n"
     "    # nocheck: swarm-loopback-port exec  the probe runs inside the container\n"
     '    url: "{{ A_URL }}"\n'

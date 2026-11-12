@@ -349,7 +349,7 @@ class TestShallowGitRefspec(unittest.TestCase):
         tasks = [
             {
                 "name": "hugo",
-                "include_role": {"name": "sys-stk-full"},
+                "include_role": {"name": "sys-svc-compose"},
                 "vars": {URL_KEY: "{{ REPO }}", REF_KEY: "{{ REF }}"},
             }
         ]
@@ -362,7 +362,7 @@ class TestShallowGitRefspec(unittest.TestCase):
             {
                 "block": [
                     {
-                        "ansible.builtin.include_role": {"name": "sys-stk-full"},
+                        "ansible.builtin.include_role": {"name": "sys-svc-compose"},
                         "vars": {
                             URL_KEY: "{{ REPO }}",
                             REF_KEY: "{{ REF }}",
@@ -380,7 +380,7 @@ class TestShallowGitRefspec(unittest.TestCase):
     def test_shared_clone_safe_shapes_pass(self) -> None:
         declared = [
             {
-                "include_role": {"name": "sys-stk-full"},
+                "include_role": {"name": "sys-svc-compose"},
                 "vars": {URL_KEY: "{{ REPO }}", REF_KEY: "{{ REF }}"},
             }
         ]
@@ -397,7 +397,7 @@ class TestShallowGitRefspec(unittest.TestCase):
                     PULL_KEY: "false",
                 },
             },
-            {"include_role": {"name": "sys-stk-full"}, "vars": {PULL_KEY: False}},
+            {"include_role": {"name": "sys-svc-compose"}, "vars": {PULL_KEY: False}},
             {"git": {"version": "v1", "refspec": "v1", "depth": 1}},
         ]
         self.assertEqual(clone_offenders(declared, "tag"), [])

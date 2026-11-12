@@ -1,5 +1,3 @@
-"""A role may only notify a handler topic that is already registered."""
-
 from __future__ import annotations
 
 import re
@@ -7,9 +5,8 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
-BACKEND = PROJECT_ROOT / "roles/sys-stk-backend" / ROLE_FILE_TASKS_MAIN
+BACKEND = PROJECT_ROOT / "roles/svc-stack/tasks/backend.yml"
 RDBMS_DEDICATED = PROJECT_ROOT / "roles/sys-svc-rdbms/tasks/dedicated.yml"
 BLUESKY_CORE = PROJECT_ROOT / "roles/web-app-bluesky/tasks/00_core.yml"
 BLUESKY_STAGING = tuple(
