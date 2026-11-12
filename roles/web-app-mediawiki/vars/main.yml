@@ -40,7 +40,7 @@ MEDIAWIKI_LOGIN_SSO: "{{ lookup('config', application_id, 'services.mediawiki.lo
 MEDIAWIKI_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.mediawiki.login.method.registration.enabled') | bool }}"
 MEDIAWIKI_LOCAL_PASSWORD_LOGIN: "{{ lookup('config', application_id, 'services.mediawiki.login.method.native.enabled') | bool }}"
 MEDIAWIKI_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (MEDIAWIKI_LOGIN_SSO | bool) }}"
-MEDIAWIKI_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+MEDIAWIKI_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 MEDIAWIKI_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 MEDIAWIKI_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
 MEDIAWIKI_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
