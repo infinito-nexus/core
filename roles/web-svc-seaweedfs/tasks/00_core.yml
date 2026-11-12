@@ -3,9 +3,8 @@
 
 - name: "🧩 For '{{ application_id }}': load docker and compose"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "✅ Ensure volumes directory exists"
   ansible.builtin.file:
@@ -30,12 +29,10 @@
 - name: "▶️ Start the SeaweedFS stack"
   ansible.builtin.meta: flush_handlers
 
-- name: "📂 Include role sys-stk-front-proxy for '{{ SEAWEEDFS_S3_DOMAIN }}'"
+- name: "📂 Include role svc-stack for '{{ application_id }}'"
   include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ SEAWEEDFS_S3_DOMAIN }}"
-    http_port: "{{ SEAWEEDFS_S3_PORT_PUBLIC }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml
 
 - name: "🔐 Converge every consumer bucket's policy once the S3 gateway answers"
   when: IS_STACK_HOST | bool
