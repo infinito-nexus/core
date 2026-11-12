@@ -344,7 +344,7 @@ class TestBaselineRule(unittest.TestCase):
             "tests/unit/python/roles/web-app-light/test_x.py": "web-app-light",
             "tests/lint/ansible/roles/meta/test_x.py": "",
             "tests/unit/python/utils/roles/test_mapping.py": "",
-            "roles/web-app-light/tasks/main.yml": "",
+            f"roles/web-app-light/{ROLE_FILE_TASKS_MAIN}": "",
         }
         for path, role in cases.items():
             with self.subTest(path=path):

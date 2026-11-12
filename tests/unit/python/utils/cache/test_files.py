@@ -22,7 +22,11 @@ from utils.cache.files import (
     iter_project_files_with_content,
     read_text,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TASKS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_HANDLERS_MAIN,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MAIN,
+)
 
 
 def _touch(path: Path, content: str = "") -> Path:
@@ -264,7 +268,9 @@ class TestLintScope(unittest.TestCase):
 
     def test_unset_scope_keeps_every_path(self) -> None:
         with patch.dict(files_module.os.environ, clear=True):
-            self.assertTrue(files_module.in_lint_scope("roles/a/tasks/main.yml"))
+            self.assertTrue(
+                files_module.in_lint_scope(f"roles/a/{ROLE_FILE_TASKS_MAIN}")
+            )
 
     def test_a_role_scope_keeps_its_files_only(self) -> None:
         with self._scope("roles/web-app-a/"):
@@ -272,8 +278,8 @@ class TestLintScope(unittest.TestCase):
                 [
                     files_module.in_lint_scope(rel)
                     for rel in (
-                        "roles/web-app-a/handlers/main.yml",
-                        "roles/web-app-ab/handlers/main.yml",
+                        f"roles/web-app-a/{ROLE_FILE_HANDLERS_MAIN}",
+                        f"roles/web-app-ab/{ROLE_FILE_HANDLERS_MAIN}",
                         "default.env",
                     )
                 ],

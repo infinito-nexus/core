@@ -20,6 +20,7 @@ from jinja2.nativetypes import NativeEnvironment
 from plugins.filter.rbac.members import rbac_ldap_members
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 _ENV = NativeEnvironment()
 _ENV.filters.update(
@@ -136,7 +137,9 @@ class TestRbacDirectorySearch(unittest.TestCase):
 
     def test_the_socket_uri_is_the_socket_openldap_binds(self) -> None:
         server = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
-        role = load_yaml_any(str(PROJECT_ROOT / "roles/svc-db-openldap/vars/main.yml"))
+        role = load_yaml_any(
+            str(PROJECT_ROOT / "roles/svc-db-openldap" / ROLE_FILE_VARS_MAIN)
+        )
         variables = {
             "application_id": "svc-db-openldap",
             "lookup": lambda *_: "/opt/compose/openldap/volumes/",
@@ -178,7 +181,9 @@ class TestMatrixRbacHook(unittest.TestCase):
                 )
 
     def test_the_container_url_is_synapse_s_internal_port(self) -> None:
-        matrix = load_yaml_any(str(PROJECT_ROOT / "roles/web-app-matrix/vars/main.yml"))
+        matrix = load_yaml_any(
+            str(PROJECT_ROOT / "roles/web-app-matrix" / ROLE_FILE_VARS_MAIN)
+        )
         self.assertIn(
             "MATRIX_SYNAPSE_CONTAINER_PORT", matrix["MATRIX_SYNAPSE_CONTAINER_URL"]
         )

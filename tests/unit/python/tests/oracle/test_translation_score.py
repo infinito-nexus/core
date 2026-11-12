@@ -10,6 +10,7 @@ import unittest
 from unittest import mock
 
 from tests.oracle import test_translation_score as suite
+from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 WHERE = "docs/de"
 README = "roles/web-app-wiki/README.md"
@@ -27,7 +28,7 @@ class OriginTestCase(unittest.TestCase):
     def test_a_core_entry_is_named_by_the_file_its_context_points_at(self) -> None:
         self.assertEqual(
             suite.origin("core", "role:web-app-wiki:description", "A wiki"),
-            "roles/web-app-wiki/meta/main.yml",
+            f"roles/web-app-wiki/{ROLE_FILE_META_MAIN}",
         )
 
     def test_a_docs_entry_names_every_file_that_carries_it(self) -> None:

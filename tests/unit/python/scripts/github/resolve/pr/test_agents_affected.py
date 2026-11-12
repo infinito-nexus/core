@@ -16,14 +16,15 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_TASKS_MAIN
 
 SCRIPT = PROJECT_ROOT / "scripts" / "github" / "resolve" / "pr" / "agents_affected.sh"
 META = "galaxy_info:\n  galaxy_tags:\n    - {tag}\n    - self-hosted\n"
 BASE = {
-    "roles/web-app-hermes/meta/main.yml": META.format(tag="ai"),
-    "roles/web-app-hermes/tasks/main.yml": "- debug: msg=v1\n",
-    "roles/web-app-nextcloud/meta/main.yml": META.format(tag="cloud"),
-    "roles/web-app-nextcloud/tasks/main.yml": "- debug: msg=v1\n",
+    f"roles/web-app-hermes/{ROLE_FILE_META_MAIN}": META.format(tag="ai"),
+    f"roles/web-app-hermes/{ROLE_FILE_TASKS_MAIN}": "- debug: msg=v1\n",
+    f"roles/web-app-nextcloud/{ROLE_FILE_META_MAIN}": META.format(tag="cloud"),
+    f"roles/web-app-nextcloud/{ROLE_FILE_TASKS_MAIN}": "- debug: msg=v1\n",
     "README.md": "v1\n",
 }
 
@@ -86,11 +87,13 @@ class TestAgentsAffected(unittest.TestCase):
         return read_text(str(self.output))
 
     def test_a_role_tagged_ai_is_affected(self):
-        changed = {"roles/web-app-hermes/tasks/main.yml": "- debug: msg=v2\n"}
+        changed = {f"roles/web-app-hermes/{ROLE_FILE_TASKS_MAIN}": "- debug: msg=v2\n"}
         self.assertEqual(self._affected(changed), "affected=true\n")
 
     def test_a_role_without_the_ai_tag_is_not(self):
-        changed = {"roles/web-app-nextcloud/tasks/main.yml": "- debug: msg=v2\n"}
+        changed = {
+            f"roles/web-app-nextcloud/{ROLE_FILE_TASKS_MAIN}": "- debug: msg=v2\n"
+        }
         self.assertEqual(self._affected(changed), "affected=false\n")
 
     def test_the_agents_tree_is_affected(self):

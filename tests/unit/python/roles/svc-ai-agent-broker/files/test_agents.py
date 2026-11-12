@@ -15,6 +15,7 @@ from ansible.template import Templar, trust_as_template
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -258,7 +259,7 @@ class TestProfileCatalog(unittest.TestCase):
         self.assertIn(
             "AGENT_ROLES={{ AGENT_BROKER_ROLE_RUNTIMES | to_json | dotenv_quote }}", env
         )
-        variables = load_yaml_any(str(broker / "vars" / "main.yml"))
+        variables = load_yaml_any(str(broker / ROLE_FILE_VARS_MAIN))
         collected = {
             role: {"runtime": runtime, "lifecycle": "on_demand"}
             for role, runtime in real_role_runtimes().items()

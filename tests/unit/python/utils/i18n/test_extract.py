@@ -32,7 +32,9 @@ def _write(root: Path, relative: str, content: str) -> None:
 class TestCoreSource(unittest.TestCase):
     def test_every_context_names_the_file_its_extractor_reads(self):
         expected = {
-            role_context("web-app-wiki"): Path("roles/web-app-wiki/meta/main.yml"),
+            role_context("web-app-wiki"): Path(
+                f"roles/web-app-wiki/{ROLE_FILE_META_MAIN}"
+            ),
             category_context("web.app", "title"): Path("meta/categories.yml"),
             menu_context("Community", "description"): Path(
                 "roles/web-app-dashboard/vars/menu_categories.yml"
@@ -50,7 +52,7 @@ class TestCoreSource(unittest.TestCase):
                 "roles/web-svc-access-request/files/access_request_i18n.yml"
             ),
             rbac_context("web-app-wiki", "editor"): Path(
-                "roles/web-app-wiki/meta/rbac.yml"
+                f"roles/web-app-wiki/{ROLE_FILE_META_RBAC}"
             ),
         }
 
