@@ -21,7 +21,7 @@ import unittest.mock
 from pathlib import Path
 from typing import ClassVar
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
@@ -112,7 +112,10 @@ def load(
 ):
     """The rendered hook, imported as the container would import it."""
     _stub_litellm()
-    env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - Python source, not markup
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     env.filters["to_json"] = json.dumps
     env.filters["bool"] = bool
     source = env.from_string(read_text(str(TEMPLATE))).render(
@@ -790,7 +793,10 @@ class TestShippedConfiguration(HookCase, unittest.TestCase):
         )
 
     def test_both_strategy_names_are_reachable_from_the_expression(self) -> None:
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - a config value, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         env.filters["bool"] = bool
         template = env.from_string(SHIPPED_ROUTER["strategy"])
         self.assertEqual(template.render(lookup=lambda *_args: True), "system_one")

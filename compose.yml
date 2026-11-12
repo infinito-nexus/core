@@ -69,6 +69,12 @@ services:
         single source of truth}
       - infinito:${INFINITO_DIR_VAR_LIB:?Run 'make dotenv' to generate the .env single source of truth}/
       - letsencrypt:/etc/letsencrypt/
+      - type: bind
+        source: ${INFINITO_VULNERABILITY_DB_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
+        target: ${INFINITO_VULNERABILITY_DB_DIR:?Run 'make dotenv' to generate the .env single source of truth}
+        read_only: true
+        bind:
+          create_host_path: true
 
     environment:
       INFINITO_API_ANTHROPIC_KEY: ${INFINITO_API_ANTHROPIC_KEY}
