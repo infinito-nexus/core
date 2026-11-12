@@ -5,7 +5,7 @@ owner: operator
 repositories:
   - infinito-nexus/core
 firewall_roles:
-  - autonomous-contributor
+  - tuner
 skills:
   - i8-tuner
 models:
