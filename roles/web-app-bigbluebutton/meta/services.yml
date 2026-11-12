@@ -129,7 +129,7 @@ bbb-web:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 freeswitch:
@@ -147,7 +147,7 @@ freeswitch:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v1.11.3-v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 nginx:
@@ -167,7 +167,7 @@ nginx:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39-v5.4.8-1.29"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-shared-notes-server:
@@ -182,7 +182,7 @@ bbb-shared-notes-server:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-export-annotations:
@@ -199,7 +199,7 @@ bbb-export-annotations:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 webrtc-sfu:
@@ -216,7 +216,7 @@ webrtc-sfu:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v2.24.0"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 fsesl-akka:
@@ -231,7 +231,7 @@ fsesl-akka:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 apps-akka:
@@ -248,7 +248,7 @@ apps-akka:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-server:
@@ -268,7 +268,7 @@ bbb-graphql-server:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-actions:
@@ -283,7 +283,7 @@ bbb-graphql-actions:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-middleware:
@@ -298,7 +298,7 @@ bbb-graphql-middleware:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 periodic:
@@ -315,7 +315,7 @@ periodic:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.0"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 recordings:
@@ -332,7 +332,7 @@ recordings:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v3.0.39"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-webrtc-recorder:
@@ -347,7 +347,7 @@ bbb-webrtc-recorder:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v0.14.0"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: script-time helper of upstream generate-compose, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose helper, not group-gated
 dockerize:
