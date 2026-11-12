@@ -521,6 +521,31 @@ class TestGitlab(_TaskEnvironment, unittest.TestCase):
         )
 
 
+class TestMatomo(_TaskEnvironment, unittest.TestCase):
+    ROLE = "web-app-matomo"
+    ENTITY = "matomo"
+    TASKS = "tasks/03_install_path.yml"
+    NAME = "MATOMO_TWO_FACTOR_MODE"
+    ON = "enforced"
+    OFF = "offered"
+    UNMANAGED = "off"
+
+    def test_the_requirement_converges_on_every_deploy_after_the_plugin_switch(
+        self,
+    ) -> None:
+        tasks = load_yaml_str(read_text(str(ROLES / self.ROLE / self.TASKS)))
+        task = self._task()
+        switch = next(
+            t for t in tasks if t.get("register") == "matomo_two_factor_plugin"
+        )
+        self.assertNotIn("when", task)
+        self.assertLess(tasks.index(switch), tasks.index(task))
+        self.assertEqual(
+            "{{ lookup('file', 'php/two_factor_required.php') }}",
+            task["ansible.builtin.shell"]["stdin"],
+        )
+
+
 class TestPretix(_EnforcementCase, unittest.TestCase):
     ROLE = "web-app-pretix"
     ENTITY = "pretix"
