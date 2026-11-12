@@ -28,6 +28,10 @@ Everything Grafana shows is provisioned from files and cannot be edited in the U
 - `biber` joins the `auditor` role group for its persona journey and opens the central dashboard; `files/playwright/test-rbac.js` proves that biber without a role group is refused. With `sso` disabled Grafana knows only the break-glass account, so `PERSONA_BIBER_BLOCKED` is `true` then.
 - `administrator` opens the datasource administration. `files/playwright/test-logs.js` writes a line into the reverse proxy's access log and finds it in Explore (the probe value travels in the request path; the proxy logs no query string), and proves that an `auditor` member reads logs while every write to datasources, dashboards and alert rules is refused.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Grafana generic OAuth](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/generic-oauth/)

@@ -41,6 +41,10 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 | `domains.canonical` | `fider.{{ DOMAIN_PRIMARY }}` | Public domain |
 | `server.status_codes.default` | `[200, 301, 302, 405]` | Expected HTTP codes for health check (405 because Fider returns 405 on HEAD requests to `/`) |
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Fider GitHub](https://github.com/getfider/fider)

@@ -36,6 +36,10 @@ More information about this role is available in these GitHub repositories:
 - **Login methods:** `services.mailu.login.method.<method>.enabled` in [meta/services.yml](./meta/services.yml) declares `sso` and `native`. `sso` switches the OIDC fork on (`OIDC_ENABLED` in [templates/env.j2](./templates/env.j2), driven by the `sso` service) and [templates/javascript.js.j2](./templates/javascript.js.j2) hides its `openid-connect/auth` link on `/sso/login` when the method is off. The fork has no setting that drops the local form, so with `native` off the same script hides the form of `/sso/login`, which serves the Webmail and the Admin sign-in alike. Self-registration stays off in every mode (no domain enables `signup_enabled`, `DOMAIN_REGISTRATION` is unset), and Mailu has no second factor of its own. Break-glass: `/sso/login?fallback=local` shows the form again for the platform administrator's mailbox, which keeps its password and the global administrator flag; the Mailu API (`API_TOKEN`) and `flask mailu` in the admin container remain as well.
 - **DMARC Reports:** The published `_dmarc` record sends aggregate reports (`rua`) to `<username>@<mail domain>` of the user key in `services.mailu.dmarc.rua_user` (`platform_administrator` unless the inventory names another one). That user MUST carry a `mailbox` account or a `forward` to a user that carries one and whose `email` is that mailbox (`<username>@<mail domain>`), otherwise the deploy fails before any record is written.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Mailu Official Website](https://mailu.io/)

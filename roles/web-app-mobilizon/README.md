@@ -19,6 +19,10 @@ This role deploys Mobilizon using Docker, automating the setup of your event man
 - **Login Methods:** `services.mobilizon.login.method.*` in [meta/services.yml](./meta/services.yml) drives [templates/env.j2](./templates/env.j2) and [templates/config.exs.j2](./templates/config.exs.j2). `sso` renders the Keycloak Ueberauth provider (together with the `sso` service). `native` off sets `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN=true`, which removes the e-mail and password form. `registration` sets `MOBILIZON_INSTANCE_REGISTRATIONS_OPEN`; Keycloak accounts are created at their first OIDC login regardless of it. The role configures no LDAP backend, and Mobilizon has no second factor, passkey or magic link, so the role declares none of them.
 - **Break-Glass:** With SSO on the database login is closed, so the break-glass path is the CLI: `mobilizon rpc` in the container, the way [files/python/rbac_sync.py](./files/python/rbac_sync.py) runs [files/elixir/rbac.exs](./files/elixir/rbac.exs), manages accounts and roles.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Mobilizon Official Website](https://mobilizon.org)

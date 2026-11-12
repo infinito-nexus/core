@@ -39,6 +39,10 @@ The subclasses override upstream internals checked against Weblate `2026.9` (`we
 
 WebAuthn second factors stay bound to the clearnet domain (`OTP_WEBAUTHN_*` follows `SITE_URL`), and a plain-http onion page is no secure context, so a WebAuthn key cannot be used on the onion sibling. E-mails, feeds and other links Weblate renders from `SITE_URL` keep naming the clearnet domain.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further resources
 
 - [Weblate documentation](https://docs.weblate.org/)

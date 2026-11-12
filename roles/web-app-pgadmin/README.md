@@ -31,6 +31,10 @@ This Docker Compose deployment uses Ansible automation to launch pgAdmin togethe
 - **Login methods:** `services.pgadmin.login.method.<method>.enabled` in [meta/services.yml](./meta/services.yml) declares `sso`, `native` and `2fa`. `sso` adds `oauth2` and `native` adds `internal` to `PGADMIN_CONFIG_AUTHENTICATION_SOURCES` (`PGADMIN_AUTHENTICATION_SOURCES` in [vars/main.yml](./vars/main.yml)); pgAdmin hides the email and password form, the forgotten-password link and the Login button whenever `internal` is missing and refuses an internal sign-in server-side. `2fa` sets `PGADMIN_CONFIG_MFA_ENABLED`, which offers the email and authenticator second factor for enrollment, and `login.method.2fa.enforced` (default `true`) sets `PGADMIN_CONFIG_MFA_FORCE_REGISTRATION`, which makes an account without a second factor register one at its next sign-in. pgAdmin has no self-registration. Break-glass: with SSO on the internal administrator (`PGADMIN_DEFAULT_EMAIL`) has no web sign-in, so the path is the CLI inside the container, `/venv/bin/python3 /pgadmin4/setup.py update-external-user <username> --auth-source oauth2 --admin` to promote an OAuth2 account, or setting `applications.web-app-pgadmin.services.pgadmin.login.method.native.enabled: true` and redeploying to bring the internal form back.
 - **Saved server passwords:** OAuth2 accounts keep no pgAdmin password, so pgAdmin asks them for a master password before it stores a server password (`MASTER_PASSWORD_REQUIRED`).
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [pgAdmin Official Homepage](https://www.pgadmin.org/)

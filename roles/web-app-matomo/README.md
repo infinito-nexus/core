@@ -25,6 +25,10 @@ This role deploys Matomo using Docker, automating the setup of your analytics pl
 - **Scalable Deployment:** Use Docker to ensure your analytics platform can grow with your traffic demands.
 - **Version Upgrades:** When the pinned image ships a newer Matomo than the data volume holds, the deploy installs that release into the volume, keeps `config/config.ini.php`, `misc/user/` and Marketplace plugins, and runs `core:update`; a volume newer than the image stops the deploy.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Matomo Official Website](https://matomo.org/)
