@@ -1,6 +1,4 @@
 ---
-# ansible_parent_role_names, not application_id: this role's own vars/main.yml
-# shadows the consumer's application_id whenever no include param names it.
 - name: "🧊 Freeze the consumer whose backend the stack loads"
   ansible.builtin.set_fact:
     stack_application_id: "{{ ansible_parent_role_names | default([application_id]) | first }}"

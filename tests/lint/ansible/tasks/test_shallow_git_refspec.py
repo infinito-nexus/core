@@ -4,10 +4,8 @@ Every ``git`` task that sets ``depth`` and a ``version`` other than ``HEAD``
 MUST set ``refspec`` and MUST NOT set ``single_branch: true``. Every role that
 hands a ``compose_repository_ref`` to the shared clone of ``sys-svc-compose``
 MUST declare ``ref_kind`` on its primary entity in ``meta/services.yml`` and
-MUST NOT pass ``compose_repository_refspec``. A ref the stack provider forwards
-from ``services.stack.checkout.ref`` belongs to the consumer that declares it,
-so that consumer MUST declare ``ref_kind`` instead. Every declared ``ref_kind``
-MUST be ``tag`` or ``branch`` and sit beside a ``ref`` or ``source_version``.
+MUST NOT pass ``compose_repository_refspec``. Every declared ``ref_kind`` MUST
+be ``tag`` or ``branch`` and sit beside a ``ref`` or ``source_version``.
 
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
@@ -103,10 +101,12 @@ def _clones(variables: dict[str, Any]) -> bool:
 
 
 def forwarded_refs(tasks: Any) -> set[str]:
-    """Return the facts a task file sets from its consumer's checkout ref.
-
+    """
     Args:
         tasks: a parsed task file.
+
+    Returns:
+        the facts the task file sets from its consumer's checkout ref.
     """
     names: set[str] = set()
     for task in iter_tasks(tasks):
@@ -126,8 +126,7 @@ def _forwards(variables: dict[str, Any], forwarded: set[str]) -> bool:
 
 def clone_offenders(tasks: Any, declared_kind: Any) -> list[tuple[str, str, str]]:
     """Return ``(task name, module, missing fix)`` of every include that hands
-    a ref to the shared clone without a declared kind, a ref forwarded from
-    the consumer's checkout excepted.
+    a ref to the shared clone without a declared kind.
 
     Args:
         tasks: a parsed task file.
@@ -154,11 +153,13 @@ def clone_offenders(tasks: Any, declared_kind: Any) -> list[tuple[str, str, str]
 
 
 def misses_checkout_kind(role: str, services: Any) -> bool:
-    """Return whether a role hands the stack a checkout ref without a kind.
-
+    """
     Args:
         role: the role name.
         services: its parsed ``meta/services.yml``.
+
+    Returns:
+        whether the role hands the stack a checkout ref without a kind.
     """
     stack = services.get(STACK_KEY) if isinstance(services, dict) else None
     checkout = stack.get(CHECKOUT_KEY) if isinstance(stack, dict) else None

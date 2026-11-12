@@ -58,8 +58,7 @@ def _domains(key, entry, primary, canonical, served) -> list[str]:
 
 
 def stack_vhosts(declared, primary, canonical=None, served=None) -> list[dict]:
-    """Resolve the vhosts a stack consumer serves from its per-domain meta.
-
+    """
     Args:
         declared: the consumer's ``server.vhosts`` mapping of a
             ``domains.canonical`` key (or ``default``) to that vhost's
