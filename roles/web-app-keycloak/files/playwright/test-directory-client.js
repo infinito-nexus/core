@@ -17,6 +17,7 @@ const realmPath = encodeURIComponent(realmName);
 const adminApi = `${issuerBaseUrl}/admin/realms/${realmPath}`;
 const tokenUrl = `${issuerBaseUrl}/realms/${realmPath}/protocol/openid-connect/token`;
 const PROBE_USER = { username: "dirprobe", firstName: "Directory", lastName: "Probe", email: "dirprobe@example.org" };
+const FIXTURE_USER = { username: "dirfixture", firstName: "Directory", lastName: "Fixture", email: "dirfixture@example.org" };
 const PROBE_ROLE = "directory-probe";
 const PROBE_CLIENT_ID = "directory-probe-client";
 const ENABLED_ONLY = "KEYCLOAK_DIRECTORY_CLIENT_ENABLED=false";
@@ -73,6 +74,20 @@ async function ensureProbeRole(request, masterToken) {
   expect([201, 409], `the super administrator must create the realm role ${PROBE_ROLE}`).toContain(response.status());
 }
 
+async function createUser(request, token, user) {
+  return request.post(`${adminApi}/users`, {
+    headers: { ...bearer(token), "Content-Type": "application/json" },
+    data: { ...user, enabled: true },
+    timeout: resolveTimeout(30_000),
+  });
+}
+
+async function ensureFixtureUser(request, masterToken) {
+  await deleteUsersNamed(request, masterToken, FIXTURE_USER.username);
+  const created = await createUser(request, masterToken, FIXTURE_USER);
+  expect(created.status(), "the super administrator must create the fixture user to search for").toBe(201);
+}
+
 async function removeProbeRole(request, masterToken) {
   const response = await request.delete(`${adminApi}/roles/${encodeURIComponent(PROBE_ROLE)}`, {
     headers: bearer(masterToken),
@@ -113,30 +128,31 @@ exports.register = function () {
       test.skip(!directoryEnabled, ENABLED_ONLY);
       const context = await browser.newContext({ ignoreHTTPSErrors: true });
       try {
-        await withMasterToken(browser, (request, masterToken) => ensureProbeRole(request, masterToken));
+        await withMasterToken(browser, async (request, masterToken) => {
+          await ensureProbeRole(request, masterToken);
+          await ensureFixtureUser(request, masterToken);
+        });
         const { request } = context;
         const token = await directoryToken(request);
         await deleteUsersNamed(request, token, PROBE_USER.username);
 
         const listed = await readJson(request, token, `${adminApi}/users?first=0&max=100`, "the directory client must list the users");
         expect(listed.length, "the realm must hold at least one user").toBeGreaterThan(0);
-        const sample = listed.find((user) => user.email);
-        expect(sample, "a listed user must carry an address to search by").toBeTruthy();
-        const byUsername = await usersNamed(request, token, sample.username);
-        expect(byUsername.map((user) => user.id), "the username search must find the listed user").toEqual([sample.id]);
+        const byUsername = await usersNamed(request, token, FIXTURE_USER.username);
+        expect(byUsername.map((user) => user.username), "the username search must find the fixture user").toEqual([
+          FIXTURE_USER.username,
+        ]);
         const byEmail = await readJson(
           request,
           token,
-          `${adminApi}/users?email=${encodeURIComponent(sample.email)}&exact=true`,
+          `${adminApi}/users?email=${encodeURIComponent(FIXTURE_USER.email)}&exact=true`,
           "the directory client must search users by email",
         );
-        expect(byEmail.map((user) => user.id), "the email search must find the listed user").toEqual([sample.id]);
+        expect(byEmail.map((user) => user.username), "the email search must find the fixture user").toEqual([
+          FIXTURE_USER.username,
+        ]);
 
-        const created = await request.post(`${adminApi}/users`, {
-          headers: { ...bearer(token), "Content-Type": "application/json" },
-          data: { ...PROBE_USER, enabled: true },
-          timeout: resolveTimeout(30_000),
-        });
+        const created = await createUser(request, token, PROBE_USER);
         expect(created.status(), "the directory client must create the probe user").toBe(201);
         const probeId = created.headers()["location"].split("/").pop();
         expect(probeId, "the created user must carry an id").toBeTruthy();
@@ -173,6 +189,7 @@ exports.register = function () {
         await context.close();
         await withMasterToken(browser, async (request, masterToken) => {
           await deleteUsersNamed(request, masterToken, PROBE_USER.username);
+          await deleteUsersNamed(request, masterToken, FIXTURE_USER.username);
           await removeProbeRole(request, masterToken);
         });
       }
