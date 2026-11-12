@@ -24,9 +24,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache import ROLES_DIR
-from utils.cache.yaml import load_yaml_any
 from utils.roles.applications import forms
-from utils.roles.mapping import ROLE_FILE_META_SECRETS
 
 PROFILE_PATH = ("services", "sso", "profile")
 
@@ -37,15 +35,6 @@ def _node(tree: Any, keys: tuple[str, ...]) -> Any:
             return None
         tree = tree[key]
     return tree
-
-
-def _credentials(application_id: str) -> Mapping:
-    secrets = load_yaml_any(
-        str(ROLES_DIR / application_id / ROLE_FILE_META_SECRETS),
-        default_if_missing={},
-    )
-    credentials = _node(secrets, ("credentials",))
-    return credentials if isinstance(credentials, Mapping) else {}
 
 
 def profile_entry(application: Mapping) -> list[dict[str, Any]]:
@@ -97,7 +86,7 @@ class LookupModule(LookupBase):
                 managed,
                 application,
                 self._spot("users", [], variables, **kwargs),
-                _credentials(application_id),
+                forms.role_credentials(ROLES_DIR / application_id),
             )
         return [
             {

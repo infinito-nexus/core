@@ -38,11 +38,15 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterator, Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ansible.module_utils.parsing.convert_bool import boolean
 
-from utils.roles.mapping import ROLE_FILE_META_FORMS
+from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SECRETS
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 MODES = ("enforced", "seeded")
 TYPES = (
@@ -258,6 +262,19 @@ def resolve(source: str, application: Mapping, users: Mapping) -> Any:
     if not _is_allowed_user_path(parts):
         raise SourceError("the source is no allowed users.<key>.<attr> path")
     return _walk(users, parts[1:], source)
+
+
+def role_credentials(role_dir: Path) -> Mapping:
+    """Return the ``credentials`` tree of a role's ``meta/secrets.yml``.
+
+    Args:
+        role_dir: the role's directory; a role without the file declares none.
+    """
+    secrets = load_yaml_any(
+        str(role_dir / ROLE_FILE_META_SECRETS), default_if_missing={}
+    )
+    credentials = secrets.get("credentials") if isinstance(secrets, Mapping) else None
+    return credentials if isinstance(credentials, Mapping) else {}
 
 
 def _credential_leaf(credentials: Mapping, parts: list[str]) -> bool:

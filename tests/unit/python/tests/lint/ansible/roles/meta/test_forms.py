@@ -152,5 +152,60 @@ class TestFormsLint(unittest.TestCase):
         self.assertEqual([], self._findings_with(allowed, DEFAULTS, users))
 
 
+CONVERGES_GENERAL = """
+- name: Write the general settings
+  ansible.builtin.debug:
+    msg: "{{ lookup('form_values', application_id, 'general') }}"
+"""
+NOT_CONVERGED = (
+    f"{ROLE}: meta/forms.yml declares the form 'general', but no "
+    "lookup('form_values', application_id, 'general') converges it"
+)
+
+
+class TestConvergenceLint(unittest.TestCase):
+    @staticmethod
+    def _findings(files: dict[str, str]) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            role = Path(tmp) / ROLE
+            for name, content in {ROLE_FILE_META_FORMS: VALID, **files}.items():
+                path = role / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(textwrap.dedent(content), encoding="utf-8")
+            return lint.convergence_findings([role])
+
+    def test_a_role_that_converges_each_declared_form_passes(self) -> None:
+        self.assertEqual([], self._findings({"tasks/main.yml": CONVERGES_GENERAL}))
+
+    def test_a_form_read_from_vars_or_a_template_counts(self) -> None:
+        for name in ("vars/main.yml", "templates/settings.json.j2"):
+            with self.subTest(file=name):
+                lookup = '{{ lookup("form_values", application_id, "general") }}'
+                self.assertEqual([], self._findings({name: f"X: '{lookup}'\n"}))
+
+    def test_a_declared_form_the_role_never_converges_fails(self) -> None:
+        self.assertEqual(
+            [NOT_CONVERGED],
+            self._findings({"tasks/main.yml": "- ansible.builtin.meta: noop\n"}),
+        )
+
+    def test_a_converged_form_the_file_does_not_declare_fails(self) -> None:
+        undeclared = CONVERGES_GENERAL.replace("'general'", "'mail'")
+        self.assertEqual(
+            [
+                NOT_CONVERGED,
+                (
+                    f"{ROLE}: lookup('form_values', application_id, 'mail') converges "
+                    "a form meta/forms.yml does not declare"
+                ),
+            ],
+            self._findings({"tasks/main.yml": undeclared}),
+        )
+
+    def test_a_form_named_through_a_variable_does_not_count(self) -> None:
+        dynamic = CONVERGES_GENERAL.replace("'general'", "form_name")
+        self.assertEqual(1, len(self._findings({"tasks/main.yml": dynamic})))
+
+
 if __name__ == "__main__":
     unittest.main()

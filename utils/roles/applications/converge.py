@@ -1,0 +1,48 @@
+"""The values a role converges into one form of its ``meta/forms.yml``.
+
+A role reads every value it writes into a form through ``values``, so the
+value it writes and the lock the shared renderer shows name the same
+``source``.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+from utils.roles.applications.forms import _applies, iter_fields, resolve
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+
+def values(
+    form: str,
+    forms: Mapping,
+    application: Mapping,
+    users: Mapping,
+    mode: str | None = None,
+) -> dict[str, Any]:
+    """Return what the sources of one form's applicable fields resolve to.
+
+    Args:
+        form: key of the form in ``meta/forms.yml``.
+        forms: ``applications.<role>.forms``.
+        application: the rendered ``applications.<role>``; every ``source``
+            and ``when`` resolves against it.
+        users: the rendered global users.
+        mode: keep only the fields of this mode; ``None`` keeps both.
+
+    Returns:
+        Each field whose ``when`` holds mapped to the value its ``source``
+        resolves to, in YAML order.
+
+    Raises:
+        SourceError: when a ``source`` or ``when`` names nothing.
+    """
+    return {
+        field: resolve(spec["source"], application, users)
+        for name, field, spec in iter_fields(forms)
+        if name == form
+        and (mode is None or spec.get("mode") == mode)
+        and _applies(spec, application, users)
+    }

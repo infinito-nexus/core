@@ -1,0 +1,23 @@
+---
+# Param forms_drift_current: each form of the role's meta/forms.yml mapped to the enforced fields the run read from the application and is about to overwrite, each mapped to the value the application holds; include it before the write.
+# Output forms_drift_lines: the drift report, one line per overwritten field, values only where the fail-closed rule of utils/roles/applications/forms.py allows.
+
+- name: "🔎 Compare the managed fields of {{ application_id }} with their sources"
+  ansible.builtin.set_fact:
+    forms_drift_lines: "{{ lookup('form_drift', application_id, forms_drift_current) }}"
+
+- name: "📋 Report each managed field of {{ application_id }} the run overwrites"
+  ansible.builtin.debug:
+    msg: "{{ forms_drift_lines }}"
+  when: forms_drift_lines | length > 0
+
+- name: "📣 Raise the drift event Grafana alerts on"
+  ansible.builtin.command:
+    cmd: logger --journald
+    stdin: |-
+      MESSAGE={{ item }}
+      SYSLOG_IDENTIFIER={{ FORMS_DRIFT_IDENTIFIER }}
+      PRIORITY={{ FORMS_DRIFT_PRIORITY }}
+      {{ DOCKER_LOG_JOURNAL_FIELD }}={{ application_id }}
+  loop: "{{ forms_drift_lines }}"
+  changed_when: false
