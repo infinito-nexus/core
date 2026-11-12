@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import os
 import unittest
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from unittest import mock
 
 from ansible.plugins.loader import lookup_loader
@@ -12,7 +13,7 @@ from plugins.lookup.compose_only import LookupModule as ComposeOnlyLookup
 from plugins.lookup.container_image import LookupModule as ContainerImageLookup
 from plugins.lookup.container_ports import LookupModule as ContainerPortsLookup
 from plugins.lookup.image import LookupModule as ImageLookup
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
@@ -30,6 +31,9 @@ REDIS_SERVICES = load_yaml_str(
 )
 VARS = load_yaml_str(read_text(str(ROLE / ROLE_FILE_VARS_MAIN)))
 CORE_TASKS = load_yaml_str(read_text(str(ROLE / "tasks" / "00_core.yml")))
+ROLE_FILES = sorted(
+    Path(path) for path in iter_project_files() if path.startswith(f"{ROLE}{os.sep}")
+)
 
 CLONE = "/opt/compose/worldmonitor/repository"
 BIND_HOST = "127.0.0.1"
@@ -218,7 +222,9 @@ class TestComposeBuilds(unittest.TestCase):
                 self.assertEqual(self.services["compose"][name]["pull_policy"], "never")
 
     def test_the_role_ships_no_dockerfile_of_its_own(self) -> None:
-        self.assertEqual(sorted(ROLE.rglob("Dockerfile*")), [])
+        self.assertEqual(
+            [path for path in ROLE_FILES if path.name.startswith("Dockerfile")], []
+        )
 
 
 class TestPublishedPorts(unittest.TestCase):
@@ -241,8 +247,8 @@ class TestPublishedPorts(unittest.TestCase):
 
 class TestAuthBypassFlags(unittest.TestCase):
     def test_no_role_file_sets_an_auth_bypass_flag(self) -> None:
-        for path in sorted(ROLE.rglob("*")):
-            if not path.is_file() or path.name == "README.md":
+        for path in ROLE_FILES:
+            if path.name == "README.md":
                 continue
             text = read_text(str(path))
             for flag in AUTH_BYPASS_FLAGS:

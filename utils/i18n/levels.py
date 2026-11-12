@@ -26,7 +26,9 @@ def accepted_levels(root: Path) -> dict[str, float]:
     path = root.joinpath(*ACCEPTED_FILE)
     if not path.is_file():
         return {}
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(
+        path.read_text(encoding="utf-8")
+    )  # nocheck: cache-read  gate() rewrites this file and the next language re-reads it in the same process
 
 
 def gate(root: Path, code: str, levels: Sequence[int], aborted: str = "") -> str:
