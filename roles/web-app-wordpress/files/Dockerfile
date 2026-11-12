@@ -11,14 +11,14 @@ RUN curl --connect-timeout 5 --max-time 300 -O https://raw.githubusercontent.com
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
 
-ARG WORDPRESS_S3_UPLOADS_ARCHIVE
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+ARG WORDPRESS_S3_UPLOADS_VERSION
 ARG WORDPRESS_S3_UPLOADS_SRC
-RUN if [ -n "${WORDPRESS_S3_UPLOADS_ARCHIVE}" ]; then \
-      curl -fsSL --connect-timeout 5 --max-time 300 -o /tmp/s3-uploads.zip \
-        "${WORDPRESS_S3_UPLOADS_ARCHIVE}" && \
-      mkdir -p "${WORDPRESS_S3_UPLOADS_SRC}" && \
-      unzip -q /tmp/s3-uploads.zip -d "${WORDPRESS_S3_UPLOADS_SRC}" && \
-      rm /tmp/s3-uploads.zip; \
+RUN if [ -n "${WORDPRESS_S3_UPLOADS_VERSION}" ]; then \
+      COMPOSER_ALLOW_SUPERUSER=1 composer create-project --no-dev --no-interaction \
+        --no-progress --prefer-dist humanmade/s3-uploads \
+        "${WORDPRESS_S3_UPLOADS_SRC}" "${WORDPRESS_S3_UPLOADS_VERSION}"; \
     fi
 
 ARG WORDPRESS_CONFIG_UPLD_REL

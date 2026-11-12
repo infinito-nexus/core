@@ -1,9 +1,35 @@
 ---
 system_service_id: sys-ctl-hlth-runtime
-HEALTH_RUNTIME_FLOORS:
-  php:
-    "8.2": "8.2.35"
-    "8.3": "8.3.36"
-    "8.4": "8.4.27"
-    "8.5": "8.5.12"
 HEALTH_RUNTIME_PHP_HARDENED: "{{ lookup('php_hardened_services', group_names=lookup('deployment').deployed) }}"
+HEALTH_RUNTIME_SUPPRESSIONS: "{{ lookup('cve_suppressions', group_names=lookup('deployment').deployed) }}"
+HEALTH_RUNTIME_ENGINES: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.engines') }}"
+HEALTH_RUNTIME_SCAN:
+  targets: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.targets') }}"
+  engines: "{{ HEALTH_RUNTIME_ENGINES }}"
+  severity: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.severity') }}"
+  fixed_only: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.fixed_only') | bool }}"
+  workers: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.workers') | int }}"
+  db_update: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.db_update') | bool }}"
+HEALTH_RUNTIME_IMAGES:
+  trivy: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.trivy.image') }}:{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.trivy.version') }}"
+  grype: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.grype.image') }}:{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.grype.version') }}"
+  osv: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.osv.image') }}:{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.osv.version') }}"
+  syft: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.syft.image') }}:{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.syft.version') }}"
+HEALTH_RUNTIME_CACHE_DIR: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.cache_dir') }}"
+HEALTH_RUNTIME_DATABASE_DIR: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.database_dir') }}"
+HEALTH_RUNTIME_METRICS_ENABLED: "{{ 'web-app-prometheus' in lookup('deployment').deployed }}"
+HEALTH_RUNTIME_METRICS_FILE: "{{ [ DIR_METRICS_TEXTFILE, 'infinito_hlth_runtime.prom' ] | path_join }}"
+HEALTH_RUNTIME_LOGROTATE_FILE: "{{ [ '/etc/logrotate.d', system_service_id ] | path_join }}"
+HEALTH_RUNTIME_HOST_EXCLUDES:
+  - /proc
+  - /sys
+  - /dev
+  - /run
+  - /tmp
+  - /var/tmp
+  - /var/lib/docker
+  - /var/lib/containerd
+  - /mnt
+  - /media
+  - "{{ DIR_BACKUPS }}"
+  - "{{ lookup('nfs_export_base') }}"

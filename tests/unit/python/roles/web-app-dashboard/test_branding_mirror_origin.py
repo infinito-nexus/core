@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.mirror_filters import external_asset_origins
 from utils.cache.files import PROJECT_ROOT, read_text
@@ -23,7 +23,10 @@ def _mirror_origins(asset_url: str) -> list[str]:
             raise AssertionError(f"img-src renders an unexpected lookup{terms}")
         return asset_url
 
-    env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders an ansible var expression, not markup
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     img_src = load_yaml_str(read_text(str(CSP)))["whitelist"]["img-src"]
     rendered = [env.from_string(token).render(lookup=lookup) for token in img_src]
     applications = {APPLICATION_ID: {"csp": {"whitelist": {"img-src": rendered}}}}

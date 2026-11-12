@@ -48,6 +48,20 @@ pulls them from a Flatpak remote::
 named after the application id, not after the binary inside it, so without
 this key a role calling ``blender`` finds nothing on PATH.
 
+``architectures`` narrows one distro entry to the CPU architectures its
+source publishes, drawn from
+:data:`utils.github.variant.pools.ARCHITECTURES`; absent means every one::
+
+    blender:
+      centos:
+        source: flatpak
+        names: [org.blender.Blender]
+        architectures: [amd64]
+
+The deploy matrix keeps a role installing it off that distro and
+architecture pair, and ``package_install`` refuses it there before any
+module runs.
+
 ``source: download`` fetches one vendor artefact and installs it locally,
 for a vendor that publishes a ``.deb`` or ``.rpm`` but runs no repository::
 
@@ -99,6 +113,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from utils.distros import distro_family
+from utils.github.variant.pools import ARCHITECTURES
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -155,6 +170,22 @@ REPO_KEYS: frozenset[str] = frozenset(
 """A repository definition must declare at least one of these; the rest
 (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."""
 
+ENTRY_KEYS: frozenset[str] = frozenset(
+    {
+        "names",
+        "source",
+        "repo",
+        "virtual",
+        "build",
+        "download",
+        "flatpak",
+        "architectures",
+    }
+)
+"""Every key a distro entry may carry. Anything else is refused rather than
+ignored: a misspelt ``architecture`` would otherwise drop the narrowing and
+install where the source publishes nothing."""
+
 DISTRO_FAMILY: dict[str, str] = distro_family()
 """The default distro matrix mapped onto the ``os_family`` ansible reports
 for it, read from the ``meta/distros.yml`` SPOT. Coverage is required for
@@ -176,6 +207,23 @@ class PackageSpec:
     build: dict[str, Any] | None = None
     flatpak: dict[str, Any] | None = None
     download: dict[str, Any] | None = None
+    architectures: tuple[str, ...] = ARCHITECTURES
+
+
+def _validate_architectures(
+    package_id: str, key: str, architectures: Any, path: Path
+) -> None:
+    if (
+        not isinstance(architectures, list)
+        or not architectures
+        or any(value not in ARCHITECTURES for value in architectures)
+    ):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.architectures must be a non-empty "
+            f"list drawn from {ARCHITECTURES}, got {architectures!r}. An "
+            f"unknown token would match no host and refuse the package "
+            f"everywhere."
+        )
 
 
 def _validate_repo(package_id: str, key: str, repo: Any, path: Path) -> None:
@@ -270,6 +318,12 @@ def normalize_entry(package_id: str, key: str, value: Any, path: Path) -> Packag
             f"{path}: {package_id}.{key} must be a list of names or a mapping, "
             f"got {type(value).__name__}."
         )
+    unknown = sorted(set(value) - ENTRY_KEYS)
+    if unknown:
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key} has unknown key(s) {unknown}; an entry "
+            f"may carry {sorted(ENTRY_KEYS)}."
+        )
 
     names = value.get("names")
     if not isinstance(names, list) or any(not isinstance(n, str) for n in names):
@@ -302,6 +356,16 @@ def normalize_entry(package_id: str, key: str, value: Any, path: Path) -> Packag
     flatpak = value.get("flatpak")
     _validate_flatpak(package_id, key, source, flatpak, path)
 
+    architectures = value.get("architectures", list(ARCHITECTURES))
+    _validate_architectures(package_id, key, architectures, path)
+
     return PackageSpec(
-        tuple(names), str(source), repo, virtual, build, flatpak, download
+        tuple(names),
+        str(source),
+        repo,
+        virtual,
+        build,
+        flatpak,
+        download,
+        tuple(architectures),
     )

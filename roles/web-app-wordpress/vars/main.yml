@@ -59,8 +59,8 @@ WORDPRESS_LISTMONK_API_URL: >-
 WORDPRESS_PEERTUBE_INSTANCE_URL: >-
   {{ lookup('config', application_id, 'addons.video-manager-for-peertube.config.peertube_settings.instance_url')
   if (lookup('config', application_id, 'addons.video-manager-for-peertube.enabled') | bool) else '' }}
-WORDPRESS_S3_UPLOADS_ARCHIVE: >-
-  {{ lookup('config', application_id, 'addons.s3-uploads.config.archive')
+WORDPRESS_S3_UPLOADS_VERSION: >-
+  {{ lookup('config', application_id, 'addons.s3-uploads.version')
   if (lookup('config', application_id, 'addons.s3-uploads.enabled') | bool) else '' }}
 WORDPRESS_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'addons.freedomtranslate-wp.enabled') | bool }}"
 WORDPRESS_TRANSLATE_OPTIONS: >-

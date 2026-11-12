@@ -7,7 +7,7 @@ collections:
   - name: kewlfft.aur
     version: 0.13.0
   - name: community.general
-    version: 14.0.0
+    version: 14.0.1
   - name: community.docker
     version: 5.4.0
   - name: community.library_inventory_filtering_v1

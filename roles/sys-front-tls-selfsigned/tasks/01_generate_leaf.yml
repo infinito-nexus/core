@@ -1,5 +1,5 @@
 ---
-- name: "🗑️ TLS | (self_signed) remove outdated cert/key/csr if SAN drift detected"
+- name: "🗑️ TLS | (self_signed) remove outdated cert/key/csr (SAN drift or no AKID)"
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -55,6 +55,6 @@
       - -extfile
       - "{{ _ss_conf }}"
       - -extensions
-      - req_ext
+      - leaf_ext
   args:
     creates: "{{ _ss_cert }}"

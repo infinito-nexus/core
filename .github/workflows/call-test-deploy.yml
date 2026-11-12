@@ -261,12 +261,75 @@ jobs:
             --offset "${PLAN_OFFSET}" \
             >> "$GITHUB_STEP_SUMMARY"
 
+  vulnerability-db:
+    name: 🔬 Vulnerability databases
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    outputs:
+      day: ${{ steps.day.outputs.day }}
+
+    steps:
+      - uses: actions/checkout@v7.0.0
+
+      - name: 📅 Resolve the database day
+        id: day
+        shell: bash
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: 🔺 Trivy database
+        id: trivy
+        if: ${{ !env.ACT }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/vulnerability-db/trivy
+          key: vulnerability-db-trivy-${{ steps.day.outputs.day }}
+
+      - name: 🍇 Grype database
+        id: grype
+        if: ${{ !env.ACT }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/vulnerability-db/grype
+          key: vulnerability-db-grype-${{ steps.day.outputs.day }}
+
+      - name: 🐙 OSV database
+        id: osv
+        if: ${{ !env.ACT }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/vulnerability-db/osv
+          key: vulnerability-db-osv-${{ steps.day.outputs.day }}
+
+      - name: 🔧 Set up Python
+        if: ${{ !env.ACT && (steps.trivy.outputs.cache-hit != 'true' || steps.grype.outputs.cache-hit != 'true' || steps.osv.outputs.cache-hit != 'true') }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📥 Download the missing databases
+        if: ${{ !env.ACT && (steps.trivy.outputs.cache-hit != 'true' || steps.grype.outputs.cache-hit != 'true' || steps.osv.outputs.cache-hit != 'true') }}
+        shell: bash
+        env:
+          MISSING: >-
+            ${{ steps.trivy.outputs.cache-hit != 'true' && 'trivy' || '' }}
+            ${{ steps.grype.outputs.cache-hit != 'true' && 'grype' || '' }}
+            ${{ steps.osv.outputs.cache-hit != 'true' && 'osv' || '' }}
+        run: |
+          set -euo pipefail
+          PYTHON=python bash scripts/install/python.sh
+          # shellcheck disable=SC2086
+          python -m cli.contributing.security.database --dir build/vulnerability-db --engines ${MISSING}
+
   deploy:
     name: "${{ matrix.label }}"
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 355
-    needs: discover
+    needs:
+      - discover
+      - vulnerability-db
 
     # TODO: verify in a CI deploy that a cancel drops queued jobs from this
     # group and that an identical row of a second run queues behind it.
@@ -320,6 +383,34 @@ jobs:
         if: ${{ !env.ACT }}
         shell: bash
         run: nohup ./scripts/tests/deploy/ci/host-metrics-sampler.sh "${INFINITO_RESCUE_DIAGNOSTICS_BASE}/host-metrics.log" >/dev/null 2>&1 &
+
+      - name: "🍇 Restore the Grype database"
+        if: ${{ !env.ACT && matrix.engine != '' }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/vulnerability-db/grype
+          key: vulnerability-db-grype-${{ needs.vulnerability-db.outputs.day }}
+          fail-on-cache-miss: true
+
+      - name: "🔬 Restore the ${{ matrix.engine }} database"
+        if: ${{ !env.ACT && matrix.engine != '' && matrix.engine != 'grype' }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/vulnerability-db/${{ matrix.engine }}
+          key: vulnerability-db-${{ matrix.engine }}-${{ needs.vulnerability-db.outputs.day }}
+          fail-on-cache-miss: true
+
+      - name: "🔬 Pin the deploy to the restored databases"
+        if: ${{ !env.ACT }}
+        shell: bash
+        env:
+          ENGINE: ${{ matrix.engine }}
+        run: |
+          set -euo pipefail
+          {
+            echo "INFINITO_VULNERABILITY_ENGINE=${ENGINE}"
+            echo "INFINITO_VULNERABILITY_DB_HOST_PATH=${GITHUB_WORKSPACE}/build/vulnerability-db"
+          } >> "${GITHUB_ENV}"
 
       - name: 💽 Mount the empty spare disk at /mnt
         if: ${{ !env.ACT }}

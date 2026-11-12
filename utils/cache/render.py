@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from utils.cache.hosts import (
     host_records,
@@ -87,7 +87,7 @@ def _render(template: str, **context) -> str:
         loader=FileSystemLoader([str(path) for path in TEMPLATE_DIRS]),
         trim_blocks=True,
         keep_trailing_newline=True,
-        autoescape=False,  # noqa: S701 - nginx and compose config, not markup
+        autoescape=select_autoescape(default_for_string=False),
     )
     return env.get_template(template).render(**context)
 

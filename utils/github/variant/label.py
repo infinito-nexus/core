@@ -5,7 +5,13 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, NamedTuple
 
-from utils.github.variant.pools import ARCHITECTURES, DISTROS, FILESYSTEMS, MODES
+from utils.github.variant.pools import (
+    ARCHITECTURES,
+    DISTROS,
+    ENGINES,
+    FILESYSTEMS,
+    MODES,
+)
 from utils.networks.reachability import CLEARNET, NODE_MODES
 from utils.roles.display import VARIANT_SEPARATOR
 from utils.symbol_glossary import to_emoji, to_word
@@ -41,6 +47,7 @@ LABEL_RE = re.compile(
     r"(?P<distro>" + _alternation(DISTROS) + r")?️?"
     r"(?P<filesystem>" + _alternation(FILESYSTEMS) + r")?️?"
     r"(?P<architecture>" + _alternation(ARCHITECTURES) + r")?️?"
+    r"(?P<engine>" + _alternation(ENGINES) + r")?️?"
     r"[" + re.escape(_AXIS_GLYPHS) + r"️\s]*"
     r"(?P<name>.+?)"
     r"(?:" + re.escape(VARIANT_SEPARATOR) + r"(?P<variant>[0-9,]+))?"
@@ -63,6 +70,7 @@ class Label(NamedTuple):
     filesystem: str = ""
     architecture: str = ""
     vpn: bool = False
+    engine: str = ""
 
 
 def parse_label(name: str) -> Label | None:
@@ -101,6 +109,7 @@ def parse_label(name: str) -> Label | None:
         to_word(match.group("filesystem") or ""),
         to_word(match.group("architecture") or ""),
         match.group("vpn") is not None,
+        to_word(match.group("engine") or ""),
     )
 
 

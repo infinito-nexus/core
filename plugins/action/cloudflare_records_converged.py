@@ -14,7 +14,7 @@ from ansible.module_utils.urls import open_url
 from ansible.plugins.action import ActionBase
 
 ZONES = "https://api.cloudflare.com/client/v4/zones"
-REVIEWED_COMMUNITY_GENERAL = "14.0.0"
+REVIEWED_COMMUNITY_GENERAL = "14.0.1"
 PAGE_SIZE = 5000
 ARGUMENTS = frozenset({"api_token", "records", "timeout"})
 JUDGED_TYPES = ("A", "AAAA", "CNAME", "MX", "TXT", "SRV")
