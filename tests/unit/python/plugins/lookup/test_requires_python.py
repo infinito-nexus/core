@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from ansible.errors import AnsibleError
 
@@ -17,7 +17,7 @@ class TestRequiresPythonLookup(unittest.TestCase):
                 '[project]\nname = "demo"\nrequires-python = ">=3.12,<3.14"\n',
                 encoding="utf-8",
             )
-            with mock.patch.object(plugin, "PROJECT_ROOT", Path(tmp)):
+            with unittest.mock.patch.object(plugin, "PROJECT_ROOT", Path(tmp)):
                 self.assertEqual(plugin.LookupModule().run([]), [">=3.12,<3.14"])
 
     def test_the_lookup_takes_no_terms(self) -> None:

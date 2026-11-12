@@ -34,6 +34,13 @@ class _HttpResponse(dict):
         super().__init__()
         self.content_type = content_type
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, _HttpResponse)
+            and dict.__eq__(self, other)
+            and self.content_type == other.content_type
+        )
+
 
 def funkwhale_get_file_path(audio_file) -> bytes:
     """
