@@ -39,7 +39,7 @@ bigbluebutton:
   enabled: true
   shared: true
   repository: https://github.com/bigbluebutton/docker.git
-  ref: v3.0.39
+  ref: v4.0.2
   update:
     key: ref
     type: http_regex
@@ -116,7 +116,7 @@ bbb-web:
   backup:
     stop_required: true
   image: alangecker/bbb-docker-web
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -151,7 +151,7 @@ nginx:
   backup:
     stop_required: true
   image: alangecker/bbb-docker-nginx
-  version: "v3.0.39-v5.4.8-1.29"
+  version: "v4.0.2-v5.4.8-1.31"
   update:
     type: http_regex
     url:
@@ -169,7 +169,7 @@ nginx:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-shared-notes-server:
   image: alangecker/bbb-shared-notes-server
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -186,7 +186,7 @@ bbb-export-annotations:
   backup:
     stop_required: true
   image: alangecker/bbb-docker-bbb-export-annotations
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -235,7 +235,7 @@ apps-akka:
   backup:
     stop_required: true
   image: alangecker/bbb-docker-apps-akka
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -255,7 +255,7 @@ bbb-graphql-server:
     timeout: 10s
     retries: 5
   image: alangecker/bbb-docker-graphql-server
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -270,7 +270,7 @@ bbb-graphql-server:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-actions:
   image: alangecker/bbb-docker-graphql-actions
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -285,7 +285,7 @@ bbb-graphql-actions:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-middleware:
   image: alangecker/bbb-docker-graphql-middleware
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -319,7 +319,7 @@ recordings:
   backup:
     stop_required: true
   image: alangecker/bbb-docker-recordings
-  version: "v3.0.39"
+  version: "v4.0.2"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -334,7 +334,7 @@ recordings:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-webrtc-recorder:
   image: alangecker/bbb-docker-webrtc-recorder
-  version: "v0.14.0"
+  version: "v0.18.0"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
