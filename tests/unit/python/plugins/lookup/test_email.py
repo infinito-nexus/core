@@ -807,6 +807,13 @@ class _RawGetHostvars(dict):
         super().__init__(templated)
         self._raw = raw
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, _RawGetHostvars)
+            and dict.__eq__(self, other)
+            and self._raw == other._raw
+        )
+
     def raw_get(self, host: str) -> dict:
         return self._raw[host]
 
