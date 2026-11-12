@@ -571,7 +571,7 @@ class TestTaskHandover(unittest.TestCase):
 
     def render(self, source: str, password: str) -> str:
         environment = jinja2.Environment(
-            autoescape=False,  # noqa: S701 - renders a shell task, not markup
+            autoescape=jinja2.select_autoescape(default_for_string=False),
             undefined=jinja2.StrictUndefined,
         )
         environment.filters["b64encode"] = ansible_b64encode

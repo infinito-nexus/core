@@ -8,10 +8,7 @@
   ansible.builtin.script: "{{ role_path }}/files/shell/install.sh"
   environment:
     SKIP_DOCKER_APT_SANITIZER: "1"
-    DEV_PYTHON_REQUIRES: >-
-      {{ lookup('file', lookup('path_absolute', 'pyproject.toml'))
-         | regex_search('(?m)^requires-python\\s*=\\s*"([^"]+)"', '\\1')
-         | first }}
+    DEV_PYTHON_REQUIRES: "{{ lookup('requires_python') }}"
   become: true
 
 - include_tasks: utils/once/flag.yml
