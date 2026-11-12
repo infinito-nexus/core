@@ -11,9 +11,12 @@ unit-tested here.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 
+from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.firewall.parse import Rule, parse_rule, substitute
 
 VERDICTS = ("deny", "ask", "allow")
@@ -21,6 +24,7 @@ MISCONFIGURATION = "misconfiguration"
 WRITE_ACTIONS = frozenset({"create", "update", "delete"})
 WRITE_GATE_SCENARIOS = ("deny", "kill-switch", "audit", "identity")
 LOCAL_APPS = ("workspace",)
+SETTINGS_KIND = "tool"
 
 
 @dataclass(frozen=True)
@@ -33,11 +37,33 @@ class Resolved:
         return {"allow": self.allow, "ask": self.ask, "deny": self.deny}[verdict]
 
 
+def _settings_rules(path: str) -> dict[str, list[Rule]]:
+    """Return the permission lists of a Claude Code settings file as rules.
+
+    Args:
+        path: the settings file, relative to the repository root.
+
+    Returns:
+        Per verdict, one ``SETTINGS_KIND`` rule per entry of the file's
+        ``permissions`` list, verbatim and in the file's order.
+    """
+    permissions = json.loads(read_text(str(PROJECT_ROOT / path)))["permissions"]
+    return {
+        verdict: [
+            Rule(kind=SETTINGS_KIND, target=raw, actions=frozenset(), raw=raw)
+            for raw in permissions.get(verdict) or []
+        ]
+        for verdict in VERDICTS
+    }
+
+
 def resolve(roles: dict, name: str, _seen: frozenset[str] = frozenset()) -> Resolved:
     """Return role ``name`` with its includes folded in.
 
     Args:
-        roles: the parsed agents/firewall/roles.yml mapping.
+        roles: the parsed agents/firewall/roles.yml mapping; a role's
+            ``settings`` names a Claude Code settings file, relative to the
+            repository root, whose permission lists join that role's verdicts.
         name: the role to resolve.
         _seen: roles already being resolved, to stop an include cycle.
     """
@@ -52,6 +78,9 @@ def resolve(roles: dict, name: str, _seen: frozenset[str] = frozenset()) -> Reso
     for verdict in VERDICTS:
         for raw in role.get(verdict) or []:
             buckets[verdict].append(parse_rule(raw))
+    if role.get("settings"):
+        for verdict, rules in _settings_rules(role["settings"]).items():
+            buckets[verdict].extend(rules)
     return Resolved(
         tuple(buckets["allow"]), tuple(buckets["ask"]), tuple(buckets["deny"])
     )
@@ -64,6 +93,8 @@ def _segment_regex(segment: str) -> str:
 def _matches(rule: Rule, kind: str, target: str, action: str | None) -> bool:
     if rule.kind != kind:
         return False
+    if kind == SETTINGS_KIND:
+        return rule.target == target
     pattern = (
         "^" + "/".join(_segment_regex(seg) for seg in rule.target.split("/")) + "$"
     )
@@ -104,7 +135,7 @@ def expand(resolved: Resolved, variables: dict[str, str]) -> Resolved:
     """
 
     def _expanded(rule: Rule) -> Rule:
-        if not rule.variables:
+        if rule.kind == SETTINGS_KIND or not rule.variables:
             return rule
         missing = sorted(rule.variables - set(variables))
         if missing:
@@ -128,7 +159,8 @@ def write_gate(
     package write). It survives only with ``write_enabled`` and every gate
     scenario passed for the deployed revision; otherwise the allow and ask
     rules keep their read action alone, and a rule left without an action is
-    dropped. Deny rules and egress are untouched.
+    dropped, as is every ``SETTINGS_KIND`` rule, which names no action to keep.
+    Deny rules and egress are untouched.
 
     Args:
         resolved: a resolved firewall role.
@@ -144,6 +176,8 @@ def write_gate(
     def _read_only(rules: tuple[Rule, ...]) -> tuple[Rule, ...]:
         kept: list[Rule] = []
         for rule in rules:
+            if rule.kind == SETTINGS_KIND:
+                continue
             local = rule.target.split("/")[0] in LOCAL_APPS
             if rule.kind == "egress" or local or not rule.actions & WRITE_ACTIONS:
                 kept.append(rule)
@@ -283,11 +317,21 @@ def ldap_groups(resolved: Resolved) -> list[str]:
 
 
 def managed_settings(resolved: Resolved) -> dict:
-    """Return the Claude Code managed settings: the firewall verdicts as the
-    read-only permission lists the workspace mounts."""
+    """Return the Claude Code managed settings the workspace mounts read-only.
+
+    Args:
+        resolved: a resolved firewall role.
+
+    Returns:
+        The ``permissions`` lists: per verdict, the raw text of every
+        ``SETTINGS_KIND`` rule of ``resolved``, in order.
+    """
     return {
         "permissions": {
-            verdict: [r.raw for r in resolved.bucket(verdict)] for verdict in VERDICTS
+            verdict: [
+                r.raw for r in resolved.bucket(verdict) if r.kind == SETTINGS_KIND
+            ]
+            for verdict in VERDICTS
         }
     }
 
@@ -400,9 +444,26 @@ def _demo() -> None:
         matrix_rooms(p),
     )
     _expect(
-        "channel(web-app-matrix/secret):read"
-        in managed_settings(p)["permissions"]["deny"],
-        "denied channel missing from managed settings",
+        managed_settings(p) == {"permissions": {v: [] for v in VERDICTS}},
+        "firewall rules leaked into the managed settings",
+    )
+    edit = Rule(kind=SETTINGS_KIND, target="Edit", actions=frozenset(), raw="Edit")
+    tools = Resolved(allow=(edit,), ask=(), deny=())
+    _expect(
+        managed_settings(tools)["permissions"]["allow"] == ["Edit"],
+        managed_settings(tools),
+    )
+    _expect(decide(tools, SETTINGS_KIND, "Edit") == "allow", "tool rule not matched")
+    _expect(
+        decide(tools, SETTINGS_KIND, "Edit(x)") == "deny",
+        "tool rule matched beyond its text",
+    )
+    _expect(
+        managed_settings(write_gate(tools, write_enabled=False, scenarios_passed={}))[
+            "permissions"
+        ]["allow"]
+        == [],
+        "tool rule kept without the write gate",
     )
     print("firewall compile self-check ok")
 
