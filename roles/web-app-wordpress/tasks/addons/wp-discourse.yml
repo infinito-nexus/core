@@ -1,23 +1,24 @@
 ---
-- name: ⏳ Wait for Discourse API
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - "{{ WORDPRESS_DISCOURSE_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver  discourse is a launcher-managed container named literally in both modes
-      - bash
-      - -c
-      - "exec 3<>/dev/tcp/127.0.0.1/{{ lookup('config', 'web-app-discourse', 'services.discourse.ports.internal.http') }}"
-  register: wp_discourse_api_wait
-  until: wp_discourse_api_wait.rc == 0
-  retries: "{{ (lookup('timeout', 600) | int) // 5 }}"
-  delay: 5
-  changed_when: false
+- name: "🖥️ WP Discourse: wait for Discourse, then run the stack-host container ops"
   when: IS_STACK_HOST | bool
+  block:
+    - name: ⏳ Wait for Discourse API
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - "{{ WORDPRESS_DISCOURSE_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver  discourse is a launcher-managed container named literally in both modes
+          - bash
+          - -c
+          - "exec 3<>/dev/tcp/127.0.0.1/{{ lookup('config', 'web-app-discourse', 'services.discourse.ports.internal.http') }}"
+      register: wp_discourse_api_wait
+      until: wp_discourse_api_wait.rc == 0
+      retries: "{{ (lookup('timeout', 600) | int) // 5 }}"
+      delay: 5
+      changed_when: false
 
-- name: "🖥️ WP Discourse: stack-host container ops against Discourse"
-  include_tasks: wp-discourse-stack-host.yml
-  when: IS_STACK_HOST | bool
+    - name: "🖥️ WP Discourse: stack-host container ops against Discourse"
+      include_tasks: wp-discourse-stack-host.yml
 
 - name: "📄 Load WP Discourse addon spec from meta/addons/wp-discourse.yml"
   ansible.builtin.include_vars:
