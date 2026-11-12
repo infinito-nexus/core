@@ -29,6 +29,7 @@ OPENWEBUI_QDRANT_ENABLED: "{{ lookup('config', application_id, 'services.qdrant.
 OPENWEBUI_QDRANT_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"
 OPENWEBUI_QDRANT_API_KEY: "{{ lookup('engine', 'qdrant', application_id, 'password') }}"
 OPENWEBUI_QDRANT_COLLECTION_PREFIX: "{{ lookup('engine', 'qdrant', application_id, 'prefix') }}"
+OPENWEBUI_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 OPENWEBUI_AGENT_BROKER_ENABLED: "{{ lookup('config', application_id, 'services.agent-broker.enabled') }}"
 OPENWEBUI_AGENT_BROKER_URL: "{{ lookup('container_url', 'svc-ai-agent-broker', 'agent-broker') }}/v1"
 OPENWEBUI_AGENT_BROKER_KEY: "{{ lookup('config', 'svc-ai-agent-broker', 'secrets.credentials.api_key') }}"
@@ -51,5 +52,6 @@ OPENWEBUI_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.
 OPENWEBUI_CUSTOM_CSS_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'custom.css'] | path_join }}"
 
 OPENWEBUI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.openwebui.login.method.sso.enabled') | bool }}"
+OPENWEBUI_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 OPENWEBUI_OIDC_REDIRECT_URL: "{{ [OPENWEBUI_URL,'/oauth/oidc/callback'] | url_join }}"
 OPENWEBUI_OIDC_ADMIN_GROUP: "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
