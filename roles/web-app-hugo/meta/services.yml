@@ -81,7 +81,7 @@ hugo:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "1.31-alpine"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: email
 # nocheck: dynamic-flag
 email:

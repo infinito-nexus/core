@@ -106,6 +106,7 @@ def sbom_step(p: ModuleType, layout, target, source: str):
         f"cyclonedx-json={p.SBOM}/{target.key}.cdx.json",
         "-q",
     ]
+    scratch = p.scratch_of(SBOM_BUILDER, target.key)
     return p.Step(
         f"syft {target.label}",
         p.run_argv(
@@ -115,8 +116,11 @@ def sbom_step(p: ModuleType, layout, target, source: str):
             args,
             target=None,
             extra_env={},
+            scratch=scratch,
         ),
         p.SUCCESS,
+        scratch,
+        False,
     )
 
 
@@ -136,12 +140,21 @@ def trivy_step(p: ModuleType, layout, target):
         f"{p.WORK}/{target.key}.trivy.json",
         f"{p.SBOM}/{target.key}.cdx.json",
     ]
+    scratch = p.scratch_of("trivy", target.key)
     return p.Step(
         f"trivy {target.label}",
         p.run_argv(
-            layout, "trivy", engine_image("trivy"), args, target=None, extra_env={}
+            layout,
+            "trivy",
+            engine_image("trivy"),
+            args,
+            target=None,
+            extra_env={},
+            scratch=scratch,
         ),
         p.SUCCESS,
+        scratch,
+        False,
     )
 
 
@@ -154,6 +167,7 @@ def grype_step(p: ModuleType, layout, target):
         f"{p.WORK}/{target.key}.grype.json",
         "-q",
     ]
+    scratch = p.scratch_of("grype", target.key)
     return p.Step(
         f"grype {target.label}",
         p.run_argv(
@@ -163,8 +177,11 @@ def grype_step(p: ModuleType, layout, target):
             args,
             target=None,
             extra_env={"GRYPE_DB_AUTO_UPDATE": "false"},
+            scratch=scratch,
         ),
         p.SUCCESS,
+        scratch,
+        False,
     )
 
 
@@ -195,6 +212,7 @@ def scan_tree(
         [[sbom_step(p, layout, target, sources[target.ref])] for target in pending],
         runner,
         config.workers,
+        layout.work,
     )
     errors += p._flat(results)
     failed = {
@@ -216,7 +234,7 @@ def scan_tree(
                 encoding="utf-8",
             )
         lanes.append([p.osv_sbom_step(layout, images["osv"], ready, config)])
-    errors += p._flat(p.run_lanes(lanes, runner, config.workers))
+    errors += p._flat(p.run_lanes(lanes, runner, config.workers, layout.work))
 
     findings = []
     for target in ready:

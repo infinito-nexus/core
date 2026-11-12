@@ -288,6 +288,38 @@ class TestAddons(unittest.TestCase):
         self.assertIn("released/download/v1.3.0/app.tar.gz", written)
         self.assertIn("upstream_id: example/released", written)
 
+    def test_every_version_in_the_archive_moves_with_its_own_prefix(self) -> None:
+        root = _addon_repo(
+            {
+                "prefixed": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-v1.2.0.tar.gz"
+                ),
+                "bare": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-1.2.0.tar.gz"
+                ),
+            }
+        )
+        with mock.patch.object(module, "candidates", return_value=["v2.0.0"]):
+            module.apply_updates(module.find_outdated_updates(root))
+
+        directory = root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+        prefixed_path = directory / "prefixed.yml"
+        bare_path = directory / "bare.yml"
+        prefixed = prefixed_path.read_text()  # nocheck: cache-read  just rewritten here
+        bare = bare_path.read_text()  # nocheck: cache-read  just rewritten here
+        self.assertIn("released/download/v2.0.0/app-v2.0.0.tar.gz", prefixed)
+        self.assertIn("released/download/v2.0.0/app-2.0.0.tar.gz", bare)
+
+    def test_a_longer_version_holding_the_pin_stays(self) -> None:
+        self.assertEqual(
+            module.bump_archive(
+                "archive: https://x.test/v1.2.0/app-11.2.0-v1.2.0.1.tar.gz",
+                "v1.2.0",
+                "v1.3.0",
+            ),
+            "archive: https://x.test/v1.3.0/app-11.2.0-v1.2.0.1.tar.gz",
+        )
+
     def test_an_archive_that_does_not_carry_the_pin_is_reported(self) -> None:
         drifted = ADDONS["released"].replace('version: "v1.2.0"', 'version: "v1.1.0"')
         root = _addon_repo({"drifted": drifted})
