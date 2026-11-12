@@ -19,6 +19,7 @@ ASSISTANT_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application
 ASSISTANT_MODEL_SERVICE_ENABLED: >-
   {{ lookup('config', application_id, 'services.ollama.enabled') | bool
      and lookup('config', application_id, 'services.litellm.enabled') | bool }}
+ASSISTANT_MODELS_NAMED: "{{ ASSISTANT_MODELS.values() | map('string') | map('trim') | select | list | length > 0 }}"
 ASSISTANT_MODEL_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
 ASSISTANT_MODEL_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 

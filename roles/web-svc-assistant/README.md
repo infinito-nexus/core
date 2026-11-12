@@ -8,7 +8,7 @@ The Infinito.Nexus help assistant answers a user's question with a short reply a
 
 The role builds a small [FastAPI](https://fastapi.tiangolo.com/) service from `files/python/assistant/` and serves `POST <path>/ask`, with `<path>` set by `services.assistant.path` in [services.yml](./meta/services.yml). Its own vhost is `assistant.{{ DOMAIN_PRIMARY }}`; [location.conf.j2](./templates/nginx/location.conf.j2) is the location an app vhost includes to serve the same path same-origin, which is how the beaver lodge reaches it.
 
-The role is skipped when [`svc-ai-ollama`](../svc-ai-ollama/) or the gateway is not part of the deployment, because without the model service there is nothing to answer with.
+The role is skipped when [`svc-ai-ollama`](../svc-ai-ollama/) or the gateway is not part of the deployment, because without the model service there is nothing to answer with. It is also skipped while `services.assistant.models` names no model at all, so a deployment never builds, starts or indexes an assistant that has no pinned model to answer with.
 
 Every deploy rebuilds the knowledge index in the deployment's own PostgreSQL through the `vector` extension. The index is built from:
 
@@ -41,11 +41,11 @@ Every indexed document can be quoted to an anonymous visitor: the persona change
 - **Anonymous rate limit:** an anonymous client gets `services.assistant.rate_limit.requests` questions per `window` seconds per address and a `429` with `Retry-After` beyond that.
 - **Nothing kept:** no question or answer is stored, and the service log carries a fixed event name and counters only.
 - **No secret in the index:** only Markdown outside every inventory, variable and secret path is read, and each passage passes the repository's secret patterns, a Vault filter and an e-mail filter before it is embedded.
-- **Pinned models:** `services.assistant.models` holds one pinned gateway alias per persona model and one for the embedding model; the service refuses to start on a bare name or a floating tag.
+- **Pinned models:** `services.assistant.models` holds one pinned gateway alias per persona model and one for the embedding model; once any of them is named, the service refuses to start on an empty reference, a bare name or a floating tag.
 
 ## Developer notes
 
-The role is `pre-alpha`: the persona models and the embedding model are published by the separate `llm` repository, and `services.assistant.models` stays empty until it pins them.
+The role is `pre-alpha`: the persona models and the embedding model are published by the separate `llm` repository, and `services.assistant.models` stays empty until it pins them, so the role skips itself until then.
 
 ## Further resources
 
