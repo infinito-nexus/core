@@ -28,13 +28,6 @@ exports.register = function (shared) {
 
   test("biber: ldapauth names the Friendica account with the directory full name", async ({ browser }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceDisabled("sso");
-    await assertDirectoryFullName(browser, shared.loginViaFriendicaDirect);
-  });
-
-  test("biber: ldapauth names the Friendica account with the directory full name behind oauth2-proxy and Keycloak", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    await assertDirectoryFullName(browser, shared.loginViaOauth2ProxyAndFriendica);
+    await assertDirectoryFullName(browser, shared.loginViaFriendica);
   });
 };

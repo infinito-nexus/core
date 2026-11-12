@@ -24,6 +24,14 @@ This role deploys FusionDirectory on Docker Compose against the project's centra
 - **RBAC through ACL roles:** every deploy creates the ACL roles `admin`, `user-manager` and `self-service` under `ou=aclroles` and assigns them on the base DN to the matching RBAC groups `web-app-fusiondirectory-administrator`, `-user-manager` and `-self-service` in the roles OU. FusionDirectory resolves the `member` attribute of these `groupOfNames` entries. The platform administrator persona keeps its direct `admin` grant.
 - **Login recovery:** when the header login fails, deploy with the `sso` service disabled, or replace `fdLoginMethod` of `cn=config,ou=fusiondirectory,<base DN>` with `LoginPost`, to get the login form back.
 
+## LDAP coverage
+
+[`meta/services.yml`](./meta/services.yml) pins `ldap.enabled` to `true`, because FusionDirectory is the admin UI of the `svc-db-openldap` directory, so every sign-in at its own login form is the LDAP bind. With `sso` off, [`files/playwright/test-design.js`](./files/playwright/test-design.js) signs the administrator in through that form, and [`files/playwright/test-rbac.js`](./files/playwright/test-rbac.js) signs `biber` in through it once per role group. The administrator scenario carries no `ldap` gate, because no variant turns the directory off.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [FusionDirectory Official Website](https://www.fusiondirectory.org/)

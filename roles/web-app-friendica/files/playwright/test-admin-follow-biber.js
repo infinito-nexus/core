@@ -87,13 +87,6 @@ exports.register = function (shared) {
 
   test("administrator: follows biber on friendica", async ({ browser }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceDisabled("sso");
-    await followBiber(browser, shared.loginViaFriendicaDirect);
-  });
-
-  test("administrator: follows biber on friendica behind oauth2-proxy and Keycloak", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    await followBiber(browser, shared.loginViaOauth2ProxyAndFriendica);
+    await followBiber(browser, shared.loginViaFriendica);
   });
 };

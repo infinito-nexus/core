@@ -153,6 +153,10 @@ docker logs odoo -f
 
 - [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/GwSV4V4SaWCZzhdkpCVmya)
 
+## LDAP coverage
+
+With `ldap` on and Odoo's own LDAP login method on, [`files/playwright/test-rbac.js`](./files/playwright/test-rbac.js) signs `biber` in through `auth_ldap`: without a role group the sign-in is refused, and the `user` role group maps the directory mail, phone and time zone. The administrator persona is Odoo's default administrator, which [`tasks/04_admin.yml`](./tasks/04_admin.yml) renames to the platform administrator with a local password, so Odoo accepts that password before `auth_ldap` asks the directory and no administrator LDAP scenario exists.
+
 ## Persona contract opt-outs
 
 The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo renders its SSO provider link only on `/web/login` inside the `.o_login_auth` container, not on the site root the persona helper starts from, and it exposes no in-app logout control — signing out means navigating to `/web/session/logout`. The full Keycloak round trip for both users is covered by the role's own `odoo: admin sso login, verify ui, logout` and `odoo: biber sso login, verify ui, logout` scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js); the second joins `biber` to the `user` role group first, because a Keycloak user without an Odoo role is refused. [files/playwright/test-rbac.js](./files/playwright/test-rbac.js) covers every role and the profile mapping.

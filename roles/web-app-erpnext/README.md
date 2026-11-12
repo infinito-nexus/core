@@ -103,6 +103,10 @@ make compose-exec service=erpnext-backend \
 - Site name MUST match the HTTP Host header. The Frappe site is created with `bench new-site next.erp.<DOMAIN_PRIMARY>` and `FRAPPE_SITE_NAME_HEADER` on the frontend nginx maps Host → site.
 - All post-bootstrap configuration (Company, API bot, OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to `python` inside the backend container (see `files/python/apply/`).
 
+## LDAP coverage
+
+With `ldap` on and `sso` off, [`files/playwright/test-rbac.js`](./files/playwright/test-rbac.js) signs `biber` in through Frappe's LDAP login: the search string refuses `biber` outside the role groups, and the `manager` role group syncs the ERPNext roles and the directory profile. The administrator persona is the platform administrator, a protected account in `ERPNEXT_RBAC_PROTECTED_USERS` ([`vars/main.yml`](./vars/main.yml)) that signs in through Keycloak ([`files/playwright/test-login-administrator.js`](./files/playwright/test-login-administrator.js)). An administrator sign-in through Frappe's LDAP login is a follow-up.
+
 ## Further Resources
 
 - [ERPNext Official Website](https://erpnext.com/)

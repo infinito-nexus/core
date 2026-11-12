@@ -32,13 +32,6 @@ exports.register = function (shared) {
 
   test("biber: biber ↔ administrator: side by side in isolated friendica contexts, biber's logout keeps the administrator signed in", async ({ browser }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceDisabled("sso");
-    await sideBySide(browser, shared.loginViaFriendicaDirect);
-  });
-
-  test("biber: biber ↔ administrator: side by side behind oauth2-proxy and Keycloak, biber's logout keeps the administrator signed in", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    await sideBySide(browser, shared.loginViaOauth2ProxyAndFriendica);
+    await sideBySide(browser, shared.loginViaFriendica);
   });
 };

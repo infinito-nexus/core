@@ -62,13 +62,6 @@ exports.register = function (shared) {
 
   test("guest: views biber's public friendica profile without signing in", async ({ browser }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceDisabled("sso");
-    await viewProfileAnonymously(browser, shared.loginViaFriendicaDirect);
-  });
-
-  test("guest: views biber's public friendica profile past the oauth2-proxy gate without signing in", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    await viewProfileAnonymously(browser, shared.loginViaOauth2ProxyAndFriendica);
+    await viewProfileAnonymously(browser, shared.loginViaFriendica);
   });
 };

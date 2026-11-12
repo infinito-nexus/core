@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled, skipUnlessServiceDisabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceEnabled, skipUnlessServiceDisabled } = require("./service-gating");
 const { skipUnlessAddonEnabled } = require("./addon-gating");
 const {
   assertUnauthenticatedLanding,
@@ -114,9 +114,7 @@ test("rbac: biber without an OpenProject role is denied at the oauth2-proxy gate
   ).toBe(false);
 });
 
-test("biber: in the user group, signs in to OpenProject over SSO without administrator rights", async ({ browser }) => {
-  skipUnlessServiceEnabled("sso");
-  skipUnlessServiceEnabled("ldap");
+async function biberSignsInOverTheHeaderBridge(browser) {
   await withBiberInUserGroup(browser, async () => {
     const biberCtx = await browser.newContext({ ignoreHTTPSErrors: true });
     try {
@@ -146,35 +144,10 @@ test("biber: in the user group, signs in to OpenProject over SSO without adminis
       await biberCtx.close().catch(() => {});
     }
   });
-});
+}
 
-test("biber: the LDAP login refuses biber without an OpenProject role", async ({ page }) => {
-  skipUnlessServiceEnabled("ldap");
-  skipUnlessServiceDisabled("sso");
-  await page.context().clearCookies();
-  await gotoOnion(page, `${env.baseUrl}/login`);
-  const username = page.locator("#login-form input#username");
-  const password = page.locator("#login-form input#password");
-  await expect(username).toBeEditable({ timeout: resolveTimeout(30_000) });
-  await username.fill(env.biberUsername);
-  await password.fill(env.biberPassword);
-  await page.locator("#login-form [type='submit']").first().click();
-  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) });
-  await expect(
-    page.locator("#login-form"),
-    "the LDAP filter_string must refuse a directory user outside the administrator and user role groups",
-  ).toBeVisible({ timeout: resolveTimeout(30_000) });
-  const me = await currentUser(page);
-  expect(
-    String(me.user.login || "").toLowerCase(),
-    `a refused LDAP login must not leave an OpenProject session (got ${me.status}: ${me.body.slice(0, 200)})`,
-  ).not.toBe(env.biberUsername.toLowerCase());
-});
-
-test("biber: the LDAP login admits biber in the user group without administrator rights", async ({ page }) => {
-  skipUnlessServiceEnabled("ldap");
-  skipUnlessServiceDisabled("sso");
-  test.setTimeout(resolveTimeout(180_000)); // directory group change, LDAP sign-in with on-the-fly registration and sign-out
+async function biberSignsInOverTheLdapLogin(page) {
+  test.setTimeout(resolveTimeout(180_000));
   await withLdapGroupMember(env.userGroupDn, env.biberDn, async () => {
     await page.context().clearCookies();
     await gotoOnion(page, `${env.baseUrl}/login`);
@@ -202,6 +175,38 @@ test("biber: the LDAP login admits biber in the user group without administrator
     await inAppLogout(page);
     await assertUnauthenticatedLanding(page, env.baseUrl);
   });
+}
+
+test("biber: the LDAP login refuses biber without an OpenProject role", async ({ page }) => {
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
+  await page.context().clearCookies();
+  await gotoOnion(page, `${env.baseUrl}/login`);
+  const username = page.locator("#login-form input#username");
+  const password = page.locator("#login-form input#password");
+  await expect(username).toBeEditable({ timeout: resolveTimeout(30_000) });
+  await username.fill(env.biberUsername);
+  await password.fill(env.biberPassword);
+  await page.locator("#login-form [type='submit']").first().click();
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) });
+  await expect(
+    page.locator("#login-form"),
+    "the LDAP filter_string must refuse a directory user outside the administrator and user role groups",
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  const me = await currentUser(page);
+  expect(
+    String(me.user.login || "").toLowerCase(),
+    `a refused LDAP login must not leave an OpenProject session (got ${me.status}: ${me.body.slice(0, 200)})`,
+  ).not.toBe(env.biberUsername.toLowerCase());
+});
+
+test("biber: in the user group, signs in to OpenProject without administrator rights", async ({ browser, page }) => {
+  skipUnlessServiceEnabled("ldap");
+  if (isServiceEnabled("sso")) {
+    await biberSignsInOverTheHeaderBridge(browser);
+  } else {
+    await biberSignsInOverTheLdapLogin(page);
+  }
 });
 
 test("rbac: the administrator holds OpenProject administrator rights", async ({ page }) => {

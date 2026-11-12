@@ -103,6 +103,14 @@ async function loginViaFriendicaDirect(page, username, password) {
   await profileMenu.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 }
 
+async function loginViaFriendica(page, username, password) {
+  if (isServiceEnabled("sso")) {
+    await loginViaOauth2ProxyAndFriendica(page, username, password);
+  } else {
+    await loginViaFriendicaDirect(page, username, password);
+  }
+}
+
 async function friendicaLogout(page) {
   const baseUrl = trimmedBaseUrl();
   await gotoOnion(page, `${baseUrl}/logout`, { waitUntil: "commit" }).catch(() => {});
@@ -140,6 +148,7 @@ module.exports = {
   loginViaFriendicaForm,
   loginViaOauth2ProxyAndFriendica,
   loginViaFriendicaDirect,
+  loginViaFriendica,
   friendicaLogout,
   provisionBiberAccount,
   runGuestFlow,

@@ -33,25 +33,11 @@ exports.register = function (shared) {
 
   test("administrator: administrator role member reaches the Friendica admin panel", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceDisabled("sso");
-    await adminReachesPanel(page, shared.loginViaFriendicaDirect);
-  });
-
-  test("administrator: administrator role member reaches the Friendica admin panel behind oauth2-proxy and Keycloak", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    await adminReachesPanel(page, shared.loginViaOauth2ProxyAndFriendica);
+    await adminReachesPanel(page, shared.loginViaFriendica);
   });
 
   test("biber: Friendica refuses the admin panel to a user outside the administrator role", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceDisabled("sso");
-    await biberIsRefusedThePanel(page, shared.loginViaFriendicaDirect);
-  });
-
-  test("biber: Friendica refuses the admin panel to a user outside the administrator role behind oauth2-proxy and Keycloak", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    await biberIsRefusedThePanel(page, shared.loginViaOauth2ProxyAndFriendica);
+    await biberIsRefusedThePanel(page, shared.loginViaFriendica);
   });
 };

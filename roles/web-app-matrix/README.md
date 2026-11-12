@@ -200,6 +200,10 @@ In addition to the persona and CSP specs:
 - `test-rbac-profile.js` checks the admin flag of the administrator and of biber through the Synapse admin API, and checks that an OIDC login of biber overwrites a stale display name and has bound biber's email.
 - `test-login-methods.js` checks with SSO on that Element's `config.json` carries the SSO redirect and the registration default, that `#/login` lands on Keycloak, and that the administrator still signs in through the Synapse password API.
 
+## LDAP coverage
+
+With `ldap` on and `sso` off, [`files/playwright/test-rbac-profile.js`](./files/playwright/test-rbac-profile.js) signs `biber` in through the Synapse LDAP auth provider and asserts the display name from the directory full name. The administrator persona is the Synapse administrator that [`tasks/flavor/compose/utils/stack_host_provisioning.yml`](./tasks/flavor/compose/utils/stack_host_provisioning.yml) registers natively with `register_new_matrix_user -a`. An administrator sign-in through the LDAP auth provider is a follow-up.
+
 ## Further Resources
 
 - [Matrix Official Website](https://matrix.org/)

@@ -179,6 +179,10 @@ A detailed documentation for the use and administration of Nextcloud on Infinito
 - [Sociallogin Plugin (Official)](https://apps.nextcloud.com/apps/sociallogin)
 - [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/EgeKuEAytigC2ZCz3k5hDu)
 
+## LDAP coverage
+
+With `ldap` on, [`files/playwright/test-login-biber-ldap.js`](./files/playwright/test-login-biber-ldap.js), [`files/playwright/test-ldap-profile.js`](./files/playwright/test-ldap-profile.js) and [`files/playwright/addons/user_ldap.spec.js`](./files/playwright/addons/user_ldap.spec.js) sign `biber` in through the `user_ldap` backend. The administrator persona is the local account whose password [`tasks/02_manager_ops/04_admin.yml`](./tasks/02_manager_ops/04_admin.yml) realigns, and [`tasks/02_manager_ops/07_admin_identities.yml`](./tasks/02_manager_ops/07_admin_identities.yml) adds its LDAP-backed identities to the `admin` group. An administrator sign-in through the `user_ldap` backend is a follow-up.
+
 ## Persona contract opt-outs
 
 The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Nextcloud presents three different login surfaces depending on the variant (native, `oidc_login`, `sociallogin`), the native administrator authenticates with the role-local `credentials.administrator_password` rather than the Keycloak secret, and the `#firstrunwizard` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role's own login specs — `test-login-admin-native.js`, `test-login-admin-oidc.js`, `test-login-biber-oidc.js` and `test-login-biber-ldap.js` under `files/playwright/` — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks.

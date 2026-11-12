@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   normalizeBaseUrl,
   decodeDotenvQuotedValue,
@@ -245,9 +245,7 @@ test("administrator: the deploy-time reconcile leaves superuser and the permissi
   }
 });
 
-test("biber: the user role group admits biber through the gate once the LDAP sync imported the directory account, without admin rights", async ({ browser }) => {
-  skipUnlessServiceEnabled("sso");
-  skipUnlessServiceEnabled("ldap");
+async function biberIsAdmittedThroughTheGate(browser) {
   test.setTimeout(resolveTimeout(300_000)); // two Keycloak sign-ins plus the LDAP sync POST, which rewrites every directory member
   expectEnv();
 
@@ -294,11 +292,9 @@ test("biber: the user role group admits biber through the gate once the LDAP syn
     }
     await adminRequest.close().catch(() => {});
   }
-});
+}
 
-test("biber: the user role group admits biber through the LDAP filter and the directory login, with every mapped directory field and no admin rights", async ({ browser }) => {
-  skipUnlessServiceEnabled("ldap");
-  skipUnlessServiceDisabled("sso");
+async function biberIsAdmittedThroughTheDirectoryLogin(browser) {
   test.setTimeout(resolveTimeout(360_000)); // two form sign-ins plus the LDAP sync POST, which rewrites every directory member
   expect(
     Object.keys(directory.fieldMap).sort(),
@@ -332,10 +328,6 @@ test("biber: the user role group admits biber through the LDAP filter and the di
       expect(refusedBiber.status, "the Snipe-IT LDAP filter must refuse biber while biber holds no role group").toBe(400);
       expect(String((refusedBiber.json || {}).message)).toMatch(/did not successfully bind/i);
 
-      const refusedAdmin = await ldapTestLogin(page, env.adminUsername, env.adminPassword);
-      expect(refusedAdmin.status, "the Snipe-IT LDAP filter must leave out the bootstrap administrator").toBe(400);
-      expect(String((refusedAdmin.json || {}).message)).toMatch(/did not successfully bind/i);
-
       await withLdapGroupMember(directory.userGroupDn, directory.biberDn, async () => {
         const admittedBiber = await ldapTestLogin(page, env.biberUsername, env.biberPassword);
         expect(admittedBiber.status, "the Snipe-IT LDAP filter must admit biber once biber holds the user role group").toBe(200);
@@ -367,4 +359,29 @@ test("biber: the user role group admits biber through the LDAP filter and the di
       });
     }),
   );
+}
+
+test("administrator: the LDAP filter leaves the bootstrap administrator out while its own sign-in keeps the Snipe-IT settings", async ({ browser }) => {
+  skipUnlessServiceEnabled("ldap");
+  await withContext(browser, async (page) => {
+    if (isServiceEnabled("sso")) {
+      await reachSnipeItShell(page, env.adminUsername, env.adminPassword);
+    } else {
+      await signInWithLoginForm(page, env.adminUsername, env.adminPassword);
+    }
+    expect(await settingsStatus(page), "the bootstrap administrator must reach the Snipe-IT settings at /admin").toBe(200);
+
+    const refusedAdmin = await ldapTestLogin(page, env.adminUsername, env.adminPassword);
+    expect(refusedAdmin.status, "the Snipe-IT LDAP filter must leave out the bootstrap administrator").toBe(400);
+    expect(String((refusedAdmin.json || {}).message)).toMatch(/did not successfully bind/i);
+  });
+});
+
+test("biber: the user role group admits biber once the directory account reaches Snipe-IT, with no admin rights", async ({ browser }) => {
+  skipUnlessServiceEnabled("ldap");
+  if (isServiceEnabled("sso")) {
+    await biberIsAdmittedThroughTheGate(browser);
+  } else {
+    await biberIsAdmittedThroughTheDirectoryLogin(browser);
+  }
 });

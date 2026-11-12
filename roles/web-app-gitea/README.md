@@ -90,6 +90,10 @@ Remove the MCP client roles from the deployment, or pin
 `mcp.enabled: false` for this role. The `giteamcp` service is then not
 rendered into the compose file.
 
+## LDAP coverage
+
+With `ldap` on and Gitea's own LDAP login method on, [`files/playwright/test-rbac-ldap.js`](./files/playwright/test-rbac-ldap.js) signs `biber` in through the LDAP authentication source and asserts the administrator and restricted role group mappings. The administrator persona is the local account that [`tasks/01_manager_ops.yml`](./tasks/01_manager_ops.yml) creates with `gitea admin user create`, and Gitea checks its local password, never the LDAP source, so no administrator LDAP scenario exists.
+
 ## Persona contract opt-outs
 
 With SSO on, the shared `biber` and `administrator` persona journeys run: the OAuth source registers or auto-links their Gitea accounts at the first sign-in.

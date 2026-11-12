@@ -81,6 +81,10 @@ A compose deploy reads `schema_migrations` of an existing database before the pi
 - [OpenProject Official Website](https://www.openproject.org/)
 - [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/Gg9254eTLjegtqzMKvb8gD)
 
+## LDAP coverage
+
+With `ldap` on, [`files/playwright/test-rbac-gate.js`](./files/playwright/test-rbac-gate.js) signs `biber` in against the LDAP auth source: its `filter_string` refuses `biber` outside the role groups and admits it in the `user` role group, through the login form with `sso` off and through the trusted-header bridge with `sso` on. The administrator persona is the native account that [`tasks/04_admin.yml`](./tasks/04_admin.yml) seeds, linked to the LDAP auth source only behind the header bridge (`OPENPROJECT_ADMIN_LDAP_NAME` in [`vars/main.yml`](./vars/main.yml)), so no administrator LDAP scenario exists.
+
 ## Persona contract opt-outs
 
 The `administrator` persona is **not** blocked: [tasks/04_admin.yml](./tasks/04_admin.yml) seeds a native OpenProject account whose password is the Keycloak administrator secret, so the journey runs in every variant. The `biber` persona is blocked in every variant: biber holds no OpenProject role, so the oauth2-proxy gate and the LDAP `filter_string` refuse it. [test-rbac-gate.js](./files/playwright/test-rbac-gate.js) asserts that refusal, then adds biber to the `user` role group and drives the sign-in through the trusted-header bridge. Both flags are declared explicitly in [templates/playwright.env.j2](./templates/playwright.env.j2).

@@ -9,6 +9,7 @@ const {
   runBiberFlow,
   runGuestFlow,
   gotoOnion,
+  withLdapGroupMember,
 } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const keycloakAdmin = require("./personas/utils/keycloak");
@@ -170,6 +171,22 @@ async function runKixDirectoryLoginLogoutFlow(page, username, password) {
   await runKixDirectoryLogout(page);
 }
 
+async function runKixLdapLoginLogoutFlow(page, username, password) {
+  if (ssoEnabled) {
+    await runKixLoginLogoutFlow(page, username, password);
+  } else {
+    await runKixDirectoryLoginLogoutFlow(page, username, password);
+  }
+}
+
+async function withBiberInKixUserGroup(fn) {
+  if (!ssoEnabled) {
+    return withLdapGroupMember(userGroupDn, biberDn, fn);
+  }
+  expectKeycloakAdminEnv();
+  return withBiberInGroup(kixUserGroupPath, fn);
+}
+
 async function beforeEach({ page }) {
   expect(appBaseUrl,      "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
@@ -201,8 +218,10 @@ module.exports = {
   runKixDirectoryLogin,
   runKixDirectoryLogout,
   runKixDirectoryLoginLogoutFlow,
+  runKixLdapLoginLogoutFlow,
   expectKeycloakAdminEnv,
   withBiberInGroup,
+  withBiberInKixUserGroup,
   beforeEach,
   isServiceEnabled,
   skipUnlessServiceDisabled,

@@ -87,17 +87,15 @@ async function assertBogusCredentialIsRejected(browser) {
   }
 }
 
-test("administrator: addon ldapauth binds a valid LDAP credential against openldap and rejects a bogus one", async ({ browser }) => {
+test("administrator: addon ldapauth binds a valid LDAP credential against openldap", async ({ browser }) => {
+  skipUnlessAddonEnabled("ldapauth");
+  skipUnlessServiceEnabled("ldap");
+  await assertValidCredentialBinds(browser, shared.loginViaFriendica);
+});
+
+test("administrator: addon ldapauth rejects a bogus LDAP credential against openldap", async ({ browser }) => {
   skipUnlessAddonEnabled("ldapauth");
   skipUnlessServiceEnabled("ldap");
   skipUnlessServiceDisabled("sso");
-  await assertValidCredentialBinds(browser, shared.loginViaFriendicaDirect);
   await assertBogusCredentialIsRejected(browser);
-});
-
-test("administrator: addon ldapauth binds a valid LDAP credential against openldap behind oauth2-proxy and Keycloak", async ({ browser }) => {
-  skipUnlessAddonEnabled("ldapauth");
-  skipUnlessServiceEnabled("ldap");
-  skipUnlessServiceEnabled("sso");
-  await assertValidCredentialBinds(browser, shared.loginViaOauth2ProxyAndFriendica);
 });
