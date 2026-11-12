@@ -117,8 +117,9 @@ class TestWrapperSharedRunner(unittest.TestCase):
             text=True,
             check=False,
         )
-        calls = log.read_text().splitlines() if log.exists() else []
-        return done, calls
+        if not log.exists():
+            return done, []
+        return done, log.read_text().splitlines()  # nocheck: cache-read  stub call log
 
     def _test_run(self, checkout: Path, **overrides: str):
         return self._run(

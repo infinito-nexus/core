@@ -56,7 +56,8 @@ class TestLocalTag(unittest.TestCase):
     def test_a_change_inside_the_inputs_changes_the_tag(self) -> None:
         checkout = self._scratch_worktree("inside-change")
         venv = checkout / "scripts/install/venv.sh"
-        venv.write_text(venv.read_text() + "\n# probe\n")
+        text = venv.read_text()  # nocheck: cache-read  tempdir copy the test edits
+        venv.write_text(text + "\n# probe\n")
         self.assertNotEqual(resolve_tag(checkout, self.env), self.baseline)
 
     def test_a_new_file_inside_a_copied_directory_changes_the_tag(self) -> None:
@@ -67,7 +68,8 @@ class TestLocalTag(unittest.TestCase):
     def test_a_dockerfile_change_changes_the_tag(self) -> None:
         checkout = self._scratch_worktree("dockerfile-change")
         dockerfile = checkout / "Dockerfile"
-        dockerfile.write_text(dockerfile.read_text() + "\nLABEL probe=1\n")
+        text = dockerfile.read_text()  # nocheck: cache-read  tempdir copy
+        dockerfile.write_text(text + "\nLABEL probe=1\n")
         self.assertNotEqual(resolve_tag(checkout, self.env), self.baseline)
 
     def test_a_build_argument_changes_the_tag(self) -> None:

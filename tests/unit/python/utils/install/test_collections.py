@@ -1,5 +1,4 @@
 import json
-import re
 import shutil
 import subprocess
 import sys
@@ -10,10 +9,12 @@ from tempfile import TemporaryDirectory
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.docker.image.toolchain import instructions
 from utils.install.collections import declared_pins, unsatisfied
 
 _DOCKERFILE = PROJECT_ROOT / "Dockerfile"
-_COPY = re.compile(r"^COPY\s+(?P<source>\S+)\s+\$\{INFINITO_SRC_DIR\}/(?P<target>\S+)$")
+_SRC_DIR = "${INFINITO_SRC_DIR}/"
+_CHECK = "scripts/install/ansible.sh"
 
 
 def _materialise_image_slice(destination: Path) -> None:
@@ -34,19 +35,26 @@ def _materialise_image_slice(destination: Path) -> None:
     Args:
         destination: an empty directory to build the slice in.
     """
-    for line in read_text(str(_DOCKERFILE)).splitlines():
-        if line.startswith("COPY . "):
-            return
-        match = _COPY.match(line.strip())
-        if not match:
+    parsed = instructions(read_text(str(_DOCKERFILE)))
+    check = next(
+        index
+        for index, instruction in enumerate(parsed)
+        if instruction.keyword == "RUN" and _CHECK in instruction.args
+    )
+    for instruction in parsed[:check]:
+        if instruction.keyword != "COPY":
             continue
-        source = PROJECT_ROOT / match.group("source")
-        target = destination / match.group("target")
-        target.parent.mkdir(parents=True, exist_ok=True)
-        if source.is_dir():
-            shutil.copytree(source, target, dirs_exist_ok=True)
-        else:
-            shutil.copy2(source, target)
+        *sources, target = instruction.args.split()
+        if not target.startswith(_SRC_DIR):
+            continue
+        into = destination / target.removeprefix(_SRC_DIR)
+        for source in (PROJECT_ROOT / rel for rel in sources):
+            if source.is_dir():
+                shutil.copytree(source, into, dirs_exist_ok=True)
+                continue
+            copied = into / source.name if target.endswith("/") else into
+            copied.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, copied)
 
 
 _REQUIREMENTS = (
