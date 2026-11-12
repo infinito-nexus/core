@@ -1,41 +1,3 @@
-"""Managed fields a role declares in ``meta/forms.yml``.
-
-``meta/forms.yml`` maps each admin form of the application to its page and
-the fields the role converges into it::
-
-    general:
-      path: /wp-admin/options-general.php
-      fields:
-        admin_email:
-          source: users.platform_administrator.email
-          mode: seeded
-          selector: "#new_admin_email"
-
-``source`` is an inventory path relative to ``applications.<role>``; a path
-under ``users`` points to the global users and must be exactly
-``users.<key>.<attr>``, with an attr other than ``tokens``; ``sso.<claim>``
-names the claim the SSO sign-in writes into a profile field, which no
-converge, drift line or banner covers. The generic meta
-loader places the file at ``applications.<role>.forms``, so an inventory
-overrides a single field under
-``applications.<role>.forms.<form>.fields.<field>``; the forms stay out of the
-templar, so an override is never rendered.
-
-``locks`` hands every ``enforced`` field whose ``when`` holds to the shared
-lock renderer of ``sys-front-inj-javascript``, an ``sso.<claim>`` field as a
-profile lock without unlock; a ``seeded`` field never reaches the page.
-
-The drift report fails closed: it shows old and new values only for a field
-that declares a type from ``SHOWN_TYPES``, whose source lies outside ``users``
-and the credentials, has no segment matching ``SECRET_SEGMENT`` or naming a
-declared credential, resolves in the unrendered application to a plain scalar
-with no template, and whose values are plain scalars that hold no URL userinfo and
-neither equal nor contain a secret of ``drift.secret_values``. Every other change
-reads ``changed`` without either value. No finding, error or line repeats a
-source that did not resolve. Every forms string must hold no template, since
-the forms are never rendered.
-"""
-
 from __future__ import annotations
 
 import re
@@ -55,6 +17,8 @@ NEGATION = "!"
 MAP_SCALARS = (str, int, float, bool)
 USERS_ROOT = "users"
 SSO_ROOT = "sso"
+SERVICES_ROOT = "services"
+SERVICE_VALUE_START = 2
 USER_SOURCE_PARTS = 3
 USER_REFUSED_ATTRIBUTES = frozenset({"tokens"})
 CREDENTIALS_ROOT = ("secrets", "credentials")
@@ -294,14 +258,22 @@ def is_secret(source: str, credentials: Mapping) -> bool:
 
     Returns:
         True for a value that is no inventory path, for any path under
-        ``users`` or ``secrets.credentials``, for a path with a segment that
-        matches ``SECRET_SEGMENT``, and for a path with a segment named like a
-        credential the role declares, all case-insensitive.
+        ``users`` or ``secrets.credentials``, for a path with a value segment
+        that matches ``SECRET_SEGMENT``, and for a path with a segment named
+        like a credential the role declares, all case-insensitive. Every
+        segment is a value segment except the service name of a
+        ``services.<name>.<value>`` path.
     """
     if not (isinstance(source, str) and _PATH.fullmatch(source)):
         return True
     parts = source.split(".")
-    return _secret_path(parts, credentials, parts)
+    return _secret_path(parts, credentials, _value_segments(parts))
+
+
+def _value_segments(parts: list[str]) -> list[str]:
+    if parts[0] == SERVICES_ROOT and len(parts) > SERVICE_VALUE_START:
+        return parts[SERVICE_VALUE_START:]
+    return parts
 
 
 def _secret_path(parts: list[str], credentials: Mapping, searched: list[str]) -> bool:

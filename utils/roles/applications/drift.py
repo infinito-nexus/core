@@ -124,8 +124,7 @@ def drift(
 
     Returns:
         ``<role>: <form>.<field> (<source>): <old> -> <new>`` for a field the
-        fail-closed rule of the ``utils.roles.applications.forms`` docstring
-        lets show its values, and
+        fail-closed rule of ``_shows_values`` lets show its values, and
         ``<role>: <form>.<field> (<source>): changed`` without either value for
         every other field. ``(<source>)`` appears only when the source resolved
         in ``raw_application``.

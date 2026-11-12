@@ -539,6 +539,25 @@ class TestSecret(unittest.TestCase):
         self.assertTrue(forms.is_secret("services.mail.RELAY", credentials))
         self.assertFalse(forms.is_secret("services.mail.RELAY", {}))
 
+    def test_a_service_name_is_no_value_segment(self):
+        self.assertFalse(forms.is_secret("services.keycloak.client.redirect_uris", {}))
+
+    def test_every_other_segment_is_searched(self):
+        for source in (
+            "services.keycloak.client.secret",
+            "services.pin",
+            "services.keycloak",
+            "api.token.url",
+        ):
+            with self.subTest(source=source):
+                self.assertTrue(forms.is_secret(source, {}))
+
+    def test_a_service_named_like_a_declared_credential_stays_secret(self):
+        credentials = {"keycloak": {"algorithm": "alphanumeric"}}
+        self.assertTrue(
+            forms.is_secret("services.keycloak.client.redirect_uris", credentials)
+        )
+
     def test_what_is_no_dotted_path_is_secret(self):
         for source in ("SYNTH-SECRET-JINJA-1", "{{ vault_x }}", None, 7):
             with self.subTest(source=source):
