@@ -48,7 +48,7 @@ OPENTALK_KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 OPENTALK_CTRL_OIDC_CLIENT_ID: "opentalk-controller"
 OPENTALK_CTRL_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.controller_oidc_client_secret') }}"
 
-OPENTALK_FRONTEND_OIDC_CLIENT_ID: "opentalk-frontend"
+OPENTALK_FRONTEND_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.frontend_client_id') }}"
 
 OPENTALK_KEYCLOAK_CLIENT_ID: "{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}"
 OPENTALK_KEYCLOAK_CLIENT_SECRET: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"

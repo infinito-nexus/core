@@ -42,11 +42,16 @@ KEYCLOAK_FRAGMENT = ("templates", "keycloak", "clients.json.j2")
 SSO_OIDC_PLUGIN = "user_oidc"
 NEXTCLOUD = "web-app-nextcloud"
 OPENCLOUD = "web-app-opencloud"
+OPENTALK = "web-app-opentalk"
+OPENTALK_CLIENT_TASKS = (
+    PROJECT_ROOT / "roles" / OPENTALK / "tasks/02_keycloak_client.yml"
+)
 USER_OIDC_BACKCHANNEL_PATH = "/index.php/apps/user_oidc/backchannel-logout/"
 UPSTREAM_BACKCHANNEL_ENDPOINTS = {
     "web-app-matrix": ("synapse", "/_synapse/client/oidc/backchannel_logout"),
     NEXTCLOUD: ("", USER_OIDC_BACKCHANNEL_PATH + "keycloak"),
     OPENCLOUD: ("", "/backchannel_logout"),
+    OPENTALK: ("", "/v1/auth/logout"),
 }
 NEXTCLOUD_ADMIN_GROUP = "admin"
 RBAC_GROUP_ROOT = "roles"
@@ -248,6 +253,33 @@ def render_fragment(template: Path) -> list[dict]:
         lookup=lookup, **CONTEXT
     )
     return json.loads(f"[{source}]")
+
+
+def opentalk_client_upserts() -> dict[bool, dict]:
+    """The kcadm client upserts of OpenTalk, keyed by ``publicClient``.
+
+    Returns:
+        The frontend task under True and the controller task under False.
+    """
+    return {
+        task["keycloak_kcadm_update"]["desired"]["publicClient"]: task
+        for task in load_yaml_any(str(OPENTALK_CLIENT_TASKS))
+        if task.get("keycloak_kcadm_update", {}).get("object_kind") == "client"
+    }
+
+
+def render_task_value(task: dict, value: str):
+    """Render one value of an OpenTalk task with the task's own vars.
+
+    Args:
+        task: the task that carries the value.
+        value: the raw value, a Jinja expression.
+    """
+    env = NativeEnvironment()
+    context = {"lookup": lookup, "application_id": OPENTALK}
+    for name, raw in task.get("vars", {}).items():
+        context[name] = env.from_string(raw).render(**context)
+    return env.from_string(value).render(**context)
 
 
 def backchannel_findings(client: dict) -> list[str]:
@@ -581,6 +613,31 @@ class TestBackchannelClients(unittest.TestCase):
                 f"no post-logout redirect URI on the network sibling {siblings[1]}",
             ],
         )
+
+
+class TestOpenTalkFrontendClient(unittest.TestCase):
+    def setUp(self) -> None:
+        upserts = opentalk_client_upserts()
+        self.frontend = upserts[True]
+        self.controller = upserts[False]["keycloak_kcadm_update"]["desired"]
+
+    def test_the_frontend_client_logs_out_on_the_controller(self) -> None:
+        desired = self.frontend["keycloak_kcadm_update"]["desired"]
+        key, path = UPSTREAM_BACKCHANNEL_ENDPOINTS[OPENTALK]
+        self.assertEqual(
+            render_task_value(
+                self.frontend, desired["attributes"][BACKCHANNEL_LOGOUT_URL]
+            ),
+            canonical_origin(OPENTALK, key) + path,
+        )
+        self.assertEqual(
+            desired["attributes"]["backchannel.logout.session.required"], "true"
+        )
+        self.assertIs(desired["frontchannelLogout"], False)
+        self.assertIs(desired["serviceAccountsEnabled"], False)
+
+    def test_the_controller_client_receives_no_logout_tokens(self) -> None:
+        self.assertNotIn(BACKCHANNEL_LOGOUT_URL, self.controller["attributes"])
 
 
 class TestSharedClientStaysOnTheSweep(unittest.TestCase):

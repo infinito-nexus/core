@@ -82,7 +82,7 @@
     desired:
       clientId: "{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}"
       name: "OpenTalk Frontend"
-      description: "Public SPA client used by web-app-opentalk; its access tokens carry the controller client as audience."
+      description: "Public SPA client used by web-app-opentalk; its access tokens carry the controller client as audience, and the controller receives its back-channel logout tokens."
       enabled: true
       protocol: "openid-connect"
       publicClient: true
@@ -99,6 +99,9 @@
       attributes:
         "post.logout.redirect.uris": "{{ opentalk_frontend_origin }}/*"
         "oauth2.device.authorization.grant.enabled": "false"
+        "backchannel.logout.url": "{{ opentalk_frontend_origin ~ lookup('config', application_id, 'services.sso.oidc.backchannel_logout_path') }}"
+        "backchannel.logout.session.required": "true"
+        "backchannel.logout.revoke.offline.tokens": "false"
       protocolMappers:
         - name: "opentalk-controller-audience"
           protocol: "openid-connect"
