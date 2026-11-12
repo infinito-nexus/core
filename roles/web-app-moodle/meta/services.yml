@@ -46,8 +46,8 @@ moodle:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: true
-  app_version: 5.3.0
-  transit_version: 4.5.15
+  app_version: 5.3.1
+  transit_version: 4.5.16
   update:
     - key: app_version
       type: git_tags

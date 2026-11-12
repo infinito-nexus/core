@@ -14,6 +14,8 @@ Args:
 
 Returns:
     status: mapping of every name to its last HTTP status, -1 without a response.
+    errors: mapping of every name whose last attempt got no response to the
+        error that attempt raised.
 """
 
 import time
@@ -41,7 +43,7 @@ ARGUMENT_SPEC = {
 
 
 def probe(url, params):
-    status = -1
+    status, error = -1, None
     for attempt in range(params["attempts"]):
         if attempt:
             time.sleep(params["delay"])
@@ -53,14 +55,14 @@ def probe(url, params):
                 validate_certs=params["validate_certs"],
                 follow_redirects=params["follow_redirects"],
             ) as response:
-                status = response.status
-        except HTTPError as error:
-            status = error.code
-        except (URLError, OSError):
-            status = -1
+                status, error = response.status, None
+        except HTTPError as answer:
+            status, error = answer.code, None
+        except (URLError, OSError) as failure:
+            status, error = -1, f"{type(failure).__name__}: {failure}"
         if status in params["status_codes"]:
             break
-    return status
+    return status, error
 
 
 def probe_all(urls, params):
@@ -71,7 +73,9 @@ def probe_all(urls, params):
 
 def main():
     module = AnsibleModule(argument_spec=ARGUMENT_SPEC, supports_check_mode=True)
-    status = probe_all(module.params["urls"], module.params)
+    results = probe_all(module.params["urls"], module.params)
+    status = {name: code for name, (code, _) in results.items()}
+    errors = {name: error for name, (_, error) in results.items() if error}
     unanswered = sorted(
         name
         for name, code in status.items()
@@ -82,8 +86,9 @@ def main():
             msg=f"{len(unanswered)} URL(s) gave no expected status",
             unanswered=unanswered,
             status=status,
+            errors=errors,
         )
-    module.exit_json(changed=False, status=status)
+    module.exit_json(changed=False, status=status, errors=errors)
 
 
 if __name__ == "__main__":
