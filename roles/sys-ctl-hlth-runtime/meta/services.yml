@@ -66,6 +66,7 @@ osv:
     - Rocky Linux
     - RubyGems
     - Ubuntu
+    - Wolfi
     - crates.io
     - npm
   security:
