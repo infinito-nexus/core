@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import io
 import tempfile
 import unittest
 import unittest.mock as mock
+import urllib.error
+from email.message import Message
 from pathlib import Path
 
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
@@ -150,6 +153,25 @@ class TestCandidates(unittest.TestCase):
             self.assertEqual(module.candidates(entry, root), ["2.1.0"])
 
 
+class TestRegistryV2Tags(unittest.TestCase):
+    def test_a_realm_other_than_https_is_never_read(self) -> None:
+        for realm in ("file:///tmp/token.json", "http://169.254.169.254/token"):
+            headers = Message()
+            headers["WWW-Authenticate"] = f'Bearer realm="{realm}",service="reg"'
+            denied = urllib.error.HTTPError(
+                "https://reg.example/v2", 401, "err", headers, io.BytesIO(b"")
+            )
+            with (
+                self.subTest(realm=realm),
+                mock.patch.object(module, "get", side_effect=denied) as get,
+            ):
+                self.assertEqual(module.registry_v2_tags("reg.example/foo/bar"), [])
+                self.assertEqual(
+                    [call.args[0] for call in get.call_args_list],
+                    ["https://reg.example/v2/foo/bar/tags/list"],
+                )
+
+
 class TestOutdated(unittest.TestCase):
     def _entry(self, root: Path):
         return next(e for e in module.collect_entries(root) if e.key == "app_version")
@@ -265,6 +287,38 @@ class TestAddons(unittest.TestCase):
         self.assertIn('version: "v1.3.0"', written)
         self.assertIn("released/download/v1.3.0/app.tar.gz", written)
         self.assertIn("upstream_id: example/released", written)
+
+    def test_every_version_in_the_archive_moves_with_its_own_prefix(self) -> None:
+        root = _addon_repo(
+            {
+                "prefixed": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-v1.2.0.tar.gz"
+                ),
+                "bare": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-1.2.0.tar.gz"
+                ),
+            }
+        )
+        with mock.patch.object(module, "candidates", return_value=["v2.0.0"]):
+            module.apply_updates(module.find_outdated_updates(root))
+
+        directory = root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+        prefixed_path = directory / "prefixed.yml"
+        bare_path = directory / "bare.yml"
+        prefixed = prefixed_path.read_text()  # nocheck: cache-read  just rewritten here
+        bare = bare_path.read_text()  # nocheck: cache-read  just rewritten here
+        self.assertIn("released/download/v2.0.0/app-v2.0.0.tar.gz", prefixed)
+        self.assertIn("released/download/v2.0.0/app-2.0.0.tar.gz", bare)
+
+    def test_a_longer_version_holding_the_pin_stays(self) -> None:
+        self.assertEqual(
+            module.bump_archive(
+                "archive: https://x.test/v1.2.0/app-11.2.0-v1.2.0.1.tar.gz",
+                "v1.2.0",
+                "v1.3.0",
+            ),
+            "archive: https://x.test/v1.3.0/app-11.2.0-v1.2.0.1.tar.gz",
+        )
 
     def test_an_archive_that_does_not_carry_the_pin_is_reported(self) -> None:
         drifted = ADDONS["released"].replace('version: "v1.2.0"', 'version: "v1.1.0"')
