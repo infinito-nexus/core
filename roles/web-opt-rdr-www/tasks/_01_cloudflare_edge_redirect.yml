@@ -8,3 +8,6 @@
   loop: "{{ REDIRECT_WWW_DOMAINS }}"
   loop_control:
     loop_var: www_redirect
+  when:
+    - (www_redirect.source | network_of) == 'clearnet'
+    - (www_redirect.target | network_of) == 'clearnet'
