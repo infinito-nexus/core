@@ -4,16 +4,51 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from utils.cache.files import read_text
+from utils.security.pipeline import pipeline
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, Sequence
 
+
+class Tracker(NamedTuple):
+    """One family of vulnerability issues, owned by one label.
+
+    Args:
+        label: the label every issue of the family carries; a sync lists,
+            updates and closes only issues of this label.
+        color: the label colour.
+        description: the label description.
+        source: renders the line under the head line from the first row.
+        artifact: where the rows the body leaves out are kept.
+        gone: the comment an issue closes with.
+        covers: ``(report, title) -> bool``, whether the report speaks for
+            the issue of that title, so its absence may close it.
+    """
+
+    label: str
+    color: str
+    description: str
+    source: Callable[[Mapping[str, Any]], str]
+    artifact: str
+    gone: str
+    covers: Callable[[Mapping[str, Any], str], bool]
+
+
 LABEL = "vulnerability"
 LABEL_COLOR = "B60205"
 LABEL_DESCRIPTION = "A pinned image carries a CVE at the scan threshold"
+MIRROR = Tracker(
+    label=LABEL,
+    color=LABEL_COLOR,
+    description=LABEL_DESCRIPTION,
+    source=lambda row: f"Mirror: `{row['mirror']}@{row['digest']}`",
+    artifact="the `vulnerability-findings` artifact of the scan run",
+    gone="No engine reports a CVE at the threshold for this image any more.",
+    covers=lambda report, _title: not report["errors"],
+)
 ISSUE_LIMIT = "1000"
 GH_TIMEOUT_SECONDS = 120
 GH_FAILURES = (subprocess.CalledProcessError, subprocess.TimeoutExpired)
@@ -44,12 +79,26 @@ def grouped(rows: Iterable[Mapping[str, Any]]) -> dict[str, list[Mapping[str, An
     return groups
 
 
-def body(rows: Sequence[Mapping[str, Any]]) -> str:
+def severity_counts(rows: Iterable[Mapping[str, Any]]) -> str:
+    """Return the distinct CVE count per severity, e.g. ``CRITICAL 7, HIGH 42``."""
+    cves: dict[str, set[str]] = {}
+    for row in rows:
+        cves.setdefault(row["severity"], set()).add(row["id"])
+    order = pipeline().SEVERITIES
+    ranked = sorted(
+        cves,
+        key=lambda s: (order.index(s) if s in order else len(order), s),
+    )
+    return ", ".join(f"{severity} {len(cves[severity])}" for severity in ranked)
+
+
+def body(rows: Sequence[Mapping[str, Any]], tracker: Tracker) -> str:
     """Render the issue body of one image, unsuppressed and CRITICAL rows first.
 
     A suppressed CVE stays listed with its ``suppressed_until`` day, so the
-    issue remains open while the suppression runs. The table stops before
-    the body would exceed ``BODY_LIMIT`` and names how many rows it left out.
+    issue remains open while the suppression runs. The head line ends in
+    :func:`severity_counts`. The table stops before the body would exceed
+    ``BODY_LIMIT`` and names how many rows it left out.
     """
     first = rows[0]
     cves = {row["id"] for row in rows}
@@ -57,10 +106,10 @@ def body(rows: Sequence[Mapping[str, Any]]) -> str:
     head = [
         (
             f"`{first['image']}` carries {len(cves)} CVE(s) at the scan threshold, "
-            f"{len(suppressed)} of them suppressed."
+            f"{len(suppressed)} of them suppressed: {severity_counts(rows)}."
         ),
         "",
-        f"Mirror: `{first['mirror']}@{first['digest']}`",
+        tracker.source(first),
         "",
         "| " + " | ".join(COLUMNS) + " |",
         "|" + "---|" * len(COLUMNS),
@@ -95,20 +144,25 @@ def body(rows: Sequence[Mapping[str, Any]]) -> str:
     if hidden:
         shown += [
             "",
-            f"{hidden} more row(s) are in the `vulnerability-findings` artifact of the scan run.",
+            f"{hidden} more row(s) are in {tracker.artifact}.",
         ]
     return "\n".join(head + shown + tail)
 
 
 def sync(
-    report: Mapping[str, Any], repo: str, gh: Callable[[Sequence[str]], str]
+    report: Mapping[str, Any],
+    repo: str,
+    gh: Callable[[Sequence[str]], str],
+    tracker: Tracker,
 ) -> list[str]:
     """Open, update and close one issue per image.
 
     Args:
-        report: the ``make test-security`` report.
+        report: ``findings`` (the rows) and ``errors``, plus whatever
+            ``tracker.covers`` reads.
         repo: ``owner/name``.
         gh: runs ``gh`` with the given arguments and returns its stdout.
+        tracker: the issue family; only issues of its label are touched.
 
     Returns:
         What was done, one line per issue action; a ``failed`` line for a
@@ -116,20 +170,21 @@ def sync(
         one open issue per image survives, the others close as duplicates.
         An image whose CVE table changed gets a comment listing its
         unresolved CVEs and an updated body; an unchanged table leaves the
-        issue alone. An issue is only closed when the scan reported no
-        error, so an image that failed to scan keeps its issue open.
+        issue alone. An issue without rows is only closed when
+        ``tracker.covers`` says the report speaks for it, so an image that
+        failed to scan or was not scanned keeps its issue open.
     """
     gh(
         [
             "label",
             "create",
-            LABEL,
+            tracker.label,
             "--repo",
             repo,
             "--color",
-            LABEL_COLOR,
+            tracker.color,
             "--description",
-            LABEL_DESCRIPTION,
+            tracker.description,
             "--force",
         ]
     )
@@ -141,7 +196,7 @@ def sync(
                 "--repo",
                 repo,
                 "--label",
-                LABEL,
+                tracker.label,
                 "--state",
                 "open",
                 "--json",
@@ -172,7 +227,7 @@ def sync(
             )
     groups = grouped(report["findings"])
     for name, rows in sorted(groups.items()):
-        text = body(rows)
+        text = body(rows, tracker)
         issue = existing.get(name)
         if issue is None:
             args = [
@@ -183,7 +238,7 @@ def sync(
                 "--title",
                 name,
                 "--label",
-                LABEL,
+                tracker.label,
                 "--body",
                 text,
             ]
@@ -205,10 +260,8 @@ def sync(
         actions.append(attempt(gh, comment, f"commented #{number} {name}"))
         edit = ["issue", "edit", number, "--repo", repo, "--body", text]
         actions.append(attempt(gh, edit, f"updated #{number} {name}"))
-    if report["errors"]:
-        return actions
     for name, issue in sorted(existing.items()):
-        if name not in groups:
+        if name not in groups and tracker.covers(report, name):
             args = [
                 "issue",
                 "close",
@@ -216,7 +269,7 @@ def sync(
                 "--repo",
                 repo,
                 "--comment",
-                "No engine reports a CVE at the threshold for this image any more.",
+                tracker.gone,
             ]
             actions.append(attempt(gh, args, f"closed #{issue['number']} {name}"))
     return actions
@@ -254,7 +307,7 @@ def main(argv=None) -> int:
     parser.add_argument("--repo", required=True, help="owner/name")
     args = parser.parse_args(argv)
     report = json.loads(read_text(args.report))
-    lines = sync(report, args.repo, run_gh)
+    lines = sync(report, args.repo, run_gh, MIRROR)
     for line in lines:
         print(line)
     return 1 if any(line.startswith("failed ") for line in lines) else 0
