@@ -1,12 +1,3 @@
-"""Resolve a play variable that may still be a template.
-
-A value taken out of the play's variables is raw. A role whose
-``application_id`` is itself a template, as ``sys-stk-full`` sets it from
-``sys_stk_full_application_id``, therefore hands back the unrendered string,
-while the same variable named inside an expression arrives resolved. Every
-lookup that reads such a variable resolves it through here.
-"""
-
 from __future__ import annotations
 
 import contextlib

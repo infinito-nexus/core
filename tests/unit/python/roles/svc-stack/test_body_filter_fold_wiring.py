@@ -78,7 +78,6 @@ class TestEveryCallerDecidesWhoWritesTheLua(unittest.TestCase):
             entries,
             {
                 "roles/svc-stack/tasks/proxy/vhost.yml": None,
-                "roles/sys-stk-front-proxy/tasks/vhost.yml": None,
                 "roles/web-app-matomo/tasks/08_reinject_consumers/vhosts.yml": "standalone.yml",
             },
         )
