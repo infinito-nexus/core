@@ -8,6 +8,7 @@ inventory or a variant sets it.
 from __future__ import annotations
 
 import hashlib
+import importlib
 import re
 import unittest
 from typing import Any
@@ -18,13 +19,16 @@ from ansible.template import Templar, trust_as_template
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import load_yaml_str
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 ROLE = "web-app-nextcloud"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
 SSO = ("web-app-keycloak", "svc-db-openldap")
 SWITCH = "lookup('sso_oidc_plugin') == 'user_oidc'"
+NEXTCLOUD_UID = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/11_oidc.yml"))[
+    "defaults_oidc"
+]["ATTRIBUTES"]["NEXTCLOUD_UID"]
 OIDC = {
     "CLIENT": {
         "SECRET": "shared-secret",
@@ -35,6 +39,7 @@ OIDC = {
         "USERNAME": "preferred_username",
         "NAME": "name",
         "EMAIL": "email",
+        "NEXTCLOUD_UID": NEXTCLOUD_UID,
     },
 }
 RBAC = {"GROUP": {"CLAIM": "groups"}}
@@ -171,8 +176,30 @@ class TestUserOidcProvider(unittest.TestCase):
         )
 
     def test_an_existing_account_keeps_its_user_id(self) -> None:
-        self.assertIn("--mapping-uid=preferred_username", self.options)
+        self.assertIn(f"--mapping-uid={NEXTCLOUD_UID}|preferred_username", self.options)
+        self.assertIn("--resolve-nested-claims=1", self.options)
         self.assertIn("--unique-uid=0", self.options)
+
+    def test_the_own_client_hands_user_oidc_the_mapped_user_id(self) -> None:
+        fragments = importlib.import_module(
+            "tests.unit.python.roles.web-app-keycloak.templates.test_backchannel_clients"
+        )
+        (client,) = fragments.render_fragment(
+            ROLE_DIR / "templates/keycloak/clients.json.j2"
+        )
+        (mapper,) = [
+            m for m in client["protocolMappers"] if m["name"] == "nextcloud uid"
+        ]
+        self.assertEqual("oidc-usermodel-attribute-mapper", mapper["protocolMapper"])
+        expected = {
+            "user.attribute": NEXTCLOUD_UID,
+            "claim.name": NEXTCLOUD_UID,
+            "multivalued": "false",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+        }
+        self.assertEqual(expected, {key: mapper["config"].get(key) for key in expected})
 
     def test_profile_quota_and_groups_come_from_the_claims(self) -> None:
         for option in (

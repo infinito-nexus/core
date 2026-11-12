@@ -120,11 +120,21 @@ Before any plugin changes, a pending switch to an OIDC plugin that Nextcloud doe
 
 | Accounts | Keyed by | Kept by |
 |---|---|---|
-| Created by `sociallogin` under its provider, or connected to it | `<provider>-<sub>` | `sociallogin` |
+| Created by `sociallogin` under its provider, or connected to it | `<provider>-<sub>` | `sociallogin`, and `user_oidc` once the Keycloak user `<sub>` holds the account's user id in `nextcloud_uid` |
 | Created by `user_oidc` | its own backend, which only runs while `user_oidc` does | `user_oidc` |
 | Of `user_ldap` | the LDAP user id | `user_oidc` and `oidc_login` while `user_ldap` stays on |
 
 So the flip from `sociallogin` to `oidc_login` that enabling LDAP brings is refused while `sociallogin` holds an account, and so is the flip back that disabling LDAP brings while LDAP accounts exist.
+
+Between the probe and the refusal, a pending switch to `user_oidc` hands every `sociallogin` account to Keycloak: [nextcloud_sociallogin_subjects](../../../filter_plugins/nextcloud_sso_accounts.py) pairs the account's user id with the Keycloak user its longest matching `<provider>-` prefix leaves, and `web-app-keycloak`'s `tasks/utils/user_attributes.yml` writes that user id into the admin-only attribute `nextcloud_uid` in one REST run. `user_oidc` reads the uid claim `nextcloud_uid|preferred_username`, so a migrated user signs in to its old account and every other user to the one named after its username. The refusal keeps an account only when Keycloak took its user id or already held it, and names the Keycloak user and the reason otherwise:
+
+| Outcome | The Keycloak user |
+|---|---|
+| `conflict` | holds another `nextcloud_uid`, which the run leaves as it is |
+| `taken` | would share the user id with another user whose username it is |
+| `missing` | is absent from the realm |
+| `dropped` | kept no value after the write |
+| `failed` | could not be read or written |
 
 ## Entry point
 

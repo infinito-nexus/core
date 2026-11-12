@@ -13,18 +13,7 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 _REGISTRY = "utils/networks/reachability.py"
 _ROOTS = ("plugins/", "utils/", "cli/", "group_vars/", "roles/", "tasks/")
 _EXTENSIONS = (".py", ".yml", ".yaml", ".j2", ".sh", ".js", ".php", ".rb", ".lua")
-_PREDATING_TEST_CHECKS = frozenset(
-    {
-        (
-            "roles/web-app-mini-qr/files/playwright/test-design.js",
-            'test.skip(new URL(baseUrl()).hostname.endsWith(".onion"), "the camera browser runs without the onion proxy");',
-        ),
-        (
-            "roles/web-app-odoo/files/playwright/_shared.js",
-            r"""const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)""",
-        ),
-    }
-)
+_PREDATING_TEST_CHECKS: frozenset[tuple[str, str]] = frozenset()
 
 _DOTTED = r"""['"]\.onion['"]"""
 _DOTLESS = r"""['"]onion['"]"""
