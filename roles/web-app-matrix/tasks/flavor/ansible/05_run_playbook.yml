@@ -6,11 +6,10 @@
   changed_when: false
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "📄 ansible-flavor: render compose.yml + start matrix-mdad via sys-stk-backend"
+- name: "📄 ansible-flavor: render compose.yml + start matrix-mdad via svc-stack"
   ansible.builtin.include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "✅ ansible-flavor: ensure matrix-mdad runner build dir on STACK_HOST"
   ansible.builtin.file:
