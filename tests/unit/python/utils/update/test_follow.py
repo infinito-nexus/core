@@ -69,6 +69,47 @@ class TestFollowedTags(unittest.TestCase):
         self.assertIn("WARN fedora:44", stderr.getvalue())
         self.assertIn("IncompleteRead", stderr.getvalue())
 
+    def test_requires_python_keeps_only_supported_minors(self) -> None:
+        tags = [
+            "3.13-slim",
+            "3.14-slim",
+            "3.15-slim",
+            "3.16-slim",
+            "3.15",
+            "3.14.2-slim",
+        ]
+        with (
+            mock.patch(
+                "utils.update.follow.requires_python", return_value=">=3.11,<3.16"
+            ),
+            mock.patch("utils.update.follow.tag_digest") as digest,
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            found = followed_tags(
+                "python", tags, {"follow": "requires-python"}, "3.14-slim"
+            )
+        self.assertEqual(found, ["3.15-slim"])
+        digest.assert_not_called()
+
+    def test_requires_python_at_the_cap_proposes_nothing(self) -> None:
+        with (
+            mock.patch(
+                "utils.update.follow.requires_python", return_value=">=3.11,<3.15"
+            ),
+            mock.patch(
+                "utils.update.follow.tag_digest", return_value="sha256:one"
+            ) as digest,
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            found = followed_tags(
+                "python",
+                ["3.14-slim", "3.15-slim"],
+                {"follow": "requires-python"},
+                "3.14-slim",
+            )
+        self.assertEqual(found, [])
+        digest.assert_not_called()
+
     def test_a_rate_limited_digest_is_retried(self) -> None:
         limited = urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)
         body = json.dumps({"digest": "sha256:45"}).encode()

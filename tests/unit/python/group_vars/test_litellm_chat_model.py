@@ -226,7 +226,10 @@ class TestAiRemoteAliases(unittest.TestCase):
                 return terms[0] in enabled
             raise AssertionError(f"unexpected lookup({kind!r}, {terms!r})")
 
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a Python list literal, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         return ast.literal_eval(
             env.from_string(self.template).render(
                 lookup=lookup, AI_MOCK_PROVIDER="mock"
@@ -257,7 +260,10 @@ class TestAiAgentModel(unittest.TestCase):
         cls.template = load_yaml(_AI_VARS)["AI_AGENT_MODEL"]
 
     def _render(self, *, mock_aliases, chat_model):
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a bare alias, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         return env.from_string(self.template).render(
             AI_MOCK_ALIASES=list(mock_aliases), LITELLM_CHAT_MODEL=chat_model
         )
