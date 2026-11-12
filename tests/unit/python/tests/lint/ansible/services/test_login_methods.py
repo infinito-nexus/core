@@ -158,19 +158,24 @@ class TestLoginMethodDefaults(unittest.TestCase):
         self.assertEqual(1, len(findings))
         self.assertIn("login.method.2fa.enforced is True, expected False", findings[0])
 
-    def test_moodle_enforces_its_second_factor_by_default(self) -> None:
-        moodle = "web-app-moodle"
-        text = read_text(str(PROJECT_ROOT / "roles" / moodle / ROLE_FILE_META_SERVICES))
-        self.assertNotIn(moodle, lint.OFFERED_ONLY)
-        self.assertEqual([], role_defaults(moodle, text))
+    def _assert_enforces_by_default(self, role: str) -> None:
+        text = read_text(str(PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES))
+        self.assertNotIn(role, lint.OFFERED_ONLY)
+        self.assertEqual([], role_defaults(role, text))
         offered = text.replace(
             "'2fa') }}\"\n        enforced: true\n",
             "'2fa') }}\"\n        enforced: false\n",
         )
         self.assertNotEqual(text, offered)
-        findings = role_defaults(moodle, offered)
+        findings = role_defaults(role, offered)
         self.assertEqual(1, len(findings))
         self.assertIn("login.method.2fa.enforced is False, expected True", findings[0])
+
+    def test_moodle_enforces_its_second_factor_by_default(self) -> None:
+        self._assert_enforces_by_default("web-app-moodle")
+
+    def test_matomo_enforces_its_second_factor_by_default(self) -> None:
+        self._assert_enforces_by_default("web-app-matomo")
 
     def test_enforced_on_another_method_fails(self) -> None:
         text = VALID.replace(

@@ -64,7 +64,7 @@ matomo:
         enabled: "{{ lookup('login_method', 'web-app-matomo', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-matomo', '2fa') }}"
-        enforced: false
+        enforced: true
 bootstrap:
   replicas: 0
   image: ghcr.io/kevinveenbirkenbach/matomo-bootstrap
