@@ -91,5 +91,75 @@ class TestValues(unittest.TestCase):
         )
 
 
+REGISTRATION = {
+    "general": {
+        "path": "/admin/settings",
+        "fields": {
+            "open": {
+                "source": "login.registration",
+                "when": "!multisite.enabled",
+                "mode": "enforced",
+                "selector": "#open",
+                "map": {True: "1", False: "0"},
+            },
+        },
+    },
+    "network": {
+        "path": "/admin/network",
+        "fields": {
+            "registration": {
+                "source": "login.registration",
+                "when": "multisite.enabled",
+                "mode": "enforced",
+                "selector": "#registration",
+                "map": {True: "user", False: "none"},
+            },
+        },
+    },
+}
+
+
+def _site(*, registration: object, multisite: bool) -> dict:
+    return {
+        "login": {"registration": registration},
+        "multisite": {"enabled": multisite},
+    }
+
+
+class TestMapAndNegatedWhen(unittest.TestCase):
+    def test_the_map_turns_the_source_value_into_the_stored_value(self):
+        for registration, stored in ((True, "1"), (False, "0"), ("True", "1")):
+            with self.subTest(registration=registration):
+                site = _site(registration=registration, multisite=False)
+                self.assertEqual(
+                    {"open": stored}, values("general", REGISTRATION, site, USERS)
+                )
+
+    def test_a_negated_when_applies_the_field_while_its_path_is_false(self):
+        network = _site(registration=True, multisite=True)
+
+        self.assertEqual({}, values("general", REGISTRATION, network, USERS))
+        self.assertEqual(
+            {"registration": "user"}, values("network", REGISTRATION, network, USERS)
+        )
+        self.assertEqual(
+            {},
+            values(
+                "network",
+                REGISTRATION,
+                _site(registration=True, multisite=False),
+                USERS,
+            ),
+        )
+
+    def test_a_value_the_map_does_not_hold_fails_without_repeating_it(self):
+        site = _site(registration="sometimes", multisite=False)
+
+        with self.assertRaises(SourceError) as caught:
+            values("general", REGISTRATION, site, USERS)
+
+        self.assertNotIn("sometimes", str(caught.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

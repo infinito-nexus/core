@@ -65,8 +65,10 @@ TYPES = (
 FORM_KEYS = frozenset({"path", "fields"})
 REQUIRED_FIELD_KEYS = ("source", "mode", "selector")
 OPTIONAL_FIELD_KEYS = frozenset(
-    {"when", "label", "type", "enum", "validation", "description"}
+    {"when", "label", "type", "enum", "validation", "description", "map"}
 )
+NEGATION = "!"
+MAP_SCALARS = (str, int, float, bool)
 USERS_ROOT = "users"
 SSO_ROOT = "sso"
 USER_SOURCE_PARTS = 3
@@ -116,6 +118,17 @@ def _non_empty_string(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
+def when_path(when: Any) -> Any:
+    """Return the inventory path of a ``when``, without its negation.
+
+    Args:
+        when: the field's ``when``.
+    """
+    if isinstance(when, str) and when.startswith(NEGATION):
+        return when[len(NEGATION) :]
+    return when
+
+
 def _holds_template(value: Any) -> bool:
     if isinstance(value, str):
         return any(marker in value for marker in TEMPLATE_MARKERS)
@@ -148,9 +161,11 @@ def _field_errors(where: str, spec: Any) -> list[str]:
     )
     errors.extend(
         f"{where}.{key} must be a dotted inventory path"
-        for key in ("source", "when")
-        if key in spec
-        and not (isinstance(spec[key], str) and _PATH.fullmatch(spec[key]))
+        for key, path in (
+            ("source", spec.get("source")),
+            ("when", when_path(spec.get("when"))),
+        )
+        if key in spec and not (isinstance(path, str) and _PATH.fullmatch(path))
     )
     if "mode" in spec and spec["mode"] not in MODES:
         errors.append(f"{where}.mode {spec['mode']!r} is not one of {list(MODES)}")
@@ -165,7 +180,22 @@ def _field_errors(where: str, spec: Any) -> list[str]:
         errors.append(f"{where}.enum must be a non-empty list")
     if "validation" in spec:
         errors.extend(_validation_errors(where, spec["validation"]))
+    if "map" in spec:
+        errors.extend(_map_errors(where, spec["map"]))
     return errors
+
+
+def _map_errors(where: str, table: Any) -> list[str]:
+    if (
+        isinstance(table, Mapping)
+        and table
+        and all(
+            isinstance(key, MAP_SCALARS) and isinstance(value, MAP_SCALARS)
+            for key, value in table.items()
+        )
+    ):
+        return []
+    return [f"{where}.map must map each source value to a scalar the app stores"]
 
 
 def _validation_errors(where: str, validation: Any) -> list[str]:
@@ -350,8 +380,10 @@ def source_errors(
     """
     errors = []
     for form, field, spec in iter_fields(forms):
-        for key in ("source", "when"):
-            path = spec.get(key)
+        for key, path in (
+            ("source", spec.get("source")),
+            ("when", when_path(spec.get("when"))),
+        ):
             if not (isinstance(path, str) and _PATH.fullmatch(path)):
                 continue
             if key == "source" and is_sso_source(path):
@@ -430,7 +462,32 @@ def inventory_path(role: str, source: str) -> str:
 def _applies(spec: Mapping, application: Mapping, users: Mapping) -> bool:
     if "when" not in spec:
         return True
-    return boolean(resolve(spec["when"], application, users), strict=False)
+    holds = boolean(resolve(when_path(spec["when"]), application, users), strict=False)
+    return holds != spec["when"].startswith(NEGATION)
+
+
+def mapped(spec: Mapping, value: Any) -> Any:
+    """Return the value the application stores for a field's source value.
+
+    Args:
+        spec: the field's spec; without ``map`` the value is stored as is.
+        value: what the field's ``source`` resolves to.
+
+    Raises:
+        SourceError: when ``map`` holds no entry for the value; the message
+            never repeats it.
+    """
+    table = spec.get("map")
+    if table is None:
+        return value
+    if isinstance(value, MAP_SCALARS) and value in table:
+        return table[value]
+    if all(isinstance(key, bool) for key in table):
+        try:
+            return table[boolean(value, strict=True)]
+        except (TypeError, KeyError):
+            pass
+    raise SourceError("the map holds no entry for the source value")
 
 
 def locks(

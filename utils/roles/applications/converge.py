@@ -6,6 +6,7 @@ from utils.roles.applications.forms import (
     _applies,
     is_sso_source,
     iter_fields,
+    mapped,
     resolve,
 )
 
@@ -31,13 +32,15 @@ def values(
 
     Returns:
         Each field whose ``when`` holds mapped to the value its ``source``
-        resolves to, in YAML order; an ``sso.<claim>`` field is left out.
+        resolves to, passed through its ``map``, in YAML order; an
+        ``sso.<claim>`` field is left out.
 
     Raises:
-        SourceError: when a ``source`` or ``when`` names nothing.
+        SourceError: when a ``source`` or ``when`` names nothing, or a ``map``
+            holds no entry for the source value.
     """
     return {
-        field: resolve(spec["source"], application, users)
+        field: mapped(spec, resolve(spec["source"], application, users))
         for name, field, spec in iter_fields(forms)
         if name == form
         and not is_sso_source(spec.get("source"))

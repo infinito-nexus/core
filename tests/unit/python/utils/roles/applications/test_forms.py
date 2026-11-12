@@ -176,6 +176,49 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(1, len(forms.schema_errors("web-app-x", {})))
         self.assertEqual(1, len(forms.schema_errors("web-app-x", None)))
 
+    def test_a_scalar_map_and_a_negated_when_pass(self):
+        spec = {
+            **_field("general", "blogname"),
+            "when": "!design.enabled",
+            "map": {True: "1", False: "0", "open": 2},
+        }
+        self.assertEqual(
+            [],
+            forms.schema_errors("web-app-x", _with_field("general", "blogname", spec)),
+        )
+
+    def test_a_map_that_maps_nothing_or_to_a_structure_is_refused(self):
+        for table in ({}, [True, "1"], {True: ["1"]}, {True: None}):
+            with self.subTest(table=table):
+                spec = {**_field("general", "blogname"), "map": table}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.fields.blogname.map must map each "
+                            "source value to a scalar the app stores"
+                        )
+                    ],
+                    forms.schema_errors(
+                        "web-app-x", _with_field("general", "blogname", spec)
+                    ),
+                )
+
+    def test_a_negation_needs_a_dotted_path(self):
+        for when in ("!", "!!design.enabled", "!design"):
+            with self.subTest(when=when):
+                spec = {**_field("general", "blogname"), "when": when}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.fields.blogname.when must be a dotted "
+                            "inventory path"
+                        )
+                    ],
+                    forms.schema_errors(
+                        "web-app-x", _with_field("general", "blogname", spec)
+                    ),
+                )
+
 
 class TestResolve(unittest.TestCase):
     def test_a_source_resolves_relative_to_the_application(self):
@@ -254,6 +297,27 @@ class TestSourceErrors(unittest.TestCase):
             ["web-app-x: smtp.password.source names nothing in the inventory"],
             forms.source_errors("web-app-x", FORMS, APPLICATION, USERS, {}),
         )
+
+    def test_a_negated_when_resolves_its_path(self):
+        for when, expected in (
+            ("!design.label", []),
+            (
+                "!design.enabled",
+                ["web-app-x: general.blogname.when names nothing in the inventory"],
+            ),
+        ):
+            with self.subTest(when=when):
+                spec = {**_field("general", "blogname"), "when": when}
+                self.assertEqual(
+                    expected,
+                    forms.source_errors(
+                        "web-app-x",
+                        _with_field("general", "blogname", spec),
+                        APPLICATION,
+                        USERS,
+                        CREDENTIALS,
+                    ),
+                )
 
     def test_a_dotted_secret_in_source_or_when_is_never_echoed(self):
         for value in (JWT_SHAPED, SENDGRID_SHAPED):
