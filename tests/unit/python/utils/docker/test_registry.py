@@ -198,6 +198,23 @@ class TestFetchRegistryTags(unittest.TestCase):
         with mock.patch.object(registry.urllib.request, "urlopen", side_effect=_fake):
             self.assertEqual(registry.fetch_registry_tags("ghcr.io/foo/bar"), ["2.0.0"])
 
+    def test_a_realm_other_than_https_is_never_opened(self) -> None:
+        for realm in ("file:///tmp/token.json", "http://169.254.169.254/token"):
+            challenge = {"WWW-Authenticate": f'Bearer realm="{realm}",service="reg"'}
+            with (
+                self.subTest(realm=realm),
+                mock.patch.object(
+                    registry.urllib.request,
+                    "urlopen",
+                    side_effect=_http_error(401, challenge),
+                ) as opened,
+            ):
+                self.assertEqual(registry.fetch_registry_tags("ghcr.io/foo/bar"), [])
+                self.assertEqual(
+                    [call.args[0].full_url for call in opened.call_args_list],
+                    ["https://ghcr.io/v2/foo/bar/tags/list?n=1000"],
+                )
+
     def test_pagination_follows_link(self) -> None:
         page1 = _Resp(
             headers={"Link": '</v2/library/foo/tags/list?n=100&last=b>; rel="next"'},

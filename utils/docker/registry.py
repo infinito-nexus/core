@@ -67,7 +67,7 @@ def _resolve(image: str) -> tuple[str, str] | None:
 def _bearer_token(challenge: str, repo: str) -> str | None:
     params = dict(_CHALLENGE_PARAM_RE.findall(challenge or ""))
     realm = params.get("realm")
-    if not realm:
+    if not realm or urlparse(realm).scheme != "https":
         return None
     query = {"scope": params.get("scope") or f"repository:{repo}:pull"}
     if params.get("service"):
