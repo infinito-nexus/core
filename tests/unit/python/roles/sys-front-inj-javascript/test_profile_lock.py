@@ -142,7 +142,9 @@ Object.defineProperty(globalThis, "navigator", {
   configurable: true,
 });
 globalThis.window = globalThis;
-globalThis.location = { pathname: CONFIG.pathname, search: CONFIG.search };
+const routes = [];
+globalThis.addEventListener = (type, callback) => { routes.push({ type, callback }); };
+globalThis.location = { pathname: CONFIG.pathname, search: CONFIG.search, hash: CONFIG.hash };
 globalThis.confirm = (text) => { confirms.push(text); return CONFIG.confirm; };
 globalThis.MutationObserver = class {
   constructor(callback) { observers.push(callback); }
@@ -177,6 +179,7 @@ globalThis.document = {
     return CONFIG.selectors.filter((known) => selector.split(",").includes(known))
       .flatMap((known) => fields[known] || []);
   },
+  querySelector(selector) { return (fields[selector] || [])[0] || null; },
 };
 for (const [selector, tags] of Object.entries(CONFIG.fields)) {
   fields[selector] = tags.map(element);
@@ -186,6 +189,13 @@ for (const [selector, tags] of Object.entries(CONFIG.fields)) {
 EPILOGUE = """
 for (const [selector, tags] of Object.entries(CONFIG.late)) {
   fields[selector] = (fields[selector] || []).concat(tags.map(element));
+}
+for (const [selector, value] of Object.entries(CONFIG.valuesAfter)) {
+  (fields[selector] || []).forEach((field) => { field.value = value; });
+}
+if (CONFIG.hashAfter !== null) {
+  location.hash = CONFIG.hashAfter;
+  routes.filter(({ type }) => type === "hashchange").forEach(({ callback }) => callback());
 }
 for (let batch = 0; batch < CONFIG.batches; batch += 1) {
   observers.forEach((callback) => callback([]));
@@ -219,6 +229,7 @@ def _render(
     catalogue: dict,
     managed: dict | None = None,
     languages: list[str] | None = LANGUAGES,
+    application: dict | None = None,
 ) -> str:
     """Render the renderer the way the injector serves it.
 
@@ -230,6 +241,7 @@ def _render(
             ships one.
         languages: ``services.sso.profile.languages``; ``None`` for a role
             that declares none.
+        application: the rendered ``applications.<role>`` the forms resolve against.
     """
     environment = Environment(autoescape=False)  # noqa: S701 - renders JavaScript, not HTML
     environment.filters.update(CoreFilters().filters())
@@ -240,7 +252,9 @@ def _render(
     }
     declared = {"profile": {"path": "/", "fields": profile}} if profile else {}
     field_locks = {
-        "locks": forms.locks(APPLICATION, declared | (managed or {}), {}, {}, {}),
+        "locks": forms.locks(
+            APPLICATION, declared | (managed or {}), application or {}, {}, {}
+        ),
         "languages": languages,
     }
 
@@ -273,6 +287,8 @@ def _run(
     on_label: bool = False,
     confirm: bool = True,
     form: bool = False,
+    hash_after: str | None = None,
+    values_after: dict | None = None,
 ) -> dict:
     """Run a rendered renderer and return what the stub document saw.
 
@@ -280,15 +296,18 @@ def _run(
         script: the rendered, collapsed renderer.
         lang: ``document.documentElement.lang``.
         browser: ``navigator.language``.
-        fields: selector mapped to the tag names of the elements it matches at load.
+        fields: selector mapped to the tag names, or element specs, of the
+            elements it matches at load.
         late: selector mapped to the tag names of elements added after the first run.
         batches: mutation batches delivered before the next animation frame.
-        page: ``location.pathname`` plus ``location.search``.
+        page: ``location.pathname`` plus ``location.search`` and ``location.hash``.
         dblclick: selectors whose fields get a double-click after the first
             frame; one more mutation batch and frame follow.
         on_label: double-click the first label of each field instead.
         confirm: what the confirmation dialog answers.
         form: whether every field sits in a form.
+        hash_after: the ``location.hash`` a ``hashchange`` sets after the first run.
+        values_after: selector mapped to the value its elements hold after the first run.
 
     Returns:
         ``fields``: selector mapped to its elements afterwards; ``queries``:
@@ -297,7 +316,8 @@ def _run(
         text of every confirmation dialog; ``created``: the tag of every
         created element; ``banners``: the banners in the body.
     """
-    pathname, _, search = page.partition("?")
+    location, _, route = page.partition("#")
+    pathname, _, search = location.partition("?")
     config = json.dumps(
         {
             "lang": lang,
@@ -308,6 +328,9 @@ def _run(
             "batches": batches,
             "pathname": pathname,
             "search": f"?{search}" if search else "",
+            "hash": f"#{route}" if route else "",
+            "hashAfter": hash_after,
+            "valuesAfter": values_after or {},
             "dblclick": list(dblclick),
             "onLabel": on_label,
             "confirm": confirm,
@@ -577,6 +600,154 @@ class TestManagedFieldLock(unittest.TestCase):
         self.assertTrue(secret["readOnly"])
         self.assertEqual("password", secret["type"])
         self.assertEqual("text", title["type"])
+
+
+CONSOLE = "/admin/console/"
+ROUTE = f"{CONSOLE}#/demo/clients/"
+CLIENT_HASH = "#/demo/clients/9f2c/settings"
+REALM_HASH = "#/demo/realm-settings"
+ROUTED_FORMS = {
+    "client": {
+        "path": ROUTE,
+        "fields": {
+            "redirects": {
+                "source": "design.label",
+                "mode": "enforced",
+                "selector": "#redirects",
+                "label": "Redirect URIs",
+                "type": "text",
+            },
+        },
+    },
+}
+
+
+CREATED = ["web-app-demo", "web-app-demo-saml"]
+RECORD_FORMS = {
+    "client": {
+        **ROUTED_FORMS["client"],
+        "record": {"selector": "#clientId", "source": "clients.created"},
+    },
+}
+
+
+def _routed(**kwargs) -> dict:
+    """Run the renderer of a role whose form lives on a ``#/`` route.
+
+    Args:
+        kwargs: passed to ``_run``; ``fields`` defaults to the redirects
+            input, ``forms`` to ``ROUTED_FORMS`` and ``batches`` to one.
+    """
+    fields = kwargs.pop("fields", {"#redirects": ["INPUT"]})
+    script = _render(
+        {},
+        CATALOGUE,
+        kwargs.pop("forms", ROUTED_FORMS),
+        application={"clients": {"created": CREATED}},
+    )
+    batches = kwargs.pop("batches", 1)
+    return _run(script, "en", "en", fields, batches=batches, **kwargs)
+
+
+def _client(client_id: str) -> dict:
+    return {
+        "#clientId": [{"tagName": "INPUT", "value": client_id}],
+        "#redirects": ["INPUT"],
+    }
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestRoutedPage(unittest.TestCase):
+    def test_a_hash_route_matches_the_location_hash(self):
+        seen = _routed(page=CONSOLE + CLIENT_HASH)
+
+        self.assertTrue(seen["fields"]["#redirects"][0]["readOnly"])
+        self.assertEqual(1, len(seen["banners"]))
+
+    def test_another_hash_route_leaves_the_field_alone(self):
+        seen = _routed(page=CONSOLE + REALM_HASH)
+
+        self.assertFalse(seen["fields"]["#redirects"][0]["readOnly"])
+        self.assertEqual([], seen["banners"])
+
+    def test_a_page_without_a_route_ignores_the_location_hash(self):
+        seen = _managed(page=f"{PAGE}#/anything")
+
+        self.assertTrue(seen["fields"]["#title"][0]["readOnly"])
+
+    def test_a_hash_change_locks_on_the_next_frame(self):
+        seen = _routed(page=CONSOLE + REALM_HASH, hash_after=CLIENT_HASH, batches=0)
+
+        self.assertEqual(1, seen["scheduled"])
+        self.assertTrue(seen["fields"]["#redirects"][0]["readOnly"])
+
+    def test_leaving_the_route_releases_the_field(self):
+        seen = _routed(page=CONSOLE + CLIENT_HASH, hash_after=REALM_HASH, batches=0)
+        field = seen["fields"]["#redirects"][0]
+
+        self.assertFalse(field["readOnly"])
+        self.assertEqual("", field["title"])
+        self.assertEqual([{"title": ""}], field["labels"])
+        self.assertEqual({"title": ""}, field["parentElement"])
+        self.assertEqual({}, field["attributes"])
+        self.assertEqual("", field["style"]["cursor"])
+        self.assertEqual([], seen["banners"])
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestRecordGuard(unittest.TestCase):
+    def test_a_record_the_deployment_created_is_locked(self):
+        seen = _routed(
+            forms=RECORD_FORMS, fields=_client(CREATED[1]), page=CONSOLE + CLIENT_HASH
+        )
+
+        self.assertTrue(seen["fields"]["#redirects"][0]["readOnly"])
+        self.assertEqual(1, len(seen["banners"]))
+
+    def test_a_record_an_admin_created_stays_editable(self):
+        seen = _routed(
+            forms=RECORD_FORMS, fields=_client("admin-made"), page=CONSOLE + CLIENT_HASH
+        )
+        field = seen["fields"]["#redirects"][0]
+
+        self.assertFalse(field["readOnly"])
+        self.assertEqual("", field["title"])
+        self.assertEqual([], seen["banners"])
+
+    def test_a_page_without_the_record_input_locks_nothing(self):
+        seen = _routed(
+            forms=RECORD_FORMS,
+            fields={"#redirects": ["INPUT"]},
+            page=CONSOLE + CLIENT_HASH,
+        )
+
+        self.assertFalse(seen["fields"]["#redirects"][0]["readOnly"])
+
+    def test_turning_to_an_admin_record_releases_the_field(self):
+        seen = _routed(
+            forms=RECORD_FORMS,
+            fields=_client(CREATED[0]),
+            page=CONSOLE + CLIENT_HASH,
+            values_after={"#clientId": "admin-made"},
+        )
+        field = seen["fields"]["#redirects"][0]
+
+        self.assertFalse(field["readOnly"])
+        self.assertEqual("", field["title"])
+        self.assertEqual([{"title": ""}], field["labels"])
+        self.assertEqual({}, field["attributes"])
+        self.assertEqual([], seen["banners"])
+
+    def test_only_the_ids_the_deployment_created_reach_the_page(self):
+        script = _render(
+            {},
+            CATALOGUE,
+            RECORD_FORMS,
+            application={"clients": {"created": CREATED}},
+        )
+
+        for client_id in CREATED:
+            self.assertIn(to_inline_js(client_id)[1:-1], script)
 
 
 def _toggle(kind: str, value: str, *, checked: bool) -> dict:

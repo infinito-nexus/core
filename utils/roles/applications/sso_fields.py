@@ -30,8 +30,8 @@ def errors(role: str, forms: Mapping) -> list[str]:
     Returns:
         One finding per ``sso`` source that is not ``sso.<claim>`` with a claim
         of ``OIDC.ATTRIBUTES``, per such field whose ``mode`` is not
-        ``enforced`` and per such field with a ``when``; no finding repeats
-        the source.
+        ``enforced``, per such field with a ``when`` and per such field whose
+        form declares a ``record``; no finding repeats the source.
     """
     known = claims()
     found = []
@@ -50,6 +50,8 @@ def errors(role: str, forms: Mapping) -> list[str]:
             found.append(f"{where}.mode must be enforced, since the sign-in writes it")
         if "when" in spec:
             found.append(f"{where} takes no `when`; the selector's marker decides")
+        if "record" in forms.get(form, {}):
+            found.append(f"{where} takes no `record`; the selector's marker decides")
     return found
 
 

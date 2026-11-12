@@ -80,6 +80,21 @@ class TestErrors(unittest.TestCase):
                     message, "\n".join(sso_fields.errors("web-app-demo", broken))
                 )
 
+    def test_a_form_of_sso_fields_takes_no_record(self):
+        record = {"selector": "#username", "source": "design.label"}
+        guarded = {
+            **FORMS,
+            "general": {**FORMS["general"], "record": record},
+            "profile": {**FORMS["profile"], "record": record},
+        }
+        self.assertEqual(
+            [
+                "web-app-demo: profile.email takes no `record`; the selector's marker decides",
+                "web-app-demo: profile.name takes no `record`; the selector's marker decides",
+            ],
+            sso_fields.errors("web-app-demo", guarded),
+        )
+
 
 class TestSelectors(unittest.TestCase):
     def test_only_the_sso_fields_reach_the_server_guards(self):

@@ -245,6 +245,45 @@ class TestSchema(unittest.TestCase):
                     forms.schema_errors("web-app-x", data),
                 )
 
+    def test_a_form_naming_its_record_passes(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {"selector": "#clientId", "source": "clients.ids"}
+        self.assertEqual([], forms.schema_errors("web-app-x", data))
+
+    def test_a_record_without_its_input_or_ids_is_refused(self):
+        for record in (
+            {"selector": "#clientId"},
+            {"source": "clients.ids"},
+            {"selector": "#clientId", "source": "clients.ids", "match": "id"},
+            {"selector": " ", "source": "clients.ids"},
+            {"selector": "#clientId", "source": "{{ ids }}"},
+            ["#clientId", "clients.ids"],
+        ):
+            with self.subTest(record=record):
+                data = copy.deepcopy(FORMS)
+                data["general"]["record"] = record
+                self.assertIn(
+                    (
+                        "web-app-x: general.record must map selector to the input"
+                        " that shows the edited record's id and source to the"
+                        " inventory path of the ids the deployment created"
+                    ),
+                    forms.schema_errors("web-app-x", data),
+                )
+
+    def test_a_template_in_the_record_selector_is_refused(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {"selector": "{{ id }}", "source": "clients.ids"}
+        self.assertEqual(
+            [
+                (
+                    "web-app-x: general.record.selector must hold no template;"
+                    " meta/forms.yml is never rendered"
+                )
+            ],
+            forms.schema_errors("web-app-x", data),
+        )
+
 
 class TestResolve(unittest.TestCase):
     def test_a_source_resolves_relative_to_the_application(self):
@@ -429,6 +468,44 @@ class TestSourceErrors(unittest.TestCase):
             ),
         )
 
+    def test_a_record_source_resolves_or_is_reported(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {
+            "selector": "#clientId",
+            "source": "services.keycloak.clients",
+        }
+        application = {**APPLICATION, "services": {"keycloak": {"clients": ["a"]}}}
+        self.assertEqual(
+            [], forms.source_errors("web-app-x", data, application, USERS, CREDENTIALS)
+        )
+        self.assertEqual(
+            ["web-app-x: general.record.source names nothing in the inventory"],
+            forms.source_errors("web-app-x", data, APPLICATION, USERS, CREDENTIALS),
+        )
+
+    def test_a_record_source_that_names_a_secret_is_refused(self):
+        for source in (
+            "secrets.credentials.smtp.password",
+            "users.platform_administrator.email",
+            "sso.email",
+            "services.ldap.bind_password",
+            "services.password.ids",
+        ):
+            with self.subTest(source=source):
+                data = copy.deepcopy(FORMS)
+                data["general"]["record"] = {"selector": "#clientId", "source": source}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.record.source must name no secret;"
+                            " every page carries its ids"
+                        )
+                    ],
+                    forms.source_errors(
+                        "web-app-x", data, APPLICATION, USERS, CREDENTIALS
+                    ),
+                )
+
 
 class TestSecret(unittest.TestCase):
     def test_every_user_path_and_every_credential_path_is_secret(self):
@@ -565,6 +642,29 @@ class TestLocks(unittest.TestCase):
                 managed = {"general": {"path": "/", "fields": {"blogname": spec}}}
                 entry = forms.locks("web-app-x", managed, {}, {}, relay)[0]
                 self.assertEqual(secret, entry["secret"])
+
+    @staticmethod
+    def _record_locks(ids: object) -> list[dict]:
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {
+            "selector": "#clientId",
+            "source": "services.keycloak.clients",
+        }
+        application = {**APPLICATION, "services": {"keycloak": {"clients": ids}}}
+        return forms.locks("web-app-x", data, application, USERS, CREDENTIALS)
+
+    def test_only_the_fields_of_a_record_form_carry_the_ids_it_created(self):
+        pages = {lock["page"]: lock for lock in self._record_locks(["a", "b"])}
+        self.assertEqual(
+            {"selector": "#clientId", "values": ["a", "b"]},
+            pages[FORMS["general"]["path"]]["record"],
+        )
+        self.assertNotIn("record", pages[FORMS["smtp"]["path"]])
+
+    def test_record_ids_that_are_no_list_of_strings_raise(self):
+        for ids in ("a", ["a", 1], {"a": 1}, None):
+            with self.subTest(ids=ids), self.assertRaises(forms.SourceError):
+                self._record_locks(ids)
 
 
 class TestDrift(unittest.TestCase):

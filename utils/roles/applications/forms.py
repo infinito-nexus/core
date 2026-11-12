@@ -62,7 +62,8 @@ TYPES = (
     "textarea",
     "url",
 )
-FORM_KEYS = frozenset({"path", "fields", "sinks"})
+FORM_KEYS = frozenset({"path", "fields", "sinks", "record"})
+RECORD_KEYS = ("selector", "source")
 REQUIRED_FIELD_KEYS = ("source", "mode", "selector")
 OPTIONAL_FIELD_KEYS = frozenset(
     {"when", "label", "type", "enum", "validation", "description", "map"}
@@ -225,6 +226,24 @@ def _sinks_errors(where: str, sinks: Any) -> list[str]:
     ]
 
 
+def _record_errors(where: str, record: Any) -> list[str]:
+    if not (
+        isinstance(record, Mapping)
+        and set(record) == set(RECORD_KEYS)
+        and _non_empty_string(record["selector"])
+        and isinstance(record["source"], str)
+        and _PATH.fullmatch(record["source"])
+    ):
+        return [
+            (
+                f"{where}.record must map selector to the input that shows the"
+                " edited record's id and source to the inventory path of the ids"
+                " the deployment created"
+            )
+        ]
+    return _template_errors(f"{where}.record", record, iter(RECORD_KEYS))
+
+
 def _form_errors(where: str, block: Any) -> list[str]:
     if not isinstance(block, Mapping):
         return [f"{where} must be a mapping of {sorted(FORM_KEYS)}"]
@@ -238,6 +257,8 @@ def _form_errors(where: str, block: Any) -> list[str]:
         errors.append(f"{where}.path must be the admin page path, starting with /")
     if "sinks" in block:
         errors.extend(_sinks_errors(where, block["sinks"]))
+    if "record" in block:
+        errors.extend(_record_errors(where, block["record"]))
     fields = block.get("fields")
     if not isinstance(fields, Mapping) or not fields:
         errors.append(f"{where}.fields must map each field to its spec")
@@ -394,10 +415,14 @@ def source_errors(
 
     Returns:
         One finding per refused or unresolved path, naming the
-        ``<form>.<field>.<key>`` coordinate and never the path itself; an
-        ``sso.<claim>`` source is left to ``sso_fields.errors``.
+        ``<form>.<field>.<key>`` or ``<form>.record.source`` coordinate and
+        never the path itself; an ``sso.<claim>`` field source is left to
+        ``sso_fields.errors``, while a record source is refused under
+        ``users``, ``secrets.credentials`` or ``sso``, with a last segment
+        matching ``SECRET_SEGMENT`` or with a segment named like a declared
+        credential.
     """
-    errors = []
+    errors = _record_source_errors(role, forms, application, users, credentials)
     for form, field, spec in iter_fields(forms):
         for key, path in (
             ("source", spec.get("source")),
@@ -447,13 +472,39 @@ def is_secret(source: str, credentials: Mapping) -> bool:
     if not (isinstance(source, str) and _PATH.fullmatch(source)):
         return True
     parts = source.split(".")
+    return _secret_path(parts, credentials, parts)
+
+
+def _secret_path(parts: list[str], credentials: Mapping, searched: list[str]) -> bool:
     names = {name.lower() for name in _credential_names(credentials)}
     return (
         _is_user_path(parts)
         or _is_credential_source(parts)
-        or any(SECRET_SEGMENT.search(part) for part in parts)
+        or any(SECRET_SEGMENT.search(part) for part in searched)
         or bool({part.lower() for part in parts} & names)
     )
+
+
+def _record_source_errors(
+    role: str,
+    forms: Mapping,
+    application: Mapping,
+    users: Mapping,
+    credentials: Mapping,
+) -> list[str]:
+    errors = []
+    for form, block in forms.items():
+        record = block.get("record") if isinstance(block, Mapping) else None
+        source = record.get("source") if isinstance(record, Mapping) else None
+        if not (isinstance(source, str) and _PATH.fullmatch(source)):
+            continue
+        where = f"{role}: {form}.record.source"
+        parts = source.split(".")
+        if is_sso_source(source) or _secret_path(parts, credentials, parts[-1:]):
+            errors.append(f"{where} must name no secret; every page carries its ids")
+        elif not declares(source, application, users, credentials):
+            errors.append(f"{where} names nothing in the inventory")
+    return errors
 
 
 def _plain_field(spec: Mapping, credentials: Mapping) -> bool:
@@ -509,6 +560,16 @@ def mapped(spec: Mapping, value: Any) -> Any:
     raise SourceError("the map holds no entry for the source value")
 
 
+def _record(block: Mapping, application: Mapping, users: Mapping) -> dict[str, Any]:
+    record = block.get("record")
+    if record is None:
+        return {}
+    ids = resolve(record["source"], application, users)
+    if not (isinstance(ids, list) and all(isinstance(entry, str) for entry in ids)):
+        raise SourceError("the record source holds no list of record ids")
+    return {"record": {"selector": record["selector"], "values": list(ids)}}
+
+
 def locks(
     role: str,
     forms: Mapping,
@@ -535,18 +596,22 @@ def locks(
         field key when it declares none), the inventory ``path`` of its value
         and whether the page must hide that value (``secret``), which holds
         for every field the type and path half of the fail-closed rule does
-        not clear. A ``seeded`` field yields nothing.
+        not clear; a field whose form declares a ``record`` also carries
+        that ``record``: its ``selector`` and the ``values`` its ``source``
+        holds, the ids of the records the deployment created. A ``seeded``
+        field yields nothing.
 
     Raises:
-        SourceError: when a ``when`` names nothing in the inventory.
+        SourceError: when a ``when`` or a record ``source`` names nothing in
+            the inventory, or the record ids are no list of strings.
     """
     enforced = [
-        (forms[form]["path"], field, spec)
+        (form, forms[form]["path"], field, spec)
         for form, field, spec in iter_fields(forms)
         if spec.get("mode") == "enforced" and _applies(spec, application, users)
     ]
     profile: dict[str, list[str]] = {}
-    for page, _field, spec in enforced:
+    for _form, page, _field, spec in enforced:
         if is_sso_source(spec["source"]):
             profile.setdefault(page, []).append(spec["selector"])
     return [
@@ -565,7 +630,8 @@ def locks(
             "label": spec.get("label", field),
             "path": inventory_path(role, spec["source"]),
             "secret": not _plain_field(spec, credentials),
+            **_record(forms[form], application, users),
         }
-        for page, field, spec in enforced
+        for form, page, field, spec in enforced
         if not is_sso_source(spec["source"])
     ]
