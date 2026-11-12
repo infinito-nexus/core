@@ -2621,14 +2621,14 @@ msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "سیستم تمیز کردن مبتنی بر سیستم، تصاویر ناشناس Docker به علاوه تصاویر، ظروف، شبکه ها و ساخت حافظه"
 
-msgctxt "role:sys-ctl-hlth-runtime:description"
-msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
-msgstr ""
-
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "نظارت بر زمان سیستم برای شناسایی ظروف Docker ناسالم یا غیر صفر و افزایش هشدار های شکست"
+
+msgctxt "role:sys-ctl-hlth-runtime:description"
+msgid "Systemd-timed vulnerability scan of the node and its containers, plus the shared PHP hardening check"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"

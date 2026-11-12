@@ -2625,14 +2625,14 @@ msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "Servizo de limpeza impulsado por sistema que executa volumes Docker anónimo máis imaxes, contedores, redes e construír caché"
 
-msgctxt "role:sys-ctl-hlth-runtime:description"
-msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
-msgstr ""
-
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "Monitor de tempo sistematizado para detectar recipientes Docker insalubres ou non activados de cero e aumentar as alertas de fallo."
+
+msgctxt "role:sys-ctl-hlth-runtime:description"
+msgid "Systemd-timed vulnerability scan of the node and its containers, plus the shared PHP hardening check"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"

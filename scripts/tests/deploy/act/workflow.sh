@@ -14,6 +14,7 @@ set -euo pipefail
 : "${ACT_BIND:=false}"
 : "${ACT_INPUTS:=}"
 : "${ACT_ENV:=}"
+: "${INFINITO_VULNERABILITY_DB_HOST_PATH:?INFINITO_VULNERABILITY_DB_HOST_PATH is not set; run 'make dotenv' to generate the .env single source of truth}"
 
 _act_shared_cache=""
 if [[ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]] &&
@@ -97,9 +98,9 @@ fi
 if [[ -n "${_act_shared_cache}" ]]; then
 	cmd+=(--env "PIP_CACHE_DIR=${_act_shared_cache}/pip")
 fi
-if [[ -n "${ACT_CONTAINER_OPTIONS}" ]]; then
-	cmd+=(--container-options "${ACT_CONTAINER_OPTIONS}")
-fi
+mkdir -p "${INFINITO_VULNERABILITY_DB_HOST_PATH}"
+cmd+=(--container-options "${ACT_CONTAINER_OPTIONS} --volume ${INFINITO_VULNERABILITY_DB_HOST_PATH}:${INFINITO_VULNERABILITY_DB_HOST_PATH}")
+cmd+=(--env "INFINITO_VULNERABILITY_DB_HOST_PATH=${INFINITO_VULNERABILITY_DB_HOST_PATH}")
 if [[ -n "${ACT_NETWORK}" ]]; then
 	cmd+=(--network "${ACT_NETWORK}")
 fi

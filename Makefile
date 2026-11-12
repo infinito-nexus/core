@@ -949,11 +949,6 @@ security-apparmor-teardown:
 		echo "[apparmor] AppArmor module is not loaded — skipping teardown"; \
 	fi
 
-.PHONY: security-runtimes
-# List the PHP runtime of every pinned role image from registry metadata, without pulling, and fail on one below its security floor.
-security-runtimes:
-	@"$${PYTHON}" -m cli.contributing.security.runtimes
-
 .PHONY: setup
 # Run the setup step after generating .dockerignore.
 setup: fix-dockerignore dotenv
@@ -1171,6 +1166,14 @@ test-ref:
 # Remove the shared test runner infinito-test-<hash> of this checkout's toolchain image; the next test or lint call starts a new one.
 test-runner-down:
 	@bash scripts/tests/runner/down.sh
+
+.PHONY: test-security
+# Scan every pinned role image of the GHCR mirror with Trivy, Grype and OSV over Syft SBOMs cached by digest (not part of `test`).
+test-security:
+	@"$${PYTHON}" -m cli.contributing.security.scan \
+		--cache-dir build/security \
+		--report build/test-reports/security.json \
+		--workers 4
 
 .PHONY: test-signed
 # Verify HEAD is signed.

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 from psycopg2.extensions import parse_dsn
 
 from utils.cache.yaml import load_yaml
@@ -16,7 +16,10 @@ _SWARM_IPVS_IDLE_TIMEOUT_SECONDS = 900
 
 class TestDatabaseUrlKeepalive(unittest.TestCase):
     def _connection_parameters(self) -> dict[str, str]:
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a connection URI, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         url = env.from_string(
             load_yaml(str(_ROLE_VARS))["BASEROW_DATABASE_URL"]
         ).render(

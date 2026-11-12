@@ -99,7 +99,6 @@ TOOLING_TARGETS = (
     "lint",
     "lint-",
     "meta-",
-    "security-runtimes",
     "test",
     "test-",
 )

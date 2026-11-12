@@ -37,6 +37,11 @@ act-runner:
   image: catthehacker/ubuntu
   # nocheck: docker-version
   version: "act-latest"
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "act-latest"
+        until: 2026-12-03
 
 # nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
 docs:
