@@ -91,6 +91,6 @@ With the Keycloak source wired, `services.gitea.configuration.oauth2_client` in 
 | --- | --- | --- |
 | `enable_auto_registration` | `true` | A Keycloak sign-in without a linked Gitea account creates one instead of showing the link page. |
 | `account_linking` | `auto` | An existing Gitea account with the same username or primary email is linked without asking for its password (`login` asks, `disabled` refuses). |
-| `username` | `preferred_username` | The Keycloak claim that names the Gitea account. |
+| `username` | `OIDC.ATTRIBUTES.USERNAME` (`preferred_username`) | The Keycloak claim that names the Gitea account. |
 
 Linking by name or email is safe only because Keycloak refuses self-registration and username edits, and only admins may edit a user's email. Override the block in the inventory's `applications.web-app-gitea` to opt out.

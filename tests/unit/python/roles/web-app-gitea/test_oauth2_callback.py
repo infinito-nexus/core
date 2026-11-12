@@ -12,10 +12,11 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 from plugins.lookup.redirect_uris import build_redirect_uris
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 APP = "web-app-gitea"
 ROLE_DIR = PROJECT_ROOT / "roles" / APP
+OIDC_VARS = PROJECT_ROOT / "group_vars" / "all" / "11_oidc.yml"
 DOMAIN = "code.example.org"
 STALE_ROOT_URL = "https://git.example.net/"
 LEGACY_SOURCE_NAME = "SSO Login (INFINITO.NEXUS)"
@@ -33,8 +34,12 @@ def source_name() -> str:
 
 
 def shipped_oauth2_client() -> dict:
-    services = load_yaml_str(read_text(str(ROLE_DIR / "meta" / "services.yml")))
+    services = load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_META_SERVICES)))
     return services["gitea"]["configuration"]["oauth2_client"]
+
+
+def oidc_constants() -> dict:
+    return load_yaml_str(read_text(str(OIDC_VARS)))["defaults_oidc"]
 
 
 def render_env(
@@ -53,7 +58,7 @@ def render_env(
     env = Environment(
         loader=FileSystemLoader(str(PROJECT_ROOT)),
         undefined=StrictUndefined,
-        autoescape=select_autoescape(),
+        autoescape=select_autoescape(default_for_string=False),
         keep_trailing_newline=True,
     )
     client = shipped_oauth2_client() if oauth2_client is None else oauth2_client
@@ -83,7 +88,10 @@ def render_env(
         if name == "email":
             return {"enabled": False}
         if name == "config":
-            return config[terms[1]]
+            value = config[terms[1]]
+            if isinstance(value, str):
+                return env.from_string(value).render(OIDC=oidc_constants())
+            return value
         raise AssertionError(f"env.j2 renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup

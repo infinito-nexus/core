@@ -65,7 +65,7 @@ gitea:
     oauth2_client:
       enable_auto_registration: true
       account_linking: auto
-      username: preferred_username
+      username: "{{ OIDC.ATTRIBUTES.USERNAME }}"
     repository:
       enable_push_create_user: true
       default_private: last
