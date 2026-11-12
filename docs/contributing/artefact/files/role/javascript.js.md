@@ -68,9 +68,11 @@ sso:
 
 ## Managed Field Lock 🔐
 
-The same renderer locks every other `enforced` field of the role's `meta/forms.yml` whose `when` holds, as `lookup('field_locks', application_id)` lists them next to the profile lock (requirement [072](../../../../../docs/requirements/072-sso-profile-field-sync-or-lock.md)). A role without `services.sso.profile.languages` embeds every language of the catalogue:
+The same renderer locks every other `enforced` field of the role's `meta/forms.yml` whose `when` holds, as `lookup('field_locks', application_id)` lists them next to the profile lock, built by `locks` in [forms.py](../../../../../utils/roles/applications/forms.py). A role without `services.sso.profile.languages` embeds every language of the catalogue:
 
 - It locks a field only on the page whose path and query start with the field's form `path`, and shows the `managed` text of the catalogue followed by the field's inventory path, `applications.<role>.<source>` or `users.<key>.<attr>`, as the hover title.
+- A form `path` that holds a `#/` route matches against the location hash as well. The renderer reruns on every hash change and releases each field it no longer holds, so leaving a managed route leaves no lock behind.
+- A form that names a `record` locks its fields only while the input its `selector` names shows one of the ids its `source` holds, the records the deployment created. A record an admin created stays editable, and turning to another record releases the field and resets its unlock. Every page carries the ids, so the source MUST name no secret.
 - One banner with the `banner` text lists the label and inventory path of every managed field the page shows, above the form of the first one.
 - A double-click on a managed field or its label asks the `unlock` text in a confirmation dialog; after the confirmation the field stays editable. A profile field offers no unlock, because the next sign-in overwrites it anyway.
 - An `input` of a field the fail-closed rule of `utils/roles/applications/forms.py` does not clear turns into a password input, so its value stays hidden on screen. The value still reaches the page source, so the role MUST NOT render a secret into the form where the application allows it.
