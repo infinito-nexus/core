@@ -1,24 +1,29 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+from functools import partial
 from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.base import _render_with_templar
 from utils.get_url import get_url
 from utils.roles.applications.config import (
     AppConfigKeyError,
     ConfigEntryNotSetError,
     get,
 )
+from utils.templating.jinja import looks_like_jinja
 from utils.tls_common import resolve_enabled
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Callable, Iterable, Sequence
 
 DEFAULT_FEATURES = ("services.sso.enabled",)
 DEFAULT_WILDCARD = "/*"
+TLS_OVERRIDE = "server.tls.enabled"
 
 
 def _stable_dedup(items: Sequence[str]) -> list[str]:
@@ -49,6 +54,34 @@ def _iter_domains(value: Any) -> Iterable[str]:
         )
 
 
+def _templated(value: Any) -> bool:
+    return isinstance(value, str) and looks_like_jinja(value)
+
+
+def _rendered(
+    value: Any, render: Callable[[Any], Any] | None, app_id: str, path: str
+) -> Any:
+    if render is not None and _templated(value):
+        value = render(value)
+    if _templated(value):
+        raise AnsibleError(
+            f"redirect_uris: '{app_id}' {path} stayed template text, so it "
+            "cannot decide the redirect URIs of that consumer."
+        )
+    return value
+
+
+def _with_rendered_tls(
+    app: Mapping, render: Callable[[Any], Any] | None, app_id: str
+) -> Mapping:
+    server = app.get("server")
+    tls = server.get("tls") if isinstance(server, Mapping) else None
+    if not isinstance(tls, Mapping) or "enabled" not in tls:
+        return app
+    enabled = _rendered(tls["enabled"], render, app_id, TLS_OVERRIDE)
+    return {**app, "server": {**server, "tls": {**tls, "enabled": enabled}}}
+
+
 def build_redirect_uris(
     domains: dict,
     applications: dict,
@@ -58,13 +91,15 @@ def build_redirect_uris(
     features: Iterable[str] = DEFAULT_FEATURES,
     dedup: bool = True,
     deployed: Iterable[str] | None = None,
+    render: Callable[[Any], Any] | None = None,
 ) -> list[str]:
     """Registered redirect URIs for every deployed SSO consumer, one per domain.
 
     Args:
         domains: app_id -> domain, list of domains, or nested mapping of those.
-        applications: merged applications view, used for feature gating and for
-            each consumer's ``server.tls.enabled`` override.
+        applications: merged applications view, rendered or not, used for
+            feature gating and for each consumer's ``server.tls.enabled``
+            override.
         tls_enabled: global TLS default, overridden per consumer by
             ``resolve_enabled``; an .onion domain always resolves to plaintext.
         wildcard: suffix appended to every URI.
@@ -72,6 +107,12 @@ def build_redirect_uris(
         dedup: drop repeated URIs, preserving first-seen order.
         deployed: application ids this play deploys (``group_names``); an app
             outside it gets no URI. None registers every app in ``domains``.
+        render: renders a feature flag or TLS override that is still template
+            text, as the applications render would. None renders nothing.
+
+    Raises:
+        AnsibleError: a feature flag or TLS override that is read stays
+            template text after ``render``.
     """
     if not isinstance(domains, dict):
         raise AnsibleError(
@@ -85,19 +126,19 @@ def build_redirect_uris(
             continue
         try:
             has_feature = any(
-                bool(get(applications, app_id, f, False)) for f in features
+                bool(_rendered(get(applications, app_id, f, False), render, app_id, f))
+                for f in features
             )
         except (AppConfigKeyError, ConfigEntryNotSetError):
             has_feature = False
         if not has_feature:
             continue
 
+        app = _with_rendered_tls(applications.get(app_id) or {}, render, app_id)
         for domain in _iter_domains(domain_value):
             proto = (
                 "https"
-                if resolve_enabled(
-                    applications.get(app_id) or {}, tls_enabled, primary_domain=domain
-                )
+                if resolve_enabled(app, tls_enabled, primary_domain=domain)
                 else "http"
             )
             try:
@@ -166,5 +207,11 @@ class LookupModule(LookupBase):
                 features=features,
                 dedup=bool(kwargs.get("dedup", True)),
                 deployed=variables["group_names"],
+                render=partial(
+                    _render_with_templar,
+                    templar=templar,
+                    variables=variables,
+                    raw_applications=applications,
+                ),
             )
         ]

@@ -4,10 +4,30 @@ import unittest
 import unittest.mock as mock
 
 from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
 
 from plugins.lookup.redirect_uris import LookupModule, build_redirect_uris
 
 SSO = {"services": {"sso": {"enabled": True}}}
+KEYCLOAK_FLAG = "{{ 'web-app-keycloak' in group_names }}"
+
+
+class _Stub:
+    def __init__(self, payload):
+        self.payload = payload
+
+    def run(self, terms, variables=None, **kwargs):
+        return [self.payload]
+
+
+def _run(lookup, domains, applications, variables):
+    payloads = {"domains": _Stub(domains), "applications": _Stub(applications)}
+    with mock.patch(
+        "plugins.lookup.redirect_uris.lookup_loader.get",
+        side_effect=lambda name, **kwargs: payloads[name],
+    ):
+        return lookup.run([], variables=variables)
 
 
 class TestBuildRedirectUris(unittest.TestCase):
@@ -104,6 +124,16 @@ class TestBuildRedirectUris(unittest.TestCase):
         with self.assertRaises(AnsibleError):
             build_redirect_uris({"app1": 42}, {"app1": SSO}, True)
 
+    def test_a_rendered_view_is_never_rendered_again(self):
+        def refuse(value):
+            raise AssertionError(f"rendered {value!r}")
+
+        applications = {"app1": {**SSO, "server": {"tls": {"enabled": False}}}}
+        result = build_redirect_uris(
+            {"app1": "example.org"}, applications, True, render=refuse
+        )
+        self.assertEqual(result, ["http://example.org/*"])
+
 
 class TestRedirectUrisLookup(unittest.TestCase):
     def setUp(self) -> None:
@@ -123,25 +153,42 @@ class TestRedirectUrisLookup(unittest.TestCase):
             self.lookup.run([], variables={"TLS_ENABLED": True})
 
     def test_group_names_scope_the_registered_consumers(self):
-        class _Stub:
-            def __init__(self, payload):
-                self.payload = payload
-
-            def run(self, terms, variables=None, **kwargs):
-                return [self.payload]
-
-        payloads = {
-            "domains": _Stub({"deployed": "a.example.org", "parked": "b.example.org"}),
-            "applications": _Stub({"deployed": SSO, "parked": SSO}),
-        }
-        with mock.patch(
-            "plugins.lookup.redirect_uris.lookup_loader.get",
-            side_effect=lambda name, **kwargs: payloads[name],
-        ):
-            result = self.lookup.run(
-                [], variables={"TLS_ENABLED": True, "group_names": ["deployed"]}
-            )
+        result = _run(
+            self.lookup,
+            {"deployed": "a.example.org", "parked": "b.example.org"},
+            {"deployed": SSO, "parked": SSO},
+            {"TLS_ENABLED": True, "group_names": ["deployed"]},
+        )
         self.assertEqual(result, [["https://a.example.org/*"]])
+
+    def test_a_templated_flag_that_renders_false_registers_nothing(self):
+        self.lookup._templar = Templar(loader=DataLoader())
+        result = _run(
+            self.lookup,
+            {"on": "a.example.org", "off": "b.example.org"},
+            {"on": SSO, "off": {"services": {"sso": {"enabled": KEYCLOAK_FLAG}}}},
+            {"TLS_ENABLED": True, "group_names": ["on", "off"]},
+        )
+        self.assertEqual(result, [["https://a.example.org/*"]])
+
+    def test_a_templated_tls_override_decides_the_scheme(self):
+        self.lookup._templar = Templar(loader=DataLoader())
+        result = _run(
+            self.lookup,
+            {"app": "a.example.org"},
+            {"app": {**SSO, "server": {"tls": {"enabled": "{{ APP_TLS }}"}}}},
+            {"TLS_ENABLED": True, "group_names": ["app"], "APP_TLS": False},
+        )
+        self.assertEqual(result, [["http://a.example.org/*"]])
+
+    def test_a_flag_that_stays_template_text_raises(self):
+        with self.assertRaises(AnsibleError):
+            _run(
+                self.lookup,
+                {"app": "a.example.org"},
+                {"app": {"services": {"sso": {"enabled": KEYCLOAK_FLAG}}}},
+                {"TLS_ENABLED": True, "group_names": ["app"]},
+            )
 
 
 if __name__ == "__main__":
