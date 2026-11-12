@@ -44,7 +44,7 @@ These choices are settled at requirement creation time and bound the implementat
 - [x] `web-app-joomla` and `web-app-pretix` carry no hardcoded site title.
 - [x] `web-app-decidim` and `web-app-socialhome` honour an inventory title override. Decidim renames an existing organization and Socialhome an existing household to an inventory title and back.
 - [x] The base gallery on `web-app-dashboard`, `web-app-gitea` and `web-app-nextcloud` is approved by the operator.
-- [ ] `feature/designer` reaches `main` through the draft PR of `feature/store-i18n` linked below, which merges it round by round. Open: the final designer state is not yet pushed into that PR.
+- [x] `feature/designer` reaches `main` through the draft PR of `feature/store-i18n` linked below, which merges it round by round. The `feature/designer` tip `cf87415c85` is in `main` through the PR #625 merge `ace84681ff` (2026-11-08).
 
 ### Roles
 
