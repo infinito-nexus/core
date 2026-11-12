@@ -52,6 +52,7 @@
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  NEXTCLOUD_OPENPROJECT_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
       container exec -i
+      -e NC_REDIRECT_BASE_URLS={{ NEXTCLOUD_NETWORK_BASE_URLS | to_json | quote }}
       {{ NEXTCLOUD_OPENPROJECT_LOCAL_CID | quote }}
       bash -lc 'cd /app && bundle exec rails runner -'
     stdin: "{{ 'require \"json\"\n' ~ nextcloud_op_provision_input ~ lookup('file', 'ruby/utils/doorkeeper_allow_onion_redirect.rb') ~ '\n' ~ lookup('file', 'ruby/addons/openproject/ensure_nextcloud_storage.rb')

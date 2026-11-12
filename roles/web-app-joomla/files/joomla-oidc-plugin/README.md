@@ -36,6 +36,7 @@ Every variable in the table is required; the plugin raises on a missing one inst
 | `JOOMLA_OIDC_CLIENT_ID`          | OIDC client ID in the realm.                                                                              |
 | `JOOMLA_OIDC_CLIENT_SECRET`      | OIDC client secret.                                                                                       |
 | `JOOMLA_OIDC_REDIRECT_URI`       | Callback URL `https://<joomla>/index.php?option=keycloak&task=callback`.                                  |
+| `JOOMLA_OIDC_REDIRECT_URIS`      | JSON list of that callback on every network sibling, each with its scheme, from `lookup('network_urls')`. |
 | `JOOMLA_OIDC_FALLBACK_ENABLED`   | If `false`, the local-form fallback at `/administrator?fallback=local` is disabled (Modus 1 in effect).    |
 | `JOOMLA_OIDC_GROUP_MAP`          | JSON object of Keycloak group path to Joomla usergroup ID, built with `rbac_group_path`.                   |
 | `JOOMLA_OIDC_CLAIM_USERNAME`     | Claim holding the login name, from `OIDC.ATTRIBUTES.USERNAME`.                                            |

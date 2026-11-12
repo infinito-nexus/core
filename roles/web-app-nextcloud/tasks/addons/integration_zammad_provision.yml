@@ -22,6 +22,7 @@
       IFS= read -r NC_HAS_SECRET && export NC_HAS_SECRET && container exec -i
       -e 'NC_BASE_URL={{ nextcloud_zammad_nc_base_url }}'
       -e 'NC_REDIRECT_PATH=/apps/integration_zammad/oauth-redirect'
+      -e NC_REDIRECT_BASE_URLS={{ NEXTCLOUD_NETWORK_BASE_URLS | to_json | quote }}
       -e NC_HAS_SECRET
       {{ NEXTCLOUD_ZAMMAD_LOCAL_CID | quote }}
       bundle exec rails r -

@@ -13,12 +13,13 @@ if (!defined('ABSPATH')) {
 }
 
 add_action('http_api_curl', static function ($handle, array $args, string $url): void {
-    $proxy = getenv('WORDPRESS_OIDC_SOCKS_PROXY') ?: '';
-    if ($proxy === '') {
+    $proxy  = getenv('WORDPRESS_OIDC_SOCKS_PROXY') ?: '';
+    $suffix = strtolower(getenv('WORDPRESS_OIDC_SOCKS_SUFFIX') ?: '');
+    if ($proxy === '' || $suffix === '') {
         return;
     }
-    $host = (string) parse_url($url, PHP_URL_HOST);
-    if ($host !== '' && preg_match('/\.onion$/i', $host) === 1) {
+    $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+    if ($host !== '' && str_ends_with($host, $suffix)) {
         curl_setopt($handle, CURLOPT_PROXY, $proxy);
     }
 }, 10, 3);
