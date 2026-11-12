@@ -1,0 +1,8 @@
+---
+logrotate:
+  Archlinux:
+    - logrotate
+  Debian:
+    - logrotate
+  RedHat:
+    - logrotate

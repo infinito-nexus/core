@@ -12,7 +12,7 @@ import ast
 import unittest
 from typing import ClassVar
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
@@ -33,7 +33,10 @@ class TestProviderLists(unittest.TestCase):
         cls.source = load_yaml(str(_ROLE_VARS))
 
     def _render(self, name, provider_keys, keyed=None):
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a Python list literal, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         env.filters["dict2items"] = lambda mapping: [
             {"key": key, "value": value} for key, value in mapping.items()
         ]

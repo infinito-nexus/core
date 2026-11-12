@@ -188,7 +188,7 @@
       when: lab_dns_node
 
     - name: pack the repo once on the controller
-      command: tar -C {{ lab_repo_root }} -cf {{ lab_runner_temp }}/infinito-src.tar .
+      command: tar -C {{ lab_repo_root }} --exclude=./build/vulnerability-db -cf {{ lab_runner_temp }}/infinito-src.tar .
       timeout: 300
       delegate_to: localhost
       run_once: true
