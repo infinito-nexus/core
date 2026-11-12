@@ -34,6 +34,7 @@ _UNKNOWN_PLATFORM = "unknown"
 _CACHE_ROOT = Path(tempfile.gettempdir()) / "infinito-registry-probe"
 _LINK_NEXT_RE = re.compile(r'<([^>]+)>\s*;\s*rel="next"', re.IGNORECASE)
 _CHALLENGE_PARAM_RE = re.compile(r'(\w+)="([^"]*)"')
+_DIGEST_RE = re.compile(r"sha256:[0-9a-f]{64}|sha512:[0-9a-f]{128}")
 _MANIFEST_ACCEPT = (
     "application/vnd.oci.image.index.v1+json, "
     "application/vnd.oci.image.manifest.v1+json, "
@@ -217,6 +218,21 @@ def probe_order(image: str) -> list[str]:
     return [mirrored, image]
 
 
+def valid_digest(value: object) -> str | None:
+    """Return a registry-supplied digest only when it is well formed.
+
+    Args:
+        value: a ``digest`` field or ``Docker-Content-Digest`` header.
+
+    Returns:
+        ``value`` when it is ``sha256:`` or ``sha512:`` with lowercase hex of
+        the matching length, else ``None``.
+    """
+    if isinstance(value, str) and _DIGEST_RE.fullmatch(value):
+        return value
+    return None
+
+
 def platform_digest(manifests: list, os_name: str, architecture: str) -> str | None:
     for entry in manifests:
         if not isinstance(entry, dict):
@@ -226,8 +242,8 @@ def platform_digest(manifests: list, os_name: str, architecture: str) -> str | N
             platform.get("os") == os_name
             and platform.get("architecture") == architecture
         ):
-            digest = entry.get("digest")
-            if isinstance(digest, str) and digest:
+            digest = valid_digest(entry.get("digest"))
+            if digest:
                 return digest
     return None
 
@@ -464,7 +480,7 @@ def manifest_digest(image: str, reference: str) -> str | None:
     result = _request(url, repo, method="HEAD", accept=_MANIFEST_ACCEPT)
     if result is None or result[0] != 200:
         return None
-    return result[1].get("Docker-Content-Digest") or None
+    return valid_digest(result[1].get("Docker-Content-Digest"))
 
 
 def manifest_exists(image: str, reference: str) -> bool | None:
