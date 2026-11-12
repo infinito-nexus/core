@@ -50,6 +50,16 @@
     - compose-build
     - compose-up
 
+- name: "📋 Copy the local_mfaenforce plugin into compose context"
+  ansible.builtin.copy:
+    src: "{{ [MOODLE_BUILD_DIR, MOODLE_BUILD_FILES.plugin_mfa_enforce] | path_join }}/"
+    dest: "{{ [_moodle_build_dir, MOODLE_BUILD_FILES.plugin_mfa_enforce] | path_join }}/"
+    mode: "0644"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
 - name: "📋 Copy msmtprc to {{ MOODLE_MSMTP_ABS }} (Mailu relay for mail() + healthcheck)"
   stack_host_template:
     src: "{{ MOODLE_MSMTP_SRC }}"

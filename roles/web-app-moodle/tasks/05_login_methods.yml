@@ -40,3 +40,10 @@
       enabled: "{{ MOODLE_MFA_GRACE_ENABLED }}"
       forcesetup: 1
   when: MOODLE_LOGIN_2FA | bool
+
+- name: "🔐 Start the grace period as expired at every sign-in while MFA is enforced"
+  include_tasks: utils/plugin_config.yml
+  vars:
+    moodle_plugin_config_component: local_mfaenforce
+    moodle_plugin_config_settings:
+      enabled: "{{ MOODLE_MFA_GRACE_ENABLED }}"
