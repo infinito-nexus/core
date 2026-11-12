@@ -13,6 +13,8 @@ from utils.cache.files import PROJECT_ROOT
 SCRIPT = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "act" / "workflow.sh"
 SHARED = "INFINITO_CACHE_SHARED_HOST_PATH"
 SHARED_PATH = "/var/cache/infinito/core/cache/shared"
+DB_ENV = "INFINITO_VULNERABILITY_DB_HOST_PATH"
+DB_PATH = "vulnerability-db"
 ACT_STUB = (
     "#!/usr/bin/env bash\n"
     'printf \'%s\\0\' "$@" >"${STUB_LOG}"\n'
@@ -49,20 +51,27 @@ EXTRA_VARS = json.dumps(
 )
 
 
-def act_run(
-    act_env: str, shared_cache: str = "", frontend: bool = True
-) -> tuple[list[str], str]:
+def run_act(
+    db_host_path: str | None,
+    act_env: str = "",
+    shared_cache: str = "",
+    frontend: bool = True,
+) -> tuple[subprocess.CompletedProcess, list[str], Path, bool, str]:
     """Run the act wrapper against ``act`` and ``docker`` stubs.
 
     Args:
+        db_host_path: value of ``INFINITO_VULNERABILITY_DB_HOST_PATH`` below a
+            scratch directory, or None to leave it unset.
         act_env: value of ``ACT_ENV``.
         shared_cache: value of ``INFINITO_CACHE_SHARED_HOST_PATH``; empty
             stands for a checkout without the shared cache folder.
         frontend: whether the package-cache frontend container exists.
 
     Returns:
-        The arguments the act stub received, one list item per argument,
-        and the workflow file the wrapper handed it.
+        The finished process, the argv act received (one list item per
+        argument), the shared database directory the run was given, whether
+        it existed afterwards, and the workflow file the wrapper handed act
+        (empty when act never ran).
     """
     with tempfile.TemporaryDirectory() as tmp:
         for name, body in (("act", ACT_STUB), ("docker", DOCKER_STUB)):
@@ -72,11 +81,13 @@ def act_run(
         workflow = Path(tmp) / "call-test-deploy.yml"
         workflow.write_text(WORKFLOW)
         log = Path(tmp) / "act.argv"
+        log.touch()
         handed = Path(tmp) / "act.workflow"
+        handed.touch()
         env = {
             k: v
             for k, v in os.environ.items()
-            if k not in ("BASH_ENV", SHARED, "ACT_CONTAINER_OPTIONS")
+            if k not in ("BASH_ENV", SHARED, DB_ENV, "ACT_CONTAINER_OPTIONS")
         }
         if shared_cache:
             env[SHARED] = shared_cache
@@ -91,15 +102,40 @@ def act_run(
             ACT_PLATFORM_IMAGE="catthehacker/ubuntu:act-latest",
             INFINITO_CONTAINER="infinito-test",
         )
-        subprocess.run(
+        shared = Path(tmp) / "cache" / (db_host_path or "unset")
+        if db_host_path is not None:
+            env[DB_ENV] = str(shared)
+        done = subprocess.run(
             ["bash", str(SCRIPT)],
             env=env,
             capture_output=True,
             text=True,
-            check=True,
+            check=False,
         )
         argv = log.read_text().split("\0")[:-1]  # nocheck: cache-read  stub argv log
-        return argv, handed.read_text()  # nocheck: cache-read  stub workflow copy
+        copy = handed.read_text()  # nocheck: cache-read  stub workflow copy
+        return done, argv, shared, shared.is_dir(), copy
+
+
+def act_run(
+    act_env: str, shared_cache: str = "", frontend: bool = True
+) -> tuple[list[str], str]:
+    """Run the act wrapper with the vulnerability databases pinned.
+
+    Args:
+        act_env: value of ``ACT_ENV``.
+        shared_cache: value of ``INFINITO_CACHE_SHARED_HOST_PATH``.
+        frontend: whether the package-cache frontend container exists.
+
+    Returns:
+        The arguments the act stub received, one list item per argument,
+        and the workflow file the wrapper handed it.
+    """
+    done, argv, _shared, _created, workflow = run_act(
+        DB_PATH, act_env, shared_cache, frontend
+    )
+    done.check_returncode()
+    return argv, workflow
 
 
 def act_argv(act_env: str, shared_cache: str = "") -> list[str]:
@@ -115,16 +151,23 @@ def act_argv(act_env: str, shared_cache: str = "") -> list[str]:
     return act_run(act_env, shared_cache)[0]
 
 
+def option(argv: list[str], flag: str) -> list[str]:
+    return [argv[index + 1] for index, value in enumerate(argv[:-1]) if value == flag]
+
+
 def env_items(argv: list[str]) -> list[str]:
-    """Collect the values passed behind each ``--env`` flag.
+    """Collect the ``ACT_ENV`` values passed behind each ``--env`` flag.
 
     Args:
         argv: arguments the act stub received.
 
     Returns:
-        Every ``--env`` value in order.
+        Every ``--env`` value in order, without the wrapper's own
+        ``INFINITO_VULNERABILITY_DB_HOST_PATH`` pin.
     """
-    return [argv[i + 1] for i, arg in enumerate(argv) if arg == "--env"]
+    return [
+        value for value in option(argv, "--env") if not value.startswith(f"{DB_ENV}=")
+    ]
 
 
 def container_options(argv: list[str]) -> str:
@@ -136,7 +179,7 @@ def container_options(argv: list[str]) -> str:
     Returns:
         The job container options act was handed.
     """
-    return argv[argv.index("--container-options") + 1]
+    return option(argv, "--container-options")[0]
 
 
 class TestActSharedPipCache(unittest.TestCase):
@@ -177,6 +220,47 @@ class TestActSharedPipCache(unittest.TestCase):
     def test_setup_python_keeps_its_cache_without_the_shared_folder(self) -> None:
         _argv, workflow = act_run("", "")
         self.assertEqual(workflow, WORKFLOW)
+
+
+class TestVulnerabilityDatabaseBind(unittest.TestCase):
+    def test_the_shared_databases_sit_at_the_host_path_in_the_job_container(
+        self,
+    ) -> None:
+        done, argv, shared, _created, _workflow = run_act(DB_PATH)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn(f"--volume {shared}:{shared}", container_options(argv))
+
+    def test_the_job_steps_receive_the_host_path(self) -> None:
+        _done, argv, shared, _created, _workflow = run_act(DB_PATH)
+        self.assertIn(f"{DB_ENV}={shared}", option(argv, "--env"))
+
+    def test_the_directory_exists_before_act_binds_it(self) -> None:
+        _done, _argv, _shared, created, _workflow = run_act(DB_PATH)
+        self.assertTrue(created)
+
+    def test_the_job_container_keeps_the_host_daemon_socket(self) -> None:
+        _done, argv, _shared, _created, _workflow = run_act(DB_PATH)
+        self.assertNotIn("--container-daemon-socket", argv)
+
+    def test_the_default_options_survive(self) -> None:
+        _done, argv, _shared, _created, _workflow = run_act(DB_PATH)
+        self.assertTrue(
+            container_options(argv).startswith(
+                "--privileged --label infinito.worktree=infinito-test "
+            )
+        )
+
+    def test_an_unset_host_path_starts_no_act_run(self) -> None:
+        done, argv, _shared, created, _workflow = run_act(None)
+        self.assertNotEqual(done.returncode, 0)
+        self.assertEqual((argv, created), ([], False))
+
+    def test_the_shared_pip_cache_and_the_databases_share_one_option(self) -> None:
+        argv = act_argv("", shared_cache=SHARED_PATH)
+        words = shlex.split(container_options(argv))
+        self.assertIn(f"{SHARED_PATH}:{SHARED_PATH}", words)
+        self.assertEqual(len(option(argv, "--container-options")), 1)
+        self.assertIn("--volume", words)
 
 
 class TestActWorkflowEnv(unittest.TestCase):

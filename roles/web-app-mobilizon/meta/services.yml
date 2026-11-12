@@ -67,6 +67,11 @@ mobilizon:
         enabled: "{{ lookup('login_method', 'web-app-mobilizon', 'native') }}"
       registration:
         enabled: "{{ lookup('login_method', 'web-app-mobilizon', 'registration') }}"
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "5.2.4"
+        until: 2026-12-03
 # nocheck: dynamic-flag — seaweedfs intentionally disabled; Mobilizon has no S3 upload backend
 seaweedfs:
   enabled: false

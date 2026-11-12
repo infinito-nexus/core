@@ -3,7 +3,7 @@ enabled: "{{ lookup('config', 'web-app-wordpress', 'services.seaweedfs.enabled')
 required: true
 mechanism: plugin
 source: upstream
-version: "3.0.13"
+version: "3.0.14"
 update:
   monitored: true
   catalog: github-releases

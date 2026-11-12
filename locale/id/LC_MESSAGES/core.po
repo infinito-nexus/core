@@ -1895,6 +1895,10 @@ msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "Pemasang penggerak GPU proprietary untuk sistem berbasis Arsitek melalui deteksi perangkat keras non-bebas mhwd"
 
+msgctxt "role:svc-stack:description"
+msgid "Provider of the shared stack service that every application with a compose project or a vhost declares"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
@@ -2610,14 +2614,14 @@ msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "Systemd- layanan pembersihan didorong memangkas volume Docker anonim ditambah gambar, wadah, jaringan, dan membangun cache"
 
-msgctxt "role:sys-ctl-hlth-runtime:description"
-msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
-msgstr ""
-
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "Monitor Systemd- timetime untuk mendeteksi tidak sehat atau tidak-zero- keluar kontainer Docker dan meningkatkan peringatan kegagalan"
+
+msgctxt "role:sys-ctl-hlth-runtime:description"
+msgid "Systemd-timed vulnerability scan of the node and its containers, plus the shared PHP hardening check"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"

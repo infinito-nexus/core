@@ -29,6 +29,7 @@ stacks:
       - lint-ansible
       - lint-css
       - lint-dockerfile
+      - lint-file
       - lint-javascript
       - lint-makefile
       - lint-markdown
@@ -37,6 +38,7 @@ stacks:
       - lint-php
       - lint-playwright
       - lint-python
+      - lint-role
       - lint-ruby
       - lint-shellcheck
       - lint-sql

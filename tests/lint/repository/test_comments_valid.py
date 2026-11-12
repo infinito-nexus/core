@@ -473,7 +473,8 @@ def _all_targets():
     A failing git listing loses only its own files.
     """
     targets = []
-    for r in sorted(_listed(repository_files) | _listed(untracked_files)):
+    tracked = _listed(lambda: repository_files(untracked=False))
+    for r in sorted(tracked | _listed(untracked_files)):
         if r.endswith(_EXTS) or r.rsplit("/", 1)[-1] == "Dockerfile":
             path = PROJECT_ROOT / r
             if path.is_file():

@@ -2123,6 +2123,10 @@ msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
 
+msgctxt "role:svc-stack:description"
+msgid "Provider of the shared stack service that every application with a compose project or a vhost declares"
+msgstr ""
+
 # translated-by: libretranslate
 # Cloudflare (*.parent) pada pengurus utama dan domain akar
 msgctxt "role:sys-dns-wildcards:description"
@@ -2955,15 +2959,15 @@ msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr ""
 
-msgctxt "role:sys-ctl-hlth-runtime:description"
-msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
-msgstr ""
-
 # translated-by: libretranslate
 # Docker yang tidak sehat atau yang telah berhenti dengan kode keluaran tidak
 # nol dan mengirim alert kegagalan
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
+msgstr ""
+
+msgctxt "role:sys-ctl-hlth-runtime:description"
+msgid "Systemd-timed vulnerability scan of the node and its containers, plus the shared PHP hardening check"
 msgstr ""
 
 # translated-by: libretranslate

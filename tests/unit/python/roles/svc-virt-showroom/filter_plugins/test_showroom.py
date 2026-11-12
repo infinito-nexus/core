@@ -53,9 +53,7 @@ class TestBudget(unittest.TestCase):
         )
 
     def test_a_list_over_the_budget_names_every_project_and_its_memory(self):
-        errors = showroom.budget_errors(
-            {"karakalpak": KARAKALPAK, "lab": LAB}, "16GiB"
-        )
+        errors = showroom.budget_errors({"karakalpak": KARAKALPAK, "lab": LAB}, "16GiB")
         self.assertEqual(1, len(errors))
         self.assertIn("karakalpak: 12GiB", errors[0])
         self.assertIn("lab: 6GiB", errors[0])
@@ -110,9 +108,7 @@ class TestInstances(unittest.TestCase):
         vm = self.instances["karakalpak"]
         self.assertTrue(vm["vm"])
         self.assertEqual("karakalpak", vm["project"])
-        self.assertEqual(
-            {"limits.cpu": "4", "limits.memory": "12GiB"}, vm["config"]
-        )
+        self.assertEqual({"limits.cpu": "4", "limits.memory": "12GiB"}, vm["config"])
 
     def test_the_container_allows_nesting(self):
         container = self.instances["lab"]
@@ -135,14 +131,17 @@ class TestInstances(unittest.TestCase):
         )
 
     def test_the_creation_document_installs_the_keys_for_root(self):
-        document = load_yaml_str(
-            showroom.creation_yaml(self.instances["karakalpak"])
-        )
+        document = load_yaml_str(showroom.creation_yaml(self.instances["karakalpak"]))
         user_data = document["config"]["cloud-init.user-data"]
         self.assertTrue(user_data.startswith("#cloud-config\n"))
         cloud = load_yaml_str(user_data)
         self.assertEqual(
-            [{"name": "root", "ssh_authorized_keys": KARAKALPAK["ssh_authorized_keys"]}],
+            [
+                {
+                    "name": "root",
+                    "ssh_authorized_keys": KARAKALPAK["ssh_authorized_keys"],
+                }
+            ],
             cloud["users"],
         )
         self.assertFalse(cloud["disable_root"])
@@ -221,7 +220,10 @@ class TestVhosts(unittest.TestCase):
     def test_a_domain_of_two_projects_is_refused(self):
         with self.assertRaises(AnsibleFilterError):
             showroom.vhosts(
-                {"karakalpak": KARAKALPAK, "lab": {**LAB, "domains": KARAKALPAK["domains"]}}
+                {
+                    "karakalpak": KARAKALPAK,
+                    "lab": {**LAB, "domains": KARAKALPAK["domains"]},
+                }
             )
 
     def test_domains_are_flattened_and_sorted(self):

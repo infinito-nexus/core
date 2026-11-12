@@ -121,7 +121,7 @@ def loaded_env(base: Path, **overrides: str) -> dict[str, str]:
         key: value
         for key, value in os.environ.items()
         if not key.startswith(("INFINITO_", "GITHUB_", "GIT_"))
-        and key not in {"REPO_PREFIX", "OWNER", "PYTHONPATH", "VENV"}
+        and key not in {"BASH_ENV", "REPO_PREFIX", "OWNER", "PYTHONPATH", "VENV"}
     }
     env.update(
         {

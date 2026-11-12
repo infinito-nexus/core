@@ -77,6 +77,43 @@ nginx:
             self.assertIn("version:            alpine", updated)
             self.assertNotIn('version:            "4.5" # Keep comment', updated)
 
+    def test_a_bump_drops_the_image_tag_suppression_of_the_old_tag(self) -> None:
+        original = """penpot:
+  image: penpotapp/exporter
+  version: "2.18.5"
+  security:
+    suppressions:
+      # nocheck: cve upstream ships no rebuild yet
+      - image_tag: "2.18.5"
+        until: 2026-12-31
+# nocheck: shared
+nginx:
+  image: nginx
+  version: "1.29"
+  security:
+    suppressions:
+      # nocheck: cve upstream ships no rebuild yet
+      - image_tag: "1.29"
+        until: 2026-12-31
+"""
+        expected = original.replace(
+            """  version: "2.18.5"
+  security:
+    suppressions:
+      # nocheck: cve upstream ships no rebuild yet
+      - image_tag: "2.18.5"
+        until: 2026-12-31
+""",
+            '  version: "2.18.6"\n',
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "main.yml"
+            config_path.write_text(original, encoding="utf-8")
+
+            update_config_versions(config_path, {"penpot": "2.18.6"})
+
+            self.assertEqual(read_text(str(config_path)), expected)
+
 
 if __name__ == "__main__":
     unittest.main()

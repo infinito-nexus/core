@@ -41,7 +41,8 @@ class TestCleanupKeep(unittest.TestCase):
         cls.changed = cls.base / "changed-inputs"
         git(cls.primary, "worktree", "add", "--quiet", "--detach", str(cls.changed))
         venv = cls.changed / "scripts/install/venv.sh"
-        venv.write_text(venv.read_text() + "\n# probe\n")
+        text = venv.read_text()  # nocheck: cache-read  tempdir copy the test edits
+        venv.write_text(text + "\n# probe\n")
         (cls.changed / ".env").write_text(DOTENV)
         resolving = loaded_env(cls.base, STUB_PARENT_ID="")
         cls.primary_tag = resolve_tag(cls.primary, resolving)
@@ -68,9 +69,10 @@ class TestCleanupKeep(unittest.TestCase):
             text=True,
             check=False,
         )
+        log = Path(env["STUB_LOG"]).read_text()  # nocheck: cache-read  stub call log
         cls.removed = {
             call.removeprefix("image rm ")
-            for call in Path(env["STUB_LOG"]).read_text().splitlines()
+            for call in log.splitlines()
             if call.startswith("image rm ")
         }
 

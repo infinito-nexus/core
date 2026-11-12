@@ -91,6 +91,11 @@ xwiki:
         enabled: "{{ lookup('login_method', 'web-app-xwiki', 'native') }}"
       registration:
         enabled: "{{ lookup('login_method', 'web-app-xwiki', 'registration') }}"
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "18.9.0-postgres-tomcat"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1

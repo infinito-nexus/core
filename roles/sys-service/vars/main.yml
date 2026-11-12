@@ -46,6 +46,7 @@ system_service_template_src: >-
 system_service_force_linear_sync: "{{ system_service_name in SYS_SERVICE_GROUP_MANIPULATION }}" # When set to true the enable and daemon-reload handler never runs async
 system_service_force_flush_instant: "{{ (SYS_SERVICE_ALL_ENABLED | bool) and not system_service_force_flush_final }}" # When set to true it activates the flushing of services. defaults to SYS_SERVICE_ALL_ENABLED
 system_service_force_flush_final: false # Force run at the end of the play
+system_service_run_once: false # The run at the end of the play fails on its first failure instead of being retried
 system_service_suppress_flush: "{{ system_service_force_flush_final | bool }}" # When set to true it suppresses the flushing of services
 system_service_copy_files: true # When set to false file copying will be skipped
 system_service_timer_enabled: false # When set to true timer will be loaded

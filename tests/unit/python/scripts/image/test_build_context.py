@@ -46,10 +46,10 @@ class TestBuildContext(unittest.TestCase):
             check=True,
         )
         sizes = {}
-        for line in context.read_text().splitlines():
+        for line in context.read_text().splitlines():  # nocheck: cache-read  stub file
             path, size = line.rsplit(" ", 1)
             sizes[path] = int(size)
-        return log.read_text().splitlines(), sizes
+        return log.read_text().splitlines(), sizes  # nocheck: cache-read  stub call log
 
     def test_the_context_holds_exactly_the_input_set(self) -> None:
         calls, sizes = self._build("--tag", "primary/debian:probe")

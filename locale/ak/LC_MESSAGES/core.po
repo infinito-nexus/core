@@ -1902,6 +1902,10 @@ msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "Installer de driver de GPU propriétaires pour les systèmes basés sur Arch via la détection de matériel non libre mhwd"
 
+msgctxt "role:svc-stack:description"
+msgid "Provider of the shared stack service that every application with a compose project or a vhost declares"
+msgstr ""
+
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
 msgstr ""
@@ -2622,14 +2626,14 @@ msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "Service pruned par Systemd-kraantara akraambo la maafi waaano ay Docker volumes yaakaare, lafaanin, ainaana, na faadhibi aad fikar"
 
-msgctxt "role:sys-ctl-hlth-runtime:description"
-msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
-msgstr ""
-
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "Systemd-timed monitor pour détecter les conteneurs Docker non sains ou ayant un état d'exécution non zéro et relayer des alertes de faillite"
+
+msgctxt "role:sys-ctl-hlth-runtime:description"
+msgid "Systemd-timed vulnerability scan of the node and its containers, plus the shared PHP hardening check"
+msgstr ""
 
 # operators when a monitored service unit fails în akụkwa
 msgctxt "role:sys-ctl-alm-email:description"

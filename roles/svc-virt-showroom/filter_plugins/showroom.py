@@ -42,9 +42,7 @@ def flavor_of(entry: Mapping[str, Any]) -> str:
     """
     flavor = str(entry.get("flavor") or FLAVOR_VM)
     if flavor not in FLAVORS:
-        raise AnsibleFilterError(
-            f"flavor '{flavor}' is none of {', '.join(FLAVORS)}"
-        )
+        raise AnsibleFilterError(f"flavor '{flavor}' is none of {', '.join(FLAVORS)}")
     return flavor
 
 
@@ -68,10 +66,12 @@ def budget_errors(projects: Any, budget_memory: Any) -> list[str]:
         return []
     listing = ", ".join(f"{name}: {entry['memory']}" for name, entry in entries)
     return [
-        f"The showroom projects need {total} bytes of memory together "
-        f"({listing}), which exceeds services.showroom.budget.memory "
-        f"{budget_memory} ({budget} bytes). Lower a project's memory, drop a "
-        "project, or raise the budget."
+        (
+            f"The showroom projects need {total} bytes of memory together "
+            f"({listing}), which exceeds services.showroom.budget.memory "
+            f"{budget_memory} ({budget} bytes). Lower a project's memory, drop a "
+            "project, or raise the budget."
+        )
     ]
 
 
@@ -240,8 +240,7 @@ def vhosts(projects: Any) -> list[dict[str, str]]:
     seen: dict[str, str] = {}
     result = []
     for name, entry in _entries(projects):
-        for domain in entry.get("domains") or []:
-            domain = str(domain)
+        for domain in map(str, entry.get("domains") or []):
             if domain in seen:
                 raise AnsibleFilterError(
                     f"domain '{domain}' is listed by project '{seen[domain]}' "
