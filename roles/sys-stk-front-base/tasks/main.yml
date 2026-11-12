@@ -15,7 +15,9 @@
   when: run_once_sys_stk_front_base is not defined
 
 - include_tasks: "01_cloudflare.yml"
-  when: DNS_PROVIDER == "cloudflare"
+  when:
+    - DNS_PROVIDER == "cloudflare"
+    - (domain | network_of) == 'clearnet'
 
 - name: "🎛️ Reinitialize OpenResty Handler"
   include_tasks: utils/load/handlers.yml

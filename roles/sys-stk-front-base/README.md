@@ -22,7 +22,7 @@ This role front bootstrap for web apps: HTTPS base, optional Cloudflare setup, a
 ## Responsibilities
 
 - Include `sys-svc-webserver-https` (once per host)
-- Include Cloudflare tasks when `DNS_PROVIDER == "cloudflare"`
+- Include Cloudflare tasks when `DNS_PROVIDER == "cloudflare"` and `domain` is a clearnet name; an onion name has no Cloudflare zone, so it is never sent to the Cloudflare API
 - Load handler utilities (e.g., `svc-prx-openresty`)
 - Stay domain-agnostic: expect `domain` to be provided by the consumer
 
