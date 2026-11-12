@@ -452,6 +452,26 @@ def find_outdated_updates(repo_root: Path) -> list[VersionSourceUpdate]:
     return outdated(collect_entries(repo_root), repo_root)
 
 
+def bump_archive(line: str, current: str, latest: str) -> str:
+    """Return the archive line with every occurrence of the pinned version moved.
+
+    Args:
+        line: the ``archive`` line of an addon.
+        current: the pinned version, with or without a leading ``v``.
+        latest: the version it moves to.
+
+    Returns:
+        The line with each occurrence of ``current`` replaced by ``latest``,
+        each keeping its own ``v`` prefix or lack of one.
+    """
+    old, new = current.removeprefix("v"), latest.removeprefix("v")
+    return re.sub(
+        rf"(?<![\d.])(v?){re.escape(old)}(?!\.?\d)",
+        lambda found: found[1] + new,
+        line,
+    )
+
+
 def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
     """Rewrite every pin to its newer version and return the changed files."""
     changed: list[Path] = []
@@ -464,8 +484,8 @@ def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
         lines[index] = lines[index].replace(update.entry.current, update.latest, 1)
         archive = archive_index(lines) if update.entry.addon else None
         if archive is not None:
-            lines[archive] = lines[archive].replace(
-                update.entry.current, update.latest, 1
+            lines[archive] = bump_archive(
+                lines[archive], update.entry.current, update.latest
             )
         checksum.rewrite(
             lines,
