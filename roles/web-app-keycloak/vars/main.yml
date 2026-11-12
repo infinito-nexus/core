@@ -328,3 +328,10 @@ KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN: |-
       --realm master \
       --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME"
   '
+
+KEYCLOAK_DIRECTORY_CLIENT_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.directory_client.enabled') | bool }}"
+KEYCLOAK_DIRECTORY_CLIENT_ID: "{{ KEYCLOAK_REALM }}-directory"
+KEYCLOAK_DIRECTORY_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.directory_client_secret') }}"
+KEYCLOAK_DIRECTORY_CLIENT_ROLES: ["view-users", "query-users", "manage-users"]
+KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT: "service-account-{{ KEYCLOAK_DIRECTORY_CLIENT_ID }}"
+KEYCLOAK_DIRECTORY_CLIENT: "{{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'equalto', KEYCLOAK_DIRECTORY_CLIENT_ID) | list | first }}"

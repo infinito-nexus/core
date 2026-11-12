@@ -90,6 +90,8 @@ keycloak:
       username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
   admin:
     allowed_networks: []
+  directory_client:
+    enabled: false
   ports:
     local:
       http: 8032

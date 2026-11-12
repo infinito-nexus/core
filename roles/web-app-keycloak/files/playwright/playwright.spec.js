@@ -349,3 +349,4 @@ test("administrator: app → keycloak → admin action → logout", async ({ pag
 require("./test-design").register();
 require("./test-console-rbac").register();
 require("./test-email-policy").register();
+require("./test-directory-client").register();
