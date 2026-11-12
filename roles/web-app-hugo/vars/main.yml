@@ -11,7 +11,6 @@ HUGO_BUILDER_IMAGE: "{{ lookup('config', application_id, 'services.hugo.builder_
 HUGO_BUILDER_VERSION: "{{ lookup('config', application_id, 'services.hugo.builder_version') }}"
 
 HUGO_SOURCE_REPO: "{{ lookup('config', 'web-app-hugo', 'services.hugo.source_repository') }}"
-HUGO_SOURCE_REF: "{{ lookup('config', 'web-app-hugo', 'services.hugo.source_version') }}"
 
 HUGO_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 HUGO_ENVIRONMENT: "{{ lookup('config', application_id, 'services.hugo.hugo_environment') }}"

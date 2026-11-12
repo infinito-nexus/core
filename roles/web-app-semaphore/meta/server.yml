@@ -1,0 +1,5 @@
+---
+vhosts:
+  default:
+    extra_template: nginx/oidc_login.conf.j2
+    location_extra_template: nginx/location.conf.j2

@@ -1,10 +1,8 @@
 ---
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_pull: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "👥 Render the Map Animator users file from the directory users"
   ansible.builtin.include_tasks:

@@ -1,9 +1,8 @@
 ---
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    webserver_extra_configuration: "client_max_body_size 512M;"
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🐍 Render the Django settings module of {{ application_id }}"
   ansible.builtin.include_tasks:

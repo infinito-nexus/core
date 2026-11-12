@@ -1,10 +1,8 @@
 ---
 - name: "🧩 For '{{ application_id }}': load docker, db and proxy"
   include_role:
-    name: sys-stk-full
-  vars:
-    webserver_client_max_body_size: "100m"
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🚀 Deploy the shared JVM CA trust wrapper for the backend"
   stack_host_copy:

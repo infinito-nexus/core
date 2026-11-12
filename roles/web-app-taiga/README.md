@@ -50,7 +50,7 @@ By using this role, teams can set up Taiga in minutes on Arch Linux systems, whe
 - 🧷 **Plugin capability switch:** `sso.oidc.rbac` in [`meta/services.yml`](./meta/services.yml) states whether the pinned `sso.oidc.ref` carries the group gate, role mapping and profile sync; the Playwright RBAC scenarios run only when it is `true`.
 - 📨 **Email Backend:** Supports SMTP and console backends for development.
 - 🔁 **Async & Realtime Events:** Includes RabbitMQ and support for Taiga’s event system.
-- 🌐 **Reverse Proxy Ready:** Integrates with NGINX using the `sys-stk-front-proxy` role.
+- 🌐 **Reverse Proxy Ready:** Integrates with NGINX using the `svc-stack` role.
 - 🧩 **Composable Design:** Integrates cleanly with other Infinito.Nexus infrastructure roles.
 
 ## Addons

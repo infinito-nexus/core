@@ -60,7 +60,6 @@ PRETIX_REDIS_CACHE_DB: 1
 PRETIX_REDIS_BROKER_DB: 0
 PRETIX_REDIS_RESULT_DB: 2
 
-PRETIX_SOURCE_REPOSITORY: "{{ lookup('config', 'web-app-pretix', 'services.pretix.source_repository') }}"
 PRETIX_SOURCE_VERSION: "{{ lookup('config', 'web-app-pretix', 'services.pretix.source_version') }}"
 PRETIX_SOURCE_DOCKERFILE_NAME: "Dockerfile.infinito"
 PRETIX_BASE_IMAGE: "{{ lookup('config', application_id, 'services.pretix.image') }}"

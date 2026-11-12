@@ -11,7 +11,8 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🔧 configure pgadmin servers"
   include_tasks: configuration.yml
