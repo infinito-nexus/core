@@ -28,12 +28,14 @@ from utils.roles.applications import forms, sso_fields
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SECRETS,
+    ROLE_FILE_PLAYWRIGHT_SPEC,
     ROLE_FILE_VARS_MAIN,
 )
 
 from . import load_role_meta, role_dirs
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
 FORM_VALUES = re.compile(
@@ -44,6 +46,70 @@ FORM_VALUES_LOOKUP = "form_values"
 FORM_VALUES_TERM = "application_id"
 SINK_FILTER_OPTIONS = {"combine": frozenset({"recursive", "list_merge"})}
 JINJA = Environment(autoescape=True)
+SCRIPT_DIRS = ("files", "templates")
+SCRIPT_TEMPLATE_SUFFIX = ".j2"
+SCRIPT_SKIPPED_DIR = ROLE_FILE_PLAYWRIGHT_SPEC.rsplit("/", 1)[0] + "/"
+SCRIPT_SINK_FILTERS = frozenset({"bool", "int", "lower", "quote", "string", "to_json"})
+SCRIPT_WRITES = {
+    ".py": (
+        r"""['"]{key}['"]\s*:\s*""",
+        r"""\[\s*['"]{key}['"]\s*\]\s*=(?!=)\s*""",
+        r"""\b{key}\s*=(?!=)\s*""",
+    ),
+    ".php": (
+        r"""['"]{key}['"]\s*=>\s*""",
+        r"""\[\s*['"]{key}['"]\s*\]\s*=(?!=)\s*""",
+        r"""->{key}\s*=(?!=)\s*""",
+        r"""\b(?:update_(?:site_)?option|set_config)\(\s*['"]{key}['"]\s*,\s*""",
+    ),
+    ".rb": (
+        r"""['"]{key}['"]\s*=>\s*""",
+        r"""\b{key}:(?!:)\s*""",
+        r"""\.{key}\s*=(?!=)\s*""",
+        r"""\[\s*:{key}\s*\]\s*=(?!=)\s*""",
+        r"""\[\s*['"]{key}['"]\s*\]\s*=(?!=)\s*""",
+    ),
+    ".js": (
+        r"""['"]{key}['"]\s*:\s*""",
+        r"""\b{key}:\s*""",
+        r"""\.{key}\s*=(?!=)\s*""",
+        r"""\[\s*['"]{key}['"]\s*\]\s*=(?!=)\s*""",
+    ),
+    ".sh": (
+        r"""\b{key}=""",
+        r"""--{key}[= ]\s*""",
+        r"""\boption update {key}\s+""",
+    ),
+}
+_QUOTED = r"'(?:[^'\\\n]|\\.)*'|" + r'"(?:[^"$#\\\n]|\\.|#(?!\{))*"'
+_SCALAR = (
+    _QUOTED + r"|-?\d+(?:\.\d+)?\b"
+    r"|(?:true|false|True|False|TRUE|FALSE|null|None|nil|NULL|undefined)\b"
+)
+_LIST = rf"\[\s*(?:(?:{_SCALAR})(?:\s*,\s*(?:{_SCALAR}))*\s*,?\s*)?\]"
+_ARRAY = rf"array\(\s*(?:(?:{_SCALAR})(?:\s*,\s*(?:{_SCALAR}))*\s*,?\s*)?\)"
+_BACKTICK = r"`[^`$\\\n]*`"
+_EMPTY_MAP = r"\{\s*\}"
+_END = r"(?=[ \t]*(?:$|[,;)\]}&|]|#|//|\b(?:if|unless)\b))"
+SCRIPT_LITERALS = {
+    language: re.compile(f"(?:{literal}){_END}", re.MULTILINE)
+    for language, literal in {
+        ".py": f"{_SCALAR}|{_LIST}|{_EMPTY_MAP}",
+        ".php": f"{_SCALAR}|{_LIST}|{_ARRAY}",
+        ".rb": f"{_SCALAR}|{_LIST}|{_EMPTY_MAP}",
+        ".js": f"{_SCALAR}|{_BACKTICK}|{_LIST}|{_EMPTY_MAP}",
+        ".sh": f"{_QUOTED}|[A-Za-z0-9_./:@%+,-]+",
+    }.items()
+}
+SCRIPT_TEMPLATE_VALUE = re.compile(
+    r"""(?P<quote>['"]?)\{\{(?P<expression>[^\n]*?)\}\}(?P=quote)""" + _END,
+    re.MULTILINE,
+)
+SCRIPT_TEMPLATE_TEXT = re.compile(r"""\{[{%]|(['"])(?:(?!\1)[^\n])*?\{[{%]""")
+SCRIPT_LITERAL = "writes a literal to the field {field!r}"
+SCRIPT_UNSINKED = (
+    "must write the field {field!r} as one expression of a sink its form names"
+)
 
 
 def _credentials(role: Path) -> dict[str, Any]:
@@ -300,6 +366,111 @@ def sink_findings(roles: list[Path]) -> list[str]:
     return errors
 
 
+def _spellings(field: str) -> set[str]:
+    words = field.split("_")
+    camel = words[0] + "".join(word.capitalize() for word in words[1:])
+    return {field, camel, ".".join(words), "-".join(words)}
+
+
+def _script_fields(data: dict[str, Any]) -> dict[str, frozenset[str]]:
+    sinks: dict[str, set[str]] = {}
+    for form, name, spec in forms.iter_fields(data):
+        if forms.is_sso_source(spec.get("source")):
+            continue
+        named = data.get(form, {}).get("sinks")
+        sinks.setdefault(name, set()).update(
+            sink
+            for sink in (named if isinstance(named, list) else [])
+            if isinstance(sink, str)
+        )
+    return {name: frozenset(named) for name, named in sinks.items()}
+
+
+def _role_scripts(role: Path) -> Iterator[tuple[str, str, bool]]:
+    for directory in SCRIPT_DIRS:
+        for path in sorted((role / directory).rglob("*")):
+            script = path.relative_to(role).as_posix()
+            template = path.suffix == SCRIPT_TEMPLATE_SUFFIX
+            language = (path.with_suffix("") if template else path).suffix
+            if (
+                language in SCRIPT_WRITES
+                and path.is_file()
+                and not script.startswith(SCRIPT_SKIPPED_DIR)
+            ):
+                yield script, language, template
+
+
+def _reads_a_sink(expression: str, sinks: frozenset[str]) -> bool:
+    try:
+        (output,) = JINJA.parse("{{" + expression + "}}").body
+    except (TemplateSyntaxError, ValueError):
+        return False
+    node = output.nodes[0]
+    while (
+        isinstance(node, nodes.Filter)
+        and node.name in SCRIPT_SINK_FILTERS
+        and not node.args
+        and not node.kwargs
+        and node.dyn_args is None
+        and node.dyn_kwargs is None
+    ):
+        node = node.node
+    while isinstance(node, nodes.Getattr) or (
+        isinstance(node, nodes.Getitem) and isinstance(node.arg, nodes.Const)
+    ):
+        node = node.node
+    return isinstance(node, nodes.Name) and node.name in sinks
+
+
+def _value_finding(
+    text: str, start: int, language: str, template: bool, sinks: frozenset[str]
+) -> str | None:
+    if template:
+        value = SCRIPT_TEMPLATE_VALUE.match(text, start)
+        if value and _reads_a_sink(value["expression"], sinks):
+            return None
+        if value or SCRIPT_TEMPLATE_TEXT.match(text, start):
+            return SCRIPT_UNSINKED
+    return SCRIPT_LITERAL if SCRIPT_LITERALS[language].match(text, start) else None
+
+
+def script_findings(roles: list[Path]) -> list[str]:
+    """Return every write of a declared field that a role's scripts take from anywhere but their input.
+
+    Args:
+        roles: role directories to check; only fields whose source is no
+            ``sso.<claim>`` count, and the Playwright specs are skipped.
+    """
+    errors = []
+    for role in roles:
+        if not (role / ROLE_FILE_META_FORMS).is_file():
+            continue
+        data = load_role_meta(role / ROLE_FILE_META_FORMS)
+        fields = _script_fields(data) if isinstance(data, dict) else {}
+        if not fields:
+            continue
+        spelled = {spelling: name for name in fields for spelling in _spellings(name)}
+        keys = "|".join(map(re.escape, sorted(spelled, key=lambda s: (-len(s), s))))
+        for script, language, template in _role_scripts(role):
+            text = read_text(str(role / script))
+            found = set()
+            for pattern in SCRIPT_WRITES[language]:
+                write = pattern.replace("{key}", f"(?P<key>{keys})")
+                for match in re.finditer(write, text):
+                    name = spelled[match["key"]]
+                    message = _value_finding(
+                        text, match.end(), language, template, fields[name]
+                    )
+                    if message:
+                        line = text.count("\n", 0, match.start()) + 1
+                        found.add((line, message.format(field=name)))
+            errors.extend(
+                f"{role.name}: {script}:{line} {message}"
+                for line, message in sorted(found)
+            )
+    return errors
+
+
 class TestForms(unittest.TestCase):
     def _roles(self) -> list[Path]:
         roles = [
@@ -320,6 +491,9 @@ class TestForms(unittest.TestCase):
 
     def test_every_sink_takes_its_values_only_from_its_forms(self) -> None:
         self.assertEqual([], sink_findings(self._roles()))
+
+    def test_every_script_writes_its_declared_fields_only_from_its_input(self) -> None:
+        self.assertEqual([], script_findings(self._roles()))
 
 
 if __name__ == "__main__":

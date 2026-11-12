@@ -450,5 +450,118 @@ class TestSinkLint(unittest.TestCase):
         )
 
 
+SCRIPT_FORMS = (
+    """
+general:
+  path: /admin/settings
+  sinks: [FIXTURE_SETTINGS]
+  fields:
+    site_title:
+      source: design.label
+      mode: enforced
+      selector: "#title"
+mail:
+  path: /admin/mail
+  sinks: [FIXTURE_MAIL]
+  fields:
+    sender:
+      source: design.label
+      mode: seeded
+      selector: "#sender"
+"""
+    + PROFILE
+)
+SCRIPT_INPUTS = {
+    "files/apply.py": (
+        "client = {'siteTitle': settings['site_title']}\n"
+        "client['site_title'] = '%s' % title\n"
+    ),
+    "files/apply.php": (
+        "<?php\nupdate_option('site_title', $settings['site_title']);\n"
+        '$CFG->site_title = "$title";\n'
+    ),
+    "files/apply.rb": (
+        "SiteSetting.site_title = settings['site_title']\n"
+        'SiteSetting.site_title = "#{title}"\n'
+        "same = SiteSetting.site_title == 'Fixed'\n"
+    ),
+    "files/apply.js": (
+        "config.siteTitle = settings.site_title;\n"
+        "const options = { siteTitle: `${title}` };\n"
+    ),
+    "files/apply.sh": 'wp option update site_title "$SITE_TITLE"\n',
+    "templates/apply.rb.j2": (
+        "SiteSetting.site_title = '{{ FIXTURE_SETTINGS.site_title }}'\n"
+        "SiteSetting.site_title = {{ FIXTURE_SETTINGS['site_title'] | to_json }}\n"
+    ),
+    "files/users.rb": "user.email = 'admin@example.com'\n",
+    "files/playwright/settings.js": "config.siteTitle = 'Fixed';\n",
+    "files/apply.lua": "site_title = 'Fixed'\n",
+    "templates/env.j2": "site_title='Fixed'\n",
+}
+SCRIPT_LITERALS = (
+    ("files/apply.py", f"client = {{'siteTitle': '{SYNTH_LITERAL}'}}\n", 1),
+    ("files/apply.py", "client.update(site_title=None)\n", 1),
+    ("files/apply.php", f"<?php\nupdate_option('site_title', '{SYNTH_LITERAL}');\n", 2),
+    ("files/apply.php", f"<?php\n$CFG->site_title = array('{SYNTH_LITERAL}');\n", 2),
+    ("files/apply.rb", f"SiteSetting.site_title = '{SYNTH_LITERAL}' unless k\n", 1),
+    ("files/apply.rb", "config.site.title = true\n", 1),
+    ("files/apply.js", f"config.siteTitle = `{SYNTH_LITERAL}`;\n", 1),
+    ("files/apply.js", f"options = {{'site-title': ['{SYNTH_LITERAL}', 2]}};\n", 1),
+    ("files/apply.sh", f"wp option update site_title {SYNTH_LITERAL}\n", 1),
+    ("files/apply.sh", f"occ --site_title={SYNTH_LITERAL} && true\n", 1),
+    ("templates/apply.rb.j2", f"\nSiteSetting.site_title = '{SYNTH_LITERAL}'\n", 2),
+)
+SCRIPT_LITERAL = "writes a literal to the field 'site_title'"
+SCRIPT_UNSINKED = (
+    f"{ROLE}: templates/apply.rb.j2:1 must write the field 'site_title'"
+    " as one expression of a sink its form names"
+)
+TEMPLATE_VALUES = (
+    "'{{ FIXTURE_TITLE }}'",
+    "'{{ FIXTURE_MAIL.sender }}'",
+    "{{ FIXTURE_SETTINGS.site_title | default('x') }}",
+    "'{{ FIXTURE_SETTINGS.site_title }}-x'",
+    "'x {{ FIXTURE_SETTINGS.site_title }}'",
+    "{% if x %}1{% endif %}",
+    "{{ lookup('config', application_id, 'x') }}",
+    "'{{ broken( }}'",
+)
+
+
+class TestScriptLint(unittest.TestCase):
+    @staticmethod
+    def _findings(files: dict[str, str]) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            role = Path(tmp) / ROLE
+            for name, content in {ROLE_FILE_META_FORMS: SCRIPT_FORMS, **files}.items():
+                path = role / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding="utf-8")
+            return lint.script_findings([role])
+
+    def test_writes_from_input_or_a_sink_and_skipped_files_pass(self) -> None:
+        self.assertEqual([], self._findings(SCRIPT_INPUTS))
+
+    def test_a_literal_fails_naming_script_line_and_field_only(self) -> None:
+        for script, content, line in SCRIPT_LITERALS:
+            with self.subTest(script=script, content=content):
+                findings = self._findings({script: content})
+                self.assertEqual(
+                    [f"{ROLE}: {script}:{line} {SCRIPT_LITERAL}"], findings
+                )
+                self.assertNotIn(SYNTH_LITERAL, "\n".join(findings))
+
+    def test_a_template_value_other_than_a_sink_of_its_form_fails(self) -> None:
+        for value in TEMPLATE_VALUES:
+            with self.subTest(value=value):
+                self.assertEqual(
+                    [SCRIPT_UNSINKED],
+                    self._findings(
+                        {"templates/apply.rb.j2": f"SiteSetting.site_title = {value}\n"}
+                    ),
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
