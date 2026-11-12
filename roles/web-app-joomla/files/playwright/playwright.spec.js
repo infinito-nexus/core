@@ -1,6 +1,7 @@
 require("./test-oidc-login");
 require("./test-oidc-fallback");
 require("./test-login-methods");
+require("./test-2fa-enrollment");
 require("./test-rbac-groups");
 require("./test-profile-sync");
 require("./test-profile-lock");

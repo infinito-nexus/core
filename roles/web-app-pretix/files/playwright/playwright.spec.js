@@ -17,6 +17,7 @@ require("./test-mcp-guest").register();
 require("./test-design");
 require("./test-rbac-teams");
 require("./test-login-methods");
+require("./test-2fa-enrollment");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");

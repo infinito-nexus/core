@@ -57,6 +57,7 @@ require("./test-mcp-guest");
 require("./test-integrations").register();
 require("./test-design");
 require("./test-login-methods");
+require("./test-2fa-enrollment");
 
 // Outbound mail. `templates/config/smtp_settings.rb.j2` derives ActionMailer's
 // `tls:` from the provider's own declaration, and tls/starttls are mutually

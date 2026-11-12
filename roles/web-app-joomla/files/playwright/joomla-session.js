@@ -57,18 +57,29 @@ async function signInViaKeycloak(page, base, username, password) {
 
 /**
  * Args:
- *   page: Playwright page without a Joomla session; ends on the profile of the signed-in account.
+ *   page: Playwright page without a Joomla session; ends right after the site login form is submitted.
  *   base: Joomla base URL without a trailing slash.
  *   username: Joomla or directory username.
  *   password: its password.
  */
-async function signInToSite(page, base, username, password) {
+async function submitSiteLogin(page, base, username, password) {
   await gotoOnion(page, `${base}/index.php?option=com_users&view=login&fallback=local`);
   await expect(page.locator(SITE_USERNAME), "the com_users login form must render").toBeEditable(ACTION);
   await page.locator(SITE_USERNAME).fill(username);
   await expect(page.locator(SITE_PASSWORD)).toBeEditable(ACTION);
   await page.locator(SITE_PASSWORD).fill(password);
   await page.locator(SITE_SUBMIT).first().click(ACTION);
+}
+
+/**
+ * Args:
+ *   page: Playwright page without a Joomla session; ends on the profile of the signed-in account.
+ *   base: Joomla base URL without a trailing slash.
+ *   username: Joomla or directory username.
+ *   password: its password.
+ */
+async function signInToSite(page, base, username, password) {
+  await submitSiteLogin(page, base, username, password);
   await expect(
     page.locator(SITE_SESSION).first(),
     `Joomla must accept ${username} at the site login form`,
@@ -166,6 +177,7 @@ async function userManagerRow(page, base, username) {
 
 module.exports = {
   signInViaKeycloak,
+  submitSiteLogin,
   signInToSite,
   signOutOfSite,
   signInToAdministrator,
