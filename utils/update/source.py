@@ -35,7 +35,7 @@ import subprocess
 import urllib.error
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
@@ -156,7 +156,7 @@ def registry_v2_tags(image: str, match: str = "") -> list[str]:
         return []
     fields = dict(re.findall(r'(\w+)="([^"]*)"', challenge))
     realm = fields.pop("realm", "")
-    if not realm:
+    if not realm or urlparse(realm).scheme != "https":
         return []
     query = "&".join(f"{name}={value}" for name, value in fields.items())
     try:
