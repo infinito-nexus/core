@@ -9,7 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
+const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, escapeRegex, gotoOnion, requireDotenvValue } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -150,7 +150,7 @@ exports.register = function (shared) {
     await expect(page.locator("body"), "the account is on the corporate admin color scheme").toHaveClass(new RegExp(`admin-color-${SCHEME}`));
     await expect(page.locator("#colors-css"), "the color scheme loads its stylesheet from WordPress").toHaveAttribute(
       "href",
-      new RegExp(SCHEME_SHEET.replace(/[.]/g, "\\.")),
+      new RegExp(escapeRegex(SCHEME_SHEET)),
     );
     for (const sheet of LATE_SHEETS) {
       await expect(page.locator(`head link[href*='${sheet}']`), `the scheme links ${sheet} at the end of the head`).toHaveCount(1);
