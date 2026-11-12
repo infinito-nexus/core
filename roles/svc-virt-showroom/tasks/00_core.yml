@@ -173,11 +173,6 @@
 
 - name: "🌐 Serve every project domain through the host's reverse proxy"
   ansible.builtin.include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ showroom_vhost.domain }}"
-    showroom_upstream: "{{ showroom_vhost.upstream }}"
-  loop: "{{ SHOWROOM_PROJECTS | showroom_vhosts }}"
-  loop_control:
-    loop_var: showroom_vhost
-    label: "{{ showroom_vhost.domain }} -> {{ showroom_vhost.upstream }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml
+  when: SHOWROOM_CANONICAL_DOMAINS | length > 0

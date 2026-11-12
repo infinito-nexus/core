@@ -17,7 +17,7 @@ server
 
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
 
-    proxy_pass            https://{{ showroom_upstream }};
+    proxy_pass            https://{{ (SHOWROOM_PROJECTS | showroom_vhosts | selectattr('domain', 'equalto', domain) | first).upstream }};
     proxy_ssl_server_name on;
     proxy_ssl_name        $host;
     proxy_ssl_verify      off;
