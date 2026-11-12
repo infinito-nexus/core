@@ -41,7 +41,7 @@ from agents.routines.contract import (
 )
 from agents.routines.iterate import STATE_KEYS, check_state
 from agents.routines.tools.log_scan import run_status
-from agents.routines.tools.watchdog import process_ticks
+from agents.routines.tools.watchdog import CGROUP_MOUNT, process_ticks, stack_usage
 from utils.orchestrator.channels import MatrixChannel
 
 if TYPE_CHECKING:
@@ -195,14 +195,15 @@ def supervise(argv: list[str], log: Path) -> int:
 def _evidence(args: argparse.Namespace) -> dict:
     """Return the state keys the run's files and the poll carry: the log text
     and its last write time, the JUnit report, the exit status a run that
-    ended wrote, the poll time, and the evidence source naming them.
+    ended wrote, the CPU each stack cgroup used, the poll time, and the
+    evidence source naming them.
 
     A named exit status file that does not exist yet is reported on stderr and
     the run counts as still going; a ``--pid`` that is gone counts as ended.
 
     Args:
         args: the parsed ``decide`` arguments ``log``, ``junit``,
-            ``exit_file``, ``pid`` and ``running``.
+            ``exit_file``, ``pid``, ``cgroup`` and ``running``.
     """
     evidence: dict = {}
     if args.log:
@@ -225,6 +226,12 @@ def _evidence(args: argparse.Namespace) -> dict:
             )
         else:
             evidence["process_ticks"] = ticks
+    if args.cgroup:
+        usage = stack_usage(args.cgroup, CGROUP_MOUNT)
+        if usage is None:
+            print(f"a stack cgroup of {args.cgroup} is gone", file=sys.stderr)
+        else:
+            evidence["stack_cpu_usec"] = usage
     if args.running:
         evidence["polled_at"] = time.time()
     sources = [
@@ -234,6 +241,7 @@ def _evidence(args: argparse.Namespace) -> dict:
             ("junit", args.junit),
             ("exit", args.exit_file),
             ("pid", args.pid),
+            *(("cgroup", cgroup) for cgroup in args.cgroup),
         )
         if value is not None
     ]
@@ -338,6 +346,12 @@ def main(argv: list[str] | None = None) -> int:
     decide.add_argument("--exit-file", help="the exit status file of a run that ended")
     decide.add_argument(
         "--pid", type=int, help="the run's process id, for the idle and exit check"
+    )
+    decide.add_argument(
+        "--cgroup",
+        action="append",
+        default=[],
+        help="the cgroup directory of one stack container, for the stack CPU check",
     )
     decide.add_argument(
         "--running", help="the id of the run step still going, for the watchdog poll"

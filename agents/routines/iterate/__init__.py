@@ -22,7 +22,13 @@ from agents.routines.tools.signature import (
     hung_signature,
     repeated,
 )
-from agents.routines.tools.watchdog import PLAYWRIGHT_VARS, SILENCE_SECONDS, is_hung
+from agents.routines.tools.watchdog import (
+    BUSY_CORES,
+    PLAYWRIGHT_VARS,
+    SILENCE_SECONDS,
+    is_hung,
+    stack_busy,
+)
 
 CHANGED = "✏️ changed"
 UNCHANGED = "⏸️ unchanged"
@@ -71,6 +77,17 @@ STATE_KEYS = {
         None,
         "CPU ticks of the run's process tree at the poll before",
     ),
+    "stack_cpu_usec": (
+        _LIST,
+        int,
+        "CPU microseconds of each stack cgroup at this poll, in --cgroup order",
+    ),
+    "last_stack_cpu_usec": (
+        _LIST,
+        int,
+        "CPU microseconds of each stack cgroup at the poll before",
+    ),
+    "last_polled_at": (_NUMBER, None, "epoch seconds of the poll before"),
     "evidence_source": (
         str,
         None,
@@ -155,11 +172,25 @@ def _hung(state: dict) -> dict:
         *([started_at] if started_at is not None else []),
     ]
     polled_at = state.get("polled_at")
+    last_polled_at = state.get("last_polled_at")
     status = state.get("exit_code") or run_status(state.get("run_log") or "")
     ticks = state.get("process_ticks")
-    busy = ticks is not None and ticks != state.get("last_process_ticks")
+    tree_busy = ticks is not None and ticks != state.get("last_process_ticks")
     if ticks is not None:
         state["last_process_ticks"] = ticks
+    usage = state.get("stack_cpu_usec")
+    stack_working = stack_busy(
+        usage,
+        state.get("last_stack_cpu_usec"),
+        None
+        if polled_at is None or last_polled_at is None
+        else polled_at - last_polled_at,
+    )
+    if usage is not None:
+        state["last_stack_cpu_usec"] = usage
+    if polled_at is not None:
+        state["last_polled_at"] = polled_at
+    busy = tree_busy or stack_working
     if status == "0":
         outcome = GREEN
         state["signatures"] = []
@@ -176,7 +207,8 @@ def _hung(state: dict) -> dict:
         "last_output_at": max(marks) if marks else None,
         "polled_at": polled_at,
         "exit_status": status,
-        "tree_busy": busy,
+        "tree_busy": tree_busy,
+        "stack_busy": stack_working,
         "silence": SILENCE_SECONDS,
     }
     return decide(state, "hung", inputs, outcome)
@@ -270,7 +302,7 @@ def red_chain(routine: str, verdict: str, runs: tuple[str, ...]) -> list[Step]:
     return [
         Step(
             "hung",
-            f"Watchdog: is the run unfinished, silent for more than {SILENCE_SECONDS:.0f} s (the onion Playwright budget of {PLAYWRIGHT_VARS}, the slowest silent task), counted from its start when it wrote none, and its process tree idle since the poll before? (agents/routines/tools/watchdog.py; while it runs: {decide_command(routine, 'hung', ' --log <run log> --running <run step> [--pid <run pid>]')}; once it ended: {decide_command(routine, 'hung', ' --log <run log> [--exit-file <exit status file>]')}; the run ended on an exit status file, a gone --pid, the deploy wrapper's exit line, a make Error line, the deploy's Script ended line or a PLAY RECAP with a failed host, not on a PLAY RECAP alone, which may close one play of several; exit status 0 is green and returns to the run step)",
+            f"Watchdog: is the run unfinished, silent for more than {SILENCE_SECONDS:.0f} s (the onion Playwright budget of {PLAYWRIGHT_VARS}, the slowest silent task), counted from its start when it wrote none, with its process tree idle and no stack cgroup using {BUSY_CORES:g} core or more since the poll before? (agents/routines/tools/watchdog.py; while it runs: {decide_command(routine, 'hung', ' --log <run log> --running <run step> [--pid <run pid>] [--cgroup <stack cgroup>]...')}, one --cgroup per stack container, its cgroup directory such as /sys/fs/cgroup/system.slice/docker-<full container id>.scope; once it ended: {decide_command(routine, 'hung', ' --log <run log> [--exit-file <exit status file>]')}; the run ended on an exit status file, a gone --pid, the deploy wrapper's exit line, a make Error line, the deploy's Script ended line or a PLAY RECAP with a failed host, not on a PLAY RECAP alone, which may close one play of several; exit status 0 is green and returns to the run step)",
             "decision",
             branches=(
                 (ENDED, "reached"),

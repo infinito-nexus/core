@@ -16,6 +16,7 @@ import os
 import signal
 import sys
 import tempfile
+import time
 import unittest
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,6 +32,7 @@ from agents.routines.__main__ import (
 )
 from agents.routines.contract import asked
 from agents.routines.iterate import (
+    ALIVE,
     ENDED,
     GREEN,
     HUNG,
@@ -39,7 +41,7 @@ from agents.routines.iterate import (
     REPEATED,
     STATE_KEYS,
 )
-from agents.routines.tools.watchdog import SILENCE_SECONDS
+from agents.routines.tools.watchdog import BUSY_CORES, SILENCE_SECONDS
 from tests.unit.python.agents.routines import tools as ansible
 from tests.unit.python.agents.routines import written_text
 
@@ -332,6 +334,85 @@ class TestDecideCommand(unittest.TestCase):
             saved = json.loads(written_text(state))
         self.assertEqual(json.loads(line)["evidence_source"], f"log:{log}")
         self.assertNotIn("evidence_source", saved)
+
+
+def _stack_cgroup(tmp: str, usage_usec: int) -> Path:
+    root = Path(tmp) / "docker-stack.scope"
+    root.mkdir(exist_ok=True)
+    (root / "cpu.stat").write_text(f"usage_usec {usage_usec}\n", encoding="utf-8")
+    return root
+
+
+class TestDecideStackCgroup(unittest.TestCase):
+    def _baseline(self, tmp: str, usage_usec: int, seconds_ago: float) -> None:
+        (Path(tmp) / "state.json").write_text(
+            json.dumps(
+                {
+                    "ledger": str(Path(tmp) / "ledger.jsonl"),
+                    "last_stack_cpu_usec": [usage_usec],
+                    "last_polled_at": time.time() - seconds_ago,
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    def _poll(self, tmp: str, cgroup: Path) -> tuple[str, str, dict]:
+        state = Path(tmp) / "state.json"
+        log = _silent_log(tmp, "TASK [web-app-gitea : Build images]\n")
+        code, out, err = _decide(
+            "iterate_compose",
+            "hung",
+            "--state",
+            str(state),
+            "--init",
+            "--log",
+            str(log),
+            "--running",
+            "redeploy",
+            "--cgroup",
+            str(cgroup),
+        )
+        self.assertEqual(code, 0)
+        return out, err, json.loads(written_text(state))
+
+    def test_a_silent_run_on_a_working_stack_is_alive(self) -> None:
+        working = int(2 * BUSY_CORES * 60 * 1_000_000)
+        with tempfile.TemporaryDirectory() as tmp:
+            self._baseline(tmp, 0, 60)
+            out, _, saved = self._poll(tmp, _stack_cgroup(tmp, working))
+        self.assertEqual(out, ALIVE)
+        self.assertEqual(saved["last_stack_cpu_usec"], [working])
+        self.assertNotIn("stack_cpu_usec", saved)
+
+    def test_a_silent_run_on_a_resting_stack_is_hung(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self._baseline(tmp, 0, 60)
+            out, _, _ = self._poll(tmp, _stack_cgroup(tmp, int(0.32 * 60 * 1_000_000)))
+        self.assertEqual(out, HUNG)
+
+    def test_the_first_poll_of_a_stack_records_its_baseline(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            out, _, saved = self._poll(tmp, _stack_cgroup(tmp, 7))
+        self.assertEqual(out, ALIVE)
+        self.assertEqual(saved["last_stack_cpu_usec"], [7])
+        self.assertIn("last_polled_at", saved)
+
+    def test_a_gone_stack_cgroup_is_reported_and_proves_no_work(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self._baseline(tmp, 0, 60)
+            out, err, _ = self._poll(tmp, Path(tmp) / "gone.scope")
+        self.assertEqual(out, HUNG)
+        self.assertIn("gone.scope", err)
+
+    def test_the_ledger_names_the_stack_cgroup(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self._baseline(tmp, 0, 60)
+            cgroup = _stack_cgroup(tmp, 0)
+            self._poll(tmp, cgroup)
+            (line,) = written_text(Path(tmp) / "ledger.jsonl").splitlines()
+        record = json.loads(line)
+        self.assertIn(f"cgroup:{cgroup}", record["evidence_source"])
+        self.assertFalse(record["inputs"]["stack_busy"])
 
 
 @dataclass(frozen=True)
