@@ -43,6 +43,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
 from utils.i18n.extract import logout_context
 from utils.i18n.keyed import keyed_catalogue
+from utils.networks.reachability import TOR, network
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
@@ -315,6 +316,7 @@ def _collapsed_panel() -> str:
     prelude = (
         "window.__INFINITO_LOGOUT__ = {"
         f"origin: {json.dumps(ORIGIN)}, everywhere: {json.dumps(EVERYWHERE)}, "
+        f"tor_suffix: {json.dumps(network(TOR).suffix)}, "
         f"i18n: {catalogue}"
         "};"
     )
@@ -375,6 +377,15 @@ class TestPanelTrustsTheFramedOrigin(unittest.TestCase):
             " be the origin of the same tls resolution that builds the framed URL,"
             " or the panel goes silent",
         )
+
+
+class TestPanelAsksTheNetworkRegistry(unittest.TestCase):
+    def test_the_tor_suffix_is_rendered_from_the_network_registry(self) -> None:
+        self.assertIn(
+            "tor_suffix: {{ 'tor' | network_suffix | to_json }},",
+            read_text(str(ASSEMBLY)),
+        )
+        self.assertIn("config.tor_suffix", read_text(str(PANEL)))
 
 
 if __name__ == "__main__":

@@ -33,6 +33,7 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
     private const ENV_CLIENT_ID       = 'JOOMLA_OIDC_CLIENT_ID';
     private const ENV_CLIENT_SECRET   = 'JOOMLA_OIDC_CLIENT_SECRET';
     private const ENV_REDIRECT_URI    = 'JOOMLA_OIDC_REDIRECT_URI';
+    private const ENV_REDIRECT_URIS   = 'JOOMLA_OIDC_REDIRECT_URIS';
     private const ENV_SOCKS_PROXY     = 'JOOMLA_OIDC_SOCKS_PROXY';
     private const ENV_FALLBACK        = 'JOOMLA_OIDC_FALLBACK_ENABLED';
     private const ENV_GROUP_MAP       = 'JOOMLA_OIDC_GROUP_MAP';
@@ -594,25 +595,42 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
     }
 
     /**
-     * Move the configured redirect URI onto the host the request reached.
-     *
-     * @param string $configured redirect URI of the canonical domain.
-     * @return string the same path and query on the request's host, over
-     *                plaintext for an .onion; $configured when the request
-     *                carries no host or already uses the canonical one.
-     *                Keycloak still checks the result against the client's
-     *                redirect URIs, which list every network sibling.
+     * Args:
+     *   $configured: redirect URI of the canonical domain.
+     * Returns:
+     *   string: the redirect URI of the network sibling the request reached; $configured when it reached none.
      */
     private function redirectUriForRequest(string $configured): string
     {
-        $host  = strtolower((string) $this->app->getInput()->server->getString('HTTP_HOST', ''));
-        $parts = parse_url($configured);
-        if ($host === '' || !is_array($parts) || !isset($parts['host']) || $host === strtolower($parts['host'])) {
-            return $configured;
+        $siblings = json_decode($this->requireEnv(self::ENV_REDIRECT_URIS), true);
+        if (!is_array($siblings) || $siblings === []) {
+            throw new \RuntimeException('plg_system_keycloak: ' . self::ENV_REDIRECT_URIS . ' is not a non-empty JSON list');
         }
-        $scheme = str_ends_with($host, '.onion') ? 'http' : ($parts['scheme'] ?? 'https');
-        $query  = isset($parts['query']) ? '?' . $parts['query'] : '';
-        return $scheme . '://' . $host . ($parts['path'] ?? '/') . $query;
+        return self::redirectUriForHost(
+            (string) $this->app->getInput()->server->getString('HTTP_HOST', ''),
+            $siblings,
+            $configured
+        );
+    }
+
+    /**
+     * Args:
+     *   $host: Host header of the request, with its port when it names one.
+     *   $siblings: the redirect URI on every network sibling, each with the scheme of that sibling.
+     *   $configured: redirect URI of the canonical domain.
+     * Returns:
+     *   string: the sibling whose authority is $host; $configured when none is.
+     */
+    public static function redirectUriForHost(string $host, array $siblings, string $configured): string
+    {
+        foreach ($siblings as $sibling) {
+            $parts     = parse_url((string) $sibling);
+            $authority = ($parts['host'] ?? '') . (isset($parts['port']) ? ':' . $parts['port'] : '');
+            if ($host !== '' && strcasecmp($authority, $host) === 0) {
+                return (string) $sibling;
+            }
+        }
+        return $configured;
     }
 
     /**

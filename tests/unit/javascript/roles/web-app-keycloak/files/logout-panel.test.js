@@ -18,6 +18,7 @@ const ORIGIN = "https://logout.example.test";
 const EVERYWHERE = "https://dashboard.example.test/#logout-everywhere";
 const DOMAINS = ["https://shop.example.test", "https://cloud.example.test"];
 const SIBLING = `http://logout.${"a".repeat(56)}.onion/?handoff=`;
+const TOR_SUFFIX = ".onion";
 
 function readEnglish() {
   const out = {};
@@ -157,6 +158,7 @@ function mount({
   hostname = "auth.example.test",
   path: pathname = "/realms/x/protocol/openid-connect/logout",
   everywhere = EVERYWHERE,
+  torSuffix = TOR_SUFFIX,
   byId = {},
 } = {}) {
   const body = element();
@@ -166,7 +168,12 @@ function mount({
   let next = 0;
 
   global.window = {
-    __INFINITO_LOGOUT__: { origin: ORIGIN, everywhere, i18n: readCatalogue() },
+    __INFINITO_LOGOUT__: {
+      origin: ORIGIN,
+      everywhere,
+      tor_suffix: torSuffix,
+      i18n: readCatalogue(),
+    },
     location: { pathname, hostname, replace: (url) => visited.push(url) },
     addEventListener(type, fn) {
       listeners[type] = listeners[type] || [];
@@ -283,6 +290,18 @@ test("onion sessions are told to expect a longer wait", () => {
   const page = mount({ hostname: "abcdefghij.onion" });
   page.post({ type: "start", domains: DOMAINS });
   assert.match(page.hint(), /Over Tor this can take a while/);
+});
+
+test("the longer wait follows the tor suffix the server renders", () => {
+  const page = mount({ hostname: "auth.example.test", torSuffix: ".example.test" });
+  page.post({ type: "start", domains: DOMAINS });
+  assert.match(page.hint(), /Over Tor this can take a while/);
+});
+
+test("without a rendered tor suffix no host gets the longer wait", () => {
+  const page = mount({ hostname: "abcdefghij.onion", torSuffix: "" });
+  page.post({ type: "start", domains: DOMAINS });
+  assert.match(page.hint(), /This usually takes a few seconds/);
 });
 
 test("a sweep that stalls says so instead of spinning forever", () => {
