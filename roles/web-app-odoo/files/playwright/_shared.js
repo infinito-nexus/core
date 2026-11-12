@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion, requireDotenvValue } = require("./personas");
+const { networkOf } = require("./personas/utils/network");
 const { isServiceEnabled } = require("./service-gating");
 
 const env = {
@@ -20,9 +21,14 @@ const loginMethods = {
 
 const BREAKGLASS_LOGIN_PATH = "/web/login?fallback=local";
 
-const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)
-  ? { channel: "chromium", serviceWorkers: "block" }
-  : {};
+const networkSuffixes = JSON.parse(
+  requireDotenvValue(process.env.PLAYWRIGHT_NETWORK_SUFFIXES, "PLAYWRIGHT_NETWORK_SUFFIXES"),
+);
+
+const onionOptions =
+  networkOf(new URL(env.odooBaseUrl).hostname, networkSuffixes) !== "clearnet"
+    ? { channel: "chromium", serviceWorkers: "block" }
+    : {};
 
 function baseUrl() {
   return env.odooBaseUrl.replace(/\/$/, "");

@@ -36,14 +36,6 @@ _PREDATING_TEST_CHECKS = frozenset(
             r"""return !isOnionTarget() && /\.onion(?::\d+)?(?:\/|$)/i.test(process.env.OIDC_ISSUER_URL || "");""",
         ),
         (
-            "roles/web-app-mini-qr/files/playwright/test-design.js",
-            'test.skip(new URL(baseUrl()).hostname.endsWith(".onion"), "the camera browser runs without the onion proxy");',
-        ),
-        (
-            "roles/web-app-odoo/files/playwright/_shared.js",
-            r"""const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)""",
-        ),
-        (
             "roles/web-svc-logout/files/playwright/logout-flow.js",
             r"return isOnionTarget() ? urls : urls.filter((url) => !/\.onion$/i.test(new URL(url).hostname));",
         ),
