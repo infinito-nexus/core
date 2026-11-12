@@ -10,9 +10,9 @@ s1:
   enabled: true
   shared: true
   # nocheck: dockerfile-custom  upstream ships a pyproject and no image, so the role builds one
-  # nocheck: docker-version  base of the self-built server, not the served application
   image: python
-  version: "3.12.14-slim"
+  # nocheck: docker-version  base of the self-built server, held on the 3.12 minor tag (patches still arrive) because jeff at the pinned ref requires Python >=3.12,<3.13; see TODO.md
+  version: "3.12-slim"
   custom: true
   name: s1
   model_alias: s1-latest

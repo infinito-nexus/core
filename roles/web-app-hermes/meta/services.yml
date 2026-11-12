@@ -38,6 +38,11 @@ hermes:
   lifecycle: beta
   proxy:
     service_key: hermes
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v2026.9.24"
+        until: 2026-11-30
 
 # nocheck: dynamic-flag - the web UI is a role-local off-switch; no provider role exists whose group membership could decide it
 webui:

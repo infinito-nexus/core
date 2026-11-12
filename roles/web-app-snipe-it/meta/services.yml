@@ -85,6 +85,11 @@ snipe-it:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v8.8.3-alpine"
+        until: 2026-11-30
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -146,6 +151,11 @@ snipeitmcp:
   ports:
     internal:
       http: 8080
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.13.15-slim"
+        until: 2026-11-30
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5

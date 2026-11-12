@@ -37,6 +37,8 @@ blender:
       - org.blender.Blender
     flatpak:
       command: blender
+    architectures:
+      - amd64
   fedora:
     - blender
 

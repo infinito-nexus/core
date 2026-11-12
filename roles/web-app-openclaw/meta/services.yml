@@ -31,6 +31,11 @@ openclaw:
   lifecycle: beta
   proxy:
     service_key: openclaw
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2026.7.1"
+        until: 2026-11-30
 
 # nocheck: playwright-service-flag, dynamic-flag
 kata:

@@ -94,7 +94,7 @@ postgres:
 synapse:
   healthcheck:
     flavor: curl
-  version: v1.164.2
+  version: v1.165.0
   image: matrixdotorg/synapse
   name: matrix-synapse
   backup:
@@ -117,7 +117,7 @@ synapse:
 element:
   healthcheck:
     flavor: wget
-  version: v1.12.33
+  version: v1.12.34
   image: vectorim/element-web
   name: matrix-element
   force_verification: true
@@ -141,6 +141,11 @@ matrix-chatgpt-bot:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.1.5"
+        until: 2026-11-30
 # nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-svc-seaweedfs)
 seaweedfs:
   bond: 1

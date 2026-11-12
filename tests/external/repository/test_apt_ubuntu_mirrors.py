@@ -1,15 +1,16 @@
-"""External: the Ubuntu mirror list stays fast, fresh and official.
+"""External: the Ubuntu mirror lists stay fast, fresh and official.
 
 ``INFINITO_APT_UBUNTU_MIRRORS`` orders the mirrors Ubuntu images fall back
-through and the package cache proxies. The order is kept by hand; this test
-says when it has to change:
+through and the package cache proxies; ``INFINITO_APT_UBUNTU_PORTS_MIRRORS``
+does the same for arm64 images, which the archive mirrors do not carry. Each
+order is kept by hand; this test says when one has to change:
 
 * the first mirror answers ``InRelease`` within ``FIRST_MIRROR_MAX_SECONDS``
   (median of ``PROBES``), or the test names a later mirror that does;
 * no mirror's ``-updates`` pocket lags the freshest one in the list by more
   than ``STALE_AFTER``;
-* every mirror is the primary archive, a Canonical country alias, or an
-  enabled official mirror in Launchpad's registry.
+* every mirror is the list's primary host, a Canonical country alias of it,
+  or an enabled official mirror in Launchpad's registry.
 
 A mirror this host pins in /etc/hosts goes through the local package cache
 and is not measured. An unreachable mirror or registry is a warning; the test
@@ -35,12 +36,14 @@ from utils.env.parser import env_setting
 
 from ._package_probes import UBUNTU_SUITE
 
-MIRRORS_KEY = "INFINITO_APT_UBUNTU_MIRRORS"
+MIRROR_LISTS = (
+    ("INFINITO_APT_UBUNTU_MIRRORS", "archive.ubuntu.com"),
+    ("INFINITO_APT_UBUNTU_PORTS_MIRRORS", "ports.ubuntu.com"),
+)
 FIRST_MIRROR_MAX_SECONDS = 5.0
 PROBES = 3
 STALE_AFTER = timedelta(hours=24)
 TIMEOUT_SECONDS = 20
-PRIMARY_ARCHIVE = "archive.ubuntu.com"
 REGISTRY = "https://api.launchpad.net/devel/ubuntu/archive_mirrors?ws.size=75"
 USER_AGENT = "infinito-nexus mirror check"
 
@@ -159,27 +162,32 @@ def _freshness_problems(answered: list[Measurement]) -> list[str]:
     ]
 
 
-def _registry_problems(mirrors: list[str]) -> list[str]:
+def _registry_problems(mirrors: list[str], primary: str) -> list[str]:
     official = _official_hosts()
     if official is None:
         return []
     return [
-        f"{mirror}: not the primary archive, a Canonical country alias, or an "
+        f"{mirror}: not {primary}, a Canonical country alias, or an "
         "enabled official mirror in Launchpad's registry"
         for mirror in mirrors
         if not (
-            _host(mirror) == PRIMARY_ARCHIVE
-            or _host(mirror).endswith(f".{PRIMARY_ARCHIVE}")
+            _host(mirror) == primary
+            or _host(mirror).endswith(f".{primary}")
             or _host(mirror) in official
         )
     ]
 
 
 class TestAptUbuntuMirrors(unittest.TestCase):
-    def test_mirror_list_is_fast_fresh_and_official(self) -> None:
-        mirrors = env_setting(MIRRORS_KEY).split()
+    def test_mirror_lists_are_fast_fresh_and_official(self) -> None:
+        for key, primary in MIRROR_LISTS:
+            with self.subTest(key=key):
+                self._check(key, primary)
+
+    def _check(self, key: str, primary: str) -> None:
+        mirrors = env_setting(key).split()
         self.assertGreaterEqual(
-            len(mirrors), 2, f"{MIRRORS_KEY} needs a primary and a fallback mirror"
+            len(mirrors), 2, f"{key} needs a primary and a fallback mirror"
         )
         pinned = _pinned_hosts()
         measurable = [m for m in mirrors if _host(m) not in pinned]
@@ -209,10 +217,10 @@ class TestAptUbuntuMirrors(unittest.TestCase):
             first = next(m for m in results if m.mirror == mirrors[0])
             problems.extend(_order_problems(first, answered))
         problems.extend(_freshness_problems(answered))
-        problems.extend(_registry_problems(mirrors))
+        problems.extend(_registry_problems(mirrors, primary))
         if problems:
             self.fail(
-                f"{MIRRORS_KEY} needs an edit:\n"
+                f"{key} needs an edit:\n"
                 + "\n".join(f"  - {problem}" for problem in problems)
             )
 

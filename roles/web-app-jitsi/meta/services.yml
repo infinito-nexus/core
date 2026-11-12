@@ -83,6 +83,11 @@ jitsi:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 2048
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "stable-11031"
+        until: 2026-11-30
 web:
   name: jitsi-web
   cpus: "0.5"
@@ -106,6 +111,11 @@ prosody:
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "stable-11031"
+        until: 2026-11-30
 # nocheck: playwright-service-flag - internal sub-component (conference focus)
 # nocheck: image-healthcheck  XMPP component, no internal port declared
 jicofo:
@@ -116,6 +126,11 @@ jicofo:
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "stable-11031"
+        until: 2026-11-30
 # nocheck: playwright-service-flag - internal sub-component (video bridge, media plane)
 # nocheck: image-healthcheck  media bridge on UDP, no internal port declared
 jvb:
@@ -126,6 +141,11 @@ jvb:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 2048
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "stable-11031"
+        until: 2026-11-30
 
 # nocheck: playwright-service-flag
 tor:
