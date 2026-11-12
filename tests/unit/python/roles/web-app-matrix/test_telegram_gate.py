@@ -14,7 +14,7 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml, load_yaml_any
@@ -49,7 +49,10 @@ class TestTelegramGate(unittest.TestCase):
                 what ``lookup('config', ...)`` answers.
         """
         credentials = context.pop("credentials", "")
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders an ansible var expression, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         env.filters["bool"] = _ansible_bool
         env.globals["lookup"] = lambda *_a, **_kw: credentials
         return env.from_string(self.variables[key]).render(

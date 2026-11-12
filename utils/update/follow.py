@@ -5,6 +5,10 @@ newer tag of the same shape whose digest equals the one ``<tag>`` points at.
 Ubuntu's ``latest`` names the newest LTS release and Fedora's the newest
 stable one, while the higher numbers (Ubuntu's interim releases, Fedora's
 rawhide) point elsewhere.
+
+``follow: requires-python`` holds a ``python`` base that pip-installs core to
+the minors ``requires-python`` of pyproject.toml admits, since pip refuses
+core on any other.
 """
 
 from __future__ import annotations
@@ -16,6 +20,7 @@ import time
 import urllib.error
 
 from utils.docker.image.ref import dockerhub_repo
+from utils.requires_python import FOLLOW, requires_python, supported_minors
 from utils.update.base import version_depth, version_flavor, version_key
 from utils.update.fetch import get
 
@@ -53,9 +58,11 @@ def followed_tags(
         current: the pinned version.
 
     Returns:
-        The tags unchanged without ``follow``; otherwise the newer tags of the
-        pin's depth and flavor that share the followed tag's digest, and none
-        when Docker Hub cannot be read, which is reported on stderr.
+        The tags unchanged without ``follow``; with ``follow: requires-python``
+        the newer tags of the pin's depth and flavor on a Python 3 minor that
+        ``requires-python`` admits; otherwise the newer ones that share the
+        followed tag's digest, and none when Docker Hub cannot be read, which
+        is reported on stderr.
     """
     follow = config.get("follow") if isinstance(config, dict) else None
     if follow is None:
@@ -67,6 +74,19 @@ def followed_tags(
         and version_flavor(tag) == version_flavor(current)
         and version_key(tag) > version_key(current)
     ]
+    if follow == FOLLOW:
+        minors = supported_minors(requires_python())
+        kept = [
+            tag
+            for tag in newer
+            if version_key(tag)[0] == 3 and version_key(tag)[1] in minors
+        ]
+        print(
+            f"[follow] {image}:{current}: requires-python admits "
+            f"{kept or 'none'} among newer {newer or 'none'}",
+            file=sys.stderr,
+        )
+        return kept
     try:
         target = tag_digest(image, str(follow))
         kept = [tag for tag in newer if tag_digest(image, tag) == target]
