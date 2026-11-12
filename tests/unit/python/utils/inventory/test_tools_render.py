@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from utils.cache.files import read_text
 from utils.inventory import tools
 
 MARKUP = "/models/<a & 'b'>\""
@@ -24,7 +25,7 @@ class TestRender(unittest.TestCase):
             template.parent.mkdir(parents=True)
             template.write_text(TEMPLATE, encoding="utf-8")
             with patch.object(tools, "models_dir", return_value=MARKUP):
-                rendered = tools.render(root, ["en", "de"]).read_text(encoding="utf-8")
+                rendered = read_text(str(tools.render(root, ["en", "de"])))
         self.assertIn(f'models: "{MARKUP}"', rendered)
         self.assertIn("languages: de,en", rendered)
         self.assertIn(f"key: {tools.API_KEY}", rendered)
