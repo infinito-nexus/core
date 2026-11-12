@@ -1,0 +1,15 @@
+---
+name: skeleton-postgres-oidc
+description: Sample web application with a PostgreSQL database, OpenID Connect login, email and persistent data
+homepage: https://nginx.org/
+license: BSD-2-Clause
+image: nginx:1.27.3-alpine
+port: 80
+database: postgres
+login: oidc
+features:
+  - email
+environment:
+  APP_MODE: production
+volumes:
+  - /var/lib/skeleton/data

@@ -1,0 +1,7 @@
+---
+name: skeleton-none
+description: Sample stateless web application without database or central login
+homepage: https://nginx.org/
+license: BSD-2-Clause
+image: nginx:1.27.3-alpine
+port: 80

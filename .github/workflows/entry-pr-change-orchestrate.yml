@@ -148,6 +148,31 @@ jobs:
     uses: ./.github/workflows/call-test-agents-local.yml
     secrets: inherit
 
+  detect-role-skeleton-scope:
+    name: 🧩 Detect role skeleton changes
+    needs: [detect-pr-scope, validation]
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-26.04
+    outputs:
+      affected: ${{ steps.resolve.outputs.affected }}
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Resolve role skeleton contract changes
+        id: resolve
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: ./scripts/github/resolve/pr/role_skeleton_affected.sh
+
+  role-skeleton:
+    name: "🧩 Role skeleton"
+    needs: [detect-pr-scope, validation, detect-role-skeleton-scope]
+    if: ${{ github.event_name == 'pull_request' && needs.detect-role-skeleton-scope.outputs.affected == 'true' }}
+    uses: ./.github/workflows/call-test-role-skeleton.yml
+
   prepare-fork-merge-ref:
     needs:
       - detect-pr-scope

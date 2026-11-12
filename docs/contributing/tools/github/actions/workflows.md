@@ -66,6 +66,7 @@ Trigger column legend: **auto** = fires automatically (push, pull_request, sched
 | Workflow | Description | Trigger | Inputs |
 |---|---|---|---|
 | [call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test` | Runs `make test` (unit, integration, lint and external tests in parallel) on the runner host. | reusable, manual | none |
+| [call-test-role-skeleton.yml](../../../../../.github/workflows/call-test-role-skeleton.yml): `🧩 Test: Role skeleton` | Runs `make role-skeleton-check`: renders one sample custom role per database and login choice, runs `make test` and `make lint` against them and removes them again. `entry-pr-change-orchestrate.yml` calls it when a pull request touches the role skeleton, its renderer or a role lint. | reusable, manual | none |
 
 ### Infrastructure tests 🌐📦💻📥
 

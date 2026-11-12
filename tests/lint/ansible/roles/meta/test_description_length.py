@@ -18,61 +18,10 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.description import violations
 from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 from . import PROJECT_ROOT
-
-_MAX_LEN = 120
-_LEADING_VERBS = frozenset(
-    {
-        "deploys",
-        "deploy",
-        "installs",
-        "install",
-        "runs",
-        "run",
-        "provides",
-        "provide",
-        "creates",
-        "create",
-        "sets",
-        "set",
-        "configures",
-        "configure",
-        "manages",
-        "manage",
-        "serves",
-        "serve",
-        "builds",
-        "build",
-        "enables",
-        "enable",
-        "adds",
-        "add",
-        "generates",
-        "generate",
-        "bootstraps",
-        "bootstrap",
-        "tags",
-        "tag",
-        "marks",
-        "mark",
-        "refreshes",
-        "refresh",
-        "retrieves",
-        "retrieve",
-        "resolves",
-        "resolve",
-        "hosts",
-        "host",
-        "syncs",
-        "sync",
-        "handles",
-        "handle",
-        "wires",
-        "wire",
-    }
-)
 
 
 def _description(role_dir) -> str:
@@ -84,18 +33,6 @@ def _description(role_dir) -> str:
     return description.strip() if isinstance(description, str) else ""
 
 
-def _violations(description: str) -> list[str]:
-    problems = []
-    if len(description) > _MAX_LEN:
-        problems.append(f"{len(description)}>{_MAX_LEN} chars")
-    if description.endswith("."):
-        problems.append("trailing period")
-    first = description.split(maxsplit=1)[0].strip(".,:").lower() if description else ""
-    if first in _LEADING_VERBS:
-        problems.append(f"starts with verb '{first}'")
-    return problems
-
-
 class TestDescriptionSchema(unittest.TestCase):
     def test_descriptions_follow_the_uniform_schema(self) -> None:
         offenders: list[str] = []
@@ -105,7 +42,7 @@ class TestDescriptionSchema(unittest.TestCase):
             description = _description(role_dir)
             if not description:
                 continue
-            problems = _violations(description)
+            problems = violations(description)
             if problems:
                 offenders.append(f"  - {role_dir.name}: {', '.join(problems)}")
 

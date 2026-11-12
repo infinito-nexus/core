@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: [[ (title ~ " role maintainers") | yaml ]]
+  description: [[ description | yaml ]]
+  license: [[ license | yaml ]]
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - infinito
+    - custom
+  min_ansible_version: "2.9"
+  platforms:
+[% for platform in platforms %]
+    - name: [[ platform.name ]]
+      versions:
+[% for version in platform.versions %]
+        - [[ version ]]
+[% endfor %]
+[% endfor %]
+dependencies: []

@@ -866,6 +866,24 @@ quality:
 # Full gate: quality (autoformat + test) followed by every lint check.
 quality-high: quality lint
 
+.PHONY: role-skeleton
+# Render a custom web-app-cst-<name> role from a JSON or YAML manifest with the core role skeleton.
+# Usage: make role-skeleton manifest=<file> target=<dir>
+# Param manifest: manifest file the renderer reads (required); `python -m cli.contributing.role.skeleton schema` lists its fields.
+# Param target: directory the role directory web-app-cst-<name> is written into (required).
+role-skeleton:
+	@test -n '$(manifest)' || { echo 'usage: make role-skeleton manifest=<file> target=<dir>'; exit 2; }
+	@test -n '$(target)' || { echo 'usage: make role-skeleton manifest=<file> target=<dir>'; exit 2; }
+	@"$${PYTHON}" -m cli.contributing.role.skeleton render --target '$(target)' < '$(manifest)'
+
+.PHONY: role-skeleton-check
+# Render one sample role per database and login choice into roles/web-app-cst-*, run make test and make lint against them, and remove them again, also when a check fails.
+role-skeleton-check:
+	@trap '"$(MAKE)" roles-clean' EXIT
+	@"$${PYTHON}" -m cli.contributing.role.skeleton.samples
+	@"$(MAKE)" test
+	@"$(MAKE)" lint
+
 .PHONY: roles-clean
 # Remove every custom role (roles/web-app-cst-*) a pull placed in this checkout and nothing else.
 roles-clean:

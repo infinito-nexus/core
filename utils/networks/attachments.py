@@ -10,13 +10,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from utils.networks import STREAM_RELAY
 from utils.networks.proxy import REVERSE_PROXY_APPLICATION_ID
 from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-STREAM_RELAY = "stream_relay"
 UNPROVEN_STREAM_RELAY_MODES = frozenset({"swarm"})
 
 

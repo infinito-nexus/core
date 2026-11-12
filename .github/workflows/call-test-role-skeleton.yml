@@ -1,0 +1,42 @@
+name: "🧩 Test: Role skeleton"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  role-skeleton:
+    name: 🧩 Role skeleton contract
+    runs-on: ubuntu-26.04
+    timeout-minutes: 90
+    env:
+      INFINITO_TEST_RUNNER: host
+      INFINITO_LINT_RUNNER: host
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 🧩 Render the sample roles and run make test and make lint against them
+        shell: bash
+        run: |
+          set -euo pipefail
+          make role-skeleton-check 2>&1 | tee /tmp/role-skeleton-output.txt
+
+      - name: 🔨 Build step summary from annotations
+        if: always()
+        working-directory: ${{ github.workspace }}
+        run: |
+          python3 -m utils.annotations.summarize /tmp/role-skeleton-output.txt "Role Skeleton Annotation Summary"
