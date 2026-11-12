@@ -11,6 +11,30 @@
     nextcloud_plugin_configure_keys: []
     nextcloud_plugin_background_jobs: []
 
+- name: "🔎 Read the accounts sociallogin created or connected before user_oidc takes over"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
+    stdin: "{{ lookup('file', 'php/utils/sociallogin_accounts.php') }}"
+  register: nextcloud_sociallogin_probe
+  changed_when: false
+  when:
+    - lookup('sso_oidc_plugin') == 'user_oidc'
+    - "'user_oidc' not in (nextcloud_app_list.stdout | from_json).enabled"
+
+- name: "🛑 Refuse a switch to user_oidc that would give a sociallogin account a second one"
+  ansible.builtin.assert:
+    that:
+      - nextcloud_sociallogin_probe | nextcloud_sociallogin_accounts | length == 0
+    fail_msg: >-
+      {{ application_id }}: user_oidc keys an account by {{ OIDC.ATTRIBUTES.USERNAME }},
+      so each of these sociallogin accounts would meet a second, empty account at its next login:
+      {{ nextcloud_sociallogin_probe | nextcloud_sociallogin_accounts | join(', ') }}.
+      Migration step before the switch: map each listed user id onto the Keycloak user that owns it
+      as the uid claim of user_oidc. Until the role carries that migration, keep
+      services.sso.oidc.plugin at sociallogin.
+    quiet: true
+  when: nextcloud_sociallogin_probe is not skipped
+
 - name: "🔴 Disable the plugins that end up disabled"
   ansible.builtin.command:
     cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable {{ nextcloud_plugin_plan.disable | map('quote') | join(' ') }}"

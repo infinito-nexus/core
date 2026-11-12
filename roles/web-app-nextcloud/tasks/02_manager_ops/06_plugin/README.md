@@ -116,6 +116,8 @@ An addon under `meta/addons/` MAY declare an `incompatible_plugins` list in its 
 The plan's `disable` list carries every listed plugin that ends up off and still runs, and [02_install.yml](./02_install.yml) disables the listed plugins again before an install attempt.
 This guarantees that mutually exclusive integrations such as the OIDC entry points (`oidc_login`, `sociallogin`, `user_oidc`) and the document-editing surfaces (`onlyoffice`, `richdocuments`, `fileslibreofficeedit`) cannot accidentally coexist on the same instance.
 
+Before any plugin changes, a pending switch to `user_oidc` runs [files/php/utils/sociallogin_accounts.php](../../../files/php/utils/sociallogin_accounts.php) and is refused while `sociallogin` holds an account it created or connected. `user_oidc` keys accounts by `preferred_username`, while `sociallogin` keyed them by `<provider>-<sub>` or a connected login, so each of those persons would meet a second, empty account. The refusal names the accounts and the migration step.
+
 ## Entry point
 
 [02_manager_ops.yml](../../02_manager_ops.yml) includes [06_plugin.yml](../06_plugin.yml) once.
