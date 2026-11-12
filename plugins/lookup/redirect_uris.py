@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
 from functools import partial
 from typing import TYPE_CHECKING, Any
 
@@ -15,15 +14,14 @@ from utils.roles.applications.config import (
     ConfigEntryNotSetError,
     get,
 )
-from utils.templating.jinja import looks_like_jinja
-from utils.tls_common import resolve_enabled
+from utils.templating.jinja import rendered_or_raise
+from utils.tls_common import resolve_enabled, with_rendered_tls
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
 
 DEFAULT_FEATURES = ("services.sso.enabled",)
 DEFAULT_WILDCARD = "/*"
-TLS_OVERRIDE = "server.tls.enabled"
 
 
 def _stable_dedup(items: Sequence[str]) -> list[str]:
@@ -52,34 +50,6 @@ def _iter_domains(value: Any) -> Iterable[str]:
         raise AnsibleError(
             "redirect_uris: domain value must be str, list/tuple[str], or dict mapping to those"
         )
-
-
-def _templated(value: Any) -> bool:
-    return isinstance(value, str) and looks_like_jinja(value)
-
-
-def _rendered(
-    value: Any, render: Callable[[Any], Any] | None, app_id: str, path: str
-) -> Any:
-    if render is not None and _templated(value):
-        value = render(value)
-    if _templated(value):
-        raise AnsibleError(
-            f"redirect_uris: '{app_id}' {path} stayed template text, so it "
-            "cannot decide the redirect URIs of that consumer."
-        )
-    return value
-
-
-def _with_rendered_tls(
-    app: Mapping, render: Callable[[Any], Any] | None, app_id: str
-) -> Mapping:
-    server = app.get("server")
-    tls = server.get("tls") if isinstance(server, Mapping) else None
-    if not isinstance(tls, Mapping) or "enabled" not in tls:
-        return app
-    enabled = _rendered(tls["enabled"], render, app_id, TLS_OVERRIDE)
-    return {**app, "server": {**server, "tls": {**tls, "enabled": enabled}}}
 
 
 def build_redirect_uris(
@@ -111,8 +81,8 @@ def build_redirect_uris(
             text, as the applications render would. None renders nothing.
 
     Raises:
-        AnsibleError: a feature flag or TLS override that is read stays
-            template text after ``render``.
+        AnsibleError: a feature flag or ``server.tls`` override stays template
+            text after ``render``.
     """
     if not isinstance(domains, dict):
         raise AnsibleError(
@@ -124,9 +94,12 @@ def build_redirect_uris(
     for app_id, domain_value in domains.items():
         if deployed_ids is not None and app_id not in deployed_ids:
             continue
+        where = f"redirect_uris: '{app_id}'"
         try:
             has_feature = any(
-                bool(_rendered(get(applications, app_id, f, False), render, app_id, f))
+                rendered_or_raise(
+                    get(applications, app_id, f, False), render, where=f"{where} {f}"
+                )
                 for f in features
             )
         except (AppConfigKeyError, ConfigEntryNotSetError):
@@ -134,7 +107,7 @@ def build_redirect_uris(
         if not has_feature:
             continue
 
-        app = _with_rendered_tls(applications.get(app_id) or {}, render, app_id)
+        app = with_rendered_tls(applications.get(app_id) or {}, render, where=where)
         for domain in _iter_domains(domain_value):
             proto = (
                 "https"

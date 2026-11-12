@@ -15,9 +15,12 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def as_str(v: Any) -> str:
@@ -26,6 +29,30 @@ def as_str(v: Any) -> str:
 
 def looks_like_jinja(s: str) -> bool:
     return ("{{" in s) or ("{%" in s)
+
+
+def rendered_or_raise(
+    value: Any, render: Callable[[Any], Any] | None, *, where: str
+) -> Any:
+    """Read a value from a payload that may still hold template text.
+
+    Args:
+        value: the value as the payload holds it.
+        render: renders template text; None renders nothing.
+        where: names the value in the error message.
+
+    Returns:
+        ``value`` when it is no template text, else what ``render`` made of it.
+
+    Raises:
+        AnsibleError: the value is still template text after ``render``; the
+            message names ``where``, never the value.
+    """
+    if render is not None and isinstance(value, str) and looks_like_jinja(value):
+        value = render(value)
+    if isinstance(value, str) and looks_like_jinja(value):
+        raise AnsibleError(f"{where} stayed template text after rendering")
+    return value
 
 
 def build_render_context(variables: dict[str, Any]) -> tuple[dict, str]:
