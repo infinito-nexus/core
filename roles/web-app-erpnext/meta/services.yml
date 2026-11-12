@@ -68,7 +68,7 @@ erpnext:
   enabled: true
   shared: true
   image: frappe/erpnext
-  version: "v16.54.0"
+  version: "v16.55.0"
   name: erpnext
   min_storage: 1017MB
   ports:
@@ -94,11 +94,6 @@ erpnext:
   mem_reservation: 2g
   mem_limit: 4g
   pids_limit: 2048
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "v16.54.0"
-        until: 2026-12-03
 backend:
   name: erpnext-backend
   healthcheck:
