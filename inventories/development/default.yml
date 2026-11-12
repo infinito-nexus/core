@@ -45,6 +45,11 @@ applications:
     secrets:
       credentials:
         admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"
+  sys-ctl-hlth-runtime:
+    services:
+      runtime:
+        severity:
+          CRITICAL: warn
 
 service_provider:
   company:

@@ -113,7 +113,7 @@ nextcloud:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "34-fpm-alpine"
-        until: 2026-12-03
+        until: 2026-11-30
 proxy:
   name: nextcloud-proxy
   healthcheck:
@@ -136,7 +136,7 @@ proxy:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "1.31.8-alpine"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag
 # nocheck: dynamic-flag  the container serves this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
 context_agent:
@@ -187,7 +187,7 @@ contextagentmcp:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "3.13.15-slim"
-        until: 2026-12-03
+        until: 2026-11-30
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1
@@ -305,7 +305,7 @@ whiteboard:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v1.5.9"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag: infrastructural sub-component (collaborative editing)
 onlyoffice:
   bond: 0.5

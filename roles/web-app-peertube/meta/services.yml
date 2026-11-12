@@ -92,7 +92,7 @@ peertube:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "v8.3.2"
-        until: 2026-12-03
+        until: 2026-11-30
 # nocheck: playwright-service-flag — verified by web-svc-design provider spec
 design:
   bond: 1

@@ -14,6 +14,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import TestCase, main, mock
 
+from cli.administration.deploy.development.common import DEV_INVENTORY_VARS_FILE
+from plugins.filter.merge.with_defaults import merge_with_defaults
+from utils.cache.yaml import load_yaml
+from utils.security.engine import ROLE
+from utils.security.pipeline import role_services
+
 from . import PROJECT_ROOT
 
 
@@ -1194,22 +1200,27 @@ class TestScan(TestCase):
             any(arg.startswith("sbom:") for call in runner.calls for arg in call)
         )
 
+    def _lane(self, steps, runner):
+        return SCRIPT.run_lane(
+            steps, runner, self.layout.work, threading.BoundedSemaphore(1)
+        )
+
     def test_osv_names_a_missing_ecosystem_database(self):
         result = SimpleNamespace(
             returncode=1,
             stdout="",
             stderr="could not load db for PyPI ecosystem: no offline",
         )
-        errors = SCRIPT.run_lane(
-            [SCRIPT.Step("osv sbom", ("x",), SCRIPT.OSV_ACCEPTED_EXIT_CODES)],
+        errors = self._lane(
+            [_step("osv sbom", accept=SCRIPT.OSV_ACCEPTED_EXIT_CODES)],
             lambda _argv: result,
         )
         self.assertEqual(errors, ["osv sbom: no OSV database for PyPI"])
 
     def test_osv_exit_code_one_means_findings(self):
         result = SimpleNamespace(returncode=1, stdout="", stderr="")
-        errors = SCRIPT.run_lane(
-            [SCRIPT.Step("osv sbom", ("x",), SCRIPT.OSV_ACCEPTED_EXIT_CODES)],
+        errors = self._lane(
+            [_step("osv sbom", accept=SCRIPT.OSV_ACCEPTED_EXIT_CODES)],
             lambda _argv: result,
         )
         self.assertEqual(errors, [])
@@ -1218,10 +1229,178 @@ class TestScan(TestCase):
         def hung(_argv):
             raise subprocess.TimeoutExpired(cmd="trivy", timeout=5)
 
-        errors = SCRIPT.run_lane(
-            [SCRIPT.Step("trivy host node", ("x",), SCRIPT.SUCCESS)], hung
-        )
+        errors = self._lane([_step("trivy host node")], hung)
         self.assertEqual(errors, ["trivy host node: no result within 5s"])
+
+
+def _step(label, *, accept=SCRIPT.SUCCESS, scratch="tmp-x", exports=False):
+    return SCRIPT.Step(label, ("x",), accept, scratch, exports)
+
+
+def _host_path(layout, container_path):
+    return layout.work / Path(container_path).relative_to(SCRIPT.WORK)
+
+
+class ExportingEngines(FakeEngines):
+    def __init__(self, layout, reports, *, fail=()):
+        super().__init__(layout, reports, fail=fail)
+        self.exporting = 0
+        self.exports = 0
+        self.on_disk_peak = 0
+        self.overlap = threading.Condition()
+
+    def _export(self, argv):
+        if argv[1] == "save":
+            return Path(argv[argv.index("--output") + 1]), True
+        if not any(arg.startswith("docker:") or arg == "--image-src" for arg in argv):
+            return None, False
+        tmpdir = next(arg for arg in argv if arg.startswith("TMPDIR="))
+        scratch = _host_path(self.layout, tmpdir.split("=", 1)[1])
+        return scratch / f"export-{threading.get_ident()}.tar", False
+
+    def __call__(self, argv):
+        argv = list(argv)
+        export, archive = self._export(argv)
+        if export is None:
+            return super().__call__(argv)
+        export.write_bytes(b"layer")
+        with self.overlap:
+            self.exporting += 1
+            self.exports += 1
+            self.overlap.notify_all()
+            self.overlap.wait_for(lambda: self.exporting >= 2, timeout=0.1)
+            tars = self.layout.work.rglob("*.tar")  # nocheck: project-walk tempdir
+            self.on_disk_peak = max(self.on_disk_peak, len(list(tars)))
+        try:
+            if archive:
+                return SimpleNamespace(returncode=0, stdout="", stderr="")
+            result = super().__call__(argv)
+        finally:
+            with self.overlap:
+                self.exporting -= 1
+        if result.returncode == 0:
+            export.unlink()
+        return result
+
+
+class TestScratch(TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        for name in ("db", "sbom", "work"):
+            (root / name).mkdir()
+        self.layout = SCRIPT.Layout(
+            runtime=("container", "run"),
+            databases=root / "db",
+            sbom=root / "sbom",
+            work=root / "work",
+            excludes=("/proc",),
+        )
+        self.images = {engine: f"{engine}:1" for engine in SCRIPT.ENGINES}
+        self.containers = SCRIPT.container_targets(
+            [_container(name, image=f"sha256:{name}") for name in ("a", "b", "c")]
+        )
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _scan(self, config, targets, *, reports=None, fail=()):
+        runner = ExportingEngines(self.layout, reports or {}, fail=fail)
+        with mock.patch.object(SCRIPT, "pause"):
+            _findings, errors = SCRIPT.scan(
+                targets, config, self.images, self.layout, runner
+            )
+        return runner, errors
+
+    def _left_on_disk(self):
+        return sorted(
+            path.relative_to(self.layout.work).as_posix()
+            for path in self.layout.work.rglob("*")  # nocheck: project-walk tempdir
+            if path.suffix == ".tar" or path.name.startswith("tmp-")
+        )
+
+    def test_one_image_export_is_on_disk_at_a_time(self):
+        runner, errors = self._scan(
+            _config(), [*self.containers, SCRIPT.host_target("node")]
+        )
+        self.assertEqual(errors, [])
+        self.assertEqual(runner.exports, 6)
+        self.assertEqual(runner.on_disk_peak, 1)
+        self.assertEqual(self._left_on_disk(), [])
+
+    def test_engines_reading_the_image_without_syft_export_one_at_a_time(self):
+        runner, errors = self._scan(
+            _config(targets=["container"], engines=["trivy", "grype", "osv"]),
+            self.containers,
+            reports={"osv.json": {"results": []}},
+        )
+        self.assertEqual(errors, [])
+        self.assertEqual(runner.exports, 9)
+        self.assertEqual(runner.on_disk_peak, 1)
+        self.assertEqual(self._left_on_disk(), [])
+
+    def test_a_failing_engine_leaves_no_export_behind(self):
+        runner, errors = self._scan(
+            _config(targets=["container"]),
+            self.containers,
+            fail=("docker:sha256:",),
+        )
+        self.assertEqual(
+            errors,
+            [f"syft container {name}:1: exited 2: boom" for name in ("a", "b", "c")],
+        )
+        self.assertEqual(runner.on_disk_peak, 1)
+        self.assertEqual(self._left_on_disk(), [])
+
+    def test_a_failing_osv_scan_removes_its_archive(self):
+        runner, errors = self._scan(
+            _config(targets=["container"], engines=["grype", "osv"]),
+            self.containers[:1],
+            fail=("--archive",),
+        )
+        self.assertEqual(errors, ["osv container a:1: exited 2: boom"])
+        self.assertEqual(runner.on_disk_peak, 1)
+        self.assertEqual(self._left_on_disk(), [])
+
+    def test_a_raising_runner_still_removes_the_scratch(self):
+        def crash(argv):
+            (_host_path(self.layout, "/work/tmp-x") / "partial.tar").write_bytes(b"")
+            raise OSError("engine vanished")
+
+        with self.assertRaises(OSError):
+            SCRIPT.run_lane(
+                [_step("trivy container a:1", exports=True)],
+                crash,
+                self.layout.work,
+                threading.BoundedSemaphore(1),
+            )
+        self.assertEqual(self._left_on_disk(), [])
+
+    def test_a_killed_run_is_swept_by_the_next(self):
+        cache = Path(self.tmp.name) / "cache"
+        stale = cache / "run-killed"
+        stale.mkdir(parents=True)
+        (stale / "image.tar").write_bytes(b"layer")
+        keep = cache / "db" / "grype" / "6" / "vulnerability.db"
+        keep.parent.mkdir(parents=True)
+        keep.write_bytes(b"db")
+        with (
+            mock.patch.object(SCRIPT, "docker_root", return_value="/var/lib/docker"),
+            mock.patch.object(SCRIPT, "scan", return_value=([], [])),
+        ):
+            SCRIPT.vulnerability_check(
+                [],
+                _config(targets=["container"]),
+                self.images,
+                _suppressions(),
+                cache,
+                cache / "db",
+                [],
+                None,
+                SCRIPT.Run("id", dt.datetime.now(tz=dt.UTC), "node", "test"),
+            )
+        self.assertFalse(stale.exists())
+        self.assertTrue(keep.is_file())
 
 
 class TestCommands(TestCase):
@@ -1247,18 +1426,76 @@ class TestCommands(TestCase):
         step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config())
         self.assertIn("/:/host:ro", step.argv)
 
-    def test_every_engine_writes_its_temp_files_to_the_work_mount(self):
+    def test_every_engine_writes_its_temp_files_to_its_scratch_in_the_work_mount(self):
         for engine in ("trivy", "grype", "osv", "syft"):
             with self.subTest(engine=engine):
                 argv = SCRIPT.run_argv(
-                    self.layout, engine, f"{engine}:1", [], target=None, extra_env={}
+                    self.layout,
+                    engine,
+                    f"{engine}:1",
+                    [],
+                    target=None,
+                    extra_env={},
+                    scratch="tmp-x",
                 )
-                self.assertIn("TMPDIR=/work", argv)
+                self.assertIn("TMPDIR=/work/tmp-x", argv)
                 self.assertIn("/var/cache/v/run:/work", argv)
 
-    def test_the_grype_database_update_writes_its_listing_to_the_work_mount(self):
+    def test_the_grype_database_update_writes_its_listing_to_its_scratch(self):
         (step,) = SCRIPT.db_steps("grype", self.layout, "grype:1")
-        self.assertIn("TMPDIR=/work", step.argv)
+        self.assertIn(f"TMPDIR=/work/{step.scratch}", step.argv)
+
+    def test_parallel_engine_runs_never_share_a_scratch(self):
+        steps = [
+            SCRIPT.sbom_step(self.layout, "syft:1", self.container),
+            SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config()),
+            SCRIPT.grype_step(self.layout, "grype:1", self.container, _config()),
+            SCRIPT.runtime_step(self.layout, "grype:1", self.container),
+            SCRIPT.osv_sbom_step(self.layout, "osv:1", [self.container], _config()),
+            *SCRIPT.db_steps("grype", self.layout, "grype:1"),
+        ]
+        scratches = [step.scratch for step in steps]
+        self.assertEqual(len(set(scratches)), len(scratches))
+
+    def test_only_runs_that_read_a_local_image_export_it(self):
+        without_syft = _config(engines=["grype", "osv"], targets=["container"])
+        cases = {
+            "syft container": SCRIPT.sbom_step(self.layout, "syft:1", self.container),
+            "syft host": SCRIPT.sbom_step(self.layout, "syft:1", self.host),
+            "trivy container": SCRIPT.trivy_step(
+                self.layout, "trivy:1", self.container, _config()
+            ),
+            "trivy host": SCRIPT.trivy_step(
+                self.layout, "trivy:1", self.host, _config()
+            ),
+            "grype sbom": SCRIPT.grype_step(
+                self.layout, "grype:1", self.container, _config()
+            ),
+            "grype image": SCRIPT.grype_step(
+                self.layout, "grype:1", self.container, without_syft
+            ),
+            "osv export": SCRIPT.osv_image_steps(
+                self.layout, "osv:1", self.container, without_syft
+            )[0],
+            "osv archive": SCRIPT.osv_image_steps(
+                self.layout, "osv:1", self.container, without_syft
+            )[1],
+        }
+        self.assertEqual(
+            {name for name, step in cases.items() if step.exports},
+            {"syft container", "trivy container", "grype image", "osv export"},
+        )
+
+    def test_osv_exports_into_the_scratch_its_scan_reads(self):
+        export, scan = SCRIPT.osv_image_steps(
+            self.layout,
+            "osv:1",
+            self.container,
+            _config(engines=["osv", "grype"], targets=["container"]),
+        )
+        self.assertEqual(export.scratch, scan.scratch)
+        self.assertIn(str(self.layout.work / export.scratch / "image.tar"), export.argv)
+        self.assertIn(f"/work/{scan.scratch}/image.tar", scan.argv)
 
     def test_a_container_scan_reads_the_docker_socket_read_only(self):
         step = SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config())
@@ -1738,6 +1975,21 @@ MAIN_SCAN = {
     "workers": 1,
     "db_update": True,
 }
+SHIPPED_SCAN = {
+    **MAIN_SCAN,
+    "severity": role_services()["runtime"]["severity"],
+}
+DEVELOPMENT_SCAN = {
+    **MAIN_SCAN,
+    "severity": merge_with_defaults(
+        {ROLE: {"services": role_services()}},
+        {
+            ROLE: load_yaml(str(PROJECT_ROOT / DEV_INVENTORY_VARS_FILE))[
+                "applications"
+            ].get(ROLE, {})
+        },
+    )[ROLE]["services"]["runtime"]["severity"],
+}
 CRITICAL_FINDING = _finding(engine="grype", severity="CRITICAL")
 HIGH_FINDING = _finding(engine="grype", ids=("CVE-2026-0002",))
 
@@ -1786,7 +2038,15 @@ class TestMain(TestCase):
             code = SCRIPT.main(self._args(scan, NO_SUPPRESSIONS, []))
         return code, out.getvalue()
 
-    def _main(self, findings, *, errors=(), suppressions=NO_SUPPRESSIONS, metrics=None):
+    def _main(
+        self,
+        findings,
+        *,
+        errors=(),
+        suppressions=NO_SUPPRESSIONS,
+        metrics=None,
+        scan=MAIN_SCAN,
+    ):
         flags = ["--metrics-file", str(self.metrics)] if metrics is None else metrics
         with (
             mock.patch.object(SCRIPT, "running_containers", return_value=[]),
@@ -1798,7 +2058,7 @@ class TestMain(TestCase):
             mock.patch.object(SCRIPT.socket, "gethostname", return_value="node"),
             contextlib.redirect_stdout(io.StringIO()) as out,
         ):
-            code = SCRIPT.main(self._args(MAIN_SCAN, suppressions, flags))
+            code = SCRIPT.main(self._args(scan, suppressions, flags))
         return code, out.getvalue()
 
     def _report(self):
@@ -1854,6 +2114,40 @@ class TestMain(TestCase):
 
     def test_an_engine_error_still_fails_the_check(self):
         code, output = self._main([], errors=["grype database: exited 1"])
+        self.assertEqual(code, 1)
+        self.assertIn("❌ grype database: exited 1", output)
+
+    def test_the_shipped_threshold_fails_on_a_critical(self):
+        code, output = self._main([CRITICAL_FINDING], scan=SHIPPED_SCAN)
+        self.assertEqual((SHIPPED_SCAN["severity"]["CRITICAL"], code), ("fail", 1))
+        self.assertIn(
+            "❌ grype host node: CVE-2026-0001 CRITICAL openssl 1.0 (fixed in 1.1)",
+            output,
+        )
+
+    def test_the_development_inventory_maps_critical_to_warn(self):
+        self.assertEqual(
+            DEVELOPMENT_SCAN["severity"], {"CRITICAL": "warn", "HIGH": "warn"}
+        )
+
+    def test_the_development_inventory_reports_a_critical_without_failing(self):
+        code, output = self._main([CRITICAL_FINDING], scan=DEVELOPMENT_SCAN)
+        self.assertEqual((code, "❌" in output), (0, False))
+        self.assertIn(
+            "⚠️ grype host node: CVE-2026-0001 CRITICAL openssl 1.0 (fixed in 1.1)",
+            output,
+        )
+        self.assertEqual(
+            [(item["id"], item["verdict"]) for item in self._report()["findings"]],
+            [("CVE-2026-0001", "warn")],
+        )
+
+    def test_the_development_inventory_still_fails_on_an_engine_error(self):
+        code, output = self._main(
+            [CRITICAL_FINDING],
+            errors=["grype database: exited 1"],
+            scan=DEVELOPMENT_SCAN,
+        )
         self.assertEqual(code, 1)
         self.assertIn("❌ grype database: exited 1", output)
 
