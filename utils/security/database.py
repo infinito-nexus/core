@@ -74,7 +74,7 @@ def fetch_databases(
         (root / engine).mkdir(parents=True, exist_ok=True)
         if engine != "osv":
             lanes.append(p.db_steps(engine, layout, engine_image(engine)))
-    errors = p._flat(p.run_lanes(lanes, runner, len(lanes) or 1))
+    errors = p._flat(p.run_lanes(lanes, runner, len(lanes) or 1, layout.work))
     if "osv" in engines:
         for zip_file in osv_zips(p, root):
             zip_file.parent.mkdir(parents=True, exist_ok=True)

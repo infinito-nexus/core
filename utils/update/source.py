@@ -35,7 +35,7 @@ import subprocess
 import urllib.error
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
@@ -156,7 +156,7 @@ def registry_v2_tags(image: str, match: str = "") -> list[str]:
         return []
     fields = dict(re.findall(r'(\w+)="([^"]*)"', challenge))
     realm = fields.pop("realm", "")
-    if not realm:
+    if not realm or urlparse(realm).scheme != "https":
         return []
     query = "&".join(f"{name}={value}" for name, value in fields.items())
     try:
@@ -452,6 +452,26 @@ def find_outdated_updates(repo_root: Path) -> list[VersionSourceUpdate]:
     return outdated(collect_entries(repo_root), repo_root)
 
 
+def bump_archive(line: str, current: str, latest: str) -> str:
+    """Return the archive line with every occurrence of the pinned version moved.
+
+    Args:
+        line: the ``archive`` line of an addon.
+        current: the pinned version, with or without a leading ``v``.
+        latest: the version it moves to.
+
+    Returns:
+        The line with each occurrence of ``current`` replaced by ``latest``,
+        each keeping its own ``v`` prefix or lack of one.
+    """
+    old, new = current.removeprefix("v"), latest.removeprefix("v")
+    return re.sub(
+        rf"(?<![\d.])(v?){re.escape(old)}(?!\.?\d)",
+        lambda found: found[1] + new,
+        line,
+    )
+
+
 def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
     """Rewrite every pin to its newer version and return the changed files."""
     changed: list[Path] = []
@@ -464,8 +484,8 @@ def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
         lines[index] = lines[index].replace(update.entry.current, update.latest, 1)
         archive = archive_index(lines) if update.entry.addon else None
         if archive is not None:
-            lines[archive] = lines[archive].replace(
-                update.entry.current, update.latest, 1
+            lines[archive] = bump_archive(
+                lines[archive], update.entry.current, update.latest
             )
         checksum.rewrite(
             lines,
