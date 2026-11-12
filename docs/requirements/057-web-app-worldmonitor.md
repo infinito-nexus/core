@@ -133,14 +133,14 @@ litellm:
 
 - [ ] `https://worldmonitor.{{ DOMAIN_PRIMARY }}/` resolves through `sys-svc-proxy` to the `worldmonitor` service and serves the dashboard SPA.
 - [ ] `WM_TRUSTED_PROXY_CIDRS` is set to the network the fronting proxy reaches the container from, in compose and in swarm, and the app logs the real client address for a proxied request.
-- [ ] The dashboard's live updates (the WebSocket and streaming endpoints it opens) work through the proxy with no console error.
-- [ ] The canonical surface answers with exactly one `Content-Security-Policy` header, and the dashboard renders under it with no CSP violation in the browser console.
+- [ ] The dashboard's live updates (the WebSocket and streaming endpoints it opens) work through the proxy with no console error. *Asserted by `test-live-updates.js`, live proof in the final roundtrip. The `v2.11.8` build opens no browser WebSocket or event stream, because `VITE_WS_RELAY_URL` and `VITE_CONVEX_URL` are unset at build time, so its live updates are the `/api/*` fetches. The spec fails on a gate or proxy refusal of those and on a failed event stream on the canonical host, and off Tor also on any transport or socket failure and console transport error there.*
+- [ ] The canonical surface answers with exactly one `Content-Security-Policy` header, and the dashboard renders under it with no CSP violation in the browser console. *Asserted by `test-oidc-login.js`, live proof in the final roundtrip: `/` answers the signed-in session with exactly one policy, it is the platform policy with every expected directive, and the dashboard fires no violation.*
 
 ### SSO (Decisions #2 to #4)
 
 - [ ] With SSO enabled, an unauthenticated request to any path, including `/api/*`, is redirected to the Keycloak login.
 - [ ] After login the user lands on the dashboard with no further credential prompt.
-- [ ] A user with an existing Keycloak session reaches the dashboard without an interactive login.
+- [ ] A user with an existing Keycloak session reaches the dashboard without an interactive login. *Asserted by `test-oidc-login.js`, live proof in the final roundtrip: after the login the spec drops only the `_oauth2_proxy` cookies, and the next visit must pass the Keycloak authorization endpoint by redirect and land on the dashboard.*
 - [ ] After logout through the platform logout, a request to the dashboard is redirected to the Keycloak login again.
 - [ ] With SSO disabled, the dashboard is reachable anonymously and the stack is otherwise unchanged.
 
