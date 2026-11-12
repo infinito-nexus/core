@@ -163,6 +163,11 @@ cache-declare:
 cache-evict:
 	@"$${PYTHON}" -m cli.meta.cache.evict
 
+.PHONY: cache-host-sync
+# Under sudo, point the host's pacman or apt at the cache stack's caches while INFINITO_CACHE_HOST_SYNC is true, and restore every host file it changed once it is false.
+cache-host-sync:
+	@sudo env PYTHONDONTWRITEBYTECODE=1 "$${PYTHON}" -m cli.meta.cache.host_sync --sync "$${INFINITO_CACHE_HOST_SYNC}" --shared "$${INFINITO_CACHE_SHARED_HOST_PATH}" --nexus "http://$${INFINITO_BIND_IP}:$${INFINITO_CACHE_PACKAGE_PORT}" --ubuntu-mirrors "$${INFINITO_APT_UBUNTU_MIRRORS}"
+
 .PHONY: cache-status
 # Print one JSON object per cache with its path, used bytes, cap, headroom and access-time fallback; the cache pin (pinned and applied commit) goes to stderr.
 cache-status:

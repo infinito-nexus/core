@@ -73,6 +73,19 @@ A GUI lane follows the same contract whenever `INFINITO_CACHE_SHARED_HOST_PATH` 
 - On an arch lane with a non-empty `INFINITO_CACHE_HOST_PACMAN_PATH`, mount that directory read-only at the same path and run `scripts/docker/cache/pacman.sh /etc/pacman.conf "${INFINITO_CACHE_SHARED_HOST_PATH}" "${INFINITO_CACHE_HOST_PACMAN_PATH}"` in the lane before its first `pacman` call. Pass an empty third argument without the read-only mount.
 - Read both values from this checkout's `.env` after `make dotenv`.
 
+### Host Cache Sync 🔁
+
+`INFINITO_CACHE_HOST_SYNC` (default `false`, from [default.env](../../../default.env)) decides what `make cache-host-sync` does to the host itself. Nothing else reads it, so every rendered compose file and cache configuration stays the same either way, and the host stays untouched until the operator runs the target. The target runs [host_sync.py](../../../utils/cache/host_sync.py) under `sudo` and passes this checkout's `.env` values as arguments.
+
+With `true`:
+
+- On a host whose `/etc/os-release` `ID` is exactly `arch`, `/etc/pacman.conf` gains `CacheDir = <INFINITO_CACHE_SHARED_HOST_PATH>/pacman/` after its last `CacheDir`, with the default `/var/cache/pacman/pkg/` listed first where it lists none. The host keeps downloading into its own cache, which an arch stack mounts read-only through `INFINITO_CACHE_HOST_PACMAN_PATH`, and installs every package the stack published to the shared folder without a download. Every `SigLevel` stays: the host's pacman checks each package from the shared folder against its own sync database, since every stack container can write there. `pacman -Sc` on the host asks per `CacheDir`; a yes for the shared folder evicts the stack's packages.
+- On a Debian or Ubuntu host, every `deb` entry of `/etc/apt/sources.list`, `/etc/apt/sources.list.d/*.list` and `/etc/apt/sources.list.d/*.sources` whose archive and suite an `apt-*` repository of the package cache serves gets a copy pointing at `http://<INFINITO_BIND_IP>:<INFINITO_CACHE_PACKAGE_PORT>/repository/<repo>/`, inserted before it with every option, `Signed-By` included. The original stays behind the copy, so apt falls back to it while the stack is down. Other suites, third-party repositories, entries that skip signature checks and HTTPS entries the cache would fetch over HTTP stay as they are. `/etc/apt/apt.conf.d/99infinito-cache-host-sync` sets `APT::Keep-Downloaded-Packages "false"`, so Nexus holds the one copy of each package.
+- Before anything is written, `pacman-conf` reads the planned `pacman.conf`, or `apt-get update` fetches the planned entries alone. When it refuses, every file stays as it was.
+- The original and the digest of every changed file go to `<DIR_VAR_LIB>/cache-host-sync/`. A rerun restores them first and plans again.
+
+With `false`, the target restores every recorded file byte for byte and removes the drop-in. It restores nothing while a recorded file changed since the sync, and names that file and the original it keeps. Any other host `ID` with `true` is refused.
+
 ## Bounds and Eviction 📏
 
 Every cache has a fixed cap and the idle window `INFINITO_CACHE_MAX_IDLE_DAYS` (default `30`): an entry without access for that many days is evicted. `make dotenv` writes the defaults below from [default.env](../../../default.env); an exported value or a line in [custom.env](../customize.md) wins, and no value depends on the free disk space.
@@ -181,6 +194,7 @@ The token lives in the untracked `custom.env` and `.env`. `docker compose config
 | Pin the commit the stack serves and apply it (declarer only) | `make cache-declare ref=<commit>` |
 | Install the pinned commit's `cache:` declarations into the running stack | `make cache-apply` |
 | Evict idle and least recently used entries until every cache fits its cap | `make cache-evict` |
+| Make the host's pacman or apt share the caches while `INFINITO_CACHE_HOST_SYNC` is `true`, or restore its files once it is `false` (runs `sudo`) | `make cache-host-sync` |
 | Print used bytes, cap and headroom per cache as JSON on stdout, and the pinned and applied commit as JSON on stderr | `make cache-status` |
 | Wipe local cache state | `make clean-cache` |
 | Manually re-bootstrap Nexus repos | `bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`) |

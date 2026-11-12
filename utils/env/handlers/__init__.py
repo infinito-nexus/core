@@ -43,6 +43,7 @@ from .infinito.ca import bundle_candidates as ca_bundle_candidates
 from .infinito.ca import cert_host as ca_cert_host
 from .infinito.cache import artefact_base as cache_artefact_base
 from .infinito.cache import host_pacman_path as cache_host_pacman_path
+from .infinito.cache import host_sync as cache_host_sync
 from .infinito.cache import hosts as cache_hosts
 from .infinito.cache import http_hosts as cache_http_hosts
 from .infinito.cache import paths as cache_paths
@@ -112,6 +113,7 @@ ORDERED_HANDLERS = [
     cache_artefact_base,
     cache_paths,
     cache_host_pacman_path,
+    cache_host_sync,
     ghcr_mirror,
     tor_socks_port,
     is_wsl2,
