@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const PROBE_LINK = "#kf=playwrightprobe";
 
@@ -26,6 +27,7 @@ async function withDeadline(work, ms, label) {
 
 exports.register = function (shared) {
   test("biber: login → editor → queue a render → cancel it → logout", async ({ page }) => {
+    skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(240_000)); // Keycloak round-trip of the oauth2 gate, native login, and the renderer's cancel
     expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();

@@ -1,7 +1,14 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled, skipUnlessServiceDisabled } = require("./service-gating");
-const { apiGetOnion, runGuestFlow, performKeycloakLoginExpectingDenial } = require("./personas");
+const {
+  apiGetOnion,
+  attachDiagnostics,
+  expectNoCspViolations,
+  installCspViolationObserver,
+  runGuestFlow,
+  performKeycloakLoginExpectingDenial,
+} = require("./personas");
 
 exports.register = function (shared) {
   test("guest: dashboard -> login -> never authenticated", async ({ page }) => {
@@ -26,8 +33,11 @@ exports.register = function (shared) {
   test("guest: with SSO disabled the dashboard is anonymous", async ({ page }) => {
     skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(180_000)); // the dashboard boot fetches every seeded layer
+    const diagnostics = attachDiagnostics(page);
+    await installCspViolationObserver(page);
     await shared.openApp(page, "/");
     await shared.expectDashboard(page, "with SSO disabled the dashboard is anonymous");
+    await expectNoCspViolations(page, diagnostics, "World Monitor dashboard");
   });
 
   test("guest: a login without an account is rejected", async ({ page }) => {

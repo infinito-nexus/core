@@ -1,14 +1,11 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const {
-  attachDiagnostics,
-  expectNoCspViolations,
-  installCspViolationObserver,
-  safeIsEnabled,
-} = require("./personas");
+const { attachDiagnostics, expectNoCspViolations, installCspViolationObserver } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("biber: login -> dashboard map renders under the CSP -> logout -> gated again", async ({ page }) => {
+    skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(300_000)); // Keycloak round-trip, the dashboard boot and the SSO logout
     expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
@@ -22,8 +19,6 @@ exports.register = function (shared) {
     await shared.expectDashboard(page, "an existing session must reach the dashboard without a prompt");
     expect(page.url(), "an existing session must not be sent to Keycloak again").not.toMatch(shared.KEYCLOAK_AUTH_RE);
 
-    if (safeIsEnabled("sso")) {
-      await shared.logout(page);
-    }
+    await shared.logout(page);
   });
 };
