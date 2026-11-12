@@ -1,6 +1,7 @@
 ---
 general:
   path: /wp-admin/options-general.php
+  sinks: [WORDPRESS_OPTIONS]
   fields:
     blogname:
       source: services.design.title
@@ -25,6 +26,7 @@ general:
       label: Membership
 permalink:
   path: /wp-admin/options-permalink.php
+  sinks: [WORDPRESS_OPTIONS]
   fields:
     permalink_structure:
       source: services.wordpress.options.permalink_structure
@@ -34,6 +36,7 @@ permalink:
       label: Permalink structure
 translate:
   path: /wp-admin/options-general.php?page=freedomtranslate
+  sinks: [WORDPRESS_OPTIONS]
   fields:
     freedomtranslate_service:
       source: addons.freedomtranslate-wp.config.options.freedomtranslate_service
@@ -52,6 +55,7 @@ translate:
       label: Translation API URL
 network:
   path: /wp-admin/network/settings.php
+  sinks: [WORDPRESS_NETWORK_OPTIONS]
   fields:
     registration:
       source: services.wordpress.login.method.registration.enabled

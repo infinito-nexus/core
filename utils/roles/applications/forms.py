@@ -62,7 +62,7 @@ TYPES = (
     "textarea",
     "url",
 )
-FORM_KEYS = frozenset({"path", "fields"})
+FORM_KEYS = frozenset({"path", "fields", "sinks"})
 REQUIRED_FIELD_KEYS = ("source", "mode", "selector")
 OPTIONAL_FIELD_KEYS = frozenset(
     {"when", "label", "type", "enum", "validation", "description", "map"}
@@ -88,6 +88,7 @@ TEMPLATE_MARKERS = ("{{", "{%")
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
 _PATH = re.compile(r"^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+$")
+_SINK = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
 
 class SourceError(KeyError):
@@ -208,6 +209,22 @@ def _validation_errors(where: str, validation: Any) -> list[str]:
     return []
 
 
+def _sinks_errors(where: str, sinks: Any) -> list[str]:
+    if (
+        isinstance(sinks, list)
+        and sinks
+        and all(isinstance(sink, str) and _SINK.fullmatch(sink) for sink in sinks)
+        and len(set(sinks)) == len(sinks)
+    ):
+        return []
+    return [
+        (
+            f"{where}.sinks must list distinct UPPER_SNAKE_CASE role variables"
+            " that carry the form's values"
+        )
+    ]
+
+
 def _form_errors(where: str, block: Any) -> list[str]:
     if not isinstance(block, Mapping):
         return [f"{where} must be a mapping of {sorted(FORM_KEYS)}"]
@@ -219,6 +236,8 @@ def _form_errors(where: str, block: Any) -> list[str]:
     path = block.get("path")
     if not (_non_empty_string(path) and path.startswith("/")):
         errors.append(f"{where}.path must be the admin page path, starting with /")
+    if "sinks" in block:
+        errors.extend(_sinks_errors(where, block["sinks"]))
     fields = block.get("fields")
     if not isinstance(fields, Mapping) or not fields:
         errors.append(f"{where}.fields must map each field to its spec")

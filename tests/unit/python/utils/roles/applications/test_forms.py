@@ -219,6 +219,32 @@ class TestSchema(unittest.TestCase):
                     ),
                 )
 
+    def test_a_form_naming_its_sinks_passes(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["sinks"] = ["WORDPRESS_OPTIONS", "WP_NETWORK_2"]
+        self.assertEqual([], forms.schema_errors("web-app-x", data))
+
+    def test_sinks_that_are_no_distinct_role_variables_are_refused(self):
+        for sinks in (
+            [],
+            "WORDPRESS_OPTIONS",
+            ["wordpress_options"],
+            ["WORDPRESS-OPTIONS"],
+            ["{{ SINK }}"],
+            ["WORDPRESS_OPTIONS", "WORDPRESS_OPTIONS"],
+            [None],
+        ):
+            with self.subTest(sinks=sinks):
+                data = copy.deepcopy(FORMS)
+                data["general"]["sinks"] = sinks
+                self.assertIn(
+                    (
+                        "web-app-x: general.sinks must list distinct UPPER_SNAKE_CASE "
+                        "role variables that carry the form's values"
+                    ),
+                    forms.schema_errors("web-app-x", data),
+                )
+
 
 class TestResolve(unittest.TestCase):
     def test_a_source_resolves_relative_to_the_application(self):
