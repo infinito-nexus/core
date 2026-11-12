@@ -11,29 +11,33 @@
     nextcloud_plugin_configure_keys: []
     nextcloud_plugin_background_jobs: []
 
-- name: "🔎 Read the accounts sociallogin created or connected before user_oidc takes over"
+- name: "🔎 Read the accounts each OIDC plugin keyed before another one takes over"
   ansible.builtin.command:
     cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
-    stdin: "{{ lookup('file', 'php/utils/sociallogin_accounts.php') }}"
-  register: nextcloud_sociallogin_probe
+    stdin: "{{ lookup('file', 'php/utils/sso_accounts.php') }}"
+  register: nextcloud_sso_accounts_probe
   changed_when: false
   when:
-    - lookup('sso_oidc_plugin') == 'user_oidc'
-    - "'user_oidc' not in (nextcloud_app_list.stdout | from_json).enabled"
+    - lookup('sso_oidc_plugin') | length > 0
+    - lookup('sso_oidc_plugin') not in (nextcloud_app_list.stdout | from_json).enabled
 
-- name: "🛑 Refuse a switch to user_oidc that would give a sociallogin account a second one"
+- name: "🛑 Refuse an OIDC plugin switch that gives an existing account a new user id"
   ansible.builtin.assert:
     that:
-      - nextcloud_sociallogin_probe | nextcloud_sociallogin_accounts | length == 0
+      - nextcloud_sso_rekeyed_accounts | length == 0
     fail_msg: >-
-      {{ application_id }}: user_oidc keys an account by {{ OIDC.ATTRIBUTES.USERNAME }},
-      so each of these sociallogin accounts would meet a second, empty account at its next login:
-      {{ nextcloud_sociallogin_probe | nextcloud_sociallogin_accounts | join(', ') }}.
-      Migration step before the switch: map each listed user id onto the Keycloak user that owns it
-      as the uid claim of user_oidc. Until the role carries that migration, keep
-      services.sso.oidc.plugin at sociallogin.
+      {{ application_id }}: the switch to {{ lookup('sso_oidc_plugin') }} gives each of these accounts
+      a new user id, so its owner meets a second, empty account or none at the next login:
+      {{ nextcloud_sso_rekeyed_accounts | join(', ') }}.
+      user_oidc keeps its own accounts, and LDAP accounts while user_ldap stays on, under their user id.
+      A sociallogin account first needs the Keycloak user that owns it to carry its user id as the uid
+      claim of user_oidc. Until then keep services.sso.oidc.plugin at the plugin these accounts came from.
     quiet: true
-  when: nextcloud_sociallogin_probe is not skipped
+  vars:
+    nextcloud_sso_rekeyed_accounts: >-
+      {{ nextcloud_sso_accounts_probe
+         | nextcloud_rekeyed_accounts(lookup('sso_oidc_plugin'), NEXTCLOUD_USER_LDAP_ENABLED | bool) }}
+  when: nextcloud_sso_accounts_probe is not skipped
 
 - name: "🔴 Disable the plugins that end up disabled"
   ansible.builtin.command:
