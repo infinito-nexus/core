@@ -23,6 +23,8 @@ MANIFEST = {
     "port": 8080,
 }
 ALLOWED_THIRD_PARTY = {"cli", "utils", "jinja2", "markupsafe", "yaml", "_yaml"}
+SITE_HOOKS = {"sitecustomize", "usercustomize"}
+SITE_HOOK_PREFIXES = ("_", "sphinxcontrib", "cython")
 
 
 def _run(argv: list[str], stdin: str = "") -> tuple[int, str, str]:
@@ -145,8 +147,8 @@ class TestDependencies(unittest.TestCase):
             for name in loaded
             if name not in sys.stdlib_module_names
             and name not in ALLOWED_THIRD_PARTY
-            # Exception: site-packages .pth hooks and PyYAML's C extension load these first
-            and not name.startswith(("_", "sphinxcontrib", "cython"))
+            and name not in SITE_HOOKS
+            and not name.startswith(SITE_HOOK_PREFIXES)
         }
         self.assertEqual(set(), foreign)
 

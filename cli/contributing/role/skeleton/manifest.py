@@ -374,4 +374,9 @@ def validate(data: Any) -> tuple[Manifest | None, list[str]]:
         environment=_environment(data, errors),
         volumes=_volumes(data, errors),
     )
+    if manifest.login == "oidc" and homepage and urlsplit(homepage).scheme != "https":
+        errors.append(
+            "homepage: must be an https URL for login oidc, "
+            "since meta/account.yml cites it as the account policy source"
+        )
     return (None, errors) if errors else (manifest, [])

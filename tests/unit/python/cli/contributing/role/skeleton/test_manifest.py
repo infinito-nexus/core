@@ -112,6 +112,14 @@ class TestInvalidManifest(unittest.TestCase):
     def test_a_homepage_without_scheme_is_refused(self):
         self.assertTrue(_errors(homepage="example.org")[0].startswith("homepage:"))
 
+    def test_an_http_homepage_is_refused_for_login_oidc_only(self):
+        self.assertTrue(
+            _errors(homepage="http://example.org/", login="oidc")[0].startswith(
+                "homepage:"
+            )
+        )
+        self.assertEqual([], _errors(homepage="http://example.org/", login="none"))
+
     def test_jinja_in_a_free_text_field_is_refused(self):
         self.assertTrue(
             _errors(description="Note {{ app }}")[0].startswith("description:")

@@ -43,6 +43,10 @@ The skeleton is a starting point. Before the role goes live, review these parts:
 [% if login != "none" %]
 - **Profile fields:** `services.sso.profile.none_needed` in `meta/services.yml` states that the login overwrites no profile field; replace it once the application's profile handling is known.
 [% endif %]
+[% if login == "oidc" %]
+- **Account policy:** `meta/account.yml` assumes the platform's username ceiling, accepts any username, cites the homepage and grants no agent account. Replace these values with the limits the application documents, each with its source.
+- **Back-channel logout:** `services.sso.backchannel` in `meta/services.yml` states that no back-channel logout endpoint is registered; update it once the application's OIDC client is configured.
+[% endif %]
 
 ## Licence
 

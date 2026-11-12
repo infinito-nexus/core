@@ -15,6 +15,7 @@ from cli.contributing.network.address.suggest.__main__ import (
     smallest_prefix,
 )
 from cli.contributing.network.ports.suggest.__main__ import suggest_single_ports
+from utils.agents.naming import IAM_USERNAME_MAX_LENGTH
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.distros import galaxy_platforms
@@ -213,6 +214,7 @@ def context(manifest: Manifest, local_port: int, subnet: str) -> dict[str, Any]:
         "subnet": subnet,
         "database": manifest.database,
         "login": manifest.login,
+        "username_max_length": IAM_USERNAME_MAX_LENGTH,
         "features": manifest.features,
         "environment": [
             (key, json.dumps(value, ensure_ascii=False))

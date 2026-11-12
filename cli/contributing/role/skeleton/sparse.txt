@@ -23,6 +23,8 @@
 /roles/*/vars/main.yml
 /templates/roles/skeleton/
 /utils/__init__.py
+/utils/agents/__init__.py
+/utils/agents/naming.py
 /utils/cache/__init__.py
 /utils/cache/files.py
 /utils/cache/gitignore.py

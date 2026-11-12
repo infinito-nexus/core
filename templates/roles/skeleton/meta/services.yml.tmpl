@@ -48,6 +48,11 @@ sso:
   flavor: oidc
   profile:
     none_needed: skeleton default, the application's own profile handling is reviewed per README
+  backchannel:
+    logout: "no, the skeleton registers no back-channel logout endpoint; the application's OIDC client is reviewed per README"
+    endpoint: "-"
+    documentation: "-"
+    session: "until the application's own logout or the Keycloak session ends"
 [% else %]
 # nocheck: dynamic-flag
 # nocheck: logout
@@ -59,6 +64,11 @@ logout:
 sso:
   enabled: false
   shared: false
+  backchannel:
+    logout: "no, the role signs nobody in through SSO"
+    endpoint: "-"
+    documentation: "-"
+    session: "-"
 [% if login == "ldap" %]
   profile:
     none_needed: skeleton default, the application's own profile handling is reviewed per README
