@@ -36,7 +36,6 @@ STALWART_DOMAIN: "{{ lookup('config', application_id, 'services.stalwart.domain'
 STALWART_DOMAIN_DNS_ZONE: "{{ STALWART_DOMAIN | to_zone }}"
 STALWART_EMAIL: "{{ lookup('email', application_id) }}"
 STALWART_HOSTNAME: "{{ STALWART_EMAIL.host }}"
-STALWART_WEB_DOMAIN: "{{ lookup('domain', application_id) }}"
 STALWART_HOSTNAME_DNS_ZONE: "{{ STALWART_HOSTNAME | to_zone }}"
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
@@ -69,7 +68,6 @@ STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS: 15000
 STALWART_CLAMAV_MILTER_CONF: "{{ [ STALWART_CONFIG_DIR, 'clamav-milter.conf' ] | path_join }}"
 STALWART_WEBMAIL_BASE_URL: "{{ lookup('canonical_url', application_id, 'webmail') }}"
 STALWART_WEBMAIL_DOMAIN: "{{ STALWART_WEBMAIL_BASE_URL | regex_replace('^https?://', '') }}"
-STALWART_WEBMAIL_HTTP_PORT: "{{ lookup('config', application_id, 'services.webmail.ports.local.http') }}"
 STALWART_WEBMAIL_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'webmail' ] | path_join }}"
 STALWART_WEBMAIL_OAUTH_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'oauth.inc.php' ] | path_join }}"
 STALWART_WEBMAIL_DESIGN_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'design.inc.php' ] | path_join }}"
