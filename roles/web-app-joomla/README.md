@@ -38,7 +38,7 @@ Its enablement derives from the `sso` login method, and its OIDC runtime contrac
 - **SSO logout:** Route a com_users Log out request through Keycloak's end-session endpoint, so signing out of Joomla also ends the Keycloak session; with the `logout` service on, its injected script sends the button to the universal logout first.
 - **LDAP variant:** Configure and enable Joomla's core `plg_authentication_ldap` against `svc-db-openldap` whenever the `ldap` login method is on (the `ldap` service without `sso`, variant 1), binding with the directory administrator, searching users by their login attribute and reading full name and email from the directory; new directory users are created in `Registered`.
 - **External database:** Persist Joomla content in the project's central RDBMS through the standard role-meta wiring.
-- **NGINX reverse proxy:** Front the Joomla container with the project's `sys-stk-front-proxy` for TLS termination and per-domain routing.
+- **NGINX reverse proxy:** Front the Joomla container with the project's [`svc-stack`](../svc-stack/README.md) for TLS termination and per-domain routing.
 
 ## Developer Notes
 
