@@ -7,7 +7,6 @@ import unittest
 from pathlib import Path
 
 from agents.routines.tools.watchdog import (
-    _PLAYWRIGHT_VARS,
     BUSY_CORES,
     SILENCE_SECONDS,
     cgroup_usec,
@@ -16,10 +15,8 @@ from agents.routines.tools.watchdog import (
     stack_busy,
     stack_usage,
 )
-from utils.cache.yaml import load_yaml
 
 _NOW = 100_000.0
-_HEALTHY_SILENCES = (948.0, 1126.0)
 _USEC = 1_000_000
 _POLL = 60.0
 _OUTER = Path("system.slice") / "docker-outer.scope"
@@ -34,30 +31,30 @@ def _cgroup(path: Path, usage_usec: int) -> Path:
     return path
 
 
-class TestWatchdog(unittest.TestCase):
-    def test_the_threshold_covers_the_onion_playwright_run_timeout(self) -> None:
-        values = load_yaml(_PLAYWRIGHT_VARS)
-        self.assertGreater(
-            SILENCE_SECONDS, values["TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT"]
-        )
-
-    def test_healthy_silences_are_no_hang(self) -> None:
-        for silence in _HEALTHY_SILENCES:
-            with self.subTest(silence=silence):
-                self.assertFalse(is_hung([_NOW - silence], _NOW, SILENCE_SECONDS))
+class TestSilence(unittest.TestCase):
+    def test_the_threshold_is_fifteen_minutes(self) -> None:
+        self.assertEqual(SILENCE_SECONDS, 15 * 60)
 
     def test_the_threshold_has_no_default(self) -> None:
         silence = inspect.signature(is_hung).parameters["silence"]
         self.assertIs(silence.default, inspect.Parameter.empty)
 
-    def test_fires_after_silence(self) -> None:
+    def test_a_silent_run_fires_after_fifteen_minutes(self) -> None:
         self.assertTrue(is_hung([_NOW - SILENCE_SECONDS - 1], _NOW, SILENCE_SECONDS))
 
-    def test_quiet_on_long_run_with_recent_output(self) -> None:
-        self.assertFalse(is_hung([1_000.0, 5_000.0, _NOW - 50], _NOW, SILENCE_SECONDS))
-
-    def test_exact_threshold_does_not_fire(self) -> None:
+    def test_the_exact_threshold_does_not_fire(self) -> None:
         self.assertFalse(is_hung([_NOW - SILENCE_SECONDS], _NOW, SILENCE_SECONDS))
+
+    def test_a_heartbeat_run_does_not_fire(self) -> None:
+        heartbeats = [_NOW - 2 * SILENCE_SECONDS + 10.0 * n for n in range(181)]
+        self.assertFalse(is_hung(heartbeats, _NOW, SILENCE_SECONDS))
+        self.assertTrue(is_hung(heartbeats[:1], _NOW, SILENCE_SECONDS))
+
+    def test_a_long_build_that_keeps_writing_does_not_fire(self) -> None:
+        lines = [_NOW - 7_200.0 + 60.0 * n for n in range(121)]
+        self.assertFalse(is_hung(lines, _NOW, SILENCE_SECONDS))
+        stopped = [stamp for stamp in lines if stamp <= _NOW - SILENCE_SECONDS - 1]
+        self.assertTrue(is_hung(stopped, _NOW, SILENCE_SECONDS))
 
     def test_custom_threshold(self) -> None:
         self.assertTrue(is_hung([_NOW - 120.0], _NOW, 60.0))

@@ -2,13 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
-from utils import PROJECT_ROOT
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
-
-PLAYWRIGHT_VARS = f"roles/test-e2e-playwright/{ROLE_FILE_VARS_MAIN}"
-_PLAYWRIGHT_VARS = PROJECT_ROOT / PLAYWRIGHT_VARS
+SILENCE_SECONDS = 900.0
 BUSY_CORES = 1.0
 CGROUP_MOUNT = Path("/sys/fs/cgroup")
 CONTAINER_SCOPES = "docker-*.scope"
@@ -19,31 +13,18 @@ _PROC = Path("/proc")
 _UTIME_STIME_AFTER_COMM = slice(11, 13)
 
 
-def _playwright_budget(vars_file: Path) -> float:
-    values = yaml.safe_load(vars_file.read_text(encoding="utf-8"))
-    retries = int(values["TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES"])
-    delay = int(values["TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY"])
-    max_time = int(values["TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME"])
-    onion_wait = 2 * retries * (max_time + delay) + retries * delay
-    return float(int(values["TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT"]) + onion_wait)
-
-
-SILENCE_SECONDS = _playwright_budget(_PLAYWRIGHT_VARS)
-
-
 def is_hung(timestamps: list[float], now: float, silence: float) -> bool:
     """Return whether the run has been silent longer than ``silence`` seconds.
-
-    The gap is measured from the most recent output timestamp to ``now``, never
-    from the run's start, so total runtime does not enter the verdict. With no
-    recorded output there is no silence baseline, so the run is not classified
-    as hung.
 
     Args:
         timestamps: epoch seconds of each captured output line.
         now: the current epoch seconds.
         silence: the silence threshold in seconds, ``SILENCE_SECONDS`` for a
             deploy.
+
+    Returns:
+        ``False`` without any output timestamp; else whether the gap from the
+        latest timestamp to ``now`` exceeds ``silence``.
     """
     if not timestamps:
         return False

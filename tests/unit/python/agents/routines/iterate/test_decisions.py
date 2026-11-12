@@ -32,7 +32,7 @@ from agents.routines.iterate import (
     swarm,
     workflow,
 )
-from agents.routines.tools.watchdog import BUSY_CORES, PLAYWRIGHT_VARS, SILENCE_SECONDS
+from agents.routines.tools.watchdog import BUSY_CORES, SILENCE_SECONDS
 from tests.unit.python.agents.routines import tools as ansible
 from tests.unit.python.agents.routines import written_text
 from tests.unit.python.agents.routines.iterate import branch_map, walk
@@ -291,7 +291,8 @@ class TestHung(unittest.TestCase):
     def test_the_label_names_the_silence(self) -> None:
         hung = _step(iterate.red_chain("iterate_x", "inspect", ("run",)), "hung")
         self.assertIn(f"{SILENCE_SECONDS:.0f} s", hung.label)
-        self.assertIn(PLAYWRIGHT_VARS, hung.label)
+        self.assertNotIn("test-e2e-playwright", hung.label)
+        self.assertNotIn("Playwright budget", hung.label)
         self.assertIn("--pid <run pid>", hung.label)
 
     def test_the_label_names_the_stack_cgroup(self) -> None:

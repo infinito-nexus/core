@@ -24,7 +24,6 @@ from agents.routines.tools.signature import (
 )
 from agents.routines.tools.watchdog import (
     BUSY_CORES,
-    PLAYWRIGHT_VARS,
     SILENCE_SECONDS,
     is_hung,
     stack_busy,
@@ -302,7 +301,7 @@ def red_chain(routine: str, verdict: str, runs: tuple[str, ...]) -> list[Step]:
     return [
         Step(
             "hung",
-            f"Watchdog: is the run unfinished, silent for more than {SILENCE_SECONDS:.0f} s (the onion Playwright budget of {PLAYWRIGHT_VARS}, the slowest silent task), counted from its start when it wrote none, with its process tree idle and no stack cgroup using {BUSY_CORES:g} core or more since the poll before? (agents/routines/tools/watchdog.py; while it runs: {decide_command(routine, 'hung', ' --log <run log> --running <run step> [--pid <run pid>] [--cgroup <stack cgroup>]...')}, one --cgroup per stack container, its cgroup directory such as /sys/fs/cgroup/system.slice/docker-<full container id>.scope; once it ended: {decide_command(routine, 'hung', ' --log <run log> [--exit-file <exit status file>]')}; the run ended on an exit status file, a gone --pid, the deploy wrapper's exit line, a make Error line, the deploy's Script ended line or a PLAY RECAP with a failed host, not on a PLAY RECAP alone, which may close one play of several; exit status 0 is green and returns to the run step)",
+            f"Watchdog: is the run unfinished, silent for more than {SILENCE_SECONDS:.0f} s, counted from its start when it wrote none, with its process tree idle and no stack cgroup using {BUSY_CORES:g} core or more since the poll before? (agents/routines/tools/watchdog.py; while it runs: {decide_command(routine, 'hung', ' --log <run log> --running <run step> [--pid <run pid>] [--cgroup <stack cgroup>]...')}, one --cgroup per stack container, its cgroup directory such as /sys/fs/cgroup/system.slice/docker-<full container id>.scope; once it ended: {decide_command(routine, 'hung', ' --log <run log> [--exit-file <exit status file>]')}; the run ended on an exit status file, a gone --pid, the deploy wrapper's exit line, a make Error line, the deploy's Script ended line or a PLAY RECAP with a failed host, not on a PLAY RECAP alone, which may close one play of several; exit status 0 is green and returns to the run step)",
             "decision",
             branches=(
                 (ENDED, "reached"),
