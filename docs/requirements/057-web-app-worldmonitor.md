@@ -111,7 +111,7 @@ litellm:
 - [x] `roles/web-app-worldmonitor/` exists per the [Target Schema](#role-layout) and all `meta/*.yml` pass the role-meta lint.
 - [x] `worldmonitor` is built from the root `Dockerfile` of the pinned upstream `v2.11.8` source (Decision #5). No `:latest`, no GHCR pull.
 - [x] `ais-relay`, `redis-rest` and the seeder are built from the same pinned upstream tag, with every external value passed as a Docker `ARG` per [dockerfile.md](../contributing/artefact/files/role/dockerfile.md).
-- [ ] Every image used by the role is declared once in `meta/services.yml` and is found by the image discovery.
+- [ ] Every image used by the role is declared once in `meta/services.yml` and is found by the image discovery. *The Node base of every upstream `FROM` is the digest-pinned `node` entity, which `iter_role_images` lists for the mirror, the update job and the CVE scan. Every build swaps it in for upstream's unchanged `FROM` through `additional_contexts`, and a task between clone and build refuses a clone whose `FROM` lines name another base. Live proof in the final roundtrip.*
 
 ### Compose
 

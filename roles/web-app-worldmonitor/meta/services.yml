@@ -119,6 +119,12 @@ seeder:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 256
+# nocheck: playwright-service-flag, dynamic-flag  build base of every image the role builds, never run as a container
+node:
+  image: node
+  # nocheck: docker-digest  every FROM of the pinned upstream Dockerfiles names this digest, and the build swaps the base in by it
+  version: "sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
+  enabled: false
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

@@ -20,6 +20,13 @@ WORLDMONITOR_REST_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.
 WORLDMONITOR_REST_CONTEXT: "{{ [compose_repository_path, 'docker'] | path_join }}"
 WORLDMONITOR_REST_DOCKERFILE: "Dockerfile.redis-rest"
 
+WORLDMONITOR_NODE_FROM: "node:24-alpine@{{ lookup('config', application_id, 'services.node.version') }}"
+WORLDMONITOR_NODE_IMAGE: "{{ lookup('image', application_id, 'node', tag_only=True) }}"
+WORLDMONITOR_DOCKERFILES:
+  - "{{ [compose_repository_path, WORLDMONITOR_APP_DOCKERFILE] | path_join }}"
+  - "{{ [compose_repository_path, WORLDMONITOR_RELAY_DOCKERFILE] | path_join }}"
+  - "{{ [WORLDMONITOR_REST_CONTEXT, WORLDMONITOR_REST_DOCKERFILE] | path_join }}"
+
 WORLDMONITOR_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
 WORLDMONITOR_CACHE_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.cache.ports.internal.redis') }}"
 

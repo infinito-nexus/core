@@ -12,3 +12,19 @@
     compose_repository_url: "{{ WORLDMONITOR_SOURCE_REPOSITORY }}"
     compose_repository_pull: true
     compose_repository_ref: "{{ WORLDMONITOR_SOURCE_VERSION }}"
+
+- name: "🧱 Read the Dockerfiles of the {{ application_id }} clone"
+  ansible.builtin.slurp:
+    src: "{{ item }}"
+  loop: "{{ WORLDMONITOR_DOCKERFILES }}"
+  register: worldmonitor_dockerfiles
+  when: IS_STACK_HOST | bool
+
+- name: "🧱 Refuse a {{ application_id }} clone whose FROM lines leave the declared Node base"
+  ansible.builtin.assert:
+    that: worldmonitor_foreign_bases | length == 0
+    fail_msg: "The clone's FROM lines name {{ worldmonitor_foreign_bases | join(', ') }}, but the build swaps in only {{ WORLDMONITOR_NODE_FROM }}. Declare the new base in services.node and WORLDMONITOR_NODE_FROM first."
+    quiet: true
+  vars:
+    worldmonitor_foreign_bases: "{{ worldmonitor_dockerfiles.results | map(attribute='content') | map('b64decode') | list | dockerfile_foreign_bases(WORLDMONITOR_NODE_FROM) }}"
+  when: IS_STACK_HOST | bool

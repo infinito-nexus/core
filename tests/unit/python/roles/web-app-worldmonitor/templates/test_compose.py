@@ -41,6 +41,9 @@ REGISTRY = {"host": "registry.example", "port": "5000"}
 PREFIX = {"compose": "", "swarm": "registry.example:5000/"}
 BUILT = ("worldmonitor", "ais-relay", "redis-rest", "seeder")
 UNPUBLISHED = ("ais-relay", "redis-rest", "cache", "seeder")
+UPSTREAM_FROM = "node:24-alpine@sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
+NODE_CONTEXT = {UPSTREAM_FROM: f"docker-image://node@{SERVICES['node']['version']}"}
+NODE_VARS = ("WORLDMONITOR_NODE_FROM", "WORLDMONITOR_NODE_IMAGE")
 AUTH_BYPASS_FLAGS = ("I_UNDERSTAND_THIS_DISABLES_AUTH", "ALLOW_UNAUTHENTICATED_RELAY")
 
 INCLUDES = {
@@ -113,11 +116,17 @@ def render(mode: str) -> dict:
         "compose_only": ComposeOnlyLookup,
         "container_image": ContainerImageLookup,
         "container_ports": ContainerPortsLookup,
+        "image": ImageLookup,
     }
 
-    def lookup(name, *terms, **_kwargs):
+    def lookup(name, *terms, **kwargs):
         if name in live:
-            return live[name]().run(list(terms), variables=variables)[0]
+            return live[name]().run(list(terms), variables=variables, **kwargs)[0]
+        if name == "config":
+            node = applications[terms[0]]
+            for part in terms[1].split("."):
+                node = node[part]
+            return node
         if name == "service_memory_mb":
             return "256"
         return ""
@@ -125,6 +134,10 @@ def render(mode: str) -> dict:
     env = _environment()
     env.globals["lookup"] = lookup
     with mock.patch.object(lookup_loader, "get", side_effect=get):
+        node_vars = {
+            name: env.from_string(VARS[name]).render(application_id=APP)
+            for name in NODE_VARS
+        }
         rendered = env.from_string(
             read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
         ).render(
@@ -141,6 +154,7 @@ def render(mode: str) -> dict:
             WORLDMONITOR_REST_CONTAINER=SERVICES["redis-rest"]["name"],
             WORLDMONITOR_CACHE_CONTAINER=SERVICES["cache"]["name"],
             WORLDMONITOR_SEEDER_CONTAINER=SERVICES["seeder"]["name"],
+            **node_vars,
         )
     return load_yaml_str(rendered)["services"]
 
@@ -182,20 +196,30 @@ class TestComposeBuilds(unittest.TestCase):
             with self.subTest(mode=mode):
                 self.assertEqual(
                     services["worldmonitor"]["build"],
-                    {"context": CLONE, "dockerfile": "Dockerfile"},
+                    {
+                        "context": CLONE,
+                        "dockerfile": "Dockerfile",
+                        "additional_contexts": NODE_CONTEXT,
+                    },
                 )
 
     def test_the_other_images_build_from_the_same_clone(self) -> None:
         expected = {
-            "ais-relay": {"context": CLONE, "dockerfile": "Dockerfile.relay"},
+            "ais-relay": {
+                "context": CLONE,
+                "dockerfile": "Dockerfile.relay",
+                "additional_contexts": NODE_CONTEXT,
+            },
             "redis-rest": {
                 "context": f"{CLONE}/docker",
                 "dockerfile": "Dockerfile.redis-rest",
+                "additional_contexts": NODE_CONTEXT,
             },
             "seeder": {
                 "context": CLONE,
                 "dockerfile": "Dockerfile",
                 "target": "builder",
+                "additional_contexts": NODE_CONTEXT,
             },
         }
         for mode, services in self.services.items():
