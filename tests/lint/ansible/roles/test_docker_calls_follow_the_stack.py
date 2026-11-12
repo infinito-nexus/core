@@ -36,7 +36,7 @@ _RULE = "docker-before-stack"
 
 DOCKER_INCLUDES = ("sys-svc-compose/tasks/utils/network/create.yml",)
 
-_STACK_RE = re.compile(r"name:\s*(sys-stk-[a-z-]+|sys-svc-container)")
+_STACK_RE = re.compile(r"name:\s*(sys-stk-[a-z-]+|svc-stack|sys-svc-container)")
 
 
 def role_task_files() -> list:

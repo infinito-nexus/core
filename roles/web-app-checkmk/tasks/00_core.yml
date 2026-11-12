@@ -8,10 +8,8 @@
   when: CHECKMK_MCP_ENABLED | bool
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    application_id: "web-app-checkmk"
-    compose_handlers_flush: true
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🔧 Run Checkmk manager-side operations"
   include_tasks: 01_manager_ops.yml

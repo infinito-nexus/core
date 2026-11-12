@@ -3,9 +3,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🐍 Stage the settings override for network siblings and SSO subject links"
   ansible.builtin.include_tasks:

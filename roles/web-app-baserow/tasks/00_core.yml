@@ -9,9 +9,8 @@
 
 - name: "🧩 For '{{ application_id }}': load docker, db and proxy"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
   stack_host_copy:

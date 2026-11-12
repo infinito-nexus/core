@@ -9,10 +9,8 @@
   when: JELLYFIN_MCP_ENABLED | bool
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    application_id: "web-app-jellyfin"
-    compose_handlers_flush: true
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🔐 Provision auth and apply the corporate design on the stack host"
   when: IS_STACK_HOST | bool

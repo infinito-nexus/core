@@ -22,9 +22,8 @@
 
 - name: "🧩 load docker, db/redis/proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🏗️ Set up Magento on the stack host"
   include_tasks: 00_core/stack_host.yml

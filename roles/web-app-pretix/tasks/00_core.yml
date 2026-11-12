@@ -9,12 +9,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_url: "{{ PRETIX_SOURCE_REPOSITORY }}"
-    compose_repository_pull: true
-    compose_repository_ref: "{{ PRETIX_SOURCE_VERSION }}"
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🐳 Stage the build recipe beside the pretix sources"
   ansible.builtin.copy:

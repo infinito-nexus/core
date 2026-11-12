@@ -12,9 +12,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    webserver_location_extra_configuration: 'proxy_set_header {{ FUSIONDIRECTORY_SSO_PROXY_HEADER }} "{{ FUSIONDIRECTORY_SSO_PROXY_SECRET }}";'
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎨 Render the in-house theme.css and headers.tpl of {{ application_id }}"
   ansible.builtin.include_tasks:

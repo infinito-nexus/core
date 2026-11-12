@@ -1,7 +1,8 @@
 ---
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎨 Render the in-house theme of {{ application_id }}"
   ansible.builtin.include_tasks:

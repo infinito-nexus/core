@@ -3,7 +3,8 @@
 
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📁 Pre-create the shared MCP overlay network (idempotent)"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"

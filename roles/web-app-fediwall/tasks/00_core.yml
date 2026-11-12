@@ -1,10 +1,8 @@
 ---
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_pull: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "👔 Fediwall manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml

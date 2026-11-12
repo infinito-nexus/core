@@ -14,10 +14,5 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-    public: true
-  vars:
-    compose_handlers_flush: true
-    compose_repository_pull: false
-    webserver_vhost_flavour: "basic"
-    application_id: "web-svc-collabora"
+    name: svc-stack
+    tasks_from: consumer.yml
