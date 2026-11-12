@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import datetime as dt
+import itertools
 import json
 import os
 import re
@@ -12,6 +14,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.parse
 import uuid
@@ -60,6 +63,8 @@ SBOM = "/sbom"
 CACHE = "/cache"
 DOCKER_SOCKET = "/var/run/docker.sock"
 JOB_TIMEOUT_SECONDS = 4 * 3600
+EXPORT_SLOTS = 1
+RUN_PREFIX = "run-"
 DB_ATTEMPTS = 3
 DB_RETRY_SECONDS = 30
 DB_MARKERS = {
@@ -230,11 +235,16 @@ class Step:
         label: what the run is, for error lines; its first word is the engine.
         argv: the command.
         accept: exit codes that mean success.
+        scratch: the run's temporary directory, a name under the work
+            directory; consecutive steps of a lane naming the same one share it.
+        exports: whether the run exports a local image into it.
     """
 
     label: str
     argv: tuple[str, ...]
     accept: frozenset[int]
+    scratch: str
+    exports: bool
 
 
 @dataclass(frozen=True)
@@ -1200,6 +1210,7 @@ def run_argv(
     *,
     target: Target | None,
     extra_env: Mapping[str, str],
+    scratch: str,
 ) -> tuple[str, ...]:
     """Build the command that runs one engine container.
 
@@ -1211,6 +1222,8 @@ def run_argv(
         target: the target, which picks the host or Docker socket mount;
             ``None`` for a run that reads neither.
         extra_env: environment on top of the engine's own.
+        scratch: :attr:`Step.scratch` of the run, its ``TMPDIR`` under
+            :data:`WORK`.
     """
     mounts = ["-v", f"{layout.sbom}:{SBOM}", "-v", f"{layout.work}:{WORK}"]
     if engine in SCANNERS:
@@ -1219,8 +1232,18 @@ def run_argv(
         mounts += ["-v", f"/:{HOST_ROOT}:ro"]
     if target is not None and target.kind == "container":
         mounts += ["-v", f"{DOCKER_SOCKET}:{DOCKER_SOCKET}:ro"]
-    environment = {"TMPDIR": WORK, **ENGINE_ENV[engine], **extra_env}
+    environment = {"TMPDIR": f"{WORK}/{scratch}", **ENGINE_ENV[engine], **extra_env}
     return (*layout.runtime, "--rm", *mounts, *_env(environment), image, *args)
+
+
+def scratch_of(engine: str, subject: str) -> str:
+    """Name the scratch directory of one engine run.
+
+    Args:
+        engine: the engine.
+        subject: :attr:`Target.key`, or what else the run is for.
+    """
+    return f"tmp-{engine}-{subject}"
 
 
 def _relative_excludes(layout: Layout) -> list[str]:
@@ -1229,6 +1252,7 @@ def _relative_excludes(layout: Layout) -> list[str]:
 
 def db_steps(engine: str, layout: Layout, image: str) -> list[Step]:
     """Download or refresh one engine's database."""
+    scratch = scratch_of(engine, "db")
     if engine == "trivy":
         return [
             Step(
@@ -1240,8 +1264,11 @@ def db_steps(engine: str, layout: Layout, image: str) -> list[Step]:
                     ["image", flag, *TRIVY_COMMON],
                     target=None,
                     extra_env={},
+                    scratch=scratch,
                 ),
                 SUCCESS,
+                scratch,
+                False,
             )
             for name, flag in (
                 ("database", "--download-db-only"),
@@ -1253,9 +1280,17 @@ def db_steps(engine: str, layout: Layout, image: str) -> list[Step]:
             Step(
                 "grype database",
                 run_argv(
-                    layout, engine, image, ["db", "update"], target=None, extra_env={}
+                    layout,
+                    engine,
+                    image,
+                    ["db", "update"],
+                    target=None,
+                    extra_env={},
+                    scratch=scratch,
                 ),
                 SUCCESS,
+                scratch,
+                False,
             )
         ]
     return []
@@ -1285,10 +1320,15 @@ def sbom_step(layout: Layout, image: str, target: Target) -> Step:
         f"cyclonedx-json={SBOM}/{target.key}.cdx.json",
         "-q",
     ]
+    scratch = scratch_of("syft", target.key)
     return Step(
         f"syft {target.kind} {target.label}",
-        run_argv(layout, "syft", image, args, target=target, extra_env={}),
+        run_argv(
+            layout, "syft", image, args, target=target, extra_env={}, scratch=scratch
+        ),
         SUCCESS,
+        scratch,
+        target.kind == "container",
     )
 
 
@@ -1315,10 +1355,15 @@ def trivy_step(layout: Layout, image: str, target: Target, config: ScanConfig) -
         ]
     else:
         args += ["--image-src", "docker", target.ref]
+    scratch = scratch_of("trivy", target.key)
     return Step(
         f"trivy {target.kind} {target.label}",
-        run_argv(layout, "trivy", image, args, target=target, extra_env={}),
+        run_argv(
+            layout, "trivy", image, args, target=target, extra_env={}, scratch=scratch
+        ),
         SUCCESS,
+        scratch,
+        target.kind == "container",
     )
 
 
@@ -1332,6 +1377,7 @@ def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -
     else:
         source = [f"docker:{target.ref}"]
     args = [*source, "-o", "json", "--file", f"{WORK}/{target.key}.grype.json", "-q"]
+    scratch = scratch_of("grype", target.key)
     return Step(
         f"grype {target.kind} {target.label}",
         run_argv(
@@ -1341,8 +1387,11 @@ def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -
             args,
             target=target,
             extra_env={"GRYPE_DB_AUTO_UPDATE": "false"},
+            scratch=scratch,
         ),
         SUCCESS,
+        scratch,
+        target.kind == "container" and not config.reads_sbom("grype"),
     )
 
 
@@ -1360,10 +1409,15 @@ def osv_sbom_step(
     args = ["scan", "source", *osv_args(config, f"{WORK}/osv.json")]
     for target in targets:
         args += ["-L", f"{WORK}/{target.key}.osv.cdx.json"]
+    scratch = scratch_of("osv", "sbom")
     return Step(
         "osv sbom",
-        run_argv(layout, "osv", image, args, target=None, extra_env={}),
+        run_argv(
+            layout, "osv", image, args, target=None, extra_env={}, scratch=scratch
+        ),
         OSV_ACCEPTED_EXIT_CODES,
+        scratch,
+        False,
     )
 
 
@@ -1371,12 +1425,20 @@ def osv_image_steps(
     layout: Layout, image: str, target: Target, config: ScanConfig
 ) -> list[Step]:
     """Export one image and scan the archive; OSV reads no docker socket."""
-    archive = layout.work / "osv-image.tar"
+    scratch = scratch_of("osv", target.key)
     return [
         Step(
             f"osv export {target.label}",
-            (layout.runtime[0], "save", "--output", str(archive), target.ref),
+            (
+                layout.runtime[0],
+                "save",
+                "--output",
+                str(layout.work / scratch / "image.tar"),
+                target.ref,
+            ),
             SUCCESS,
+            scratch,
+            True,
         ),
         Step(
             f"osv container {target.label}",
@@ -1388,13 +1450,16 @@ def osv_image_steps(
                     "scan",
                     "image",
                     "--archive",
-                    f"{WORK}/osv-image.tar",
+                    f"{WORK}/{scratch}/image.tar",
                     *osv_args(config, f"{WORK}/{target.key}.osv.json"),
                 ],
                 target=None,
                 extra_env={},
+                scratch=scratch,
             ),
             OSV_ACCEPTED_EXIT_CODES,
+            scratch,
+            False,
         ),
     ]
 
@@ -1417,13 +1482,8 @@ def _tail(text: str) -> str:
     return " | ".join(lines[-3:])
 
 
-def run_lane(lane: Sequence[Step], runner: Runner) -> list[str]:
-    """Run steps in order and stop at the first failing one.
-
-    Returns:
-        Error lines, empty when every step succeeded.
-    """
-    for step in lane:
+def _run_steps(steps: Sequence[Step], runner: Runner) -> list[str]:
+    for step in steps:
         try:
             result = runner(step.argv)
         except subprocess.TimeoutExpired as exc:
@@ -1439,18 +1499,58 @@ def run_lane(lane: Sequence[Step], runner: Runner) -> list[str]:
     return []
 
 
+def run_lane(
+    lane: Sequence[Step],
+    runner: Runner,
+    work: Path,
+    exports: threading.Semaphore,
+) -> list[str]:
+    """Run steps in order and stop at the first failing one.
+
+    Args:
+        lane: the steps.
+        runner: runs one command.
+        work: the run's work directory, which holds every
+            :attr:`Step.scratch`.
+        exports: held by a group of steps sharing a scratch directory while
+            one of them exports an image, from its creation to its removal.
+
+    Returns:
+        Error lines, empty when every step succeeded.
+    """
+    for scratch, group in itertools.groupby(lane, key=lambda step: step.scratch):
+        steps = list(group)
+        gate = (
+            exports if any(step.exports for step in steps) else contextlib.nullcontext()
+        )
+        with gate:
+            directory = work / scratch
+            directory.mkdir(parents=True, exist_ok=True)
+            try:
+                errors = _run_steps(steps, runner)
+            finally:
+                shutil.rmtree(directory, ignore_errors=True)
+        if errors:
+            return errors
+    return []
+
+
 def run_lanes(
-    lanes: Sequence[Sequence[Step]], runner: Runner, workers: int
+    lanes: Sequence[Sequence[Step]], runner: Runner, workers: int, work: Path
 ) -> list[list[str]]:
     """Run lanes in parallel, at most *workers* at a time.
+
+    At most :data:`EXPORT_SLOTS` image exports are on disk at once, whatever
+    *workers* is.
 
     Returns:
         The error lines of each lane, in lane order.
     """
     if not lanes:
         return []
+    exports = threading.BoundedSemaphore(EXPORT_SLOTS)
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        return list(pool.map(lambda lane: run_lane(lane, runner), lanes))
+        return list(pool.map(lambda lane: run_lane(lane, runner, work, exports), lanes))
 
 
 def _flat(errors: Iterable[Sequence[str]]) -> list[str]:
@@ -1492,7 +1592,11 @@ def prepare_databases(
             pause(DB_RETRY_SECONDS)
         lanes = [db_steps(engine, layout, images[engine]) for engine in pending]
         results.update(
-            zip(pending, run_lanes(lanes, runner, config.workers), strict=True)
+            zip(
+                pending,
+                run_lanes(lanes, runner, config.workers, layout.work),
+                strict=True,
+            )
         )
         pending = [engine for engine in pending if results[engine]]
         if not pending:
@@ -1514,6 +1618,7 @@ def runtime_step(layout: Layout, image: str, target: Target) -> Step:
         f"{WORK}/{target.key}.runtime.grype.json",
         "-q",
     ]
+    scratch = scratch_of(RUNTIME_ENGINE, f"runtime-{target.key}")
     return Step(
         f"grype runtime {target.kind} {target.label}",
         run_argv(
@@ -1523,8 +1628,11 @@ def runtime_step(layout: Layout, image: str, target: Target) -> Step:
             args,
             target=None,
             extra_env={"GRYPE_DB_AUTO_UPDATE": "false"},
+            scratch=scratch,
         ),
         SUCCESS,
+        scratch,
+        False,
     )
 
 
@@ -1559,6 +1667,7 @@ def scan(
             [[sbom_step(layout, images[SBOM_BUILDER], target)] for target in pending],
             runner,
             config.workers,
+            layout.work,
         )
         errors += _flat(results)
         failed = {
@@ -1601,7 +1710,7 @@ def scan(
                 for step in osv_image_steps(layout, images["osv"], target, config)
             ]
         )
-    errors += _flat(run_lanes(lanes, runner, config.workers))
+    errors += _flat(run_lanes(lanes, runner, config.workers, layout.work))
 
     findings: list[Finding] = []
     for target in targets:
@@ -1667,7 +1776,9 @@ def vulnerability_check(
         targets.append(host_target(run.host))
     sbom = cache / "sbom"
     sbom.mkdir(parents=True, exist_ok=True)
-    work = Path(tempfile.mkdtemp(prefix="run-", dir=cache))
+    for stale in cache.glob(f"{RUN_PREFIX}*"):
+        shutil.rmtree(stale, ignore_errors=True)
+    work = Path(tempfile.mkdtemp(prefix=RUN_PREFIX, dir=cache))
     try:
         layout = Layout(
             runtime=("container", "run"),

@@ -2,8 +2,8 @@
 
 An entry under ``<service>.security.suppressions`` needs ``id: CVE-YYYY-NNNN``
 or an ``image_tag`` equal to the service's ``version``, an ``until:
-YYYY-MM-DD`` that has not passed, and a ``# nocheck: cve <reason>`` marker on
-the line directly above it::
+YYYY-MM-DD`` that has not passed and lies no later than ``LATEST_UNTIL``, and a
+``# nocheck: cve <reason>`` marker on the line directly above it::
 
     checkmk:
       image: checkmk/check-mk-raw
@@ -12,10 +12,10 @@ the line directly above it::
         suppressions:
           # nocheck: cve the vulnerable module is not loaded by the site
           - id: CVE-2026-1234
-            until: 2026-12-31
+            until: 2026-11-30
           # nocheck: cve upstream ships no rebuild with the fixed packages yet
           - image_tag: "2.4.0p39"
-            until: 2026-12-31
+            until: 2026-11-30
 """
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ from utils.security.suppressions import RULE, SuppressionError, parse_entries
 
 from . import PROJECT_ROOT
 
+LATEST_UNTIL = dt.date(2026, 11, 30)
 MARKER = re.compile(rf"^\s*#\s*nocheck:\s*{RULE}\b(?P<reason>.*)$", re.IGNORECASE)
 BLOCK = re.compile(r"^(?P<indent>\s*)suppressions:\s*$")
 ENTRY = re.compile(r"^(?P<indent>\s*)-\s+\S")
@@ -104,6 +105,11 @@ def problems(text: str, where: str, today: dt.date) -> list[str]:
                 found.append(
                     f"{where}: {service} suppression of {parsed.subject} expired on {parsed.until}"
                 )
+            if parsed.until > LATEST_UNTIL:
+                found.append(
+                    f"{where}: {service} suppression of {parsed.subject} until "
+                    f"{parsed.until} lies after the latest allowed day {LATEST_UNTIL}"
+                )
             version = spec.get("version")
             if parsed.image_tag is not None and parsed.image_tag != str(version):
                 found.append(
@@ -134,7 +140,7 @@ app:
     suppressions:
       # nocheck: cve the module is not built into the image
       - id: CVE-2026-1234
-        until: 2026-12-31
+        until: 2026-11-30
 """
 
 
@@ -160,19 +166,26 @@ class TestCheckerCases(unittest.TestCase):
         self.assertIn("is no CVE-YYYY-NNNN id", self._problems(text)[0])
 
     def test_a_missing_until_fails(self) -> None:
-        text = VALID.replace("        until: 2026-12-31\n", "")
+        text = VALID.replace("        until: 2026-11-30\n", "")
         self.assertIn("until is required", self._problems(text)[0])
 
     def test_a_past_until_fails(self) -> None:
-        text = VALID.replace("2026-12-31", "2026-10-30")
+        text = VALID.replace("2026-11-30", "2026-10-30")
         self.assertIn("expired on 2026-10-30", self._problems(text)[0])
+
+    def test_an_until_after_the_latest_allowed_day_fails(self) -> None:
+        text = VALID.replace("2026-11-30", "2026-12-01")
+        self.assertIn(
+            "until 2026-12-01 lies after the latest allowed day 2026-11-30",
+            self._problems(text)[0],
+        )
 
     def test_an_unmarked_entry_that_starts_with_until_fails(self) -> None:
         text = VALID.replace(
             "      # nocheck: cve the module is not built into the image\n"
             "      - id: CVE-2026-1234\n"
-            "        until: 2026-12-31\n",
-            "      - until: 2026-12-31\n        id: CVE-2026-1234\n",
+            "        until: 2026-11-30\n",
+            "      - until: 2026-11-30\n        id: CVE-2026-1234\n",
         )
         self.assertIn("has no # nocheck: cve <reason> marker", self._problems(text)[0])
 
@@ -201,7 +214,7 @@ class TestCheckerCases(unittest.TestCase):
         self.assertIn("has no # nocheck: cve <reason> marker", self._problems(text)[0])
 
     def test_an_expired_image_tag_entry_fails(self) -> None:
-        text = TAGGED.replace("2026-12-31", "2026-10-30")
+        text = TAGGED.replace("2026-11-30", "2026-10-30")
         self.assertIn("image tag 2.18.6 expired on 2026-10-30", self._problems(text)[0])
 
 
@@ -213,7 +226,7 @@ app:
     suppressions:
       # nocheck: cve upstream ships no rebuild yet
       - image_tag: "2.18.6"
-        until: 2026-12-31
+        until: 2026-11-30
 """
 
 
