@@ -6,6 +6,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.cache import _reset_cache_for_tests as _reset_runtime_lookup_cache
+from utils.cache.carrier import merged_users_cache_key
 
 # nocheck: lookup-cache-import (this lookup IS the users SPOT provider)
 from utils.cache.users import get_merged_users
@@ -22,20 +23,38 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[Any]:
+        """
+        Terms:
+            0) full merged mapping
+            1) canonical_user_key
+            2) canonical_user_key, default value
+
+        Keyword arguments:
+            roles_dir: roles tree to build from (defaults to the repository's)
+            carrier: with no terms, return ``{"key": [...], "users": {...}}``
+                for the constructor to park in `_INFINITO_USERS_RENDERED`
+        """
         terms = terms or []
         if len(terms) > 2:
             raise AnsibleError(
                 "users: expected 0, 1, or 2 terms: "
                 "lookup('users'[, canonical_user_key[, default]])"
             )
+        carrier = bool(kwargs.get("carrier", False))
+        if carrier and terms:
+            raise AnsibleError("users: carrier=True takes no terms")
 
+        variables = variables or getattr(self._templar, "available_variables", {}) or {}
+        roles_dir = kwargs.get("roles_dir")
         users = get_merged_users(
-            variables=variables
-            or getattr(self._templar, "available_variables", {})
-            or {},
-            roles_dir=kwargs.get("roles_dir"),
+            variables=variables,
+            roles_dir=roles_dir,
             templar=getattr(self, "_templar", None),
         )
+
+        if carrier:
+            key = merged_users_cache_key(variables, roles_dir=roles_dir)
+            return [{"key": [key[0], list(key[1])], "users": users}]
 
         if len(terms) == 0:
             return [users]

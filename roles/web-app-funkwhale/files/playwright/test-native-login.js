@@ -1,11 +1,17 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isAuthChain, normalizeBaseUrl , gotoOnion } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  isAuthChain,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { performKeycloakLoginForm } = require("./personas/utils/keycloak");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const ldapEnabled = (process.env.LDAP_SERVICE_ENABLED || "").toLowerCase() === "true";
 const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
 

@@ -100,6 +100,8 @@ class TestNoLegacyPathReferences(unittest.TestCase):
         "cli",
         "roles",
         "scripts",
+        "tasks",
+        "tests",
         "filter_plugins",
         "lookup_plugins",
     )
@@ -113,7 +115,11 @@ class TestNoLegacyPathReferences(unittest.TestCase):
     )
 
     EXEMPT_FILES: ClassVar[set[Path]] = {
-        PROJECT_ROOT / "tasks" / "utils" / "migrate_meta_layout.py",
+        Path(__file__).resolve(),
+    }
+
+    EXEMPT_DIRS: ClassVar[set[Path]] = {
+        PROJECT_ROOT / "tasks" / "utils" / "migrate_meta_layout",
     }
 
     def test_no_legacy_path_strings(self):
@@ -130,7 +136,9 @@ class TestNoLegacyPathReferences(unittest.TestCase):
                 continue
             if any(frag in path_str for frag in self.SKIP_FRAGMENTS):
                 continue
-            if path in self.EXEMPT_FILES:
+            if path in self.EXEMPT_FILES or any(
+                path.is_relative_to(exempt) for exempt in self.EXEMPT_DIRS
+            ):
                 continue
             try:
                 text = read_text(path_str)

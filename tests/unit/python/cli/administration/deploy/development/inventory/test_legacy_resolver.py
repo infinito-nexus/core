@@ -79,5 +79,38 @@ class TestPruneOrphansAfterDisable(unittest.TestCase):
         self.assertEqual(pruned, ())
 
 
+class TestRoundIncludeIsDispatchable(unittest.TestCase):
+    """Every include entry becomes an inventory group and a deploy id.
+
+    `utils.roles.stage` loops a stage only over invokable category paths,
+    so a non-invokable prerequisite in the include list is an id nothing
+    can dispatch: the round aborts in `validate_application_ids` before
+    ansible starts. `user-workstation` reaches its host through the
+    service edge instead, which the loader reads from the closure.
+    """
+
+    def _include(self, primary: str) -> tuple[str, ...]:
+        from cli.administration.deploy.development.inventory.legacy_resolver import (
+            _resolve_round_include,
+        )
+
+        return _resolve_round_include(primary_apps=[primary], services_overrides={})
+
+    def test_a_desktop_round_carries_the_base_but_not_the_account(self) -> None:
+        include = self._include("dsk-gnome")
+
+        self.assertIn("dsk-base", include)
+        self.assertNotIn("user-workstation", include)
+
+    def test_a_meta_dependency_that_is_not_invokable_is_dropped(self) -> None:
+        include = self._include("dsk-bluray-player")
+
+        self.assertIn("dsk-base", include)
+        self.assertNotIn("dev-java", include)
+
+    def test_the_primary_app_is_always_kept(self) -> None:
+        self.assertEqual(self._include("dsk-base")[-1], "dsk-base")
+
+
 if __name__ == "__main__":
     unittest.main()

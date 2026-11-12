@@ -8,22 +8,53 @@ system_service_scope: "system" # 'system' for root units, 'user' for per-login u
 system_service_unit_dir: "{{ DIR_SYSTEM_SERVICE if system_service_scope == 'system' else DIR_SYSTEM_SERVICE_USER }}"
 system_service_unit_owner: "{{ 'root' if system_service_scope == 'system' else omit }}"
 system_service_unit_become: "{{ system_service_scope == 'system' }}"
-system_service_systemctl_show: "{{ ['systemctl'] + (['--user'] if system_service_scope == 'user' else []) + ['--no-pager', 'show', '--value', '-p'] }}"
+system_service_systemctl_show: "{{ ['systemctl'] + (['--user'] if system_service_scope == 'user' else []) + ['--no-pager', 'show', '-p', 'Result', '-p', 'ExecMainStatus']
+  }}"
 
 system_service_role_name: "{{ system_service_id | regex_replace('@','') }}"
 system_service_role_dir: "{{ lookup('path_absolute', 'roles', system_service_role_name) }}"
 system_service_script_dir: "{{ [ DIR_SCRIPTS_SYSTEMCTL, system_service_id ] | path_join }}"
+system_service_script_src: >-
+  {{ lookup('first_found',
+    {
+      'files': [
+        'templates/script.sh.j2',
+        'templates/script.py.j2',
+        'files/shell/script.sh',
+        'files/python/script.py'
+      ],
+      'paths': [ system_service_role_dir ]
+    },
+    errors='strict'
+  ) }}
+system_service_template_src: >-
+  {{ lookup(
+       'first_found',
+       {
+         'files': [
+           'templates/systemctl@.service.j2',
+           'templates/systemctl.service.j2'
+         ],
+         'paths': [
+           system_service_role_dir,
+           role_path
+         ]
+       },
+       errors='strict'
+     ) }}
 
-system_service_force_linear_sync: "{{ system_service_name in SYS_SERVICE_GROUP_MANIPULATION }}" # Disables automatic async
+system_service_force_linear_sync: "{{ system_service_name in SYS_SERVICE_GROUP_MANIPULATION }}" # When set to true the enable and daemon-reload handler never runs async
 system_service_force_flush_instant: "{{ (SYS_SERVICE_ALL_ENABLED | bool) and not system_service_force_flush_final }}" # When set to true it activates the flushing of services. defaults to SYS_SERVICE_ALL_ENABLED
 system_service_force_flush_final: false # Force run at the end of the play
+system_service_run_once: false # The run at the end of the play fails on its first failure instead of being retried
 system_service_suppress_flush: "{{ system_service_force_flush_final | bool }}" # When set to true it suppresses the flushing of services
 system_service_copy_files: true # When set to false file copying will be skipped
 system_service_timer_enabled: false # When set to true timer will be loaded
 system_service_state: "{{ SYS_SERVICE_DEFAULT_STATE }}"
 
-system_service_async: "{{ omit if (system_service_force_linear_sync | bool or not ASYNC_ENABLED | bool) else ASYNC_TIME }}"
-system_service_poll: "{{ omit if (system_service_force_linear_sync | bool or not ASYNC_ENABLED | bool) else ASYNC_POLL }}"
+system_service_async_enabled: "{{ ASYNC_ENABLED | bool and not (system_service_force_linear_sync | bool) and system_service_state == omit }}"
+system_service_async: "{{ ASYNC_TIME if system_service_async_enabled | bool else omit }}"
+system_service_poll: "{{ ASYNC_POLL if system_service_async_enabled | bool else omit }}"
 
 system_service_script_base: "{{ system_service_script_src | basename | regex_replace('\\.j2$', '') }}"
 system_service_script_type: "{{ system_service_script_base | filetype }}"

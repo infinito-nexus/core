@@ -1,0 +1,8 @@
+---
+services:
+  infinito:
+    volumes:
+      - type: bind
+        source: ${INFINITO_CACHE_HOST_PACMAN_PATH:?Run 'make dotenv' on an arch stack whose host has a pacman cache}
+        target: ${INFINITO_CACHE_HOST_PACMAN_PATH:?Run 'make dotenv' on an arch stack whose host has a pacman cache}
+        read_only: true

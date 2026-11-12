@@ -21,6 +21,12 @@
 - name: "🔄 Start the hub before talking to its API"
   meta: flush_handlers
 
+- name: "🔍 Resolve the hub before talking to it"
+  ansible.builtin.include_tasks: utils/resolve.yml
+
+- name: "👤 Provision the owner account of the hub"
+  ansible.builtin.include_tasks: utils/owner.yml
+
 - name: "🔌 Provision the MCP server surface"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: HOMEASSISTANT_MCP_ENABLED | bool

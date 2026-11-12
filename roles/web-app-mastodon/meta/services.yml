@@ -50,7 +50,7 @@ mastodon:
   version: v4.6.2
   min_storage: 535MB
   backup:
-    no_stop_required: true
+    stop_required: false
   name: mastodon
   cpus: "1.0"
   mem_reservation: 1.5g
@@ -72,6 +72,11 @@ mastodon:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v4.6.2"
+        until: 2026-12-03
 # nocheck: container-healthcheck-unused  rendered through the mastodon_service macro, whose service_name is a macro parameter
 streaming:
   image: ghcr.io/mastodon/mastodon-streaming
@@ -88,6 +93,11 @@ streaming:
   healthcheck:
     flavor: wget
     path: api/v1/streaming/health
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v4.6.2"
+        until: 2026-12-03
 # nocheck: container-healthcheck-unused  rendered through the mastodon_service macro, whose service_name is a macro parameter
 sidekiq:
   name: mastodon-sidekiq
@@ -116,13 +126,23 @@ minio:
   public: true
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
   public: true
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    wordmark:
+      width: 237
+      height: 60
+    app-icon:
+      width: 512
+      height: 512
+    thumbnail:
+      width: 1200
+      height: 630
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -140,3 +160,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

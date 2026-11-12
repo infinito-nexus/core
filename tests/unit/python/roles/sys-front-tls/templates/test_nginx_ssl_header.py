@@ -37,14 +37,16 @@ def render(application_id: str, override: dict) -> str:
         app: {"server": {"security_headers": override}}
         for app in ("web-app-x", "web-app-onion")
     }
+    apps_by_domain = {domain: app for app, domain in PRIMARY_DOMAINS.items()}
 
     def lookup(kind, *args, **_kw):
         if kind == "applications":
             return applications
         if kind == "tls":
             term, want = args
+            app = apps_by_domain.get(term, term)
             enabled = resolve_enabled(
-                applications.get(term, {}), True, primary_domain=PRIMARY_DOMAINS[term]
+                applications.get(app, {}), True, primary_domain=PRIMARY_DOMAINS[app]
             )
             return {"enabled": enabled, "ports.web": 443 if enabled else 80}[want]
         if kind == "cert":
@@ -60,6 +62,7 @@ def render(application_id: str, override: dict) -> str:
     env.filters["bool"] = bool
     return env.get_template(TEMPLATE).render(
         application_id=application_id,
+        domain=PRIMARY_DOMAINS[application_id],
         lookup=lookup,
         WEBSERVER_SECURITY_HEADERS=PLATFORM,
     )
@@ -97,6 +100,14 @@ class TestHsts(unittest.TestCase):
         rendered = render("web-app-onion", {"hsts": {"include_subdomains": True}})
         self.assertNotIn("Strict-Transport-Security", rendered)
         self.assertNotIn("ssl", rendered)
+
+
+class TestCookieFlags(unittest.TestCase):
+    def test_a_plain_http_vhost_strips_secure_from_every_upstream_cookie(self):
+        self.assertIn("\nproxy_cookie_flags ~ nosecure;\n", render("web-app-onion", {}))
+
+    def test_a_tls_vhost_keeps_the_upstream_cookie_flags(self):
+        self.assertNotIn("proxy_cookie_flags", render("web-app-x", {}))
 
 
 if __name__ == "__main__":

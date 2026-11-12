@@ -14,6 +14,7 @@ set -euo pipefail
 : "${ACT_BIND:=false}"
 : "${ACT_INPUTS:=}"
 : "${ACT_ENV:=}"
+: "${INFINITO_VULNERABILITY_DB_HOST_PATH:?INFINITO_VULNERABILITY_DB_HOST_PATH is not set; run 'make dotenv' to generate the .env single source of truth}"
 
 if [[ "${ACT_PLATFORM_IMAGE}" == local/act-runner-fixed:latest ]] &&
 	! docker image inspect "${ACT_PLATFORM_IMAGE}" >/dev/null 2>&1; then
@@ -34,10 +35,6 @@ fi
 
 echo "=== act: workflow=${ACT_WORKFLOW} event=${ACT_EVENT} job=${ACT_JOB:-<all>} matrix=${ACT_MATRIX:-<none>} inputs=${ACT_INPUTS:-<none>} ==="
 
-# Exception: act's bundled Actions schema (pkg/schema/workflow_schema.json, still
-# true on main at v0.2.89) lacks the `queue` concurrency property that GitHub
-# shipped on 2026-05-07, and rejects the whole workflow over it instead of
-# ignoring it, so act is fed a copy without those lines.
 # TODO: drop this sanitize step once act's schema knows `queue` --
 # report https://github.com/nektos/act/issues/6095,
 # fix in review https://github.com/nektos/act/pull/6152.
@@ -54,7 +51,10 @@ else
 fi
 
 cmd=(act "${ACT_EVENT}" -W "${_act_workflow}")
-_act_workflows_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/.github/workflows"
+cmd+=(-P "ubuntu-latest=${ACT_PLATFORM_IMAGE}")
+cmd+=(-P "ubuntu-24.04-arm=${ACT_PLATFORM_IMAGE}")
+_act_repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+_act_workflows_dir="${_act_repo_root}/.github/workflows"
 while read -r _act_label; do
 	cmd+=(-P "${_act_label}=${ACT_PLATFORM_IMAGE}")
 done < <(grep -rhE 'runs-on:' "${_act_workflows_dir}" | grep -oE 'ubuntu-[0-9]+\.[0-9]+' | sort -u)
@@ -83,9 +83,9 @@ if [[ -n "${ACT_ENV}" ]]; then
 		fi
 	done
 fi
-if [[ -n "${ACT_CONTAINER_OPTIONS}" ]]; then
-	cmd+=(--container-options "${ACT_CONTAINER_OPTIONS}")
-fi
+mkdir -p "${INFINITO_VULNERABILITY_DB_HOST_PATH}"
+cmd+=(--container-options "${ACT_CONTAINER_OPTIONS} --volume ${INFINITO_VULNERABILITY_DB_HOST_PATH}:${INFINITO_VULNERABILITY_DB_HOST_PATH}")
+cmd+=(--env "INFINITO_VULNERABILITY_DB_HOST_PATH=${INFINITO_VULNERABILITY_DB_HOST_PATH}")
 if [[ -n "${ACT_NETWORK}" ]]; then
 	cmd+=(--network "${ACT_NETWORK}")
 fi
@@ -99,6 +99,10 @@ if [[ "${ACT_RM}" == "true" ]]; then
 fi
 cmd+=(--cache-server-addr 127.0.0.1)
 cmd+=(--artifact-server-addr 127.0.0.1)
+if [[ "${ACT_BIND}" != "true" ]] && compgen -G "${_act_repo_root}/roles/web-app-cst-*" >/dev/null; then
+	echo "act: binding the checkout to carry the pulled custom roles (roles/web-app-cst-*)"
+	ACT_BIND=true
+fi
 if [[ "${ACT_BIND}" == "true" ]]; then
 	cmd+=(--bind)
 fi

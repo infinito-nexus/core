@@ -1,0 +1,32 @@
+(function () {
+  var root = document.documentElement;
+  var corporate = {{ CHECKMK_DESIGN_THEME | to_json }};
+  var light = {{ CHECKMK_DESIGN_THEME_LIGHT | to_json }};
+  var dark = {{ CHECKMK_DESIGN_THEME_DARK | to_json }};
+  var prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+  function mirror() {
+    var body = document.body;
+    if (!body) {
+      return;
+    }
+    var theme = body.getAttribute("data-theme");
+    if (theme === corporate || root.hasAttribute("data-design-palette")) {
+      root.setAttribute("data-design-palette", "");
+      root.removeAttribute("data-design-theme");
+      body.setAttribute("data-theme", prefersDark.matches ? dark : light);
+    } else if (theme === light || theme === dark) {
+      root.setAttribute("data-design-theme", theme === dark ? "dark" : "light");
+    }
+  }
+  prefersDark.addEventListener("change", mirror);
+  if (document.body) {
+    mirror();
+  } else {
+    new MutationObserver(function (records, observer) {
+      if (document.body) {
+        observer.disconnect();
+        mirror();
+      }
+    }).observe(root, { childList: true });
+  }
+})();

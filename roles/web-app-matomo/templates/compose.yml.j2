@@ -19,7 +19,7 @@
   {% set docker_compose_env = MATOMO_BOOTSTRAP_ENV_FILE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% if DEPLOYMENT_MODE == 'compose' %}
+    {% if IS_COMPOSE_MODE %}
     profiles:
       - "{{ MATOMO_BOOTSTRAP_PROFILE }}"
     {% endif %}

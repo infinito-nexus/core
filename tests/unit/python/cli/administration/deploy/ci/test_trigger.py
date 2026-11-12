@@ -12,12 +12,12 @@ from cli.administration.deploy.ci.trigger import __main__ as trigger
 from cli.meta.ci import matrix
 from tests.utils.ci.job_names import deploy_job_name
 from tests.utils.ci.run_name import render
-from utils.github.variant.pools import DISTROS, FILESYSTEMS
+from utils.github.variant.pools import ARCHITECTURES, DISTROS, FILESYSTEMS
 
 
-def _job(mode: str, app: str, conclusion: str) -> dict:
+def _job(mode: str, app: str, conclusion: str, *, vpn: bool = False) -> dict:
     return {
-        "name": deploy_job_name(mode, app, "0,1"),
+        "name": deploy_job_name(mode, app, "0,1", vpn=vpn),
         "status": "completed",
         "conclusion": conclusion,
     }
@@ -39,15 +39,18 @@ _JOBS = [
     _job("swarm", "web-app-y", "success"),
 ]
 
-_AXES = f"%{DISTROS[0]}"
-"""The distro glyph _JOBS carry, spelled back out as ASCII. The filesystem is
-deliberately absent: a title states the assigned kind, not the effective one."""
+_AXES = f"%{DISTROS[0]}:{ARCHITECTURES[0]}"
+"""The distro and architecture glyphs _JOBS carry, spelled back out as ASCII.
+The filesystem is deliberately absent: a title states the assigned kind, not
+the effective one, while the architecture is the machine the job really ran
+on."""
 
 _FAILED_TOKENS = (
-    f"web-app-x#0,1@swarm+clearnet{_AXES} web-app-y#0,1@compose+clearnet{_AXES}"
+    f"web-app-x#0,1@swarm+clearnet{_AXES}&direct web-app-y#0,1@compose+clearnet{_AXES}"
 )
 """What _JOBS failed at, exactly: x in swarm, y in compose, both on variant
-shard 0,1, both on the clearnet and both on the same distro."""
+shard 0,1, both on the clearnet and both on the same distro. Only the swarm
+row states its mesh state, because the mesh axis covers no other mode."""
 
 _RUN_URL = "https://github.com/o/r/actions/runs/55"  # nocheck: url
 _SOURCE_CONFIG = {
@@ -96,6 +99,38 @@ class TestTriggerMain(unittest.TestCase):
             calls, [("entry-manual-steer.yml", "feature/x", "__ALL__", "", {}, "o/r")]
         )
 
+    def test_priority_is_dispatched_with_the_axis_overrides(self) -> None:
+        rc, calls = self._run(
+            [
+                "--priority",
+                "web-app-b#1@compose  web-app-a#0@swarm",
+                "--workspace",
+                "false",
+                "--chunk-gate",
+                "false",
+                "--filesystem",
+                "btrfs",
+            ]
+        )
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0][3], "web-app-a#0@swarm web-app-b#1@compose")
+        self.assertEqual(
+            calls[0][4],
+            {"workspace": "false", "chunk_gate": "false", "filesystem": "btrfs"},
+        )
+
+    def test_an_unusable_token_is_refused_before_anything_is_dispatched(self) -> None:
+        with mock.patch.object(
+            trigger.validate, "problems", return_value=(["bad token"], [])
+        ):
+            rc, calls = self._run(["--priority", "web-app-a#9"])
+        self.assertEqual(rc, 1)
+        self.assertEqual(calls, [], "a refused line must not reach the workflow")
+
+    def test_priority_and_failed_cannot_both_build_the_line(self) -> None:
+        with self.assertRaises(SystemExit):
+            self._run(["--failed", "--priority", "web-app-a#0"])
+
     def test_apps_explicit_list(self) -> None:
         rc, calls = self._run(["--apps", "web-app-a  web-app-b"])
         self.assertEqual(rc, 0)
@@ -122,8 +157,14 @@ class TestTriggerMain(unittest.TestCase):
         _rc, calls = self._run(["--failed"], run={"_jobs": both})
         self.assertEqual(
             calls[0][3],
-            f"web-app-x#0,1@compose+clearnet{_AXES} web-app-x#0,1@swarm+clearnet{_AXES}",
+            f"web-app-x#0,1@compose+clearnet{_AXES}"
+            f" web-app-x#0,1@swarm+clearnet{_AXES}&direct",
         )
+
+    def test_a_meshed_swarm_row_comes_back_meshed(self) -> None:
+        meshed = [_job("swarm", "web-app-x", "failure", vpn=True)]
+        _rc, calls = self._run(["--failed"], run={"_jobs": meshed})
+        self.assertEqual(calls[0][3], f"web-app-x#0,1@swarm+clearnet{_AXES}&vpn")
 
     def test_never_deployed_priority_roles_join_the_retrigger(self) -> None:
         source = {"jobs": _JOBS, "displayTitle": render(_SOURCE_CONFIG)}
@@ -206,7 +247,7 @@ class TestTriggerMain(unittest.TestCase):
             "apps": f"web-app-{name}",
             "variant": "0",
             "mode": "compose",
-            "tor": "false",
+            "network": "clearnet",
             "distro": DISTROS[0],
             "filesystem": FILESYSTEMS[0],
             "priority": "false",

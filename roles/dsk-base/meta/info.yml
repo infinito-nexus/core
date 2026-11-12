@@ -1,0 +1,4 @@
+---
+# nocheck: info-media Internal glue role that only pulls in user-workstation; there is no third-party product behind it.
+logo:
+  class: fas fa-desktop

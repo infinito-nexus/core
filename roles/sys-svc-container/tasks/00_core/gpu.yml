@@ -1,0 +1,23 @@
+---
+- name: "🎮 Ask the driver which CUDA devices this host carries"
+  ansible.builtin.command:
+    cmd: "{{ SYS_SVC_CONTAINER_GPU_QUERY }}"
+  register: sys_svc_container_nvidia_inventory
+  changed_when: false
+
+- name: "🎮 Publish those devices, the one with the most memory first"
+  ansible.builtin.set_fact:
+    SYS_SVC_CONTAINER_GPU_DEVICES: >-
+      {{ (sys_svc_container_nvidia_rows | map(attribute='0') | map('int') | list)
+         | zip(sys_svc_container_nvidia_rows | map(attribute='1') | list)
+         | sort(reverse=true) | map(attribute='1') | join(',') }}
+  vars:
+    sys_svc_container_nvidia_rows: >-
+      {{ sys_svc_container_nvidia_inventory.stdout_lines | map('split', ', ') | list }}
+
+- name: "📣 Report the devices a GPU service will claim"
+  ansible.builtin.debug:
+    msg: "NVIDIA_VISIBLE_DEVICES={{ SYS_SVC_CONTAINER_GPU_DEVICES }}"
+
+- name: "🎮 Let the container manager hand that GPU to its containers"
+  include_tasks: "{{ role_path }}/tasks/00_core/nvidia.yml"

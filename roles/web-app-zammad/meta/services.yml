@@ -4,7 +4,6 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
-# nocheck: seaweedfs-required - object storage not implemented for this role
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -34,11 +33,26 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
-css:
+seaweedfs:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag - design consumer, no Playwright surface (provider: web-svc-design)
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 126
+      height: 108
+      frame: true
+    brand:
+      width: 300
+      height: 90
+    apple-touch-icon:
+      width: 180
+      height: 180
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
@@ -87,11 +101,17 @@ zammad:
     - web-app-keycloak
     - web-app-stalwart
     - web-app-mailu
+    - web-svc-seaweedfs
   lifecycle: beta
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "7.1.2"
+        until: 2026-12-03
 railsserver:
   healthcheck:
     flavor: connect
@@ -200,6 +220,11 @@ zammadmcp:
   ports:
     internal:
       http: 8080
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.13.15-slim"
+        until: 2026-12-03
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -221,3 +246,8 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

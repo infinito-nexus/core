@@ -18,10 +18,11 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
   # nocheck: matomo-track
   track: false
-css:
-  bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: plain file server; its only HTML is nginx's autoindex listing (templates/proxy.conf.j2)
+design:
+  enabled: false
+  shared: false
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -34,3 +35,8 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

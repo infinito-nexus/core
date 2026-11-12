@@ -13,19 +13,21 @@ class TestCompareApplicationKeys(unittest.TestCase):
     def test_all_keys_present_in_defaults_returns_empty(self):
         apps = {"app1": {"services": {"port": 8080}}}
         defaults = {"app1": {"services": {"port": 8080}}}
-        self.assertEqual(compare_application_keys(apps, defaults, "src"), [])
+        self.assertEqual(
+            compare_application_keys(apps, defaults, "src", open_paths={}), []
+        )
 
     def test_unknown_application_is_flagged(self):
         apps = {"unknown": {"services": {"port": 8080}}}
         defaults = {"app1": {"services": {"port": 8080}}}
-        result = compare_application_keys(apps, defaults, "src")
+        result = compare_application_keys(apps, defaults, "src", open_paths={})
         self.assertEqual(len(result), 1)
         self.assertIn("Unknown application 'unknown'", result[0])
 
     def test_missing_default_for_extra_key_is_flagged(self):
         apps = {"app1": {"services": {"port": 8080, "extra": True}}}
         defaults = {"app1": {"services": {"port": 8080}}}
-        result = compare_application_keys(apps, defaults, "src")
+        result = compare_application_keys(apps, defaults, "src", open_paths={})
         self.assertEqual(len(result), 1)
         self.assertIn("services.extra", result[0])
 
@@ -37,7 +39,9 @@ class TestCompareApplicationKeys(unittest.TestCase):
             }
         }
         defaults = {"app1": {"services": {"port": 8080}}}
-        self.assertEqual(compare_application_keys(apps, defaults, "src"), [])
+        self.assertEqual(
+            compare_application_keys(apps, defaults, "src", open_paths={}), []
+        )
 
     def test_variants_keys_are_legal(self):
         """Regression for web-opt-rdr-www: variants.yml-only keys must
@@ -57,7 +61,9 @@ class TestCompareApplicationKeys(unittest.TestCase):
                 {"services": {"dashboard": {"enabled": False, "shared": False}}},
             ]
         }
-        self.assertEqual(compare_application_keys(apps, defaults, "src", variants), [])
+        self.assertEqual(
+            compare_application_keys(apps, defaults, "src", variants, open_paths={}), []
+        )
 
     def test_variants_union_of_all_variants(self):
         """Allow-set is the union across ALL variants, not just one."""
@@ -69,20 +75,24 @@ class TestCompareApplicationKeys(unittest.TestCase):
                 {"services": {"y": 2}},
             ]
         }
-        self.assertEqual(compare_application_keys(apps, defaults, "src", variants), [])
+        self.assertEqual(
+            compare_application_keys(apps, defaults, "src", variants, open_paths={}), []
+        )
 
     def test_no_variants_arg_falls_back_to_defaults_only(self):
         apps = {"app1": {"services": {"dashboard": True}}}
         defaults = {"app1": {"services": {}}}
-        result = compare_application_keys(apps, defaults, "src", None)
+        result = compare_application_keys(apps, defaults, "src", None, open_paths={})
         self.assertEqual(len(result), 1)
         self.assertIn("services.dashboard", result[0])
 
     def test_source_path_appears_in_error(self):
         apps = {"app1": {"services": {"unknown": True}}}
         defaults = {"app1": {"services": {}}}
-        result = compare_application_keys(apps, defaults, "/tmp/foo.yml")
-        self.assertTrue(result[0].startswith("/tmp/foo.yml:"))
+        result = compare_application_keys(
+            apps, defaults, "host_vars/foo.yml", open_paths={}
+        )
+        self.assertTrue(result[0].startswith("host_vars/foo.yml:"))
 
     def test_key_typo_in_variants_still_rejected(self):
         """Variants widen legal_keys but only with what they actually
@@ -90,9 +100,79 @@ class TestCompareApplicationKeys(unittest.TestCase):
         apps = {"app1": {"services": {"dashbaord": True}}}
         defaults = {"app1": {"services": {}}}
         variants = {"app1": [{"services": {"dashboard": True}}]}
-        result = compare_application_keys(apps, defaults, "src", variants)
+        result = compare_application_keys(
+            apps, defaults, "src", variants, open_paths={}
+        )
         self.assertEqual(len(result), 1)
         self.assertIn("services.dashbaord", result[0])
+
+    def test_custom_role_declaration_keys_are_legal(self):
+        apps = {
+            "web-app-cst-demo": {
+                "custom": True,
+                "source": {"url": "https://x/y.git", "version": "v1", "path": "r"},
+                "services": {"port": 8080},
+            }
+        }
+        defaults = {"web-app-cst-demo": {"services": {"port": 8080}}}
+        self.assertEqual(
+            compare_application_keys(apps, defaults, "src", open_paths={}), []
+        )
+
+    def test_declaration_keys_on_an_in_tree_role_are_flagged(self):
+        apps = {"app1": {"custom": True, "source": {"url": "https://x/y.git"}}}
+        defaults = {"app1": {"services": {}}}
+        result = compare_application_keys(apps, defaults, "src", open_paths={})
+        self.assertEqual(3, len(result))
+        self.assertTrue(any(err.endswith("app1: custom") for err in result))
+
+
+def _open_defaults() -> dict:
+    return {"app1": {"services": {"wp": {"options": {"a": 1}, "title": "t"}}}}
+
+
+def _opened() -> dict:
+    return {"app1": {"services.wp.options"}}
+
+
+class TestOpenSubtrees(unittest.TestCase):
+    def _errors(self, services: dict, open_paths: dict) -> list[str]:
+        apps = {"app1": {"services": services}}
+        return compare_application_keys(
+            apps, _open_defaults(), "src", open_paths=open_paths
+        )
+
+    def test_an_open_subtree_accepts_an_unknown_child(self):
+        services = {"wp": {"options": {"blogdescription": "x"}}}
+        self.assertEqual(self._errors(services, _opened()), [])
+
+    def test_an_open_subtree_accepts_nested_unknown_keys(self):
+        services = {"wp": {"options": {"plugin": {"deep": 1}}}}
+        self.assertEqual(self._errors(services, _opened()), [])
+
+    def test_the_same_child_fails_without_the_marker(self):
+        result = self._errors({"wp": {"options": {"blogdescription": "x"}}}, {})
+        self.assertEqual(len(result), 1)
+        self.assertIn(
+            "Missing default for app1: services.wp.options.blogdescription", result[0]
+        )
+
+    def test_a_sibling_of_an_open_subtree_stays_strict(self):
+        result = self._errors({"wp": {"titel": "typo"}}, _opened())
+        self.assertEqual(len(result), 1)
+        self.assertIn("services.wp.titel", result[0])
+
+    def test_the_open_path_ends_at_a_key_boundary(self):
+        result = self._errors({"wp": {"optionsx": 1}}, _opened())
+        self.assertEqual(len(result), 1)
+        self.assertIn("services.wp.optionsx", result[0])
+
+    def test_another_application_does_not_inherit_the_open_subtree(self):
+        apps = {"app2": {"services": {"wp": {"options": {"blogdescription": "x"}}}}}
+        defaults = {**_open_defaults(), "app2": _open_defaults()["app1"]}
+        result = compare_application_keys(apps, defaults, "src", open_paths=_opened())
+        self.assertEqual(len(result), 1)
+        self.assertIn("app2: services.wp.options.blogdescription", result[0])
 
 
 if __name__ == "__main__":  # pragma: no cover

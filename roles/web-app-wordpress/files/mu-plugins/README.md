@@ -37,9 +37,15 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 
 It hooks `http_api_curl` rather than `http_request_args` because the args array cannot express a proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, so SOCKS5 is reachable only on the raw cURL handle. Without it, libcurl refuses an `.onion` host at name resolution under [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — before `/etc/hosts`, `extra_hosts` or DNS is consulted — and the token exchange fails with cURL error 6, which WordPress surfaces as `wp-login.php?login-error=http_request_failed`.
 
+## Network origins (infinito-network-origins.php) 🌐
+
+[infinito-network-origins.php](infinito-network-origins.php) moves every site URL into the network the request's `Host` belongs to. `INFINITO_NETWORK_BASE_URLS` in [env.j2](../../templates/env.j2) lists the network siblings of each site, canonical network first, separated by `,`, and the sites by `;` (`WORDPRESS_NETWORK_BASE_URLS` in [vars/main.yml](../../vars/main.yml)). A URL whose host is a known site sibling is answered with that site's sibling in the request's network, for the `home` and `siteurl` options, `content_url`, `plugins_url`, `network_home_url`, `network_site_url` and `upload_dir`. `WP_CONTENT_URL` and `WP_PLUGIN_URL` are fixed from `siteurl` before any mu-plugin loads, which is why the URL filters are needed as well. The stored options keep the canonical URL, so WP-CLI and requests on any other host read them unchanged.
+
+On Multisite, [03_multisite.yml](../../tasks/03_multisite.yml) also copies the same file to `wp-content/sunrise.php` and sets `SUNRISE`. WordPress looks the site up by `Host` before any mu-plugin runs, so a sibling host would match no site and get redirected to the clearnet `wp-signup.php`. Loaded as the drop-in, the file answers `pre_get_site_by_path` for a sibling host with the site of its canonical host. It also sets `COOKIE_DOMAIN` for every site host: the network domain's sibling in the request's network for a host at or below it, and a host-only cookie for a child on its own domain (such as `biberblog.<primary>`), because a browser drops a cookie whose domain the host does not match. A constant guard keeps the second load from mu-plugins from registering anything twice.
+
 ## Deployment 🚚
 
-Every file here is declared as an addon under [meta/addons/](../../meta/addons/) with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed.
+Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed.
 
 ## Credits 🙏
 

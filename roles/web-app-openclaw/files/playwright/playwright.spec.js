@@ -1,4 +1,4 @@
-const { test } = require("@playwright/test");
+const { test } = require("./onion-test");
 
 const shared = require("./_shared");
 
@@ -12,3 +12,5 @@ require("./test-guest").register(shared);
 require("./test-mcp").register(shared);
 require("./test-administrator-persona").register(shared);
 require("./test-oidc-login");
+require("./test-control-ui").register(shared);
+require("./test-design").register(shared);

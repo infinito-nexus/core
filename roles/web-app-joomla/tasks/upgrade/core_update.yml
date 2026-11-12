@@ -1,0 +1,28 @@
+---
+# Param: joomla_core_action  - core_update.php action: version | schema | plugins | finalise
+# Param: joomla_core_plugins - space-separated folder/element=0|1 states for the plugins action, "" otherwise
+- name: "🧩 Run the Joomla core_update.php '{{ joomla_core_action }}' action"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - --user
+      - "{{ JOOMLA_WEB_USER }}"
+      - -e
+      - "J_ROOT={{ JOOMLA_DOCROOT }}"
+      - -e
+      - "J_PLUGINS={{ joomla_core_plugins }}"
+      - "{{ JOOMLA_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - php
+      - -d
+      - "memory_limit={{ JOOMLA_PHP_MEMORY_LIMIT }}"
+      - --
+      - "infinito:core"
+      - "{{ joomla_core_action }}"
+    stdin: "{{ lookup('file', role_path ~ '/files/php/core_update.php') }}"
+  register: joomla_core_update
+  changed_when: >-
+    joomla_core_action in ['plugins', 'finalise']
+    or (joomla_core_action == 'schema' and 'fixed' in joomla_core_update.stdout)
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"

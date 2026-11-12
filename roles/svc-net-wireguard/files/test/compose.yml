@@ -10,6 +10,7 @@ services:
   host-i:
     <<: *host
     image: debian:13.7-slim
+    privileged: true # the hub sets net.ipv4.ip_forward; /proc/sys is read-only unprivileged
     container_name: "${HOST_I:?set by test.sh}"
     hostname: "${HOST_I:?set by test.sh}"
 

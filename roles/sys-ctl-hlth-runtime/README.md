@@ -2,11 +2,11 @@
 
 ## Description
 
-This role checks the language runtime inside every running Docker container. It reads the PHP version of each container that ships a `php` binary and the effective PHP hardening of each service that mounts the shared hardening ini from [`sys-svc-compose-php`](../sys-svc-compose-php/README.md).
+This role scans the node it runs on for known vulnerabilities with [Trivy](https://trivy.dev/), [Grype](https://github.com/anchore/grype) and [OSV-Scanner](https://google.github.io/osv-scanner/) over a [Syft](https://github.com/anchore/syft) SBOM, and checks the effective PHP hardening of each service that mounts the shared hardening ini from [`sys-svc-compose-php`](../sys-svc-compose-php/README.md).
 
 ## Overview
 
-The role installs a check script with a `systemd` service and timer. The check fails, and the failure notifier from [`sys-ctl-alm-compose`](../sys-ctl-alm-compose/README.md) alerts, when a container runs PHP below the security floor of its release line or on an end-of-life line, or when a service that declares `php_hardening` in its `meta/volumes.yml` still reports `expose_php` or `session.upload_progress.enabled` as on. The floors, the lowest patched release of each `major.minor` line, live in `HEALTH_RUNTIME_FLOORS` in [main.yml](./vars/main.yml).
+The role installs a check script with a `systemd` service and a timer at 00:00 UTC, and the deploy runs it once at its end. `severity` maps each reported severity to `fail` or `warn`: an unsuppressed finding mapped to `fail` fails the check, one mapped to `warn` is a `⚠️` line, a suppressed one an `ℹ️` line. The check also fails, and the failure notifier from [`sys-ctl-alm-compose`](../sys-ctl-alm-compose/README.md) alerts, when an engine or its database fails, or when a service that declares `php_hardening` in its `meta/volumes.yml` still reports `expose_php` or `session.upload_progress.enabled` as on. The daily mirror scan of `cron-images-mirror-all.yml` fails on every mapped finding, `fail` and `warn` alike, and tracks them as issues. The scan configuration and the engine pins live in [services.yml](./meta/services.yml).
 
 ## Cosmos
 
@@ -16,6 +16,10 @@ The diagram places Container Runtime Health Check in the Infinito.Nexus cosmos: 
 flowchart LR
     subgraph role [sys-ctl-hlth-runtime 💻]
         svc_runtime["runtime"]
+        svc_trivy["trivy"]
+        svc_grype["grype"]
+        svc_osv["osv"]
+        svc_syft["syft"]
     end
 ```
 
@@ -23,13 +27,18 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-- **Runtime floor:** Fails for every running container whose PHP is below the floor of its `major.minor` line, or on a line older than every listed floor (end of life). A line newer than every floor passes.
-- **Hardening verification:** Runs `php` inside every service that mounts `php_hardening` and fails while `expose_php` or `session.upload_progress.enabled` is on, which catches a wrong scan dir, a later ini that overrides the hardening, and an image change.
-- **Sidecar report:** Lists other PHP containers of a hardened stack, such as cron or worker sidecars, as info without failing.
-- **Registry report:** `make security-runtimes` lists the PHP runtime of every pinned image from registry metadata, without pulling, against the same floors.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+- **Targets:** `container` scans the image of every running container through the read-only Docker socket, `host` scans the host root filesystem mounted read-only. In swarm every node scans itself.
+- **Engines:** Syft builds one SBOM per target, Grype and OSV-Scanner read it, Trivy reads the target itself. Without `syft` in `engines`, Grype and OSV-Scanner read the target directly; `osv` then scans containers only.
+- **Source-built runtimes:** A runtime compiled into the image, such as the PHP of the official `php` images, is matched by Grype only. With `syft` but without `grype` in `engines`, Grype still scans the binary-classified packages of every SBOM.
+- **Threshold:** `severity` maps each reported severity to `fail` or `warn`, `{CRITICAL: fail, HIGH: warn}` on every host and in CI; a severity it does not name is not reported, and `fixed_only` limits the report to findings with a fixed version. The list form of `severity` is rejected.
+- **Finding records:** Every output is built from the same records, one per finding and owner: `run_id`, `timestamp` (RFC 3339, UTC), `host`, `environment`, `target` (`<stack>/<service>` or the host name), `kind`, `image` (`<image name>@<image id>` or the host name), `scanner`, `id`, `severity`, `package`, `installed_version`, `fixed_version`, `suppressed`, `suppressed_until` and `verdict` (`fail`, `warn` or `suppressed`).
+- **Report:** `report.json` in `DIR_HEALTH_RUNTIME_REPORT` holds the last run: its verdict, the counts per verdict, the engine errors, the counts per target and every record. It is replaced atomically.
+- **Findings log:** `findings.jsonl` in `DIR_HEALTH_RUNTIME_LOG` gets one JSON line per record and run, for Wazuh. A logrotate drop-in rotates it weekly and keeps 12 compressed generations.
+- **Journal:** Besides the `ℹ️`, `⚠️` and `❌` lines, the check prints one JSON line per target, `{"event": "hlth_runtime.target", "run_id", "target", "kind", "image", "counts", "verdict"}` with `verdict` `fail`, `warn` or `ok`, and last `{"event": "hlth_runtime.summary", "run_id", "counts", "errors", "verdict"}`, for Loki.
+- **Metrics:** While `web-app-prometheus` is deployed, the check replaces `infinito_hlth_runtime.prom` in `DIR_METRICS_TEXTFILE` atomically with the gauges `infinito_hlth_runtime_findings{target,kind,image,severity,scanner,verdict}`, `infinito_hlth_runtime_last_run_timestamp_seconds`, `infinito_hlth_runtime_last_run_success` and `infinito_hlth_runtime_scanner_errors{scanner}`. No series carries a CVE id.
+- **Suppressions:** A role accepts findings for its own containers under `<service>.security.suppressions` of its `meta/services.yml`, each entry `id` (one CVE) or `image_tag` (every finding of the image while it runs that tag, which MUST equal the service's `version`) plus `until` below a `# nocheck: cve <reason>` marker, see [suppression.md](../../docs/contributing/actions/testing/suppression.md). Host suppressions are the `id` entries under the engine entries of this role and cover that engine's host findings; an `image_tag` entry there covers the engine's own image.
+- **Databases:** With `db_update` the engines refresh their databases under `database_dir` before each run, three attempts 30 s apart; without it the databases MUST already be there, and a missing one fails the run. SBOMs of running images are cached under `cache_dir` by image id.
+- **Deploy-time run:** The deploy runs the check once at its end and fails on its first failure, without the retries `sys-service-terminator` gives other units.
+- **Development and CI deploys:** A CI row pins one engine and restores its databases; a local deploy draws one engine and refreshes the shared host directory `INFINITO_VULNERABILITY_DB_HOST_PATH`. Both run it behind Syft plus the Grype runtime pass and read the databases read-only at `INFINITO_VULNERABILITY_DB_DIR`. Production hosts run every engine.
+- **Hardening verification:** Runs `php` inside every service that mounts `php_hardening` and fails while `expose_php` or `session.upload_progress.enabled` is on, and lists other PHP containers of a hardened stack as info.
+- **Registry scan:** `make test-security` scans every pinned role image of the GHCR mirror with the same pipeline, see [README.md](../../cli/contributing/security/README.md).

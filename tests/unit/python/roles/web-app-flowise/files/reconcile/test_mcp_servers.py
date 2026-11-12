@@ -67,7 +67,9 @@ class FakeApi:
         permissive=False,
         refuse_on_create=False,
         create_error=None,
+        flow_delete_status=200,
     ):
+        self.flow_delete_status = flow_delete_status
         self.permissive = permissive
         self.refuse_on_create = refuse_on_create
         self.create_error = create_error
@@ -104,6 +106,8 @@ class FakeApi:
             self.flows_updated.append(payload["name"])
             return 200, payload
         if path.startswith("/api/v1/chatflows/") and method == "DELETE":
+            if self.flow_delete_status != 200:
+                return self.flow_delete_status, '{"message":"Forbidden"}'
             dead = path.rsplit("/", 1)[-1]
             self.flows_deleted.append(dead)
             self.flows = [f for f in self.flows if f["id"] != dead]
@@ -351,6 +355,28 @@ class TestReconcileMcpServers(unittest.TestCase):
         with patch.object(module, "call", api):
             module.main()
         self.assertEqual(["old"], api.flows_deleted)
+
+    def test_a_refused_delete_exits_with_the_no_retry_code(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(
+            flows=[{"id": "old", "name": "infinito:fixture:web-app-prometheus"}],
+            flow_delete_status=403,
+        )
+        with patch.object(module, "call", api), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertEqual(module.REFUSED_RC, exit_.exception.code)
+        self.assertIn("FAILED deleting stale", str(exit_.exception))
+
+    def test_a_server_error_keeps_the_retryable_exit(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(
+            flows=[{"id": "old", "name": "infinito:fixture:web-app-prometheus"}],
+            flow_delete_status=500,
+        )
+        with patch.object(module, "call", api), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertNotEqual(module.REFUSED_RC, exit_.exception.code)
+        self.assertIn("FAILED deleting stale", str(exit_.exception))
 
     def test_loopback_and_metadata_are_probed_and_refused(self) -> None:
         module = load_script([SUPPORTED_SERVER])

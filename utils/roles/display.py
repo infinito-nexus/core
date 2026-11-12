@@ -2,10 +2,10 @@
 
 A role id is the machine handle (``web-app-nextcloud``); the display name is
 what a human reads off a GitHub Actions job or run title
-(``网络应用·Nextcloud``). The category path renders as the ``hanzi`` labels
-``meta/categories.yml`` declares, run together into one block, then a ``·``,
-then the role's own ``README.md`` heading or the part of the id the categories
-do not already carry.
+(``𓏴𓏛Nextcloud``). The category path renders as the ``glyph`` labels
+``meta/categories.yml`` declares, run together into one block, directly
+followed by the role's own ``README.md`` heading or the part of the id the
+categories do not already carry.
 
 The name never holds a space: the ``whitelist`` and ``priority`` workflow
 inputs are space-separated lists, so a display name with a space in it would
@@ -13,7 +13,7 @@ make a two-role list unparseable.
 
 :meth:`RoleDisplayName.decode` accepts a raw role id unchanged, so every
 consumer can decode unconditionally and a human dispatching a run by hand
-never has to type hanzi.
+never has to type a glyph.
 """
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ class RoleDisplayName:
         return "-".join(parts) or app_id
 
     def category_labels(self, app_id: str) -> list[str]:
-        """The ``hanzi`` label of every category the role id walks through.
+        """The ``glyph`` label of every category the role id walks through.
 
         Args:
             app_id: role id, e.g. ``'web-app-nextcloud'``.
@@ -107,9 +107,9 @@ class RoleDisplayName:
         labels: list[str] = []
         for part in app_id.split("-"):
             child = node.get(part)
-            if not isinstance(child, dict) or "hanzi" not in child:
+            if not isinstance(child, dict) or "glyph" not in child:
                 break
-            labels.append(child["hanzi"])
+            labels.append(child["glyph"])
             node = child
         return labels
 
@@ -128,25 +128,37 @@ class RoleDisplayName:
             app_id: role id, e.g. ``'web-app-nextcloud'``.
             variant: variant CSV the job covers, e.g. ``'0,1'`` (``''``: none).
         """
-        name = app_id
-        if (self.roles_dir / app_id).is_dir():
-            fragment = self.id_fragment(app_id)
-            title = self.title(app_id)
-            if len(title) <= len(fragment):
-                fragment = title
-            name = SEPARATOR.join(
-                part
-                for part in ("".join(self.category_labels(app_id)), fragment)
-                if part
-            )
+        name = self._name(app_id, "")
         return f"{name}{VARIANT_SEPARATOR}{variant}" if variant else name
+
+    def _name(self, app_id: str, joiner: str) -> str:
+        """The display name of *app_id* without a variant suffix.
+
+        Args:
+            app_id: role id, e.g. ``'web-app-nextcloud'``.
+            joiner: what stands between the glyph block and the fragment;
+                ``''`` today, :data:`SEPARATOR` in names of older runs.
+        """
+        if not (self.roles_dir / app_id).is_dir():
+            return app_id
+        fragment = self.id_fragment(app_id)
+        title = self.title(app_id)
+        if len(title) <= len(fragment):
+            fragment = title
+        return joiner.join(
+            part for part in ("".join(self.category_labels(app_id)), fragment) if part
+        )
 
     def _registry(self) -> dict[str, str]:
         if self._by_display is None:
-            self._by_display = {
-                self.encode(path.name): path.name
+            roles = [
+                path.name
                 for path in sorted(self.roles_dir.iterdir())
                 if (path / "README.md").is_file()
+            ]
+            self._by_display = {
+                **{self._name(app_id, SEPARATOR): app_id for app_id in roles},
+                **{self._name(app_id, ""): app_id for app_id in roles},
             }
         return self._by_display
 

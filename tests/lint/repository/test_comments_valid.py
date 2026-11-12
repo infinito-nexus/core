@@ -4,8 +4,9 @@ A comment is VALID only when it is one of:
 
 * a **file-header** block (leading comment lines explaining the file),
 * a **doc comment** directly above a class / function / method / rule,
-* a **tool directive** (`noqa`, `nocheck`, `type: ignore`, `shellcheck`,
-  `rubocop:`, `stylelint-disable`, `pragma`, language annotations, ...),
+* a **tool directive** (`noqa`, `nocheck`, `variant-pin`, `type: ignore`,
+  `shellcheck`, `rubocop:`, `stylelint-disable`, `pragma`, language
+  annotations, ...),
 * a **marked exception** -- a mid-code comment that flags a real trip-wire
   (warning, pitfall, deliberate non-idiomatic choice) whose text starts with
   one of the exception markers (`Exception`, ...),
@@ -40,9 +41,9 @@ intentionally OUT of scope (reliably distinguishing them from ``#`` inside a
 string needs a full lexer per language, and false positives would make the
 linter unusable).
 
-SCOPE: every tracked file of a checked type, plus untracked new ones. The
-policy holds for the whole repository, not only for the files a change happens
-to touch.
+SCOPE: every tracked file of a checked type, plus untracked new ones and the
+custom roles pulled into ``roles/``. The policy holds for the whole repository,
+not only for the files a change happens to touch.
 
 A whole file opts out with a ``# nocheck: comments-valid`` marker in its first
 30 lines (any comment prefix, e.g. ``{# nocheck: comments-valid #}`` for Jinja),
@@ -60,11 +61,12 @@ import unittest
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_in_head
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files, untracked_files
 
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
 _FILE_NOCHECK_RULE = "comments-valid"
@@ -89,6 +91,7 @@ _MARKER_RE = re.compile(rf"^[\s*/#>-]*(?:{'|'.join(_MARKERS)})\b", re.IGNORECASE
 _DIRECTIVE_RE = re.compile(
     r"\b("
     r"noqa|nocheck|nosec|bandit|type:\s*ignore|type:\s*\w|pragma|pylint|mypy|ruff"
+    r"|variant-pin"
     r"|flake8|pyright|isort|fmt:\s*(?:on|off)|yapf|coding[:=]|shellcheck|yamllint"
     r"|hadolint"
     r"|rubocop|frozen_string_literal|sourcery|phpcs|phpstan|psalm|phan"
@@ -450,32 +453,20 @@ def find_invalid_comments(path: Path):
 _EXTS = (".py", ".sh", ".yml", ".yaml", ".rb", ".php", ".css", ".j2")
 
 
-def _git_lines(args: list[str]) -> list[str]:
-    """Run a git command and return its stdout lines.
-
-    safe.directory='*' is required because the make-test container mounts the
-    repo as a different uid; bare git would abort with dubious-ownership and the
-    linter would silently scan zero files.
-    """
+def _listed(listing: Callable[[], tuple[str, ...]]) -> set[str]:
     try:
-        result = subprocess.run(
-            ["git", "-c", "safe.directory=*", *args],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        return set(listing())
     except (OSError, subprocess.SubprocessError):
-        return []
-    return result.stdout.splitlines()
+        return set()
 
 
 def _all_targets():
-    """Every tracked file of a checked type, plus untracked new ones."""
-    rel = set(_git_lines(["ls-files"]))
-    rel |= set(_git_lines(["ls-files", "--others", "--exclude-standard"]))
+    """Every tracked file of a checked type, plus untracked new ones.
+
+    A failing git listing loses only its own files.
+    """
     targets = []
-    for r in sorted(rel):
+    for r in sorted(_listed(repository_files) | _listed(untracked_files)):
         if r.endswith(_EXTS) or r.rsplit("/", 1)[-1] == "Dockerfile":
             path = PROJECT_ROOT / r
             if path.is_file():

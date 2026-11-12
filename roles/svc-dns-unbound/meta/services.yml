@@ -29,8 +29,19 @@ unbound:
       # nocheck: onion-flag  a recursive resolver published on the onion is an open resolver, and the containers it serves reach it on the role network
       unbound: false
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2024.06"
+        until: 2026-12-03
 
 # nocheck: dynamic-flag - the resolver state volume is backup-disabled rebuildable cache, the backup consumer stays permanently off
 container_backup:
   enabled: false
   shared: true
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

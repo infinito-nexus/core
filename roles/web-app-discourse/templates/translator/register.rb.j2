@@ -1,0 +1,7 @@
+host = '{{ DISCOURSE_TRANSLATE_HOST }}'
+hosts = SiteSetting.allowed_internal_hosts.to_s.split('|').map(&:strip).reject(&:empty?)
+SiteSetting.allowed_internal_hosts = (hosts + [host]).join('|') unless hosts.include?(host)
+SiteSetting.translator_provider = '{{ DISCOURSE_TRANSLATE_PROVIDER }}'
+SiteSetting.translator_libretranslate_endpoint = '{{ DISCOURSE_TRANSLATE_ENDPOINT }}'
+SiteSetting.translator_libretranslate_api_key = ''
+SiteSetting.translator_enabled = true

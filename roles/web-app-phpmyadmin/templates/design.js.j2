@@ -1,0 +1,30 @@
+{% set design = lookup('design', application_id) %}
+(function () {
+  var root = document.documentElement;
+  function mirrorTheme() {
+    var link = document.querySelector("link[href*='themes/'][href*='/css/theme']");
+    if (!link) return false;
+    var match = /themes\/([^/]+)\/css\/theme/.exec(link.getAttribute("href"));
+    if (match && match[1] !== {{ PHPMYADMIN_THEME_NAME | to_json }}) {
+      root.setAttribute("data-design-theme", "light");
+    }
+    return true;
+  }
+  if (!mirrorTheme()) document.addEventListener("DOMContentLoaded", mirrorTheme);
+})();
+{% if design.logo is string %}
+(function () {
+  var favicon = INFINITO_DESIGN.urls.favicon_ico;
+  function brandIcon() {
+    var icons = document.querySelectorAll("link[rel~='icon']");
+    for (var index = 0; index < icons.length; index += 1) {
+      if (icons[index].getAttribute("href") !== favicon) {
+        icons[index].setAttribute("href", favicon);
+      }
+    }
+  }
+  new MutationObserver(brandIcon).observe(document.head || document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["href"] });
+  brandIcon();
+  document.addEventListener("DOMContentLoaded", brandIcon);
+})();
+{% endif %}

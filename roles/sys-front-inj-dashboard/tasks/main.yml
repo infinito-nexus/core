@@ -4,7 +4,7 @@
 
 - name: "📄 Load iFrame init code for '{{ application_id }}'"
   set_fact:
-    iframe_init_code: "{{ lookup('template','iframe/init_one_liner.js.j2') }}"
+    iframe_init_code: "{{ lookup('template_shallow', 'iframe/init_one_liner.js.j2') }}"
 
 - name: "🗜️ Collapse iFrame init code into one-liner for '{{ application_id }}'"
   set_fact:

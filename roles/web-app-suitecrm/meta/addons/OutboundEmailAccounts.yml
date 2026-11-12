@@ -1,0 +1,7 @@
+---
+enabled: false
+required: false
+mechanism: module
+source: bundled
+bridges:
+  - email

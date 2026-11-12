@@ -13,7 +13,7 @@
         LUA_PROMETHEUS_URL_KEYS:      "{{ OPENRESTY_LUA_PROMETHEUS_URL_KEYS }}"
     {{ lookup('compose_only', 'container_name', OPENRESTY_CONTAINER) }}
     {{ lookup('container_image', application_id, 'openresty') }}
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     {{ lookup('container_ports',
               {'service': 'openresty', 'protocol': 'http', 'mode': 'host'},
               {'service': 'openresty', 'protocol': 'https', 'mode': 'host'}) | indent(4) }}

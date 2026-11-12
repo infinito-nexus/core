@@ -25,3 +25,8 @@ openclaw:
   bond: 0.1
   enabled: "{{ 'web-app-openclaw' in group_names }}"
   shared: true # nocheck: dynamic-flag the selected agent is always the shared workload of the device
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

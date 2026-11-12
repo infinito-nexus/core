@@ -27,7 +27,7 @@ route:
 receivers:
   - name: "default"
     email_configs:
-      - to: "{{ lookup('users', 'administrator').email }}"
+      - to: "{{ lookup('users', 'platform_administrator').email }}"
         send_resolved: true
         headers:
           Subject: "[{{ '{{' }} .Status | toUpper {{ '}}' }}] {{ '{{' }} .CommonAnnotations.summary {{ '}}' }}"

@@ -1,0 +1,4 @@
+---
+canonical:
+  - api.{{ DOMAIN_PRIMARY }}
+aliases: []

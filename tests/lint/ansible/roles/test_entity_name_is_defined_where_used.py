@@ -10,9 +10,11 @@ gap stays invisible until the swarm path templates it into a real argument and
 Five roles shipped that way while seventy-seven define it on the line below
 ``application_id``, which is why nothing looked odd in review.
 
-The match needs its lookbehind: ``get_entity_name`` is a filter whose name ends
-in this variable's, and without it every role calling that filter reads as a
-violation.
+The variable shares its name with the filter that derives it, so the match
+also has to skip filter applications: everything preceded by a pipe is
+``role_id | entity_name`` and carries its own argument, while a bare
+occurrence reads the role's own variable. Without that distinction every
+role calling the filter reads as a violation.
 
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
@@ -35,6 +37,18 @@ _NAME = "entity_name"
 _ROLES = str(PROJECT_ROOT / "roles") + os.sep
 
 _USE_RE = re.compile(rf"(?<![\w.]){_NAME}\b")
+
+
+def reads_the_variable(line: str) -> bool:
+    """Return whether *line* reads the variable rather than applying the filter.
+
+    Args:
+        line: a single source line.
+    """
+    return any(
+        not line[: match.start()].rstrip().endswith("|")
+        for match in _USE_RE.finditer(line)
+    )
 
 
 def files_by_role() -> dict:
@@ -102,7 +116,7 @@ def uses_it(role: str, paths: list, borrowed: set) -> list:
         uses.extend(
             f"{relative}:{index}"
             for index, line in enumerate(lines, start=1)
-            if _USE_RE.search(line) and not is_suppressed_at(lines, index, _RULE)
+            if reads_the_variable(line) and not is_suppressed_at(lines, index, _RULE)
         )
     return uses
 

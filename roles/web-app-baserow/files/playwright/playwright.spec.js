@@ -6,3 +6,4 @@ require("./test-biber-persona");
 require("./test-administrator-persona");
 require("./test-seaweedfs");
 require("./test-mcp");
+require("./test-design");

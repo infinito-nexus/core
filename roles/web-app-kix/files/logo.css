@@ -1,0 +1,3 @@
+#kix-header #logo {
+  content: var(--design-url-logo-png);
+}

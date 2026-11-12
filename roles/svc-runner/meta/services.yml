@@ -24,13 +24,12 @@ runner:
   install_dir: /opt/github-runner
   cpus: 2
 
-# Exception: mirror-only entries — CI pulls these images directly and never deploys them as services
 # nocheck: dynamic-flag
 buildkit:
   enabled: false
   shared: false
   image: moby/buildkit
-  version: "v0.34.2"
+  version: "v0.35.0"
 # nocheck: dynamic-flag
 act-runner:
   enabled: false
@@ -38,3 +37,14 @@ act-runner:
   image: catthehacker/ubuntu
   # nocheck: docker-version
   version: "act-latest"
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "act-latest"
+        until: 2026-12-03
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

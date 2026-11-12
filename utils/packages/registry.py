@@ -14,6 +14,7 @@ for a target distribution. The declaration shape itself lives in
 
 from __future__ import annotations
 
+import functools
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -24,10 +25,14 @@ if TYPE_CHECKING:
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.github.variant.pools import ARCHITECTURES
 from utils.packages.schema import (
+    BATCH_KEY,
     DISTRO_FAMILY,
+    ENTRY_KEYS,
     INVENTORY_PACKAGES_VAR,
     ROLE_FILE_META_PACKAGES,
+    SHARED_REFERENCE,
     PackageSpec,
     PackagesShapeError,
     normalize_entry,
@@ -53,6 +58,11 @@ class Declaration:
         """Human-readable owner for lint and runtime messages."""
         return self.role or "the shared registry"
 
+    @property
+    def batch(self) -> bool:
+        """Whether the deploy-start batch installs this id."""
+        return self.mapping.get(BATCH_KEY, True)
+
 
 def iter_package_files(project_root: Path) -> Iterator[tuple[str | None, Path]]:
     """Yield ``(role_or_None, path)`` for every package declaration file.
@@ -73,13 +83,7 @@ def iter_package_files(project_root: Path) -> Iterator[tuple[str | None, Path]]:
             yield role_dir.name, path
 
 
-def load_declarations(project_root: Path) -> list[Declaration]:
-    """Read every ``meta/packages.yml`` without deduplicating.
-
-    Duplicates are returned as-is so the uniqueness lint can report all
-    offenders instead of failing on the first one.
-    """
-    declarations: list[Declaration] = []
+def _entries(project_root: Path) -> Iterator[tuple[str | None, Path, str, Any]]:
     for role, path in iter_package_files(project_root):
         raw = load_yaml_any(str(path), default_if_missing={}) or {}
         if not isinstance(raw, dict):
@@ -88,13 +92,51 @@ def load_declarations(project_root: Path) -> list[Declaration]:
                 f"got {type(raw).__name__}."
             )
         for package_id, mapping in raw.items():
-            if not isinstance(mapping, dict):
-                raise PackagesShapeError(
-                    f"{path}: package '{package_id}' must map distro keys to "
-                    f"specs, got {type(mapping).__name__}."
-                )
-            declarations.append(Declaration(str(package_id), role, path, mapping))
+            yield role, path, str(package_id), mapping
+
+
+def _is_reference(role: str | None, mapping: Any) -> bool:
+    return role is not None and mapping == SHARED_REFERENCE
+
+
+def load_declarations(project_root: Path) -> list[Declaration]:
+    """Read every ``meta/packages.yml`` without deduplicating.
+
+    Duplicates are returned as-is so the uniqueness lint can report all
+    offenders instead of failing on the first one. A role's reference to a
+    shared id is no declaration and is left to :func:`load_references`.
+    """
+    declarations: list[Declaration] = []
+    for role, path, package_id, mapping in _entries(project_root):
+        if _is_reference(role, mapping):
+            continue
+        if not isinstance(mapping, dict):
+            raise PackagesShapeError(
+                f"{path}: package '{package_id}' must map distro keys to "
+                f"specs, got {type(mapping).__name__}."
+            )
+        if not isinstance(mapping.get(BATCH_KEY, False), bool):
+            raise PackagesShapeError(
+                f"{path}: {package_id}.{BATCH_KEY} must be a boolean when set."
+            )
+        misplaced = sorted(mapping.keys() & ENTRY_KEYS)
+        if misplaced:
+            raise PackagesShapeError(
+                f"{path}: {package_id} carries {misplaced} beside its distro "
+                f"keys, where no distro resolves them; move them into the "
+                f"distro entry they belong to."
+            )
+        declarations.append(Declaration(package_id, role, path, mapping))
     return declarations
+
+
+def load_references(project_root: Path) -> dict[str, set[str]]:
+    """Return, per role, the shared root ids its own file references."""
+    references: dict[str, set[str]] = {}
+    for role, _path, package_id, mapping in _entries(project_root):
+        if _is_reference(role, mapping):
+            references.setdefault(str(role), set()).add(package_id)
+    return references
 
 
 def iter_inventory_package_lists(
@@ -168,6 +210,39 @@ def build_registry(project_root: Path) -> dict[str, Declaration]:
             )
         registry[declaration.package_id] = declaration
     return registry
+
+
+@functools.cache
+def published_architectures(project_root: Path) -> dict[str, dict[str, frozenset[str]]]:
+    """Per role, per default distro, the architectures every package the role
+    declares or references is published for.
+
+    Args:
+        project_root: repository root holding the package registry.
+
+    Returns:
+        only the narrowed pairs; a role or distro that is absent takes every
+        architecture.
+    """
+    registry = build_registry(project_root)
+    installs: dict[str, set[str]] = {}
+    for package_id, declaration in registry.items():
+        if declaration.role is not None:
+            installs.setdefault(declaration.role, set()).add(package_id)
+    for role, package_ids in load_references(project_root).items():
+        installs.setdefault(role, set()).update(package_ids & registry.keys())
+    narrowed: dict[str, dict[str, frozenset[str]]] = {}
+    for role, package_ids in installs.items():
+        for package_id in sorted(package_ids):
+            for distro in DISTRO_FAMILY:
+                spec = resolve(registry[package_id], distro)
+                if spec is None or not set(ARCHITECTURES) - set(spec.architectures):
+                    continue
+                per_distro = narrowed.setdefault(role, {})
+                per_distro[distro] = per_distro.get(
+                    distro, frozenset(ARCHITECTURES)
+                ) & frozenset(spec.architectures)
+    return narrowed
 
 
 def project_root_from_env() -> Path:

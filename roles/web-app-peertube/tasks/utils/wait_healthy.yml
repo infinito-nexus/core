@@ -1,0 +1,25 @@
+---
+# Param: peertube_health_retries - polls of 5 s before the wait gives up
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: PEERTUBE
+    resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
+
+- name: "⏳ PEERTUBE | Wait for the peertube container to report healthy"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - --type
+      - container
+      - -f
+      - "{{ '{{.State.Health.Status}}' }}"
+      - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  PEERTUBE_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+  register: _peertube_health
+  retries: "{{ peertube_health_retries }}"
+  delay: 5
+  until: _peertube_health.rc == 0 and _peertube_health.stdout == "healthy"
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  changed_when: false

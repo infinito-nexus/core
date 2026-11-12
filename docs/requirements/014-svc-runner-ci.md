@@ -19,7 +19,7 @@ Add an `svc-runner` role that provisions a dedicated machine as an Infinito.Nexu
 
 ### CLI: `cli/administration/deploy/runner/`
 
-- [x] A new CLI entry point at `cli/administration/deploy/runner/` (path to be created) is wired into the `infinito` CLI tree the same way the existing [`cli/administration/deploy/dedicated/`](../../cli/administration/deploy/runner/) and [`cli/administration/deploy/development/`](../../cli/administration/deploy/development/) commands are.
+- [x] A new CLI entry point at `cli/administration/deploy/runner/` (path to be created) is wired into the `infinito` CLI tree the same way the existing `cli/administration/deploy/dedicated/` and [`cli/administration/deploy/development/`](../../cli/administration/deploy/development/) commands are.
 - [x] Argument parsing MUST use Python's standard-library `argparse` module, matching the convention used by [cli/administration/deploy/dedicated/command.py](../../cli/administration/deploy/runner/command.py). Hand-rolled `sys.argv` parsing or third-party CLI frameworks (`click`, `typer`, etc.) MUST NOT be introduced.
 - [x] The script accepts the following parameters:
   - `hostname` (**required**) — the target server that will host the runner.

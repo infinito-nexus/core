@@ -39,6 +39,35 @@
   when: _users_obj_list.status == 404 or ('<object' not in (_users_obj_list.content | default('')))
   register: _user_obj_created
 
+- name: "🔎 XWIKI | Probe the sign-in of {{ XWIKI_ADMIN_USER }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  uri_retry:
+    url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_ADMIN_USER }}"
+    url_password: "{{ XWIKI_ADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200]
+    return_content: false
+  register: _xwiki_admin_signin
+  changed_when: false
+
+- name: "🔑 XWIKI | Set the password of {{ XWIKI_ADMIN_USER }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  uri_retry:
+    url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_USER | urlencode, 'objects/XWiki.XWikiUsers/0/properties/password'] | url_join }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [202]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  vars:
+    xwiki_property_value: "{{ XWIKI_ADMIN_PASSWORD }}"
+  when: _xwiki_admin_signin.xwiki_user is not defined
+  changed_when: true
+
 - block:
     - name: "✅ XWIKI | Ensure {{ XWIKI_ADMIN_GROUP_PAGE }} page exists"
       uri_retry:
@@ -50,6 +79,19 @@
         status_code: [201, 202, 204, 200]
         headers: "{{ xwiki_rest_headers_write }}"
         body: "{{ lookup('template', 'xml/xwiki_admin_group/page.xml.j2') }}"
+    - name: "🔎 XWIKI | Read the members of {{ XWIKI_ADMIN_GROUP_PAGE }}"
+      uri_retry:
+        url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE, 'objects/XWiki.XWikiGroups'] | url_join }}"
+        method: GET
+        url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+        url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+        force_basic_auth: true
+        status_code: [200]
+        headers:
+          Accept: application/json
+        return_content: true
+      register: _xwiki_admin_group_members
+      changed_when: false
     - name: "✅ XWIKI | Ensure user is in {{ XWIKI_ADMIN_GROUP_PAGE }}"
       uri_retry:
         url: "{{ [XWIKI_REST_XWIKI_PAGES, XWIKI_ADMIN_GROUP_PAGE, 'objects'] | url_join }}"
@@ -60,4 +102,8 @@
         status_code: [201, 200]
         headers: "{{ xwiki_rest_headers_write }}"
         body: "{{ lookup('template', 'xml/xwiki_admin_group/member_object.xml.j2') }}"
+      when: >-
+        XWIKI_ADMIN_REFERENCE not in
+        (_xwiki_admin_group_members.json.objectSummaries | map(attribute='headline') | list)
+      changed_when: true
   when: not (XWIKI_SSO_ENABLED | bool)

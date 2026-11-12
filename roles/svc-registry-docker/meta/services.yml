@@ -38,7 +38,18 @@ docker:
       # nocheck: onion-flag  the registry accepts unauthenticated pushes from the node that builds into it, so its reach must stay the node
       registry: false
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3"
+        until: 2026-12-03
 # nocheck: dynamic-flag - locally built images are rebuildable, the backup consumer stays permanently off
 container_backup:
   enabled: false
   shared: true
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

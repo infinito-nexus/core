@@ -9,8 +9,6 @@ module.exports = [
       "venv/**",
       ".venv/**",
       "**/__pycache__/**",
-      // Jinja2-templated JS — not valid JS until rendered.
-      "roles/*/templates/**/*.js",
       "roles/web-app-bigbluebutton/files/javascript/ep_redis_publisher_index.js",
     ],
   },
@@ -29,7 +27,7 @@ module.exports = [
     },
   },
   {
-    files: ["roles/**/files/**/*.js"],
+    files: ["roles/**/files/**/*.js", "roles/**/templates/**/*.js"],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: "commonjs",
@@ -40,6 +38,7 @@ module.exports = [
         // adding the browser globals avoids a sea of `no-undef` false
         // positives.
         ...globals.browser,
+        INFINITO_DESIGN: "readonly",
       },
     },
     rules: {
@@ -67,6 +66,12 @@ module.exports = [
     // SSO sidecar shims (oauth2-proxy header-auth / server patches) are
     // authored as ES modules (import/export), not CommonJS.
     files: ["roles/**/files/sso/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
+  {
+    files: ["roles/web-svc-simpleicons/files/javascript/**/*.js"],
     languageOptions: {
       sourceType: "module",
     },
@@ -103,6 +108,21 @@ module.exports = [
       // a hand-migration pass; promote to "error" as those are reviewed.
       "playwright/prefer-web-first-assertions": "off",
       "playwright/no-wait-for-navigation": "error",
+      // An empty collection out of a catch reads downstream as "nothing to
+      // do": `JSON.parse` on a dotenv-quoted target list yields a string, the
+      // fallback made it `[]`, and every assertion iterating it passed while
+      // checking nothing. A catch returning "" or false or a populated object
+      // is not this class; reviewing all 26 such sites found each of them
+      // either recording the failure or answering a predicate.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CatchClause > BlockStatement > ReturnStatement > :matches(ArrayExpression[elements.length=0], ObjectExpression[properties.length=0])",
+          message:
+            "This catch returns an empty collection, which every caller reads as a legitimate 'nothing to do' and iterates zero times. Rethrow, or decode through a helper that throws on the shapes that cannot be right.",
+        },
+      ],
     },
   },
 ];

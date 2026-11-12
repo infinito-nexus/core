@@ -1,0 +1,9 @@
+---
+- name: "🧭 Jira plugin needs its instance registered after install"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: tasks/utils/addon.yml installed and enabled
+      {{ mattermost_addon.value.config.plugin_id }}. Register the instance with
+      '/jira instance install server {{ mattermost_addon.value.config.partner_url }}'
+      and install the returned application link on the partner Jira.
+  changed_when: false

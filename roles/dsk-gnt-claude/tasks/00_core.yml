@@ -1,0 +1,23 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: 📦 install the claude coding agent
+  ansible.builtin.command:
+    cmd: npm install -g --allow-scripts={{ agnt_claude_package }} {{ agnt_claude_package }}@{{ agnt_claude_version }}
+  register: agnt_claude_install
+  changed_when: "'added' in agnt_claude_install.stdout or 'changed' in agnt_claude_install.stdout"
+
+- name: 🩺 Prove claude runs (Exec format error = npm skipped its postinstall)
+  ansible.builtin.command:
+    argv:
+      - claude
+      - --version
+  changed_when: false
+
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: lookup('config', application_id, 'services.litellm.enabled', false) | bool
+
+- name: 🔑 Point the agent at the model gateway
+  ansible.builtin.include_tasks: 01_gateway.yml
+  when: agnt_claude_configured | bool

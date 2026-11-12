@@ -1,4 +1,5 @@
 ---
-config_upstream_url: https://ip.bsky.app/config # nocheck: url
+config_upstream_url: https://app-config.workers.bsky.app/config # nocheck: url
+geolocation_upstream_url: https://ip.bsky.app/geolocation # nocheck: url
 status_codes:
   web: [405, 302]

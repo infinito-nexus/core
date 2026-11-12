@@ -19,17 +19,25 @@ postgres:
   min_storage: 419MB
   backup:
     database_routine: true
+    stop_required: true
   cpus: "2.0"
   mem_reservation: 3g
   mem_limit: 6g
   pids_limit: 1024
   exposed: false
+  upgrade:
+    backup_confirmed: false # Set true after confirming a backup when the volume's filesystem cannot reflink
   ports:
     local:
       postgres: 5432
     internal:
       postgres: 5432
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "18"
+        until: 2026-12-03
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5
@@ -41,3 +49,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

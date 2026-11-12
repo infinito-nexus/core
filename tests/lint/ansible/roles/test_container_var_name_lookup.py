@@ -29,7 +29,7 @@ runtime.
 This test therefore checks two things per ``*_CONTAINER`` var:
 
 1. The value is the config-``name`` lookup OR the bare ``entity_name``
-   form (``{{ entity_name }}`` / ``{{ <x> | get_entity_name }}``).
+   form (``{{ entity_name }}`` / ``{{ <x> | entity_name }}``).
 2. When the lookup form resolves ``<key>`` to a concrete service (a
    literal, or the role's ``entity_name``), that service declares
    ``name:`` in ``meta/services.yml``.
@@ -51,7 +51,7 @@ from pathlib import Path
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
@@ -71,7 +71,7 @@ _USES_ENGINE_CONTAINER_RE = re.compile(
 )
 
 _ENTITY_NAME_RE = re.compile(
-    r"^\{\{\s*(?:entity_name|[A-Za-z_]\w*\s*\|\s*get_entity_name)\s*\}\}$"
+    r"^\{\{\s*(?:entity_name|[A-Za-z_]\w*\s*\|\s*entity_name)\s*\}\}$"
 )
 
 _SERVICE_KEY_RE = re.compile(r"services\.(?P<key>.*?)\.name", re.DOTALL)
@@ -99,7 +99,7 @@ def _resolve_service_key(raw_key: str, role_name: str) -> str | None:
     if "entity_name" in key and "~" in key and "-" not in key:
         collapsed = re.sub(r"['\"~ ]", "", key)
         if collapsed == "entity_name":
-            return get_entity_name(role_name)
+            return entity_name(role_name)
     return None
 
 
