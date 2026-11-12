@@ -43,7 +43,9 @@ def stash_facts(failures: list[str], budget_timeouts: list[str]) -> dict[str, An
         failures: every role the first pass recorded as failed.
         budget_timeouts: those of them killed by the suite budget.
     """
-    env = jinja2.Environment(autoescape=False)  # noqa: S701 - renders a task's own list expression, not markup
+    env = jinja2.Environment(
+        autoescape=jinja2.select_autoescape(default_for_string=False)
+    )
     env.filters.update(FilterModule().filters())
 
     tasks = load_yaml_str(read_text(str(ORCHESTRATE)))
