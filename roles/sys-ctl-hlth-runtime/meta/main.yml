@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening
+  description: Systemd-timed vulnerability scan of the node and its containers, plus the shared PHP hardening check
   company: |
     Kevin Veen-Birkenbach
     https://www.veen.world

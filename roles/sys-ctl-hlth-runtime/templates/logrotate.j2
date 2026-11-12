@@ -1,0 +1,7 @@
+{{ [ DIR_HEALTH_RUNTIME_LOG, '*.jsonl' ] | path_join }} {
+    weekly
+    rotate 12
+    compress
+    missingok
+    notifempty
+}
