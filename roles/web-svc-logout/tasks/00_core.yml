@@ -24,12 +24,5 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-  vars:
-    application_id: "web-svc-logout"
-    webserver_client_max_body_size: "10M" # Necessary to overwrite parent values
-    webserver_websocket_location: ""
-    webserver_vhost_flavour: "basic"
-    webserver_extra_configuration: ""
-    compose_repository_pull: false
-    compose_handlers_flush: true
+    name: svc-stack
+    tasks_from: consumer.yml
