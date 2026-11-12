@@ -105,10 +105,15 @@ function listenable(target) {
   };
   return target;
 }
-function element(tagName) {
+function element(spec) {
+  const shape = typeof spec === "string" ? { tagName: spec } : spec;
   return listenable({
-    tagName,
-    type: "text",
+    tagName: shape.tagName,
+    type: shape.type || "text",
+    name: shape.name || "",
+    value: shape.value || "",
+    checked: Boolean(shape.checked),
+    selectedOptions: (shape.selected || []).map((value) => ({ value })),
     readOnly: false,
     disabled: false,
     title: "",
@@ -119,6 +124,9 @@ function element(tagName) {
     form: CONFIG.form ? { name: "settings", parentNode: body } : null,
     setAttribute(name, value) { this.attributes[name] = String(value); },
     removeAttribute(name) { delete this.attributes[name]; },
+    insertAdjacentElement(position, node) {
+      this.carriers = (this.carriers || []).concat([{ position, node }]);
+    },
   });
 }
 const body = {
@@ -156,7 +164,11 @@ globalThis.document = {
       style: {},
       attributes: {},
       setAttribute(name, value) { this.attributes[name] = String(value); },
-      remove() { body.children.splice(body.children.indexOf(this), 1); },
+      remove() {
+        const at = body.children.indexOf(this);
+        if (at >= 0) { body.children.splice(at, 1); }
+        this.removed = true;
+      },
     };
     created.push(tagName);
     return child;
@@ -561,6 +573,92 @@ class TestManagedFieldLock(unittest.TestCase):
         self.assertTrue(secret["readOnly"])
         self.assertEqual("password", secret["type"])
         self.assertEqual("text", title["type"])
+
+
+def _toggle(kind: str, value: str, *, checked: bool) -> dict:
+    return {
+        "tagName": "INPUT",
+        "type": kind,
+        "name": "service",
+        "value": value,
+        "checked": checked,
+    }
+
+
+def _carried(field: dict) -> list[str]:
+    return [
+        carrier["node"]["value"]
+        for carrier in field.get("carriers", [])
+        if not carrier["node"].get("removed")
+    ]
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestToggleLock(unittest.TestCase):
+    def test_a_radio_group_is_disabled_and_only_its_checked_value_still_posts(self):
+        radios = [
+            _toggle("radio", "ollama", checked=False),
+            _toggle("radio", "libretranslate", checked=True),
+        ]
+        free, chosen = _managed(fields={"#title": radios})["fields"]["#title"]
+
+        self.assertTrue(free["disabled"])
+        self.assertTrue(chosen["disabled"])
+        self.assertFalse(chosen["readOnly"])
+        self.assertEqual([], _carried(free))
+        self.assertEqual(["libretranslate"], _carried(chosen))
+        self.assertEqual(
+            {"position": "afterend", "type": "hidden", "name": "service"},
+            {
+                "position": chosen["carriers"][0]["position"],
+                "type": chosen["carriers"][0]["node"]["type"],
+                "name": chosen["carriers"][0]["node"]["name"],
+            },
+        )
+
+    def test_a_checkbox_posts_its_value_only_while_checked(self):
+        boxes = [
+            _toggle("checkbox", "1", checked=True),
+            _toggle("checkbox", "1", checked=False),
+        ]
+        on, off = _managed(fields={"#title": boxes})["fields"]["#title"]
+
+        self.assertTrue(on["disabled"])
+        self.assertTrue(off["disabled"])
+        self.assertEqual(["1"], _carried(on))
+        self.assertEqual([], _carried(off))
+
+    def test_a_select_posts_each_selected_value(self):
+        select = {"tagName": "SELECT", "name": "languages", "selected": ["de", "en"]}
+        field = _managed(fields={"#title": [select]})["fields"]["#title"][0]
+
+        self.assertTrue(field["disabled"])
+        self.assertEqual(["de", "en"], _carried(field))
+
+    def test_a_control_without_a_name_gets_no_carrier(self):
+        seen = _managed(fields={"#title": ["SELECT"]})
+
+        self.assertTrue(seen["fields"]["#title"][0]["disabled"])
+        self.assertEqual([], _carried(seen["fields"]["#title"][0]))
+        self.assertNotIn("input", seen["created"])
+
+    def test_the_unlock_removes_the_carrier_so_the_edit_posts_alone(self):
+        radio = _toggle("radio", "libretranslate", checked=True)
+        field = _managed(fields={"#title": [radio]}, dblclick=("#title",))["fields"][
+            "#title"
+        ][0]
+
+        self.assertFalse(field["disabled"])
+        self.assertEqual(1, len(field.get("carriers", [])))
+        self.assertEqual([], _carried(field))
+
+    def test_a_secret_toggle_keeps_its_type(self):
+        radio = _toggle("radio", "on", checked=True)
+        seen = _managed(fields={"#smtp_password": [radio]})
+        field = seen["fields"]["#smtp_password"][0]
+
+        self.assertEqual("radio", field["type"])
+        self.assertTrue(field["disabled"])
 
 
 if __name__ == "__main__":

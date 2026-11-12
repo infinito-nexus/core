@@ -19,14 +19,39 @@
     return page === null || (location.pathname + location.search).indexOf(page) === 0;
   }
 
+  function toggles(field) {
+    return field.tagName === "INPUT" && (field.type === "radio" || field.type === "checkbox");
+  }
+
   function lockProperty(field) {
-    return field.tagName === "SELECT" ? "disabled" : "readOnly";
+    return field.tagName === "SELECT" || toggles(field) ? "disabled" : "readOnly";
+  }
+
+  function submitted(field) {
+    if (field.tagName === "SELECT") {
+      return Array.prototype.map.call(field.selectedOptions || [], function (option) { return option.value; });
+    }
+    return !toggles(field) || field.checked ? [field.value] : [];
+  }
+
+  function carry(field) {
+    if (!field.name || lockProperty(field) !== "disabled") { return; }
+    field.infinitoCarriers = submitted(field).map(function (value) {
+      const carrier = document.createElement("input");
+      carrier.type = "hidden";
+      carrier.name = field.name;
+      carrier.value = value;
+      field.insertAdjacentElement("afterend", carrier);
+      return carrier;
+    });
   }
 
   function unlock(field) {
     if (field.infinitoUnlocked || !window.confirm(speak().unlock)) { return; }
     field.infinitoUnlocked = true;
     field[lockProperty(field)] = false;
+    (field.infinitoCarriers || []).forEach(function (carrier) { carrier.remove(); });
+    field.infinitoCarriers = [];
     field.removeAttribute("aria-readonly");
     field.title = "";
     field.style.cursor = "";
@@ -34,8 +59,11 @@
 
   function lock(field, entry, warning) {
     const labels = Array.prototype.slice.call(field.labels || []);
-    field[lockProperty(field)] = true;
-    if (entry.secret && field.tagName === "INPUT") { field.type = "password"; }
+    if (!field[lockProperty(field)]) {
+      field[lockProperty(field)] = true;
+      carry(field);
+    }
+    if (entry.secret && field.tagName === "INPUT" && !toggles(field)) { field.type = "password"; }
     field.setAttribute("aria-readonly", "true");
     field.title = warning;
     field.style.cursor = "not-allowed";
