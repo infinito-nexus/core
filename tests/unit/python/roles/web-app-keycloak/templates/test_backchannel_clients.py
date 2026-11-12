@@ -37,9 +37,17 @@ CLIENT_ID_LOOKUP = re.compile(
     r"lookup\(\s*'config'\s*,\s*[^,()]+,\s*'services\.sso\.oidc\.clients\.\w+'\s*"
     r"(?P<tail>[,)])(?P<fallback>\s*\|\s*default\b)?"
 )
+CLIENT_KEY_READ = re.compile(r"services\.sso\.oidc\.clients(?:\.|'\)\.)(?P<key>\w+)")
+KEYCLOAK_FRAGMENT = ("templates", "keycloak", "clients.json.j2")
 SSO_OIDC_PLUGIN = "user_oidc"
 NEXTCLOUD = "web-app-nextcloud"
+OPENCLOUD = "web-app-opencloud"
 USER_OIDC_BACKCHANNEL_PATH = "/index.php/apps/user_oidc/backchannel-logout/"
+UPSTREAM_BACKCHANNEL_ENDPOINTS = {
+    "web-app-matrix": ("synapse", "/_synapse/client/oidc/backchannel_logout"),
+    NEXTCLOUD: ("", USER_OIDC_BACKCHANNEL_PATH + "keycloak"),
+    OPENCLOUD: ("", "/backchannel_logout"),
+}
 NEXTCLOUD_ADMIN_GROUP = "admin"
 RBAC_GROUP_ROOT = "roles"
 GROUP_MAPPER = "oidc-group-membership-mapper"
@@ -277,6 +285,19 @@ def backchannel_findings(client: dict) -> list[str]:
     return findings
 
 
+def credential_findings(client: dict) -> list[str]:
+    """What hands a per-app client a credential the realm did not hold before.
+
+    Args:
+        client: the per-app client's representation.
+    """
+    if client["publicClient"]:
+        return ["the public client carries a secret"] if "secret" in client else []
+    if client.get("secret") != CONTEXT["OIDC"]["CLIENT"]["SECRET"]:
+        return ["the confidential client does not reuse the shared secret"]
+    return []
+
+
 def shared_client_findings(client: dict) -> list[str]:
     """What turns the shared client away from the front-channel sweep per network.
 
@@ -354,6 +375,35 @@ def client_id_consumers() -> dict[str, str]:
     return sources
 
 
+def role_client_readers(role: str) -> dict[str, str]:
+    """The files of one role that may read its client ids, its Keycloak fragment excluded.
+
+    Args:
+        role: role directory name.
+    """
+    return {
+        str(path.relative_to(PROJECT_ROOT)): read_text(str(path))
+        for pattern in CLIENT_ID_CONSUMERS
+        for path in PROJECT_ROOT.glob(pattern.replace("*", role, 1))
+        if path.parts[-3:] != KEYCLOAK_FRAGMENT
+    }
+
+
+def unread_client_keys(role: str, sources: dict[str, str]) -> list[str]:
+    """Return the declared clients of a role that no file outside its fragment reads.
+
+    Args:
+        role: role directory name.
+        sources: the role's files outside its Keycloak fragment, keyed by path.
+    """
+    read = {
+        match.group("key")
+        for source in sources.values()
+        for match in CLIENT_KEY_READ.finditer(source)
+    }
+    return sorted(set(role_config(role, "services.sso.oidc.clients")) - read)
+
+
 def silent_client_fallbacks(sources: dict[str, str]) -> list[str]:
     """Return every per-app client id lookup that would not fail on a missing entry.
 
@@ -400,25 +450,48 @@ class TestBackchannelClients(unittest.TestCase):
                 with self.subTest(client=client["clientId"]):
                     self.assertIs(client["serviceAccountsEnabled"], False)
 
-    def test_a_confidential_client_reuses_the_shared_secret(self) -> None:
+    def test_a_backchannel_client_is_public_or_reuses_the_shared_secret(self) -> None:
         for client in self.backchannel:
             with self.subTest(client=client["clientId"]):
-                self.assertFalse(client["publicClient"])
-                self.assertEqual(client["secret"], CONTEXT["OIDC"]["CLIENT"]["SECRET"])
+                self.assertEqual(credential_findings(client), [])
 
-    def test_the_matrix_client_logs_out_on_the_synapse_origin(self) -> None:
-        client = next(
-            c
-            for clients in self.clients.values()
-            for c in clients
-            if c["clientId"]
-            == role_config("web-app-matrix", "services.sso.oidc.clients.synapse")
+    def test_a_secret_on_a_public_client_or_a_new_secret_fails_the_check(
+        self,
+    ) -> None:
+        self.assertEqual(
+            credential_findings({"publicClient": True, "secret": "another"}),
+            ["the public client carries a secret"],
         )
         self.assertEqual(
-            client["attributes"][BACKCHANNEL_LOGOUT_URL],
-            canonical_origin("web-app-matrix", "synapse")
-            + "/_synapse/client/oidc/backchannel_logout",
-            "Synapse receives logout tokens on this path of its own origin",
+            credential_findings({"publicClient": False, "secret": "another"}),
+            ["the confidential client does not reuse the shared secret"],
+        )
+
+    def test_every_backchannel_client_logs_out_on_its_upstream_endpoint(self) -> None:
+        for template, clients in self.clients.items():
+            role = template.parts[-4]
+            for client in clients:
+                if BACKCHANNEL_LOGOUT_URL not in client["attributes"]:
+                    continue
+                with self.subTest(role=role):
+                    self.assertIn(role, UPSTREAM_BACKCHANNEL_ENDPOINTS)
+                    key, path = UPSTREAM_BACKCHANNEL_ENDPOINTS[role]
+                    self.assertEqual(
+                        client["attributes"][BACKCHANNEL_LOGOUT_URL],
+                        canonical_origin(role, key) + path,
+                    )
+
+    def test_the_opencloud_web_client_is_public(self) -> None:
+        (client,) = render_fragment(
+            PROJECT_ROOT / "roles" / OPENCLOUD / "templates/keycloak/clients.json.j2"
+        )
+        self.assertEqual(
+            client["clientId"], role_config(OPENCLOUD, "services.sso.oidc.clients.web")
+        )
+        self.assertIs(
+            client["publicClient"],
+            True,
+            "OpenCloud Web signs in from the browser and cannot keep a secret",
         )
 
     def test_every_backchannel_client_hands_its_app_the_claims_of_the_shared_client(
@@ -694,6 +767,23 @@ class TestPerAppClientIdsFailLoudly(unittest.TestCase):
 
     def test_no_per_app_client_id_falls_back_to_another_client(self) -> None:
         self.assertEqual(silent_client_fallbacks(self.consumers), [])
+
+    def test_every_declared_client_is_read_outside_its_fragment(self) -> None:
+        for template in CLIENT_TEMPLATES:
+            role = template.parts[-4]
+            with self.subTest(role=role):
+                self.assertEqual(
+                    unread_client_keys(role, role_client_readers(role)), []
+                )
+
+    def test_a_declared_client_its_app_never_reads_is_caught(self) -> None:
+        self.assertEqual(
+            unread_client_keys(
+                OPENCLOUD,
+                {"templates/env.j2": "WEB_OIDC_CLIENT_ID={{ OIDC.CLIENT.ID }}"},
+            ),
+            ["web"],
+        )
 
     def test_a_lookup_with_a_fallback_is_caught(self) -> None:
         sources = {
