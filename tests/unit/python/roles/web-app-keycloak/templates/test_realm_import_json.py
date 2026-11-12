@@ -65,6 +65,7 @@ def otp_context(realm_overrides: dict | None = None) -> dict:
 
 
 LDAP_VARS = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
+OIDC_VARS = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/11_oidc.yml"))
 LDAP_USER_ATTRIBUTES = {
     **LDAP_VARS["LDAP"]["USER"]["ATTRIBUTES"],
     "ID": "uid",
@@ -148,7 +149,10 @@ CONTEXT = {
     "LDAP_ONLY": False,
     "OIDC": {
         "CLIENT": {"SECRET": "s3cret", "ID": "example.com"},
-        "ATTRIBUTES": {"USERNAME": "preferred_username"},
+        "ATTRIBUTES": {
+            "USERNAME": "preferred_username",
+            "NEXTCLOUD_UID": OIDC_VARS["defaults_oidc"]["ATTRIBUTES"]["NEXTCLOUD_UID"],
+        },
     },
     "LDAP": {
         "DN": {
@@ -290,6 +294,15 @@ class TestRealmImportJson(unittest.TestCase):
         profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
         declared = {attribute["name"] for attribute in profile["attributes"]}
         self.assertIn("uidNumber", declared)
+
+    def test_only_admins_see_and_set_the_nextcloud_user_id(self) -> None:
+        attribute = profile_of(json.loads(render([])))[
+            CONTEXT["OIDC"]["ATTRIBUTES"]["NEXTCLOUD_UID"]
+        ]
+        self.assertEqual(
+            attribute["permissions"], {"view": ["admin"], "edit": ["admin"]}
+        )
+        self.assertFalse(attribute["multivalued"])
 
     def test_every_profile_attribute_has_an_ldap_mapper(self) -> None:
         realm = json.loads(render([]))

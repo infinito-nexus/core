@@ -101,6 +101,15 @@
     "permissions": {"view": ["admin","user"], "edit": ["admin"]},
     "group": "user-metadata",
     "multivalued": false
+  },
+  {
+    "name": OIDC.ATTRIBUTES.NEXTCLOUD_UID,
+    "displayName": "Nextcloud user id",
+    "validations": {"length": {"max": 64}},
+    "annotations": {},
+    "permissions": {"view": ["admin"], "edit": ["admin"]},
+    "group": "user-metadata",
+    "multivalued": false
   }
 ] %}
 {% set user_profile = {

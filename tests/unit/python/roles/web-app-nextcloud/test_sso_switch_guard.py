@@ -14,10 +14,16 @@ from utils.cache.yaml import load_yaml_any
 ROLE = PROJECT_ROOT / "roles/web-app-nextcloud"
 PLUGIN = ROLE / "tasks/02_manager_ops/06_plugin.yml"
 PROBE = ROLE / "files/php/utils/sso_accounts.php"
+WRITER = PROJECT_ROOT / "roles/web-app-keycloak/tasks/utils/user_attributes.yml"
 PROBE_TASK = "Read the accounts each OIDC plugin keyed before another one takes over"
+WRITE_TASK = "Give the Keycloak user of each sociallogin account its user id"
 GUARD_TASK = "Refuse an OIDC plugin switch that gives an existing account a new user id"
 PROVIDER = "web-app-keycloak"
 SUB = "3f2a9c4e-0b1d-4e5f-8a6b-7c8d9e0f1a2b"
+CREATED = f"{PROVIDER}-{SUB}"
+NEXTCLOUD_UID = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/11_oidc.yml"))[
+    "defaults_oidc"
+]["ATTRIBUTES"]["NEXTCLOUD_UID"]
 
 
 def _load_filters():
@@ -70,14 +76,25 @@ def _app_list(*enabled: str) -> dict:
     return {"stdout": json.dumps({"enabled": dict.fromkeys(enabled, "1.0.0")})}
 
 
-def _rekeyed(target: str, probe: dict, ldap: str) -> list[str]:
-    template = TASKS[_index(GUARD_TASK)]["vars"]["nextcloud_sso_rekeyed_accounts"]
-    expression = template.strip().removeprefix("{{").removesuffix("}}")
-    return ENVIRONMENT.compile_expression(expression)(
+def _expression(template: str):
+    return ENVIRONMENT.compile_expression(
+        template.strip().removeprefix("{{").removesuffix("}}")
+    )
+
+
+def _rekeyed(target: str, probe: dict, ldap: str, results: list) -> list[str]:
+    return _expression(
+        TASKS[_index(GUARD_TASK)]["vars"]["nextcloud_sso_rekeyed_accounts"]
+    )(
         lookup=_lookup(target),
         nextcloud_sso_accounts_probe=probe,
         NEXTCLOUD_USER_LDAP_ENABLED=ldap,
+        keycloak_user_attribute_results=results,
     )
+
+
+def _result(outcome: str, held=()) -> dict:
+    return {"id": SUB, "value": CREATED, "outcome": outcome, "held": list(held)}
 
 
 class TestSsoSwitchGuard(unittest.TestCase):
@@ -85,6 +102,7 @@ class TestSsoSwitchGuard(unittest.TestCase):
         order = [
             _index("Plan which plugins need an install"),
             _index(PROBE_TASK),
+            _index(WRITE_TASK),
             _index(GUARD_TASK),
             _index("Disable the plugins that end up disabled"),
             _index("Install the plugins Nextcloud lacks"),
@@ -140,15 +158,61 @@ class TestSsoSwitchGuard(unittest.TestCase):
             ("user_oidc", _probe(), "True", []),
             (
                 "oidc_login",
-                _probe(created=[f"{PROVIDER}-{SUB}"]),
+                _probe(created=[CREATED]),
                 "True",
-                [f"{PROVIDER}-{SUB} (created by sociallogin)"],
+                [f"{CREATED} (created by sociallogin)"],
             ),
             ("user_oidc", _probe(ldap=["alice"]), "True", []),
             ("user_oidc", _probe(ldap=["alice"]), "False", ["alice (LDAP account)"]),
         ):
             with self.subTest(target=target, ldap=ldap, probe=probe["stdout"]):
-                self.assertEqual(_rekeyed(target, probe, ldap), rekeyed)
+                self.assertEqual(_rekeyed(target, probe, ldap, []), rekeyed)
+
+    def test_the_switch_to_user_oidc_hands_keycloak_every_sociallogin_user_id(self):
+        task = TASKS[_index(WRITE_TASK)]
+        self.assertEqual(
+            task["ansible.builtin.include_role"],
+            {"name": "web-app-keycloak", "tasks_from": "utils/user_attributes.yml"},
+        )
+        self.assertEqual(task["when"], "nextcloud_sso_accounts_probe is not skipped")
+        self.assertEqual(task["vars"]["application_id"], "web-app-keycloak")
+        self.assertEqual(
+            task["vars"]["keycloak_user_attribute"],
+            "{{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}",
+        )
+        header = read_text(str(WRITER))
+        for name in (
+            "# Param: keycloak_user_attribute ",
+            "# Param: keycloak_user_attribute_values ",
+            "# Output: keycloak_user_attribute_results ",
+        ):
+            with self.subTest(name=name):
+                self.assertIn(name, header)
+        values = _expression(task["vars"]["keycloak_user_attribute_values"])
+        probe = _probe(created=[CREATED])
+        for target, written in (
+            ("user_oidc", [{"id": SUB, "value": CREATED}]),
+            ("oidc_login", []),
+            ("sociallogin", []),
+        ):
+            with self.subTest(target=target):
+                self.assertEqual(
+                    values(lookup=_lookup(target), nextcloud_sso_accounts_probe=probe),
+                    written,
+                )
+
+    def test_the_guard_keeps_a_mapped_account_and_names_a_conflicting_user(self):
+        probe = _probe(created=[CREATED])
+        self.assertEqual(_rekeyed("user_oidc", probe, "True", [_result("updated")]), [])
+        self.assertEqual(
+            _rekeyed("user_oidc", probe, "True", [_result("conflict", ["alice"])]),
+            [
+                (
+                    f"{CREATED} (created by sociallogin, Keycloak user {SUB}"
+                    " holds the user id alice already)"
+                )
+            ],
+        )
 
     def test_the_refusal_names_the_switch_every_account_and_the_way_out(self):
         message = ENVIRONMENT.from_string(
@@ -156,15 +220,17 @@ class TestSsoSwitchGuard(unittest.TestCase):
         ).render(
             application_id="web-app-nextcloud",
             lookup=_lookup("oidc_login"),
+            OIDC={"ATTRIBUTES": {"NEXTCLOUD_UID": NEXTCLOUD_UID}},
             nextcloud_sso_rekeyed_accounts=[
-                f"{PROVIDER}-{SUB} (created by sociallogin)",
+                f"{CREATED} (created by sociallogin)",
                 "bob (user_oidc account)",
             ],
         )
         for fragment in (
             "the switch to oidc_login",
-            f"{PROVIDER}-{SUB} (created by sociallogin), bob (user_oidc account)",
+            f"{CREATED} (created by sociallogin), bob (user_oidc account)",
             "user_oidc keeps its own accounts",
+            f"holds its user id in {NEXTCLOUD_UID}",
             "services.sso.oidc.plugin",
         ):
             with self.subTest(fragment=fragment):
