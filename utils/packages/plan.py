@@ -10,7 +10,9 @@ plugin only executes what it is handed.
 from __future__ import annotations
 
 from dataclasses import replace
+from typing import TYPE_CHECKING
 
+from utils.github.variant.pools import ARCHITECTURES
 from utils.packages.calls import (
     GENERIC_PACKAGE,
     STATE_ABSENT,
@@ -34,6 +36,54 @@ from utils.packages.sources import (
     flatpak_calls,
     repository_calls,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+HOST_ARCHITECTURE_VAR = "HOST_ARCHITECTURE_BY_KERNEL"
+"""The group_vars map from kernel machine names to architecture tokens."""
+
+
+def ensure_published(
+    package_id: str,
+    distribution: str,
+    kernel: str,
+    by_kernel: Mapping[str, str],
+    spec: PackageSpec,
+) -> None:
+    """Refuse a package whose source publishes nothing for the host.
+
+    Args:
+        package_id: the logical id, named in the refusal.
+        distribution: the host's distribution, named in the refusal.
+        kernel: the host's ``ansible_facts.architecture``, ``""`` when absent.
+        by_kernel: :data:`HOST_ARCHITECTURE_VAR`, read from the inventory.
+        spec: the entry resolved for that distribution.
+
+    Raises:
+        ValueError: the entry narrows its architectures and the host's is
+            either not among them or cannot be mapped to judge it.
+    """
+    if set(ARCHITECTURES) <= set(spec.architectures):
+        return
+    architecture = by_kernel.get(kernel)
+    if architecture is None:
+        raise ValueError(
+            f"Package '{package_id}' is published for "
+            f"{', '.join(spec.architectures)} only on {distribution}, and "
+            f"{HOST_ARCHITECTURE_VAR} ({dict(by_kernel)}) maps no architecture "
+            f"for this host's kernel architecture {kernel or '(fact missing)'!r}."
+        )
+    if architecture in spec.architectures:
+        return
+    raise ValueError(
+        f"Package '{package_id}' cannot be installed on {distribution} "
+        f"{architecture}: its {spec.source} source "
+        f"({', '.join(spec.names)}) is published for "
+        f"{', '.join(spec.architectures)} only. Deploy it on "
+        f"{' or '.join(spec.architectures)}, or on a distribution whose "
+        f"entry ships it for {architecture}."
+    )
 
 
 def build_plan(spec: PackageSpec, state: str) -> list[ModuleCall]:
