@@ -36,6 +36,11 @@ friendica:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2026.05"
+        until: 2026-12-03
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
