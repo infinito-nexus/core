@@ -1,11 +1,19 @@
 ---
-# nocheck: swarm-loopback-port open  Discourse's launcher publishes this port with docker run -p on its own node only, so the wait fails on any other node; 074 :27 tracks it
 - name: ⏳ Wait for Discourse API
-  wait_for:
-    host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ lookup('config', 'web-app-discourse', 'services.discourse.ports.local.http') }}"
-    delay: 5
-    timeout: "{{ lookup('timeout', 600) | int }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ WORDPRESS_DISCOURSE_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver  discourse is a launcher-managed container named literally in both modes
+      - bash
+      - -c
+      - "exec 3<>/dev/tcp/127.0.0.1/{{ lookup('config', 'web-app-discourse', 'services.discourse.ports.internal.http') }}"
+  register: wp_discourse_api_wait
+  until: wp_discourse_api_wait.rc == 0
+  retries: "{{ (lookup('timeout', 600) | int) // 5 }}"
+  delay: 5
+  changed_when: false
+  when: IS_STACK_HOST | bool
 
 - name: "🖥️ WP Discourse: stack-host container ops against Discourse"
   include_tasks: wp-discourse-stack-host.yml
