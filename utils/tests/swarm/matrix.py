@@ -11,6 +11,7 @@ import time
 
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
+from utils.security.deploy import deploy_inventory_overrides
 from utils.storage.constrained import host_storage_constrained
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.extend_inventory import drop_backup_network_mode, mesh_enabled
@@ -378,6 +379,7 @@ def main(argv: list[str] | None = None) -> int:
     total = len(plan)
     rc = 0
     meshed = mesh_enabled()
+    scan_pin = deploy_inventory_overrides()
     for plan_index, (
         round_index,
         inv_dir,
@@ -415,6 +417,7 @@ def main(argv: list[str] | None = None) -> int:
         applications = backup_applications_overrides(providers)
         if meshed:
             applications = merge_with_defaults(applications, layout_applications())
+        applications = merge_with_defaults(applications, scan_pin)
         base_overrides = {
             "applications": applications,
             "users": {
@@ -464,9 +467,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         if rc == 0 and meshed:
             rc = _mesh_prologue(
-                app_id=app_id,
-                inv_dir=inv_root,
-                round_variants=round_variants,
+                app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
         if rc == 0:
             rc = _deploy(**deploy_args)

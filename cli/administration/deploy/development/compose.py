@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import subprocess
 import time
@@ -23,6 +24,16 @@ INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
 
 PACMAN_CACHE_SCRIPT = "/usr/local/bin/pacman-cache.sh"
 PACMAN_CONF = "/etc/pacman.conf"
+
+
+def prepare_vulnerability_db(path: Path) -> None:
+    """Create the shared vulnerability database directory as the calling user.
+
+    Args:
+        path: ``INFINITO_VULNERABILITY_DB_HOST_PATH``.
+    """
+    with contextlib.suppress(PermissionError):
+        path.mkdir(parents=True, exist_ok=True)
 
 
 class Compose:
@@ -215,6 +226,15 @@ class Compose:
             f"size={out.stat().st_size if out.exists() else 'n/a'}"
         )
 
+    def _prepare_vulnerability_db(self, env: dict[str, str]) -> None:
+        path = env.get("INFINITO_VULNERABILITY_DB_HOST_PATH")
+        if not path:
+            raise SystemExit(
+                "INFINITO_VULNERABILITY_DB_HOST_PATH is not set; "
+                "run 'make dotenv' to generate the .env single source of truth"
+            )
+        prepare_vulnerability_db(Path(path))
+
     def _render_cache_artifacts(self) -> None:
         """Render the generated cache files the overrides mount.
 
@@ -236,6 +256,7 @@ class Compose:
 
         print(">>> Starting compose stack (coredns + infinito)")
         env = self._base_env()
+        self._prepare_vulnerability_db(env)
         keys = [
             "INFINITO_BUILD",
             "INFINITO_DISTRO",

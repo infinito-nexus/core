@@ -70,7 +70,7 @@ def main() -> int:
         "--images-per-hour",
         type=_validate_positive_int,
         default=None,
-        help="Optional throttle: max images to mirror per hour (best-effort).",
+        help="Optional throttle: max Docker Hub copies per hour (best-effort); other registries are not throttled.",
     )
     args = parser.parse_args()
 
@@ -83,11 +83,6 @@ def main() -> int:
     last_start_ts: float | None = None
 
     for img in chain(iter_role_images(repo_root), iter_runner_images(repo_root)):
-        last_start_ts = _throttle_before_next_copy(
-            images_per_hour=args.images_per_hour,
-            last_start_ts=last_start_ts,
-        )
-
         total += 1
         src = f"docker://{img.source}"
         dest = f"docker://{provider.image_base(img)}:{img.version}"
@@ -117,6 +112,11 @@ def main() -> int:
                     )
                 continue
 
+            if img.registry == "docker.io":
+                last_start_ts = _throttle_before_next_copy(
+                    images_per_hour=args.images_per_hour,
+                    last_start_ts=last_start_ts,
+                )
             print(f"[mirror] {label}: {src} -> {dest}", flush=True)
             provider.mirror(img)
 

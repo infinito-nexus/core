@@ -7,8 +7,8 @@ import unittest
 from pathlib import Path
 
 import jinja2
-from ansible.plugins.filter.core import regex_search
 
+from plugins.lookup.requires_python import LookupModule as RequiresPythonLookup
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 
@@ -210,16 +210,12 @@ class TestBoundsFromRequiresPython(unittest.TestCase):
         )
         expression = task["environment"]["DEV_PYTHON_REQUIRES"]
 
-        def lookup(name: str, term: str) -> str:
-            return {
-                "path_absolute": lambda: str(PROJECT_ROOT / term),
-                "file": lambda: read_text(term),
-            }[name]()
+        def lookup(name: str, *terms: str) -> str:
+            return {"requires_python": RequiresPythonLookup}[name]().run(list(terms))[0]
 
         environment = jinja2.Environment(
             autoescape=jinja2.select_autoescape(default_for_string=False)
         )
-        environment.filters["regex_search"] = regex_search
         environment.globals["lookup"] = lookup
         spec = tomllib.loads(read_text(str(PROJECT_ROOT / "pyproject.toml")))[
             "project"

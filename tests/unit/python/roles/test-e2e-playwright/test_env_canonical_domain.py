@@ -4,7 +4,7 @@ import json
 import unittest
 from urllib.parse import urlsplit
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.dotenv import dotenv_quote
 from plugins.filter.network_of import in_network, network_of, network_suffixes
@@ -26,7 +26,11 @@ TOR = [f"api.s3.{NODE}", f"console.s3.{NODE}"]
 def render(pass_domain: str) -> str:
     tasks = load_yaml_any(str(TASKS))
     task = next(t for t in tasks if t.get("name") == TASK_NAME)
-    env = Environment(autoescape=False, trim_blocks=True, undefined=StrictUndefined)  # noqa: S701 - dotenv file, not markup
+    env = Environment(
+        autoescape=select_autoescape(default_for_string=False),
+        trim_blocks=True,
+        undefined=StrictUndefined,
+    )
     env.filters.update(
         dotenv_quote=dotenv_quote,
         in_network=in_network,

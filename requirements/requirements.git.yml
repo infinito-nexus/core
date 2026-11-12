@@ -18,7 +18,7 @@ collections:
   - name: community.general
     source: https://github.com/ansible-collections/community.general.git
     type: git
-    version: 14.0.0
+    version: 14.0.1
 
   - name: community.docker
     source: https://github.com/ansible-collections/community.docker.git

@@ -56,7 +56,12 @@ from utils.packages.installed import (
     state_holds,
 )
 from utils.packages.outcome import aggregate
-from utils.packages.plan import build_plan, merge_plans
+from utils.packages.plan import (
+    HOST_ARCHITECTURE_VAR,
+    build_plan,
+    ensure_published,
+    merge_plans,
+)
 from utils.packages.registry import build_registry, project_root_from_env, resolve
 from utils.packages.schema import ROLE_FILE_META_PACKAGES, PackagesShapeError
 
@@ -80,12 +85,19 @@ class ActionModule(ActionBase):
         package_ids = self._package_ids()
         registry = self._registry()
         role = self._role()
+        kernel = read_fact(facts, "architecture")
+        by_kernel = dict(task_vars.get(HOST_ARCHITECTURE_VAR) or {})
 
         plans: list[list[ModuleCall]] = []
         skipped: list[str] = []
 
         for package_id in package_ids:
             spec = self._spec_for(registry, package_id, distribution, os_family, role)
+            if state == STATE_PRESENT:
+                try:
+                    ensure_published(package_id, distribution, kernel, by_kernel, spec)
+                except ValueError as exc:
+                    raise AnsibleActionFail(str(exc)) from exc
             plan = self._plan_for(spec, state)
             if not plan:
                 skipped.append(package_id)
@@ -242,7 +254,9 @@ class ActionModule(ActionBase):
 
         result = self._execute_module(
             module_name="ansible.builtin.setup",
-            module_args={"gather_subset": ["!all", "!min", "distribution", "pkg_mgr"]},
+            module_args={
+                "gather_subset": ["!all", "!min", "distribution", "pkg_mgr", "platform"]
+            },
             task_vars=task_vars,
         )
         if result.get("failed"):
