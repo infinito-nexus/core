@@ -2123,6 +2123,10 @@ msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
 
+msgctxt "role:svc-stack:description"
+msgid "Provider of the shared stack service that every application with a compose project or a vhost declares"
+msgstr ""
+
 # translated-by: libretranslate
 # Cloudflare (*.parent) pada pengurus utama dan domain akar
 msgctxt "role:sys-dns-wildcards:description"
