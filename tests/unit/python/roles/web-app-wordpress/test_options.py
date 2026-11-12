@@ -30,6 +30,7 @@ from utils.roles.mapping import (
     ROLE_FILE_VARS_MAIN,
 )
 from utils.templating.ansible import _trust_as_template
+from utils.templating.jinja import looks_like_jinja
 
 from . import PROJECT_ROOT
 
@@ -83,7 +84,12 @@ def _render(expression: str, **variables):
 
 def _translate_options() -> dict:
     addon = load_yaml_any(str(TRANSLATE_ADDON), default_if_missing={})
-    return addon["config"]["options"]
+    return {
+        name: f"https://rendered.example.test/{name}"
+        if looks_like_jinja(str(value))
+        else value
+        for name, value in addon["config"]["options"].items()
+    }
 
 
 def _forms() -> dict:

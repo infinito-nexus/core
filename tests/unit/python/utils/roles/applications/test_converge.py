@@ -83,6 +83,21 @@ class TestValues(unittest.TestCase):
 
         self.assertNotIn("mail.relay", str(caught.exception))
 
+    def test_a_source_that_stayed_template_text_fails_without_repeating_it(self):
+        for unrendered in (
+            "{{ lookup('redirect_uris') }}",
+            ["https://a.example.test/*", "{{ OIDC.CLIENT.ID }}"],
+            {"nested": "{% if relay %}x{% endif %}"},
+        ):
+            with self.subTest(unrendered=unrendered):
+                broken = {**APPLICATION, "mail": {"relay": unrendered, "port": 587}}
+
+                with self.assertRaises(SourceError) as caught:
+                    values("general", FORMS, broken, USERS)
+
+                self.assertIn("relay", str(caught.exception))
+                self.assertNotIn("mail.relay", str(caught.exception))
+
     def test_the_source_of_a_skipped_field_is_never_read(self):
         design_off = {"design": {"enabled": False}, "mail": APPLICATION["mail"]}
 
