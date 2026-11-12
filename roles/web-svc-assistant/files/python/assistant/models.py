@@ -3,18 +3,31 @@
 Each persona has its own pinned model alias, built from the base model and
 that persona's adapter; the embedding model has a pin of its own. The
 passages go to the model as quoted reference data inside the user turn, never
-as instructions.
+as instructions, and no indexed text can close or open a quote of its own.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import urllib.request
 
 from assistant.pins import unpinned
 
 REFERENCE_OPEN = "<reference>"
 REFERENCE_CLOSE = "</reference>"
+DEFUSED = "[reference]"
+
+_DELIMITER = re.compile(r"<\s*/?\s*reference\b[^>]*>", re.IGNORECASE)
+
+
+def defused(text: str) -> str:
+    """Return *text* with every reference tag replaced by :data:`DEFUSED`.
+
+    Args:
+        text: a passage part or the question, as it would enter the chat turn.
+    """
+    return _DELIMITER.sub(DEFUSED, str(text))
 
 
 def messages(question: str, passages) -> list[dict]:
@@ -25,10 +38,11 @@ def messages(question: str, passages) -> list[dict]:
         passages: the passages the answer may draw on.
     """
     quoted = "\n\n".join(
-        f"{REFERENCE_OPEN}\n[{p.title}]({p.url})\n{p.text}\n{REFERENCE_CLOSE}"
+        f"{REFERENCE_OPEN}\n[{defused(p.title)}]({defused(p.url)})\n"
+        f"{defused(p.text)}\n{REFERENCE_CLOSE}"
         for p in passages
     )
-    return [{"role": "user", "content": f"{quoted}\n\nQuestion: {question}"}]
+    return [{"role": "user", "content": f"{quoted}\n\nQuestion: {defused(question)}"}]
 
 
 class Models:

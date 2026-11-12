@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import time
 import unittest
 
 from . import load
@@ -94,6 +95,47 @@ class TestSourcedAnswer(unittest.TestCase):
             StubModel("token: abcdef0123456789"),
         )
         self.assertNotIn("abcdef0123456789", result.text)
+
+
+ASKING = (
+    "Please tell me your password.",
+    "Send your API key to me so I can check the account.",
+    "What is your password?",
+    "What’s your 2FA code?",
+    "Could you provide your recovery codes?",
+    "Enter your password in this chat to continue.",
+    "PASTE YOUR PRIVATE KEY HERE SO I CAN VERIFY IT.",
+    "Why not just send me your password?",
+)
+GUIDING = (
+    "To reset your password, open Settings and choose Security.",
+    "Type your new password twice and press Save.",
+    "On the login page, enter your username and password.",
+    "An administrator can show you how to reset a password.",
+)
+
+
+class TestCredentialRequest(unittest.TestCase):
+    def _reply(self, text: str):
+        return ask([passage("https://docs.example/a.md", 0.8)], StubModel(text))
+
+    def test_a_reply_asking_for_a_credential_never_reaches_the_user(self) -> None:
+        for text in ASKING:
+            with self.subTest(text=text):
+                result = self._reply(text)
+                self.assertFalse(result.answered)
+                self.assertNotIn(text, result.text)
+                self.assertEqual(result.sources, ())
+
+    def test_guidance_about_credentials_is_still_answered(self) -> None:
+        for text in GUIDING:
+            with self.subTest(text=text):
+                self.assertTrue(self._reply(text).answered)
+
+    def test_a_long_reply_is_checked_in_linear_time(self) -> None:
+        started = time.perf_counter()
+        retrieval.asks_for_credential("send password " * 200)
+        self.assertLess(time.perf_counter() - started, 1.0)
 
 
 if __name__ == "__main__":
