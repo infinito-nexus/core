@@ -15,6 +15,7 @@ PUBLISHED = 8081
 LOOPBACK = ("127.0.0.1", "localhost")
 GATEWAY_MESH = "10.100.0.1"
 OTHER_MESH = "10.100.0.3"
+GATEWAY_VHOST = "litellm.infinito.example.internal"
 
 
 class TestContainerNetwork(unittest.TestCase):
@@ -87,10 +88,56 @@ class TestMesh(unittest.TestCase):
         )
 
 
+class TestVhost(unittest.TestCase):
+    def refusal(self, url, gateway_name=GATEWAY_VHOST):
+        return litellm_gateway_refusal(url, "vhost", gateway_name=gateway_name)
+
+    def test_the_gateway_vhost_over_https_is_allowed(self):
+        self.assertEqual(self.refusal(f"https://{GATEWAY_VHOST}"), "")
+
+    def test_a_trailing_slash_is_allowed(self):
+        self.assertEqual(self.refusal(f"https://{GATEWAY_VHOST}/"), "")
+
+    def test_plain_http_is_refused(self):
+        self.assertIn("scheme", self.refusal(f"http://{GATEWAY_VHOST}"))
+
+    def test_the_public_admin_ui_domain_is_refused(self):
+        self.assertIn("not exactly", self.refusal("https://llm.ai.infinito.example"))
+
+    def test_an_explicit_port_is_refused(self):
+        self.assertIn("not exactly", self.refusal(f"https://{GATEWAY_VHOST}:443"))
+        self.assertIn("not exactly", self.refusal(f"https://{GATEWAY_VHOST}:8081"))
+
+    def test_credentials_in_the_url_are_refused(self):
+        self.assertIn(
+            "not exactly", self.refusal(f"https://consumer:secret@{GATEWAY_VHOST}")
+        )
+
+    def test_a_path_or_query_is_refused(self):
+        self.assertIn("path", self.refusal(f"https://{GATEWAY_VHOST}/v1"))
+        self.assertIn("query", self.refusal(f"https://{GATEWAY_VHOST}/?x=1"))
+
+    def test_the_loopback_port_url_is_refused(self):
+        self.assertIn("scheme", self.refusal("http://127.0.0.1:8081"))
+
+    def test_a_gateway_name_inside_public_dns_is_refused(self):
+        refusal = self.refusal(
+            "https://llm.ai.infinito.example", gateway_name="llm.ai.infinito.example"
+        )
+        self.assertIn("private-use", refusal)
+
+    def test_an_unnamed_gateway_vhost_is_refused(self):
+        self.assertIn("private-use", self.refusal(f"https://{GATEWAY_VHOST}", ""))
+
+
 class TestModes(unittest.TestCase):
     def test_an_unknown_mode_raises(self):
         with self.assertRaises(AnsibleFilterError):
             litellm_gateway_refusal("http://litellm:4000", "public", INTERNAL)
+
+    def test_a_port_mode_without_a_port_raises(self):
+        with self.assertRaises(AnsibleFilterError):
+            litellm_gateway_refusal("http://litellm:4000", "container")
 
     def test_the_filters_are_registered(self):
         self.assertEqual(
