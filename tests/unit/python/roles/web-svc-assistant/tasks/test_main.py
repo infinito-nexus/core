@@ -1,12 +1,3 @@
-"""The role stays off while its config names no model to answer with.
-
-The persona and embedding models come from the separate ``llm`` repository,
-and ``services.assistant.models`` stays empty until that repository pins them.
-A deploy that carries the model service but no named model must skip the role:
-the service it would start refuses an empty reference, so the knowledge index
-rebuild of that deploy fails.
-"""
-
 from __future__ import annotations
 
 import ast

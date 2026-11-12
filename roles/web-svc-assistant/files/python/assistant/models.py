@@ -3,7 +3,7 @@
 Each persona has its own pinned model alias, built from the base model and
 that persona's adapter; the embedding model has a pin of its own. The
 passages go to the model as quoted reference data inside the user turn, never
-as instructions, and no indexed text can close or open a quote of its own.
+as instructions.
 """
 
 from __future__ import annotations

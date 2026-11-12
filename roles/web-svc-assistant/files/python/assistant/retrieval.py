@@ -3,9 +3,7 @@
 A question is answered only from passages whose similarity reaches the
 configured threshold. Without one the reply is a fixed sentence and the model
 is never asked, so the assistant cannot invent an answer the documentation
-does not hold. Every answer names the documents it used. A model reply that
-asks the user for a password or another credential never reaches the user,
-whatever a passage told the model, and every reply passes the secret masking.
+does not hold. Every answer names the documents it used.
 """
 
 from __future__ import annotations
@@ -45,8 +43,6 @@ _TO_US = re.compile(
 
 
 def _routed_to_us(sentence: str) -> bool:
-    # One regex spanning verb, credential and recipient backtracks
-    # quadratically: a 3 kB reply of repeated "send password" took 6 s.
     verb = _VERB.search(sentence)
     secret = verb and _SECRET.search(sentence, verb.end())
     return bool(secret and _TO_US.search(sentence, secret.end()))
@@ -54,9 +50,6 @@ def _routed_to_us(sentence: str) -> bool:
 
 def asks_for_credential(reply: str) -> bool:
     """Return whether *reply* asks the user to hand over a credential.
-
-    Safety advice such as ``never share your password with us`` counts too;
-    the fixed reply that replaces it gives the same advice.
 
     Args:
         reply: the model's reply before it reaches the user.
