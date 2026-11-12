@@ -141,6 +141,11 @@ matrix-chatgpt-bot:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.1.5"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — object store, no Playwright surface (provider: web-svc-seaweedfs)
 seaweedfs:
   bond: 1
