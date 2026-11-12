@@ -7,12 +7,14 @@ declaration side of that contract is enforced here:
 - One role provides the ``stack`` service, with an enabled and shared
   primary entity, so the service registry discovers it.
 - Every role with a compose project (a ``web-app-*`` or ``web-svc-*`` role
-  shipping ``templates/compose.yml.j2``) and every role that includes one
-  of the three stack roles declares ``stack`` with literal ``enabled: true``
-  and ``shared: true`` in its own ``meta/services.yml`` (decision 2).
+  shipping ``templates/compose.yml.j2``), every role that includes one
+  of the three stack roles and every role that enters a ``svc-stack``
+  consumer entry declares ``stack`` with literal ``enabled: true`` and
+  ``shared: true`` in its own ``meta/services.yml`` (decision 2).
 - Every role that serves a vhost (a non-empty ``canonical`` list in
-  ``meta/domains.yml``, or an include of ``sys-stk-full`` or
-  ``sys-stk-front-proxy``) declares ``openresty`` the same way
+  ``meta/domains.yml``, an include of ``sys-stk-full`` or
+  ``sys-stk-front-proxy``, or an entry of ``consumer.yml`` or
+  ``consumer/front.yml``) declares ``openresty`` the same way
   (decision 3).
 
 A role whose domains are served by something other than the stack, such
@@ -55,6 +57,12 @@ STACK_INCLUDE_RE = re.compile(
     _INCLUDE.format(roles="full|backend|front-proxy"), re.MULTILINE
 )
 VHOST_INCLUDE_RE = re.compile(_INCLUDE.format(roles="full|front-proxy"), re.MULTILINE)
+_ENTRY = (
+    r"^\s*name:\s*[\"']?svc-stack[\"']?\s*\n"
+    r"\s*tasks_from:\s*[\"']?consumer({entries})\.yml[\"']?\s*$"
+)
+STACK_ENTRY_RE = re.compile(_ENTRY.format(entries="|/front|/back"), re.MULTILINE)
+VHOST_ENTRY_RE = re.compile(_ENTRY.format(entries="|/front"), re.MULTILINE)
 
 
 def _role_dirs() -> list[Path]:
@@ -101,7 +109,11 @@ def stack_offenders() -> list[str]:
     return [
         role_dir.name
         for role_dir in _role_dirs()
-        if (_has_compose_project(role_dir) or _includes(role_dir, STACK_INCLUDE_RE))
+        if (
+            _has_compose_project(role_dir)
+            or _includes(role_dir, STACK_INCLUDE_RE)
+            or _includes(role_dir, STACK_ENTRY_RE)
+        )
         and not _declares(role_dir, STACK_KEY)
     ]
 
@@ -110,7 +122,11 @@ def openresty_offenders() -> list[str]:
     return [
         role_dir.name
         for role_dir in _role_dirs()
-        if (_serves_canonical_domain(role_dir) or _includes(role_dir, VHOST_INCLUDE_RE))
+        if (
+            _serves_canonical_domain(role_dir)
+            or _includes(role_dir, VHOST_INCLUDE_RE)
+            or _includes(role_dir, VHOST_ENTRY_RE)
+        )
         and not _declares(role_dir, OPENRESTY_KEY)
         and not role_has_nocheck(role_dir.name, NOCHECK_ID, ROLES_DIR)
     ]
@@ -145,6 +161,19 @@ class TestStackServiceDeclared(unittest.TestCase):
             f"'# nocheck: {NOCHECK_ID} <reason>' when the stack does not "
             "serve the domain):\n" + "\n".join(f"  - {name}" for name in offenders),
         )
+
+    def test_entry_patterns_tell_the_vhost_entries_apart(self) -> None:
+        include = "- include_role:\n    name: svc-stack\n    tasks_from: {}\n"
+        for entry, serves in (
+            ("consumer.yml", True),
+            ('"consumer/front.yml"', True),
+            ("consumer/back.yml", False),
+        ):
+            text = include.format(entry)
+            self.assertTrue(STACK_ENTRY_RE.search(text), entry)
+            self.assertEqual(bool(VHOST_ENTRY_RE.search(text)), serves, entry)
+        for other in ("deferred_probe.yml", "consumer/other.yml", "main.yml"):
+            self.assertIsNone(STACK_ENTRY_RE.search(include.format(other)), other)
 
 
 if __name__ == "__main__":

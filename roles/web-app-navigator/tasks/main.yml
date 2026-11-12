@@ -15,7 +15,8 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 # Hack because it wasn't possible to fix an handler bug in pkgmgr install
 - name: „Trigger“ compose up

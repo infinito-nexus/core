@@ -3,9 +3,8 @@
 
 - name: "🧩 Load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
+    name: svc-stack
+    tasks_from: consumer.yml
 
 # nocheck: swarm-loopback-port unused  web-app-pihole opts out of swarm (meta/services.yml pihole.modes.swarm.enabled: false), so this wait never runs there
 - name: "⏳ Wait for Pi-hole HTTP endpoint"

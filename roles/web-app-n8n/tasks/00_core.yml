@@ -3,9 +3,8 @@
 
 - name: "🧩 Load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🪝 Stage n8n SSO auto-provisioning hook on stack host and swarm peers"
   ansible.builtin.include_tasks:
