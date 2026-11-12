@@ -245,7 +245,7 @@ cluster_addr = "http://127.0.0.1:8201"
 - [x] The user identifier is templated from `{{ OIDC.ATTRIBUTES.USERNAME }}`; the literal `preferred_username` does not appear in the role.
 - [x] A user logs in at `https://openbao.{{ DOMAIN_PRIMARY }}/` through the Keycloak chain and lands authenticated in the OpenBao UI. (`test-oidc-login.js`, 6.5 s.)
 - [x] Logout integrates with the `logout` service when enabled: `meta/services.yml` bonds `logout` to `web-svc-logout`, the deploy activates the logout proxy for the openbao vhost, injects the universal-logout code with its CSP hash, and includes openbao in `LOGOUT_DOMAINS`.
-- [ ] Logout terminates the OpenBao session. *Not asserted: an attempt surfaced a finding now recorded in the README. Navigating to `/ui/vault/logout` leaves the session intact (the UI returns to `/ui/vault/secrets`, since the Ember app restores its token from browser storage). Proving termination needs the UI's own logout control driven from an authenticated session, which the persona blocks make awkward; the assertion was reverted rather than left failing.*
+- [ ] Logout terminates the OpenBao session. *Not met: no logout path revokes the token, so it stays valid after the logout, see the README test notes. The fix needs a role-local `templates/javascript.js.j2` that calls `revoke-self` and clears the stored token before the universal-logout redirect, plus its `javascript` entry in `meta/services.yml`. The assertion is a sign-in through OIDC, a click on the UI's logout control, then OpenBao rejecting the token and the UI asking for a login again.*
 
 ### LDAP (Decision #5)
 
