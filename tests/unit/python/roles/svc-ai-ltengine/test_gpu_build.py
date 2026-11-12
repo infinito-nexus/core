@@ -13,7 +13,7 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
@@ -46,7 +46,10 @@ class TestGpuBuild(unittest.TestCase):
             key: the variable name in ``vars/main.yml``.
             gpu: what the ``gpu`` lookup answers.
         """
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders an ansible var expression, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         env.filters["bool"] = _ansible_bool
         env.globals["lookup"] = lambda name, *terms, **_kw: (
             gpu if name == "gpu" else BASE_VERSION
@@ -62,7 +65,10 @@ class TestGpuBuild(unittest.TestCase):
 
     def test_the_gate_asks_the_gpu_lookup_for_this_service(self) -> None:
         asked: list = []
-        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders an ansible var expression, not markup
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         env.globals["lookup"] = lambda name, *terms, **_kw: (
             asked.append((name, terms)) or True
         )

@@ -32,6 +32,11 @@ homeassistant:
   lifecycle: beta
   proxy:
     service_key: homeassistant
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2026.7"
+        until: 2026-12-03
 
 # nocheck: sso, dynamic-flag, playwright-service-flag
 sso:

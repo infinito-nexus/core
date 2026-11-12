@@ -24,7 +24,6 @@ from __future__ import annotations
 import http.client
 import json
 import re
-import tomllib
 import unittest
 import urllib.error
 import urllib.request
@@ -33,7 +32,7 @@ from packaging.requirements import Requirement
 from packaging.version import InvalidVersion, Version
 
 from utils.annotations.message import warning
-from utils.cache.files import read_text
+from utils.requires_python import requires_python, supported_minors
 
 from . import PROJECT_ROOT
 
@@ -41,8 +40,6 @@ PYPI_API = "https://pypi.org/pypi/{}"
 TIMEOUT_SECONDS = 15
 USER_AGENT = "infinito-nexus python cap check"
 CLASSIFIER = re.compile(r"^Programming Language :: Python :: 3\.(\d+)$")
-REQUIRES_PYTHON = re.compile(r"^>=3\.(\d+),<3\.(\d+)$")
-PYPROJECT = PROJECT_ROOT / "pyproject.toml"
 
 
 class PyPIUnavailableError(Exception):
@@ -75,13 +72,7 @@ def pypi_json(path: str) -> dict:
 
 def declared_cap() -> int:
     """Return the highest Python 3 minor ``requires-python`` admits."""
-    spec = tomllib.loads(read_text(str(PYPROJECT)))["project"]["requires-python"]
-    match = REQUIRES_PYTHON.fullmatch(spec)
-    if match is None:
-        raise AssertionError(
-            f"pyproject.toml requires-python {spec!r} must read >=3.X,<3.Y"
-        )
-    return int(match[2]) - 1
+    return max(supported_minors(requires_python(PROJECT_ROOT)))
 
 
 def core_requirement(ansible: dict) -> Requirement:

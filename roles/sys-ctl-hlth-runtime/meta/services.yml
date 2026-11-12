@@ -6,3 +6,85 @@ runtime:
       categories: [web]
     swarm:
       categories: [web]
+  targets: [host, container]
+  engines: [trivy, grype, osv, syft]
+  severity:
+    CRITICAL: fail
+    HIGH: warn
+  fixed_only: true
+  workers: 2
+  db_update: true
+  cache_dir: "/var/cache/{{ SOFTWARE_DOMAIN }}/vulnerability"
+  database_dir: "/var/cache/{{ SOFTWARE_DOMAIN }}/vulnerability/db"
+# nocheck: image-healthcheck  scanner run as a one-shot, no long-running process
+trivy:
+  image: ghcr.io/aquasecurity/trivy
+  version: "0.76.1"
+  security:
+    suppressions:
+      # nocheck: cve golang.org/x/net below 0.60.0 sits in the newest docker-ce and containerd.io packages
+      - id: CVE-2026-78663
+        until: 2026-12-03
+      # nocheck: cve CentOS Stream 10 ships no ca-certificates build with the RHEL 100.3.el10_2 fix yet
+      - id: CVE-2026-114406
+        until: 2026-12-03
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "0.76.1"
+        until: 2026-12-03
+# nocheck: image-healthcheck  scanner run as a one-shot, no long-running process
+grype:
+  image: ghcr.io/anchore/grype
+  version: v0.121.0
+  security:
+    suppressions:
+      # nocheck: cve golang.org/x/net below 0.60.0 sits in the newest docker-ce and containerd.io packages
+      - id: CVE-2026-78663
+        until: 2026-12-03
+      # nocheck: cve CentOS Stream 10 ships no ca-certificates build with the RHEL 100.3.el10_2 fix yet
+      - id: CVE-2026-114406
+        until: 2026-12-03
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v0.121.0"
+        until: 2026-12-03
+# nocheck: image-healthcheck  scanner run as a one-shot, no long-running process
+osv:
+  image: ghcr.io/google/osv-scanner
+  version: v2.7.0
+  ecosystems:
+    - AlmaLinux
+    - Alpine
+    - Debian
+    - Go
+    - Hackage
+    - Hex
+    - Maven
+    - NuGet
+    - Packagist
+    - Pub
+    - PyPI
+    - Red Hat
+    - Rocky Linux
+    - RubyGems
+    - Ubuntu
+    - crates.io
+    - npm
+  security:
+    suppressions:
+      # nocheck: cve golang.org/x/net below 0.60.0 sits in the newest docker-ce and containerd.io packages
+      - id: CVE-2026-78663
+        until: 2026-12-03
+      # nocheck: cve CentOS Stream 10 ships no ca-certificates build with the RHEL 100.3.el10_2 fix yet
+      - id: CVE-2026-114406
+        until: 2026-12-03
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v2.7.0"
+        until: 2026-12-03
+# nocheck: image-healthcheck  SBOM builder run as a one-shot, no long-running process
+syft:
+  image: ghcr.io/anchore/syft
+  version: v1.55.0
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v1.55.0"
+        until: 2026-12-03
