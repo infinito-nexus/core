@@ -9,7 +9,13 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
-from agents.routines.iterate import RUNNING, red_chain, relevant_delta_step
+from agents.routines.iterate import (
+    RUNNING,
+    TUNE_VELOCITY,
+    companion_steps,
+    red_chain,
+    relevant_delta_step,
+)
 
 STEPS = [
     Step("edit", "Change the svc-runner role tasks, templates, or vars", nxt="test"),
@@ -31,8 +37,9 @@ STEPS = [
     Step(
         "register",
         "Confirm the runner in the GitHub repository runner list",
-        nxt="done",
+        nxt=TUNE_VELOCITY,
     ),
+    *companion_steps("done", design=False),
     Step(
         "done", "Report the registered runner, or the DinD structural proof", "terminal"
     ),

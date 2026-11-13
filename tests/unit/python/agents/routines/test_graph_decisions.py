@@ -243,7 +243,9 @@ class TestIterateComposeDecisions(unittest.TestCase):
 
     def test_done_only_after_an_update_pass_and_the_final_gate(self) -> None:
         steps = _steps()
-        self.assertEqual(_into("done"), {"gate"})
+        self.assertEqual(_into("done"), {"tune_design"})
+        self.assertEqual(_into("tune_design"), {"tune_velocity"})
+        self.assertEqual(_into("tune_velocity"), {"gate"})
         self.assertEqual(_into("gate"), {"redeploy", "rebuild", "wait"})
         self.assertEqual(_into("redeploy"), {"scope", "sync", "wait"})
         self.assertIn(
@@ -260,7 +262,7 @@ class TestIterateComposeDecisions(unittest.TestCase):
         )
         self.assertEqual(
             dict(steps["gate"].branches),
-            {"✅ green": "done", "❌ red": "hung", "⏳ running": "hung"},
+            {"✅ green": "tune_velocity", "❌ red": "hung", "⏳ running": "hung"},
         )
         self.assertEqual(steps["done"].kind, "terminal")
 

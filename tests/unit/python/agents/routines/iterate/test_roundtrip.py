@@ -16,13 +16,13 @@ class TestRoundtripRoutine(unittest.TestCase):
     def test_a_green_sweep_confirms_and_a_red_one_is_triaged(self) -> None:
         self.assertEqual(
             branch_map(roundtrip.STEPS, "sweep"),
-            {"✅ green": "confirm", "❌ red": "triage"},
+            {"✅ green": "tune_velocity", "❌ red": "triage"},
         )
 
     def test_a_green_resume_confirms(self) -> None:
         self.assertEqual(
             branch_map(roundtrip.STEPS, "resume"),
-            {"✅ green": "confirm", "❌ red": "hung", "⏳ running": "hung"},
+            {"✅ green": "tune_velocity", "❌ red": "hung", "⏳ running": "hung"},
         )
 
     def test_resume_starts_at_the_last_red_app(self) -> None:

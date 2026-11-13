@@ -9,7 +9,13 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
-from agents.routines.iterate import RUNNING, red_chain, relevant_delta_step
+from agents.routines.iterate import (
+    RUNNING,
+    TUNE_VELOCITY,
+    companion_steps,
+    red_chain,
+    relevant_delta_step,
+)
 from agents.routines.tools.sweep import remaining_apps
 
 
@@ -38,7 +44,7 @@ STEPS = [
     Step(
         "sweep",
         "make roundtrip apps=<role>[#<variant>] runs compose then swarm fail-fast",
-        branches=(("✅ green", "confirm"), ("❌ red", "triage")),
+        branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "triage")),
     ),
     Step(
         "triage",
@@ -57,9 +63,10 @@ STEPS = [
     Step(
         "resume",
         "Resume make roundtrip apps=<resume_apps>: remaining_apps(order, last_red) (agents/routines/tools/sweep.py), the failed app first, then the untested apps, picked by hand since no decide command runs a run step; roles= in the state lists them for the relevant delta",
-        branches=(("✅ green", "confirm"), ("❌ red", "hung"), (RUNNING, "hung")),
+        branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "hung"), (RUNNING, "hung")),
         fn=_resume_apps,
     ),
+    *companion_steps("confirm", design=True),
     Step("confirm", "Final no-apps sweep green end to end confirms parity", "terminal"),
     *red_chain("iterate_roundtrip", "triage", ("resume",)),
 ]

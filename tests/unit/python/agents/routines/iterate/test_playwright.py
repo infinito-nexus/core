@@ -31,7 +31,7 @@ class TestPlaywrightRoutine(unittest.TestCase):
     def test_the_baseline_reports_done_only_when_green(self) -> None:
         self.assertEqual(
             branch_map(playwright.STEPS, "baseline"),
-            {"✅ green": "done", "❌ red": "hung", "⏳ running": "hung"},
+            {"✅ green": "tune_velocity", "❌ red": "hung", "⏳ running": "hung"},
         )
 
 

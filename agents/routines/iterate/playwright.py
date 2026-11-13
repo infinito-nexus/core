@@ -8,7 +8,13 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
-from agents.routines.iterate import RUNNING, red_chain, relevant_delta_step
+from agents.routines.iterate import (
+    RUNNING,
+    TUNE_VELOCITY,
+    companion_steps,
+    red_chain,
+    relevant_delta_step,
+)
 from utils.roles.mapping import ROLE_FILE_PLAYWRIGHT_SPEC
 
 STEPS = [
@@ -39,8 +45,9 @@ STEPS = [
     Step(
         "baseline",
         "make compose-deploy mode=reinstall apps=<role> full_cycle=true",
-        branches=(("✅ green", "done"), ("❌ red", "hung"), (RUNNING, "hung")),
+        branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "hung"), (RUNNING, "hung")),
     ),
+    *companion_steps("done", design=True),
     Step("done", "Report the full spec green against the fresh stack", "terminal"),
     *red_chain("iterate_playwright", "inspect", ("rerun", "baseline")),
 ]
