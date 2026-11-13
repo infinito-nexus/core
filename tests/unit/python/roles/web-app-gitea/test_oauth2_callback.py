@@ -7,7 +7,13 @@ import subprocess
 import unittest
 from urllib.parse import quote
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    UndefinedError,
+    select_autoescape,
+)
 
 from plugins.lookup.redirect_uris import build_redirect_uris
 from utils.cache.files import PROJECT_ROOT, read_text
@@ -27,10 +33,12 @@ AWK_LOOKUP = re.compile(r"awk -F '(?P<sep>[^']+)' '(?P<program>[^']+)'")
 PLACEHOLDER = "x"
 
 
+def role_vars() -> dict:
+    return load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_VARS_MAIN)))
+
+
 def source_name() -> str:
-    return load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_VARS_MAIN)))[
-        "GITEA_OIDC_SOURCE_NAME"
-    ]
+    return role_vars()["GITEA_OIDC_SOURCE_NAME"]
 
 
 def shipped_oauth2_client() -> dict:
@@ -108,6 +116,7 @@ def render_env(
         GITEA_OIDC_ENABLED=not without_oidc,
         GITEA_LDAP_ENABLED=False,
         GITEA_IAM_ENABLED=not without_oidc,
+        GITEA_OAUTH2_USERNAME_SOURCES=role_vars()["GITEA_OAUTH2_USERNAME_SOURCES"],
     )
     return dict(
         line.split("=", 1)
@@ -262,6 +271,14 @@ class TestGiteaOAuth2AccountLinking(unittest.TestCase):
         self.assertEqual(env["GITEA__oauth2_client__ACCOUNT_LINKING"], "login")
         self.assertEqual(env["GITEA__oauth2_client__USERNAME"], "email")
 
+    def test_a_sub_claim_selects_the_gitea_user_id(self) -> None:
+        env = render_env({**shipped_oauth2_client(), "username": "sub"})
+        self.assertEqual(env["GITEA__oauth2_client__USERNAME"], "userid")
+
+    def test_a_claim_gitea_cannot_select_fails_the_render(self) -> None:
+        with self.assertRaises(UndefinedError):
+            render_env({**shipped_oauth2_client(), "username": "uid"})
+
     def test_without_keycloak_gitea_gets_no_oauth2_client_settings(self) -> None:
         env = render_env(without_oidc=True)
         self.assertEqual(
@@ -273,7 +290,7 @@ class TestGiteaOAuth2AccountLinking(unittest.TestCase):
         scopes = re.findall(r'--scopes\s+"([^"]+)"', task)
         self.assertTrue(scopes)
         for requested in scopes:
-            self.assertTrue({"profile", "email"} <= set(requested.split()))
+            self.assertLessEqual({"profile", "email"}, set(requested.split()))
 
 
 class TestGiteaAuthSourceConvergence(unittest.TestCase):
