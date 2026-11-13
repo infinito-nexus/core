@@ -20,6 +20,13 @@
       {{ stalwart_jmap.methodResponses[2][1].list[0]
          | dict2items | selectattr('key', 'in', STALWART_HTTP_SETTINGS) | items2dict }}
 
+- name: "📣 Report the managed ban periods and client address source the run overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      security: "{{ stalwart_ban_periods_current }}"
+      http: "{{ stalwart_http_settings_current }}"
+
 - name: "🛡️ Apply Stalwart's ban periods, allowed addresses and client address source"
   include_tasks: security/apply.yml
   when: >-
