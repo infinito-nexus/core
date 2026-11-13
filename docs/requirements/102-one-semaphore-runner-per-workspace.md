@@ -55,6 +55,10 @@ So OSS has no API that creates a runner for one project: the store's "API path" 
 
    A task cannot change its own list. Provider APIs and the state bucket are not on it, because provisioning runs on the platform's provision runner (104). The proxy refuses loopback, link-local (`169.254.0.0/16`, `fe80::/10`) and the host's own addresses even when a listed name resolves to one. The product is the implementation's choice among maintained `CONNECT` proxies with a released, pinned image; Squid is the reference candidate. Rejected: an IP allowlist in nftables alone, because the internal services would then have to join every workspace network or be reached through the host gateway that has to stay closed.
 7. **The runner image per core version.** A workspace runner uses the runner image of its `WORKSPACE_CORE_VERSION`, which `apply` builds when it is missing. `latest` resolves to the newest released tag at `apply` time and is recorded as that tag. Any other value that is not a released tag is refused. The prune of the platform runner (`vars/main.yml:153-157`) keeps every image a workspace runner uses. This keeps the store's per-workspace version choice working (store `apps/api/services/runner/args.py:47-58`, default `latest`).
+8. **Semaphore admin stays in core (operator pick B, 2026-11-13).** The store's criterion 062:121 gives the store a Semaphore admin token "used only to create projects and runners". Runner creation moves to core (decision 3), but the store would still need admin rights to create projects and the Semaphore users of its members (Background). An admin passes every permission check in every project, so a leaked admin token could edit a template of the deploy project and run it on the deploy runner, whose key logs in as `root` on every host of the platform's deploy inventory. So no long-lived Semaphore admin credential exists outside a single `workspace` task:
+   - `workspace apply` mints a short-lived admin token by SQL, as `prepare.sql.j2:13-27` does, and deletes it before the task ends.
+   - With it, `apply` creates the workspace project, makes the store's non-admin service account its owner and creates the Semaphore users of the organization's members.
+   - As project owner, the store manages the project's users, keys and task runs through the API. The project role a member gets is fixed by [107](107-keycloak-organizations-workspace-roles-and-one-client-per-consumer.md) decision 8.
 
 Rejected:
 
@@ -62,18 +66,8 @@ Rejected:
 - The global registration token in the store: it registers runners for any project.
 - A shared runner with schema-checked inventory: store decision 3.
 - A runner manager with the Docker socket in the store: store decision 1.
-
-## Open Decision: Who Holds Semaphore Admin
-
-The store's criterion 062:121 gives the store a Semaphore admin token "used only to create projects and runners". Runner creation moves to core (decision 3), but the store would still need admin rights to create projects and the Semaphore users of its members (Background). An admin passes every permission check in every project. A leaked store token can edit a template of the deploy project and run it on the deploy runner, whose key logs in as `root` on every host of the platform's deploy inventory.
-
-| Option | What it means | Risk |
-| --- | --- | --- |
-| A | The store keeps an admin token and creates projects and users itself. | A store compromise is root on every host of the platform's deploy inventory. |
-| B | Core keeps admin rights on the platform runners: `workspace apply` mints a short-lived admin token by SQL (as `prepare.sql.j2:13-27` does) and creates the project, the store's non-admin service account as its owner, and the Semaphore users of the organization's members. As project owner, the store manages project users, keys and task runs through the API. | A store compromise reaches workspace projects only. |
-| C | As B, but Semaphore users come only from their first OIDC login. | As B; a member who never signed in to Semaphore cannot be added until they do. |
-
-Recommendation: **B**, the more secure option: no long-lived Semaphore admin credential exists outside a single `workspace` task. The criteria under "Store account" follow B and change with the operator's pick.
+- A Semaphore admin token in the store (option A): a store compromise would be root on every host of the platform's deploy inventory.
+- Semaphore users only from their first OIDC login (option C): a member who never signed in to Semaphore could not be added until they did.
 
 ## Acceptance Criteria
 
@@ -126,8 +120,8 @@ Recommendation: **B**, the more secure option: no long-lived Semaphore admin cre
 
 ### Store account
 
-- [ ] Under option B, the store's Semaphore account is not an admin, owns every workspace project, holds `task_runner` in the Workspaces project and holds no role in any other platform project (`workspace: the store account owns only workspace projects` in `test-workspace-runners.js`).
-- [ ] Under option B, no Semaphore admin token outlives the `workspace` task that minted it (`workspace: no admin token outlives its task` in `test-workspace-runners.js`).
+- [ ] The store's Semaphore account is not an admin, owns every workspace project, holds `task_runner` in the Workspaces project and holds no role in any other platform project (`workspace: the store account owns only workspace projects` in `test-workspace-runners.js`).
+- [ ] No Semaphore admin token outlives the `workspace` task that minted it: after an `apply` and after a failed `apply`, the token table holds no admin token minted by a task (`workspace: no admin token outlives its task` in `test-workspace-runners.js`).
 
 ### Documentation
 
