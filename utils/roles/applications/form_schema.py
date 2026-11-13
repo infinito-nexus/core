@@ -34,7 +34,7 @@ OPTIONAL_FIELD_KEYS = frozenset(
 )
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
-_FIELD_KEY = re.compile(r"^[a-z][A-Za-z0-9_]*$")
+_FIELD_KEY = re.compile(r"^[a-z][A-Za-z0-9_-]*$")
 _SINK = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
 
@@ -212,7 +212,8 @@ def _form_errors(where: str, block: Any) -> list[str]:
     for field, spec in fields.items():
         if not (isinstance(field, str) and _FIELD_KEY.fullmatch(field)):
             errors.append(
-                f"{where}.fields: {field!r} is no lower snake_case or camelCase key"
+                f"{where}.fields: {field!r} is no lower snake_case, camelCase or"
+                " kebab-case key"
             )
         errors.extend(_field_errors(f"{where}.fields.{field}", spec))
     return errors

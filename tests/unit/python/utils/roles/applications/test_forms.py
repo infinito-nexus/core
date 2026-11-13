@@ -330,8 +330,13 @@ class TestSchema(unittest.TestCase):
         }
         self.assertEqual([], form_schema.schema_errors("web-app-x", data))
 
-    def test_a_field_key_that_starts_upper_case_or_holds_a_dash_is_refused(self):
-        for field in ("ExcludedIps", "excluded-ips", "1st_site"):
+    def test_a_field_key_may_be_the_apps_own_kebab_case_array_key(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["fields"] = {"publish-username": _field("general", "blogname")}
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_a_field_key_that_starts_with_no_lower_case_letter_is_refused(self):
+        for field in ("ExcludedIps", "-api-key", "1st_site", "api key"):
             with self.subTest(field=field):
                 data = copy.deepcopy(FORMS)
                 data["general"]["fields"] = {field: _field("general", "blogname")}
@@ -339,7 +344,7 @@ class TestSchema(unittest.TestCase):
                     [
                         (
                             f"web-app-x: general.fields: {field!r} is no lower"
-                            " snake_case or camelCase key"
+                            " snake_case, camelCase or kebab-case key"
                         )
                     ],
                     form_schema.schema_errors("web-app-x", data),
