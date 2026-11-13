@@ -110,8 +110,6 @@
 - name: "🔄 Update Single Side WordPress domain"
   include_tasks: 08_update_domain.yml
   when: (wp_is_multisite.stdout | trim) == '0'
-  vars:
-    wp_new_url: "{{ WORDPRESS_URL }}"
 
 - name: "🎨 Apply or withdraw the corporate design"
   include_tasks: 09_design.yml
