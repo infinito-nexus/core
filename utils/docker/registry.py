@@ -26,6 +26,7 @@ import urllib.request
 from pathlib import Path
 from urllib.parse import quote, urlencode, urlparse
 
+from utils.docker.digest import valid_digest
 from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_name
 from utils.docker.mirror import mirror_image
 
@@ -34,7 +35,6 @@ _UNKNOWN_PLATFORM = "unknown"
 _CACHE_ROOT = Path(tempfile.gettempdir()) / "infinito-registry-probe"
 _LINK_NEXT_RE = re.compile(r'<([^>]+)>\s*;\s*rel="next"', re.IGNORECASE)
 _CHALLENGE_PARAM_RE = re.compile(r'(\w+)="([^"]*)"')
-_DIGEST_RE = re.compile(r"sha256:[0-9a-f]{64}|sha512:[0-9a-f]{128}")
 _MANIFEST_ACCEPT = (
     "application/vnd.oci.image.index.v1+json, "
     "application/vnd.oci.image.manifest.v1+json, "
@@ -216,21 +216,6 @@ def probe_order(image: str) -> list[str]:
     if mirrored is None or mirrored == image:
         return [image]
     return [mirrored, image]
-
-
-def valid_digest(value: object) -> str | None:
-    """Return a registry-supplied digest only when it is well formed.
-
-    Args:
-        value: a ``digest`` field or ``Docker-Content-Digest`` header.
-
-    Returns:
-        ``value`` when it is ``sha256:`` or ``sha512:`` with lowercase hex of
-        the matching length, else ``None``.
-    """
-    if isinstance(value, str) and _DIGEST_RE.fullmatch(value):
-        return value
-    return None
 
 
 def platform_digest(manifests: list, os_name: str, architecture: str) -> str | None:

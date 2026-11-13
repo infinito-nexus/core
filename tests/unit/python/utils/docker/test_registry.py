@@ -100,27 +100,6 @@ class TestManifestExists(_IsolatedProbeCache):
         self.assertEqual(url, "https://quay.io/v2/keycloak/keycloak/manifests/26.6.3")
 
 
-class TestValidDigest(unittest.TestCase):
-    def test_well_formed_sha256_and_sha512_pass(self) -> None:
-        sha512 = "sha512:" + "f" * 128
-        self.assertEqual(registry.valid_digest(HEAD), HEAD)
-        self.assertEqual(registry.valid_digest(sha512), sha512)
-
-    def test_anything_that_could_name_another_path_is_dropped(self) -> None:
-        for value in (
-            "sha256:/../../etc",
-            "sha256:" + "d" * 63 + "/",
-            "sha256:" + "D" * 64,
-            "sha256:" + "d" * 64 + "\n",
-            "md5:" + "d" * 32,
-            "",
-            None,
-            42,
-        ):
-            with self.subTest(value=value):
-                self.assertIsNone(registry.valid_digest(value))
-
-
 class TestManifestDigest(unittest.TestCase):
     def test_a_malformed_content_digest_is_indeterminate(self) -> None:
         with mock.patch.object(
