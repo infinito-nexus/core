@@ -31,8 +31,19 @@ FORM_KEYS = frozenset({"path", "fields", "sinks", "record", "native", "lock", "i
 RECORD_KEYS = ("selector", "source")
 REQUIRED_FIELD_KEYS = ("source", "mode", "selector")
 OPTIONAL_FIELD_KEYS = frozenset(
-    {"when", "label", "type", "enum", "validation", "description", "map", "optional"}
+    {
+        "when",
+        "label",
+        "type",
+        "enum",
+        "validation",
+        "description",
+        "map",
+        "optional",
+        "env",
+    }
 )
+ENV_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
 _FIELD_KEY = re.compile(r"^[a-z][A-Za-z0-9_-]*$")
@@ -88,7 +99,23 @@ def _field_errors(where: str, spec: Any) -> list[str]:
         errors.extend(_map_errors(where, spec["map"]))
     if "optional" in spec:
         errors.extend(_optional_errors(where, spec))
+    if "env" in spec and not (
+        isinstance(spec["env"], str) and ENV_NAME.fullmatch(spec["env"])
+    ):
+        errors.append(f"{where}.env must be an environment variable name")
     return errors
+
+
+def _env_errors(where: str, fields: Mapping) -> list[str]:
+    names = [
+        spec["env"]
+        for spec in fields.values()
+        if isinstance(spec, Mapping) and isinstance(spec.get("env"), str)
+    ]
+    return [
+        f"{where}.fields: two fields name the variable {name}"
+        for name in sorted({name for name in names if names.count(name) > 1})
+    ]
 
 
 def _optional_errors(where: str, spec: Mapping) -> list[str]:
@@ -252,6 +279,7 @@ def _form_errors(where: str, block: Any) -> list[str]:
                 " kebab-case key"
             )
         errors.extend(_field_errors(f"{where}.fields.{field}", spec))
+    errors.extend(_env_errors(where, fields))
     return errors
 
 

@@ -186,6 +186,40 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(1, len(errors))
         self.assertIn("email.optional takes no sso.<claim> source", errors[0])
 
+    def test_an_env_name_passes(self):
+        spec = {**_field("general", "blogname"), "env": "FTLCONF_webserver_domain"}
+        self.assertEqual(
+            [],
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
+        )
+
+    def test_an_env_that_names_no_variable_is_refused(self):
+        for env in ("FTL-X", "1FTL", "", "FTL X", 5):
+            with self.subTest(env=env):
+                spec = {**_field("general", "blogname"), "env": env}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.fields.blogname.env must be an"
+                            " environment variable name"
+                        )
+                    ],
+                    form_schema.schema_errors(
+                        "web-app-x", _with_field("general", "blogname", spec)
+                    ),
+                )
+
+    def test_two_fields_naming_one_variable_are_refused(self):
+        data = copy.deepcopy(FORMS)
+        for field in ("admin_email", "blogname"):
+            data["general"]["fields"][field]["env"] = "SITE"
+        self.assertEqual(
+            ["web-app-x: general.fields: two fields name the variable SITE"],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
     def test_a_template_in_any_forms_string_is_refused(self):
         for key, value in (
             ("label", "{{ site_title }}"),

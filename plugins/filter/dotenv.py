@@ -24,10 +24,13 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from typing import Any
 
 import jinja2
 from ansible.errors import AnsibleFilterError
+
+from utils.roles.applications.form_schema import ENV_NAME
 
 _MISSING: Any = object()
 _SNAKE = re.compile(r"[a-z][a-z0-9_]*")
@@ -133,38 +136,57 @@ def dotenv_value(content: Any, key: Any) -> str:
     return "" if value is None else value
 
 
-def dotenv_names(fields: Any) -> list[str]:
+def _name(field: str, specs: Any) -> str:
+    spec = specs.get(field) if isinstance(specs, Mapping) else None
+    env = spec.get("env") if isinstance(spec, Mapping) else None
+    if env is not None:
+        if not (isinstance(env, str) and ENV_NAME.fullmatch(env)):
+            raise AnsibleFilterError(
+                f"dotenv_names: env form field {field!r} names no variable"
+            )
+        return env
+    if not _SNAKE.fullmatch(field):
+        raise AnsibleFilterError(
+            f"dotenv_names: env form field {field!r} is not lower snake_case"
+        )
+    return field.upper()
+
+
+def dotenv_names(fields: Any, specs: Any = None) -> list[str]:
     """Return the env variable each field of an env form names.
 
     Args:
-        fields: form field names, each the lower snake_case name of its
-            variable.
+        fields: form field names.
+        specs: the form's ``fields`` of ``meta/forms.yml``; a field whose spec
+            declares ``env`` names that variable, every other field the
+            upper-cased form of its key, which must then be lower snake_case.
 
     Returns:
-        The upper-cased variable names, in the fields' order.
+        The variable names, in the fields' order.
 
     Raises:
-        AnsibleFilterError: for a field that is not lower snake_case, whose
-            upper-cased name would read another variable.
+        AnsibleFilterError: for an ``env`` that is no variable name, a field
+            without ``env`` that is not lower snake_case, whose upper-cased
+            name would read another variable, and two fields that name one
+            variable.
     """
-    names = []
-    for field in fields or ():
-        if not _SNAKE.fullmatch(str(field)):
-            raise AnsibleFilterError(
-                f"dotenv_names: env form field {str(field)!r} is not lower snake_case"
-            )
-        names.append(str(field).upper())
+    names = [_name(str(field), specs) for field in fields or ()]
+    if len(set(names)) != len(names):
+        raise AnsibleFilterError("dotenv_names: two env form fields name one variable")
     return names
 
 
 @jinja2.pass_context
-def dotenv_fields(ctx: jinja2.runtime.Context, content: Any, fields: Any) -> dict:
+def dotenv_fields(
+    ctx: jinja2.runtime.Context, content: Any, fields: Any, specs: Any = None
+) -> dict:
     """Return what a rendered ``.env`` holds for each field of a form.
 
     Args:
         content: the file's text.
-        fields: form field names, each the lower snake_case name of its
-            variable.
+        fields: form field names.
+        specs: the form's ``fields`` of ``meta/forms.yml``, which name each
+            field's variable as for :func:`dotenv_names`.
 
     Returns:
         Each field whose variable the file assigns, mapped to the value
@@ -172,11 +194,11 @@ def dotenv_fields(ctx: jinja2.runtime.Context, content: Any, fields: Any) -> dic
         field the file does not assign is left out.
 
     Raises:
-        AnsibleFilterError: for a field that is not lower snake_case.
+        AnsibleFilterError: as :func:`dotenv_names`.
     """
     fields = list(fields or ())
     held = {}
-    for field, name in zip(fields, dotenv_names(fields), strict=True):
+    for field, name in zip(fields, dotenv_names(fields, specs), strict=True):
         value = _assignment(content, name)
         if value is not None:
             held[str(field)] = dotenv_unquote(ctx, value)

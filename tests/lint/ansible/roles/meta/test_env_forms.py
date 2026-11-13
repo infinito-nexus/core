@@ -4,9 +4,11 @@ import re
 import unittest
 from typing import TYPE_CHECKING, Any
 
+from ansible.errors import AnsibleFilterError
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from plugins.filter.dotenv import dotenv_names
 from plugins.lookup.form_values import LookupModule as FormValues
 from utils.cache import PROJECT_ROOT, _reset_cache_for_tests
 from utils.cache.files import read_text
@@ -59,9 +61,10 @@ def secret_findings(roles: list[Path]) -> list[str]:
         roles: the role directories to scan.
 
     Returns:
-        One ``<role>.<form>.<field>`` line per key matching ``SECRET_SEGMENT``
-        and per source the fail-closed rule calls secret, since the env read
-        takes the managed lines out of a file that also holds the secrets.
+        One ``<role>.<form>.<field>`` line per key or ``env`` name matching
+        ``SECRET_SEGMENT`` and per source the fail-closed rule calls secret,
+        since the env read takes the managed lines out of a file that also
+        holds the secrets.
     """
     errors = []
     for where, (role, form) in sorted(env_forms(roles).items()):
@@ -69,8 +72,31 @@ def secret_findings(roles: list[Path]) -> list[str]:
         for field, spec in _fields(role, form).items():
             if SECRET_SEGMENT.search(field):
                 errors.append(f"{where}.{field}: the key is secret-class")
+            if SECRET_SEGMENT.search(str(spec.get("env") or "")):
+                errors.append(f"{where}.{field}: the env name is secret-class")
             if is_secret(spec.get("source"), credentials):
                 errors.append(f"{where}.{field}: the source is secret-class")
+    return errors
+
+
+def name_findings(roles: list[Path]) -> list[str]:
+    """Return every env form whose fields name no distinct variables.
+
+    Args:
+        roles: the role directories to scan.
+
+    Returns:
+        One ``<role>.<form>`` line per form ``dotenv_names`` refuses: a key
+        without ``env`` that is not lower snake_case, an ``env`` that is no
+        variable name, or two fields that name one variable.
+    """
+    errors = []
+    for where, (role, form) in sorted(env_forms(roles).items()):
+        fields = _fields(role, form)
+        try:
+            dotenv_names(list(fields), fields)
+        except AnsibleFilterError as exc:
+            errors.append(f"{where}: {exc}")
     return errors
 
 
@@ -143,6 +169,9 @@ class TestEnvForms(unittest.TestCase):
 
     def test_no_env_form_field_is_secret_class(self) -> None:
         self.assertEqual([], secret_findings(role_dirs()))
+
+    def test_every_env_form_field_names_its_own_variable(self) -> None:
+        self.assertEqual([], name_findings(role_dirs()))
 
     def test_every_env_form_field_resolves_to_a_string_after_its_map(self) -> None:
         self.assertEqual([], type_findings(role_dirs()))
