@@ -1,17 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔑 Stage the keycloak_adapter build context of {{ application_id }}"
-  ansible.builtin.include_tasks: 01_keycloak_adapter_build.yml
-  when:
-    - IS_STACK_HOST | bool
-    - JITSI_KEYCLOAK_ADAPTER_ENABLED | bool
-
-- name: "🧩 load docker and proxy for {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml
-
 - name: "👔 Jitsi manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool

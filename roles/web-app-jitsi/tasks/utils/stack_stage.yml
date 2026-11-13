@@ -1,0 +1,6 @@
+---
+- name: "🔑 Stage the keycloak_adapter build context of {{ application_id }}"
+  ansible.builtin.include_tasks: 01_keycloak_adapter_build.yml
+  when:
+    - IS_STACK_HOST | bool
+    - JITSI_KEYCLOAK_ADAPTER_ENABLED | bool
