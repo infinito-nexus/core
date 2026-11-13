@@ -120,14 +120,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: dynamic-flag - gated on the login methods of the role, not on group_names
+# nocheck: dynamic-flag
 # nocheck: playwright-service-flag - runtime DOM patch, proven by files/playwright/test-login-methods.js
 javascript:
   bond: 1
-  enabled: "{{ not ((lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.native.enabled') | bool) and (lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.2fa.enabled')
-    | bool)) }}"
-  shared: "{{ not ((lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.native.enabled') | bool) and (lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.2fa.enabled')
-    | bool)) }}"
+  enabled: true
+  shared: true
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

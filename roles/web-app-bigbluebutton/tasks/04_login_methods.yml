@@ -12,19 +12,57 @@
     quiet: true
 
 - name: "🚪 Converge the Greenlight registration method of {{ application_id }}"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - REGISTRATION_METHOD
-      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
-      - bash
-      - -lc
-      - "bundle exec rails runner -"
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight/registration_method.rb') }}"
-  environment:
-    REGISTRATION_METHOD: "{{ BBB_REGISTRATION_METHOD }}"
-  register: bbb_registration_method
-  changed_when: "'CHANGED' in bbb_registration_method.stdout"
+  vars:
+    bbb_registration_script: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight/registration_method.rb') }}"
+    bbb_registration_state: "{{ bbb_registration_stored.stdout_lines | last | from_json }}"
+  block:
+    - name: "🔎 Read the stored Greenlight registration method of {{ application_id }}"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - -i
+          - -e
+          - MODE
+          - -e
+          - REGISTRATION_METHOD
+          - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
+          - bash
+          - -lc
+          - "bundle exec rails runner -"
+        stdin: "{{ bbb_registration_script }}"
+      environment:
+        MODE: read
+        REGISTRATION_METHOD: "{{ BBB_REGISTRATION.registration_method }}"
+      register: bbb_registration_stored
+      changed_when: false
+
+    - name: "📣 Report the managed Greenlight registration method the converge reverts"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+      vars:
+        forms_drift_current:
+          registration:
+            registration_method: "{{ bbb_registration_state.registration_method }}"
+      when: bbb_registration_state.pending | bool
+
+    - name: "🚪 Write the Greenlight registration method of {{ application_id }}"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - -i
+          - -e
+          - MODE
+          - -e
+          - REGISTRATION_METHOD
+          - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
+          - bash
+          - -lc
+          - "bundle exec rails runner -"
+        stdin: "{{ bbb_registration_script }}"
+      environment:
+        MODE: converge
+        REGISTRATION_METHOD: "{{ BBB_REGISTRATION.registration_method }}"
+      register: bbb_registration_method
+      changed_when: "'CHANGED' in bbb_registration_method.stdout"
+      when: bbb_registration_state.pending | bool

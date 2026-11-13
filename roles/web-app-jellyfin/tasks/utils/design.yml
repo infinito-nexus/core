@@ -43,6 +43,12 @@
           Authorization: "{{ jellyfin_design_authorization }}"
       register: jellyfin_design_system
 
+    - name: "📣 Report the managed Jellyfin server name the write reverts"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+      vars:
+        forms_drift_current: "{{ {'settings': {'server_name': jellyfin_design_system.json.get('ServerName')}} }}"
+      when: jellyfin_design_system.json.get('ServerName') != jellyfin_design_title
+
     - name: "🏷️ Write the corporate title into the server configuration"
       uri_retry:
         url: "{{ JELLYFIN_API }}/System/Configuration"

@@ -31,8 +31,9 @@ FUNKWHALE_DESIGN_LOGO_ENABLED: "{{ FUNKWHALE_DESIGN_ENABLED | bool and lookup('d
 FUNKWHALE_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
 FUNKWHALE_DESIGN_MARK: "/* infinito-design */"
 FUNKWHALE_ADMIN_TEMPLATE_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'design', 'admin_base_site.html'] | path_join }}"
+FUNKWHALE_SETTINGS: "{{ lookup('form_values', application_id, 'settings') }}"
 FUNKWHALE_DESIGN_PREFERENCES:
-  instance__name: "{{ lookup('design', application_id).label }}"
+  instance__name: "{{ FUNKWHALE_SETTINGS.instance_name | default('') }}"
   ui__theme_primary_color: "{{ FUNKWHALE_DESIGN_PALETTE['--design-primary'] }}"
   ui__theme_accent_color: "{{ FUNKWHALE_DESIGN_PALETTE['--design-link'] }}"
   ui__theme_background_color: "{{ FUNKWHALE_DESIGN_PALETTE['--design-neutral-800'] }}"

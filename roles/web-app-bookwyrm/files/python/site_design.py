@@ -3,6 +3,8 @@
 Runs inside ``manage.py shell`` with this file on stdin.
 
 Environment:
+    MODE: "read" writes nothing and prints one JSON line with the stored site name and
+        whether "converge" would write; "converge" writes.
     ADMIN_USERNAME: localname of the platform administrator.
     ADMIN_EMAIL: e-mail of the administrator.
     ADMIN_PASSWORD: password the account converges on.
@@ -14,11 +16,12 @@ Environment:
     LOGO: base64 PNG for the touch icon and preview logo, empty to leave it alone.
     FAVICON: base64 ICO for the favicon, empty to leave it alone.
 
-Prints ``BOOKWYRM_RESULT=CHANGED`` or ``BOOKWYRM_RESULT=UNCHANGED``.
+In "converge" mode it prints ``BOOKWYRM_RESULT=CHANGED`` or ``BOOKWYRM_RESULT=UNCHANGED``.
 """
 
 import base64
 import hashlib
+import json
 import os
 from pathlib import PurePosixPath
 
@@ -27,6 +30,10 @@ from bookwyrm.activitypub import get_representative
 from django.contrib.auth.models import Group
 from django.core.files.base import ContentFile
 
+MODE = os.environ["MODE"]
+if MODE not in ("read", "converge"):
+    raise ValueError("MODE must be read or converge")
+APPLY = MODE == "converge"
 LOCALNAME = os.environ["ADMIN_USERNAME"]
 EMAIL = os.environ["ADMIN_EMAIL"]
 PASSWORD = os.environ["ADMIN_PASSWORD"]
@@ -46,18 +53,19 @@ ADMIN_GROUPS = ["admin", "moderator"]
 def converge_admin():
     user = models.User.objects.filter(localname__iexact=LOCALNAME, local=True).first()
     if user is None:
-        user = models.User.objects.create_superuser(
-            f"{LOCALNAME}@{settings.DOMAIN}",
-            EMAIL,
-            PASSWORD,
-            localname=LOCALNAME,
-            local=True,
-            deactivation_reason=None,
-            is_active=True,
-            two_factor_auth=False,
-            show_guided_tour=False,
-        )
-        user.groups.set(Group.objects.filter(name__in=ADMIN_GROUPS))
+        if APPLY:
+            user = models.User.objects.create_superuser(
+                f"{LOCALNAME}@{settings.DOMAIN}",
+                EMAIL,
+                PASSWORD,
+                localname=LOCALNAME,
+                local=True,
+                deactivation_reason=None,
+                is_active=True,
+                two_factor_auth=False,
+                show_guided_tour=False,
+            )
+            user.groups.set(Group.objects.filter(name__in=ADMIN_GROUPS))
         return True
     groups = set(user.groups.values_list("name", flat=True))
     dirty = (
@@ -66,7 +74,7 @@ def converge_admin():
         or user.two_factor_auth is None
         or not set(ADMIN_GROUPS) <= groups
     )
-    if dirty:
+    if dirty and APPLY:
         user.set_password(PASSWORD)
         user.is_superuser = True
         user.is_staff = True
@@ -85,15 +93,17 @@ def converge_image(site, field, payload, extension):
     if not PRESENT or not payload:
         if not ours:
             return False
-        current.delete(save=False)
+        if APPLY:
+            current.delete(save=False)
         return True
     data = base64.b64decode(payload)
     stem = f"{MARK}{field.replace('_', '-')}-{hashlib.sha256(data).hexdigest()[:12]}"
     if name.startswith(stem):
         return False
-    if current and ours:
-        current.delete(save=False)
-    current.save(f"{stem}.{extension}", ContentFile(data), save=False)
+    if APPLY:
+        if current and ours:
+            current.delete(save=False)
+        current.save(f"{stem}.{extension}", ContentFile(data), save=False)
     return True
 
 
@@ -107,7 +117,7 @@ def converge_site(site):
         dirty = True
     for field, (variable, extension) in IMAGES.items():
         dirty = converge_image(site, field, os.environ[variable], extension) or dirty
-    if dirty:
+    if dirty and APPLY:
         site.save()
         get_representative()
     return dirty
@@ -118,21 +128,30 @@ def converge_theme(site):
     if not PRESENT:
         if ours is None:
             return False
-        ours.delete()
+        if APPLY:
+            ours.delete()
         return True
     dirty = False
     if ours is None:
-        ours = models.Theme.objects.create(name=THEME_NAME, path=THEME_PATH, loads=True)
+        if APPLY:
+            ours = models.Theme.objects.create(
+                name=THEME_NAME, path=THEME_PATH, loads=True
+            )
         dirty = True
     if site.default_theme_id is None:
-        site.default_theme = ours
-        site.save(update_fields=["default_theme"])
+        if APPLY:
+            site.default_theme = ours
+            site.save(update_fields=["default_theme"])
         dirty = True
     return dirty
 
 
 changed = converge_admin()
 site = models.SiteSettings.get()
+stored_name = site.name
 changed = converge_site(site) or changed
 changed = converge_theme(models.SiteSettings.get()) or changed
-print("BOOKWYRM_RESULT=" + ("CHANGED" if changed else "UNCHANGED"))
+if APPLY:
+    print("BOOKWYRM_RESULT=" + ("CHANGED" if changed else "UNCHANGED"))
+else:
+    print(json.dumps({"pending": changed, "site_name": stored_name}))

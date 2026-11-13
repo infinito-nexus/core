@@ -48,7 +48,7 @@
     - name: "🎨 Apply the corporate design of {{ application_id }}"
       vars:
         jellyfin_design_authorization: 'MediaBrowser Token="{{ jellyfin_design_session.json.AccessToken }}"'
-        jellyfin_design_title: "{{ lookup('design', application_id).title if JELLYFIN_DESIGN_ENABLED | bool else false }}"
+        jellyfin_design_title: "{{ JELLYFIN_SETTINGS.server_name | default(false) }}"
         jellyfin_design_css_current: "{{ jellyfin_design_branding.json.get('CustomCss') or '' }}"
         jellyfin_design_css_foreign: "{{ jellyfin_design_css_current | regex_replace(JELLYFIN_DESIGN_CSS_PATTERN, '') | trim }}"
         jellyfin_design_urls: "{{ lookup('design', application_id).relative_urls }}"
