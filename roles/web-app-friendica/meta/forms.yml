@@ -1,0 +1,16 @@
+---
+logs:
+  path: /admin/logs
+  native: true
+  sinks: [FRIENDICA_LOG_SETTINGS]
+  fields:
+    debugging:
+      source: services.friendica.logging.debugging
+      mode: enforced
+      selector: '[name="debugging"]'
+      type: checkbox
+    loglevel:
+      source: services.friendica.logging.level
+      mode: enforced
+      selector: '[name="loglevel"]'
+      type: select
