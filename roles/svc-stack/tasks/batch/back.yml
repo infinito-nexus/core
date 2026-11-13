@@ -7,6 +7,14 @@
     fail_msg: "svc-stack resolved no consumer: include it from the consumer role's own tasks."
     quiet: true
 
+- name: "🔐 For '{{ stack_batch_consumer }}': verify the gateway contract"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+  when:
+    - (stack_batch_consumer | entity_name) != 'litellm'
+    - lookup('config', stack_batch_consumer, 'services.litellm.enabled', false) | bool
+
 - name: "🧩 For '{{ stack_batch_consumer }}': load docker and db"
   ansible.builtin.include_tasks: backend.yml
   loop: "{{ [database_consumer_id | default(stack_batch_consumer)] }}"
