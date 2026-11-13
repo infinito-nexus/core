@@ -1,0 +1,8 @@
+{
+  "output": {
+    "host": {"value": "${concat(local.ipv4, local.ipv6)}", "description": "Public addresses of the server."},
+    "host_key": {"value": "${trimspace(tls_private_key.host.public_key_openssh)}", "description": "SSH host public key installed by cloud-init."},
+    "server_id": {"value": "${ionoscloud_server.server.id}", "description": "Provider server id."},
+    "fqdn": {"value": "${module.dns.fqdn}", "description": "Per-deploy record name."}
+  }
+}
