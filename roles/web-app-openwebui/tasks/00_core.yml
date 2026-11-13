@@ -1,6 +1,35 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "📣 Report the managed Open WebUI settings the env file render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
+  vars:
+    forms_env_form: settings
+    forms_env_fields: "{{ OPENWEBUI_SETTINGS }}"
+
+- name: "🔎 Read the MCP tool servers the env file of {{ application_id }} holds"
+  ansible.builtin.command:
+    argv:
+      - python3
+      - -I
+      - -c
+      - "{{ lookup('file', 'python/tool_servers_held.py') }}"
+      - "{{ lookup('container', application_id, 'files.env') }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: openwebui_tool_servers_held
+  changed_when: false
+  when: "'servers' in OPENWEBUI_MCP_CONFIG"
+
+- name: "📣 Report the MCP tool servers the env file render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    openwebui_tool_servers_current: "{{ openwebui_tool_servers_held.stdout | from_json }}"
+    forms_drift_current: "{{ {'tools': {'servers': OPENWEBUI_MCP_CONFIG.servers | mcp_held(openwebui_tool_servers_current, '-')}} }}"
+  when:
+    - openwebui_tool_servers_held is not skipped
+    - openwebui_tool_servers_held.stdout != 'null'
+
 - name: "🔐 Verify the gateway contract for {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
   when: OPENWEBUI_LITELLM_ENABLED | bool
