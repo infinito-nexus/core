@@ -79,6 +79,38 @@ snipe-it:
       http: 80
   proxy:
     service_key: snipe-it
+  ldap:
+    is_ad: 0
+    ldap_pw_sync: 0
+    ad_domain: ""
+    ldap_server: "{{ LDAP.SERVER.URI }}"
+    ldap_uname: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    ldap_basedn: "{{ LDAP.DN.OU.USERS }}"
+    ldap_filter: >-
+      &(objectClass=inetOrgPerson)(|({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-snipe-it-administrator,{{ LDAP.DN.OU.ROLES
+      }})({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-snipe-it-user,{{ LDAP.DN.OU.ROLES
+      }}))(!({{ LDAP.USER.ATTRIBUTES.ID }}={{ lookup('users', 'platform_administrator').username }}))
+    ldap_auth_filter_query: "{{ LDAP.USER.ATTRIBUTES.ID }}="
+    ldap_username_field: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+    ldap_lname_field: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+    ldap_fname_field: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME | lower }}"
+    ldap_display_name: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME | lower }}"
+    ldap_emp_num: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER | lower }}"
+    ldap_dept: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT | lower }}"
+    ldap_email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+    ldap_phone_field: "{{ LDAP.USER.ATTRIBUTES.PHONE | lower }}"
+    ldap_mobile: "{{ LDAP.USER.ATTRIBUTES.MOBILE | lower }}"
+    ldap_jobtitle: "{{ LDAP.USER.ATTRIBUTES.TITLE | lower }}"
+    ldap_address: "{{ LDAP.USER.ATTRIBUTES.STREET | lower }}"
+    ldap_city: "{{ LDAP.USER.ATTRIBUTES.LOCALITY | lower }}"
+    ldap_state: "{{ LDAP.USER.ATTRIBUTES.REGION | lower }}"
+    ldap_zip: "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE | lower }}"
+    ldap_country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY | lower }}"
+    reset_url: "{{ OIDC.CLIENT.RESET_CREDENTIALS }}"
+  remote_user:
+    login_remote_user_header_name: INFINITO_SSO_USER
+    login_remote_user_custom_logout_url: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+    login_common_disabled: 0
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -122,6 +154,12 @@ design:
     favicon:
       width: 96
       height: 96
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag  carries the managed-field lock of meta/forms.yml on every page; no spec gates on it
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
