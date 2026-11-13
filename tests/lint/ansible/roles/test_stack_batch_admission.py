@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+from unittest import mock
 
 from jinja2 import Environment, meta, select_autoescape
 from jinja2.exceptions import TemplateSyntaxError
@@ -231,6 +232,17 @@ def body_sets(role: str) -> set[str]:
     )
 
 
+def stage_sets(role: str) -> set[str]:
+    """Args:
+        role: any role.
+
+    Returns:
+        the names its stack stage and the task files that stage reaches set
+        or register.
+    """
+    return set().union(*(_sets(path) for path in stage_files(PROJECT_ROOT, role)))
+
+
 def _group_names() -> set[str]:
     names: set[str] = set()
     for path in sorted((PROJECT_ROOT / "group_vars").rglob("*.yml")):
@@ -283,15 +295,13 @@ def back_gate(roles: list[str]) -> list[str]:
 
     Returns:
         ``role: name`` for every name a backend input reads that the role's
-        own body sets.
+        own body sets, except a name its stack stage sets before the backend.
     """
     found = []
     for role in roles:
         reads = back_reads(role)
-        found += [
-            f"{role}: {name}"
-            for name in sorted((reads & body_sets(role)) - _group_names())
-        ]
+        late = body_sets(role) - stage_sets(role)
+        found += [f"{role}: {name}" for name in sorted((reads & late) - _group_names())]
         found += [f"{role}: <unparsable>"] if "<unparsable>" in reads else []
     return found
 
@@ -367,6 +377,37 @@ class TestStackBatchAdmission(unittest.TestCase):
 
     def test_bridge_role_backends_read_no_fact_of_their_own_body(self) -> None:
         self.assertEqual(back_gate(bridge_roles(PROJECT_ROOT)), [])
+
+    def test_a_name_the_stage_sets_reaches_the_backend(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "group_vars").mkdir()
+            _role(
+                root,
+                "web-app-staged",
+                {
+                    "templates/compose.yml.j2": (
+                        "{{ staged_name }} {{ inner_name }} {{ body_name }}\n"
+                    ),
+                    str(STAGE): (
+                        "- ansible.builtin.set_fact:\n"
+                        "    staged_name: x\n"
+                        "- include_tasks: inner.yml\n"
+                    ),
+                    "tasks/inner.yml": (
+                        "- ansible.builtin.command: 'true'\n  register: inner_name\n"
+                    ),
+                    "tasks/00_core.yml": (
+                        "- ansible.builtin.set_fact:\n"
+                        "    staged_name: y\n"
+                        "    body_name: x\n"
+                    ),
+                },
+            )
+            with mock.patch(f"{__name__}.PROJECT_ROOT", root):
+                self.assertEqual(
+                    back_gate(["web-app-staged"]), ["web-app-staged: body_name"]
+                )
 
 
 if __name__ == "__main__":
