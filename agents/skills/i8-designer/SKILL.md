@@ -15,7 +15,7 @@ routines:
 
 Follow the instructions from AGENTS.md, then follow the `design` routine exactly (run `python -m agents.routines show design` to print its ordered steps). That routine is the source of truth; this skill only routes you there.
 
-Take the role from the operator's message when one is named. Otherwise run `make design-queue` and take the first due role: new roles first (newest first), then roles whose image version moved since their last design pass (largest gap first) or whose shared design base changed, ties broken by the most recently changed role.
+Take the role from the operator's message when one is named. Otherwise run `make design-queue` and take the first due role: new roles first (newest first), then roles whose image version moved since their last design pass (largest gap first) or whose shared design base changed, then roles an `i8-tune-design` run proposed changes for, ties broken by the most recently changed role. Read a proposed role's `proposal.json` in its gallery (`python -m cli.meta.roles.design.gallery path <role>`) before your own capture replaces it.
 
 This skill is a loop. Run it self-paced with a 30 minute tick (`/loop 30m /i8-designer`, or the host's equivalent wake-up): each tick continues the role in progress or starts the next due one, and a finished deploy, gate or gallery run wakes it earlier. Never wait on an approval; publish the gallery, report the link and move on. Stop the loop only when the queue is empty and no gallery awaits an answer, and report the status matrix then.
 

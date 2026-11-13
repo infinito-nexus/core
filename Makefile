@@ -423,7 +423,7 @@ design-palette:
 	@app='$(app)' base='$(base)' sync='$(sync)' variant='$(variant)' bash scripts/tests/design/palette.sh
 
 .PHONY: design-queue
-# Print the roles that are due for a design pass in working order (new roles first, then by version gap).
+# Print the roles that are due for a design pass in working order (new roles first, then by version gap, then tune-design proposals).
 # Usage: make design-queue [args="--next|--all|--format json"]
 # Param args: extra flags for the queue CLI
 design-queue:

@@ -42,6 +42,7 @@ NEVER_DESIGNED = RoleFacts(
     base_changed=False,
     designed_version=None,
     current_version="1.0.0",
+    proposed=False,
 )
 DESIGNED = replace(
     NEVER_DESIGNED,
@@ -133,6 +134,20 @@ class TestStateOf(unittest.TestCase):
     def test_unchanged_design_is_current(self) -> None:
         self.assertEqual(state_of(DESIGNED), "current")
 
+    def test_a_proposal_on_an_unchanged_design_is_proposed(self) -> None:
+        self.assertEqual(state_of(replace(DESIGNED, proposed=True)), "proposed")
+
+    def test_new_and_stale_outrank_a_proposal(self) -> None:
+        self.assertEqual(state_of(replace(NEVER_DESIGNED, proposed=True)), "new")
+        stale = replace(DESIGNED, base_changed=True, proposed=True)
+        self.assertEqual(state_of(stale), "stale")
+
+    def test_a_proposed_role_names_the_tune_design_run(self) -> None:
+        self.assertEqual(
+            reason_of(replace(DESIGNED, proposed=True)),
+            "tune-design proposal awaits a design pass",
+        )
+
 
 class TestReasonOf(unittest.TestCase):
     def test_new_role_was_never_designed(self) -> None:
@@ -214,6 +229,15 @@ class TestBuildQueue(unittest.TestCase):
     def test_ranks_count_from_one(self) -> None:
         entries = build_queue([replace(DESIGNED, base_changed=True), NEVER_DESIGNED])
         self.assertEqual([entry.rank for entry in entries], [1, 2])
+
+    def test_proposed_roles_follow_the_stale_roles_newest_change_first(self) -> None:
+        quiet = replace(DESIGNED, role="web-app-quiet", proposed=True, changed=100)
+        busy = replace(DESIGNED, role="web-app-busy", proposed=True, changed=200)
+        stale = replace(DESIGNED, role="web-app-stale", base_changed=True)
+        self.assertEqual(
+            self._roles([quiet, busy, DESIGNED, stale]),
+            ["web-app-stale", "web-app-busy", "web-app-quiet"],
+        )
 
 
 class TestNotDue(unittest.TestCase):
@@ -513,7 +537,12 @@ class TestCLIMain(unittest.TestCase):
         NEVER_DESIGNED,
     ]
 
-    def _run(self, argv: list[str], facts: list[RoleFacts]) -> tuple[int, str, str]:
+    def _run(
+        self,
+        argv: list[str],
+        facts: list[RoleFacts],
+        proposed: frozenset[str] = frozenset(),
+    ) -> tuple[int, str, str]:
         out = io.StringIO()
         err = io.StringIO()
         with (
@@ -522,11 +551,21 @@ class TestCLIMain(unittest.TestCase):
                 return_value=Path("/repo"),
             ),
             patch("cli.meta.roles.design.__main__.collect_facts", return_value=facts),
+            patch(
+                "cli.meta.roles.design.__main__.proposed_apps", return_value=proposed
+            ),
             redirect_stdout(out),
             redirect_stderr(err),
         ):
             code = cli_main(argv)
         return code, out.getvalue(), err.getvalue()
+
+    def test_a_filed_proposal_queues_its_current_role(self) -> None:
+        _, out, _ = self._run([], self.FACTS, frozenset({"web-app-designed"}))
+        self.assertEqual(
+            out.splitlines()[3],
+            "3     web-app-designed  proposed  tune-design proposal awaits a design pass",
+        )
 
     def test_next_prints_nothing_when_no_role_is_due(self) -> None:
         self.assertEqual(self._run(["--next"], [DESIGNED]), (0, "", ""))

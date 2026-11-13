@@ -3,10 +3,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from typing import TYPE_CHECKING
 
 from cli import PROJECT_ROOT
+from utils.design.gallery import GALLERY_ROOT
+from utils.design.proposal import proposed_apps
 
 from . import (
     STATE_CURRENT,
@@ -30,6 +32,9 @@ states:
   new      HEAD carries no design spec for the role; newest role first
   stale    image version or shared design base moved since the last design
            pass; largest version gap first, a base-only change last
+  proposed nothing moved, but a tune-design run filed a design proposal next
+           to the role's gallery (python -m cli.meta.roles.design.gallery
+           path <role>); most recently changed role first
   review   the design spec is uncommitted and awaits approval; not due
   current  nothing moved since the last design pass; not due
 """
@@ -101,6 +106,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[ERROR] {exc}", file=sys.stderr)
         return 1
 
+    proposed = proposed_apps(GALLERY_ROOT)
+    facts = [replace(item, proposed=item.role in proposed) for item in facts]
     queue = build_queue(facts)
     if args.next:
         if queue:

@@ -24,6 +24,7 @@ from its procedure file. Run `make install-skills` to (re)install them; `INFINIT
 | Iterating on a GitHub Actions workflow | `i8-iterate-workflow` |
 | Writing or updating a Playwright spec for a `web-*` role | `i8-iterate-playwright` |
 | Bringing UI roles into the corporate design, role by role from the design queue | `i8-designer` |
+| Screenshotting the deployed roles after a green iteration and filing design proposals into the design queue | `i8-tune-design` |
 | Running or validating tests for a specific scope | `i8-test` |
 | Running the quality gate (`make quality`) to green | `i8-quality` |
 | Running the full gate (`make quality-high`: quality plus every lint) to green | `i8-quality-high` |
