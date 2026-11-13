@@ -17,6 +17,7 @@
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
       IFS= read -r MCP_TOKEN && export MCP_TOKEN && container exec -i
       -e MCP_TEAM={{ PRETIX_MCP_UPSTREAM_TEAM | quote }}
+      -e MCP_TEAM_DEFAULTS={{ PRETIX_TEAM_MCP | to_json | quote }}
       -e MCP_TOKEN
       {{ PRETIX_IDENTITY_LOCAL_CID | quote }}
       pretix shell_scoped --override

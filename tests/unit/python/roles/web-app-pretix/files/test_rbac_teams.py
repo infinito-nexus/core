@@ -18,16 +18,20 @@ TEAMS = [
     {
         "name": "Organizers (SSO)",
         "group": ORGANIZER_GROUP,
+        "all_events": True,
         "all_event_permissions": True,
         "limit_event_permissions": {},
         "all_organizer_permissions": True,
+        "limit_organizer_permissions": {},
     },
     {
         "name": "Check-in (SSO)",
         "group": CHECKIN_GROUP,
+        "all_events": True,
         "all_event_permissions": False,
         "limit_event_permissions": {"event.orders:checkin": True},
         "all_organizer_permissions": False,
+        "limit_organizer_permissions": {},
     },
 ]
 

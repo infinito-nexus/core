@@ -2,8 +2,9 @@
 
 Environment:
     RBAC_CLAIM:     ID token claim the assignment rules read.
-    RBAC_TEAMS:     JSON list of {name, group, all_event_permissions,
-                    limit_event_permissions, all_organizer_permissions}.
+    RBAC_TEAMS:     JSON list of {name, group, all_events,
+                    all_event_permissions, limit_event_permissions,
+                    all_organizer_permissions, limit_organizer_permissions}.
     ORGANIZER_NAME: name of the organizer created when none exists.
     ORGANIZER_SLUG: slug of the organizer created when none exists.
 
@@ -20,6 +21,13 @@ from pretix.base.models import Organizer
 from pretix.base.models.organizer import Team
 from pretix_oidc.models import OIDCTeamAssignmentRule
 
+MANAGED = (
+    "all_events",
+    "all_event_permissions",
+    "limit_event_permissions",
+    "all_organizer_permissions",
+    "limit_organizer_permissions",
+)
 CLAIM = os.environ["RBAC_CLAIM"]
 TEAMS = json.loads(os.environ["RBAC_TEAMS"])
 ORGANIZER_NAME = os.environ["ORGANIZER_NAME"]
@@ -35,13 +43,7 @@ def converge():
         changed = True
     for organizer in Organizer.objects.order_by("slug"):
         for spec in TEAMS:
-            wanted = {
-                "all_events": True,
-                "all_event_permissions": spec["all_event_permissions"],
-                "limit_event_permissions": spec["limit_event_permissions"],
-                "all_organizer_permissions": spec["all_organizer_permissions"],
-                "limit_organizer_permissions": {},
-            }
+            wanted = {key: spec[key] for key in MANAGED}
             team, created = Team.objects.get_or_create(
                 organizer=organizer, name=spec["name"], defaults=wanted
             )
