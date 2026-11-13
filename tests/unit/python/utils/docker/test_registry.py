@@ -11,6 +11,12 @@ from pathlib import Path
 
 from utils.docker import registry
 
+ARM = "sha256:" + "a" * 64
+AMD = "sha256:" + "b" * 64
+ATT = "sha256:" + "c" * 64
+HEAD = "sha256:" + "d" * 64
+SINGLE = "sha256:" + "e" * 64
+
 
 class _IsolatedProbeCache(unittest.TestCase):
     """Give each test its own probe cache and no mirror."""
@@ -95,16 +101,25 @@ class TestManifestExists(_IsolatedProbeCache):
 
 
 class TestManifestDigest(unittest.TestCase):
-    def test_returns_the_content_digest_of_a_head_request(self) -> None:
+    def test_a_malformed_content_digest_is_indeterminate(self) -> None:
         with mock.patch.object(
             registry.urllib.request,
             "urlopen",
             return_value=_Resp(
-                status=200, headers={"Docker-Content-Digest": "sha256:abc"}
+                status=200, headers={"Docker-Content-Digest": "sha256:/../../x"}
             ),
+        ):
+            digest = registry.manifest_digest("roundcube/roundcubemail", "1.7.5-apache")
+        self.assertIsNone(digest)
+
+    def test_returns_the_content_digest_of_a_head_request(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request,
+            "urlopen",
+            return_value=_Resp(status=200, headers={"Docker-Content-Digest": HEAD}),
         ) as opened:
             digest = registry.manifest_digest("roundcube/roundcubemail", "1.7.5-apache")
-        self.assertEqual(digest, "sha256:abc")
+        self.assertEqual(digest, HEAD)
         request = opened.call_args.args[0]
         self.assertEqual(request.get_method(), "HEAD")
         self.assertIn(
@@ -218,10 +233,10 @@ _SINGLE = {
 }
 _INDEX = {
     "manifests": [
-        {"digest": "sha256:arm", "platform": {"os": "linux", "architecture": "arm64"}},
-        {"digest": "sha256:amd", "platform": {"os": "linux", "architecture": "amd64"}},
+        {"digest": ARM, "platform": {"os": "linux", "architecture": "arm64"}},
+        {"digest": AMD, "platform": {"os": "linux", "architecture": "amd64"}},
         {
-            "digest": "sha256:att",
+            "digest": ATT,
             "platform": {"os": "unknown", "architecture": "unknown"},
         },
     ]
@@ -238,7 +253,7 @@ class TestManifestTransferSize(_IsolatedProbeCache):
             registry, "fetch_manifest", side_effect=[_INDEX, _SINGLE]
         ) as fetched:
             self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
-        self.assertEqual(fetched.call_args_list[1].args, ("img", "sha256:amd"))
+        self.assertEqual(fetched.call_args_list[1].args, ("img", AMD))
 
     def test_index_without_the_platform_is_indeterminate(self) -> None:
         with mock.patch.object(registry, "fetch_manifest", return_value=_INDEX):
@@ -336,8 +351,8 @@ class TestFetchManifest(unittest.TestCase):
 
 
 _PLATFORMS = (
-    {"digest": "sha256:arm", "platform": {"os": "linux", "architecture": "arm64"}},
-    {"digest": "sha256:amd", "platform": {"os": "linux", "architecture": "amd64"}},
+    {"digest": ARM, "platform": {"os": "linux", "architecture": "arm64"}},
+    {"digest": AMD, "platform": {"os": "linux", "architecture": "amd64"}},
 )
 
 
@@ -351,17 +366,23 @@ class TestImagePlatformDigest(unittest.TestCase):
                 "ghcr.io/o/r", "1", os_name="linux", architecture="amd64"
             )
 
+    def test_a_malformed_platform_entry_falls_through_to_a_valid_one(self) -> None:
+        manifests = [
+            {
+                "digest": "sha256:../x",
+                "platform": {"os": "linux", "architecture": "amd64"},
+            },
+            *_PLATFORMS,
+        ]
+        self.assertEqual(self._digest({"manifests": manifests}, None), AMD)
+
     def test_an_index_resolves_to_the_platform_manifest(self) -> None:
-        self.assertEqual(
-            self._digest({"manifests": list(_PLATFORMS)}, None), "sha256:amd"
-        )
+        self.assertEqual(self._digest({"manifests": list(_PLATFORMS)}, None), AMD)
 
     def test_a_single_manifest_answers_with_its_content_digest(self) -> None:
         headers = Message()
-        headers["Docker-Content-Digest"] = "sha256:single"
-        self.assertEqual(
-            self._digest({"layers": []}, (200, headers, None)), "sha256:single"
-        )
+        headers["Docker-Content-Digest"] = SINGLE
+        self.assertEqual(self._digest({"layers": []}, (200, headers, None)), SINGLE)
 
     def test_an_unreachable_registry_is_indeterminate(self) -> None:
         self.assertIsNone(self._digest(None, None))
