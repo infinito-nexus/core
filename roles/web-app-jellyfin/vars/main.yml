@@ -19,6 +19,7 @@ JELLYFIN_DESIGN_ADMIN_SCOPE: ":has(> body.dashboardDocument)"
 JELLYFIN_DESIGN_CSS_OPEN: "/*infinito-design*/"
 JELLYFIN_DESIGN_CSS_CLOSE: "/*/infinito-design*/"
 JELLYFIN_DESIGN_CSS_PATTERN: "(?s)/\\*infinito-design\\*/.*?/\\*/infinito-design\\*/"
+JELLYFIN_SETTINGS: "{{ lookup('form_values', application_id, 'settings') }}"
 
 JELLYFIN_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 JELLYFIN_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"

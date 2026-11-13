@@ -38,6 +38,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: playwright-service-flag  self-provider
 jellyfin:
   enabled: true
@@ -53,6 +59,7 @@ jellyfin:
   mem_limit: 3g
   pids_limit: 4096
   min_storage: 890MB
+  server_name: "{{ lookup('design', 'web-app-jellyfin').title }}"
   image: jellyfin/jellyfin
   version: "10.11.11"
   backup:
