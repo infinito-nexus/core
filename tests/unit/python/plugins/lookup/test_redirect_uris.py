@@ -11,6 +11,15 @@ from plugins.lookup.redirect_uris import LookupModule, build_redirect_uris
 
 SSO = {"services": {"sso": {"enabled": True}}}
 KEYCLOAK_FLAG = "{{ 'web-app-keycloak' in group_names }}"
+TLS_FLAG = "{{ APP_TLS }}"
+
+
+class _FirstStr(str):
+    __slots__ = ()
+
+
+class _SecondStr(str):
+    __slots__ = ()
 
 
 class _Stub:
@@ -134,6 +143,93 @@ class TestBuildRedirectUris(unittest.TestCase):
         )
         self.assertEqual(result, ["http://example.org/*"])
 
+    def test_a_template_text_renders_once_per_call(self):
+        rendered = []
+
+        def render(value):
+            rendered.append(value)
+            return True
+
+        flags = [KEYCLOAK_FLAG[:1] + KEYCLOAK_FLAG[1:] for _ in range(2)]
+        overrides = [TLS_FLAG[:1] + TLS_FLAG[1:] for _ in range(2)]
+        self.assertIsNot(flags[0], flags[1])
+        self.assertIsNot(overrides[0], overrides[1])
+        result = build_redirect_uris(
+            {"one": "a.example.org", "two": "b.example.org"},
+            {
+                app_id: {
+                    "services": {"sso": {"enabled": flag}},
+                    "server": {"tls": {"enabled": override}},
+                }
+                for app_id, flag, override in zip(
+                    ("one", "two"), flags, overrides, strict=True
+                )
+            },
+            True,
+            render=render,
+        )
+        self.assertEqual(
+            (result, rendered),
+            (
+                ["https://a.example.org/*", "https://b.example.org/*"],
+                [KEYCLOAK_FLAG, TLS_FLAG],
+            ),
+        )
+
+    def test_equal_texts_of_two_str_types_render_apart(self):
+        result = build_redirect_uris(
+            {"first": "a.example.org", "second": "b.example.org"},
+            {
+                "first": {"services": {"sso": {"enabled": _FirstStr(KEYCLOAK_FLAG)}}},
+                "second": {"services": {"sso": {"enabled": _SecondStr(KEYCLOAK_FLAG)}}},
+            },
+            True,
+            render=lambda value: isinstance(value, _SecondStr),
+        )
+        self.assertEqual(result, ["https://b.example.org/*"])
+
+    def test_each_template_text_renders_with_its_own_result(self):
+        verdicts = {"{{ on }}": True, "{{ off }}": False}
+        result = build_redirect_uris(
+            {"on": "a.example.org", "off": "b.example.org"},
+            {
+                "on": {"services": {"sso": {"enabled": "{{ on }}"}}},
+                "off": {"services": {"sso": {"enabled": "{{ off }}"}}},
+            },
+            True,
+            render=verdicts.__getitem__,
+        )
+        self.assertEqual(result, ["https://a.example.org/*"])
+
+    def test_a_flag_that_is_no_template_text_never_reaches_the_render(self):
+        def refuse(value):
+            raise AssertionError(f"rendered {value!r}")
+
+        flags = {
+            "listed": ["x"],
+            "unlisted": [],
+            "mapped": {"x": 1},
+            "yes": True,
+            "no": False,
+        }
+        result = build_redirect_uris(
+            {app_id: f"{app_id}.example.org" for app_id in flags},
+            {
+                app_id: {"services": {"sso": {"enabled": flag}}}
+                for app_id, flag in flags.items()
+            },
+            True,
+            render=refuse,
+        )
+        self.assertEqual(
+            result,
+            [
+                "https://listed.example.org/*",
+                "https://mapped.example.org/*",
+                "https://yes.example.org/*",
+            ],
+        )
+
 
 class TestRedirectUrisLookup(unittest.TestCase):
     def setUp(self) -> None:
@@ -180,6 +276,26 @@ class TestRedirectUrisLookup(unittest.TestCase):
             {"TLS_ENABLED": True, "group_names": ["app"], "APP_TLS": False},
         )
         self.assertEqual(result, [["http://a.example.org/*"]])
+
+    def test_a_flag_renders_against_the_scope_of_each_lookup_call(self):
+        self.lookup._templar = Templar(loader=DataLoader())
+        flag = {"services": {"sso": {"enabled": "{{ application_id == 'x' }}"}}}
+        results = [
+            _run(
+                self.lookup,
+                {"x": "x.example.org", "y": "y.example.org"},
+                {"x": flag, "y": flag},
+                {
+                    "TLS_ENABLED": True,
+                    "group_names": ["x", "y"],
+                    "application_id": scope,
+                },
+            )
+            for scope in ("x", "y")
+        ]
+        self.assertEqual(
+            results, [[["https://x.example.org/*", "https://y.example.org/*"]], [[]]]
+        )
 
     def test_a_flag_that_stays_template_text_raises(self):
         with self.assertRaises(AnsibleError):

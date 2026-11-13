@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import partial
+from functools import lru_cache, partial
 from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
@@ -91,6 +91,9 @@ def build_redirect_uris(
         )
 
     deployed_ids = None if deployed is None else set(deployed)
+    render_once = (
+        lru_cache(maxsize=None, typed=True)(render) if callable(render) else render
+    )
     uris: list[str] = []
     for app_id, domain_value in domains.items():
         if deployed_ids is not None and app_id not in deployed_ids:
@@ -99,7 +102,9 @@ def build_redirect_uris(
         try:
             has_feature = any(
                 rendered_or_raise(
-                    get(applications, app_id, f, False), render, where=f"{where} {f}"
+                    get(applications, app_id, f, False),
+                    render_once,
+                    where=f"{where} {f}",
                 )
                 for f in features
             )
@@ -108,7 +113,9 @@ def build_redirect_uris(
         if not has_feature:
             continue
 
-        app = with_rendered_tls(applications.get(app_id) or {}, render, where=where)
+        app = with_rendered_tls(
+            applications.get(app_id) or {}, render_once, where=where
+        )
         for domain in _iter_domains(domain_value):
             proto = (
                 "https"
