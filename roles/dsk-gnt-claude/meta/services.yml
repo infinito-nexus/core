@@ -9,7 +9,7 @@ claude:
     host:
       enabled: true
   lifecycle: alpha
-  npm_version: 2.1.322
+  npm_version: 2.1.325
   update:
     key: npm_version
     type: npm
