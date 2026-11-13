@@ -10,11 +10,11 @@ sso:
     fallback_enabled: true
   profile:
     languages: [en]
-# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
+# nocheck: dynamic-flag
 javascript:
   bond: 1
-  enabled: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }}"
-  shared: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }}"
+  enabled: true
+  shared: true
 # nocheck: bond-baseline variant 0 is the OIDC-only round and variant 1 the LDAP-only round, so the directory joins the LDAP round only
 ldap:
   bond: 1
@@ -83,6 +83,20 @@ joomla:
         enabled: "{{ lookup('login_method', 'web-app-joomla', 'passkey') }}"
       registration:
         enabled: "{{ lookup('login_method', 'web-app-joomla', 'registration') }}"
+  ldap:
+    host: "{{ LDAP.SERVER.DOMAIN }}"
+    port: "{{ LDAP.SERVER.PORT }}"
+    use_ldapV3: "1"
+    encryption: "{{ 'ssl' if (LDAP.SERVER.URI is match('ldaps://')) else ((LDAP.SERVER.SECURITY | lower) if LDAP.SERVER.SECURITY else 'none') }}"
+    no_referrals: "0"
+    auth_method: search
+    base_dn: "{{ LDAP.DN.OU.USERS }}"
+    search_string: "{{ LDAP.USER.ATTRIBUTES.ID }}=[search]"
+    users_dn: "[username]"
+    admin_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    ldap_fullname: "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+    ldap_email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+    ldap_uid: "{{ LDAP.USER.ATTRIBUTES.ID }}"
   ports:
     local:
       http: 8014
