@@ -73,4 +73,4 @@ system_service_tpl_runtime: "{{ '' if system_service_tpl_type == 'oneshot' else 
 system_service_tpl_exec_start_pre: ""
 system_service_tpl_exec_start: "{{ system_service_script_exec }}"
 system_service_tpl_exec_start_post: ""
-system_service_tpl_timeout_start_sec: "" # If not defined the default values from sys-daemon in manager will be used
+system_service_tpl_timeout_start_sec: "{{ SYS_SERVICE_DEFAULT_RUNTIME if system_service_tpl_type == 'oneshot' else '' }}"

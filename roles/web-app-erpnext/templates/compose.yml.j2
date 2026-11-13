@@ -1,5 +1,16 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-{% set ERPNEXT_CONFIG_READY_GATE = "until grep -q redis_socketio sites/common_site_config.json 2>/dev/null; do sleep 2; done;" %}
+{% set ERPNEXT_CONFIGURATOR_STEPS = [
+     'ls -1 apps > sites/apps.txt',
+     'bench set-config -g db_host "' ~ ERPNEXT_DB_HOST ~ '"',
+     'bench set-config -gp db_port ' ~ ERPNEXT_DB_PORT,
+     'bench set-config -g redis_cache "' ~ ERPNEXT_REDIS_URL ~ '/0"',
+     'bench set-config -g redis_queue "' ~ ERPNEXT_REDIS_URL ~ '/1"',
+     'bench set-config -g redis_socketio "' ~ ERPNEXT_REDIS_URL ~ '/2"',
+     'bench set-config -gp socketio_port ' ~ ERPNEXT_WEBSOCKET_PORT,
+     'bench set-config -g host_name "' ~ lookup('tls', application_id, 'url.origin') ~ '"',
+   ] %}
+{% set ERPNEXT_CONFIGURATOR_DIGEST = ERPNEXT_CONFIGURATOR_STEPS | join(';') | hash('sha256') %}
+{% set ERPNEXT_CONFIG_READY_GATE = "until grep -q " ~ ERPNEXT_CONFIGURATOR_DIGEST ~ " sites/common_site_config.json 2>/dev/null; do sleep 2; done;" %}
 {% set ERPNEXT_BACKEND_READY_GATE = "until (exec 3<>/dev/tcp/backend/" ~ ERPNEXT_BACKEND_PORT ~ ") 2>/dev/null; do sleep 2; done;" %}
 
   {% set service_name = 'backend' %}
@@ -82,14 +93,11 @@
       - -c
     command:
       - >
-        ls -1 apps > sites/apps.txt;
-        bench set-config -g db_host "{{ ERPNEXT_DB_HOST }}";
-        bench set-config -gp db_port {{ ERPNEXT_DB_PORT }};
-        bench set-config -g redis_cache    "{{ ERPNEXT_REDIS_URL }}/0";
-        bench set-config -g redis_queue    "{{ ERPNEXT_REDIS_URL }}/1";
-        bench set-config -g redis_socketio "{{ ERPNEXT_REDIS_URL }}/2";
-        bench set-config -gp socketio_port {{ ERPNEXT_WEBSOCKET_PORT }};
-        bench set-config -g host_name "{{ lookup('tls', application_id, 'url.origin') }}";
+        set -e;
+        {% for step in ERPNEXT_CONFIGURATOR_STEPS %}
+        {{ step }};
+        {% endfor %}
+        bench set-config -g infinito_configurator_digest "{{ ERPNEXT_CONFIGURATOR_DIGEST }}";
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
