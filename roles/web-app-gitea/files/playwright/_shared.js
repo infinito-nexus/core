@@ -29,6 +29,8 @@ const loginMethods = {
   registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
 };
 
+const twoFactorEnforced = process.env.LOGIN_METHOD_2FA_ENFORCED === "true";
+
 function passwordFormEnabled() {
   return loginMethods.native || loginMethods.ldap;
 }
@@ -71,6 +73,7 @@ module.exports = {
   loginMethods,
   mcpEndpointUrl,
   signIn,
+  twoFactorEnforced,
   runAdminFlow,
   runBiberFlow,
   runGuestFlow,
