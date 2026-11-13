@@ -35,3 +35,23 @@ website_settings:
       type: checkbox
       map: {true: 0, false: 1}
       label: Disable signups
+branding:
+  path: /app/website-settings
+  sinks: [ERPNEXT_BRANDING]
+  fields:
+    app_name:
+      source: services.erpnext.title
+      when: services.design.enabled
+      optional: true
+      mode: enforced
+      selector: 'input[data-doctype="Website Settings"][data-fieldname="app_name"]'
+      type: text
+      label: App Name
+    title_prefix:
+      source: services.erpnext.title
+      when: services.design.enabled
+      optional: true
+      mode: enforced
+      selector: 'input[data-doctype="Website Settings"][data-fieldname="title_prefix"]'
+      type: text
+      label: Title Prefix

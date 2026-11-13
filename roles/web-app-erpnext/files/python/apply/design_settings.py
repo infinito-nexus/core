@@ -11,7 +11,8 @@ from frappe.installer import update_site_config
 from frappe.website.utils import clear_website_cache
 
 SITE_NAME = os.environ["SITE_NAME"]
-DESIGN_TITLE = os.environ["DESIGN_TITLE"]
+DESIGN_MODE = os.environ["DESIGN_MODE"]
+BRANDING = json.loads(os.environ["BRANDING"])
 DESIGN_LOGO_URL = os.environ["DESIGN_LOGO_URL"]
 DESIGN_FAVICON_URL = os.environ["DESIGN_FAVICON_URL"]
 DESIGN_THEME_CSS = os.environ["DESIGN_THEME_CSS"]
@@ -23,6 +24,20 @@ HEAD_CLOSE = "<!--/infinito-design-->"
 HEAD_BLOCK = re.compile(
     rf"\n?{re.escape(HEAD_OPEN)}.*?{re.escape(HEAD_CLOSE)}", re.DOTALL
 )
+BRANDING_DOCTYPE = "Website Settings"
+MODES = ("read", "converge")
+
+if DESIGN_MODE not in MODES:
+    raise ValueError(f"DESIGN_MODE must be one of {list(MODES)}")
+
+
+def stored_branding():
+    return {
+        "branding": {
+            field: frappe.db.get_single_value(BRANDING_DOCTYPE, field)
+            for field in BRANDING
+        }
+    }
 
 
 def wanted_settings():
@@ -32,10 +47,9 @@ def wanted_settings():
         ``{"<DocType>::<field>": value}``; empty when the design, its title or
         its logo are switched off.
     """
-    wanted = {}
-    if DESIGN_TITLE:
-        wanted["Website Settings::app_name"] = DESIGN_TITLE
-        wanted["Website Settings::title_prefix"] = DESIGN_TITLE
+    wanted = {
+        f"{BRANDING_DOCTYPE}::{field}": value for field, value in BRANDING.items()
+    }
     if DESIGN_LOGO_URL:
         wanted["Website Settings::app_logo"] = DESIGN_LOGO_URL
         wanted["Website Settings::splash_image"] = DESIGN_LOGO_URL
@@ -146,10 +160,10 @@ def converge_website_head(url):
     return True
 
 
-frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")
-frappe.connect()
-changed = False
-try:
+def converge():
+    """Returns:
+    ``True`` when a branding field, the theme file or a theme link changed.
+    """
     stored = frappe.db.get_default(STATE_KEY) or "{}"
     state = json.loads(stored)
     url = theme_url()
@@ -167,7 +181,15 @@ try:
     if changed:
         frappe.clear_cache()
         clear_website_cache()
+    return changed
+
+
+frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")
+frappe.connect()
+try:
+    if DESIGN_MODE == "read":
+        print(json.dumps(stored_branding(), sort_keys=True))
+    else:
+        print("DESIGN_CHANGED" if converge() else "DESIGN_UNCHANGED")
 finally:
     frappe.destroy()
-
-print("DESIGN_CHANGED" if changed else "DESIGN_UNCHANGED")

@@ -90,6 +90,7 @@ erpnext:
     service_key: frontend
   company:
     abbr: "{{ service_provider.company.titel.split() | map('first') | join | upper }}"
+  title: "{{ lookup('design', 'web-app-erpnext').title }}"
   server_scripts: false
   api_bot:
     extra_roles: []

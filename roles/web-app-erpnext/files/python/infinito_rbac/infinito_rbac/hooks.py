@@ -1,4 +1,4 @@
-app_name = "infinito_rbac"
+app_name = "infinito_rbac"  # nocheck: forms-script
 app_title = "Infinito RBAC"
 app_publisher = "Kevin Veen-Birkenbach"
 app_description = (

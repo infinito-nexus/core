@@ -5,8 +5,10 @@ import json
 import os
 import runpy
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stdout
+from pathlib import Path
 from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
@@ -20,15 +22,20 @@ from . import PROJECT_ROOT
 ROLE = PROJECT_ROOT / "roles" / "web-app-erpnext"
 LOGIN_SCRIPT = ROLE / "files" / "python" / "apply" / "login" / "methods.py"
 LOGIN_TASKS = ROLE / "tasks" / "01_manager_ops.yml"
+DESIGN_SCRIPT = ROLE / "files" / "python" / "apply" / "design_settings.py"
+DESIGN_TASKS = ROLE / "tasks" / "05_design.yml"
+DESIGN_CALL = ROLE / "tasks" / "utils" / "design_settings.yml"
 DRIFT = "tasks/utils/forms/drift.yml"
 SHARED_RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
 DOCTYPES = {
     "system_settings": "System Settings",
     "website_settings": "Website Settings",
+    "branding": "Website Settings",
 }
 SINKS = {
     "system_settings": "ERPNEXT_SYSTEM_SETTINGS",
     "website_settings": "ERPNEXT_WEBSITE_SETTINGS",
+    "branding": "ERPNEXT_BRANDING",
 }
 ENVIRONMENT = {
     "SYSTEM_SETTINGS": "ERPNEXT_SYSTEM_SETTINGS",
@@ -58,6 +65,16 @@ def _application(native: bool, email: bool, second: bool, registration: bool):
     }
 
 
+def _design_application(design: bool, title) -> dict:
+    return {
+        "forms": _forms(),
+        "services": {
+            "design": {"enabled": design},
+            "erpnext": {"title": title},
+        },
+    }
+
+
 class _Store:
     def __init__(self, singles: dict) -> None:
         self.singles = singles
@@ -79,14 +96,20 @@ def _frappe(store: _Store) -> mock.MagicMock:
     return frappe
 
 
-def _run(frappe: mock.MagicMock, environment: dict) -> str:
+def _run(script: Path, frappe: mock.MagicMock, environment: dict) -> str:
+    modules = {
+        "frappe": frappe,
+        "frappe.installer": frappe.installer,
+        "frappe.website": frappe.website,
+        "frappe.website.utils": frappe.website.utils,
+    }
     out = io.StringIO()
     with (
-        mock.patch.dict(sys.modules, {"frappe": frappe}),
+        mock.patch.dict(sys.modules, modules),
         mock.patch.dict(os.environ, environment),
         redirect_stdout(out),
     ):
-        runpy.run_path(str(LOGIN_SCRIPT))
+        runpy.run_path(str(script))
     return out.getvalue()
 
 
@@ -107,8 +130,19 @@ def _environment(mode: str) -> dict:
     }
 
 
-def _tasks() -> list[dict]:
-    return DataLoader().load_from_file(str(LOGIN_TASKS), trusted_as_template=True)
+def _design_environment(mode: str, branding: dict) -> dict:
+    return {
+        "SITE_NAME": "site",
+        "DESIGN_MODE": mode,
+        "BRANDING": json.dumps(branding),
+        "DESIGN_LOGO_URL": "",
+        "DESIGN_FAVICON_URL": "",
+        "DESIGN_THEME_CSS": "",
+    }
+
+
+def _tasks(path: Path) -> list[dict]:
+    return DataLoader().load_from_file(str(path), trusted_as_template=True)
 
 
 def _index(tasks: list[dict], predicate) -> int:
@@ -117,6 +151,10 @@ def _index(tasks: list[dict], predicate) -> int:
 
 def _mode(task: dict):
     return task.get("environment", {}).get("LOGIN_MODE")
+
+
+def _reports(task: dict) -> bool:
+    return DRIFT in str(task.get("ansible.builtin.include_tasks", ""))
 
 
 class TestTheSinksCarryTheStoredValues(unittest.TestCase):
@@ -138,6 +176,25 @@ class TestTheSinksCarryTheStoredValues(unittest.TestCase):
                 self.assertEqual(
                     {"disable_signup": int(not registration)},
                     values("website_settings", _forms(), application, {}),
+                )
+
+    def test_the_title_is_managed_only_while_the_design_and_its_title_are_on(
+        self,
+    ) -> None:
+        for design, title, branding in (
+            (True, "ERP", {"app_name": "ERP", "title_prefix": "ERP"}),
+            (True, False, {}),
+            (False, "ERP", {}),
+        ):
+            with self.subTest(design=design, title=title):
+                self.assertEqual(
+                    branding,
+                    values(
+                        "branding",
+                        _forms(),
+                        _design_application(design, title),
+                        {},
+                    ),
                 )
 
     def test_every_selector_names_its_doctype_and_field(self) -> None:
@@ -187,7 +244,7 @@ class TestTheLoginScript(unittest.TestCase):
     def test_read_prints_the_stored_fields_of_the_sinks_and_writes_nothing(
         self,
     ) -> None:
-        out = _run(self.frappe, _environment("read"))
+        out = _run(LOGIN_SCRIPT, self.frappe, _environment("read"))
         self.assertEqual(
             {
                 "system_settings": {
@@ -205,7 +262,7 @@ class TestTheLoginScript(unittest.TestCase):
         self.frappe.db.commit.assert_not_called()
 
     def test_converge_writes_exactly_the_sinks(self) -> None:
-        _run(self.frappe, _environment("converge"))
+        _run(LOGIN_SCRIPT, self.frappe, _environment("converge"))
         self.frappe.get_doc.assert_called_once_with("System Settings")
         self.frappe.get_doc.return_value.update.assert_called_once_with(
             {
@@ -220,18 +277,70 @@ class TestTheLoginScript(unittest.TestCase):
 
     def test_an_unknown_mode_fails_before_frappe_starts(self) -> None:
         with self.assertRaises(ValueError):
-            _run(self.frappe, _environment("write"))
+            _run(LOGIN_SCRIPT, self.frappe, _environment("write"))
+        self.frappe.init.assert_not_called()
+
+
+class TestTheDesignScript(unittest.TestCase):
+    def setUp(self) -> None:
+        site = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.store = _Store(
+            {
+                ("Website Settings", "app_name"): "Admin Edit",
+                ("Website Settings", "title_prefix"): "ERP",
+                ("Website Settings", "head_html"): "",
+            }
+        )
+        self.frappe = _frappe(self.store)
+        self.frappe.db.get_default.return_value = "{}"
+        self.frappe.get_file_json.return_value = {}
+        self.frappe.get_site_path.side_effect = lambda *parts: str(
+            site.joinpath(*parts)
+        )
+
+    def test_read_prints_the_stored_branding_and_writes_nothing(self) -> None:
+        out = _run(
+            DESIGN_SCRIPT,
+            self.frappe,
+            _design_environment("read", {"app_name": "ERP", "title_prefix": "ERP"}),
+        )
+        self.assertEqual(
+            {"branding": {"app_name": "Admin Edit", "title_prefix": "ERP"}},
+            json.loads(out.strip().splitlines()[-1]),
+        )
+        self.assertEqual([], self.store.writes)
+        self.frappe.db.set_default.assert_not_called()
+        self.frappe.db.commit.assert_not_called()
+
+    def test_converge_writes_the_branding_sink(self) -> None:
+        out = _run(
+            DESIGN_SCRIPT,
+            self.frappe,
+            _design_environment("converge", {"app_name": "ERP", "title_prefix": "ERP"}),
+        )
+        self.assertEqual([("Website Settings", "app_name", "ERP")], self.store.writes)
+        self.assertIn("DESIGN_CHANGED", out)
+
+    def test_a_title_the_sink_drops_is_handed_back(self) -> None:
+        self.frappe.db.get_default.return_value = json.dumps(
+            {"Website Settings::title_prefix": {"previous": "Before", "applied": "ERP"}}
+        )
+        _run(DESIGN_SCRIPT, self.frappe, _design_environment("converge", {}))
+        self.assertEqual(
+            [("Website Settings", "title_prefix", "Before")], self.store.writes
+        )
+
+    def test_an_unknown_mode_fails_before_frappe_starts(self) -> None:
+        with self.assertRaises(ValueError):
+            _run(DESIGN_SCRIPT, self.frappe, _design_environment("write", {}))
         self.frappe.init.assert_not_called()
 
 
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_the_login_settings_are_read_and_reported_before_the_write(self) -> None:
-        tasks = _tasks()
+        tasks = _tasks(LOGIN_TASKS)
         read = _index(tasks, lambda task: _mode(task) == "read")
-        report = _index(
-            tasks,
-            lambda task: DRIFT in str(task.get("ansible.builtin.include_tasks", "")),
-        )
+        report = _index(tasks, _reports)
         write = _index(tasks, lambda task: _mode(task) == "converge")
         self.assertLess(read, report)
         self.assertLess(report, write)
@@ -247,13 +356,9 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
                     )
 
     def test_the_report_reads_the_last_line_the_read_printed(self) -> None:
-        tasks = _tasks()
+        tasks = _tasks(LOGIN_TASKS)
         read = tasks[_index(tasks, lambda task: _mode(task) == "read")]
-        report = next(
-            task
-            for task in tasks
-            if DRIFT in str(task.get("ansible.builtin.include_tasks", ""))
-        )
+        report = tasks[_index(tasks, _reports)]
         templar = Templar(
             loader=DataLoader(),
             variables={
@@ -264,6 +369,54 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         )
         self.assertEqual(
             {"system_settings": {"x": 1}},
+            templar.template(report["vars"]["forms_drift_current"]),
+        )
+
+    def test_the_branding_is_read_and_reported_before_the_write(self) -> None:
+        tasks = _tasks(DESIGN_TASKS)
+        modes = [task.get("vars", {}).get("erpnext_design_mode") for task in tasks]
+        report = _index(tasks, _reports)
+        self.assertLess(modes.index("read"), report)
+        self.assertLess(report, modes.index("converge"))
+        for mode in ("read", "converge"):
+            self.assertEqual(
+                "utils/design_settings.yml",
+                tasks[modes.index(mode)]["ansible.builtin.include_tasks"],
+            )
+
+    def test_both_design_modes_hand_the_branding_sink_to_the_script(self) -> None:
+        (task,) = _tasks(DESIGN_CALL)
+        for name in ("DESIGN_MODE", "BRANDING"):
+            self.assertIn(f"-e {name}", task["ansible.builtin.shell"]["cmd"])
+        for mode in ("read", "converge"):
+            with self.subTest(mode=mode):
+                templar = Templar(
+                    loader=DataLoader(),
+                    variables={
+                        "ERPNEXT_BRANDING": {"x": 1},
+                        "erpnext_design_mode": mode,
+                    },
+                )
+                environment = task["environment"]
+                self.assertEqual(mode, templar.template(environment["DESIGN_MODE"]))
+                self.assertEqual(
+                    {"x": 1}, json.loads(templar.template(environment["BRANDING"]))
+                )
+
+    def test_the_branding_report_reads_the_last_line_the_read_printed(self) -> None:
+        (call,) = _tasks(DESIGN_CALL)
+        tasks = _tasks(DESIGN_TASKS)
+        report = tasks[_index(tasks, _reports)]
+        templar = Templar(
+            loader=DataLoader(),
+            variables={
+                call["register"]: {
+                    "stdout_lines": ["noise", '{"branding": {"x": 1}}'],
+                }
+            },
+        )
+        self.assertEqual(
+            {"branding": {"x": 1}},
             templar.template(report["vars"]["forms_drift_current"]),
         )
 
