@@ -28,6 +28,9 @@ openclaw:
       sso_onion: 16536
     internal:
       http: 18789
+  run_after:
+    - web-app-keycloak
+    - web-app-matomo
   lifecycle: beta
   proxy:
     service_key: openclaw

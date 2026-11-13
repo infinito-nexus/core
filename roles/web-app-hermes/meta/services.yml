@@ -35,6 +35,9 @@ hermes:
     onion:
       # nocheck: onion-flag  this port carries the web UI, which answers on the root of the proxy vhost that the node onion already forwards; a direct forward would bypass the proxy, its sign-in gate and its CSP
       agent: false
+  run_after:
+    - web-app-keycloak
+    - web-app-matomo
   lifecycle: beta
   proxy:
     service_key: hermes
