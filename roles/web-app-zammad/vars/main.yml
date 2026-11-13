@@ -129,7 +129,7 @@ ZAMMAD_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.zammad.login
 ZAMMAD_LOGIN_2FA: "{{ lookup('config', application_id, 'services.zammad.login.method.2fa.enabled') | bool }}"
 ZAMMAD_LOGIN_2FA_ENFORCED: "{{ ZAMMAD_LOGIN_2FA | bool and lookup('config', application_id, 'services.zammad.login.method.2fa.enforced') | bool }}"
 ZAMMAD_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.zammad.login.method.registration.enabled') | bool }}"
-ZAMMAD_LOGIN_FORM: "{{ ZAMMAD_LOGIN_NATIVE | bool or ZAMMAD_LOGIN_LDAP | bool }}"
+ZAMMAD_SECURITY: "{{ lookup('form_values', application_id, 'security') }}"
 
 ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"

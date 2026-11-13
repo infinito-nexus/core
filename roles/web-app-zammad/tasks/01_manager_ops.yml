@@ -209,19 +209,33 @@
   changed_when: false
   when: ZAMMAD_LDAP_ENABLED
 
+- name: "⬇️ Read the managed security settings Zammad holds"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/settings.sql'] | path_join }}"
+    named_args:
+      fields: "{{ ZAMMAD_SECURITY | list | to_json }}"
+    expect_rows: true
+  register: zammad_security_stored
+  changed_when: false
+
+- name: "📣 Report the managed security settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      security: "{{ zammad_security_stored.rows[0][0] | default('{}', true) | from_json }}"
+
 - name: "🚪 apply the login methods of the sign-in page in Zammad (idempotent)"
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
       container exec -i \
-        -e LOGIN_SSO -e LOGIN_FORM -e LOGIN_REGISTRATION -e LOGIN_2FA -e LOGIN_2FA_ENFORCED \
+        -e ZAMMAD_SECURITY -e LOGIN_2FA -e LOGIN_2FA_ENFORCED \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
     stdin: "{{ lookup('file', 'ruby/apply/login_methods.rb') }}"
   environment:
-    LOGIN_SSO: "{{ ZAMMAD_LOGIN_SSO | string | lower }}"
-    LOGIN_FORM: "{{ ZAMMAD_LOGIN_FORM | string | lower }}"
-    LOGIN_REGISTRATION: "{{ ZAMMAD_LOGIN_REGISTRATION | string | lower }}"
+    ZAMMAD_SECURITY: "{{ ZAMMAD_SECURITY | to_json }}"
     LOGIN_2FA: "{{ ZAMMAD_LOGIN_2FA | string | lower }}"
     LOGIN_2FA_ENFORCED: "{{ ZAMMAD_LOGIN_2FA_ENFORCED | string | lower }}"
   register: zammad_login_methods_apply
