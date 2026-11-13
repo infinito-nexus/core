@@ -181,6 +181,10 @@ Enabled: false
 """
 
 
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")  # nocheck: cache-read tempdir files
+
+
 class FakeRun:
     def __init__(self, returncode: int = 0) -> None:
         self.returncode = returncode
@@ -191,7 +195,7 @@ class FakeRun:
         self.calls.append(command)
         error = "E: refused" if self.returncode else ""
         if command[0] == "pacman-conf":
-            text = Path(command[2]).read_text(encoding="utf-8")
+            text = _read(Path(command[2]))
             dirs = [
                 m["dir"] for line in text.splitlines() if (m := CACHE_DIR.match(line))
             ]
@@ -204,8 +208,8 @@ class FakeRun:
         )
         parts = Path(options["Dir::Etc::SourceParts"])
         self.fetched = [
-            Path(options["Dir::Etc::SourceList"]).read_text(encoding="utf-8"),
-            *(path.read_text(encoding="utf-8") for path in sorted(parts.iterdir())),
+            _read(Path(options["Dir::Etc::SourceList"])),
+            *(_read(path) for path in sorted(parts.iterdir())),
         ]
         return subprocess.CompletedProcess(command, self.returncode, "", error)
 
@@ -218,7 +222,7 @@ def _host(root: Path, os_id: str, files: dict[Path, str]) -> None:
 
 def _snapshot(root: Path) -> dict[str, bytes]:
     return {
-        str(p.relative_to(root)): p.read_bytes()
+        str(p.relative_to(root)): p.read_bytes()  # nocheck: cache-read tempdir files
         for p in sorted(root.rglob("*"))
         if p.is_file()
     }
@@ -247,7 +251,7 @@ class HostCase(unittest.TestCase):
         self.root = Path(scratch.name)
 
     def read(self, relative: Path) -> str:
-        return (self.root / relative).read_text(encoding="utf-8")
+        return _read(self.root / relative)
 
 
 class TestArchHost(HostCase):
@@ -496,15 +500,10 @@ class TestKeyRendersNothing(unittest.TestCase):
                 patch.dict(os.environ, {handler.KEY: value}),
             ):
                 root = Path(scratch)
-                written = render_artifacts(
+                render_artifacts(
                     root, root / "compose" / "package-cache" / "upstreams.conf"
                 )
-                renders.append(
-                    {
-                        path.relative_to(root).as_posix(): path.read_bytes()
-                        for path in written
-                    }
-                )
+                renders.append(_snapshot(root))
         self.assertTrue(renders[0])
         self.assertEqual(renders[0], renders[1])
 
