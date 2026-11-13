@@ -44,6 +44,12 @@ design:
     logo:
       width: 280
       height: 80
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
@@ -84,6 +90,7 @@ erpnext:
     service_key: frontend
   company:
     abbr: "{{ service_provider.company.titel.split() | map('first') | join | upper }}"
+  title: "{{ lookup('design', 'web-app-erpnext').title }}"
   server_scripts: false
   api_bot:
     extra_roles: []

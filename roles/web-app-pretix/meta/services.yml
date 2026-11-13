@@ -94,6 +94,30 @@ pretix:
         enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-pretix', 'registration') }}"
+  teams:
+    organizers:
+      names: ["Organizers (SSO)"]
+      all_events: true
+      all_event_permissions: true
+      limit_event_permissions: {}
+      all_organizer_permissions: true
+      limit_organizer_permissions: {}
+    checkin:
+      names: ["Check-in (SSO)"]
+      all_events: true
+      all_event_permissions: false
+      limit_event_permissions:
+        "event.orders:checkin": true
+      all_organizer_permissions: false
+      limit_organizer_permissions: {}
+    mcp:
+      names: [mcp-readonly]
+      all_events: true
+      all_event_permissions: false
+      limit_event_permissions:
+        "event.orders:read": true
+      all_organizer_permissions: false
+      limit_organizer_permissions: {}
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
@@ -111,16 +135,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: dynamic-flag  gated on the role's own native and 2fa login methods, not on group_names
+# nocheck: dynamic-flag
 # nocheck: playwright-service-flag  runtime DOM patch of the sign-in and account pages, asserted by test-login-methods.js
 javascript:
   bond: 1
-  enabled: >-
-    {{ not (lookup('config', 'web-app-pretix', 'services.pretix.login.method.native.enabled') | bool
-    and lookup('config', 'web-app-pretix', 'services.pretix.login.method.2fa.enabled') | bool) }}
-  shared: >-
-    {{ not (lookup('config', 'web-app-pretix', 'services.pretix.login.method.native.enabled') | bool
-    and lookup('config', 'web-app-pretix', 'services.pretix.login.method.2fa.enabled') | bool) }}
+  enabled: true
+  shared: true
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

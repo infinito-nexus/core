@@ -62,15 +62,16 @@
 - name: "📁 Create administrator user"
   include_tasks: 04_admin.yml
 
+- name: "📣 Report the managed settings of {{ application_id }} the deploy reverts"
+  include_tasks: utils/settings_drift.yml
+
 - name: "🔧 Configure OIDC provider"
   include_tasks: 05_oidc.yml
   when: ODOO_OIDC_ENABLED | bool
 
 - name: "🔧 Configure LDAP authentication"
   include_tasks: 06_ldap.yml
-  when:
-    - ODOO_LDAP_ENABLED | bool
-    - ODOO_LOGIN_LDAP | bool
+  when: ODOO_LDAP_MANAGED | bool
 
 - name: "🚪 Converge the login methods of {{ application_id }}"
   include_tasks: 08_login_methods.yml

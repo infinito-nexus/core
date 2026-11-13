@@ -6,6 +6,24 @@
     name: svc-stack
     tasks_from: consumer.yml
 
+- name: "⬇️ Read the LDAP settings the locked KIX config file holds"
+  ansible.builtin.slurp:
+    src: "{{ KIX_AUTH_LDAP_LOCK_HOST_PATH }}"
+  register: kix_ldap_lock_stored
+  failed_when: false
+  become: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: KIX_LDAP_ENABLED | bool
+
+- name: "📣 Report the LDAP settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      ldap: "{{ kix_ldap_lock_stored | kix_ldap_lock_fields }}"
+  when: KIX_LDAP_ENABLED | bool
+
 - name: "📄 Render KIX host-side config files (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
@@ -13,6 +31,10 @@
     role_templates:
       - src: "zzz_auth_ldap.xml.j2"
         dest: "{{ KIX_AUTH_LDAP_HOST_PATH }}"
+        mode: "0644"
+        condition: "{{ KIX_LDAP_ENABLED | bool }}"
+      - src: "auth_ldap.conf.j2"
+        dest: "{{ KIX_AUTH_LDAP_LOCK_HOST_PATH }}"
         mode: "0644"
         condition: "{{ KIX_LDAP_ENABLED | bool }}"
       - src: "kix-proxy.default.conf.j2"

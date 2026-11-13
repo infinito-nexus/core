@@ -2,6 +2,11 @@
 {%- for setting in LISTMONK_SETTINGS if (setting.condition | default(true)) | bool -%}
 {%- set desired.settings = desired.settings | combine({setting.key: setting.value | from_json}) -%}
 {%- endfor -%}
+{%- for form in LISTMONK_PREFIXED_FORMS.values() -%}
+{%- for field, value in form.fields.items() -%}
+{%- set desired.settings = desired.settings | combine({form.prefix ~ field: value}) -%}
+{%- endfor -%}
+{%- endfor -%}
 WITH desired AS (
   SELECT key, value
   FROM jsonb_each($infinito_settings${{ desired.settings | to_json }}$infinito_settings$::jsonb)

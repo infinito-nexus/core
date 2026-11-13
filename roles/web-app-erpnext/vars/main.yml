@@ -54,6 +54,9 @@ ERPNEXT_LOGIN_2FA_ENFORCEMENT: "{{ ERPNEXT_LOGIN_2FA | bool and lookup('config',
 ERPNEXT_LOGIN_2FA_ENFORCED: "{{ ERPNEXT_LOGIN_2FA_ENFORCEMENT | bool and ERPNEXT_EMAIL_ENABLED | bool }}"
 ERPNEXT_LOGIN_EMAIL: "{{ lookup('config', application_id, 'services.erpnext.login.method.email.enabled') | bool }}"
 ERPNEXT_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.erpnext.login.method.registration.enabled') | bool }}"
+ERPNEXT_SYSTEM_SETTINGS: "{{ lookup('form_values', application_id, 'system_settings') }}"
+ERPNEXT_WEBSITE_SETTINGS: "{{ lookup('form_values', application_id, 'website_settings') }}"
+ERPNEXT_BRANDING: "{{ lookup('form_values', application_id, 'branding') }}"
 
 ERPNEXT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 ERPNEXT_DESIGN_LOGO_ENABLED: "{{ ERPNEXT_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"

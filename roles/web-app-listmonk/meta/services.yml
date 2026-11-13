@@ -1,6 +1,6 @@
 ---
 # nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
-# nocheck: seaweedfs-playwright — the bucket write happens in the admin Media view (upload.provider=s3, vars/main.yml), but this role blocks BOTH authenticated personas (PERSONA_ADMINISTRATOR_BLOCKED / PERSONA_BIBER_BLOCKED = true in templates/playwright.env.j2), so no Playwright session can reach that view; see TODO.md
+# nocheck: seaweedfs-playwright  the bucket write happens in the admin Media view (upload.provider=s3, services.listmonk.upload), but this role blocks BOTH authenticated personas (PERSONA_ADMINISTRATOR_BLOCKED / PERSONA_BIBER_BLOCKED = true in templates/playwright.env.j2), so no Playwright session can reach that view; see TODO.md
 asset:
   bond: 1
   enabled: "{{ 'web-svc-asset' in group_names }}"
@@ -61,6 +61,30 @@ listmonk:
     flavor: wget
     path: health
   public_api_activated: false
+  settings:
+    root_url: "{{ lookup('tls', 'web-app-listmonk', 'url.base') }}"
+    from_email: "{{ service_provider.company.titel }} Newsletter <{{ lookup('users', 'newsletter').email }}>"
+    lang: "{{ HOST_LL }}"
+    check_updates: true
+    enable_public_archive_rss_content: true
+    site_name: "{{ lookup('design', 'web-app-listmonk').label if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.company.titel ~ ' Mailing list' }}"
+    logo_url: "{{ lookup('design', 'web-app-listmonk').urls.header.svg if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.platform.logo }}"
+    favicon_url: "{{ lookup('design', 'web-app-listmonk').urls.favicon_ico if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.platform.favicon }}"
+  upload:
+    provider: s3
+    s3:
+      enabled: "{{ lookup('objstore', 'web-app-listmonk', 'enabled') | bool }}"
+      aws_default_region: "{{ lookup('objstore', 'web-app-listmonk', 'region') }}"
+      bucket: "{{ lookup('objstore', 'web-app-listmonk', 'bucket') }}"
+      bucket_type: public
+      url: "{{ lookup('objstore', 'web-app-listmonk', 'url') }}"
+      public_url: "{{ lookup('objstore', 'web-app-listmonk', 'public_url') }}"
+  bounce:
+    enabled: true
+  oidc:
+    provider_url: "{{ OIDC.CLIENT.ISSUER_URL }}"
+    client_id: "{{ OIDC.CLIENT.ID }}"
+    auto_create_users: false
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -99,6 +123,12 @@ design:
     logo:
       width: 182
       height: 34
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: dynamic-flag
 hcaptcha:
   enabled: "{{ HCAPTCHA_ENABLED | bool }}"

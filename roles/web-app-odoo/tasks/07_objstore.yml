@@ -1,4 +1,20 @@
 ---
+- name: "⬇️ Read the managed fields of the attachment storage"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/objstore/select-fs-storage-fields.sql"
+    named_args:
+      code: "{{ ODOO_OBJSTORE_STORAGE_CODE }}"
+    expect_rows: true
+  register: odoo_attachment_storage_stored
+  changed_when: false
+
+- name: "📣 Report the attachment storage fields the deploy reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      attachment_storage: "{{ odoo_attachment_storage_stored.rows[0][0] | from_json }}"
+
 - name: "🧹 Release the attachment default from a storage of another engine"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -12,9 +28,9 @@
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/objstore/upsert-fs-storage.sql"
-    named_args:
-      code: "{{ ODOO_OBJSTORE_STORAGE_CODE }}"
-      name: "{{ ODOO_OBJSTORE_STORAGE_NAME }}"
-      options: "{{ ODOO_OBJSTORE_OPTIONS | to_json }}"
-      bucket: "{{ ODOO_OBJSTORE_BUCKET }}"
-      force_db_rules: "{{ ODOO_OBJSTORE_FORCE_DB_RULES }}"
+    named_args: >-
+      {{ ODOO_OBJSTORE_SETTINGS | combine({
+           'code': ODOO_OBJSTORE_STORAGE_CODE,
+           'options': ODOO_OBJSTORE_OPTIONS | to_json,
+           'force_db_rules': ODOO_OBJSTORE_FORCE_DB_RULES
+         }) }}

@@ -1,6 +1,6 @@
 -- Register the object store as the default `fs.storage` for attachments.
--- Caller passes %(code)s, %(name)s, %(options)s, %(bucket)s and
--- %(force_db_rules)s as named_args.
+-- Caller passes %(code)s, %(options)s and %(force_db_rules)s plus the fields
+-- of the attachment_storage form of meta/forms.yml as named_args.
 INSERT INTO fs_storage (
 	name,
 	code,
@@ -20,34 +20,34 @@ INSERT INTO fs_storage (
 	create_date,
 	write_date
 ) VALUES (
-	%(name)s,
+	%(storage_name)s,
 	%(code)s,
 	's3',
 	%(options)s,
-	%(bucket)s,
-	True,
+	%(directory_path)s,
+	%(use_as_default_for_attachments)s,
 	%(force_db_rules)s,
 	True,
 	True,
 	False,
 	'marker_file',
-	True,
-	'',
-	False,
+	%(is_cacheable)s,
+	%(storage_base_url)s,
+	%(is_directory_path_in_url)s,
 	30,
 	NOW(),
 	NOW()
 )
 ON CONFLICT (code) DO UPDATE SET
-	name = %(name)s,
+	name = %(storage_name)s,
 	protocol = 's3',
 	options = %(options)s,
-	directory_path = %(bucket)s,
-	use_as_default_for_attachments = True,
+	directory_path = %(directory_path)s,
+	use_as_default_for_attachments = %(use_as_default_for_attachments)s,
 	force_db_for_default_attachment_rules = %(force_db_rules)s,
 	check_connection_method = 'marker_file',
-	is_cacheable = True,
-	base_url = '',
-	is_directory_path_in_url = False,
+	is_cacheable = %(is_cacheable)s,
+	base_url = %(storage_base_url)s,
+	is_directory_path_in_url = %(is_directory_path_in_url)s,
 	s3_signed_url_expiration = 30,
 	write_date = NOW();

@@ -63,6 +63,20 @@
     listmonk_admin_password.rc != 0
     or listmonk_admin_password.stdout is search('\[FAIL\]')
 
+- name: "⬇️ Read the managed Listmonk settings"
+  ansible.builtin.shell:
+    cmd: >-
+      {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 -tAq
+      -v forms={{ LISTMONK_PREFIXED_FORMS | to_json | quote }}
+    stdin: "{{ lookup('file', 'sql/select/managed_settings.sql') }}"
+  register: listmonk_settings_stored
+  changed_when: false
+
+- name: "📣 Report the managed Listmonk settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ listmonk_settings_stored.stdout | from_json }}"
+
 - name: 📌 Apply every Listmonk setting that differs, in one psql run
   ansible.builtin.shell:
     cmd: "{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1"

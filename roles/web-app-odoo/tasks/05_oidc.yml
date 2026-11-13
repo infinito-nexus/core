@@ -12,12 +12,7 @@
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc/update/keycloak-provider.sql"
-    named_args:
-      enabled: "{{ ODOO_LOGIN_SSO | bool }}"
-      auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
-      userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
-      client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
-      scope: "{{ ODOO_OIDC_SCOPE }}"
+    named_args: "{{ ODOO_OAUTH_PROVIDER }}"
   when: oauth_check.rows | length > 0
 
 - name: "📁 Create new Keycloak OAuth provider"
@@ -25,12 +20,7 @@
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc/insert/keycloak-provider.sql"
-    named_args:
-      enabled: "{{ ODOO_LOGIN_SSO | bool }}"
-      auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
-      userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
-      client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
-      scope: "{{ ODOO_OIDC_SCOPE }}"
+    named_args: "{{ ODOO_OAUTH_PROVIDER }}"
   when: oauth_check.rows | length == 0
 
 - name: "🟢 Enable OAuth authentication in system parameters"
@@ -145,7 +135,7 @@
     query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
     named_args:
       key: "web.base.url"
-      value: "{{ ODOO_URL }}"
+      value: "{{ ODOO_BASE_URL.web_base_url }}"
 
 - name: "🧊 Freeze web.base.url to prevent automatic detection"
   database_query:
@@ -154,7 +144,7 @@
     query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
     named_args:
       key: "web.base.url.freeze"
-      value: "True"
+      value: "{{ ODOO_BASE_URL.web_base_url_freeze }}"
 
 - name: "⬇️ Get Keycloak OAuth provider id in Odoo"
   database_query:

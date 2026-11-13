@@ -66,6 +66,19 @@ fider:
         enabled: "{{ lookup('login_method', 'web-app-fider', 'sso') }}"
       native:
         enabled: "{{ lookup('login_method', 'web-app-fider', 'native') }}"
+  oauth:
+    client_ids:
+      - "{{ OIDC.CLIENT.ID }}"
+    display_name: "{{ SOFTWARE_NAME }} SSO"
+    client_id: "{{ OIDC.CLIENT.ID }}"
+    authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+    exchange_url: "{{ OIDC.CLIENT.TOKEN_URL }}"
+    scope: openid profile email
+    profile_url: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+    json_user_id_path: sub
+    json_user_name_path: "{{ OIDC.ATTRIBUTES.NAME }}"
+    json_user_email_path: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+    trusted: true
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
@@ -84,7 +97,9 @@ design:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
 javascript:
-  enabled: false
+  bond: 1
+  enabled: true
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

@@ -8,6 +8,8 @@ FIDER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.fider.ports.
 FIDER_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 FIDER_LOGIN_SSO: "{{ lookup('config', application_id, 'services.fider.login.method.sso.enabled') | bool }}"
 FIDER_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.fider.login.method.native.enabled') | bool }}"
+FIDER_AUTHENTICATION: "{{ lookup('form_values', application_id, 'authentication') }}"
+FIDER_OAUTH_PROVIDER: "{{ lookup('form_values', application_id, 'oauth_provider') }}"
 FIDER_ROLE_IDS:
   visitor: 1
   collaborator: 2

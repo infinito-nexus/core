@@ -6,7 +6,7 @@
     query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
     named_args:
       key: "auth_signup.invitation_scope"
-      value: "{{ ODOO_SIGNUP_SCOPE }}"
+      value: "{{ ODOO_SIGNUP_SETTINGS.auth_signup_uninvited }}"
 
 - name: "🧾 Set the uninvited signup of every website to the registration method"
   database_query:
@@ -14,7 +14,7 @@
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/update/website-signup-scope.sql"
     named_args:
-      scope: "{{ ODOO_SIGNUP_SCOPE }}"
+      scope: "{{ ODOO_SIGNUP_SETTINGS.auth_signup_uninvited }}"
 
 - name: "🔑 Set the password reset to the native login method"
   database_query:
@@ -23,7 +23,7 @@
     query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
     named_args:
       key: "auth_signup.reset_password"
-      value: "{{ 'True' if ODOO_LOGIN_NATIVE | bool else 'False' }}"
+      value: "{{ ODOO_SIGNUP_SETTINGS.auth_signup_reset_password }}"
 
 - name: "⚠️ Hold the 2FA enforcement while no mail delivers the sign-in code"
   ansible.builtin.debug:

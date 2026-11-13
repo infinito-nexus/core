@@ -1,0 +1,69 @@
+---
+ldap:
+  path: /admin
+  native: true
+  sinks: [KIX_LDAP_SETTINGS]
+  fields:
+    host:
+      source: services.kix.ldap.host
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: text
+      label: LDAP host
+    port:
+      source: services.kix.ldap.port
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: number
+      label: LDAP port
+    base_dn:
+      source: services.kix.ldap.base_dn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: text
+      label: Base DN
+    search_user_dn:
+      source: services.kix.ldap.search_user_dn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: text
+      label: Search user DN
+    uid:
+      source: services.kix.ldap.uid
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: text
+      label: UID attribute
+    access_attr:
+      source: services.kix.ldap.access_attr
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: text
+      label: Group member attribute
+    administrator_group_dn:
+      source: services.kix.ldap.administrator_group_dn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: text
+      label: Administrator group DN
+    user_group_dn:
+      source: services.kix.ldap.user_group_dn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: text
+      label: User group DN
+    contact_sync:
+      source: services.kix.ldap.contact_sync
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: textarea
+      label: Contact sync map

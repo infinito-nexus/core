@@ -38,18 +38,19 @@ PRETIX_OIDC_STAFF_VALUE: "/{{ lookup('rbac_group_path', application_id=applicati
 PRETIX_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.pretix-oidc.version') }}"
 PRETIX_ORGANIZER_NAME: "{{ lookup('design', application_id).label }}"
 PRETIX_ORGANIZER_SLUG: "{{ application_id | entity_name }}"
+PRETIX_TEAM_ORGANIZERS: "{{ lookup('form_values', application_id, 'team_organizers') }}"
+PRETIX_TEAM_CHECKIN: "{{ lookup('form_values', application_id, 'team_checkin') }}"
+PRETIX_TEAM_MCP: "{{ lookup('form_values', application_id, 'team_mcp') }}"
+PRETIX_TEAM_NAMES:
+  team_organizers: "{{ lookup('config', application_id, 'services.pretix.teams.organizers.names') | first }}"
+  team_checkin: "{{ lookup('config', application_id, 'services.pretix.teams.checkin.names') | first }}"
 PRETIX_RBAC_TEAMS:
-  - name: "Organizers (SSO)"
-    group: "/{{ lookup('rbac_group_path', application_id=application_id, role='organizer') }}"
-    all_event_permissions: true
-    limit_event_permissions: {}
-    all_organizer_permissions: true
-  - name: "Check-in (SSO)"
-    group: "/{{ lookup('rbac_group_path', application_id=application_id, role='checkin') }}"
-    all_event_permissions: false
-    limit_event_permissions:
-      "event.orders:checkin": true
-    all_organizer_permissions: false
+  - >-
+    {{ PRETIX_TEAM_ORGANIZERS | combine({'name': PRETIX_TEAM_NAMES.team_organizers,
+    'group': '/' ~ lookup('rbac_group_path', application_id=application_id, role='organizer')}) }}
+  - >-
+    {{ PRETIX_TEAM_CHECKIN | combine({'name': PRETIX_TEAM_NAMES.team_checkin,
+    'group': '/' ~ lookup('rbac_group_path', application_id=application_id, role='checkin')}) }}
 PRETIX_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 PRETIX_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if PRETIX_OIDC_ONION_ISSUER | bool else '' }}"
 PRETIX_OIDC_PROXY_EXCLUDED_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [PRETIX_MCP_UPSTREAM_HOST] }}"
@@ -83,6 +84,6 @@ PRETIX_MCP_CONTRACT:
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 PRETIX_MCP_UPSTREAM_KEY: "{{ lookup('config', application_id, 'secrets.credentials.mcp_upstream_token') }}"
-PRETIX_MCP_UPSTREAM_TEAM: "mcp-readonly"
+PRETIX_MCP_UPSTREAM_TEAM: "{{ lookup('config', application_id, 'services.pretix.teams.mcp.names') | first }}"
 PRETIX_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 PRETIX_MCP_UPSTREAM_AUTH_FORMAT: "Token {key}"
