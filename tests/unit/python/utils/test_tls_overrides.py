@@ -2,7 +2,7 @@ import unittest
 
 from ansible.errors import AnsibleError
 
-from utils.tls_overrides import with_rendered_tls
+from utils.tls.overrides import with_rendered_tls
 
 
 class TestWithRenderedTls(unittest.TestCase):

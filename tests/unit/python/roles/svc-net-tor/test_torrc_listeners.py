@@ -18,7 +18,7 @@ EGRESS = {
     "direct": {"include": [], "except": []},
 }
 DOCKER0 = "172.17.0.1"
-TASK_NAMESPACE = "0.0.0.0"  # noqa: S104
+TASK_NAMESPACE = "0.0.0.0"  # noqa: S104 - expected torrc listener of the swarm task, an assertion value and no bind
 MODES = list(
     itertools.product(
         (False, True),

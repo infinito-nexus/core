@@ -46,6 +46,15 @@ ADMIN_EMAIL = "admin@example.test"
 ADDRESS = "https://blog.example.test"
 DESIGN_TITLE = "Blog by Example & Partner"
 DISCOURSE_OPTION = "discourse_connect"
+AI_MODEL = "probe-chat"
+AI_ENVIRONMENT = {
+    "id": "infinito-litellm",
+    "type": "custom",
+    "name": "Infinito LiteLLM",
+    "apikey": "SYNTH-AI-KEY-1",
+    "endpoint": "http://litellm.example.test/v1",
+    "models": [{"model": AI_MODEL}],
+}
 TRANSLATE_ADDON = ROLE / "meta/addons/freedomtranslate-wp.yml"
 TRANSLATE_TASKS = ROLE / "tasks/addons/freedomtranslate-wp-stack-host.yml"
 
@@ -136,7 +145,8 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
             ``addons.freedomtranslate-wp.enabled``, ``translate_options`` is
             that addon's ``config.options``, ``registration`` is the
             ``registration`` login method, ``multisite`` is
-            ``services.wordpress.multisite.enabled`` and the optional
+            ``services.wordpress.multisite.enabled``, the optional
+            ``ai_engine`` is ``addons.ai-engine.enabled`` and the optional
             ``forms`` replaces the role's ``meta/forms.yml``.
         expression: a template to render instead of the variable ``name``.
 
@@ -150,6 +160,7 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
         "services.design.enabled": scenario["design"],
         "addons.freedomtranslate-wp.enabled": scenario["translate"],
         "addons.wp-discourse.config.discourse_settings": [{"name": DISCOURSE_OPTION}],
+        "addons.ai-engine.config.environment": AI_ENVIRONMENT,
         "forms": forms,
     }
     application = {
@@ -168,7 +179,11 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
             "freedomtranslate-wp": {
                 "enabled": scenario["translate"],
                 "config": {"options": scenario["translate_options"]},
-            }
+            },
+            "ai-engine": {
+                "enabled": scenario.get("ai_engine", False),
+                "config": {"environment": AI_ENVIRONMENT, "default_model": AI_MODEL},
+            },
         },
     }
     users = {"platform_administrator": {"email": ADMIN_EMAIL}}
@@ -629,6 +644,7 @@ class TestManagedOptionsGuard(unittest.TestCase):
             managed["option"],
         )
         self.assertEqual({}, managed["site_option"])
+        self.assertEqual({}, managed["merge"])
 
     def test_the_guard_holds_the_network_options_under_multisite(self):
         managed = _resolve(
@@ -692,7 +708,66 @@ class TestManagedOptionsGuard(unittest.TestCase):
             "return is_main_site() ? $infinito_managed_value : $value;", guard
         )
         self.assertIn("'pre_update_site_option_' . $infinito_managed_name", guard)
-        self.assertEqual(2, guard.count("PHP_INT_MAX"))
+        self.assertEqual(3, guard.count("PHP_INT_MAX"))
+
+
+class TestAiEngineLock(unittest.TestCase):
+    STACK_HOST = ROLE / "tasks/addons/ai-engine-stack-host.yml"
+    READER = ROLE / "files/php/ai_engine/endpoint.php"
+    GUARD = TestManagedOptionsGuard.GUARD
+
+    def test_the_guard_keeps_the_gateway_environment_and_the_defaults(self):
+        managed = _resolve("WORDPRESS_MANAGED_OPTIONS", ALL_ON | {"ai_engine": True})
+        self.assertEqual(
+            {
+                "mwai_options": {
+                    "keys": {
+                        "ai_default_env": AI_ENVIRONMENT["id"],
+                        "ai_default_model": AI_MODEL,
+                    },
+                    "records": {"ai_envs": AI_ENVIRONMENT},
+                }
+            },
+            managed["merge"],
+        )
+
+    def test_the_form_is_native_and_hides_the_api_key(self):
+        form = _forms()["ai_engine"]
+        self.assertIs(True, form["native"])
+        self.assertEqual(["WORDPRESS_AI_ENGINE"], form["sinks"])
+        self.assertEqual("password", form["fields"]["apikey"]["type"])
+
+    def test_the_guard_merges_only_the_managed_record_on_the_main_site(self):
+        guard = read_text(str(self.GUARD))
+        self.assertIn(
+            "return is_main_site() ? infinito_managed_options_merge($value,"
+            " $infinito_managed_value) : $value;",
+            guard,
+        )
+        self.assertIn("($entry['id'] ?? null) !== $record['id']", guard)
+        self.assertIn("!is_array($infinito_managed_options['merge'] ?? null)", guard)
+
+    def test_the_drift_read_runs_before_the_write_and_leaves_the_api_key_out(self):
+        tasks = load_yaml_any(str(self.STACK_HOST), default_if_missing=[])
+        read = _position("Read the managed AI Engine settings", tasks)
+        self.assertLess(read, _position("Report the managed AI Engine settings", tasks))
+        self.assertLess(
+            _position("Report the managed AI Engine settings", tasks),
+            _position("Point the AI Engine default environment", tasks),
+        )
+        self.assertNotIn("apikey", read_text(str(self.READER)))
+
+    def test_the_write_carries_the_sink_values(self):
+        task = _task(
+            "Point the AI Engine default environment",
+            load_yaml_any(str(self.STACK_HOST), default_if_missing=[]),
+        )
+        self.assertIn(
+            "{'environment': WORDPRESS_AI_ENGINE_ENVIRONMENT,"
+            " 'default_model': WORDPRESS_AI_ENGINE.ai_default_model}",
+            task["ansible.builtin.shell"]["stdin"],
+        )
+        self.assertEqual("{{ MASK_CREDENTIALS_IN_LOGS | bool }}", task["no_log"])
 
 
 class TestMultisiteState(unittest.TestCase):

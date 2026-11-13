@@ -6,18 +6,5 @@
   ansible.builtin.set_fact:
     forms_drift_lines: "{{ lookup('form_drift', application_id, forms_drift_current) }}"
 
-- name: "📋 Report each managed field of {{ application_id }} the run overwrites"
-  ansible.builtin.debug:
-    msg: "{{ forms_drift_lines }}"
-  when: forms_drift_lines | length > 0
-
-- name: "📣 Raise the drift event Grafana alerts on"
-  ansible.builtin.command:
-    cmd: logger --journald
-    stdin: |-
-      MESSAGE={{ item }}
-      SYSLOG_IDENTIFIER={{ FORMS_DRIFT_IDENTIFIER }}
-      PRIORITY={{ FORMS_DRIFT_PRIORITY }}
-      {{ DOCKER_LOG_JOURNAL_FIELD }}={{ application_id }}
-  loop: "{{ forms_drift_lines }}"
-  changed_when: false
+- name: "📣 Report the managed fields of {{ application_id }} the run overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift_report.yml') }}"

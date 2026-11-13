@@ -6,6 +6,7 @@ from typing import Any
 
 from utils.roles.applications.forms import (
     _PATH,
+    LOCK_PENDING,
     MAP_SCALARS,
     MODES,
     _holds_template,
@@ -26,12 +27,23 @@ TYPES = (
     "textarea",
     "url",
 )
-FORM_KEYS = frozenset({"path", "fields", "sinks", "record", "native"})
+FORM_KEYS = frozenset({"path", "fields", "sinks", "record", "native", "lock", "issue"})
 RECORD_KEYS = ("selector", "source")
 REQUIRED_FIELD_KEYS = ("source", "mode", "selector")
 OPTIONAL_FIELD_KEYS = frozenset(
-    {"when", "label", "type", "enum", "validation", "description", "map", "optional"}
+    {
+        "when",
+        "label",
+        "type",
+        "enum",
+        "validation",
+        "description",
+        "map",
+        "optional",
+        "env",
+    }
 )
+ENV_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
 _FIELD_KEY = re.compile(r"^[a-z][A-Za-z0-9_-]*$")
@@ -87,7 +99,23 @@ def _field_errors(where: str, spec: Any) -> list[str]:
         errors.extend(_map_errors(where, spec["map"]))
     if "optional" in spec:
         errors.extend(_optional_errors(where, spec))
+    if "env" in spec and not (
+        isinstance(spec["env"], str) and ENV_NAME.fullmatch(spec["env"])
+    ):
+        errors.append(f"{where}.env must be an environment variable name")
     return errors
+
+
+def _env_errors(where: str, fields: Mapping) -> list[str]:
+    names = [
+        spec["env"]
+        for spec in fields.values()
+        if isinstance(spec, Mapping) and isinstance(spec.get("env"), str)
+    ]
+    return [
+        f"{where}.fields: two fields name the variable {name}"
+        for name in sorted({name for name in names if names.count(name) > 1})
+    ]
 
 
 def _optional_errors(where: str, spec: Mapping) -> list[str]:
@@ -176,14 +204,45 @@ def _native_errors(where: str, block: Mapping) -> list[str]:
     errors = []
     if "record" in block:
         errors.append(f"{where}.native takes no record; the application locks it")
-    fields = block.get("fields")
-    if isinstance(fields, Mapping) and any(
-        isinstance(spec, Mapping) and is_sso_source(spec.get("source"))
-        for spec in fields.values()
-    ):
+    if _holds_sso_field(block):
         errors.append(
             f"{where}.native holds no sso.<claim> field; the shared renderer"
             " shows its warning"
+        )
+    return errors
+
+
+def _holds_sso_field(block: Mapping) -> bool:
+    fields = block.get("fields")
+    return isinstance(fields, Mapping) and any(
+        isinstance(spec, Mapping) and is_sso_source(spec.get("source"))
+        for spec in fields.values()
+    )
+
+
+def _lock_errors(where: str, block: Mapping) -> list[str]:
+    if block.get("lock") != LOCK_PENDING:
+        return [
+            (
+                f"{where}.lock must be {LOCK_PENDING}, with the issue that tracks"
+                " the missing lock"
+            )
+        ]
+    errors = []
+    if not _non_empty_string(block.get("issue")):
+        errors.append(
+            f"{where}.lock {LOCK_PENDING} needs an issue: the upstream issue URL"
+            " or id that tracks the missing lock"
+        )
+    if "native" in block:
+        errors.append(
+            f"{where}.lock {LOCK_PENDING} and native exclude each other; the"
+            " application locks a native form"
+        )
+    if _holds_sso_field(block):
+        errors.append(
+            f"{where}.lock {LOCK_PENDING} holds no sso.<claim> field; the shared"
+            " renderer shows its warning"
         )
     return errors
 
@@ -195,7 +254,7 @@ def _form_errors(where: str, block: Any) -> list[str]:
         f"{where}.{key} is not a known key; use {sorted(FORM_KEYS)}"
         for key in sorted(set(block) - FORM_KEYS)
     ]
-    errors.extend(_template_errors(where, block, iter(("path",))))
+    errors.extend(_template_errors(where, block, iter(("path", "issue"))))
     path = block.get("path")
     if not (_non_empty_string(path) and path.startswith("/")):
         errors.append(f"{where}.path must be the admin page path, starting with /")
@@ -205,6 +264,10 @@ def _form_errors(where: str, block: Any) -> list[str]:
         errors.extend(_record_errors(where, block["record"]))
     if "native" in block:
         errors.extend(_native_errors(where, block))
+    if "lock" in block:
+        errors.extend(_lock_errors(where, block))
+    elif "issue" in block:
+        errors.append(f"{where}.issue belongs to lock: {LOCK_PENDING}")
     fields = block.get("fields")
     if not isinstance(fields, Mapping) or not fields:
         errors.append(f"{where}.fields must map each field to its spec")
@@ -216,6 +279,7 @@ def _form_errors(where: str, block: Any) -> list[str]:
                 " kebab-case key"
             )
         errors.extend(_field_errors(f"{where}.fields.{field}", spec))
+    errors.extend(_env_errors(where, fields))
     return errors
 
 

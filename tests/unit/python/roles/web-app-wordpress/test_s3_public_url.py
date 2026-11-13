@@ -94,6 +94,7 @@ def _render_env(objstore: dict) -> dict[str, str]:
         HOST_TIMEZONE="UTC",
         WORDPRESS_MCP_SERVICE_KEY="wordpress",
         WORDPRESS_NETWORK_BASE_URLS="",
+        WORDPRESS_MANAGED_OPTIONS_FILE="/var/www/html/wp-content/infinito-managed-options.php",
         OIDC={
             "CLIENT": {"ISSUER_URL": "https://sso.example.com/realms/x"},
             "ATTRIBUTES": dict.fromkeys(
