@@ -76,6 +76,23 @@ odoo:
     scope: openid email profile phone
     validation_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
     data_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+  directory:
+    managed: "{{ lookup('config', 'web-app-odoo', 'services.ldap.enabled') | bool and lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled') | bool }}"
+    servers: ["{{ LDAP.SERVER.DOMAIN }}"]
+    port: "{{ LDAP.SERVER.PORT | int }}"
+    tls: "{{ LDAP.SERVER.SECURITY in ['TLS', 'SSL'] }}"
+    base: "{{ LDAP.DN.OU.USERS }}"
+    filter: "({{ LDAP.USER.ATTRIBUTES.ID }}=%s)"
+    create_user: true
+  objstore:
+    managed: "{{ lookup('objstore', 'web-app-odoo', 'enabled') | bool }}"
+    codes: ["{{ lookup('objstore', 'web-app-odoo', 'engine') }}"]
+    name: Infinito Object Store
+    bucket: "{{ lookup('objstore', 'web-app-odoo', 'bucket') }}"
+    cacheable: true
+    default_for_attachments: true
+    base_url: ""
+    directory_path_in_url: false
   run_after:
     - web-app-keycloak
     - web-app-email

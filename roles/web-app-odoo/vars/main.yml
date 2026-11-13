@@ -52,12 +52,12 @@ ODOO_LOGIN_FORM: "{{ ODOO_LOGIN_NATIVE | bool or ODOO_LOGIN_LDAP | bool }}"
 ODOO_SIGNUP_SETTINGS: "{{ lookup('form_values', application_id, 'general') }}"
 ODOO_BASE_URL: "{{ lookup('form_values', application_id, 'base_url') | combine(lookup('form_values', application_id, 'base_url_freeze')) }}"
 ODOO_OAUTH_PROVIDER: "{{ lookup('form_values', application_id, 'oauth_provider') }}"
+ODOO_LDAP_DIRECTORY: "{{ lookup('form_values', application_id, 'ldap_directory') }}"
+ODOO_OBJSTORE_SETTINGS: "{{ lookup('form_values', application_id, 'attachment_storage') }}"
 ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
-ODOO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
+ODOO_OBJSTORE_ENABLED: "{{ lookup('config', application_id, 'services.odoo.objstore.managed') }}"
 
-ODOO_OBJSTORE_STORAGE_CODE: "{{ lookup('objstore', application_id, 'engine') }}"
-ODOO_OBJSTORE_STORAGE_NAME: "Infinito Object Store"
-ODOO_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"
+ODOO_OBJSTORE_STORAGE_CODE: "{{ lookup('config', application_id, 'services.odoo.objstore.codes') | first }}"
 ODOO_OBJSTORE_OPTIONS:
   key: "{{ lookup('objstore', application_id, 'access_key') }}"
   secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
@@ -102,28 +102,18 @@ ODOO_SMTP_USER: "{{ ODOO_EMAIL.username }}"
 ODOO_SMTP_PASSWORD: "{{ ODOO_EMAIL.password }}"
 ODOO_SMTP_SSL: "{{ lookup('tls', application_id, 'enabled') }}"
 
-ODOO_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
-ODOO_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
-ODOO_LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
+ODOO_LDAP_MANAGED: "{{ lookup('config', application_id, 'services.odoo.directory.managed') }}"
+ODOO_LDAP_SERVER: "{{ lookup('config', application_id, 'services.odoo.directory.servers') | first }}"
 ODOO_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 ODOO_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
-ODOO_LDAP_FILTER: "({{ ODOO_LDAP_USER_ATTR }}=%s)"
-ODOO_LDAP_USER_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
-ODOO_LDAP_CREATE_USER: true
-ODOO_LDAP_TLS: "{{ LDAP.SERVER.SECURITY in ['TLS', 'SSL'] }}"
 
 ODOO_LDAP_CONFIG:
   name: "OpenLDAP"
   sequence: 1
   company_id: 1
   ldap_server: "{{ ODOO_LDAP_SERVER }}"
-  ldap_server_port: "{{ ODOO_LDAP_PORT }}"
   ldap_binddn: "{{ ODOO_LDAP_BIND_DN }}"
   ldap_password: "{{ ODOO_LDAP_BIND_PASSWORD }}"
-  ldap_base: "{{ ODOO_LDAP_BASE_DN }}"
-  ldap_filter: "{{ ODOO_LDAP_FILTER }}"
-  create_user: "{{ ODOO_LDAP_CREATE_USER | lower }}"
-  ldap_tls: "{{ ODOO_LDAP_TLS | lower }}"
 
 ODOO_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 ODOO_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"

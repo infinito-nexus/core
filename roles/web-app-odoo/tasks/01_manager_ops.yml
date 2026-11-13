@@ -71,9 +71,7 @@
 
 - name: "🔧 Configure LDAP authentication"
   include_tasks: 06_ldap.yml
-  when:
-    - ODOO_LDAP_ENABLED | bool
-    - ODOO_LOGIN_LDAP | bool
+  when: ODOO_LDAP_MANAGED | bool
 
 - name: "🚪 Converge the login methods of {{ application_id }}"
   include_tasks: 08_login_methods.yml
