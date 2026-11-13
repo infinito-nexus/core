@@ -144,7 +144,8 @@ KEYCLOAK_LOGOUT_EVERYWHERE_URL: >-
      if (KEYCLOAK_LOGOUT_EVERYWHERE_ENABLED | bool) else '' }}
 KEYCLOAK_BACKCHANNEL_LOGOUT_URLS: "{{ KEYCLOAK_DICTIONARY_REALM.clients | kc_backchannel_logout_urls }}"
 KEYCLOAK_ADMIN_NETWORKS: "{{ lookup('config', application_id, 'services.keycloak.admin.allowed_networks') | kc_admin_networks }}"
-KEYCLOAK_REDIRECT_URIS: "{{ lookup('redirect_uris') }}"
+KEYCLOAK_CLIENT: "{{ lookup('form_values', application_id, 'client') }}"
+KEYCLOAK_REDIRECT_URIS: "{{ KEYCLOAK_CLIENT.redirect_uris }}"
 KEYCLOAK_SAML_APPS: >-
   {{ lookup('applications') | dict2items
       | selectattr('value.services', 'defined')
@@ -154,13 +155,8 @@ KEYCLOAK_SAML_APPS: >-
       | map(attribute='key')
       | select('in', group_names)
       | list }}
-KEYCLOAK_WEB_ORIGINS: >-
-  {{ KEYCLOAK_REDIRECT_URIS
-      | map('regex_replace','/\\*$','')
-      | map('regex_search','^(https?://[^/]+)')
-      | select('string')
-      | list | unique }}
-KEYCLOAK_POST_LOGOUT_URIS: "{{ (['+'] + lookup('network_urls', KEYCLOAK_FRONTCHANNEL_LOGOUT_URL ~ '*')) | join('##') }}"
+KEYCLOAK_WEB_ORIGINS: "{{ KEYCLOAK_CLIENT.web_origins }}"
+KEYCLOAK_POST_LOGOUT_URIS: "{{ KEYCLOAK_CLIENT.post_logout_redirect_uris }}"
 
 KEYCLOAK_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 KEYCLOAK_LDAP_SHARED: "{{ lookup('config', application_id, 'services.ldap.shared') }}"

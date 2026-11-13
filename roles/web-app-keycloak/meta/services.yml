@@ -90,6 +90,12 @@ keycloak:
       username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
   admin:
     allowed_networks: []
+  client:
+    ids:
+      - "{{ OIDC.CLIENT.ID }}"
+    redirect_uris: "{{ lookup('redirect_uris') }}"
+    web_origins: "{{ lookup('redirect_uris', wildcard='') }}"
+    post_logout_redirect_uris: "{{ (['+'] + lookup('network_urls', lookup('tls', 'web-svc-logout', 'url.base') ~ '*')) | join('##') }}"
   directory_client:
     enabled: false
   ports:
