@@ -1403,6 +1403,73 @@ class TestScratch(TestCase):
         self.assertTrue(keep.is_file())
 
 
+class SandboxNodeEngines(FakeEngines):
+    SOCKET = f"{SCRIPT.DOCKER_SOCKET}:{SCRIPT.DOCKER_SOCKET}:ro"
+
+    def __call__(self, argv):
+        argv = list(argv)
+        runtime = argv[argv.index("--runtime") + 1] if "--runtime" in argv else "runsc"
+        if (
+            argv[:2] == ["container", "run"]
+            and self.SOCKET in argv
+            and runtime != "runc"
+        ):
+            with self.lock:
+                self.calls.append(argv)
+            return SimpleNamespace(returncode=1, stdout="", stderr="")
+        return super().__call__(argv)
+
+
+class TestSandboxNode(TestCase):
+    def _check(self, containers):
+        runner = SandboxNodeEngines(None, {})
+        real_scan = SCRIPT.scan
+
+        def scan(targets, config, images, layout, engines):
+            engines.layout = layout
+            return real_scan(targets, config, images, layout, engines)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            cache = Path(tmp) / "cache"
+            with (
+                mock.patch.object(
+                    SCRIPT, "docker_root", return_value="/var/lib/docker"
+                ),
+                mock.patch.object(SCRIPT, "scan", side_effect=scan),
+                mock.patch.object(SCRIPT, "pause"),
+            ):
+                _targets, _judged, errors = SCRIPT.vulnerability_check(
+                    containers,
+                    _config(),
+                    {engine: f"{engine}:1" for engine in SCRIPT.ENGINES},
+                    _suppressions(),
+                    cache,
+                    cache / "db",
+                    [],
+                    runner,
+                    SCRIPT.Run("id", dt.datetime.now(tz=dt.UTC), "node", "test"),
+                )
+        return runner, errors
+
+    def test_container_scans_pass_where_the_daemon_defaults_to_the_sandbox(self):
+        runner, errors = self._check([_container("a", image="sha256:a")])
+        self.assertEqual(errors, [])
+        self.assertTrue(any(SandboxNodeEngines.SOCKET in call for call in runner.calls))
+
+    def test_only_runs_with_the_docker_socket_leave_the_sandbox(self):
+        runner, _errors = self._check([_container("a", image="sha256:a")])
+        runs = [call for call in runner.calls if call[:2] == ["container", "run"]]
+        socket = [call for call in runs if SandboxNodeEngines.SOCKET in call]
+        others = [call for call in runs if SandboxNodeEngines.SOCKET not in call]
+        self.assertTrue(socket)
+        self.assertTrue(any("/:/host:ro" in call for call in others))
+        for call in socket:
+            self.assertIn("--runtime", call)
+            self.assertEqual(call[call.index("--runtime") + 1], "runc")
+        for call in others:
+            self.assertNotIn("--runtime", call)
+
+
 class TestCommands(TestCase):
     def setUp(self):
         self.layout = SCRIPT.Layout(
@@ -1513,6 +1580,16 @@ class TestCommands(TestCase):
     def test_grype_reads_the_sbom_when_syft_runs(self):
         step = SCRIPT.grype_step(self.layout, "grype:1", self.container, _config())
         self.assertIn("sbom:/sbom/abc.syft.json", step.argv)
+
+    def test_grype_reading_the_sbom_gets_neither_the_socket_nor_the_host(self):
+        for target in (self.container, self.host):
+            with self.subTest(kind=target.kind):
+                step = SCRIPT.grype_step(self.layout, "grype:1", target, _config())
+                self.assertNotIn(
+                    "/var/run/docker.sock:/var/run/docker.sock:ro", step.argv
+                )
+                self.assertNotIn("/:/host:ro", step.argv)
+                self.assertNotIn("--runtime", step.argv)
 
     def test_grype_reads_the_image_without_syft(self):
         step = SCRIPT.grype_step(
