@@ -1,0 +1,21 @@
+---
+- name: "🔧 Set vm.max_map_count for the bundled OpenSearch"
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ MAGENTO_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ MAGENTO_SYSCTL_PARAMETERS }}"
+
+- name: "📄 Render the container config overrides for {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "nginx-default.conf.j2"
+        dest: "{{ MAGENTO_NGINX_CONF_PATH }}"
+        mode: "0444"
+        notify: []
+      - src: "php-fpm.conf.j2"
+        dest: "{{ MAGENTO_PHP_FPM_CONF_PATH }}"
+        mode: "0444"
+        notify: []
