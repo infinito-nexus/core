@@ -13,9 +13,10 @@ from .test_stack_service_declared import STACK_ENTRY_RE
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
+STACK_ROLE = "svc-stack"
 BRIDGE = Path("tasks/utils/stack.yml")
-CANONICAL_BRIDGE = Path("roles/svc-stack/files/bridge.yml")
-STACK_TASKS = Path("roles/svc-stack/tasks")
+CANONICAL_BRIDGE = Path("roles") / STACK_ROLE / "files/bridge.yml"
+STACK_TASKS = Path("roles") / STACK_ROLE / "tasks"
 CONSTRUCTOR = Path("tasks/stages/01_constructor.yml")
 LOADER = "sys-service-loader"
 GROUP_SETUP = "tasks/utils/setup/group.yml"
@@ -182,6 +183,28 @@ def _declares_stack(role_dir: Path) -> bool:
     )
 
 
+def consumers_without_a_stack_path(root: Path) -> list[str]:
+    """Args:
+        root: the repository root.
+
+    Returns:
+        the roles besides svc-stack that declare ``stack`` enabled and shared
+        but neither ship a bridge nor include an svc-stack consumer entry.
+    """
+    bridged = set(bridge_roles(root))
+    return [
+        role_dir.name
+        for role_dir in sorted((root / "roles").iterdir())
+        if role_dir.name != STACK_ROLE
+        and role_dir.name not in bridged
+        and _declares_stack(role_dir)
+        and not any(
+            STACK_ENTRY_RE.search(read_text(str(path)))
+            for path in role_dir.glob("tasks/**/*.yml")
+        )
+    ]
+
+
 def unadmitted_bridges(root: Path) -> list[str]:
     """Args:
         root: the repository root.
@@ -317,6 +340,15 @@ class TestStackBridge(unittest.TestCase):
             offenders,
             [],
             "a role whose stack the loader runs includes no svc-stack consumer entry",
+        )
+
+    def test_every_stack_consumer_keeps_a_stack_path(self) -> None:
+        offenders = consumers_without_a_stack_path(PROJECT_ROOT)
+        self.assertEqual(
+            offenders,
+            [],
+            f"ship {CANONICAL_BRIDGE} as roles/<role>/{BRIDGE} or include an "
+            "svc-stack consumer entry",
         )
 
     def test_every_bridge_role_is_admitted(self) -> None:

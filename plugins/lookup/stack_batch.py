@@ -78,10 +78,11 @@ def plan(
         tls_mode: the TLS mode of an application id, ``off`` without a domain.
 
     Returns:
-        one item per bridged role this host enters after svc-stack's slot, in
-        entry order: the shared services the loader preloads, then the server
-        roles the deployment allows. Each item carries its id, role, phase,
-        TLS mode and admission errors.
+        one item per bridged application this host enters after svc-stack's
+        slot, in entry order: the shared services the loader preloads, then
+        the server roles the deployment allows. A preloaded service that is
+        also a server role keeps its preload item. Each item carries its id,
+        role, phase, TLS mode and admission errors.
     """
     roles = [entry["role"] for entry in ordered_services]
     after = (
@@ -99,9 +100,12 @@ def plan(
             if inventory_groups.get(entry["app"])
             and application_allowed(entry["app"], group_names, whitelist)
         ]
+    first: dict[str, tuple[str, str]] = {}
+    for app, role, phase in entries:
+        first.setdefault(app, (role, phase))
     return [
         item(roles_dir, app, role, phase, tls_mode=tls_mode)
-        for app, role, phase in entries
+        for app, (role, phase) in first.items()
         if (roles_dir / role / BRIDGE).is_file()
     ]
 

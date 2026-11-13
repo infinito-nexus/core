@@ -76,8 +76,9 @@ def _plan(root: Path, closure: list[str], group_names: list[str]) -> list[dict]:
 
 
 class TestStackBatchPlan(unittest.TestCase):
-    def test_the_tree_plans_nothing_while_no_role_ships_a_bridge(self) -> None:
+    def test_the_tree_plans_every_bridged_role_once_and_admits_it(self) -> None:
         roles_dir = PROJECT_ROOT / "roles"
+        bridged = [path.parents[2].name for path in roles_dir.glob(f"*/{BRIDGE}")]
         ordered = ordered_primary_service_entries(
             build_service_registry_from_roles_dir(roles_dir), roles_dir
         )
@@ -87,19 +88,19 @@ class TestStackBatchPlan(unittest.TestCase):
             for entry in ordered_roles(str(roles_dir), group)
         ]
         everything = [entry["role"] for entry in ordered] + server
-        self.assertEqual(
-            plan(
-                roles_dir,
-                ordered,
-                [entry["id"] for entry in ordered],
-                [],
-                everything,
-                {role: ["h"] for role in everything},
-                [],
-                tls_mode=lambda _app: "off",
-            ),
+        planned = plan(
+            roles_dir,
+            ordered,
+            [entry["id"] for entry in ordered],
             [],
+            everything,
+            {role: ["h"] for role in everything},
+            [],
+            tls_mode=lambda _app: "off",
         )
+        self.assertTrue(bridged)
+        self.assertCountEqual([entry["role"] for entry in planned], bridged)
+        self.assertEqual([entry for entry in planned if entry["errors"]], [])
 
     def test_only_bridged_roles_entered_after_the_stack_slot_are_planned(
         self,
@@ -123,6 +124,34 @@ class TestStackBatchPlan(unittest.TestCase):
                 ("svc-late", "preload", "off", []),
                 ("web-app-x", "server", "letsencrypt", []),
             ],
+        )
+
+    def test_a_preloaded_service_that_is_also_a_server_role_is_planned_once(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _farm(root, {"svc-late": LITERAL_STACK})
+            with (
+                patch("plugins.lookup.stack_batch.stage_groups", return_value=["svc"]),
+                patch(
+                    "plugins.lookup.stack_batch.ordered_roles",
+                    return_value=({"role": "svc-late", "app": "svc-late"},),
+                ),
+            ):
+                planned = plan(
+                    root,
+                    SERVICES,
+                    ["late"],
+                    [],
+                    ["svc-late"],
+                    {"svc-late": ["h"]},
+                    [],
+                    tls_mode=lambda _app: "off",
+                )
+        self.assertEqual(
+            [(item["id"], item["phase"]) for item in planned],
+            [("svc-late", "preload")],
         )
 
     def test_the_whitelist_closure_scopes_the_preload_part(self) -> None:
