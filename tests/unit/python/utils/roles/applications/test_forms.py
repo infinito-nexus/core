@@ -9,7 +9,7 @@ from unittest import mock
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
-from utils.roles.applications import drift, forms
+from utils.roles.applications import drift, form_schema, forms
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 FORMS = {
@@ -49,6 +49,7 @@ CREDENTIALS = {"smtp": {"password": {"algorithm": "alphanumeric", "length": 32}}
 SYNTH = "SYNTH-SECRET-1"
 JWT_SHAPED = f"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ{SYNTH}.{SYNTH}-sig"
 SENDGRID_SHAPED = f"SG.{SYNTH}.abcdefABCDEF0123456789"
+ISSUE = "https://example.invalid/upstream/issues/1"
 
 
 def _field(form: str, field: str) -> dict:
@@ -63,14 +64,14 @@ def _with_field(form: str, field: str, spec: dict) -> dict:
 
 class TestSchema(unittest.TestCase):
     def test_a_well_formed_file_passes(self):
-        self.assertEqual([], forms.schema_errors("web-app-x", FORMS))
+        self.assertEqual([], form_schema.schema_errors("web-app-x", FORMS))
 
     def test_each_required_key_is_enforced(self):
-        for key in forms.REQUIRED_FIELD_KEYS:
+        for key in form_schema.REQUIRED_FIELD_KEYS:
             with self.subTest(key=key):
                 spec = _field("general", "blogname")
                 del spec[key]
-                errors = forms.schema_errors(
+                errors = form_schema.schema_errors(
                     "web-app-x", _with_field("general", "blogname", spec)
                 )
                 self.assertEqual(
@@ -79,7 +80,7 @@ class TestSchema(unittest.TestCase):
 
     def test_an_unknown_mode_is_refused(self):
         spec = {**_field("general", "blogname"), "mode": "locked"}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(1, len(errors))
@@ -87,7 +88,7 @@ class TestSchema(unittest.TestCase):
 
     def test_an_unknown_field_key_is_refused(self):
         spec = {**_field("general", "blogname"), "secret": True}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(1, len(errors))
@@ -95,7 +96,7 @@ class TestSchema(unittest.TestCase):
 
     def test_a_source_must_be_a_dotted_path(self):
         spec = {**_field("general", "blogname"), "source": "{{ design.label }}"}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(
@@ -111,7 +112,7 @@ class TestSchema(unittest.TestCase):
 
     def test_an_empty_selector_is_refused(self):
         spec = {**_field("general", "blogname"), "selector": " "}
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(
@@ -124,7 +125,7 @@ class TestSchema(unittest.TestCase):
         data["general"]["path"] = "wp-admin/options-general.php"
         self.assertEqual(
             ["web-app-x: general.path must be the admin page path, starting with /"],
-            forms.schema_errors("web-app-x", data),
+            form_schema.schema_errors("web-app-x", data),
         )
 
     def test_a_form_without_fields_is_refused(self):
@@ -132,7 +133,7 @@ class TestSchema(unittest.TestCase):
         data["general"]["fields"] = {}
         self.assertEqual(
             ["web-app-x: general.fields must map each field to its spec"],
-            forms.schema_errors("web-app-x", data),
+            form_schema.schema_errors("web-app-x", data),
         )
 
     def test_an_unknown_type_and_a_broken_validation_are_refused(self):
@@ -141,12 +142,83 @@ class TestSchema(unittest.TestCase):
             "type": "slider",
             "validation": "([a-z]",
         }
-        errors = forms.schema_errors(
+        errors = form_schema.schema_errors(
             "web-app-x", _with_field("general", "blogname", spec)
         )
         self.assertEqual(2, len(errors))
         self.assertIn("type 'slider' is not one of", errors[0])
         self.assertIn("validation is no regular expression", errors[1])
+
+    def test_a_file_upload_field_passes(self):
+        spec = {**_field("general", "blogname"), "type": "file"}
+        self.assertEqual(
+            [],
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
+        )
+
+    def test_an_optional_field_passes(self):
+        spec = {**_field("general", "blogname"), "optional": True}
+        self.assertEqual(
+            [],
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
+        )
+
+    def test_optional_must_be_true(self):
+        for value in (False, "true", 1):
+            with self.subTest(value=value):
+                spec = {**_field("general", "blogname"), "optional": value}
+                errors = form_schema.schema_errors(
+                    "web-app-x", _with_field("general", "blogname", spec)
+                )
+                self.assertEqual(1, len(errors))
+                self.assertIn("blogname.optional must be true", errors[0])
+
+    def test_an_sso_field_takes_no_optional(self):
+        spec = {"source": "sso.email", "mode": "enforced", "selector": "#email"}
+        errors = form_schema.schema_errors(
+            "web-app-x",
+            _with_field("general", "email", {**spec, "optional": True}),
+        )
+        self.assertEqual(1, len(errors))
+        self.assertIn("email.optional takes no sso.<claim> source", errors[0])
+
+    def test_an_env_name_passes(self):
+        spec = {**_field("general", "blogname"), "env": "FTLCONF_webserver_domain"}
+        self.assertEqual(
+            [],
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
+        )
+
+    def test_an_env_that_names_no_variable_is_refused(self):
+        for env in ("FTL-X", "1FTL", "", "FTL X", 5):
+            with self.subTest(env=env):
+                spec = {**_field("general", "blogname"), "env": env}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.fields.blogname.env must be an"
+                            " environment variable name"
+                        )
+                    ],
+                    form_schema.schema_errors(
+                        "web-app-x", _with_field("general", "blogname", spec)
+                    ),
+                )
+
+    def test_two_fields_naming_one_variable_are_refused(self):
+        data = copy.deepcopy(FORMS)
+        for field in ("admin_email", "blogname"):
+            data["general"]["fields"][field]["env"] = "SITE"
+        self.assertEqual(
+            ["web-app-x: general.fields: two fields name the variable SITE"],
+            form_schema.schema_errors("web-app-x", data),
+        )
 
     def test_a_template_in_any_forms_string_is_refused(self):
         for key, value in (
@@ -161,7 +233,7 @@ class TestSchema(unittest.TestCase):
                 self.assertIn(
                     f"web-app-x: general.fields.blogname.{key} must hold no template;"
                     f" {ROLE_FILE_META_FORMS} is never rendered",
-                    forms.schema_errors(
+                    form_schema.schema_errors(
                         "web-app-x", _with_field("general", "blogname", spec)
                     ),
                 )
@@ -169,12 +241,267 @@ class TestSchema(unittest.TestCase):
         data["general"]["path"] = "/{{ admin_path }}"
         self.assertIn(
             f"web-app-x: general.path must hold no template; {ROLE_FILE_META_FORMS} is never rendered",
-            forms.schema_errors("web-app-x", data),
+            form_schema.schema_errors("web-app-x", data),
         )
 
     def test_an_empty_file_is_refused(self):
-        self.assertEqual(1, len(forms.schema_errors("web-app-x", {})))
-        self.assertEqual(1, len(forms.schema_errors("web-app-x", None)))
+        self.assertEqual(1, len(form_schema.schema_errors("web-app-x", {})))
+        self.assertEqual(1, len(form_schema.schema_errors("web-app-x", None)))
+
+    def test_a_scalar_map_and_a_negated_when_pass(self):
+        spec = {
+            **_field("general", "blogname"),
+            "when": "!design.enabled",
+            "map": {True: "1", False: "0", "open": 2},
+        }
+        self.assertEqual(
+            [],
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
+        )
+
+    def test_a_map_that_maps_nothing_or_to_a_structure_is_refused(self):
+        for table in ({}, [True, "1"], {True: ["1"]}, {True: None}):
+            with self.subTest(table=table):
+                spec = {**_field("general", "blogname"), "map": table}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.fields.blogname.map must map each "
+                            "source value to a scalar the app stores"
+                        )
+                    ],
+                    form_schema.schema_errors(
+                        "web-app-x", _with_field("general", "blogname", spec)
+                    ),
+                )
+
+    def test_a_negation_needs_a_dotted_path(self):
+        for when in ("!", "!!design.enabled", "!design"):
+            with self.subTest(when=when):
+                spec = {**_field("general", "blogname"), "when": when}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.fields.blogname.when must be a dotted "
+                            "inventory path"
+                        )
+                    ],
+                    form_schema.schema_errors(
+                        "web-app-x", _with_field("general", "blogname", spec)
+                    ),
+                )
+
+    def test_a_form_naming_its_sinks_passes(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["sinks"] = ["WORDPRESS_OPTIONS", "WP_NETWORK_2"]
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_sinks_that_are_no_distinct_role_variables_are_refused(self):
+        for sinks in (
+            [],
+            "WORDPRESS_OPTIONS",
+            ["wordpress_options"],
+            ["WORDPRESS-OPTIONS"],
+            ["{{ SINK }}"],
+            ["WORDPRESS_OPTIONS", "WORDPRESS_OPTIONS"],
+            [None],
+        ):
+            with self.subTest(sinks=sinks):
+                data = copy.deepcopy(FORMS)
+                data["general"]["sinks"] = sinks
+                self.assertIn(
+                    (
+                        "web-app-x: general.sinks must list distinct UPPER_SNAKE_CASE "
+                        "role variables that carry the form's values"
+                    ),
+                    form_schema.schema_errors("web-app-x", data),
+                )
+
+    def test_a_form_naming_its_record_passes(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {"selector": "#clientId", "source": "clients.ids"}
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_a_record_without_its_input_or_ids_is_refused(self):
+        for record in (
+            {"selector": "#clientId"},
+            {"source": "clients.ids"},
+            {"selector": "#clientId", "source": "clients.ids", "match": "id"},
+            {"selector": " ", "source": "clients.ids"},
+            {"selector": "#clientId", "source": "{{ ids }}"},
+            ["#clientId", "clients.ids"],
+        ):
+            with self.subTest(record=record):
+                data = copy.deepcopy(FORMS)
+                data["general"]["record"] = record
+                self.assertIn(
+                    (
+                        "web-app-x: general.record must map selector to the input"
+                        " that shows the edited record's id and source to the"
+                        " inventory path of the ids the deployment created"
+                    ),
+                    form_schema.schema_errors("web-app-x", data),
+                )
+
+    def test_a_template_in_the_record_selector_is_refused(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {"selector": "{{ id }}", "source": "clients.ids"}
+        self.assertEqual(
+            [
+                (
+                    "web-app-x: general.record.selector must hold no template;"
+                    " meta/forms.yml is never rendered"
+                )
+            ],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
+    def test_a_field_key_may_be_the_apps_own_camel_case_setting_name(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["fields"] = {
+            "excludedQueryParameters": _field("general", "blogname")
+        }
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_a_field_key_may_be_the_apps_own_kebab_case_array_key(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["fields"] = {"publish-username": _field("general", "blogname")}
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_a_field_key_that_starts_with_no_lower_case_letter_is_refused(self):
+        for field in ("ExcludedIps", "-api-key", "1st_site", "api key"):
+            with self.subTest(field=field):
+                data = copy.deepcopy(FORMS)
+                data["general"]["fields"] = {field: _field("general", "blogname")}
+                self.assertEqual(
+                    [
+                        (
+                            f"web-app-x: general.fields: {field!r} is no lower"
+                            " snake_case, camelCase or kebab-case key"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", data),
+                )
+
+    def test_a_form_key_stays_lower_snake_case(self):
+        data = {"generalSettings": copy.deepcopy(FORMS)["general"]}
+        self.assertEqual(
+            ["web-app-x: form 'generalSettings' is no lower snake_case key"],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
+    def test_a_form_the_application_locks_itself_passes(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["native"] = True
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_a_native_flag_other_than_true_is_refused(self):
+        for native in (False, "true", 1, None):
+            with self.subTest(native=native):
+                data = copy.deepcopy(FORMS)
+                data["general"]["native"] = native
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.native must be true, or left out"
+                            " where the shared renderer locks the form"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", data),
+                )
+
+    def test_a_native_form_takes_no_record_and_no_sso_field(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["native"] = True
+        data["general"]["record"] = {"selector": "#clientId", "source": "clients.ids"}
+        data["general"]["fields"]["name"] = {
+            "source": "sso.name",
+            "mode": "enforced",
+            "selector": "#name",
+        }
+        self.assertEqual(
+            [
+                "web-app-x: general.native takes no record; the application locks it",
+                (
+                    "web-app-x: general.native holds no sso.<claim> field; the shared"
+                    " renderer shows its warning"
+                ),
+            ],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
+    @staticmethod
+    def _pending(**keys: object) -> dict:
+        data = copy.deepcopy(FORMS)
+        data["general"].update({"lock": "pending", "issue": ISSUE, **keys})
+        return data
+
+    def test_a_form_whose_lock_is_pending_on_an_issue_passes(self):
+        self.assertEqual([], form_schema.schema_errors("web-app-x", self._pending()))
+
+    def test_a_lock_other_than_pending_is_refused(self):
+        for lock in ("locked", True, None):
+            with self.subTest(lock=lock):
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.lock must be pending, with the issue"
+                            " that tracks the missing lock"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", self._pending(lock=lock)),
+                )
+
+    def test_a_pending_lock_needs_its_issue(self):
+        for issue in ("", " ", None, 7):
+            with self.subTest(issue=issue):
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.lock pending needs an issue: the"
+                            " upstream issue URL or id that tracks the missing lock"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", self._pending(issue=issue)),
+                )
+
+    def test_an_issue_without_a_pending_lock_is_refused(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["issue"] = ISSUE
+        self.assertEqual(
+            ["web-app-x: general.issue belongs to lock: pending"],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
+    def test_a_pending_lock_is_never_native(self):
+        self.assertEqual(
+            [
+                (
+                    "web-app-x: general.lock pending and native exclude each other;"
+                    " the application locks a native form"
+                )
+            ],
+            form_schema.schema_errors("web-app-x", self._pending(native=True)),
+        )
+
+    def test_a_pending_lock_holds_no_sso_field(self):
+        data = self._pending()
+        data["general"]["fields"]["name"] = {
+            "source": "sso.name",
+            "mode": "enforced",
+            "selector": "#name",
+        }
+        self.assertEqual(
+            [
+                (
+                    "web-app-x: general.lock pending holds no sso.<claim> field; the"
+                    " shared renderer shows its warning"
+                )
+            ],
+            form_schema.schema_errors("web-app-x", data),
+        )
 
 
 class TestResolve(unittest.TestCase):
@@ -254,6 +581,27 @@ class TestSourceErrors(unittest.TestCase):
             ["web-app-x: smtp.password.source names nothing in the inventory"],
             forms.source_errors("web-app-x", FORMS, APPLICATION, USERS, {}),
         )
+
+    def test_a_negated_when_resolves_its_path(self):
+        for when, expected in (
+            ("!design.label", []),
+            (
+                "!design.enabled",
+                ["web-app-x: general.blogname.when names nothing in the inventory"],
+            ),
+        ):
+            with self.subTest(when=when):
+                spec = {**_field("general", "blogname"), "when": when}
+                self.assertEqual(
+                    expected,
+                    forms.source_errors(
+                        "web-app-x",
+                        _with_field("general", "blogname", spec),
+                        APPLICATION,
+                        USERS,
+                        CREDENTIALS,
+                    ),
+                )
 
     def test_a_dotted_secret_in_source_or_when_is_never_echoed(self):
         for value in (JWT_SHAPED, SENDGRID_SHAPED):
@@ -339,6 +687,44 @@ class TestSourceErrors(unittest.TestCase):
             ),
         )
 
+    def test_a_record_source_resolves_or_is_reported(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {
+            "selector": "#clientId",
+            "source": "services.keycloak.clients",
+        }
+        application = {**APPLICATION, "services": {"keycloak": {"clients": ["a"]}}}
+        self.assertEqual(
+            [], forms.source_errors("web-app-x", data, application, USERS, CREDENTIALS)
+        )
+        self.assertEqual(
+            ["web-app-x: general.record.source names nothing in the inventory"],
+            forms.source_errors("web-app-x", data, APPLICATION, USERS, CREDENTIALS),
+        )
+
+    def test_a_record_source_that_names_a_secret_is_refused(self):
+        for source in (
+            "secrets.credentials.smtp.password",
+            "users.platform_administrator.email",
+            "sso.email",
+            "services.ldap.bind_password",
+            "services.password.ids",
+        ):
+            with self.subTest(source=source):
+                data = copy.deepcopy(FORMS)
+                data["general"]["record"] = {"selector": "#clientId", "source": source}
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.record.source must name no secret;"
+                            " every page carries its ids"
+                        )
+                    ],
+                    forms.source_errors(
+                        "web-app-x", data, APPLICATION, USERS, CREDENTIALS
+                    ),
+                )
+
 
 class TestSecret(unittest.TestCase):
     def test_every_user_path_and_every_credential_path_is_secret(self):
@@ -369,6 +755,25 @@ class TestSecret(unittest.TestCase):
         credentials = {"mail": {"relay": {"algorithm": "alphanumeric"}}}
         self.assertTrue(forms.is_secret("services.mail.RELAY", credentials))
         self.assertFalse(forms.is_secret("services.mail.RELAY", {}))
+
+    def test_a_service_name_is_no_value_segment(self):
+        self.assertFalse(forms.is_secret("services.keycloak.client.redirect_uris", {}))
+
+    def test_every_other_segment_is_searched(self):
+        for source in (
+            "services.keycloak.client.secret",
+            "services.pin",
+            "services.keycloak",
+            "api.token.url",
+        ):
+            with self.subTest(source=source):
+                self.assertTrue(forms.is_secret(source, {}))
+
+    def test_a_service_named_like_a_declared_credential_stays_secret(self):
+        credentials = {"keycloak": {"algorithm": "alphanumeric"}}
+        self.assertTrue(
+            forms.is_secret("services.keycloak.client.redirect_uris", credentials)
+        )
 
     def test_what_is_no_dotted_path_is_secret(self):
         for source in ("SYNTH-SECRET-JINJA-1", "{{ vault_x }}", None, 7):
@@ -408,6 +813,35 @@ class TestLocks(unittest.TestCase):
         ]
         self.assertNotIn("#new_admin_email", selectors)
 
+    def test_a_pending_lock_reaches_the_renderer_only_without_its_issue(self):
+        for issue, selectors in (
+            (ISSUE, ["#mail_smtppassword"]),
+            (" ", ["#blogname", "#mail_smtppassword"]),
+        ):
+            with self.subTest(issue=issue):
+                data = copy.deepcopy(FORMS)
+                data["general"].update({"lock": "pending", "issue": issue})
+                self.assertEqual(
+                    selectors,
+                    [
+                        entry["selector"]
+                        for entry in forms.locks(
+                            "web-app-x", data, APPLICATION, USERS, {}
+                        )
+                    ],
+                )
+
+    def test_a_native_form_never_reaches_the_renderer(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["native"] = True
+        self.assertEqual(
+            ["#mail_smtppassword"],
+            [
+                entry["selector"]
+                for entry in forms.locks("web-app-x", data, APPLICATION, USERS, {})
+            ],
+        )
+
     def test_a_user_source_keeps_its_users_path(self):
         spec = {**_field("general", "admin_email"), "mode": "enforced"}
         managed = _with_field("general", "admin_email", spec)
@@ -438,6 +872,29 @@ class TestLocks(unittest.TestCase):
                     for entry in forms.locks("web-app-x", managed, application, {}, {})
                 ]
                 self.assertEqual(locked, "#blogname" in selectors)
+
+    def test_an_optional_field_whose_source_is_false_is_not_locked(self):
+        for title, locked in (("Fixture", True), (False, False)):
+            with self.subTest(title=title):
+                managed = _with_field(
+                    "general",
+                    "blogname",
+                    {**_field("general", "blogname"), "optional": True},
+                )
+                application = {**APPLICATION, "design": {"label": title}}
+                selectors = [
+                    entry["selector"]
+                    for entry in forms.locks("web-app-x", managed, application, {}, {})
+                ]
+                self.assertEqual(locked, "#blogname" in selectors)
+
+    def test_a_false_source_keeps_its_lock_unless_the_field_is_optional(self):
+        application = {**APPLICATION, "design": {"label": False}}
+        selectors = [
+            entry["selector"]
+            for entry in forms.locks("web-app-x", FORMS, application, {}, {})
+        ]
+        self.assertIn("#blogname", selectors)
 
     def test_a_when_that_names_nothing_raises_without_repeating_it(self):
         managed = _with_field(
@@ -476,6 +933,29 @@ class TestLocks(unittest.TestCase):
                 entry = forms.locks("web-app-x", managed, {}, {}, relay)[0]
                 self.assertEqual(secret, entry["secret"])
 
+    @staticmethod
+    def _record_locks(ids: object) -> list[dict]:
+        data = copy.deepcopy(FORMS)
+        data["general"]["record"] = {
+            "selector": "#clientId",
+            "source": "services.keycloak.clients",
+        }
+        application = {**APPLICATION, "services": {"keycloak": {"clients": ids}}}
+        return forms.locks("web-app-x", data, application, USERS, CREDENTIALS)
+
+    def test_only_the_fields_of_a_record_form_carry_the_ids_it_created(self):
+        pages = {lock["page"]: lock for lock in self._record_locks(["a", "b"])}
+        self.assertEqual(
+            {"selector": "#clientId", "values": ["a", "b"]},
+            pages[FORMS["general"]["path"]]["record"],
+        )
+        self.assertNotIn("record", pages[FORMS["smtp"]["path"]])
+
+    def test_record_ids_that_are_no_list_of_strings_raise(self):
+        for ids in ("a", ["a", 1], {"a": 1}, None):
+            with self.subTest(ids=ids), self.assertRaises(forms.SourceError):
+                self._record_locks(ids)
+
 
 class TestDrift(unittest.TestCase):
     def test_an_enforced_field_that_differs_names_old_and_new(self):
@@ -493,6 +973,20 @@ class TestDrift(unittest.TestCase):
                 "web-app-x: general.blogname (design.label): 'My blog' -> 'Infinito.Nexus'"
             ],
             lines,
+        )
+
+    def test_a_form_whose_lock_is_pending_still_reports_its_drift(self):
+        data = copy.deepcopy(FORMS)
+        data["general"].update({"lock": "pending", "issue": ISSUE})
+        self.assertEqual(
+            ["web-app-x: general.blogname: changed"],
+            drift.drift(
+                "web-app-x",
+                data,
+                {"general.blogname": "Infinito.Nexus"},
+                {"general.blogname": "My blog"},
+                CREDENTIALS,
+            ),
         )
 
     def test_without_the_raw_application_or_the_secrets_nothing_is_shown(self):
@@ -616,6 +1110,18 @@ class TestDriftShowsOnlyPlainValues(unittest.TestCase):
             ),
             "OLD-TYPED-SECRET",
             "NEW-TYPED-SECRET",
+        )
+
+    def test_a_file_type_hides_its_values(self):
+        self.assert_hidden(
+            _drift_one(
+                {"source": "services.design.logo", "type": "file"},
+                "OLD-LOGO",
+                "NEW-LOGO",
+                {},
+            ),
+            "OLD-LOGO",
+            "NEW-LOGO",
         )
 
     def test_a_user_source_hides_its_values(self):

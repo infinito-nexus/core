@@ -9,15 +9,6 @@ sso:
   oidc:
     fallback_enabled: true
   profile:
-    locked:
-      name: "#jform_name[data-infinito-sso-locked]"
-      username: "#jform_username[data-infinito-sso-locked]"
-      email: "#jform_email1[data-infinito-sso-locked]"
-      language: "#jform_params_language[data-infinito-sso-locked]"
-      timezone: "#jform_params_timezone[data-infinito-sso-locked]"
-      phone: "#jform_profile_phone[data-infinito-sso-locked]"
-      website: "#jform_profile_website[data-infinito-sso-locked]"
-      address: "#jform_profile_address1[data-infinito-sso-locked],#jform_profile_city[data-infinito-sso-locked],#jform_profile_region[data-infinito-sso-locked],#jform_profile_postal_code[data-infinito-sso-locked],#jform_profile_country[data-infinito-sso-locked]"
     languages: [en]
 # nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
 javascript:

@@ -10,13 +10,12 @@
       realm:
         totp_enabled: false
         totp_enforced: false
+      directory_client:
+        enabled: true
     dashboard:
       enabled: true
       shared: true
     email:
-      enabled: true
-      shared: true
-    javascript:
       enabled: true
       shared: true
     ldap:
@@ -50,9 +49,6 @@
     email:
       enabled: false
       shared: false
-    javascript:
-      enabled: false
-      shared: false
     ldap:
       shared: false
       enabled: false
@@ -84,9 +80,6 @@
     email:
       enabled: true
       shared: true
-    javascript:
-      enabled: false
-      shared: false
     ldap:
       shared: true
       enabled: true

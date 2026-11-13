@@ -38,15 +38,27 @@ FORMS = {
 }
 
 
+PROFILE_FORM = {
+    "profile": {
+        "path": "/profile",
+        "fields": {
+            field: {"source": f"sso.{field}", "mode": "enforced", "selector": selector}
+            for field, selector in PROFILE.items()
+        },
+    }
+}
+
+
 def _application(*, profile: bool, managed: bool) -> dict:
     application: dict = {"services": {"sso": {"enabled": True}}}
+    forms: dict = {}
     if profile:
-        application["services"]["sso"]["profile"] = {
-            "locked": PROFILE,
-            "languages": ["en", "de"],
-        }
+        application["services"]["sso"]["profile"] = {"languages": ["en", "de"]}
+        forms.update(PROFILE_FORM)
     if managed:
-        application["forms"] = FORMS
+        forms.update(FORMS)
+    if forms:
+        application["forms"] = forms
     return application
 
 
@@ -70,12 +82,12 @@ class TestFieldLocks(unittest.TestCase):
             ):
                 return module.LookupModule().run([APP], variables={})[0]
 
-    def test_the_profile_lock_comes_first_as_one_entry_without_unlock(self):
+    def test_the_sso_fields_lock_as_one_profile_entry_without_unlock(self):
         entries = self._run(_application(profile=True, managed=True))["locks"]
 
         self.assertEqual(
             {
-                "page": None,
+                "page": "/profile",
                 "selector": ",".join(PROFILE.values()),
                 "label": None,
                 "path": None,
@@ -85,6 +97,14 @@ class TestFieldLocks(unittest.TestCase):
         )
         self.assertEqual(
             ["#relay"], [entry["selector"] for entry in entries if entry["path"]]
+        )
+
+    def test_the_server_guards_get_each_sso_field_and_its_selector(self):
+        self.assertEqual(
+            PROFILE, self._run(_application(profile=True, managed=True))["profile"]
+        )
+        self.assertEqual(
+            {}, self._run(_application(profile=False, managed=True))["profile"]
         )
 
     def test_a_role_with_forms_only_locks_its_enforced_fields(self):
@@ -105,7 +125,7 @@ class TestFieldLocks(unittest.TestCase):
 
     def test_a_role_with_neither_locks_nothing(self):
         self.assertEqual(
-            {"locks": [], "languages": None},
+            {"locks": [], "languages": None, "profile": {}},
             self._run(_application(profile=False, managed=False)),
         )
 

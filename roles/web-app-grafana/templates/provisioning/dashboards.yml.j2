@@ -2,7 +2,7 @@ apiVersion: 1
 providers:
   - name: infinito
     orgId: 1
-    folder: {{ SOFTWARE_NAME | to_json }}
+    folder: {{ GRAFANA_DASHBOARDS.folder | to_json }}
     type: file
     disableDeletion: true
     allowUiUpdates: false

@@ -1,0 +1,10 @@
+---
+# Param forms_drift_current: each form of the role's meta/forms.yml mapped to the enforced fields the run read from the application and is about to overwrite, each mapped to the value the application holds.
+# Output forms_drift_lines: the drift report, one line per overwritten field, values only where the fail-closed rule of utils/roles/applications/forms.py allows.
+
+- name: "🔎 Compare the managed fields of {{ application_id }} with their sources"
+  ansible.builtin.set_fact:
+    forms_drift_lines: "{{ lookup('form_drift', application_id, forms_drift_current) }}"
+
+- name: "📣 Report the managed fields of {{ application_id }} the run overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift_report.yml') }}"

@@ -100,6 +100,28 @@ def secondary_pattern(domain: str) -> str:
     )
 
 
+def directory_context(realm: str) -> dict:
+    """Resolve the directory client's names through ``vars/main.yml``, switch off.
+
+    Args:
+        realm: KEYCLOAK_REALM the client id derives from.
+    """
+    env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+    client_id = env.from_string(ROLE_VARS["KEYCLOAK_DIRECTORY_CLIENT_ID"]).render(
+        KEYCLOAK_REALM=realm
+    )
+    return {
+        "KEYCLOAK_DIRECTORY_CLIENT_ENABLED": False,
+        "KEYCLOAK_DIRECTORY_CLIENT_ID": client_id,
+        "KEYCLOAK_DIRECTORY_CLIENT_SECRET": "d" * 64,
+        "KEYCLOAK_DIRECTORY_CLIENT_ROLES": ROLE_VARS["KEYCLOAK_DIRECTORY_CLIENT_ROLES"],
+        "KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT": env.from_string(
+            ROLE_VARS["KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT"]
+        ).render(KEYCLOAK_DIRECTORY_CLIENT_ID=client_id),
+        "KEYCLOAK_CONSOLE_ROLE_CLIENT": ROLE_VARS["KEYCLOAK_CONSOLE_ROLE_CLIENT"],
+    }
+
+
 APP_URL = "https://suite.crm.example.com"
 ONION_URL = "http://suite.crm." + "a" * 56 + ".onion"
 
@@ -145,6 +167,7 @@ CONTEXT = {
     "KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE"],
     "KEYCLOAK_REGISTRATION_ALLOWED": ROLE_VARS["KEYCLOAK_REGISTRATION_ALLOWED"],
     "KEYCLOAK_ADMIN_EVENTS_EXPIRATION": ADMIN_EVENTS_DAYS * 86400,
+    **directory_context("example.com"),
     "LDAP_ONLY": False,
     "OIDC": {
         "CLIENT": {"SECRET": "s3cret", "ID": "example.com"},

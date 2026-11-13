@@ -381,15 +381,9 @@ def get_merged_applications(
 ) -> dict[str, Any]:
     """Return the applications payload for *variables*, cached per key.
 
-    A re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE``
-    is written, because its payload carries no users and keeps its volumes. It
-    is therefore memoised on the render guard instead, which drops it when the
-    guard releases. Without that, one template render recomputed the payload
-    for every ``lookup('applications')`` it made.
-
-    ``forms`` stays out of the templar like ``volumes``: the merged managed
-    fields, inventory overrides included, come back unrendered, so a template
-    in a field's ``source`` can never surface a decrypted value.
+    A re-entrant call returns the unrendered payload, memoised on the render
+    guard. ``forms`` and ``volumes`` stay unrendered. Each application renders
+    with ``application_id`` bound to its own id.
     """
     from .users import get_merged_users
 
@@ -443,13 +437,16 @@ def get_merged_applications(
             roles_dir=roles_dir,
             templar=None,
         )
-        rendered = _render_with_templar(
-            merged,
-            templar=templar,
-            variables=variables,
-            raw_applications=merged,
-            raw_users=raw_users,
-        )
+        rendered = {
+            app_id: _render_with_templar(
+                app_cfg,
+                templar=templar,
+                variables={**variables, "application_id": app_id},
+                raw_applications=merged,
+                raw_users=raw_users,
+            )
+            for app_id, app_cfg in merged.items()
+        }
     finally:
         _RENDER_GUARD.applications = False
         _RENDER_GUARD.nested_payloads = {}

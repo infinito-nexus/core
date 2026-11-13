@@ -2,6 +2,7 @@
   const config = window.__INFINITO_LOGOUT__ || {};
   const origin = config.origin || "";
   const everywhere = config.everywhere || "";
+  const torSuffix = config.tor_suffix || "";
   const CATALOGUE = config.i18n || {};
   const LOGOUT_PATH = "/protocol/openid-connect/logout";
   const CONFIRM_ID = "kc-logout";
@@ -75,7 +76,7 @@
   }
 
   function pace() {
-    if (window.location.hostname.slice(-6) === ".onion") {
+    if (torSuffix && window.location.hostname.endsWith(torSuffix)) {
       return ` ${s.pace_tor}`;
     }
     return ` ${s.pace}`;

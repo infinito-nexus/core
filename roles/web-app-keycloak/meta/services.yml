@@ -29,10 +29,11 @@ email:
   bond: 1
   enabled: "{{ 'web-app-email' in group_names }}"
   shared: "{{ 'web-app-email' in group_names }}"
+# nocheck: dynamic-flag
 javascript:
   bond: 1
-  enabled: "{{ 'web-svc-logout' in group_names }}"
-  shared: "{{ 'web-svc-logout' in group_names }}"
+  enabled: true
+  shared: true
 # nocheck: playwright-service-flag — self-provider
 keycloak:
   healthcheck:
@@ -90,6 +91,14 @@ keycloak:
       username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
   admin:
     allowed_networks: []
+  client:
+    ids:
+      - "{{ OIDC.CLIENT.ID }}"
+    redirect_uris: "{{ lookup('redirect_uris') }}"
+    web_origins: "{{ lookup('redirect_uris', wildcard='') }}"
+    post_logout_redirect_uris: "{{ (['+'] + lookup('network_urls', lookup('tls', 'web-svc-logout', 'url.base') ~ '*')) | join('##') }}"
+  directory_client:
+    enabled: false
   ports:
     local:
       http: 8032

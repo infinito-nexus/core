@@ -1,0 +1,26 @@
+---
+client:
+  path: /admin/
+  record:
+    selector: "#clientId"
+    source: services.keycloak.client.ids
+  sinks: [KEYCLOAK_CLIENT, KEYCLOAK_REDIRECT_URIS, KEYCLOAK_WEB_ORIGINS, KEYCLOAK_POST_LOGOUT_URIS]
+  fields:
+    redirect_uris:
+      source: services.keycloak.client.redirect_uris
+      mode: enforced
+      selector: "#kc-redirect input, #kc-redirect button"
+      type: url
+      label: Valid redirect URIs
+    post_logout_redirect_uris:
+      source: services.keycloak.client.post_logout_redirect_uris
+      mode: enforced
+      selector: "#kc-postLogoutRedirect input, #kc-postLogoutRedirect button"
+      type: url
+      label: Valid post logout redirect URIs
+    web_origins:
+      source: services.keycloak.client.web_origins
+      mode: enforced
+      selector: "#kc-web-origins input, #kc-web-origins button"
+      type: url
+      label: Web origins

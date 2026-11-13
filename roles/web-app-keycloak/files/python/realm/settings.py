@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""Converge Keycloak client scopes, clients and realm settings over the admin REST API.
-
-Env:
-    KC_URL: Keycloak base URL reachable from the network namespace the script runs in.
-    KC_PID: host PID of the Keycloak container, whose environment holds the admin credentials.
-    KC_REALM: realm holding the client scopes and clients.
-
-Stdin: JSON object with
-    clientScopes: client scopes the realm gets when it has none of that name.
-    clients: clients created when absent, updated when they drifted, their scope lists converged.
-    realms: ``{"realm": <name>, "desired": <partial realm>}`` objects deep-merged into their realm.
-
-Output: one ``<outcome> <kind> <name>`` line per object, then one ``summary`` line.
-Exit: 0 every object converged, 1 otherwise.
-"""
 
 from __future__ import annotations
 
@@ -34,6 +19,8 @@ SCOPE_LISTS = (
 CLIENT_KEYS = ("id", "clientId")
 EMPTY = (None, "", [], {})
 ERRORS = (KeycloakError, OSError, KeyError, TypeError, ValueError)
+MODES = ("converge", "read")
+MISSING = object()
 
 
 class RefusalError(Exception):
@@ -214,15 +201,81 @@ def converge_realm(kc: Keycloak, realm: str, desired: dict) -> str:
     return "updated"
 
 
+def _at(node: object, path: list[str]) -> object:
+    for key in path:
+        if not isinstance(node, dict) or key not in node:
+            return MISSING
+        node = node[key]
+    return node
+
+
+def _nested(path: list[str], value: object) -> object:
+    for key in reversed(path):
+        value = {key: value}
+    return value
+
+
+def overwritten(
+    desired: dict, existing: dict | None, fields: dict[str, list[str]]
+) -> dict:
+    """Return the managed fields a converge of one client overwrites.
+
+    Args:
+        desired: client representation the converge writes.
+        existing: the client as Keycloak holds it, or None when it is absent.
+        fields: form field mapped to the key path of its value in a client
+            representation; a field ``desired`` lacks is left out.
+
+    Returns:
+        Each field whose desired value Keycloak does not hold, mapped to the
+        held value, None where Keycloak omits it; empty for an absent client.
+    """
+    if existing is None:
+        return {}
+    found = {}
+    for field, path in fields.items():
+        want = _at(desired, path)
+        if want is not MISSING and not matches(_nested(path, want), existing):
+            have = _at(existing, path)
+            found[field] = None if have is MISSING else have
+    return found
+
+
+def held_fields(kc: Keycloak, spec: dict) -> dict:
+    """Return the managed fields a converge overwrites, per client.
+
+    Args:
+        kc: client.
+        spec: ``clients``, the client representations a converge writes, and
+            ``fields``, as ``overwritten`` takes them.
+
+    Returns:
+        Each clientId of ``spec["clients"]`` mapped to ``overwritten`` of it.
+    """
+    clients, _ = kc.call("GET", "clients")
+    existing = {client["clientId"]: client for client in clients}
+    return {
+        desired["clientId"]: overwritten(
+            desired, existing.get(desired["clientId"]), spec["fields"]
+        )
+        for desired in spec["clients"]
+    }
+
+
 def main() -> int:
     env = os.environ
     try:
+        if env["KC_MODE"] not in MODES:
+            raise ValueError(f"KC_MODE must be one of {', '.join(MODES)}")
         kc = Keycloak(
             env["KC_URL"],
             env["KC_REALM"],
             *container_credentials(Path("/proc") / env["KC_PID"] / "environ"),
         )
         spec = json.load(sys.stdin)
+        if env["KC_MODE"] == "read":
+            print(json.dumps(held_fields(kc, spec), sort_keys=True))
+            return 0
         wanted_scopes, wanted_clients, wanted_realms = (
             spec["clientScopes"],
             spec["clients"],

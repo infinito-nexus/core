@@ -29,7 +29,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.tls_common import as_str
+from utils.tls.common import as_str
 
 SAME_ORIGIN_PATH = "/_infinito/cdn"
 

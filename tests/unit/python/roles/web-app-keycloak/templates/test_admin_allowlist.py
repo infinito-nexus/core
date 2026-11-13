@@ -44,6 +44,7 @@ STUBBED_FRAGMENTS = {
         "{% for network in KEYCLOAK_ADMIN_NETWORKS %}allow {{ network }};{% endfor %}\n"
     ),
     "logout_panel.conf.j2": "LOGOUT_PANEL\n",
+    "field_lock.conf.j2": "FIELD_LOCK\n",
 }
 
 STUBBED_INCLUDES = {
@@ -137,12 +138,15 @@ def render(networks, deployment_mode: str = "compose") -> str:
     )
 
 
-def extra_configuration(networks: list[str], logout_panel_enabled: bool) -> str:
+def extra_configuration(
+    networks: list[str], logout_panel_enabled: bool, javascript_enabled: bool
+) -> str:
     """Evaluate the vhost extras svc-stack renders from `meta/server.yml`.
 
     Args:
         networks: the resolved `KEYCLOAK_ADMIN_NETWORKS`.
         logout_panel_enabled: the resolved `KEYCLOAK_LOGOUT_PANEL_ENABLED`.
+        javascript_enabled: the resolved `KEYCLOAK_JAVASCRIPT_ENABLED`.
     """
     vhost = load_yaml(ROLE_DIR / ROLE_FILE_META_SERVER)["vhosts"]["default"]
     deploy = next(
@@ -163,6 +167,7 @@ def extra_configuration(networks: list[str], logout_panel_enabled: bool) -> str:
                 "front_proxy_extra_configuration": "",
                 "KEYCLOAK_ADMIN_NETWORKS": networks,
                 "KEYCLOAK_LOGOUT_PANEL_ENABLED": logout_panel_enabled,
+                "KEYCLOAK_JAVASCRIPT_ENABLED": javascript_enabled,
             },
         )
         return templar.template(
@@ -211,23 +216,26 @@ class TestShippedValue(unittest.TestCase):
 
 class TestVhostExtras(unittest.TestCase):
     def test_no_declared_network_adds_no_text(self):
-        for panel, expected in (
-            (True, "HELPER_IFRAMES\nLOGOUT_PANEL\n"),
-            (False, "HELPER_IFRAMES\n"),
+        for panel, javascript, expected in (
+            (True, True, "HELPER_IFRAMES\nLOGOUT_PANEL\nFIELD_LOCK\n"),
+            (False, True, "HELPER_IFRAMES\nFIELD_LOCK\n"),
+            (False, False, "HELPER_IFRAMES\n"),
         ):
-            with self.subTest(logout_panel_enabled=panel):
-                self.assertEqual(extra_configuration([], panel), expected)
+            with self.subTest(
+                logout_panel_enabled=panel, javascript_enabled=javascript
+            ):
+                self.assertEqual(extra_configuration([], panel, javascript), expected)
 
     def test_declared_networks_sit_between_the_helpers_and_the_panel(self):
         self.assertEqual(
-            extra_configuration(["203.0.113.0/24"], True),
-            "HELPER_IFRAMES\nallow 203.0.113.0/24;\nLOGOUT_PANEL\n",
+            extra_configuration(["203.0.113.0/24"], True, True),
+            "HELPER_IFRAMES\nallow 203.0.113.0/24;\nLOGOUT_PANEL\nFIELD_LOCK\n",
         )
 
     def test_declared_networks_without_the_panel_follow_the_helpers(self):
         self.assertEqual(
-            extra_configuration(["203.0.113.0/24"], False),
-            "HELPER_IFRAMES\nallow 203.0.113.0/24;\n",
+            extra_configuration(["203.0.113.0/24"], False, True),
+            "HELPER_IFRAMES\nallow 203.0.113.0/24;\nFIELD_LOCK\n",
         )
 
 

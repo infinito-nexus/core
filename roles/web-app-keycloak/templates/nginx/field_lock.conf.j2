@@ -1,0 +1,7 @@
+location ~ ^/infinito/field-lock\.[0-9a-f]+\.js$ {
+  alias {{ KEYCLOAK_FIELD_LOCK_FILE }};
+  default_type application/javascript;
+  add_header Cache-Control "public, max-age=2592000, immutable" always;
+  add_header X-Content-Type-Options "nosniff" always;
+  access_log off;
+}

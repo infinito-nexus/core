@@ -116,6 +116,16 @@ An addon under `meta/addons/` MAY declare an `incompatible_plugins` list in its 
 The plan's `disable` list carries every listed plugin that ends up off and still runs, and [02_install.yml](./02_install.yml) disables the listed plugins again before an install attempt.
 This guarantees that mutually exclusive integrations such as the OIDC entry points (`oidc_login`, `sociallogin`, `user_oidc`) and the document-editing surfaces (`onlyoffice`, `richdocuments`, `fileslibreofficeedit`) cannot accidentally coexist on the same instance.
 
+Before any plugin changes, a pending switch to an OIDC plugin that Nextcloud does not run yet reads the accounts each plugin keyed ([files/php/utils/sso_accounts.php](../../../files/php/utils/sso_accounts.php)). The switch is refused while it would give one of them a new user id, and the refusal names each account and the way out ([nextcloud_rekeyed_accounts](../../../filter_plugins/nextcloud_sso_accounts.py)):
+
+| Accounts | Keyed by | Kept by |
+|---|---|---|
+| Created by `sociallogin` under its provider, or connected to it | `<provider>-<sub>` | `sociallogin` |
+| Created by `user_oidc` | its own backend, which only runs while `user_oidc` does | `user_oidc` |
+| Of `user_ldap` | the LDAP user id | `user_oidc` and `oidc_login` while `user_ldap` stays on |
+
+So the flip from `sociallogin` to `oidc_login` that enabling LDAP brings is refused while `sociallogin` holds an account, and so is the flip back that disabling LDAP brings while LDAP accounts exist.
+
 ## Entry point
 
 [02_manager_ops.yml](../../02_manager_ops.yml) includes [06_plugin.yml](../06_plugin.yml) once.

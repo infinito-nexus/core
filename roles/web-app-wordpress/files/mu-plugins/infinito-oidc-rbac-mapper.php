@@ -570,7 +570,7 @@ function infinito_oidc_is_managed_user($user_id) {
 }
 
 /**
- * @return array The INFINITO_OIDC_LOCKABLE_FIELDS entries of the services.sso.profile.locked keys that
+ * @return array The INFINITO_OIDC_LOCKABLE_FIELDS entries of the sso.<claim> field keys of meta/forms.yml that
  *               WORDPRESS_OIDC_PROFILE_LOCKED lists, by key; throws when the variable is no non-empty JSON list or
  *               names a field the mapper cannot keep.
  */
@@ -599,7 +599,7 @@ function infinito_oidc_locked_storage($storage) {
 
 /**
  * @param string $classes The admin body classes.
- * @return string The classes plus the one the services.sso.profile.locked selectors match when profile.php or
+ * @return string The classes plus the one the selectors of the sso.<claim> fields match when profile.php or
  *                user-edit.php renders an OIDC account; user-edit.php sets the global $user_id to the edited
  *                account before admin-header.php applies this filter.
  */

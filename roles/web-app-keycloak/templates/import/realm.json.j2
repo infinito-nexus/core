@@ -454,6 +454,23 @@
       "notBefore": 0,
       "groups": []
     }
+{% if KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool %}
+    ,{
+      "username": "{{ KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT }}",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "{{ KEYCLOAK_DIRECTORY_CLIENT_ID }}",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-{{ KEYCLOAK_REALM }}"
+      ],
+      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_DIRECTORY_CLIENT_ROLES} | to_json }},
+      "notBefore": 0,
+      "groups": []
+    }
+{% endif %}
   ],
   "scopeMappings": [
     {
@@ -787,6 +804,9 @@
       ]
     },
     {% include "clients/default.json.j2" %}
+{% if KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool %}
+    ,{% include "clients/directory.json.j2" %}
+{% endif %}
 {% for kc_client_app in KEYCLOAK_DECLARED_CLIENT_APPS %}
     ,{% include 'roles/' ~ kc_client_app ~ '/templates/keycloak/clients.json.j2' %}
 {% endfor %}

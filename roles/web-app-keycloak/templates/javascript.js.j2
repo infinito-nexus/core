@@ -1,3 +1,4 @@
+{%- if KEYCLOAK_LOGOUT_PANEL_ENABLED | bool -%}
 {%- set panel = lookup('template', application_id | abs_role_path_by_application_id ~ '/templates/logout-panel.js.j2') -%}
 {%- set catalogue = lookup('file', application_id | abs_role_path_by_application_id ~ '/files/logout_i18n.yml') | from_yaml -%}
 (function () {
@@ -22,5 +23,16 @@
   tag.src = "/infinito/logout-panel.{{ panel | hash('sha1') }}.js";
   tag.defer = true;
   tag.onerror = stranded;
+  (document.head || document.documentElement).appendChild(tag);
+})();
+{%- endif -%}
+{%- set field_lock = lookup('template', application_id | abs_role_path_by_application_id ~ '/templates/field-lock.js.j2') -%}
+{%- set field_pages = lookup('field_locks', application_id).locks | map(attribute='page') | map('regex_replace', '[?#].*$', '') | unique | list -%}
+(function () {
+  var pages = {{ field_pages | to_json }};
+  if (!pages.some(function (page) { return window.location.pathname.indexOf(page) === 0; })) { return; }
+  var tag = document.createElement("script");
+  tag.src = "/infinito/field-lock.{{ field_lock | hash('sha1') }}.js";
+  tag.defer = true;
   (document.head || document.documentElement).appendChild(tag);
 })();

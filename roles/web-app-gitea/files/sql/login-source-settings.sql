@@ -1,0 +1,28 @@
+SELECT s.id,
+       s.type,
+       s.name,
+       s.is_sync_enabled,
+       JSON_VALUE(s.cfg, '$.Host'),
+       JSON_VALUE(s.cfg, '$.Port'),
+       JSON_VALUE(s.cfg, '$.SecurityProtocol'),
+       JSON_VALUE(s.cfg, '$.BindDN'),
+       JSON_VALUE(s.cfg, '$.UserBase'),
+       JSON_VALUE(s.cfg, '$.Filter'),
+       JSON_VALUE(s.cfg, '$.AdminFilter'),
+       JSON_VALUE(s.cfg, '$.RestrictedFilter'),
+       JSON_VALUE(s.cfg, '$.AttributeUsername'),
+       JSON_VALUE(s.cfg, '$.AttributeName'),
+       JSON_VALUE(s.cfg, '$.AttributeSurname'),
+       JSON_VALUE(s.cfg, '$.AttributeMail'),
+       JSON_VALUE(s.cfg, '$.AttributeSSHPublicKey'),
+       JSON_VALUE(s.cfg, '$.AttributeAvatar'),
+       JSON_VALUE(s.cfg, '$.Provider'),
+       JSON_VALUE(s.cfg, '$.ClientID'),
+       JSON_VALUE(s.cfg, '$.OpenIDConnectAutoDiscoveryURL'),
+       JSON_EXTRACT(s.cfg, '$.Scopes'),
+       JSON_VALUE(s.cfg, '$.GroupClaimName'),
+       JSON_VALUE(s.cfg, '$.AdminGroup'),
+       JSON_VALUE(s.cfg, '$.RestrictedGroup')
+FROM login_source s
+WHERE s.type IN (2, 6)
+ORDER BY s.id;

@@ -185,5 +185,93 @@ class TestDrift(unittest.TestCase):
         )
 
 
+READING_FORMS = {
+    "general": {
+        "path": "/wp-admin/options-general.php",
+        "fields": {"blogname": {"source": "services.design.title"}},
+    },
+    "permalink": {
+        "path": "/wp-admin/options-permalink.php",
+        "fields": {
+            "permalink_structure": {
+                "source": "services.wordpress.options.permalink_structure"
+            }
+        },
+    },
+    "broken": "no mapping",
+}
+
+
+class TestUnread(unittest.TestCase):
+    def test_a_pin_a_field_reads_is_not_listed(self):
+        self.assertEqual(
+            [],
+            MODULE.wordpress_options_unread(
+                {"permalink_structure": STRUCTURE}, READING_FORMS
+            ),
+        )
+
+    def test_every_pin_no_field_reads_is_listed_sorted(self):
+        pins = {
+            "permalink_structure": STRUCTURE,
+            "blogname": "Own",
+            "blogdescription": "Tag",
+        }
+        self.assertEqual(
+            ["blogdescription", "blogname"],
+            MODULE.wordpress_options_unread(pins, READING_FORMS),
+        )
+
+
+FORMS = {
+    "general": {"path": "/wp-admin/options-general.php", "fields": {"blogname": {}}},
+    "permalink": {
+        "path": "/wp-admin/options-permalink.php",
+        "fields": {"permalink_structure": {}},
+    },
+}
+
+
+def _read(key: str, desired, stored, *, rc: int = 0) -> dict:
+    return {
+        "rc": rc,
+        "stdout": json.dumps(stored),
+        "item": {"key": key, "value": desired},
+    }
+
+
+class TestOverwritten(unittest.TestCase):
+    def test_a_managed_option_an_admin_changed_is_grouped_under_its_form(self):
+        results = [
+            _read("blogname", "Blog by Example", "Admin title"),
+            _read("permalink_structure", STRUCTURE, STRUCTURE),
+        ]
+        self.assertEqual(
+            {"general": {"blogname": "Admin title"}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+    def test_a_value_wordpress_stores_as_a_string_is_no_change(self):
+        results = [_read("blogname", 42, "42")]
+        self.assertEqual(
+            {"general": {}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+    def test_an_option_wordpress_does_not_store_yet_is_left_out(self):
+        results = [_read("blogname", "Blog by Example", None, rc=1)]
+        self.assertEqual(
+            {"general": {}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+    def test_an_option_no_form_manages_is_left_out(self):
+        results = [_read("blogdescription", "Tag", "Admin tag")]
+        self.assertEqual(
+            {"general": {}, "permalink": {}},
+            MODULE.wordpress_options_overwritten(results, FORMS),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

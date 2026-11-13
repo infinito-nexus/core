@@ -1,0 +1,36 @@
+---
+profile:
+  path: /
+  fields:
+    name:
+      source: sso.name
+      mode: enforced
+      selector: "#jform_name[data-infinito-sso-locked]"
+    username:
+      source: sso.preferred_username
+      mode: enforced
+      selector: "#jform_username[data-infinito-sso-locked]"
+    email:
+      source: sso.email
+      mode: enforced
+      selector: "#jform_email1[data-infinito-sso-locked]"
+    language:
+      source: sso.locale
+      mode: enforced
+      selector: "#jform_params_language[data-infinito-sso-locked]"
+    timezone:
+      source: sso.zoneinfo
+      mode: enforced
+      selector: "#jform_params_timezone[data-infinito-sso-locked]"
+    phone:
+      source: sso.phone_number
+      mode: enforced
+      selector: "#jform_profile_phone[data-infinito-sso-locked]"
+    website:
+      source: sso.website
+      mode: enforced
+      selector: "#jform_profile_website[data-infinito-sso-locked]"
+    address:
+      source: sso.address
+      mode: enforced
+      selector: "#jform_profile_address1[data-infinito-sso-locked],#jform_profile_city[data-infinito-sso-locked],#jform_profile_region[data-infinito-sso-locked],#jform_profile_postal_code[data-infinito-sso-locked],#jform_profile_country[data-infinito-sso-locked]"

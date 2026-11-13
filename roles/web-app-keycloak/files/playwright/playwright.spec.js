@@ -1,7 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { skipUnlessServiceEnabled } = require("./service-gating");
 const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, attachDiagnostics, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, requireDotenvValue, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 const { provisionKeycloakUser } = require("./admin-console");
 test.use({ ignoreHTTPSErrors: true });
@@ -58,6 +57,7 @@ const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const mapachePassword = decodeDotenvQuotedValue(process.env.MAPACHE_PASSWORD);
 const emailMailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const logoutPanelEnabled = requireDotenvValue(process.env.KEYCLOAK_LOGOUT_PANEL_ENABLED, "KEYCLOAK_LOGOUT_PANEL_ENABLED") === "true";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -317,7 +317,7 @@ test("biber: normal-realm biber logs in through account interface and logs out",
 // roles/test-e2e-playwright/files/personas/{guest,biber,admin}.js.
 
 test("the logout panel carries the German catalogue from the core translations", async ({ page }) => {
-  skipUnlessServiceEnabled("javascript");
+  test.skip(!logoutPanelEnabled, "KEYCLOAK_LOGOUT_PANEL_ENABLED=false");
   const expected = JSON.parse(decodeDotenvQuotedValue(process.env.LOGOUT_PANEL_DE_JSON || "") || "{}");
   expect(expected.checking, "LOGOUT_PANEL_DE_JSON must carry the German logout strings").toBeTruthy();
   const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME || "");
@@ -349,3 +349,5 @@ test("administrator: app → keycloak → admin action → logout", async ({ pag
 require("./test-design").register();
 require("./test-console-rbac").register();
 require("./test-email-policy").register();
+require("./test-directory-client").register();
+require("./test-managed-client-lock").register();

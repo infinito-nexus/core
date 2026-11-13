@@ -22,7 +22,7 @@ The `.onion` is a **deploy-time input**: a CLI helper mints the v3 key offline d
 |---|---|
 | OpenResty runs `network_mode: host`, binds 80/443, `proxy_pass http://127.0.0.1:<port>` | [`roles/svc-prx-openresty/templates/compose.yml.j2`](../../roles/svc-prx-openresty/templates/compose.yml.j2), [`roles/sys-svc-proxy/templates/location/html.conf.j2`](../../roles/sys-svc-proxy/templates/location/html.conf.j2) |
 | TLS-disabled vhosts serve plain HTTP on `:80`; the http→https 301 exists only in the TLS layer | [`roles/sys-front-tls/templates/http.conf.j2`](../../roles/sys-front-tls/templates/http.conf.j2) |
-| TLS is resolved per `(domain\|application_id)` with `TLS_MODE`/`TLS_ENABLED` defaults, flavors in `AVAILABLE_FLAVORS` | [`plugins/lookup/tls.py`](../../plugins/lookup/tls.py), `utils/tls_common` |
+| TLS is resolved per `(domain\|application_id)` with `TLS_MODE`/`TLS_ENABLED` defaults, flavors in `AVAILABLE_FLAVORS` | [`plugins/lookup/tls.py`](../../plugins/lookup/tls.py), `utils/tls/common` |
 | `DOMAIN_PRIMARY` defined once; `LDAP_DN_BASE`, CA identity, contact email derive from it | [`group_vars/all/00_general.yml:50`](../../group_vars/all/00_general.yml), [`group_vars/all/12_ldap.yml`](../../group_vars/all/12_ldap.yml), [`group_vars/all/02_tls.yml`](../../group_vars/all/02_tls.yml), [`group_vars/all/14_about.yml`](../../group_vars/all/14_about.yml) |
 | Keycloak redirect URIs/web-origins are computed from `lookup('domains')` at deploy | [`plugins/lookup/redirect_uris.py`](../../plugins/lookup/redirect_uris.py), [`roles/web-app-keycloak/vars/main.yml`](../../roles/web-app-keycloak/vars/main.yml) |
 | Apps register one vhost per domain via `include_role: sys-stk-front-proxy` with `domain` + `http_port`; multi-domain is established practice | [`roles/svc-stack/tasks/proxy/domain.yml`](../../roles/svc-stack/tasks/proxy/domain.yml), [`roles/web-app-matrix/tasks/flavor/compose/03_webserver.yml`](../../roles/web-app-matrix/) |
@@ -122,7 +122,7 @@ Location: under [`cli/administration/inventory/`](../../cli/administration/inven
 
 `tasks/01_restore_key.yml` writes the vaulted files into the volume-backed `HiddenServiceDir` (owner = in-container tor UID, `0700` dir, `0600` secret) before the Tor container starts. Existing on-disk keys are never overwritten.
 
-### Per-domain TLS (extend `tls.py` / `utils/tls_common`)
+### Per-domain TLS (extend `tls.py` / `utils/tls/common`)
 
 - Domain ends `.onion` → `enabled=false`, `protocols.web=http`, `ports.web=80`, no ACME. Overrides `TLS_MODE` unconditionally.
 - Non-onion domain → flavor from `applications.<app>.tls.mode`, else `TLS_MODE`.
@@ -159,7 +159,7 @@ applications:
 
 ### Serving
 
-- [ ] Tor sidecar bootstraps (`network_mode: host`); 9050/9051 bind `127.0.0.1` only; zero published ports.
+- [ ] Tor sidecar bootstraps (`network_mode: host`); SocksPort, TransPort and DNSPort bind `127.0.0.1` plus the `docker0` gateway, ControlPort `127.0.0.1` only; no `0.0.0.0` bind; zero published ports. Static half: `test_torrc_listeners.py` renders torrc over every mode and the compose file without a port. Open: the live bootstrap, and swarm, whose task binds `0.0.0.0` inside its own namespace and publishes socks, dns and trans in host mode on every interface of the manager.
 - [ ] `lookup('tls', '<x>.onion')` → http/disabled/80, no ACME attempted; app vhosts serve onion `server_name`s on `:80`; every app reachable at `<sub>.<NODE_ONION>.onion` through `HiddenServicePort 80 → 127.0.0.1:80`.
 - Onion requests reach upstreams with `X-Forwarded-Proto: https`; no `.onion` request is 301'd to https; alias/www canonicalization stays onion-internal; CSP origins (CDN, Matomo, Keycloak, logout) resolve onion, no clearnet leak. Superseded by [055](055-multi-network-serving.md): the forwarded headers, per-vhost alignment, redirects and the cross-network leak spec are criteria there.
 
@@ -230,7 +230,7 @@ Read [AGENTS.md](../../AGENTS.md), then [Role Loop](../../agents/README.md) and 
 
 1. Mint helper + unit tests (address vector, formats, idempotency).
 2. Role scaffold: Dockerfile, compose, torrc, key restore, volume + backup wiring.
-3. `tls.py`/`tls_common`: onion branch + app-level flavor override + unit tests.
+3. `tls.py`/`tls/common`: onion branch + app-level flavor override + unit tests.
 4. E2E CI job (torsocks, retries).
 5. README + cross-link the implementing PR here.
 

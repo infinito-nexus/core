@@ -497,5 +497,56 @@ class TestResolveConsumerId(unittest.TestCase):
             resolve_consumer_id({}, self._Templar())
 
 
+class TestDiscoveryWithoutCredentials(unittest.TestCase):
+    def discover(self, credentials):
+        def get(name, **kwargs):
+            plugin = MagicMock()
+            if name == "users":
+                plugin.run.side_effect = AssertionError("the users were read")
+            elif name == "roles_with_service":
+                plugin.run.return_value = [[HOMEASSISTANT]]
+            elif name == "applications":
+                plugin.run.return_value = [{CONSUMER: {"mcp": CLIENT}}]
+            else:
+                plugin.run.return_value = [{"ephemeral": False, "whitelist": []}]
+            return plugin
+
+        with patch.object(plugin_module.lookup_loader, "get", side_effect=get):
+            return plugin_module.LookupModule().run(
+                [], variables={"application_id": CONSUMER}, credentials=credentials
+            )[0]
+
+    def test_an_entry_keeps_only_its_public_keys(self):
+        full = build_mcp_discovery([HOMEASSISTANT], CONSUMER, CLIENT, CREDENTIALS)
+        public = build_mcp_discovery([HOMEASSISTANT], CONSUMER, CLIENT, None)
+        self.assertEqual(
+            public["selected"],
+            [{key: full["selected"][0][key] for key in plugin_module.PUBLIC_KEYS}],
+        )
+        self.assertNotIn("ha-token", str(public))
+
+    def test_an_unprovisioned_provider_is_still_selected(self):
+        result = build_mcp_discovery([HOMEASSISTANT], CONSUMER, CLIENT, None)
+        self.assertEqual(
+            [entry["id"] for entry in result["selected"]], ["web-app-homeassistant"]
+        )
+
+    def test_the_lookup_reads_no_credential(self):
+        for flag in (False, "false"):
+            result = self.discover(flag)
+            self.assertEqual(
+                [entry["id"] for entry in result["selected"]],
+                ["web-app-homeassistant"],
+            )
+
+    def test_the_credentialed_lookup_reads_the_users(self):
+        with self.assertRaises(AssertionError):
+            self.discover(True)
+
+    def test_a_flag_that_is_no_boolean_aborts(self):
+        with self.assertRaises(AnsibleError):
+            self.discover("sometimes")
+
+
 if __name__ == "__main__":
     unittest.main()

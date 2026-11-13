@@ -11,19 +11,12 @@ sso:
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
   profile:
-    locked:
-      first_name: "body.infinito-sso-managed #your-profile #first_name"
-      last_name: "body.infinito-sso-managed #your-profile #last_name"
-      display_name: "body.infinito-sso-managed #your-profile #display_name"
-      email: "body.infinito-sso-managed #your-profile #email"
-      website: "body.infinito-sso-managed #your-profile #url"
-      language: "body.infinito-sso-managed #your-profile #locale"
     languages: [en]
-# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
+# nocheck: dynamic-flag
 javascript:
   bond: 1
-  enabled: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
-  shared: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
+  enabled: true
+  shared: true
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -103,6 +96,7 @@ wordpress:
         enabled: "{{ lookup('login_method', 'web-app-wordpress', 'registration') }}"
   multisite:
     enabled: false
+  address: "{{ lookup('tls', 'web-app-wordpress', 'url.origin') }}"
   options: # nocheck: inventory-open-subtree  wordpress_options_checked refuses owned, secret and malformed option names at deploy time
     permalink_structure: "/blog/%year%/%monthnum%/%day%/%postname%/"
   ports:

@@ -15,7 +15,7 @@ from utils.networks.reachability import (
 )
 from utils.roles.applications.config import get
 from utils.roles.applications.status_codes import DEFAULT_OK, codes_by_key
-from utils.tls_common import resolve_enabled, resolve_term
+from utils.tls.common import resolve_enabled, resolve_term
 
 # nocheck: project-root-import
 _BASE_DIR = str(Path(__file__).resolve().parents[3])

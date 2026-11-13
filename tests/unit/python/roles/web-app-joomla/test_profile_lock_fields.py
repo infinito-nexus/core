@@ -1,12 +1,3 @@
-"""Every ``services.sso.profile.locked`` key locks the same form fields on both sides.
-
-``templates/env.j2`` renders the keys of ``services.sso.profile.locked`` into
-``JOOMLA_OIDC_PROFILE_LOCKED``; ``Keycloak.php`` resolves each key through
-``LOCKED_COLUMNS``, ``LOCKED_PARAMS`` or the addon's profile claim maps and
-marks those fields ``data-infinito-sso-locked``. The key's selector must name
-exactly those fields, so neither side can lock a field alone.
-"""
-
 from __future__ import annotations
 
 import json
@@ -17,7 +8,8 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.applications import sso_fields
+from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 APP = "web-app-joomla"
 ROLE = PROJECT_ROOT / "roles" / APP
@@ -25,7 +17,7 @@ PLUGIN = (
     ROLE / "files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php"
 )
 ADDON = ROLE / "meta/addons/plg_system_keycloak.yml"
-SERVICES = ROLE / ROLE_FILE_META_SERVICES
+FORMS = ROLE / ROLE_FILE_META_FORMS
 ENV = ROLE / "templates/env.j2"
 ENV_KEY = "JOOMLA_OIDC_PROFILE_LOCKED"
 MARKER = "data-infinito-sso-locked"
@@ -38,7 +30,7 @@ ADDRESS = re.compile(r"const LOCKED_ADDRESS = '(\w+)';")
 
 
 def _locked() -> dict[str, str]:
-    return load_yaml_any(SERVICES)["sso"]["profile"]["locked"]
+    return sso_fields.selectors(load_yaml_any(FORMS))
 
 
 def _constant(source: str, name: str) -> str:
@@ -73,8 +65,8 @@ def _rendered_env_keys() -> list[str]:
     )
 
     def lookup(name: str, *terms: str):
-        if (name, *terms) == ("config", APP, "services.sso.profile.locked"):
-            return _locked()
+        if (name, *terms) == ("field_locks", APP):
+            return {"profile": _locked()}
         raise AssertionError(f"{ENV_KEY} renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup

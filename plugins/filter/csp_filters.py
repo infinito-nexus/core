@@ -9,7 +9,7 @@ from utils.csp.vhost_hashes import register_snippet, vhost_snippets
 from utils.domains.primary_domain import get_domain
 from utils.networks.reachability import TOR, network, network_of
 from utils.roles.applications.config import get
-from utils.tls_common import (
+from utils.tls.common import (
     align_domain_to_consumer,
     issuer_applications,
     iter_domains,

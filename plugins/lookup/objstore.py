@@ -10,7 +10,7 @@ from ansible.plugins.lookup import LookupBase
 from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
 from utils.roles.entity.name import entity_name
-from utils.tls_common import (
+from utils.tls.common import (
     collect_domains_for_app,
     is_onion_domain,
     resolve_enabled,

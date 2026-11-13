@@ -1,16 +1,16 @@
 """Lint guard: a profile field the SSO login overwrites is locked or written back.
 
-A role declares its profile fields under ``services.sso.profile`` in
-``meta/services.yml``:
+A role locks a profile field as a field of its ``meta/forms.yml`` whose
+``source`` is ``sso.<claim>``; its ``selector`` matches only while the field is
+locked for the account the form edits: every comma-separated part of it matches
+the role's ``MANAGED_MARKER``. The role's ``templates/javascript.js.j2``
+includes ``SHARED_RENDERER``, which renders every match read-only with the
+translated warning as its hover title, so the role also enables
+``services.javascript`` and proves the lock in ``ROLE_SPEC``, which
+``ROLE_FILE_PLAYWRIGHT_SPEC`` requires. The role's own server side keeps the
+stored value when a request submits another one. The rest lives under
+``services.sso.profile`` in ``meta/services.yml``:
 
-* ``locked`` maps each field to the CSS selector of its input. The selector
-  matches only while the field is locked for the account the form edits:
-  every comma-separated part of it matches the role's ``MANAGED_MARKER``. The
-  role's ``templates/javascript.js.j2`` includes ``SHARED_RENDERER``, which
-  renders every match read-only with the translated warning as its hover title,
-  so the role also enables ``services.javascript`` and proves the lock in
-  ``ROLE_SPEC``, which ``ROLE_FILE_PLAYWRIGHT_SPEC`` requires. The role's own server side
-  keeps the stored value when a request submits another one.
 * ``languages`` lists the catalogue languages the renderer embeds: the UI
   languages the application serves, the source language included. Each
   language other than the source one translates the ``CATALOGUE_SOURCE``
@@ -29,7 +29,8 @@ Every role with a potentially enabled ``sso`` or ``ldap`` service, a custom
 inventory list of this file or by its own ``overwritten`` or ``none_needed``.
 ``OVERWRITTEN`` names the fields a treated role's login, timer or deploy
 overwrites without writing them back, and each of them, like each field of a
-role's own ``overwritten``, MUST appear in ``locked`` or ``write_back``;
+role's own ``overwritten``, MUST be an ``sso.<claim>`` field or appear in
+``write_back``;
 ``NONE_NEEDED`` names the roles whose inventory rows need no treatment;
 ``PENDING`` is the only exemption, the roles not treated yet with the fields
 still open. A custom role ships from its own repository, so it classifies
@@ -50,8 +51,13 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.i18n.keyed import keyed_catalogue
 from utils.i18n.languages import SOURCE_LANGUAGE, domain_languages, load_languages
+from utils.roles.applications import sso_fields
 from utils.roles.applications.services.sso import is_potentially_enabled
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_PLAYWRIGHT_SPEC
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_PLAYWRIGHT_SPEC,
+)
 
 from . import PROJECT_ROOT, ROLES_DIR, load_role_meta
 
@@ -67,8 +73,9 @@ ROLE_SPEC_ENTRY = re.compile(
     r"^\s*require\(\s*[\"']\./test-profile-lock(?:\.js)?[\"']\s*\)", re.MULTILINE
 )
 PROFILE_KEYS = frozenset(
-    {"locked", "languages", "write_back", "overwritten", "none_needed", "marker"}
+    {"languages", "write_back", "overwritten", "none_needed", "marker"}
 )
+MOVED_KEY = "locked"
 SELF_CLASSIFYING_KEYS = frozenset({"overwritten", "none_needed"})
 
 MANAGED_MARKER: dict[str, re.Pattern[str]] = {
@@ -248,6 +255,17 @@ def _services(role: Path) -> dict[str, Any]:
     return services if isinstance(services, dict) else {}
 
 
+def _forms(role: Path) -> dict[str, Any]:
+    if not (role / ROLE_FILE_META_FORMS).is_file():
+        return {}
+    forms = load_role_meta(role / ROLE_FILE_META_FORMS)
+    return forms if isinstance(forms, dict) else {}
+
+
+def _locked(forms: Any) -> dict[str, Any]:
+    return sso_fields.selectors(forms) if isinstance(forms, dict) else {}
+
+
 def _block(services: dict[str, Any], key: str) -> dict[str, Any]:
     block = services.get(key)
     return block if isinstance(block, dict) else {}
@@ -314,14 +332,19 @@ def _self_classification_errors(where: str, profile: dict[str, Any]) -> list[str
     return errors
 
 
-def _marker_errors(role: str, where: str, profile: dict[str, Any]) -> list[str]:
+def _marker_errors(
+    role: str, where: str, profile: dict[str, Any], locked: dict[str, Any]
+) -> list[str]:
     if "marker" not in profile:
         return []
     errors = []
     if role in MANAGED_MARKER:
         errors.append(f"{where}.marker duplicates MANAGED_MARKER[{role!r}]; keep one")
-    if "locked" not in profile:
-        errors.append(f"{where}.marker needs `locked`, the selectors it checks")
+    if not locked:
+        errors.append(
+            f"{where}.marker needs the sso.<claim> fields of {ROLE_FILE_META_FORMS}, "
+            "the selectors it checks"
+        )
     marker = profile["marker"]
     if not isinstance(marker, str) or not marker.strip():
         errors.append(f"{where}.marker must be a non-empty regular expression")
@@ -333,28 +356,28 @@ def _marker_errors(role: str, where: str, profile: dict[str, Any]) -> list[str]:
     return errors
 
 
-def _schema_errors(role: str, profile: Any, catalogue: frozenset[str]) -> list[str]:
+def _schema_errors(
+    role: str, profile: Any, catalogue: frozenset[str], locked: dict[str, Any]
+) -> list[str]:
     where = f"{role}: services.sso.profile"
     if not isinstance(profile, dict) or not profile:
         return [f"{where} must be a non-empty mapping of {sorted(PROFILE_KEYS)}"]
     errors = [
-        f"{where}.{key} is not a known key; use {sorted(PROFILE_KEYS)}"
+        f"{where}.{MOVED_KEY} moved to {ROLE_FILE_META_FORMS}: declare each field "
+        "there with source sso.<claim>"
+        if key == MOVED_KEY
+        else f"{where}.{key} is not a known key; use {sorted(PROFILE_KEYS)}"
         for key in sorted(set(profile) - PROFILE_KEYS)
     ]
     errors.extend(_self_classification_errors(where, profile))
-    errors.extend(_marker_errors(role, where, profile))
+    errors.extend(_marker_errors(role, where, profile, locked))
     known = FIELDS | _own_overwritten(profile)
-    locked = profile.get("locked", {})
-    if not isinstance(locked, dict) or ("locked" in profile and not locked):
-        errors.append(f"{where}.locked must map each field to a CSS selector")
-        locked = {}
-    for field, selector in locked.items():
-        if field not in known:
-            errors.append(
-                f"{where}.locked.{field} is not a known field {sorted(known)}"
-            )
-        if not isinstance(selector, str) or not selector.strip():
-            errors.append(f"{where}.locked.{field} must be a non-empty CSS selector")
+    errors.extend(
+        f"{role}: {ROLE_FILE_META_FORMS} locks {field}, which is not a known field "
+        f"{sorted(known)}"
+        for field in locked
+        if field not in known
+    )
     if locked:
         languages = profile.get("languages")
         if not isinstance(languages, list) or SOURCE_LANGUAGE not in languages:
@@ -389,20 +412,12 @@ def _schema_errors(role: str, profile: Any, catalogue: frozenset[str]) -> list[s
     return errors
 
 
-def _covered(profile: Any) -> set[str]:
-    if not isinstance(profile, dict):
-        return set()
-    locked = profile.get("locked")
-    write_back = profile.get("write_back")
-    covered = set(locked) if isinstance(locked, dict) else set()
+def _covered(profile: Any, locked: dict[str, Any]) -> set[str]:
+    covered = set(locked)
+    write_back = profile.get("write_back") if isinstance(profile, dict) else None
     if isinstance(write_back, list):
         covered |= set(write_back)
     return covered
-
-
-def _locked(profile: Any) -> dict[str, Any]:
-    locked = profile.get("locked") if isinstance(profile, dict) else None
-    return locked if isinstance(locked, dict) else {}
 
 
 def _marker(role: str, profile: Any) -> re.Pattern[str] | None:
@@ -432,7 +447,7 @@ def _unmarked_parts(marker: re.Pattern[str], locked: dict[str, Any]) -> list[str
 
     Args:
         marker: the role's managed-account marker, see ``_marker``.
-        locked: ``services.sso.profile.locked`` of the role.
+        locked: the selector of each ``sso.<claim>`` field of the role.
 
     Returns:
         ``field: part`` for every comma-separated part that does not fully
@@ -447,18 +462,25 @@ def _unmarked_parts(marker: re.Pattern[str], locked: dict[str, Any]) -> list[str
     ]
 
 
-def schema_errors(services_by_role: dict[str, dict[str, Any]]) -> list[str]:
+def schema_errors(
+    services_by_role: dict[str, dict[str, Any]],
+    forms_by_role: dict[str, Any] | None = None,
+) -> list[str]:
     """Return the findings of every declared ``services.sso.profile``.
 
     Args:
         services_by_role: role name mapped to its parsed ``meta/services.yml``.
+        forms_by_role: role name mapped to its parsed ``meta/forms.yml``.
     """
     catalogue = _catalogue_languages()
+    forms_by_role = forms_by_role or {}
     return [
         error
         for role, services in services_by_role.items()
-        if _profile(services) is not None
-        for error in _schema_errors(role, _profile(services), catalogue)
+        if _profile(services) is not None or _locked(forms_by_role.get(role))
+        for error in _schema_errors(
+            role, _profile(services), catalogue, _locked(forms_by_role.get(role))
+        )
     ]
 
 
@@ -497,43 +519,57 @@ def doubly_classified_roles(services_by_role: dict[str, dict[str, Any]]) -> list
 
 def uncovered_fields(
     services_by_role: dict[str, dict[str, Any]],
+    forms_by_role: dict[str, Any] | None = None,
 ) -> dict[str, list[str]]:
     """Return the overwritten fields each role neither locks nor writes back.
 
     Args:
         services_by_role: role name mapped to its parsed ``meta/services.yml``.
+        forms_by_role: role name mapped to its parsed ``meta/forms.yml``.
 
     Returns:
         Role mapped to the sorted fields of ``OVERWRITTEN`` and of its own
-        ``overwritten`` missing from ``locked`` and ``write_back``; roles
-        without such a field are left out.
+        ``overwritten`` that are neither an ``sso.<claim>`` field nor in
+        ``write_back``; roles without such a field are left out.
     """
+    forms_by_role = forms_by_role or {}
     inventory = {
         role: OVERWRITTEN.get(role, frozenset())
         | _own_overwritten(_profile(services_by_role.get(role, {})))
         for role in {*OVERWRITTEN, *services_by_role}
     }
     missing = {
-        role: sorted(fields - _covered(_profile(services_by_role.get(role, {}))))
+        role: sorted(
+            fields
+            - _covered(
+                _profile(services_by_role.get(role, {})),
+                _locked(forms_by_role.get(role)),
+            )
+        )
         for role, fields in inventory.items()
     }
     return {role: fields for role, fields in sorted(missing.items()) if fields}
 
 
-def marker_errors(services_by_role: dict[str, dict[str, Any]]) -> list[str]:
+def marker_errors(
+    services_by_role: dict[str, dict[str, Any]],
+    forms_by_role: dict[str, Any] | None = None,
+) -> list[str]:
     """Return the locked selectors that can match an account the IdP does not own.
 
     Args:
         services_by_role: role name mapped to its parsed ``meta/services.yml``.
+        forms_by_role: role name mapped to its parsed ``meta/forms.yml``.
 
     Returns:
         One entry per locking role without a valid marker and per selector
         part its marker does not fully match.
     """
+    forms_by_role = forms_by_role or {}
     errors = []
     for role, services in services_by_role.items():
         profile = _profile(services)
-        locked = _locked(profile)
+        locked = _locked(forms_by_role.get(role))
         if not locked:
             continue
         marker = _marker(role, profile)
@@ -562,16 +598,21 @@ class TestSsoProfileLock(unittest.TestCase):
             for role in sorted(ROLES_DIR.iterdir())
             if role.is_dir()
         }
+        cls.forms = {
+            role.name: _forms(role)
+            for role in sorted(ROLES_DIR.iterdir())
+            if role.is_dir()
+        }
 
     def test_every_profile_declaration_is_well_formed(self) -> None:
-        self.assertEqual([], schema_errors(self.services))
+        self.assertEqual([], schema_errors(self.services, self.forms))
 
     def test_every_overwritten_field_is_locked_or_written_back(self) -> None:
         self.assertEqual(
             {},
-            uncovered_fields(self.services),
-            "declare these fields under services.sso.profile.locked (field: CSS "
-            "selector) or services.sso.profile.write_back in the role's "
+            uncovered_fields(self.services, self.forms),
+            "declare these fields in the role's meta/forms.yml with source "
+            "sso.<claim>, or under services.sso.profile.write_back in its "
             "meta/services.yml",
         )
 
@@ -649,8 +690,7 @@ class TestSsoProfileLock(unittest.TestCase):
     def test_every_locking_role_renders_and_proves_the_shared_lock(self) -> None:
         errors = []
         for role, services in self.services.items():
-            profile = _profile(services)
-            if not isinstance(profile, dict) or "locked" not in profile:
+            if not _locked(self.forms.get(role)):
                 continue
             javascript = _block(services, "javascript")
             if "enabled" not in javascript or not is_potentially_enabled(
@@ -675,7 +715,7 @@ class TestSsoProfileLock(unittest.TestCase):
     def test_every_locked_selector_carries_the_managed_account_marker(self) -> None:
         self.assertEqual(
             [],
-            marker_errors(self.services),
+            marker_errors(self.services, self.forms),
             "a locked selector must match the managed-account marker in every "
             "part, so it can never lock the form of an account the IdP does not own",
         )

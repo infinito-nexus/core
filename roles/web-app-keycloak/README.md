@@ -119,6 +119,27 @@ The deploy's `kcadm.sh` logins need no entry: every one, including the ones `web
 - Onion visitors reach the vhost from the Tor daemon's address.
 - The Playwright suites of several roles read and change realm groups through the admin REST API.
 
+## Managed Client Fields
+
+Every run writes the valid redirect URIs, the valid post logout redirect URIs and the web origins of the deployment's client, which `meta/forms.yml` declares as the enforced fields of the `client` form. In the admin console the shared lock renderer of [sys-front-inj-javascript](../sys-front-inj-javascript/README.md) renders them read-only while the page edits that client: each control shows the inventory path of its value as its hover title, one banner lists the fields, and a double-click with a confirmation unlocks a field until the page turns to another client. Every other client, the built-in ones and those an admin creates, stays editable. The inline loader fetches the renderer from `/infinito/field-lock.<sha1>.js` only on pages under `/admin/`, so the login and account pages carry none of it.
+
+## Directory Client
+
+`services.keycloak.directory_client.enabled` in [services.yml](meta/services.yml) ships `false`. Switched on, it adds the confidential client `<realm>-directory` to the application realm; `KEYCLOAK_DIRECTORY_CLIENT_ID` in [vars/main.yml](vars/main.yml) is its only definition. A deploy on an existing realm creates the client, and a deploy with the switch off deletes it together with its service account.
+
+```yaml
+applications:
+  web-app-keycloak:
+    services:
+      keycloak:
+        directory_client:
+          enabled: true
+```
+
+The store gets its token by the client-credentials grant at `/realms/<realm>/protocol/openid-connect/token`. The secret is the credential `secrets.credentials.directory_client_secret` from [secrets.yml](meta/secrets.yml), which the workspace inventory holds. It reaches Keycloak only through the realm import file or the `kcadm` stdin payload, never on a command line.
+
+The service account `service-account-<realm>-directory` holds exactly the `realm-management` roles `view-users`, `query-users` and `manage-users`, and every deploy revokes any other `realm-management` role it finds there. These three cover listing and searching users by `username` or `email`, creating and deleting them, and mapping non-admin realm roles to them. `view-realm` stays out, because it would expose the whole realm configuration to the token, so `GET /admin/realms/<realm>/roles/<name>` answers `403`. The store resolves role ids through `GET /admin/realms/<realm>/users/<id>/role-mappings/realm/available` instead, which lists exactly the realm roles the token may map. While `admin.allowed_networks` is set, the store's source network needs an entry, because these calls go to the admin REST API.
+
 ## OAuth2 Proxy Gate
 
 A consumer role with `services.sso.flavor: oauth2` sits behind an oauth2-proxy rendered from [`templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2`](./templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2). Two keys under the consumer's `services.sso.oauth2` decide who passes:

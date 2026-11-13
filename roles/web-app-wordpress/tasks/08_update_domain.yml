@@ -1,7 +1,4 @@
 ---
-# Updates WordPress single-site URLs and normalizes DB references.
-# Expects: wp_new_url (passed from main.yml), WORDPRESS_USER/container/docker_html_path.
-
 - name: ⬇️ Get current 'home' URL
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
@@ -10,36 +7,16 @@
   changed_when: false
   failed_when: false
 
-- name: ⬇️ Get current 'siteurl'
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp option get siteurl --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  register: wp_siteurl
-  changed_when: false
-  failed_when: false
-
-- name: 🔄 Update 'home' (if needed)
+- name: "⚙️ Converge the managed site address of the WordPress site"
+  include_tasks: utils/options.yml
   vars:
-    wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
-    wp_home_norm: "{{ wp_home.stdout | regex_replace('/+$','') }}"
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp option update home "{{ wp_new_url_norm }}" --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  when: wp_home_norm != wp_new_url_norm
-
-- name: 🔄 Update 'siteurl' (if needed)
-  vars:
-    wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
-    wp_siteurl_norm: "{{ wp_siteurl.stdout | regex_replace('/+$','') }}"
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp option update siteurl "{{ wp_new_url_norm }}" --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  when: wp_siteurl_norm != wp_new_url_norm
+    wordpress_options: "{{ WORDPRESS_ADDRESS }}"
+    wordpress_options_command: option
 
 - name: 🔍 Search-replace old → new URLs in DB (single site)
   vars:
     wp_old_url_norm: "{{ wp_home.stdout | regex_replace('/+$','') }}"
-    wp_new_url_norm: "{{ wp_new_url | regex_replace('/+$','') }}"
+    wp_new_url_norm: "{{ WORDPRESS_ADDRESS.home }}"
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp search-replace "{{ wp_old_url_norm }}" "{{ wp_new_url_norm }}"
@@ -50,7 +27,7 @@
 
 - name: 📐 Normalize scheme to https if needed (http → https)
   vars:
-    domain_only: "{{ (wp_new_url | regex_replace('^https?://','')) | regex_replace('/+$','') }}"
+    domain_only: "{{ WORDPRESS_ADDRESS.home | regex_replace('^https?://','') }}"
     http_url: "http://{{ domain_only }}"
     https_url: "https://{{ domain_only }}"
   shell: >

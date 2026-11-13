@@ -10,10 +10,6 @@ sso:
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
   profile:
-    locked:
-      name: "#edit-user-profile-name:disabled"
-      email: "#edit-user-profile-email:disabled"
-      username: "#edit-user-profile-username:disabled"
     languages: [cs, de, en, es, fr, hu, id, it, ja, ko, nl, pl, pt, ru, sv, tr, zh]
 # nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
 javascript:
@@ -77,6 +73,18 @@ grafana:
         enabled: "{{ lookup('login_method', 'web-app-grafana', 'native') }}"
       registration:
         enabled: "{{ lookup('login_method', 'web-app-grafana', 'registration') }}"
+  settings:
+    allow_org_create: false
+    anonymous_enabled: false
+    basic_auth_enabled: true
+  provisioning:
+    loki_url: "http://{{ 'web-svc-loki' | entity_name }}:{{ lookup('config', 'web-svc-loki', 'services.loki.ports.internal.loki') }}" # nocheck: container-url-lookup  Loki listens on its own port category ports.internal.loki, container_url reads only ports.internal.http
+    loki_tenant: "{{ lookup('config', 'web-svc-loki', 'services.loki.tenant') }}"
+    prometheus_url: "http://{{ lookup('scrape_target', 'web-app-prometheus', 'prometheus') }}" # nocheck: literal-protocol-lookup  scrape_target names a container-network host:port, which speaks plaintext in compose and swarm
+    alertmanager_url: "http://{{ lookup('scrape_target', 'web-app-prometheus', 'alertmanager') }}" # nocheck: literal-protocol-lookup  scrape_target names a container-network host:port, which speaks plaintext in compose and swarm
+    folder: "{{ SOFTWARE_NAME }}"
+    log_alert_expr: >-
+      sum by (application, host) (count_over_time({log_class="application"} |~ {{ lookup('config', 'web-svc-loki', 'services.loki.alerting.critical_pattern') | to_json }} [{{ lookup('config', 'web-svc-loki', 'services.loki.alerting.window') }}]))
   ports:
     internal:
       grafana: 3000
