@@ -563,6 +563,20 @@ class TestScriptLint(unittest.TestCase):
                     ),
                 )
 
+    def test_the_marker_silences_only_the_line_it_sits_on(self) -> None:
+        marked = 'site_title = "infinito_rbac"  # nocheck: forms-script\n'
+        self.assertEqual([], self._findings({"files/hooks.py": marked}))
+        self.assertEqual(
+            [f"{ROLE}: files/hooks.py:2 {SCRIPT_LITERAL}"],
+            self._findings(
+                {
+                    "files/hooks.py": "# nocheck: forms-script\n"
+                    'site_title = "infinito_rbac"\n'
+                    "other = 1  # nocheck: forms-script\n"
+                }
+            ),
+        )
+
 
 INCLUDES_RENDERER = f"{{% include '{lint.SHARED_RENDERER}' %}}\n"
 LOADS_RENDERER = (

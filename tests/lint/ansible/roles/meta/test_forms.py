@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from jinja2 import Environment, TemplateSyntaxError, nodes
 
+from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import read_text
 from utils.cache.users import get_user_defaults
@@ -93,6 +94,7 @@ SCRIPT_TEMPLATE_VALUE = re.compile(
     re.MULTILINE,
 )
 SCRIPT_TEMPLATE_TEXT = re.compile(r"""\{[{%]|(['"])(?:(?!\1)[^\n])*?\{[{%]""")
+SCRIPT_RULE = "forms-script"
 SCRIPT_LITERAL = "writes a literal to the field {field!r}"
 SCRIPT_UNSINKED = (
     "must write the field {field!r} as one expression of a sink its form names"
@@ -428,7 +430,8 @@ def script_findings(roles: list[Path]) -> list[str]:
 
     Args:
         roles: role directories to check; only fields whose source is no
-            ``sso.<claim>`` count, and the Playwright specs are skipped.
+            ``sso.<claim>`` count, the Playwright specs are skipped, and so
+            is a write on a line that carries ``nocheck: forms-script``.
     """
     errors = []
     for role in roles:
@@ -442,6 +445,7 @@ def script_findings(roles: list[Path]) -> list[str]:
         keys = "|".join(map(re.escape, sorted(spelled, key=lambda s: (-len(s), s))))
         for script, language, template in _role_scripts(role):
             text = read_text(str(role / script))
+            lines = text.splitlines()
             found = set()
             for pattern in SCRIPT_WRITES[language]:
                 write = pattern.replace("{key}", f"(?P<key>{keys})")
@@ -450,8 +454,10 @@ def script_findings(roles: list[Path]) -> list[str]:
                     message = _value_finding(
                         text, match.end(), language, template, fields[name]
                     )
-                    if message:
-                        line = text.count("\n", 0, match.start()) + 1
+                    line = text.count("\n", 0, match.start()) + 1
+                    if message and not is_suppressed_at(
+                        lines, line, SCRIPT_RULE, mode="same-line"
+                    ):
                         found.add((line, message.format(field=name)))
             errors.extend(
                 f"{role.name}: {script}:{line} {message}"
