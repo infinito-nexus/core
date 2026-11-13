@@ -1,6 +1,4 @@
--- Idempotent UPSERT of the `_keycloak` OAuth provider row in Fider's
--- `oauth_providers` table. Driven by ON CONFLICT (tenant_id, provider).
--- Args: display_name, status (2 lists the provider on the sign-in modal, 1 hides it), client_id, client_secret, authorize_url, token_url, profile_url, json_user_id_path, json_user_name_path, json_user_email_path.
+-- Args: display_name, status (2 lists the provider on the sign-in modal, 1 hides it), client_id, client_secret, authorize_url, token_url, profile_url, scope, json_user_id_path, json_user_name_path, json_user_email_path, is_trusted.
 
 INSERT INTO oauth_providers (
     tenant_id, provider, display_name, status,
@@ -19,9 +17,9 @@ INSERT INTO oauth_providers (
     %(authorize_url)s,
     %(token_url)s,
     %(profile_url)s,
-    'openid profile email',
+    %(scope)s,
     %(json_user_id_path)s, %(json_user_name_path)s, %(json_user_email_path)s,
-    '', true
+    '', %(is_trusted)s::boolean
 )
 ON CONFLICT (tenant_id, provider) DO UPDATE SET
     display_name         = EXCLUDED.display_name,
