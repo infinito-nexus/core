@@ -61,6 +61,13 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 - **Guard**: the plugin answers `pre_update_option_<name>` of every `option` on the main site and `pre_update_site_option_<name>` of every `site_option` with the managed value, at the last priority, so a write stores the managed value whoever sends it. An array option under `merge` keeps only its managed parts: each managed key, and each managed record of a list in place of the stored record with its `id`, while every other key and record stays as written. AI Engine's `mwai_options` is one: its `ai_default_env`, its `ai_default_model` and the `infinito-litellm` environment in `ai_envs`, endpoint and API key included, come from the `ai_engine` form, a `native` form, so an environment an administrator adds stays editable. A read stays untouched, so the deploy's drift report still sees a value written past the guard.
 - **Fail closed**: the plugin throws when `WORDPRESS_MANAGED_OPTIONS_FILE` is unset or its file returns no `option` and `site_option` map, so no request runs while a managed option could change. The deploy writes the file before any WordPress command, which repairs a lost file on the next run.
 
+## Corporate design (infinito-design.php) 🎨
+
+[infinito-design.php](infinito-design.php) acts only while the `infinito_design` option holds the design that [design.php](../php/design.php) wrote. It registers the corporate admin color scheme, styles the sign-in page and hands the design tokens to the editor canvas.
+
+- **Guard**: `pre_update_option_site_icon` and `pre_update_option_site_logo` answer with the attachment the deploy wrote, and `wp_insert_post_data` puts the deploy's global styles into the `wp_global_styles` post of each theme it styles, both at the last priority, so the Customizer, the Site Editor, the REST API and WP-CLI keep the design. Only design.php, which defines `INFINITO_DESIGN_WRITER`, writes past the guard. An option or post deleted outright, for example through `wp option delete`, stays deleted until the next deploy writes it again.
+- **Every deploy** writes the site icon, the site logo and the global styles again. Before that write, [design_drift.php](../php/design_drift.php) reads each part the site holds other than the last deploy wrote it, and the deploy reports it as drift. Turning the design off withdraws only what the deploy wrote.
+
 ## HTTP CA trust (infinito-http-ca-trust.php) 🔐
 
 [infinito-http-ca-trust.php](infinito-http-ca-trust.php) points WordPress's HTTP API at the deployment's CA bundle so outbound calls to internal HTTPS endpoints (OIDC discovery, REST loopback) verify instead of failing.
