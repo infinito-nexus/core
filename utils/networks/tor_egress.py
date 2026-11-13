@@ -432,9 +432,9 @@ def violations(egress: Mapping[str, Any], route: str, swarm: bool) -> list[str]:
             )
     if route == ROUTE_ALL and swarm:
         found.append(
-            "route all is not supported in swarm mode: tor runs in its own network "
-            "namespace there, so the fail-closed rules cannot tell its relay "
-            "traffic from the traffic they must redirect"
+            "route all is not supported in swarm mode: the egress router runs on "
+            "the managers only, so every worker would send its containers' "
+            "traffic direct where route all must fail closed"
         )
     found.extend(
         f"{entry.raw!r} cannot be reached directly: .onion only exists inside Tor"
