@@ -67,6 +67,11 @@ decidim:
         enabled: "{{ lookup('login_method', 'web-app-decidim', 'native') }}"
       registration:
         enabled: "{{ lookup('login_method', 'web-app-decidim', 'registration') }}"
+  organization:
+    host: "{{ lookup('domain', 'web-app-decidim') }}"
+    users_registration_mode: >-
+      {{ ('enabled' if lookup('config', 'web-app-decidim', 'services.decidim.login.method.registration.enabled') | bool else 'existing')
+         if lookup('config', 'web-app-decidim', 'services.decidim.login.method.native.enabled') | bool else 'disabled' }}
   security:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
@@ -94,6 +99,12 @@ design:
     logo:
       width: 288
       height: 90
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: dynamic-flag
 prometheus:
   bond: 1

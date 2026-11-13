@@ -20,7 +20,7 @@ DECIDIM_OIDC_USER_INFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 DECIDIM_LOGIN_SSO: "{{ lookup('config', application_id, 'services.decidim.login.method.sso.enabled') | bool }}"
 DECIDIM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.decidim.login.method.native.enabled') | bool }}"
 DECIDIM_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.decidim.login.method.registration.enabled') | bool }}"
-DECIDIM_USERS_REGISTRATION_MODE: "{{ ('enabled' if DECIDIM_LOGIN_REGISTRATION | bool else 'existing') if DECIDIM_LOGIN_NATIVE | bool else 'disabled' }}"
+DECIDIM_ORGANIZATION: "{{ lookup('form_values', application_id, 'organization') }}"
 
 DECIDIM_ORGANIZATION_NAME: "{{ lookup('design', application_id).label }}"
 
