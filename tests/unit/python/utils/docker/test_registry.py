@@ -6,10 +6,18 @@ import tempfile
 import unittest
 import unittest.mock as mock
 import urllib.error
+import urllib.request
+import urllib.response
 from email.message import Message
 from pathlib import Path
 
 from utils.docker import registry
+
+ARM = "sha256:" + "a" * 64
+AMD = "sha256:" + "b" * 64
+ATT = "sha256:" + "c" * 64
+HEAD = "sha256:" + "d" * 64
+SINGLE = "sha256:" + "e" * 64
 
 
 class _IsolatedProbeCache(unittest.TestCase):
@@ -59,7 +67,7 @@ def _http_error(code: int, headers=None) -> urllib.error.HTTPError:
 class TestManifestExists(_IsolatedProbeCache):
     def test_present_returns_true(self) -> None:
         with mock.patch.object(
-            registry.urllib.request, "urlopen", return_value=_Resp(status=200)
+            registry.OPENER, "open", return_value=_Resp(status=200)
         ) as opened:
             self.assertIs(registry.manifest_exists("postgres", "16"), True)
         url = opened.call_args.args[0].full_url
@@ -68,26 +76,22 @@ class TestManifestExists(_IsolatedProbeCache):
         )
 
     def test_absent_returns_false(self) -> None:
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=_http_error(404)
-        ):
+        with mock.patch.object(registry.OPENER, "open", side_effect=_http_error(404)):
             self.assertIs(registry.manifest_exists("postgres", "999"), False)
 
     def test_network_error_is_indeterminate(self) -> None:
         with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=urllib.error.URLError("x")
+            registry.OPENER, "open", side_effect=urllib.error.URLError("x")
         ):
             self.assertIsNone(registry.manifest_exists("postgres", "16"))
 
     def test_auth_wall_without_realm_is_indeterminate(self) -> None:
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=_http_error(401)
-        ):
+        with mock.patch.object(registry.OPENER, "open", side_effect=_http_error(401)):
             self.assertIsNone(registry.manifest_exists("quay.io/foo/bar", "1"))
 
     def test_non_dockerhub_registry_host(self) -> None:
         with mock.patch.object(
-            registry.urllib.request, "urlopen", return_value=_Resp(status=200)
+            registry.OPENER, "open", return_value=_Resp(status=200)
         ) as opened:
             registry.manifest_exists("quay.io/keycloak/keycloak", "26.6.3")
         url = opened.call_args.args[0].full_url
@@ -95,16 +99,25 @@ class TestManifestExists(_IsolatedProbeCache):
 
 
 class TestManifestDigest(unittest.TestCase):
+    def test_a_malformed_content_digest_is_indeterminate(self) -> None:
+        with mock.patch.object(
+            registry.OPENER,
+            "open",
+            return_value=_Resp(
+                status=200, headers={"Docker-Content-Digest": "sha256:/../../x"}
+            ),
+        ):
+            digest = registry.manifest_digest("roundcube/roundcubemail", "1.7.5-apache")
+        self.assertIsNone(digest)
+
     def test_returns_the_content_digest_of_a_head_request(self) -> None:
         with mock.patch.object(
-            registry.urllib.request,
-            "urlopen",
-            return_value=_Resp(
-                status=200, headers={"Docker-Content-Digest": "sha256:abc"}
-            ),
+            registry.OPENER,
+            "open",
+            return_value=_Resp(status=200, headers={"Docker-Content-Digest": HEAD}),
         ) as opened:
             digest = registry.manifest_digest("roundcube/roundcubemail", "1.7.5-apache")
-        self.assertEqual(digest, "sha256:abc")
+        self.assertEqual(digest, HEAD)
         request = opened.call_args.args[0]
         self.assertEqual(request.get_method(), "HEAD")
         self.assertIn(
@@ -116,29 +129,23 @@ class TestManifestDigest(unittest.TestCase):
         )
 
     def test_missing_tag_has_no_digest(self) -> None:
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=_http_error(404)
-        ):
+        with mock.patch.object(registry.OPENER, "open", side_effect=_http_error(404)):
             self.assertIsNone(registry.manifest_digest("postgres", "999"))
 
     def test_rate_limit_has_no_digest(self) -> None:
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=_http_error(429)
-        ):
+        with mock.patch.object(registry.OPENER, "open", side_effect=_http_error(429)):
             self.assertIsNone(registry.manifest_digest("postgres", "16"))
 
     def test_answer_without_digest_header_has_no_digest(self) -> None:
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", return_value=_Resp(status=200)
-        ):
+        with mock.patch.object(registry.OPENER, "open", return_value=_Resp(status=200)):
             self.assertIsNone(registry.manifest_digest("postgres", "16"))
 
 
 class TestFetchRegistryTags(unittest.TestCase):
     def test_anonymous_tags(self) -> None:
         with mock.patch.object(
-            registry.urllib.request,
-            "urlopen",
+            registry.OPENER,
+            "open",
             return_value=_Resp(body=b'{"tags": ["1.0.0", "1.1.0"]}'),
         ):
             self.assertEqual(
@@ -159,7 +166,7 @@ class TestFetchRegistryTags(unittest.TestCase):
                 raise _http_error(401, {"WWW-Authenticate": challenge})
             return _Resp(body=b'{"tags": ["2.0.0"]}')
 
-        with mock.patch.object(registry.urllib.request, "urlopen", side_effect=_fake):
+        with mock.patch.object(registry.OPENER, "open", side_effect=_fake):
             self.assertEqual(registry.fetch_registry_tags("ghcr.io/foo/bar"), ["2.0.0"])
 
     def test_a_realm_other_than_https_is_never_opened(self) -> None:
@@ -168,8 +175,8 @@ class TestFetchRegistryTags(unittest.TestCase):
             with (
                 self.subTest(realm=realm),
                 mock.patch.object(
-                    registry.urllib.request,
-                    "urlopen",
+                    registry.OPENER,
+                    "open",
                     side_effect=_http_error(401, challenge),
                 ) as opened,
             ):
@@ -185,21 +192,19 @@ class TestFetchRegistryTags(unittest.TestCase):
             body=b'{"tags": ["a"]}',
         )
         page2 = _Resp(body=b'{"tags": ["b"]}')
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=[page1, page2]
-        ):
+        with mock.patch.object(registry.OPENER, "open", side_effect=[page1, page2]):
             self.assertEqual(registry.fetch_registry_tags("foo"), ["a", "b"])
 
     def test_network_failure_returns_empty(self) -> None:
         with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=urllib.error.URLError("x")
+            registry.OPENER, "open", side_effect=urllib.error.URLError("x")
         ):
             self.assertEqual(registry.fetch_registry_tags("foo"), [])
 
     def test_last_cursor_seeds_query(self) -> None:
         with mock.patch.object(
-            registry.urllib.request,
-            "urlopen",
+            registry.OPENER,
+            "open",
             return_value=_Resp(body=b'{"tags": ["v1.0.0"]}'),
         ) as opened:
             self.assertEqual(
@@ -211,6 +216,83 @@ class TestFetchRegistryTags(unittest.TestCase):
             url, "https://registry.gitlab.com/v2/foo/bar/tags/list?n=1000&last=v"
         )
 
+    def _page(self, link: str) -> tuple[list[str], list[str]]:
+        pages = [
+            (200, _headers({"Link": f'<{link}>; rel="next"'}), b'{"tags": ["a"]}'),
+            (200, _headers(), b'{"tags": ["b"]}'),
+        ]
+        with mock.patch.object(registry, "_request", side_effect=pages) as requested:
+            tags = registry.fetch_registry_tags("foo")
+        return tags, [call.args[0] for call in requested.call_args_list]
+
+    def test_a_link_next_on_the_registry_pages(self) -> None:
+        for link in ("/v2/library/foo/tags/list?last=a", _TAGS_NEXT):
+            with self.subTest(link=link):
+                self.assertEqual(self._page(link), (["a", "b"], [_TAGS, _TAGS_NEXT]))
+
+    def test_a_link_next_off_the_registry_stops_paging(self) -> None:
+        for link in (
+            "https://evil.example/v2/library/foo/tags/list?last=a",
+            "http://registry-1.docker.io/v2/library/foo/tags/list?last=a",
+        ):
+            with self.subTest(link=link):
+                self.assertEqual(self._page(link), (["a"], [_TAGS]))
+
+
+_TAGS = "https://registry-1.docker.io/v2/library/foo/tags/list?n=1000"
+_TAGS_NEXT = "https://registry-1.docker.io/v2/library/foo/tags/list?last=a"
+_BLOB = "https://registry-1.docker.io/v2/library/foo/blobs/sha256%3Aabc"
+
+
+def _reply(req, status: int, headers=None, body: bytes = b""):
+    resp = urllib.response.addinfourl(
+        io.BytesIO(body), _headers(headers), req.full_url, status
+    )
+    resp.msg = "reply"
+    return resp
+
+
+class TestBlobRedirect(unittest.TestCase):
+    def _fetch(self, location: str):
+        seen: list[tuple[str, str | None]] = []
+
+        def _open(_handler, req):
+            auth = req.get_header("Authorization")
+            seen.append((req.full_url, auth))
+            if req.full_url != _BLOB:
+                return _reply(req, 200, body=b'{"os": "linux"}')
+            if auth is None:
+                return _reply(req, 401)
+            return _reply(req, 307, {"Location": location})
+
+        with (
+            mock.patch.object(registry, "_bearer_token", return_value="tok"),
+            mock.patch.object(urllib.request.HTTPSHandler, "https_open", _open),
+            mock.patch.object(urllib.request.HTTPHandler, "http_open", _open),
+        ):
+            return registry.fetch_blob("foo", "sha256:abc"), seen
+
+    def test_a_cross_host_redirect_drops_the_token(self) -> None:
+        blob, seen = self._fetch("https://cdn.example/blob")
+        self.assertEqual(blob, {"os": "linux"})
+        self.assertEqual(seen[-1], ("https://cdn.example/blob", None))
+
+    def test_a_same_host_redirect_keeps_the_token(self) -> None:
+        target = "https://registry-1.docker.io/v2/library/foo/blobs/sha256%3Adef"
+        blob, seen = self._fetch(target)
+        self.assertEqual(blob, {"os": "linux"})
+        self.assertEqual(seen[-1], (target, "Bearer tok"))
+
+    def test_a_redirect_off_https_is_refused(self) -> None:
+        for target in (
+            "http://registry-1.docker.io/v2/library/foo/blobs/sha256%3Adef",
+            "http://cdn.example/blob",
+        ):
+            with self.subTest(target=target):
+                blob, seen = self._fetch(target)
+                self.assertIsNone(blob)
+                self.assertEqual([url for url, _auth in seen], [_BLOB, _BLOB])
+
 
 _SINGLE = {
     "config": {"size": 100},
@@ -218,10 +300,10 @@ _SINGLE = {
 }
 _INDEX = {
     "manifests": [
-        {"digest": "sha256:arm", "platform": {"os": "linux", "architecture": "arm64"}},
-        {"digest": "sha256:amd", "platform": {"os": "linux", "architecture": "amd64"}},
+        {"digest": ARM, "platform": {"os": "linux", "architecture": "arm64"}},
+        {"digest": AMD, "platform": {"os": "linux", "architecture": "amd64"}},
         {
-            "digest": "sha256:att",
+            "digest": ATT,
             "platform": {"os": "unknown", "architecture": "unknown"},
         },
     ]
@@ -238,7 +320,7 @@ class TestManifestTransferSize(_IsolatedProbeCache):
             registry, "fetch_manifest", side_effect=[_INDEX, _SINGLE]
         ) as fetched:
             self.assertEqual(registry.manifest_transfer_size("img", "1"), 2_000)
-        self.assertEqual(fetched.call_args_list[1].args, ("img", "sha256:amd"))
+        self.assertEqual(fetched.call_args_list[1].args, ("img", AMD))
 
     def test_index_without_the_platform_is_indeterminate(self) -> None:
         with mock.patch.object(registry, "fetch_manifest", return_value=_INDEX):
@@ -315,29 +397,25 @@ class TestProbeOrder(_IsolatedProbeCache):
 
 class TestFetchManifest(unittest.TestCase):
     def test_non_dict_body_is_indeterminate(self) -> None:
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", return_value=_Resp(body=b"[]")
-        ):
+        with mock.patch.object(registry.OPENER, "open", return_value=_Resp(body=b"[]")):
             self.assertIsNone(registry.fetch_manifest("img", "1"))
 
     def test_rate_limited_is_indeterminate(self) -> None:
-        with mock.patch.object(
-            registry.urllib.request, "urlopen", side_effect=_http_error(429)
-        ):
+        with mock.patch.object(registry.OPENER, "open", side_effect=_http_error(429)):
             self.assertIsNone(registry.fetch_manifest("img", "1"))
 
     def test_present_manifest_is_parsed(self) -> None:
         with mock.patch.object(
-            registry.urllib.request,
-            "urlopen",
+            registry.OPENER,
+            "open",
             return_value=_Resp(body=b'{"layers": []}'),
         ):
             self.assertEqual(registry.fetch_manifest("img", "1"), {"layers": []})
 
 
 _PLATFORMS = (
-    {"digest": "sha256:arm", "platform": {"os": "linux", "architecture": "arm64"}},
-    {"digest": "sha256:amd", "platform": {"os": "linux", "architecture": "amd64"}},
+    {"digest": ARM, "platform": {"os": "linux", "architecture": "arm64"}},
+    {"digest": AMD, "platform": {"os": "linux", "architecture": "amd64"}},
 )
 
 
@@ -351,17 +429,23 @@ class TestImagePlatformDigest(unittest.TestCase):
                 "ghcr.io/o/r", "1", os_name="linux", architecture="amd64"
             )
 
+    def test_a_malformed_platform_entry_falls_through_to_a_valid_one(self) -> None:
+        manifests = [
+            {
+                "digest": "sha256:../x",
+                "platform": {"os": "linux", "architecture": "amd64"},
+            },
+            *_PLATFORMS,
+        ]
+        self.assertEqual(self._digest({"manifests": manifests}, None), AMD)
+
     def test_an_index_resolves_to_the_platform_manifest(self) -> None:
-        self.assertEqual(
-            self._digest({"manifests": list(_PLATFORMS)}, None), "sha256:amd"
-        )
+        self.assertEqual(self._digest({"manifests": list(_PLATFORMS)}, None), AMD)
 
     def test_a_single_manifest_answers_with_its_content_digest(self) -> None:
         headers = Message()
-        headers["Docker-Content-Digest"] = "sha256:single"
-        self.assertEqual(
-            self._digest({"layers": []}, (200, headers, None)), "sha256:single"
-        )
+        headers["Docker-Content-Digest"] = SINGLE
+        self.assertEqual(self._digest({"layers": []}, (200, headers, None)), SINGLE)
 
     def test_an_unreachable_registry_is_indeterminate(self) -> None:
         self.assertIsNone(self._digest(None, None))
