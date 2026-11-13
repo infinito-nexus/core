@@ -350,11 +350,11 @@ class TestErpnextScript(unittest.TestCase):
         frappe.db.get_value.return_value = current
         environment = {
             "SITE_NAME": "site",
-            "LOGIN_NATIVE": "true",
-            "LOGIN_EMAIL": "false",
+            "LOGIN_MODE": "converge",
+            "SYSTEM_SETTINGS": "{}",
+            "WEBSITE_SETTINGS": "{}",
             "LOGIN_2FA": second_factor,
             "LOGIN_2FA_ENFORCED": enforced,
-            "LOGIN_REGISTRATION": "false",
         }
         with (
             mock.patch.dict(sys.modules, {"frappe": frappe}),

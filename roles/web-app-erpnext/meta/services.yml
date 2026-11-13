@@ -44,6 +44,12 @@ design:
     logo:
       width: 280
       height: 80
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests

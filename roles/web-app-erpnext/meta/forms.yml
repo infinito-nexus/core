@@ -1,0 +1,37 @@
+---
+system_settings:
+  path: /app/system-settings
+  sinks: [ERPNEXT_SYSTEM_SETTINGS]
+  fields:
+    login_with_email_link:
+      source: services.erpnext.login.method.email.enabled
+      mode: enforced
+      selector: 'input[data-doctype="System Settings"][data-fieldname="login_with_email_link"]'
+      type: checkbox
+      map: {true: 1, false: 0}
+      label: Login with email link
+    enable_two_factor_auth:
+      source: services.erpnext.login.method.2fa.enabled
+      mode: enforced
+      selector: 'input[data-doctype="System Settings"][data-fieldname="enable_two_factor_auth"]'
+      type: checkbox
+      map: {true: 1, false: 0}
+      label: Enable Two Factor Auth
+    disable_user_pass_login:
+      source: services.erpnext.login.method.native.enabled
+      mode: enforced
+      selector: 'input[data-doctype="System Settings"][data-fieldname="disable_user_pass_login"]'
+      type: checkbox
+      map: {true: 0, false: 1}
+      label: Disable Username/Password Login
+website_settings:
+  path: /app/website-settings
+  sinks: [ERPNEXT_WEBSITE_SETTINGS]
+  fields:
+    disable_signup:
+      source: services.erpnext.login.method.registration.enabled
+      mode: enforced
+      selector: 'input[data-doctype="Website Settings"][data-fieldname="disable_signup"]'
+      type: checkbox
+      map: {true: 0, false: 1}
+      label: Disable signups

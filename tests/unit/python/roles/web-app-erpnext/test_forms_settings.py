@@ -1,0 +1,272 @@
+from __future__ import annotations
+
+import io
+import json
+import os
+import runpy
+import sys
+import unittest
+from contextlib import redirect_stdout
+from unittest import mock
+
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
+
+from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.converge import values
+
+from . import PROJECT_ROOT
+
+ROLE = PROJECT_ROOT / "roles" / "web-app-erpnext"
+LOGIN_SCRIPT = ROLE / "files" / "python" / "apply" / "login" / "methods.py"
+LOGIN_TASKS = ROLE / "tasks" / "01_manager_ops.yml"
+DRIFT = "tasks/utils/forms/drift.yml"
+SHARED_RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
+DOCTYPES = {
+    "system_settings": "System Settings",
+    "website_settings": "Website Settings",
+}
+SINKS = {
+    "system_settings": "ERPNEXT_SYSTEM_SETTINGS",
+    "website_settings": "ERPNEXT_WEBSITE_SETTINGS",
+}
+ENVIRONMENT = {
+    "SYSTEM_SETTINGS": "ERPNEXT_SYSTEM_SETTINGS",
+    "WEBSITE_SETTINGS": "ERPNEXT_WEBSITE_SETTINGS",
+}
+
+
+def _forms() -> dict:
+    return load_yaml_any(str(ROLE / "meta" / "forms.yml"))
+
+
+def _application(native: bool, email: bool, second: bool, registration: bool):
+    return {
+        "forms": _forms(),
+        "services": {
+            "erpnext": {
+                "login": {
+                    "method": {
+                        "native": {"enabled": native},
+                        "email": {"enabled": email},
+                        "2fa": {"enabled": second},
+                        "registration": {"enabled": registration},
+                    }
+                },
+            },
+        },
+    }
+
+
+class _Store:
+    def __init__(self, singles: dict) -> None:
+        self.singles = singles
+        self.writes: list[tuple] = []
+
+    def get_single_value(self, doctype: str, field: str):
+        return self.singles[(doctype, field)]
+
+    def set_single_value(self, doctype: str, field: str, value) -> None:
+        self.writes.append((doctype, field, value))
+        self.singles[(doctype, field)] = value
+
+
+def _frappe(store: _Store) -> mock.MagicMock:
+    frappe = mock.MagicMock()
+    frappe.db.get_single_value.side_effect = store.get_single_value
+    frappe.db.set_single_value.side_effect = store.set_single_value
+    frappe.db.get_value.return_value = 0
+    return frappe
+
+
+def _run(frappe: mock.MagicMock, environment: dict) -> str:
+    out = io.StringIO()
+    with (
+        mock.patch.dict(sys.modules, {"frappe": frappe}),
+        mock.patch.dict(os.environ, environment),
+        redirect_stdout(out),
+    ):
+        runpy.run_path(str(LOGIN_SCRIPT))
+    return out.getvalue()
+
+
+def _environment(mode: str) -> dict:
+    return {
+        "SITE_NAME": "site",
+        "LOGIN_MODE": mode,
+        "SYSTEM_SETTINGS": json.dumps(
+            {
+                "login_with_email_link": 0,
+                "enable_two_factor_auth": 1,
+                "disable_user_pass_login": 1,
+            }
+        ),
+        "WEBSITE_SETTINGS": json.dumps({"disable_signup": 1}),
+        "LOGIN_2FA": "true",
+        "LOGIN_2FA_ENFORCED": "false",
+    }
+
+
+def _tasks() -> list[dict]:
+    return DataLoader().load_from_file(str(LOGIN_TASKS), trusted_as_template=True)
+
+
+def _index(tasks: list[dict], predicate) -> int:
+    return next(index for index, task in enumerate(tasks) if predicate(task))
+
+
+def _mode(task: dict):
+    return task.get("environment", {}).get("LOGIN_MODE")
+
+
+class TestTheSinksCarryTheStoredValues(unittest.TestCase):
+    def test_each_login_method_turns_into_the_flag_erpnext_stores(self) -> None:
+        for native, email, second, registration in (
+            (True, False, True, False),
+            (False, True, False, True),
+        ):
+            with self.subTest(native=native, registration=registration):
+                application = _application(native, email, second, registration)
+                self.assertEqual(
+                    {
+                        "login_with_email_link": int(email),
+                        "enable_two_factor_auth": int(second),
+                        "disable_user_pass_login": int(not native),
+                    },
+                    values("system_settings", _forms(), application, {}),
+                )
+                self.assertEqual(
+                    {"disable_signup": int(not registration)},
+                    values("website_settings", _forms(), application, {}),
+                )
+
+    def test_every_selector_names_its_doctype_and_field(self) -> None:
+        for form, block in _forms().items():
+            self.assertEqual([SINKS[form]], block["sinks"])
+            self.assertEqual(
+                f"/app/{DOCTYPES[form].lower().replace(' ', '-')}", block["path"]
+            )
+            for field, spec in block["fields"].items():
+                with self.subTest(form=form, field=field):
+                    self.assertEqual(
+                        f'input[data-doctype="{DOCTYPES[form]}"]'
+                        f'[data-fieldname="{field}"]',
+                        spec["selector"],
+                    )
+
+    def test_the_sinks_read_only_their_forms(self) -> None:
+        definitions = load_yaml_any(str(ROLE / "vars" / "main.yml"))
+        for form, sink in SINKS.items():
+            with self.subTest(sink=sink):
+                self.assertEqual(
+                    f"{{{{ lookup('form_values', application_id, '{form}') }}}}",
+                    definitions[sink],
+                )
+
+    def test_the_renderer_locks_the_fields(self) -> None:
+        services = load_yaml_any(str(ROLE / "meta" / "services.yml"))
+        self.assertIs(True, services["javascript"]["enabled"])
+        self.assertIn(
+            SHARED_RENDERER,
+            (ROLE / "templates" / "javascript.js.j2").read_text(encoding="utf-8"),
+        )
+
+
+class TestTheLoginScript(unittest.TestCase):
+    def setUp(self) -> None:
+        self.store = _Store(
+            {
+                ("System Settings", "login_with_email_link"): 1,
+                ("System Settings", "enable_two_factor_auth"): 1,
+                ("System Settings", "disable_user_pass_login"): 0,
+                ("Website Settings", "disable_signup"): 0,
+            }
+        )
+        self.frappe = _frappe(self.store)
+
+    def test_read_prints_the_stored_fields_of_the_sinks_and_writes_nothing(
+        self,
+    ) -> None:
+        out = _run(self.frappe, _environment("read"))
+        self.assertEqual(
+            {
+                "system_settings": {
+                    "login_with_email_link": 1,
+                    "enable_two_factor_auth": 1,
+                    "disable_user_pass_login": 0,
+                },
+                "website_settings": {"disable_signup": 0},
+            },
+            json.loads(out.strip().splitlines()[-1]),
+        )
+        self.assertEqual([], self.store.writes)
+        self.frappe.get_doc.assert_not_called()
+        self.frappe.db.set_value.assert_not_called()
+        self.frappe.db.commit.assert_not_called()
+
+    def test_converge_writes_exactly_the_sinks(self) -> None:
+        _run(self.frappe, _environment("converge"))
+        self.frappe.get_doc.assert_called_once_with("System Settings")
+        self.frappe.get_doc.return_value.update.assert_called_once_with(
+            {
+                "login_with_email_link": 0,
+                "enable_two_factor_auth": 1,
+                "disable_user_pass_login": 1,
+            }
+        )
+        self.frappe.get_doc.return_value.save.assert_called_once_with()
+        self.assertEqual([("Website Settings", "disable_signup", 1)], self.store.writes)
+        self.frappe.db.commit.assert_called_once_with()
+
+    def test_an_unknown_mode_fails_before_frappe_starts(self) -> None:
+        with self.assertRaises(ValueError):
+            _run(self.frappe, _environment("write"))
+        self.frappe.init.assert_not_called()
+
+
+class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
+    def test_the_login_settings_are_read_and_reported_before_the_write(self) -> None:
+        tasks = _tasks()
+        read = _index(tasks, lambda task: _mode(task) == "read")
+        report = _index(
+            tasks,
+            lambda task: DRIFT in str(task.get("ansible.builtin.include_tasks", "")),
+        )
+        write = _index(tasks, lambda task: _mode(task) == "converge")
+        self.assertLess(read, report)
+        self.assertLess(report, write)
+        for index in (read, write):
+            task = tasks[index]
+            for name, sink in ENVIRONMENT.items():
+                with self.subTest(task=task["name"], name=name):
+                    self.assertIn(f"-e {name}", task["ansible.builtin.shell"]["cmd"])
+                    templar = Templar(loader=DataLoader(), variables={sink: {"x": 1}})
+                    self.assertEqual(
+                        {"x": 1},
+                        json.loads(templar.template(task["environment"][name])),
+                    )
+
+    def test_the_report_reads_the_last_line_the_read_printed(self) -> None:
+        tasks = _tasks()
+        read = tasks[_index(tasks, lambda task: _mode(task) == "read")]
+        report = next(
+            task
+            for task in tasks
+            if DRIFT in str(task.get("ansible.builtin.include_tasks", ""))
+        )
+        templar = Templar(
+            loader=DataLoader(),
+            variables={
+                read["register"]: {
+                    "stdout_lines": ["noise", '{"system_settings": {"x": 1}}'],
+                }
+            },
+        )
+        self.assertEqual(
+            {"system_settings": {"x": 1}},
+            templar.template(report["vars"]["forms_drift_current"]),
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
