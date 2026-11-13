@@ -23,11 +23,14 @@
 # behaviour the filter had before the swarm split.
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import jinja2
+from ansible.errors import AnsibleFilterError
 
 _MISSING: Any = object()
+_SNAKE = re.compile(r"[a-z][a-z0-9_]*")
 
 
 def _quote_compose_style(value: Any) -> str:
@@ -105,6 +108,15 @@ def dotenv_unquote(ctx: jinja2.runtime.Context, value: Any = _MISSING) -> str:
     return _unquote_compose_style(text)
 
 
+def _assignment(content: Any, key: Any) -> str | None:
+    prefix = f"{key}="
+    for line in str(content or "").splitlines():
+        stripped = line.strip()
+        if stripped.startswith(prefix):
+            return stripped[len(prefix) :]
+    return None
+
+
 def dotenv_value(content: Any, key: Any) -> str:
     """Return the raw right-hand side of ``key`` in a rendered ``.env``.
 
@@ -117,17 +129,65 @@ def dotenv_value(content: Any, key: Any) -> str:
         when the file carries no such assignment. The caller unquotes it with
         :func:`dotenv_unquote`, which knows the mode the file was written in.
     """
-    prefix = f"{key}="
-    for line in str(content or "").splitlines():
-        stripped = line.strip()
-        if stripped.startswith(prefix):
-            return stripped[len(prefix) :]
-    return ""
+    value = _assignment(content, key)
+    return "" if value is None else value
+
+
+def dotenv_names(fields: Any) -> list[str]:
+    """Return the env variable each field of an env form names.
+
+    Args:
+        fields: form field names, each the lower snake_case name of its
+            variable.
+
+    Returns:
+        The upper-cased variable names, in the fields' order.
+
+    Raises:
+        AnsibleFilterError: for a field that is not lower snake_case, whose
+            upper-cased name would read another variable.
+    """
+    names = []
+    for field in fields or ():
+        if not _SNAKE.fullmatch(str(field)):
+            raise AnsibleFilterError(
+                f"dotenv_names: env form field {str(field)!r} is not lower snake_case"
+            )
+        names.append(str(field).upper())
+    return names
+
+
+@jinja2.pass_context
+def dotenv_fields(ctx: jinja2.runtime.Context, content: Any, fields: Any) -> dict:
+    """Return what a rendered ``.env`` holds for each field of a form.
+
+    Args:
+        content: the file's text.
+        fields: form field names, each the lower snake_case name of its
+            variable.
+
+    Returns:
+        Each field whose variable the file assigns, mapped to the value
+        :func:`dotenv_unquote` reads back in the render's deployment mode; a
+        field the file does not assign is left out.
+
+    Raises:
+        AnsibleFilterError: for a field that is not lower snake_case.
+    """
+    fields = list(fields or ())
+    held = {}
+    for field, name in zip(fields, dotenv_names(fields), strict=True):
+        value = _assignment(content, name)
+        if value is not None:
+            held[str(field)] = dotenv_unquote(ctx, value)
+    return held
 
 
 class FilterModule:
     def filters(self) -> dict[str, Any]:
         return {
+            "dotenv_fields": dotenv_fields,
+            "dotenv_names": dotenv_names,
             "dotenv_quote": dotenv_quote,
             "dotenv_unquote": dotenv_unquote,
             "dotenv_value": dotenv_value,
