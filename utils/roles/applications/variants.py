@@ -260,6 +260,40 @@ def clamped_assignment(
     }
 
 
+def _pins_by_precedence(
+    running: Mapping[str, int],
+    *,
+    roles_dir: str,
+    primary_app_variants: Mapping[str, int],
+    variants_per_app: Mapping[str, list],
+) -> dict[str, int]:
+    """The pins in force under *running*, a primary's pin winning a clash.
+
+    A clash before the round settles can come from a carrier another pin is
+    still moving off the variant the clashing pin stands in, so it is not a
+    conflict yet; :func:`resolve_round` judges the settled round strictly.
+
+    Args:
+        running: role -> the variant index it runs under the assignment.
+        roles_dir: the roles tree the pins are read from.
+        primary_app_variants: the round's primary apps.
+        variants_per_app: parsed variants per role.
+    """
+    order = [role for role in running if role in primary_app_variants] + sorted(
+        role for role in running if role not in primary_app_variants
+    )
+    merged: dict[str, int] = {}
+    for carrier in order:
+        pins = resolve_pins(
+            {carrier: running[carrier]},
+            roles_dir=roles_dir,
+            variants_per_app=variants_per_app,
+        )
+        for partner, wanted in pins.items():
+            merged.setdefault(partner, wanted)
+    return merged
+
+
 def round_under(
     active_index: Mapping[str, int],
     *,
@@ -297,9 +331,11 @@ def round_under(
             services_overrides=overrides,
         )
     )
-    pinned = resolve_pins(
-        {role: active_index[role] for role in include if role in active_index},
+    running = {role: active_index[role] for role in include if role in active_index}
+    pinned = _pins_by_precedence(
+        running,
         roles_dir=roles_dir,
+        primary_app_variants=primary_app_variants,
         variants_per_app=variants_per_app,
     )
     forced = {
@@ -357,6 +393,15 @@ def resolve_round(
         )
         settled = {**clamped, **forced}
         if settled == active_index:
+            resolve_pins(
+                {
+                    role: active_index[role]
+                    for role in resolved.include
+                    if role in active_index
+                },
+                roles_dir=roles_dir,
+                variants_per_app=variants_per_app,
+            )
             return resolved
         active_index = settled
     raise VariantPinError(

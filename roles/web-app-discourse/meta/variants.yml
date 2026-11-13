@@ -2,6 +2,9 @@
 # Matrix-deploy variant overrides for web-app-discourse.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 #
+# nocheck: variant-limit — variant 3 is the light discourse that parents pin, with
+# matrix and translate on their light variants and the identity children light.
+#
 # nocheck: sso-variant-tor — variant 2 exists so bigbluebutton and jitsi, both
 # clearnet-only, have a round of their own. It carries nothing else; the mastodon
 # and mattermost couplings moved to variant 1, which keeps the onion, and variant 0
@@ -181,6 +184,73 @@
     matrix:
       enabled: false
       shared: false
+    mattermost:
+      enabled: false
+      shared: false
+  addons: *addons_static_off
+
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    asset:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-dashboard#1
+    dashboard:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-stalwart#1
+    email:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-logout#1
+    logout:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-matomo#1
+    matomo:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: true
+    # variant-pin: web-app-keycloak#1
+    sso:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    redis:
+      shared: true
+    # variant-pin: web-app-prometheus#2
+    prometheus:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-design#1
+    design:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-translate#3
+    translate:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    jitsi:
+      enabled: false
+      shared: false
+    mastodon:
+      enabled: false
+      shared: false
+    # variant-pin: web-app-matrix#3
+    matrix:
+      enabled: true
+      shared: true
     mattermost:
       enabled: false
       shared: false

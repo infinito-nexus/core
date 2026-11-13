@@ -169,21 +169,25 @@
       enabled: false
       shared: false
 - services:
+    # nocheck: mem-limit-budget — the AI children pull dashboard and matomo into this round anyway; enabling them here only lets the pins hold them on their light variants, so the round deploys fewer roles than before
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-dashboard#1
     dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-matomo#1
     matomo:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
+    # variant-pin: web-app-keycloak#1
     sso:
       enabled: true
       shared: true

@@ -15,6 +15,11 @@ This guard checks the index still means what it was written to mean, by
 comparing it against the variant ``#reciprocal`` would have found. A pin
 written as ``#reciprocal`` carries no index, so for those the guard only
 confirms the symbolic form resolves to exactly one variant.
+
+A one-way pin names a partner whose ``meta/services.yml`` gates on nothing
+in the pinning role, such as a parent pulling a child in at a light variant.
+No variant of that partner reciprocates, so the guard only requires the index
+to exist; new variants are appended so the index keeps its meaning.
 """
 
 from __future__ import annotations
@@ -26,6 +31,7 @@ from utils.roles.applications.variant_pins import (
     RECIPROCAL,
     VariantPinError,
     _reciprocal_index,
+    _reciprocal_key,
     pins_of,
 )
 
@@ -48,6 +54,14 @@ class TestVariantPins(unittest.TestCase):
         variants = get_variants(roles_dir=str(ROLES_DIR))
         findings = []
         for role, index, partner, target in _pinning_roles():
+            if _reciprocal_key(partner, role, roles_dir=str(ROLES_DIR)) is None:
+                count = len(variants.get(partner) or [])
+                if target == RECIPROCAL or not 0 <= int(target) < count:
+                    findings.append(
+                        f"  - {role}#{index} pins {partner}#{target}, a one-way "
+                        f"pin that needs an index below {count}"
+                    )
+                continue
             try:
                 reciprocal = _reciprocal_index(
                     partner, role, roles_dir=str(ROLES_DIR), variants_per_app=variants

@@ -8,6 +8,10 @@
 # cannot bleed into the Multisite run.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 #
+# nocheck: variant-limit — variants 3 to 5 carry the identity, mail and monitoring
+# children, the AI children and the discourse chain at full weight, so variant 0
+# can pin them light and fit the CI job cap without losing a child variant pair.
+#
 # nocheck: sso-variant-tor — variant 2 exists so bigbluebutton and peertube,
 # which pin tor.enabled to a literal false, have a round of their own. It
 # carries nothing else, so dropping the onion there costs no coverage; every
@@ -24,9 +28,11 @@
       shared: false
     container_backup:
       enabled: true
+    # variant-pin: web-svc-design#1
     design:
       enabled: true
       shared: true
+    # variant-pin: web-app-discourse#3
     discourse:
       enabled: true
       shared: true
@@ -39,39 +45,49 @@
     peertube:
       enabled: false
       shared: false
+    # variant-pin: web-app-dashboard#1
     dashboard:
       enabled: true
       shared: true
+    # variant-pin: web-app-stalwart#1
     email:
       enabled: true
       shared: true
+    # variant-pin: web-svc-logout#1
     logout:
       enabled: true
       shared: true
     mariadb:
       shared: true
+    # variant-pin: web-app-matomo#1
     matomo:
       enabled: true
       shared: true
     litellm:
       enabled: true
+    # variant-pin: web-app-keycloak#1
     sso:
       enabled: true
       shared: true
+    # variant-pin: web-app-prometheus#2
     prometheus:
       enabled: true
       shared: true
+    # variant-pin: web-svc-seaweedfs#1
     seaweedfs:
       enabled: true
       shared: true
+    # variant-pin: web-svc-translate#3
     translate:
       enabled: true
       shared: true
     tor:
       enabled: true
+    # variant-pin: web-app-hermes#1
     hermes:
       enabled: true
       shared: true
+    # variant-pin: web-app-openclaw#1
     openclaw:
       enabled: true
       shared: true
@@ -195,6 +211,211 @@
     # nocheck: variant-tor-collateral docs rides the smallest round of each role because the README replay is the costliest partner in the matrix; the guide serves over the onion in both web-app-docs variants, which is where that is proven
     tor:
       enabled: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+  addons: *wordpress_addons_off
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    # variant-pin: web-svc-design#0
+    design:
+      enabled: true
+      shared: true
+    discourse:
+      enabled: false
+      shared: false
+    bigbluebutton:
+      enabled: false
+      shared: false
+    listmonk:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
+    # variant-pin: web-app-dashboard#0
+    dashboard:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-stalwart#0
+    email:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-logout#0
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    # variant-pin: web-app-matomo#0
+    matomo:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: true
+    # variant-pin: web-app-keycloak#0
+    sso:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-prometheus#0
+    prometheus:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-seaweedfs#0
+    seaweedfs:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-translate#3
+    translate:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+  addons: *wordpress_addons_off
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    # variant-pin: web-svc-design#1
+    design:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-discourse#3
+    discourse:
+      enabled: true
+      shared: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    listmonk:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
+    # variant-pin: web-app-dashboard#1
+    dashboard:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-stalwart#1
+    email:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-logout#1
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    # variant-pin: web-app-matomo#1
+    matomo:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: true
+    # variant-pin: web-app-keycloak#1
+    sso:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-prometheus#2
+    prometheus:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-seaweedfs#1
+    seaweedfs:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-translate#3
+    translate:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+    # variant-pin: web-app-hermes#0
+    hermes:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-openclaw#0
+    openclaw:
+      enabled: true
+      shared: true
+  addons: *wordpress_addons_off
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    # variant-pin: web-svc-design#1
+    design:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-discourse#0
+    discourse:
+      enabled: true
+      shared: true
+    bigbluebutton:
+      enabled: false
+      shared: false
+    listmonk:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
+    # variant-pin: web-app-dashboard#1
+    dashboard:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-stalwart#1
+    email:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-logout#1
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    # variant-pin: web-app-matomo#1
+    matomo:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: true
+    # variant-pin: web-app-keycloak#1
+    sso:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-prometheus#2
+    prometheus:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-seaweedfs#1
+    seaweedfs:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-translate#0
+    translate:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
     hermes:
       enabled: false
       shared: false

@@ -1,4 +1,9 @@
 ---
+# nocheck: variant-limit — variants 2 and 3 carry the identity, mail and monitoring
+# children and the AI children at full weight, so variant 0 can pin them light and
+# fit the CI job cap without losing a child variant pair.
+# nocheck: variants-duplicate — variants 0 and 3 differ only in their variant pins,
+# which hold the AI children light in variant 0 and at full weight in variant 3.
 # Matrix-deploy variant overrides for this role. The SSO variant rides the
 # `web-app-keycloak` SSO-proxy sidecar (flavor: oauth2) in front of Baserow.
 
@@ -10,18 +15,23 @@
       shared: false
     container_backup:
       enabled: true
+    # variant-pin: web-app-dashboard#1
     dashboard:
       enabled: true
       shared: true
+    # variant-pin: web-app-stalwart#1
     email:
       enabled: true
       shared: true
+    # variant-pin: web-svc-logout#1
     logout:
       enabled: true
       shared: true
+    # variant-pin: web-app-matomo#1
     matomo:
       enabled: true
       shared: true
+    # variant-pin: web-app-keycloak#1
     sso:
       enabled: true
       shared: true
@@ -29,23 +39,29 @@
       shared: true
     redis:
       shared: true
+    # variant-pin: web-app-prometheus#2
     prometheus:
       enabled: true
       shared: true
+    # variant-pin: web-svc-seaweedfs#1
     seaweedfs:
       enabled: true
       shared: true
+    # variant-pin: web-svc-design#1
     design:
       enabled: true
       shared: true
     tor:
       enabled: true
+    # variant-pin: web-app-openwebui#1
     openwebui:
       enabled: true
       shared: true
+    # variant-pin: web-app-hermes#1
     hermes:
       enabled: true
       shared: true
+    # variant-pin: web-app-openclaw#1
     openclaw:
       enabled: true
       shared: true
@@ -95,3 +111,112 @@
     openclaw:
       enabled: false
       shared: false
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    # variant-pin: web-app-dashboard#0
+    dashboard:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-stalwart#0
+    email:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-logout#0
+    logout:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-matomo#0
+    matomo:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-keycloak#0
+    sso:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    redis:
+      shared: true
+    # variant-pin: web-app-prometheus#0
+    prometheus:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-seaweedfs#0
+    seaweedfs:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-design#0
+    design:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+- services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    # variant-pin: web-app-dashboard#1
+    dashboard:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-stalwart#1
+    email:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-logout#1
+    logout:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-matomo#1
+    matomo:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-keycloak#1
+    sso:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    redis:
+      shared: true
+    # variant-pin: web-app-prometheus#2
+    prometheus:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-seaweedfs#1
+    seaweedfs:
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-design#1
+    design:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+    # variant-pin: web-app-openwebui#0
+    openwebui:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-hermes#0
+    hermes:
+      enabled: true
+      shared: true
+    # variant-pin: web-app-openclaw#0
+    openclaw:
+      enabled: true
+      shared: true

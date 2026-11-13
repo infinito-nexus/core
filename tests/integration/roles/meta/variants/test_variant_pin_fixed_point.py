@@ -58,6 +58,7 @@ ROLES_DIR = str(PROJECT_ROOT / "roles")
 HOST = "web-app-pin-host"
 LEFT = "web-app-pin-left"
 RIGHT = "web-app-pin-right"
+MID = "web-app-pin-mid"
 
 
 @dataclass(frozen=True)
@@ -241,6 +242,48 @@ def _pin_above_disabled_entry() -> dict[str, str]:
     }
 
 
+def _primary_outranks_a_moving_carrier(mid_light_pin: str) -> dict[str, str]:
+    """A tree whose ``HOST#0`` pins MID#1 and LEFT#1 while MID#0 pins LEFT#0.
+
+    Args:
+        mid_light_pin: the pin MID#1 carries above its entry, ``""`` for none.
+
+    Returns:
+        The files of HOST, MID and LEFT.
+    """
+    return {
+        f"{HOST}/{ROLE_FILE_META_MAIN}": f"dependencies:\n  - {MID}\n  - {LEFT}\n",
+        **_role(
+            HOST,
+            services="",
+            variants=f"""\
+                - services:
+                    # variant-pin: {MID}#1
+                    pin-mid:
+                      enabled: true
+                    # variant-pin: {LEFT}#1
+                    pin-left:
+                      enabled: true
+                """,
+        ),
+        **_role(
+            MID,
+            services="",
+            variants=f"""\
+                - services:
+                    # variant-pin: {LEFT}#0
+                    pin-left:
+                      enabled: true
+                - services:
+                    {mid_light_pin}
+                    pin-left:
+                      enabled: true
+                """,
+        ),
+        **_role(LEFT, services="", variants="- {}\n- {}\n"),
+    }
+
+
 class TestVariantPinFixedPoint(unittest.TestCase):
     def test_every_round_settles(self) -> None:
         unsettled = _repo_sweep().unsettled
@@ -289,6 +332,17 @@ class TestVariantPinGuardControls(unittest.TestCase):
         sweep = self._sweep_tree(_oscillating_pair())
         self.assertIn(f"{HOST}#0", sweep.unsettled)
         self.assertFalse(sweep.dead_pins)
+
+    def test_a_primary_pin_outranks_a_carrier_it_moves(self) -> None:
+        sweep = self._sweep_tree(_primary_outranks_a_moving_carrier(""))
+        self.assertFalse(sweep.unsettled)
+        self.assertIn(f"{HOST}#0", sweep.moving)
+
+    def test_a_conflict_in_the_settled_round_is_unsettled(self) -> None:
+        sweep = self._sweep_tree(
+            _primary_outranks_a_moving_carrier(f"# variant-pin: {LEFT}#0")
+        )
+        self.assertIn(f"{HOST}#0", sweep.unsettled)
 
     def test_a_pin_above_a_disabled_entry_is_dead(self) -> None:
         sweep = self._sweep_tree(_pin_above_disabled_entry())

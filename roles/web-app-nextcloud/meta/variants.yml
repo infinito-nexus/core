@@ -735,6 +735,7 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-keycloak#1
     sso:
       enabled: true
       shared: true
@@ -792,6 +793,7 @@
     gitlab:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-discourse#3
     discourse:
       enabled: true
       shared: true
@@ -1479,6 +1481,101 @@
     # nocheck: variant-tor-collateral docs rides the smallest round of each role because the README replay is the costliest partner in the matrix; the guide serves over the onion in both web-app-docs variants, which is where that is proven
     tor: # nocheck: variant-tor-off the README replay installs the role onto the clearnet DOMAIN_PRIMARY through the clearnet resolver (web-app-docs templates/test.env.j2), so this round has no onion surface to prove
       enabled: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+  addons: *addons_static_off
+# Variant 15: discourse with its matrix and translate chains at full weight
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: true
+      shared: true
+    coturn:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: true
+    redis:
+      shared: true
+    talk:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    talk_recording:
+      enabled: false
+    onlyoffice:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    collabora:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    bigbluebutton:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    xwiki:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openproject:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitlab:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-discourse#0
+    discourse:
+      enabled: true
+      shared: true
+    mattermost:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matrix:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    zammad:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openwebui:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+    mastodon:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    peertube:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
     hermes:
       enabled: false
       shared: false
