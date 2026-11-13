@@ -169,7 +169,7 @@
 - name: "🔍 Check whether Tor already runs from an earlier deploy"
   ansible.builtin.command: >-
     {% if IS_SWARM_MODE %}
-    container service ps -q --filter desired-state=running
+    container service ps -q --no-trunc --filter desired-state=running
     {{ lookup('container_service', application_id, 'tor') }}
     {% else %}
     container ps -q --filter status=running --filter name=^{{ TOR_CONTAINER }}$
@@ -190,6 +190,47 @@
     compose_handlers_flush: true
     application_id: svc-net-tor
 
+- name: "🔍 Read the Tor task each node runs after the deploy"
+  ansible.builtin.command: >-
+    {% if IS_SWARM_MODE %}
+    container ps --filter status=running
+    --filter label=com.docker.swarm.service.name={{ lookup('container_service', application_id, 'tor') }}
+    --format '{{ '{{.Label "com.docker.swarm.task.id"}}' }}'
+    {% else %}
+    container ps -q --filter status=running --filter name=^{{ TOR_CONTAINER }}$
+    {% endif %}
+  register: _tor_running_after
+  changed_when: false
+  delegate_to: "{{ tor_node }}"
+  loop: "{{ query('node_hosts') }}"
+  loop_control:
+    loop_var: tor_node
+  run_once: "{{ IS_SWARM_MODE | bool }}"
+  become: true
+  when:
+    - IS_STACK_HOST | bool
+    - TOR_RESTART_REQUIRED | bool
+
+- name: "🧮 Pick the Tor tasks that predate a torrc or key change on their node"
+  ansible.builtin.set_fact:
+    _tor_restart_tasks: >-
+      {{ _tor_running_after.results
+         | selectattr('tor_node', 'in', _tor_changed_nodes)
+         | selectattr('stdout', 'in', _tor_running_before.stdout_lines)
+         | list }}
+    _tor_running_nodes: >-
+      {{ _tor_running_after.results
+         | rejectattr('stdout', 'equalto', '')
+         | map(attribute='tor_node')
+         | list }}
+  vars:
+    _tor_changed_nodes: >-
+      {{ (_tor_torrc.results | selectattr('changed') | map(attribute='tor_node') | list)
+         + ([STACK_HOST] if _tor_hs_keys is changed else []) }}
+  when:
+    - IS_STACK_HOST | bool
+    - TOR_RESTART_REQUIRED | bool
+
 - name: "🔄 Restart Tor to apply hidden-service key / torrc changes"
   ansible.builtin.shell: |
     set -euo pipefail
@@ -198,7 +239,10 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   become: true
-  when: IS_COMPOSE_MODE and (TOR_RESTART_REQUIRED | bool)
+  when:
+    - IS_COMPOSE_MODE
+    - TOR_RESTART_REQUIRED | bool
+    - _tor_restart_tasks | length > 0
 
 - name: "🔄 Force Tor service redeploy to apply hidden-service key / torrc changes"
   ansible.builtin.command: >-
@@ -206,11 +250,43 @@
     {{ lookup('container_service', application_id, 'tor') }}
   register: _tor_swarm_update
   changed_when: _tor_swarm_update.rc == 0
+  run_once: true
   become: true
   when:
     - IS_SWARM_MODE
     - IS_STACK_HOST | bool
     - TOR_RESTART_REQUIRED | bool
+    - _tor_restart_tasks | length > 0
+    - _tor_restart_tasks | length == _tor_running_nodes | length
+
+- name: "🔄 Restart the Tor task of each node whose torrc or keys changed, one node at a time"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    container ps -q --filter status=running \
+      --filter label=com.docker.swarm.task.id={{ tor_task.stdout | quote }} \
+      | xargs -r container stop
+    container ps -q --filter status=running --filter health=healthy \
+      --filter label=com.docker.swarm.service.name={{ lookup('container_service', application_id, 'tor') | quote }}
+  args:
+    executable: /bin/bash
+  register: _tor_node_restart
+  changed_when: true
+  until: _tor_node_restart.stdout | length > 0
+  retries: 300
+  delay: 2
+  delegate_to: "{{ tor_task.tor_node }}"
+  loop: "{{ _tor_restart_tasks }}"
+  loop_control:
+    loop_var: tor_task
+    label: "{{ tor_task.tor_node }}"
+  run_once: true
+  become: true
+  when:
+    - IS_SWARM_MODE
+    - IS_STACK_HOST | bool
+    - TOR_RESTART_REQUIRED | bool
+    - _tor_restart_tasks | length > 0
+    - _tor_restart_tasks | length < _tor_running_nodes | length
 
 - name: "🧅 Bring up the transparent egress router for route '{{ TOR_EGRESS_ROUTE }}'"
   when: TOR_EGRESS_ROUTE != 'none'
