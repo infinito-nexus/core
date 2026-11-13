@@ -12,7 +12,7 @@
       ansible.builtin.set_fact:
         sys_svc_container_prepull_plan: >-
           {%- set plan = lookup('applications')
-                         | update_pull_images(lookup('application_closure', group_names | intersect(lookup('deployment').running))) -%}
+                         | update_pull_images(lookup('application_closure', group_names | intersect(lookup('deployment').running)), lookup('registry_vendors')) -%}
           {{ plan | combine({'pull': plan.pull + (sys_svc_container_prepull_extra | reject('in', plan.pull) | list)}) }}
 
     - name: "📥 Pull the images the host does not hold yet"

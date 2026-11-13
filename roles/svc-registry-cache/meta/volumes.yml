@@ -7,3 +7,17 @@ data:
   mounts:
     - service: cache
       target: /var/lib/registry
+front_conf:
+  type: bind
+  source: "{{ [lookup('container', 'svc-registry-cache', 'directories.config'), 'front'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: front
+      target: /etc/nginx/conf.d
+front_tls:
+  type: bind
+  source: "{{ [lookup('container', 'svc-registry-cache', 'directories.config'), 'front-tls'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: front
+      target: /etc/nginx/tls

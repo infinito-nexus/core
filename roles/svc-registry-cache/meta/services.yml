@@ -47,6 +47,59 @@ cache:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "3"
         until: 2026-12-03
+# nocheck: dynamic-flag  the vendor caches have no group of their own; one runs per vendor registry exactly when the cache they extend does
+vendor:
+  healthcheck:
+    flavor: wget
+    port_key: registry
+    path: v2/
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  placement: manager # nocheck: default-placement-manager  it extends the cache beside it
+  enabled: true
+  shared: true
+  bond: 1
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 512m
+  pids_limit: 256
+  ports:
+    internal:
+      registry: 5000
+  lifecycle: beta
+# nocheck: dynamic-flag  the front has no group of its own; it is up exactly when the vendor caches it fronts are
+front:
+  healthcheck:
+    flavor: nc
+    port_key: registry
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  placement: manager # nocheck: default-placement-manager  it fronts the vendor caches beside it
+  enabled: true
+  shared: true
+  bond: 1
+  image: nginx
+  version: 1.31-alpine
+  name: cache-registry-front
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 256
+  ports:
+    local:
+      registry: 5002
+    internal:
+      registry: 443
+    onion:
+      # nocheck: onion-flag  the vendor front serves this node's own docker daemon; publishing it would relay every vendor registry for strangers
+      registry: false
+  lifecycle: beta
 # nocheck: dynamic-flag - pull-through cache content is re-fetchable, the backup consumer stays permanently off
 container_backup:
   enabled: false
