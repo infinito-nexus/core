@@ -1,0 +1,12 @@
+{{ COSMOS_SKY_SELECTOR }} body {
+  background: transparent;
+  color: var(--cosmos-text);
+}
+{{ COSMOS_SKY_SELECTOR }} body a {
+  color: inherit;
+  text-decoration: underline;
+}
+{{ COSMOS_LEGIBLE_TOP_SELECTOR }} body > :not(cosmos-sky, script, style, template) {
+  background: var(--design-surface-1);
+  color: var(--design-text);
+}

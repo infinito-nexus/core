@@ -77,6 +77,12 @@ module.exports = [
     },
   },
   {
+    files: ["roles/web-app-cst-cosmos/files/javascript/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
+  {
     files: [
       "roles/**/files/playwright/**/*.js",
       "roles/test-e2e-playwright/files/personas/**/*.js",
