@@ -87,6 +87,15 @@ kix:
       http: 8083
       sso: 16500
       sso_onion: 16532
+  ldap:
+    host: "{{ LDAP.SERVER.DOMAIN }}"
+    port: "{{ LDAP.SERVER.PORT | int }}"
+    base_dn: "{{ LDAP.DN.OU.USERS }}"
+    search_user_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    uid: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+    access_attr: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
+    administrator_group_dn: "cn=web-app-kix-administrator,{{ LDAP.DN.OU.ROLES }}"
+    user_group_dn: "cn=web-app-kix-user,{{ LDAP.DN.OU.ROLES }}"
   run_after:
     - web-app-keycloak
   lifecycle: beta

@@ -1,0 +1,1 @@
+do { require JSON::PP; require MIME::Base64; %{ JSON::PP::decode_json(MIME::Base64::decode_base64('{{ KIX_LDAP_AUTHENTICATION | to_json | b64encode }}')) } }
