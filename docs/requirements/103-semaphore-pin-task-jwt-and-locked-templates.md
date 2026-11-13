@@ -14,6 +14,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 - The server env sets no task-token option (`roles/web-app-semaphore/templates/env.j2`).
 - Core builds every template body in one place. The body fixes `allow_override_args_in_task` to false and sets no `runner_tag`, no survey variables and no token parameters (`template_body`, `roles/web-app-semaphore/files/python/project.py:281-303`). The drift check compares app, playbook, arguments, inventory, repository, environments, type and that one flag (`same_template`, `project.py:305-323`).
 - `deploy.sh` refuses any call with other than one argument (`roles/web-app-semaphore/files/shell/repository/deploy.sh:14-17`) and takes everything else from its environment (`deploy.sh:18-21`).
+- `deploy.sh` reads the vault password, the login and the pinned host keys as `DEPLOY_VAULT_PASSWORD`, `DEPLOY_LOGIN` and `DEPLOY_KNOWN_HOSTS` (`deploy.sh:7-9`) and writes `DEPLOY_KNOWN_HOSTS` as the task's known-hosts file (`deploy.sh:36-39`). No other input of a deploy is defined.
 
 ### Semaphore OSS v2.20.24
 
@@ -34,12 +35,26 @@ So a survey variable without target `env`, or a `var` secret, reaches `deploy.sh
 3. **Every template core creates is locked.** This covers the platform templates and the workspace templates. Each one has `allow_override_args_in_task` false, `allow_override_branch_in_task` false and `allow_parallel_tasks` false. Each one has the `runner_tag` of its project's runner (102). An Ansible-type template also gets `allow_override_inventory` false in its task parameters. Each one has `jwt_params` with `enabled` true and an `audience` naming the token's reader, `openbao`. The drift check compares all of these fields, so a template changed by hand is realigned by the next deploy or `workspace apply`.
 4. **Inputs are survey variables with target `env`.** Every value a template accepts is a declared survey variable with target `env`; no template uses an environment secret of type `var`. Each script beside `deploy.sh` keeps refusing extra arguments and validates every variable it reads.
 5. **No secret in a template.** The environment and the survey of a workspace template carry no secret value. A task reads its secrets from OpenBao with its token (105, 106). The foreign-server deploy of the platform keeps its vault password in its environment until 106 retires it.
-6. **The workspace templates.** `workspace apply` (102) creates and realigns `deploy`, `backup`, `restart` and `update` in every workspace project. Their scripts come from the runner image, never from the workspace repository. Provisioning and destroying are templates of the platform's provision project (104). They run `tofu apply -auto-approve` and `tofu destroy -auto-approve` from a core script, so no Semaphore confirmation step exists for them (store item 2, "provision and destroy auto-approve").
+6. **The workspace templates.** `workspace apply` (102) creates and realigns `deploy`, `backup`, `restart` and `update` in every workspace project. Their scripts come from the runner image, never from the workspace repository. Decision 7 fixes the inputs of `deploy`, and decision 8 the host inputs of the other three. Provisioning and destroying are templates of the platform's provision project (104). They run `tofu apply -auto-approve` and `tofu destroy -auto-approve` from a core script, so no Semaphore confirmation step exists for them (store item 2, "provision and destroy auto-approve").
+7. **The inputs of `deploy` (operator pick, 2026-11-13).** The survey of the workspace `deploy` template MUST hold exactly these variables, each with target `env` (decision 4):
+   - `SALES_ORDER` and `LINE`: the order line this deploy serves, with the patterns of [104](104-runner-image-opentofu-and-root-modules.md) decision 6 and the values its provision received;
+   - `HOST`: one public address of the server, from the provision output `host` (104 decision 4);
+   - `HOST_KEY`: the server's SSH host public key as one OpenSSH key line (`<type> <base64>`), from the provision output `host_key`;
+   - `ROLES`: a comma-separated list of role names;
+   - `DNS_LABEL`: the label the provision received as `dns_label`, matching `^(?!-)[a-z0-9-]{1,63}(?<!-)$`;
+   - `INVENTORY_COMMIT`: the inventory commit the deploy runs on, checked as [114](114-inventory-commit-pinned-per-task.md) decides.
+
+   The template has no domain variable. `workspace apply` writes two values into the environment of the `deploy` template: `WORKSPACE_DNS_ZONE`, which is the subzone under the DNS flavors `knot` and `route53` and the zone the workspace was placed in under `cloudflare` (104 decision 9), and `WORKSPACE_TARGETS`, the target pairs it pinned ([102](102-one-semaphore-runner-per-workspace.md) decision 6). Neither is a secret, so decision 5 holds. `deploy.sh` builds the domain as `<DNS_LABEL>.ws-<id>.<WORKSPACE_DNS_ZONE>`, the name the provision's DNS record carries (104 decision 5). So the deploy name is computed in core alone, and the store cannot point a deploy at a domain outside its workspace. `deploy.sh` writes `<HOST> <HOST_KEY>` as the only line of the task's known-hosts file, which 102 decision 5 checks with `StrictHostKeyChecking=yes`. It MUST refuse, with a message naming the variable:
+   - a missing, empty or malformed value of any of the seven;
+   - a `HOST` that is not the host of a pair in `WORKSPACE_TARGETS`;
+   - a role that the runner image's core tree does not hold.
+8. **The same pinned host key for every host template (operator pick, 2026-11-13 ~18:50).** The surveys of `update`, `backup` and `restart` also hold `HOST` and `HOST_KEY`, with target `env` and the forms of decision 7, and `workspace apply` writes `WORKSPACE_TARGETS` into their environments too. Each of their scripts refuses a missing or malformed `HOST_KEY` and a `HOST` that is not the host of a pair in `WORKSPACE_TARGETS`, naming the variable, and writes `<HOST> <HOST_KEY>` as the only line of the task's known-hosts file, which 102 decision 5 checks with `StrictHostKeyChecking=yes`. The store fills `HOST_KEY` of all four host templates from the key it pinned for that host and port ([105](105-openbao-task-jwt-auth-transit-tenant-kv-and-store-approle.md) decision 6), always as one `<type> <base64>` line. No other template core creates holds `HOST_KEY`. Until a `workspace apply` has realigned the surveys of a workspace's `update`, `backup` and `restart`, the store finds them drifted against its definition and starts none of them (store 062, which compares every template with its definition before each run; Store ask 11).
 
 Rejected:
 
 - Semaphore's native OpenTofu app for provisioning: it runs the `.tf` files of the repository checkout, which the customer's repository would then supply.
 - Template arguments for customer values: they reach the script as positional arguments outside any schema.
+- A `DNS_DOMAIN` variable that `deploy.sh` checks by its suffix: the store and core would both build the name, and the names diverge under the `cloudflare` flavor, whose zone `apply` chooses.
 
 ## Acceptance Criteria
 
@@ -65,8 +80,20 @@ Rejected:
 
 - [ ] Every survey variable of every template core builds has target `env`, and no environment core builds holds a secret of type `var`. A planted survey variable without target and a planted `var` secret must fail (`test_every_input_reaches_the_script_as_env` and its two negative controls in `tests/unit/python/roles/web-app-semaphore/files/test_project.py`).
 - [ ] A lint test fails when the environment or the survey of a workspace template holds a value read from `secrets.credentials` of any role, or a name declared as a credential in any role's `meta/secrets.yml`, the store's and ERPNext's included. Its negative controls plant both and must fail (`test_workspace_templates_carry_no_secret` and `test_the_check_catches_a_planted_credential` in `tests/lint/ansible/test_semaphore_template_secrets.py`).
-- [ ] Each script a template runs (`deploy.sh`, `workspace.sh`, the provision script of 104 and the scripts behind `backup`, `restart` and `update`) exits non-zero on any extra argument and names it (`test_each_template_script_refuses_extra_arguments` in `tests/unit/python/roles/web-app-semaphore/files/test_template_scripts.py`).
+- [ ] Each script a template runs (`deploy.sh`, `workspace.sh`, `members.sh` of 102, the provision script of 104, the export script of 113, the directory script of 123 and the scripts behind `backup`, `restart` and `update`) exits non-zero on any extra argument and names it (`test_each_template_script_refuses_extra_arguments` in `tests/unit/python/roles/web-app-semaphore/files/test_template_scripts.py`).
+
+### Deploy inputs
+
+- [ ] The survey of the workspace `deploy` template holds exactly `SALES_ORDER`, `LINE`, `HOST`, `HOST_KEY`, `ROLES`, `DNS_LABEL` and `INVENTORY_COMMIT`, each with target `env`, and its environment holds `WORKSPACE_DNS_ZONE` and `WORKSPACE_TARGETS` and no domain variable. A planted `DNS_DOMAIN` must fail (`test_the_deploy_survey_is_fixed` and its negative control in `tests/unit/python/roles/web-app-semaphore/files/test_project.py`).
+- [ ] `deploy.sh` refuses, one case each, a missing or malformed `SALES_ORDER`, `LINE`, `HOST_KEY` and `DNS_LABEL`, a `HOST` outside `WORKSPACE_TARGETS` and a role the image does not hold, and names the variable (`test_deploy_sh_refuses_each_malformed_deploy_input` in `tests/unit/python/roles/web-app-semaphore/files/test_deploy_sh.py`).
+- [ ] `deploy.sh` builds the domain `<DNS_LABEL>.ws-<id>.<WORKSPACE_DNS_ZONE>` and writes `<HOST> <HOST_KEY>` as the only known-hosts line (`test_deploy_sh_builds_the_domain_and_pins_the_host_key` in `test_deploy_sh.py`).
+- [ ] Under each DNS flavor, the domain a deploy builds equals the `fqdn` output of the provision of the same order line (`provision: the deploy domain equals the provision fqdn` in `roles/web-app-semaphore/files/playwright/test-provision.js`).
+
+### Host key of every host template
+
+- [ ] The surveys of `deploy`, `update`, `backup` and `restart` each hold `HOST` and `HOST_KEY` with target `env`, their environments hold `WORKSPACE_TARGETS`, and no other template body core builds holds `HOST_KEY`. Negative controls drop `HOST_KEY` from `backup` and plant it in `members`, and each must fail (`test_only_the_host_templates_take_a_host_key` and its controls in `tests/unit/python/roles/web-app-semaphore/files/test_project.py`).
+- [ ] The scripts behind `update`, `backup` and `restart` each refuse a missing or malformed `HOST_KEY` and a `HOST` outside `WORKSPACE_TARGETS`, naming the variable, and write `<HOST> <HOST_KEY>` as the only known-hosts line (`test_each_host_script_pins_the_host_key` in `tests/unit/python/roles/web-app-semaphore/files/test_host_scripts.py`).
 
 ### Documentation
 
-- [ ] The [README](../../roles/web-app-semaphore/README.md) documents the pin floor, the task token settings, the locked fields and the input rule (`test_the_readme_names_the_locked_fields` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
+- [ ] The [README](../../roles/web-app-semaphore/README.md) documents the pin floor, the task token settings, the locked fields, the input rule, the inputs of `deploy` and the host key of every host template (`test_the_readme_names_the_locked_fields` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
