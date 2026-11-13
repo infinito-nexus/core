@@ -29,6 +29,7 @@ LISTMONK_UPLOAD_SETTINGS: "{{ lookup('form_values', application_id, 'upload') }}
 LISTMONK_S3_SETTINGS: "{{ lookup('form_values', application_id, 's3') }}"
 LISTMONK_BOUNCE_SETTINGS: "{{ lookup('form_values', application_id, 'bounce') }}"
 LISTMONK_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'security') }}"
+LISTMONK_CAPTCHA_SETTINGS: "{{ lookup('form_values', application_id, 'captcha') }}"
 LISTMONK_PREFIXED_FORMS:
   general:
     prefix: "app."
@@ -55,14 +56,16 @@ LISTMONK_SETTINGS:
     value: "{{ (lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) if LISTMONK_OIDC_AUTOLOGIN | bool else '') |
       to_json }}"
 
-  - key: "security.enable_captcha"
-    value: "true"
-
-  - key: "security.captcha_key"
-    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.key') }}\""
-
-  - key: "security.captcha_secret"
-    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.secret') }}\""
+  - key: "security.captcha"
+    value: >-
+      {{ {
+        "altcha": {"enabled": false, "complexity": 300000},
+        "hcaptcha": LISTMONK_CAPTCHA_SETTINGS | combine({
+          "key": lookup('config', application_id, 'secrets.credentials.hcaptcha.key'),
+          "secret": lookup('config', application_id, 'secrets.credentials.hcaptcha.secret')
+        })
+      } | to_json }}
+    condition: "{{ LISTMONK_CAPTCHA_SETTINGS | length > 0 }}"
 
   - key: "smtp"
     value: >-

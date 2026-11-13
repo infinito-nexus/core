@@ -1,5 +1,5 @@
 -- Args: forms (JSON object mapping each prefixed form to its settings key prefix and its sink, whose field names are read as the settings <prefix><field>).
--- Returns one row: a JSON object mapping each prefixed form and the form security to the values Listmonk holds, the OIDC client secret left out.
+-- Returns one row: a JSON object mapping each prefixed form, the form security and the form captcha to the values Listmonk holds, the OIDC client secret and the hCaptcha key and secret left out.
 SELECT COALESCE(
   (
     SELECT jsonb_object_agg(
@@ -28,6 +28,14 @@ SELECT COALESCE(
       SELECT value - 'client_secret'
       FROM settings
       WHERE key = 'security.oidc' AND jsonb_typeof(value) = 'object'
+    ),
+    '{}'::jsonb
+  ),
+  'captcha', COALESCE(
+    (
+      SELECT jsonb_build_object('enabled', value -> 'hcaptcha' -> 'enabled')
+      FROM settings
+      WHERE key = 'security.captcha' AND jsonb_typeof(value -> 'hcaptcha') = 'object'
     ),
     '{}'::jsonb
   )

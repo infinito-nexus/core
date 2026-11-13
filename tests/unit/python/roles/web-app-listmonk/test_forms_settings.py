@@ -25,6 +25,8 @@ LOADER = ROLE / "templates" / "javascript.js.j2"
 SHARED_RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
 DRIFT = "tasks/utils/forms/drift.yml"
 OIDC_SINK = "LISTMONK_OIDC_SETTINGS"
+CAPTCHA_SINK = "LISTMONK_CAPTCHA_SETTINGS"
+OBJECT_FORMS = {"security", "captcha"}
 PREFIXED = "LISTMONK_PREFIXED_FORMS"
 SINKS = {
     "general": "LISTMONK_GENERAL_SETTINGS",
@@ -39,6 +41,15 @@ PREFIXES = {
     "bounce": "bounce.",
 }
 SECRETS = ("aws_access_key_id", "aws_secret_access_key")
+CAPTCHA_SECRETS = ("key", "secret")
+CAPTCHA_CREDENTIAL = (
+    "lookup('config', application_id, 'secrets.credentials.hcaptcha.{credential}')"
+)
+LEGACY_CAPTCHA_KEYS = (
+    "security.enable_captcha",
+    "security.captcha_key",
+    "security.captcha_secret",
+)
 APPLIED = re.compile(r"\$infinito_settings\$(.*)\$infinito_settings\$", re.DOTALL)
 
 
@@ -145,8 +156,33 @@ class TestTheFormsFile(unittest.TestCase):
                     )
                     self.assertNotIn(field, SECRETS)
 
+    def test_the_captcha_form_follows_hcaptcha_and_leaves_its_credentials_out(
+        self,
+    ) -> None:
+        captcha = _forms()["captcha"]
+        self.assertEqual([CAPTCHA_SINK], captcha["sinks"])
+        self.assertEqual({"enabled"}, set(captcha["fields"]))
+        spec = captcha["fields"]["enabled"]
+        self.assertEqual("services.hcaptcha.enabled", spec["when"])
+        self.assertEqual('input[name="security.captcha"]', spec["selector"])
+        for secret in CAPTCHA_SECRETS:
+            with self.subTest(secret=secret):
+                self.assertNotIn(secret, captcha["fields"])
+
 
 class TestTheSinksCarryTheSources(unittest.TestCase):
+    def test_the_captcha_form_applies_only_with_hcaptcha(self) -> None:
+        for enabled in (True, False):
+            application = {
+                "forms": _forms(),
+                "services": {"hcaptcha": {"enabled": enabled}},
+            }
+            with self.subTest(enabled=enabled):
+                self.assertEqual(
+                    {"enabled": True} if enabled else {},
+                    values("captcha", _forms(), application, {}),
+                )
+
     def test_the_object_store_switches_the_media_forms(self) -> None:
         for s3 in (True, False):
             application = _application(s3)
@@ -195,7 +231,11 @@ class TestTheSinksCarryTheSources(unittest.TestCase):
 class TestTheWriteReadsTheSinks(unittest.TestCase):
     def test_the_sinks_read_only_their_forms(self) -> None:
         variables = _vars()
-        for form, sink in (*SINKS.items(), ("security", OIDC_SINK)):
+        for form, sink in (
+            *SINKS.items(),
+            ("security", OIDC_SINK),
+            ("captcha", CAPTCHA_SINK),
+        ):
             with self.subTest(sink=sink):
                 self.assertEqual(
                     f"{{{{ lookup('form_values', application_id, '{form}') }}}}",
@@ -210,7 +250,7 @@ class TestTheWriteReadsTheSinks(unittest.TestCase):
             },
             _vars()[PREFIXED],
         )
-        self.assertEqual(set(_forms()) - {"security"}, set(_vars()[PREFIXED]))
+        self.assertEqual(set(_forms()) - OBJECT_FORMS, set(_vars()[PREFIXED]))
 
     def test_no_managed_field_is_written_outside_its_sink(self) -> None:
         variables = _vars()
@@ -282,6 +322,40 @@ class TestTheWriteReadsTheSinks(unittest.TestCase):
             {**sink, "client_secret": "probe-secret"}, json.loads(rendered)
         )
 
+    def test_the_captcha_is_written_as_the_one_v6_object(self) -> None:
+        settings = {setting["key"]: setting for setting in _vars()["LISTMONK_SETTINGS"]}
+        for legacy in LEGACY_CAPTCHA_KEYS:
+            with self.subTest(legacy=legacy):
+                self.assertNotIn(legacy, settings)
+        entry = settings["security.captcha"]
+        value = entry["value"]
+        for credential in CAPTCHA_SECRETS:
+            lookup = CAPTCHA_CREDENTIAL.format(credential=credential)
+            self.assertEqual(1, value.count(lookup))
+            value = value.replace(lookup, f"probe_{credential}")
+        variables = {
+            CAPTCHA_SINK: {"enabled": True},
+            "probe_key": "probe-key",
+            "probe_secret": "probe-secret",
+        }
+        self.assertEqual(
+            {
+                "altcha": {"enabled": False, "complexity": 300000},
+                "hcaptcha": {
+                    "enabled": True,
+                    "key": "probe-key",
+                    "secret": "probe-secret",
+                },
+            },
+            json.loads(_render(value, variables)),
+        )
+        for sink, written in (({"enabled": True}, True), ({}, False)):
+            with self.subTest(sink=sink):
+                self.assertIs(
+                    written,
+                    _render(entry["condition"], {CAPTCHA_SINK: sink}),
+                )
+
 
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_the_store_is_read_and_reported_before_the_write(self) -> None:
@@ -304,6 +378,16 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         self.assertIn("jsonb_object_keys(form.value -> 'fields')", sql)
         self.assertIn("(form.value ->> 'prefix') || field", sql)
         self.assertIn("value - 'client_secret'", sql)
+
+    def test_the_read_returns_only_the_hcaptcha_switch(self) -> None:
+        sql = READ.read_text(encoding="utf-8")
+        self.assertIn("WHERE key = 'security.captcha'", sql)
+        self.assertIn(
+            "jsonb_build_object('enabled', value -> 'hcaptcha' -> 'enabled')", sql
+        )
+        for credential in CAPTCHA_SECRETS:
+            with self.subTest(credential=credential):
+                self.assertNotRegex(sql, rf"->>? '{credential}'")
 
     def test_the_report_reads_what_the_store_returned(self) -> None:
         report = next(task for task in _tasks() if _reports(task))

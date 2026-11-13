@@ -148,3 +148,15 @@ security:
       type: checkbox
       map: {true: true, false: false}
       label: Auto-create users from SSO
+captcha:
+  path: /admin/settings
+  sinks: [LISTMONK_CAPTCHA_SETTINGS]
+  fields:
+    enabled:
+      source: services.hcaptcha.enabled
+      when: services.hcaptcha.enabled
+      mode: enforced
+      selector: 'input[name="security.captcha"]'
+      type: checkbox
+      map: {true: true, false: false}
+      label: Enable CAPTCHA

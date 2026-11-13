@@ -1,14 +1,10 @@
 # To-dos
 
-- Three settings keys in `vars/main.yml` are silent no-ops on v6.2.0:
-  `security.enable_captcha`, `security.captcha_key` and `security.captcha_secret`.
-  The live `settings` table carries a single `security.captcha` object
-  (`{"altcha": {…}, "hcaptcha": {"key", "secret", "enabled"}}`), so all three
-  `UPDATE`s match zero rows and neither `ON_ERROR_STOP` nor the reaper notices.
-  hCaptcha has therefore never been active, which also makes the
-  `HCAPTCHA_SERVICE_ENABLED` rationale in `templates/playwright.env.j2` describe
-  protection that is not there. Rewrite the three keys as one object, then
-  decide whether a captcha on the public subscription form is wanted at all.
+- `security.captcha` enables hCaptcha on the public subscription form whenever
+  `CAPTCHA.HCAPTCHA` holds a key and a secret. Listmonk v6.2.0 labels hCaptcha
+  deprecated (`frontend/src/views/settings/security.vue`) and offers ALTCHA,
+  which needs no third-party keys. Decide whether the role should switch to
+  ALTCHA, and whether a captcha on that form is wanted at all.
 - Listmonk v6.2.0 maps no OIDC claim to a role (the `OIDCclaim` struct reads
   only `email`, `sub`, `name`, `preferred_username` and `picture`), so
   `files/sql/rbac_reconcile.sql` provisions and disables accounts at a deploy
