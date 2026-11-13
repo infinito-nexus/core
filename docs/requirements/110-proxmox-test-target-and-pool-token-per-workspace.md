@@ -2,7 +2,7 @@
 
 ## User Story
 
-As the operator of a platform that provisions customer servers on Proxmox VE, I want `web-app-proxmox` to deploy a real Proxmox VE as a virtual machine on any container host, echoserver and the CI runners included, and to give each workspace a resource pool with a privilege-separated token scoped to it, so that the store's Proxmox lane runs against the real API, CI tests the role on every change, and a workspace's credential can touch only the VMs of its own pool.
+As the operator of a platform that provisions customer servers on Proxmox VE, I want `web-app-proxmox` to deploy a real Proxmox VE, by default as a virtual machine on any container host, echoserver and the CI runners included, and to give each workspace a resource pool with a privilege-separated token scoped to it, so that the store's Proxmox lane runs against the real API, CI tests the role on every change, and a workspace's credential can touch only the VMs of its own pool.
 
 ## Background
 
@@ -36,7 +36,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ## Decisions
 
-1. **A pool and a token per workspace.** `workspace apply` (102) creates, through `pveum` inside the Proxmox VE guest (decision 3):
+1. **A pool and a token per workspace.** `workspace apply` (102) creates, through `pveum` inside the Proxmox VE that the flavor of decision 3 runs:
    - the pool `ws-<id>`;
    - the user `ws-<id>@pve` without a password;
    - a privilege-separated token `ws-<id>@pve!provision`;
@@ -44,19 +44,16 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
    `InfinitoWorkspace` holds the VM privileges the `proxmox` root module of 104 needs to create, configure, start, stop and delete a VM: CPU, memory, disk, network, cloud-init and options, but no `Sys.*`, no `Permissions.*` and no privilege outside the pool. The README lists them, and a test pins the list. The token secret goes to `tenant/data/ws-<id>-provision/proxmox` (105) and nowhere else. `destroy` refuses while the pool holds a VM, and otherwise removes the token, the user and the pool.
 2. **API only.** The workspace token gets no SSH access to the node, so the `proxmox` root module uses no snippet, no `source_file` and no `idmap`. Cloud-init stays with what the API sets: user, keys, network and DNS. So Proxmox returns no `host_key` in the provision output, and the first contact pins the host key (104 decision 4, store decision 17).
-3. **Proxmox VE runs as a virtual machine (operator direction 2026-11-13: "echoserver runs Arch. Important: Proxmox is also tested in CI. Best platform-agnostic.").** The role's container stops running Proxmox VE itself and runs QEMU with KVM, which boots Proxmox VE as its guest. It needs a container engine and `/dev/kvm` only, so one role runs on echoserver's Arch, on every distribution of the CI axis and inside the dev stack's `target`, with no host package and no host daemon.
-   - The launcher image builds from the official Debian base with Debian's QEMU package at a pinned version, so the role still uses no third-party image.
-   - The container runs as a UID of its own with `/dev/kvm` as its only device, all capabilities dropped and `no-new-privileges`. QEMU's user-mode network forwards the guest's port 8006 to the container, so the front proxy and the agent broker keep reaching `proxmox:8006`. None of the grants of `compose.yml.j2:18-26` stays.
-   - Root in Proxmox VE is root in the guest only. A QEMU escape out of a VM inside Proxmox VE lands in the guest, and an escape out of the guest lands in an unprivileged container. So the co-hosting refusal of `00_core.yml:4-14` and `services.proxmox.shared_host` go away, and the role deploys beside Keycloak and OpenBao.
-   - The role runs its `pveum` and Perl steps (`files/perl/`, the RBAC sync) inside the guest over SSH from the launcher container, on a port the user-mode network forwards to the container's loopback only. Break-glass access takes the same path.
-   - The container's limits hold the guest's CPUs and memory plus QEMU's overhead, and the capacity check of `00_core.yml:55-66` measures the guest.
-4. **The guest image comes from the official installer, unattended.** `services.proxmox.ve.iso` pins the ISO by file name and SHA-256, and replaces the package pins of `meta/services.yml:36-45`; the version updater bumps the ISO pin.
+3. **Two runtime flavors, `vm` by default (operator direction and picks 2026-11-13: "echoserver runs Arch. Important: Proxmox is also tested in CI. Best platform-agnostic.").** `services.proxmox.flavor` in `meta/services.yml` defaults to `vm`, and `meta/variants.yml` holds one row per flavor, so CI deploys both, in the core pattern of `services.matrix.flavor` (`roles/web-app-matrix/meta/services.yml:199`, `roles/web-app-matrix/meta/variants.yml:24-25,134-135`). Each flavor's steps live in `tasks/flavors/vm.yml` and `tasks/flavors/container.yml`; the pool, token and RBAC steps are shared and run against whichever Proxmox VE the flavor started.
+   - **`vm`, the default.** The role's container runs QEMU with KVM, which boots Proxmox VE as its guest. It needs a container engine and `/dev/kvm` only, so one role runs on echoserver's Arch, on every distribution of the CI axis and inside the dev stack's `target`, with no host package and no host daemon. The launcher image builds from the official Debian base with Debian's QEMU package at a pinned version, so the role still uses no third-party image. The container runs as a UID of its own with `/dev/kvm` as its only device, all capabilities dropped and `no-new-privileges`. QEMU's user-mode network forwards the guest's port 8006 to the container, so the front proxy and the agent broker keep reaching `proxmox:8006`. None of the grants of `compose.yml.j2:18-26` applies. Root in Proxmox VE is root in the guest only: a QEMU escape out of a VM inside Proxmox VE lands in the guest, and an escape out of the guest lands in an unprivileged container. So the co-hosting refusal does not run, and the role deploys beside Keycloak and OpenBao. The role runs its `pveum` and Perl steps (`files/perl/`, the RBAC sync) inside the guest over SSH from the launcher container, on a port the user-mode network forwards to the container's loopback only, and break-glass access takes the same path. The container's limits hold the guest's CPUs and memory plus QEMU's overhead, and the capacity check of `00_core.yml:55-66` measures the guest.
+   - **`container`, opt-in for a dedicated host.** Today's container runs Proxmox VE itself, so agent VMs (093) run at full speed without nesting. Only this flavor renders the grants of `compose.yml.j2:18-26` and runs the co-hosting refusal of `00_core.yml:4-14` with its `services.proxmox.shared_host` override, because root in this container is root on the host. Its CI variant row sets `shared_host: true` on a throwaway CI host, and no other file core ships sets it; the README tells operators to run this flavor on a host of its own.
+4. **The `vm` guest image comes from the official installer, unattended.** The two flavors carry one pin each: `services.proxmox.ve.iso` pins the `vm` ISO by file name and SHA-256, and the package pins of `meta/services.yml:36-45` stay for `container`. The version updater bumps both, and a test holds them on the same Proxmox VE release.
    - The image build verifies the ISO and embeds core's answer file with `prepare-iso --fetch-from iso`. The answer file sets `reboot-mode = "power-off"`, a `root-password-hashed` of a password the build discards, and a `[first-boot]` hook. The build boots the ISO under QEMU and KVM onto an empty disk and keeps the disk when the installer powers off.
    - The image holds no secret of any deployment. It is tagged by ISO and answer file digest, published by the image workflow like the CI images, and pulled like any image; a host that cannot pull it builds it.
    - Each deploy boots a copy-on-write overlay on the image. The deploy hands the guest its hostname, root password hash and the launcher's SSH public key as a QEMU `fw_cfg` item under `opt/` (Upstream). On first boot the hook applies them and regenerates the SSH host keys, the machine id and the node certificate, so no two deployments share a key.
-5. **Nested KVM where the host has it.** The launcher starts the guest with CPU type `host`. The deploy reads `nested` of the host's `kvm_intel` or `kvm_amd`, writes the result to the deploy log and to OpenBao at `platform/data/provision/proxmox-<host>` beside the endpoint. With nesting on, as on echoserver, VMs inside Proxmox VE run with KVM. Without it, as on GitHub-hosted runners, where nested virtualization is not supported, they run with `kvm: 0`: slower, same API. The `proxmox` root module of 104 takes `kvm` from the catalog region of the target.
-6. **CI deploys the role.** `web-app-proxmox` moves to `alpha` once its deploy and specs are green on an amd64 row, so CI deploys it on every branch run. It declares `architectures: [amd64]`, because the arm64 runners have no KVM and the pinned ISO is the amd64 one. On an amd64 runner without `/dev/kvm` the row fails and names the device; the role is never skipped silently.
-7. **The test target.** The store's Proxmox lane uses a real Proxmox VE that this role deploys, never a fake (store decision 18): on echoserver for the store's stacks, and in the dev stack's `target` for core's CI.
+5. **Nested KVM where the host has it (`vm`).** The launcher starts the guest with CPU type `host`. The deploy reads `nested` of the host's `kvm_intel` or `kvm_amd`, writes the result to the deploy log and to OpenBao at `platform/data/provision/proxmox-<host>` beside the endpoint. With nesting on, as on echoserver, VMs inside Proxmox VE run with KVM. Without it, as on GitHub-hosted runners, where nested virtualization is not supported, they run with `kvm: 0`: slower, same API. The `proxmox` root module of 104 takes `kvm` from the catalog region of the target.
+6. **CI deploys both flavors.** `web-app-proxmox` moves to `alpha` once both variant rows are green on amd64, so CI deploys them on every branch run. It declares `architectures: [amd64]`, because the arm64 runners have no KVM and the pinned ISO is the amd64 one. On an amd64 runner without `/dev/kvm` the row fails and names the device; the role is never skipped silently.
+7. **The test target.** The store's Proxmox lane uses a real Proxmox VE that this role deploys, never a fake (store decision 18): the `vm` flavor on echoserver for the store's stacks, and both flavors in the dev stack's `target` for core's CI.
 
 Rejected:
 
@@ -65,7 +62,6 @@ Rejected:
 - `services.proxmox.shared_host: true` on echoserver (option C): root in the container would be root on echoserver.
 - libvirt on the host: a distribution package and a root daemon on every host.
 - Proxmox VE on a Debian cloud image: a second install path beside the official installer, assembled by core.
-- The container runtime of today beside the VM runtime for dedicated hosts: two version pins and two privilege models for one role, where the VM runtime alone is the more secure.
 
 ## Acceptance Criteria
 
@@ -83,12 +79,22 @@ Rejected:
 
 - [ ] The `proxmox` root module declares no `ssh` block, no snippet, no `source_file` and no `idmap` (`test_the_proxmox_root_needs_no_node_ssh` in `tests/lint/repository/opentofu/test_root_modules.py`).
 
-### Virtual machine runtime
+### Flavors
+
+- [ ] `services.proxmox.flavor` defaults to `vm` and accepts only `vm` and `container`, each flavor has its task file and its pin, both pins name the same Proxmox VE release, and `meta/variants.yml` holds one row per flavor (`test_every_proxmox_flavor_has_its_variant` and `test_both_pins_name_one_release` in `tests/unit/python/roles/web-app-proxmox/test_flavors.py`).
+
+### Flavor `vm`
 
 - [ ] The rendered compose service runs QEMU as a non-root UID with `/dev/kvm` as its only device, no added capability and `no-new-privileges`, and holds none of `/dev/net/tun`, `/dev/vhost-net`, `/dev/fuse`, `NET_ADMIN`, `SYS_ADMIN` and `cgroup: private`. Each property has a negative control (`test_the_launcher_compose_is_unprivileged` and one `test_negative_control_*` per property in `tests/unit/python/roles/web-app-proxmox/test_launcher.py`).
-- [ ] The role has no `shared_host` key and no co-hosting refusal, and a deploy beside `web-app-keycloak` and `web-app-openbao` passes (`test_the_role_has_no_shared_host_switch` in `test_launcher.py`; the echoserver deploy log).
+- [ ] Under `vm` the co-hosting refusal does not run and `shared_host` has no effect, and a deploy beside `web-app-keycloak` and `web-app-openbao` passes (`test_the_vm_flavor_runs_beside_the_identity_roles` in `test_launcher.py`; the echoserver deploy log).
 - [ ] The role's guest steps reach the guest only over the forwarded SSH port on the container's loopback, and the port is published on no host address (`test_the_guest_channel_stays_inside_the_container` in `test_launcher.py`).
 - [ ] The guest's mode follows the host's `nested` parameter, and a VM inside the guest starts with KVM when it is on and with `kvm: 0` when it is off (`test_the_guest_mode_follows_the_host_nested_flag` in `test_launcher.py`; `proxmox vm: a VM starts in the recorded mode` in `test-workspace-pools.js`).
+
+### Flavor `container`
+
+- [ ] Under `container`, the rendered compose service holds today's grants of `compose.yml.j2:18-26` and the image installs the pinned packages; under `vm` neither renders (`test_the_container_flavor_keeps_its_grants` in `tests/unit/python/roles/web-app-proxmox/test_flavors.py`).
+- [ ] Under `container`, a host that also runs `web-app-keycloak`, `svc-ai-litellm` or `web-app-openbao` is refused unless `shared_host` is true, and of every file core ships only the CI variant row sets it (`test_the_container_flavor_refuses_a_shared_host` and `test_only_the_ci_row_sets_shared_host` in `test_flavors.py`).
+- [ ] The `container` variant row deploys on amd64, and its specs pass: the `✓` lines of `test-workspace-pools.js` in that row's deploy log.
 
 ### Guest image
 
@@ -98,10 +104,10 @@ Rejected:
 
 ### CI and test target
 
-- [ ] `web-app-proxmox` is `alpha` or later and declares `architectures: [amd64]` (`test_the_role_runs_on_amd64_only` in `test_launcher.py`), and the deploy log of an amd64 CI row holds the `✓` lines of `test-workspace-pools.js` and of the proxmox case of `test-provision.js`.
+- [ ] `web-app-proxmox` is `alpha` or later and declares `architectures: [amd64]` (`test_the_role_runs_on_amd64_only` in `test_launcher.py`), and the deploy log of the `vm` row on amd64 holds the `✓` lines of `test-workspace-pools.js` and of the proxmox case of `test-provision.js`.
 - [ ] On an amd64 runner without `/dev/kvm`, the row fails with a message naming the device (`test_a_missing_kvm_fails_the_row` in `test_launcher.py`).
 - [ ] The store's Proxmox lane reaches the target with a workspace token over TLS that it verifies, never with certificate checks off, and runs a provision and a destroy there (`provision: proxmox creates and destroys a server` in `test-provision.js`, from the store's e2e stack).
 
 ### Documentation
 
-- [ ] The [README](../../roles/web-app-proxmox/README.md) documents the virtual machine runtime and its single device, the guest channel, the image build with its ISO pin, the first-boot values, the nested mode, the workspace pools and tokens with the exact privileges, and the API-only rule (`test_the_readme_names_the_workspace_pools` in `tests/unit/python/roles/web-app-proxmox/test_readme.py`).
+- [ ] The [README](../../roles/web-app-proxmox/README.md) documents both flavors with their pins and privilege models, the `container` flavor's dedicated-host rule, the guest channel, the image build with its ISO pin, the first-boot values, the nested mode, the workspace pools and tokens with the exact privileges, and the API-only rule (`test_the_readme_names_the_workspace_pools` in `tests/unit/python/roles/web-app-proxmox/test_readme.py`).
