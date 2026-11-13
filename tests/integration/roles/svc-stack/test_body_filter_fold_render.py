@@ -271,14 +271,14 @@ class _Harness:
             self.group_vars.update(_yaml(path))
         self.deploy = _task_with(VHOST_TASKS, "stack_host_contents")
         self.stack_gate = _task_with(
-            STACK / "tasks" / "consumer" / "front.yml", "ansible.builtin.include_tasks"
+            STACK / "tasks" / "batch" / "front.yml", "ansible.builtin.include_tasks"
         )["when"]
-        self.stack_facts = _task_with(
-            STACK / "tasks" / "proxy.yml", "ansible.builtin.set_fact"
-        )["ansible.builtin.set_fact"]
-        self.vhost_facts = _task_with(
-            STACK / "tasks" / "proxy" / "domain.yml", "ansible.builtin.set_fact"
-        )["ansible.builtin.set_fact"]
+        self.proxy_include = _task_with(
+            STACK / "tasks" / "proxy.yml", "ansible.builtin.include_tasks"
+        )
+        self.vhost_include = _task_with(
+            STACK / "tasks" / "proxy" / "domain.yml", "ansible.builtin.include_tasks"
+        )
         self.inj = _task_with(INJ / ROLE_FILE_TASKS_MAIN, "set_fact")
         self.lua_task = _task_with(
             INJ / "tasks" / "standalone.yml", "stack_host_template"
@@ -321,10 +321,11 @@ class _Harness:
             app: the application whose vhosts svc-stack writes.
 
         Returns:
-            An iterator of ``(vhost, facts)``, one per vhost svc-stack writes,
-            with the facts its proxy entry froze for that vhost.
+            An iterator of ``(vhost, scope)``, one per vhost svc-stack writes,
+            with the include params its proxy and domain includes bind for
+            that vhost.
         """
-        gate = {**variables, "stack_application_id": app}
+        gate = {**variables, "stack_batch_consumer": app}
         if not render_expression(variables, "{{ lookup('domains') }}").get(
             app
         ) or not all(
@@ -332,14 +333,11 @@ class _Harness:
             for condition in self.stack_gate
         ):
             return
-        facts = _template(variables, self.stack_facts)
-        for record in facts["front_proxy_vhosts"]:
-            pinned = {**facts, "front_proxy_vhost": record}
-            vhost_facts = _template(
-                {**variables, **pinned, "domain": record["domain"]}, self.vhost_facts
-            )
-            for vhost in vhost_facts["front_proxy_vhost_domains"]:
-                yield vhost, {**pinned, **vhost_facts}
+        scope = {**gate, **_trusted(self.proxy_include["vars"])}
+        for record in _template(scope, self.proxy_include["loop"]):
+            pinned = {**scope, "front_proxy_vhost": record, "domain": record["domain"]}
+            for vhost in _template(pinned, self.vhost_include["loop"]):
+                yield vhost, {**pinned, **_trusted(self.vhost_include["vars"])}
 
     def scopes(self, app: str, tls: bool, tor: bool, providers: bool, facts):
         """

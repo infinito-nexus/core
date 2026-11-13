@@ -1,0 +1,117 @@
+---
+# Param: stack_batch_items - the admitted batch items to serve, each with id, role, phase and tls_mode.
+- name: "🚧 Mark the front batch as running"
+  ansible.builtin.set_fact:
+    stack_batch_running: true
+  changed_when: false
+
+- name: "🔥 P1 | Warm up the host-wide front dependencies before any vhost renders"
+  ansible.builtin.include_tasks: batch/warm.yml
+  vars:
+    stack_batch_letsencrypt: "{{ stack_batch_items | selectattr('tls_mode', 'equalto', 'letsencrypt') | list | length > 0 }}"
+
+- name: "🌐 P2 | Render the vhosts of every planned role with notifies only"
+  ansible.builtin.include_role:
+    name: "{{ stack_batch_item.role }}"
+    tasks_from: utils/stack.yml
+    public: false
+  loop: "{{ stack_batch_items }}"
+  loop_control:
+    loop_var: stack_batch_item
+    label: "{{ stack_batch_item.id }}"
+  vars:
+    application_id: "{{ stack_batch_item.id }}"
+    stack_batch_consumer: "{{ stack_batch_item.id }}"
+    stack_batch_stage: front
+    stack_front_phase: "{{ stack_batch_item.phase }}"
+
+- name: "🏷️ Record the fronts the batch rendered"
+  ansible.builtin.set_fact:
+    stack_front_served: "{{ stack_front_served | combine(dict(stack_batch_items | map(attribute='id') | product([true]))) }}"
+  changed_when: false
+
+- name: "✅ P3 | Validate the vhosts the front batch rendered"
+  when:
+    - IS_STACK_HOST | bool
+    - front_proxy_batch_vhosts | length > 0
+  block:
+    - name: "✅ Test the OpenResty config with every rendered vhost"
+      ansible.builtin.shell: >
+        container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }} openresty -t -q
+      vars:
+        compose_mode_force: ""
+      register: front_proxy_batch_config_test
+      changed_when: false
+      failed_when: false
+
+    - name: "🛑 Name the roles whose vhosts OpenResty refuses"
+      ansible.builtin.fail:
+        msg: >-
+          OpenResty refuses the vhosts of {{ front_proxy_batch_refused | join(', ') }},
+          so the live config stays: {{ front_proxy_batch_config_test.stderr }}
+      vars:
+        front_proxy_batch_refused: >-
+          {{ front_proxy_batch_vhosts | front_proxy_batch_culprits(front_proxy_batch_config_test.stderr) }}
+      when:
+        - front_proxy_batch_config_test.rc != 0
+        - front_proxy_batch_refused | length > 0
+
+- name: "🔄 P3 | Reload OpenResty once for the front batch"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔁 P4 | Re-check the changed vhosts once, without failing"
+  vars:
+    front_proxy_batch_probes: "{{ front_proxy_batch_vhosts | front_proxy_batch_rechecks }}"
+  block:
+    - name: "🔁 Re-check the vhosts whose config changed"
+      when: front_proxy_batch_probes | length > 0
+      block:
+        - name: "🔍 Verify the changed vhosts are served after the reload"
+          uri_probe_batch:
+            urls: "{{ dict(front_proxy_batch_probes.keys() | zip(front_proxy_batch_probes.values() | map(attribute='url'))) }}"
+            method: HEAD
+            status_codes: >-
+              {{ front_proxy_batch_probes.values() | map(attribute='status_codes') | flatten
+                 | union(front_proxy_upstream_down_status_codes) }}
+            attempts: 3
+            delay: 2
+            timeout: "{{ lookup('timeout', 5) | int }}"
+            validate_certs: true
+            follow_redirects: none
+            workers: 16
+          register: front_proxy_batch_check
+          failed_when: false
+          changed_when: false
+
+        - name: "🔄 Redeploy OpenResty once for the vhosts the reload left unserved"
+          ansible.builtin.debug:
+            msg: >-
+              Restarting OpenResty, last status per vhost:
+              {{ dict(front_proxy_batch_unserved | zip(front_proxy_batch_unserved | map('extract', front_proxy_batch_check.status))) }}
+          vars:
+            front_proxy_batch_unserved: >-
+              {{
+                front_proxy_batch_check.status
+                | front_proxy_unserved(
+                    front_proxy_batch_probes,
+                    front_proxy_stale_config_status_codes
+                    if openresty_reload.changed
+                    else front_proxy_batch_check.status.values() | list
+                  )
+              }}
+          changed_when: true
+          notify: restart-openresty
+          when: front_proxy_batch_unserved | length > 0
+
+        - name: "🔄 Flush the fallback redeploy of the front batch"
+          ansible.builtin.meta: flush_handlers
+
+    - name: "🧹 Empty the record of the front batch"
+      ansible.builtin.set_fact:
+        front_proxy_batch_vhosts: {}
+      changed_when: false
+
+- name: "🏁 Mark the front batch as done"
+  ansible.builtin.set_fact:
+    stack_batch_running: false
+  changed_when: false

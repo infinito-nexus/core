@@ -40,15 +40,16 @@ COMPOSE = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
 README = read_text(str(ROLE / ROLE_FILE_README))
 TASKS = ROLE / "tasks" / "00_core.yml"
 TASK_LIST = load_yaml_any(str(TASKS), default_if_missing=[])
+GUARD = ROLE / "tasks" / "utils" / "stack_guard.yml"
 PROXMOX = SERVICES["proxmox"]
 SSO_GATE = assert_task(
-    TASKS, "🛑 Refuse to serve the hypervisor UI without the SSO group gate"
+    GUARD, "🛑 Refuse to serve the hypervisor UI without the SSO group gate"
 )
 NO_ONION = assert_task(
-    TASKS, "🛑 Refuse to publish the hypervisor UI on an onion address"
+    GUARD, "🛑 Refuse to publish the hypervisor UI on an onion address"
 )
 COHOST = assert_task(
-    TASKS, "🛑 Refuse a host that also runs the identity, gateway or vault role"
+    GUARD, "🛑 Refuse a host that also runs the identity, gateway or vault role"
 )
 
 
@@ -290,11 +291,10 @@ class TestGates(unittest.TestCase):
         for variant in VARIANTS:
             self.assertNotIn("tor", variant["services"])
 
-    def test_gates_run_before_the_stack_is_loaded(self):
-        names = [task.get("name", "") for task in TASK_LIST]
-        stack = names.index("🧩 Load docker and proxy for {{ application_id }}")
+    def test_gates_are_the_stack_guard_and_not_the_role_flow(self):
+        names = {task.get("name", "") for task in TASK_LIST}
         for gate in (SSO_GATE, NO_ONION, COHOST):
-            self.assertLess(names.index(gate["name"]), stack)
+            self.assertNotIn(gate["name"], names)
 
 
 class TestHostChecks(unittest.TestCase):

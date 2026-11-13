@@ -132,7 +132,7 @@ class TestVarsPassedAreUsed(unittest.TestCase):
     def _collect_ansible_expressions(self) -> list[str]:
         """
         Return a flat list of strings taken from Ansible expression-bearing fields:
-        - when / failed_when / changed_when / until: <str> or [<str>, ...]
+        - when / failed_when / changed_when / until / that: <str> or [<str>, ...]
         - loop: <str>
         - with_*: <str>
         """
@@ -142,7 +142,13 @@ class TestVarsPassedAreUsed(unittest.TestCase):
             for doc in docs:
                 for mapping in self._walk_mapping(doc):
                     for key, val in list(mapping.items()):
-                        if key in ("when", "failed_when", "changed_when", "until"):
+                        if key in (
+                            "when",
+                            "failed_when",
+                            "changed_when",
+                            "until",
+                            "that",
+                        ):
                             if isinstance(val, str):
                                 exprs.append(val)
                             elif isinstance(val, list):

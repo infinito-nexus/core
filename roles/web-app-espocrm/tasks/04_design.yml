@@ -25,7 +25,7 @@
     - name: "📖 Read the corporate logo set of {{ application_id }}"
       ansible.builtin.slurp:
         src: "{{ [ESPOCRM_DESIGN_DIR, item] | path_join }}"
-      loop: "{{ ESPOCRM_DESIGN_ASSETS if design_branding.logo is string else [] }}"
+      loop: "{{ ESPOCRM_DESIGN_ASSETS if lookup('design', application_id).logo is string else [] }}"
       register: espocrm_design_assets
 
 - name: "🎨 Sync the corporate theme of {{ application_id }}"

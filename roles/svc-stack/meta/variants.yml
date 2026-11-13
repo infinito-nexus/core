@@ -1,0 +1,9 @@
+---
+- services:
+    openresty:
+      enabled: true
+      shared: true
+- services:
+    openresty:
+      enabled: false
+      shared: false

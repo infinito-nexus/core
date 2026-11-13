@@ -22,7 +22,7 @@
   loop:
     - icon.png
     - apple-touch-icon.png
-  when: design_branding.logo is string
+  when: lookup('design', application_id).logo is string
   changed_when: false
 
 - name: "🎨 Apply the corporate theming of {{ application_id }}"
@@ -42,5 +42,5 @@
     - { key: favicon, value: /tmp/design-apple-touch-icon.png }
   loop_control:
     label: "{{ item.key }}"
-  when: design_branding.logo is string
+  when: lookup('design', application_id).logo is string
   changed_when: false

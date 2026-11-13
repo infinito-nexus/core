@@ -2,16 +2,16 @@
 
 ## User Story
 
-As an operator who deploys many applications per host, I want the application stack (front proxy, backend, database) to be one shared `stack` service that the service loader runs once, before the application roles, and that processes every application of the play in that one invocation, so that a deploy stops repeating host-wide stack work per application and the stack has a single point of truth instead of 115 include sites.
+As an operator who deploys many applications per host, I want the application stack (front proxy, backend, database) to be one shared `stack` service that the service loader runs before the application roles, rendering the fronts of every application of the play in one invocation and running each application's backend from the loader's central entry, so that a deploy stops repeating host-wide stack work per application and the stack has a single point of truth instead of 115 include sites.
 
 ## Decisions (operator-confirmed 2026-10-24; do not re-litigate)
 
 1. **One service key, `stack`.** There is no separate key for front proxy, backend or full. What the stack does for an application is derived automatically from the files the role ships and the services the role enables.
 2. **Declared per application, literally.** Every consumer role declares `stack: {enabled: true, shared: true}` in its own `meta/services.yml`. The values are fixed literals, not `'<role>' in group_names` expressions. A central per-category declaration and the `add_host` injection used for OpenResty were rejected.
 3. **Front proxy is triggered by OpenResty.** An application gets a vhost exactly when its own `meta/services.yml` enables and shares `openresty`. Today no application declares that key (only `svc-prx-openresty` does), so every role that needs a vhost gets the new key.
-4. **Database is triggered by the database service.** An application gets its database exactly when it enables and shares `postgres` or `mariadb` (55 roles already declare one of them). Object storage and engines (`sys-svc-rdbms`, objstore, engine includes of `sys-stk-backend`) follow their own existing service keys the same way.
+4. **Database is triggered by the database service** (amended 2026-11-12). An application gets its database exactly when it enables `postgres` or `mariadb` (55 roles already declare one of them): `shared` selects the central server, an unshared database gets a dedicated container. Object storage and engines (`sys-svc-rdbms`, objstore, engine includes of `sys-stk-backend`) follow their own existing service keys the same way.
 5. **Completely without includes.** No role includes, imports or calls `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy` anymore. The three roles are removed. The stack drives the per-application work itself.
-6. **Runs before the application role, in the dependency/service phase, once for all applications.** The `stack` service is loaded by `sys-service-loader` like the other shared services and processes every stack consumer of the play in one batch invocation. The application roles run afterwards and contain only application-specific configuration.
+6. **Runs before the application role: fronts in one invocation, backends per consumer from the loader** (amended 2026-11-13 by the operator's pick of option (a) for reading B). The `stack` service is loaded by `sys-service-loader` like the other shared services. It renders the fronts of every stack consumer of the play in one batch invocation per host, with one OpenResty validation and one reload. The backend of each consumer runs from the loader's central entry, on the role's first entry and before the role's own tasks, so the compose handlers keep their per-application binding. No role includes the stack itself; the application roles contain only application-specific configuration.
 7. **Per-vhost parameters move into meta, per domain, without exceptions.** Every value an include site passes today moves into the role's meta, keyed by domain. This includes the multi-vhost roles (Matrix, Stalwart, Bluesky and the others listed below).
 8. **All roles in one change.** All ~94 consumer roles are migrated in this requirement. There is no pilot subset.
 9. **Definition of done:** code complete, `make test` green, and a local compose measurement against `origin/main` that shows the saving.
@@ -97,13 +97,12 @@ The exact nocheck placement and `bond` value follow `test_dynamic_flags.py` and 
 - Every value listed under "Per-vhost parameters passed at call sites" moves into the role's meta keyed by domain (proposal: `meta/server.yml`, one entry per domain key the role's `lookup('domains', role)` returns). Each entry carries the internal port, the proxy service key, the vhost flavour, the websocket location, the client body size and a reference to the role's extra-configuration template, so the provider can render every vhost without call-site variables.
 - A role's own `templates/proxy.conf.j2` stays the template override, resolved by the provider as front-proxy does today (`:78-93`).
 
-### Batch algorithm (one invocation, all applications)
+### Batch algorithm (fronts in one invocation, backends per consumer)
 
 1. Collect the stack consumers of the play: applications in `lookup('deployment').running` (respecting the whitelist closure) whose `stack` key is enabled and shared.
-2. Per consumer and with its `application_id` frozen: stage the compose project (directories, `.env`, override, compose files, Dockerfiles, build contexts) from the role's templates and files; provision its database through the existing rdbms per-consumer path; provision objstore and engines by their keys.
-3. Per consumer domain: TLS, injection accumulation, vhost render. Then one OpenResty config validation and one reload for the whole batch, followed by the per-vhost probes and the existing stale-config restart decision.
-4. Per consumer, again with its `application_id` frozen: compose pull, build and up with the handler semantics of today (C2), on the stack host only (C7).
-5. Only then do the application roles run.
+2. Per consumer domain: TLS, injection accumulation, vhost render. Then one OpenResty config validation and one reload for the whole batch, followed by a re-check that restarts OpenResty once on a stale config.
+3. Per consumer, at its entry from the loader and with its `application_id` frozen: provision its database through the existing rdbms per-consumer path and objstore and engines by their keys, then stage the compose project (directories, `.env`, override, compose files, Dockerfiles, build contexts) from the role's templates and files with the handler semantics of today (C2), on the stack host only (C7). The up follows at `services.stack.flush` or at the role's own flush.
+4. The application role runs right after its backend.
 
 ### Work that preceded the include
 
@@ -115,7 +114,7 @@ Everything an application role does today before its stack include must be avail
 
 - [x] One role provides the `stack` service: its `vars/main.yml` declares `application_id` and its `meta/services.yml` declares the primary entity `stack` with `shared: true` and `enabled: true`.
 - [ ] `sys-service-loader` runs the `stack` service in the dependency phase, and the deploy log shows the provider's tasks ahead of every `web-app-*` and `web-svc-*` role task.
-- [ ] The `stack` provider is invoked once per play and host and processes every stack consumer of the play in that invocation; its log shows one task header per stage, not one stack block per application.
+- [ ] The `stack` provider renders the fronts of every stack consumer of the play in one invocation per host, and its log shows one task block per stage; each consumer's backend runs per consumer from the loader's central entry, never from the role's own tasks.
 - [ ] Host-wide work listed under "Measured cost" runs at most once per host per play.
 - [x] `sys-svc-compose-ca` decides per host whether any application of the play needs the self-signed CA trust (`_compose_ca_applicable` in its `vars/main.yml`), installs the trust assets only then, and sets its run-once flag on both paths, so its block runs once per host; [test_run_once.py](../../tests/unit/python/roles/sys-svc-compose-ca/test_run_once.py) covers both paths.
 
@@ -123,7 +122,7 @@ Everything an application role does today before its stack include must be avail
 
 - [x] Every role that included `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy` on `origin/main` declares `stack: {enabled: true, shared: true}` in its own `meta/services.yml`.
 - [x] Every role that serves a vhost declares `openresty: {enabled: true, shared: true}`; a role without that key gets no vhost.
-- [ ] A role gets its database exactly when it enables and shares `postgres` or `mariadb`; objstore and engines follow their own keys.
+- [x] A role gets its database exactly when it enables `postgres` or `mariadb`: `shared` selects the central server, an unshared database a dedicated container; objstore and engines follow their own keys.
 - [x] No file under `roles/`, `tasks/`, `playbooks/` or `plugins/` includes, imports or names `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy`, and the three role directories are removed.
 
 ### Per-domain data

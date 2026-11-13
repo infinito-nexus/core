@@ -1,0 +1,16 @@
+---
+- name: "🗂️ Matomo | Take the fronts the front batch rendered without a site id"
+  ansible.builtin.set_fact:
+    matomo_unsited_items: "{{ stack_matomo_unsited.values() | list }}"
+    stack_matomo_unsited: {}
+  run_once: true
+  changed_when: false
+
+- name: "🔁 Matomo | Re-run the front batch for those fronts now that Matomo serves their sites"
+  ansible.builtin.include_role:
+    name: svc-stack
+    tasks_from: batch/serve.yml
+  vars:
+    stack_batch_items: "{{ matomo_unsited_items }}"
+    matomo_token_override: "{{ matomo_token_value }}"
+  when: matomo_unsited_items | length > 0

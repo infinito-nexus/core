@@ -185,17 +185,13 @@ class TestCspHashStore(unittest.TestCase):
 
     def test_every_served_sibling_gets_an_injection_pass(self):
         main = _load(FRONT_PROXY_DOMAIN)
-        siblings = [_fact(task, "front_proxy_vhost_domains") for task in main]
-        self.assertTrue(
-            any(value.startswith("lookup('network_siblings',") for value in siblings)
-        )
         fan_out = [
             task
             for task in main
             if any(task.get(key) == "proxy/vhost.yml" for key in INCLUDE_TASKS)
         ]
         self.assertEqual(len(fan_out), 1)
-        self.assertEqual(fan_out[0]["loop"], "{{ front_proxy_vhost_domains }}")
+        self.assertEqual(fan_out[0]["loop"], "{{ lookup('network_siblings', domain) }}")
         self.assertEqual(fan_out[0]["vars"]["domain"], "{{ front_proxy_domain }}")
         passes = [
             task

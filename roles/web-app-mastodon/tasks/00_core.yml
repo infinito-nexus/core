@@ -1,16 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "📂 Include the front proxy for every {{ application_id }} domain"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/front.yml
-
-- name: "🧩 load docker and db for {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/back.yml
-
 - name: "🧹 Register the garbage collector of {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-cln-apps/tasks/utils/install.yml') }}"
   vars:

@@ -1,11 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🌐 load the vhosts of {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/front.yml
-
 - name: "🧩 load dev-git for {{ application_id }}"
   include_role:
     name: dev-git

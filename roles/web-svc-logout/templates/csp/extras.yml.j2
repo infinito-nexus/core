@@ -1,0 +1,1 @@
+connect-src: {{ (lookup('applications') | logout_domains(group_names, lookup('domains'))) | unique | sort | map('regex_replace', '^(.*)$', lookup('tls', application_id, 'protocols.web') ~ '://\\1') | list | to_json }}

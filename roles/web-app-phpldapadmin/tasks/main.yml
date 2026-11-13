@@ -1,5 +1,0 @@
----
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml

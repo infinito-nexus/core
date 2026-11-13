@@ -1,7 +1,2 @@
 ---
 - include_tasks: utils/once/flag.yml
-
-- name: "📂 Include role svc-stack for '{{ application_id }}'"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/front.yml

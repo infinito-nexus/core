@@ -4,8 +4,14 @@ stack:
   bond: 1
   enabled: true
   shared: true
+  run_after:
+    - svc-prx-openresty
   required_by:
     compose:
       categories: [web-app, web-svc]
     swarm:
       categories: [web-app, web-svc]
+
+openresty:
+  enabled: "{{ 'svc-prx-openresty' in group_names }}"
+  shared: "{{ 'svc-prx-openresty' in group_names }}"

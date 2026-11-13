@@ -11,8 +11,14 @@ RDBMS_DEDICATED = PROJECT_ROOT / "roles/sys-svc-rdbms/tasks/dedicated.yml"
 BLUESKY_CORE = PROJECT_ROOT / "roles/web-app-bluesky/tasks/00_core.yml"
 BLUESKY_STAGING = tuple(
     PROJECT_ROOT / "roles/web-app-bluesky/tasks" / name
-    for name in ("01_social_app.yml", "02_login_broker.yml", "03_pds.yml")
+    for name in (
+        "utils/stack_stage.yml",
+        "01_social_app.yml",
+        "02_login_broker.yml",
+        "03_pds.yml",
+    )
 )
+BLUESKY_BRIDGE = PROJECT_ROOT / "roles/web-app-bluesky/tasks/utils/stack.yml"
 SEARXNG_CORE = PROJECT_ROOT / "roles/svc-ai-searxng/tasks/00_core.yml"
 COMPOSE_OWNER = "sys-svc-compose"
 RENDER_REPLICATED = "render_replicated_templates.yml"
@@ -79,22 +85,29 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
                     "the compose handlers before ca-inject and compose.yml exist",
                 )
 
-    def test_bluesky_rebuilds_after_the_backend_renders_the_stack(self) -> None:
+    def test_bluesky_rebuilds_in_its_own_tasks_after_the_bridged_backend(
+        self,
+    ) -> None:
         tasks = load_yaml_str(read_text(str(BLUESKY_CORE)))
-        backend = next(
-            index
-            for index, task in enumerate(tasks)
-            if _role_include(task)
-            == {"name": "svc-stack", "tasks_from": "consumer/back.yml"}
+        self.assertTrue(BLUESKY_BRIDGE.is_file())
+        self.assertEqual(
+            [
+                include
+                for include in _role_includes(tasks)
+                if include["name"] == "svc-stack"
+            ],
+            [],
+            "the stack entry runs the backend through the bridge before "
+            "00_core, and the front batch renders the fronts before both",
         )
-        rebuild = next(
-            index
-            for index, task in enumerate(tasks)
-            if {"compose-build", "compose-up"} <= set(task.get("notify") or [])
+        self.assertTrue(
+            any(
+                {"compose-build", "compose-up"} <= set(task.get("notify") or [])
+                for task in tasks
+            )
         )
-        self.assertGreater(rebuild, backend)
 
-    def test_bluesky_flushes_its_own_compose_handlers_before_the_front_proxy(
+    def test_bluesky_flushes_its_own_compose_handlers_after_the_rebuild(
         self,
     ) -> None:
         tasks = load_yaml_str(read_text(str(BLUESKY_CORE)))
@@ -112,20 +125,6 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
                 or task.get("ansible.builtin.meta") == "flush_handlers"
             )
         )
-        proxy = next(
-            index
-            for index, task in enumerate(tasks)
-            if _role_include(task)
-            == {"name": "svc-stack", "tasks_from": "consumer/front.yml"}
-        )
-        self.assertLess(
-            flush,
-            proxy,
-            "the front proxy pulls in svc-prx-openresty, which flushes; a "
-            "compose topic still pending there is run with openresty's "
-            "application_id and brings up its stack instead of this one",
-        )
-
         loader = _role_include(tasks[flush - 1])
         self.assertEqual(loader.get("name"), COMPOSE_OWNER)
         self.assertEqual(

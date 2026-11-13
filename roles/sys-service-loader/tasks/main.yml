@@ -1,20 +1,5 @@
 ---
-# nocheck: run-once — main.yml is the orchestrator entry point and intentionally
-# re-runnable; per-service idempotency is enforced by each loaded role's own
-# run_once_<role> flag inside load_service.yml.
-#
-# SPOT: global loader for all shared services.
-#
-# Called from tasks/stages/01_constructor.yml before the normal server app pass.
-#
-# Two-phase contract:
-#   1. Preload pass — iterate `_ordered_services` in dependency order and
-#      load each service body once (`service_loader_preloading: true`).
-#   2. Post-load pass — flush the `service_loader_post_run` queue that
-#      roles registered during preload via this role's `list_or_shoot.yml`.
-#      Tasks listed there run with `service_loader_preloading: false`,
-#      so they see the fully preloaded service graph.
-
+# nocheck: run-once
 - name: "🔍 Discover ordered shared services"
   ansible.builtin.set_fact:
     _ordered_services: >-
@@ -55,14 +40,5 @@
     loop_var: service_item
     label: "{{ service_item.id }}"
 
-- name: "📂 Close the preload context before the post-load flush"
-  ansible.builtin.set_fact:
-    service_loader_preloading: false
-  changed_when: false
-
-- name: "▶️ Run service-loader post-load roles"
-  ansible.builtin.include_role:
-    name: "{{ post_run_role }}"
-  loop: "{{ service_loader_post_run | unique }}"
-  loop_control:
-    loop_var: post_run_role
+- name: "▶️ Drain the post-load roles the preload queued"
+  ansible.builtin.include_tasks: drain.yml

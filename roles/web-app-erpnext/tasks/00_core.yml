@@ -1,11 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml
-
 - name: "📦 Stage the {{ ERPNEXT_LOGIN_RBAC_APP }} Frappe app into the build context"
   stack_host_copy:
     src: "python/{{ ERPNEXT_LOGIN_RBAC_APP }}/"

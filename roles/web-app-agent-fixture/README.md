@@ -14,12 +14,15 @@ proxy, building a small custom nginx image from the tree under `files/app`.
 The role refuses to run unless the inventory sets `AGENT_FIXTURE_BUNDLE: true`;
 only the agents test bundle (`inventories/bundles/servers/agents`) sets that
 flag, so the fixture never comes up on a real host and any other inventory
-fails hard at the first task.
+fails hard before the fixture's vhost or container exists.
 
 ## Features
 
-- **Bundle-guarded:** The first task asserts `AGENT_FIXTURE_BUNDLE` and aborts
-  the deploy anywhere outside the agents test bundle.
+- **Bundle-guarded:** The stack guard
+  [tasks/utils/stack_guard.yml](./tasks/utils/stack_guard.yml) asserts
+  `AGENT_FIXTURE_BUNDLE` and aborts the deploy anywhere outside the agents test
+  bundle. svc-stack runs it before the fixture's vhost renders and before its
+  backend.
 - **Seeded instance findings:** A third-party web font from `fonts.googleapis.com`
   in `files/app/html/index.html`, a session cookie set before consent and a
   missing `X-Content-Type-Options` header in `files/app/config/nginx.conf`.

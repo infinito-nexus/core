@@ -1,0 +1,12 @@
+---
+stack_backend_entered: {}
+stack_front_served: {}
+stack_batch_running: false
+stack_batch_deferred: []
+stack_matomo_unsited: {}
+
+STACK_ENTRY_PENDING: >-
+  {{
+    (lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack.yml') is file)
+    and entry_application_id not in stack_backend_entered
+  }}

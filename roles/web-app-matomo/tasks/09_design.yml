@@ -21,7 +21,7 @@
     - name: "📖 Read the corporate logo set of {{ application_id }}"
       ansible.builtin.slurp:
         src: "{{ [MATOMO_DESIGN_DIR, item] | path_join }}"
-      loop: "{{ MATOMO_DESIGN_ASSETS if design_branding.logo is string else [] }}"
+      loop: "{{ MATOMO_DESIGN_ASSETS if lookup('design', application_id).logo is string else [] }}"
       register: matomo_design_assets
 
 - name: "🎨 Sync the {{ MATOMO_DESIGN_THEME }} theme of {{ application_id }}"

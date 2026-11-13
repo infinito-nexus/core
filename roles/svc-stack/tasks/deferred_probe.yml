@@ -1,7 +1,8 @@
 ---
+# Param: front_proxy_probe_phases - the stack phases (entered, preload, server, late) whose queued vhosts this probe takes and drops from the queue.
 - name: "🔍 Probe the vhosts this play queued"
   when:
-    - front_proxy_deferred_probes | length > 0
+    - front_proxy_deferred_due | length > 0
     - inventory_hostname == groups['svc-prx-openresty'][0]
   block:
     - name: "🔍 Check if the queued vhosts are reachable"
@@ -24,7 +25,7 @@
         front_proxy_deferred_stale: >-
           {{
             front_proxy_deferred_check.status
-            | front_proxy_unserved(front_proxy_deferred_probes, front_proxy_stale_config_status_codes)
+            | front_proxy_unserved(front_proxy_deferred_due, front_proxy_stale_config_status_codes)
           }}
       changed_when: false
 
@@ -32,7 +33,13 @@
       ansible.builtin.include_tasks: deferred_probe/restart.yml
       when: front_proxy_deferred_stale | length > 0
 
-- name: "🧹 Empty the deferred probe queue"
+- name: "🧹 Drop the probed vhosts from the deferred probe queue"
   ansible.builtin.set_fact:
-    front_proxy_deferred_probes: {}
+    front_proxy_deferred_probes: >-
+      {{
+        front_proxy_deferred_probes
+        | dict2items
+        | rejectattr('value.phase', 'in', front_proxy_probe_phases)
+        | items2dict
+      }}
   changed_when: false

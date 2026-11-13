@@ -36,8 +36,8 @@
          | items2dict(key_name='name', value_name='value')
          | combine(XWIKI_DESIGN_THEME_COLORS, {
              'lessCode': XWIKI_DESIGN_LESS_CODE,
-             'logo': XWIKI_DESIGN_LOGO_FILE if design_branding.logo is string else '',
-             'logo-description': design_branding.label
+             'logo': XWIKI_DESIGN_LOGO_FILE if lookup('design', application_id).logo is string else '',
+             'logo-description': lookup('design', application_id).label
            }) }}
 
 - name: "➕ XWIKI | Add the corporate theme object"

@@ -1,0 +1,73 @@
+---
+- name: "🛡️ Refuse to replace a Stalwart that serves a store from before 1.0"
+  include_tasks: store_guard.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🔴 Disable SMTP to avoid port conflicts"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
+
+- name: ✅ Ensure Stalwart config directory exists
+  file:
+    path: "{{ STALWART_CONFIG_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: ✅ Ensure certs bind-source directory exists (host)
+  file:
+    path: "{{ [ STALWART_VOLUMES_DIR, 'certs' ] | path_join }}"
+    state: directory
+    mode: "0755"
+
+- name: 📄 Render Stalwart bootstrap configuration
+  stack_host_template:
+    src: config.json.j2
+    dest: "{{ STALWART_CONFIG_FILE }}"
+    mode: "0644"
+
+- name: "✅ Ensure the WebUI cache directory exists"
+  ansible.builtin.file:
+    path: "{{ STALWART_WEBUI_CACHE_FILE | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: "⬇️ Download the Stalwart WebUI bundle (skipped when cached)"
+  get_url_retry:
+    url: "{{ STALWART_WEBUI_RESOURCE_URL }}"
+    dest: "{{ STALWART_WEBUI_CACHE_FILE }}"
+    mode: "0644"
+  when: IS_STACK_HOST | bool
+
+- name: "📦 Install the cached WebUI bundle into the instance dir"
+  stack_host_copy:
+    src: "{{ STALWART_WEBUI_CACHE_FILE }}"
+    dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
+    remote_src: true
+    mode: "0644"
+
+- name: ✅ Ensure Roundcube custom-config directory exists
+  file:
+    path: "{{ STALWART_WEBMAIL_CONFIG_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: 📄 Render Roundcube OAuth (Keycloak SSO) configuration
+  stack_host_template:
+    src: roundcube-oauth.inc.php.j2
+    dest: "{{ STALWART_WEBMAIL_OAUTH_CONFIG }}"
+    mode: "0644"
+  register: stalwart_webmail_conf
+
+- name: 🎨 Render Roundcube corporate design configuration
+  stack_host_template:
+    src: webmail-design.inc.php.j2
+    dest: "{{ STALWART_WEBMAIL_DESIGN_CONFIG }}"
+    mode: "0644"
+  register: stalwart_webmail_design_conf
+
+- name: 📄 Render clamav-milter configuration
+  stack_host_template:
+    src: clamav-milter.conf.j2
+    dest: "{{ STALWART_CLAMAV_MILTER_CONF }}"
+    mode: "0644"
+  register: stalwart_clamav_conf
+  when: STALWART_ANTIVIRUS_ENABLED | bool

@@ -36,6 +36,6 @@
     front_proxy_deferred_unreachable: >-
       {{
         front_proxy_deferred_verify.status
-        | front_proxy_unserved(front_proxy_deferred_probes, front_proxy_stale_config_status_codes)
+        | front_proxy_unserved(front_proxy_deferred_due, front_proxy_stale_config_status_codes)
       }}
   when: front_proxy_deferred_unreachable | length > 0

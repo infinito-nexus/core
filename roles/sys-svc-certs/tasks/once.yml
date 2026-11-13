@@ -1,0 +1,14 @@
+---
+- name: 📂 Include dependency 'sys-svc-webserver-https'
+  include_role:
+    name: sys-svc-webserver-https
+  when: run_once_sys_svc_webserver_https is not defined
+
+- name: "📜 Load the wildcard certificate of '{{ DOMAIN_PRIMARY }}'"
+  include_tasks: flavors/dedicated.yml
+  vars:
+    domain: "{{ DOMAIN_PRIMARY }}"
+    wildcard_domain: true
+  when: CERTBOT_FLAVOR == 'wildcard'
+
+- include_tasks: utils/once/flag.yml
