@@ -6,7 +6,6 @@ JOOMLA_VERSION: "{{ lookup('config', application_id, 'services.joomla.version') 
 JOOMLA_IMAGE: "{{ lookup('config', application_id, 'services.joomla.image') }}"
 JOOMLA_CONTAINER: "{{ lookup('config', application_id, 'services.joomla.name') }}"
 JOOMLA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
-JOOMLA_DOMAINS: "{{ lookup('domains', application_id) }}"
 JOOMLA_SITE_NAME: "{{ lookup('design', application_id).label }}"
 JOOMLA_DB_CONNECTOR: "{{ 'pgsql' if lookup('database', application_id, 'type') == 'postgres' else 'mysqli' }}"
 JOOMLA_CONFIG_FILE: "/var/www/html/configuration.php"
@@ -29,7 +28,7 @@ JOOMLA_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', JOOMLA_ENTRYPOINT_SCRI
 JOOMLA_UPLOAD_CONFIG: "{{ [ lookup('container', application_id, 'directories.instance'), 'php-upload.ini' ] | path_join }}"
 JOOMLA_UPLOAD_SIZE: "{{ lookup('config', application_id, 'services.joomla.upload.size_mb') }}"
 JOOMLA_UPLOAD_MAX_FILESIZE: "{{ (JOOMLA_UPLOAD_SIZE | int) }}M"
-JOOMLA_POST_MAX_SIZE: "{{ ((JOOMLA_UPLOAD_SIZE | int) * 12 // 10) }}M"
+JOOMLA_POST_MAX_SIZE: "{{ lookup('config', application_id, 'server.vhosts.default.client_max_body_size') }}"
 JOOMLA_PHP_MEMORY_LIMIT: "{{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
 
 JOOMLA_USER_NAME: "{{ lookup('users', 'platform_administrator').username }}"

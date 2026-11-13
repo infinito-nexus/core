@@ -1,12 +1,4 @@
 ---
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    application_id: web-app-yourls
-    compose_handlers_flush: false
-    webserver_extra_configuration: "{{ lookup('template', 'redirect.conf.j2') }}"
-
 - name: "🎬 Stage the user/cache.php drop-in build context for {{ application_id }}"
   stack_host_copy:
     src: "sso/infinito_sso.php"

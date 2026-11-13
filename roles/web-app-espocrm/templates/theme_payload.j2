@@ -1,4 +1,4 @@
-{% set espocrm_logo_rendered = design_branding.logo is string %}
+{% set espocrm_logo_rendered = lookup('design', application_id).logo is string %}
 {% set espocrm_theme = {
   'stylesheet': ESPOCRM_DESIGN_ASSETS_PATH ~ '/theme.css',
   'stylesheetIframe': 'client/css/espo/espo-iframe.css',

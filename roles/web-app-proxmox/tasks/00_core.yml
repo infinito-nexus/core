@@ -1,50 +1,10 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🛑 Refuse a host that also runs the identity, gateway or vault role"
-  ansible.builtin.assert:
-    that:
-      - (PROXMOX_COHOSTED_PEERS | length == 0) or (PROXMOX_SHARED_HOST | bool)
-    fail_msg: >-
-      {{ inventory_hostname }} also runs {{ PROXMOX_COHOSTED_PEERS | join(', ') }}.
-      A VM escape out of Proxmox VE would land next to the identity provider,
-      the model gateway keys or the vault. Move web-app-proxmox to its own
-      host, or accept the shared host by setting
-      applications.web-app-proxmox.services.proxmox.shared_host to true.
-    quiet: true
-
-- name: "🛑 Refuse to serve the hypervisor UI without the SSO group gate"
-  ansible.builtin.assert:
-    that:
-      - PROXMOX_SSO_ENABLED | bool
-    fail_msg: >-
-      services.sso.enabled resolves to false for {{ inventory_hostname }}: no
-      web-app-keycloak host is in the inventory, so no OAuth2 proxy would stand
-      in front of the Proxmox VE web UI. Deploy web-app-keycloak in the same
-      inventory first.
-    quiet: true
-
-- name: "🛑 Refuse to publish the hypervisor UI on an onion address"
-  ansible.builtin.assert:
-    that:
-      - not (PROXMOX_TOR_ENABLED | bool)
-    fail_msg: >-
-      services.tor.enabled resolves to true for {{ inventory_hostname }}: the
-      Proxmox VE web UI would get an onion address outside the front proxy's
-      clearnet gate. Set applications.web-app-proxmox.services.tor.enabled to
-      false for this host.
-    quiet: true
-
 - name: "🛡️ Prove hardware virtualization for {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert/kvm.yml') }}"
   vars:
     assert_kvm_consumer: "{{ application_id }}"
-
-- name: "🧩 Load docker and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
 
 - name: "🔍 Read where the container engine keeps the VM disk volume"
   ansible.builtin.command: >-

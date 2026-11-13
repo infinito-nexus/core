@@ -1,0 +1,6 @@
+---
+- name: "🧩 For '{{ application_id }}': load docker and db"
+  ansible.builtin.include_tasks: batch/back.yml
+  loop: "{{ [ansible_parent_role_names | default([application_id]) | first] }}"
+  loop_control:
+    loop_var: stack_batch_consumer

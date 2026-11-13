@@ -9,9 +9,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📁 Create the build context of '{{ application_id }}'"
   ansible.builtin.file:
@@ -28,13 +27,6 @@
   notify:
     - compose-build
     - compose-up
-
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ MATTERMOST_MCP_INSTANCE_DIR }}"
-    mcp_adapter_upstream_key: true
-  when: MATTERMOST_MCP_ENABLED | bool
 
 - name: "🗑️ Remove stale nginx config for renamed domain chat.{{ DOMAIN_PRIMARY }}" # nocheck: domain-spot
   ansible.builtin.file:

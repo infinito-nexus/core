@@ -63,14 +63,12 @@ class TestWebserverResource(unittest.TestCase):
         self.assertIsInstance(result[0], int)
 
     def test_an_application_id_that_is_still_a_template_is_resolved(self):
-        """sys-stk-full sets application_id from a variable, so the play holds
-        the unrendered string and the lookup must template it itself."""
         result = _run(
             "cpus",
             proxy="4",
             app="2",
-            declared_as="{{ sys_stk_full_application_id }}",
-            templar=_Templar({"{{ sys_stk_full_application_id }}": "web-app-docs"}),
+            declared_as="{{ stack_batch_consumer }}",
+            templar=_Templar({"{{ stack_batch_consumer }}": "web-app-docs"}),
         )
         self.assertEqual(result, [2.0])
 

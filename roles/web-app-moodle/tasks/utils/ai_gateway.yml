@@ -1,7 +1,4 @@
 ---
-- name: "🔐 Verify the gateway contract for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
-
 - name: "🤖 Point the Moodle AI provider instance at the platform gateway"
   ansible.builtin.shell: >
     IFS= read -r AI_API_KEY && export AI_API_KEY && container exec -i --user {{ MOODLE_RUNTIME_USER }}

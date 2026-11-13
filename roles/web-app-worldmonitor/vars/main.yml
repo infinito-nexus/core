@@ -6,8 +6,6 @@ http_port: "{{ lookup('config', application_id, 'services.worldmonitor.ports.loc
 
 WORLDMONITOR_CONTAINER: "{{ lookup('config', application_id, 'services.worldmonitor.name') }}"
 WORLDMONITOR_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.worldmonitor.ports.internal.http') }}"
-WORLDMONITOR_SOURCE_REPOSITORY: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.source_repository') }}"
-WORLDMONITOR_SOURCE_VERSION: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.source_version') }}"
 WORLDMONITOR_APP_DOCKERFILE: "Dockerfile"
 WORLDMONITOR_SEEDER_TARGET: "builder"
 

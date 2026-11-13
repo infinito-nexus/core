@@ -713,6 +713,16 @@ class TestMcpSchema(unittest.TestCase):
                     f"assumes when nothing says otherwise",
                 )
 
+        if (
+            "upstream_credential" in adapter
+            and adapter["upstream_credential"] is not True
+        ):
+            flag(
+                "upstream_credential",
+                f"{prefix}.adapter.upstream_credential must be literal true; omit "
+                f"it where the sidecar reads no captured credential",
+            )
+
         adapter_type = adapter.get("type")
         if adapter_type not in MCP_ADAPTER_TYPES:
             flag(

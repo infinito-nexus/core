@@ -1,13 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    webserver_extra_configuration: "client_max_body_size 512M;"
-
 - name: "📋 Stage the OIDC sign-in listener that sets the admin flag from the role group"
   stack_host_copy:
     src: "{{ item.src }}"

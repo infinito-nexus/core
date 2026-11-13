@@ -10,7 +10,8 @@ from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 STORE = "webserver_csp_hashes_extra_by_vhost"
 INJECTION_PASS = f"roles/sys-front-inj-all/{ROLE_FILE_TASKS_MAIN}"
-FRONT_PROXY = "roles/sys-stk-front-proxy/tasks"
+FRONT_PROXY_DOMAIN = "roles/svc-stack/tasks/proxy/domain.yml"
+FRONT_PROXY_VHOST = "roles/svc-stack/tasks/proxy/vhost.yml"
 DECLARATION = "group_vars/all/04_webserver.yml"
 YAML = (".yml", ".yaml")
 SCANNED = ("roles/", "tasks/", "group_vars/", "host_vars/", "playbook")
@@ -183,22 +184,18 @@ class TestCspHashStore(unittest.TestCase):
         self.assertLess(opened[0], min(injectors))
 
     def test_every_served_sibling_gets_an_injection_pass(self):
-        main = _load(f"{FRONT_PROXY}/main.yml")
-        siblings = [_fact(task, "front_proxy_vhost_domains") for task in main]
-        self.assertTrue(
-            any(value.startswith("lookup('network_siblings',") for value in siblings)
-        )
+        main = _load(FRONT_PROXY_DOMAIN)
         fan_out = [
             task
             for task in main
-            if any(task.get(key) == "vhost.yml" for key in INCLUDE_TASKS)
+            if any(task.get(key) == "proxy/vhost.yml" for key in INCLUDE_TASKS)
         ]
         self.assertEqual(len(fan_out), 1)
-        self.assertEqual(fan_out[0]["loop"], "{{ front_proxy_vhost_domains }}")
+        self.assertEqual(fan_out[0]["loop"], "{{ lookup('network_siblings', domain) }}")
         self.assertEqual(fan_out[0]["vars"]["domain"], "{{ front_proxy_domain }}")
         passes = [
             task
-            for task in _load(f"{FRONT_PROXY}/vhost.yml")
+            for task in _load(FRONT_PROXY_VHOST)
             if _included_role(task) == "sys-front-inj-all"
         ]
         self.assertEqual(len(passes), 1)

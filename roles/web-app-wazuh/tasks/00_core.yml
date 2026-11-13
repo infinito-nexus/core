@@ -3,9 +3,8 @@
 
 - name: "🧩 load docker for {{ application_id }}"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "📁 Ensure {{ WAZUH_CERTS_DIR_HOST }} exists for the cert-generator bind mount"
   ansible.builtin.file:
@@ -88,11 +87,8 @@
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-front-proxy
-  vars:
-    http_port: "{{ WAZUH_DASHBOARD_HTTP_PORT }}"
-    webserver_proxy_service_key: "{{ 'dashboard' if IS_SWARM_MODE else (application_id | entity_name) }}"
-    proxy_internal_port: "{{ WAZUH_DASHBOARD_INTERNAL_PORT if IS_SWARM_MODE else '' }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml
 
 - name: "🔍 Resolve the Wazuh indexer hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

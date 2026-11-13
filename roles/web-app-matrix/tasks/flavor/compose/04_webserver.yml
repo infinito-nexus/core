@@ -3,20 +3,7 @@
 - name: "🔀 federation delegation"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/well_known.yml"
 
-- name: "📂 include role sys-stk-front-proxy for {{ MATRIX_ELEMENT_DOMAIN }}"
+- name: "📂 Include role svc-stack for '{{ application_id }}'"
   ansible.builtin.include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ MATRIX_ELEMENT_DOMAIN }}"
-    http_port: "{{ MATRIX_ELEMENT_PORT }}"
-    webserver_proxy_service_key: element
-    proxy_internal_port: "{{ MATRIX_ELEMENT_CONTAINER_PORT }}"
-
-- name: "📂 include role sys-stk-front-proxy for {{ MATRIX_SYNAPSE_DOMAIN }}"
-  ansible.builtin.include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
-    http_port: "{{ MATRIX_SYNAPSE_PORT }}"
-    webserver_proxy_service_key: synapse
-    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml

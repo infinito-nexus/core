@@ -10,11 +10,11 @@
 
     - name: "🧩 Deploy the CDN stack (one-shot npm-mirror build) + front proxy"
       include_role:
-        name: sys-stk-full
-      vars:
-        aca_origin: "* always"
+        name: svc-stack
+        tasks_from: consumer.yml
 
 - name: "🧩 Front proxy only (external CDN flavor)"
   include_role:
-    name: sys-stk-front-proxy
+    name: svc-stack
+    tasks_from: consumer/front.yml
   when: CDN_FLAVOR != 'internal'

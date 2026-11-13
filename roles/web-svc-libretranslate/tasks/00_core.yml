@@ -1,15 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ LIBRETRANSLATE_MCP_INSTANCE_DIR }}"
-  when: LIBRETRANSLATE_MCP_ENABLED | bool
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-
 - name: "📦 Stage the model prefetch of {{ application_id }}"
   stack_host_copy:
     src: python/prefetch_models.py

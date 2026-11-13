@@ -8,6 +8,8 @@ This role automates the retrieval of [Let's Encrypt](https://letsencrypt.org/) S
 
 Designed for Archlinux systems, this role handles issuing certificates per domain and optionally cleans up redundant certificates if wildcard certificates are used. It intelligently decides whether to issue a standard or wildcard certificate based on the domain structure and your configuration.
 
+`tasks/once.yml` is the host part and runs once per host before any domain: it loads `sys-svc-webserver-https` and, with `CERTBOT_FLAVOR: wildcard`, requests the `DOMAIN_PRIMARY` wildcard certificate, so every direct subdomain is covered whichever domain arrives first.
+
 ### Key Features
 
 - **Single Domain and Wildcard Support:** Handles both individual domains and wildcard domains (`*.example.com`).

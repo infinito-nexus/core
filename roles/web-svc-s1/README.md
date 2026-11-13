@@ -6,7 +6,7 @@ Public vhost for the System One decision service. It serves [`svc-ai-s1`](../svc
 
 ## Overview
 
-This role ships no container. It renders one vhost through [`sys-stk-front-proxy`](../sys-stk-front-proxy/) and forwards to the container `svc-ai-s1` already runs, the way [`web-app-litellm`](../web-app-litellm/) fronts `svc-ai-litellm`. Deploying it without `svc-ai-s1` leaves the vhost answering nothing.
+This role ships no container. It renders one vhost through [`svc-stack`](../svc-stack/README.md) and forwards to the container `svc-ai-s1` already runs, the way [`web-app-litellm`](../web-app-litellm/) fronts `svc-ai-litellm`. Deploying it without `svc-ai-s1` leaves the vhost answering nothing.
 
 Callers authenticate with the bearer token `svc-ai-s1` already requires: the proxy passes `Authorization` through untouched and adds no credential of its own, so there is no second secret to rotate and the backend stays the single place that decides who may ask.
 

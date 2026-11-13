@@ -4,3 +4,6 @@ status_codes:
     - 302
     - 301
     - 200
+vhosts:
+  default:
+    extra_configuration: "client_max_body_size 31M;"

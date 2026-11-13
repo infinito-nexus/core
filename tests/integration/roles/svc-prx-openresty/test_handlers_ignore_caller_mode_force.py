@@ -66,7 +66,7 @@ ROLES: dict[str, dict[str, object]] = {
                 },
             },
             {
-                "name": "Serve a vhost the way sys-stk-front-proxy does",
+                "name": "Serve a vhost the way svc-stack does",
                 "ansible.builtin.include_role": {"name": "probe-front-proxy"},
             },
         ],

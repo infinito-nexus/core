@@ -3,7 +3,8 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎬 Stage the LAM entrypoint and its PHP helper into the compose build context"
   stack_host_copy:

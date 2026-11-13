@@ -1,17 +1,3 @@
-"""Unit tests for the container_healthcheck lookup plugin.
-
-Pins that values taken straight out of the play vars are templated before
-use. ``include_role: vars:`` hands them over unrendered, so under
-``sys-stk-full`` ``application_id`` arrives as the literal string
-``{{ sys_stk_full_application_id }}``, and the same holds for a
-``healthcheck.hostname`` read out of the service config.
-
-Also pins that the ``container_hostname`` play var never reaches the probe's
-HTTP ``Host`` header: it is computed for ``sethostname(2)`` and clamped to 63
-bytes, so on a v3 onion deployment it degrades to the bare entity name and the
-app rejects it.
-"""
-
 from __future__ import annotations
 
 import importlib.util
@@ -89,10 +75,10 @@ class TestContainerHealthcheckLookup(unittest.TestCase):
 
     def test_unrendered_application_id_is_templated(self):
         vars_ = {
-            "application_id": "{{ sys_stk_full_application_id }}",
-            "sys_stk_full_application_id": "web-app-dashboard",
+            "application_id": "{{ stack_batch_consumer }}",
+            "stack_batch_consumer": "web-app-dashboard",
         }
-        rendered = {"{{ sys_stk_full_application_id }}": "web-app-dashboard"}
+        rendered = {"{{ stack_batch_consumer }}": "web-app-dashboard"}
         block = self._make(vars_, rendered).run(["dashboard"], variables=vars_)[0]
         self.assertIn("/dev/tcp/localhost/5000", block)
         self.assertIn("start_period: 10m", block)

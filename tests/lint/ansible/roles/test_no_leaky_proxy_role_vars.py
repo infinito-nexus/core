@@ -1,24 +1,3 @@
-"""Lint: proxy-override vars must not be declared at role level in vars/main.yml.
-
-A role's ``vars/main.yml`` is auto-loaded into play scope and stays there for the
-rest of the play. The central front-proxy pass later renders EVERY role's
-``templates/proxy.conf.j2`` (re-pointing ``application_id`` per role) while those
-leaked role vars are still in scope. A var like
-``webserver_client_max_body_size: "{{ lookup('config', application_id, ...) }}"``
-is therefore re-evaluated against the wrong ``application_id`` and either silently
-applies one role's limit to another or hard-fails when the other role lacks the
-looked-up key (the seaweedfs↔matrix deploy crash).
-
-Set such proxy overrides where they stay scoped instead:
-- task-scoped: ``vars:`` on the role's ``sys-stk-front-proxy`` include, or
-- as data: ``server.client_max_body_size`` in the role's ``meta/server.yml``
-  (the shared proxy templates read it via
-  ``lookup('config', application_id, 'server.client_max_body_size', '100m')``).
-
-Add ``# nocheck: leaky-proxy-var`` on (or directly above) the offending line only
-if the role genuinely must set the value play-wide.
-"""
-
 from __future__ import annotations
 
 import re
@@ -85,9 +64,8 @@ def _fix_hint(finding: LeakyVarFinding) -> str:
     return (
         f"role var '{finding.var}' in roles/{finding.role}/vars/main.yml leaks into "
         "the central front-proxy pass (it stays in play scope and is re-evaluated "
-        "while other roles' vhosts render). Set it task-scoped (vars: on the role's "
-        "sys-stk-front-proxy include) or declare server.client_max_body_size in "
-        f"roles/{finding.role}/meta/server.yml instead, or add "
+        "while other roles' vhosts render). Declare it per vhost under "
+        f"server.vhosts in roles/{finding.role}/meta/server.yml instead, or add "
         "'# nocheck: leaky-proxy-var' if it must be play-wide."
     )
 

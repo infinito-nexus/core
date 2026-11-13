@@ -17,6 +17,7 @@ endpoint:
   port_key: http
 adapter:
   type: openapi_allowlist
+  upstream_credential: true
   upstream_api_version: v1
   specification_path: roles/web-app-jellyfin/files/mcp/tools.json
   specification_sha256: sha256:6118a09c6e7829ade5f8294b75e19eec83d52fa6b97afbe74e8c4e0d94cd09db

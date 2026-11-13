@@ -104,7 +104,8 @@ CONSUMER_PREFIX = {
     "web-app-magento": "MAGENTO",
     "web-app-shopware": "SHOPWARE",
 }
-CONSUMER_TASKS = {"web-app-shopware": ROLE_FILE_TASKS_MAIN}
+STACK_STAGE = "tasks/utils/stack_stage.yml"
+CONSUMER_TASKS = {"web-app-magento": STACK_STAGE, "web-app-shopware": STACK_STAGE}
 SYSCTL_MODULE = (
     Path(next(iter(ansible_posix.__path__))) / "plugins" / "modules" / "sysctl.py"
 )

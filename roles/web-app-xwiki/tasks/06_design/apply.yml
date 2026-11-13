@@ -64,7 +64,7 @@
 
 - name: "📂 XWIKI | Attach the navbar lockup"
   include_tasks: logo.yml
-  when: design_branding.logo is string
+  when: lookup('design', application_id).logo is string
 
 - name: "📌 XWIKI | Make the corporate theme the wiki default"
   include_tasks: ../utils/http.yml
@@ -99,5 +99,5 @@
     xwiki_http_follow_redirects: "safe"
     xwiki_http_result: _xwiki_design_title_set
   when:
-    - design_branding.title is string
+    - lookup('design', application_id).title is string
     - (_xwiki_design_title.content | from_json).value != XWIKI_DESIGN_TITLE

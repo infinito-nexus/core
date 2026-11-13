@@ -3,6 +3,6 @@ nss:
   lifecycle: beta
   required_by:
     compose:
-      roles: [sys-hostname, sys-stk-front-proxy]
+      roles: [sys-hostname, svc-stack]
     swarm:
-      roles: [sys-hostname, sys-stk-front-proxy]
+      roles: [sys-hostname, svc-stack]

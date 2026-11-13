@@ -4,8 +4,6 @@ entity_name: "{{ application_id | entity_name }}"
 
 OPENPROJECT_VERSION: "{{ lookup('config', application_id, 'services.web.version') }}"
 OPENPROJECT_IMAGE: "{{ lookup('config', application_id, 'services.web.image') }}"
-OPENPROJECT_REPOSITORY: "{{ lookup('config', 'web-app-openproject', 'services.openproject.repository') }}"
-OPENPROJECT_REF: "{{ lookup('config', 'web-app-openproject', 'services.openproject.ref') }}"
 OPENPROJECT_WEB_SERVICE: "web"
 OPENPROJECT_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_WEB_SERVICE ~ '.name') }}"
 OPENPROJECT_WEB_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, OPENPROJECT_WEB_SERVICE) }}"

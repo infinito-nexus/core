@@ -1,0 +1,5 @@
+---
+front_proxy_stale_config_status_codes: [-1, 404]
+front_proxy_upstream_down_status_codes: [502, 503, 504]
+front_proxy_deferred_probes: {}
+front_proxy_batch_vhosts: {}

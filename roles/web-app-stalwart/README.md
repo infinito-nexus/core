@@ -112,8 +112,8 @@ account password.
 `services.stalwart.login.method` declares `sso`, `native` and `2fa`:
 
 - `sso` gates `STALWART_SSO_ENABLED` together with `services.sso.enabled`, so it decides whether the authentication singleton points at the Keycloak OIDC directory (`tasks/06_oidc.yml`) and whether Roundcube logs in over OAuth (`templates/roundcube-oauth.inc.php.j2`). Turning it off on a server that already uses the OIDC directory does not point the singleton back at the Internal directory.
-- `native` is the Internal directory password. Under SSO it only steers Roundcube: `oauth_login_redirect` sends the sign-in straight to Keycloak while `native` is off and shows the password form next to the SSO button while it is on. Without SSO the Internal directory is the only sign-in, so `tasks/00_core.yml` refuses `native: false` there.
-- `2fa` is the TOTP second factor accounts enrol in the WebUI Account Manager. Stalwart offers it only under the Internal directory and has no server switch for it, so `tasks/00_core.yml` refuses a value that differs from "SSO off". Stalwart cannot require the second factor either, so `login.method.2fa.enforced` only offers it here.
+- `native` is the Internal directory password. Under SSO it only steers Roundcube: `oauth_login_redirect` sends the sign-in straight to Keycloak while `native` is off and shows the password form next to the SSO button while it is on. Without SSO the Internal directory is the only sign-in, so the stack guard [`tasks/utils/stack_guard.yml`](tasks/utils/stack_guard.yml) refuses `native: false` there.
+- `2fa` is the TOTP second factor accounts enrol in the WebUI Account Manager. Stalwart offers it only under the Internal directory and has no server switch for it, so the stack guard refuses a value that differs from "SSO off". Stalwart cannot require the second factor either, so `login.method.2fa.enforced` only offers it here.
 - **Break-glass:** the recovery admin `STALWART_ADMIN_USER` always signs in through Stalwart's own form at `/account/login`, with and without SSO; `files/playwright/test-login-native.js` proves it in every mode.
 
 ## WebUI sign-in
@@ -184,7 +184,8 @@ account (or the Keycloak SSO token when SSO is enabled).
   an `x:AllowedIp` entry): every container that reaches the published ports
   through the host arrives from that address.
 - **HTTP clients are rate-limited and banned by their own address.** The
-  vhost sets `proxy_forwarded_client_address`, so OpenResty sends
+  default vhost sets `proxy_forwarded_client_address` in its
+  `server.vhosts.default.vars` (`meta/server.yml`), so OpenResty sends
   `Forwarded: for=$remote_addr` on every location and replaces any
   client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`:
   `clientIpSource: forwarded` with one trusted hop, `forwardedHops: 1`).

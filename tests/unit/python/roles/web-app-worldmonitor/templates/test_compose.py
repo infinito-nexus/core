@@ -150,20 +150,16 @@ class TestPinnedSource(unittest.TestCase):
         app = SERVICES["worldmonitor"]
         self.assertEqual(app["ref_kind"], "tag")
         self.assertEqual(app["source_version"], f"v{app['version']}")
-        self.assertIn(
-            "services.worldmonitor.source_version", VARS["WORLDMONITOR_SOURCE_VERSION"]
-        )
-        stack = next(
-            task for task in CORE_TASKS if task.get("include_role", {}).get("name")
-        )
-        self.assertEqual(stack["include_role"]["name"], "sys-stk-full")
+        checkout = SERVICES["stack"]["checkout"]
+        self.assertIn("services.worldmonitor.source_version", checkout["ref"])
+        self.assertIn("services.worldmonitor.source_repository", checkout["url"])
         self.assertEqual(
-            stack["vars"]["compose_repository_ref"], "{{ WORLDMONITOR_SOURCE_VERSION }}"
+            read_text(str(ROLE / "tasks" / "utils" / "stack.yml")),
+            read_text(
+                str(PROJECT_ROOT / "roles" / "svc-stack" / "files" / "bridge.yml")
+            ),
         )
-        self.assertEqual(
-            stack["vars"]["compose_repository_url"],
-            "{{ WORLDMONITOR_SOURCE_REPOSITORY }}",
-        )
+        self.assertFalse(any("include_role" in task for task in CORE_TASKS))
 
     def test_every_built_image_carries_the_tag_of_the_clone(self) -> None:
         version = SERVICES["worldmonitor"]["version"]

@@ -1,0 +1,27 @@
+---
+# Param: sync_application_id - the role the sync runs, one that ships a stack bridge.
+- name: "🏷️ Open a preload context for the front of '{{ sync_application_id }}'"
+  ansible.builtin.set_fact:
+    service_loader_preloading: true
+    service_loader_post_run: []
+  changed_when: false
+
+- name: "🚿 Flush pending handlers before the front of '{{ sync_application_id }}'"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🌐 Serve the front of '{{ sync_application_id }}' as a one-item front batch"
+  ansible.builtin.include_role:
+    name: svc-stack
+    tasks_from: batch/late.yml
+    public: false
+  vars:
+    stack_late_application_id: "{{ sync_application_id }}"
+    stack_late_role: "{{ sync_application_id }}"
+
+- name: "🚿 Flush the handlers the front of '{{ sync_application_id }}' notified"
+  ansible.builtin.meta: flush_handlers
+
+- name: "▶️ Drain the post-load roles the front of '{{ sync_application_id }}' queued"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: drain.yml

@@ -1,21 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ PRETIX_MCP_INSTANCE_DIR }}"
-  when: PRETIX_MCP_ENABLED | bool
-
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_url: "{{ PRETIX_SOURCE_REPOSITORY }}"
-    compose_repository_pull: true
-    compose_repository_ref: "{{ PRETIX_SOURCE_VERSION }}"
-
 - name: "🐳 Stage the build recipe beside the pretix sources"
   ansible.builtin.copy:
     src: Dockerfile

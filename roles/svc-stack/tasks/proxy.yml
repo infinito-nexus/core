@@ -1,0 +1,22 @@
+---
+- name: "🌐 For '{{ stack_batch_consumer }}': serve every declared vhost"
+  ansible.builtin.include_tasks: proxy/domain.yml
+  loop: >-
+    {{
+      lookup('config', application_id, 'server.vhosts', {})
+      | stack_vhosts(
+          lookup('domain', application_id),
+          lookup('domains', application_id, []),
+          CURRENT_PLAY_SERVED_DOMAINS | default([])
+          | selectattr('application_id', 'equalto', application_id)
+          | map(attribute='name')
+          | list
+        )
+    }}
+  loop_control:
+    loop_var: front_proxy_vhost
+    label: "{{ front_proxy_vhost.key }}: {{ front_proxy_vhost.domain }}"
+  vars:
+    front_proxy_application_id: "{{ stack_batch_consumer }}"
+    application_id: "{{ stack_batch_consumer }}"
+    domain: "{{ front_proxy_vhost.domain }}"

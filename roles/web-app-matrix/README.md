@@ -191,6 +191,8 @@ and hands MDAD `matrix_synapse_usage_exporter_enabled: false`.
 
 `services.matrix.conferencing.element_call` and `services.matrix.conferencing.jitsi` toggle MDAD's Element Call / Jitsi stacks (ansible flavor only). Both default to true.
 
+Jitsi serves clearnet only. `services.jitsi.enabled` therefore defaults to false on a tor node and on an onion-primary homeserver, also when the tor provider runs on another node of the swarm. An inventory that sets it to true for an onion-primary homeserver stops the deploy with an error that names the conflict and `applications.web-app-matrix.services.jitsi.enabled`.
+
 ## Playwright specs
 
 In addition to the persona and CSP specs:

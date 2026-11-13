@@ -73,8 +73,13 @@ LDAP_KEYS = {
     "XWIKI_CFG_LDAP_UID_ATTR",
 }
 FLUSH_CONFIG = "flush_config.yml"
-STACK_ROLE = "sys-stk-full"
-INCLUDE_CHAIN = ("sys-stk-full", "sys-stk-backend", "sys-svc-compose")
+STACK_ROLE = "svc-stack"
+STACK_ENTRY = "consumer.yml"
+STACK_BACKEND_ENTRY = (
+    PROJECT_ROOT / "roles/svc-stack/tasks/consumer/back.yml",
+    PROJECT_ROOT / "roles/svc-stack/tasks/batch/back.yml",
+)
+INCLUDE_CHAIN = ("svc-stack", "sys-svc-compose")
 ROLE_SCOPED_NAMES = (
     "role_name",
     "role_path",
@@ -540,10 +545,11 @@ class Placeholder(str):
 
 
 def include_chain_vars() -> set[str]:
-    """Return the defaults and vars of the roles sys-stk-full includes down to sys-svc-compose.
+    """Return the defaults and vars of the roles svc-stack includes down to sys-svc-compose.
 
     Returns:
-        The variable names only the 04_files render sees.
+        The variable names only the 04_files render sees, without those the
+        stack's backend entry binds to the consumer's own value.
     """
     names: set[str] = set()
     for role in INCLUDE_CHAIN:
@@ -551,6 +557,9 @@ def include_chain_vars() -> set[str]:
             path = PROJECT_ROOT / "roles" / role / kind / "main.yml"
             if path.exists():
                 names.update(load_yaml_str(read_text(str(path))) or {})
+    for entry in STACK_BACKEND_ENTRY:
+        for task in load_yaml_str(read_text(str(entry))) or []:
+            names.difference_update(task.get("vars") or {})
     return names
 
 
@@ -622,14 +631,14 @@ def compose_scopes() -> dict[str, dict[str, Any]]:
     """Return the vars in scope at the bootstrap and the final compose.yml render.
 
     Returns:
-        ``bootstrap``: the scope of the sys-stk-full include in 00_core.yml that
+        ``bootstrap``: the scope of the svc-stack include in 00_core.yml that
         reaches sys-svc-compose/tasks/04_files.yml; ``final``: the scope of the
         role's own compose writer.
     """
     bootstrap = next(
         scope
         for task, scope in scoped_tasks_of(STAGE_FILES[0])
-        if (task.get("include_role") or {}).get("name") == STACK_ROLE
+        if task.get("include_role") == {"name": STACK_ROLE, "tasks_from": STACK_ENTRY}
     )
     final = next(
         scope

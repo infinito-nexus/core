@@ -48,8 +48,10 @@
 
 - name: "🔍 Probe the vhosts the server roles queued, in one parallel batch"
   ansible.builtin.include_role:
-    name: sys-stk-front-proxy
+    name: svc-stack
     tasks_from: deferred_probe.yml
+  vars:
+    front_proxy_probe_phases: [entered, preload, server, late]
 
 - name: "🔌 Converge every MCP client from the complete provider set"
   include_role:
