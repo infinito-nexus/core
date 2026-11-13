@@ -149,6 +149,7 @@ def _variables(route: str, egress: dict, **overrides) -> dict:
         "TOR_EGRESS_GUARDED_PORTS": [
             {"port": 9040, "protocol": "tcp", "admitted": "containers", "router": True}
         ],
+        "TOR_CHUTNEY_GUARDED_PORTS": [],
         "networks": {"internet": {"dns": UPSTREAM}},
         "TOR_CONTAINER": "tor",
         "TOR_IMAGE": "debian",

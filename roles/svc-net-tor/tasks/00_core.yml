@@ -138,6 +138,13 @@
     mode: "0755"
   become: true
 
+- name: "🧪 Stage the chutney network script into the build context"
+  stack_host_copy:
+    src: "{{ role_path }}/files/shell/chutney.sh"
+    dest: "{{ TOR_CHUTNEY_SCRIPT_HOST }}"
+    mode: "0755"
+  become: true
+
 - name: "🧩 Load the container CLI the Tor run probe calls"
   include_role:
     name: sys-svc-container

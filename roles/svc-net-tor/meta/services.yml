@@ -26,6 +26,15 @@ tor: # nocheck: category-modes
   node: ""
   use_entry_guards: true
   flavor: public
+  chutney:
+    net: hs-v3-min
+    port_bases:
+      orport: 15000
+      dirport: 15100
+      controlport: 15200
+      socksport: 15300
+      dnsport: 15400
+    port_span: 100
   forwards:
     ssh: true
     http: true

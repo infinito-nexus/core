@@ -15,7 +15,8 @@ table inet {{ FIREWALL_TABLE }} {
   }
 
 {% set _routes = TOR_NODE_ROUTES %}
-{% set _guarded = TOR_EGRESS_GUARDED_PORTS if _routes else (TOR_EGRESS_GUARDED_PORTS | rejectattr('router') | list) %}
+{% set _ports = TOR_EGRESS_GUARDED_PORTS + TOR_CHUTNEY_GUARDED_PORTS %}
+{% set _guarded = _ports if _routes else (_ports | rejectattr('router') | list) %}
 {% set _tcp_guarded = _guarded | selectattr('protocol', 'equalto', 'tcp') | map(attribute='port') | unique | list %}
 {% set _udp_guarded = _guarded | selectattr('protocol', 'equalto', 'udp') | map(attribute='port') | unique | list %}
 {% set _all = _routes and TOR_EGRESS_ROUTE == 'all' %}

@@ -17,6 +17,7 @@ The onion key is minted offline during the inventory build and kept beside the c
 - **Offline deterministic minting:** the v3 key is generated without running Tor and the inventory pins its address (stable, backupable, restorable).
 - **HTTP on the onion side:** TLS is forced off for `.onion` (no Let's Encrypt possible); onion v3 crypto is the transport auth.
 - **Listener guard:** every node that runs Tor loads a packet filter that drops SocksPort packets from outside the internal ranges and from sources that would not route back through the interface they arrived on, in every route. The nodes that run the egress router guard their TransPort, DNSPort and dnsmasq the same way.
+- **Chutney test net:** the `chutney` flavor builds one private Tor network into the tor image for the whole deployment. The node that holds its address (the stack host, loopback in compose) runs the network's authorities and relays on the port bases `services.tor.chutney` declares, and every node's Tor joins it. The listener guard admits only internal sources to those ports.
 - **Egress route:** `services.tor.egress.route` (`TOR_EGRESS_ROUTE`) decides where outbound traffic goes; inbound stays onion plus the clearnet siblings either way.
   - `none` leaves egress alone: no resolver, no redirect, no TransPort. Both lists must be empty.
   - `onion` (default) resolves and routes `.onion` through Tor and leaves everything else direct.
@@ -51,3 +52,4 @@ Whoever holds `hs_ed25519_secret_key` can serve the address, so back up `.onion-
 - Under `onion`, a tor-listed address that is also a relay Tor needs loops into the TransPort, because Tor's group exemption exists under `all` only.
 - Mirrors a host picks at runtime (Fedora metalink, Arch mirrorlist entries beyond the default) are not in the pre-fill; their traffic goes through Tor until they are added to `direct.include`.
 - `none` is refused while the dnsmasq drop-in an earlier `onion` or `all` deploy installed is still in place; the failure names the steps that remove it. A leftover router packet filter needs no manual step: the deploy replaces it by the listener guard in one nft load.
+- The `chutney` net admits internal sources only, so nodes that reach the stack host over a public address cannot join it.
