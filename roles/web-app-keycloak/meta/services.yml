@@ -29,10 +29,11 @@ email:
   bond: 1
   enabled: "{{ 'web-app-email' in group_names }}"
   shared: "{{ 'web-app-email' in group_names }}"
+# nocheck: dynamic-flag
 javascript:
   bond: 1
-  enabled: "{{ 'web-svc-logout' in group_names }}"
-  shared: "{{ 'web-svc-logout' in group_names }}"
+  enabled: true
+  shared: true
 # nocheck: playwright-service-flag — self-provider
 keycloak:
   healthcheck:

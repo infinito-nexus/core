@@ -119,6 +119,10 @@ The deploy's `kcadm.sh` logins need no entry: every one, including the ones `web
 - Onion visitors reach the vhost from the Tor daemon's address.
 - The Playwright suites of several roles read and change realm groups through the admin REST API.
 
+## Managed Client Fields
+
+Every run writes the valid redirect URIs, the valid post logout redirect URIs and the web origins of the deployment's client, which `meta/forms.yml` declares as the enforced fields of the `client` form. In the admin console the shared lock renderer of [sys-front-inj-javascript](../sys-front-inj-javascript/README.md) renders them read-only while the page edits that client: each control shows the inventory path of its value as its hover title, one banner lists the fields, and a double-click with a confirmation unlocks a field until the page turns to another client. Every other client, the built-in ones and those an admin creates, stays editable. The inline loader fetches the renderer from `/infinito/field-lock.<sha1>.js` only on pages under `/admin/`, so the login and account pages carry none of it.
+
 ## Directory Client
 
 `services.keycloak.directory_client.enabled` in [services.yml](meta/services.yml) ships `false`. Switched on, it adds the confidential client `<realm>-directory` to the application realm; `KEYCLOAK_DIRECTORY_CLIENT_ID` in [vars/main.yml](vars/main.yml) is its only definition. A deploy on an existing realm creates the client, and a deploy with the switch off deletes it together with its service account.

@@ -16,6 +16,14 @@
   when: KEYCLOAK_LOGOUT_PANEL_ENABLED | bool
   notify: reload-openresty
 
+- name: "📄 Deploy the managed client field lock for '{{ application_id }}'"
+  stack_host_template:
+    src: field-lock.js.j2
+    dest: "{{ KEYCLOAK_FIELD_LOCK_FILE }}"
+    mode: "0644"
+  when: KEYCLOAK_JAVASCRIPT_ENABLED | bool
+  notify: reload-openresty
+
 - name: "🎨 Load the corporate theme routine for '{{ application_id }}'"
   include_tasks: utils/theme.yml
 

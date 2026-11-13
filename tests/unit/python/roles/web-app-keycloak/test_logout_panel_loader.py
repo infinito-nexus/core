@@ -1,21 +1,3 @@
-"""The loader is the only part that still runs on every Keycloak page.
-
-Inlining the panel put roughly 15 kB gzip of language catalogues on the login,
-account and admin-console pages for a feature only the logout page uses. What
-is inlined now is a stub that leaves immediately elsewhere and otherwise pulls
-the panel from this origin, where it is cached across pages and sessions.
-
-Three properties decide whether that trade holds. The stub must stay small and
-must not act off the logout path. The URL it requests must be the one nginx
-serves - they are built in different files from the same sha1, and a mismatch
-is a 404. And that 404 must be visible: a panel that cannot load leaves the
-page looking finished, which is the exact state the pessimistic render exists
-to prevent, so the stub paints the failure itself.
-
-The size budget is the cost of that last property - roughly 660 bytes gzip
-against the 15 kB it replaced. It is a ceiling, not a target.
-"""
-
 from __future__ import annotations
 
 import hashlib
@@ -33,6 +15,7 @@ from utils.cache.yaml import load_yaml
 from utils.i18n.extract import logout_context
 from utils.i18n.keyed import keyed_catalogue
 from utils.networks.reachability import TOR, network
+from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 LOADER = ROLE / "templates" / "javascript.js.j2"
@@ -40,9 +23,12 @@ ASSEMBLY = ROLE / "templates" / "logout-panel.js.j2"
 PANEL = ROLE / "files" / "javascript" / "logout-panel.js"
 CATALOGUE = ROLE / "files" / "logout_i18n.yml"
 NGINX = ROLE / "templates" / "nginx" / "logout_panel.conf.j2"
+FIELD_LOCK_NGINX = ROLE / "templates" / "nginx" / "field_lock.conf.j2"
+FORMS = ROLE / ROLE_FILE_META_FORMS
 ORIGIN = "https://logout.example.test"
 EVERYWHERE = "https://dashboard.example.test/#logout-everywhere"
 LOGOUT_PATH = "/realms/x/protocol/openid-connect/logout"
+ADMIN_PATH = "/admin/master/console/"
 BUDGET_BYTES = 2048
 
 
@@ -82,9 +68,17 @@ def _render_loader() -> str:
         for key in ("no_check_hint", "no_check"):
             if key in expression:
                 return json.dumps(english[key], ensure_ascii=False)
+        if "field_pages" in expression:
+            return json.dumps(_field_pages())
         return digest
 
     return to_one_liner(re.sub(r"\{\{.*?\}\}", resolve, source, flags=re.DOTALL))
+
+
+def _field_pages() -> list[str]:
+    return sorted(
+        {re.sub(r"[?#].*$", "", form["path"]) for form in load_yaml(FORMS).values()}
+    )
 
 
 def _have_node() -> bool:
@@ -115,6 +109,19 @@ class TestLoaderShape(unittest.TestCase):
         )
         self.assertRegex(requested.group(1), pattern.group(1).replace("\\.", r"\."))
 
+    def test_the_field_lock_url_matches_what_nginx_serves(self) -> None:
+        requested = re.search(r'src = "(/infinito/field-lock[^"]+)"', _render_loader())
+        self.assertIsNotNone(requested, "the loader must request the field lock")
+
+        pattern = re.search(
+            r"location\s+~\s+\^(\S+)\$", read_text(str(FIELD_LOCK_NGINX))
+        )
+        self.assertIsNotNone(
+            pattern, "the nginx snippet must match on a regex location"
+        )
+        self.assertRegex(requested.group(1), pattern.group(1).replace("\\.", r"\."))
+        self.assertIn("immutable", read_text(str(FIELD_LOCK_NGINX)))
+
     def test_the_cache_entry_is_busted_by_content(self) -> None:
         first = _render_loader()
         digest = re.search(r"logout-panel\.([0-9a-f]+)\.js", first).group(1)
@@ -129,7 +136,7 @@ class TestLoaderShape(unittest.TestCase):
 
 @unittest.skipUnless(_have_node(), "node is not available in PATH")
 class TestLoaderBehaviour(unittest.TestCase):
-    DRIVER = """
+    DOM = """
     const assert = require("assert");
     const script = require("fs").readFileSync(process.argv[2], "utf8");
 
@@ -159,7 +166,9 @@ class TestLoaderBehaviour(unittest.TestCase):
       eval(script);
       return { appended, body, plant: (v) => { planted = v; } };
     }
+    """
 
+    DRIVER = """
     assert.strictEqual(run("/realms/x/account").appended.length, 0, "no fetch off the logout path");
     assert.strictEqual(run("/realms/x/protocol/openid-connect/auth").appended.length, 0, "not on login");
 
@@ -179,15 +188,27 @@ class TestLoaderBehaviour(unittest.TestCase):
     console.log("OK");
     """
 
-    def test_the_loader_only_acts_on_the_logout_page(self) -> None:
+    FIELD_LOCK_DRIVER = """
+    const admin = run(process.argv[3]);
+    assert.strictEqual(admin.appended.length, 1, "exactly one field lock request on the admin console");
+    assert.match(admin.appended[0].src, /^\\/infinito\\/field-lock\\.[0-9a-f]+\\.js$/);
+    assert.strictEqual(admin.appended[0].defer, true, "the field lock must not block rendering");
+    for (const path of ["/realms/x/account", "/realms/x/protocol/openid-connect/auth", process.argv[4]]) {
+      assert.ok(run(path).appended.every((tag) => !/field-lock/.test(tag.src)), "no field lock off the admin console");
+    }
+
+    console.log("OK");
+    """
+
+    def _node(self, driver_text: str, *paths: str) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             stub = Path(tmp) / "loader.js"
             stub.write_text(_render_loader())
             driver = Path(tmp) / "driver.js"
-            driver.write_text(self.DRIVER)
+            driver.write_text(self.DOM + driver_text)
 
             proc = subprocess.run(
-                ["node", str(driver), str(stub), LOGOUT_PATH],
+                ["node", str(driver), str(stub), *paths],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -195,6 +216,14 @@ class TestLoaderBehaviour(unittest.TestCase):
 
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("OK", proc.stdout)
+
+    def test_the_loader_only_acts_on_the_logout_page(self) -> None:
+        self._node(self.DRIVER, LOGOUT_PATH)
+
+    def test_the_loader_fetches_the_field_lock_only_on_the_admin_console(
+        self,
+    ) -> None:
+        self._node(self.FIELD_LOCK_DRIVER, ADMIN_PATH, LOGOUT_PATH)
 
 
 if __name__ == "__main__":

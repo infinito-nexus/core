@@ -8,3 +8,7 @@
 {% include 'roles/web-app-keycloak/templates/nginx/logout_panel.conf.j2' %}
 
 {% endif %}
+{% if KEYCLOAK_JAVASCRIPT_ENABLED | bool %}
+{% include 'roles/web-app-keycloak/templates/nginx/field_lock.conf.j2' %}
+
+{% endif %}

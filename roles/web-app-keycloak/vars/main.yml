@@ -133,8 +133,10 @@ KEYCLOAK_DB_NETWORK_ARG: "{% if lookup('database', application_id, 'shared') | b
   %}"
 
 KEYCLOAK_FRONTCHANNEL_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
+KEYCLOAK_JAVASCRIPT_ENABLED: "{{ lookup('config', application_id, 'services.javascript.enabled') | bool }}"
 KEYCLOAK_LOGOUT_PANEL_FILE: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}-logout-panel.js"
-KEYCLOAK_LOGOUT_PANEL_ENABLED: "{{ lookup('config', application_id, 'services.javascript.enabled') | bool }}"
+KEYCLOAK_LOGOUT_PANEL_ENABLED: "{{ (KEYCLOAK_JAVASCRIPT_ENABLED | bool) and ('web-svc-logout' in group_names) }}"
+KEYCLOAK_FIELD_LOCK_FILE: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}-field-lock.js"
 KEYCLOAK_LOGOUT_I18N: "{{ lookup('i18n_catalogue', 'logout', 'roles/web-app-keycloak/files/logout_i18n.yml') }}"
 KEYCLOAK_LOGOUT_EVERYWHERE_ENABLED: >-
   {{ (lookup('config', application_id, 'services.dashboard.enabled') | bool)
