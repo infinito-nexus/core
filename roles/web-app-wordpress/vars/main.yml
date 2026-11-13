@@ -76,6 +76,11 @@ WORDPRESS_OPTIONS: >-
   | combine(lookup('form_values', application_id, 'translate')) }}
 WORDPRESS_NETWORK_OPTIONS: "{{ lookup('form_values', application_id, 'network') }}"
 WORDPRESS_ADDRESS: "{{ lookup('form_values', application_id, 'address') }}"
+WORDPRESS_MANAGED_OPTIONS_FILE: "{{ [WORDPRESS_DOCKER_HTML_PATH, 'wp-content/infinito-managed-options.php'] | path_join }}"
+WORDPRESS_OPTIONS_CHECKED: "{{ WORDPRESS_OPTIONS | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}"
+WORDPRESS_MANAGED_OPTIONS:
+  option: "{{ WORDPRESS_OPTIONS_CHECKED | combine(WORDPRESS_ADDRESS) }}"
+  site_option: "{{ WORDPRESS_NETWORK_OPTIONS }}"
 WORDPRESS_OPTION_PINS_UNREAD: >-
   {{ lookup('config', application_id, 'services.' ~ entity_name ~ '.options')
   | wordpress_options_unread(lookup('config', application_id, 'forms')) }}
