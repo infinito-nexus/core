@@ -2,6 +2,18 @@
 # Param: entry_role - the role the caller enters right after the entry.
 # Param: entry_application_id - the application_id the caller binds for that role.
 # Param: entry_domain - true when the caller also binds domain for that role.
+- name: "🛡️ Run the stack guard of '{{ entry_application_id }}' before its backend"
+  ansible.builtin.include_role:
+    name: "{{ entry_role }}"
+    tasks_from: utils/stack_guard.yml
+    public: false
+  loop: "{{ [entry_application_id] }}"
+  loop_control:
+    loop_var: stack_batch_consumer
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack_guard.yml') is file
+
 - name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge"
   ansible.builtin.include_role:
     name: "{{ entry_role }}"

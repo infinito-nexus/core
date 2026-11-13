@@ -16,8 +16,21 @@ ENTRY = Path("tasks/utils/load/entry.yml")
 ENTRY_BACK = Path("tasks/utils/load/entry/back.yml")
 STACK_VARS = Path("group_vars/all/24_stack.yml")
 CANONICAL_BRIDGE = Path("roles/svc-stack/files/bridge.yml")
-BRIDGED = ("web-app-alpha", "web-app-beta", "web-app-gamma")
+BRIDGED = ("web-app-alpha", "web-app-beta", "web-app-gamma", "web-app-delta")
+GUARDED = ("web-app-beta", "web-app-delta")
 PLAIN = "web-app-plain"
+
+STUB_GUARD = """---
+- name: Record the guard the entry ran
+  ansible.builtin.set_fact:
+    stub_runs: "{{ stub_runs + [['guard', application_id, consumer_scope] | join('|')] }}"
+
+- name: Refuse the delta role
+  ansible.builtin.assert:
+    that:
+      - application_id != 'web-app-delta'
+    fail_msg: guard refused
+"""
 
 STUB_BACKEND = """---
 - name: Record the backend the bridge reached
@@ -51,9 +64,9 @@ PLAYBOOK = """---
     stub_runs: []
     entry_file: "{{ lookup('path_absolute', 'tasks/utils/load/entry.yml') }}"
   tasks:
-    - name: Mark the front of the beta role as served by the front batch
+    - name: Mark the fronts of the beta and delta roles as served by the front batch
       ansible.builtin.set_fact:
-        stack_front_served: {web-app-beta: true}
+        stack_front_served: {web-app-beta: true, web-app-delta: true}
 
     - name: Enter a bridged role twice with its domain
       ansible.builtin.include_tasks: "{{ entry_file }}"
@@ -75,6 +88,21 @@ PLAYBOOK = """---
         entry_domain: false
         entry_post_run: false
       when: STACK_ENTRY_PENDING | bool
+
+    - name: Enter a bridged role whose guard refuses it
+      block:
+        - name: Enter it
+          ansible.builtin.include_tasks: "{{ entry_file }}"
+          vars:
+            entry_role: web-app-delta
+            entry_application_id: web-app-delta
+            entry_domain: false
+            entry_post_run: false
+          when: STACK_ENTRY_PENDING | bool
+      rescue:
+        - name: Record the refusal
+          ansible.builtin.set_fact:
+            stub_runs: "{{ stub_runs + ['refused|web-app-delta'] }}"
 
     - name: Enter a role without a bridge on a post-load path
       ansible.builtin.include_tasks: "{{ entry_file }}"
@@ -149,6 +177,8 @@ def _build(workdir: Path) -> None:
             workdir / "roles" / role / "vars/main.yml",
             f"---\nconsumer_scope: {role}-vars\n",
         )
+    for role in GUARDED:
+        _write(workdir / "roles" / role / "tasks/utils/stack_guard.yml", STUB_GUARD)
     _write(workdir / "roles" / PLAIN / "tasks/main.yml", "---\n[]\n")
     _write(workdir / "lookup/domain.py", STUB_DOMAIN_LOOKUP)
     _write(workdir / "play.yml", PLAYBOOK)
@@ -209,7 +239,7 @@ class TestStackEntry(unittest.TestCase):
     @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
     def test_each_bridged_role_runs_its_backend_once_in_its_own_scope(self) -> None:
         self.assertEqual(
-            [run for run in self.observed["runs"] if not run.startswith("late|")],
+            [run for run in self.observed["runs"] if "|back|" in run],
             [
                 "web-app-alpha|web-app-alpha|web-app-alpha.example|back|web-app-alpha-vars",
                 "web-app-beta|web-app-beta|none|back|web-app-beta-vars",
@@ -228,6 +258,22 @@ class TestStackEntry(unittest.TestCase):
         self.assertEqual(
             [run for run in self.observed["runs"] if run.startswith("late|")],
             ["late|web-app-alpha|web-app-alpha"],
+        )
+
+    @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
+    def test_a_guard_runs_in_its_role_scope_before_the_backend_and_can_stop_it(
+        self,
+    ) -> None:
+        self.assertEqual(
+            [run for run in self.observed["runs"] if "web-app-beta" in run],
+            [
+                "guard|web-app-beta|web-app-beta-vars",
+                "web-app-beta|web-app-beta|none|back|web-app-beta-vars",
+            ],
+        )
+        self.assertEqual(
+            [run for run in self.observed["runs"] if "web-app-delta" in run],
+            ["guard|web-app-delta|web-app-delta-vars", "refused|web-app-delta"],
         )
 
     @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")

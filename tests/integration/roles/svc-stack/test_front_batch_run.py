@@ -114,6 +114,19 @@ STUB_FRONT = """---
   notify: reload-openresty
 """
 
+STUB_GUARD = """---
+- name: Record the guard the batch ran
+  ansible.builtin.set_fact:
+    stub_events: >-
+      {{ stub_events + ['guard:' ~ ([stack_batch_consumer, application_id, consumer_scope] | join('|'))] }}
+
+- name: Refuse the role when the test asks for it
+  ansible.builtin.assert:
+    that:
+      - not (refuse_guard | bool)
+    fail_msg: "guard refused {{ application_id }}"
+"""
+
 STUB_LOOKUP = """from ansible.plugins.lookup import LookupBase
 
 
@@ -154,6 +167,7 @@ PLAYBOOK = """---
   connection: local
   vars:
     stub_events: []
+    front_proxy_batch_vhosts: {}
   handlers:
     - name: Reload the stub OpenResty
       listen: reload-openresty
@@ -196,10 +210,16 @@ PLAYBOOK = """---
 """
 
 
-def _build(workdir: Path) -> None:
+def _build(workdir: Path, *, guard: bool) -> None:
     """Args:
     workdir: an empty directory that becomes the playbook directory.
+    guard: whether the role of ALPHA and LATE ships a stack guard.
     """
+    if guard:
+        _write(
+            workdir / "roles" / ALPHA["role"] / "tasks/utils/stack_guard.yml",
+            STUB_GUARD,
+        )
     for path in REAL:
         _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
     _write(workdir / STACK / "tasks/batch/front.yml", STUB_FRONT)
@@ -237,6 +257,8 @@ def run_batch(
     test_stderr: str = "",
     reload_changed: bool = True,
     nest_late: bool = False,
+    guard: bool = False,
+    refuse_guard: bool = False,
 ) -> dict:
     """Args:
         plan: the front batch plan.
@@ -245,6 +267,8 @@ def run_batch(
         test_stderr: the error output of the stub ``openresty -t``.
         reload_changed: whether the stub reload reports a change.
         nest_late: whether the warm-up enters a bridged role outside the plan.
+        guard: whether the role of ALPHA and LATE ships a stack guard.
+        refuse_guard: whether that guard refuses the role.
 
     Returns:
         the batch events in order, the refusal message and the record left
@@ -255,7 +279,7 @@ def run_batch(
     """
     with tempfile.TemporaryDirectory() as tmp:
         workdir = Path(tmp)
-        _build(workdir)
+        _build(workdir, guard=guard)
         report, calls = workdir / "report.json", workdir / "container.log"
         _write(
             workdir / "extra.json",
@@ -265,6 +289,7 @@ def run_batch(
                     "IS_STACK_HOST": True,
                     "reload_changed": reload_changed,
                     "nest_late": nest_late,
+                    "refuse_guard": refuse_guard,
                     "report_out": str(report),
                 }
             ),
@@ -272,7 +297,7 @@ def run_batch(
         env = {
             **os.environ,
             "ANSIBLE_ROLES_PATH": str(workdir / "roles"),
-            "ANSIBLE_LOOKUP_PLUGINS": str(workdir / "lookup"),
+            "ANSIBLE_LOOKUP_PLUGINS": f"{workdir / 'lookup'}:{PROJECT_ROOT / 'plugins/lookup'}",
             "ANSIBLE_LIBRARY": str(workdir / "library"),
             "PATH": f"{workdir / 'bin'}:{os.environ['PATH']}",
             "STUB_CONTAINER_LOG": str(calls),
@@ -334,6 +359,46 @@ class TestFrontBatchRun(unittest.TestCase):
         self.assertEqual(observed["calls"], ["exec openresty openresty -t -q"])
         self.assertEqual(
             observed["served"], {"web-app-alpha": True, "web-svc-beta": True}
+        )
+
+    def test_each_guard_runs_in_its_role_scope_before_any_vhost_renders(
+        self,
+    ) -> None:
+        observed = run_batch(
+            [ALPHA, BETA],
+            probe={"web-app-alpha.example": 200, "web-svc-beta.example": 200},
+            guard=True,
+        )
+        self.assertEqual(
+            observed["events"],
+            [
+                "guard:web-app-alpha|web-app-alpha|web-app-alpha-vars",
+                *_warm(*(role for role, _ in WARM)),
+                _front(ALPHA),
+                _front(BETA),
+                "reload",
+            ],
+        )
+
+    def test_a_refusing_guard_stops_the_batch_before_the_warm_up(self) -> None:
+        observed = run_batch([ALPHA, BETA], probe={}, guard=True, refuse_guard=True)
+        self.assertEqual(observed["refusal"], "guard refused web-app-alpha")
+        self.assertEqual(
+            observed["events"],
+            ["guard:web-app-alpha|web-app-alpha|web-app-alpha-vars"],
+        )
+        self.assertEqual((observed["served"], observed["calls"]), ({}, []))
+
+    def test_a_late_item_runs_its_guard_before_its_warm_up(self) -> None:
+        observed = run_batch([LATE], probe={"web-app-alpha.example": 200}, guard=True)
+        self.assertEqual(
+            observed["events"],
+            [
+                "guard:web-app-alpha|web-app-alpha|web-app-alpha-vars",
+                *_warm(*(role for role, _ in WARM)),
+                _front(LATE),
+                "reload",
+            ],
         )
 
     def test_a_late_item_renders_in_its_late_phase_with_its_warm_up(self) -> None:
