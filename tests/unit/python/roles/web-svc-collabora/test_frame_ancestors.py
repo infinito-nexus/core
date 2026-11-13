@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import json
 import sys
 import unittest
 import unittest.mock as mock
 from unittest.mock import patch
 
-from jinja2 import StrictUndefined
-from jinja2.nativetypes import NativeEnvironment
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 import utils.tls_common as _tls_common
 from plugins.filter.csp_filters import FilterModule
@@ -14,11 +14,10 @@ from plugins.lookup.network_urls import LookupModule as NetworkUrlsLookup
 from plugins.lookup.tls import LookupModule as TlsLookup
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 
-VARS = PROJECT_ROOT / "roles/web-svc-collabora" / ROLE_FILE_VARS_MAIN
+EXTRAS = PROJECT_ROOT / "roles/web-svc-collabora/templates/csp/extras.yml.j2"
 PRIMARY = "example"
 NODE = "a" * 56 + ".onion"
 NEXTCLOUD = "next.cloud." + PRIMARY
@@ -73,18 +72,19 @@ def frame_ancestors(domains):
             return network_urls.run(list(terms), variables=variables)[0]
         raise AssertionError(f"the expression calls an unexpected lookup: {name!r}")
 
-    expression = load_yaml_str(read_text(str(VARS)))["COLLABORA_FRAME_ANCESTORS"]
+    environment = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    environment.filters["to_json"] = json.dumps
     with (
         patch("plugins.lookup.tls.lookup_loader") as tls_loader,
         patch("plugins.lookup.network_urls.lookup_loader") as urls_loader,
     ):
         tls_loader.get.side_effect = _tls_loader
         urls_loader.get.side_effect = _network_urls_loader
-        return (
-            NativeEnvironment(undefined=StrictUndefined)
-            .from_string(expression)
-            .render(lookup=lookup)
-        )
+        rendered = environment.from_string(read_text(str(EXTRAS))).render(lookup=lookup)
+    return load_yaml_str(rendered)["frame-ancestors"]
 
 
 def ancestors_of(vhost, extra):

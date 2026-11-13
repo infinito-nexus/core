@@ -1,18 +1,7 @@
-import importlib.util
 import unittest
 
+from plugins.filter.logout_domains import FilterModule
 from utils.networks.reachability import network_of
-
-from . import PROJECT_ROOT
-
-DOMAIN_FILTERS_PATH = str(
-    PROJECT_ROOT / "roles" / "web-svc-logout" / "filter_plugins" / "domain_filters.py"
-)
-
-spec = importlib.util.spec_from_file_location("domain_filters", DOMAIN_FILTERS_PATH)
-domain_filters = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(domain_filters)
-FilterModule = domain_filters.FilterModule
 
 
 class TestLogoutDomainsFilter(unittest.TestCase):

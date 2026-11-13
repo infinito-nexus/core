@@ -26,8 +26,6 @@ def _disabled_entity_keys(config):
 
 
 class FilterModule:
-    """Ansible filter plugin for generating logout domains based on logout feature."""
-
     def filters(self):
         return {
             "logout_domains": self.logout_domains,

@@ -4,6 +4,7 @@ import importlib.util
 import re
 import unittest
 
+from plugins.filter.logout_domains import FilterModule as LogoutDomainsFilter
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -35,11 +36,7 @@ def _load_filter(path, name: str):
 OIDC_CLIENTS = _load_filter(
     KEYCLOAK / "filter_plugins" / "oidc_clients.py", "logout_oidc_clients"
 )
-LOGOUT_DOMAINS = (
-    _load_filter(ROLE / "filter_plugins" / "domain_filters.py", "logout_domain_filters")
-    .FilterModule()
-    .filters()["logout_domains"]
-)
+LOGOUT_DOMAINS = LogoutDomainsFilter().filters()["logout_domains"]
 
 
 def services(role) -> dict:
