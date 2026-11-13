@@ -10,6 +10,12 @@ logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
 # nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
+# nocheck: dynamic-flag
 ldap:
   enabled: false
 dashboard:
@@ -92,6 +98,10 @@ postgres:
 # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 greenlight:
   name: bigbluebutton-greenlight-1
+  registration_method: >-
+    {{ 'open' if ((lookup('config', 'web-app-bigbluebutton', 'services.sso.enabled') | bool)
+    and (lookup('config', 'web-app-bigbluebutton', 'services.bigbluebutton.login.method.sso.enabled') | bool))
+    or (lookup('config', 'web-app-bigbluebutton', 'services.bigbluebutton.login.method.registration.enabled') | bool) else 'invite' }}
   enabled: true
   shared: false
   cpus: "0.5"
