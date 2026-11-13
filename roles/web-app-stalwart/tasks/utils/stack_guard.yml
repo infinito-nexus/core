@@ -1,0 +1,25 @@
+---
+- name: "✅ Assert the mail domain is provisionable by Stalwart"
+  ansible.builtin.assert:
+    that:
+      - STALWART_DOMAIN.split('.')[-1] not in ['example', 'invalid']
+    fail_msg: >-
+      Stalwart rejects the mail domain '{{ STALWART_DOMAIN }}' (TLD
+      '.{{ STALWART_DOMAIN.split('.')[-1] }}'). Use a real domain, or a
+      `.test` domain for local/CI stacks.
+    quiet: true
+
+- name: "🛑 Refuse login methods Stalwart's directory cannot honour"
+  ansible.builtin.assert:
+    that:
+      - "STALWART_LOGIN_2FA | bool != STALWART_SSO_ENABLED | bool"
+      - "STALWART_LOGIN_NATIVE | bool or STALWART_SSO_ENABLED | bool"
+    fail_msg: >-
+      Stalwart authenticates through the Internal directory XOR the Keycloak
+      OIDC directory. Its own TOTP second factor exists only under the
+      Internal directory, and without SSO the Internal password is the only
+      sign-in, so services.stalwart.login.method.2fa.enabled must be the
+      opposite of SSO and native must stay on without SSO
+      (sso={{ STALWART_SSO_ENABLED }}, native={{ STALWART_LOGIN_NATIVE }},
+      2fa={{ STALWART_LOGIN_2FA }}).
+    quiet: true
