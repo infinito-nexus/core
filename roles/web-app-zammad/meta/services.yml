@@ -125,6 +125,18 @@ zammad:
     password_form: >-
       {{ lookup('config', 'web-app-zammad', 'services.zammad.login.method.native.enabled') | bool
          or lookup('config', 'web-app-zammad', 'services.zammad.login.method.ldap.enabled') | bool }}
+  ldap_source:
+    host: "{{ LDAP.SERVER.DOMAIN }}"
+    port: "{{ LDAP.SERVER.PORT | int }}"
+  email_channel:
+    inbound_host: "{{ lookup('config', 'web-app-zammad', 'services.zammad.email_channel.outbound_host') }}"
+    inbound_port: 143
+    outbound_host: >-
+      {{ lookup('email', 'web-app-zammad', key='host')
+         if lookup('config', 'web-app-zammad', 'services.email.enabled') | bool else '' }}
+    outbound_port: >-
+      {{ lookup('email', 'web-app-zammad', key='port') | int
+         if lookup('config', 'web-app-zammad', 'services.email.enabled') | bool else 0 }}
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g

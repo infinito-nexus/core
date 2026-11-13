@@ -130,8 +130,11 @@ ZAMMAD_LOGIN_2FA: "{{ lookup('config', application_id, 'services.zammad.login.me
 ZAMMAD_LOGIN_2FA_ENFORCED: "{{ ZAMMAD_LOGIN_2FA | bool and lookup('config', application_id, 'services.zammad.login.method.2fa.enforced') | bool }}"
 ZAMMAD_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.zammad.login.method.registration.enabled') | bool }}"
 ZAMMAD_SECURITY: "{{ lookup('form_values', application_id, 'security') }}"
+ZAMMAD_LDAP_SOURCE: "{{ lookup('form_values', application_id, 'ldap') }}"
+ZAMMAD_EMAIL_CHANNEL: "{{ lookup('form_values', application_id, 'email') }}"
 
-ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
+ZAMMAD_MAIL_GROUP_NAME: "Users"
+ZAMMAD_LDAP_SOURCE_NAME: "{{ ORGANIZATION }} svc-db-openldap"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_EMAIL: "{{ ZAMMAD_HELPDESK_USER.email | default('') }}"
 ZAMMAD_HELPDESK_PASS: "{{ (ZAMMAD_HELPDESK_USER.tokens | default({})).get(MAIL_PROVIDER, '') }}"

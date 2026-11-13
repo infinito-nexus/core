@@ -79,7 +79,9 @@ def _index(tasks: list[dict], predicate) -> int:
 
 
 def _is_report(task: dict) -> bool:
-    return DRIFT in str(task.get("ansible.builtin.include_tasks", ""))
+    return DRIFT in str(
+        task.get("ansible.builtin.include_tasks", "")
+    ) and "security" in task.get("vars", {}).get("forms_drift_current", {})
 
 
 def _is_write(task: dict) -> bool:
