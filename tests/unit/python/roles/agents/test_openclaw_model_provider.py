@@ -30,6 +30,7 @@ CONTEXT = {
     "OPENCLAW_CONTROL_UI_ORIGINS": ["https://claw.example.org"],
     "OPENCLAW_LITELLM_ENABLED": True,
     "OPENCLAW_LITELLM_PROVIDER": "litellm",
+    "OPENCLAW_LITELLM_PRIMARY": f"litellm/{MODEL}",
     "OPENCLAW_LITELLM_MODEL": MODEL,
     "OPENCLAW_LITELLM_BASE_URL": "http://litellm:4000/v1",
     "OPENCLAW_LITELLM_API_KEY": "sk-" + "x" * 20,

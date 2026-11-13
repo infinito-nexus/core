@@ -40,6 +40,12 @@ openclaw:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "2026.7.1"
         until: 2026-12-03
+  config:
+    trustedProxies: "{{ [NETWORK_ROLE_SUBNET_POOL] if (IS_COMPOSE_MODE | bool) else [NETWORK_PRIVATE_CIDRS.class_a] }}"
+    mode: trusted-proxy
+    userHeader: x-forwarded-preferred-username
+    primary: "litellm/{{ LITELLM_CHAT_MODEL }}"
+    baseUrl: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
 kata:
