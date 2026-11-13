@@ -71,6 +71,39 @@ translate:
       selector: "#freedomtranslate_api_url"
       type: url
       label: Translation API URL
+ai_engine:
+  path: /wp-admin/admin.php?page=mwai_settings
+  native: true
+  sinks: [WORDPRESS_AI_ENGINE]
+  fields:
+    endpoint:
+      source: addons.ai-engine.config.environment.endpoint
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: 'input[name="endpoint"]'
+      type: url
+      label: Endpoint
+    apikey:
+      source: addons.ai-engine.config.environment.apikey
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: 'input[name="apikey"]'
+      type: password
+      label: API Key
+    ai_default_env:
+      source: addons.ai-engine.config.environment.id
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: '[name="ai_default_env"]'
+      type: select
+      label: Default environment
+    ai_default_model:
+      source: addons.ai-engine.config.default_model
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: '[name="ai_default_model"]'
+      type: select
+      label: Default model
 network:
   path: /wp-admin/network/settings.php
   sinks: [WORDPRESS_NETWORK_OPTIONS]

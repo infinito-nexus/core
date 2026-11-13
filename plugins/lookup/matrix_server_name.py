@@ -5,7 +5,7 @@ from typing import Any
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.tls_common import is_onion_domain
+from utils.tls.common import is_onion_domain
 
 APPLICATION_ID = "web-app-matrix"
 SERVER_NAME_PATH = "services.matrix.server_name"

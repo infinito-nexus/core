@@ -18,6 +18,9 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
+
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
 from utils.cache.carrier import (
@@ -337,6 +340,36 @@ class TestGetMergedApplicationsRespectsOverrides(unittest.TestCase):
             self.assertEqual(
                 merged["web-app-foo"]["services"]["foo"]["image"],
                 "override",
+            )
+
+
+class TestEachApplicationRendersWithItsOwnId(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_application_id_in_meta_names_the_role_that_declares_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = Path(tmp) / "roles"
+            for role in ("web-app-foo", "web-app-bar"):
+                _write(
+                    roles / role / ROLE_FILE_META_SERVICES,
+                    """
+                    probe:
+                      owner: "{{ application_id }}"
+                    """,
+                )
+            variables = {"application_id": "web-app-deploying"}
+            merged = cache_apps.get_merged_applications(
+                variables=variables,
+                roles_dir=roles,
+                templar=Templar(loader=DataLoader(), variables=variables),
+            )
+            self.assertEqual(
+                {"web-app-foo": "web-app-foo", "web-app-bar": "web-app-bar"},
+                {
+                    role: merged[role]["services"]["probe"]["owner"]
+                    for role in ("web-app-foo", "web-app-bar")
+                },
             )
 
 

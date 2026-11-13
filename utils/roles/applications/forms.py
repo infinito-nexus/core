@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 MODES = ("enforced", "seeded")
+LOCK_PENDING = "pending"
 NEGATION = "!"
 MAP_SCALARS = (str, int, float, bool)
 USERS_ROOT = "users"
@@ -110,6 +111,29 @@ def is_native(block: Any) -> bool:
         block: one form of ``meta/forms.yml``.
     """
     return isinstance(block, Mapping) and block.get("native") is True
+
+
+def is_lock_pending(block: Any) -> bool:
+    """Whether no lock reaches a form's fields yet, with the issue that tracks it.
+
+    Args:
+        block: one form of ``meta/forms.yml``.
+    """
+    return (
+        isinstance(block, Mapping)
+        and block.get("lock") == LOCK_PENDING
+        and isinstance(block.get("issue"), str)
+        and bool(block["issue"].strip())
+    )
+
+
+def renders_lock(block: Any) -> bool:
+    """Whether the shared renderer locks a form's enforced fields.
+
+    Args:
+        block: one form of ``meta/forms.yml``.
+    """
+    return not (is_native(block) or is_lock_pending(block))
 
 
 def _is_allowed_user_path(parts: list[str]) -> bool:
@@ -416,8 +440,9 @@ def locks(
         not clear; a field whose form declares a ``record`` also carries
         that ``record``: its ``selector`` and the ``values`` its ``source``
         holds, the ids of the records the deployment created. A ``seeded``
-        field and a field of a ``native`` form, which the application locks
-        itself, yield nothing.
+        field, a field of a ``native`` form, which the application locks
+        itself, and a field of a ``lock: pending`` form, which no lock
+        reaches yet, yield nothing.
 
     Raises:
         SourceError: when a ``when``, the ``source`` of an ``optional`` field
@@ -428,7 +453,7 @@ def locks(
         (form, forms[form]["path"], field, spec)
         for form, field, spec in iter_fields(forms)
         if spec.get("mode") == "enforced"
-        and not is_native(forms[form])
+        and renders_lock(forms[form])
         and _applies(spec, application, users)
     ]
     profile: dict[str, list[str]] = {}

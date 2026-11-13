@@ -8,7 +8,7 @@ contactPoints:
         type: prometheus-alertmanager
         disableResolveMessage: false
         settings:
-          url: {{ GRAFANA_ALERTMANAGER_URL | to_json }}
+          url: {{ GRAFANA_ALERTING.alertmanager_url | to_json }}
 policies:
   - orgId: 1
     receiver: {{ GRAFANA_ALERTMANAGER_RECEIVER | to_json }}
@@ -20,7 +20,7 @@ policies:
 groups:
   - orgId: 1
     name: log-content
-    folder: {{ SOFTWARE_NAME | to_json }}
+    folder: {{ GRAFANA_DASHBOARDS.folder | to_json }}
     interval: 1m
     rules:
       - uid: infinito-critical-log-line
@@ -37,7 +37,7 @@ groups:
               datasource:
                 type: loki
                 uid: {{ GRAFANA_LOKI_DATASOURCE_UID | to_json }}
-              expr: {{ GRAFANA_LOG_ALERT_EXPR | to_json }}
+              expr: {{ GRAFANA_ALERTING.log_alert_expr | to_json }}
               queryType: instant
               instant: true
           - refId: B

@@ -25,6 +25,13 @@
     ldap_source_plan: "{{ ldap_source_ids_raw.stdout_lines | gitea_ldap_source_plan(ldap_source_users.rows if ldap_source_ids_raw.stdout_lines | length > 1 else [])
       }}"
 
+- name: "📣 Report the managed LDAP auth source settings the update reverts"
+  include_tasks: "{{ role_path }}/tasks/setup/drift.yml"
+  vars:
+    gitea_auth_drift_form: ldap_source
+    gitea_auth_drift_id: "{{ ldap_source_plan.keep }}"
+  when: ldap_source_plan.keep != ""
+
 - name: "🗑️ Delete the duplicate LDAP auth sources no user is linked to"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \

@@ -5,7 +5,8 @@
  *   $argv[1]  path of the PHP file the infinito-managed-options mu-plugin includes
  *
  * Required env:
- *   INFINITO_MANAGED_OPTIONS  base64 of a JSON object {"option": {<name>: <value>}, "site_option": {<name>: <value>}}
+ *   INFINITO_MANAGED_OPTIONS  base64 of a JSON object {"option": {<name>: <value>}, "site_option": {<name>: <value>},
+ *                             "merge": {<name>: {"keys": {<key>: <value>}, "records": {<list key>: <record with id>}}}}
  *
  * Stdout, last line: changed | unchanged
  */
@@ -21,11 +22,12 @@ if ($path === '') {
 }
 
 $managed = json_decode((string) base64_decode((string) getenv('INFINITO_MANAGED_OPTIONS'), true), true, 32, JSON_THROW_ON_ERROR);
-if (!is_array($managed) || !is_array($managed['option'] ?? null) || !is_array($managed['site_option'] ?? null)) {
-    $fail('INFINITO_MANAGED_OPTIONS holds no option and site_option object');
+$scopes = ['option', 'site_option', 'merge'];
+if (!is_array($managed) || array_filter($scopes, static fn(string $scope): bool => !is_array($managed[$scope] ?? null))) {
+    $fail('INFINITO_MANAGED_OPTIONS holds no option, site_option and merge object');
 }
 
-$code = "<?php\nreturn " . var_export(['option' => $managed['option'], 'site_option' => $managed['site_option']], true) . ";\n";
+$code = "<?php\nreturn " . var_export(array_intersect_key($managed, array_flip($scopes)), true) . ";\n";
 if (is_file($path) && (fileperms($path) & 0777) === 0600 && file_get_contents($path) === $code) {
     echo "unchanged\n";
     exit(0);

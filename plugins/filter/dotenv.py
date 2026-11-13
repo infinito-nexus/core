@@ -23,11 +23,17 @@
 # behaviour the filter had before the swarm split.
 from __future__ import annotations
 
+import re
+from collections.abc import Mapping
 from typing import Any
 
 import jinja2
+from ansible.errors import AnsibleFilterError
+
+from utils.roles.applications.form_schema import ENV_NAME
 
 _MISSING: Any = object()
+_SNAKE = re.compile(r"[a-z][a-z0-9_]*")
 
 
 def _quote_compose_style(value: Any) -> str:
@@ -105,6 +111,15 @@ def dotenv_unquote(ctx: jinja2.runtime.Context, value: Any = _MISSING) -> str:
     return _unquote_compose_style(text)
 
 
+def _assignment(content: Any, key: Any) -> str | None:
+    prefix = f"{key}="
+    for line in str(content or "").splitlines():
+        stripped = line.strip()
+        if stripped.startswith(prefix):
+            return stripped[len(prefix) :]
+    return None
+
+
 def dotenv_value(content: Any, key: Any) -> str:
     """Return the raw right-hand side of ``key`` in a rendered ``.env``.
 
@@ -117,17 +132,84 @@ def dotenv_value(content: Any, key: Any) -> str:
         when the file carries no such assignment. The caller unquotes it with
         :func:`dotenv_unquote`, which knows the mode the file was written in.
     """
-    prefix = f"{key}="
-    for line in str(content or "").splitlines():
-        stripped = line.strip()
-        if stripped.startswith(prefix):
-            return stripped[len(prefix) :]
-    return ""
+    value = _assignment(content, key)
+    return "" if value is None else value
+
+
+def _name(field: str, specs: Any) -> str:
+    spec = specs.get(field) if isinstance(specs, Mapping) else None
+    env = spec.get("env") if isinstance(spec, Mapping) else None
+    if env is not None:
+        if not (isinstance(env, str) and ENV_NAME.fullmatch(env)):
+            raise AnsibleFilterError(
+                f"dotenv_names: env form field {field!r} names no variable"
+            )
+        return env
+    if not _SNAKE.fullmatch(field):
+        raise AnsibleFilterError(
+            f"dotenv_names: env form field {field!r} is not lower snake_case"
+        )
+    return field.upper()
+
+
+def dotenv_names(fields: Any, specs: Any = None) -> list[str]:
+    """Return the env variable each field of an env form names.
+
+    Args:
+        fields: form field names.
+        specs: the form's ``fields`` of ``meta/forms.yml``; a field whose spec
+            declares ``env`` names that variable, every other field the
+            upper-cased form of its key, which must then be lower snake_case.
+
+    Returns:
+        The variable names, in the fields' order.
+
+    Raises:
+        AnsibleFilterError: for an ``env`` that is no variable name, a field
+            without ``env`` that is not lower snake_case, whose upper-cased
+            name would read another variable, and two fields that name one
+            variable.
+    """
+    names = [_name(str(field), specs) for field in fields or ()]
+    if len(set(names)) != len(names):
+        raise AnsibleFilterError("dotenv_names: two env form fields name one variable")
+    return names
+
+
+@jinja2.pass_context
+def dotenv_fields(
+    ctx: jinja2.runtime.Context, content: Any, fields: Any, specs: Any = None
+) -> dict:
+    """Return what a rendered ``.env`` holds for each field of a form.
+
+    Args:
+        content: the file's text.
+        fields: form field names.
+        specs: the form's ``fields`` of ``meta/forms.yml``, which name each
+            field's variable as for :func:`dotenv_names`.
+
+    Returns:
+        Each field whose variable the file assigns, mapped to the value
+        :func:`dotenv_unquote` reads back in the render's deployment mode; a
+        field the file does not assign is left out.
+
+    Raises:
+        AnsibleFilterError: as :func:`dotenv_names`.
+    """
+    fields = list(fields or ())
+    held = {}
+    for field, name in zip(fields, dotenv_names(fields, specs), strict=True):
+        value = _assignment(content, name)
+        if value is not None:
+            held[str(field)] = dotenv_unquote(ctx, value)
+    return held
 
 
 class FilterModule:
     def filters(self) -> dict[str, Any]:
         return {
+            "dotenv_fields": dotenv_fields,
+            "dotenv_names": dotenv_names,
             "dotenv_quote": dotenv_quote,
             "dotenv_unquote": dotenv_unquote,
             "dotenv_value": dotenv_value,

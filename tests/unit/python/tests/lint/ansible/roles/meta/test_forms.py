@@ -563,6 +563,20 @@ class TestScriptLint(unittest.TestCase):
                     ),
                 )
 
+    def test_the_marker_silences_only_the_line_it_sits_on(self) -> None:
+        marked = 'site_title = "infinito_rbac"  # nocheck: forms-script\n'
+        self.assertEqual([], self._findings({"files/hooks.py": marked}))
+        self.assertEqual(
+            [f"{ROLE}: files/hooks.py:2 {SCRIPT_LITERAL}"],
+            self._findings(
+                {
+                    "files/hooks.py": "# nocheck: forms-script\n"
+                    'site_title = "infinito_rbac"\n'
+                    "other = 1  # nocheck: forms-script\n"
+                }
+            ),
+        )
+
 
 INCLUDES_RENDERER = f"{{% include '{lint.SHARED_RENDERER}' %}}\n"
 LOADS_RENDERER = (
@@ -629,6 +643,21 @@ class TestRendererLint(unittest.TestCase):
     def test_a_form_the_application_locks_itself_needs_no_renderer(self) -> None:
         native = VALID.replace("general:\n", "general:\n  native: true\n", 1)
         self.assertEqual([], self._findings({ROLE_FILE_META_FORMS: native}, {}))
+
+    def test_a_pending_lock_needs_no_renderer_only_with_its_issue(self) -> None:
+        for issue, findings in (
+            ("https://example.invalid/upstream/issues/1", []),
+            ("' '", [NOT_INJECTED, NOT_LOADED]),
+        ):
+            with self.subTest(issue=issue):
+                pending = VALID.replace(
+                    "general:\n",
+                    f"general:\n  lock: pending\n  issue: {issue}\n",
+                    1,
+                )
+                self.assertEqual(
+                    findings, self._findings({ROLE_FILE_META_FORMS: pending}, {})
+                )
 
 
 if __name__ == "__main__":

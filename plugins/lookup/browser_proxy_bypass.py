@@ -14,7 +14,7 @@ from utils.networks.reachability import (
     resolve_node_mode,
     tor_serves_host,
 )
-from utils.tls_common import iter_domains
+from utils.tls.common import iter_domains
 
 
 class LookupModule(LookupBase):

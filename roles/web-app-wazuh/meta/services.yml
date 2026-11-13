@@ -66,6 +66,15 @@ wazuh:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
+  security:
+    admin_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='administrator') }}"
+    analyst_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='security-analyst') }}"
+    readonly_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='readonly-auditor') }}"
+  ui:
+    default_route: /app/home
+    api_url: "https://{{ lookup('config', 'web-app-wazuh', 'services.manager.name') }}"
+    api_port: "{{ lookup('config', 'web-app-wazuh', 'services.manager.ports.internal.api') }}"
+    api_username: "{{ lookup('users', 'web-app-wazuh-api').username }}"
 certs_generator:
   image: wazuh/wazuh-certs-generator
   version: "0.0.5"

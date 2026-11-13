@@ -15,7 +15,7 @@ from utils.networks.reachability import (
     sibling_domain,
     tor_serves_host,
 )
-from utils.tls_common import iter_domains, norm_domain
+from utils.tls.common import iter_domains, norm_domain
 
 if TYPE_CHECKING:
     from collections.abc import Callable

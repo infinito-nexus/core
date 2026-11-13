@@ -7,7 +7,7 @@ from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
-import utils.tls_common as _tls_common
+import utils.tls.common as _tls_common
 from plugins.lookup.tls import LookupModule
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
