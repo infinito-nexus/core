@@ -13,7 +13,7 @@ import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "NIX_CONFIG"
 COMMENT = "Pass-through of the caller's NIX_CONFIG access-tokens line, when present."

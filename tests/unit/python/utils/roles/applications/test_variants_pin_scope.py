@@ -20,10 +20,7 @@ CARRIER = "web-app-carrier"
 PARTNER = "web-app-partner"
 SUBJECT = "web-app-subject"
 
-_INCLUDE = (
-    "cli.administration.deploy.development.inventory.legacy_resolver."
-    "_resolve_round_include"
-)
+_INCLUDE = "utils.roles.applications.variants._resolve_round_include"
 
 
 class TestPinScope(unittest.TestCase):

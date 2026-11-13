@@ -146,9 +146,7 @@ ansible_become_password: !vault |
     ENCRYPTEDVALUE
 """
 
-            with patch(
-                "cli.administration.inventory.provision.ruamel_io.VaultHandler"
-            ) as vh:
+            with patch("cli.administration.inventory.ruamel_io.VaultHandler") as vh:
                 inst = vh.return_value
                 inst.encrypt_string.return_value = vaulted_snippet
 

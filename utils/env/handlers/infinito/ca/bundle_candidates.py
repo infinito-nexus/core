@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from utils.paths import read_group_paths
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CA_BUNDLE_CANDIDATES"
 COMMENT = "Extracted CA bundle per distro layout, first readable one wins (SPOT: group_vars/all/05_paths.yml CA_BUNDLE_CANDIDATES)."

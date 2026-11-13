@@ -7,11 +7,14 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from cli.administration.deploy.development.down import _wipe_docker_root
+from cli.administration.deploy.development.docker_root import _wipe_docker_root
 
 
 class TestWipeDockerRoot(unittest.TestCase):
-    @patch("cli.administration.deploy.development.down.subprocess.run", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.docker_root.subprocess.run",
+        autospec=True,
+    )
     def test_the_wipe_escalates(self, run_mock: MagicMock) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             docker_root = Path(tmp) / "docker"
@@ -23,7 +26,10 @@ class TestWipeDockerRoot(unittest.TestCase):
         self.assertEqual(commands[0], ["sudo", "rm", "-rf", str(docker_root)])
         self.assertTrue(all(cmd[0] == "sudo" for cmd in commands))
 
-    @patch("cli.administration.deploy.development.down.subprocess.run", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.docker_root.subprocess.run",
+        autospec=True,
+    )
     def test_a_surviving_docker_root_is_a_hard_error(self, run_mock: MagicMock) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             docker_root = Path(tmp) / "docker"
@@ -36,7 +42,10 @@ class TestWipeDockerRoot(unittest.TestCase):
         self.assertIn("containers", str(ctx.exception))
         self.assertTrue(run_mock.called)
 
-    @patch("cli.administration.deploy.development.down.subprocess.run", autospec=True)
+    @patch(
+        "cli.administration.deploy.development.docker_root.subprocess.run",
+        autospec=True,
+    )
     def test_a_missing_docker_root_is_not_wiped(self, run_mock: MagicMock) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             _wipe_docker_root(Path(tmp) / "absent")

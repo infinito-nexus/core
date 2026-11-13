@@ -9,7 +9,8 @@ from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
-from utils.inventory.tools import LANE_MODEL_ALIAS, TEMPLATE, render
+from utils.inventory.tools import LANE_MODEL_ALIAS
+from utils.inventory.tools_vars import TEMPLATE, render
 
 OLLAMA_ROLE = "svc-ai-ollama"
 

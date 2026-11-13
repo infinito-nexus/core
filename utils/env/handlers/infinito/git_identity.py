@@ -9,7 +9,7 @@ import subprocess
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 NAME_KEY = "INFINITO_GIT_AUTHOR_NAME"
 EMAIL_KEY = "INFINITO_GIT_AUTHOR_EMAIL"

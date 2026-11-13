@@ -255,7 +255,7 @@ class TestBuildDevInventoryMatrix(unittest.TestCase):
         self.compose.repo_root = Path("/tmp/infinito-nexus")
 
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        "utils.roles.applications.variants._resolve_round_include",
         autospec=True,
     )
     @patch(

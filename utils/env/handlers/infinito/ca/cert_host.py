@@ -15,7 +15,7 @@ from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CA_CERT_HOST"
 COMMENT = "Host path of the self-signed root CA cert (ca_trust_paths SPOT)."

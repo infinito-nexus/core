@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from utils.env.runtime import is_wsl2
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_IS_WSL2"
 COMMENT = "True when /proc/version identifies the host as WSL2."

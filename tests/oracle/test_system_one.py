@@ -31,7 +31,8 @@ from tests.utils.services import progress as _progress
 from utils.cache.yaml import load_yaml
 from utils.i18n.catalog import catalog_path, is_machine_translation, read_catalog
 from utils.i18n.spans import prose
-from utils.inventory.tools import API_KEY, S1_ROLE, lane_url
+from utils.inventory.tools import S1_ROLE, lane_url
+from utils.inventory.tools_vars import API_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT, SUITE

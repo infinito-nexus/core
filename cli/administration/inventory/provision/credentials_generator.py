@@ -12,9 +12,13 @@ from cli.administration.inventory.credentials.emit import (
     credentials_map,
     declared_credentials,
 )
+from cli.administration.inventory.ruamel_io import (
+    dump_document,
+    ensure_map,
+    load_document,
+)
 
 from .role_resolver import resolve_role_path
-from .ruamel_io import dump_document, ensure_map, load_document
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -15,7 +15,8 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from utils.inventory import tools
-from utils.inventory.tools import ADDRESS, LANE_SERVICE, lane_address, lane_ip
+from utils.inventory.tools import ADDRESS, lane_address, lane_ip
+from utils.inventory.tools_vars import LANE_SERVICE
 
 NETWORKS = {
     "infinito-nexus-core_default": {"IPAddress": "172.30.0.9"},
@@ -32,9 +33,7 @@ class TestLaneIp(unittest.TestCase):
         environment = {"INFINITO_SUBNET": "172.30.5.0/24", "INFINITO_CONTAINER": "c"}
         with (
             patch.object(tools.subprocess, "run", return_value=found),
-            patch(
-                "utils.i18n.libretranslate.environment", return_value=env or environment
-            ),
+            patch.object(tools, "environment", return_value=env or environment),
         ):
             return lane_ip(Path("/nowhere"))
 

@@ -18,10 +18,9 @@ Domain modules:
   + path matcher used by lint/integration tests that need a
   "files git would track" view without spawning git.
 
-Use the domain module directly. The package-level
-``_reset_cache_for_tests`` clears every domain's caches plus the shared
-fingerprint memo in one call — preferred over hand-rolling N
-``_reset()`` calls per test fixture.
+Use the domain module directly. ``utils.cache.reset._reset_cache_for_tests``
+clears every domain's caches plus the shared fingerprint memo in one
+call, preferred over hand-rolling N ``_reset()`` calls per test fixture.
 
 ``PROJECT_ROOT`` is the single source of truth for the repository root.
 Every callsite that needs it — CLI tools, plugins, tests — MUST import
@@ -36,22 +35,3 @@ from pathlib import Path
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 ROLES_DIR: Path = PROJECT_ROOT / "roles"
-
-
-def _reset_cache_for_tests() -> None:
-    """Orchestrate per-domain cache resets plus the shared fingerprint
-    memo. Test fixtures rely on a single entry point so they can stay
-    agnostic of how the cache is partitioned across modules."""
-    from utils.domains import application_domain_index
-
-    from . import applications, base, domains, files, gitignore, users
-    from . import yaml as _yaml_cache
-
-    application_domain_index._reset()
-    applications._reset()
-    users._reset()
-    domains._reset()
-    base._reset()
-    _yaml_cache._reset()
-    files._reset()
-    gitignore._reset()

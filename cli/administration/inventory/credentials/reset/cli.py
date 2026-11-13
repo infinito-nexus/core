@@ -23,7 +23,7 @@ from cli.administration.inventory.provision.project import (
     detect_project_root,
 )
 from cli.administration.inventory.provision.reset import reset_credentials
-from cli.administration.inventory.provision.ruamel_io import (
+from cli.administration.inventory.ruamel_io import (
     dump_document,
     load_document,
 )

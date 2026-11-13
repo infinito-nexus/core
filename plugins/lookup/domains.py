@@ -5,10 +5,9 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache import _reset_cache_for_tests as _reset_runtime_lookup_cache
-
 # nocheck: lookup-cache-import
 from utils.cache.domains import get_merged_domains
+from utils.cache.reset import _reset_cache_for_tests as _reset_runtime_lookup_cache
 
 
 def _reset_cache_for_tests() -> None:

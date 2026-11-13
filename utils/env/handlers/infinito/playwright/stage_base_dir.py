@@ -11,7 +11,7 @@ from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_PLAYWRIGHT_STAGE_BASE_DIR"
 COMMENT = (
