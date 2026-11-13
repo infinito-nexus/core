@@ -103,6 +103,15 @@ def is_sso_source(source: Any) -> bool:
     return isinstance(source, str) and source.split(".", 1)[0] == SSO_ROOT
 
 
+def is_native(block: Any) -> bool:
+    """Whether the application locks a form's fields itself.
+
+    Args:
+        block: one form of ``meta/forms.yml``.
+    """
+    return isinstance(block, Mapping) and block.get("native") is True
+
+
 def _is_allowed_user_path(parts: list[str]) -> bool:
     return (
         len(parts) == USER_SOURCE_PARTS
@@ -400,7 +409,8 @@ def locks(
         not clear; a field whose form declares a ``record`` also carries
         that ``record``: its ``selector`` and the ``values`` its ``source``
         holds, the ids of the records the deployment created. A ``seeded``
-        field yields nothing.
+        field and a field of a ``native`` form, which the application locks
+        itself, yield nothing.
 
     Raises:
         SourceError: when a ``when`` or a record ``source`` names nothing in
@@ -409,7 +419,9 @@ def locks(
     enforced = [
         (form, forms[form]["path"], field, spec)
         for form, field, spec in iter_fields(forms)
-        if spec.get("mode") == "enforced" and _applies(spec, application, users)
+        if spec.get("mode") == "enforced"
+        and not is_native(forms[form])
+        and _applies(spec, application, users)
     ]
     profile: dict[str, list[str]] = {}
     for _form, page, _field, spec in enforced:
