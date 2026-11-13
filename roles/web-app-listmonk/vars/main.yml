@@ -24,22 +24,16 @@ LISTMONK_EXEC_DATABASE: "container exec -i -e LISTMONK_REALIGN_PASSWORD {{ looku
   'username') }} -d {{ lookup('database', application_id, 'name') }}"
 LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"
 
-LISTMONK_SETTINGS:
-  - key: "app.root_url"
-    value: "\"{{ lookup('tls', application_id, 'url.base') }}\""
+LISTMONK_GENERAL_SETTINGS: "{{ lookup('form_values', application_id, 'general') }}"
+LISTMONK_GENERAL_PREFIX: "app."
+LISTMONK_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'security') }}"
 
+LISTMONK_SETTINGS:
   - key: "app.notify_emails"
     value: "{{ [ lookup('users', 'platform_administrator').email ] | to_json }}"
 
   - key: "security.oidc"
-    value: >-
-      {{ {
-         "enabled": LISTMONK_LOGIN_SSO | bool,
-         "client_id": OIDC.CLIENT.ID,
-         "provider_url": OIDC.CLIENT.ISSUER_URL,
-         "client_secret": OIDC.CLIENT.SECRET,
-         "auto_create_users": False
-      } | to_json }}
+    value: "{{ LISTMONK_OIDC_SETTINGS | combine({'client_secret': OIDC.CLIENT.SECRET}) | to_json }}"
     condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
 
   - key: "appearance.public.custom_js"
@@ -83,9 +77,6 @@ LISTMONK_SETTINGS:
       ] | to_json }}
     condition: "{{ LISTMONK_EMAIL.smtp | bool }}"
 
-  - key: "app.lang"
-    value: '"{{ HOST_LL }}"'
-
   - key: "bounce.enabled"
     value: "true"
 
@@ -107,15 +98,6 @@ LISTMONK_SETTINGS:
           "tls_skip_verify": false
         }
       ] | to_json }}
-
-  - key: "app.from_email"
-    value: '"{{ service_provider.company.titel }} Newsletter <{{ lookup(''users'', LISTMONK_USER_SEND).email }}>"'
-
-  - key: "app.check_updates"
-    value: "true"
-
-  - key: "app.enable_public_archive_rss_content"
-    value: "true"
 
   - key: "upload.provider"
     value: '"s3"'

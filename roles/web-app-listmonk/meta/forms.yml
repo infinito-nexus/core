@@ -1,0 +1,71 @@
+---
+general:
+  path: /admin/settings
+  sinks: [LISTMONK_GENERAL_SETTINGS]
+  fields:
+    root_url:
+      source: services.listmonk.settings.root_url
+      mode: enforced
+      selector: 'input[name="app.root_url"]'
+      type: url
+      label: Root URL
+    from_email:
+      source: services.listmonk.settings.from_email
+      mode: enforced
+      selector: 'input[name="app.from_email"]'
+      type: text
+      label: Default from email
+    lang:
+      source: services.listmonk.settings.lang
+      mode: enforced
+      selector: 'select[name="app.lang"]'
+      type: select
+      label: Language
+    check_updates:
+      source: services.listmonk.settings.check_updates
+      mode: enforced
+      selector: 'input[name="app.check_updates"]'
+      type: checkbox
+      map: {true: true, false: false}
+      label: Check for updates
+    enable_public_archive_rss_content:
+      source: services.listmonk.settings.enable_public_archive_rss_content
+      mode: enforced
+      selector: 'input[name="app.enable_public_archive_rss_content"]'
+      type: checkbox
+      map: {true: true, false: false}
+      label: Show full content in RSS
+security:
+  path: /admin/settings
+  sinks: [LISTMONK_OIDC_SETTINGS]
+  fields:
+    enabled:
+      source: services.listmonk.login.method.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="security.oidc"]'
+      type: checkbox
+      map: {true: true, false: false}
+      label: OpenID Connect enabled
+    provider_url:
+      source: services.listmonk.oidc.provider_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="oidc.provider_url"]'
+      type: url
+      label: OpenID Connect provider URL
+    client_id:
+      source: services.listmonk.oidc.client_id
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="oidc.client_id"]'
+      type: text
+      label: OpenID Connect client ID
+    auto_create_users:
+      source: services.listmonk.oidc.auto_create_users
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="oidc.auto_create_users"]'
+      type: checkbox
+      map: {true: true, false: false}
+      label: Auto-create users from SSO

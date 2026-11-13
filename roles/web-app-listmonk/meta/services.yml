@@ -61,6 +61,16 @@ listmonk:
     flavor: wget
     path: health
   public_api_activated: false
+  settings:
+    root_url: "{{ lookup('tls', 'web-app-listmonk', 'url.base') }}"
+    from_email: "{{ service_provider.company.titel }} Newsletter <{{ lookup('users', 'newsletter').email }}>"
+    lang: "{{ HOST_LL }}"
+    check_updates: true
+    enable_public_archive_rss_content: true
+  oidc:
+    provider_url: "{{ OIDC.CLIENT.ISSUER_URL }}"
+    client_id: "{{ OIDC.CLIENT.ID }}"
+    auto_create_users: false
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -99,6 +109,12 @@ design:
     logo:
       width: 182
       height: 34
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: dynamic-flag
 hcaptcha:
   enabled: "{{ HCAPTCHA_ENABLED | bool }}"
