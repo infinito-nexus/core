@@ -5,12 +5,3 @@
 meshes: []
 local:
   subnet: 192.168.74.0/24
-overlay:
-  modes: [swarm]
-  topology: shared_net
-  aliases: [tor]
-  consumer:
-    kind: onion_sso
-    key: sso
-    provider: web-app-keycloak
-    provider_key: tor

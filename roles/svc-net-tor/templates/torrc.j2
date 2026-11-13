@@ -3,7 +3,7 @@ RunAsDaemon 0
 Log notice stdout
 DataDirectory {{ lookup('volume', 'svc-net-tor', 'tor_data').target }}
 
-{% set _listen_hosts = ['0.0.0.0'] if IS_SWARM_MODE else ['127.0.0.1'] + ([TOR_CONTAINER_DNS_HOST] if TOR_CONTAINER_DNS_HOST | length > 0 else []) %}
+{% set _listen_hosts = ['127.0.0.1'] + ([TOR_NODE_BRIDGE] if TOR_NODE_BRIDGE | length > 0 else []) %}
 {% for _host in _listen_hosts %}
 SocksPort {{ lookup('tor_socks', _host) }}
 {% endfor %}
@@ -22,7 +22,7 @@ UseEntryGuards 0
 %include /run/tor/chutney-net.conf
 {% endif %}
 
-{% if TOR_EGRESS_ROUTE != 'none' %}
+{% if TOR_EGRESS_ROUTE != 'none' and tor_node in TOR_ROUTER_NODES %}
 AutomapHostsOnResolve 1
 AutomapHostsSuffixes {{ '.' if TOR_EGRESS_PLAN.automap_all else '.onion' }}
 VirtualAddrNetworkIPv4 {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }}
@@ -31,8 +31,10 @@ TransPort {{ _host }}:{{ TOR_TRANS_PORT }}
 DNSPort {{ _host }}:{{ TOR_DNS_PORT }}
 {% endfor %}
 {% endif %}
+{% if tor_node == STACK_HOST %}
 HiddenServiceDir /var/lib/tor/infinito/node/
 HiddenServiceVersion 3
 {% for _p in TOR_ONION_EXTRA_PORTS %}
 HiddenServicePort {{ _p.onion_port }} {{ TOR_HS_BACKEND_HOST }}:{{ _p.target.rsplit(':', 1) | last }}
 {% endfor %}
+{% endif %}

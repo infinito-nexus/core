@@ -20,7 +20,7 @@
 - name: "🧹 Refuse route none while an earlier route's router is installed"
   when:
     - TOR_EGRESS_ROUTE == 'none'
-    - IS_COMPOSE_MODE or (IS_STACK_HOST | bool)
+    - inventory_hostname in TOR_ROUTER_NODES
   block:
     - name: "📄 Load the fragment naming of svc-net-firewall"
       ansible.builtin.include_vars:
@@ -58,28 +58,42 @@
 - name: "📤 Dispatch Tor network flavor '{{ TOR_FLAVOR }}'"
   ansible.builtin.include_tasks: "flavor/{{ TOR_FLAVOR }}/main.yml"
 
-- name: "🧅 Ensure Tor config directory exists"
+- name: "🧅 Ensure every node holds the Tor config directory"
   ansible.builtin.file:
     path: "{{ TOR_CONFIG_DIR }}"
     state: directory
     owner: root
     group: root
     mode: "0755"
+  delegate_to: "{{ item }}"
+  loop: "{{ query('node_hosts') }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
   become: true
 
-- name: "🧅 Ensure Tor data + HiddenServiceDir exist"
+- name: "🧅 Ensure every node holds the Tor data directory"
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ TOR_DATA_DIR }}"
     state: directory
     owner: root
     group: root
     mode: "0700"
-  loop:
-    - "{{ TOR_DATA_DIR }}"
-    - "{{ TOR_HS_DIR }}"
+  delegate_to: "{{ item }}"
+  loop: "{{ query('node_hosts') }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
   become: true
 
-- name: "🔑 Install authoritative hidden-service keys (must match DOMAIN_PRIMARY)"
+- name: "🧅 Ensure the stack host holds the HiddenServiceDir"
+  ansible.builtin.file:
+    path: "{{ TOR_HS_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
+  become: true
+
+- name: "🔑 Install the authoritative hidden-service keys on the stack host (must match DOMAIN_PRIMARY)"
   ansible.builtin.copy:
     src: "{{ [ TOR_HS_SRC_DIR, item.name ] | path_join }}"
     dest: "{{ [ TOR_HS_DIR, item.name ] | path_join }}"
@@ -91,24 +105,35 @@
     - { name: "hostname", mode: "0600" }
     - { name: "hs_ed25519_public_key", mode: "0600" }
     - { name: "hs_ed25519_secret_key", mode: "0600" }
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
   become: true
   register: _tor_hs_keys
 
-- name: "📊 Re-gather the docker0 fact so torrc and dnsmasq bind the live bridge"
+- name: "📊 Re-gather the docker0 fact of every node so each torrc and dnsmasq bind the live bridge"
   ansible.builtin.setup:
     gather_subset:
       - "!all"
       - network
     filter:
       - ansible_docker0
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ query('node_hosts') }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
 
-- name: "📝 Render torrc"
-  ansible.builtin.template: # nocheck: stack-host-template (per-host torrc under DIR_VAR_LIB; tor is a node-local host-network sidecar)
+- name: "📝 Render the torrc of every node"
+  ansible.builtin.template: # nocheck: stack-host-template (one torrc per node under DIR_VAR_LIB, delegated to the node it binds)
     src: torrc.j2
     dest: "{{ TOR_TORRC_HOST }}"
     owner: root
     group: root
     mode: "0644"
+  delegate_to: "{{ tor_node }}"
+  loop: "{{ query('node_hosts') }}"
+  loop_control:
+    loop_var: tor_node
+  run_once: "{{ IS_SWARM_MODE | bool }}"
   become: true
   register: _tor_torrc
 
@@ -195,7 +220,7 @@
         file: router.yml
         apply:
           become: true
-      when: IS_COMPOSE_MODE or (IS_STACK_HOST | bool)
+      when: inventory_hostname in TOR_ROUTER_NODES
 
     - name: "🧅 Verify the node onion is reachable"
       ansible.builtin.include_tasks: onion_reach.yml

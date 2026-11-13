@@ -13,8 +13,9 @@ tor: # nocheck: category-modes
       enabled: true
     swarm:
       enabled: true
-  # nocheck: default-placement-manager  node onion ingress: host-published SOCKS/DNS/Trans ports and the HiddenService loopback forward must live on the stack host
+  # nocheck: default-placement-manager  the role's tasks run on the stack host, which holds the hidden-service keys, renders every node's torrc and runs the egress router; replicas global puts the daemon itself on every node
   placement: manager
+  replicas: global
   bond: 0.5
   enabled: true
   shared: true

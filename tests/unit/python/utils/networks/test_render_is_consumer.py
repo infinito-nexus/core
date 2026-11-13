@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-from typing import ClassVar
 
 from utils.networks.render import _is_consumer
 
@@ -134,66 +133,6 @@ class TestIsConsumer(unittest.TestCase):
                 ),
                 msg=app,
             )
-
-
-class TestIsConsumerOnionSso(unittest.TestCase):
-    ENTRY: ClassVar[dict] = {
-        "role": "svc-net-tor",
-        "overlay": {
-            "consumer": {
-                "kind": "onion_sso",
-                "key": "sso",
-                "provider": "web-app-keycloak",
-                "provider_key": "tor",
-            }
-        },
-    }
-
-    @staticmethod
-    def _lookup(*, sso, provider_tor):
-        def _inner(app, path, default):
-            if app == "web-app-keycloak" and path == "services.tor.enabled":
-                return provider_tor
-            if path == "services.sso.enabled":
-                return sso
-            return default
-
-        return _inner
-
-    def _consumer(self, *, sso, provider_tor, entry=None):
-        return _is_consumer(
-            entry or self.ENTRY,
-            "web-app-nextcloud",
-            self._lookup(sso=sso, provider_tor=provider_tor),
-            _const_lookup_database(),
-        )
-
-    def test_attaches_only_when_sso_consumer_meets_onion_provider(self):
-        cases = [
-            (True, True, True),
-            (True, False, False),
-            (False, True, False),
-            (False, False, False),
-        ]
-        for sso, provider_tor, expected in cases:
-            with self.subTest(sso=sso, provider_tor=provider_tor):
-                self.assertIs(
-                    self._consumer(sso=sso, provider_tor=provider_tor), expected
-                )
-
-    def test_provider_is_mandatory(self):
-        entry = {"role": "svc-net-tor", "overlay": {"consumer": {"kind": "onion_sso"}}}
-        self.assertFalse(self._consumer(sso=True, provider_tor=True, entry=entry))
-
-    def test_provider_key_defaults_to_tor(self):
-        entry = {
-            "role": "svc-net-tor",
-            "overlay": {
-                "consumer": {"kind": "onion_sso", "provider": "web-app-keycloak"}
-            },
-        }
-        self.assertTrue(self._consumer(sso=True, provider_tor=True, entry=entry))
-        self.assertFalse(self._consumer(sso=True, provider_tor=False, entry=entry))
 
 
 if __name__ == "__main__":

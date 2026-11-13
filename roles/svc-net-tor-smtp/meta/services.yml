@@ -13,7 +13,7 @@ tor-smtp: # nocheck: category-modes
       enabled: true
     swarm:
       enabled: true
-  # nocheck: default-placement-manager  dials svc-net-tor's host-loopback SOCKS listener, which is manager-pinned; the gateway must share that node
+  # nocheck: default-placement-manager  Stalwart hands it .onion mail over the tor-smtp overlay; it dials the Tor SOCKS listener of its own node, which every node runs
   placement: manager
   image: python
   version: 3.15-slim

@@ -18,7 +18,6 @@ EGRESS = {
     "direct": {"include": [], "except": []},
 }
 DOCKER0 = "172.17.0.1"
-TASK_NAMESPACE = "0.0.0.0"  # noqa: S104
 MODES = list(
     itertools.product(
         (False, True),
@@ -41,7 +40,7 @@ def _render(name: str, swarm: bool, docker0: str, route: str, **overrides) -> st
         EGRESS,
         lookup=_lookup,
         IS_SWARM_MODE=swarm,
-        TOR_CONTAINER_DNS_HOST=docker0,
+        TOR_NODE_BRIDGE=docker0,
         TOR_TRANS_PORT=PORTS["trans"],
         TOR_DNS_PORT=PORTS["dns"],
         **overrides,
@@ -59,16 +58,14 @@ def listeners(torrc: str) -> dict[str, list[str]]:
     return found
 
 
-def bound_hosts(swarm: bool, docker0: str) -> list[str]:
-    if swarm:
-        return [TASK_NAMESPACE]
+def bound_hosts(docker0: str) -> list[str]:
     return ["127.0.0.1", DOCKER0] if docker0 else ["127.0.0.1"]
 
 
 class TestTorrcListeners(unittest.TestCase):
     def test_every_mode_binds_exactly_where_its_consumers_connect(self) -> None:
         for swarm, docker0, route, flavor, guards in MODES:
-            hosts = bound_hosts(swarm, docker0)
+            hosts = bound_hosts(docker0)
             routed = [] if route == "none" else hosts
             with self.subTest(
                 swarm=swarm, docker0=docker0, route=route, flavor=flavor, guards=guards
@@ -91,11 +88,15 @@ class TestTorrcListeners(unittest.TestCase):
                     },
                 )
 
-    def test_compose_publishes_no_port(self) -> None:
-        for route in ("none", "onion", "all"):
-            with self.subTest(route=route):
-                compose = _render("compose.yml.j2", False, DOCKER0, route)
-                self.assertIn('network_mode: "host"', compose)
+    def test_every_mode_runs_on_the_host_network_and_publishes_no_port(self) -> None:
+        host_network = {
+            False: 'network_mode: "host"',
+            True: "hostnet:\n    external: true\n    name: host\n",
+        }
+        for swarm, route in itertools.product((False, True), ("none", "onion", "all")):
+            with self.subTest(swarm=swarm, route=route):
+                compose = _render("compose.yml.j2", swarm, DOCKER0, route)
+                self.assertIn(host_network[swarm], compose)
                 self.assertIsNone(re.search(r"^\s*ports:", compose, re.MULTILINE))
 
 

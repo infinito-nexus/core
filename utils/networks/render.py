@@ -14,7 +14,7 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``aliases``: list of DNS aliases. Default: ``[entity_name]`` for shared_net, ``[]`` for default_net
 * ``consumer``: optional override
    * ``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client``
-     | ``web_facing`` | ``onion_sso``, or a list of them.
+     | ``web_facing``, or a list of them.
      ``mcp_client`` admits a role only when
      its ``mcp.direction`` is ``client`` or ``both`` AND it declares
      ``services.<own-entity>.mcp_consumer: true`` without the provider
@@ -26,9 +26,6 @@ discovered into the service_registry by ``discover_role_services``. Keys:
    * ``key``: services.<key>.* lookup base. Default: provides or entity_name
    * ``flags``: list of flags to AND. Default: ``[enabled, shared]``
       (``services_flags`` only)
-   * ``provider`` / ``provider_key``: for ``onion_sso``, the app whose
-      ``services.<provider_key>.enabled`` must also hold. Default provider_key
-      ``tor``
 * ``stream_relay``: ``switch`` (a config path on the provider), ``ports``
    (the ``ports.public`` protocols the reverse proxy listens on and publishes
    in host mode, through ``lookup('stream_relay_ports')``) and ``subnet`` (the

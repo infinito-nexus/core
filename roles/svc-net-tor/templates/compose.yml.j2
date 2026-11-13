@@ -12,14 +12,8 @@
     {{ lookup('compose_only', 'container_name', TOR_CONTAINER) }}
     {{ lookup('container_image', application_id, 'tor') }}
     {% if IS_SWARM_MODE %}
-    {{ lookup('container_ports',
-              {'service': 'tor', 'protocol': 'socks', 'mode': 'host',
-               'container': 'same'},
-              {'service': 'tor', 'protocol': 'dns', 'mode': 'host',
-               'container': 'same', 'transport': ['udp', 'tcp']},
-              {'service': 'tor', 'protocol': 'trans', 'mode': 'host',
-               'container': 'same', 'transport': 'tcp'}) | indent(4) }}
-    {{ lookup('container_networks') | indent(4) }}
+    networks: # nocheck: networks-literal
+      hostnet: {}
     {% else %}
     network_mode: "host"
     {% if TOR_EGRESS_ROUTE == 'all' %}
@@ -36,4 +30,11 @@
       start_interval: 5s
 
 {{ lookup('compose_volumes') }}
+{% if IS_SWARM_MODE %}
+networks: # nocheck: networks-literal
+  hostnet:
+    external: true
+    name: host
+{% else %}
 {{ lookup('compose_networks') }}
+{% endif %}
