@@ -76,7 +76,7 @@ tor: # nocheck: category-modes
       dns: false
   min_storage: 100MB
   cpus: "1.0"
-  mem_reservation: 128m
+  mem_reservation: 64m
   mem_limit: 256m
   pids_limit: 128
   lifecycle: beta
