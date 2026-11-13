@@ -564,5 +564,68 @@ class TestScriptLint(unittest.TestCase):
                 )
 
 
+INCLUDES_RENDERER = f"{{% include '{lint.SHARED_RENDERER}' %}}\n"
+LOADS_RENDERER = (
+    "{%- set lock = lookup('template', application_id "
+    "| abs_role_path_by_application_id ~ '/templates/field-lock.js.j2') -%}\n"
+)
+INJECTED = {ROLE: {"services": {"javascript": {"enabled": True}}}}
+NOT_INJECTED = (
+    f"{ROLE}: the forms ['general'] hold enforced fields, so "
+    "services.javascript.enabled must be true"
+)
+NOT_LOADED = (
+    f"{ROLE}: the forms ['general'] hold enforced fields, so "
+    f"{lint.ROLE_SCRIPT} must load {lint.SHARED_RENDERER}"
+)
+
+
+class TestRendererLint(unittest.TestCase):
+    @staticmethod
+    def _findings(files: dict[str, str], defaults: dict) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            role = Path(tmp) / ROLE
+            for name, content in {ROLE_FILE_META_FORMS: VALID, **files}.items():
+                path = role / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(textwrap.dedent(content), encoding="utf-8")
+            return lint.renderer_findings([role], defaults)
+
+    def test_a_loader_that_includes_the_renderer_passes(self) -> None:
+        files = {lint.ROLE_SCRIPT: INCLUDES_RENDERER}
+        self.assertEqual([], self._findings(files, INJECTED))
+
+    def test_a_loader_that_loads_a_role_template_with_the_renderer_passes(self) -> None:
+        files = {
+            lint.ROLE_SCRIPT: LOADS_RENDERER,
+            "templates/field-lock.js.j2": INCLUDES_RENDERER,
+        }
+        self.assertEqual([], self._findings(files, INJECTED))
+
+    def test_a_javascript_service_that_is_not_plainly_on_fails(self) -> None:
+        files = {lint.ROLE_SCRIPT: INCLUDES_RENDERER}
+        for enabled in ("{{ 'web-app-keycloak' in group_names }}", False, None):
+            with self.subTest(enabled=enabled):
+                defaults = {ROLE: {"services": {"javascript": {"enabled": enabled}}}}
+                self.assertEqual([NOT_INJECTED], self._findings(files, defaults))
+
+    def test_a_loader_without_the_renderer_fails(self) -> None:
+        for files in (
+            {},
+            {lint.ROLE_SCRIPT: "console.log(1);\n"},
+            {lint.ROLE_SCRIPT: LOADS_RENDERER},
+        ):
+            with self.subTest(files=sorted(files)):
+                self.assertEqual([NOT_LOADED], self._findings(files, INJECTED))
+
+    def test_a_role_without_an_enforced_managed_field_needs_no_renderer(self) -> None:
+        seeded = VALID.replace("mode: enforced", "mode: seeded")
+        for forms_yml in (PROFILE, seeded):
+            with self.subTest(forms_yml=forms_yml):
+                self.assertEqual(
+                    [], self._findings({ROLE_FILE_META_FORMS: forms_yml}, {})
+                )
+
+
 if __name__ == "__main__":
     unittest.main()

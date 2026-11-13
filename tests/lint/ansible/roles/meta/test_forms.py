@@ -19,6 +19,7 @@ from utils.roles.mapping import (
 )
 
 from . import load_role_meta, role_dirs
+from .test_sso_profile_lock import ROLE_SCRIPT, SHARED_RENDERER
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -96,6 +97,8 @@ SCRIPT_LITERAL = "writes a literal to the field {field!r}"
 SCRIPT_UNSINKED = (
     "must write the field {field!r} as one expression of a sink its form names"
 )
+RENDERER_TEMPLATE = re.compile(r"""['"]/templates/([A-Za-z0-9_.-]+\.j2)['"]""")
+RENDERER_SERVICE = "javascript"
 
 
 def _credentials(role: Path) -> dict[str, Any]:
@@ -457,6 +460,58 @@ def script_findings(roles: list[Path]) -> list[str]:
     return errors
 
 
+def _locked_forms(data: dict[str, Any]) -> list[str]:
+    return sorted(
+        {
+            form
+            for form, _field, spec in forms.iter_fields(data)
+            if spec.get("mode") == "enforced"
+            and not forms.is_sso_source(spec.get("source"))
+        }
+    )
+
+
+def _loads_renderer(role: Path) -> bool:
+    loader = role / ROLE_SCRIPT
+    if not loader.is_file():
+        return False
+    text = read_text(str(loader))
+    loaded = [role / "templates" / name for name in RENDERER_TEMPLATE.findall(text)]
+    return any(
+        SHARED_RENDERER in read_text(str(path))
+        for path in [loader, *loaded]
+        if path.is_file()
+    )
+
+
+def renderer_findings(roles: list[Path], defaults: dict[str, Any]) -> list[str]:
+    """Return every role whose managed fields the shared renderer cannot lock.
+
+    Args:
+        roles: role directories to check; only a form with an ``enforced``
+            field whose source is no ``sso.<claim>`` counts.
+        defaults: ``applications`` defaults keyed by role.
+    """
+    errors = []
+    for role in roles:
+        data = load_role_meta(role / ROLE_FILE_META_FORMS)
+        locked = _locked_forms(data) if isinstance(data, dict) else []
+        if not locked:
+            continue
+        services = defaults.get(role.name, {}).get("services", {})
+        if services.get(RENDERER_SERVICE, {}).get("enabled") is not True:
+            errors.append(
+                f"{role.name}: the forms {locked} hold enforced fields, so "
+                f"services.{RENDERER_SERVICE}.enabled must be true"
+            )
+        if not _loads_renderer(role):
+            errors.append(
+                f"{role.name}: the forms {locked} hold enforced fields, so "
+                f"{ROLE_SCRIPT} must load {SHARED_RENDERER}"
+            )
+    return errors
+
+
 class TestForms(unittest.TestCase):
     def _roles(self) -> list[Path]:
         roles = [
@@ -480,6 +535,11 @@ class TestForms(unittest.TestCase):
 
     def test_every_script_writes_its_declared_fields_only_from_its_input(self) -> None:
         self.assertEqual([], script_findings(self._roles()))
+
+    def test_every_enforced_field_is_locked_wherever_its_form_applies(self) -> None:
+        self.assertEqual(
+            [], renderer_findings(self._roles(), get_application_defaults())
+        )
 
 
 if __name__ == "__main__":

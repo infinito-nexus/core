@@ -12,11 +12,11 @@ sso:
   flavor: oidc
   profile:
     languages: [en]
-# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
+# nocheck: dynamic-flag
 javascript:
   bond: 1
-  enabled: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
-  shared: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
+  enabled: true
+  shared: true
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
