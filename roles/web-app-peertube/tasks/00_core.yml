@@ -1,16 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "📂 Include the front proxy for every {{ application_id }} domain"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/front.yml
-
-- name: "🧩 load docker and db for {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/back.yml
-
 - name: "🔎 Detect the release the existing PeerTube data was written by"
   include_tasks: upgrade/detect.yml
   when: IS_STACK_HOST | bool

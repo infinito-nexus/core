@@ -1,14 +1,4 @@
 ---
-- name: "📂 Include role svc-stack for {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/front.yml
-
-- name: "🧩 load docker and db for {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer/back.yml
-
 - name: 📂 Include PHP Config tasks
   include_tasks: 01_config.yml
 
