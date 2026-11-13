@@ -368,9 +368,9 @@ class TestNone(unittest.TestCase):
     def test_none_keeps_the_compose_user(self) -> None:
         self.assertNotIn("user:", render("compose.yml.j2", "none", _egress()))
 
-    def test_none_is_refused_over_an_installed_router(self) -> None:
+    def test_none_is_refused_only_while_the_dnsmasq_drop_in_exists(self) -> None:
         include = _task(
-            CORE, "🧹 Refuse route none while an earlier route's router is installed"
+            CORE, "🧹 Refuse route none while an earlier route's resolver is installed"
         )
         self.assertEqual(
             include["ansible.builtin.include_tasks"], "router/refuse_none.yml"
@@ -382,72 +382,39 @@ class TestNone(unittest.TestCase):
                 "inventory_hostname in TOR_ROUTER_NODES",
             ],
         )
-        firewall = load_yaml_any(
-            str(PROJECT_ROOT / "roles" / "svc-net-firewall" / ROLE_FILE_VARS_MAIN)
-        )
-        dropin = load_yaml_any(
-            str(PROJECT_ROOT / "roles" / "svc-net-tor" / ROLE_FILE_VARS_MAIN)
-        )["TOR_DNSMASQ_CONF"]
-        lookup = _task(
-            REFUSE_NONE, "🔎 Look for the router files an earlier route installed"
-        )
-        loop_variables = {
-            "tor_egress_firewall": {
-                "FIREWALL_FRAGMENT_DIR": firewall["FIREWALL_FRAGMENT_DIR"]
-            },
-            "application_id": "svc-net-tor",
-            "TOR_DNSMASQ_CONF": dropin,
-        }
-        paths = [_evaluate(item, loop_variables, False) for item in lookup["loop"]]
-        self.assertEqual(
-            paths,
-            [f"{firewall['FIREWALL_FRAGMENT_DIR']}/svc-net-tor.conf", dropin],
-        )
-        read = _task(REFUSE_NONE, "🔎 Read the packet filter an earlier route left")
-        self.assertEqual(
-            read["ansible.builtin.slurp"]["src"],
-            "{{ _tor_egress_leftovers.results[0].item }}",
-        )
-        self.assertEqual(read["when"], "_tor_egress_leftovers.results[0].stat.exists")
-        refusal = _task(
-            REFUSE_NONE, "✅ Refuse route none over a router that would keep running"
-        )
-        that = refusal["ansible.builtin.assert"]["that"][0]
-        remaining = refusal["vars"]["_tor_egress_router_files"]
+        fragment = f"{_role_vars('svc-net-firewall')['FIREWALL_FRAGMENT_DIR']}/svc-net-tor.conf"
+        dropin = _role_vars("svc-net-tor")["TOR_DNSMASQ_CONF"]
         router = render("nftables.conf.j2", "onion", _egress())
         guard = render("nftables.conf.j2", "none", _egress())
-        for fragment, dropin_exists, refused in (
-            (None, False, []),
-            (guard, False, []),
-            (router, False, paths[:1]),
-            (None, True, paths[1:]),
-            (guard, True, paths[1:]),
-            (router, True, paths),
+        resolver = render("dnsmasq-tor-onion.conf.j2", "onion", _egress())
+        for state, refused in (
+            ({}, False),
+            ({fragment: guard}, False),
+            ({fragment: router}, False),
+            ({dropin: resolver}, True),
+            ({fragment: guard, dropin: resolver}, True),
+            ({fragment: router, dropin: resolver}, True),
         ):
-            results = [
-                {"item": paths[0], "stat": {"exists": fragment is not None}},
-                {"item": paths[1], "stat": {"exists": dropin_exists}},
-            ]
-            slurped = {"skipped": True} if fragment is None else _slurped(fragment)
             with self.subTest(
-                fragment="none" if fragment is None else fragment == router,
-                dropin=dropin_exists,
+                files=sorted(state), router_fragment=state.get(fragment) == router
             ):
-                files = _evaluate(
-                    remaining,
-                    {
-                        "_tor_egress_leftovers": {"results": results},
-                        "_tor_egress_fragment": slurped,
-                    },
-                    conditional=False,
-                )
-                self.assertEqual(list(files), refused)
-                self.assertEqual(
-                    _evaluate(
-                        that, {"_tor_egress_router_files": files}, conditional=True
-                    ),
-                    not refused,
-                )
+                self.assertEqual(_refuses(state), refused)
+
+    def test_none_swaps_the_router_table_for_the_guard_in_one_load(self) -> None:
+        guard = [
+            line.strip()
+            for line in render("nftables.conf.j2", "none", _egress()).splitlines()
+            if line.strip()
+        ]
+        self.assertEqual(
+            guard[:3],
+            [
+                f"table inet {TABLE}",
+                f"delete table inet {TABLE}",
+                f"table inet {TABLE} {{",
+            ],
+        )
+        self.assertNotIn("chain output {", guard)
 
 
 class TestOnion(unittest.TestCase):
@@ -676,6 +643,92 @@ def _role_filters() -> dict:
 
 def _that(path, name: str) -> str:
     return _task(path, name)["ansible.builtin.assert"]["that"][0]
+
+
+_PATH_ABSOLUTE = re.compile(r"lookup\('path_absolute', '([^']+)'\)")
+
+
+def _role_vars(role: str) -> dict:
+    return load_yaml_any(str(PROJECT_ROOT / "roles" / role / ROLE_FILE_VARS_MAIN))
+
+
+def _conditions(task: dict) -> list[str]:
+    when = task.get("when", [])
+    return [when] if isinstance(when, str) else when
+
+
+def _stat(task: dict, variables: dict, state: dict[str, str]) -> dict:
+    if "loop" not in task:
+        path = _evaluate(task["ansible.builtin.stat"]["path"], variables, False)
+        return {"stat": {"exists": path in state}}
+    items = [_evaluate(item, variables, False) for item in task["loop"]]
+    return {
+        "results": [{"item": item, "stat": {"exists": item in state}} for item in items]
+    }
+
+
+def _slurp(task: dict, variables: dict, state: dict[str, str]) -> dict:
+    return _slurped(
+        state[_evaluate(task["ansible.builtin.slurp"]["src"], variables, False)]
+    )
+
+
+def _include_vars(task: dict, variables: dict, state: dict[str, str]) -> dict:
+    path = _PATH_ABSOLUTE.search(task["ansible.builtin.include_vars"]["file"])
+    return load_yaml_any(str(PROJECT_ROOT / path.group(1)))
+
+
+_PLAYED = {
+    "ansible.builtin.stat": _stat,
+    "ansible.builtin.slurp": _slurp,
+    "ansible.builtin.include_vars": _include_vars,
+}
+
+
+def _register(task: dict) -> str:
+    if "ansible.builtin.include_vars" in task:
+        return task["ansible.builtin.include_vars"]["name"]
+    return task["register"]
+
+
+def _holds(task: dict, variables: dict) -> bool:
+    scope = {
+        **variables,
+        **{
+            name: _evaluate(value, variables, False)
+            for name, value in (task.get("vars") or {}).items()
+        },
+    }
+    return all(
+        _evaluate(condition, scope, conditional=True)
+        for condition in task["ansible.builtin.assert"]["that"]
+    )
+
+
+def _refuses(state: dict[str, str]) -> bool:
+    """
+    Args:
+        state: the files on the node, each path mapped to its content.
+
+    Returns:
+        Whether ``router/refuse_none.yml``, played against that node, refuses
+        route none.
+    """
+    variables = {
+        "application_id": "svc-net-tor",
+        "TOR_DNSMASQ_CONF": _role_vars("svc-net-tor")["TOR_DNSMASQ_CONF"],
+    }
+    for task in load_yaml_str(read_text(str(REFUSE_NONE))):
+        if not all(_evaluate(c, variables, True) for c in _conditions(task)):
+            if "register" in task:
+                variables[task["register"]] = {"skipped": True}
+        elif "ansible.builtin.assert" in task:
+            if not _holds(task, variables):
+                return True
+        else:
+            (module,) = set(task) & set(_PLAYED)
+            variables[_register(task)] = _PLAYED[module](task, variables, state)
+    return False
 
 
 class TestRouteAllPreflight(unittest.TestCase):

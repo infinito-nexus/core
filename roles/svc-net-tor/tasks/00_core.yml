@@ -17,7 +17,7 @@
   vars:
     _tor_egress_violations: "{{ TOR_EGRESS_LISTS | tor_egress_violations(TOR_EGRESS_ROUTE, IS_SWARM_MODE) }}"
 
-- name: "🧹 Refuse route none while an earlier route's router is installed"
+- name: "🧹 Refuse route none while an earlier route's resolver is installed"
   ansible.builtin.include_tasks: router/refuse_none.yml
   when:
     - TOR_EGRESS_ROUTE == 'none'

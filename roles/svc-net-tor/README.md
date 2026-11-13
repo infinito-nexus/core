@@ -50,4 +50,4 @@ Whoever holds `hs_ed25519_secret_key` can serve the address, so back up `.onion-
 - The TransPort listens on IPv4 only, so IPv6 TCP to destinations that are neither local nor direct is dropped under `all`, and IPv6 TCP to tor-listed addresses is dropped under `onion` and `all`.
 - Under `onion`, a tor-listed address that is also a relay Tor needs loops into the TransPort, because Tor's group exemption exists under `all` only.
 - Mirrors a host picks at runtime (Fedora metalink, Arch mirrorlist entries beyond the default) are not in the pre-fill; their traffic goes through Tor until they are added to `direct.include`.
-- `none` is refused while a router an earlier `onion` or `all` deploy installed is still in place; the failure names the files and the nft table to remove first.
+- `none` is refused while the dnsmasq drop-in an earlier `onion` or `all` deploy installed is still in place; the failure names the steps that remove it. A leftover router packet filter needs no manual step: the deploy replaces it by the listener guard in one nft load.
