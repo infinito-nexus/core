@@ -1493,27 +1493,32 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-keycloak#1
     sso:
       enabled: true
       shared: true
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-svc-logout#1
     logout:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-dashboard#1
     dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
+    # variant-pin: web-app-matomo#1
     matomo:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
+    # variant-pin: web-app-stalwart#1
     email:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     mariadb:
       shared: true
     redis:
@@ -1535,15 +1540,18 @@
     xwiki:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-svc-seaweedfs#1
     seaweedfs:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
+    # variant-pin: web-svc-design#1
     design:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
+    # variant-pin: web-app-prometheus#2
     prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     openproject:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
