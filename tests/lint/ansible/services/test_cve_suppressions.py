@@ -2,8 +2,8 @@
 
 An entry under ``<service>.security.suppressions`` needs ``id: CVE-YYYY-NNNN``
 or an ``image_tag`` equal to the service's ``version``, an ``until:
-YYYY-MM-DD`` that has not passed, and a ``# nocheck: cve <reason>`` marker on
-the line directly above it::
+YYYY-MM-DD`` that has not passed and lies no later than ``LATEST_UNTIL``, and a
+``# nocheck: cve <reason>`` marker on the line directly above it::
 
     checkmk:
       image: checkmk/check-mk-raw
@@ -12,10 +12,10 @@ the line directly above it::
         suppressions:
           # nocheck: cve the vulnerable module is not loaded by the site
           - id: CVE-2026-1234
-            until: 2026-12-31
+            until: 2026-11-30
           # nocheck: cve upstream ships no rebuild with the fixed packages yet
           - image_tag: "2.4.0p39"
-            until: 2026-12-31
+            until: 2026-11-30
 """
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ from utils.security.suppressions import RULE, SuppressionError, parse_entries
 
 from . import PROJECT_ROOT
 
+LATEST_UNTIL = dt.date(2026, 11, 30)
 MARKER = re.compile(rf"^\s*#\s*nocheck:\s*{RULE}\b(?P<reason>.*)$", re.IGNORECASE)
 BLOCK = re.compile(r"^(?P<indent>\s*)suppressions:\s*$")
 ENTRY = re.compile(r"^(?P<indent>\s*)-\s+\S")
@@ -104,6 +105,11 @@ def problems(text: str, where: str, today: dt.date) -> list[str]:
                 found.append(
                     f"{where}: {service} suppression of {parsed.subject} expired on {parsed.until}"
                 )
+            if parsed.until > LATEST_UNTIL:
+                found.append(
+                    f"{where}: {service} suppression of {parsed.subject} until "
+                    f"{parsed.until} lies after the latest allowed day {LATEST_UNTIL}"
+                )
             version = spec.get("version")
             if parsed.image_tag is not None and parsed.image_tag != str(version):
                 found.append(
@@ -111,6 +117,47 @@ def problems(text: str, where: str, today: dt.date) -> list[str]:
                     f"match its version {version!r}"
                 )
     return found
+
+
+def unshared_image_tags(services: dict[str, object]) -> list[str]:
+    """
+    Args:
+        services: ``{role: meta/services.yml mapping}`` of every role.
+
+    Returns:
+        One message per non-custom service that runs an upstream image tag
+        another non-custom service suppresses by ``image_tag`` while it does not.
+    """
+    running: dict[tuple[str, str], list[str]] = {}
+    accepted: dict[tuple[str, str], list[str]] = {}
+    for role, declared in sorted(services.items()):
+        if not isinstance(declared, dict):
+            continue
+        for service, spec in declared.items():
+            if not isinstance(spec, dict) or spec.get("custom"):
+                continue
+            if "image" not in spec or "version" not in spec:
+                continue
+            key = (str(spec["image"]), str(spec["version"]))
+            owner = f"{role}:{service}"
+            running.setdefault(key, []).append(owner)
+            security = spec.get("security")
+            entries = (
+                security.get("suppressions") if isinstance(security, dict) else None
+            )
+            if isinstance(entries, list) and any(
+                isinstance(entry, dict) and str(entry.get("image_tag")) == key[1]
+                for entry in entries
+            ):
+                accepted.setdefault(key, []).append(owner)
+    return [
+        f"{owner} runs {image}:{tag} without the image_tag suppression declared "
+        f"for the same upstream image by {', '.join(accepted[(image, tag)])}"
+        for (image, tag), owners in sorted(running.items())
+        if (image, tag) in accepted
+        for owner in owners
+        if owner not in accepted[(image, tag)]
+    ]
 
 
 class TestCveSuppressions(unittest.TestCase):
@@ -125,6 +172,16 @@ class TestCveSuppressions(unittest.TestCase):
                 found += problems(text, str(path.relative_to(PROJECT_ROOT)), today)
         self.assertEqual(found, [], "\n".join(found))
 
+    def test_services_on_one_upstream_image_tag_share_its_suppression(self) -> None:
+        services = {
+            path.parent.parent.name: load_yaml_str(read_text(str(path)))
+            for path in sorted(
+                (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
+            )
+        }
+        found = unshared_image_tags(services)
+        self.assertEqual(found, [], "\n".join(found))
+
 
 TODAY = dt.date(2026, 10, 31)
 VALID = """\
@@ -134,7 +191,7 @@ app:
     suppressions:
       # nocheck: cve the module is not built into the image
       - id: CVE-2026-1234
-        until: 2026-12-31
+        until: 2026-11-30
 """
 
 
@@ -160,19 +217,26 @@ class TestCheckerCases(unittest.TestCase):
         self.assertIn("is no CVE-YYYY-NNNN id", self._problems(text)[0])
 
     def test_a_missing_until_fails(self) -> None:
-        text = VALID.replace("        until: 2026-12-31\n", "")
+        text = VALID.replace("        until: 2026-11-30\n", "")
         self.assertIn("until is required", self._problems(text)[0])
 
     def test_a_past_until_fails(self) -> None:
-        text = VALID.replace("2026-12-31", "2026-10-30")
+        text = VALID.replace("2026-11-30", "2026-10-30")
         self.assertIn("expired on 2026-10-30", self._problems(text)[0])
+
+    def test_an_until_after_the_latest_allowed_day_fails(self) -> None:
+        text = VALID.replace("2026-11-30", "2026-12-01")
+        self.assertIn(
+            "until 2026-12-01 lies after the latest allowed day 2026-11-30",
+            self._problems(text)[0],
+        )
 
     def test_an_unmarked_entry_that_starts_with_until_fails(self) -> None:
         text = VALID.replace(
             "      # nocheck: cve the module is not built into the image\n"
             "      - id: CVE-2026-1234\n"
-            "        until: 2026-12-31\n",
-            "      - until: 2026-12-31\n        id: CVE-2026-1234\n",
+            "        until: 2026-11-30\n",
+            "      - until: 2026-11-30\n        id: CVE-2026-1234\n",
         )
         self.assertIn("has no # nocheck: cve <reason> marker", self._problems(text)[0])
 
@@ -201,7 +265,7 @@ class TestCheckerCases(unittest.TestCase):
         self.assertIn("has no # nocheck: cve <reason> marker", self._problems(text)[0])
 
     def test_an_expired_image_tag_entry_fails(self) -> None:
-        text = TAGGED.replace("2026-12-31", "2026-10-30")
+        text = TAGGED.replace("2026-11-30", "2026-10-30")
         self.assertIn("image tag 2.18.6 expired on 2026-10-30", self._problems(text)[0])
 
 
@@ -213,8 +277,42 @@ app:
     suppressions:
       # nocheck: cve upstream ships no rebuild yet
       - image_tag: "2.18.6"
-        until: 2026-12-31
+        until: 2026-11-30
 """
+UNTAGGED = """\
+app:
+  image: app
+  version: "2.18.6"
+"""
+
+
+class TestSiblingImageTagCases(unittest.TestCase):
+    def _found(self, **roles: str) -> list[str]:
+        return unshared_image_tags(
+            {role: load_yaml_str(text) for role, text in roles.items()}
+        )
+
+    def test_siblings_that_both_suppress_the_tag_pass(self) -> None:
+        self.assertEqual(self._found(a=TAGGED, b=TAGGED), [])
+
+    def test_a_sibling_without_the_tag_suppression_fails(self) -> None:
+        self.assertEqual(
+            self._found(a=TAGGED, b=UNTAGGED),
+            [
+                (
+                    "b:app runs app:2.18.6 without the image_tag suppression declared "
+                    "for the same upstream image by a:app"
+                )
+            ],
+        )
+
+    def test_a_custom_build_on_the_same_tag_is_its_own_image(self) -> None:
+        custom = UNTAGGED.replace("  image: app\n", "  image: app\n  custom: true\n")
+        self.assertEqual(self._found(a=TAGGED, b=custom), [])
+
+    def test_a_sibling_on_another_tag_is_not_compared(self) -> None:
+        other = UNTAGGED.replace("2.18.6", "2.18.7")
+        self.assertEqual(self._found(a=TAGGED, b=other), [])
 
 
 if __name__ == "__main__":

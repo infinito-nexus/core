@@ -88,19 +88,41 @@ const env = {
   keycloakAdminPassword: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_PASSWORD),
 };
 
-const loginRoute = (base) => `${base.replace(/\/$/, "")}/#/auth/login`;
+const screenRoute = (base, screen) => `${base.replace(/\/$/, "")}/?screen=${screen}`;
+const loginRoute = (base) => screenRoute(base, "auth-login");
+const screenOf = (url) => new URL(url).searchParams.get("screen") || "";
 
 async function assertAuthenticated(page) {
   await expect
-    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected to leave the login route after sign-in" })
-    .not.toContain("/auth/login");
-  await expect
-    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected the SPA to reach a #/ route after sign-in" })
-    .toContain("#/");
+    .poll(() => screenOf(page.url()), { timeout: resolveTimeout(60_000), message: "expected the SPA to reach a dashboard screen after sign-in" })
+    .toMatch(/^dashboard-/);
   await expect(
     page.locator("[data-testid='dashboard-sidebar']"),
     "Expected the Penpot dashboard shell, not a gateway error page",
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+function onOidcRegistration(page) {
+  return screenOf(page.url()) === "auth-register-validate";
+}
+
+/**
+ * Args:
+ *   page: Playwright page on Penpot's first sign-in form.
+ *   fullname: name entered when the form arrives without one.
+ *
+ * Returns:
+ *   The full name the form arrived with.
+ */
+async function confirmFirstOidcSignIn(page, fullname) {
+  const nameField = page.getByLabel(/full ?name/i);
+  await expect(nameField, "Expected the first sign-in form to ask for the full name").toBeVisible({ timeout: resolveTimeout(30_000) });
+  const prefilled = await nameField.inputValue();
+  if (!prefilled) await nameField.fill(fullname);
+  const createAccount = page.getByRole("button", { name: /^create an account$/i });
+  await expect(createAccount, "Expected the first sign-in form to enable its submit button").toBeEnabled({ timeout: resolveTimeout(30_000) });
+  await createAccount.click({ timeout: resolveTimeout(30_000) });
+  return prefilled;
 }
 
 // In-app OIDC (flavor: oidc): the login page renders an "OpenID" provider entry
@@ -116,29 +138,16 @@ async function penpotOidcAuthenticate(page, username, password) {
     .toContain(expectedAuth);
   await performKeycloakLoginForm(page, username, password);
   await expect
-    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected the OIDC callback to hand over to a Penpot route" })
-    .toContain("#/");
-}
-
-function onOidcRegistration(page) {
-  return page.url().includes("/auth/register/validate");
-}
-
-async function confirmOidcRegistration(page) {
-  const fullnameField = page.getByLabel(/full ?name/i).first();
-  await expect(fullnameField, "Expected the Penpot registration form a first OIDC login lands on").toBeVisible({ timeout: resolveTimeout(60_000) });
-  const fullname = await fullnameField.inputValue();
-  const submit = page.getByRole("button", { name: /create an account/i }).first();
-  await expect(submit, "Expected the registration submit button to enable once the full name is set").toBeEnabled({ timeout: resolveTimeout(30_000) });
-  await submit.click({ timeout: resolveTimeout(30_000) });
-  return fullname;
+    .poll(() => screenOf(page.url()), {
+      timeout: resolveTimeout(60_000),
+      message: "expected Penpot to answer the OIDC callback with the dashboard or its first sign-in form",
+    })
+    .toMatch(/^(dashboard-|auth-register-validate$)/);
 }
 
 async function penpotOidcLogin(page, username, password) {
   await penpotOidcAuthenticate(page, username, password);
-  if (onOidcRegistration(page)) {
-    await confirmOidcRegistration(page);
-  }
+  if (onOidcRegistration(page)) await confirmFirstOidcSignIn(page, username);
   await assertAuthenticated(page);
 }
 
@@ -167,7 +176,7 @@ async function penpotLdapLogin(page, email, password) {
 // two-step form: email/password, then full name). SMTP-off deployments activate
 // the profile immediately (no verification), landing on the dashboard.
 async function penpotRegister(page, fullname, email, password) {
-  await gotoOnion(page, `${env.baseUrl.replace(/\/$/, "")}/#/auth/register`);
+  await gotoOnion(page, screenRoute(env.baseUrl, "auth-register"));
   const emailField = page.getByLabel(/work email|^email$/i).first();
   const passwordField = page.getByLabel(/^password$/i).first();
   await expect(emailField, "Expected the Penpot register form").toBeVisible({ timeout: resolveTimeout(60_000) });
@@ -219,10 +228,11 @@ module.exports = {
   runGuestFlow,
   env,
   loginRoute,
+  screenOf,
   assertAuthenticated,
   penpotOidcAuthenticate,
   onOidcRegistration,
-  confirmOidcRegistration,
+  confirmFirstOidcSignIn,
   penpotOidcLogin,
   penpotProfile,
   penpotLdapLogin,

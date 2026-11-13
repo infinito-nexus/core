@@ -18,7 +18,6 @@ source "${SCRIPT_DIR}/lib.sh"
 
 branch="${1:?branch name required}"
 base="${2:-}"
-max_slot=255
 
 cd "${REPO_ROOT}"
 
@@ -38,8 +37,8 @@ if [ -e "${path}" ]; then
 fi
 
 slot="$(worktree_next_slot)"
-if [ "${slot}" -gt "${max_slot}" ]; then
-	echo "FAILURE: no free slot left (max ${max_slot}); tear down an existing worktree" >&2
+if [ "${slot}" -gt "${WORKTREE_MAX_SLOT}" ]; then
+	echo "FAILURE: no free slot left (max ${WORKTREE_MAX_SLOT}); tear down an existing worktree" >&2
 	exit 1
 fi
 

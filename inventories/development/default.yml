@@ -52,6 +52,11 @@ applications:
       keycloak:
         realm:
           totp_enforced: false
+  sys-ctl-hlth-runtime:
+    services:
+      runtime:
+        severity:
+          CRITICAL: warn
 
 service_provider:
   company:

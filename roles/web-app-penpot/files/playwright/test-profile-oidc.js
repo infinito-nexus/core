@@ -107,7 +107,7 @@ exports.register = (shared) => {
       const register = async (claimedEmail) => {
         await shared.penpotOidcAuthenticate(page, person.username, person.password);
         expect(shared.onOidcRegistration(page), `a first OIDC login of ${person.username} must land on the Penpot registration form`).toBe(true);
-        const prefilled = await shared.confirmOidcRegistration(page);
+        const prefilled = await shared.confirmFirstOidcSignIn(page, expectedName);
         expect(prefilled, "the registration form must carry the name claim Keycloak sent").toBe(expectedName);
         await shared.assertAuthenticated(page);
         registered = true;

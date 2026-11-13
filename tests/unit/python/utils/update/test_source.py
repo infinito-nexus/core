@@ -110,6 +110,35 @@ bundle:
     pattern: 'part (v[0-9.]+-v[0-9.]+)'
 """
 
+SUPPRESSED = """\
+---
+first:
+  image: example/first
+  version: "v1.0.0"
+  update:
+    type: npm
+    package: first
+  security:
+    suppressions:
+      # nocheck: cve stale tag
+      - image_tag: "v1.0.0"
+        until: 2026-11-30
+      # nocheck: cve accepted
+      - id: CVE-2026-1234
+        until: 2026-11-30
+second:
+  image: example/second
+  version: "v2.0.0"
+  update:
+    type: npm
+    package: second
+  security:
+    suppressions:
+      # nocheck: cve stale tag
+      - image_tag: "v2.0.0"
+        until: 2026-11-30
+"""
+
 
 def _repo(services: str = SERVICES) -> Path:
     tmp = Path(tempfile.mkdtemp())
@@ -196,6 +225,32 @@ class TestOutdated(unittest.TestCase):
         root = _repo()
         with mock.patch.object(module, "candidates", return_value=["2.0.0", "1.9.9"]):
             self.assertEqual(module.outdated([self._entry(root)], root), [])
+
+
+class TestSuppressions(unittest.TestCase):
+    def test_a_moved_version_drops_its_image_tag_suppressions_and_every_pin_moves(
+        self,
+    ) -> None:
+        root = _repo(SUPPRESSED)
+        latest = {"first": "v1.1.0", "second": "v2.1.0"}
+        with (
+            mock.patch.object(module, "manifest_exists", return_value=True),
+            mock.patch.object(
+                module,
+                "candidates",
+                side_effect=lambda entry, _: [latest[entry.entity]],
+            ),
+        ):
+            updates = module.outdated(module.collect_entries(root), root)
+        module.apply_updates(updates)
+
+        config = root / "roles" / "web-app-example" / ROLE_FILE_META_SERVICES
+        written = config.read_text()  # nocheck: cache-read  just rewritten here
+        self.assertIn('version: "v1.1.0"', written)
+        self.assertIn('version: "v2.1.0"', written)
+        self.assertNotIn("image_tag", written)
+        self.assertIn("id: CVE-2026-1234", written)
+        self.assertEqual(written.count("security:"), 1)
 
 
 class TestTemplate(unittest.TestCase):
@@ -315,6 +370,38 @@ class TestAddons(unittest.TestCase):
         self.assertIn('version: "v1.3.0"', written)
         self.assertIn("released/download/v1.3.0/app.tar.gz", written)
         self.assertIn("upstream_id: example/released", written)
+
+    def test_every_version_in_the_archive_moves_with_its_own_prefix(self) -> None:
+        root = _addon_repo(
+            {
+                "prefixed": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-v1.2.0.tar.gz"
+                ),
+                "bare": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-1.2.0.tar.gz"
+                ),
+            }
+        )
+        with mock.patch.object(module, "candidates", return_value=["v2.0.0"]):
+            module.apply_updates(module.find_outdated_updates(root))
+
+        directory = root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+        prefixed_path = directory / "prefixed.yml"
+        bare_path = directory / "bare.yml"
+        prefixed = prefixed_path.read_text()  # nocheck: cache-read  just rewritten here
+        bare = bare_path.read_text()  # nocheck: cache-read  just rewritten here
+        self.assertIn("released/download/v2.0.0/app-v2.0.0.tar.gz", prefixed)
+        self.assertIn("released/download/v2.0.0/app-2.0.0.tar.gz", bare)
+
+    def test_a_longer_version_holding_the_pin_stays(self) -> None:
+        self.assertEqual(
+            module.bump_archive(
+                "archive: https://x.test/v1.2.0/app-11.2.0-v1.2.0.1.tar.gz",
+                "v1.2.0",
+                "v1.3.0",
+            ),
+            "archive: https://x.test/v1.3.0/app-11.2.0-v1.2.0.1.tar.gz",
+        )
 
     def test_an_archive_that_does_not_carry_the_pin_is_reported(self) -> None:
         drifted = ADDONS["released"].replace('version: "v1.2.0"', 'version: "v1.1.0"')

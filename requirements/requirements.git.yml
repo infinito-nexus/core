@@ -8,7 +8,7 @@ collections:
   - name: ansible.mariadb
     source: https://github.com/ansible-collections/ansible.mariadb.git
     type: git
-    version: 6.0.2
+    version: 6.0.3
 
   - name: kewlfft.aur
     source: https://github.com/kewlfft/ansible-aur.git

@@ -6,6 +6,7 @@ from unittest import TestCase, main
 
 import cli.contributing.security.issues.__main__ as issues_main
 
+MIRROR = issues_main.MIRROR
 ROW = {
     "engine": "grype",
     "role": "web-app-roundcube",
@@ -24,6 +25,10 @@ ROW = {
 SUPPRESSED = {**ROW, "id": "CVE-2026-109619", "suppressed_until": "2026-12-03"}
 TITLE = "🛡️ docker.io/roundcube/roundcubemail:1.7.5-apache"
 OTHER_IMAGE = "docker.io/library/nginx:1.31.8-alpine"
+
+
+def body(rows):
+    return issues_main.body(rows, MIRROR)
 
 
 class FakeGh:
@@ -50,59 +55,69 @@ class TestSync(TestCase):
     def test_a_new_finding_opens_one_issue(self):
         gh = FakeGh([])
         issues_main.sync(
-            {"findings": [ROW, {**ROW, "engine": "trivy"}], "errors": []}, "o/r", gh
+            {"findings": [ROW, {**ROW, "engine": "trivy"}], "errors": []},
+            "o/r",
+            gh,
+            MIRROR,
         )
         self.assertEqual(gh.verbs(), [["issue", "create"]])
 
     def test_a_changed_image_gets_a_comment_and_an_updated_body(self):
         gh = FakeGh([{"number": 7, "title": TITLE, "body": "old table"}])
-        issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh)
+        issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
         self.assertEqual(gh.verbs(), [["issue", "comment"], ["issue", "edit"]])
         comment = gh.calls[-2]
         self.assertIn("Still unresolved:", comment[comment.index("--body") + 1])
         self.assertIn(ROW["id"], comment[comment.index("--body") + 1])
 
     def test_an_unchanged_image_leaves_its_issue_alone(self):
-        current = issues_main.body([ROW])
+        current = body([ROW])
         gh = FakeGh([{"number": 7, "title": TITLE, "body": current + "\r\n"}])
-        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh)
+        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
         self.assertEqual((gh.verbs(), actions), ([], [f"unchanged #7 {TITLE}"]))
 
     def test_a_second_open_issue_of_one_image_closes_as_duplicate(self):
-        current = issues_main.body([ROW])
+        current = body([ROW])
         gh = FakeGh(
             [
                 {"number": 9, "title": TITLE, "body": current},
                 {"number": 7, "title": TITLE, "body": current},
             ]
         )
-        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh)
+        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
         self.assertEqual(gh.verbs(), [["issue", "close"]])
         self.assertEqual(gh.calls[-1][2], "9")
         self.assertIn(f"unchanged #7 {TITLE}", actions)
 
     def test_a_fixed_finding_closes_its_issue(self):
         gh = FakeGh([{"number": 7, "title": TITLE}])
-        actions = issues_main.sync({"findings": [], "errors": []}, "o/r", gh)
+        actions = issues_main.sync({"findings": [], "errors": []}, "o/r", gh, MIRROR)
         self.assertEqual(actions, [f"closed #7 {TITLE}"])
 
     def test_a_suppressed_finding_keeps_its_issue_open(self):
         gh = FakeGh([{"number": 7, "title": TITLE, "body": "old table"}])
-        actions = issues_main.sync({"findings": [SUPPRESSED], "errors": []}, "o/r", gh)
+        actions = issues_main.sync(
+            {"findings": [SUPPRESSED], "errors": []}, "o/r", gh, MIRROR
+        )
         self.assertEqual(gh.verbs(), [["issue", "comment"], ["issue", "edit"]])
         self.assertNotIn(f"closed #7 {TITLE}", actions)
 
     def test_a_scan_error_closes_nothing(self):
         gh = FakeGh([{"number": 7, "title": TITLE}])
         issues_main.sync(
-            {"findings": [], "errors": ["x: the mirror served no digest"]}, "o/r", gh
+            {"findings": [], "errors": ["x: the mirror served no digest"]},
+            "o/r",
+            gh,
+            MIRROR,
         )
         self.assertEqual(gh.verbs(), [])
 
     def test_a_failed_issue_call_is_reported_and_the_others_still_run(self):
         other = {**ROW, "image": OTHER_IMAGE}
         gh = FakeGh([{"number": 7, "title": TITLE}], hang=[("issue", "edit")])
-        actions = issues_main.sync({"findings": [ROW, other], "errors": []}, "o/r", gh)
+        actions = issues_main.sync(
+            {"findings": [ROW, other], "errors": []}, "o/r", gh, MIRROR
+        )
         failed = [action for action in actions if action.startswith("failed ")]
         self.assertEqual(len(failed), 1)
         self.assertTrue(failed[0].startswith(f"failed updated #7 {TITLE}"))
@@ -117,12 +132,13 @@ class TestSync(TestCase):
             },
             "o/r",
             gh,
+            MIRROR,
         )
         self.assertEqual(actions, [f"opened {TITLE}"])
 
     def test_the_issue_is_labelled(self):
         gh = FakeGh([])
-        issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh)
+        issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
         create = gh.calls[-1]
         self.assertEqual(create[create.index("--label") + 1], issues_main.LABEL)
 
@@ -132,28 +148,41 @@ class TestBody(TestCase):
         return [line for line in text.splitlines() if line.startswith("| CVE-")]
 
     def test_every_engine_gets_a_row(self):
-        text = issues_main.body([ROW, {**ROW, "engine": "trivy"}])
+        text = body([ROW, {**ROW, "engine": "trivy"}])
         self.assertEqual(len(self._table(text)), 2)
 
     def test_critical_rows_come_first(self):
         high = {**ROW, "id": "CVE-2026-000001", "severity": "HIGH"}
-        table = self._table(issues_main.body([high, ROW]))
+        table = self._table(body([high, ROW]))
         self.assertIn("| CRITICAL |", table[0])
 
     def test_a_suppressed_cve_is_listed_after_the_failing_ones_with_its_until(self):
-        text = issues_main.body([SUPPRESSED, ROW])
+        text = body([SUPPRESSED, ROW])
         table = self._table(text)
         self.assertEqual(
             (table[0].endswith("| - |"), table[1].endswith("| 2026-12-03 |")),
             (True, True),
         )
         self.assertIn(
-            "carries 2 CVE(s) at the scan threshold, 1 of them suppressed.", text
+            "carries 2 CVE(s) at the scan threshold, 1 of them suppressed: CRITICAL 2.",
+            text,
         )
+
+    def test_the_head_line_counts_each_severity_most_severe_first(self):
+        rows = [
+            {**ROW, "id": "CVE-2026-000001", "severity": "HIGH"},
+            {**ROW, "id": "CVE-2026-000002", "severity": "HIGH"},
+            {**ROW, "engine": "trivy"},
+        ]
+        head = body(rows).splitlines()[0]
+        self.assertTrue(head.endswith(": CRITICAL 1, HIGH 2."), head)
+
+    def test_the_mirror_body_names_its_mirror_copy(self):
+        self.assertIn(f"Mirror: `{ROW['mirror']}@{ROW['digest']}`", body([ROW]))
 
     def test_a_large_image_stays_under_the_body_limit(self):
         rows = [{**ROW, "id": f"CVE-2026-{index:06d}"} for index in range(2000)]
-        text = issues_main.body(rows)
+        text = body(rows)
         self.assertLessEqual(len(text), issues_main.BODY_LIMIT)
         hidden = 2000 - len(self._table(text))
         self.assertGreater(hidden, 0)

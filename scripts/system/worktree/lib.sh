@@ -28,6 +28,7 @@
 # test_lib.py fails when the two drift apart.
 WORKTREE_NET_PREFIX=172.30
 WORKTREE_LAB_PREFIX=10.160
+WORKTREE_MAX_SLOT=254
 
 worktree_slug() {
 	printf '%s' "$1" | sed -e 's#[^a-zA-Z0-9._-]#-#g' -e 's#^[^a-zA-Z0-9]*##' -e 's#[-.]*$##'
@@ -67,14 +68,12 @@ worktree_used_subnets() {
 	command -v docker >/dev/null 2>&1 || return 0
 	mapfile -t ids < <(docker network ls -q 2>/dev/null)
 	[ "${#ids[@]}" -gt 0 ] || return 0
-	if ! docker network inspect "${ids[@]}" \
-		--format '{{range .IPAM.Config}}{{.Subnet}}{{"\n"}}{{end}}' 2>/dev/null; then
-		return 0
-	fi
+	docker network inspect "${ids[@]}" \
+		--format '{{range .IPAM.Config}}{{.Subnet}}{{"\n"}}{{end}}' 2>/dev/null || return 0
 }
 
 # Param slot: the candidate slot.
-# Param used: newline-separated subnets docker networks already hold.
+# Param subnets: newline-separated subnets docker networks already hold.
 # Returns: 0 when a network holds the slot's compose or swarm lab subnet.
 worktree_slot_taken() {
 	local subnet
@@ -87,19 +86,21 @@ worktree_slot_taken() {
 }
 
 worktree_next_slot() {
-	local max=0 path slot used
+	local used=" " path slot subnets
 	while read -r path; do
-		slot="$(worktree_slot_of "${path}")"
-		if [ "${slot}" -gt "${max}" ]; then
-			max="${slot}"
-		fi
+		used+="$(worktree_slot_of "${path}") "
 	done < <(git worktree list --porcelain | awk '/^worktree /{print $2}')
-	slot="$((max + 1))"
-	used="$(worktree_used_subnets)"
-	while worktree_slot_taken "${slot}" "${used}"; do
-		slot="$((slot + 1))"
+	subnets="$(worktree_used_subnets)"
+	for ((slot = 1; slot <= WORKTREE_MAX_SLOT; slot++)); do
+		case "${used}" in
+		*" ${slot} "*) continue ;;
+		esac
+		if ! worktree_slot_taken "${slot}" "${subnets}"; then
+			printf '%s' "${slot}"
+			return 0
+		fi
 	done
-	printf '%s' "${slot}"
+	printf '%s' "$((WORKTREE_MAX_SLOT + 1))"
 }
 
 worktree_meta_dir() {

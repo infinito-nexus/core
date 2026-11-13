@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import re
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from typing import ClassVar
@@ -45,7 +46,7 @@ _ROLES_ROOT = _REPO_ROOT / "roles"
 _J2_CTRL_RE = re.compile(r"\{%-?.*?-?%\}")
 _COMMENT_RE = re.compile(r"^\s*#")
 _SEPARATOR_RE = re.compile(r"&&|\|\||;|\|")
-_PIP_INSTALL_RE = re.compile(r"\bpip3?(?:\s+--?[\w.=/-]+)*\s+install\b")
+_PIP_INSTALL_RE = re.compile(r"\bpip3?(?:\s+-[\w.=/-]+)*\s+install\b")
 _PIN_RE = re.compile(
     r"(?<![A-Za-z0-9._/-])(?P<package>[A-Za-z0-9][A-Za-z0-9._-]*)"
     r"(?P<extras>\[[A-Za-z0-9,._-]+\])?=="
@@ -186,6 +187,17 @@ class TestPinnedInstallsDetector(unittest.TestCase):
         for name, body in self.CLEAN:
             with self.subTest(name):
                 self.assertEqual([], self._scan(body), f"{name!r} must not fire")
+
+    def test_an_option_run_without_install_is_scanned_in_linear_time(self) -> None:
+        started = time.monotonic()
+        self.assertEqual([], self._scan("RUN pip" + " --a" * 26 + " x\n"))
+        self.assertLess(
+            time.monotonic() - started,
+            1.0,
+            "every option before `install` must match exactly one way; an "
+            "option prefix that overlaps the option character class backtracks "
+            "exponentially and needs tens of seconds for this line",
+        )
 
 
 if __name__ == "__main__":

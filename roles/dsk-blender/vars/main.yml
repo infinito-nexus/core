@@ -3,6 +3,7 @@ application_id: dsk-blender
 blender_user: "{{ lookup('users', WORKSTATION_USER).username }}"
 blender_home: "/home/{{ blender_user }}"
 blender_pipx_bin_dir: "{{ [blender_home, '.local', 'bin'] | path_join }}"
+blender_exec_path: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 blender_claude_registry: "{{ [blender_home, '.claude.json'] | path_join }}"
 blender_mcp_enabled: "{{ lookup('config', application_id, 'addons.mcp-for-blender.enabled') | bool }}"
 blender_mcp_distribution: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.distribution') }}"

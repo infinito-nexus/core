@@ -20,8 +20,9 @@ from utils.env.parser import parse_static_env
 from . import PROJECT_ROOT
 
 _UP_SH = PROJECT_ROOT / "scripts/system/worktree/up.sh"
+_LIB_SH = PROJECT_ROOT / "scripts/system/worktree/lib.sh"
 _NETWORKS = PROJECT_ROOT / "group_vars/all/08_networks.yml"
-_MAX_SLOT_RE = re.compile(r"^max_slot=(?P<value>\d+)$", re.MULTILINE)
+_MAX_SLOT_RE = re.compile(r"^WORKTREE_MAX_SLOT=(?P<value>\d+)$", re.MULTILINE)
 _LAB_PREFIX_RE = re.compile(r'^lab_prefix="(?P<template>[^"]+)"$', re.MULTILINE)
 _LAB_SUBNET_RE = re.compile(
     r"^INFINITO_SWARM_LAB_SUBNET=\$\{lab_prefix\}\.0/24$", re.MULTILINE
@@ -52,9 +53,9 @@ def _reserved_networks() -> dict[str, ipaddress.IPv4Network]:
 class TestWorktreeSwarmLabSubnet(unittest.TestCase):
     def setUp(self) -> None:
         source = read_text(str(_UP_SH))
-        max_slot = _MAX_SLOT_RE.search(source)
+        max_slot = _MAX_SLOT_RE.search(read_text(str(_LIB_SH)))
         lab_prefix = _LAB_PREFIX_RE.search(source)
-        self.assertIsNotNone(max_slot, f"{_UP_SH} declares no max_slot")
+        self.assertIsNotNone(max_slot, f"{_LIB_SH} declares no WORKTREE_MAX_SLOT")
         self.assertIsNotNone(lab_prefix, f"{_UP_SH} declares no lab_prefix")
         self.assertRegex(source, _LAB_SUBNET_RE)
         self.max_slot = int(max_slot.group("value"))

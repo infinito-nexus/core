@@ -47,7 +47,7 @@
       - --addons-dir
       - "{{ blender_mcp_addons_dir }}"
   environment:
-    PATH: "{{ blender_pipx_bin_dir }}:/usr/local/bin:/usr/bin:/bin"
+    PATH: "{{ blender_pipx_bin_dir }}:{{ blender_exec_path }}"
   changed_when: false
 
 - name: 🧩 Report whether the Blender side of the MCP bridge changed
