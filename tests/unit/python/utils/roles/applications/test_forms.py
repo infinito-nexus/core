@@ -148,6 +148,15 @@ class TestSchema(unittest.TestCase):
         self.assertIn("type 'slider' is not one of", errors[0])
         self.assertIn("validation is no regular expression", errors[1])
 
+    def test_a_file_upload_field_passes(self):
+        spec = {**_field("general", "blogname"), "type": "file"}
+        self.assertEqual(
+            [],
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
+        )
+
     def test_a_template_in_any_forms_string_is_refused(self):
         for key, value in (
             ("label", "{{ site_title }}"),
@@ -907,6 +916,18 @@ class TestDriftShowsOnlyPlainValues(unittest.TestCase):
             ),
             "OLD-TYPED-SECRET",
             "NEW-TYPED-SECRET",
+        )
+
+    def test_a_file_type_hides_its_values(self):
+        self.assert_hidden(
+            _drift_one(
+                {"source": "services.design.logo", "type": "file"},
+                "OLD-LOGO",
+                "NEW-LOGO",
+                {},
+            ),
+            "OLD-LOGO",
+            "NEW-LOGO",
         )
 
     def test_a_user_source_hides_its_values(self):

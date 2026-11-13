@@ -18,6 +18,7 @@ TYPES = (
     "checkbox",
     "color",
     "email",
+    "file",
     "number",
     "password",
     "select",
