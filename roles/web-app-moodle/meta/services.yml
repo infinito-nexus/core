@@ -102,6 +102,78 @@ moodle:
         enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-moodle', 'registration') }}"
+  auth_oidc:
+    idptype: 3
+    clientauthmethod: 1
+    clientid: "{{ OIDC.CLIENT.ID }}"
+    authendpoint: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+    exchange_endpoint: "{{ OIDC.CLIENT.TOKEN_URL }}"
+    username_claim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+    single_sign_off: 1
+    logouturi: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+    opname: "{{ OIDC.BUTTON_TEXT }}"
+    icon: "moodle:t/lock"
+    lock: locked
+    update: oneveryloginupdate
+    claims:
+      firstname: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
+      lastname: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
+      middlename: "{{ OIDC.ATTRIBUTES.MIDDLE_NAME }}"
+      alternatename: "{{ OIDC.ATTRIBUTES.NICKNAME }}"
+      email: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+      phone1: "{{ OIDC.ATTRIBUTES.PHONE_NUMBER }}"
+      phone2: phone_number_alt
+      address: street
+      city: locality
+      country: country
+      institution: institution
+      department: department
+      description: description
+      idnumber: id_number
+      url: "{{ OIDC.ATTRIBUTES.WEBSITE }}"
+      lang: "{{ OIDC.ATTRIBUTES.LOCALE }}"
+      timezone: "{{ OIDC.ATTRIBUTES.ZONEINFO }}"
+      firstnamephonetic: name_phonetic_given
+      lastnamephonetic: name_phonetic_family
+  auth_ldap:
+    host_url: "{{ LDAP.SERVER.URI }}"
+    ldap_version: 3
+    start_tls: 0
+    admin_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    user_type: rfc2307
+    contexts: "{{ LDAP.DN.OU.USERS }}"
+    search_sub: 1
+    user_attribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+    memberattribute: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
+    memberattribute_isdn: 1
+    objectclass: "{{ LDAP.FILTERS.USERS.ALL }}"
+    creators: "*"
+    managercontext: "cn=web-app-moodle-manager,{{ LDAP.DN.OU.ROLES }}"
+    coursecreatorcontext: "cn=web-app-moodle-coursecreator,{{ LDAP.DN.OU.ROLES }}"
+    removeuser: 1
+    sync_suspended: 1
+    lock: locked
+    update: onlogin
+    attributes:
+      firstname: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+      lastname: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+      middlename: "{{ LDAP.USER.ATTRIBUTES.INITIALS }}"
+      alternatename: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME }}"
+      email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      phone1: "{{ LDAP.USER.ATTRIBUTES.PHONE }}"
+      phone2: "{{ LDAP.USER.ATTRIBUTES.MOBILE }}"
+      address: "{{ LDAP.USER.ATTRIBUTES.STREET }}"
+      city: "{{ LDAP.USER.ATTRIBUTES.LOCALITY }}"
+      country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY }}"
+      institution: "{{ LDAP.USER.ATTRIBUTES.ORGANIZATION }}"
+      department: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT }}"
+      description: "{{ LDAP.USER.ATTRIBUTES.DESCRIPTION }}"
+      idnumber: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER }}"
+      url: "{{ LDAP.USER.ATTRIBUTES.WEBSITE }}"
+      lang: "{{ LDAP.USER.ATTRIBUTES.LOCALE }}"
+      firstnamephonetic: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_GIVEN }}"
+      lastnamephonetic: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_FAMILY }}"
+      timezone: "{{ LDAP.USER.ATTRIBUTES.TIMEZONE }}"
 nginx:
   backup:
     stop_required: false
@@ -151,6 +223,12 @@ design:
     logo-compact:
       width: 300
       height: 55
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag  carries the managed-field lock of meta/forms.yml on every page; no spec gates on it
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

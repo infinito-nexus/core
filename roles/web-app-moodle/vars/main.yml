@@ -98,8 +98,10 @@ MOODLE_MFA_NOSETUP_ENABLED: "{{ (MOODLE_LOGIN_2FA | bool and not MOODLE_LOGIN_2F
 MOODLE_MFA_GRACE_ENABLED: "{{ MOODLE_LOGIN_2FA_ENFORCED | bool | ternary(1, 0) }}"
 MOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
 MOODLE_LDAP_ROLE_GROUP_DNS:
-  manager: "cn={{ application_id }}-manager,{{ LDAP.DN.OU.ROLES }}"
-  coursecreator: "cn={{ application_id }}-coursecreator,{{ LDAP.DN.OU.ROLES }}"
+  manager: "{{ lookup('config', application_id, 'services.moodle.auth_ldap.managercontext') }}"
+  coursecreator: "{{ lookup('config', application_id, 'services.moodle.auth_ldap.coursecreatorcontext') }}"
+MOODLE_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'auth_oidc') }}"
+MOODLE_LDAP_SETTINGS: "{{ lookup('form_values', application_id, 'auth_ldap') }}"
 
 MOODLE_RBAC_ACCOUNT_AUTH: "{{ 'oidc' if MOODLE_OIDC_ENABLED | bool else 'ldap' }}"
 MOODLE_RBAC_SYSTEM_ROLES:
