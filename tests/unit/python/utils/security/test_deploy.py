@@ -3,12 +3,15 @@ from __future__ import annotations
 import contextlib
 import io
 import random
+import re
 import tempfile
 from pathlib import Path
 from unittest import TestCase, main, mock
 
 from utils.security import deploy
+from utils.security.database import database_files
 from utils.security.engine import ENGINE_ENV, ROLE, databases_for
+from utils.security.pipeline import pipeline
 
 
 class TestInventoryOverrides(TestCase):
@@ -66,19 +69,31 @@ class TestInventoryOverrides(TestCase):
         with self.assertRaisesRegex(SystemExit, "no network"):
             self._overrides("", errors=["grype database: no network"])
 
+    def _provide(self, name, skip=0):
+        files = database_files(pipeline(), self.root, name)
+        for path in files[: len(files) - skip]:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("x", encoding="utf-8")
+        return files
+
     def test_a_pinned_engine_never_downloads(self):
         for name in ("trivy", "grype"):
-            (self.root / name).mkdir()
-            (self.root / name / "db").write_text("x", encoding="utf-8")
+            self._provide(name)
         self.assertEqual(
             self._runtime(self._overrides("trivy"))["engines"], ["syft", "trivy"]
         )
         self.assertEqual(self.refreshed, [])
 
     def test_a_pinned_engine_without_its_databases_fails(self):
-        (self.root / "grype").mkdir()
-        (self.root / "grype" / "db").write_text("x", encoding="utf-8")
-        with self.assertRaisesRegex(SystemExit, "no osv database"):
+        self._provide("grype")
+        first = database_files(pipeline(), self.root, "osv")[0]
+        with self.assertRaisesRegex(SystemExit, re.escape(str(first))):
+            self._overrides("osv")
+
+    def test_an_osv_database_without_one_ecosystem_fails(self):
+        self._provide("grype")
+        missing = self._provide("osv", skip=1)[-1]
+        with self.assertRaisesRegex(SystemExit, re.escape(str(missing))):
             self._overrides("osv")
 
 
