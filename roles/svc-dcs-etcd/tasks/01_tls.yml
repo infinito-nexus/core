@@ -97,7 +97,7 @@
       - -extfile
       - "{{ ETCD_TLS_CONF }}"
       - -extensions
-      - req_ext
+      - sign_ext
   args:
     creates: "{{ ETCD_TLS_CERT }}"
 

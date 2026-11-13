@@ -13,6 +13,14 @@ keyUsage         = critical,digitalSignature,keyEncipherment
 extendedKeyUsage = serverAuth,clientAuth
 subjectAltName   = @alt_names
 
+[ sign_ext ]
+basicConstraints       = critical,CA:FALSE
+keyUsage               = critical,digitalSignature,keyEncipherment
+extendedKeyUsage       = serverAuth,clientAuth
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+subjectAltName         = @alt_names
+
 [ alt_names ]
 DNS.1 = localhost
 DNS.2 = {{ entity_name }}
