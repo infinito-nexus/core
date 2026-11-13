@@ -71,6 +71,7 @@ def _plan(root: Path, closure: list[str], group_names: list[str]) -> list[dict]:
             group_names,
             {"web-app-x": ["h"], "web-app-y": ["h"]},
             [],
+            tls_mode=lambda app: "letsencrypt" if app.startswith("web-") else "off",
         )
 
 
@@ -95,6 +96,7 @@ class TestStackBatchPlan(unittest.TestCase):
                 everything,
                 {role: ["h"] for role in everything},
                 [],
+                tls_mode=lambda _app: "off",
             ),
             [],
         )
@@ -113,8 +115,14 @@ class TestStackBatchPlan(unittest.TestCase):
             )
             planned = _plan(root, [], ["web-app-x"])
         self.assertEqual(
-            [(item["id"], item["phase"], item["errors"]) for item in planned],
-            [("svc-late", "preload", []), ("web-app-x", "server", [])],
+            [
+                (item["id"], item["phase"], item["tls_mode"], item["errors"])
+                for item in planned
+            ],
+            [
+                ("svc-late", "preload", "off", []),
+                ("web-app-x", "server", "letsencrypt", []),
+            ],
         )
 
     def test_the_whitelist_closure_scopes_the_preload_part(self) -> None:
@@ -140,6 +148,8 @@ class TestStackBatchLookup(unittest.TestCase):
             "service": [{"id": "late", "required": True}, {"id": "idle"}],
             "deployment": [{"whitelist": ["web-app-x"]}],
             "application_closure": [["web-app-x", "svc-late"]],
+            "domains": [{"web-app-x": ["x.example"]}],
+            "tls": ["letsencrypt"],
         }
         calls = []
 
@@ -158,6 +168,8 @@ class TestStackBatchLookup(unittest.TestCase):
         ):
             loader.get.side_effect = get
             self.assertEqual(lookup.run([], variables=variables), [[]])
+            tls_mode = planned.call_args.kwargs["tls_mode"]
+            modes = (tls_mode("web-app-x"), tls_mode("svc-late"))
         _, ordered, required, closure, group_names, groups, whitelist = (
             planned.call_args.args
         )
@@ -172,6 +184,9 @@ class TestStackBatchLookup(unittest.TestCase):
                 ["web-app-x"],
             ),
         )
+        self.assertEqual(modes, ("letsencrypt", "off"))
+        self.assertIn(("tls", ["web-app-x", "mode"], {}), calls)
+        self.assertNotIn("svc-late", [call[1][0] for call in calls if call[0] == "tls"])
 
 
 if __name__ == "__main__":

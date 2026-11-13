@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
 from ansible.plugins.loader import lookup_loader
@@ -18,6 +18,9 @@ from utils.roles.applications.services.registry import (
 )
 from utils.roles.order import ordered_roles
 from utils.roles.stage import stage_groups
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 STACK_ROLE = "svc-stack"
 BRIDGE = Path("tasks/utils/stack.yml")
@@ -61,6 +64,8 @@ def plan(
     group_names: list[str],
     inventory_groups: dict[str, Any],
     whitelist: list[str],
+    *,
+    tls_mode: Callable[[str], str],
 ) -> list[dict[str, Any]]:
     """Args:
         roles_dir: the roles directory.
@@ -70,12 +75,13 @@ def plan(
         group_names: the inventory groups of the current host.
         inventory_groups: the groups magic variable.
         whitelist: the deployment whitelist.
+        tls_mode: the TLS mode of an application id, ``off`` without a domain.
 
     Returns:
         one item per bridged role this host enters after svc-stack's slot, in
         entry order: the shared services the loader preloads, then the server
-        roles the deployment allows. Each item carries its id, role, phase and
-        admission errors.
+        roles the deployment allows. Each item carries its id, role, phase,
+        TLS mode and admission errors.
     """
     roles = [entry["role"] for entry in ordered_services]
     after = (
@@ -98,6 +104,7 @@ def plan(
             "id": app,
             "role": role,
             "phase": phase,
+            "tls_mode": tls_mode(app),
             "errors": item_errors(roles_dir, role),
         }
         for app, role, phase in entries
@@ -126,6 +133,11 @@ class LookupModule(LookupBase):
             if entry.get("required")
         ]
         whitelist = list(lookup("deployment")[0].get("whitelist") or [])
+        domains = lookup("domains")[0]
+
+        def tls_mode(app: str) -> str:
+            return str(lookup("tls", app, "mode")[0]) if app in domains else "off"
+
         return [
             plan(
                 roles_dir,
@@ -135,5 +147,6 @@ class LookupModule(LookupBase):
                 list(vars_["group_names"]),
                 dict(vars_["groups"]),
                 whitelist,
+                tls_mode=tls_mode,
             )
         ]

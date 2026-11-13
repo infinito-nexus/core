@@ -1,5 +1,6 @@
 ---
 # Param: stack_batch_consumer - application_id of the consumer whose vhosts this unit serves, bound as a loop item or an include param.
+# Param: stack_front_phase - entered when the consumer serves its own vhosts, each reloaded and re-checked right after its render; inside the front batch the plan phase of the consumer, preload or server, and every vhost is recorded for the one reload and re-check of the batch.
 - name: "🛑 Refuse a stack run outside a consumer role"
   ansible.builtin.assert:
     that:

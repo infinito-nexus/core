@@ -29,6 +29,17 @@ A consumer whose stack the loader runs ships [files/bridge.yml](files/bridge.yml
 
 At its loader slot, svc-stack plans the front batch of the host with the lookup `stack_batch`: every bridged role the host enters after that slot, first the shared services the loader preloads, then the server roles the deployment allows, in entry order. It fails once, naming every planned role whose bridge is not canonical or whose `meta/services.yml` does not declare `stack` enabled and shared as literal true.
 
+A non-empty plan then runs [tasks/batch/run.yml](tasks/batch/run.yml) once, on the first OpenResty host, in one block per stage:
+
+| Stage | Does |
+|---|---|
+| P1 | Warms up the host-wide front dependencies in a fixed order before any vhost renders: `sys-svc-webserver-https`, `sys-svc-container`, `sys-svc-webserver-core`, the `once.yml` of `sys-svc-certs` and `sys-ctl-mtn-cert-renew` when a planned role uses `letsencrypt`, `sys-svc-nss`, and the `once.yml` of `sys-stk-front-base` with the redirect domains. Each may flush here, while no vhost is rendered yet. |
+| P2 | Renders the vhosts of every planned role through its bridge with `stack_batch_stage: front` and the role's plan phase as `stack_front_phase`. Each render only notifies the reload and records its vhost with its consumer in `front_proxy_batch_vhosts`. |
+| P3 | Runs one `openresty -t` and fails, naming every role whose vhost file the error cites, before any reload, so the live config stays. Then it flushes once: the only vhost reload of the batch. |
+| P4 | Probes every vhost whose config changed and restarts OpenResty once when one answers like a stale config. It never fails the deploy; the deferred probe stays the judgement. |
+
+The entries above pass `stack_front_phase: entered`, so each of their vhosts still reloads and re-checks right after its render through `tasks/proxy/settle.yml`.
+
 ## Features
 
 - **Front proxy:** Runs when the consumer enables and shares `openresty`. It serves every vhost the consumer's `server.vhosts` declares and every network sibling of each.

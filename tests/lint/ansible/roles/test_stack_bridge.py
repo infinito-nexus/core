@@ -29,7 +29,12 @@ ENTRY_SITES = (
     Path("roles/sys-service-loader/tasks/list_or_shoot.yml"),
 )
 BATCH_FACTS = frozenset(
-    {"front_proxy_deferred_probes", "front_proxy_deferred_stale", "stack_batch_plan"}
+    {
+        "front_proxy_batch_vhosts",
+        "front_proxy_deferred_probes",
+        "front_proxy_deferred_stale",
+        "stack_batch_plan",
+    }
 )
 SET_FACT = ("set_fact", "ansible.builtin.set_fact")
 ROLE_INCLUDES = (

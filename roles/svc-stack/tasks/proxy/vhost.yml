@@ -57,30 +57,16 @@
   register: nginx_conf
   notify: reload-openresty
 
-- name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
-  ansible.builtin.meta: flush_handlers
+- name: "🔄 Reload and re-check '{{ front_proxy_domain }}' right after its render"
+  ansible.builtin.include_tasks: proxy/settle.yml
+  when: stack_front_phase == 'entered'
 
-- name: "🔁 Re-check '{{ front_proxy_domain }}' after a config change"
-  when: front_proxy_vhost_changed
-  block:
-    - name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
-      uri_probe:
-        url: "{{ front_proxy_probe_url }}"
-        status_code: "{{ front_proxy_probe_status_codes }}"
-        follow_redirects: none
-      register: front_proxy_reload_check
-      failed_when: false
-      changed_when: false
-
-    - name: "🔄 Redeploy: reload left {{ front_proxy_reload_check.status | default('none') }}"
-      ansible.builtin.command:
-        cmd: "true"
-      notify: restart-openresty
-      when:
-        - front_proxy_reload_check.status | default(-1) not in front_proxy_status_codes
-        - >-
-          not openresty_reload.changed
-          or front_proxy_reload_check.status | default(-1) in front_proxy_stale_config_status_codes
-
-    - name: "🔄 Flush the fallback redeploy for '{{ front_proxy_domain }}'"
-      ansible.builtin.meta: flush_handlers
+- name: "🗂️ Record '{{ front_proxy_domain }}' of '{{ front_proxy_application_id }}' for the batch reload"
+  ansible.builtin.set_fact:
+    front_proxy_batch_vhosts: >-
+      {{ front_proxy_batch_vhosts
+         | combine({front_proxy_domain: {'consumer': front_proxy_application_id,
+                                         'changed': front_proxy_vhost_changed,
+                                         'probe': front_proxy_probe}}) }}
+  changed_when: false
+  when: stack_front_phase != 'entered'

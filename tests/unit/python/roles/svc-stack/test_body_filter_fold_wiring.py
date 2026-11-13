@@ -18,6 +18,7 @@ from utils.roles.mapping import (
 ROLES = PROJECT_ROOT / "roles"
 STACK = ROLES / "svc-stack"
 VHOST = STACK / "tasks" / "proxy" / "vhost.yml"
+SETTLE = STACK / "tasks" / "proxy" / "settle.yml"
 INJ_TASKS = ROLES / "sys-front-inj-all" / ROLE_FILE_TASKS_MAIN
 INJ_STANDALONE = ROLES / "sys-front-inj-all" / "tasks" / "standalone.yml"
 LUA_PATH = "lookup('nginx', 'files.lua', front_proxy_domain)"
@@ -140,19 +141,36 @@ class TestTheVhostWriteCarriesTheLua(unittest.TestCase):
         self.assertEqual(self.deploy["notify"], inj["notify"])
         self.assertEqual(args["diff_paths"], ["{{ " + LUA_PATH + " }}"])
 
-    def test_injection_runs_before_the_write_and_the_recheck_after_the_reload(self):
+    def test_injection_runs_before_the_write_and_the_settle_after_it(self):
         names = [str(t.get("name", "")) for t in self.tasks]
         order = [
             next(i for i, n in enumerate(names) if n.startswith(prefix))
             for prefix in (
                 "📌 CSP/INJ",
                 "🚀 Deploy NGINX config",
-                "🔄 Restart Webserver",
-                "🔁 Re-check",
+                "🔄 Reload and re-check",
             )
         ]
         self.assertEqual(order, sorted(order))
-        recheck = _named(self.tasks, "🔁 Re-check")
+        settle = _named(self.tasks, "🔄 Reload and re-check")
+        self.assertEqual(settle["ansible.builtin.include_tasks"], "proxy/settle.yml")
+        self.assertEqual(settle["when"], "stack_front_phase == 'entered'")
+
+    def test_the_batch_records_the_vhost_instead_of_settling_it(self):
+        record = _named(self.tasks, "🗂️ Record")
+        self.assertIn("front_proxy_batch_vhosts", record["ansible.builtin.set_fact"])
+        self.assertEqual(record["when"], "stack_front_phase != 'entered'")
+        self.assertNotIn("flush_handlers", str(self.tasks))
+
+    def test_the_settle_reloads_then_rechecks_a_changed_vhost(self):
+        settle = _tasks(SETTLE)
+        names = [str(t.get("name", "")) for t in settle]
+        order = [
+            next(i for i, n in enumerate(names) if n.startswith(prefix))
+            for prefix in ("🔄 Restart Webserver", "🔁 Re-check")
+        ]
+        self.assertEqual(order, sorted(order))
+        recheck = _named(settle, "🔁 Re-check")
         probe, redeploy, flush = recheck["block"]
         self.assertIn("uri_probe", probe)
         self.assertEqual(redeploy["notify"], "restart-openresty")
