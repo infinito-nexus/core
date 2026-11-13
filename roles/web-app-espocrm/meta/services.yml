@@ -49,6 +49,12 @@ espocrm:
   pids_limit: 768
   email:
     from_name: Customer Relationship Management ({{ DOMAIN_PRIMARY }})
+  authentication_method: >-
+    {{ 'Oidc' if lookup('config', 'web-app-espocrm', 'services.espocrm.login.method.sso.enabled') | bool
+       else ('LDAP' if lookup('config', 'web-app-espocrm', 'services.espocrm.login.method.ldap.enabled') | bool else 'Espo') }}
+  second_factor_forced: >-
+    {{ lookup('config', 'web-app-espocrm', 'services.espocrm.login.method.2fa.enabled') | bool
+       and lookup('config', 'web-app-espocrm', 'services.espocrm.login.method.2fa.enforced') | bool }}
   login:
     method:
       sso:
