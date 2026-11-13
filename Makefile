@@ -385,7 +385,7 @@ console:
 	@"$${PYTHON}" -m cli.console
 
 .PHONY: design-gallery
-# Rerun the design spec of a deployed app and copy its screenshots to /tmp/design-gallery/<app>/ (no redeploy).
+# Rerun the design spec of a deployed app and copy its screenshots to its gallery, printed by `python -m cli.meta.roles.design.gallery path <app>` (no redeploy).
 # Usage: make design-gallery app=<application_id> [views=<view>[,<view>...]] [before=true] [pw="--grep <pattern>"]
 # Example: make design-gallery app=web-app-gitea views=dashboard,settings
 # Param app: deployed application id

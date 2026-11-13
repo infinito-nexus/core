@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
+from agents.routines.tools.gallery import GALLERY_COMMAND, MANIFEST_COMMAND, collect
 from agents.routines.tools.junit import first_failure
 from agents.routines.tools.negative_control import control_result
 
@@ -52,7 +53,12 @@ STEPS = [
     ),
     Step("L4", "Strengthen the assertion", "model", nxt="L2"),
     Step("D5", "Render a second palette", nxt="D6"),
-    Step("D6", "Build gallery, diff manifest, scan off-palette areas", nxt="L5"),
+    Step(
+        "D6",
+        f"Build gallery ({GALLERY_COMMAND}), diff manifest ({MANIFEST_COMMAND}: views per side, mode and viewport, views missing a shot), scan off-palette areas",
+        nxt="L5",
+        fn=collect,
+    ),
     Step(
         "L5",
         "Visual review: what do I see?",
