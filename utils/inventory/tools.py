@@ -46,7 +46,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -357,7 +357,7 @@ def render(root: Path, load_only: list[str]) -> Path:
         variable_end_string="]]",
         block_start_string="[%",
         block_end_string="%]",
-        autoescape=False,  # noqa: S701 - YAML output, HTML escaping would corrupt it
+        autoescape=select_autoescape(default_for_string=False),
     )
     body = env.get_template(template_path.name).render(
         load_only=sorted(load_only),

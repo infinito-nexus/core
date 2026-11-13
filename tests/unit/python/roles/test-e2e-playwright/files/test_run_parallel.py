@@ -518,7 +518,7 @@ class TestRun(unittest.TestCase):
     def test_an_onion_job_waits_while_tor_is_being_recreated(self):
         self._job(0, "onion", 0.1, tor=True)
         self._job(1, "clear", 0.1)
-        writer = os.open(self.tor_lock, os.O_RDWR | os.O_CREAT, 0o644)
+        writer = os.open(self.tor_lock, os.O_RDWR | os.O_CREAT, 0o600)
         fcntl.flock(writer, fcntl.LOCK_EX)
         (self.jobs / rp.SEALED).touch()
         runner = threading.Thread(target=self._run, args=(2,))
@@ -722,7 +722,7 @@ class TestTorRecreateWaitsForOnionRuns(unittest.TestCase):
             the exit code, stderr, and whether the pending marker existed
             while the script waited.
         """
-        reader = os.open(self.lock, os.O_RDONLY | os.O_CREAT, 0o644)
+        reader = os.open(self.lock, os.O_RDONLY | os.O_CREAT, 0o600)
         fcntl.flock(reader, fcntl.LOCK_SH)
         proc = self.start(script, str(self.lock))
         began = time.monotonic()

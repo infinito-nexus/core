@@ -41,7 +41,7 @@ const SHOWCASE = {
     { id: "d0000000000000000000000000000013", number: "DESIGN-3", name: "Design showcase table", gross: 476 },
   ],
   customerEmail: `design-showcase@${canonicalDomain}`,
-  customerPassword: crypto.createHash("sha256").update(`design-showcase:${adminPassword}`).digest("hex"),
+  customerPassword: crypto.randomBytes(32).toString("hex"),
 };
 const THEME_FIELDS = [
   ["sw-color-brand-primary", "--design-primary"],
