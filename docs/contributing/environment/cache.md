@@ -117,7 +117,7 @@ The `cache` decision is exposed via `Profile.cache_stack_enabled()` in [profile.
 - [compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/administration/deploy/development/compose.py) and [down.py](../../../cli/administration/deploy/development/down.py) via [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`.
 - The cache services are added.
 - The runner's `infinito` service receives:
-  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), and the frontend CA file, plus the shared package cache folder when `INFINITO_CACHE_SHARED_HOST_PATH` is set
+  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`), and the frontend CA file, plus the shared package cache folder when `INFINITO_CACHE_SHARED_HOST_PATH` is set
   - `extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP
   - `INFINITO_CACHE_PACKAGE_FRONTEND_IP` env var for the inner compose wrapper
 - Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py).
@@ -131,7 +131,7 @@ CI signals (`GITHUB_ACTIONS=true`, `INFINITO_RUNNING_ON_GITHUB=true`, `CI=true`)
 | Traffic | Mechanism | Cached |
 |---|---|---|
 | Image pulls (any registry, inner `dockerd`) | `registry-cache` MITM via `HTTP_PROXY` env on `dockerd` | ✓ |
-| `apt-get install` (Ansible task in runner) | `apt/${INFINITO_DISTRO}.list` URL-rewrite to `package-cache:8081` | ✓ |
+| `apt-get install` (Ansible task in runner) | `extra_hosts` DNS-hijack of the stock sources + frontend HTTP | ✓ |
 | `pip install` (Ansible task in runner) | `pip.conf` URL-rewrite | ✓ |
 | `npm install` (Ansible task in runner) | `.npmrc` URL-rewrite | ✓ |
 | `gem`, `composer`, `go`, `curl https://…` (Ansible task in runner) | DNS-hijack + frontend HTTPS + runner CA-trust | ✓ |

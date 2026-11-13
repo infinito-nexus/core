@@ -13,9 +13,12 @@ import unittest
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from utils.cache.files import read_text
 from utils.cache.hosts import host_records, hosts_serving, repo_records
-from utils.cache.render import _write, apt_list, cache_consumer_yml, upstreams_conf
-from utils.distros import distro_family, distro_names
+from utils.cache.render import _write, cache_consumer_yml, upstreams_conf
+from utils.distros import distro_family
+
+from . import PROJECT_ROOT
 
 OLLAMA_HOST = "registry.ollama.ai"
 OLLAMA_REPO = "raw-ollama-registry"
@@ -27,6 +30,8 @@ STOCK_SOURCES = {
     "debian": ("http://deb.debian.org/debian", "http://deb.debian.org/debian-security"),
     "ubuntu": ("http://archive.ubuntu.com/ubuntu", "http://security.ubuntu.com/ubuntu"),
 }
+APT_SOURCES = "/etc/apt/sources.list"
+SWARM_OVERRIDE = PROJECT_ROOT / "compose" / "swarm" / "cache.override.yml"
 
 
 class TestWrite(unittest.TestCase):
@@ -129,14 +134,12 @@ class TestServedByThePin(unittest.TestCase):
         self.assertNotIn(":${INFINITO_CACHE_PACKAGE_FRONTEND_IP}", rendered)
         self.assertIn("infinito-registry-cache:", rendered)
 
-    def test_no_runner_gets_an_apt_entry_beside_its_own_sources(self) -> None:
-        for distro in distro_names():
-            for served in (None, self.own, self._served()):
-                with self.subTest(distro=distro, pinned=served is not None):
-                    self.assertEqual(apt_list(distro, served), "")
-
 
 class TestRunnerAptSources(unittest.TestCase):
+    def test_no_runner_mounts_an_apt_source_beside_its_own(self) -> None:
+        self.assertNotIn(APT_SOURCES, cache_consumer_yml())
+        self.assertNotIn(APT_SOURCES, read_text(str(SWARM_OVERRIDE)))
+
     def test_the_stock_sources_of_every_apt_runner_reach_an_apt_repository(
         self,
     ) -> None:
