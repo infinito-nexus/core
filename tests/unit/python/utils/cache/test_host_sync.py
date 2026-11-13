@@ -202,6 +202,42 @@ Signed-By: /usr/share/keyrings/debian-archive-keyring.pgp
 
 """,
 )
+MODERNIZED = """Types: deb
+URIs: http://127.0.0.1:8081/repository/apt-debian/
+Suites: bookworm
+Components: main contrib
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://deb.debian.org/debian
+Suites: bookworm
+Components: main contrib
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://127.0.0.1:8081/repository/apt-debian/ http://deb.debian.org/debian
+Suites: bookworm-updates
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://127.0.0.1:8081/repository/apt-debian-security/
+Suites: bookworm-security
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+"""
+MODERNIZED_REVERTED = """Types: deb
+URIs: http://deb.debian.org/debian
+Suites: bookworm
+Components: main contrib
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://deb.debian.org/debian
+Suites: bookworm-updates
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+"""
 NOBLE = """deb http://de.archive.ubuntu.com/ubuntu/ noble main universe
 deb http://de.archive.ubuntu.com/ubuntu/ noble-updates main universe
 deb http://de.archive.ubuntu.com/ubuntu/ noble-backports main universe
@@ -556,17 +592,122 @@ class TestRevert(HostCase):
                 self.assertEqual(_snapshot(root), before)
                 self.assertFalse(state_dir(root).exists())
 
-    def test_a_file_changed_since_the_sync_is_kept(self) -> None:
-        _host(self.root, "debian", {SOURCES_LIST: DEBIAN})
+    def test_a_pacman_conf_changed_since_the_sync_is_kept(self) -> None:
+        _host(self.root, "arch", {PACMAN_CONF: PACMAN})
         _sync(self.root)
         edited = (
-            self.read(SOURCES_LIST) + "deb http://example.org/debian bookworm main\n"
+            self.read(PACMAN_CONF) + "\n[extra]\nInclude = /etc/pacman.d/mirrorlist\n"
         )
-        (self.root / SOURCES_LIST).write_text(edited, encoding="utf-8")
+        (self.root / PACMAN_CONF).write_text(edited, encoding="utf-8")
         with self.assertRaises(HostSyncError):
             _sync(self.root, enabled=False)
-        self.assertEqual(self.read(SOURCES_LIST), edited)
-        self.assertTrue((self.root / APT_DROP_IN).is_file())
+        self.assertEqual(self.read(PACMAN_CONF), edited)
+
+    def test_an_apt_file_changed_since_the_sync_keeps_all_but_the_copies(self) -> None:
+        _host(self.root, "debian", {SOURCES_LIST: DEBIAN})
+        _sync(self.root)
+        added = (
+            "deb http://example.org/debian trixie main\n"
+            "deb http://127.0.0.1:8081/repository/apt-debian-mirror/ trixie main\n"
+        )
+        upgraded = self.read(SOURCES_LIST).replace("bookworm", "trixie") + added
+        (self.root / SOURCES_LIST).write_text(upgraded, encoding="utf-8")
+        reverted = _sync(self.root, enabled=False)
+        self.assertEqual(
+            self.read(SOURCES_LIST), DEBIAN.replace("bookworm", "trixie") + added
+        )
+        self.assertIn(
+            f"left {self.root / SOURCES_LIST} as it is: changed since the sync",
+            reverted,
+        )
+        self.assertFalse((self.root / APT_DROP_IN).exists())
+        self.assertFalse(state_dir(self.root).exists())
+
+    def test_a_modernized_host_loses_every_copy_and_keeps_its_own_sources(
+        self,
+    ) -> None:
+        backports = "deb http://deb.debian.org/debian bookworm-backports main\n"
+        _host(
+            self.root,
+            "debian",
+            {SOURCES_LIST: DEBIAN, SOURCE_PARTS / "backports.list": backports},
+        )
+        _sync(self.root)
+        (self.root / SOURCES_LIST).rename(self.root / f"{SOURCES_LIST}.bak")
+        listed = self.root / SOURCE_PARTS / "backports.list"
+        listed.rename(listed.with_name("backports.list.bak"))
+        _host(self.root, "debian", {SOURCE_PARTS / "debian.sources": MODERNIZED})
+        _sync(self.root, enabled=False)
+        self.assertEqual(
+            self.read(SOURCE_PARTS / "debian.sources"), MODERNIZED_REVERTED
+        )
+        self.assertEqual(self.read(Path(f"{SOURCES_LIST}.bak")), DEBIAN)
+        self.assertEqual(self.read(SOURCE_PARTS / "backports.list.bak"), backports)
+        self.assertFalse((self.root / SOURCES_LIST).exists())
+        self.assertFalse(listed.exists())
+        self.assertFalse(state_dir(self.root).exists())
+
+    def test_an_added_source_loses_each_copy_and_keeps_its_comments(self) -> None:
+        nexus = f"{NEXUS}/repository/apt-debian/"
+        stanzas = (
+            "# the cache first\n"
+            f"Types: deb\nURIs: {nexus}\nSuites: trixie\nComponents: main\n\n"
+            "Types: deb deb-src\nURIs: http://deb.debian.org/debian\n"
+            f"# the cache as a second source\n {nexus}\n"
+            "Suites: trixie\nComponents: main\n"
+        )
+        listed = (
+            f"deb-src {nexus} trixie main\n"
+            "deb-src http://deb.debian.org/debian trixie main\n"
+        )
+        _host(self.root, "debian", {SOURCES_LIST: DEBIAN})
+        _sync(self.root)
+        _host(
+            self.root,
+            "debian",
+            {
+                SOURCE_PARTS / "local.sources": stanzas,
+                SOURCE_PARTS / "local.list": listed,
+            },
+        )
+        _sync(self.root, enabled=False)
+        self.assertEqual(
+            self.read(SOURCE_PARTS / "local.sources"),
+            "# the cache first\n\n"
+            "Types: deb deb-src\nURIs: http://deb.debian.org/debian\n"
+            "# the cache as a second source\n"
+            "Suites: trixie\nComponents: main\n",
+        )
+        self.assertEqual(
+            self.read(SOURCE_PARTS / "local.list"),
+            "deb-src http://deb.debian.org/debian trixie main\n",
+        )
+
+    def test_a_source_untouched_since_the_sync_keeps_its_own_nexus_entry(
+        self,
+    ) -> None:
+        own = "deb http://127.0.0.1:8081/repository/apt-debian/ bookworm main\n"
+        _host(
+            self.root,
+            "debian",
+            {SOURCES_LIST: DEBIAN, SOURCE_PARTS / "own.list": own},
+        )
+        _sync(self.root)
+        upgraded = self.read(SOURCES_LIST).replace("bookworm", "trixie")
+        (self.root / SOURCES_LIST).write_text(upgraded, encoding="utf-8")
+        _sync(self.root, enabled=False)
+        self.assertEqual(self.read(SOURCE_PARTS / "own.list"), own)
+        self.assertEqual(self.read(SOURCES_LIST), DEBIAN.replace("bookworm", "trixie"))
+
+    def test_a_source_put_back_by_hand_keeps_its_own_nexus_entry(self) -> None:
+        own = DEBIAN + "deb http://127.0.0.1:8081/repository/apt-debian/ trixie main\n"
+        _host(self.root, "debian", {SOURCES_LIST: own})
+        _sync(self.root)
+        self.assertNotEqual(self.read(SOURCES_LIST), own)
+        (self.root / SOURCES_LIST).write_text(own, encoding="utf-8")
+        _sync(self.root, enabled=False)
+        self.assertEqual(self.read(SOURCES_LIST), own)
+        self.assertFalse(state_dir(self.root).exists())
 
     def test_a_rerun_is_idempotent(self) -> None:
         _host(self.root, "debian", {SOURCES_LIST: DEBIAN})

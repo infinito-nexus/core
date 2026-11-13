@@ -26,6 +26,7 @@ FALSE = frozenset({"no", "false", "without", "off", "disable", "0"})
 ONE_LINE = re.compile(
     r"^\s*deb\s+(?:\[(?P<options>[^\]]*)\]\s+)?(?P<uri>\S+)\s+(?P<suite>\S+)"
 )
+ENTRY = re.compile(r"^\s*deb(?:-src)?\s+(?:\[[^\]]*\]\s+)?(?P<uri>\S+)")
 FIELD = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9-]*):(?P<value>.*)", re.DOTALL)
 
 
@@ -260,3 +261,75 @@ def sources_file(text: str, targets: Targets, claims: Claims) -> tuple[str, list
         added.extend(stanzas)
         block = []
     return "".join(out), added
+
+
+def _copied(uri: str, copies: frozenset[str]) -> bool:
+    return f"{uri.rstrip('/')}/" in copies
+
+
+def strip_list(text: str, copies: frozenset[str]) -> str:
+    """Drop the one-line entries a sync pointed at Nexus.
+
+    Args:
+        text: a ``sources.list`` style file.
+        copies: the repository URLs that sync could point a copy at.
+
+    Returns:
+        *text* without every ``deb`` and ``deb-src`` line whose URI is one of
+        *copies*.
+    """
+    return "".join(
+        line
+        for line in text.splitlines(keepends=True)
+        if not ((match := ENTRY.match(line)) and _copied(match["uri"], copies))
+    )
+
+
+def _without(block: list[str], copies: frozenset[str]) -> list[str]:
+    raw = next((lines for name, lines in _fields(block) if name.lower() == "uris"), [])
+    uris = _values(raw) if raw else []
+    kept = [uri for uri in uris if not _copied(uri, copies)]
+    if kept == uris:
+        return block
+    if not kept:
+        return [line for line in block if line.startswith("#")]
+    field = f"{FIELD.match(raw[0])['name']}: {' '.join(kept)}\n"
+    out: list[str] = []
+    inside = False
+    for line in block:
+        if line.startswith("#"):
+            out.append(line)
+        elif line == raw[0]:
+            inside = True
+            out.append(field)
+        elif not (inside and line[0] in " \t"):
+            inside = False
+            out.append(line)
+    return out
+
+
+def strip_sources(text: str, copies: frozenset[str]) -> str:
+    """Drop the URIs a sync pointed at Nexus from every deb822 stanza.
+
+    Args:
+        text: a ``.sources`` file.
+        copies: the repository URLs that sync could point a copy at.
+
+    Returns:
+        *text* without every URI that is one of *copies*, and without every
+        stanza left with no URI, together with the blank line that separated
+        it; the comments of such a stanza stay.
+    """
+    out: list[str] = []
+    block: list[str] = []
+    for line in [*text.splitlines(keepends=True), ""]:
+        if line.strip():
+            block.append(line)
+            continue
+        kept = _without(block, copies)
+        if kept or not block:
+            out.extend([*kept, line])
+        elif not line and out and not out[-1].strip():
+            out.pop()
+        block = []
+    return "".join(out)

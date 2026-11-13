@@ -11,7 +11,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from utils.cache.apt_sources import apt_targets, archive_of, list_file, sources_file
+from utils.cache.apt_sources import (
+    apt_targets,
+    archive_of,
+    list_file,
+    sources_file,
+    strip_list,
+    strip_sources,
+)
 from utils.cache.hosts import declarations
 from utils.env.handlers.infinito.cache.host_pacman_path import ARCH_HOST_ID, host_id
 from utils.paths import read_group_path
@@ -33,6 +40,7 @@ SHARED_PACMAN = "pacman"
 SOURCES_LIST = Path("etc/apt/sources.list")
 SOURCE_PARTS = Path("etc/apt/sources.list.d")
 DEB822_SUFFIX = ".sources"
+MODERNIZED_SUFFIX = ".bak"
 APT_DROP_IN = Path("etc/apt/apt.conf.d/99infinito-cache-host-sync")
 APT_DROP_IN_TEXT = 'APT::Keep-Downloaded-Packages "false";\n'
 APT_UPDATE_STRICT = "APT::Update::Error-Mode=any"
@@ -53,6 +61,7 @@ class Plan:
     changes: dict[Path, str] = field(default_factory=dict)
     entries: list[str] = field(default_factory=list)
     stanzas: list[str] = field(default_factory=list)
+    copies: list[str] = field(default_factory=list)
 
 
 def _encode(text: str) -> bytes:
@@ -130,6 +139,19 @@ def pacman_conf(text: str, shared: str) -> str:
     return "".join([*head, *added, *lines[at:]])
 
 
+def _source_files(root: Path) -> list[Path]:
+    parts = root / SOURCE_PARTS
+    files = sorted([*parts.glob("*.list"), *parts.glob(f"*{DEB822_SUFFIX}")])
+    return [root / SOURCES_LIST, *files]
+
+
+def _apt_files(root: Path) -> list[Path]:
+    parts = root / SOURCE_PARTS
+    modernized = sorted(parts.glob(f"*.list{MODERNIZED_SUFFIX}"))
+    listed = [*_source_files(root), root / f"{SOURCES_LIST}{MODERNIZED_SUFFIX}"]
+    return [path for path in [*listed, *modernized] if path.is_file()]
+
+
 def apt_plan(root: Path, targets: Targets) -> Plan:
     """Plan the apt files pointing the host's sources at Nexus.
 
@@ -144,9 +166,7 @@ def apt_plan(root: Path, targets: Targets) -> Plan:
     """
     plan = Plan()
     claims: Claims = {}
-    parts = root / SOURCE_PARTS
-    files = sorted([*parts.glob("*.list"), *parts.glob(f"*{DEB822_SUFFIX}")])
-    for path in [root / SOURCES_LIST, *files]:
+    for path in _source_files(root):
         text = _read(path)
         if text is None:
             continue
@@ -238,11 +258,11 @@ def state_dir(root: Path) -> Path:
     return root / read_group_path("DIR_VAR_LIB").lstrip("/") / STATE
 
 
-def _record(root: Path, changes: dict[Path, str]) -> None:
+def _record(root: Path, plan: Plan) -> None:
     state = state_dir(root)
     state.mkdir(mode=0o700, parents=True, exist_ok=True)
     entries = []
-    for index, (relative, text) in enumerate(sorted(changes.items())):
+    for index, (relative, text) in enumerate(sorted(plan.changes.items())):
         target = root / relative
         backup = f"{index}.orig" if target.is_file() else None
         if backup:
@@ -255,35 +275,71 @@ def _record(root: Path, changes: dict[Path, str]) -> None:
                 "backup": backup,
             }
         )
-    manifest = json.dumps({"files": entries}, indent=2, sort_keys=True) + "\n"
+    recorded: dict[str, object] = {"files": entries}
+    if plan.copies:
+        current = {str(p.relative_to(root)): _digest(p) for p in _apt_files(root)}
+        written = {e["path"]: e["written"] for e in entries if e["path"] in current}
+        recorded["copies"] = plan.copies
+        recorded["sources"] = current | written
+    manifest = json.dumps(recorded, indent=2, sort_keys=True) + "\n"
     _write(state / MANIFEST, _encode(manifest))
 
 
+def _strip(root: Path, recorded: dict, original: set[str]) -> list[str]:
+    copies = frozenset(recorded["copies"])
+    done = []
+    for path in _apt_files(root):
+        relative = str(path.relative_to(root))
+        if relative in original or recorded["sources"].get(relative) == _digest(path):
+            continue
+        text = _read(path)
+        strip = strip_sources if path.suffix == DEB822_SUFFIX else strip_list
+        kept = strip(text, copies)
+        if kept != text:
+            _write(path, _encode(kept))
+            done.append(f"removed the cache copies from {path}")
+    return done
+
+
 def revert(root: Path) -> list[str]:
-    """Restore every host file the last sync changed, byte for byte.
+    """Undo the last sync.
 
     Args:
         root: the filesystem root the host's files live under.
 
     Returns:
-        One line per restored file; none where no sync is recorded.
+        One line per restored, left or cleaned file; none where no sync is
+        recorded. Every file the sync changed and nothing changed since is
+        restored byte for byte. On a Debian or Ubuntu host one changed since
+        is left in place, a file removed since the sync stays removed, and
+        then every apt source or ``apt modernize-sources`` backup that holds
+        neither what the sync left there nor its bytes from before the sync
+        loses the entries and URIs naming a repository the sync could point a
+        copy at.
 
     Raises:
-        HostSyncError: a file changed since the sync, in which case nothing
-            is restored, or a restored file differs from its original.
+        HostSyncError: on an Arch host ``pacman.conf`` changed since the sync,
+            in which case nothing is restored, or a restored file differs from
+            its original.
     """
     state = state_dir(root)
     manifest = state / MANIFEST
     if not manifest.is_file():
         return []
-    entries = json.loads(manifest.read_text(encoding=ENCODING))["files"]
+    recorded = json.loads(manifest.read_text(encoding=ENCODING))
+    entries = recorded["files"]
+    apt = "copies" in recorded
     pending = [e for e in entries if _digest(root / e["path"]) == e["written"]]
-    conflicts = [
-        f"{root / e['path']} (original: {state / e['backup'] if e['backup'] else 'absent'})"
+    changed = [
+        e
         for e in entries
         if _digest(root / e["path"]) not in (e["written"], e["original"])
     ]
-    if conflicts:
+    conflicts = [
+        f"{root / e['path']} (original: {state / e['backup'] if e['backup'] else 'absent'})"
+        for e in changed
+    ]
+    if conflicts and not apt:
         raise HostSyncError(
             "changed since the sync, so not restored: " + ", ".join(conflicts)
         )
@@ -298,8 +354,16 @@ def revert(root: Path) -> list[str]:
         raise HostSyncError(
             "restored files differ from their originals: " + ", ".join(drifted)
         )
+    restored = [f"restored {root / entry['path']}" for entry in pending]
+    left = [
+        f"left {root / e['path']} as it is: changed since the sync" for e in changed
+    ]
+    original = {
+        e["path"] for e in entries if _digest(root / e["path"]) == e["original"]
+    }
+    stripped = _strip(root, recorded, original) if apt else []
     shutil.rmtree(state)
-    return [f"restored {root / entry['path']}" for entry in pending]
+    return [*restored, *left, *stripped]
 
 
 def _pacman_plan(root: Path, shared: str, run: Runner) -> Plan:
@@ -325,9 +389,13 @@ def _apt_plan(
         raise HostSyncError(
             f"the Nexus URL {nexus!r} names no http(s) host; run make dotenv"
         )
-    plan = apt_plan(root, apt_targets(nexus, ubuntu_mirrors, declared))
+    targets = apt_targets(nexus, ubuntu_mirrors, declared)
+    plan = apt_plan(root, targets)
     if plan.changes:
         _check_apt(plan, run)
+    plan.copies = sorted(
+        {t.url for pockets in targets.values() for t in pockets.values()}
+    )
     return plan
 
 
@@ -353,12 +421,12 @@ def sync(
         declared: the ``cache:`` declarations; read from the roles when None.
 
     Returns:
-        One line per file restored or written.
+        One line per file restored, cleaned or written.
 
     Raises:
         HostSyncError: the host is neither Arch, Debian nor Ubuntu, an input
-            is missing, the package manager rejects the planned files, or a
-            file changed since the last sync.
+            is missing, the package manager rejects the planned files, or
+            ``pacman.conf`` changed since the last sync.
     """
     done = revert(root)
     if not enabled:
@@ -375,7 +443,7 @@ def sync(
         )
     if not plan.changes:
         return [*done, "no host source is one the cache serves; nothing written"]
-    _record(root, plan.changes)
+    _record(root, plan)
     for relative, text in sorted(plan.changes.items()):
         _write(root / relative, _encode(text))
     return [*done, *(f"wrote {root / relative}" for relative in sorted(plan.changes))]
