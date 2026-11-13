@@ -4,8 +4,7 @@ entity_name: "{{ application_id | entity_name }}"
 
 OPENWEBUI_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENWEBUI_CONTAINER: "{{ lookup('config', application_id, 'services.openwebui.name') }}"
-OPENWEBUI_OFFLINE_MODE: "{{ lookup('config', application_id, 'services.openwebui.offline_mode') }}"
-OPENWEBUI_HF_HUB_OFFLINE: "{{ lookup('config', application_id, 'services.openwebui.hf_hub_offline') }}"
+OPENWEBUI_SETTINGS: "{{ lookup('form_values', application_id, 'settings') }}"
 OPENWEBUI_ENABLE_API_KEYS: "{{ lookup('config', application_id, 'services.openwebui.enable_api_keys') }}"
 OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.openwebui.login.method.ldap.enabled') | bool }}"
 OPENWEBUI_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.openwebui.login.method.native.enabled') | bool }}"
@@ -40,7 +39,8 @@ OPENWEBUI_OPENAI_CONNECTIONS: >-
   {{ ([{'url': LITELLM_BASE_LOCAL_URL ~ '/v1', 'key': OPENWEBUI_LITELLM_API_KEY}] if (OPENWEBUI_LITELLM_ENABLED | bool) else [])
      + ([{'url': OPENWEBUI_AGENT_BROKER_URL, 'key': OPENWEBUI_AGENT_BROKER_KEY}] if (OPENWEBUI_AGENT_BROKER_ENABLED | bool) else []) }}
 OPENWEBUI_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.webui_secret_key') }}"
-OPENWEBUI_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"
+OPENWEBUI_MCP_CONFIG: "{{ lookup('form_values', application_id, 'tools') }}"
+OPENWEBUI_MCP_SERVERS: "{{ (OPENWEBUI_MCP_CONFIG.servers | mcp_with_credentials(MCP_DISCOVERED_SERVERS)) if 'servers' in OPENWEBUI_MCP_CONFIG else [] }}"
 OPENWEBUI_MCP_GROUP_OWNER: "openwebui-mcp-groups"
 OPENWEBUI_MCP_GROUP_IDS: "{{ (lookup('users', OPENWEBUI_MCP_GROUP_OWNER, {}) | default({}, true)).get('tokens', {}) }}"
 OPENWEBUI_MCP_MEMBERS: "{{ lookup('users') | mcp_group_members(OPENWEBUI_MCP_SERVERS, 'mcp-reader') }}"

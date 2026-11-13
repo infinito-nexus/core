@@ -42,6 +42,9 @@ openwebui:
   min_storage: 2026MB
   offline_mode: false
   hf_hub_offline: false
+  default_user_role: user
+  mcp_servers:
+    selected: "{{ lookup('mcp_servers', credentials=false).selected }}"
   enable_api_keys: true
   image_model: ""
   embedding_model: ""

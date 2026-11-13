@@ -1,0 +1,35 @@
+---
+dashboard:
+  path: /config
+  lock: pending
+  issue: NousResearch/hermes-agent, drafted and not yet filed, read-only config keys the deployment manages in the dashboard
+  sinks: [HERMES_DASHBOARD_CONFIG]
+  fields:
+    theme:
+      source: services.hermes.dashboard.theme
+      when: services.webui.enabled
+      optional: true
+      mode: enforced
+      selector: '[name="dashboard.theme"]'
+      type: text
+      label: Dashboard theme
+    trusted_proxies:
+      source: services.hermes.dashboard.trusted_proxies
+      when: services.webui.enabled
+      mode: enforced
+      selector: '[name="dashboard.trusted_proxies"]'
+      type: textarea
+      label: Trusted proxies
+mcp:
+  path: /config
+  lock: pending
+  issue: NousResearch/hermes-agent, drafted and not yet filed, read-only config keys the deployment manages in the dashboard
+  sinks: [HERMES_MCP_CONFIG]
+  fields:
+    servers:
+      source: services.hermes.mcp_servers.selected
+      when: mcp.enabled
+      mode: enforced
+      selector: '[name="mcp_servers"]'
+      type: textarea
+      label: MCP servers
