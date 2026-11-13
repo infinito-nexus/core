@@ -16,6 +16,12 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: playwright-service-flag — session store behind every request, no Playwright surface of its own
 redis:
   bond: 1
@@ -39,6 +45,13 @@ lam:
   provides: lam
   image: ghcr.io/ldapaccountmanager/lam
   version: "9.7"
+  profile:
+    server_url: "{{ LDAP.SERVER.DOMAIN }}"
+    admins: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    base_dn: "{{ LDAP.DN.ROOT }}"
+    language: en_US.utf8
+    login_search_suffix: "{{ LDAP.DN.OU.USERS }}"
+    login_search_filter: "(&({{ LDAP.USER.ATTRIBUTES.ID }}=%USER%)({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-lam-administrator,{{ LDAP.DN.OU.ROLES }}))"
   custom: true
   min_storage: 345MB
   ports:

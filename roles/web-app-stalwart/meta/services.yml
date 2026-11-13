@@ -70,6 +70,11 @@ stalwart:
   forwards: []
   alias_domains: []
   ban_period_seconds: 3600
+  bans:
+    period_ms: "{{ (lookup('config', 'web-app-stalwart', 'services.stalwart.ban_period_seconds') | int) * 1000 }}"
+  client_ip:
+    source: forwarded
+    forwarded_hops: 1
   # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"
