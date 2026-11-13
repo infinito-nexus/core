@@ -14,6 +14,8 @@ import unittest
 import unittest.mock as mock
 
 from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
 
 from . import PROJECT_ROOT
 
@@ -283,6 +285,37 @@ class SsoLookupTests(unittest.TestCase):
         result = self._run(_apps(enabled=True), ["web-app-x", "  "])
         self.assertEqual(len(result), 1)
         self.assertIsInstance(result[0], dict)
+
+
+class SsoLookupInsideTheApplicationsRenderTests(unittest.TestCase):
+    GATED = "{{ 'web-app-keycloak' in group_names }}"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_module("plugins/lookup/sso.py", "sso")
+
+    def _gated(self, applications, group_names):
+        variables = {"group_names": group_names}
+        lk = self.mod.LookupModule()
+        lk._loader = DataLoader()
+        lk._templar = Templar(loader=lk._loader, variables=variables)
+        with mock.patch.object(self.mod, "lookup_loader") as loader_mock:
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [applications]
+            )
+            return lk.run(["web-app-x", "is_proxy_gated"], variables=variables)
+
+    def test_an_unrendered_flag_counts_only_once_rendered(self):
+        applications = _apps(enabled=self.GATED, shared=self.GATED, flavor="oauth2")
+        self.assertEqual([False], self._gated(applications, []))
+        self.assertEqual([True], self._gated(applications, ["web-app-keycloak"]))
+
+    def test_a_templated_flavor_renders_before_it_is_checked(self):
+        applications = _apps(
+            enabled=True, flavor="{{ 'oauth2' if group_names else 'oidc' }}"
+        )
+        self.assertEqual([False], self._gated(applications, []))
+        self.assertEqual([True], self._gated(applications, ["web-app-x"]))
 
 
 if __name__ == "__main__":
