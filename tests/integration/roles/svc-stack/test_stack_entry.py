@@ -14,11 +14,21 @@ from utils.cache.yaml import load_yaml_any
 
 ENTRY = Path("tasks/utils/load/entry.yml")
 ENTRY_BACK = Path("tasks/utils/load/entry/back.yml")
+ENTRY_STEP = Path("tasks/utils/load/entry/step.yml")
 STACK_VARS = Path("group_vars/all/24_stack.yml")
 CANONICAL_BRIDGE = Path("roles/svc-stack/files/bridge.yml")
 BRIDGED = ("web-app-alpha", "web-app-beta", "web-app-gamma", "web-app-delta")
 GUARDED = ("web-app-beta", "web-app-delta")
+STAGED = ("web-app-alpha", "web-app-beta", "web-app-delta")
 PLAIN = "web-app-plain"
+
+STUB_STAGE = """---
+- name: Record the stage the entry ran
+  ansible.builtin.set_fact:
+    stub_runs: >-
+      {{ stub_runs + [['stage', application_id, domain | default('none'),
+                       consumer_scope] | join('|')] }}
+"""
 
 STUB_GUARD = """---
 - name: Record the guard the entry ran
@@ -166,7 +176,7 @@ def _build(workdir: Path) -> None:
     """Args:
     workdir: an empty directory that becomes the playbook directory.
     """
-    for path in (ENTRY, ENTRY_BACK, STACK_VARS):
+    for path in (ENTRY, ENTRY_BACK, ENTRY_STEP, STACK_VARS):
         _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
     _write(workdir / "roles/svc-stack/tasks/batch/back.yml", STUB_BACKEND)
     _write(workdir / "roles/svc-stack/tasks/batch/late.yml", STUB_LATE)
@@ -179,6 +189,8 @@ def _build(workdir: Path) -> None:
         )
     for role in GUARDED:
         _write(workdir / "roles" / role / "tasks/utils/stack_guard.yml", STUB_GUARD)
+    for role in STAGED:
+        _write(workdir / "roles" / role / "tasks/utils/stack_stage.yml", STUB_STAGE)
     _write(workdir / "roles" / PLAIN / "tasks/main.yml", "---\n[]\n")
     _write(workdir / "lookup/domain.py", STUB_DOMAIN_LOOKUP)
     _write(workdir / "play.yml", PLAYBOOK)
@@ -249,9 +261,10 @@ class TestStackEntry(unittest.TestCase):
     @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
     def test_only_an_unplanned_front_is_served_late_before_its_backend(self) -> None:
         self.assertEqual(
-            self.observed["runs"][:2],
+            self.observed["runs"][:3],
             [
                 "late|web-app-alpha|web-app-alpha",
+                "stage|web-app-alpha|web-app-alpha.example|web-app-alpha-vars",
                 "web-app-alpha|web-app-alpha|web-app-alpha.example|back|web-app-alpha-vars",
             ],
         )
@@ -268,6 +281,7 @@ class TestStackEntry(unittest.TestCase):
             [run for run in self.observed["runs"] if "web-app-beta" in run],
             [
                 "guard|web-app-beta|web-app-beta-vars",
+                "stage|web-app-beta|none|web-app-beta-vars",
                 "web-app-beta|web-app-beta|none|back|web-app-beta-vars",
             ],
         )
@@ -275,6 +289,23 @@ class TestStackEntry(unittest.TestCase):
             [run for run in self.observed["runs"] if "web-app-delta" in run],
             ["guard|web-app-delta|web-app-delta-vars", "refused|web-app-delta"],
         )
+
+    @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
+    def test_a_stage_runs_once_in_its_role_scope_right_before_its_backend(
+        self,
+    ) -> None:
+        runs = self.observed["runs"]
+        stages = [run for run in runs if run.startswith("stage|")]
+        self.assertEqual(
+            stages,
+            [
+                "stage|web-app-alpha|web-app-alpha.example|web-app-alpha-vars",
+                "stage|web-app-beta|none|web-app-beta-vars",
+            ],
+        )
+        for stage in stages:
+            app = stage.split("|")[1]
+            self.assertTrue(runs[runs.index(stage) + 1].startswith(f"{app}|{app}|"))
 
     @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
     def test_the_entered_map_keys_every_backend_that_ran(self) -> None:

@@ -14,32 +14,16 @@
     application_id: "{{ stack_batch_consumer }}"
   when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack_guard.yml') is file
 
-- name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge"
-  ansible.builtin.include_role:
-    name: "{{ entry_role }}"
-    tasks_from: utils/stack.yml
-    public: false
-  loop: "{{ [entry_application_id] }}"
-  loop_control:
-    loop_var: stack_batch_consumer
+- name: "🧰 Run the stack stage of '{{ entry_application_id }}' before its backend"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/step.yml') }}"
   vars:
-    application_id: "{{ stack_batch_consumer }}"
-    domain: "{{ lookup('domain', stack_batch_consumer) }}"
-    stack_batch_stage: back
-  when: entry_domain | bool
+    entry_tasks_from: utils/stack_stage.yml
+  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack_stage.yml') is file
 
-- name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge without a domain"
-  ansible.builtin.include_role:
-    name: "{{ entry_role }}"
-    tasks_from: utils/stack.yml
-    public: false
-  loop: "{{ [entry_application_id] }}"
-  loop_control:
-    loop_var: stack_batch_consumer
+- name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/step.yml') }}"
   vars:
-    application_id: "{{ stack_batch_consumer }}"
-    stack_batch_stage: back
-  when: not (entry_domain | bool)
+    entry_tasks_from: utils/stack.yml
 
 - name: "🏷️ Record the backend of '{{ entry_application_id }}' as run"
   ansible.builtin.set_fact:
