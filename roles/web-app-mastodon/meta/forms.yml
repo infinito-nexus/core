@@ -1,0 +1,13 @@
+---
+registrations:
+  path: /admin/settings/registrations
+  sinks: [MASTODON_REGISTRATIONS]
+  fields:
+    registrations_mode:
+      source: services.mastodon.login.method.registration.enabled
+      mode: enforced
+      selector: '[name="form_admin_settings[registrations_mode]"]'
+      type: select
+      enum: [open, approved, none]
+      map: {true: open, false: none}
+      label: Registrations mode
