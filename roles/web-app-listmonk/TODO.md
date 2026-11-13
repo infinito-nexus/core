@@ -31,7 +31,7 @@
   key travel in the `bash -c` argv; `no_log` follows `MASK_CREDENTIALS_IN_LOGS`,
   which local deploys disable. Option: send the SQL on `stdin:` to
   `LISTMONK_EXEC_DATABASE`, as the administrator password task does.
-- `LISTMONK_DESIGN_BRANDING` in `vars/main.yml` and the `DESIGN_*_URL` keys in
+- `services.listmonk.settings.logo_url` and `favicon_url` in `meta/services.yml` and the `DESIGN_*_URL` keys in
   `templates/playwright.env.j2` read `LISTMONK_DESIGN.urls` unguarded. The
   design lookup builds those URLs for every slot, while
   `roles/sys-front-inj-design/tasks/assets.yml` publishes the files only when

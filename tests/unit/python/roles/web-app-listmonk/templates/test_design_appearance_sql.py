@@ -9,7 +9,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 from . import PROJECT_ROOT
 
 TEMPLATES = PROJECT_ROOT / "roles/web-app-listmonk/templates"
-LOGO_FALLBACK = "https://files.example.com/logo.png"
 CSS_MARKER = ":root{--infinito-design-carrier:1}"
 JS_MARKER = "window.infinitoDesignCarrier = 1;"
 DESIGN = {
@@ -21,13 +20,17 @@ DESIGN = {
         "logo": {"svg": "https://cdn.example.com/design/logo.svg"},
     },
 }
+APPEARANCE = (
+    ("appearance.admin.custom_css", CSS_MARKER),
+    ("appearance.admin.custom_js", JS_MARKER),
+    ("appearance.public.custom_css", CSS_MARKER),
+)
 
 
-def render(enabled: bool, logo_fallback: str) -> str:
+def render(enabled: bool) -> str:
     """
     Args:
         enabled: value of LISTMONK_DESIGN_ENABLED.
-        logo_fallback: app.logo_url the role writes while design is off.
     """
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES)),
@@ -61,18 +64,6 @@ def render(enabled: bool, logo_fallback: str) -> str:
                 "marker": CSS_MARKER,
             },
         ],
-        "LISTMONK_DESIGN_BRANDING": [
-            {
-                "key": "app.logo_url",
-                "design": DESIGN["urls"]["header"]["svg"],
-                "fallback": logo_fallback,
-            },
-            {
-                "key": "app.site_name",
-                "design": DESIGN["label"],
-                "fallback": "Example Mailing list",
-            },
-        ],
     }
     context["lookup"] = lambda kind, name: env.get_template(name).render(context)
     return env.get_template("design/appearance.sql.j2").render(context)
@@ -89,12 +80,8 @@ class TestDesignAppearanceSql(unittest.TestCase):
     def test_design_on_writes_marked_content_only_over_empty_or_own_values(
         self,
     ) -> None:
-        updates = statements(render(enabled=True, logo_fallback=LOGO_FALLBACK))
-        for key, marker in (
-            ("appearance.admin.custom_css", CSS_MARKER),
-            ("appearance.admin.custom_js", JS_MARKER),
-            ("appearance.public.custom_css", CSS_MARKER),
-        ):
+        updates = statements(render(enabled=True))
+        for key, marker in APPEARANCE:
             with self.subTest(key=key):
                 self.assertIn(f"to_jsonb($infinito_value${marker}", updates[key])
                 self.assertIn(
@@ -102,20 +89,10 @@ class TestDesignAppearanceSql(unittest.TestCase):
                     updates[key],
                 )
                 self.assertIn("value IS DISTINCT FROM", updates[key])
-        self.assertIn(DESIGN["urls"]["header"]["svg"], updates["app.logo_url"])
-        self.assertIn(
-            "$infinito_value$Listmonk$infinito_value$", updates["app.site_name"]
-        )
 
-    def test_design_off_empties_only_the_marked_values_and_restores_the_fallback(
-        self,
-    ) -> None:
-        updates = statements(render(enabled=False, logo_fallback=LOGO_FALLBACK))
-        for key in (
-            "appearance.admin.custom_css",
-            "appearance.admin.custom_js",
-            "appearance.public.custom_css",
-        ):
+    def test_design_off_empties_only_the_marked_values(self) -> None:
+        updates = statements(render(enabled=False))
+        for key, _marker in APPEARANCE:
             with self.subTest(key=key):
                 self.assertIn(
                     "SET value = to_jsonb($infinito_value$$infinito_value$::text)",
@@ -124,23 +101,18 @@ class TestDesignAppearanceSql(unittest.TestCase):
                 self.assertIn(
                     "starts_with(value #>> '{}', $infinito_marker$", updates[key]
                 )
-        self.assertIn(
-            f"$infinito_value${LOGO_FALLBACK}$infinito_value$", updates["app.logo_url"]
-        )
-        self.assertIn(
-            "$infinito_value$Example Mailing list$infinito_value$",
-            updates["app.site_name"],
-        )
 
-    def test_design_off_without_fallback_clears_only_the_design_value(self) -> None:
-        update = statements(render(enabled=False, logo_fallback=""))["app.logo_url"]
-        self.assertIn(
-            f"AND value = to_jsonb($infinito_value${DESIGN['urls']['header']['svg']}",
-            update,
-        )
+    def test_the_branding_settings_are_left_to_the_general_form(self) -> None:
+        for enabled in (True, False):
+            with self.subTest(enabled=enabled):
+                sql = render(enabled=enabled)
+                self.assertEqual(
+                    {key for key, _marker in APPEARANCE}, set(statements(sql))
+                )
+                self.assertIn(f"count(*) = {len(APPEARANCE)}", sql)
 
     def test_the_carried_css_holds_no_literal_color(self) -> None:
-        sql = render(enabled=True, logo_fallback=LOGO_FALLBACK)
+        sql = render(enabled=True)
         css = "\n".join(
             statement
             for key, statement in statements(sql).items()

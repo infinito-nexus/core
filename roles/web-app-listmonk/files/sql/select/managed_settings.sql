@@ -1,17 +1,28 @@
--- Args: prefix (the settings key prefix of the general form), general (JSON array of the general form fields, each stored as the setting <prefix><field>).
--- Returns one row: a JSON object mapping the forms general and security to the values Listmonk holds, the OIDC client secret left out.
-SELECT jsonb_build_object(
-  'general', COALESCE(
-    (
-      SELECT jsonb_object_agg(substr(key, length(:'prefix') + 1), value)
-      FROM settings
-      WHERE key IN (
-        SELECT :'prefix' || field
-        FROM jsonb_array_elements_text(:'general'::jsonb) AS field
+-- Args: forms (JSON object mapping each prefixed form to its settings key prefix and its sink, whose field names are read as the settings <prefix><field>).
+-- Returns one row: a JSON object mapping each prefixed form and the form security to the values Listmonk holds, the OIDC client secret left out.
+SELECT COALESCE(
+  (
+    SELECT jsonb_object_agg(
+      form.key,
+      COALESCE(
+        (
+          SELECT jsonb_object_agg(
+            substr(settings.key, length(form.value ->> 'prefix') + 1),
+            settings.value
+          )
+          FROM settings
+          WHERE settings.key IN (
+            SELECT (form.value ->> 'prefix') || field
+            FROM jsonb_object_keys(form.value -> 'fields') AS field
+          )
+        ),
+        '{}'::jsonb
       )
-    ),
-    '{}'::jsonb
+    )
+    FROM jsonb_each(:'forms'::jsonb) AS form
   ),
+  '{}'::jsonb
+) || jsonb_build_object(
   'security', COALESCE(
     (
       SELECT value - 'client_secret'

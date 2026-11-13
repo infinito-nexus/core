@@ -8,22 +8,37 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.converge import values
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-listmonk"
 FORMS = ROLE / "meta" / "forms.yml"
+SERVICES = ROLE / "meta" / "services.yml"
 VARS = ROLE / "vars" / "main.yml"
 TASKS = ROLE / "tasks" / "02_manager_ops.yml"
 APPLY = ROLE / "templates" / "sql" / "apply_settings.sql.j2"
+DESIGN = ROLE / "templates" / "design" / "appearance.sql.j2"
 READ = ROLE / "files" / "sql" / "select" / "managed_settings.sql"
 LOADER = ROLE / "templates" / "javascript.js.j2"
 SHARED_RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
 DRIFT = "tasks/utils/forms/drift.yml"
-GENERAL_SINK = "LISTMONK_GENERAL_SETTINGS"
 OIDC_SINK = "LISTMONK_OIDC_SETTINGS"
-PREFIX = "LISTMONK_GENERAL_PREFIX"
+PREFIXED = "LISTMONK_PREFIXED_FORMS"
+SINKS = {
+    "general": "LISTMONK_GENERAL_SETTINGS",
+    "upload": "LISTMONK_UPLOAD_SETTINGS",
+    "s3": "LISTMONK_S3_SETTINGS",
+    "bounce": "LISTMONK_BOUNCE_SETTINGS",
+}
+PREFIXES = {
+    "general": "app.",
+    "upload": "upload.",
+    "s3": "upload.s3.",
+    "bounce": "bounce.",
+}
+SECRETS = ("aws_access_key_id", "aws_secret_access_key")
 APPLIED = re.compile(r"\$infinito_settings\$(.*)\$infinito_settings\$", re.DOTALL)
 
 
@@ -60,14 +75,55 @@ def _applies(task: dict) -> bool:
     return "apply_settings.sql.j2" in str(task.get("ansible.builtin.shell", {}))
 
 
+def _prefixed(sinks: dict) -> dict:
+    return {
+        form: {"prefix": PREFIXES[form], "fields": fields}
+        for form, fields in sinks.items()
+    }
+
+
+def _application(s3: bool) -> dict:
+    services = load_yaml_any(str(SERVICES))
+    listmonk = services["listmonk"]
+    return {
+        "forms": _forms(),
+        "services": {
+            "sso": {"enabled": False},
+            "listmonk": {
+                "settings": {
+                    **listmonk["settings"],
+                    "root_url": "https://lists.example",
+                    "from_email": "news@example.org",
+                    "lang": "de",
+                    "site_name": "Lists",
+                    "logo_url": "https://cdn.example/logo.svg",
+                    "favicon_url": "https://cdn.example/favicon.ico",
+                },
+                "upload": {
+                    "provider": listmonk["upload"]["provider"],
+                    "s3": {
+                        "enabled": s3,
+                        "aws_default_region": "eu-1",
+                        "bucket": "listmonk",
+                        "bucket_type": listmonk["upload"]["s3"]["bucket_type"],
+                        "url": "https://s3.example",
+                        "public_url": "https://files.example/listmonk",
+                    },
+                },
+                "bounce": listmonk["bounce"],
+            },
+        },
+    }
+
+
 class TestTheFormsFile(unittest.TestCase):
-    def test_each_general_field_is_the_app_setting_its_selector_names(self) -> None:
-        general = _forms()["general"]
-        prefix = _vars()[PREFIX]
-        self.assertEqual([GENERAL_SINK], general["sinks"])
-        for field, spec in general["fields"].items():
-            with self.subTest(field=field):
-                self.assertIn(f'[name="{prefix}{field}"]', spec["selector"])
+    def test_each_prefixed_field_is_the_setting_its_selector_names(self) -> None:
+        forms = _forms()
+        for form, prefix in PREFIXES.items():
+            self.assertEqual([SINKS[form]], forms[form]["sinks"])
+            for field, spec in forms[form]["fields"].items():
+                with self.subTest(form=form, field=field):
+                    self.assertIn(f'[name="{prefix}{field}"]', spec["selector"])
 
     def test_the_oidc_fields_apply_with_sso_and_leave_the_secret_out(self) -> None:
         security = _forms()["security"]
@@ -77,37 +133,131 @@ class TestTheFormsFile(unittest.TestCase):
             with self.subTest(field=field):
                 self.assertEqual("services.sso.enabled", spec["when"])
 
+    def test_the_media_fields_apply_with_the_object_store_and_hold_no_secret(
+        self,
+    ) -> None:
+        forms = _forms()
+        for form in ("upload", "s3"):
+            for field, spec in forms[form]["fields"].items():
+                with self.subTest(form=form, field=field):
+                    self.assertEqual(
+                        "services.listmonk.upload.s3.enabled", spec["when"]
+                    )
+                    self.assertNotIn(field, SECRETS)
+
+
+class TestTheSinksCarryTheSources(unittest.TestCase):
+    def test_the_object_store_switches_the_media_forms(self) -> None:
+        for s3 in (True, False):
+            application = _application(s3)
+            with self.subTest(s3=s3):
+                self.assertEqual(
+                    {"provider": "s3"} if s3 else {},
+                    values("upload", _forms(), application, {}),
+                )
+                self.assertEqual(
+                    {
+                        "aws_default_region": "eu-1",
+                        "bucket": "listmonk",
+                        "bucket_type": "public",
+                        "url": "https://s3.example",
+                        "public_url": "https://files.example/listmonk",
+                    }
+                    if s3
+                    else {},
+                    values("s3", _forms(), application, {}),
+                )
+
+    def test_bounce_processing_stays_on_and_the_branding_is_general(self) -> None:
+        application = _application(False)
+        self.assertEqual({"enabled": True}, values("bounce", _forms(), application, {}))
+        general = values("general", _forms(), application, {})
+        self.assertEqual("Lists", general["site_name"])
+        self.assertEqual("https://cdn.example/logo.svg", general["logo_url"])
+        self.assertEqual("https://cdn.example/favicon.ico", general["favicon_url"])
+
+    def test_the_design_sources_fall_back_when_the_design_is_off(self) -> None:
+        settings = load_yaml_any(str(SERVICES))["listmonk"]["settings"]
+        for field, design, fallback in (
+            ("site_name", ".label", "service_provider.company.titel"),
+            ("logo_url", ".urls.header.svg", "service_provider.platform.logo"),
+            ("favicon_url", ".urls.favicon_ico", "service_provider.platform.favicon"),
+        ):
+            with self.subTest(field=field):
+                self.assertIn(
+                    f"lookup('design', 'web-app-listmonk'){design} if lookup("
+                    "'config', 'web-app-listmonk', 'services.design.enabled') | bool"
+                    f" else {fallback}",
+                    settings[field],
+                )
+
 
 class TestTheWriteReadsTheSinks(unittest.TestCase):
     def test_the_sinks_read_only_their_forms(self) -> None:
         variables = _vars()
-        for sink, form in ((GENERAL_SINK, "general"), (OIDC_SINK, "security")):
+        for form, sink in (*SINKS.items(), ("security", OIDC_SINK)):
             with self.subTest(sink=sink):
                 self.assertEqual(
                     f"{{{{ lookup('form_values', application_id, '{form}') }}}}",
                     variables[sink],
                 )
 
-    def test_no_general_field_is_written_outside_its_sink(self) -> None:
-        variables = _vars()
-        managed = {variables[PREFIX] + field for field in _forms()["general"]["fields"]}
-        written = {setting["key"] for setting in variables["LISTMONK_SETTINGS"]}
-        self.assertEqual(set(), managed & written)
+    def test_every_prefixed_form_carries_its_sink_under_its_prefix(self) -> None:
+        self.assertEqual(
+            {
+                form: {"prefix": PREFIXES[form], "fields": f"{{{{ {sink} }}}}"}
+                for form, sink in SINKS.items()
+            },
+            _vars()[PREFIXED],
+        )
+        self.assertEqual(set(_forms()) - {"security"}, set(_vars()[PREFIXED]))
 
-    def test_the_apply_writes_each_general_field_under_its_setting(self) -> None:
+    def test_no_managed_field_is_written_outside_its_sink(self) -> None:
+        variables = _vars()
+        forms = _forms()
+        managed = {
+            PREFIXES[form] + field
+            for form in PREFIXES
+            for field in forms[form]["fields"]
+        }
+        written = {
+            setting["key"]
+            for entries in variables.values()
+            if isinstance(entries, list)
+            for setting in entries
+            if isinstance(setting, dict) and "key" in setting
+        }
+        self.assertEqual(set(), managed & written)
+        self.assertNotIn("BRANDING", DESIGN.read_text(encoding="utf-8"))
+
+    def test_the_object_store_secrets_stay_out_of_the_sinks(self) -> None:
+        settings = {setting["key"]: setting for setting in _vars()["LISTMONK_SETTINGS"]}
+        for secret in SECRETS:
+            with self.subTest(secret=secret):
+                self.assertIn("condition", settings[f"upload.s3.{secret}"])
+
+    def test_the_apply_writes_each_field_under_its_setting(self) -> None:
         rendered = _render(
             APPLY.read_text(encoding="utf-8"),
             {
-                "LISTMONK_SETTINGS": [{"key": "bounce.enabled", "value": "true"}],
-                GENERAL_SINK: {"root_url": "https://lists.example", "lang": "de"},
-                PREFIX: _vars()[PREFIX],
+                "LISTMONK_SETTINGS": [{"key": "smtp", "value": "[]"}],
+                PREFIXED: _prefixed(
+                    {
+                        "general": {"root_url": "https://lists.example"},
+                        "upload": {"provider": "s3"},
+                        "s3": {"bucket": "listmonk"},
+                        "bounce": {"enabled": True},
+                    }
+                ),
             },
         )
         self.assertEqual(
             {
-                "bounce.enabled": True,
+                "smtp": [],
                 "app.root_url": "https://lists.example",
-                "app.lang": "de",
+                "upload.provider": "s3",
+                "upload.s3.bucket": "listmonk",
+                "bounce.enabled": True,
             },
             json.loads(APPLIED.search(rendered).group(1)),
         )
@@ -139,28 +289,25 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         self.assertLess(_index(tasks, _reads), _index(tasks, _reports))
         self.assertLess(_index(tasks, _reports), _index(tasks, _applies))
 
-    def test_the_read_asks_for_exactly_the_general_sink_fields(self) -> None:
+    def test_the_read_asks_for_every_prefixed_form(self) -> None:
         read = next(task for task in _tasks() if _reads(task))
+        forms = _prefixed({"general": {"lang": "de"}, "s3": {}})
         command = _render(
             read["ansible.builtin.shell"]["cmd"],
-            {
-                "LISTMONK_EXEC_DATABASE": "psql",
-                PREFIX: "app.",
-                GENERAL_SINK: {"root_url": "https://lists.example", "lang": "de"},
-            },
+            {"LISTMONK_EXEC_DATABASE": "psql", PREFIXED: forms},
         )
-        self.assertIn("-v prefix=app.", command)
-        self.assertIn("""-v general='["root_url", "lang"]'""", command)
+        self.assertIn(f"-v forms='{json.dumps(forms)}'", command)
 
     def test_the_read_never_returns_the_client_secret(self) -> None:
         sql = READ.read_text(encoding="utf-8")
-        self.assertIn(":'prefix'", sql)
-        self.assertIn(":'general'", sql)
+        self.assertIn("jsonb_each(:'forms'::jsonb) AS form", sql)
+        self.assertIn("jsonb_object_keys(form.value -> 'fields')", sql)
+        self.assertIn("(form.value ->> 'prefix') || field", sql)
         self.assertIn("value - 'client_secret'", sql)
 
     def test_the_report_reads_what_the_store_returned(self) -> None:
         report = next(task for task in _tasks() if _reports(task))
-        stored = {"general": {"lang": "en"}, "security": {"enabled": True}}
+        stored = {"general": {"lang": "en"}, "s3": {}, "security": {"enabled": True}}
         self.assertEqual(
             stored,
             _render(
@@ -175,7 +322,7 @@ class TestTheSettingsPageIsLocked(unittest.TestCase):
         self.assertIn(SHARED_RENDERER, LOADER.read_text(encoding="utf-8"))
 
     def test_the_javascript_service_is_literally_on(self) -> None:
-        services = load_yaml_any(str(ROLE / "meta" / "services.yml"))
+        services = load_yaml_any(str(SERVICES))
         self.assertIs(True, services["javascript"]["enabled"])
 
 

@@ -25,8 +25,23 @@ LISTMONK_EXEC_DATABASE: "container exec -i -e LISTMONK_REALIGN_PASSWORD {{ looku
 LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"
 
 LISTMONK_GENERAL_SETTINGS: "{{ lookup('form_values', application_id, 'general') }}"
-LISTMONK_GENERAL_PREFIX: "app."
+LISTMONK_UPLOAD_SETTINGS: "{{ lookup('form_values', application_id, 'upload') }}"
+LISTMONK_S3_SETTINGS: "{{ lookup('form_values', application_id, 's3') }}"
+LISTMONK_BOUNCE_SETTINGS: "{{ lookup('form_values', application_id, 'bounce') }}"
 LISTMONK_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'security') }}"
+LISTMONK_PREFIXED_FORMS:
+  general:
+    prefix: "app."
+    fields: "{{ LISTMONK_GENERAL_SETTINGS }}"
+  upload:
+    prefix: "upload."
+    fields: "{{ LISTMONK_UPLOAD_SETTINGS }}"
+  s3:
+    prefix: "upload.s3."
+    fields: "{{ LISTMONK_S3_SETTINGS }}"
+  bounce:
+    prefix: "bounce."
+    fields: "{{ LISTMONK_BOUNCE_SETTINGS }}"
 
 LISTMONK_SETTINGS:
   - key: "app.notify_emails"
@@ -77,9 +92,6 @@ LISTMONK_SETTINGS:
       ] | to_json }}
     condition: "{{ LISTMONK_EMAIL.smtp | bool }}"
 
-  - key: "bounce.enabled"
-    value: "true"
-
   - key: "bounce.mailboxes"
     value: >-
       {{ [
@@ -99,36 +111,12 @@ LISTMONK_SETTINGS:
         }
       ] | to_json }}
 
-  - key: "upload.provider"
-    value: '"s3"'
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
   - key: "upload.s3.aws_access_key_id"
     value: "{{ lookup('objstore', application_id, 'access_key') | to_json }}"
     condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
   - key: "upload.s3.aws_secret_access_key"
     value: "{{ lookup('objstore', application_id, 'secret_key') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.aws_default_region"
-    value: "{{ lookup('objstore', application_id, 'region') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.bucket"
-    value: "{{ lookup('objstore', application_id, 'bucket') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.url"
-    value: "{{ lookup('objstore', application_id, 'url') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.public_url"
-    value: "{{ lookup('objstore', application_id, 'public_url') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.bucket_type"
-    value: '"public"'
     condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
 LISTMONK_SUPER_ADMIN_ROLE_ID: 1
@@ -180,16 +168,6 @@ LISTMONK_DESIGN_APPEARANCE:
   - key: "appearance.public.custom_css"
     template: "design/public.css.j2"
     marker: "{{ LISTMONK_DESIGN_CSS_MARKER }}"
-LISTMONK_DESIGN_BRANDING:
-  - key: "app.logo_url"
-    design: "{{ LISTMONK_DESIGN.urls.header.svg }}"
-    fallback: "{{ service_provider.platform.logo }}"
-  - key: "app.favicon_url"
-    design: "{{ LISTMONK_DESIGN.urls.favicon_ico }}"
-    fallback: "{{ service_provider.platform.favicon }}"
-  - key: "app.site_name"
-    design: "{{ LISTMONK_DESIGN.label }}"
-    fallback: "{{ service_provider.company.titel }} Mailing list"
 
 LISTMONK_MCP_ENABLED: "{{ lookup('config', application_id, 'services.listmonkmcp.enabled') | bool }}"
 LISTMONK_MCP_SERVICE_KEY: "listmonkmcp"

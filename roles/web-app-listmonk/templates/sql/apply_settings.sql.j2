@@ -2,8 +2,10 @@
 {%- for setting in LISTMONK_SETTINGS if (setting.condition | default(true)) | bool -%}
 {%- set desired.settings = desired.settings | combine({setting.key: setting.value | from_json}) -%}
 {%- endfor -%}
-{%- for field, value in LISTMONK_GENERAL_SETTINGS.items() -%}
-{%- set desired.settings = desired.settings | combine({LISTMONK_GENERAL_PREFIX ~ field: value}) -%}
+{%- for form in LISTMONK_PREFIXED_FORMS.values() -%}
+{%- for field, value in form.fields.items() -%}
+{%- set desired.settings = desired.settings | combine({form.prefix ~ field: value}) -%}
+{%- endfor -%}
 {%- endfor -%}
 WITH desired AS (
   SELECT key, value
