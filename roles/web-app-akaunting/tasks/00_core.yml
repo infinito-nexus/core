@@ -1,11 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml
-
 - name: "🏗️ Akaunting | Install and configure on the stack host"
   when: IS_STACK_HOST | bool
   block:

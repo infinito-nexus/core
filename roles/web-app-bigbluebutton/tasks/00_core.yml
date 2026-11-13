@@ -1,11 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml
-
 - name: "👔 BBB manager-side operations (compose render + container exec)"
   include_tasks: 00_core/manager_ops.yml
   when: IS_STACK_HOST | bool

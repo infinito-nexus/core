@@ -1,9 +1,4 @@
 ---
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml
-
 - name: "🎨 Web manifest of {{ application_id }}"
   include_tasks: 01_manifest.yml
   when: IS_STACK_HOST | bool

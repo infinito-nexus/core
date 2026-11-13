@@ -1,9 +1,4 @@
 ---
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml
-
 - name: "♟️ Converge the showcase games of {{ application_id }}"
   include_tasks: 01_showcase.yml
   when: IS_STACK_HOST | bool
