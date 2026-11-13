@@ -40,6 +40,7 @@ ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
 PREFLIGHT = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/preflight.yml"
 RESOLVERS = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/resolvers.yml"
 CORE = PROJECT_ROOT / "roles/svc-net-tor/tasks/00_core.yml"
+REFUSE_NONE = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/refuse_none.yml"
 NETWORKS = PROJECT_ROOT / "group_vars/all/08_networks.yml"
 TABLE = "infinito_svc_net_tor"
 UPSTREAM = "198.51.100.53"
@@ -137,6 +138,7 @@ def _variables(route: str, egress: dict, **overrides) -> dict:
         "tor_node": "node",
         "STACK_HOST": "node",
         "TOR_ROUTER_NODES": ["node"],
+        "TOR_NODE_ROUTES": route != "none",
         "TOR_ONION_EXTRA_PORTS": [],
         "TOR_HS_BACKEND_HOST": "172.17.0.1",
         "TOR_DNSMASQ_OWNS_LISTENER": True,
@@ -145,7 +147,7 @@ def _variables(route: str, egress: dict, **overrides) -> dict:
         "FIREWALL_TABLE": TABLE,
         "TOR_EGRESS_CLIENT_CIDRS": CLIENT_CIDRS,
         "TOR_EGRESS_GUARDED_PORTS": [
-            {"port": 9040, "protocol": "tcp", "admitted": "containers"}
+            {"port": 9040, "protocol": "tcp", "admitted": "containers", "router": True}
         ],
         "networks": {"internet": {"dns": UPSTREAM}},
         "TOR_CONTAINER": "tor",
@@ -367,11 +369,14 @@ class TestNone(unittest.TestCase):
         self.assertNotIn("user:", render("compose.yml.j2", "none", _egress()))
 
     def test_none_is_refused_over_an_installed_router(self) -> None:
-        block = _task(
+        include = _task(
             CORE, "🧹 Refuse route none while an earlier route's router is installed"
         )
         self.assertEqual(
-            block["when"],
+            include["ansible.builtin.include_tasks"], "router/refuse_none.yml"
+        )
+        self.assertEqual(
+            include["when"],
             [
                 "TOR_EGRESS_ROUTE == 'none'",
                 "inventory_hostname in TOR_ROUTER_NODES",
@@ -383,7 +388,9 @@ class TestNone(unittest.TestCase):
         dropin = load_yaml_any(
             str(PROJECT_ROOT / "roles" / "svc-net-tor" / ROLE_FILE_VARS_MAIN)
         )["TOR_DNSMASQ_CONF"]
-        lookup = _task(CORE, "🔎 Look for the router files an earlier route installed")
+        lookup = _task(
+            REFUSE_NONE, "🔎 Look for the router files an earlier route installed"
+        )
         loop_variables = {
             "tor_egress_firewall": {
                 "FIREWALL_FRAGMENT_DIR": firewall["FIREWALL_FRAGMENT_DIR"]
@@ -396,25 +403,50 @@ class TestNone(unittest.TestCase):
             paths,
             [f"{firewall['FIREWALL_FRAGMENT_DIR']}/svc-net-tor.conf", dropin],
         )
-        that = _that(CORE, "✅ Refuse route none over a router that would keep running")
-        for leftovers, passes in (
-            ((False, False), True),
-            ((True, False), False),
-            ((False, True), False),
-            ((True, True), False),
+        read = _task(REFUSE_NONE, "🔎 Read the packet filter an earlier route left")
+        self.assertEqual(
+            read["ansible.builtin.slurp"]["src"],
+            "{{ _tor_egress_leftovers.results[0].item }}",
+        )
+        self.assertEqual(read["when"], "_tor_egress_leftovers.results[0].stat.exists")
+        refusal = _task(
+            REFUSE_NONE, "✅ Refuse route none over a router that would keep running"
+        )
+        that = refusal["ansible.builtin.assert"]["that"][0]
+        remaining = refusal["vars"]["_tor_egress_router_files"]
+        router = render("nftables.conf.j2", "onion", _egress())
+        guard = render("nftables.conf.j2", "none", _egress())
+        for fragment, dropin_exists, refused in (
+            (None, False, []),
+            (guard, False, []),
+            (router, False, paths[:1]),
+            (None, True, paths[1:]),
+            (guard, True, paths[1:]),
+            (router, True, paths),
         ):
             results = [
-                {"item": path, "stat": {"exists": exists}}
-                for path, exists in zip(paths, leftovers, strict=True)
+                {"item": paths[0], "stat": {"exists": fragment is not None}},
+                {"item": paths[1], "stat": {"exists": dropin_exists}},
             ]
-            with self.subTest(leftovers=leftovers):
+            slurped = {"skipped": True} if fragment is None else _slurped(fragment)
+            with self.subTest(
+                fragment="none" if fragment is None else fragment == router,
+                dropin=dropin_exists,
+            ):
+                files = _evaluate(
+                    remaining,
+                    {
+                        "_tor_egress_leftovers": {"results": results},
+                        "_tor_egress_fragment": slurped,
+                    },
+                    conditional=False,
+                )
+                self.assertEqual(list(files), refused)
                 self.assertEqual(
                     _evaluate(
-                        that,
-                        {"_tor_egress_leftovers": {"results": results}},
-                        conditional=True,
+                        that, {"_tor_egress_router_files": files}, conditional=True
                     ),
-                    passes,
+                    not refused,
                 )
 
 

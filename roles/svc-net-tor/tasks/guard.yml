@@ -1,0 +1,46 @@
+---
+- name: "🛡️ Tor guard | Bound the Tor listeners of this node"
+  vars:
+    tor_node: "{{ inventory_hostname }}"
+  when: not TOR_NODE_ROUTES
+  block:
+    - name: "🛡️ Tor guard | Load the guard of this node"
+      ansible.builtin.include_role:
+        name: svc-net-firewall
+
+    - name: "🛡️ Tor guard | Check the guard of this node"
+      ansible.builtin.include_tasks: guard/verify.yml
+
+- name: "🛡️ Tor guard | Bound the Tor listeners of every node the role does not run on"
+  when: TOR_REMOTE_NODES | length > 0
+  block:
+    - name: "📄 Tor guard | Load the fragment naming of svc-net-firewall"
+      ansible.builtin.include_vars:
+        file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/vars/main.yml') }}"
+        name: tor_guard_firewall
+
+    - name: "🛡️ Tor guard | Load the guard of every node the role does not run on"
+      ansible.builtin.include_tasks:
+        file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/tasks/02_fragment.yml') }}"
+        apply:
+          delegate_to: "{{ tor_node }}"
+      vars:
+        FIREWALL_FRAGMENT_ROLE: "{{ application_id }}"
+        FIREWALL_FRAGMENT_DIR: "{{ tor_guard_firewall.FIREWALL_FRAGMENT_DIR }}"
+        FIREWALL_FRAGMENT_SRC: "{{ tor_guard_firewall.FIREWALL_FRAGMENT_SRC }}"
+        FIREWALL_FRAGMENT_FILE: "{{ tor_guard_firewall.FIREWALL_FRAGMENT_FILE }}"
+        FIREWALL_TABLE: "{{ tor_guard_firewall.FIREWALL_TABLE }}"
+      loop: "{{ TOR_REMOTE_NODES }}"
+      loop_control:
+        loop_var: tor_node
+      run_once: true
+
+    - name: "🛡️ Tor guard | Check the guard of every node the role does not run on"
+      ansible.builtin.include_tasks:
+        file: guard/verify.yml
+        apply:
+          delegate_to: "{{ tor_node }}"
+      loop: "{{ TOR_REMOTE_NODES }}"
+      loop_control:
+        loop_var: tor_node
+      run_once: true

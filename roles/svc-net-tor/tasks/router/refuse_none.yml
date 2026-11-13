@@ -1,0 +1,40 @@
+---
+- name: "📄 Load the fragment naming of svc-net-firewall"
+  ansible.builtin.include_vars:
+    file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/vars/main.yml') }}"
+    name: tor_egress_firewall
+
+- name: "🔎 Look for the router files an earlier route installed"
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ [ tor_egress_firewall.FIREWALL_FRAGMENT_DIR, application_id ~ '.conf' ] | path_join }}"
+    - "{{ TOR_DNSMASQ_CONF }}"
+  register: _tor_egress_leftovers
+  become: true
+
+- name: "🔎 Read the packet filter an earlier route left"
+  ansible.builtin.slurp:
+    src: "{{ _tor_egress_leftovers.results[0].item }}"
+  register: _tor_egress_fragment
+  when: _tor_egress_leftovers.results[0].stat.exists
+  become: true
+
+- name: "✅ Refuse route none over a router that would keep running"
+  ansible.builtin.assert:
+    that:
+      - _tor_egress_router_files | length == 0
+    fail_msg: >-
+      route none would leave {{ _tor_egress_router_files | join(' and ') }}
+      in place: the packet filter keeps redirecting and, after route all,
+      dropping egress while Tor loses the group its relay traffic is exempted
+      by, so the node loses egress. Keep route onion, or remove the router
+      first: delete the nft table {{ TOR_EGRESS_NFT_TABLE }} and both files,
+      restore /etc/resolv.conf and restart dnsmasq.
+  vars:
+    _tor_egress_router_files: >-
+      {{ ([_tor_egress_leftovers.results[0].item]
+          if _tor_egress_fragment is not skipped
+             and 'chain output' in (_tor_egress_fragment.content | b64decode)
+          else [])
+         + (_tor_egress_leftovers.results[1:] | selectattr('stat.exists') | map(attribute='item') | list) }}

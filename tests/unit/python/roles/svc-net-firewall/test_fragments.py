@@ -111,7 +111,7 @@ EGRESS_LISTS = {
     "tor": {"include": ["198.51.100.0/24", "2001:db8::/32"], "except": []},
     "direct": {"include": ["docker.io", "192.0.2.0/28"], "except": ["192.0.2.10"]},
 }
-ROUTES = ("onion", "all")
+ROUTES = ("none", "onion", "all")
 
 
 def _run(argv: list[str]) -> subprocess.CompletedProcess[str]:
@@ -164,6 +164,7 @@ def _render(path: str, mode: str = "swarm", route: str = "onion") -> str:
     return environment.from_string(read_text(path)).render(
         DEPLOYMENT_MODE=mode,
         TOR_EGRESS_ROUTE=route,
+        TOR_NODE_ROUTES=route != "none",
         TOR_EGRESS_PLAN=tor_egress_plan(EGRESS_LISTS, route),
         **COMMON,
     )
