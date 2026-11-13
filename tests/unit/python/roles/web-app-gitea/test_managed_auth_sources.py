@@ -183,7 +183,9 @@ class TestTheDriftReadsWhatGiteaStores(unittest.TestCase):
 
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_the_oauth_drift_runs_before_the_oidc_setup(self) -> None:
-        tasks = _tasks(SETUP)
+        oauth = next(task for task in _tasks(SETUP) if "setup/oidc.yml" in str(task))
+        self.assertEqual("GITEA_OIDC_ENABLED | bool", oauth["when"])
+        tasks = oauth["block"]
         drift = _index(tasks, lambda task: "setup/drift.yml" in str(task))
         oidc = _index(tasks, lambda task: "setup/oidc.yml" in str(task))
         self.assertLess(drift, oidc)
