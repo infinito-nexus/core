@@ -5,21 +5,29 @@ import sys
 from pathlib import Path
 
 MISSING = object()
+EACH = "*"
 
 
 def held(document, path):
     """
     Args:
         document: the parsed config file.
-        path: the keys that lead to the setting.
+        path: the keys that lead to the setting; a ``*`` key stands for every
+            key of the mapping it reaches.
 
     Returns:
-        The setting, or ``MISSING`` when the file does not hold the path.
+        The setting, or ``MISSING`` when the file does not hold the path; at a
+        ``*`` key, each key of the mapping mapped to what the rest of the path
+        holds below it, so only that part of each entry leaves the file, and
+        no entry at all when the file does not reach the ``*`` key.
     """
     node = document
-    for step in path:
-        if not isinstance(node, dict) or step not in node:
-            return MISSING
+    for index, step in enumerate(path):
+        if not isinstance(node, dict) or (step != EACH and step not in node):
+            return {} if EACH in path[index:] else MISSING
+        if step == EACH:
+            below = {key: held(child, path[index + 1 :]) for key, child in node.items()}
+            return {key: value for key, value in below.items() if value is not MISSING}
         node = node[step]
     return node
 

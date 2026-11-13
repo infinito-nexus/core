@@ -76,6 +76,36 @@ class TestConfigFields(unittest.TestCase):
             {}, self.module.fields(self.config, {"mode": ["gateway", "auth", "mode"]})
         )
 
+    def test_a_wildcard_takes_only_the_rest_of_the_path_out_of_each_entry(
+        self,
+    ) -> None:
+        held = {
+            "mcp": {
+                "servers": {
+                    "web-app-gitea": {
+                        "url": "http://gitea/mcp",
+                        "headers": {"Authorization": "Bearer held-token-value"},
+                    },
+                    "no-url": {"transport": "sse"},
+                }
+            }
+        }
+        self.config.write_text(json.dumps(held), encoding="utf-8")
+        found = self.module.fields(
+            self.config, {"servers": ["mcp", "servers", "*", "url"]}
+        )
+        self.assertEqual({"servers": {"web-app-gitea": "http://gitea/mcp"}}, found)
+        self.assertNotIn("held-token-value", json.dumps(found))
+
+    def test_a_wildcard_the_file_does_not_reach_holds_no_entries(self) -> None:
+        self.config.write_text(json.dumps(DOCUMENT), encoding="utf-8")
+        self.assertEqual(
+            {"servers": {}},
+            self.module.fields(
+                self.config, {"servers": ["mcp", "servers", "*", "url"]}
+            ),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

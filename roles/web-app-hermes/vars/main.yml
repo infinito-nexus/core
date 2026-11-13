@@ -24,4 +24,5 @@ HERMES_DESIGN_THEME_ENABLED: "{{ HERMES_WEBUI_ENABLED | bool and lookup('config'
 HERMES_DESIGN_THEME: "corporate"
 HERMES_DESIGN_THEME_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'dashboard-theme.yaml' ] | path_join }}"
 HERMES_DOCKER_USER_ID: 10000
-HERMES_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"
+HERMES_MCP_CONFIG: "{{ lookup('form_values', application_id, 'mcp') }}"
+HERMES_MCP_SERVERS: "{{ (HERMES_MCP_CONFIG.servers | mcp_with_credentials(MCP_DISCOVERED_SERVERS)) if 'servers' in HERMES_MCP_CONFIG else [] }}"

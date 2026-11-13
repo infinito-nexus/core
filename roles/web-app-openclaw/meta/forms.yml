@@ -45,3 +45,10 @@ config:
       selector: '[name="models.providers.litellm.baseUrl"]'
       type: url
       label: LiteLLM provider base URL
+    servers:
+      source: services.openclaw.mcp_servers.selected
+      when: mcp.enabled
+      mode: enforced
+      selector: '[name="mcp.servers"]'
+      type: textarea
+      label: MCP servers

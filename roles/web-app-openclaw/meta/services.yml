@@ -46,6 +46,8 @@ openclaw:
     userHeader: x-forwarded-preferred-username
     primary: "litellm/{{ LITELLM_CHAT_MODEL }}"
     baseUrl: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+  mcp_servers:
+    selected: "{{ lookup('mcp_servers', credentials=false).selected }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
 kata:
