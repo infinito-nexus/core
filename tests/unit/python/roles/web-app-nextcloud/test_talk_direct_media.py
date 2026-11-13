@@ -15,8 +15,8 @@ from jinja2 import (
 
 import plugins.lookup.container_ports as container_ports_lookup
 from plugins.lookup.container_volumes import container_volumes
-from utils.cache import _reset_cache_for_tests
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,

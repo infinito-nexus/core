@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_RUNNING_ON_ACT"
 COMMENT = "True when running under nektos/act locally."

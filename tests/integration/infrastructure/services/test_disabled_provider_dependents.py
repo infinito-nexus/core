@@ -38,8 +38,8 @@ from cli.administration.inventory.provision.services.disabler import (
     parse_services_disabled,
     reconcile_services_disabled_from_env,
 )
-from utils.cache import _reset_cache_for_tests
 from utils.cache.applications import get_merged_applications
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.github.variant.network import TOR, disabled_services
 from utils.roles.applications.variants import services_overrides_for_round

@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_CONF"
 COMMENT = "Upstream map the cache frontend mounts, rendered by this checkout."

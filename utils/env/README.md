@@ -15,7 +15,8 @@ Every module here belongs to one of four roles: parse, resolve, orchestrate, wri
 |---|---|
 | `parser.py` | Read [default.env](../../default.env) into `(values, comments)` tuples. |
 | `runtime.py` | Resolve host-context lookups (disk, RAM, hostname, GHA/Act flags, `/proc/version`, helper-script invocation). |
-| `builder.py` | Thin orchestrator that defines `EnvBuilder`, `BuildContext`, and `build_env()`. Walks the handler registry. |
+| `context.py` | Defines `EnvBuilder` and `BuildContext`, the two objects every handler is handed. |
+| `builder.py` | Thin orchestrator that defines `build_env()`. Walks the handler registry. |
 | `writer.py` | Serialise an `EnvBuilder` into a docker-compose-compatible `.env` on disk. |
 | [`handlers/`](handlers/) | One module per dynamically-computed variable. See [handlers README](handlers/README.md). |
 

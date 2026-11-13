@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from utils.env.builder import EnvBuilder
+    from utils.env.context import EnvBuilder
 
 _SAFE_VALUE_RE = re.compile(r"^[A-Za-z0-9_/.@:%+=-]+$")
 

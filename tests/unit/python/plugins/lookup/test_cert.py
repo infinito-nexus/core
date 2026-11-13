@@ -6,7 +6,7 @@ from ansible.errors import AnsibleError
 
 import utils.tls_common as _tls_common
 from plugins.lookup.cert import LookupModule
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 

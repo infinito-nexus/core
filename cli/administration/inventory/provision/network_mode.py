@@ -9,9 +9,8 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+from cli.administration.inventory.ruamel_io import dump_document, load_document
 from utils.networks.reachability import NODE_MODES
-
-from .ruamel_io import dump_document, load_document
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito import build as handler
 
 _BLANK = {handler.KEY: ""}

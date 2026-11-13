@@ -10,14 +10,13 @@ from __future__ import annotations
 
 import copy
 import glob
-import os
 from collections import OrderedDict
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
-from utils.cache import base as _base
+from utils.cache import tokens as _tokens
 from utils.cache.base import (
     _RENDER_GUARD,
     _cache_key,
@@ -28,7 +27,6 @@ from utils.cache.base import (
     _stable_variables_signature,
 )
 from utils.cache.carrier import _carried_users, merged_users_cache_key
-from utils.cache.users import store as _store
 from utils.cache.users.forwards import validate_forwards as _validate_forwards
 from utils.cache.users.placeholders import (
     substitute_primary_domain_placeholder as _substitute_primary_domain_placeholder,
@@ -38,6 +36,9 @@ from utils.cache.users.placeholders import (
 )
 from utils.cache.yaml import load_yaml as _load_yaml_cached
 from utils.roles.mapping import ROLE_FILE_META_USERS
+
+if TYPE_CHECKING:
+    import os
 
 _USERS_DEFAULTS_CACHE: dict[str, dict[str, Any]] = {}
 _MERGED_USERS_CACHE: dict[tuple, dict[str, Any]] = {}
@@ -213,82 +214,6 @@ def _build_users(
     return users
 
 
-def _load_store_users(file_tokens: str | os.PathLike[str] | None) -> dict[str, Any]:
-    if not file_tokens:
-        return {}
-
-    path = Path(file_tokens)
-    if not path.exists():
-        return {}
-
-    data = _load_yaml_cached(path, default_if_missing={})
-    users = data.get("users", {}) if isinstance(data, dict) else {}
-    return users if isinstance(users, dict) else {}
-
-
-def _store_signature(variables: Mapping[str, Any] | None, tokens_file: Path) -> tuple:
-    """Return the cache-key part of the store the users are hydrated from.
-
-    Args:
-        variables: the play's variable scope.
-        tokens_file: the controller's tokens file, used when no snapshot exists.
-
-    Returns:
-        ``(STORE_FACT, digest)``, equal for the tokens file and the
-        ``sys_token_store_users`` fact when both hold the same tokens.
-    """
-    snapshot = _store.snapshot(variables)
-    store = snapshot if snapshot is not None else _load_store_users(tokens_file)
-    return (_store.STORE_FACT, _store.tokens_digest(store))
-
-
-def _resolve_tokens_file(variables: Mapping[str, Any] | None) -> Path:
-    candidates: list[Path] = []
-
-    def _add_candidate(value: Any) -> None:
-        if value is None:
-            return
-        text = str(value).strip()
-        if text:
-            candidates.append(Path(text))
-
-    variables = variables or {}
-    _add_candidate(variables.get("FILE_TOKENS"))
-
-    tokens_name = _base.DEFAULT_TOKENS_FILE.name
-    secrets_name = _base.DEFAULT_TOKENS_FILE.parent.name
-
-    dir_secrets = variables.get("DIR_SECRETS")
-    if dir_secrets:
-        _add_candidate(Path(str(dir_secrets)) / tokens_name)
-
-    dir_var_lib = variables.get("DIR_VAR_LIB")
-    if dir_var_lib:
-        _add_candidate(Path(str(dir_var_lib)) / secrets_name / tokens_name)
-
-    _add_candidate(os.environ.get("FILE_TOKENS"))
-
-    env_dir_secrets = os.environ.get("DIR_SECRETS")
-    if env_dir_secrets:
-        _add_candidate(Path(env_dir_secrets) / tokens_name)
-
-    env_dir_var_lib = os.environ.get("DIR_VAR_LIB")
-    if env_dir_var_lib:
-        _add_candidate(Path(env_dir_var_lib) / secrets_name / tokens_name)
-
-    candidates.append(_base.DEFAULT_TOKENS_FILE)
-
-    seen: set[Path] = set()
-    for candidate in candidates:
-        if candidate in seen:
-            continue
-        seen.add(candidate)
-        if candidate.exists():
-            return candidate
-
-    return candidates[0]
-
-
 def _hydrate_users_tokens(
     users: Mapping[str, Any] | None,
     store_users: Mapping[str, Any] | None,
@@ -422,12 +347,12 @@ def get_merged_users(
         variables["DOMAIN_PRIMARY"] = variables["SYSTEM_EMAIL_DOMAIN"]
 
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
-    tokens_file = _resolve_tokens_file(variables)
-    snapshot = _store.snapshot(variables)
+    tokens_file = _tokens.resolve_tokens_file(variables)
+    snapshot = _tokens.snapshot(variables)
     cache_key = (
         _cache_key(resolved_roles_dir),
         _stable_variables_signature(source_variables),
-        _store_signature(variables, tokens_file),
+        _tokens.store_signature(variables, tokens_file),
         templar is not None,
     )
     cached = _MERGED_USERS_CACHE.get(cache_key)
@@ -450,7 +375,9 @@ def get_merged_users(
     _validate_forwards(merged)
     hydrated = _hydrate_users_tokens(
         merged,
-        dict(snapshot) if snapshot is not None else _load_store_users(tokens_file),
+        dict(snapshot)
+        if snapshot is not None
+        else _tokens.load_store_users(tokens_file),
     )
 
     if getattr(_RENDER_GUARD, "users", False):
@@ -485,4 +412,4 @@ def get_merged_users(
 def _reset() -> None:
     _USERS_DEFAULTS_CACHE.clear()
     _MERGED_USERS_CACHE.clear()
-    _store._reset()
+    _tokens._reset()

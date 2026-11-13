@@ -28,7 +28,7 @@ from typing import Any
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
-from cli.administration.inventory.provision.ruamel_io import round_trip_yaml
+from cli.administration.inventory.ruamel_io import round_trip_yaml
 from utils.manager.inventory import InventoryManager
 
 from .emit import (

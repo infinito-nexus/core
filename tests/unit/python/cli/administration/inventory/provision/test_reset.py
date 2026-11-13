@@ -7,7 +7,7 @@ from unittest.mock import patch
 from ruamel.yaml import YAML
 
 from cli.administration.inventory.provision.reset import reset_credentials
-from cli.administration.inventory.provision.ruamel_io import load_document
+from cli.administration.inventory.ruamel_io import load_document
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
 MODULE = "cli.administration.inventory.provision.reset"

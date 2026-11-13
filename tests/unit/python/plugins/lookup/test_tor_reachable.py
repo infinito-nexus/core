@@ -7,7 +7,7 @@ from pathlib import Path
 from ansible.errors import AnsibleError
 
 from plugins.lookup.tor_reachable import LookupModule, is_reachable
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 

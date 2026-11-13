@@ -41,7 +41,7 @@ class TestCaTrustPaths(unittest.TestCase):
                 )
 
     def test_env_handler_exports_the_host_spot(self):
-        from utils.env.builder import BuildContext, EnvBuilder
+        from utils.env.context import BuildContext, EnvBuilder
         from utils.env.handlers.infinito.ca import cert_host as handler
 
         eb = EnvBuilder()

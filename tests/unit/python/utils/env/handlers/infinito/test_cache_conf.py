@@ -8,7 +8,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito.cache import conf as handler
 
 

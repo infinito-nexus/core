@@ -201,7 +201,7 @@ flowchart LR
 | ------------------------ | --------------- | --------------------------------- |
 | compose `initialize` / `reinstall` | yes | named roots + orphaned closure    |
 | compose `update`         | no              | ansible extra-var only            |
-| compose CI matrix (`legacy_resolver` direct) | no | co-deploy superset, no prune |
+| compose CI matrix (`_resolve_round_include` direct) | no | co-deploy superset, no prune |
 | swarm (`utils.tests.swarm.derive_includes`) | yes | named roots + orphaned closure |
 
 The swarm path applies the same cut through the `blocked` parameter of

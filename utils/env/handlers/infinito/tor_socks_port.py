@@ -15,7 +15,7 @@ from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_TOR_SOCKS_PORT"
 COMMENT = "Node Tor SOCKS port (SPOT: svc-net-tor services.tor.ports.local.socks)."

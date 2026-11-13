@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 from utils.cache.files import read_text
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_DOMAIN"
 COMMENT = "Domain of this stack: <main|worktree branch>.INFINITO_DNS_DOMAIN."

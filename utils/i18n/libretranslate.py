@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml
 from utils.i18n.client import merge
-from utils.inventory.tools import LANE_SERVICE
+from utils.inventory.tools_vars import LANE_SERVICE, render
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
@@ -242,8 +242,6 @@ def _vars_file(root: Path) -> Path:
     Returns:
         The rendered file, beside the template so the container sees it.
     """
-    from utils.inventory.tools import render
-
     return render(root, baked_languages(root))
 
 

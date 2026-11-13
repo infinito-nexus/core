@@ -5,7 +5,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from utils.cache import PROJECT_ROOT, _reset_cache_for_tests
+from utils.cache import PROJECT_ROOT
 from utils.cache.applications import get_application_defaults
 from utils.cache.base import (
     ROLES_DIR,
@@ -13,6 +13,7 @@ from utils.cache.base import (
     _fingerprint_mapping,
     _stable_variables_signature,
 )
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.users import (
     _build_users,
     _compute_reserved_usernames,

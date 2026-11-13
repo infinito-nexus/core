@@ -7,7 +7,7 @@ import subprocess
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_GPU_COUNT"
 COMMENT = "GPUs the compose services reserve: 'all' on an NVIDIA host, else 0."

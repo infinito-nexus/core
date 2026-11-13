@@ -15,7 +15,6 @@ from . import PROJECT_ROOT
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.cache import _reset_cache_for_tests
 from utils.cache.applications import (
     _build_variants,
     get_application_defaults,
@@ -25,6 +24,7 @@ from utils.cache.applications import (
 from utils.cache.applications import (
     _load_variants_overrides as _load_yaml_variant_list,
 )
+from utils.cache.reset import _reset_cache_for_tests
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVER,
     ROLE_FILE_META_SERVICES,

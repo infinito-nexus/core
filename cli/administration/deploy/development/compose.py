@@ -12,6 +12,7 @@ from utils.env.handlers.infinito.cache.conf import KEY as CACHE_CONF_KEY
 from utils.env.handlers.infinito.cache.conf import RELATIVE as CACHE_CONF
 
 from .coredns import CoreDNSCorefileRenderer
+from .docker_root import cleanup_docker_root
 from .env import compose_file_args
 from .network import detect_outer_network_mtu
 from .proc import run_streaming
@@ -310,9 +311,11 @@ class Compose:
 
     def down(self) -> None:
         """Tear down the stack."""
-        from .down import down_stack
-
-        down_stack(repo_root=self.repo_root, distro=self.distro)
+        print(">>> Stopping compose stack and removing volumes")
+        try:
+            self.run(["down", "--remove-orphans", "-v"])
+        finally:
+            cleanup_docker_root()
 
     def exec(
         self,
