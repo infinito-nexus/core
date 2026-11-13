@@ -19,7 +19,7 @@ from utils.paths import read_group_path
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from utils.cache.apt_sources import Targets
+    from utils.cache.apt_sources import Claims, Targets
     from utils.cache.hosts import Declarations
 
     Runner = Callable[[list[str]], subprocess.CompletedProcess[str]]
@@ -143,15 +143,15 @@ def apt_plan(root: Path, targets: Targets) -> Plan:
         entries and stanzas.
     """
     plan = Plan()
+    claims: Claims = {}
     parts = root / SOURCE_PARTS
-    lists = sorted(parts.glob("*.list"))
-    stanzas = sorted(parts.glob(f"*{DEB822_SUFFIX}"))
-    for path in [root / SOURCES_LIST, *lists, *stanzas]:
+    files = sorted([*parts.glob("*.list"), *parts.glob(f"*{DEB822_SUFFIX}")])
+    for path in [root / SOURCES_LIST, *files]:
         text = _read(path)
         if text is None:
             continue
         deb822 = path.suffix == DEB822_SUFFIX
-        synced, added = (sources_file if deb822 else list_file)(text, targets)
+        synced, added = (sources_file if deb822 else list_file)(text, targets, claims)
         if added:
             plan.changes[path.relative_to(root)] = synced
             (plan.stanzas if deb822 else plan.entries).extend(added)

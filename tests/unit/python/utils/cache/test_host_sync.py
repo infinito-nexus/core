@@ -78,6 +78,19 @@ DECLARED = Declarations(
             upstream="${UBUNTU_FALLBACK}",
             distribution="jammy",
         ),
+        CachedRepo(
+            name="apt-ubuntu-security",
+            flavor="apt",
+            upstream="${UBUNTU_PRIMARY}",
+            distribution="jammy-security",
+            mirror="apt-ubuntu-security-mirror",
+        ),
+        CachedRepo(
+            name="apt-ubuntu-security-mirror",
+            flavor="apt",
+            upstream="${UBUNTU_FALLBACK}",
+            distribution="jammy-security",
+        ),
         CachedRepo(name="pypi-proxy", flavor="pypi", upstream="https://pypi.org/"),
     ],
     hosts=[
@@ -90,6 +103,11 @@ DECLARED = Declarations(
                 ("/debian/", "apt-debian"),
                 ("/debian-security/", "apt-debian-security"),
             ),
+            listen=(80,),
+        ),
+        CachedHost(
+            host="security.ubuntu.com",
+            paths=(("/ubuntu/", "apt-ubuntu-security"),),
             listen=(80,),
         ),
     ],
@@ -113,6 +131,7 @@ deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] http://security.d
 DEBIAN_SYNCED = """deb http://127.0.0.1:8081/repository/apt-debian/ bookworm main contrib
 deb http://deb.debian.org/debian bookworm main contrib
 deb-src http://deb.debian.org/debian bookworm main
+deb http://127.0.0.1:8081/repository/apt-debian/ bookworm-updates main
 deb http://deb.debian.org/debian bookworm-updates main
 deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] http://127.0.0.1:8081/repository/apt-debian-security/ bookworm-security main
 deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] http://security.debian.org/debian-security bookworm-security main
@@ -126,8 +145,8 @@ Components: main restricted
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 Types: deb
-URIs: http://de.archive.ubuntu.com/ubuntu/
-Suites: jammy
+URIs: http://security.ubuntu.com/ubuntu/
+Suites: jammy-security
 Components: universe
 Signed-By:
  -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -138,14 +157,14 @@ Signed-By:
 UBUNTU_COPIES = (
     """Types: deb
 URIs: http://127.0.0.1:8081/repository/apt-ubuntu/
-Suites: jammy
+Suites: jammy jammy-updates
 Components: main restricted
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 """,
     """Types: deb
-URIs: http://127.0.0.1:8081/repository/apt-ubuntu/
-Suites: jammy
+URIs: http://127.0.0.1:8081/repository/apt-ubuntu-security/
+Suites: jammy-security
 Components: universe
 Signed-By:
  -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -155,6 +174,39 @@ Signed-By:
 
 """,
 )
+TRIXIE = """Types: deb
+URIs: http://deb.debian.org/debian
+Suites: trixie trixie-updates trixie-backports
+Components: main non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.pgp
+
+Types: deb
+URIs: http://deb.debian.org/debian-security
+Suites: trixie-security
+Components: main non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.pgp
+"""
+TRIXIE_COPIES = (
+    """Types: deb
+URIs: http://127.0.0.1:8081/repository/apt-debian/
+Suites: trixie trixie-updates trixie-backports
+Components: main non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.pgp
+
+""",
+    """Types: deb
+URIs: http://127.0.0.1:8081/repository/apt-debian-security/
+Suites: trixie-security
+Components: main non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.pgp
+
+""",
+)
+NOBLE = """deb http://de.archive.ubuntu.com/ubuntu/ noble main universe
+deb http://de.archive.ubuntu.com/ubuntu/ noble-updates main universe
+deb http://de.archive.ubuntu.com/ubuntu/ noble-backports main universe
+deb http://de.archive.ubuntu.com/ubuntu/ noble-security main universe
+"""
 SKIPPED = """deb [trusted=true] http://deb.debian.org/debian bookworm main
 deb [ allow-insecure=1 ] http://deb.debian.org/debian bookworm contrib
 deb [arch=amd64 allow-weak=on] http://deb.debian.org/debian-security bookworm-security main
@@ -355,8 +407,11 @@ class TestAptHost(HostCase):
         )
         run = FakeRun()
         _sync(self.root, run=run)
-        copy = "deb http://127.0.0.1:8081/repository/apt-ubuntu/ jammy main\n"
-        self.assertEqual(run.fetched, [copy, "".join(UBUNTU_COPIES)])
+        copies = (
+            "deb http://127.0.0.1:8081/repository/apt-ubuntu/ jammy main\n"
+            "deb http://127.0.0.1:8081/repository/apt-ubuntu/ jammy-updates main\n"
+        )
+        self.assertEqual(run.fetched, [copies, "".join(UBUNTU_COPIES)])
 
     def test_the_update_fails_on_a_transient_error_too(self) -> None:
         _host(self.root, "debian", {SOURCES_LIST: DEBIAN})
@@ -371,6 +426,97 @@ class TestAptHost(HostCase):
             "debian",
             {SOURCES_LIST: SKIPPED, SOURCE_PARTS / "skipped.sources": SKIPPED_STANZAS},
         )
+        before = _snapshot(self.root)
+        self.assertEqual(
+            _sync(self.root),
+            ["no host source is one the cache serves; nothing written"],
+        )
+        self.assertEqual(_snapshot(self.root), before)
+
+    def test_every_stock_suite_of_a_trixie_host_points_at_nexus(self) -> None:
+        _host(self.root, "debian", {SOURCE_PARTS / "debian.sources": TRIXIE})
+        _sync(self.root)
+        first, second = TRIXIE.split("\n\n")
+        expected = f"{TRIXIE_COPIES[0]}{first}\n\n{TRIXIE_COPIES[1]}{second}"
+        self.assertEqual(self.read(SOURCE_PARTS / "debian.sources"), expected)
+
+    def test_each_pocket_of_a_shared_ubuntu_mirror_reaches_its_repository(
+        self,
+    ) -> None:
+        _host(self.root, "ubuntu", {SOURCES_LIST: NOBLE})
+        _sync(self.root)
+        copied = [
+            line.split()[1]
+            for line in self.read(SOURCES_LIST).splitlines()
+            if line.split()[1].startswith(NEXUS)
+        ]
+        repository = f"{NEXUS}/repository"
+        self.assertEqual(
+            copied,
+            [
+                f"{repository}/apt-ubuntu/",
+                f"{repository}/apt-ubuntu/",
+                f"{repository}/apt-ubuntu/",
+                f"{repository}/apt-ubuntu-security/",
+            ],
+        )
+
+    def test_a_country_alias_of_a_proxied_archive_routes_like_it(self) -> None:
+        listed = (
+            "deb http://us.archive.ubuntu.com/ubuntu/ resolute main\n"
+            "deb http://ports.ubuntu.com/ubuntu-ports resolute main\n"
+            "deb http://archive.ubuntu.com.example/ubuntu/ resolute main\n"
+        )
+        _host(self.root, "ubuntu", {SOURCES_LIST: listed})
+        _sync(self.root)
+        copy = "deb http://127.0.0.1:8081/repository/apt-ubuntu/ resolute main\n"
+        self.assertEqual(self.read(SOURCES_LIST), copy + listed)
+
+    def test_two_archives_never_share_a_copied_repository_and_suite(self) -> None:
+        listed = (
+            "deb http://archive.ubuntu.com/ubuntu/ noble main\n"
+            "deb [signed-by=/etc/apt/keyrings/mirror.gpg] http://de.archive.ubuntu.com/ubuntu/ noble universe\n"
+            "deb http://archive.ubuntu.com/ubuntu/ noble restricted\n"
+        )
+        _host(self.root, "ubuntu", {SOURCES_LIST: listed})
+        run = FakeRun()
+        _sync(self.root, run=run)
+        self.assertEqual(
+            run.fetched[0],
+            "deb http://127.0.0.1:8081/repository/apt-ubuntu/ noble main\n"
+            "deb http://127.0.0.1:8081/repository/apt-ubuntu/ noble restricted\n",
+        )
+
+    def test_the_first_file_apt_reads_claims_a_repository_and_suite(self) -> None:
+        mirror = (
+            "Types: deb\n"
+            "URIs: http://de.archive.ubuntu.com/ubuntu/\n"
+            "Suites: noble\n"
+            "Components: universe\n"
+            "Signed-By: /etc/apt/keyrings/mirror.gpg\n"
+        )
+        main = "deb http://archive.ubuntu.com/ubuntu/ noble main\n"
+        _host(
+            self.root,
+            "ubuntu",
+            {
+                SOURCE_PARTS / "00-mirror.sources": mirror,
+                SOURCE_PARTS / "50-main.list": main,
+            },
+        )
+        _sync(self.root)
+        self.assertEqual(self.read(SOURCE_PARTS / "50-main.list"), main)
+        self.assertIn(
+            f"URIs: {NEXUS}/repository/apt-ubuntu/\n",
+            self.read(SOURCE_PARTS / "00-mirror.sources"),
+        )
+
+    def test_a_suite_its_archive_has_no_repository_for_stays(self) -> None:
+        listed = (
+            "deb http://security.ubuntu.com/ubuntu/ noble main\n"
+            "deb http://deb.debian.org/debian-security trixie main\n"
+        )
+        _host(self.root, "ubuntu", {SOURCES_LIST: listed})
         before = _snapshot(self.root)
         self.assertEqual(
             _sync(self.root),
@@ -438,25 +584,28 @@ class TestRevert(HostCase):
 
 
 class TestTargets(unittest.TestCase):
-    def test_every_declared_archive_maps_to_its_primary_repository(self) -> None:
+    def test_every_declared_archive_maps_each_pocket_to_its_repository(self) -> None:
         targets = apt_targets(NEXUS, MIRRORS, DECLARED)
-        named = {key: target.url.rsplit("/", 2)[-2] for key, target in targets.items()}
+        named = {
+            archive: {
+                key: target.url.rsplit("/", 2)[-2] for key, target in pockets.items()
+            }
+            for archive, pockets in targets.items()
+        }
+        ubuntu = {"": "apt-ubuntu", "security": "apt-ubuntu-security"}
         self.assertEqual(
             named,
             {
-                ("deb.debian.org/debian", "bookworm"): "apt-debian",
-                ("ftp.debian.org/debian", "bookworm"): "apt-debian",
-                (
-                    "deb.debian.org/debian-security",
-                    "bookworm-security",
-                ): "apt-debian-security",
-                (
-                    "security.debian.org/debian-security",
-                    "bookworm-security",
-                ): "apt-debian-security",
-                ("de.archive.ubuntu.com/ubuntu", "jammy"): "apt-ubuntu",
-                ("ftp.halifax.rwth-aachen.de/ubuntu", "jammy"): "apt-ubuntu",
-                ("archive.ubuntu.com/ubuntu", "jammy"): "apt-ubuntu",
+                "deb.debian.org/debian": {"": "apt-debian"},
+                "ftp.debian.org/debian": {"": "apt-debian"},
+                "deb.debian.org/debian-security": {"security": "apt-debian-security"},
+                "security.debian.org/debian-security": {
+                    "security": "apt-debian-security"
+                },
+                "de.archive.ubuntu.com/ubuntu": ubuntu,
+                "ftp.halifax.rwth-aachen.de/ubuntu": ubuntu,
+                "archive.ubuntu.com/ubuntu": {"": "apt-ubuntu"},
+                "security.ubuntu.com/ubuntu": {"security": "apt-ubuntu-security"},
             },
         )
 
@@ -472,7 +621,8 @@ class TestTargets(unittest.TestCase):
         }
         served = {
             target.url.rsplit("/", 2)[-2]
-            for target in apt_targets(NEXUS, MIRRORS, declared).values()
+            for pockets in apt_targets(NEXUS, MIRRORS, declared).values()
+            for target in pockets.values()
         }
         self.assertTrue(primary)
         self.assertEqual(served, primary)

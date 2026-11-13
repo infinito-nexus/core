@@ -32,6 +32,7 @@ Binding; not reopened by this document.
 | D11 | PyTorch: cached by hijacking `download.pytorch.org` and `download-r2.pytorch.org` through the existing frontend, only after a host proof shows pip installing through Nexus. |
 | D12 | The cache stack's version pin is out of scope here and goes to [096](096-cache-stack-pin.md). |
 | D13 | Registry vendors on servers (operator pick, decision round 2026-11-12): [092](092-local-stack-architecture.md) D9's "server inventories keep `registry`, unchanged" reads as "same flavor plus vendor endpoints". `svc-registry-cache` keeps the `registry` flavor and adds one `registry:3` pull-through cache per vendor registry a role image names, behind one TLS front on the role network's gateway that admits `GET` and `HEAD` only. Its self-signed certificate is trusted in `/etc/docker/certs.d/<gateway>:<port>/` and nowhere else. On the cache host in compose mode the image lookup and the prepull route vendor references through the front; swarm deploys keep the swarm prefix. Vendor pulls there then depend on the cache being up, while Docker Hub keeps Docker's own fallback to `registry-1.docker.io`. With no vendor listed every render and every pull list stays byte-identical, so 092's byte-identity box for the `registry` flavor holds. |
+| D14 | Swarm vendor pulls (operator pick, 2026-11-13 ~07:20 UTC): D13's vendor front stays compose-only, and swarm deploys do not route through it. Swarm nodes pull from the cluster registry, and `registry_sync` pulls an image upstream only while the cluster registry lacks it, so a repeated pull is a cluster-registry hit; only a rebuilt cluster and a new tag reach the vendor. The prepull on the stack host and image builds keep pulling upstream. |
 
 Constraints (2026-11-07), binding for the store:
 
@@ -148,7 +149,7 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 ### Phase 5: Host cache sync and distro preference
 
 - [x] One variable (proposed `INFINITO_CACHE_HOST_SYNC`, default off) makes the host's package cache and the cache provider's cache hold each package once: packages the stack downloaded land in the host cache, and packages the host holds are served to the stack without a download. `[unit]`
-- [ ] With the variable set on a Debian or Ubuntu host, the host's apt sources point at the provider's Nexus apt proxy (D10). `[unit]`
+- [x] With the variable set on a Debian or Ubuntu host, the host's apt sources point at the provider's Nexus apt proxy (D10): every suite of an archive it proxies, a country alias of that archive included, reaches the repository of the suite's pocket, else the archive's release repository, and no repository and suite get copies from two archives. Amended after the operator pick of 2026-11-12 ~23:40 UTC, which asked for one Nexus repository per suite where that is architecturally clean: it is not, since a Nexus apt proxy already serves every suite of its archive. `[unit]`
 - [x] With the variable off, every rendered compose file and cache configuration is byte-identical to the render before this phase. `[unit]`
 - [ ] Without an explicit `INFINITO_DISTRO`, a stack on an Arch host deploys Arch, and one on a Debian or Ubuntu host deploys that distro; an explicit value wins. `[unit]`
 

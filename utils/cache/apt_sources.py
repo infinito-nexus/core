@@ -10,7 +10,8 @@ from utils.cache.records import mirrors, upstream
 if TYPE_CHECKING:
     from utils.cache.hosts import Declarations
 
-    Targets = dict[tuple[str, str], "Target"]
+    Targets = dict[str, dict[str, "Target"]]
+    Claims = dict[tuple[str, str], str]
 
 APT_FLAVOR = "apt"
 SECURE = "https"
@@ -54,8 +55,20 @@ def archive_of(uri: str) -> tuple[str, str] | None:
     return parts.scheme, f"{host}{parts.path.rstrip('/')}"
 
 
+def pocket(suite: str) -> str:
+    """Return the pocket an apt suite names after its codename.
+
+    Args:
+        suite: a suite such as ``trixie-security``.
+
+    Returns:
+        ``security`` for ``trixie-security``, the empty string for ``trixie``.
+    """
+    return suite.partition("-")[2]
+
+
 def apt_targets(nexus: str, ubuntu_mirrors: str, declared: Declarations) -> Targets:
-    """Map every archive and suite the package cache serves to its Nexus repository.
+    """Map every archive the package cache proxies to its Nexus repositories.
 
     Args:
         nexus: base URL the host reaches the package cache's Nexus at.
@@ -65,11 +78,11 @@ def apt_targets(nexus: str, ubuntu_mirrors: str, declared: Declarations) -> Targ
         declared: the ``cache:`` declarations.
 
     Returns:
-        ``{(archive, suite): Target}`` for every ``apt`` repository no other
-        one names as its mirror. Its archives are the URLs it and its mirror
-        proxy and the URLs the frontend answers for on its behalf, without
-        scheme; ``secure`` tells whether every upstream it fetches from is
-        HTTPS.
+        ``{archive: {pocket: Target}}`` for every ``apt`` repository no other
+        one names as its mirror, under the pocket of its distribution. Its
+        archives are the URLs it and its mirror proxy and the URLs the
+        frontend answers for on its behalf, without scheme; ``secure`` tells
+        whether every upstream it fetches from is HTTPS.
     """
     repos = {repo.name: repo for repo in declared.repos}
     siblings = {repo.mirror for repo in declared.repos if repo.mirror}
@@ -91,14 +104,32 @@ def apt_targets(nexus: str, ubuntu_mirrors: str, declared: Declarations) -> Targ
             if host.path_of(repo.name)
         ]
         for found in filter(None, map(archive_of, sources + served)):
-            targets[(found[1], repo.distribution)] = target
+            archive = targets.setdefault(found[1], {})
+            archive.setdefault(pocket(repo.distribution), target)
     return targets
 
 
-def _route(targets: Targets, uri: str, suite: str) -> str:
+def _pockets(targets: Targets, archive: str) -> dict[str, Target]:
+    if archive in targets:
+        return targets[archive]
+    host, _, path = archive.partition("/")
+    parents = [
+        key
+        for key in targets
+        if key.partition("/")[2] == path and host.endswith(f".{key.partition('/')[0]}")
+    ]
+    return targets[max(parents, key=len)] if parents else {}
+
+
+def _route(targets: Targets, uri: str, suite: str, claims: Claims) -> str:
     found = archive_of(uri)
-    target = targets.get((found[1], suite)) if found else None
+    if found is None:
+        return ""
+    pockets = _pockets(targets, found[1])
+    target = pockets.get(pocket(suite)) or pockets.get("")
     if target is None or (found[0] == SECURE and not target.secure):
+        return ""
+    if claims.setdefault((target.url, suite), found[1]) != found[1]:
         return ""
     return target.url
 
@@ -111,21 +142,25 @@ def _insecure(options: str) -> bool:
     )
 
 
-def list_file(text: str, targets: Targets) -> tuple[str, list[str]]:
+def list_file(text: str, targets: Targets, claims: Claims) -> tuple[str, list[str]]:
     """Point the one-line apt entries the package cache serves at Nexus.
 
     Args:
         text: a ``sources.list`` style file.
         targets: what ``apt_targets`` returns.
+        claims: the archive each Nexus repository and suite got its first
+            copy from, shared by every file of one host and filled in here.
 
     Returns:
-        *text* with a copy of every ``deb`` entry whose archive and suite the
-        cache serves inserted before it, its URI replaced by the Nexus
-        repository and every option kept, and the copies. An entry that sets
+        *text* with a copy of every ``deb`` entry whose archive the cache
+        proxies, or whose host is a subdomain of one with the same path,
+        inserted before it, its URI replaced by the repository serving its
+        suite's pocket, else the archive's release repository, and every
+        option kept, and the copies. An entry gets no copy where it sets
         ``trusted``, ``allow-insecure``, ``allow-weak`` or
-        ``allow-downgrade-to-insecure`` to anything but a false value, or
+        ``allow-downgrade-to-insecure`` to anything but a false value,
         reaches its archive over HTTPS while the cache fetches it over HTTP,
-        gets no copy.
+        or names a repository and suite already copied from another archive.
     """
     out: list[str] = []
     added: list[str] = []
@@ -133,7 +168,7 @@ def list_file(text: str, targets: Targets) -> tuple[str, list[str]]:
         match = ONE_LINE.match(line)
         url = ""
         if match and not _insecure(match["options"] or ""):
-            url = _route(targets, match["uri"], match["suite"])
+            url = _route(targets, match["uri"], match["suite"], claims)
         if url:
             copy = line[: match.start("uri")] + url + line[match.end("uri") :]
             copy = copy if copy.endswith("\n") else f"{copy}\n"
@@ -163,7 +198,7 @@ def _flag(values: dict[str, list[str]], name: str) -> str:
     return " ".join(values.get(name, [])).lower()
 
 
-def _stanzas(block: list[str], targets: Targets) -> list[str]:
+def _stanzas(block: list[str], targets: Targets, claims: Claims) -> list[str]:
     fields = _fields(block)
     values = {name.lower(): _values(lines) for name, lines in fields}
     if "deb" not in values.get("types", []) or _flag(values, "enabled") in FALSE:
@@ -174,15 +209,15 @@ def _stanzas(block: list[str], targets: Targets) -> list[str]:
         for name, lines in fields
     ):
         return []
-    routed = {
-        url: suite
-        for uri in values.get("uris", [])
-        for suite in values.get("suites", [])
-        if (url := _route(targets, uri, suite))
-    }
+    routed: dict[str, list[str]] = {}
+    for uri in values.get("uris", []):
+        for suite in values.get("suites", []):
+            url = _route(targets, uri, suite, claims)
+            if url and suite not in routed.setdefault(url, []):
+                routed[url].append(suite)
     stanzas = []
-    for url, suite in routed.items():
-        replaced = {"types": "deb", "uris": url, "suites": suite}
+    for url, suites in routed.items():
+        replaced = {"types": "deb", "uris": url, "suites": " ".join(suites)}
         lines: list[str] = []
         for name, raw in fields:
             key = name.lower()
@@ -193,21 +228,25 @@ def _stanzas(block: list[str], targets: Targets) -> list[str]:
     return stanzas
 
 
-def sources_file(text: str, targets: Targets) -> tuple[str, list[str]]:
+def sources_file(text: str, targets: Targets, claims: Claims) -> tuple[str, list[str]]:
     """Point the deb822 apt stanzas the package cache serves at Nexus.
 
     Args:
         text: a ``.sources`` file.
         targets: what ``apt_targets`` returns.
+        claims: the archive each Nexus repository and suite got its first
+            copy from, shared by every file of one host and filled in here.
 
     Returns:
         *text* with one stanza per Nexus repository a ``deb`` stanza reaches
         inserted before it, holding ``Types: deb``, that repository as
-        ``URIs`` and the suite it serves as ``Suites``, every other field
-        copied verbatim, and those stanzas. A stanza that is disabled, or sets
-        ``Trusted``, ``Allow-Insecure``, ``Allow-Weak`` or
+        ``URIs`` and the suites it serves there as ``Suites``, every other
+        field copied verbatim, and those stanzas. A stanza that is disabled, or
+        sets ``Trusted``, ``Allow-Insecure``, ``Allow-Weak`` or
         ``Allow-Downgrade-To-Insecure`` to anything but a false value, gets
-        none, as does an HTTPS URI the cache fetches over HTTP.
+        none; a suite gets none where the stanza reaches its archive over
+        HTTPS while the cache fetches it over HTTP, or where its repository
+        and suite were copied from another archive.
     """
     out: list[str] = []
     added: list[str] = []
@@ -216,7 +255,7 @@ def sources_file(text: str, targets: Targets) -> tuple[str, list[str]]:
         if line.strip():
             block.append(line)
             continue
-        stanzas = _stanzas(block, targets) if block else []
+        stanzas = _stanzas(block, targets, claims) if block else []
         out.extend([*stanzas, *block, line])
         added.extend(stanzas)
         block = []
