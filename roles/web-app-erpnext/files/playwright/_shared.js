@@ -23,6 +23,7 @@ const loginMethods = {
   native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
   email: process.env.LOGIN_METHOD_EMAIL_ENABLED === "true",
   registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+  twoFactor: process.env.LOGIN_METHOD_2FA_ENABLED === "true",
 };
 const localFormShown = loginMethods.native || loginMethods.ldap;
 
