@@ -228,6 +228,21 @@ class TestBootstrapCleanup(unittest.TestCase):
         self.assertEqual(len(_posts(requests, EXTDIRECT)), 1)
 
 
+class TestAptProxies(unittest.TestCase):
+    def test_an_apt_proxy_serves_every_suite_of_its_archive(self) -> None:
+        _, requests = _bootstrap("30", CLEANUP, "true")
+        self.assertEqual(
+            [r["body"]["apt"] for r in _posts(requests, "/v1/repositories/apt/proxy")],
+            [
+                {
+                    "distribution": "bookworm",
+                    "flat": False,
+                    "enforceDistribution": False,
+                }
+            ],
+        )
+
+
 class TestRoleDefaults(unittest.TestCase):
     def test_the_role_defaults_to_the_30_day_window_and_keeps_its_server_cap(
         self,
