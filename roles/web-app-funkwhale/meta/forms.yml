@@ -1,0 +1,12 @@
+---
+settings:
+  path: /manage/settings
+  sinks: [FUNKWHALE_SETTINGS]
+  fields:
+    instance_name:
+      source: services.funkwhale.instance_name
+      when: services.design.enabled
+      mode: enforced
+      selector: "h2#instance + div input"
+      type: text
+      label: Instance name

@@ -16,6 +16,7 @@ funkwhale:
   image: funkwhale/front
   version: 2.0.13
   min_storage: 224MB
+  instance_name: "{{ lookup('design', 'web-app-funkwhale').label }}"
   ports:
     internal:
       http: 80
@@ -157,6 +158,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
