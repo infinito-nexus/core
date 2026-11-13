@@ -385,7 +385,7 @@ console:
 	@"$${PYTHON}" -m cli.console
 
 .PHONY: design-gallery
-# Rerun the design spec of a deployed app and copy its screenshots to /tmp/design-gallery/<app>/ (no redeploy).
+# Rerun the design spec of a deployed app and copy its screenshots to its gallery, printed by `python -m cli.meta.roles.design.gallery path <app>` (no redeploy).
 # Usage: make design-gallery app=<application_id> [views=<view>[,<view>...]] [before=true] [pw="--grep <pattern>"]
 # Example: make design-gallery app=web-app-gitea views=dashboard,settings
 # Param app: deployed application id
@@ -423,7 +423,7 @@ design-palette:
 	@app='$(app)' base='$(base)' sync='$(sync)' variant='$(variant)' bash scripts/tests/design/palette.sh
 
 .PHONY: design-queue
-# Print the roles that are due for a design pass in working order (new roles first, then by version gap).
+# Print the roles that are due for a design pass in working order (new roles first, then by version gap, then tune-design proposals).
 # Usage: make design-queue [args="--next|--all|--format json"]
 # Param args: extra flags for the queue CLI
 design-queue:

@@ -88,7 +88,8 @@ class TestSwarmLoop(unittest.TestCase):
         rebuild = _STEPS["rebuild"].label
         self.assertIn("make swarm-zombie", rebuild)
         self.assertNotIn("keep=true", rebuild)
-        self.assertIn("done", _targets("rebuild"))
+        self.assertIn("tune_velocity", _targets("rebuild"))
+        self.assertEqual(_targets("tune_velocity"), {"done"})
 
     def test_the_sync_cannot_reach_done_without_the_rebuild(self) -> None:
         self.assertNotIn("done", _reachable("sync", without="rebuild"))

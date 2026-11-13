@@ -8,7 +8,13 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
-from agents.routines.iterate import RUNNING, red_chain, relevant_delta_step
+from agents.routines.iterate import (
+    RUNNING,
+    TUNE_VELOCITY,
+    companion_steps,
+    red_chain,
+    relevant_delta_step,
+)
 
 DEFAULT_DISABLE = ("matomo", "dashboard", "prometheus", "email", "design")
 
@@ -59,8 +65,9 @@ STEPS = [
     Step(
         "rebuild",
         "Gate: a fresh make swarm-zombie app=<app> without keep, the only path to done",
-        branches=(("✅ green", "done"), ("❌ red", "hung"), (RUNNING, "hung")),
+        branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "hung"), (RUNNING, "hung")),
     ),
+    *companion_steps("done", design=False),
     Step(
         "done",
         "Report green, or stop for make swarm-clean on a wedged NFS mount",

@@ -38,6 +38,8 @@ NEW = "🆕 new"
 REPEATED = "🔁 repeated"
 NO_RUN_STEP = "❔ poll again with --running <run step>"
 DECIDE = "python -m agents.routines decide"
+TUNE_VELOCITY = "tune_velocity"
+TUNE_DESIGN = "tune_design"
 _NUMBER = (int, float)
 _LIST = (list, tuple, set, frozenset)
 
@@ -252,6 +254,30 @@ def relevant_delta_step(
         branches=((CHANGED, changed), (UNCHANGED, unchanged)),
         fn=partial(_relevant_delta, runs_tests=runs_tests),
     )
+
+
+def companion_steps(done: str, design: bool) -> list[Step]:
+    """Return the tuning companions a green run passes on its way to ``done``.
+
+    Args:
+        done: the id of the step the companions hand over to.
+        design: whether the design companion follows the velocity companion.
+    """
+    velocity = Step(
+        TUNE_VELOCITY,
+        "Companion: python -m cli.tune.logscan <green run log> ranks the slowest tasks, per-item loops and retries; keep the scan beside the log as the collect and scan input of the perf_sweep routine (python -m agents.routines show perf_sweep), and never tune inside this loop",
+        nxt=TUNE_DESIGN if design else done,
+    )
+    if not design:
+        return [velocity]
+    return [
+        velocity,
+        Step(
+            TUNE_DESIGN,
+            "Companion: follow the tune_design routine (python -m agents.routines show tune_design) with apps= the apps the compose stack still serves, disabled= the run's disable= and mode=compose; it screenshots them and files design proposals, and never edits a role",
+            nxt=done,
+        ),
+    ]
 
 
 def red_chain(routine: str, verdict: str, runs: tuple[str, ...]) -> list[Step]:

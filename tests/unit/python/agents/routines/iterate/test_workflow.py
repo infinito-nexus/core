@@ -12,13 +12,14 @@ from tests.unit.python.agents.routines.iterate import branch_map
 class TestWorkflowRoutine(unittest.TestCase):
     def test_the_first_act_run_ends_at_ci_or_is_inspected(self) -> None:
         self.assertEqual(
-            branch_map(workflow.STEPS, "run"), {"✅ green": "ci", "❌ red": "inspect"}
+            branch_map(workflow.STEPS, "run"),
+            {"✅ green": "tune_velocity", "❌ red": "inspect"},
         )
 
     def test_a_rerun_ends_at_ci_or_enters_the_red_chain(self) -> None:
         self.assertEqual(
             branch_map(workflow.STEPS, "rerun"),
-            {"✅ green": "ci", "❌ red": "hung", "⏳ running": "hung"},
+            {"✅ green": "tune_velocity", "❌ red": "hung", "⏳ running": "hung"},
         )
 
 

@@ -8,7 +8,13 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
-from agents.routines.iterate import RUNNING, red_chain, relevant_delta_step
+from agents.routines.iterate import (
+    RUNNING,
+    TUNE_VELOCITY,
+    companion_steps,
+    red_chain,
+    relevant_delta_step,
+)
 
 STEPS = [
     Step("propose", "Propose make act-workflow as the local debug loop", nxt="agree"),
@@ -16,7 +22,7 @@ STEPS = [
     Step(
         "run",
         "make act-workflow on one distro, Debian first, ACT_MATRIX key:value",
-        branches=(("✅ green", "ci"), ("❌ red", "inspect")),
+        branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "inspect")),
     ),
     Step(
         "inspect",
@@ -30,8 +36,9 @@ STEPS = [
     Step(
         "rerun",
         "Rerun make act-workflow after each focused change",
-        branches=(("✅ green", "ci"), ("❌ red", "hung"), (RUNNING, "hung")),
+        branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "hung"), (RUNNING, "hung")),
     ),
+    *companion_steps("ci", design=False),
     Step(
         "ci",
         "CI stays the only authority; a green local run does not clear it",

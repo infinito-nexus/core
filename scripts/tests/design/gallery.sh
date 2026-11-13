@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Rerun the design spec of one deployed app on the live stack and copy its
-# screenshots to /tmp/design-gallery/<app>/after/, with before=true also to before/.
+# screenshots to after/ of the app gallery that `python -m cli.meta.roles.design.gallery path <app>`
+# prints, with before=true also to before/.
 #
 # Param app: deployed application id (required).
 # Param pw: Playwright arguments without quotes that replace the default `--grep design:` (optional). Such a run adds its screenshots to the existing ones instead of replacing them.
@@ -21,8 +22,8 @@ cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
 
+out="$("${PYTHON}" -m cli.meta.roles.design.gallery path "${app}")"
 reports="${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR}/${app}/design"
-out="/tmp/design-gallery/${app}"
 
 cmd="rm -rf '${reports}'" bash scripts/tests/deploy/local/exec/container.sh
 

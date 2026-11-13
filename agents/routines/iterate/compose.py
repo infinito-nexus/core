@@ -20,7 +20,9 @@ from agents.routines.contract import Step, decide, mermaid
 from agents.routines.contract import build as _build
 from agents.routines.iterate import (
     RUNNING,
+    TUNE_VELOCITY,
     check_state,
+    companion_steps,
     decide_command,
     red_chain,
     relevant_delta_step,
@@ -178,8 +180,9 @@ STEPS = [
     Step(
         "gate",
         "Final gate once every variant is green: make compose-deploy mode=reinstall apps=<roles> full_cycle=true (no variant)",
-        branches=(("✅ green", "done"), ("❌ red", "hung"), (RUNNING, "hung")),
+        branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "hung"), (RUNNING, "hung")),
     ),
+    *companion_steps("done", design=True),
     Step("done", "Report the roles green on the stack", "terminal"),
     *red_chain("iterate_compose", "inspect", ("sync", "rebuild", "redeploy", "gate")),
 ]

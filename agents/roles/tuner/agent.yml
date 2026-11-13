@@ -7,7 +7,7 @@ repositories:
 firewall_roles:
   - autonomous-contributor
 skills:
-  - i8-tuner
+  - i8-tune-velocity
 models:
   local:
     - ollama

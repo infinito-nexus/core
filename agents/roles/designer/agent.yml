@@ -8,6 +8,7 @@ firewall_roles:
   - designer
 skills:
   - i8-designer
+  - i8-tune-design
 models:
   local:
     - ollama
