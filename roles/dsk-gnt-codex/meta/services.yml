@@ -9,7 +9,7 @@ codex:
     host:
       enabled: true
   lifecycle: alpha
-  npm_version: 0.167.2
+  npm_version: 0.169.0
   update:
     key: npm_version
     type: npm
