@@ -36,6 +36,7 @@ ROLE = "web-app-semaphore"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
 VARS = ROLE_DIR / ROLE_FILE_VARS_MAIN
 CORE = ROLE_DIR / "tasks" / "00_core.yml"
+BRIDGE = ROLE_DIR / "tasks" / "utils" / "stack.yml"
 SERVER = ROLE_DIR / ROLE_FILE_META_SERVER
 HTML_LOCATION = "roles/sys-svc-proxy/templates/location/html.conf.j2"
 
@@ -320,12 +321,18 @@ class TestWithoutOnionSibling(unittest.TestCase):
 
 class TestStackWiring(unittest.TestCase):
     def test_the_proxy_reads_both_vhost_configurations(self) -> None:
-        stack = next(
-            task
-            for task in load_yaml_any(str(CORE))
-            if task.get("include_role", {}).get("name") == "svc-stack"
+        self.assertEqual(
+            read_text(str(BRIDGE)),
+            read_text(
+                str(PROJECT_ROOT / "roles" / "svc-stack" / "files" / "bridge.yml")
+            ),
         )
-        self.assertEqual(stack["include_role"]["tasks_from"], "consumer.yml")
+        self.assertFalse(
+            any(
+                task.get("include_role", {}).get("name") == "svc-stack"
+                for task in load_yaml_any(str(CORE))
+            )
+        )
         vhost = load_yaml_any(str(SERVER))["vhosts"]["default"]
         self.assertEqual(
             tuple(

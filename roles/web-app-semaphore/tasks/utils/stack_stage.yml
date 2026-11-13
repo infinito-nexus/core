@@ -1,0 +1,3 @@
+---
+- name: "🏃 Stage the Semaphore runner for {{ application_id }}"
+  include_tasks: utils/runner.yml
