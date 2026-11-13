@@ -12,10 +12,12 @@
  *   settings, their values never printed
  * Stdout:
  *   read: last line {"settings": {"<name>": <stored string|null>, ...}, "hidden": <n>},
- *         the settings whose stored value differs and the number of such hidden settings
- *   write: last line "CHANGED <n>", n = settings whose stored value differed and was written
+ *         the settings whose stored row differs and the number of such hidden settings
+ *   write: last line "CHANGED <n>", n = settings whose stored row differed and was written
+ *   Both compare the config_plugins rows, never the $CFG->forced_plugin_settings overlay
+ *   get_config() returns.
  * Exit:
- *   2 malformed payload, 4 a setting is forced in config.php
+ *   2 malformed payload, 4 config.php forces a setting to another value
  */
 define('CLI_SCRIPT', true);
 
@@ -52,15 +54,20 @@ foreach ($payload['settings'] + $payload['hidden'] as $name => $value) {
 
 require(getenv('MOODLE_CONFIG'));
 
-$forced = array_intersect_key($settings, $CFG->forced_plugin_settings[$component] ?? []);
-if ($forced) {
-    fwrite(STDERR, "set in config.php for {$component}, unable to change: " . implode(', ', array_keys($forced)) . PHP_EOL);
+$conflicts = array_keys(array_filter(
+    array_intersect_key($CFG->forced_plugin_settings[$component] ?? [], $settings),
+    static fn ($forced, $name) => (string) $forced !== $settings[$name],
+    ARRAY_FILTER_USE_BOTH
+));
+if ($conflicts) {
+    fwrite(STDERR, "set in config.php for {$component} to another value, unable to change: " . implode(', ', $conflicts) . PHP_EOL);
     exit(4);
 }
 
+$stored = $DB->get_records_menu('config_plugins', ['plugin' => $component], '', 'name, value');
 $drifted = [];
 foreach ($settings as $name => $value) {
-    $old = get_config($component, $name);
+    $old = array_key_exists($name, $stored) ? (string) $stored[$name] : false;
     if ($value !== $old) {
         $drifted[$name] = $old;
     }

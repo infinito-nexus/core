@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import unittest
 from unittest import mock
@@ -10,6 +11,7 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.mapping import (
@@ -22,6 +24,8 @@ from utils.templating.ansible import _trust_as_template
 ROLE = PROJECT_ROOT / "roles/web-app-moodle"
 DRIFT = "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
 ROLES_OU = "ou=roles,dc=example,dc=test"
+SCOPES = "openid profile email moodle"
+CREDENTIALS = {"auth_oidc": {"clientsecret"}, "auth_ldap": {"bind_pw"}}
 OIDC = {
     "BUTTON_TEXT": "Sign in",
     "CLIENT": {
@@ -159,7 +163,7 @@ def _rendered_settings() -> dict:
     )
 
 
-def _sink(name: str, ldap: bool = True, sso: bool = True):
+def _render(node, ldap: bool = True, sso: bool = True):
     application = {
         "services": {
             "ldap": {"enabled": ldap},
@@ -172,10 +176,22 @@ def _sink(name: str, ldap: bool = True, sso: bool = True):
         str(ROLE / ROLE_FILE_VARS_MAIN), trusted_as_template=True
     )
     return _templated(
-        declared[name],
-        {**declared, "application_id": "web-app-moodle"},
+        _trust_as_template(node) if isinstance(node, str) else node,
+        {
+            **declared,
+            "application_id": "web-app-moodle",
+            "OIDC": OIDC,
+            "LDAP": LDAP,
+            "MOODLE_OIDC_SCOPES": SCOPES,
+            "MOODLE_OIDC_ENABLED": sso,
+            "MOODLE_LDAP_ENABLED": ldap,
+        },
         {"form_values": lambda _app, form: values(form, forms, application, {})},
     )
+
+
+def _sink(name: str, ldap: bool = True, sso: bool = True):
+    return _render("{{ " + name + " }}", ldap=ldap, sso=sso)
 
 
 def _stored(settings: dict, hidden: int, noise: str = "") -> dict:
@@ -260,39 +276,21 @@ class TestCallers(unittest.TestCase):
                 self.assertEqual(
                     f"{{{{ {sink} }}}}", task["vars"]["moodle_plugin_form_settings"]
                 )
-                hidden_node = task["vars"]["moodle_plugin_form_hidden"]
-                rendered = _templated(
-                    _trust_as_template(hidden_node)
-                    if isinstance(hidden_node, str)
-                    else hidden_node,
-                    {
-                        "OIDC": OIDC,
-                        "LDAP": LDAP,
-                        "MOODLE_OIDC_SCOPES": "openid",
-                        "MOODLE_OIDC_ENABLED": True,
-                    },
-                    {},
-                )
+                rendered = _render(task["vars"]["moodle_plugin_form_hidden"])
                 self.assertEqual(hidden, set(rendered))
                 self.assertFalse(hidden & set(_forms()[form]["fields"]))
 
     def test_removecontexts_is_written_only_while_oidc_is_the_login(self):
-        hidden = _task("06_ldap_sync.yml", "Converge the auth_ldap")["vars"][
-            "moodle_plugin_form_hidden"
-        ]
         for enabled, expected in (
             (True, {"bind_pw", "removecontexts"}),
             (False, {"bind_pw"}),
         ):
             with self.subTest(oidc=enabled):
+                task = _task("06_ldap_sync.yml", "Converge the auth_ldap")
                 self.assertEqual(
                     expected,
                     set(
-                        _templated(
-                            _trust_as_template(hidden),
-                            {"LDAP": LDAP, "MOODLE_OIDC_ENABLED": enabled},
-                            {},
-                        )
+                        _render(task["vars"]["moodle_plugin_form_hidden"], sso=enabled)
                     ),
                 )
 
@@ -307,6 +305,72 @@ class TestCallers(unittest.TestCase):
         task = _task("utils/plugin_config.yml", "Apply the")
         self.assertIn("'mode': 'write'", task["args"]["stdin"])
         self.assertIn("'hidden': {}", task["args"]["stdin"])
+
+
+class TestForcedSettings(unittest.TestCase):
+    def test_moodle_forces_each_plugin_with_its_form_and_unlisted_settings(self):
+        forced = _sink("MOODLE_FORCED_PLUGIN_SETTINGS")
+        for _tasks_file, form, sink, hidden in CASES:
+            with self.subTest(form=form):
+                unlisted = _sink(sink.replace("_SETTINGS", "_UNLISTED_SETTINGS"))
+                self.assertEqual({**_sink(sink), **unlisted}, dict(forced[form]))
+                self.assertEqual(
+                    hidden - CREDENTIALS[form], set(forced[form]) - set(_sink(sink))
+                )
+
+    def test_no_credential_reaches_the_environment(self):
+        forced = _sink("MOODLE_FORCED_PLUGIN_SETTINGS")
+        encoded = _render("{{ MOODLE_FORCED_PLUGIN_SETTINGS | to_json | b64encode }}")
+        decoded = base64.b64decode(encoded).decode()
+        for form, names in CREDENTIALS.items():
+            with self.subTest(form=form):
+                self.assertFalse(names & set(forced[form]))
+        for secret in (OIDC["CLIENT"]["SECRET"], LDAP["BIND_CREDENTIAL"]):
+            self.assertNotIn(secret, decoded)
+
+    def test_the_credentials_stay_converged_by_the_applier_unforced(self):
+        for tasks_file, form, _sink_name, _hidden in CASES:
+            with self.subTest(form=form):
+                task = _task(tasks_file, f"Converge the {form}")
+                self.assertTrue(
+                    CREDENTIALS[form]
+                    <= set(_render(task["vars"]["moodle_plugin_form_hidden"]))
+                )
+
+    def test_a_plugin_is_forced_only_while_its_service_is_on(self):
+        self.assertEqual(
+            ["auth_ldap"], list(_sink("MOODLE_FORCED_PLUGIN_SETTINGS", sso=False))
+        )
+        self.assertEqual(
+            ["auth_oidc"], list(_sink("MOODLE_FORCED_PLUGIN_SETTINGS", ldap=False))
+        )
+        self.assertEqual(
+            {}, _sink("MOODLE_FORCED_PLUGIN_SETTINGS", ldap=False, sso=False)
+        )
+
+    def test_the_env_hands_the_forced_settings_to_config_php_as_base64_json(self):
+        self.assertIn(
+            "MOODLE_FORCED_PLUGIN_SETTINGS={{ MOODLE_FORCED_PLUGIN_SETTINGS | to_json | b64encode }}\n",
+            read_text(str(ROLE / "templates/env.j2")),
+        )
+
+    def test_config_php_forces_them_before_moodle_boots_and_keeps_objectfs(self):
+        config = read_text(str(ROLE / "files/build/config.php"))
+        merge = config.index("$CFG->forced_plugin_settings = array_replace(")
+        self.assertLess(config.index("'tool_objectfs' => array("), merge)
+        self.assertLess(
+            merge, config.index("require_once(__DIR__ . '/lib/setup.php');")
+        )
+        self.assertIn("moodle_env('MOODLE_FORCED_PLUGIN_SETTINGS')", config[merge:])
+        self.assertIn("array_map('strval', $settings)", config[merge:])
+
+    def test_both_forms_rely_on_the_native_lock_alone(self):
+        for _tasks_file, form, _sink_name, _hidden in CASES:
+            with self.subTest(form=form):
+                self.assertIs(True, _forms()[form]["native"])
+        self.assertFalse((ROLE / "templates/javascript.js.j2").exists())
+        services = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
+        self.assertNotIn("javascript", services)
 
 
 class TestPluginForm(unittest.TestCase):

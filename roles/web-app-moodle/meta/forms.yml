@@ -1,6 +1,7 @@
 ---
 auth_oidc:
   path: /admin/settings.php?section=auth
+  native: true
   sinks: [MOODLE_OIDC_SETTINGS]
   fields:
     idptype: {source: services.moodle.auth_oidc.idptype, when: services.sso.enabled, mode: enforced, selector: "#id_s_auth_oidc_idptype", type: select}
@@ -72,6 +73,7 @@ auth_oidc:
     field_updatelocal_lastnamephonetic: {source: services.moodle.auth_oidc.update, when: services.sso.enabled, mode: enforced, selector: "#id_s_auth_oidc_field_updatelocal_lastnamephonetic", type: select}
 auth_ldap:
   path: /admin/settings.php?section=authsettingldap
+  native: true
   sinks: [MOODLE_LDAP_SETTINGS]
   fields:
     host_url: {source: services.moodle.auth_ldap.host_url, when: services.ldap.enabled, mode: enforced, selector: "#id_s_auth_ldap_host_url", type: text}

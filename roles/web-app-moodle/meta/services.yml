@@ -223,12 +223,6 @@ design:
     logo-compact:
       width: 300
       height: 55
-# nocheck: dynamic-flag
-# nocheck: playwright-service-flag  carries the managed-field lock of meta/forms.yml on every page; no spec gates on it
-javascript:
-  bond: 1
-  enabled: true
-  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

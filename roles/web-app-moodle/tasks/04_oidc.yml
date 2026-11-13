@@ -49,9 +49,7 @@
   vars:
     moodle_plugin_form_component: auth_oidc
     moodle_plugin_form_settings: "{{ MOODLE_OIDC_SETTINGS }}"
-    moodle_plugin_form_hidden:
-      clientsecret: "{{ OIDC.CLIENT.SECRET }}"
-      oidcscope: "{{ MOODLE_OIDC_SCOPES }}"
+    moodle_plugin_form_hidden: "{{ MOODLE_OIDC_UNLISTED_SETTINGS | combine(MOODLE_OIDC_CREDENTIALS) }}"
 
 - name: "🔧 Set auth = 'oidc' for all users except guest"
   shell: >

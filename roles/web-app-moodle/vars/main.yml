@@ -102,6 +102,16 @@ MOODLE_LDAP_ROLE_GROUP_DNS:
   coursecreator: "{{ lookup('config', application_id, 'services.moodle.auth_ldap.coursecreatorcontext') }}"
 MOODLE_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'auth_oidc') }}"
 MOODLE_LDAP_SETTINGS: "{{ lookup('form_values', application_id, 'auth_ldap') }}"
+MOODLE_OIDC_CREDENTIALS:
+  clientsecret: "{{ OIDC.CLIENT.SECRET }}"
+MOODLE_LDAP_CREDENTIALS:
+  bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+MOODLE_OIDC_UNLISTED_SETTINGS:
+  oidcscope: "{{ MOODLE_OIDC_SCOPES }}"
+MOODLE_LDAP_UNLISTED_SETTINGS: "{{ {'removecontexts': 1} if MOODLE_OIDC_ENABLED | bool else {} }}"
+MOODLE_FORCED_PLUGIN_SETTINGS: >-
+  {{ ({'auth_oidc': MOODLE_OIDC_SETTINGS | combine(MOODLE_OIDC_UNLISTED_SETTINGS)} if MOODLE_OIDC_ENABLED | bool else {})
+     | combine({'auth_ldap': MOODLE_LDAP_SETTINGS | combine(MOODLE_LDAP_UNLISTED_SETTINGS)} if MOODLE_LDAP_ENABLED | bool else {}) }}
 
 MOODLE_RBAC_ACCOUNT_AUTH: "{{ 'oidc' if MOODLE_OIDC_ENABLED | bool else 'ldap' }}"
 MOODLE_RBAC_SYSTEM_ROLES:

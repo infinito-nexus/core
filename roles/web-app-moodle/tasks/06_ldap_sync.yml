@@ -11,7 +11,7 @@
   vars:
     moodle_plugin_form_component: auth_ldap
     moodle_plugin_form_settings: "{{ MOODLE_LDAP_SETTINGS }}"
-    moodle_plugin_form_hidden: "{{ {'bind_pw': LDAP.BIND_CREDENTIAL} | combine({'removecontexts': 1} if MOODLE_OIDC_ENABLED | bool else {}) }}"
+    moodle_plugin_form_hidden: "{{ MOODLE_LDAP_UNLISTED_SETTINGS | combine(MOODLE_LDAP_CREDENTIALS) }}"
 
 - name: "⚡ Trigger auth_ldap sync to pre-provision LDAP users"
   shell: >
