@@ -7,7 +7,7 @@ import random
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from utils.security.database import fetch_url, refresh
+from utils.security.database import database_files, fetch_url, refresh
 from utils.security.engine import (
     ENGINE_ENV,
     databases_for,
@@ -30,13 +30,18 @@ def provided_databases(root: Path, engine: str) -> None:
     Raises:
         SystemExit: a database was not provided.
     """
-    for name in databases_for(engine):
-        path = root / name
-        if not path.is_dir() or not any(path.iterdir()):
-            raise SystemExit(
-                f"{ENGINE_ENV}={engine} but no {name} database at {path}; "
-                "provide it before the deploy"
-            )
+    p = pipeline()
+    missing = [
+        str(path)
+        for name in databases_for(engine)
+        for path in database_files(p, root, name)
+        if not path.is_file()
+    ]
+    if missing:
+        raise SystemExit(
+            f"{ENGINE_ENV}={engine} but {', '.join(missing)} is missing; "
+            "provide it before the deploy"
+        )
 
 
 def inventory_overrides(
