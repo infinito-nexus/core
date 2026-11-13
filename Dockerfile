@@ -3,8 +3,12 @@
 # scripts/image/build.sh.
 # Example values:
 #   INFINITO_PARENT_IMAGE=ghcr.io/kevinveenbirkenbach/pkgmgr-arch:stable
+# INFINITO_LINT_RUNNER (host|docker, SPOT default.env) selects the stage `full`
+# builds on: lint-docker with the lint toolchain, lint-host without it.
 ARG INFINITO_PARENT_IMAGE
-FROM ${INFINITO_PARENT_IMAGE} AS full
+# nocheck: dockerfile-arg-default
+ARG INFINITO_LINT_RUNNER=host
+FROM ${INFINITO_PARENT_IMAGE} AS base
 
 ARG NIX_CONFIG
 
@@ -56,6 +60,44 @@ RUN set -euo pipefail; \
   ${PIP} install ansible PyYAML; \
   ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" \
     bash "${INFINITO_SRC_DIR}/scripts/install/ansible.sh"
+
+FROM base AS lint-host
+
+FROM base AS lint-docker
+
+SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
+
+COPY packaging ${INFINITO_SRC_DIR}/packaging
+COPY roles/sys-svc-container/files/shell ${INFINITO_SRC_DIR}/roles/sys-svc-container/files/shell
+COPY roles/sys-lint/meta/services.yml ${INFINITO_SRC_DIR}/roles/sys-lint/meta/services.yml
+COPY utils/cache/__init__.py ${INFINITO_SRC_DIR}/utils/cache/__init__.py
+COPY utils/cache/files.py ${INFINITO_SRC_DIR}/utils/cache/files.py
+COPY utils/cache/gitignore.py ${INFINITO_SRC_DIR}/utils/cache/gitignore.py
+COPY utils/roles/__init__.py ${INFINITO_SRC_DIR}/utils/roles/__init__.py
+COPY utils/roles/custom.py ${INFINITO_SRC_DIR}/utils/roles/custom.py
+COPY utils/roles/mapping.py ${INFINITO_SRC_DIR}/utils/roles/mapping.py
+COPY utils/install ${INFINITO_SRC_DIR}/utils/install
+
+# hadolint ignore=DL3008,DL3033,DL3041,SC1090
+RUN set -euo pipefail; \
+  source <(grep -hE '^INFINITO_(PYTHON|DOCKER_CLI|PACKAGE|INTERPRETERS)_INSTALL_SCRIPT=' "${INFINITO_SRC_DIR}/default.env"); \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PYTHON_INSTALL_SCRIPT:?}"; \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"; \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}"; \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_INTERPRETERS_INSTALL_SCRIPT:?}"
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN PYTHONPATH="${INFINITO_SRC_DIR}" python3 -m utils.install.lint action ansible python php ruby shellcheck dockerfile markdown mermaid makefile
+
+# hadolint ignore=DL3006
+FROM lint-${INFINITO_LINT_RUNNER} AS full
+
+ARG NIX_CONFIG
+ARG INFINITO_SRC_DIR
+ARG INFINITO_VENV_DIR
+
+SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
 
 COPY . ${INFINITO_SRC_DIR}
 

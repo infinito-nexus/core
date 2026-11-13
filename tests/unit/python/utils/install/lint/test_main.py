@@ -2,14 +2,32 @@
 
 from __future__ import annotations
 
+import contextlib
+import functools
 import os
+import re
+import subprocess
+import sys
 import time
 import unittest
 import unittest.mock as mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from tests.utils import image_slice
+from utils.cache.files import read_text
 from utils.install.lint import __main__ as cli
+
+_IN_TREE_GROUPS = frozenset({"javascript", "playwright"})
+_BAKE = re.compile(r"^RUN .*-m utils\.install\.lint (?P<groups>[a-z ]+)$")
+
+
+def _baked_groups() -> list[str]:
+    for line in read_text(str(image_slice.DOCKERFILE)).splitlines():
+        match = _BAKE.match(line.strip())
+        if match:
+            return match.group("groups").split()
+    return []
 
 
 def _make_repo_root(tmp: str, *, stamp_age_offset: float | None = None) -> Path:
@@ -201,6 +219,70 @@ class TestGroupDispatch(unittest.TestCase):
             ):
                 rc = cli.main(["javascript"])
             self.assertEqual(rc, 1)
+
+
+class TestImageBake(unittest.TestCase):
+    def test_the_lint_stage_bakes_every_all_mode_group_outside_the_tree(self) -> None:
+        called: list[str] = []
+        with contextlib.ExitStack() as stack:
+            for group, name in cli._GROUP_FN_NAMES.items():
+                stack.enter_context(
+                    mock.patch.object(
+                        cli, name, side_effect=functools.partial(called.append, group)
+                    )
+                )
+            cli._install_all()
+        self.assertEqual(
+            _baked_groups(),
+            [group for group in called if group not in _IN_TREE_GROUPS],
+            "the Dockerfile's lint-docker stage must install every all-mode "
+            "group except the ones the bind-mounted tree replaces, in order",
+        )
+
+    def test_the_lint_stage_runs_the_full_stage_system_step_before_the_bake(
+        self,
+    ) -> None:
+        lint_runs = image_slice.stage_runs("lint-docker")
+        self.assertEqual(
+            lint_runs[:1],
+            image_slice.stage_runs("full")[:1],
+            "the lint-docker stage must open with the full stage's system "
+            "package step, so the bake resolves packages in the order a "
+            "runtime install does",
+        )
+        self.assertRegex(lint_runs[-1], _BAKE)
+
+    def test_the_installer_runs_on_the_slice_the_lint_stage_copies(self) -> None:
+        tmp = TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        slice_root = Path(tmp.name)
+        image_slice.materialise(slice_root, frozenset({"base", "lint-docker"}))
+
+        result = subprocess.run(
+            [sys.executable, "-S", "-m", "utils.install.lint", "no-such-group"],
+            cwd=str(slice_root),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotIn(
+            "ModuleNotFoundError",
+            result.stderr,
+            "utils.install.lint reached for a module the lint-docker stage "
+            "does not copy; copy it there or keep the installer off it",
+        )
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("Usage:", result.stderr)
+
+        interpreters = subprocess.run(
+            [sys.executable, "-S", "-c", "import utils.install.interpreters"],
+            cwd=str(slice_root),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(interpreters.returncode, 0, interpreters.stderr)
 
 
 if __name__ == "__main__":
