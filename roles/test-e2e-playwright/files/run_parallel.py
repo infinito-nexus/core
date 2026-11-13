@@ -256,17 +256,6 @@ class HostGate:
 class TorReaders:
     """Shared locks the running onion jobs hold on the Tor lock file.
 
-    ``wait_onion_reachable.sh`` takes the exclusive lock before it recreates
-    Tor, so a recreate waits until no onion job runs, and no onion job starts
-    while a recreate holds it. Linux ``flock`` does not prefer a waiting
-    writer, so the script announces itself with ``<path>.recreate-pending``
-    and no new shared lock is taken while that file exists. A probe killed
-    before its exit trap ran leaves that file behind, so ``main`` removes it
-    at startup, before staging can probe Tor for this round. The browsers of
-    all running onion jobs together stay within *onion_cap*, the Tor ceiling
-    ``playwright_workers`` sizes one suite by, since every browser holds its
-    own circuits on the one shared daemon.
-
     Args:
         path: the lock file both sides open.
         onion_cap: most browser workers that may run over Tor at once.
