@@ -54,6 +54,8 @@ These decisions were confirmed by the operator before implementation starts and 
 | 12 | **The raft volume is `nfs: false` and the service carries `placement: manager`.** | Raft's BoltDB store is mmap + `fsync` based, so it hits exactly the locking and `fsync` semantics that keep the database engines off NFS. The deployment-modes volume model requires a placement constraint for any non-NFS volume under swarm, so the data cannot be lost on a reschedule. Same shape as [`svc-db-postgres`](../../roles/svc-db-postgres/) and the other engines. |
 | 13 | **`service_update_order = 'stop-first'`** is set in the role's compose template. | Docker defaults to stop-first, but a rolling update that ever started a second task against the same raft directory would corrupt the store, so the role states it explicitly rather than inheriting it. Precedent: [`svc-prx-openresty`](../../roles/svc-prx-openresty/templates/compose.yml.j2). |
 
+The workspace mounts and roles (`auth/jwt`, `transit`, KV v2 `tenant` and `platform`, the store AppRole) are specified in [105](105-openbao-task-jwt-auth-transit-tenant-kv-and-store-approle.md); these decisions stay unchanged.
+
 ## Target Schema
 
 ### Role layout
