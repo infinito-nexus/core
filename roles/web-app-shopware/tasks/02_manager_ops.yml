@@ -32,6 +32,14 @@
   notify:
     - compose-up
 
+- name: "📄 Deploy the static system config lock that adminopenauth.yaml registers"
+  copy:
+    src: "php/oidc/static_config_lock.php"
+    dest: "{{ SHOPWARE_STATIC_CONFIG_LOCK_HOST }}"
+    mode: "0644"
+  notify:
+    - compose-up
+
 - name: "📄 Render shopware.yaml (SeaweedFS S3 filesystem)"
   stack_host_template:
     src: "shopware.yaml.j2"
