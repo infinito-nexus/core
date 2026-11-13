@@ -1,5 +1,5 @@
 ---
-# Param: front_proxy_probe_phases - the stack phases (entered, preload, server) whose queued vhosts this probe takes and drops from the queue.
+# Param: front_proxy_probe_phases - the stack phases (entered, preload, server, late) whose queued vhosts this probe takes and drops from the queue.
 - name: "🔍 Probe the vhosts this play queued"
   when:
     - front_proxy_deferred_due | length > 0

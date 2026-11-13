@@ -1,15 +1,21 @@
 ---
+# Param: stack_batch_items - the admitted batch items to serve, each with id, role, phase and tls_mode.
+- name: "🚧 Mark the front batch as running"
+  ansible.builtin.set_fact:
+    stack_batch_running: true
+  changed_when: false
+
 - name: "🔥 P1 | Warm up the host-wide front dependencies before any vhost renders"
   ansible.builtin.include_tasks: batch/warm.yml
   vars:
-    stack_batch_letsencrypt: "{{ stack_batch_plan | selectattr('tls_mode', 'equalto', 'letsencrypt') | list | length > 0 }}"
+    stack_batch_letsencrypt: "{{ stack_batch_items | selectattr('tls_mode', 'equalto', 'letsencrypt') | list | length > 0 }}"
 
 - name: "🌐 P2 | Render the vhosts of every planned role with notifies only"
   ansible.builtin.include_role:
     name: "{{ stack_batch_item.role }}"
     tasks_from: utils/stack.yml
     public: false
-  loop: "{{ stack_batch_plan }}"
+  loop: "{{ stack_batch_items }}"
   loop_control:
     loop_var: stack_batch_item
     label: "{{ stack_batch_item.id }}"
@@ -18,6 +24,11 @@
     stack_batch_consumer: "{{ stack_batch_item.id }}"
     stack_batch_stage: front
     stack_front_phase: "{{ stack_batch_item.phase }}"
+
+- name: "🏷️ Record the fronts the batch rendered"
+  ansible.builtin.set_fact:
+    stack_front_served: "{{ stack_front_served | combine(dict(stack_batch_items | map(attribute='id') | product([true]))) }}"
+  changed_when: false
 
 - name: "✅ P3 | Validate the vhosts the front batch rendered"
   when:
@@ -99,3 +110,8 @@
       ansible.builtin.set_fact:
         front_proxy_batch_vhosts: {}
       changed_when: false
+
+- name: "🏁 Mark the front batch as done"
+  ansible.builtin.set_fact:
+    stack_batch_running: false
+  changed_when: false

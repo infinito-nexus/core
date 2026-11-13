@@ -25,7 +25,7 @@ ENTRY_SITES = (
     Path("tasks/utils/load/app.yml"),
     Path("tasks/utils/setup/role.yml"),
     Path("tasks/utils/sync/role.yml"),
-    Path("roles/sys-service-loader/tasks/main.yml"),
+    Path("roles/sys-service-loader/tasks/drain.yml"),
     Path("roles/sys-service-loader/tasks/list_or_shoot.yml"),
 )
 BATCH_FACTS = frozenset(
@@ -33,7 +33,12 @@ BATCH_FACTS = frozenset(
         "front_proxy_batch_vhosts",
         "front_proxy_deferred_probes",
         "front_proxy_deferred_stale",
+        "stack_batch_deferred",
+        "stack_batch_deferring",
+        "stack_batch_late",
         "stack_batch_plan",
+        "stack_batch_running",
+        "stack_front_served",
     }
 )
 SET_FACT = ("set_fact", "ansible.builtin.set_fact")

@@ -100,20 +100,52 @@ def plan(
             and application_allowed(entry["app"], group_names, whitelist)
         ]
     return [
-        {
-            "id": app,
-            "role": role,
-            "phase": phase,
-            "tls_mode": tls_mode(app),
-            "errors": item_errors(roles_dir, role),
-        }
+        item(roles_dir, app, role, phase, tls_mode=tls_mode)
         for app, role, phase in entries
         if (roles_dir / role / BRIDGE).is_file()
     ]
 
 
+def item(
+    roles_dir: Path,
+    app: str,
+    role: str,
+    phase: str,
+    *,
+    tls_mode: Callable[[str], str],
+) -> dict[str, Any]:
+    """Args:
+        roles_dir: the roles directory.
+        app: the application id the role is entered with.
+        role: a role that ships a stack bridge.
+        phase: the stack phase its front renders in: preload, server or late.
+        tls_mode: the TLS mode of an application id, ``off`` without a domain.
+
+    Returns:
+        the batch item of the role: its id, role, phase, TLS mode and
+        admission errors.
+    """
+    return {
+        "id": app,
+        "role": role,
+        "phase": phase,
+        "tls_mode": tls_mode(app),
+        "errors": item_errors(roles_dir, role),
+    }
+
+
 class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
+        """Args:
+            terms: empty for the plan of the host, or the one application id
+                whose front the batch did not plan.
+            variables: the task variables.
+            kwargs: ``roles_dir``, and ``role``, the role entered with that
+                application id.
+
+        Returns:
+            the plan of the host, or the one late item of that application id.
+        """
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         roles_dir = Path(kwargs.get("roles_dir") or PROJECT_ROOT / "roles")
 
@@ -122,6 +154,15 @@ class LookupModule(LookupBase):
                 name, loader=self._loader, templar=getattr(self, "_templar", None)
             ).run(list(terms_), variables=vars_, **kwargs_)
 
+        domains = lookup("domains")[0]
+
+        def tls_mode(app: str) -> str:
+            return str(lookup("tls", app, "mode")[0]) if app in domains else "off"
+
+        if terms:
+            return [
+                [item(roles_dir, terms[0], kwargs["role"], "late", tls_mode=tls_mode)]
+            ]
         ordered = ordered_primary_service_entries(
             build_service_registry_from_roles_dir(roles_dir), roles_dir
         )
@@ -133,11 +174,6 @@ class LookupModule(LookupBase):
             if entry.get("required")
         ]
         whitelist = list(lookup("deployment")[0].get("whitelist") or [])
-        domains = lookup("domains")[0]
-
-        def tls_mode(app: str) -> str:
-            return str(lookup("tls", app, "mode")[0]) if app in domains else "off"
-
         return [
             plan(
                 roles_dir,

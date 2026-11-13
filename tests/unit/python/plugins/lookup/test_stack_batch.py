@@ -173,7 +173,10 @@ class TestStackBatchLookup(unittest.TestCase):
         _, ordered, required, closure, group_names, groups, whitelist = (
             planned.call_args.args
         )
-        self.assertEqual(calls[0][1], [[entry["id"] for entry in ordered]])
+        self.assertEqual(
+            next(terms for name, terms, _ in calls if name == "service"),
+            [[entry["id"] for entry in ordered]],
+        )
         self.assertEqual(
             (required, closure, group_names, groups, whitelist),
             (
@@ -187,6 +190,47 @@ class TestStackBatchLookup(unittest.TestCase):
         self.assertEqual(modes, ("letsencrypt", "off"))
         self.assertIn(("tls", ["web-app-x", "mode"], {}), calls)
         self.assertNotIn("svc-late", [call[1][0] for call in calls if call[0] == "tls"])
+
+    def test_one_application_id_yields_its_late_item_without_a_plan(self) -> None:
+        answers = {"domains": [{"web-app-x": ["x.example"]}], "tls": ["letsencrypt"]}
+        calls = []
+
+        def get(name, **_kwargs):
+            def run(terms, variables=None, **kwargs):
+                calls.append(name)
+                return answers[name]
+
+            return MagicMock(run=run)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _farm(root, {"web-app-x": '---\nstack:\n  enabled: "{{ true }}"\n'})
+            with (
+                patch("plugins.lookup.stack_batch.lookup_loader") as loader,
+                patch("plugins.lookup.stack_batch.plan") as planned,
+            ):
+                loader.get.side_effect = get
+                late = LookupModule().run(
+                    ["web-app-x"], variables={}, role="web-app-x", roles_dir=str(root)
+                )
+        self.assertEqual(
+            [
+                {**item, "errors": len(item["errors"])}
+                for batch in late
+                for item in batch
+            ],
+            [
+                {
+                    "id": "web-app-x",
+                    "role": "web-app-x",
+                    "phase": "late",
+                    "tls_mode": "letsencrypt",
+                    "errors": 1,
+                }
+            ],
+        )
+        planned.assert_not_called()
+        self.assertEqual(calls, ["domains", "tls"])
 
 
 if __name__ == "__main__":

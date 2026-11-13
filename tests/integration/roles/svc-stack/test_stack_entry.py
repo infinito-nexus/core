@@ -13,6 +13,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 
 ENTRY = Path("tasks/utils/load/entry.yml")
+ENTRY_BACK = Path("tasks/utils/load/entry/back.yml")
 STACK_VARS = Path("group_vars/all/24_stack.yml")
 CANONICAL_BRIDGE = Path("roles/svc-stack/files/bridge.yml")
 BRIDGED = ("web-app-alpha", "web-app-beta", "web-app-gamma")
@@ -24,6 +25,13 @@ STUB_BACKEND = """---
     stub_runs: >-
       {{ stub_runs + [[stack_batch_consumer, application_id, domain | default('none'),
                        stack_batch_stage, consumer_scope] | join('|')] }}
+"""
+
+STUB_LATE = """---
+- name: Record the late front the entry asked for
+  ansible.builtin.set_fact:
+    stub_runs: "{{ stub_runs + [['late', stack_late_application_id, stack_late_role] | join('|')] }}"
+    stack_front_served: "{{ stack_front_served | combine({stack_late_application_id: true}) }}"
 """
 
 STUB_DOMAIN_LOOKUP = """from ansible.plugins.lookup import LookupBase
@@ -43,6 +51,10 @@ PLAYBOOK = """---
     stub_runs: []
     entry_file: "{{ lookup('path_absolute', 'tasks/utils/load/entry.yml') }}"
   tasks:
+    - name: Mark the front of the beta role as served by the front batch
+      ansible.builtin.set_fact:
+        stack_front_served: {web-app-beta: true}
+
     - name: Enter a bridged role twice with its domain
       ansible.builtin.include_tasks: "{{ entry_file }}"
       loop: [1, 2]
@@ -126,9 +138,10 @@ def _build(workdir: Path) -> None:
     """Args:
     workdir: an empty directory that becomes the playbook directory.
     """
-    _write(workdir / ENTRY, read_text(str(PROJECT_ROOT / ENTRY)))
-    _write(workdir / STACK_VARS, read_text(str(PROJECT_ROOT / STACK_VARS)))
+    for path in (ENTRY, ENTRY_BACK, STACK_VARS):
+        _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
     _write(workdir / "roles/svc-stack/tasks/batch/back.yml", STUB_BACKEND)
+    _write(workdir / "roles/svc-stack/tasks/batch/late.yml", STUB_LATE)
     bridge = read_text(str(PROJECT_ROOT / CANONICAL_BRIDGE))
     for role in BRIDGED:
         _write(workdir / "roles" / role / "tasks/utils/stack.yml", bridge)
@@ -196,11 +209,25 @@ class TestStackEntry(unittest.TestCase):
     @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
     def test_each_bridged_role_runs_its_backend_once_in_its_own_scope(self) -> None:
         self.assertEqual(
-            self.observed["runs"],
+            [run for run in self.observed["runs"] if not run.startswith("late|")],
             [
                 "web-app-alpha|web-app-alpha|web-app-alpha.example|back|web-app-alpha-vars",
                 "web-app-beta|web-app-beta|none|back|web-app-beta-vars",
             ],
+        )
+
+    @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
+    def test_only_an_unplanned_front_is_served_late_before_its_backend(self) -> None:
+        self.assertEqual(
+            self.observed["runs"][:2],
+            [
+                "late|web-app-alpha|web-app-alpha",
+                "web-app-alpha|web-app-alpha|web-app-alpha.example|back|web-app-alpha-vars",
+            ],
+        )
+        self.assertEqual(
+            [run for run in self.observed["runs"] if run.startswith("late|")],
+            ["late|web-app-alpha|web-app-alpha"],
         )
 
     @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")

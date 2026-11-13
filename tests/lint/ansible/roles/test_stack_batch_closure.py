@@ -36,6 +36,7 @@ FALSE_IN_BATCH = frozenset(
     {
         "stack_front_phase == 'entered'",
         "not (service_loader_preloading | default(false) | bool)",
+        "not (stack_batch_running | bool)",
     }
 )
 EXPANSIONS: dict[tuple[str, str], tuple[str, ...]] = {

@@ -3,7 +3,7 @@
 # Param: entry_application_id - the application_id the caller binds for that role.
 # Param: entry_domain - true when the caller also binds domain for that role.
 # Param: entry_post_run - true on a post-load path, where no flush follows the entry.
-- name: "🧩 Run the backend of '{{ entry_application_id }}' before its first entry"
+- name: "🧩 Run the stack of '{{ entry_application_id }}' before its first entry"
   when: STACK_ENTRY_PENDING | bool
   block:
     - name: "🛑 Refuse the first entry of '{{ entry_application_id }}' on a post-load path"
@@ -15,34 +15,15 @@
           its backend. Load it through utils/load/app.yml or utils/setup/role.yml first.
         quiet: true
 
-    - name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge"
+    - name: "🌐 Serve the front of '{{ entry_application_id }}' the front batch did not plan"
       ansible.builtin.include_role:
-        name: "{{ entry_role }}"
-        tasks_from: utils/stack.yml
+        name: svc-stack
+        tasks_from: batch/late.yml
         public: false
-      loop: "{{ [entry_application_id] }}"
-      loop_control:
-        loop_var: stack_batch_consumer
       vars:
-        application_id: "{{ stack_batch_consumer }}"
-        domain: "{{ lookup('domain', stack_batch_consumer) }}"
-        stack_batch_stage: back
-      when: entry_domain | bool
+        stack_late_application_id: "{{ entry_application_id }}"
+        stack_late_role: "{{ entry_role }}"
+      when: entry_application_id not in stack_front_served
 
-    - name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge without a domain"
-      ansible.builtin.include_role:
-        name: "{{ entry_role }}"
-        tasks_from: utils/stack.yml
-        public: false
-      loop: "{{ [entry_application_id] }}"
-      loop_control:
-        loop_var: stack_batch_consumer
-      vars:
-        application_id: "{{ stack_batch_consumer }}"
-        stack_batch_stage: back
-      when: not (entry_domain | bool)
-
-    - name: "🏷️ Record the backend of '{{ entry_application_id }}' as run"
-      ansible.builtin.set_fact:
-        stack_backend_entered: "{{ stack_backend_entered | combine({entry_application_id: true}) }}"
-      changed_when: false
+    - name: "🧩 Run the backend of '{{ entry_application_id }}'"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/back.yml') }}"

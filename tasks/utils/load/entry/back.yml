@@ -1,0 +1,35 @@
+---
+# Param: entry_role - the role the caller enters right after the entry.
+# Param: entry_application_id - the application_id the caller binds for that role.
+# Param: entry_domain - true when the caller also binds domain for that role.
+- name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge"
+  ansible.builtin.include_role:
+    name: "{{ entry_role }}"
+    tasks_from: utils/stack.yml
+    public: false
+  loop: "{{ [entry_application_id] }}"
+  loop_control:
+    loop_var: stack_batch_consumer
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+    domain: "{{ lookup('domain', stack_batch_consumer) }}"
+    stack_batch_stage: back
+  when: entry_domain | bool
+
+- name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge without a domain"
+  ansible.builtin.include_role:
+    name: "{{ entry_role }}"
+    tasks_from: utils/stack.yml
+    public: false
+  loop: "{{ [entry_application_id] }}"
+  loop_control:
+    loop_var: stack_batch_consumer
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+    stack_batch_stage: back
+  when: not (entry_domain | bool)
+
+- name: "🏷️ Record the backend of '{{ entry_application_id }}' as run"
+  ansible.builtin.set_fact:
+    stack_backend_entered: "{{ stack_backend_entered | combine({entry_application_id: true}) }}"
+  changed_when: false

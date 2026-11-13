@@ -5,21 +5,7 @@
   ansible.builtin.set_fact:
     stack_batch_plan: "{{ lookup('stack_batch') }}"
 
-- name: "🛑 Refuse every planned role that cannot join the front batch"
-  ansible.builtin.assert:
-    that:
-      - stack_batch_plan | selectattr('errors') | list | length == 0
-    fail_msg: >-
-      These roles cannot join the front batch:
-      {% for item in stack_batch_plan | selectattr('errors') %}{{ item.id }}: {{ item.errors | join('; ') }}. {% endfor %}
-    quiet: true
-
-- name: "🧱 Serve the fronts of the plan in one batch from the OpenResty host"
-  ansible.builtin.include_tasks:
-    file: batch/run.yml
-    apply:
-      delegate_to: "{{ (groups['svc-prx-openresty'] | default([]))[0] | default(inventory_hostname) }}"
-      run_once: true
-  when:
-    - stack_batch_plan | length > 0
-    - (groups['svc-prx-openresty'] | default([])) | length > 0
+- name: "🧱 Serve the front batch of the plan"
+  ansible.builtin.include_tasks: batch/serve.yml
+  vars:
+    stack_batch_items: "{{ stack_batch_plan }}"

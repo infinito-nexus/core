@@ -181,7 +181,8 @@ class TestTheStagesProbeTheirPhases(unittest.TestCase):
 
     def test_the_server_probe_takes_every_phase(self) -> None:
         self.assertEqual(
-            stage_probe_phases("02_server.yml"), ["entered", "preload", "server"]
+            stage_probe_phases("02_server.yml"),
+            ["entered", "preload", "server", "late"],
         )
 
 

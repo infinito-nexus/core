@@ -16,9 +16,11 @@ runs it before the server roles, in two passes:
 1. The preload pass loads every shared service of the deployment once, in
    dependency order, with `service_loader_preloading` true. Each loaded
    role's own `run_once_<role>` flag keeps the pass idempotent.
-2. The post-load pass runs the `service_loader_post_run` queue that roles
-   filled through `list_or_shoot.yml`, with `service_loader_preloading`
-   false, so those roles see the fully preloaded services.
+2. The post-load pass, `tasks/drain.yml`, runs the `service_loader_post_run`
+   queue that roles filled through `list_or_shoot.yml`, with
+   `service_loader_preloading` false, so those roles see the fully preloaded
+   services. `tasks/utils/sync/front.yml` drains the queue the same way after
+   the front of a synced role.
 
 `list_or_shoot.yml` takes `list_or_shoot_roles`. Inside a preload context
 it queues them for the post-load pass; outside one, for example in a play

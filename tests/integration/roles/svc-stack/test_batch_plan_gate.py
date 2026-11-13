@@ -13,7 +13,12 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from .test_stack_entry import _write
 
 CORE = Path("roles/svc-stack/tasks/00_core.yml")
-ONCE_FLAG = Path("tasks/utils/once/flag.yml")
+REAL = (
+    CORE,
+    Path("roles/svc-stack/tasks/batch/serve.yml"),
+    Path("tasks/utils/once/flag.yml"),
+    Path("group_vars/all/24_stack.yml"),
+)
 
 STUB_PLAN_LOOKUP = """import json
 import os
@@ -49,8 +54,8 @@ def run_gate(planned: list[dict]) -> subprocess.CompletedProcess:
             workdir / "roles/svc-stack/tasks/main.yml",
             "---\n- include_tasks: 00_core.yml\n",
         )
-        _write(workdir / CORE, read_text(str(PROJECT_ROOT / CORE)))
-        _write(workdir / ONCE_FLAG, read_text(str(PROJECT_ROOT / ONCE_FLAG)))
+        for path in REAL:
+            _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
         _write(workdir / "lookup/stack_batch.py", STUB_PLAN_LOOKUP)
         _write(workdir / "play.yml", PLAYBOOK)
         env = {

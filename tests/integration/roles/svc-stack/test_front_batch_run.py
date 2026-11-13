@@ -14,12 +14,15 @@ from .test_stack_entry import CANONICAL_BRIDGE, _write
 
 STACK = Path("roles/svc-stack")
 REAL = (
+    STACK / "tasks/batch/serve.yml",
+    STACK / "tasks/batch/late.yml",
     STACK / "tasks/batch/run.yml",
     STACK / "tasks/batch/warm.yml",
     STACK / "defaults/main.yml",
     STACK / "filter_plugins/front_proxy_batch.py",
     STACK / "filter_plugins/front_proxy_unserved.py",
     Path("tasks/utils/once/flag.yml"),
+    Path("group_vars/all/24_stack.yml"),
 )
 WARM = (
     ("sys-svc-webserver-https", "main.yml"),
@@ -35,12 +38,28 @@ ALPHA = {
     "role": "web-app-alpha",
     "phase": "server",
     "tls_mode": "letsencrypt",
+    "errors": [],
 }
 BETA = {
     "id": "web-svc-beta",
     "role": "web-svc-beta",
     "phase": "preload",
     "tls_mode": "off",
+    "errors": [],
+}
+LATE = {
+    "id": "web-app-alpha",
+    "role": "web-app-alpha",
+    "phase": "late",
+    "tls_mode": "letsencrypt",
+    "errors": [],
+}
+NESTED = {
+    "id": "web-svc-nested",
+    "role": "web-svc-nested",
+    "phase": "late",
+    "tls_mode": "off",
+    "errors": [],
 }
 
 STUB_WARM = """---
@@ -49,6 +68,32 @@ STUB_WARM = """---
     stub_events: "{{ stub_events + ['warm:' ~ role_name] }}"
 
 - include_tasks: utils/once/flag.yml
+"""
+
+STUB_FRONT_BASE = """---
+- name: Record the warm-up
+  ansible.builtin.set_fact:
+    stub_events: "{{ stub_events + ['warm:' ~ role_name] }}"
+
+- name: Enter a bridged role the plan does not hold, the way a flag-driven load does
+  ansible.builtin.include_role:
+    name: svc-stack
+    tasks_from: batch/late.yml
+  vars:
+    stack_late_application_id: web-svc-nested
+    stack_late_role: web-svc-nested
+  when: nest_late | bool
+
+- include_tasks: utils/once/flag.yml
+"""
+
+STUB_LATE_LOOKUP = """from ansible.plugins.lookup import LookupBase
+
+
+class LookupModule(LookupBase):
+    def run(self, terms, variables=None, **kwargs):
+        return [[{"id": terms[0], "role": kwargs["role"], "phase": "late",
+                  "tls_mode": "off", "errors": []}]]
 """
 
 STUB_FRONT = """---
@@ -127,12 +172,14 @@ PLAYBOOK = """---
       ansible.builtin.set_fact:
         stub_events: "{{ stub_events + ['restart'] }}"
   tasks:
-    - name: Run the batch and keep a refusal
+    - name: Serve the batch and keep a refusal
       block:
-        - name: Run the batch
+        - name: Serve the batch
           ansible.builtin.include_role:
             name: svc-stack
-            tasks_from: batch/run.yml
+            tasks_from: batch/serve.yml
+          vars:
+            stack_batch_items: "{{ stub_plan }}"
       rescue:
         - name: Record the refusal
           ansible.builtin.set_fact:
@@ -143,7 +190,8 @@ PLAYBOOK = """---
         dest: "{{ report_out }}"
         content: >-
           {{ {'events': stub_events, 'refusal': stub_refusal | default(''),
-              'record': front_proxy_batch_vhosts} | to_json }}
+              'record': front_proxy_batch_vhosts, 'served': stack_front_served,
+              'running': stack_batch_running, 'deferred': stack_batch_deferred} | to_json }}
         mode: "0644"
 """
 
@@ -156,7 +204,7 @@ def _build(workdir: Path) -> None:
         _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
     _write(workdir / STACK / "tasks/batch/front.yml", STUB_FRONT)
     bridge = read_text(str(PROJECT_ROOT / CANONICAL_BRIDGE))
-    for item in (ALPHA, BETA):
+    for item in (ALPHA, BETA, NESTED):
         _write(workdir / "roles" / item["role"] / "tasks/utils/stack.yml", bridge)
         _write(
             workdir / "roles" / item["role"] / "vars/main.yml",
@@ -164,6 +212,12 @@ def _build(workdir: Path) -> None:
         )
     for role, tasks in WARM:
         _write(workdir / "roles" / role / "tasks" / tasks, STUB_WARM)
+    _write(workdir / "roles/sys-stk-front-base/tasks/once.yml", STUB_FRONT_BASE)
+    _write(workdir / "lookup/stack_batch.py", STUB_LATE_LOOKUP)
+    _write(
+        workdir / "inventory.ini",
+        "[svc-prx-openresty]\nlocalhost ansible_connection=local\n",
+    )
     _write(
         workdir / "lookup/container_address.py",
         STUB_LOOKUP.replace("{RESULT}", "'openresty'"),
@@ -182,6 +236,7 @@ def run_batch(
     test_rc: int = 0,
     test_stderr: str = "",
     reload_changed: bool = True,
+    nest_late: bool = False,
 ) -> dict:
     """Args:
         plan: the front batch plan.
@@ -189,6 +244,7 @@ def run_batch(
         test_rc: the exit code of the stub ``openresty -t``.
         test_stderr: the error output of the stub ``openresty -t``.
         reload_changed: whether the stub reload reports a change.
+        nest_late: whether the warm-up enters a bridged role outside the plan.
 
     Returns:
         the batch events in order, the refusal message and the record left
@@ -205,9 +261,10 @@ def run_batch(
             workdir / "extra.json",
             json.dumps(
                 {
-                    "stack_batch_plan": plan,
+                    "stub_plan": plan,
                     "IS_STACK_HOST": True,
                     "reload_changed": reload_changed,
+                    "nest_late": nest_late,
                     "report_out": str(report),
                 }
             ),
@@ -227,7 +284,7 @@ def run_batch(
             [
                 "ansible-playbook",
                 "-i",
-                "localhost,",
+                str(workdir / "inventory.ini"),
                 str(workdir / "play.yml"),
                 "-e",
                 f"@{workdir / 'extra.json'}",
@@ -275,6 +332,44 @@ class TestFrontBatchRun(unittest.TestCase):
         self.assertEqual(observed["refusal"], "")
         self.assertEqual(observed["record"], {})
         self.assertEqual(observed["calls"], ["exec openresty openresty -t -q"])
+        self.assertEqual(
+            observed["served"], {"web-app-alpha": True, "web-svc-beta": True}
+        )
+
+    def test_a_late_item_renders_in_its_late_phase_with_its_warm_up(self) -> None:
+        observed = run_batch([LATE], probe={"web-app-alpha.example": 200})
+        self.assertEqual(
+            observed["events"],
+            [*_warm(*(role for role, _ in WARM)), _front(LATE), "reload"],
+        )
+        self.assertEqual(observed["served"], {"web-app-alpha": True})
+
+    def test_a_late_front_entered_inside_the_batch_waits_for_its_end(self) -> None:
+        observed = run_batch(
+            [BETA],
+            probe={"web-svc-beta.example": 200, "web-svc-nested.example": 200},
+            nest_late=True,
+        )
+        self.assertEqual(
+            observed["events"],
+            [
+                *_warm(
+                    "sys-svc-webserver-https",
+                    "sys-svc-container",
+                    "sys-svc-webserver-core",
+                    "sys-svc-nss",
+                    "sys-stk-front-base",
+                ),
+                _front(BETA),
+                "reload",
+                _front(NESTED),
+                "reload",
+            ],
+        )
+        self.assertEqual(
+            observed["served"], {"web-svc-beta": True, "web-svc-nested": True}
+        )
+        self.assertEqual((observed["running"], observed["deferred"]), (False, []))
 
     def test_a_plan_without_letsencrypt_skips_the_certificate_warm_up(self) -> None:
         observed = run_batch(
