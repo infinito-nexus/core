@@ -11,3 +11,14 @@ registrations:
       enum: [open, approved, none]
       map: {true: open, false: none}
       label: Registrations mode
+branding:
+  path: /admin/settings/branding
+  sinks: [MASTODON_BRANDING]
+  fields:
+    site_title:
+      source: services.mastodon.site_title
+      when: services.design.enabled
+      mode: enforced
+      selector: '[name="form_admin_settings[site_title]"]'
+      type: text
+      label: Site title

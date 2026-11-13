@@ -33,6 +33,7 @@ MASTODON_OIDC_ROLE_SYNC_FILE: "{{ MASTODON_OVERRIDES_DIR }}/zz_oidc_role_sync.rb
 MASTODON_API_SESSION_SKIP_FILE: "{{ MASTODON_OVERRIDES_DIR }}/api_session_skip.rb"
 
 MASTODON_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MASTODON_BRANDING: "{{ lookup('form_values', application_id, 'branding') }}"
 MASTODON_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
 MASTODON_DESIGN_UPLOAD_MARK: "infinito_design_uploads"
 MASTODON_DESIGN_UPLOADS:

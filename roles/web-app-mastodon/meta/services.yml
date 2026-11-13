@@ -67,6 +67,7 @@ mastodon:
         enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-mastodon', 'registration') }}"
+  site_title: "{{ lookup('design', 'web-app-mastodon').label }}"
   single_user_mode: false
   ports:
     local:
