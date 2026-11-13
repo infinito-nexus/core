@@ -211,6 +211,7 @@ MCP_ADAPTER_KEYS = frozenset(
         "scope",
         "upstream_transport",
         "upstream_path",
+        "upstream_credential",
     }
 )
 

@@ -1,12 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ PROMETHEUS_MCP_INSTANCE_DIR }}"
-  when: PROMETHEUS_MCP_ENABLED | bool
-
 - name: "🧩 Load the container CLI the data root probe calls"
   include_role:
     name: sys-svc-container

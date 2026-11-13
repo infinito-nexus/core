@@ -73,6 +73,10 @@ The adapter presents `ADAPTER_UPSTREAM_KEY` to the provider in the header named 
 
 An empty `ADAPTER_UPSTREAM_KEY` sends no header at all.
 
+## Instance staging
+
+The svc-stack backend [tasks/backend.yml](../svc-stack/tasks/backend.yml) stages [tasks/instance.yml](tasks/instance.yml) into `<instance>/mcp` before compose, for every consumer whose `meta/mcp.yml` declares `implementation: adapter` and whose `services.<endpoint.service_key>.enabled` holds. `adapter.upstream_credential: true` in that file also creates the empty `upstream.env` the sidecar reads a captured credential from. A role outside the svc-stack backend, such as svc-db-qdrant, still includes `tasks/instance.yml` itself.
+
 ## Image
 
 Self-built and stdlib-only: the served surface is three JSON-RPC methods, and a dependency-free image has no transitive supply chain to audit per release. The container runs as a non-root user with a read-only root filesystem and all Linux capabilities dropped.

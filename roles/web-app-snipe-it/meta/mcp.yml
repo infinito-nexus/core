@@ -17,6 +17,7 @@ endpoint:
   port_key: http
 adapter:
   type: openapi_allowlist
+  upstream_credential: true
   upstream_api_version: v1
   specification_path: roles/web-app-snipe-it/files/mcp/tools.json
   specification_sha256: sha256:df8192bba2cb4c6152b00774cb5b8c001eaf3ad825aa04fb607406be449b2ad1

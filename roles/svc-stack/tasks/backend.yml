@@ -8,6 +8,15 @@
       - "sso_proxy_enabled={{ lookup('sso', application_id, 'is_proxy_gated') }}"
   when: lookup('debug', 'svc-stack') | bool
 
+- name: "🔌 For '{{ application_id }}': stage the MCP adapter instance"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
+    mcp_adapter_upstream_key: "{{ lookup('config', application_id, 'mcp.adapter.upstream_credential', false) | bool }}"
+  when:
+    - lookup('config', application_id, 'mcp.implementation', '') == 'adapter'
+    - lookup('config', application_id, 'services.' ~ lookup('config', application_id, 'mcp.endpoint.service_key') ~ '.enabled', false) | bool
+
 - name: "🧩 For '{{ application_id }}': Load central RDBMS"
   include_role:
     name: sys-svc-rdbms
