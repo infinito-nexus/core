@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import re
+import tempfile
 import unittest
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from jinja2 import Environment, meta, select_autoescape
@@ -19,10 +21,11 @@ from .test_stack_bridge import (
     bootstrap_roles,
     bridge_roles,
 )
+from .test_stack_guard import _role
+from .test_stack_stage import STAGE, stage_files
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from pathlib import Path
 
 PROVIDER_STEPS = (
     "roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml",
@@ -34,6 +37,7 @@ PROVIDER_STEPS = (
     "roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml",
     "roles/sys-sysctl/",
 )
+FRONT_STEPS = ("roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml",)
 PATH_ABSOLUTE = re.compile(r"lookup\(\s*'path_absolute'\s*,\s*'([^']+)'\s*\)")
 TEMPLATE_INCLUDE = re.compile(r"\{%-?\s*(?:include|import|from)\s+['\"]([^'\"]+)['\"]")
 FRONT_TEMPLATES = ("proxy.conf.j2",)
@@ -306,29 +310,57 @@ def _targets(task: dict) -> Iterator[str]:
             yield f"roles/{spec.get('name')}/tasks/{tasks_from}"
 
 
-def provider_steps(roles: list[str]) -> list[str]:
+def provider_steps(root: Path, roles: list[str]) -> list[str]:
     """Args:
+        root: the repository root.
         roles: the bridge roles.
 
     Returns:
         ``path: step`` for every provider-side step a bridge role's own tasks
-        call.
+        call, except a step outside FRONT_STEPS that its stack stage reaches.
     """
     found = []
     for role in roles:
-        for path in sorted((PROJECT_ROOT / "roles" / role / "tasks").rglob("*.yml")):
+        staged = stage_files(root, role)
+        for path in sorted((root / "roles" / role / "tasks").rglob("*.yml")):
             for task in _tasks(load_yaml_any(str(path), default_if_missing=[])):
                 found += [
-                    f"{path.relative_to(PROJECT_ROOT)}: {target}"
+                    f"{path.relative_to(root)}: {target}"
                     for target in _targets(task)
                     if target.startswith(PROVIDER_STEPS)
+                    and (path not in staged or target.startswith(FRONT_STEPS))
                 ]
     return found
 
 
 class TestStackBatchAdmission(unittest.TestCase):
     def test_bridge_roles_call_no_provider_step(self) -> None:
-        self.assertEqual(provider_steps(bridge_roles(PROJECT_ROOT)), [])
+        self.assertEqual(provider_steps(PROJECT_ROOT, bridge_roles(PROJECT_ROOT)), [])
+
+    def test_only_a_stage_may_call_a_backend_provider_step(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            calls = {
+                "back": "roles/sys-svc-compose/tasks/utils/network/create.yml",
+                "front": FRONT_STEPS[0],
+            }
+            include = "- include_tasks: \"{{{{ lookup('path_absolute', '{}') }}}}\"\n"
+            _role(
+                root,
+                "web-app-staged",
+                {
+                    str(STAGE): include.format(calls["back"])
+                    + include.format(calls["front"]),
+                    "tasks/00_core.yml": include.format(calls["back"]),
+                },
+            )
+            self.assertEqual(
+                provider_steps(root, ["web-app-staged"]),
+                [
+                    f"roles/web-app-staged/tasks/00_core.yml: {calls['back']}",
+                    f"roles/web-app-staged/{STAGE}: {calls['front']}",
+                ],
+            )
 
     def test_bridge_role_fronts_read_no_fact_set_after_the_loader(self) -> None:
         self.assertEqual(front_gate(bridge_roles(PROJECT_ROOT)), [])

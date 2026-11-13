@@ -36,6 +36,41 @@ def stages_without_a_bridge(root: Path) -> list[str]:
     )
 
 
+def _flat(tasks: list[dict]) -> list[dict]:
+    found = []
+    for task in tasks:
+        found.append(task)
+        for key in NESTED:
+            found.extend(
+                _flat([step for step in task.get(key) or [] if isinstance(step, dict)])
+            )
+    return found
+
+
+def stage_files(root: Path, role: str) -> set[Path]:
+    """Args:
+        root: the repository root.
+        role: a role name.
+
+    Returns:
+        the role's stack stage and every task file of that role it reaches
+        through blocks and includes.
+    """
+    role_dir = root / "roles" / role
+    queue = [role_dir / STAGE] if (role_dir / STAGE).is_file() else []
+    seen: set[Path] = set()
+    while queue:
+        path = queue.pop()
+        if path in seen:
+            continue
+        seen.add(path)
+        for task in _flat(_tasks(path)):
+            target = _target(root, role_dir, _include(task))
+            if target and target.is_file() and role_dir in target.parents:
+                queue.append(target)
+    return seen
+
+
 def _owner(root: Path, path: Path, fallback: Path) -> Path:
     roles = root / "roles"
     return (
@@ -158,6 +193,41 @@ class TestStackStage(unittest.TestCase):
                     "web-app-nested: reach svc-stack",
                 ],
             )
+
+    def test_the_stage_files_follow_blocks_and_includes_inside_the_role(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            foreign = "roles/web-svc-other/tasks/step.yml"
+            _role(root, "web-svc-other", {"tasks/step.yml": STEP})
+            _role(
+                root,
+                "web-app-staged",
+                {
+                    **BRIDGED,
+                    str(STAGE): (
+                        "- block:\n"
+                        "    - include_tasks: inner.yml\n"
+                        "- include_tasks: \"{{ lookup('path_absolute', "
+                        f"'{foreign}') }}}}\"\n"
+                    ),
+                    "tasks/inner.yml": "- include_tasks: deeper.yml\n",
+                    "tasks/deeper.yml": STEP,
+                    "tasks/00_core.yml": "- include_tasks: core_only.yml\n",
+                    "tasks/core_only.yml": STEP,
+                },
+            )
+            tasks = root / "roles/web-app-staged/tasks"
+            self.assertEqual(
+                stage_files(root, "web-app-staged"),
+                {
+                    tasks / "utils/stack_stage.yml",
+                    tasks / "inner.yml",
+                    tasks / "deeper.yml",
+                },
+            )
+            self.assertEqual(stage_files(root, "web-svc-other"), set())
 
     def test_a_caller_besides_the_entry_is_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
