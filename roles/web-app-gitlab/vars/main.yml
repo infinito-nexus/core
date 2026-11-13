@@ -34,6 +34,7 @@ GITLAB_LOGIN_2FA: "{{ lookup('config', application_id, 'services.gitlab.login.me
 GITLAB_LOGIN_2FA_ENFORCED: "{{ GITLAB_LOGIN_2FA | bool and lookup('config', application_id, 'services.gitlab.login.method.2fa.enforced') | bool }}"
 GITLAB_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.gitlab.login.method.passkey.enabled') | bool }}"
 GITLAB_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.gitlab.login.method.registration.enabled') | bool }}"
+GITLAB_APPLICATION_SETTINGS: "{{ lookup('form_values', application_id, 'general') }}"
 GITLAB_LOGIN_PASSKEY_ENTRY: "[data-testid='passkey-form']"
 GITLAB_LOGIN_HIDDEN_ENTRIES: "{{ [] if GITLAB_LOGIN_PASSKEY | bool else [GITLAB_LOGIN_PASSKEY_ENTRY] }}"
 GITLAB_NETWORK_BASE_URLS: "{{ lookup('network_urls', lookup('tls', application_id, 'url.base')) }}"

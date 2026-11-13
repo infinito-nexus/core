@@ -15,6 +15,23 @@
     resolve_output_prefix: GITLAB_RAILS
     resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
 
+- name: "⬇️ Read the managed application settings GitLab holds"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/application-settings.sql'] | path_join }}"
+    named_args:
+      fields: "{{ GITLAB_APPLICATION_SETTINGS | list | to_json }}"
+    expect_rows: true
+  register: gitlab_application_settings_stored
+  changed_when: false
+  run_once: true
+
+- name: "📣 Report the managed application settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      general: "{{ gitlab_application_settings_stored.rows[0][0] | default('{}', true) | from_json }}"
+
 - name: "🚪 Converge the sign-in methods GitLab keeps as application settings"
   ansible.builtin.command:
     argv:
@@ -22,9 +39,7 @@
       - exec
       - -i
       - -e
-      - GITLAB_LOGIN_NATIVE
-      - -e
-      - GITLAB_LOGIN_REGISTRATION
+      - GITLAB_APPLICATION_SETTINGS
       - -e
       - GITLAB_LOGIN_2FA
       - -e
@@ -35,8 +50,7 @@
       - "-"
     stdin: "{{ lookup('file', 'ruby/apply_login_methods.rb') }}"
   environment:
-    GITLAB_LOGIN_NATIVE: "{{ GITLAB_LOGIN_NATIVE | bool | string | lower }}"
-    GITLAB_LOGIN_REGISTRATION: "{{ GITLAB_LOGIN_REGISTRATION | bool | string | lower }}"
+    GITLAB_APPLICATION_SETTINGS: "{{ GITLAB_APPLICATION_SETTINGS | to_json }}"
     GITLAB_LOGIN_2FA: "{{ GITLAB_LOGIN_2FA | bool | string | lower }}"
     GITLAB_LOGIN_2FA_ENFORCED: "{{ GITLAB_LOGIN_2FA_ENFORCED | bool | string | lower }}"
   register: gitlab_login_methods

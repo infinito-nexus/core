@@ -2,16 +2,14 @@
 # which comes from the GitLab image and is not loadable anywhere else
 #
 # Env (from the container):
-#   GITLAB_LOGIN_NATIVE        "true" keeps the password and passkey form on the web sign-in page
-#   GITLAB_LOGIN_REGISTRATION  "true" opens local self-registration
-#   GITLAB_LOGIN_2FA           "true" lets the deploy own the enforcement; "false" leaves it as an admin set it
-#   GITLAB_LOGIN_2FA_ENFORCED  "true" sends every account without a second factor to enrollment
+#   GITLAB_APPLICATION_SETTINGS  JSON of the general form of meta/forms.yml: each managed application setting mapped to its value
+#   GITLAB_LOGIN_2FA             "true" lets the deploy own the enforcement; "false" leaves it as an admin set it
+#   GITLAB_LOGIN_2FA_ENFORCED    "true" sends every account without a second factor to enrollment
 #
 # Exit: 0 with [CHANGED] or [UNCHANGED] on stdout, 1 with [FAIL] on stderr.
-wanted = {
-  password_authentication_enabled_for_web: ENV.fetch('GITLAB_LOGIN_NATIVE') == 'true',
-  signup_enabled: ENV.fetch('GITLAB_LOGIN_REGISTRATION') == 'true'
-}
+require 'json'
+
+wanted = JSON.parse(ENV.fetch('GITLAB_APPLICATION_SETTINGS')).transform_keys(&:to_sym)
 if ENV.fetch('GITLAB_LOGIN_2FA') == 'true'
   wanted[:require_two_factor_authentication] = ENV.fetch('GITLAB_LOGIN_2FA_ENFORCED') == 'true'
 end
