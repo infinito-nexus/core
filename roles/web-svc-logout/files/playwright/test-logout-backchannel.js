@@ -3,18 +3,23 @@ const { test, expect } = require("@playwright/test");
 const { apiFetchOnion, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 const {
+  KEYCLOAK_LOGIN,
   biberTokens,
   confirmLogoutOnThisDevice,
   durationMs,
+  endEveryOtherSession,
   endTokenSession,
+  expectGatedAppAsksForLogin,
+  expectGatedSession,
   expectSynapseSession,
   forgedLogoutToken,
+  gatedAppSessions,
   logoutEnv,
   openContext,
+  signInToGatedApp,
   signInToSynapse,
 } = require("./logout-flow");
 
-const KEYCLOAK_LOGIN = "input[name='username'], input#username";
 const FOREIGN_CLIENT = "infinito-foreign-client";
 const FOREIGN_REALM = "infinito-foreign";
 
@@ -130,6 +135,30 @@ exports.register = function () {
         }
       } finally {
         await context.close();
+      }
+    });
+
+    test("logout-backchannel: a Keycloak session ended without the conductor ends every gated app session", async ({ browser }) => {
+      const gated = gatedAppSessions();
+      test.skip(gated.length === 0, "no deployed application has its back-channel receiver behind the logout gate");
+      test.setTimeout(resolveTimeout(900_000));
+      const context = await openContext(browser);
+      const otherDevice = await openContext(browser);
+      try {
+        const page = await context.newPage();
+        for (const app of gated) {
+          await signInToGatedApp(page, app);
+        }
+        for (const app of gated) {
+          await expectGatedSession(page, app, true);
+        }
+        await endEveryOtherSession(otherDevice.request);
+        for (const app of gated) {
+          await expectGatedAppAsksForLogin(page, app);
+        }
+      } finally {
+        await context.close();
+        await otherDevice.close();
       }
     });
 

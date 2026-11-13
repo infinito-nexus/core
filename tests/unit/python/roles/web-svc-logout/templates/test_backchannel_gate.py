@@ -78,6 +78,8 @@ def lookup(name, *terms, **kwargs):
         return APPLICATIONS
     if name == "tls":
         return LOGOUT_ORIGIN if terms[0] == APP else f"https://{terms[0]}.example.test"
+    if name == "network_urls":
+        return [terms[0], terms[0].replace(".example.test", ".example.onion")]
     if name == "config":
         if (terms[0], terms[1]) in CONFIG:
             return CONFIG[(terms[0], terms[1])]
@@ -270,6 +272,10 @@ class TestPlaywrightGateTargets(unittest.TestCase):
                     "url": f"{LOGOUT_ORIGIN}/backchannel/{GATED}",
                     "client_id": CLIENT_ID,
                     "sealed_url": f"https://{GATED}.example.test{RECEIVER_PATH}",
+                    "app_urls": [
+                        f"https://{GATED}.example.test",
+                        f"https://{GATED}.example.onion",
+                    ],
                 }
             ],
         )
