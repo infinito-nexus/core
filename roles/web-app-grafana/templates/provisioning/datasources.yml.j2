@@ -9,21 +9,21 @@ datasources:
     uid: {{ GRAFANA_LOKI_DATASOURCE_UID | to_json }}
     type: loki
     access: proxy
-    url: {{ GRAFANA_LOKI_URL | to_json }}
+    url: {{ GRAFANA_DATASOURCES.loki_url | to_json }}
     isDefault: true
     editable: false
     jsonData:
       maxLines: 1000
       httpHeaderName1: X-Scope-OrgID
     secureJsonData:
-      httpHeaderValue1: {{ GRAFANA_LOKI_TENANT | to_json }}
+      httpHeaderValue1: {{ GRAFANA_DATASOURCES.loki_tenant | to_json }}
 {% endif %}
 {% if GRAFANA_PROMETHEUS_ENABLED | bool %}
   - name: Prometheus
     uid: {{ GRAFANA_PROMETHEUS_DATASOURCE_UID | to_json }}
     type: prometheus
     access: proxy
-    url: {{ GRAFANA_PROMETHEUS_URL | to_json }}
+    url: {{ GRAFANA_DATASOURCES.prometheus_url | to_json }}
     isDefault: {{ (not (GRAFANA_LOKI_ENABLED | bool)) | lower }}
     editable: false
     jsonData:
