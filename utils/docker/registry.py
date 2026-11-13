@@ -26,6 +26,7 @@ import urllib.request
 from pathlib import Path
 from urllib.parse import quote, urlencode, urlparse
 
+from utils.docker.digest import valid_digest
 from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_name
 from utils.docker.mirror import mirror_image
 
@@ -226,8 +227,8 @@ def platform_digest(manifests: list, os_name: str, architecture: str) -> str | N
             platform.get("os") == os_name
             and platform.get("architecture") == architecture
         ):
-            digest = entry.get("digest")
-            if isinstance(digest, str) and digest:
+            digest = valid_digest(entry.get("digest"))
+            if digest:
                 return digest
     return None
 
@@ -464,7 +465,7 @@ def manifest_digest(image: str, reference: str) -> str | None:
     result = _request(url, repo, method="HEAD", accept=_MANIFEST_ACCEPT)
     if result is None or result[0] != 200:
         return None
-    return result[1].get("Docker-Content-Digest") or None
+    return valid_digest(result[1].get("Docker-Content-Digest"))
 
 
 def manifest_exists(image: str, reference: str) -> bool | None:
