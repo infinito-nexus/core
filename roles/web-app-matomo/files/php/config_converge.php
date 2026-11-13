@@ -7,8 +7,12 @@
  *   MATOMO_CONFIG_SECTIONS  JSON object of section name to {key: value}; each section is
  *                           replaced by exactly these keys, an empty object empties it
  *   MATOMO_CONFIG_GENERAL   JSON object of General key to value; an empty string removes the key
+ *   MATOMO_CONFIG_MODE      "read" compares only and writes nothing
+ *   MATOMO_CONFIG_FORM_FIELDS  read mode only: JSON object of section name to the keys
+ *                           meta/forms.yml declares; only their stored values are printed
  *
- * Output: CHANGED when a key moved.
+ * Output: CHANGED when a key moved; in read mode
+ *   {"settings": {<section>: {<key>: <stored value>}}, "hidden": <count of other differing keys>}.
  */
 
 use Piwik\Application\Environment;
@@ -50,6 +54,8 @@ function ini_value($value)
 
 $sections = json_object_env('MATOMO_CONFIG_SECTIONS');
 $generalKeys = json_object_env('MATOMO_CONFIG_GENERAL');
+$readOnly = getenv('MATOMO_CONFIG_MODE') === 'read';
+$formFields = $readOnly ? json_object_env('MATOMO_CONFIG_FORM_FIELDS') : [];
 
 $environment = new Environment(null);
 $environment->init();
@@ -57,15 +63,31 @@ FrontController::getInstance()->init();
 
 $config = Config::getInstance();
 $changed = false;
+$drift = [];
+$hidden = 0;
 
 foreach ($sections as $section => $settings) {
     if ($section === 'General' || !is_array($settings)) {
         fwrite(STDERR, "[FAIL] MATOMO_CONFIG_SECTIONS.$section is no replaceable section\n");
         exit(1);
     }
-    $current = $config->$section;
+    $current = is_array($config->$section) ? $config->$section : [];
+    $stored = array_map('ini_value', $current);
     $desired = array_map('ini_value', $settings);
-    if (array_map('ini_value', is_array($current) ? $current : []) != $desired) {
+    if ($readOnly) {
+        foreach (array_keys($stored + $desired) as $key) {
+            if (array_key_exists($key, $stored) && array_key_exists($key, $desired) && $stored[$key] == $desired[$key]) {
+                continue;
+            }
+            if (array_key_exists($key, $desired) && in_array($key, $formFields[$section] ?? [], true)) {
+                $drift[$section][$key] = $current[$key] ?? null;
+            } else {
+                $hidden++;
+            }
+        }
+        continue;
+    }
+    if ($stored != $desired) {
         $config->$section = $desired;
         $changed = true;
     }
@@ -83,6 +105,12 @@ foreach ($generalKeys as $key => $value) {
         $general[$key] = $desired;
         $changed = true;
     }
+}
+
+if ($readOnly) {
+    $hidden += $changed ? 1 : 0;
+    echo json_encode(['settings' => (object) $drift, 'hidden' => $hidden], JSON_THROW_ON_ERROR) . "\n";
+    exit(0);
 }
 
 if ($changed) {

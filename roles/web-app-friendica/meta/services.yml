@@ -5,6 +5,9 @@
 friendica:
   backup:
     stop_required: false
+  logging:
+    debugging: "{{ lookup('debug') | bool }}"
+    level: "{{ 9 if lookup('debug') | bool else 5 }}"
   healthcheck:
     flavor: msmtp_curl
   modes:

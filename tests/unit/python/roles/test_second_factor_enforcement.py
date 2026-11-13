@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import runpy
 import sys
 import unittest
@@ -23,6 +24,8 @@ from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as applications_cache
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles.applications.converge import values
+from utils.roles.applications.forms import when_path
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLES = PROJECT_ROOT / "roles"
@@ -197,18 +200,54 @@ class TestPgadmin(_EnvironmentLine, unittest.TestCase):
     UNMANAGED = OFF
 
 
-class TestEspocrm(_EnvironmentLine, unittest.TestCase):
+class TestEspocrm(_EnforcementCase, unittest.TestCase):
     ROLE = "web-app-espocrm"
     ENTITY = "espocrm"
+    FORM = "authentication"
     MARKER = "ESPOCRM_SEED_AUTH2_F_A_FORCED="
     ON = "ESPOCRM_SEED_AUTH2_F_A_FORCED=true"
     OFF = "ESPOCRM_SEED_AUTH2_F_A_FORCED=false"
     UNMANAGED = OFF
 
+    def _seed(
+        self, marker: str, mode: tuple[str, ...], second_factor: dict[str, bool]
+    ) -> str:
+        forms = load_yaml_str(read_text(str(ROLES / self.ROLE / "meta/forms.yml")))
+        application: dict[str, Any] = {}
+        for spec in forms[self.FORM]["fields"].values():
+            for path in filter(None, (spec["source"], when_path(spec.get("when")))):
+                *parents, leaf = path.split(".")
+                node = application
+                for parent in parents:
+                    node = node.setdefault(parent, {})
+                node[leaf] = render(
+                    self.ROLE,
+                    f"{{{{ lookup('config', '{self.ROLE}', '{path}') }}}}",
+                    mode,
+                    self.ENTITY,
+                    second_factor,
+                )
+        block = re.search(
+            r"^\{% for espocrm_field.*?^\{% endfor %\}\n",
+            read_text(str(ROLES / self.ROLE / "templates/env.j2")),
+            re.MULTILINE | re.DOTALL,
+        ).group(0)
+        rendered = Templar(
+            loader=DataLoader(),
+            variables={
+                "ESPOCRM_FORM_SETTINGS": values(self.FORM, forms, application, {})
+            },
+        ).template(trust_as_template(block))
+        return next(line for line in rendered.splitlines() if line.startswith(marker))
+
+    def _value(self, mode: tuple[str, ...], second_factor: dict[str, bool]) -> str:
+        return self._seed(self.MARKER, mode, second_factor)
+
     def test_turning_2fa_off_disables_the_method_in_the_same_seed(self) -> None:
-        line = line_with(self.ROLE, self.RELATIVE, "ESPOCRM_SEED_AUTH2_F_A=")
-        rendered = render(self.ROLE, line, SSO, self.ENTITY, {})
-        self.assertEqual("ESPOCRM_SEED_AUTH2_F_A=false", rendered.strip())
+        self.assertEqual(
+            "ESPOCRM_SEED_AUTH2_F_A=false",
+            self._seed("ESPOCRM_SEED_AUTH2_F_A=", SSO, {}),
+        )
 
     def test_the_seed_name_becomes_the_espocrm_setting(self) -> None:
         suffix = self.MARKER.removeprefix("ESPOCRM_SEED_").rstrip("=").lower()

@@ -48,23 +48,9 @@ MATOMO_OIDC_STATE: "{{ 'present' if MATOMO_OIDC_ENABLED | bool and MATOMO_LOGIN_
 MATOMO_OIDC_PLUGIN: "{{ lookup('config', application_id, 'addons.rebeloidc.config.plugin') }}"
 MATOMO_OIDC_PLUGIN_ARCHIVE: "{{ lookup('config', application_id, 'addons.rebeloidc.config.archive') }}"
 MATOMO_OIDC_PLUGIN_SOURCE: "{{ [MATOMO_RELEASE_DIR, 'plugins', MATOMO_OIDC_PLUGIN] | path_join }}"
-MATOMO_OIDC_SETTINGS:
-  authenticationName: "{{ OIDC.BUTTON_TEXT }}"
-  authorizeUrl: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
-  tokenUrl: "{{ OIDC.CLIENT.TOKEN_URL }}"
-  userInfoUrl: "{{ OIDC.CLIENT.USER_INFO_URL }}"
-  endSessionUrl: "{{ OIDC.CLIENT.LOGOUT_URL }}"
-  userInfoId: "{{ OIDC.ATTRIBUTES.USERNAME }}"
-  usernameAttribute: "{{ OIDC.ATTRIBUTES.USERNAME }}"
-  fallbackToEmail: false
-  clientId: "{{ OIDC.CLIENT.ID }}"
+MATOMO_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'rebeloidc') }}"
+MATOMO_OIDC_CREDENTIALS:
   clientSecret: "{{ OIDC.CLIENT.SECRET }}"
-  scope: "openid profile email {{ RBAC.GROUP.CLAIM }}"
-  allowSignup: false
-  autoLinking: true
-  disableSuperuser: false
-  disablePasswordConfirmation: true
-  fineGrainedPermissions: false
 MATOMO_OIDC_GENERAL:
   proxy_scheme_headers: ["HTTP_X_FORWARDED_PROTO"]
   login_logout_url: "{{ MATOMO_SITE_URL if MATOMO_OIDC_ENABLED | bool else '' }}"
@@ -79,6 +65,11 @@ MATOMO_RBAC_LOGIN_SETTINGS:
   write_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='write') }}"
   view_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='view') }}"
   protected_logins: "{{ MATOMO_RBAC_PROTECTED_LOGINS }}"
+MATOMO_CONFIG_SECTIONS: >-
+  {{ {
+    MATOMO_OIDC_PLUGIN: (MATOMO_OIDC_SETTINGS | combine(MATOMO_OIDC_CREDENTIALS)) if MATOMO_OIDC_ENABLED | bool else {},
+    MATOMO_RBAC_LOGIN_PLUGIN: MATOMO_RBAC_LOGIN_SETTINGS if MATOMO_OIDC_ENABLED | bool else {}
+  } }}
 
 MATOMO_LOCAL_HOST: "127.0.0.1:{{ lookup('config', application_id, 'services.matomo.ports.internal.http') }}"
 matomo_index_php_url: "http://{{ MATOMO_LOCAL_HOST }}/index.php"

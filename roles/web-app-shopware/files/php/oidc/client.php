@@ -11,12 +11,11 @@
  *   SHOPWARE_API_BASE      base URL of the Shopware API as seen from the container
  *   ADMIN_USER             admin username for the password grant
  *   ADMIN_PASSWORD         admin password for the password grant
- *   OIDC_AUTH_SERVER       Keycloak base URL the browser reaches
- *   OIDC_INTERNAL_BASE     Keycloak base URL the container reaches
- *   OIDC_REALM             Keycloak realm holding the client
- *   OIDC_CLIENT_ID         Keycloak client id
+ *   OIDC_CLIENT_SETTINGS   JSON object of the client form of meta/forms.yml: the client
+ *                          fields plus the provider fields of CONFIG_FIELDS
+ *   OIDC_CLIENT_MODE       "read" prints {"settings": {<field>: <stored value>}} for the
+ *                          fields of OIDC_CLIENT_SETTINGS and exits; the rest is unused then
  *   OIDC_CLIENT_SECRET     Keycloak client secret
- *   OIDC_LOGIN_ENABLED     "true" offers the provider on the admin login page, "false" keeps it for account connects only
  *   RBAC_GROUP_CLAIM      ID token claim that lists the group paths
  *   RBAC_GROUP_ADMIN       group path whose members become Shopware administrators
  *   RBAC_GROUP_EDITOR      group path whose members get the Editor ACL role
@@ -30,6 +29,7 @@ const PROVIDER = 'open_id_connect';
 const ROLE_ACTION = 'heptacomAdminOpenAuthRoleAssignment';
 const ID_TOKEN_CONDITION = 'heptacomAdminOpenAuthIdToken';
 const EMAIL_VERIFIED_CLAIM = 'email_verified';
+const CONFIG_FIELDS = ['discoveryDocumentUrl', 'authorization_endpoint', 'token_endpoint', 'userinfo_endpoint', 'clientId'];
 
 function env(string $key): string
 {
@@ -125,6 +125,22 @@ if (!is_string($token) || $token === '') {
     exit(1);
 }
 
+$settings = json_decode(env('OIDC_CLIENT_SETTINGS'), true, 512, JSON_THROW_ON_ERROR);
+
+if (!is_array($settings) || $settings === []) {
+    fwrite(STDERR, "OIDC_CLIENT_SETTINGS must be a non-empty JSON object\n");
+    exit(1);
+}
+
+$entity = "{$base}/api/heptacom-admin-open-auth-client";
+$existing = api('GET', "{$entity}?filter[provider]=" . PROVIDER . '&limit=1', null, $token)['data'][0] ?? null;
+
+if (getenv('OIDC_CLIENT_MODE') === 'read') {
+    $stored = is_array($existing) ? $existing + (is_array($existing['config'] ?? null) ? $existing['config'] : []) : [];
+    echo json_encode(['settings' => (object) array_intersect_key($stored, $settings)], JSON_THROW_ON_ERROR) . "\n";
+    exit(0);
+}
+
 $claim = env('RBAC_GROUP_CLAIM');
 $adminGroup = env('RBAC_GROUP_ADMIN');
 $editorGroup = env('RBAC_GROUP_EDITOR');
@@ -135,32 +151,13 @@ if (!is_array($editorPrivileges) || $editorPrivileges === []) {
     exit(1);
 }
 
-$realm = env('OIDC_REALM');
-$browserRealm = rtrim(env('OIDC_AUTH_SERVER'), '/') . '/realms/' . $realm;
-$internalRealm = rtrim(env('OIDC_INTERNAL_BASE'), '/') . '/realms/' . $realm;
-
-$payload = [
-    'name' => 'Keycloak',
+$config = array_intersect_key($settings, array_flip(CONFIG_FIELDS));
+$payload = array_diff_key($settings, $config) + [
     'provider' => PROVIDER,
-    'active' => true,
-    'login' => env('OIDC_LOGIN_ENABLED') === 'true',
-    'connect' => true,
-    'storeUserToken' => true,
-    'keepUserUpdated' => true,
-    'config' => [
-        'scopes' => [],
-        'discoveryDocumentUrl' => '',
-        'authorization_endpoint' => $browserRealm . '/protocol/openid-connect/auth',
-        'token_endpoint' => $internalRealm . '/protocol/openid-connect/token',
-        'userinfo_endpoint' => $internalRealm . '/protocol/openid-connect/userinfo',
-        'clientId' => env('OIDC_CLIENT_ID'),
-        'clientSecret' => env('OIDC_CLIENT_SECRET'),
-    ],
+    'config' => $config + ['scopes' => [], 'clientSecret' => env('OIDC_CLIENT_SECRET')],
 ];
 
-$entity = "{$base}/api/heptacom-admin-open-auth-client";
-$existing = api('GET', "{$entity}?filter[provider]=" . PROVIDER . '&limit=1', null, $token);
-$id = $existing['data'][0]['id'] ?? null;
+$id = $existing['id'] ?? null;
 
 if (is_string($id) && $id !== '') {
     api('PATCH', "{$entity}/{$id}", $payload, $token);

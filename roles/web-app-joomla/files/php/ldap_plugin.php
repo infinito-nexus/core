@@ -14,8 +14,15 @@ use Joomla\Database\ParameterType;
 
 const FLAGS = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
-$enabled = getenv('J_LDAP_ENABLED') === '1';
-$wanted  = [];
+$mode     = getenv('J_LDAP_MODE');
+$enabled  = getenv('J_LDAP_ENABLED') === '1';
+$wanted   = [];
+$password = null;
+
+if (!in_array($mode, ['read', 'write'], true)) {
+    fwrite(STDERR, "J_LDAP_MODE must be read or write\n");
+    exit(1);
+}
 
 if ($enabled) {
     $wanted = json_decode((string) getenv('J_LDAP_PARAMS'), true);
@@ -29,7 +36,6 @@ if ($enabled) {
         fwrite(STDERR, "J_LDAP_BIND_PASSWORD is empty\n");
         exit(1);
     }
-    $wanted['password'] = $password;
 }
 
 $db    = Factory::getContainer()->get(DatabaseInterface::class);
@@ -48,14 +54,27 @@ if ($plugin === null) {
 
 $current = json_decode((string) $plugin->params, true) ?: [];
 $params  = $current;
+$state   = $enabled ? 1 : 0;
+
+if ($mode === 'read') {
+    $drifted = [];
+    foreach ($wanted as $name => $value) {
+        if (json_encode($current[$name] ?? null, FLAGS) !== json_encode($value, FLAGS)) {
+            $drifted[$name] = $current[$name] ?? null;
+        }
+    }
+    $hidden = (int) ((int) $plugin->enabled !== $state)
+        + (int) ($enabled ? ($current['password'] ?? null) !== $password : array_key_exists('password', $current));
+    echo json_encode(['settings' => (object) $drifted, 'hidden' => $hidden], FLAGS), PHP_EOL;
+    exit(0);
+}
 
 if ($enabled) {
-    $params = array_merge($current, $wanted);
+    $params = array_merge($current, $wanted, ['password' => $password]);
 } else {
     unset($params['password']);
 }
 
-$state   = $enabled ? 1 : 0;
 $encoded = json_encode((object) $params, FLAGS);
 
 if ((int) $plugin->enabled === $state && $encoded === json_encode((object) $current, FLAGS)) {

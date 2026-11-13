@@ -92,10 +92,11 @@ final class ConfigConvergeTest extends TestCase
      * @param string $sections the MATOMO_CONFIG_SECTIONS value
      * @param string $general the MATOMO_CONFIG_GENERAL value
      * @param array<string, array<string, mixed>> $config the sections the stub starts from
+     * @param array<string, string> $env further environment, such as the read mode
      * @return array{0: string, 1: string, 2: int, 3: array{config: array<string, mixed>, saves: int}}
      *         stdout, stderr, exit code and the stub state afterwards
      */
-    private function runScript(string $sections, string $general, array $config): array
+    private function runScript(string $sections, string $general, array $config, array $env = []): array
     {
         $root = sys_get_temp_dir() . '/matomo-config-' . bin2hex(random_bytes(8));
         mkdir($root);
@@ -121,7 +122,7 @@ final class ConfigConvergeTest extends TestCase
                 'MATOMO_CONFIG_GENERAL' => $general,
                 'STUB_STATE' => "$root/state.json",
                 'PATH' => (string) getenv('PATH'),
-            ]
+            ] + $env
         );
         fwrite($pipes[0], $source);
         fclose($pipes[0]);
@@ -259,6 +260,38 @@ final class ConfigConvergeTest extends TestCase
         $this->assertSame(0, $code, $stderr);
         $this->assertSame("CHANGED\n", $stdout);
         $this->assertSame(['HTTP_X_FORWARDED_PROTO'], $after['config']['General']['proxy_scheme_headers']);
+    }
+
+    public function testTheReadReportsDriftedFormFieldsAndCountsTheRestWithoutSaving(): void
+    {
+        [$stdout, $stderr, $code, $after] = $this->runScript(
+            json_encode(['RebelOIDC' => ['scope' => 'openid', 'allowSignup' => false, 'clientSecret' => 'new']]),
+            json_encode(['force_ssl' => '1']),
+            ['General' => ['salt' => 's'], 'RebelOIDC' => ['scope' => 'openid', 'allowSignup' => '1', 'clientSecret' => 'old', 'stale' => 'x']],
+            ['MATOMO_CONFIG_MODE' => 'read', 'MATOMO_CONFIG_FORM_FIELDS' => json_encode(['RebelOIDC' => ['scope', 'allowSignup']])]
+        );
+
+        $this->assertSame(0, $code, $stderr);
+        $this->assertSame(
+            ['settings' => ['RebelOIDC' => ['allowSignup' => '1']], 'hidden' => 3],
+            json_decode($stdout, true)
+        );
+        $this->assertStringNotContainsString('old', $stdout);
+        $this->assertSame(0, $after['saves']);
+    }
+
+    public function testTheReadOfAMatchingConfigReportsNothing(): void
+    {
+        [$stdout, $stderr, $code, $after] = $this->runScript(
+            json_encode(['RebelOIDC' => ['allowSignup' => true]]),
+            '{}',
+            ['General' => ['salt' => 's'], 'RebelOIDC' => ['allowSignup' => '1']],
+            ['MATOMO_CONFIG_MODE' => 'read', 'MATOMO_CONFIG_FORM_FIELDS' => json_encode(['RebelOIDC' => ['allowSignup']])]
+        );
+
+        $this->assertSame(0, $code, $stderr);
+        $this->assertSame("{\"settings\":{},\"hidden\":0}\n", $stdout);
+        $this->assertSame(0, $after['saves']);
     }
 
     public function testAnEmptyVariableFails(): void

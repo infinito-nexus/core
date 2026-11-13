@@ -33,11 +33,10 @@ SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabl
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 
 SNIPE_IT_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
-SNIPE_IT_SSO_HEADER_NAME: "INFINITO_SSO_USER"
 SNIPE_IT_SSO_GROUPS_VARIABLE: "INFINITO_SSO_GROUPS"
 SNIPE_IT_SSO_PROXY_HEADER: "X-Infinito-Sso-Proxy"
 SNIPE_IT_SSO_PROXY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.sso_proxy_secret') }}"
-SNIPE_IT_SSO_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+SNIPE_IT_REMOTE_USER_SETTINGS: "{{ lookup('form_values', application_id, 'remote_user') }}"
 
 SNIPE_IT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 SNIPE_IT_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
@@ -59,23 +58,20 @@ SNIPE_IT_DESIGN_SETTINGS: >-
 SNIPE_IT_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 SNIPE_IT_LDAP_ADMINISTRATOR_GROUP_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
 SNIPE_IT_LDAP_USER_GROUP_DN: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
-SNIPE_IT_LDAP_FILTER_FRAGMENT: >-
-  &(objectClass=inetOrgPerson)(|({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}={{ SNIPE_IT_LDAP_ADMINISTRATOR_GROUP_DN }})({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}={{ SNIPE_IT_LDAP_USER_GROUP_DN
-  }}))(!({{ LDAP.USER.ATTRIBUTES.ID }}={{ SNIPE_IT_BOOTSTRAP_ADMIN_USERNAME }}))
-SNIPE_IT_LDAP_AUTH_FILTER_QUERY: "{{ LDAP.USER.ATTRIBUTES.ID }}="
-SNIPE_IT_LDAP_USER_FIRSTNAME: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME | lower }}"
-SNIPE_IT_LDAP_FIELD_MAP:
-  ldap_display_name: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME | lower }}"
-  ldap_emp_num: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER | lower }}"
-  ldap_phone_field: "{{ LDAP.USER.ATTRIBUTES.PHONE | lower }}"
-  ldap_mobile: "{{ LDAP.USER.ATTRIBUTES.MOBILE | lower }}"
-  ldap_jobtitle: "{{ LDAP.USER.ATTRIBUTES.TITLE | lower }}"
-  ldap_dept: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT | lower }}"
-  ldap_address: "{{ LDAP.USER.ATTRIBUTES.STREET | lower }}"
-  ldap_city: "{{ LDAP.USER.ATTRIBUTES.LOCALITY | lower }}"
-  ldap_state: "{{ LDAP.USER.ATTRIBUTES.REGION | lower }}"
-  ldap_zip: "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE | lower }}"
-  ldap_country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY | lower }}"
+SNIPE_IT_LDAP_SETTINGS: "{{ lookup('form_values', application_id, 'ldap') }}"
+SNIPE_IT_LDAP_PROFILE_COLUMNS:
+  - ldap_display_name
+  - ldap_emp_num
+  - ldap_phone_field
+  - ldap_mobile
+  - ldap_jobtitle
+  - ldap_dept
+  - ldap_address
+  - ldap_city
+  - ldap_state
+  - ldap_zip
+  - ldap_country
+SNIPE_IT_LDAP_FIELD_MAP: "{{ SNIPE_IT_LDAP_SETTINGS | dict2items | selectattr('key', 'in', SNIPE_IT_LDAP_PROFILE_COLUMNS) | items2dict }}"
 
 SNIPE_IT_RBAC_USER_GROUP: "{{ application_id }}-user"
 SNIPE_IT_RBAC_USER_PERMISSIONS:

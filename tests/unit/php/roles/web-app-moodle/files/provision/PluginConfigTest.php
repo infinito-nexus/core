@@ -24,9 +24,11 @@ final class PluginConfigTest extends TestCase
             file_put_contents(getenv('STUB_STATE'), json_encode($state));
         }
 
-        function get_config($plugin, $name = null) {
-            return stub_state()['config'][$plugin][$name] ?? false;
-        }
+        $DB = new class {
+            public function get_records_menu($table, array $conditions, $sort = '', $fields = '*') {
+                return $table === 'config_plugins' ? (stub_state()['config'][$conditions['plugin']] ?? []) : [];
+            }
+        };
 
         function set_config($name, $value, $plugin = null) {
             $state = stub_state();
@@ -75,12 +77,37 @@ final class PluginConfigTest extends TestCase
     /**
      * Encode the stdin payload the Ansible task sends.
      *
-     * @param array<mixed> $settings setting values by name
-     * @param string       $component plugin the settings belong to
+     * @param array<mixed>         $settings  setting values by name
+     * @param string               $component plugin the settings belong to
+     * @param string               $mode      read or write
+     * @param array<string, mixed> $hidden    credential values by name
      */
-    private static function payload(array $settings, string $component = 'auth_ldap'): string
+    private static function payload(
+        array $settings,
+        string $component = 'auth_ldap',
+        string $mode = 'write',
+        array $hidden = []
+    ): string {
+        return json_encode([
+            'component' => $component,
+            'mode' => $mode,
+            'settings' => $settings,
+            'hidden' => (object) $hidden,
+        ]) . "\n";
+    }
+
+    /**
+     * Decode the last stdout line of a read.
+     *
+     * @param string $stdout what the script printed
+     *
+     * @return array<string, mixed>
+     */
+    private static function report(string $stdout): array
     {
-        return json_encode(['component' => $component, 'settings' => $settings]) . "\n";
+        $lines = explode("\n", trim($stdout));
+
+        return json_decode((string) end($lines), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -203,6 +230,26 @@ final class PluginConfigTest extends TestCase
         $this->assertNull($state);
     }
 
+    public function testASettingForcedToTheSameValueIsComparedWithItsStoredRow(): void
+    {
+        $this->seed(['auth_ldap' => ['host_url' => 'ldap://old:389', 'bind_pw' => self::SECRET]]);
+        $forced = ['auth_ldap' => ['host_url' => 'ldap://ldap:389', 'bind_pw' => self::SECRET]];
+
+        [$read, , $readCode] = $this->runScript(
+            self::payload(['host_url' => 'ldap://ldap:389'], 'auth_ldap', 'read', ['bind_pw' => self::SECRET]),
+            $forced
+        );
+        [$written, , $writeCode, $state] = $this->runScript(
+            self::payload(['host_url' => 'ldap://ldap:389'], 'auth_ldap', 'write', ['bind_pw' => self::SECRET]),
+            $forced
+        );
+
+        $this->assertSame([0, 0], [$readCode, $writeCode]);
+        $this->assertSame(['settings' => ['host_url' => 'ldap://old:389'], 'hidden' => 0], self::report($read));
+        $this->assertSame("CHANGED 1\n", $written);
+        $this->assertSame('ldap://ldap:389', $state['config']['auth_ldap']['host_url']);
+    }
+
     public function testAValueThatIsNeitherStringNorIntegerAbortsBeforeAnyWrite(): void
     {
         [, $stderr, $code, $state] = $this->runScript(
@@ -225,6 +272,77 @@ final class PluginConfigTest extends TestCase
     public function testASettingsListIsRefused(): void
     {
         [, , $code, $state] = $this->runScript(self::payload(['ldap://ldap:389', 3]));
+
+        $this->assertSame(2, $code);
+        $this->assertNull($state);
+    }
+
+    public function testAReadReportsTheStoredValueOfEachDriftedSettingAndWritesNothing(): void
+    {
+        $seeded = ['auth_ldap' => ['host_url' => 'ldap://old:389', 'ldap_version' => '3']];
+        $this->seed($seeded);
+
+        [$stdout, , $code, $state] = $this->runScript(self::payload(
+            ['host_url' => 'ldap://ldap:389', 'ldap_version' => 3, 'contexts' => 'ou=users'],
+            'auth_ldap',
+            'read'
+        ));
+
+        $this->assertSame(0, $code);
+        $this->assertSame(
+            ['settings' => ['host_url' => 'ldap://old:389', 'contexts' => null], 'hidden' => 0],
+            self::report($stdout)
+        );
+        $this->assertSame(['config' => $seeded, 'log' => []], $state);
+    }
+
+    public function testAReadCountsADriftedHiddenSettingWithoutPrintingAnyOfItsValues(): void
+    {
+        $this->seed(['auth_ldap' => ['host_url' => 'ldap://ldap:389', 'bind_pw' => 'stored-secret']]);
+
+        [$stdout, $stderr, $code] = $this->runScript(self::payload(
+            ['host_url' => 'ldap://ldap:389'],
+            'auth_ldap',
+            'read',
+            ['bind_pw' => self::SECRET]
+        ));
+
+        $this->assertSame(0, $code);
+        $this->assertSame(['settings' => [], 'hidden' => 1], self::report($stdout));
+        $this->assertStringNotContainsString('stored-secret', $stdout . $stderr);
+        $this->assertStringNotContainsString(self::SECRET, $stdout . $stderr);
+    }
+
+    public function testAWriteAppliesTheHiddenSettingsWithTheFormSettings(): void
+    {
+        [$stdout, , $code, $state] = $this->runScript(self::payload(
+            ['host_url' => 'ldap://ldap:389'],
+            'auth_ldap',
+            'write',
+            ['bind_pw' => self::SECRET]
+        ));
+
+        $this->assertSame(0, $code);
+        $this->assertSame("CHANGED 2\n", $stdout);
+        $this->assertSame(['auth_ldap' => ['host_url' => 'ldap://ldap:389', 'bind_pw' => self::SECRET]], $state['config']);
+    }
+
+    public function testASettingThatIsAlsoHiddenIsRefused(): void
+    {
+        [, , $code, $state] = $this->runScript(self::payload(
+            ['bind_pw' => 'shown'],
+            'auth_ldap',
+            'write',
+            ['bind_pw' => self::SECRET]
+        ));
+
+        $this->assertSame(2, $code);
+        $this->assertNull($state);
+    }
+
+    public function testAnUnknownModeIsRefused(): void
+    {
+        [, , $code, $state] = $this->runScript(self::payload(['host_url' => 'ldap://ldap:389'], 'auth_ldap', 'apply'));
 
         $this->assertSame(2, $code);
         $this->assertNull($state);

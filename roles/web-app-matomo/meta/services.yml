@@ -56,6 +56,21 @@ matomo:
   proxy:
     service_key: matomo
   lifecycle: beta
+  oidc:
+    authentication_name: "{{ OIDC.BUTTON_TEXT }}"
+    authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+    exchange_url: "{{ OIDC.CLIENT.TOKEN_URL }}"
+    user_info_url: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+    end_session_url: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+    username_claim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+    fallback_to_email: false
+    client_id: "{{ OIDC.CLIENT.ID }}"
+    scope: "openid profile email {{ RBAC.GROUP.CLAIM }}"
+    allow_signup: false
+    auto_linking: true
+    disable_superuser: false
+    skip_reauthentication: true
+    fine_grained_permissions: false
   login:
     method:
       sso:
