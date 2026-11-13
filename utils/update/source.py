@@ -61,7 +61,7 @@ from utils.update.docker import (
     is_mcr,
 )
 from utils.update.fetch import TIMEOUT_SECONDS, documents, get
-from utils.update.pins import archive_index, key_line, top_level_line
+from utils.update.pins import archive_index, bump_archive, key_line, top_level_line
 from utils.update.repository import git_ls_remote_tags
 
 if TYPE_CHECKING:
@@ -451,26 +451,6 @@ def outdated(
 def find_outdated_updates(repo_root: Path) -> list[VersionSourceUpdate]:
     """Return every declared source that moved ahead of its pin."""
     return outdated(collect_entries(repo_root), repo_root)
-
-
-def bump_archive(line: str, current: str, latest: str) -> str:
-    """Return the archive line with every occurrence of the pinned version moved.
-
-    Args:
-        line: the ``archive`` line of an addon.
-        current: the pinned version, with or without a leading ``v``.
-        latest: the version it moves to.
-
-    Returns:
-        The line with each occurrence of ``current`` replaced by ``latest``,
-        each keeping its own ``v`` prefix or lack of one.
-    """
-    old, new = current.removeprefix("v"), latest.removeprefix("v")
-    return re.sub(
-        rf"(?<![\d.])(v?){re.escape(old)}(?!\.?\d)",
-        lambda found: found[1] + new,
-        line,
-    )
 
 
 def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
