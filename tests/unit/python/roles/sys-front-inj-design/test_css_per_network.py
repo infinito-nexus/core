@@ -78,7 +78,7 @@ def _templar(siblings, extra):
         "domains": _domains(siblings),
         "applications": lambda _variables: {APP: {}},
         "cdn": _cdn,
-        "design": lambda _variables, _app: {"bootstrap": False},
+        "design": lambda _variables, _app: {"bootstrap": False, "cosmos": ""},
         "path_absolute": lambda _variables, *parts: "/".join(parts),
         "local_mtime_qs": lambda _variables, _path: "?version=1",
     }
@@ -101,6 +101,7 @@ def _templar(siblings, extra):
     variables = {
         **declared,
         "application_id": APP,
+        "group_names": [APP],
         "TLS_ENABLED": True,
         "TLS_MODE": "letsencrypt",
         **extra,
