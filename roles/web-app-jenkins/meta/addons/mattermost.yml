@@ -3,7 +3,8 @@ enabled: "{{ lookup('config', 'web-app-jenkins', 'services.mattermost.enabled') 
 required: true
 mechanism: plugin
 source: upstream
-version: "latest"
+# nocheck: unwatched-version  Reason: mattermost 3.2.0 and later ship Java 25 bytecode, so on the Java 21 runtime of the jenkins/jenkins LTS image their descriptors fail with UnsupportedClassVersionError and the plugin's global section vanishes; move the pin only together with a Java 25 controller image
+version: "3.1.3"
 bridges:
   - mattermost
 config:
