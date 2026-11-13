@@ -9,7 +9,7 @@ As an operator who deploys many applications per host, I want the application st
 1. **One service key, `stack`.** There is no separate key for front proxy, backend or full. What the stack does for an application is derived automatically from the files the role ships and the services the role enables.
 2. **Declared per application, literally.** Every consumer role declares `stack: {enabled: true, shared: true}` in its own `meta/services.yml`. The values are fixed literals, not `'<role>' in group_names` expressions. A central per-category declaration and the `add_host` injection used for OpenResty were rejected.
 3. **Front proxy is triggered by OpenResty.** An application gets a vhost exactly when its own `meta/services.yml` enables and shares `openresty`. Today no application declares that key (only `svc-prx-openresty` does), so every role that needs a vhost gets the new key.
-4. **Database is triggered by the database service.** An application gets its database exactly when it enables and shares `postgres` or `mariadb` (55 roles already declare one of them). Object storage and engines (`sys-svc-rdbms`, objstore, engine includes of `sys-stk-backend`) follow their own existing service keys the same way.
+4. **Database is triggered by the database service** (amended 2026-11-12). An application gets its database exactly when it enables `postgres` or `mariadb` (55 roles already declare one of them): `shared` selects the central server, an unshared database gets a dedicated container. Object storage and engines (`sys-svc-rdbms`, objstore, engine includes of `sys-stk-backend`) follow their own existing service keys the same way.
 5. **Completely without includes.** No role includes, imports or calls `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy` anymore. The three roles are removed. The stack drives the per-application work itself.
 6. **Runs before the application role, in the dependency/service phase, once for all applications.** The `stack` service is loaded by `sys-service-loader` like the other shared services and processes every stack consumer of the play in one batch invocation. The application roles run afterwards and contain only application-specific configuration.
 7. **Per-vhost parameters move into meta, per domain, without exceptions.** Every value an include site passes today moves into the role's meta, keyed by domain. This includes the multi-vhost roles (Matrix, Stalwart, Bluesky and the others listed below).
@@ -123,7 +123,7 @@ Everything an application role does today before its stack include must be avail
 
 - [x] Every role that included `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy` on `origin/main` declares `stack: {enabled: true, shared: true}` in its own `meta/services.yml`.
 - [x] Every role that serves a vhost declares `openresty: {enabled: true, shared: true}`; a role without that key gets no vhost.
-- [ ] A role gets its database exactly when it enables and shares `postgres` or `mariadb`; objstore and engines follow their own keys.
+- [x] A role gets its database exactly when it enables `postgres` or `mariadb`: `shared` selects the central server, an unshared database a dedicated container; objstore and engines follow their own keys.
 - [x] No file under `roles/`, `tasks/`, `playbooks/` or `plugins/` includes, imports or names `sys-stk-full`, `sys-stk-backend` or `sys-stk-front-proxy`, and the three role directories are removed.
 
 ### Per-domain data
