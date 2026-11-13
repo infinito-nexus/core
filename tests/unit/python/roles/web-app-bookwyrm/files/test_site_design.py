@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import io
+import json
 import runpy
 import unittest
 from contextlib import redirect_stdout
@@ -14,6 +15,7 @@ SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-bookwyrm/files/python/site_design.py
 THEME_PATH = "css/themes/infinito.scss"
 LOGO = base64.b64encode(b"logo-bytes").decode()
 ENV = {
+    "MODE": "converge",
     "ADMIN_USERNAME": "administrator",
     "ADMIN_EMAIL": "administrator@example.com",
     "ADMIN_PASSWORD": "s3cret",
@@ -173,6 +175,49 @@ class TestSiteDesign(unittest.TestCase):
         self.assertTrue(ours.deleted)
         self.assertFalse(foreign.deleted)
         theme.delete.assert_called_once_with()
+
+    def test_read_reports_the_stored_name_and_pending_writes_without_writing(self):
+        site = _site(name="Book Club")
+        output, models = _run(None, site, None, MODE="read")
+        self.assertEqual(
+            {"pending": True, "site_name": "Book Club"},
+            json.loads(output.splitlines()[-1]),
+        )
+        models.User.objects.create_superuser.assert_not_called()
+        models.Theme.objects.create.assert_not_called()
+        site.save.assert_not_called()
+        self.assertEqual("", site.logo_small.name)
+
+    def test_read_reports_nothing_pending_on_a_converged_instance(self):
+        fresh = _site()
+        _run(None, fresh, None)
+        site = _site(
+            install_mode=False,
+            logo_small=fresh.logo_small,
+            logo=fresh.logo,
+            favicon=fresh.favicon,
+            default_theme_id=7,
+        )
+        output, _ = _run(_user(), site, SimpleNamespace(id=7), MODE="read")
+        self.assertEqual(
+            {"pending": False, "site_name": "BookWyrm"},
+            json.loads(output.splitlines()[-1]),
+        )
+
+    def test_read_leaves_own_logos_and_theme_in_place_when_design_is_off(self):
+        ours = FakeFieldFile("logos/infinito-logo-small-0123456789ab_ab12cd.png")
+        theme = MagicMock()
+        site = _site(install_mode=False, logo_small=ours, default_theme_id=7)
+        output, _ = _run(_user(), site, theme, DESIGN_STATE="absent", MODE="read")
+        self.assertTrue(json.loads(output.splitlines()[-1])["pending"])
+        self.assertFalse(ours.deleted)
+        theme.delete.assert_not_called()
+
+    def test_an_unknown_mode_exits_before_any_write(self):
+        site = _site()
+        with self.assertRaises(ValueError):
+            _run(None, site, None, MODE="apply")
+        site.save.assert_not_called()
 
 
 if __name__ == "__main__":

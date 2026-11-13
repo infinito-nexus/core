@@ -15,6 +15,7 @@ BOOKWYRM_DESIGN_IMAGES:
   favicon: "favicon.ico"
 BOOKWYRM_THEME_NAME: "Corporate Design"
 BOOKWYRM_THEME_PATH: "css/themes/infinito.scss"
+BOOKWYRM_SITE: "{{ lookup('form_values', application_id, 'site') }}"
 
 BOOKWYRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BOOKWYRM_HOSTNAME: "{{ lookup('domain', application_id) }}"

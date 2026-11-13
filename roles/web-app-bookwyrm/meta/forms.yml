@@ -1,0 +1,12 @@
+---
+site:
+  path: /settings/site-settings
+  sinks: [BOOKWYRM_SITE]
+  fields:
+    site_name:
+      source: services.bookwyrm.site_name
+      when: services.design.enabled
+      mode: enforced
+      selector: "#id_name"
+      type: text
+      label: Instance Name
