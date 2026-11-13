@@ -10,14 +10,15 @@ ADMINISTRATOR = "Authentication###100-Infinito-LDAP"
 USER = "Authentication###200-Infinito-LDAP-User"
 PAYLOAD = re.compile(r"decode_base64\('([A-Za-z0-9+/=]*)'\)")
 FIELDS = {
-    "host": (ADMINISTRATOR, "Host"),
-    "port": (ADMINISTRATOR, "Params", "port"),
-    "base_dn": (ADMINISTRATOR, "BaseDN"),
-    "search_user_dn": (ADMINISTRATOR, "SearchUserDN"),
-    "uid": (ADMINISTRATOR, "UID"),
-    "access_attr": (ADMINISTRATOR, "AccessAttr"),
-    "administrator_group_dn": (ADMINISTRATOR, "GroupDN"),
-    "user_group_dn": (USER, "GroupDN"),
+    "host": (ADMINISTRATOR, "Config", "Host"),
+    "port": (ADMINISTRATOR, "Config", "Params", "port"),
+    "base_dn": (ADMINISTRATOR, "Config", "BaseDN"),
+    "search_user_dn": (ADMINISTRATOR, "Config", "SearchUserDN"),
+    "uid": (ADMINISTRATOR, "Config", "UID"),
+    "access_attr": (ADMINISTRATOR, "Config", "AccessAttr"),
+    "administrator_group_dn": (ADMINISTRATOR, "Config", "GroupDN"),
+    "user_group_dn": (USER, "Config", "GroupDN"),
+    "contact_sync": (ADMINISTRATOR, "Sync", 0, "Config", "ContactUserSync"),
 }
 MISSING = object()
 
@@ -34,16 +35,12 @@ def _payload(slurped) -> Mapping:
     return held if isinstance(held, Mapping) else {}
 
 
-def _config(held: Mapping, option: str) -> Mapping:
-    backends = held.get(option)
-    backend = backends[0] if isinstance(backends, list) and backends else None
-    config = backend.get("Config") if isinstance(backend, Mapping) else None
-    return config if isinstance(config, Mapping) else {}
-
-
 def _walk(node, keys):
     for key in keys:
-        if not isinstance(node, Mapping) or key not in node:
+        if isinstance(key, int):
+            if not isinstance(node, list) or len(node) <= key:
+                return MISSING
+        elif not isinstance(node, Mapping) or key not in node:
             return MISSING
         node = node[key]
     return node
@@ -65,7 +62,7 @@ def kix_ldap_lock_fields(slurped) -> dict:
     held = _payload(slurped)
     fields = {}
     for field, (option, *keys) in FIELDS.items():
-        value = _walk(_config(held, option), keys)
+        value = _walk(held, [option, 0, *keys])
         if value is not MISSING:
             fields[field] = value
     return fields

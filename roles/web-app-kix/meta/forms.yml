@@ -60,3 +60,10 @@ ldap:
       selector: textarea.input-style
       type: text
       label: User group DN
+    contact_sync:
+      source: services.kix.ldap.contact_sync
+      when: services.ldap.enabled
+      mode: enforced
+      selector: textarea.input-style
+      type: textarea
+      label: Contact sync map

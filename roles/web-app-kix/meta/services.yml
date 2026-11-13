@@ -96,6 +96,20 @@ kix:
     access_attr: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
     administrator_group_dn: "cn=web-app-kix-administrator,{{ LDAP.DN.OU.ROLES }}"
     user_group_dn: "cn=web-app-kix-user,{{ LDAP.DN.OU.ROLES }}"
+    contact_sync:
+      Email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      Firstname: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+      Lastname: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+      UserLogin: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      Title: "{{ LDAP.USER.ATTRIBUTES.TITLE }}"
+      Phone: "{{ LDAP.USER.ATTRIBUTES.PHONE }}"
+      Mobile: "{{ LDAP.USER.ATTRIBUTES.MOBILE }}"
+      Street: "{{ LDAP.USER.ATTRIBUTES.STREET }}"
+      Zip: "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE }}"
+      City: "{{ LDAP.USER.ATTRIBUTES.LOCALITY }}"
+      Country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY }}"
+      Comment: "{{ LDAP.USER.ATTRIBUTES.DESCRIPTION }}"
+      PrimaryOrganisationID: "SET:1"
   run_after:
     - web-app-keycloak
   lifecycle: beta

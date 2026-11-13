@@ -40,8 +40,12 @@ SETTINGS = {
     "access_attr": "member",
     "administrator_group_dn": "cn=web-app-kix-administrator,ou=roles,dc=example",
     "user_group_dn": "cn=web-app-kix-user,ou=roles,dc=example",
+    "contact_sync": {
+        "Email": "mail",
+        "UserLogin": "uid",
+        "PrimaryOrganisationID": "SET:1",
+    },
 }
-SYNC = [{"Enabled": 1, "Module": "Kernel::System::Auth::Sync::LDAP", "Config": {}}]
 GETLOCALCONFIG = (
     "my $Content = do { local $/; <STDIN> };"
     ' my %Hash = eval "($Content)"; die $@ if $@;'
@@ -62,7 +66,8 @@ def _render(path) -> str:
         {
             SINK: SETTINGS,
             "KIX_LDAP_BIND_PW": PROBE_SECRET,
-            "KIX_LDAP_SYNC": SYNC,
+            "KIX_LDAP_ROLE_SYNC": {},
+            "KIX_LDAP_USAGE_CONTEXT_SYNC": {},
             "SOFTWARE_NAME": "Infinito.Nexus",
         }
     )
@@ -92,6 +97,26 @@ class TestTheLockedFileCarriesTheSink(unittest.TestCase):
         self.assertEqual(SETTINGS["administrator_group_dn"], administrator["GroupDN"])
         self.assertEqual(SETTINGS["user_group_dn"], held[USER][0]["Config"]["GroupDN"])
         self.assertEqual(PROBE_SECRET, administrator["SearchUserPw"])
+
+    def test_both_backends_sync_the_contact_by_the_map_of_the_sink(self) -> None:
+        held = json.loads(
+            base64.b64decode(
+                _render(LOCK_TEMPLATE).split("decode_base64('")[1].split("'")[0]
+            )
+        )
+        for option in (ADMINISTRATOR, USER):
+            with self.subTest(option=option):
+                (sync,) = held[option][0]["Sync"]
+                self.assertEqual(
+                    SETTINGS["contact_sync"], sync["Config"]["ContactUserSync"]
+                )
+
+    def test_the_spec_checks_the_map_the_form_manages(self) -> None:
+        source = load_yaml_any(str(FORMS))["ldap"]["fields"]["contact_sync"]["source"]
+        self.assertEqual(
+            f"{{{{ lookup('config', application_id, '{source}') }}}}",
+            load_yaml_any(str(VARS))["KIX_LDAP_CONTACT_SYNC"],
+        )
 
     def test_the_read_returns_exactly_what_the_write_put_in(self) -> None:
         rendered = _render(LOCK_TEMPLATE).encode("utf-8")
