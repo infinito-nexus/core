@@ -19,6 +19,24 @@
     mode: "0644"
   notify: compose-up
 
+- name: "📥 Read the security and dashboard files a previous deploy of {{ application_id }} left"
+  ansible.builtin.slurp:
+    src: "{{ [WAZUH_INSTANCE_DIR, item] | path_join }}"
+  loop:
+    - roles_mapping.yml
+    - opensearch_dashboards.yml
+    - wazuh.yml
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: wazuh_rendered_held
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the managed security and dashboard settings the render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ wazuh_rendered_held.results | wazuh_rendered }}"
+
 - name: "📄 Render Wazuh config files bind-mounted into manager/indexer/dashboard"
   stack_host_template:
     src: "{{ item }}.j2"
