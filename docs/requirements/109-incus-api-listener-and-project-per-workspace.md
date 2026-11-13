@@ -30,21 +30,15 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 1. **An HTTPS listener behind the host firewall.** `services.incus.api.enabled` (default `false`) sets `core.https_address` to `services.incus.api.listen`, an address and port 8443. Through `svc-net-firewall`, the role's own nftables table admits that port only from `services.incus.api.allowed_sources`: the egress addresses of the platform's provision runner, and of the e2e stack in a test deployment. The deploy stores the server certificate's fingerprint in OpenBao at `platform/data/provision/incus-<host>` (105), and the provision runner pins it. No client trusts the server blindly.
 2. **A restricted certificate per workspace, no token on the wire.** `workspace apply` (102) creates the project `ws-<id>`. On the platform runner, inside its task, it generates a client key pair and writes the private key to `tenant/data/ws-<id>-provision/incus`. It adds the certificate over the local socket with `incus config trust add-certificate --restricted --projects ws-<id>`. The private key never reaches the Incus host, and no join token for a workspace exists. Join tokens stay for enrolling other clients by hand. `core.remote_token_expiry` is `1h`, so an unused one dies.
 3. **Virtual machines only.** A workspace project carries the restrictions of the agents project and adds `limits.containers` 0, together with the limits of the workspace's plan. Echoserver also runs Keycloak and OpenBao (store item 9), and a container shares the host kernel with them, while a virtual machine has its own.
-4. **A network per workspace.** Each workspace project gets its own bridge. The host firewall forwards nothing between two workspace bridges or between a workspace bridge and `agentbr0`. How a workspace instance becomes reachable from outside is the open decision below.
+4. **A network per workspace.** Each workspace project gets its own bridge. The host firewall forwards nothing between two workspace bridges or between a workspace bridge and `agentbr0`. Decision 7 makes a workspace instance reachable from outside.
 5. **The e2e target.** Variant 0 deploys `svc-virt-incus` with the API on into the dev stack's `target` container. The store's e2e stack then reaches real Incus with a workspace certificate. Like production, the target needs `/dev/kvm`. On a host without it, the lane stops with a message naming the missing device and counts as not run.
 6. **Echoserver.** The inventory of echoserver turns `services.incus.api.enabled` on. The role keeps refusing a host without `/dev/kvm` or without a copy-on-write pool.
+7. **Public addresses from a routed subnet (operator pick A, 2026-11-13).** Demo and cloud instances need an address the deploy runner reaches over SSH and a customer reaches over HTTPS. The hosting provider routes a public IPv4 and IPv6 subnet to the Incus host, and `services.incus.workspaces.subnet.ipv4` and `.ipv6` name them. `workspace apply` gives each workspace bridge its own slice of both, with `ipv4.nat` and `ipv6.nat` false, and the bridge hands each instance its own addresses from that slice. The host routes the addresses and holds no NAT and no port forward for a workspace instance. Each instance NIC sets `security.ipv4_filtering` and `security.ipv6_filtering`, so an instance cannot send from an address that is not its own ([Incus NIC devices](https://linuxcontainers.org/incus/docs/main/reference/devices_nic/)). With workspaces on and either subnet unset, the deploy refuses to run. The dev stack routes the documentation ranges `198.51.100.0/24` and `2001:db8:62::/48` to `target` as its subnet.
 
-## Open Decision: Public Reachability of Workspace Instances
+Rejected:
 
-Demo and cloud instances on echoserver need an address the deploy runner reaches over SSH and a customer reaches over HTTPS.
-
-| Option | What it means | Trade-off |
-| --- | --- | --- |
-| A | A routed public subnet (IPv4 and IPv6) from the hosting provider. Each instance gets its own addresses on its workspace bridge. | Clean and per instance; costs the subnet. |
-| B | IPv6 only from echoserver's routed prefix, with IPv4 through Incus network forwards on echoserver's address. | No extra cost; IPv4 users reach an instance only on forwarded ports, and 443 can be forwarded to one instance only. |
-| C | One shared TLS passthrough proxy on echoserver routes 443 by server name, and SSH reaches an instance on a forwarded port. | No extra cost; every instance depends on one shared proxy on the host. |
-
-Recommendation: **A**. Every instance gets its own addresses, with no component shared between workspaces. B and C need a forwarded port per instance and share either the host's address or a proxy between workspaces.
+- IPv6 only from echoserver's prefix with IPv4 through Incus network forwards on echoserver's address (option B): IPv4 users reach an instance only on forwarded ports, and 443 can be forwarded to one instance only.
+- One shared TLS passthrough proxy on echoserver (option C): every instance would depend on one proxy shared between workspaces.
 
 ## Acceptance Criteria
 
@@ -63,6 +57,12 @@ Recommendation: **A**. Every instance gets its own addresses, with no component 
 - [ ] An instance on the bridge of `ws-<A>` reaches neither an instance on the bridge of `ws-<B>` nor an agent VM on `agentbr0` (`incus workspaces: workspace bridges are isolated` in `test-workspace-projects.js`).
 - [ ] `workspace destroy` refuses while the project holds an instance, and otherwise removes the project, its bridge and its trust entry (`incus workspaces: destroy removes project, bridge and certificate` in `test-workspace-projects.js`).
 
+### Public addresses
+
+- [ ] A rendered workspace bridge holds a slice of `services.incus.workspaces.subnet.ipv4` and `.ipv6`, with `ipv4.nat` and `ipv6.nat` false, and the host holds no NAT rule and no network forward for it. With workspaces on and either subnet unset, the deploy fails before it creates a project (`test_workspace_bridges_route_public_addresses` and `test_the_deploy_refuses_workspaces_without_a_subnet` in `tests/unit/python/roles/svc-virt-incus/test_workspace_network.py`).
+- [ ] A virtual machine of workspace A answers SSH on its own IPv4 and IPv6 address from outside the host, and on no address of the host (`incus workspaces: an instance answers on its own addresses` in `test-workspace-projects.js`).
+- [ ] A packet the instance sends from an address that is not its own is dropped (`incus workspaces: a spoofed source address is dropped` in `test-workspace-projects.js`).
+
 ### e2e target and echoserver
 
 - [ ] Variant 0 of `svc-virt-incus` deploys into the dev stack's `target` with the API on, and the `incus` root module of 104 provisions and destroys a virtual machine there (`provision: incus creates and destroys a server` in `roles/web-app-semaphore/files/playwright/test-provision.js`).
@@ -71,4 +71,4 @@ Recommendation: **A**. Every instance gets its own addresses, with no component 
 
 ### Documentation
 
-- [ ] The [README](../../roles/svc-virt-incus/README.md) documents the listener, its firewall sources, the workspace projects and certificates, the VM-only rule and the reachability the operator picked (`test_the_readme_names_the_workspace_projects` in `tests/unit/python/roles/svc-virt-incus/test_readme.py`).
+- [ ] The [README](../../roles/svc-virt-incus/README.md) documents the listener, its firewall sources, the workspace projects and certificates, the VM-only rule and the routed subnet with its slices (`test_the_readme_names_the_workspace_projects` in `tests/unit/python/roles/svc-virt-incus/test_readme.py`).
