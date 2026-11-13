@@ -19,6 +19,11 @@ KINDS = {
     "default-client-scopes": "defaultClientScopes",
     "optional-client-scopes": "optionalClientScopes",
 }
+FIELDS = {
+    "redirect_uris": ["redirectUris"],
+    "web_origins": ["webOrigins"],
+    "post_logout_redirect_uris": ["attributes", "post.logout.redirect.uris"],
+}
 
 
 class FakeKeycloak:
@@ -338,10 +343,57 @@ class TestConvergeRealm(unittest.TestCase):
         self.assertEqual(kc.writes, [])
 
 
+class TestOverwritten(unittest.TestCase):
+    def _held(self):
+        kc = _keycloak()
+        return kc.shown(_deployed(kc, _client()))
+
+    def test_a_client_keycloak_holds_as_desired_overwrites_nothing(self):
+        self.assertEqual(m.overwritten(_client(), self._held(), FIELDS), {})
+
+    def test_each_drifted_field_maps_to_the_value_keycloak_holds(self):
+        desired = _client(
+            redirectUris=["https://a.example/*"],
+            attributes={
+                "frontchannel.logout.url": "https://logout.example/",
+                "post.logout.redirect.uris": "+##https://a.example/*",
+            },
+        )
+        self.assertEqual(
+            m.overwritten(desired, self._held(), FIELDS),
+            {
+                "redirect_uris": ["https://b.example/*", "https://a.example/*"],
+                "post_logout_redirect_uris": None,
+            },
+        )
+
+    def test_an_empty_desired_value_matches_a_key_keycloak_omits(self):
+        desired = _client(webOrigins=[])
+        self.assertEqual(m.overwritten(desired, self._held(), FIELDS), {})
+
+    def test_a_field_the_desired_client_lacks_is_left_out(self):
+        held = {**self._held(), "webOrigins": ["https://admin.example"]}
+        self.assertEqual(m.overwritten(_client(), held, FIELDS), {})
+
+    def test_an_absent_client_overwrites_nothing(self):
+        self.assertEqual(m.overwritten(_client(), None, FIELDS), {})
+
+
 class TestMain(unittest.TestCase):
     def _run(self, kc, spec):
+        return self._main(kc, spec, "converge")
+
+    def _read(self, kc, spec):
+        return self._main(kc, spec, "read")
+
+    def _main(self, kc, spec, mode):
         out, err = io.StringIO(), io.StringIO()
-        env = {"KC_URL": "http://kc", "KC_PID": "1", "KC_REALM": "cymais"}
+        env = {
+            "KC_URL": "http://kc",
+            "KC_PID": "1",
+            "KC_REALM": "cymais",
+            "KC_MODE": mode,
+        }
         with (
             mock.patch.dict(os.environ, env),
             mock.patch.object(m, "Keycloak", lambda *args: kc),
@@ -406,6 +458,33 @@ class TestMain(unittest.TestCase):
         kc, _ = self._deployment()
         spec = {"clientScopes": [], "clients": []}
         code, lines, _ = self._run(kc, spec)
+        self.assertEqual(code, 1)
+        self.assertTrue(lines[0].startswith("listing-failed"))
+        self.assertEqual(kc.writes, [])
+
+    def test_read_reports_each_client_and_writes_nothing(self):
+        kc, _ = self._deployment()
+        drifted = _client(redirectUris=["https://a.example/*"])
+        absent = _client(clientId="new.client")
+        spec = {"clients": [drifted, absent], "fields": FIELDS}
+        code, lines, _ = self._read(kc, spec)
+        self.assertEqual(code, 0)
+        self.assertEqual(kc.writes, [])
+        self.assertEqual(
+            json.loads(lines[0]),
+            {
+                "cymais.cloud": {
+                    "redirect_uris": ["https://b.example/*", "https://a.example/*"]
+                },
+                "new.client": {},
+            },
+        )
+
+    def test_an_unknown_mode_fails_before_any_call(self):
+        kc, _ = self._deployment()
+        drifted = _client(redirectUris=["https://a.example/*"])
+        spec = self._spec([drifted], {"host": "new.example"})
+        code, lines, _ = self._main(kc, spec, "write")
         self.assertEqual(code, 1)
         self.assertTrue(lines[0].startswith("listing-failed"))
         self.assertEqual(kc.writes, [])
