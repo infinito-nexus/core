@@ -85,21 +85,25 @@ async function rpc(page, method, params) {
   );
 }
 
+/**
+ * Args:
+ *   base: Penpot base URL without a trailing slash.
+ *   name: marker that makes the document URL unique, so two views of the same screen each load a document of their own.
+ *   screen: Penpot screen as its route id, optionally followed by "?" and that screen's query parameters, e.g. "dashboard-recent?team-id=…"; empty for the app root.
+ *
+ * Returns:
+ *   The query-routed URL Penpot 2.19 resolves that screen from.
+ */
+function screenUrl(base, name, screen) {
+  const [id, params] = screen.split("?");
+  const query = [id && `screen=${id}`, params, `design-view=${name}`].filter(Boolean);
+  return `${base}/?${query.join("&")}`;
+}
+
 exports.register = function (shared) {
   const { test, expect, skipUnlessServiceEnabled, isServiceEnabled, env } = shared;
   const base = env.baseUrl.replace(/\/$/, "");
-
-  /**
-   * Args:
-   *   name: marker that makes the document URL unique. Every Penpot route is a hash route, so without it two routes share one document and a navigation between them requests none.
-   *   route: hash route of the app, starting with a slash.
-   *
-   * Returns:
-   *   The URL of that route.
-   */
-  function url(name, route) {
-    return `${base}/?design-view=${name}#${route}`;
-  }
+  const url = (name, screen) => screenUrl(base, name, screen);
 
   async function animationsSettled(page) {
     await expect
@@ -167,7 +171,7 @@ exports.register = function (shared) {
   async function signIn(page) {
     if (session) {
       await page.context().addCookies(session);
-      await gotoOnion(page, url("session", "/"));
+      await gotoOnion(page, url("session", ""));
     } else if (isServiceEnabled("sso")) {
       await shared.penpotOidcLogin(page, env.adminUsername, env.adminPassword);
     } else if (isServiceEnabled("ldap")) {
@@ -247,10 +251,10 @@ exports.register = function (shared) {
 
   function visitorViews() {
     return [
-      { name: "sign-in", url: url("sign-in", "/auth/login"), prepare: shown(LOGIN_TITLE, VIEW_TIMEOUT) },
+      { name: "sign-in", url: url("sign-in", "auth-login"), prepare: shown(LOGIN_TITLE, VIEW_TIMEOUT) },
       {
         name: "sign-in-focus",
-        url: url("sign-in-focus", "/auth/login"),
+        url: url("sign-in-focus", "auth-login"),
         prepare: async (page) => {
           await shown(EMAIL, VIEW_TIMEOUT)(page);
           await page.locator(EMAIL).focus();
@@ -259,7 +263,7 @@ exports.register = function (shared) {
       },
       {
         name: "sign-in-invalid",
-        url: url("sign-in-invalid", "/auth/login"),
+        url: url("sign-in-invalid", "auth-login"),
         prepare: async (page) => {
           await shown(EMAIL, VIEW_TIMEOUT)(page);
           await page.locator(EMAIL).fill("not-an-address");
@@ -269,7 +273,7 @@ exports.register = function (shared) {
       },
       {
         name: "recovery-request",
-        url: url("recovery-request", "/auth/recovery/request"),
+        url: url("recovery-request", "auth-recovery-request"),
         prepare: shown(RECOVERY_SUBMIT, VIEW_TIMEOUT),
       },
     ];
@@ -277,60 +281,60 @@ exports.register = function (shared) {
 
   function signedInViews({ teamId, projectId, fileId }) {
     const team = `team-id=${teamId}`;
-    const dashboard = (name, route, content) => ({ name, url: url(name, route), prepare: loaded(SIDEBAR, content) });
-    const settings = (name, route, content) => ({ name, url: url(name, route), prepare: loaded(SETTINGS_NAV, content) });
+    const dashboard = (name, screen, content) => ({ name, url: url(name, screen), prepare: loaded(SIDEBAR, content) });
+    const settings = (name, screen, content) => ({ name, url: url(name, screen), prepare: loaded(SETTINGS_NAV, content) });
     return [
-      dashboard("projects", `/dashboard/recent?${team}`, NEW_PROJECT),
+      dashboard("projects", `dashboard-recent?${team}`, NEW_PROJECT),
       {
         name: "project-menu",
-        url: url("project-menu", `/dashboard/recent?${team}`),
+        url: url("project-menu", `dashboard-recent?${team}`),
         prepare: opened(SIDEBAR, PROJECT_OPTIONS, "[role='menu'] [role='menuitem']"),
       },
-      dashboard("project-files", `/dashboard/files?${team}&project-id=${projectId}`, GRID_ITEM),
-      dashboard("libraries", `/dashboard/libraries?${team}`, HEADER),
-      dashboard("fonts", `/dashboard/fonts?${team}`, HEADER),
-      dashboard("deleted", `/dashboard/deleted?${team}`, DELETED),
-      dashboard("team-members", `/dashboard/members?${team}`, TABLE_ROW),
-      dashboard("team-invitations", `/dashboard/invitations?${team}`, INVITE),
-      dashboard("team-settings", `/dashboard/settings?${team}`, HEADER),
+      dashboard("project-files", `dashboard-files?${team}&project-id=${projectId}`, GRID_ITEM),
+      dashboard("libraries", `dashboard-libraries?${team}`, HEADER),
+      dashboard("fonts", `dashboard-fonts?${team}`, HEADER),
+      dashboard("deleted", `dashboard-deleted?${team}`, DELETED),
+      dashboard("team-members", `dashboard-members?${team}`, TABLE_ROW),
+      dashboard("team-invitations", `dashboard-invitations?${team}`, INVITE),
+      dashboard("team-settings", `dashboard-settings?${team}`, HEADER),
       {
         name: "invite-dialog",
-        url: url("invite-dialog", `/dashboard/invitations?${team}`),
+        url: url("invite-dialog", `dashboard-invitations?${team}`),
         prepare: opened(SIDEBAR, INVITE, INVITE_DIALOG),
       },
       {
         name: "profile-menu",
-        url: url("profile-menu", `/dashboard/recent?${team}`),
+        url: url("profile-menu", `dashboard-recent?${team}`),
         prepare: opened(SIDEBAR, PROFILE_BUTTON, PROFILE_MENU_ENTRY),
       },
       {
         name: "team-switcher",
-        url: url("team-switcher", `/dashboard/recent?${team}`),
+        url: url("team-switcher", `dashboard-recent?${team}`),
         prepare: opened(SIDEBAR, TEAM_SWITCH, TEAM_MENU_ENTRY),
       },
       {
         name: "navigation-hover",
-        url: url("navigation-hover", `/dashboard/recent?${team}`),
+        url: url("navigation-hover", `dashboard-recent?${team}`),
         prepare: async (page) => {
           await shown(SIDEBAR, VIEW_TIMEOUT)(page);
           await page.locator(NAV_TITLE).nth(1).hover();
           await animationsSettled(page);
         },
       },
-      settings("settings-profile", "/settings/profile", REMOVE_ACCOUNT),
-      settings("settings-password", "/settings/password", SAVE_PASSWORD),
-      settings("settings-notifications", "/settings/notifications", SAVE_NOTIFICATIONS),
-      settings("settings-options", "/settings/options", SETTINGS_FORM),
-      settings("settings-feedback", "/settings/feedback", HEADER),
+      settings("settings-profile", "settings-profile", REMOVE_ACCOUNT),
+      settings("settings-password", "settings-password", SAVE_PASSWORD),
+      settings("settings-notifications", "settings-notifications", SAVE_NOTIFICATIONS),
+      settings("settings-options", "settings-options", SETTINGS_FORM),
+      settings("settings-feedback", "settings-feedback", HEADER),
       {
         name: "delete-account-dialog",
-        url: url("delete-account-dialog", "/settings/profile"),
+        url: url("delete-account-dialog", "settings-profile"),
         prepare: opened(SETTINGS_NAV, REMOVE_ACCOUNT, CONFIRM_REMOVE_ACCOUNT),
       },
-      { name: "not-found", url: url("not-found", "/design-showcase-missing"), prepare: shown("#app svg", VIEW_TIMEOUT) },
+      { name: "not-found", url: url("not-found", "design-showcase-missing"), prepare: shown("#app svg", VIEW_TIMEOUT) },
       {
         name: "workspace",
-        url: url("workspace", `/workspace?${team}&file-id=${fileId}`),
+        url: url("workspace", `workspace?${team}&file-id=${fileId}`),
         prepare: shown(LAYERS, VIEW_TIMEOUT),
       },
     ];
@@ -338,7 +342,7 @@ exports.register = function (shared) {
 
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await gotoOnion(page, url("tokens", "/auth/login"));
+    await gotoOnion(page, url("tokens", "auth-login"));
     await shown(LOGIN_TITLE)(page);
     await assertDesignTokens(page, "Penpot");
   });
@@ -349,7 +353,7 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("design");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, url(`sign-in-${mode}`, "/auth/login"));
+      await gotoOnion(page, url(`sign-in-${mode}`, "auth-login"));
       await shown(LOGIN_TITLE)(page);
       await expect(
         page.locator("html"),
@@ -385,7 +389,7 @@ exports.register = function (shared) {
     await withSystemTheme(page, async () => {
       for (const mode of MODES) {
         await page.emulateMedia({ colorScheme: mode });
-        await gotoOnion(page, url(`shell-${mode}`, `/dashboard/recent?team-id=${teamId}`));
+        await gotoOnion(page, url(`shell-${mode}`, `dashboard-recent?team-id=${teamId}`));
         await shown(NEW_PROJECT)(page);
         await expect(page.locator("body"), "the system theme follows the browser").toHaveClass(THEME_CLASS[mode]);
         await expect(page.locator("html")).toHaveAttribute("data-design-theme", mode);
@@ -395,7 +399,7 @@ exports.register = function (shared) {
         await assertToken(page, NAV_CURRENT, "background-color", "--design-surface-active", `selected entry ${mode}`);
         await assertToken(page, `${NAV_CURRENT} [class*='element-title']`, "color", "--design-link", `selected entry ${mode}`);
 
-        await gotoOnion(page, url(`form-${mode}`, "/settings/profile"));
+        await gotoOnion(page, url(`form-${mode}`, "settings-profile"));
         await shown(REMOVE_ACCOUNT)(page);
         await assertToken(page, SETTINGS_CONTAINER, "border-top-color", "--design-border", `content divider ${mode}`);
         const fullname = page.locator(`${SETTINGS_CONTAINER} input[type='text']`).first();
@@ -408,7 +412,7 @@ exports.register = function (shared) {
         await assertToken(page, SAVE_PROFILE, "background-color", "--design-primary-hover", `hovered action ${mode}`);
       }
       await page.emulateMedia({ colorScheme: null });
-      await gotoOnion(page, url("shell", `/dashboard/recent?team-id=${teamId}`));
+      await gotoOnion(page, url("shell", `dashboard-recent?team-id=${teamId}`));
       await shown(NEW_PROJECT)(page);
       await assertLightAndDark(page, SIDEBAR, "Penpot dashboard");
       await assertReadable(
@@ -427,7 +431,7 @@ exports.register = function (shared) {
     const surface = () => tokenValue(page, "--design-surface-1", "background-color");
     try {
       await page.emulateMedia({ colorScheme: "dark" });
-      await gotoOnion(page, url("theme", "/settings/options"));
+      await gotoOnion(page, url("theme", "settings-options"));
       await shown(SETTINGS_FORM)(page);
       await expect(html, "the system theme follows the browser").toHaveAttribute("data-design-theme", "dark");
       const darkSurface = await surface();
@@ -449,7 +453,7 @@ exports.register = function (shared) {
         darkSurface,
       );
 
-      await gotoOnion(page, url("theme-kept", "/settings/options"));
+      await gotoOnion(page, url("theme-kept", "settings-options"));
       await shown(SETTINGS_FORM)(page);
       await expect(html, "the picked theme must survive a reload").toHaveAttribute("data-design-theme", "dark");
 
@@ -465,7 +469,7 @@ exports.register = function (shared) {
   test("design: the interface shows the generated logo and the configured title", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
-    await gotoOnion(page, url("brand", "/auth/login"));
+    await gotoOnion(page, url("brand", "auth-login"));
     await shown(LOGIN_TITLE)(page);
     const titled = (label) =>
       expect
