@@ -45,6 +45,7 @@ The core realm runs with v2 on (`realm.json.j2:2403`), and that does not change 
 5. **No mapping into platform RBAC.** A workspace role never grants a platform RBAC role. Mapping a workspace `Operator` onto `web-app-semaphore`'s `operator` would let a customer pause the platform's applications. The store's rule "map onto `iam-profile-rbac` where a role of the same name exists" applies only inside the workspace's own deployed instance. There the store applies it through that instance's directory client (101).
 6. **One confidential client per consumer.** The store, Semaphore, OpenBao and Gitea each declare their own client under `services.sso.oidc.clients`. Each client is confidential, with its secret from its role's credentials, the standard flow only, and redirect URIs and web origins of its own application only. Each consumer accepts only tokens whose `aud` holds its own client id: Semaphore and Gitea check the ID token's audience, and the OpenBao OIDC role sets `bound_audiences`. The shared public client stays for every other application.
 7. **The store's service account.** The store's client has a service account with realm-management `manage-organizations` and `query-users`. A fine-grained v2 permission gives it `manage-group-membership` on users. It holds no `manage-users`, no `manage-clients`, no `manage-realm` and no `view-realm`. Organization group role mappings stay with `workspace apply`, which maps the `workspaces` roles with the deploy's admin access.
+8. **Workspace roles in Semaphore: run and view only (operator pick A, 2026-11-13).** In a workspace's Semaphore project (102), the store grants a member `task_runner`, `guest` or no role, never `owner` or `manager`. Owner and Admin, which the store's plan maps onto `owner` and `manager`, get `task_runner`. Only an owner or a manager may edit templates, keys, inventories, repositories and environments; a task runner runs templates and reads the rest, and a guest only reads ([Semaphore project roles](https://semaphoreui.com/docs/user-guide/team)). An edited template would run a member's own code under the workspace's task identity, whose token reads the workspace's OpenBao paths (105), which store criterion 062:120 leaves to the store alone. The `template_id` binding of 105 does not stop that, because an edit keeps the id. So every change to a template, key, inventory, repository or environment of a workspace project goes through the store's account, its owner (102 decision 8).
 
 Rejected:
 
@@ -67,6 +68,11 @@ Rejected:
 - [ ] Removing the member from the group removes the entry from the next token (`organizations: leaving a group drops its claim entry` in `test-organizations.js`).
 - [ ] The rendered realm holds the `workspace_roles` scope with one `oidc-usermodel-client-role-mapper` for client `workspaces`, and no script mapper (`test_the_flat_claim_uses_a_stock_mapper` in `test_organizations.py`).
 - [ ] A workspace `Operator` holds no platform RBAC group or role: their token for the Semaphore client carries no platform `operator` group, and Semaphore's app-control project denies them (`organizations: workspace roles grant nothing on the platform` in `test-organizations.js`).
+
+### Workspace roles in Semaphore
+
+- [ ] A workspace member with `task_runner` starts a template of the workspace project, and each attempt to change a template, key, inventory, repository or environment of that project answers 403 (`workspace roles: a task runner runs templates and changes nothing` in `roles/web-app-semaphore/files/playwright/test-workspace-runners.js`).
+- [ ] `workspace apply` fails, naming the user, when a workspace project holds an `owner` or `manager` other than the store's account. A negative control plants a member with `manager` and must fail (`test_apply_refuses_a_member_with_edit_rights` in `tests/unit/python/roles/web-app-semaphore/test_workspace_members.py`).
 
 ### Clients
 
