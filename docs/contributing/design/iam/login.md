@@ -41,7 +41,7 @@ gitea:
 - `2fa` on runs the application's own second factor. With `enforced: true`, the default, an account without a second factor enrolls one at its next sign-in before it gets in, wherever the application can enforce it; with `enforced: false` the application only offers it.
 - The deploy manages the application's own enforcement setting only while `2fa` is on. While `2fa` is off, as in every SSO deployment, it leaves that setting as an admin set it by hand.
 - Where the application has no setting that enforces its own second factor, `enforced` only offers it, and the role README says so.
-- Every variant whose Playwright spec signs a local account in sets `login.method.2fa.enforced: false`, so automated logins skip enrollment while a production inventory keeps the default.
+- Every variant whose Playwright spec signs a local account in sets `login.method.2fa.enforced: false`, so automated logins skip enrollment while a production inventory keeps the default. One variant per role that exists to prove the enforced enrollment keeps it on instead: it marks its `enforced` key with `# nocheck: login-methods  Reason: <why>`, and every other local sign-in of its specs skips there.
 
 ## Switching a Method Off 🔧
 

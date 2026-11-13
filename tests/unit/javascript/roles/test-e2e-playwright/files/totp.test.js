@@ -2,8 +2,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
 
-const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
-const { totpCode } = require(path.join(PROJECT_ROOT, "roles/web-app-moodle/files/playwright/totp.js"));
+const PROJECT_ROOT = path.resolve(__dirname, "../../../../../..");
+const { totpCode } = require(path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/totp.js"));
 
 const RFC_6238_SHA1_SECRET = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
 const RFC_6238_SHA1_VECTORS = [

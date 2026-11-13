@@ -268,6 +268,113 @@ class TestLoginMethodVariants(unittest.TestCase):
         self.assertEqual(2, len(findings))
 
 
+VARIANT_MARKER = (
+    f"# nocheck: {lint.RULE}  Reason: the fixture's spec proves the enrollment"
+)
+KEPT_ENFORCEMENT = """---
+- services:
+    sso:
+      enabled: true
+      shared: true
+- services:
+    fixture:
+      login:
+        method:
+          2fa:
+            enforced: true
+    sso:
+      enabled: false
+      shared: false
+"""
+KEPT_LINE = "            enforced: true\n"
+
+
+def marked(marker: str) -> str:
+    return KEPT_ENFORCEMENT.replace(KEPT_LINE, f"            enforced: true {marker}\n")
+
+
+def kept_findings(role: str, entity: str, text: str) -> list[str]:
+    kept = lint.enforcement_kept(text, entity)
+    return lint.variant_findings(role, entity, load_yaml_str(text), kept)
+
+
+class TestLoginMethodEnforcementVariant(unittest.TestCase):
+    def test_an_unmarked_enforcement_without_sso_fails(self) -> None:
+        self.assertEqual(1, len(kept_findings(ROLE, "fixture", KEPT_ENFORCEMENT)))
+
+    def test_a_reasoned_marker_on_the_enforced_key_keeps_it(self) -> None:
+        text = marked(VARIANT_MARKER)
+        self.assertEqual(frozenset({1}), lint.enforcement_kept(text, "fixture"))
+        self.assertEqual([], kept_findings(ROLE, "fixture", text))
+
+    def test_a_reasoned_marker_above_the_enforced_key_keeps_it(self) -> None:
+        text = KEPT_ENFORCEMENT.replace(
+            KEPT_LINE, f"            {VARIANT_MARKER}\n{KEPT_LINE}"
+        )
+        self.assertEqual([], kept_findings(ROLE, "fixture", text))
+
+    def test_a_bare_marker_keeps_nothing(self) -> None:
+        text = marked(f"# nocheck: {lint.RULE}")
+        self.assertEqual(frozenset(), lint.enforcement_kept(text, "fixture"))
+        self.assertEqual(1, len(kept_findings(ROLE, "fixture", text)))
+
+    def test_a_marker_on_another_key_keeps_nothing(self) -> None:
+        text = KEPT_ENFORCEMENT.replace(
+            "    sso:\n      enabled: false",
+            f"    sso: {VARIANT_MARKER}\n      enabled: false",
+        )
+        self.assertEqual(1, len(kept_findings(ROLE, "fixture", text)))
+
+    def test_the_marker_keeps_only_its_own_entity(self) -> None:
+        self.assertEqual(
+            frozenset(), lint.enforcement_kept(marked(VARIANT_MARKER), "sidecar")
+        )
+
+    def test_a_marker_on_a_switched_off_enforcement_is_a_finding(self) -> None:
+        text = marked(VARIANT_MARKER).replace("enforced: true", "enforced: false")
+        findings = kept_findings(ROLE, "fixture", text)
+        self.assertEqual(1, len(findings))
+        self.assertIn(
+            f"{ROLE} variant 1: its `nocheck: {lint.RULE}` marker", findings[0]
+        )
+
+    def test_a_marker_on_a_variant_with_sso_on_is_a_finding(self) -> None:
+        text = marked(VARIANT_MARKER).replace(
+            "      enabled: false\n      shared: false\n",
+            "      enabled: true\n      shared: true\n",
+        )
+        findings = kept_findings(ROLE, "fixture", text)
+        self.assertEqual(1, len(findings))
+        self.assertIn("keeps no enforcement on", findings[0])
+
+    def test_a_second_marked_variant_of_the_role_is_a_finding(self) -> None:
+        proof = marked(VARIANT_MARKER).split("- services:\n")[2]
+        text = f"{marked(VARIANT_MARKER)}- services:\n{proof}"
+        self.assertEqual(frozenset({1, 2}), lint.enforcement_kept(text, "fixture"))
+        findings = kept_findings(ROLE, "fixture", text)
+        self.assertEqual(1, len(findings))
+        self.assertIn(f"{ROLE} variants 1, 2: only one variant per role", findings[0])
+
+    def test_the_matomo_enforcement_variant_passes_only_with_its_marker(self) -> None:
+        role = "web-app-matomo"
+        text = read_text(
+            str(PROJECT_ROOT / "roles" / role / lint.ROLE_FILE_META_VARIANTS)
+        )
+        self.assertEqual(frozenset({2}), lint.enforcement_kept(text, "matomo"))
+        self.assertEqual([], kept_findings(role, "matomo", text))
+        unmarked = "".join(
+            line
+            for line in text.splitlines(keepends=True)
+            if f"nocheck: {lint.RULE}" not in line
+        )
+        self.assertNotEqual(text, unmarked)
+        expected = (
+            f"{role} variant 2: SSO is off, so it sets "
+            "services.matomo.login.method.2fa.enforced: false"
+        )
+        self.assertEqual([expected], kept_findings(role, "matomo", unmarked))
+
+
 class TestLoginMethodScope(unittest.TestCase):
     def test_a_declared_block_satisfies_the_scope(self) -> None:
         self.assertFalse(lacks(VALID))

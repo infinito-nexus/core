@@ -5,7 +5,7 @@ const STEP_MS = 30_000;
 
 /**
  * Args:
- *   secret: base32 secret from the hidden field of Moodle's TOTP setup form.
+ *   secret: unpadded base32 secret that an app's TOTP setup shows its user.
  *   now: Unix time in milliseconds the code has to be valid at.
  *
  * Returns:

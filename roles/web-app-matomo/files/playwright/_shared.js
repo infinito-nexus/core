@@ -3,7 +3,7 @@
 // this directory requires this module so each test file applies the same
 // env-presence guard and reuses the same helpers and admin-login flow.
 
-const { expect } = require("@playwright/test");
+const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const {
   decodeDotenvJsonList,
@@ -28,6 +28,7 @@ const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const matomoApiToken = decodeDotenvQuotedValue(process.env.MATOMO_API_TOKEN);
 const matomoTrackingScope = (process.env.MATOMO_TRACKING_SCOPE || "").trim().toLowerCase();
 const nativeLoginEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
+const twoFactorEnforced = process.env.LOGIN_METHOD_2FA_ENFORCED === "true";
 const BREAKGLASS_LOGIN_PATH = "/index.php?module=Login&fallback=local";
 
 const matomoCanonicalDomain = (() => {
@@ -109,7 +110,13 @@ async function setupMatomoPage(page) {
   await installCspViolationObserver(page);
 }
 
-async function loginAsAdmin(page) {
+/**
+ * Args:
+ *   page: Playwright page that ends signed in through Matomo's own form.
+ *   username: the account's login.
+ *   password: its password.
+ */
+async function signIn(page, username, password) {
   await gotoOnion(page, `${appBaseUrl}${BREAKGLASS_LOGIN_PATH}`);
 
   const usernameField = page.locator("input#login_form_login, input[name='form_login']").first();
@@ -120,9 +127,9 @@ async function loginAsAdmin(page) {
 
   await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect(usernameField).toBeEditable({ timeout: resolveTimeout(10_000) });
-  await usernameField.fill(adminUsername);
+  await usernameField.fill(username);
   await expect(passwordField).toBeEditable({ timeout: resolveTimeout(10_000) });
-  await passwordField.fill(adminPassword);
+  await passwordField.fill(password);
   await submitButton.click();
 
   await expect
@@ -131,6 +138,11 @@ async function loginAsAdmin(page) {
       message: "Expected Matomo login to leave the Login module",
     })
     .not.toContain("module=Login");
+}
+
+async function loginAsAdmin(page) {
+  test.skip(twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=true sends the administrator to 2FA setup, which test-2fa-enrollment.js asserts");
+  await signIn(page, adminUsername, adminPassword);
 }
 
 const LOGIN_FIELD = "input#login_form_login, input[name='form_login']";
@@ -183,6 +195,7 @@ module.exports = {
   matomoCanonicalDomain,
   matomoTargetRoles,
   nativeLoginEnabled,
+  twoFactorEnforced,
   BREAKGLASS_LOGIN_PATH,
   LOGIN_FIELD,
   oidcButtonSelector,
@@ -190,6 +203,7 @@ module.exports = {
   hostOf,
   siteNeedleFor,
   setupMatomoPage,
+  signIn,
   loginAsAdmin,
   expectLoginForm,
   startOidcLogin,
