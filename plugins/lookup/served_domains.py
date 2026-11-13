@@ -13,8 +13,8 @@ from utils.tls_common import (
     iter_domains,
     redirect_targets,
     wildcard_certificate_available,
-    with_rendered_tls,
 )
+from utils.tls_overrides import with_rendered_tls
 
 
 class LookupModule(LookupBase):

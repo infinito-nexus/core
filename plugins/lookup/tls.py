@@ -27,8 +27,8 @@ from utils.tls_common import (
     resolve_term,
     uniq_preserve,
     want_get,
-    with_rendered_tls,
 )
+from utils.tls_overrides import with_rendered_tls
 
 
 class LookupModule(LookupBase):
