@@ -4,6 +4,11 @@ logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: playwright-service-flag  carries the managed-field lock of meta/forms.yml on every page; no spec gates on it
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -106,6 +111,33 @@ gitea:
         enabled: "{{ lookup('login_method', 'web-app-gitea', 'openid2') }}"
       registration:
         enabled: "{{ lookup('login_method', 'web-app-gitea', 'registration') }}"
+  auth:
+    ldap:
+      names: [LDAP]
+      host: "{{ LDAP.SERVER.DOMAIN }}"
+      port: "{{ LDAP.SERVER.PORT }}"
+      security_protocol: "{{ LDAP.SERVER.SECURITY | trim or 'unencrypted' }}"
+      bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+      user_base: "{{ LDAP.DN.OU.USERS }}"
+      filter: "(&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s))"
+      admin_filter: "({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-gitea-administrator,{{ LDAP.DN.OU.ROLES }})"
+      restricted_filter: "({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-gitea-restricted,{{ LDAP.DN.OU.ROLES }})"
+      attribute_username: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      attribute_name: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+      attribute_surname: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+      attribute_mail: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      attribute_ssh_public_key: "{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}"
+      attribute_avatar: "{{ LDAP.USER.ATTRIBUTES.PHOTO }}"
+      is_sync_enabled: true
+    oauth:
+      names: [SSO Login]
+      provider: openidConnect
+      client_id: "{{ OIDC.CLIENT.ID }}"
+      discovery_url: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+      scopes: "openid profile email {{ RBAC.GROUP.CLAIM }}"
+      group_claim_name: "{{ RBAC.GROUP.CLAIM }}"
+      admin_group: "/{{ lookup('rbac_group_path', application_id='web-app-gitea', role='administrator') }}"
+      restricted_group: "/{{ lookup('rbac_group_path', application_id='web-app-gitea', role='restricted') }}"
   ports:
     internal:
       http: 3000
