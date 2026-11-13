@@ -67,6 +67,7 @@ mastodon:
         enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-mastodon', 'registration') }}"
+  site_title: "{{ lookup('design', 'web-app-mastodon').label }}"
   single_user_mode: false
   ports:
     local:
@@ -163,12 +164,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: dynamic-flag  gated on the role's own 2fa login method, not on group_names
-# nocheck: playwright-service-flag  runtime DOM patch of the settings navigation, asserted by files/playwright/test-login-methods.js
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
 javascript:
   bond: 1
-  enabled: "{{ not (lookup('config', 'web-app-mastodon', 'services.mastodon.login.method.2fa.enabled') | bool) }}"
-  shared: "{{ not (lookup('config', 'web-app-mastodon', 'services.mastodon.login.method.2fa.enabled') | bool) }}"
+  enabled: true
+  shared: true
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

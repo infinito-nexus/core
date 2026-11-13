@@ -23,7 +23,7 @@ MASTODON_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.mastodon.l
 MASTODON_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.mastodon.login.method.native.enabled') | bool }}"
 MASTODON_LOGIN_2FA: "{{ lookup('config', application_id, 'services.mastodon.login.method.2fa.enabled') | bool }}"
 MASTODON_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.mastodon.login.method.registration.enabled') | bool }}"
-MASTODON_REGISTRATIONS_MODE: "{{ 'open' if (MASTODON_LOGIN_REGISTRATION | bool) else 'none' }}"
+MASTODON_REGISTRATIONS: "{{ lookup('form_values', application_id, 'registrations') }}"
 
 MASTODON_HTTP_ONLY_ENABLED: "{{ not (lookup('tls', application_id, 'enabled') | bool) }}"
 MASTODON_OVERRIDES_DIR: "{{ lookup('container', application_id, 'directories.instance') }}/overrides"
@@ -33,6 +33,7 @@ MASTODON_OIDC_ROLE_SYNC_FILE: "{{ MASTODON_OVERRIDES_DIR }}/zz_oidc_role_sync.rb
 MASTODON_API_SESSION_SKIP_FILE: "{{ MASTODON_OVERRIDES_DIR }}/api_session_skip.rb"
 
 MASTODON_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+MASTODON_BRANDING: "{{ lookup('form_values', application_id, 'branding') }}"
 MASTODON_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
 MASTODON_DESIGN_UPLOAD_MARK: "infinito_design_uploads"
 MASTODON_DESIGN_UPLOADS:
