@@ -311,8 +311,10 @@ class TestCollectorClassesMeetLoki(unittest.TestCase):
                 )
             ),
             "grafana alert": load_yaml_any(
-                str(PROJECT_ROOT / "roles" / "web-app-grafana" / ROLE_FILE_VARS_MAIN)
-            )["GRAFANA_LOG_ALERT_EXPR"],
+                str(
+                    PROJECT_ROOT / "roles" / "web-app-grafana" / ROLE_FILE_META_SERVICES
+                )
+            )["grafana"]["provisioning"]["log_alert_expr"],
         }
         for name, text in sources.items():
             with self.subTest(source=name):

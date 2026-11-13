@@ -15,8 +15,8 @@ from utils.roles.applications.config import (
     get,
 )
 from utils.templating.jinja import rendered_or_raise
-from utils.tls_common import resolve_enabled
-from utils.tls_overrides import with_rendered_tls
+from utils.tls.common import resolve_enabled
+from utils.tls.overrides import with_rendered_tls
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence

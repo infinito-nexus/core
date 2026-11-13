@@ -45,7 +45,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.has.domain import has_domain
-from utils.tls_common import (
+from utils.tls.common import (
     AVAILABLE_FLAVORS,
     as_str,
     issuer_applications,

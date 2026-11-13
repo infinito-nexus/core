@@ -2,7 +2,7 @@ from ansible.errors import AnsibleError, AnsibleFilterError
 
 from utils.networks.reachability import TOR, network, network_of
 from utils.roles.applications.config import get
-from utils.tls_common import resolve_primary_domain_from_app
+from utils.tls.common import resolve_primary_domain_from_app
 
 
 def _as_bool(value):

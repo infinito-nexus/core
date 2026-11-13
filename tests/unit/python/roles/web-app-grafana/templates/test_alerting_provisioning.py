@@ -26,11 +26,13 @@ def _render(prometheus: bool, loki: bool) -> dict:
         "GRAFANA_PROMETHEUS_ENABLED": prometheus,
         "GRAFANA_LOKI_ENABLED": loki,
         "GRAFANA_ALERTMANAGER_RECEIVER": ROLE_VARS["GRAFANA_ALERTMANAGER_RECEIVER"],
-        "GRAFANA_ALERTMANAGER_URL": "http://prometheus-alertmanager:9093",
+        "GRAFANA_ALERTING": {
+            "alertmanager_url": "http://prometheus-alertmanager:9093",
+            "log_alert_expr": 'sum by (application, host) (count_over_time({log_class="application"} |~ "x" [5m]))',
+        },
+        "GRAFANA_DASHBOARDS": {"folder": "Infinito.Nexus"},
         "GRAFANA_LOG_ALERT_TITLE": ROLE_VARS["GRAFANA_LOG_ALERT_TITLE"],
         "GRAFANA_LOKI_DATASOURCE_UID": ROLE_VARS["GRAFANA_LOKI_DATASOURCE_UID"],
-        "GRAFANA_LOG_ALERT_EXPR": 'sum by (application, host) (count_over_time({log_class="application"} |~ "x" [5m]))',
-        "SOFTWARE_NAME": "Infinito.Nexus",
     }
     return load_yaml_str(
         env.get_template("provisioning/alerting.yml.j2").render(**variables)

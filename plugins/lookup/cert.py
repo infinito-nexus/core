@@ -1,10 +1,3 @@
-# Certificate planning lookup for Infinito.Nexus:
-# - Computes certificate file paths (cert/key/ca)
-# - Computes effective SAN list (domains.san)
-# - Supports self-signed scope: "app" | "global"
-#
-# See utils/tls_common.py for shared resolution logic.
-
 from __future__ import annotations
 
 from functools import partial
@@ -19,7 +12,7 @@ from utils.cache.base import _render_with_templar
 from utils.domains.served import served_owners
 from utils.networks.reachability import network, network_of
 from utils.templating.jinja import render_strict
-from utils.tls_common import (
+from utils.tls.common import (
     AVAILABLE_FLAVORS,
     as_str,
     collect_domains_for_app,
@@ -37,7 +30,7 @@ from utils.tls_common import (
     uniq_preserve,
     want_get,
 )
-from utils.tls_overrides import with_rendered_tls
+from utils.tls.overrides import with_rendered_tls
 
 LE_FULLCHAIN = "fullchain.pem"
 LE_PRIVKEY = "privkey.pem"

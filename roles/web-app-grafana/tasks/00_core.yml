@@ -1,6 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "📣 Report the managed Grafana settings the env file render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
+  vars:
+    forms_env_form: settings
+    forms_env_fields: "{{ GRAFANA_SETTINGS }}"
+
 - name: "🧩 load docker for {{ application_id }}"
   include_role:
     name: svc-stack
@@ -11,6 +17,21 @@
   vars:
     network_role_id: "{{ GRAFANA_PROMETHEUS_ROLE }}"
   when: GRAFANA_PROMETHEUS_ENABLED | bool
+
+- name: "📥 Read the Grafana provisioning a previous deploy rendered"
+  ansible.builtin.slurp:
+    src: "{{ [GRAFANA_CONFIG_DIR, item ~ '.yml'] | path_join }}"
+  loop: [datasources, dashboards, alerting]
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: grafana_provisioning_held
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the managed Grafana provisioning the render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ grafana_provisioning_held.results | grafana_provisioned }}"
 
 - name: "📄 Render the Grafana provisioning (local + swarm peers)"
   ansible.builtin.include_tasks:
