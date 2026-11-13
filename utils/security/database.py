@@ -9,13 +9,13 @@ import shutil
 import time
 import urllib.parse
 import urllib.request
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.security.pipeline import engine_image, pipeline, role_services, user_runtime
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from pathlib import Path
     from types import ModuleType
 
 OSV_BUCKET = "https://osv-vulnerabilities.storage.googleapis.com"
@@ -112,18 +112,23 @@ def hand_over(root: Path, paths: Sequence[Path]) -> None:
 
     Args:
         root: the shared database directory.
-        paths: what this process may have written below *root*; a path it
-            did not create is skipped.
+        paths: what this process may have written below *root*; a missing
+            path or a symlink is skipped.
     """
     if os.geteuid() != 0:
         return
     owner = root.stat()
-    for path in (path for path in paths if path.exists()):
-        os.chown(path, owner.st_uid, owner.st_gid)
-        tree = os.walk(path)  # nocheck: project-walk - not the repository
-        for directory, dirs, files in tree:
+    for path in (path for path in paths if path.exists() and not path.is_symlink()):
+        os.chown(path, owner.st_uid, owner.st_gid, follow_symlinks=False)
+        for _directory, dirs, files, parent in os.fwalk(path, follow_symlinks=False):
             for name in (*dirs, *files):
-                os.chown(Path(directory) / name, owner.st_uid, owner.st_gid)
+                os.chown(
+                    name,
+                    owner.st_uid,
+                    owner.st_gid,
+                    dir_fd=parent,
+                    follow_symlinks=False,
+                )
 
 
 def refresh(

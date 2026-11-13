@@ -30,7 +30,7 @@
       - install-addon
   environment:
     BLENDERMCP_ADDONS_DIR: "{{ blender_addons_probe.stdout | regex_search('ADDONS=(\\S+)', '\\1') | first }}"
-    PATH: "{{ blender_pipx_bin_dir }}:/usr/local/bin:/usr/bin:/bin"
+    PATH: "{{ blender_pipx_bin_dir }}:{{ blender_exec_path }}"
   register: blender_mcp_addon
   changed_when: "'installed' in (blender_mcp_addon.stdout | lower)"
 

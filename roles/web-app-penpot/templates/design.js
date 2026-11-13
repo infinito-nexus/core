@@ -1,7 +1,7 @@
 (function () {
   const root = document.documentElement;
   function visitor() {
-    return window.location.hash.indexOf("#/auth/") === 0;
+    return /[?&]screen=auth-/.test(window.location.search) || window.location.hash.indexOf("#/auth/") === 0;
   }
   function mirror() {
     const body = document.body;
