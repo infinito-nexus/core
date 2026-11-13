@@ -1,5 +1,0 @@
----
-- name: "🧱 Run the svc-stack {{ stack_batch_stage }} stage for '{{ application_id }}'"
-  ansible.builtin.include_role:
-    name: svc-stack
-    tasks_from: "batch/{{ stack_batch_stage }}.yml"

@@ -12,7 +12,6 @@ RENDER = "roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml"
 STAGED = {
     "web-app-flowise": (CONTRACT, RENDER),
     "web-app-worldmonitor": (CONTRACT,),
-    "web-svc-assistant": (CONTRACT,),
 }
 
 

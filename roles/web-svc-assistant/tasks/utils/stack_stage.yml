@@ -1,3 +1,0 @@
----
-- name: "🔑 Check the gateway contract of '{{ application_id }}'"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"

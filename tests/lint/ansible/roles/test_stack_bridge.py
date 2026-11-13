@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import re
+import tempfile
 import unittest
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -18,6 +21,9 @@ BRIDGE = Path("tasks/utils/stack.yml")
 CANONICAL_BRIDGE = Path("roles") / STACK_ROLE / "files/bridge.yml"
 STACK_TASKS = Path("roles") / STACK_ROLE / "tasks"
 CONSTRUCTOR = Path("tasks/stages/01_constructor.yml")
+MAIN = Path("tasks/main.yml")
+CORE = "00_core.yml"
+RUN_ONCE_RE = re.compile(r"run_once_[a-z0-9_]+ is not defined")
 LOADER = "sys-service-loader"
 GROUP_SETUP = "tasks/utils/setup/group.yml"
 ENTRY = "tasks/utils/load/entry.yml"
@@ -206,6 +212,45 @@ def consumers_without_a_stack_path(root: Path) -> list[str]:
     ]
 
 
+def _guarded(
+    node: Any, guards: tuple[str, ...]
+) -> Iterator[tuple[dict, tuple[str, ...]]]:
+    for task in node if isinstance(node, list) else []:
+        if not isinstance(task, dict):
+            continue
+        when = task.get("when")
+        own = guards + tuple(
+            str(item).strip()
+            for item in (when if isinstance(when, list) else [when])
+            if item is not None and not RUN_ONCE_RE.fullmatch(str(item).strip())
+        )
+        yield task, own
+        for key in BLOCK_KEYS:
+            yield from _guarded(task.get(key), own)
+
+
+def gated_core_loads(root: Path) -> list[str]:
+    """Args:
+        root: the repository root.
+
+    Returns:
+        the bridge roles whose ``tasks/main.yml`` includes ``00_core.yml``
+        under a condition besides the run-once flag, block conditions included.
+    """
+    return [
+        role
+        for role in bridge_roles(root)
+        if any(
+            guards
+            for task, guards in _guarded(
+                load_yaml_any(str(root / "roles" / role / MAIN), default_if_missing=[]),
+                (),
+            )
+            if _task_include(task).endswith(CORE)
+        )
+    ]
+
+
 def unadmitted_bridges(root: Path) -> list[str]:
     """Args:
         root: the repository root.
@@ -213,15 +258,19 @@ def unadmitted_bridges(root: Path) -> list[str]:
     Returns:
         ``role: reason`` for every bridge role the loader may not run the stack
         of: one that does not declare ``stack`` literally enabled and shared,
-        or one the constructor enters before the loader.
+        one the constructor enters before the loader, or one that loads its
+        core under a condition besides the run-once flag.
     """
     bootstrap = bootstrap_roles(root)
+    gated = set(gated_core_loads(root))
     found = []
     for role in bridge_roles(root):
         if not _declares_stack(root / "roles" / role):
             found.append(f"{role}: stack is not literally enabled and shared")
         if role in bootstrap:
             found.append(f"{role}: entered before the shared-service loader")
+        if role in gated:
+            found.append(f"{role}: core load gated beyond the run-once flag")
     return found
 
 
@@ -354,6 +403,21 @@ class TestStackBridge(unittest.TestCase):
 
     def test_every_bridge_role_is_admitted(self) -> None:
         self.assertEqual(unadmitted_bridges(PROJECT_ROOT), [])
+
+    def test_a_core_load_gated_beyond_the_run_once_flag_is_found(self) -> None:
+        include = {"include_tasks": CORE}
+        mains = {
+            "gated": [{**include, "when": ["run_once_gated is not defined", "ON"]}],
+            "blocked": [{"block": [include], "when": "ON"}],
+            "plain": [{**include, "when": "run_once_plain is not defined"}],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for role, main in mains.items():
+                (root / "roles" / role / BRIDGE).parent.mkdir(parents=True)
+                (root / "roles" / role / BRIDGE).write_text("")
+                (root / "roles" / role / MAIN).write_text(json.dumps(main))
+            self.assertEqual(gated_core_loads(root), ["blocked", "gated"])
 
     def test_stack_units_keep_no_consumer_in_a_fact(self) -> None:
         offenders = stack_unit_facts(PROJECT_ROOT)
