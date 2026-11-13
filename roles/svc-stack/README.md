@@ -27,6 +27,8 @@ Each entry binds the consumer once, as the loop item `stack_batch_consumer`, and
 
 A consumer whose stack the loader runs ships [files/bridge.yml](files/bridge.yml) unchanged as its own `tasks/utils/stack.yml` and no entry above. [tasks/utils/load/entry.yml](../../tasks/utils/load/entry.yml) then runs its backend through that bridge on its first entry, right before the role's own tasks, and fails on a first entry from a post-load path.
 
+At its loader slot, svc-stack plans the front batch of the host with the lookup `stack_batch`: every bridged role the host enters after that slot, first the shared services the loader preloads, then the server roles the deployment allows, in entry order. It fails once, naming every planned role whose bridge is not canonical or whose `meta/services.yml` does not declare `stack` enabled and shared as literal true.
+
 ## Features
 
 - **Front proxy:** Runs when the consumer enables and shares `openresty`. It serves every vhost the consumer's `server.vhosts` declares and every network sibling of each.

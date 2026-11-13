@@ -1,2 +1,15 @@
 ---
 - include_tasks: utils/once/flag.yml
+
+- name: "🗂️ Plan the front batch of this host"
+  ansible.builtin.set_fact:
+    stack_batch_plan: "{{ lookup('stack_batch') }}"
+
+- name: "🛑 Refuse every planned role that cannot join the front batch"
+  ansible.builtin.assert:
+    that:
+      - stack_batch_plan | selectattr('errors') | list | length == 0
+    fail_msg: >-
+      These roles cannot join the front batch:
+      {% for item in stack_batch_plan | selectattr('errors') %}{{ item.id }}: {{ item.errors | join('; ') }}. {% endfor %}
+    quiet: true
