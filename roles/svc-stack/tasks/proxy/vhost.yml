@@ -3,7 +3,8 @@
   ansible.builtin.set_fact:
     front_proxy_deferred_probes: >-
       {{ front_proxy_deferred_probes
-         | combine({front_proxy_domain: front_proxy_probe} if (front_proxy_domain | network_of) != 'tor' else {}) }}
+         | combine({front_proxy_domain: front_proxy_probe | combine({'phase': stack_front_phase})}
+                   if (front_proxy_domain | network_of) != 'tor' else {}) }}
   changed_when: false
   when: IS_STACK_HOST | bool
 

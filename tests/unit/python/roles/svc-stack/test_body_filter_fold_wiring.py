@@ -156,6 +156,13 @@ class TestTheVhostWriteCarriesTheLua(unittest.TestCase):
         self.assertEqual(settle["ansible.builtin.include_tasks"], "proxy/settle.yml")
         self.assertEqual(settle["when"], "stack_front_phase == 'entered'")
 
+    def test_the_probe_queue_tags_each_vhost_with_its_phase(self):
+        queue = _named(self.tasks, "🧊 Queue the probe")
+        self.assertIn(
+            "front_proxy_probe | combine({'phase': stack_front_phase})",
+            _flat(queue["ansible.builtin.set_fact"]["front_proxy_deferred_probes"]),
+        )
+
     def test_the_batch_records_the_vhost_instead_of_settling_it(self):
         record = _named(self.tasks, "🗂️ Record")
         self.assertIn("front_proxy_batch_vhosts", record["ansible.builtin.set_fact"])

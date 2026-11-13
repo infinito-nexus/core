@@ -50,6 +50,8 @@
   ansible.builtin.include_role:
     name: svc-stack
     tasks_from: deferred_probe.yml
+  vars:
+    front_proxy_probe_phases: [entered, preload, server]
 
 - name: "🔌 Converge every MCP client from the complete provider set"
   include_role:
