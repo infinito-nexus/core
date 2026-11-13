@@ -188,6 +188,15 @@ class TestGitea(_EnvironmentLine, unittest.TestCase):
         self.assertEqual("", "" if rendered is None else rendered.strip())
 
 
+class TestWeblate(_EnvironmentLine, unittest.TestCase):
+    ROLE = "web-app-weblate"
+    ENTITY = "weblate"
+    MARKER = "INFINITO_WEBLATE_2FA_ENFORCED="
+    ON = "INFINITO_WEBLATE_2FA_ENFORCED=1"
+    OFF = "INFINITO_WEBLATE_2FA_ENFORCED=0"
+    UNMANAGED = OFF
+
+
 class TestPgadmin(_EnvironmentLine, unittest.TestCase):
     ROLE = "web-app-pgadmin"
     ENTITY = "pgadmin"

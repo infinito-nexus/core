@@ -11,11 +11,13 @@ WEBLATE_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enab
 WEBLATE_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.translate.enabled') | bool }}"
 WEBLATE_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.weblate.login.method.native.enabled') | bool }}"
 WEBLATE_LOGIN_2FA: "{{ lookup('config', application_id, 'services.weblate.login.method.2fa.enabled') | bool }}"
+WEBLATE_LOGIN_2FA_ENFORCED: "{{ WEBLATE_LOGIN_2FA | bool and lookup('config', application_id, 'services.weblate.login.method.2fa.enforced') | bool }}"
 WEBLATE_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.weblate.login.method.registration.enabled') | bool }}"
 WEBLATE_SITE_TITLE: "{{ lookup('config', application_id, 'services.weblate.site_title') }}"
 WEBLATE_SETTINGS_OVERRIDE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'settings_override.py'] | path_join }}"
 WEBLATE_NETWORK_STRATEGY_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'weblate_network_strategy.py'] | path_join }}"
 WEBLATE_NETWORK_MIDDLEWARE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'weblate_network_middleware.py'] | path_join }}"
+WEBLATE_TWO_FACTOR_TASKS_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'weblate_infinito_tasks.py'] | path_join }}"
 
 WEBLATE_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 

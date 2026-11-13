@@ -50,9 +50,6 @@ OFFERED_ONLY = {
     "web-app-gitea": "TWO_FACTOR_AUTH=enforced takes repository access from every "
     "individual account without a second factor, token requests included, so the "
     "MCP account the deploy provisions would lose it",
-    "web-app-weblate": "Weblate enforces a second factor per team or project only, "
-    "and such a team drops its permissions for every member without one, API token "
-    "requests included",
 }
 UNSWITCHED = {
     (

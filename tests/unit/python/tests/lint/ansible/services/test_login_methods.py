@@ -177,6 +177,9 @@ class TestLoginMethodDefaults(unittest.TestCase):
     def test_matomo_enforces_its_second_factor_by_default(self) -> None:
         self._assert_enforces_by_default("web-app-matomo")
 
+    def test_weblate_enforces_its_second_factor_by_default(self) -> None:
+        self._assert_enforces_by_default("web-app-weblate")
+
     def test_enforced_on_another_method_fails(self) -> None:
         text = VALID.replace(
             f"        enabled: {NATIVE_LOOKUP}\n",

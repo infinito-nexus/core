@@ -31,6 +31,7 @@ if _infinito_upstream_strategy != SOCIAL_AUTH_STRATEGY:  # noqa: F821
 if _infinito_origin_dir not in sys.path:
     sys.path.append(_infinito_origin_dir)
 
+INSTALLED_APPS = [*INSTALLED_APPS, "weblate_infinito"]  # noqa: F821
 MIDDLEWARE = [
     "weblate_network.middleware.NetworkProxyMiddleware"
     if entry == _infinito_upstream_proxy
