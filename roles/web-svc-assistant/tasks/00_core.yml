@@ -1,14 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔑 Check the gateway contract of '{{ application_id }}'"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
-
-- name: "🧩 load docker, db and proxy for '{{ application_id }}'"
-  include_role:
-    name: svc-stack
-    tasks_from: consumer.yml
-
 - name: "🎬 Stage the assistant into the build context of '{{ application_id }}'"
   stack_host_copy:
     src: "python/"
