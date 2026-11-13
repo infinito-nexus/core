@@ -35,7 +35,6 @@ ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 ODOO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 ODOO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-ODOO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.odoo.login.method.sso.enabled') | bool }}"
 ODOO_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.odoo.login.method.ldap.enabled') | bool }}"
 ODOO_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.odoo.login.method.native.enabled') | bool }}"
 ODOO_LOGIN_2FA: "{{ lookup('config', application_id, 'services.odoo.login.method.2fa.enabled') | bool }}"
@@ -50,7 +49,9 @@ ODOO_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.odoo.login.me
 ODOO_LOGIN_ODOO_COM: "{{ lookup('config', application_id, 'services.odoo.login.method.odoo_com.enabled') | bool }}"
 ODOO_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.odoo.login.method.registration.enabled') | bool }}"
 ODOO_LOGIN_FORM: "{{ ODOO_LOGIN_NATIVE | bool or ODOO_LOGIN_LDAP | bool }}"
-ODOO_SIGNUP_SCOPE: "{{ 'b2c' if ODOO_LOGIN_REGISTRATION | bool else 'b2b' }}"
+ODOO_SIGNUP_SETTINGS: "{{ lookup('form_values', application_id, 'general') }}"
+ODOO_BASE_URL: "{{ lookup('form_values', application_id, 'base_url') | combine(lookup('form_values', application_id, 'base_url_freeze')) }}"
+ODOO_OAUTH_PROVIDER: "{{ lookup('form_values', application_id, 'oauth_provider') }}"
 ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 ODOO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 
@@ -127,12 +128,9 @@ ODOO_LDAP_CONFIG:
 ODOO_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 ODOO_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 ODOO_OIDC_ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"
-ODOO_OIDC_AUTHORIZE_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 ODOO_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
-ODOO_OIDC_USERINFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 ODOO_OIDC_JWKS_URI: "{{ OIDC.CLIENT.CERTS }}"
 ODOO_OIDC_UID_FIELD: "{{ OIDC.ATTRIBUTES.USERNAME }}"
-ODOO_OIDC_SCOPE: "openid email profile phone"
 
 ODOO_LDAP_ATTR_MEMBER_OF: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
 

@@ -62,6 +62,9 @@
 - name: "📁 Create administrator user"
   include_tasks: 04_admin.yml
 
+- name: "📣 Report the managed settings of {{ application_id }} the deploy reverts"
+  include_tasks: utils/settings_drift.yml
+
 - name: "🔧 Configure OIDC provider"
   include_tasks: 05_oidc.yml
   when: ODOO_OIDC_ENABLED | bool

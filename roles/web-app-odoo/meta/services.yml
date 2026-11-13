@@ -61,6 +61,21 @@ odoo:
       websocket: 8072
   proxy:
     service_key: odoo
+  base_url:
+    parameters: [web.base.url]
+    value: "{{ lookup('tls', 'web-app-odoo', 'url.base') }}"
+  base_url_freeze:
+    parameters: [web.base.url.freeze]
+    value: "True"
+  oauth:
+    providers: [Keycloak]
+    client_id: "{{ OIDC.CLIENT.ID }}"
+    body: Login with SSO
+    css_class: fa fa-fw fa-key
+    auth_endpoint: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+    scope: openid email profile phone
+    validation_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+    data_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
   run_after:
     - web-app-keycloak
     - web-app-email
@@ -105,20 +120,12 @@ design:
     logo:
       width: 280
       height: 80
-# nocheck: dynamic-flag  gated on the role's own form, passkey and 2fa login methods, not on group_names
+# nocheck: dynamic-flag
 # nocheck: playwright-service-flag  runtime DOM patch of the sign-in and preference pages, asserted by test-login-methods.js
 javascript:
   bond: 1
-  enabled: >-
-    {{ not ((lookup('config', 'web-app-odoo', 'services.odoo.login.method.native.enabled') | bool
-    or lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled') | bool)
-    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.passkey.enabled') | bool
-    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.2fa.enabled') | bool) }}
-  shared: >-
-    {{ not ((lookup('config', 'web-app-odoo', 'services.odoo.login.method.native.enabled') | bool
-    or lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled') | bool)
-    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.passkey.enabled') | bool
-    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.2fa.enabled') | bool) }}
+  enabled: true
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

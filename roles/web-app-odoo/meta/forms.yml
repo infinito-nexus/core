@@ -1,0 +1,112 @@
+---
+general:
+  path: /odoo/settings
+  sinks: [ODOO_SIGNUP_SETTINGS]
+  fields:
+    auth_signup_uninvited:
+      source: services.odoo.login.method.registration.enabled
+      mode: enforced
+      selector: 'div[name="auth_signup_uninvited"] input'
+      type: select
+      enum: [b2b, b2c]
+      map: {true: b2c, false: b2b}
+      label: Customer Account
+    auth_signup_reset_password:
+      source: services.odoo.login.method.native.enabled
+      mode: enforced
+      selector: 'div[name="auth_signup_reset_password"] input'
+      type: checkbox
+      map: {true: "True", false: "False"}
+      label: Password Reset
+base_url:
+  path: /odoo/system-parameters
+  sinks: [ODOO_BASE_URL]
+  record:
+    selector: 'div[name="key"] input'
+    source: services.odoo.base_url.parameters
+  fields:
+    web_base_url:
+      source: services.odoo.base_url.value
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="value"] textarea'
+      type: url
+      label: web.base.url
+base_url_freeze:
+  path: /odoo/system-parameters
+  sinks: [ODOO_BASE_URL]
+  record:
+    selector: 'div[name="key"] input'
+    source: services.odoo.base_url_freeze.parameters
+  fields:
+    web_base_url_freeze:
+      source: services.odoo.base_url_freeze.value
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="value"] textarea'
+      type: text
+      label: web.base.url.freeze
+oauth_provider:
+  path: /odoo/
+  sinks: [ODOO_OAUTH_PROVIDER]
+  record:
+    selector: 'div[name="name"] input'
+    source: services.odoo.oauth.providers
+  fields:
+    enabled:
+      source: services.odoo.login.method.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="enabled"] input'
+      type: checkbox
+      map: {true: true, false: false}
+      label: Allowed
+    client_id:
+      source: services.odoo.oauth.client_id
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="client_id"] input'
+      type: text
+      label: Client ID
+    body:
+      source: services.odoo.oauth.body
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="body"] input'
+      type: text
+      label: Login button label
+    css_class:
+      source: services.odoo.oauth.css_class
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="css_class"] input'
+      type: text
+      label: CSS class
+    auth_endpoint:
+      source: services.odoo.oauth.auth_endpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="auth_endpoint"] input'
+      type: url
+      label: Authorization URL
+    scope:
+      source: services.odoo.oauth.scope
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="scope"] input'
+      type: text
+      label: Scope
+    validation_endpoint:
+      source: services.odoo.oauth.validation_endpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="validation_endpoint"] input'
+      type: url
+      label: UserInfo URL
+    data_endpoint:
+      source: services.odoo.oauth.data_endpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="data_endpoint"] input'
+      type: url
+      label: Data Endpoint

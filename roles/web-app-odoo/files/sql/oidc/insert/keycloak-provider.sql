@@ -1,4 +1,5 @@
 -- First install: register Keycloak as an OAuth provider.
+-- Args: the fields of the oauth_provider form of meta/forms.yml (enabled, client_id, body, css_class, auth_endpoint, scope, validation_endpoint, data_endpoint).
 INSERT INTO auth_oauth_provider (
 	name,
 	enabled,
@@ -16,12 +17,12 @@ INSERT INTO auth_oauth_provider (
 	'Keycloak',
 	%(enabled)s,
 	%(auth_endpoint)s,
-	%(userinfo_endpoint)s,
-	%(userinfo_endpoint)s,
+	%(validation_endpoint)s,
+	%(data_endpoint)s,
 	%(client_id)s,
 	%(scope)s,
-	'fa fa-fw fa-key',
-	'{"en_US": "Login with SSO"}',
+	%(css_class)s,
+	jsonb_build_object('en_US', %(body)s::text),
 	10,
 	NOW(),
 	NOW()
