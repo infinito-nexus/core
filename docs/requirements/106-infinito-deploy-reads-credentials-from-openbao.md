@@ -34,7 +34,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
    The token reaches the play only in the environment of the controller process and never enters a file or a host. `BAO_ADDR` names the platform's OpenBao.
 4. **Fail before any host changes.** Before the first play, the CLI reads every reference of the inventory once and discards the values. A path that is missing (404) or denied (403) stops the deploy with a message that names the path and the field, never the value. A reference that fails later, during the play, fails its task with the same message. Every read uses `no_log` semantics: a value never reaches a log line, a diff or an error message.
 5. **No vault password without vault blocks.** A deploy whose inventory holds no `!vault` block runs without `--password-file`. `deploy.sh` requires `DEPLOY_VAULT_PASSWORD` only when the inventory holds a vault block.
-6. **SSH key and host keys from OpenBao.** For a workspace deploy, `deploy.sh` loads the SSH key named by the inventory's reference into an agent that lives in its task directory. It writes the pinned host keys into that directory's `known_hosts` (102 decision 5). Nothing comes from Semaphore's key store.
+6. **SSH key and host keys from OpenBao.** For a workspace deploy, `deploy.sh` loads the SSH key named by the inventory's reference into an agent that lives in its task directory. It writes `<HOST> <HOST_KEY>` as the only line of that directory's `known_hosts` (102 decision 5); `HOST_KEY` is the key the store pinned in OpenBao and passes to every host template ([103](103-semaphore-pin-task-jwt-and-locked-templates.md) decisions 7 and 8, [105](105-openbao-task-jwt-auth-transit-tenant-kv-and-store-approle.md) decision 6). Nothing comes from Semaphore's key store.
 7. **Generated and supplied credentials.** `infinito inventory credentials`, when told to write references, generates each value it generates today into OpenBao with `cas` 0. It never overwrites an existing secret. Then it writes the reference into the inventory. A credential the inventory supplies but does not generate must already exist at its path, or the deploy stops at decision 4.
 
 ## Acceptance Criteria
@@ -59,7 +59,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 ### No vault password
 
 - [ ] A deploy of an inventory without a `!vault` block and with references runs to the end without `--password-file`, and `deploy.sh` runs without `DEPLOY_VAULT_PASSWORD` (`workspace deploy: no vault password and no vault block` in `roles/web-app-semaphore/files/playwright/test-workspace-runners.js`; `test_deploy_sh_needs_a_vault_password_only_for_vault_blocks` in `tests/unit/python/roles/web-app-semaphore/files/test_deploy_sh.py`).
-- [ ] A workspace deploy loads its SSH key from OpenBao into an agent whose socket lies in the task directory, and its `known_hosts` from OpenBao. Neither is left once the task ends (`workspace deploy: SSH key and host keys come from OpenBao` in `test-workspace-runners.js`).
+- [ ] A workspace deploy loads its SSH key from OpenBao into an agent whose socket lies in the task directory, and its `known_hosts` holds exactly `<HOST> <HOST_KEY>`. Neither is left once the task ends (`workspace deploy: SSH key and host keys come from OpenBao` in `test-workspace-runners.js`).
 
 ### Generated credentials
 
