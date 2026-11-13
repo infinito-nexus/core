@@ -154,31 +154,92 @@ class TestRefresh(_Root):
 
 
 class TestHandOver(_Root):
-    def _hand_over(self, euid):
-        _touch(self.root / "osv" / "osv-scalibr" / "Ubuntu" / "all.zip", 60)
-        owner = self.root.stat()
+    def _outside(self) -> Path:
+        other = tempfile.TemporaryDirectory()
+        self.addCleanup(other.cleanup)
+        return Path(other.name)
+
+    def _owned(self, euid=0, swap_at=None, swap=None):
+        """Run hand_over with a recording chown and return what it re-owned.
+
+        Args:
+            euid: the effective uid hand_over sees.
+            swap_at: the entry name whose re-owning triggers *swap*.
+            swap: called at *swap_at* to change the tree mid-walk.
+
+        Returns:
+            ``(real path, (uid, gid))`` per call, every path component but the
+            last resolved.
+        """
+        owned = []
+
+        def chown(name, uid, gid, *, dir_fd=None, follow_symlinks=True):
+            self.assertIs(follow_symlinks, False)
+            if dir_fd is None:
+                parent = Path(os.path.realpath(Path(name).parent))
+            else:
+                parent = Path(f"/proc/self/fd/{dir_fd}").readlink()
+            owned.append((parent / Path(name).name, (uid, gid)))
+            if swap and Path(name).name == swap_at:
+                swap()
+
         with (
             mock.patch.object(database.os, "geteuid", return_value=euid),
-            mock.patch.object(database.os, "chown") as chown,
+            mock.patch.object(database.os, "chown", side_effect=chown),
         ):
             database.hand_over(self.root, [self.root / "osv"])
-        return chown, (owner.st_uid, owner.st_gid)
+        return owned
+
+    def _real(self, *parts: str) -> Path:
+        return Path(os.path.realpath(self.root)).joinpath(*parts)
 
     def test_a_root_refresh_gives_every_file_to_the_directory_owner(self):
-        chown, owner = self._hand_over(0)
+        _touch(self.root / "osv" / "osv-scalibr" / "Ubuntu" / "all.zip", 60)
+        owner = self.root.stat()
+        owner = (owner.st_uid, owner.st_gid)
         self.assertEqual(
-            {(Path(call.args[0]), call.args[1:]) for call in chown.call_args_list},
+            set(self._owned()),
             {
-                (self.root / "osv", owner),
-                (self.root / "osv" / "osv-scalibr", owner),
-                (self.root / "osv" / "osv-scalibr" / "Ubuntu", owner),
-                (self.root / "osv" / "osv-scalibr" / "Ubuntu" / "all.zip", owner),
+                (self._real("osv"), owner),
+                (self._real("osv", "osv-scalibr"), owner),
+                (self._real("osv", "osv-scalibr", "Ubuntu"), owner),
+                (self._real("osv", "osv-scalibr", "Ubuntu", "all.zip"), owner),
             },
         )
 
+    def test_a_planted_symlink_is_changed_itself_never_its_target(self):
+        outside = self._outside()
+        (outside / "passwd").write_text("x", encoding="utf-8")
+        (self.root / "osv").mkdir(parents=True)
+        (self.root / "osv" / "link").symlink_to(outside / "passwd")
+        paths = [path for path, _owner in self._owned()]
+        self.assertIn(self._real("osv", "link"), paths)
+        self.assertNotIn(Path(os.path.realpath(outside)) / "passwd", paths)
+
+    def test_a_listed_path_that_is_a_symlink_is_skipped(self):
+        outside = self._outside()
+        _touch(outside / "secret", 60)
+        (self.root / "osv").symlink_to(outside, target_is_directory=True)
+        self.assertEqual(self._owned(), [])
+
+    def test_a_directory_swapped_for_a_symlink_mid_walk_is_not_followed(self):
+        outside = self._outside()
+        _touch(outside / "e" / "f", 60)
+        _touch(self.root / "osv" / "d" / "e" / "f", 60)
+
+        def swap():
+            (self.root / "osv" / "d").rename(self.root / "osv" / "d2")
+            (self.root / "osv" / "d").symlink_to(outside, target_is_directory=True)
+
+        owned = self._owned(swap_at="e", swap=swap)
+        escaped = Path(os.path.realpath(outside))
+        self.assertTrue(owned)
+        for path, _owner in owned:
+            self.assertFalse(path.is_relative_to(escaped), path)
+
     def test_an_unprivileged_refresh_changes_no_owner(self):
-        chown, _owner = self._hand_over(1000)
-        chown.assert_not_called()
+        _touch(self.root / "osv" / "osv-scalibr" / "Ubuntu" / "all.zip", 60)
+        self.assertEqual(self._owned(euid=1000), [])
 
     def test_a_root_refresh_that_wrote_no_database_hands_over_the_lock(self):
         with (
