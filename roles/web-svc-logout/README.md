@@ -148,6 +148,7 @@ A custom `roles/web-app-cst-*` role declares its row under `sso.backchannel` in 
 | `web-svc-simpleicons` | - | no, SSO is off for this role (`sso.enabled: false`) | - | - | no SSO session |
 
 When a back-channel endpoint is unreachable or refuses the token, Keycloak still ends the user session and names the client in its log; that application keeps its session until its own expiry as listed above.
+After every Playwright pass of this role, [`tasks/utils/playwright_post_pass.yml`](./tasks/utils/playwright_post_pass.yml) reads Keycloak's log since the pass started, from every Keycloak task in swarm, and fails the pass on every back-channel call that got no answer (`KC-SERVICES0057`) or a status other than 200 and 204. It names only the client id and the status of each failed call. Keycloak logs the status of every answer because [`roles/web-app-keycloak/templates/env.j2`](../web-app-keycloak/templates/env.j2) sets its `ResourceAdminManager` category to debug.
 
 ## Back-channel logout gate
 
