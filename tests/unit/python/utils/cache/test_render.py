@@ -11,12 +11,22 @@ import stat
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import urlsplit
 
-from utils.cache.hosts import host_records, hosts_serving
+from utils.cache.hosts import host_records, hosts_serving, repo_records
 from utils.cache.render import _write, apt_list, cache_consumer_yml, upstreams_conf
+from utils.distros import distro_family, distro_names
 
 OLLAMA_HOST = "registry.ollama.ai"
 OLLAMA_REPO = "raw-ollama-registry"
+APT_FAMILY = "Debian"
+APT_FLAVOR = "apt"
+HTTP_PORT = 80
+FRONTEND_IP = "${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+STOCK_SOURCES = {
+    "debian": ("http://deb.debian.org/debian", "http://deb.debian.org/debian-security"),
+    "ubuntu": ("http://archive.ubuntu.com/ubuntu", "http://security.ubuntu.com/ubuntu"),
+}
 
 
 class TestWrite(unittest.TestCase):
@@ -119,9 +129,39 @@ class TestServedByThePin(unittest.TestCase):
         self.assertNotIn(":${INFINITO_CACHE_PACKAGE_FRONTEND_IP}", rendered)
         self.assertIn("infinito-registry-cache:", rendered)
 
-    def test_an_apt_host_the_pin_does_not_serve_leaves_the_base_sources(self) -> None:
-        self.assertIn(self.apt, apt_list("debian"))
-        self.assertNotIn("deb ", apt_list("debian", self._served()))
+    def test_no_runner_gets_an_apt_entry_beside_its_own_sources(self) -> None:
+        for distro in distro_names():
+            for served in (None, self.own, self._served()):
+                with self.subTest(distro=distro, pinned=served is not None):
+                    self.assertEqual(apt_list(distro, served), "")
+
+
+class TestRunnerAptSources(unittest.TestCase):
+    def test_the_stock_sources_of_every_apt_runner_reach_an_apt_repository(
+        self,
+    ) -> None:
+        apt_runners = {
+            name for name, family in distro_family().items() if family == APT_FAMILY
+        }
+        self.assertEqual(set(STOCK_SOURCES), apt_runners)
+        consumer = cache_consumer_yml()
+        hosts = host_records()
+        repos = repo_records()
+        for distro, uris in STOCK_SOURCES.items():
+            for uri in uris:
+                parts = urlsplit(uri)
+                with self.subTest(distro=distro, uri=uri):
+                    self.assertIn(f'"{parts.hostname}:{FRONTEND_IP}"', consumer)
+                    record = hosts[parts.hostname]
+                    self.assertIn(
+                        HTTP_PORT, [entry["port"] for entry in record["listen"]]
+                    )
+                    routes = {
+                        route["path"]: route["repo"] for route in record["routes"]
+                    }
+                    self.assertEqual(
+                        repos[routes[f"{parts.path}/"]]["flavor"], APT_FLAVOR
+                    )
 
 
 if __name__ == "__main__":
