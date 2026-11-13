@@ -1,17 +1,17 @@
 ---
-name: i8-tuner
+name: i8-tune-velocity
 description: >
   Find and apply performance optimizations in Infinito.Nexus without reducing
   logic, coverage or correctness: CI wall-clock, deploy duration, gate runtime
   and the translation pipeline. Every candidate is hardened with the
-  `dialectic` skill before it is applied. Trigger on /i8-tuner, when a job dies
-  on its time budget, when a gate grows slower, or when the operator asks where
-  the time goes. Infinito.Nexus specific.
+  `dialectic` skill before it is applied. Trigger on /i8-tune-velocity, when a
+  job dies on its time budget, when a gate grows slower, or when the operator
+  asks where the time goes. Infinito.Nexus specific.
 routines:
   - perf_sweep
 ---
 
-# Performance Tuning
+# Velocity Tuning
 
 Follow the instructions from AGENTS.md, then work the loop below. One rule
 outranks every optimization: **nothing that reduces logic, coverage or
@@ -64,7 +64,7 @@ under the same conditions.
   targets and never runs them, never changes engine selection and never edits a
   prompt. Engine choice dominates throughput, because a specialized MT model on
   the GPU beats an LLM for bulk translation by a wide margin, so a dead engine
-  is a performance defect and not only a gap — report that to the routine which
+  is a performance defect and not only a gap. Report it to the routine which
   owns those targets and settles quality against a per-language benchmark.
 - **GPU**: a container reaches the card only with `NVIDIA_VISIBLE_DEVICES` set,
   since `runtime: nvidia` alone injects nothing. Compose only; swarm has no GPU
