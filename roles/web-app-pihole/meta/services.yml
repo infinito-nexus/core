@@ -70,6 +70,9 @@ pihole:
       enabled: false
   image: pihole/pihole
   version: "2026.10.1"
+  webserver:
+    domain: "{{ lookup('domain', 'web-app-pihole') }}"
+    webhome: /admin/
   cpus: "0.5"
   mem_reservation: "128m"
   mem_limit: "256m"

@@ -1,0 +1,25 @@
+---
+webserver:
+  path: /admin/settings/all
+  native: true
+  sinks: [PIHOLE_WEBSERVER]
+  fields:
+    domain:
+      source: services.pihole.webserver.domain
+      mode: enforced
+      selector: "[id='webserver.domain']"
+      type: text
+      label: Web server domain
+    webhome:
+      source: services.pihole.webserver.webhome
+      mode: enforced
+      selector: "[id='webserver.paths.webhome']"
+      type: text
+      label: Web interface path
+    web_login:
+      source: users.platform_administrator.password
+      when: "!services.sso.enabled"
+      mode: enforced
+      selector: "[id='webserver.api.password']"
+      type: password
+      label: Web interface password
