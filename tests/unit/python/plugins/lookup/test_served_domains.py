@@ -6,6 +6,8 @@ import unittest
 from unittest import mock
 
 from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
 
 from plugins.lookup.served_domains import LookupModule
 
@@ -46,9 +48,9 @@ class TestServedDomainsLookup(unittest.TestCase):
         self.lookup._templar = None
         self.lookup._loader = None
 
-    def _run(self, variables, application_ids, domains=None):
+    def _run(self, variables, application_ids, domains=None, applications=None):
         payloads = {
-            "applications": APPLICATIONS,
+            "applications": applications or APPLICATIONS,
             "domains": domains or {APP: ["blog.main.test"]},
             "users": USERS,
         }
@@ -91,6 +93,29 @@ class TestServedDomainsLookup(unittest.TestCase):
         self.assertEqual(
             {"entries": [], "problems": []}, self._run({}, ["web-app-plain"])
         )
+
+    def _templated(self, tls, **scope):
+        applications = {
+            **APPLICATIONS,
+            APP: {**APPLICATIONS[APP], "server": {"tls": tls}},
+        }
+        return self._run(dict(WEBROOT, **scope), [APP], applications=applications)
+
+    def test_a_templated_tls_override_decides_the_wildcard(self):
+        self.lookup._templar = Templar(loader=DataLoader())
+        for tls, scope in (
+            ({"enabled": "{{ T_TLS }}"}, {"T_TLS": False}),
+            ({"mode": "{{ T_MODE }}"}, {"T_MODE": "self_signed"}),
+        ):
+            with self.subTest(tls=tls):
+                entries = self._templated(tls, **scope)["entries"]
+                self.assertEqual(
+                    ["*.user.blog.main.test"], [entry["name"] for entry in entries]
+                )
+
+    def test_a_tls_override_that_stays_template_text_raises(self):
+        with self.assertRaises(AnsibleError):
+            self._templated({"enabled": "{{ T_TLS }}"})
 
     def test_terms_or_a_missing_id_list_fail(self):
         with self.assertRaises(AnsibleError):

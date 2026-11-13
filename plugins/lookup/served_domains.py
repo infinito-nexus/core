@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+from functools import partial
 from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.base import _render_with_templar
 from utils.domains.served import declares_served, served_domains
 from utils.tls_common import (
     iter_domains,
     redirect_targets,
     wildcard_certificate_available,
+    with_rendered_tls,
 )
 
 
@@ -56,9 +59,22 @@ class LookupModule(LookupBase):
             return [{"entries": [], "problems": []}]
         domains = [d for value in _run("domains").values() for d in iter_domains(value)]
         known = [*domains, *redirect_targets(variables)]
+        render = partial(
+            _render_with_templar,
+            templar=templar,
+            variables=variables,
+            raw_applications=applications,
+        )
+        rendered = {
+            app_id: with_rendered_tls(
+                applications[app_id], render, where=f"served_domains: '{app_id}'"
+            )
+            for app_id in ids
+            if isinstance(applications.get(app_id), dict)
+        }
         return [
             served_domains(
-                applications,
+                {**applications, **rendered},
                 _run("users"),
                 ids,
                 wildcard_certificate=lambda app: wildcard_certificate_available(
