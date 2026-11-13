@@ -42,6 +42,7 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.docker.registry import manifest_exists
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.security.suppressions import drop_image_tag_entries
 from utils.update import checksum
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
 from utils.update.base import (
@@ -60,7 +61,7 @@ from utils.update.docker import (
     is_mcr,
 )
 from utils.update.fetch import TIMEOUT_SECONDS, documents, get
-from utils.update.pins import archive_index, key_line, top_level_line
+from utils.update.pins import archive_index, bump_archive, key_line, top_level_line
 from utils.update.repository import git_ls_remote_tags
 
 if TYPE_CHECKING:
@@ -452,29 +453,10 @@ def find_outdated_updates(repo_root: Path) -> list[VersionSourceUpdate]:
     return outdated(collect_entries(repo_root), repo_root)
 
 
-def bump_archive(line: str, current: str, latest: str) -> str:
-    """Return the archive line with every occurrence of the pinned version moved.
-
-    Args:
-        line: the ``archive`` line of an addon.
-        current: the pinned version, with or without a leading ``v``.
-        latest: the version it moves to.
-
-    Returns:
-        The line with each occurrence of ``current`` replaced by ``latest``,
-        each keeping its own ``v`` prefix or lack of one.
-    """
-    old, new = current.removeprefix("v"), latest.removeprefix("v")
-    return re.sub(
-        rf"(?<![\d.])(v?){re.escape(old)}(?!\.?\d)",
-        lambda found: found[1] + new,
-        line,
-    )
-
-
 def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
     """Rewrite every pin to its newer version and return the changed files."""
     changed: list[Path] = []
+    moved: dict[Path, list[str]] = {}
     for update in updates:
         path = update.entry.config_path
         lines = path.read_text(  # nocheck: cache-read  read-modify-write: a cached read serves the pre-write content when two pins of one file are bumped in the same run
@@ -496,4 +478,13 @@ def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
         path.write_text("".join(lines), encoding="utf-8")
         if path not in changed:
             changed.append(path)
+        if not update.entry.addon and update.entry.key == DEFAULT_KEY:
+            moved.setdefault(path, []).append(update.entry.entity)
+    for path, services in moved.items():
+        lines = path.read_text(  # nocheck: cache-read  read-modify-write of the file the loop above just rewrote
+            encoding="utf-8"
+        ).splitlines(keepends=True)
+        for service in services:
+            lines = drop_image_tag_entries(lines, service)
+        path.write_text("".join(lines), encoding="utf-8")
     return changed
