@@ -35,6 +35,7 @@ SOURCE_PARTS = Path("etc/apt/sources.list.d")
 DEB822_SUFFIX = ".sources"
 APT_DROP_IN = Path("etc/apt/apt.conf.d/99infinito-cache-host-sync")
 APT_DROP_IN_TEXT = 'APT::Keep-Downloaded-Packages "false";\n'
+APT_UPDATE_STRICT = "APT::Update::Error-Mode=any"
 STATE = "cache-host-sync"
 MANIFEST = "manifest.json"
 ENCODING = "utf-8"
@@ -198,6 +199,8 @@ def _check_apt(plan: Plan, run: Runner) -> None:
                 f"Dir::Etc::SourceParts={parts}",
                 "-o",
                 "APT::Get::List-Cleanup=0",
+                "-o",
+                APT_UPDATE_STRICT,
             ]
         )
     if result.returncode != 0:

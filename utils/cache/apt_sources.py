@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 from utils.cache.records import mirrors, upstream
 
@@ -15,14 +15,17 @@ if TYPE_CHECKING:
 APT_FLAVOR = "apt"
 SECURE = "https"
 SCHEMES = frozenset({"http", SECURE})
-INSECURE_FIELDS = ("trusted", "allow-insecure")
+INSECURE_FIELDS = (
+    "trusted",
+    "allow-insecure",
+    "allow-weak",
+    "allow-downgrade-to-insecure",
+)
+FALSE = frozenset({"no", "false", "without", "off", "disable", "0"})
 ONE_LINE = re.compile(
     r"^\s*deb\s+(?:\[(?P<options>[^\]]*)\]\s+)?(?P<uri>\S+)\s+(?P<suite>\S+)"
 )
 FIELD = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9-]*):(?P<value>.*)", re.DOTALL)
-INSECURE = re.compile(
-    r"(?:^|\s)(?:trusted|allow-insecure)\s*=\s*yes(?:\s|$)", re.IGNORECASE
-)
 
 
 @dataclass(frozen=True)
@@ -100,6 +103,14 @@ def _route(targets: Targets, uri: str, suite: str) -> str:
     return target.url
 
 
+def _insecure(options: str) -> bool:
+    pairs = (unquote(word.replace('"', "")).partition("=") for word in options.split())
+    return any(
+        name.lower() in INSECURE_FIELDS and value.lower() not in FALSE
+        for name, _, value in pairs
+    )
+
+
 def list_file(text: str, targets: Targets) -> tuple[str, list[str]]:
     """Point the one-line apt entries the package cache serves at Nexus.
 
@@ -110,16 +121,18 @@ def list_file(text: str, targets: Targets) -> tuple[str, list[str]]:
     Returns:
         *text* with a copy of every ``deb`` entry whose archive and suite the
         cache serves inserted before it, its URI replaced by the Nexus
-        repository and every option kept, and the copies. An entry that skips
-        signature checks, or reaches its archive over HTTPS while the cache
-        fetches it over HTTP, gets no copy.
+        repository and every option kept, and the copies. An entry that sets
+        ``trusted``, ``allow-insecure``, ``allow-weak`` or
+        ``allow-downgrade-to-insecure`` to anything but a false value, or
+        reaches its archive over HTTPS while the cache fetches it over HTTP,
+        gets no copy.
     """
     out: list[str] = []
     added: list[str] = []
     for line in text.splitlines(keepends=True):
         match = ONE_LINE.match(line)
         url = ""
-        if match and not INSECURE.search(match["options"] or ""):
+        if match and not _insecure(match["options"] or ""):
             url = _route(targets, match["uri"], match["suite"])
         if url:
             copy = line[: match.start("uri")] + url + line[match.end("uri") :]
@@ -153,9 +166,13 @@ def _flag(values: dict[str, list[str]], name: str) -> str:
 def _stanzas(block: list[str], targets: Targets) -> list[str]:
     fields = _fields(block)
     values = {name.lower(): _values(lines) for name, lines in fields}
-    if "deb" not in values.get("types", []) or _flag(values, "enabled") == "no":
+    if "deb" not in values.get("types", []) or _flag(values, "enabled") in FALSE:
         return []
-    if any(_flag(values, name) == "yes" for name in INSECURE_FIELDS):
+    if any(
+        name.lower() in INSECURE_FIELDS
+        and " ".join(_values(lines)).lower() not in FALSE
+        for name, lines in fields
+    ):
         return []
     routed = {
         url: suite
@@ -187,9 +204,10 @@ def sources_file(text: str, targets: Targets) -> tuple[str, list[str]]:
         *text* with one stanza per Nexus repository a ``deb`` stanza reaches
         inserted before it, holding ``Types: deb``, that repository as
         ``URIs`` and the suite it serves as ``Suites``, every other field
-        copied verbatim, and those stanzas. A stanza that is disabled or
-        skips signature checks gets none, as does an HTTPS URI the cache
-        fetches over HTTP.
+        copied verbatim, and those stanzas. A stanza that is disabled, or sets
+        ``Trusted``, ``Allow-Insecure``, ``Allow-Weak`` or
+        ``Allow-Downgrade-To-Insecure`` to anything but a false value, gets
+        none, as does an HTTPS URI the cache fetches over HTTP.
     """
     out: list[str] = []
     added: list[str] = []

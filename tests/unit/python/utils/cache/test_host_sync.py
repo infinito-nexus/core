@@ -4,6 +4,7 @@ import os
 import subprocess
 import tempfile
 import unittest
+from itertools import pairwise
 from pathlib import Path
 from unittest.mock import patch
 
@@ -154,6 +155,30 @@ Signed-By:
 
 """,
 )
+SKIPPED = """deb [trusted=true] http://deb.debian.org/debian bookworm main
+deb [ allow-insecure=1 ] http://deb.debian.org/debian bookworm contrib
+deb [arch=amd64 allow-weak=on] http://deb.debian.org/debian-security bookworm-security main
+deb [allow-downgrade-to-insecure=YES] http://security.debian.org/debian-security bookworm-security main
+deb ["trusted"=%79es] http://deb.debian.org/debian bookworm non-free
+"""
+SKIPPED_STANZAS = """Types: deb
+URIs: http://deb.debian.org/debian
+Suites: bookworm
+Components: main
+Trusted: on
+
+Types: deb
+URIs: http://deb.debian.org/debian-security
+Suites: bookworm-security
+Components: main
+Allow-Weak: true
+
+Types: deb
+URIs: http://deb.debian.org/debian
+Suites: bookworm
+Components: contrib
+Enabled: false
+"""
 
 
 class FakeRun:
@@ -328,6 +353,26 @@ class TestAptHost(HostCase):
         _sync(self.root, run=run)
         copy = "deb http://127.0.0.1:8081/repository/apt-ubuntu/ jammy main\n"
         self.assertEqual(run.fetched, [copy, "".join(UBUNTU_COPIES)])
+
+    def test_the_update_fails_on_a_transient_error_too(self) -> None:
+        _host(self.root, "debian", {SOURCES_LIST: DEBIAN})
+        run = FakeRun()
+        _sync(self.root, run=run)
+        update = next(call for call in run.calls if call[0] == "apt-get")
+        self.assertIn(("-o", "APT::Update::Error-Mode=any"), list(pairwise(update)))
+
+    def test_every_spelling_of_an_insecure_or_disabled_source_stays(self) -> None:
+        _host(
+            self.root,
+            "debian",
+            {SOURCES_LIST: SKIPPED, SOURCE_PARTS / "skipped.sources": SKIPPED_STANZAS},
+        )
+        before = _snapshot(self.root)
+        self.assertEqual(
+            _sync(self.root),
+            ["no host source is one the cache serves; nothing written"],
+        )
+        self.assertEqual(_snapshot(self.root), before)
 
     def test_a_failing_update_writes_nothing(self) -> None:
         _host(self.root, "debian", {SOURCES_LIST: DEBIAN})
