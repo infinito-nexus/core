@@ -46,6 +46,15 @@ ADMIN_EMAIL = "admin@example.test"
 ADDRESS = "https://blog.example.test"
 DESIGN_TITLE = "Blog by Example & Partner"
 DISCOURSE_OPTION = "discourse_connect"
+AI_MODEL = "probe-chat"
+AI_ENVIRONMENT = {
+    "id": "infinito-litellm",
+    "type": "custom",
+    "name": "Infinito LiteLLM",
+    "apikey": "SYNTH-AI-KEY-1",
+    "endpoint": "http://litellm.example.test/v1",
+    "models": [{"model": AI_MODEL}],
+}
 TRANSLATE_ADDON = ROLE / "meta/addons/freedomtranslate-wp.yml"
 TRANSLATE_TASKS = ROLE / "tasks/addons/freedomtranslate-wp-stack-host.yml"
 
@@ -121,7 +130,7 @@ ALL_ON = {
     "registration": False,
     "multisite": False,
 }
-CHECKED = "{{ WORDPRESS_OPTIONS | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}"
+CHECKED = "{{ WORDPRESS_OPTIONS_CHECKED }}"
 
 
 def _resolve(name: str, scenario: dict, expression: str | None = None):
@@ -136,7 +145,8 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
             ``addons.freedomtranslate-wp.enabled``, ``translate_options`` is
             that addon's ``config.options``, ``registration`` is the
             ``registration`` login method, ``multisite`` is
-            ``services.wordpress.multisite.enabled`` and the optional
+            ``services.wordpress.multisite.enabled``, the optional
+            ``ai_engine`` is ``addons.ai-engine.enabled`` and the optional
             ``forms`` replaces the role's ``meta/forms.yml``.
         expression: a template to render instead of the variable ``name``.
 
@@ -150,6 +160,7 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
         "services.design.enabled": scenario["design"],
         "addons.freedomtranslate-wp.enabled": scenario["translate"],
         "addons.wp-discourse.config.discourse_settings": [{"name": DISCOURSE_OPTION}],
+        "addons.ai-engine.config.environment": AI_ENVIRONMENT,
         "forms": forms,
     }
     application = {
@@ -168,7 +179,11 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
             "freedomtranslate-wp": {
                 "enabled": scenario["translate"],
                 "config": {"options": scenario["translate_options"]},
-            }
+            },
+            "ai-engine": {
+                "enabled": scenario.get("ai_engine", False),
+                "config": {"environment": AI_ENVIRONMENT, "default_model": AI_MODEL},
+            },
         },
     }
     users = {"platform_administrator": {"email": ADMIN_EMAIL}}
@@ -614,6 +629,145 @@ class TestSiteAddress(unittest.TestCase):
         tasks = read_text(str(ROLE / "tasks/08_update_domain.yml"))
         self.assertNotIn("option update home", tasks)
         self.assertNotIn("option update siteurl", tasks)
+
+
+class TestManagedOptionsGuard(unittest.TestCase):
+    GUARD = ROLE / "files/mu-plugins/infinito-managed-options.php"
+    WRITER = ROLE / "files/php/managed_options.php"
+    TASK = "Hand the managed option values"
+
+    def test_the_guard_holds_every_option_the_site_converges_and_its_address(self):
+        managed = _resolve("WORDPRESS_MANAGED_OPTIONS", ALL_ON)
+        self.assertEqual(
+            _resolve("WORDPRESS_OPTIONS", ALL_ON, CHECKED)
+            | {"siteurl": ADDRESS, "home": ADDRESS},
+            managed["option"],
+        )
+        self.assertEqual({}, managed["site_option"])
+        self.assertEqual({}, managed["merge"])
+
+    def test_the_guard_holds_the_network_options_under_multisite(self):
+        managed = _resolve(
+            "WORDPRESS_MANAGED_OPTIONS",
+            ALL_ON | {"multisite": True, "registration": True},
+        )
+        self.assertEqual({"registration": "user"}, managed["site_option"])
+        self.assertNotIn("home", managed["option"])
+
+    def test_the_values_reach_the_container_before_any_wordpress_command(self):
+        self.assertEqual(0, _position(self.TASK))
+        self.assertLess(_position(self.TASK), _position("Install declared mu-plugins"))
+
+    def test_the_values_travel_on_stdin_and_stay_out_of_the_log(self):
+        task = _task(self.TASK)
+        command = task["ansible.builtin.shell"]["cmd"]
+        self.assertIn("-e INFINITO_MANAGED_OPTIONS", command)
+        self.assertNotIn("WORDPRESS_MANAGED_OPTIONS |", command)
+        self.assertTrue(
+            task["ansible.builtin.shell"]["stdin"].startswith(
+                "{{ WORDPRESS_MANAGED_OPTIONS | to_json | b64encode }}\n"
+            )
+        )
+        self.assertEqual("{{ MASK_CREDENTIALS_IN_LOGS | bool }}", task["no_log"])
+
+    def test_the_values_file_is_private_from_its_first_byte(self):
+        writer = read_text(str(self.WRITER))
+        umask = writer.index("umask(0077);")
+        self.assertLess(umask, writer.index("file_put_contents($staged"))
+        self.assertIn("chmod($staged, 0600)", writer)
+        self.assertIn("rename($staged, $path)", writer)
+        self.assertNotRegex(writer, r"echo [^;]*\$(managed|code)")
+
+    def test_the_values_file_is_php_outside_the_mu_plugins(self):
+        declared = _vars()
+        path = declared["WORDPRESS_MANAGED_OPTIONS_FILE"]
+        self.assertIn("'wp-content/infinito-managed-options.php'", path)
+        self.assertNotIn("WORDPRESS_MU_PLUGINS_DIR", path)
+        env = read_text(str(ROLE / "templates/env.j2"))
+        self.assertIn(
+            "WORDPRESS_MANAGED_OPTIONS_FILE={{ WORDPRESS_MANAGED_OPTIONS_FILE | dotenv_quote }}",
+            env,
+        )
+        self.assertNotIn("WORDPRESS_MANAGED_OPTIONS |", env)
+        self.assertNotIn("WORDPRESS_MANAGED_OPTIONS }}", env)
+
+    def test_the_guard_fails_closed_without_its_values(self):
+        guard = read_text(str(self.GUARD))
+        check = guard.index("if (!is_array($infinito_managed_options)")
+        self.assertLess(check, guard.index("throw new RuntimeException", check))
+        self.assertLess(
+            guard.index("throw new RuntimeException", check),
+            guard.index("add_filter("),
+        )
+        self.assertIn("getenv('WORDPRESS_MANAGED_OPTIONS_FILE')", guard)
+
+    def test_the_guard_keeps_the_managed_value_for_every_writer(self):
+        guard = read_text(str(self.GUARD))
+        self.assertIn("'pre_update_option_' . $infinito_managed_name", guard)
+        self.assertIn(
+            "return is_main_site() ? $infinito_managed_value : $value;", guard
+        )
+        self.assertIn("'pre_update_site_option_' . $infinito_managed_name", guard)
+        self.assertEqual(3, guard.count("PHP_INT_MAX"))
+
+
+class TestAiEngineLock(unittest.TestCase):
+    STACK_HOST = ROLE / "tasks/addons/ai-engine-stack-host.yml"
+    READER = ROLE / "files/php/ai_engine/endpoint.php"
+    GUARD = TestManagedOptionsGuard.GUARD
+
+    def test_the_guard_keeps_the_gateway_environment_and_the_defaults(self):
+        managed = _resolve("WORDPRESS_MANAGED_OPTIONS", ALL_ON | {"ai_engine": True})
+        self.assertEqual(
+            {
+                "mwai_options": {
+                    "keys": {
+                        "ai_default_env": AI_ENVIRONMENT["id"],
+                        "ai_default_model": AI_MODEL,
+                    },
+                    "records": {"ai_envs": AI_ENVIRONMENT},
+                }
+            },
+            managed["merge"],
+        )
+
+    def test_the_form_is_native_and_hides_the_api_key(self):
+        form = _forms()["ai_engine"]
+        self.assertIs(True, form["native"])
+        self.assertEqual(["WORDPRESS_AI_ENGINE"], form["sinks"])
+        self.assertEqual("password", form["fields"]["apikey"]["type"])
+
+    def test_the_guard_merges_only_the_managed_record_on_the_main_site(self):
+        guard = read_text(str(self.GUARD))
+        self.assertIn(
+            "return is_main_site() ? infinito_managed_options_merge($value,"
+            " $infinito_managed_value) : $value;",
+            guard,
+        )
+        self.assertIn("($entry['id'] ?? null) !== $record['id']", guard)
+        self.assertIn("!is_array($infinito_managed_options['merge'] ?? null)", guard)
+
+    def test_the_drift_read_runs_before_the_write_and_leaves_the_api_key_out(self):
+        tasks = load_yaml_any(str(self.STACK_HOST), default_if_missing=[])
+        read = _position("Read the managed AI Engine settings", tasks)
+        self.assertLess(read, _position("Report the managed AI Engine settings", tasks))
+        self.assertLess(
+            _position("Report the managed AI Engine settings", tasks),
+            _position("Point the AI Engine default environment", tasks),
+        )
+        self.assertNotIn("apikey", read_text(str(self.READER)))
+
+    def test_the_write_carries_the_sink_values(self):
+        task = _task(
+            "Point the AI Engine default environment",
+            load_yaml_any(str(self.STACK_HOST), default_if_missing=[]),
+        )
+        self.assertIn(
+            "{'environment': WORDPRESS_AI_ENGINE_ENVIRONMENT,"
+            " 'default_model': WORDPRESS_AI_ENGINE.ai_default_model}",
+            task["ansible.builtin.shell"]["stdin"],
+        )
+        self.assertEqual("{{ MASK_CREDENTIALS_IN_LOGS | bool }}", task["no_log"])
 
 
 class TestMultisiteState(unittest.TestCase):

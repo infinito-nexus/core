@@ -53,7 +53,7 @@ Each row was a migration target and now states what its `meta/addons/` declares 
 | [web-app-friendica](../../roles/web-app-friendica/) | `addon` | 1 | 0 | `ldap` |
 | [web-app-odoo](../../roles/web-app-odoo/) | `module` | 10 | 7 | `email`, `nextcloud`, `sso` |
 | [web-app-nextcloud](../../roles/web-app-nextcloud/) | `plugin` | 54 | 45 | `bigbluebutton`, `collabora`, `coturn`, `discourse`, `flowise`, `gitlab`, `ldap`, `litellm`, `mastodon`, `matrix`, `mattermost`, `moodle`, `onlyoffice`, `openproject`, `openwebui`, `peertube`, `sso`, `suitecrm`, `talk`, `xwiki`, `zammad` |
-| [web-app-wordpress](../../roles/web-app-wordpress/) | `mu_plugin`, `plugin` | 19 | 11 | `bigbluebutton`, `design`, `discourse`, `listmonk`, `litellm`, `peertube`, `sso`, `translate` |
+| [web-app-wordpress](../../roles/web-app-wordpress/) | `mu_plugin`, `plugin` | 20 | 12 | `bigbluebutton`, `design`, `discourse`, `listmonk`, `litellm`, `peertube`, `sso`, `translate` |
 | [web-app-mediawiki](../../roles/web-app-mediawiki/) | `extension` | 8 | 3 | `discourse`, `litellm`, `peertube`, `seaweedfs`, `sso`, `translate` |
 | [web-app-xwiki](../../roles/web-app-xwiki/) | `extension` | 3 | 0 | `ldap`, `litellm`, `sso` |
 | [web-app-joomla](../../roles/web-app-joomla/) | `plugin` | 1 | 0 | `sso` |

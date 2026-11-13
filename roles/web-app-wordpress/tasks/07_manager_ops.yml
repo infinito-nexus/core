@@ -1,4 +1,19 @@
 ---
+- name: "🔒 Hand the managed option values to the infinito-managed-options guard"
+  ansible.builtin.shell:
+    cmd: >-
+      IFS= read -r INFINITO_MANAGED_OPTIONS && export INFINITO_MANAGED_OPTIONS &&
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      -e INFINITO_MANAGED_OPTIONS
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      php -- {{ WORDPRESS_MANAGED_OPTIONS_FILE | quote }}
+    stdin: |-
+      {{ WORDPRESS_MANAGED_OPTIONS | to_json | b64encode }}
+      {{ lookup('file', 'php/managed_options.php') }}
+  register: wordpress_managed_options
+  changed_when: wordpress_managed_options.stdout_lines | last == 'changed'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: 🔎 Check if {{ WORDPRESS_CONFIG_FILE }} exists in WordPress
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} test -f {{ WORDPRESS_CONFIG_PATH }}
@@ -78,7 +93,7 @@
 - name: "⚙️ Converge the managed options of the WordPress site"
   include_tasks: utils/options.yml
   vars:
-    wordpress_options: "{{ WORDPRESS_OPTIONS | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}"
+    wordpress_options: "{{ WORDPRESS_OPTIONS_CHECKED }}"
     wordpress_options_command: option
 
 - name: "⚙️ Converge the managed options of the WordPress network"

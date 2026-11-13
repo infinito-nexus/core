@@ -1,4 +1,10 @@
 ---
+- name: 📣 Report the managed OAuth2 auth source settings the OIDC setup reverts
+  include_tasks: setup/drift.yml
+  vars:
+    gitea_auth_drift_form: oauth_source
+    gitea_auth_drift_id: ""
+  when: GITEA_OIDC_ENABLED | bool
 - name: ▶️ Execute OIDC Setup Routine
   include_tasks:
     file: setup/oidc.yml

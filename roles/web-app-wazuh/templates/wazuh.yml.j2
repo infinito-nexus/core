@@ -1,7 +1,7 @@
 hosts:
   - {{ WAZUH_API_HOST_ID }}:
-      url: "https://{{ WAZUH_MANAGER_CONTAINER }}"
-      port: {{ lookup('config', application_id, 'services.manager.ports.internal.api') }}
-      username: "{{ WAZUH_WUI_USERNAME }}"
+      url: "{{ WAZUH_DASHBOARD.api_url }}"
+      port: {{ WAZUH_DASHBOARD.api_port }}
+      username: "{{ WAZUH_DASHBOARD.api_username }}"
       password: "{{ WAZUH_WUI_PASSWORD }}"
       run_as: true

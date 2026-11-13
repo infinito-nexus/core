@@ -53,6 +53,21 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 
 [infinito-ai-engine-network.php](infinito-ai-engine-network.php) acts only on Multisite. `mwai_allow_setup` keeps the AI Engine settings to the network administrators. `option_mwai_options` and `default_option_mwai_options` turn `module_mcp` off and drop `mcp_bearer_token` on every site but the main site, so AI Engine registers no `mcp/v1` route there. The deploy clears both keys from the stored options of those sites through [network_mcp.php](../php/ai_engine/network_mcp.php).
 
+## Managed options (infinito-managed-options.php) 🔒
+
+[infinito-managed-options.php](infinito-managed-options.php) keeps every option the deployment manages at its managed value for every writer: the settings pages, the REST API, plugins and WP-CLI. `WORDPRESS_MANAGED_OPTIONS` in [vars/main.yml](../../vars/main.yml) holds those values, built only from `lookup('form_values', ...)` of [meta/forms.yml](../../meta/forms.yml): `option` for the main site, the address included on a single site, and `site_option` for the network.
+
+- **Values file**: the first task of [07_manager_ops.yml](../../tasks/07_manager_ops.yml) hands the values on stdin to [managed_options.php](../php/managed_options.php), which runs on the container's PHP CLI without booting WordPress and writes them as a PHP file that returns them, to the path `WORDPRESS_MANAGED_OPTIONS_FILE` names in [env.j2](../../templates/env.j2). The file is mode `0600` from its first byte, written under `umask 0077` and moved into place, so no other account reads it and a request for it over HTTP runs it and serves nothing. The values never land in a file on the host.
+- **Guard**: the plugin answers `pre_update_option_<name>` of every `option` on the main site and `pre_update_site_option_<name>` of every `site_option` with the managed value, at the last priority, so a write stores the managed value whoever sends it. An array option under `merge` keeps only its managed parts: each managed key, and each managed record of a list in place of the stored record with its `id`, while every other key and record stays as written. AI Engine's `mwai_options` is one: its `ai_default_env`, its `ai_default_model` and the `infinito-litellm` environment in `ai_envs`, endpoint and API key included, come from the `ai_engine` form, a `native` form, so an environment an administrator adds stays editable. A read stays untouched, so the deploy's drift report still sees a value written past the guard.
+- **Fail closed**: the plugin throws when `WORDPRESS_MANAGED_OPTIONS_FILE` is unset or its file returns no `option` and `site_option` map, so no request runs while a managed option could change. The deploy writes the file before any WordPress command, which repairs a lost file on the next run.
+
+## Corporate design (infinito-design.php) 🎨
+
+[infinito-design.php](infinito-design.php) acts only while the `infinito_design` option holds the design that [design.php](../php/design.php) wrote. It registers the corporate admin color scheme, styles the sign-in page and hands the design tokens to the editor canvas.
+
+- **Guard**: `pre_update_option_site_icon` and `pre_update_option_site_logo` answer with the attachment the deploy wrote, and `wp_insert_post_data` puts the deploy's global styles into the `wp_global_styles` post of each theme it styles, both at the last priority, so the Customizer, the Site Editor, the REST API and WP-CLI keep the design. Only design.php, which defines `INFINITO_DESIGN_WRITER`, writes past the guard. An option or post deleted outright, for example through `wp option delete`, stays deleted until the next deploy writes it again.
+- **Every deploy** writes the site icon, the site logo and the global styles again. Before that write, [design_drift.php](../php/design_drift.php) reads each part the site holds other than the last deploy wrote it, and the deploy reports it as drift. Turning the design off withdraws only what the deploy wrote.
+
 ## HTTP CA trust (infinito-http-ca-trust.php) 🔐
 
 [infinito-http-ca-trust.php](infinito-http-ca-trust.php) points WordPress's HTTP API at the deployment's CA bundle so outbound calls to internal HTTPS endpoints (OIDC discovery, REST loopback) verify instead of failing.

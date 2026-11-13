@@ -1,6 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "📣 Report the System Console settings the env file of {{ application_id }} overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
+  vars:
+    forms_env_form: settings
+    forms_env_fields: "{{ MATTERMOST_SETTINGS }}"
+
 - name: "🥾 Bootstrap the compose host once before staging the build context"
   ansible.builtin.include_role:
     name: sys-svc-compose

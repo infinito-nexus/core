@@ -2,36 +2,38 @@
 application_id: "web-app-gitea"
 entity_name: "{{ application_id | entity_name }}"
 
+GITEA_LDAP_SOURCE: "{{ lookup('form_values', application_id, 'ldap_source') }}"
 GITEA_LDAP_SOURCE_NAME: "LDAP"
 GITEA_LDAP_SOURCE_TYPE: "LDAP (via BindDN)"
 GITEA_LDAP_AUTH_ARGS:
   - '--name "{{ GITEA_LDAP_SOURCE_NAME }}"'
-  - '--host "{{ LDAP.SERVER.DOMAIN }}"'
-  - "--port {{ LDAP.SERVER.PORT }}"
-  - '--security-protocol "{{ LDAP.SERVER.SECURITY | trim or "unencrypted" }}"'
-  - '--bind-dn "{{ LDAP.DN.ADMINISTRATOR.DATA }}"'
-  - '--user-search-base "{{ LDAP.DN.OU.USERS }}"'
-  - '--user-filter "(&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s))"'
-  - '--admin-filter "({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }})"'
-  - '--restricted-filter "({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn={{ application_id }}-restricted,{{ LDAP.DN.OU.ROLES }})"'
-  - '--username-attribute "{{ LDAP.USER.ATTRIBUTES.ID }}"'
-  - '--firstname-attribute "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"'
-  - '--surname-attribute "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"'
-  - '--email-attribute "{{ LDAP.USER.ATTRIBUTES.MAIL }}"'
-  - '--public-ssh-key-attribute "{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}"'
-  - '--avatar-attribute "{{ LDAP.USER.ATTRIBUTES.PHOTO }}"'
-  - "--synchronize-users"
+  - '--host "{{ GITEA_LDAP_SOURCE.host }}"'
+  - "--port {{ GITEA_LDAP_SOURCE.port }}"
+  - '--security-protocol "{{ GITEA_LDAP_SOURCE.security_protocol }}"'
+  - '--bind-dn "{{ GITEA_LDAP_SOURCE.bind_dn }}"'
+  - '--user-search-base "{{ GITEA_LDAP_SOURCE.user_base }}"'
+  - '--user-filter "{{ GITEA_LDAP_SOURCE.filter }}"'
+  - '--admin-filter "{{ GITEA_LDAP_SOURCE.admin_filter }}"'
+  - '--restricted-filter "{{ GITEA_LDAP_SOURCE.restricted_filter }}"'
+  - '--username-attribute "{{ GITEA_LDAP_SOURCE.attribute_username }}"'
+  - '--firstname-attribute "{{ GITEA_LDAP_SOURCE.attribute_name }}"'
+  - '--surname-attribute "{{ GITEA_LDAP_SOURCE.attribute_surname }}"'
+  - '--email-attribute "{{ GITEA_LDAP_SOURCE.attribute_mail }}"'
+  - '--public-ssh-key-attribute "{{ GITEA_LDAP_SOURCE.attribute_ssh_public_key }}"'
+  - '--avatar-attribute "{{ GITEA_LDAP_SOURCE.attribute_avatar }}"'
+  - '{{ "--synchronize-users" if GITEA_LDAP_SOURCE.is_sync_enabled | bool else "--synchronize-users=false" }}'
+GITEA_OAUTH_SOURCE: "{{ lookup('form_values', application_id, 'oauth_source') }}"
 GITEA_OIDC_SOURCE_NAME: "SSO Login"
 GITEA_OIDC_AUTH_ARGS:
-  - "--provider openidConnect"
+  - "--provider {{ GITEA_OAUTH_SOURCE.oauth2_provider }}"
   - '--name "{{ GITEA_OIDC_SOURCE_NAME }}"'
-  - '--key "{{ OIDC.CLIENT.ID }}"'
+  - '--key "{{ GITEA_OAUTH_SOURCE.oauth2_key }}"'
   - '--secret "$GITEA_OIDC_CLIENT_SECRET"'
-  - '--auto-discover-url "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"'
-  - '--scopes "openid profile email {{ RBAC.GROUP.CLAIM }}"'
-  - '--group-claim-name "{{ RBAC.GROUP.CLAIM }}"'
-  - '--admin-group "/{{ lookup(''rbac_group_path'', application_id=application_id, role=''administrator'') }}"'
-  - '--restricted-group "/{{ lookup(''rbac_group_path'', application_id=application_id, role=''restricted'') }}"'
+  - '--auto-discover-url "{{ GITEA_OAUTH_SOURCE.open_id_connect_auto_discovery_url }}"'
+  - '--scopes "{{ GITEA_OAUTH_SOURCE.oauth2_scopes }}"'
+  - '--group-claim-name "{{ GITEA_OAUTH_SOURCE.oauth2_group_claim_name }}"'
+  - '--admin-group "{{ GITEA_OAUTH_SOURCE.oauth2_admin_group }}"'
+  - '--restricted-group "{{ GITEA_OAUTH_SOURCE.oauth2_restricted_group }}"'
 GITEA_CONTAINER: "{{ lookup('config', application_id, 'services.gitea.name') }}"
 GITEA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 GITEA_USER: "git"

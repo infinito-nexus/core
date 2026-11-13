@@ -41,12 +41,14 @@ def _datasources(loki: bool, prometheus: bool) -> list[dict]:
         GRAFANA_LOKI_ENABLED=loki,
         GRAFANA_PROMETHEUS_ENABLED=prometheus,
         GRAFANA_LOKI_DATASOURCE_UID=ROLE_VARS["GRAFANA_LOKI_DATASOURCE_UID"],
-        GRAFANA_LOKI_URL=LOKI_URL,
-        GRAFANA_LOKI_TENANT=TENANT,
         GRAFANA_PROMETHEUS_DATASOURCE_UID=ROLE_VARS[
             "GRAFANA_PROMETHEUS_DATASOURCE_UID"
         ],
-        GRAFANA_PROMETHEUS_URL=PROMETHEUS_URL,
+        GRAFANA_DATASOURCES={
+            "loki_url": LOKI_URL,
+            "loki_tenant": TENANT,
+            "prometheus_url": PROMETHEUS_URL,
+        },
     )
     return load_yaml_str(rendered)["datasources"]
 
