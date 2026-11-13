@@ -40,6 +40,7 @@ BATCH_FACTS = frozenset(
         "stack_batch_plan",
         "stack_batch_running",
         "stack_front_served",
+        "stack_matomo_unsited",
     }
 )
 SET_FACT = ("set_fact", "ansible.builtin.set_fact")

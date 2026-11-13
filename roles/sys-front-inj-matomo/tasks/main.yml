@@ -15,6 +15,14 @@
     inj_enabled: "{{ inj_enabled | combine({'matomo': false}) }}"
   when: matomo_site_id == ""
 
+- name: "📝 Record '{{ application_id }}' for Matomo to re-run its front once it has a site id"
+  ansible.builtin.set_fact:
+    stack_matomo_unsited: "{{ stack_matomo_unsited | combine({stack_batch_item.id: stack_batch_item}) }}"
+  changed_when: false
+  when:
+    - matomo_site_id == ""
+    - stack_batch_running | bool
+
 - name: "💉 Inject Matomo tracking for '{{ domain }}'"
   include_tasks: inject.yml
   when: inj_enabled.matomo | bool
