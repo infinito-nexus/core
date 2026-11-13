@@ -162,6 +162,10 @@ openproject:
       users: true
   admin:
     force: false
+  app_title: "{{ lookup('design', 'web-app-openproject').label }}"
+  host_name: "{{ lookup('domain', 'web-app-openproject') }}"
+  https: "{{ lookup('tls', 'web-app-openproject', 'enabled') }}"
+  user_default_theme: sync_with_os
   ports:
     local:
       sso: 16483

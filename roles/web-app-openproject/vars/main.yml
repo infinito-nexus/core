@@ -65,6 +65,9 @@ OPENPROJECT_PLUGINS_FOLDER: "{{ lookup('container', application_id, 'directories
 
 OPENPROJECT_DUMMY_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}dummy_volume"
 
+OPENPROJECT_GENERAL: "{{ lookup('form_values', application_id, 'general') }}"
+OPENPROJECT_USERS: "{{ lookup('form_values', application_id, 'users') }}"
+
 OPENPROJECT_EMAIL: "{{ lookup('email', application_id) }}"
 OPENPROJECT_RAILS_SETTINGS:
   email_delivery_method: "smtp"
