@@ -1,9 +1,4 @@
 <?php
-{% if IS_COMPOSE_MODE %}
-return [
-  'memcache.local' => '\\OC\\Memcache\\APCu',
-];
-{% else %}
 {% set _redis_user = lookup('engine', 'redis', application_id, 'username') %}
 {% set _redis_password = lookup('engine', 'redis', application_id, 'password') %}
 return [
@@ -21,4 +16,3 @@ return [
 {% endif %}
   ],
 ];
-{% endif %}
