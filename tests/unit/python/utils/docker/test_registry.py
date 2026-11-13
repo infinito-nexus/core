@@ -112,8 +112,8 @@ class TestManifestDigest(unittest.TestCase):
 
     def test_returns_the_content_digest_of_a_head_request(self) -> None:
         with mock.patch.object(
-            registry.urllib.request,
-            "urlopen",
+            registry.OPENER,
+            "open",
             return_value=_Resp(status=200, headers={"Docker-Content-Digest": HEAD}),
         ) as opened:
             digest = registry.manifest_digest("roundcube/roundcubemail", "1.7.5-apache")
