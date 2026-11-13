@@ -30,7 +30,7 @@ FORM_KEYS = frozenset({"path", "fields", "sinks", "record", "native"})
 RECORD_KEYS = ("selector", "source")
 REQUIRED_FIELD_KEYS = ("source", "mode", "selector")
 OPTIONAL_FIELD_KEYS = frozenset(
-    {"when", "label", "type", "enum", "validation", "description", "map"}
+    {"when", "label", "type", "enum", "validation", "description", "map", "optional"}
 )
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -85,7 +85,27 @@ def _field_errors(where: str, spec: Any) -> list[str]:
         errors.extend(_validation_errors(where, spec["validation"]))
     if "map" in spec:
         errors.extend(_map_errors(where, spec["map"]))
+    if "optional" in spec:
+        errors.extend(_optional_errors(where, spec))
     return errors
+
+
+def _optional_errors(where: str, spec: Mapping) -> list[str]:
+    if spec["optional"] is not True:
+        return [
+            (
+                f"{where}.optional must be true, or left out where a false source"
+                " is a value the app stores"
+            )
+        ]
+    if is_sso_source(spec.get("source")):
+        return [
+            (
+                f"{where}.optional takes no sso.<claim> source; such a source has"
+                " no deploy-time value"
+            )
+        ]
+    return []
 
 
 def _map_errors(where: str, table: Any) -> list[str]:

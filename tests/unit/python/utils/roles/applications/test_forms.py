@@ -157,6 +157,34 @@ class TestSchema(unittest.TestCase):
             ),
         )
 
+    def test_an_optional_field_passes(self):
+        spec = {**_field("general", "blogname"), "optional": True}
+        self.assertEqual(
+            [],
+            form_schema.schema_errors(
+                "web-app-x", _with_field("general", "blogname", spec)
+            ),
+        )
+
+    def test_optional_must_be_true(self):
+        for value in (False, "true", 1):
+            with self.subTest(value=value):
+                spec = {**_field("general", "blogname"), "optional": value}
+                errors = form_schema.schema_errors(
+                    "web-app-x", _with_field("general", "blogname", spec)
+                )
+                self.assertEqual(1, len(errors))
+                self.assertIn("blogname.optional must be true", errors[0])
+
+    def test_an_sso_field_takes_no_optional(self):
+        spec = {"source": "sso.email", "mode": "enforced", "selector": "#email"}
+        errors = form_schema.schema_errors(
+            "web-app-x",
+            _with_field("general", "email", {**spec, "optional": True}),
+        )
+        self.assertEqual(1, len(errors))
+        self.assertIn("email.optional takes no sso.<claim> source", errors[0])
+
     def test_a_template_in_any_forms_string_is_refused(self):
         for key, value in (
             ("label", "{{ site_title }}"),
@@ -715,6 +743,29 @@ class TestLocks(unittest.TestCase):
                     for entry in forms.locks("web-app-x", managed, application, {}, {})
                 ]
                 self.assertEqual(locked, "#blogname" in selectors)
+
+    def test_an_optional_field_whose_source_is_false_is_not_locked(self):
+        for title, locked in (("Fixture", True), (False, False)):
+            with self.subTest(title=title):
+                managed = _with_field(
+                    "general",
+                    "blogname",
+                    {**_field("general", "blogname"), "optional": True},
+                )
+                application = {**APPLICATION, "design": {"label": title}}
+                selectors = [
+                    entry["selector"]
+                    for entry in forms.locks("web-app-x", managed, application, {}, {})
+                ]
+                self.assertEqual(locked, "#blogname" in selectors)
+
+    def test_a_false_source_keeps_its_lock_unless_the_field_is_optional(self):
+        application = {**APPLICATION, "design": {"label": False}}
+        selectors = [
+            entry["selector"]
+            for entry in forms.locks("web-app-x", FORMS, application, {}, {})
+        ]
+        self.assertIn("#blogname", selectors)
 
     def test_a_when_that_names_nothing_raises_without_repeating_it(self):
         managed = _with_field(

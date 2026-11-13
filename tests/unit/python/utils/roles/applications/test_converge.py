@@ -39,6 +39,12 @@ APPLICATION = {
     "mail": {"relay": "relay.example.test", "port": 587},
 }
 USERS = {"administrator": {"email": "admin@example.test"}}
+OPTIONAL = {
+    "general": {
+        "path": "/admin/settings",
+        "fields": {"title": {**FORMS["general"]["fields"]["title"], "optional": True}},
+    }
+}
 
 
 class TestValues(unittest.TestCase):
@@ -97,6 +103,27 @@ class TestValues(unittest.TestCase):
 
                 self.assertIn("relay", str(caught.exception))
                 self.assertNotIn("mail.relay", str(caught.exception))
+
+    def test_an_optional_field_whose_source_is_false_stays_out(self):
+        for title, expected in (("Fixture", {"title": "Fixture"}), (False, {})):
+            with self.subTest(title=title):
+                application = {
+                    **APPLICATION,
+                    "design": {"enabled": True, "title": title},
+                }
+                self.assertEqual(
+                    expected, values("general", OPTIONAL, application, USERS)
+                )
+
+    def test_an_optional_field_reads_its_source_only_while_its_when_holds(self):
+        design_off = {"design": {"enabled": False}}
+
+        self.assertEqual({}, values("general", OPTIONAL, design_off, USERS))
+
+    def test_a_false_source_converges_unless_the_field_is_optional(self):
+        application = {**APPLICATION, "design": {"enabled": True, "title": False}}
+
+        self.assertIs(False, values("general", FORMS, application, USERS)["title"])
 
     def test_the_source_of_a_skipped_field_is_never_read(self):
         design_off = {"design": {"enabled": False}, "mail": APPLICATION["mail"]}

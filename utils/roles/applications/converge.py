@@ -45,7 +45,8 @@ def values(
     Returns:
         Each field whose ``when`` holds mapped to the value its ``source``
         resolves to, passed through its ``map``, in YAML order; an
-        ``sso.<claim>`` field is left out.
+        ``sso.<claim>`` field and an ``optional`` field whose source is
+        ``false`` are left out.
 
     Raises:
         SourceError: when a ``source`` or ``when`` names nothing, a source

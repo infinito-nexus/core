@@ -340,10 +340,16 @@ def inventory_path(role: str, source: str) -> str:
 
 
 def _applies(spec: Mapping, application: Mapping, users: Mapping) -> bool:
-    if "when" not in spec:
-        return True
-    holds = boolean(resolve(when_path(spec["when"]), application, users), strict=False)
-    return holds != spec["when"].startswith(NEGATION)
+    if "when" in spec:
+        holds = boolean(
+            resolve(when_path(spec["when"]), application, users), strict=False
+        )
+        if holds == spec["when"].startswith(NEGATION):
+            return False
+    return not (
+        spec.get("optional") is True
+        and resolve(spec["source"], application, users) is False
+    )
 
 
 def mapped(spec: Mapping, value: Any) -> Any:
@@ -401,7 +407,8 @@ def locks(
         First one profile lock per form ``page`` path that holds
         ``sso.<claim>`` fields: their ``selector`` parts joined by commas,
         with the ``label`` and ``path`` ``None`` and never ``secret``. Then
-        one entry per other ``enforced`` field whose ``when`` holds, in YAML
+        one entry per other ``enforced`` field whose ``when`` holds and, for
+        an ``optional`` field, whose source is not ``false``, in YAML
         order: its form's ``page`` path, its ``selector``, its ``label`` (the
         field key when it declares none), the inventory ``path`` of its value
         and whether the page must hide that value (``secret``), which holds
@@ -413,8 +420,9 @@ def locks(
         itself, yield nothing.
 
     Raises:
-        SourceError: when a ``when`` or a record ``source`` names nothing in
-            the inventory, or the record ids are no list of strings.
+        SourceError: when a ``when``, the ``source`` of an ``optional`` field
+            or a record ``source`` names nothing in the inventory, or the
+            record ids are no list of strings.
     """
     enforced = [
         (form, forms[form]["path"], field, spec)
