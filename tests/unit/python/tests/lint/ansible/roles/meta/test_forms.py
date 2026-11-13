@@ -11,6 +11,7 @@ from tests.lint.ansible.roles.meta import test_forms as lint
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SECRETS,
+    ROLE_FILE_TASKS_MAIN,
     ROLE_FILE_VARS_MAIN,
 )
 
@@ -221,10 +222,10 @@ class TestConvergenceLint(unittest.TestCase):
             return lint.convergence_findings([role])
 
     def test_a_role_that_converges_each_declared_form_passes(self) -> None:
-        self.assertEqual([], self._findings({"tasks/main.yml": CONVERGES_GENERAL}))
+        self.assertEqual([], self._findings({ROLE_FILE_TASKS_MAIN: CONVERGES_GENERAL}))
 
     def test_a_form_read_from_vars_or_a_template_counts(self) -> None:
-        for name in ("vars/main.yml", "templates/settings.json.j2"):
+        for name in (ROLE_FILE_VARS_MAIN, "templates/settings.json.j2"):
             with self.subTest(file=name):
                 lookup = '{{ lookup("form_values", application_id, "general") }}'
                 self.assertEqual([], self._findings({name: f"X: '{lookup}'\n"}))
@@ -232,7 +233,7 @@ class TestConvergenceLint(unittest.TestCase):
     def test_a_declared_form_the_role_never_converges_fails(self) -> None:
         self.assertEqual(
             [NOT_CONVERGED],
-            self._findings({"tasks/main.yml": "- ansible.builtin.meta: noop\n"}),
+            self._findings({ROLE_FILE_TASKS_MAIN: "- ansible.builtin.meta: noop\n"}),
         )
 
     def test_a_converged_form_the_file_does_not_declare_fails(self) -> None:
@@ -245,17 +246,17 @@ class TestConvergenceLint(unittest.TestCase):
                     "a form meta/forms.yml does not declare"
                 ),
             ],
-            self._findings({"tasks/main.yml": undeclared}),
+            self._findings({ROLE_FILE_TASKS_MAIN: undeclared}),
         )
 
     def test_a_form_named_through_a_variable_does_not_count(self) -> None:
         dynamic = CONVERGES_GENERAL.replace("'general'", "form_name")
-        self.assertEqual(1, len(self._findings({"tasks/main.yml": dynamic})))
+        self.assertEqual(1, len(self._findings({ROLE_FILE_TASKS_MAIN: dynamic})))
 
     def test_a_form_of_sso_fields_only_needs_no_converge(self) -> None:
         files = {
             ROLE_FILE_META_FORMS: VALID + PROFILE,
-            "tasks/main.yml": CONVERGES_GENERAL,
+            ROLE_FILE_TASKS_MAIN: CONVERGES_GENERAL,
         }
         self.assertEqual([], self._findings(files))
 
