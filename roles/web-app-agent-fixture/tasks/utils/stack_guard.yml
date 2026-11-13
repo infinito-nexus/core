@@ -1,0 +1,12 @@
+---
+- name: "🛑 Refuse '{{ application_id }}' outside the agents test bundle"
+  ansible.builtin.assert:
+    that:
+      - AGENT_FIXTURE_BUNDLE is defined
+      - AGENT_FIXTURE_BUNDLE | bool
+    fail_msg: >-
+      web-app-agent-fixture is a deliberately vulnerable security-test fixture and
+      must never run on a real host. Only the agents test bundle
+      (inventories/bundles/servers/agents) deploys it, signalled by
+      AGENT_FIXTURE_BUNDLE=true in its group_vars. Refusing to continue.
+    quiet: true
