@@ -24,6 +24,24 @@ general:
       type: checkbox
       map: {true: "1", false: "0"}
       label: Membership
+address:
+  path: /wp-admin/options-general.php
+  sinks: [WORDPRESS_ADDRESS]
+  fields:
+    siteurl:
+      source: services.wordpress.address
+      when: "!services.wordpress.multisite.enabled"
+      mode: enforced
+      selector: "#siteurl"
+      type: url
+      label: WordPress Address (URL)
+    home:
+      source: services.wordpress.address
+      when: "!services.wordpress.multisite.enabled"
+      mode: enforced
+      selector: "#home"
+      type: url
+      label: Site Address (URL)
 permalink:
   path: /wp-admin/options-permalink.php
   sinks: [WORDPRESS_OPTIONS]

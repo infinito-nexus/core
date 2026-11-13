@@ -831,6 +831,24 @@ class TestToggleLock(unittest.TestCase):
         self.assertEqual(["1"], _carried(on))
         self.assertEqual([], _carried(off))
 
+    def test_a_rails_checkbox_pair_posts_its_hidden_zero_then_its_checked_value(self):
+        for checked, posted in ((False, ["0"]), (True, ["0", "1"])):
+            with self.subTest(checked=checked):
+                pair = [
+                    {
+                        "tagName": "INPUT",
+                        "type": "hidden",
+                        "name": "service",
+                        "value": "0",
+                    },
+                    _toggle("checkbox", "1", checked=checked),
+                ]
+                hidden, box = _managed(fields={"#title": pair})["fields"]["#title"]
+
+                self.assertTrue(hidden["disabled"])
+                self.assertTrue(box["disabled"])
+                self.assertEqual(posted, _carried(hidden) + _carried(box))
+
     def test_a_select_posts_each_selected_value(self):
         select = {"tagName": "SELECT", "name": "languages", "selected": ["de", "en"]}
         field = _managed(fields={"#title": [select]})["fields"]["#title"][0]

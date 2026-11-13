@@ -75,6 +75,7 @@ WORDPRESS_OPTIONS: >-
   | combine(lookup('form_values', application_id, 'permalink'))
   | combine(lookup('form_values', application_id, 'translate')) }}
 WORDPRESS_NETWORK_OPTIONS: "{{ lookup('form_values', application_id, 'network') }}"
+WORDPRESS_ADDRESS: "{{ lookup('form_values', application_id, 'address') }}"
 WORDPRESS_OPTION_PINS_UNREAD: >-
   {{ lookup('config', application_id, 'services.' ~ entity_name ~ '.options')
   | wordpress_options_unread(lookup('config', application_id, 'forms')) }}

@@ -626,6 +626,10 @@ class TestRendererLint(unittest.TestCase):
                     [], self._findings({ROLE_FILE_META_FORMS: forms_yml}, {})
                 )
 
+    def test_a_form_the_application_locks_itself_needs_no_renderer(self) -> None:
+        native = VALID.replace("general:\n", "general:\n  native: true\n", 1)
+        self.assertEqual([], self._findings({ROLE_FILE_META_FORMS: native}, {}))
+
 
 if __name__ == "__main__":
     unittest.main()

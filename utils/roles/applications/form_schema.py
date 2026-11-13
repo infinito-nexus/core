@@ -9,6 +9,7 @@ from utils.roles.applications.forms import (
     MAP_SCALARS,
     MODES,
     _holds_template,
+    is_sso_source,
     when_path,
 )
 from utils.roles.mapping import ROLE_FILE_META_FORMS
@@ -24,7 +25,7 @@ TYPES = (
     "textarea",
     "url",
 )
-FORM_KEYS = frozenset({"path", "fields", "sinks", "record"})
+FORM_KEYS = frozenset({"path", "fields", "sinks", "record", "native"})
 RECORD_KEYS = ("selector", "source")
 REQUIRED_FIELD_KEYS = ("source", "mode", "selector")
 OPTIONAL_FIELD_KEYS = frozenset(
@@ -32,6 +33,7 @@ OPTIONAL_FIELD_KEYS = frozenset(
 )
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
+_FIELD_KEY = re.compile(r"^[a-z][A-Za-z0-9_]*$")
 _SINK = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
 
@@ -142,6 +144,29 @@ def _record_errors(where: str, record: Any) -> list[str]:
     return _template_errors(f"{where}.record", record, iter(RECORD_KEYS))
 
 
+def _native_errors(where: str, block: Mapping) -> list[str]:
+    if block["native"] is not True:
+        return [
+            (
+                f"{where}.native must be true, or left out where the shared"
+                " renderer locks the form"
+            )
+        ]
+    errors = []
+    if "record" in block:
+        errors.append(f"{where}.native takes no record; the application locks it")
+    fields = block.get("fields")
+    if isinstance(fields, Mapping) and any(
+        isinstance(spec, Mapping) and is_sso_source(spec.get("source"))
+        for spec in fields.values()
+    ):
+        errors.append(
+            f"{where}.native holds no sso.<claim> field; the shared renderer"
+            " shows its warning"
+        )
+    return errors
+
+
 def _form_errors(where: str, block: Any) -> list[str]:
     if not isinstance(block, Mapping):
         return [f"{where} must be a mapping of {sorted(FORM_KEYS)}"]
@@ -157,13 +182,17 @@ def _form_errors(where: str, block: Any) -> list[str]:
         errors.extend(_sinks_errors(where, block["sinks"]))
     if "record" in block:
         errors.extend(_record_errors(where, block["record"]))
+    if "native" in block:
+        errors.extend(_native_errors(where, block))
     fields = block.get("fields")
     if not isinstance(fields, Mapping) or not fields:
         errors.append(f"{where}.fields must map each field to its spec")
         return errors
     for field, spec in fields.items():
-        if not (isinstance(field, str) and _KEY.fullmatch(field)):
-            errors.append(f"{where}.fields: {field!r} is no lower snake_case key")
+        if not (isinstance(field, str) and _FIELD_KEY.fullmatch(field)):
+            errors.append(
+                f"{where}.fields: {field!r} is no lower snake_case or camelCase key"
+            )
         errors.extend(_field_errors(f"{where}.fields.{field}", spec))
     return errors
 
