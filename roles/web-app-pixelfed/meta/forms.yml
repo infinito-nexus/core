@@ -1,0 +1,12 @@
+---
+settings:
+  path: /i/admin/settings
+  sinks: [PIXELFED_SETTINGS]
+  fields:
+    site_name:
+      source: services.design.title
+      when: services.design.enabled
+      mode: enforced
+      selector: 'input[placeholder="Pixelfed"]'
+      type: text
+      label: Server Name
