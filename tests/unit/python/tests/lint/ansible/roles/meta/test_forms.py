@@ -630,6 +630,21 @@ class TestRendererLint(unittest.TestCase):
         native = VALID.replace("general:\n", "general:\n  native: true\n", 1)
         self.assertEqual([], self._findings({ROLE_FILE_META_FORMS: native}, {}))
 
+    def test_a_pending_lock_needs_no_renderer_only_with_its_issue(self) -> None:
+        for issue, findings in (
+            ("https://example.invalid/upstream/issues/1", []),
+            ("' '", [NOT_INJECTED, NOT_LOADED]),
+        ):
+            with self.subTest(issue=issue):
+                pending = VALID.replace(
+                    "general:\n",
+                    f"general:\n  lock: pending\n  issue: {issue}\n",
+                    1,
+                )
+                self.assertEqual(
+                    findings, self._findings({ROLE_FILE_META_FORMS: pending}, {})
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

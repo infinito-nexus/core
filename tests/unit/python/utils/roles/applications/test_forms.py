@@ -49,6 +49,7 @@ CREDENTIALS = {"smtp": {"password": {"algorithm": "alphanumeric", "length": 32}}
 SYNTH = "SYNTH-SECRET-1"
 JWT_SHAPED = f"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ{SYNTH}.{SYNTH}-sig"
 SENDGRID_SHAPED = f"SG.{SYNTH}.abcdefABCDEF0123456789"
+ISSUE = "https://example.invalid/upstream/issues/1"
 
 
 def _field(form: str, field: str) -> dict:
@@ -397,6 +398,77 @@ class TestSchema(unittest.TestCase):
             form_schema.schema_errors("web-app-x", data),
         )
 
+    @staticmethod
+    def _pending(**keys: object) -> dict:
+        data = copy.deepcopy(FORMS)
+        data["general"].update({"lock": "pending", "issue": ISSUE, **keys})
+        return data
+
+    def test_a_form_whose_lock_is_pending_on_an_issue_passes(self):
+        self.assertEqual([], form_schema.schema_errors("web-app-x", self._pending()))
+
+    def test_a_lock_other_than_pending_is_refused(self):
+        for lock in ("locked", True, None):
+            with self.subTest(lock=lock):
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.lock must be pending, with the issue"
+                            " that tracks the missing lock"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", self._pending(lock=lock)),
+                )
+
+    def test_a_pending_lock_needs_its_issue(self):
+        for issue in ("", " ", None, 7):
+            with self.subTest(issue=issue):
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.lock pending needs an issue: the"
+                            " upstream issue URL or id that tracks the missing lock"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", self._pending(issue=issue)),
+                )
+
+    def test_an_issue_without_a_pending_lock_is_refused(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["issue"] = ISSUE
+        self.assertEqual(
+            ["web-app-x: general.issue belongs to lock: pending"],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
+    def test_a_pending_lock_is_never_native(self):
+        self.assertEqual(
+            [
+                (
+                    "web-app-x: general.lock pending and native exclude each other;"
+                    " the application locks a native form"
+                )
+            ],
+            form_schema.schema_errors("web-app-x", self._pending(native=True)),
+        )
+
+    def test_a_pending_lock_holds_no_sso_field(self):
+        data = self._pending()
+        data["general"]["fields"]["name"] = {
+            "source": "sso.name",
+            "mode": "enforced",
+            "selector": "#name",
+        }
+        self.assertEqual(
+            [
+                (
+                    "web-app-x: general.lock pending holds no sso.<claim> field; the"
+                    " shared renderer shows its warning"
+                )
+            ],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
 
 class TestResolve(unittest.TestCase):
     def test_a_source_resolves_relative_to_the_application(self):
@@ -707,6 +779,24 @@ class TestLocks(unittest.TestCase):
         ]
         self.assertNotIn("#new_admin_email", selectors)
 
+    def test_a_pending_lock_reaches_the_renderer_only_without_its_issue(self):
+        for issue, selectors in (
+            (ISSUE, ["#mail_smtppassword"]),
+            (" ", ["#blogname", "#mail_smtppassword"]),
+        ):
+            with self.subTest(issue=issue):
+                data = copy.deepcopy(FORMS)
+                data["general"].update({"lock": "pending", "issue": issue})
+                self.assertEqual(
+                    selectors,
+                    [
+                        entry["selector"]
+                        for entry in forms.locks(
+                            "web-app-x", data, APPLICATION, USERS, {}
+                        )
+                    ],
+                )
+
     def test_a_native_form_never_reaches_the_renderer(self):
         data = copy.deepcopy(FORMS)
         data["general"]["native"] = True
@@ -849,6 +939,20 @@ class TestDrift(unittest.TestCase):
                 "web-app-x: general.blogname (design.label): 'My blog' -> 'Infinito.Nexus'"
             ],
             lines,
+        )
+
+    def test_a_form_whose_lock_is_pending_still_reports_its_drift(self):
+        data = copy.deepcopy(FORMS)
+        data["general"].update({"lock": "pending", "issue": ISSUE})
+        self.assertEqual(
+            ["web-app-x: general.blogname: changed"],
+            drift.drift(
+                "web-app-x",
+                data,
+                {"general.blogname": "Infinito.Nexus"},
+                {"general.blogname": "My blog"},
+                CREDENTIALS,
+            ),
         )
 
     def test_without_the_raw_application_or_the_secrets_nothing_is_shown(self):

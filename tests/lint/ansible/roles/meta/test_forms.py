@@ -467,7 +467,7 @@ def _locked_forms(data: dict[str, Any]) -> list[str]:
             for form, _field, spec in forms.iter_fields(data)
             if spec.get("mode") == "enforced"
             and not forms.is_sso_source(spec.get("source"))
-            and not forms.is_native(data[form])
+            and forms.renders_lock(data[form])
         }
     )
 
@@ -491,7 +491,8 @@ def renderer_findings(roles: list[Path], defaults: dict[str, Any]) -> list[str]:
     Args:
         roles: role directories to check; only a form with an ``enforced``
             field whose source is no ``sso.<claim>`` counts, unless it is
-            ``native`` and the application locks it itself.
+            ``native`` and the application locks it itself, or it is
+            ``lock: pending`` with the ``issue`` that tracks the missing lock.
         defaults: ``applications`` defaults keyed by role.
     """
     errors = []
