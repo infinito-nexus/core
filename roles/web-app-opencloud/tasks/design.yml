@@ -1,4 +1,23 @@
 ---
+- name: "📥 Read the theme the OpenCloud of {{ application_id }} serves"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ OPENCLOUD_CONTAINER_ADDRESS }}
+      cat {{ (OPENCLOUD_DESIGN_THEME_DIR ~ '/theme.json') | quote }}
+  register: opencloud_theme_held
+  changed_when: false
+  failed_when: false
+
+- name: "📣 Report the theme fields the install overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    opencloud_theme_common: "{{ (opencloud_theme_held.stdout | from_json).common | default({}) }}"
+    forms_drift_current:
+      theme:
+        name: "{{ opencloud_theme_common.name | default('') }}"
+        slogan: "{{ opencloud_theme_common.slogan | default('') }}"
+  when: opencloud_theme_held.rc == 0
+
 - name: "🎨 Install the corporate theme of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >-
@@ -18,7 +37,7 @@
     src: "{{ [lookup('design', application_id).dest, item] | path_join }}"
   loop: "{{ OPENCLOUD_DESIGN_LOGO_FILES }}"
   register: opencloud_design_logos
-  when: lookup('design', application_id).logo is string
+  when: (OPENCLOUD_THEME.logo | default(false)) is string
 
 - name: "🖼️ Install the corporate logo set of {{ application_id }}"
   ansible.builtin.shell:

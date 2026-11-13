@@ -49,6 +49,7 @@ OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.
 OPENCLOUD_TRANSFER_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.transfer_secret') }}"
 
 OPENCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+OPENCLOUD_THEME: "{{ lookup('form_values', application_id, 'theme') }}"
 OPENCLOUD_DESIGN_THEME_ID: "infinito"
 OPENCLOUD_DESIGN_THEME_DIR: "/var/lib/opencloud/web/assets/themes/{{ OPENCLOUD_DESIGN_THEME_ID }}"
 OPENCLOUD_DESIGN_THEME_URL_PATH: "themes/{{ OPENCLOUD_DESIGN_THEME_ID }}"
