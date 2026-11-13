@@ -21,7 +21,7 @@ from ansible.plugins.lookup import LookupBase
 # nocheck: lookup-cache-import
 from utils.cache.applications import get_canonical_volumes
 from utils.roles.applications.config import get
-from utils.tls_common import as_str, want_get
+from utils.tls.common import as_str, want_get
 
 
 def _volume_path_by_name(app_id: str, vol_name: str) -> str:

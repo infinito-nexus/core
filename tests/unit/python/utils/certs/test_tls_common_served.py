@@ -1,12 +1,10 @@
-"""Unit tests for the served-name rules of ``utils.tls_common``."""
-
 from __future__ import annotations
 
 import unittest
 
 from ansible.errors import AnsibleError
 
-from utils.tls_common import resolve_term, wildcard_certificate_available
+from utils.tls.common import resolve_term, wildcard_certificate_available
 
 APP = "web-app-wordpress"
 DOMAINS = {APP: ["blog.main.test"], "web-app-other": ["other.main.test"]}

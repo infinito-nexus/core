@@ -9,12 +9,12 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.cache.base import _render_with_templar
 from utils.domains.served import declares_served, served_domains
-from utils.tls_common import (
+from utils.tls.common import (
     iter_domains,
     redirect_targets,
     wildcard_certificate_available,
 )
-from utils.tls_overrides import with_rendered_tls
+from utils.tls.overrides import with_rendered_tls
 
 
 class LookupModule(LookupBase):

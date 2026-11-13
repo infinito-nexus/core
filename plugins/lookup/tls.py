@@ -14,7 +14,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.cache.base import _render_with_templar
 from utils.domains.served import served_owners
-from utils.tls_common import (
+from utils.tls.common import (
     AVAILABLE_FLAVORS,
     align_domain_to_consumer,
     as_str,
@@ -28,7 +28,7 @@ from utils.tls_common import (
     uniq_preserve,
     want_get,
 )
-from utils.tls_overrides import with_rendered_tls
+from utils.tls.overrides import with_rendered_tls
 
 
 class LookupModule(LookupBase):
