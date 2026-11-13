@@ -96,6 +96,7 @@ wordpress:
         enabled: "{{ lookup('login_method', 'web-app-wordpress', 'registration') }}"
   multisite:
     enabled: false
+  address: "{{ lookup('tls', 'web-app-wordpress', 'url.origin') }}"
   options: # nocheck: inventory-open-subtree  wordpress_options_checked refuses owned, secret and malformed option names at deploy time
     permalink_structure: "/blog/%year%/%monthnum%/%day%/%postname%/"
   ports:

@@ -286,6 +286,75 @@ class TestSchema(unittest.TestCase):
             form_schema.schema_errors("web-app-x", data),
         )
 
+    def test_a_field_key_may_be_the_apps_own_camel_case_setting_name(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["fields"] = {
+            "excludedQueryParameters": _field("general", "blogname")
+        }
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_a_field_key_that_starts_upper_case_or_holds_a_dash_is_refused(self):
+        for field in ("ExcludedIps", "excluded-ips", "1st_site"):
+            with self.subTest(field=field):
+                data = copy.deepcopy(FORMS)
+                data["general"]["fields"] = {field: _field("general", "blogname")}
+                self.assertEqual(
+                    [
+                        (
+                            f"web-app-x: general.fields: {field!r} is no lower"
+                            " snake_case or camelCase key"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", data),
+                )
+
+    def test_a_form_key_stays_lower_snake_case(self):
+        data = {"generalSettings": copy.deepcopy(FORMS)["general"]}
+        self.assertEqual(
+            ["web-app-x: form 'generalSettings' is no lower snake_case key"],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
+    def test_a_form_the_application_locks_itself_passes(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["native"] = True
+        self.assertEqual([], form_schema.schema_errors("web-app-x", data))
+
+    def test_a_native_flag_other_than_true_is_refused(self):
+        for native in (False, "true", 1, None):
+            with self.subTest(native=native):
+                data = copy.deepcopy(FORMS)
+                data["general"]["native"] = native
+                self.assertEqual(
+                    [
+                        (
+                            "web-app-x: general.native must be true, or left out"
+                            " where the shared renderer locks the form"
+                        )
+                    ],
+                    form_schema.schema_errors("web-app-x", data),
+                )
+
+    def test_a_native_form_takes_no_record_and_no_sso_field(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["native"] = True
+        data["general"]["record"] = {"selector": "#clientId", "source": "clients.ids"}
+        data["general"]["fields"]["name"] = {
+            "source": "sso.name",
+            "mode": "enforced",
+            "selector": "#name",
+        }
+        self.assertEqual(
+            [
+                "web-app-x: general.native takes no record; the application locks it",
+                (
+                    "web-app-x: general.native holds no sso.<claim> field; the shared"
+                    " renderer shows its warning"
+                ),
+            ],
+            form_schema.schema_errors("web-app-x", data),
+        )
+
 
 class TestResolve(unittest.TestCase):
     def test_a_source_resolves_relative_to_the_application(self):
@@ -595,6 +664,17 @@ class TestLocks(unittest.TestCase):
             for entry in forms.locks("web-app-x", FORMS, APPLICATION, USERS, {})
         ]
         self.assertNotIn("#new_admin_email", selectors)
+
+    def test_a_native_form_never_reaches_the_renderer(self):
+        data = copy.deepcopy(FORMS)
+        data["general"]["native"] = True
+        self.assertEqual(
+            ["#mail_smtppassword"],
+            [
+                entry["selector"]
+                for entry in forms.locks("web-app-x", data, APPLICATION, USERS, {})
+            ],
+        )
 
     def test_a_user_source_keeps_its_users_path(self):
         spec = {**_field("general", "admin_email"), "mode": "enforced"}
