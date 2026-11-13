@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 import io
 import unittest
-from unittest import mock
+import unittest.mock
 
 import cli.administration.roles.clean.__main__ as clean_main
 
@@ -15,7 +15,9 @@ class TestCleanMain(unittest.TestCase):
             "web-app-cst-hand: left in place, the pull did not place it",
         ]
         with (
-            mock.patch.object(clean_main, "clean", return_value=lines) as clean,
+            unittest.mock.patch.object(
+                clean_main, "clean", return_value=lines
+            ) as clean,
             contextlib.redirect_stdout(io.StringIO()) as out,
         ):
             self.assertEqual(0, clean_main.main([]))
@@ -28,7 +30,9 @@ class TestCleanMain(unittest.TestCase):
 
     def test_a_filesystem_error_exits_with_it(self):
         with (
-            mock.patch.object(clean_main, "clean", side_effect=OSError("busy")),
+            unittest.mock.patch.object(
+                clean_main, "clean", side_effect=OSError("busy")
+            ),
             self.assertRaises(SystemExit) as exit_,
         ):
             clean_main.main([])

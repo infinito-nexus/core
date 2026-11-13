@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from utils.cache.base import PROJECT_ROOT
+from utils.cache import PROJECT_ROOT
 from utils.cache.files import iter_project_files
 from utils.cache.gitignore import is_path_gitignored, load_gitignore_patterns
 

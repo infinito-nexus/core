@@ -5,6 +5,7 @@ The classifier here owns the rule "literal app id + complete path
 (does NOT end with `.`)" — partial paths and variable-app calls are
 handled by the sibling tests."""
 
+import contextlib
 import unittest
 from collections.abc import Iterable
 
@@ -46,17 +47,16 @@ class TestLiteralPaths(unittest.TestCase):
                 missing_apps.append(app_id)
                 continue
             for dotted, occs in paths.items():
-                try:
-                    get(
-                        applications=ctx.application_defaults,
-                        application_id=app_id,
-                        config_path=dotted,
-                        strict=True,
-                    )
-                except ConfigEntryNotSetError:
-                    continue
-                except Exception:
-                    pass
+                with contextlib.suppress(Exception):
+                    try:
+                        get(
+                            applications=ctx.application_defaults,
+                            application_id=app_id,
+                            config_path=dotted,
+                            strict=True,
+                        )
+                    except ConfigEntryNotSetError:
+                        continue
                 try:
                     validate_app_path(
                         ctx.application_defaults,

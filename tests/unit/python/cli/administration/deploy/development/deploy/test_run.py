@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 import unittest
+import unittest.mock
 from types import SimpleNamespace
-from unittest import mock
 
 from ansible.parsing.splitter import parse_kv
 
@@ -12,7 +12,7 @@ from cli.administration.deploy.development.deploy.run import _run_deploy
 
 class TestRunDeploy(unittest.TestCase):
     def deploy_cmd(self, extra_ansible_vars=None) -> list[str]:
-        compose = mock.Mock()
+        compose = unittest.mock.Mock()
         compose.exec.return_value = SimpleNamespace(returncode=0)
         _run_deploy(
             compose,

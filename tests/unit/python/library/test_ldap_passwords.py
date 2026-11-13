@@ -4,12 +4,8 @@ import importlib.util
 import sys
 import types
 import unittest
-from typing import TYPE_CHECKING
 
 from . import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from types import ModuleType
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -61,7 +57,7 @@ class _Connection:
         self.server.passwords[dn] = newpw
 
 
-def _load(server) -> ModuleType:
+def _load(server) -> types.ModuleType:
     fake = types.ModuleType("ldap")
     fake.LDAPError = _LDAPError
     fake.INVALID_CREDENTIALS = _InvalidCredentialsError

@@ -11,6 +11,7 @@ which has a ``/tmp`` of its own.
 
 from __future__ import annotations
 
+import contextlib
 import time
 import urllib.error
 import urllib.request
@@ -45,12 +46,10 @@ def progress(suite: str, message: str) -> None:
     """
     stamp = time.strftime("%H:%M:%S")
     path = progress_log(suite)
-    try:
+    with contextlib.suppress(OSError):
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as handle:
             handle.write(f"{stamp} {message}\n")
-    except OSError:
-        pass
 
 
 def answers(url: str) -> bool:

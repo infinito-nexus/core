@@ -9,7 +9,6 @@ import importlib.util
 import unittest
 import unittest.mock as mock
 from typing import ClassVar
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -59,7 +58,9 @@ class ObjstoreLookupTests(unittest.TestCase):
         lookup = self._make_lookup(vars_)
         with (
             mock.patch.object(self.mod, "lookup_loader") as loader_mock,
-            patch.object(self.mod, "entity_name", side_effect=self._fake_entity_name),
+            mock.patch.object(
+                self.mod, "entity_name", side_effect=self._fake_entity_name
+            ),
         ):
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [applications]
@@ -358,7 +359,7 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
 
         with (
             mock.patch.object(self.mod, "lookup_loader") as loader_mock,
-            patch.object(
+            mock.patch.object(
                 self.mod,
                 "entity_name",
                 side_effect=lambda r: r.split("-", 2)[-1],

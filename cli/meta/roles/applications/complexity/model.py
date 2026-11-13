@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, NamedTuple
 
 from utils.cache.applications import get_variants
 from utils.env.parser import env_setting
-from utils.roles.deploy import role_deploy_modes
+from utils.roles.deploy import role_deploy_modes, role_has_stack
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
@@ -23,7 +23,6 @@ from .graph import (
     direct_dep_roles,
     is_application_role,
     resolve_transitively,
-    role_has_stack,
     truth_predicate,
 )
 

@@ -30,6 +30,7 @@ be read is ignored, and a pool that cannot start is replaced by a plain loop.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import time
@@ -168,11 +169,9 @@ def _load_cache() -> dict[str, list]:
 
 
 def _save_cache(cache: dict[str, list]) -> None:
-    try:
+    with contextlib.suppress(OSError):
         CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
         CACHE_FILE.write_text(json.dumps(cache), encoding="utf-8")
-    except OSError:
-        pass
 
 
 def _parse(pending: list[tuple[str, str]], findings: Findings) -> list:

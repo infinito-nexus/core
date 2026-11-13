@@ -1,10 +1,9 @@
 import shutil
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
-import utils.handler.vault  # noqa: F401  registers the !vault YAML constructor
 from cli.administration.inventory.provision.network_mode import (
     apply_network_mode_from_env,
 )
@@ -29,7 +28,7 @@ class TestApplyNetworkModeFromEnv(unittest.TestCase):
         if existing:
             hv.write_text(existing, encoding="utf-8")
         env = {} if network is None else {"network": network}
-        with mock.patch.dict("os.environ", env, clear=True):
+        with unittest.mock.patch.dict("os.environ", env, clear=True):
             apply_network_mode_from_env(hv)
         return hv
 

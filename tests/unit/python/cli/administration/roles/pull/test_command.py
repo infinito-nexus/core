@@ -4,8 +4,8 @@ import contextlib
 import io
 import tarfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from yaml.constructor import ConstructorError
 
@@ -16,7 +16,7 @@ from utils.roles.custom import CustomRoleError
 
 
 class TestPullCommand(unittest.TestCase):
-    @mock.patch.object(
+    @unittest.mock.patch.object(
         command, "pull", return_value=["web-app-cst-demo: repo path @ v1 (commit abc)"]
     )
     def test_pulls_the_inventory_into_the_core_roles(self, pull):
@@ -25,7 +25,7 @@ class TestPullCommand(unittest.TestCase):
         pull.assert_called_once_with(Path("inv/devices.yml"), ROLES_DIR, WORK_DIR)
         self.assertIn("web-app-cst-demo: repo path @ v1 (commit abc)", out.getvalue())
 
-    @mock.patch.object(command, "pull", return_value=[])
+    @unittest.mock.patch.object(command, "pull", return_value=[])
     def test_nothing_declared_or_placed_prints_nothing(self, _pull):
         with contextlib.redirect_stdout(io.StringIO()) as out:
             command.main(["inv/devices.yml"])
@@ -39,7 +39,7 @@ class TestPullCommand(unittest.TestCase):
         ):
             with self.subTest(error=type(error).__name__):
                 with (
-                    mock.patch.object(command, "pull", side_effect=error),
+                    unittest.mock.patch.object(command, "pull", side_effect=error),
                     contextlib.redirect_stderr(io.StringIO()) as err,
                     self.assertRaises(SystemExit) as exit_,
                 ):
@@ -47,7 +47,7 @@ class TestPullCommand(unittest.TestCase):
                 self.assertEqual(1, exit_.exception.code)
                 self.assertIn(str(error), err.getvalue())
 
-    @mock.patch.object(
+    @unittest.mock.patch.object(
         command,
         "pull",
         side_effect=CustomRoleError(
@@ -64,7 +64,7 @@ class TestPullCommand(unittest.TestCase):
         self.assertNotIn("s3cr3t", err.getvalue())
         self.assertIn("web-app-cst-demo: git fetch of v1 failed", err.getvalue())
 
-    @mock.patch.object(
+    @unittest.mock.patch.object(
         command, "pull", side_effect=CustomRoleError("web-app-cst-demo: refused")
     )
     def test_refused_pull_exits_1_with_the_reason(self, _pull):

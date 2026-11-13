@@ -10,18 +10,16 @@ from __future__ import annotations
 import unittest
 from typing import ClassVar
 
+from utils.i18n.damage import collapsed, harms, truncated
 from utils.i18n.placeholders import (
     collapse,
-    collapsed,
-    harms,
-    mask,
     recapitalise,
     resegment,
     terminate,
     tighten,
-    truncated,
     unmask,
 )
+from utils.i18n.spans import mask
 
 
 def _round_trip(source: str, translated: str) -> str | None:

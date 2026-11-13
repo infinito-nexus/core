@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -25,17 +24,17 @@ def _run(
     static_registry=None,
     **kwargs,
 ):
-    loader_patch = patch("plugins.lookup.service.lookup_loader")
+    loader_patch = mock.patch("plugins.lookup.service.lookup_loader")
     patches = [
         loader_patch,
-        patch(
+        mock.patch(
             "plugins.lookup.service.build_service_registry_from_roles_dir",
             return_value=static_registry or {},
         ),
     ]
     if service_registry is not None:
         patches.append(
-            patch(
+            mock.patch(
                 "plugins.lookup.service.build_service_registry_from_applications",
                 return_value=service_registry,
             )
@@ -308,7 +307,7 @@ class TestServiceCycleGuard(unittest.TestCase):
 class TestServiceErrors(unittest.TestCase):
     def test_raises_when_group_names_not_list(self):
         with (
-            patch("plugins.lookup.service.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.service.lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
             loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])

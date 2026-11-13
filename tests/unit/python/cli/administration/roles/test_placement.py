@@ -7,8 +7,8 @@ import stat
 import tempfile
 import threading
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from cli.administration.roles import placement
 from cli.administration.roles.marker import MARKER_FILE, is_placed
@@ -403,7 +403,7 @@ class TestPullCommit(_PullFixture, unittest.TestCase):
             return rmtree(path, *args, **kwargs)
 
         with (
-            mock.patch.object(placement.shutil, "rmtree", interrupted),
+            unittest.mock.patch.object(placement.shutil, "rmtree", interrupted),
             self.assertRaises(KeyboardInterrupt),
         ):
             self.pull({ROLE: declaration(str(self.repo))})
@@ -420,7 +420,9 @@ class TestPullCommit(_PullFixture, unittest.TestCase):
             return stage(group, source, target)
 
         with (
-            mock.patch.object(placement, "stage", stage_beside_a_hand_placed_copy),
+            unittest.mock.patch.object(
+                placement, "stage", stage_beside_a_hand_placed_copy
+            ),
             self.assertRaisesRegex(
                 CustomRoleError, f"{ROLE}: .* was not placed by a pull"
             ),
@@ -443,7 +445,7 @@ class TestPullCommit(_PullFixture, unittest.TestCase):
             events.append(("clean still waiting", cleaner.is_alive()))
             return stage(group, source, target)
 
-        with mock.patch.object(placement, "stage", stage_while_a_clean_starts):
+        with unittest.mock.patch.object(placement, "stage", stage_while_a_clean_starts):
             self.pull({ROLE: declaration(str(self.repo))})
         cleaner.join(timeout=30)
         self.assertEqual(("clean still waiting", True), events[0])

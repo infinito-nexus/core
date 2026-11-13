@@ -1,6 +1,5 @@
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -22,7 +21,7 @@ class TestRbacGroupPathLookup(unittest.TestCase):
         def _applications_from_vars(_terms, variables=None, **_kwargs):
             return [(variables or {}).get("applications", {})]
 
-        patcher = patch("plugins.lookup.rbac_group_path.lookup_loader")
+        patcher = mock.patch("plugins.lookup.rbac_group_path.lookup_loader")
         loader_mock = patcher.start()
         loader_mock.get.return_value = mock.MagicMock(run=_applications_from_vars)
         self.addCleanup(patcher.stop)

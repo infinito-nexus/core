@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import unittest
+import unittest.mock
 from types import SimpleNamespace
-from unittest import mock
 
 from cli.administration.deploy.dedicated import command
 from cli.administration.deploy.dedicated.command import (
@@ -12,12 +12,12 @@ from cli.administration.deploy.dedicated.command import (
 
 
 class TestPullCustomRoles(unittest.TestCase):
-    @mock.patch("cli.administration.deploy.dedicated.command.pull_or_exit")
+    @unittest.mock.patch("cli.administration.deploy.dedicated.command.pull_or_exit")
     def test_pulls_the_inventory_by_default(self, pull_or_exit):
         pull_custom_roles(SimpleNamespace(inventory="inv/devices.yml", skip_pull=False))
         pull_or_exit.assert_called_once_with("inv/devices.yml")
 
-    @mock.patch("cli.administration.deploy.dedicated.command.pull_or_exit")
+    @unittest.mock.patch("cli.administration.deploy.dedicated.command.pull_or_exit")
     def test_skip_pull_keeps_the_placed_roles(self, pull_or_exit):
         pull_custom_roles(SimpleNamespace(inventory="inv/devices.yml", skip_pull=True))
         pull_or_exit.assert_not_called()
@@ -26,11 +26,13 @@ class TestPullCustomRoles(unittest.TestCase):
         calls: list[str] = []
         args = SimpleNamespace(inventory="inv/devices.yml", skip_pull=False)
         with (
-            mock.patch.object(command, "parse_args", return_value=(args, [], {})),
-            mock.patch.object(
+            unittest.mock.patch.object(
+                command, "parse_args", return_value=(args, [], {})
+            ),
+            unittest.mock.patch.object(
                 command, "pull_or_exit", side_effect=lambda _inv: calls.append("pull")
             ),
-            mock.patch.object(
+            unittest.mock.patch.object(
                 command,
                 "run_from_args",
                 side_effect=lambda *_a: calls.append("deploy") or 0,

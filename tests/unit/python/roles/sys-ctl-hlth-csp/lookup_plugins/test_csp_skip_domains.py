@@ -4,7 +4,6 @@ import importlib.util
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
@@ -44,7 +43,7 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
         lm._templar = _DummyTemplar()
         lm._loader = mock.MagicMock()
         results = {"applications": applications, "domains": domains or {}}
-        with patch.object(self.module, "lookup_loader") as loader_mock:
+        with mock.patch.object(self.module, "lookup_loader") as loader_mock:
             loader_mock.get.side_effect = lambda name, **_k: mock.MagicMock(
                 run=lambda *_a, **_kw: [results[name]]
             )

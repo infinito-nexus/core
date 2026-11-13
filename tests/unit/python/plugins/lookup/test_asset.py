@@ -5,7 +5,6 @@ import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -44,7 +43,7 @@ def _patched_loader(flavor="internal", base="https://cdn.example.org/"):
 
     loader_mock = mock.MagicMock()
     loader_mock.get.side_effect = _get
-    return patch.object(asset_mod, "lookup_loader", loader_mock)
+    return mock.patch.object(asset_mod, "lookup_loader", loader_mock)
 
 
 def _write_lock(tmpdir: str, packages: dict) -> None:
@@ -98,7 +97,7 @@ class TestLockedVersion(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
 
     def _patched_role_path(self):
-        return patch.object(
+        return mock.patch.object(
             asset_mod, "abs_role_path_by_application_id", return_value=self.tmpdir
         )
 
@@ -139,7 +138,7 @@ class TestAssetRun(unittest.TestCase):
 
     def _run(self, terms, variables):
         with (
-            patch.object(
+            mock.patch.object(
                 asset_mod, "abs_role_path_by_application_id", return_value=self.tmpdir
             ),
             _patched_loader(flavor="internal"),

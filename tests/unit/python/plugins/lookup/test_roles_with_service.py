@@ -8,7 +8,6 @@ tests stay hermetic — no filesystem access into ``roles/``.
 import importlib.util
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -128,7 +127,7 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         def _dispatch(name, **_kwargs):
             return stubs[name]
 
-        with patch.object(self.mod.lookup_loader, "get", side_effect=_dispatch):
+        with mock.patch.object(self.mod.lookup_loader, "get", side_effect=_dispatch):
             return lookup.run(terms, variables=vars_ or {}, **kwargs)
 
     def test_zero_terms_raises(self):

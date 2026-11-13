@@ -10,8 +10,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from utils.i18n.catalog import catalog_path, new_catalog, write_catalog
+from utils.i18n.client import Outcome
 from utils.i18n.languages import LANGUAGES_FILE
-from utils.i18n.libretranslate import SERVICE_KEY, SERVICES_FILE, Outcome
+from utils.i18n.libretranslate import SERVICE_KEY, SERVICES_FILE
 
 cli = importlib.import_module("cli.build.i18n.__main__")
 
@@ -74,7 +75,9 @@ class TestTranslate(unittest.TestCase):
         self.root = _checkout(self)
         _catalog(self.root, "de", "Hallo")
 
-    def _run(self, requested: list[str] | None = None) -> tuple[int, mock.Mock, mock.Mock]:
+    def _run(
+        self, requested: list[str] | None = None
+    ) -> tuple[int, mock.Mock, mock.Mock]:
         started = mock.Mock(return_value=contextlib.nullcontext("http://lt"))
         client = mock.Mock()
         client.return_value.translate.side_effect = lambda texts, code: Outcome(

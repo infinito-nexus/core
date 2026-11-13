@@ -3,8 +3,8 @@ from __future__ import annotations
 import io
 import json
 import unittest
+import unittest.mock
 from contextlib import redirect_stderr, redirect_stdout
-from unittest import mock
 
 from cli.meta.ci.variant_tree import __main__ as cli
 from cli.meta.ci.variant_tree import tree
@@ -32,12 +32,14 @@ AXES = {"0": {"entries": [], "job_position": 3, "in_budget_head": True, "covered
 class TestMain(unittest.TestCase):
     def _run(
         self, *argv: str, built: dict | None = None
-    ) -> tuple[int, str, str, mock.Mock]:
+    ) -> tuple[int, str, str, unittest.mock.Mock]:
         out, err = io.StringIO(), io.StringIO()
         with (
-            mock.patch("utils.cache.applications.get_variants", return_value=FOUR),
-            mock.patch.object(tree, "build", wraps=tree.build) as build,
-            mock.patch(
+            unittest.mock.patch(
+                "utils.cache.applications.get_variants", return_value=FOUR
+            ),
+            unittest.mock.patch.object(tree, "build", wraps=tree.build) as build,
+            unittest.mock.patch(
                 "cli.meta.ci.variant_split.snapshot.row_axes", return_value=AXES
             ) as axes,
             redirect_stdout(out),

@@ -8,7 +8,7 @@ import sys
 import time
 import uuid
 
-from . import PROJECT_ROOT
+from utils.cache import PROJECT_ROOT
 
 INFINITO_SRC_DIR = os.environ["INFINITO_SRC_DIR"]
 

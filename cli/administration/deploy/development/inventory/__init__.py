@@ -39,7 +39,6 @@ from __future__ import annotations
 
 from .builder import build_dev_inventory, build_dev_inventory_matrix
 from .legacy_resolver import (
-    _build_services_overrides_for_round,
     _resolve_round_include,
     prune_orphans_after_disable,
 )
@@ -50,7 +49,6 @@ from .spec import PlanEntry as PlanEntry
 
 __all__ = [
     "_bake_overrides",
-    "_build_services_overrides_for_round",
     "_resolve_round_include",
     "_resolve_variant_payloads",
     "build_dev_inventory",

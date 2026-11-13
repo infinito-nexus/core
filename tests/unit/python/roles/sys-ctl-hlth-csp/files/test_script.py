@@ -486,7 +486,7 @@ class TestBuildUrlsFromNginxConfs(unittest.TestCase):
     ) -> None:
         mock_detect.return_value = None
 
-        with patch("sys.stderr") as _stderr:
+        with patch("sys.stderr"):
             urls = script.build_urls_from_nginx_confs(
                 _vhosts("example.com"), ["example.com"]
             )

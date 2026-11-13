@@ -9,13 +9,9 @@ from __future__ import annotations
 import unittest
 from itertools import pairwise
 
+from utils.i18n.damage import missing_names, protected_spans
 from utils.i18n.names import spans
-from utils.i18n.placeholders import (
-    has_words,
-    matches,
-    missing_names,
-    protected_spans,
-)
+from utils.i18n.spans import has_words, matches
 
 
 def _protected(text: str) -> set[str]:

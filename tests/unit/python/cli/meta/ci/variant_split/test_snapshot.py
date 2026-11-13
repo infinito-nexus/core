@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from cli.meta.ci.variant_split import snapshot
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS
@@ -83,7 +83,7 @@ class TestSeeds(unittest.TestCase):
 
     def test_an_empty_seed_never_takes_a_snapshot(self) -> None:
         with (
-            mock.patch.object(snapshot, "pipeline") as pipeline,
+            unittest.mock.patch.object(snapshot, "pipeline") as pipeline,
             self.assertRaises(ValueError),
         ):
             snapshot.take([0], seed=" ")
@@ -97,8 +97,8 @@ class TestSeeds(unittest.TestCase):
             raise RuntimeError
 
         with (
-            mock.patch.dict(os.environ, {}),
-            mock.patch.object(snapshot, "pipeline", pipeline),
+            unittest.mock.patch.dict(os.environ, {}),
+            unittest.mock.patch.object(snapshot, "pipeline", pipeline),
             self.assertRaises(RuntimeError),
         ):
             snapshot.take([0], seed="42305502796")

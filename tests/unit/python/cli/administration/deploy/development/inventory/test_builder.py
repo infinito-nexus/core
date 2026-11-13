@@ -259,11 +259,6 @@ class TestBuildDevInventoryMatrix(unittest.TestCase):
         autospec=True,
     )
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
-        autospec=True,
-        return_value={},
-    )
-    @patch(
         "cli.administration.deploy.development.inventory.builder.build_dev_inventory",
         autospec=True,
     )
@@ -279,7 +274,6 @@ class TestBuildDevInventoryMatrix(unittest.TestCase):
         self,
         _variants_mock: MagicMock,
         build_inventory_mock: MagicMock,
-        _overrides_mock: MagicMock,
         resolve_include_mock: MagicMock,
     ) -> None:
         resolve_include_mock.side_effect = [

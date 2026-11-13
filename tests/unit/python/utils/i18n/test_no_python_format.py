@@ -14,7 +14,7 @@ import unittest
 from babel.messages.catalog import Catalog
 
 from utils.i18n.catalog import render
-from utils.i18n.placeholders import carries_placeholder
+from utils.i18n.spans import carries_placeholder
 
 
 class TestCarriesPlaceholder(unittest.TestCase):

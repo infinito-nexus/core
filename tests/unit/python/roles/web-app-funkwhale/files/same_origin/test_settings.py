@@ -3,8 +3,8 @@ from __future__ import annotations
 import runpy
 import sys
 import unittest
+import unittest.mock
 from types import ModuleType
-from unittest import mock
 
 from . import PROJECT_ROOT
 
@@ -34,7 +34,7 @@ def _run() -> tuple[dict, dict]:
         "config.settings": ModuleType("config.settings"),
         "config.settings.production": production,
     }
-    with mock.patch.dict(sys.modules, modules):
+    with unittest.mock.patch.dict(sys.modules, modules):
         return runpy.run_path(str(MODULE_PATH)), original
 
 

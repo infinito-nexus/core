@@ -15,8 +15,8 @@ for every host, and per-host narrowing stays in the body's ``when``.
 from __future__ import annotations
 
 import unittest
+import unittest.mock
 from typing import ClassVar
-from unittest import mock
 
 from plugins.lookup.group_roles import LookupModule
 
@@ -28,7 +28,7 @@ ENTRIES = [
 
 
 def run(**kwargs):
-    with mock.patch(
+    with unittest.mock.patch(
         "plugins.lookup.group_roles.ordered_roles", return_value=list(ENTRIES)
     ):
         return LookupModule().run(["web-app"], **kwargs)[0]

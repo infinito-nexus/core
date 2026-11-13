@@ -1,6 +1,6 @@
 import json
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.errors import AnsibleError
 
@@ -17,25 +17,27 @@ def _config_run(terms, variables=None):
 
 class TestNetworkOwnershipLookup(unittest.TestCase):
     def _run(self, terms, closure=None, side_effect=None):
-        applications = mock.Mock()
+        applications = unittest.mock.Mock()
         applications.run.return_value = [{"web-app-matomo": {}}]
-        config = mock.Mock()
+        config = unittest.mock.Mock()
         config.run.side_effect = _config_run
         with (
-            mock.patch(
+            unittest.mock.patch(
                 f"{MODULE}.lookup_loader.get",
                 side_effect=lambda name, **kwargs: {
                     "applications": applications,
                     "config": config,
                 }[name],
             ),
-            mock.patch(f"{MODULE}.types_from_group_names", return_value=["server"]),
-            mock.patch(
+            unittest.mock.patch(
+                f"{MODULE}.types_from_group_names", return_value=["server"]
+            ),
+            unittest.mock.patch(
                 f"{MODULE}.deploy_closure",
                 return_value=closure or {"web-app-matomo", "sys-ctl-hlth-csp"},
                 side_effect=side_effect,
             ) as closure_mock,
-            mock.patch(
+            unittest.mock.patch(
                 f"{MODULE}.entity_name", side_effect=lambda role: role.split("-", 2)[-1]
             ),
         ):

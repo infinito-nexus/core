@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -18,7 +17,7 @@ from plugins.lookup.container_image import LookupModule
 
 def _run_with_ref(ref: str, terms, **kwargs) -> tuple[list[str], mock.MagicMock]:
     image_plugin = mock.MagicMock(run=mock.MagicMock(return_value=[ref]))
-    with patch("plugins.lookup.container_image.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.container_image.lookup_loader") as loader_mock:
         loader_mock.get.return_value = image_plugin
         lm = LookupModule()
         lm._loader = mock.MagicMock()
@@ -60,7 +59,7 @@ class TestContainerImageLookup(unittest.TestCase):
         image_plugin = mock.MagicMock(
             run=mock.MagicMock(side_effect=AnsibleError("boom"))
         )
-        with patch("plugins.lookup.container_image.lookup_loader") as loader_mock:
+        with mock.patch("plugins.lookup.container_image.lookup_loader") as loader_mock:
             loader_mock.get.return_value = image_plugin
             lm = LookupModule()
             lm._loader = mock.MagicMock()

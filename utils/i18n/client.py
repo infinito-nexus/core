@@ -17,7 +17,8 @@ from typing import TYPE_CHECKING
 
 from utils.i18n.languages import SOURCE_LANGUAGE
 from utils.i18n.limits import BATCH_SIZE
-from utils.i18n.placeholders import Rejected, mask, mask_tokens, unmask
+from utils.i18n.placeholders import Rejected, unmask
+from utils.i18n.spans import mask, mask_tokens
 from utils.i18n.untranslatable import untranslatable
 
 if TYPE_CHECKING:

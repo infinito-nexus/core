@@ -1,5 +1,5 @@
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.errors import AnsibleError
 
@@ -17,14 +17,14 @@ def _context():
     return DeployClosureContext(
         roles=["svc-db-mariadb", "web-app-matomo", "web-app-nextcloud"],
         applications={},
-        config=mock.Mock(),
+        config=unittest.mock.Mock(),
         lookup=lambda name, role, default: DOMAINS.get(role, default),
     )
 
 
 class TestDeployDomainsLookup(unittest.TestCase):
     def _run(self, terms, side_effect=None):
-        with mock.patch(
+        with unittest.mock.patch(
             f"{MODULE}.deploy_closure_context",
             return_value=_context(),
             side_effect=side_effect,

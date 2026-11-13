@@ -3,7 +3,6 @@ from __future__ import annotations
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
@@ -62,7 +61,7 @@ def wopi_host(
         undefined=StrictUndefined,
         autoescape=select_autoescape(default_for_string=False),
     )
-    with patch("plugins.lookup.tls.lookup_loader") as loader:
+    with mock.patch("plugins.lookup.tls.lookup_loader") as loader:
         loader.get.side_effect = _get
         return env.from_string(expression).render(lookup=lookup)
 

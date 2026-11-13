@@ -4,7 +4,6 @@ import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
-from unittest.mock import patch
 
 from plugins.lookup.native_metrics_apps import LookupModule
 
@@ -26,8 +25,8 @@ def _run(
     lm._loader = mock.MagicMock()
     lm._templar = mock.MagicMock(template=lambda v: v)
     with (
-        patch("plugins.lookup.native_metrics_apps.ROLES_DIR", roles_dir),
-        patch("plugins.lookup.native_metrics_apps.lookup_loader") as loader_mock,
+        mock.patch("plugins.lookup.native_metrics_apps.ROLES_DIR", roles_dir),
+        mock.patch("plugins.lookup.native_metrics_apps.lookup_loader") as loader_mock,
     ):
 
         def _get(name, *a, **k):

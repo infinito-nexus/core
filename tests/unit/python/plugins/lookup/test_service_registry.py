@@ -4,7 +4,6 @@ import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
-from unittest.mock import patch
 
 from plugins.lookup.service_registry import LookupModule
 from utils.cache.yaml import dump_yaml_str
@@ -82,7 +81,9 @@ class TestServiceRegistryOrdered(unittest.TestCase):
         result-arrival order (consumers deploy before their engines)."""
         with tempfile.TemporaryDirectory() as td:
             roles_dir = self._roles_dir(td)
-            with patch("plugins.lookup.service_registry.lookup_loader") as loader_mock:
+            with mock.patch(
+                "plugins.lookup.service_registry.lookup_loader"
+            ) as loader_mock:
                 lm = LookupModule()
                 lm._loader = mock.MagicMock()
                 result = lm.run(
@@ -121,7 +122,7 @@ class TestServiceRegistryOrdered(unittest.TestCase):
                 }
             }
         }
-        with patch("plugins.lookup.service_registry.lookup_loader") as loader_mock:
+        with mock.patch("plugins.lookup.service_registry.lookup_loader") as loader_mock:
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [applications]
             )

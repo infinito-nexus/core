@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import subprocess
@@ -32,21 +33,17 @@ def _run(args: list[str]) -> str:
 def _branch_remote() -> str:
     """The remote the current branch tracks (e.g. a fork), falling back to
     ``remote.pushDefault``, then 'origin' or the only configured remote."""
-    try:
+    with contextlib.suppress(subprocess.CalledProcessError):
         upstream = _run(
             ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"]
         )
         if "/" in upstream:
             return upstream.split("/", 1)[0]
-    except subprocess.CalledProcessError:
-        pass
     remotes = _run(["git", "remote"]).split()
-    try:
+    with contextlib.suppress(subprocess.CalledProcessError):
         push_default = _run(["git", "config", "--get", "remote.pushDefault"])
         if push_default in remotes:
             return push_default
-    except subprocess.CalledProcessError:
-        pass
     if "origin" in remotes:
         return "origin"
     if not remotes:

@@ -39,6 +39,7 @@ directly above it.
 
 from __future__ import annotations
 
+import contextlib
 import re
 import unittest
 from pathlib import Path
@@ -245,11 +246,9 @@ def _offenders(rel_path: str, content: str) -> list[str]:
         if _MODE.search(line):
             continue
         hits.append(index)
-    try:
+    with contextlib.suppress(yaml.YAMLError):
         for document in yaml.compose_all(content, Loader=yaml.SafeLoader):
             _argv_restart_lines(document, hits)
-    except yaml.YAMLError:
-        pass
 
     found: list[str] = []
     for index in sorted(set(hits)):

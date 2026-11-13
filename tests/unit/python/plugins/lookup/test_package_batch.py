@@ -1,5 +1,5 @@
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.errors import AnsibleError
 
@@ -11,17 +11,23 @@ MODULE = "plugins.lookup.package_batch"
 
 class TestPackageBatchLookup(unittest.TestCase):
     def _run(self, terms, group_names, closure=None, side_effect=None):
-        applications = mock.Mock()
+        applications = unittest.mock.Mock()
         applications.run.return_value = [{"web-app-x": {}}]
         with (
-            mock.patch(f"{MODULE}.lookup_loader.get", return_value=applications),
-            mock.patch(f"{MODULE}.types_from_group_names", return_value=["server"]),
-            mock.patch(
+            unittest.mock.patch(
+                f"{MODULE}.lookup_loader.get", return_value=applications
+            ),
+            unittest.mock.patch(
+                f"{MODULE}.types_from_group_names", return_value=["server"]
+            ),
+            unittest.mock.patch(
                 f"{MODULE}.deploy_closure",
                 return_value=closure or {"web-app-x"},
                 side_effect=side_effect,
             ) as closure_mock,
-            mock.patch(f"{MODULE}.batch_ids", return_value=["git"]) as ids_mock,
+            unittest.mock.patch(
+                f"{MODULE}.batch_ids", return_value=["git"]
+            ) as ids_mock,
         ):
             lookup = LookupModule()
             result = lookup.run(terms, variables={"group_names": group_names})

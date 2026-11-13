@@ -18,7 +18,7 @@ from utils.i18n.catalog import (
     merge,
     render,
 )
-from utils.i18n.libretranslate import LibreTranslate
+from utils.i18n.client import LibreTranslate
 from utils.i18n.placeholders import Rejected
 from utils.i18n.translate import (
     URL_SUPPRESSION,

@@ -2,7 +2,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import utils.handler.vault  # noqa: F401  registers the !vault YAML constructor
 from cli.administration.inventory.provision.tor_node import apply_tor_node_onion
 from cli.administration.inventory.provision.yaml_io import load_yaml
 

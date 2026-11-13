@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 import unittest.mock as mock
 from typing import Any, ClassVar
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -36,7 +35,7 @@ def _apps(*, db_enabled=False, db_shared=False, redis=False, oauth2=False):
 def _run(app_id, applications, *, variables=None, **kwargs):
     lookup = LookupModule()
     lookup._loader = mock.MagicMock()
-    with patch("plugins.lookup.container_depends_on.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.container_depends_on.lookup_loader") as loader_mock:
         loader_mock.get.side_effect = _applications_loader(applications)
         return lookup.run([app_id], variables=variables or {}, **kwargs)
 
@@ -164,7 +163,9 @@ class TestContainerDependsOnLookup(unittest.TestCase):
         lookup = LookupModule()
         lookup._templar = _StubTemplar()
         lookup._loader = mock.MagicMock()
-        with patch("plugins.lookup.container_depends_on.lookup_loader") as loader_mock:
+        with mock.patch(
+            "plugins.lookup.container_depends_on.lookup_loader"
+        ) as loader_mock:
             loader_mock.get.side_effect = _applications_loader(
                 _apps(db_enabled=True, redis=True)
             )
