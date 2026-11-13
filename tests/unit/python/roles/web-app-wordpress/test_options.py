@@ -43,6 +43,7 @@ LITERAL_OPTION_WRITE = re.compile(
     r"|update_option\(\s*'([a-z_][a-z0-9_]*)'"
 )
 ADMIN_EMAIL = "admin@example.test"
+ADDRESS = "https://blog.example.test"
 DESIGN_TITLE = "Blog by Example & Partner"
 DISCOURSE_OPTION = "discourse_connect"
 TRANSLATE_ADDON = ROLE / "meta/addons/freedomtranslate-wp.yml"
@@ -61,6 +62,12 @@ def _manager_tasks() -> list[dict]:
 
 def _option_tasks() -> list[dict]:
     return load_yaml_any(str(ROLE / "tasks/utils/options.yml"), default_if_missing=[])
+
+
+def _domain_tasks() -> list[dict]:
+    return load_yaml_any(
+        str(ROLE / "tasks/08_update_domain.yml"), default_if_missing=[]
+    )
 
 
 def _task(fragment: str, tasks: list[dict] | None = None) -> dict:
@@ -150,6 +157,7 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
             "design": {"enabled": scenario["design"], "title": scenario["title"]},
             "wordpress": {
                 "options": scenario["configured"],
+                "address": ADDRESS,
                 "login": {
                     "method": {"registration": {"enabled": scenario["registration"]}}
                 },
@@ -561,6 +569,51 @@ class TestNetworkOptions(unittest.TestCase):
             },
         )
         self.assertEqual(task["when"], "WORDPRESS_NETWORK_OPTIONS | length > 0")
+
+
+class TestSiteAddress(unittest.TestCase):
+    def test_both_address_fields_are_the_tls_origin_on_a_single_site(self):
+        self.assertEqual(
+            {"siteurl": ADDRESS, "home": ADDRESS},
+            _resolve("WORDPRESS_ADDRESS", ALL_ON),
+        )
+
+    def test_no_address_field_applies_under_multisite(self):
+        self.assertEqual(
+            {}, _resolve("WORDPRESS_ADDRESS", ALL_ON | {"multisite": True})
+        )
+
+    def test_the_domain_update_converges_the_address_through_the_options_task(self):
+        tasks = _domain_tasks()
+        task = _task("Converge the managed site address", tasks)
+        self.assertEqual(task["include_tasks"], "utils/options.yml")
+        self.assertEqual(
+            task["vars"],
+            {
+                "wordpress_options": "{{ WORDPRESS_ADDRESS }}",
+                "wordpress_options_command": "option",
+            },
+        )
+        self.assertLess(
+            _position("Get current 'home' URL", tasks),
+            _position("Converge the managed site address", tasks),
+        )
+        self.assertLess(
+            _position("Converge the managed site address", tasks),
+            _position("Search-replace old", tasks),
+        )
+
+    def test_the_database_rewrite_targets_the_managed_address(self):
+        task = _task("Search-replace old", _domain_tasks())
+        self.assertEqual(
+            "{{ WORDPRESS_ADDRESS.home }}", task["vars"]["wp_new_url_norm"]
+        )
+        self.assertNotIn("vars", _task("Update Single Side"))
+
+    def test_no_task_writes_the_address_options_by_name(self):
+        tasks = read_text(str(ROLE / "tasks/08_update_domain.yml"))
+        self.assertNotIn("option update home", tasks)
+        self.assertNotIn("option update siteurl", tasks)
 
 
 class TestMultisiteState(unittest.TestCase):
