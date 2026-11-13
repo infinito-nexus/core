@@ -1,0 +1,16 @@
+---
+# Param: stack_batch_consumer - application_id of the consumer whose vhosts this unit serves, bound as a loop item or an include param.
+- name: "🛑 Refuse a stack run outside a consumer role"
+  ansible.builtin.assert:
+    that:
+      - stack_batch_consumer != 'svc-stack'
+    fail_msg: "svc-stack resolved no consumer: include it from the consumer role's own tasks."
+    quiet: true
+
+- name: "🌐 For '{{ stack_batch_consumer }}': serve the vhosts its meta declares"
+  ansible.builtin.include_tasks: proxy.yml
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+  when:
+    - lookup('config', stack_batch_consumer, 'services.openresty.enabled', false) | bool
+    - lookup('config', stack_batch_consumer, 'services.openresty.shared', false) | bool

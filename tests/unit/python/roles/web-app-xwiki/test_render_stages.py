@@ -75,7 +75,10 @@ LDAP_KEYS = {
 FLUSH_CONFIG = "flush_config.yml"
 STACK_ROLE = "svc-stack"
 STACK_ENTRY = "consumer.yml"
-STACK_BACKEND_ENTRY = PROJECT_ROOT / "roles/svc-stack/tasks/consumer/back.yml"
+STACK_BACKEND_ENTRY = (
+    PROJECT_ROOT / "roles/svc-stack/tasks/consumer/back.yml",
+    PROJECT_ROOT / "roles/svc-stack/tasks/batch/back.yml",
+)
 INCLUDE_CHAIN = ("svc-stack", "sys-svc-compose")
 ROLE_SCOPED_NAMES = (
     "role_name",
@@ -554,8 +557,9 @@ def include_chain_vars() -> set[str]:
             path = PROJECT_ROOT / "roles" / role / kind / "main.yml"
             if path.exists():
                 names.update(load_yaml_str(read_text(str(path))) or {})
-    for task in load_yaml_str(read_text(str(STACK_BACKEND_ENTRY))) or []:
-        names.difference_update(task.get("vars") or {})
+    for entry in STACK_BACKEND_ENTRY:
+        for task in load_yaml_str(read_text(str(entry))) or []:
+            names.difference_update(task.get("vars") or {})
     return names
 
 

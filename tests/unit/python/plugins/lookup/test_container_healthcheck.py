@@ -75,10 +75,10 @@ class TestContainerHealthcheckLookup(unittest.TestCase):
 
     def test_unrendered_application_id_is_templated(self):
         vars_ = {
-            "application_id": "{{ stack_application_id }}",
-            "stack_application_id": "web-app-dashboard",
+            "application_id": "{{ stack_batch_consumer }}",
+            "stack_batch_consumer": "web-app-dashboard",
         }
-        rendered = {"{{ stack_application_id }}": "web-app-dashboard"}
+        rendered = {"{{ stack_batch_consumer }}": "web-app-dashboard"}
         block = self._make(vars_, rendered).run(["dashboard"], variables=vars_)[0]
         self.assertIn("/dev/tcp/localhost/5000", block)
         self.assertIn("start_period: 10m", block)

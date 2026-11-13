@@ -1,20 +1,4 @@
 ---
-- name: "🔍 Resolve backend context for '{{ application_id }}'"
-  ansible.builtin.set_fact:
-    stack_backend_database_consumer_id: >-
-      {{ database_consumer_id | default(application_id) }}
-    stack_backend_database_enabled: >-
-      {{ lookup('database', application_id, 'enabled') | bool }}
-    stack_backend_flush: >-
-      {{ lookup('config', application_id, 'services.stack.flush', false) | bool }}
-    stack_backend_checkout_url: >-
-      {{ lookup('config', application_id, 'services.stack.checkout.url', '') }}
-    stack_backend_checkout_ref: >-
-      {{ lookup('config', application_id, 'services.stack.checkout.ref', '') }}
-    stack_backend_checkout_recursive: >-
-      {{ lookup('config', application_id, 'services.stack.checkout.recursive', true) | bool }}
-  changed_when: false
-
 - name: "🐛 DEBUG | SVC-STACK | Application context"
   ansible.builtin.debug:
     msg:
@@ -60,12 +44,10 @@
     compose_repository_ref: "{{ stack_backend_checkout_ref }}"
     compose_repository_recursive: "{{ stack_backend_checkout_recursive }}"
 
-- block:
-    - name: "🔧 set sso_proxy_application_id (needed due to lazy-loading issue)"
-      set_fact:
-        sso_proxy_application_id: "{{ application_id }}"
-    - name: "📄 render web-app-keycloak SSO-proxy sidecar config"
-      include_tasks: "{{ lookup('path_absolute', 'roles/web-app-keycloak/tasks/sso_proxy.yml') }}"
+- name: "📄 For '{{ application_id }}': render the web-app-keycloak SSO-proxy sidecar config"
+  include_tasks: "{{ lookup('path_absolute', 'roles/web-app-keycloak/tasks/sso_proxy.yml') }}"
+  vars:
+    sso_proxy_application_id: "{{ stack_batch_consumer }}"
   when: lookup('sso', application_id, 'is_proxy_gated') | bool
 
 - name: "📂 For '{{ application_id }}': re-own the compose handler topics before the flush"

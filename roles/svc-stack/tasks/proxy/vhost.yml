@@ -1,20 +1,9 @@
 ---
-- name: "🧊 Freeze the vhost target for '{{ front_proxy_domain }}'"
+- name: "🧊 Queue the probe of '{{ front_proxy_domain }}'"
   ansible.builtin.set_fact:
-    front_proxy_domain_conf_dst_resolved: "{{ lookup('nginx', 'files.domain', front_proxy_domain) }}"
-  changed_when: false
-
-- name: "🧊 Freeze the probe target and queue it for '{{ front_proxy_domain }}'"
-  ansible.builtin.set_fact:
-    front_proxy_probe_url: "{{ front_proxy_probe.url }}"
-    front_proxy_status_codes: "{{ front_proxy_probe.status_codes }}"
     front_proxy_deferred_probes: >-
       {{ front_proxy_deferred_probes
          | combine({front_proxy_domain: front_proxy_probe} if (front_proxy_domain | network_of) != 'tor' else {}) }}
-  vars:
-    front_proxy_probe:
-      url: "{{ lookup('tls', front_proxy_domain, 'url.base') | replace('://*.', '://' ~ front_proxy_wildcard_probe_label ~ '.') }}"
-      status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
   changed_when: false
   when: IS_STACK_HOST | bool
 
@@ -32,21 +21,6 @@
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
-
-- name: 🔍 Resolve application-specific front proxy template path
-  ansible.builtin.set_fact:
-    front_proxy_application_template: "{{ front_proxy_application_id | abs_role_path_by_application_id }}/templates/proxy.conf.j2"
-
-- name: 🔍 Resolve front proxy template source
-  ansible.builtin.set_fact:
-    front_proxy_template_src: >-
-      {{
-        front_proxy_application_template
-        if (
-          lookup('fileglob', front_proxy_application_template, wantlist=True) | length
-        ) > 0
-        else "roles/sys-svc-proxy/templates/vhost/%s.conf.j2" | format(front_proxy_vhost_flavour)
-      }}
 
 - name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
   stack_host_contents:

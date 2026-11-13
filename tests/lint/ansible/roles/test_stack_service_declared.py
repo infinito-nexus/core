@@ -296,7 +296,7 @@ class TestStackServiceDeclared(unittest.TestCase):
             "include it with tasks_from: consumer.yml (consumer/front.yml or "
             "consumer/back.yml for one half), declare stack and openresty in "
             "meta/services.yml, put the per-vhost parameters under "
-            "server.vhosts in meta/server.yml, and read stack_application_id "
+            "server.vhosts in meta/server.yml, and read stack_batch_consumer "
             "where sys_stk_full_application_id was read:\n"
             + "\n".join(f"  - {hit}" for hit in hits),
         )

@@ -67,8 +67,8 @@ class TestWebserverResource(unittest.TestCase):
             "cpus",
             proxy="4",
             app="2",
-            declared_as="{{ stack_application_id }}",
-            templar=_Templar({"{{ stack_application_id }}": "web-app-docs"}),
+            declared_as="{{ stack_batch_consumer }}",
+            templar=_Templar({"{{ stack_batch_consumer }}": "web-app-docs"}),
         )
         self.assertEqual(result, [2.0])
 

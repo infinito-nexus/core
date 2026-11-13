@@ -23,6 +23,10 @@ Every consumer declares `stack` in its own `meta/services.yml`, so [sys-service-
 
 Each entry takes the consumer from the role that includes it, derives what the consumer needs from the files it ships and the services it enables, and reads every per-vhost value from the consumer's meta. The play runs `tasks_from: deferred_probe.yml` after the shared-service preload and after the server roles.
 
+Each entry binds the consumer once, as the loop item `stack_batch_consumer`, and runs the unit `batch/front.yml` or `batch/back.yml`. The units and every task they include read the consumer from that item and from include params, never from a host fact, so no value of one consumer reaches another.
+
+A consumer whose stack the loader runs ships [files/bridge.yml](files/bridge.yml) unchanged as its own `tasks/utils/stack.yml` and no entry above. [tasks/utils/load/entry.yml](../../tasks/utils/load/entry.yml) then runs its backend through that bridge on its first entry, right before the role's own tasks, and fails on a first entry from a post-load path.
+
 ## Features
 
 - **Front proxy:** Runs when the consumer enables and shares `openresty`. It serves every vhost the consumer's `server.vhosts` declares and every network sibling of each.
