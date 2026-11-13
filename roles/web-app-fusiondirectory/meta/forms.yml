@@ -1,0 +1,48 @@
+---
+config:
+  path: /main.php
+  sinks: [FUSIONDIRECTORY_CONFIG]
+  fields:
+    fdLoginMethod:
+      source: services.fusiondirectory.config.login_method
+      mode: enforced
+      selector: "#fdLoginMethod"
+      type: select
+      enum: [LoginPost, LoginHTTPHeader, LoginHTTPAuth, LoginCAS]
+      label: Login method
+    fdHttpHeaderAuthHeaderName:
+      source: services.fusiondirectory.config.http_header
+      mode: enforced
+      selector: "#fdHttpHeaderAuthHeaderName"
+      type: text
+      label: HTTP header name
+    fdTheme:
+      source: services.fusiondirectory.config.theme
+      mode: seeded
+      selector: "#fdTheme"
+      type: select
+      label: Theme
+    fdTimezone:
+      source: services.fusiondirectory.config.timezone
+      mode: seeded
+      selector: "#fdTimezone"
+      type: select
+      label: Timezone
+    fdUserRDN:
+      source: services.fusiondirectory.config.user_rdn
+      mode: seeded
+      selector: "#fdUserRDN"
+      type: text
+      label: User RDN
+    fdGroupRDN:
+      source: services.fusiondirectory.config.group_rdn
+      mode: seeded
+      selector: "#fdGroupRDN"
+      type: text
+      label: Group RDN
+    fdOGroupRDN:
+      source: services.fusiondirectory.config.group_rdn
+      mode: seeded
+      selector: "#fdOGroupRDN"
+      type: text
+      label: Object group RDN

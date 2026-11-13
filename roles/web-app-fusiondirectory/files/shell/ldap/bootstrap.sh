@@ -11,6 +11,8 @@
 #   FD_HTTP_HEADER_NAME        $_SERVER key suffix of the identity header (e.g. X_FORWARDED_PREFERRED_USERNAME)
 #   FD_LOGIN_ATTRIBUTE         attribute a login name is matched against (e.g. uid)
 #   FD_LOGIN_METHOD            FusionDirectory login method (LoginPost or LoginHTTPHeader)
+#   FD_OGROUP_RDN              RDN of the object groups branch (e.g. ou=groups)
+#   FD_THEME                   theme FusionDirectory renders in (e.g. breezy)
 #   FD_TIMEZONE                timezone FusionDirectory renders dates in
 #   FD_USER_RDN                RDN of the users branch (e.g. ou=users)
 # Required env, set by the container's env file:
@@ -130,7 +132,7 @@ dn: ${config_dn}
 objectClass: fusionDirectoryConf
 objectClass: fusionDirectoryPluginsConf
 cn: config
-fdTheme: breezy
+fdTheme: ${FD_THEME}
 fdTimezone: ${FD_TIMEZONE}
 fdLoginAttribute: ${FD_LOGIN_ATTRIBUTE}
 fdLoginMethod: ${FD_LOGIN_METHOD}
@@ -138,7 +140,7 @@ fdHttpHeaderAuthHeaderName: ${FD_HTTP_HEADER_NAME}
 fdAccountPrimaryAttribute: ${FD_LOGIN_ATTRIBUTE}
 fdUserRDN: ${FD_USER_RDN}
 fdGroupRDN: ${FD_GROUP_RDN}
-fdOGroupRDN: ${FD_GROUP_RDN}
+fdOGroupRDN: ${FD_OGROUP_RDN}
 fdAclRoleRDN: ou=aclroles
 fdCnPattern: %givenName% %sn%
 fdGivenNameRequired: TRUE
