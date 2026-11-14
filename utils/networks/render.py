@@ -53,7 +53,10 @@ from utils.networks.attachments import (
     _suppress_default,
 )
 
+BRIDGE_MTU_OPTION = "com.docker.network.driver.mtu"
+
 __all__ = [
+    "BRIDGE_MTU_OPTION",
     "_coerce_bool",
     "_compute_attachments",
     "_is_consumer",
@@ -140,7 +143,13 @@ def render_compose_networks(
     lookup_database: Callable[[str, str], Any],
     swarm_encrypted: bool = True,
     node_local: bool = False,
+    bridge_mtu: int | None = None,
 ) -> str:
+    """
+    Args:
+        bridge_mtu: MTU every bridge ``default`` network carries, the nested
+            daemon's MTU under Docker-in-Docker; None leaves Docker's 1500.
+    """
     if node_local:
         deployment_mode = "compose"
     attachments, _ = _compute_attachments(
@@ -173,18 +182,22 @@ def render_compose_networks(
                     lines.append("      driver: default")
                     lines.append("      config:")
                     lines.append(f"        - subnet: {subnet}")
-        elif is_own_shared_net_provider:
-            lines.append("    driver: bridge")
         else:
-            subnet = lookup_config(application_id, "networks.local.subnet", "")
-            if subnet:
-                if own_entity:
-                    lines.append(f"    name: {own_entity}")
+            if is_own_shared_net_provider:
                 lines.append("    driver: bridge")
-                lines.append("    ipam:")
-                lines.append("      driver: default")
-                lines.append("      config:")
-                lines.append(f"        - subnet: {subnet}")
+            else:
+                subnet = lookup_config(application_id, "networks.local.subnet", "")
+                if subnet:
+                    if own_entity:
+                        lines.append(f"    name: {own_entity}")
+                    lines.append("    driver: bridge")
+                    lines.append("    ipam:")
+                    lines.append("      driver: default")
+                    lines.append("      config:")
+                    lines.append(f"        - subnet: {subnet}")
+            if bridge_mtu is not None:
+                lines.append("    driver_opts:")
+                lines.append(f'      {BRIDGE_MTU_OPTION}: "{bridge_mtu}"')
 
     if len(lines) == 1:
         return ""

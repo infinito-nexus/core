@@ -20,18 +20,42 @@
       Remove the stale network or revert the networks.local.force_bridge change.
   when: lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) not in ['', 'bridge']
 
-- name: "✅ Ensure docker bridge network for '{{ network_role_id }}' exists (compose)"
+- name: "🔍 Read the MTU of the existing bridge network for '{{ network_role_id }}' (compose)"
   ansible.builtin.command:
     argv:
       - container
       - network
-      - create
-      - --subnet
-      - "{{ lookup('config', network_role_id, 'networks.local.subnet') }}"
-      - --label
-      - "com.docker.compose.network={{ lookup('shared_network_key', network_role_id) }}"
-      - --label
-      - "com.docker.compose.project={{ network_role_id | entity_name }}"
+      - inspect
+      - --format
+      - "{{ '{{ index .Options \"com.docker.network.driver.mtu\" }}' }}"
       - "{{ network_role_id | entity_name }}"
+  register: sys_svc_compose_bridge_mtu
+  changed_when: false
+  when:
+    - lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) == 'bridge'
+    - SYS_DOCKER_DAEMONM_MTU is defined
+    - SYS_DOCKER_DAEMONM_MTU | int > 0
+
+- name: "🛑 Fail on network MTU drift for '{{ network_role_id }}' (compose)"
+  ansible.builtin.fail:
+    msg: >-
+      Network '{{ network_role_id | entity_name }}' carries MTU
+      '{{ sys_svc_compose_bridge_mtu.stdout | trim or 'default 1500' }}' but the nested
+      daemon runs at {{ SYS_DOCKER_DAEMONM_MTU | int }}, so TLS through it stalls.
+      Remove the network and its containers (make compose-down) and deploy again.
+  when:
+    - sys_svc_compose_bridge_mtu is not skipped
+    - sys_svc_compose_bridge_mtu.stdout | trim != (SYS_DOCKER_DAEMONM_MTU | int | string)
+
+- name: "✅ Ensure docker bridge network for '{{ network_role_id }}' exists (compose)"
+  ansible.builtin.command:
+    argv: >-
+      {{ ['container', 'network', 'create',
+          '--subnet', lookup('config', network_role_id, 'networks.local.subnet'),
+          '--label', 'com.docker.compose.network=' ~ lookup('shared_network_key', network_role_id),
+          '--label', 'com.docker.compose.project=' ~ (network_role_id | entity_name)]
+         + (['--opt', 'com.docker.network.driver.mtu=' ~ (SYS_DOCKER_DAEMONM_MTU | int)]
+            if SYS_DOCKER_DAEMONM_MTU is defined and SYS_DOCKER_DAEMONM_MTU | int > 0 else [])
+         + [network_role_id | entity_name] }}
   when: lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) == ''
   changed_when: true
