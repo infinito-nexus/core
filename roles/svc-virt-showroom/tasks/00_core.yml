@@ -176,3 +176,5 @@
     name: svc-stack
     tasks_from: consumer/front.yml
   when: SHOWROOM_CANONICAL_DOMAINS | length > 0
+
+- include_tasks: 01_access.yml
