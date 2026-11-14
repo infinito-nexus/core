@@ -1,6 +1,5 @@
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -51,12 +50,12 @@ class TestAddonEnvFlagsLookup(unittest.TestCase):
             "no_required": {"enabled": True},
         }
         self._patchers = [
-            patch(
+            mock.patch(
                 "plugins.lookup.addon_env_flags.lookup_loader",
                 _applications_loader({}),
             ),
-            patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
-            patch(
+            mock.patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
+            mock.patch(
                 "plugins.lookup.addon_env_flags._render_with_templar",
                 side_effect=lambda v, **k: v,
             ),
@@ -108,12 +107,12 @@ class TestNoAddons(unittest.TestCase):
         lookup = LookupModule()
         lookup._loader = mock.MagicMock()
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.addon_env_flags.lookup_loader",
                 _applications_loader({}),
             ),
-            patch("plugins.lookup.addon_env_flags.get", return_value={}),
-            patch(
+            mock.patch("plugins.lookup.addon_env_flags.get", return_value={}),
+            mock.patch(
                 "plugins.lookup.addon_env_flags._render_with_templar",
                 side_effect=lambda v, **k: v,
             ),
@@ -154,12 +153,12 @@ class TestBridgeDeploymentGating(unittest.TestCase):
             },
         }
         self._patchers = [
-            patch(
+            mock.patch(
                 "plugins.lookup.addon_env_flags.lookup_loader",
                 _applications_loader({}),
             ),
-            patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
-            patch(
+            mock.patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
+            mock.patch(
                 "plugins.lookup.addon_env_flags._render_with_templar",
                 side_effect=lambda v, **k: v,
             ),
@@ -231,12 +230,12 @@ class TestBridgeResolvesProviderKey(unittest.TestCase):
             "ca_trust": {"enabled": True, "required": True, "bridges": ["sso"]},
         }
         self._patchers = [
-            patch(
+            mock.patch(
                 "plugins.lookup.addon_env_flags.lookup_loader",
                 _applications_loader(self.applications),
             ),
-            patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
-            patch(
+            mock.patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
+            mock.patch(
                 "plugins.lookup.addon_env_flags._render_with_templar",
                 side_effect=lambda v, **k: v,
             ),

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 from humanfriendly import parse_size
@@ -71,12 +72,10 @@ def filter_roles_by_min_storage(
         if not entity:
             cfg_path_early = role_dir / ROLE_FILE_META_SERVICES
             if cfg_path_early.is_file():
-                try:
+                with contextlib.suppress(Exception):
                     early_cfg = _load_yaml_file(cfg_path_early)
                     if isinstance(early_cfg, dict) and role_name in early_cfg:
                         entity = role_name
-                except Exception:  # noqa: S110 - non-fatal: malformed services.yml just skips the role
-                    pass
         if not entity:
             if emit_warnings:
                 warning(

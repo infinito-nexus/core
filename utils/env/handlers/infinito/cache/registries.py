@@ -31,7 +31,7 @@ from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_nam
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CACHE_REGISTRIES"
 COMMENT = "Registries the pull-through proxy SSL-bumps and caches; derived from every role image, Docker Hub is implicit."

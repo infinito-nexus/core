@@ -8,12 +8,13 @@ from pathlib import Path
 
 from utils.cache.yaml import load_yaml_any
 from utils.licensing.roles import declared
+from utils.roles.mapping import ROLE_FILE_META_INFO, ROLE_FILE_META_LICENSE
 
 with mock.patch.dict(os.environ, {"INFINITO_WORKER_FETCH": "1"}):
     from tests.external.repository import test_urls_reachable as urls
 
 ROLE = urls._REPO_ROOT / "roles" / "dsk-virtualbox"
-INFO = ROLE / "meta" / "info.yml"
+INFO = ROLE / ROLE_FILE_META_INFO
 HOMEPAGE = load_yaml_any(str(INFO))["homepage"]
 LICENCE = declared(ROLE).url
 MUTED = "https://muted.infinito.nexus/page"  # nocheck: url
@@ -39,7 +40,7 @@ class TestSourceMarkerCoversCatalogs(unittest.TestCase):
                 f'msgid "[a]({LICENCE}) and [b]({KEPT})"\nmsgstr ""\n',
             )
 
-            collected = _collect(INFO, ROLE / "meta" / "license.yml", catalog)
+            collected = _collect(INFO, ROLE / ROLE_FILE_META_LICENSE, catalog)
 
         self.assertIsNone(collected.get(HOMEPAGE))
         self.assertIsNone(collected.get(LICENCE))

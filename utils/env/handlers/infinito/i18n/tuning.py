@@ -11,7 +11,7 @@ from utils.cache.files import read_text
 from utils.i18n.limits import BATCH_SIZE
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 TUNING_FILE = Path("build") / "i18n-tuning.json"
 BATCH_KEY = "INFINITO_I18N_BATCH_SIZE"

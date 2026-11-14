@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import sys
@@ -13,13 +14,11 @@ from cli.contributing.network.diagnose.format import cmd_capture
 
 def detect_distro_id(*, os_release_path: str = "/etc/os-release") -> str:
     """Return the distro id from /etc/os-release, lowercased; empty string when unreadable."""
-    try:
+    with contextlib.suppress(OSError):
         text = Path(os_release_path).read_text()  # nocheck: cache-read
         for raw in text.splitlines():
             if raw.startswith("ID="):
                 return raw.split("=", 1)[1].strip().strip('"').lower()
-    except OSError:
-        pass
     return ""
 
 

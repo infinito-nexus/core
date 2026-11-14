@@ -20,10 +20,7 @@ CARRIER = "web-app-carrier"
 PARTNER = "web-app-partner"
 SUBJECT = "web-app-subject"
 
-_INCLUDE = (
-    "cli.administration.deploy.development.inventory.legacy_resolver."
-    "_resolve_round_include"
-)
+_INCLUDE = "utils.roles.applications.variants._resolve_round_include"
 
 
 class TestPinScope(unittest.TestCase):
@@ -91,7 +88,7 @@ class TestPinScope(unittest.TestCase):
             {"services": {"carrier": {"enabled": False}}},
         ]
 
-        def include(*, primary_apps, services_overrides):
+        def include(*, primary_apps, services_overrides) -> tuple[str, ...]:
             carried = services_overrides[PARTNER]["carrier"]["enabled"] is True
             return (CARRIER, PARTNER, *primary_apps) if carried else (PARTNER,)
 

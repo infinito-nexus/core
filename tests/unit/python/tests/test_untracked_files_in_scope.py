@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import subprocess
 import unittest
+import unittest.mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-from unittest import mock
 
 from tests.integration.infrastructure.compose import test_no_raw_docker as raw_docker
 from tests.lint.filesystem.python import test_python_shebangs as shebangs
@@ -37,7 +37,7 @@ class _ListingFixture:
         for name in (TRACKED, UNTRACKED):
             (self.root / name).write_text("", encoding="utf-8")
         for module in (files_module, comments):
-            patcher = mock.patch.object(module, "PROJECT_ROOT", self.root)
+            patcher = unittest.mock.patch.object(module, "PROJECT_ROOT", self.root)
             patcher.start()
             self.addCleanup(patcher.stop)
 
@@ -50,7 +50,9 @@ class _ListingFixture:
                 raise listing
             return SimpleNamespace(stdout=listing)
 
-        return mock.patch.object(files_module.subprocess, "run", side_effect=run)
+        return unittest.mock.patch.object(
+            files_module.subprocess, "run", side_effect=run
+        )
 
 
 class TestScansListUntrackedFiles(_ListingFixture, unittest.TestCase):

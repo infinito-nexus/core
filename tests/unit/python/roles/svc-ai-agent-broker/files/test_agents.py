@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 import sys
 import unittest
+import unittest.mock
 import urllib.error
-from unittest import mock
 
 import yaml
 
@@ -123,9 +123,13 @@ class TestAgentCalls(unittest.TestCase):
         broker = make_agents()
         refused = urllib.error.URLError("connection refused")
         with (
-            mock.patch.object(agents.urllib.request, "urlopen", side_effect=refused),
-            mock.patch.object(agents.time, "monotonic", side_effect=[0, 0, 100]),
-            mock.patch.object(agents.time, "sleep"),
+            unittest.mock.patch.object(
+                agents.urllib.request, "urlopen", side_effect=refused
+            ),
+            unittest.mock.patch.object(
+                agents.time, "monotonic", side_effect=[0, 0, 100]
+            ),
+            unittest.mock.patch.object(agents.time, "sleep"),
             self.assertRaises(TimeoutError) as caught,
         ):
             broker._wait_healthy("hermes", "agent-hermes-1", "k")
@@ -135,7 +139,9 @@ class TestAgentCalls(unittest.TestCase):
         events = []
         broker = make_agents(log=lambda event, **fields: events.append((event, fields)))
         refused = urllib.error.URLError("connection refused")
-        with mock.patch.object(agents.urllib.request, "urlopen", side_effect=refused):
+        with unittest.mock.patch.object(
+            agents.urllib.request, "urlopen", side_effect=refused
+        ):
             model = broker.agent_model("hermes", "http://agent-hermes-1:8642", "k")
         self.assertEqual(model, "hermes-agent")
         self.assertEqual(len(events), 1)

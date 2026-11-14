@@ -1,6 +1,5 @@
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -58,15 +57,15 @@ class TestNginxPathsLookup(unittest.TestCase):
 
     def _run(self, terms, **kwargs):
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value={},
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
         ):
             loader_mock.get.side_effect = self._loader_get()
             return self.plugin.run(terms, variables=self.variables, **kwargs)[0]
@@ -124,17 +123,17 @@ class TestNginxPathsLookup(unittest.TestCase):
             "nginx": {"type": "volume", "path": "/opt/canonical/nginx"},
         }
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=AssertionError(
                     "get() must not be called when canonical paths are present"
                 ),
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value=canonical,
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
         ):
             loader_mock.get.side_effect = self._loader_get()
             out = self.plugin.run(["files.configuration"], variables=self.variables)[0]
@@ -144,15 +143,15 @@ class TestNginxPathsLookup(unittest.TestCase):
         fake_tls = _FakeTlsResolveLookup("https")
 
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value={},
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
         ):
             loader_mock.get.side_effect = self._loader_get(tls=fake_tls)
             out = self.plugin.run(
@@ -166,15 +165,15 @@ class TestNginxPathsLookup(unittest.TestCase):
 
     def test_domain_protocol_override_http(self):
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value={},
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
         ):
             loader_mock.get.side_effect = self._loader_get()
             out = self.plugin.run(
@@ -190,15 +189,15 @@ class TestNginxPathsLookup(unittest.TestCase):
 
     def test_invalid_protocol_override_raises(self):
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value={},
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
             loader_mock.get.side_effect = self._loader_get()
@@ -210,15 +209,15 @@ class TestNginxPathsLookup(unittest.TestCase):
 
     def test_files_lua_is_one_file_per_domain(self):
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value={},
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
         ):
             loader_mock.get.side_effect = self._loader_get()
             out = self.plugin.run(
@@ -231,15 +230,15 @@ class TestNginxPathsLookup(unittest.TestCase):
 
     def test_files_lua_without_domain_raises(self):
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value={},
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
             loader_mock.get.side_effect = self._loader_get()
@@ -247,15 +246,15 @@ class TestNginxPathsLookup(unittest.TestCase):
 
     def test_invalid_usage_raises(self):
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get",
                 side_effect=self._fake_get,
             ),
-            patch(
+            mock.patch(
                 "plugins.lookup.nginx.get_canonical_volumes",
                 return_value={},
             ),
-            patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.nginx.lookup_loader") as loader_mock,
         ):
             loader_mock.get.side_effect = self._loader_get()
 
