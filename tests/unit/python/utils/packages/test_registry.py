@@ -257,6 +257,43 @@ class TestRegistry(unittest.TestCase):
         self.assertEqual(spec.source, "download")
         self.assertEqual(spec.download["url"], "https://vendor.example/editor.deb")
 
+    def _download_repo_files(self, repo_files):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "RedHat": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {
+                            "url": "https://vendor.example/editor.rpm",
+                            "checksum": "sha256:" + "a" * 64,
+                            "repo_files": repo_files,
+                        },
+                    }
+                }
+            },
+        )
+        return resolve(self._declaration("editor"), "fedora")
+
+    def test_download_repo_files_under_a_repo_dir_resolve(self):
+        spec = self._download_repo_files(["/etc/yum.repos.d/editor.repo"])
+        self.assertEqual(spec.download["repo_files"], ["/etc/yum.repos.d/editor.repo"])
+
+    def test_download_repo_files_outside_a_repo_dir_raise(self):
+        for repo_files in (
+            ["/etc/passwd"],
+            ["/etc/yum.repos.d/../shadow"],
+            ["/etc/yum.repos.d"],
+            ["etc/yum.repos.d/editor.repo"],
+            "/etc/yum.repos.d/editor.repo",
+        ):
+            with self.subTest(repo_files=repo_files):
+                with self.assertRaises(PackagesShapeError) as ctx:
+                    self._download_repo_files(repo_files)
+                self.assertIn("repo_files", str(ctx.exception))
+
     def _architectures(self, value):
         entry = {"names": ["org.example.App"], "source": "flatpak"}
         if value is not None:
