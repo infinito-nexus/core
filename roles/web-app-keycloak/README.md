@@ -37,6 +37,7 @@ For the OIDC variable tree, claim rules, and the policy that app-specific protoc
 - The inventory address only seeds a user: a deploy writes it into LDAP `mail` or the realm user once and never overwrites an address the user changed and confirmed. Change an existing user's address in the Keycloak console.
 - Under `mailbox`, a user created at runtime (admin console, admin API, registration) gets its LDAP `mail` from the [RBAC sync timer](../sys-ctl-mtn-rbac-sync/README.md), which runs every 15 minutes (`SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC`). Until its next run the user has no `mailbox` attribute and no `email` claim. The timer sets `mail` only on entries that hold none.
 - With SMTP, a user changes the changeable address through `UPDATE_EMAIL` with forced verification: the new address takes effect after the user follows the link sent to it. Without SMTP only an administrator can change it.
+- While the realm federates LDAP, `KEYCLOAK_EMAIL_UPDATE_ENABLED` keeps `UPDATE_EMAIL` off and the address admin-only, because Keycloak 26.8.2 answers `UPDATE_EMAIL` for an LDAP user with HTTP 500: the `full name` mapper and the `first name` and `last name` mappers both declare `firstName` and `lastName` profile metadata, which `DefaultAttributes.getUserStorageProviderMetadata` cannot merge.
 
 ### Verified addresses only
 

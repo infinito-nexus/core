@@ -23,7 +23,7 @@
   "name": "email",
   "displayName": "Secondary email" if KEYCLOAK_EMAIL_MAILBOX | bool else "${email}",
   "validations": {"email": {}, "length": {"max": 255}},
-  "permissions": {"view": ["admin","user"], "edit": ["admin","user"] if KEYCLOAK_EMAIL_SMTP | bool else ["admin"]},
+  "permissions": {"view": ["admin","user"], "edit": ["admin","user"] if KEYCLOAK_EMAIL_UPDATE_ENABLED | bool else ["admin"]},
   "multivalued": false
 } %}
 {% if KEYCLOAK_EMAIL_MAILBOX | bool %}

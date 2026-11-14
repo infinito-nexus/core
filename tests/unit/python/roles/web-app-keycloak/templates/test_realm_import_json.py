@@ -161,6 +161,7 @@ CONTEXT = {
     "KEYCLOAK_EMAIL_MAILBOX": False,
     "KEYCLOAK_EMAIL_SMTP": False,
     "KEYCLOAK_EMAIL_VERIFY": False,
+    "KEYCLOAK_EMAIL_UPDATE_ENABLED": False,
     "KEYCLOAK_EMAIL_SECONDARY_REQUIRED": True,
     "KEYCLOAK_EMAIL_DOMAIN": "example.com",
     "KEYCLOAK_EMAIL_SECONDARY_PATTERN": secondary_pattern("example.com"),
@@ -660,12 +661,16 @@ SMTP = {"KEYCLOAK_EMAIL_SMTP": True}
 LDAP_PROVIDER = "org.keycloak.storage.UserStorageProvider"
 
 
-def email_verify(context: dict) -> bool:
-    """Render the role's KEYCLOAK_EMAIL_VERIFY expression for a context."""
+def role_flag(name: str, context: dict) -> bool:
+    """Render one of the role's boolean expressions from ``vars/main.yml``.
+
+    Args:
+        name: the variable, e.g. KEYCLOAK_EMAIL_VERIFY.
+        context: the values its expression reads.
+    """
     env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
     env.filters["bool"] = bool
-    rendered = env.from_string(ROLE_VARS["KEYCLOAK_EMAIL_VERIFY"]).render(**context)
-    return rendered == "True"
+    return env.from_string(ROLE_VARS[name]).render(**context) == "True"
 
 
 def realm_for(overrides: dict, saml_apps: list[str] | None = None) -> dict:
@@ -673,7 +678,13 @@ def realm_for(overrides: dict, saml_apps: list[str] | None = None) -> dict:
     return json.loads(
         render(
             saml_apps or [],
-            overrides={**overrides, "KEYCLOAK_EMAIL_VERIFY": email_verify(context)},
+            overrides={
+                **overrides,
+                "KEYCLOAK_EMAIL_VERIFY": role_flag("KEYCLOAK_EMAIL_VERIFY", context),
+                "KEYCLOAK_EMAIL_UPDATE_ENABLED": role_flag(
+                    "KEYCLOAK_EMAIL_UPDATE_ENABLED", context
+                ),
+            },
         )
     )
 
@@ -731,23 +742,28 @@ class TestEmailPolicy(unittest.TestCase):
     def test_an_external_realm_with_smtp_lets_the_user_change_the_primary_by_link(
         self,
     ) -> None:
-        realm = realm_for(SMTP)
+        realm = realm_for({**SMTP, "KEYCLOAK_LDAP_ENABLED": False})
         email = profile_of(realm)["email"]
         self.assertEqual(email["permissions"]["edit"], ["admin", "user"])
         self.assertEqual(email["required"], {"roles": ["user"]})
         self.assertTrue(realm["verifyEmail"])
         self.assertTrue(update_email_of(realm)["enabled"])
         self.assertEqual(update_email_of(realm)["config"], {"verifyEmail": "true"})
-        self.assertEqual(
-            ldap_mappers_of(realm)["email"]["config"]["ldap.attribute"],
-            [LDAP_USER_ATTRIBUTES["MAIL"]],
-        )
-        self.assertNotIn("mailbox", ldap_mappers_of(realm))
         self.assertNotIn("mailbox", profile_of(realm))
         self.assertEqual(
             email_scope_mappers_of(realm)["email"]["config"]["user.attribute"], "email"
         )
         self.assertEqual(realm["attributes"]["infinitoEmailPolicy"], "external")
+
+    def test_an_external_realm_with_ldap_keeps_the_primary_in_ldap_mail(
+        self,
+    ) -> None:
+        mappers = ldap_mappers_of(realm_for(SMTP))
+        self.assertEqual(
+            mappers["email"]["config"]["ldap.attribute"],
+            [LDAP_USER_ATTRIBUTES["MAIL"]],
+        )
+        self.assertNotIn("mailbox", mappers)
 
     def test_an_external_realm_without_smtp_leaves_the_address_to_admins(
         self,
@@ -762,9 +778,7 @@ class TestEmailPolicy(unittest.TestCase):
         profile = profile_of(realm)
         self.assertEqual(profile["mailbox"]["permissions"]["edit"], ["admin"])
         self.assertEqual(profile["mailbox"]["permissions"]["view"], ["admin", "user"])
-        self.assertEqual(profile["email"]["permissions"]["edit"], ["admin", "user"])
         self.assertFalse(realm["verifyEmail"])
-        self.assertTrue(update_email_of(realm)["enabled"])
         self.assertEqual(update_email_of(realm)["config"], {"verifyEmail": "true"})
         mappers = ldap_mappers_of(realm)
         self.assertEqual(

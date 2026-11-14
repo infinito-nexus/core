@@ -191,6 +191,7 @@ KEYCLOAK_EMAIL_SWITCH: "{{ lookup('config', application_id, 'services.keycloak.e
 KEYCLOAK_EMAIL_SECONDARY_REQUIRED: "{{ lookup('config', application_id, 'services.keycloak.email.secondary_required') | bool }}"
 KEYCLOAK_EMAIL_SMTP: "{{ lookup('email', application_id).enabled | bool }}"
 KEYCLOAK_EMAIL_VERIFY: "{{ KEYCLOAK_EMAIL_SMTP | bool and not (KEYCLOAK_EMAIL_MAILBOX | bool) }}"
+KEYCLOAK_EMAIL_UPDATE_ENABLED: "{{ KEYCLOAK_EMAIL_SMTP | bool and not (KEYCLOAK_LDAP_ENABLED | bool) }}"
 KEYCLOAK_EMAIL_DOMAIN: "{{ DOMAIN_PRIMARY }}"
 KEYCLOAK_EMAIL_POLICY_ATTRIBUTE: "infinitoEmailPolicy"
 KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE: "mailbox"

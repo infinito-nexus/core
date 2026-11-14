@@ -20,6 +20,8 @@ const superAdminUsername = requireDotenvValue(process.env.SUPER_ADMIN_USERNAME, 
 const superAdminPassword = requireDotenvValue(process.env.SUPER_ADMIN_PASSWORD, "SUPER_ADMIN_PASSWORD");
 const emailMailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
 const emailSmtp = requireDotenvValue(process.env.KEYCLOAK_EMAIL_SMTP, "KEYCLOAK_EMAIL_SMTP") === "true";
+const emailUpdate =
+  requireDotenvValue(process.env.KEYCLOAK_EMAIL_UPDATE_ENABLED, "KEYCLOAK_EMAIL_UPDATE_ENABLED") === "true";
 const mailboxAttribute = requireDotenvValue(
   process.env.KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE,
   "KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE",
@@ -31,6 +33,8 @@ const UPDATE_EMAIL = "UPDATE_EMAIL";
 const CONFIRMATION_MAIL = /verify|e-?mail/i;
 const ACTION_TOKEN_LINK = "a[href*='/login-actions/action-token']";
 const WITHOUT_SMTP = "KEYCLOAK_EMAIL_SMTP=false: without SMTP only an administrator changes the address";
+const UPDATE_EMAIL_OFF =
+  "KEYCLOAK_EMAIL_UPDATE_ENABLED=false: UPDATE_EMAIL is off while the realm federates LDAP, because Keycloak 26.8.2 answers it with HTTP 500 (duplicate firstName and lastName metadata from the full-name LDAP mapper; upstream issue to be filed)";
 
 function isProfileRead(response) {
   const url = new URL(response.url());
@@ -187,7 +191,9 @@ exports.register = function () {
   });
 
   test("biber: email policy: a requested change of the changeable address stays pending", async ({ browser }) => {
+    skipUnlessServiceEnabled("ldap");
     test.skip(!emailSmtp, WITHOUT_SMTP);
+    test.skip(!emailUpdate, UPDATE_EMAIL_OFF);
     test.setTimeout(resolveTimeout(300_000));
     const original = await asSuperAdmin(browser, biberRecord);
     expect(emailMailbox || original.email, "biber MUST hold a primary address under the external policy").toBeTruthy();
@@ -209,7 +215,9 @@ exports.register = function () {
   });
 
   test("biber: email policy: following the confirmation link applies the pending address", async ({ browser }) => {
+    skipUnlessServiceEnabled("ldap");
     test.skip(!emailSmtp, WITHOUT_SMTP);
+    test.skip(!emailUpdate, UPDATE_EMAIL_OFF);
     test.skip(emailMailbox, "KEYCLOAK_EMAIL_POLICY=mailbox: the secondary address lies outside the mail domain, so no local mailbox receives the link");
     test.skip(!webmailBaseUrl, "WEBMAIL_BASE_URL is empty: the mail provider serves no webmail to read the link from");
     test.skip(isSplitRealmOidc(), "clearnet webmail with an onion OIDC issuer: unreachable from one browser");

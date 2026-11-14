@@ -2320,7 +2320,7 @@
       "alias": "UPDATE_EMAIL",
       "name": "Update Email",
       "providerId": "UPDATE_EMAIL",
-      "enabled": {{ KEYCLOAK_EMAIL_SMTP | bool | to_json }},
+      "enabled": {{ KEYCLOAK_EMAIL_UPDATE_ENABLED | bool | to_json }},
       "defaultAction": false,
       "priority": 45,
       "config": {
