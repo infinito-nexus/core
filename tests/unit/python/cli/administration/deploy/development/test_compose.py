@@ -15,6 +15,14 @@ from cli.administration.deploy.development.compose import (
 
 
 class TestComposeUpRetries(unittest.TestCase):
+    def setUp(self) -> None:
+        patcher = patch(
+            "cli.administration.deploy.development.profile.infra_owns_cache",
+            return_value=False,
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _compose(self) -> Compose:
         return Compose(repo_root=Path("/tmp/infinito-nexus"), distro="arch")
 

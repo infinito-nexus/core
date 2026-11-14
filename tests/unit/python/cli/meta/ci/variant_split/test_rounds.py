@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from cli.meta.ci.variant_split import rounds
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
@@ -92,7 +92,9 @@ class TestDictated(unittest.TestCase):
 
     def _dictated(self, include: list[str], active: dict[str, int]) -> dict:
         found = {("web-app-a", 1): {"web-app-b", "web-app-gone"}}
-        with mock.patch.object(rounds, "overridden_providers", return_value=found):
+        with unittest.mock.patch.object(
+            rounds, "overridden_providers", return_value=found
+        ):
             return rounds.dictated(include, active, roles_dir="/roles")
 
     def test_a_member_whose_config_a_variant_dictates_names_that_variant(

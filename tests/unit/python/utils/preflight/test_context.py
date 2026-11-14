@@ -1,5 +1,5 @@
 import unittest
-from unittest import mock
+import unittest.mock
 
 from utils.preflight.context import deploy_closure_context
 
@@ -9,23 +9,25 @@ MODULE = "utils.preflight.context"
 class TestDeployClosureContext(unittest.TestCase):
     def _build(self, closure=None, side_effect=None):
         plugins = {
-            "applications": mock.Mock(),
-            "config": mock.Mock(),
-            "domains": mock.Mock(),
+            "applications": unittest.mock.Mock(),
+            "config": unittest.mock.Mock(),
+            "domains": unittest.mock.Mock(),
         }
         plugins["applications"].run.return_value = [{"web-app-matomo": {}}]
         plugins["config"].run.side_effect = lambda terms, variables=None: [
             f"{terms[0]}:{terms[1]}"
         ]
         plugins["domains"].run.return_value = [["matomo.example.org"]]
-        lookup = mock.Mock(_loader="loader", _templar=None)
+        lookup = unittest.mock.Mock(_loader="loader", _templar=None)
         with (
-            mock.patch(
+            unittest.mock.patch(
                 f"{MODULE}.lookup_loader.get",
                 side_effect=lambda name, **kwargs: plugins[name],
             ),
-            mock.patch(f"{MODULE}.types_from_group_names", return_value=["server"]),
-            mock.patch(
+            unittest.mock.patch(
+                f"{MODULE}.types_from_group_names", return_value=["server"]
+            ),
+            unittest.mock.patch(
                 f"{MODULE}.deploy_closure",
                 return_value=closure or {"web-app-matomo", "svc-db-mariadb"},
                 side_effect=side_effect,
