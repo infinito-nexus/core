@@ -12,11 +12,8 @@ import unittest
 from pathlib import Path
 
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
-from utils.update.docker import (
-    DockerImageVersionEntry,
-    DockerImageVersionUpdate,
-    _held_to_release_groups,
-)
+from utils.update.docker import DockerImageVersionEntry, DockerImageVersionUpdate
+from utils.update.hold import _held_to_release_groups
 
 JITSI = ("web", "prosody", "jicofo", "jvb")
 
