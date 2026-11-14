@@ -10,6 +10,7 @@ HEALTH_RUNTIME_SCAN:
   fixed_only: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.fixed_only') | bool }}"
   workers: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.workers') | int }}"
   db_update: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.db_update') | bool }}"
+  trivy_unmatched_os: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.trivy.unmatched_os') }}"
 HEALTH_RUNTIME_IMAGES:
   trivy: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.trivy.image') }}:{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.trivy.version') }}"
   grype: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.grype.image') }}:{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.grype.version') }}"

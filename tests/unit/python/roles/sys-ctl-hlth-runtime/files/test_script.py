@@ -358,6 +358,30 @@ CYCLONEDX = {
 }
 
 
+def _os_sbom(name, version):
+    return {
+        "bomFormat": "CycloneDX",
+        "components": [
+            {"type": "operating-system", "name": name, "version": version},
+        ],
+    }
+
+
+CENTOS_10 = _os_sbom("centos", "10")
+CENTOS_TARGET = SCRIPT.Target(
+    "abc",
+    "container",
+    "sha256:abc",
+    "quay.io/centos/centos:stream10",
+    (("sys-os", "centos"),),
+    (),
+)
+UNMATCHED_OS = [
+    {"name": "centos", "version": "10", "until": "2026-11-30"},
+    {"name": "rhel", "version": "10", "until": "2026-11-30"},
+]
+
+
 SEVERITY = {"CRITICAL": "fail", "HIGH": "warn"}
 STRICT = {"CRITICAL": "fail", "HIGH": "fail"}
 
@@ -370,6 +394,7 @@ def _config(**overrides):
         "fixed_only": True,
         "workers": 2,
         "db_update": True,
+        "trivy_unmatched_os": [],
     }
     raw.update(overrides)
     return SCRIPT.scan_config(raw)
@@ -609,6 +634,69 @@ class TestScanConfig(TestCase):
     def test_zero_workers_are_rejected(self):
         with self.assertRaisesRegex(SCRIPT.ConfigError, "workers"):
             _config(workers=0)
+
+    def test_an_unmatched_os_entry_without_until_is_rejected(self):
+        with self.assertRaisesRegex(SCRIPT.ConfigError, "until"):
+            _config(trivy_unmatched_os=[{"name": "centos", "version": "10"}])
+
+    def test_an_unmatched_os_version_with_a_minor_part_is_rejected(self):
+        with self.assertRaisesRegex(SCRIPT.ConfigError, "'10.0' of rhel is no bare"):
+            _config(
+                trivy_unmatched_os=[
+                    {"name": "rhel", "version": "10.0", "until": "2026-11-30"}
+                ]
+            )
+
+
+class TestTrivyOsArgs(TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        self.layout = SCRIPT.Layout(
+            runtime=("container", "run"),
+            databases=root,
+            sbom=root,
+            work=root,
+            excludes=(),
+        )
+        self.target = CENTOS_TARGET
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _args(self, sbom, *, scanners=SCRIPT.SCANNERS, today=TODAY):
+        SCRIPT.sbom_paths(self.layout, self.target)[1].write_text(
+            json.dumps(sbom), encoding="utf-8"
+        )
+        config = _config(trivy_unmatched_os=UNMATCHED_OS)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            args = SCRIPT.trivy_os_args(
+                self.layout, self.target, scanners, config, today
+            )
+        return args, out.getvalue()
+
+    def test_a_centos_10_sbom_leaves_its_os_packages_to_grype(self):
+        info = (
+            "ℹ️ trivy quay.io/centos/centos:stream10: OS packages of centos 10 "
+            "left to grype until 2026-11-30\n"
+        )
+        self.assertEqual(self._args(CENTOS_10), (["--pkg-types", "library"], info))
+
+    def test_a_rhel_10_minor_release_matches_its_major_version(self):
+        self.assertEqual(
+            self._args(_os_sbom("rhel", "10.0"))[0], ["--pkg-types", "library"]
+        )
+
+    def test_debian_and_ubi_9_sboms_keep_the_os_packages_in_trivy(self):
+        for sbom in (_os_sbom("debian", "13"), _os_sbom("rhel", "9.6")):
+            with self.subTest(sbom=sbom["components"][0]):
+                self.assertEqual(self._args(sbom), ([], ""))
+
+    def test_an_expired_entry_keeps_the_os_packages_in_trivy(self):
+        self.assertEqual(self._args(CENTOS_10, today=dt.date(2026, 12, 1)), ([], ""))
+
+    def test_without_grype_trivy_keeps_the_os_packages(self):
+        self.assertEqual(self._args(CENTOS_10, scanners=("trivy", "osv")), ([], ""))
 
 
 class TestParsers(TestCase):
@@ -1186,8 +1274,45 @@ class TestScan(TestCase):
             "trivy:1",
             self.targets[0],
             _config(db_update=False, engines=["syft", "trivy"]),
+            [],
         )
         self.assertIn("memory", step.argv)
+
+    def test_a_centos_10_image_runs_trivy_on_its_library_packages_only(self):
+        self.targets = [CENTOS_TARGET]
+        for path, document in zip(
+            SCRIPT.sbom_paths(self.layout, CENTOS_TARGET),
+            (SYFT_PHP_IMAGE, CENTOS_10),
+            strict=True,
+        ):
+            path.write_text(json.dumps(document), encoding="utf-8")
+        unmatched = [
+            {**entry, "until": dt.date.max.isoformat()} for entry in UNMATCHED_OS
+        ]
+        with contextlib.redirect_stdout(io.StringIO()):
+            _findings, errors, runner = self._scan(
+                _config(targets=["container"], trivy_unmatched_os=unmatched), {}
+            )
+        (trivy,) = [call for call in runner.calls if "--image-src" in call]
+        self.assertEqual(
+            (errors, trivy[trivy.index("--pkg-types") + 1]), ([], "library")
+        )
+
+    def test_a_target_whose_sbom_failed_keeps_its_os_packages_in_trivy(self):
+        self.targets = [CENTOS_TARGET]
+        SCRIPT.sbom_paths(self.layout, CENTOS_TARGET)[1].write_text(
+            '{"components": [', encoding="utf-8"
+        )
+        _findings, errors, runner = self._scan(
+            _config(targets=["container"], trivy_unmatched_os=UNMATCHED_OS),
+            {},
+            fail=("docker:sha256:abc",),
+        )
+        (trivy,) = [call for call in runner.calls if "--image-src" in call]
+        self.assertEqual(
+            (errors, "--pkg-types" in trivy),
+            (["syft container quay.io/centos/centos:stream10: exited 2: boom"], False),
+        )
 
     def test_a_failed_sbom_skips_the_sbom_readers_of_that_target(self):
         _findings, errors, runner = self._scan(
@@ -1490,7 +1615,7 @@ class TestCommands(TestCase):
         )
 
     def test_the_host_is_mounted_read_only(self):
-        step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config())
+        step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config(), [])
         self.assertIn("/:/host:ro", step.argv)
 
     def test_every_engine_writes_its_temp_files_to_its_scratch_in_the_work_mount(self):
@@ -1515,7 +1640,7 @@ class TestCommands(TestCase):
     def test_parallel_engine_runs_never_share_a_scratch(self):
         steps = [
             SCRIPT.sbom_step(self.layout, "syft:1", self.container),
-            SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config()),
+            SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config(), []),
             SCRIPT.grype_step(self.layout, "grype:1", self.container, _config()),
             SCRIPT.runtime_step(self.layout, "grype:1", self.container),
             SCRIPT.osv_sbom_step(self.layout, "osv:1", [self.container], _config()),
@@ -1530,10 +1655,10 @@ class TestCommands(TestCase):
             "syft container": SCRIPT.sbom_step(self.layout, "syft:1", self.container),
             "syft host": SCRIPT.sbom_step(self.layout, "syft:1", self.host),
             "trivy container": SCRIPT.trivy_step(
-                self.layout, "trivy:1", self.container, _config()
+                self.layout, "trivy:1", self.container, _config(), []
             ),
             "trivy host": SCRIPT.trivy_step(
-                self.layout, "trivy:1", self.host, _config()
+                self.layout, "trivy:1", self.host, _config(), []
             ),
             "grype sbom": SCRIPT.grype_step(
                 self.layout, "grype:1", self.container, _config()
@@ -1565,11 +1690,11 @@ class TestCommands(TestCase):
         self.assertIn(f"/work/{scan.scratch}/image.tar", scan.argv)
 
     def test_a_container_scan_reads_the_docker_socket_read_only(self):
-        step = SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config())
+        step = SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config(), [])
         self.assertIn("/var/run/docker.sock:/var/run/docker.sock:ro", step.argv)
 
     def test_the_host_scan_skips_the_excluded_paths(self):
-        step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config())
+        step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config(), [])
         self.assertIn("/host/proc,/host/var/lib/docker", step.argv)
 
     def test_syft_scans_the_host_with_the_image_catalogers(self):
@@ -2051,6 +2176,7 @@ MAIN_SCAN = {
     "fixed_only": True,
     "workers": 1,
     "db_update": True,
+    "trivy_unmatched_os": [],
 }
 SHIPPED_SCAN = {
     **MAIN_SCAN,

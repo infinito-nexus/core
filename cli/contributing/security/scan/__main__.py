@@ -124,7 +124,7 @@ def sbom_step(p: ModuleType, layout, target, source: str):
     )
 
 
-def trivy_step(p: ModuleType, layout, target):
+def trivy_step(p: ModuleType, layout, target, os_args: Sequence[str]):
     args = [
         "sbom",
         *p.TRIVY_COMMON,
@@ -134,6 +134,7 @@ def trivy_step(p: ModuleType, layout, target):
         "memory",
         "--scanners",
         "vuln",
+        *os_args,
         "--format",
         "json",
         "--output",
@@ -221,9 +222,11 @@ def scan_tree(
     ready = [target for target in targets if target.key not in failed]
 
     lanes = []
+    today = dt.datetime.now(tz=dt.UTC).date()
     for target in ready:
         if "trivy" in scanners:
-            lanes.append([trivy_step(p, layout, target)])
+            os_args = p.trivy_os_args(layout, target, scanners, config, today)
+            lanes.append([trivy_step(p, layout, target, os_args)])
         if "grype" in scanners:
             lanes.append([grype_step(p, layout, target)])
     if "osv" in scanners and ready:
@@ -312,7 +315,8 @@ def failing(rows: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
 
 
 def scan_config(p: ModuleType, workers: int):
-    runtime = role_services()["runtime"]
+    services = role_services()
+    runtime = services["runtime"]
     return p.scan_config(
         {
             "targets": ["container"],
@@ -321,6 +325,7 @@ def scan_config(p: ModuleType, workers: int):
             "fixed_only": runtime["fixed_only"],
             "workers": workers,
             "db_update": True,
+            "trivy_unmatched_os": services["trivy"]["unmatched_os"],
         }
     )
 
