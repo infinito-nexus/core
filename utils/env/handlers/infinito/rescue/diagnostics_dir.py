@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from utils.paths import read_group_path
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_RESCUE_DIAGNOSTICS_DIR"
 COMMENT = "Where rescue: blocks write their failure snapshot; CI uploads it (SPOT: group_vars/all/05_paths.yml DIR_RESCUE_DIAGNOSTICS)."

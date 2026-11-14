@@ -9,7 +9,7 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "GITHUB_REPOSITORY_OWNER"
 COMMENT = "Lowercased GHA repository owner used to compose INFINITO_IMAGE."

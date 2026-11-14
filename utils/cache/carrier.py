@@ -20,6 +20,7 @@ from .base import (
     _revalidate_tokens_file,
     _stable_variables_signature,
 )
+from .tokens import resolve_tokens_file, store_signature
 
 if TYPE_CHECKING:
     import os
@@ -70,10 +71,8 @@ def merged_users_cache_key(
         ``(resolved roles dir, applications key signature extended by the
         token store signature and the host the payload was rendered for)``.
     """
-    from .users import _resolve_tokens_file, _store_signature
-
     roles_key, signature = merged_applications_cache_key(variables, roles_dir=roles_dir)
-    tokens = _store_signature(variables, _resolve_tokens_file(variables))
+    tokens = store_signature(variables, resolve_tokens_file(variables))
     host = (variables or {}).get("inventory_hostname")
     return (
         roles_key,
@@ -87,9 +86,7 @@ def revalidate_tokens_file(variables: Mapping[str, Any] | None) -> None:
     Args:
         variables: The play's variable scope the tokens file resolves from.
     """
-    from .users import _resolve_tokens_file
-
-    _revalidate_tokens_file(_resolve_tokens_file(variables))
+    _revalidate_tokens_file(resolve_tokens_file(variables))
 
 
 def _carried(

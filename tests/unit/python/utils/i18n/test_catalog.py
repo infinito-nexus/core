@@ -1,8 +1,8 @@
 import errno
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from utils.i18n.catalog import (
     build_template,
@@ -106,7 +106,7 @@ class TestWrite(unittest.TestCase):
                 raise OSError(errno.ENOSPC, "No space left on device")
 
             with (
-                mock.patch.object(
+                unittest.mock.patch.object(
                     Path, "write_bytes", autospec=True, side_effect=full_disk
                 ),
                 self.assertRaises(OSError),

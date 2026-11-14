@@ -36,13 +36,13 @@ import functools
 import re
 import unittest
 
-from cli.administration.deploy.development.inventory.legacy_resolver import (
-    _resolve_round_include,
-)
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.variant_pins import pins_of
-from utils.roles.applications.variants import services_overrides_for_round
+from utils.roles.applications.variants import (
+    _resolve_round_include,
+    services_overrides_for_round,
+)
 from utils.roles.guide import GUIDE_SERVICE_KEY, guide_off
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 

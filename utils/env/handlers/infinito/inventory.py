@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from utils.env.runtime import run_helper
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 INVENTORY_DIR_KEY = "INFINITO_INVENTORY_DIR"
 INVENTORY_FILE_KEY = "INFINITO_INVENTORY_FILE"
