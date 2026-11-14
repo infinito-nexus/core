@@ -255,13 +255,8 @@ class TestBuildDevInventoryMatrix(unittest.TestCase):
         self.compose.repo_root = Path("/tmp/infinito-nexus")
 
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        "utils.roles.applications.variants._resolve_round_include",
         autospec=True,
-    )
-    @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
-        autospec=True,
-        return_value={},
     )
     @patch(
         "cli.administration.deploy.development.inventory.builder.build_dev_inventory",
@@ -279,7 +274,6 @@ class TestBuildDevInventoryMatrix(unittest.TestCase):
         self,
         _variants_mock: MagicMock,
         build_inventory_mock: MagicMock,
-        _overrides_mock: MagicMock,
         resolve_include_mock: MagicMock,
     ) -> None:
         resolve_include_mock.side_effect = [

@@ -17,7 +17,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.env.builder import BuildContext, EnvBuilder, build_env
+from utils.env.builder import build_env
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers import ORDERED_HANDLERS, PASSTHROUGH_STATIC_KEYS
 
 

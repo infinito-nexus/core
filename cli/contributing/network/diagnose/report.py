@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import socket
 import sys
@@ -104,12 +105,10 @@ def has_ipv6_default_route() -> bool:
         for raw in out.splitlines():
             if "default" in raw and " dev lo" not in raw:
                 return True
-    try:
+    with contextlib.suppress(OSError):
         v6_text = Path("/proc/net/ipv6_route").read_text()  # nocheck: cache-read
         for raw in v6_text.splitlines():
             parts = raw.split()
             if len(parts) >= 10 and parts[0] == "0" * 32 and parts[-1] != "lo":
                 return True
-    except OSError:
-        pass
     return False

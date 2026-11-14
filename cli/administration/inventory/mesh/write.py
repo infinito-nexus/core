@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
-from cli.administration.inventory.provision.ruamel_io import (
+from cli.administration.inventory.ruamel_io import (
     dump_document,
     ensure_map,
     load_document,

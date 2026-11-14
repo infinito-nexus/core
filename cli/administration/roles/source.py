@@ -9,12 +9,27 @@ import subprocess
 import tarfile
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
-from utils.roles.custom import CustomRoleError
+from utils.cache.files import read_text
+from utils.roles.custom import CustomRoleError, manifest_version
 
 if TYPE_CHECKING:
     from .declaration import Source
+
+
+class Staged(NamedTuple):
+    """What :func:`stage` copied.
+
+    Args:
+        provenance: the source and, for a pinned version, the resolved commit.
+        version: the semver the source repository's manifests declare at
+            that commit (or in the local checkout); empty for none.
+    """
+
+    provenance: str
+    version: str
+
 
 _COPY_IGNORE = shutil.ignore_patterns(".git", ".claude", "__pycache__")
 _DROPPED_ENV = frozenset(
@@ -67,7 +82,7 @@ def check(group: str, source: Source, placements: list[Path], roles_dir: Path) -
         )
 
 
-def stage(group: str, source: Source, target: Path) -> str:
+def stage(group: str, source: Source, target: Path) -> Staged:
     """Copy the role of ``source`` into ``target`` and describe what was copied.
 
     Args:
@@ -76,7 +91,8 @@ def stage(group: str, source: Source, target: Path) -> str:
         target: a path that does not exist yet; it becomes the role directory.
 
     Returns:
-        The source and, for a pinned version, the resolved commit.
+        The source with, for a pinned version, the resolved commit, and the
+        semver the repository root's manifests declare.
 
     Raises:
         CustomRoleError: the source cannot be read, or it holds an entry,
@@ -89,7 +105,10 @@ def stage(group: str, source: Source, target: Path) -> str:
                 f"{group}: source.path is not a directory in the source"
             )
         shutil.copytree(content, target, symlinks=True, ignore=_COPY_IGNORE)
-        return source.describe()
+        return Staged(
+            source.describe(),
+            manifest_version(lambda name: _local_text(Path(source.url) / name)),
+        )
     with tempfile.TemporaryDirectory(prefix="infinito-custom-role-") as scratch:
         _git(scratch, ["init", "--quiet", "--bare"], f"{group}: git init failed")
         _git(
@@ -130,6 +149,7 @@ def stage(group: str, source: Source, target: Path) -> str:
             ["archive", "--format=tar", tree],
             f"{group}: git archive of source.path failed",
         )
+        version = manifest_version(lambda name: _blob_text(scratch, commit, name))
     target.mkdir()
     try:
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
@@ -138,7 +158,24 @@ def stage(group: str, source: Source, target: Path) -> str:
         raise CustomRoleError(
             f"{group}: source.path holds an entry the pull refuses to unpack: {exc}"
         ) from exc
-    return f"{source.describe()} (commit {commit})"
+    return Staged(f"{source.describe()} (commit {commit})", version)
+
+
+def _local_text(path: Path) -> str | None:
+    if path.is_symlink() or not path.is_file():
+        return None
+    try:
+        return read_text(str(path))
+    except UnicodeDecodeError:
+        return None
+
+
+def _blob_text(scratch: str, commit: str, name: str) -> str | None:
+    try:
+        blob = _git(scratch, ["show", f"{commit}:{name}"], f"no {name} at {commit}")
+    except CustomRoleError:
+        return None
+    return blob.decode(errors="replace")
 
 
 def _check_local(

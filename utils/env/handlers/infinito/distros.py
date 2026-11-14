@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from utils.distros import FILE_META_DISTROS, distro_names
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_DISTROS"
 COMMENT = f"Space-separated distro ids, derived from {FILE_META_DISTROS}."

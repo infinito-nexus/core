@@ -14,7 +14,7 @@ resolves its closure on a runner that has no inventory, no container and no
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -260,6 +260,52 @@ def clamped_assignment(
     }
 
 
+def _resolve_round_include(
+    *,
+    primary_apps: Sequence[str],
+    services_overrides: dict[str, dict],
+) -> tuple[str, ...]:
+    """Resolve transitive prerequisites for each primary app under a
+    round's variant-merged services map. Returns the full include set
+    in stable order (deps first per primary, primary last; primaries
+    iterated in the user-provided order).
+
+    A non-invokable prerequisite is dropped from the result. The include
+    set becomes an inventory group per entry and a deploy id the play
+    dispatches, and `utils.roles.stage` only ever loops over invokable
+    paths, so a non-invokable id could never be dispatched from one.
+    Keeping it would abort the round before ansible starts, which is
+    what `user-workstation` did to every desktop round, and inventing a
+    group for it instead would produce one nothing dispatches. The role
+    still reaches the host through whatever pulled it into the closure:
+    a meta dependency, or the service edge `sys-service-loader` reads.
+
+    The resolver import is deferred so the host-side import surface
+    stays lean for callers that never need the variant-aware planner
+    (e.g. lint/validation).
+    """
+    from cli.meta.roles.applications.resolution.combined.resolver import (
+        CombinedResolver,
+    )
+    from utils.roles.required_by_coverage import role_is_invokable
+
+    resolver = CombinedResolver(
+        services_overrides=services_overrides, follow_run_after=False
+    )
+    out: list[str] = []
+    seen: set[str] = set()
+    for app_id in primary_apps:
+        deps = resolver.resolve(app_id)
+        for dep in deps:
+            if dep != app_id and dep not in seen and role_is_invokable(dep):
+                out.append(dep)
+                seen.add(dep)
+        if app_id not in seen:
+            out.append(app_id)
+            seen.add(app_id)
+    return tuple(out)
+
+
 def round_under(
     active_index: Mapping[str, int],
     *,
@@ -283,8 +329,6 @@ def round_under(
         The round under ``active_index``, and ``{role: index}`` for every
         non-primary role a pin in force moves.
     """
-    from cli.administration.deploy.development.inventory import legacy_resolver
-
     overrides = _overrides_for_assignment(
         active_index,
         roles_dir=roles_dir,
@@ -292,7 +336,7 @@ def round_under(
         variants_per_app=variants_per_app,
     )
     include = tuple(
-        legacy_resolver._resolve_round_include(
+        _resolve_round_include(
             primary_apps=list(primary_app_variants),
             services_overrides=overrides,
         )

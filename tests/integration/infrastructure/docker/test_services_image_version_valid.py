@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_str
 from utils.docker.image.ref import is_valid_image_name
+from utils.roles.custom import resolve_role_version
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -89,7 +90,11 @@ class TestDockerServicesImageVersionValid(unittest.TestCase):
                         f"{cfg_path}: services.{svc_name}.image invalid: {value!r}"
                     )
 
-                if field == "version" and not _is_valid_version(value):
+                if field == "version" and not _is_valid_version(
+                    resolve_role_version(value, repo_root / "roles")
+                    if isinstance(value, str)
+                    else value
+                ):
                     failures.append(
                         f"{cfg_path}: services.{svc_name}.version invalid: {value!r}"
                     )

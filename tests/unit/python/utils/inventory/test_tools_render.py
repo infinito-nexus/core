@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from utils.cache.files import read_text
-from utils.inventory import tools
+from utils.inventory import tools_vars
 
 MARKUP = "/models/<a & 'b'>\""
 TEMPLATE = (
@@ -21,14 +21,14 @@ class TestRender(unittest.TestCase):
     def test_the_yaml_lane_renders_without_html_escaping(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            template = root / tools.TEMPLATE
+            template = root / tools_vars.TEMPLATE
             template.parent.mkdir(parents=True)
             template.write_text(TEMPLATE, encoding="utf-8")
-            with patch.object(tools, "models_dir", return_value=MARKUP):
-                rendered = read_text(str(tools.render(root, ["en", "de"])))
+            with patch.object(tools_vars, "models_dir", return_value=MARKUP):
+                rendered = read_text(str(tools_vars.render(root, ["en", "de"])))
         self.assertIn(f'models: "{MARKUP}"', rendered)
         self.assertIn("languages: de,en", rendered)
-        self.assertIn(f"key: {tools.API_KEY}", rendered)
+        self.assertIn(f"key: {tools_vars.API_KEY}", rendered)
         self.assertIn("{{ ansible_expression }}", rendered)
         self.assertNotIn("&lt;", rendered)
         self.assertNotIn("&amp;", rendered)
