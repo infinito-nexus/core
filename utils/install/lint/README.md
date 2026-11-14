@@ -60,3 +60,7 @@ def ensure() -> None:
 The `all` mode honors a per-interpreter stamp at `build/install-lint-<hash>.stamp` (the suffix is the first 8 chars of `sha256(sys.executable)`, so host and container track independently even though `build/` is bind-mounted).
 Stamp dependencies are [lint.sh](../../../scripts/install/lint.sh) and [pyproject.toml](../../../pyproject.toml).
 Group-targeted invocations always run and never touch the stamp.
+
+With `INFINITO_LINT_RUNNER=docker` the `lint-docker` stage of the root [Dockerfile](../../../Dockerfile) runs every `all` group except `javascript` and `playwright`, which install into the bind-mounted tree, so a fresh container finds the toolchain in the image and the `all` run only checks it.
+The stage runs the `full` stage's system package step before those groups, so they resolve packages in the order a runtime install does.
+[test_main.py](../../../tests/unit/python/utils/install/lint/test_main.py) keeps that group list, that step and the files the stage copies in step with this package.

@@ -26,6 +26,7 @@ services:
       dockerfile: Dockerfile
       args:
         INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
+        INFINITO_LINT_RUNNER: ${INFINITO_LINT_RUNNER:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_SRC_DIR: ${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_PACKAGE_INSTALL_SCRIPT: ${INFINITO_PACKAGE_INSTALL_SCRIPT:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_PYTHON_INSTALL_SCRIPT: ${INFINITO_PYTHON_INSTALL_SCRIPT:?Run 'make dotenv' to generate the .env single source of truth}
