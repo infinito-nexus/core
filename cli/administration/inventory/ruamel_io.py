@@ -1,6 +1,6 @@
-"""Round-trip YAML access for the inventory files this package rewrites.
+"""Round-trip YAML access for the inventory files the inventory CLIs rewrite.
 
-The counterpart to :mod:`yaml_io`, which reads values. Everything here keeps
+The counterpart to :mod:`.provision.yaml_io`, which reads values. Everything here keeps
 comments, quoting and vault tags intact, because host_vars is hand-edited as
 often as it is generated.
 """

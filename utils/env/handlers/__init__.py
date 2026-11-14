@@ -1,7 +1,7 @@
 """Handler registry. ``ORDERED_HANDLERS`` is iterated by ``build_env()``.
 
 Each handler module exposes ``apply(eb, ctx) -> None``. Cross-handler
-data flows via :class:`utils.env.builder.EnvBuilder`; handlers must not
+data flows via :class:`utils.env.context.EnvBuilder`; handlers must not
 import each other.
 """
 
@@ -26,6 +26,7 @@ from .infinito import (
     image_repository,
     inventory,
     is_wsl2,
+    lint_runner,
     outer_network_mtu,
     parent_image,
     pull_policy,
@@ -116,6 +117,7 @@ ORDERED_HANDLERS = [
     gha_passthrough,
     pull_policy,
     build,
+    lint_runner,
     docker_embedded_dns,
     docker_volume,
     github_repository_owner,

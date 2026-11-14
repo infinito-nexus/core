@@ -9,6 +9,7 @@ _build_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_build_script_dir}/../meta/env/load.sh"
 
 : "${INFINITO_PARENT_IMAGE:?Missing INFINITO_PARENT_IMAGE; source scripts/meta/env/load.sh}"
+: "${INFINITO_LINT_RUNNER:?Missing INFINITO_LINT_RUNNER; source scripts/meta/env/load.sh}"
 
 NO_CACHE=0
 MISSING_ONLY=0
@@ -207,6 +208,7 @@ echo "[build] Building image"
 echo "distro               = ${INFINITO_DISTRO}"
 echo "target               = ${TARGET}"
 echo "INFINITO_PARENT_IMAGE = ${INFINITO_PARENT_IMAGE}"
+echo "INFINITO_LINT_RUNNER  = ${INFINITO_LINT_RUNNER}"
 if [[ "${NO_CACHE}" == "1" ]]; then echo "cache               = disabled"; fi
 if [[ "${PUSH}" == "1" ]]; then echo "push                = enabled"; fi
 if [[ "${PUBLISH}" == "1" ]]; then
@@ -230,6 +232,7 @@ echo "------------------------------------------------------------"
 : "${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?INFINITO_DOCKER_CLI_INSTALL_SCRIPT must be set; source scripts/meta/env/load.sh}"
 build_args=(
 	--build-arg "INFINITO_PARENT_IMAGE=${INFINITO_PARENT_IMAGE}"
+	--build-arg "INFINITO_LINT_RUNNER=${INFINITO_LINT_RUNNER}"
 	--build-arg "INFINITO_SRC_DIR=${INFINITO_SRC_DIR}"
 	--build-arg "INFINITO_VENV_DIR=${INFINITO_VENV_DIR}"
 	--build-arg "INFINITO_PACKAGE_INSTALL_SCRIPT=${INFINITO_PACKAGE_INSTALL_SCRIPT}"
