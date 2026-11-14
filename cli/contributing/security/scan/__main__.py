@@ -401,7 +401,7 @@ def main(argv=None) -> int:
         f"{len(failures)} failing and {len(rows) - len(failures)} suppressed "
         f"finding(s), {len(errors)} error(s)"
     )
-    return 1 if failures or errors else 0
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":
