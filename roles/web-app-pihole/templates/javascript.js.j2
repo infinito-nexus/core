@@ -1,8 +1,11 @@
 {% raw %}
 (function () {
+  var HOME = "/admin/";
+
   function redirectIfAccessDenied() {
-    if (document.querySelector('p') && document.body.innerText.includes("your Pi-hole")) {
-      window.location.replace("/admin/");
+    if (window.location.pathname === HOME) return;
+    if (document.body && document.body.classList.contains("page-error403")) {
+      window.location.replace(HOME);
     }
   }
 
