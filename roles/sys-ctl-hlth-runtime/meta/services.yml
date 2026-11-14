@@ -20,6 +20,13 @@ runtime:
 trivy:
   image: ghcr.io/aquasecurity/trivy
   version: "0.76.1"
+  unmatched_os:
+    - name: centos
+      version: "10"
+      until: 2026-11-30
+    - name: rhel
+      version: "10"
+      until: 2026-11-30
   security:
     suppressions:
       # nocheck: cve golang.org/x/net below 0.60.0 sits in the newest docker-ce and containerd.io packages

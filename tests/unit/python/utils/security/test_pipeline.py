@@ -23,9 +23,15 @@ class TestPipeline(TestCase):
         self.assertEqual(pipeline.user_runtime()[-1], f"{os.getuid()}:{os.getgid()}")
 
     def test_the_role_default_is_a_valid_scan_config(self):
-        runtime = pipeline.role_services()["runtime"]
+        services = pipeline.role_services()
+        runtime = services["runtime"]
         keys = ("targets", "engines", "severity", "fixed_only", "workers", "db_update")
-        config = pipeline.pipeline().scan_config({key: runtime[key] for key in keys})
+        config = pipeline.pipeline().scan_config(
+            {
+                **{key: runtime[key] for key in keys},
+                "trivy_unmatched_os": services["trivy"]["unmatched_os"],
+            }
+        )
         self.assertLessEqual(
             set(config.severity.values()), set(pipeline.pipeline().ACTIONS)
         )
