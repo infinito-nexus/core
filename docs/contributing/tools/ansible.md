@@ -33,6 +33,7 @@ Use this rule when a role pins container image versions in `roles/*/meta/service
 
 - You MUST keep semver-like image versions current when the upstream image publishes matching newer tags.
 - You MUST use `# nocheck: docker-version` directly above a `version:` key only for intentional exceptions that should not be flagged by the external image-version check.
+- You MUST hold a semver image version that cannot move yet with a `hold:` block beside it (`version:` equal to the pin, `reason:` naming the blocker), so the image updater proposes no other tag and reports the newer one as held. [test_version_keys.py](../../../tests/lint/ansible/services/test_version_keys.py) rejects a hold without reason or for another version.
 - You SHOULD prefer explicit version pinning over drifting tags when the role depends on stable, reproducible deploys.
 
 ### Extracted Code 📤

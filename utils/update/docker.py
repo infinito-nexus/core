@@ -29,6 +29,7 @@ from urllib.parse import quote, urlencode
 
 import yaml
 
+from utils.annotations.message import warning
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
@@ -45,6 +46,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.suppressions import drop_image_tag_entries
 from utils.update.base import (
     declares_source,
+    hold_reason,
     is_maintained,
     is_semver,
     latest_semver,
@@ -73,12 +75,19 @@ class DockerImageVersionEntry:
     image: str
     version: str
     config_path: Path
+    hold: str = ""
 
 
 @dataclass(frozen=True)
 class DockerImageVersionUpdate:
     entry: DockerImageVersionEntry
     latest: str
+
+
+@dataclass(frozen=True)
+class DockerImageVersionHold:
+    update: DockerImageVersionUpdate
+    holder: DockerImageVersionEntry
 
 
 def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:
@@ -294,6 +303,12 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
         else:
             image = f"{ref.registry}/{ref.name}"
 
+        config = (load_yaml(str(config_path)) or {}).get(ref.service)
+        try:
+            hold = hold_reason(config, ref.version)
+        except ValueError as exc:
+            raise ValueError(f"{config_path}:{ref.service}: {exc}") from exc
+
         entries.append(
             DockerImageVersionEntry(
                 role=ref.role,
@@ -301,6 +316,7 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
                 image=image,
                 version=ref.version,
                 config_path=config_path,
+                hold=hold,
             )
         )
 
@@ -357,7 +373,45 @@ def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
         if latest and version_key(entry.version) < version_key(latest):
             updates.append(DockerImageVersionUpdate(entry=entry, latest=latest))
 
-    return _held_to_release_groups(updates, image_tags)
+    free, held = _split_holds(entries, updates)
+    for hold in held:
+        update = hold.update
+        warning(
+            f"[hold] {update.entry.role}/{update.entry.service}: "
+            f"{update.entry.image} stays at {update.entry.version}, "
+            f"{update.latest} is available; held by {hold.holder.service}: "
+            f"{hold.holder.hold}",
+            title="Held Docker image",
+            file=str(update.entry.config_path.relative_to(repo_root)),
+        )
+    return _held_to_release_groups(free, image_tags)
+
+
+def _split_holds(
+    entries: list[DockerImageVersionEntry], updates: list[DockerImageVersionUpdate]
+) -> tuple[list[DockerImageVersionUpdate], list[DockerImageVersionHold]]:
+    """
+    Args:
+        entries: every watched pin.
+        updates: the per-entry candidates, before grouping.
+
+    Returns:
+        The candidates outside every release group with a held member, and
+        one hold per candidate inside one, naming that member.
+    """
+    holders: dict[tuple[str, str], DockerImageVersionEntry] = {}
+    for entry in entries:
+        if entry.hold:
+            holders.setdefault((entry.role, entry.version), entry)
+    free: list[DockerImageVersionUpdate] = []
+    held: list[DockerImageVersionHold] = []
+    for update in updates:
+        holder = holders.get((update.entry.role, update.entry.version))
+        if holder is None:
+            free.append(update)
+        else:
+            held.append(DockerImageVersionHold(update=update, holder=holder))
+    return free, held
 
 
 def _held_to_release_groups(
