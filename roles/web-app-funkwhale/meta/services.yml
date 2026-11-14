@@ -13,7 +13,7 @@ funkwhale:
   # nocheck: default-placement-manager  embedded typesense index; node-local in swarm
   placement: manager
   image: funkwhale/front
-  version: 2.0.13
+  version: 2.0.14
   min_storage: 224MB
   ports:
     internal:
@@ -34,11 +34,6 @@ funkwhale:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "2.0.13"
-        until: 2026-11-30
 api:
   backup:
     stop_required: false
@@ -48,7 +43,7 @@ api:
   name: funkwhale-api
   image: funkwhale/api
   ca_client: true
-  version: 2.0.13
+  version: 2.0.14
   min_storage: 588MB
   ports:
     internal:
@@ -57,11 +52,6 @@ api:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "2.0.13"
-        until: 2026-11-30
 migrate:
   # nocheck: single-replica  run-once schema bootstrap; concurrent `funkwhale-manage migrate` races the migration graph
   replicas: 1
