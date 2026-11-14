@@ -9,6 +9,7 @@ See: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-wor
 from __future__ import annotations
 
 import os
+import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -46,6 +47,19 @@ def _emit(
         if title:
             label += f" {title}"
         print(f"{label}: {message}", flush=True)
+
+
+def mask(value: str) -> None:
+    """Register a secret with GitHub Actions so every later log line redacts it.
+
+    Args:
+        value: the secret; each non-blank line is registered on its own.
+    """
+    if not in_github_actions():
+        return
+    for line in value.splitlines():
+        if line.strip():
+            print(f"::add-mask::{line}", file=sys.stderr, flush=True)
 
 
 def warning(

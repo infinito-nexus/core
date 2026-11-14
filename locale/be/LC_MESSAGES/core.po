@@ -1811,6 +1811,10 @@ msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr ""
 
+msgctxt "role:web-app-openpost:description"
+msgid "Self-hosted publishing desk that composes, schedules and publishes posts to Fediverse and commercial social networks"
+msgstr ""
+
 # z dostępem online, zarządzaniem rejestrowaniem oraz płatności
 # zabezpieczonymi
 msgctxt "role:web-app-pretix:description"

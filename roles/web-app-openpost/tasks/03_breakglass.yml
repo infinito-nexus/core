@@ -1,0 +1,59 @@
+---
+- name: "⏳ Wait until OpenPost reports ready"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/ready"
+    headers: "{{ OPENPOST_API_HEADERS }}"
+    status_code: 200
+    timeout: "{{ lookup('timeout', 10) | int }}"
+  retries: 60
+  delay: 5
+  changed_when: false
+
+- name: "🔑 Sign in as the break-glass instance admin"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/auth/login"
+    method: POST
+    headers: "{{ OPENPOST_API_HEADERS }}"
+    body_format: json
+    body:
+      email: "{{ OPENPOST_ADMIN_EMAIL }}"
+      password: "{{ OPENPOST_ADMIN_PASSWORD }}"
+    status_code: [200, 401]
+  register: openpost_breakglass_login
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: false
+
+- name: "🛟 Create or recover the break-glass account that cannot sign in"
+  include_tasks: breakglass/recover.yml
+  when: openpost_breakglass_login.status == 401
+
+- name: "🔐 Keep the break-glass session headers for the following API calls"
+  ansible.builtin.set_fact:
+    openpost_breakglass_headers: >-
+      {{ OPENPOST_API_HEADERS | combine({'Authorization': 'Bearer ' ~
+         (openpost_breakglass_login.json.token if openpost_breakglass_login.status == 200
+          else openpost_breakglass_register.json.token if openpost_breakglass_register.status == 200
+          else openpost_breakglass_relogin.json.token)}) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 List the workspaces of the break-glass instance admin"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/workspaces"
+    headers: "{{ openpost_breakglass_headers }}"
+    status_code: 200
+  register: openpost_breakglass_workspaces
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: false
+
+- name: "🏢 Create the organisation workspace owned by the break-glass instance admin"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/workspaces"
+    method: POST
+    headers: "{{ openpost_breakglass_headers }}"
+    body_format: json
+    body:
+      name: "{{ OPENPOST_ORGANISATION_WORKSPACE }}"
+    status_code: 200
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
+  when: OPENPOST_ORGANISATION_WORKSPACE not in (openpost_breakglass_workspaces.json | map(attribute='name') | list)

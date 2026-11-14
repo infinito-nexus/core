@@ -4,6 +4,7 @@ import re
 import secrets
 import string
 
+from utils.annotations.message import mask
 from utils.manager.value_generator import ValueGenerator
 
 USER_PASSWORD_LENGTH = 64
@@ -37,6 +38,7 @@ def generate_user_password(length: int = USER_PASSWORD_LENGTH) -> str:
         body[secrets.randbelow(length - 1) + 1] = secrets.choice(SHELL_SAFE_MARKS)
         password = "".join(body)
         if _USER_PASSWORD_RE.match(password):
+            mask(password)
             return password
     raise RuntimeError("Failed to generate a user password after many attempts")
 

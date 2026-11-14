@@ -1,0 +1,40 @@
+---
+- name: "📁 Ensure the fake provider directory exists"
+  ansible.builtin.file:
+    path: "{{ OPENPOST_PROVIDER_DIR }}"
+    state: directory
+    mode: "0750"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔑 Hand the fake provider its copy of the simulator key"
+  ansible.builtin.copy:
+    src: "{{ [OPENPOST_SIMULATOR_DIR, 'server.key'] | path_join }}"
+    dest: "{{ OPENPOST_PROVIDER_KEY_HOST }}"
+    remote_src: true
+    owner: "{{ OPENPOST_PROVIDER_UID }}"
+    group: "{{ OPENPOST_PROVIDER_UID }}"
+    mode: "0400"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📦 Stage the fake provider build context"
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/provider/"
+    dest: "{{ OPENPOST_PROVIDER_BUILD_CONTEXT }}/"
+    mode: preserve
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📄 Render the fake provider configuration"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "provider.json.j2"
+        dest: "{{ OPENPOST_PROVIDER_CONFIG_HOST }}"
+        mode: "0400"
+        owner: "{{ OPENPOST_PROVIDER_UID }}"
+        group: "{{ OPENPOST_PROVIDER_UID }}"

@@ -26,6 +26,9 @@ STALWART_BAN_TRACER:
 STALWART_JMAP_APPLICATION_GET: >-
   {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
       'methodCalls': [['x:Application/get', {'ids': none}, 'c0']]} | to_json }}
+STALWART_JMAP_RELOAD_SETTINGS: >-
+  {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+      'methodCalls': [['x:Action/set', {'create': {'a': {'@type': 'ReloadSettings'}}}, 'c0']]} | to_json }}
 STALWART_JMAP_TRANSIENT_ERRORS:
   - serverUnavailable
   - rateLimit
@@ -106,6 +109,10 @@ STALWART_BOT_APP_PASSWORD_DESCRIPTION: "Infinito.Nexus submission"
 STALWART_BOT_APP_PASSWORD_RETIRED_DESCRIPTION: "Infinito.Nexus submission, retired"
 stalwart_app_password_stale: {}
 STALWART_RELAY_RULE: "!is_empty(authenticated_as)"
+STALWART_RCPT_THROTTLE_KEY:
+  senderDomain: true
+  rcpt: true
+STALWART_RCPT_THROTTLE_RULE: "is_empty(authenticated_as)"
 
 STALWART_BAN_PERIOD_MS: "{{ (lookup('config', application_id, 'services.stalwart.ban_period_seconds') | int) * 1000 }}"
 STALWART_BAN_PERIODS:

@@ -160,6 +160,12 @@ account (or the Keycloak SSO token when SSO is enabled).
   (`templates/jmap/*.json.j2`).
 - **Only authenticated sessions relay, with or without SSO.** Under SSO a bot
   authenticates with an app password.
+- **Authenticated submissions skip the recipient throttle.** Stalwart's default
+  inbound throttle allows 25 mails per hour from one sender domain to one
+  recipient, and plus-addresses share their base address's budget. The role
+  limits it to unauthenticated sessions (`STALWART_RCPT_THROTTLE_RULE`,
+  `tasks/throttle.yml`), so the platform's own `no-reply` mail to the
+  administrator, alerts included, is never deferred with `452 4.4.5`.
 - **Accounts, app passwords and forwards are provisioned in batches.** Each
   phase (create, password update, app password list, mint, retire, drop,
   forward script list, read, upload, activate) is one JMAP request for all
