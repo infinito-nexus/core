@@ -190,7 +190,7 @@ class TestReport(TestCase):
             [("r", "s", "CVE-2026-109618")],
         )
 
-    def test_a_finding_the_role_only_warns_on_still_fails_the_mirror_scan(self):
+    def test_a_finding_the_role_only_warns_on_is_still_reported(self):
         verdict = P.Verdict(
             self._finding("HIGH"), self.target, ("r", "s"), None, False, "warn"
         )
@@ -200,6 +200,57 @@ class TestReport(TestCase):
     def test_the_role_mapping_is_a_valid_mirror_scan_config(self):
         config = scan_main.scan_config(P, 1)
         self.assertLessEqual(set(config.severity.values()), set(P.ACTIONS))
+
+
+class TestExitCode(TestCase):
+    def _run(self, errors):
+        finding = P.Finding(
+            "grype",
+            "abc",
+            "php-cli",
+            "8.4.26",
+            "8.4.27",
+            ("CVE-2026-109618",),
+            "CRITICAL",
+        )
+        p = mock.MagicMock()
+        p.verdicts.return_value = [
+            P.Verdict(finding, TestReport.target, ("r", "s"), None, False, "fail")
+        ]
+        with (
+            tempfile.TemporaryDirectory() as tmp,
+            mock.patch.object(scan_main, "pipeline", return_value=p),
+            mock.patch.object(
+                scan_main, "scan_config", return_value=SimpleNamespace(workers=1)
+            ),
+            mock.patch.object(scan_main, "iter_role_images", return_value=[]),
+            mock.patch.object(
+                scan_main,
+                "resolve_digests",
+                return_value=({}, MIRROR_SOURCES, list(errors)),
+            ),
+            mock.patch.object(scan_main, "targets_of", return_value=[]),
+            mock.patch.object(scan_main, "user_runtime", return_value=("docker",)),
+            mock.patch.object(scan_main, "scan_tree", return_value=([], [])),
+            mock.patch.object(scan_main, "suppressions_of", return_value={}),
+            mock.patch("builtins.print"),
+        ):
+            return scan_main.main(
+                [
+                    "--cache-dir",
+                    f"{tmp}/cache",
+                    "--report",
+                    f"{tmp}/report.json",
+                    "--workers",
+                    "1",
+                ]
+            )
+
+    def test_an_unsuppressed_finding_alone_passes(self):
+        self.assertEqual(self._run([]), 0)
+
+    def test_an_engine_error_fails(self):
+        self.assertEqual(self._run(["trivy img: exited 1"]), 1)
 
 
 class TestScanTree(TestCase):
