@@ -14,10 +14,13 @@ table inet {{ FIREWALL_TABLE }} {
     elements = { {{ NETWORK_INTERNAL_CIDRS | join(', ') }} }
   }
 
-{% set _tcp_guarded = TOR_EGRESS_GUARDED_PORTS | selectattr('protocol', 'equalto', 'tcp') | map(attribute='port') | unique | list %}
-{% set _udp_guarded = TOR_EGRESS_GUARDED_PORTS | selectattr('protocol', 'equalto', 'udp') | map(attribute='port') | unique | list %}
-{% set _all = TOR_EGRESS_ROUTE == 'all' %}
-{% set _listed = TOR_EGRESS_PLAN.tor_listed or _all %}
+{% set _routes = TOR_NODE_ROUTES %}
+{% set _ports = TOR_EGRESS_GUARDED_PORTS + TOR_CHUTNEY_GUARDED_PORTS %}
+{% set _guarded = _ports if _routes else (_ports | rejectattr('router') | list) %}
+{% set _tcp_guarded = _guarded | selectattr('protocol', 'equalto', 'tcp') | map(attribute='port') | unique | list %}
+{% set _udp_guarded = _guarded | selectattr('protocol', 'equalto', 'udp') | map(attribute='port') | unique | list %}
+{% set _all = _routes and TOR_EGRESS_ROUTE == 'all' %}
+{% set _listed = _routes and (TOR_EGRESS_PLAN.tor_listed or _all) %}
 {% set _dns = '{ ' ~ (TOR_EGRESS_RESOLVER_PORTS | join(', ')) ~ ' }' %}
 {% set _literal = [('tor_v4', 'ipv4_addr'), ('tor_v6', 'ipv6_addr'), ('direct_v4', 'ipv4_addr'), ('direct_v6', 'ipv6_addr')] %}
 {% if _all %}
@@ -66,7 +69,7 @@ table inet {{ FIREWALL_TABLE }} {
 
 {% endif %}
   chain guard {
-{% for entry in TOR_EGRESS_GUARDED_PORTS %}
+{% for entry in _guarded %}
     ip saddr != @{{ entry.admitted }} {{ entry.protocol }} dport {{ entry.port }} drop
 {% endfor %}
 {% if _tcp_guarded | length > 0 %}
@@ -89,6 +92,7 @@ table inet {{ FIREWALL_TABLE }} {
     jump egress_forward
 {% endif %}
   }
+{% if _routes %}
 
   chain output {
     type nat hook output priority -150; policy accept;
@@ -112,6 +116,7 @@ table inet {{ FIREWALL_TABLE }} {
     meta nfproto ipv4 meta l4proto tcp redirect to :{{ TOR_TRANS_PORT }}
 {% endif %}
   }
+{% endif %}
 {% if _listed %}
 
   chain egress_output {
@@ -197,7 +202,7 @@ table inet {{ FIREWALL_TABLE }} {
 {% endif %}
   }
 {% endif %}
-{% if TOR_CONTAINER_DNS_HOST | length > 0 %}
+{% if _routes and TOR_CONTAINER_DNS_HOST | length > 0 %}
 
   chain prerouting {
     type nat hook prerouting priority -150; policy accept;

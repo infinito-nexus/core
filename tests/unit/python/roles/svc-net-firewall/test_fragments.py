@@ -30,6 +30,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import jinja2
+from jinja2.nativetypes import NativeEnvironment
 
 from plugins.filter.swarm_ingress_guard import (
     swarm_ingress_published,
@@ -38,7 +39,7 @@ from plugins.filter.swarm_ingress_guard import (
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.networks.tor_egress import plan as tor_egress_plan
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -71,10 +72,25 @@ def _guarded_ports() -> list[dict]:
     ]
 
 
+def _chutney_guarded_ports() -> list[dict]:
+    role = PROJECT_ROOT / "roles" / "svc-net-tor"
+    declared = load_yaml_any(str(role / ROLE_FILE_VARS_MAIN))
+    chutney = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))["tor"]["chutney"]
+    environment = NativeEnvironment()
+    window = environment.from_string(declared["TOR_CHUTNEY_PORT_RANGE"]).render(
+        TOR_CHUTNEY_BASES=chutney["port_bases"],
+        TOR_CHUTNEY_PORT_SPAN=chutney["port_span"],
+    )
+    return environment.from_string(declared["TOR_CHUTNEY_GUARDED_PORTS"]).render(
+        TOR_FLAVOR="chutney", TOR_CHUTNEY_PORT_RANGE=window
+    )
+
+
 COMMON = {
     "FIREWALL_TABLE": TABLE,
     "TOR_EGRESS_CLIENT_CIDRS": ["127.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
     "TOR_EGRESS_GUARDED_PORTS": _guarded_ports(),
+    "TOR_CHUTNEY_GUARDED_PORTS": _chutney_guarded_ports(),
     "TOR_EGRESS_VIRTUAL_NET_IPV4": "10.192.0.0/10",
     "TOR_EGRESS_SOCKET_UID": 0,
     "TOR_EGRESS_SOCKET_GID": 9050,
@@ -111,7 +127,7 @@ EGRESS_LISTS = {
     "tor": {"include": ["198.51.100.0/24", "2001:db8::/32"], "except": []},
     "direct": {"include": ["docker.io", "192.0.2.0/28"], "except": ["192.0.2.10"]},
 }
-ROUTES = ("onion", "all")
+ROUTES = ("none", "onion", "all")
 
 
 def _run(argv: list[str]) -> subprocess.CompletedProcess[str]:
@@ -164,6 +180,7 @@ def _render(path: str, mode: str = "swarm", route: str = "onion") -> str:
     return environment.from_string(read_text(path)).render(
         DEPLOYMENT_MODE=mode,
         TOR_EGRESS_ROUTE=route,
+        TOR_NODE_ROUTES=route != "none",
         TOR_EGRESS_PLAN=tor_egress_plan(EGRESS_LISTS, route),
         **COMMON,
     )

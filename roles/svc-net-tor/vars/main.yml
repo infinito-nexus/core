@@ -9,6 +9,12 @@ TOR_CONTAINER: "{{ lookup('config', application_id, 'services.tor.name') }}"
 TOR_NODE_ONION: "{{ lookup('config', application_id, 'services.tor.node', '') }}"
 TOR_USE_ENTRY_GUARDS: "{{ lookup('config', application_id, 'services.tor.use_entry_guards') | bool }}"
 TOR_FLAVOR: "{{ lookup('config', application_id, 'services.tor.flavor') }}"
+TOR_CHUTNEY_NET: "{{ lookup('config', application_id, 'services.tor.chutney.net') }}"
+TOR_CHUTNEY_BASES: "{{ lookup('config', application_id, 'services.tor.chutney.port_bases') }}"
+TOR_CHUTNEY_PORT_SPAN: "{{ lookup('config', application_id, 'services.tor.chutney.port_span') }}"
+TOR_CHUTNEY_ADDRESS: "{{ hostvars[STACK_HOST]['ansible_facts']['default_ipv4']['address'] if IS_SWARM_MODE else NETWORK_LOOPBACK_IPV4 }}"
+TOR_CHUTNEY_PORT_BASES: "{{ TOR_CHUTNEY_BASES.items() | map('join', '=') | join(' ') }}"
+TOR_CHUTNEY_PORT_RANGE: "{{ [TOR_CHUTNEY_BASES.values() | min, (TOR_CHUTNEY_BASES.values() | max) + TOR_CHUTNEY_PORT_SPAN - 1] | join('-') }}"
 TOR_ONION_SSH_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.ssh') | bool }}"
 TOR_ONION_HTTP_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.http') | bool }}"
 TOR_ONION_EXTRA_PORTS: "{{ lookup('tor_extra_ports') }}"
@@ -52,21 +58,31 @@ TOR_EGRESS_GUARDED_PORTS:
   - port: "{{ TOR_TRANS_PORT }}"
     protocol: tcp
     admitted: containers
+    router: true
   - port: "{{ TOR_DNS_PORT }}"
     protocol: tcp
     admitted: containers
+    router: true
   - port: "{{ TOR_DNS_PORT }}"
     protocol: udp
     admitted: containers
+    router: true
   - port: "{{ TOR_SOCKS_PORT }}"
     protocol: tcp
     admitted: internal
+    router: false
   - port: "{{ TOR_DNSMASQ_PORT }}"
     protocol: tcp
     admitted: internal
+    router: true
   - port: "{{ TOR_DNSMASQ_PORT }}"
     protocol: udp
     admitted: internal
+    router: true
+TOR_CHUTNEY_GUARDED_PORTS: >-
+  {{ [ {'port': TOR_CHUTNEY_PORT_RANGE, 'protocol': 'tcp', 'admitted': 'internal', 'router': false},
+       {'port': TOR_CHUTNEY_PORT_RANGE, 'protocol': 'udp', 'admitted': 'internal', 'router': false} ]
+     if TOR_FLAVOR == 'chutney' else [] }}
 TOR_EGRESS_CLIENT_CIDRS: "{{ lookup('tor_egress_clients') }}"
 TOR_DNSMASQ_DROPIN: "/etc/systemd/system/dnsmasq.service.d/infinito-restart.conf"
 # nocheck: host-local-fact  only the egress router reads it, and the router renders its dnsmasq and nftables files for the node it runs on
@@ -74,6 +90,8 @@ TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | defaul
 TOR_HS_BACKEND_HOST: "{{ hostvars[STACK_HOST]['ansible_facts']['default_ipv4']['address'] if IS_SWARM_MODE else (hostvars[STACK_HOST]['ansible_facts']['docker0']['ipv4']['address'] | default('127.0.0.1', true)) }}"
 TOR_NODE_BRIDGE: "{{ hostvars[tor_node]['ansible_facts']['docker0']['ipv4']['address'] | default('', true) }}"
 TOR_ROUTER_NODES: "{{ [inventory_hostname] if IS_COMPOSE_MODE else (groups['svc-swarm-manager'] | default([]) | intersect(groups[application_id] | default([]))) }}"
+TOR_NODE_ROUTES: "{{ TOR_EGRESS_ROUTE != 'none' and tor_node in TOR_ROUTER_NODES }}"
+TOR_REMOTE_NODES: "{{ [] if IS_COMPOSE_MODE else (query('node_hosts') | difference(groups[application_id] | default([]))) }}"
 
 TOR_DATA_DIR: "{{ [ DIR_VAR_LIB, application_id, 'data' ] | path_join }}"
 TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB, application_id, 'config' ] | path_join }}"
@@ -87,6 +105,8 @@ TOR_ENTRYPOINT_HOST: "{{ [ TOR_INSTANCE_DIR, 'entrypoint.sh' ] | path_join }}"
 TOR_HEALTHCHECK_HOST: "{{ [ TOR_INSTANCE_DIR, 'healthcheck.sh' ] | path_join }}"
 TOR_ENTRYPOINT_PATH: "/usr/local/bin/tor-entrypoint.sh"
 TOR_HEALTHCHECK_PATH: "/usr/local/bin/tor-healthcheck.sh"
+TOR_CHUTNEY_SCRIPT_HOST: "{{ [ TOR_INSTANCE_DIR, 'chutney.sh' ] | path_join }}"
+TOR_CHUTNEY_SCRIPT_PATH: "/usr/local/bin/tor-chutney.sh"
 TOR_RESTART_REQUIRED: >-
   {{ ((_tor_hs_keys is changed) or (_tor_torrc is changed))
      and (_tor_running_before is not skipped)

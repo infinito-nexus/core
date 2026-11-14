@@ -55,19 +55,19 @@ def _lookup(name: str, *terms: str) -> str:
     return resolve_socks_endpoint(APPLICATIONS, *terms) if name == "tor_socks" else ""
 
 
-def torrc(node: str, renderer: str = "manager-1", swarm: bool = True) -> str:
+def play_context(node: str, renderer: str, swarm: bool) -> dict:
     """
     Args:
-        node: the node the torrc is rendered for, the loop's ``tor_node``.
+        node: the node a file is rendered for, the loop's ``tor_node``.
         renderer: the inventory host the role runs on while it renders.
         swarm: whether the inventory forms a swarm.
 
     Returns:
-        The rendered torrc.
+        The play variables, with ``STACK_HOST`` and ``TOR_ROUTER_NODES``
+        evaluated.
     """
-    groups = GROUPS if swarm else {}
     play = {
-        "groups": groups,
+        "groups": GROUPS if swarm else {},
         "hostvars": HOSTVARS,
         "inventory_hostname": renderer,
         "IS_SWARM_MODE": swarm,
@@ -76,14 +76,50 @@ def torrc(node: str, renderer: str = "manager-1", swarm: bool = True) -> str:
         "tor_node": node,
     }
     play["STACK_HOST"] = evaluate(SWARM["STACK_HOST"], **play)
+    play["TOR_ROUTER_NODES"] = evaluate(VARS["TOR_ROUTER_NODES"], **play)
+    return play
+
+
+def node_routes(
+    node: str, renderer: str = "manager-1", swarm: bool = True, route: str = "onion"
+) -> bool:
+    """
+    Args:
+        node: the node a file is rendered for, the loop's ``tor_node``.
+        renderer: the inventory host the role runs on while it renders.
+        swarm: whether the inventory forms a swarm.
+        route: the egress route.
+
+    Returns:
+        ``TOR_NODE_ROUTES`` for that node.
+    """
+    play = play_context(node, renderer, swarm)
+    return evaluate(VARS["TOR_NODE_ROUTES"], **play, TOR_EGRESS_ROUTE=route)
+
+
+def torrc(
+    node: str, renderer: str = "manager-1", swarm: bool = True, route: str = "onion"
+) -> str:
+    """
+    Args:
+        node: the node the torrc is rendered for, the loop's ``tor_node``.
+        renderer: the inventory host the role runs on while it renders.
+        swarm: whether the inventory forms a swarm.
+        route: the egress route.
+
+    Returns:
+        The rendered torrc.
+    """
+    play = play_context(node, renderer, swarm)
     return render(
         "torrc.j2",
-        "onion",
+        route,
         _egress(),
         lookup=_lookup,
         IS_SWARM_MODE=swarm,
         TOR_NODE_BRIDGE=evaluate(VARS["TOR_NODE_BRIDGE"], **play),
-        TOR_ROUTER_NODES=evaluate(VARS["TOR_ROUTER_NODES"], **play),
+        TOR_ROUTER_NODES=play["TOR_ROUTER_NODES"],
+        TOR_NODE_ROUTES=node_routes(node, renderer, swarm, route),
         TOR_HS_BACKEND_HOST=evaluate(VARS["TOR_HS_BACKEND_HOST"], **play),
         TOR_ONION_EXTRA_PORTS=HIDDEN_PORTS,
         tor_node=node,

@@ -40,6 +40,7 @@ ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
 PREFLIGHT = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/preflight.yml"
 RESOLVERS = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/resolvers.yml"
 CORE = PROJECT_ROOT / "roles/svc-net-tor/tasks/00_core.yml"
+REFUSE_NONE = PROJECT_ROOT / "roles/svc-net-tor/tasks/router/refuse_none.yml"
 NETWORKS = PROJECT_ROOT / "group_vars/all/08_networks.yml"
 TABLE = "infinito_svc_net_tor"
 UPSTREAM = "198.51.100.53"
@@ -137,6 +138,7 @@ def _variables(route: str, egress: dict, **overrides) -> dict:
         "tor_node": "node",
         "STACK_HOST": "node",
         "TOR_ROUTER_NODES": ["node"],
+        "TOR_NODE_ROUTES": route != "none",
         "TOR_ONION_EXTRA_PORTS": [],
         "TOR_HS_BACKEND_HOST": "172.17.0.1",
         "TOR_DNSMASQ_OWNS_LISTENER": True,
@@ -145,8 +147,9 @@ def _variables(route: str, egress: dict, **overrides) -> dict:
         "FIREWALL_TABLE": TABLE,
         "TOR_EGRESS_CLIENT_CIDRS": CLIENT_CIDRS,
         "TOR_EGRESS_GUARDED_PORTS": [
-            {"port": 9040, "protocol": "tcp", "admitted": "containers"}
+            {"port": 9040, "protocol": "tcp", "admitted": "containers", "router": True}
         ],
+        "TOR_CHUTNEY_GUARDED_PORTS": [],
         "networks": {"internet": {"dns": UPSTREAM}},
         "TOR_CONTAINER": "tor",
         "TOR_IMAGE": "debian",
@@ -366,56 +369,53 @@ class TestNone(unittest.TestCase):
     def test_none_keeps_the_compose_user(self) -> None:
         self.assertNotIn("user:", render("compose.yml.j2", "none", _egress()))
 
-    def test_none_is_refused_over_an_installed_router(self) -> None:
-        block = _task(
-            CORE, "🧹 Refuse route none while an earlier route's router is installed"
+    def test_none_is_refused_only_while_the_dnsmasq_drop_in_exists(self) -> None:
+        include = _task(
+            CORE, "🧹 Refuse route none while an earlier route's resolver is installed"
         )
         self.assertEqual(
-            block["when"],
+            include["ansible.builtin.include_tasks"], "router/refuse_none.yml"
+        )
+        self.assertEqual(
+            include["when"],
             [
                 "TOR_EGRESS_ROUTE == 'none'",
                 "inventory_hostname in TOR_ROUTER_NODES",
             ],
         )
-        firewall = load_yaml_any(
-            str(PROJECT_ROOT / "roles" / "svc-net-firewall" / ROLE_FILE_VARS_MAIN)
-        )
-        dropin = load_yaml_any(
-            str(PROJECT_ROOT / "roles" / "svc-net-tor" / ROLE_FILE_VARS_MAIN)
-        )["TOR_DNSMASQ_CONF"]
-        lookup = _task(CORE, "🔎 Look for the router files an earlier route installed")
-        loop_variables = {
-            "tor_egress_firewall": {
-                "FIREWALL_FRAGMENT_DIR": firewall["FIREWALL_FRAGMENT_DIR"]
-            },
-            "application_id": "svc-net-tor",
-            "TOR_DNSMASQ_CONF": dropin,
-        }
-        paths = [_evaluate(item, loop_variables, False) for item in lookup["loop"]]
-        self.assertEqual(
-            paths,
-            [f"{firewall['FIREWALL_FRAGMENT_DIR']}/svc-net-tor.conf", dropin],
-        )
-        that = _that(CORE, "✅ Refuse route none over a router that would keep running")
-        for leftovers, passes in (
-            ((False, False), True),
-            ((True, False), False),
-            ((False, True), False),
-            ((True, True), False),
+        fragment = f"{_role_vars('svc-net-firewall')['FIREWALL_FRAGMENT_DIR']}/svc-net-tor.conf"
+        dropin = _role_vars("svc-net-tor")["TOR_DNSMASQ_CONF"]
+        router = render("nftables.conf.j2", "onion", _egress())
+        guard = render("nftables.conf.j2", "none", _egress())
+        resolver = render("dnsmasq-tor-onion.conf.j2", "onion", _egress())
+        for state, refused in (
+            ({}, False),
+            ({fragment: guard}, False),
+            ({fragment: router}, False),
+            ({dropin: resolver}, True),
+            ({fragment: guard, dropin: resolver}, True),
+            ({fragment: router, dropin: resolver}, True),
         ):
-            results = [
-                {"item": path, "stat": {"exists": exists}}
-                for path, exists in zip(paths, leftovers, strict=True)
-            ]
-            with self.subTest(leftovers=leftovers):
-                self.assertEqual(
-                    _evaluate(
-                        that,
-                        {"_tor_egress_leftovers": {"results": results}},
-                        conditional=True,
-                    ),
-                    passes,
-                )
+            with self.subTest(
+                files=sorted(state), router_fragment=state.get(fragment) == router
+            ):
+                self.assertEqual(_refuses(state), refused)
+
+    def test_none_swaps_the_router_table_for_the_guard_in_one_load(self) -> None:
+        guard = [
+            line.strip()
+            for line in render("nftables.conf.j2", "none", _egress()).splitlines()
+            if line.strip()
+        ]
+        self.assertEqual(
+            guard[:3],
+            [
+                f"table inet {TABLE}",
+                f"delete table inet {TABLE}",
+                f"table inet {TABLE} {{",
+            ],
+        )
+        self.assertNotIn("chain output {", guard)
 
 
 class TestOnion(unittest.TestCase):
@@ -644,6 +644,92 @@ def _role_filters() -> dict:
 
 def _that(path, name: str) -> str:
     return _task(path, name)["ansible.builtin.assert"]["that"][0]
+
+
+_PATH_ABSOLUTE = re.compile(r"lookup\('path_absolute', '([^']+)'\)")
+
+
+def _role_vars(role: str) -> dict:
+    return load_yaml_any(str(PROJECT_ROOT / "roles" / role / ROLE_FILE_VARS_MAIN))
+
+
+def _conditions(task: dict) -> list[str]:
+    when = task.get("when", [])
+    return [when] if isinstance(when, str) else when
+
+
+def _stat(task: dict, variables: dict, state: dict[str, str]) -> dict:
+    if "loop" not in task:
+        path = _evaluate(task["ansible.builtin.stat"]["path"], variables, False)
+        return {"stat": {"exists": path in state}}
+    items = [_evaluate(item, variables, False) for item in task["loop"]]
+    return {
+        "results": [{"item": item, "stat": {"exists": item in state}} for item in items]
+    }
+
+
+def _slurp(task: dict, variables: dict, state: dict[str, str]) -> dict:
+    return _slurped(
+        state[_evaluate(task["ansible.builtin.slurp"]["src"], variables, False)]
+    )
+
+
+def _include_vars(task: dict, variables: dict, state: dict[str, str]) -> dict:
+    path = _PATH_ABSOLUTE.search(task["ansible.builtin.include_vars"]["file"])
+    return load_yaml_any(str(PROJECT_ROOT / path.group(1)))
+
+
+_PLAYED = {
+    "ansible.builtin.stat": _stat,
+    "ansible.builtin.slurp": _slurp,
+    "ansible.builtin.include_vars": _include_vars,
+}
+
+
+def _register(task: dict) -> str:
+    if "ansible.builtin.include_vars" in task:
+        return task["ansible.builtin.include_vars"]["name"]
+    return task["register"]
+
+
+def _holds(task: dict, variables: dict) -> bool:
+    scope = {
+        **variables,
+        **{
+            name: _evaluate(value, variables, False)
+            for name, value in (task.get("vars") or {}).items()
+        },
+    }
+    return all(
+        _evaluate(condition, scope, conditional=True)
+        for condition in task["ansible.builtin.assert"]["that"]
+    )
+
+
+def _refuses(state: dict[str, str]) -> bool:
+    """
+    Args:
+        state: the files on the node, each path mapped to its content.
+
+    Returns:
+        Whether ``router/refuse_none.yml``, played against that node, refuses
+        route none.
+    """
+    variables = {
+        "application_id": "svc-net-tor",
+        "TOR_DNSMASQ_CONF": _role_vars("svc-net-tor")["TOR_DNSMASQ_CONF"],
+    }
+    for task in load_yaml_str(read_text(str(REFUSE_NONE))):
+        if not all(_evaluate(c, variables, True) for c in _conditions(task)):
+            if "register" in task:
+                variables[task["register"]] = {"skipped": True}
+        elif "ansible.builtin.assert" in task:
+            if not _holds(task, variables):
+                return True
+        else:
+            (module,) = set(task) & set(_PLAYED)
+            variables[_register(task)] = _PLAYED[module](task, variables, state)
+    return False
 
 
 class TestRouteAllPreflight(unittest.TestCase):

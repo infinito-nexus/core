@@ -5,11 +5,16 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
-        TOR_BASE_IMAGE:        "{{ TOR_IMAGE }}"
-        TOR_BASE_VERSION:      "{{ TOR_VERSION }}"
-        TOR_FLAVOR:            "{{ TOR_FLAVOR }}"
-        TOR_ENTRYPOINT_PATH:   "{{ TOR_ENTRYPOINT_PATH }}"
-        TOR_HEALTHCHECK_PATH:  "{{ TOR_HEALTHCHECK_PATH }}"
+        TOR_BASE_IMAGE:          "{{ TOR_IMAGE }}"
+        TOR_BASE_VERSION:        "{{ TOR_VERSION }}"
+        TOR_FLAVOR:              "{{ TOR_FLAVOR }}"
+        TOR_ENTRYPOINT_PATH:     "{{ TOR_ENTRYPOINT_PATH }}"
+        TOR_HEALTHCHECK_PATH:    "{{ TOR_HEALTHCHECK_PATH }}"
+        TOR_CHUTNEY_SCRIPT_PATH: "{{ TOR_CHUTNEY_SCRIPT_PATH }}"
+        TOR_CHUTNEY_NET:         "{{ TOR_CHUTNEY_NET }}"
+        TOR_CHUTNEY_ADDRESS:     "{{ TOR_CHUTNEY_ADDRESS }}"
+        TOR_CHUTNEY_PORT_BASES:  "{{ TOR_CHUTNEY_PORT_BASES }}"
+        TOR_CHUTNEY_PORT_SPAN:   "{{ TOR_CHUTNEY_PORT_SPAN }}"
     {{ lookup('compose_only', 'container_name', TOR_CONTAINER) }}
     {{ lookup('container_image', application_id, 'tor') }}
     init: true

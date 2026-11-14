@@ -258,7 +258,9 @@ class TestViolations(unittest.TestCase):
                 self.assertTrue(violations(_egress(direct=[raw]), "all", False))
 
     def test_all_is_refused_in_swarm(self) -> None:
-        self.assertTrue(violations(_egress(), "all", True))
+        (found,) = violations(_egress(), "all", True)
+        self.assertIn("the egress router runs on the managers only", found)
+        self.assertNotIn("namespace", found)
         self.assertEqual(violations(_egress(), "onion", True), [])
 
     def test_a_malformed_entry_or_block_is_reported(self) -> None:

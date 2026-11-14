@@ -1,0 +1,18 @@
+---
+- name: "🔎 Look for the dnsmasq drop-in an earlier route installed"
+  ansible.builtin.stat:
+    path: "{{ TOR_DNSMASQ_CONF }}"
+  register: _tor_egress_dropin
+  become: true
+
+- name: "✅ Refuse route none over a resolver that would keep asking Tor"
+  ansible.builtin.assert:
+    that:
+      - not _tor_egress_dropin.stat.exists
+    fail_msg: >-
+      route none would leave {{ TOR_DNSMASQ_CONF }} in place: dnsmasq keeps
+      sending names to the Tor DNSPort that route none removes, so the node
+      loses .onion resolution and, after route all, every name. Keep route
+      onion, or remove the resolver first: delete {{ TOR_DNSMASQ_CONF }},
+      restore /etc/resolv.conf and restart dnsmasq. The deploy then replaces
+      the router's packet filter with the guard in one nft load.
