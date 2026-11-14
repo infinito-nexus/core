@@ -11,7 +11,7 @@
 - name: "🔄 update (dnf) | re-fetch the metadata of every enabled repository"
   become: true
   ansible.builtin.command:
-    argv: [dnf, makecache, --refresh]
+    argv: [dnf, makecache, --refresh, -y]
   changed_when: false
 
 - name: "🔄 update (dnf) | upgrade all installed packages"

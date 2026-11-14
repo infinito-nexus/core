@@ -293,6 +293,28 @@ class TestDownloadSource(unittest.TestCase):
         self.assertEqual(install.args["state"], STATE_PRESENT)
         self.assertEqual(confirm.args["name"], ["editor"])
 
+    def test_declared_repo_files_are_removed_before_the_confirm(self):
+        repo_file = "/etc/yum.repos.d/editor.repo"
+        plan = build_plan(
+            PackageSpec(
+                ("editor",),
+                source=SOURCE_DOWNLOAD,
+                download={**_RPM, "repo_files": [repo_file]},
+            ),
+            STATE_PRESENT,
+        )
+        self.assertEqual(
+            _modules(plan),
+            [
+                "ansible.builtin.file",
+                "ansible.builtin.get_url",
+                "ansible.builtin.dnf",
+                "ansible.builtin.file",
+                "ansible.builtin.package",
+            ],
+        )
+        self.assertEqual(plan[3].args, {"path": repo_file, "state": "absent"})
+
     def test_an_unsupported_artefact_is_refused(self):
         spec = PackageSpec(
             ("editor",),
