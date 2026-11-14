@@ -1,32 +1,3 @@
-"""Resolve version pins that declare their own upstream source.
-
-The Docker updater watches ``image`` plus ``version``, the repository updater
-``repository`` plus ``ref``. A pin outside both - an ``app_version``, a
-``release``, a tag in a registry neither updater speaks - declares where its
-upstream lives::
-
-    stalwart:
-      webui_version: "v1.0.5"
-      update:
-        key: webui_version
-        type: git_tags
-        repository: https://github.com/stalwartlabs/webui.git
-
-``key`` names the pinned key and defaults to ``version``; an entity with
-several pins declares a list of such blocks. The types are
-``git_tags`` (repository), ``registry_tags`` (image), ``npm`` (package),
-``http_regex`` (one url or several, pattern, optionally a template over the
-pattern's named groups) and ``script`` (path, run with the current version and
-printing the latest one). A pin whose asset is fetched by digest names its
-companion checksum beside the type; see :mod:`utils.update.checksum`.
-
-An addon in ``meta/addons/<id>.yml`` declares the same fields in its
-``update:`` block, beside ``monitored``, ``catalog`` and ``upstream_id``. A
-monitored addon of the ``github-releases`` catalog needs no ``type``: its
-``upstream_id`` already names the repository whose tags are its versions. An
-addon's ``config.archive`` URL carries the pinned version and moves with it.
-"""
-
 from __future__ import annotations
 
 import json
