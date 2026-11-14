@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import functools
 import io
 import re
 import tokenize
@@ -13,42 +12,6 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 _REGISTRY = "utils/networks/reachability.py"
 _ROOTS = ("plugins/", "utils/", "cli/", "group_vars/", "roles/", "tasks/")
 _EXTENSIONS = (".py", ".yml", ".yaml", ".j2", ".sh", ".js", ".php", ".rb", ".lua")
-_PREDATING_TEST_CHECKS = frozenset(
-    {
-        (
-            "roles/test-e2e-playwright/files/onion-test.js",
-            r"""(value) => typeof value === "string" && /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(value)""",
-        ),
-        (
-            "roles/test-e2e-playwright/files/personas/utils/onion.js",
-            r"/\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical())",
-        ),
-        (
-            "roles/test-e2e-playwright/files/playwright.config.js",
-            r"""for (const match of value.match(/https?:\/\/[^/,\s"']+\.onion/gi) || []) {""",
-        ),
-        (
-            "roles/test-e2e-playwright/files/timeouts.js",
-            r"return /\.onion$/i.test(_targetHost());",
-        ),
-        (
-            "roles/test-e2e-playwright/files/timeouts.js",
-            r"""return !isOnionTarget() && /\.onion(?::\d+)?(?:\/|$)/i.test(process.env.OIDC_ISSUER_URL || "");""",
-        ),
-        (
-            "roles/web-app-mini-qr/files/playwright/test-design.js",
-            'test.skip(new URL(baseUrl()).hostname.endsWith(".onion"), "the camera browser runs without the onion proxy");',
-        ),
-        (
-            "roles/web-app-odoo/files/playwright/_shared.js",
-            r"""const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)""",
-        ),
-        (
-            "roles/web-svc-logout/files/playwright/logout-flow.js",
-            r"return isOnionTarget() ? urls : urls.filter((url) => !/\.onion$/i.test(new URL(url).hostname));",
-        ),
-    }
-)
 
 _DOTTED = r"""['"]\.onion['"]"""
 _DOTLESS = r"""['"]onion['"]"""
@@ -282,7 +245,6 @@ def _scan_targets() -> list[str]:
     return sorted(targets)
 
 
-@functools.cache
 def _findings() -> tuple[tuple[str, int, str], ...]:
     found = []
     for path_str in _scan_targets():
@@ -320,11 +282,7 @@ class TestOnionSuffixRegistry(unittest.TestCase):
         self.assertNotIn(_REGISTRY, targets)
 
     def test_no_module_tests_the_onion_suffix_itself(self) -> None:
-        findings = [
-            f"- {rel}:{number}: {line}"
-            for rel, number, line in _findings()
-            if (rel, line) not in _PREDATING_TEST_CHECKS
-        ]
+        findings = [f"- {rel}:{number}: {line}" for rel, number, line in _findings()]
         self.assertEqual(
             [],
             findings,
@@ -333,14 +291,6 @@ class TestOnionSuffixRegistry(unittest.TestCase):
             "  Python:     network_of(domain) == TOR, network(TOR).suffix\n"
             "  Jinja:      (domain | network_of) == 'tor', 'tor' | network_suffix\n"
             "  container:  hand the suffix in, rendered from network_suffix\n",
-        )
-
-    def test_every_listed_playwright_check_is_still_there(self) -> None:
-        found = {(rel, line) for rel, _, line in _findings()}
-        self.assertEqual(
-            [],
-            sorted(_PREDATING_TEST_CHECKS - found),
-            "These checks left their file; drop them from _PREDATING_TEST_CHECKS.",
         )
 
     def test_the_scan_catches_every_check_shape(self) -> None:

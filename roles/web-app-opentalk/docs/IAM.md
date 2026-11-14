@@ -6,6 +6,7 @@ OpenTalk authenticates users against the central Keycloak realm via OIDC and loo
 
 - Issuer URL: `{{ OIDC.CLIENT.ISSUER_URL }}`
 - Frontend client ID: `{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}`, a dedicated public client whose audience mapper adds the controller client to every access token, so the controller's token introspection accepts it
+- Back-channel logout: the frontend client's `backchannel.logout.url` is the controller's `services.sso.oidc.backchannel_logout_path` on the OpenTalk origin; a logout token raises the user's logout marker, and the controller then refuses every access token of that user it cached before
 - Controller client ID and secret: `{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}`, a confidential client; the secret is `secrets.credentials.controller_oidc_client_secret` of the role
 
 ## User Search 🔍

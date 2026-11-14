@@ -85,6 +85,7 @@ ZAMMAD_OIDC_GROUP_ROLE_MAP: >-
        '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ZAMMAD_RBAC_ROLE_GRANTS.customer,
      } }}
 ZAMMAD_OIDC_SCOPE: "openid email profile phone address"
+ZAMMAD_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 ZAMMAD_OIDC_PROFILE_CLAIMS:
   firstname: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
   lastname: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"

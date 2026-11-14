@@ -11,6 +11,7 @@ OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
 
 OPENCLOUD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+OPENCLOUD_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 OPENCLOUD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 OPENCLOUD_LOGIN_SSO: "{{ (OPENCLOUD_OIDC_ENABLED | bool) and (lookup('config', application_id, 'services.opencloud.login.method.sso.enabled') | bool) }}"
 OPENCLOUD_LOGIN_LDAP: "{{ (OPENCLOUD_LDAP_ENABLED | bool) and (lookup('config', application_id, 'services.opencloud.login.method.ldap.enabled') | bool) }}"

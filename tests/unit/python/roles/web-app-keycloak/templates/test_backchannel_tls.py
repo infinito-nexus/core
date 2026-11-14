@@ -20,11 +20,12 @@ VERIFICATION_OFF = re.compile(
 )
 
 
-def render_env(ca_injected: bool) -> dict[str, str]:
+def render_env(ca_injected: bool, debug: bool) -> dict[str, str]:
     """Render Keycloak's env file and return its keys and values.
 
     Args:
         ca_injected: answer of lookup('ca_injected', 'web-app-keycloak').
+        debug: value of KEYCLOAK_DEBUG_ENABLED.
     """
 
     def lookup(name, *args, **_kwargs):
@@ -56,7 +57,7 @@ def render_env(ca_injected: bool) -> dict[str, str]:
         KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD="bootstrap-value",
         KEYCLOAK_PERMANENT_ADMIN_USERNAME="administrator",
         KEYCLOAK_PERMANENT_ADMIN_PASSWORD="administrator-value",
-        KEYCLOAK_DEBUG_ENABLED=False,
+        KEYCLOAK_DEBUG_ENABLED=debug,
     )
     return dict(line.split("=", 1) for line in rendered.splitlines() if "=" in line)
 
@@ -79,17 +80,19 @@ def verification_switches(sources: list[str]) -> list[str]:
 class TestKeycloakVerifiesBackchannelCertificates(unittest.TestCase):
     def test_a_self_signed_deployment_trusts_the_deployment_ca(self) -> None:
         self.assertEqual(
-            render_env(ca_injected=True)["KC_TRUSTSTORE_PATHS"],
+            render_env(ca_injected=True, debug=False)["KC_TRUSTSTORE_PATHS"],
             CA_TRUST["inject_cert_container"],
         )
 
     def test_without_the_ca_keycloak_keeps_the_system_trust_store(self) -> None:
-        self.assertNotIn("KC_TRUSTSTORE_PATHS", render_env(ca_injected=False))
+        self.assertNotIn(
+            "KC_TRUSTSTORE_PATHS", render_env(ca_injected=False, debug=False)
+        )
 
     def test_no_setting_turns_certificate_verification_off(self) -> None:
         for ca_injected in (True, False):
             with self.subTest(ca_injected=ca_injected):
-                env = render_env(ca_injected)
+                env = render_env(ca_injected, debug=False)
                 sources = [
                     "\n".join(f"{k}={v}" for k, v in env.items()),
                     read_text(str(COMPOSE_TEMPLATE)),

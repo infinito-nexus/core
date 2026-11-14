@@ -3,18 +3,44 @@ const { test, expect } = require("@playwright/test");
 const { apiFetchOnion, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 const {
+  KEYCLOAK_LOGIN,
   biberTokens,
   confirmLogoutOnThisDevice,
   durationMs,
+  endEveryOtherSession,
   endTokenSession,
+  expectGatedAppAsksForLogin,
+  expectGatedSession,
   expectSynapseSession,
   forgedLogoutToken,
+  gatedAppSessions,
   logoutEnv,
   openContext,
+  signInToGatedApp,
   signInToSynapse,
 } = require("./logout-flow");
 
-const KEYCLOAK_LOGIN = "input[name='username'], input#username";
+const FOREIGN_CLIENT = "infinito-foreign-client";
+const FOREIGN_REALM = "infinito-foreign";
+
+/**
+ * Return the probes every back-channel endpoint must refuse.
+ *
+ * Args:
+ *   target: one entry of BACKCHANNEL_TARGETS_JSON.
+ *   keycloakSigned: a token set Keycloak issued biber through the shared client.
+ */
+function refusedLogoutTokens(target, keycloakSigned) {
+  return [
+    ["signed with a foreign key", forgedLogoutToken(target.client_id)],
+    [
+      "from a foreign issuer",
+      forgedLogoutToken(target.client_id, { iss: `${new URL(logoutEnv.issuerUrl).origin}/realms/${FOREIGN_REALM}` }),
+    ],
+    ["for another client", forgedLogoutToken(FOREIGN_CLIENT)],
+    ["signed by Keycloak for the shared client, without the events claim", keycloakSigned.id_token],
+  ];
+}
 
 /**
  * Args:
@@ -46,31 +72,31 @@ exports.register = function () {
 
     test.beforeEach(() => {
       test.skip(
-        logoutEnv.backchannelTargets.length === 0 || !logoutEnv.synapseUrl,
-        "BACKCHANNEL_TARGETS_JSON and MATRIX_SYNAPSE_URL are empty: no application with its own back-channel client is deployed",
+        logoutEnv.backchannelTargets.length === 0,
+        "BACKCHANNEL_TARGETS_JSON is empty: no application with its own back-channel client is deployed",
       );
     });
 
     test("logout-backchannel: a forged or foreign logout token ends no session", async ({ browser }) => {
-      test.setTimeout(resolveTimeout(300_000)); // one Synapse SSO round trip plus two POSTs per back-channel endpoint
+      test.setTimeout(resolveTimeout(300_000));
       const context = await openContext(browser);
       try {
         const page = await context.newPage();
-        const synapse = await signInToSynapse(page);
+        const synapse = logoutEnv.synapseUrl ? await signInToSynapse(page) : "";
         const keycloakSigned = await biberTokens(context.request);
         try {
           expect(keycloakSigned.id_token, "Keycloak must hand biber an ID token to replay as a logout token").toBeTruthy();
           for (const target of logoutEnv.backchannelTargets) {
-            const probes = [
-              ["signed with a foreign key", forgedLogoutToken(target.client_id)],
-              ["signed by Keycloak for the shared client, without the events claim", keycloakSigned.id_token],
-            ];
-            for (const [kind, token] of probes) {
+            for (const [kind, token] of refusedLogoutTokens(target, keycloakSigned)) {
               const response = await apiFetchOnion(context.request, target.url, {
                 method: "POST",
                 form: { logout_token: token },
                 timeout: resolveTimeout(30_000),
               });
+              if (target.sealed_url) {
+                expect(response.status(), `${target.id}: the logout gate must refuse a token ${kind}`).toBe(400);
+                continue;
+              }
               expect(response.status(), `${target.id}: a token ${kind} must be refused`).toBeGreaterThanOrEqual(400);
               expect(response.status(), `${target.id}: a token ${kind} is a client error, not a crash`).toBeLessThan(500);
             }
@@ -78,11 +104,61 @@ exports.register = function () {
         } finally {
           await endTokenSession(context.request, keycloakSigned.refresh_token);
         }
-        await expectSynapseSession(context.request, synapse, 200);
-        await confirmLogoutOnThisDevice(page);
-        await expectSynapseSession(context.request, synapse, 401);
+        if (synapse) {
+          await expectSynapseSession(context.request, synapse, 200);
+          await confirmLogoutOnThisDevice(page);
+          await expectSynapseSession(context.request, synapse, 401);
+        }
       } finally {
         await context.close();
+      }
+    });
+
+    test("logout-backchannel: a receiver behind the logout gate refuses a request that skips the gate", async ({ browser }) => {
+      const gated = logoutEnv.backchannelTargets.filter((target) => target.sealed_url);
+      test.skip(gated.length === 0, "no deployed application has its back-channel receiver behind the logout gate");
+      const context = await openContext(browser);
+      try {
+        for (const target of gated) {
+          for (const [kind, headers] of [
+            ["without the gate key", {}],
+            ["with a wrong gate key", { "X-Logout-Gate-Key": "infinito-forged-gate-key" }],
+          ]) {
+            const response = await apiFetchOnion(context.request, target.sealed_url, {
+              method: "POST",
+              headers,
+              form: { logout_token: forgedLogoutToken(target.client_id) },
+              timeout: resolveTimeout(30_000),
+            });
+            expect(response.status(), `${target.id}: a POST ${kind} must stop at the proxy`).toBe(403);
+          }
+        }
+      } finally {
+        await context.close();
+      }
+    });
+
+    test("logout-backchannel: a Keycloak session ended without the conductor ends every gated app session", async ({ browser }) => {
+      const gated = gatedAppSessions();
+      test.skip(gated.length === 0, "no deployed application has its back-channel receiver behind the logout gate");
+      test.setTimeout(resolveTimeout(900_000));
+      const context = await openContext(browser);
+      const otherDevice = await openContext(browser);
+      try {
+        const page = await context.newPage();
+        for (const app of gated) {
+          await signInToGatedApp(page, app);
+        }
+        for (const app of gated) {
+          await expectGatedSession(page, app, true);
+        }
+        await endEveryOtherSession(otherDevice.request);
+        for (const app of gated) {
+          await expectGatedAppAsksForLogin(page, app);
+        }
+      } finally {
+        await context.close();
+        await otherDevice.close();
       }
     });
 
@@ -90,6 +166,7 @@ exports.register = function () {
       test(`logout-backchannel: a clearnet logout ends the sessions on the other network (javaScriptEnabled: ${javaScriptEnabled})`, async ({
         browser,
       }) => {
+        test.skip(!logoutEnv.synapseUrl, "MATRIX_SYNAPSE_URL is empty: the network case signs in to Synapse as its back-channel app");
         test.skip(
           logoutEnv.proxyTargetUrls.length < 2,
           "this pass reaches one network only: no oauth2-proxy app has an onion sibling, or the clearnet pass has no Tor proxy to reach it",

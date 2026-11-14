@@ -51,6 +51,24 @@
         "introspection.token.claim": "true",
         "lightweight.claim": "false"
       }
+    },
+    {
+      "name": "nextcloud uid",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.attribute": "{{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}",
+        "claim.name": "{{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}",
+        "jsonType.label": "String",
+        "multivalued": "false",
+        "aggregate.attrs": "false",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true",
+        "introspection.token.claim": "true",
+        "lightweight.claim": "false"
+      }
     }
   ],
   "fullScopeAllowed": true,

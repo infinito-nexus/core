@@ -7,6 +7,9 @@ sso:
   flavor: oidc
   oidc:
     plugin: ""
+    clients:
+      web: opencloud-web
+    backchannel_logout_path: /backchannel_logout
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"

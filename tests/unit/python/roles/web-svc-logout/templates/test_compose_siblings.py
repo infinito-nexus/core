@@ -109,6 +109,7 @@ def render(conductor: list[str], shop: list[str]) -> dict:
             application_id=APP,
             group_names=sorted(domains),
             LOGOUT_INSTANCES=instances,
+            LOGOUT_GATE_APPS=[],
             LOGOUT_CONTAINER="logout",
             DOCKER_BIND_HOST="127.0.0.1",
         )

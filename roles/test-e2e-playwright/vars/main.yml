@@ -93,6 +93,7 @@ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_START:
   - --no-block
   - "{{ lookup('unit_name', 'sys-ctl-mtn-rbac-sync') }}"
 TEST_E2E_PLAYWRIGHT_RBAC_SYNC_STOP: [systemctl, stop, "{{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_UNIT }}.timer"]
+TEST_E2E_PLAYWRIGHT_POST_PASS_CHECK: "{{ lookup('path_absolute', 'roles', application_id, 'tasks/utils/playwright_post_pass.yml') }}"
 TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT: 60000
 TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT: 180000
 TEST_E2E_PLAYWRIGHT_EXPECT_TIMEOUT: 10000

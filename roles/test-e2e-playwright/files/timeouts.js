@@ -5,8 +5,9 @@
  * (Tor) service, by an extra multiplier — Tor circuits add per-request latency.
  */
 
-function _unquoted(name) {
-  const raw = process.env[name] || "";
+const { isTorHost, isTorUrl } = require("./personas/utils/network");
+
+function _unquoted(raw) {
   const unquoted =
     raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
   return unquoted.trim();
@@ -14,18 +15,18 @@ function _unquoted(name) {
 
 function _targetHost() {
   try {
-    return new URL(_unquoted("APP_BASE_URL")).hostname;
+    return new URL(_unquoted(process.env.APP_BASE_URL || "")).hostname;
   } catch {
-    return _unquoted("CANONICAL_DOMAIN");
+    return _unquoted(process.env.CANONICAL_DOMAIN || "");
   }
 }
 
 function isOnionTarget() {
-  return /\.onion$/i.test(_targetHost());
+  return isTorHost(_targetHost());
 }
 
 function isSplitRealmOidc() {
-  return !isOnionTarget() && /\.onion(?::\d+)?(?:\/|$)/i.test(process.env.OIDC_ISSUER_URL || "");
+  return !isOnionTarget() && isTorUrl(_unquoted(process.env.OIDC_ISSUER_URL || ""));
 }
 
 function timeoutFactor() {

@@ -6,3 +6,4 @@ entity_name: "{{ application_id | entity_name }}"
 
 LOGOUT_INSTANCES: "{{ lookup('domains')[application_id] | network_instances }}"
 LOGOUT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+LOGOUT_GATE_APPS: "{{ lookup('applications') | logout_gate_apps(group_names) }}"

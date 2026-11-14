@@ -37,9 +37,30 @@ CLIENT_ID_LOOKUP = re.compile(
     r"lookup\(\s*'config'\s*,\s*[^,()]+,\s*'services\.sso\.oidc\.clients\.\w+'\s*"
     r"(?P<tail>[,)])(?P<fallback>\s*\|\s*default\b)?"
 )
+CLIENT_KEY_READ = re.compile(r"services\.sso\.oidc\.clients(?:\.|'\)\.)(?P<key>\w+)")
+SHARED_CLIENT_ID_READ = re.compile(r"OIDC\.CLIENT\.ID\b")
+KEYCLOAK_FRAGMENT = ("templates", "keycloak", "clients.json.j2")
 SSO_OIDC_PLUGIN = "user_oidc"
 NEXTCLOUD = "web-app-nextcloud"
+OPENCLOUD = "web-app-opencloud"
+OPENTALK = "web-app-opentalk"
+OPENTALK_CLIENT_TASKS = (
+    PROJECT_ROOT / "roles" / OPENTALK / "tasks/02_keycloak_client.yml"
+)
+XWIKI = "web-app-xwiki"
+LOGOUT_GATE = "web-svc-logout"
+LOGOUT_GATE_PATH = "/backchannel/"
 USER_OIDC_BACKCHANNEL_PATH = "/index.php/apps/user_oidc/backchannel-logout/"
+UPSTREAM_BACKCHANNEL_ENDPOINTS = {
+    "web-app-matrix": ("synapse", "/_synapse/client/oidc/backchannel_logout"),
+    "web-app-mediawiki": ("", "/rest.php/pluggableauth/v1/logout"),
+    NEXTCLOUD: ("", USER_OIDC_BACKCHANNEL_PATH + "keycloak"),
+    OPENCLOUD: ("", "/backchannel_logout"),
+    OPENTALK: ("", "/v1/auth/logout"),
+    "web-app-openwebui": ("", "/oauth/backchannel-logout"),
+    XWIKI: ("", "/oidc/authenticator/backchannel_logout"),
+    "web-app-zammad": ("", "/auth/openid_connect/backchannel_logout"),
+}
 NEXTCLOUD_ADMIN_GROUP = "admin"
 RBAC_GROUP_ROOT = "roles"
 GROUP_MAPPER = "oidc-group-membership-mapper"
@@ -242,6 +263,84 @@ def render_fragment(template: Path) -> list[dict]:
     return json.loads(f"[{source}]")
 
 
+def opentalk_client_upserts() -> dict[bool, dict]:
+    """The kcadm client upserts of OpenTalk, keyed by ``publicClient``.
+
+    Returns:
+        The frontend task under True and the controller task under False.
+    """
+    return {
+        task["keycloak_kcadm_update"]["desired"]["publicClient"]: task
+        for task in load_yaml_any(str(OPENTALK_CLIENT_TASKS))
+        if task.get("keycloak_kcadm_update", {}).get("object_kind") == "client"
+    }
+
+
+def render_task_value(task: dict, value: str):
+    """Render one value of an OpenTalk task with the task's own vars.
+
+    Args:
+        task: the task that carries the value.
+        value: the raw value, a Jinja expression.
+    """
+    env = NativeEnvironment()
+    context = {"lookup": lookup, "application_id": OPENTALK}
+    for name, raw in task.get("vars", {}).items():
+        context[name] = env.from_string(raw).render(**context)
+    return env.from_string(value).render(**context)
+
+
+def gated(role: str) -> bool:
+    """Tell whether a role's receiver sits behind the logout gate.
+
+    Args:
+        role: role directory name.
+    """
+    return role_config(role, "services.sso.oidc").get("backchannel_logout_gate") is True
+
+
+def logout_gate_url(role: str) -> str:
+    """Return the logout gate URL Keycloak sends a gated role's logout tokens to.
+
+    Args:
+        role: role directory name.
+    """
+    return canonical_origin(LOGOUT_GATE) + LOGOUT_GATE_PATH + role
+
+
+def logout_receiver(url: str) -> str:
+    """Return the receiver a back-channel logout URL reaches, through the gate or not.
+
+    Args:
+        url: a client's back-channel logout URL.
+    """
+    gate = canonical_origin(LOGOUT_GATE) + LOGOUT_GATE_PATH
+    if not url.startswith(gate):
+        return url
+    role = url.removeprefix(gate)
+    return canonical_origin(role) + role_config(
+        role, "services.sso.oidc.backchannel_logout_path"
+    )
+
+
+def endpoint_findings(role: str, url: str) -> list[str]:
+    """What keeps a back-channel logout URL off its role's upstream endpoint.
+
+    Args:
+        role: role directory name of the client fragment.
+        url: the client's back-channel logout URL.
+    """
+    key, path = UPSTREAM_BACKCHANNEL_ENDPOINTS[role]
+    findings = []
+    if gated(role) and url != logout_gate_url(role):
+        findings.append(f"{url} skips the logout gate {logout_gate_url(role)}")
+    if not gated(role) and logout_receiver(url) != url:
+        findings.append(f"{url} reaches the logout gate, which serves no {role}")
+    if logout_receiver(url) != canonical_origin(role, key) + path:
+        findings.append(f"{url} does not reach the upstream endpoint {path}")
+    return findings
+
+
 def backchannel_findings(client: dict) -> list[str]:
     """What keeps one back-channel client from ending sessions safely and on every network.
 
@@ -249,7 +348,7 @@ def backchannel_findings(client: dict) -> list[str]:
         client: a client representation that carries a back-channel logout URL.
     """
     attributes = client["attributes"]
-    url = urlsplit(attributes[BACKCHANNEL_LOGOUT_URL])
+    url = urlsplit(logout_receiver(attributes[BACKCHANNEL_LOGOUT_URL]))
     origin = f"{url.scheme}://{url.netloc}"
     siblings = onion_sibling(origin)
     post_logout = attributes.get("post.logout.redirect.uris", "").split("##")
@@ -275,6 +374,19 @@ def backchannel_findings(client: dict) -> list[str]:
         if not any(uri.startswith(sibling + "/") for uri in post_logout)
     )
     return findings
+
+
+def credential_findings(client: dict) -> list[str]:
+    """What hands a per-app client a credential the realm did not hold before.
+
+    Args:
+        client: the per-app client's representation.
+    """
+    if client["publicClient"]:
+        return ["the public client carries a secret"] if "secret" in client else []
+    if client.get("secret") != CONTEXT["OIDC"]["CLIENT"]["SECRET"]:
+        return ["the confidential client does not reuse the shared secret"]
+    return []
 
 
 def shared_client_findings(client: dict) -> list[str]:
@@ -354,6 +466,48 @@ def client_id_consumers() -> dict[str, str]:
     return sources
 
 
+def role_client_readers(role: str) -> dict[str, str]:
+    """The files of one role that may read its client ids, its Keycloak fragment excluded.
+
+    Args:
+        role: role directory name.
+    """
+    return {
+        str(path.relative_to(PROJECT_ROOT)): read_text(str(path))
+        for pattern in CLIENT_ID_CONSUMERS
+        for path in PROJECT_ROOT.glob(pattern.replace("*", role, 1))
+        if path.parts[-3:] != KEYCLOAK_FRAGMENT
+    }
+
+
+def unread_client_keys(role: str, sources: dict[str, str]) -> list[str]:
+    """Return the declared clients of a role that no file outside its fragment reads.
+
+    Args:
+        role: role directory name.
+        sources: the role's files outside its Keycloak fragment, keyed by path.
+    """
+    read = {
+        match.group("key")
+        for source in sources.values()
+        for match in CLIENT_KEY_READ.finditer(source)
+    }
+    return sorted(set(role_config(role, "services.sso.oidc.clients")) - read)
+
+
+def shared_client_id_reads(sources: dict[str, str]) -> list[str]:
+    """Return every read of the shared client id in a role's files.
+
+    Args:
+        sources: the role's files outside its Keycloak fragment, keyed by path.
+    """
+    return [
+        f"{path}: {match.group(0)}"
+        for path, source in sources.items()
+        for match in SHARED_CLIENT_ID_READ.finditer(source)
+    ]
+
+
 def silent_client_fallbacks(sources: dict[str, str]) -> list[str]:
     """Return every per-app client id lookup that would not fail on a missing entry.
 
@@ -400,25 +554,121 @@ class TestBackchannelClients(unittest.TestCase):
                 with self.subTest(client=client["clientId"]):
                     self.assertIs(client["serviceAccountsEnabled"], False)
 
-    def test_a_confidential_client_reuses_the_shared_secret(self) -> None:
+    def test_a_backchannel_client_is_public_or_reuses_the_shared_secret(self) -> None:
         for client in self.backchannel:
             with self.subTest(client=client["clientId"]):
-                self.assertFalse(client["publicClient"])
-                self.assertEqual(client["secret"], CONTEXT["OIDC"]["CLIENT"]["SECRET"])
+                self.assertEqual(credential_findings(client), [])
 
-    def test_the_matrix_client_logs_out_on_the_synapse_origin(self) -> None:
-        client = next(
-            c
-            for clients in self.clients.values()
-            for c in clients
-            if c["clientId"]
-            == role_config("web-app-matrix", "services.sso.oidc.clients.synapse")
+    def test_a_secret_on_a_public_client_or_a_new_secret_fails_the_check(
+        self,
+    ) -> None:
+        self.assertEqual(
+            credential_findings({"publicClient": True, "secret": "another"}),
+            ["the public client carries a secret"],
         )
         self.assertEqual(
-            client["attributes"][BACKCHANNEL_LOGOUT_URL],
-            canonical_origin("web-app-matrix", "synapse")
-            + "/_synapse/client/oidc/backchannel_logout",
-            "Synapse receives logout tokens on this path of its own origin",
+            credential_findings({"publicClient": False, "secret": "another"}),
+            ["the confidential client does not reuse the shared secret"],
+        )
+
+    def test_every_backchannel_client_logs_out_on_its_upstream_endpoint(self) -> None:
+        for template, clients in self.clients.items():
+            role = template.parts[-4]
+            for client in clients:
+                if BACKCHANNEL_LOGOUT_URL not in client["attributes"]:
+                    continue
+                with self.subTest(role=role):
+                    self.assertIn(role, UPSTREAM_BACKCHANNEL_ENDPOINTS)
+                    self.assertEqual(
+                        endpoint_findings(
+                            role, client["attributes"][BACKCHANNEL_LOGOUT_URL]
+                        ),
+                        [],
+                    )
+
+    def test_every_gated_client_sends_its_logout_tokens_through_the_gate(
+        self,
+    ) -> None:
+        gated_clients = {
+            template.parts[-4]: client
+            for template, clients in self.clients.items()
+            for client in clients
+            if BACKCHANNEL_LOGOUT_URL in client["attributes"]
+            and gated(template.parts[-4])
+        }
+        self.assertIn(XWIKI, gated_clients)
+        for role, client in gated_clients.items():
+            with self.subTest(role=role):
+                self.assertEqual(
+                    client["clientId"],
+                    role_config(role, "services.sso.oidc.clients.web"),
+                )
+                self.assertEqual(
+                    client["attributes"][BACKCHANNEL_LOGOUT_URL], logout_gate_url(role)
+                )
+
+    def test_a_gated_role_signs_in_with_its_own_client_only(self) -> None:
+        roles = [
+            template.parts[-4]
+            for template, clients in self.clients.items()
+            if any(BACKCHANNEL_LOGOUT_URL in c["attributes"] for c in clients)
+            and gated(template.parts[-4])
+        ]
+        self.assertIn(XWIKI, roles)
+        for role in roles:
+            with self.subTest(role=role):
+                self.assertEqual(shared_client_id_reads(role_client_readers(role)), [])
+
+    def test_a_gated_role_that_keeps_the_shared_client_id_is_caught(self) -> None:
+        path = f"roles/web-app-x/{ROLE_FILE_VARS_MAIN}"
+        sources = {path: 'X_ID: "{{ OIDC.CLIENT.ID }}"'}
+        self.assertEqual(shared_client_id_reads(sources), [f"{path}: OIDC.CLIENT.ID"])
+
+    def test_a_gated_client_that_skips_the_gate_fails_the_check(self) -> None:
+        direct = canonical_origin(XWIKI) + UPSTREAM_BACKCHANNEL_ENDPOINTS[XWIKI][1]
+        self.assertEqual(
+            endpoint_findings(XWIKI, direct),
+            [f"{direct} skips the logout gate {logout_gate_url(XWIKI)}"],
+        )
+
+    def test_a_gate_url_of_another_role_fails_the_check(self) -> None:
+        foreign = logout_gate_url("web-app-matrix")
+        self.assertEqual(len(endpoint_findings(XWIKI, foreign)), 2)
+
+    def test_a_role_the_gate_does_not_serve_cannot_use_the_gate(self) -> None:
+        matrix = "web-app-matrix"
+        self.assertFalse(gated(matrix))
+        self.assertIn(
+            f"{logout_gate_url(matrix)} reaches the logout gate, which serves no {matrix}",
+            endpoint_findings(matrix, logout_gate_url(matrix)),
+        )
+
+    def test_a_gated_client_with_the_origins_of_the_gate_fails_the_check(
+        self,
+    ) -> None:
+        (client,) = render_fragment(
+            PROJECT_ROOT / "roles" / XWIKI / "templates/keycloak/clients.json.j2"
+        )
+        gate_origins = onion_sibling(canonical_origin(LOGOUT_GATE))
+        siblings = onion_sibling(canonical_origin(XWIKI))
+        self.assertEqual(
+            backchannel_findings({**client, "webOrigins": gate_origins}),
+            [
+                f"webOrigins {gate_origins} are not the canonical origin and its siblings {siblings}"
+            ],
+        )
+
+    def test_the_opencloud_web_client_is_public(self) -> None:
+        (client,) = render_fragment(
+            PROJECT_ROOT / "roles" / OPENCLOUD / "templates/keycloak/clients.json.j2"
+        )
+        self.assertEqual(
+            client["clientId"], role_config(OPENCLOUD, "services.sso.oidc.clients.web")
+        )
+        self.assertIs(
+            client["publicClient"],
+            True,
+            "OpenCloud Web signs in from the browser and cannot keep a secret",
         )
 
     def test_every_backchannel_client_hands_its_app_the_claims_of_the_shared_client(
@@ -508,6 +758,31 @@ class TestBackchannelClients(unittest.TestCase):
                 f"no post-logout redirect URI on the network sibling {siblings[1]}",
             ],
         )
+
+
+class TestOpenTalkFrontendClient(unittest.TestCase):
+    def setUp(self) -> None:
+        upserts = opentalk_client_upserts()
+        self.frontend = upserts[True]
+        self.controller = upserts[False]["keycloak_kcadm_update"]["desired"]
+
+    def test_the_frontend_client_logs_out_on_the_controller(self) -> None:
+        desired = self.frontend["keycloak_kcadm_update"]["desired"]
+        key, path = UPSTREAM_BACKCHANNEL_ENDPOINTS[OPENTALK]
+        self.assertEqual(
+            render_task_value(
+                self.frontend, desired["attributes"][BACKCHANNEL_LOGOUT_URL]
+            ),
+            canonical_origin(OPENTALK, key) + path,
+        )
+        self.assertEqual(
+            desired["attributes"]["backchannel.logout.session.required"], "true"
+        )
+        self.assertIs(desired["frontchannelLogout"], False)
+        self.assertIs(desired["serviceAccountsEnabled"], False)
+
+    def test_the_controller_client_receives_no_logout_tokens(self) -> None:
+        self.assertNotIn(BACKCHANNEL_LOGOUT_URL, self.controller["attributes"])
 
 
 class TestSharedClientStaysOnTheSweep(unittest.TestCase):
@@ -694,6 +969,23 @@ class TestPerAppClientIdsFailLoudly(unittest.TestCase):
 
     def test_no_per_app_client_id_falls_back_to_another_client(self) -> None:
         self.assertEqual(silent_client_fallbacks(self.consumers), [])
+
+    def test_every_declared_client_is_read_outside_its_fragment(self) -> None:
+        for template in CLIENT_TEMPLATES:
+            role = template.parts[-4]
+            with self.subTest(role=role):
+                self.assertEqual(
+                    unread_client_keys(role, role_client_readers(role)), []
+                )
+
+    def test_a_declared_client_its_app_never_reads_is_caught(self) -> None:
+        self.assertEqual(
+            unread_client_keys(
+                OPENCLOUD,
+                {"templates/env.j2": "WEB_OIDC_CLIENT_ID={{ OIDC.CLIENT.ID }}"},
+            ),
+            ["web"],
+        )
 
     def test_a_lookup_with_a_fallback_is_caught(self) -> None:
         sources = {

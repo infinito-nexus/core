@@ -24,7 +24,7 @@
       {{ name }}={{ value }}
       {% endfor %}
       PLAYWRIGHT_NETWORK_LEAK={{ (_playwright_passes | length > 1) | string | lower }}
-      PLAYWRIGHT_NETWORK_SUFFIXES={{ _playwright_passes | map('network_of') | network_suffixes | to_json }}
+      PLAYWRIGHT_NETWORK_SUFFIXES={{ lookup('network_suffixes') | to_json }}
       PLAYWRIGHT_NETWORK_ALLOWED_HOSTS={{ OIDC.URL | urlsplit('hostname') }}
       {% set _bypass = lookup('browser_proxy_bypass', _playwright_pass_domain | network_of, OIDC.URL | urlsplit('hostname')) %}
       {% if _bypass %}
@@ -86,6 +86,12 @@
           become: true
           when: _playwright_rbac_hook.stat.exists
 
+        - name: ⏱️ Read the stack host clock the pass starts on
+          ansible.builtin.command:
+            argv: [date, +%s.%N]
+          register: _playwright_pass_clock
+          changed_when: false
+
         - name: ▶️ Run Playwright container
           ansible.builtin.command:
             argv: &playwright_argv >-
@@ -142,6 +148,8 @@
 
     - name: 📝 Report and archive the Playwright run
       ansible.builtin.include_tasks: 04_collect.yml
+      vars:
+        _playwright_pass_started: "{{ _playwright_pass_clock.stdout }}"
 
 - name: 📬 Queue the Playwright run for the parallel scheduler
   when: _playwright_dispatch | bool

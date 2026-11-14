@@ -14,6 +14,11 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      web: xwiki-web
+    backchannel_logout_path: /oidc/authenticator/backchannel_logout
+    backchannel_logout_gate: true
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"

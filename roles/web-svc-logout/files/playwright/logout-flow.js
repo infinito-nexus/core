@@ -3,6 +3,7 @@ const { expect } = require("@playwright/test");
 
 const {
   apiFetchOnion,
+  apiGetOnion,
   clickOidcLoginLink,
   decodeDotenvJsonList,
   decodeDotenvQuotedValue,
@@ -10,12 +11,52 @@ const {
   performKeycloakLoginForm,
   requireDotenvValue,
 } = require("./personas");
+const { isTorUrl } = require("./personas/utils/network");
 const { isOnionTarget, resolveTimeout } = require("./timeouts");
 
 const SYNAPSE_IDP = "oidc-keycloak";
 const DURATION_UNITS_MS = { s: 1_000, m: 60_000, h: 3_600_000 };
 const HEADER = "nav.menu-header";
 const RESULT = "#infinito-logout-result";
+const KEYCLOAK_LOGIN = "input[name='username'], input#username";
+const SSO_BUTTON = /\bsso\b/i;
+const XWIKI_SIGNED_IN = /data-xwiki-user-reference="(?:[^"]*:)?XWiki\.(?!XWikiGuest")/;
+const GATED_SESSIONS = {
+  "web-app-mediawiki": {
+    start: async (page, base) => {
+      await gotoOnion(page, `${base}/index.php?title=Special:UserLogin`, { waitUntil: "domcontentloaded" });
+      const button = page.getByRole("button", { name: SSO_BUTTON }).first();
+      if (await button.isVisible().catch(() => false)) {
+        await button.click({ timeout: resolveTimeout(30_000) });
+      }
+    },
+    signedIn: async (request, base) => {
+      const response = await apiGetOnion(request, `${base}/api.php?action=query&meta=userinfo&format=json`, {
+        maxRedirects: 0,
+        timeout: resolveTimeout(30_000),
+      });
+      return response.status() === 200 && Number((await response.json()).query.userinfo.id) > 0;
+    },
+  },
+  "web-app-xwiki": {
+    start: (page, base) => gotoOnion(page, `${base}/bin/login/XWiki/XWikiLogin`, { waitUntil: "domcontentloaded" }),
+    signedIn: async (request, base) => {
+      const response = await apiGetOnion(request, `${base}/bin/view/Main/`, { timeout: resolveTimeout(30_000) });
+      return XWIKI_SIGNED_IN.test(await response.text());
+    },
+  },
+  "web-app-zammad": {
+    start: (page, base) => gotoOnion(page, `${base}/auth/openid_connect`, { waitUntil: "domcontentloaded" }),
+    signedIn: async (request, base) => {
+      const response = await apiGetOnion(request, `${base}/api/v1/users/me`, {
+        headers: { Accept: "application/json" },
+        maxRedirects: 0,
+        timeout: resolveTimeout(30_000),
+      });
+      return response.status() === 200;
+    },
+  },
+};
 
 /**
  * Return the URLs this pass can reach: the onion pass goes through Tor and
@@ -25,7 +66,7 @@ const RESULT = "#infinito-logout-result";
  *   urls: the URLs of every network the node serves.
  */
 function reachableThisPass(urls) {
-  return isOnionTarget() ? urls : urls.filter((url) => !/\.onion$/i.test(new URL(url).hostname));
+  return isOnionTarget() ? urls : urls.filter((url) => !isTorUrl(url));
 }
 
 const logoutEnv = {
@@ -211,7 +252,7 @@ async function expectLoginAsksForCredentials(page) {
   const trigger = loginTrigger(page);
   const authPage = await clickOidcLoginLink(page, trigger, trigger);
   expect(authPage, "the next OIDC authentication must reach Keycloak").toBeTruthy();
-  await expect(authPage.locator("input[name='username'], input#username").first()).toBeVisible({
+  await expect(authPage.locator(KEYCLOAK_LOGIN).first()).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
 }
@@ -227,7 +268,7 @@ async function signInToSynapse(page) {
   const base = logoutEnv.synapseUrl.replace(/\/$/, "");
   const landing = `${base}/_matrix/static/`;
   await gotoOnion(page, `${base}/_matrix/client/v3/login/sso/redirect/${SYNAPSE_IDP}?redirectUrl=${encodeURIComponent(landing)}`);
-  const username = page.locator("input[name='username'], input#username").first();
+  const username = page.locator(KEYCLOAK_LOGIN).first();
   if (await username.isVisible().catch(() => false)) {
     await performKeycloakLoginForm(page, logoutEnv.biberUsername, logoutEnv.biberPassword, { settle: false });
   }
@@ -336,18 +377,103 @@ async function accountApplications(request) {
   }
 }
 
+/**
+ * Args:
+ *   request: an API request context of another device than the one whose
+ *     sessions end.
+ */
+async function endEveryOtherSession(request) {
+  const { access_token: accessToken, refresh_token: refreshToken } = await biberTokens(request);
+  try {
+    const response = await apiFetchOnion(request, `${logoutEnv.accountUrl.replace(/\/$/, "")}/sessions`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      timeout: resolveTimeout(30_000),
+    });
+    expect(response.status(), "the Account REST API must end every other session of biber").toBe(204);
+  } finally {
+    await endTokenSession(request, refreshToken);
+  }
+}
+
+/**
+ * Returns:
+ *   One entry per deployed application behind the logout gate and network
+ *   this pass reaches: its id, its base URL on that network and its sign-in
+ *   start and session probe from GATED_SESSIONS.
+ */
+function gatedAppSessions() {
+  return logoutEnv.backchannelTargets
+    .filter((target) => target.sealed_url)
+    .flatMap((target) => {
+      const session = GATED_SESSIONS[target.id];
+      if (!session) {
+        throw new Error(`${target.id} sits behind the logout gate, but GATED_SESSIONS names no sign-in and session probe for it`);
+      }
+      return reachableThisPass(target.app_urls).map((url) => ({ id: target.id, base: url.replace(/\/$/, ""), session }));
+    });
+}
+
+/**
+ * Args:
+ *   page: a page of the context whose app session is probed.
+ *   gated: one entry of gatedAppSessions().
+ *   alive: whether the app session must be alive.
+ */
+async function expectGatedSession(page, gated, alive) {
+  await expect
+    .poll(() => gated.session.signedIn(page.request, gated.base), {
+      timeout: resolveTimeout(60_000),
+      message: `${gated.id} on ${gated.base}: the app session must be ${alive ? "alive" : "gone"}`,
+    })
+    .toBe(alive);
+}
+
+/**
+ * Args:
+ *   page: a page of the context that signs in.
+ *   gated: one entry of gatedAppSessions().
+ */
+async function signInToGatedApp(page, gated) {
+  await gated.session.start(page, gated.base);
+  const form = page.locator(KEYCLOAK_LOGIN).first();
+  await expect
+    .poll(async () => (await form.isVisible().catch(() => false)) || (await gated.session.signedIn(page.request, gated.base)), {
+      timeout: resolveTimeout(120_000),
+      message: `${gated.id} on ${gated.base}: the sign-in must reach the Keycloak form or come back signed in`,
+    })
+    .toBe(true);
+  if (await form.isVisible().catch(() => false)) {
+    await performKeycloakLoginForm(page, logoutEnv.biberUsername, logoutEnv.biberPassword);
+  }
+  await expectGatedSession(page, gated, true);
+}
+
+/**
+ * Args:
+ *   page: a page of the context whose Keycloak session ended.
+ *   gated: one entry of gatedAppSessions().
+ */
+async function expectGatedAppAsksForLogin(page, gated) {
+  await expectGatedSession(page, gated, false);
+  await gated.session.start(page, gated.base);
+  await expect(page.locator(KEYCLOAK_LOGIN).first(), `${gated.id} on ${gated.base}: the next sign-in must ask for credentials`).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+}
+
 function base64url(value) {
   return Buffer.from(typeof value === "string" ? value : JSON.stringify(value)).toString("base64url");
 }
 
 /**
- * Return a logout token that carries valid claims but is signed with a key
- * Keycloak never published.
+ * Return a logout token signed with a key Keycloak never published.
  *
  * Args:
  *   audience: the client id the token pretends to be for.
+ *   overrides: claims that replace the valid ones, such as a foreign `iss`.
  */
-function forgedLogoutToken(audience) {
+function forgedLogoutToken(audience, overrides = {}) {
   const { privateKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
   const now = Math.floor(Date.now() / 1000);
   const header = base64url({ alg: "RS256", typ: "logout+jwt", kid: crypto.randomUUID() });
@@ -359,12 +485,14 @@ function forgedLogoutToken(audience) {
     jti: crypto.randomUUID(),
     sid: crypto.randomUUID(),
     events: { "http://schemas.openid.net/event/backchannel-logout": {} },
+    ...overrides,
   });
   const signature = crypto.sign("sha256", Buffer.from(`${header}.${claims}`), privateKey).toString("base64url");
   return `${header}.${claims}.${signature}`;
 }
 
 module.exports = {
+  KEYCLOAK_LOGIN,
   RESULT,
   accountApplications,
   accountChoice,
@@ -373,16 +501,21 @@ module.exports = {
   chooseFromAccountMenu,
   confirmLogoutOnThisDevice,
   durationMs,
+  endEveryOtherSession,
   endTokenSession,
   expectDashboardSignedIn,
   expectDashboardSignedOut,
+  expectGatedAppAsksForLogin,
+  expectGatedSession,
   expectLoginAsksForCredentials,
   expectSynapseSession,
   forgedLogoutToken,
+  gatedAppSessions,
   logOutThisDeviceFromAccountMenu,
   logoutEnv,
   openAccountMenu,
   openContext,
   signInToDashboard,
+  signInToGatedApp,
   signInToSynapse,
 };

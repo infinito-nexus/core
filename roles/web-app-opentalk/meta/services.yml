@@ -9,6 +9,8 @@ sso: # nocheck: login-methods  Reason: the frontend is a public-client OIDC sing
   flavor: oidc
   oidc:
     plugin: ""
+    frontend_client_id: opentalk-frontend
+    backchannel_logout_path: /v1/auth/logout
 # nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
   enabled: false # nocheck: dynamic-flag

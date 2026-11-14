@@ -5,7 +5,7 @@ OpenCloud delegates authentication to the central Keycloak realm and consumes us
 ## OIDC 🪪
 
 - Issuer URL: `{{ OIDC.CLIENT.ISSUER_URL }}`
-- Client ID: shared `OIDC.CLIENT.ID` (one Keycloak client per realm covers every web app)
+- Client ID: the role's own public client `services.sso.oidc.clients.web` (`templates/keycloak/clients.json.j2`), whose `backchannel.logout.url` is the proxy's `/backchannel_logout`, so a Keycloak logout drops the cached claims of the session and logs OpenCloud Web out
 - Username claim: `OIDC.ATTRIBUTES.USERNAME`, matched against the OpenCloud `username`
 - Accounts: read from the directory, `PROXY_AUTOPROVISION_ACCOUNTS=false`
 - Built-in IDP excluded via `OC_EXCLUDE_RUN_SERVICES=idp`
