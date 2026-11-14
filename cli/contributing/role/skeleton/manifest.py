@@ -9,6 +9,8 @@ from urllib.parse import urlsplit
 from utils.licensing.rights import table
 from utils.roles.description import MAX_LENGTH, violations
 
+KINDS = ("container", "static")
+CONTAINER = (KINDS[0],)
 DATABASES = ("postgres", "mariadb", "none")
 LOGINS = ("oidc", "ldap", "none")
 FEATURES = ("email", "redis")
@@ -33,6 +35,8 @@ class Field:
         multiple: whether the field takes a list of values.
         default: the value an omitted optional field takes; required
             fields have none.
+        kinds: the manifest kinds the field belongs to; a manifest of
+            another kind must leave it out.
     """
 
     name: str
@@ -41,10 +45,16 @@ class Field:
     choices: tuple[str, ...] | None = None
     multiple: bool = False
     default: Any = _MISSING
+    kinds: tuple[str, ...] = KINDS
 
     def as_json(self) -> dict[str, Any]:
         """Return the field as the JSON object of the ``schema`` output."""
-        out: dict[str, Any] = {"name": self.name, "help": self.help, "type": self.type}
+        out: dict[str, Any] = {
+            "name": self.name,
+            "help": self.help,
+            "type": self.type,
+            "kinds": list(self.kinds),
+        }
         if self.choices is not None:
             out["choices"] = list(self.choices)
         if self.multiple:
@@ -78,8 +88,10 @@ class Manifest:
     Args:
         name: suffix of ``web-app-cst-<name>``.
         description: ``galaxy_info.description`` of the role.
-        homepage: official website of the software.
         license: SPDX id of the software's licence.
+        kind: ``container`` or ``static``; the fields below belong to
+            ``container`` only and keep their defaults for ``static``.
+        homepage: official website of the software.
         repository: the image without its tag.
         version: the image tag.
         port: the HTTP port the container listens on.
@@ -92,14 +104,15 @@ class Manifest:
 
     name: str
     description: str
-    homepage: str
     license: str
-    repository: str
-    version: str
-    port: int
-    database: str
-    login: str
-    features: tuple[str, ...]
+    kind: str = KINDS[0]
+    homepage: str = ""
+    repository: str = ""
+    version: str = ""
+    port: int = 0
+    database: str = "none"
+    login: str = "none"
+    features: tuple[str, ...] = field(default=())
     environment: tuple[tuple[str, str], ...] = field(default=())
     volumes: tuple[Volume, ...] = field(default=())
 
@@ -107,6 +120,14 @@ class Manifest:
 def fields() -> tuple[Field, ...]:
     """Return every manifest field in the order the builder asks for them."""
     return (
+        Field(
+            "kind",
+            "What the role deploys: a container image, or a static site of the "
+            "Infinito.Nexus family that links the brand kit.",
+            "string",
+            choices=KINDS,
+            default=KINDS[0],
+        ),
         Field(
             "name",
             "Short name of the application; the role becomes web-app-cst-<name>. "
@@ -123,6 +144,7 @@ def fields() -> tuple[Field, ...]:
             "homepage",
             "Official website of the software (http or https URL).",
             "string",
+            kinds=CONTAINER,
         ),
         Field(
             "license",
@@ -134,14 +156,21 @@ def fields() -> tuple[Field, ...]:
             "image",
             "Container image including its tag, e.g. ghcr.io/example/app:1.2.3.",
             "string",
+            kinds=CONTAINER,
         ),
-        Field("port", "HTTP port the container listens on (1 to 65535).", "integer"),
+        Field(
+            "port",
+            "HTTP port the container listens on (1 to 65535).",
+            "integer",
+            kinds=CONTAINER,
+        ),
         Field(
             "database",
             "Relational database the application stores its data in.",
             "string",
             choices=DATABASES,
             default="none",
+            kinds=CONTAINER,
         ),
         Field(
             "login",
@@ -150,6 +179,7 @@ def fields() -> tuple[Field, ...]:
             "string",
             choices=LOGINS,
             default="none",
+            kinds=CONTAINER,
         ),
         Field(
             "features",
@@ -158,6 +188,7 @@ def fields() -> tuple[Field, ...]:
             choices=FEATURES,
             multiple=True,
             default=[],
+            kinds=CONTAINER,
         ),
         Field(
             "environment",
@@ -166,6 +197,7 @@ def fields() -> tuple[Field, ...]:
             "string",
             multiple=True,
             default=[],
+            kinds=CONTAINER,
         ),
         Field(
             "volumes",
@@ -174,6 +206,7 @@ def fields() -> tuple[Field, ...]:
             "string",
             multiple=True,
             default=[],
+            kinds=CONTAINER,
         ),
     )
 
@@ -252,12 +285,16 @@ def _port(data: dict[str, Any], errors: list[str]) -> int:
 
 
 def _choice(
-    data: dict[str, Any], key: str, choices: tuple[str, ...], errors: list[str]
+    data: dict[str, Any],
+    key: str,
+    choices: tuple[str, ...],
+    errors: list[str],
+    default: str = "none",
 ) -> str:
-    value = data.get(key, "none")
+    value = data.get(key, default)
     if value not in choices:
         errors.append(f"{key}: must be one of {', '.join(choices)}, got {value!r}")
-        return "none"
+        return default
     return value
 
 
@@ -334,6 +371,27 @@ def _volumes(data: dict[str, Any], errors: list[str]) -> tuple[Volume, ...]:
     return tuple(out.values())
 
 
+def _scope(data: dict[str, Any], errors: list[str]) -> tuple[str, dict[str, Any]]:
+    known = {item.name: item for item in fields()}
+    errors.extend(f"{key}: unknown field" for key in data if key not in known)
+    kind = _choice(data, "kind", KINDS, errors, KINDS[0])
+    errors.extend(
+        f"{key}: only for kind {', '.join(known[key].kinds)}"
+        for key in data
+        if key in known and kind not in known[key].kinds
+    )
+    errors.extend(
+        f"{item.name}: required"
+        for item in known.values()
+        if kind in item.kinds and item.required and item.name not in data
+    )
+    return kind, {
+        key: value
+        for key, value in data.items()
+        if key in known and kind in known[key].kinds
+    }
+
+
 def validate(data: Any) -> tuple[Manifest | None, list[str]]:
     """Validate a parsed manifest.
 
@@ -346,33 +404,24 @@ def validate(data: Any) -> tuple[Manifest | None, list[str]]:
     """
     if not isinstance(data, dict):
         return None, ["manifest: must be a mapping of the fields the schema lists"]
-    known = {item.name for item in fields()}
-    errors = [f"{key}: unknown field" for key in data if key not in known]
-    errors.extend(
-        f"{item.name}: required"
-        for item in fields()
-        if item.required and item.name not in data
-    )
-    present = {key for key in data if key in known}
-    name = _name(data, errors) if "name" in present else ""
-    description = _description(data, errors) if "description" in present else ""
-    homepage = _homepage(data, errors) if "homepage" in present else ""
-    license_id = _license(data, errors) if "license" in present else ""
-    repository, version = _image(data, errors) if "image" in present else ("", "")
-    port = _port(data, errors) if "port" in present else 0
+    errors: list[str] = []
+    kind, scoped = _scope(data, errors)
+    homepage = _homepage(scoped, errors) if "homepage" in scoped else ""
+    repository, version = _image(scoped, errors) if "image" in scoped else ("", "")
     manifest = Manifest(
-        name=name,
-        description=description,
+        name=_name(scoped, errors) if "name" in scoped else "",
+        description=_description(scoped, errors) if "description" in scoped else "",
+        license=_license(scoped, errors) if "license" in scoped else "",
+        kind=kind,
         homepage=homepage,
-        license=license_id,
         repository=repository,
         version=version,
-        port=port,
-        database=_choice(data, "database", DATABASES, errors),
-        login=_choice(data, "login", LOGINS, errors),
-        features=_features(data, errors),
-        environment=_environment(data, errors),
-        volumes=_volumes(data, errors),
+        port=_port(scoped, errors) if "port" in scoped else 0,
+        database=_choice(scoped, "database", DATABASES, errors),
+        login=_choice(scoped, "login", LOGINS, errors),
+        features=_features(scoped, errors),
+        environment=_environment(scoped, errors),
+        volumes=_volumes(scoped, errors),
     )
     if manifest.login == "oidc" and homepage and urlsplit(homepage).scheme != "https":
         errors.append(

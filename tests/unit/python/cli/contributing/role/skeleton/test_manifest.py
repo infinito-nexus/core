@@ -153,7 +153,53 @@ class TestInvalidManifest(unittest.TestCase):
         self.assertEqual(set(), {line.split(":", 1)[0] for line in errors} - known)
 
 
+STATIC = {
+    "kind": "static",
+    "name": "builder",
+    "description": "Site that turns applications into Infinito.Nexus roles",
+    "license": "MIT",
+}
+
+
+class TestStaticKind(unittest.TestCase):
+    def test_name_description_and_licence_suffice(self):
+        manifest, errors = validate(STATIC)
+        self.assertEqual([], errors)
+        self.assertEqual(("static", "builder"), (manifest.kind, manifest.name))
+
+    def test_a_container_field_is_refused_by_name(self):
+        self.assertEqual(
+            ["image: only for kind container"],
+            validate({**STATIC, "image": "ghcr.io/example/site:1"})[1],
+        )
+
+    def test_the_container_fields_keep_their_defaults(self):
+        manifest, _ = validate(STATIC)
+        self.assertEqual(
+            ("", 0, "none", "none", ()),
+            (
+                manifest.repository,
+                manifest.port,
+                manifest.database,
+                manifest.login,
+                manifest.volumes,
+            ),
+        )
+
+    def test_an_unknown_kind_is_refused(self):
+        self.assertTrue(_errors(kind="vm")[0].startswith("kind:"))
+
+    def test_an_omitted_kind_is_a_container(self):
+        self.assertEqual("container", validate(_manifest())[0].kind)
+
+
 class TestFields(unittest.TestCase):
+    def test_every_field_names_the_kinds_it_belongs_to(self):
+        self.assertEqual(
+            {"container", "static"},
+            {kind for item in fields() for kind in item.as_json()["kinds"]},
+        )
+
     def test_required_fields_carry_no_default(self):
         self.assertEqual(
             ["name", "description", "homepage", "license", "image", "port"],

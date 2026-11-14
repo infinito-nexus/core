@@ -17,6 +17,7 @@ from cli.contributing.network.address.suggest.__main__ import (
 from cli.contributing.network.ports.suggest.__main__ import suggest_single_ports
 from utils.agents.naming import IAM_USERNAME_MAX_LENGTH
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.distros import galaxy_platforms
 from utils.licensing.rights import table
@@ -38,6 +39,7 @@ SUBNET_CLIENTS = 254
 PORT_SCOPE = "local"
 PORT_CATEGORY = "http"
 DOMAIN_TEMPLATE = "{name}.{{{{ DOMAIN_PRIMARY }}}}"
+BRAND_ROLE = "web-app-cst-brand"
 SERVICE_KEYS = frozenset(
     {
         "container_backup",
@@ -200,8 +202,12 @@ def context(manifest: Manifest, local_port: int, subnet: str) -> dict[str, Any]:
     """
     role = application_id(manifest)
     return {
+        "kind": manifest.kind,
+        "name": manifest.name,
+        "brand": BRAND_ROLE,
         "application_id": role,
         "entity": entity_name(role),
+        "prefix": entity_name(role).upper().replace("-", "_"),
         "run_once": "run_once_" + role.replace("-", "_"),
         "title": _title(manifest.name),
         "domain": canonical_domain(manifest),
@@ -265,7 +271,7 @@ def render_files(variables: dict[str, Any]) -> dict[str, str]:
         if text.strip():
             out[relative.removesuffix(SUFFIX)] = text
     for relative, source in VERBATIM.items():
-        out[relative] = source.read_text(encoding="utf-8")
+        out[relative] = read_text(str(source))
     return out
 
 
@@ -315,6 +321,13 @@ def render(manifest: Manifest, target: Path, *, force: bool) -> Path:
         errors.append(f"target: {role_dir} exists; pass --force to replace it")
     if errors:
         raise RenderError(errors)
-    files = render_files(context(manifest, allocate_port(), allocate_subnet()))
+    container = manifest.kind == "container"
+    files = render_files(
+        context(
+            manifest,
+            allocate_port() if container else 0,
+            allocate_subnet() if container else "",
+        )
+    )
     _write(role_dir, files)
     return role_dir

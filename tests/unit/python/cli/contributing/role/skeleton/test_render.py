@@ -52,6 +52,26 @@ BASE_FILES = {
     ROLE_FILE_VARS_MAIN,
 }
 UNSWEPT_FLAGS = {"docs", "semaphore", "tor", "container_backup"}
+STATIC_FILES = {
+    ROLE_FILE_README,
+    "files/playwright/.nocheck",
+    ROLE_FILE_PLAYWRIGHT_SPEC,
+    "files/site/style.css",
+    ROLE_FILE_META_CSP,
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_INFO,
+    ROLE_FILE_META_LICENSE,
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
+    "tasks/00_core.yml",
+    "tasks/utils/stack.yml",
+    ROLE_FILE_TASKS_MAIN,
+    "templates/index.html.j2",
+    "templates/playwright.env.j2",
+    "templates/proxy.conf.j2",
+    ROLE_FILE_VARS_MAIN,
+}
 
 
 def _manifest(**overrides):
@@ -65,6 +85,20 @@ def _manifest(**overrides):
     }
     data.update(overrides)
     manifest, errors = validate(data)
+    if errors:
+        raise AssertionError(errors)
+    return manifest
+
+
+def _static():
+    manifest, errors = validate(
+        {
+            "kind": "static",
+            "name": "builder",
+            "description": "Site that turns applications into Infinito.Nexus roles",
+            "license": "MIT",
+        }
+    )
     if errors:
         raise AssertionError(errors)
     return manifest
@@ -294,7 +328,7 @@ class TestServices(_RenderCase):
         )
 
     def test_the_service_key_set_matches_every_rendered_key(self):
-        keys = set()
+        keys = set(self.services(_static())) - {"builder"}
         for manifest in (_full(), _manifest(database="mariadb", login="ldap")):
             keys |= set(self.services(manifest)) - {"notes"}
         self.assertEqual(skeleton.SERVICE_KEYS, keys)
@@ -345,6 +379,88 @@ class TestReadme(_RenderCase):
         ):
             with self.subTest(part=part):
                 self.assertIn(f"**{part}:**", text)
+
+
+class TestStaticKind(_RenderCase):
+    def test_a_static_manifest_renders_the_static_file_set_without_allocation(self):
+        with mock.patch.object(skeleton, "allocate_port") as port:
+            role_dir = self.render(_static())
+        written = {
+            path.relative_to(role_dir).as_posix()
+            for path in role_dir.rglob("*")  # nocheck: project-walk  tempdir role
+            if path.is_file()
+        }
+        self.assertEqual((STATIC_FILES, 0), (written, port.call_count))
+
+    def test_every_rendered_yaml_file_parses(self):
+        for path, text in self.files(_static()).items():
+            if path.endswith(".yml"):
+                with self.subTest(path=path):
+                    load_yaml_str(text)
+
+    def test_the_site_is_a_host_mode_vhost_on_the_stack_bridge(self):
+        services = self.services(_static())
+        self.assertEqual(
+            ({"host": {"enabled": True}}, True, True),
+            (
+                services["builder"]["modes"],
+                services["stack"]["enabled"],
+                services["openresty"]["enabled"],
+            ),
+        )
+
+    def test_the_page_links_the_brand_kit_and_pins_design_injection_off(self):
+        files = self.files(_static())
+        self.assertIn(
+            f"lookup('cdn', '{skeleton.BRAND_ROLE}')", files[ROLE_FILE_VARS_MAIN]
+        )
+        self.assertFalse(
+            load_yaml_str(files[ROLE_FILE_META_SERVICES])["design"]["enabled"]
+        )
+
+    def test_the_cosmos_tag_and_sky_are_gated_by_the_design_lookup(self):
+        files = self.files(_static())
+        page = files["templates/index.html.j2"]
+        self.assertIn(
+            "BUILDER_COSMOS: \"{{ lookup('design', application_id).cosmos }}\"",
+            files[ROLE_FILE_VARS_MAIN],
+        )
+        self.assertEqual(2, page.count("{% if BUILDER_COSMOS %}"))
+        self.assertLess(page.index("{% if BUILDER_COSMOS %}"), page.index("cosmos.js"))
+
+    def test_no_file_names_the_cosmos_provider_role(self):
+        files = self.files(_static())
+        self.assertEqual(
+            [], [path for path, text in files.items() if "web-app-cst-cosmos" in text]
+        )
+
+    def test_the_dynamic_flags_are_swept_by_the_variants(self):
+        files = self.files(_static())
+        services = load_yaml_str(files[ROLE_FILE_META_SERVICES])
+        variants = load_yaml_str(files[ROLE_FILE_META_VARIANTS])
+        dynamic = {
+            key
+            for key, value in services.items()
+            if isinstance(value, dict)
+            and "in group_names" in str(value.get("enabled", ""))
+            and key not in UNSWEPT_FLAGS
+        }
+        self.assertEqual(
+            (dict.fromkeys(dynamic, True), dict.fromkeys(dynamic, False)),
+            tuple(
+                {key: variant["services"][key]["enabled"] for key in dynamic}
+                for variant in variants
+            ),
+        )
+
+    def test_the_readme_keeps_the_required_sections(self):
+        required = [
+            title
+            for title in schema.required_sections()
+            if title not in MANAGED_SECTIONS
+        ]
+        titles = h2_titles(self.files(_static())["README.md"])
+        self.assertEqual(required, [title for title in titles if title in required])
 
 
 if __name__ == "__main__":
