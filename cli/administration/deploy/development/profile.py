@@ -3,6 +3,16 @@
 from __future__ import annotations
 
 import os
+import sys
+
+from utils.env.handlers.infinito.cache import paths
+
+_NOTICED: set[str] = set()
+
+
+def infra_owns_cache() -> bool:
+    """True iff the infra runner marked the cache base as its own."""
+    return (paths.base() / "infra.owner").is_file()
 
 
 def _declared(name: str) -> bool | None:
@@ -32,6 +42,15 @@ class Profile:
 
     def cache_stack_enabled(self) -> bool:
         """True iff the pull-through cache stack should be loaded."""
+        if infra_owns_cache():
+            if not _NOTICED:
+                _NOTICED.add("infra.owner")
+                print(
+                    f"NOTICE: the infra runner owns {paths.base()} (infra.owner); "
+                    "the legacy cache stack stays off",
+                    file=sys.stderr,
+                )
+            return False
         declared = _declared("INFINITO_CACHE_STACK")
         return (not self.is_ci()) if declared is None else declared
 

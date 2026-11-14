@@ -9,9 +9,10 @@ from typing import ClassVar
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
+from plugins.filter.resource_filter import resolve_cpus
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-nextcloud"
 TEMPLATES = ROLE / "templates"
@@ -109,6 +110,20 @@ AIO_RECORDING = {
         "browserPath": "/usr/bin/firefox",
     },
 }
+
+UPSTREAM_OUTPUT_VIDEO = "-c:v libvpx -deadline:v realtime -crf 10 -b:v 1M"
+UPSTREAM_OUTPUT_VIDEO_REF = "v0.3.1"
+
+RECORDING = {
+    **AIO_RECORDING,
+    "ffmpeg": {
+        **AIO_RECORDING["ffmpeg"],
+        "outputvideo": f"{UPSTREAM_OUTPUT_VIDEO} -threads:v 4",
+    },
+}
+
+ANSIBLE_WORST_VCPU_OVERCOUNT = 4 / 3
+DOCKER_CEILING_MARGIN = 0.95
 
 STOCK_JANUS = [
     "general:{",
@@ -208,6 +223,20 @@ def _ini(text: str) -> dict[str, dict[str, str]]:
 
 def _settings(text: str) -> list[str]:
     return [joined for line in text.splitlines() if (joined := "".join(line.split()))]
+
+
+def _recorder() -> dict:
+    return load_yaml(ROLE / ROLE_FILE_META_SERVICES)["talk_recording"]
+
+
+def _encoder_threads() -> int:
+    recording = _ini(_render(_template("recording.conf.j2")))
+    options = recording["ffmpeg"]["outputvideo"].split()
+    return int(options[options.index("-threads:v") + 1])
+
+
+def _cap(cpus, host_cpus) -> float:
+    return float(resolve_cpus(cpus, host_cpus))
 
 
 class TestSignalingConfig(unittest.TestCase):
@@ -328,13 +357,48 @@ class TestSignalingNetworkBackends(unittest.TestCase):
 
 
 class TestRecordingConfig(unittest.TestCase):
-    def test_matches_what_the_aio_start_script_wrote(self):
-        self.assertEqual(_ini(_render(_template("recording.conf.j2"))), AIO_RECORDING)
+    def test_matches_aio_apart_from_the_encoder_threads(self):
+        self.assertEqual(_ini(_render(_template("recording.conf.j2"))), RECORDING)
+
+    def test_the_copied_encoder_default_belongs_to_the_pinned_release(self):
+        self.assertEqual(
+            _recorder()["ref"],
+            UPSTREAM_OUTPUT_VIDEO_REF,
+            "services.talk_recording.ref moved: compare [ffmpeg] outputvideo in "
+            "server.conf.in of the new ref with UPSTREAM_OUTPUT_VIDEO, update "
+            "recording.conf.j2 if it changed, then raise UPSTREAM_OUTPUT_VIDEO_REF",
+        )
 
     def test_negative_control_a_dropped_setting_breaks_parity(self):
         drifted = _template("recording.conf.j2").replace("maxmessagesize = 1024\n", "")
         self.assertNotEqual(drifted, _template("recording.conf.j2"))
-        self.assertNotEqual(_ini(_render(drifted)), AIO_RECORDING)
+        self.assertNotEqual(_ini(_render(drifted)), RECORDING)
+
+
+class TestRecordingCpus(unittest.TestCase):
+    HOSTS: ClassVar[tuple[int, ...]] = (4, 8, 11, 16, 24, 32)
+
+    def test_the_cap_scales_with_the_host(self):
+        cpus = _recorder()["cpus"]
+        self.assertLess(_cap(cpus, 8), _cap(cpus, 16))
+
+    def test_the_cap_leaves_the_browser_a_cpu_beside_the_encoder_threads(self):
+        self.assertGreaterEqual(_cap(_recorder()["cpus"], 8), _encoder_threads() + 1)
+
+    def test_the_cap_stays_below_the_docker_ceiling_when_ansible_overcounts(self):
+        cpus = _recorder()["cpus"]
+        for real in self.HOSTS:
+            with self.subTest(real=real):
+                reported = real * ANSIBLE_WORST_VCPU_OVERCOUNT
+                self.assertLessEqual(_cap(cpus, reported), DOCKER_CEILING_MARGIN * real)
+
+    def test_negative_control_the_old_fixed_cap_neither_scales_nor_fits(self):
+        self.assertEqual(_cap("2.0", 8), _cap("2.0", 16))
+        self.assertLess(_cap("2.0", 8), _encoder_threads() + 1)
+
+    def test_negative_control_the_whole_host_crosses_the_docker_ceiling(self):
+        reported = 24 * ANSIBLE_WORST_VCPU_OVERCOUNT
+        self.assertGreater(_cap("100%", reported), DOCKER_CEILING_MARGIN * 24)
 
 
 class TestJanusConfig(unittest.TestCase):

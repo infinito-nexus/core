@@ -3,8 +3,8 @@ from __future__ import annotations
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
@@ -16,6 +16,7 @@ from utils.update.repository import (
     collect_entries,
     find_outdated_updates,
     git_ls_remote_head,
+    git_ref_resolves,
     is_commit_sha,
     suppressed_ref_lines,
     update_config_refs,
@@ -374,8 +375,8 @@ def _write_role(
 
 def _find(root: Path, ls_remote: _LsRemote) -> list[RepositoryRefUpdate]:
     with (
-        mock.patch.object(module, "resolve_max_fetch_workers", return_value=2),
-        mock.patch.object(module.subprocess, "run", side_effect=ls_remote),
+        unittest.mock.patch.object(module, "resolve_max_fetch_workers", return_value=2),
+        unittest.mock.patch.object(module.subprocess, "run", side_effect=ls_remote),
     ):
         return find_outdated_updates(root)
 
@@ -414,7 +415,9 @@ class TestIsCommitSha(unittest.TestCase):
 class TestGitLsRemoteHead(unittest.TestCase):
     def test_returns_the_head_commit(self) -> None:
         ls_remote = _LsRemote(heads={SHA_REPO: TIP_SHA})
-        with mock.patch.object(module.subprocess, "run", side_effect=ls_remote):
+        with unittest.mock.patch.object(
+            module.subprocess, "run", side_effect=ls_remote
+        ):
             self.assertEqual(git_ls_remote_head(SHA_REPO), TIP_SHA)
         self.assertEqual(ls_remote.calls, [(SHA_REPO, "HEAD")])
 
@@ -426,13 +429,65 @@ class TestGitLsRemoteHead(unittest.TestCase):
         ):
             with (
                 self.subTest(failure=type(failure).__name__),
-                mock.patch.object(module.subprocess, "run", side_effect=failure),
+                unittest.mock.patch.object(
+                    module.subprocess, "run", side_effect=failure
+                ),
             ):
                 self.assertIsNone(git_ls_remote_head(SHA_REPO))
 
     def test_an_empty_answer_returns_none(self) -> None:
-        with mock.patch.object(module.subprocess, "run", side_effect=_LsRemote()):
+        with unittest.mock.patch.object(
+            module.subprocess, "run", side_effect=_LsRemote()
+        ):
             self.assertIsNone(git_ls_remote_head(SHA_REPO))
+
+
+class TestGitRefResolves(unittest.TestCase):
+    def _resolves(
+        self, stdout: str, returncode: int = 0
+    ) -> tuple[bool | None, list[list[str]]]:
+        calls: list[list[str]] = []
+
+        def run(argv: list[str], **_kwargs) -> subprocess.CompletedProcess:
+            calls.append(argv)
+            return subprocess.CompletedProcess(argv, returncode, stdout, "")
+
+        with unittest.mock.patch.object(module.subprocess, "run", side_effect=run):
+            return git_ref_resolves(TAG_REPO, "v4.0.2"), calls
+
+    def test_a_branch_or_a_peeled_tag_of_that_name_resolves(self) -> None:
+        for stdout in (
+            f"{TIP_SHA}\trefs/heads/v4.0.2\n",
+            f"{TIP_SHA}\trefs/tags/v4.0.2^{{}}\n",
+        ):
+            with self.subTest(stdout=stdout):
+                resolved, calls = self._resolves(stdout)
+                self.assertIs(resolved, True)
+                self.assertEqual(
+                    calls,
+                    [
+                        [
+                            "git",
+                            "ls-remote",
+                            TAG_REPO,
+                            "refs/heads/v4.0.2",
+                            "refs/tags/v4.0.2",
+                        ]
+                    ],
+                )
+
+    def test_a_name_listed_only_elsewhere_does_not_resolve(self) -> None:
+        for stdout in (
+            "",
+            f"{TIP_SHA}\trefs/heads/release/v4.0.2\n",
+            f"{TIP_SHA}\trefs/pull/7/head\n",
+        ):
+            with self.subTest(stdout=stdout):
+                self.assertIs(self._resolves(stdout)[0], False)
+
+    def test_a_failed_lookup_is_indeterminate(self) -> None:
+        resolved, _calls = self._resolves(f"{TIP_SHA}\trefs/heads/v4.0.2\n", 128)
+        self.assertIsNone(resolved)
 
 
 class TestCommitShaPins(unittest.TestCase):

@@ -28,7 +28,7 @@ from __future__ import annotations
 import re
 import unicodedata
 
-from utils.i18n.placeholders import has_words
+from utils.i18n.spans import has_words
 from utils.meta.authors import author_names
 from utils.meta.role.brands import brand_titles
 from utils.software import SOFTWARE_NAME

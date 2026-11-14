@@ -28,7 +28,6 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from cli.administration.deploy.development.inventory import (
-    _build_services_overrides_for_round,
     _resolve_variant_payloads,
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
@@ -39,10 +38,11 @@ from cli.administration.inventory.provision.services.disabler import (
     parse_services_disabled,
     reconcile_services_disabled_from_env,
 )
-from utils.cache import _reset_cache_for_tests
 from utils.cache.applications import get_merged_applications
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.github.variant.network import TOR, disabled_services
+from utils.roles.applications.variants import services_overrides_for_round
 
 from . import PROJECT_ROOT
 
@@ -76,7 +76,7 @@ def _provision_tor_row(workdir: Path) -> tuple[list[str], dict]:
         include=include,
         primary_apps=[APP],
         disabled_app_ids=set(disabled.values()),
-        services_overrides=_build_services_overrides_for_round(
+        services_overrides=services_overrides_for_round(
             roles_dir=str(ROLES_DIR),
             round_index=round_index,
             primary_app_variants={APP: round_variants[APP]},

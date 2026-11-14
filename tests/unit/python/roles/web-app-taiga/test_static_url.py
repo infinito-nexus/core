@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import types
 import unittest
-from unittest import mock
+import unittest.mock
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
@@ -66,7 +66,7 @@ def mail_static(namespace: dict, path: str) -> str:
         "django.templatetags": types.ModuleType("django.templatetags"),
         "django.templatetags.static": static,
     }
-    with mock.patch.dict(sys.modules, modules):
+    with unittest.mock.patch.dict(sys.modules, modules):
         return namespace["TEMPLATES"][0]["OPTIONS"]["globals"]["static"](path)
 
 

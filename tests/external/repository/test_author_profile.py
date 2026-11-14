@@ -42,7 +42,7 @@ class TestAuthorProfile(unittest.TestCase):
         name, email = committing_as()
         if not email:
             raise unittest.SkipTest("git config user.email is unset here")
-        _name, self.email = canonical(name, email)
+        self.email = canonical(name, email)[1]
         self.url = profile_url(self.email)
         if not self.url:
             raise unittest.SkipTest(
