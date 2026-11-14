@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+import unittest.mock
 import urllib.error
-from unittest import mock
 
 from . import PROJECT_ROOT
 
@@ -68,14 +68,14 @@ class TestPageUrl(unittest.TestCase):
 
 class TestFetch(unittest.TestCase):
     def _response(self, status: int, body: bytes = b"<html></html>"):
-        response = mock.MagicMock()
+        response = unittest.mock.MagicMock()
         response.status = status
         response.read.return_value = body
         response.__enter__.return_value = response
         return response
 
     def test_a_ready_page_is_returned_at_once(self) -> None:
-        with mock.patch.object(extract.urllib.request, "urlopen") as opener:
+        with unittest.mock.patch.object(extract.urllib.request, "urlopen") as opener:
             opener.return_value = self._response(200, b"<p>ok</p>")
 
             self.assertEqual(extract.fetch("http://x/", timeout=1), "<p>ok</p>")
@@ -83,8 +83,10 @@ class TestFetch(unittest.TestCase):
     def test_it_waits_while_the_version_is_building(self) -> None:
         answers = [self._response(202), self._response(200, b"<p>ok</p>")]
         with (
-            mock.patch.object(extract.urllib.request, "urlopen", side_effect=answers),
-            mock.patch.object(extract.time, "sleep"),
+            unittest.mock.patch.object(
+                extract.urllib.request, "urlopen", side_effect=answers
+            ),
+            unittest.mock.patch.object(extract.time, "sleep"),
         ):
             self.assertEqual(
                 extract.fetch("http://x/", timeout=60, poll=0), "<p>ok</p>"
@@ -92,8 +94,8 @@ class TestFetch(unittest.TestCase):
 
     def test_a_build_that_never_finishes_times_out(self) -> None:
         with (
-            mock.patch.object(extract.urllib.request, "urlopen") as opener,
-            mock.patch.object(extract.time, "sleep"),
+            unittest.mock.patch.object(extract.urllib.request, "urlopen") as opener,
+            unittest.mock.patch.object(extract.time, "sleep"),
         ):
             opener.return_value = self._response(202)
             with self.assertRaises(TimeoutError):
@@ -102,7 +104,9 @@ class TestFetch(unittest.TestCase):
     def test_an_error_other_than_building_is_raised(self) -> None:
         failure = urllib.error.HTTPError("http://x/", 404, "gone", {}, None)
         with (
-            mock.patch.object(extract.urllib.request, "urlopen", side_effect=failure),
+            unittest.mock.patch.object(
+                extract.urllib.request, "urlopen", side_effect=failure
+            ),
             self.assertRaises(urllib.error.HTTPError),
         ):
             extract.fetch("http://x/", timeout=1)
@@ -111,7 +115,7 @@ class TestFetch(unittest.TestCase):
 class TestBlockEntry(unittest.TestCase):
     def test_a_page_without_instructions_is_an_error(self) -> None:
         with (
-            mock.patch.object(extract, "fetch", return_value=WITHOUT),
+            unittest.mock.patch.object(extract, "fetch", return_value=WITHOUT),
             self.assertRaises(ValueError),
         ):
             extract.block("http://x/", "web-app-x", timeout=1)

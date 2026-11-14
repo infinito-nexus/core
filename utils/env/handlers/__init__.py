@@ -1,7 +1,7 @@
 """Handler registry. ``ORDERED_HANDLERS`` is iterated by ``build_env()``.
 
 Each handler module exposes ``apply(eb, ctx) -> None``. Cross-handler
-data flows via :class:`utils.env.builder.EnvBuilder`; handlers must not
+data flows via :class:`utils.env.context.EnvBuilder`; handlers must not
 import each other.
 """
 

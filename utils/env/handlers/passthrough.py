@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 STATIC_KEYS = (
     "INFINITO_SRC_DIR",
@@ -157,6 +157,7 @@ STATIC_KEYS = (
     "INFINITO_CACHE_PACKAGE_NPMRC",
     "INFINITO_CACHE_PACKAGE_PIP_CONF",
     "INFINITO_CACHE_REGISTRY_PROXY_CONF",
+    "INFINITO_BUILD_CACHE_MAX_SIZE",
     "INFINITO_IMAGE_TAG",
     "INFINITO_VARS_PAYLOAD",
     "INFINITO_APP_VARIANTS",

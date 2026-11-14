@@ -86,7 +86,7 @@ def watch(
         mock.patch.object(watchdog, "mem_stall_pct", return_value=0.0),
         mock.patch.object(watchdog, "io_stall_pct", return_value=0.0),
         mock.patch.object(watchdog, "cpu_stall_pct", return_value=0.0),
-        mock.patch.object(watchdog, "uninterruptible_procs", return_value=0),
+        mock.patch.object(watchdog, "uninterruptible_switches", return_value={}),
         mock.patch("builtins.print", printed),
     ):
         rc = watchdog.run_watched(["step"], env={})
