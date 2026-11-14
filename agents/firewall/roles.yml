@@ -40,12 +40,7 @@ interactive:
     - package-consumer
   allow:
     - channel(cross-session/all):crud
-  ask:
-    - app(github/commit):create
-    - app(github/issue-comment):create
-    - app(github/issue):update
-  deny:
-    - app(github/push):create
+  settings: .claude/settings.json
 
 autonomous-contributor:
   includes:

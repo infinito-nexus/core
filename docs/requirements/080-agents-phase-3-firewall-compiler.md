@@ -32,9 +32,17 @@ As an operator, I want the agent firewall compiler to turn the `allow`, `ask` an
 - [ ] The workspace's `/etc/claude-code/managed-settings.json` is generated from the agent's grants, owned by root, read-only, and the agent process runs as a non-root user that cannot change it (probe recorded).
   - Live: deploy `web-app-workspace` once, then probe inside the container that the file is `root:root` mode `0444`, equals the `managed_settings` surface the compiler emits for the agent's grants, and that a write as the agent user fails.
 - [x] `agents/firewall/` ships every baseline role of the design table with the grants listed there.
-  - Evidence: `TestBaselineRoles` in `tests/unit/python/utils/firewall/test_compile.py:325` (`test_every_baseline_role_grants_its_table_row`, `test_the_table_covers_every_baseline_role`) resolves every role of `agents/firewall/roles.yml` against the design table rows.
-- [ ] The root `AGENTS.md` permission rules for interactive sessions are expressed by the `interactive` firewall role, and `.claude/settings.json` is generated from it.
-  - Open: the `interactive` role exists in `agents/firewall/roles.yml:36`, but no generator writes `.claude/settings.json`; the root `AGENTS.md` names that file the permission SPOT, so generating it needs an operator decision.
+  - Evidence: `TestBaselineRoles` in `tests/unit/python/utils/firewall/test_compile.py:434` (`test_every_baseline_role_grants_its_table_row`, `test_the_table_covers_every_baseline_role`) resolves every role of `agents/firewall/roles.yml` against the design table rows.
+- [x] The root `AGENTS.md` permission rules for interactive sessions are expressed by the `interactive` firewall role, derived from `.claude/settings.json`.
+  - Decision (operator pick, 2026-11-12 ~18:55): `.claude/settings.json` stays the permission SPOT the root `AGENTS.md` names, so the compiler derives the `interactive` role from that file and generates nothing.
+  - Evidence:
+    - `interactive` in `agents/firewall/roles.yml:36` keeps its includes and its cross-session channel grant, which no Claude Code permission expresses, and takes its command verdicts through `settings: .claude/settings.json`.
+    - `_settings_rules` and `resolve` in `utils/firewall/compile.py` turn every entry of the file's `allow`, `ask` and `deny` lists into a `tool` rule, kept verbatim.
+    - `managed_settings` emits only those `tool` rules.
+    - Tests in `tests/unit/python/utils/firewall/test_compile.py`:
+      - `test_the_interactive_role_carries_exactly_the_permission_lists_of_the_file` compares the compiled lists with the file. Run against the base `roles.yml`, it fails.
+      - `TestInteractiveSettings` covers the verbatim match, the write gate and variable expansion.
+      - The `interactive` rows of `TestBaselineRoles` check the design row's cross-session messages, its commit, comment and close asks and its push deny.
 
 ### Security controls
 

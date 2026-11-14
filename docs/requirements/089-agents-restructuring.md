@@ -233,7 +233,7 @@ flowchart LR
   M["📄 docs/agents/meta/*"] -->|"becomes"| SO["💫 agents/SOUL.md"]
   REQ["📄 docs/requirements/*.md"] -->|"migrates to"| OP["📋 OpenProject work packages"]
   RA["📘 root AGENTS.md"] -->|"shrinks to"| RA2["🚪 entry point + interactive rules"]
-  FW["🛡️ agents/firewall/<br/>role interactive"] -->|"generates"| ST["⚙️ .claude/settings.json"]
+  ST["⚙️ .claude/settings.json"] -->|"derives"| FW["🛡️ agents/firewall/<br/>role interactive"]
   classDef old fill:#fee2e2,stroke:#b91c1c,color:#450a0a
   classDef new fill:#dcfce7,stroke:#15803d,color:#052e16
   class A,F,K,M,REQ,RA old

@@ -18,9 +18,17 @@ A rule is `Kind(target):actions`.
 `deny` beats `ask` beats `allow`, and a request that matches no rule is denied.
 A role composes others through `includes`.
 
+A role's `settings` names a Claude Code settings file relative to the
+repository root. Each entry of the file's `permissions` `allow`, `ask` and
+`deny` lists joins that verdict as a `tool` rule, kept verbatim and matched only
+by its exact text. The managed settings carry only `tool` rules, and the write
+gate drops every `tool` allow and ask rule of an agent that may not write. The
+`interactive` role takes [.claude/settings.json](../../.claude/settings.json), the
+permission SPOT of the root [AGENTS.md](../../AGENTS.md).
+
 ## Kinds in `roles.yml`
 
-The five kinds cover every grant:
+The five kinds cover every grant written in `roles.yml`:
 
 - forge and workspace operations are `app(<forge-or-workspace>/<operation>)`,
   for example `app(fork/push):create`, `app(github/pull_request):create`,

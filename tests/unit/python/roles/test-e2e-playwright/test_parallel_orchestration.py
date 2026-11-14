@@ -16,6 +16,7 @@ from ansible.plugins.test.core import TestModule
 from ansible.template import Templar
 from jinja2.nativetypes import NativeEnvironment
 
+from agents.routines.tools.watchdog import SILENCE_SECONDS
 from plugins.lookup.role_tests import LookupModule as RoleTestsLookup
 from plugins.lookup.timeout import scaled_timeout
 from utils.cache.files import read_text
@@ -48,6 +49,20 @@ BUDGET_INPUTS = (
     "test_e2e_playwright_wait_delay",
 )
 FIXTURE_INPUTS = dict(zip(BUDGET_INPUTS, (5400, 3600, 40, 15, 120, 30, 5), strict=True))
+FIRST_PROBE = "📡 Probe the onion over Tor"
+SECOND_PROBE = "📡 Probe the onion over the current circuits"
+RECREATE = "🔄 Recreate Tor"
+ONION_PROBE_INPUTS = (
+    "TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES",
+    "TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY",
+    "TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME",
+)
+ONION_FIXTURE = {
+    "role_path": "/role",
+    "_playwright_pass_domain": "x.onion",
+    "TEST_E2E_PLAYWRIGHT_TOR_LOCK": "/stage/tor.lock",
+    **{name: FIXTURE_INPUTS[name] for name in ONION_PROBE_INPUTS},
+}
 WORDPRESS0_APPS = (
     "web-app-keycloak",
     "web-app-hermes",
@@ -191,6 +206,31 @@ def encoded(path: Path) -> str:
     """
     data = path.read_bytes()  # nocheck: cache-read
     return base64.b64encode(data).decode()
+
+
+def script_argv(task: dict, **variables) -> list[str]:
+    """Render the command line of an onion wait task's ``ansible.builtin.script``.
+
+    Args:
+        task: the task to render.
+        **variables: variables beyond the fixture's Tor, domain and probe settings.
+
+    Returns:
+        The script path and its arguments.
+    """
+    env = jinja2.Environment(
+        autoescape=jinja2.select_autoescape(default_for_string=False)
+    )
+    env.filters.update(FilterModule().filters())
+    env.globals["lookup"] = lambda name, *terms: {
+        "tor_socks": "127.0.0.1:9050",
+        "container": "/opt/tor",
+    }[name]
+    return shlex.split(
+        env.from_string(task["ansible.builtin.script"]).render(
+            {**ONION_FIXTURE, **variables}
+        )
+    )
 
 
 class TestParallelOrchestration(unittest.TestCase):
@@ -374,64 +414,77 @@ class TestParallelOrchestration(unittest.TestCase):
             script,
         )
 
-    def test_only_the_parallel_run_hands_the_probe_its_tor_lock(self):
-        probe = role_task("03_run_pass.yml", "⏳ Wait until the onion")
-        self.assertEqual(probe["when"], "TEST_E2E_PLAYWRIGHT_IS_ONION | bool")
-        env = jinja2.Environment(
-            autoescape=jinja2.select_autoescape(default_for_string=False)
-        )
-        env.filters.update(FilterModule().filters())
-        env.globals["lookup"] = lambda name, *terms: {
-            "tor_socks": "127.0.0.1:9050",
-            "container": "/opt/tor",
-        }[name]
+    def test_only_the_parallel_run_hands_the_recreate_its_tor_lock(self):
+        wait = role_task("03_run_pass.yml", "⏳ Wait until the onion")
+        self.assertEqual(wait["when"], "TEST_E2E_PLAYWRIGHT_IS_ONION | bool")
+        for prefix in FIRST_PROBE, SECOND_PROBE:
+            with self.subTest(probe=prefix):
+                self.assertEqual(
+                    script_argv(role_task("03_run_pass.yml", prefix)),
+                    ["/role/files/probe_onion.sh", "127.0.0.1:9050", "x.onion", "120"],
+                )
+        recreate = role_task("03_run_pass.yml", RECREATE)
         for dispatch, lock in ((False, ""), (True, "/stage/tor.lock")):
             with self.subTest(dispatch=dispatch):
-                argv = shlex.split(
-                    env.from_string(probe["ansible.builtin.script"]).render(
-                        role_path="/role",
-                        _playwright_pass_domain="x.onion",
-                        _playwright_dispatch=dispatch,
-                        TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES=40,
-                        TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY=15,
-                        TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME=120,
-                        TEST_E2E_PLAYWRIGHT_TOR_LOCK="/stage/tor.lock",
-                    )
-                )
                 self.assertEqual(
-                    argv[1:],
-                    ["127.0.0.1:9050", "x.onion", "40", "15", "120", "/opt/tor", lock],
+                    script_argv(recreate, _playwright_dispatch=dispatch)[1:],
+                    ["/opt/tor", lock, str(40 * 15)],
                 )
 
     def test_an_unreachable_onion_fails_the_serial_run_but_only_its_own_app_in_parallel(
         self,
     ):
-        probe = role_task("03_run_pass.yml", "⏳ Wait until the onion")
+        wait = role_task("03_run_pass.yml", "⏳ Wait until the onion")
+        first = role_task("03_run_pass.yml", FIRST_PROBE)
+        recreate = role_task("03_run_pass.yml", RECREATE)
+        second = role_task("03_run_pass.yml", SECOND_PROBE)
+        release = role_task("03_run_pass.yml", "🚦")
         queue = role_task("03_run_pass.yml", "📮")
         remember = role_task("03_run_pass.yml", "📝 Remember")
         leave = role_task("03_run_pass.yml", "📝 Leave")
         skipped = {"skipped": True, "changed": False}
-        self.assertTrue(
-            conditional(
-                probe["failed_when"],
-                _playwright_probe={"rc": 1},
-                _playwright_dispatch=False,
-            )
+        self.assertEqual(wait["block"], [first])
+        self.assertEqual(wait["rescue"][0], recreate)
+        self.assertEqual(wait["rescue"][1]["block"], [second])
+        self.assertEqual(wait["rescue"][1]["always"], [release])
+        self.assertNotIn("ignore_errors", first)
+        self.assertNotIn("failed_when", first)
+        for probe in first, second:
+            for result, answered in (({"rc": 0}, True), ({"rc": 1}, False)):
+                with self.subTest(probe=probe["name"], result=result):
+                    self.assertEqual(
+                        conditional(probe["until"], _playwright_probe=result), answered
+                    )
+        for rc, failed, changed in (
+            (0, False, True),
+            (75, False, False),
+            (1, True, False),
+        ):
+            with self.subTest(recreate_rc=rc):
+                result = {"_playwright_tor_recreate": {"rc": rc}}
+                self.assertEqual(conditional(recreate["failed_when"], **result), failed)
+                self.assertEqual(
+                    conditional(recreate["changed_when"], **result), changed
+                )
+        for dispatch in False, True:
+            with self.subTest(dispatch=dispatch):
+                for task in recreate, second:
+                    self.assertIs(
+                        native(task["ignore_errors"], _playwright_dispatch=dispatch),
+                        dispatch,
+                    )
+                self.assertEqual(
+                    conditional(release["when"], _playwright_dispatch=dispatch),
+                    dispatch,
+                )
+        self.assertEqual(
+            native(
+                release["ansible.builtin.file"]["path"],
+                TEST_E2E_PLAYWRIGHT_TOR_LOCK="/stage/tor.lock",
+            ),
+            str(rp.TorReaders(Path("/stage/tor.lock"), 1).pending),
         )
-        self.assertFalse(
-            conditional(
-                probe["failed_when"],
-                _playwright_probe={"rc": 0},
-                _playwright_dispatch=False,
-            )
-        )
-        self.assertFalse(
-            conditional(
-                probe["failed_when"],
-                _playwright_probe={"rc": 1},
-                _playwright_dispatch=True,
-            )
-        )
+        self.assertEqual(release["ansible.builtin.file"]["state"], "absent")
         for result, queued in (
             (skipped, True),
             ({"rc": 0}, True),
@@ -462,6 +515,97 @@ class TestParallelOrchestration(unittest.TestCase):
             read_text(str(ROLE / "tasks" / "01_setup" / "parallel.yml")),
             r"#\s*rationale:\s*async;\s*\S",
         )
+
+
+class TestHeartbeat(unittest.TestCase):
+    def setUp(self):
+        self.role_vars = load_yaml_any(
+            str(ROLE / ROLE_FILE_VARS_MAIN), default_if_missing={}
+        )
+
+    def test_every_onion_probe_attempt_logs_a_retry_line_within_the_watchdog_silence(
+        self,
+    ):
+        retries, delay, max_time = (self.role_vars[n] for n in ONION_PROBE_INPUTS)
+        for prefix in FIRST_PROBE, SECOND_PROBE:
+            with self.subTest(probe=prefix):
+                probe = role_task("03_run_pass.yml", prefix)
+                self.assertTrue(probe["name"].endswith("{{ _playwright_pass_domain }}"))
+                self.assertEqual(
+                    native(probe["retries"], **self.role_vars), retries - 1
+                )
+                self.assertEqual(native(probe["delay"], **self.role_vars), delay)
+        self.assertLess(max_time + delay, SILENCE_SECONDS)
+
+    def test_the_tor_recreate_waits_for_its_lock_within_the_watchdog_silence(self):
+        recreate = role_task("03_run_pass.yml", RECREATE)
+        argv = script_argv(
+            recreate,
+            _playwright_dispatch=True,
+            **{name: self.role_vars[name] for name in ONION_PROBE_INPUTS},
+        )
+        self.assertLess(int(argv[3]), SILENCE_SECONDS)
+
+    def test_the_serial_playwright_run_is_polled_within_the_watchdog_silence(self):
+        run = role_task("03_run_pass.yml", "▶️ Run Playwright container")
+        wait = role_task("03_run_pass.yml", "⏳ Wait for the Playwright run")
+        delay = self.role_vars["TEST_E2E_PLAYWRIGHT_RUN_POLL_DELAY"]
+        self.assertNotIn("timeout", run)
+        self.assertEqual(run["poll"], 0)
+        self.assertEqual(
+            native(run["async"], TEST_E2E_PLAYWRIGHT_RUN_BUDGET="5400"), 5400
+        )
+        self.assertEqual(
+            wait["ansible.builtin.async_status"]["jid"],
+            "{{ " + run["register"] + ".ansible_job_id }}",
+        )
+        self.assertEqual(wait["register"], "_playwright_run")
+        for finished in 0, 1:
+            with self.subTest(finished=finished):
+                self.assertEqual(
+                    conditional(wait["until"], _playwright_run={"finished": finished}),
+                    bool(finished),
+                )
+        self.assertEqual(native(wait["delay"], **self.role_vars), delay)
+        self.assertLess(delay, SILENCE_SECONDS)
+        for budget in 1, 5400, 5401:
+            with self.subTest(budget=budget):
+                retries = native(
+                    wait["retries"],
+                    TEST_E2E_PLAYWRIGHT_RUN_BUDGET=str(budget),
+                    TEST_E2E_PLAYWRIGHT_RUN_POLL_DELAY=delay,
+                )
+                self.assertGreaterEqual(retries * delay, budget + 2 * delay)
+
+    def test_the_wait_fails_only_a_run_that_ended_without_an_exit_status(self):
+        wait = role_task("03_run_pass.yml", "⏳ Wait for the Playwright run")
+        polled = {"started": True, "stdout": "", "stderr": ""}
+        for result, failed in (
+            ({**polled, "finished": False}, False),
+            ({**polled, "finished": True, "rc": 0}, False),
+            ({**polled, "finished": True, "rc": 1, "failed": True}, False),
+            (
+                {**polled, "finished": True, "failed": True, "msg": "Timeout exceeded"},
+                True,
+            ),
+            (
+                {
+                    **polled,
+                    "finished": True,
+                    "failed": True,
+                    "msg": "could not find job",
+                },
+                True,
+            ),
+        ):
+            with self.subTest(result=result):
+                self.assertEqual(
+                    conditional(wait["failed_when"], _playwright_run=result), failed
+                )
+
+    def test_the_parallel_scheduler_is_polled_within_the_watchdog_silence(self):
+        wait = role_task("01_setup/parallel.yml", "⏳ Wait for the scheduler")
+        self.assertLess(native(wait["delay"], **self.role_vars), SILENCE_SECONDS)
 
 
 class TestParallelContainerFlags(unittest.TestCase):

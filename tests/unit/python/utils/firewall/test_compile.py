@@ -1,15 +1,21 @@
 from __future__ import annotations
 
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from typing import ClassVar
 
 from agents.routines.debug import ci as debug_ci
 from tests.lint.agents.test_l09_firewall_roles_exist import BASELINE
 from utils import PROJECT_ROOT
 from utils.agents.accounts import default_account
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.firewall.compile import (
     MISCONFIGURATION,
+    SETTINGS_KIND,
+    VERDICTS,
     WRITE_GATE_SCENARIOS,
     Resolved,
     account_grants,
@@ -18,6 +24,7 @@ from utils.firewall.compile import (
     decide_intersection,
     egress_allowlist,
     expand,
+    managed_settings,
     narrow,
     resolve,
     write_gate,
@@ -32,6 +39,7 @@ from utils.firewall.egress import (
 PROVIDERS_DIR = PROJECT_ROOT / "agents" / "firewall" / "providers"
 FIREWALL_ROLES = PROJECT_ROOT / "agents" / "firewall" / "roles.yml"
 FIREWALL_VARIABLES = PROJECT_ROOT / "agents" / "firewall" / "variables.yml"
+SETTINGS = PROJECT_ROOT / ".claude" / "settings.json"
 _ALL_PASSED = dict.fromkeys(WRITE_GATE_SCENARIOS, True)
 ROLES = {
     "contributor": {
@@ -436,9 +444,13 @@ class TestBaselineRoles(unittest.TestCase):
         ("package-consumer", "egress", "infinito-registry-cache.test", None, "allow"),
         ("package-consumer", "egress", "registry-1.docker.io", None, "deny"),
         ("interactive", "app", "workspace/worktree", "create", "allow"),
+        ("interactive", "egress", "api.github.com", None, "allow"),
         ("interactive", "channel", "cross-session/all", "create", "allow"),
-        ("interactive", "app", "github/commit", "create", "ask"),
-        ("interactive", "app", "github/push", "create", "deny"),
+        ("interactive", "tool", "Edit", None, "allow"),
+        ("interactive", "tool", "Bash(git commit*)", None, "ask"),
+        ("interactive", "tool", "Bash(gh * comment*)", None, "ask"),
+        ("interactive", "tool", "Bash(gh * close*)", None, "ask"),
+        ("interactive", "tool", "Bash(git push*)", None, "deny"),
         ("autonomous-contributor", "app", "fork/push", "create", "allow"),
         ("autonomous-contributor", "app", "fork/force-push", "create", "ask"),
         ("autonomous-contributor", "app", "upstream/push", "create", "deny"),
@@ -487,6 +499,83 @@ class TestBaselineRoles(unittest.TestCase):
 
     def test_the_table_covers_every_baseline_role(self):
         self.assertEqual({row[0] for row in self.TABLE}, set(BASELINE))
+
+
+class TestInteractiveSettings(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory(prefix="firewall_settings_")
+        self.addCleanup(tmp.cleanup)
+        self.settings = Path(tmp.name) / "settings.json"
+        self.permissions = {
+            "allow": ["Edit", "Bash(make *)"],
+            "ask": ["Bash(git commit*)"],
+            "deny": ["Bash(git push*)"],
+            "additionalDirectories": ["/elsewhere"],
+        }
+        self.settings.write_text(
+            json.dumps({"permissions": self.permissions}), encoding="utf-8"
+        )
+        self.roles = {
+            "forge": {"allow": ["egress(github.com)"]},
+            "session": {
+                "includes": ["forge"],
+                "settings": str(self.settings),
+                "ask": ["app(github/commit):create"],
+            },
+        }
+
+    def test_the_interactive_role_carries_exactly_the_permission_lists_of_the_file(
+        self,
+    ):
+        settings = json.loads(read_text(str(SETTINGS)))["permissions"]
+        compiled = managed_settings(resolve(load_yaml(FIREWALL_ROLES), "interactive"))
+        self.assertEqual(
+            compiled["permissions"],
+            {verdict: settings[verdict] for verdict in VERDICTS},
+        )
+
+    def test_firewall_rules_beside_the_file_stay_out_of_the_managed_settings(self):
+        resolved = resolve(self.roles, "session")
+        self.assertEqual(
+            managed_settings(resolved)["permissions"],
+            {verdict: self.permissions[verdict] for verdict in VERDICTS},
+        )
+        self.assertEqual(decide(resolved, "egress", "github.com"), "allow")
+        self.assertEqual(decide(resolved, "app", "github/commit", "create"), "ask")
+
+    def test_a_tool_rule_matches_its_exact_text_only(self):
+        resolved = resolve(self.roles, "session")
+        for target, verdict in (
+            ("Edit", "allow"),
+            ("Bash(git commit*)", "ask"),
+            ("Bash(git push*)", "deny"),
+            ("Edit(README.md)", "deny"),
+            ("Bash(make test)", "deny"),
+            ("/elsewhere", "deny"),
+        ):
+            with self.subTest(target=target):
+                self.assertEqual(decide(resolved, SETTINGS_KIND, target), verdict)
+
+    def test_an_agent_that_may_not_write_keeps_only_the_tool_denies(self):
+        gated = write_gate(
+            resolve(self.roles, "session"),
+            write_enabled=False,
+            scenarios_passed=_ALL_PASSED,
+        )
+        self.assertEqual(
+            managed_settings(gated)["permissions"],
+            {"deny": ["Bash(git push*)"], "ask": [], "allow": []},
+        )
+
+    def test_a_shell_variable_in_a_tool_rule_is_not_a_deploy_variable(self):
+        self.permissions["allow"].append("Bash(echo ${HOME_DIR})")
+        self.settings.write_text(
+            json.dumps({"permissions": self.permissions}), encoding="utf-8"
+        )
+        expanded = expand(resolve(self.roles, "session"), {})
+        self.assertIn(
+            "Bash(echo ${HOME_DIR})", managed_settings(expanded)["permissions"]["allow"]
+        )
 
 
 if __name__ == "__main__":

@@ -32,7 +32,7 @@ from agents.routines.iterate import (
     swarm,
     workflow,
 )
-from agents.routines.tools.watchdog import PLAYWRIGHT_VARS, SILENCE_SECONDS
+from agents.routines.tools.watchdog import BUSY_CORES, SILENCE_SECONDS
 from tests.unit.python.agents.routines import tools as ansible
 from tests.unit.python.agents.routines import written_text
 from tests.unit.python.agents.routines.iterate import branch_map, walk
@@ -291,8 +291,14 @@ class TestHung(unittest.TestCase):
     def test_the_label_names_the_silence(self) -> None:
         hung = _step(iterate.red_chain("iterate_x", "inspect", ("run",)), "hung")
         self.assertIn(f"{SILENCE_SECONDS:.0f} s", hung.label)
-        self.assertIn(PLAYWRIGHT_VARS, hung.label)
+        self.assertNotIn("test-e2e-playwright", hung.label)
+        self.assertNotIn("Playwright budget", hung.label)
         self.assertIn("--pid <run pid>", hung.label)
+
+    def test_the_label_names_the_stack_cgroup(self) -> None:
+        hung = _step(iterate.red_chain("iterate_x", "inspect", ("run",)), "hung")
+        self.assertIn("[--cgroup <stack cgroup>]", hung.label)
+        self.assertIn(f"{BUSY_CORES:g} core", hung.label)
 
     def test_the_label_names_the_running_and_the_ended_command(self) -> None:
         hung = _step(iterate.red_chain("iterate_x", "inspect", ("run",)), "hung")
@@ -369,6 +375,71 @@ class TestBusyTree(unittest.TestCase):
             "last_process_ticks": 40,
         }
         self.assertEqual(iterate._hung(state)["hung"], HUNG)
+
+
+def _stack_poll(usage: list[float], silence: float) -> dict:
+    """Return the state of a poll whose stack cgroups worked ``usage`` cores.
+
+    Args:
+        usage: the cores each stack cgroup used over the 60 s since the poll
+            before.
+        silence: the seconds since the run's last output line.
+    """
+    return {
+        "output_timestamps": [100.0],
+        "polled_at": 100.0 + silence,
+        "last_polled_at": 40.0 + silence,
+        "stack_cpu_usec": [int(cores * 60 * 1_000_000) for cores in usage],
+        "last_stack_cpu_usec": [0] * len(usage),
+    }
+
+
+class TestBusyStack(unittest.TestCase):
+    def test_a_silent_run_on_a_resting_stack_fires_after_the_silence(self) -> None:
+        self.assertEqual(
+            iterate._hung(_stack_poll([0.32], SILENCE_SECONDS))["hung"], ALIVE
+        )
+        self.assertEqual(
+            iterate._hung(_stack_poll([0.32], SILENCE_SECONDS + 1))["hung"], HUNG
+        )
+
+    def test_a_silent_run_on_a_working_stack_does_not_fire(self) -> None:
+        state = iterate._hung(_stack_poll([BUSY_CORES], 2 * SILENCE_SECONDS))
+        self.assertEqual(state["hung"], ALIVE)
+        self.assertEqual(state["last_stack_cpu_usec"], [int(BUSY_CORES * 60_000_000)])
+        self.assertEqual(state["last_polled_at"], 100.0 + 2 * SILENCE_SECONDS)
+
+    def test_a_swarm_whose_nodes_rest_together_above_one_core_fires(self) -> None:
+        resting = [0.3, 0.3, 0.3, 0.3]
+        self.assertGreater(sum(resting), BUSY_CORES)
+        self.assertEqual(
+            iterate._hung(_stack_poll(resting, SILENCE_SECONDS + 1))["hung"], HUNG
+        )
+        working = [0.3, BUSY_CORES, 0.3, 0.3]
+        self.assertEqual(
+            iterate._hung(_stack_poll(working, SILENCE_SECONDS + 1))["hung"], ALIVE
+        )
+
+    def test_a_heartbeat_run_on_a_resting_stack_does_not_fire(self) -> None:
+        state = _stack_poll([0.0], SILENCE_SECONDS + 1)
+        heartbeat = {**state, "output_timestamps": [state["polled_at"] - 10.0]}
+        self.assertEqual(iterate._hung(heartbeat)["hung"], ALIVE)
+        self.assertEqual(iterate._hung(state)["hung"], HUNG)
+
+    def test_the_first_stack_poll_waits_for_a_baseline(self) -> None:
+        first = {
+            "output_timestamps": [100.0],
+            "polled_at": 100.0 + SILENCE_SECONDS + 1,
+            "stack_cpu_usec": [5],
+        }
+        state = iterate._hung(first)
+        self.assertEqual(state["hung"], ALIVE)
+        second = {
+            **state,
+            "polled_at": 160.0 + SILENCE_SECONDS + 1,
+            "stack_cpu_usec": [5],
+        }
+        self.assertEqual(iterate._hung(second)["hung"], HUNG)
 
     def test_a_failed_recap_ends_the_run(self) -> None:
         log = (
