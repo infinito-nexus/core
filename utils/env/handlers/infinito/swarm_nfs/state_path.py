@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from utils.storage.nfs import STATE_SUBDIR, state_path
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_SWARM_NFS_STATE_PATH"
 COMMENT = "Cluster-shared NFS state dir on the act-swarm test nodes."

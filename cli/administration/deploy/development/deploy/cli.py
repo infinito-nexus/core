@@ -16,6 +16,7 @@ from cli.administration.deploy.development.inventory import (
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
 )
+from cli.administration.deploy.development.target import reset_stack_target
 from cli.administration.deploy.development.variant_select import (
     add_variant_args,
     apply_variant_filter,
@@ -191,7 +192,7 @@ def handler(args: argparse.Namespace) -> int:
             f"matrix-deploy: round {round_index + 1}/{len(plan)} "
             f"inv={inv_dir} variants={round_variants} apps={round_deploy_ids}"
         )
-        compose.reset_target()
+        reset_stack_target(compose)
         print(f"=== {pass_label} PASS 1 (initial) ===")
         rc = run_pass({"VARIANT_INDEX": round_index, "PRIMARY_APPS": primary_app_ids})
         if rc != 0:
@@ -202,7 +203,7 @@ def handler(args: argparse.Namespace) -> int:
             _rotate_credentials(
                 compose, inventory_dir=inv_dir, round_variants=round_variants
             )
-            compose.reset_target()
+            reset_stack_target(compose)
             print(f"=== {pass_label} PASS 2 (update) ===")
             rc = run_pass(
                 {

@@ -409,5 +409,5 @@ def handler(args: argparse.Namespace) -> int:
     if args.lab:
         reset_lab_target(compose, args.lab, args.nodes)
     else:
-        compose.reset_target()
+        reset_stack_target(compose)
     return 0

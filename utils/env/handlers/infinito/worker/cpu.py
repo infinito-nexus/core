@@ -10,7 +10,7 @@ import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_WORKER_CPU"
 COMMENT = "Host CPU count when INFINITO_WORKER_ENABLED truthy, else 1 (sequential)."

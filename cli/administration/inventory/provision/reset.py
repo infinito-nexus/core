@@ -16,11 +16,11 @@ from typing import TYPE_CHECKING
 from ruamel.yaml.comments import CommentedMap
 
 from cli.administration.inventory.credentials.vault import is_ruamel_vault
+from cli.administration.inventory.ruamel_io import dump_document, load_document
 from utils.manager.credential_key import CREDENTIALS_KEY, SECRETS_KEY
 from utils.roles.mapping import ROLE_FILE_META_SECRETS, ROLE_FILE_VARS_MAIN
 
 from .credentials_generator import generate_credentials_for_roles
-from .ruamel_io import dump_document, load_document
 from .users_generator import generate_user_passwords, required_user_policies
 
 if TYPE_CHECKING:

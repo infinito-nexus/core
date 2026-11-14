@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito import lifecycles as handler
 from utils.roles import lifecycle
 

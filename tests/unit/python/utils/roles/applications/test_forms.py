@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
 from utils.roles.applications import drift, form_schema, forms
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES

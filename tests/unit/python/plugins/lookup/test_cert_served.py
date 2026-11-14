@@ -7,7 +7,7 @@ import unittest.mock as mock
 from unittest.mock import patch
 
 from plugins.lookup.cert import LookupModule
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 
 APP = "web-app-wordpress"
 WILDCARD = "*.user.blog.main.test"

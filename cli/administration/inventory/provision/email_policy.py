@@ -22,7 +22,11 @@ from utils.mail.policy import (
 )
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS
 
-from .ruamel_io import dump_document, ensure_map, load_document
+from cli.administration.inventory.ruamel_io import (
+    dump_document,
+    ensure_map,
+    load_document,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path

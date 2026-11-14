@@ -10,7 +10,7 @@ from utils import PROJECT_ROOT
 from utils.paths import read_group_value
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 NETWORKS = str(PROJECT_ROOT / "group_vars" / "all" / "08_networks.yml")
 KEY = "INFINITO_DOCKER_EMBEDDED_DNS_IP"

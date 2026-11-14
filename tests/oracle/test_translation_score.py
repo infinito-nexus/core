@@ -70,7 +70,8 @@ from utils.i18n.levels import gate
 from utils.i18n.libretranslate import GATEWAY_ROLE, GATEWAY_SERVICE_KEY
 from utils.i18n.spans import prose
 from utils.i18n.translate import record_judged
-from utils.inventory.tools import LITELLM_KEY, lane_url
+from utils.inventory.tools import lane_url
+from utils.inventory.tools_vars import LITELLM_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT, SUITE

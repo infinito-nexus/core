@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito.cache import host_pacman_path as handler
 
 HELPER = "utils.env.handlers.infinito.cache.host_pacman_path.run_helper"

@@ -2,7 +2,8 @@
 
 Pure function — reads role metadata via cached YAML helpers and emits
 ``PlanEntry`` tuples; no filesystem side effects. The include set per
-round is resolved by the ``CombinedResolver`` (see ``.legacy_resolver``):
+round is resolved by the ``CombinedResolver`` (see
+``utils.roles.applications.variants._resolve_round_include``):
 each role contributes its own pulled-in providers and the include is
 the union. A service-key is therefore pulled in as soon as ANY role in
 the round-aware closure says it should be (literal ``True`` OR the

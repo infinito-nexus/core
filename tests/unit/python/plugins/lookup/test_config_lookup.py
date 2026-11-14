@@ -9,8 +9,8 @@ from pathlib import Path
 from ansible.errors import AnsibleError
 
 from plugins.lookup.config import LookupModule
-from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.applications.config import AppConfigKeyError, ConfigEntryNotSetError
 from utils.roles.mapping import (

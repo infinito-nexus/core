@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from .pin import ROOT_KEY as PIN_ROOT_KEY
 
 if TYPE_CHECKING:
-    from utils.env.builder import EnvBuilder
+    from utils.env.context import EnvBuilder
 
 KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_CONF"
 COMMENT = "Upstream map the cache frontend mounts, installed from the pinned commit by `make cache-apply`."

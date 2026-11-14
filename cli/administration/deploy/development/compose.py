@@ -12,12 +12,12 @@ from utils.env.handlers.infinito.cache.conf import KEY as CACHE_CONF_KEY
 from utils.env.handlers.infinito.cache.conf import RELATIVE as CACHE_CONF
 
 from .coredns import CoreDNSCorefileRenderer
+from .docker_root import cleanup_docker_root
 from .network import detect_outer_network_mtu
 from .proc import run_streaming
 from .profile import Profile
 from .runner_mirror import env_image
 from .stack import compose_argv
-from .target import reset_stack_target
 
 CACHE_APPLY = Path("scripts") / "system" / "cache" / "apply.sh"
 CACHE_PIN_DOC = "docs/contributing/environment/cache.md"
@@ -297,16 +297,13 @@ class Compose:
             if r.returncode != 0:
                 raise RuntimeError(f"entry.sh init failed (rc={r.returncode})")
 
-        self.reset_target()
-
-    def reset_target(self) -> None:
-        reset_stack_target(self)
-
     def down(self) -> None:
         """Tear down the stack."""
-        from .down import down_stack
-
-        down_stack(repo_root=self.repo_root, distro=self.distro)
+        print(">>> Stopping compose stack and removing volumes")
+        try:
+            self.run(["down", "--remove-orphans", "-v"])
+        finally:
+            cleanup_docker_root()
 
     def exec(
         self,

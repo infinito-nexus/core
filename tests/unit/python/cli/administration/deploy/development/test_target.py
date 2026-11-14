@@ -285,11 +285,14 @@ class TestHandler(unittest.TestCase):
                 target.handler(argparse.Namespace(lab=lab, nodes=nodes))
 
     def test_without_a_lab_the_stack_resets_its_own_target(self) -> None:
-        with patch.object(target, "make_compose") as make_compose:
+        with (
+            patch.object(target, "make_compose") as make_compose,
+            patch.object(target, "reset_stack_target") as reset_stack_target,
+        ):
             self.assertEqual(
                 target.handler(argparse.Namespace(lab=None, nodes=None)), 0
             )
-        make_compose.return_value.reset_target.assert_called_once_with()
+        reset_stack_target.assert_called_once_with(make_compose.return_value)
 
     def test_with_a_lab_the_named_nodes_hold_the_key(self) -> None:
         with (

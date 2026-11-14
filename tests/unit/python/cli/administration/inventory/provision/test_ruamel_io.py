@@ -4,7 +4,7 @@ from pathlib import Path
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
-from cli.administration.inventory.provision.ruamel_io import (
+from cli.administration.inventory.ruamel_io import (
     as_commented_map,
     dump_document,
     ensure_map,

@@ -20,7 +20,8 @@ import unittest.mock as mock
 import weakref
 from pathlib import Path
 
-from utils.cache import _reset_cache_for_tests, base
+from utils.cache import base
+from utils.cache.reset import _reset_cache_for_tests
 from utils.domains.default_primary import default_domain_primary
 from utils.paths import FILE_TOKENS
 

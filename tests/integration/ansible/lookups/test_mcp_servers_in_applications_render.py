@@ -8,7 +8,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader
 from ansible.template import Templar
 
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.applications import get_application_defaults
 
 from . import PROJECT_ROOT

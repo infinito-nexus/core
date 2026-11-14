@@ -23,6 +23,8 @@ _RESOLVE_CONTAINER_PATCHER = patch(
     return_value="<unit-test fixture>",
 )
 _RESOLVE_CONTAINER_PATCHER.start()
+RESET_TARGET = "cli.administration.deploy.development.deploy.cli.reset_stack_target"
+patch(RESET_TARGET).start()
 
 from cli.administration.deploy.development.deploy import handler  # noqa: E402
 
@@ -185,7 +187,8 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         ]
         run_deploy_mock.return_value = 0
 
-        rc = handler(_args(apps=["web-app-multi", "web-app-keycloak"]))
+        with patch(RESET_TARGET) as reset_mock:
+            rc = handler(_args(apps=["web-app-multi", "web-app-keycloak"]))
 
         self.assertEqual(rc, 0)
         self.assertEqual(run_deploy_mock.call_count, 2)
@@ -198,7 +201,10 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
             sorted(purge_mock.call_args.kwargs["app_ids"]),
             ["web-app-keycloak", "web-app-multi"],
         )
-        self.assertEqual(make_compose_mock.return_value.reset_target.call_count, 2)
+        self.assertEqual(
+            reset_mock.call_args_list,
+            [((make_compose_mock.return_value,),)] * 2,
+        )
 
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",
@@ -547,13 +553,15 @@ class TestHandlerFullCycle(unittest.TestCase):
             _entry(1, "/srv/inv-1", {"web-app-multi": 1}),
         ]
         events = []
-        compose.reset_target.side_effect = lambda: events.append("reset")
         run_deploy_mock.side_effect = lambda *_a, **_k: events.append("deploy") or 0
 
-        rc = handler(_args(apps=["web-app-multi"], full_cycle=True))
+        with patch(
+            RESET_TARGET, side_effect=lambda stack: events.append(("reset", stack))
+        ):
+            rc = handler(_args(apps=["web-app-multi"], full_cycle=True))
 
         self.assertEqual(rc, 0)
-        self.assertEqual(events, ["reset", "deploy"] * 4)
+        self.assertEqual(events, [("reset", compose), "deploy"] * 4)
 
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",

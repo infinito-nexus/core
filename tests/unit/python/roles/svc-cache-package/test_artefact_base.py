@@ -8,7 +8,7 @@ from unittest.mock import patch
 from utils.cache.artefacts import url_for
 from utils.cache.hosts import host_records, repo_records
 from utils.cache.render import BACKEND, upstreams_conf
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers import ORDERED_HANDLERS
 from utils.env.handlers.infinito.cache import artefact_base as handler
 

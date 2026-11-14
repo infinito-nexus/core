@@ -332,7 +332,7 @@ def _reset() -> None:
 
     Named ``_reset`` for parity with the per-domain reset helpers in
     sibling modules (``applications._reset``, ``users._reset``,
-    ``domains._reset``, ``base._reset``); ``utils.cache._reset_cache_for_tests``
+    ``domains._reset``, ``base._reset``); ``utils.cache.reset._reset_cache_for_tests``
     orchestrates calls to all of them.
     """
     _CACHE.clear()

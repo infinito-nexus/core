@@ -1,6 +1,6 @@
 """Unit tests for `cli.administration.deploy.development.inventory.planner`.
 
-Covers ``plan_dev_inventory_matrix`` (mocking ``legacy_resolver``) and
+Covers ``plan_dev_inventory_matrix`` (mocking the round include) and
 ``filter_plan_to_variants``.
 """
 
@@ -18,7 +18,7 @@ from cli.administration.deploy.development.inventory import (
 
 class TestPlanDevInventoryMatrix(unittest.TestCase):
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        "utils.roles.applications.variants._resolve_round_include",
         autospec=True,
     )
     @patch(
@@ -54,7 +54,7 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
         )
 
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        "utils.roles.applications.variants._resolve_round_include",
         autospec=True,
     )
     @patch(
@@ -100,7 +100,7 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
         )
 
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        "utils.roles.applications.variants._resolve_round_include",
         autospec=True,
     )
     @patch(
@@ -154,7 +154,7 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
         )
 
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        "utils.roles.applications.variants._resolve_round_include",
         autospec=True,
     )
     @patch(
@@ -238,7 +238,7 @@ class TestPlanBakesPinnedVariant(unittest.TestCase):
         return_value={"web-app-bar": 1},
     )
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        "utils.roles.applications.variants._resolve_round_include",
         autospec=True,
         return_value=("web-app-bar", "web-app-foo"),
     )

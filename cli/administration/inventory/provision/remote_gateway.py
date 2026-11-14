@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any
 from cli.administration.inventory.gateway.plan import APPLICATION_ID, gateway_of
 from utils.cache.yaml import load_yaml_any
 
-from .ruamel_io import load_document
+from cli.administration.inventory.ruamel_io import load_document
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -15,7 +15,7 @@ from jinja2 import (
 
 from plugins.filter.url.join import url_join
 from plugins.lookup.container_volumes import container_volumes
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.applications import get_merged_applications
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any

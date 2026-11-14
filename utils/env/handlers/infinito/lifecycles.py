@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from utils.roles.lifecycle import CI_DEPLOY, FILE_META_LIFECYCLE, default_envelope, load
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_LIFECYCLES"
 COMMENT = (

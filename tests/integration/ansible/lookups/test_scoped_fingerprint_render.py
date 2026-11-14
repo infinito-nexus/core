@@ -7,7 +7,8 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from cli.administration.deploy.development.common import DEV_INVENTORY_VARS_FILE
-from utils.cache import _reset_cache_for_tests, base
+from utils.cache import base
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.applications import get_merged_applications
 from utils.cache.users import get_merged_users
 from utils.domains.default_primary import default_domain_primary

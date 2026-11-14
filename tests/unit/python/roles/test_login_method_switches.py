@@ -21,7 +21,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template
 
 from tests.lint.ansible.services import test_login_methods as lint
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache import applications as applications_cache
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN

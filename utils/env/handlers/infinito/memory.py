@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from utils.env.runtime import mem_total_mb
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEYS = ("INFINITO_MEM_LIMIT", "INFINITO_MEMSWAP_LIMIT")
 STATIC_READS = KEYS

@@ -11,7 +11,7 @@ from ansible.parsing.vault import VaultLib, VaultSecret
 from ruamel.yaml.comments import TaggedScalar
 
 from cli.administration.inventory.gateway.__main__ import main
-from cli.administration.inventory.provision.ruamel_io import (
+from cli.administration.inventory.ruamel_io import (
     dump_document,
     load_document,
 )

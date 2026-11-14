@@ -6,6 +6,7 @@ import os
 from .binfmt import ensure as ensure_binfmt
 from .build import handler as build_handler
 from .common import make_compose
+from .target import reset_stack_target
 
 
 def add_parser(sub: argparse._SubParsersAction) -> None:
@@ -66,4 +67,5 @@ def handler(args: argparse.Namespace) -> int:
 
     compose = make_compose()
     compose.up(run_entry_init=not bool(args.skip_entry_init))
+    reset_stack_target(compose)
     return 0

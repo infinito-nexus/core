@@ -25,7 +25,7 @@ from utils.cache.host_sync import (
 )
 from utils.cache.hosts import CachedHost, CachedRepo, Declarations, declarations
 from utils.cache.render import render_artifacts
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito.cache import host_sync as handler
 from utils.env.parser import parse_static_env_with_comments
 

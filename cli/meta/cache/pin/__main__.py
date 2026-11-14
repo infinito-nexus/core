@@ -19,7 +19,7 @@ from pathlib import Path
 from utils.cache import PROJECT_ROOT, pin
 from utils.cache.artefacts import artefacts
 from utils.cache.hosts import host_records, repo_records
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito.cache import hosts, tls, upstreams
 from utils.env.parser import parse_static_env_with_comments
 

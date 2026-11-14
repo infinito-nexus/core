@@ -4,7 +4,7 @@ import shlex
 from configparser import ConfigParser
 from typing import TYPE_CHECKING
 
-from cli.administration.inventory.provision.ruamel_io import (
+from cli.administration.inventory.ruamel_io import (
     dump_document,
     load_document,
 )

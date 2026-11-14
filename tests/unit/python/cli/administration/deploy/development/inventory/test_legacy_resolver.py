@@ -90,9 +90,7 @@ class TestRoundIncludeIsDispatchable(unittest.TestCase):
     """
 
     def _include(self, primary: str) -> tuple[str, ...]:
-        from cli.administration.deploy.development.inventory.legacy_resolver import (
-            _resolve_round_include,
-        )
+        from utils.roles.applications.variants import _resolve_round_include
 
         return _resolve_round_include(primary_apps=[primary], services_overrides={})
 

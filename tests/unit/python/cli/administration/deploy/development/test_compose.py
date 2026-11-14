@@ -233,7 +233,6 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
-        compose.reset_target = MagicMock()
 
         with patch.object(pin, "served_hosts", return_value=None):
             compose.up(run_entry_init=False)
@@ -244,7 +243,6 @@ class TestComposeUpRetries(unittest.TestCase):
             delay_s=30,
         )
         compose.wait_for_healthy.assert_called_once_with()
-        compose.reset_target.assert_called_once_with()
 
     @patch.dict(
         os.environ,
@@ -265,7 +263,6 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
-        compose.reset_target = MagicMock()
 
         with patch.object(pin, "served_hosts", return_value=None):
             compose.up(run_entry_init=False)
@@ -306,7 +303,6 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
-        compose.reset_target = MagicMock()
         compose._apply_pinned_cache = MagicMock()
         compose._prepare_pinned_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
@@ -357,7 +353,6 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
-        compose.reset_target = MagicMock()
         compose._prepare_pinned_cache = MagicMock()
         compose._apply_pinned_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
@@ -400,7 +395,6 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._prepare_pinned_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
         compose._layer_pacman_cache_in_runner = MagicMock()
-        compose.reset_target = MagicMock()
 
         compose.up(run_entry_init=False)
 

@@ -20,14 +20,17 @@ Internal layout (one module per responsibility):
 
 * :mod:`.spec`            — :class:`~.spec.DevInventorySpec` + ``PlanEntry`` type
 * :mod:`.payload`         — variant payload pick + ``--vars`` bake
-* :mod:`.legacy_resolver` — ``CombinedResolver``-driven include resolution
+* :mod:`.legacy_resolver` - orphan pruning after ``disable``
 * :mod:`.planner`         — :func:`plan_dev_inventory_matrix`
 * :mod:`.builder`         — :func:`build_dev_inventory` + matrix orchestrator
 
-The private helpers (``_resolve_round_include`` and friends) are
-re-exported below because unit tests historically patch them under this
-package path. New tests SHOULD patch the submodule path directly
-(e.g. ``inventory.legacy_resolver._resolve_round_include``).
+The round's include set is resolved by
+``utils.roles.applications.variants._resolve_round_include``.
+
+The private helpers (``_bake_overrides`` and friends) are re-exported
+below because unit tests historically patch them under this package
+path. New tests SHOULD patch the submodule path directly
+(e.g. ``inventory.payload._bake_overrides``).
 
 ``DevInventorySpec`` and ``PlanEntry`` are imported but deliberately absent
 from ``__all__``: listing a re-exported class makes autodoc document it here
@@ -40,7 +43,6 @@ from __future__ import annotations
 from .builder import build_dev_inventory, build_dev_inventory_matrix
 from .legacy_resolver import (
     _build_services_overrides_for_round,
-    _resolve_round_include,
     prune_orphans_after_disable,
 )
 from .payload import _bake_overrides, _resolve_variant_payloads
@@ -51,7 +53,6 @@ from .spec import PlanEntry as PlanEntry
 __all__ = [
     "_bake_overrides",
     "_build_services_overrides_for_round",
-    "_resolve_round_include",
     "_resolve_variant_payloads",
     "build_dev_inventory",
     "build_dev_inventory_matrix",

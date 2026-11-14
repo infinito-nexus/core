@@ -31,7 +31,7 @@ from utils.roles.mapping import ROLE_FILE_META_USERS
 
 MODULE = "cli.administration.inventory.provision.users_generator"
 CREDENTIALS_MODULE = "cli.administration.inventory.provision.credentials_generator"
-RUAMEL_MODULE = "cli.administration.inventory.provision.ruamel_io"
+RUAMEL_MODULE = "cli.administration.inventory.ruamel_io"
 
 REALISTIC_HOST_VARS = """\
 ---

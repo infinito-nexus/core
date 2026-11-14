@@ -7,7 +7,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.env.builder import EnvBuilder, build_env
+from utils.env.builder import build_env
+from utils.env.context import EnvBuilder
 from utils.env.handlers.infinito import target_ip as handler
 from utils.env.handlers.infinito.ip_range import upper_half
 

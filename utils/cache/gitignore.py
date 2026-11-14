@@ -108,7 +108,7 @@ def _reset() -> None:
     """Test-only helper: clear the cached gitignore patterns.
 
     Named ``_reset`` for parity with the per-domain reset helpers in
-    sibling modules; ``utils.cache._reset_cache_for_tests`` orchestrates
+    sibling modules; ``utils.cache.reset._reset_cache_for_tests`` orchestrates
     calls to all of them.
     """
     load_gitignore_patterns.cache_clear()

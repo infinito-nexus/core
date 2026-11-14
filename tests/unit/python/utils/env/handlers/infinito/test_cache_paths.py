@@ -8,7 +8,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.env.builder import BuildContext, EnvBuilder, apply_custom_env
+from utils.env.builder import apply_custom_env
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers import passthrough
 from utils.env.handlers.infinito.cache import paths as handler
 from utils.paths import read_group_path

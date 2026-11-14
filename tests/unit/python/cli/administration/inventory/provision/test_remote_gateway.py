@@ -9,7 +9,7 @@ from cli.administration.inventory.provision.remote_gateway import (
     drop_gateway_role,
     named_gateway_host,
 )
-from cli.administration.inventory.provision.ruamel_io import dump_document
+from cli.administration.inventory.ruamel_io import dump_document
 
 
 def _naming(gateway: str) -> dict:

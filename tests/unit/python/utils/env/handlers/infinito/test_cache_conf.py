@@ -6,7 +6,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from utils.env.builder import BuildContext, EnvBuilder, build_env
+from utils.env.builder import build_env
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito.cache import conf as handler
 from utils.env.handlers.infinito.cache import pin as pin_handler
 
