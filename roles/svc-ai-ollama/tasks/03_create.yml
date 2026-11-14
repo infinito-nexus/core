@@ -1,0 +1,64 @@
+---
+- name: "📁 Create the staging directory on the hosting node"
+  ansible.builtin.file:
+    path: "{{ OLLAMA_IMPORT_STAGING_DIR }}"
+    state: directory
+    mode: "0700"
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+
+- name: "⬇️ Fetch the file at its pinned revision and checksum"
+  get_url_retry:
+    url: "{{ ollama_file.url }}"
+    dest: "{{ ollama_staged }}"
+    tmp_dest: "{{ OLLAMA_IMPORT_STAGING_DIR }}"
+    checksum: "sha256:{{ ollama_file.sha256 }}"
+    mode: "0600"
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+
+- name: "📦 Hand the fetched file to the Ollama container"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OLLAMA_LOCAL_CID | quote }}
+    sh -c {{ ('mkdir -p ' ~ (OLLAMA_IMPORT_DIR | quote) ~ ' && cat > ' ~ (ollama_handed | quote)) | quote }}
+    < {{ ollama_staged | quote }}
+  changed_when: true
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+
+- name: "🧹 Remove the staged copy the container now holds"
+  ansible.builtin.file:
+    path: "{{ ollama_staged }}"
+    state: absent
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+
+- name: "🧩 Create each model from its Modelfile over the handed file"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OLLAMA_LOCAL_CID | quote }}
+    sh -c {{ ('cat > ' ~ (ollama_modelfile | quote) ~ ' && ollama create ' ~ (model.alias | quote) ~ ' -f ' ~ (ollama_modelfile | quote)) | quote }}
+  args:
+    stdin: "{{ model | local_model_modelfile(ollama_handed) }}"
+  changed_when: true
+  loop: "{{ ollama_models }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.alias }}"
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+
+- name: "🔍 Read the file Ollama holds each created model at"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OLLAMA_LOCAL_CID | quote }} ollama show {{ model.alias | quote }} --modelfile
+  register: ollama_created
+  changed_when: false
+  loop: "{{ ollama_models }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.alias }}"
+  delegate_to: "{{ OLLAMA_HOST_NODE }}"
+
+- name: "🛑 Fail when a created model is not held at its pinned file"
+  ansible.builtin.fail:
+    msg: >-
+      Ollama holds {{ model.alias }} at no blob of sha256 {{ model.sha256 }},
+      the file its preload entry pins.
+  loop: "{{ ollama_created.results | local_models_missing }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.alias }}"

@@ -18,6 +18,7 @@ This role deploys LiteLLM as a shared gateway container in Compose and Swarm dep
 - **Per-consumer virtual keys:** Each consuming application receives its own virtual key, created through the gateway admin API under an alias naming that application.
 - **Consumer contract:** [tasks/utils/consumer_contract.yml](tasks/utils/consumer_contract.yml) refuses a consumer with an empty virtual key or a gateway URL that leaves the deployment. The svc-stack back unit [tasks/batch/back.yml](../svc-stack/tasks/batch/back.yml) runs it right before the backend of every stack consumer that enables `services.litellm`; a consumer without a stack backend includes it itself.
 - **File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off.
+- **No stored prompts:** The spend logs keep each request's usage and cost but never its prompt or reply (`store_prompts_in_spend_logs: false`), so a consumer's question does not outlive the request in the gateway's database.
 - **Managed credentials:** The gateway master key and the admin UI password are generated and kept as role credentials, and the admin UI username is the platform administrator name.
 
 ## Central gateway for several hosts

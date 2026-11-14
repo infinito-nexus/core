@@ -221,6 +221,13 @@ class TestUiAccessMode(unittest.TestCase):
         self.assertNotIn("ui_access_mode", render()["general_settings"])
 
 
+class TestSpendLogs(unittest.TestCase):
+    def test_spend_logs_keep_the_usage_but_no_prompt_or_reply(self) -> None:
+        settings = render()["general_settings"]
+        self.assertIs(settings.get("store_prompts_in_spend_logs"), False)
+        self.assertNotIn("disable_spend_logs", settings)
+
+
 class TestNoBackend(unittest.TestCase):
     def test_the_model_list_is_empty(self) -> None:
         self.assertEqual(render()["model_list"], [])

@@ -26,7 +26,6 @@ ollama:
     internal:
       http: 11434
   preload_models: "{{ AI_LOCAL_MODELS }}"
-  preload_async_time: 3600
   keep_alive: "-1"
   lifecycle: beta
 

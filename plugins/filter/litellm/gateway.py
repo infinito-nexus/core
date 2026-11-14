@@ -1,13 +1,3 @@
-"""Which gateway URL a consumer may use, and which keys the gateway registers.
-
-A consumer reaches the gateway in one of three ways. Beside the gateway on the
-container network it names the gateway's service on its internal port; on the
-host itself it names a loopback address on the published port; on a host that
-runs no gateway of its own it names the gateway host's mesh address on the
-published port. Each mode admits exactly one shape, so a consumer that would
-send its prompts and its key anywhere else fails the deploy instead.
-"""
-
 from __future__ import annotations
 
 import ipaddress
@@ -20,7 +10,9 @@ HOST_ALIAS_PREFIX = "host:"
 CONTAINER = "container"
 LOOPBACK = "loopback"
 MESH = "mesh"
-MODES = (CONTAINER, LOOPBACK, MESH)
+VHOST = "vhost"
+MODES = (CONTAINER, LOOPBACK, MESH, VHOST)
+PRIVATE_SUFFIX = ".internal"
 
 
 def _port_of(parts) -> int | None:
@@ -56,13 +48,32 @@ def _mesh_refusal(hostname: str, mesh_address: str) -> str:
     return ""
 
 
+def _vhost_refusal(parts, gateway_name: str) -> str:
+    if not gateway_name.endswith(PRIVATE_SUFFIX):
+        return (
+            f"the gateway vhost '{gateway_name}' is not a private-use "
+            f"{PRIVATE_SUFFIX} name, so public DNS could resolve it"
+        )
+    if parts.scheme != "https":
+        return f"scheme '{parts.scheme}' is not https"
+    if parts.netloc.lower() != gateway_name:
+        return (
+            f"'{parts.netloc}' is not exactly the gateway vhost '{gateway_name}' "
+            "without a port or credentials"
+        )
+    if parts.path not in ("", "/") or parts.query or parts.fragment:
+        return "the URL carries a path, a query or a fragment"
+    return ""
+
+
 def litellm_gateway_refusal(
     url,
     mode,
-    port,
+    port=None,
     loopback_hosts: Iterable[str] = (),
     own_domain: str = "",
     mesh_address: str = "",
+    gateway_name: str = "",
 ) -> str:
     """Why ``url`` is refused as a consumer's gateway base URL, or ``''``.
 
@@ -71,20 +82,34 @@ def litellm_gateway_refusal(
         mode: ``container`` for a consumer on the gateway's container
             network, ``loopback`` for one that runs on the gateway's host,
             ``mesh`` for every consumer of a host that uses the gateway of
-            another host.
+            another host, ``vhost`` for one that reaches the gateway through
+            the front proxy.
         port: the one port the URL may name: the internal port in
-            ``container`` mode, the published port otherwise.
+            ``container`` mode, the published port in ``loopback`` and
+            ``mesh`` mode; ``vhost`` mode takes none, its URL names no port.
         loopback_hosts: the hosts ``loopback`` mode accepts.
         own_domain: the consumer's own domain, which ``container`` mode
             refuses.
         mesh_address: the gateway host's address as this host's own mesh
             interface lists it; ``mesh`` mode accepts no other host.
+        gateway_name: the private-use name of the gateway vhost, the one host
+            ``vhost`` mode accepts.
+
+    Raises:
+        AnsibleFilterError: the mode is unknown, or a mode other than
+            ``vhost`` is given no port.
     """
     if mode not in MODES:
         raise AnsibleFilterError(
             f"litellm_gateway_refusal: mode '{mode}' is not one of {', '.join(MODES)}"
         )
     parts = urlsplit(str(url or ""))
+    if mode == VHOST:
+        return _vhost_refusal(parts, str(gateway_name or "").strip().lower())
+    if port is None:
+        raise AnsibleFilterError(
+            f"litellm_gateway_refusal: mode '{mode}' needs the gateway port"
+        )
     if parts.scheme != "http":
         return f"scheme '{parts.scheme}' is not plain http"
     hostname = parts.hostname or ""
@@ -148,8 +173,6 @@ def litellm_gateway_keys(local_keys, host_keys) -> list[dict[str, str]]:
 
 
 class FilterModule:
-    """Expose the gateway URL contract and key list to the gateway tasks."""
-
     def filters(self):
         return {
             "litellm_gateway_refusal": litellm_gateway_refusal,
