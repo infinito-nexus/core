@@ -1,15 +1,14 @@
 import unittest
 
+from utils.i18n.damage import MARKUP
 from utils.i18n.placeholders import (
-    MARKUP,
     TOKEN,
     Rejected,
-    mask,
-    mask_tokens,
     resegment,
     tighten,
     unmask,
 )
+from utils.i18n.spans import mask, mask_tokens
 
 
 class TestMaskTokens(unittest.TestCase):

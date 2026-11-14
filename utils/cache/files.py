@@ -256,7 +256,7 @@ def _reset() -> None:
     """Test-only helper: clear the project-walk and file-content caches.
 
     Named ``_reset`` for parity with the per-domain reset helpers in
-    sibling modules; ``utils.cache._reset_cache_for_tests`` orchestrates
+    sibling modules; ``utils.cache.reset._reset_cache_for_tests`` orchestrates
     calls to all of them.
     """
     _all_project_files.cache_clear()
