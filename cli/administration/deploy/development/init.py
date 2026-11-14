@@ -10,6 +10,9 @@ from cli.administration.inventory.provision.services.disabler import (
 )
 from cli.meta.runtime import detect_runtime
 from plugins.filter.merge.with_defaults import merge_with_defaults
+from utils.roles.applications.variants import (
+    services_overrides_for_round as build_services_overrides_for_round,
+)
 from utils.security.deploy import deploy_inventory_overrides
 
 from .common import make_compose
@@ -18,9 +21,6 @@ from .inventory import (
     build_dev_inventory,
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
-)
-from .inventory import (
-    _build_services_overrides_for_round as build_services_overrides_for_round,
 )
 from .storage import detect_storage_constrained
 from .variant_select import (

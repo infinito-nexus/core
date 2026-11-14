@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.plugins.loader import lookup_loader
 
@@ -50,7 +50,7 @@ def base_tasks():
     return [_builtin(task) for task in resolve_tasks()]
 
 
-def _outcome(tasks, app, vhost, logo):
+def _outcome(tasks, app, vhost, logo) -> tuple[object, ...]:
     try:
         facts, renders = run_tasks(tasks, app, vhost, logo)
     except Exception as error:
@@ -110,7 +110,7 @@ class TestShallowMatchesBuiltinForEveryRole(unittest.TestCase):
                 plugin.run = watched
             return plugin
 
-        with mock.patch.object(lookup_loader, "get", side_effect=get):
+        with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
             run_tasks(resolve_tasks(), "web-svc-logout", f"x.app.{DOMAIN}", True)
         self.assertTrue(copies)
         self.assertEqual(set(copies), {"_SharedVariables"})

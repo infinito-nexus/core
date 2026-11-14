@@ -1,0 +1,38 @@
+{% macro tokens(mode) -%}
+{% for name, value in CSS_PALETTE[mode].items() %}
+  {{ name }}: {{ value }};
+{% endfor %}
+  --design-shadow-color: {{ '0, 0, 0, 0.10' if mode == 'light' else '0, 0, 0, 0.45' }};
+  --design-invert: {{ '0' if mode == 'light' else '1' }};
+{%- endmacro %}
+{% if CSS_FONT.import_url %}
+@import url('{{ CSS_FONT.import_url }}');
+{% endif %}
+:root {
+{{ tokens('light') }}
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-design-theme="light"]) {
+{{ tokens('dark') }}
+  }
+}
+:root[data-design-theme="dark"] {
+{{ tokens('dark') }}
+}
+:root {
+  --design-font: {{ CSS_FONT.type }};
+  --design-radius-sm: 4px;
+  --design-radius: 8px;
+  --design-radius-lg: 12px;
+  --design-space-1: 4px;
+  --design-space-2: 8px;
+  --design-space-3: 12px;
+  --design-space-4: 16px;
+  --design-space-5: 24px;
+  --design-space-6: 32px;
+  --design-shadow-1: 0 1px 2px rgba(var(--design-shadow-color));
+  --design-shadow-2: 0 2px 8px rgba(var(--design-shadow-color));
+  --design-shadow-3: 0 8px 24px rgba(var(--design-shadow-color));
+  --design-focus-ring: 0 0 0 3px color-mix(in srgb, var(--design-link) 45%, transparent);
+  --design-focus-ring-inset: inset 0 0 0 1px var(--design-link);
+}

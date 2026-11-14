@@ -22,8 +22,8 @@ from ansible.plugins.loader import filter_loader
 from ansible.template import Templar, trust_as_template
 
 from plugins.action.stack_host_template import ActionModule as StackHostTemplate
-from utils.cache import _reset_cache_for_tests
 from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import (

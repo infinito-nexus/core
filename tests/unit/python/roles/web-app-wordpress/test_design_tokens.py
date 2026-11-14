@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader
@@ -49,7 +49,7 @@ def render_tokens() -> list[str]:
 
     declared = DataLoader().load_from_file(str(VARS), trusted_as_template=True)
     templar = Templar(loader=DataLoader(), variables={})
-    with mock.patch.object(lookup_loader, "get", side_effect=get):
+    with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
         return [
             templar.template(token)
             for token in declared["WORDPRESS_DESIGN_CONFIG"]["tokens"]
