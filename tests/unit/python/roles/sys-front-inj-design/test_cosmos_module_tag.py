@@ -147,11 +147,25 @@ class TestACosmosHostLoadsTheModule(unittest.TestCase):
         html, _calls = render(COSMOS, f"html.{DOMAIN}")
         self.assertEqual(cosmos_config(html), {"zone": ZONE, "cookieDomain": DOMAIN})
 
+    def test_the_primary_domain_itself_shares_the_parent_cookie_domain(self) -> None:
+        html, _calls = render(COSMOS, DOMAIN)
+        self.assertEqual(cosmos_config(html), {"zone": ZONE, "cookieDomain": DOMAIN})
+
     def test_a_vhost_outside_the_primary_domain_gets_a_host_only_cookie(self) -> None:
-        for vhost in (f"html.{ONION}", "html.example.org"):
+        for vhost in (f"html.{ONION}", "html.example.org", f"html-{DOMAIN}"):
             with self.subTest(vhost=vhost):
                 html, _calls = render(COSMOS, vhost)
                 self.assertEqual(cosmos_config(html), {"zone": ZONE})
+
+    def test_a_configured_hotkey_reaches_the_config_and_an_unset_one_stays_out(
+        self,
+    ) -> None:
+        html, _calls = render(
+            COSMOS, f"html.{DOMAIN}", {"services.cosmos.hotkey": "ctrl+alt+k"}
+        )
+        self.assertEqual(cosmos_config(html)["hotkey"], "ctrl+alt+k")
+        html, _calls = render(COSMOS, f"html.{DOMAIN}")
+        self.assertNotIn("hotkey", cosmos_config(html))
 
     def test_a_hostile_hotkey_survives_the_attribute(self) -> None:
         services = {"services.cosmos.hotkey": HOSTILE_HOTKEY}

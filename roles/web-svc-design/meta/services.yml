@@ -48,7 +48,7 @@ cdn:
   shared: true
 # nocheck: playwright-service-flag — provider role; no consumer surface to gate
 # nocheck: dynamic-flag
-# nocheck: shared-provider the custom role web-app-cst-cosmos provides it once pulled; without it the key resolves to no role and nothing changes
+# nocheck: shared-provider a custom role pulled from its own repository registers the key; without it the key resolves to no role and nothing changes
 cosmos:
   bond: 0.5
   enabled: true

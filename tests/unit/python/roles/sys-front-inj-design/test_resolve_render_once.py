@@ -308,6 +308,18 @@ class TestCosmosClearsASurfaceOnlyWhileItsProviderIsActive(unittest.TestCase):
         )
         self.assertEqual(facts, expected)
 
+    def test_a_role_without_a_mapping_and_without_a_provider_stays_untouched(
+        self,
+    ) -> None:
+        facts, _ = run_tasks(
+            resolve_tasks(), "web-app-wordpress", f"x.app.{DOMAIN}", True
+        )
+        expected, _ = run_tasks(
+            legacy_tasks(), "web-app-wordpress", f"x.app.{DOMAIN}", True
+        )
+        self.assertEqual(facts, expected)
+        self.assertFalse(facts["app_style_present"])
+
 
 class TestABrokenRoleSheetStaysLoud(unittest.TestCase):
     def test_an_undefined_variable_fails_naming_it(self) -> None:

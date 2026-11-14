@@ -3,8 +3,8 @@
 ``sys-front-inj-design`` builds the per-app stylesheet by rendering
 ``templates/css/app.css.j2`` - a ``:root{}`` block of ``--design-url-*``,
 ``--design-slot-*`` and ``--design-url-app-*`` declarations - and appending the
-role's sheet and, when the role ships a logo, its ``files/logo.css``, and, on a
-host in the cosmos group, its ``templates/cosmos.css.j2``. The sheet is
+role's sheet and, when the role ships a logo, its ``files/logo.css``, and, while
+a cosmos provider is active, its ``templates/cosmos.css.j2``. The sheet is
 whichever of ``templates/style.css.j2`` and ``files/style.css`` the
 ``first_found`` in that role's ``tasks/main.yml`` resolves, in that order.
 Those four files are the only ones that block reaches.

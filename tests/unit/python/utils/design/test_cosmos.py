@@ -1,12 +1,22 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
 
-from utils.design.cosmos import DESIGN_PROVIDER
+from utils.cache.files import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_any
+from utils.design.cosmos import DESIGN_PROVIDER, SERVICE_KEY
 from utils.design.cosmos import cosmos_provider as _cosmos_provider
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
+    build_service_registry_from_roles_dir,
+    is_explicit_truth,
+    ordered_primary_service_entries,
 )
+from utils.roles.applications.services.resolver import ServicesResolver
+from utils.roles.custom import is_custom
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 PROVIDER = "web-app-cst-cosmos"
 APP = "web-svc-html"
@@ -69,6 +79,87 @@ class TestCosmosStaysOff(unittest.TestCase):
         for forbidden in (False, "false", "False", "no", "off", "0"):
             with self.subTest(enabled=forbidden):
                 self.assertEqual(cosmos_provider(applications(app=forbidden), APP), "")
+
+
+def designed_roles() -> list[str]:
+    """
+    Returns:
+        Every in-tree role whose ``design`` service is enabled and shared on
+        some node shape.
+    """
+    designed = []
+    for path in sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")):
+        role = path.parent.parent.name
+        entry = (load_yaml_any(str(path), default_if_missing={}) or {}).get("design")
+        if (
+            not is_custom(role)
+            and role != DESIGN_PROVIDER
+            and isinstance(entry, dict)
+            and is_explicit_truth(entry.get("enabled"))
+            and is_explicit_truth(entry.get("shared"))
+        ):
+            designed.append(role)
+    return designed
+
+
+def checkout(roles: Path, pulled: bool) -> None:
+    """
+    Args:
+        roles: the empty roles directory to fill with every in-tree role.
+        pulled: whether the cosmos provider role is placed beside them.
+    """
+    for path in sorted((PROJECT_ROOT / "roles").iterdir()):
+        if path.is_dir() and not is_custom(path.name):
+            (roles / path.name).symlink_to(path, target_is_directory=True)
+    if pulled:
+        (roles / PROVIDER / "meta").mkdir(parents=True)
+        (roles / PROVIDER / "vars").mkdir()
+        (roles / PROVIDER / ROLE_FILE_VARS_MAIN).write_text(
+            f"application_id: {PROVIDER}\n", encoding="utf-8"
+        )
+        (roles / PROVIDER / ROLE_FILE_META_SERVICES).write_text(
+            f"{SERVICE_KEY}:\n  enabled: true\n  shared: true\n", encoding="utf-8"
+        )
+
+
+class TestTheServiceResolverDeploysThePulledProviderWithEveryDesignedRole(
+    unittest.TestCase
+):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.roles = Path(self._tmp.name) / "roles"
+        self.roles.mkdir()
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def _ordered(self) -> dict[str, str]:
+        entries = ordered_primary_service_entries(
+            build_service_registry_from_roles_dir(self.roles), self.roles
+        )
+        return {entry["id"]: entry["role"] for entry in entries}
+
+    def test_a_checkout_with_the_pulled_role_loads_it_for_every_designed_role(
+        self,
+    ) -> None:
+        checkout(self.roles, pulled=True)
+        self.assertEqual(self._ordered().get(SERVICE_KEY), PROVIDER)
+        resolver = ServicesResolver(self.roles)
+        roles = designed_roles()
+        self.assertGreater(len(roles), 80)
+        for role in roles:
+            with self.subTest(role=role):
+                self.assertIn(PROVIDER, resolver.resolve_transitively(role))
+
+    def test_a_checkout_without_the_pulled_role_loads_nothing_for_the_key(
+        self,
+    ) -> None:
+        checkout(self.roles, pulled=False)
+        self.assertNotIn(SERVICE_KEY, self._ordered())
+        resolver = ServicesResolver(self.roles)
+        for role in designed_roles():
+            with self.subTest(role=role):
+                self.assertIn(DESIGN_PROVIDER, resolver.resolve_transitively(role))
 
 
 if __name__ == "__main__":
