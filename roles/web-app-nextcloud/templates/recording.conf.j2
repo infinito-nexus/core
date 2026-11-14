@@ -27,6 +27,7 @@ url = {{ NEXTCLOUD_HPB_BACKEND_URL }}{{ NEXTCLOUD_HPB_SIGNALING_LOCATION }}
 internalsecret = {{ NEXTCLOUD_HPB_INTERNAL_SECRET }}
 
 [ffmpeg]
+outputvideo = -c:v libvpx -deadline:v realtime -crf 10 -b:v 1M -threads:v 4
 extensionaudio = .ogg
 extensionvideo = .webm
 

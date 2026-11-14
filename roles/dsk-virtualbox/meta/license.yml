@@ -1,6 +1,6 @@
 ---
 spdx: LicenseRef-Oracle-VirtualBox-PUEL
-url: https://www.virtualbox.org/wiki/VirtualBox_PUEL
+url: https://www.virtualbox.org/wiki/VirtualBox_PUEL # nocheck: url Reason: Oracle answers GitHub runner IPs with HTTP 410; the page answers 200 directly
 rights:
   commercial_use: false
   modifications: false

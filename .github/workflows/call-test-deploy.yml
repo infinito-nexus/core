@@ -265,8 +265,6 @@ jobs:
     name: 🔬 Vulnerability databases
     runs-on: ubuntu-26.04
     timeout-minutes: 60
-    outputs:
-      day: ${{ steps.day.outputs.day }}
 
     steps:
       - uses: actions/checkout@v7.0.0
@@ -298,7 +296,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: build/vulnerability-db/osv
-          key: vulnerability-db-osv-${{ steps.day.outputs.day }}
+          key: vulnerability-db-osv-${{ steps.day.outputs.day }}-${{ hashFiles('roles/sys-ctl-hlth-runtime/meta/services.yml') }}
 
       - name: 🔧 Set up Python
         if: ${{ !env.ACT && (steps.trivy.outputs.cache-hit != 'true' || steps.grype.outputs.cache-hit != 'true' || steps.osv.outputs.cache-hit != 'true') }}
@@ -321,6 +319,36 @@ jobs:
           PYTHON=python bash scripts/install/python.sh
           # shellcheck disable=SC2086
           python -m cli.contributing.security.database --dir build/vulnerability-db --engines ${MISSING}
+
+      - name: 📤 Hand the Trivy database to this run's deploy jobs
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: vulnerability-db-${{ inputs.index }}-trivy
+          path: build/vulnerability-db/trivy
+          if-no-files-found: error
+          retention-days: 3
+          overwrite: true
+
+      - name: 📤 Hand the Grype database to this run's deploy jobs
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: vulnerability-db-${{ inputs.index }}-grype
+          path: build/vulnerability-db/grype
+          if-no-files-found: error
+          retention-days: 3
+          overwrite: true
+
+      - name: 📤 Hand the OSV database to this run's deploy jobs
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: vulnerability-db-${{ inputs.index }}-osv
+          path: build/vulnerability-db/osv
+          if-no-files-found: error
+          retention-days: 3
+          overwrite: true
 
   deploy:
     name: "${{ matrix.label }}"
@@ -386,19 +414,17 @@ jobs:
 
       - name: "🍇 Restore the Grype database"
         if: ${{ !env.ACT && matrix.engine != '' }}
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/download-artifact@v8
         with:
+          name: vulnerability-db-${{ inputs.index }}-grype
           path: build/vulnerability-db/grype
-          key: vulnerability-db-grype-${{ needs.vulnerability-db.outputs.day }}
-          fail-on-cache-miss: true
 
       - name: "🔬 Restore the ${{ matrix.engine }} database"
         if: ${{ !env.ACT && matrix.engine != '' && matrix.engine != 'grype' }}
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/download-artifact@v8
         with:
+          name: vulnerability-db-${{ inputs.index }}-${{ matrix.engine }}
           path: build/vulnerability-db/${{ matrix.engine }}
-          key: vulnerability-db-${{ matrix.engine }}-${{ needs.vulnerability-db.outputs.day }}
-          fail-on-cache-miss: true
 
       - name: "🔬 Pin the deploy to the restored databases"
         if: ${{ !env.ACT }}
