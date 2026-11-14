@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Komponerbara HTML injektionsroller (CSS, JS, logout interceptor, analytics, dashboard iframe) För Nginx/OpenResty via sub_filter/Lua med CDN-stödda tillgångar."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Komposit stack roll bundling en containeriserad databas backend med en HTTP reverse-proxy frontend för webbåtkomst"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Distribuerat versionskontrollsystem för att spåra källkodsändringar 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distrospecifik basbyggverktygskedja (Kompilatorer, länkare, gör) för att sammanställa programvara från källa"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose stack för containeriserade relationsdatabaser med backup, användare och tillståndshantering"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1783,11 +1773,6 @@ msgstr "Optimationstjänster för att förbättra ditt system"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimera kompilatorverktygskedjan för att bygga C, C++ och andra inhemska språkprogram"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper för per-domän NGINX bestämmelse med TLS certifikat, vHost mallar och valfria OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

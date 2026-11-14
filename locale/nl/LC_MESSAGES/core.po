@@ -568,11 +568,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Composieerbare HTML injectierollen (CSS, JS, logout interceptor, analytics, dashboard iframe) voor Nginx/OpenResty via sub_filter/Lua met CDN-backed activa."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Composite stack rol bundelen van een containerized database backend met een HTTP reverse-proxy frontend voor webtoegang"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -852,11 +847,6 @@ msgstr "Verdeeld versiebesturingssysteem voor het bijhouden van broncodewijzigin
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-specifieke basis bouw gereedschapsketen (compilers, linksers, make) voor het compileren van software van bron"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Stel stack samen voor containerized relationele databases met back-up, gebruiker en permissiebeheer"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1777,11 +1767,6 @@ msgstr "Optimalisatiediensten om uw systeem te verbeteren"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Het optimaliseren van compiler toolchain voor het bouwen van C, C++ en andere native-taalprogramma's"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orkestpapier voor per-domein NGINX provisioning met TLS certificaten, vHost templates en optionele OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

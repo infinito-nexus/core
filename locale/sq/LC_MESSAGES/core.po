@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Roli i injeksionit HTML (CSS, JS, interceptor i logout, analitike, i kornizës) Për Nginx/OpenResty vicion sub_filter/Lua me asetet e mbështetura nga CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Kompozito rolin e stivës që mbështjell një backend të të dhënave të konteinifikuara me një frontend të kundërt-proxy për hyrjen në web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Sistemi i kontrollit të versionit të shpërndarë për ndjekjen e ndry
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Mjeti i ndërtimit të bazës destro specifik (Kompilo, lidhes, make) për"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker kompozon një stock për databaza të ndërlidhura lidhjesh me backup, përdoruesin dhe menazhimin e lejeve"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Shërbimet Optimuese për përmirësimin e sistemit tuaj"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizim i veglave të kompiluesit për ndërtimin e C, C+ dhe programeve të tjera të gjuhës amtare"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

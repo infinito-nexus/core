@@ -579,11 +579,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# gecikməsindən istifadə etə bilən bərpa-qrafı bərkətçilərini oxuñmaq
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr ""
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -863,12 +858,6 @@ msgstr ""
 # linkers, make) para builde software da de xeprimẽntuço
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
-msgstr ""
-
-# ka xukrug gobol kalaad ah ee ahaan, waxaan ka xukrug gobol aad ah oo ka
-# hadlayaa aad sax ah waxaan ka hadlayaa aad xukrug hoosaab ah.
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
 msgstr ""
 
 # Docker-swarm-clusteraa-bootstrap-ondo-ongwano-ondo-ongwanoa-ongwanoa-ongwano-ce-service-ce-deployment.
@@ -1798,11 +1787,6 @@ msgstr ""
 # C++, un kaikhun language program
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr ""
-
-# dominio con certificados TLS, plantillas de vHost y OAuth opcional2
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
 msgctxt "menu:Other:title"

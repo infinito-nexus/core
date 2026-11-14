@@ -562,11 +562,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: ollama
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Rol cyd-dŵr deithsiad yn cyffredinol sy'n torri'r deithsiad deithsiad a chwaraeon phant HTTP gan adroddiadau web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -841,11 +836,6 @@ msgstr "Système de control de versions distribué per tebaliad a chynnu eu cod 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr ""
-
-# translated-by: ollama
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Stack Docker per taniau datablysau ffeilliau'r llynedd gyffredinol gyda budd, unigol a materionwch wneud"
 
 # translated-by: ollama
 msgctxt "category:svc.swarm:description"
@@ -1757,11 +1747,6 @@ msgstr "Servisau oepnion gyntai am gyfan heddiwyd"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimising compiler toolchain per building C, C++, arian drafthandling prouctyones"
-
-# translated-by: ollama
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper per-guani NGINX vreichthuiwency gyng SSL certyfiwacthyn, vHost template a gyfraethon OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

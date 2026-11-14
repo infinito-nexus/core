@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Yhteensopivat HTML- injektioroolit (CSS, JS, sieppain, analytiikka, kojelauta iframe) Nginx/OpenResty via sub_filter/Lua CDN-vakuuksilla."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Composite pino rooli niputtamalla konttiin tietokannan backend HTTP käänteisproxy Frontend Web access"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Jaettu versiohallintajärjestelmä lähdekoodin muutosten seuraamiseksi 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-spesifinen pohjarakennustyökaluketju (kääntäjät, liittimet, merkki) ohjelmistojen kokoamiseen lähteestä"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker säveltää pino containerized relational tietokantoja varmuuskopiointi, käyttäjä, ja lupahallinta"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Optimointipalvelut järjestelmän parantamiseksi"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimoin kääntäjän työkaluketjun rakentamiseen C, C++ ja muihin äidinkielen ohjelmiin"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper per-domin NGINX tarjonta TLS varmenteet, vHost malleja, ja valinnainen OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

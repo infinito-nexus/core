@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Kompozitní HTML vstřikovací role (CSS, JS, odhlašovací snímač, analytika, palubní iframe) pro Nginx /OpenResty prostřednictvím sub_filter/ Lua s aktivy krytými CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Kompozitní zásobník role sdružování contailerized databáze backend s HTTP reverseproxy frontend pro přístup k webu"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Distribuovaný systém řízení verzí pro sledování změn zdrojovýc
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Decrospecific base build toolchain (kompilátory, linkers, make) pro sestavování softwaru ze zdroje"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Kompozitní zásobník pro kontejnerové relační databáze se zálohou, uživatelem a správou oprávnění"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Optimalizace Služby pro zlepšení vašeho systému"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimalizace kompilačního řetězce pro stavbu C, C + + a dalších native- jazykových programů"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestrační obal pro per- domain zajištění NGINX s certifikáty TLS, vHost šablony, a volitelné OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

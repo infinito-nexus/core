@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Vloge injekcij v HTML, ki jih je mogoče komposirati (CSS, JS, prestreznik odjave, analitika, ifram armature) za Nginx/OpenResty preko sub_filter-Lua z denarjem CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Kompozitna vloga skladanja hrbtenico podatkovne zbirke z reverzno-proxy vmesnikom HTTP za spletni dostop"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Distribuirani sistem za nadzor različic za sledenje spremembam izvorne 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Orodna veriga za izdelavo podlag za distrospecifične namene (prevajalniki, povezovalniki, make) za pripravo programske opreme iz vira"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compound sklad za kontejnerizirane relacijske baze podatkov z backup, uporabnik, in upravljanje dovoljenja"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Optimacijske storitve za izboljšanje sistema"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizacija orodjarne prevajalnika za gradnjo C, C++ in drugih programov v maternem jeziku"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orkesterski ovitek za zagotavljanje NGINX na dom s potrdili TLS, vHost predloge, in neobvezno OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

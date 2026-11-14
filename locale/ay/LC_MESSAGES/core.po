@@ -558,11 +558,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Stack role compuesto que embala un backend de base de datos contenedizado con un frontend de reverse-proxy HTTP para acceso por web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -837,11 +832,6 @@ msgstr "System de controla versión distribuído para el seguimiento de cambios 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr ""
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose hir geseke salem salem bermukenan, usaha, dan pembiaran waɗau"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1751,11 +1741,6 @@ msgstr "Optimation servisoyoy siyayin yaso"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizar cadena de compilador para la construcción de programas en C, C++, y otros programas en lenguaje nativo"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestrador wrapper nin kpongwu per-domain NGINX nipa TLS certificates, vHost niptemwe na optitite OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

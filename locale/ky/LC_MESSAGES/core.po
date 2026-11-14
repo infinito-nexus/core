@@ -574,11 +574,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Композиційні роли ін Injection хтмл (CSS, JS, інтерceptar logout, аналітики, інфлэймд) для Nginx/OpenResty через sub_filter/Lua з електронними валютами- backed ресурсами."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Контейнердик маалымат базасынын арткы бөлүгүн HTTP тескери прокси фронтенди менен бириктирген композиттик стек ролу"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -860,11 +855,6 @@ msgstr "Бөлүнгөн версияны башкаруу системасы б
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Дистроспецификалык базалык курулуш куралдарынын чынжырчасы (Компиляторлор, шилтемелер, маркалар) Программалык камсыздоону булактан чогултуу"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose стек контейнердик реляциялык маалымат базалары үчүн резервдик көчүрмө, колдонуучу жана уруксат башкаруу менен"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1801,11 +1791,6 @@ msgstr "Системаңызды жакшыртуу үчүн оптималда�
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "C, C++ жана башка жергиликтүү тил программаларын куруу үчүн компилятордун курал чынжырын оптималдаштыруу"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Ар бир доменге NGINX камсыз кылуу үчүн оркестрдик капчыгы, TLS сертификаттары, vHost шаблондору жана факультативдүү OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

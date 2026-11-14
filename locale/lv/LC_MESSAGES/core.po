@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Kompleksās HTML injekcijas lomas (CSS, JS, atslēgšanās pārtvērējs, analītika, paneļa iframe) Nginx/OpenResty caur sub_filter/Lua ar CND nodrošinātiem aktīviem."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Kompozīta steka loma, kas apvieno konteinerizētu datubāzes aizmuguri ar HTTP reversā starpniekservera priekšpusi tīmekļa piekļuvei"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -856,11 +851,6 @@ msgstr "Izplatīta versiju kontroles sistēma, lai izsekotu pirmkoda izmaiņas u
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro specifiska bāzes veidošanas rīku ķēde (kompilatori, linkeri, make) izmantošanai 87. nodaļas preču ražošanā"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Komponējiet steku konteinerizētām relāciju datubāzēm ar dublējumu, lietotāju un atļauju pārvaldību"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1783,11 +1773,6 @@ msgstr "Optimizācijas pakalpojumi sistēmas uzlabošanai"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizē kompilatora rīku ķēdi C, C++ un citu dzimtās valodas programmu celtniecībai"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orķestra ietvars katram domēnam NGINX nodrošināšanai ar TLS sertifikātiem, vHost veidnēm un pēc izvēles OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

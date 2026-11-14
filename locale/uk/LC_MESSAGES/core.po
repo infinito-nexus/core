@@ -570,11 +570,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Доступні ролі ін'єкцій HTML (JavaScript licenses API Веб-сайт Go1.13.8) для Nginx/OpenResty Зареєструватися sub_filter/Луа з активами CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Утилітна роль укладання контейнерної бази задньої частини з HTTP зворотним проксі-передачем для веб-доступу"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -854,11 +849,6 @@ msgstr "Розширена система керування версіями д
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Інструмент для побудови бази даних (компілятори, посилання, зробити) для компіляції програмного забезпечення з джерела"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Стек Docker Compose для контейнерних реляційних баз з резервним копіюванням, користувачем та управління дозволами"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Послуги з оптимізації системи"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Оптимізація компіляторного інструментарію для побудови C++ та інших рідних програм"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Оркестрація обгортки для пер-домену NGINX з сертифікатами TLS, шаблонами vHost та додатковим OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

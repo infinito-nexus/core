@@ -583,11 +583,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Композицыйн HTML ин injection ролл (CSS, JS, logout interceptor, analytics, dashboard iframe) для Nginx/OpenResty через sub_filter/Lua с ассеттер кутаиши камтамерт."
 
-# translated-by: ollama
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Композиционна роль для бандо гъBASH пакета базирана на контейнер с HTTP реверс-прокси frontend за достъп от интернет"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -866,11 +861,6 @@ msgstr "Даска агул устумук системасы для жекеш�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-specific baznaiuulaii bolbolitoolkhiig ( компилятор, линкер, make) дээг сооноonusуunosunуу компилилуу"
-
-# translated-by: ollama
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Докер КомPOSE стак с контейнеризованных relational баз логик ji, ёмчычы, жана чарбактар менен айтым берүүсиңеги"
 
 # translated-by: ollama
 msgctxt "category:svc.swarm:description"
@@ -1791,11 +1781,6 @@ msgstr "Оптимisation үчүн SystemService саламатуň экиňчі
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Өгүүлт нэген тээвэрлэгт нэгэн төрөлд цэвэрлөө"
-
-# sertifikatlagov per OAuth2
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

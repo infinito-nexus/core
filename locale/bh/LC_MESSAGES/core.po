@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "कंप्यूटेबल हामली इन्स्ट्रॅज रॉल (CSS, JS, लगातार इजेटर, विश्लेषण, डशबोर्ड वायफ्राइ) नीनजेंग्ज/OpenResty विसा sub_filter/लूअ।."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "कोणत्याही संरक्षकपणे संचारी कनटेनर केवळाळे डब्ल्यूएस बांधवलेले आणि वेब अकसर प्रीमियम आणि"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr ""
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "क्रोड़ों केन्द्रित बाइज बुधवार टूलशेचक (कोडिस्पेक्टर, लिंकर्स, मैक्स )स्रोत से गुज़रण के लिए सॉफ्टवेयर को बनाएर"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1780,11 +1770,6 @@ msgstr "ऑप्टै मिसरी सेवा आपकी सिस्�
 # translated-by: libretranslate
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr ""
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
 
 msgctxt "menu:Other:title"

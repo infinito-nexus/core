@@ -570,11 +570,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Tính năng xếp chồng hợp nhất co giật một hậu phương cơ sở dữ liệu đã công cụ hoá với giao diện điều khiển đảo ngược HTTP cho truy cập web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -854,11 +849,6 @@ msgstr "Hệ thống quản lý phiên bản phân tán để theo dõi các tha
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Name (Bộ biên dịch, liên kết, làm) cho việc biên dịch phần mềm từ nguồn"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Bộ soạn thảo Docker cho cơ sở dữ liệu quan hệ có kết nối với bản sao lưu, người dùng và quản lý cho phép"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Dịch vụ làm báp têm để cải thiện hệ thống của bạn"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimize biên dịch công cụchain để xây dựng C, C++, và các chương trình bản địa-language"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Gói dự phòng cho việc cung cấp một cửa sổ lNGINX cung cấp với chứng nhận TLS, vHost models, và tùy chọn OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

@@ -568,11 +568,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Rôles d'injection HTML composites (CSS, JS, intercepteur de déconnexion, analytique, tableau de bord iframe) pour Nginx/OpenResty via sub_filter/Lua avec des actifs soutenus par CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Rôle de pile composite regroupant un moteur de base de données conteneurisé avec une interface HTTP inverse-proxy pour un accès web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -852,11 +847,6 @@ msgstr "Système de contrôle de version distribué pour suivre les changements 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Chaîne d'outils de construction de base spécifique au Distro (compilateurs, linkers, make) pour compiler des logiciels à partir de la source"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose pile pour les bases de données relationnelles conteneurisées avec la sauvegarde, l'utilisateur et la gestion des permissions"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1777,11 +1767,6 @@ msgstr "Optimisation Services pour améliorer votre système"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimisation de la chaîne d'outils compilateurs pour la construction de C, C++ et d'autres programmes en langue maternelle"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

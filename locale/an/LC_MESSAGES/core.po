@@ -563,11 +563,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Rol de composte que bundeja un backend de base de dades containeritzat amb un frontend de proxy revers HTTP per accés web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -843,11 +838,6 @@ msgstr "Sistema de control de versiones distribuido para seguir cambios en el c�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distribución específica de herramienta de herramienta de cadena de construcción base (compiladores, enlaceros, make) para la compilación de software desde fuentes"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Stack Docker amb relacional bazas de dades amb recuperació, usuari i ganyvatmanegament"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1757,11 +1747,6 @@ msgstr "Optimització d'assistències per a millorar el teu sistema"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimitzar el tràfica de compiladors per a la construcció de programes natius en C, C++ i altres idiomes natius"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper per-domain NGINX provisioning con certificats TLS, plantills vHost i opcional OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

@@ -568,11 +568,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Composable HTML इंजेक्शन भूमिकाओं (सीएसएस, जेएस, लोगोट इंटरसेप्टर, एनालिटिक्स, डैशबोर्ड आईफ्रेम) Nginx / OpenResty के माध्यम से sub_filter/Lua CDN समर्थित परिसंपत्तियों के साथ।"
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "समग्र स्टैक भूमिका वेब एक्सेस के लिए HTTP रिवर्स-प्रोक्सी फ्रंटेंड के साथ एक कंटेनरीकृत डेटाबेस बैकेंड को बंडल करना"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -852,11 +847,6 @@ msgstr "स्रोत कोड परिवर्तन और समन्�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-विशिष्ट आधार निर्माण टूलचेन (कम्पाइलर, लिंकर, बनाना) स्रोत से सॉफ्टवेयर को संकलित करने के लिए"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "बैकअप, उपयोगकर्ता और अनुमति प्रबंधन के साथ कंटेनरीकृत रिलेशनल डेटाबेस के लिए डॉकर कॉम्पोज़ स्टैक"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1778,11 +1768,6 @@ msgstr "अपने सिस्टम को बेहतर बनाने �
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "सी, सी ++ और अन्य मूल भाषा कार्यक्रमों के निर्माण के लिए कम्पाइलर टूलचेन का अनुकूलन करना"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

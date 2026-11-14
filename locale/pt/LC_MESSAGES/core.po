@@ -568,11 +568,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Funções de injeção HTML composable (CSS, JS, interceptor de saída, análise, iframe de painel) para Nginx/OpenResty via sub_filter/Lua com ativos apoiados pelo CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Função de pilha composta agrupando uma infraestrutura de banco de dados em contêiner com uma interface HTTP de proxy reversa para acesso web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -852,11 +847,6 @@ msgstr "Sistema de controle de versão distribuído para rastrear alterações d
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Cadeia de ferramentas de construção de base específica (compiladores, ligadores, make) para compilar o software da fonte"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compor pilha para bancos de dados relacionais containerizados com backup, usuário e gerenciamento de permissões"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1777,11 +1767,6 @@ msgstr "Serviços de otimização para melhorar seu sistema"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Otimizando a ferramenta do compilador para a construção de C, C++ e outros programas em língua nativa"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Embrulho de orquestração para NGINX provisionamento por domínio com certificados TLS, modelos vHost e opcional OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

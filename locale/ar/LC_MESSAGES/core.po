@@ -577,11 +577,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "أدوار الحقن المركبة HTML (CSS, JS, logout interceptor, analytics, dashboard iframe) Nginx/OpenResty via sub_filter/Lua مع الأصول المدعمة من CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "تركيب قاعدة بيانات مجهزة بالحاويات مدعمة بمقدمة من شركة HTTP العكسية"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -869,11 +864,6 @@ msgstr "نظام مراقبة النسخ الموزع لتتبع التغيير�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "مجموعة أدوات بناء قاعدة خاصة ب Distro (المجمّعين، الموصلين،) تجميع البرمجيات من المصدر"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "كومة دوكر كومبوس من قواعد البيانات المتصلة بالحاويات مع الدعم والمستعمل وإدارة التصاريح"
 
 # translated-by: libretranslate
 # roles for multi-host service deployment.
@@ -1832,15 +1822,6 @@ msgstr "الخدمات الأمثل لتحسين نظامك"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "تحسين أدوات تطوير المترجم لإنشاء برامج بلغة C و C++ وغيرها من اللغات الأصلية"
-
-# translated-by: libretranslate
-# with TLS certificates, vHost templates, and optional OAuth2
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Orchestration wrapper for perdomain NGINX provisioning
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

@@ -571,11 +571,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "HTML 주입 역할 (CSS, JS, 로그아웃 인터셉터, 분석, 대쉬보드 iframe) Nginx/OpenResty를 통해 sub_filter/Lua CDN-backed 자산."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "웹 액세스를위한 HTTP 역 프록시 frontend와 컨테이너화 된 데이터베이스 백업을 묶는 합성 스택 역할"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -858,11 +853,6 @@ msgstr "분산 버전 제어 시스템 추적 소스 코드 변경 및 조정 �
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-specific 기본 빌드 툴체인 (컴파일러, 연결기, make) 소스에서 compiling 소프트웨어"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose stack for containerized relationshipal databases with Backup, 사용자 및 권한 관리"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1787,11 +1777,6 @@ msgstr "시스템을 개선하기 위한 최적의 서비스"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "C, C++ 및 기타 네이티브 언어 프로그램을 구축하기위한 컴파일러 툴체인 최적화"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

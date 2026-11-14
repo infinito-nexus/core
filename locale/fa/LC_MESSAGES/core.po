@@ -568,11 +568,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "نقش تزریق HTML Composable (CSS، JS، ردیاب، تجزیه و تحلیل، داشبورد iframe) برای Nginx / OpenResty از طریق sub_filter/ Lua با دارایی های مورد حمایت CDN"
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "نقش پشته کامپوزیتی یک پایگاه داده containerized را با یک Frontend HTTP-proxy معکوس برای دسترسی به وب"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -858,11 +853,6 @@ msgstr "سیستم کنترل نسخه توزیع شده برای ردیابی �
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "پایگاه های خاص ساخت ابزار (کامپایلرها، لینک ها،) برای ترکیب نرم افزار از منبع"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose پشته برای پایگاه های داده های ارتباطی containerized با پشتیبان گیری، کاربر و مدیریت اجازه"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1785,11 +1775,6 @@ msgstr "خدمات بهینه سازی برای بهبود سیستم شما"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "بهینه سازی ابزار کامپایلر برای ساخت C، C++ و دیگر برنامه های زبان مادری"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "بسته بندی ارکستر برای هر دامنه NGINX با گواهینامه های TLS، قالب های vHost و اختیاری OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

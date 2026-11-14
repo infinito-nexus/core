@@ -567,11 +567,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Komsomolu HTML injeksiyon rolletta (CSS, JS, logout interceptor, analytics, dashboard iframe) nga Nginx/OpenResty via sub_filter/Lua me assets gudaguda."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Kombiñacio stack rol biñéngebi suufisiko berbarta wogébi kòma wókkébi biñéngebi iñgiriis-HTTP wóllu koñténni tsoola web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -854,11 +849,6 @@ msgstr "Sysveg verktøy for versjonalkontroll av kildekodeendepersenell og koord
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distriki-spezifisiki bāsiai bānīgai teikniukoolīrīkai ( kompilātoru, līnēru, make) laipamai kompilēt laukumu no izvadija"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker stack mënshek ñö móodërlikkide kontainerib ñö kägni ñö fiimbi ñö fiimi ën ñö fiimbi ëmba ñö fiimi mooy ñu"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1785,11 +1775,6 @@ msgstr "Optiatservices til å bjoekkoppa sistemi"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimize compiler toolkit fór buildi C, C++, ëtseflíkku-prográmme"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration kodo for per-domäne NGINX-provisioning med TLS-certifikate, vHost-templaatjarar og valgfritt OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

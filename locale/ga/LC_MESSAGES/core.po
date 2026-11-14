@@ -582,11 +582,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Komposítil HTML-injektiona rólái (CSS, JS, logout intercep tátor, analýzis, di shátra iframe) Nginx/OpenResty segítségével sub_filter/Lua-alapuló állatokhoz."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Comhdhéanta Stack ról bundling cúltaca bunachar coimeádán le HTTP droim ar ais-proxy tosaigh le haghaidh rochtain gréasáin"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -868,11 +863,6 @@ msgstr "Córas rialaithe leagan Dáilte do rianú athruithe cód foinse agus oba
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-sonrach bonn thógáil toolchain (compilers, nascóirí, dhéanamh) le haghaidh bogearraí a thiomsú ó fhoinse"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose Stack do bhunachair shonraí i ndáil coimeádán le cúltaca, úsáideoir, agus bainistíocht cead"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1795,11 +1785,6 @@ msgstr "Seirbhísí Optamaithe chun do chóras a fheabhsú"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optamaigh compiler toolchain do thógáil C, C ++, agus cláir dúchais eile"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Clúdaigh áirseáil do sholáthar NGINX per-domain le teastais TLS, teimpléid vHost, agus roghnach OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

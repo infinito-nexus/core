@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Kompatible HTML- injektionsroller (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx /OpenResty via sub_filter/ Lua med CDN-støttede aktiver."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Composite stack rolle bundling en containerized database motor med en HTTP reverse- proxy frontend for web-adgang"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Distribueret versionskontrolsystem til sporing af kildekodeændringer og
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro- specifik base build værktøjskæde (compileers, linkers, make) til kompilering af software fra kilden"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose stak til containerized relational databaser med backup, bruger og tilladelse management"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Optimering af dit system"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimering compiler toolchain for building C, C + +, og andre indfødte-sprog programmer"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper til per- domæne NGINX levering med TLS certifikater, vHost skabeloner, og valgfri OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

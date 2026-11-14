@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "HTML injekzio-rol konposatzaileak (CSS, JS, saio-amaierako hartzailea, analitika, marraduna) Nginx/OpenResty-rako sub_filter/Lua, CDNren babeseko aktiboekin."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Konposatuen pilatze-funtzioa edukiontzidun datu-basearen motorra HTTP alderantzizko proxy-aren interfazearekin web sarbiderako"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Bertsioak kontrolatzeko sistema banatua iturburu-kodeen aldaketen jarrai
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Egiturak eraikitzeko tresna-katea (konpiladoreak, estekatzaileak, egin) iturburutik softwarea konpilatzeko"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose pila datu-base erlazional edukiontziratuetarako babeskopia, erabiltzaile eta baimenen kudeaketarekin"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Sistema hobetzeko zerbitzuak"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Konpilatzailearen tresna-katea optimizatzea C, C++ eta jatorrizko beste programa batzuk eraikitzeko"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

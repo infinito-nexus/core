@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) para Nginx/OpenResty via sub_filter/Lua com assets back-end do CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Rol composto de papelagem que inclui um backend de banco de dados containerizado com um ante-reverso HTTP para frontend de acesso à web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -852,11 +847,6 @@ msgstr "Sistema de controle de versão distribuído para rastreamento de altera�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro específico base ferramenta de build (compiladores, linkers, make) para compilar software a partir do source"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Stack do Docker para estruturas de banco de dados containers com gerenciamento de backup, usuário e permissões"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1776,11 +1766,6 @@ msgstr "Serviços de otimização para melhorar seu sistema"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizando cadeia de ferramentas de compilador para a construção de programas em C, C++, e outros programas em linguagens nativas"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

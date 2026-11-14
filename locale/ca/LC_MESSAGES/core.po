@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Papers de injecció HTML repetibles (CSS, JS, sortida intercepció, autoanàlisis, iframe) per a Nginx/OpenResty via sub_filter/Lua amb actius CDNed."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Un paper de pila Compilat un dorsal de base de dades contenidor amb un frontal HTTP invers per a l' accés web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Sistema de control de versions distribuït per a controlar els canvis de
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Eina de construcció d'eines específica de base Destro (compiladors, enllaços, make) per compilar programari des del codi font"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Componeu pila per a bases de dades relacionals amb còpia de seguretat, usuari i gestió de permisos"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Serveis d'opició per millorar el sistema"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimitzant l' eina compilador per a construir C, C++ i d' altres programes d'idioma natius"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Un embolcall d' orquessió per domini NGINX provisional amb certificats TLS, plantilles vHost, i opcional OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

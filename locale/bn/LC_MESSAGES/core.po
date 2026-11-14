@@ -571,11 +571,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "ওয়েবের প্রাপ্তির জন্য HTTP-proxy-র সাহায্যে একটি কনটেইনারd ডাটাবেসের ব্যাক-এন্ড"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -856,11 +851,6 @@ msgstr "উৎস কোড পরিবর্তনের এবং ডিভ�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "MDotro-নির্দিষ্ট বেস গঠন সরঞ্জাম (কম্পাইলার, লিঙ্কার, তৈরি করুন) উৎস থেকে সফটওয়্যার কম্পাইল করার প্রণালী"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "ব্যাকআপ, ব্যবহারকারী এবং অনুমতি ব্যবস্থাপনার জন্য অঙ্কিত কনটেন্ট রেকর্ডার স্ট্যাকল"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1784,11 +1774,6 @@ msgstr "আপনার সিস্টেমের উন্নত করতে
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "C, C+ এবং অন্যান্য স্থানীয় ভাষার প্রোগ্রামের জন্য কম্পাইলার টুলার গঠন করুন"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

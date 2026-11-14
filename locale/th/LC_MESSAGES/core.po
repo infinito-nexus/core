@@ -573,11 +573,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Protosite play playing แบ็คเอนต์ฐานข้อมูลบรรจุแบบ HTTP แบบย้อนกลับ- proxy สําหรับการใช้งานเว็บ"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -859,11 +854,6 @@ msgstr "ระบบควบคุมรุ่นที่แยกออกจ
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "โครงสร้างพื้นฐานที่แยกไม่ได้ (ผู้รวบรวม ผู้เชื่อมโยง) สําหรับรวบรวมซอฟต์แวร์จากแหล่ง"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Doper Compost สแต็กสําหรับฐานข้อมูลความสัมพันธ์แบบบรรจุกับ สํารองข้อมูล, ผู้ใช้, และการจัดการการอนุญาต"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1790,11 +1780,6 @@ msgstr "ออปติเมชัน เพื่อปรับปรุง�
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Offimating เครื่องมือประกอบสําหรับการสร้าง C, C++ และโปรแกรมภาษาท้องถิ่นอื่น ๆ"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

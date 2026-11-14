@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Komputilaj HTML-injektoj (CSS, JS, logout-interkaptisto, analizistoj, dashboard iframe) Nginx/OpenResty per sub_filter/Lua kun CDN-apogitaj aktivaĵoj."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Komosite stakrolo bundanta kontenerigitan datumbazon malantaŭfina kun HTTP inversa-proxy frontfino por retaliro"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Distributed-versio kontrolsistemo por spurado de fontkodoŝanĝoj kaj ku
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-specifa bazo konstruas ilĉenon (kompililoj, ligilo,) Por kompilado de programaro de fonto"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose stako por kontenerigitaj interrilataj datumbazoj kun rezervo, uzanto, kaj permeso-administrado"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1783,11 +1773,6 @@ msgstr "Optimuma Servoj por plibonigi vian sistemon"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimumanta kompililon por konstruaĵo C, C++, kaj aliaj indiĝen-lingvaj programoj"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration enpakisto por per-domajno NGINX provizado kun TLS-atestiloj, vHost ŝablonoj, kaj laŭvola OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

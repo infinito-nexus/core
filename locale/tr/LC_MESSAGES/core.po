@@ -568,11 +568,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Boş HTML enjeksiyon rolleri (CSS, JS, logout tror, Analytics, dashboard iframe) Nginx/OpenResty via sub_filter/Lua, CDN destekli varlıklarla."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Bir konteynerli veritabanı web erişimi için bir HTTP ters uç ile tekrarlanan bir veritabanı"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -854,11 +849,6 @@ msgstr "Kaynak kodu değişikliklerini takip etmek ve koordine etmek için dağ�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-specific base build toolchain (Derleyiciler, bağlantıcılar, makyajlar) Kaynaktan gelen yazılım için"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose yığını, yedek, kullanıcı ve izin yönetimi ile kapsayıcı ilişkisel veritabanı için,"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1785,11 +1775,6 @@ msgstr "Optimizasyon Hizmetleri sisteminizi geliştirmek için"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "C, C++ ve diğer yerel dil programları için derleyici araç zincirlerini optimize etmek"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Per-domain NGINX'in TLS sertifikası, vHost şablonları ve Seçmeli OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

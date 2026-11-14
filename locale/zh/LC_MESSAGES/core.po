@@ -572,11 +572,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "复合堆栈角色将一个集装箱化的数据库后端捆绑,并配有用于网页访问的HTTP反向代理端"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -863,11 +858,6 @@ msgstr "分布式版本控制系统,用于跟踪源代码变化和协调开发�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "特定地段基建工具链 (编译器、链接器) 用于从源代码编译软件"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker 堆栈,用于有备份、用户和权限管理的集装箱关系数据库"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1789,11 +1779,6 @@ msgstr "优化服务以改善您的系统"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "优化用于构建 C, C++ 和其他本地语言程序的编译工具链"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

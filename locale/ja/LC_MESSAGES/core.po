@@ -568,11 +568,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "コンパイル可能なHTMLインジェクションロール (CSS、JS、ログアウトのインターセプター、分析、ダッシュボードiframe) Nginx/OpenResty から sub_filter/Lua CDN が返されたアセットを持つ。"
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "コンポジット・スタック・ロールは、Webアクセス用のHTTPリバースプロキシ・フロントエンドでコンテナ化されたデータベース・バックエンドをバウンス"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -854,11 +849,6 @@ msgstr "ソースコードの変更を追跡し、開発作業を調整するた
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "ディスク固有のベースビルドツールチェーン (コンパイラ、リンカ、メイク) ソースからソフトウェアをコンパイルする"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "コンテナ化されたリレーショナルデータベースのバックアップ、ユーザー、およびパーミッション管理のための Docker Compose スタック"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1780,11 +1770,6 @@ msgstr "システムを改善するための最適化サービス"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "C、C++、その他のネイティブ言語プログラムの構築のためのコンパイラツールチェーンの最適化"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

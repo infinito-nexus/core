@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Roluri de injectare HTML composabile (CSS, JS, interceptor de logare, analiză, iframe de bord) pentru Nginx/OpenResty via sub_filter/Lua cu active garantate cu CDN."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Rol compozit stiva gruparea unui suport de baza de date containerizat cu un frontend HTTP invers-proxy pentru acces web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Sistem de control al versiunii distribuite pentru urmărirea modificări
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Lanțuri de scule pentru construcții de bază specifice (compilatoare, linkere, make) pentru compilarea software-ului din surse"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose stiva pentru baze de date relaționale containerizate cu backup, utilizator, și gestionarea permisiunii"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1783,11 +1773,6 @@ msgstr "Servicii de optimizare pentru îmbunătățirea sistemului"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizarea lanțului de instrumente compilator pentru construirea C, C++ și a altor programe native"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

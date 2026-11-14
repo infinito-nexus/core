@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Σύνθετοι ρόλοι εγχύσεων HTML (CSS, JS, αναχαίτιση αποσύνδεσης, ανάλυση, πλαίσιο ταμπλό) για Nginx/OpenResty μέσω sub_filter/Lua με CDN-backed περιουσιακά στοιχεία."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Σύνθετη στοίβα ρόλο bundling ένα κοντέινερ βάση δεδομένων σύστημα υποστήριξης με ένα HTTP αντιστροφή-προσέγγιση για πρόσβαση στο διαδίκτυο"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Διανεμημένο σύστημα ελέγχου έκδοσης γι
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Δομή εργαλείων ειδικής βάσης (μεταγλωττιστές, συνδετήρες, make) για την κατάρτιση λογισμικού από την πηγή"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker σύνθεση στοίβα για κοντέινερ σχετικές βάσεις δεδομένων με backup, χρήστη, και διαχείριση αδειών"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1784,11 +1774,6 @@ msgstr "Υπηρεσίες Βελτιστοποίησης για τη βελτί
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Βελτιστοποίηση αλυσίδας εργαλείων μεταγλωττιστών για την κατασκευή C, C++, και άλλα προγράμματα εγγενών γλωσσών"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Περιτύλιγμα ενορχήστρωσης για ανά τομέα NGINX παροχή με πιστοποιητικά TLS, vHost πρότυπα, και προαιρετική OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

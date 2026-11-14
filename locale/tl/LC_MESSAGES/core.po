@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Komposableng mga papel sa pag - iiniksiyon (CSS, JS, logout interclock, analytics, dashboard kung Anome) para sa Nginx/OpenResty sa pamamagitan ng sub_filter/Lua na may mga pag-aaring CDN-backed."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Komposite state bundling ang isang containerized database backend na may HTTP reverse-proxy frontend para sa web access"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Ipinamamahaging sistema ng pagkontrol sa bersyon para sa pagsubaybay sa 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-specific base magtayo ng toolchain (Mga tagatipon, mga linker, gawin) para sa pagtitipon ng software mula sa pinagmulan"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose para sa lalagyang mga database na may backup, user, at pinahihintulutan"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Optimasyong mga Serbisyo upang pagbutihin ang iyong sistema"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Sinasalungat ang collester toolchain para sa pagtatayo ng C, C++, at iba pang mga katutubong-wikang programa"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orkestrasyong pambalot para sa per-domain NGINX na may mga sertipiko ng TLS, vHost template, at opsyonal na OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"

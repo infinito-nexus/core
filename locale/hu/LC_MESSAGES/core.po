@@ -569,11 +569,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "A HTML injekciós szerepek beállítása (CSS, JS, kijelző, elemző, műszerfal iframe) Nginx / OpenResty sub_filter/ Lua CDN-alapú eszközökkel."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Kompozit stack szerep csomagoló tároló adatbázis backend HTTP reverse- proxy frontend webes hozzáférés"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -855,11 +850,6 @@ msgstr "Elosztott verzióvezérlési rendszer a forráskódváltozások nyomon k
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Disztro-specifikus alapszerkezetű eszközlánc (fordító, linker, make) a forrástól származó szoftver összeállításához"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Készíts stack a tároló relációs adatbázisok mentés, felhasználó, és engedély kezelése"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1782,11 +1772,6 @@ msgstr "Optimalizációs szolgáltatások a rendszer javítása érdekében"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "A fordítóeszközlánc optimalizálása a C, C + + és más nemzeti nyelvű programok építéséhez"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

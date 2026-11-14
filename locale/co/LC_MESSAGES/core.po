@@ -563,11 +563,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: ollama
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Role compuistack kombinasi backend database berbentuk kontainer dengan frontend proxy pengembali HTTP untuk akses web"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -846,11 +841,6 @@ msgstr "Sistema de control de versión distribuido para rastrear cambios en el c
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-específico herramienta de cadena de build base (compiladores, enlazadores, make) para compilar software desde fuente"
-
-# translated-by: ollama
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Stack de Docker para bases de datos relacionales containerizadas con administración de backup, usuario y permisos"
 
 # translated-by: ollama
 msgctxt "category:svc.swarm:description"
@@ -1774,11 +1764,6 @@ msgstr "Optimación Services para mejorar su sistema"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizando hilo de compilador para la construcción de programas en C, C++, y otros programas en idioma nativo"
-
-# translated-by: ollama
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
 
 msgctxt "menu:Other:title"
 msgid "Other"

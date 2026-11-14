@@ -571,11 +571,6 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Kompozitiniai HTML įpurškimo vaidmenys (CSS, JS, registracijos perėmėjas, analitika, prietaisų skydelio pavadinimas) Nginx /OpenResty per sub_filter/ Lua su CDN užtikrintu turtu."
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Sudėtinis stekas vaidmuo susiejant konteineris duomenų bazės realizaciją su HTTP reverse-proxy sąsaja žiniatinklio prieigos"
-
 msgctxt "access_request:review_confirm"
 msgid "Confirm grant"
 msgstr ""
@@ -857,11 +852,6 @@ msgstr "Platinamos versijos valdymo sistema, skirta stebėti kodo pakeitimus ir 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Specifinė distrom bazės kūrimo priemonių grandinė (kompiliatoriai, linkers, make) sudaryti programinę įrangą iš šaltinio"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Komponuoti kamino konteineris reliacinės duomenų bazių su atsargine, vartotojas, ir leidimų valdymo"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -1785,11 +1775,6 @@ msgstr "Optimizavimo paslaugos sistemos tobulinimui"
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizuoti kompiliatoriaus įrankių grandinę, skirtą kurti C, C + + ir kitas kalbų programas"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orkestro įvyniojimas perdomeno NGINX atidėjiniams su TLS sertifikatais, vHost šablonais ir pasirinktinai OAuth2"
 
 msgctxt "menu:Other:title"
 msgid "Other"
