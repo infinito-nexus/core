@@ -80,5 +80,17 @@ rendered into the compose file.
 ## Persona contract opt-outs
 
 The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`.
-As soon as an IAM source is wired, the role sets `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, driven by `GITEA_IAM_ENABLED` in `vars/main.yml`), and `tasks/setup/oidc.yml` registers only the auth source — never a Gitea user — so a Keycloak identity without a pre-linked Gitea account is bounced back to `/user/login`.
-The opt-out lapses once the deploy provisions (or auto-links) Gitea accounts for the persona identities.
+As soon as an IAM source is wired, the role sets `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, driven by `GITEA_IAM_ENABLED` in `vars/main.yml`), and `tasks/setup/oidc.yml` registers only the auth source, never a Gitea user.
+Keycloak sign-ins create or link the Gitea account through `services.gitea.configuration.oauth2_client` instead (see below); the opt-out lapses once a live run proves the persona journeys on that path.
+
+## Keycloak account linking
+
+With the Keycloak source wired, `services.gitea.configuration.oauth2_client` in `meta/services.yml` feeds Gitea's `[oauth2_client]` section:
+
+| Key | Default | Effect |
+| --- | --- | --- |
+| `enable_auto_registration` | `true` | A Keycloak sign-in without a linked Gitea account creates one instead of showing the link page. |
+| `account_linking` | `auto` | An existing Gitea account with the same username or primary email is linked without asking for its password (`login` asks, `disabled` refuses). |
+| `username` | `OIDC.ATTRIBUTES.USERNAME` (`preferred_username`) | The Keycloak claim that names the Gitea account. |
+
+Linking by name or email is safe only because Keycloak refuses self-registration and username edits, and only admins may edit a user's email. Override the block in the inventory's `applications.web-app-gitea` to opt out.
