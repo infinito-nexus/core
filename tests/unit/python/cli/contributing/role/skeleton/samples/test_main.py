@@ -9,7 +9,7 @@ from unittest import mock
 
 import cli.contributing.role.skeleton.samples.__main__ as samples
 from cli.administration.roles.marker import is_placed
-from cli.contributing.role.skeleton.manifest import DATABASES, LOGINS, validate
+from cli.contributing.role.skeleton.manifest import DATABASES, KINDS, LOGINS, validate
 from utils.cache.yaml import load_yaml_any
 
 
@@ -33,6 +33,9 @@ class TestSamples(unittest.TestCase):
 
     def test_the_samples_cover_every_login_choice(self):
         self.assertEqual(set(LOGINS), {manifest.login for manifest in _manifests()})
+
+    def test_the_samples_cover_every_kind(self):
+        self.assertEqual(set(KINDS), {manifest.kind for manifest in _manifests()})
 
 
 class TestPlace(unittest.TestCase):

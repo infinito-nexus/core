@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
 
+[% if kind == "container" %]
 const { assertDesignTokens } = require("./design");
+[% endif %]
 const {
   expectHstsWhenTls,
   ownResponseHeaders,
@@ -11,7 +13,9 @@ const {
   runBiberFlow,
   runGuestFlow,
 } = require("./personas");
+[% if kind == "container" %]
 const { skipUnlessServiceEnabled } = require("./service-gating");
+[% endif %]
 const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -46,11 +50,32 @@ test("front page returns HTML content under canonical domain", async ({ request 
   ).toBe(true);
 });
 
+[% if kind == "static" %]
+test("brand: the page links the brand kit and renders its header and nav", async ({ page }) => {
+  const kit = requireDotenvValue(process.env.BRAND_KIT_PATH, "BRAND_KIT_PATH");
+  await gotoOnion(page, `${appBaseUrl}/`);
+  for (const sheet of ["tokens.css", "brand.css"]) {
+    await expect(page.locator(`link[rel="stylesheet"][href="${kit}/${sheet}"]`)).toHaveCount(1);
+  }
+  await expect(page.locator("header.brand-header")).toHaveCount(1);
+  await expect(page.locator('.brand-nav a[aria-current="page"]')).toHaveCount(1);
+  await expect(page.locator("footer.brand-footer")).toHaveCount(1);
+});
+
+test("cosmos: the sky is on exactly while a cosmos provider serves the site", async ({ page }) => {
+  const provider = process.env.COSMOS_PROVIDER || "";
+  await gotoOnion(page, `${appBaseUrl}/`);
+  const expected = provider ? 1 : 0;
+  await expect(page.locator('script[type="module"][src$="/cosmos.js"]')).toHaveCount(expected);
+  await expect(page.locator("cosmos-sky")).toHaveCount(expected);
+});
+[% else %]
 test("design: the corporate design tokens reach the front page", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   await gotoOnion(page, `${appBaseUrl}/`);
   await assertDesignTokens(page, "[[ title ]]");
 });
+[% endif %]
 
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {
   await runGuestFlow(page);

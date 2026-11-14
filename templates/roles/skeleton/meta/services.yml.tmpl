@@ -1,4 +1,40 @@
 ---
+[% if kind == "static" %]
+# nocheck: playwright-service-flag  self-provider; the static site is served whenever the role runs
+# nocheck: dynamic-flag  self-provider
+[[ entity ]]:
+  modes:
+    host:
+      enabled: true
+  enabled: true
+  shared: true
+  lifecycle: alpha
+  min_storage: 50MB
+  cpus: "0.1"
+  mem_reservation: 16m
+  mem_limit: 32m
+  pids_limit: 32
+# nocheck: dynamic-flag, playwright-service-flag  the site links the brand kit's own tokens.css; the injected default.css would declare the same tokens twice
+# nocheck: design-off  Reason: the site styles itself through the brand kit, so the shared design queue has nothing to style
+design:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: logout  the public site has no SSO session to end
+logout:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: sso  the public site has no account
+sso:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag, playwright-service-flag
+# nocheck: email
+email:
+  enabled: false
+  shared: false
+[% else %]
 # nocheck: garbage-collector-required  no app-specific leftovers known; audit the application's housekeeping before go-live
 [% if database != "none" %]
 # nocheck: seaweedfs-required  the manifest declares no object storage; add seaweedfs once the application stores uploads
@@ -119,10 +155,6 @@ dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
   shared: "{{ 'web-app-dashboard' in group_names }}"
-matomo:
-  bond: 1
-  enabled: "{{ 'web-app-matomo' in group_names }}"
-  shared: "{{ 'web-app-matomo' in group_names }}"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
@@ -140,6 +172,19 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   shared: true
 [% endif %]
 
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+[% endif %]
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage  sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
@@ -151,14 +196,6 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
-
-# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
-semaphore:
-  bond: 0.5
-  enabled: "{{ 'web-app-semaphore' in group_names }}"
-  shared: "{{ 'web-app-semaphore' in group_names }}"
-  control: true
-  status: started
 
 # nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
 stack:

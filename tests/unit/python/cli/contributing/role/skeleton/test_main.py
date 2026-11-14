@@ -43,7 +43,7 @@ class TestSchema(unittest.TestCase):
         _, out, _ = _run(["schema"])
         entries = json.loads(out)
         self.assertTrue(
-            all({"name", "help", "type"} <= set(entry) for entry in entries)
+            all({"name", "help", "type", "kinds"} <= set(entry) for entry in entries)
         )
 
     def test_schema_types_are_string_or_integer(self):

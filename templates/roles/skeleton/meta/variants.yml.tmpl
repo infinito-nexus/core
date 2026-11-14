@@ -7,9 +7,11 @@
     container_backup:
       enabled: true
 [% endif %]
+[% if kind == "container" %]
     dashboard:
       enabled: true
       shared: true
+[% endif %]
 [% if "email" in features %]
     email:
       enabled: true
@@ -41,12 +43,14 @@
     redis:
       shared: true
 [% endif %]
+[% if kind == "container" %]
     prometheus:
       enabled: true
       shared: true
     design:
       enabled: true
       shared: true
+[% endif %]
     tor:
       enabled: true
 - services:
@@ -58,9 +62,11 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
 [% endif %]
+[% if kind == "container" %]
     dashboard:
       enabled: false
       shared: false
+[% endif %]
 [% if "email" in features %]
     email:
       enabled: false
@@ -92,11 +98,13 @@
     redis:
       shared: false
 [% endif %]
+[% if kind == "container" %]
     prometheus:
       enabled: false
       shared: false
     design:
       enabled: false
       shared: false
+[% endif %]
     tor:
       enabled: true
