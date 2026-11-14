@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from utils.domains.default_primary import default_domain_primary
-from utils.env.builder import BuildContext, EnvBuilder
+from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito import domain as handler
 
 DOMAIN = default_domain_primary()

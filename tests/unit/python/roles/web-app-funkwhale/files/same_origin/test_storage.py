@@ -4,8 +4,8 @@ import importlib.util
 import posixpath
 import sys
 import unittest
+import unittest.mock
 from types import ModuleType, SimpleNamespace
-from unittest import mock
 from urllib.parse import parse_qs, quote, urlsplit
 
 from . import PROJECT_ROOT
@@ -117,7 +117,7 @@ def load() -> ModuleType:
     Returns:
         same_origin_storage imported over the stand-ins.
     """
-    with mock.patch.dict(sys.modules, stand_ins()):
+    with unittest.mock.patch.dict(sys.modules, stand_ins()):
         spec = importlib.util.spec_from_file_location(
             "same_origin_storage", MODULE_PATH
         )

@@ -1,11 +1,11 @@
+import contextlib
+import importlib.util
 import unittest
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml  # noqa: F401  # imported only to assert pyyaml is installed
-except ImportError:  # pragma: no cover
-    raise SystemExit("Please `pip install pyyaml` to run this test.") from None
+if importlib.util.find_spec("yaml") is None:  # pragma: no cover
+    raise SystemExit("Please `pip install pyyaml` to run this test.")
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import iter_project_files
@@ -186,13 +186,11 @@ class PureGuardedIncludeTest(unittest.TestCase):
                 continue
             main_path = str(main_path)
             role_name = role_dir.name
-            try:
+            with contextlib.suppress(Exception):
                 tasks = _load_yaml_file(main_path)
                 guards, pure = _is_pure_guarded_tasks_file(tasks)
                 if pure and guards:
                     cls.pure_guarded_roles[role_name] = (guards, main_path)
-            except Exception:
-                pass
 
         cls.tasks_file_cache: dict[str, tuple[list[str], bool]] = {}
 

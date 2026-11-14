@@ -11,14 +11,16 @@ This package contains the in-process cache layers Infinito.Nexus uses to keep CL
 | [base.py](base.py) | Cross-cutting helpers: filesystem constants (`PROJECT_ROOT`, `ROLES_DIR`, `DEFAULT_TOKENS_FILE`), `_deep_merge`, cache-key + content-fingerprint signatures, the cross-domain re-entry guard, and the templar-render machinery. The only ansible-coupled symbol is `_render_with_templar`, which lazy-imports its dependency. |
 | [applications.py](applications.py) | Per-app variants + defaults + `get_merged_applications`. **Strictly ansible-free at import time** so the GitHub Actions runner-host CLI path (`cli.administration.deploy.development.init` → `plan_dev_inventory_matrix` → `get_variants`) keeps working without ansible installed. |
 | [carrier.py](carrier.py) | The play-scoped carriers of the rendered applications and users payloads: the fact names `_INFINITO_APPLICATIONS_RENDERED` and `_INFINITO_USERS_RENDERED`, `merged_applications_cache_key`, `merged_users_cache_key`, and the readers `get_merged_applications` and `get_merged_users` consult before they render. |
-| `users/` | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass; `users/store.py` reads the `sys_token_store_users` fact and digests the tokens the users are hydrated from, the digest the users cache and users carrier keys share). |
+| [tokens.py](tokens.py) | The token store the users are hydrated from: `resolve_tokens_file`, `load_store_users`, the `sys_token_store_users` fact and the digest the users cache and users carrier keys share (`store_signature`). |
+| `users/` | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass). |
 | [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. A read issued while the applications render is in progress (the re-entry guard is set) sees the unrendered view, so it is cached under its own key and never answers a later read. |
-| [`__init__.py`](__init__.py) | Owns the package-level `_reset_cache_for_tests()` orchestrator that clears every cache plus the shared fingerprint memo in one call. |
+| [`__init__.py`](__init__.py) | Owns `PROJECT_ROOT` and `ROLES_DIR` and imports nothing, so every module can read them without importing a cache. |
+| [reset.py](reset.py) | Owns the `_reset_cache_for_tests()` orchestrator that clears every cache plus the shared fingerprint memo in one call. |
 
 ## When To Use Which 🎯
 
 - Use `utils.cache.yaml.load_yaml(path)` (or `load_yaml_any(path)` when the YAML root is a list or scalar) whenever a CLI tool, filter, or library reads individual YAML files where the same path MAY be touched repeatedly within a single invocation.
-- Import the cached getters directly from the domain module that owns them: `utils.cache.applications` for `get_application_defaults` / `get_variants` / `get_merged_applications`, `utils.cache.users` for `get_user_defaults` / `get_merged_users`, and `utils.cache.domains` for `get_merged_domains`. The package's `_reset_cache_for_tests` is exposed at `from utils.cache import _reset_cache_for_tests`.
+- Import the cached getters directly from the domain module that owns them: `utils.cache.applications` for `get_application_defaults` / `get_variants` / `get_merged_applications`, `utils.cache.users` for `get_user_defaults` / `get_merged_users`, and `utils.cache.domains` for `get_merged_domains`. The cache-wide `_reset_cache_for_tests` is exposed at `from utils.cache.reset import _reset_cache_for_tests`.
 
 The layers are orthogonal: `yaml.py` caches "this file's parsed root", the `applications`/`users`/`domains` modules cache "this aggregated, rendered payload". They do not invalidate each other and MAY both be active at the same time.
 
@@ -32,7 +34,7 @@ While one render runs, the re-entry guard also holds that render's unrendered vi
 
 ## Test-Only Helpers 🧪
 
-Each module owns a private `_reset()` that clears its own cache dicts. The package-level `utils.cache._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Unit tests that exercise the cached paths MUST call it in `setUp` to guarantee clean state across test cases.
+Each module owns a private `_reset()` that clears its own cache dicts. `utils.cache.reset._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Unit tests that exercise the cached paths MUST call it in `setUp` to guarantee clean state across test cases.
 
 ## Design Guidelines 📐
 
@@ -55,7 +57,7 @@ from utils.cache.users import get_merged_users, get_user_defaults
 from utils.cache.domains import get_merged_domains
 
 # Tests
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 ```
 
 ## Schema 🗺️

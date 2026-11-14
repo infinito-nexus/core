@@ -17,8 +17,8 @@ import re
 import shlex
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
@@ -27,9 +27,9 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from plugins.lookup.config import LookupModule
-from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
 from utils.cache.files import iter_project_files_with_content, read_text
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.config import AppConfigKeyError
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
@@ -137,7 +137,7 @@ def _resolve(name: str, scenario: dict):
     templar = Templar(
         loader=DataLoader(), variables={**declared, "entity_name": "wordpress"}
     )
-    with mock.patch.object(lookup_loader, "get", side_effect=get):
+    with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
         return templar.template(declared[name])
 
 

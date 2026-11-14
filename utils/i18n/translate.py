@@ -12,13 +12,13 @@ from utils.i18n.catalog import (
     is_machine_translation,
     machine_translation,
 )
-from utils.i18n.placeholders import (
+from utils.i18n.damage import (
     COLLAPSE_FLOOR,
     MAX_SHARING_SOURCES,
-    Rejected,
     harms,
     protected_spans,
 )
+from utils.i18n.placeholders import Rejected
 from utils.i18n.spans import prose
 
 if TYPE_CHECKING:

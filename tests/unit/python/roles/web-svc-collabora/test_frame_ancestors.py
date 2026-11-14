@@ -3,7 +3,6 @@ from __future__ import annotations
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from jinja2 import StrictUndefined
 from jinja2.nativetypes import NativeEnvironment
@@ -76,8 +75,8 @@ def frame_ancestors(domains, siblings):
 
     expression = load_yaml_str(read_text(str(VARS)))["COLLABORA_FRAME_ANCESTORS"]
     with (
-        patch("plugins.lookup.tls.lookup_loader") as tls_loader,
-        patch("plugins.lookup.network_urls.lookup_loader") as urls_loader,
+        mock.patch("plugins.lookup.tls.lookup_loader") as tls_loader,
+        mock.patch("plugins.lookup.network_urls.lookup_loader") as urls_loader,
     ):
         tls_loader.get.side_effect = _tls_loader
         urls_loader.get.side_effect = _network_urls_loader

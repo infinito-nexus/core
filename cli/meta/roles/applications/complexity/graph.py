@@ -10,7 +10,6 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     is_explicit_truth,
 )
-from utils.roles.deploy import role_has_stack  # noqa: F401 - re-exported for callers
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:

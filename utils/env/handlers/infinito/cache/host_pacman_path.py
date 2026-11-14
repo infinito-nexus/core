@@ -10,7 +10,7 @@ from utils.env.parser import parse_static_env
 from utils.env.runtime import run_helper
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CACHE_HOST_PACMAN_PATH"
 COMMENT = "Pacman cache of an Arch Linux host an arch stack mounts read-only at the same path; empty on every other host or stack."
