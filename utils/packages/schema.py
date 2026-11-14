@@ -78,6 +78,15 @@ the package manager. ``checksum`` is mandatory: the URL alone would install
 whatever the vendor serves today, and a mismatch must abort the fetch
 rather than reach the package manager.
 
+``download.repo_files`` lists the repository definitions the artefact's
+install script registers, each a file directly under one of
+:data:`VENDOR_REPO_DIRS`; they are removed right after the install::
+
+    download:
+      url: https://downloads.cursor.com/.../cursor-3.27.6.el8.x86_64.rpm
+      checksum: sha256:f06d4f...
+      repo_files: [/etc/yum.repos.d/cursor.repo]
+
 A bare list is shorthand for ``{names: [...], source: repo}``. An empty
 list states that the package is deliberately not installed on that family,
 which counts as covered; a *missing* key is a coverage gap.
@@ -110,6 +119,7 @@ file, so the batch knows to install it with the role::
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 from typing import TYPE_CHECKING, Any
 
 from utils.distros import distro_family
@@ -155,6 +165,8 @@ which is the only upstream channel for much of the desktop set on EL."""
 DOWNLOAD_CHECKSUM_PREFIXES: tuple[str, ...] = ("sha256:", "sha512:")
 """Digest algorithms strong enough to pin a vendor artefact. ``get_url``
 also accepts md5 and sha1, which a prefix check must keep out."""
+
+VENDOR_REPO_DIRS: tuple[str, ...] = ("/etc/apt/sources.list.d", "/etc/yum.repos.d")
 
 REPO_KEYS: frozenset[str] = frozenset(
     {
@@ -284,6 +296,22 @@ def _validate_download(
             f"{path}: {package_id}.{key}.download.checksum must be one of "
             f"{sorted(DOWNLOAD_CHECKSUM_PREFIXES)} followed by the digest; "
             "without it the URL installs whatever the vendor serves today."
+        )
+    _validate_repo_files(package_id, key, download.get("repo_files", []), path)
+
+
+def _validate_repo_files(
+    package_id: str, key: str, repo_files: Any, path: Path
+) -> None:
+    if not isinstance(repo_files, list) or any(
+        not isinstance(repo_file, str)
+        or PurePosixPath(repo_file).parent.as_posix() not in VENDOR_REPO_DIRS
+        for repo_file in repo_files
+    ):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.download.repo_files must list files "
+            f"directly under {sorted(VENDOR_REPO_DIRS)}, got {repo_files!r}; "
+            "each one is removed as root after the install."
         )
 
 

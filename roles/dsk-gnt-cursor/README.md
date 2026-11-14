@@ -13,4 +13,5 @@ The role therefore installs the editor and leaves the endpoint override to the o
 ## Features
 
 - **Installed, not faked:** the editor is provisioned; the endpoint override stays a documented operator step.
-- **Arch today:** the vendor ships neither a Debian nor an RPM repository, so only the Arch build is wired up.
+- **Pinned on every distribution:** Arch installs the AUR build; Debian and RedHat install the vendor's pinned `.deb` or `.rpm` by checksum.
+- **No vendor repository left behind:** both packages register the vendor's APT or DNF repository on install; the role removes it again, so system updates never depend on it and never move Cursor past the pin.
