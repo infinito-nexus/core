@@ -48,6 +48,10 @@ it. Types:
 on Docker Hub), `strip: true` removes it again so a pin without the upstream's
 `v` stays without it.
 
+A pin whose asset is fetched by digest names its companion checksum beside the
+type (`checksum_key`, `checksum_url`), see
+[checksum.py](../../../utils/update/checksum.py).
+
 A `repository` + `ref` pin that declares a source with `key: ref` is bumped
 from that source alone, the repository updater skips it. A bump to a name the
 repository lists as neither branch nor tag
