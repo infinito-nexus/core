@@ -6,17 +6,21 @@ http_port: "{{ lookup('config', application_id, 'services.worldmonitor.ports.loc
 
 WORLDMONITOR_CONTAINER: "{{ lookup('config', application_id, 'services.worldmonitor.name') }}"
 WORLDMONITOR_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.worldmonitor.ports.internal.http') }}"
-WORLDMONITOR_APP_DOCKERFILE: "Dockerfile"
+WORLDMONITOR_DOCKERFILES: "{{ lookup('config', application_id, 'services.stack.checkout.build.dockerfiles') }}"
+WORLDMONITOR_APP_DOCKERFILE: "{{ WORLDMONITOR_DOCKERFILES['worldmonitor'] }}"
 WORLDMONITOR_SEEDER_TARGET: "builder"
 
 WORLDMONITOR_RELAY_CONTAINER: "{{ lookup('config', application_id, 'services.ais-relay.name') }}"
 WORLDMONITOR_RELAY_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.ais-relay.ports.internal.http') }}"
-WORLDMONITOR_RELAY_DOCKERFILE: "Dockerfile.relay"
+WORLDMONITOR_RELAY_DOCKERFILE: "{{ WORLDMONITOR_DOCKERFILES['ais-relay'] }}"
 
 WORLDMONITOR_REST_CONTAINER: "{{ lookup('config', application_id, 'services.redis-rest.name') }}"
 WORLDMONITOR_REST_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.redis-rest.ports.internal.http') }}"
-WORLDMONITOR_REST_CONTEXT: "{{ [compose_repository_path, 'docker'] | path_join }}"
-WORLDMONITOR_REST_DOCKERFILE: "Dockerfile.redis-rest"
+WORLDMONITOR_REST_CONTEXT: "{{ [compose_repository_path, WORLDMONITOR_DOCKERFILES['redis-rest'] | dirname] | path_join }}"
+WORLDMONITOR_REST_DOCKERFILE: "{{ WORLDMONITOR_DOCKERFILES['redis-rest'] | basename }}"
+
+WORLDMONITOR_NODE_FROM: "{{ lookup('config', application_id, 'services.stack.checkout.build.bases.node') }}"
+WORLDMONITOR_NODE_IMAGE: "{{ lookup('image', application_id, 'node', tag_only=True) }}"
 
 WORLDMONITOR_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
 WORLDMONITOR_CACHE_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.cache.ports.internal.redis') }}"

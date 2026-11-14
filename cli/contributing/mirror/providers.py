@@ -4,6 +4,7 @@ import subprocess
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from utils.docker.image.pin import pull_reference
 from utils.docker.mirror import mirror_image_base
 from utils.docker.registry import manifest_digest
 
@@ -25,6 +26,14 @@ class RegistryProvider(ABC):
     @abstractmethod
     def tag_exists(self, image: ImageRef) -> bool:
         pass
+
+    def image_ref(self, image: ImageRef) -> str:
+        """Return the mirror reference of ``image``, pinned like its upstream.
+
+        Args:
+            image: the upstream image, pinned by tag or by digest.
+        """
+        return pull_reference(self.image_base(image), image.version)
 
 
 class GHCRProvider(RegistryProvider):
@@ -62,7 +71,7 @@ class GHCRProvider(RegistryProvider):
         tag exists and non-zero when it does not exist or cannot be accessed
         (auth/network).
         """
-        dest = f"{self.image_base(image)}:{image.version}"
+        dest = self.image_ref(image)
         r = subprocess.run(
             ["skopeo", "inspect", f"docker://{dest}"],
             check=False,
@@ -122,7 +131,7 @@ class GHCRProvider(RegistryProvider):
         )
 
     def mirror(self, image: ImageRef) -> None:
-        dest = f"{self.image_base(image)}:{image.version}"
+        dest = self.image_ref(image)
         src = f"docker://{image.source}"
 
         try:
@@ -167,7 +176,7 @@ class GiteaProvider(RegistryProvider):
         tag exists and non-zero when it does not exist or cannot be accessed
         (auth/network).
         """
-        dest = f"{self.image_base(image)}:{image.version}"
+        dest = self.image_ref(image)
         r = subprocess.run(
             ["skopeo", "inspect", f"docker://{dest}"],
             check=False,
@@ -177,7 +186,7 @@ class GiteaProvider(RegistryProvider):
         return r.returncode == 0
 
     def mirror(self, image: ImageRef) -> None:
-        dest = f"{self.image_base(image)}:{image.version}"
+        dest = self.image_ref(image)
         src = f"docker://{image.source}"
 
         cmd = [

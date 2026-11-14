@@ -50,7 +50,7 @@ def main() -> int:
 
     refs: dict[str, ImageRef] = {}
     for img in chain(iter_role_images(repo_root), iter_runner_images(repo_root)):
-        refs.setdefault(f"{provider.image_base(img)}:{img.version}", img)
+        refs.setdefault(provider.image_ref(img), img)
 
     total = len(refs)
     if total == 0:

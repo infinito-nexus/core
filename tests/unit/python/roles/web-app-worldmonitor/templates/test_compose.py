@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import posixpath
 import unittest
 from pathlib import Path, PurePosixPath
 from unittest import mock
@@ -15,6 +16,7 @@ from plugins.lookup.container_ports import LookupModule as ContainerPortsLookup
 from plugins.lookup.image import LookupModule as ImageLookup
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.docker.image.discovery import iter_role_images
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_TEMPL_COMPOSE,
@@ -41,6 +43,18 @@ REGISTRY = {"host": "registry.example", "port": "5000"}
 PREFIX = {"compose": "", "swarm": "registry.example:5000/"}
 BUILT = ("worldmonitor", "ais-relay", "redis-rest", "seeder")
 UNPUBLISHED = ("ais-relay", "redis-rest", "cache", "seeder")
+UPSTREAM_FROM = "node:24-alpine@sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
+NODE_CONTEXT = {UPSTREAM_FROM: f"docker-image://node@{SERVICES['node']['version']}"}
+BUILD = SERVICES["stack"]["checkout"]["build"]
+BUILD_VARS = (
+    "WORLDMONITOR_DOCKERFILES",
+    "WORLDMONITOR_APP_DOCKERFILE",
+    "WORLDMONITOR_RELAY_DOCKERFILE",
+    "WORLDMONITOR_REST_CONTEXT",
+    "WORLDMONITOR_REST_DOCKERFILE",
+    "WORLDMONITOR_NODE_FROM",
+    "WORLDMONITOR_NODE_IMAGE",
+)
 AUTH_BYPASS_FLAGS = ("I_UNDERSTAND_THIS_DISABLES_AUTH", "ALLOW_UNAUTHENTICATED_RELAY")
 
 INCLUDES = {
@@ -67,19 +81,24 @@ def _environment() -> Environment:
         loader=DictLoader(INCLUDES),
     )
     env.filters["path_join"] = lambda parts: str(PurePosixPath(*parts))
+    env.filters["dirname"] = posixpath.dirname
+    env.filters["basename"] = posixpath.basename
     return env
 
 
-def _var(name: str) -> str:
-    """Render one ``vars/main.yml`` value that depends only on the clone path.
+def _evaluate(env: Environment, value: str, context: dict):
+    """Evaluate one single-expression ``vars/main.yml`` value to its native type.
 
     Args:
-        name: the variable name in ``vars/main.yml``.
+        env: the environment whose filters and lookup the value uses.
+        value: the ``{{ ... }}`` string from ``vars/main.yml``.
+        context: the variables the expression reads.
 
     Returns:
-        The rendered value.
+        The value the expression yields.
     """
-    return _environment().from_string(VARS[name]).render(compose_repository_path=CLONE)
+    expression = value.strip().removeprefix("{{").removesuffix("}}")
+    return env.compile_expression(expression)(**context)
 
 
 def render(mode: str) -> dict:
@@ -113,29 +132,33 @@ def render(mode: str) -> dict:
         "compose_only": ComposeOnlyLookup,
         "container_image": ContainerImageLookup,
         "container_ports": ContainerPortsLookup,
+        "image": ImageLookup,
     }
 
-    def lookup(name, *terms, **_kwargs):
+    def lookup(name, *terms, **kwargs):
         if name in live:
-            return live[name]().run(list(terms), variables=variables)[0]
+            return live[name]().run(list(terms), variables=variables, **kwargs)[0]
+        if name == "config":
+            node = applications[terms[0]]
+            for part in terms[1].split("."):
+                node = node[part]
+            return env.from_string(node).render() if isinstance(node, str) else node
         if name == "service_memory_mb":
             return "256"
         return ""
 
     env = _environment()
     env.globals["lookup"] = lookup
+    context = {"application_id": APP, "compose_repository_path": CLONE}
     with mock.patch.object(lookup_loader, "get", side_effect=get):
+        for name in BUILD_VARS:
+            context[name] = _evaluate(env, VARS[name], context)
         rendered = env.from_string(
             read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
         ).render(
-            application_id=APP,
-            compose_repository_path=CLONE,
+            **context,
             DOCKER_BIND_HOST=BIND_HOST,
-            WORLDMONITOR_APP_DOCKERFILE=VARS["WORLDMONITOR_APP_DOCKERFILE"],
             WORLDMONITOR_SEEDER_TARGET=VARS["WORLDMONITOR_SEEDER_TARGET"],
-            WORLDMONITOR_RELAY_DOCKERFILE=VARS["WORLDMONITOR_RELAY_DOCKERFILE"],
-            WORLDMONITOR_REST_CONTEXT=_var("WORLDMONITOR_REST_CONTEXT"),
-            WORLDMONITOR_REST_DOCKERFILE=VARS["WORLDMONITOR_REST_DOCKERFILE"],
             WORLDMONITOR_CONTAINER=SERVICES["worldmonitor"]["name"],
             WORLDMONITOR_RELAY_CONTAINER=SERVICES["ais-relay"]["name"],
             WORLDMONITOR_REST_CONTAINER=SERVICES["redis-rest"]["name"],
@@ -168,6 +191,20 @@ class TestPinnedSource(unittest.TestCase):
                 self.assertTrue(SERVICES[name]["custom"])
                 self.assertEqual(SERVICES[name]["version"], version)
 
+    def test_the_image_discovery_lists_the_node_base_by_digest(self) -> None:
+        refs = [
+            ref
+            for ref in iter_role_images(PROJECT_ROOT)
+            if ref.role == APP and ref.service == "node"
+        ]
+        digest = SERVICES["node"]["version"]
+        self.assertEqual(len(refs), 1)
+        self.assertEqual(refs[0].version, digest)
+        self.assertEqual(refs[0].source, f"docker.io/library/node@{digest}")
+
+    def test_the_only_declared_build_base_is_the_pinned_node_entity(self) -> None:
+        self.assertEqual(list(BUILD["bases"]), ["node"])
+
 
 class TestComposeBuilds(unittest.TestCase):
     def setUp(self) -> None:
@@ -178,26 +215,49 @@ class TestComposeBuilds(unittest.TestCase):
             with self.subTest(mode=mode):
                 self.assertEqual(
                     services["worldmonitor"]["build"],
-                    {"context": CLONE, "dockerfile": "Dockerfile"},
+                    {
+                        "context": CLONE,
+                        "dockerfile": "Dockerfile",
+                        "additional_contexts": NODE_CONTEXT,
+                    },
                 )
 
     def test_the_other_images_build_from_the_same_clone(self) -> None:
         expected = {
-            "ais-relay": {"context": CLONE, "dockerfile": "Dockerfile.relay"},
+            "ais-relay": {
+                "context": CLONE,
+                "dockerfile": "Dockerfile.relay",
+                "additional_contexts": NODE_CONTEXT,
+            },
             "redis-rest": {
                 "context": f"{CLONE}/docker",
                 "dockerfile": "Dockerfile.redis-rest",
+                "additional_contexts": NODE_CONTEXT,
             },
             "seeder": {
                 "context": CLONE,
                 "dockerfile": "Dockerfile",
                 "target": "builder",
+                "additional_contexts": NODE_CONTEXT,
             },
         }
         for mode, services in self.services.items():
             for name, build in expected.items():
                 with self.subTest(mode=mode, service=name):
                     self.assertEqual(services[name]["build"], build)
+
+    def test_the_base_guard_reads_every_dockerfile_a_build_uses(self) -> None:
+        declared = {
+            str(PurePosixPath(CLONE, path)) for path in BUILD["dockerfiles"].values()
+        }
+        for mode, services in self.services.items():
+            built = {
+                str(PurePosixPath(build["context"], build["dockerfile"]))
+                for build in (service.get("build") for service in services.values())
+                if build
+            }
+            with self.subTest(mode=mode):
+                self.assertEqual(built, declared)
 
     def test_every_image_is_the_pinned_local_build(self) -> None:
         version = SERVICES["worldmonitor"]["version"]

@@ -41,6 +41,8 @@
     {% for openbao_claim_mapping in OPENBAO_OIDC_CLAIM_MAPPINGS %}claim_mappings={{ openbao_claim_mapping | quote }} {% endfor %}
     oidc_scopes=openid,profile,email
     token_policies=default
+    token_ttl=30m
+    token_max_ttl=10h
     allowed_redirect_uris={{ OPENBAO_OIDC_REDIRECT_URIS | quote }} >/dev/null;
     after=$(bao read -format=json $p | grep -v request_id);
     [ "$before" = "$after" ] || echo OPENBAO_CHANGED'

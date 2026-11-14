@@ -52,6 +52,8 @@
     compose_repository_url: "{{ stack_backend_checkout_url }}"
     compose_repository_ref: "{{ stack_backend_checkout_ref }}"
     compose_repository_recursive: "{{ stack_backend_checkout_recursive }}"
+    compose_repository_bases: "{{ stack_backend_checkout_bases }}"
+    compose_repository_dockerfiles: "{{ stack_backend_checkout_dockerfiles }}"
 
 - name: "📄 For '{{ application_id }}': render the web-app-keycloak SSO-proxy sidecar config"
   include_tasks: "{{ lookup('path_absolute', 'roles/web-app-keycloak/tasks/sso_proxy.yml') }}"

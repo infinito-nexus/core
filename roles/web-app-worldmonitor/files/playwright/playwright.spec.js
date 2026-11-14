@@ -12,4 +12,5 @@ test.beforeEach(async ({ page }) => {
 
 require("./test-guest").register(shared);
 require("./test-oidc-login").register(shared);
+require("./test-live-updates").register(shared);
 require("./test-isolation").register(shared);

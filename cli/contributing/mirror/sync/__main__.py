@@ -85,7 +85,7 @@ def main() -> int:
     for img in chain(iter_role_images(repo_root), iter_runner_images(repo_root)):
         total += 1
         src = f"docker://{img.source}"
-        dest = f"docker://{provider.image_base(img)}:{img.version}"
+        dest = f"docker://{provider.image_ref(img)}"
         label = f"{img.role}:{img.service} ({img.name}:{img.version})"
 
         try:

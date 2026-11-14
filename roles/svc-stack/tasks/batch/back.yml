@@ -27,6 +27,8 @@
     stack_backend_checkout_url: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.url', '') }}"
     stack_backend_checkout_ref: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.ref', '') }}"
     stack_backend_checkout_recursive: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.recursive', true) | bool }}"
+    stack_backend_checkout_bases: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.build.bases', {}) }}"
+    stack_backend_checkout_dockerfiles: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.build.dockerfiles', {}) }}"
   when: >-
     (lookup('fileglob', (stack_batch_consumer | abs_role_path_by_application_id) ~ '/templates/compose.yml.j2', wantlist=True) | length > 0)
     or (lookup('config', stack_batch_consumer, 'services.stack.checkout.url', '') | length > 0)

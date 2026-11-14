@@ -41,22 +41,29 @@ def _child(node, key: str):
     )
 
 
+def _scalars(node) -> list[tuple[int, str]]:
+    if isinstance(node, yaml.ScalarNode):
+        return [(node.start_mark.line + 1, node.value)]
+    if isinstance(node, yaml.MappingNode):
+        return [found for _name, value in node.value for found in _scalars(value)]
+    if isinstance(node, yaml.SequenceNode):
+        return [found for item in node.value for found in _scalars(item)]
+    return []
+
+
 def checkout_values(text: str) -> list[tuple[int, str]]:
     """
     Args:
         text: the content of a ``meta/services.yml``.
 
     Returns:
-        ``(line, value)`` of every scalar under ``stack.checkout``.
+        ``(line, value)`` of every scalar under ``stack.checkout``, nested
+        ones included.
     """
     checkout = _child(_child(yaml.compose(text), STACK_KEY), CHECKOUT_KEY)
     if not isinstance(checkout, yaml.MappingNode):
         return []
-    return [
-        (value.start_mark.line + 1, value.value)
-        for _name, value in checkout.value
-        if isinstance(value, yaml.ScalarNode)
-    ]
+    return _scalars(checkout)
 
 
 def _services_files() -> list:
@@ -108,6 +115,21 @@ class TestStackVarsResolveInTheirOwnRole(unittest.TestCase):
         self.assertEqual(
             [line for line, value in checkout_values(text) if reads_the_scope(value)],
             [4],
+        )
+
+    def test_a_nested_build_value_reading_the_scope_is_found(self) -> None:
+        text = (
+            "stack:\n"
+            "  checkout:\n"
+            "    build:\n"
+            "      bases:\n"
+            "        node: \"node@{{ lookup('config', application_id, 'services.node.version') }}\"\n"
+            "      dockerfiles:\n"
+            "        app: Dockerfile\n"
+        )
+        self.assertEqual(
+            [line for line, value in checkout_values(text) if reads_the_scope(value)],
+            [5],
         )
 
 

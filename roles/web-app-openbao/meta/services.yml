@@ -14,6 +14,12 @@ logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag  the UI logout must revoke the token on every deployment, with or without a co-deployed logout role
+# nocheck: playwright-service-flag  runtime logout hook without a probe-able surface flag, asserted by test-logout.js
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
