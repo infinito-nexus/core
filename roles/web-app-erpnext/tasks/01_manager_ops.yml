@@ -83,3 +83,5 @@
   when: ERPNEXT_EMAIL_ENABLED
 - name: "🎨 converge corporate design"
   include_tasks: 05_design.yml
+- name: "🧮 pin the rounding settings"
+  include_tasks: 06_rounding.yml

@@ -57,6 +57,8 @@ ERPNEXT_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.erpne
 ERPNEXT_SYSTEM_SETTINGS: "{{ lookup('form_values', application_id, 'system_settings') }}"
 ERPNEXT_WEBSITE_SETTINGS: "{{ lookup('form_values', application_id, 'website_settings') }}"
 ERPNEXT_BRANDING: "{{ lookup('form_values', application_id, 'branding') }}"
+ERPNEXT_SYSTEM_ROUNDING: "{{ lookup('form_values', application_id, 'system_rounding') }}"
+ERPNEXT_ACCOUNTS_ROUNDING: "{{ lookup('form_values', application_id, 'accounts_rounding') }}"
 
 ERPNEXT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 ERPNEXT_DESIGN_LOGO_ENABLED: "{{ ERPNEXT_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"

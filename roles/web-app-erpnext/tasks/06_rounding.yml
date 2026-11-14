@@ -1,0 +1,15 @@
+---
+- name: "⬇️ Read the rounding settings {{ application_id }} holds"
+  ansible.builtin.include_tasks: utils/rounding.yml
+  vars:
+    erpnext_rounding_mode: read
+
+- name: "📣 Report the rounding settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ erpnext_rounding_result.stdout_lines | last | from_json }}"
+
+- name: "🧮 Pin the rounding settings of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/rounding.yml
+  vars:
+    erpnext_rounding_mode: converge

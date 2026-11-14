@@ -92,6 +92,9 @@ erpnext:
     abbr: "{{ service_provider.company.titel.split() | map('first') | join | upper }}"
   title: "{{ lookup('design', 'web-app-erpnext').title }}"
   server_scripts: false
+  rounding:
+    method: "Banker's Rounding"
+    row_wise_tax: false
   api_bot:
     extra_roles: []
   run_after:

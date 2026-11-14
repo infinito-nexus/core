@@ -24,6 +24,28 @@ system_settings:
       type: checkbox
       map: {true: 0, false: 1}
       label: Disable Username/Password Login
+system_rounding:
+  path: /app/system-settings
+  sinks: [ERPNEXT_SYSTEM_ROUNDING]
+  fields:
+    rounding_method:
+      source: services.erpnext.rounding.method
+      mode: enforced
+      selector: 'select[data-doctype="System Settings"][data-fieldname="rounding_method"]'
+      type: select
+      enum: ["Banker's Rounding (legacy)", "Banker's Rounding", "Commercial Rounding"]
+      label: Rounding Method
+accounts_rounding:
+  path: /app/accounts-settings
+  sinks: [ERPNEXT_ACCOUNTS_ROUNDING]
+  fields:
+    round_row_wise_tax:
+      source: services.erpnext.rounding.row_wise_tax
+      mode: enforced
+      selector: 'input[data-doctype="Accounts Settings"][data-fieldname="round_row_wise_tax"]'
+      type: checkbox
+      map: {true: 1, false: 0}
+      label: Round tax amount row-wise
 website_settings:
   path: /app/website-settings
   sinks: [ERPNEXT_WEBSITE_SETTINGS]

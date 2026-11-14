@@ -1,0 +1,22 @@
+---
+# Param erpnext_rounding_mode: read prints the rounding fields ERPNext holds as one JSON line; converge writes the pinned rounding fields that differ.
+# Output erpnext_rounding_result: the registered run of rounding.py.
+
+- name: "🧮 {{ erpnext_rounding_mode | capitalize }} the ERPNext rounding settings"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e ROUNDING_MODE -e SYSTEM_ROUNDING -e ACCOUNTS_ROUNDING
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/rounding.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    ROUNDING_MODE: "{{ erpnext_rounding_mode }}"
+    SYSTEM_ROUNDING: "{{ ERPNEXT_SYSTEM_ROUNDING | to_json }}"
+    ACCOUNTS_ROUNDING: "{{ ERPNEXT_ACCOUNTS_ROUNDING | to_json }}"
+  register: erpnext_rounding_result
+  changed_when: >-
+    erpnext_rounding_mode == 'converge'
+    and (erpnext_rounding_result.stdout_lines | last | from_json).changed | length > 0

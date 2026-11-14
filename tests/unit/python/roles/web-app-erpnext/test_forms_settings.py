@@ -14,8 +14,15 @@ from unittest import mock
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.applications.forms import locks
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 
@@ -25,15 +32,21 @@ LOGIN_TASKS = ROLE / "tasks" / "01_manager_ops.yml"
 DESIGN_SCRIPT = ROLE / "files" / "python" / "apply" / "design_settings.py"
 DESIGN_TASKS = ROLE / "tasks" / "05_design.yml"
 DESIGN_CALL = ROLE / "tasks" / "utils" / "design_settings.yml"
+ROUNDING_TASKS = ROLE / "tasks" / "06_rounding.yml"
+ROUNDING_CALL = ROLE / "tasks" / "utils" / "rounding.yml"
 DRIFT = "tasks/utils/forms/drift.yml"
 SHARED_RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
 DOCTYPES = {
     "system_settings": "System Settings",
+    "system_rounding": "System Settings",
+    "accounts_rounding": "Accounts Settings",
     "website_settings": "Website Settings",
     "branding": "Website Settings",
 }
 SINKS = {
     "system_settings": "ERPNEXT_SYSTEM_SETTINGS",
+    "system_rounding": "ERPNEXT_SYSTEM_ROUNDING",
+    "accounts_rounding": "ERPNEXT_ACCOUNTS_ROUNDING",
     "website_settings": "ERPNEXT_WEBSITE_SETTINGS",
     "branding": "ERPNEXT_BRANDING",
 }
@@ -41,10 +54,19 @@ ENVIRONMENT = {
     "SYSTEM_SETTINGS": "ERPNEXT_SYSTEM_SETTINGS",
     "WEBSITE_SETTINGS": "ERPNEXT_WEBSITE_SETTINGS",
 }
+ROUNDING_ENVIRONMENT = {
+    "SYSTEM_ROUNDING": "ERPNEXT_SYSTEM_ROUNDING",
+    "ACCOUNTS_ROUNDING": "ERPNEXT_ACCOUNTS_ROUNDING",
+}
+ROUNDING_FIELDS = {
+    "system_rounding": "rounding_method",
+    "accounts_rounding": "round_row_wise_tax",
+}
+INPUT_TAGS = {"select": "select"}
 
 
 def _forms() -> dict:
-    return load_yaml_any(str(ROLE / "meta" / "forms.yml"))
+    return load_yaml_any(str(ROLE / ROLE_FILE_META_FORMS))
 
 
 def _application(native: bool, email: bool, second: bool, registration: bool):
@@ -63,6 +85,13 @@ def _application(native: bool, email: bool, second: bool, registration: bool):
             },
         },
     }
+
+
+def _rounding_application(rounding: dict) -> dict:
+    application = _application(True, False, True, False)
+    application["services"]["erpnext"]["rounding"] = rounding
+    application["services"]["design"] = {"enabled": False}
+    return application
 
 
 def _design_application(design: bool, title) -> dict:
@@ -205,14 +234,15 @@ class TestTheSinksCarryTheStoredValues(unittest.TestCase):
             )
             for field, spec in block["fields"].items():
                 with self.subTest(form=form, field=field):
+                    tag = INPUT_TAGS.get(spec.get("type"), "input")
                     self.assertEqual(
-                        f'input[data-doctype="{DOCTYPES[form]}"]'
+                        f'{tag}[data-doctype="{DOCTYPES[form]}"]'
                         f'[data-fieldname="{field}"]',
                         spec["selector"],
                     )
 
     def test_the_sinks_read_only_their_forms(self) -> None:
-        definitions = load_yaml_any(str(ROLE / "vars" / "main.yml"))
+        definitions = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
         for form, sink in SINKS.items():
             with self.subTest(sink=sink):
                 self.assertEqual(
@@ -221,12 +251,66 @@ class TestTheSinksCarryTheStoredValues(unittest.TestCase):
                 )
 
     def test_the_renderer_locks_the_fields(self) -> None:
-        services = load_yaml_any(str(ROLE / "meta" / "services.yml"))
+        services = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
         self.assertIs(True, services["javascript"]["enabled"])
         self.assertIn(
             SHARED_RENDERER,
-            (ROLE / "templates" / "javascript.js.j2").read_text(encoding="utf-8"),
+            read_text(str(ROLE / "templates" / "javascript.js.j2")),
         )
+
+
+class TestTheRoundingIsPinnedAndLocked(unittest.TestCase):
+    def test_the_role_pins_bankers_rounding_and_rounds_tax_per_document(
+        self,
+    ) -> None:
+        services = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
+        application = {"forms": _forms(), "services": services}
+        self.assertEqual(
+            {"rounding_method": "Banker's Rounding"},
+            values("system_rounding", _forms(), application, {}),
+        )
+        self.assertEqual(
+            {"round_row_wise_tax": 0},
+            values("accounts_rounding", _forms(), application, {}),
+        )
+
+    def test_an_inventory_override_reaches_the_value_erpnext_stores(self) -> None:
+        application = _rounding_application(
+            {"method": "Commercial Rounding", "row_wise_tax": True}
+        )
+        self.assertEqual(
+            {"rounding_method": "Commercial Rounding"},
+            values("system_rounding", _forms(), application, {}),
+        )
+        self.assertEqual(
+            {"round_row_wise_tax": 1},
+            values("accounts_rounding", _forms(), application, {}),
+        )
+
+    def test_the_renderer_locks_both_fields_with_their_inventory_path(self) -> None:
+        application = _rounding_application(
+            {"method": "Banker's Rounding", "row_wise_tax": False}
+        )
+        locked = {
+            entry["selector"]: entry
+            for entry in locks(ROLE.name, _forms(), application, {}, {})
+        }
+        for form, field in ROUNDING_FIELDS.items():
+            with self.subTest(form=form):
+                block = _forms()[form]
+                spec = block["fields"][field]
+                self.assertEqual("enforced", spec["mode"])
+                entry = locked[spec["selector"]]
+                self.assertEqual(block["path"], entry["page"])
+                self.assertEqual(
+                    f"applications.{ROLE.name}.{spec['source']}", entry["path"]
+                )
+                self.assertFalse(entry["secret"])
+
+    def test_the_pinned_method_is_one_frappe_offers(self) -> None:
+        services = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
+        spec = _forms()["system_rounding"]["fields"]["rounding_method"]
+        self.assertIn(services["erpnext"]["rounding"]["method"], spec["enum"])
 
 
 class TestTheLoginScript(unittest.TestCase):
@@ -402,6 +486,81 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
                 self.assertEqual(
                     {"x": 1}, json.loads(templar.template(environment["BRANDING"]))
                 )
+
+    def test_every_deploy_pins_the_rounding(self) -> None:
+        tasks = _tasks(LOGIN_TASKS)
+        (task,) = [
+            task for task in tasks if task.get("include_tasks") == ROUNDING_TASKS.name
+        ]
+        self.assertNotIn("when", task)
+
+    def test_the_rounding_is_read_and_reported_before_the_write(self) -> None:
+        tasks = _tasks(ROUNDING_TASKS)
+        modes = [task.get("vars", {}).get("erpnext_rounding_mode") for task in tasks]
+        report = _index(tasks, _reports)
+        self.assertLess(modes.index("read"), report)
+        self.assertLess(report, modes.index("converge"))
+        for mode in ("read", "converge"):
+            self.assertEqual(
+                "utils/rounding.yml",
+                tasks[modes.index(mode)]["ansible.builtin.include_tasks"],
+            )
+
+    def test_both_rounding_modes_hand_the_sinks_to_the_script(self) -> None:
+        (task,) = _tasks(ROUNDING_CALL)
+        shell = task["ansible.builtin.shell"]
+        self.assertIn("/files/python/apply/rounding.py", shell["stdin"])
+        for name, sink in ROUNDING_ENVIRONMENT.items():
+            with self.subTest(name=name):
+                self.assertIn(f"-e {name}", shell["cmd"])
+                templar = Templar(loader=DataLoader(), variables={sink: {"x": 1}})
+                self.assertEqual(
+                    {"x": 1}, json.loads(templar.template(task["environment"][name]))
+                )
+        for mode in ("read", "converge"):
+            with self.subTest(mode=mode):
+                templar = Templar(
+                    loader=DataLoader(), variables={"erpnext_rounding_mode": mode}
+                )
+                self.assertEqual(
+                    mode, templar.template(task["environment"]["ROUNDING_MODE"])
+                )
+
+    def test_only_a_converge_that_wrote_reports_a_change(self) -> None:
+        (task,) = _tasks(ROUNDING_CALL)
+        for mode, printed, changed in (
+            ("converge", '{"changed": ["System Settings::rounding_method"]}', True),
+            ("converge", '{"changed": []}', False),
+            ("read", '{"system_rounding": {"rounding_method": "x"}}', False),
+        ):
+            with self.subTest(mode=mode, printed=printed):
+                templar = Templar(
+                    loader=DataLoader(),
+                    variables={
+                        "erpnext_rounding_mode": mode,
+                        task["register"]: {"stdout_lines": ["noise", printed]},
+                    },
+                )
+                self.assertIs(
+                    changed, templar.evaluate_conditional(task["changed_when"])
+                )
+
+    def test_the_rounding_report_reads_the_last_line_the_read_printed(self) -> None:
+        (call,) = _tasks(ROUNDING_CALL)
+        tasks = _tasks(ROUNDING_TASKS)
+        report = tasks[_index(tasks, _reports)]
+        templar = Templar(
+            loader=DataLoader(),
+            variables={
+                call["register"]: {
+                    "stdout_lines": ["noise", '{"accounts_rounding": {"x": 1}}'],
+                }
+            },
+        )
+        self.assertEqual(
+            {"accounts_rounding": {"x": 1}},
+            templar.template(report["vars"]["forms_drift_current"]),
+        )
 
     def test_the_branding_report_reads_the_last_line_the_read_printed(self) -> None:
         (call,) = _tasks(DESIGN_CALL)

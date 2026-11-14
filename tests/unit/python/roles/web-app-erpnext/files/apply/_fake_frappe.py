@@ -99,6 +99,10 @@ class FakeDoc:
     def append(self, table, row):
         self._values[table].append(SimpleNamespace(**row))
 
+    def update(self, values):
+        self._values.update(values)
+        return self
+
     def add_roles(self, *roles):
         held = {row.role for row in self._values["roles"]}
         for role in roles:
@@ -119,6 +123,7 @@ class FakeDoc:
     def save(self, ignore_permissions=False):
         if self._single:
             self._frappe.singles[self.doctype] = copy.deepcopy(self._values)
+            self._frappe.saved.append(self.doctype)
         elif self._values.get("name"):
             self._frappe.records[self.doctype][self._values["name"]] = copy.deepcopy(
                 self._values
@@ -160,6 +165,13 @@ class FakeDb:
     def set_value(self, doctype, name, fieldname, value):
         self._table(doctype)[name][fieldname] = value
 
+    def get_single_value(self, doctype, fieldname):
+        return self._frappe.singles.get(doctype, {}).get(fieldname)
+
+    def set_single_value(self, doctype, fieldname, value):
+        self._frappe.singles.setdefault(doctype, {})[fieldname] = value
+        self._frappe.calls.append(("set_single_value", doctype, fieldname))
+
     def commit(self):
         self.committed = True
 
@@ -182,6 +194,7 @@ class FakeFrappe:
         self.tables = set()
         self.apps_info = []
         self.calls = []
+        self.saved = []
         self.db = FakeDb(self)
 
     def seed(self, doctype, name, **values):
