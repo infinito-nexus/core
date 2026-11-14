@@ -52,6 +52,8 @@ How the services connect:
 
 `credentials.talk_signaling_secret`, `credentials.talk_internal_secret` and `credentials.talk_recording_secret` reach the services only through the rendered files. The signaling session keys are derived from `credentials.talk_signaling_secret`, so they stay stable across deploys. `talk_signaling` runs as UID 850, `talk` as UID 1000, `talk_nats` as UID 65534 and `talk_recording` as UID 122, each with one swarm replica. In swarm mode all four join the stack network and share no network namespace, so swarm may schedule them on different nodes.
 
+`talk_recording` may use 70 % of the host's CPUs (`cpus: "70%"`) and encodes video with the upstream default `outputvideo` plus `-threads:v 4`. Without that bound libvpx starts one busy-waiting encoder thread per host core, so the former fixed 2-CPU cap was used up early in every 100 ms scheduler period, the whole container stalled and video recordings fell to about 4 frames per second. The share stays below 100 % because Ansible's `processor_vcpus` can overcount a hybrid CPU by up to 4/3, and Docker refuses a CPU limit above the real CPU count.
+
 ### Version updates
 
 1. The `cron-update` workflow runs `python3 -m cli.contributing.update.docker`, which raises `services.talk_signaling.version` and `services.talk_nats.version` from their registries together with the base images `services.talk.version` and `services.talk_recording.version`, and opens an update pull request.
