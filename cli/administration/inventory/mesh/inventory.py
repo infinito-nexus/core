@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from cli.administration.inventory.provision.ruamel_io import load_document
+from cli.administration.inventory.ruamel_io import load_document
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.networks.mesh import (

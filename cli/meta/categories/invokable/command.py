@@ -21,8 +21,7 @@ from plugins.filter.invokable_paths import (
     get_invokable_paths,
     get_non_invokable_paths,
 )
-
-from . import PROJECT_ROOT
+from utils.cache import PROJECT_ROOT
 
 
 def main() -> None:

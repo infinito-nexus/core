@@ -58,7 +58,8 @@ from utils.i18n.judge import MIDDLE, ChatJudge
 from utils.i18n.languages import DOMAINS, domain_languages, load_languages
 from utils.i18n.libretranslate import GATEWAY_ROLE, GATEWAY_SERVICE_KEY
 from utils.i18n.spans import prose
-from utils.inventory.tools import LITELLM_KEY, lane_url
+from utils.inventory.tools import lane_url
+from utils.inventory.tools_vars import LITELLM_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT, SUITE

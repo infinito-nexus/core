@@ -3,8 +3,8 @@ from __future__ import annotations
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
@@ -375,8 +375,8 @@ def _write_role(
 
 def _find(root: Path, ls_remote: _LsRemote) -> list[RepositoryRefUpdate]:
     with (
-        mock.patch.object(module, "resolve_max_fetch_workers", return_value=2),
-        mock.patch.object(module.subprocess, "run", side_effect=ls_remote),
+        unittest.mock.patch.object(module, "resolve_max_fetch_workers", return_value=2),
+        unittest.mock.patch.object(module.subprocess, "run", side_effect=ls_remote),
     ):
         return find_outdated_updates(root)
 
@@ -415,7 +415,9 @@ class TestIsCommitSha(unittest.TestCase):
 class TestGitLsRemoteHead(unittest.TestCase):
     def test_returns_the_head_commit(self) -> None:
         ls_remote = _LsRemote(heads={SHA_REPO: TIP_SHA})
-        with mock.patch.object(module.subprocess, "run", side_effect=ls_remote):
+        with unittest.mock.patch.object(
+            module.subprocess, "run", side_effect=ls_remote
+        ):
             self.assertEqual(git_ls_remote_head(SHA_REPO), TIP_SHA)
         self.assertEqual(ls_remote.calls, [(SHA_REPO, "HEAD")])
 
@@ -427,12 +429,16 @@ class TestGitLsRemoteHead(unittest.TestCase):
         ):
             with (
                 self.subTest(failure=type(failure).__name__),
-                mock.patch.object(module.subprocess, "run", side_effect=failure),
+                unittest.mock.patch.object(
+                    module.subprocess, "run", side_effect=failure
+                ),
             ):
                 self.assertIsNone(git_ls_remote_head(SHA_REPO))
 
     def test_an_empty_answer_returns_none(self) -> None:
-        with mock.patch.object(module.subprocess, "run", side_effect=_LsRemote()):
+        with unittest.mock.patch.object(
+            module.subprocess, "run", side_effect=_LsRemote()
+        ):
             self.assertIsNone(git_ls_remote_head(SHA_REPO))
 
 
@@ -446,7 +452,7 @@ class TestGitRefResolves(unittest.TestCase):
             calls.append(argv)
             return subprocess.CompletedProcess(argv, returncode, stdout, "")
 
-        with mock.patch.object(module.subprocess, "run", side_effect=run):
+        with unittest.mock.patch.object(module.subprocess, "run", side_effect=run):
             return git_ref_resolves(TAG_REPO, "v4.0.2"), calls
 
     def test_a_branch_or_a_peeled_tag_of_that_name_resolves(self) -> None:

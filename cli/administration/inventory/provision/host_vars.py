@@ -6,10 +6,14 @@ from typing import TYPE_CHECKING, Any
 
 from ruamel.yaml.comments import CommentedMap
 
+from cli.administration.inventory.ruamel_io import (
+    dump_document,
+    load_document,
+    vault_value,
+)
 from utils.cache.yaml import load_yaml_any
 
 from .passwords import generate_random_password
-from .ruamel_io import dump_document, load_document, vault_value
 
 if TYPE_CHECKING:
     from pathlib import Path

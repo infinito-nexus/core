@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import tempfile
 import unittest
-from unittest import mock
+import unittest.mock
 
 from utils.tests.swarm import matrix
 
 
 class TestSwarmDeployCommands(unittest.TestCase):
-    @mock.patch.object(matrix, "_run", return_value=0)
+    @unittest.mock.patch.object(matrix, "_run", return_value=0)
     def test_round_deploy_keeps_the_placed_custom_roles(self, run):
         matrix._deploy(
             app_id="web-app-cst-demo",
@@ -21,7 +21,7 @@ class TestSwarmDeployCommands(unittest.TestCase):
         self.assertIn("cli.administration.deploy.swarm", cmd)
         self.assertIn("--skip-pull", cmd)
 
-    @mock.patch.object(matrix, "_run", return_value=0)
+    @unittest.mock.patch.object(matrix, "_run", return_value=0)
     def test_backup_host_deploy_keeps_the_placed_custom_roles(self, run):
         with tempfile.TemporaryDirectory() as inv_dir:
             matrix._deploy_backup_host(

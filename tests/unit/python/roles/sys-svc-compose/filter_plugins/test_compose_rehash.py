@@ -7,7 +7,7 @@ from pathlib import Path
 
 from plugins.lookup.compose_volumes import compose_volumes
 from utils import PROJECT_ROOT
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
 
 _spec = importlib.util.spec_from_file_location(

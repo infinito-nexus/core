@@ -57,6 +57,7 @@ SUCCESS = frozenset({0})
 OSV_ACCEPTED_EXIT_CODES = frozenset({0, 1, 128})
 OSV_SOURCE_PURL_TYPES = ("deb", "apk")
 UPSTREAM_QUALIFIER = re.compile(r"([?&])upstream=([^&#]+)")
+MAJOR_VERSION = re.compile(r"[0-9]+")
 HOST_ROOT = "/host"
 WORK = "/work"
 SBOM = "/sbom"
@@ -99,6 +100,21 @@ class ConfigError(ValueError):
 
 
 @dataclass(frozen=True)
+class OsRelease:
+    """
+    Args:
+        name: the ``operating-system`` component name of a Syft CycloneDX
+            SBOM, the ``ID`` of ``/etc/os-release``.
+        version: its major version.
+        until: the last day Grype alone scans its OS packages.
+    """
+
+    name: str
+    version: str
+    until: dt.date
+
+
+@dataclass(frozen=True)
 class ScanConfig:
     """What the vulnerability scan covers and when it fails.
 
@@ -111,6 +127,8 @@ class ScanConfig:
         workers: parallel engine runs.
         db_update: download and refresh the databases; ``False`` reads
             databases that were provided and fails when one is missing.
+        trivy_unmatched_os: the OS releases whose OS packages Trivy leaves
+            to Grype.
     """
 
     targets: tuple[str, ...]
@@ -119,6 +137,7 @@ class ScanConfig:
     fixed_only: bool
     workers: int
     db_update: bool
+    trivy_unmatched_os: tuple[OsRelease, ...]
 
     def scanners(self) -> tuple[str, ...]:
         return tuple(engine for engine in SCANNERS if engine in self.engines)
@@ -280,7 +299,10 @@ def parse_args(argv=None):
     parser.add_argument(
         "--scan",
         required=True,
-        help="JSON: targets, engines, severity, fixed_only, workers, db_update",
+        help=(
+            "JSON: targets, engines, severity, fixed_only, workers, db_update, "
+            "trivy_unmatched_os"
+        ),
     )
     parser.add_argument(
         "--images",
@@ -508,17 +530,59 @@ def severity_actions(raw) -> dict[str, str]:
     return {severity: raw[severity] for severity in SEVERITIES if severity in raw}
 
 
+def os_releases(raw) -> tuple[OsRelease, ...]:
+    """
+    Args:
+        raw: ``[{name, version, until}]`` with ``version`` a bare major
+            version and ``until`` as ``YYYY-MM-DD``.
+
+    Raises:
+        ConfigError: *raw* is no list, an entry lacks a field or its version
+            is no bare major version.
+    """
+    if not isinstance(raw, list):
+        raise ConfigError("trivy_unmatched_os must be a list")
+    try:
+        releases = tuple(
+            OsRelease(
+                name=str(item["name"]),
+                version=str(item["version"]),
+                until=dt.date.fromisoformat(str(item["until"])),
+            )
+            for item in raw
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ConfigError(
+            f"trivy_unmatched_os entries need name, version and until: {exc}"
+        ) from exc
+    for release in releases:
+        if not MAJOR_VERSION.fullmatch(release.version):
+            raise ConfigError(
+                f"trivy_unmatched_os version {release.version!r} of {release.name} "
+                "is no bare major version"
+            )
+    return releases
+
+
 def scan_config(raw: Mapping) -> ScanConfig:
     """Validate the scan configuration.
 
     Args:
         raw: ``targets``, ``engines``, ``severity``, ``fixed_only``,
-            ``workers`` and ``db_update``.
+            ``workers``, ``db_update`` and ``trivy_unmatched_os``.
 
     Raises:
         ConfigError: a value is missing, unknown or contradictory.
     """
-    required = {"targets", "engines", "severity", "fixed_only", "workers", "db_update"}
+    required = {
+        "targets",
+        "engines",
+        "severity",
+        "fixed_only",
+        "workers",
+        "db_update",
+        "trivy_unmatched_os",
+    }
     missing = sorted(required - set(raw))
     if missing:
         raise ConfigError(f"scan config lacks {', '.join(missing)}")
@@ -547,6 +611,7 @@ def scan_config(raw: Mapping) -> ScanConfig:
         fixed_only=raw["fixed_only"],
         workers=workers,
         db_update=raw["db_update"],
+        trivy_unmatched_os=os_releases(raw["trivy_unmatched_os"]),
     )
     if not config.scanners():
         raise ConfigError(
@@ -1337,7 +1402,60 @@ def sbom_step(layout: Layout, image: str, target: Target) -> Step:
     )
 
 
-def trivy_step(layout: Layout, image: str, target: Target, config: ScanConfig) -> Step:
+def sbom_os(cyclonedx: Mapping) -> tuple[str, str] | None:
+    """
+    Returns:
+        ``(name, major version)`` of a CycloneDX SBOM's ``operating-system``
+        component, ``None`` when it names none.
+    """
+    for component in cyclonedx.get("components") or []:
+        if component.get("type") == "operating-system":
+            version = str(component.get("version") or "")
+            return str(component.get("name") or ""), version.partition(".")[0]
+    return None
+
+
+def trivy_os_args(
+    layout: Layout,
+    target: Target,
+    scanners: Sequence[str],
+    config: ScanConfig,
+    today: dt.date,
+) -> list[str]:
+    """
+    Args:
+        layout: where the run keeps its files, the target's SBOM among them.
+        target: the target.
+        scanners: the scanners that run.
+        config: the scan configuration.
+        today: the day an entry's ``until`` must not lie before.
+
+    Returns:
+        ``["--pkg-types", "library"]`` when Grype runs and the target's SBOM
+        names an OS release of :attr:`ScanConfig.trivy_unmatched_os` whose
+        ``until`` has not passed, else ``[]``.
+    """
+    cyclonedx = sbom_paths(layout, target)[1]
+    if "grype" not in scanners or not cyclonedx.is_file():
+        return []
+    release = sbom_os(_read_json(cyclonedx))
+    for entry in config.trivy_unmatched_os:
+        if (entry.name, entry.version) == release and today <= entry.until:
+            print(
+                f"ℹ️ trivy {target.label}: OS packages of {entry.name} "
+                f"{entry.version} left to grype until {entry.until}"
+            )
+            return ["--pkg-types", "library"]
+    return []
+
+
+def trivy_step(
+    layout: Layout,
+    image: str,
+    target: Target,
+    config: ScanConfig,
+    os_args: Sequence[str],
+) -> Step:
     args = [
         "rootfs" if target.kind == "host" else "image",
         *TRIVY_COMMON,
@@ -1345,6 +1463,7 @@ def trivy_step(layout: Layout, image: str, target: Target, config: ScanConfig) -
         "--skip-java-db-update",
         "--scanners",
         "vuln",
+        *os_args,
         "--format",
         "json",
         "--output",
@@ -1681,9 +1800,21 @@ def scan(
         sbom_ready = [target for target in targets if target.key not in failed]
 
     lanes: list[list[Step]] = []
+    today = dt.datetime.now(tz=dt.UTC).date()
     if "trivy" in scanners:
         lanes.append(
-            [trivy_step(layout, images["trivy"], target, config) for target in targets]
+            [
+                trivy_step(
+                    layout,
+                    images["trivy"],
+                    target,
+                    config,
+                    trivy_os_args(layout, target, scanners, config, today)
+                    if target in sbom_ready
+                    else [],
+                )
+                for target in targets
+            ]
         )
     if "grype" in scanners:
         lanes.extend(
