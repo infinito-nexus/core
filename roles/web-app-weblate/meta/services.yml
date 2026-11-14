@@ -85,7 +85,7 @@ weblate:
         enabled: "{{ lookup('login_method', 'web-app-weblate', 'native') }}"
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-weblate', '2fa') }}"
-        enforced: false
+        enforced: true
       registration:
         enabled: "{{ lookup('login_method', 'web-app-weblate', 'registration') }}"
   site_title: Infinito.Nexus Translations

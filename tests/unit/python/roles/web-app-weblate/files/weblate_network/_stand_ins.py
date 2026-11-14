@@ -26,6 +26,7 @@ ALLOWED_HOSTS = (CLEARNET, ONION, "weblate")
 CALLBACK = "/accounts/complete/oidc/"
 UPSTREAM_PROXY = "weblate.middleware.ProxyMiddleware"
 UPSTREAM_STRATEGY = "weblate.accounts.strategy.WeblateStrategy"
+UPSTREAM_APPS = ["customize", "weblate.addons", "weblate.auth", "weblate.checks"]
 UPSTREAM_MIDDLEWARE = [
     "weblate.middleware.RedirectMiddleware",
     UPSTREAM_PROXY,
@@ -145,6 +146,7 @@ class UpstreamStrategy:
 def upstream_settings() -> dict:
     """Return the settings_docker.py values of weblate-2026.9 the override reads or replaces."""
     return {
+        "INSTALLED_APPS": list(UPSTREAM_APPS),
         "MIDDLEWARE": list(UPSTREAM_MIDDLEWARE),
         "SOCIAL_AUTH_STRATEGY": UPSTREAM_STRATEGY,
         "SOCIAL_AUTH_REDIRECT_IS_HTTPS": True,

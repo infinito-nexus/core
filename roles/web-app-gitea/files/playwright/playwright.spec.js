@@ -21,3 +21,4 @@ require("./test-guest-persona").register(shared);
 require("./test-biber-persona").register(shared);
 require("./test-administrator-persona").register(shared);
 require("./test-rbac-ldap").register(shared);
+require("./test-2fa-enrollment").register(shared);

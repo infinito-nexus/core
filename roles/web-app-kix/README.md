@@ -19,6 +19,10 @@ This role deploys KIX as an Infinito.Nexus web app behind the project's standard
 - **Dashboard card:** `web-app-dashboard` surfaces a KIX tile pointing at the canonical URL.
 - **Universal logout:** The project logout endpoint terminates the KIX session alongside every other Infinito.Nexus app.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [KIX Start website](https://www.kixdesk.com/)

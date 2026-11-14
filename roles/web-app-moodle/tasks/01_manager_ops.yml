@@ -52,6 +52,12 @@
     - "'Database tables already present' not in moodle_install.stderr"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "📋 Sync the local_mfaenforce plugin from the image into the code volume"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    cp -aT {{ MOODLE_MFA_ENFORCE_PLUGIN_SOURCE_DIR | quote }} {{ MOODLE_MFA_ENFORCE_PLUGIN_DIR | quote }}
+  changed_when: false
+
 - name: "⬆️ Upgrade the Moodle database to the release in the code volume"
   shell: >
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}

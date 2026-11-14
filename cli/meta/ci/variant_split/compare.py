@@ -90,6 +90,13 @@ def _include_pairs(
     return out
 
 
+def _spill(snap: Mapping[str, Any], sweep: str) -> int:
+    available = snap["budget"]["available"]
+    if available is None:
+        return 0
+    return len(snap["sweeps"][sweep]["jobs"]) - available
+
+
 def axes_check(before: Mapping[str, Any], after: Mapping[str, Any]) -> dict[str, Any]:
     """What the shifted rotation and budget cost per sweep and over all sweeps.
 
@@ -107,10 +114,8 @@ def axes_check(before: Mapping[str, Any], after: Mapping[str, Any]) -> dict[str,
             "head_gained": sorted(
                 head_tokens(after, sweep) - head_tokens(before, sweep)
             ),
-            "spill_before": len(before["sweeps"][sweep]["jobs"])
-            - before["budget"]["available"],
-            "spill_after": len(after["sweeps"][sweep]["jobs"])
-            - after["budget"]["available"],
+            "spill_before": _spill(before, sweep),
+            "spill_after": _spill(after, sweep),
         }
         pairs = {
             "row_mode": (

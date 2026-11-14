@@ -136,6 +136,56 @@ class TestLdapPersonaToken(unittest.TestCase):
         self.assertEqual([], _untokened(text))
 
 
+def _combined(text: str, *helpers: str) -> list[str]:
+    return [
+        s.title for s in lint.combined_sso_ldap_scenarios(_scenarios(text, *helpers))
+    ]
+
+
+class TestSeparateSsoAndLdapBodies(unittest.TestCase):
+    def test_a_test_gated_on_sso_and_ldap_fails(self) -> None:
+        title = "administrator: LDAP login behind the SSO gate"
+        body = '  skipUnlessServiceEnabled("sso");\n  skipUnlessServiceEnabled("ldap");'
+        self.assertEqual([title], _combined(_test(title, body)))
+
+    def test_ldap_on_with_sso_off_passes(self) -> None:
+        body = (
+            '  skipUnlessServiceEnabled("ldap");\n  skipUnlessServiceDisabled("sso");'
+        )
+        self.assertEqual([], _combined(_test("biber: LDAP login", body)))
+
+    def test_an_sso_gate_through_a_helper_fails(self) -> None:
+        helper = (
+            "function skipUnlessSsoLogin() {\n"
+            '  skipUnlessServiceEnabled("sso");\n'
+            "}\n"
+            "module.exports = { skipUnlessSsoLogin };\n"
+        )
+        title = "biber: LDAP login"
+        body = '  shared.skipUnlessSsoLogin();\n  skipUnlessServiceEnabled("ldap");'
+        self.assertEqual([title], _combined(_test(title, body), helper))
+
+    def test_an_sso_gate_through_a_hook_fails(self) -> None:
+        hook = 'test.beforeEach(() => {\n  skipUnlessServiceEnabled("sso");\n});\n'
+        title = "biber: LDAP login"
+        text = hook + _test(title, '  skipUnlessServiceEnabled("ldap");')
+        self.assertEqual([title], _combined(text))
+
+    def test_a_runtime_front_door_passes(self) -> None:
+        body = (
+            '  skipUnlessServiceEnabled("ldap");\n'
+            '  const login = isServiceEnabled("sso") ? loginBehindGate : loginDirect;\n'
+            "  await login(page);"
+        )
+        self.assertEqual([], _combined(_test("administrator: LDAP login", body)))
+
+    def test_separate_sso_and_ldap_tests_pass(self) -> None:
+        text = _test(
+            "administrator: SSO login", '  skipUnlessServiceEnabled("sso");'
+        ) + _test("administrator: LDAP login", '  skipUnlessServiceEnabled("ldap");')
+        self.assertEqual([], _combined(text))
+
+
 class TestRoleCoverage(unittest.TestCase):
     def test_declares_ldap(self) -> None:
         dynamic = "{{ 'svc-db-openldap' in group_names }}"
@@ -156,6 +206,35 @@ class TestRoleCoverage(unittest.TestCase):
         biber = _test("biber: LDAP login", '  skipUnlessServiceEnabled("ldap");')
         self.assertTrue(lint.lacks_biber_ldap_scenario(_scenarios(admin)))
         self.assertFalse(lint.lacks_biber_ldap_scenario(_scenarios(admin + biber)))
+
+    def test_ldap_persona_gap(self) -> None:
+        gate = '  skipUnlessServiceEnabled("ldap");'
+        admin = _test("administrator: LDAP login", gate)
+        biber = _test("biber: LDAP login", gate)
+        probe = _test(
+            "userpass: the method is absent while ldap carries the sign-in", gate
+        )
+        guest = _test("guest: the LDAP login refuses an unknown account", gate)
+        placeholder = (
+            "for (const persona of PERSONAS) {\n"
+            "  test(`${persona.label}: LDAP login`, async ({ page }) => {\n"
+            f"  {gate}\n"
+            "  });\n"
+            "}\n"
+        )
+        self.assertEqual("biber", lint.ldap_persona_gap(_scenarios(admin + probe)))
+        self.assertEqual("administrator", lint.ldap_persona_gap(_scenarios(biber)))
+        self.assertEqual("persona", lint.ldap_persona_gap(_scenarios(probe + guest)))
+        self.assertIsNone(lint.ldap_persona_gap(_scenarios(admin + biber)))
+        self.assertIsNone(lint.ldap_persona_gap(_scenarios(placeholder)))
+        self.assertIsNone(lint.ldap_persona_gap(_scenarios(_test("biber: SSO login"))))
+
+    def test_an_sso_gated_administrator_does_not_cover_ldap(self) -> None:
+        admin = _test("administrator: SSO login", '  skipUnlessServiceEnabled("sso");')
+        biber = _test("biber: LDAP login", '  skipUnlessServiceEnabled("ldap");')
+        self.assertEqual(
+            "administrator", lint.ldap_persona_gap(_scenarios(admin + biber))
+        )
 
 
 if __name__ == "__main__":

@@ -12,13 +12,6 @@ exports.register = function (shared) {
 
   test("administrator: friendica native login and logout", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceDisabled("sso");
-    await loginAndLogout(page, shared.loginViaFriendicaDirect);
-  });
-
-  test("administrator: friendica login behind oauth2-proxy and Keycloak, then logout", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    await loginAndLogout(page, shared.loginViaOauth2ProxyAndFriendica);
+    await loginAndLogout(page, shared.loginViaFriendica);
   });
 };

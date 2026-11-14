@@ -20,6 +20,10 @@ This role deploys Mastodon using Docker, streamlining the installation and confi
 - **Break-glass access:** with SSO on and `native` off, the local administrator of [`tasks/05_administrator.yml`](./tasks/05_administrator.yml) has no form. Recovery runs through the CLI in the Mastodon container (`bin/tootctl accounts modify <user> --reset-password`, `bin/tootctl settings`), and overriding `services.mastodon.login.method.native.enabled: true` in the inventory sets `OMNIAUTH_ONLY=false`, after which the administrator signs in at `/auth/sign_in` with its e-mail and password.
 - **Customizable User Experience:** Configure themes, timeline settings, and notification options to tailor the social experience to your community.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Mastodon Official Website](https://joinmastodon.org/)

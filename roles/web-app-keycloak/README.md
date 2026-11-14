@@ -160,6 +160,10 @@ applications:
           allow_all_users: true
 ```
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Keycloak Official Website](https://www.keycloak.org/)

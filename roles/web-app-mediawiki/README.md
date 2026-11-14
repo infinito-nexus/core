@@ -85,6 +85,10 @@ On a node serving the wiki on several networks ([network_modes.md](../../docs/co
 - `$wgRenderHashAppend` carries the selected server, which keys the parser cache per network.
 - The design logos, the favicon and the touch icon take the CDN origin of the request's network from a second rendered map, with the canonical CDN as fallback.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [MediaWiki Official Website](https://www.mediawiki.org/)

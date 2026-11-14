@@ -1,6 +1,6 @@
 """Lint guard: LDAP scenarios are persona tests behind the canonical ``ldap`` gate.
 
-Requirement 018 (Policy) makes every LDAP scenario a test of its own:
+Every LDAP scenario is a test of its own:
 
 * A test whose title names LDAP reaches ``skipUnlessServiceEnabled("ldap")``, so a
   deploy with ``disable=ldap`` reports it as ``skipped: LDAP_SERVICE_ENABLED=false``.
@@ -65,6 +65,7 @@ _REFERENCE_RE = re.compile(r"(?<![\w$])([A-Za-z_$][\w$]*)")
 _PERSONA_TITLE_RE = re.compile(r"^(?:guest|biber|administrator):|^\$\{[^}]*\}:")
 _SIGNED_IN_PERSONA_RE = re.compile(r"\b(?:biber|administrator)\b", re.IGNORECASE)
 _BIBER_RE = re.compile(r"\bbiber\b")
+_ADMINISTRATOR_RE = re.compile(r"\badministrator\b", re.IGNORECASE)
 _ENABLED = "enabled"
 _DISABLED = "disabled"
 _GATE_KIND = {
@@ -258,6 +259,19 @@ def unpersonified_ldap_scenarios(scenarios: Iterable[Scenario]) -> list[Scenario
     ]
 
 
+def combined_sso_ldap_scenarios(scenarios: Iterable[Scenario]) -> list[Scenario]:
+    """Return the tests that reach both the ``sso`` and the ``ldap`` enabled gate.
+
+    Args:
+        scenarios: :func:`scenarios_in` results.
+    """
+    return [
+        s
+        for s in scenarios
+        if (_ENABLED, "sso") in s.gates and (_ENABLED, "ldap") in s.gates
+    ]
+
+
 def declares_ldap(services: object) -> bool:
     """Tell whether a parsed ``meta/services.yml`` leaves ``ldap.enabled`` switchable on.
 
@@ -284,16 +298,37 @@ def _ldap_gated(scenarios: Iterable[Scenario]) -> list[Scenario]:
     return [s for s in scenarios if (_ENABLED, "ldap") in s.gates]
 
 
+def ldap_persona_gap(scenarios: Iterable[Scenario]) -> str | None:
+    """Name the persona a role's ldap-gated tests never sign in.
+
+    Args:
+        scenarios: :func:`scenarios_in` results of one role.
+
+    Returns:
+        ``"biber"`` or ``"administrator"`` when only the other persona has an
+        ldap-gated test, ``"persona"`` when no ldap-gated test carries a persona
+        token, ``None`` when both are covered or no test is ldap-gated.
+    """
+    titles = [s.title for s in _ldap_gated(scenarios)]
+    if not titles:
+        return None
+    placeholder = any(t.startswith("${") for t in titles)
+    admin = placeholder or any(t.startswith("administrator:") for t in titles)
+    biber = placeholder or any(t.startswith("biber:") for t in titles)
+    if admin and biber:
+        return None
+    if admin:
+        return "biber"
+    return "administrator" if biber else "persona"
+
+
 def lacks_biber_ldap_scenario(scenarios: Iterable[Scenario]) -> bool:
     """Tell whether a role signs the administrator in over LDAP but never biber.
 
     Args:
         scenarios: :func:`scenarios_in` results of one role.
     """
-    titles = [s.title for s in _ldap_gated(scenarios)]
-    return any(t.startswith("administrator:") for t in titles) and not any(
-        t.startswith(("biber:", "${")) for t in titles
-    )
+    return ldap_persona_gap(scenarios) == "biber"
 
 
 def _role_scenarios() -> list[Scenario]:
@@ -329,7 +364,7 @@ class TestLdapScenarios(unittest.TestCase):
                         "",
                         'Call skipUnlessServiceEnabled("ldap") from ./service-gating at the top of',
                         "the test, so a deploy with disable=ldap reports it as",
-                        "skipped: LDAP_SERVICE_ENABLED=false (requirement 018).",
+                        "skipped: LDAP_SERVICE_ENABLED=false.",
                     ],
                     offenders,
                 )
@@ -344,7 +379,24 @@ class TestLdapScenarios(unittest.TestCase):
                         f"ldap-gated Playwright tests naming a persona without its token ({len(offenders)}):",
                         "",
                         "Start the title with administrator:, biber: or guest: so the reporter",
-                        "groups the LDAP scenario with its persona (requirement 018).",
+                        "groups the LDAP scenario with its persona.",
+                    ],
+                    offenders,
+                )
+            )
+
+    def test_sso_and_ldap_scenarios_keep_separate_bodies(self) -> None:
+        offenders = combined_sso_ldap_scenarios(self.scenarios)
+        if offenders:
+            self.fail(
+                _report(
+                    [
+                        f"Playwright tests gated on both sso and ldap ({len(offenders)}):",
+                        "",
+                        'Gate the LDAP sign-in on skipUnlessServiceEnabled("ldap") alone and let',
+                        'isServiceEnabled("sso") pick the front door at runtime, or split the SSO',
+                        "journey into its own sso-gated test, so every variant drives the branch",
+                        "it deploys.",
                     ],
                     offenders,
                 )
@@ -362,17 +414,20 @@ class TestLdapScenarios(unittest.TestCase):
             ldap_coverage_section(read_text(str(readme))) if readme.is_file() else None
         )
 
+    def _signs_personas_in(self, role: str) -> bool:
+        role_dir = PROJECT_ROOT / "roles" / role
+        services = role_dir / ROLE_FILE_META_SERVICES
+        env = role_dir / _ENV_TEMPLATE_REL
+        if not services.is_file() or not env.is_file():
+            return False
+        if not declares_ldap(load_yaml_any(str(services), default_if_missing={})):
+            return False
+        return bool(_PERSONA_CREDENTIAL_RE.search(read_text(str(env))))
+
     def test_ldap_capable_roles_ship_an_ldap_scenario(self) -> None:
         offenders: list[str] = []
         for role, scenarios in sorted(self._by_role().items()):
-            role_dir = PROJECT_ROOT / "roles" / role
-            services = role_dir / ROLE_FILE_META_SERVICES
-            env = role_dir / _ENV_TEMPLATE_REL
-            if not services.is_file() or not env.is_file():
-                continue
-            if not declares_ldap(load_yaml_any(str(services), default_if_missing={})):
-                continue
-            if not _PERSONA_CREDENTIAL_RE.search(read_text(str(env))):
+            if not self._signs_personas_in(role):
                 continue
             if _ldap_gated(scenarios) or self._readme_section(role) is not None:
                 continue
@@ -381,9 +436,8 @@ class TestLdapScenarios(unittest.TestCase):
             self.fail(
                 f"Roles with ldap.enabled and an authenticated spec but no ldap-gated test ({len(offenders)}):\n\n"
                 'Add a scenario gated by skipUnlessServiceEnabled("ldap") that drives the role\'s own\n'
-                "LDAP-bind login, or state the exemption in a '## LDAP coverage' README section\n"
-                "(requirement 018).\n\nOffenders:\n"
-                + "\n".join(f"  roles/{r}" for r in offenders)
+                "LDAP-bind login, or state the exemption in a '## LDAP coverage' README section.\n\n"
+                "Offenders:\n" + "\n".join(f"  roles/{r}" for r in offenders)
             )
 
     def test_admin_only_ldap_roles_flag_the_biber_follow_up(self) -> None:
@@ -398,7 +452,41 @@ class TestLdapScenarios(unittest.TestCase):
             self.fail(
                 f"Roles signing only the administrator in over LDAP ({len(offenders)}):\n\n"
                 'Add a biber: scenario gated by skipUnlessServiceEnabled("ldap") or flag the\n'
-                "biber follow-up in a '## LDAP coverage' README section (requirement 018).\n\n"
+                "biber follow-up in a '## LDAP coverage' README section.\n\n"
+                "Offenders:\n" + "\n".join(f"  roles/{r}" for r in offenders)
+            )
+
+    def test_biber_only_ldap_roles_flag_the_administrator(self) -> None:
+        offenders: list[str] = []
+        for role, scenarios in sorted(self._by_role().items()):
+            if ldap_persona_gap(scenarios) != "administrator":
+                continue
+            section = self._readme_section(role)
+            if section is None or not _ADMINISTRATOR_RE.search(section):
+                offenders.append(role)
+        if offenders:
+            self.fail(
+                f"Roles signing only biber in over LDAP ({len(offenders)}):\n\n"
+                'Add an administrator: scenario gated by skipUnlessServiceEnabled("ldap"), or\n'
+                "state in a '## LDAP coverage' README section why the administrator never signs\n"
+                "in over LDAP.\n\n"
+                "Offenders:\n" + "\n".join(f"  roles/{r}" for r in offenders)
+            )
+
+    def test_ldap_sign_in_roles_name_their_personas(self) -> None:
+        offenders = [
+            role
+            for role, scenarios in sorted(self._by_role().items())
+            if ldap_persona_gap(scenarios) == "persona"
+            and self._signs_personas_in(role)
+            and self._readme_section(role) is None
+        ]
+        if offenders:
+            self.fail(
+                f"Roles whose ldap-gated tests sign no persona in ({len(offenders)}):\n\n"
+                'Add administrator: and biber: scenarios gated by skipUnlessServiceEnabled("ldap")\n'
+                "that drive the role's LDAP sign-in, or state in a '## LDAP coverage' README\n"
+                "section why the role has none.\n\n"
                 "Offenders:\n" + "\n".join(f"  roles/{r}" for r in offenders)
             )
 

@@ -13,6 +13,7 @@ from .weblate_network._stand_ins import (
     ASSOCIATE_BY_EMAIL,
     MIDDLEWARE_MODULE_PATH,
     STRATEGY_MODULE_PATH,
+    UPSTREAM_APPS,
     UPSTREAM_MIDDLEWARE,
     UPSTREAM_PIPELINE,
     UPSTREAM_PIPELINE_SOURCE,
@@ -98,6 +99,16 @@ class TestSettingsOverride(unittest.TestCase):
                 ).with_suffix("")
                 self.assertEqual(".".join(module.parts), dotted.rsplit(".", 1)[0])
 
+    def test_the_two_factor_app_is_installed_from_its_mount(self) -> None:
+        self.assertEqual(
+            self.settings["INSTALLED_APPS"], [*UPSTREAM_APPS, "weblate_infinito"]
+        )
+        self.assertEqual(
+            {mount["target"] for mount in config_entry("two_factor_tasks")["mounts"]},
+            {f"{self.settings['_infinito_origin_dir']}/weblate_infinito/tasks.py"},
+            "Celery autodiscovers <app>.tasks, so the periodic job lives there",
+        )
+
     def test_a_renamed_upstream_middleware_fails_loudly(self) -> None:
         settings = upstream_settings()
         settings["MIDDLEWARE"].remove(UPSTREAM_PROXY)
@@ -173,6 +184,7 @@ class TestOverrideMounts(unittest.TestCase):
             ("settings_override", UPSTREAM_LOADER_TARGET),
             ("network_strategy", None),
             ("network_middleware", None),
+            ("two_factor_tasks", None),
         ):
             with self.subTest(entry=key):
                 entry = config_entry(key)

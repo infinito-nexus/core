@@ -68,3 +68,14 @@ network_middleware:
       target: *app_infinito_network_middleware_target
     - service: worker
       target: *app_infinito_network_middleware_target
+two_factor_tasks:
+  type: config
+  source: "{{ [lookup('container', 'web-app-weblate', 'directories.instance'), 'weblate_infinito_tasks.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: weblate
+      target: &app_infinito_two_factor_tasks_target /app/infinito/weblate_infinito/tasks.py
+    - service: beat
+      target: *app_infinito_two_factor_tasks_target
+    - service: worker
+      target: *app_infinito_two_factor_tasks_target

@@ -59,8 +59,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

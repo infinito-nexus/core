@@ -23,12 +23,20 @@
         dest: "{{ WEBLATE_NETWORK_MIDDLEWARE_HOST }}"
         mode: "0644"
         notify: ["compose-up"]
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_infinito/tasks.py') }}"
+        dest: "{{ WEBLATE_TWO_FACTOR_TASKS_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
 
 - name: "🚿 Flush handlers so Weblate starts with the settings override mounted"
   meta: flush_handlers
 
 - name: "🔑 Hand the gateway the token it reads the memory with"
   ansible.builtin.include_tasks: utils/token.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🔐 Converge the second-factor enforcement of the teams and projects"
+  ansible.builtin.include_tasks: utils/two_factor.yml
   when: IS_STACK_HOST | bool
 
 - name: "👥 Map the role groups onto superusers and site teams"

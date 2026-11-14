@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion, requireDotenvValue } = require("./personas");
 const { networkOf } = require("./personas/utils/network");
@@ -18,6 +18,8 @@ const loginMethods = {
   passkey: process.env.LOGIN_METHOD_PASSKEY_ENABLED === "true",
   registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
 };
+
+const twoFactorEnforced = process.env.LOGIN_METHOD_2FA_ENFORCED === "true";
 
 const BREAKGLASS_LOGIN_PATH = "/web/login?fallback=local";
 
@@ -55,7 +57,7 @@ async function clickOdooSsoButton(locator) {
   }
 }
 
-async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
+async function submitAdminPassword(page, expectedBaseUrl) {
   await gotoOnion(page, `${expectedBaseUrl}${BREAKGLASS_LOGIN_PATH}`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await page.locator('input[name="login"]').fill(env.adminUsername);
   await page.locator('input[name="password"]').fill(env.adminPassword);
@@ -64,6 +66,11 @@ async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
     .getByRole("button", { name: /log\s*in/i })
     .first()
     .click({ timeout: resolveTimeout(30_000) });
+}
+
+async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
+  test.skip(twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=true holds the administrator's password sign-in at the mailed code, which test-2fa-enforcement.js asserts");
+  await submitAdminPassword(page, expectedBaseUrl);
   await gotoOnion(page, `${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await expect(
     webClient,
@@ -173,10 +180,12 @@ async function openModule(page, modulePath) {
 module.exports = {
   env,
   loginMethods,
+  twoFactorEnforced,
   BREAKGLASS_LOGIN_PATH,
   onionOptions,
   baseUrl,
   clickOdooSsoButton,
+  submitAdminPassword,
   nativeLoginToOdoo,
   loginToOdoo,
   authenticatedContext,

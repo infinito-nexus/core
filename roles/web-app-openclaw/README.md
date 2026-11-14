@@ -23,6 +23,10 @@ This role deploys OpenClaw as a gateway container behind the reverse proxy on it
 - **Persistent state:** Memory and workspace live in a volume mounted at `/home/node/.openclaw`, with the rendered `openclaw.json` mounted into it, and are included in the container volume backup when that service is deployed.
 - **Compose and Swarm:** The role deploys in both modes and renders the gateway configuration file for the local host and the swarm peers.
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/PadoNMo5oju7x3yqNjgCW9)

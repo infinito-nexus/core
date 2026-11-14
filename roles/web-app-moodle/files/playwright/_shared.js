@@ -85,6 +85,31 @@ async function loginAsSiteAdmin(page) {
 }
 
 /**
+ * Submit Moodle's own login form.
+ *
+ * @param {import('@playwright/test').Page} page browser page without a Moodle session
+ * @param {string} username login of the account
+ * @param {string} password password of the account
+ */
+async function submitLoginForm(page, username, password) {
+  await gotoOnion(page, `${env.moodleBaseUrl}/login/index.php`, {
+    waitUntil: "domcontentloaded",
+    timeout: resolveTimeout(60_000),
+  });
+  await page.locator("input[name='username'], input#username").first().fill(username);
+  const passwordInput = page
+    .locator(".toggle-sensitive-wrapper input[name='password'], .toggle-sensitive-wrapper input#password, input[name='password']")
+    .first();
+  await expect(passwordInput).toBeAttached({ timeout: resolveTimeout(30_000) });
+  await expect(async () => {
+    await passwordInput.fill(password);
+    await expect(passwordInput).toHaveValue(password);
+  }).toPass({ timeout: resolveTimeout(30_000) });
+  await page.locator("#loginbtn, button[type='submit'], input[type='submit']").first().click();
+  await page.waitForLoadState("load");
+}
+
+/**
  * Open a session for a directory account through the login path the deploy configured.
  *
  * @param {import('@playwright/test').Page} page browser page to authenticate
@@ -99,21 +124,7 @@ async function loginAsDirectoryUser(page, username, password) {
     });
     await performKeycloakLogin(page, username, password, readEnv("CANONICAL_DOMAIN"));
   } else {
-    await gotoOnion(page, `${env.moodleBaseUrl}/login/index.php`, {
-      waitUntil: "domcontentloaded",
-      timeout: resolveTimeout(60_000),
-    });
-    await page.locator("input[name='username'], input#username").first().fill(username);
-    const passwordInput = page
-      .locator(".toggle-sensitive-wrapper input[name='password'], .toggle-sensitive-wrapper input#password, input[name='password']")
-      .first();
-    await expect(passwordInput).toBeAttached({ timeout: resolveTimeout(30_000) });
-    await expect(async () => {
-      await passwordInput.fill(password);
-      await expect(passwordInput).toHaveValue(password);
-    }).toPass({ timeout: resolveTimeout(30_000) });
-    await page.locator("#loginbtn, button[type='submit'], input[type='submit']").first().click();
-    await page.waitForLoadState("load");
+    await submitLoginForm(page, username, password);
   }
 
   await expect(
@@ -220,4 +231,5 @@ module.exports = {
   runAdminFlow,
   runGuestFlow,
   setMiddleNameViaAccountRest,
+  submitLoginForm,
 };

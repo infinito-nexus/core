@@ -48,6 +48,10 @@ Role-level extensions are declared in `meta/addons/`, one file per addon:
 - **Health Checks & Logging:** Integrates with Infinito.Nexus health checking and journald logging 📈  
 - **Modular Role Composition:** Uses shared roles for DB, proxy and monitoring to keep your stack consistent 🔄  
 
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+
 ## Further Resources
 
 - [SuiteCRM Official Website](https://suitecrm.com/) 🌍  
