@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from utils.env.runtime import mem_available_mb
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CACHE_PACKAGE_HEAP"
 COMMENT = "Nexus JVM heap size (half of MemAvailable, cap 2g, floor 1g)."

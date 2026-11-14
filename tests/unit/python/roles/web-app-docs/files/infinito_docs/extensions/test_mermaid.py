@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib
 import sys
 import unittest
-from unittest import mock
+import unittest.mock
 
 from docutils import nodes
 from docutils.frontend import get_default_settings
@@ -60,7 +60,7 @@ class TestMermaidFences(unittest.TestCase):
         self.assertEqual(len(list(document.findall(nodes.literal_block))), 1)
 
     def test_setup_registers_the_transform_and_both_scripts(self) -> None:
-        app = mock.Mock()
+        app = unittest.mock.Mock()
 
         meta = mermaid.setup(app)
 

@@ -28,7 +28,10 @@
 
 blender:
   Archlinux:
-    - blender
+    names:
+      - blender
+    architectures:
+      - amd64
   Debian:
     - blender
   centos:

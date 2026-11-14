@@ -75,6 +75,14 @@ make roles-clean
 
 A pull stages every role outside `roles/` and changes `roles/` only when all of them passed, so a refused pull leaves it as it was. It replaces or removes only the directories it placed itself, whose marker names them, and refuses a declared name that meets a symbolic link, a hand-placed directory or a copy of a placed role. `make roles-clean` removes every `roles/web-app-cst-*` directory the pull placed and reports every other one it leaves in place. Git ignores `roles/web-app-cst-*`, so a pulled role never enters a core commit.
 
+The pull also records the version the source repository declares at the pinned commit, or in a local checkout: `Cargo.toml`, else `pyproject.toml`, else `package.json`. A role pins the images its own repository publishes with it, so no release has to bump them by hand:
+
+```yaml
+security-check:
+  image: ghcr.io/infinito-nexus/security/web
+  version: "{{ lookup('role_version', 'web-app-cst-security-check') }}"
+```
+
 For the local compose stack, `INFINITO_EXTRA_MOUNTS=<dir>[,<dir>]` mounts each directory read-only at the same path into the `infinito` container, so a local `url` resolves inside it.
 
 ### Private Repositories 🔐

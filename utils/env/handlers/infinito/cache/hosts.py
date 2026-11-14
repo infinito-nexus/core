@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from utils.cache.hosts import declarations
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CACHE_HOSTS"
 COMMENT = (

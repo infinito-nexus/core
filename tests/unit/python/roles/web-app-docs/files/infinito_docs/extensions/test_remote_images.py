@@ -4,9 +4,9 @@ import importlib
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 from types import SimpleNamespace
-from unittest import mock
 
 from docutils import nodes
 from docutils.utils import new_document
@@ -23,8 +23,10 @@ BADGE = "https://img.shields.io/badge/Infinito.Nexus-%2ECloud-000000?labelColor=
 SVG = b'<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'
 
 
-def _response(content_type: str, content: bytes = SVG) -> mock.Mock:
-    response = mock.Mock(headers={"Content-Type": content_type}, content=content)
+def _response(content_type: str, content: bytes = SVG) -> unittest.mock.Mock:
+    response = unittest.mock.Mock(
+        headers={"Content-Type": content_type}, content=content
+    )
     response.raise_for_status.return_value = None
     return response
 
@@ -33,7 +35,7 @@ def _app(doctreedir: str, builder_format: str = "html") -> SimpleNamespace:
     return SimpleNamespace(
         builder=SimpleNamespace(format=builder_format),
         doctreedir=doctreedir,
-        env=SimpleNamespace(images=mock.Mock()),
+        env=SimpleNamespace(images=unittest.mock.Mock()),
     )
 
 
@@ -52,7 +54,7 @@ class TestFetchImage(unittest.TestCase):
     def test_an_svg_lands_under_a_suffix_that_names_its_type(self) -> None:
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.object(
+            unittest.mock.patch.object(
                 remote_images.requests,
                 "get",
                 return_value=_response("image/svg+xml; charset=utf-8"),
@@ -66,7 +68,7 @@ class TestFetchImage(unittest.TestCase):
     def test_a_second_page_reuses_the_download(self) -> None:
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.object(
+            unittest.mock.patch.object(
                 remote_images.requests, "get", return_value=_response("image/png")
             ) as get,
         ):
@@ -79,7 +81,7 @@ class TestFetchImage(unittest.TestCase):
     def test_an_answer_that_is_no_image_is_dropped(self) -> None:
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.object(
+            unittest.mock.patch.object(
                 remote_images.requests, "get", return_value=_response("text/html")
             ),
         ):
@@ -89,7 +91,7 @@ class TestFetchImage(unittest.TestCase):
     def test_an_unreachable_host_is_dropped(self) -> None:
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.object(
+            unittest.mock.patch.object(
                 remote_images.requests,
                 "get",
                 side_effect=remote_images.requests.ConnectionError("down"),
@@ -104,7 +106,7 @@ class TestLocalizeRemoteImages(unittest.TestCase):
         doctree = _page(image)
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.object(
+            unittest.mock.patch.object(
                 remote_images.requests, "get", return_value=_response("image/svg+xml")
             ),
         ):
@@ -121,7 +123,7 @@ class TestLocalizeRemoteImages(unittest.TestCase):
         doctree = _page(nodes.image(uri=BADGE, alt="Infinito.Nexus"))
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.object(
+            unittest.mock.patch.object(
                 remote_images.requests,
                 "get",
                 side_effect=remote_images.requests.Timeout("slow"),
@@ -139,7 +141,7 @@ class TestLocalizeRemoteImages(unittest.TestCase):
         remote = nodes.image(uri=BADGE)
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.object(remote_images.requests, "get") as get,
+            unittest.mock.patch.object(remote_images.requests, "get") as get,
         ):
             remote_images.localize_remote_images(_app(tmp), _page(local), "index")
             remote_images.localize_remote_images(
@@ -151,7 +153,7 @@ class TestLocalizeRemoteImages(unittest.TestCase):
         self.assertEqual(remote["uri"], BADGE)
 
     def test_setup_hooks_the_resolved_doctree(self) -> None:
-        app = mock.Mock()
+        app = unittest.mock.Mock()
 
         meta = remote_images.setup(app)
 
