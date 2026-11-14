@@ -25,7 +25,7 @@ from utils.env.runtime import (
     mem_available_mb,
     mem_stall_pct,
     run_helper,
-    uninterruptible_procs,
+    uninterruptible_switches,
 )
 
 _PRESSURE = (
@@ -222,47 +222,70 @@ class TestPressureStalls(unittest.TestCase):
             self.assertEqual(io_stall_pct(), 0.0)
 
 
-class TestUninterruptibleProcs(unittest.TestCase):
+_STATUS = "Name:\tx\nvoluntary_ctxt_switches:\t{vol}\nnonvoluntary_ctxt_switches:\t2\n"
+
+
+class TestUninterruptibleSwitches(unittest.TestCase):
     """A wedged mount leaves processes in D state; the count is the trace."""
 
-    def _run(self, entries: list[str], stats: dict[str, str]) -> int:
+    def _run(
+        self,
+        entries: list[str],
+        stats: dict[str, str],
+        statuses: dict[str, str] | None = None,
+    ) -> dict[str, int]:
+        if statuses is None:
+            statuses = {pid: _STATUS.format(vol=pid) for pid in stats}
         files = {f"/proc/{pid}/stat": text for pid, text in stats.items()}
+        files |= {f"/proc/{pid}/status": text for pid, text in statuses.items()}
         with (
             patch("utils.env.runtime.os.listdir", return_value=entries),
             patch("utils.env.runtime.Path", _fake_proc(files)),
         ):
-            return uninterruptible_procs()
+            return uninterruptible_switches()
 
-    def test_counts_only_the_d_state(self) -> None:
+    def test_keeps_only_the_d_state(self) -> None:
         stats = {
             "1": "1 (systemd) S 0 1 1 0 -1 4194560 1 2 3",
             "2": "2 (rsync) D 1 2 2 0 -1 1077936128 4 5 6",
             "3": "3 (mount.nfs) D 1 3 3 0 -1 1077936128 7 8 9",
             "4": "4 (python3) R 1 4 4 0 -1 4194304 1 1 1",
         }
-        self.assertEqual(self._run(["1", "2", "3", "4"], stats), 2)
+        self.assertEqual(sorted(self._run(["1", "2", "3", "4"], stats)), ["2", "3"])
+
+    def test_sums_voluntary_and_involuntary_switches(self) -> None:
+        stats = {"40": "40 (rsync) D 1 40 40 0 -1 0 0 0 0"}
+        self.assertEqual(self._run(["40"], stats), {"40": 42})
 
     def test_a_comm_with_spaces_and_parens_does_not_shift_the_state(self) -> None:
         stats = {"7": "7 (weird )name( here) D 1 7 7 0 -1 0 0 0 0"}
-        self.assertEqual(self._run(["7"], stats), 1)
+        self.assertEqual(sorted(self._run(["7"], stats)), ["7"])
 
     def test_non_numeric_proc_entries_are_skipped(self) -> None:
         stats = {"5": "5 (bash) D 1 5 5 0 -1 0 0 0 0"}
         self.assertEqual(
-            self._run(["self", "meminfo", "cpuinfo", "5"], stats),
-            1,
+            sorted(self._run(["self", "meminfo", "cpuinfo", "5"], stats)),
+            ["5"],
         )
 
     def test_a_process_vanishing_mid_scan_is_tolerated(self) -> None:
         stats = {"9": "9 (bash) D 1 9 9 0 -1 0 0 0 0"}
-        self.assertEqual(self._run(["8", "9"], stats), 1)
+        self.assertEqual(sorted(self._run(["8", "9"], stats)), ["9"])
 
-    def test_unreadable_proc_returns_zero(self) -> None:
+    def test_a_d_task_whose_status_vanished_is_skipped(self) -> None:
+        stats = {"9": "9 (bash) D 1 9 9 0 -1 0 0 0 0"}
+        self.assertEqual(self._run(["9"], stats, statuses={}), {})
+
+    def test_a_status_without_the_counters_is_skipped(self) -> None:
+        stats = {"9": "9 (bash) D 1 9 9 0 -1 0 0 0 0"}
+        self.assertEqual(self._run(["9"], stats, statuses={"9": "Name:\tx\n"}), {})
+
+    def test_unreadable_proc_returns_empty(self) -> None:
         with patch("utils.env.runtime.os.listdir", side_effect=OSError):
-            self.assertEqual(uninterruptible_procs(), 0)
+            self.assertEqual(uninterruptible_switches(), {})
 
     def test_empty_stat_is_tolerated(self) -> None:
-        self.assertEqual(self._run(["11"], {"11": ""}), 0)
+        self.assertEqual(self._run(["11"], {"11": ""}), {})
 
 
 class TestIsWsl2(unittest.TestCase):

@@ -165,6 +165,10 @@ def download_calls(names: list[str], download: dict[str, Any]) -> list[ModuleCal
             retry=EXTERNAL_FETCH,
         ),
         install,
+        *(
+            ModuleCall("ansible.builtin.file", {"path": repo_file, "state": "absent"})
+            for repo_file in download.get("repo_files", [])
+        ),
         package_call(names, STATE_PRESENT),
     ]
 
