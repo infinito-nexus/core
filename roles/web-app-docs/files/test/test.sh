@@ -45,6 +45,7 @@ if [ ! -s "${BLOCK}" ]; then
 fi
 
 bash "${STAGE}/mirror.sh" "${BLOCK}"
+python3 "${STAGE}/hlth_runtime.py" "${BLOCK}"
 bash "${STAGE}/disc_space.sh" "${BLOCK}"
 
 echo "=== Checking they parse as bash ==="
