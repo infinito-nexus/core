@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
+import gzip
+import io
 import json
 import tempfile
+from contextlib import redirect_stderr
 from pathlib import Path
 from unittest import TestCase, main, mock
 
+from baudolo.restore import __main__ as restore_cli
+from baudolo.restore.dumpfile import locate
 from baudolo.restore.paths import BackupPaths
 
 from utils.recovery import databases
@@ -89,6 +94,40 @@ class TestLayoutFollowsBaudolo(TestCase):
             [(c.volume, c.instance) for c in clusters], [("postgres", "all")]
         )
 
+    def test_backup_paths_names_the_compressed_dump(self):
+        self.assertTrue(self.paths.sql_file("zammad").endswith(".backup.sql.gz"))
+        self.assertTrue(
+            self.paths.cluster_file("all").endswith(".cluster.backup.sql.gz")
+        )
+
+    def assert_core_finds_what_baudolo_replays(self):
+        dumps, clusters = databases.dumps_of(self.generation)
+        self.assertEqual(len(dumps), 1)
+        self.assertEqual(len(clusters), 1)
+        for dump in dumps:
+            self.assertEqual(locate(self.paths.sql_file(dump.database)), str(dump.path))
+        for cluster in clusters:
+            self.assertEqual(
+                locate(self.paths.cluster_file(cluster.instance)), str(cluster.path)
+            )
+
+    def test_a_compressed_dump_is_the_one_baudolo_restore_replays(self):
+        self.assert_core_finds_what_baudolo_replays()
+
+    def test_a_dump_from_before_baudolo_8_is_the_one_baudolo_restore_replays(self):
+        for written in (self.paths.sql_file("zammad"), self.paths.cluster_file("all")):
+            Path(written).rename(written.removesuffix(".gz"))
+        self.assert_core_finds_what_baudolo_replays()
+
+    def test_negative_control_a_dump_held_twice_is_refused_like_baudolo_does(self):
+        legacy = self.paths.sql_file("zammad").removesuffix(".gz")
+        Path(legacy).write_text("")
+        with self.assertRaises(FileExistsError):
+            locate(self.paths.sql_file("zammad"))
+        with self.assertRaises(databases.RecoveryError) as raised:
+            databases.dumps_of(self.generation)
+        self.assertIn("zammad.backup.sql", str(raised.exception))
+
 
 class TestGenerationLayout(TestCase):
     def setUp(self):
@@ -115,6 +154,27 @@ class TestGenerationLayout(TestCase):
             [(c.volume, c.instance) for c in clusters], [("postgres", "all")]
         )
 
+    def test_compressed_and_plain_dumps_of_one_generation_are_both_found(self):
+        (self.generation / "mariadb/sql").mkdir(parents=True)
+        (self.generation / "mariadb/sql/nextcloud.backup.sql.gz").write_bytes(b"")
+        (self.generation / "mariadb/sql/central.cluster.backup.sql.gz").write_bytes(b"")
+        dumps, clusters = databases.dumps_of(self.generation)
+        self.assertEqual(
+            [(d.volume, d.database) for d in dumps],
+            [("mariadb", "nextcloud"), ("postgres", "zammad")],
+        )
+        self.assertEqual(
+            [(c.volume, c.instance) for c in clusters],
+            [("mariadb", "central"), ("postgres", "all")],
+        )
+
+    def test_negative_control_a_file_that_is_no_dump_is_not_replayed(self):
+        for stray in ("zammad.backup.sql.tmp", "zammad.sql.gz", "notes.gz"):
+            (self.generation / "postgres/sql" / stray).write_bytes(b"")
+        dumps, clusters = databases.dumps_of(self.generation)
+        self.assertEqual([d.path.name for d in dumps], ["zammad.backup.sql"])
+        self.assertEqual([c.path.name for c in clusters], ["all.cluster.backup.sql"])
+
     def test_cluster_argv_matches_the_baudolo_contract(self):
         cluster = databases.Cluster("postgres", "central-postgres", Path("/x"))
         argv = databases.cluster_argv(
@@ -122,7 +182,6 @@ class TestGenerationLayout(TestCase):
             databases.generation_of(self.generation),
             "postgres-1",
             "postgres",
-            "s3cret",
         )
         self.assertEqual(
             argv[:5],
@@ -143,7 +202,6 @@ class TestGenerationLayout(TestCase):
             "postgres",
             "postgres-1",
             "zammad",
-            "s3cret",
         )
         self.assertEqual(
             argv[:5],
@@ -158,6 +216,92 @@ class TestGenerationLayout(TestCase):
         self.assertIn("--empty", argv)
         self.assertEqual(argv[argv.index("--container") + 1], "postgres-1")
         self.assertEqual(argv[argv.index("--db-name") + 1], "zammad")
+
+    def test_neither_argv_takes_a_password(self):
+        generation_parts = databases.generation_of(self.generation)
+        for argv in (
+            databases.restore_argv(
+                databases.Dump("postgres", "zammad", Path("/x")),
+                generation_parts,
+                "postgres",
+                "postgres-1",
+                "zammad",
+            ),
+            databases.cluster_argv(
+                databases.Cluster("postgres", "all", Path("/x")),
+                generation_parts,
+                "postgres-1",
+                "postgres",
+            ),
+        ):
+            with self.subTest(subcommand=argv[1]):
+                self.assertIn("--db-password-stdin", argv)
+                self.assertNotIn("--db-password", argv)
+
+
+class TestPasswordTransport(TestCase):
+    PASSWORD = "s3 cr'et\n"
+
+    def setUp(self):
+        self.generation = generation(Path(tempfile.mkdtemp()))
+        self.parts = databases.generation_of(self.generation)
+
+    def argvs(self):
+        return {
+            "postgres": databases.restore_argv(
+                databases.Dump("postgres", "zammad", Path("/x")),
+                self.parts,
+                "postgres",
+                "postgres-1",
+                "zammad",
+            ),
+            "cluster": databases.cluster_argv(
+                databases.Cluster("postgres", "all", Path("/x")),
+                self.parts,
+                "postgres-1",
+                "postgres",
+            ),
+        }
+
+    def baudolo_receives(self, argv, stdin):
+        seen = {}
+
+        def restore(**kwargs):
+            seen.update(kwargs)
+
+        with (
+            mock.patch.object(restore_cli, "restore_postgres_sql", restore),
+            mock.patch.object(restore_cli, "restore_cluster_sql", restore),
+            mock.patch.object(restore_cli, "locate", lambda path: path),
+            mock.patch("sys.stdin", io.StringIO(stdin)),
+            redirect_stderr(io.StringIO()) as stderr,
+        ):
+            self.assertEqual(restore_cli.main(argv[1:]), 0)
+        self.assertNotIn("WARNING", stderr.getvalue())
+        return seen["password"]
+
+    def test_the_password_reaches_baudolo_through_stdin_only(self):
+        for subcommand, argv in self.argvs().items():
+            with self.subTest(subcommand=subcommand):
+                self.assertFalse(any(self.PASSWORD.strip() in part for part in argv))
+                sent = {}
+
+                def fake_run(argv, secret="", stdin=None, sent=sent):
+                    sent["stdin"] = stdin
+                    sent["secret"] = secret
+                    return ""
+
+                with mock.patch.object(recovery_docker, "_run", fake_run):
+                    databases._restore(argv, self.PASSWORD)
+                self.assertEqual(sent["secret"], self.PASSWORD)
+                self.assertEqual(
+                    self.baudolo_receives(argv, sent["stdin"]), self.PASSWORD
+                )
+
+    def test_negative_control_without_stdin_baudolo_gets_no_password(self):
+        for subcommand, argv in self.argvs().items():
+            with self.subTest(subcommand=subcommand):
+                self.assertEqual(self.baudolo_receives(argv, ""), "")
 
 
 POSTGRES_HEADER = """--
@@ -310,9 +454,11 @@ class TestReplay(TestCase):
 
     def replay(self, running):
         calls = []
+        self.stdins = []
 
-        def fake_run(argv, secret=""):
+        def fake_run(argv, secret="", stdin=None):
             calls.append(argv)
+            self.stdins.append(stdin)
             return ""
 
         with (
@@ -348,6 +494,42 @@ class TestReplay(TestCase):
         restores = [argv for argv in calls if argv[0] == "baudolo-restore"]
         self.assertEqual(len(restores), 1)
         self.assertEqual(restores[0][:2], ["baudolo-restore", "postgres"])
+
+    def test_the_password_goes_in_on_stdin_and_on_no_argv(self):
+        _, calls = self.replay([])
+        self.assertEqual(
+            [argv for argv in calls if any("s3cret" in part for part in argv)], []
+        )
+        self.assertEqual([stdin for stdin in self.stdins if stdin], ["s3cret\n"])
+
+    def test_a_compressed_dump_is_replayed(self):
+        (self.generation / "postgres/sql/zammad.backup.sql").unlink()
+        with gzip.open(
+            self.generation / "postgres/sql/zammad.backup.sql.gz", "wt"
+        ) as out:
+            out.write(POSTGRES_HEADER)
+        replayed, calls = self.replay([])
+        self.assertEqual(replayed, 1)
+        restore = next(argv for argv in calls if argv[0] == "baudolo-restore")
+        self.assertEqual(restore[restore.index("--db-name") + 1], "zammad")
+
+    def test_negative_control_a_dump_held_twice_replays_nothing(self):
+        with gzip.open(
+            self.generation / "postgres/sql/zammad.backup.sql.gz", "wt"
+        ) as out:
+            out.write(POSTGRES_HEADER)
+        calls = []
+        with (
+            mock.patch.object(
+                recovery_docker,
+                "_run",
+                lambda argv, secret="", stdin=None: calls.append(argv) or "",
+            ),
+            self.assertRaises(databases.RecoveryError) as raised,
+        ):
+            databases.replay(self.generation, self.csv, engines=self.engines)
+        self.assertIn("same dump twice", str(raised.exception))
+        self.assertEqual(calls, [])
 
     def test_the_version_check_is_left_to_baudolo(self):
         _, calls = self.replay([])
@@ -385,7 +567,9 @@ class TestReplay(TestCase):
 
     def test_no_container_at_all_says_to_deploy_first(self):
         with (
-            mock.patch.object(recovery_docker, "_run", lambda argv, secret="": ""),
+            mock.patch.object(
+                recovery_docker, "_run", lambda argv, secret="", stdin=None: ""
+            ),
             self.assertRaises(databases.RecoveryError) as raised,
         ):
             recovery_docker.container_of_volume("postgres")
@@ -430,7 +614,9 @@ class TestReplay(TestCase):
             encoding="utf-8",
         )
         with (
-            mock.patch.object(recovery_docker, "_run", lambda argv, secret="": ""),
+            mock.patch.object(
+                recovery_docker, "_run", lambda argv, secret="", stdin=None: ""
+            ),
             mock.patch.object(
                 recovery_docker,
                 "consumers_running",
@@ -460,7 +646,9 @@ class TestReplay(TestCase):
             mock.patch.object(
                 recovery_docker,
                 "_run",
-                lambda argv, secret="": "bigbluebutton\n" if "inspect" in argv else "",
+                lambda argv, secret="", stdin=None: (
+                    "bigbluebutton\n" if "inspect" in argv else ""
+                ),
             ),
             mock.patch.object(
                 recovery_docker,
@@ -518,7 +706,9 @@ class TestReplay(TestCase):
             encoding="utf-8",
         )
         with (
-            mock.patch.object(recovery_docker, "_run", lambda argv, secret="": ""),
+            mock.patch.object(
+                recovery_docker, "_run", lambda argv, secret="", stdin=None: ""
+            ),
             mock.patch.object(recovery_docker, "consumers_running", lambda *a, **k: []),
             mock.patch.object(
                 recovery_docker, "container_of_volume", lambda *a, **k: "postgres-1"
@@ -531,6 +721,22 @@ class TestReplay(TestCase):
             recovery_docker._run(["false", "--db-password", "s3cret"], secret="s3cret")
         self.assertNotIn("s3cret", str(raised.exception))
         self.assertIn("***", str(raised.exception))
+
+    def test_a_password_echoed_on_stderr_is_redacted_too(self):
+        with self.assertRaises(databases.RecoveryError) as raised:
+            recovery_docker._run(
+                ["sh", "-c", "cat >&2; exit 1"], secret="s3cret", stdin="s3cret\n"
+            )
+        self.assertNotIn("s3cret", str(raised.exception))
+        self.assertIn("***", str(raised.exception))
+
+    def test_negative_control_unredacted_stderr_is_shown(self):
+        with self.assertRaises(databases.RecoveryError) as raised:
+            recovery_docker._run(["sh", "-c", "cat >&2; exit 1"], stdin="s3cret\n")
+        self.assertIn("s3cret", str(raised.exception))
+
+    def test_stdin_reaches_the_command(self):
+        self.assertEqual(recovery_docker._run(["cat"], stdin="s3cret\n"), "s3cret\n")
 
 
 if __name__ == "__main__":

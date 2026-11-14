@@ -10,6 +10,7 @@ File payloads are captured with rsync hard-link snapshots; databases register th
 This role installs the `baudolo` CLI, lays out the on-host backup tree, deploys the systemd service that drives the periodic run, and wires the cleanup-of-failed-backups dependency so partial snapshots are not retained.
 Database seeding for individual apps is contributed by the consumer roles via `tasks/03_seed-database-to-backup.yml`, which they include conditionally once `svc-bkp-volume-2-local` is in `group_names`.
 The first seed of a play reads `databases.csv` once through `tasks/05_read-seeded-databases.yml`; a consumer whose row already holds its credentials skips `baudolo-seed`, every other consumer still calls it at its own point in the play.
+`baudolo-seed` gets the password on stdin (`--password-stdin`), so it never shows in the host's process list.
 
 ## Schema
 
@@ -181,7 +182,12 @@ the order is: deploy the stack, stop the consumers, replay, start them again.
 The step names which of the two states is missing — a stopped container that
 only needs starting, or no container at all.
 
-It replays every single-database dump with `baudolo-restore <engine> --empty`.
+It replays every single-database dump with `baudolo-restore <engine> --empty`,
+the password on stdin (`--db-password-stdin`) rather than on the command line.
+Since baudolo 8 a dump is gzip-compressed and named `<db>.backup.sql.gz`; a
+generation written before holds `<db>.backup.sql` and is found and replayed the
+same way. A dump present under both names stops the replay before anything is
+dropped, because nothing can tell which of the two is the one to restore.
 Two rules make it safe rather than convenient:
 
 1. **The consumers must be down.** `--empty` pre-cleans the schema in one psql
@@ -204,9 +210,12 @@ Two rules make it safe rather than convenient:
    generation copied to another host carries its header along, a csv row does
    not.
 
-Cluster dumps (`database = '*'`) are reported and skipped: `baudolo-restore`
-has no subcommand that replays them. Database mode is local-only — the
-credentials live in the target host's own `databases.csv`.
+Cluster dumps (`database = '*'`) go through `baudolo-restore cluster` with the
+superuser of the instance's cluster row in `databases.csv`, before the
+single-database dumps. A cluster dump without that row, or with a consumer of
+any database it recreates still running, aborts the run before anything is
+replayed. Database mode is local-only — the credentials live in the target
+host's own `databases.csv`.
 
 ### A single volume
 

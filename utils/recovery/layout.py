@@ -16,8 +16,9 @@ from __future__ import annotations
 
 SQL_DIR = "sql"
 FILES_DIR = "files"
-DUMP_SUFFIX = ".backup.sql"
-CLUSTER_SUFFIX = ".cluster.backup.sql"
+DUMP_SUFFIX = ".backup.sql.gz"
+CLUSTER_SUFFIX = ".cluster.backup.sql.gz"
+COMPRESSED_SUFFIX = ".gz"
 
 MANIFEST_FILE = "manifest.json"
 MANIFEST_SCHEMA = 1

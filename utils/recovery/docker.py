@@ -21,24 +21,29 @@ def _docker(argv: list[str], docker_host: str | None) -> list[str]:
     return [DOCKER_BIN, *(["-H", docker_host] if docker_host else []), *argv]
 
 
-def _run(argv: list[str], secret: str = "") -> str:
+def _run(argv: list[str], secret: str = "", stdin: str | None = None) -> str:
     """Run a command, aborting the replay when it fails.
 
     Args:
         argv: the command.
-        secret: a value to redact from the error message.
+        secret: a value to redact from the error message, which quotes both
+            the command and its stderr.
+        stdin: text fed to the command's stdin, None for none.
     """
     try:
-        result = subprocess.run(argv, capture_output=True, text=True, check=False)
+        result = subprocess.run(
+            argv, capture_output=True, text=True, check=False, input=stdin
+        )
     except FileNotFoundError as missing:
         raise RecoveryError(f"{argv[0]} is not on PATH") from missing
     if result.returncode != 0:
-        shown = " ".join(argv)
+        shown = (
+            f"command failed ({result.returncode}): {' '.join(argv)}\n"
+            f"{result.stderr.strip()}"
+        )
         if secret:
             shown = shown.replace(secret, "***")
-        raise RecoveryError(
-            f"command failed ({result.returncode}): {shown}\n{result.stderr.strip()}"
-        )
+        raise RecoveryError(shown)
     return result.stdout
 
 
