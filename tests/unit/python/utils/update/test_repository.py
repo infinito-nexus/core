@@ -452,7 +452,7 @@ class TestGitRefResolves(unittest.TestCase):
             calls.append(argv)
             return subprocess.CompletedProcess(argv, returncode, stdout, "")
 
-        with mock.patch.object(module.subprocess, "run", side_effect=run):
+        with unittest.mock.patch.object(module.subprocess, "run", side_effect=run):
             return git_ref_resolves(TAG_REPO, "v4.0.2"), calls
 
     def test_a_branch_or_a_peeled_tag_of_that_name_resolves(self) -> None:
