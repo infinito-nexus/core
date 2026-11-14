@@ -1,7 +1,6 @@
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -32,7 +31,7 @@ class TestDomainLookup(unittest.TestCase):
         self.lookup._loader = mock.MagicMock()
 
     def run_lookup(self, application_id, domains_map):
-        with patch("plugins.lookup.domain.lookup_loader") as loader_mock:
+        with mock.patch("plugins.lookup.domain.lookup_loader") as loader_mock:
 
             def _get(name, *a, **k):
                 if name == "domains":
@@ -90,7 +89,7 @@ class TestDomainLookup(unittest.TestCase):
             self.run_lookup_raw([123])
 
     def run_lookup_raw(self, terms):
-        with patch("plugins.lookup.domain.lookup_loader") as loader_mock:
+        with mock.patch("plugins.lookup.domain.lookup_loader") as loader_mock:
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [{"app": "example.com"}]
             )

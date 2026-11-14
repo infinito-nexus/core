@@ -12,7 +12,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from utils.cache.files import read_text
-from utils.env.builder import EnvBuilder
+from utils.env.context import EnvBuilder
 from utils.env.writer import quote_for_dotenv, write_dotenv
 
 

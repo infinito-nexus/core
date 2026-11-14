@@ -19,17 +19,11 @@ from babel.messages.checkers import python_format
 
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import LOCALE_DIR, catalog_path, read_catalog
+from utils.i18n.damage import MARKUP, added_spans, protected_spans
 from utils.i18n.extract import core_messages
 from utils.i18n.languages import domain_languages, load_languages
-from utils.i18n.placeholders import (
-    MARKUP,
-    TOKEN,
-    added_spans,
-    mask,
-    protected_spans,
-    resegment,
-    tighten,
-)
+from utils.i18n.placeholders import TOKEN, resegment, tighten
+from utils.i18n.spans import mask
 
 SAMPLE = 20
 QUOTED = re.compile(r"['\"][\w.-]+['\"]")

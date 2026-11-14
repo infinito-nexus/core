@@ -16,9 +16,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.cache import _reset_cache_for_tests
 from utils.cache import domains as cache_domains
 from utils.cache.base import _RENDER_GUARD
+from utils.cache.reset import _reset_cache_for_tests
 from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
 

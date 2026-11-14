@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader, lookup_loader
@@ -108,7 +108,7 @@ def render(conductor: list[str], shop: list[str]) -> dict:
         logout_domains=logout_domains,
     )
     env.globals["lookup"] = lookup
-    with mock.patch.object(lookup_loader, "get", side_effect=get):
+    with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
         instances = templar.template(declared["LOGOUT_INSTANCES"])
         rendered = env.from_string(read_text(str(TEMPLATE))).render(
             application_id=APP,

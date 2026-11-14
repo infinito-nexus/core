@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import unittest.mock
 from collections import Counter
 from pathlib import Path
-from unittest import mock
 
 from ansible.errors import AnsibleUndefinedVariable
 from ansible.parsing.dataloader import DataLoader
@@ -191,7 +191,7 @@ def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT):
         design_css_states={},
     )
     facts: dict = {}
-    with mock.patch.object(lookup_loader, "get", side_effect=get):
+    with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
         for task in tasks:
             renders.append(Counter())
             scope = {**variables, **facts, **_trusted(task["vars"])}

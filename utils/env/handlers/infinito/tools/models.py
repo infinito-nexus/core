@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 from utils.env.handlers.infinito.cache.paths import base
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_TOOLS_MODELS_HOST_PATH"
 COMMENT = "Node-local directory the tools lane keeps its downloaded models in."

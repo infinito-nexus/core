@@ -14,11 +14,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from statistics import median
 
+from cli.build.i18n import READY_TIMEOUT_SECONDS
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import catalog_path, read_catalog
+from utils.i18n.client import LibreTranslate
 from utils.i18n.libretranslate import (
-    READY_TIMEOUT_SECONDS,
-    LibreTranslate,
     download_status,
     served_languages,
     server,
