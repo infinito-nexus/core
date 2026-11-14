@@ -38,6 +38,7 @@ REALM = {
     "duplicateEmailsAllowed": False,
     "adminEventsEnabled": True,
     "adminPermissionsEnabled": True,
+    "accessTokenLifespan": 600,
     "attributes": {"adminEventsExpiration": "31536000", "frontendUrl": ""},
     **OTP_POLICY,
 }
@@ -124,6 +125,7 @@ class TestSettingsSpec(unittest.TestCase):
                         "duplicateEmailsAllowed": False,
                         "adminEventsEnabled": True,
                         "adminPermissionsEnabled": True,
+                        "accessTokenLifespan": 600,
                         "attributes": {"adminEventsExpiration": "31536000"},
                         **OTP_POLICY,
                     },

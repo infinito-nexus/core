@@ -19,7 +19,8 @@ IMPORT_DIR = ROLE_DIR / "templates/import"
 ROLE_VARS = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
 ROLE_SERVICES = load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_SERVICES))
 ADMIN_EVENTS_DAYS = ROLE_SERVICES["keycloak"]["events"]["admin"]["expiration_days"]
-OTP_VARIABLES = (
+REALM_VARIABLES = (
+    "KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN",
     "KEYCLOAK_REALM_TOTP_ENABLED",
     "KEYCLOAK_REALM_TOTP_ENFORCED",
     "KEYCLOAK_REALM_OTP_POLICY_TYPE",
@@ -32,8 +33,8 @@ OTP_VARIABLES = (
 )
 
 
-def otp_context(realm_overrides: dict | None = None) -> dict:
-    """Resolve the role's OTP variables through ``vars/main.yml`` from ``meta/services.yml``.
+def realm_context(realm_overrides: dict | None = None) -> dict:
+    """Resolve the role's realm variables through ``vars/main.yml`` from ``meta/services.yml``.
 
     Args:
         realm_overrides: values replacing those below ``services.keycloak.realm``,
@@ -60,7 +61,7 @@ def otp_context(realm_overrides: dict | None = None) -> dict:
         name: env.compile_expression(
             ROLE_VARS[name].strip().removeprefix("{{").removesuffix("}}")
         )(lookup=lookup, application_id="web-app-keycloak")
-        for name in OTP_VARIABLES
+        for name in REALM_VARIABLES
     }
 
 
@@ -138,7 +139,7 @@ CONTEXT = {
     "KEYCLOAK_RECAPTCHA_KEY": "",
     "KEYCLOAK_RECAPTCHA_SECRET": "",
     "KEYCLOAK_RECAPTCHA_ENABLED": False,
-    **otp_context({"totp_enabled": False, "totp_enforced": False}),
+    **realm_context({"totp_enabled": False, "totp_enforced": False}),
     "KEYCLOAK_LDAP_ENABLED": True,
     "KEYCLOAK_MOODLE_ENABLED": True,
     "KEYCLOAK_RESERVED_USERNAMES_REGEX": "^(root|admin)$",
@@ -906,9 +907,9 @@ def otp_realm(realm_overrides: dict | None = None) -> dict:
     """Render the realm from ``meta/services.yml`` with *realm_overrides* applied.
 
     Args:
-        realm_overrides: see ``otp_context``.
+        realm_overrides: see ``realm_context``.
     """
-    return json.loads(render([], overrides=otp_context(realm_overrides)))
+    return json.loads(render([], overrides=realm_context(realm_overrides)))
 
 
 OFFERED = {"totp_enforced": False}
@@ -1036,6 +1037,18 @@ class TestOtpPolicy(unittest.TestCase):
                     {f: v for f, v in OTP_POLICY_DEFAULTS.items() if f != field},
                     {f: realm[f] for f in OTP_POLICY_DEFAULTS if f != field},
                 )
+
+
+class TestAccessTokenLifespan(unittest.TestCase):
+    def test_the_realm_renders_the_configured_lifespan(self) -> None:
+        shipped = ROLE_SERVICES["keycloak"]["realm"]["access_token_lifespan_seconds"]
+        self.assertEqual(300, shipped)
+        self.assertEqual(shipped, otp_realm()["accessTokenLifespan"])
+
+    def test_a_changed_lifespan_reaches_the_realm_as_an_integer(self) -> None:
+        realm = otp_realm({"access_token_lifespan_seconds": 600})
+        self.assertEqual(600, realm["accessTokenLifespan"])
+        self.assertIs(int, type(realm["accessTokenLifespan"]))
 
 
 class TestAdminEvents(unittest.TestCase):

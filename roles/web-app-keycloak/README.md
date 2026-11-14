@@ -62,10 +62,11 @@ No deploy moves a realm from `mailbox` back to `external`. An operator who has t
 
 ## Two-Factor Authentication
 
-`services.keycloak.realm` in [services.yml](meta/services.yml) decides how the application realm offers one-time passwords. A fresh realm imports these values and every deploy converges an existing realm to them.
+`services.keycloak.realm` in [services.yml](meta/services.yml) sets the access token lifetime of the application realm and decides how it offers one-time passwords. A fresh realm imports these values and every deploy converges an existing realm to them.
 
 | Key | Default | Effect |
 |---|---|---|
+| `access_token_lifespan_seconds` | `300` | Lifetime of an access token the realm issues, a whole number of seconds above 0. Other roles read it through `lookup('config', 'web-app-keycloak', 'services.keycloak.realm.access_token_lifespan_seconds')` instead of keeping a copy, for example a store that must keep an erasure record until every token issued before it has expired. |
 | `totp_enabled` | `true` | Enables the `CONFIGURE_TOTP` required action: a user can enroll an authenticator app in the account console. The browser flow asks every user who holds an OTP credential for a code, whatever this key says. |
 | `totp_enforced` | `true` | Makes `CONFIGURE_TOTP` a default action, which Keycloak attaches to every user it creates while the key is `true`; see [Enforcing TOTP](#enforcing-totp). Needs `totp_enabled: true`, otherwise the deploy fails. |
 | `otp_policy.type` | `totp` | `totp` (time-based) or `hotp` (counter-based). |

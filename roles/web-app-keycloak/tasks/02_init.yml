@@ -28,6 +28,17 @@
       of days above 0, because Keycloak keeps admin events forever at 0.
     quiet: true
 
+- name: "✅ Assert access tokens of '{{ application_id }}' live whole seconds above 0"
+  ansible.builtin.assert:
+    that:
+      - KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN is integer
+      - KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN > 0
+    fail_msg: >-
+      services.keycloak.realm.access_token_lifespan_seconds is
+      '{{ KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN }}'; it must be a whole number
+      of seconds above 0.
+    quiet: true
+
 - name: "✅ Assert '{{ application_id }}' enforces TOTP only where it offers it"
   ansible.builtin.assert:
     that: KEYCLOAK_REALM_TOTP_ENABLED | bool or not (KEYCLOAK_REALM_TOTP_ENFORCED | bool)

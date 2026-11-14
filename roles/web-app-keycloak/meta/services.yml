@@ -62,6 +62,7 @@ keycloak:
   pids_limit: 1024
   realm:
     import_enabled: true
+    access_token_lifespan_seconds: 300
     totp_enabled: true
     totp_enforced: true
     otp_policy:
