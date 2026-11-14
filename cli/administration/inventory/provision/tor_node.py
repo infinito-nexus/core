@@ -13,8 +13,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from cli.administration.inventory.onion import ensure_node_onion
-
-from .ruamel_io import dump_document, ensure_map, load_document
+from cli.administration.inventory.ruamel_io import (
+    dump_document,
+    ensure_map,
+    load_document,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path

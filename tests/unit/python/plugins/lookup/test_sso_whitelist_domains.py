@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 import unittest
+import unittest.mock
 from typing import ClassVar
-from unittest import mock
 
 from ansible.errors import AnsibleError
 
@@ -45,7 +45,7 @@ class TestSsoWhitelistDomains(unittest.TestCase):
 
     def _run(self, variables, domains=None, node_onion=""):
         domains = {self.APP: f"pihole.{PRIMARY}"} if domains is None else domains
-        with mock.patch(
+        with unittest.mock.patch(
             "plugins.lookup.sso_whitelist_domains.lookup_loader.get",
             side_effect=_loader_for(domains, node_onion),
         ):

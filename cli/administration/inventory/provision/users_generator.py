@@ -13,12 +13,17 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
+from cli.administration.inventory.ruamel_io import (
+    dump_document,
+    ensure_map,
+    load_document,
+    vault_value,
+)
 from utils.cache.users import get_user_defaults
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
 from .passwords import generate_declared_user_password
-from .ruamel_io import dump_document, ensure_map, load_document, vault_value
 
 if TYPE_CHECKING:
     from pathlib import Path

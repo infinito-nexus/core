@@ -4,12 +4,8 @@ import importlib.util
 import sys
 import types
 import unittest
-from typing import TYPE_CHECKING
 
 from . import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from types import ModuleType
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -36,7 +32,7 @@ def _fake_ldap() -> types.ModuleType:
     return fake
 
 
-def _load_ldap_entries() -> ModuleType:
+def _load_ldap_entries() -> types.ModuleType:
     fake = _fake_ldap()
     sys.modules["ldap"] = fake
     sys.modules["ldap.modlist"] = fake.modlist

@@ -22,6 +22,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
 
+from cli.build.i18n import READY_TIMEOUT_SECONDS
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import (
     adopt_template,
@@ -31,20 +32,18 @@ from utils.i18n.catalog import (
     read_catalog,
     write_catalog,
 )
-from utils.i18n.client import BATCH_SIZE
+from utils.i18n.client import BATCH_SIZE, LibreTranslate
 from utils.i18n.extract import core_messages, docs_template
+from utils.i18n.gateway import server
 from utils.i18n.languages import (
     DOMAINS,
     domain_languages,
     load_languages,
 )
-from utils.i18n.gateway import (
-    READY_TIMEOUT_SECONDS,
-    LibreTranslate,
+from utils.i18n.libretranslate import (
     download_status,
-    server,
+    served_languages,
 )
-from utils.i18n.libretranslate import served_languages
 from utils.i18n.placeholders import Rejected
 from utils.i18n.translate import (
     apply,
@@ -214,9 +213,7 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
             criteria.update(
                 value.reason for value in outcome.values if isinstance(value, Rejected)
             )
-            discarded += apply(
-                chunk, outcome.values, taken, criteria, outcome.engines
-            )
+            discarded += apply(chunk, outcome.values, taken, criteria, outcome.engines)
             refused += outcome.refused
             damaged += outcome.damaged
             refusal = outcome.refusal or refusal
@@ -238,7 +235,10 @@ def translate(domains: list[str], requested: list[str], redeploy: bool = False) 
         supported = domain_languages(loaded, domain)
         unsupported = sorted(set(requested) - set(supported))
         if unsupported:
-            print(f"{', '.join(unsupported)} is not a language this repository names", file=sys.stderr)
+            print(
+                f"{', '.join(unsupported)} is not a language this repository names",
+                file=sys.stderr,
+            )
             return 2
         work += [
             (domain, code)

@@ -12,6 +12,7 @@ folder, everything else runs with the current path prepended.
 from __future__ import annotations
 
 import contextlib
+import importlib
 import shlex
 import sys
 
@@ -56,7 +57,7 @@ from .runner import (
 )
 
 with contextlib.suppress(ImportError):
-    import readline  # noqa: F401
+    importlib.import_module("readline")
 
 __all__ = [
     "AUTHOR",
