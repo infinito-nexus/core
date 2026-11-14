@@ -11,12 +11,37 @@ the sampling cadence that decides how stale the last sample is.
 
 import contextlib
 import io
+import itertools
 import signal
 import subprocess
 import unittest
 import unittest.mock as mock
+from collections.abc import Callable
 
 from utils.tests.swarm import watchdog
+
+_HUNG_SAMPLES = watchdog.HUNG_TASK_S // watchdog.SAMPLE_INTERVAL_S
+_STUCK_DISK = {"101": 0, "102": 0, "103": 0}
+_BUSY_DISK = {str(pid): 1 for pid in range(201, 209)}
+_STALE_NFS = {"301": 0, "302": 0} | _BUSY_DISK
+
+
+def _switches(periods: dict[str, int]) -> Callable[[], dict[str, int]]:
+    """
+    Args:
+        periods: per D-state pid the samples between two of its context
+            switches; 0 for a task that never switches.
+
+    Returns:
+        An uninterruptible_switches() stand-in advancing on every call.
+    """
+    calls = itertools.count()
+
+    def sample() -> dict[str, int]:
+        n = next(calls)
+        return {pid: n // period if period else 0 for pid, period in periods.items()}
+
+    return sample
 
 
 class _FakeProc:
@@ -51,6 +76,7 @@ class TestSampleLine(unittest.TestCase):
             "io_stall": 0.0,
             "cpu_stall": 0.0,
             "dstate": 0,
+            "hung": 0,
         }
         fields.update(overrides)
         return watchdog.sample_line(**fields)  # type: ignore[arg-type]
@@ -67,6 +93,9 @@ class TestSampleLine(unittest.TestCase):
         self.assertIn("io60 72.5%", line)
         self.assertIn("cpu60 13.5%", line)
         self.assertIn("dstate 4", line)
+
+    def test_it_carries_the_hung_task_count(self) -> None:
+        self.assertIn("dstate 9, hung 2 ===", self._render(dstate=9, hung=2))
 
     def test_it_stays_one_greppable_banner(self) -> None:
         line = self._render()
@@ -92,7 +121,7 @@ class TestRunWatched(unittest.TestCase):
         avail: int = 9324,
         total: int = 15947,
         free_mb: int = 38948,
-        dstate: int = 3,
+        blocked: dict[str, int] = _STUCK_DISK,
     ) -> tuple[int, str, _FakeProc]:
         proc = _FakeProc(timeouts=timeouts, rc=rc)
         buffer = io.StringIO()
@@ -117,7 +146,9 @@ class TestRunWatched(unittest.TestCase):
             mock.patch.object(watchdog, "mem_stall_pct", return_value=0.0),
             mock.patch.object(watchdog, "io_stall_pct", return_value=io_stall),
             mock.patch.object(watchdog, "cpu_stall_pct", return_value=11.0),
-            mock.patch.object(watchdog, "uninterruptible_procs", return_value=dstate),
+            mock.patch.object(
+                watchdog, "uninterruptible_switches", side_effect=_switches(blocked)
+            ),
             contextlib.redirect_stdout(buffer),
         ):
             returned = watchdog.run_watched(["true"], env={})
@@ -153,7 +184,51 @@ class TestRunWatched(unittest.TestCase):
 
     def test_a_busy_disk_with_nothing_blocked_is_not_a_wedge(self) -> None:
         returned, output, proc = self._watch(
-            timeouts=_WEDGE_SAMPLES, rc=0, io_stall=99.0, dstate=0
+            timeouts=_WEDGE_SAMPLES, rc=0, io_stall=99.0, blocked={}
+        )
+        self.assertEqual(returned, 0)
+        self.assertFalse(proc.terminated)
+        self.assertNotIn("I/O WEDGE", output)
+
+    def test_a_busy_local_disk_whose_d_tasks_keep_waking_is_not_a_wedge(
+        self,
+    ) -> None:
+        returned, output, proc = self._watch(
+            timeouts=_WEDGE_SAMPLES * 2, rc=0, io_stall=99.0, blocked=_BUSY_DISK
+        )
+        self.assertEqual(returned, 0)
+        self.assertFalse(proc.terminated)
+        self.assertNotIn("I/O WEDGE", output)
+        self.assertIn("dstate 8, hung 0 ===", output)
+
+    def test_a_stuck_local_disk_is_a_wedge(self) -> None:
+        returned, output, proc = self._watch(
+            timeouts=_WEDGE_SAMPLES, rc=0, io_stall=99.0, blocked=_STUCK_DISK
+        )
+        self.assertEqual(returned, watchdog.ABORT_RC)
+        self.assertTrue(proc.terminated)
+        self.assertIn(
+            f"3 task(s) in D state, 3 hung for {watchdog.HUNG_TASK_S}s+", output
+        )
+
+    def test_a_stale_nfs_mount_beside_a_busy_local_disk_is_a_wedge(self) -> None:
+        returned, output, proc = self._watch(
+            timeouts=_WEDGE_SAMPLES, rc=0, io_stall=99.0, blocked=_STALE_NFS
+        )
+        self.assertEqual(returned, watchdog.ABORT_RC)
+        self.assertTrue(proc.terminated)
+        self.assertIn(
+            f"10 task(s) in D state, 2 hung for {watchdog.HUNG_TASK_S}s+", output
+        )
+
+    def test_a_task_blocked_shorter_than_the_hung_threshold_is_not_a_wedge(
+        self,
+    ) -> None:
+        returned, output, proc = self._watch(
+            timeouts=_WEDGE_SAMPLES * 2,
+            rc=0,
+            io_stall=99.0,
+            blocked={"401": _HUNG_SAMPLES},
         )
         self.assertEqual(returned, 0)
         self.assertFalse(proc.terminated)
@@ -216,6 +291,26 @@ class TestRunWatched(unittest.TestCase):
         self._watch(timeouts=1, rc=0, io_stall=0.0)
         touched = sorted(call.args[0] for call in self.handlers.call_args_list)
         self.assertEqual(touched, sorted([signal.SIGINT, signal.SIGTERM] * 2))
+
+
+class TestBlockedStreaks(unittest.TestCase):
+    def test_a_task_without_a_context_switch_extends_its_streak(self) -> None:
+        streaks = watchdog.blocked_streaks({"7": (40, 2)}, {"7": 40})
+        self.assertEqual(streaks, {"7": (40, 3)})
+
+    def test_a_context_switch_resets_the_streak(self) -> None:
+        streaks = watchdog.blocked_streaks({"7": (40, 2)}, {"7": 41})
+        self.assertEqual(streaks, {"7": (41, 0)})
+
+    def test_a_task_new_to_d_starts_at_zero_and_a_woken_one_is_dropped(
+        self,
+    ) -> None:
+        streaks = watchdog.blocked_streaks({"7": (40, 2)}, {"8": 0})
+        self.assertEqual(streaks, {"8": (0, 0)})
+
+    def test_only_streaks_spanning_the_hung_threshold_count(self) -> None:
+        streaks = {"1": (0, _HUNG_SAMPLES), "2": (0, _HUNG_SAMPLES - 1)}
+        self.assertEqual(watchdog.hung_tasks(streaks), 1)
 
 
 if __name__ == "__main__":

@@ -43,7 +43,7 @@ bigbluebutton:
   update:
     key: ref
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   recording:
     enabled: false
@@ -119,7 +119,7 @@ bbb-web:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -136,7 +136,7 @@ freeswitch:
   version: "v1.11.3-v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (?P<bbb>v[0-9.]+)\\nrepos/freeswitch (?P<freeswitch>v[0-9.]+)"
     template: "{freeswitch}-{bbb}"
   enabled: false
@@ -155,8 +155,8 @@ nginx:
   update:
     type: http_regex
     url:
-      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
-      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
+      - https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
+      - https://raw.githubusercontent.com/bigbluebutton/docker/main/docker-compose.tmpl.yml
     pattern: "repos/bbb-playback (?P<playback>v[0-9.]+)\\n(?:.*\\n)*?repos/bigbluebutton (?P<bbb>v[0-9.]+)\\n(?:.*\\n)*?.*bbb-docker-nginx:.*-(?P<base>[0-9.]+)\\n"
     template: "{bbb}-{playback}-{base}"
   enabled: false
@@ -172,7 +172,7 @@ bbb-shared-notes-server:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -189,7 +189,7 @@ bbb-export-annotations:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -206,7 +206,7 @@ webrtc-sfu:
   version: "v2.24.0"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bbb-webrtc-sfu (v[0-9.]+)"
   enabled: false
   security:
@@ -221,7 +221,7 @@ fsesl-akka:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -238,7 +238,7 @@ apps-akka:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -258,7 +258,7 @@ bbb-graphql-server:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -273,7 +273,7 @@ bbb-graphql-actions:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -288,7 +288,7 @@ bbb-graphql-middleware:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -305,7 +305,7 @@ periodic:
   version: "v3.0.0"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/docker-compose.tmpl.yml
     pattern: "bbb-docker-periodic:(v[0-9.]+)"
   enabled: false
   security:
@@ -322,7 +322,7 @@ recordings:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
   security:
@@ -337,7 +337,7 @@ bbb-webrtc-recorder:
   version: "v0.14.0"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bbb-webrtc-recorder (v[0-9.]+)"
   enabled: false
   security:

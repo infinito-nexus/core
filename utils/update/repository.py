@@ -173,6 +173,26 @@ def git_ls_remote_tags(url: str) -> list[str]:
     return sorted(tags)
 
 
+def git_ref_resolves(url: str, ref: str) -> bool | None:
+    """
+    Args:
+        url: repository to query.
+        ref: branch or tag name a pin would check out.
+
+    Returns:
+        Whether ``git ls-remote`` lists ``refs/heads/<ref>`` or
+        ``refs/tags/<ref>``, ``None`` when the lookup fails.
+    """
+    wanted = (f"refs/heads/{ref}", f"refs/tags/{ref}")
+    stdout = _ls_remote(url, *wanted)
+    if stdout is None:
+        return None
+    return any(
+        line.partition("\t")[2].removesuffix("^{}") in wanted
+        for line in stdout.splitlines()
+    )
+
+
 def _ref_lines(lines: list[str]) -> list[tuple[int, str]]:
     """Return ``(1-indexed line number, ref value)`` for every `ref:`
     declaration in *lines*."""
