@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import unittest
+import unittest.mock
 from types import SimpleNamespace
-from unittest import mock
 
 from cli.administration.deploy.swarm import command
 
@@ -17,14 +17,18 @@ class TestSwarmMain(unittest.TestCase):
             return ids
 
         with (
-            mock.patch.object(command, "parse_args", return_value=(args, [], {})),
-            mock.patch.object(
+            unittest.mock.patch.object(
+                command, "parse_args", return_value=(args, [], {})
+            ),
+            unittest.mock.patch.object(
                 command,
                 "pull_custom_roles",
                 side_effect=lambda _args: calls.append("pull"),
             ),
-            mock.patch.object(command, "swarm_deploy_targets", side_effect=closure),
-            mock.patch.object(command, "run_from_args", return_value=0) as run,
+            unittest.mock.patch.object(
+                command, "swarm_deploy_targets", side_effect=closure
+            ),
+            unittest.mock.patch.object(command, "run_from_args", return_value=0) as run,
         ):
             self.assertEqual(0, command.main([]))
 

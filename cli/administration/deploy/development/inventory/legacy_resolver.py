@@ -1,73 +1,23 @@
-"""Default (non-variant) include resolution for the matrix planner.
+"""Orphan pruning for the matrix planner's rounds after a `disable`.
 
 When NO primary app ships a `meta/variants.yml`, the planner falls back
-to this path — the `CombinedResolver` walks `dependencies` and
-`shared:`-edges in the variant-merged services map and Jinja flags are
-evaluated at deploy time against `group_names`. `run_after` is NOT
-followed for inclusion (it is a pure ordering hint), so a variant that
-disables a service does not get the provider re-added through the
-ordering edge. This module owns the include resolution that path needs
-and nothing else; the round's variant-merged services maps come from
+to the `CombinedResolver`, which walks `dependencies` and `shared:`-edges
+in the variant-merged services map; Jinja flags are evaluated at deploy
+time against `group_names`. `run_after` is NOT followed for inclusion (it
+is a pure ordering hint), so a variant that disables a service does not
+get the provider re-added through the ordering edge. The round's include
+set and its variant-merged services maps come from
 `utils.roles.applications.variants`, which the CI selection resolves its
-closure from as well.
+closure from as well; this module cuts that include once `disable` drops
+a provider.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.roles.applications.variants import services_overrides_for_round
-
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
-
-_build_services_overrides_for_round = services_overrides_for_round
-
-
-def _resolve_round_include(
-    *,
-    primary_apps: Sequence[str],
-    services_overrides: dict[str, dict],
-) -> tuple[str, ...]:
-    """Resolve transitive prerequisites for each primary app under a
-    round's variant-merged services map. Returns the full include set
-    in stable order (deps first per primary, primary last; primaries
-    iterated in the user-provided order).
-
-    A non-invokable prerequisite is dropped from the result. The include
-    set becomes an inventory group per entry and a deploy id the play
-    dispatches, and `utils.roles.stage` only ever loops over invokable
-    paths, so a non-invokable id could never be dispatched from one.
-    Keeping it would abort the round before ansible starts, which is
-    what `user-workstation` did to every desktop round, and inventing a
-    group for it instead would produce one nothing dispatches. The role
-    still reaches the host through whatever pulled it into the closure:
-    a meta dependency, or the service edge `sys-service-loader` reads.
-
-    The resolver import is deferred so the host-side import surface
-    stays lean for callers that never need the variant-aware planner
-    (e.g. lint/validation).
-    """
-    from cli.meta.roles.applications.resolution.combined.resolver import (
-        CombinedResolver,
-    )
-    from utils.roles.required_by_coverage import role_is_invokable
-
-    resolver = CombinedResolver(
-        services_overrides=services_overrides, follow_run_after=False
-    )
-    out: list[str] = []
-    seen: set[str] = set()
-    for app_id in primary_apps:
-        deps = resolver.resolve(app_id)
-        for dep in deps:
-            if dep != app_id and dep not in seen and role_is_invokable(dep):
-                out.append(dep)
-                seen.add(dep)
-        if app_id not in seen:
-            out.append(app_id)
-            seen.add(app_id)
-    return tuple(out)
 
 
 def prune_orphans_after_disable(
