@@ -47,7 +47,7 @@ if [[ -n "${VENV:-}" && -d "${VENV%/}/bin" ]]; then
 fi
 
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
-if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_FILE:-}" == "${_infinito_env_dotenv}" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
 	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
 	return 0
 fi
@@ -84,6 +84,26 @@ if [[ -n "${_infinito_env_slot}" && -n "${INFINITO_INSTANCE:-}" && "${INFINITO_I
 	unset _infinito_env_key
 fi
 unset _infinito_env_slot
+
+_infinito_env_previous="${INFINITO_ENV_LOADED_FILE:-}" # nocheck: env-loader-internal-guard
+if [[ "${_infinito_env_previous}" == */.env && "${_infinito_env_previous}" != "${_infinito_env_dotenv}" && -f "${_infinito_env_previous}" && -f "${_infinito_env_previous%/.env}/scripts/meta/env/load.sh" ]]; then
+	while IFS= read -r -d '' _infinito_env_pair; do
+		_infinito_env_key="${_infinito_env_pair%%=*}"
+		if [[ "${!_infinito_env_key-}" == "${_infinito_env_pair#*=}" ]]; then
+			unset "${_infinito_env_key}"
+		fi
+	done < <(
+		set -a
+		# shellcheck disable=SC1090
+		source "${_infinito_env_previous}" >/dev/null 2>&1
+		sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' "${_infinito_env_previous}" |
+			while IFS= read -r _infinito_env_key; do
+				printf '%s=%s\0' "${_infinito_env_key}" "${!_infinito_env_key-}"
+			done
+	)
+	unset _infinito_env_pair _infinito_env_key
+fi
+unset _infinito_env_previous
 
 declare -A _infinito_env_preserved=()
 while IFS= read -r _infinito_env_line; do
@@ -127,6 +147,7 @@ if [[ -z "${REQUESTS_CA_BUNDLE:-}" ]]; then
 fi
 
 export INFINITO_ENV_LOADED="1"
+export INFINITO_ENV_LOADED_FILE="${_infinito_env_dotenv}"
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
 export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"
 export INFINITO_ENV_LOADED_DISTRO="${INFINITO_DISTRO:-}"

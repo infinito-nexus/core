@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
 # SPOT: Global environment is defined in scripts/meta/env/load.sh.
-ENV_SH ?= $(CURDIR)/scripts/meta/env/load.sh
+override ENV_SH := $(CURDIR)/scripts/meta/env/load.sh
 export ENV_SH
 
 # For non-interactive bash, BASH_ENV is sourced so the env layer applies to *all* Make recipes.

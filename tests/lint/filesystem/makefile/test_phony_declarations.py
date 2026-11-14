@@ -10,12 +10,11 @@ from typing import TYPE_CHECKING
 
 from utils.cache.files import read_text
 
-from . import PROJECT_ROOT
+from . import PROJECT_ROOT, TARGET_RE
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-_TARGET_RE = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9_-]*)\s*:(?!=)")
 _PHONY_RE = re.compile(r"^\.PHONY\s*:\s*(?P<names>.+?)\s*$")
 _COMMENT_RE = re.compile(r"^\s*#")
 
@@ -43,7 +42,7 @@ def _parse_makefile(path: Path) -> tuple[list[_Target], list[_PhonyDecl], list[s
                 _PhonyDecl(idx, name) for name in phony_match.group("names").split()
             )
             continue
-        target_match = _TARGET_RE.match(line)
+        target_match = TARGET_RE.match(line)
         if target_match is None:
             continue
         targets.append(_Target(idx, target_match.group("name")))
