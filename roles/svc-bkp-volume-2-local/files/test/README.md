@@ -95,7 +95,9 @@ matrix reports `SKIP` unless they are created first (`mknod /dev/loop0 b 7 0`,
 ## `verify/backup.sh`
 
 Requires the newest generation to hold real payload — a volume counts when it has
-a `files/` tree or a non-empty `sql` dump. In the async pass it additionally
+a `files/` tree or a non-empty `sql` dump. A dump is `*.backup.sql.gz` since
+baudolo 8 and `*.backup.sql` before; the gzip one counts by what it decompresses
+to, because an empty gzip file is still some twenty bytes. In the async pass it additionally
 requires `PREVIOUS_GENERATION` to be a distinct, older generation, which is what
 proves the differential `--link-dest` chain advanced.
 
@@ -153,9 +155,10 @@ database and its role, which the deploy creates and the container does not, so
 wiping it would leave `baudolo-restore --empty -d <db>` with nothing to connect
 to and the drill would fail at itself instead of at a defect.
 
-**A generation holding a cluster dump fails the drill.** `baudolo-restore` has
-no subcommand that replays one, so that database cannot be proven restorable —
-the honest verdict is a red, not a silent skip.
+**A cluster dump is replayed, not skipped.** The recover chain sends it through
+`baudolo-restore cluster` with the superuser of its cluster row, so a
+generation holding one proves that instance restorable like any other dump; a
+missing cluster row is a red, not a silent skip.
 
 **Not every subject is a compose project.** Discourse is built by its own
 `./launcher rebuild` ([handlers/stack_host.yml](../../../web-app-discourse/handlers/stack_host.yml))

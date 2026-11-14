@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import gzip
 import importlib.util
 import os
 import tempfile
@@ -65,13 +66,17 @@ class TestFileVolumes(TestCase):
 class TestCaptured(TestCase):
     """The half of the proof that runs in both deploy modes."""
 
-    def generation(self, marker_token, dump_body):
+    def generation(self, marker_token, dump_body, *, compressed=False):
         root = Path(tempfile.mkdtemp()) / "gen"
         (root / "openldap_data/files").mkdir(parents=True)
         (root / "postgres/sql").mkdir(parents=True)
         if marker_token is not None:
             (root / "openldap_data/files" / SCRIPT.MARKER_FILE).write_text(marker_token)
-        (root / "postgres/sql/zammad.backup.sql").write_text(dump_body)
+        if compressed:
+            with gzip.open(root / "postgres/sql/zammad.backup.sql.gz", "wt") as out:
+                out.write(dump_body)
+        else:
+            (root / "postgres/sql/zammad.backup.sql").write_text(dump_body)
         return root
 
     def test_a_generation_carrying_both_passes(self):
@@ -79,6 +84,20 @@ class TestCaptured(TestCase):
             "dr-1-2", "INSERT INTO infinito_dr_marker VALUES ('dr-1-2');\n"
         )
         self.assertEqual(SCRIPT.captured(root, "dr-1-2"), 0)
+
+    def test_a_compressed_dump_carrying_the_row_passes(self):
+        root = self.generation(
+            "dr-1-2",
+            "INSERT INTO infinito_dr_marker VALUES ('dr-1-2');\n",
+            compressed=True,
+        )
+        self.assertEqual(SCRIPT.captured(root, "dr-1-2"), 0)
+
+    def test_negative_control_a_compressed_dump_without_the_row_fails(self):
+        root = self.generation("dr-1-2", "-- empty dump\n", compressed=True)
+        with self.assertRaises(SCRIPT.databases.RecoveryError) as raised:
+            SCRIPT.captured(root, "dr-1-2")
+        self.assertIn("zammad.backup.sql.gz", str(raised.exception))
 
     def test_a_volume_whose_tree_missed_the_marker_fails(self):
         root = self.generation(
