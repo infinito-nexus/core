@@ -49,7 +49,10 @@ on Docker Hub), `strip: true` removes it again so a pin without the upstream's
 `v` stays without it.
 
 A `repository` + `ref` pin that declares a source with `key: ref` is bumped
-from that source alone, the repository updater skips it.
+from that source alone, the repository updater skips it. A bump to a name the
+repository lists as neither branch nor tag
+(`git ls-remote <repository> refs/heads/<ref> refs/tags/<ref>`), or one that
+lookup cannot confirm, is withheld and reported on stderr.
 
 An `http_regex` source with a `template` fills it with the pattern's named
 groups instead of taking the first group, for a tag built from several upstream
@@ -60,7 +63,7 @@ freeswitch:
   version: "v1.10.12-v3.0.23"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: 'repos/bigbluebutton (?P<bbb>v[0-9.]+)\nrepos/freeswitch (?P<freeswitch>v[0-9.]+)'
     template: "{freeswitch}-{bbb}"
 ```
