@@ -32,6 +32,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
 import urllib.error
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
@@ -62,7 +63,7 @@ from utils.update.docker import (
 )
 from utils.update.fetch import TIMEOUT_SECONDS, documents, get
 from utils.update.pins import archive_index, bump_archive, key_line, top_level_line
-from utils.update.repository import git_ls_remote_tags
+from utils.update.repository import git_ls_remote_tags, git_ref_resolves
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -72,6 +73,7 @@ NOCHECK_MARKER = "version-source"
 UNWATCHED_MARKER = "unwatched-version"
 UPDATE_KEY = "update"
 DEFAULT_KEY = "version"
+REF_KEY = "ref"
 TYPES = ("git_tags", "registry_tags", "npm", "http_regex", "script")
 
 
@@ -92,6 +94,9 @@ class VersionSourceEntry:
             directly or as the base of a ``custom`` build; a bump to a tag
             its registry answers 404 for is withheld, an indeterminate answer
             does not block it.
+        repository: repository the pin checks out when it is the entity's
+            ``ref``; a bump to a name it lists as neither branch nor tag, or
+            one the lookup cannot confirm, is withheld.
     """
 
     role: str
@@ -103,6 +108,7 @@ class VersionSourceEntry:
     line: int
     addon: bool = False
     image: str = ""
+    repository: str = ""
 
 
 @dataclass(frozen=True)
@@ -424,9 +430,28 @@ def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
                         config_path=config_path,
                         line=line,
                         image=config.get("image", "") if key == DEFAULT_KEY else "",
+                        repository=str(config.get("repository", ""))
+                        if key == REF_KEY
+                        else "",
                     )
                 )
     return entries + _addon_entries(repo_root)
+
+
+def _ref_resolves(entry: VersionSourceEntry, ref: str) -> bool:
+    resolved = git_ref_resolves(entry.repository, ref)
+    if not resolved:
+        answer = (
+            "lists no branch or tag of that name"
+            if resolved is False
+            else "could not be queried"
+        )
+        print(
+            f"[source] WARN {entry.role}/{entry.entity}.{entry.key}: "
+            f"{entry.repository} {answer}; withholding {entry.current} -> {ref}",
+            file=sys.stderr,
+        )
+    return bool(resolved)
 
 
 def outdated(
@@ -443,6 +468,8 @@ def outdated(
         if not newest:
             continue
         if entry.image and manifest_exists(entry.image, newest) is False:
+            continue
+        if entry.repository and not _ref_resolves(entry, newest):
             continue
         updates.append(VersionSourceUpdate(entry=entry, latest=newest))
     return updates
