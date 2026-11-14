@@ -155,3 +155,29 @@ def declares_source(config: object, key: str) -> bool:
         isinstance(source, dict) and source.get("key", "version") == key
         for source in sources
     )
+
+
+def hold_reason(config: object, current: str) -> str:
+    """
+    Args:
+        config: one entity of ``meta/services.yml``.
+        current: the entity's pinned ``version``.
+
+    Returns:
+        The ``reason`` of the entity's ``hold``, empty when it declares none.
+
+    Raises:
+        ValueError: the ``hold`` is no mapping with a ``reason``, or holds
+            another ``version`` than *current*.
+    """
+    if not isinstance(config, dict) or "hold" not in config:
+        return ""
+    hold = config["hold"] if isinstance(config["hold"], dict) else {}
+    reason = str(hold.get("reason") or "").strip()
+    if not reason:
+        raise ValueError(f"hold of {current!r} states no reason")
+    if str(hold.get("version")) != current:
+        raise ValueError(
+            f"hold names version {hold.get('version')!r}, the pin is {current!r}"
+        )
+    return reason

@@ -28,7 +28,7 @@ from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
-from utils.update.base import is_semver
+from utils.update.base import declares_source, hold_reason, is_semver
 from utils.update.source import invalid_declarations
 
 from . import PROJECT_ROOT
@@ -68,6 +68,28 @@ def _findings() -> list[str]:
     return sorted(set(findings))
 
 
+def _hold_findings() -> list[str]:
+    findings: list[str] = []
+    for config_path in sorted(
+        (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
+    ):
+        role = config_path.parts[-3]
+        for entity, config in (load_yaml(str(config_path)) or {}).items():
+            if not isinstance(config, dict) or "hold" not in config:
+                continue
+            if "image" not in config or declares_source(config, "version"):
+                findings.append(
+                    f"- {role}/{entity}: the image updater does not watch this "
+                    "version, so the hold holds nothing"
+                )
+                continue
+            try:
+                hold_reason(config, str(config.get("version")))
+            except ValueError as exc:
+                findings.append(f"- {role}/{entity}: {exc}")
+    return findings
+
+
 class TestVersionKeys(unittest.TestCase):
     def test_a_version_sits_behind_version_or_its_suffix(self) -> None:
         findings = _findings()
@@ -84,6 +106,15 @@ class TestVersionKeys(unittest.TestCase):
     def test_every_declared_update_source_can_move_a_semver_pin(self) -> None:
         problems = invalid_declarations(PROJECT_ROOT)
         self.assertEqual(problems, [], "\n".join(problems))
+
+    def test_every_hold_states_a_reason_for_its_own_pin(self) -> None:
+        findings = _hold_findings()
+        self.assertEqual(
+            findings,
+            [],
+            "A `hold` keeps the image updater off a `version` and needs "
+            "`version: <the pin>` and a `reason`:\n" + "\n".join(findings),
+        )
 
 
 if __name__ == "__main__":
