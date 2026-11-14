@@ -95,13 +95,14 @@ tor:
   backup:
     stop_required: true         # stop for consistent key-volume copy
   lifecycle: alpha
-  # no public ports; SocksPort/ControlPort bind 127.0.0.1 only
+  # no public ports; SocksPort, TransPort and DNSPort bind 127.0.0.1 and the docker0 gateway, ControlPort 127.0.0.1 only
 ```
 
 ### `torrc.j2`
 
 ```
 SocksPort 127.0.0.1:9050
+SocksPort <docker0>:9050
 ControlPort 127.0.0.1:9051
 DataDirectory /var/lib/tor
 HiddenServiceDir /var/lib/tor/infinito/node/
@@ -159,7 +160,7 @@ applications:
 
 ### Serving
 
-- [ ] Tor sidecar bootstraps (`network_mode: host`); SocksPort, TransPort and DNSPort bind `127.0.0.1` plus the `docker0` gateway, ControlPort `127.0.0.1` only; no `0.0.0.0` bind; zero published ports. Static half: `test_torrc_listeners.py` renders torrc over every mode and the compose file without a port. Open: the live bootstrap, and swarm, whose task binds `0.0.0.0` inside its own namespace and publishes socks, dns and trans in host mode on every interface of the manager.
+- [ ] Tor sidecar bootstraps (`network_mode: host`); SocksPort, TransPort and DNSPort bind `127.0.0.1` plus the `docker0` gateway, ControlPort `127.0.0.1` only; no `0.0.0.0` bind; zero published ports. Static half: `test_torrc_listeners.py` renders torrc over every mode and the compose file of both modes on the host network without a port; `test_per_node_torrc.py` renders the torrc of every swarm node from its own hostvars, with the hidden service on the stack host only. Open: the live bootstrap in both modes.
 - [ ] `lookup('tls', '<x>.onion')` → http/disabled/80, no ACME attempted; app vhosts serve onion `server_name`s on `:80`; every app reachable at `<sub>.<NODE_ONION>.onion` through `HiddenServicePort 80 → 127.0.0.1:80`.
 - Onion requests reach upstreams with `X-Forwarded-Proto: https`; no `.onion` request is 301'd to https; alias/www canonicalization stays onion-internal; CSP origins (CDN, Matomo, Keycloak, logout) resolve onion, no clearnet leak. Superseded by [055](055-multi-network-serving.md): the forwarded headers, per-vhost alignment, redirects and the cross-network leak spec are criteria there.
 

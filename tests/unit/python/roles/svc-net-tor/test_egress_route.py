@@ -133,6 +133,10 @@ def _variables(route: str, egress: dict, **overrides) -> dict:
         "TOR_SOCKS_PORT": 9050,
         "TOR_DNSMASQ_PORT": 53,
         "TOR_CONTAINER_DNS_HOST": "172.17.0.1",
+        "TOR_NODE_BRIDGE": "172.17.0.1",
+        "tor_node": "node",
+        "STACK_HOST": "node",
+        "TOR_ROUTER_NODES": ["node"],
         "TOR_ONION_EXTRA_PORTS": [],
         "TOR_HS_BACKEND_HOST": "172.17.0.1",
         "TOR_DNSMASQ_OWNS_LISTENER": True,
@@ -370,7 +374,7 @@ class TestNone(unittest.TestCase):
             block["when"],
             [
                 "TOR_EGRESS_ROUTE == 'none'",
-                "IS_COMPOSE_MODE or (IS_STACK_HOST | bool)",
+                "inventory_hostname in TOR_ROUTER_NODES",
             ],
         )
         firewall = load_yaml_any(

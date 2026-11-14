@@ -139,6 +139,25 @@ class TestComposeReplicasLookup(unittest.TestCase):
         lm = self._make(vars_)
         self.assertEqual(lm.run([0], variables=vars_), ["replicas: 0"])
 
+    def test_swarm_mode_global_runs_one_task_per_node(self):
+        vars_ = {"DEPLOYMENT_MODE": "swarm"}
+        lm = self._make(vars_)
+        for term in ("global", " global "):
+            with self.subTest(term=term):
+                self.assertEqual(lm.run([term], variables=vars_), ["mode: global"])
+
+    def test_compose_mode_global_emits_empty(self):
+        vars_ = {"DEPLOYMENT_MODE": "compose"}
+        lm = self._make(vars_)
+        self.assertEqual(lm.run(["global"], variables=vars_), [""])
+
+    def test_a_mode_other_than_global_still_raises(self):
+        vars_ = {"DEPLOYMENT_MODE": "swarm"}
+        lm = self._make(vars_)
+        for term in ("Global", "globally", "replicated"):
+            with self.subTest(term=term), self.assertRaises(AnsibleError):
+                lm.run([term], variables=vars_)
+
     def test_too_many_terms_raises(self):
         vars_ = {"DEPLOYMENT_MODE": "swarm"}
         lm = self._make(vars_)

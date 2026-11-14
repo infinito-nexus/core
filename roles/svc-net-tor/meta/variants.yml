@@ -18,6 +18,7 @@
       use_entry_guards: false # nocheck: variants-static-override
       flavor: chutney
       cpus: "1.0"
+      mem_reservation: 512m
       mem_limit: 2g
       pids_limit: 512
 

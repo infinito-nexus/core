@@ -17,7 +17,8 @@ RESOLV_TASK = "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.
 DROPIN_BLOCK = "🔁 Egress router | Retry dnsmasq until docker0 exists after a boot"
 START_TASK = "🚀 Egress router | Enable + (re)start dnsmasq"
 REGATHER_TASK = (
-    "📊 Re-gather the docker0 fact so torrc and dnsmasq bind the live bridge"
+    "📊 Re-gather the docker0 fact of every node so each torrc and dnsmasq bind "
+    "the live bridge"
 )
 TOR_NODE_VARIABLES = {
     "group_names": ["svc-net-tor"],
@@ -191,7 +192,11 @@ class TestStaticBindSurvivesBoot(unittest.TestCase):
             "the play-start docker0 fact predates default-address-pools moving the "
             "bridge, and a static bind on the stale address makes dnsmasq exit",
         )
-        self.assertLess(names.index(REGATHER_TASK), names.index("📝 Render torrc"))
+        self.assertEqual(regather["delegate_to"], "{{ item }}")
+        self.assertIs(regather["delegate_facts"], True)
+        self.assertLess(
+            names.index(REGATHER_TASK), names.index("📝 Render the torrc of every node")
+        )
         self.assertLess(
             names.index(REGATHER_TASK),
             names.index("🧅 Wire the host-level transparent .onion egress router"),

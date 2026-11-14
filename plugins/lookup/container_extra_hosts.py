@@ -1,74 +1,3 @@
-"""Lookup ``container_extra_hosts``: the single emitter of ``extra_hosts:``.
-
-Compose rejects a mapping that carries the key twice, so nothing else in the
-repo may write ``extra_hosts:`` by hand. Everything a service needs pinned goes
-through here, from two sources that are both optional:
-
-1. The SSO back-channel pin, added automatically. On an onion deployment the
-   OIDC endpoints handed to an application are public ``.onion`` authorities.
-   That is right for the browser, which reaches them through Tor, but
-   unroutable for the application's own server-side calls (code-to-token
-   exchange, JWKS, userinfo): a container resolves ``.onion`` through Tor's
-   resolver, not through DNS. Pinning the provider to a reachable address sends
-   those calls over the local network to the proxy that already serves the
-   vhost. Skipped unless the application has SSO enabled and the provider vhost
-   is an ``.onion`` name, so it is a no-op on clearnet.
-2. ``host_alias=true``, which pins ``host.docker.internal`` at whatever reaches
-   the host in the effective mode. A container that must talk to a service the
-   host publishes -- msmtp relaying through the swarm ingress on :587, for
-   instance -- needs the alias, and it must not hardcode ``host-gateway``
-   because that breaks under swarm for the reason below.
-3. ``extra_hosts=``, whatever the call site needs on top: a peer's overlay VIP,
-   or a partner service reachable only on the host.
-4. ``onion_peers=``, the same pin as the SSO one in the other direction: URLs
-   or hosts the container itself calls server to server. Keycloak delivers
-   back-channel logout tokens to an application's own origin, which on an onion
-   deployment is a ``.onion`` name its container cannot resolve, so each onion
-   peer is pinned to the proxy that serves its vhost. Clearnet peers pass.
-
-Entries are ``"name:address"`` strings and are deduplicated in first-seen
-order. With nothing to emit the lookup returns an empty string.
-
-``entries_only=true`` returns those strings as a list instead of the rendered
-block, for a container that is not described by a compose file at all:
-``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only
-argument surface is ``docker_args:`` in its ``app.yml``, so it needs
-``--add-host=<entry>`` lines.
-
-The automatic pin follows the effective deploy mode, and in swarm it must NOT be
-``host-gateway``: that alias resolves per node, while openresty publishes :80
-with ``mode: host`` under ``node.role == manager``, so every replica on a worker
-dialled its own gateway and the token exchange died with 'Connection refused'
-(7b1839681, measured on penpot in run 31340965955). Swarm therefore gets the
-stack host's routable address -- the destination svc-net-tor already sends all
-hidden-service traffic to. ``ansible_facts`` carries it because the compose file
-is rendered once with the manager as inventory host and swarm applies the same
-``extra_hosts`` to every task.
-
-The mode is read as ``compose_mode_force or DEPLOYMENT_MODE`` rather than the
-bare cluster mode, because ``container_networks`` resolves attachments through
-that same effective mode: a role with an override must not lose its pin and its
-overlay at once.
-
-Caller-supplied entries are passed through untouched, so a call site that needs
-a different address per mode must still decide that itself.
-
-Usage in any service template::
-
-    {{ lookup('container_extra_hosts') | indent(4) }}
-    {{ lookup('container_extra_hosts',
-              extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
-    {{ lookup('container_extra_hosts', application_id='web-app-nextcloud') | indent(4) }}
-    {{ lookup('container_extra_hosts', onion_peers=KEYCLOAK_BACKCHANNEL_LOGOUT_URLS) | indent(4) }}
-
-Usage from a non-compose call site::
-
-    {% for entry in lookup('container_extra_hosts',
-                           entries_only=True, wantlist=True) %}
-      - --add-host={{ entry }}
-    {% endfor %}
-"""
-
 from __future__ import annotations
 
 from typing import Any
@@ -85,6 +14,26 @@ from utils.networks.reachability import TOR, is_network
 HOST_GATEWAY = "host-gateway"
 DOCKER_INTERNAL_HOST = "host.docker.internal"
 SSO_PROVIDER = "web-app-keycloak"
+
+
+def one_per_name(entries: list[str]) -> list[str]:
+    """
+    Args:
+        entries: ``name:address`` mappings in the order they were collected.
+
+    Returns:
+        One mapping per name in first-seen order, holding the first address
+        seen for it, except that ``host-gateway`` takes ``host.docker.internal``
+        whichever address came first.
+    """
+    chosen: dict[str, str] = {}
+    for entry in entries:
+        name, _, address = entry.partition(":")
+        if name not in chosen or (
+            name == DOCKER_INTERNAL_HOST and address == HOST_GATEWAY
+        ):
+            chosen[name] = address
+    return [f"{name}:{address}" for name, address in chosen.items()]
 
 
 class LookupModule(LookupBase):
@@ -135,7 +84,7 @@ class LookupModule(LookupBase):
                 f"{DOCKER_INTERNAL_HOST}:{self._gateway_address(DOCKER_INTERNAL_HOST)}"
             )
         entries += self._caller_entries(kwargs.get("extra_hosts"))
-        merged = list(dict.fromkeys(entries))
+        merged = one_per_name(entries)
         if _to_bool(self._render(kwargs.get("entries_only", False)), strict=False):
             return merged
         if not merged:

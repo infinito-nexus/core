@@ -171,6 +171,7 @@ class TestUserAttributes(unittest.TestCase):
         self.assertEqual(results["sub-9"]["outcome"], "missing")
 
     def test_an_id_a_url_would_resolve_above_the_user_is_missing_without_a_call(self):
+        # nocheck: project-root-import  Keycloak user ids, not paths
         for user_id in ("", ".", ".."):
             with self.subTest(user_id=user_id):
                 kc = FakeKeycloak()
