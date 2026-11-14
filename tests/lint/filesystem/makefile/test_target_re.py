@@ -15,6 +15,7 @@ class TestTargetRe(unittest.TestCase):
         for line in (
             "SHELL := /bin/bash",
             "ENV_SH := $(CURDIR)/scripts/meta/env/load.sh",
+            "override ENV_SH := $(CURDIR)/scripts/meta/env/load.sh",
             "X ::= y",
             "X :::= y",
             "X ?= y",
