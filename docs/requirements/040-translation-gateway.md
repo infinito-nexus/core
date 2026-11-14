@@ -194,7 +194,7 @@ flowchart TD
 - [x] An `svc-ai-ltengine` role serves translations and is reachable by the gateway.
 - [x] `svc-ai-libretranslate-engine` is the default backend and the only one enabled without a further deployment.
 - [x] `svc-ai-ollama` serves as a backend through a local model.
-- [ ] LTEngine and Ollama are never enabled in the same variant, and `cli/meta/roles/applications/ressources` reports every variant inside the budget.
+- [x] LTEngine and Ollama are never enabled in the same variant, and `cli/meta/roles/applications/ressources` reports every variant inside the budget.
 
 ### Decision and learning
 

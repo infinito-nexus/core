@@ -90,35 +90,35 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 1: Contract and upstream declarations
 
-- [ ] `utils.cache.artefacts` collects every `cache: artefacts:` entry of every role through the same `cache:` reader as the repositories and hosts. `[unit]`
-- [ ] A second role declaring an artefact name raises naming both roles, even with identical keys. `[unit]`
-- [ ] The contract check passes a pinned artefact under a served upstream on `huggingface.co` (models, datasets and spaces) and on `raw.githubusercontent.com`. `[unit]`
-- [ ] It refuses a revision that is not a 40-digit lowercase hex commit, on either host, one digit short or long, uppercase or date-shaped included. `[unit]`
-- [ ] It refuses a revision that is not the ref segment of its url. `[unit]`
-- [ ] It refuses a url on a host with no known ref layout. `[unit]`
-- [ ] It refuses a Hub url without an org, a repo or a file, or with `resolve` twice. `[unit]`
-- [ ] It refuses a url with `%` anywhere, encoded refs such as `ma%69n` included. `[unit]`
-- [ ] It refuses a url with a query or a fragment. `[unit]`
-- [ ] It refuses a url whose path carries a character outside the [path charset](../contributing/environment/cache.md#pinned-artefacts-), whitespace and shell metacharacters included. `[unit]`
-- [ ] It refuses a url with an empty or all-dot path segment. `[unit]`
-- [ ] It refuses a url with userinfo or an explicit port. `[unit]`
-- [ ] It refuses a non-`https` url. `[unit]`
-- [ ] It refuses a url under no repository upstream, a served host outside every upstream path included. `[unit]`
-- [ ] It resolves a url to the repository with the longest upstream prefix, and refuses a url under two repositories with the same upstream. `[unit]`
-- [ ] It refuses a url whose host breaks the [TLS route rule](../contributing/environment/cache.md#pinned-artefacts-): undeclared under `cache: hosts:`, without `443` among its `ports`, routing its TLS listener to another repository, or with a repository whose upstream is not the host's root. `[unit]`
-- [ ] It refuses an artefact name outside the [name pattern](../contributing/environment/cache.md#pinned-artefacts-). `[unit]`
-- [ ] It refuses a malformed digest, one digit short or long included. `[unit]`
-- [ ] It refuses a size outside the [`bytes` rule](../contributing/environment/cache.md#pinned-artefacts-). `[unit]`
-- [ ] It reports an `artefacts:` section or entry that is not a mapping, and an entry key other than `url`, `revision`, `sha256` and `bytes`. `[unit]`
-- [ ] The contract check of the declared artefacts reads only the artefacts it is handed; the shape check reads every role. `[unit]`
-- [ ] It refuses one digest declared with two sizes. `[unit]`
-- [ ] `url_for` returns the upstream for an empty base and for the shell default `https:/`, and `<base>/<host>/<path>` otherwise; it and `records` refuse every base the [base rule](../contributing/environment/cache.md#pinned-artefacts-) excludes, naming the reason. `[unit]`
+- [x] `utils.cache.artefacts` collects every `cache: artefacts:` entry of every role through the same `cache:` reader as the repositories and hosts. `[unit]`
+- [x] A second role declaring an artefact name raises naming both roles, even with identical keys. `[unit]`
+- [x] The contract check passes a pinned artefact under a served upstream on `huggingface.co` (models, datasets and spaces) and on `raw.githubusercontent.com`. `[unit]`
+- [x] It refuses a revision that is not a 40-digit lowercase hex commit, on either host, one digit short or long, uppercase or date-shaped included. `[unit]`
+- [x] It refuses a revision that is not the ref segment of its url. `[unit]`
+- [x] It refuses a url on a host with no known ref layout. `[unit]`
+- [x] It refuses a Hub url without an org, a repo or a file, or with `resolve` twice. `[unit]`
+- [x] It refuses a url with `%` anywhere, encoded refs such as `ma%69n` included. `[unit]`
+- [x] It refuses a url with a query or a fragment. `[unit]`
+- [x] It refuses a url whose path carries a character outside the [path charset](../contributing/environment/cache.md#pinned-artefacts-), whitespace and shell metacharacters included. `[unit]`
+- [x] It refuses a url with an empty or all-dot path segment. `[unit]`
+- [x] It refuses a url with userinfo or an explicit port. `[unit]`
+- [x] It refuses a non-`https` url. `[unit]`
+- [x] It refuses a url under no repository upstream, a served host outside every upstream path included. `[unit]`
+- [x] It resolves a url to the repository with the longest upstream prefix, and refuses a url under two repositories with the same upstream. `[unit]`
+- [x] It refuses a url whose host breaks the [TLS route rule](../contributing/environment/cache.md#pinned-artefacts-): undeclared under `cache: hosts:`, without `443` among its `ports`, routing its TLS listener to another repository, or with a repository whose upstream is not the host's root. `[unit]`
+- [x] It refuses an artefact name outside the [name pattern](../contributing/environment/cache.md#pinned-artefacts-). `[unit]`
+- [x] It refuses a malformed digest, one digit short or long included. `[unit]`
+- [x] It refuses a size outside the [`bytes` rule](../contributing/environment/cache.md#pinned-artefacts-). `[unit]`
+- [x] It reports an `artefacts:` section or entry that is not a mapping, and an entry key other than `url`, `revision`, `sha256` and `bytes`. `[unit]`
+- [x] The contract check of the declared artefacts reads only the artefacts it is handed; the shape check reads every role. `[unit]`
+- [x] It refuses one digest declared with two sizes. `[unit]`
+- [x] `url_for` returns the upstream for an empty base and for the shell default `https:/`, and `<base>/<host>/<path>` otherwise; it and `records` refuse every base the [base rule](../contributing/environment/cache.md#pinned-artefacts-) excludes, naming the reason. `[unit]`
 - [ ] The commit and sha256 patterns are defined once, in [digests.py](../../utils/digests.py), and imported by the manifest, the VM template, the repository-ref updater and the custom-role declaration. `[unit]`
-- [ ] `store_bytes` counts one digest once however many names or roles declare it (C2). `[unit]`
-- [ ] `store_bytes` refuses one digest declared with two sizes. `[unit]`
-- [ ] A lint fails on every declared artefact that breaks the contract, and its own negative control reports a `resolve/main` pin under no repository upstream. `[unit]`
-- [ ] `svc-cache-package` declares `raw-nixos-cache` (`https://cache.nixos.org/`) as a raw repository that no hijacked host routes to. `[unit]`
-- [ ] [cache.md](../contributing/environment/cache.md) documents the repository and, as the one copy of the Model-Source Contract, the artefact declaration with its quoting rules, its repository and host route, its lint, `INFINITO_ARTEFACT_BASE` and the consumer's digest check. `[review]`
+- [x] `store_bytes` counts one digest once however many names or roles declare it (C2). `[unit]`
+- [x] `store_bytes` refuses one digest declared with two sizes. `[unit]`
+- [x] A lint fails on every declared artefact that breaks the contract, and its own negative control reports a `resolve/main` pin under no repository upstream. `[unit]`
+- [x] `svc-cache-package` declares `raw-nixos-cache` (`https://cache.nixos.org/`) as a raw repository that no hijacked host routes to. `[unit]`
+- [x] [cache.md](../contributing/environment/cache.md) documents the repository and, as the one copy of the Model-Source Contract, the artefact declaration with its quoting rules, its repository and host route, its lint, `INFINITO_ARTEFACT_BASE` and the consumer's digest check. `[review]`
 - [ ] After `make cache-apply`, `http://<package cache>:8081/repository/raw-nixos-cache/nix-cache-info` answers 200, and a second fetch of one `.nar` file is served from the blob store. `[host]`
 
 ### Phase 2: Store and base

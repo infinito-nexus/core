@@ -101,7 +101,7 @@ flowchart TD
 - [x] The footer box's top corners follow the same rule against the bottom edge of the cards above it. port-ui `frame.js` computes them with `gapAbove`, the mirror of the header's `gapBelow`; `dashboard_frame.spec.js` asserts `R` for cards far above the footer and `0px` for a card running under it.
 - [ ] Scrolling recomputes the radii at most once per animation frame, and the corner logic adds no visible jank on a page with 60 tiles.
 - [x] Fullscreen and full-width mode keep working: their existing Cypress specs stay green.
-- [ ] The frame boxes carry one shadow and the header, navigation bars and toolbar inside them none of their own; cards have one resting and one hover shadow, and dropdowns and the search picker one popup shadow; each of the four is a CSS custom property a deployment can set, and core maps them to the design's shadow tokens.
+- [x] The frame boxes carry one shadow and the header, navigation bars and toolbar inside them none of their own; cards have one resting and one hover shadow, and dropdowns and the search picker one popup shadow; each of the four is a CSS custom property a deployment can set, and core maps them to the design's shadow tokens. port-ui 2.3.0 `app/static/css/dashboard.css` declares `--portui-shadow-frame`, `--portui-shadow-card`, `--portui-shadow-card-hover` and `--portui-shadow-popup` (:9-12), clears the shadow of header, footer, navigation bars and toolbar (:15-22) and applies the four to the frame boxes, cards, dropdowns and the picker (:30, :34, :38, :42, :115); core maps them to `--design-shadow-1` to `--design-shadow-3` in `roles/web-app-dashboard/files/style.css:19-22`; `dashboard_frame.spec.js` ("draws one shadow per frame, none inside it, and the card and popup shadows from tokens").
 
 ### Corporate color (core)
 
@@ -143,7 +143,7 @@ flowchart TD
 - [x] Every tile has a star that pins it; pinned applications appear in a "Favourites" row at the top level, the pins survive a reload through `localStorage`, and a visitor without `localStorage` sees no star and no error.
 - [x] Opening an application records it in a "Recently used" row at the top level that holds the last 8 distinct applications, newest first, and offers a control that clears it. `dashboard_extras.spec.js` ("records an opened application, newest first, and clears on request", "holds the last eight distinct applications").
 - [x] A toggle switches between tile view and a compact list view, and the choice survives a reload.
-- [ ] In the list view all rows share one column grid: icon, title, description, New badge, star, URL and chips each start at the same horizontal position in every row, and an absent badge, star or chip keeps its column empty (screenshot round 1b).
+- [x] In the list view all rows share one column grid: icon, title, description, New badge, star, URL and chips each start at the same horizontal position in every row, and an absent badge, star or chip keeps its column empty (screenshot round 1b). port-ui 2.3.0 `app/static/css/dashboard.css:258-333` gives each of the seven a fixed grid column, and `:335-376` a four-column mobile grid; `dashboard_extras.spec.js` ("lines every list column up across rows on desktop", "lines every list column up across rows on mobile").
 - [x] A tile shows a "New" badge for 14 days after its application was first deployed on the host; core records the first-deploy date per application so that a redeploy keeps it, and the applications present when the host's record is created form the baseline that never shows the badge (core). Core: `filter_plugins/first_seen.py` with `tasks/02_manager_ops.yml` and `new_days: 14` in `meta/services.yml` ([test_first_seen.py](../../tests/unit/python/roles/web-app-dashboard/filter_plugins/test_first_seen.py): baseline, redeploy, new card); port-ui: `dashboard_extras.spec.js` ("marks an application during the configured days after it was added", "drops the badge once the window has passed").
 
 ### Chip API (port-ui)
@@ -151,7 +151,7 @@ flowchart TD
 - [x] port-ui exposes `window.portui.chips.set(id, chips)` and `window.portui.chips.clear(id)` and dispatches `portui:ready` once they exist; a chip has a kind, a tone, an icon, a label translated through the interface catalog, an untranslated detail, an optional link with an optional new tab, and an optional state. port-ui `static/js/chips.js`; `dashboard_chips.spec.js` ("exists when portui:ready fires, and fires it once", "renders kind, tone, state, label and detail as a link or a button", "translates the label through the interface catalogue", "rejects malformed chips and drops an unsafe link").
 - [ ] The chips of an application render on its tile, its Favourites and Recently-used copies, its picker row and its list row, survive re-rendering, and carry a tooltip on hover and keyboard focus.
 - [x] Clicking a chip never opens the application; without any caller of the API no chip shows.
-- [ ] port-ui carries no RBAC or health logic and no configuration for them.
+- [x] port-ui carries no RBAC or health logic and no configuration for them. port-ui 2.3.0 `app/app.py`, `app/utils`, `app/templates` and `app/static/js` name no `rbac`, `health`, `allowed_groups` or `status.json`; `health` appears only as a chip kind the Cypress caller fixture and the README example pass to the chip API; `dashboard_chips.spec.js` ("shows no chip without a caller").
 
 ### RBAC lock (core)
 
@@ -179,7 +179,7 @@ flowchart TD
 ### Chip look (port-ui)
 
 - [ ] The chips sit together in one compact group in the tile's bottom-right corner, in the corporate colors, and overlap neither the title, the text nor the open button at any Bootstrap breakpoint.
-- [ ] In list view the chip group sits at the row's end with the same states.
+- [x] In list view the chip group sits at the row's end with the same states. port-ui 2.3.0 `app/static/css/dashboard.css:328-333` puts the chips into the last grid column with `justify-content: flex-end`; `dashboard_extras.spec.js` ("lines every list column up across rows on desktop") and `dashboard_chips.spec.js` ("follows the card into favourites, recent list, picker and list view").
 
 ### Accessibility (port-ui)
 

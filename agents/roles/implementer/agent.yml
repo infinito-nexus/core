@@ -5,7 +5,7 @@ owner: operator
 repositories:
   - infinito-nexus/core
 firewall_roles:
-  - autonomous-contributor
+  - implementer
 skills:
   - i8-develop
   - i8-iterate-roundtrip

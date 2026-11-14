@@ -104,6 +104,7 @@ planner:
   includes:
     - forge-reader
   allow:
+    - account(github/planner):read
     - app(openproject/work_packages):crud
     - channel(any/all):read
     - app(zammad/tickets):read
@@ -186,6 +187,7 @@ security:
   includes:
     - forge-reader
   allow:
+    - account(github/security):read
     - app(openproject/security-project):crud
   deny:
     - egress(*.${INFINITO_PRIMARY_DOMAIN})
@@ -208,6 +210,7 @@ counsel:
     - forge-reader
     - package-consumer
   allow:
+    - account(github/counsel):read
     - egress(${AGENTS_COUNSEL_TARGETS}):none
     - app(openproject/legal-project):crud
     - app(mail/legal-contact):create
@@ -229,3 +232,19 @@ support:
   deny:
     - app(workspace/secrets):read
     - app(zammad/other-customers):read
+
+implementer:
+  includes:
+    - autonomous-contributor
+  allow:
+    - account(github/implementer):read
+
+tuner:
+  includes:
+    - autonomous-contributor
+  allow:
+    - account(github/tuner):read
+
+robot:
+  allow:
+    - account(github/robot):read

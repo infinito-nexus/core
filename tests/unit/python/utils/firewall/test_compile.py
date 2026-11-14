@@ -10,6 +10,7 @@ from agents.routines.debug import ci as debug_ci
 from tests.lint.agents.test_l09_firewall_roles_exist import BASELINE
 from utils import PROJECT_ROOT
 from utils.agents.accounts import default_account
+from utils.agents.pre_push import bound
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.firewall.compile import (
@@ -38,6 +39,7 @@ from utils.firewall.egress import (
 
 PROVIDERS_DIR = PROJECT_ROOT / "agents" / "firewall" / "providers"
 FIREWALL_ROLES = PROJECT_ROOT / "agents" / "firewall" / "roles.yml"
+AGENT_ROLES = PROJECT_ROOT / "agents" / "roles"
 FIREWALL_VARIABLES = PROJECT_ROOT / "agents" / "firewall" / "variables.yml"
 SETTINGS = PROJECT_ROOT / ".claude" / "settings.json"
 _ALL_PASSED = dict.fromkeys(WRITE_GATE_SCENARIOS, True)
@@ -310,17 +312,37 @@ class TestIntersection(unittest.TestCase):
         )
 
 
+def _bindings() -> dict[str, list[str]]:
+    return {
+        path.parent.name: load_yaml(path)["firewall_roles"]
+        for path in sorted(AGENT_ROLES.glob("*/agent.yml"))
+    }
+
+
+def _unaccounted_egress(
+    roles: dict, bindings: dict[str, list[str]]
+) -> dict[str, list[str]]:
+    unaccounted = {}
+    for agent, names in bindings.items():
+        reached = set(remote_egress(bound(roles, names)))
+        granted = set(account_hosts(account_grants(roles, names), {}))
+        if reached != granted:
+            unaccounted[agent] = sorted(reached ^ granted)
+    return unaccounted
+
+
 class TestRemoteEgress(unittest.TestCase):
-    def test_every_role_with_account_grants_reaches_exactly_its_account_hosts(self):
-        roles = load_yaml(FIREWALL_ROLES)
-        granted = [name for name in roles if account_grants(roles, [name])]
-        self.assertIn("maintainer", granted)
-        for name in granted:
-            with self.subTest(role=name):
-                self.assertEqual(
-                    remote_egress(resolve(roles, name)),
-                    account_hosts(account_grants(roles, [name]), {}),
-                )
+    def test_every_agent_reaches_exactly_its_account_hosts(self):
+        bindings = _bindings()
+        self.assertIn("planner", bindings)
+        self.assertEqual(_unaccounted_egress(load_yaml(FIREWALL_ROLES), bindings), {})
+
+    def test_a_remote_host_without_an_account_grant_is_caught(self):
+        roles = {"reader": {"allow": ["egress(github.com)", "egress(api.github.com)"]}}
+        self.assertEqual(
+            _unaccounted_egress(roles, {"agent": ["reader"]}),
+            {"agent": ["api.github.com", "github.com"]},
+        )
 
     def test_a_provider_on_a_remote_instance_adds_its_exact_host(self):
         self.assertEqual(
@@ -343,9 +365,9 @@ class TestRemoteEgress(unittest.TestCase):
                 ]
             }
         }
-        self.assertNotEqual(
-            remote_egress(resolve(roles, "r")),
-            account_hosts(account_grants(roles, ["r"]), {}),
+        self.assertEqual(
+            _unaccounted_egress(roles, {"agent": ["r"]}),
+            {"agent": ["pastebin.example"]},
         )
 
 

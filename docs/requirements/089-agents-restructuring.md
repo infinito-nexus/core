@@ -1402,6 +1402,8 @@ Baseline roles shipped in `agents/firewall/`, taken from the field data of the r
 | `hacker` | egress only to `agents.hacker.targets` through the front proxy; scanners in its workspace; work packages in the confidential security project; email to the security contact | every run against a production target | any other egress, internal ports, destructive requests, denial-of-service tooling |
 | `counsel` | everything of `forge-reader` and `package-consumer`; read requests to `agents.counsel.targets` through the front proxy; work packages in the confidential legal project; email to the legal contact | | commit, push, any write request to an instance, internal ports, any other egress to instances |
 | `support` | read Zammad tickets, support mailbox and support room; draft replies; create `Proposed` work packages | send a reply to a customer | secrets, other customers' data |
+| `implementer`, `tuner` | everything of `autonomous-contributor`; read through the agent's own `github` account | | |
+| `robot` | read through its own `github` account; bound beside `interactive` | | |
 
 The firewall is compiled into:
 

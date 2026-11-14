@@ -90,18 +90,18 @@ There is no fallback to any working tree.
 
 Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation.
 
-- [ ] `make cache-declare ref=<ref>` writes the full commit `<ref>` names to `INFINITO_CACHE_PIN_FILE` atomically. `[unit]`
-- [ ] `make cache-declare` refuses an abbreviated id written as a pin, a tree, a blob, an unknown ref, a ref starting with `-` and a commit without `cli/meta/cache/pin`, and writes no pin for any of them. `[unit]`
-- [ ] The pin and the checkout paths derive from `XDG_STATE_HOME` and `XDG_DATA_HOME`, with the `~/.local/state` and `~/.local/share` fallbacks for an unset or relative value, through an env handler; no shell script carries an inline default for them. `[unit]`
-- [ ] The pinned commit is materialized from its committed state below `INFINITO_CACHE_PIN_ROOT/<sha>`, outside every checkout, without uncommitted changes, without `locale/`, and without a scratch directory left behind. `[unit]`
-- [ ] Writing a pin removes the checkout of every commit but the new and the previous pin, and keeps the served map, scratch directories and every entry not named by a full commit id; an invalid pin removes nothing. `[unit]`
-- [ ] `make cache-apply` runs the Nexus bootstrap and the certificate issuer of the pinned checkout with the pinned declarations, installs the pinned map onto the mounted file read-only and records the applied commit; nothing of the caller's working tree reaches the stack. `[unit]`
-- [ ] Before the owning checkout starts the frontend, the pinned certificates and the pinned map are in place. `[unit]`
-- [ ] `make compose-up` applies the pinned declarations for the owning checkout and for every worktree that shares the stack. `[unit]`
-- [ ] A checkout whose `cache:` declarations differ from the pinned ones gets one line per differing repository or host and `ask the declarer to bump the pin`, and its deploy does not fail for that. `[unit]`
-- [ ] Without a pin, `make cache-apply` exits non-zero naming `make cache-declare` and touches nothing, the owning checkout's `make compose-up` stops before any service starts with an error naming `make dotenv` and `make cache-declare ref=<commit>`, a sharing worktree's `make compose-up` continues, and `make cache-status` reports `"pin": null`. `[unit]`
-- [ ] `make cache-status` prints the pinned and the applied commit. `[unit]`
-- [ ] `INFINITO_CACHE_PACKAGE_FRONTEND_CONF` lies outside the checkout, so `make dotenv` in a worktree never writes the map the frontend mounts. `[unit]`
+- [x] `make cache-declare ref=<ref>` writes the full commit `<ref>` names to `INFINITO_CACHE_PIN_FILE` atomically. `[unit]`
+- [x] `make cache-declare` refuses an abbreviated id written as a pin, a tree, a blob, an unknown ref, a ref starting with `-` and a commit without `cli/meta/cache/pin`, and writes no pin for any of them. `[unit]`
+- [x] The pin and the checkout paths derive from `XDG_STATE_HOME` and `XDG_DATA_HOME`, with the `~/.local/state` and `~/.local/share` fallbacks for an unset or relative value, through an env handler; no shell script carries an inline default for them. `[unit]`
+- [x] The pinned commit is materialized from its committed state below `INFINITO_CACHE_PIN_ROOT/<sha>`, outside every checkout, without uncommitted changes, without `locale/`, and without a scratch directory left behind. `[unit]`
+- [x] Writing a pin removes the checkout of every commit but the new and the previous pin, and keeps the served map, scratch directories and every entry not named by a full commit id; an invalid pin removes nothing. `[unit]`
+- [x] `make cache-apply` runs the Nexus bootstrap and the certificate issuer of the pinned checkout with the pinned declarations, installs the pinned map onto the mounted file read-only and records the applied commit; nothing of the caller's working tree reaches the stack. `[unit]`
+- [x] Before the owning checkout starts the frontend, the pinned certificates and the pinned map are in place. `[unit]`
+- [x] `make compose-up` applies the pinned declarations for the owning checkout and for every worktree that shares the stack. `[unit]`
+- [x] A checkout whose `cache:` declarations differ from the pinned ones gets one line per differing repository or host and `ask the declarer to bump the pin`, and its deploy does not fail for that. `[unit]`
+- [x] Without a pin, `make cache-apply` exits non-zero naming `make cache-declare` and touches nothing, the owning checkout's `make compose-up` stops before any service starts with an error naming `make dotenv` and `make cache-declare ref=<commit>`, a sharing worktree's `make compose-up` continues, and `make cache-status` reports `"pin": null`. `[unit]`
+- [x] `make cache-status` prints the pinned and the applied commit. `[unit]`
+- [x] `INFINITO_CACHE_PACKAGE_FRONTEND_CONF` lies outside the checkout, so `make dotenv` in a worktree never writes the map the frontend mounts. `[unit]`
 - [ ] After the first `make cache-declare` and the owner's next `make compose-up`, `docker inspect infinito-package-cache-frontend` shows the map mounted from `INFINITO_CACHE_PIN_ROOT`, two worktrees on different branches are served the same map, and `make cache-status` shows pin and applied commit equal. `[host]`
 - [x] [cache.md](../contributing/environment/cache.md) documents the pin, `make cache-declare`, the behaviour without a pin and the rollout. `[unit]`
 

@@ -6,6 +6,7 @@ repositories:
   - infinito-nexus/core
 firewall_roles:
   - interactive
+  - robot
 skills:
   - i8-develop
 models:
