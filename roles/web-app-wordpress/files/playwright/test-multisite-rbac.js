@@ -8,13 +8,17 @@ const {
   keycloakRemoveUserFromGroupViaRest,
 } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { networkTenants } = require("./network-sites");
+const { networkTenants, canonicalMainOrigin } = require("./network-sites");
 
 const MULTISITE_SKIP_REASON =
   "WORDPRESS_MULTISITE_ENABLED=false; Multisite RBAC scenarios run only when the role flag is true";
 
 function primaryTenant(shared) {
   return networkTenants(shared.env).primary;
+}
+
+function ownSiteOrigin(shared, domain) {
+  return `${new URL(canonicalMainOrigin(shared.env)).protocol}//${domain}`;
 }
 
 function escapeRegExp(value) {
@@ -71,11 +75,26 @@ async function deleteNetworkSite(page, shared, domain) {
   ).toHaveCount(0, { timeout: resolveTimeout(30_000) });
 }
 
+async function cleanUpOwnSite(browser, shared, domain) {
+  const cleanupBudgetMs = resolveTimeout(120_000);
+  let cleanupTimer;
+  await Promise.race([
+    withWordPressLogin(browser, shared, shared.env.adminUsername, shared.env.adminPassword, (page) =>
+      deleteNetworkSite(page, shared, domain)
+    ),
+    new Promise((_, reject) => {
+      cleanupTimer = setTimeout(() => reject(new Error(`deleting ${domain} exceeded ${cleanupBudgetMs} ms`)), cleanupBudgetMs);
+    }),
+  ])
+    .catch((err) => console.warn(`Cleanup of biber's own site ${domain} failed: ${err}`))
+    .finally(() => clearTimeout(cleanupTimer));
+}
+
 async function expectOwnSiteServed(browser, shared, domain, archived) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
   try {
     const page = await ctx.newPage();
-    const url = `${new URL(shared.env.wpBaseUrl).protocol}//${domain}/`;
+    const url = `${ownSiteOrigin(shared, domain)}/`;
     const response = await gotoOnion(page, url, { waitUntil: "domcontentloaded" });
     if (archived) {
       expect(response && response.status(), `the archived ${domain} MUST answer 410 Gone`).toBe(410);
@@ -89,7 +108,7 @@ async function expectOwnSiteServed(browser, shared, domain, archived) {
 }
 
 async function expectOwnSiteAdministeredWithoutSsoSettings(page, shared, domain) {
-  const ownAdmin = `${new URL(shared.env.wpBaseUrl).protocol}//${domain}/wp-admin/`;
+  const ownAdmin = `${ownSiteOrigin(shared, domain)}/wp-admin/`;
   const dashboard = await gotoOnion(page, ownAdmin, { waitUntil: "domcontentloaded" });
   expect(dashboard && dashboard.status(), `the main-site sign-in MUST open the admin of ${domain}`).toBeLessThan(400);
   await expect
@@ -109,11 +128,15 @@ async function expectOwnSiteAdministeredWithoutSsoSettings(page, shared, domain)
 }
 
 async function expectOwnSiteSsoSettingsUnwritable(page, shared, domain) {
-  const ownOrigin = `${new URL(shared.env.wpBaseUrl).protocol}//${domain}`;
+  const ownOrigin = ownSiteOrigin(shared, domain);
   const nonce = await page.request.get(`${ownOrigin}/wp-admin/admin-ajax.php?action=rest-nonce`);
-  expect(nonce.status(), `biber MUST receive a REST nonce on ${domain}`).toBe(200);
+  const nonceBody = (await nonce.text()).trim();
+  expect(
+    nonce.status(),
+    `biber MUST receive a REST nonce on ${domain}; ${nonce.url()} answered ${nonceBody.slice(0, 200)}`
+  ).toBe(200);
   const rest = await page.request.get(`${ownOrigin}/wp-json/wp/v2/settings`, {
-    headers: { "X-WP-Nonce": (await nonce.text()).trim() },
+    headers: { "X-WP-Nonce": nonceBody },
   });
   expect(rest.status(), `biber MUST read the REST settings of ${domain}`).toBe(200);
   expect(
@@ -143,7 +166,7 @@ async function expectOwnSiteLoginRoutedToMain(browser, shared, domain) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
   try {
     const page = await ctx.newPage();
-    await gotoOnion(page, `${new URL(shared.env.wpBaseUrl).protocol}//${domain}/wp-login.php`, {
+    await gotoOnion(page, `${ownSiteOrigin(shared, domain)}/wp-login.php`, {
       waitUntil: "domcontentloaded",
     });
     await expect
@@ -156,7 +179,7 @@ async function expectOwnSiteLoginRoutedToMain(browser, shared, domain) {
     expect(
       new URL(redirectUri).host,
       `the sign-in on ${domain} MUST return to the main site, whose redirect URI Keycloak knows`
-    ).toBe(new URL(shared.env.wpBaseUrl).host);
+    ).toBe(new URL(canonicalMainOrigin(shared.env)).host);
     const clientId = new URL(page.url()).searchParams.get("client_id");
     expect(clientId, `the sign-in on ${domain} MUST name the client`).toBeTruthy();
     return clientId;
@@ -176,7 +199,7 @@ async function expectOwnSiteListed(page, shared, domain, listed) {
   await expect(link, `biber's My Sites MUST NOT link the archived ${domain}`).toHaveCount(0);
 }
 
-async function withWordPressLogin(browser, shared, username, password, body) {
+async function withWordPressLoginOn(browser, shared, baseUrl, username, password, body) {
   const ctx = await browser.newContext({
     ignoreHTTPSErrors: true,
     viewport: { width: 1440, height: 1100 },
@@ -184,12 +207,16 @@ async function withWordPressLogin(browser, shared, username, password, body) {
   try {
     const page = await ctx.newPage();
     await installCspViolationObserver(page);
-    await shared.wpAdminLoginViaOidc(page, shared.env.wpBaseUrl, username, password);
+    await shared.wpAdminLoginViaOidc(page, baseUrl, username, password);
     await body(page);
-    await shared.wpSignOut(page, shared.env.wpBaseUrl);
+    await shared.wpSignOut(page, baseUrl);
   } finally {
     await ctx.close().catch(() => {});
   }
+}
+
+function withWordPressLogin(browser, shared, username, password, body) {
+  return withWordPressLoginOn(browser, shared, shared.env.wpBaseUrl, username, password, body);
 }
 
 async function openNetworkAdmin(page, shared) {
@@ -347,6 +374,49 @@ exports.register = function (shared) {
     });
   });
 
+  test("biber: the global editor group grants WordPress Editor on every site without a site-specific group and leaving it takes Editor away (multisite)", async ({
+    browser,
+  }) => {
+    skipUnlessServiceEnabled("sso");
+    test.skip(!shared.env.multisiteEnabled, MULTISITE_SKIP_REASON);
+    test.setTimeout(resolveTimeout(360_000));
+    const { primary, children } = networkTenants(shared.env);
+    const domains = [primary, ...children];
+    const groupPath = shared.rbacGroupPath({ role: "editor" });
+    const asBiber = (body) =>
+      withWordPressLogin(browser, shared, shared.env.biberUsername, shared.env.biberPassword, body);
+    const asAdmin = (body) =>
+      withWordPressLogin(browser, shared, shared.env.adminUsername, shared.env.adminPassword, body);
+
+    await withBiberInGroup(browser, shared, groupPath, async (leaveGroup) => {
+      await asBiber((page) => expectNoSuperAdmin(page, shared, `biber in ${groupPath}`));
+      await asAdmin(async (page) => {
+        for (const domain of domains) {
+          const rows = await siteUserRows(page, shared, domain);
+          await expect(rows.first(), `biber in ${groupPath} MUST be a member of ${domain}`).toBeVisible({
+            timeout: resolveTimeout(30_000),
+          });
+          await expect(
+            rows.first().locator("td.column-role"),
+            `biber in ${groupPath} MUST hold Editor on ${domain}`
+          ).toContainText("Editor");
+        }
+      });
+
+      await leaveGroup();
+      await asBiber((page) => expectNoSuperAdmin(page, shared, `biber after leaving ${groupPath}`));
+      await asAdmin(async (page) => {
+        for (const domain of domains) {
+          const rows = await siteUserRows(page, shared, domain);
+          await expect(
+            rows.filter({ has: page.locator("td.column-role", { hasText: "Editor" }) }),
+            `biber after leaving ${groupPath} MUST NOT hold Editor on ${domain}`
+          ).toHaveCount(0);
+        }
+      });
+    });
+  });
+
   test("biber: joining site-owner creates biber's own site on the first login, leaving archives it and rejoining restores it (multisite)", async ({
     browser,
   }) => {
@@ -389,15 +459,6 @@ exports.register = function (shared) {
         });
         if (shared.env.siteOwnerWildcard) {
           await expectOwnSiteServed(browser, shared, domain, false);
-          const clientId = await expectOwnSiteLoginRoutedToMain(browser, shared, domain);
-          await asBiber(async (page) => {
-            await expectOwnSiteAdministeredWithoutSsoSettings(page, shared, domain);
-            await expectOwnSiteSsoSettingsUnwritable(page, shared, domain);
-          });
-          expect(
-            await expectOwnSiteLoginRoutedToMain(browser, shared, domain),
-            `the options.php POST of biber MUST leave the SSO client of ${domain} unchanged`
-          ).toBe(clientId);
         }
 
         await leaveGroup();
@@ -432,16 +493,44 @@ exports.register = function (shared) {
         });
       });
     } finally {
-      const cleanupBudgetMs = resolveTimeout(120_000);
-      let cleanupTimer;
-      await Promise.race([
-        asAdmin((page) => deleteNetworkSite(page, shared, domain)),
-        new Promise((_, reject) => {
-          cleanupTimer = setTimeout(() => reject(new Error(`deleting ${domain} exceeded ${cleanupBudgetMs} ms`)), cleanupBudgetMs);
-        }),
-      ])
-        .catch((err) => console.warn(`Cleanup of biber's own site ${domain} failed: ${err}`))
-        .finally(() => clearTimeout(cleanupTimer));
+      await cleanUpOwnSite(browser, shared, domain);
+    }
+  });
+
+  test("biber: the own site keeps its SSO settings out of reach and routes its sign-in to the main site (multisite)", async ({
+    browser,
+  }) => {
+    skipUnlessServiceEnabled("sso");
+    test.skip(!shared.env.multisiteEnabled, MULTISITE_SKIP_REASON);
+    test.skip(
+      !shared.env.siteOwnerEnabled || !shared.env.siteOwnerWildcard,
+      "WORDPRESS_SITE_OWNER_ENABLED or WORDPRESS_SITE_OWNER_WILDCARD is false; only a wildcard certificate serves an own site created at sign-in"
+    );
+    test.setTimeout(resolveTimeout(600_000));
+    const groupPath = shared.rbacGroupPath({ siteOwner: true });
+    const domain = siteOwnerDomain(shared);
+    const asBiberOnOwnNetwork = (body) =>
+      withWordPressLoginOn(
+        browser,
+        shared,
+        canonicalMainOrigin(shared.env),
+        shared.env.biberUsername,
+        shared.env.biberPassword,
+        body
+      );
+
+    try {
+      await withBiberInGroup(browser, shared, groupPath, async () => {
+        await asBiberOnOwnNetwork((page) => expectOwnSiteAdministeredWithoutSsoSettings(page, shared, domain));
+        const clientId = await expectOwnSiteLoginRoutedToMain(browser, shared, domain);
+        await asBiberOnOwnNetwork((page) => expectOwnSiteSsoSettingsUnwritable(page, shared, domain));
+        expect(
+          await expectOwnSiteLoginRoutedToMain(browser, shared, domain),
+          `the options.php POST of biber MUST leave the SSO client of ${domain} unchanged`
+        ).toBe(clientId);
+      });
+    } finally {
+      await cleanUpOwnSite(browser, shared, domain);
     }
   });
 };

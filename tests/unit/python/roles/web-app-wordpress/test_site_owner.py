@@ -32,6 +32,8 @@ GROUP_MAP_TEMPLATE = ROLE / "templates" / "rbac_group_map.json.j2"
 MAPPER = ROLE / "files" / "mu-plugins" / "infinito-oidc-rbac-mapper.php"
 SITE_OWNER = ROLE_VARS["WORDPRESS_RBAC_SITE_OWNER_ROLE"]
 NETWORK_ADMIN = ROLE_VARS["WORDPRESS_RBAC_NETWORK_ADMIN_ROLE"]
+SITE_ROLES = ROLE_VARS["WORDPRESS_RBAC_SITE_ROLES"]
+GLOBAL_PREFIX = "global-"
 PARENT = "user.blog.main.test"
 SITES = ["blog.main.test", "biberblog.main.test", "biber.blog.main.test"]
 ONION = "b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion"
@@ -102,6 +104,21 @@ def _multisite_variants() -> dict[int, dict]:
     }
 
 
+def _variant_rbac(multisite: bool) -> dict:
+    """
+    Args:
+        multisite: whether the variant runs Multisite.
+
+    Returns:
+        WORDPRESS_RBAC_CONFIG of the first such variant: its merged rbac block.
+    """
+    for variant in get_variants(roles_dir=PROJECT_ROOT / "roles")[APPLICATION_ID]:
+        enabled = variant["services"]["wordpress"].get("multisite", {}).get("enabled")
+        if bool(enabled) == multisite:
+            return variant["rbac"]
+    raise AssertionError(f"no WordPress variant runs with multisite={multisite}")
+
+
 def _rbac_group_path(name: str, **kwargs: str) -> str:
     if name != "rbac_group_path":
         raise AssertionError(f"the group map renders an unexpected lookup {name}")
@@ -109,11 +126,12 @@ def _rbac_group_path(name: str, **kwargs: str) -> str:
     return "/".join(["roles", kwargs["application_id"], *tenant, kwargs["role"]])
 
 
-def _group_map(multisite: bool, site_owner: bool) -> dict:
+def _group_map(multisite: bool, site_owner: bool, rbac: dict) -> dict:
     """
     Args:
         multisite: WORDPRESS_MULTISITE_ENABLED.
         site_owner: WORDPRESS_SITE_OWNER_ENABLED.
+        rbac: WORDPRESS_RBAC_CONFIG, the merged rbac block of the deployed variant.
 
     Returns:
         WORDPRESS_RBAC_GROUP_MAP as rbac_group_map.json.j2 renders it.
@@ -126,11 +144,20 @@ def _group_map(multisite: bool, site_owner: bool) -> dict:
         WORDPRESS_SITE_OWNER_ENABLED=site_owner,
         WORDPRESS_DOMAINS=SITES + ONION_SIBLINGS,
         WORDPRESS_SITE_DOMAINS=SITES,
-        WORDPRESS_RBAC_SITE_ROLES=ROLE_VARS["WORDPRESS_RBAC_SITE_ROLES"],
+        WORDPRESS_RBAC_CONFIG=rbac,
+        WORDPRESS_RBAC_SITE_ROLES=SITE_ROLES,
         WORDPRESS_RBAC_NETWORK_ADMIN_ROLE=NETWORK_ADMIN,
         WORDPRESS_RBAC_SITE_OWNER_ROLE=SITE_OWNER,
     )
     return json.loads(rendered)
+
+
+def _untenanted_site_roles(group_map: dict) -> dict:
+    return {
+        path: entry
+        for path, entry in group_map.items()
+        if "role" in entry and "tenant" not in entry
+    }
 
 
 class TestSiteOwnerVariant(unittest.TestCase):
@@ -156,26 +183,66 @@ class TestSiteOwnerVariant(unittest.TestCase):
 
 class TestSiteOwnerGroupMap(unittest.TestCase):
     def test_the_multisite_map_names_only_the_network_sites_as_tenants(self):
-        entries = _group_map(True, True).values()
+        entries = _group_map(True, True, _variant_rbac(True)).values()
         tenants = {entry["tenant"] for entry in entries if "tenant" in entry}
         self.assertEqual(set(SITES), tenants)
 
     def test_the_multisite_map_flags_exactly_the_site_owner_group(self):
-        entries = _group_map(True, True).items()
+        entries = _group_map(True, True, _variant_rbac(True)).items()
         owners = [path for path, entry in entries if entry.get("site_owner")]
         self.assertEqual(["/roles/web-app-wordpress/site-owner"], owners)
 
     def test_the_site_owner_group_maps_no_wordpress_role_and_no_tenant(self):
-        entry = _group_map(True, True)["/roles/web-app-wordpress/site-owner"]
-        self.assertEqual({"site_owner": True}, entry)
+        group_map = _group_map(True, True, _variant_rbac(True))
+        self.assertEqual(
+            {"site_owner": True}, group_map["/roles/web-app-wordpress/site-owner"]
+        )
 
     def test_a_network_without_site_owners_carries_no_site_owner_group(self):
-        entries = _group_map(True, False).values()
+        entries = _group_map(True, False, _variant_rbac(True)).values()
         self.assertFalse([entry for entry in entries if entry.get("site_owner")])
 
     def test_a_single_site_map_carries_no_site_owner_group(self):
-        entries = _group_map(False, False).values()
+        entries = _group_map(False, False, _variant_rbac(False)).values()
         self.assertFalse([entry for entry in entries if entry.get("site_owner")])
+
+
+class TestGlobalSiteRoleGroupMap(unittest.TestCase):
+    def test_every_multisite_variant_declares_a_global_role_per_site_role(self):
+        multisite = _multisite_variants()
+        self.assertTrue(multisite, "no WordPress variant runs Multisite")
+        for index, variant in multisite.items():
+            for role in SITE_ROLES:
+                with self.subTest(variant=index, role=role):
+                    declared = variant["rbac"]["roles"].get(GLOBAL_PREFIX + role)
+                    self.assertEqual("global", (declared or {}).get("scope"))
+
+    def test_the_multisite_map_grants_each_global_role_its_site_role_untenanted(self):
+        group_map = _group_map(True, True, _variant_rbac(True))
+        self.assertEqual(
+            {
+                f"/roles/{APPLICATION_ID}/{GLOBAL_PREFIX}{role}": {"role": role}
+                for role in SITE_ROLES
+            },
+            _untenanted_site_roles(group_map),
+        )
+
+    def test_a_network_that_declares_no_global_role_maps_none(self):
+        rbac = _variant_rbac(True)
+        roles = {
+            name: spec
+            for name, spec in rbac["roles"].items()
+            if not name.startswith(GLOBAL_PREFIX)
+        }
+        group_map = _group_map(True, True, {**rbac, "roles": roles})
+        self.assertEqual({}, _untenanted_site_roles(group_map))
+
+    def test_a_single_site_maps_every_site_role_without_a_global_group(self):
+        group_map = _group_map(False, False, _variant_rbac(False))
+        self.assertEqual(
+            {f"/roles/{APPLICATION_ID}/{role}": {"role": role} for role in SITE_ROLES},
+            _untenanted_site_roles(group_map),
+        )
 
 
 def _declarations(domains_config: dict) -> object:

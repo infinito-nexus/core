@@ -378,6 +378,20 @@ function infinito_rbac_apply_site_owner($user, $is_site_owner, $subject, $login)
 }
 
 /**
+ * @param string $domain        The own domain of the account's login, '' when the login names none.
+ * @param string $login         The account's login.
+ * @param bool   $is_site_owner True when the groups grant site-owner.
+ * @param string $subject       The OIDC subject of the user, '' when the claim carries none.
+ * @return int Blog id of the own site the groups grant the user, 0 when they grant none.
+ */
+function infinito_rbac_granted_own_site($domain, $login, $is_site_owner, $subject) {
+    $site = $is_site_owner && $domain !== '' ? infinito_rbac_find_site($domain) : null;
+    return $site !== null && infinito_rbac_site_matches((int) $site->blog_id, $login, $subject)
+        ? (int) $site->blog_id
+        : 0;
+}
+
+/**
  * A failure on the own site is logged and skips only that site, because it
  * must not block the sign-in to every other site of the network.
  *
@@ -392,7 +406,10 @@ function infinito_rbac_apply_multisite($user, $parsed, $subject, $login) {
     infinito_rbac_apply_super_admin($user_id, $parsed['network_admin']);
     $own_blog_id = 0;
     if (infinito_oidc_env('WORDPRESS_SITE_OWNER_ENABLED') === 'true') {
+        $account = (string) $user->user_login;
+        $own_domain = '';
         try {
+            $own_domain = infinito_rbac_is_member_label($account) ? infinito_rbac_site_owner_site($account)['domain'] : '';
             $own_blog_id = infinito_rbac_apply_site_owner($user, $parsed['site_owner'], $subject, $login);
         } catch (RuntimeException $error) {
             error_log(sprintf(
@@ -400,6 +417,7 @@ function infinito_rbac_apply_multisite($user, $parsed, $subject, $login) {
                 $user_id,
                 $error->getMessage()
             ));
+            $own_blog_id = infinito_rbac_granted_own_site($own_domain, $account, $parsed['site_owner'], $subject);
         }
     }
 
@@ -415,9 +433,10 @@ function infinito_rbac_apply_multisite($user, $parsed, $subject, $login) {
             continue;
         }
         $tenant = strtolower(trim($site->domain));
-        $claimed_roles = isset($parsed['per_tenant'][$tenant])
-            ? $parsed['per_tenant'][$tenant]
-            : array();
+        $claimed_roles = array_merge(
+            $parsed['global'],
+            isset($parsed['per_tenant'][$tenant]) ? $parsed['per_tenant'][$tenant] : array()
+        );
         $selected = infinito_rbac_pick_highest_role($claimed_roles);
 
         if ($selected !== null) {
