@@ -56,27 +56,17 @@
         resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
 
 - name: "🎬 Bootstrap Baserow superuser '{{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}'"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}"
-      - -e
-      - "BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}"
-      - -e
-      - "BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL }}"
-      - -e
-      - BOOTSTRAP_ADMIN_PASSWORD
-      - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver  BASEROW_LOCAL_CID resolved at delegate_to runtime
-      - "{{ BASEROW_PYTHON }}"
-      - "{{ BASEROW_MANAGE_PY }}"
-      - shell
-      - -c
-      - "{{ lookup('file', role_path ~ '/files/python/bootstrap_admin.py') }}"
-  environment:
-    BOOTSTRAP_ADMIN_PASSWORD: "{{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  BASEROW_LOCAL_CID resolved at delegate_to runtime, run_once on the hosting node
+      IFS= read -r BOOTSTRAP_ADMIN_PASSWORD || :; : "${BOOTSTRAP_ADMIN_PASSWORD:?arrived empty on stdin}" && export BOOTSTRAP_ADMIN_PASSWORD && container exec -i
+      -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
+      -e BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME | quote }}
+      -e BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL | quote }}
+      -e BOOTSTRAP_ADMIN_PASSWORD
+      {{ BASEROW_LOCAL_CID | quote }}
+      {{ BASEROW_PYTHON | quote }} {{ BASEROW_MANAGE_PY | quote }} shell
+      -c {{ lookup('file', role_path ~ '/files/python/bootstrap_admin.py') | quote }}
+    stdin: "{{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD }}"
   register: baserow_bootstrap_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'BOOTSTRAP_STATE=changed' in baserow_bootstrap_admin_result.stdout"

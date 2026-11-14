@@ -44,6 +44,19 @@ local)
 esac
 
 nexus_curl() { nexus_exec curl "$@"; }
+nexus_curl_stdin() { nexus_exec_stdin curl "$@"; }
+
+curl_option() {
+	local value="${2//\\/\\\\}"
+	printf '%s = "%s"\n' "$1" "${value//\"/\\\"}"
+}
+
+# Param: $1 the user:password pair, curl reads it from a config on stdin; the rest curl's arguments
+nexus_curl_auth() {
+	local credentials="$1"
+	shift
+	curl_option user "${credentials}" | nexus_curl_stdin -K - "$@"
+}
 
 wait_for_nexus() {
 	local _attempt
@@ -74,11 +87,13 @@ rotate_admin_password() {
 	fi
 
 	log "Rotating admin password from default '${NEXUS_DEFAULT_PASSWORD}'"
-	if ! nexus_curl -fsS -u "admin:${NEXUS_DEFAULT_PASSWORD}" \
+	if ! {
+		curl_option user "admin:${NEXUS_DEFAULT_PASSWORD}"
+		curl_option data-raw "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"
+	} | nexus_curl_stdin -K - -fsS \
 		-H "Content-Type: text/plain" \
-		-X PUT "${NEXUS_REST}/v1/security/users/admin/change-password" \
-		--data-binary "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"; then
-		if nexus_curl -fsS -o /dev/null -u "admin:${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" \
+		-X PUT "${NEXUS_REST}/v1/security/users/admin/change-password"; then
+		if nexus_curl_auth "admin:${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" -fsS -o /dev/null \
 			"${NEXUS_REST}/v1/repositories" >/dev/null 2>&1; then
 			log "Default rotation rejected but configured password authenticates; assuming previous bootstrap, marking done"
 		else
@@ -98,8 +113,7 @@ ensure_blobstore() {
 	local payload
 	payload="$(printf '{"name":"default","path":"default","softQuota":{"type":"spaceUsedQuota","limit":%d}}' "${quota_mb}")"
 	local code
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X POST "${NEXUS_REST}/v1/blobstores/file" \
 		--data "${payload}" || true)"
@@ -116,16 +130,14 @@ ensure_blobstore() {
 ensure_repo() {
 	local format="$1" kind="$2" name="$3" payload="$4"
 	local code
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X POST "${NEXUS_REST}/v1/repositories/${format}/${kind}" \
 		--data "${payload}" || true)"
 	case "${code}" in
 	201 | 204) log "${format} ${kind} ${name} created (HTTP ${code})" ;;
 	400 | 409)
-		code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-			-u "${ADMIN_USER}:${ADMIN_PASS}" \
+		code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 			-H "Content-Type: application/json" \
 			-X PUT "${NEXUS_REST}/v1/repositories/${format}/${kind}/${name}" \
 			--data "${payload}" || true)"
@@ -182,8 +194,7 @@ ensure_all_proxies() {
 ensure_eula_accepted() {
 	local code
 	# shellcheck disable=SC1112
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X POST "${NEXUS_REST}/v1/system/eula" \
 		--data '{"accepted":true,"disclaimer":"Use of Sonatype Nexus Repository - Community Edition is governed by the End User License Agreement at https://links.sonatype.com/products/nxrm/ce-eula. By returning the value from ‘accepted:false’ to ‘accepted:true’, you acknowledge that you have read and agree to the End User License Agreement at https://links.sonatype.com/products/nxrm/ce-eula."}' || true)"
@@ -198,8 +209,7 @@ ensure_eula_accepted() {
 
 ensure_anonymous_access() {
 	local code
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X PUT "${NEXUS_REST}/v1/security/anonymous" \
 		--data '{"enabled":true,"userId":"anonymous","realmName":"NexusAuthorizingRealm"}' || true)"

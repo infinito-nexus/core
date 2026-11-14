@@ -32,13 +32,14 @@
 - name: "🔑 Realign the Social Home administrator password with the declared one"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i
+      IFS= read -r SOCIALHOME_REALIGN_PASSWORD && : "${SOCIALHOME_REALIGN_PASSWORD:?arrived empty on stdin}" && export SOCIALHOME_REALIGN_PASSWORD && container exec -i
       -e SOCIALHOME_REALIGN_USERNAME -e SOCIALHOME_REALIGN_PASSWORD
       {{ SOCIALHOME_LOCAL_CID | quote }} python
-    stdin: "{{ lookup('file', 'python/realign_admin_password.py') }}"
+    stdin: |-
+      {{ SOCIALHOME_ADMIN_PASSWORD }}
+      {{ lookup('file', 'python/realign_admin_password.py') }}
   environment:
     SOCIALHOME_REALIGN_USERNAME: "{{ SOCIALHOME_ADMIN_USERNAME }}"
-    SOCIALHOME_REALIGN_PASSWORD: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
   register: socialhome_admin_password_realign
   changed_when: socialhome_admin_password_realign.stdout is search('\[CHANGED\]')
   failed_when: >-

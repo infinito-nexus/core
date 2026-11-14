@@ -66,11 +66,12 @@
   ansible.builtin.command:
     argv:
       - bash
-      - -s
-    stdin: "{{ lookup('file', 'shell/addons/mattermost/provision_oauth_app.sh') }}"
+      - -c
+      # nocheck: container-exec-env-value -- IFS= is an empty field-splitting assignment; MM_TOKEN arrives on stdin and the script text carries only its name
+      - 'IFS= read -r MM_TOKEN && : "${MM_TOKEN:?arrived empty on stdin}" && export MM_TOKEN && exec bash -s'
+    stdin: "{{ nextcloud_mm_token ~ '\n' ~ lookup('file', 'shell/addons/mattermost/provision_oauth_app.sh') }}"
   environment:
     MM_LOCAL_URL: "{{ nextcloud_mm_local_url }}"
-    MM_TOKEN: "{{ nextcloud_mm_token }}"
     MM_APP_NAME: Nextcloud
     NC_BASE_URL: "{{ NEXTCLOUD_URL }}"
     NC_REDIRECT_PATH: "{{ nextcloud_mm_redirect_path }}"
@@ -101,14 +102,15 @@
 - name: 🔐 Store integration_mattermost OAuth credentials Nextcloud-encrypted (lazy)
   ansible.builtin.shell:
     cmd: >-
+      IFS= read -r NC_ENC_B64 && : "${NC_ENC_B64:?arrived empty on stdin}" && export NC_ENC_B64 &&
       container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
       -e NC_APP_ID=integration_mattermost
       -e NC_ENC_MODE=sensitive
       -e NC_ENC_B64
       {{ NEXTCLOUD_LOCAL_CID | quote }} php
-    stdin: "{{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}"
-  environment:
-    NC_ENC_B64: "{{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
+    stdin: |-
+      {{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}
+      {{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}
   register: nextcloud_mm_enc_set
   changed_when: "'OK' in nextcloud_mm_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -49,6 +49,7 @@
         option_json_b64: "{{ option_kv | to_json | b64encode }}"
 
       ansible.builtin.shell: >
+        IFS= read -r WP_OPTION_JSON_B64 || :; : "${WP_OPTION_JSON_B64:?arrived empty on stdin}" && export WP_OPTION_JSON_B64 &&
         container exec -u {{ WORDPRESS_USER }} -e WP_OPTION_JSON_B64 {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
         "wp eval \"update_option(
         '{{ option_name }}',
@@ -57,6 +58,6 @@
         true
         )
         );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
-      environment:
-        WP_OPTION_JSON_B64: "{{ option_json_b64 }}"
+      args:
+        stdin: "{{ option_json_b64 }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

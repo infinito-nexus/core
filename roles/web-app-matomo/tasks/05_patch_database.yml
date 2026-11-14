@@ -3,14 +3,13 @@
   ansible.builtin.include_tasks: utils/resolve/config_host.yml
 
 - name: "🔄 Update DB host, name, user and password"
-  ansible.builtin.shell: sh -s -- {{ MATOMO_CONFIG_HOST | quote }}
+  ansible.builtin.shell: sh -c {{ lookup('file', 'shell/patch/database.sh') | quote }} database.sh {{ MATOMO_CONFIG_HOST | quote }}
   args:
-    stdin: "{{ lookup('file', 'shell/patch/database.sh') }}"
+    stdin: "{{ lookup('database', application_id, 'password') | sed_escape('/') }}"
   environment:
     PATCH_HOST: "{{ lookup('database', application_id, 'host') | sed_escape('/') }}"
     PATCH_NAME: "{{ lookup('database', application_id, 'name') | sed_escape('/') }}"
     PATCH_USERNAME: "{{ lookup('database', application_id, 'username') | sed_escape('/') }}"
-    PATCH_PASSWORD: "{{ lookup('database', application_id, 'password') | sed_escape('/') }}"
   register: matomo_database_patch
   changed_when: "'PATCHED' in matomo_database_patch.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

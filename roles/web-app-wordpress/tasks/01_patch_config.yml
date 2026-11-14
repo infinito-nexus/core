@@ -31,12 +31,11 @@
 
 - name: 🔄 Update DB password in {{ WORDPRESS_CONFIG_FILE }}
   shell: >
-    IFS= read -r PATCH_PASSWORD && export PATCH_PASSWORD && container exec --user root
-    -e PATCH_PASSWORD
-    {{ WORDPRESS_CONTAINER_ADDRESS }}
-    sh -c "sed -i \"s/define(\\s*'DB_PASSWORD'\\s*,\\s*'[^']*'\\s*);/define( 'DB_PASSWORD', '\${PATCH_PASSWORD}' );/i\" {{ WORDPRESS_DOCKER_CONF_PATH }}"
+    container exec -i --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
+    sed -i -f /dev/stdin {{ WORDPRESS_DOCKER_CONF_PATH }}
   args:
-    stdin: "{{ lookup('database', application_id, 'password') | sed_escape('/') }}"
+    stdin: >-
+      s/define(\s*'DB_PASSWORD'\s*,\s*'[^']*'\s*);/define( 'DB_PASSWORD', '{{ lookup('database', application_id, 'password') | sed_escape('/') }}' );/i
   notify: compose-up
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

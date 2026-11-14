@@ -17,12 +17,14 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: 🔧 Provision integration_openai api_key for the LiteLLM gateway backend
-      shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-        container exec -u {{ NEXTCLOUD_DOCKER_USER }} -e NC_OPENAI_API_KEY {{ NEXTCLOUD_LOCAL_CID | quote }}
-        sh -c 'exec "$1" config:app:set integration_openai api_key --value "$NC_OPENAI_API_KEY"'
-        _ {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }}
-      environment:
-        NC_OPENAI_API_KEY: "{{ nextcloud_openai_litellm_api_key }}"
+      ansible.builtin.shell:
+        cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
+        stdin: >-
+          <?php $occBatch = '{{ nextcloud_openai_api_key_config | nextcloud_occ_config_set_batch | to_json | b64encode }}'; ?>{{ lookup('file', 'php/utils/occ_batch.php')
+          }}
+      vars:
+        nextcloud_openai_api_key_config:
+          - { appid: integration_openai, configkey: api_key, type: null, value: "{{ nextcloud_openai_litellm_api_key }}" }
       when: IS_STACK_HOST | bool
       register: nextcloud_openai_set_api_key
       changed_when: nextcloud_openai_set_api_key.stdout is search(' set to ')

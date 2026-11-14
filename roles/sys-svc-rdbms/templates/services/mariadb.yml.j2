@@ -18,7 +18,7 @@
       - database:/var/lib/mysql
     # nocheck: container-healthcheck-literal  shared partial rendered for the consuming role's application_id, so the declaration has no single meta/services.yml to live in
     healthcheck:
-      test: [ "CMD", "sh", "-c", "/usr/bin/mariadb --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute 'SHOW DATABASES;'" ]
+      test: [ "CMD", "sh", "-c", "MYSQL_PWD=$$MYSQL_PASSWORD /usr/bin/mariadb --user=$$MYSQL_USER --execute 'SHOW DATABASES;'" ]
       interval: 2m
       timeout: 5s
       retries: 18

@@ -7,22 +7,17 @@
     resolve_compose_cid: "{{ FUNKWHALE_API_CONTAINER }}"
 
 - name: "🔍 Check the administrator of {{ application_id }}"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - FUNKWHALE_ADMIN_USERNAME
-      - -e
-      - FUNKWHALE_ADMIN_PASSWORD
-      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - funkwhale-manage
-      - shell
-    stdin: "{{ lookup('file', 'python/admin_state.py') }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r FUNKWHALE_ADMIN_PASSWORD && : "${FUNKWHALE_ADMIN_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_ADMIN_PASSWORD && container exec -i
+      -e FUNKWHALE_ADMIN_USERNAME -e FUNKWHALE_ADMIN_PASSWORD
+      {{ FUNKWHALE_API_LOCAL_CID | quote }}
+      funkwhale-manage shell
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('file', 'python/admin_state.py') }}
   environment:
     FUNKWHALE_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
-    FUNKWHALE_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   register: funkwhale_admin_state
   retries: 30
   delay: 10
@@ -33,50 +28,29 @@
   run_once: true
 
 - name: "👤 Create the administrator of {{ application_id }}"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -e
-      - FUNKWHALE_CLI_USER_PASSWORD
-      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - funkwhale-manage
-      - fw
-      - users
-      - create
-      - --superuser
-      - --username
-      - "{{ lookup('users', 'platform_administrator').username }}"
-      - --email
-      - "{{ lookup('users', 'platform_administrator').email }}"
-    expand_argument_vars: false
-  environment:
-    FUNKWHALE_CLI_USER_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r FUNKWHALE_CLI_USER_PASSWORD || :; : "${FUNKWHALE_CLI_USER_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_CLI_USER_PASSWORD && container exec
+      -e FUNKWHALE_CLI_USER_PASSWORD
+      {{ FUNKWHALE_API_LOCAL_CID | quote }}
+      funkwhale-manage fw users create --superuser
+      --username {{ lookup('users', 'platform_administrator').username | quote }}
+      --email {{ lookup('users', 'platform_administrator').email | quote }}
+    stdin: "{{ lookup('users', 'platform_administrator').password }}"
   when: funkwhale_admin_state.stdout is search('(?m)^FUNKWHALE_ADMIN=MISSING$')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
   run_once: true
 
 - name: "🔑 Converge the administrator password and rights of {{ application_id }}"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -e
-      - FUNKWHALE_CLI_USER_UPDATE_PASSWORD
-      - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - funkwhale-manage
-      - fw
-      - users
-      - set
-      - --no-input
-      - --active
-      - --staff
-      - --superuser
-      - "{{ lookup('users', 'platform_administrator').username }}"
-    expand_argument_vars: false
-  environment:
-    FUNKWHALE_CLI_USER_UPDATE_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r FUNKWHALE_CLI_USER_UPDATE_PASSWORD || :; : "${FUNKWHALE_CLI_USER_UPDATE_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_CLI_USER_UPDATE_PASSWORD && container exec
+      -e FUNKWHALE_CLI_USER_UPDATE_PASSWORD
+      {{ FUNKWHALE_API_LOCAL_CID | quote }}
+      funkwhale-manage fw users set --no-input --active --staff --superuser
+      {{ lookup('users', 'platform_administrator').username | quote }}
+    stdin: "{{ lookup('users', 'platform_administrator').password }}"
   when: funkwhale_admin_state.stdout is search('(?m)^FUNKWHALE_ADMIN=DRIFT$')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"

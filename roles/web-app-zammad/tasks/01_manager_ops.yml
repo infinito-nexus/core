@@ -77,17 +77,21 @@
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
+      IFS= read -r API_BOT_PASSWORD
+      : "${API_BOT_PASSWORD:?arrived empty on stdin}"
+      export API_BOT_PASSWORD
       container exec -i \
         -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'ruby/apply/api_bot.rb') }}"
+    stdin: |-
+      {{ ZAMMAD_API_BOT_PASSWORD }}
+      {{ lookup('file', 'ruby/apply/api_bot.rb') }}
   environment:
     API_BOT_LOGIN: "{{ ZAMMAD_API_BOT_USER.username }}"
     API_BOT_EMAIL: "{{ ZAMMAD_API_BOT_USER.email }}"
     API_BOT_FIRSTNAME: "{{ ZAMMAD_API_BOT_USER.firstname }}"
     API_BOT_LASTNAME: "{{ ZAMMAD_API_BOT_USER.lastname }}"
-    API_BOT_PASSWORD: "{{ ZAMMAD_API_BOT_PASSWORD }}"
   register: zammad_api_bot_apply
   changed_when: false
 
@@ -96,17 +100,21 @@
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
+      IFS= read -r ADMIN_PASSWORD
+      : "${ADMIN_PASSWORD:?arrived empty on stdin}"
+      export ADMIN_PASSWORD
       container exec -i \
         -e ADMIN_LOGIN -e ADMIN_EMAIL -e ADMIN_FIRSTNAME -e ADMIN_LASTNAME -e ADMIN_PASSWORD \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'ruby/apply/administrator.rb') }}"
+    stdin: |-
+      {{ ZAMMAD_ADMINISTRATOR.password }}
+      {{ lookup('file', 'ruby/apply/administrator.rb') }}
   environment:
     ADMIN_LOGIN: "{{ ZAMMAD_ADMINISTRATOR.username }}"
     ADMIN_EMAIL: "{{ ZAMMAD_ADMINISTRATOR.email }}"
     ADMIN_FIRSTNAME: "{{ ZAMMAD_ADMINISTRATOR.firstname }}"
     ADMIN_LASTNAME: "{{ ZAMMAD_ADMINISTRATOR.lastname }}"
-    ADMIN_PASSWORD: "{{ ZAMMAD_ADMINISTRATOR.password }}"
   register: zammad_administrator_apply
   changed_when: "'administrator: changed' in zammad_administrator_apply.stdout"
   when: not (ZAMMAD_OIDC_ENABLED | bool)
@@ -118,19 +126,25 @@
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
+      IFS= read -r MCP_BOT_PASSWORD
+      IFS= read -r MCP_API_TOKEN
+      : "${MCP_BOT_PASSWORD:?arrived empty on stdin}"
+      : "${MCP_API_TOKEN:?arrived empty on stdin}"
+      export MCP_BOT_PASSWORD MCP_API_TOKEN
       container exec -i \
         -e MCP_BOT_LOGIN -e MCP_BOT_EMAIL -e MCP_BOT_FIRSTNAME -e MCP_BOT_LASTNAME \
         -e MCP_BOT_PASSWORD -e MCP_API_TOKEN -e MCP_TOKEN_LABEL \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'ruby/apply/mcp_bot.rb') }}"
+    stdin: |-
+      {{ ZAMMAD_MCP_UPSTREAM_PASSWORD }}
+      {{ ZAMMAD_MCP_UPSTREAM_KEY }}
+      {{ lookup('file', 'ruby/apply/mcp_bot.rb') }}
   environment:
     MCP_BOT_LOGIN: "{{ ZAMMAD_MCP_UPSTREAM_USER }}"
     MCP_BOT_EMAIL: "{{ ZAMMAD_MCP_UPSTREAM_EMAIL }}"
     MCP_BOT_FIRSTNAME: "MCP"
     MCP_BOT_LASTNAME: "Adapter"
-    MCP_BOT_PASSWORD: "{{ ZAMMAD_MCP_UPSTREAM_PASSWORD }}"
-    MCP_API_TOKEN: "{{ ZAMMAD_MCP_UPSTREAM_KEY }}"
     MCP_TOKEN_LABEL: "{{ ZAMMAD_MCP_UPSTREAM_TOKEN_LABEL }}"
   register: zammad_mcp_bot_apply
   changed_when: false
@@ -142,18 +156,22 @@
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
+      IFS= read -r OIDC_CLIENT_SECRET
+      : "${OIDC_CLIENT_SECRET:?arrived empty on stdin}"
+      export OIDC_CLIENT_SECRET
       container exec -i \
         -e ZAMMAD_FQDN -e ZAMMAD_HTTP_TYPE \
         -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_CLIENT_SECRET -e OIDC_ISSUER_URL \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'ruby/apply/oidc_settings.rb') }}"
+    stdin: |-
+      {{ OIDC.CLIENT.SECRET }}
+      {{ lookup('file', 'ruby/apply/oidc_settings.rb') }}
   environment:
     ZAMMAD_FQDN: "{{ ZAMMAD_HOSTNAME }}"
     ZAMMAD_HTTP_TYPE: "{{ ZAMMAD_WEB_PROTOCOL }}"
     OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
     OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
-    OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
     OIDC_ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"
   register: zammad_oidc_apply
   changed_when: false
@@ -163,22 +181,27 @@
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
+      IFS= read -r LDAP_BIND_PW
+      : "${LDAP_BIND_PW:?arrived empty on stdin}"
+      export LDAP_BIND_PW
       container exec -i \
         -e LDAP_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN \
         -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'ruby/apply/ldap_source.rb') }}"
+    stdin: |-
+      {{ LDAP.BIND_CREDENTIAL }}
+      {{ lookup('file', 'ruby/apply/ldap_source.rb') }}
   environment:
     LDAP_NAME: "{{ ORGANIZATION }} svc-db-openldap"
     LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
     LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
     LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
     LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
-    LDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
     LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
   register: zammad_ldap_apply
   changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: ZAMMAD_LDAP_ENABLED
 
 - name: "🤖 Wire Zammad Smart Assist to the platform LLM gateway"
@@ -191,15 +214,19 @@
       ansible.builtin.shell:
         cmd: |
           set -euo pipefail
+          IFS= read -r AI_TOKEN
+          : "${AI_TOKEN:?arrived empty on stdin}"
+          export AI_TOKEN
           container exec -i \
             -e AI_URL -e AI_MODEL -e AI_TOKEN \
             {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
             bundle exec rails r -
-        stdin: "{{ lookup('file', 'ruby/apply/ai_provider.rb') }}"
+        stdin: |-
+          {{ ZAMMAD_LITELLM_API_KEY }}
+          {{ lookup('file', 'ruby/apply/ai_provider.rb') }}
       environment:
         AI_URL: "{{ ZAMMAD_LITELLM_BASE_URL }}"
         AI_MODEL: "{{ ZAMMAD_LITELLM_MODEL }}"
-        AI_TOKEN: "{{ ZAMMAD_LITELLM_API_KEY }}"
       register: zammad_ai_apply
       changed_when: false
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -208,13 +235,21 @@
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
+      IFS= read -r IMAP_PASS
+      IFS= read -r SMTP_PASS
+      : "${IMAP_PASS:?arrived empty on stdin}"
+      : "${SMTP_PASS:?arrived empty on stdin}"
+      export IMAP_PASS SMTP_PASS
       container exec -i \
         -e MAIL_GROUP_NAME -e MAIL_FROM_NAME -e MAIL_FROM_ADDRESS \
         -e IMAP_HOST -e IMAP_PORT -e IMAP_USER -e IMAP_PASS \
         -e SMTP_HOST -e SMTP_PORT -e SMTP_USER -e SMTP_PASS \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: "{{ lookup('file', 'ruby/apply/email_channel.rb') }}"
+    stdin: |-
+      {{ ZAMMAD_HELPDESK_PASS }}
+      {{ ZAMMAD_HELPDESK_PASS }}
+      {{ lookup('file', 'ruby/apply/email_channel.rb') }}
   environment:
     MAIL_GROUP_NAME: "Users"
     MAIL_FROM_NAME: "{{ ORGANIZATION }} Helpdesk"
@@ -222,11 +257,10 @@
     IMAP_HOST: "{{ ZAMMAD_MAIL.host }}"
     IMAP_PORT: "143"
     IMAP_USER: "{{ ZAMMAD_HELPDESK_EMAIL }}"
-    IMAP_PASS: "{{ ZAMMAD_HELPDESK_PASS }}"
     SMTP_HOST: "{{ ZAMMAD_MAIL.host }}"
     SMTP_PORT: "{{ ZAMMAD_MAIL.port }}"
     SMTP_USER: "{{ ZAMMAD_HELPDESK_EMAIL }}"
-    SMTP_PASS: "{{ ZAMMAD_HELPDESK_PASS }}"
   register: zammad_email_apply
   changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: ZAMMAD_EMAIL_ENABLED and (ZAMMAD_HELPDESK_EMAIL | length > 0)

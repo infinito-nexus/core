@@ -14,18 +14,17 @@
 
 - name: "🔑 Mattermost | Keycloak — authenticate kcadm.sh"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-    container exec -i -e MATTERMOST_KEYCLOAK_ADMIN_PASS {{ MATTERMOST_KC_LOCAL_CID | quote }}
-    sh -lc '/opt/keycloak/bin/kcadm.sh config credentials
+    IFS= read -r MATTERMOST_KEYCLOAK_ADMIN_PASS || :; : "${MATTERMOST_KEYCLOAK_ADMIN_PASS:?arrived empty on stdin}" && export MATTERMOST_KEYCLOAK_ADMIN_PASS && container exec -i -e MATTERMOST_KEYCLOAK_ADMIN_PASS {{ MATTERMOST_KC_LOCAL_CID | quote }}
+    sh -lc 'KC_CLI_PASSWORD="$MATTERMOST_KEYCLOAK_ADMIN_PASS" /opt/keycloak/bin/kcadm.sh config credentials
     --server "http://localhost:8080"
     --realm master
-    --user "{{ MATTERMOST_KEYCLOAK_ADMIN_USER }}"
-    --password "$MATTERMOST_KEYCLOAK_ADMIN_PASS"'
-  environment:
-    MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ MATTERMOST_KEYCLOAK_ADMIN_PASS }}"
+    --user "{{ MATTERMOST_KEYCLOAK_ADMIN_USER }}"'
   args:
     chdir: "{{ lookup('container', 'web-app-keycloak', 'directories.instance') if IS_COMPOSE_MODE else omit }}"
+    stdin: "{{ MATTERMOST_KEYCLOAK_ADMIN_PASS }}"
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔍 Mattermost | Keycloak — resolve Mattermost client UUID"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell

@@ -37,14 +37,15 @@
 - name: 🔑 Ensure the Listmonk Super Admin exists and accepts the declared password
   ansible.builtin.shell:
     cmd: >-
+      IFS= read -r LISTMONK_REALIGN_PASSWORD && : "${LISTMONK_REALIGN_PASSWORD:?arrived empty on stdin}" && export LISTMONK_REALIGN_PASSWORD &&
       {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1
       -v login={{ LISTMONK_ADMIN_USERNAME | quote }}
       -v email={{ LISTMONK_ADMIN_EMAIL | quote }}
       -v password_login={{ 'false' if LISTMONK_OIDC_ENABLED | bool else 'true' }}
       -v create={{ 'true' if listmonk_admin_plan == 'create' else 'false' }}
-    stdin: "{{ lookup('file', 'sql/realign_admin_credential.sql') }}"
-  environment:
-    LISTMONK_REALIGN_PASSWORD: "{{ LISTMONK_ADMIN_PASSWORD }}"
+    stdin: |-
+      {{ LISTMONK_ADMIN_PASSWORD }}
+      {{ lookup('file', 'sql/realign_admin_credential.sql') }}
   register: listmonk_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: listmonk_admin_password.stdout is search('\[CHANGED\]')

@@ -12,7 +12,7 @@
     - name: ⏳ Wait for Postgres TCP auth
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       ansible.builtin.shell: > # nocheck: container-exec-resolver  POSTGRES_LOCAL_CID resolved at delegate_to runtime
-        IFS= read -r PGPASSWORD && export PGPASSWORD && container exec -e PGPASSWORD {{ POSTGRES_LOCAL_CID | quote }} sh -lc
+        IFS= read -r PGPASSWORD || :; : "${PGPASSWORD:?arrived empty on stdin}" && export PGPASSWORD && container exec -e PGPASSWORD {{ POSTGRES_LOCAL_CID | quote }} sh -lc
         'psql -h "{{ POSTGRES_LOCAL_HOST }}" -p "{{ POSTGRES_PORT }}"
         -U postgres -d postgres -c "SELECT 1"'
       args:

@@ -2,12 +2,14 @@
 - name: "📌 apply LDAP Settings doctype"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i
+      IFS= read -r LDAP_BIND_PW && : "${LDAP_BIND_PW:?arrived empty on stdin}" && export LDAP_BIND_PW && container exec -i
       -e SITE_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN
       -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/ldap_source.py') }}"
+    stdin: |-
+      {{ LDAP.BIND_CREDENTIAL }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/ldap_source.py') }}
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
@@ -15,7 +17,7 @@
     LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
     LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
     LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
-    LDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
     LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
   register: erpnext_ldap_apply
   changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

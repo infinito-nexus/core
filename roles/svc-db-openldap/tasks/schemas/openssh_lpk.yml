@@ -28,6 +28,7 @@
         {% endfor %}
     stdin: "{{ OPENLDAP_BIND_PW }}"
   register: opensshlpk_ldapsm
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'Created schema entry' in opensshlpk_ldapsm.stdout"
   check_mode: false
 

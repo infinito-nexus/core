@@ -18,42 +18,19 @@
     resolve_compose_cid: "{{ BOOKWYRM_CONTAINER }}"
 
 - name: "👤 Converge the BookWyrm administrator, title, logos and corporate theme"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - ADMIN_USERNAME
-      - -e
-      - ADMIN_EMAIL
-      - -e
-      - ADMIN_PASSWORD
-      - -e
-      - DESIGN_STATE
-      - -e
-      - SITE_NAME
-      - -e
-      - THEME_NAME
-      - -e
-      - THEME_PATH
-      - -e
-      - LOGO_SMALL
-      - -e
-      - LOGO
-      - -e
-      - FAVICON
-      - "{{ BOOKWYRM_SITE_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - /venv/bin/python
-      - manage.py
-      - shell
-      - --command
-      - "import sys; exec(sys.stdin.read())"
-    stdin: "{{ lookup('file', 'python/site_design.py') }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r ADMIN_PASSWORD && : "${ADMIN_PASSWORD:?arrived empty on stdin}" && export ADMIN_PASSWORD && container exec -i
+      -e ADMIN_USERNAME -e ADMIN_EMAIL -e ADMIN_PASSWORD -e DESIGN_STATE -e SITE_NAME
+      -e THEME_NAME -e THEME_PATH -e LOGO_SMALL -e LOGO -e FAVICON
+      {{ BOOKWYRM_SITE_LOCAL_CID | quote }}
+      /venv/bin/python manage.py shell --command 'import sys; exec(sys.stdin.read())'
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('file', 'python/site_design.py') }}
   environment:
     ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
     ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
-    ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     DESIGN_STATE: "{{ 'present' if BOOKWYRM_DESIGN_ENABLED | bool else 'absent' }}"
     SITE_NAME: "{{ lookup('design', application_id).label }}"
     THEME_NAME: "{{ BOOKWYRM_THEME_NAME }}"

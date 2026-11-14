@@ -12,15 +12,17 @@
 # Param: PATCH_CONFIG_REL  - config path relative to that volume's mountpoint
 # Param: PATCH_EXPRESSION  - extended-regex sed expression (sed -E), with
 #                            @PASSWORD@ where the value goes
-# Param: PATCH_PASSWORD    - the value, already escaped for the sed delimiter
 # Param: PATCH_DATA_DIR    - inventory-known backing directory, tried when the
 #                            volume object does not name its own
+# Param: stdin             - first line: the password, already escaped for the
+#                            sed delimiter
 set -euo pipefail
 
 : "${PATCH_VOLUME:?}"
 : "${PATCH_CONFIG_REL:?}"
 : "${PATCH_EXPRESSION:?}"
-: "${PATCH_PASSWORD:?}"
+IFS= read -r PATCH_PASSWORD || : # nocheck: shell-or-true -- read returns 1 on a last line without a newline; the next line rejects an empty value
+: "${PATCH_PASSWORD:?the password arrives on stdin}"
 
 container volume ls -q -f "name=^${PATCH_VOLUME}$" | grep -q . || exit 0
 
@@ -40,10 +42,10 @@ fi
 
 expression="${PATCH_EXPRESSION//@PASSWORD@/$PATCH_PASSWORD}"
 
-if [ -z "$(sed -E -n "${expression}p" "$config" | head -n1)" ]; then
+if [ -z "$(printf '%sp\n' "$expression" | sed -E -n -f /dev/stdin "$config" | head -n1)" ]; then
   echo "FAILED: no line in ${PATCH_CONFIG_REL} matches the patch expression" >&2
   exit 1
 fi
 
-sed -E -i "$expression" "$config"
+printf '%s\n' "$expression" | sed -E -i -f /dev/stdin "$config"
 echo PATCHED

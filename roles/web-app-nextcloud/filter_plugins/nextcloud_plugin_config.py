@@ -87,7 +87,9 @@ def nextcloud_occ_config_set_batch(pending):
     Returns:
       list of dicts in entry order, the calls files/php/utils/occ_batch.php runs:
         argv  - the ``occ`` arguments; a typed entry adds
-                ``--no-interaction --type=<type>``
+                ``--no-interaction --type=<type>``; the value travels as one
+                ``--value=<value>`` token, since Symfony refuses a separate
+                value token that starts with ``-``
         label - ``appid/configkey``
     """
     batch = []
@@ -104,8 +106,7 @@ def nextcloud_occ_config_set_batch(pending):
                     item["appid"],
                     item["configkey"],
                     *typed,
-                    "--value",
-                    item["value"],
+                    f"--value={item['value']}",
                 ],
                 "label": item["appid"] + "/" + item["configkey"],
             }

@@ -15,14 +15,16 @@
   when: erpnext_site_probe.rc != 0
 
 - name: "🔑 Realign the Administrator password with the declared one"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e ADMIN_PASSWORD {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
-      bench --site {{ ERPNEXT_SITE_NAME }} set-admin-password "$ADMIN_PASSWORD"
-    '
-  environment:
-    ADMIN_PASSWORD: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      IFS= read -r ADMIN_PASSWORD || :; : "${ADMIN_PASSWORD:?arrived empty on stdin}"
+      export ADMIN_PASSWORD
+      # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e ADMIN_PASSWORD {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
+        bench --site {{ ERPNEXT_SITE_NAME }} set-admin-password "$ADMIN_PASSWORD"
+      '
+    stdin: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -59,12 +61,16 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      IFS= read -r API_BOT_PASSWORD && IFS= read -r API_KEY_SECRET && : "${API_BOT_PASSWORD:?arrived empty on stdin}" && : "${API_KEY_SECRET:?arrived empty on stdin}" && export API_BOT_PASSWORD API_KEY_SECRET &&
       container exec -i
       -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
       -e API_BOT_EXTRA_ROLES_JSON -e COUNTRY -e CURRENCY -e SERVER_SCRIPTS_ENABLED
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/api_bot.py') }}"
+    stdin: |-
+      {{ ERPNEXT_API_BOT_PASSWORD }}
+      {{ ERPNEXT_API_KEY_SECRET }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/api_bot.py') }}
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
@@ -72,8 +78,6 @@
     API_BOT_EMAIL: "{{ ERPNEXT_API_BOT_USER.email }}"
     API_BOT_FIRSTNAME: "{{ ERPNEXT_API_BOT_USER.firstname }}"
     API_BOT_LASTNAME: "{{ ERPNEXT_API_BOT_USER.lastname }}"
-    API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_PASSWORD }}"
-    API_KEY_SECRET: "{{ ERPNEXT_API_KEY_SECRET }}"
     API_BOT_EXTRA_ROLES_JSON: "{{ ERPNEXT_API_BOT_EXTRA_ROLES | to_json }}"
     COUNTRY: "{{ ERPNEXT_COMPANY_COUNTRY }}"
     CURRENCY: "{{ (erpnext_company_apply.stdout_lines | last | from_json).currency }}"

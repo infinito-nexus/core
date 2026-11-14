@@ -99,7 +99,18 @@ eval($stdin.read, TOPLEVEL_BINDING, 'stdin')
 """
 
 
-def _runner_stdin(design_enabled: bool, design_files: list[dict]) -> str:
+ROOT_SECRET = "stub-root-secret"
+ADMIN_SECRET = "stub-admin-secret"
+SECRET_READS = re.compile(r"IFS= read -r (\w+)")
+
+
+def _runner_task() -> dict:
+    return next(
+        task for task in load_yaml_any(str(TASKS)) if "ansible.builtin.shell" in task
+    )
+
+
+def _rendered_stdin(design_enabled: bool, design_files: list[dict]) -> str:
     """Render the runner task's stdin with Ansible's block trimming.
 
     Args:
@@ -107,11 +118,10 @@ def _runner_stdin(design_enabled: bool, design_files: list[dict]) -> str:
         design_files: ``gitlab_design_files.results`` of the slurp loop
 
     Returns:
-        the Ruby program the task feeds ``rails runner -``
+        the whole stdin: one line per secret the host shell reads, then the
+        Ruby program
     """
-    task = next(
-        task for task in load_yaml_any(str(TASKS)) if "ansible.builtin.command" in task
-    )
+    task = _runner_task()
     environment = Environment(
         trim_blocks=True,
         undefined=StrictUndefined,
@@ -124,11 +134,66 @@ def _runner_stdin(design_enabled: bool, design_files: list[dict]) -> str:
         assert kind == "file", kind
         return read_text(str(ROLE / "files" / relative)).rstrip()
 
-    return environment.from_string(task["ansible.builtin.command"]["stdin"]).render(
+    return environment.from_string(task["ansible.builtin.shell"]["stdin"]).render(
         lookup=lookup,
+        GITLAB_INIT_ROOT_PASSWORD=ROOT_SECRET,
+        GITLAB_ADMIN_PASSWORD=ADMIN_SECRET,
         GITLAB_DESIGN_ENABLED=design_enabled,
         gitlab_design_files={"results": design_files},
     )
+
+
+def _runner_stdin(design_enabled: bool, design_files: list[dict]) -> str:
+    """
+    Args:
+        design_enabled: value of ``GITLAB_DESIGN_ENABLED``
+        design_files: ``gitlab_design_files.results`` of the slurp loop
+
+    Returns:
+        the Ruby program the task feeds ``rails runner -``
+    """
+    reads = len(SECRET_READS.findall(_runner_task()["ansible.builtin.shell"]["cmd"]))
+    return _rendered_stdin(design_enabled, design_files).split("\n", reads)[reads]
+
+
+class TestRunnerSecrets(unittest.TestCase):
+    def test_the_passwords_reach_the_host_shell_on_stdin_in_read_order(self) -> None:
+        task = _runner_task()
+        cmd = task["ansible.builtin.shell"]["cmd"]
+
+        self.assertEqual(
+            SECRET_READS.findall(cmd.split("container exec")[0]),
+            ["GITLAB_ROOT_PASSWORD", "GITLAB_ADMIN_PASSWORD"],
+        )
+        self.assertEqual(
+            _rendered_stdin(False, []).split("\n")[:2], [ROOT_SECRET, ADMIN_SECRET]
+        )
+        self.assertFalse(
+            {"GITLAB_ROOT_PASSWORD", "GITLAB_ADMIN_PASSWORD"} & set(task["environment"])
+        )
+
+    def test_every_read_is_checked_for_an_empty_value_before_the_exec(self) -> None:
+        host = _runner_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]
+        for read in SECRET_READS.finditer(host):
+            self.assertIn(
+                f'"${{{read.group(1)}:?', host[read.end() :], read.group(1)
+            )
+
+    def test_the_host_shell_refuses_an_empty_password_line(self) -> None:
+        host = _runner_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]
+        for stdin, reached in (
+            ("root\nadmin\n", True),
+            ("\nadmin\n", False),
+            ("root\n\n", False),
+        ):
+            result = subprocess.run(
+                ["sh", "-c", host + "echo REACHED"],
+                input=stdin,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual("REACHED" in result.stdout, reached, stdin)
 
 
 @unittest.skipUnless(shutil.which("ruby"), "needs a ruby interpreter")
@@ -144,11 +209,11 @@ class TestRailsSteps(unittest.TestCase):
             "PATH": os.environ["PATH"],
             "STUB_USERS": json.dumps(users),
             "GITLAB_ROOT_USERNAME": "root",
-            "GITLAB_ROOT_PASSWORD": "stub-root-secret",
+            "GITLAB_ROOT_PASSWORD": ROOT_SECRET,
             "GITLAB_ADMIN_USERNAME": "administrator",
             "GITLAB_ADMIN_EMAIL": "administrator@example.invalid",
             "GITLAB_ADMIN_NAME": "Platform Administrator",
-            "GITLAB_ADMIN_PASSWORD": "stub-admin-secret",
+            "GITLAB_ADMIN_PASSWORD": ADMIN_SECRET,
             "GITLAB_DESIGN_TITLE": title,
         }
         return subprocess.run(

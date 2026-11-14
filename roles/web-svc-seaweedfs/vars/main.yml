@@ -19,7 +19,7 @@ SEAWEEDFS_ADMIN_CREDENTIALS: "{{ SEAWEEDFS_ADMIN_ACCESS_KEY }}:{{ SEAWEEDFS_ADMI
 
 SEAWEEDFS_S3_REGION: "{{ lookup('config', application_id, 'services.seaweedfs.region') }}"
 SEAWEEDFS_S3_ADMIN_CURL: >-
-  IFS= read -r SEAWEEDFS_ADMIN_CREDENTIALS && export SEAWEEDFS_ADMIN_CREDENTIALS &&
+  IFS= read -r SEAWEEDFS_ADMIN_CREDENTIALS || :; : "${SEAWEEDFS_ADMIN_CREDENTIALS:?arrived empty on stdin}" && export SEAWEEDFS_ADMIN_CREDENTIALS &&
   container exec -i -e SEAWEEDFS_ADMIN_CREDENTIALS {{ SEAWEEDFS_CONTAINER_ADDRESS }}
   sh -c 'exec {{ lookup('timeout', 30) | curl(retries=0) }} -S --aws-sigv4 "aws:amz:{{ SEAWEEDFS_S3_REGION }}:s3" --variable %SEAWEEDFS_ADMIN_CREDENTIALS --expand-user
   "{{ '{{' }}SEAWEEDFS_ADMIN_CREDENTIALS{{ '}}' }}" "$@"' curl

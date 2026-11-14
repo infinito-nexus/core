@@ -40,6 +40,12 @@
 - name: "🔑 Realign the prosody service accounts with the declared passwords"
   ansible.builtin.shell:
     cmd: >-
+      IFS= read -r JITSI_REALIGN_FOCUS_PASSWORD && IFS= read -r JITSI_REALIGN_JVB_PASSWORD &&
+      IFS= read -r JITSI_REALIGN_JIGASI_PASSWORD && IFS= read -r JITSI_REALIGN_JIBRI_PASSWORD &&
+      : "${JITSI_REALIGN_FOCUS_PASSWORD:?arrived empty on stdin}" && : "${JITSI_REALIGN_JVB_PASSWORD:?arrived empty on stdin}" &&
+      : "${JITSI_REALIGN_JIGASI_PASSWORD:?arrived empty on stdin}" && : "${JITSI_REALIGN_JIBRI_PASSWORD:?arrived empty on stdin}" &&
+      export JITSI_REALIGN_FOCUS_PASSWORD JITSI_REALIGN_JVB_PASSWORD
+      JITSI_REALIGN_JIGASI_PASSWORD JITSI_REALIGN_JIBRI_PASSWORD &&
       container exec -i
       -e JITSI_REALIGN_AUTH_DOMAIN
       -e JITSI_REALIGN_FOCUS_PASSWORD
@@ -47,13 +53,14 @@
       -e JITSI_REALIGN_JIGASI_PASSWORD
       -e JITSI_REALIGN_JIBRI_PASSWORD
       {{ JITSI_PROSODY_CONTAINER_ADDRESS }} sh -s
-    stdin: "{{ lookup('file', 'shell/realign_accounts.sh') }}"
+    stdin: |-
+      {{ JITSI_JICOFO_AUTH_PASSWORD }}
+      {{ JITSI_JVB_AUTH_PASSWORD }}
+      {{ JITSI_JIGASI_XMPP_PASSWORD }}
+      {{ JITSI_JIBRI_XMPP_PASSWORD }}
+      {{ lookup('file', 'shell/realign_accounts.sh') }}
   environment:
     JITSI_REALIGN_AUTH_DOMAIN: "{{ JITSI_XMPP_AUTH_DOMAIN }}"
-    JITSI_REALIGN_FOCUS_PASSWORD: "{{ JITSI_JICOFO_AUTH_PASSWORD }}"
-    JITSI_REALIGN_JVB_PASSWORD: "{{ JITSI_JVB_AUTH_PASSWORD }}"
-    JITSI_REALIGN_JIGASI_PASSWORD: "{{ JITSI_JIGASI_XMPP_PASSWORD }}"
-    JITSI_REALIGN_JIBRI_PASSWORD: "{{ JITSI_JIBRI_XMPP_PASSWORD }}"
   register: jitsi_prosody_realign
   until: jitsi_prosody_realign is succeeded
   retries: 10

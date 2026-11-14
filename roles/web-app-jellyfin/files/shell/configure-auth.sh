@@ -1,5 +1,14 @@
 #!/bin/bash
+# Param: stdin  line 1 the admin password, line 2 the LDAP bind password,
+#               line 3 the OIDC client secret (empty when the feature is off)
 set -euo pipefail
+
+IFS= read -r JELLYFIN_ADMIN_PASSWORD
+IFS= read -r JELLYFIN_LDAP_BIND_PASSWORD
+IFS= read -r JELLYFIN_OIDC_CLIENT_SECRET
+: "${JELLYFIN_ADMIN_PASSWORD:?the admin password arrives on stdin}"
+if [ "${JELLYFIN_LDAP_ENABLED}" = "true" ]; then : "${JELLYFIN_LDAP_BIND_PASSWORD:?the LDAP bind password arrives on stdin}"; fi
+if [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then : "${JELLYFIN_OIDC_CLIENT_SECRET:?the OIDC client secret arrives on stdin}"; fi
 
 API="${JELLYFIN_API}"
 CURL="curl --connect-timeout 5 --max-time 30"
@@ -8,6 +17,17 @@ PHASE="${JELLYFIN_PHASE}"
 CLIENT_HDR='X-Emby-Authorization: MediaBrowser Client="infinito", Device="ansible", DeviceId="infinito-deploy", Version="1.0.0"'
 
 log() { echo "[jellyfin-auth] $*"; }
+
+json_escape() {
+  local value="${1//\\/\\\\}"
+  printf '%s' "${value//\"/\\\"}"
+}
+
+post_json() {
+  local url="$1" body="$2"
+  shift 2
+  printf '%s' "${body}" | ${CURL} -fsS -X POST "${url}" -H "Content-Type: application/json" "$@" --data-binary @-
+}
 
 wait_up() {
   for _ in $(seq 1 60); do
@@ -21,16 +41,18 @@ complete_wizard() {
   ${CURL} -fsS -X POST "${API}/Startup/Configuration" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
     -d '{"UICulture":"en-US","MetadataCountryCode":"US","PreferredMetadataLanguage":"en"}' >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   ${CURL} -fsS "${API}/Startup/User" -H "${CLIENT_HDR}" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
-  ${CURL} -fsS -X POST "${API}/Startup/User" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"Name\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Password\":\"${JELLYFIN_ADMIN_PASSWORD}\"}" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+  post_json "${API}/Startup/User" \
+    "{\"Name\":\"$(json_escape "${JELLYFIN_ADMIN_USERNAME}")\",\"Password\":\"$(json_escape "${JELLYFIN_ADMIN_PASSWORD}")\"}" \
+    -H "${CLIENT_HDR}" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   ${CURL} -fsS -X POST "${API}/Startup/RemoteAccess" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
     -d '{"EnableRemoteAccess":true,"EnableAutomaticPortMapping":false}' >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
   ${CURL} -fsS -X POST "${API}/Startup/Complete" -H "${CLIENT_HDR}" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 authenticate() {
-  ${CURL} -fsS -X POST "${API}/Users/AuthenticateByName" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"Username\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Pw\":\"${1-${JELLYFIN_ADMIN_PASSWORD}}\"}"
+  post_json "${API}/Users/AuthenticateByName" \
+    "{\"Username\":\"$(json_escape "${JELLYFIN_ADMIN_USERNAME}")\",\"Pw\":\"$(json_escape "${1-${JELLYFIN_ADMIN_PASSWORD}}")\"}" \
+    -H "${CLIENT_HDR}"
 }
 
 token_of() { sed -n 's/.*"AccessToken":"\([^"]*\)".*/\1/p'; }
@@ -53,8 +75,7 @@ realign_admin_password() {
     log "ERROR: Jellyfin accepted the reset request but wrote no pin file"
     return 1
   fi
-  ${CURL} -fsS -X POST "${API}/Users/ForgotPassword/Pin" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"Pin\":\"${pin}\"}" >/dev/null || {
+  post_json "${API}/Users/ForgotPassword/Pin" "{\"Pin\":\"$(json_escape "${pin}")\"}" -H "${CLIENT_HDR}" >/dev/null || {
     log "ERROR: Jellyfin rejected the reset pin"
     return 1
   }
@@ -65,9 +86,9 @@ realign_admin_password() {
     log "ERROR: redeeming the reset pin cleared the stored password and the administrator still does not authenticate; the account is now WITHOUT a password"
     return 1
   fi
-  ${CURL} -fsS -X POST "${API}/Users/${user_id}/Password" -H "Content-Type: application/json" \
-    -H "Authorization: MediaBrowser Token=\"${pin_token}\"" \
-    -d "{\"CurrentPw\":\"${pin}\",\"NewPw\":\"${JELLYFIN_ADMIN_PASSWORD}\"}" >/dev/null || {
+  post_json "${API}/Users/${user_id}/Password" \
+    "{\"CurrentPw\":\"$(json_escape "${pin}")\",\"NewPw\":\"$(json_escape "${JELLYFIN_ADMIN_PASSWORD}")\"}" \
+    -H "Authorization: MediaBrowser Token=\"${pin_token}\"" >/dev/null || {
     log "ERROR: the password change was rejected; the reset already cleared the old one, so the administrator is now WITHOUT a password"
     return 1
   }
