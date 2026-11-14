@@ -14,7 +14,7 @@ import ipaddress
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any
-from utils.networks.attachments import STREAM_RELAY
+from utils.networks import STREAM_RELAY
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT

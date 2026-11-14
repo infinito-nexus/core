@@ -2,6 +2,12 @@ name: "🧹 Lint"
 
 on:
   workflow_call:
+    inputs:
+      role_skeleton:
+        description: "True renders the role skeleton sample roles into roles/ before the lint checks run."
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -24,6 +30,11 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
+
+      - name: 🧩 Render the role skeleton sample roles
+        if: ${{ inputs.role_skeleton }}
+        shell: bash
+        run: make role-skeleton-samples
 
       - name: 🧹 Run all lint checks via make
         shell: bash
