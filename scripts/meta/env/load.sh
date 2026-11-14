@@ -47,7 +47,7 @@ if [[ -n "${VENV:-}" && -d "${VENV%/}/bin" ]]; then
 fi
 
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
-if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_FILE:-}" == "${_infinito_env_dotenv}" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
 	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
 	return 0
 fi
@@ -127,6 +127,7 @@ if [[ -z "${REQUESTS_CA_BUNDLE:-}" ]]; then
 fi
 
 export INFINITO_ENV_LOADED="1"
+export INFINITO_ENV_LOADED_FILE="${_infinito_env_dotenv}"
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
 export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"
 export INFINITO_ENV_LOADED_DISTRO="${INFINITO_DISTRO:-}"
