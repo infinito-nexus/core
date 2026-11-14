@@ -29,7 +29,7 @@ Pulls only. Pushes are not intercepted.
 
 A proxy repo that holds a cached copy serves it when its remote is unreachable, regardless of `metadataMaxAge` (measured). `autoBlock` is therefore off: while a remote is auto-blocked Nexus answers `404 Remote Auto Blocked` instead of falling back to that cached copy. The mirror repos below only come into play when nothing is cached either.
 
-Every apt suite exists twice, once per upstream mirror. Nexus has no group repository type for `apt` (only maven, raw, docker, yum, npm, pypi, rubygems, go and friends), so the failover lives in the frontend: a request that the primary repo answers with `502`/`503`/`504` is re-run against the `-mirror` repo, which proxies a different host. `404` deliberately does not retry, because a missing file is missing on both mirrors and apt probes for missing files often. The frontend waits at most 8 s for a primary before it re-runs the request against the mirror; the `-mirror` locations keep the global 300 s.
+Every apt repository exists twice, once per upstream mirror. Each one serves every suite of the archive it proxies, not only its `distribution`: [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) sets `enforceDistribution` to `false` on every create and update, since `true` answers every other suite with `404`. Nexus has no group repository type for `apt` (only maven, raw, docker, yum, npm, pypi, rubygems, go and friends), so the failover lives in the frontend: a request that the primary repo answers with `502`/`503`/`504` is re-run against the `-mirror` repo, which proxies a different host. `404` deliberately does not retry, because a missing file is missing on both mirrors and apt probes for missing files often. The frontend waits at most 8 s for a primary before it re-runs the request against the mirror; the `-mirror` locations keep the global 300 s.
 
 Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own.
 
@@ -73,6 +73,19 @@ A GUI lane follows the same contract whenever `INFINITO_CACHE_SHARED_HOST_PATH` 
 - On an arch lane with a non-empty `INFINITO_CACHE_HOST_PACMAN_PATH`, mount that directory read-only at the same path and run `scripts/docker/cache/pacman.sh /etc/pacman.conf "${INFINITO_CACHE_SHARED_HOST_PATH}" "${INFINITO_CACHE_HOST_PACMAN_PATH}"` in the lane before its first `pacman` call. Pass an empty third argument without the read-only mount.
 - Read both values from this checkout's `.env` after `make dotenv`.
 
+### Host Cache Sync 🔁
+
+`INFINITO_CACHE_HOST_SYNC` (default `false`, from [default.env](../../../default.env)) decides what `make cache-host-sync` does to the host itself. Nothing else reads it, so every rendered compose file and cache configuration stays the same either way, and the host stays untouched until the operator runs the target. The target runs [host_sync.py](../../../utils/cache/host_sync.py) under `sudo` and passes this checkout's `.env` values as arguments.
+
+With `true`:
+
+- On a host whose `/etc/os-release` `ID` is exactly `arch`, `/etc/pacman.conf` gains `CacheDir = <INFINITO_CACHE_SHARED_HOST_PATH>/pacman/` after its last `CacheDir`, with the default `/var/cache/pacman/pkg/` listed first where it lists none. The host keeps downloading into its own cache, which an arch stack mounts read-only through `INFINITO_CACHE_HOST_PACMAN_PATH`, and installs every package the stack published to the shared folder without a download. Every `SigLevel` stays: the host's pacman checks each package from the shared folder against its own sync database, since every stack container can write there. `pacman -Sc` on the host asks per `CacheDir`; a yes for the shared folder evicts the stack's packages.
+- On a Debian or Ubuntu host, every `deb` entry of `/etc/apt/sources.list`, `/etc/apt/sources.list.d/*.list` and `/etc/apt/sources.list.d/*.sources` whose archive an `apt-*` repository of the package cache proxies gets a copy pointing at `http://<INFINITO_BIND_IP>:<INFINITO_CACHE_PACKAGE_PORT>/repository/<repo>/`, inserted before it with every option, `Signed-By` included. A host that is a subdomain of such an archive's host with the same path, such as `us.archive.ubuntu.com`, counts as that archive. Each suite goes to the repository of its pocket, the part after the codename (`trixie-security` to the archive's `-security` repository), else to the archive's release repository; a suite with neither stays. A repository and suite take copies from one archive only, the first apt reads, since apt refuses one suite with two `Signed-By` values. A deb822 stanza gets one copy per repository, holding every suite routed there. The original stays behind the copy, so `apt-get` falls back to it while the stack is down; python-apt, and with it Ansible's `apt` module with `update_cache`, fails on the unreachable copy instead. Third-party repositories, disabled stanzas, entries that set `trusted`, `allow-insecure`, `allow-weak` or `allow-downgrade-to-insecure` to anything but `no`, `false`, `without`, `off`, `disable` or `0`, and HTTPS entries the cache would fetch over HTTP stay as they are. `/etc/apt/apt.conf.d/99infinito-cache-host-sync` sets `APT::Keep-Downloaded-Packages "false"`, so Nexus holds the one copy of each package.
+- Before anything is written, `pacman-conf` reads the planned `pacman.conf`, or `apt-get update` fetches the planned entries alone, with `APT::Update::Error-Mode=any` so a transient network error fails it too. When it refuses, every file stays as it was.
+- The original and the digest of every changed file go to `<DIR_VAR_LIB>/cache-host-sync/`, on a Debian or Ubuntu host with the digest of every other source file and the repository URLs a copy can point at. A rerun restores them first and plans again.
+
+With `false`, the target restores every recorded file that nothing changed since the sync byte for byte and removes the drop-in it created. On an Arch host it restores nothing while `pacman.conf` changed since the sync, and names it and the original it keeps. On a Debian or Ubuntu host it names every recorded file changed since the sync and leaves it in place. Then every source file, and every `.bak` backup `apt modernize-sources` leaves, that holds neither what the sync left there nor its bytes from before the sync loses each `deb` and `deb-src` entry and each URI that points at a repository the sync could copy to; a stanza left without a URI goes, while its comments stay. A release upgrade or `apt modernize-sources` after the sync therefore never blocks the revert. Any other host `ID` with `true` is refused.
+
 ## Bounds and Eviction 📏
 
 Every cache has a fixed cap and the idle window `INFINITO_CACHE_MAX_IDLE_DAYS` (default `30`): an entry without access for that many days is evicted. `make dotenv` writes the defaults below from [default.env](../../../default.env); an exported value or a line in [custom.env](../customize.md) wins, and no value depends on the free disk space.
@@ -104,7 +117,7 @@ The `cache` decision is exposed via `Profile.cache_stack_enabled()` in [profile.
 - [compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/administration/deploy/development/compose.py) and [down.py](../../../cli/administration/deploy/development/down.py) via [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`.
 - The cache services are added.
 - The runner's `infinito` service receives:
-  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), and the frontend CA file, plus the shared package cache folder when `INFINITO_CACHE_SHARED_HOST_PATH` is set
+  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`), and the frontend CA file, plus the shared package cache folder when `INFINITO_CACHE_SHARED_HOST_PATH` is set
   - `extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP
   - `INFINITO_CACHE_PACKAGE_FRONTEND_IP` env var for the inner compose wrapper
 - Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py).
@@ -118,7 +131,7 @@ CI signals (`GITHUB_ACTIONS=true`, `INFINITO_RUNNING_ON_GITHUB=true`, `CI=true`)
 | Traffic | Mechanism | Cached |
 |---|---|---|
 | Image pulls (any registry, inner `dockerd`) | `registry-cache` MITM via `HTTP_PROXY` env on `dockerd` | ✓ |
-| `apt-get install` (Ansible task in runner) | `apt/${INFINITO_DISTRO}.list` URL-rewrite to `package-cache:8081` | ✓ |
+| `apt-get install` (Ansible task in runner) | `extra_hosts` DNS-hijack of the stock sources + frontend HTTP | ✓ |
 | `pip install` (Ansible task in runner) | `pip.conf` URL-rewrite | ✓ |
 | `npm install` (Ansible task in runner) | `.npmrc` URL-rewrite | ✓ |
 | `gem`, `composer`, `go`, `curl https://…` (Ansible task in runner) | DNS-hijack + frontend HTTPS + runner CA-trust | ✓ |
@@ -181,6 +194,7 @@ The token lives in the untracked `custom.env` and `.env`. `docker compose config
 | Pin the commit the stack serves and apply it (declarer only) | `make cache-declare ref=<commit>` |
 | Install the pinned commit's `cache:` declarations into the running stack | `make cache-apply` |
 | Evict idle and least recently used entries until every cache fits its cap | `make cache-evict` |
+| Make the host's pacman or apt share the caches while `INFINITO_CACHE_HOST_SYNC` is `true`, or restore its files once it is `false` (runs `sudo`) | `make cache-host-sync` |
 | Print used bytes, cap and headroom per cache as JSON on stdout, and the pinned and applied commit as JSON on stderr | `make cache-status` |
 | Wipe local cache state | `make clean-cache` |
 | Manually re-bootstrap Nexus repos | `bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`) |

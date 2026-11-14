@@ -10,7 +10,7 @@ The role deploys two containers on its inventory group's host: the repository ma
 
 [upstreams.conf.j2](./templates/upstreams.conf.j2) is rendered to the host and mounted into the frontend as `conf.d/upstreams.conf`. Its content comes from the `cache:` sections of the roles' `meta/networks.yml`, so no hostname, repository or upstream URL is written in this role.
 
-`compose.cache-consumer.yml.j2`, `apt.list.j2`, `npmrc.j2` and `pip.conf.j2` under `templates/`, and the shell scripts under `files/`, belong to the development compose stack, which drives them through [render.py](../../utils/cache/render.py) and [compose.py](../../cli/administration/deploy/development/compose.py). The Ansible deployment reads none of them.
+The development compose stack renders its runner's cache files from [cache-consumer.yml.jinja](../../compose/templates/cache-consumer.yml.jinja), [npmrc.jinja](../../compose/templates/npmrc.jinja) and [pip.conf.jinja](../../compose/templates/pip.conf.jinja) through [render.py](../../utils/cache/render.py); the Ansible deployment reads none of them. Both run the scripts under `files/shell/`: [certs.sh](./files/shell/certs.sh) issues the frontend CA and one leaf per TLS host through [cert-gen.sh](./files/shell/cert-gen.sh), [bootstrap.sh](./files/shell/bootstrap.sh) creates the declared repositories, and [ca.sh](./files/shell/ca.sh) installs the frontend CA into a trust store. [compose.py](../../cli/administration/deploy/development/compose.py) runs ca.sh in the development runner, and the roles whose images build through the cache stage it into their build context.
 
 ## Features
 

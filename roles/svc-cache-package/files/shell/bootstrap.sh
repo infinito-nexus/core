@@ -182,7 +182,7 @@ ensure_all_proxies() {
 		content="${content_max_age:-${CACHE_CONTENT_MAX_AGE_MIN}}"
 		strict=true
 		case "${flavor}" in
-		apt) extra=',"apt":{"distribution":"'"${distribution}"'","flat":false}' ;;
+		apt) extra=',"apt":{"distribution":"'"${distribution}"'","flat":false,"enforceDistribution":false}' ;;
 		yum) extra=',"yum":{"repodataDepth":'"${depth}"'}' ;;
 		raw)
 			extra=',"raw":{"contentDisposition":"ATTACHMENT"}'

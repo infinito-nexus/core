@@ -23,7 +23,6 @@ from utils.cache.hosts import (
 )
 from utils.cache.pin import agreed
 from utils.cache.yaml import load_yaml_any
-from utils.distros import distro_names
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
@@ -161,29 +160,6 @@ def npmrc() -> str:
     )
 
 
-def apt_list(distro: str, served: Mapping[str, dict] | None = None) -> str:
-    """Return one distribution's apt source, empty where it does not use apt.
-
-    Args:
-        distro: the value INFINITO_DISTRO carries.
-        served: the host records the pinned checkout declares, None for no pin.
-    """
-    name = f"apt-{distro}"
-    repo = repo_named(name)
-    kept = _served(served)
-    hosts = [entry for entry in hosts_serving(name) if entry.host in kept]
-    source = ""
-    if repo and hosts:
-        entry = hosts[0]
-        path = entry.path_of(name).rstrip("/")
-        source = f"{entry.scheme()}://{entry.host}{path}"
-    return _render(
-        "apt.list.jinja",
-        CACHE_PACKAGE_APT_SOURCE=source,
-        CACHE_PACKAGE_APT_SUITE=repo.distribution if repo else "",
-    )
-
-
 def _write(target: Path, content: str) -> Path:
     """Write ``content`` to ``target``, replacing a file it cannot overwrite.
 
@@ -191,11 +167,6 @@ def _write(target: Path, content: str) -> Path:
     leaves a file the host may no longer write while the directory stays the
     host's. Unlinking needs the directory, not the file, which is why
     replacing the inode gets through where overwriting does not.
-
-    The replacement happens only after a refusal, never by default:
-    ``compose/swarm/cache.override.yml`` bind-mounts an apt list into a
-    container by inode, and swapping one that was writable anyway would leave
-    that mount reading the file nobody updates any more.
 
     Args:
         target: the generated file.
@@ -228,10 +199,6 @@ def render_artifacts(
         _write(repo_root / CONSUMER, cache_consumer_yml(served)),
         _write(consumer_dir / "pip.conf", pip_conf()),
         _write(consumer_dir / "npmrc", npmrc()),
-    ]
-    written += [
-        _write(consumer_dir / "apt" / f"{distro}.list", apt_list(distro, served))
-        for distro in distro_names()
     ]
     if conf_path.is_relative_to(repo_root):
         written.append(_write(conf_path, upstreams_conf()))
