@@ -25,10 +25,23 @@ ROW = {
 SUPPRESSED = {**ROW, "id": "CVE-2026-109619", "suppressed_until": "2026-12-03"}
 TITLE = "🛡️ docker.io/roundcube/roundcubemail:1.7.5-apache"
 OTHER_IMAGE = "docker.io/library/nginx:1.31.8-alpine"
+OLD_IMAGE = "docker.io/roundcube/roundcubemail:1.7.4-apache"
+OLD_TITLE = f"🛡️ {OLD_IMAGE}"
+SWARM_TITLE = f"🛡️ web-app-roundcube-swarm-mgr-01:5000/{OLD_IMAGE}"
+SCAN_ERROR = "x: the mirror served no digest"
+NEW_URL = "https://github.com/o/r/issues/42\n"
 
 
 def body(rows):
     return issues_main.body(rows, MIRROR)
+
+
+def report(findings, errors, pinned):
+    return {"findings": findings, "errors": errors, "pinned": pinned}
+
+
+def superseded_by(name):
+    return f"Superseded by {name}: this run no longer scans this tag."
 
 
 class FakeGh:
@@ -50,12 +63,25 @@ class FakeGh:
             call[:2] for call in self.calls if call[0] == "issue" and call[1] != "list"
         ]
 
+    def closes(self):
+        return {
+            call[2]: call[call.index("--comment") + 1]
+            for call in self.calls
+            if call[:2] == ["issue", "close"]
+        }
+
+
+class FilingGh(FakeGh):
+    def __call__(self, args):
+        out = super().__call__(args)
+        return NEW_URL if list(args[:2]) == ["issue", "create"] else out
+
 
 class TestSync(TestCase):
     def test_a_new_finding_opens_one_issue(self):
         gh = FakeGh([])
         issues_main.sync(
-            {"findings": [ROW, {**ROW, "engine": "trivy"}], "errors": []},
+            {"findings": [ROW, {**ROW, "engine": "trivy"}], "errors": [], "pinned": []},
             "o/r",
             gh,
             MIRROR,
@@ -64,7 +90,9 @@ class TestSync(TestCase):
 
     def test_a_changed_image_gets_a_comment_and_an_updated_body(self):
         gh = FakeGh([{"number": 7, "title": TITLE, "body": "old table"}])
-        issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
+        issues_main.sync(
+            {"findings": [ROW], "errors": [], "pinned": []}, "o/r", gh, MIRROR
+        )
         self.assertEqual(gh.verbs(), [["issue", "comment"], ["issue", "edit"]])
         comment = gh.calls[-2]
         self.assertIn("Still unresolved:", comment[comment.index("--body") + 1])
@@ -73,7 +101,9 @@ class TestSync(TestCase):
     def test_an_unchanged_image_leaves_its_issue_alone(self):
         current = body([ROW])
         gh = FakeGh([{"number": 7, "title": TITLE, "body": current + "\r\n"}])
-        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
+        actions = issues_main.sync(
+            {"findings": [ROW], "errors": [], "pinned": []}, "o/r", gh, MIRROR
+        )
         self.assertEqual((gh.verbs(), actions), ([], [f"unchanged #7 {TITLE}"]))
 
     def test_a_second_open_issue_of_one_image_closes_as_duplicate(self):
@@ -84,20 +114,24 @@ class TestSync(TestCase):
                 {"number": 7, "title": TITLE, "body": current},
             ]
         )
-        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
+        actions = issues_main.sync(
+            {"findings": [ROW], "errors": [], "pinned": []}, "o/r", gh, MIRROR
+        )
         self.assertEqual(gh.verbs(), [["issue", "close"]])
         self.assertEqual(gh.calls[-1][2], "9")
         self.assertIn(f"unchanged #7 {TITLE}", actions)
 
     def test_a_fixed_finding_closes_its_issue(self):
         gh = FakeGh([{"number": 7, "title": TITLE}])
-        actions = issues_main.sync({"findings": [], "errors": []}, "o/r", gh, MIRROR)
+        actions = issues_main.sync(
+            {"findings": [], "errors": [], "pinned": []}, "o/r", gh, MIRROR
+        )
         self.assertEqual(actions, [f"closed #7 {TITLE}"])
 
     def test_a_suppressed_finding_keeps_its_issue_open(self):
         gh = FakeGh([{"number": 7, "title": TITLE, "body": "old table"}])
         actions = issues_main.sync(
-            {"findings": [SUPPRESSED], "errors": []}, "o/r", gh, MIRROR
+            {"findings": [SUPPRESSED], "errors": [], "pinned": []}, "o/r", gh, MIRROR
         )
         self.assertEqual(gh.verbs(), [["issue", "comment"], ["issue", "edit"]])
         self.assertNotIn(f"closed #7 {TITLE}", actions)
@@ -105,7 +139,11 @@ class TestSync(TestCase):
     def test_a_scan_error_closes_nothing(self):
         gh = FakeGh([{"number": 7, "title": TITLE}])
         issues_main.sync(
-            {"findings": [], "errors": ["x: the mirror served no digest"]},
+            {
+                "findings": [],
+                "errors": ["x: the mirror served no digest"],
+                "pinned": [],
+            },
             "o/r",
             gh,
             MIRROR,
@@ -116,7 +154,7 @@ class TestSync(TestCase):
         other = {**ROW, "image": OTHER_IMAGE}
         gh = FakeGh([{"number": 7, "title": TITLE}], hang=[("issue", "edit")])
         actions = issues_main.sync(
-            {"findings": [ROW, other], "errors": []}, "o/r", gh, MIRROR
+            {"findings": [ROW, other], "errors": [], "pinned": []}, "o/r", gh, MIRROR
         )
         failed = [action for action in actions if action.startswith("failed ")]
         self.assertEqual(len(failed), 1)
@@ -129,6 +167,7 @@ class TestSync(TestCase):
             {
                 "findings": [ROW, {**ROW, "id": "CVE-2026-109619"}],
                 "errors": [],
+                "pinned": [],
             },
             "o/r",
             gh,
@@ -138,9 +177,132 @@ class TestSync(TestCase):
 
     def test_the_issue_is_labelled(self):
         gh = FakeGh([])
-        issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh, MIRROR)
+        issues_main.sync(
+            {"findings": [ROW], "errors": [], "pinned": []}, "o/r", gh, MIRROR
+        )
         create = gh.calls[-1]
         self.assertEqual(create[create.index("--label") + 1], issues_main.LABEL)
+
+
+class TestSuperseded(TestCase):
+    def issue(self, number, title):
+        return {"number": number, "title": title, "body": "old"}
+
+    def test_opening_a_new_tag_closes_the_older_tag_naming_the_new_issue(self):
+        gh = FilingGh([self.issue(5, OLD_TITLE)])
+        actions = issues_main.sync(
+            report([ROW], [SCAN_ERROR], [ROW["image"]]), "o/r", gh, MIRROR
+        )
+        self.assertEqual(gh.closes(), {"5": superseded_by(f"#42 {TITLE}")})
+        self.assertIn(f"closed superseded #5 {OLD_TITLE}", actions)
+
+    def test_updating_the_new_tag_closes_the_older_tag_naming_its_issue(self):
+        gh = FakeGh([self.issue(7, TITLE), self.issue(5, OLD_TITLE)])
+        issues_main.sync(report([ROW], [SCAN_ERROR], [ROW["image"]]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {"5": superseded_by(f"#7 {TITLE}")})
+
+    def test_two_tags_side_by_side_stay_open_and_both_name_the_older_tag(self):
+        newer = {**ROW, "image": "docker.io/roundcube/roundcubemail:1.7.6-apache"}
+        newer_title = f"🛡️ {newer['image']}"
+        gh = FakeGh(
+            [
+                self.issue(7, TITLE),
+                self.issue(8, newer_title),
+                self.issue(5, OLD_TITLE),
+            ]
+        )
+        issues_main.sync(
+            report([ROW, newer], [SCAN_ERROR], [ROW["image"], newer["image"]]),
+            "o/r",
+            gh,
+            MIRROR,
+        )
+        self.assertEqual(
+            gh.closes(), {"5": superseded_by(f"#7 {TITLE}, #8 {newer_title}")}
+        )
+
+    def test_a_tag_scanned_clean_closes_the_older_tag_naming_that_tag(self):
+        gh = FakeGh([self.issue(5, OLD_TITLE)])
+        issues_main.sync(report([], [], [ROW["image"]]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {"5": superseded_by(TITLE)})
+
+    def test_negative_control_a_tag_a_role_still_pins_stays_open(self):
+        gh = FilingGh([self.issue(5, OLD_TITLE)])
+        issues_main.sync(
+            report([ROW], [SCAN_ERROR], [ROW["image"], OLD_IMAGE]), "o/r", gh, MIRROR
+        )
+        self.assertEqual(gh.closes(), {})
+
+    def test_negative_control_a_report_without_the_repository_closes_nothing(self):
+        other = {**ROW, "image": OTHER_IMAGE}
+        gh = FilingGh([self.issue(5, OLD_TITLE)])
+        issues_main.sync(
+            report([other], [SCAN_ERROR], [OTHER_IMAGE]), "o/r", gh, MIRROR
+        )
+        self.assertEqual(gh.closes(), {})
+
+    def test_negative_control_a_failed_open_closes_nothing(self):
+        gh = FilingGh([self.issue(5, OLD_TITLE)], hang=[("issue", "create")])
+        issues_main.sync(report([ROW], [SCAN_ERROR], [ROW["image"]]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {})
+
+    def test_negative_control_a_failed_update_closes_nothing(self):
+        gh = FakeGh(
+            [self.issue(7, TITLE), self.issue(5, OLD_TITLE)], hang=[("issue", "edit")]
+        )
+        issues_main.sync(report([ROW], [SCAN_ERROR], [ROW["image"]]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {})
+
+    def test_negative_control_a_title_without_the_shield_never_closes_as_superseded(
+        self,
+    ):
+        gh = FilingGh([self.issue(5, OLD_IMAGE)])
+        issues_main.sync(report([ROW], [SCAN_ERROR], [ROW["image"]]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {})
+
+    def test_negative_control_a_swarm_registry_copy_is_another_repository(self):
+        gh = FilingGh([self.issue(5, SWARM_TITLE)])
+        issues_main.sync(report([ROW], [SCAN_ERROR], [ROW["image"]]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {})
+
+
+class TestImageRepository(TestCase):
+    def test_the_tag_splits_off_after_a_registry_port(self):
+        self.assertEqual(
+            issues_main.image_repository(
+                "web-app-wordpress-swarm-mgr-01:5000/postgres_custom:18"
+            ),
+            ("web-app-wordpress-swarm-mgr-01:5000/postgres_custom", "18"),
+        )
+
+    def test_no_tag_is_latest_even_behind_a_registry_port(self):
+        images = (
+            "local_discourse/discourse",
+            "web-app-wordpress-swarm-mgr-01:5000/simpleicons-server",
+        )
+        self.assertEqual(
+            [issues_main.image_repository(image) for image in images],
+            [(image, "latest") for image in images],
+        )
+
+    def test_a_digest_is_dropped(self):
+        digest = "@sha256:" + "a" * 64
+        self.assertEqual(
+            [
+                issues_main.image_repository(f"docker.io/library/nginx{tag}{digest}")
+                for tag in (":1.31-alpine", "")
+            ],
+            [
+                ("docker.io/library/nginx", "1.31-alpine"),
+                ("docker.io/library/nginx", "latest"),
+            ],
+        )
+
+    def test_the_host_scan_of_each_distro_is_its_own_repository(self):
+        self.assertNotEqual(
+            issues_main.image_repository("host debian")[0],
+            issues_main.image_repository("host ubuntu")[0],
+        )
 
 
 class TestBody(TestCase):

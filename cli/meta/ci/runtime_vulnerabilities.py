@@ -14,17 +14,18 @@ from typing import TYPE_CHECKING, Any
 from cli.contributing.security.issues.__main__ import (
     GH_FAILURES,
     Tracker,
+    pinned,
     run_gh,
     sync,
     title,
 )
 from utils import PROJECT_ROOT
-from utils.docker.image.discovery import image_source
+from utils.docker.image.discovery import image_source, iter_role_images
 from utils.roles.entity.apps import apps_for_entity
 from utils.security.engine import ROLE
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Collection, Iterator, Sequence
 
 MAIN_REF = "refs/heads/main"
 ARTIFACTS = "rescue-diagnostics-*"
@@ -46,6 +47,9 @@ RUNTIME = Tracker(
     artifact="the `rescue-diagnostics-*` artifacts of the main run",
     gone="No main deploy that scanned this target reports a CVE at the threshold any more.",
     covers=lambda report, title: title in report["scanned"],
+    live=lambda report: (
+        {*report["running"], *pinned(report)} if report["complete"] else None
+    ),
 )
 
 
@@ -133,17 +137,20 @@ def journals(artifact: Path) -> Iterator[tuple[str, Path]]:
 
 def read_journal(
     path: Path, distro: str, prefix: str
-) -> tuple[list[dict[str, Any]], set[str], int]:
+) -> tuple[list[dict[str, Any]], set[str], int, bool]:
     """Read the hlth-runtime lines of one journal.
 
     Returns:
-        ``(rows, titles, errors)``: one row per finding line, the issue
-        title of every target an event names, and the engine errors the
-        summary events count plus every event line that does not parse.
+        ``(rows, titles, errors, summarized)``: one row per finding line,
+        the issue title of every target an event names, the engine errors
+        the summary events count plus every event line that does not parse
+        plus one for target events no summary event follows, and whether
+        the journal holds a summary event.
     """
     rows: list[dict[str, Any]] = []
     seen: set[str] = set()
     failed = 0
+    summarized = False
     with path.open(encoding="utf-8", errors="replace") as handle:
         for line in handle:
             text = line.rstrip("\n")
@@ -162,9 +169,12 @@ def read_journal(
                 continue
             if data["event"] == "hlth_runtime.summary":
                 failed += data["errors"]
+                summarized = True
             else:
                 seen.add(title({"image": target_image(data, distro, prefix)}))
-    return rows, seen, failed
+    if seen and not summarized:
+        failed += 1
+    return rows, seen, failed, summarized
 
 
 def collect(root: Path, prefix: str) -> dict[str, Any]:
@@ -176,26 +186,37 @@ def collect(root: Path, prefix: str) -> dict[str, Any]:
 
     Returns:
         ``findings``: one row per distinct finding; ``errors``: one line per
-        journal whose check runs reported engine errors or an unreadable
-        event; ``scanned``: the issue titles of every target a journal
+        journal whose check runs reported engine errors, an unreadable
+        event or targets without a summary, and one per artifact without a
+        summary; ``scanned``: the issue titles of every target a journal
         without such an error scanned, the only issues an absent finding
-        may close.
+        may close; ``running``: the issue titles of every target any
+        journal names, with or without such an error; ``complete``:
+        whether every artifact holds a journal with a summary, so no
+        deploy of the run stopped before its scan.
     """
     rows: dict[tuple, dict[str, Any]] = {}
     scanned: set[str] = set()
     blocked: set[str] = set()
     errors: list[str] = []
+    unscanned: list[str] = []
     for artifact in sorted(path for path in root.iterdir() if path.is_dir()):
+        summaries = 0
         for distro, path in journals(artifact):
-            found, seen, failed = read_journal(path, distro, prefix)
+            found, seen, failed, summarized = read_journal(path, distro, prefix)
             rows.update((tuple(sorted(item.items())), item) for item in found)
             (blocked if failed else scanned).update(seen)
+            summaries += summarized
             if failed:
                 errors.append(f"{path.relative_to(root)}: {failed} engine error(s)")
+        if not summaries:
+            unscanned.append(f"{artifact.name}: no journal with a hlth-runtime summary")
     return {
         "findings": [rows[key] for key in sorted(rows, key=str)],
-        "errors": errors,
+        "errors": [*errors, *unscanned],
         "scanned": sorted(scanned - blocked),
+        "running": sorted(scanned | blocked),
+        "complete": not unscanned,
     }
 
 
@@ -206,6 +227,7 @@ def report(
     ref: str,
     dest: Path,
     prefix: str,
+    pinned: Collection[str],
     gh: Callable[[Sequence[str]], str],
 ) -> list[str]:
     """Sync the runtime vulnerability issues of one main run.
@@ -217,6 +239,9 @@ def report(
             nothing.
         dest: where the rescue artifacts are downloaded.
         prefix: the GHCR mirror prefix.
+        pinned: the image reference every role pins; the issue of a pinned
+            image never closes as superseded, even when this run deployed
+            no role that runs it.
         gh: runs ``gh`` with the given arguments and returns its stdout.
 
     Returns:
@@ -241,7 +266,7 @@ def report(
         )
     except GH_FAILURES as exc:
         return [f"failed downloading the {ARTIFACTS} artifacts of {run_id}: {exc}"]
-    found = collect(dest, prefix)
+    found = {**collect(dest, prefix), "pinned": sorted(pinned)}
     errors = [f"error {line}" for line in found["errors"]]
     return [*errors, *sync(found, repo, gh, RUNTIME)]
 
@@ -261,6 +286,7 @@ def main(argv: list[str] | None = None) -> int:
         ref=args.ref,
         dest=Path(args.dir),
         prefix=os.environ[MIRROR_PREFIX_ENV],
+        pinned={ref.source for ref in iter_role_images(PROJECT_ROOT)},
         gh=run_gh,
     )
     for line in lines:
