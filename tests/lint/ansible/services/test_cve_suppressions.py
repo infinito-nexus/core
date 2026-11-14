@@ -27,6 +27,7 @@ import unittest
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.security.pipeline import pipeline
 from utils.security.suppressions import RULE, SuppressionError, parse_entries
 
 from . import PROJECT_ROOT
@@ -70,6 +71,40 @@ def _marker_problem(lines: list[str], index: int) -> str | None:
     return None
 
 
+def _until_problems(
+    where: str, subject: str, until: dt.date, today: dt.date
+) -> list[str]:
+    found = []
+    if until < today:
+        found.append(f"{where}: {subject} expired on {until}")
+    if until > LATEST_UNTIL:
+        found.append(
+            f"{where}: {subject} until {until} lies after the latest allowed day "
+            f"{LATEST_UNTIL}"
+        )
+    return found
+
+
+def _unmatched_os_problems(
+    raw: object, where: str, service: str, today: dt.date
+) -> list[str]:
+    p = pipeline()
+    try:
+        releases = p.os_releases(raw)
+    except p.ConfigError as exc:
+        return [f"{where}: {service} {exc}"]
+    return [
+        problem
+        for release in releases
+        for problem in _until_problems(
+            where,
+            f"{service} unmatched_os {release.name} {release.version}",
+            release.until,
+            today,
+        )
+    ]
+
+
 def problems(text: str, where: str, today: dt.date) -> list[str]:
     """Return every rule one ``meta/services.yml`` breaks.
 
@@ -88,7 +123,11 @@ def problems(text: str, where: str, today: dt.date) -> list[str]:
     if not isinstance(services, dict):
         return found
     for service, spec in services.items():
-        if not isinstance(spec, dict) or "security" not in spec:
+        if not isinstance(spec, dict):
+            continue
+        if "unmatched_os" in spec:
+            found += _unmatched_os_problems(spec["unmatched_os"], where, service, today)
+        if "security" not in spec:
             continue
         security = spec["security"]
         entries = security.get("suppressions") if isinstance(security, dict) else None
@@ -101,15 +140,12 @@ def problems(text: str, where: str, today: dt.date) -> list[str]:
             except SuppressionError as exc:
                 found.append(str(exc))
                 continue
-            if parsed.until < today:
-                found.append(
-                    f"{where}: {service} suppression of {parsed.subject} expired on {parsed.until}"
-                )
-            if parsed.until > LATEST_UNTIL:
-                found.append(
-                    f"{where}: {service} suppression of {parsed.subject} until "
-                    f"{parsed.until} lies after the latest allowed day {LATEST_UNTIL}"
-                )
+            found += _until_problems(
+                where,
+                f"{service} suppression of {parsed.subject}",
+                parsed.until,
+                today,
+            )
             version = spec.get("version")
             if parsed.image_tag is not None and parsed.image_tag != str(version):
                 found.append(
@@ -168,7 +204,7 @@ class TestCveSuppressions(unittest.TestCase):
             (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
         ):
             text = read_text(str(path))
-            if "suppressions:" in text:
+            if "suppressions:" in text or "unmatched_os:" in text:
                 found += problems(text, str(path.relative_to(PROJECT_ROOT)), today)
         self.assertEqual(found, [], "\n".join(found))
 
@@ -267,6 +303,32 @@ class TestCheckerCases(unittest.TestCase):
     def test_an_expired_image_tag_entry_fails(self) -> None:
         text = TAGGED.replace("2026-11-30", "2026-10-30")
         self.assertIn("image tag 2.18.6 expired on 2026-10-30", self._problems(text)[0])
+
+    def test_a_dated_unmatched_os_entry_passes(self) -> None:
+        self.assertEqual(self._problems(UNMATCHED), [])
+
+    def test_an_expired_unmatched_os_entry_fails(self) -> None:
+        text = UNMATCHED.replace("2026-11-30", "2026-10-30")
+        self.assertEqual(
+            self._problems(text),
+            [f"{UNMATCHED_SUBJECT} expired on 2026-10-30"],
+        )
+
+    def test_an_unmatched_os_entry_after_the_latest_allowed_day_fails(self) -> None:
+        text = UNMATCHED.replace("2026-11-30", "2026-12-01")
+        late = "until 2026-12-01 lies after the latest allowed day 2026-11-30"
+        self.assertEqual(self._problems(text), [f"{UNMATCHED_SUBJECT} {late}"])
+
+
+UNMATCHED = """\
+trivy:
+  image: trivy
+  unmatched_os:
+    - name: centos
+      version: "10"
+      until: 2026-11-30
+"""
+UNMATCHED_SUBJECT = f"roles/r/{ROLE_FILE_META_SERVICES}: trivy unmatched_os centos 10"
 
 
 TAGGED = """\

@@ -36,6 +36,7 @@ class TestEnginesFor(TestCase):
                         "fixed_only": True,
                         "workers": 2,
                         "db_update": False,
+                        "trivy_unmatched_os": [],
                     }
                 )
                 self.assertEqual(list(config.databases()), engine.databases_for(name))

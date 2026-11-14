@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import contextlib
 import datetime as dt
+import io
 import json
 import tempfile
 from pathlib import Path
@@ -118,7 +120,7 @@ class TestSteps(TestCase):
         self.assertNotIn("/var/run/docker.sock:/var/run/docker.sock:ro", step.argv)
 
     def test_trivy_reads_the_sbom_tree(self):
-        step = scan_main.trivy_step(P, self.layout, self.target)
+        step = scan_main.trivy_step(P, self.layout, self.target, [])
         self.assertEqual(step.argv[step.argv.index("sbom") :][-1], "/sbom/abc.cdx.json")
 
 
@@ -254,7 +256,7 @@ class TestExitCode(TestCase):
 
 
 class TestScanTree(TestCase):
-    def test_a_cached_sbom_is_not_rebuilt(self):
+    def _scan_tree(self, cyclonedx, config):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             for name in ("db", "sbom", "run"):
@@ -276,7 +278,7 @@ class TestScanTree(TestCase):
             )
             (root / "sbom" / "abc.syft.json").write_text("{}", encoding="utf-8")
             (root / "sbom" / "abc.cdx.json").write_text(
-                json.dumps({"components": []}), encoding="utf-8"
+                json.dumps(cyclonedx), encoding="utf-8"
             )
             calls = []
 
@@ -284,13 +286,40 @@ class TestScanTree(TestCase):
                 calls.append(list(argv))
                 return SimpleNamespace(returncode=0, stdout="", stderr="")
 
-            config = scan_main.scan_config(P, 1)
-            scan_main.scan_tree(
-                P, [target], {"sha256:abc": "m"}, config, layout, runner
-            )
+            with contextlib.redirect_stdout(io.StringIO()):
+                scan_main.scan_tree(
+                    P, [target], {"sha256:abc": "m"}, config, layout, runner
+                )
+        return calls
+
+    def test_a_cached_sbom_is_not_rebuilt(self):
+        calls = self._scan_tree({"components": []}, scan_main.scan_config(P, 1))
         self.assertFalse(
             any(any(arg.startswith("registry:") for arg in call) for call in calls)
         )
+
+    def test_a_centos_10_sbom_runs_trivy_on_its_library_packages_only(self):
+        config = P.scan_config(
+            {
+                "targets": ["container"],
+                "engines": ["trivy", "grype", "osv", "syft"],
+                "severity": {"CRITICAL": "fail"},
+                "fixed_only": True,
+                "workers": 1,
+                "db_update": True,
+                "trivy_unmatched_os": [
+                    {"name": "centos", "version": "10", "until": "9999-12-31"}
+                ],
+            }
+        )
+        cyclonedx = {
+            "components": [
+                {"type": "operating-system", "name": "centos", "version": "10"}
+            ]
+        }
+        calls = self._scan_tree(cyclonedx, config)
+        (trivy,) = [call for call in calls if "/sbom/abc.cdx.json" in call]
+        self.assertEqual(trivy[trivy.index("--pkg-types") + 1], "library")
 
 
 if __name__ == "__main__":
