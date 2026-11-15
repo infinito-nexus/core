@@ -4,8 +4,8 @@ import json
 import os
 import re
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader

@@ -16,11 +16,8 @@ from __future__ import annotations
 import functools
 import os
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
-from cli.administration.deploy.development.inventory import (
-    _build_services_overrides_for_round as build_services_overrides_for_round,
-)
 from cli.administration.deploy.development.inventory import (
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
@@ -34,6 +31,9 @@ from utils.cache.applications import get_variants
 from utils.cache.files import PROJECT_ROOT
 from utils.github.variant import network
 from utils.github.variant.pools import MODES
+from utils.roles.applications.variants import (
+    services_overrides_for_round as build_services_overrides_for_round,
+)
 from utils.tests.swarm.derive_includes import derive_includes
 
 ROLES = PROJECT_ROOT / "roles"

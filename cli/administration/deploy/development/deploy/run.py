@@ -14,8 +14,8 @@ import os
 import subprocess
 from typing import TYPE_CHECKING, Any
 
-from cli.administration.deploy.development import PROJECT_ROOT
 from cli.administration.deploy.development.profile import Profile
+from utils.cache import PROJECT_ROOT
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

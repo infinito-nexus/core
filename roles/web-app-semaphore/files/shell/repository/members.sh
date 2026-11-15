@@ -21,7 +21,7 @@ set -euo pipefail
 
 SCRIPT="members.sh"
 here="$(dirname "${BASH_SOURCE[0]}")"
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "${here}/lib.sh"
 
 KEYCLOAK_ID_PATTERN='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'

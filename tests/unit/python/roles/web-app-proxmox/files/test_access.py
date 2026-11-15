@@ -261,10 +261,12 @@ class TestSecretTransport(unittest.TestCase):
         self.assertIn(encoded, seen["argv"])
 
     def test_no_stdin_fails_before_the_container_is_reached(self):
-        result, seen = _run_cmd(self._rendered(), "")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("[FAIL]", result.stderr)
-        self.assertEqual(seen["argv"], "")
+        for stdin in ("", "\n"):
+            with self.subTest(stdin=stdin):
+                result, seen = _run_cmd(self._rendered(), stdin)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("arrived empty on stdin", result.stderr)
+                self.assertEqual(seen["argv"], "")
 
 
 if __name__ == "__main__":

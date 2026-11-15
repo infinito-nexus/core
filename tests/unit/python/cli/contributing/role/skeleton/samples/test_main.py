@@ -4,8 +4,8 @@ import contextlib
 import io
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 import cli.contributing.role.skeleton.samples.__main__ as samples
 from cli.administration.roles.marker import is_placed

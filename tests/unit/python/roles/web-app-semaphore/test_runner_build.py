@@ -15,7 +15,7 @@ import importlib.util
 import json
 import re
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from ansible.errors import AnsibleError, AnsibleFilterError
 from ansible.parsing.dataloader import DataLoader

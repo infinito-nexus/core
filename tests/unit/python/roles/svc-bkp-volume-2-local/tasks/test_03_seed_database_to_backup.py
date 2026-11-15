@@ -11,9 +11,9 @@ import io
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest import mock
 
 from baudolo.databases import read_rows
 from baudolo.seed import __main__ as seed_cli

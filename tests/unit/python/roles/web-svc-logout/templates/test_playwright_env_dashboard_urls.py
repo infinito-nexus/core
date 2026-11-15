@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader, lookup_loader

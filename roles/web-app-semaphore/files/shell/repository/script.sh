@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT="script.sh"
 here="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "${here}/lib.sh"
 
 [ "$#" -gt 0 ] || refuse "the template names no script"

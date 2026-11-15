@@ -14,8 +14,8 @@ from __future__ import annotations
 import json
 import re
 import unittest
+import unittest.mock as mock
 from typing import TYPE_CHECKING, Any, ClassVar
-from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template

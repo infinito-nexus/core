@@ -6,8 +6,8 @@ import runpy
 import sys
 import types
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stdout
-from unittest import mock
 
 from utils.cache.files import PROJECT_ROOT
 

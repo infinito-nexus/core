@@ -6,8 +6,8 @@ import os
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.administration.deploy.dedicated.openbao import OpenBaoPreflightError, prepare
 from cli.administration.inventory.credentials import main

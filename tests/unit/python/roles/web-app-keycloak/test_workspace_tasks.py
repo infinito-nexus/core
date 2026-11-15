@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import sys
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 import jinja2
 from ansible.plugins.filter.core import FilterModule as CoreFilters

@@ -190,9 +190,7 @@ def _listened(text: str) -> dict[str, list[str]]:
 class TestListenScope(unittest.TestCase):
     def test_a_handler_listen_is_a_topic(self) -> None:
         handlers = (
-            "- name: Restart x\n"
-            "  listen: restart-x\n"
-            "  ansible.builtin.debug: {}\n"
+            "- name: Restart x\n  listen: restart-x\n  ansible.builtin.debug: {}\n"
         )
         play = (
             "- hosts: all\n"

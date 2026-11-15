@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
-from unittest.mock import patch
+import unittest.mock as mock
 
 from ansible.errors import AnsibleError
 
@@ -40,8 +39,8 @@ def _vendors(variables, registries=("ghcr.io", "quay.io"), config=None):
     config_mock = mock.MagicMock()
     config_mock.run.side_effect = lambda terms, **_k: [(config or CONFIG)[tuple(terms)]]
     with (
-        patch("plugins.lookup.registry_vendors.lookup_loader") as loader,
-        patch(
+        mock.patch("plugins.lookup.registry_vendors.lookup_loader") as loader,
+        mock.patch(
             "plugins.lookup.registry_vendors.image_registries",
             return_value=list(registries),
         ),
@@ -140,8 +139,8 @@ class TestRegistryVendorsLookup(unittest.TestCase):
 
     def test_terms_come_back_routed_for_the_host(self):
         with (
-            patch("plugins.lookup.registry_vendors.lookup_loader") as loader,
-            patch(
+            mock.patch("plugins.lookup.registry_vendors.lookup_loader") as loader,
+            mock.patch(
                 "plugins.lookup.registry_vendors.image_registries",
                 return_value=["ghcr.io"],
             ),
@@ -178,8 +177,8 @@ class TestRegistryVendorsLookup(unittest.TestCase):
 
     def test_terms_come_back_unchanged_under_the_multi_proxy_flavor(self):
         with (
-            patch("plugins.lookup.registry_vendors.lookup_loader") as loader,
-            patch(
+            mock.patch("plugins.lookup.registry_vendors.lookup_loader") as loader,
+            mock.patch(
                 "plugins.lookup.registry_vendors.image_registries",
                 return_value=["ghcr.io"],
             ),

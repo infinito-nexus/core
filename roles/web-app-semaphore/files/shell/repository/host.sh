@@ -16,7 +16,7 @@ SCRIPT="host.sh"
 APP_CONTROL="/usr/bin/app-control --config /etc/infinito.nexus/app-control.json"
 APP_CONTROL_USER="app-control"
 BACKUP_USER="backup"
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 # Param: $1  the inventory file

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import io
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stdout
-from unittest import mock
 
 from cli.meta.ci import roundtrip
 from utils.roles.display import display_names

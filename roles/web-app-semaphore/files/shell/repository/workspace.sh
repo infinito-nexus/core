@@ -21,7 +21,7 @@ set -euo pipefail
 
 SCRIPT="workspace.sh"
 here="$(dirname "${BASH_SOURCE[0]}")"
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "${here}/lib.sh"
 
 refuse_arguments 0 "$@"

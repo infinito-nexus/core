@@ -3,8 +3,8 @@ import json
 import sys
 import types
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stdout
-from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar

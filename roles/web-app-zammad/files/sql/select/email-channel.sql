@@ -12,7 +12,7 @@ LEFT JOIN LATERAL (
     SELECT channel.options
     FROM channels AS channel
     INNER JOIN groups AS mail_group ON channel.group_id = mail_group.id
-    WHERE channel.area = 'Email::Account' AND mail_group.name = %(group)s
+    WHERE channel.area = 'Email::Account' AND mail_group.name = %(group_name)s
     ORDER BY channel.id
     LIMIT 1
 ) AS latest ON TRUE

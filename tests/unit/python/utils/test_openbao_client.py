@@ -3,8 +3,8 @@ from __future__ import annotations
 import ssl
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cryptography.hazmat.primitives import serialization
 

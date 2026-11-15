@@ -14,9 +14,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 from typing import ClassVar
-from unittest import mock
 
 from cli.administration.deploy.development.env import compose_file_args
 from cli.administration.deploy.development.stack import (

@@ -78,7 +78,7 @@ class TestPullCommand(unittest.TestCase):
         self.assertEqual(1, exit_.exception.code)
         self.assertIn("web-app-cst-demo: refused", err.getvalue())
 
-    @mock.patch.object(command, "pull", return_value=[])
+    @unittest.mock.patch.object(command, "pull", return_value=[])
     def test_without_an_inventory_only_the_manifest_is_pulled(self, pull):
         self.assertEqual(0, command.main([]))
         pull.assert_called_once_with(None, ROLES_DIR, WORK_DIR)

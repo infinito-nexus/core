@@ -4,9 +4,9 @@ import copy
 import io
 import sys
 import unittest
+import unittest.mock as mock
 import urllib.parse
 from contextlib import redirect_stdout
-from unittest import mock
 
 from . import PROJECT_ROOT
 

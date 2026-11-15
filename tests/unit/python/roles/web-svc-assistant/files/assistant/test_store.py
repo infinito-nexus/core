@@ -6,7 +6,7 @@ from __future__ import annotations
 import sys
 import types
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from . import load
 

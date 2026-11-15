@@ -1,7 +1,7 @@
 import dataclasses
 import importlib.util
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils.networks import reachability
 from utils.networks.reachability import TOR

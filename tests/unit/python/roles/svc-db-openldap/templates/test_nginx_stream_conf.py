@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
@@ -54,7 +53,7 @@ def _proxy_pass(mode: str, terms: tuple, kwargs: dict) -> str:
     lookup = ProxyPassLookup()
     lookup._loader = mock.MagicMock()
     lookup._templar = None
-    with patch("plugins.lookup.proxy_pass.lookup_loader") as loader:
+    with mock.patch("plugins.lookup.proxy_pass.lookup_loader") as loader:
         loader.get.return_value = mock.MagicMock(
             run=lambda *_args, **_kwargs: [APPLICATIONS]
         )

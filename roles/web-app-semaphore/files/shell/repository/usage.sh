@@ -7,7 +7,7 @@
 set -euo pipefail
 
 SCRIPT="usage.sh"
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 refuse_arguments 0 "$@"

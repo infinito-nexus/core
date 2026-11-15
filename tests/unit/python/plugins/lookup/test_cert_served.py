@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from plugins.lookup.cert import LookupModule
 from utils.cache.reset import _reset_cache_for_tests
@@ -41,7 +40,7 @@ class TestCertServedNames(unittest.TestCase):
                 run=lambda _terms, variables=None, **_kw: [(variables or {})[name]]
             )
 
-        loader_patcher = patch("plugins.lookup.cert.lookup_loader")
+        loader_patcher = mock.patch("plugins.lookup.cert.lookup_loader")
         loader_patcher.start().get.side_effect = _get
         self.addCleanup(loader_patcher.stop)
 

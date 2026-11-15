@@ -4,9 +4,9 @@ import os
 import re
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
-from unittest import mock
 
 from jinja2 import Environment, meta, select_autoescape
 from jinja2.exceptions import TemplateSyntaxError

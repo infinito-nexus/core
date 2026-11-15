@@ -1,5 +1,5 @@
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils.cache.yaml import load_yaml_any
 from utils.mail import policy

@@ -261,7 +261,7 @@ def _run_stream(mode, **kwargs):
     lm = LookupModule()
     lm._templar = _Templar({"DEPLOYMENT_MODE": mode})
     lm._loader = mock.MagicMock()
-    with patch("plugins.lookup.proxy_pass.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.proxy_pass.lookup_loader") as loader_mock:
         loader_mock.get.return_value = mock.MagicMock(
             run=lambda *_a, **_k: [_stream_apps()]
         )

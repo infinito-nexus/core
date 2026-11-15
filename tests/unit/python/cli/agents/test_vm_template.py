@@ -6,8 +6,8 @@ import os
 import shutil
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.agents import vm_template as cli
 from utils.agents import vm_template

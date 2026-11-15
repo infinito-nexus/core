@@ -7,12 +7,12 @@ import sys
 import tempfile
 import threading
 import unittest
+import unittest.mock as mock
 import urllib.parse
 import urllib.request
 from contextlib import redirect_stderr, redirect_stdout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any

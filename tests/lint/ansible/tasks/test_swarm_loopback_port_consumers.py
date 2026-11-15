@@ -20,6 +20,7 @@ Scope: ``roles/*/tasks/**/*.yml``, the shared ``tasks/**/*.yml`` and
 
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import tempfile
@@ -429,11 +430,9 @@ def _task_file_problems(
         if _is_code(line) and (route := _route(_code(line), patterns)) != []
     }
     ranges: list[tuple[int, int, bool, bool]] = []
-    try:
+    with contextlib.suppress(yaml.YAMLError):
         for document in yaml.compose_all(text, Loader=yaml.SafeLoader):
             _task_ranges(document, False, ranges)
-    except yaml.YAMLError:
-        pass
     routes.update(
         dict.fromkeys(_split_reads(lines, ranges, patterns.split, list(routes)))
     )

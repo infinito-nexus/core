@@ -9,7 +9,6 @@ from __future__ import annotations
 import ipaddress
 
 SUBNET_KEY = "INFINITO_INFRA_SUBNET"
-RUNNER_CONTAINER_KEY = "INFINITO_INFRA_RUNNER_CONTAINER"
 PREFIX = 24
 RUNNER_HOST = 2
 

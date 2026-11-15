@@ -3,9 +3,9 @@ from __future__ import annotations
 import datetime as dt
 import json
 import unittest
+import unittest.mock as mock
 import urllib.parse
 from typing import Any
-from unittest import mock
 
 from ._export_servers import load_task_module
 

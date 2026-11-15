@@ -5,8 +5,8 @@ import io
 import json
 import sys
 import unittest
+import unittest.mock as mock
 import urllib.error
-from unittest import mock
 
 from . import PROJECT_ROOT
 

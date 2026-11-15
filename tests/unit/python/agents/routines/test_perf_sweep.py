@@ -10,8 +10,8 @@ import contextlib
 import os
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from agents.routines import perf_sweep
 from agents.routines.contract import LOCK_DIR_ENV

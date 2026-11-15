@@ -7,9 +7,9 @@ import os
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stdout
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import PROJECT_ROOT
 

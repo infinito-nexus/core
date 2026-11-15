@@ -7,8 +7,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 import cli.contributing.role.skeleton.__main__ as skeleton_main
 from cli.contributing.role.skeleton.render import RenderError

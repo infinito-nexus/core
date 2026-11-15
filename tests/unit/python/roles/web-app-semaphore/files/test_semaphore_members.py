@@ -9,10 +9,10 @@ import sys
 import tempfile
 import time
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stderr, redirect_stdout
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import read_text
 

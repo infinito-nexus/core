@@ -5,8 +5,8 @@ import struct
 import tempfile
 import threading
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from ._fake_provision import (
     JWT,

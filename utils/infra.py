@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.cache.evict import floor_violation, free_bytes, load_settings, usages
-from utils.networks.infra import RUNNER_CONTAINER_KEY, SUBNET_KEY, runner_ip
+from utils.env.handlers.infinito.infra import RUNNER_CONTAINER_KEY
+from utils.networks.infra import SUBNET_KEY, runner_ip
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:

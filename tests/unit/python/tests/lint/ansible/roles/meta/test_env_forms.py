@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from tests.lint.ansible.roles.meta import test_env_forms as lint
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_TASKS_MAIN

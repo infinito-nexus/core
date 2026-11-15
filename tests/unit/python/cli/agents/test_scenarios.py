@@ -6,9 +6,9 @@ import os
 import subprocess
 import tempfile
 import unittest
+import unittest.mock as mock
 from functools import partial
 from pathlib import Path
-from unittest import mock
 
 from cli.agents import scenarios
 from cli.agents.scenarios import (

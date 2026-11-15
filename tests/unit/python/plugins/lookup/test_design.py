@@ -3,8 +3,8 @@ from __future__ import annotations
 import shutil
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from plugins.lookup import design
 from utils.cache.files import PROJECT_ROOT, read_text

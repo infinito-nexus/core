@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 import requests
 

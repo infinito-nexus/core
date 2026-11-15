@@ -2,12 +2,17 @@
 # Param: SCRIPT  the name every refusal of the sourcing script starts with
 
 WORKSPACE_PATTERN='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+# shellcheck disable=SC2034
 SALES_ORDER_PATTERN='^[A-Za-z][A-Za-z0-9-]{0,55}$'
+# shellcheck disable=SC2034
 LINE_PATTERN='^[1-9][0-9]{0,5}$'
+# shellcheck disable=SC2034
 DNS_LABEL_PATTERN='^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$'
+# shellcheck disable=SC2034
 ROLE_PATTERN='^[a-z0-9]+(-[a-z0-9]+)*$'
 COMMIT_PATTERN='^[0-9a-f]{40}$'
 HOST_KEY_PATTERN='^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(256|384|521)|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com) [A-Za-z0-9+/]+={0,3}$'
+# shellcheck disable=SC2034
 ZONE_PATTERN='^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$'
 HELPERS_DIR="roles/web-app-semaphore/files/python"
 

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import mock
 
 from tests.lint.repository import test_comments_valid as comments
 from utils.upstream import directive

@@ -5,8 +5,8 @@ import io
 import json
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import PROJECT_ROOT
 

@@ -4,8 +4,8 @@ import json
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from . import PROJECT_ROOT
 

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-from unittest import mock
 
 from tests.lint.filesystem.playwright import test_json_env_key_suffix as json_suffix
 from tests.lint.filesystem.playwright import (

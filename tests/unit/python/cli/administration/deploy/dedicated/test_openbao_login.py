@@ -5,9 +5,9 @@ import io
 import os
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 from types import SimpleNamespace
-from unittest import mock
 
 from cli.administration.deploy.dedicated import command
 from tests.utils.openbao_stub import OpenBaoStub

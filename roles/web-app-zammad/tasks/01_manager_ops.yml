@@ -298,7 +298,7 @@
         config: "{{ lookup('database', application_id) }}"
         query_file: "{{ [role_path, 'files/sql/select/email-channel.sql'] | path_join }}"
         named_args:
-          group: "{{ ZAMMAD_MAIL_GROUP_NAME }}"
+          group_name: "{{ ZAMMAD_MAIL_GROUP_NAME }}"
         expect_rows: true
       register: zammad_email_channel_stored
       changed_when: false

@@ -10,8 +10,8 @@ import sys
 import tarfile
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.contributing.update.opentofu.__main__ import main
 from utils.cache.files import PROJECT_ROOT, read_text

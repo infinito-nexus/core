@@ -26,7 +26,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-__all__ = ["merge", "server"]
+__all__ = ["GATEWAY_SERVICE_KEY", "merge", "server"]
 
 ROLE = "svc-ai-libretranslate-engine"
 SERVICE_KEY = "libretranslate-engine"

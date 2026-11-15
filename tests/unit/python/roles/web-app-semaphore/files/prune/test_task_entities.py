@@ -5,10 +5,10 @@ import io
 import json
 import types
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stdout
 from datetime import UTC, datetime, timedelta
 from importlib.util import module_from_spec, spec_from_file_location
-from unittest import mock
 
 fake = importlib.import_module(
     "tests.unit.python.roles.web-app-semaphore.files._semaphore_fake"

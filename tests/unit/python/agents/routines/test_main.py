@@ -18,9 +18,9 @@ import sys
 import tempfile
 import time
 import unittest
+import unittest.mock as mock
 from dataclasses import dataclass
 from pathlib import Path
-from unittest import mock
 
 from agents.routines import load
 from agents.routines.__main__ import (
@@ -569,6 +569,9 @@ class TestLogWrite(unittest.TestCase):
         try:
             self.assertEqual(code, LOG_FAILED_EXIT)
             self.assertIn("/dev/full", err.getvalue())
+            deadline = time.monotonic() + 5
+            while any(_alive(pid) for pid in family) and time.monotonic() < deadline:
+                time.sleep(0.05)
             self.assertEqual([pid for pid in family if _alive(pid)], [])
         finally:
             for pid in family:

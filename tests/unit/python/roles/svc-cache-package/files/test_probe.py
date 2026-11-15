@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib.util
 import os
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils.cache.files import read_text
 from utils.cache.render import upstreams_conf

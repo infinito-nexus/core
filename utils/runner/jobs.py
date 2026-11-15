@@ -6,7 +6,6 @@ import fcntl
 import json
 import re
 import secrets
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -38,7 +37,7 @@ class QueueTimeoutError(JobError):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Job:
     id: str
     checkout: str

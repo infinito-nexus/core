@@ -4,8 +4,8 @@ its round still runs once each network's ``disable`` is applied."""
 from __future__ import annotations
 
 import unittest
+import unittest.mock as mock
 from types import SimpleNamespace
-from unittest import mock
 
 from cli.meta.roles.applications.complexity import reach
 

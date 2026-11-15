@@ -4,11 +4,11 @@ import io
 import json
 import tempfile
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import UTC, datetime, timedelta
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from unittest import mock
 
 from tests.utils.openbao_stub import OpenBaoStub
 from utils.openbao_client import OpenBaoClient

@@ -203,7 +203,7 @@ class TestMetaVolumesFileBindShouldBeConfig(unittest.TestCase):
     def test_negative_control_a_swarm_capable_file_bind_still_fails(self) -> None:
         self.assertEqual(
             _probe_findings("true"),
-            [("roles/web-app-probe/meta/volumes.yml", 1, "probe_conf")],
+            [(f"roles/web-app-probe/{ROLE_FILE_META_VOLUMES}", 1, "probe_conf")],
         )
 
     def test_no_file_bind_entries_in_meta_volumes(self) -> None:

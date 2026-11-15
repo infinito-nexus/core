@@ -8,10 +8,10 @@ import tarfile
 import tempfile
 import time
 import unittest
+import unittest.mock as mock
 import urllib.parse
 from pathlib import Path
 from typing import Any
-from unittest import mock
 
 from cryptography.hazmat.primitives.serialization import Encoding
 

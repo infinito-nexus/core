@@ -9,7 +9,7 @@
     ["localStorage", "sessionStorage"].forEach(function (name) {
       try {
         if (window[name]) storages.push(window[name]);
-      } catch (error) {
+      } catch {
         return;
       }
     });
@@ -20,7 +20,7 @@
     try {
       const data = JSON.parse(raw);
       return data && typeof data.token === "string" ? data.token : null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

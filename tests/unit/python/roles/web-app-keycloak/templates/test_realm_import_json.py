@@ -6,7 +6,7 @@ import json
 import re
 import sys
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 

@@ -7,9 +7,9 @@ import runpy
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stdout
 from pathlib import Path
-from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar

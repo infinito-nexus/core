@@ -201,11 +201,13 @@ class TestIncludeImportExistence(unittest.TestCase):
     def test_include_import_tasks_exist(self):
         missing = []
         for file_path, doc in self._iter_docs():
-            for task_ref in self._collect_refs(
-                doc, ("include_tasks", "import_tasks"), "file"
-            ):
-                if not self._resolves(file_path, task_ref):
-                    missing.append((file_path, task_ref))
+            missing.extend(
+                (file_path, task_ref)
+                for task_ref in self._collect_refs(
+                    doc, ("include_tasks", "import_tasks"), "file"
+                )
+                if not self._resolves(file_path, task_ref)
+            )
 
         if missing:
             messages = [

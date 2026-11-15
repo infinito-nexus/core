@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import unittest
-import unittest.mock
+import unittest.mock as mock
 from types import SimpleNamespace
 
 from ansible.parsing.splitter import parse_kv

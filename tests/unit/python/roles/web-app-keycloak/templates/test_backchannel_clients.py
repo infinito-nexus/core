@@ -4,8 +4,8 @@ import importlib.util
 import json
 import re
 import unittest
+import unittest.mock as mock
 from typing import TYPE_CHECKING
-from unittest import mock
 from urllib.parse import urlsplit
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape

@@ -11,8 +11,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from utils import PROJECT_ROOT
 from utils.agents.pre_push import bound, push_verdict, refusals, secret_hits

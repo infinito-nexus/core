@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
-from unittest.mock import patch
+import unittest.mock as mock
 
 from plugins.filter.update.pull import (
     FilterModule,
@@ -146,7 +145,7 @@ class TestUpdatePullImages(unittest.TestCase):
 
     def test_a_custom_service_without_a_name_fails(self):
         with (
-            patch("plugins.filter.update.pull.get_entity_name", return_value=""),
+            mock.patch("plugins.filter.update.pull.get_entity_name", return_value=""),
             self.assertRaises(ValueError),
         ):
             _images()
@@ -174,7 +173,7 @@ def _compose_reference(applications, application_id, service_key, vendors):
             run=lambda terms, **_k: [route_reference(t, vendors) for t in terms]
         ),
     }
-    with patch("plugins.lookup.image.lookup_loader") as loader:
+    with mock.patch("plugins.lookup.image.lookup_loader") as loader:
         loader.get.side_effect = lambda name, **_k: lookups[name]
         lookup = ImageLookup()
         lookup._loader = mock.MagicMock()

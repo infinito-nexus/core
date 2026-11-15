@@ -3,8 +3,8 @@ import json
 import re
 import sys
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stderr, redirect_stdout
-from unittest import mock
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text

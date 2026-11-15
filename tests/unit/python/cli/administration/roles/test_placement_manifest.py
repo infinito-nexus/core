@@ -4,8 +4,8 @@ import json
 import os
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.administration.roles import placement
 from cli.administration.roles.declaration import PINNED_BY

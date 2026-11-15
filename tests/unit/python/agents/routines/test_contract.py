@@ -11,10 +11,10 @@ import tempfile
 import threading
 import types
 import unittest
+import unittest.mock as mock
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
-from unittest import mock
 
 from agents.routines.contract import (
     EVIDENCE_SOURCE_KEY,

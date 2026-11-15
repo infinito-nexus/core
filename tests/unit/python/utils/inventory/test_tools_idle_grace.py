@@ -8,8 +8,8 @@ import tempfile
 import threading
 import time
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from utils.inventory import tools_idle
 

@@ -1,7 +1,7 @@
 import copy
 import importlib.util
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any

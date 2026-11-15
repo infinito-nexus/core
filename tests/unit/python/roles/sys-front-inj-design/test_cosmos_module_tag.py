@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 import unittest
+import unittest.mock as mock
 from html.parser import HTMLParser
-from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader, lookup_loader

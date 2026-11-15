@@ -4,8 +4,8 @@ import io
 import json
 import subprocess
 import unittest
+import unittest.mock as mock
 from importlib.util import module_from_spec, spec_from_file_location
-from unittest import mock
 
 from . import PROJECT_ROOT
 from ._script_shims import key_pair
@@ -62,7 +62,7 @@ def inventory(login, authorized, permit=None):
 class LockoutGuardTests(unittest.TestCase):
     def setUp(self):
         self.guard = load_guard()
-        _private, self.public = key_pair()
+        self.public = key_pair()[1]
         self.agent = [f"{self.public} task"]
 
     def refusal(self, host_vars, agent=None, default="no"):

@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 import posixpath
 import unittest
+import unittest.mock as mock
 from pathlib import Path, PurePosixPath
-from unittest import mock
 
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase

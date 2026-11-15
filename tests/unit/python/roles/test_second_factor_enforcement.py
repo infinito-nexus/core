@@ -14,8 +14,8 @@ import re
 import runpy
 import sys
 import unittest
+import unittest.mock as mock
 from typing import Any
-from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template

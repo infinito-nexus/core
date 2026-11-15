@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.env.handlers.infinito.cache.paths import base
-from utils.networks.infra import RUNNER_CONTAINER_KEY, SUBNET_KEY, runner_ip
+from utils.networks.infra import SUBNET_KEY, runner_ip
 
 if TYPE_CHECKING:
     from utils.env.context import BuildContext, EnvBuilder
 
+RUNNER_CONTAINER_KEY = "INFINITO_INFRA_RUNNER_CONTAINER"
 RUNNER_IP_KEY = "INFINITO_INFRA_RUNNER_IP"
 CACHE_DIR_KEY = "INFINITO_INFRA_CACHE_DIR"
 RUNNER_CONTAINER = "infinito-infra-runner"

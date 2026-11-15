@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN

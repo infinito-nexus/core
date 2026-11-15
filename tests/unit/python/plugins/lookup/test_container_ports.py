@@ -335,7 +335,7 @@ def _run_relay(terms, mode="swarm"):
     lookup = LookupModule()
     lookup._loader = mock.MagicMock()
     apps = _relay_apps()
-    with patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
         loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
         return lookup.run(
             terms,

@@ -5,7 +5,7 @@ import subprocess
 import sys
 import time
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils import PROJECT_ROOT
 

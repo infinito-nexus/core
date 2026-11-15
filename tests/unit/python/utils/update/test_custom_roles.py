@@ -5,8 +5,8 @@ import io
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.contributing.update.custom_roles.__main__ import main
 from tests.unit.python.cli.administration.roles._fixtures import git, write

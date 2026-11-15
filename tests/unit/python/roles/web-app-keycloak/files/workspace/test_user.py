@@ -3,8 +3,8 @@ from __future__ import annotations
 import io
 import sys
 import unittest
+import unittest.mock as mock
 from contextlib import redirect_stdout
-from unittest import mock
 
 from . import PROJECT_ROOT
 

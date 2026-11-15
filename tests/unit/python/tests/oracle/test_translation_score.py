@@ -7,7 +7,7 @@ gateway or repository walk is involved.
 from __future__ import annotations
 
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from tests.oracle import test_translation_score as suite
 from utils.roles.mapping import ROLE_FILE_META_MAIN

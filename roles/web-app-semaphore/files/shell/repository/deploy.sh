@@ -27,7 +27,7 @@
 set -euo pipefail
 
 SCRIPT="deploy.sh"
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 refuse_arguments 1 "$@"
@@ -45,8 +45,8 @@ if [ -n "${WORKSPACE:-}" ]; then
 	require ROLES "^[a-z0-9-]+(,[a-z0-9-]+)*$"
 	require DNS_LABEL "${DNS_LABEL_PATTERN}"
 	require INVENTORY_COMMIT "${COMMIT_PATTERN}"
-	IFS=',' read -r -a roles <<<"${ROLES}"
-	for role in "${roles[@]}"; do
+	IFS=',' read -r -a role_ids <<<"${ROLES}"
+	for role in "${role_ids[@]}"; do
 		if [[ ! "${role}" =~ ${ROLE_PATTERN} ]] || [ ! -d "${INFINITO_SRC_DIR:?the runner image names no core tree}/roles/${role}" ]; then
 			refuse "ROLES names ${role}, which the runner image's core tree does not hold"
 		fi
@@ -57,7 +57,7 @@ if [ -n "${WORKSPACE:-}" ]; then
 	pin_host_key "${workdir}"
 	load_workspace_key "${inventory}"
 	echo "${SCRIPT}: deploying ${ROLES} of ${SALES_ORDER}/${LINE} to ${HOST} as ${domain}"
-	exec_args=(--id "${roles[@]}" --limit "${HOST}" -e "DOMAIN_PRIMARY=${domain}")
+	exec_args=(--id "${role_ids[@]}" --limit "${HOST}" -e "DOMAIN_PRIMARY=${domain}")
 else
 	: "${DEPLOY_LOGIN:?the project environment names no login}"
 	: "${DEPLOY_KNOWN_HOSTS?the project environment declares no known_hosts}"

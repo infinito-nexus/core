@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from tests.lint.ansible.services import PROJECT_ROOT
 from tests.lint.ansible.services import test_login_methods as lint

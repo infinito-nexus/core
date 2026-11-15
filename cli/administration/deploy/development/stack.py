@@ -122,6 +122,6 @@ def runner_compose_argv(project: str, action: str) -> list[str]:
 
 
 if __name__ == "__main__":
-    from . import PROJECT_ROOT
+    from utils.cache import PROJECT_ROOT
 
     print("\n".join(compose_argv(PROJECT_ROOT)[2:]))

@@ -4,7 +4,7 @@ import base64
 import json
 import re
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader

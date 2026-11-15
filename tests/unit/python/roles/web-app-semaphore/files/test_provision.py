@@ -6,8 +6,8 @@ import json
 import stat
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from .provision._fake_provision import CREDENTIALS, STATE_KEYS, WORKSPACE, load
 

@@ -7,8 +7,8 @@ import json
 import re
 import sys
 import unittest
+import unittest.mock as mock
 import urllib.parse
-from unittest import mock
 
 from . import PROJECT_ROOT
 

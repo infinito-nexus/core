@@ -5,6 +5,18 @@ data:
   mounts:
     - service: knot
       target: /storage
+config:
+  type: volume
+  name: knot_config
+  mounts:
+    - service: knot
+      target: /config
+rundir:
+  type: volume
+  name: knot_rundir
+  mounts:
+    - service: knot
+      target: /rundir
 conf:
   type: secret
   source: "{{ [ lookup('container', 'svc-dns-knot', 'directories.volumes'), 'knot.conf' ] | path_join }}"

@@ -83,8 +83,9 @@ AGENT_GONE_SECONDS = 5
 KILL_LINE = '\t\tkill "${TASK_AGENT_PID}" 2>/dev/null || stopped=$?\n'
 GUARD_CALL = 'python3 -I "${helpers}/lockout_guard.py"'
 TRANSPORT_CALL = 'python3 -I "${helpers}/transport_guard.py"'
-# A stand-in that exits without reading its stdin (true) lets printf die of
-# SIGPIPE under host.sh's pipefail, so the guard refuses after all, under load.
+# Exception: a stand-in that exits without reading its stdin (true) lets
+# printf die of SIGPIPE under host.sh's pipefail, so the guard refuses after
+# all, under load.
 DRAIN = "cat >/dev/null"
 
 

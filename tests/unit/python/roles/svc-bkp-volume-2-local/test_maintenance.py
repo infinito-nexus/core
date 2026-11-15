@@ -6,9 +6,9 @@ import shlex
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from unittest import mock
 
 from jinja2 import Environment, select_autoescape
 

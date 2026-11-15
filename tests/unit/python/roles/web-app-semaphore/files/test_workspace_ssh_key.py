@@ -3,8 +3,8 @@ from __future__ import annotations
 import io
 import json
 import unittest
+import unittest.mock as mock
 from importlib.util import module_from_spec, spec_from_file_location
-from unittest import mock
 
 from tests.utils.openbao_stub import OpenBaoStub
 

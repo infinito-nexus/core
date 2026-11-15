@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 import sys
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from cli.meta.ci import query
 

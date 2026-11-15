@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import socket
 import unittest
+import unittest.mock as mock
 from contextlib import contextmanager
-from unittest import mock
 
 from agents.routines import discover, load
 from agents.routines.contract import Step

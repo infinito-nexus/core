@@ -5,9 +5,9 @@ import io
 import json
 import sys
 import unittest
+import unittest.mock as mock
 import urllib.parse
 from contextlib import redirect_stdout
-from unittest import mock
 
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN

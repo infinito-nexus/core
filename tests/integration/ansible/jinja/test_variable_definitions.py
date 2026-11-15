@@ -367,9 +367,7 @@ class TestDefinitionSources(unittest.TestCase):
             "# Param openbao_kv_state: present, absent or read\n"
             "- name: Count\n"
         )
-        self.assertEqual(
-            param_names(content), {"usage_result_dir", "openbao_kv_state"}
-        )
+        self.assertEqual(param_names(content), {"usage_result_dir", "openbao_kv_state"})
 
     def test_negative_control_other_comments_declare_nothing(self) -> None:
         content = (

@@ -140,6 +140,7 @@ def loaded_env(base: Path, **overrides: str) -> dict[str, str]:
             "INFINITO_PYTHON_INSTALL_SCRIPT": "roles/dev-python/files/shell/install.sh",
             "INFINITO_DOCKER_CLI_INSTALL_SCRIPT": "roles/sys-svc-container/files/shell/install-cli.sh",
             "INFINITO_BUILD_CACHE_MAX_SIZE": "20g",
+            "INFINITO_LINT_RUNNER": "docker",
             "STUB_PARENT_ID": "sha256:parent-a",
         }
     )

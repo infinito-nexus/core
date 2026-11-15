@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from .files._semaphore_fake import WORKSPACE_ID, FakeSemaphore
 from .files.test_semaphore_members import MEMBERS, load_members, roster

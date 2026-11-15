@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from utils.domains.default_primary import default_domain_primary
 from utils.domains.unserved import served_domains, unserved_canonical_keys

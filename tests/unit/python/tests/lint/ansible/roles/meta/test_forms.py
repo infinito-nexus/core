@@ -5,8 +5,8 @@ from __future__ import annotations
 import tempfile
 import textwrap
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from tests.lint.ansible.roles.meta import test_forms as lint
 from utils.roles.mapping import (

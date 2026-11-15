@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 import unittest
+import unittest.mock as mock
 from pathlib import PurePosixPath
-from unittest import mock
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str

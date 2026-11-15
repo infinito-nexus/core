@@ -7,9 +7,9 @@ import io
 import json
 import re
 import unittest
+import unittest.mock as mock
 import urllib.error
 from contextlib import redirect_stderr, redirect_stdout
-from unittest import mock
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any

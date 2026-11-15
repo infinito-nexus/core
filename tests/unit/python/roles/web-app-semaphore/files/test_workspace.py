@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+import unittest.mock as mock
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import read_text
 

@@ -4,8 +4,8 @@ import contextlib
 import ipaddress
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.build.docs.readme import schema
 from cli.build.docs.readme.generate import MANAGED_SECTIONS
