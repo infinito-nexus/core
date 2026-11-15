@@ -21,5 +21,9 @@ if [ "$status" -ne 0 ]; then
   exit "$status"
 fi
 for attribute in "${attributes[@]}"; do
-  grep -E "^${attribute}: " <<<"$held" || true
+  grep -E "^${attribute}: " <<<"$held"
+  status=$?
+  if [ "$status" -gt 1 ]; then
+    exit "$status"
+  fi
 done
