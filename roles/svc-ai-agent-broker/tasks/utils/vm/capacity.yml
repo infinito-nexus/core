@@ -4,8 +4,9 @@
 # Param: vm_capacity_reserve - memory and disk sizes the host keeps for itself
 # Param: vm_capacity_running_memory - bytes the role's own running agent VMs hold now
 # Param: vm_capacity_storage_path - path the agent VM disks live under
-# Param: vm_capacity_pool_size - fixed size of the VM storage pool; "" when the disks use the free space of the storage path
+# Param: vm_capacity_pool_size - fixed size of the VM storage pool, which holds the demand without the reserve; "" when the disks use the free space of the storage path
 # Param: vm_capacity_pool_used - bytes the fixed VM storage pool already holds; 0 without a fixed pool or before the pool exists
+# Param: vm_capacity_own_disk - bytes the role's own agent VM disks take, part of the pool's and the storage path's used space; 0 before the hypervisor runs or where it is not read
 # Param: vm_capacity_overhead - the hypervisor's own cpus and memory size
 # Param: vm_capacity_limits - the container's cpus and mem_limit to prove; an empty mapping on a bare host
 - name: "📋 Collect the agent configs {{ inventory_hostname }} may serve"
@@ -48,6 +49,7 @@
            vm_capacity_storage_path,
            vm_capacity_pool_size,
            vm_capacity_pool_used,
+           vm_capacity_own_disk,
            vm_capacity_overhead,
            vm_capacity_limits) }}
 

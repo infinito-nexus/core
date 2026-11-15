@@ -59,7 +59,9 @@ def _capacity(
     running=0,
     pool_size="",
     pool_used=0,
+    own_disk=0,
     ws=None,
+    mounts=None,
 ):
     return agent_vm_capacity(
         WORKSPACES if ws is None else ws,
@@ -70,10 +72,11 @@ def _capacity(
         RESERVE,
         free_memory,
         running,
-        MOUNTS,
+        MOUNTS if mounts is None else mounts,
         "/var/lib/vz/images",
         pool_size,
         pool_used,
+        own_disk,
         OVERHEAD,
         limits,
     )
@@ -117,6 +120,30 @@ class TestAgentVmCapacity(unittest.TestCase):
         self.assertEqual(_capacity(10 * GIB, {}, running=8 * GIB), [])
         self.assertTrue(_capacity(10 * GIB, {}, running=0))
 
+    def test_space_of_the_roles_own_vm_disks_counts_as_free(self):
+        self.assertEqual(
+            _capacity(34 * GIB, {}, max_running=2, warm_pool=2, own_disk=64 * GIB), []
+        )
+
+    def test_negative_control_without_own_disks_the_same_host_is_refused(self):
+        found = _capacity(34 * GIB, {}, max_running=2, warm_pool=2, own_disk=0)
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("free disk", found[0])
+
+    def test_a_fixed_pool_holds_the_demand_without_the_reserve(self):
+        roomy = [{"mount": "/var/lib/vz", "size_available": 1000 * GIB}]
+        self.assertEqual(_capacity(18 * GIB, {}, pool_size="128GiB", mounts=roomy), [])
+        found = _capacity(18 * GIB, {}, pool_size="127GiB", mounts=roomy)
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("fixed storage pool", found[0])
+
+    def test_own_disks_count_back_inside_a_fixed_pool(self):
+        roomy = [{"mount": "/var/lib/vz", "size_available": 1000 * GIB}]
+        pool = {"pool_size": "200GiB", "pool_used": 100 * GIB, "mounts": roomy}
+        self.assertEqual(_capacity(18 * GIB, {}, own_disk=40 * GIB, **pool), [])
+        found = _capacity(18 * GIB, {}, own_disk=0, **pool)
+        self.assertTrue(any("fixed storage pool" in line for line in found), found)
+
     def test_storage_is_read_from_the_mount_holding_the_disks(self):
         found = _capacity(18 * GIB, {}, max_running=2, warm_pool=2)
         self.assertTrue(any("free disk" in line for line in found), found)
@@ -144,6 +171,7 @@ class TestAgentVmCapacity(unittest.TestCase):
             full,
             "/var/lib/vz/images",
             "200GiB",
+            0,
             0,
             OVERHEAD,
             {},
