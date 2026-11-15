@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest import mock
+from unittest.mock import patch
 
 from baudolo.databases import read_rows
 from baudolo.seed import __main__ as seed_cli
@@ -82,8 +82,8 @@ def _seed(argv: list[str], stdin: str) -> str:
         The call's stderr.
     """
     with (
-        mock.patch.object(sys, "argv", argv),
-        mock.patch.object(sys, "stdin", io.StringIO(stdin)),
+        patch.object(sys, "argv", argv),
+        patch.object(sys, "stdin", io.StringIO(stdin)),
         redirect_stdout(io.StringIO()),
         redirect_stderr(io.StringIO()) as stderr,
     ):
