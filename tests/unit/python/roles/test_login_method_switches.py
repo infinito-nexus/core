@@ -21,9 +21,9 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template
 
 from tests.lint.ansible.services import test_login_methods as lint
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache import applications as applications_cache
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.reset import _reset_cache_for_tests
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:
@@ -89,6 +89,7 @@ def render(
         **extra,
         "group_names": sorted({role, *mode}),
         "applications": applications,
+        "playbook_dir": str(PROJECT_ROOT),
     }
     return Templar(loader=loader, variables=variables).template(
         trust_as_template(template)
@@ -312,8 +313,10 @@ class TestInjectedScriptSwitchPixelfed(unittest.TestCase):
     def test_sso_mode_injects_the_script(self) -> None:
         self.assertIs(True, self._injected(SSO))
 
-    def test_native_mode_injects_no_script(self) -> None:
-        self.assertIs(False, self._injected(NATIVE))
+    def test_native_mode_hides_nothing(self) -> None:
+        script = self._script(NATIVE)
+        self.assertNotIn(self.FORM, script)
+        self.assertNotIn(self.TWO_FACTOR, script)
 
 
 class TestExtrasStayOffInEveryMode(unittest.TestCase):
