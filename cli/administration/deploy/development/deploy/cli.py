@@ -11,9 +11,6 @@ from cli.administration.deploy.development.common import (
     resolve_container,
 )
 from cli.administration.deploy.development.inventory import (
-    _build_services_overrides_for_round as build_services_overrides_for_round,
-)
-from cli.administration.deploy.development.inventory import (
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
 )
@@ -26,6 +23,9 @@ from cli.administration.deploy.development.variant_select import (
 from cli.administration.inventory.provision.services.disabler import (
     find_provider_roles,
     parse_services_disabled,
+)
+from utils.roles.applications.variants import (
+    services_overrides_for_round as build_services_overrides_for_round,
 )
 
 from .devices import decline, missing_devices, required_devices

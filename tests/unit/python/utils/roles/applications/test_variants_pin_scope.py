@@ -88,7 +88,7 @@ class TestPinScope(unittest.TestCase):
             {"services": {"carrier": {"enabled": False}}},
         ]
 
-        def include(*, primary_apps, services_overrides):
+        def include(*, primary_apps, services_overrides) -> tuple[str, ...]:
             carried = services_overrides[PARTNER]["carrier"]["enabled"] is True
             return (CARRIER, PARTNER, *primary_apps) if carried else (PARTNER,)
 

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from . import PROJECT_ROOT
+from utils.cache import PROJECT_ROOT
+
 from .compose import Compose
 from .env import resolve_distro
 

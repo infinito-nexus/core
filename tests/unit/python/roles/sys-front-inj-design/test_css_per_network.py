@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import re
 import unittest
-from unittest import mock
+import unittest.mock
 from urllib.parse import parse_qs, urlsplit
 
 from ansible.parsing.dataloader import DataLoader
@@ -106,9 +106,9 @@ def _templar(siblings, extra):
         "TLS_MODE": "letsencrypt",
         **extra,
     }
-    return Templar(loader=DataLoader(), variables=variables), mock.patch.object(
-        lookup_loader, "get", side_effect=get
-    )
+    return Templar(
+        loader=DataLoader(), variables=variables
+    ), unittest.mock.patch.object(lookup_loader, "get", side_effect=get)
 
 
 def resolve(siblings, domain, expression):

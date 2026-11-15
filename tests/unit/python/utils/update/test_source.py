@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import contextlib
+import io
+import subprocess
 import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
 
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
+from utils.update import repository, upstream
 from utils.update import source as module
-from utils.update import upstream
 
 SERVICES = """\
 ---
@@ -135,6 +138,20 @@ second:
       # nocheck: cve stale tag
       - image_tag: "v2.0.0"
         until: 2026-11-30
+"""
+
+STACK = "https://example.test/stack.git"
+
+REF_PINNED = f"""\
+---
+stack:
+  repository: {STACK}
+  ref: v3.0.39
+  update:
+    key: ref
+    type: http_regex
+    url: https://example.test/tags
+    pattern: 'core (v[0-9.]+)'
 """
 
 
@@ -316,6 +333,75 @@ class TestEntriesSplitByOwner(unittest.TestCase):
             module.collect_entries(self.root),
             module.service_entries(self.root) + module.addon_entries(self.root),
         )
+
+
+class TestCheckedOutRef(unittest.TestCase):
+    def _outdated(
+        self, services: str, listed: str, returncode: int = 0
+    ) -> tuple[list[str], list[list[str]], str]:
+        root = _repo(services)
+        calls: list[list[str]] = []
+
+        def ls_remote(argv: list[str], **_kwargs) -> subprocess.CompletedProcess:
+            calls.append(argv)
+            return subprocess.CompletedProcess(argv, returncode, listed, "")
+
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(upstream, "documents", return_value="core v4.0.2\n"),
+            mock.patch.object(repository.subprocess, "run", side_effect=ls_remote),
+            contextlib.redirect_stderr(stderr),
+        ):
+            updates = module.outdated(module.collect_entries(root), root)
+        return [update.latest for update in updates], calls, stderr.getvalue()
+
+    def test_a_ref_the_repository_lists_as_branch_or_tag_is_proposed(self) -> None:
+        for listed in (
+            f"{'1' * 40}\trefs/heads/v4.0.2\n",
+            f"{'1' * 40}\trefs/tags/v4.0.2\n{'2' * 40}\trefs/tags/v4.0.2^{{}}\n",
+        ):
+            with self.subTest(listed=listed):
+                latest, calls, stderr = self._outdated(REF_PINNED, listed)
+                self.assertEqual(latest, ["v4.0.2"])
+                self.assertEqual(stderr, "")
+                self.assertEqual(
+                    calls,
+                    [
+                        [
+                            "git",
+                            "ls-remote",
+                            STACK,
+                            "refs/heads/v4.0.2",
+                            "refs/tags/v4.0.2",
+                        ]
+                    ],
+                )
+
+    def test_a_ref_the_repository_does_not_list_is_withheld_and_reported(
+        self,
+    ) -> None:
+        latest, _calls, stderr = self._outdated(
+            REF_PINNED, f"{'1' * 40}\trefs/heads/develop\n"
+        )
+        self.assertEqual(latest, [])
+        self.assertIn("WARN web-app-example/stack.ref", stderr)
+        self.assertIn("lists no branch or tag of that name", stderr)
+        self.assertIn("withholding v3.0.39 -> v4.0.2", stderr)
+
+    def test_a_failed_lookup_withholds_the_ref(self) -> None:
+        latest, _calls, stderr = self._outdated(
+            REF_PINNED, f"{'1' * 40}\trefs/heads/v4.0.2\n", returncode=128
+        )
+        self.assertEqual(latest, [])
+        self.assertIn("could not be queried", stderr)
+
+    def test_a_pin_other_than_the_ref_never_queries_the_repository(self) -> None:
+        services = REF_PINNED.replace("ref: v3.0.39", 'version: "v3.0.39"').replace(
+            "key: ref", "key: version"
+        )
+        latest, calls, _stderr = self._outdated(services, "")
+        self.assertEqual(latest, ["v4.0.2"])
+        self.assertEqual(calls, [])
 
 
 class TestAddons(unittest.TestCase):

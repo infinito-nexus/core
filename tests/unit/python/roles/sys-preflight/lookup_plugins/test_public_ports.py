@@ -1,5 +1,5 @@
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.errors import AnsibleError
 
@@ -47,13 +47,13 @@ def _context():
         roles=sorted(APPLICATIONS),
         applications=APPLICATIONS,
         config=_config,
-        lookup=mock.Mock(),
+        lookup=unittest.mock.Mock(),
     )
 
 
 class TestPublicPortsLookup(unittest.TestCase):
     def _run(self, terms, side_effect=None):
-        with mock.patch(
+        with unittest.mock.patch(
             f"{MODULE}.deploy_closure_context",
             return_value=_context(),
             side_effect=side_effect,

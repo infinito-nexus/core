@@ -4,7 +4,7 @@ import os
 import subprocess
 import tempfile
 import unittest
-from unittest import mock
+import unittest.mock
 
 from cli.administration.deploy.development.deploy import run as deploy_run
 from utils.tests.swarm import deploy as swarm_deploy
@@ -19,8 +19,8 @@ TOPOLOGY = {
 
 
 class TestSharedTargetReset(unittest.TestCase):
-    @mock.patch.dict(os.environ, TOPOLOGY)
-    @mock.patch.object(swarm_deploy, "run_step", return_value=0)
+    @unittest.mock.patch.dict(os.environ, TOPOLOGY)
+    @unittest.mock.patch.object(swarm_deploy, "run_step", return_value=0)
     def test_the_lab_and_every_swarm_node_go_to_the_shared_reset(self, run):
         self.assertEqual(swarm_deploy.reset_target(), 0)
         self.assertEqual(
@@ -43,12 +43,12 @@ class TestSharedTargetReset(unittest.TestCase):
 
 
 class TestSwarmDeployCommands(unittest.TestCase):
-    @mock.patch.dict(
+    @unittest.mock.patch.dict(
         os.environ,
         {**TOPOLOGY, "INFINITO_IMAGE": "ghcr.io/infinito-nexus/core/arch:ci-0"},
     )
-    @mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
-    @mock.patch.object(swarm_deploy, "run_step", return_value=0)
+    @unittest.mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
+    @unittest.mock.patch.object(swarm_deploy, "run_step", return_value=0)
     def test_every_pass_of_a_round_starts_on_a_reset_target(self, run, _tag):
         for update_pass in (False, True):
             run.reset_mock()
@@ -64,8 +64,8 @@ class TestSwarmDeployCommands(unittest.TestCase):
             self.assertIn("target-reset", first.args[0])
             self.assertIn("cli.administration.deploy.swarm", second.kwargs["cmd"])
 
-    @mock.patch.dict(os.environ, TOPOLOGY)
-    @mock.patch.object(swarm_deploy, "run_step", return_value=3)
+    @unittest.mock.patch.dict(os.environ, TOPOLOGY)
+    @unittest.mock.patch.object(swarm_deploy, "run_step", return_value=3)
     def test_a_failed_reset_deploys_nothing(self, run):
         rc = swarm_deploy.deploy_round(
             app_id="web-app-semaphore",
@@ -77,12 +77,12 @@ class TestSwarmDeployCommands(unittest.TestCase):
         self.assertEqual(rc, 3)
         self.assertEqual(run.call_count, 1)
 
-    @mock.patch.dict(
+    @unittest.mock.patch.dict(
         os.environ,
         {**TOPOLOGY, "INFINITO_IMAGE": "ghcr.io/infinito-nexus/core/arch:ci-0"},
     )
-    @mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
-    @mock.patch.object(swarm_deploy, "run_step", return_value=0)
+    @unittest.mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
+    @unittest.mock.patch.object(swarm_deploy, "run_step", return_value=0)
     def test_round_deploy_keeps_the_placed_custom_roles(self, run, _tag):
         swarm_deploy.deploy_round(
             app_id="web-app-cst-demo",
@@ -95,7 +95,7 @@ class TestSwarmDeployCommands(unittest.TestCase):
         self.assertIn("cli.administration.deploy.swarm", cmd)
         self.assertIn("--skip-pull", cmd)
 
-    @mock.patch.object(swarm_deploy, "run_step", return_value=0)
+    @unittest.mock.patch.object(swarm_deploy, "run_step", return_value=0)
     def test_backup_host_deploy_keeps_the_placed_custom_roles(self, run):
         with tempfile.TemporaryDirectory() as inv_dir:
             swarm_deploy.deploy_backup_host(
@@ -119,7 +119,7 @@ class TestSwarmDeployImage(unittest.TestCase):
         )
         return run.call_args.kwargs["env"]
 
-    @mock.patch.dict(
+    @unittest.mock.patch.dict(
         os.environ,
         {
             **TOPOLOGY,
@@ -127,21 +127,21 @@ class TestSwarmDeployImage(unittest.TestCase):
             "INFINITO_IMAGE_TAG": "latest",
         },
     )
-    @mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
-    @mock.patch.object(swarm_deploy, "run_step", return_value=0)
+    @unittest.mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
+    @unittest.mock.patch.object(swarm_deploy, "run_step", return_value=0)
     def test_the_round_deploys_with_the_tag_of_this_checkout(self, run, _tag):
         env = self.deploy_env(run)
         self.assertEqual(env["INFINITO_IMAGE_TAG"], "ci-0")
         self.assertEqual(env["INFINITO_IMAGE"], "ghcr.io/infinito-nexus/core/arch:ci-0")
 
-    @mock.patch.dict(os.environ, {**TOPOLOGY, "INFINITO_IMAGE": ""})
-    @mock.patch.object(
+    @unittest.mock.patch.dict(os.environ, {**TOPOLOGY, "INFINITO_IMAGE": ""})
+    @unittest.mock.patch.object(
         deploy_run.subprocess,
         "run",
         return_value=subprocess.CompletedProcess([], 0, stdout="core/arch\n"),
     )
-    @mock.patch(DEPLOY_IMAGE_TAG, return_value="dev-0")
-    @mock.patch.object(swarm_deploy, "run_step", return_value=0)
+    @unittest.mock.patch(DEPLOY_IMAGE_TAG, return_value="dev-0")
+    @unittest.mock.patch.object(swarm_deploy, "run_step", return_value=0)
     def test_an_unresolved_image_becomes_the_local_image_name(self, run, _tag, resolve):
         env = self.deploy_env(run)
         self.assertEqual(env["INFINITO_IMAGE"], "core/arch")

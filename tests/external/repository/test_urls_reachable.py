@@ -117,12 +117,14 @@ _MAX_WORKERS = int(os.environ["INFINITO_WORKER_FETCH"])
 _MAX_REQUESTS_PER_HOST = 4
 _GLOBAL_DEADLINE_SECONDS = 5 * 3600 + 30 * 60
 _PROGRESS_INTERVAL = 50
+_CATALOG_SUFFIX = ".po"
 
 
 class UrlOccurrence(NamedTuple):
     file: Path
     line: int
     url: str
+    suppressed: bool = False
 
 
 class ProbeOutcome(NamedTuple):
@@ -264,7 +266,7 @@ def _is_live_literal_url(url: str) -> bool:
 
 
 def _extract_urls(path: Path) -> list[UrlOccurrence]:
-    """Return URL occurrences from *path* that should be probed live."""
+    """Return URL occurrences from *path*, flagged where a marker exempts them."""
     if not _is_probably_text_file(path):
         return []
 
@@ -273,15 +275,14 @@ def _extract_urls(path: Path) -> list[UrlOccurrence]:
     except (OSError, UnicodeDecodeError):
         return []
 
-    placement = "block-above" if path.suffix == ".po" else "same-or-above"
+    placement = "block-above" if path.suffix == _CATALOG_SUFFIX else "same-or-above"
     occurrences: list[UrlOccurrence] = []
     for line_no, line in enumerate(lines, start=1):
-        if is_suppressed_at(lines, line_no, "url", mode=placement):
-            continue
+        suppressed = is_suppressed_at(lines, line_no, "url", mode=placement)
         for match in _URL_RE.finditer(line):
             url = _normalize_url(match.group(0))
             if _is_live_literal_url(url):
-                occurrences.append(UrlOccurrence(path, line_no, url))
+                occurrences.append(UrlOccurrence(path, line_no, url, suppressed))
     return occurrences
 
 
@@ -341,10 +342,18 @@ def _probe_with_retry(url: str) -> ProbeOutcome:
 
 def _collect_occurrences(root: Path) -> dict[str, list[UrlOccurrence]]:
     """Collect probe-worthy URLs from all non-ignored repository files."""
+    found = [occ for path in _repo_files(root) for occ in _extract_urls(path)]
+    exempt_at_source = {
+        _probe_key(occ.url)
+        for occ in found
+        if occ.suppressed and occ.file.suffix != _CATALOG_SUFFIX
+    }
     by_url: dict[str, list[UrlOccurrence]] = defaultdict(list)
-    for path in _repo_files(root):
-        for occurrence in _extract_urls(path):
-            by_url[_probe_key(occurrence.url)].append(occurrence)
+    for occ in found:
+        key = _probe_key(occ.url)
+        inherited = occ.file.suffix == _CATALOG_SUFFIX and key in exempt_at_source
+        if not occ.suppressed and not inherited:
+            by_url[key].append(occ)
     return dict(by_url)
 
 

@@ -24,13 +24,10 @@ from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
-from plugins.filter.merge.with_defaults import (
-    merge_with_defaults,  # noqa: F401  re-exported
-)
 from utils.cache.errors import is_unresolvable
 from utils.paths import FILE_TOKENS
 
-from . import PROJECT_ROOT, ROLES_DIR  # noqa: F401
+from . import ROLES_DIR
 
 _TOKENS_DIGESTS: dict[tuple, str] = {}
 

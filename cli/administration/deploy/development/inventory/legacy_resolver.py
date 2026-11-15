@@ -16,12 +16,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.roles.applications.variants import services_overrides_for_round
-
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
-
-_build_services_overrides_for_round = services_overrides_for_round
 
 
 def prune_orphans_after_disable(

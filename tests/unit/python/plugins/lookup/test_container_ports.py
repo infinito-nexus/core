@@ -1,7 +1,6 @@
 import unittest
 import unittest.mock as mock
 from typing import ClassVar
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -28,7 +27,7 @@ def _run(terms, *, app_id="web-app-gitea", mode_vars=None, **kwargs):
     lm = LookupModule()
     lm._loader = mock.MagicMock()
     apps = _apps()
-    with patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
         loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
         return lm.run(
             terms,
@@ -149,7 +148,7 @@ class TestContainerPortsLookup(unittest.TestCase):
         lm = LookupModule()
         lm._loader = mock.MagicMock()
         with (
-            patch("plugins.lookup.container_ports.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
             loader_mock.get.return_value = mock.MagicMock(
@@ -167,7 +166,7 @@ class TestContainerPortsLookup(unittest.TestCase):
         lookup = LookupModule()
         lookup._templar = _Templar()
         lookup._loader = mock.MagicMock()
-        with patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+        with mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [_apps()]
             )
@@ -206,7 +205,7 @@ def _run_edge(terms):
     lookup = LookupModule()
     lookup._loader = mock.MagicMock()
     apps = _edge_apps()
-    with patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
         loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
         return lookup.run(terms, variables={"application_id": "web-svc-coturn"})[0]
 
@@ -272,7 +271,7 @@ class TestContainerPortsDictTerms(unittest.TestCase):
     def test_key_names_the_block(self):
         lookup = LookupModule()
         lookup._loader = mock.MagicMock()
-        with patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+        with mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [_edge_apps()]
             )
@@ -287,7 +286,7 @@ class TestContainerPortsDictTerms(unittest.TestCase):
         lookup = LookupModule()
         lookup._loader = mock.MagicMock()
         with (
-            patch("plugins.lookup.container_ports.lookup_loader") as loader_mock,
+            mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock,
             self.assertRaises(AnsibleError),
         ):
             loader_mock.get.return_value = mock.MagicMock(

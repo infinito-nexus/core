@@ -1,5 +1,5 @@
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.errors import AnsibleError
 
@@ -48,12 +48,12 @@ def _context(roles=("svc-db-mariadb", "web-app-matomo", "web-app-discourse")):
 class TestDockerOwnershipLookup(unittest.TestCase):
     def _run(self, terms, side_effect=None):
         with (
-            mock.patch(
+            unittest.mock.patch(
                 f"{MODULE}.deploy_closure_context",
                 return_value=_context(),
                 side_effect=side_effect,
             ) as context,
-            mock.patch(
+            unittest.mock.patch(
                 f"{MODULE}.entity_name", side_effect=lambda role: role.split("-", 2)[-1]
             ),
         ):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader, lookup_loader
@@ -78,7 +78,7 @@ def resolve(*, siblings, domain, canonical=CLEAR, tls=True) -> dict:
     declared = DataLoader().load_from_file(str(VARS), trusted_as_template=True)
     variables = {"domain": domain, "TLS_ENABLED": tls, "TLS_MODE": "letsencrypt"}
     templar = Templar(loader=DataLoader(), variables={**declared, **variables})
-    with mock.patch.object(lookup_loader, "get", side_effect=get):
+    with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
         return {name: templar.template(declared[name]) for name in NAMES}
 
 

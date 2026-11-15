@@ -20,7 +20,7 @@ import unittest.mock as mock
 import weakref
 from pathlib import Path
 
-from utils.cache import base
+from utils.cache import PROJECT_ROOT, base
 from utils.cache.reset import _reset_cache_for_tests
 from utils.domains.default_primary import default_domain_primary
 from utils.paths import FILE_TOKENS
@@ -45,15 +45,15 @@ def _mapping_calls(spy: mock.MagicMock) -> int:
 
 
 class TestProjectRootInvariants(unittest.TestCase):
-    """`base.PROJECT_ROOT` must point at the actual repo root, not at
+    """`PROJECT_ROOT` must point at the actual repo root, not at
     `<repo>/utils/`. CI run 24934007615 was caused by exactly this
     drift after `utils/cache/data.py` was moved one level deeper.
     """
 
     def test_project_root_resolves_to_repo_root(self):
-        self.assertTrue((base.PROJECT_ROOT / "roles").is_dir())
-        self.assertTrue((base.PROJECT_ROOT / "cli").is_dir())
-        self.assertEqual(base.ROLES_DIR, base.PROJECT_ROOT / "roles")
+        self.assertTrue((PROJECT_ROOT / "roles").is_dir())
+        self.assertTrue((PROJECT_ROOT / "cli").is_dir())
+        self.assertEqual(base.ROLES_DIR, PROJECT_ROOT / "roles")
 
     def test_default_tokens_file_is_secrets_yaml(self):
         self.assertEqual(base.DEFAULT_TOKENS_FILE, FILE_TOKENS)

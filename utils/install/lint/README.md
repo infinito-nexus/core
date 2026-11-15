@@ -62,3 +62,7 @@ Stamp dependencies are [lint.sh](../../../scripts/install/lint.sh) and [pyprojec
 Group-targeted invocations always run and never touch the stamp.
 Every invocation, `all` or group-targeted, holds `build/install-lint.lock` for its whole run, so parallel lint targets never install one tool at the same time.
 `make lint` installs every group its targets name before the parallel dispatch starts.
+
+With `INFINITO_LINT_RUNNER=docker` the `toolchain` stage of the root [Dockerfile](../../../Dockerfile) runs every `all` group except `javascript` and `playwright`, which install into the bind-mounted tree, so a fresh container finds the toolchain in the image and the `all` run only checks it; with `host` it skips them.
+The stage runs those groups right after its system package step, so they resolve packages in the order a runtime install does.
+[test_main.py](../../../tests/unit/python/utils/install/lint/test_main.py) keeps that group list, that order and the files the stage copies in step with this package.

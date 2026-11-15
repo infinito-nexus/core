@@ -4,7 +4,6 @@ import json
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
@@ -78,8 +77,8 @@ def frame_ancestors(domains):
     )
     environment.filters["to_json"] = json.dumps
     with (
-        patch("plugins.lookup.tls.lookup_loader") as tls_loader,
-        patch("plugins.lookup.network_urls.lookup_loader") as urls_loader,
+        mock.patch("plugins.lookup.tls.lookup_loader") as tls_loader,
+        mock.patch("plugins.lookup.network_urls.lookup_loader") as urls_loader,
     ):
         tls_loader.get.side_effect = _tls_loader
         urls_loader.get.side_effect = _network_urls_loader

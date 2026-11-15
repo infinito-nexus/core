@@ -4,8 +4,8 @@ import re
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from cli.administration.roles import source as source_module
 from cli.administration.roles.declaration import Source
@@ -202,7 +202,7 @@ class TestGitNeverPrompts(unittest.TestCase):
         source = Source("git@example.invalid:acme/widgets.git", "v1.0.0", ROLE_PATH)
         with (
             tempfile.TemporaryDirectory() as tmp,
-            mock.patch.dict(
+            unittest.mock.patch.dict(
                 "os.environ",
                 {
                     "GIT_ASKPASS": "/bin/askpass",
@@ -210,7 +210,7 @@ class TestGitNeverPrompts(unittest.TestCase):
                     "SSH_AUTH_SOCK": "/run/agent.sock",
                 },
             ),
-            mock.patch.object(
+            unittest.mock.patch.object(
                 source_module.subprocess, "run", return_value=failed
             ) as run,
             self.assertRaisesRegex(CustomRoleError, "could not read Username"),

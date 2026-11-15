@@ -1,7 +1,6 @@
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
@@ -45,7 +44,7 @@ class TestTlsResolveLookup(unittest.TestCase):
 
             return mock.MagicMock(run=_run)
 
-        loader_patcher = patch("plugins.lookup.tls.lookup_loader")
+        loader_patcher = mock.patch("plugins.lookup.tls.lookup_loader")
         loader_mock = loader_patcher.start()
         loader_mock.get.side_effect = _get
         self.addCleanup(loader_patcher.stop)

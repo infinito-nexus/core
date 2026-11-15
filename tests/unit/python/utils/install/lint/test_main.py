@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import contextlib
+import functools
 import os
 import re
+import subprocess
+import sys
 import threading
 import time
 import unittest
@@ -11,6 +15,7 @@ import unittest.mock as mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from tests.utils import image_slice
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.install.lint import __main__ as cli
 
@@ -18,6 +23,23 @@ _RUNS = 6
 _INSTALL_SECONDS = 0.1
 _WRAPPER = "scripts/install/wrapper.sh"
 _DISPATCH = "scripts/make/parallel.sh"
+_TOOLCHAIN_STAGE = "toolchain"
+_IN_TREE_GROUPS = frozenset({"javascript", "playwright"})
+_BAKE = re.compile(r"-m utils\.install\.lint (?P<groups>[a-z ]+?) ;;")
+_HOST_SKIPS = "host) ;;"
+_SYSTEM_STEP = "INFINITO_(PYTHON|DOCKER_CLI|PACKAGE|INTERPRETERS)_INSTALL_SCRIPT="
+
+
+def _bake_indexes(runs: list[str]) -> list[int]:
+    return [index for index, run in enumerate(runs) if _BAKE.search(run)]
+
+
+def _baked_groups() -> list[str]:
+    for run in image_slice.stage_runs(_TOOLCHAIN_STAGE):
+        match = _BAKE.search(run)
+        if match:
+            return match.group("groups").split()
+    return []
 
 
 def _make_repo_root(tmp: str, *, stamp_age_offset: float | None = None) -> Path:
@@ -354,6 +376,81 @@ class TestLintDispatch(unittest.TestCase):
             "\t@bash scripts/lint/wrapper.sh sql\n"
         )
         self.assertEqual(_late_groups(makefile), {"sql"})
+
+
+class TestImageBake(unittest.TestCase):
+    def test_the_toolchain_stage_bakes_every_all_mode_group_outside_the_tree(
+        self,
+    ) -> None:
+        called: list[str] = []
+        with contextlib.ExitStack() as stack:
+            for group, name in cli._GROUP_FN_NAMES.items():
+                stack.enter_context(
+                    mock.patch.object(
+                        cli, name, side_effect=functools.partial(called.append, group)
+                    )
+                )
+            cli._install_all()
+        self.assertEqual(
+            _baked_groups(),
+            [group for group in called if group not in _IN_TREE_GROUPS],
+            "the Dockerfile's toolchain stage must bake every all-mode "
+            "group except the ones the bind-mounted tree replaces, in order",
+        )
+
+    def test_the_bake_follows_the_system_step_and_skips_a_host_runner(
+        self,
+    ) -> None:
+        runs = image_slice.stage_runs(_TOOLCHAIN_STAGE)
+        bakes = _bake_indexes(runs)
+        self.assertEqual(len(bakes), 1, "the toolchain stage must bake once")
+        self.assertIn(
+            _SYSTEM_STEP,
+            runs[bakes[0] - 1],
+            "the bake must run right after the toolchain stage's system "
+            "package step, so it resolves packages in the order a runtime "
+            "install does",
+        )
+        self.assertIn(
+            _HOST_SKIPS,
+            runs[bakes[0]],
+            "INFINITO_LINT_RUNNER=host must skip the bake, so CI images stay "
+            "without the lint toolchain",
+        )
+
+    def test_the_installer_runs_on_the_slice_the_toolchain_stage_copies(
+        self,
+    ) -> None:
+        tmp = TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        slice_root = Path(tmp.name)
+        image_slice.materialise(slice_root, frozenset({_TOOLCHAIN_STAGE}))
+
+        result = subprocess.run(
+            [sys.executable, "-S", "-m", "utils.install.lint", "no-such-group"],
+            cwd=str(slice_root),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotIn(
+            "ModuleNotFoundError",
+            result.stderr,
+            "utils.install.lint reached for a module the toolchain stage "
+            "does not copy; copy it there or keep the installer off it",
+        )
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("Usage:", result.stderr)
+
+        interpreters = subprocess.run(
+            [sys.executable, "-S", "-c", "import utils.install.interpreters"],
+            cwd=str(slice_root),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(interpreters.returncode, 0, interpreters.stderr)
 
 
 if __name__ == "__main__":

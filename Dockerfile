@@ -3,7 +3,11 @@
 # scripts/image/build.sh.
 # Example values:
 #   INFINITO_PARENT_IMAGE=ghcr.io/kevinveenbirkenbach/pkgmgr-arch:stable
+# INFINITO_LINT_RUNNER (host|docker, SPOT default.env) selects whether the
+# `toolchain` stage bakes the lint toolchain in: docker does, host does not.
 ARG INFINITO_PARENT_IMAGE
+# nocheck: dockerfile-arg-default
+ARG INFINITO_LINT_RUNNER=host
 FROM ${INFINITO_PARENT_IMAGE} AS toolchain
 
 ARG INFINITO_SRC_DIR
@@ -67,6 +71,27 @@ RUN set -euo pipefail; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_INTERPRETERS_INSTALL_SCRIPT:?}"
+
+COPY roles/sys-lint/meta/services.yml ${INFINITO_SRC_DIR}/roles/sys-lint/meta/services.yml
+COPY utils/cache/__init__.py ${INFINITO_SRC_DIR}/utils/cache/__init__.py
+COPY utils/cache/files.py ${INFINITO_SRC_DIR}/utils/cache/files.py
+COPY utils/cache/gitignore.py ${INFINITO_SRC_DIR}/utils/cache/gitignore.py
+COPY utils/roles/__init__.py ${INFINITO_SRC_DIR}/utils/roles/__init__.py
+COPY utils/roles/custom.py ${INFINITO_SRC_DIR}/utils/roles/custom.py
+COPY utils/roles/mapping.py ${INFINITO_SRC_DIR}/utils/roles/mapping.py
+COPY utils/install ${INFINITO_SRC_DIR}/utils/install
+
+ARG INFINITO_LINT_RUNNER
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN case "${INFINITO_LINT_RUNNER}" in \
+    docker) PYTHONPATH="${INFINITO_SRC_DIR}" python3 -m utils.install.lint action ansible python php ruby shellcheck dockerfile markdown mermaid makefile ;; \
+    host) ;; \
+    *) echo "INFINITO_LINT_RUNNER must be host or docker, not '${INFINITO_LINT_RUNNER}'" >&2; exit 1 ;; \
+  esac
+
+SHELL ["/bin/bash", "-o", "pipefail", "-lc"]
 
 RUN set -euo pipefail; \
   systemctl mask systemd-firstboot.service first-boot-complete.target \

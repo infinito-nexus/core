@@ -10,8 +10,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml
-from utils.i18n.client import LibreTranslate as LibreTranslate
-from utils.i18n.client import Outcome as Outcome
 from utils.i18n.client import merge
 from utils.infra import (
     GATEWAY_PORT_KEY,
@@ -35,10 +33,8 @@ SERVICE_KEY = "libretranslate-engine"
 SERVICES_FILE = Path("roles") / ROLE / ROLE_FILE_META_SERVICES
 GATEWAY_ROLE = "web-svc-translate"
 GATEWAY_SERVICE_KEY = "translate"
-READY_TIMEOUT_SECONDS = 3600
 DEPLOYED_TIMEOUT_SECONDS = 5
 DEPLOY_TIMEOUT_SECONDS = 4 * 3600
-SERVICE_TIMEOUT_SECONDS = READY_TIMEOUT_SECONDS
 INVENTORY_DIR = Path.home() / "inventories" / "infinito-tools"
 DEPLOY_PID_FILE = Path("build") / "deploy.pid"
 DEPLOY_ROUTER = "deploy/main.sh"

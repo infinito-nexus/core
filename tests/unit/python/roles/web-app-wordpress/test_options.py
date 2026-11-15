@@ -7,8 +7,8 @@ import re
 import shlex
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
@@ -206,7 +206,7 @@ def _resolve(name: str, scenario: dict, expression: str | None = None):
         loader=DataLoader(), variables={**declared, "entity_name": "wordpress"}
     )
     template = _trust_as_template(expression) if expression else declared[name]
-    with mock.patch.object(lookup_loader, "get", side_effect=get):
+    with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
         return templar.template(template)
 
 

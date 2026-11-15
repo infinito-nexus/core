@@ -9,7 +9,6 @@ from __future__ import annotations
 import unittest
 import unittest.mock as mock
 from typing import Any
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -36,7 +35,7 @@ def _run(
     apps = applications if applications is not None else _apps()
     lm = LookupModule()
     lm._loader = mock.MagicMock()
-    with patch("plugins.lookup.container_service.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.container_service.lookup_loader") as loader_mock:
         loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
         return lm.run([application_id, service_key], variables=variables or {})
 

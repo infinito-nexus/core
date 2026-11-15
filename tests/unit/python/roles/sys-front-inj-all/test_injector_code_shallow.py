@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader, lookup_loader
@@ -124,7 +124,7 @@ def render(injector: str, expression: str, variables: dict):
         "ansible_search_path": [str(PROJECT_ROOT / "roles" / role)],
     }
     try:
-        with mock.patch.object(lookup_loader, "get", side_effect=get):
+        with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
             code = Templar(loader=DataLoader(), variables=scope).template(
                 trust_as_template(expression)
             )

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import unittest
-from unittest import mock
+import unittest.mock
 
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
@@ -90,7 +90,7 @@ def render(domains: list[str], mode: str) -> dict:
         return ""
 
     env.globals["lookup"] = lookup
-    with mock.patch.object(lookup_loader, "get", side_effect=get):
+    with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
         rendered = env.from_string(read_text(str(TEMPLATE))).render(
             application_id=APP,
             DASHBOARD_INSTANCES=network_instances(domains),

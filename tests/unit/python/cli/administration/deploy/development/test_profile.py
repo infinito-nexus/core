@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import os
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from cli.administration.deploy.development.profile import Profile
+from utils.env.handlers.infinito.cache import paths
+from utils.infra import OWNER_NAME
 
 _BLANK_CI_ENV = {
     "GITHUB_ACTIONS": "",
@@ -159,6 +163,14 @@ class TestProfileHasNoCacheOwner(unittest.TestCase):
     def test_no_checkout_owns_or_shares_a_cache_stack(self) -> None:
         self.assertFalse(hasattr(Profile(), "owns_cache_stack"))
         self.assertFalse(hasattr(Profile(), "shared_cache_network"))
+
+    @patch.dict(os.environ, _BLANK_CI_ENV, clear=False)
+    def test_the_infra_owner_marker_keeps_the_infra_runner_on(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            (base / OWNER_NAME).write_text("infinito-infra\n", encoding="utf-8")
+            with patch.object(paths, "base", return_value=base):
+                self.assertTrue(Profile().cache_stack_enabled())
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -23,9 +23,6 @@ from utils.i18n.libretranslate import (
     service_url,
     unaccelerated,
 )
-from utils.i18n.libretranslate import READY_TIMEOUT_SECONDS as READY_TIMEOUT_SECONDS
-from utils.i18n.libretranslate import LibreTranslate as LibreTranslate
-from utils.i18n.libretranslate import download_status as download_status
 from utils.inventory.tools_idle import session, stamp_dir
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 

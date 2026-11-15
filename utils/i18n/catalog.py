@@ -13,7 +13,7 @@ from babel.messages.catalog import Catalog
 from babel.messages.pofile import read_po, write_po
 
 from utils.i18n.languages import DOMAINS
-from utils.i18n.placeholders import carries_placeholder
+from utils.i18n.spans import carries_placeholder
 from utils.i18n.untranslatable import untranslatable
 from utils.software import (
     SOFTWARE_AUTHOR,

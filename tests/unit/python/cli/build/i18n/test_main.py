@@ -18,8 +18,9 @@ from utils.i18n.catalog import (
     read_catalog,
     write_catalog,
 )
+from utils.i18n.client import Outcome
 from utils.i18n.languages import LANGUAGES_FILE
-from utils.i18n.libretranslate import SERVICE_KEY, SERVICES_FILE, Outcome
+from utils.i18n.libretranslate import SERVICE_KEY, SERVICES_FILE
 from utils.i18n.translate import record_judged
 
 cli = importlib.import_module("cli.build.i18n.__main__")

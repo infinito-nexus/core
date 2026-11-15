@@ -1,34 +1,6 @@
-"""Resolve version pins that declare their own upstream source.
-
-The Docker updater watches ``image`` plus ``version``, the repository updater
-``repository`` plus ``ref``. A pin outside both - an ``app_version``, a
-``release``, a tag in a registry neither updater speaks - declares where its
-upstream lives::
-
-    stalwart:
-      webui_version: "v1.0.5"
-      update:
-        key: webui_version
-        type: git_tags
-        repository: https://github.com/stalwartlabs/webui.git
-
-``key`` names the pinned key and defaults to ``version``; an entity with
-several pins declares a list of such blocks. The types are
-``git_tags`` (repository), ``registry_tags`` (image), ``npm`` (package),
-``http_regex`` (one url or several, pattern, optionally a template over the
-pattern's named groups) and ``script`` (path, run with the current version and
-printing the latest one). A pin whose asset is fetched by digest names its
-companion checksum beside the type; see :mod:`utils.update.checksum`.
-
-An addon in ``meta/addons/<id>.yml`` declares the same fields in its
-``update:`` block, beside ``monitored``, ``catalog`` and ``upstream_id``. A
-monitored addon of the ``github-releases`` catalog needs no ``type``: its
-``upstream_id`` already names the repository whose tags are its versions. An
-addon's ``config.archive`` URL carries the pinned version and moves with it.
-"""
-
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -42,7 +14,7 @@ from utils.update import checksum
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
 from utils.update.base import is_maintained, is_semver, newer_version
 from utils.update.pins import archive_index, bump_archive, key_line, top_level_line
-from utils.update.repository import git_ls_remote_tags
+from utils.update.repository import git_ls_remote_tags, git_ref_resolves
 from utils.update.upstream import (
     http_regex_versions,
     npm_versions,
@@ -58,6 +30,7 @@ NOCHECK_MARKER = "version-source"
 UNWATCHED_MARKER = "unwatched-version"
 UPDATE_KEY = "update"
 DEFAULT_KEY = "version"
+REF_KEY = "ref"
 TYPES = ("git_tags", "registry_tags", "npm", "http_regex", "script")
 
 
@@ -78,6 +51,9 @@ class VersionSourceEntry:
             directly or as the base of a ``custom`` build; a bump to a tag
             its registry answers 404 for is withheld, an indeterminate answer
             does not block it.
+        repository: repository the pin checks out when it is the entity's
+            ``ref``; a bump to a name it lists as neither branch nor tag, or
+            one the lookup cannot confirm, is withheld.
     """
 
     role: str
@@ -89,6 +65,7 @@ class VersionSourceEntry:
     line: int
     addon: bool = False
     image: str = ""
+    repository: str = ""
 
 
 @dataclass(frozen=True)
@@ -319,6 +296,9 @@ def service_entries(repo_root: Path) -> list[VersionSourceEntry]:
                         config_path=config_path,
                         line=line,
                         image=config.get("image", "") if key == DEFAULT_KEY else "",
+                        repository=str(config.get("repository", ""))
+                        if key == REF_KEY
+                        else "",
                     )
                 )
     return entries
@@ -327,6 +307,22 @@ def service_entries(repo_root: Path) -> list[VersionSourceEntry]:
 def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
     """Return every declared version source that is not suppressed."""
     return service_entries(repo_root) + addon_entries(repo_root)
+
+
+def _ref_resolves(entry: VersionSourceEntry, ref: str) -> bool:
+    resolved = git_ref_resolves(entry.repository, ref)
+    if not resolved:
+        answer = (
+            "lists no branch or tag of that name"
+            if resolved is False
+            else "could not be queried"
+        )
+        print(
+            f"[source] WARN {entry.role}/{entry.entity}.{entry.key}: "
+            f"{entry.repository} {answer}; withholding {entry.current} -> {ref}",
+            file=sys.stderr,
+        )
+    return bool(resolved)
 
 
 def outdated(
@@ -343,6 +339,8 @@ def outdated(
         if not newest:
             continue
         if entry.image and manifest_exists(entry.image, newest) is False:
+            continue
+        if entry.repository and not _ref_resolves(entry, newest):
             continue
         updates.append(VersionSourceUpdate(entry=entry, latest=newest))
     return updates

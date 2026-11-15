@@ -24,6 +24,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import partial
 from pathlib import Path
 
+from cli.build.i18n import READY_TIMEOUT_SECONDS
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import (
     adopt_template,
@@ -34,21 +35,19 @@ from utils.i18n.catalog import (
     read_catalog,
     write_catalog,
 )
-from utils.i18n.client import BATCH_SIZE
+from utils.i18n.client import BATCH_SIZE, LibreTranslate
 from utils.i18n.extract import core_messages, docs_template, keyed_messages
-from utils.i18n.gateway import (
-    READY_TIMEOUT_SECONDS,
-    LibreTranslate,
-    download_status,
-    server,
-)
+from utils.i18n.gateway import server
 from utils.i18n.languages import (
     DOMAINS,
     catalog_languages,
     domain_languages,
     load_languages,
 )
-from utils.i18n.libretranslate import served_languages
+from utils.i18n.libretranslate import (
+    download_status,
+    served_languages,
+)
 from utils.i18n.placeholders import Rejected
 from utils.i18n.translate import (
     apply,

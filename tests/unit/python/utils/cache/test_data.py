@@ -5,9 +5,9 @@ import textwrap
 import unittest
 from pathlib import Path
 
+from utils.cache import PROJECT_ROOT
 from utils.cache.applications import get_application_defaults
 from utils.cache.base import (
-    PROJECT_ROOT,
     ROLES_DIR,
     _deep_merge,
     _fingerprint_mapping,

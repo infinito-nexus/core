@@ -13,7 +13,6 @@ from __future__ import annotations
 import unittest
 import unittest.mock as mock
 from typing import Any
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -85,7 +84,7 @@ def _run(
             looked_up.append(name)
         return lookups[name]
 
-    with patch("plugins.lookup.image.lookup_loader") as loader_mock:
+    with mock.patch("plugins.lookup.image.lookup_loader") as loader_mock:
         loader_mock.get.side_effect = _get
         lm = LookupModule()
         lm._loader = mock.MagicMock()
@@ -243,7 +242,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_missing_version_returns_bare_image_with_warning(self):
         apps = _apps(version=None)
-        with patch("plugins.lookup.image._warn") as warn:
+        with mock.patch("plugins.lookup.image._warn") as warn:
             out = _run(
                 "web-app-mattermost",
                 "mattermost",
@@ -255,7 +254,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_image_override_with_missing_services_version_warns(self):
         apps = _apps(version=None)
-        with patch("plugins.lookup.image._warn") as warn:
+        with mock.patch("plugins.lookup.image._warn") as warn:
             out = _run(
                 "web-app-mattermost",
                 "mattermost",
@@ -283,7 +282,7 @@ class TestImageLookup(unittest.TestCase):
         self.assertEqual(out, ["mattermost/mattermost-team-edition:11.8.0"])
 
     def test_custom_true_uses_entity_name_custom(self):
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
@@ -296,7 +295,7 @@ class TestImageLookup(unittest.TestCase):
         self.assertEqual(out, ["mattermost_custom:11.8.0"])
 
     def test_custom_true_with_version_override(self):
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
@@ -310,7 +309,7 @@ class TestImageLookup(unittest.TestCase):
         self.assertEqual(out, ["mattermost_custom:local"])
 
     def test_custom_true_with_image_override_image_wins(self):
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ) as get_name:
@@ -325,7 +324,7 @@ class TestImageLookup(unittest.TestCase):
         get_name.assert_not_called()
 
     def test_custom_true_swarm_prefix_applied(self):
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
@@ -352,7 +351,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_custom_true_ignores_services_image(self):
         apps = _apps(image="mattermost/mattermost-team-edition", version="11.8.0")
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
@@ -366,7 +365,7 @@ class TestImageLookup(unittest.TestCase):
         self.assertEqual(out, ["mattermost_custom:11.8.0"])
 
     def test_custom_true_tag_only_returns_bare(self):
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
@@ -392,7 +391,7 @@ class TestImageLookup(unittest.TestCase):
     def test_entry_custom_true_used_without_kwarg(self):
         apps = _apps()
         apps["web-app-mattermost"]["services"]["mattermost"]["custom"] = True
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ):
@@ -432,7 +431,7 @@ class TestImageLookup(unittest.TestCase):
         apps["web-app-mattermost"]["services"]["wb"] = apps["web-app-mattermost"][
             "services"
         ].pop("mattermost")
-        with patch(
+        with mock.patch(
             "plugins.lookup.image.entity_name",
             return_value="mattermost",
         ) as get_name:
@@ -467,7 +466,7 @@ class TestImageLookup(unittest.TestCase):
 
     def test_custom_true_empty_entity_name_raises(self):
         with (
-            patch(
+            mock.patch(
                 "plugins.lookup.image.entity_name",
                 return_value="",
             ),

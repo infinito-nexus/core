@@ -4,8 +4,8 @@ import contextlib
 import io
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 import cli.administration.roles.list.__main__ as list_main
 from cli.administration.roles.marker import MARKER_FILE, marker_text
@@ -26,7 +26,7 @@ class TestListMain(unittest.TestCase):
             (roles / "web-app-cst-hand").mkdir()
             (roles / "web-app-nextcloud").mkdir()
             with (
-                mock.patch.object(list_main, "ROLES_DIR", roles),
+                unittest.mock.patch.object(list_main, "ROLES_DIR", roles),
                 contextlib.redirect_stdout(io.StringIO()) as out,
             ):
                 self.assertEqual(0, list_main.main([]))

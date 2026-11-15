@@ -69,7 +69,7 @@ pihole:
     swarm:
       enabled: false
   image: pihole/pihole
-  version: "2026.10.1"
+  version: "2026.11.0"
   webserver:
     domain: "{{ lookup('domain', 'web-app-pihole') }}"
     webhome: /admin/

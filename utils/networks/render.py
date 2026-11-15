@@ -65,7 +65,10 @@ from utils.networks.attachments import (
     _suppress_default,
 )
 
+BRIDGE_MTU_OPTION = "com.docker.network.driver.mtu"
+
 __all__ = [
+    "BRIDGE_MTU_OPTION",
     "_coerce_bool",
     "_compute_attachments",
     "_is_consumer",
@@ -144,11 +147,25 @@ def compute_external_network_roles(
     return roles
 
 
+def _bridge_mtu_lines(bridge_mtu: int | None) -> list[str]:
+    """
+    Args:
+        bridge_mtu: MTU of the bridge network being rendered, or None.
+
+    Returns:
+        Its ``driver_opts`` lines, or none when ``bridge_mtu`` is None.
+    """
+    if bridge_mtu is None:
+        return []
+    return ["    driver_opts:", f'      {BRIDGE_MTU_OPTION}: "{bridge_mtu}"']
+
+
 def _close_networks(
     lines: list[str],
     internal: tuple[str, ...],
     deployment_mode: str,
     swarm_encrypted: bool,
+    bridge_mtu: int | None = None,
 ) -> str:
     """
     Args:
@@ -157,6 +174,8 @@ def _close_networks(
             route out.
         deployment_mode: compose or swarm.
         swarm_encrypted: encrypt the overlay of each internal network.
+        bridge_mtu: MTU each internal bridge carries; None leaves Docker's
+            1500.
 
     Returns:
         The whole block, or ``""`` when it defines no network.
@@ -170,6 +189,7 @@ def _close_networks(
             lines.append(f'      encrypted: "{"true" if swarm_encrypted else "false"}"')
         else:
             lines.append("    driver: bridge")
+            lines.extend(_bridge_mtu_lines(bridge_mtu))
         lines.append("    internal: true")
     if len(lines) == 1:
         return ""
@@ -193,6 +213,7 @@ def render_compose_networks(
     node_local: bool = False,
     internal: tuple[str, ...] = (),
     internal_only: bool = False,
+    bridge_mtu: int | None = None,
 ) -> str:
     """
     Args:
@@ -208,6 +229,9 @@ def render_compose_networks(
             the role's own networks.
         internal_only: define the ``internal`` networks alone, for a compose
             project of its own whose ``default`` network compose creates.
+        bridge_mtu: MTU every bridge network carries, ``default`` and
+            ``internal`` alike, the nested daemon's MTU under
+            Docker-in-Docker; None leaves Docker's 1500.
 
     Returns:
         The top-level ``networks:`` block, or ``""`` when it holds none.
@@ -215,8 +239,12 @@ def render_compose_networks(
     if node_local:
         deployment_mode = "compose"
     if internal_only:
+        lines = ["networks:"]
+        if deployment_mode != "swarm" and bridge_mtu is not None:
+            lines.append("  default:")
+            lines.extend(_bridge_mtu_lines(bridge_mtu))
         return _close_networks(
-            ["networks:"], tuple(internal), deployment_mode, swarm_encrypted
+            lines, tuple(internal), deployment_mode, swarm_encrypted, bridge_mtu
         )
     attachments, _ = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
@@ -248,20 +276,24 @@ def render_compose_networks(
                     lines.append("      driver: default")
                     lines.append("      config:")
                     lines.append(f"        - subnet: {subnet}")
-        elif is_own_shared_net_provider:
-            lines.append("    driver: bridge")
         else:
-            subnet = lookup_config(application_id, "networks.local.subnet", "")
-            if subnet:
-                if own_entity:
-                    lines.append(f"    name: {own_entity}")
+            if is_own_shared_net_provider:
                 lines.append("    driver: bridge")
-                lines.append("    ipam:")
-                lines.append("      driver: default")
-                lines.append("      config:")
-                lines.append(f"        - subnet: {subnet}")
+            else:
+                subnet = lookup_config(application_id, "networks.local.subnet", "")
+                if subnet:
+                    if own_entity:
+                        lines.append(f"    name: {own_entity}")
+                    lines.append("    driver: bridge")
+                    lines.append("    ipam:")
+                    lines.append("      driver: default")
+                    lines.append("      config:")
+                    lines.append(f"        - subnet: {subnet}")
+            lines.extend(_bridge_mtu_lines(bridge_mtu))
 
-    return _close_networks(lines, tuple(internal), deployment_mode, swarm_encrypted)
+    return _close_networks(
+        lines, tuple(internal), deployment_mode, swarm_encrypted, bridge_mtu
+    )
 
 
 def render_container_networks(

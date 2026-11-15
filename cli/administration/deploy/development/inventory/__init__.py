@@ -41,10 +41,7 @@ annotation. Importing them from this package keeps working either way.
 from __future__ import annotations
 
 from .builder import build_dev_inventory, build_dev_inventory_matrix
-from .legacy_resolver import (
-    _build_services_overrides_for_round,
-    prune_orphans_after_disable,
-)
+from .legacy_resolver import prune_orphans_after_disable
 from .payload import _bake_overrides, _resolve_variant_payloads
 from .planner import filter_plan_to_variants, plan_dev_inventory_matrix
 from .spec import DevInventorySpec as DevInventorySpec
@@ -52,7 +49,6 @@ from .spec import PlanEntry as PlanEntry
 
 __all__ = [
     "_bake_overrides",
-    "_build_services_overrides_for_round",
     "_resolve_variant_payloads",
     "build_dev_inventory",
     "build_dev_inventory_matrix",

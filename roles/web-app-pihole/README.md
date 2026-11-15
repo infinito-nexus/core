@@ -16,7 +16,7 @@ This role deploys Pi-hole as a containerized service within the Infinito.Nexus p
 - **RBAC** — only users in the `web-app-pihole-administrator` group can access the dashboard
 - **OpenLDAP integration** for group synchronization
 - **Logout button** injected into the Pi-hole admin navbar via JavaScript
-- **Auto-redirect** from Pi-hole root 403 page to `/admin/`
+- **Auto-redirect** from Pi-hole's 403 page (body class `page-error403`) to `/admin/`, never from `/admin/` itself
 - **Redis** session storage for oauth2-proxy
 - **Prometheus** metrics support
 
@@ -24,6 +24,8 @@ This role deploys Pi-hole as a containerized service within the Infinito.Nexus p
 
 After deployment, Pi-hole is available at:
 `https://pihole.<DOMAIN_PRIMARY>/admin/`
+
+The onion sibling hands every request over to that clearnet URL (`reachability.handover` in `meta/networks.yml`): with SSO on, FTL runs without a password, and its DNS-rebinding guard answers 403 to every Host but `webserver.domain`.
 
 Access is protected by SSO. Users must be members of the `web-app-pihole-administrator` group in Keycloak/LDAP.
 

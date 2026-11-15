@@ -7,8 +7,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from utils.i18n import libretranslate
+from utils.i18n.client import LibreTranslate
 from utils.i18n.libretranslate import (
-    LibreTranslate,
     accelerated,
     deploying,
     server,

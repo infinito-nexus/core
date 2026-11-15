@@ -33,6 +33,7 @@ The per-variable default + comment lives next to the key in [default.env](../../
 | `INFINITO_PARENT_IMAGE` | Distribution base image both the `infinito` and the `target` builds start from. |
 | `INFINITO_BUILD` | `1` builds the `infinito` image from source before `up`; the env generator sets `0` on GHA, where the service runs the published `INFINITO_IMAGE`, unless the job sets it. |
 | `INFINITO_PULL_POLICY` | Compose `pull_policy`, also exported into the `infinito` container. Defaults to `never` for local builds, generator overrides to `always` on GHA. |
+| `INFINITO_LINT_RUNNER` | Build-arg deciding whether the `toolchain` stage bakes the lint toolchain in: `docker` bakes it in a cached layer below `COPY .`, `host` skips the bake, any other value fails the build. The generator defaults it to `host` on GHA and act unless the job sets it, and CI's [push.sh](../../../../scripts/image/push.sh) passes nothing, so CI images stay without the toolchain. |
 | `INFINITO_CONTAINER` | Used directly as `container_name`. Derived from `INFINITO_DISTRO` by [container.py](../../../../utils/env/handlers/infinito/container.py). |
 | `NIX_CONFIG` | Build-arg forwarded to the Dockerfile for Nix configuration. Pass-through if set in the calling shell. |
 

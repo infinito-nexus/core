@@ -48,6 +48,9 @@ class LookupModule(LookupBase):
         if isinstance(net_cfg, dict) and "encryption" in net_cfg:
             swarm_encrypted = bool(net_cfg.get("encryption"))
 
+        daemon_mtu = resolve_var(ctx.templar, ctx.vars.get("SYS_DOCKER_DAEMONM_MTU"))
+        bridge_mtu = int(daemon_mtu) if daemon_mtu else None
+
         return [
             render_compose_networks(
                 application_id=str(application_id),
@@ -60,5 +63,6 @@ class LookupModule(LookupBase):
                 node_local=bool(kwargs.get("node_local", False)),
                 internal=tuple(kwargs.get("internal") or ()),
                 internal_only=bool(kwargs.get("internal_only", False)),
+                bridge_mtu=bridge_mtu,
             )
         ]
