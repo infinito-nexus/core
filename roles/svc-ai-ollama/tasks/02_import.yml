@@ -1,17 +1,11 @@
 ---
-- name: "📥 Create {{ ollama_models | map(attribute='alias') | join(', ') }} from {{ ollama_file.url | basename }}"
+- name: "📥 Create the missing models from {{ ollama_file.url | basename }}"
   block:
-    - name: "🧩 Fetch the pinned file, hand it over and create its models"
+    - name: "🧩 Link the store file and create its models"
       ansible.builtin.include_tasks: 03_create.yml
   always:
-    - name: "🧹 Remove the handed copy from the Ollama container"
+    - name: "🧹 Remove the Modelfile from the Ollama container"
       ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        container exec {{ OLLAMA_LOCAL_CID | quote }} rm -f {{ ollama_handed | quote }} {{ ollama_modelfile | quote }}
+        container exec {{ OLLAMA_LOCAL_CID | quote }} rm -f {{ ollama_modelfile | quote }}
       changed_when: true
-      delegate_to: "{{ OLLAMA_HOST_NODE }}"
-
-    - name: "🧹 Remove the staging directory on the hosting node"
-      ansible.builtin.file:
-        path: "{{ OLLAMA_IMPORT_STAGING_DIR }}"
-        state: absent
       delegate_to: "{{ OLLAMA_HOST_NODE }}"

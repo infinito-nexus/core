@@ -15,6 +15,12 @@ OPENWEBUI_COMFYUI_URL: "{{ lookup('config', application_id, 'services.openwebui.
 OPENWEBUI_COMFYUI_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.comfyui_api_key') }}"
 OPENWEBUI_IMAGE_MODEL: "{{ lookup('config', application_id, 'services.openwebui.image_model') }}"
 OPENWEBUI_EMBEDDING_MODEL: "{{ lookup('config', application_id, 'services.openwebui.embedding_model') }}"
+OPENWEBUI_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
+OPENWEBUI_STORED: "{{ OPENWEBUI_ARTEFACTS | length > 0 }}"
+OPENWEBUI_EMBEDDING_SOURCE: >-
+  {{ ([AI_MODELS_STORE_PATH, (OPENWEBUI_ARTEFACTS | first).root] | path_join)
+     if (OPENWEBUI_STORED | bool) else '' }}
+OPENWEBUI_STORE_MOUNTS: "{{ [AI_MODELS_STORE_PATH ~ ':' ~ AI_MODELS_STORE_PATH ~ ':ro'] if (OPENWEBUI_STORED | bool) else [] }}"
 OPENWEBUI_STT_MODEL: "{{ lookup('config', application_id, 'services.openwebui.speech_to_text_model') }}"
 OPENWEBUI_TTS_MODEL: "{{ lookup('config', application_id, 'services.openwebui.text_to_speech_model') }}"
 OPENWEBUI_JUPYTER_ENABLED: "{{ lookup('config', application_id, 'services.jupyter.enabled') }}"

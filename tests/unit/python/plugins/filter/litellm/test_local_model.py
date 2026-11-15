@@ -2,17 +2,22 @@ from __future__ import annotations
 
 import unittest
 
-import yaml
 from ansible.errors import AnsibleFilterError
 
 from plugins.filter.litellm.local_model import (
     OLLAMA_VERSION,
+    PIN_KEYS,
+    declared_local_models,
     local_model_directives,
     local_model_modelfile,
     local_model_refusal,
     local_models_missing,
+    local_models_pinned,
 )
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _COMMIT = "199151125cf15a129ab3b548b26afeed976df066"
 _SHA = "f7ede42862ceca07ad1c88a97b67520019c4ac7e5ced250d2e696fa62ab189af"
@@ -27,6 +32,7 @@ _PINNED = {
     "sha256": _SHA,
     "bytes": 807690688,
 }
+_ARTEFACTS = {"llama": {**_PINNED, "name": "llama", "role": "svc-ai-models"}}
 _HANDED = f"/root/.ollama/models/import/{_SHA}.gguf"
 _BLOB = f"FROM /root/.ollama/models/blobs/sha256-{_SHA}"
 _TUNED = dict(
@@ -214,10 +220,46 @@ class TestLocalModelsMissing(unittest.TestCase):
         self.assertEqual([_TUNED], local_models_missing([drifted]))
 
 
+class TestLocalModelsPinned(unittest.TestCase):
+    def test_the_pins_come_from_the_named_artefact(self) -> None:
+        [model] = local_models_pinned(
+            [{"alias": "llama3.2:1b", "artefact": "llama"}], _ARTEFACTS
+        )
+        self.assertEqual(
+            {key: model[key] for key in PIN_KEYS},
+            {key: _PINNED[key] for key in PIN_KEYS},
+        )
+
+    def test_a_declaration_that_pins_the_file_itself_is_refused(self) -> None:
+        for key in PIN_KEYS:
+            with self.subTest(key=key), self.assertRaisesRegex(AnsibleFilterError, key):
+                local_models_pinned(
+                    [{"alias": "x", "artefact": "llama", key: _PINNED[key]}],
+                    _ARTEFACTS,
+                )
+
+    def test_an_unknown_artefact_is_refused(self) -> None:
+        with self.assertRaisesRegex(AnsibleFilterError, "no role declares"):
+            local_models_pinned([{"alias": "x", "artefact": "gone"}], _ARTEFACTS)
+
+    def test_every_shipped_model_resolves_a_40_digit_commit(self) -> None:
+        variables = load_yaml_str(
+            read_text(str(PROJECT_ROOT / "group_vars" / "all" / "16_ai.yml"))
+        )
+        models = declared_local_models(variables)
+        self.assertTrue(models)
+        for model in models:
+            with self.subTest(alias=model["alias"]):
+                self.assertEqual(
+                    [local_model_refusal(model), "/resolve/main/" in model["url"]],
+                    ["", False],
+                )
+
+
 class TestOllamaVersion(unittest.TestCase):
     def test_the_vetted_names_belong_to_the_pinned_ollama_version(self) -> None:
-        services = PROJECT_ROOT / "roles" / "svc-ai-ollama" / "meta" / "services.yml"
-        pinned = yaml.safe_load(services.read_text(encoding="utf-8"))["ollama"]
+        services = PROJECT_ROOT / "roles" / "svc-ai-ollama" / ROLE_FILE_META_SERVICES
+        pinned = load_yaml_str(read_text(str(services)))["ollama"]
         self.assertEqual(
             OLLAMA_VERSION,
             str(pinned["version"]),

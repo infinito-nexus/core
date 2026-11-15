@@ -10,7 +10,7 @@
       core: 0
     expose:
       - "{{ OLLAMA_PORT }}"
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_volumes=[OLLAMA_STORE_MOUNT]) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}

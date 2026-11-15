@@ -17,6 +17,8 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from utils.digests import COMMIT
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -70,7 +72,6 @@ def refetch_required() -> bool:
 
 
 _REPOSITORY = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
-_SHA = re.compile(r"[0-9a-f]{40}")
 
 
 def _path(kind: str, body: dict) -> str | None:
@@ -90,7 +91,7 @@ def _path(kind: str, body: dict) -> str | None:
     if (
         kind == "push"
         and body.get("ref") == f"refs/heads/{repository['default_branch']}"
-        and _SHA.fullmatch(body["after"])
+        and COMMIT.fullmatch(body["after"])
     ):
         return f"/repos/{name}/commits/{body['after']}"
     return None

@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cli.administration.roles import declaration
+from cli.contributing.changelog.extract import jumps
 from utils import digests
 from utils.agents import vm_template
 from utils.cache import artefacts as manifest
@@ -17,11 +18,16 @@ from utils.cache.hosts import (
     CachedRepo,
     Declarations,
 )
+from utils.orchestrator import webhook
 from utils.update import repository
 from utils.yaml_bootstrap import BootstrapYamlError
 
 HUB = manifest.HUB
 RAW = manifest.GITHUB_RAW
+GITHUB = manifest.GITHUB
+RELEASE_URL = f"https://{GITHUB}/owner/repo/releases/download/v0.0.1/en.onnx"
+ARGOS = manifest.ARGOS_NET
+ARGOS_URL = f"https://{ARGOS}/v1/translate-sq_en-1_9.argosmodel"
 COMMIT = "0123456789abcdef0123456789abcdef01234567"
 DIGEST = "f7ede42862ceca07ad1c88a97b67520019c4ac7e5ced250d2e696fa62ab189af"
 COMMIT_MESSAGE = "not a 40-digit lowercase hex commit"
@@ -225,6 +231,8 @@ class TestProblems(unittest.TestCase):
             vm_template: ("SHA256",),
             repository: ("COMMIT",),
             declaration: ("COMMIT", "SHA256"),
+            webhook: ("COMMIT",),
+            jumps: ("COMMIT",),
         }
         for module, names in imported.items():
             source = read_text(str(module.__file__))
@@ -259,6 +267,103 @@ class TestProblems(unittest.TestCase):
     def test_a_host_no_repository_proxies_is_refused(self) -> None:
         url = f"https://elsewhere.example.net/{COMMIT}/model.gguf"
         self._assert_reports("no cache: repository upstream", url=url)
+
+
+class TestArgosVersionRule(unittest.TestCase):
+    _SERVED = Declarations(
+        repos=[CachedRepo("raw-argos-net", "raw", f"https://{ARGOS}/")],
+        hosts=[CachedHost(ARGOS, repo="raw-argos-net")],
+    )
+
+    def _problems(self, **fields: str) -> list[str]:
+        values = {"url": ARGOS_URL, "revision": "1_9", "unpacked": "900"} | fields
+        return manifest.problems(_artefact(**values), self._SERVED)
+
+    def test_a_package_without_its_unpacked_size_is_refused(self) -> None:
+        for unpacked in ("", "0", "1.5"):
+            with self.subTest(unpacked=unpacked):
+                found = self._problems(unpacked=unpacked)
+                self.assertTrue(any("unpacked_bytes" in p for p in found), found)
+
+    def test_an_unpacked_size_outside_an_argos_package_is_refused(self) -> None:
+        found = manifest.problems(_artefact(unpacked="900"), SERVED)
+        self.assertTrue(any("only an Argos package" in p for p in found), found)
+
+    def test_a_versioned_package_with_digest_and_size_passes(self) -> None:
+        for version in ("1_9", "1_0_1"):
+            with self.subTest(version=version):
+                url = f"https://{ARGOS}/v1/translate-sq_en-{version}.argosmodel"
+                self.assertEqual(self._problems(url=url, revision=version), [])
+
+    def test_an_unversioned_package_is_refused(self) -> None:
+        url = f"https://{ARGOS}/v1/translate-sq_en.argosmodel"
+        self.assertTrue(any("file layout" in p for p in self._problems(url=url)), url)
+
+    def test_a_revision_other_than_the_file_version_is_refused(self) -> None:
+        found = self._problems(revision="1_8")
+        self.assertTrue(any("ref segment" in p for p in found), found)
+
+    def test_a_commit_or_a_dotted_version_is_no_package_version(self) -> None:
+        for revision in (COMMIT, "1.9", "v1_9", "1"):
+            with self.subTest(revision=revision):
+                found = self._problems(revision=revision)
+                self.assertTrue(any("package version" in p for p in found), found)
+
+    def test_a_versioned_package_without_its_digest_is_refused(self) -> None:
+        found = self._problems(sha256="")
+        self.assertIn("sha256 is not 64 lowercase hex digits", found)
+
+    def test_a_versioned_package_without_its_size_is_refused(self) -> None:
+        found = self._problems(size="")
+        self.assertTrue(any("bytes" in p for p in found), found)
+
+    def test_every_other_host_keeps_the_commit_rule(self) -> None:
+        url = f"https://{HUB}/org/repo/resolve/1_9/model.gguf"
+        found = manifest.problems(_artefact(url=url, revision="1_9"), SERVED)
+        self.assertTrue(any(COMMIT_MESSAGE in p for p in found), found)
+
+    def test_a_package_roots_at_its_directory(self) -> None:
+        self.assertEqual(manifest.tree_root(ARGOS_URL), f"{manifest.TREE}/{ARGOS}/v1")
+
+
+class TestGithubReleaseRule(unittest.TestCase):
+    _SERVED = Declarations(
+        repos=[CachedRepo("raw-github", "raw", f"https://{GITHUB}/")],
+        hosts=[CachedHost(GITHUB, repo="raw-github")],
+    )
+
+    def _problems(self, **fields: str) -> list[str]:
+        values = {"url": RELEASE_URL, "revision": "v0.0.1"} | fields
+        return manifest.problems(_artefact(**values), self._SERVED)
+
+    def test_a_release_asset_at_its_tag_passes(self) -> None:
+        self.assertEqual(self._problems(), [])
+
+    def test_any_other_github_path_is_refused(self) -> None:
+        for path in (
+            f"owner/repo/raw/{COMMIT}/en.onnx",
+            "owner/repo/archive/v0.0.1/en.onnx",
+            "owner/repo/releases/download/v0.0.1/sub/en.onnx",
+            "owner/repo/releases/latest/download/en.onnx",
+        ):
+            with self.subTest(path=path):
+                found = self._problems(url=f"https://{GITHUB}/{path}")
+                self.assertTrue(any("file layout" in p for p in found), found)
+
+    def test_a_revision_other_than_the_tag_is_refused(self) -> None:
+        found = self._problems(revision="v0.0.2")
+        self.assertTrue(any("ref segment" in p for p in found), found)
+
+    def test_a_release_asset_without_its_digest_is_refused(self) -> None:
+        self.assertIn(
+            "sha256 is not 64 lowercase hex digits", self._problems(sha256="")
+        )
+
+    def test_a_release_asset_roots_at_its_tag(self) -> None:
+        self.assertEqual(
+            manifest.tree_root(RELEASE_URL),
+            f"{manifest.TREE}/{GITHUB}/owner/repo/releases/download/v0.0.1",
+        )
 
 
 class TestRepository(unittest.TestCase):
@@ -395,6 +500,33 @@ class TestStoreBytes(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "different sizes"):
             manifest.store_bytes(declared)
 
+    def test_only_an_argos_package_unpacks_under_its_digest(self) -> None:
+        self.assertEqual(
+            [
+                manifest.unpack_path(ARGOS_URL, DIGEST),
+                manifest.unpack_path(HF_URL, DIGEST),
+            ],
+            [f"{manifest.UNPACKED}/{DIGEST}", ""],
+        )
+
+    def test_unpacked_bytes_count_each_package_digest_once_exactly(self) -> None:
+        package = {"url": ARGOS_URL, "revision": "1_9", "sha256": "b" * 64}
+        declared = [
+            _artefact(name="model"),
+            _artefact(name="a", size="41", unpacked="57", **package),
+            _artefact(name="b", size="41", unpacked="57", role="svc-x", **package),
+        ]
+        self.assertEqual(manifest.unpacked_bytes(declared), 57)
+
+    def test_one_package_digest_with_two_unpacked_sizes_is_refused(self) -> None:
+        package = {"url": ARGOS_URL, "revision": "1_9", "sha256": "b" * 64}
+        declared = [
+            _artefact(name="a", size="41", unpacked="57", **package),
+            _artefact(name="b", size="41", unpacked="58", **package),
+        ]
+        with self.assertRaisesRegex(ValueError, "different sizes"):
+            manifest.store_bytes(declared)
+
 
 class TestDeclarations(_RolesTree):
     def test_a_declared_artefact_is_collected_and_rewritten(self) -> None:
@@ -407,6 +539,22 @@ class TestDeclarations(_RolesTree):
         )
         self.assertEqual(found["model"]["bytes"], 42)
         self.assertEqual(found["model"]["role"], "svc-model")
+
+    def test_a_record_names_its_per_file_layout_path_by_the_upstream(self) -> None:
+        self._role("svc-model", _block("model", HF_URL, COMMIT, DIGEST, "42"))
+        found = manifest.records("http://cache.test")
+        self.assertEqual(
+            [found["model"]["tree"], found["model"]["root"]],
+            [
+                f"{manifest.TREE}/{HUB}/org/repo/resolve/{COMMIT}/model.gguf",
+                f"{manifest.TREE}/{HUB}/org/repo/resolve/{COMMIT}",
+            ],
+        )
+
+    def test_a_github_raw_url_roots_at_its_commit(self) -> None:
+        self.assertEqual(
+            manifest.tree_root(RAW_URL), f"{manifest.TREE}/{RAW}/owner/repo/{COMMIT}"
+        )
 
     def test_records_refuse_a_malformed_base_without_any_artefact(self) -> None:
         with self.assertRaisesRegex(ValueError, "ends in a slash"):

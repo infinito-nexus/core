@@ -10,14 +10,14 @@ settings:
       mode: enforced
       selector: '[name="ENABLE_SIGNUP"]'
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Enable new sign ups
     enable_login_form:
       source: services.openwebui.login.method.native.enabled
       mode: enforced
       selector: '[name="ENABLE_LOGIN_FORM"]'
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Enable the login form
     default_user_role:
       source: services.openwebui.default_user_role
@@ -30,14 +30,14 @@ settings:
       mode: enforced
       selector: '[name="OFFLINE_MODE"]'
       type: checkbox
-      map: {true: "1", false: "0"}
+      map: { true: "1", false: "0" }
       label: Offline mode
     hf_hub_offline:
       source: services.openwebui.hf_hub_offline
       mode: enforced
       selector: '[name="HF_HUB_OFFLINE"]'
       type: checkbox
-      map: {true: "1", false: "0"}
+      map: { true: "1", false: "0" }
       label: Hugging Face hub offline
 tools:
   path: /admin/settings/tools

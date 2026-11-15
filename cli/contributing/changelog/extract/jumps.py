@@ -22,6 +22,7 @@ from cli.contributing.changelog.extract.pins import (
     meta_pins,
     pyproject_pins,
 )
+from utils.digests import COMMIT
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -29,7 +30,6 @@ if TYPE_CHECKING:
 
 PATHSPECS = ("roles/*/meta/*", "roles/*/files/*", "requirements/", "pyproject.toml")
 SERVICES_FILE = "services.yml"
-_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 _VARIANT = re.compile(r"^(v?\d[\w.]*?)(-.+)$")
 
 
@@ -102,14 +102,14 @@ def extract(repo: Path, base: str, head: str) -> list[Jump]:
 
 
 def _span(old: str | None, new: str) -> str:
-    if _COMMIT.match(new):
+    if COMMIT.fullmatch(new):
         new = f"commit {new[:7]}"
     if old is None:
         return f"new at {new}"
     old_variant, new_variant = _VARIANT.match(old), _VARIANT.match(new)
     if old_variant and new_variant and old_variant.group(2) == new_variant.group(2):
         old, new = old_variant.group(1), new_variant.group(1)
-    if _COMMIT.match(old):
+    if COMMIT.fullmatch(old):
         old = f"commit {old[:7]}"
     return f"{old} to {new}"
 

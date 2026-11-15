@@ -109,7 +109,9 @@ class TestServedByThePin(unittest.TestCase):
         self.apt = hosts_serving("apt-debian")[0].host
         self.changed = OLLAMA_HOST
         self.kept = next(
-            name for name in self.own if name not in (self.apt, self.changed)
+            name
+            for name, record in self.own.items()
+            if name not in (self.apt, self.changed) and record["hijack"]
         )
 
     def _served(self) -> dict:

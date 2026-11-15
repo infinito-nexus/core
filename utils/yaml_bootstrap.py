@@ -6,7 +6,9 @@ python, which runs the ``.env`` generator before any dependency is
 installed, so they cannot reach the PyYAML-backed cache.
 
 Supported: nested block mappings, block sequences of scalars, plain and
-double-quoted string scalars, full-line and trailing comments, a single
+double-quoted string scalars, a plain scalar that starts on the line after its
+key and folds its further lines with one space (the form a formatter gives a
+value too long for its line), full-line and trailing comments, a single
 leading document marker. Every other construct raises
 :class:`BootstrapYamlError`, so ``load_block(text)`` either equals
 ``yaml.safe_load(text)`` or fails loud.
@@ -55,6 +57,12 @@ def _scalar(raw: str, lineno: int) -> str:
     return _plain(raw.split(" #", 1)[0].strip(), lineno)
 
 
+def _continues(body: str) -> bool:
+    return (
+        not body.startswith(("- ", '"')) and ": " not in body and not body.endswith(":")
+    )
+
+
 def load_block(text: str) -> dict:
     """Parse *text* as a block mapping and return it.
 
@@ -75,11 +83,13 @@ def load_block(text: str) -> dict:
     root: dict = {}
     stack: list[tuple[int, object]] = [(0, root)]
     pending: tuple[dict, str, int] | None = None
+    folding: tuple[dict, str, int] | None = None
     for lineno, line in enumerate(text.splitlines(), 1):
         if "\t" in line:
             raise BootstrapYamlError(f"line {lineno}: tab indentation")
         body = line.strip()
         if not body or body.startswith("#"):
+            folding = None
             continue
         if body == "---":
             if lineno != 1:
@@ -88,12 +98,26 @@ def load_block(text: str) -> dict:
                 raise BootstrapYamlError(f"line {lineno}: indented document marker")
             continue
         indent = len(line) - len(line.lstrip(" "))
+        if folding is not None:
+            parent, key, parent_indent = folding
+            if indent > parent_indent:
+                if not _continues(body):
+                    raise BootstrapYamlError(
+                        f"line {lineno}: unsupported continuation of {key!r}"
+                    )
+                parent[key] = f"{parent[key]} {_plain(body, lineno)}"
+                continue
+            folding = None
         if pending is not None:
             parent, key, parent_indent = pending
             if indent <= parent_indent:
                 raise BootstrapYamlError(
                     f"line {lineno}: {key!r} has neither a value nor a block"
                 )
+            if _continues(body):
+                parent[key] = _plain(body, lineno)
+                folding, pending = pending, None
+                continue
             child: object = [] if body.startswith("- ") else {}
             parent[key] = child
             stack.append((indent, child))

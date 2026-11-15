@@ -126,7 +126,11 @@ def cache_consumer_yml(served: Mapping[str, dict] | None = None) -> str:
     hosts = _served(served)
     return _render(
         CONSUMER_TEMPLATE,
-        CACHE_PACKAGE_HOSTNAMES=[host for host in host_records() if host in hosts],
+        CACHE_PACKAGE_HOSTNAMES=[
+            host
+            for host, record in host_records().items()
+            if host in hosts and record["hijack"]
+        ],
     )
 
 

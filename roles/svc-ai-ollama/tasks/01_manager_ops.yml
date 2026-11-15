@@ -37,6 +37,6 @@
     label: "{{ ollama_file.url | basename }}"
   vars:
     ollama_models: "{{ ollama_held.results | local_models_missing | selectattr('sha256', 'equalto', ollama_file.sha256) | list }}"
-    ollama_staged: "{{ [OLLAMA_IMPORT_STAGING_DIR, ollama_file.sha256 ~ '.gguf'] | path_join }}"
-    ollama_handed: "{{ [OLLAMA_IMPORT_DIR, ollama_file.sha256 ~ '.gguf'] | path_join }}"
+    ollama_handed: "{{ [AI_MODELS_STORE_PATH, ollama_file.sha256] | path_join }}"
+    ollama_blob: "{{ [OLLAMA_BLOBS_DIR, 'sha256-' ~ ollama_file.sha256] | path_join }}"
     ollama_modelfile: "{{ [OLLAMA_IMPORT_DIR, ollama_file.sha256 ~ '.Modelfile'] | path_join }}"

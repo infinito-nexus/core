@@ -113,7 +113,7 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 - [x] The contract check of the declared artefacts reads only the artefacts it is handed; the shape check reads every role. `[unit]`
 - [x] It refuses one digest declared with two sizes. `[unit]`
 - [x] `url_for` returns the upstream for an empty base and for the shell default `https:/`, and `<base>/<host>/<path>` otherwise; it and `records` refuse every base the [base rule](../contributing/environment/cache.md#pinned-artefacts-) excludes, naming the reason. `[unit]`
-- [ ] The commit and sha256 patterns are defined once, in [digests.py](../../utils/digests.py), and imported by the manifest, the VM template, the repository-ref updater and the custom-role declaration. `[unit]`
+- [x] The commit and sha256 patterns are defined once, in [digests.py](../../utils/digests.py), and imported by the manifest, the VM template, the repository-ref updater and the custom-role declaration. `[unit]` (`test_the_hex_patterns_have_one_definition` in `tests/unit/python/utils/cache/test_artefacts.py` covers those four plus the orchestrator webhook and the changelog jumps, which import `COMMIT` instead of restating it)
 - [x] `store_bytes` counts one digest once however many names or roles declare it (C2). `[unit]`
 - [x] `store_bytes` refuses one digest declared with two sizes. `[unit]`
 - [x] A lint fails on every declared artefact that breaks the contract, and its own negative control reports a `resolve/main` pin under no repository upstream. `[unit]`
@@ -123,10 +123,10 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 2: Store and base
 
-- [ ] The lookup `cache_artefacts`, which the prefetch reads as its first consumer, returns the records keyed by name, narrows to the roles named as terms, rewrites `url` under `base=` and keeps `upstream`, and fails the play naming the role and artefact when one breaks the contract. `[unit]`
-- [ ] A prefetch task fetches every artefact of the deployed roles once through Nexus into `<DIR_CACHE>/models/<sha256>`, verifies digest and size, and fails naming the artefact on a mismatch; a second run downloads nothing. `[unit]`
-- [ ] In swarm, the store lives on NFS state (or is seeded on every node before any consumer starts), and no consumer container downloads an artefact on first use; a consumer whose artefact is missing fails before start instead (C1). `[unit]`
-- [ ] The store's `min_storage` is `store_bytes` of the deployed artefacts, declared once by `svc-ai-models` (D9) and never by an engine, so the round sum of `STORAGE_CONSTRAINED` counts each digest once (C2). `[unit]`
+- [x] The lookup `cache_artefacts`, which the prefetch reads as its first consumer, returns the records keyed by name, narrows to the roles named as terms, rewrites `url` under `base=` and keeps `upstream`, and fails the play naming the role and artefact when one breaks the contract. `[unit]` (`tests/unit/python/plugins/lookup/test_cache_artefacts.py`: `TestCacheArtefactsLookup`, with `test_a_contract_break_fails_naming_role_and_artefact` and `test_a_malformed_base_fails` as the negative controls; `roles/svc-ai-models/vars/main.yml` feeds it to the seed.)
+- [ ] A prefetch task fetches every artefact of the deployed roles once through Nexus into `<DIR_CACHE>/models/<sha256>`, verifies digest and size, and fails naming the artefact on a mismatch; a second run downloads nothing. `[unit]` (Open: the store mechanism is proven in `tests/unit/python/roles/svc-ai-models/library/test_artefact_store.py`, but `services.models.artefact_base` of `svc-ai-models` defaults to empty, so the prefetch fetches upstream unless an inventory sets it, and no test proves the Nexus route.)
+- [x] In swarm, the store lives on NFS state (or is seeded on every node before any consumer starts), and no consumer container downloads an artefact on first use; a consumer whose artefact is missing fails before start instead (C1). `[unit]` (`tests/unit/python/roles/svc-ai-models/test_seed_nodes.py` renders `MODELS_SEED_NODES` for a swarm and a compose inventory and checks that the seed and the refusal loop over it; the engines read their pinned models offline behind the gates of `tests/unit/python/roles/svc-ai-models/test_engine_gates.py`)
+- [x] The store's `min_storage` is `store_bytes` of the deployed artefacts, declared once by `svc-ai-models` (D9) and never by an engine, so the round sum of `STORAGE_CONSTRAINED` counts each digest once (C2). `[unit]` (`tests/lint/ansible/roles/meta/test_store_min_storage_once.py`: `TestStoreMinStorageOnce`, with `test_the_guard_reports_a_drifted_store_and_a_second_owner` as the negative control; the declared value is the static sum over every declared artefact, packed and unpacked.)
 - [x] The frontend answers `/<host>/<path>` for every served host by routing to that host's repository, the one its TLS listener serves under the [TLS route rule](../contributing/environment/cache.md#pinned-artefacts-). `[unit]`
 - [x] `default.env` declares `INFINITO_ARTEFACT_BASE` with the value `https:/`, and `make dotenv` writes the frontend's base only while the cache stack runs. `[unit]`
 - [ ] A pinned `huggingface.co` file fetched through `raw-huggingface` lands in the blob store although the Hub redirects it to its LFS or Xet host; if Nexus does not follow the redirect, those hosts get their own declarations. `[host]`
@@ -134,12 +134,12 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 3: Engine migration and dedupe
 
-- [ ] `AI_LOCAL_MODELS` reads `url`, `sha256` and `bytes` from the manifest, and every entry resolves a 40-digit commit instead of `resolve/main`. `[unit]`
-- [ ] NLLB, s1, LTEngine's GGUF and Open WebUI's embedding model are pinned artefacts, and their engines start with their offline switch (`HF_HUB_OFFLINE=1` or the engine's equivalent) on a read-only mount of the store. `[unit]`
-- [ ] `web-svc-libretranslate` mounts the engine's Argos store read-only instead of baking the models into its image. `[unit]`
+- [x] `AI_LOCAL_MODELS` reads `url`, `sha256` and `bytes` from the manifest, and every entry resolves a 40-digit commit instead of `resolve/main`. `[unit]` (`tests/unit/python/plugins/filter/litellm/test_local_model.py` `TestLocalModelsPinned`: the pins come from the named artefact, a declaration that pins the file itself is refused, every shipped model resolves a 40-digit commit)
+- [x] NLLB, s1, LTEngine's GGUF and Open WebUI's embedding model are pinned artefacts, and their engines start with their offline switch (`HF_HUB_OFFLINE=1` or the engine's equivalent) on a read-only mount of the store. `[unit]` (each engine's `meta/networks.yml` pins the files its loader reads at one Hub commit; `test_every_engine_pins_its_model_in_one_tree` and the gate checks in `tests/unit/python/roles/svc-ai-models/test_engine_gates.py`, `test_the_engine_pins_its_model_in_one_tree` in `tests/unit/python/roles/svc-ai-nllb-engine/test_store_gate.py`, the store floor in `tests/lint/ansible/roles/meta/test_store_min_storage_once.py`)
+- [ ] `web-svc-libretranslate` mounts the engine's Argos store read-only instead of baking the models into its image. `[unit]` (Open: the Argos packages are not pinned yet (`095-pins.py --argos` downloads every en->x package to hash it); MiniSBD v0.0.1 digests are captured; without Argos entries `LIBRETRANSLATE_BAKE_MODELS` stays `true`.)
 - [ ] Llama-3.2-1B is held once on a host that deploys both Ollama and LM Studio. `[host]`
 - [ ] A host proof shows pip installing torch through Nexus with `download.pytorch.org` and `download-r2.pytorch.org` hijacked, before the hijack merges (D11). `[host]`
-- [ ] The NLLB and s1 builds install torch through that hijack at one pinned version. `[unit]`
+- [ ] The NLLB and s1 builds install torch through that hijack at one pinned version. `[unit]` (Open: the D11 host proof above is open and `roles/svc-ai-s1/files/shell/build.sh` still installs torch unpinned.)
 
 ### Phase 4: Registry vendors and Nix
 
@@ -151,18 +151,18 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 - [x] One variable (proposed `INFINITO_CACHE_HOST_SYNC`, default off) makes the host's package cache and the cache provider's cache hold each package once: packages the stack downloaded land in the host cache, and packages the host holds are served to the stack without a download. `[unit]`
 - [x] With the variable set on a Debian or Ubuntu host, the host's apt sources point at the provider's Nexus apt proxy (D10): every suite of an archive it proxies, a country alias of that archive included, reaches the repository of the suite's pocket, else the archive's release repository, and no repository and suite get copies from two archives. Amended after the operator pick of 2026-11-12 ~23:40 UTC, which asked for one Nexus repository per suite where that is architecturally clean: it is not, since a Nexus apt proxy already serves every suite of its archive. `[unit]`
 - [x] With the variable off, every rendered compose file and cache configuration is byte-identical to the render before this phase. `[unit]`
-- [ ] Without an explicit `INFINITO_DISTRO`, a stack on an Arch host deploys Arch, and one on a Debian or Ubuntu host deploys that distro; an explicit value wins. `[unit]`
+- [x] Without an explicit `INFINITO_DISTRO`, a stack on an Arch host deploys Arch, and one on a Debian or Ubuntu host deploys that distro; an explicit value wins. `[unit]` (`tests/unit/python/utils/env/handlers/infinito/test_distro.py`: `TestHostDistro`, with `test_any_other_host_keeps_the_fallback` and `test_a_ci_runner_keeps_the_fallback` as the negative controls.)
 
 ### Phase 6: Speech
 
-- [ ] `svc-ai-speech` (whisper.cpp server and piper, both pinned artefacts) is opt-in and deploys only where an inventory names it. `[unit]`
-- [ ] LiteLLM routes `/v1/audio/transcriptions` and `/v1/audio/speech` to it when it is deployed and has no audio route otherwise. `[unit]`
+- [ ] `svc-ai-speech` (whisper.cpp server and piper, both pinned artefacts) is opt-in and deploys only where an inventory names it. `[unit]` (Open: out of scope of this round; the role does not exist yet.)
+- [ ] LiteLLM routes `/v1/audio/transcriptions` and `/v1/audio/speech` to it when it is deployed and has no audio route otherwise. `[unit]` (Open: out of scope of this round; waits on `svc-ai-speech`.)
 - [ ] A transcription and a synthesis through LiteLLM answer on the workstation. `[host]`
 
 ### Phase 7: Peers
 
 - [ ] The skills repository's custom role deploys the orchestrator through core, `make orchestrator-install` keeps working without any core stack, and the orchestrator image builds with and without `INFINITO_ARTEFACT_BASE`, verifying the same digests. `[host]`
-- [ ] The cache interface the store consumes (registry mirror address, package cache URLs, frontend CA, `INFINITO_ARTEFACT_BASE`) is documented in [cache.md](../contributing/environment/cache.md) as one table. `[review]`
+- [x] The cache interface the store consumes (registry mirror address, package cache URLs, frontend CA, `INFINITO_ARTEFACT_BASE`) is documented in [cache.md](../contributing/environment/cache.md) as one table. `[review]`
 
 ## Tests
 

@@ -17,4 +17,8 @@ COMMENT = (
 
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
-    eb.set(KEY, ",".join(entry.host for entry in declarations().hosts), comment=COMMENT)
+    eb.set(
+        KEY,
+        ",".join(entry.host for entry in declarations().hosts if entry.hijack),
+        comment=COMMENT,
+    )

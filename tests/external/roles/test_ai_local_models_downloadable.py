@@ -21,6 +21,7 @@ from urllib.parse import urlsplit
 
 import requests
 
+from plugins.filter.litellm.local_model import declared_local_models
 from utils.annotations.message import warning
 from utils.cache.yaml import load_yaml_any
 from utils.digests import SHA256
@@ -36,8 +37,8 @@ _MAX_WORKERS = 4
 
 def _models() -> list[dict]:
     data = load_yaml_any(str(PROJECT_ROOT / _AI_VARS_FILE)) or {}
-    entries = data.get("AI_LOCAL_MODELS") if isinstance(data, dict) else None
-    return [entry for entry in (entries or []) if isinstance(entry, dict)]
+    entries = declared_local_models(data) if isinstance(data, dict) else []
+    return [entry for entry in entries if isinstance(entry, dict)]
 
 
 def _repo_path(entry: dict) -> str:

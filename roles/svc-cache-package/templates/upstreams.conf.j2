@@ -73,7 +73,8 @@ server {
 }
 {% endfor %}
 {% endfor %}
-{% set artefact_hosts = CACHE_PACKAGE_UPSTREAMS | selectattr('tls') | list %}
+{% set artefact_hosts = CACHE_PACKAGE_UPSTREAMS | selectattr('tls') | list
+     + CACHE_PACKAGE_UPSTREAMS | selectattr('hijack', 'sameas', false) | list %}
 {% if artefact_hosts %}
 
 server {

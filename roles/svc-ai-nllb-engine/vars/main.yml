@@ -20,6 +20,12 @@ NLLB_IMAGE_VERSION: "{{ NLLB_BASE_VERSION ~ ('-cuda' if NLLB_GPU | bool else '')
 NLLB_THREADS: "{{ [(lookup('cpus', application_id, 'nllb-engine') | float) | round(0, 'ceil') | int, 1] | max }}"
 
 NLLB_MODELS_TARGET: "{{ lookup('volume', application_id, 'nllb_models').target }}"
+NLLB_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
+NLLB_STORED: "{{ NLLB_ARTEFACTS | length > 0 }}"
+NLLB_MODEL_SOURCE: >-
+  {{ ([AI_MODELS_STORE_PATH, (NLLB_ARTEFACTS | first).root] | path_join)
+     if (NLLB_STORED | bool) else NLLB_MODEL }}
+NLLB_STORE_MOUNTS: "{{ [AI_MODELS_STORE_PATH ~ ':' ~ AI_MODELS_STORE_PATH ~ ':ro'] if (NLLB_STORED | bool) else [] }}"
 
 NLLB_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 NLLB_CACHE_CA_FILE: /opt/package-frontend-ca.crt

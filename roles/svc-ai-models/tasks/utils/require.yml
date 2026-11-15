@@ -1,0 +1,13 @@
+---
+# Param models_consumer: the role that must not start without its artefacts.
+# Param models_required: the records it reads, each with name, url, sha256 and bytes, plus tree when it reads the per-file layout and unpack with unpacked_bytes when it reads the unpacked package.
+- name: "🛑 Refuse to start {{ models_consumer }} on a node whose store lacks artefacts"
+  artefact_store:
+    path: "{{ MODELS_STORE_PATH }}"
+    artefacts: "{{ models_required }}"
+    fetch: false
+  delegate_to: "{{ models_node }}"
+  loop: "{{ MODELS_SEED_NODES }}"
+  loop_control:
+    loop_var: models_node
+    label: "{{ models_node }}"

@@ -63,13 +63,17 @@ class TestFrontendRoutes(unittest.TestCase):
         self.repos = repo_records()
         self.locations = _locations(_base_block())
 
-    def test_every_tls_host_is_routed_to_the_repository_its_tls_listener_serves(
+    def test_every_tls_or_unhijacked_host_is_routed_to_its_repository(
         self,
     ) -> None:
-        tls = {name: record for name, record in self.records.items() if record["tls"]}
-        self.assertTrue(tls)
-        self.assertEqual(set(self.locations), {f"/{name}/" for name in tls})
-        for name, record in tls.items():
+        based = {
+            name: record
+            for name, record in self.records.items()
+            if record["tls"] or not record["hijack"]
+        }
+        self.assertTrue(any(not record["hijack"] for record in based.values()))
+        self.assertEqual(set(self.locations), {f"/{name}/" for name in based})
+        for name, record in based.items():
             with self.subTest(host=name):
                 repo = self.repos[record["repo"]]["name"]
                 self.assertIn(
@@ -97,7 +101,7 @@ class TestFrontendRoutes(unittest.TestCase):
         rooted = [
             (name, self.repos[record["repo"]])
             for name, record in self.records.items()
-            if record["tls"]
+            if (record["tls"] or not record["hijack"])
             and self.repos[record["repo"]]["upstream"] == f"https://{name}/"
         ]
         self.assertTrue(rooted)
@@ -136,6 +140,7 @@ class TestArtefactBase(unittest.TestCase):
         self.assertLess(names.index("stack"), names.index("artefact_base"))
         self.assertLess(names.index("passthrough"), names.index("artefact_base"))
 
+    @patch.dict(os.environ, BLANK, clear=False)
     def test_the_frontend_base_is_one_url_for_accepts(self) -> None:
         url = "https://huggingface.co/org/repo/resolve/main/file.bin"
         self.assertEqual(

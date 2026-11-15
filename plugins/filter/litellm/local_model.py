@@ -5,9 +5,11 @@ from collections.abc import Iterable, Mapping
 
 from ansible.errors import AnsibleFilterError
 
-from utils.cache.artefacts import pin_problems
+from utils.cache.artefacts import pin_problems, records
 
 BLOB_PREFIX = "sha256-"
+DECLARATIONS = "AI_LOCAL_MODEL_DECLARATIONS"
+PIN_KEYS = ("url", "revision", "sha256", "bytes")
 OLLAMA_VERSION = "0.40.16"
 NAMED = {
     "renderer": frozenset({"gemma4", "qwen3-coder"}),
@@ -158,10 +160,56 @@ def local_models_missing(results: Iterable[Mapping]) -> list[dict]:
     ]
 
 
+def local_models_pinned(declarations, artefacts: Mapping) -> list[dict]:
+    """
+    Args:
+        declarations: the ``AI_LOCAL_MODEL_DECLARATIONS`` entries, each naming
+            its manifest entry under ``artefact``.
+        artefacts: the ``cache_artefacts`` records, keyed by name.
+
+    Returns:
+        Every declaration with ``url``, ``revision``, ``sha256`` and ``bytes``
+        taken from its artefact.
+
+    Raises:
+        AnsibleFilterError: a declaration names no declared artefact, or sets
+            one of those keys itself and so pins the file a second time.
+    """
+    pinned: list[dict] = []
+    for entry in declarations or []:
+        alias = entry.get("alias")
+        doubled = sorted(set(PIN_KEYS) & set(entry))
+        if doubled:
+            raise AnsibleFilterError(
+                f"local_models_pinned: {alias} sets {', '.join(doubled)} itself; "
+                "the manifest artefact is the one source"
+            )
+        artefact = artefacts.get(str(entry.get("artefact") or ""))
+        if artefact is None:
+            raise AnsibleFilterError(
+                f"local_models_pinned: {alias} names artefact "
+                f"{entry.get('artefact')!r}, which no role declares"
+            )
+        pinned.append({**entry, **{key: artefact[key] for key in PIN_KEYS}})
+    return pinned
+
+
+def declared_local_models(variables: Mapping) -> list[dict]:
+    """
+    Args:
+        variables: the parsed ``group_vars/all/16_ai.yml``.
+
+    Returns:
+        ``AI_LOCAL_MODELS`` as a deploy resolves it, against the upstream urls.
+    """
+    return local_models_pinned(variables.get(DECLARATIONS) or [], records(""))
+
+
 class FilterModule:
     def filters(self):
         return {
             "local_model_modelfile": local_model_modelfile,
             "local_model_refusal": local_model_refusal,
             "local_models_missing": local_models_missing,
+            "local_models_pinned": local_models_pinned,
         }

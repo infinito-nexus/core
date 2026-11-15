@@ -1,13 +1,19 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "⬇️ Seed the shared model store before the daemons index it"
-  ansible.builtin.include_tasks:
-    file: utils/preseed.yml
-    apply:
-      delegate_to: "{{ LMSTUDIO_NFS_SERVER }}"
-      run_once: true
-  when: LMSTUDIO_PRESEED_ENABLED | bool
+- name: "📦 Seed the model store before {{ application_id }} starts"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+  when: run_once_svc_ai_models is not defined
+
+- name: "🛑 Refuse to start {{ application_id }} without its preload models in the store"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/require.yml
+  vars:
+    models_consumer: "{{ application_id }}"
+    models_required: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  when: LMSTUDIO_PRELOAD_MODELS | length > 0
 
 - name: "🥾 Bootstrap the compose host once before staging the build context"
   ansible.builtin.include_role:

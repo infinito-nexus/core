@@ -31,5 +31,12 @@ LIBRETRANSLATE_MCP_CONTRACT:
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 LIBRETRANSLATE_MCP_UPSTREAM_KEY: ""
 
+LIBRETRANSLATE_ARTEFACTS: "{{ lookup('cache_artefacts', 'svc-ai-libretranslate-engine').values() | list }}"
+LIBRETRANSLATE_HOME: "{{ '/root' if LIBRETRANSLATE_APP_USER == 'root' else ['/home', LIBRETRANSLATE_APP_USER] | path_join }}"
+LIBRETRANSLATE_STORE: "{{ LIBRETRANSLATE_ARTEFACTS | libretranslate_store(AI_MODELS_STORE_PATH, LIBRETRANSLATE_HOME) }}"
+LIBRETRANSLATE_STORED: "{{ LIBRETRANSLATE_STORE.stored }}"
+LIBRETRANSLATE_BAKE_MODELS: "{{ 'false' if (LIBRETRANSLATE_STORED | bool) else 'true' }}"
+LIBRETRANSLATE_STORE_MOUNTS: "{{ LIBRETRANSLATE_STORE.mounts }}"
+
 LIBRETRANSLATE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
 LIBRETRANSLATE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

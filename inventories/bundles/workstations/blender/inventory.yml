@@ -21,7 +21,8 @@ all:
                 context: 65536
                 name: llama-3.2-1b-instruct
                 repo: lmstudio-community/Llama-3.2-1B-Instruct-GGUF
-                url: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF/resolve/199151125cf15a129ab3b548b26afeed976df066/Llama-3.2-1B-Instruct-Q4_K_M.gguf
+                url:
+                  https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF/resolve/199151125cf15a129ab3b548b26afeed976df066/Llama-3.2-1B-Instruct-Q4_K_M.gguf
                 revision: "199151125cf15a129ab3b548b26afeed976df066"
                 source: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF
                 quant: q4_k_m
@@ -32,7 +33,8 @@ all:
                 context: 65536
                 name: llama-3.2-3b-instruct
                 repo: lmstudio-community/Llama-3.2-3B-Instruct-GGUF
-                url: https://huggingface.co/lmstudio-community/Llama-3.2-3B-Instruct-GGUF/resolve/c91307b5cf18c8106b1f8a6218c26ae4dbfee472/Llama-3.2-3B-Instruct-Q4_K_M.gguf
+                url:
+                  https://huggingface.co/lmstudio-community/Llama-3.2-3B-Instruct-GGUF/resolve/c91307b5cf18c8106b1f8a6218c26ae4dbfee472/Llama-3.2-3B-Instruct-Q4_K_M.gguf
                 revision: "c91307b5cf18c8106b1f8a6218c26ae4dbfee472"
                 source: https://huggingface.co/lmstudio-community/Llama-3.2-3B-Instruct-GGUF
                 quant: q4_k_m
@@ -43,7 +45,8 @@ all:
                 context: 32768
                 name: qwen2.5-7b-instruct
                 repo: lmstudio-community/Qwen2.5-7B-Instruct-GGUF
-                url: https://huggingface.co/lmstudio-community/Qwen2.5-7B-Instruct-GGUF/resolve/a8bb3906b78b3009770d7ae7d116be2ea892802d/Qwen2.5-7B-Instruct-Q4_K_M.gguf
+                url:
+                  https://huggingface.co/lmstudio-community/Qwen2.5-7B-Instruct-GGUF/resolve/a8bb3906b78b3009770d7ae7d116be2ea892802d/Qwen2.5-7B-Instruct-Q4_K_M.gguf
                 revision: "a8bb3906b78b3009770d7ae7d116be2ea892802d"
                 source: https://huggingface.co/lmstudio-community/Qwen2.5-7B-Instruct-GGUF
                 quant: q4_k_m
@@ -54,7 +57,8 @@ all:
                 context: 32768
                 name: qwen2.5-coder-7b-instruct
                 repo: lmstudio-community/Qwen2.5-Coder-7B-Instruct-GGUF
-                url: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/ba62cce5619ff5abbe5eceefab7caa4b11c267bd/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf
+                url:
+                  https://huggingface.co/lmstudio-community/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/ba62cce5619ff5abbe5eceefab7caa4b11c267bd/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf
                 revision: "ba62cce5619ff5abbe5eceefab7caa4b11c267bd"
                 source: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-7B-Instruct-GGUF
                 quant: q4_k_m
@@ -65,7 +69,8 @@ all:
                 context: 32768
                 name: qwen2.5-coder-1.5b-instruct
                 repo: lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF
-                url: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF/resolve/9bc56eb9080d6930b3fee54ef2cc1d75263ecb18/Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf
+                url:
+                  https://huggingface.co/lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF/resolve/9bc56eb9080d6930b3fee54ef2cc1d75263ecb18/Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf
                 revision: "9bc56eb9080d6930b3fee54ef2cc1d75263ecb18"
                 source: https://huggingface.co/lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF
                 quant: q4_k_m
@@ -87,7 +92,8 @@ all:
                 context: 2048
                 name: nomic-embed-text-v1.5
                 repo: nomic-ai/nomic-embed-text-v1.5-GGUF
-                url: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/0188c9bf409793f810680a5a431e7b899c46104c/nomic-embed-text-v1.5.Q4_K_M.gguf
+                url:
+                  https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/0188c9bf409793f810680a5a431e7b899c46104c/nomic-embed-text-v1.5.Q4_K_M.gguf
                 revision: "0188c9bf409793f810680a5a431e7b899c46104c"
                 source: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF
                 quant: q4_k_m

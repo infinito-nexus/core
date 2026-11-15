@@ -8,7 +8,7 @@ lmstudio_data:
     - service: lmstudio
       target: /root/.lmstudio
 
-# nocheck: embedded-state-on-nfs content-addressed model blobs only; every writer fetches against the sha256 AI_LOCAL_MODELS declares and the play fails unless the store reads back at that digest, so concurrent writers of one file write identical bytes
+# nocheck: embedded-state-on-nfs links into the read-only svc-ai-models store only; every writer sets the same link to the same store file, so concurrent writers write identical entries
 lmstudio_models:
   type: volume
   name: lmstudio_models

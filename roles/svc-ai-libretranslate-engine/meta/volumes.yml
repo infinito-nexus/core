@@ -6,6 +6,7 @@ models:
   source: "{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.models_dir') }}"
   mounts:
     - service: libretranslate-engine
-      when: "{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.loading_model') != 'build' }}"
+      when: "{{ lookup('config', 'svc-ai-libretranslate-engine', 'services.libretranslate-engine.loading_model') != 'build' and not (lookup('cache_artefacts', 'svc-ai-libretranslate-engine').values()
+        | list | libretranslate_stored) }}"
       target: "{{ ['/root' if (lookup('applications') | resource_filter('svc-ai-libretranslate-engine', 'gpu', 'libretranslate-engine', false) | bool) else '/home/libretranslate',
         '.local/share/argos-translate/packages'] | path_join }}"

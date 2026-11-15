@@ -17,7 +17,11 @@ the hostname the frontend answers for::
 
 A repository may serve several hosts and a host may be served by one
 repository only; a repository without a host is proxied but never hijacked,
-which is how a client that already addresses Nexus directly is served.
+which is how a client that already addresses Nexus directly is served. A host
+declared with ``hijack: "false"`` is not hijacked either: it gets no listener,
+no certificate and no ``extra_hosts`` entry, only the artefact base route
+``/<host>/<path>`` to its repository, so a pinned artefact on a host far too
+broad to hijack, such as ``github.com``, still flows through the cache.
 """
 
 from __future__ import annotations
@@ -42,6 +46,7 @@ HTTP_PORT = 80
 CACHE_KEY = "cache"
 INDENT = "  "
 TRUE = "true"
+FLAGS = frozenset({TRUE, "false"})
 COMMENT = "#"
 
 
@@ -98,6 +103,9 @@ class CachedHost:
             repository prefix, as npm does for tarballs, so those reach the
             backend unprefixed instead of being prefixed twice into a 404.
         role: the role that declared it.
+        hijack: False serves the host only under the artefact base route, with
+            no listener, certificate or ``extra_hosts`` entry; declared as the
+            string ``"false"``.
     """
 
     host: str
@@ -107,6 +115,7 @@ class CachedHost:
     read_timeout: str = ""
     passthrough: bool = False
     role: str = ""
+    hijack: bool = True
 
     def routes(self) -> tuple[tuple[str, str], ...]:
         """Return the (path, repository) pairs this host serves."""
@@ -121,8 +130,19 @@ class CachedHost:
         return ("/", self.repo or self.routes()[0][1])
 
     def listeners(self) -> tuple[tuple[int, bool], ...]:
-        """Return the (port, terminates TLS) pairs this host is served on."""
+        """Return the (port, terminates TLS) pairs this host is served on;
+        none for a host that is not hijacked."""
+        if not self.hijack:
+            return ()
         return tuple((port, port == HTTPS_PORT) for port in self.listen)
+
+    def tls(self) -> bool:
+        """Return whether the frontend terminates TLS for this host."""
+        return any(tls for _, tls in self.listeners())
+
+    def at_base(self) -> bool:
+        """Return whether the artefact base route serves ``/<host>/<path>``."""
+        return self.tls() or not self.hijack
 
     def scheme(self) -> str:
         """Return the scheme a client addresses this host with."""
@@ -139,7 +159,7 @@ class Declarations:
 
     Args:
         repos: the proxied repositories, sorted by name.
-        hosts: the hijacked hostnames, sorted by host.
+        hosts: the declared hosts, hijacked or not, sorted by host.
     """
 
     repos: list[CachedRepo] = field(default_factory=list)
@@ -247,7 +267,28 @@ def _hosts(role_dir: Path) -> Iterator[CachedHost]:
             read_timeout=str(entry.get("read_timeout", "")),
             passthrough=str(entry.get("passthrough", "")).lower() == TRUE,
             role=role_dir.name,
+            hijack=_hijack(host, entry),
         )
+
+
+def _hijack(host: str, entry: dict) -> bool:
+    """
+    Args:
+        host: the declared hostname, for the message.
+        entry: its mapping under ``cache: hosts:``.
+
+    Returns:
+        The ``hijack`` flag, true where the entry omits it.
+
+    Raises:
+        ValueError: the flag is neither ``"true"`` nor ``"false"``.
+    """
+    value = str(entry.get("hijack", TRUE)).lower()
+    if value not in FLAGS:
+        raise ValueError(
+            f'cache: hosts: {host}: hijack is {value!r}, not "true" or "false"'
+        )
+    return value == TRUE
 
 
 def declarations() -> Declarations:
@@ -309,9 +350,10 @@ def host_records() -> dict[str, dict]:
             "repo": entry.tls_route()[1],
             "routes": [{"path": path, "repo": repo} for path, repo in entry.routes()],
             "listen": [{"port": port, "tls": tls} for port, tls in entry.listeners()],
-            "tls": HTTPS_PORT in entry.listen,
+            "tls": entry.tls(),
             "read_timeout": entry.read_timeout,
             "passthrough": entry.passthrough,
+            "hijack": entry.hijack,
             "role": entry.role,
         }
         for entry in declarations().hosts

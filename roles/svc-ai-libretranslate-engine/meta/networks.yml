@@ -1,4 +1,13 @@
 ---
+cache:
+  repos:
+    raw-github:
+      flavor: raw
+      upstream: https://github.com/
+  hosts:
+    github.com:
+      repo: raw-github
+      hijack: "false"
 meshes: []
 local:
   subnet: 192.168.229.0/24

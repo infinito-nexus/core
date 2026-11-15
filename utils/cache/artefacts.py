@@ -5,6 +5,24 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from urllib.parse import SplitResult, urlsplit
 
+from utils.cache.artefact_urls import (
+    ARGOS_NET,
+    GITHUB,
+    GITHUB_RAW,
+    HUB,
+    REF_OF,
+    REVISION_OF,
+    SCHEME,
+    SLASH,
+    TREE,
+    UNPACKED,
+    checked_base,
+    path_segments,
+    tree_path,
+    tree_root,
+    unpack_path,
+    url_for,
+)
 from utils.cache.hosts import (
     HTTPS_PORT,
     claim,
@@ -16,26 +34,43 @@ from utils.cache.hosts import (
 from utils.digests import COMMIT, SHA256
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Iterator
     from pathlib import Path
 
     from utils.cache.hosts import CachedHost, CachedRepo, Declarations
 
+__all__ = [
+    "ARGOS_NET",
+    "GITHUB",
+    "GITHUB_RAW",
+    "HUB",
+    "TREE",
+    "UNPACKED",
+    "Artefact",
+    "artefacts",
+    "breaches",
+    "checked",
+    "pin_problems",
+    "problems",
+    "records",
+    "shape_breaches",
+    "store_bytes",
+    "tree_path",
+    "tree_root",
+    "unpack_path",
+    "unpacked_bytes",
+    "url_for",
+]
+
 SECTION = "artefacts"
 KEYS = ("url", "revision", "sha256", "bytes")
-SCHEME = "https"
-BASE_SCHEMES = frozenset({"http", SCHEME})
-SHELL_DEFAULT_BASE = f"{SCHEME}:/"
+UNPACKED_KEY = "unpacked_bytes"
 NAME = re.compile(r"[a-z0-9][a-z0-9._-]*")
 SIZE = re.compile(r"[1-9][0-9]*")
 PATH = re.compile(r"[A-Za-z0-9._~/-]+")
 PATH_CHARSET = "A-Z a-z 0-9 . _ ~ / -"
 DOT = "."
-SLASH = "/"
-HUB = "huggingface.co"
-HUB_KINDS = frozenset({"datasets", "spaces"})
-HUB_RESOLVE = "resolve"
-GITHUB_RAW = "raw.githubusercontent.com"
+COMMIT_RULE = (COMMIT, "a 40-digit lowercase hex commit; branches and tags move")
 
 
 @dataclass(frozen=True)
@@ -48,6 +83,8 @@ class Artefact:
         sha256: the lowercase hex digest of the file.
         size: its size in bytes as declared, the ``bytes`` key.
         role: the role that declared it.
+        unpacked: the sum of the file sizes its archive lists, the
+            ``unpacked_bytes`` key an Argos package carries; empty otherwise.
     """
 
     name: str
@@ -56,6 +93,7 @@ class Artefact:
     sha256: str
     size: str
     role: str = ""
+    unpacked: str = ""
 
 
 def _declared(role_dir: Path) -> Iterator[Artefact]:
@@ -67,6 +105,7 @@ def _declared(role_dir: Path) -> Iterator[Artefact]:
             sha256=str(entry.get("sha256", "")),
             size=str(entry.get("bytes", "")),
             role=role_dir.name,
+            unpacked=str(entry.get(UNPACKED_KEY, "")),
         )
 
 
@@ -118,10 +157,10 @@ def _repository_problem(url: str, parts: SplitResult, cache: Declarations) -> st
         )
     holder, host = holders[0], parts.hostname or ""
     entry = _served(cache, host)
-    if entry is not None and not any(tls for _, tls in entry.listeners()):
+    if entry is not None and not entry.at_base():
         return (
-            f"cache: hosts: {host} lists no {HTTPS_PORT} under ports, so no TLS "
-            f"listener answers the {SCHEME} url"
+            f"cache: hosts: {host} lists no {HTTPS_PORT} under ports and is not "
+            f'declared hijack: "false", so no route answers the {SCHEME} url'
         )
     path, repo = entry.tls_route() if entry is not None else ("", "")
     if repo != holder.name:
@@ -137,37 +176,10 @@ def _repository_problem(url: str, parts: SplitResult, cache: Declarations) -> st
     return ""
 
 
-def _segments(path: str) -> list[str]:
-    return path.split("/")[1:] if path else []
-
-
-def _hub_ref(segments: list[str]) -> str:
-    resolve = 3 if segments[:1] and segments[0] in HUB_KINDS else 2
-    if (
-        len(segments) < resolve + 3
-        or segments[resolve] != HUB_RESOLVE
-        or segments.count(HUB_RESOLVE) != 1
-    ):
-        return ""
-    return segments[resolve + 1]
-
-
-def _github_raw_ref(segments: list[str]) -> str:
-    return segments[2] if len(segments) > 3 else ""
-
-
-REF_OF: dict[str, Callable[[list[str]], str]] = {
-    HUB: _hub_ref,
-    GITHUB_RAW: _github_raw_ref,
-}
-
-
 def _revision_problem(revision: str, host: str, segments: list[str]) -> str:
-    if not COMMIT.fullmatch(revision):
-        return (
-            f"revision {revision!r} is not a 40-digit lowercase hex commit; "
-            "branches and tags move"
-        )
+    pattern, shape = REVISION_OF.get(host, COMMIT_RULE)
+    if not pattern.fullmatch(revision):
+        return f"revision {revision!r} is not {shape}"
     ref_of = REF_OF.get(host)
     if ref_of is None:
         return (
@@ -206,7 +218,7 @@ def _url_problems(url: str, parts: SplitResult) -> list[str]:
         found.append("url carries a fragment")
     if not PATH.fullmatch(parts.path):
         found.append(f"url path carries a character outside {PATH_CHARSET}")
-    if any(not s.strip(DOT) for s in _segments(parts.path)):
+    if any(not s.strip(DOT) for s in path_segments(parts.path)):
         found.append("url path has an empty or all-dot segment")
     return found
 
@@ -228,7 +240,7 @@ def pin_problems(url: str, revision: str, sha256: str, size: str) -> list[str]:
         host, segments = "", []
     else:
         found = _url_problems(url, parts)
-        host, segments = parts.hostname or "", _segments(parts.path)
+        host, segments = parts.hostname or "", path_segments(parts.path)
     found.append(_revision_problem(revision, host, segments))
     if not SHA256.fullmatch(sha256):
         found.append("sha256 is not 64 lowercase hex digits")
@@ -254,15 +266,32 @@ def problems(artefact: Artefact, cache: Declarations) -> list[str]:
         found.append(_repository_problem(artefact.url, parts, cache))
     if not NAME.fullmatch(artefact.name):
         found.append(f"name {artefact.name!r} does not match {NAME.pattern}")
+    found.append(_unpacked_problem(artefact))
     return [problem for problem in found if problem]
+
+
+def _unpacked_problem(artefact: Artefact) -> str:
+    if not unpack_path(artefact.url, artefact.sha256):
+        return (
+            f"{UNPACKED_KEY} is declared, but only an Argos package is unpacked"
+            if artefact.unpacked
+            else ""
+        )
+    if not SIZE.fullmatch(artefact.unpacked):
+        return (
+            f"{UNPACKED_KEY} {artefact.unpacked!r} is not a positive decimal "
+            "integer; an Argos package declares what its archive lists"
+        )
+    return ""
 
 
 def _entry_problems(role: str, name: str, entry: object) -> list[str]:
     if not isinstance(entry, dict):
         return [f"{role}/{name}: the entry is a {type(entry).__name__}, not a mapping"]
+    allowed = (*KEYS, UNPACKED_KEY)
     return [
-        f"{role}/{name}: key {key!r} is not one of {', '.join(KEYS)}"
-        for key in sorted(set(entry) - set(KEYS))
+        f"{role}/{name}: key {key!r} is not one of {', '.join(allowed)}"
+        for key in sorted(set(entry) - set(allowed))
     ]
 
 
@@ -283,7 +312,9 @@ def _shape_problems(role_dir: Path) -> list[str]:
 def _digest_conflicts(declared: list[Artefact]) -> list[str]:
     sizes: dict[str, dict[str, str]] = {}
     for item in declared:
-        sizes.setdefault(item.sha256, {})[f"{item.role}/{item.name}"] = item.size
+        sizes.setdefault(item.sha256, {})[f"{item.role}/{item.name}"] = (
+            f"{item.size} unpacked {item.unpacked}" if item.unpacked else item.size
+        )
     return [
         f"sha256 {digest} is declared with different sizes: "
         + ", ".join(f"{who} {size}" for who, size in sorted(by.items()))
@@ -296,7 +327,8 @@ def shape_breaches() -> list[str]:
     """
     Returns:
         Every role's ``artefacts:`` section or entry that is not a mapping, and
-        every entry key beyond the four, one line each: ``<role>: <problem>``
+        every entry key beyond the four and ``unpacked_bytes``, one line each:
+        ``<role>: <problem>``
         or ``<role>/<name>: <problem>``.
     """
     return [line for role_dir in role_dirs() for line in _shape_problems(role_dir)]
@@ -340,59 +372,6 @@ def checked() -> list[Artefact]:
     return declared
 
 
-def _base_problem(base: str) -> str:
-    if not (base.isascii() and base.isprintable()) or " " in base:
-        return "carries whitespace, a control or a non-ASCII character"
-    if "?" in base or "#" in base:
-        return "carries a query or a fragment"
-    if "%" in base:
-        return "carries a percent escape"
-    if base.endswith(SLASH):
-        return "ends in a slash"
-    try:
-        parts = urlsplit(base)
-    except ValueError:
-        return "is not a URL"
-    if parts.scheme not in BASE_SCHEMES or not parts.hostname:
-        return "is not an http or https URL with a host"
-    if "@" in parts.netloc:
-        return "carries userinfo"
-    try:
-        valid_port = parts.port != 0
-    except ValueError:
-        valid_port = False
-    return "" if valid_port else "carries a port outside 1 to 65535"
-
-
-def _checked_base(base: str) -> str:
-    if base in ("", SHELL_DEFAULT_BASE):
-        return base
-    problem = _base_problem(base)
-    if problem:
-        raise ValueError(f"INFINITO_ARTEFACT_BASE {base!r} {problem}")
-    return base
-
-
-def url_for(url: str, base: str) -> str:
-    """
-    Args:
-        url: the pinned upstream URL.
-        base: the value of ``INFINITO_ARTEFACT_BASE``; empty keeps the upstream.
-
-    Returns:
-        ``<base>/<host>/<path>``, or *url* itself for an empty base.
-
-    Raises:
-        ValueError: *base* is neither empty, ``https:/``, nor an http or https
-            URL with a host and a port from 1 to 65535 if any, free of whitespace,
-            query, fragment, percent escape, userinfo and a trailing slash.
-    """
-    if not _checked_base(base):
-        return url
-    parts = urlsplit(url)
-    return f"{base}/{parts.netloc}{parts.path}"
-
-
 def store_bytes(declared: list[Artefact]) -> int:
     """
     Args:
@@ -410,6 +389,24 @@ def store_bytes(declared: list[Artefact]) -> int:
     return sum({item.sha256: int(item.size) for item in declared}.values())
 
 
+def unpacked_bytes(declared: list[Artefact]) -> int:
+    """
+    Args:
+        declared: the artefacts the store holds, as `checked` returns them.
+
+    Returns:
+        The bytes the unpacked copies need on top of `store_bytes`, each
+        digest once.
+    """
+    return sum(
+        {
+            item.sha256: int(item.unpacked)
+            for item in declared
+            if unpack_path(item.url, item.sha256)
+        }.values()
+    )
+
+
 def records(base: str) -> dict[str, dict]:
     """
     Args:
@@ -423,12 +420,16 @@ def records(base: str) -> dict[str, dict]:
         ValueError: *base* is malformed, as `url_for` refuses it, or an
             artefact breaks the contract.
     """
-    _checked_base(base)
+    checked_base(base)
     return {
         item.name: {
             "name": item.name,
             "upstream": item.url,
             "url": url_for(item.url, base),
+            "tree": tree_path(item.url),
+            "root": tree_root(item.url),
+            "unpack": unpack_path(item.url, item.sha256),
+            "unpacked_bytes": int(item.unpacked or 0),
             "revision": item.revision,
             "sha256": item.sha256,
             "bytes": int(item.size),

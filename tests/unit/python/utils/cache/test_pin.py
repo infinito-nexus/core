@@ -13,7 +13,6 @@ from unittest.mock import patch
 from cli.meta.cache.pin import __main__ as cli
 from utils.cache import pin
 from utils.cache.artefacts import Artefact
-from utils.cache.files import PROJECT_ROOT
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 SHA256 = "0123456789abcdef" * 4
@@ -143,20 +142,53 @@ class TestStatus(unittest.TestCase):
 
 
 class TestResolve(unittest.TestCase):
-    def test_a_ref_resolves_to_its_full_commit(self) -> None:
-        head = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=PROJECT_ROOT,
+    def setUp(self) -> None:
+        scratch = tempfile.TemporaryDirectory()
+        self.addCleanup(scratch.cleanup)
+        self.repo = Path(scratch.name)
+        scoped = self._git("rev-parse", "--local-env-vars").split()
+        env = {key: value for key, value in os.environ.items() if key not in scoped}
+        env.update(
+            GIT_AUTHOR_NAME="test",
+            GIT_AUTHOR_EMAIL="test@example.invalid",
+            GIT_COMMITTER_NAME="test",
+            GIT_COMMITTER_EMAIL="test@example.invalid",
+            GIT_CONFIG_GLOBAL=os.devnull,
+            GIT_CONFIG_NOSYSTEM="1",
+        )
+        isolated = patch.dict(os.environ, env, clear=True)
+        isolated.start()
+        self.addCleanup(isolated.stop)
+        self._git("init", "--quiet")
+        (self.repo / "Makefile").write_text("all:\n", encoding="utf-8")
+        self._git("add", "Makefile")
+        self._git("commit", "--quiet", "--no-gpg-sign", "-m", "init")
+
+    def _git(self, *args: str) -> str:
+        """Run git in the scratch repository.
+
+        Args:
+            *args: the git arguments.
+
+        Returns:
+            Its stdout.
+        """
+        return subprocess.run(
+            ["git", *args],
+            cwd=self.repo,
             capture_output=True,
             text=True,
             check=True,
-        ).stdout.strip()
-        self.assertEqual(pin.resolve("HEAD", PROJECT_ROOT), head)
+        ).stdout
+
+    def test_a_ref_resolves_to_its_full_commit(self) -> None:
+        head = self._git("rev-parse", "HEAD").strip()
+        self.assertEqual(pin.resolve("HEAD", self.repo), head)
 
     def test_a_ref_that_is_no_commit_is_refused(self) -> None:
         for ref in ("HEAD^{tree}", "HEAD:Makefile", "no-such-ref-096", "--all", ""):
             with self.subTest(ref=ref), self.assertRaises(pin.PinError):
-                pin.resolve(ref, PROJECT_ROOT)
+                pin.resolve(ref, self.repo)
 
 
 class TestDrift(unittest.TestCase):

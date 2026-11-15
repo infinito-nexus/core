@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import os
 import re
 import shutil
 import tempfile
@@ -11,9 +12,14 @@ from typing import TYPE_CHECKING, Any
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
-from plugins.filter.litellm.local_model import local_model_refusal
+from plugins.filter.litellm.local_model import (
+    declared_local_models,
+    local_model_refusal,
+)
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml, load_yaml_any
-from utils.inventory.tools import RENDERED, TEMPLATE, render
+from utils.inventory.tools_vars import RENDERED, TEMPLATE, render
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
@@ -52,17 +58,34 @@ def _rendered(templar: Templar, value: Any) -> Any:
     return value
 
 
+def _files(directory: Path, extensions: tuple[str, ...] | None) -> list[Path]:
+    """
+    Args:
+        directory: a directory of the project tree.
+        extensions: the suffixes to keep, None for every file.
+
+    Returns:
+        The project files below ``directory``.
+    """
+    prefix = f"{directory}{os.sep}"
+    return [
+        Path(path)
+        for path in iter_project_files(extensions=extensions)
+        if path.startswith(prefix)
+    ]
+
+
 @functools.cache
 def _declared(root: Path) -> list[tuple[str, Any]]:
-    models = load_yaml(root / "group_vars" / "all" / "16_ai.yml")["AI_LOCAL_MODELS"]
+    models = declared_local_models(load_yaml(root / "group_vars" / "all" / "16_ai.yml"))
     templar = Templar(loader=DataLoader(), variables={"AI_LOCAL_MODELS": models})
     found: list[tuple[str, Any]] = [("group_vars/all/16_ai.yml", models)]
     files = [
-        *sorted(root.glob("roles/*/meta/services.yml")),
-        *sorted(root.glob("roles/*/meta/variants.yml")),
+        *sorted(root.glob(f"roles/*/{ROLE_FILE_META_SERVICES}")),
+        *sorted(root.glob(f"roles/*/{ROLE_FILE_META_VARIANTS}")),
         *sorted(
             path
-            for path in (root / "inventories").rglob("*.yml")
+            for path in _files(root / "inventories", (".yml",))
             if path.name != RENDERED.name
         ),
     ]
@@ -93,12 +116,9 @@ def _refusals(root: Path) -> list[str]:
 def _tag_pulls(root: Path) -> list[str]:
     return [
         f"{path.relative_to(root).as_posix()}:{number}"
-        for path in sorted((root / "roles").rglob("*"))
-        if path.is_file()
-        and (path.suffix in _SCANNED or path.name.startswith("Dockerfile"))
-        for number, line in enumerate(
-            path.read_text(encoding="utf-8", errors="replace").splitlines(), 1
-        )
+        for path in sorted(_files(root / "roles", None))
+        if path.suffix in _SCANNED or path.name.startswith("Dockerfile")
+        for number, line in enumerate(read_text(str(path)).splitlines(), 1)
         if _TAG_PULL.search(line)
     ]
 

@@ -59,6 +59,13 @@ rebuild or a recreate finds what an earlier run already fetched. `build` is
 mounted without it, because a bind is never seeded from the image and would
 hide what the build baked.
 
+Once this role's `cache: artefacts:` pin both the Argos packages and the
+MiniSBD models, the [model store](../svc-ai-models/README.md) replaces every
+`loading_model`: nothing is baked, installed or fetched lazily, the bind mount
+is dropped, and the container reads the unpacked packages and the MiniSBD
+files read-only from the store, refusing to start on a node that lacks them.
+`web-svc-libretranslate` reads the same entries.
+
 ## GPU
 
 With `gpu: true` the role builds the `-cuda` image and, when

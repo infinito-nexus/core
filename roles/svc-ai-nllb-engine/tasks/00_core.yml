@@ -43,6 +43,22 @@
     - compose-build
     - compose-up
 
+- name: "📦 Hold the artefacts of {{ application_id }} in the model store"
+  when: NLLB_STORED | bool
+  block:
+    - name: "📦 Seed the model store before {{ application_id }} starts"
+      ansible.builtin.include_role:
+        name: svc-ai-models
+      when: run_once_svc_ai_models is not defined
+
+    - name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
+      ansible.builtin.include_role:
+        name: svc-ai-models
+        tasks_from: utils/require.yml
+      vars:
+        models_consumer: "{{ application_id }}"
+        models_required: "{{ NLLB_ARTEFACTS }}"
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:

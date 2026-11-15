@@ -20,6 +20,7 @@ DECLARE_HINT = "the declarer runs `make cache-declare ref=<commit>`"
 BUMP_HINT = "ask the declarer to bump the pin"
 FULL_SHA = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?")
 IGNORED_FIELDS = frozenset({"role"})
+HOST_DEFAULTS = {"hijack": True}
 ARTEFACTS = "artefacts"
 
 
@@ -327,7 +328,14 @@ def pinned_digests(environ: Mapping[str, str]) -> frozenset[str] | None:
 
 def _comparable(records: dict) -> dict:
     return {
-        name: {k: v for k, v in record.items() if k not in IGNORED_FIELDS}
+        name: {
+            k: v
+            for k, v in {
+                **(HOST_DEFAULTS if "host" in record else {}),
+                **record,
+            }.items()
+            if k not in IGNORED_FIELDS
+        }
         for name, record in json.loads(json.dumps(records, sort_keys=True)).items()
     }
 

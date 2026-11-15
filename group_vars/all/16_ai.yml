@@ -61,18 +61,19 @@ AI_FREELLMAPI_MODELS: >-
         | combine({'local': false, 'auto': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.include_in_auto') | bool})
      }] if LITELLM_FREELLMAPI_BACKEND | bool else [] }}
 
-AI_LOCAL_MODELS:
+AI_MODELS_STORE_PATH: "{{ [DIR_CACHE, 'models'] | path_join }}"
+
+AI_LOCAL_MODEL_DECLARATIONS:
   - alias: llama3.2:1b
     context: 65536
     name: llama-3.2-1b-instruct
+    artefact: llama-3.2-1b-instruct
     repo: lmstudio-community/Llama-3.2-1B-Instruct-GGUF
-    url: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF/resolve/199151125cf15a129ab3b548b26afeed976df066/Llama-3.2-1B-Instruct-Q4_K_M.gguf
-    revision: "199151125cf15a129ab3b548b26afeed976df066"
     source: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF
     quant: q4_k_m
     file: Llama-3.2-1B-Instruct-Q4_K_M.gguf
-    sha256: "f7ede42862ceca07ad1c88a97b67520019c4ac7e5ced250d2e696fa62ab189af"
-    bytes: 807690688
+
+AI_LOCAL_MODELS: "{{ AI_LOCAL_MODEL_DECLARATIONS | local_models_pinned(lookup('cache_artefacts', 'svc-ai-models')) }}"
 
 AI_MODEL_CONTEXTS: >-
   {{ (AI_LOCAL_MODELS + (lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')) + AI_FREELLMAPI_MODELS)

@@ -1,35 +1,13 @@
 ---
-- name: "📁 Create the staging directory on the hosting node"
-  ansible.builtin.file:
-    path: "{{ OLLAMA_IMPORT_STAGING_DIR }}"
-    state: directory
-    mode: "0700"
-  delegate_to: "{{ OLLAMA_HOST_NODE }}"
-
-- name: "⬇️ Fetch the file at its pinned revision and checksum"
-  get_url_retry:
-    url: "{{ ollama_file.url }}"
-    dest: "{{ ollama_staged }}"
-    tmp_dest: "{{ OLLAMA_IMPORT_STAGING_DIR }}"
-    checksum: "sha256:{{ ollama_file.sha256 }}"
-    mode: "0600"
-  delegate_to: "{{ OLLAMA_HOST_NODE }}"
-
-- name: "📦 Hand the fetched file to the Ollama container"
+- name: "🔗 Link the store file as the Ollama blob of its digest"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ OLLAMA_LOCAL_CID | quote }}
-    sh -c {{ ('mkdir -p ' ~ (OLLAMA_IMPORT_DIR | quote) ~ ' && cat > ' ~ (ollama_handed | quote)) | quote }}
-    < {{ ollama_staged | quote }}
+    container exec {{ OLLAMA_LOCAL_CID | quote }}
+    sh -c {{ ('mkdir -p ' ~ (OLLAMA_BLOBS_DIR | quote) ~ ' ' ~ (OLLAMA_IMPORT_DIR | quote)
+              ~ ' && ln -sfn ' ~ (ollama_handed | quote) ~ ' ' ~ (ollama_blob | quote)) | quote }}
   changed_when: true
   delegate_to: "{{ OLLAMA_HOST_NODE }}"
 
-- name: "🧹 Remove the staged copy the container now holds"
-  ansible.builtin.file:
-    path: "{{ ollama_staged }}"
-    state: absent
-  delegate_to: "{{ OLLAMA_HOST_NODE }}"
-
-- name: "🧩 Create each model from its Modelfile over the handed file"
+- name: "🧩 Create each model from its Modelfile over the store file"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OLLAMA_LOCAL_CID | quote }}
     sh -c {{ ('cat > ' ~ (ollama_modelfile | quote) ~ ' && ollama create ' ~ (model.alias | quote) ~ ' -f ' ~ (ollama_modelfile | quote)) | quote }}

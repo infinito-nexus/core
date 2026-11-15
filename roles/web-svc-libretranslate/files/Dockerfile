@@ -14,7 +14,13 @@ COPY prefetch_models.py scripts/prefetch_models.py
 
 ARG LIBRETRANSLATE_LOAD_ONLY
 ARG LIBRETRANSLATE_DIRECTIONS
-RUN if [ -n "${LIBRETRANSLATE_LOAD_ONLY}" ]; then \
+ARG LIBRETRANSLATE_BAKE_MODELS
+RUN case "${LIBRETRANSLATE_BAKE_MODELS}" in \
+      true) ;; \
+      false) exit 0 ;; \
+      *) echo "LIBRETRANSLATE_BAKE_MODELS must be true or false" >&2; exit 1 ;; \
+    esac; \
+    if [ -n "${LIBRETRANSLATE_LOAD_ONLY}" ]; then \
       set -- --load_only_lang_codes "${LIBRETRANSLATE_LOAD_ONLY}"; \
     fi; \
     PYTHONPATH=. REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
