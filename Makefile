@@ -905,11 +905,6 @@ role-skeleton:
 	@test -n '$(target)' || { echo 'usage: make role-skeleton manifest=<file> target=<dir>'; exit 2; }
 	@"$${PYTHON}" -m cli.contributing.role.skeleton render --target '$(target)' < '$(manifest)'
 
-.PHONY: role-skeleton-samples
-# Render one sample role per database and login choice into roles/web-app-cst-*; make roles-clean removes them.
-role-skeleton-samples: install
-	@"$${PYTHON}" -m cli.contributing.role.skeleton.samples
-
 .PHONY: role-skeleton-check
 # Render the sample roles, run make test and make lint against them, and remove them again, also when a check fails.
 role-skeleton-check:
@@ -917,6 +912,11 @@ role-skeleton-check:
 	@"$(MAKE)" role-skeleton-samples
 	@"$(MAKE)" test
 	@"$(MAKE)" lint
+
+.PHONY: role-skeleton-samples
+# Render one sample role per database and login choice into roles/web-app-cst-*; make roles-clean removes them.
+role-skeleton-samples: install
+	@"$${PYTHON}" -m cli.contributing.role.skeleton.samples
 
 .PHONY: roles-clean
 # Remove every custom role (roles/web-app-cst-*) a pull placed in this checkout and nothing else.

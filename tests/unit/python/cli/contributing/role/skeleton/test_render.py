@@ -418,6 +418,20 @@ class TestStaticKind(_RenderCase):
             load_yaml_str(files[ROLE_FILE_META_SERVICES])["design"]["enabled"]
         )
 
+    def test_the_page_renders_header_footer_and_the_brand_nav_on_the_server(self):
+        files = self.files(_static())
+        page = files["templates/index.html.j2"]
+        self.assertIn("'services.brand.nav'", files[ROLE_FILE_VARS_MAIN])
+        self.assertEqual(
+            (1, 1, 1),
+            (
+                page.count('<header class="brand-header">'),
+                page.count('<footer class="brand-footer">'),
+                page.count("{% for app in "),
+            ),
+        )
+        self.assertNotIn("<script>", page)
+
     def test_the_cosmos_tag_and_sky_are_gated_by_the_design_lookup(self):
         files = self.files(_static())
         page = files["templates/index.html.j2"]
