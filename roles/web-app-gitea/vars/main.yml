@@ -95,5 +95,10 @@ GITEA_MCP_INITIALIZE_PAYLOAD:
       version: "1"
 
 GITEA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.shared') | bool }}"
+GITEA_OAUTH2_USERNAME_SOURCES:
+  sub: userid
+  nickname: nickname
+  preferred_username: preferred_username # nocheck: oidc-claim-name-spot
+  email: email
 GITEA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 GITEA_IAM_ENABLED: "{{ (GITEA_OIDC_ENABLED | bool) or ( GITEA_LDAP_ENABLED | bool ) }}"
