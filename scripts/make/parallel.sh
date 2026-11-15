@@ -70,7 +70,6 @@ drain_one() {
 	else
 		echo "❌  ${tgt}  ($(format_duration "${target_dur[${tgt}]}"))  exit=${rc}"
 	fi
-	cat "${target_log[${tgt}]}"
 	active=$((active - 1))
 }
 
@@ -81,7 +80,7 @@ for tgt in "${to_launch[@]}"; do
 	log="${tmpdir}/${launch_idx}.log"
 	target_log["${tgt}"]="${log}"
 	target_start["${tgt}"]="$(date +%s)"
-	(make -- "${tgt}") >"${log}" 2>&1 &
+	(make -- "${tgt}" 2>&1 | tee "${log}") &
 	pid_to_target[$!]="${tgt}"
 	active=$((active + 1))
 	launch_idx=$((launch_idx + 1))

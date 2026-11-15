@@ -49,6 +49,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          vmstat -w 15 &
+          monitor_pid=$!
+          trap 'kill "${monitor_pid}" 2>/dev/null || :' EXIT
           make test 2>&1 | tee /tmp/test-output.txt
 
       - name: 📊 Per-test summary from junit reports
