@@ -22,7 +22,6 @@ import re
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from urllib.parse import quote, urlencode
 
@@ -53,6 +52,7 @@ from utils.update.base import (
     version_flavor,
     version_key,
 )
+from utils.update.docker_models import DockerImageVersionEntry, DockerImageVersionUpdate
 from utils.update.follow import followed_tags
 from utils.update.hold import releasable_updates
 
@@ -65,22 +65,6 @@ _VERSION_VALUE_RE = re.compile(
     r"(?P<quote>[\"']?)(?P<value>[^\"'#\s]+)(?P=quote)"
     r"(?P<suffix>\s*(?:#.*)?)$"
 )
-
-
-@dataclass(frozen=True)
-class DockerImageVersionEntry:
-    role: str
-    service: str
-    image: str
-    version: str
-    config_path: Path
-    hold: str = ""
-
-
-@dataclass(frozen=True)
-class DockerImageVersionUpdate:
-    entry: DockerImageVersionEntry
-    latest: str
 
 
 def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:

@@ -10,7 +10,10 @@ from utils.update.base import latest_semver, version_depth, version_flavor, vers
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from utils.update.docker import DockerImageVersionEntry, DockerImageVersionUpdate
+    from utils.update.docker_models import (
+        DockerImageVersionEntry,
+        DockerImageVersionUpdate,
+    )
 
 
 @dataclass(frozen=True)
