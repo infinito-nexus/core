@@ -100252,8 +100252,8 @@ msgid "[Moodle Developer Documentation: Docker images](https://moodledev.io/gene
 msgstr "[面条开发者 Documentation: 多克图像](https://moodledev.io/general/app/development/setup/docker-images)"
 
 # translated-by: libretranslate
-msgid "[Moodle MCP plugin](https://moodle.org/plugins/webservice_mcp)"
-msgstr "[面条 MCP 插件](https://moodle.org/plugins/webservice_mcp)"
+msgid "[Moodle MCP plugin](https://marketplace.moodle.com/plugins/webservice_mcp)"
+msgstr "[面条 MCP 插件](https://marketplace.moodle.com/plugins/webservice_mcp)"
 
 # translated-by: libretranslate
 msgid "[Moodle Official Website](https://moodle.org/)"

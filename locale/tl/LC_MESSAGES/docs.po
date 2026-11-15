@@ -95497,8 +95497,8 @@ msgid "[Moodle Developer Documentation: Docker images](https://moodledev.io/gene
 msgstr "[Linangin ang Moodle Documentation: Mga larawang docker](https://moodledev.io/general/app/development/setup/docker-images)"
 
 # translated-by: libretranslate
-msgid "[Moodle MCP plugin](https://moodle.org/plugins/webservice_mcp)"
-msgstr "[Moodle MCP plagin](https://moodle.org/plugins/webservice_mcp)"
+msgid "[Moodle MCP plugin](https://marketplace.moodle.com/plugins/webservice_mcp)"
+msgstr "[Moodle MCP plagin](https://marketplace.moodle.com/plugins/webservice_mcp)"
 
 # translated-by: libretranslate
 msgid "[Moodle Official Website](https://moodle.org/)"

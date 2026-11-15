@@ -25,7 +25,7 @@ ONION = "a" * 56 + ".onion"
 CDN_ROOT = "/nonexistent/infinito/cdn"
 MTIME = "7"
 MODULE = f"{SAME_ORIGIN_PATH}/roles/{COSMOS}/latest/js/cosmos.js?v={MTIME}"
-LIBRARY = f"roles/{COSMOS}/files/javascript/cosmos.js"
+LIBRARY = f"roles/{COSMOS}/files/javascript/cosmos.mjs"
 HOSTILE_HOTKEY = "alt+'\"></script><img src=x onerror=alert(1)>"
 
 

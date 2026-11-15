@@ -5,17 +5,13 @@ as passthroughs) reaches a terminal."""
 
 from __future__ import annotations
 
+import importlib.util
 import unittest
 
 from agents.routines import maintainer
 from agents.routines.tools.affected import MATRIX_LABEL
 
-try:
-    import langgraph  # noqa: F401
-
-    _HAVE_LANGGRAPH = True
-except ImportError:
-    _HAVE_LANGGRAPH = False
+_HAVE_LANGGRAPH = importlib.util.find_spec("langgraph") is not None
 
 
 def reachable(steps: list, start: str, without: str) -> set[str]:

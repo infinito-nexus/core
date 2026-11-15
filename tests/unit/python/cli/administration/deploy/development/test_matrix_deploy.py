@@ -5,7 +5,7 @@ variant-closure (``include``); between rounds the wrapper wipes the union
 deploy.handler reads the running container name strictly via
 cli.administration.deploy.development.common.resolve_container (which is
 sourced from scripts/meta/env/load.sh, the single SPOT for the formula).
-That resolver is patched for the whole test module instead of duplicating
+That resolver is patched for every test instead of duplicating
 the formula or hard-coding INFINITO_CONTAINER in os.environ. The tests
 below do not assert on the returned value; the sentinel is purely an
 opaque fixture string.
@@ -18,15 +18,22 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-_RESOLVE_CONTAINER_PATCHER = patch(
-    "cli.administration.deploy.development.deploy.cli.resolve_container",
-    return_value="<unit-test fixture>",
-)
-_RESOLVE_CONTAINER_PATCHER.start()
-RESET_TARGET = "cli.administration.deploy.development.deploy.cli.reset_stack_target"
-patch(RESET_TARGET).start()
+from cli.administration.deploy.development.deploy import handler
 
-from cli.administration.deploy.development.deploy import handler  # noqa: E402
+RESET_TARGET = "cli.administration.deploy.development.deploy.cli.reset_stack_target"
+
+
+class _HandlerTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        for patcher in (
+            patch(
+                "cli.administration.deploy.development.deploy.cli.resolve_container",
+                return_value="<unit-test fixture>",
+            ),
+            patch(RESET_TARGET),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
 
 def _args(
@@ -70,7 +77,7 @@ def _make_compose_mock() -> MagicMock:
     return compose
 
 
-class TestHandlerMatrixDeploy(unittest.TestCase):
+class TestHandlerMatrixDeploy(_HandlerTestCase):
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
@@ -374,7 +381,7 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         purge_mock.assert_not_called()
 
 
-class TestHandlerVariantPin(unittest.TestCase):
+class TestHandlerVariantPin(_HandlerTestCase):
     """`--variant <idx>` (or variant env-var) pins the deploy to one
     specific round's folder, skipping inter-round cleanup. Use case:
     redeploying one variant without iterating the whole matrix."""
@@ -450,7 +457,7 @@ class TestHandlerVariantPin(unittest.TestCase):
         run_deploy_mock.assert_not_called()
 
 
-class TestHandlerFullCycle(unittest.TestCase):
+class TestHandlerFullCycle(_HandlerTestCase):
     """`--full-cycle` runs an async re-deploy IMMEDIATELY after each
     round's sync deploy (Pass 2 stays co-located with Pass 1 on the
     same variant). Without `--full-cycle` only Pass 1 runs per round."""

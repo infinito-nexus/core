@@ -12,6 +12,7 @@ KNOT_ZONE_FILE: "{{ [ KNOT_VOLUMES_DIR, 'subzone.zone' ] | path_join }}"
 KNOT_CONF_TARGET: "{{ lookup('volume', application_id, 'conf').target }}"
 KNOT_ZONE_TARGET: "{{ lookup('volume', application_id, 'zone').target }}"
 KNOT_STORAGE_TARGET: "{{ lookup('volume', application_id, 'data').target }}"
+KNOT_RUNDIR_TARGET: "{{ lookup('volume', application_id, 'rundir').target }}"
 KNOT_KEYS_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'workspaces.json' ] | path_join }}"
 
 KNOT_ZONE: "{{ lookup('config', 'web-app-semaphore', 'services.semaphore.workspaces.dns.zone') | lower }}"

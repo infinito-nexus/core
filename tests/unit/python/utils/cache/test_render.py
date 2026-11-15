@@ -27,6 +27,7 @@ APT_FLAVOR = "apt"
 HTTP_PORT = 80
 FRONTEND_IP = "${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
 STOCK_SOURCES = {
+    # nocheck: url the bare GET on the redirector returns 404; the apt paths under dists/ resolve
     "debian": ("http://deb.debian.org/debian", "http://deb.debian.org/debian-security"),
     "ubuntu": ("http://archive.ubuntu.com/ubuntu", "http://security.ubuntu.com/ubuntu"),
 }

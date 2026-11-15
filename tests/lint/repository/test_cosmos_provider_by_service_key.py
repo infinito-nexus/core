@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from utils.cache.files import PROJECT_ROOT, iter_non_ignored_files, read_text
 from utils.design.cosmos import SERVICE_KEY
-from utils.roles.custom import PREFIX
+from utils.roles.custom import MARKER_FILE, PREFIX
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 RULE = "cosmos-provider-by-service-key"
 PROVIDER = f"{PREFIX}{SERVICE_KEY}"
 EXEMPT_FILES = frozenset({"eslint.config.js", "meta/custom_roles.yml"})
-EXEMPT_TREES = ("docs/requirements/", "tests/")
+EXEMPT_TREES = ("docs/requirements/", "tests/", f"roles/{PROVIDER}/")
 
 
 def naming(entries: Iterable[tuple[str, str]]) -> list[str]:
@@ -25,7 +25,8 @@ def naming(entries: Iterable[tuple[str, str]]) -> list[str]:
 
     Returns:
         The sorted paths outside the exempt files and trees whose content names
-        the cosmos provider role.
+        the cosmos provider role. The provider's own tree is exempt, since a
+        role names itself; every other role, pulled or in-tree, is checked.
     """
     return sorted(
         rel
@@ -39,9 +40,8 @@ def naming(entries: Iterable[tuple[str, str]]) -> list[str]:
 def repository() -> Iterator[tuple[str, str]]:
     """
     Returns:
-        ``(repository-relative POSIX path, content)`` of every text file Git
-        would track; ``.gitignore`` keeps a placed custom role, the provider
-        among them, out of it.
+        ``(repository-relative POSIX path, content)`` of every text file the
+        project-tree scans read, placed custom roles included.
     """
     for path in iter_non_ignored_files():
         try:
@@ -71,6 +71,9 @@ class TestCosmosProviderByServiceKey(unittest.TestCase):
             ("meta/custom_roles.yml", planted),
             (f"{EXEMPT_TREES[0]}cosmos.md", planted),
             ("tests/unit/python/utils/design/test_cosmos.py", planted),
+            (f"roles/{PROVIDER}/{MARKER_FILE}", planted),
+            (f"roles/{PROVIDER}/{ROLE_FILE_VARS_MAIN}", planted),
+            (f"roles/{PREFIX}team/{ROLE_FILE_VARS_MAIN}", planted),
             (f"roles/web-app-{SERVICE_KEY}/{ROLE_FILE_VARS_MAIN}", planted),
             (
                 f"roles/web-svc-design/{ROLE_FILE_META_SERVICES}",
@@ -81,6 +84,7 @@ class TestCosmosProviderByServiceKey(unittest.TestCase):
             naming(entries),
             [
                 f"roles/web-app-{SERVICE_KEY}/{ROLE_FILE_VARS_MAIN}",
+                f"roles/{PREFIX}team/{ROLE_FILE_VARS_MAIN}",
                 "roles/web-svc-html/templates/head.j2",
             ],
         )

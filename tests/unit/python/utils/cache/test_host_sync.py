@@ -33,6 +33,8 @@ from . import PROJECT_ROOT
 
 NEXUS = "http://127.0.0.1:8081"
 SHARED = "/var/cache/infinito/core/cache/shared"
+# nocheck: url the bare GET on the redirector returns 404; the apt paths under dists/ resolve
+DEBIAN_SECURITY = "http://deb.debian.org/debian-security"
 MIRRORS = (
     "http://de.archive.ubuntu.com/ubuntu/ http://ftp.halifax.rwth-aachen.de/ubuntu/"
 )
@@ -55,7 +57,7 @@ DECLARED = Declarations(
         CachedRepo(
             name="apt-debian-security",
             flavor="apt",
-            upstream="http://deb.debian.org/debian-security",
+            upstream=DEBIAN_SECURITY,
             distribution="bookworm-security",
             mirror="apt-debian-security-mirror",
         ),
@@ -174,14 +176,14 @@ Signed-By:
 
 """,
 )
-TRIXIE = """Types: deb
+TRIXIE = f"""Types: deb
 URIs: http://deb.debian.org/debian
 Suites: trixie trixie-updates trixie-backports
 Components: main non-free-firmware
 Signed-By: /usr/share/keyrings/debian-archive-keyring.pgp
 
 Types: deb
-URIs: http://deb.debian.org/debian-security
+URIs: {DEBIAN_SECURITY}
 Suites: trixie-security
 Components: main non-free-firmware
 Signed-By: /usr/share/keyrings/debian-archive-keyring.pgp
@@ -243,20 +245,20 @@ deb http://de.archive.ubuntu.com/ubuntu/ noble-updates main universe
 deb http://de.archive.ubuntu.com/ubuntu/ noble-backports main universe
 deb http://de.archive.ubuntu.com/ubuntu/ noble-security main universe
 """
-SKIPPED = """deb [trusted=true] http://deb.debian.org/debian bookworm main
+SKIPPED = f"""deb [trusted=true] http://deb.debian.org/debian bookworm main
 deb [ allow-insecure=1 ] http://deb.debian.org/debian bookworm contrib
-deb [arch=amd64 allow-weak=on] http://deb.debian.org/debian-security bookworm-security main
+deb [arch=amd64 allow-weak=on] {DEBIAN_SECURITY} bookworm-security main
 deb [allow-downgrade-to-insecure=YES] http://security.debian.org/debian-security bookworm-security main
 deb ["trusted"=%79es] http://deb.debian.org/debian bookworm non-free
 """
-SKIPPED_STANZAS = """Types: deb
+SKIPPED_STANZAS = f"""Types: deb
 URIs: http://deb.debian.org/debian
 Suites: bookworm
 Components: main
 Trusted: on
 
 Types: deb
-URIs: http://deb.debian.org/debian-security
+URIs: {DEBIAN_SECURITY}
 Suites: bookworm-security
 Components: main
 Allow-Weak: true
@@ -550,7 +552,7 @@ class TestAptHost(HostCase):
     def test_a_suite_its_archive_has_no_repository_for_stays(self) -> None:
         listed = (
             "deb http://security.ubuntu.com/ubuntu/ noble main\n"
-            "deb http://deb.debian.org/debian-security trixie main\n"
+            f"deb {DEBIAN_SECURITY} trixie main\n"
         )
         _host(self.root, "ubuntu", {SOURCES_LIST: listed})
         before = _snapshot(self.root)

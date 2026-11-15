@@ -18,5 +18,5 @@
    } %}
 {% set __cosmos_config = __cosmos_settings | dict2items | rejectattr('value', 'none') | items2dict
    | combine({'cookieDomain': DOMAIN_PRIMARY} if domain == DOMAIN_PRIMARY or domain.endswith('.' ~ DOMAIN_PRIMARY) else {}) %}
-<script type="module" src="{{ lookup('cdn', __cosmos).relative_urls.role.release.js }}/cosmos.js{{ lookup('local_mtime_qs', lookup('path_absolute', 'roles', __cosmos, 'files', 'javascript', 'cosmos.js'), param='v') }}" data-cosmos="{{ __cosmos_config | to_json | e }}"></script>
+<script type="module" src="{{ lookup('cdn', __cosmos).relative_urls.role.release.js }}/cosmos.js{{ lookup('local_mtime_qs', lookup('path_absolute', 'roles', __cosmos, 'files', 'javascript', 'cosmos.mjs'), param='v') }}" data-cosmos="{{ __cosmos_config | to_json | e }}"></script>
 {% endif %}

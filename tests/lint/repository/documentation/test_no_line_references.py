@@ -100,7 +100,7 @@ class TestNoLineReferences(unittest.TestCase):
         text = (
             "vhosts serve `:80`, `localhost:8080`, `example.com:443`, "
             "`RealmAdminResource.java:871-875` and "
-            "[upstream](https://github.com/keycloak/keycloak/blob/26.8.2/x.java#L1)"
+            "[upstream](https://github.com/keycloak/keycloak/blob/26.8.2/pom.xml#L1)"
         )
         self.assertEqual(line_references(page, text, paths, names), [])
 

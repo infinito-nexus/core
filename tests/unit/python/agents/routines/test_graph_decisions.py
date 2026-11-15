@@ -6,6 +6,7 @@ redeploy enters the red chain."""
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import re
 import tempfile
@@ -31,12 +32,7 @@ from utils.roles.mapping import (
     ROLE_FILE_TASKS_MAIN,
 )
 
-try:
-    import langgraph  # noqa: F401
-
-    _HAVE_LANGGRAPH = True
-except ImportError:
-    _HAVE_LANGGRAPH = False
+_HAVE_LANGGRAPH = importlib.util.find_spec("langgraph") is not None
 
 _ROLE = "web-app-gitea"
 _ROLE_TASKS_MAIN = f"roles/{_ROLE}/{ROLE_FILE_TASKS_MAIN}"

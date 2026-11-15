@@ -20,6 +20,7 @@ from ._checkout import (
 DOTENV = (
     "INFINITO_CA_BUNDLE_CANDIDATES=\n"
     f"INFINITO_DISTRO={DISTRO}\n"
+    "INFINITO_LINT_RUNNER=docker\n"
     f"INFINITO_PARENT_IMAGE={PARENT_IMAGE}\n"
     "INFINITO_SRC_DIR=/opt/src/infinito\n"
     "INFINITO_VENV_DIR=/opt/venvs/infinito\n"

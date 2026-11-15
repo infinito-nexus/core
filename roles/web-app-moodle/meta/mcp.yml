@@ -1,7 +1,7 @@
 ---
 classification: plugin_server
 direction: server
-source_url: https://moodle.org/plugins/webservice_mcp
+source_url: https://marketplace.moodle.com/plugins/webservice_mcp
 transport: streamable_http
 exposure: public
 auth: bearer_token

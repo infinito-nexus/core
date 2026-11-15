@@ -95379,8 +95379,8 @@ msgid "[Moodle Developer Documentation: Docker images](https://moodledev.io/gene
 msgstr "[Dezvoltator moodle Documentation: Imagini Docker](https://moodledev.io/general/app/development/setup/docker-images)"
 
 # translated-by: libretranslate
-msgid "[Moodle MCP plugin](https://moodle.org/plugins/webservice_mcp)"
-msgstr "[Modul Moodle MCPComment](https://moodle.org/plugins/webservice_mcp)"
+msgid "[Moodle MCP plugin](https://marketplace.moodle.com/plugins/webservice_mcp)"
+msgstr "[Modul Moodle MCPComment](https://marketplace.moodle.com/plugins/webservice_mcp)"
 
 # translated-by: libretranslate
 msgid "[Moodle Official Website](https://moodle.org/)"
