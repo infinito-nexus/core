@@ -90,12 +90,12 @@ if (!defined('ABSPATH')) {
 
     foreach ($design['logos'] as $option => $id) {
         add_filter('pre_update_option_' . $option, static function ($value) use ($id) {
-            return defined('INFINITO_DESIGN_WRITER') ? $value : $id;
+            return defined('NEXUS_DESIGN_WRITER') ? $value : $id;
         }, PHP_INT_MAX);
     }
 
     add_filter('wp_insert_post_data', static function (array $data) use ($design): array {
-        if (defined('INFINITO_DESIGN_WRITER') || $data['post_type'] !== 'wp_global_styles') {
+        if (defined('NEXUS_DESIGN_WRITER') || $data['post_type'] !== 'wp_global_styles') {
             return $data;
         }
         foreach ($design['global_styles'] as $theme => $styles) {

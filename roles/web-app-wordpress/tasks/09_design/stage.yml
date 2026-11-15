@@ -1,5 +1,5 @@
 ---
-- name: "🔎 Read the corporate design parts of {{ application_id }} the configuration is about to overwrite"
+- name: "🔎 Read the corporate design parts the configuration is about to overwrite"
   ansible.builtin.shell:
     cmd: >-
       container exec -i --user {{ WORDPRESS_USER | quote }}
@@ -10,13 +10,15 @@
   register: wordpress_design_held
   changed_when: false
 
-- name: "📣 Report the corporate design parts of {{ application_id }} the configuration overwrites"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift_report.yml') }}"
-  vars:
+- name: "🔎 Turn the corporate design parts the configuration overwrites into drift lines"
+  ansible.builtin.set_fact:
     forms_drift_lines: >-
       {{ wordpress_design_held.stdout_lines | last | from_json
          | map('regex_replace', '^', application_id ~ ': design.')
          | map('regex_replace', '$', ': changed') | list }}
+
+- name: "📣 Report the corporate design parts the configuration overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift_report.yml') }}"
 
 - name: "🖼️ Render the corporate logo set of {{ application_id }}"
   ansible.builtin.include_role:

@@ -55,7 +55,7 @@ class TestDesignEnforced(unittest.TestCase):
     def test_the_writer_marks_itself_before_it_reads_its_configuration(self):
         source = read_text(str(self.WRITER))
         self.assertLess(
-            source.index("const INFINITO_DESIGN_WRITER = true;"),
+            source.index("const NEXUS_DESIGN_WRITER = true;"),
             source.index("$config = json_decode("),
         )
 
@@ -72,7 +72,7 @@ class TestDesignGuard(unittest.TestCase):
             "    foreach ($design['logos'] as $option => $id) {\n"
             "        add_filter('pre_update_option_' . $option,"
             " static function ($value) use ($id) {\n"
-            "            return defined('INFINITO_DESIGN_WRITER') ? $value : $id;\n"
+            "            return defined('NEXUS_DESIGN_WRITER') ? $value : $id;\n"
             "        }, PHP_INT_MAX);\n"
             "    }\n",
             self._guard(),
@@ -82,7 +82,7 @@ class TestDesignGuard(unittest.TestCase):
         guard = self._guard()
         styles = guard[guard.index("add_filter('wp_insert_post_data',") :]
         self.assertIn(
-            "if (defined('INFINITO_DESIGN_WRITER')"
+            "if (defined('NEXUS_DESIGN_WRITER')"
             " || $data['post_type'] !== 'wp_global_styles') {",
             styles,
         )
@@ -107,12 +107,13 @@ class TestDesignDrift(unittest.TestCase):
         stage = self._tasks()[0]
         self.assertEqual("09_design/stage.yml", stage["ansible.builtin.include_tasks"])
         self.assertEqual("WORDPRESS_DESIGN_ENABLED | bool", stage["when"])
-        read, hand_over = self._tasks(self.STAGE)[:2]
+        read, collect, hand_over = self._tasks(self.STAGE)[:3]
         self.assertEqual(
             "{{ lookup('file', 'php/design_drift.php') }}",
             read["ansible.builtin.shell"]["stdin"],
         )
         self.assertIs(False, read["changed_when"])
+        self.assertIn("forms_drift_lines", collect["ansible.builtin.set_fact"])
         self.assertEqual(
             "{{ lookup('path_absolute', 'tasks/utils/forms/drift_report.yml') }}",
             hand_over["ansible.builtin.include_tasks"],
@@ -126,7 +127,9 @@ class TestDesignDrift(unittest.TestCase):
         )
 
     def test_each_overwritten_part_becomes_one_drift_line(self):
-        expression = self._tasks(self.STAGE)[1]["vars"]["forms_drift_lines"]
+        expression = self._tasks(self.STAGE)[1]["ansible.builtin.set_fact"][
+            "forms_drift_lines"
+        ]
         held = ["site_icon", "global_styles.twentytwentyfive"]
         self.assertEqual(
             [

@@ -18,7 +18,7 @@
 require_once ABSPATH . 'wp-admin/includes/image.php';
 require_once ABSPATH . 'wp-admin/includes/class-wp-site-icon.php';
 
-const INFINITO_DESIGN_WRITER = true;
+const NEXUS_DESIGN_WRITER = true;
 const INFINITO_DESIGN_OPTION = 'infinito_design';
 const INFINITO_DESIGN_ASSET = '_infinito_design_asset';
 const INFINITO_DESIGN_ACCOUNT = '_infinito_design_scheme';
