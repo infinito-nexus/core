@@ -34,18 +34,18 @@ SCORE_ARGS = (
     "0",
 )
 SCORE_TABLE = (
-    "| 🎯 Fix | 💥 Break | 💸 Cost | ⏱️ Time | 🛡️ Security | 🏆 Score | Gate |\n"
+    "| 🎯 Fix | 💥 Break | 💸 Tokens | ⏱️ Velocity | 🛡️ Security | 🏆 Score | Gate |\n"
     "| --- | --- | --- | --- | --- | --- | --- |\n"
-    "| 92 % | 3 % | – | – | 100 % | 89 | ✅ 90/5, cost and time <= 100, security 100 % |"
+    "| 92 % | 3 % | – | – | 100 % | 89 | ✅ 90/5, tokens and velocity <= 100, security 100 % |"
 )
 MESSAGE_BLOCK = (
     "🎯 Fix: 92 %\n"
     "💥 Break: 3 %\n"
-    "💸 Cost: –\n"
-    "⏱️ Time: –\n"
+    "💸 Tokens: –\n"
+    "⏱️ Velocity: –\n"
     "🛡️ Security: 100 %\n"
     "🏆 Score: 89\n"
-    "🚦 Gate: ✅ 90/5, cost and time <= 100, security 100 %"
+    "🚦 Gate: ✅ 90/5, tokens and velocity <= 100, security 100 %"
 )
 SCORE_SCRIPT = (
     Path.home() / ".claude" / "skills" / "kvb-check-score" / "scripts" / "score.py"
