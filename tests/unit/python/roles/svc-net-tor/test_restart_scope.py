@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import sys
 import unittest
+from unittest import mock
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 from .test_egress_route import _evaluate
 
 CORE = PROJECT_ROOT / "roles/svc-net-tor/tasks/00_core.yml"
-VARS = load_yaml_any(str(PROJECT_ROOT / "roles/svc-net-tor/vars/main.yml"))
+VARS = load_yaml_any(str(PROJECT_ROOT / "roles/svc-net-tor" / ROLE_FILE_VARS_MAIN))
 NODES = ("manager-1", "manager-2", "worker-1")
 BEFORE = {node: f"{node}-task-1" for node in NODES}
 FRESH = {node: f"{node}-task-2" for node in NODES}
@@ -20,8 +23,33 @@ MARKERS = {
 NOTHING = {"compose": False, "forced": False, "nodes": []}
 
 
+def _conditions(task: dict) -> list:
+    when = task.get("when", [])
+    return list(when) if isinstance(when, list) else [when]
+
+
+def _flatten(tasks: list[dict], inherited: list) -> list[dict]:
+    """
+    Args:
+        tasks: a task list of 00_core.yml or the ``block`` of one of its tasks.
+        inherited: the ``when`` conditions of the blocks around ``tasks``.
+
+    Returns:
+        Every task that is no block, in file order, its ``when`` holding the
+        conditions of the blocks around it ahead of its own.
+    """
+    flat: list[dict] = []
+    for task in tasks:
+        conditions = inherited + _conditions(task)
+        if "block" in task:
+            flat += _flatten(task["block"], conditions)
+        else:
+            flat.append({**task, "when": conditions} if conditions else task)
+    return flat
+
+
 def _tasks() -> list[dict]:
-    return load_yaml_any(str(CORE))
+    return _flatten(load_yaml_any(str(CORE)), [])
 
 
 def _text(task: dict) -> str:
@@ -46,12 +74,12 @@ def _runs(task: dict, variables: dict) -> bool:
     )
 
 
-def restarts(
+def walk(
     swarm: bool = True,
     torrc: tuple[str, ...] = (),
     keys: bool = False,
     after: dict[str, str] | None = None,
-) -> dict:
+) -> tuple[dict, int]:
     """
     Args:
         swarm: deploy in swarm mode, else in compose mode on the first node alone.
@@ -60,9 +88,9 @@ def restarts(
         after: the task id each node runs once the deploy is done, BEFORE when None.
 
     Returns:
-        The restart paths the role's tasks take after the deploy: the compose
+        The restart paths the role's tasks take after the deploy (the compose
         recreate, the forced update of the whole service and the nodes restarted
-        one by one.
+        one by one) and the item count the per-node loop expands.
     """
     nodes = NODES if swarm else NODES[:1]
     before = [BEFORE[node] for node in nodes]
@@ -92,6 +120,7 @@ def restarts(
         VARS["TOR_RESTART_REQUIRED"], variables, conditional=False
     )
     taken = {"compose": False, "forced": False, "nodes": []}
+    loop_items = 0
     tasks = _tasks()
     start = next(
         index
@@ -101,6 +130,8 @@ def restarts(
     for task in tasks[start + 1 :]:
         facts = task.get("ansible.builtin.set_fact")
         kind = next((k for k, mark in MARKERS.items() if mark in _text(task)), None)
+        if kind == "nodes":
+            loop_items = len(_evaluate(task["loop"], variables, conditional=False))
         if (facts is None and kind is None) or not _runs(task, variables):
             continue
         if facts is not None:
@@ -129,7 +160,30 @@ def restarts(
             ]
         else:
             taken[kind] = True
-    return taken
+    return taken, loop_items
+
+
+def restarts(**scenario) -> dict:
+    """
+    Args:
+        scenario: the keyword arguments of :func:`walk`.
+
+    Returns:
+        The restart paths the role's tasks take after the deploy.
+    """
+    return walk(**scenario)[0]
+
+
+def expanded(**scenario) -> int:
+    """
+    Args:
+        scenario: the keyword arguments of :func:`walk`.
+
+    Returns:
+        The items the per-node restart loop expands before any ``when`` runs,
+        the stage at which Ansible already templates ``delegate_to``.
+    """
+    return walk(**scenario)[1]
 
 
 class TestRestartScope(unittest.TestCase):
@@ -163,6 +217,27 @@ class TestRestartScope(unittest.TestCase):
 
     def test_an_unchanged_config_restarts_nothing(self) -> None:
         self.assertEqual(restarts(), NOTHING)
+
+    def test_the_node_loop_expands_no_item_where_the_task_must_not_run(self) -> None:
+        cases = {
+            "compose with a changed torrc": {"swarm": False, "torrc": ("manager-1",)},
+            "swarm forced update": {"torrc": NODES},
+            "unchanged config": {},
+        }
+        for name, scenario in cases.items():
+            with self.subTest(name):
+                self.assertEqual(expanded(**scenario), 0)
+        self.assertEqual(expanded(torrc=("worker-1",)), 1)
+
+    def test_negative_control_a_bare_node_loop_expands_in_compose(self) -> None:
+        bare = [
+            {**t, "loop": "{{ _tor_restart_tasks }}"}
+            if MARKERS["nodes"] in _text(t)
+            else t
+            for t in _tasks()
+        ]
+        with mock.patch.object(sys.modules[__name__], "_tasks", return_value=bare):
+            self.assertEqual(expanded(swarm=False, torrc=("manager-1",)), 1)
 
     def test_the_whole_service_rolls_once_per_play(self) -> None:
         (task,) = [t for t in _tasks() if MARKERS["forced"] in _text(t)]

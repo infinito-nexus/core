@@ -17,8 +17,7 @@ RESOLV_TASK = "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.
 DROPIN_BLOCK = "🔁 Egress router | Retry dnsmasq until docker0 exists after a boot"
 START_TASK = "🚀 Egress router | Enable + (re)start dnsmasq"
 REGATHER_TASK = (
-    "📊 Re-gather the docker0 fact of every node so each torrc and dnsmasq bind "
-    "the live bridge"
+    "📊 Re-gather every node's docker0 fact so torrc and dnsmasq bind the live bridge"
 )
 TOR_NODE_VARIABLES = {
     "group_names": ["svc-net-tor"],

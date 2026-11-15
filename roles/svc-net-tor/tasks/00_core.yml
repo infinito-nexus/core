@@ -68,7 +68,7 @@
   run_once: "{{ IS_SWARM_MODE | bool }}"
   become: true
 
-- name: "🔑 Install the authoritative hidden-service keys on the stack host (must match DOMAIN_PRIMARY)"
+- name: "🔑 Install the hidden-service keys on the stack host (must match DOMAIN_PRIMARY)"
   ansible.builtin.copy:
     src: "{{ [ TOR_HS_SRC_DIR, item.name ] | path_join }}"
     dest: "{{ [ TOR_HS_DIR, item.name ] | path_join }}"
@@ -85,7 +85,7 @@
   become: true
   register: _tor_hs_keys
 
-- name: "📊 Re-gather the docker0 fact of every node so each torrc and dnsmasq bind the live bridge"
+- name: "📊 Re-gather every node's docker0 fact so torrc and dnsmasq bind the live bridge"
   ansible.builtin.setup:
     gather_subset:
       - "!all"
@@ -175,59 +175,60 @@
     compose_handlers_flush: true
     application_id: svc-net-tor
 
-- name: "🔍 Read the Tor task each node runs after the deploy"
-  ansible.builtin.command: >-
-    {% if IS_SWARM_MODE %}
-    container ps --filter status=running
-    --filter label=com.docker.swarm.service.name={{ lookup('container_service', application_id, 'tor') }}
-    --format '{{ '{{.Label "com.docker.swarm.task.id"}}' }}'
-    {% else %}
-    container ps -q --filter status=running --filter name=^{{ TOR_CONTAINER }}$
-    {% endif %}
-  register: _tor_running_after
-  changed_when: false
-  delegate_to: "{{ tor_node }}"
-  loop: "{{ query('node_hosts') }}"
-  loop_control:
-    loop_var: tor_node
-  run_once: "{{ IS_SWARM_MODE | bool }}"
-  become: true
+- name: "🔍 Find the Tor tasks a torrc or key change left stale"
   when:
     - IS_STACK_HOST | bool
     - TOR_RESTART_REQUIRED | bool
+  block:
+    - name: "🔍 Read the Tor task each node runs after the deploy"
+      ansible.builtin.command: >-
+        {% if IS_SWARM_MODE %}
+        container ps --filter status=running
+        --filter label=com.docker.swarm.service.name={{ lookup('container_service', application_id, 'tor') }}
+        --format '{{ '{{.Label "com.docker.swarm.task.id"}}' }}'
+        {% else %}
+        container ps -q --filter status=running --filter name=^{{ TOR_CONTAINER }}$
+        {% endif %}
+      register: _tor_running_after
+      changed_when: false
+      delegate_to: "{{ tor_node }}"
+      loop: "{{ query('node_hosts') }}"
+      loop_control:
+        loop_var: tor_node
+      run_once: "{{ IS_SWARM_MODE | bool }}"
+      become: true
 
-- name: "🧮 Pick the Tor tasks that predate a torrc or key change on their node"
-  ansible.builtin.set_fact:
-    _tor_restart_tasks: >-
-      {{ _tor_running_after.results
-         | selectattr('tor_node', 'in', _tor_changed_nodes)
-         | selectattr('stdout', 'in', _tor_running_before.stdout_lines)
-         | list }}
-    _tor_running_nodes: >-
-      {{ _tor_running_after.results
-         | rejectattr('stdout', 'equalto', '')
-         | map(attribute='tor_node')
-         | list }}
-  vars:
-    _tor_changed_nodes: >-
-      {{ (_tor_torrc.results | selectattr('changed') | map(attribute='tor_node') | list)
-         + ([STACK_HOST] if _tor_hs_keys is changed else []) }}
-  when:
-    - IS_STACK_HOST | bool
-    - TOR_RESTART_REQUIRED | bool
+    - name: "🧮 Pick the Tor tasks that predate a torrc or key change on their node"
+      ansible.builtin.set_fact:
+        _tor_restart_tasks: >-
+          {{ _tor_running_after.results
+             | selectattr('tor_node', 'in', _tor_changed_nodes)
+             | selectattr('stdout', 'in', _tor_running_before.stdout_lines)
+             | list }}
+        _tor_running_nodes: >-
+          {{ _tor_running_after.results
+             | rejectattr('stdout', 'equalto', '')
+             | map(attribute='tor_node')
+             | list }}
+      vars:
+        _tor_changed_nodes: >-
+          {{ (_tor_torrc.results | selectattr('changed') | map(attribute='tor_node') | list)
+             + ([STACK_HOST] if _tor_hs_keys is changed else []) }}
 
-- name: "🔄 Restart Tor to apply hidden-service key / torrc changes"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    compose up -d --force-recreate --remove-orphans
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  become: true
-  when:
-    - IS_COMPOSE_MODE
-    - TOR_RESTART_REQUIRED | bool
-    - _tor_restart_tasks | length > 0
+- name: "🐳 Recreate the Tor container in compose mode"
+  when: IS_COMPOSE_MODE
+  block:
+    - name: "🔄 Restart Tor to apply hidden-service key / torrc changes"
+      ansible.builtin.shell: |
+        set -euo pipefail
+        compose up -d --force-recreate --remove-orphans
+      args:
+        chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+        executable: /bin/bash
+      become: true
+      when:
+        - TOR_RESTART_REQUIRED | bool
+        - _tor_restart_tasks | length > 0
 
 - name: "🔄 Force Tor service redeploy to apply hidden-service key / torrc changes"
   ansible.builtin.command: >-
@@ -244,7 +245,7 @@
     - _tor_restart_tasks | length > 0
     - _tor_restart_tasks | length == _tor_running_nodes | length
 
-- name: "🔄 Restart the Tor task of each node whose torrc or keys changed, one node at a time"
+- name: "🔄 Restart the Tor task of each node whose torrc or keys changed, one at a time"
   ansible.builtin.shell: |
     set -euo pipefail
     container ps -q --filter status=running \
@@ -260,18 +261,16 @@
   retries: 300
   delay: 2
   delegate_to: "{{ tor_task.tor_node }}"
-  loop: "{{ _tor_restart_tasks }}"
+  loop: >-
+    {{ _tor_restart_tasks
+       if IS_SWARM_MODE and IS_STACK_HOST | bool and TOR_RESTART_REQUIRED | bool
+          and _tor_restart_tasks | length < _tor_running_nodes | length
+       else [] }}
   loop_control:
     loop_var: tor_task
     label: "{{ tor_task.tor_node }}"
   run_once: true
   become: true
-  when:
-    - IS_SWARM_MODE
-    - IS_STACK_HOST | bool
-    - TOR_RESTART_REQUIRED | bool
-    - _tor_restart_tasks | length > 0
-    - _tor_restart_tasks | length < _tor_running_nodes | length
 
 - name: "🧅 Bring up the transparent egress router for route '{{ TOR_EGRESS_ROUTE }}'"
   when: TOR_EGRESS_ROUTE != 'none'
