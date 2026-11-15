@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { hostnameOf, isOnionUrl, safeIsEnabled } = require("./personas");
+const { hostnameOf, isOnionUrl } = require("./personas");
+const { skipUnlessServiceEnabled, skipUnlessServiceDisabled } = require("./service-gating");
 
 const API_PATH_RE = /^\/api\//;
 const GATE_LOCATION_RE = /\/oauth2\/|openid-connect/;
@@ -57,39 +58,52 @@ function recordLiveTraffic(page, host) {
   return traffic;
 }
 
+async function expectLiveTraffic(page, shared, openDashboard) {
+  const traffic = recordLiveTraffic(page, hostnameOf(shared.env.appBaseUrl));
+  await openDashboard();
+
+  await expect
+    .poll(() => traffic.answered.length, {
+      timeout: resolveTimeout(60_000),
+      message: "the dashboard must fetch live data from /api through the proxy",
+    })
+    .toBeGreaterThan(0);
+  await expect
+    .poll(() => [...traffic.pending].map((request) => request.url()), {
+      timeout: resolveTimeout(120_000),
+      message: "every live-data request the dashboard opened must complete",
+    })
+    .toEqual([]);
+
+  expect(traffic.refused, "the proxy or the oauth2 gate refused live-data requests").toEqual([]);
+  expect(traffic.streams, "event streams must open with 200 text/event-stream").toEqual([]);
+  if (!isOnionUrl(shared.env.appBaseUrl)) {
+    expect(traffic.failed, "requests or sockets to the canonical host failed in transport").toEqual([]);
+    expect(traffic.consoleErrors, "the console reported transport errors for the canonical host").toEqual([]);
+  }
+}
+
 exports.register = function (shared) {
   test("biber: the dashboard live updates reach it through the proxy with no transport error", async ({ page }) => {
+    skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(300_000));
-    if (safeIsEnabled("sso")) {
-      expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
-      expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
-    }
+    expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
+    expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 
-    const traffic = recordLiveTraffic(page, hostnameOf(shared.env.appBaseUrl));
-    await shared.loginToDashboard(page, shared.env.biberUsername, shared.env.biberPassword);
+    await expectLiveTraffic(page, shared, () =>
+      shared.loginToDashboard(page, shared.env.biberUsername, shared.env.biberPassword),
+    );
 
-    await expect
-      .poll(() => traffic.answered.length, {
-        timeout: resolveTimeout(60_000),
-        message: "the dashboard must fetch live data from /api through the proxy",
-      })
-      .toBeGreaterThan(0);
-    await expect
-      .poll(() => [...traffic.pending].map((request) => request.url()), {
-        timeout: resolveTimeout(120_000),
-        message: "every live-data request the dashboard opened must complete",
-      })
-      .toEqual([]);
+    await shared.logout(page);
+  });
 
-    expect(traffic.refused, "the proxy or the oauth2 gate refused live-data requests").toEqual([]);
-    expect(traffic.streams, "event streams must open with 200 text/event-stream").toEqual([]);
-    if (!isOnionUrl(shared.env.appBaseUrl)) {
-      expect(traffic.failed, "requests or sockets to the canonical host failed in transport").toEqual([]);
-      expect(traffic.consoleErrors, "the console reported transport errors for the canonical host").toEqual([]);
-    }
+  test("guest: with SSO disabled the dashboard live updates reach it through the proxy", async ({ page }) => {
+    skipUnlessServiceDisabled("sso");
+    test.setTimeout(resolveTimeout(300_000));
 
-    if (safeIsEnabled("sso")) {
-      await shared.logout(page);
-    }
+    await expectLiveTraffic(page, shared, async () => {
+      await shared.openApp(page, "/");
+      await shared.expectDashboard(page, "with SSO disabled the dashboard is anonymous");
+    });
   });
 };
