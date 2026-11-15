@@ -71,7 +71,7 @@ from utils.annotations.suppress import (
     is_suppressed_at,
     is_suppressed_in_head,
 )
-from utils.cache.base import PROJECT_ROOT
+from utils.cache import PROJECT_ROOT
 from utils.cache.files import iter_non_ignored_files, read_text
 
 if TYPE_CHECKING:

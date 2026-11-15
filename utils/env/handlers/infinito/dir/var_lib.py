@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from utils.paths import read_group_path
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_DIR_VAR_LIB"
 COMMENT = "Base state dir; env build derives paths from it (SPOT: group_vars/all/05_paths.yml DIR_VAR_LIB)."

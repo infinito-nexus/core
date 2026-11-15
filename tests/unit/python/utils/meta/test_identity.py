@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from utils.meta.identity import (
     DOMAIN,
@@ -102,15 +102,15 @@ class TestCommittingAs(unittest.TestCase):
             "INFINITO_GIT_AUTHOR_NAME": "Carried Name",
             "INFINITO_GIT_AUTHOR_EMAIL": "carried@example.com",
         }
-        with mock.patch.dict("os.environ", carried):
+        with unittest.mock.patch.dict("os.environ", carried):
             self.assertEqual(committing_as(), ("Carried Name", "carried@example.com"))
 
     def test_an_empty_carried_address_falls_through_to_git(self) -> None:
         with (
-            mock.patch.dict("os.environ", {"INFINITO_GIT_AUTHOR_EMAIL": "  "}),
-            mock.patch("subprocess.run") as run,
+            unittest.mock.patch.dict("os.environ", {"INFINITO_GIT_AUTHOR_EMAIL": "  "}),
+            unittest.mock.patch("subprocess.run") as run,
         ):
-            run.return_value = mock.Mock(stdout="from-git\n")
+            run.return_value = unittest.mock.Mock(stdout="from-git\n")
             self.assertEqual(committing_as(), ("from-git", "from-git"))
 
 

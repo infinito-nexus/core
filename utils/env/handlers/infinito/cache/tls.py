@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from utils.cache.hosts import HTTPS_PORT, declarations
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CACHE_TLS_HOSTS"
 COMMENT = "Hostnames the cache frontend needs a leaf cert for; derived from the roles' cache: declarations."

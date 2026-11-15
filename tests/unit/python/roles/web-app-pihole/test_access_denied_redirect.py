@@ -4,9 +4,8 @@ import shutil
 import subprocess
 import tempfile
 import textwrap
-import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from ansible.plugins.lookup import LookupBase
 from jinja2 import Environment
@@ -126,10 +125,10 @@ def _vhost_hands_over(domain: str) -> bool:
         return get(applications, app, path, strict=False, default=default)
 
     answers = {"config": _config, "domain": lambda _app: CLEARNET_DOMAIN}
-    loader = mock.MagicMock()
+    loader = unittest.mock.MagicMock()
     loader.get.side_effect = lambda name, **_kwargs: _Answer(answers[name])
     lookup = network_handover.LookupModule()
-    with mock.patch.object(network_handover, "lookup_loader", loader):
+    with unittest.mock.patch.object(network_handover, "lookup_loader", loader):
         return lookup.run([ROLE.name, domain], variables={"domain": domain})[0]
 
 

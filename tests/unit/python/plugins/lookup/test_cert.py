@@ -1,13 +1,12 @@
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
 import utils.tls_common as _tls_common
 from plugins.lookup.cert import LookupModule
-from utils.cache import _reset_cache_for_tests
+from utils.cache.reset import _reset_cache_for_tests
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 
@@ -66,7 +65,7 @@ class TestCertPlanLookup(unittest.TestCase):
                 return mock.MagicMock(run=_applications_from_vars)
             return mock.MagicMock(run=lambda *_ra, **_rk: [{}])
 
-        loader_patcher = patch("plugins.lookup.cert.lookup_loader")
+        loader_patcher = mock.patch("plugins.lookup.cert.lookup_loader")
         loader_mock = loader_patcher.start()
         loader_mock.get.side_effect = _get
         self.addCleanup(loader_patcher.stop)

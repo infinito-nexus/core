@@ -19,8 +19,8 @@ from __future__ import annotations
 
 import unittest
 
-from cli.meta.roles.applications.complexity.graph import role_has_stack
 from utils.cache.yaml import load_yaml_any
+from utils.roles.deploy import role_has_stack
 from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
