@@ -37,6 +37,7 @@ ESPOCRM_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | ne
 ESPOCRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if ESPOCRM_OIDC_ONION_ISSUER | bool else '' }}"
 ESPOCRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 ESPOCRM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.espocrm.login.method.native.enabled') | bool }}"
+ESPOCRM_LOGIN_2FA: "{{ lookup('config', application_id, 'services.espocrm.login.method.2fa.enabled') | bool }}"
 ESPOCRM_LDAP_AUTOCREATE: "{{ lookup('config', application_id, 'services.ldap.autocreate') }}"
 ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
 ESPOCRM_LDAP_USER_LOGIN_FILTER: >-
