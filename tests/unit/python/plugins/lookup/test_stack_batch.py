@@ -78,7 +78,10 @@ def _plan(root: Path, closure: list[str], group_names: list[str]) -> list[dict]:
 class TestStackBatchPlan(unittest.TestCase):
     def test_the_tree_plans_every_bridged_role_once_and_admits_it(self) -> None:
         roles_dir = PROJECT_ROOT / "roles"
-        bridged = [path.parents[2].name for path in roles_dir.glob(f"*/{BRIDGE}")]
+        bridged = [
+            path.relative_to(roles_dir).parts[0]
+            for path in roles_dir.glob(f"*/{BRIDGE}")
+        ]
         ordered = ordered_primary_service_entries(
             build_service_registry_from_roles_dir(roles_dir), roles_dir
         )

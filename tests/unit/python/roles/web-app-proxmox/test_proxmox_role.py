@@ -40,7 +40,7 @@ COMPOSE = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
 README = read_text(str(ROLE / ROLE_FILE_README))
 TASKS = ROLE / "tasks" / "00_core.yml"
 TASK_LIST = load_yaml_any(str(TASKS), default_if_missing=[])
-GUARD = ROLE / "tasks" / "utils" / "stack_guard.yml"
+GUARD = ROLE / "tasks" / "utils" / "stack" / "guard.yml"
 PROXMOX = SERVICES["proxmox"]
 SSO_GATE = assert_task(
     GUARD, "🛑 Refuse to serve the hypervisor UI without the SSO group gate"

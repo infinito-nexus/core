@@ -6,8 +6,8 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 
 TASKS = PROJECT_ROOT / "roles" / "web-app-stalwart" / "tasks"
-GUARD = "utils/stack_guard.yml"
-STAGE = "utils/stack_stage.yml"
+GUARD = "utils/stack/guard.yml"
+STAGE = "utils/stack/stage.yml"
 CORE = "00_core.yml"
 
 

@@ -115,7 +115,10 @@ def bridge_roles(root: Path) -> list[str]:
     Returns:
         the roles that ship a stack bridge, in name order.
     """
-    return sorted(path.parents[2].name for path in root.glob(f"roles/*/{BRIDGE}"))
+    return sorted(
+        path.relative_to(root / "roles").parts[0]
+        for path in root.glob(f"roles/*/{BRIDGE}")
+    )
 
 
 def non_canonical_bridges(root: Path) -> list[str]:

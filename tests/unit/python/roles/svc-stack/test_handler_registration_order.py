@@ -12,7 +12,7 @@ BLUESKY_CORE = PROJECT_ROOT / "roles/web-app-bluesky/tasks/00_core.yml"
 BLUESKY_STAGING = tuple(
     PROJECT_ROOT / "roles/web-app-bluesky/tasks" / name
     for name in (
-        "utils/stack_stage.yml",
+        "utils/stack/stage.yml",
         "01_social_app.yml",
         "02_login_broker.yml",
         "03_pds.yml",

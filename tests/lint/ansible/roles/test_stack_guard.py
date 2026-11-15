@@ -11,7 +11,7 @@ from utils.cache.yaml import load_yaml_any
 from . import PROJECT_ROOT
 from .test_stack_bridge import BRIDGE, bridge_roles
 
-GUARD = Path("tasks/utils/stack_guard.yml")
+GUARD = Path("tasks/utils/stack/guard.yml")
 ONCE_FLAG = "utils/once/flag.yml"
 CHECKS = frozenset({"assert", "fail", "ansible.builtin.assert", "ansible.builtin.fail"})
 INCLUDES = (
@@ -21,6 +21,17 @@ INCLUDES = (
     "ansible.builtin.import_tasks",
 )
 ABSOLUTE = re.compile(r"lookup\(\s*'path_absolute'\s*,\s*'([^']+)'\s*\)")
+
+
+def owning_role(path: Path, rel: Path) -> Path:
+    """Args:
+        path: a role file found by ``roles/*/<rel>``.
+        rel: the file's path inside its role.
+
+    Returns:
+        the directory of the role that ships ``path``.
+    """
+    return path.parents[len(rel.parts) - 1]
 
 
 def _tasks(path: Path) -> list[dict]:
@@ -78,7 +89,7 @@ def impure_guards(root: Path) -> list[str]:
     """
     found = []
     for path in sorted(root.glob(f"roles/*/{GUARD}")):
-        role_dir = path.parents[2]
+        role_dir = owning_role(path, GUARD)
         tasks = _tasks(path)
         if not tasks:
             found.append(f"{role_dir.name}: empty")
@@ -98,9 +109,9 @@ def guards_without_a_bridge(root: Path) -> list[str]:
         the roles that ship a stack guard but no bridge, so nothing runs it.
     """
     return sorted(
-        path.parents[2].name
+        owning_role(path, GUARD).name
         for path in root.glob(f"roles/*/{GUARD}")
-        if not (path.parents[2] / BRIDGE).is_file()
+        if not (owning_role(path, GUARD) / BRIDGE).is_file()
     )
 
 

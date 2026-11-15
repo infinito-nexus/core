@@ -19,7 +19,7 @@ fails hard before the fixture's vhost or container exists.
 ## Features
 
 - **Bundle-guarded:** The stack guard
-  [tasks/utils/stack_guard.yml](./tasks/utils/stack_guard.yml) asserts
+  [tasks/utils/stack/guard.yml](./tasks/utils/stack/guard.yml) asserts
   `AGENT_FIXTURE_BUNDLE` and aborts the deploy anywhere outside the agents test
   bundle. svc-stack runs it before the fixture's vhost renders and before its
   backend.

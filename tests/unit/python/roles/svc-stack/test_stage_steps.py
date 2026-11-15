@@ -5,7 +5,7 @@ import unittest
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 
-STAGE = "tasks/utils/stack_stage.yml"
+STAGE = "tasks/utils/stack/stage.yml"
 CORE = "tasks/00_core.yml"
 PRE_UP = {
     "web-app-jitsi": ("01_keycloak_adapter_build.yml",),

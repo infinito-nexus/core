@@ -217,7 +217,7 @@ def _build(workdir: Path, *, guard: bool) -> None:
     """
     if guard:
         _write(
-            workdir / "roles" / ALPHA["role"] / "tasks/utils/stack_guard.yml",
+            workdir / "roles" / ALPHA["role"] / "tasks/utils/stack/guard.yml",
             STUB_GUARD,
         )
     for path in REAL:

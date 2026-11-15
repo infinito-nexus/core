@@ -12,7 +12,7 @@
 - name: "🛡️ P0 | Run the stack guard of every batch item before any vhost renders"
   ansible.builtin.include_role:
     name: "{{ stack_batch_item.role }}"
-    tasks_from: utils/stack_guard.yml
+    tasks_from: utils/stack/guard.yml
     public: false
   loop: "{{ stack_batch_items }}"
   loop_control:
@@ -21,7 +21,7 @@
   vars:
     application_id: "{{ stack_batch_item.id }}"
     stack_batch_consumer: "{{ stack_batch_item.id }}"
-  when: lookup('path_absolute', 'roles', stack_batch_item.role, 'tasks/utils/stack_guard.yml') is file
+  when: lookup('path_absolute', 'roles', stack_batch_item.role, 'tasks/utils/stack/guard.yml') is file
 
 - name: "🧱 Serve the fronts of the batch from the OpenResty host"
   ansible.builtin.include_tasks:

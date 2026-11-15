@@ -8,9 +8,10 @@ from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
 from .test_stack_bridge import BRIDGE
-from .test_stack_guard import _include, _label, _role, _target, _tasks
+from .test_stack_guard import _include, _label, _role, _target, _tasks, owning_role
 
-STAGE = Path("tasks/utils/stack_stage.yml")
+STAGE = Path("tasks/utils/stack/stage.yml")
+STAGE_NAME = "/".join(STAGE.parts[-2:])
 ENTRY_BACK = "tasks/utils/load/entry/back.yml"
 BRIDGE_FILE = str(BRIDGE.relative_to("tasks"))
 NESTED = ("block", "rescue", "always")
@@ -30,9 +31,9 @@ def stages_without_a_bridge(root: Path) -> list[str]:
         the roles that ship a stack stage but no bridge, so nothing runs it.
     """
     return sorted(
-        path.parents[2].name
+        owning_role(path, STAGE).name
         for path in root.glob(f"roles/*/{STAGE}")
-        if not (path.parents[2] / BRIDGE).is_file()
+        if not (owning_role(path, STAGE) / BRIDGE).is_file()
     )
 
 
@@ -113,7 +114,7 @@ def stage_reentries(root: Path) -> list[str]:
     """
     found = []
     for path in sorted(root.glob(f"roles/*/{STAGE}")):
-        role_dir = path.parents[2]
+        role_dir = owning_role(path, STAGE)
         found.extend(
             f"{role_dir.name}: {label}"
             for label in _reentries(root, role_dir, _tasks(path), {path})
@@ -133,7 +134,7 @@ def stage_callers(root: Path) -> list[str]:
         str(path.relative_to(root))
         for path in files
         if str(path.relative_to(root)) != ENTRY_BACK
-        and STAGE.name in read_text(str(path))
+        and STAGE_NAME in read_text(str(path))
     )
 
 
@@ -222,7 +223,7 @@ class TestStackStage(unittest.TestCase):
             self.assertEqual(
                 stage_files(root, "web-app-staged"),
                 {
-                    tasks / "utils/stack_stage.yml",
+                    tasks / "utils/stack/stage.yml",
                     tasks / "inner.yml",
                     tasks / "deeper.yml",
                 },
@@ -232,7 +233,7 @@ class TestStackStage(unittest.TestCase):
     def test_a_caller_besides_the_entry_is_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            naming = f"- include_tasks: {STAGE.name}\n"
+            naming = f"- include_tasks: {STAGE_NAME}\n"
             for rel in (ENTRY_BACK, "roles/svc-stack/tasks/batch/serve.yml"):
                 path = root / rel
                 path.parent.mkdir(parents=True, exist_ok=True)

@@ -36,7 +36,7 @@ The theme MUST be bundled with the source repository (either checked in under `t
 
 ## Scope
 
-V1 supports **exactly one canonical domain** per role deploy. The stack guard [tasks/utils/stack_guard.yml](./tasks/utils/stack_guard.yml) asserts this before the vhost renders and before the backend. Multi-canonical-domain support (multiple Hugo sites in one role) is a follow-up.
+V1 supports **exactly one canonical domain** per role deploy. The stack guard [tasks/utils/stack/guard.yml](./tasks/utils/stack/guard.yml) asserts this before the vhost renders and before the backend. Multi-canonical-domain support (multiple Hugo sites in one role) is a follow-up.
 
 ## Further Resources
 

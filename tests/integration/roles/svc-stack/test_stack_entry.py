@@ -188,9 +188,9 @@ def _build(workdir: Path) -> None:
             f"---\nconsumer_scope: {role}-vars\n",
         )
     for role in GUARDED:
-        _write(workdir / "roles" / role / "tasks/utils/stack_guard.yml", STUB_GUARD)
+        _write(workdir / "roles" / role / "tasks/utils/stack/guard.yml", STUB_GUARD)
     for role in STAGED:
-        _write(workdir / "roles" / role / "tasks/utils/stack_stage.yml", STUB_STAGE)
+        _write(workdir / "roles" / role / "tasks/utils/stack/stage.yml", STUB_STAGE)
     _write(workdir / "roles" / PLAIN / "tasks/main.yml", "---\n[]\n")
     _write(workdir / "lookup/domain.py", STUB_DOMAIN_LOOKUP)
     _write(workdir / "play.yml", PLAYBOOK)

@@ -5,20 +5,20 @@
 - name: "🛡️ Run the stack guard of '{{ entry_application_id }}' before its backend"
   ansible.builtin.include_role:
     name: "{{ entry_role }}"
-    tasks_from: utils/stack_guard.yml
+    tasks_from: utils/stack/guard.yml
     public: false
   loop: "{{ [entry_application_id] }}"
   loop_control:
     loop_var: stack_batch_consumer
   vars:
     application_id: "{{ stack_batch_consumer }}"
-  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack_guard.yml') is file
+  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack/guard.yml') is file
 
 - name: "🧰 Run the stack stage of '{{ entry_application_id }}' before its backend"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/step.yml') }}"
   vars:
-    entry_tasks_from: utils/stack_stage.yml
-  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack_stage.yml') is file
+    entry_tasks_from: utils/stack/stage.yml
+  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack/stage.yml') is file
 
 - name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/step.yml') }}"
