@@ -43,7 +43,7 @@ As a developer who wants to run an existing web application on Infinito.Nexus, I
 
 ### Static kind
 
-- [ ] A manifest with `kind: static` renders a static site role that links `web-app-cst-brand` and the `--design-*` tokens, renders header and footer on the server with nav entries from the brand config, and includes `cosmos.js` and `cosmos-sky` only while its cosmos service flag is on.
+- [x] A manifest with `kind: static` renders a static site role that links `web-app-cst-brand` and the `--design-*` tokens, renders header and footer on the server with nav entries from the brand config, and includes `cosmos.js` and `cosmos-sky` only while its cosmos service flag is on.
 - [ ] A `kind: static` role ships its strings as `locale/<code>/LC_MESSAGES/<domain>.po`, `make i18n-translate` fills them through `web-svc-translate`, and every language of core `meta/languages.yml` is served under `/<code>/` with `html` `lang` and `dir` and `hreflang` links.
 
 ### Contract
