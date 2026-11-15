@@ -11,8 +11,14 @@ from typing import ClassVar
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import (
+    ROLE_FILE_HANDLERS_MAIN,
+    ROLE_FILE_TASKS_MAIN,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ENTRY = Path("tasks/utils/load/entry.yml")
+ENTRY_FIRST = Path("tasks/utils/load/entry/first.yml")
 ENTRY_BACK = Path("tasks/utils/load/entry/back.yml")
 ENTRY_STEP = Path("tasks/utils/load/entry/step.yml")
 STACK_VARS = Path("group_vars/all/24_stack.yml")
@@ -48,6 +54,26 @@ STUB_BACKEND = """---
     stub_runs: >-
       {{ stub_runs + [[stack_batch_consumer, application_id, domain | default('none'),
                        stack_batch_stage, consumer_scope] | join('|')] }}
+
+- name: Load a handler role the way a backend loads sys-svc-compose
+  ansible.builtin.include_role:
+    name: handler-stub
+  when: stack_batch_consumer == 'web-app-alpha'
+"""
+
+STUB_NOTIFY = """---
+- name: Notify the handler the way a compose render does
+  ansible.builtin.debug:
+    msg: notify
+  changed_when: true
+  notify: stub poke
+"""
+
+STUB_HANDLER = """---
+- name: Record that the handler ran
+  listen: stub poke
+  ansible.builtin.set_fact:
+    stub_runs: "{{ stub_runs + ['handler|ran'] }}"
 """
 
 STUB_LATE = """---
@@ -89,6 +115,9 @@ PLAYBOOK = """---
         entry_domain: true
         entry_post_run: false
       when: STACK_ENTRY_PENDING | bool
+
+    - name: Flush the handlers the backend notified, as the role body does after the entry
+      ansible.builtin.meta: flush_handlers
 
     - name: Enter a bridged role without a domain
       ansible.builtin.include_tasks: "{{ entry_file }}"
@@ -172,26 +201,36 @@ def _write(path: Path, body: str) -> None:
     path.write_text(body, encoding="utf-8")
 
 
+def write_entry_tree(workdir: Path) -> None:
+    """Args:
+    workdir: the playbook directory that receives the stack entry, the stack
+        vars and the svc-stack stages the entry reaches, stubbed.
+    """
+    for path in (ENTRY, ENTRY_FIRST, ENTRY_BACK, ENTRY_STEP, STACK_VARS):
+        _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
+    _write(workdir / "roles/svc-stack/tasks/batch/back.yml", STUB_BACKEND)
+    _write(workdir / "roles/svc-stack/tasks/batch/late.yml", STUB_LATE)
+
+
 def _build(workdir: Path) -> None:
     """Args:
     workdir: an empty directory that becomes the playbook directory.
     """
-    for path in (ENTRY, ENTRY_BACK, ENTRY_STEP, STACK_VARS):
-        _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
-    _write(workdir / "roles/svc-stack/tasks/batch/back.yml", STUB_BACKEND)
-    _write(workdir / "roles/svc-stack/tasks/batch/late.yml", STUB_LATE)
+    write_entry_tree(workdir)
+    _write(workdir / "roles/handler-stub" / ROLE_FILE_TASKS_MAIN, STUB_NOTIFY)
+    _write(workdir / "roles/handler-stub" / ROLE_FILE_HANDLERS_MAIN, STUB_HANDLER)
     bridge = read_text(str(PROJECT_ROOT / CANONICAL_BRIDGE))
     for role in BRIDGED:
         _write(workdir / "roles" / role / "tasks/utils/stack.yml", bridge)
         _write(
-            workdir / "roles" / role / "vars/main.yml",
+            workdir / "roles" / role / ROLE_FILE_VARS_MAIN,
             f"---\nconsumer_scope: {role}-vars\n",
         )
     for role in GUARDED:
         _write(workdir / "roles" / role / "tasks/utils/stack/guard.yml", STUB_GUARD)
     for role in STAGED:
         _write(workdir / "roles" / role / "tasks/utils/stack/stage.yml", STUB_STAGE)
-    _write(workdir / "roles" / PLAIN / "tasks/main.yml", "---\n[]\n")
+    _write(workdir / "roles" / PLAIN / ROLE_FILE_TASKS_MAIN, "---\n[]\n")
     _write(workdir / "lookup/domain.py", STUB_DOMAIN_LOOKUP)
     _write(workdir / "play.yml", PLAYBOOK)
 
@@ -317,9 +356,21 @@ class TestStackEntry(unittest.TestCase):
     def test_a_post_load_first_entry_is_refused(self) -> None:
         self.assertEqual(self.observed["refused"], "refused")
 
+    @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
+    def test_a_handler_the_backend_loaded_still_runs_once_the_entry_is_recorded(
+        self,
+    ) -> None:
+        runs = self.observed["runs"]
+        back = (
+            "web-app-alpha|web-app-alpha|web-app-alpha.example|back|web-app-alpha-vars"
+        )
+        self.assertEqual(runs[runs.index(back) + 1], "handler|ran")
+
     def test_the_entry_flushes_no_handlers(self) -> None:
-        text = json.dumps(load_yaml_any(str(PROJECT_ROOT / ENTRY)))
-        self.assertNotIn("flush_handlers", text)
+        for path in (ENTRY, ENTRY_FIRST):
+            with self.subTest(str(path)):
+                text = json.dumps(load_yaml_any(str(PROJECT_ROOT / path)))
+                self.assertNotIn("flush_handlers", text)
 
 
 if __name__ == "__main__":

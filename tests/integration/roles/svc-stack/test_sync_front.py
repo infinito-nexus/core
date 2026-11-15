@@ -9,12 +9,14 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from .test_stack_entry import _write
 
 REAL = (
     Path("tasks/utils/sync/front.yml"),
     Path("tasks/utils/load/entry.yml"),
+    Path("tasks/utils/load/entry/first.yml"),
     Path("tasks/utils/load/entry/back.yml"),
     Path("group_vars/all/24_stack.yml"),
     Path("roles/sys-service-loader/tasks/drain.yml"),
@@ -98,7 +100,7 @@ def run_sync_front() -> dict:
         for path in REAL:
             _write(workdir / path, read_text(str(PROJECT_ROOT / path)))
         _write(workdir / "roles/svc-stack/tasks/batch/late.yml", STUB_LATE)
-        _write(workdir / "roles/sys-stub-post/tasks/main.yml", STUB_POST)
+        _write(workdir / "roles/sys-stub-post" / ROLE_FILE_TASKS_MAIN, STUB_POST)
         _write(workdir / "play.yml", PLAYBOOK)
         report = workdir / "report.json"
         result = subprocess.run(

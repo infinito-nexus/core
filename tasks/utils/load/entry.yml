@@ -4,26 +4,5 @@
 # Param: entry_domain - true when the caller also binds domain for that role.
 # Param: entry_post_run - true on a post-load path, where no flush follows the entry.
 - name: "🧩 Run the stack of '{{ entry_application_id }}' before its first entry"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/first.yml') }}"
   when: STACK_ENTRY_PENDING | bool
-  block:
-    - name: "🛑 Refuse the first entry of '{{ entry_application_id }}' on a post-load path"
-      ansible.builtin.assert:
-        that:
-          - not (entry_post_run | bool)
-        fail_msg: >-
-          {{ entry_application_id }} is first entered on a post-load path, where no flush follows
-          its backend. Load it through utils/load/app.yml or utils/setup/role.yml first.
-        quiet: true
-
-    - name: "🌐 Serve the front of '{{ entry_application_id }}' the front batch did not plan"
-      ansible.builtin.include_role:
-        name: svc-stack
-        tasks_from: batch/late.yml
-        public: false
-      vars:
-        stack_late_application_id: "{{ entry_application_id }}"
-        stack_late_role: "{{ entry_role }}"
-      when: entry_application_id not in stack_front_served
-
-    - name: "🧩 Run the backend of '{{ entry_application_id }}'"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/back.yml') }}"

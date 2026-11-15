@@ -10,8 +10,9 @@ from pathlib import Path
 from typing import ClassVar
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_VARS_MAIN
 
-from .test_stack_entry import CANONICAL_BRIDGE, ENTRY, STACK_VARS, STUB_BACKEND, _write
+from .test_stack_entry import CANONICAL_BRIDGE, _write, write_entry_tree
 
 APP_LOAD = Path("tasks/utils/load/app.yml")
 WITH_DOMAIN = "web-app-dom"
@@ -70,15 +71,13 @@ def _build(workdir: Path, app_load: str) -> None:
     app_load: the text of tasks/utils/load/app.yml under test.
     """
     _write(workdir / APP_LOAD, app_load)
-    _write(workdir / ENTRY, read_text(str(PROJECT_ROOT / ENTRY)))
-    _write(workdir / STACK_VARS, read_text(str(PROJECT_ROOT / STACK_VARS)))
-    _write(workdir / "roles/svc-stack/tasks/batch/back.yml", STUB_BACKEND)
+    write_entry_tree(workdir)
     bridge = read_text(str(PROJECT_ROOT / CANONICAL_BRIDGE))
     for role in (WITH_DOMAIN, WITHOUT_DOMAIN):
         _write(workdir / "roles" / role / "tasks/utils/stack.yml", bridge)
-        _write(workdir / "roles" / role / "tasks/main.yml", PROBE)
+        _write(workdir / "roles" / role / ROLE_FILE_TASKS_MAIN, PROBE)
         _write(
-            workdir / "roles" / role / "vars/main.yml",
+            workdir / "roles" / role / ROLE_FILE_VARS_MAIN,
             f"---\nconsumer_scope: {role}-vars\n",
         )
     _write(workdir / "lookup/domains.py", STUB_DOMAINS_LOOKUP)
@@ -148,7 +147,7 @@ class TestAppLoadDomain(unittest.TestCase):
     @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
     def test_the_stack_backend_gets_the_same_binding(self) -> None:
         self.assertEqual(
-            self.observed["runs"],
+            [run for run in self.observed["runs"] if not run.startswith("late|")],
             [
                 f"{WITH_DOMAIN}|{WITH_DOMAIN}|{WITH_DOMAIN}.example|back|{WITH_DOMAIN}-vars",
                 f"{WITHOUT_DOMAIN}|{WITHOUT_DOMAIN}|none|back|{WITHOUT_DOMAIN}-vars",
