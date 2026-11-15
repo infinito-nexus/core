@@ -20,7 +20,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r CLIENT_SECRET && export CLIENT_SECRET && container exec -i
+      IFS= read -r CLIENT_SECRET && : "${CLIENT_SECRET:?arrived empty on stdin}" && export CLIENT_SECRET && container exec -i
       -e SITE_NAME -e PROVIDER_NAME -e BUTTON_TEXT
       -e CLIENT_ID -e CLIENT_SECRET -e ISSUER_URL
       -e USER_ID_PROPERTY -e SOCIAL_LOGIN_ENABLED

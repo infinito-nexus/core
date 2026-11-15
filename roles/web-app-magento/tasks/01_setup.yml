@@ -84,7 +84,7 @@
 - name: "🔑 Realign the Magento administrator password with the declared one"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r MAGENTO_REALIGN_PASSWORD && export MAGENTO_REALIGN_PASSWORD &&
+      IFS= read -r MAGENTO_REALIGN_PASSWORD && : "${MAGENTO_REALIGN_PASSWORD:?arrived empty on stdin}" && export MAGENTO_REALIGN_PASSWORD &&
       container exec -i --user {{ MAGENTO_USER }}
       -e MAGENTO_REALIGN_ROOT -e MAGENTO_REALIGN_USERNAME -e MAGENTO_REALIGN_PASSWORD
       {{ MAGENTO_PHP_CONTAINER_ADDRESS }} php

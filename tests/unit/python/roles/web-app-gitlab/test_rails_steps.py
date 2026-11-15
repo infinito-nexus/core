@@ -106,6 +106,7 @@ eval($stdin.read, TOPLEVEL_BINDING, 'stdin')
 
 ROOT_SECRET = "stub-root secret $x"
 ADMIN_SECRET = "stub-admin 'secret' \\n"
+SECRET_READS = re.compile(r"IFS= read -r (\w+)")
 
 
 def _shell_task() -> dict:
@@ -123,8 +124,8 @@ def _runner_task(design_enabled: bool, design_files: list[dict]) -> tuple[str, s
         design_files: ``gitlab_design_files.results`` of the slurp loop
 
     Returns:
-        the shell command and the stdin (two password lines, then the Ruby
-        program ``rails runner -`` evaluates)
+        the shell command and the stdin (one line per secret the host shell
+        reads, then the Ruby program ``rails runner -`` evaluates)
     """
     task = _shell_task()
     environment = Environment(
@@ -153,6 +154,49 @@ def _runner_task(design_enabled: bool, design_files: list[dict]) -> tuple[str, s
     command = environment.from_string(shell["cmd"]).render(**values)
     stdin = environment.from_string(shell["stdin"]).render(**values) + "\n"
     return command, stdin
+
+
+class TestRunnerSecrets(unittest.TestCase):
+    def test_the_passwords_reach_the_host_shell_on_stdin_in_read_order(self) -> None:
+        task = _shell_task()
+        cmd = task["ansible.builtin.shell"]["cmd"]
+        _, stdin = _runner_task(False, [])
+
+        self.assertEqual(
+            SECRET_READS.findall(cmd.split("container exec")[0]),
+            ["GITLAB_ROOT_PASSWORD", "GITLAB_ADMIN_PASSWORD"],
+        )
+        self.assertEqual(stdin.split("\n")[:2], [ROOT_SECRET, ADMIN_SECRET])
+        self.assertFalse(
+            {"GITLAB_ROOT_PASSWORD", "GITLAB_ADMIN_PASSWORD"} & set(task["environment"])
+        )
+
+    def test_the_passwords_stay_off_the_rendered_command(self) -> None:
+        command, _ = _runner_task(False, [])
+
+        self.assertNotIn(ROOT_SECRET, command)
+        self.assertNotIn(ADMIN_SECRET, command)
+
+    def test_every_read_is_checked_for_an_empty_value_before_the_exec(self) -> None:
+        host = _shell_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]
+        for read in SECRET_READS.finditer(host):
+            self.assertIn(f'"${{{read.group(1)}:?', host[read.end() :], read.group(1))
+
+    def test_the_host_shell_refuses_an_empty_password_line(self) -> None:
+        host = _shell_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]
+        for stdin, reached in (
+            ("root\nadmin\n", True),
+            ("\nadmin\n", False),
+            ("root\n\n", False),
+        ):
+            result = subprocess.run(
+                ["sh", "-c", host + "echo REACHED"],
+                input=stdin,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual("REACHED" in result.stdout, reached, stdin)
 
 
 @unittest.skipUnless(shutil.which("ruby"), "needs a ruby interpreter")
@@ -239,15 +283,6 @@ class TestRailsSteps(unittest.TestCase):
         self.assertEqual(
             re.findall(r"(?m)^(\w+): \[CHANGED\]", result.stdout), ["appearance"]
         )
-
-    def test_the_passwords_stay_off_the_command_and_the_task_environment(self) -> None:
-        command, _ = _runner_task(False, [])
-        task = _shell_task()
-
-        self.assertNotIn("GITLAB_ROOT_PASSWORD", task["environment"])
-        self.assertNotIn("GITLAB_ADMIN_PASSWORD", task["environment"])
-        self.assertNotIn(ROOT_SECRET, command)
-        self.assertNotIn(ADMIN_SECRET, command)
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@
     - name: "🔍 Read the keys OpenBao holds for the provision runner"
       ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec -i {{ SEAWEEDFS_OPENBAO_LOCAL_CID | quote }}
-        sh -c 'IFS= read -r BAO_TOKEN; export BAO_TOKEN;
+        sh -c 'IFS= read -r BAO_TOKEN || :; : "${BAO_TOKEN:?arrived empty on stdin}"; export BAO_TOKEN;
         bao kv get -mount={{ SEAWEEDFS_WORKSPACE_OPENBAO_MOUNT }} -format=json {{ _seaweedfs_ws_openbao_path }}'
       args:
         stdin: "{{ _seaweedfs_openbao_login.stdout | trim }}"
@@ -59,7 +59,7 @@
     - name: "🧹 Revoke the OpenBao token of this apply"
       ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec -i {{ SEAWEEDFS_OPENBAO_LOCAL_CID | quote }}
-        sh -c 'IFS= read -r BAO_TOKEN; export BAO_TOKEN; bao token revoke -self >/dev/null'
+        sh -c 'IFS= read -r BAO_TOKEN || :; : "${BAO_TOKEN:?arrived empty on stdin}"; export BAO_TOKEN; bao token revoke -self >/dev/null'
       args:
         stdin: "{{ _seaweedfs_openbao_login.stdout | trim }}"
       changed_when: false

@@ -7,6 +7,7 @@ action=$1
 url=$2
 region=$3
 IFS= read -r credentials
+: "${credentials:?the credentials arrive on stdin}"
 config() {
   printf 'user = "%s"\naws-sigv4 = "aws:amz:%s:s3"\nurl = "%s"\nsilent\nfail\n' "$credentials" "$region" "$url"
 }

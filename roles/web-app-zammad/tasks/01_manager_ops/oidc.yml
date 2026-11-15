@@ -5,6 +5,7 @@
     cmd: |
       set -euo pipefail
       IFS= read -r OIDC_CLIENT_SECRET
+      : "${OIDC_CLIENT_SECRET:?arrived empty on stdin}"
       export OIDC_CLIENT_SECRET
       container exec -i \
         -e ZAMMAD_FQDN -e ZAMMAD_HTTP_TYPE \

@@ -13,7 +13,7 @@
     - name: "🔐 Upsert the Keycloak provider of user_oidc"
       ansible.builtin.shell:
         cmd: >-
-          IFS= read -r NC_USER_OIDC_CLIENT_SECRET && export NC_USER_OIDC_CLIENT_SECRET &&
+          IFS= read -r NC_USER_OIDC_CLIENT_SECRET || :; : "${NC_USER_OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export NC_USER_OIDC_CLIENT_SECRET &&
           container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
           -e NC_USER_OIDC_CLIENT_SECRET
           {{ NEXTCLOUD_LOCAL_CID | quote }}

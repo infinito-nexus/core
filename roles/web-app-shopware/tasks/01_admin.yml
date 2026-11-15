@@ -2,7 +2,7 @@
 - name: "✅ Ensure Shopware admin exists and has the desired password"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r ADMIN_PASSWORD && export ADMIN_PASSWORD && container exec -i --user {{ SHOPWARE_USER }}
+      IFS= read -r ADMIN_PASSWORD && : "${ADMIN_PASSWORD:?arrived empty on stdin}" && export ADMIN_PASSWORD && container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
       -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
       -e ADMIN_PASSWORD

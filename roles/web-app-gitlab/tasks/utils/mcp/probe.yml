@@ -2,7 +2,7 @@
 - name: "🩺 Ask the instance whether the stored token still authenticates"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r GITLAB_MCP_TOKEN && export GITLAB_MCP_TOKEN && container exec -i
+      IFS= read -r GITLAB_MCP_TOKEN && : "${GITLAB_MCP_TOKEN:?arrived empty on stdin}" && export GITLAB_MCP_TOKEN && container exec -i
       -e GITLAB_MCP_HOST={{ GITLAB_WORKHORSE_SERVICE_NAME | quote }}
       -e GITLAB_MCP_PORT={{ GITLAB_WORKHORSE_PORT | quote }}
       -e GITLAB_MCP_PATH={{ GITLAB_MCP_PATH | quote }}

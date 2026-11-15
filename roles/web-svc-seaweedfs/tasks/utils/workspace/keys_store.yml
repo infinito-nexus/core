@@ -26,7 +26,7 @@
 - name: "🔐 Hand the keys to OpenBao for the provision runner"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ SEAWEEDFS_OPENBAO_LOCAL_CID | quote }}
-    sh -c 'IFS= read -r BAO_TOKEN; export BAO_TOKEN;
+    sh -c 'IFS= read -r BAO_TOKEN || :; : "${BAO_TOKEN:?arrived empty on stdin}"; export BAO_TOKEN;
     bao kv put -mount={{ SEAWEEDFS_WORKSPACE_OPENBAO_MOUNT }} {{ _seaweedfs_ws_openbao_path }} - >/dev/null'
   args:
     stdin: |-

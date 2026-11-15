@@ -7,7 +7,7 @@
 # Returns: gitea_api_call, whose stdout the gitea_api_response filter splits into status and json
 - name: "🌐 {{ gitea_api_method }} {{ gitea_api_path }} with the administrator's access"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r GITEA_API_BASIC_AUTH && IFS= read -r GITEA_API_BODY && : "${GITEA_API_BASIC_AUTH:?arrived empty on stdin}" && export GITEA_API_BASIC_AUTH GITEA_API_BODY && container exec -i -e GITEA_API_BASIC_AUTH -e GITEA_API_BODY {{ GITEA_LOCAL_CID | quote }} sh -c '
+    IFS= read -r GITEA_API_BASIC_AUTH && IFS= read -r GITEA_API_BODY && : "${GITEA_API_BASIC_AUTH:?arrived empty on stdin}" && : "${GITEA_API_BODY:?arrived empty on stdin}" && export GITEA_API_BASIC_AUTH GITEA_API_BODY && container exec -i -e GITEA_API_BASIC_AUTH -e GITEA_API_BODY {{ GITEA_LOCAL_CID | quote }} sh -c '
       set --
       [ "$GITEA_API_BODY" = "{}" ] || set -- --data "$GITEA_API_BODY"
       {% if gitea_api_sudo | length > 0 %}

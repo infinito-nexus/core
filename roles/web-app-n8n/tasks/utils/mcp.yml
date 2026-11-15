@@ -6,6 +6,7 @@
   ansible.builtin.shell:
     cmd: >-
       IFS= read -r N8N_OWNER_PASSWORD && IFS= read -r N8N_MCP_TOKEN &&
+      : "${N8N_OWNER_PASSWORD:?arrived empty on stdin}" && : "${N8N_MCP_TOKEN:?arrived empty on stdin}" &&
       export N8N_OWNER_PASSWORD N8N_MCP_TOKEN && exec {{ N8N_NETNS_PYTHON | map('quote') | join(' ') }}
     stdin: |-
       {{ N8N_OWNER_PASSWORD }}
@@ -42,6 +43,7 @@
   ansible.builtin.shell:
     cmd: >-
       IFS= read -r N8N_OWNER_PASSWORD && IFS= read -r N8N_MCP_PROVIDERS &&
+      : "${N8N_OWNER_PASSWORD:?arrived empty on stdin}" && : "${N8N_MCP_PROVIDERS:?arrived empty on stdin}" &&
       export N8N_OWNER_PASSWORD N8N_MCP_PROVIDERS && exec {{ N8N_NETNS_PYTHON | map('quote') | join(' ') }}
     stdin: |-
       {{ N8N_OWNER_PASSWORD }}

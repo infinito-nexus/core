@@ -102,7 +102,7 @@
       ansible.builtin.shell:
         cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved; ansible flavor forces compose mode
           container exec -i {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec -i matrix-synapse sh -c
-          'IFS= read -r p || : "${p:?arrived empty on stdin}"; printf "%s" "$p" |
+          'IFS= read -r p || :; : "${p:?arrived empty on stdin}"; printf "%s" "$p" |
           register_new_matrix_user -u "$1" --password-file /dev/stdin -a -c "$2" http://localhost:8008'
           _ {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
           {{ lookup('volume', 'web-app-matrix', 'synapse_config').target | quote }}
@@ -129,7 +129,7 @@
         - name: "🔑 ansible-flavor: point the admin at the declared password"
           ansible.builtin.shell:
             cmd: >-
-              IFS= read -r PGPASSWORD && export PGPASSWORD &&
+              IFS= read -r PGPASSWORD && : "${PGPASSWORD:?arrived empty on stdin}" && export PGPASSWORD &&
               container exec -i -e PGPASSWORD
               {{ lookup('database', application_id, 'address') }}
               psql -v ON_ERROR_STOP=1 -U {{ MATRIX_POSTGRES_USER | quote }}
@@ -154,7 +154,7 @@
   ansible.builtin.shell:
     cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; Prosody keeps an account's first password, so a rotated secret needs the account recreated
       container exec -i {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec -i matrix-jitsi-prosody sh -c
-      'IFS= read -r p || : "${p:?arrived empty on stdin}"; prosodyctl --config /run/prosody/config/prosody.cfg.lua deluser "$1@auth.meet.jitsi"
+      'IFS= read -r p || :; : "${p:?arrived empty on stdin}"; prosodyctl --config /run/prosody/config/prosody.cfg.lua deluser "$1@auth.meet.jitsi"
       && prosodyctl --config /run/prosody/config/prosody.cfg.lua register "$1" auth.meet.jitsi "$p"'
       _ {{ item.user | quote }}
     stdin: "{{ item.password }}"

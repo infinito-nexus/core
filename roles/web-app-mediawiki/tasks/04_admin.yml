@@ -2,7 +2,7 @@
 - name: "🔑 Ensure the MediaWiki administrator account exists and accepts its password"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r MEDIAWIKI_ADMIN_PASSWORD && export MEDIAWIKI_ADMIN_PASSWORD &&
+      IFS= read -r MEDIAWIKI_ADMIN_PASSWORD && : "${MEDIAWIKI_ADMIN_PASSWORD:?arrived empty on stdin}" && export MEDIAWIKI_ADMIN_PASSWORD &&
       container run --rm -i
       --network {{ MEDIAWIKI_NETWORK_DATABASE }}
       -u {{ MEDIAWIKI_USER }}

@@ -19,7 +19,7 @@
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD
     container run --rm \
         -e MINIO_ROOT_USER \
@@ -44,8 +44,8 @@
     MINIO_OIDC_CLAIM_NAME: "{{ RBAC.GROUP.CLAIM }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD
-    IFS= read -r MINIO_OIDC_CLIENT_SECRET
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_OIDC_CLIENT_SECRET || :; : "${MINIO_OIDC_CLIENT_SECRET:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD MINIO_OIDC_CLIENT_SECRET
     container run --rm \
         -e MINIO_ROOT_USER \
@@ -85,7 +85,7 @@
         MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
       shell: |
         set -euo pipefail
-        IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+        IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
         export MINIO_ROOT_PASSWORD
         container run --rm \
             -e MINIO_ROOT_USER \
@@ -103,7 +103,7 @@
         MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
       shell: |
         set -euo pipefail
-        IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+        IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
         export MINIO_ROOT_PASSWORD
         container run --rm \
             -e MINIO_ROOT_USER \
@@ -124,7 +124,7 @@
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD
     container run --rm \
         -e MINIO_ROOT_USER \
@@ -146,7 +146,7 @@
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD
     printf '%s' '{{ (item.content | from_yaml | to_json) | b64encode }}' \
       | base64 -d \

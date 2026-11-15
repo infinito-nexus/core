@@ -16,6 +16,7 @@
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
       IFS= read -r CHECKMK_ADMIN_PASSWORD && IFS= read -r MCP_SECRET &&
+      : "${CHECKMK_ADMIN_PASSWORD:?arrived empty on stdin}" && : "${MCP_SECRET:?arrived empty on stdin}" &&
       export CHECKMK_ADMIN_PASSWORD MCP_SECRET && container exec -i
       -e CHECKMK_API={{ CHECKMK_MCP_UPSTREAM_URL | quote }}
       -e CHECKMK_ADMIN_USER=cmkadmin

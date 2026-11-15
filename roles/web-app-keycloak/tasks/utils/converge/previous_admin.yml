@@ -1,7 +1,7 @@
 ---
 - name: "🔑 Keycloak converge | Sign in with the password the previous deploy rendered"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime
-    IFS= read -r KEYCLOAK_PREVIOUS_ADMIN_PASSWORD || : "${KEYCLOAK_PREVIOUS_ADMIN_PASSWORD:?arrived empty on stdin}" && export KEYCLOAK_PREVIOUS_ADMIN_PASSWORD && container exec -i -e KEYCLOAK_PREVIOUS_ADMIN_PASSWORD {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
+    IFS= read -r KEYCLOAK_PREVIOUS_ADMIN_PASSWORD || :; : "${KEYCLOAK_PREVIOUS_ADMIN_PASSWORD:?arrived empty on stdin}" && export KEYCLOAK_PREVIOUS_ADMIN_PASSWORD && container exec -i -e KEYCLOAK_PREVIOUS_ADMIN_PASSWORD {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
       KC_CLI_PASSWORD="$KEYCLOAK_PREVIOUS_ADMIN_PASSWORD" {{ KEYCLOAK_KCADM }} config credentials \
         --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
         --realm master \

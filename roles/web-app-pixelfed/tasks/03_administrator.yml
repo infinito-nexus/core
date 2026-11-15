@@ -29,7 +29,7 @@
 - name: "📁 Create the Pixelfed administrator via artisan"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  PIXELFED_LOCAL_CID resolved at delegate_to runtime
-      IFS= read -r PIXELFED_ADMIN_PASSWORD || : "${PIXELFED_ADMIN_PASSWORD:?arrived empty on stdin}" && export PIXELFED_ADMIN_PASSWORD && container exec
+      IFS= read -r PIXELFED_ADMIN_PASSWORD || :; : "${PIXELFED_ADMIN_PASSWORD:?arrived empty on stdin}" && export PIXELFED_ADMIN_PASSWORD && container exec
       -u {{ PIXELFED_APP_USER | quote }} -e PIXELFED_ADMIN_PASSWORD
       {{ PIXELFED_LOCAL_CID | quote }}
       sh -c 'exec php artisan user:create "$@" --password="$PIXELFED_ADMIN_PASSWORD"' sh
@@ -60,7 +60,8 @@
 
 - name: "🔑 Converge the Pixelfed administrator password"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  PIXELFED_LOCAL_CID resolved at delegate_to runtime
-    IFS= read -r PIXELFED_ADMIN_PASSWORD && export PIXELFED_ADMIN_PASSWORD && container exec -i -e PIXELFED_APP_DIR -e PIXELFED_ADMIN_USERNAME -e PIXELFED_ADMIN_PASSWORD
+    IFS= read -r PIXELFED_ADMIN_PASSWORD && : "${PIXELFED_ADMIN_PASSWORD:?arrived empty on stdin}" && export PIXELFED_ADMIN_PASSWORD && container exec -i -e PIXELFED_APP_DIR
+    -e PIXELFED_ADMIN_USERNAME -e PIXELFED_ADMIN_PASSWORD
     -u {{ PIXELFED_APP_USER }}
     {{ PIXELFED_LOCAL_CID | quote }} php --
   args:

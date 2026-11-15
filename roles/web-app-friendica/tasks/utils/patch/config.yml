@@ -2,7 +2,7 @@
 - name: 🩹 Patch Friendica local.config.php (DB credentials, system.url)
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
-      IFS= read -r PATCH_PASSWORD && export PATCH_PASSWORD && container exec -i --user {{ FRIENDICA_USER }}
+      IFS= read -r PATCH_PASSWORD && : "${PATCH_PASSWORD:?arrived empty on stdin}" && export PATCH_PASSWORD && container exec -i --user {{ FRIENDICA_USER }}
       -e PATCH_HOSTNAME -e PATCH_DATABASE -e PATCH_USERNAME -e PATCH_PASSWORD -e PATCH_URL
       {{ FRIENDICA_LOCAL_CID | quote }}
       sh -s -- {{ FRIENDICA_CONFIG_FILE | quote }}

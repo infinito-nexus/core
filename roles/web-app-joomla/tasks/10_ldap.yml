@@ -1,7 +1,7 @@
 ---
 - name: "🔎 Read the stored LDAP plugin settings meta/forms.yml manages"
   ansible.builtin.shell: >
-    IFS= read -r J_LDAP_BIND_PASSWORD && export J_LDAP_BIND_PASSWORD &&
+    IFS= read -r J_LDAP_BIND_PASSWORD || :; : "${J_LDAP_BIND_PASSWORD:?arrived empty on stdin}" && export J_LDAP_BIND_PASSWORD &&
     container exec -i
     --user {{ JOOMLA_WEB_USER | quote }}
     -e J_ROOT={{ JOOMLA_DOCROOT | quote }}
@@ -25,7 +25,7 @@
 
 - name: "🔐 Converge the core LDAP authentication plugin of {{ application_id }}"
   ansible.builtin.shell: >
-    IFS= read -r J_LDAP_BIND_PASSWORD && export J_LDAP_BIND_PASSWORD &&
+    IFS= read -r J_LDAP_BIND_PASSWORD || :; : "${J_LDAP_BIND_PASSWORD:?arrived empty on stdin}" && export J_LDAP_BIND_PASSWORD &&
     container exec -i
     --user {{ JOOMLA_WEB_USER | quote }}
     -e J_ROOT={{ JOOMLA_DOCROOT | quote }}

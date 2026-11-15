@@ -20,7 +20,7 @@
 - name: "📁 Create initial admin user"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r GITEA_ADMIN_PASSWORD || : "${GITEA_ADMIN_PASSWORD:?arrived empty on stdin}" && export GITEA_ADMIN_PASSWORD && container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+    IFS= read -r GITEA_ADMIN_PASSWORD || :; : "${GITEA_ADMIN_PASSWORD:?arrived empty on stdin}" && export GITEA_ADMIN_PASSWORD && container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       /app/gitea/gitea admin user create \
         --admin \
         --username "{{ lookup('users', 'platform_administrator').username }}" \
@@ -39,7 +39,7 @@
 - name: "🔑 Realign the administrator password Gitea persisted at install"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r GITEA_ADMIN_PASSWORD || : "${GITEA_ADMIN_PASSWORD:?arrived empty on stdin}" && export GITEA_ADMIN_PASSWORD && container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+    IFS= read -r GITEA_ADMIN_PASSWORD || :; : "${GITEA_ADMIN_PASSWORD:?arrived empty on stdin}" && export GITEA_ADMIN_PASSWORD && container exec -i -e GITEA_ADMIN_PASSWORD --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       /app/gitea/gitea admin user change-password \
         --username "{{ lookup('users', 'platform_administrator').username }}" \
         --password "$GITEA_ADMIN_PASSWORD" \

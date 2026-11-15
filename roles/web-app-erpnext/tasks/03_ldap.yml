@@ -2,7 +2,7 @@
 - name: "📌 apply LDAP Settings doctype"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r LDAP_BIND_PW && export LDAP_BIND_PW && container exec -i
+      IFS= read -r LDAP_BIND_PW && : "${LDAP_BIND_PW:?arrived empty on stdin}" && export LDAP_BIND_PW && container exec -i
       -e SITE_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN -e LDAP_ROLES_DN
       -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR
       -e LDAP_MAIL_ATTR -e LDAP_FIRSTNAME_ATTR -e LDAP_SURNAME_ATTR -e LDAP_PHONE_ATTR -e LDAP_MOBILE_ATTR

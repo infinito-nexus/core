@@ -74,7 +74,7 @@
 - name: 🔧 Provision Mattermost OAuth app for Nextcloud and capture creds (idempotent)
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r MM_TOKEN && export MM_TOKEN &&
+      IFS= read -r MM_TOKEN && : "${MM_TOKEN:?arrived empty on stdin}" && export MM_TOKEN &&
       exec {{ (NEXTCLOUD_MM_NETNS_ENTER + ['bash', '-s']) | map('quote') | join(' ') }}
     stdin: "{{ nextcloud_mm_token ~ '\n' ~ lookup('file', 'shell/addons/mattermost/provision_oauth_app.sh') }}"
   environment:
@@ -111,7 +111,7 @@
 - name: 🔐 Store integration_mattermost OAuth credentials Nextcloud-encrypted (lazy)
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r NC_ENC_B64 && export NC_ENC_B64 &&
+      IFS= read -r NC_ENC_B64 && : "${NC_ENC_B64:?arrived empty on stdin}" && export NC_ENC_B64 &&
       container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
       -e NC_APP_ID=integration_mattermost
       -e NC_ENC_MODE=sensitive

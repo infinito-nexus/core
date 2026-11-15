@@ -3,6 +3,7 @@
   ansible.builtin.shell:
     cmd: >-
       IFS= read -r N8N_OWNER_PASSWORD && IFS= read -r N8N_AI_API_KEY &&
+      : "${N8N_OWNER_PASSWORD:?arrived empty on stdin}" && : "${N8N_AI_API_KEY:?arrived empty on stdin}" &&
       export N8N_OWNER_PASSWORD N8N_AI_API_KEY && exec {{ N8N_NETNS_PYTHON | map('quote') | join(' ') }}
     stdin: |-
       {{ N8N_OWNER_PASSWORD }}

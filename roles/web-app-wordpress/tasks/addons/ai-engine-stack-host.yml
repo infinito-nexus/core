@@ -21,7 +21,7 @@
 - name: "📌 Point the AI Engine default environment at the platform gateway"
   ansible.builtin.shell:
     cmd: >
-      IFS= read -r AI_ENGINE_PAYLOAD && export AI_ENGINE_PAYLOAD &&
+      IFS= read -r AI_ENGINE_PAYLOAD && : "${AI_ENGINE_PAYLOAD:?arrived empty on stdin}" && export AI_ENGINE_PAYLOAD &&
       container exec -i --user {{ WORDPRESS_USER | quote }}
       -e AI_ENGINE_PAYLOAD
       {{ WORDPRESS_CONTAINER_ADDRESS }}

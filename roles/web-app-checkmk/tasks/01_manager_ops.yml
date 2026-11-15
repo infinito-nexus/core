@@ -46,7 +46,7 @@
 - name: "🔐 Configure Checkmk header-auth and LDAP connection"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r LDAP_BIND_PASSWORD && export LDAP_BIND_PASSWORD && container exec -i
+      IFS= read -r LDAP_BIND_PASSWORD && : "${LDAP_BIND_PASSWORD:?arrived empty on stdin}" && export LDAP_BIND_PASSWORD && container exec -i
       -e CMK_SITE_ID={{ CHECKMK_SITE | quote }}
       -e CHECKMK_SSO_ENABLED={{ CHECKMK_SSO_ENABLED | string | lower | quote }}
       -e CHECKMK_LDAP_ENABLED={{ CHECKMK_LDAP_ENABLED | string | lower | quote }}

@@ -8,7 +8,7 @@
 set -eu
 
 config="$1"
-IFS= read -r PATCH_PASSWORD || : "${PATCH_PASSWORD:?the password arrives on stdin}"
+IFS= read -r PATCH_PASSWORD || : # nocheck: shell-or-true -- read returns 1 on a last line without a newline; the next line rejects an empty value
 : "${PATCH_PASSWORD:?the password arrives on stdin}"
 
 rewrite() {

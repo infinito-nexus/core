@@ -65,7 +65,7 @@
 
 - name: 📥 Import users, groups, etc. to LDAP (data tree)
   ansible.builtin.shell: >-
-    IFS= read -r OPENLDAP_BIND_PW || : "${OPENLDAP_BIND_PW:?arrived empty on stdin}" && export OPENLDAP_BIND_PW &&
+    IFS= read -r OPENLDAP_BIND_PW || :; : "${OPENLDAP_BIND_PW:?arrived empty on stdin}" && export OPENLDAP_BIND_PW &&
     container exec -i -e OPENLDAP_BIND_PW {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
     sh -c 'printf "%s" "$OPENLDAP_BIND_PW" | ldapadd -x
     -D "{{ OPENLDAP_BIND_DN }}"

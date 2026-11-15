@@ -9,7 +9,7 @@
 - name: "🔑 Mint the scoped Flowise API identity for the MCP registry"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r FLOWISE_ADMIN_PASSWORD && export FLOWISE_ADMIN_PASSWORD && container exec -i
+      IFS= read -r FLOWISE_ADMIN_PASSWORD && : "${FLOWISE_ADMIN_PASSWORD:?arrived empty on stdin}" && export FLOWISE_ADMIN_PASSWORD && container exec -i
       -e FLOWISE_BASE=http://localhost:{{ FLOWISE_PORT_INTERNAL | quote }}
       -e FLOWISE_ADMIN_EMAIL={{ FLOWISE_API_BOT_USER.email | quote }}
       -e FLOWISE_ADMIN_PASSWORD
@@ -32,7 +32,8 @@
 - name: "🔌 Reconcile the custom MCP server registry"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r FLOWISE_API_KEY && IFS= read -r FLOWISE_MCP_DESIRED && export FLOWISE_API_KEY FLOWISE_MCP_DESIRED && container exec -i
+      IFS= read -r FLOWISE_API_KEY && IFS= read -r FLOWISE_MCP_DESIRED && : "${FLOWISE_API_KEY:?arrived empty on stdin}" && : "${FLOWISE_MCP_DESIRED:?arrived empty
+      on stdin}" && export FLOWISE_API_KEY FLOWISE_MCP_DESIRED && container exec -i
       -e FLOWISE_BASE=http://localhost:{{ FLOWISE_PORT_INTERNAL | quote }}
       -e FLOWISE_API_KEY
       -e FLOWISE_WORKSPACE={{ (flowise_mcp_identity.stdout_lines | last | from_json).workspace_id | quote }}

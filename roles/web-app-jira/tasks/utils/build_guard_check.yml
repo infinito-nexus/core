@@ -2,7 +2,7 @@
 - name: "🔍 Read the build number Jira recorded in its database"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r PGPASSWORD && export PGPASSWORD &&
+      IFS= read -r PGPASSWORD && : "${PGPASSWORD:?arrived empty on stdin}" && export PGPASSWORD &&
       container exec -i
       -e PGPASSWORD
       {{ lookup('database', application_id, 'address') }}

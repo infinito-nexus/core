@@ -2,7 +2,7 @@
 - name: "📁 Provision {{ database_name }} inside the container"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  POSTGRES_LOCAL_CID resolved at delegate_to runtime
-      IFS= read -r DB_PASSWORD && export DB_PASSWORD && container exec -i --user postgres
+      IFS= read -r DB_PASSWORD || :; : "${DB_PASSWORD:?arrived empty on stdin}" && export DB_PASSWORD && container exec -i --user postgres
       -e DB_NAME -e DB_USER -e DB_PASSWORD -e DB_EXTENSIONS
       {{ POSTGRES_LOCAL_CID | quote }}
       psql -v ON_ERROR_STOP=1 -U postgres -d postgres

@@ -9,7 +9,7 @@
 - name: "🔑 Create the MCP endpoint, its owner and its workspace"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r MCP_ENDPOINT_KEY || : "${MCP_ENDPOINT_KEY:?arrived empty on stdin}" && export MCP_ENDPOINT_KEY && container exec -i
+      IFS= read -r MCP_ENDPOINT_KEY || :; : "${MCP_ENDPOINT_KEY:?arrived empty on stdin}" && export MCP_ENDPOINT_KEY && container exec -i
       -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
       -e MCP_OWNER_EMAIL={{ BASEROW_MCP_OWNER_EMAIL | quote }}
       -e MCP_WORKSPACE_NAME={{ BASEROW_MCP_WORKSPACE_NAME | quote }}
@@ -31,7 +31,7 @@
 - name: "🩺 Probe the MCP endpoint on the internal origin"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r MCP_ENDPOINT_KEY && export MCP_ENDPOINT_KEY && container exec -i
+      IFS= read -r MCP_ENDPOINT_KEY && : "${MCP_ENDPOINT_KEY:?arrived empty on stdin}" && export MCP_ENDPOINT_KEY && container exec -i
       -e MCP_BASE_URL={{ BASEROW_INTERNAL_URL | quote }}
       -e MCP_ENDPOINT_PATH={{ BASEROW_MCP_ENDPOINT_PATH | quote }}
       -e MCP_ENDPOINT_KEY

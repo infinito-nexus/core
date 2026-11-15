@@ -22,7 +22,7 @@
 
 - name: "👤 Create the subscriber the MCP adapter authenticates as"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r WP_MCP_USER_PASS || : "${WP_MCP_USER_PASS:?arrived empty on stdin}" && export WP_MCP_USER_PASS && container exec -u {{ WORDPRESS_USER }} -e WP_MCP_USER_PASS {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
+    IFS= read -r WP_MCP_USER_PASS || :; : "${WP_MCP_USER_PASS:?arrived empty on stdin}" && export WP_MCP_USER_PASS && container exec -u {{ WORDPRESS_USER }} -e WP_MCP_USER_PASS {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
       sh -c 'exec wp user create "$@" --user_pass="$WP_MCP_USER_PASS"' _ \
         {{ WORDPRESS_MCP_USERNAME | quote }} {{ WORDPRESS_MCP_EMAIL | quote }} \
         --role={{ WORDPRESS_MCP_ROLE | quote }} \

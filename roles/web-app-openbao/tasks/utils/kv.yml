@@ -30,13 +30,13 @@
       secret_id: "{{ lookup('config', 'web-app-openbao', 'secrets.credentials.approle_secret_id') }}"
     openbao_kv_script: >-
       set -eu;
-      IFS= read -r login;
+      IFS= read -r login || :; : "${login:?arrived empty on stdin}";
       BAO_TOKEN="$(printf "%s" "$login" | bao write -field=token auth/approle/login -)";
       export BAO_TOKEN;
       trap "bao token revoke -self >/dev/null 2>&1 || true" EXIT;
       case "$1" in
       read) bao kv get -format=json -mount="$2" "$3" 2>/dev/null || true ;;
-      write) IFS= read -r data; printf "%s" "$data" | bao kv put -mount="$2" "$3" - >/dev/null ;;
+      write) IFS= read -r data || :; : "${data:?arrived empty on stdin}"; printf "%s" "$data" | bao kv put -mount="$2" "$3" - >/dev/null ;;
       delete) bao kv metadata delete -mount="$2" "$3" >/dev/null ;;
       esac
   register: openbao_kv_read

@@ -3,7 +3,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r DECLARED_CONFIG && export DECLARED_CONFIG &&
+      IFS= read -r DECLARED_CONFIG || :; : "${DECLARED_CONFIG:?arrived empty on stdin}" && export DECLARED_CONFIG &&
       container exec -i
       -e DECLARED_CONFIG -e RECORD
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}

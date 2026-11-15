@@ -63,7 +63,7 @@
       - "UserKnownHostsFile {{ semaphore_deploy_fixture_key.stdout }}.known_hosts"
       - "root@{{ semaphore_deploy_fixture_address }}"
       - >-
-        read -r key; if grep -qxF "$key" /root/.ssh/authorized_keys; then echo UNCHANGED;
+        read -r key || :; : "${key:?arrived empty on stdin}"; if grep -qxF "$key" /root/.ssh/authorized_keys; then echo UNCHANGED;
         else printf '%s\n' "$key" >>/root/.ssh/authorized_keys && echo CHANGED; fi
     stdin: "{{ semaphore_deploy_fixture_authorized }}"
   loop:

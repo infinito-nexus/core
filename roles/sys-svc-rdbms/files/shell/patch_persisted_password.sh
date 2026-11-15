@@ -21,7 +21,7 @@ set -euo pipefail
 : "${PATCH_VOLUME:?}"
 : "${PATCH_CONFIG_REL:?}"
 : "${PATCH_EXPRESSION:?}"
-IFS= read -r PATCH_PASSWORD || : "${PATCH_PASSWORD:?the password arrives on stdin}"
+IFS= read -r PATCH_PASSWORD || : # nocheck: shell-or-true -- read returns 1 on a last line without a newline; the next line rejects an empty value
 : "${PATCH_PASSWORD:?the password arrives on stdin}"
 
 container volume ls -q -f "name=^${PATCH_VOLUME}$" | grep -q . || exit 0

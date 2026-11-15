@@ -15,7 +15,7 @@
 - name: "🔑 Converge the read-only Pretix team token the MCP adapter presents"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r MCP_TOKEN && export MCP_TOKEN && container exec -i
+      IFS= read -r MCP_TOKEN && : "${MCP_TOKEN:?arrived empty on stdin}" && export MCP_TOKEN && container exec -i
       -e MCP_TEAM={{ PRETIX_MCP_UPSTREAM_TEAM | quote }}
       -e MCP_TEAM_DEFAULTS={{ PRETIX_TEAM_MCP | to_json | quote }}
       -e MCP_TOKEN

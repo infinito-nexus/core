@@ -15,7 +15,7 @@
 - name: "🔍 Probe the Playwright AppRole with the pair of this deploy"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OPENBAO_LOCAL_CID | quote }}
-    sh -c 'IFS= read -r secret;
+    sh -c 'IFS= read -r secret || :; : "${secret:?arrived empty on stdin}";
     token=$(printf "%s" "$secret" | bao write -field=token auth/approle/login
     role_id={{ OPENBAO_PLAYWRIGHT_ROLE_ID | quote }} secret_id=- 2>/dev/null) || exit 3;
     BAO_TOKEN="$token" bao token revoke -self >/dev/null'

@@ -134,11 +134,11 @@ def _shell_scalars(node):
 class TestHostExpanded(unittest.TestCase):
     def test_an_empty_stdin_guard_reaches_no_argv(self) -> None:
         command = (
-            'IFS= read -r X || : "${X:?arrived empty on stdin}" && export X && '
+            'IFS= read -r X || :; : "${X:?arrived empty on stdin}" && export X && '
             "container exec -i -e X c sh -lc 'tool \"$X\"'"
         )
         semicolon = (
-            'IFS= read -r X || : "${X:?arrived empty on stdin}"; export X; '
+            'IFS= read -r X || :; : "${X:?arrived empty on stdin}"; export X; '
             "container exec -i -e X c sh -lc 'tool \"$X\"'"
         )
         self.assertEqual(_host_expanded(command), set())
@@ -146,7 +146,7 @@ class TestHostExpanded(unittest.TestCase):
 
     def test_a_host_expansion_beside_the_guard_still_counts(self) -> None:
         guarded = (
-            'IFS= read -r X || : "${X:?arrived empty on stdin}" && export X && '
+            'IFS= read -r X || :; : "${X:?arrived empty on stdin}" && export X && '
             'container exec -i -e X c tool --password "$X"'
         )
         bare = 'container exec -i -e X c tool --password "${X:?}"'

@@ -23,7 +23,7 @@
 - name: "▶️ Run WordPress core install via WP CLI"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: >
-    IFS= read -r WP_ADMIN_PASSWORD || : "${WP_ADMIN_PASSWORD:?arrived empty on stdin}" && export WP_ADMIN_PASSWORD &&
+    IFS= read -r WP_ADMIN_PASSWORD || :; : "${WP_ADMIN_PASSWORD:?arrived empty on stdin}" && export WP_ADMIN_PASSWORD &&
     container exec -u {{ WORDPRESS_USER }} -e WP_ADMIN_PASSWORD {{ WORDPRESS_CONTAINER_ADDRESS }}
     sh -c 'exec wp core install "$@" --admin_password="$WP_ADMIN_PASSWORD"' _
     --url={{ WORDPRESS_URL | quote }}
@@ -37,7 +37,7 @@
 - name: "🔑 Ensure the WordPress administrator exists and accepts the declared password"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r WP_REALIGN_PASSWORD && export WP_REALIGN_PASSWORD &&
+      IFS= read -r WP_REALIGN_PASSWORD && : "${WP_REALIGN_PASSWORD:?arrived empty on stdin}" && export WP_REALIGN_PASSWORD &&
       container exec -i -u {{ WORDPRESS_USER }}
       -e WP_REALIGN_LOGIN -e WP_REALIGN_PASSWORD -e WP_REALIGN_EMAIL
       {{ WORDPRESS_CONTAINER_ADDRESS }}

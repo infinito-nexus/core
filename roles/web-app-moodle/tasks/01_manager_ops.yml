@@ -28,7 +28,7 @@
 
 - name: "▶️ Run Moodle install (idempotent)"
   shell: >
-    IFS= read -r MOODLE_ADMIN_PASSWORD || : "${MOODLE_ADMIN_PASSWORD:?arrived empty on stdin}" && export MOODLE_ADMIN_PASSWORD &&
+    IFS= read -r MOODLE_ADMIN_PASSWORD || :; : "${MOODLE_ADMIN_PASSWORD:?arrived empty on stdin}" && export MOODLE_ADMIN_PASSWORD &&
     container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
     {{ MOODLE_CONTAINER_ADDRESS }}
     sh -lc 'php {{ MOODLE_CLI_DIR }}/install_database.php
@@ -69,7 +69,7 @@
   when: not (MOODLE_OIDC_ENABLED | bool)
   # nocheck: password-quote  the token is upstream's CLI filename, not a credential
   shell: >
-    IFS= read -r MOODLE_ADMIN_PASSWORD || : "${MOODLE_ADMIN_PASSWORD:?arrived empty on stdin}" && export MOODLE_ADMIN_PASSWORD &&
+    IFS= read -r MOODLE_ADMIN_PASSWORD || :; : "${MOODLE_ADMIN_PASSWORD:?arrived empty on stdin}" && export MOODLE_ADMIN_PASSWORD &&
     container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
     {{ MOODLE_CONTAINER_ADDRESS }}
     sh -lc 'printf "%s\n" "$MOODLE_ADMIN_PASSWORD" | php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}

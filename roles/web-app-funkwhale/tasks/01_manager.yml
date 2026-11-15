@@ -9,7 +9,7 @@
 - name: "🔍 Check the administrator of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r FUNKWHALE_ADMIN_PASSWORD && export FUNKWHALE_ADMIN_PASSWORD && container exec -i
+      IFS= read -r FUNKWHALE_ADMIN_PASSWORD && : "${FUNKWHALE_ADMIN_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_ADMIN_PASSWORD && container exec -i
       -e FUNKWHALE_ADMIN_USERNAME -e FUNKWHALE_ADMIN_PASSWORD
       {{ FUNKWHALE_API_LOCAL_CID | quote }}
       funkwhale-manage shell
@@ -30,7 +30,8 @@
 - name: "👤 Create the administrator of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r FUNKWHALE_CLI_USER_PASSWORD || : "${FUNKWHALE_CLI_USER_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_CLI_USER_PASSWORD && container exec
+      IFS= read -r FUNKWHALE_CLI_USER_PASSWORD || :; : "${FUNKWHALE_CLI_USER_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_CLI_USER_PASSWORD && container
+      exec
       -e FUNKWHALE_CLI_USER_PASSWORD
       {{ FUNKWHALE_API_LOCAL_CID | quote }}
       funkwhale-manage fw users create --superuser
@@ -45,7 +46,7 @@
 - name: "🔑 Converge the administrator password and rights of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r FUNKWHALE_CLI_USER_UPDATE_PASSWORD || : "${FUNKWHALE_CLI_USER_UPDATE_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_CLI_USER_UPDATE_PASSWORD
+      IFS= read -r FUNKWHALE_CLI_USER_UPDATE_PASSWORD || :; : "${FUNKWHALE_CLI_USER_UPDATE_PASSWORD:?arrived empty on stdin}" && export FUNKWHALE_CLI_USER_UPDATE_PASSWORD
       && container exec
       -e FUNKWHALE_CLI_USER_UPDATE_PASSWORD
       {{ FUNKWHALE_API_LOCAL_CID | quote }}

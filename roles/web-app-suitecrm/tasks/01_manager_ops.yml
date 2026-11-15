@@ -73,7 +73,7 @@
 - name: "🔑 Ensure the SuiteCRM administrator exists and accepts the declared password"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r SUITECRM_REALIGN_PASSWORD && export SUITECRM_REALIGN_PASSWORD &&
+      IFS= read -r SUITECRM_REALIGN_PASSWORD && : "${SUITECRM_REALIGN_PASSWORD:?arrived empty on stdin}" && export SUITECRM_REALIGN_PASSWORD &&
       container exec -i --user {{ SUITECRM_WEB_USER }}
       -e SUITECRM_REALIGN_USERNAME -e SUITECRM_REALIGN_PASSWORD -e SUITECRM_REALIGN_EMAIL
       {{ SUITECRM_CONTAINER_ADDRESS }} php

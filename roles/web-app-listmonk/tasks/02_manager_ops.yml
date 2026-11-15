@@ -47,7 +47,7 @@
 - name: 🔑 Ensure the Listmonk Super Admin exists and accepts the declared password
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r LISTMONK_REALIGN_PASSWORD && export LISTMONK_REALIGN_PASSWORD &&
+      IFS= read -r LISTMONK_REALIGN_PASSWORD && : "${LISTMONK_REALIGN_PASSWORD:?arrived empty on stdin}" && export LISTMONK_REALIGN_PASSWORD &&
       {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1
       -v login={{ LISTMONK_ADMIN_USERNAME | quote }}
       -v email={{ LISTMONK_ADMIN_EMAIL | quote }}

@@ -7,6 +7,8 @@ IFS= read -r JELLYFIN_ADMIN_PASSWORD
 IFS= read -r JELLYFIN_LDAP_BIND_PASSWORD
 IFS= read -r JELLYFIN_OIDC_CLIENT_SECRET
 : "${JELLYFIN_ADMIN_PASSWORD:?the admin password arrives on stdin}"
+if [ "${JELLYFIN_LDAP_ENABLED}" = "true" ]; then : "${JELLYFIN_LDAP_BIND_PASSWORD:?the LDAP bind password arrives on stdin}"; fi
+if [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then : "${JELLYFIN_OIDC_CLIENT_SECRET:?the OIDC client secret arrives on stdin}"; fi
 
 API="${JELLYFIN_API}"
 CT="${JELLYFIN_CT}"

@@ -14,7 +14,7 @@
 
 - name: "🔑 Mattermost | Keycloak — authenticate kcadm.sh"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-    IFS= read -r MATTERMOST_KEYCLOAK_ADMIN_PASS || : "${MATTERMOST_KEYCLOAK_ADMIN_PASS:?arrived empty on stdin}" && export MATTERMOST_KEYCLOAK_ADMIN_PASS && container
+    IFS= read -r MATTERMOST_KEYCLOAK_ADMIN_PASS || :; : "${MATTERMOST_KEYCLOAK_ADMIN_PASS:?arrived empty on stdin}" && export MATTERMOST_KEYCLOAK_ADMIN_PASS && container
     exec -i -e MATTERMOST_KEYCLOAK_ADMIN_PASS {{ MATTERMOST_KC_LOCAL_CID | quote }}
     sh -lc 'KC_CLI_PASSWORD="$MATTERMOST_KEYCLOAK_ADMIN_PASS" /opt/keycloak/bin/kcadm.sh config credentials
     --server "http://localhost:8080"

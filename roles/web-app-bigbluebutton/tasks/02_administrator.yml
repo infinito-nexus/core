@@ -36,7 +36,7 @@
 - name: "✅ Ensure Greenlight admin (verified, idempotent)"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r NEW_PASSWORD && export NEW_PASSWORD && container exec -i
+      IFS= read -r NEW_PASSWORD && : "${NEW_PASSWORD:?arrived empty on stdin}" && export NEW_PASSWORD && container exec -i
       -e NEW_NAME -e NEW_EMAIL -e NEW_PASSWORD -e NEW_EXTERNAL_ID
       {{ BBB_GREENLIGHT_CONTAINER_ADDRESS }}
       bash -lc 'bundle exec rails runner -'

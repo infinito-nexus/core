@@ -19,7 +19,7 @@
 - name: "🔎 Read the stored Keycloak login provider"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r ADMIN_PASSWORD && export ADMIN_PASSWORD && container exec -i --user {{ SHOPWARE_USER }}
+      IFS= read -r ADMIN_PASSWORD || :; : "${ADMIN_PASSWORD:?arrived empty on stdin}" && export ADMIN_PASSWORD && container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
       -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
       -e ADMIN_PASSWORD
@@ -43,7 +43,8 @@
 - name: "🔐 Ensure the Keycloak login provider is configured"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r ADMIN_PASSWORD && IFS= read -r OIDC_CLIENT_SECRET && export ADMIN_PASSWORD OIDC_CLIENT_SECRET && container exec -i --user {{ SHOPWARE_USER }}
+      IFS= read -r ADMIN_PASSWORD && IFS= read -r OIDC_CLIENT_SECRET && : "${ADMIN_PASSWORD:?arrived empty on stdin}" && : "${OIDC_CLIENT_SECRET:?arrived empty on
+      stdin}" && export ADMIN_PASSWORD OIDC_CLIENT_SECRET && container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
       -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
       -e ADMIN_PASSWORD

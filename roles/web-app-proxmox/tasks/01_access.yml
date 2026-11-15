@@ -12,8 +12,7 @@
 - name: "🪪 Converge the OpenID realm, admin group and ACL of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r PROXMOX_REALM_CLIENT_SECRET_B64
-      || { echo '[FAIL] no client secret line arrived on stdin.' >&2; exit 1; };
+      IFS= read -r PROXMOX_REALM_CLIENT_SECRET_B64 || :; : "${PROXMOX_REALM_CLIENT_SECRET_B64:?arrived empty on stdin}" &&
       export PROXMOX_REALM_CLIENT_SECRET_B64 &&
       container exec -i
       -e PROXMOX_REALM -e PROXMOX_REALM_CONFIG -e PROXMOX_REALM_CLIENT_SECRET_B64

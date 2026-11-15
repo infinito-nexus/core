@@ -2,7 +2,7 @@
 - name: "🔒 Hand the managed option values to the infinito-managed-options guard"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r INFINITO_MANAGED_OPTIONS && export INFINITO_MANAGED_OPTIONS &&
+      IFS= read -r INFINITO_MANAGED_OPTIONS || :; : "${INFINITO_MANAGED_OPTIONS:?arrived empty on stdin}" && export INFINITO_MANAGED_OPTIONS &&
       container exec -i --user {{ WORDPRESS_USER | quote }}
       -e INFINITO_MANAGED_OPTIONS
       {{ WORDPRESS_CONTAINER_ADDRESS }}

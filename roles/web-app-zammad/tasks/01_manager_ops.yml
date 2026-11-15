@@ -78,6 +78,7 @@
     cmd: |
       set -euo pipefail
       IFS= read -r API_BOT_PASSWORD
+      : "${API_BOT_PASSWORD:?arrived empty on stdin}"
       export API_BOT_PASSWORD
       container exec -i \
         -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD \
@@ -100,6 +101,7 @@
     cmd: |
       set -euo pipefail
       IFS= read -r ADMIN_PASSWORD
+      : "${ADMIN_PASSWORD:?arrived empty on stdin}"
       export ADMIN_PASSWORD
       container exec -i \
         -e ADMIN_LOGIN -e ADMIN_EMAIL -e ADMIN_FIRSTNAME -e ADMIN_LASTNAME -e ADMIN_PASSWORD \
@@ -126,6 +128,8 @@
       set -euo pipefail
       IFS= read -r MCP_BOT_PASSWORD
       IFS= read -r MCP_API_TOKEN
+      : "${MCP_BOT_PASSWORD:?arrived empty on stdin}"
+      : "${MCP_API_TOKEN:?arrived empty on stdin}"
       export MCP_BOT_PASSWORD MCP_API_TOKEN
       container exec -i \
         -e MCP_BOT_LOGIN -e MCP_BOT_EMAIL -e MCP_BOT_FIRSTNAME -e MCP_BOT_LASTNAME \
@@ -153,6 +157,8 @@
       set -euo pipefail
       IFS= read -r ACCESS_REQUEST_BOT_PASSWORD
       IFS= read -r ACCESS_REQUEST_API_TOKEN
+      : "${ACCESS_REQUEST_BOT_PASSWORD:?arrived empty on stdin}"
+      : "${ACCESS_REQUEST_API_TOKEN:?arrived empty on stdin}"
       export ACCESS_REQUEST_BOT_PASSWORD ACCESS_REQUEST_API_TOKEN
       container exec -i \
         -e ACCESS_REQUEST_BOT_LOGIN -e ACCESS_REQUEST_BOT_EMAIL -e ACCESS_REQUEST_BOT_PASSWORD \
@@ -202,6 +208,7 @@
         cmd: |
           set -euo pipefail
           IFS= read -r LDAP_BIND_PW
+          : "${LDAP_BIND_PW:?arrived empty on stdin}"
           export LDAP_BIND_PW
           container exec -i \
             -e LDAP_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN \
@@ -267,6 +274,7 @@
         cmd: |
           set -euo pipefail
           IFS= read -r AI_TOKEN
+          : "${AI_TOKEN:?arrived empty on stdin}"
           export AI_TOKEN
           container exec -i \
             -e AI_URL -e AI_MODEL -e AI_TOKEN \
@@ -307,6 +315,8 @@
           set -euo pipefail
           IFS= read -r IMAP_PASS
           IFS= read -r SMTP_PASS
+          : "${IMAP_PASS:?arrived empty on stdin}"
+          : "${SMTP_PASS:?arrived empty on stdin}"
           export IMAP_PASS SMTP_PASS
           container exec -i \
             -e MAIL_GROUP_NAME -e MAIL_FROM_NAME -e MAIL_FROM_ADDRESS \

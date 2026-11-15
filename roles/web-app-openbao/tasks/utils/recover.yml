@@ -26,7 +26,7 @@
 
 - name: "🚑 Begin root generation"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r BAO_OTP || : "${BAO_OTP:?arrived empty on stdin}" && export BAO_OTP && container exec -e BAO_OTP {{ OPENBAO_LOCAL_CID | quote }}
+    IFS= read -r BAO_OTP || :; : "${BAO_OTP:?arrived empty on stdin}" && export BAO_OTP && container exec -e BAO_OTP {{ OPENBAO_LOCAL_CID | quote }}
     sh -c 'exec bao operator generate-root -format=json -init -otp="$BAO_OTP"'
   args:
     stdin: "{{ openbao_root_otp.stdout | trim }}"
@@ -58,7 +58,7 @@
 
 - name: "🔓 Unwrap the generated root token"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r BAO_OTP && export BAO_OTP && container exec -i -e BAO_OTP {{ OPENBAO_LOCAL_CID | quote }}
+    IFS= read -r BAO_OTP && : "${BAO_OTP:?arrived empty on stdin}" && export BAO_OTP && container exec -i -e BAO_OTP {{ OPENBAO_LOCAL_CID | quote }}
     sh -c 'exec bao operator generate-root -decode=- -otp="$BAO_OTP"'
   args:
     stdin: |-

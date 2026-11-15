@@ -52,7 +52,7 @@
 - name: "📦 Create the proxy repositories the frontend maps onto"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD ||
+      IFS= read -r INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD || :;
       : "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD:?arrived empty on stdin}" &&
       export INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD &&
       exec {{ [CACHE_PACKAGE_SHELL_DIR, 'bootstrap.sh'] | path_join | quote }}

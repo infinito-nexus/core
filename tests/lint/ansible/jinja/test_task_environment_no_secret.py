@@ -10,8 +10,8 @@ output, not the process table.
 The safe form hands the value over on the module's ``stdin:``: to the program
 itself (``curl -H @-``, SQL on ``psql``'s stdin) or to the calling shell, which
 reads and exports it for ``container exec -e NAME``
-(``IFS= read -r NAME && export NAME && container exec -e NAME …``), one line
-per secret ahead of any payload.
+(``IFS= read -r NAME || :; : "${NAME:?…}" && export NAME && container exec
+-e NAME …``), one line per secret ahead of any payload.
 
 An entry counts as a credential by its name or by its value, each on its own.
 A name convicts when a credential keyword sits anywhere in it
@@ -1024,8 +1024,9 @@ class TestTaskEnvironmentNoSecret(unittest.TestCase):
             "where the host's `ps` shows it to every local account for the "
             "whole module run and `no_log` cannot mask it. Hand it over on the "
             "module's `stdin:` instead: to the program itself, or to the "
-            "calling shell (`IFS= read -r NAME && export NAME && container "
-            "exec -e NAME …`). Mark a deliberate exception with "
+            'calling shell (`IFS= read -r NAME || :; : "${NAME:?…}" && '
+            "export NAME && container exec -e NAME …`). Mark a deliberate "
+            "exception with "
             f"`# nocheck: {_RULE} <reason>`.\n\nOffenders:\n" + "\n".join(findings),
         )
 

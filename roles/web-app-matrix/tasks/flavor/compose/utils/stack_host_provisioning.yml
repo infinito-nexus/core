@@ -1,7 +1,7 @@
 ---
 - name: 📁 create admin account
   shell: >-
-    IFS= read -r MATRIX_ADMINISTRATOR_PASSWORD || : "${MATRIX_ADMINISTRATOR_PASSWORD:?arrived empty on stdin}" && export MATRIX_ADMINISTRATOR_PASSWORD &&
+    IFS= read -r MATRIX_ADMINISTRATOR_PASSWORD || :; : "${MATRIX_ADMINISTRATOR_PASSWORD:?arrived empty on stdin}" && export MATRIX_ADMINISTRATOR_PASSWORD &&
     container exec -i -e MATRIX_ADMINISTRATOR_PASSWORD {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
     sh -lc 'printf "%s" "$MATRIX_ADMINISTRATOR_PASSWORD" | register_new_matrix_user
     -u "{{ MATRIX_ADMINISTRATOR_USERNAME }}"
@@ -29,7 +29,7 @@
 
 - name: 📁 create chatgpt bot
   shell: >-
-    IFS= read -r MATRIX_BOT_PASSWORD || : "${MATRIX_BOT_PASSWORD:?arrived empty on stdin}" && export MATRIX_BOT_PASSWORD &&
+    IFS= read -r MATRIX_BOT_PASSWORD || :; : "${MATRIX_BOT_PASSWORD:?arrived empty on stdin}" && export MATRIX_BOT_PASSWORD &&
     container exec -i -e MATRIX_BOT_PASSWORD {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
     sh -lc 'printf "%s" "$MATRIX_BOT_PASSWORD" | register_new_matrix_user
     -u chatgptbot

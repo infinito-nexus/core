@@ -72,6 +72,8 @@
     cmd: >-
       IFS= read -r JITSI_REALIGN_FOCUS_PASSWORD && IFS= read -r JITSI_REALIGN_JVB_PASSWORD &&
       IFS= read -r JITSI_REALIGN_JIGASI_PASSWORD && IFS= read -r JITSI_REALIGN_JIBRI_PASSWORD &&
+      : "${JITSI_REALIGN_FOCUS_PASSWORD:?arrived empty on stdin}" && : "${JITSI_REALIGN_JVB_PASSWORD:?arrived empty on stdin}" &&
+      : "${JITSI_REALIGN_JIGASI_PASSWORD:?arrived empty on stdin}" && : "${JITSI_REALIGN_JIBRI_PASSWORD:?arrived empty on stdin}" &&
       export JITSI_REALIGN_FOCUS_PASSWORD JITSI_REALIGN_JVB_PASSWORD
       JITSI_REALIGN_JIGASI_PASSWORD JITSI_REALIGN_JIBRI_PASSWORD &&
       container exec -i

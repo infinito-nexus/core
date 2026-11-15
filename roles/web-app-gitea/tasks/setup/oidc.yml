@@ -11,7 +11,7 @@
 - name: "➕ Add Keycloak OIDC Provider"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
-    IFS= read -r GITEA_OIDC_CLIENT_SECRET || : "${GITEA_OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export GITEA_OIDC_CLIENT_SECRET && container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+    IFS= read -r GITEA_OIDC_CLIENT_SECRET || :; : "${GITEA_OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export GITEA_OIDC_CLIENT_SECRET && container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth add-oauth {{ GITEA_OIDC_AUTH_ARGS | join(' ') }}
     '
   args:
@@ -23,7 +23,7 @@
 - name: "🔄 Update Keycloak OIDC Provider"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated at the include site
-    IFS= read -r GITEA_OIDC_CLIENT_SECRET || : "${GITEA_OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export GITEA_OIDC_CLIENT_SECRET && container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
+    IFS= read -r GITEA_OIDC_CLIENT_SECRET || :; : "${GITEA_OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export GITEA_OIDC_CLIENT_SECRET && container exec -i -e GITEA_OIDC_CLIENT_SECRET --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} sh -lc '
       gitea admin auth update-oauth --id {{ oidc_source_id_raw.stdout }} {{ GITEA_OIDC_AUTH_ARGS | join(' ') }}
     '
   args:

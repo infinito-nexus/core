@@ -41,7 +41,8 @@
 - name: "🔑 snipe-it: apply the LDAP port and bind credential via Setting model"
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r APP_KEY && IFS= read -r LDAP_BIND_PASSWORD_B64 && export APP_KEY LDAP_BIND_PASSWORD_B64 && container exec -i
+      IFS= read -r APP_KEY && IFS= read -r LDAP_BIND_PASSWORD_B64 && : "${APP_KEY:?arrived empty on stdin}" && : "${LDAP_BIND_PASSWORD_B64:?arrived empty on stdin}"
+      && export APP_KEY LDAP_BIND_PASSWORD_B64 && container exec -i
       -e APP_KEY
       -e LDAP_SERVER_PORT={{ LDAP.SERVER.PORT | quote }}
       -e LDAP_BIND_PASSWORD_B64

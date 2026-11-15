@@ -52,7 +52,8 @@
 - name: "🔑 Realign the Social Home administrator password with the declared one"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r SOCIALHOME_REALIGN_PASSWORD && export SOCIALHOME_REALIGN_PASSWORD && container exec -i
+      IFS= read -r SOCIALHOME_REALIGN_PASSWORD && : "${SOCIALHOME_REALIGN_PASSWORD:?arrived empty on stdin}" && export SOCIALHOME_REALIGN_PASSWORD && container exec
+      -i
       -e SOCIALHOME_REALIGN_USERNAME -e SOCIALHOME_REALIGN_PASSWORD
       {{ SOCIALHOME_LOCAL_CID | quote }} python
     stdin: |-

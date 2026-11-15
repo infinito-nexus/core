@@ -10,6 +10,7 @@
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
       IFS= read -r GITLAB_ROOT_PASSWORD && IFS= read -r GITLAB_ADMIN_PASSWORD
+      && : "${GITLAB_ROOT_PASSWORD:?arrived empty on stdin}" && : "${GITLAB_ADMIN_PASSWORD:?arrived empty on stdin}"
       && export GITLAB_ROOT_PASSWORD GITLAB_ADMIN_PASSWORD && container exec -i
       -e GITLAB_ROOT_USERNAME -e GITLAB_ROOT_PASSWORD -e GITLAB_DESIGN_TITLE
       -e GITLAB_ADMIN_USERNAME -e GITLAB_ADMIN_EMAIL -e GITLAB_ADMIN_NAME -e GITLAB_ADMIN_PASSWORD

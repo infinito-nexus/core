@@ -1,7 +1,7 @@
 ---
 - name: "🤖 Point the Moodle AI provider instance at the platform gateway"
   ansible.builtin.shell: >
-    IFS= read -r AI_API_KEY && export AI_API_KEY && container exec -i --user {{ MOODLE_RUNTIME_USER }}
+    IFS= read -r AI_API_KEY && : "${AI_API_KEY:?arrived empty on stdin}" && export AI_API_KEY && container exec -i --user {{ MOODLE_RUNTIME_USER }}
     -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
     -e AI_PROVIDER_NAME={{ MOODLE_LITELLM_PROVIDER_NAME | quote }}
     -e AI_API_KEY

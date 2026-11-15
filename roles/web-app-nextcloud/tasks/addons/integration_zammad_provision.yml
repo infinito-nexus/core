@@ -76,7 +76,7 @@
 - name: 📝 Store integration_zammad OAuth creds Nextcloud-encrypted (sensitive, lazy)
   ansible.builtin.shell:
     cmd: >-
-      IFS= read -r NC_ENC_B64 && export NC_ENC_B64 &&
+      IFS= read -r NC_ENC_B64 && : "${NC_ENC_B64:?arrived empty on stdin}" && export NC_ENC_B64 &&
       container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
       -e 'NC_APP_ID=integration_zammad'
       -e 'NC_ENC_MODE=sensitive'

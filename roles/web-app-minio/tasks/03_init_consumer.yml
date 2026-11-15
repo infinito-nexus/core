@@ -20,8 +20,8 @@
     MINIO_CONSUMER_POLICY_B64: "{{ lookup('template', 'consumer-policy.json.j2') | b64encode }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD
-    IFS= read -r MINIO_CONSUMER_SECRET_KEY
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_CONSUMER_SECRET_KEY || :; : "${MINIO_CONSUMER_SECRET_KEY:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD MINIO_CONSUMER_SECRET_KEY
     container run --rm \
         -e MINIO_ROOT_USER \
@@ -59,7 +59,7 @@
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
   ansible.builtin.shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD
     container run --rm \
         -e MINIO_ROOT_USER \

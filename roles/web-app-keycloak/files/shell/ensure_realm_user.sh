@@ -27,7 +27,7 @@ set -euo pipefail
 : "${KEYCLOAK_KCADM:?missing KEYCLOAK_KCADM}"
 : "${KEYCLOAK_REALM:?missing KEYCLOAK_REALM}"
 : "${KEYCLOAK_USERNAME:?missing KEYCLOAK_USERNAME}"
-IFS= read -r KEYCLOAK_CREDENTIAL_JSON || : "${KEYCLOAK_CREDENTIAL_JSON:?missing the credential on stdin}"
+IFS= read -r KEYCLOAK_CREDENTIAL_JSON || : # nocheck: shell-or-true -- read returns 1 on a last line without a newline; the next line rejects an empty value
 : "${KEYCLOAK_CREDENTIAL_JSON:?missing the credential on stdin}"
 
 KEYCLOAK_EMAIL="${KEYCLOAK_EMAIL:-}"

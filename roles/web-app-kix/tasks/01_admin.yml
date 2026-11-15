@@ -26,7 +26,7 @@
 - name: "🔑 Realign the declared administrator password of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r KIX_REALIGN_PASSWORD && export KIX_REALIGN_PASSWORD && container exec -i -e KIX_HOME
+      IFS= read -r KIX_REALIGN_PASSWORD && : "${KIX_REALIGN_PASSWORD:?arrived empty on stdin}" && export KIX_REALIGN_PASSWORD && container exec -i -e KIX_HOME
       -e KIX_REALIGN_LOGIN -e KIX_REALIGN_PASSWORD -e KIX_REALIGN_USAGE_CONTEXT
       {{ KIX_BACKEND_LOCAL_CID | quote }} perl {{ KIX_PERL_INCLUDE_ARGS }}
     stdin: |-

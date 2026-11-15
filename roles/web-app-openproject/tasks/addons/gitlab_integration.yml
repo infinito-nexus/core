@@ -10,6 +10,8 @@
       bash -lc 'IFS= read -r OPENPROJECT_GITLAB_BOT_PASSWORD
       && IFS= read -r OPENPROJECT_GITLAB_WEBHOOK_SECRET
       && IFS= read -r OPENPROJECT_GITLAB_API_TOKEN
+      && : "${OPENPROJECT_GITLAB_BOT_PASSWORD:?arrived empty on stdin}"
+      && : "${OPENPROJECT_GITLAB_WEBHOOK_SECRET:?arrived empty on stdin}"
       && export OPENPROJECT_GITLAB_BOT_PASSWORD OPENPROJECT_GITLAB_WEBHOOK_SECRET OPENPROJECT_GITLAB_API_TOKEN
       && cd /app && bundle exec rails runner -'
     stdin: |-

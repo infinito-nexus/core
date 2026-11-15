@@ -19,7 +19,7 @@
 - name: "👤 Create the account the MCP clients authenticate as"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r OC_PASS || : "${OC_PASS:?arrived empty on stdin}" && export OC_PASS && container exec
+      IFS= read -r OC_PASS || :; : "${OC_PASS:?arrived empty on stdin}" && export OC_PASS && container exec
       -u {{ NEXTCLOUD_DOCKER_USER | quote }} -e OC_PASS
       {{ NEXTCLOUD_LOCAL_CID | quote }}
       php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} user:add --password-from-env
@@ -35,7 +35,7 @@
 - name: "🔑 Set the account's password to the one this deployment declares"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r OC_PASS || : "${OC_PASS:?arrived empty on stdin}" && export OC_PASS && container exec
+      IFS= read -r OC_PASS || :; : "${OC_PASS:?arrived empty on stdin}" && export OC_PASS && container exec
       -u {{ NEXTCLOUD_DOCKER_USER | quote }} -e OC_PASS
       {{ NEXTCLOUD_LOCAL_CID | quote }}
       php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} user:resetpassword --password-from-env
@@ -90,7 +90,7 @@
 - name: "🔑 Mint an app password for the MCP clients"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r NC_PASS || : "${NC_PASS:?arrived empty on stdin}" && export NC_PASS && container exec
+      IFS= read -r NC_PASS || :; : "${NC_PASS:?arrived empty on stdin}" && export NC_PASS && container exec
       -u {{ NEXTCLOUD_DOCKER_USER | quote }} -e NC_PASS
       {{ NEXTCLOUD_LOCAL_CID | quote }}
       php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} user:auth-tokens:add

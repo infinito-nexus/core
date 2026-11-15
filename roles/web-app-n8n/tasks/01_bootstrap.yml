@@ -81,7 +81,7 @@
     - name: "🔐 Write the deployed owner password into n8n's user row"
       ansible.builtin.shell:
         cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-          IFS= read -r N8N_OWNER_PASSWORD && export N8N_OWNER_PASSWORD && container exec -i
+          IFS= read -r N8N_OWNER_PASSWORD && : "${N8N_OWNER_PASSWORD:?arrived empty on stdin}" && export N8N_OWNER_PASSWORD && container exec -i
           -e NODE_PATH={{ N8N_NODE_MODULES | quote }}
           -e N8N_OWNER_EMAIL={{ N8N_OWNER_EMAIL | quote }}
           -e N8N_OWNER_PASSWORD

@@ -42,7 +42,7 @@
     - name: "🔎 Read the stored BookWyrm instance name and whether the site converge writes"
       ansible.builtin.shell:
         cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-          IFS= read -r ADMIN_PASSWORD && export ADMIN_PASSWORD && container exec -i
+          IFS= read -r ADMIN_PASSWORD && : "${ADMIN_PASSWORD:?arrived empty on stdin}" && export ADMIN_PASSWORD && container exec -i
           -e MODE -e ADMIN_USERNAME -e ADMIN_EMAIL -e ADMIN_PASSWORD -e DESIGN_STATE -e SITE_NAME
           -e THEME_NAME -e THEME_PATH -e LOGO_SMALL -e LOGO -e FAVICON
           {{ BOOKWYRM_SITE_LOCAL_CID | quote }}
@@ -72,7 +72,7 @@
         - name: "👤 Write the BookWyrm administrator, title, logos and corporate theme"
           ansible.builtin.shell:
             cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-              IFS= read -r ADMIN_PASSWORD && export ADMIN_PASSWORD && container exec -i
+              IFS= read -r ADMIN_PASSWORD && : "${ADMIN_PASSWORD:?arrived empty on stdin}" && export ADMIN_PASSWORD && container exec -i
               -e MODE -e ADMIN_USERNAME -e ADMIN_EMAIL -e ADMIN_PASSWORD -e DESIGN_STATE -e SITE_NAME
               -e THEME_NAME -e THEME_PATH -e LOGO_SMALL -e LOGO -e FAVICON
               {{ BOOKWYRM_SITE_LOCAL_CID | quote }}

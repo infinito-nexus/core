@@ -4,7 +4,7 @@
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD
     container run --rm \
         -e MINIO_ROOT_USER \
@@ -25,7 +25,7 @@
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD
     printf '%s' '{{ (item.content | from_yaml | to_json) | b64encode }}' \
       | base64 -d \
@@ -48,7 +48,7 @@
     MINIO_LDAP_GROUP_DN: "{{ item.group_dn }}"
   shell: |
     set -euo pipefail
-    IFS= read -r MINIO_ROOT_PASSWORD || : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
     export MINIO_ROOT_PASSWORD
     container run --rm \
         -e MINIO_ROOT_USER \

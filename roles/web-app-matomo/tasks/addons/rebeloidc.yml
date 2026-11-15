@@ -13,7 +13,7 @@
 - name: "🔎 Read the stored sign-in plugin settings meta/forms.yml manages"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-      IFS= read -r MATOMO_CONFIG_SECTIONS && export MATOMO_CONFIG_SECTIONS &&
+      IFS= read -r MATOMO_CONFIG_SECTIONS || :; : "${MATOMO_CONFIG_SECTIONS:?arrived empty on stdin}" && export MATOMO_CONFIG_SECTIONS &&
       container exec -i --user www-data -e MATOMO_CONFIG_SECTIONS -e MATOMO_CONFIG_GENERAL
       -e MATOMO_CONFIG_MODE=read -e MATOMO_CONFIG_FORM_FIELDS
       {{ MATOMO_LOCAL_CID | quote }} php
@@ -36,7 +36,7 @@
 - name: "🔐 Converge the sign-in plugin settings ({{ MATOMO_OIDC_STATE }})"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-      IFS= read -r MATOMO_CONFIG_SECTIONS && export MATOMO_CONFIG_SECTIONS &&
+      IFS= read -r MATOMO_CONFIG_SECTIONS || :; : "${MATOMO_CONFIG_SECTIONS:?arrived empty on stdin}" && export MATOMO_CONFIG_SECTIONS &&
       container exec -i --user www-data -e MATOMO_CONFIG_SECTIONS -e MATOMO_CONFIG_GENERAL
       {{ MATOMO_LOCAL_CID | quote }} php
     stdin: |-
