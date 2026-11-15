@@ -87,6 +87,12 @@ class TestEnvCanonicalDomain(unittest.TestCase):
             with self.subTest(passes=passes):
                 self.assertIn(line, render(passes[0], passes))
 
+    def test_a_domainless_pass_keeps_the_env_without_leak_check_or_bypass(self):
+        rendered = render("", ("",))
+        self.assertIn(f'CANONICAL_DOMAIN="{CLEARNET[1]}"\n', rendered)
+        self.assertIn("PLAYWRIGHT_NETWORK_LEAK=false\n", rendered)
+        self.assertNotIn("PLAYWRIGHT_PROXY_BYPASS", rendered)
+
     def test_canonical_network_pick_keeps_the_rendered_env(self):
         self.assertTrue(
             render(CLEARNET[0]).startswith(

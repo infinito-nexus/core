@@ -49,7 +49,8 @@ TEST_E2E_PLAYWRIGHT_PARALLEL_BUDGET: >-
   {%- set ns = namespace(total=0) -%}
   {%- for app in TEST_E2E_PLAYWRIGHT_APPS -%}
   {%- set role_timeout = lookup('role_tests', app, 'playwright.timeout', default='') | string | trim -%}
-  {%- set picks = [lookup('domain', app)] if lookup('config', app, 'networks.reachability.handover', False)
+  {%- set picks = [''] if app not in lookup('domains')
+        else [lookup('domain', app)] if lookup('config', app, 'networks.reachability.handover', False)
         else lookup('network_siblings', lookup('domain', app)) -%}
   {%- set worst = namespace(seconds=0) -%}
   {%- for network in picks | map('network_of') | unique -%}

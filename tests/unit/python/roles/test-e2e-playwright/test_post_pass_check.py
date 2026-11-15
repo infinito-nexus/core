@@ -28,6 +28,9 @@ PARALLEL_COLLECT = (
     "📝 Report and archive each handed-over run",
 )
 SERIAL_RUN = ("03_run_pass.yml", "▶️ Run Playwright with the RBAC sync")
+TIMED_RUN = ("03_run_pass.yml", "🎬 Time and run the Playwright container")
+SYNC_START = "🔁 Start the RBAC sync on its test interval"
+SYNC_STOP = "⏹️ Stop the RBAC sync test interval"
 CLOCK = "⏱️ Read the stack host clock the pass starts on"
 RUN = "▶️ Run Playwright container"
 ROLE_ID = "web-svc-logout"
@@ -121,7 +124,12 @@ class TestPostPassCheck(unittest.TestCase):
         )
 
     def test_the_clock_is_read_on_the_stack_host_right_before_the_run(self) -> None:
-        names = [task["name"] for task in role_task(*SERIAL_RUN)["block"]]
+        serial, timed = role_task(*SERIAL_RUN), role_task(*TIMED_RUN)
+        self.assertEqual(
+            serial["block"], [role_task("03_run_pass.yml", SYNC_START), timed]
+        )
+        self.assertEqual([task["name"] for task in serial["always"]], [SYNC_STOP])
+        names = [task["name"] for task in timed["block"]]
         self.assertEqual(names.index(CLOCK) + 1, names.index(RUN))
         clock = role_task("03_run_pass.yml", CLOCK)
         self.assertEqual(clock["ansible.builtin.command"]["argv"], ["date", "+%s.%N"])

@@ -32,6 +32,7 @@ This role:
 - Injects CA trust automatically for `TLS_MODE=self_signed` (via `CA_TRUST.*`), so Playwright accepts self-signed cert chains
 - Runs Playwright in Docker with stable browser settings (`--ipc=host`, `--shm-size=1g`)
 - Runs the suite once per role on one network it is served on (`lookup('network_siblings', ...)`), picked at random when there are several and kept for the flake retry, with the `.env` rendered for that network's vhost
+- Runs a role without a domain (`application_id not in lookup('domains')`) once on no network: no network pick, no readiness wait, no onion probe, and its reports under `<application_id>`
 - Stores per-role reports/artifacts under `TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR/<application_id>`, or under `<application_id>+<network>` when the pick is not the canonical network
 
 ## Features
