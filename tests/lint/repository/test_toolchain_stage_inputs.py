@@ -94,6 +94,25 @@ FROM toolchain AS full
 COPY . ${INFINITO_SRC_DIR}
 """
 WHOLE_TREE_TOOLCHAIN = NEGATIVE_DOCKERFILE.replace("FROM toolchain AS full\n", "")
+PYTHON_INSTALL = "scripts/install/python.sh"
+COMPAT = "PIP_CONFIG_SETTINGS=editable_mode=compat"
+
+
+def strict_editable_installs(text: str) -> list[int]:
+    """Args:
+        text: the Dockerfile's content.
+
+    Returns:
+        The lines of each toolchain ``RUN`` that calls ``python.sh`` without
+        ``PIP_CONFIG_SETTINGS=editable_mode=compat``.
+    """
+    return [
+        instruction.line
+        for instruction in stages(text)[TOOLCHAIN_STAGE]
+        if instruction.keyword == "RUN"
+        and PYTHON_INSTALL in instruction.args
+        and COMPAT not in instruction.args
+    ]
 
 
 class TestToolchainStageInputs(unittest.TestCase):
@@ -123,6 +142,20 @@ class TestToolchainStageInputs(unittest.TestCase):
         for source in sources:
             with self.subTest(source=source):
                 self.assertTrue(any(_covered(rel, [source]) for rel in files))
+
+    def test_the_toolchain_installs_the_package_in_compat_editable_mode(self) -> None:
+        self.assertTrue(
+            any(
+                PYTHON_INSTALL in instruction.args
+                for instruction in stages(self.text)[TOOLCHAIN_STAGE]
+            )
+        )
+        self.assertEqual(strict_editable_installs(self.text), [])
+
+    def test_negative_control_a_strict_editable_install_is_flagged(self) -> None:
+        planted = self.text.replace(COMPAT + " ", "")
+        self.assertNotEqual(planted, self.text)
+        self.assertNotEqual(strict_editable_installs(planted), [])
 
     def test_negative_control_an_uncopied_read_and_a_whole_tree_copy_are_flagged(
         self,

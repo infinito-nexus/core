@@ -84,7 +84,7 @@ STOPSIGNAL SIGRTMIN+3
 COPY README.md LICENSE.md ${INFINITO_SRC_DIR}/
 
 RUN set -euo pipefail; \
-  bash "${INFINITO_SRC_DIR}/scripts/install/python.sh" deploy
+  PIP_CONFIG_SETTINGS=editable_mode=compat bash "${INFINITO_SRC_DIR}/scripts/install/python.sh" deploy
 
 COPY scripts/docker/entry.sh ${INFINITO_SRC_DIR}/scripts/docker/entry.sh
 
