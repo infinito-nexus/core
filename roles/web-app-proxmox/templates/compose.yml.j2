@@ -48,6 +48,7 @@
       - /run/lock
     {% endif %}
     {{ lookup('container_ports', ['proxmox', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

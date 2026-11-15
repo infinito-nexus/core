@@ -16,6 +16,8 @@ knot:
   image: cznic/knot
   name: knot
   version: "v3.6.2"
+  healthcheck:
+    test: ["CMD", "knotc", "-c", "/config/knot.conf", "status"]
   min_storage: 200MB
   cpus: "0.5"
   mem_reservation: "128m"
