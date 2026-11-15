@@ -86,7 +86,9 @@ fi
 unset _infinito_env_slot
 
 _infinito_env_previous="${INFINITO_ENV_LOADED_FILE:-}" # nocheck: env-loader-internal-guard
-if [[ "${_infinito_env_previous}" == */.env && "${_infinito_env_previous}" != "${_infinito_env_dotenv}" && -f "${_infinito_env_previous}" && -f "${_infinito_env_previous%/.env}/scripts/meta/env/load.sh" ]]; then
+_infinito_env_self="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/${BASH_SOURCE[0]##*/}"
+_infinito_env_self="${_infinito_env_self#"${_infinito_env_repo_root}/"}"
+if [[ "${_infinito_env_previous}" == */.env && "${_infinito_env_previous}" != "${_infinito_env_dotenv}" && -f "${_infinito_env_previous}" && -f "${_infinito_env_previous%/.env}/${_infinito_env_self}" ]]; then
 	while IFS= read -r -d '' _infinito_env_pair; do
 		_infinito_env_key="${_infinito_env_pair%%=*}"
 		if [[ "${!_infinito_env_key-}" == "${_infinito_env_pair#*=}" ]]; then
@@ -103,7 +105,7 @@ if [[ "${_infinito_env_previous}" == */.env && "${_infinito_env_previous}" != "$
 	)
 	unset _infinito_env_pair _infinito_env_key
 fi
-unset _infinito_env_previous
+unset _infinito_env_previous _infinito_env_self
 
 declare -A _infinito_env_preserved=()
 while IFS= read -r _infinito_env_line; do
