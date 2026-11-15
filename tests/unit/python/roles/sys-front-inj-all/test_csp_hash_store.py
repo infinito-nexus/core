@@ -191,7 +191,10 @@ class TestCspHashStore(unittest.TestCase):
             if any(task.get(key) == "proxy/vhost.yml" for key in INCLUDE_TASKS)
         ]
         self.assertEqual(len(fan_out), 1)
-        self.assertEqual(fan_out[0]["loop"], "{{ lookup('network_siblings', domain) }}")
+        self.assertEqual(
+            fan_out[0]["loop"],
+            "{{ lookup('network_siblings', front_proxy_vhost.domain) }}",
+        )
         self.assertEqual(fan_out[0]["vars"]["domain"], "{{ front_proxy_domain }}")
         passes = [
             task

@@ -22,10 +22,10 @@
     loop_var: stack_backend_database_consumer_id
   vars:
     application_id: "{{ stack_batch_consumer }}"
+    stack_consumer_id: "{{ stack_batch_consumer }}"
     stack_backend_database_enabled: "{{ lookup('database', stack_batch_consumer, 'enabled') | bool }}"
     stack_backend_flush: "{{ lookup('config', stack_batch_consumer, 'services.stack.flush', false) | bool }}"
     stack_backend_checkout_url: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.url', '') }}"
-    stack_backend_checkout_ref: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.ref', '') }}"
     stack_backend_checkout_recursive: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.recursive', true) | bool }}"
     stack_backend_checkout_bases: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.build.bases', {}) }}"
     stack_backend_checkout_dockerfiles: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.build.dockerfiles', {}) }}"

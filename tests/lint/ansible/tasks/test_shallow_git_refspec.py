@@ -56,9 +56,12 @@ _FALSE_WORDS = frozenset({"false", "no", "off", "0"})
 _EMPTY = re.compile(r"""^\s*(\{\{\s*(''|"")\s*\}\})?\s*$""")
 _VARIABLE = re.compile(r"^\s*\{\{\s*([A-Za-z_]\w*)\s*\}\}\s*$")
 _FORWARD = re.compile(
-    r"lookup\(\s*'config'\s*,\s*application_id\s*,\s*'"
+    r"lookup\(\s*'config'\s*,\s*[A-Za-z_]\w*\s*,\s*'"
     + re.escape(CHECKOUT_REF_PATH)
     + "'"
+)
+_INLINE_FORWARD = re.compile(
+    r"^\s*\{\{\s*" + _FORWARD.pattern + r"\s*(?:,\s*(?:''|\"\")\s*)?\)\s*\}\}\s*$"
 )
 
 
@@ -120,7 +123,10 @@ def forwarded_refs(tasks: Any) -> set[str]:
 
 
 def _forwards(variables: dict[str, Any], forwarded: set[str]) -> bool:
-    match = _VARIABLE.match(str(variables.get(REF_KEY, "")))
+    value = str(variables.get(REF_KEY, ""))
+    if _INLINE_FORWARD.match(value):
+        return True
+    match = _VARIABLE.match(value)
     return match is not None and match.group(1) in forwarded
 
 
@@ -422,6 +428,32 @@ class TestShallowGitRefspec(unittest.TestCase):
         self.assertTrue(misses_checkout_kind("web-app-hugo", consumer))
         consumer["hugo"][REF_KIND_KEY] = "tag"
         self.assertFalse(misses_checkout_kind("web-app-hugo", consumer))
+
+    def test_checkout_ref_passed_as_an_include_param_is_judged_on_its_consumer(
+        self,
+    ) -> None:
+        forwarded = "{{ lookup('config', stack_consumer_id, '%s', '') }}"
+        provider = [
+            {
+                "include_role": {"name": "sys-svc-compose"},
+                "vars": {
+                    URL_KEY: "{{ checkout_url }}",
+                    REF_KEY: forwarded % CHECKOUT_REF_PATH,
+                },
+            }
+        ]
+        self.assertEqual(clone_offenders(provider, None), [])
+        for other in (
+            forwarded % f"services.{STACK_KEY}.{CHECKOUT_KEY}.url",
+            forwarded % "services.hugo.source_version",
+            f"{{{{ lookup('config', stack_consumer_id, '{CHECKOUT_REF_PATH}', '') ~ REF }}}}",
+        ):
+            with self.subTest(ref=other):
+                provider[0]["vars"][REF_KEY] = other
+                self.assertEqual(
+                    clone_offenders(provider, None),
+                    [("", "include_role", f"declare {REF_KIND_KEY}")],
+                )
 
     def test_direct_clone_beside_a_forwarded_ref_is_found(self) -> None:
         tasks = [

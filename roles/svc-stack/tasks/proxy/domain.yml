@@ -11,7 +11,7 @@
 # nocheck: swarm-loopback-port overlay  the default port only feeds proxy_pass, which reaches the app over the overlay in swarm
 - name: "🌐 Serve every network sibling of the vhost"
   ansible.builtin.include_tasks: proxy/vhost.yml
-  loop: "{{ lookup('network_siblings', domain) }}"
+  loop: "{{ lookup('network_siblings', front_proxy_vhost.domain) }}"
   loop_control:
     loop_var: front_proxy_domain
   vars:

@@ -129,7 +129,7 @@ def render_seal(application_id: str) -> str:
     return (
         environment({HTML_LOCATION: HTML_LOCATION_STUB})
         .get_template(SEAL)
-        .render(application_id=application_id)
+        .render(logout_consumer_id=application_id)
     )
 
 
@@ -247,7 +247,9 @@ class TestReceiverSeal(unittest.TestCase):
     def test_every_vhost_hook_renders_the_seal_outside_any_branch(self) -> None:
         include = f"{{% include '{SEAL}' %}}"
         text = read_text(str(PROJECT_ROOT / SERVER_HOOK))
-        self.assertIn(include, text)
+        self.assertIn(
+            f"{{% with logout_consumer_id = application_id %}}\n{include}\n", text
+        )
         before = text.split(include, 1)[0]
         self.assertEqual(
             len(re.findall(r"\{%-?\s*if\b", before)),

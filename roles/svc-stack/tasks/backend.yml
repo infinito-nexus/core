@@ -1,4 +1,5 @@
 ---
+# Param: stack_consumer_id - application_id of the consumer whose config this backend reads; every include site sets it.
 - name: "🐛 DEBUG | SVC-STACK | Application context"
   ansible.builtin.debug:
     msg:
@@ -12,10 +13,10 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
   vars:
     mcp_adapter_instance_dir: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
-    mcp_adapter_upstream_key: "{{ lookup('config', application_id, 'mcp.adapter.upstream_credential', false) | bool }}"
+    mcp_adapter_upstream_key: "{{ lookup('config', stack_consumer_id, 'mcp.adapter.upstream_credential', false) | bool }}"
   when:
-    - lookup('config', application_id, 'mcp.implementation', '') == 'adapter'
-    - lookup('config', application_id, 'services.' ~ lookup('config', application_id, 'mcp.endpoint.service_key') ~ '.enabled', false) | bool
+    - lookup('config', stack_consumer_id, 'mcp.implementation', '') == 'adapter'
+    - lookup('config', stack_consumer_id, 'services.' ~ lookup('config', stack_consumer_id, 'mcp.endpoint.service_key') ~ '.enabled', false) | bool
 
 - name: "🧩 For '{{ application_id }}': Load central RDBMS"
   include_role:
@@ -50,12 +51,12 @@
     compose_handlers_flush: false
     database_consumer_id: "{{ stack_backend_database_consumer_id }}"
     compose_repository_url: "{{ stack_backend_checkout_url }}"
-    compose_repository_ref: "{{ stack_backend_checkout_ref }}"
+    compose_repository_ref: "{{ lookup('config', stack_consumer_id, 'services.stack.checkout.ref', '') }}"
     compose_repository_recursive: "{{ stack_backend_checkout_recursive }}"
     compose_repository_bases: "{{ stack_backend_checkout_bases }}"
     compose_repository_dockerfiles: "{{ stack_backend_checkout_dockerfiles }}"
 
-- name: "📄 For '{{ application_id }}': render the web-app-keycloak SSO-proxy sidecar config"
+- name: "📄 For '{{ application_id }}': render the Keycloak SSO-proxy sidecar config"
   include_tasks: "{{ lookup('path_absolute', 'roles/web-app-keycloak/tasks/sso_proxy.yml') }}"
   vars:
     sso_proxy_application_id: "{{ stack_batch_consumer }}"
