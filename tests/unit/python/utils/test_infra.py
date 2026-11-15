@@ -3,7 +3,6 @@ from __future__ import annotations
 import shutil
 import tempfile
 import threading
-import time
 import unittest
 from contextlib import nullcontext
 from pathlib import Path
@@ -356,22 +355,28 @@ class TestProxyBridge(unittest.TestCase):
 
 
 class TestConcurrentUp(unittest.TestCase):
-    def _race(self, lock_cm) -> int:
+    def _race(self, lock_cm, synchronize_running: bool) -> int:
         started: list[int] = []
         state = {"running": False}
         gate = threading.Barrier(2)
+        checked = threading.Barrier(2)
 
         def run(_argv: list[str]) -> None:
-            time.sleep(0.05)
             started.append(1)
             state["running"] = True
+
+        def running() -> bool:
+            value = state["running"]
+            if synchronize_running:
+                checked.wait()
+            return value
 
         def call() -> None:
             gate.wait()
             infra.up(
                 ["compose"],
                 refusal=list,
-                running=lambda: state["running"],
+                running=running,
                 run=run,
                 lock=lock,
                 recreate=False,
@@ -391,10 +396,12 @@ class TestConcurrentUp(unittest.TestCase):
         return len(started)
 
     def test_two_concurrent_calls_leave_one_runner(self) -> None:
-        self.assertEqual(self._race(infra.machine_lock), 1)
+        self.assertEqual(self._race(infra.machine_lock, synchronize_running=False), 1)
 
     def test_without_the_lock_both_would_start_one(self) -> None:
-        self.assertEqual(self._race(lambda _path: nullcontext()), 2)
+        self.assertEqual(
+            self._race(lambda _path: nullcontext(), synchronize_running=True), 2
+        )
 
 
 class TestFloorRefusal(unittest.TestCase):
