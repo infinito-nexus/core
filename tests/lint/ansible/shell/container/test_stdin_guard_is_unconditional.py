@@ -4,9 +4,9 @@ import re
 import shutil
 import subprocess
 import unittest
-from collections.abc import Iterator
 from functools import cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_all, load_yaml_all_str
@@ -14,6 +14,8 @@ from utils.roles.mapping import ROLE_FILE_TASKS_MCP
 
 from . import PROJECT_ROOT
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 GUARD = 'IFS= read -r {name} || :; : "${{{name}:?{message}}}"'
 _MESSAGE = "arrived empty on stdin"
 _YAML_EXTENSIONS = (".yml", ".yaml")
