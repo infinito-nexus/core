@@ -1,5 +1,5 @@
 ---
-- name: "🪙 Matomo | Mint the API token of {{ MATOMO_ADMIN_USER_NAME }} inside the container"
+- name: "🪙 Matomo | Mint the API token of {{ MATOMO_ADMIN_USER_NAME }} in the container"
   ansible.builtin.shell: # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     cmd: >
       container exec -i --user root

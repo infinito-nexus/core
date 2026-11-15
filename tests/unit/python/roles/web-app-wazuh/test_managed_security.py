@@ -4,15 +4,15 @@ import base64
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
 
-import yaml
 from ansible.parsing.dataloader import DataLoader
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache import PROJECT_ROOT
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import load_yaml_any, load_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-wazuh"
-FORMS = ROLE / "meta" / "forms.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
 CORE = ROLE / "tasks" / "00_core.yml"
 TEMPLATES = ROLE / "templates"
 ROLES = ROLE / "files" / "roles.yml"
@@ -89,7 +89,7 @@ class TestTheDriftReadsWhatTheTemplatesRender(unittest.TestCase):
 
 class TestOpenSearchLocksTheManagedSecurity(unittest.TestCase):
     def test_every_managed_role_mapping_is_reserved(self) -> None:
-        mappings = yaml.safe_load(_render("roles_mapping.yml"))
+        mappings = load_yaml_str(_render("roles_mapping.yml"))
         mappings.pop("_meta")
         self.assertEqual({True}, {entry["reserved"] for entry in mappings.values()})
 

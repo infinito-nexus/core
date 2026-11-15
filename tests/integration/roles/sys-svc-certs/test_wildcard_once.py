@@ -8,7 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 ROLE_TASKS = Path("roles/sys-svc-certs/tasks")
 ONCE_FLAG = Path("tasks/utils/once/flag.yml")
@@ -104,15 +105,18 @@ def requested_certificates(
     overrides = overrides or {}
     with tempfile.TemporaryDirectory() as tmp:
         workdir = Path(tmp)
-        for source in (PROJECT_ROOT / ROLE_TASKS).rglob("*.yml"):
-            rel = str(source.relative_to(PROJECT_ROOT / ROLE_TASKS))
-            _write(
-                workdir / ROLE_TASKS / rel, overrides.get(rel, read_text(str(source)))
-            )
+        tasks = PROJECT_ROOT / ROLE_TASKS
+        for source in iter_project_files(extensions=(".yml",)):
+            if not source.startswith(f"{tasks}{os.sep}"):
+                continue
+            rel = str(Path(source).relative_to(tasks))
+            _write(workdir / ROLE_TASKS / rel, overrides.get(rel, read_text(source)))
         for rel, body in overrides.items():
             _write(workdir / ROLE_TASKS / rel, body)
         _write(workdir / ONCE_FLAG, read_text(str(PROJECT_ROOT / ONCE_FLAG)))
-        _write(workdir / "roles/sys-svc-webserver-https/tasks/main.yml", STUB_HTTPS)
+        _write(
+            workdir / "roles/sys-svc-webserver-https" / ROLE_FILE_TASKS_MAIN, STUB_HTTPS
+        )
         _write(workdir / "lookup/users.py", STUB_USERS_LOOKUP)
         _write(workdir / "library/cert_check_exists.py", STUB_CERT_CHECK)
         certbot = workdir / "bin/certbot"

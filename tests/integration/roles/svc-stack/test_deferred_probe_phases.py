@@ -10,6 +10,7 @@ from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN, ROLE_FILE_VARS_MAIN
 
 from .test_stack_entry import _write
 
@@ -17,8 +18,8 @@ STACK = Path("roles/svc-stack")
 REAL = (
     STACK / "tasks/deferred_probe.yml",
     STACK / "tasks/deferred_probe/restart.yml",
-    STACK / "vars/main.yml",
-    STACK / "defaults/main.yml",
+    STACK / ROLE_FILE_VARS_MAIN,
+    STACK / ROLE_FILE_DEFAULTS_MAIN,
     STACK / "filter_plugins/front_proxy_unserved.py",
 )
 QUEUE = {

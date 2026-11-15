@@ -8,8 +8,9 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader
 from ansible.template import Templar
 
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.applications import get_application_defaults
+from utils.cache.reset import _reset_cache_for_tests
+from utils.roles.mapping import ROLE_FILE_META_MCP
 
 from . import PROJECT_ROOT
 
@@ -35,7 +36,7 @@ def _mcp_host(computed: str) -> dict[str, Any]:
     roles = sorted(
         role.name
         for role in ROLES_DIR.iterdir()
-        if (role / "meta" / "mcp.yml").is_file()
+        if (role / ROLE_FILE_META_MCP).is_file()
     )
     defaults = get_application_defaults(roles_dir=ROLES_DIR)
     applications: dict[str, Any] = {

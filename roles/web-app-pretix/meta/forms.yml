@@ -12,7 +12,7 @@ team_organizers:
       mode: enforced
       selector: "#id_all_events"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All events (including newly created ones)
     all_event_permissions:
       source: services.pretix.teams.organizers.all_event_permissions
@@ -20,7 +20,7 @@ team_organizers:
       mode: enforced
       selector: "#id_all_event_permissions"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All event permissions
     limit_event_permissions:
       source: services.pretix.teams.organizers.limit_event_permissions
@@ -35,7 +35,7 @@ team_organizers:
       mode: enforced
       selector: "#id_all_organizer_permissions"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All organizer permissions
     limit_organizer_permissions:
       source: services.pretix.teams.organizers.limit_organizer_permissions
@@ -57,7 +57,7 @@ team_checkin:
       mode: enforced
       selector: "#id_all_events"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All events (including newly created ones)
     all_event_permissions:
       source: services.pretix.teams.checkin.all_event_permissions
@@ -65,7 +65,7 @@ team_checkin:
       mode: enforced
       selector: "#id_all_event_permissions"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All event permissions
     limit_event_permissions:
       source: services.pretix.teams.checkin.limit_event_permissions
@@ -80,7 +80,7 @@ team_checkin:
       mode: enforced
       selector: "#id_all_organizer_permissions"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All organizer permissions
     limit_organizer_permissions:
       source: services.pretix.teams.checkin.limit_organizer_permissions
@@ -102,7 +102,7 @@ team_mcp:
       mode: seeded
       selector: "#id_all_events"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All events (including newly created ones)
     all_event_permissions:
       source: services.pretix.teams.mcp.all_event_permissions
@@ -110,7 +110,7 @@ team_mcp:
       mode: seeded
       selector: "#id_all_event_permissions"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All event permissions
     limit_event_permissions:
       source: services.pretix.teams.mcp.limit_event_permissions
@@ -125,7 +125,7 @@ team_mcp:
       mode: seeded
       selector: "#id_all_organizer_permissions"
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: All organizer permissions
     limit_organizer_permissions:
       source: services.pretix.teams.mcp.limit_organizer_permissions

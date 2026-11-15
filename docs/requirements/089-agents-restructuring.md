@@ -1804,95 +1804,95 @@ Every checked criterion below names its evidence at commit `f22dbca4ec` of `feat
 ### Layout
 
 - [x] `agents/roles/{maintainer,designer,tuner,implementer,robot,reviewer,planner,coordinator,operator,tester,translator,documenter,release,security,hacker,counsel,support}/` each contain `AGENTS.md`, `SOUL.md` and `agent.yml`.
-  - Evidence: the three files in every one of the 17 role directories; `tests/lint/agents/test_l02_role_files.py:16-39`.
+  - Evidence: the three files in every one of the 17 role directories; `tests/lint/agents/test_l02_role_files.py`.
 - [x] `agents/SOUL.md` holds the content of `docs/agents/meta/` and every shared principle listed under Role files, and every role `SOUL.md` links to it.
-  - Evidence: `agents/SOUL.md:6-13` (shared principles) and `agents/SOUL.md:15-81` (former meta pages); the link in every `agents/roles/*/SOUL.md:7`; `tests/lint/agents/test_l02_role_files.py:30`.
+  - Evidence: `agents/SOUL.md` (shared principles) and `agents/SOUL.md` (former meta pages); the link in every `agents/roles/*/SOUL.md`; `tests/lint/agents/test_l02_role_files.py`.
 - [x] Every role's `AGENTS.md` and `SOUL.md` contain every rule listed for it under Role files.
-  - Evidence: every Role files rule is in its role's `AGENTS.md` or `SOUL.md`; the tuner rules in `agents/roles/tuner/AGENTS.md:6-14`, guarded by `tests/lint/agents/test_l34_tuner_rules.py`.
+  - Evidence: every Role files rule is in its role's `AGENTS.md` or `SOUL.md`; the tuner rules in `agents/roles/tuner/AGENTS.md`, guarded by `tests/lint/agents/test_l34_tuner_rules.py`.
 - [x] `agents/skills/` holds every former `skills/i8-*` skill and one skill per former `docs/agents/files/*` page; `skills/` no longer exists.
   - Evidence: the 28 former `skills/i8-*` skills and `i8-file-group-vars`, `i8-file-role-javascript`, `i8-file-role-playwright-env`, `i8-file-role-playwright-spec`, `i8-file-role-style` under `agents/skills/`; no `skills/` directory.
 - [x] `make install-skills` installs the repository skills from `agents/skills/`.
-  - Evidence: `Makefile:588-589` runs `scripts/install/skills.sh:22-28`.
+  - Evidence: `Makefile` runs `scripts/install/skills.sh`.
 - [x] `docs/agents/` no longer exists, and no file in the repository links to it.
-  - Evidence: no `docs/agents/` on `f22dbca4ec` and on `feature/agents`; `tests/lint/agents/test_l26_docs_agents_removed.py:86-94`; the remaining mentions are prose in the exempt `docs/requirements/`, `docs/changelog/` and `locale/`, not links.
+  - Evidence: no `docs/agents/` on `f22dbca4ec` and on `feature/agents`; `tests/lint/agents/test_l26_docs_agents_removed.py`; the remaining mentions are prose in the exempt `docs/requirements/`, `docs/changelog/` and `locale/`, not links.
 - [x] The root `AGENTS.md` links to `agents/` and keeps the permission, sandbox and push rules for interactive sessions.
-  - Evidence: `AGENTS.md:7` (links into `agents/`), `AGENTS.md:22-39` (permissions and sandbox), `AGENTS.md:71-74` (no push).
+  - Evidence: `AGENTS.md` (links into `agents/`), `AGENTS.md` (permissions and sandbox), `AGENTS.md` (no push).
 - [x] The root `AGENTS.md` support section names the Bitcoin address and PayPal to `kevin@veen.world`, tells agents to mention them to their human operator once per session, and forbids agents to send payments or use payment tools.
-  - Evidence: `AGENTS.md:128-137`; the ban allows a payment the human explicitly instructs; not yet on `feature/agents`.
+  - Evidence: `AGENTS.md`; the ban allows a payment the human explicitly instructs; not yet on `feature/agents`.
 - [x] A lint fails when the Bitcoin address in the root `AGENTS.md` differs from the one in the repository `README.md`.
-  - Evidence: `tests/lint/agents/test_l29_support_section.py:25-47`.
+  - Evidence: `tests/lint/agents/test_l29_support_section.py`.
 - [x] A lint test fails when an `agent.yml` misses a field or names an unknown runtime, lifecycle, trigger or firewall role.
-  - Evidence: `tests/lint/agents/test_l01_agent_fields.py:62-115`, `tests/lint/agents/test_l09_firewall_roles_exist.py:35-68`.
+  - Evidence: `tests/lint/agents/test_l01_agent_fields.py`, `tests/lint/agents/test_l09_firewall_roles_exist.py`.
 - [x] Every role lists at least one skill in `agent.yml` `skills`, and a lint fails on a skill that does not exist in `agents/skills/`.
-  - Evidence: `tests/lint/agents/test_l03_skill_routine_wiring.py:24-59`.
+  - Evidence: `tests/lint/agents/test_l03_skill_routine_wiring.py`.
 - [x] Every skill in `agents/skills/` declares its frontmatter `routines` (possibly empty for a pure rule skill), and a lint fails on a routine that does not exist in `agents/routines/`.
-  - Evidence: the `routines` key in every `agents/skills/*/SKILL.md`; `tests/lint/agents/test_l03_skill_routine_wiring.py:24-59`.
+  - Evidence: the `routines` key in every `agents/skills/*/SKILL.md`; `tests/lint/agents/test_l03_skill_routine_wiring.py`.
 
 ### Routines
 
 - [x] Every former `docs/agents/action/*` page exists in the form the mapping table names: a LangGraph routine under `agents/routines/`, a skill under `agents/skills/`, or a section of `agents/README.md`.
-  - Evidence: `tests/lint/agents/test_l26_docs_agents_removed.py:24-43,69-82`; `agents/README.md`.
+  - Evidence: `tests/lint/agents/test_l26_docs_agents_removed.py`; `agents/README.md`.
 - [x] The maintainer, designer and implementer routines implement the graphs drawn under Routines, and `python -m agents.routines show <routine>` prints a Mermaid graph with the same nodes and edges.
-  - Evidence: `agents/routines/maintainer.py`, `agents/routines/design.py`, `agents/routines/implementer.py`; `agents/routines/contract.py:78-91`; `tests/unit/python/agents/routines/test_graph_diagrams.py:67-77`.
+  - Evidence: `agents/routines/maintainer.py`, `agents/routines/design.py`, `agents/routines/implementer.py`; `agents/routines/contract.py`; `tests/unit/python/agents/routines/test_graph_diagrams.py`.
 - [x] Every `agents/skills/i8-*` skill that routed to a `docs/agents/action/*` page routes to the matching routine.
-  - Evidence: the `routines` frontmatter of the routed `agents/skills/i8-*/SKILL.md`; `tests/lint/agents/test_l03_skill_routine_wiring.py:24-59`.
+  - Evidence: the `routines` frontmatter of the routed `agents/skills/i8-*/SKILL.md`; `tests/lint/agents/test_l03_skill_routine_wiring.py`.
 - [x] The merge check reports a `# nocheck:` marker, a task and a `when:` clause removed by a fixture merge.
-  - Evidence: `agents/routines/tools/merge_guard.py:27-43`; `tests/unit/python/agents/routines/tools/test_merge_guard.py:32-36`.
+  - Evidence: `agents/routines/tools/merge_guard.py`; `tests/unit/python/agents/routines/tools/test_merge_guard.py`.
 - [x] The number check rejects a pull request text with a number that does not occur in the run's evidence.
-  - Evidence: `agents/routines/tools/numbers.py:20-36`; `tests/unit/python/agents/routines/tools/test_numbers.py:16-20`; `tests/unit/python/agents/routines/test_maintainer.py:25-30`.
+  - Evidence: `agents/routines/tools/numbers.py`; `tests/unit/python/agents/routines/tools/test_numbers.py`; `tests/unit/python/agents/routines/test_maintainer.py`.
 - [x] No routine reads a raw Playwright report, and no tool node prints a raw task block, argv or environment (lint test).
-  - Evidence: `tests/lint/agents/test_l16_no_raw_dumps.py:23-42`.
+  - Evidence: `tests/lint/agents/test_l16_no_raw_dumps.py`.
 
 ### Tooling gaps
 
 - [x] `make ci-wait` returns when the awaited job log, run end or check is available, fails at its timeout, and polls only at its interval.
-  - Evidence: `Makefile:147-155` runs `scripts/ci/wait.sh:47-56`, which exits 0 once the state is available, exits 1 at the deadline and sleeps `interval` between polls.
+  - Evidence: `Makefile` runs `scripts/ci/wait.sh`, which exits 0 once the state is available, exits 1 at the deadline and sleeps `interval` between polls.
 - [x] `make worktree-up` hands out only slots whose derived subnets, the swarm lab subnet included, are valid.
-  - Evidence: `scripts/system/worktree/up.sh:21,56`; `tests/lint/filesystem/env/test_worktree_swarm_lab_subnet.py:68-84`; not yet on `feature/agents`.
+  - Evidence: `scripts/system/worktree/up.sh`; `tests/lint/filesystem/env/test_worktree_swarm_lab_subnet.py`; not yet on `feature/agents`.
 
 ### Agent firewall
 
 - [x] `agents/firewall/` defines RBAC roles with `allow`, `ask` and `deny` rules in the documented syntax, and a lint test rejects a rule that does not parse.
-  - Evidence: `agents/firewall/roles.yml`, `agents/firewall/README.md:6-19`, `utils/firewall/parse.py:43-72`; `tests/lint/agents/test_l08_firewall_parses.py:26-75`.
+  - Evidence: `agents/firewall/roles.yml`, `agents/firewall/README.md`, `utils/firewall/parse.py`; `tests/lint/agents/test_l08_firewall_parses.py`.
 
 ### Security controls
 
 - [x] The vulnerable fixture app's role fails when deployed by any inventory other than the agents bundle.
-  - Evidence: `roles/web-app-agent-fixture/tasks/00_core.yml:2-12` asserts `AGENT_FIXTURE_BUNDLE`, which only `inventories/bundles/servers/agents/inventory.yml:4` sets; `tests/lint/agents/test_l24_bundle_inventory.py:69-75` keeps the fixture app out of every other inventory.
+  - Evidence: `roles/web-app-agent-fixture/tasks/00_core.yml` asserts `AGENT_FIXTURE_BUNDLE`, which only `inventories/bundles/servers/agents/inventory.yml` sets; `tests/lint/agents/test_l24_bundle_inventory.py` keeps the fixture app out of every other inventory.
 
 ### Account naming
 
 - [x] `IAM_ACCOUNT_MAX_LENGTH` equals the smallest username limit declared by any agent-reachable role, and a lint fails when such a role declares a smaller one or none.
-  - Evidence: `group_vars/all/00_general.yml:24` derives it through `lookup('account_policy', 'account_max_length')` (`utils/roles/account_policy.py:58-68`); `tests/lint/agents/test_l07_account_limits.py:66-127`; weaker on `feature/agents`, which pins a literal and checks a fixed role list.
+  - Evidence: `group_vars/all/00_general.yml` derives it through `lookup('account_policy', 'account_max_length')` (`utils/roles/account_policy.py`); `tests/lint/agents/test_l07_account_limits.py`; weaker on `feature/agents`, which pins a literal and checks a fixed role list.
 - [x] Every role code is four characters of `[a-z1-9]` and unique; a lint fails otherwise.
-  - Evidence: `agents/codes.yml`; `tests/lint/agents/test_l05_role_codes.py:15-40`.
+  - Evidence: `agents/codes.yml`; `tests/lint/agents/test_l05_role_codes.py`.
 - [x] Keycloak and OpenLDAP accept human names of `[a-z1-9]{3,15}` and agent names of the documented form.
-  - Evidence: `roles/web-app-keycloak/templates/import/components/org.keycloak.userprofile.UserProfileProvider.json.j2:51-53` with `tests/unit/python/roles/web-app-keycloak/templates/test_realm_import_json.py:301-323`; `roles/svc-db-openldap/templates/ldif/configuration/06_constraint_username_length.ldif.j2:6`; not yet on `feature/agents`.
+  - Evidence: `roles/web-app-keycloak/templates/import/components/org.keycloak.userprofile.UserProfileProvider.json.j2` with `tests/unit/python/roles/web-app-keycloak/templates/test_realm_import_json.py`; `roles/svc-db-openldap/templates/ldif/configuration/06_constraint_username_length.ldif.j2`; not yet on `feature/agents`.
 - [x] A lint refuses any identity account in `lookup('users')` whose name contains `0`, a character outside `[a-z1-9]`, or more than 15 characters; a reserved account with no `identity` account is exempt; every identity user in the repository passes it.
-  - Evidence: `tests/lint/ansible/roles/meta/test_identity_username_charset.py:24-39,63-75`.
+  - Evidence: `tests/lint/ansible/roles/meta/test_identity_username_charset.py`.
 - A human of the longest form still gets a Bluesky handle with the `kc-` prefix. Superseded by the handle rules of the `web-app-bluesky` login broker (`files/login-broker/`): a short username keeps its name as the handle, a reserved one gets the `i8-` prefix, a username over 18 characters picks its handle in a form, and a legacy `kc-` account is reported.
 
 ### Additional agent roles
 
 - [x] translator: no translator code reads an engine from `meta/languages.yml` (grep), and engine capability changes go through the engine's own `serves` declaration.
-  - Evidence: `tests/lint/agents/test_l21_translator_decider.py:22-63`; `roles/svc-ai-libretranslate-engine/meta/services.yml:24` (`serves`).
+  - Evidence: `tests/lint/agents/test_l21_translator_decider.py`; `roles/svc-ai-libretranslate-engine/meta/services.yml` (`serves`).
 
 ### Requirement hygiene
 
 - [x] [038](038-system-one-model-router.md) names `services.s1`, not `services.jeff`, and names `weighted` as the LLM gateway fallback; [040](040-translation-gateway.md) names `preference` as the translation gateway fallback.
-  - Evidence: `038-system-one-model-router.md:91,193` and `040-translation-gateway.md:55,183`; not yet on `feature/agents`.
+  - Evidence: `038-system-one-model-router.md` and `040-translation-gateway.md`; not yet on `feature/agents`.
 - [x] [054-gettext](054-gettext-catalogs-libretranslate.md) no longer calls the catalog server "038 - web-svc-api".
-  - Evidence: `054-gettext-catalogs-libretranslate.md:10-11`; not yet on `feature/agents`.
+  - Evidence: `054-gettext-catalogs-libretranslate.md`; not yet on `feature/agents`.
 
 ### Lint tests
 
 - [x] Every lint of the catalog has a fixture that turns it red, and the red run is recorded in its test.
-  - Evidence: a `test_red_fixture_fails` in every catalog lint under `tests/lint/agents/` and in `tests/lint/ansible/roles/meta/test_identity_username_charset.py`, enforced by `tests/lint/agents/test_l23_red_fixtures.py:15-47`.
+  - Evidence: a `test_red_fixture_fails` in every catalog lint under `tests/lint/agents/` and in `tests/lint/ansible/roles/meta/test_identity_username_charset.py`, enforced by `tests/lint/agents/test_l23_red_fixtures.py`.
 
 ### Local setup and integration workflows
 
 - [x] The run prints the result table, and a single failed scenario makes the run fail.
-  - Evidence: `cli/agents/scenarios.py:285-329` prints the table and returns 1 when any scenario failed.
+  - Evidence: `cli/agents/scenarios.py` prints the table and returns 1 when any scenario failed.
 
 ## Cross-linking
 

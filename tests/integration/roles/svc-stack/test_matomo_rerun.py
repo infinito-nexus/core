@@ -9,11 +9,12 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from .test_front_batch_run import ALPHA, STACK, _build
 from .test_stack_entry import _write
 
-INJECTION = Path("roles/sys-front-inj-matomo/tasks/main.yml")
+INJECTION = Path("roles/sys-front-inj-matomo") / ROLE_FILE_TASKS_MAIN
 RERUN = Path("roles/web-app-matomo/tasks/08_reinject_consumers/batch.yml")
 
 STUB_FRONT = """---

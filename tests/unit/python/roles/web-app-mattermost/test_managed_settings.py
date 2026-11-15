@@ -10,10 +10,12 @@ from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.dotenv import FilterModule as DotenvFilters
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-mattermost"
-FORMS = ROLE / "meta" / "forms.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
 CORE = ROLE / "tasks" / "00_core.yml"
 ENV = ROLE / "templates" / "env.j2"
 ENV_DRIFT = "tasks/utils/forms/env.yml"
@@ -42,7 +44,7 @@ def _environment() -> Environment:
     env = Environment(
         loader=DictLoader(
             {
-                "env.j2": ENV.read_text(encoding="utf-8"),
+                "env.j2": read_text(str(ENV)),
                 "roles/sys-svc-container/templates/env.j2": "",
             }
         ),
@@ -90,11 +92,11 @@ class TestTheEnvFileCarriesTheSettingsForm(unittest.TestCase):
         self.assertEqual(settings, _held(_render(settings), settings))
 
     def test_no_managed_setting_is_also_written_outside_the_form(self) -> None:
-        static = set(STATIC_ASSIGNMENT.findall(ENV.read_text(encoding="utf-8")))
+        static = set(STATIC_ASSIGNMENT.findall(read_text(str(ENV))))
         self.assertEqual(set(), static & {field.upper() for field in _fields()})
 
     def test_the_secrets_stay_outside_the_form(self) -> None:
-        static = set(STATIC_ASSIGNMENT.findall(ENV.read_text(encoding="utf-8")))
+        static = set(STATIC_ASSIGNMENT.findall(read_text(str(ENV))))
         self.assertLessEqual(SECRETS, static)
         self.assertEqual(set(), SECRETS & {field.upper() for field in _fields()})
 

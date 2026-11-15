@@ -89,7 +89,7 @@
 - name: "⬇️ Fider | Read whether the tenant offers the email code sign-in"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-email-auth.sql"
+    query_file: "{{ role_path }}/files/sql/select/email-auth.sql"
     expect_rows: true
   register: fider_email_auth_stored
   changed_when: false

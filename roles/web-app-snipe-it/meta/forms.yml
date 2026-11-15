@@ -9,7 +9,7 @@ ldap:
       mode: enforced
       selector: "#ldap_enabled"
       type: checkbox
-      map: {true: 1, false: 0}
+      map: { true: 1, false: 0 }
       label: LDAP integration
     is_ad:
       source: services.snipe-it.ldap.is_ad
@@ -189,7 +189,7 @@ remote_user:
       mode: enforced
       selector: 'input[type="checkbox"][name="login_remote_user_enabled"]'
       type: checkbox
-      map: {true: 1, false: 0}
+      map: { true: 1, false: 0 }
       label: Remote user login
     login_remote_user_header_name:
       source: services.snipe-it.remote_user.login_remote_user_header_name

@@ -79,7 +79,8 @@ mattermost:
   settings:
     site_url: "{{ lookup('tls', 'web-app-mattermost', 'url.base') }}"
     site_name: "{{ lookup('design', 'web-app-mattermost').label[:30] }}"
-    plugin_uploads: "{{ lookup('config', 'web-app-mattermost', 'addons') | dict2items | selectattr('value.enabled', 'true') | map(attribute='value') | selectattr('config.archive', 'defined') | list | length > 0 }}"
+    plugin_uploads: "{{ lookup('config', 'web-app-mattermost', 'addons') | dict2items | selectattr('value.enabled', 'true') | map(attribute='value') | selectattr('config.archive',
+      'defined') | list | length > 0 }}"
     console_level: "{{ 'DEBUG' if lookup('debug', 'web-app-mattermost') | bool else 'INFO' }}"
     metrics_listen_address: ":{{ lookup('config', 'web-app-mattermost', 'services.prometheus.native_metrics.port') }}"
     smtp:
@@ -89,7 +90,8 @@ mattermost:
       username: "{{ lookup('email', 'web-app-mattermost').username }}"
       from: "{{ lookup('email', 'web-app-mattermost')['from'] }}"
     s3:
-      enabled: "{{ lookup('config', 'web-app-mattermost', 'services.seaweedfs.enabled') | bool or lookup('config', 'web-app-mattermost', 'services.minio.enabled') | bool }}"
+      enabled: "{{ lookup('config', 'web-app-mattermost', 'services.seaweedfs.enabled') | bool or lookup('config', 'web-app-mattermost', 'services.minio.enabled')
+        | bool }}"
       bucket: "{{ lookup('objstore', 'web-app-mattermost', 'bucket') }}"
       endpoint: "{{ lookup('objstore', 'web-app-mattermost', 'endpoint') }}"
       region: "{{ lookup('objstore', 'web-app-mattermost', 'region') }}"

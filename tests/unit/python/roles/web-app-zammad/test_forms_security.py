@@ -13,12 +13,13 @@ from jinja2 import Environment
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-zammad"
 SCRIPT = ROLE / "files" / "ruby" / "apply" / "login_methods.rb"
 TASKS = ROLE / "tasks" / "01_manager_ops.yml"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
 SINK = "ZAMMAD_SECURITY"
 DRIFT = "tasks/utils/forms/drift.yml"
 WANTED = {

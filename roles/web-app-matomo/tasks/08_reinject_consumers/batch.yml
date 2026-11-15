@@ -6,7 +6,7 @@
   run_once: true
   changed_when: false
 
-- name: "🔁 Matomo | Re-run the front batch for those fronts now that Matomo serves their sites"
+- name: "🔁 Matomo | Re-run the front batch for those fronts now Matomo serves their sites"
   ansible.builtin.include_role:
     name: svc-stack
     tasks_from: batch/serve.yml

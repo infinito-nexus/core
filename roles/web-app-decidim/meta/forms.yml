@@ -22,5 +22,5 @@ organization:
       mode: enforced
       selector: 'form[action^="/system/organizations/"] [name="organization[omniauth_settings_openid_connect_enabled]"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: OpenID Connect enabled

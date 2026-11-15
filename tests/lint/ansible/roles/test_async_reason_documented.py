@@ -44,6 +44,13 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import iter_project_files, read_text
+from utils.roles.mapping import (
+    ROLE_FILE_DEFAULTS_MAIN,
+    ROLE_FILE_HANDLERS_MAIN,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MAIN,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 
@@ -58,14 +65,26 @@ _IF_ELSE_OMIT_RE = re.compile(r"if\s+(.+?)\s+else\s+omit")
 _TERNARY_OMIT_RE = re.compile(r"\{\{\s*(.+?)\s*\|\s*ternary\(")
 
 
+_TASK_DIRS = frozenset({"tasks", "handlers"})
+
+
+def is_task_file(path: Path) -> bool:
+    """
+    Args:
+        path: a file below ``ROLES_DIR``.
+
+    Returns:
+        True for a file under a role's ``tasks/`` or ``handlers/``.
+    """
+    parts = path.relative_to(ROLES_DIR).parts
+    return len(parts) > 2 and parts[1] in _TASK_DIRS
+
+
 def _task_files():
     for candidate in sorted(iter_project_files(extensions=(".yml",))):
         path = Path(candidate)
-        if ROLES_DIR not in path.parents:
-            continue
-        if {"files", "meta", "templates"} & set(path.parts):
-            continue
-        yield path
+        if ROLES_DIR in path.parents and is_task_file(path):
+            yield path
 
 
 def _gate(line: str) -> str | None:
@@ -96,18 +115,55 @@ def _enclosing_task(lines: list[str], index: int) -> list[str]:
     return lines[start:end]
 
 
+def unexplained_async(lines: list[str]) -> list[int]:
+    """
+    Args:
+        lines: all lines of one task file.
+
+    Returns:
+        The index of every ``async:`` line whose task states no reason.
+    """
+    return [
+        index
+        for index, line in enumerate(lines)
+        if _ASYNC_RE.match(line)
+        and not any(_REASON_RE.search(e) for e in _enclosing_task(lines, index))
+    ]
+
+
+class TestAsyncReasonScope(unittest.TestCase):
+    def test_only_role_tasks_and_handlers_are_read(self) -> None:
+        for relative, read in (
+            (f"r/{ROLE_FILE_TASKS_MAIN}", True),
+            ("r/tasks/utils/run.yml", True),
+            (f"r/{ROLE_FILE_HANDLERS_MAIN}", True),
+            (f"r/{ROLE_FILE_VARS_MAIN}", False),
+            (f"r/{ROLE_FILE_DEFAULTS_MAIN}", False),
+            (f"r/{ROLE_FILE_META_SERVICES}", False),
+        ):
+            with self.subTest(path=relative):
+                self.assertIs(is_task_file(ROLES_DIR / relative), read)
+
+    def test_a_task_async_without_its_reason_still_fails(self) -> None:
+        task = [
+            "- name: Fire it off",
+            "  ansible.builtin.command: sleep 1",
+            "  async: 10",
+            "  poll: 0",
+        ]
+        self.assertEqual(unexplained_async(task), [2])
+        reason = "  # rationale: async; no register and no notify read it back"
+        self.assertEqual(unexplained_async([*task[:2], reason, *task[2:]]), [])
+
+
 class TestAsyncReasonDocumented(unittest.TestCase):
     def test_every_async_states_why_it_is_safe(self):
         offenders: list[str] = []
 
         for path in _task_files():
             lines = read_text(str(path)).splitlines()
-            for i, line in enumerate(lines):
-                if not _ASYNC_RE.match(line):
-                    continue
+            for i in unexplained_async(lines):
                 block = _enclosing_task(lines, i)
-                if any(_REASON_RE.search(entry) for entry in block):
-                    continue
                 name = next(
                     (
                         entry.split("name:", 1)[1].strip().strip("\"'")

@@ -6,21 +6,28 @@ import unittest
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-fider"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 TENANT = ROLE / "tasks" / "01_tenant.yml"
 OIDC = ROLE / "tasks" / "02_setup_oidc.yml"
 SQL = ROLE / "files" / "sql"
 UPSERT = SQL / "configure-oidc-provider.sql"
-READ_PROVIDER = SQL / "select-oauth-provider.sql"
-READ_EMAIL_AUTH = SQL / "select-email-auth.sql"
+READ_PROVIDER = SQL / "select" / "oauth-provider.sql"
+READ_EMAIL_AUTH = SQL / "select" / "email-auth.sql"
+WRITE_EMAIL_AUTH = SQL / "email-auth.sql"
 LOADER = ROLE / "templates" / "javascript.js.j2"
 SHARED_RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
 DRIFT = "tasks/utils/forms/drift.yml"
@@ -51,6 +58,10 @@ def _index(tasks: list[dict], predicate) -> int:
 
 def _query_file(task: dict) -> str:
     return str(task.get("database_query", {}).get("query_file", ""))
+
+
+def _role_path(path) -> str:
+    return f"/{path.relative_to(ROLE).as_posix()}"
 
 
 def _render(expression, variables: dict):
@@ -123,7 +134,7 @@ class TestTheFormsFileDeclaresTheAuthenticationPage(unittest.TestCase):
     def test_the_lock_renderer_is_loaded_on_every_page(self):
         services = load_yaml_any(str(SERVICES))
         self.assertIs(True, services["javascript"]["enabled"])
-        self.assertIn(SHARED_RENDERER, LOADER.read_text(encoding="utf-8"))
+        self.assertIn(SHARED_RENDERER, read_text(str(LOADER)))
 
 
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
@@ -139,10 +150,10 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         self.assertLess(report, last)
 
     def test_the_email_switch_is_read_and_reported_before_the_write(self):
-        self._order(TENANT, READ_EMAIL_AUTH.name, "/email-auth.sql")
+        self._order(TENANT, _role_path(READ_EMAIL_AUTH), _role_path(WRITE_EMAIL_AUTH))
 
     def test_the_provider_is_read_and_reported_before_the_upsert(self):
-        self._order(OIDC, READ_PROVIDER.name, UPSERT.name)
+        self._order(OIDC, _role_path(READ_PROVIDER), _role_path(UPSERT))
 
     def test_each_read_selects_exactly_the_fields_of_its_form(self):
         for path, form in (
@@ -150,7 +161,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
             (READ_PROVIDER, "oauth_provider"),
         ):
             with self.subTest(form=form):
-                text = path.read_text(encoding="utf-8")
+                text = read_text(str(path))
                 self.assertEqual(_fields(form), set(JSON_KEY.findall(text)))
                 self.assertNotIn(SECRET_ARG, text)
 
@@ -182,7 +193,7 @@ class TestTheWriteTakesTheManagedValuesFromTheSinks(unittest.TestCase):
         )
         arguments = write["database_query"]["named_args"]
         self.assertEqual(
-            set(NAMED_ARG.findall(UPSERT.read_text(encoding="utf-8"))),
+            set(NAMED_ARG.findall(read_text(str(UPSERT)))),
             set(arguments),
         )
         managed = {name for name in arguments if name != SECRET_ARG}
@@ -199,7 +210,7 @@ class TestTheWriteTakesTheManagedValuesFromTheSinks(unittest.TestCase):
         write = next(
             task
             for task in _tasks(TENANT)
-            if _query_file(task).endswith("/email-auth.sql")
+            if _query_file(task).endswith(_role_path(WRITE_EMAIL_AUTH))
         )
         for allowed, rendered in ((True, "true"), (False, "false")):
             with self.subTest(allowed=allowed):

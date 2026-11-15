@@ -16,12 +16,12 @@
     wp_options_stored.rc != 0
     and 'Could not get' not in wp_options_stored.stderr
 
-- name: "📣 Report the managed WordPress {{ wordpress_options_command }}s the write reverts"
+- name: "📣 Report the managed WordPress {{ wordpress_options_command }}s a write reverts"
   include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
   vars:
     forms_drift_current: "{{ wp_options_stored.results | wordpress_options_overwritten(lookup('config', application_id, 'forms')) }}"
 
-- name: "🔧 Write each managed WordPress {{ wordpress_options_command }} whose stored value differs"
+- name: "🔧 Write each managed WordPress {{ wordpress_options_command }} that drifted"
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp {{ wordpress_options_command }} update {{ item.item.key | quote }} {{ item.item.value | to_json | quote }}
@@ -34,7 +34,7 @@
   changed_when: >-
     'option is unchanged.' not in wp_options_written.stdout
 
-- name: "🚿 Flush the rewrite rules after a managed {{ wordpress_options_command }} changed"
+- name: "🚿 Flush the rewrite rules once a {{ wordpress_options_command }} changed"
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp rewrite flush --path={{ WORDPRESS_DOCKER_HTML_PATH }}

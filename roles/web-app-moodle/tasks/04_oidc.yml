@@ -45,7 +45,7 @@
   changed_when: false
 
 - name: "🔧 Converge the auth_oidc settings meta/forms.yml manages"
-  include_tasks: utils/plugin_form.yml
+  include_tasks: utils/plugin/form.yml
   vars:
     moodle_plugin_form_component: auth_oidc
     moodle_plugin_form_settings: "{{ MOODLE_OIDC_SETTINGS }}"

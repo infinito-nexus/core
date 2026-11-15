@@ -34,7 +34,7 @@ LEGACY_NAME_EXEMPT = (
     "packaging/debian/changelog",
     "packaging/fedora/infinito-nexus.spec",
     "docs/requirements/",
-    "tests/lint/ansible/roles/test_stack_service_declared.py",
+    Path(__file__).resolve().relative_to(PROJECT_ROOT).as_posix(),
     "tests/unit/python/cli/meta/roles/services/called/test_called.py",
 )
 PER_VHOST_VARS = (

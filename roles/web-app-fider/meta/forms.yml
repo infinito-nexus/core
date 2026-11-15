@@ -8,7 +8,7 @@ authentication:
       mode: enforced
       selector: 'h2.text-display + form.c-form button[role="switch"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Allow Email Authentication
 oauth_provider:
   path: /admin/authentication
@@ -86,7 +86,7 @@ oauth_provider:
       mode: enforced
       selector: 'form.c-form > div.c-form-field:nth-last-child(3) button[role="switch"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Trusted Source
     status:
       source: services.fider.login.method.sso.enabled
@@ -94,5 +94,5 @@ oauth_provider:
       mode: enforced
       selector: 'form.c-form > div.c-form-field:nth-last-child(2) button[role="switch"]'
       type: checkbox
-      map: {true: 2, false: 1}
+      map: { true: 2, false: 1 }
       label: Status

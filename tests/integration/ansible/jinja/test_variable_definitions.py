@@ -13,6 +13,22 @@ from utils.cache.yaml import load_yaml_any, load_yaml_str
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
+PARAM_HEADER = re.compile(r"^#\s*Param:?\s+([A-Za-z_]\w*)", re.MULTILINE)
+VARS_BLOCK = re.compile(r"^(?:\s*[-]\s*)?vars\s*:\s*(?:&[\w-]+\s*)?$")
+
+
+def param_names(content: str) -> set[str]:
+    """
+    Args:
+        content: text of one Ansible YAML file.
+
+    Returns:
+        The inputs its ``# Param:`` header declares. A playbook or task file
+        documents there what its caller hands over as an extra variable or an
+        include variable, so the name is defined for the file that reads it.
+    """
+    return set(PARAM_HEADER.findall(content))
+
 
 class TestVariableDefinitions(unittest.TestCase):
     """
@@ -80,7 +96,7 @@ class TestVariableDefinitions(unittest.TestCase):
         self.ansible_set_fact = re.compile(
             r"^(?:\s*-\s*)?(?:ansible\.builtin\.)?set_fact\s*:\s*(\{[^}]*\})?\s*$"
         )
-        self.ansible_vars_block = re.compile(r"^(?:\s*[-]\s*)?vars\s*:\s*$")
+        self.ansible_vars_block = VARS_BLOCK
         self.ansible_loop_var = re.compile(r"^\s*loop_var\s*:\s*([a-zA-Z_]\w*)")
         self.mapping_key = re.compile(r"^\s*([a-zA-Z_]\w*)\s*:\s*")
         self.register_pat = re.compile(r"^\s*register\s*:\s*([a-zA-Z_]\w*)")
@@ -109,6 +125,9 @@ class TestVariableDefinitions(unittest.TestCase):
             set_fact_indent = 0
             in_vars_block = False
             vars_block_indent = 0
+
+            if path.endswith(".yml"):
+                self.defined |= param_names(content)
 
             try:
                 for line in content.splitlines(keepends=True):
@@ -243,6 +262,7 @@ class TestVariableDefinitions(unittest.TestCase):
                             "item",
                             "inventory_hostname",
                             "ansible_play_hosts",
+                            "ansible_play_hosts_all",
                             "role_path",
                             "playbook_dir",
                             "ansible_playbook_python",
@@ -292,6 +312,7 @@ class TestVariableDefinitions(unittest.TestCase):
                                 "item",
                                 "inventory_hostname",
                                 "ansible_play_hosts",
+                                "ansible_play_hosts_all",
                                 "role_path",
                                 "playbook_dir",
                                 "ansible_playbook_python",
@@ -336,6 +357,41 @@ class TestVariableDefinitions(unittest.TestCase):
                 "Undefined Jinja2 variables found (no fallback 'default_' or 'defaults_' key):\n"
                 + "\n".join(undefined_uses)
             )
+
+
+class TestDefinitionSources(unittest.TestCase):
+    def test_a_param_header_declares_its_input(self) -> None:
+        content = (
+            "---\n"
+            "# Param: usage_result_dir - the directory the count lands in\n"
+            "# Param openbao_kv_state: present, absent or read\n"
+            "- name: Count\n"
+        )
+        self.assertEqual(
+            param_names(content), {"usage_result_dir", "openbao_kv_state"}
+        )
+
+    def test_negative_control_other_comments_declare_nothing(self) -> None:
+        content = (
+            "---\n"
+            "# Output forms_drift_lines: the drift report\n"
+            "# Parameters below come from workspace.sh\n"
+            "- name: Report\n"
+            "  # Param: indented_name\n"
+            "  ansible.builtin.debug:\n"
+            '    msg: "# Param: quoted_name"\n'
+        )
+        self.assertEqual(param_names(content), set())
+
+    def test_an_anchored_vars_block_opens_a_block(self) -> None:
+        for line in ("vars:", "vars: &openbao_kv_session", "- vars:"):
+            with self.subTest(line=line):
+                self.assertIsNotNone(VARS_BLOCK.match(line))
+
+    def test_negative_control_an_alias_or_inline_vars_opens_no_block(self) -> None:
+        for line in ("vars: *openbao_kv_session", "vars: {a: 1}", "vars_files:"):
+            with self.subTest(line=line):
+                self.assertIsNone(VARS_BLOCK.match(line))
 
 
 if __name__ == "__main__":

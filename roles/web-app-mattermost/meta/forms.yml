@@ -21,7 +21,7 @@ settings:
       mode: enforced
       selector: "[id^='PluginSettings.EnableUploads']"
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Plugin uploads
     mm_teamsettings_sitename:
       source: services.mattermost.settings.site_name
@@ -77,28 +77,28 @@ settings:
       mode: enforced
       selector: "[id^='EmailSettings.EnableSignInWithEmail']"
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Sign in with email
     mm_emailsettings_enablesigninwithusername:
       source: services.mattermost.login.method.native.enabled
       mode: enforced
       selector: "[id^='EmailSettings.EnableSignInWithUsername']"
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Sign in with username
     mm_teamsettings_enableopenserver:
       source: services.mattermost.login.method.registration.enabled
       mode: enforced
       selector: "[id^='TeamSettings.EnableOpenServer']"
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Open server
     mm_servicesettings_enablemultifactorauthentication:
       source: services.mattermost.login.method.2fa.enabled
       mode: enforced
       selector: "[id^='ServiceSettings.EnableMultifactorAuthentication']"
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Multi-factor authentication
     mm_gitlabsettings_enable:
       source: services.mattermost.login.method.sso.enabled
@@ -106,7 +106,7 @@ settings:
       mode: enforced
       selector: "[id^='GitLabSettings.Enable']"
       type: checkbox
-      map: {true: "true"}
+      map: { true: "true" }
       label: GitLab-slot single sign-on
     mm_gitlabsettings_id:
       source: services.mattermost.settings.gitlab.id
@@ -163,7 +163,7 @@ settings:
       mode: enforced
       selector: "[id^='MetricsSettings.Enable']"
       type: checkbox
-      map: {true: "true"}
+      map: { true: "true" }
       label: Performance monitoring
     mm_metricssettings_listenaddress:
       source: services.mattermost.settings.metrics_listen_address

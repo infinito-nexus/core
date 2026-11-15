@@ -9,7 +9,9 @@ import unittest
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 from . import PROJECT_ROOT
 
@@ -158,7 +160,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
                 templar.template(read["database_query"]["named_args"]["fields"])
             ),
         )
-        self.assertIn("%(fields)s", SQL.read_text(encoding="utf-8"))
+        self.assertIn("%(fields)s", read_text(str(SQL)))
 
     def test_the_report_reads_what_the_store_returned(self) -> None:
         report = next(
@@ -179,7 +181,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
                 self.assertEqual(current, templar.template(expression))
 
     def test_every_sink_field_is_a_declared_field_of_the_general_form(self) -> None:
-        forms = load_yaml_any(str(ROLE / "meta" / "forms.yml"))
+        forms = load_yaml_any(str(ROLE / ROLE_FILE_META_FORMS))
         self.assertEqual([SINK], forms["general"]["sinks"])
         self.assertEqual(
             {"password_authentication_enabled_for_web", "signup_enabled"},

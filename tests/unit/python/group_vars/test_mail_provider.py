@@ -9,10 +9,10 @@ from plugins.filter.canonical_domains_map import (
     FilterModule as CanonicalDomainsFilter,
 )
 from plugins.filter.generate.all_domains import FilterModule as AllDomainsFilter
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.applications import get_merged_applications
 from utils.cache.domains import get_merged_domains
 from utils.cache.files import PROJECT_ROOT
+from utils.cache.reset import _reset_cache_for_tests
 from utils.mail.provider import MAIL_WRAPPER
 from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS

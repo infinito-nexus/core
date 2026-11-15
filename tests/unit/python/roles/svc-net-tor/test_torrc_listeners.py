@@ -6,11 +6,14 @@ import unittest
 
 from plugins.lookup.tor_socks import resolve_socks_endpoint
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 from .test_egress_route import render
 
-SERVICES = load_yaml_any(str(PROJECT_ROOT / "roles/svc-net-tor/meta/services.yml"))
+SERVICES = load_yaml_any(
+    str(PROJECT_ROOT / "roles/svc-net-tor" / ROLE_FILE_META_SERVICES)
+)
 PORTS = SERVICES["tor"]["ports"]["local"]
 APPLICATIONS = {"svc-net-tor": {"services": SERVICES}}
 EGRESS = {

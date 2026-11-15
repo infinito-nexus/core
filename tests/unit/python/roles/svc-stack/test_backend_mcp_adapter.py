@@ -7,6 +7,11 @@ from tests.lint.ansible.services.test_litellm_consumer_contract import (
 )
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import (
+    ROLE_FILE_META_MCP,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 BACKEND = PROJECT_ROOT / "roles/svc-stack/tasks/backend.yml"
 INSTANCE = "roles/svc-ai-mcp-adapter/tasks/instance.yml"
@@ -29,10 +34,10 @@ def _staging() -> dict:
 
 def _adapter_roles() -> dict[str, dict]:
     found = {}
-    for path in sorted(PROJECT_ROOT.glob("roles/*/meta/mcp.yml")):
+    for path in sorted(PROJECT_ROOT.glob(f"roles/*/{ROLE_FILE_META_MCP}")):
         mcp = load_yaml_any(str(path))
         if mcp.get("implementation") == "adapter":
-            found[path.parents[1].name] = mcp
+            found[path.relative_to(PROJECT_ROOT / "roles").parts[0]] = mcp
     return found
 
 
@@ -62,7 +67,7 @@ class TestBackendMcpAdapter(unittest.TestCase):
         for role in _adapter_roles():
             with self.subTest(role=role):
                 vars_main = read_text(
-                    str(PROJECT_ROOT / "roles" / role / "vars/main.yml")
+                    str(PROJECT_ROOT / "roles" / role / ROLE_FILE_VARS_MAIN)
                 )
                 self.assertIn(INSTANCE_DIR, vars_main)
 
@@ -77,7 +82,7 @@ class TestBackendMcpAdapter(unittest.TestCase):
 
     def test_the_upstream_credential_follows_the_compose_file(self) -> None:
         for role, mcp in _adapter_roles().items():
-            compose = PROJECT_ROOT / "roles" / role / "templates/compose.yml.j2"
+            compose = PROJECT_ROOT / "roles" / role / ROLE_FILE_TEMPL_COMPOSE
             reads = compose.is_file() and CREDENTIAL_FILE in read_text(str(compose))
             with self.subTest(role=role):
                 self.assertEqual(

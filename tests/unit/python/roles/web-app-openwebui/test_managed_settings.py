@@ -16,13 +16,19 @@ from plugins.filter.mcp.tool_server_connections import (
     FilterModule as ToolServerFilters,
 )
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-openwebui"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 CORE = ROLE / "tasks" / "00_core.yml"
 TEMPLATE = ROLE / "templates" / "env.j2"
 READER = ROLE / "files" / "python" / "tool_servers_held.py"
@@ -50,7 +56,7 @@ def _environment() -> Environment:
     env = Environment(
         loader=DictLoader(
             {
-                "env.j2": TEMPLATE.read_text(encoding="utf-8"),
+                "env.j2": read_text(str(TEMPLATE)),
                 "roles/sys-svc-container/templates/env.j2": "",
             }
         ),

@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 from typing import Any
 
-import yaml
+from utils.cache.yaml import load_yaml_str
 
 MAPPED_GROUPS = {
     "admin_group": "all_access",
@@ -48,7 +48,8 @@ def wazuh_rendered(results: Any) -> dict:
         the slurp did not read is left out.
     """
     files = {
-        result["item"]: yaml.safe_load(base64.b64decode(result["content"])) or {}
+        result["item"]: load_yaml_str(base64.b64decode(result["content"]).decode())
+        or {}
         for result in results or []
         if "content" in result
     }

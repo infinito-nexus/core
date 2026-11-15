@@ -12,27 +12,27 @@
   changed_when: false
 
 - name: "🔐 Offer or withdraw Moodle's own multi-factor authentication"
-  include_tasks: utils/plugin_config.yml
+  include_tasks: utils/plugin/config.yml
   vars:
     moodle_plugin_config_component: tool_mfa
     moodle_plugin_config_settings:
       enabled: "{{ MOODLE_MFA_ENABLED }}"
 
 - name: "🔐 Offer or withdraw the TOTP factor"
-  include_tasks: utils/plugin_config.yml
+  include_tasks: utils/plugin/config.yml
   vars:
     moodle_plugin_config_component: factor_totp
     moodle_plugin_config_settings:
       enabled: "{{ MOODLE_MFA_ENABLED }}"
 
 - name: "🔐 Let accounts without an enrolled factor pass while MFA is only offered"
-  include_tasks: utils/plugin_config.yml
+  include_tasks: utils/plugin/config.yml
   vars:
     moodle_plugin_config_component: factor_nosetup
     moodle_plugin_config_settings:
       enabled: "{{ MOODLE_MFA_NOSETUP_ENABLED }}"
 
-- name: "🔐 Send accounts without a factor to setup while MFA is enforced, clearing only a grace factor the deploy owns"
+- name: "🔐 Send factorless accounts to setup under enforced MFA, clearing only own grace"
   ansible.builtin.shell: >
     container exec -i --user {{ MOODLE_RUNTIME_USER }}
     -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
@@ -44,7 +44,7 @@
   changed_when: moodle_mfa_grace.stdout is search('^CHANGED [1-9]', multiline=True)
 
 - name: "🔐 Start the grace period as expired at every sign-in while MFA is enforced"
-  include_tasks: utils/plugin_config.yml
+  include_tasks: utils/plugin/config.yml
   vars:
     moodle_plugin_config_component: local_mfaenforce
     moodle_plugin_config_settings:

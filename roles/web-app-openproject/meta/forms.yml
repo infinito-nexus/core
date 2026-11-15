@@ -22,7 +22,7 @@ general:
       mode: enforced
       selector: '[name="settings[https]"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: HTTPS
 users:
   path: /admin/settings/users

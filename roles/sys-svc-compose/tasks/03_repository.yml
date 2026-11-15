@@ -32,11 +32,13 @@
   register: compose_repository_dockerfile_reads
   become: true
 
-- name: "🧱 Refuse a '{{ application_id }}' clone whose FROM lines leave the declared build bases"
+- name: "🧱 Refuse a '{{ application_id }}' clone whose FROM lines use undeclared bases"
   ansible.builtin.assert:
     that: compose_repository_foreign_bases | length == 0
-    fail_msg: "The clone's FROM lines name {{ compose_repository_foreign_bases | join(', ') }}, outside the bases in services.stack.checkout.build.bases ({{ compose_repository_bases.values() | join(', ') }}). Declare the new base there first."
+    fail_msg: "The clone's FROM lines name {{ compose_repository_foreign_bases | join(', ') }}, outside the bases in services.stack.checkout.build.bases ({{ compose_repository_bases.values()
+      | join(', ') }}). Declare the new base there first."
     quiet: true
   vars:
-    compose_repository_foreign_bases: "{{ compose_repository_dockerfile_reads.results | map(attribute='content') | map('b64decode') | list | dockerfile_foreign_bases(compose_repository_bases.values() | list) }}"
+    compose_repository_foreign_bases: "{{ compose_repository_dockerfile_reads.results | map(attribute='content') | map('b64decode') | list | dockerfile_foreign_bases(compose_repository_bases.values()
+      | list) }}"
   when: compose_repository_dockerfiles | length > 0

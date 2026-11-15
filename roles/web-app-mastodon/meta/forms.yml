@@ -9,7 +9,7 @@ registrations:
       selector: '[name="form_admin_settings[registrations_mode]"]'
       type: select
       enum: [open, approved, none]
-      map: {true: open, false: none}
+      map: { true: open, false: none }
       label: Registrations mode
 branding:
   path: /admin/settings/branding

@@ -10,7 +10,7 @@ plugin_config:
       mode: enforced
       selector: '[name="KskHeptacomAdminOpenAuth.config.denyPasswordLogin"]'
       type: checkbox
-      map: {true: false, false: true}
+      map: { true: false, false: true }
     enableAutoRedirect:
       source: services.shopware.admin_auto_redirect
       when: services.sso.enabled

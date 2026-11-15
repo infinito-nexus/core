@@ -10,12 +10,13 @@ from ansible.template import Templar
 
 from plugins.filter.dotenv import dotenv_names
 from plugins.lookup.form_values import LookupModule as FormValues
-from utils.cache import PROJECT_ROOT, _reset_cache_for_tests
+from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
+from utils.cache.reset import _reset_cache_for_tests
 from utils.roles.applications.forms import SECRET_SEGMENT, is_secret
-from utils.roles.mapping import ROLE_FILE_META_FORMS
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
-from . import load_role_meta, role_dirs
+from . import load_role_meta, role_dirs, role_files
 from .test_forms import _credentials
 
 if TYPE_CHECKING:
@@ -40,7 +41,9 @@ def env_forms(roles: list[Path]) -> dict[str, tuple[Path, str]]:
     """
     found = {}
     for role in roles:
-        for path in sorted((role / "tasks").rglob("*.yml")):
+        for path in role_files(role):
+            if path.relative_to(role).parts[0] != "tasks" or path.suffix != ".yml":
+                continue
             text = read_text(str(path))
             if ENV_DRIFT not in text:
                 continue
@@ -128,7 +131,7 @@ def _scope(names: list[str]) -> dict[str, Any]:
 
 
 def _partners(role: Path) -> list[str]:
-    services = read_text(str(role / "meta" / "services.yml"))
+    services = read_text(str(role / ROLE_FILE_META_SERVICES))
     return sorted({role.name, *PARTNER.findall(services)} - NEEDS_A_HOST)
 
 

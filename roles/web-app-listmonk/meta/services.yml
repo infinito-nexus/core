@@ -67,9 +67,12 @@ listmonk:
     lang: "{{ HOST_LL }}"
     check_updates: true
     enable_public_archive_rss_content: true
-    site_name: "{{ lookup('design', 'web-app-listmonk').label if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.company.titel ~ ' Mailing list' }}"
-    logo_url: "{{ lookup('design', 'web-app-listmonk').urls.header.svg if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.platform.logo }}"
-    favicon_url: "{{ lookup('design', 'web-app-listmonk').urls.favicon_ico if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.platform.favicon }}"
+    site_name: "{{ lookup('design', 'web-app-listmonk').label if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.company.titel
+      ~ ' Mailing list' }}"
+    logo_url: "{{ lookup('design', 'web-app-listmonk').urls.header.svg if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.platform.logo
+      }}"
+    favicon_url: "{{ lookup('design', 'web-app-listmonk').urls.favicon_ico if lookup('config', 'web-app-listmonk', 'services.design.enabled') | bool else service_provider.platform.favicon
+      }}"
   upload:
     provider: s3
     s3:

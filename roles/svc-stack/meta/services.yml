@@ -13,5 +13,6 @@ stack:
       categories: [web-app, web-svc]
 
 openresty:
+  bond: 1
   enabled: "{{ 'svc-prx-openresty' in group_names }}"
   shared: "{{ 'svc-prx-openresty' in group_names }}"

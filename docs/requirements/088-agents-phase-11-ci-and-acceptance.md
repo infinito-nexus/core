@@ -31,9 +31,9 @@ As an operator, I want the agents restructuring proven by the CI on `infinito-ne
 ### Local setup and integration workflows
 
 - [x] `agents/criteria.yml` maps every criterion id to its proof kind and its proof; a lint fails on a criterion without a proof, on a proof without a criterion, and on a criterion whose wording asks for a probe, a refusal, a time bound or a restart but whose proof is not a scenario.
-  - Evidence: `tests/lint/agents/test_l22_criteria_map.py:33-65` fails a criterion without an existing proof and a probe, refusal, time or restart wording without a scenario; `tests/lint/agents/test_l22_criteria_map.py:68-96` fails a scenario under `agents/scenarios/` or a catalog lint under `tests/lint/agents/` that no criterion claims, and a scenario whose `criterion` field names another one; red fixtures at `tests/lint/agents/test_l22_criteria_map.py:103,147`; `agents/criteria.yml` now also maps L22 and L23.
+  - Evidence: `tests/lint/agents/test_l22_criteria_map.py` fails a criterion without an existing proof and a probe, refusal, time or restart wording without a scenario; `tests/lint/agents/test_l22_criteria_map.py` fails a scenario under `agents/scenarios/` or a catalog lint under `tests/lint/agents/` that no criterion claims, and a scenario whose `criterion` field names another one; red fixtures at `tests/lint/agents/test_l22_criteria_map.py`; `agents/criteria.yml` now also maps L22 and L23.
 - [x] Every lint and unit proof has a fixture that turns it red, and the red run is recorded.
-  - Evidence: `tests/lint/agents/test_l23_red_fixtures.py:18-40` fails any `lint` or `unit` proof of `agents/criteria.yml` without a red fixture; every one of them, the two unit proofs `UT-TRANSLATOR-ENGINE-MARK` and `UT-TRANSLATE-STRATEGY` included, records its red run as a `test_red_fixture_*` test that asserts the broken input fails.
+  - Evidence: `tests/lint/agents/test_l23_red_fixtures.py` fails any `lint` or `unit` proof of `agents/criteria.yml` without a red fixture; every one of them, the two unit proofs `UT-TRANSLATOR-ENGINE-MARK` and `UT-TRANSLATE-STRATEGY` included, records its red run as a `test_red_fixture_*` test that asserts the broken input fails.
 
 ### End to end
 

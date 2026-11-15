@@ -3,7 +3,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider-id.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider/id.sql"
     expect_rows: true
   register: oauth_check
 
@@ -150,7 +150,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider-id.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider/id.sql"
     expect_rows: true
   register: keycloak_provider
 

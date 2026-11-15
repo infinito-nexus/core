@@ -12,12 +12,17 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.applications.forms import is_lock_pending, locks
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 APPLICATION = "web-app-stalwart"
 ROLE = PROJECT_ROOT / "roles" / APPLICATION
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 SECURITY_TASKS = ROLE / "tasks" / "security.yml"
 DRIFT_TASKS = "tasks/utils/forms/drift.yml"
 RESOLVE = "stalwart_ban_periods_current"

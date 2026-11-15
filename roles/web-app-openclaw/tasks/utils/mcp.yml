@@ -15,7 +15,8 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
   vars:
     openclaw_config_current: "{{ openclaw_config_held.stdout | from_json }}"
-    forms_drift_current: "{{ {'config': openclaw_config_current | combine({'servers': OPENCLAW_CONFIG.servers | mcp_held(openclaw_config_current.servers, '-')} if 'servers' in openclaw_config_current else {})} }}"
+    forms_drift_current: "{{ {'config': openclaw_config_current | combine({'servers': OPENCLAW_CONFIG.servers | mcp_held(openclaw_config_current.servers, '-')} if
+      'servers' in openclaw_config_current else {})} }}"
 
 - name: "📄 Render the OpenClaw gateway config from the current discovery"
   ansible.builtin.include_tasks:

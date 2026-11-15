@@ -9,11 +9,14 @@ from plugins.filter.resource_filter import resource_filter
 from plugins.filter.swarm.restart_condition import swarm_restart_condition
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
-TEMPLATE = PROJECT_ROOT / "roles/svc-net-tor/templates/compose.yml.j2"
-SERVICES = load_yaml_any(str(PROJECT_ROOT / "roles/svc-net-tor/meta/services.yml"))
+TEMPLATE = PROJECT_ROOT / "roles/svc-net-tor" / ROLE_FILE_TEMPL_COMPOSE
+SERVICES = load_yaml_any(
+    str(PROJECT_ROOT / "roles/svc-net-tor" / ROLE_FILE_META_SERVICES)
+)
 APPLICATIONS = {"svc-net-tor": {"services": SERVICES}}
 ROLE_DEFAULT_DELAY = "10s"
 

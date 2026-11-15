@@ -11,16 +11,22 @@ from ansible.template import Templar
 
 from plugins.filter.dotenv import dotenv_fields, dotenv_names
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.applications.forms import locks
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 from utils.templating.ansible import _trust_as_template
 
 APPLICATION = "web-app-pihole"
 ROLE = PROJECT_ROOT / "roles" / APPLICATION
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 ENV = ROLE / "templates" / "env.j2"
 STAGE = ROLE / "tasks" / "utils" / "stack" / "stage.yml"
 ENV_DRIFT = "tasks/utils/forms/env.yml"
@@ -67,7 +73,7 @@ def _env_lines(webserver: dict, login: dict) -> dict:
     }
     return {
         name: _render(expression, PIHOLE_WEBSERVER=webserver, domain="stale", **derived)
-        for name, expression in FTLCONF.findall(ENV.read_text(encoding="utf-8"))
+        for name, expression in FTLCONF.findall(read_text(str(ENV)))
     }
 
 

@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from .test_stack_entry import _write
 
@@ -51,7 +52,7 @@ def run_gate(planned: list[dict]) -> subprocess.CompletedProcess:
     with tempfile.TemporaryDirectory() as tmp:
         workdir = Path(tmp)
         _write(
-            workdir / "roles/svc-stack/tasks/main.yml",
+            workdir / "roles/svc-stack" / ROLE_FILE_TASKS_MAIN,
             "---\n- include_tasks: 00_core.yml\n",
         )
         for path in REAL:

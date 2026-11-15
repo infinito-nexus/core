@@ -10,7 +10,7 @@
 - name: "⬇️ Read the managed fields of the Keycloak OAuth provider"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ [role_path, 'files/sql/oidc/select/keycloak/provider-fields.sql'] | path_join }}"
+    query_file: "{{ [role_path, 'files/sql/oidc/select/keycloak/provider/fields.sql'] | path_join }}"
     expect_rows: true
   register: odoo_oauth_provider_stored
   changed_when: false
@@ -19,7 +19,7 @@
 - name: "⬇️ Read the managed fields of the LDAP server"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ [role_path, 'files/sql/select/res-company-ldap-fields.sql'] | path_join }}"
+    query_file: "{{ [role_path, 'files/sql/select/res_company_ldap/fields.sql'] | path_join }}"
     named_args:
       ldap_server: "{{ ODOO_LDAP_SERVER }}"
     expect_rows: true

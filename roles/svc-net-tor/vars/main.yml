@@ -87,7 +87,8 @@ TOR_EGRESS_CLIENT_CIDRS: "{{ lookup('tor_egress_clients') }}"
 TOR_DNSMASQ_DROPIN: "/etc/systemd/system/dnsmasq.service.d/infinito-restart.conf"
 # nocheck: host-local-fact  only the egress router reads it, and the router renders its dnsmasq and nftables files for the node it runs on
 TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | default('', true) }}"
-TOR_HS_BACKEND_HOST: "{{ hostvars[STACK_HOST]['ansible_facts']['default_ipv4']['address'] if IS_SWARM_MODE else (hostvars[STACK_HOST]['ansible_facts']['docker0']['ipv4']['address'] | default('127.0.0.1', true)) }}"
+TOR_HS_BACKEND_HOST: "{{ hostvars[STACK_HOST]['ansible_facts']['default_ipv4']['address'] if IS_SWARM_MODE else (hostvars[STACK_HOST]['ansible_facts']['docker0']['ipv4']['address']
+  | default('127.0.0.1', true)) }}"
 TOR_NODE_BRIDGE: "{{ hostvars[tor_node]['ansible_facts']['docker0']['ipv4']['address'] | default('', true) }}"
 TOR_ROUTER_NODES: "{{ [inventory_hostname] if IS_COMPOSE_MODE else (groups['svc-swarm-manager'] | default([]) | intersect(groups[application_id] | default([]))) }}"
 TOR_NODE_ROUTES: "{{ TOR_EGRESS_ROUTE != 'none' and tor_node in TOR_ROUTER_NODES }}"

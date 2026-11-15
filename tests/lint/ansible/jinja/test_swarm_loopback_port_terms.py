@@ -20,20 +20,23 @@ from utils.annotations.suppress import suppressed_line_numbers
 from utils.cache.files import read_text
 from utils.roles.mapping import (
     ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_SERVER,
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
 from utils.roles.swarm_loopback import (
-    CATEGORIES,
-    RULE,
-    attached_marker,
     bound_terms,
     candidates,
     compose_pinned,
     in_compose_branch,
-    reason_problem,
     role_variables,
     vhost_reach,
+)
+from utils.roles.swarm_loopback_markers import (
+    CATEGORIES,
+    RULE,
+    attached_marker,
+    reason_problem,
 )
 
 from . import PROJECT_ROOT
@@ -275,6 +278,29 @@ class TestSwarmLoopbackPortTerms(unittest.TestCase):
                 ["{# nocheck: swarm-loopback-port exec x #}", "code", "term"], 3
             )
         )
+
+    def test_a_wrapped_vhost_input_credits_its_continuation_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            roles_dir = Path(tmp)
+            _role(
+                roles_dir,
+                "web-app-wrapped",
+                "    {{ lookup('container_ports', ['web', 'http', DOCKER_BIND_HOST]) | indent(4) }}\n"
+                "    {{ lookup('container_ports', ['admin', 'http', DOCKER_BIND_HOST]) | indent(4) }}\n",
+            )
+            server = roles_dir / "web-app-wrapped" / ROLE_FILE_META_SERVER
+            server.parent.mkdir(parents=True)
+            server.write_text(
+                "csp:\n"
+                "  web:\n"
+                "    http_port: \"{{ lookup('config', 'web-app-wrapped', 'services.broker.ports.local.http') if SSO\n"
+                "      else lookup('config', 'web-app-wrapped', 'services.web.ports.local.http') }}\"\n"
+                "    internal_port: \"{{ lookup('config', 'web-app-wrapped', 'services.admin.ports.local.http') }}\"\n",
+                encoding="utf-8",
+            )
+            problems = term_problems(roles_dir)
+        self.assertEqual(1, len(problems), problems)
+        self.assertIn("['admin', 'http'", problems[0])
 
 
 if __name__ == "__main__":

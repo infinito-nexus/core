@@ -30,6 +30,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 - You MUST NOT use the full URL as link text. Use the domain name, `here`, or the filename instead. Never use the full path.
 - After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. `More information [here](...)`).
 - For communication links such as Matrix, email, or phone, you MUST show only the value itself as link text, without any protocol prefix or URL wrapper.
+- A reference to a file of this repository MUST name the file only, never a line: no `path:123`, no `:45-67`, no `#L12` anchor. Line numbers go stale on every edit of the file. Where a reader needs more precision, name the test, function, task or key instead.
 
 | Type | MUST NOT | MUST |
 |---|---|---|

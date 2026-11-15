@@ -13,6 +13,7 @@ from jinja2.nativetypes import NativeEnvironment
 
 from plugins.filter.dotenv import FilterModule
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 
 ENV = PROJECT_ROOT / "tasks" / "utils" / "forms" / "env.yml"
 WHOLE_FILE_READERS = ("slurp", "fetch", "b64decode", "lookup('file'", 'lookup("file"')
@@ -148,7 +149,7 @@ class TestTheEnvReadTakesOnlyTheManagedLines(unittest.TestCase):
         self.assertIs(False, task["changed_when"])
 
     def test_the_param_doc_keeps_the_keys_lower_snake_case(self) -> None:
-        header = ENV.read_text(encoding="utf-8").split("\n- ", 1)[0]
+        header = read_text(str(ENV)).split("\n- ", 1)[0]
         self.assertRegex(header, re.compile(r"lower snake_case"))
 
 

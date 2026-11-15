@@ -11,8 +11,10 @@ vhosts:
   web:
     enabled: "{{ lookup('config', 'web-app-bluesky', 'services.web.enabled') }}"
     service_key: "{{ 'broker' if (lookup('config', 'web-app-bluesky', 'services.sso.enabled') | bool) else 'web' }}"
-    http_port: "{{ lookup('config', 'web-app-bluesky', 'services.' ~ ('broker' if (lookup('config', 'web-app-bluesky', 'services.sso.enabled') | bool) else 'web') ~ '.ports.local.http') }}"
-    internal_port: "{{ lookup('config', 'web-app-bluesky', 'services.' ~ ('broker' if (lookup('config', 'web-app-bluesky', 'services.sso.enabled') | bool) else 'web') ~ '.ports.internal.http') }}"
+    http_port: "{{ lookup('config', 'web-app-bluesky', 'services.broker.ports.local.http') if (lookup('config', 'web-app-bluesky', 'services.sso.enabled') | bool)
+      else lookup('config', 'web-app-bluesky', 'services.web.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-bluesky', 'services.broker.ports.internal.http') if (lookup('config', 'web-app-bluesky', 'services.sso.enabled')
+      | bool) else lookup('config', 'web-app-bluesky', 'services.web.ports.internal.http') }}"
     extra_template: extra_locations.conf.j2
   view:
     enabled: "{{ lookup('config', 'web-app-bluesky', 'services.view.enabled') }}"

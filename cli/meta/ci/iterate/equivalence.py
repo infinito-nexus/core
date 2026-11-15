@@ -12,7 +12,7 @@ identical text is format-only there. The same holds for a text carrying a
 comment a deploy or a deployed program reads (:data:`READ_COMMENTS`): dropping
 comments would hide an edit of it. Those comments are a Python coding cookie
 and the ``WANT_JSON`` marker Ansible reads in a module, the
-``# variant-pin:`` of :mod:`utils.roles.applications.variant_pins` and the
+``# variant-pin:`` of :mod:`utils.roles.applications.variant.pins` and the
 ``# nocheck:`` rules
 whose reader is not a lint: ``inventory-open-subtree``
 (:mod:`cli.administration.inventory.validate.open_subtrees`) and

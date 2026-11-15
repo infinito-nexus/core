@@ -38,7 +38,7 @@ import unittest
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.applications.variant_pins import pins_of
+from utils.roles.applications.variant.pins import pins_of
 from utils.roles.applications.variants import (
     _resolve_round_include,
     services_overrides_for_round,

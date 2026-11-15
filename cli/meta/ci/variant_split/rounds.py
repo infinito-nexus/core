@@ -9,14 +9,14 @@ from typing import Any
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.applications import variant_pins
 from utils.roles.applications import variants as round_variants
 from utils.roles.applications.mcp import derive_allowed_consumers
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
 )
 from utils.roles.applications.topics import overridden_providers, provider_of
-from utils.roles.applications.variant_pins import (
+from utils.roles.applications.variant import pins as variant_pins
+from utils.roles.applications.variant.pins import (
     PIN,
     VariantPinError,
     _reciprocal_index,

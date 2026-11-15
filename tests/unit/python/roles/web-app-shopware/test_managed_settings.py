@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import unittest
+from pathlib import Path
 from unittest import mock
 
-import yaml
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
-from utils.cache.yaml import load_yaml_any
+from utils.cache.files import iter_project_files, read_text
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.roles.applications.converge import values
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
@@ -109,13 +111,13 @@ def _sink(name: str, sso: bool = True, native: bool = False, sso_login: bool = T
 
 
 def _static(settings: dict) -> dict:
-    text = (ROLE / "templates/adminopenauth.yaml.j2").read_text()
+    text = read_text(str(ROLE / "templates/adminopenauth.yaml.j2"))
     variables = {
         "SHOPWARE_OIDC_INTERNAL_BASE": ORIGIN,
         "SHOPWARE_OIDC_PLUGIN": _vars()["SHOPWARE_OIDC_PLUGIN"],
         "SHOPWARE_OIDC_PLUGIN_SETTINGS": settings,
     }
-    return yaml.safe_load(_templated(_trust_as_template(text), variables, {}))
+    return load_yaml_str(_templated(_trust_as_template(text), variables, {}))
 
 
 def _tasks() -> list[dict]:
@@ -131,7 +133,7 @@ def _position(fragment: str) -> int:
 
 
 def _client_script() -> str:
-    return (ROLE / "files/php/oidc/client.php").read_text()
+    return read_text(str(ROLE / "files/php/oidc/client.php"))
 
 
 class TestPluginConfig(unittest.TestCase):
@@ -168,9 +170,12 @@ class TestPluginConfig(unittest.TestCase):
         self.assertIn(LOCK, rendered["services"])
 
     def test_no_task_writes_the_plugin_config_beside_the_static_file(self):
-        for path in sorted((ROLE / "tasks").rglob("*.yml")):
-            with self.subTest(path=path.name):
-                self.assertNotIn("system:config:set", path.read_text())
+        tasks = f"{ROLE / 'tasks'}{os.sep}"
+        for path in sorted(iter_project_files(extensions=(".yml",))):
+            if not path.startswith(tasks):
+                continue
+            with self.subTest(path=Path(path).name):
+                self.assertNotIn("system:config:set", read_text(path))
 
     def test_the_form_is_native_and_names_each_static_key(self):
         form = _forms()["plugin_config"]
@@ -196,7 +201,7 @@ class TestStaticConfigLock(unittest.TestCase):
         )
 
     def test_the_class_the_service_names_is_mounted_where_composer_loads_it(self):
-        script = (ROLE / "files/php/oidc/static_config_lock.php").read_text()
+        script = read_text(str(ROLE / "files/php/oidc/static_config_lock.php"))
         self.assertIn("namespace App\\InfinitoRbac;", script)
         self.assertIn("final class StaticSystemConfigLock", script)
         volume = load_yaml_any(str(ROLE / ROLE_FILE_META_VOLUMES))["static_config_lock"]

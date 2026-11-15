@@ -1,5 +1,5 @@
 ---
-- name: "🔐 Converge enforced_2fa of every project and of every team but Guests and the project teams"
+- name: "🔐 Converge enforced_2fa of every project and team but Guests and project teams"
   ansible.builtin.shell: # nocheck: container-exec-resolver  only Weblate's own management shell reaches its teams and projects
     cmd: >
       container exec

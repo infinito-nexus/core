@@ -5,11 +5,17 @@ import re
 import unittest
 from typing import TYPE_CHECKING
 
-import yaml
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.converge import values
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 
@@ -31,7 +37,8 @@ LDAP_SQL = (
     SQL / "update" / "res-company-ldap.sql",
     SQL / "insert-res-company-ldap.sql",
 )
-LDAP_READ = SQL / "select" / "res-company-ldap-fields.sql"
+LDAP_READ = SQL / "select" / "res_company_ldap" / "fields.sql"
+PROVIDER_READ = SQL / "oidc" / "select" / "keycloak" / "provider" / "fields.sql"
 STORAGE_SQL = SQL / "objstore" / "upsert-fs-storage.sql"
 STORAGE_READ = SQL / "objstore" / "select-fs-storage-fields.sql"
 RECORDS = {
@@ -44,11 +51,11 @@ RECORDS = {
 
 
 def _yaml(path: Path):
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    return load_yaml_str(read_text(str(path)))
 
 
 def _forms() -> dict:
-    return _yaml(ROLE / "meta" / "forms.yml")
+    return _yaml(ROLE / ROLE_FILE_META_FORMS)
 
 
 def _tasks(path: Path) -> list[dict]:
@@ -72,7 +79,7 @@ def _upsert(path: Path, key: str) -> dict:
 
 
 def _sql_args(path: Path) -> set[str]:
-    return set(NAMED_ARG.findall(path.read_text(encoding="utf-8")))
+    return set(NAMED_ARG.findall(read_text(str(path))))
 
 
 def _storage_application(managed: bool) -> dict:
@@ -164,32 +171,25 @@ class TestTheFormsMapTheLoginMethods(unittest.TestCase):
         fields = set(_forms()["oauth_provider"]["fields"])
         for path in PROVIDER_SQL:
             with self.subTest(sql=path.name):
-                self.assertEqual(
-                    fields, set(NAMED_ARG.findall(path.read_text(encoding="utf-8")))
-                )
-        read = (SQL / "oidc" / "select" / "keycloak" / "provider-fields.sql").read_text(
-            encoding="utf-8"
-        )
+                self.assertEqual(fields, _sql_args(path))
+        read = read_text(str(PROVIDER_READ))
         self.assertEqual(fields, set(JSON_KEY.findall(read)))
 
     def test_the_record_names_the_provider_the_role_writes(self) -> None:
-        providers = _yaml(ROLE / "meta" / "services.yml")["odoo"]["oauth"]["providers"]
+        providers = _yaml(ROLE / ROLE_FILE_META_SERVICES)["odoo"]["oauth"]["providers"]
         self.assertEqual(
             "services.odoo.oauth.providers",
             _forms()["oauth_provider"]["record"]["source"],
         )
-        for path in (
-            *PROVIDER_SQL,
-            SQL / "oidc" / "select" / "keycloak" / "provider-fields.sql",
-        ):
+        for path in (*PROVIDER_SQL, PROVIDER_READ):
             with self.subTest(sql=path.name):
                 self.assertEqual(
                     providers,
-                    re.findall(r"'(Keycloak)'", path.read_text(encoding="utf-8")),
+                    re.findall(r"'(Keycloak)'", read_text(str(path))),
                 )
 
     def test_the_settings_read_returns_exactly_the_declared_fields(self) -> None:
-        read = (SQL / "select" / "managed-settings.sql").read_text(encoding="utf-8")
+        read = read_text(str(SQL / "select" / "managed-settings.sql"))
         declared = {
             key
             for form in ("general", "base_url", "base_url_freeze")
@@ -239,11 +239,11 @@ class TestTheDirectoryAndStorageForms(unittest.TestCase):
             with self.subTest(form=form):
                 self.assertEqual(
                     set(_forms()[form]["fields"]),
-                    set(JSON_KEY.findall(read.read_text(encoding="utf-8"))),
+                    set(JSON_KEY.findall(read_text(str(read)))),
                 )
 
     def test_the_writes_take_every_declared_field_and_no_secret(self) -> None:
-        vars_main = _yaml(ROLE / "vars" / "main.yml")
+        vars_main = _yaml(ROLE / ROLE_FILE_VARS_MAIN)
         config = set(vars_main["ODOO_LDAP_CONFIG"])
         fields = set(_forms()["ldap_directory"]["fields"])
         self.assertEqual(set(), fields & config)
@@ -261,7 +261,7 @@ class TestTheDirectoryAndStorageForms(unittest.TestCase):
                     self.assertNotRegex(field, "password|secret|key|bind")
 
     def test_the_records_name_the_rows_the_role_writes(self) -> None:
-        vars_main = _yaml(ROLE / "vars" / "main.yml")
+        vars_main = _yaml(ROLE / ROLE_FILE_VARS_MAIN)
         for form, (var, source) in RECORDS.items():
             with self.subTest(form=form):
                 self.assertEqual(source, _forms()[form]["record"]["source"])
@@ -387,7 +387,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         read = _task(
             TASKS / "utils" / "settings_drift.yml",
             lambda task: (
-                "res-company-ldap-fields.sql"
+                "res_company_ldap/fields.sql"
                 in str(task.get("database_query", {}).get("query_file", ""))
             ),
         )
@@ -476,10 +476,10 @@ class TestTheRendererLocksTheForms(unittest.TestCase):
     def test_the_role_loads_the_shared_renderer_on_every_page(self) -> None:
         self.assertIn(
             RENDERER,
-            (ROLE / "templates" / "javascript.js.j2").read_text(encoding="utf-8"),
+            read_text(str(ROLE / "templates" / "javascript.js.j2")),
         )
         self.assertIs(
-            True, _yaml(ROLE / "meta" / "services.yml")["javascript"]["enabled"]
+            True, _yaml(ROLE / ROLE_FILE_META_SERVICES)["javascript"]["enabled"]
         )
 
 

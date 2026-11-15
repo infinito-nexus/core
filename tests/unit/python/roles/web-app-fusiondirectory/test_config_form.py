@@ -13,16 +13,22 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.applications.forms import locks
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 from utils.templating.ansible import _trust_as_template
 
 APPLICATION = "web-app-fusiondirectory"
 ROLE = PROJECT_ROOT / "roles" / APPLICATION
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 LDAP_TASKS = ROLE / "tasks" / "01_ldap.yml"
 BOOTSTRAP = ROLE / "files" / "shell" / "ldap" / "bootstrap.sh"
 READ_CONFIG = ROLE / "files" / "shell" / "ldap" / "read_config.sh"
@@ -150,7 +156,7 @@ class TestConfigForm(unittest.TestCase):
         )
         services = load_yaml_any(str(SERVICES))
         self.assertIs(True, services["javascript"]["enabled"])
-        self.assertIn(SHARED_RENDERER, LOADER.read_text(encoding="utf-8"))
+        self.assertIn(SHARED_RENDERER, read_text(str(LOADER)))
 
     def test_the_sink_reads_only_the_config_form(self) -> None:
         variables = load_yaml_any(str(VARS))
@@ -193,7 +199,7 @@ class TestConfigForm(unittest.TestCase):
             },
             rendered,
         )
-        script = BOOTSTRAP.read_text(encoding="utf-8")
+        script = read_text(str(BOOTSTRAP))
         for line in (
             "fdTheme: ${FD_THEME}",
             "fdOGroupRDN: ${FD_OGROUP_RDN}",
@@ -259,6 +265,10 @@ class TestConfigForm(unittest.TestCase):
     def test_the_read_fails_on_any_other_ldap_error(self) -> None:
         result = _read_config("exit 49", " ".join(ENFORCED))
         self.assertEqual(49, result.returncode)
+
+    def test_the_read_fails_when_the_attribute_match_itself_fails(self) -> None:
+        result = _read_config("printf 'fdTheme: breezy\\n'", "fdTheme[")
+        self.assertEqual(2, result.returncode, result.stderr)
 
     def test_the_bind_password_never_reaches_the_arguments(self) -> None:
         result = _read_config('printf "fdLoginMethod: %s\\n" "$*"', " ".join(ENFORCED))

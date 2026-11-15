@@ -6,7 +6,7 @@ import unittest
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml, load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -32,7 +32,7 @@ def named(models: dict) -> bool:
 
 def core_conditions() -> list[str]:
     """Return the conditions of the task that includes the role's core."""
-    tasks = load_yaml_any(str(ROLE / "tasks" / "main.yml"))
+    tasks = load_yaml_any(str(ROLE / ROLE_FILE_TASKS_MAIN))
     include = next(task for task in tasks if task.get("include_tasks") == CORE)
     return [" ".join(str(condition).split()) for condition in include["when"]]
 

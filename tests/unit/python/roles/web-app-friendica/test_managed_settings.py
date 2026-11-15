@@ -9,6 +9,7 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.mapping import (
@@ -80,7 +81,7 @@ def _sink(debug: bool) -> dict:
 def _env_value(name: str, debug: bool) -> str:
     line = next(
         line
-        for line in (ROLE / "templates/env.j2").read_text().splitlines()
+        for line in read_text(str(ROLE / "templates/env.j2")).splitlines()
         if line.startswith(f"{name}=")
     )
     rendered = _templated(
@@ -108,7 +109,7 @@ class TestLogSettings(unittest.TestCase):
                     self.assertEqual(str(expected), _env_value(name, debug))
 
     def test_the_environment_reads_the_log_settings_only_from_the_sink(self):
-        text = (ROLE / "templates/env.j2").read_text()
+        text = read_text(str(ROLE / "templates/env.j2"))
         for name in ("FRIENDICA_DEBUGGING=", "FRIENDICA_LOGLEVEL="):
             with self.subTest(name=name):
                 line = next(line for line in text.splitlines() if line.startswith(name))

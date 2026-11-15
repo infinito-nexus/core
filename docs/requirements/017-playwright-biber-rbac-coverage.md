@@ -117,6 +117,6 @@ The persona contract in [playwright.specs.js.md](../../docs/contributing/artefac
 
 ### Verification
 
-- [x] After every role-local change [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) MUST be green. `make test-lint` (`Makefile:1031`) runs it on every change, and it is green on the tree that closes this audit.
+- [x] After every role-local change [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) MUST be green. `make test-lint` (`Makefile`) runs it on every change, and it is green on the tree that closes this audit.
 - [ ] A run with `disable=sso,ldap` MUST report every biber scenario that does not run the shared `runBiberFlow` persona as `skipped: <FLAG>=false` per [006](README.md#archive), never as `failed`.
 - [x] A grep `process.env\.BIBER_(USERNAME|PASSWORD)` over the role tree MUST return at least one hit for every in-scope role above once the audit closes its checkbox. A role whose only biber scenario runs the shared `runBiberFlow` persona (web-app-dashboard) counts through the helper's `readEnv("BIBER_USERNAME")` / `readEnv("BIBER_PASSWORD")` in [biber.js](../../roles/test-e2e-playwright/files/personas/biber.js).

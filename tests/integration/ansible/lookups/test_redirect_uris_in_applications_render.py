@@ -7,8 +7,8 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from plugins.lookup.redirect_uris import LookupModule
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.base import _RENDER_GUARD
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 

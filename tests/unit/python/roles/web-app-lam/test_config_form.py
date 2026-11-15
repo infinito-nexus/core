@@ -15,16 +15,22 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.applications.forms import locks
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 from utils.templating.ansible import _trust_as_template
 
 APPLICATION = "web-app-lam"
 ROLE = PROJECT_ROOT / "roles" / APPLICATION
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 ENV = ROLE / "templates" / "env.j2"
 LOADER = ROLE / "templates" / "javascript.js.j2"
 CORE_TASKS = ROLE / "tasks" / "00_core.yml"
@@ -183,7 +189,7 @@ class TestConfigForm(unittest.TestCase):
         )
         services = load_yaml_any(str(SERVICES))
         self.assertIs(True, services["javascript"]["enabled"])
-        self.assertIn(SHARED_RENDERER, LOADER.read_text(encoding="utf-8"))
+        self.assertIn(SHARED_RENDERER, read_text(str(LOADER)))
 
     def test_the_sink_reads_only_the_config_form(self) -> None:
         variables = load_yaml_any(str(VARS))
@@ -196,7 +202,7 @@ class TestConfigForm(unittest.TestCase):
         )
 
     def test_the_env_writes_every_managed_setting_from_the_sink(self) -> None:
-        lines = dict(ENV_LINE.findall(ENV.read_text(encoding="utf-8")))
+        lines = dict(ENV_LINE.findall(read_text(str(ENV))))
         managed = {
             "LAM_PASSWORD": f'"{ADMIN_VALUE}"',
             "LAM_LANG": "en_US",

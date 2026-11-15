@@ -146,7 +146,7 @@ def find_prefix_groups(
             if name.startswith((".", "_")):
                 continue
             tokens = _tokens(name)
-            if len(tokens) < 2:
+            if not tokens:
                 continue
             if tokens[0].lower() in SKIP_FIRST_TOKENS:
                 continue
@@ -192,6 +192,23 @@ class TestPrefixGroupedFiles(unittest.TestCase):
                 "prefix, move the existing files into the folder too.\n"
                 + "\n".join(lines)
             )
+
+    def test_a_stem_file_anchors_its_group(self) -> None:
+        tracked = [
+            PurePosixPath(f"sample/{name}")
+            for name in ("playbook.yml", "playbook-sync.yml", "playbook-workspace.yml")
+        ]
+        self.assertEqual(find_prefix_groups(tracked, Path("/nonexistent")), [])
+
+    def test_negative_control_a_group_without_its_stem_file_fails(self) -> None:
+        tracked = [
+            PurePosixPath(f"sample/{name}")
+            for name in ("playbook-sync.yml", "playbook-workspace.yml")
+        ]
+        self.assertEqual(
+            find_prefix_groups(tracked, Path("/nonexistent")),
+            [("sample", "playbook", ["playbook-sync.yml", "playbook-workspace.yml"])],
+        )
 
 
 if __name__ == "__main__":

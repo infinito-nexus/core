@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.files import PROJECT_ROOT
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from .test_stage_steps import STAGE, _includes, _tasks
 
@@ -11,7 +12,7 @@ SYSCTL = "sys-sysctl"
 RENDER = "roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml"
 STAGED = {
     "web-app-magento": ("tasks/00_core.yml", (RENDER,)),
-    "web-app-shopware": ("tasks/main.yml", ()),
+    "web-app-shopware": (ROLE_FILE_TASKS_MAIN, ()),
 }
 
 

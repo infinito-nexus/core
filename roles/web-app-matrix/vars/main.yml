@@ -126,7 +126,8 @@ MATRIX_BRIDGE_ADDONS: >-
 MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') | combine(dict(MATRIX_BRIDGE_ADDONS | map(attribute='value.config.bridge_name') | map('regex_replace',
   '^', 'mautrix_') | zip(MATRIX_BRIDGE_ADDONS | map(attribute='value.enabled')))) }}"
 
-MATRIX_JITSI_ENABLED: "{{ lookup('config', application_id, 'services.jitsi.enabled') | bool and lookup('config', application_id, 'services.matrix.flavor') == 'ansible' }}"
+MATRIX_JITSI_ENABLED: "{{ lookup('config', application_id, 'services.jitsi.enabled') | bool and lookup('config', application_id, 'services.matrix.flavor') == 'ansible'
+  }}"
 MATRIX_JITSI_SHARED: "{{ MATRIX_JITSI_ENABLED and lookup('config', application_id, 'services.jitsi.shared') | bool }}"
 MATRIX_JITSI_INTERNAL: "{{ MATRIX_JITSI_ENABLED and not MATRIX_JITSI_SHARED }}"
 MATRIX_JITSI_DOMAIN: "{{ lookup('domain', 'web-app-jitsi') if MATRIX_JITSI_SHARED else lookup('domains', application_id).jitsi }}"

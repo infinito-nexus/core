@@ -53,6 +53,7 @@ lam:
     login_search_suffix: "{{ LDAP.DN.OU.USERS }}"
     login_search_filter: "(&({{ LDAP.USER.ATTRIBUTES.ID }}=%USER%)({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-lam-administrator,{{ LDAP.DN.OU.ROLES }}))"
   custom: true
+  name: lam
   min_storage: 345MB
   ports:
     local:

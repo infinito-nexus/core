@@ -72,6 +72,7 @@ wazuh:
     readonly_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='readonly-auditor') }}"
   ui:
     default_route: /app/home
+    # nocheck: literal-protocol-lookup  the internal Wazuh manager API on the Docker network serves https only, whatever TLS posture the stack runs
     api_url: "https://{{ lookup('config', 'web-app-wazuh', 'services.manager.name') }}"
     api_port: "{{ lookup('config', 'web-app-wazuh', 'services.manager.ports.internal.api') }}"
     api_username: "{{ lookup('users', 'web-app-wazuh-api').username }}"

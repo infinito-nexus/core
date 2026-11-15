@@ -168,7 +168,7 @@
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔀 front-proxy: Element web client, Synapse client/federation and the own Jitsi web"
+- name: "🔀 front-proxy: Element web client, Synapse client/federation and own Jitsi web"
   ansible.builtin.include_role:
     name: svc-stack
     tasks_from: consumer/front.yml

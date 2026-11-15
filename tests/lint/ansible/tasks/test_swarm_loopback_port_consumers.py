@@ -39,17 +39,19 @@ from utils.roles.mapping import (
     ROLE_FILE_VARS_MAIN,
 )
 from utils.roles.swarm_loopback import (
-    CATEGORIES,
     COMPOSE,
-    RULE,
-    attached_marker,
     compose_pinned,
     condition_mode,
     in_compose_branch,
     is_vhost_input,
+    role_variables,
+)
+from utils.roles.swarm_loopback_markers import (
+    CATEGORIES,
+    RULE,
+    attached_marker,
     marker_scope,
     reason_problem,
-    role_variables,
 )
 from utils.roles.swarm_loopback_reads import (
     _closure,

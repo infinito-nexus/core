@@ -4,7 +4,7 @@ import base64
 from collections.abc import Mapping
 from typing import Any
 
-import yaml
+from utils.cache.yaml import load_yaml_str
 
 LOKI_UID = "loki"
 PROMETHEUS_UID = "prometheus"
@@ -79,7 +79,7 @@ def grafana_provisioned(results: Any) -> dict[str, dict[str, str]]:
         content = result.get("content") if isinstance(result, Mapping) else None
         if form not in READERS or not isinstance(content, str):
             continue
-        data = yaml.safe_load(base64.b64decode(content).decode("utf-8"))
+        data = load_yaml_str(base64.b64decode(content).decode("utf-8"))
         held[form] = READERS[form](data if isinstance(data, Mapping) else {})
     return held
 

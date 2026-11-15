@@ -271,7 +271,7 @@ class TestCallers(unittest.TestCase):
         for tasks_file, form, sink, hidden in CASES:
             with self.subTest(tasks=tasks_file):
                 task = _task(tasks_file, f"Converge the {form}")
-                self.assertEqual("utils/plugin_form.yml", task["include_tasks"])
+                self.assertEqual("utils/plugin/form.yml", task["include_tasks"])
                 self.assertEqual(form, task["vars"]["moodle_plugin_form_component"])
                 self.assertEqual(
                     f"{{{{ {sink} }}}}", task["vars"]["moodle_plugin_form_settings"]
@@ -302,7 +302,7 @@ class TestCallers(unittest.TestCase):
                 )
 
     def test_the_mfa_util_writes_without_hidden_settings(self):
-        task = _task("utils/plugin_config.yml", "Apply the")
+        task = _task("utils/plugin/config.yml", "Apply the")
         self.assertIn("'mode': 'write'", task["args"]["stdin"])
         self.assertIn("'hidden': {}", task["args"]["stdin"])
 
@@ -374,7 +374,7 @@ class TestForcedSettings(unittest.TestCase):
 
 
 class TestPluginForm(unittest.TestCase):
-    UTIL = "utils/plugin_form.yml"
+    UTIL = "utils/plugin/form.yml"
 
     def test_the_drift_report_runs_between_the_read_and_the_write(self):
         self.assertLess(

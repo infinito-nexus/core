@@ -8,21 +8,21 @@ security:
       mode: enforced
       selector: '[name="auth_openid_connect"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Authentication via OpenID Connect
     user_show_password_login:
       source: services.zammad.login.password_form
       mode: enforced
       selector: '[name="user_show_password_login"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Password login
     user_create_account:
       source: services.zammad.login.method.registration.enabled
       mode: enforced
       selector: '[name="user_create_account"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: New user accounts
 ldap:
   path: /#system/integration/ldap

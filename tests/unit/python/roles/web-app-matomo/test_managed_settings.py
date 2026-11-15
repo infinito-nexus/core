@@ -10,6 +10,7 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.mapping import (
@@ -245,7 +246,7 @@ class TestConverge(unittest.TestCase):
                 )
 
     def test_the_script_reads_without_writing(self):
-        script = (ROLE / "files/php/config_converge.php").read_text()
+        script = read_text(str(ROLE / "files/php/config_converge.php"))
         report = script.index("if ($readOnly) {\n    $hidden")
         self.assertLess(report, script.index("$config->forceSave();"))
         self.assertIn(

@@ -17,13 +17,14 @@ from utils.roles.applications.converge import values
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MCP,
     ROLE_FILE_VARS_MAIN,
 )
 
 ROLE = PROJECT_ROOT / "roles/web-app-openclaw"
 TEMPLATE = ROLE / "templates/openclaw.json.j2"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
-TASKS = ROLE / "tasks/utils/mcp.yml"
+TASKS = ROLE / ROLE_FILE_TASKS_MCP
 READER = ROLE / "files/python/config_fields.py"
 SAMPLE = {
     "trustedProxies": ["198.51.100.0/24"],

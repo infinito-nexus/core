@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from utils.roles.applications.variant_pins import (
+from utils.roles.applications.variant.pins import (
     VariantPinConflictError,
     VariantPinError,
     pins_of,

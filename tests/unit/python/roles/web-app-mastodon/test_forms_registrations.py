@@ -8,14 +8,16 @@ from ansible.template import Templar
 from jinja2 import DictLoader, Environment, select_autoescape
 
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-mastodon"
 TASKS = ROLE / "tasks" / "07_login_methods.yml"
 LOADER = ROLE / "templates" / "javascript.js.j2"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
 SINK = "MASTODON_REGISTRATIONS"
 DRIFT = "tasks/utils/forms/drift.yml"
 RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
@@ -111,7 +113,7 @@ class TestTheLoaderAlwaysLocks(unittest.TestCase):
         env = Environment(
             loader=DictLoader(
                 {
-                    LOADER.name: LOADER.read_text(encoding="utf-8"),
+                    LOADER.name: read_text(str(LOADER)),
                     RENDERER: RENDERER_STUB,
                 }
             ),

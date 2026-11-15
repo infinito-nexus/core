@@ -62,7 +62,7 @@
   ansible.builtin.include_tasks: proxy/settle.yml
   when: stack_front_phase == 'entered'
 
-- name: "🗂️ Record '{{ front_proxy_domain }}' of '{{ front_proxy_application_id }}' for the batch reload"
+- name: "🗂️ Record '{{ front_proxy_domain }}' for the front batch reload"
   ansible.builtin.set_fact:
     front_proxy_batch_vhosts: >-
       {{ front_proxy_batch_vhosts

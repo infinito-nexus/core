@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import tempfile
 import unittest
@@ -10,8 +11,15 @@ from unittest import mock
 from jinja2 import Environment, meta, select_autoescape
 from jinja2.exceptions import TemplateSyntaxError
 
-from utils.cache.files import read_text
+from utils.cache import PROJECT_ROOT as WALKED_ROOT
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import (
+    ROLE_FILE_DEFAULTS_MAIN,
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 from .test_stack_batch_closure import P1_SEED, P2_SEED, STACK_ROLE, _sets, walk
@@ -111,6 +119,23 @@ def _strings(node: Any) -> Iterator[str]:
         yield node
 
 
+def _yml_files(directory: Path) -> list[Path]:
+    """Args:
+        directory: a directory of the project or of a test's scratch tree.
+
+    Returns:
+        the sorted ``.yml`` files below ``directory``.
+    """
+    if not directory.is_relative_to(WALKED_ROOT):
+        return sorted(directory.rglob("*.yml"))  # nocheck: project-walk scratch tree
+    prefix = f"{directory}{os.sep}"
+    return sorted(
+        Path(path)
+        for path in iter_project_files(extensions=(".yml",))
+        if path.startswith(prefix)
+    )
+
+
 def names_in(text: str) -> set[str]:
     """Args:
         text: a template or a YAML value.
@@ -151,8 +176,8 @@ def _role_yaml(role: str, rel: str) -> Any:
 
 def _definitions(role: str) -> dict:
     return {
-        **(_role_yaml(role, "defaults/main.yml") or {}),
-        **(_role_yaml(role, "vars/main.yml") or {}),
+        **(_role_yaml(role, ROLE_FILE_DEFAULTS_MAIN) or {}),
+        **(_role_yaml(role, ROLE_FILE_VARS_MAIN) or {}),
     }
 
 
@@ -180,7 +205,7 @@ def front_reads(role: str) -> set[str]:
         defaults: proxy.conf.j2, the vhost templates its meta/server.yml
         names, and the values of meta/server.yml.
     """
-    server = _role_yaml(role, "meta/server.yml") or {}
+    server = _role_yaml(role, ROLE_FILE_META_SERVER) or {}
     vhosts = (server.get("vhosts") or {}) if isinstance(server, dict) else {}
     templates = PROJECT_ROOT / "roles" / role / "templates"
     seeds = [templates / name for name in FRONT_TEMPLATES] + [
@@ -226,7 +251,7 @@ def body_sets(role: str) -> set[str]:
     return set().union(
         *(
             _sets(path)
-            for path in sorted(tasks.rglob("*.yml"))
+            for path in _yml_files(tasks)
             if path.relative_to(tasks).as_posix() != "utils/stack.yml"
         )
     )
@@ -245,7 +270,7 @@ def stage_sets(role: str) -> set[str]:
 
 def _group_names() -> set[str]:
     names: set[str] = set()
-    for path in sorted((PROJECT_ROOT / "group_vars").rglob("*.yml")):
+    for path in _yml_files(PROJECT_ROOT / "group_vars"):
         data = load_yaml_any(str(path), default_if_missing={})
         names.update(data.keys() if isinstance(data, dict) else ())
     return names
@@ -332,7 +357,7 @@ def provider_steps(root: Path, roles: list[str]) -> list[str]:
     found = []
     for role in roles:
         staged = stage_files(root, role)
-        for path in sorted((root / "roles" / role / "tasks").rglob("*.yml")):
+        for path in _yml_files(root / "roles" / role / "tasks"):
             for task in _tasks(load_yaml_any(str(path), default_if_missing=[])):
                 found += [
                     f"{path.relative_to(root)}: {target}"
@@ -386,7 +411,7 @@ class TestStackBatchAdmission(unittest.TestCase):
                 root,
                 "web-app-staged",
                 {
-                    "templates/compose.yml.j2": (
+                    ROLE_FILE_TEMPL_COMPOSE: (
                         "{{ staged_name }} {{ inner_name }} {{ body_name }}\n"
                     ),
                     str(STAGE): (

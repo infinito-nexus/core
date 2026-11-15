@@ -13,11 +13,8 @@ from typing import TYPE_CHECKING
 import yaml
 
 from utils.cache.files import read_text
-from utils.roles.swarm_loopback import (
-    VHOST_INPUT_NAMES,
-    attached_marker,
-    is_vhost_input,
-)
+from utils.roles.swarm_loopback import VHOST_INPUT_NAMES, is_vhost_input
+from utils.roles.swarm_loopback_markers import attached_marker
 
 if TYPE_CHECKING:
     from pathlib import Path

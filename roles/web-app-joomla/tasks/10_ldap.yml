@@ -1,5 +1,5 @@
 ---
-- name: "🔎 Read the stored LDAP plugin settings of {{ application_id }} meta/forms.yml manages"
+- name: "🔎 Read the stored LDAP plugin settings meta/forms.yml manages"
   ansible.builtin.shell: >
     IFS= read -r J_LDAP_BIND_PASSWORD && export J_LDAP_BIND_PASSWORD &&
     container exec -i
@@ -18,7 +18,7 @@
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "📣 Report the managed LDAP plugin settings of {{ application_id }} the write reverts"
+- name: "📣 Report the managed LDAP plugin settings the write reverts"
   include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
   vars:
     forms_drift_current: "{{ {'ldap': (joomla_ldap_stored.stdout_lines | last | from_json).settings} }}"

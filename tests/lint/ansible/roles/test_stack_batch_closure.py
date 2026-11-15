@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import os
 import re
 import unittest
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_TASKS_MAIN
 
 from . import PROJECT_ROOT
 from .test_stack_bridge import BATCH_FACTS, ROLE_INCLUDES, TASK_INCLUDES
@@ -41,7 +43,7 @@ FALSE_IN_BATCH = frozenset(
 )
 EXPANSIONS: dict[tuple[str, str], tuple[str, ...]] = {
     (
-        "roles/sys-svc-certs/tasks/main.yml",
+        f"roles/sys-svc-certs/{ROLE_FILE_TASKS_MAIN}",
         "{{ [role_path, 'tasks/flavors', CERTBOT_FLAVOR ~'.yml'] | path_join }}",
     ): ("roles/sys-svc-certs/tasks/flavors/*.yml",),
     (
@@ -142,12 +144,15 @@ def _role_entries(name: str, tasks_from: str) -> list[tuple[Path, str]]:
     )
     entries = [((PROJECT_ROOT / "roles" / name / "tasks" / entry).resolve(), name)]
     meta = load_yaml_any(
-        str(PROJECT_ROOT / "roles" / name / "meta/main.yml"), default_if_missing={}
+        str(PROJECT_ROOT / "roles" / name / ROLE_FILE_META_MAIN), default_if_missing={}
     )
     for dep in (meta or {}).get("dependencies") or []:
         dep_name = dep if isinstance(dep, str) else dep.get("role") or dep.get("name")
         entries.append(
-            ((PROJECT_ROOT / "roles" / dep_name / "tasks/main.yml").resolve(), dep_name)
+            (
+                (PROJECT_ROOT / "roles" / dep_name / ROLE_FILE_TASKS_MAIN).resolve(),
+                dep_name,
+            )
         )
     return entries
 
@@ -283,13 +288,16 @@ def outside_readers(closure: Closure) -> list[str]:
         if path.is_relative_to(PROJECT_ROOT / "roles")
     }
     found = []
-    for path in sorted((PROJECT_ROOT / "roles").rglob("*")):
+    roles = f"{PROJECT_ROOT / 'roles'}{os.sep}"
+    for path in sorted(
+        Path(path)
+        for path in iter_project_files(extensions=(".yml", ".yaml", ".j2"))
+        if path.startswith(roles)
+    ):
         parts = path.relative_to(PROJECT_ROOT).parts
-        if not path.is_file() or path.resolve() in closure.files or len(parts) < 4:
+        if path.resolve() in closure.files or len(parts) < 4:
             continue
         if parts[2] not in READER_DIRS or (parts[1] in entered and parts[2] != "tasks"):
-            continue
-        if path.suffix not in (".yml", ".yaml", ".j2"):
             continue
         own = _sets(path) if parts[2] == "tasks" else set()
         found.extend(

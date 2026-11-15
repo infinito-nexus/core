@@ -2,7 +2,7 @@
 # General
 application_id: "web-app-lam"
 
-LAM_CONTAINER: "{{ application_id | entity_name }}"
+LAM_CONTAINER: "{{ lookup('config', application_id, 'services.lam.name') }}"
 LAM_IMAGE: "{{ lookup('config', application_id, 'services.lam.image') }}"
 LAM_VERSION: "{{ lookup('config', application_id, 'services.lam.version') }}"
 LAM_SESSION_SAVE_PATH: "{{ lookup('engine', 'redis', application_id, 'session_path') }}"

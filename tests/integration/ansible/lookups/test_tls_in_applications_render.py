@@ -8,8 +8,8 @@ from ansible.template import Templar
 
 from plugins.lookup.cert import LookupModule as CertLookupModule
 from plugins.lookup.tls import LookupModule
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.base import _RENDER_GUARD
+from utils.cache.reset import _reset_cache_for_tests
 
 from . import PROJECT_ROOT
 

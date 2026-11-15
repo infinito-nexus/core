@@ -12,6 +12,7 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.mapping import (
@@ -132,7 +133,7 @@ def _sinks(
 
 
 def _env_lines(settings: dict) -> list[str]:
-    text = (ROLE / "templates/env.j2").read_text()
+    text = read_text(str(ROLE / "templates/env.j2"))
     block = re.search(
         r"^\{% for espocrm_field.*?^\{% endfor %\}\n", text, re.MULTILINE | re.DOTALL
     ).group(0)
@@ -144,7 +145,7 @@ def _env_lines(settings: dict) -> list[str]:
 
 def _locked(settings: dict) -> dict:
     payload = _templated(
-        _trust_as_template((ROLE / "templates/forms_module_payload.j2").read_text()),
+        _trust_as_template(read_text(str(ROLE / "templates/forms_module_payload.j2"))),
         {"ESPOCRM_FORM_SETTINGS": settings},
         {},
     )
@@ -238,7 +239,7 @@ class TestEnvironment(unittest.TestCase):
         )
 
     def test_no_setting_is_rendered_beside_the_sink(self):
-        text = (ROLE / "templates/env.j2").read_text()
+        text = read_text(str(ROLE / "templates/env.j2"))
         for field in SETTINGS:
             with self.subTest(field=field):
                 self.assertNotIn(f"ESPOCRM_SEED_{field.upper()}=", text)
@@ -312,7 +313,7 @@ class TestConverge(unittest.TestCase):
             ["{{ ESPOCRM_USER }}"],
             re.findall(r"(?:--user[ =]|-u )(\{\{[^}]*\}\}|\S+)", read),
         )
-        user = load_yaml_any(str(ROLE / "vars/main.yml"), default_if_missing={})[
+        user = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN), default_if_missing={})[
             "ESPOCRM_USER"
         ]
         self.assertNotIn(str(user).strip(), {"root", "0", "0:0", "root:root", ""})
@@ -360,7 +361,7 @@ class TestConverge(unittest.TestCase):
                 )
 
     def test_the_read_mode_returns_before_the_seeder_writes(self):
-        seeder = (ROLE / "files/php/seed/config.php").read_text()
+        seeder = read_text(str(ROLE / "files/php/seed/config.php"))
         loop = seeder.index("foreach ($_ENV as $envKey => $envValue)")
         read_branch = seeder.index("if ($readOnly) {", loop)
         self.assertLess(read_branch, seeder.index("$writer->set(", loop))

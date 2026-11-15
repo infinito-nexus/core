@@ -7,16 +7,22 @@ import unittest
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-listmonk"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 TASKS = ROLE / "tasks" / "02_manager_ops.yml"
 APPLY = ROLE / "templates" / "sql" / "apply_settings.sql.j2"
 DESIGN = ROLE / "templates" / "design" / "appearance.sql.j2"
@@ -268,7 +274,7 @@ class TestTheWriteReadsTheSinks(unittest.TestCase):
             if isinstance(setting, dict) and "key" in setting
         }
         self.assertEqual(set(), managed & written)
-        self.assertNotIn("BRANDING", DESIGN.read_text(encoding="utf-8"))
+        self.assertNotIn("BRANDING", read_text(str(DESIGN)))
 
     def test_the_object_store_secrets_stay_out_of_the_sinks(self) -> None:
         settings = {setting["key"]: setting for setting in _vars()["LISTMONK_SETTINGS"]}
@@ -278,7 +284,7 @@ class TestTheWriteReadsTheSinks(unittest.TestCase):
 
     def test_the_apply_writes_each_field_under_its_setting(self) -> None:
         rendered = _render(
-            APPLY.read_text(encoding="utf-8"),
+            read_text(str(APPLY)),
             {
                 "LISTMONK_SETTINGS": [{"key": "smtp", "value": "[]"}],
                 PREFIXED: _prefixed(
@@ -373,14 +379,14 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         self.assertIn(f"-v forms='{json.dumps(forms)}'", command)
 
     def test_the_read_never_returns_the_client_secret(self) -> None:
-        sql = READ.read_text(encoding="utf-8")
+        sql = read_text(str(READ))
         self.assertIn("jsonb_each(:'forms'::jsonb) AS form", sql)
         self.assertIn("jsonb_object_keys(form.value -> 'fields')", sql)
         self.assertIn("(form.value ->> 'prefix') || field", sql)
         self.assertIn("value - 'client_secret'", sql)
 
     def test_the_read_returns_only_the_hcaptcha_switch(self) -> None:
-        sql = READ.read_text(encoding="utf-8")
+        sql = read_text(str(READ))
         self.assertIn("WHERE key = 'security.captcha'", sql)
         self.assertIn(
             "jsonb_build_object('enabled', value -> 'hcaptcha' -> 'enabled')", sql
@@ -403,7 +409,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
 
 class TestTheSettingsPageIsLocked(unittest.TestCase):
     def test_the_loader_includes_the_shared_renderer(self) -> None:
-        self.assertIn(SHARED_RENDERER, LOADER.read_text(encoding="utf-8"))
+        self.assertIn(SHARED_RENDERER, read_text(str(LOADER)))
 
     def test_the_javascript_service_is_literally_on(self) -> None:
         services = load_yaml_any(str(SERVICES))

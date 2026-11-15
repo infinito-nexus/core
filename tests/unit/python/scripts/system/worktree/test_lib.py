@@ -131,7 +131,7 @@ def _next_slot(
     _shim(
         bin_dir,
         "docker",
-        f'[ {docker_exit} = 0 ] || exit {docker_exit}\n'
+        f"[ {docker_exit} = 0 ] || exit {docker_exit}\n"
         f'if [ "$2" = ls ]; then echo n1; else cat "{networks}"; fi',
     )
     env = {**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"}
@@ -206,6 +206,7 @@ class TestWorktreeNextSlot(unittest.TestCase):
             check=True,
         )
         self.assertLessEqual(int(result.stdout) + 1, 255)
+
 
 if __name__ == "__main__":
     unittest.main()

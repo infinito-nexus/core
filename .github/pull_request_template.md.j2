@@ -335,6 +335,7 @@ GitHub offers no template chooser for pull requests. Pick the template of your c
 | `template={{ key }}.md` | {{ entry.label }}: {{ entry.when }} |
 {% endfor %}
 
+{# nocheck: software-identity external Matrix room id survives a rename #}
 Need help? [Support and Contact](../SUPPORT.md) · Matrix: `#public:infinito.nexus`
 {% else %}
 # {{ title if title is not none else area.label ~ " Pull Request" }}

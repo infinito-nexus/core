@@ -19,7 +19,7 @@ from utils.roles.mapping import (
     ROLE_FILE_VARS_MAIN,
 )
 
-from . import load_role_meta, role_dirs
+from . import load_role_meta, role_dirs, role_files
 from .test_sso_profile_lock import ROLE_SCRIPT, SHARED_RENDERER
 
 if TYPE_CHECKING:
@@ -143,8 +143,8 @@ def findings(
 def _converged_forms(role: Path) -> set[str]:
     return {
         form
-        for path in sorted(role.rglob("*"))
-        if path.suffix in ROLE_SOURCE_SUFFIXES and path.is_file()
+        for path in role_files(role)
+        if path.suffix in ROLE_SOURCE_SUFFIXES
         for form in FORM_VALUES.findall(read_text(str(path)))
     }
 
@@ -379,15 +379,13 @@ def _script_fields(data: dict[str, Any]) -> dict[str, frozenset[str]]:
 
 def _role_scripts(role: Path) -> Iterator[tuple[str, str, bool]]:
     for directory in SCRIPT_DIRS:
-        for path in sorted((role / directory).rglob("*")):
+        for path in role_files(role):
             script = path.relative_to(role).as_posix()
+            if not script.startswith(f"{directory}/"):
+                continue
             template = path.suffix == SCRIPT_TEMPLATE_SUFFIX
             language = (path.with_suffix("") if template else path).suffix
-            if (
-                language in SCRIPT_WRITES
-                and path.is_file()
-                and not script.startswith(SCRIPT_SKIPPED_DIR)
-            ):
+            if language in SCRIPT_WRITES and not script.startswith(SCRIPT_SKIPPED_DIR):
                 yield script, language, template
 
 

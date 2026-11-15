@@ -56,7 +56,10 @@ coturn:
 # nocheck: bond-baseline — same reason: variant 0 must not pin Jitsi on.
 jitsi:
   bond: 1
-  enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' and 'svc-net-tor' not in group_names and not ((lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0) and ((lookup('domain', 'web-app-matrix') | network_of) == 'tor')) }}" # nocheck: dynamic-flag — Matrix offers Jitsi from the ansible flavor and off tor nodes only
+  enabled: >- # nocheck: dynamic-flag  Matrix offers Jitsi from the ansible flavor and off tor nodes only
+    {{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' and 'svc-net-tor' not in group_names
+    and not ((lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0)
+    and ((lookup('domain', 'web-app-matrix') | network_of) == 'tor')) }}
   shared: "{{ 'web-app-jitsi' in group_names }}"
   domains:
     - jitsi

@@ -37,6 +37,24 @@ _NAME = "entity_name"
 _ROLES = str(PROJECT_ROOT / "roles") + os.sep
 
 _USE_RE = re.compile(rf"(?<![\w.]){_NAME}\b")
+_FILTER_NAME_ARG_RE = re.compile(r"\b(?:map|select|reject)\(\s*(['\"])$")
+
+
+def applies_the_filter(line: str, match: re.Match) -> bool:
+    """
+    Args:
+        line: a single source line.
+        match: the occurrence of the name in *line*.
+
+    Returns:
+        True after a pipe and for a filter name quoted as the first argument
+        of ``map``, ``select`` or ``reject``.
+    """
+    before = line[: match.start()]
+    if before.rstrip().endswith("|"):
+        return True
+    quoted = _FILTER_NAME_ARG_RE.search(before)
+    return quoted is not None and line[match.end() :].startswith(quoted.group(1))
 
 
 def reads_the_variable(line: str) -> bool:
@@ -45,10 +63,7 @@ def reads_the_variable(line: str) -> bool:
     Args:
         line: a single source line.
     """
-    return any(
-        not line[: match.start()].rstrip().endswith("|")
-        for match in _USE_RE.finditer(line)
-    )
+    return any(not applies_the_filter(line, match) for match in _USE_RE.finditer(line))
 
 
 def files_by_role() -> dict:
@@ -134,6 +149,31 @@ def roles_using_it_without_defining_it() -> list[str]:
             for use in uses_it(role, paths, borrowed)
         )
     return findings
+
+
+class TestReadsTheVariable(unittest.TestCase):
+    def test_a_quoted_filter_name_in_map_select_or_reject_is_no_read(self) -> None:
+        for line in (
+            "X={{ apps | map('entity_name') | join(',') }}",
+            'X={{ apps | map("entity_name") | list }}',
+            "X={{ apps | select( 'entity_name' ) | list }}",
+            'X={{ apps | reject("entity_name") | list }}',
+            'name: "{{ application_id | entity_name }}"',
+        ):
+            with self.subTest(line=line):
+                self.assertFalse(reads_the_variable(line))
+
+    def test_the_variable_in_any_other_position_is_still_a_read(self) -> None:
+        for line in (
+            'name: "{{ entity_name }}"',
+            "X={{ apps | map(entity_name) | list }}",
+            "X={{ vars['entity_name'] }}",
+            "X={{ lookup('vars', 'entity_name') }}",
+            "X={{ apps | map('entity_name\") | list }}",
+            "X={{ apps | map('entity_name') | list }}-{{ entity_name }}",
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(reads_the_variable(line))
 
 
 class TestEntityNameIsDefinedWhereUsed(unittest.TestCase):

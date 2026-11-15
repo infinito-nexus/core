@@ -13,7 +13,7 @@ from cli.meta.ci.variant_split.rounds import (
     settle,
 )
 from utils.roles.applications.topics import provider_of
-from utils.roles.applications.variant_pins import VariantPinError
+from utils.roles.applications.variant.pins import VariantPinError
 
 
 def parse_token(tok: str) -> tuple[str, int]:

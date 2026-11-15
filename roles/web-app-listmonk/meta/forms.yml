@@ -26,14 +26,14 @@ general:
       mode: enforced
       selector: 'input[name="app.check_updates"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Check for updates
     enable_public_archive_rss_content:
       source: services.listmonk.settings.enable_public_archive_rss_content
       mode: enforced
       selector: 'input[name="app.enable_public_archive_rss_content"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Show full content in RSS
     site_name:
       source: services.listmonk.settings.site_name
@@ -112,7 +112,7 @@ bounce:
       mode: enforced
       selector: 'input[name="bounce.enabled"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Enable bounce processing
 security:
   path: /admin/settings
@@ -124,7 +124,7 @@ security:
       mode: enforced
       selector: 'input[name="security.oidc"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: OpenID Connect enabled
     provider_url:
       source: services.listmonk.oidc.provider_url
@@ -146,7 +146,7 @@ security:
       mode: enforced
       selector: 'input[name="oidc.auto_create_users"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Auto-create users from SSO
 captcha:
   path: /admin/settings
@@ -158,5 +158,5 @@ captcha:
       mode: enforced
       selector: 'input[name="security.captcha"]'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Enable CAPTCHA

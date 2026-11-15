@@ -116,7 +116,7 @@ item is a NOOP unless a stale env key shows up.
 
 ### Verification
 
-- [x] After every role-local change [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) MUST stay green. `make test-lint` (`Makefile:1031`) runs it on every change, and it is green on the tree that closes this audit.
+- [x] After every role-local change [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) MUST stay green. `make test-lint` (`Makefile`) runs it on every change, and it is green on the tree that closes this audit.
 - [ ] A run with `disable=sso` (LDAP-only mode) MUST produce at least one `passed` LDAP scenario per role marked above as in-scope, never an empty-skip pass.
 - [ ] A run with `disable=ldap` MUST report every LDAP
   scenario as `skipped: LDAP_SERVICE_ENABLED=false`, never

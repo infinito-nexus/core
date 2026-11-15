@@ -24,14 +24,15 @@ import subprocess
 from collections import defaultdict
 from dataclasses import dataclass
 from operator import attrgetter
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_str
+from utils.design.spec import DESIGN_ENTITY, SPEC_FILE, UI_PREFIXES
 from utils.roles.applications.services.registry import read_yaml_file
 from utils.roles.entity.name import entity_name
 from utils.roles.lifecycle import tested_lifecycles
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_PLAYWRIGHT_SPEC
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import get_role_lifecycle
 
 if TYPE_CHECKING:
@@ -39,16 +40,11 @@ if TYPE_CHECKING:
 
 Gap = tuple[int, int, int]
 
-SPEC_FILE = (
-    PurePosixPath(ROLE_FILE_PLAYWRIGHT_SPEC).with_name("test-design.js").as_posix()
-)
 BASE_PATHS: tuple[str, ...] = (
     "roles/sys-front-inj-design/templates/css",
     "roles/sys-front-inj-design/templates/js",
     "utils/design/palette.py",
 )
-UI_PREFIXES: tuple[str, ...] = ("web-app-", "web-svc-")
-DESIGN_ENTITY = "design"
 
 STATE_REVIEW = "review"
 STATE_NEW = "new"

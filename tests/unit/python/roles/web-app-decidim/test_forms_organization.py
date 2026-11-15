@@ -6,15 +6,17 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 from jinja2.nativetypes import NativeEnvironment
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-decidim"
 TASKS = ROLE / "tasks" / "01_setup.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-FORMS = ROLE / "meta" / "forms.yml"
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+FORMS = ROLE / ROLE_FILE_META_FORMS
 LOADER = ROLE / "templates" / "javascript.js.j2"
 SQL = ROLE / "files" / "sql" / "select" / "organization.sql"
 SINK = "DECIDIM_ORGANIZATION"
@@ -126,7 +128,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
                 self.assertEqual(current, templar.template(expression))
 
     def test_the_read_maps_the_stored_mode_to_its_name(self) -> None:
-        sql = SQL.read_text(encoding="utf-8")
+        sql = read_text(str(SQL))
         for stored, name in (("0", "enabled"), ("1", "existing"), ("2", "disabled")):
             with self.subTest(stored=stored):
                 self.assertIn(f"WHEN '{stored}' THEN '{name}'", sql)
@@ -172,7 +174,7 @@ class TestTheOrganizationForm(unittest.TestCase):
                 )
 
     def test_the_loader_renders_the_shared_lock(self) -> None:
-        self.assertIn(RENDERER, LOADER.read_text(encoding="utf-8"))
+        self.assertIn(RENDERER, read_text(str(LOADER)))
         services = load_yaml_any(str(SERVICES))
         self.assertIs(True, services["javascript"]["enabled"])
 

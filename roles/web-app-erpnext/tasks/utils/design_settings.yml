@@ -2,7 +2,7 @@
 # Param erpnext_design_mode: read prints the branding fields ERPNext holds as one JSON line; converge writes the branding sink, the logo and the theme file.
 # Output erpnext_design_result: the registered run of design_settings.py.
 
-- name: "🎨 {{ erpnext_design_mode | capitalize }} corporate branding and theme file of {{ application_id }}"
+- name: "🎨 {{ erpnext_design_mode | capitalize }} corporate branding and theme file"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i

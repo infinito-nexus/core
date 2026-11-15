@@ -8,6 +8,7 @@ from jinja2.nativetypes import NativeEnvironment
 
 from plugins.lookup.node_hosts import node_hosts
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 from . import test_per_node_torrc as per_node
@@ -15,16 +16,18 @@ from .test_egress_route import _egress, _evaluate, chain, render
 from .test_torrc_listeners import listeners
 
 ROLE = PROJECT_ROOT / "roles/svc-net-tor"
-VARS_PATH = ROLE / "vars/main.yml"
+VARS_PATH = ROLE / ROLE_FILE_VARS_MAIN
 CORE_PATH = ROLE / "tasks/00_core.yml"
 GUARD_PATH = ROLE / "tasks/guard.yml"
 ROUTER_PATH = ROLE / "tasks/router.yml"
 VERIFY_PATH = ROLE / "tasks/guard/verify.yml"
 FRAGMENT_TASKS = "roles/svc-net-firewall/tasks/02_fragment.yml"
 FIREWALL_VARS = load_yaml_any(
-    str(PROJECT_ROOT / "roles/svc-net-firewall/vars/main.yml")
+    str(PROJECT_ROOT / "roles/svc-net-firewall" / ROLE_FILE_VARS_MAIN)
 )
-LOCAL_PORTS = load_yaml_any(str(ROLE / "meta/services.yml"))["tor"]["ports"]["local"]
+LOCAL_PORTS = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))["tor"]["ports"][
+    "local"
+]
 PORTS = {
     "TOR_TRANS_PORT": LOCAL_PORTS["trans"],
     "TOR_DNS_PORT": LOCAL_PORTS["dns"],

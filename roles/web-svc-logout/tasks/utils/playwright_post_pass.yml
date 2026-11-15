@@ -15,7 +15,7 @@
       become: true
       delegate_to: "{{ STACK_HOST }}"
 
-    - name: ❌ Fail when Keycloak's log is unreadable or names a failed back-channel logout call
+    - name: ❌ Fail when Keycloak's log is unreadable or names a failed back-channel logout
       ansible.builtin.fail:
         msg: >-
           {{ ('reading the log of Keycloak failed: ' ~ (_logout_backchannel_failures.stderr_lines[-3:] | join(' ')))

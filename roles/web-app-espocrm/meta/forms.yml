@@ -46,4 +46,4 @@ system:
       mode: enforced
       selector: '.field[data-name="useCache"]'
       type: checkbox
-      map: {true: false, false: true}
+      map: { true: false, false: true }

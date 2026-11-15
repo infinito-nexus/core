@@ -2,7 +2,7 @@
 - name: "⬇️ Fider | Read the managed fields of the Keycloak OAuth provider"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-oauth-provider.sql"
+    query_file: "{{ role_path }}/files/sql/select/oauth-provider.sql"
     expect_rows: true
   register: fider_oauth_provider_stored
   changed_when: false

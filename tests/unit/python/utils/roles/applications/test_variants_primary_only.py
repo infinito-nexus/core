@@ -118,7 +118,7 @@ class TestSemaphoreRoundComposition(unittest.TestCase):
     def setUp(self) -> None:
         self.enterContext(
             patch(
-                "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+                "utils.roles.applications.variants._resolve_round_include",
                 side_effect=lambda primary_apps, services_overrides: primary_apps,
             )
         )

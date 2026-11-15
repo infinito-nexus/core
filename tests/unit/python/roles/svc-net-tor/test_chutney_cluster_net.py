@@ -11,6 +11,11 @@ from pathlib import Path
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.meta.port_bands import load_port_bands
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 from . import test_per_node_torrc as per_node
@@ -20,10 +25,10 @@ ROLE = PROJECT_ROOT / "roles/svc-net-tor"
 SCRIPT = ROLE / "files/shell/chutney.sh"
 DOCKERFILE = ROLE / "files/Dockerfile"
 ENTRYPOINT = ROLE / "files/shell/entrypoint.sh"
-COMPOSE = ROLE / "templates/compose.yml.j2"
+COMPOSE = ROLE / ROLE_FILE_TEMPL_COMPOSE
 TORRC = ROLE / "templates/torrc.j2"
-VARS = load_yaml_any(str(ROLE / "vars/main.yml"))
-TOR = load_yaml_any(str(ROLE / "meta/services.yml"))["tor"]
+VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
+TOR = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))["tor"]
 CHUTNEY = TOR["chutney"]
 LOOPBACK = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/08_networks.yml"))[
     "NETWORK_LOOPBACK_IPV4"
@@ -97,8 +102,12 @@ def _checkout(root: Path, nodes: int, authorities: int, bases=UPSTREAM_BASES) ->
     return checkout
 
 
+def _scratch(path: Path) -> str:
+    return path.read_text()  # nocheck: cache-read tempdir checkout
+
+
 def _calls(checkout: Path) -> list[list]:
-    lines = (checkout / "calls.jsonl").read_text().splitlines()
+    lines = _scratch(checkout / "calls.jsonl").splitlines()
     return [json.loads(line) for line in lines]
 
 
@@ -162,7 +171,7 @@ class TestChutneyClusterNet(unittest.TestCase):
             checkout = _checkout(Path(root), nodes=9, authorities=4)
             built = _build(checkout)
             self.assertEqual(built.returncode, 0, built.stderr)
-            tornet = (checkout / "lib/chutney/TorNet.py").read_text()
+            tornet = _scratch(checkout / "lib/chutney/TorNet.py")
             self.assertEqual(
                 tornet, _tornet({**UPSTREAM_BASES, **CHUTNEY["port_bases"]})
             )
@@ -172,8 +181,8 @@ class TestChutneyClusterNet(unittest.TestCase):
             torrcs = sorted((checkout / "net/nodes").glob("*/torrc"))
             self.assertEqual(len(torrcs), 9)
             for torrc in torrcs:
-                self.assertTrue(torrc.read_text().endswith("NumCPUs 1\n"))
-            conf = (checkout / "chutney-net.conf").read_text().splitlines()
+                self.assertTrue(_scratch(torrc).endswith("NumCPUs 1\n"))
+            conf = _scratch(checkout / "chutney-net.conf").splitlines()
             self.assertEqual(conf, sorted(set(conf)))
             self.assertEqual(conf[4:], ["TestingTorNetwork 1"])
             for line in conf[:4]:
@@ -207,7 +216,7 @@ class TestChutneyClusterNet(unittest.TestCase):
                 ran = _script("run", str(checkout), address, str(conf))
                 self.assertEqual(ran.returncode, 0, ran.stderr)
                 self.assertEqual(
-                    conf.read_text(), (checkout / "chutney-net.conf").read_text()
+                    _scratch(conf), _scratch(checkout / "chutney-net.conf")
                 )
                 started = [call[0] for call in _calls(checkout)[2:]]
                 self.assertEqual(
@@ -223,7 +232,7 @@ class TestChutneyClusterNet(unittest.TestCase):
             conf = Path(root) / "run/tor/chutney-net.conf"
             ran = _script("run", str(checkout), LOOPBACK, str(conf))
             self.assertEqual(ran.returncode, 0, ran.stderr)
-            running = json.loads((checkout / "running.json").read_text())
+            running = json.loads(_scratch(checkout / "running.json"))
             self.assertEqual(running, [])
 
     def test_a_node_without_the_baked_net_does_not_start_tor(self) -> None:

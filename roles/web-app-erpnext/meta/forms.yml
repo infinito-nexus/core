@@ -8,21 +8,21 @@ system_settings:
       mode: enforced
       selector: 'input[data-doctype="System Settings"][data-fieldname="login_with_email_link"]'
       type: checkbox
-      map: {true: 1, false: 0}
+      map: { true: 1, false: 0 }
       label: Login with email link
     enable_two_factor_auth:
       source: services.erpnext.login.method.2fa.enabled
       mode: enforced
       selector: 'input[data-doctype="System Settings"][data-fieldname="enable_two_factor_auth"]'
       type: checkbox
-      map: {true: 1, false: 0}
+      map: { true: 1, false: 0 }
       label: Enable Two Factor Auth
     disable_user_pass_login:
       source: services.erpnext.login.method.native.enabled
       mode: enforced
       selector: 'input[data-doctype="System Settings"][data-fieldname="disable_user_pass_login"]'
       type: checkbox
-      map: {true: 0, false: 1}
+      map: { true: 0, false: 1 }
       label: Disable Username/Password Login
 system_rounding:
   path: /app/system-settings
@@ -44,7 +44,7 @@ accounts_rounding:
       mode: enforced
       selector: 'input[data-doctype="Accounts Settings"][data-fieldname="round_row_wise_tax"]'
       type: checkbox
-      map: {true: 1, false: 0}
+      map: { true: 1, false: 0 }
       label: Round tax amount row-wise
 website_settings:
   path: /app/website-settings
@@ -55,7 +55,7 @@ website_settings:
       mode: enforced
       selector: 'input[data-doctype="Website Settings"][data-fieldname="disable_signup"]'
       type: checkbox
-      map: {true: 0, false: 1}
+      map: { true: 0, false: 1 }
       label: Disable signups
 branding:
   path: /app/website-settings

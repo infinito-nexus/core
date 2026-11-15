@@ -5,13 +5,15 @@ import unittest
 from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-openproject"
 ENV = ROLE / "templates" / "env.j2"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
 BASE_ENV = "roles/sys-svc-container/templates/env.j2"
 LABEL = "Corporate OpenProject"
 DOMAIN = "projects.example.org"
@@ -30,7 +32,7 @@ def _lookup(name: str, *terms, **kwargs):
 
 def _env(general: dict, users: dict) -> list[str]:
     env = Environment(
-        loader=DictLoader({ENV.name: ENV.read_text(encoding="utf-8"), BASE_ENV: ""}),
+        loader=DictLoader({ENV.name: read_text(str(ENV)), BASE_ENV: ""}),
         autoescape=select_autoescape(),
         undefined=StrictUndefined,
         trim_blocks=True,

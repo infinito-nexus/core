@@ -25,7 +25,8 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, NamedTuple
 
-from utils.annotations.suppress import marker_reason
+from yaml import YAMLError
+
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.entity.name import entity_name
@@ -36,18 +37,10 @@ from utils.roles.mapping import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from pathlib import Path
 
-RULE = "swarm-loopback-port"
-OPEN = "open"
-CATEGORIES = ("exec", "overlay", "netns", "unused", OPEN)
-FILE_SCOPE = "file"
-MIN_REASON = 10
 COMPOSE = "compose"
 SWARM = "swarm"
-_CITATION = re.compile(r"\b(0\d\d)\s*:(\d+)\b")
-_OPEN_CRITERION = "- [ ]"
 _OTHER_MODE = {COMPOSE: SWARM, SWARM: COMPOSE}
 _MODE_FLAGS = {"IS_COMPOSE_MODE": COMPOSE, "IS_SWARM_MODE": SWARM}
 _FLAG_TERM = re.compile(r"(IS_COMPOSE_MODE|IS_SWARM_MODE)(?:\s*\|\s*bool)?")
@@ -66,6 +59,9 @@ _TAG = re.compile(r"\{%-?\s*(if|elif|else|endif)\b(.*?)-?%\}", re.DOTALL)
 _VHOST_INPUT = re.compile(
     r"\b(?:http_port|websocket_port|sso_open_location_http_port|local_port)\b['\"]?\s*[:=]\s*(.+)"
 )
+_VHOST_KEYS = frozenset(
+    {"http_port", "websocket_port", "sso_open_location_http_port", "local_port"}
+)
 _LOCAL_REF = re.compile(r"services\.([\w-]+)\.ports\.local\.([\w-]+)")
 _FOREIGN_LOCAL_REF = re.compile(
     r"lookup\(\s*'config'\s*,\s*'([\w-]+)'\s*,\s*'services\.([\w-]+)\.ports\.local\.([\w-]+)'"
@@ -74,7 +70,6 @@ _ENTITY_LOCAL_REF = re.compile(
     r"'services\.'\s*~\s*\(?\s*(?:application_id\s*\|\s*)?entity_name\s*\)?\s*~\s*'\.ports\.local\.([\w-]+)'"
 )
 _NAME = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
-_COMMENT_LINE = re.compile(r"^\s*(?:\{#.*#\}|#.*)\s*$")
 _FLAVOR_PIN = re.compile(r"'compose'\s+if\s+.*==\s*'([\w-]+)'")
 
 
@@ -301,6 +296,39 @@ def _expanded(seeds: list[str], variables: dict[str, str]) -> list[str]:
     return seen
 
 
+def _yaml_inputs(data: object) -> list[str]:
+    """Returns every string a vhost input key holds anywhere in a parsed YAML node.
+
+    Args:
+        data: the parsed node.
+    """
+    if isinstance(data, list):
+        return [found for item in data for found in _yaml_inputs(item)]
+    if not isinstance(data, dict):
+        return []
+    return [
+        found
+        for key, value in data.items()
+        for found in (
+            [value]
+            if key in _VHOST_KEYS and isinstance(value, str)
+            else _yaml_inputs(value)
+        )
+    ]
+
+
+def _parsed_inputs(path: Path) -> list[str]:
+    """Returns the whole values of a YAML file's vhost inputs, which a wrapped scalar spreads over lines.
+
+    Args:
+        path: the YAML file.
+    """
+    try:
+        return _yaml_inputs(load_yaml_any(str(path), default_if_missing={}))
+    except (YAMLError, ValueError):
+        return []
+
+
 def vhost_reach(roles_dir: Path) -> dict[str, set[tuple[str, str]]]:
     """Returns, per role, the ``(service, protocol)`` local ports a vhost proxies to.
 
@@ -329,7 +357,10 @@ def vhost_reach(roles_dir: Path) -> dict[str, set[tuple[str, str]]]:
                 text = read_text(str(path))
             except (OSError, UnicodeDecodeError):
                 continue
-            seeds.extend(match.group(1) for match in _VHOST_INPUT.finditer(text))
+            found = [match.group(1) for match in _VHOST_INPUT.finditer(text)]
+            seeds.extend(found)
+            if found and path.suffix == ".yml":
+                seeds.extend(_parsed_inputs(path))
         for value in _expanded(seeds, role_variables(role_dir)):
             for other, service, protocol in _FOREIGN_LOCAL_REF.findall(value):
                 reach.setdefault(other, set()).add((service, protocol))
@@ -379,26 +410,6 @@ def candidates(
     return keywords or {expression}
 
 
-def attached_marker(lines: Sequence[str], line_no: int) -> tuple[int, str] | None:
-    """Returns the line and reason of the marker that covers *line_no*, if any.
-
-    The marker sits on the construct's own line or on any line of the comment
-    block directly above it, Jinja ``{# #}`` or ``#``.
-
-    Args:
-        lines: the file's lines.
-        line_no: 1-based line of the construct.
-    """
-    candidates = [line_no - 1]
-    while candidates[-1] > 0 and _COMMENT_LINE.match(lines[candidates[-1] - 1]):
-        candidates.append(candidates[-1] - 1)
-    for index in candidates:
-        reason = marker_reason(lines[index], RULE)
-        if reason is not None:
-            return index + 1, reason.removesuffix("#}").strip()
-    return None
-
-
 VHOST_INPUT_NAMES = frozenset(
     {"http_port", "websocket_port", "sso_open_location_http_port"}
 )
@@ -411,51 +422,3 @@ def is_vhost_input(line: str) -> bool:
         line: one source line.
     """
     return bool(_VHOST_INPUT.search(line))
-
-
-def marker_scope(reason: str) -> tuple[bool, str]:
-    """Returns whether a marker covers its whole file, and its reason without the scope word.
-
-    Args:
-        reason: the text after the marker's rule key.
-    """
-    scope, _, rest = reason.strip().partition(" ")
-    if scope == FILE_SCOPE:
-        return True, rest.strip()
-    return False, reason.strip()
-
-
-def _citation_problem(requirements_dir: Path, number: str, line: int) -> str | None:
-    documents = sorted(requirements_dir.glob(f"{number}-*.md"))
-    if len(documents) != 1:
-        return f"cites {number} :{line}, but no single docs/requirements/{number}-*.md exists"
-    rows = read_text(str(documents[0])).splitlines()
-    if not 0 < line <= len(rows) or not rows[line - 1].startswith(_OPEN_CRITERION):
-        return (
-            f"cites {number} :{line}, which is no open criterion of {documents[0].name}"
-        )
-    return None
-
-
-def reason_problem(reason: str, requirements_dir: Path) -> str | None:
-    """Returns why a marker's reason is not accepted, or None.
-
-    Args:
-        reason: the text after the marker's rule key, without the ``file`` scope word.
-        requirements_dir: the ``docs/requirements`` directory an ``open`` reason cites.
-    """
-    category, _, prose = reason.partition(" ")
-    if category not in CATEGORIES:
-        return f"names no category of {', '.join(CATEGORIES)}"
-    if len(prose.strip()) < MIN_REASON:
-        return "states no reason after its category"
-    if category != OPEN:
-        return None
-    citations = _CITATION.findall(prose)
-    if not citations:
-        return "is open but cites no criterion (NNN :LINE of docs/requirements/NNN-*.md) that tracks it"
-    for number, line in citations:
-        problem = _citation_problem(requirements_dir, number, int(line))
-        if problem:
-            return problem
-    return None

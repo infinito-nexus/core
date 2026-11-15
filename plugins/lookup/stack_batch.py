@@ -16,6 +16,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     ordered_primary_service_entries,
 )
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.order import ordered_roles
 from utils.roles.stage import stage_groups
 
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 STACK_ROLE = "svc-stack"
 BRIDGE = Path("tasks/utils/stack.yml")
 CANONICAL_BRIDGE = Path(STACK_ROLE) / "files/bridge.yml"
-STACK_META = Path("meta/services.yml")
+STACK_META = Path(ROLE_FILE_META_SERVICES)
 
 
 def item_errors(roles_dir: Path, role: str) -> list[str]:

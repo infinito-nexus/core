@@ -19,8 +19,8 @@
     mode: "0644"
   notify: compose-up
 
-- name: "📥 Read the security and dashboard files a previous deploy of {{ application_id }} left"
-  ansible.builtin.slurp:
+- name: "📥 Read the security and dashboard files a previous deploy left"
+  ansible.builtin.slurp: # nocheck: stack-host-consumer (delegated to STACK_HOST with run_once)
     src: "{{ [WAZUH_INSTANCE_DIR, item] | path_join }}"
   loop:
     - roles_mapping.yml

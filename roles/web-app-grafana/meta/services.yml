@@ -84,7 +84,8 @@ grafana:
     alertmanager_url: "http://{{ lookup('scrape_target', 'web-app-prometheus', 'alertmanager') }}" # nocheck: literal-protocol-lookup  scrape_target names a container-network host:port, which speaks plaintext in compose and swarm
     folder: "{{ SOFTWARE_NAME }}"
     log_alert_expr: >-
-      sum by (application, host) (count_over_time({log_class="application"} |~ {{ lookup('config', 'web-svc-loki', 'services.loki.alerting.critical_pattern') | to_json }} [{{ lookup('config', 'web-svc-loki', 'services.loki.alerting.window') }}]))
+      sum by (application, host) (count_over_time({log_class="application"} |~ {{ lookup('config', 'web-svc-loki', 'services.loki.alerting.critical_pattern') | to_json
+      }} [{{ lookup('config', 'web-svc-loki', 'services.loki.alerting.window') }}]))
   ports:
     internal:
       grafana: 3000

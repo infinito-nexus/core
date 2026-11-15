@@ -77,7 +77,8 @@ odoo:
     validation_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
     data_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
   directory:
-    managed: "{{ lookup('config', 'web-app-odoo', 'services.ldap.enabled') | bool and lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled') | bool }}"
+    managed: "{{ lookup('config', 'web-app-odoo', 'services.ldap.enabled') | bool and lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled')
+      | bool }}"
     servers: ["{{ LDAP.SERVER.DOMAIN }}"]
     port: "{{ LDAP.SERVER.PORT | int }}"
     tls: "{{ LDAP.SERVER.SECURITY in ['TLS', 'SSL'] }}"

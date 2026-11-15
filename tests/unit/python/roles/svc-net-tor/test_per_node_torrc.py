@@ -7,17 +7,18 @@ from jinja2.nativetypes import NativeEnvironment
 
 from plugins.lookup.tor_socks import resolve_socks_endpoint
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 from .test_egress_route import _egress, render
 
 ROLE = PROJECT_ROOT / "roles/svc-net-tor"
-VARS = load_yaml_any(str(ROLE / "vars/main.yml"))
+VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
 CORE = load_yaml_any(str(ROLE / "tasks/00_core.yml"), default_if_missing=[])
 SWARM = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/18_swarm.yml"))
 APPLICATIONS = {
     "svc-net-tor": {
-        "services": load_yaml_any(str(ROLE / "meta/services.yml")),
+        "services": load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES)),
     }
 }
 BRIDGES = {

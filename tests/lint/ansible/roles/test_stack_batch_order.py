@@ -6,6 +6,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     ordered_primary_service_entries,
 )
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import get_role_run_after
 
 from . import PROJECT_ROOT
@@ -48,7 +49,7 @@ class TestStackBatchOrder(unittest.TestCase):
             sorted(get_role_run_after(ROLES / STACK_ROLE, role_name=STACK_ROLE)),
             front_path_providers(),
             "declare exactly these roles as run_after of stack in "
-            "roles/svc-stack/meta/services.yml",
+            f"roles/svc-stack/{ROLE_FILE_META_SERVICES}",
         )
 
     def test_svc_stack_runs_after_each_pin(self) -> None:

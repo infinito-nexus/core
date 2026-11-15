@@ -3,9 +3,10 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tests.lint.ansible.roles.meta import test_env_forms as lint
-from utils.roles.mapping import ROLE_FILE_META_FORMS
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_TASKS_MAIN
 
 INCLUDE = (
     "- ansible.builtin.include_tasks: "
@@ -21,7 +22,7 @@ def _role(root: Path, *fields: str) -> Path:
     role = root / "web-app-x"
     (role / "tasks").mkdir(parents=True)
     (role / "meta").mkdir()
-    (role / "tasks" / "main.yml").write_text(INCLUDE, encoding="utf-8")
+    (role / ROLE_FILE_TASKS_MAIN).write_text(INCLUDE, encoding="utf-8")
     (role / ROLE_FILE_META_FORMS).write_text(
         "settings:\n  path: /settings\n  fields:\n"
         + "".join(f"    {field}\n" for field in fields),
@@ -30,14 +31,22 @@ def _role(root: Path, *fields: str) -> Path:
     return role
 
 
+def _fixture_files(role: Path) -> tuple[Path, ...]:
+    return (role / ROLE_FILE_META_FORMS, role / ROLE_FILE_TASKS_MAIN)
+
+
 class TestEnvNames(unittest.TestCase):
     def _names(self, *fields: str) -> list[str]:
         with tempfile.TemporaryDirectory() as tmp:
-            return lint.name_findings([_role(Path(tmp), *fields)])
+            role = _role(Path(tmp), *fields)
+            with mock.patch.object(lint, "role_files", _fixture_files):
+                return lint.name_findings([role])
 
     def _secrets(self, *fields: str) -> list[str]:
         with tempfile.TemporaryDirectory() as tmp:
-            return lint.secret_findings([_role(Path(tmp), *fields)])
+            role = _role(Path(tmp), *fields)
+            with mock.patch.object(lint, "role_files", _fixture_files):
+                return lint.secret_findings([role])
 
     def test_a_field_with_env_may_carry_any_key(self) -> None:
         self.assertEqual(

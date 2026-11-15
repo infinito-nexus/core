@@ -9,14 +9,14 @@ general:
       selector: 'div[name="auth_signup_uninvited"] input'
       type: select
       enum: [b2b, b2c]
-      map: {true: b2c, false: b2b}
+      map: { true: b2c, false: b2b }
       label: Customer Account
     auth_signup_reset_password:
       source: services.odoo.login.method.native.enabled
       mode: enforced
       selector: 'div[name="auth_signup_reset_password"] input'
       type: checkbox
-      map: {true: "True", false: "False"}
+      map: { true: "True", false: "False" }
       label: Password Reset
 base_url:
   path: /odoo/system-parameters
@@ -59,7 +59,7 @@ oauth_provider:
       mode: enforced
       selector: 'div[name="enabled"] input'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Allowed
     client_id:
       source: services.odoo.oauth.client_id
@@ -130,7 +130,7 @@ ldap_directory:
       mode: enforced
       selector: 'div[name="ldap_tls"] input'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Use TLS
     ldap_base:
       source: services.odoo.directory.base
@@ -152,7 +152,7 @@ ldap_directory:
       mode: enforced
       selector: 'div[name="create_user"] input'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Create User
 attachment_storage:
   path: /odoo/
@@ -181,7 +181,7 @@ attachment_storage:
       mode: enforced
       selector: 'div[name="is_cacheable"] input'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Cacheable
     use_as_default_for_attachments:
       source: services.odoo.objstore.default_for_attachments
@@ -189,7 +189,7 @@ attachment_storage:
       mode: enforced
       selector: 'div[name="use_as_default_for_attachments"] input'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Use As Default For Attachments
     storage_base_url:
       source: services.odoo.objstore.base_url
@@ -204,5 +204,5 @@ attachment_storage:
       mode: enforced
       selector: 'div[name="is_directory_path_in_url"] input'
       type: checkbox
-      map: {true: true, false: false}
+      map: { true: true, false: false }
       label: Directory Path In URL

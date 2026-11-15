@@ -1,11 +1,11 @@
 (function () {
-  var STORAGE_PREFIX = "vault-";
-  var REVOKE_PATH = "/v1/auth/token/revoke-self";
-  var LOGOUT_ROUTE = "/ui/vault/logout";
-  var LOGOUT_CONTROL = "#logout, a[href$='/ui/vault/logout']";
+  const STORAGE_PREFIX = "vault-";
+  const REVOKE_PATH = "/v1/auth/token/revoke-self";
+  const LOGOUT_ROUTE = "/ui/vault/logout";
+  const LOGOUT_CONTROL = "#logout, a[href$='/ui/vault/logout']";
 
   function browserStorages() {
-    var storages = [];
+    const storages = [];
     ["localStorage", "sessionStorage"].forEach(function (name) {
       try {
         if (window[name]) storages.push(window[name]);
@@ -18,7 +18,7 @@
 
   function storedToken(raw) {
     try {
-      var data = JSON.parse(raw);
+      const data = JSON.parse(raw);
       return data && typeof data.token === "string" ? data.token : null;
     } catch (error) {
       return null;
@@ -35,13 +35,13 @@
 
   function endSession() {
     browserStorages().forEach(function (storage) {
-      var keys = [];
-      for (var index = 0; index < storage.length; index += 1) {
-        var key = storage.key(index);
+      const keys = [];
+      for (let index = 0; index < storage.length; index += 1) {
+        const key = storage.key(index);
         if (key && key.indexOf(STORAGE_PREFIX) === 0) keys.push(key);
       }
       keys.forEach(function (key) {
-        var token = storedToken(storage.getItem(key));
+        const token = storedToken(storage.getItem(key));
         if (token) revoke(token);
         storage.removeItem(key);
       });
@@ -53,7 +53,7 @@
   window.addEventListener(
     "click",
     function (event) {
-      var target = event.target;
+      const target = event.target;
       if (target && typeof target.closest === "function" && target.closest(LOGOUT_CONTROL)) endSession();
     },
     true,

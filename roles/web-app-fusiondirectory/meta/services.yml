@@ -68,7 +68,8 @@ fusiondirectory:
   image: nfrastack/fusiondirectory
   version: "1.5"
   config:
-    login_method: "{{ 'LoginHTTPHeader' if (lookup('config', 'web-app-fusiondirectory', 'services.sso.enabled') | bool and lookup('config', 'web-app-fusiondirectory', 'services.sso.flavor') == 'oauth2') else 'LoginPost' }}"
+    login_method: "{{ 'LoginHTTPHeader' if (lookup('config', 'web-app-fusiondirectory', 'services.sso.enabled') | bool and lookup('config', 'web-app-fusiondirectory',
+      'services.sso.flavor') == 'oauth2') else 'LoginPost' }}"
     http_header: X_FORWARDED_PREFERRED_USERNAME
     theme: breezy
     timezone: "{{ HOST_TIMEZONE }}"

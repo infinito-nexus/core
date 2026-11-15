@@ -11,15 +11,17 @@ from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.dotenv import FilterModule as DotenvFilters
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.roles.applications.converge import values
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-grafana"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
 CORE = ROLE / "tasks" / "00_core.yml"
 TEMPLATES = ROLE / "templates"
 FILTER = ROLE / "filter_plugins" / "grafana_provisioned.py"
@@ -65,13 +67,11 @@ def _grafana_filter():
 
 def _environment(templates: Path) -> Environment:
     sources = {
-        "env.j2": (templates / "env.j2").read_text(encoding="utf-8"),
+        "env.j2": read_text(str(templates / "env.j2")),
         "roles/sys-svc-container/templates/env.j2": "",
     }
     for name in ("datasources", "dashboards", "alerting"):
-        sources[name] = (templates / "provisioning" / f"{name}.yml.j2").read_text(
-            encoding="utf-8"
-        )
+        sources[name] = read_text(str(templates / "provisioning" / f"{name}.yml.j2"))
     env = Environment(
         loader=DictLoader(sources),
         trim_blocks=True,
@@ -221,13 +221,9 @@ class TestTheFormsAreLockedByGrafana(unittest.TestCase):
         )
 
     def test_the_provisioned_datasources_stay_read_only(self) -> None:
-        text = (TEMPLATES / "provisioning" / "datasources.yml.j2").read_text(
-            encoding="utf-8"
-        )
+        text = read_text(str(TEMPLATES / "provisioning" / "datasources.yml.j2"))
         self.assertEqual(2, text.count("editable: false"))
-        dashboards = (TEMPLATES / "provisioning" / "dashboards.yml.j2").read_text(
-            encoding="utf-8"
-        )
+        dashboards = read_text(str(TEMPLATES / "provisioning" / "dashboards.yml.j2"))
         self.assertIn("allowUiUpdates: false", dashboards)
 
 

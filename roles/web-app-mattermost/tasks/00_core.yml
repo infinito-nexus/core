@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "📣 Report the System Console settings the env file of {{ application_id }} overwrites"
+- name: "📣 Report the System Console settings the env file overwrites"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
   vars:
     forms_env_form: settings

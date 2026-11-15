@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 from agents.routines.contract import Step, decide, mermaid
 from agents.routines.contract import build as _build
 from agents.routines.tools.gallery import GALLERY_COMMAND, MANIFEST_COMMAND, collect
-from cli.meta.roles.design import DESIGN_ENTITY, SPEC_FILE, UI_PREFIXES
 from utils.cache.files import PROJECT_ROOT
 from utils.design.gallery import GALLERY_ROOT, app_gallery
 from utils.design.proposal import file_proposal
+from utils.design.spec import DESIGN_ENTITY, SPEC_FILE, UI_PREFIXES
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping

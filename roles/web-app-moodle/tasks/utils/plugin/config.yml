@@ -2,7 +2,7 @@
 # Param: moodle_plugin_config_component - frankenstyle plugin the settings belong to, e.g. tool_mfa
 # Param: moodle_plugin_config_settings  - mapping of setting name to its string or integer value
 - name: "📄 Stage the plugin settings applier for {{ moodle_plugin_config_component }}"
-  include_tasks: "{{ role_path }}/tasks/utils/plugin_stage.yml"
+  include_tasks: "{{ role_path }}/tasks/utils/plugin/stage.yml"
 
 - name: "🔧 Apply the {{ moodle_plugin_config_component }} settings in one Moodle CLI run"
   ansible.builtin.shell: >

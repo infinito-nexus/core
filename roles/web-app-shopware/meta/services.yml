@@ -74,7 +74,8 @@ shopware:
     keep_user_updated: true
     discovery_url: ""
     authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
-    internal_origin: "http://{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}:{{ lookup('config', 'web-app-keycloak', 'services.keycloak.ports.internal.http') }}" # nocheck: literal-protocol-lookup  container-to-container hop that must bypass the canonical URL, because cURL refuses the .onion name the tls lookup returns
+    internal_origin: "http://{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}:{{ lookup('config', 'web-app-keycloak', 'services.keycloak.ports.internal.http')
+      }}" # nocheck: literal-protocol-lookup  container-to-container hop that must bypass the canonical URL, because cURL refuses the .onion name the tls lookup returns
     exchange_url: "{{ lookup('config', 'web-app-shopware', 'services.shopware.oidc_client.internal_origin') }}/realms/{{ OIDC.CLIENT.REALM }}/protocol/openid-connect/token"
     user_info_url: "{{ lookup('config', 'web-app-shopware', 'services.shopware.oidc_client.internal_origin') }}/realms/{{ OIDC.CLIENT.REALM }}/protocol/openid-connect/userinfo"
     client_id: "{{ OIDC.CLIENT.ID }}"

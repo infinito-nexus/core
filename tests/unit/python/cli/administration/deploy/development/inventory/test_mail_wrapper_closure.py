@@ -5,14 +5,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cli.administration.deploy.development.inventory.legacy_resolver import (
-    _resolve_round_include,
-)
 from cli.administration.inventory.validate.mail import validate_mail_wrapper
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml_str, load_yaml_any
 from utils.mail.provider import MAIL_WRAPPER, provider_roles
-from utils.roles.applications.variants import services_overrides_for_round
+from utils.roles.applications.variants import (
+    _resolve_round_include,
+    services_overrides_for_round,
+)
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS
 
 ROLES_DIR = Path(PROJECT_ROOT) / "roles"

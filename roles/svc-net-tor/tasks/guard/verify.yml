@@ -1,5 +1,5 @@
 ---
-- name: "🛡️ Tor guard | Read back the chain that bounds the Tor listeners on {{ tor_node }}"
+- name: "🛡️ Tor guard | Read back the chain bounding the Tor listeners on {{ tor_node }}"
   become: true
   ansible.builtin.command:
     argv: [nft, list, chain, inet, "{{ firewall_loaded_table }}", guard]

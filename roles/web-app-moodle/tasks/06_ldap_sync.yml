@@ -6,8 +6,8 @@
   failed_when: false
   changed_when: false
 
-- name: "🔧 Converge the auth_ldap connection, role mapping and field mapping meta/forms.yml manages"
-  include_tasks: utils/plugin_form.yml
+- name: "🔧 Converge the auth_ldap connection, role and field mapping of meta/forms.yml"
+  include_tasks: utils/plugin/form.yml
   vars:
     moodle_plugin_form_component: auth_ldap
     moodle_plugin_form_settings: "{{ MOODLE_LDAP_SETTINGS }}"

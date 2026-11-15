@@ -10,16 +10,20 @@ from plugins.lookup.container_extra_hosts import LookupModule as ExtraHosts
 from plugins.lookup.tor_socks_proxy import resolve_proxy_url
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
-from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = PROJECT_ROOT / "roles/svc-net-tor-smtp"
 COMPOSE = ROLE / ROLE_FILE_TEMPL_COMPOSE
 VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
-SERVICES = load_yaml_any(str(ROLE / "meta/services.yml"))
+SERVICES = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
 APPLICATIONS = {
     "svc-net-tor": {
         "services": load_yaml_any(
-            str(PROJECT_ROOT / "roles/svc-net-tor/meta/services.yml")
+            str(PROJECT_ROOT / "roles/svc-net-tor" / ROLE_FILE_META_SERVICES)
         )
     }
 }

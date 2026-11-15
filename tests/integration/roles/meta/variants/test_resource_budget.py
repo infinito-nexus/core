@@ -60,7 +60,7 @@ from utils.roles.applications.services.resources import (
     aggregate,
     collect_role_resources,
 )
-from utils.roles.applications.variant_pins import RECIPROCAL
+from utils.roles.applications.variant.pins import RECIPROCAL
 from utils.roles.applications.variants import active_variants_for_round
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,

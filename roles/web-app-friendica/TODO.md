@@ -63,7 +63,7 @@ SSO with auto-account-creation, which collapses the chain to a single
 
 ## Flaky native administrator login
 
-- `files/playwright/test-native-login-administrator.js:19` failed its first attempt in the B1 compose round of 2026-11-01 on the 60 s wait for `/network` after the sign-in (`files/playwright/_shared.js:90`) and passed on retry (log `/tmp/compose-deploy-iam-15.log:312348`); options: wait for the session cookie and the post-login redirect response instead of the `/network` render, or raise the cause in Friendica's post-login page load first.
+- `files/playwright/test-native-login-administrator.js` failed its first attempt in the B1 compose round of 2026-11-01 on the 60 s wait for `/network` after the sign-in (`files/playwright/_shared.js`) and passed on retry (log `/tmp/compose-deploy-iam-15.log:312348`); options: wait for the session cookie and the post-login redirect response instead of the `/network` render, or raise the cause in Friendica's post-login page load first.
 
 ## Missing smiley icon upstream
 
