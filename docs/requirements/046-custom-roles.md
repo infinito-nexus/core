@@ -54,3 +54,7 @@ As an operator, I want to declare application roles that live in their own repos
 
 - [x] The pull, placement, validation and cleanup logic has unit tests, including a branch name refused as `source.version`, a role whose `application_id` differs from its group, and the removal of a role the inventory no longer declares.
 - [ ] `make test` passes.
+
+## Cross-linking
+
+- Extended by: [129 - Custom Roles Manifest](129-custom-roles-manifest.md), which pins public custom roles in `meta/custom_roles.yml` for every checkout.

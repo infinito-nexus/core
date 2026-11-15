@@ -25,12 +25,13 @@ from typing import TYPE_CHECKING
 from yaml import YAMLError
 
 from utils.cache.yaml import load_yaml_tagged
-from utils.roles.custom import CustomRoleError
+from utils.roles.custom import MANIFEST_FILE, CustomRoleError
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_VARS_MAIN
 
-from .declaration import read_declarations
+from .declaration import PINNED_BY, read_declarations
 from .inventory import is_host_list
-from .marker import MARKER_FILE, custom_entries, is_placed, write_marker
+from .manifest import read_manifest
+from .marker import MARKER_FILE, custom_entries, is_placed, provenance, write_marker
 from .source import check, stage
 
 if TYPE_CHECKING:
@@ -42,36 +43,42 @@ LOCK_FILE = ".lock"
 _LEFT = "left in place, the pull did not place it"
 
 
-def pull(inventory: Path, roles_dir: Path, work_dir: Path) -> list[str]:
-    """Place the custom roles *inventory* declares and remove the ones it dropped.
+def pull(inventory: Path | None, roles_dir: Path, work_dir: Path) -> list[str]:
+    """Place the custom roles the manifest pins and *inventory* declares.
 
     Args:
-        inventory: the inventory file or directory; an inline host list
-            such as ``localhost,`` declares nothing and changes nothing.
-        roles_dir: the ``roles/`` of the core checkout that runs the deploy.
+        inventory: the inventory file or directory, whose ``source`` of a
+            role overrides the manifest's and whose dropped roles are
+            removed; ``None`` or an inline host list such as ``localhost,``
+            only places the manifest's roles that are missing or pinned
+            differently and removes nothing.
+        roles_dir: the ``roles/`` of the core checkout that runs the deploy;
+            the manifest is the ``meta/custom_roles.yml`` beside it.
         work_dir: staging directory outside ``roles_dir`` on its filesystem.
 
     Returns:
-        One line per placed or removed role, naming its source and
+        One line per placed, kept or removed role, naming its source and
         resolved commit, and one per ``roles/web-app-cst-*`` entry the
         pull left alone.
 
     Raises:
         CustomRoleError: naming the group, or the file, that stops the run.
     """
-    if is_host_list(inventory):
-        return []
+    pinned, errors = read_manifest(roles_dir.parent / MANIFEST_FILE, roles_dir)
+    if inventory is None or is_host_list(inventory):
+        _refuse(errors)
+        return _sync(pinned, roles_dir, work_dir)
     if not inventory.exists():
         raise CustomRoleError(
             f"inventory {inventory} is neither a file nor a directory"
         )
-    declared, errors = read_declarations(inventory, roles_dir)
-    if errors:
-        raise CustomRoleError("\n".join(errors))
+    declared, inventory_errors = read_declarations(inventory, roles_dir, pinned)
+    _refuse([*errors, *inventory_errors])
+    declared = {**pinned, **declared}
     if not declared and not custom_entries(roles_dir):
         return []
     with _locked(work_dir):
-        return _place(declared, roles_dir, work_dir)
+        return _place(declared, roles_dir, work_dir, prune=True)
 
 
 def clean(roles_dir: Path, work_dir: Path) -> list[str]:
@@ -101,12 +108,48 @@ def clean(roles_dir: Path, work_dir: Path) -> list[str]:
     ]
 
 
-def _place(declared: dict[str, Source], roles_dir: Path, work_dir: Path) -> list[str]:
+def _refuse(errors: list[str]) -> None:
+    if errors:
+        raise CustomRoleError("\n".join(dict.fromkeys(errors)))
+
+
+def _sync(pinned: dict[str, Source], roles_dir: Path, work_dir: Path) -> list[str]:
+    if not pinned:
+        return []
+    with _locked(work_dir):
+        due = {
+            group: source
+            for group, source in pinned.items()
+            if _due(roles_dir / group, source)
+        }
+        kept = [
+            f"{group}: kept as placed, {provenance(roles_dir / group)}"
+            for group in sorted(pinned)
+            if group not in due
+        ]
+        placed = _place(due, roles_dir, work_dir, prune=False) if due else []
+    return sorted([*kept, *placed])
+
+
+def _due(entry: Path, source: Source) -> bool:
+    if not is_placed(entry):
+        return True
+    recorded = provenance(entry)
+    return recorded.endswith(PINNED_BY) and recorded != source.provenance(
+        str(source.pinned_commit)
+    )
+
+
+def _place(
+    declared: dict[str, Source], roles_dir: Path, work_dir: Path, prune: bool
+) -> list[str]:
     entries = custom_entries(roles_dir)
     for group, source in sorted(declared.items()):
         check(group, source, entries, roles_dir)
         _check_target(roles_dir / group)
-    undeclared = [entry for entry in entries if entry.name not in declared]
+    undeclared = (
+        [entry for entry in entries if entry.name not in declared] if prune else []
+    )
     lines: list[str] = []
     staged: list[tuple[Path, Path]] = []
     holders: list[Path] = []

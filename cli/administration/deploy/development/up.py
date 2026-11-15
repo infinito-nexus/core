@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import os
 
+from cli.administration.roles.pull import pull_or_exit
+
 from .binfmt import ensure as ensure_binfmt
 from .build import handler as build_handler
 from .common import make_compose
@@ -65,6 +67,7 @@ def handler(args: argparse.Namespace) -> int:
     if rc != 0:
         return rc
 
+    pull_or_exit(None)
     compose = make_compose()
     compose.up(run_entry_init=not bool(args.skip_entry_init))
     reset_stack_target(compose)

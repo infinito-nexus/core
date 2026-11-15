@@ -1,7 +1,7 @@
 """Enforce that no check and no helper a check reads skips a custom role.
 
 A role an inventory pulls into ``roles/web-app-cst-*`` is verified exactly like
-an in-tree role (requirement 046). A loop that steps over it with
+an in-tree role. A loop that steps over it with
 ``if is_custom(role): continue``, a comprehension that keeps only
 ``not is_custom(...)`` entries, or a ``skipIf`` keyed on the prefix would let a
 pulled role pass a check the in-tree roles must pass.
@@ -185,7 +185,7 @@ class TestCustomRolesNeverSkipped(unittest.TestCase):
         self.assertFalse(
             offenders,
             f"{len(offenders)} place(s) skip a roles/web-app-cst-* role, which "
-            f"requirement 046 verifies like every in-tree role:\n{report}\n\n"
+            f"core verifies like every in-tree role:\n{report}\n\n"
             "Check the custom role like any other. Only the i18n extraction "
             "(role_messages, rbac_messages in utils/i18n/extract.py) may leave "
             "it out.",

@@ -1,0 +1,11 @@
+---
+# One entry per public custom role, keyed by its web-app-cst-<name> group.
+#   url       https URL of the role's public repository, without credentials
+#   version   release tag the role is pulled at; never a branch or a commit
+#   commit    full 40-hex commit SHA the tag must resolve to
+#   path      role directory inside the repository, named like the group
+web-app-cst-cosmos:
+  url: https://github.com/kevinveenbirkenbach/cosmos.git
+  version: v0.2.1
+  commit: 5071beca9cfb32f22fab6973548931f29fae013f
+  path: ansible/roles/web-app-cst-cosmos

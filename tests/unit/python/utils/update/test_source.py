@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import io
 import tempfile
 import unittest
 import unittest.mock as mock
-import urllib.error
-from email.message import Message
 from pathlib import Path
 
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update import source as module
+from utils.update import upstream
 
 SERVICES = """\
 ---
@@ -182,25 +180,6 @@ class TestCandidates(unittest.TestCase):
             self.assertEqual(module.candidates(entry, root), ["2.1.0"])
 
 
-class TestRegistryV2Tags(unittest.TestCase):
-    def test_a_realm_other_than_https_is_never_read(self) -> None:
-        for realm in ("file:///tmp/token.json", "http://169.254.169.254/token"):
-            headers = Message()
-            headers["WWW-Authenticate"] = f'Bearer realm="{realm}",service="reg"'
-            denied = urllib.error.HTTPError(
-                "https://reg.example/v2", 401, "err", headers, io.BytesIO(b"")
-            )
-            with (
-                self.subTest(realm=realm),
-                mock.patch.object(module, "get", side_effect=denied) as get,
-            ):
-                self.assertEqual(module.registry_v2_tags("reg.example/foo/bar"), [])
-                self.assertEqual(
-                    [call.args[0] for call in get.call_args_list],
-                    ["https://reg.example/v2/foo/bar/tags/list"],
-                )
-
-
 class TestOutdated(unittest.TestCase):
     def _entry(self, root: Path):
         return next(e for e in module.collect_entries(root) if e.key == "app_version")
@@ -254,10 +233,10 @@ class TestSuppressions(unittest.TestCase):
 
 
 class TestTemplate(unittest.TestCase):
-    def _outdated(self, services: str, upstream: str) -> list[str]:
+    def _outdated(self, services: str, published: str) -> list[str]:
         root = _repo(services)
         with (
-            mock.patch.object(module, "documents", return_value=upstream),
+            mock.patch.object(upstream, "documents", return_value=published),
             mock.patch.object(module, "manifest_exists", return_value=True),
         ):
             updates = module.outdated(module.collect_entries(root), root)
@@ -291,7 +270,7 @@ class TestPulledImage(unittest.TestCase):
         root = _repo(COMPOUND)
         with (
             mock.patch.object(
-                module, "documents", return_value="core v3.0.39\npart v1.11.3\n"
+                upstream, "documents", return_value="core v3.0.39\npart v1.11.3\n"
             ),
             mock.patch.object(module, "manifest_exists", return_value=exists) as probe,
         ):

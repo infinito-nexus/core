@@ -704,7 +704,7 @@ legal-probe:
 .PHONY: lint
 # Run all lint checks in parallel.
 # Note: each check runs on host or in docker per INFINITO_LINT_RUNNER.
-lint: install-lint
+lint: install-lint roles-pull
 	@bash scripts/install/wrapper.sh css packages php ruby sql
 	@bash scripts/make/parallel.sh lint-action \
 		lint-ansible \
@@ -924,13 +924,13 @@ roles-clean:
 	@"$${PYTHON}" -m cli.administration.roles.clean
 
 .PHONY: roles-pull
-# Pull the custom roles (web-app-cst-*) an inventory declares into roles/ without deploying, removing the ones it no longer declares.
-# Usage: make roles-pull inventory=<path>
+# Pull the custom roles (web-app-cst-*) meta/custom_roles.yml pins and an inventory declares into roles/ without deploying, removing the ones neither declares any more.
+# Usage: make roles-pull [inventory=<path>]
 # Example: make roles-pull inventory=inventories/production/devices.yml
-# Param inventory: inventory file whose group_vars/host_vars declare applications.<group>.custom and .source (required).
-roles-pull:
-	@test -n '$(inventory)' || { echo 'usage: make roles-pull inventory=<path>'; exit 2; }
-	@"$${PYTHON}" -m cli.administration.roles.pull '$(inventory)'
+# Note: without inventory only the pinned roles that are missing or pinned differently are placed and nothing is removed; test, lint and compose-up run it that way.
+# Param inventory: inventory file whose group_vars/host_vars declare applications.<group>.custom and .source, overriding the manifest pin of the same role (optional).
+roles-pull: install
+	@"$${PYTHON}" -m cli.administration.roles.pull $(if $(inventory),'$(inventory)')
 
 .PHONY: roundtrip
 # Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
@@ -1152,7 +1152,7 @@ system-purge:
 
 .PHONY: test
 # Run the full test pipeline.
-test: install
+test: roles-pull
 	@bash scripts/make/parallel.sh \
 		test-external \
 		test-integration \

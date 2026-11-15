@@ -31,6 +31,7 @@ SHARED = {
     "svc-net-tor",
     "svc-net-tor-smtp",
     "svc-prx-openresty",
+    "web-app-cst-cosmos",
     "web-app-dashboard",
     "web-app-discourse",
     "web-app-email",
@@ -58,9 +59,9 @@ PINNED = {
     "web-svc-logout": (0, "pin by web-app-matomo#0"),
 }
 GOLDEN = {
-    "web-app-wordpress#0": (31, SHARED | {"web-app-wordpress"}, "round index", PINNED),
+    "web-app-wordpress#0": (32, SHARED | {"web-app-wordpress"}, "round index", PINNED),
     "web-app-nextcloud#7": (
-        31,
+        32,
         SHARED | {"web-app-nextcloud"},
         "default 0: round past its variants",
         PINNED,

@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 
 from utils.cache.files import PROJECT_ROOT, iter_non_ignored_files, read_text
 from utils.design.cosmos import SERVICE_KEY
-from utils.roles.custom import PREFIX
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.custom import MARKER_FILE, PREFIX, is_custom_path
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -25,13 +25,15 @@ def naming(entries: Iterable[tuple[str, str]]) -> list[str]:
 
     Returns:
         The sorted paths outside the exempt files and trees whose content names
-        the cosmos provider role.
+        the cosmos provider role. A placed custom role, the provider among
+        them, is not core: ``.gitignore`` keeps it out of every core commit.
     """
     return sorted(
         rel
         for rel, content in entries
         if rel not in EXEMPT_FILES
         and not rel.startswith(EXEMPT_TREES)
+        and not is_custom_path(rel)
         and PROVIDER in content
     )
 
@@ -70,12 +72,21 @@ class TestCosmosProviderByServiceKey(unittest.TestCase):
             ("meta/custom_roles.yml", planted),
             (f"{EXEMPT_TREES[0]}cosmos.md", planted),
             ("tests/unit/python/utils/design/test_cosmos.py", planted),
+            (f"roles/{PROVIDER}/{MARKER_FILE}", planted),
+            (f"roles/{PROVIDER}/{ROLE_FILE_VARS_MAIN}", planted),
+            (f"roles/web-app-{SERVICE_KEY}/{ROLE_FILE_VARS_MAIN}", planted),
             (
                 f"roles/web-svc-design/{ROLE_FILE_META_SERVICES}",
                 "cosmos:\n  enabled: true\n",
             ),
         ]
-        self.assertEqual(naming(entries), ["roles/web-svc-html/templates/head.j2"])
+        self.assertEqual(
+            naming(entries),
+            [
+                f"roles/web-app-{SERVICE_KEY}/{ROLE_FILE_VARS_MAIN}",
+                "roles/web-svc-html/templates/head.j2",
+            ],
+        )
 
 
 if __name__ == "__main__":

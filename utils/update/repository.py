@@ -154,22 +154,33 @@ def git_ls_remote_head(url: str) -> str | None:
 def git_ls_remote_tags(url: str) -> list[str]:
     """Return tag names from ``git ls-remote --tags``, stripped of the
     ``refs/tags/`` prefix and the ``^{}`` peeled-tag marker."""
+    return sorted(git_ls_remote_tag_commits(url))
+
+
+def git_ls_remote_tag_commits(url: str) -> dict[str, str]:
+    """Args:
+        url: the repository ``git ls-remote --tags`` reads.
+
+    Returns:
+        ``{tag: object}`` without the ``refs/tags/`` prefix, where an
+        annotated tag maps to the commit its ``^{}`` line peels it to;
+        empty when the lookup fails.
+    """
     stdout = _ls_remote("--tags", url)
     if stdout is None:
-        return []
-    tags: set[str] = set()
+        return {}
+    direct: dict[str, str] = {}
+    peeled: dict[str, str] = {}
     for line in stdout.splitlines():
         parts = line.split("\t")
-        if len(parts) != 2:
+        if len(parts) != 2 or not parts[1].startswith("refs/tags/"):
             continue
-        name = parts[1]
-        if not name.startswith("refs/tags/"):
-            continue
-        name = name[len("refs/tags/") :]
+        name = parts[1][len("refs/tags/") :]
+        target = peeled if name.endswith("^{}") else direct
         name = name.removesuffix("^{}")
         if name:
-            tags.add(name)
-    return sorted(tags)
+            target[name] = parts[0]
+    return {**direct, **peeled}
 
 
 def _ref_lines(lines: list[str]) -> list[tuple[int, str]]:
