@@ -616,8 +616,11 @@ class TestExportTools(unittest.TestCase):
         planted = self.build.directory / "build.sh"
         planted.write_text(text.replace(check, "| true\n"), encoding="utf-8")
         self.build.script = planted
-        with self.assertRaises(AssertionError):
-            self.assert_sum_gates_the_install()
+        archive, _digest = self.build.archive("#!/bin/sh\necho v1.3.2\n", "age/age")
+        binary = self.build.prefix() / "bin" / "age"
+        result = self.build.run("install", str(archive), "0" * 64, str(binary))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(binary.is_file())
 
 
 if __name__ == "__main__":
