@@ -24,6 +24,7 @@ GITEA_LDAP_AUTH_ARGS:
   - '{{ "--synchronize-users" if GITEA_LDAP_SOURCE.is_sync_enabled | bool else "--synchronize-users=false" }}'
 GITEA_OAUTH_SOURCE: "{{ lookup('form_values', application_id, 'oauth_source') }}"
 GITEA_OIDC_SOURCE_NAME: "SSO Login"
+GITEA_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.oidc_client_secret') }}"
 GITEA_OIDC_AUTH_ARGS:
   - "--provider {{ GITEA_OAUTH_SOURCE.oauth2_provider }}"
   - '--name "{{ GITEA_OIDC_SOURCE_NAME }}"'
@@ -75,6 +76,23 @@ GITEA_REDIS_ADDRESS: "{{ lookup('engine', 'redis', application_id, 'host') }}:{{
 GITEA_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'password') }}"
 
 GITEA_INTERNAL_API_URL: "{{ lookup('container_url', application_id, 'gitea') }}/api/v1"
+GITEA_ADMIN_BASIC_AUTH: "{{ lookup('users', 'platform_administrator').username ~ ':' ~ lookup('users', 'platform_administrator').password }}"
+
+GITEA_WORKSPACES_ENABLED: "{{ lookup('config', application_id, 'services.gitea.workspaces.enabled') | bool }}"
+GITEA_WORKSPACES_ORGANIZATION: "{{ lookup('config', application_id, 'services.gitea.workspaces.organization') }}"
+GITEA_WORKSPACES_STORE_USERNAME: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.username') }}"
+GITEA_WORKSPACES_STORE_EMAIL: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.email') }}"
+GITEA_WORKSPACES_STORE_SCOPES: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.scopes') }}"
+GITEA_WORKSPACES_STORE_TOKEN_PREFIX: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.token_prefix') }}"
+GITEA_WORKSPACES_ORGANIZATION_BODY:
+  username: "{{ GITEA_WORKSPACES_ORGANIZATION }}"
+  visibility: private
+  repo_admin_change_team_access: false
+GITEA_WORKSPACES_STORE_BODY:
+  login_name: "{{ GITEA_WORKSPACES_STORE_USERNAME }}"
+  source_id: 0
+  admin: false
+  max_repo_creation: 0
 
 GITEA_MCP_ENABLED: "{{ lookup('config', application_id, 'services.giteamcp.enabled') | bool }}"
 GITEA_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}"

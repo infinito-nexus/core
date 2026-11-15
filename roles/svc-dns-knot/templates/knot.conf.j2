@@ -1,0 +1,82 @@
+server:
+  rundir: "/rundir"
+  listen: [ 0.0.0.0@53 ]
+
+log:
+  - target: stdout
+    any: info
+
+database:
+  storage: "{{ KNOT_STORAGE_TARGET }}"
+
+key:
+  - id: transfer
+    algorithm: hmac-sha256
+    secret: {{ KNOT_TRANSFER_SECRET }}
+{% if knot_primary %}
+{% for workspace, secret in knot_workspace_keys | dictsort %}
+  - id: {{ workspace }}.{{ KNOT_ZONE }}.
+    algorithm: {{ KNOT_WORKSPACE_ALGORITHM }}
+    secret: {{ secret }}
+{% endfor %}
+{% endif %}
+{% if (KNOT_ADDRESSES | length > 1) or not knot_primary %}
+
+remote:
+{% for address in KNOT_ADDRESSES %}
+{% if loop.first and not knot_primary %}
+  - id: primary
+    address: {{ address }}@{{ KNOT_PORT }}
+    key: transfer
+{% elif not loop.first and knot_primary %}
+  - id: secondary-{{ loop.index0 }}
+    address: {{ address }}@{{ KNOT_PORT }}
+    key: transfer
+{% endif %}
+{% endfor %}
+{% endif %}
+
+acl:
+{% if knot_primary %}
+  - id: transfer
+    key: transfer
+    action: transfer
+{% for workspace in knot_workspace_keys | sort %}
+  - id: {{ workspace }}
+    key: {{ workspace }}.{{ KNOT_ZONE }}.
+    action: update
+    update-owner: key
+    update-owner-match: sub-or-equal
+    update-type: [ {{ KNOT_UPDATE_TYPES | join(', ') }} ]
+{% endfor %}
+{% else %}
+  - id: notify
+    key: transfer
+    action: notify
+{% endif %}
+{% if knot_primary %}
+
+policy:
+  - id: subzone
+    algorithm: ecdsap256sha256
+{% endif %}
+
+zone:
+  - domain: {{ KNOT_ZONE }}
+    zonefile-sync: -1
+    journal-content: all
+{% if knot_primary %}
+    file: "{{ KNOT_ZONE_TARGET }}"
+    zonefile-load: difference-no-serial
+    serial-policy: unixtime
+    dnssec-signing: on
+    dnssec-policy: subzone
+{% if KNOT_ADDRESSES | length > 1 %}
+    notify: [ {% for address in KNOT_ADDRESSES[1:] %}secondary-{{ loop.index }}{{ ', ' if not loop.last }}{% endfor %} ]
+{% endif %}
+    acl: [ transfer{% for workspace in knot_workspace_keys | sort %}, {{ workspace }}{% endfor %} ]
+{% else %}
+    zonefile-load: none
+    master: primary
+    acl: [ notify ]
+{% endif %}

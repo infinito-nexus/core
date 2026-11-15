@@ -21,3 +21,6 @@
 - name: ▶️ Execute Theme Removal Routine
   include_tasks: setup/theme_removal.yml
   when: not (GITEA_DESIGN_ENABLED | bool)
+- name: ▶️ Execute Workspaces Setup Routine
+  include_tasks: setup/workspaces.yml
+  when: GITEA_WORKSPACES_ENABLED | bool

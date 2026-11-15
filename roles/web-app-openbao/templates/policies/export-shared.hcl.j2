@@ -1,0 +1,7 @@
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/export/*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_OWNER_RECORD_PREFIX }}/" {
+  capabilities = ["list"]
+}

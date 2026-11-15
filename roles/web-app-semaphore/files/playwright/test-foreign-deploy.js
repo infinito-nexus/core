@@ -3,6 +3,7 @@ const net = require("node:net");
 const { test, expect, chromium } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion, requireDotenvValue } = require("./personas");
+const { ANSI } = require("./personas/utils/workspace");
 
 const SETUP_MS = 5 * 60_000;
 const DEPLOY_RUN_MS = 60 * 60_000;
@@ -12,6 +13,7 @@ const TARGET_PROBE_MS = 30_000;
 const HTTPS_PORT = 443;
 const UNCLAIMED_TARGET = "ECONNREFUSED";
 const ANSWER_STATUSES = [200, 403];
+const PLAY_RECAP_HOST = /^(\S+)\s+:\s+ok=\d+/;
 
 /**
  * Return the boolean a dotenv flag carries, failing unless it is "true" or "false".
@@ -156,6 +158,7 @@ exports.register = function (shared) {
     );
     shared.skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(SETUP_MS + DEPLOY_RUN_MS + TARGET_ANSWER_MS));
+    const platformHost = requireDotenvValue(process.env.SEMAPHORE_WORKSPACES_PLATFORM_HOST, "SEMAPHORE_WORKSPACES_PLATFORM_HOST");
 
     await shared.signInPrimary(page, shared.env.adminUsername, shared.env.adminPassword, label);
     const { project, template } = await deployTemplate(page);
@@ -171,6 +174,20 @@ exports.register = function (shared) {
     try {
       taskId = await shared.runTemplateFromUi(page, project.id, template, label);
       await shared.awaitTaskSuccess(page, project.id, taskId, DEPLOY_RUN_MS, label);
+      const output = await shared.api(page, "GET", `/project/${project.id}/tasks/${taskId}/output`);
+      const recapHosts = [
+        ...new Set(
+          output
+            .map((entry) => entry.output.replace(ANSI, "").trim().match(PLAY_RECAP_HOST))
+            .filter(Boolean)
+            .map((match) => match[1]),
+        ),
+      ];
+      expect(recapHosts, `${label}: the deploy of devices.yml must run on the shared target "${targetHost}"`).toContain(targetHost);
+      expect(
+        recapHosts,
+        `${label}: the deploy of devices.yml must never reach the platform host "${platformHost}" of workspaces.yml`,
+      ).not.toContain(platformHost);
     } finally {
       if (taskId !== undefined) {
         await shared

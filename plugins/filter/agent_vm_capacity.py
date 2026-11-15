@@ -113,12 +113,14 @@ def agent_vm_capacity(
     storage_path: str,
     pool_size: str,
     pool_used: int,
+    own_disk: int,
     overhead: dict,
     limits: dict,
 ) -> list[str]:
     """Return every capacity shortage of a VM host: free memory and storage
-    below the VM demand plus the reserve, and, when ``limits`` is non-empty,
-    container limits below the VM demand plus the hypervisor overhead.
+    below the VM demand plus the reserve, a fixed storage pool below the VM
+    demand, and, when ``limits`` is non-empty, container limits below the VM
+    demand plus the hypervisor overhead.
 
     Args:
         workspaces: the merged ``workspace`` mapping of every agent role.
@@ -132,23 +134,35 @@ def agent_vm_capacity(
             a redeploy gets it back, so it counts as free.
         mounts: ``ansible_facts.mounts``.
         storage_path: the path the VM disks live under.
-        pool_size: the fixed size of the storage pool the VM disks live in;
-            "" when the disks take the free space of ``storage_path``.
+        pool_size: the fixed size of the storage pool the VM disks live in,
+            which must hold the demand alone, as the reserve stays with
+            ``storage_path``; "" when the disks take the free space of
+            ``storage_path``.
         pool_used: bytes the pool already holds; 0 without a fixed pool.
+        own_disk: bytes the role's own VM disks take, part of ``pool_used``
+            and of the used space of ``storage_path``; a redeploy gets them
+            back, so they count as free in both.
         overhead: the hypervisor's own ``cpus`` and ``memory`` size.
         limits: the container's ``cpus`` and ``mem_limit``; empty on a bare host.
     """
     demand = budget.vm_demand(
         int(max_running), int(warm_pool), agent_vm_sizes(workspaces, kind, host)
     )
-    disk = _free_disk(mounts, storage_path)
-    if pool_size:
-        disk = min(to_bytes(pool_size) - int(pool_used), disk)
     found = budget.vm_host_shortages(
         demand,
-        {"memory": int(free_memory) + int(running_memory), "disk": disk},
+        {
+            "memory": int(free_memory) + int(running_memory),
+            "disk": _free_disk(mounts, storage_path) + int(own_disk),
+        },
         {"memory": to_bytes(reserve["memory"]), "disk": to_bytes(reserve["disk"])},
     )
+    pool = to_bytes(pool_size) - int(pool_used) + int(own_disk) if pool_size else None
+    if pool is not None and pool < demand["disk"]:
+        found.append(
+            f"free disk {pool} B of the fixed storage pool is below the "
+            f"{demand['disk']} B the warm pool and agents.max_running need; "
+            "the reserve stays outside the pool"
+        )
     if limits:
         required = budget.container_limits(
             demand,

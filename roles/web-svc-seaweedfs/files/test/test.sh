@@ -7,6 +7,7 @@
 # Variables sourced from test.env.j2 by test-e2e-cli.
 set -euo pipefail
 
+: "${SEAWEEDFS_TEST_CONTAINER:?}"
 : "${SEAWEEDFS_TEST_IS_STACK_HOST:?}"
 : "${SEAWEEDFS_TEST_LOCAL_URL:?}"
 : "${SEAWEEDFS_TEST_REGION:?}"

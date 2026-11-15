@@ -10,11 +10,11 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ### Today
 
-- `svc-virt-incus` runs in host mode only (`roles/svc-virt-incus/meta/services.yml:4-10`) and is `pre-alpha` (`services.yml:19`).
-- It proves `/dev/kvm` (`roles/svc-virt-incus/tasks/00_core.yml:15-18`), starts the daemon through `incus.socket` (`00_core.yml:73-78`) and talks to it over the local socket `/var/lib/incus/unix.socket` (`00_core.yml:31-34`).
-- Its preseed creates the bridge `agentbr0` without NAT and the storage pool, and sets no `core.https_address` (`roles/svc-virt-incus/vars/main.yml:28-40`). So the API is not reachable over the network.
-- It creates and reconciles one restricted project `agents-<domain>` (`vars/main.yml:15,18-27`, `00_core.yml:100-129`).
-- The dev stack's `target` service is a privileged systemd container (`compose.yml:139-160`), so it sees `/dev/kvm` when the host has one.
+- `svc-virt-incus` runs in host mode only (`roles/svc-virt-incus/meta/services.yml`) and is `pre-alpha` (`services.yml`).
+- It proves `/dev/kvm` (`roles/svc-virt-incus/tasks/00_core.yml`), starts the daemon through `incus.socket` (`00_core.yml`) and talks to it over the local socket `/var/lib/incus/unix.socket` (`00_core.yml`).
+- Its preseed creates the bridge `agentbr0` without NAT and the storage pool, and sets no `core.https_address` (`roles/svc-virt-incus/vars/main.yml`). So the API is not reachable over the network.
+- It creates and reconciles one restricted project `agents-<domain>` (`vars/main.yml`, `00_core.yml`).
+- The dev stack's `target` service is a privileged systemd container (`compose.yml`), so it sees `/dev/kvm` when the host has one.
 
 ### Upstream
 
@@ -27,7 +27,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ## Decisions
 
-1. **An HTTPS listener behind the host firewall.** `services.incus.api.enabled` (default `false`) sets `core.https_address` to `services.incus.api.listen`, an address and port 8443. Through `svc-net-firewall`, the role's own nftables table admits that port only from `services.incus.api.allowed_sources`: the egress addresses of the platform's provision runner, and of the e2e stack in a test deployment. The deploy stores the server certificate's fingerprint in OpenBao at `platform/data/provision/incus-<host>` (105), and the provision runner pins it. No client trusts the server blindly.
+1. **An HTTPS listener behind the host firewall.** `services.incus.api.enabled` (default `false`) sets `core.https_address` to `services.incus.api.listen`, an address and port 8443. Through `svc-net-firewall`, the role's own nftables table admits that port only from `services.incus.api.allowed_sources`: the egress addresses of the platform's provision runner, and of the e2e stack in a test deployment. The deploy stores the fields `endpoint`, `certificate` and `fingerprint` of the server in OpenBao at `platform/data/provision/incus-<host>` (105). The provision runner takes `endpoint` as `INCUS_ADDR` and pins `certificate` (`roles/web-app-semaphore/files/opentofu/credentials.json`). No client trusts the server blindly.
 2. **A restricted certificate per workspace, no token on the wire.** `workspace apply` (102) creates the project `ws-<id>`. On the platform runner, inside its task, it generates a client key pair and writes the private key to `tenant/data/ws-<id>-provision/incus`. It adds the certificate over the local socket with `incus config trust add-certificate --restricted --projects ws-<id>`. The private key never reaches the Incus host, and no join token for a workspace exists. Join tokens stay for enrolling other clients by hand. `core.remote_token_expiry` is `1h`, so an unused one dies.
 3. **Virtual machines only.** A workspace project carries the restrictions of the agents project and adds `limits.containers` 0, together with the limits of the workspace's plan. Echoserver also runs Keycloak and OpenBao (store item 9), and a container shares the host kernel with them, while a virtual machine has its own.
 4. **A network per workspace.** Each workspace project gets its own bridge. The host firewall forwards nothing between two workspace bridges or between a workspace bridge and `agentbr0`. Decision 7 makes a workspace instance reachable from outside.
@@ -44,31 +44,31 @@ Rejected:
 
 ### API listener
 
-- [ ] With `services.incus.api.enabled` on, `incus config get core.https_address` returns `services.incus.api.listen`. With it off, the key is empty (`test_the_listener_follows_its_switch` in `tests/unit/python/roles/svc-virt-incus/test_api_listener.py`; `incus api: the listener answers on 8443` in `roles/svc-virt-incus/files/playwright/test-workspace-projects.js`).
-- [ ] The role's nftables table admits port 8443 only from `services.incus.api.allowed_sources`. A connection from another address of the dev stack is dropped (`test_the_firewall_admits_only_the_allowed_sources` in `test_api_listener.py`; `incus api: an address off the list is dropped` in `test-workspace-projects.js`).
+- [ ] With `services.incus.api.enabled` on, `incus config get core.https_address` returns `services.incus.api.listen`. With it off, the key is empty (`test_the_listener_follows_its_switch` in `tests/unit/python/roles/svc-virt-incus/test_api_listener.py`; `incus api: the listener answers on 8443` in `roles/svc-virt-incus/files/playwright/test-workspace-projects.js`). Partly met: `test_the_listener_follows_its_switch` and its control hold against `INCUS_SERVER_CONFIG` and the reconcile tasks of `roles/svc-virt-incus/tasks/00_core.yml`; the spec is not written, live proof in the roundtrip.
+- [ ] The role's nftables table admits port 8443 only from `services.incus.api.allowed_sources`. A connection from another address of the dev stack is dropped (`test_the_firewall_admits_only_the_allowed_sources` in `test_api_listener.py`; `incus api: an address off the list is dropped` in `test-workspace-projects.js`). Partly met: `test_the_firewall_admits_only_the_allowed_sources` evaluates the rendered `roles/svc-virt-incus/templates/nftables.conf.j2` per packet, and a control without the IPv6 rule fails; the spec is live proof in the roundtrip.
 - [ ] The server certificate's fingerprint is in OpenBao after the deploy, and a client that presents the wrong server fingerprint stops before it sends a request (`incus api: the provision runner pins the server certificate` in `test-workspace-projects.js`).
-- [ ] `core.remote_token_expiry` is `1h` (`test_join_tokens_expire` in `test_api_listener.py`).
+- [x] `core.remote_token_expiry` is `1h` (`test_join_tokens_expire` in `test_api_listener.py`). Met: `services.incus.remote_token_expiry` is `1h` and `INCUS_SERVER_CONFIG` reconciles it with the listener.
 
 ### Workspace projects
 
 - [ ] `workspace apply` creates the project `ws-<id>` with the restrictions of the agents project, `limits.containers` 0 and the plan's limits, and a trust entry that is restricted to `ws-<id>` alone. A second `apply` changes nothing (`incus workspaces: apply creates a restricted project and certificate once` in `test-workspace-projects.js`).
 - [ ] With the certificate of workspace A, the spec creates and deletes a virtual machine in `ws-<A>`. It is refused on each of these: listing or creating instances in `ws-<B>` or in `agents-<domain>`, creating a container, creating a privileged instance, attaching a host-path disk, setting `limits.instances` of `ws-<A>`, and setting any server key (`incus workspaces: a certificate reaches only its own project` in `test-workspace-projects.js`).
-- [ ] The private key of a workspace certificate exists only in OpenBao: no file on the Incus host holds it, and the trust store holds no pending join token for a workspace (`incus workspaces: no private key and no token on the host` in `test-workspace-projects.js`).
+- [ ] The private key of a workspace certificate exists only in OpenBao: no file on the Incus host holds it, and the trust store holds no pending join token for a workspace (`incus workspaces: no private key and no token on the host` in `test-workspace-projects.js`). Partly met: `test_the_private_key_reaches_openbao_only` in `tests/unit/python/roles/svc-virt-incus/test_workspace_certificate.py` generates a real key pair with the task's argv and proves only the certificate reaches the Incus host, with controls for a key on stdin and an unrestricted entry; the spec is live proof in the roundtrip.
 - [ ] An instance on the bridge of `ws-<A>` reaches neither an instance on the bridge of `ws-<B>` nor an agent VM on `agentbr0` (`incus workspaces: workspace bridges are isolated` in `test-workspace-projects.js`).
 - [ ] `workspace destroy` refuses while the project holds an instance, and otherwise removes the project, its bridge and its trust entry (`incus workspaces: destroy removes project, bridge and certificate` in `test-workspace-projects.js`).
 
 ### Public addresses
 
-- [ ] A rendered workspace bridge holds a slice of `services.incus.workspaces.subnet.ipv4` and `.ipv6`, with `ipv4.nat` and `ipv6.nat` false, and the host holds no NAT rule and no network forward for it. With workspaces on and either subnet unset, the deploy fails before it creates a project (`test_workspace_bridges_route_public_addresses` and `test_the_deploy_refuses_workspaces_without_a_subnet` in `tests/unit/python/roles/svc-virt-incus/test_workspace_network.py`).
+- [x] A rendered workspace bridge holds a slice of `services.incus.workspaces.subnet.ipv4` and `.ipv6`, with `ipv4.nat` and `ipv6.nat` false, and the host holds no NAT rule and no network forward for it. With workspaces on and either subnet unset, the deploy fails before it creates a project (`test_workspace_bridges_route_public_addresses` and `test_the_deploy_refuses_workspaces_without_a_subnet` in `tests/unit/python/roles/svc-virt-incus/test_workspace_network.py`). Met: both tests, `test_negative_control_a_nat_bridge_is_caught` and `test_negative_control_a_guard_without_the_ipv6_check_is_caught`; the slice comes from `incus_workspace_network` in `roles/svc-virt-incus/filter_plugins/incus_workspace.py`, the guard is `🛑 Refuse workspaces without a routed subnet` in `tasks/00_core.yml`.
 - [ ] A virtual machine of workspace A answers SSH on its own IPv4 and IPv6 address from outside the host, and on no address of the host (`incus workspaces: an instance answers on its own addresses` in `test-workspace-projects.js`).
 - [ ] A packet the instance sends from an address that is not its own is dropped (`incus workspaces: a spoofed source address is dropped` in `test-workspace-projects.js`).
 
 ### e2e target and echoserver
 
 - [ ] Variant 0 of `svc-virt-incus` deploys into the dev stack's `target` with the API on, and the `incus` root module of 104 provisions and destroys a virtual machine there (`provision: incus creates and destroys a server` in `roles/web-app-semaphore/files/playwright/test-provision.js`).
-- [ ] On a host without `/dev/kvm`, the e2e lane stops with a message naming the device, and the run reports it as not run (`test_the_lane_stops_without_kvm` in `tests/unit/python/roles/svc-virt-incus/test_e2e_target.py`).
+- [x] On a host without `/dev/kvm`, the e2e lane stops with a message naming the device, and the run reports it as not run (`test_the_lane_stops_without_kvm` in `tests/unit/python/roles/svc-virt-incus/test_e2e_target.py`). Met: `test_the_lane_stops_without_kvm` and its control `test_the_lane_runs_with_kvm` drive the deploy handler of `cli/administration/deploy/development/deploy/cli.py` with the role's own `requires_devices` from `roles/svc-virt-incus/meta/services.yml`; `decline` in `cli/administration/deploy/development/deploy/devices.py` prints the declined verdict naming the device and writes the **not run** line to the job summary. The role keeps its refusal (`test_kvm_is_required` in `tests/unit/python/roles/svc-virt-incus/test_incus_role.py`).
 - [ ] Echoserver's inventory turns the API on, and a deploy there passes every criterion of this section (the deploy log and the spec's `✓` lines from the echoserver run).
 
 ### Documentation
 
-- [ ] The [README](../../roles/svc-virt-incus/README.md) documents the listener, its firewall sources, the workspace projects and certificates, the VM-only rule and the routed subnet with its slices (`test_the_readme_names_the_workspace_projects` in `tests/unit/python/roles/svc-virt-incus/test_readme.py`).
+- [x] The [README](../../roles/svc-virt-incus/README.md) documents the listener, its firewall sources, the workspace projects and certificates, the VM-only rule and the routed subnet with its slices (`test_the_readme_names_the_workspace_projects` in `tests/unit/python/roles/svc-virt-incus/test_readme.py`). Met: the test and its control that drops the VM-only rule.

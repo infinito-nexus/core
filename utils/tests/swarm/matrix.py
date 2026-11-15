@@ -13,7 +13,11 @@ from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.security.deploy import deploy_inventory_overrides
 from utils.storage.constrained import host_storage_constrained
-from utils.tests.swarm.deploy import deploy_backup_host, deploy_round
+from utils.tests.swarm.deploy import (
+    deploy_backup_host,
+    deploy_proxmox_host,
+    deploy_round,
+)
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.extend_inventory import mesh_enabled
 from utils.tests.swarm.extra_vars import with_extra_vars
@@ -398,8 +402,16 @@ def main(argv: list[str] | None = None) -> int:
             rc = _mesh_prologue(
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
+        proxmox_args = {
+            "app_id": app_id,
+            "inv_dir": inv_root,
+            "extras_path": deploy_extras,
+            "round_index": round_index,
+        }
         if rc == 0:
             rc = deploy_round(**deploy_args)
+        if rc == 0:
+            rc = deploy_proxmox_host(**proxmox_args)
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
         if rc == 0 and drills:
@@ -415,6 +427,8 @@ def main(argv: list[str] | None = None) -> int:
             )
         if rc == 0:
             rc = deploy_round(**deploy_args, update_pass=True)
+        if rc == 0:
+            rc = deploy_proxmox_host(**proxmox_args, update_pass=True)
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
         if rc == 0 and round_index == 0:

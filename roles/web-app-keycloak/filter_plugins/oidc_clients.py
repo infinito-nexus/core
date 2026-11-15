@@ -29,6 +29,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from utils.roles.applications.services.sso import get_sso_config
+
 BACKCHANNEL_LOGOUT_URL = "backchannel.logout.url"
 
 
@@ -127,6 +129,35 @@ def kc_declared_client_role_grants(
     return grants
 
 
+def kc_proxy_clients(applications: Any, app_ids: Any) -> list[dict[str, Any]]:
+    """
+    Args:
+        applications: the ``lookup('applications')`` map, application id -> config.
+        app_ids: the applications deployed in this run.
+
+    Returns:
+        ``{application_id, client_id, scopes}`` per oauth2-proxy gated
+        application that declares ``services.sso.oauth2.client``, sorted by
+        application id.
+    """
+    if not isinstance(applications, dict):
+        return []
+    clients = []
+    for app_id in sorted(set(app_ids or [])):
+        if app_id not in applications:
+            continue
+        sso = get_sso_config(applications, app_id)
+        if sso["is_proxy_gated"] and sso["oauth2_client"]:
+            clients.append(
+                {
+                    "application_id": app_id,
+                    "client_id": sso["oauth2_client"]["id"],
+                    "scopes": sso["oauth2_client"]["scopes"],
+                }
+            )
+    return clients
+
+
 def kc_backchannel_logout_urls(clients: Any) -> list[str]:
     """Every back-channel logout URL the given clients carry, sorted and deduped.
 
@@ -156,4 +187,5 @@ class FilterModule:
             "kc_declared_client_apps": kc_declared_client_apps,
             "kc_declared_client_ids": kc_declared_client_ids,
             "kc_declared_client_role_grants": kc_declared_client_role_grants,
+            "kc_proxy_clients": kc_proxy_clients,
         }

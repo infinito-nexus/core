@@ -28,6 +28,7 @@ A **variant** is the role's assembled per-role meta payload (the same payload `a
 - An entry with overrides produces a derived shape (for example WordPress Multisite domains).
 - Variant 0 is the canonical baseline. The first entry SHOULD manually enumerate every dynamic service-key declared in `meta/services.yml` and pin each one to `enabled: true, shared: true`. The literal-true pins document the role's "all dynamics on" maximum-footprint deploy shape that every non-baseline variant either re-affirms or explicitly disables (see [test_non_baseline_explicit_disables.py](../../../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py)).
 - `{}` is permitted only when `meta/services.yml` declares no dynamic-enabled service-key, so there is nothing for the baseline to pin (for example pure matrix-driver roles such as `svc-bkp-volume-2-local`, whose every service-key originates in `variants.yml`).
+- A service-key whose `meta/services.yml` entry carries `mandatory: true` is one the role cannot deploy without, such as the SSO gate of `web-app-proxmox`. Its dynamic flags MUST be pinned `true` by some variant and MUST NOT be pinned `false` by any; [test_coverage.py](../../../../../tests/integration/roles/meta/variants/test_coverage.py) enforces both and drops the `false` pin it demands of every other dynamic flag.
 
 ## Pinning A Partner's Variant 📌
 

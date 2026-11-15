@@ -12,9 +12,12 @@
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-  {% set service_name = SEMAPHORE_RUNNER_SERVICE %}
+  {% for runner in SEMAPHORE_PLATFORM_RUNNERS_ACTIVE %}
+  {% set service_name = runner.service %}
+  {% set docker_compose_env = SEMAPHORE_EXPORT_RUNNER_ENV_FILE if service_name == SEMAPHORE_EXPORT_RUNNER_SERVICE else SEMAPHORE_RUNNER_ENV_FILE %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, service_name, version=SEMAPHORE_RUNNER_IMAGE_TAG) }}
+    {{ lookup('container_image', application_id, SEMAPHORE_RUNNER_SERVICE, version=SEMAPHORE_RUNNER_IMAGE_TAG) }}
+    {% if service_name == SEMAPHORE_RUNNER_SERVICE %}
     build:
       context: {{ SEMAPHORE_RUNNER_BUILD_DIR }}
       dockerfile: Dockerfile
@@ -22,12 +25,44 @@
         {% for build_arg, build_value in SEMAPHORE_RUNNER_BUILD_ARGS | dictsort %}
         {{ build_arg }}: "{{ build_value }}"
         {% endfor %}
-    {{ lookup('compose_only', 'container_name', SEMAPHORE_RUNNER_NAME) }}
+    {% else %}
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {% endif %}
+    {{ lookup('compose_only', 'container_name', runner.name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {% if service_name == SEMAPHORE_EXPORT_RUNNER_SERVICE %}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - "no-new-privileges:true"
+    {{ lookup('container_networks', internal=SEMAPHORE_EXPORT_NETWORK) | indent(4) }}
+    {% else %}
     {{ lookup('container_extra_hosts', host_alias=True) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+    {% endif %}
+  {% endfor %}
+
+  {% if SEMAPHORE_EXPORT_RUNNER_ENABLED | bool %}
+  {% set service_name = SEMAPHORE_EGRESS_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('compose_only', 'container_name', SEMAPHORE_EGRESS_NAME) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    security_opt:
+      - "no-new-privileges:true"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks', internal=SEMAPHORE_EXPORT_NETWORK, egress=True) | indent(4) }}
+  {% endif %}
 
 {{ lookup('compose_volumes') }}
 
-{{ lookup('compose_networks') }}
+{{ lookup('compose_networks', internal=SEMAPHORE_EXPORT_NETWORKS) }}

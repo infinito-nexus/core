@@ -1,0 +1,70 @@
+---
+- name: "🗑️ Drop the stale trust entries of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, config, trust, remove, "{{ item.fingerprint }}"]
+  loop: "{{ svc_virt_incus_ws_trust }}"
+  loop_control:
+    label: "{{ item.fingerprint }}"
+  changed_when: true
+  become: true
+
+- name: "🔑 Generate the client key pair of ws-{{ WORKSPACE }} on the controller"
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -x509
+      - -newkey
+      - ec
+      - -pkeyopt
+      - ec_paramgen_curve:secp384r1
+      - -noenc
+      - -keyout
+      - "-"
+      - -subj
+      - "/CN=ws-{{ WORKSPACE }}"
+      - -days
+      - "{{ INCUS_WORKSPACE_CERT_DAYS }}"
+  register: svc_virt_incus_ws_keypair
+  changed_when: true
+  delegate_to: localhost
+  become: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🤝 Trust the certificate of ws-{{ WORKSPACE }} for its project alone"
+  ansible.builtin.command:
+    argv:
+      - incus
+      - config
+      - trust
+      - add-certificate
+      - /dev/stdin
+      - --name
+      - "ws-{{ WORKSPACE }}"
+      - --restricted
+      - --projects
+      - "{{ svc_virt_incus_ws_project }}"
+    stdin: "{{ svc_virt_incus_ws_keypair.stdout | regex_search('(?s)-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----') }}"
+  changed_when: true
+  become: true
+
+- name: "🔍 Read the fingerprint Incus gave the certificate of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, query, "/1.0/certificates?recursion=1"]
+  register: svc_virt_incus_ws_trusted
+  changed_when: false
+  become: true
+
+- name: "🔐 Keep the client key of ws-{{ WORKSPACE }} in OpenBao only"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+  vars:
+    openbao_kv_state: present
+    openbao_kv_mount: "{{ INCUS_TENANT_MOUNT }}"
+    openbao_kv_path: "ws-{{ WORKSPACE }}-provision/incus"
+    openbao_kv_data:
+      project: "{{ svc_virt_incus_ws_project }}"
+      certificate: "{{ svc_virt_incus_ws_keypair.stdout | regex_search('(?s)-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----') }}"
+      key: "{{ svc_virt_incus_ws_keypair.stdout | regex_search('(?s)-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----') }}"
+      fingerprint: >-
+        {{ (svc_virt_incus_ws_trusted.stdout | from_json
+            | selectattr('name', 'equalto', 'ws-' ~ WORKSPACE) | first).fingerprint }}

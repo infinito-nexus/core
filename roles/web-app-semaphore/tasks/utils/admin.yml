@@ -1,0 +1,74 @@
+---
+# Param: semaphore_admin_before  task file that runs once the Semaphore containers are resolved, before the token exists
+# Param: semaphore_admin_tasks   task file that runs with the admin API token in semaphore_project_token;
+#                                the token is revoked after it, also when it fails
+- name: "🔍 Resolve the node and container of the Semaphore database"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: postgres
+    resolve_service_name: "{{ lookup('database', application_id, 'service_name') if IS_SWARM_MODE else '' }}"
+    resolve_output_prefix: SEMAPHORE_DATABASE
+    resolve_compose_cid: "{{ lookup('database', application_id, 'container') }}"
+
+- name: "🔍 Resolve the node and container of Semaphore"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ SEMAPHORE_SERVICE }}"
+    resolve_output_prefix: SEMAPHORE
+    resolve_compose_cid: "{{ SEMAPHORE_NAME }}"
+
+- name: "🧾 Run the steps before the admin API token"
+  ansible.builtin.include_tasks: "{{ semaphore_admin_before }}"
+
+- name: "🎟️ Mint the admin API token"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_DATABASE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - psql
+      - -U
+      - "{{ lookup('database', application_id, 'username') }}"
+      - -d
+      - "{{ lookup('database', application_id, 'name') }}"
+      - -v
+      - ON_ERROR_STOP=1
+      - -qtA
+    stdin: "{{ lookup('template', 'sql/project/prepare.sql.j2') }}"
+  register: semaphore_admin_prepare
+  changed_when: semaphore_admin_prepare.stdout is search('(?<![A-Z])CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_DATABASE_HOST_NODE }}"
+
+- name: "🎟️ Hold the admin API token"
+  ansible.builtin.set_fact:
+    semaphore_project_token: "{{ (semaphore_admin_prepare.stdout_lines | select('match', '^TOKEN ') | first)[6:] }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧭 Run the steps with the admin API token"
+  block:
+    - name: "🧭 Run {{ semaphore_admin_tasks | basename }} as the admin"
+      ansible.builtin.include_tasks: "{{ semaphore_admin_tasks }}"
+  always:
+    - name: "🧹 Revoke the admin API token"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - -i
+          - "{{ SEMAPHORE_DATABASE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+          - psql
+          - -U
+          - "{{ lookup('database', application_id, 'username') }}"
+          - -d
+          - "{{ lookup('database', application_id, 'name') }}"
+          - -v
+          - ON_ERROR_STOP=1
+          - -qtA
+        stdin: "{{ lookup('template', 'sql/project/revoke.sql.j2') }}"
+      register: semaphore_admin_revoke
+      changed_when: false
+      failed_when: semaphore_admin_revoke.rc != 0 or 'REVOKED' not in semaphore_admin_revoke.stdout
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ SEMAPHORE_DATABASE_HOST_NODE }}"

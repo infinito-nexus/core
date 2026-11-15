@@ -2,6 +2,7 @@
 {% set _pass_access_token = lookup('sso', sso_proxy_application_id, 'oauth2_pass_access_token') %}
 {% set _claim_headers = OIDC.ATTRIBUTES | oauth2_claim_headers(lookup('sso', sso_proxy_application_id, 'oauth2_claim_headers')) %}
 {% set _sso_upstream_mode = (compose_mode_force | default('')) or DEPLOYMENT_MODE %}
+{% set _own_client = lookup('sso', sso_proxy_application_id, 'oauth2_client') %}
 server:
   bindAddress: {{ ('0.0.0.0:' ~ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) | to_json }}
 upstreamConfig:
@@ -17,8 +18,13 @@ providers:
   - id: {{ OIDC.BUTTON_TEXT | to_json }}
     name: {{ OIDC.BUTTON_TEXT | to_json }}
     provider: oidc
+{% if _own_client %}
+    clientID: {{ _own_client.id | to_json }}
+    clientSecret: {{ lookup('config', sso_proxy_application_id, 'secrets.credentials.sso_proxy_client_secret') | to_json }}
+{% else %}
     clientID: {{ OIDC.CLIENT.ID | to_json }}
     clientSecret: {{ OIDC.CLIENT.SECRET | to_json }}
+{% endif %}
     loginURL: {{ OIDC.CLIENT.AUTHORIZE_URL | to_json }}
     loginURLParameters:
       - name: approval_prompt

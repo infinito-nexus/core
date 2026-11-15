@@ -4,7 +4,7 @@ Repository-side version maintenance: scan role configuration files for declared 
 
 ## Scope
 
-Every role-scoped updater (`docker`, `source`, `pip`, `repository`) and the addon check skip a role whose [lifecycle](../../../docs/contributing/design/role/services/lifecycle.md) is `eol`: no update PR is opened for it and no external test warns about its pins.
+Every role-scoped updater (`docker`, `source`, `pip`, `repository`, `opentofu`) and the addon check skip a role whose [lifecycle](../../../docs/contributing/design/role/services/lifecycle.md) is `eol`: no update PR is opened for it and no external test warns about its pins.
 
 ## Repository refs
 
@@ -16,6 +16,18 @@ Every role-scoped updater (`docker`, `source`, `pip`, `repository`) and the addo
 | full 40-hex commit SHA | the tip of the default branch               | `git ls-remote <repository> HEAD`   |
 
 A branch name and a short SHA stay as they are. `# nocheck: repository-version` on the line above `ref:` freezes a pin. Each repository is queried once per run and lookup, and a failed query leaves its pins untouched. The `update-repository-refs` job of `.github/workflows/cron-update.yml` opens one PR per changed role, and `tests/external/update/repository/` warns about pending bumps.
+
+## OpenTofu provider pins
+
+`python -m cli.contributing.update.opentofu` reads every `versions.tf.json` under `roles/*/files/opentofu/`. Each provider there is pinned to an exact version. The updater asks the OpenTofu registry for the newest release that is no pre-release and sets that version in every file that pins the provider, so all roots of a tag share one version per provider. `--dry-run` lists the bumps and writes nothing.
+
+The lock files then follow the pins. For every root whose pins changed, the updater downloads the OpenTofu that the role's `meta/services.yml` pins (`opentofu_version`, checked against `opentofu_sha256`) and runs `tofu providers lock` once, with one `-platform` per entry of `opentofu_platforms`. It goes through `files/shell/opentofu/build.sh lock`, which stages a root the same way the runner image build does.
+
+`scripts/github/update/opentofu_pins.sh` runs it, and the `update-opentofu-pins` job of `.github/workflows/cron-update.yml` opens one PR per changed role. The runner image build of that PR inits and validates every root offline, so a bump that breaks a root fails there. `tests/external/update/opentofu/` warns about pending bumps.
+
+## Pinned custom roles
+
+`python -m cli.contributing.update.custom_roles` bumps every role [custom_roles.yml](../../../meta/custom_roles.yml) pins: `version` moves to the newest release tag `vX.Y.Z` or `X.Y.Z` of its repository (`git ls-remote --tags`), and `commit` to the commit that tag peels to. A moving tag such as `latest` and a prerelease are never picked, a pin is never moved backwards, and a failed query leaves its pin untouched. The `update-custom-roles` job of `.github/workflows/cron-update.yml` opens the PR; the manifest itself is described in [deploy.md](../../../docs/administration/deploy.md).
 
 ## Declared version sources
 

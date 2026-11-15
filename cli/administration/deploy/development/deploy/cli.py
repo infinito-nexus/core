@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 
 from cli.administration.deploy.development.common import (
     make_compose,
@@ -27,6 +28,7 @@ from cli.administration.inventory.provision.services.disabler import (
     parse_services_disabled,
 )
 
+from .devices import decline, missing_devices, required_devices
 from .drill import _maybe_recover_drill
 from .purge import _purge_app_entities
 from .rotate import _rotate_credentials
@@ -165,6 +167,12 @@ def handler(args: argparse.Namespace) -> int:
                 )
         else:
             round_deploy_ids = list(include_roles)
+
+        needs = required_devices(Path(roles_dir), round_deploy_ids)
+        missing = missing_devices(compose, list(needs))
+        if missing:
+            decline(needs, missing, f"{round_index + 1}/{len(plan)}")
+            return 0
 
         if plan_index > 0:
             purge_targets = [

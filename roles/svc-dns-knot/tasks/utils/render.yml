@@ -1,0 +1,27 @@
+---
+# Param knot_host: inventory host of the group whose server configuration is rendered.
+# Param knot_workspace_keys: {ws-<id>: base64 TSIG secret} the primary grants updates to.
+# Output knot_rendered: whether the configuration or the zone file changed.
+- name: "📄 Render knot.conf on {{ knot_host }}"
+  ansible.builtin.template: # nocheck: stack-host-template  every host of the group runs its own server, and the primary owns the workspace keys its callers delegate to
+    src: knot.conf.j2
+    dest: "{{ KNOT_CONF_FILE }}"
+    mode: "0400"
+  vars:
+    knot_primary: "{{ knot_host == KNOT_PRIMARY }}"
+  register: knot_render_conf
+  delegate_to: "{{ knot_host }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📄 Render the zone file of {{ KNOT_ZONE }} on the primary"
+  ansible.builtin.template: # nocheck: stack-host-template  only the primary loads a zone file, the secondaries take theirs by transfer
+    src: zone.j2
+    dest: "{{ KNOT_ZONE_FILE }}"
+    mode: "0444"
+  register: knot_render_zone
+  delegate_to: "{{ knot_host }}"
+  when: knot_host == KNOT_PRIMARY
+
+- name: "🧾 Keep whether the configuration of {{ knot_host }} changed"
+  ansible.builtin.set_fact:
+    knot_rendered: "{{ (knot_render_conf is changed) or (knot_render_zone is changed) }}"

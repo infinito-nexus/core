@@ -454,19 +454,51 @@
       "notBefore": 0,
       "groups": []
     }
-{% if KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool %}
+{% if KEYCLOAK_USAGE_CLIENT_ENABLED | bool %}
     ,{
-      "username": "{{ KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT }}",
+      "username": "{{ KEYCLOAK_USAGE_SERVICE_ACCOUNT }}",
       "emailVerified": false,
       "enabled": true,
       "totp": false,
-      "serviceAccountClientId": "{{ KEYCLOAK_DIRECTORY_CLIENT_ID }}",
+      "serviceAccountClientId": "{{ KEYCLOAK_USAGE_CLIENT_ID }}",
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
         "default-roles-{{ KEYCLOAK_REALM }}"
       ],
-      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_DIRECTORY_CLIENT_ROLES} | to_json }},
+      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_USAGE_CLIENT_ROLES} | to_json }},
+      "notBefore": 0,
+      "groups": []
+    }
+{% endif %}
+{% if KEYCLOAK_ORGANIZATIONS_ENABLED | bool %}
+    ,{
+      "username": "{{ KEYCLOAK_WORKSPACE_MEMBERS_SERVICE_ACCOUNT }}",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "{{ KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID }}",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-{{ KEYCLOAK_REALM }}"
+      ],
+      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ROLES} | to_json }},
+      "notBefore": 0,
+      "groups": []
+    }
+    ,{
+      "username": "{{ KEYCLOAK_EXPORT_SERVICE_ACCOUNT }}",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "{{ KEYCLOAK_EXPORT_CLIENT_ID }}",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-{{ KEYCLOAK_REALM }}"
+      ],
+      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_EXPORT_CLIENT_ROLES} | to_json }},
       "notBefore": 0,
       "groups": []
     }
@@ -804,11 +836,22 @@
       ]
     },
     {% include "clients/default.json.j2" %}
-{% if KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool %}
-    ,{% include "clients/directory.json.j2" %}
+{% if KEYCLOAK_USAGE_CLIENT_ENABLED | bool %}
+    ,{% include "clients/usage.json.j2" %}
+{% endif %}
+{% if KEYCLOAK_ORGANIZATIONS_ENABLED | bool %}
+    ,{% include "clients/workspaces.json.j2" %}
+    ,{% include "clients/workspace_members.json.j2" %}
+    ,{% include "clients/export.json.j2" %}
+{% if KEYCLOAK_STORE_FIXTURE_ENABLED | bool %}
+    ,{% include "clients/store_fixture.json.j2" %}
+{% endif %}
 {% endif %}
 {% for kc_client_app in KEYCLOAK_DECLARED_CLIENT_APPS %}
     ,{% include 'roles/' ~ kc_client_app ~ '/templates/keycloak/clients.json.j2' %}
+{% endfor %}
+{% for kc_proxy_client in KEYCLOAK_PROXY_CLIENTS %}
+    ,{% include "clients/proxy.json.j2" %}
 {% endfor %}
 {% include "clients/saml.json.j2" %}
   ],
@@ -1118,6 +1161,9 @@
     },
     {% include "scopes/rbac.json.j2" %},
     {% include "scopes/nextcloud.json.j2" %},
+    {% if KEYCLOAK_ORGANIZATIONS_ENABLED | bool %}
+    {% include "scopes/workspace_roles.json.j2" %},
+    {% endif %}
     {% if KEYCLOAK_MOODLE_ENABLED | bool %}
     {% include "scopes/moodle.json.j2" %},
     {% endif %}
@@ -1725,7 +1771,7 @@
         {
           "authenticator": "organization",
           "authenticatorFlow": false,
-          "requirement": "ALTERNATIVE",
+          "requirement": "{{ KEYCLOAK_ORGANIZATION_EXECUTION }}",
           "priority": 20,
           "autheticatorFlow": false,
           "userSetupAllowed": false
@@ -2418,7 +2464,7 @@
   },
   "keycloakVersion": "26.1.2",
   "userManagedAccessAllowed": true,
-  "organizationsEnabled": false,
+  "organizationsEnabled": {{ 'true' if KEYCLOAK_ORGANIZATIONS_ENABLED | bool else 'false' }},
   "verifiableCredentialsEnabled": false,
   "adminPermissionsEnabled": true,
   "clientProfiles": {

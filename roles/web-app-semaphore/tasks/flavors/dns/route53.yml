@@ -1,0 +1,9 @@
+---
+- name: "🔎 Report the live checks of the route53 DNS flavor and the AWS credential needed"
+  ansible.builtin.debug:
+    msg: "{{ SEMAPHORE_DNS_LIVE.message }}"
+  run_once: true
+
+- name: "🔐 Hand the AWS credential that creates the workspace IAM users to OpenBao"
+  ansible.builtin.include_tasks: utils/dns_credentials.yml
+  when: SEMAPHORE_DNS_LIVE.run | bool

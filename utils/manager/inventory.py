@@ -401,8 +401,19 @@ class InventoryManager:
             dest[key] = ""
             return
 
+        dest[key] = self.seal(plain, key)
+
+    def seal(self, plain: str, key: str) -> Any:
+        """
+        Args:
+            plain: a generated or supplied credential value.
+            key: the credential's key, the label of its vault block.
+
+        Returns:
+            The value as the inventory stores it, a vault block.
+        """
         snippet = self.vault_handler.encrypt_string(plain, key)
         lines = snippet.splitlines()
         indent = len(lines[1]) - len(lines[1].lstrip())
         body = "\n".join(line[indent:] for line in lines[1:])
-        dest[key] = VaultScalar(body)
+        return VaultScalar(body)

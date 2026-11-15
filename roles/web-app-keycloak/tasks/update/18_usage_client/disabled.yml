@@ -1,0 +1,15 @@
+---
+- name: "⬇️ Look the usage client '{{ KEYCLOAK_USAGE_CLIENT_ID }}' up"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get clients -r {{ KEYCLOAK_REALM | quote }}
+    -q clientId={{ KEYCLOAK_USAGE_CLIENT_ID | quote }} --fields id --format json
+  register: kc_usage_client_found
+  changed_when: false
+
+- name: "🗑️ Delete '{{ KEYCLOAK_USAGE_CLIENT_ID }}' with its service account"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} delete {{ ('clients/' ~ item.id) | quote }} -r {{ KEYCLOAK_REALM | quote }}
+  loop: "{{ kc_usage_client_found.stdout | kcadm_json }}"
+  loop_control:
+    label: "{{ item.id }}"
+  changed_when: true

@@ -1,0 +1,75 @@
+{# Param SEMAPHORE_PLATFORM_RUNNERS_ACTIVE: name, token, project, tag and max_parallel_tasks of every platform runner this deploy runs. #}
+CREATE TEMPORARY TABLE wanted_runner (
+  name text PRIMARY KEY,
+  token text NOT NULL,
+  project text NOT NULL,
+  tag text NOT NULL,
+  max_parallel_tasks integer NOT NULL
+);
+
+INSERT INTO wanted_runner (name, token, project, tag, max_parallel_tasks) VALUES
+{% for runner in SEMAPHORE_PLATFORM_RUNNERS_ACTIVE %}
+  ({% for value in [runner.name, runner.token, runner.project, runner.tag] %}'{{ value | string | replace("'", "''") }}', {% endfor %}{{ runner.max_parallel_tasks | int }}){{ ';' if loop.last else ',' }}
+{% endfor %}
+
+UPDATE public.runner AS runner
+SET token = wanted.token,
+    project_id = project.id,
+    webhook = '',
+    max_parallel_tasks = wanted.max_parallel_tasks,
+    active = TRUE,
+    is_default = FALSE
+FROM wanted_runner AS wanted
+JOIN public.project AS project ON project.name = wanted.project
+WHERE runner.name = wanted.name
+  AND (
+    runner.token IS DISTINCT FROM wanted.token
+    OR runner.project_id IS DISTINCT FROM project.id
+    OR runner.webhook IS DISTINCT FROM ''
+    OR runner.max_parallel_tasks IS DISTINCT FROM wanted.max_parallel_tasks
+    OR runner.active IS DISTINCT FROM TRUE
+    OR runner.is_default IS DISTINCT FROM FALSE
+  )
+RETURNING 'CHANGED runner ' || runner.name || ' realigned';
+
+INSERT INTO public.runner (project_id, token, webhook, max_parallel_tasks, name, active, is_default)
+SELECT project.id, wanted.token, '', wanted.max_parallel_tasks, wanted.name, TRUE, FALSE
+FROM wanted_runner AS wanted
+JOIN public.project AS project ON project.name = wanted.project
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM public.runner AS held
+  WHERE held.name = wanted.name
+)
+RETURNING 'CHANGED runner ' || name || ' created';
+
+DELETE FROM public.runner__tag AS held
+USING public.runner AS runner, wanted_runner AS wanted
+WHERE held.runner_id = runner.id
+  AND runner.name = wanted.name
+  AND held.tag IS DISTINCT FROM wanted.tag
+RETURNING 'CHANGED runner tag ' || held.tag || ' dropped from ' || runner.name;
+
+INSERT INTO public.runner__tag (runner_id, tag)
+SELECT runner.id, wanted.tag
+FROM public.runner AS runner
+JOIN wanted_runner AS wanted ON wanted.name = runner.name
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM public.runner__tag AS held
+  WHERE held.runner_id = runner.id
+    AND held.tag = wanted.tag
+)
+RETURNING 'CHANGED runner tag ' || tag || ' added';
+
+SELECT 'RUNNER ' || json_build_object(
+  'name', runner.name,
+  'project', project.name,
+  'tags', COALESCE(
+    (SELECT json_agg(held.tag ORDER BY held.tag) FROM public.runner__tag AS held WHERE held.runner_id = runner.id),
+    '[]'::json
+  )
+)::text
+FROM public.runner AS runner
+LEFT JOIN public.project AS project ON project.id = runner.project_id
+ORDER BY runner.id;

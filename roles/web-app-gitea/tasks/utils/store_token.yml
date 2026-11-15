@@ -1,0 +1,19 @@
+---
+# Param: gitea_store_token_expires_at - moment the rotation revokes the new token, RFC 3339 with a numeric offset in UTC
+# Param: gitea_store_token_now - moment of the rotation run, RFC 3339 with a numeric offset in UTC
+# Returns: gitea_store_token on the stack host, a mapping of exactly token and expires_at for platform/data/store/gitea
+- name: "✅ Assert the store token rotation runs against the workspace organization"
+  ansible.builtin.assert:
+    that:
+      - GITEA_WORKSPACES_ENABLED | bool
+      - (GITEA_WORKSPACES_STORE_TOKEN_PREFIX | gitea_store_token_name(gitea_store_token_expires_at)) | length > 0
+      - (GITEA_WORKSPACES_STORE_TOKEN_PREFIX | gitea_store_token_name(gitea_store_token_now)) | length > 0
+    fail_msg: >-
+      The store token needs services.gitea.workspaces.enabled on, and both
+      gitea_store_token_expires_at and gitea_store_token_now as RFC 3339 times
+      with a numeric offset.
+    quiet: true
+
+- name: "🔑 Rotate the store token on the stack host"
+  include_tasks: utils/workspaces/store_token_rotate.yml
+  when: IS_STACK_HOST | bool

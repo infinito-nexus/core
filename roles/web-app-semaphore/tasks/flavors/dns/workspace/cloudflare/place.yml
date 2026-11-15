@@ -1,0 +1,58 @@
+---
+# Param semaphore_workspace_alias: ws-<id> of the new workspace.
+# Param semaphore_cloudflare_zones: the zones of the pool in placement order.
+# Output workspace_dns: zone and zone_id of the first zone of the pool below the record limit.
+- name: "🔎 Find the Cloudflare zone of every zone of the pool with its own token"
+  uri_retry:
+    url: "{{ SEMAPHORE_CLOUDFLARE_ZONES_URL }}?name={{ semaphore_cloudflare_zone_name }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ (SEMAPHORE_DNS_CREDENTIALS | semaphore_cloudflare_pool)[semaphore_cloudflare_zone_name] }}"
+    return_content: true
+  loop: "{{ semaphore_cloudflare_zones }}"
+  loop_control:
+    loop_var: semaphore_cloudflare_zone_name
+  register: semaphore_cloudflare_lookups
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🆔 Hold the Cloudflare zone id of every zone of the pool"
+  ansible.builtin.set_fact:
+    semaphore_cloudflare_ids: >-
+      {{ semaphore_cloudflare_lookups.results | map(attribute='json.result') | flatten(levels=1)
+         | items2dict(key_name='name', value_name='id') }}
+
+- name: "🛑 Require that every token of the pool reads its own zone"
+  ansible.builtin.assert:
+    that:
+      - semaphore_cloudflare_zones | reject('in', semaphore_cloudflare_ids) | list | length == 0
+    fail_msg: >-
+      the token of {{ semaphore_cloudflare_zones | reject('in', semaphore_cloudflare_ids) | join(', ') }}
+      in secrets.credentials.cloudflare_zone_tokens finds no Cloudflare zone of that name
+    quiet: true
+
+- name: "🔢 Count the records every zone of the pool holds"
+  uri_retry:
+    url: "{{ SEMAPHORE_CLOUDFLARE_ZONES_URL }}/{{ semaphore_cloudflare_ids[semaphore_cloudflare_zone_name] }}/dns_records"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ (SEMAPHORE_DNS_CREDENTIALS | semaphore_cloudflare_pool)[semaphore_cloudflare_zone_name] }}"
+    return_content: true
+  loop: "{{ semaphore_cloudflare_zones }}"
+  loop_control:
+    loop_var: semaphore_cloudflare_zone_name
+  register: semaphore_cloudflare_counts
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🌐 Place {{ semaphore_workspace_alias }} in the first zone below the record limit"
+  ansible.builtin.set_fact:
+    workspace_dns:
+      zone: "{{ semaphore_workspace_zone }}"
+      zone_id: "{{ semaphore_cloudflare_ids[semaphore_workspace_zone] }}"
+  vars:
+    semaphore_cloudflare_records: >-
+      {{ dict(semaphore_cloudflare_counts.results | map(attribute='semaphore_cloudflare_zone_name')
+              | zip(semaphore_cloudflare_counts.results | map(attribute='json.result_info.total_count'))) }}
+    semaphore_workspace_zone: >-
+      {{ SEMAPHORE_DNS_CREDENTIALS | semaphore_cloudflare_zone(semaphore_cloudflare_records, SEMAPHORE_DNS.record_limit) }}

@@ -1,0 +1,64 @@
+---
+# Param: gitea_store_token_expires_at - moment the rotation revokes the new token, RFC 3339 with a numeric offset in UTC
+# Param: gitea_store_token_now - moment of the rotation run, RFC 3339 with a numeric offset in UTC
+# Returns: gitea_store_token, a mapping of exactly token and expires_at for platform/data/store/gitea
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: gitea
+    resolve_output_prefix: GITEA
+    resolve_compose_cid: "{{ GITEA_CONTAINER_ADDRESS }}"
+
+- name: "🔑 Mint the store token named after its expires_at"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+      /app/gitea/gitea admin user generate-access-token \
+        --username {{ GITEA_WORKSPACES_STORE_USERNAME | quote }} \
+        --token-name {{ gitea_store_token_mint_name | quote }} \
+        --scopes {{ GITEA_WORKSPACES_STORE_SCOPES | quote }} \
+        --raw \
+        -c {{ GITEA_CONFIG }}
+  register: gitea_store_token_mint
+  changed_when: true
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  vars:
+    gitea_store_token_mint_name: "{{ GITEA_WORKSPACES_STORE_TOKEN_PREFIX | gitea_store_token_name(gitea_store_token_expires_at) }}"
+
+- name: "🔧 Take the store token from the mint output"
+  ansible.builtin.set_fact:
+    gitea_store_token:
+      token: "{{ gitea_store_token_mint.stdout_lines | last | trim }}"
+      expires_at: "{{ gitea_store_token_expires_at }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse a mint that returned no usable token"
+  ansible.builtin.assert:
+    that:
+      - gitea_store_token.token | length >= 40
+    fail_msg: Gitea returned no access token for the store account.
+    quiet: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📋 List the tokens of the store account"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/api.yml"
+  vars:
+    gitea_api_method: GET
+    gitea_api_path: "/users/{{ GITEA_WORKSPACES_STORE_USERNAME }}/tokens?limit=50"
+    gitea_api_body: {}
+    gitea_api_sudo: "{{ GITEA_WORKSPACES_STORE_USERNAME }}"
+    gitea_api_expect: [200]
+
+- name: "🗑 Revoke every store token whose expires_at has passed"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/api.yml"
+  vars:
+    gitea_api_method: DELETE
+    gitea_api_path: "/users/{{ GITEA_WORKSPACES_STORE_USERNAME }}/tokens/{{ gitea_store_token_expired_id }}"
+    gitea_api_body: {}
+    gitea_api_sudo: "{{ GITEA_WORKSPACES_STORE_USERNAME }}"
+    gitea_api_expect: [204]
+  loop: >-
+    {{ (gitea_api_call.stdout | gitea_api_response).json
+       | gitea_store_tokens_expired(GITEA_WORKSPACES_STORE_TOKEN_PREFIX, gitea_store_token_now) }}
+  loop_control:
+    loop_var: gitea_store_token_expired_id

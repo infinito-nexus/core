@@ -203,12 +203,16 @@ class TestSecretTransport(unittest.TestCase):
     CMD = TASK["ansible.builtin.shell"]["cmd"]
     STDIN = TASK["ansible.builtin.shell"]["stdin"]
 
-    def _rendered(self, cmd: str | None = None) -> str:
-        return re.sub(r"\{\{.*?\}\}", "pve-cid", cmd or self.CMD)
+    EXEC = "{{ (PROXMOX_GUEST_EXEC + ['perl', '-']) | map('quote') | join(' ') }}"
+
+    def _rendered(self, cmd: str | None = None, guest: str = "") -> str:
+        text = (cmd or self.CMD).replace(self.EXEC, f"{guest} perl -".strip())
+        return re.sub(r"\{\{.*?\}\}", "pve-cid", text)
 
     def test_the_secret_is_templated_only_into_stdin(self):
         self.assertEqual(
-            re.findall(r"\{\{.*?\}\}", self.CMD), ["{{ PROXMOX_LOCAL_CID | quote }}"]
+            re.findall(r"\{\{.*?\}\}", self.CMD),
+            ["{{ PROXMOX_LOCAL_CID | quote }}", self.EXEC],
         )
         self.assertEqual(
             self.STDIN.splitlines(),
@@ -234,6 +238,17 @@ class TestSecretTransport(unittest.TestCase):
         self.assertNotIn(SECRET, seen["argv"])
         self.assertEqual(seen["env"], encoded)
         self.assertEqual(seen["stdin"], f"{SCRIPT}\n")
+
+    def test_the_vm_flavor_runs_the_script_through_the_guest_channel(self):
+        encoded = base64.b64encode(SECRET.encode()).decode()
+        result, seen = _run_cmd(
+            self._rendered(guest="pve-guest"), f"{encoded}\n{SCRIPT}\n"
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        argv = seen["argv"].splitlines()
+        self.assertEqual(argv[-4:], ["pve-cid", "pve-guest", "perl", "-"])
+        self.assertNotIn(encoded, seen["argv"])
+        self.assertEqual(seen["env"], encoded)
 
     def test_negative_control_a_secret_passed_by_value_shows_on_the_argv(self):
         encoded = base64.b64encode(SECRET.encode()).decode()

@@ -225,7 +225,9 @@ class TestUserAttributesTasks(unittest.TestCase):
     def test_one_rest_run_writes_every_value_and_its_outcomes_become_the_output(
         self,
     ):
-        write, store = load_yaml_any(str(TASKS), default_if_missing=[])
+        (stack_host,) = load_yaml_any(str(TASKS), default_if_missing=[])
+        self.assertEqual(stack_host["when"], "IS_STACK_HOST | bool")
+        write, store = stack_host["block"]
         self.assertEqual(write["when"], "keycloak_user_attribute_values | length > 0")
         run_task = write["block"][1]
         params = run_task["vars"]

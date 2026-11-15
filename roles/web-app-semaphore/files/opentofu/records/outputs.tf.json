@@ -1,0 +1,5 @@
+{
+  "output": {
+    "fqdn": {"value": "${module.dns.fqdn}", "description": "Record name of the order line."}
+  }
+}

@@ -1,0 +1,294 @@
+---
+- name: "🗄 Ensure the KV v2 workspace mounts"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao secrets list -format=json | grep -q "\"{{ item }}/\"" ||
+    { bao secrets enable -path={{ item | quote }} -version=2 kv && echo OPENBAO_CHANGED; }'
+  loop: "{{ OPENBAO_KV_TENANCY_MOUNTS }}"
+  register: openbao_tenancy_mount
+  changed_when: "'OPENBAO_CHANGED' in openbao_tenancy_mount.stdout"
+
+- name: "🔐 Ensure the transit engine at '{{ OPENBAO_TRANSIT_MOUNT }}'"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao secrets list -format=json | grep -q "\"{{ OPENBAO_TRANSIT_MOUNT }}/\"" ||
+    { bao secrets enable -path={{ OPENBAO_TRANSIT_MOUNT | quote }} transit && echo OPENBAO_CHANGED; }'
+  register: openbao_transit_mount
+  changed_when: "'OPENBAO_CHANGED' in openbao_transit_mount.stdout"
+
+- name: "🧩 Enable the task token auth mounts"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao auth list -format=json | grep -q "\"{{ item }}/\"" ||
+    { bao auth enable -path={{ item | quote }} jwt && echo OPENBAO_CHANGED; }'
+  loop: "{{ OPENBAO_JWT_MOUNTS }}"
+  register: openbao_jwt_enable
+  changed_when: "'OPENBAO_CHANGED' in openbao_jwt_enable.stdout"
+
+- name: "📜 Read the deployment CA that serves the Semaphore key set"
+  ansible.builtin.slurp:
+    src: "{{ CA_TRUST.cert_host }}"
+  register: openbao_jwt_ca
+  when: OPENBAO_JWT_CA_REQUIRED | bool
+
+- name: "📇 Point the task token mounts at the Semaphore key set"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/{{ item }}/config;
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p - >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ OPENBAO_JWT_CONFIG | to_json }}"
+  loop: "{{ OPENBAO_JWT_MOUNTS }}"
+  register: openbao_jwt_config
+  changed_when: "'OPENBAO_CHANGED' in openbao_jwt_config.stdout"
+
+- name: "🔍 Read the task token mount accessors"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao auth list -format=json
+  register: openbao_tenancy_auth_list
+  changed_when: false
+
+- name: "📜 Write the workspace policies"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    before=$(bao policy read {{ item | quote }} 2>/dev/null || true);
+    bao policy write {{ item | quote }} - >/dev/null;
+    after=$(bao policy read {{ item | quote }});
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ lookup('template', 'policies/' ~ item ~ '.hcl.j2') }}"
+  loop: "{{ OPENBAO_TENANCY_POLICIES }}"
+  vars:
+    OPENBAO_JWT_ACCESSOR: "{{ (openbao_tenancy_auth_list.stdout | from_json)[OPENBAO_JWT_MOUNT ~ '/'].accessor }}"
+    OPENBAO_JWT_EXPORT_ACCESSOR: "{{ (openbao_tenancy_auth_list.stdout | from_json)[OPENBAO_JWT_EXPORT_MOUNT ~ '/'].accessor }}"
+  register: openbao_tenancy_policy
+  changed_when: "'OPENBAO_CHANGED' in openbao_tenancy_policy.stdout"
+
+- name: "🎫 Bind rotate store credentials once Semaphore reports its ids"
+  when: semaphore_store_rotation_identity is defined
+  block:
+    - name: "✅ Require integer Semaphore ids of rotate store credentials"
+      ansible.builtin.assert:
+        that:
+          - semaphore_store_rotation_identity.project_id is integer
+          - semaphore_store_rotation_identity.template_id is integer
+        fail_msg: >-
+          The task token role of rotate store credentials needs project_id and
+          template_id as integers, since a jwt role matches a numeric claim only
+          against a JSON number.
+        quiet: true
+
+    - name: "🎫 Bind the task token role of rotate store credentials to its template"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e;
+        p=auth/{{ OPENBAO_JWT_MOUNT }}/role/{{ OPENBAO_STORE_CREDENTIALS_ROLE }};
+        before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+        bao write $p - >/dev/null;
+        after=$(bao read -format=json $p | grep -v request_id);
+        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+      args:
+        stdin: "{{ lookup('template', 'store_credentials_role.json.j2') | from_json | to_json }}"
+      register: openbao_store_credentials_role
+      changed_when: "'OPENBAO_CHANGED' in openbao_store_credentials_role.stdout"
+
+- name: "🎫 Bind the task entity cleanup once Semaphore reports its ids"
+  when: semaphore_task_entities_identity is defined
+  block:
+    - name: "✅ Require integer Semaphore ids of the task entity cleanup"
+      ansible.builtin.assert:
+        that:
+          - semaphore_task_entities_identity.project_id is integer
+          - semaphore_task_entities_identity.template_id is integer
+        fail_msg: >-
+          The task token role of the task entity cleanup needs project_id and
+          template_id as integers, since a jwt role matches a numeric claim only
+          against a JSON number.
+        quiet: true
+
+    - name: "🎫 Bind the task token role of the task entity cleanup to its template"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e;
+        p=auth/{{ OPENBAO_JWT_MOUNT }}/role/{{ OPENBAO_TASK_ENTITIES_ROLE }};
+        before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+        bao write $p - >/dev/null;
+        after=$(bao read -format=json $p | grep -v request_id);
+        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+      args:
+        stdin: "{{ lookup('template', 'task_entities_role.json.j2') | from_json | to_json }}"
+      register: openbao_task_entities_role
+      changed_when: "'OPENBAO_CHANGED' in openbao_task_entities_role.stdout"
+
+- name: "🧪 Bind the read-only fixture reader while Semaphore builds the fixture"
+  when: semaphore_fixture_reader_identity is defined
+  block:
+    - name: "✅ Require integer Semaphore ids of the workspace template"
+      ansible.builtin.assert:
+        that:
+          - semaphore_fixture_reader_identity.project_id is integer
+          - semaphore_fixture_reader_identity.template_id is integer
+        fail_msg: >-
+          The task token role of the fixture reader needs project_id and
+          template_id as integers, since a jwt role matches a numeric claim only
+          against a JSON number.
+        quiet: true
+
+    - name: "📜 Write the read-only policy of the fixture reader"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e;
+        before=$(bao policy read {{ OPENBAO_FIXTURE_POLICY | quote }} 2>/dev/null || true);
+        bao policy write {{ OPENBAO_FIXTURE_POLICY | quote }} - >/dev/null;
+        after=$(bao policy read {{ OPENBAO_FIXTURE_POLICY | quote }});
+        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+      args:
+        stdin: "{{ lookup('template', 'policies/' ~ OPENBAO_FIXTURE_POLICY ~ '.hcl.j2') }}"
+      register: openbao_fixture_policy
+      changed_when: "'OPENBAO_CHANGED' in openbao_fixture_policy.stdout"
+
+    - name: "🎫 Bind the fixture reader to the workspace template"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e;
+        p=auth/{{ OPENBAO_JWT_MOUNT }}/role/{{ OPENBAO_FIXTURE_ROLE }};
+        before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+        bao write $p - >/dev/null;
+        after=$(bao read -format=json $p | grep -v request_id);
+        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+      args:
+        stdin: "{{ lookup('template', 'fixture_reader_role.json.j2') | from_json | to_json }}"
+      register: openbao_fixture_role
+      changed_when: "'OPENBAO_CHANGED' in openbao_fixture_role.stdout"
+
+- name: "✅ Require integer Semaphore ids of the scheduled export templates"
+  ansible.builtin.assert:
+    that:
+      - semaphore_export_schedule_identity.project_id is integer
+      - semaphore_export_schedule_identity.templates.keys() | sort == OPENBAO_EXPORT_SCHEDULE_ROLES.values() | sort
+      - semaphore_export_schedule_identity.templates.values() | reject('integer') | list | length == 0
+    fail_msg: >-
+      The task token roles of the scheduled export templates need the project_id
+      of the export project and the template_id of each of them as integers, since
+      a jwt role matches a numeric claim only against a JSON number.
+    quiet: true
+  when: semaphore_export_schedule_identity is defined
+
+- name: "🎫 Bind the task token roles of the scheduled export templates"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/{{ OPENBAO_JWT_EXPORT_MOUNT }}/role/{{ item.name }};
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p - >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ item.body | to_json }}"
+  loop: >-
+    {{ lookup('template', 'export_schedule_roles.json.j2') | from_json
+       if semaphore_export_schedule_identity is defined else [] }}
+  loop_control:
+    label: "{{ OPENBAO_JWT_EXPORT_MOUNT }}/{{ item.name }}"
+  register: openbao_export_schedule_role
+  changed_when: "'OPENBAO_CHANGED' in openbao_export_schedule_role.stdout"
+
+- name: "🧩 Write the store AppRole, bound to the store policy alone"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/approle/role/{{ OPENBAO_STORE_APPROLE }};
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p
+    token_policies={{ OPENBAO_STORE_APPROLE | quote }}
+    token_no_default_policy=true
+    token_ttl={{ OPENBAO_STORE_APPROLE_CONFIG.token_ttl | quote }}
+    token_max_ttl={{ OPENBAO_STORE_APPROLE_CONFIG.token_max_ttl | quote }}
+    secret_id_ttl={{ OPENBAO_STORE_APPROLE_CONFIG.secret_id_ttl | quote }}
+    secret_id_num_uses=0 >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  register: openbao_store_role
+  changed_when: "'OPENBAO_CHANGED' in openbao_store_role.stdout"
+
+- name: "🔑 Pin the store RoleID to the inventory value"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c '[ "$(bao read -field=role_id auth/approle/role/{{ OPENBAO_STORE_APPROLE }}/role-id)" = {{ OPENBAO_STORE_ROLE_ID | quote }} ] ||
+    { bao write auth/approle/role/{{ OPENBAO_STORE_APPROLE }}/role-id role_id={{ OPENBAO_STORE_ROLE_ID | quote }} >/dev/null && echo OPENBAO_CHANGED; }'
+  register: openbao_store_role_id
+  changed_when: "'OPENBAO_CHANGED' in openbao_store_role_id.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Seed the first store SecretID while the role holds none"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'held=$(bao list -format=json auth/approle/role/{{ OPENBAO_STORE_APPROLE }}/secret-id 2>&1) && exit 0;
+    case "$held" in *"No value found"*) ;; *) echo "$held" >&2; exit 1 ;; esac;
+    bao write auth/approle/role/{{ OPENBAO_STORE_APPROLE }}/custom-secret-id secret_id=- >/dev/null && echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ OPENBAO_STORE_SECRET_ID }}"
+    stdin_add_newline: false
+  register: openbao_store_secret_id
+  changed_when: "'OPENBAO_CHANGED' in openbao_store_secret_id.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Write and erase one tenant secret as the store, for the audit check"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -s -- {{ OPENBAO_STORE_APPROLE | quote }} {{ OPENBAO_TENANT_MOUNT | quote }}
+  args:
+    stdin: "{{ lookup('file', 'shell/store-audit-probe.sh') }}"
+  register: openbao_store_audit_probe
+  changed_when: false
+  failed_when: >-
+    openbao_store_audit_probe.rc != 0
+    or (openbao_store_audit_probe.stdout | trim).split(' ') | length != 2
+
+- name: "🧾 Fail unless the audit log holds the store write once, under the store role"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container logs --since 10m {{ OPENBAO_LOCAL_CID | quote }} 2>&1
+    | grep -F '"type":"response"'
+    | grep -F '"path":"{{ OPENBAO_TENANT_MOUNT }}/data/{{ (openbao_store_audit_probe.stdout | trim).split(' ')[0] }}"'
+    | grep -E '"operation":"(create|update)"'
+    | grep -F '"display_name":"approle"'
+    | grep -cF '"role_name":"{{ OPENBAO_STORE_APPROLE }}"'
+  register: openbao_store_audit_entries
+  changed_when: false
+  failed_when: openbao_store_audit_entries.stdout | trim != '1'
+
+- name: "🙈 Fail if the audit log holds the value the store wrote in plaintext"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container logs --since 10m {{ OPENBAO_LOCAL_CID | quote }} 2>&1
+    | grep -cF {{ (openbao_store_audit_probe.stdout | trim).split(' ')[1] | quote }}
+  register: openbao_store_audit_leak
+  changed_when: false
+  failed_when: openbao_store_audit_leak.stdout | trim | int > 0
+
+- name: "🪪 Hand the Workspaces project identity to the store"
+  when: semaphore_workspaces_identity is defined
+  block:
+    - name: "🔍 Read the Workspaces project identity the store pins"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'bao kv get -format=json -mount={{ OPENBAO_PLATFORM_MOUNT | quote }} {{ OPENBAO_STORE_WORKSPACES_PATH | quote }} 2>/dev/null || true'
+      register: openbao_store_workspaces_read
+      changed_when: false
+
+    - name: "🪪 Publish the Workspaces project identity for the store"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        bao kv put -mount={{ OPENBAO_PLATFORM_MOUNT | quote }} {{ OPENBAO_STORE_WORKSPACES_PATH | quote }} -
+      args:
+        stdin: "{{ semaphore_workspaces_identity | to_json }}"
+      changed_when: true
+      when: >-
+        (((openbao_store_workspaces_read.stdout | from_json).data | default({})).data | default({})
+         if openbao_store_workspaces_read.stdout | trim | length > 0 else {})
+        != semaphore_workspaces_identity

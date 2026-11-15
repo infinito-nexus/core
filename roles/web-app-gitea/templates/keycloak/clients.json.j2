@@ -1,0 +1,9 @@
+{% from 'roles/web-app-keycloak/templates/import/clients/consumer.json.j2' import consumer_client with context %}
+{{ consumer_client(
+     application_id='web-app-gitea',
+     client_id=lookup('config', 'web-app-gitea', 'services.sso.oidc.clients.web'),
+     name='Gitea',
+     secret=lookup('config', 'web-app-gitea', 'secrets.credentials.oidc_client_secret'),
+     login_url=false,
+     audience=false,
+     scopes=[]) }}

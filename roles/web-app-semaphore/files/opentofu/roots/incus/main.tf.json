@@ -30,11 +30,6 @@
             "name": "root",
             "type": "disk",
             "properties": {"pool": "${local.region.pool}", "path": "/", "size": "${local.size.disk_gib}GiB"}
-          },
-          {
-            "name": "eth0",
-            "type": "nic",
-            "properties": {"network": "${local.region.network}"}
           }
         ],
         "wait_for": [{"type": "ipv4"}],
@@ -49,7 +44,8 @@
       "zone_id": "${local.workspace.dns.zone_id}",
       "name": "${var.dns_label}.${local.workspace.workspace}",
       "ipv4": "${local.ipv4}",
-      "ipv6": "${local.ipv6}"
+      "ipv6": "${local.ipv6}",
+      "cname": ""
     }
   }
 }

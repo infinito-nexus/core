@@ -52,5 +52,6 @@
   loop_control:
     loop_var: sso_proxy_instance
     label: "{{ sso_proxy_instance.service }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   notify:
     - compose-up

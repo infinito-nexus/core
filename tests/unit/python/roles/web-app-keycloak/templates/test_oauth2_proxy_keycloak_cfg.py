@@ -9,6 +9,7 @@ from plugins.filter.cookie_scope import FilterModule as CookieScopeFilters
 from plugins.filter.get.entity_name import FilterModule as EntityNameFilters
 from plugins.filter.network_of import FilterModule as NetworkFilters
 from plugins.filter.oauth2_claim_headers import FilterModule as ClaimHeaderFilters
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.services.sso import (
     SsoConfigConflictError,
@@ -44,6 +45,9 @@ KEYCLOAK_CONFIG = {
     "services.sso_proxy.cookie_refresh": "1m",
     "services.sso_proxy.templates_directory": "/templates",
 }
+OWN_CLIENT_SECRET_PATH = "secrets.credentials.sso_proxy_client_secret"
+OWN_CLIENT_SECRET = "placeholder-own-client-secret"
+OWN_CLIENT = {"id": "web-app-x-gate", "scopes": ["kc-admin-api"]}
 
 
 def applications(**oauth2) -> dict:
@@ -81,6 +85,8 @@ def stub_lookup(apps: dict):
             return get_sso_config(apps, args[0])[args[1]]
         if kind == "config" and args[0] == "web-app-keycloak":
             return KEYCLOAK_CONFIG[args[1]]
+        if kind == "config" and args == (APP, OWN_CLIENT_SECRET_PATH):
+            return OWN_CLIENT_SECRET
         if kind == "config":
             return "placeholder-cookie"
         if kind == "domains":
@@ -214,6 +220,53 @@ class TestNeitherKey(unittest.TestCase):
                     render(template, applications(allow_all_users=False)),
                     render(template, self.apps),
                 )
+
+
+class TestOwnClient(unittest.TestCase):
+    def test_a_declared_client_signs_the_gate_in_with_its_own_credential(self) -> None:
+        rendered = provider(applications(client=OWN_CLIENT))
+        self.assertEqual(
+            (rendered["clientID"], rendered["clientSecret"]),
+            (OWN_CLIENT["id"], OWN_CLIENT_SECRET),
+        )
+
+    def test_negative_control_without_a_client_the_gate_keeps_the_shared_one(
+        self,
+    ) -> None:
+        rendered = provider(applications())
+        self.assertEqual(
+            (rendered["clientID"], rendered["clientSecret"]),
+            (OIDC["CLIENT"]["ID"], OIDC["CLIENT"]["SECRET"]),
+        )
+
+    def test_the_own_client_changes_only_the_credential_lines(self) -> None:
+        own = render(ALPHA_TEMPLATE, applications(client=OWN_CLIENT)).splitlines()
+        shared = render(ALPHA_TEMPLATE, applications()).splitlines()
+        self.assertEqual(
+            [pair for pair in zip(own, shared, strict=True) if pair[0] != pair[1]],
+            [
+                (
+                    f'    clientID: "{OWN_CLIENT["id"]}"',
+                    f'    clientID: "{OIDC["CLIENT"]["ID"]}"',
+                ),
+                (
+                    f'    clientSecret: "{OWN_CLIENT_SECRET}"',
+                    f'    clientSecret: "{OIDC["CLIENT"]["SECRET"]}"',
+                ),
+            ],
+        )
+
+    def test_the_render_of_the_own_client_secret_is_masked(self) -> None:
+        tasks = load_yaml_str(
+            read_text(str(PROJECT_ROOT / "roles/web-app-keycloak/tasks/sso_proxy.yml"))
+        )
+        alpha = next(
+            task
+            for task in tasks
+            if "oauth2-proxy-keycloak-alpha.yml.j2"
+            in str((task.get("stack_host_template") or {}).get("src"))
+        )
+        self.assertEqual(alpha["no_log"], "{{ MASK_CREDENTIALS_IN_LOGS | bool }}")
 
 
 class TestConflict(unittest.TestCase):

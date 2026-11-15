@@ -38,10 +38,15 @@ REALM = {
     "duplicateEmailsAllowed": False,
     "adminEventsEnabled": True,
     "adminPermissionsEnabled": True,
+    "organizationsEnabled": False,
     "accessTokenLifespan": 600,
     "attributes": {"adminEventsExpiration": "31536000", "frontendUrl": ""},
     **OTP_POLICY,
 }
+WORKSPACE_CLIENTS = [
+    {"clientId": "workspaces", "protocol": "openid-connect"},
+    {"clientId": "workspace-members", "protocol": "openid-connect"},
+]
 
 
 def render(name: str, declared_client_ids: list[str]):
@@ -56,6 +61,7 @@ def render(name: str, declared_client_ids: list[str]):
         "KEYCLOAK_DICTIONARY_REALM": REALM,
         "KEYCLOAK_CLIENT_ID": "cymais.cloud",
         "KEYCLOAK_DECLARED_CLIENT_IDS": declared_client_ids,
+        "KEYCLOAK_PROXY_CLIENTS": [],
         "KEYCLOAK_REALM": "cymais",
     }
     templar = Templar(loader=DataLoader(), variables={**declared, **inputs})
@@ -125,6 +131,7 @@ class TestSettingsSpec(unittest.TestCase):
                         "duplicateEmailsAllowed": False,
                         "adminEventsEnabled": True,
                         "adminPermissionsEnabled": True,
+                        "organizationsEnabled": False,
                         "accessTokenLifespan": 600,
                         "attributes": {"adminEventsExpiration": "31536000"},
                         **OTP_POLICY,
@@ -145,6 +152,36 @@ class TestSettingsSpec(unittest.TestCase):
                         "desired"
                     ]
                 self.assertIs(desired["verifyEmail"], flag)
+
+    def test_an_existing_realm_converges_to_the_organizations_flag_of_the_dictionary(
+        self,
+    ):
+        for flag in (True, False):
+            with self.subTest(organizations=flag):
+                realm = {**REALM, "organizationsEnabled": flag}
+                with mock.patch.dict(globals(), {"REALM": realm}):
+                    desired = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][0][
+                        "desired"
+                    ]
+                self.assertIs(desired["organizationsEnabled"], flag)
+
+    def test_the_workspace_clients_of_the_dictionary_are_converged(self):
+        realm = {**REALM, "clients": REALM["clients"] + WORKSPACE_CLIENTS}
+        with mock.patch.dict(globals(), {"REALM": realm}):
+            clients = render("KEYCLOAK_SETTINGS_SPEC", [])["clients"]
+        self.assertEqual(
+            [c["clientId"] for c in clients],
+            [
+                "cymais.cloud",
+                "https://crm.example/saml/metadata",
+                "workspaces",
+                "workspace-members",
+            ],
+        )
+
+    def test_without_workspace_clients_in_the_dictionary_none_is_converged(self):
+        ids = render("KEYCLOAK_SETTINGS_CLIENT_IDS", [])
+        self.assertEqual(ids, ["cymais.cloud", "https://crm.example/saml/metadata"])
 
     def test_the_master_realm_gets_no_verify_email_flag(self):
         master = render("KEYCLOAK_SETTINGS_SPEC", [])["realms"][1]["desired"]

@@ -1,0 +1,63 @@
+---
+- name: "🔍 Read the workspace organization before converging it"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/snapshot.yml"
+
+- name: "🤖 Create the missing store account"
+  when: (gitea_workspaces_snapshot | gitea_workspaces_plan(GITEA_WORKSPACES_STORE_USERNAME)).create_account
+  block:
+    - name: "🤖 Create the store account as a bot without a password"
+      ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
+          /app/gitea/gitea admin user create \
+            --username {{ GITEA_WORKSPACES_STORE_USERNAME | quote }} \
+            --email {{ GITEA_WORKSPACES_STORE_EMAIL | quote }} \
+            --user-type bot \
+            -c {{ GITEA_CONFIG }}
+      delegate_to: "{{ GITEA_HOST_NODE }}"
+      changed_when: true
+
+    - name: "🔍 Read the workspace organization again with the new store account"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/snapshot.yml"
+
+- name: "🧭 Plan the remaining changes of the workspace organization"
+  ansible.builtin.set_fact:
+    gitea_workspaces_changes: "{{ gitea_workspaces_snapshot | gitea_workspaces_plan(GITEA_WORKSPACES_STORE_USERNAME) }}"
+
+- name: "🛑 Refuse a store account the deploy did not create"
+  ansible.builtin.fail:
+    msg: >-
+      {{ gitea_workspaces_changes.refuse | join('; ') }}. Rename or delete that
+      account before the deploy creates the store account of
+      services.gitea.workspaces.
+  when: gitea_workspaces_changes.refuse | length > 0
+
+- name: "🔒 Take the site admin flag and the own repository quota from the store account"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/api.yml"
+  vars:
+    gitea_api_method: PATCH
+    gitea_api_path: "/admin/users/{{ GITEA_WORKSPACES_STORE_USERNAME }}"
+    gitea_api_body: "{{ GITEA_WORKSPACES_STORE_BODY }}"
+    gitea_api_sudo: ""
+    gitea_api_expect: [200]
+  when: gitea_workspaces_changes.align_account
+
+- name: "🏢 Create the private workspace organization with the store account as sole owner"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/api.yml"
+  vars:
+    gitea_api_method: POST
+    gitea_api_path: "/admin/users/{{ GITEA_WORKSPACES_STORE_USERNAME }}/orgs"
+    gitea_api_body: "{{ GITEA_WORKSPACES_ORGANIZATION_BODY }}"
+    gitea_api_sudo: ""
+    gitea_api_expect: [201]
+  when: gitea_workspaces_changes.create_organization
+
+- name: "🔒 Make the workspace organization private again"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/api.yml"
+  vars:
+    gitea_api_method: PATCH
+    gitea_api_path: "/orgs/{{ GITEA_WORKSPACES_ORGANIZATION }}"
+    gitea_api_body:
+      visibility: private
+    gitea_api_sudo: ""
+    gitea_api_expect: [200]
+  when: gitea_workspaces_changes.privatize_organization

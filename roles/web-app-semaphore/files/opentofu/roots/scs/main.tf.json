@@ -41,7 +41,8 @@
       "zone_id": "${local.workspace.dns.zone_id}",
       "name": "${var.dns_label}.${local.workspace.workspace}",
       "ipv4": "${local.ipv4}",
-      "ipv6": "${local.ipv6}"
+      "ipv6": "${local.ipv6}",
+      "cname": ""
     }
   }
 }

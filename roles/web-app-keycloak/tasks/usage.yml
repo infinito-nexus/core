@@ -1,0 +1,32 @@
+---
+# Param: usage_result_dir - directory the count of this host is written to as <inventory_hostname>.json
+- name: "📏 Usage | Count the active people of realm '{{ KEYCLOAK_REALM }}'"
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_playbook_python }}"
+      - "{{ role_path }}/files/python/usage.py"
+    stdin: "{{ kc_usage_request | to_json }}"
+  vars:
+    kc_usage_request:
+      enabled: "{{ KEYCLOAK_USAGE_CLIENT_ENABLED | bool }}"
+      host: "{{ inventory_hostname }}"
+      url: "{{ KEYCLOAK_URL }}"
+      realm: "{{ KEYCLOAK_REALM }}"
+      client_id: "{{ KEYCLOAK_USAGE_CLIENT_ID }}"
+      secret: "{{ KEYCLOAK_USAGE_CLIENT_SECRET if KEYCLOAK_USAGE_CLIENT_ENABLED | bool else '' }}"
+      admin: "{{ KEYCLOAK_PERMANENT_ADMIN_USERNAME }}"
+      cafile: "{{ CA_TRUST_CERT_CONTAINER_SELFSIGNED }}"
+      result_dir: "{{ usage_result_dir }}"
+  register: kc_usage_run
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Usage | Report the count of {{ inventory_hostname }}"
+  ansible.builtin.debug:
+    msg: "{{ kc_usage_run.stdout_lines }}"
+
+- name: "⚠️ Usage | Fail on a failed count of {{ inventory_hostname }}"
+  ansible.builtin.fail:
+    msg: "{{ kc_usage_run.stderr_lines }}"
+  when: kc_usage_run.rc != 0

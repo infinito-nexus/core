@@ -1,0 +1,16 @@
+---
+- name: "🔍 Read the workspace organization after the converge"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspaces/snapshot.yml"
+
+- name: "🛡️ Fail on every workspace organization grant wider than its members may read"
+  ansible.builtin.assert:
+    that:
+      - gitea_workspaces_findings | length == 0
+    fail_msg: >-
+      The workspace organization of services.gitea.workspaces grants more than
+      its members may read: {{ gitea_workspaces_findings | join('; ') }}.
+    quiet: true
+  vars:
+    gitea_workspaces_findings: >-
+      {{ gitea_workspaces_snapshot | gitea_workspaces_findings(
+           GITEA_WORKSPACES_STORE_USERNAME, GITEA_WORKSPACES_ORGANIZATION) }}

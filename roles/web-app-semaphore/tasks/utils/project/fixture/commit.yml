@@ -28,6 +28,42 @@
   delegate_to: localhost
   become: false
 
+- name: "📝 Write the Workspaces inventory and the platform host_vars beside it"
+  ansible.builtin.copy:
+    content: "{{ semaphore_deploy_fixture_platform_file.content }}"
+    dest: "{{ [semaphore_deploy_fixture_inventory, semaphore_deploy_fixture_platform_file.path] | path_join }}"
+    mode: "0600"
+  loop: "{{ semaphore_deploy_fixture_platform_files }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_platform_file
+  delegate_to: localhost
+  become: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📖 Read the inventories of the deploy template and the Workspaces project"
+  ansible.builtin.slurp:
+    src: "{{ [semaphore_deploy_fixture_inventory, semaphore_deploy_fixture_inventory_file] | path_join }}"
+  loop:
+    - "{{ SEMAPHORE_DEPLOY_INVENTORY_FILE }}"
+    - "{{ SEMAPHORE_WORKSPACES_INVENTORY_FILE }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_inventory_file
+  register: semaphore_deploy_fixture_inventories
+  delegate_to: localhost
+  become: false
+
+- name: "✅ Fail unless the platform host lies in the Workspaces inventory alone"
+  ansible.builtin.assert:
+    that:
+      - semaphore_deploy_fixture_inventory_findings | length == 0
+    fail_msg: "{{ semaphore_deploy_fixture_inventory_findings | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_deploy_fixture_inventory_findings: >-
+      {{ semaphore_deploy_fixture_inventories.results[0].content | b64decode
+         | semaphore_fixture_inventory_findings(semaphore_deploy_fixture_inventories.results[1].content | b64decode,
+             SEMAPHORE_DEPLOY_FIXTURE_PLATFORM_HOST, SEMAPHORE_DEPLOY_FIXTURE_HOST) }}
+
 - name: "🔎 Collect the files of the provisioned inventory"
   ansible.builtin.find:
     paths: "{{ semaphore_deploy_fixture_inventory }}"
@@ -75,7 +111,7 @@
     stdin: >-
       {{ lookup('http_request_program', {
         'branch': SEMAPHORE_DEPLOY_REPOSITORY_BRANCH,
-        'message': 'Inventory of the shared target',
+        'message': 'Inventories of the shared target and the platform host',
         'files': semaphore_deploy_fixture_commit,
       } | to_json, headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}
   environment:

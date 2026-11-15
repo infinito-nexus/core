@@ -38,6 +38,33 @@
   },
   "outputs": ["host", "host_key", "server_id", "fqdn"],
   "$defs": {
+    "order": {
+      "description": "Survey variables of provision, destroy, unlock and dns: the order line whose <SALES_ORDER>-<LINE> is the name.",
+      "type": "object",
+      "required": ["SALES_ORDER", "LINE"],
+      "properties": {
+        "SALES_ORDER": {
+          "description": "Sales Order: a letter first, at most 56 characters, so the joined name stays a hostname label.",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9-]{0,55}$"
+        },
+        "LINE": {
+          "description": "Line of the Sales Order: digits only without a leading zero, so the last '-' of the name separates both and 7 and 007 cannot name the same line twice.",
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,5}$"
+        }
+      }
+    },
+    "host_name": {
+      "description": "Survey variable HOST of dns create when it is no address: a fully qualified host name, the pattern workspace.py checks WORKSPACE_TARGETS with, that MUST be the host of a pair of WORKSPACE_TARGETS. create then writes a CNAME <DNS_LABEL>.<workspace>.<zone> to it and never resolves it; an address writes A or AAAA.",
+      "type": "string",
+      "pattern": "^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$"
+    },
+    "provider_token": {
+      "description": "Survey variable PROVIDER_TOKEN of provision and destroy: platform takes the provider token of the platform, workspace the customer's own token at tenant/data/<workspace>-provision/providers/<provider>; neither falls back to the other.",
+      "type": "string",
+      "enum": ["platform", "workspace"]
+    },
     "workspace": {
       "description": "workspace.json the provision script writes into the task directory beside the root.",
       "type": "object",
@@ -69,7 +96,7 @@
       }
     },
     "catalog": {
-      "description": "catalog.json beside each root: per flavor the sizes and regions the root maps to provider settings.",
+      "description": "services.semaphore.workspaces.catalog.<provider>, copied beside the root as catalog.json: per flavor the sizes and regions the root maps to provider settings.",
       "type": "object",
       "propertyNames": {"enum": ["demo", "cloud"]},
       "additionalProperties": {

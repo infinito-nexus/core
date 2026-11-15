@@ -116,6 +116,7 @@ class TestIncusHost(unittest.TestCase):
         running = task["vars"]["vm_capacity_running_memory"]
         self.assertIn("selectattr('project', 'equalto', INCUS_PROJECT)", running)
         self.assertIn("state.memory.usage", running)
+        self.assertEqual(task["vars"]["vm_capacity_own_disk"], 0)
 
     def test_platforms_match_the_distribution_check(self):
         meta = load_yaml_any(str(ROLE / ROLE_FILE_META_MAIN), default_if_missing={})

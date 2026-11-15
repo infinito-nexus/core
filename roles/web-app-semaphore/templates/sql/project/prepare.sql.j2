@@ -1,12 +1,9 @@
 {# Param SEMAPHORE_ADMIN_USERNAME: the administrator the deploy token acts as. #}
 {# Param SEMAPHORE_API_TOKEN_NAME: the name every deploy token carries. #}
-{# Param SEMAPHORE_RUNNER_NAME, SEMAPHORE_RUNNER_TOKEN: the runner row the runner container signs in to. #}
 {% for name, value in {
      'admin': SEMAPHORE_ADMIN_USERNAME,
      'token_name': SEMAPHORE_API_TOKEN_NAME,
-     'token_minutes': SEMAPHORE_API_TOKEN_MINUTES,
-     'runner_name': SEMAPHORE_RUNNER_NAME,
-     'runner_token': SEMAPHORE_RUNNER_TOKEN
+     'token_minutes': SEMAPHORE_API_TOKEN_MINUTES
    }.items() %}
 \set {{ name }} '{{ value | string | replace("'", "''") }}'
 {% endfor %}
@@ -25,30 +22,3 @@ FROM public."user" AS account
 WHERE account.username = :'admin'
   AND account.admin
 RETURNING 'TOKEN ' || id;
-
-UPDATE public.runner
-SET token = :'runner_token',
-    project_id = NULL,
-    webhook = '',
-    max_parallel_tasks = 0,
-    active = TRUE,
-    is_default = TRUE
-WHERE name = :'runner_name'
-  AND (
-    token IS DISTINCT FROM :'runner_token'
-    OR project_id IS NOT NULL
-    OR webhook IS DISTINCT FROM ''
-    OR max_parallel_tasks IS DISTINCT FROM 0
-    OR active IS DISTINCT FROM TRUE
-    OR is_default IS DISTINCT FROM TRUE
-  )
-RETURNING 'CHANGED runner ' || name || ' realigned';
-
-INSERT INTO public.runner (project_id, token, webhook, max_parallel_tasks, name, active, is_default)
-SELECT NULL, :'runner_token', '', 0, :'runner_name', TRUE, TRUE
-WHERE NOT EXISTS (
-  SELECT 1
-  FROM public.runner
-  WHERE name = :'runner_name'
-)
-RETURNING 'CHANGED runner ' || name || ' created';

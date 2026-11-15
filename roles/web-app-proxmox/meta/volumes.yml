@@ -1,15 +1,32 @@
 ---
+proxmox_guest:
+  type: volume
+  mounts:
+    - service: proxmox
+      target: /var/lib/proxmox-guest
+      when: "{{ lookup('config', 'web-app-proxmox', 'services.proxmox.flavor') == 'vm' }}"
+
+proxmox_guest_base:
+  type: volume
+  backup: false
+  mounts:
+    - service: proxmox
+      target: /var/lib/proxmox-guest-base
+      when: "{{ lookup('config', 'web-app-proxmox', 'services.proxmox.flavor') == 'vm' }}"
+
 proxmox_config:
   type: volume
   mounts:
     - service: proxmox
       target: /var/lib/pve-cluster
+      when: "{{ lookup('config', 'web-app-proxmox', 'services.proxmox.flavor') == 'container' }}"
 
 proxmox_templates:
   type: volume
   mounts:
     - service: proxmox
       target: /var/lib/vz/template
+      when: "{{ lookup('config', 'web-app-proxmox', 'services.proxmox.flavor') == 'container' }}"
 
 proxmox_vm_disks:
   type: volume
@@ -17,3 +34,4 @@ proxmox_vm_disks:
   mounts:
     - service: proxmox
       target: /var/lib/vz/images
+      when: "{{ lookup('config', 'web-app-proxmox', 'services.proxmox.flavor') == 'container' }}"

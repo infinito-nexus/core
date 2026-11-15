@@ -3,7 +3,14 @@ application_id: "web-svc-seaweedfs"
 entity_name: "{{ application_id | entity_name }}"
 
 SEAWEEDFS_CONTAINER: "{{ lookup('config', application_id, 'services.seaweedfs.name') }}"
-SEAWEEDFS_CONSUMER_COUNT: "{{ lookup('objstore_consumers', 'seaweedfs') | length }}"
+SEAWEEDFS_COLLECTION_COUNT: "{{ lookup('objstore_consumers', 'seaweedfs') | length + (1 if SEAWEEDFS_EXPORT.enabled | bool else 0) }}"
+SEAWEEDFS_EXPORT_OWNER: "web-app-semaphore"
+SEAWEEDFS_EXPORT:
+  enabled: "{{ lookup('config', SEAWEEDFS_EXPORT_OWNER, 'services.export-runner.enabled', false) | bool }}"
+  identity: "export"
+  bucket: "exports"
+  access_key: "{{ lookup('config', SEAWEEDFS_EXPORT_OWNER, 'secrets.credentials.export_s3_access_key', '') }}"
+  secret_key: "{{ lookup('config', SEAWEEDFS_EXPORT_OWNER, 'secrets.credentials.export_s3_secret_key', '') }}"
 SEAWEEDFS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'seaweedfs') }}"
 
 SEAWEEDFS_S3_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.seaweedfs.api_port') }}"
@@ -16,10 +23,21 @@ SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'platform_administrator').passwo
 SEAWEEDFS_ADMIN_CREDENTIALS: "{{ SEAWEEDFS_ADMIN_ACCESS_KEY }}:{{ SEAWEEDFS_ADMIN_SECRET_KEY }}"
 
 SEAWEEDFS_S3_REGION: "{{ lookup('config', application_id, 'services.seaweedfs.region') }}"
-SEAWEEDFS_S3_ADMIN_CURL: >-
-  IFS= read -r SEAWEEDFS_ADMIN_CREDENTIALS || : "${SEAWEEDFS_ADMIN_CREDENTIALS:?arrived empty on stdin}" && export SEAWEEDFS_ADMIN_CREDENTIALS &&
-  container exec -i -e SEAWEEDFS_ADMIN_CREDENTIALS {{ SEAWEEDFS_CONTAINER_ADDRESS }}
-  sh -c 'exec {{ lookup('timeout', 30) | curl(retries=0) }} -S --aws-sigv4 "aws:amz:{{ SEAWEEDFS_S3_REGION }}:s3" --variable %SEAWEEDFS_ADMIN_CREDENTIALS --expand-user
-  "{{ '{{' }}SEAWEEDFS_ADMIN_CREDENTIALS{{ '}}' }}" "$@"' curl
+SEAWEEDFS_S3_SIGNED_CURL: >-
+  IFS= read -r SEAWEEDFS_S3_CREDENTIALS || : "${SEAWEEDFS_S3_CREDENTIALS:?arrived empty on stdin}" && export SEAWEEDFS_S3_CREDENTIALS &&
+  container exec -i -e SEAWEEDFS_S3_CREDENTIALS {{ SEAWEEDFS_CONTAINER_ADDRESS }}
+  sh -c 'exec {{ lookup('timeout', 30) | curl(retries=0) }} -S --aws-sigv4 "aws:amz:{{ SEAWEEDFS_S3_REGION }}:s3" --variable %SEAWEEDFS_S3_CREDENTIALS --expand-user
+  "{{ '{{' }}SEAWEEDFS_S3_CREDENTIALS{{ '}}' }}" "$@"' curl
+SEAWEEDFS_S3_LOCAL_URL: "http://127.0.0.1:{{ SEAWEEDFS_S3_PORT_INTERNAL }}"
 
-SEAWEEDFS_S3_CONFIG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3.json' ] | path_join }}"
+SEAWEEDFS_WORKSPACE_LOCATION_PREFIX: "/buckets/ws-"
+SEAWEEDFS_WORKSPACE_VOLUME_GROWTH: 1
+
+SEAWEEDFS_S3_CONFIG_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3' ] | path_join }}"
+SEAWEEDFS_S3_CONFIG_PATH: "{{ [ SEAWEEDFS_S3_CONFIG_DIR, 's3.json' ] | path_join }}"
+SEAWEEDFS_S3_CONFIG_TARGET: "{{ [ lookup('volume', application_id, 's3_config').target, 's3.json' ] | path_join }}"
+
+SEAWEEDFS_IDENTITIES_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'identities.d' ] | path_join }}"
+SEAWEEDFS_WORKSPACES_MAX: "{{ lookup('config', application_id, 'services.seaweedfs.workspaces.max') }}"
+SEAWEEDFS_WORKSPACE_OPENBAO_MOUNT: "tenant"
+SEAWEEDFS_OPENBAO_ID: "web-app-openbao"

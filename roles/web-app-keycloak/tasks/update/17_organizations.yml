@@ -1,0 +1,22 @@
+---
+- name: "🏢 Converge the workspace service accounts and the organization login step"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: realm/organizations.py
+    rest_script_env:
+      KC_SERVICE_ACCOUNTS: "{{ KEYCLOAK_SERVICE_ACCOUNT_ROLES | to_json }}"
+      KC_ROLE_CLIENT: "{{ KEYCLOAK_CONSOLE_ROLE_CLIENT }}"
+      KC_ORGANIZATION_FLOW: "{{ KEYCLOAK_ORGANIZATION_FLOW }}"
+      KC_ORGANIZATION_REQUIREMENT: "{{ KEYCLOAK_ORGANIZATION_EXECUTION }}"
+    rest_script_stdin: ""
+    rest_script_ok_rcs: [0, 1]
+    rest_script_changed: "changed=[1-9]"
+    rest_script_register: kc_organizations
+
+- name: "⚠️ Report a failed organization convergence"
+  ansible.builtin.fail:
+    msg: "{{ kc_organizations.stdout_lines | select('match', '^failed ') | list }}"
+  when: kc_organizations.rc != 0

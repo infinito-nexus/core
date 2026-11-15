@@ -11,10 +11,29 @@
         PROXMOX_KEYRING: "{{ PROXMOX_VE.keyring }}"
         PROXMOX_KEYRING_SHA512: "{{ PROXMOX_VE.keyring_sha512 }}"
         PROXMOX_SUITE: "{{ PROXMOX_VE.suite }}"
-        PROXMOX_PACKAGES: "{{ PROXMOX_PACKAGE_PINS }}"
+        PROXMOX_PACKAGES: "{{ PROXMOX_IMAGE_PINS }}"
+        {% if PROXMOX_IS_VM | bool %}
+        PROXMOX_LAUNCHER_ID: "{{ PROXMOX_LAUNCHER_ID }}"
+        PROXMOX_LAUNCHER_SHARE: "{{ PROXMOX_LAUNCHER_SHARE }}"
+        PROXMOX_GUEST_DIR: "{{ PROXMOX_GUEST_DIR }}"
+        PROXMOX_GUEST_BASE_DIR: "{{ PROXMOX_GUEST_BASE_DIR }}"
+        PROXMOX_ISO_SHA256: "{{ PROXMOX_VE.iso.sha256 }}"
+        {% endif %}
     {{ lookup('container_image', application_id, 'proxmox') }}
     {{ lookup('compose_only', 'container_name', PROXMOX_CONTAINER) }}
     hostname: {{ PROXMOX_CONTAINER }}
+    {% if PROXMOX_IS_VM | bool %}
+    user: "{{ PROXMOX_LAUNCHER_ID }}:{{ PROXMOX_LAUNCHER_ID }}"
+    group_add:
+      - "{{ PROXMOX_KVM_GID }}"
+    devices:
+      - /dev/kvm
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 3m
+    {% else %}
     devices:
       - /dev/kvm
       - /dev/net/tun
@@ -27,6 +46,7 @@
     tmpfs:
       - /run
       - /run/lock
+    {% endif %}
     {{ lookup('container_ports', ['proxmox', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

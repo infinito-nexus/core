@@ -3,23 +3,33 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import sys
 import tempfile
 import unittest
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
-OPENTOFU = PROJECT_ROOT / "roles" / "web-app-semaphore" / "files" / "opentofu"
+ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
+OPENTOFU = ROLE / "files" / "opentofu"
+PYTHON = ROLE / "files" / "python"
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
 ROOTS = ("hetzner", "ionos", "scs", "proxmox", "incus")
 DNS_FLAVORS = ("knot", "route53", "cloudflare")
-DNS_INPUTS = frozenset({"zone", "zone_id", "name", "ipv4", "ipv6"})
+DNS_INPUTS = frozenset({"zone", "zone_id", "name", "ipv4", "ipv6", "cname"})
 DNS_OUTPUTS = frozenset({"fqdn"})
+RECORD_INPUTS = frozenset({"dns_label", "host", "cname"})
+CNAME_COUNT = '${var.cname != "" ? 1 : 0}'
+IMAGE_FREE = frozenset({"catalog.json", "workspace.json", ".terraform"})
 DNS_PROVIDERS = frozenset({"dns", "aws", "cloudflare"})
 NODE_SSH_KEYS = frozenset(
     {
@@ -48,7 +58,6 @@ _EXACT = re.compile(r"^=?\s*\d+\.\d+\.\d+$")
 _LOCKED = re.compile(
     r'provider "registry\.opentofu\.org/([^"]+)" \{\s*version\s*=\s*"([^"]+)"'
 )
-_CATALOG_KEY = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 _TERNARY = re.compile(r'^\$\{local\.region\.kvm \? "([^"]+)" : "([^"]+)"\}$')
 _REGION = re.compile(r"^\$\{local\.region\.([a-z_]+)\}$")
 _INDEX = re.compile(r"^\$\{local\.region\.([a-z_]+)\[local\.([a-z_]+)\]\}$")
@@ -127,18 +136,29 @@ def _backend_findings(module: dict) -> list[str]:
     return []
 
 
-def _catalog_findings(directory: Path) -> list[str]:
-    catalog = json.loads(read_text(str(directory / "catalog.json")))
-    flavors = set(interface()["properties"]["flavor"]["enum"])
-    findings = [f"catalog flavor {f!r} unknown" for f in catalog if f not in flavors]
-    for flavor, body in catalog.items():
-        for kind in ("sizes", "regions"):
-            keys = body.get(kind) or {}
-            findings += [f"{flavor} has no {kind}"] if not keys else []
-            findings += [
-                f"{flavor} {kind} key {k!r}" for k in keys if not _CATALOG_KEY.match(k)
-            ]
-    return findings
+def services_catalog(provider: str) -> dict:
+    """Args:
+        provider: a root name.
+
+    Returns:
+        The default catalog of that root in ``meta/services.yml``.
+    """
+    services = load_yaml_str(read_text(str(SERVICES)))
+    return services["semaphore"]["workspaces"]["catalog"][provider]
+
+
+def load_inputs_module():
+    sys.path.insert(0, str(PYTHON))
+    try:
+        spec = spec_from_file_location(
+            "provision_inputs", PYTHON / "provision" / "inputs.py"
+        )
+        module = module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+    finally:
+        sys.path.remove(str(PYTHON))
+    return module
 
 
 def interface_findings(directory: Path) -> list[str]:
@@ -165,7 +185,27 @@ def interface_findings(directory: Path) -> list[str]:
         findings.append(f"outputs {sorted(outputs)} != {sorted(spec['outputs'])}")
     findings += _pin_findings(directory, module)
     findings += _backend_findings(module)
-    return findings + _catalog_findings(directory)
+    shipped = sorted(p.name for p in directory.iterdir() if p.name in IMAGE_FREE)
+    return findings + [f"ships {name} beside the root" for name in shipped]
+
+
+def records_findings(directory: Path) -> list[str]:
+    """Args:
+        directory: the record root of ``dns ws-<id>``.
+
+    Returns:
+        Findings; empty when it takes a label, a host and a cname, returns ``fqdn``,
+        pins its providers and keeps its state in the locked S3 backend.
+    """
+    module = load_module(directory)
+    findings = []
+    if set(module["variable"]) != RECORD_INPUTS:
+        findings.append(f"variables {sorted(module['variable'])}")
+    if set(module["output"]) != DNS_OUTPUTS:
+        findings.append(f"outputs {sorted(module['output'])}")
+    if module["resource"]:
+        findings.append(f"declares resources {sorted(module['resource'])}")
+    return findings + _pin_findings(directory, module) + _backend_findings(module)
 
 
 def dns_findings(directory: Path) -> list[str]:
@@ -190,6 +230,36 @@ def dns_findings(directory: Path) -> list[str]:
     return findings
 
 
+def cname_findings(module: dict) -> list[str]:
+    """Args:
+        module: a loaded DNS flavor module.
+
+    Returns:
+        Findings; empty when exactly one resource writes a CNAME, only while
+        ``cname`` is set and to the name it holds, and no other resource
+        reads ``cname``.
+    """
+    records = [body for named in module["resource"].values() for body in named.values()]
+    cnames = [
+        body
+        for kind, named in module["resource"].items()
+        for body in named.values()
+        if kind == "dns_cname_record" or body.get("type") == "CNAME"
+    ]
+    if len(cnames) != 1:
+        return [f"{len(cnames)} CNAME resources"]
+    (cname,) = cnames
+    findings = []
+    if cname.get("count") != CNAME_COUNT:
+        findings.append(f"the CNAME count is {cname.get('count')!r}")
+    target = cname.get("cname") or cname.get("content") or cname.get("records")
+    if "${var.cname}" not in json.dumps(target):
+        findings.append(f"the CNAME points to {target!r}")
+    if any(body is not cname and "var.cname" in json.dumps(body) for body in records):
+        findings.append("an address record reads cname")
+    return findings
+
+
 def _resolve(expression: object, region: dict, local: dict) -> object:
     text = str(expression)
     if match := _TERNARY.match(text):
@@ -210,7 +280,7 @@ def render_vm(module: dict, region: dict) -> dict:
         region: catalog region with node, storage, bridge, kvm and templates.
 
     Returns:
-        The node, storages, bridge, cloned template and CPU type.
+        The node, storages, bridge, cloned template, full clone flag and CPU type.
     """
     vm = module["resource"]["proxmox_virtual_environment_vm"]["server"]
     local = module["locals"]
@@ -221,6 +291,7 @@ def render_vm(module: dict, region: dict) -> dict:
         "storage": {_resolve(s, region, local) for s in storages},
         "bridge": _resolve(vm["network_device"][0]["bridge"], region, local),
         "template": _resolve(clone["vm_id"], region, local),
+        "full": clone.get("full") is True,
         "cpu": _resolve(vm["cpu"][0]["type"], region, local),
     }
 
@@ -249,6 +320,7 @@ def kvm_findings(directory: Path) -> list[str]:
             "storage": {"s"},
             "bridge": "b",
             "template": template,
+            "full": True,
             "cpu": cpu,
         }
         try:
@@ -340,6 +412,30 @@ class TestRootModules(unittest.TestCase):
                 self.assertEqual(set(module["variable"]), DNS_INPUTS)
                 self.assertEqual(set(module["output"]), DNS_OUTPUTS)
 
+    def test_every_dns_flavor_writes_a_cname_only_for_a_name(self) -> None:
+        for flavor in DNS_FLAVORS:
+            with self.subTest(flavor=flavor):
+                module = load_module(OPENTOFU / "modules" / f"dns-{flavor}")
+                self.assertEqual(cname_findings(module), [])
+
+    def test_negative_control_a_flavor_without_a_cname_fails(self) -> None:
+        module = load_module(OPENTOFU / "modules" / "dns-route53")
+        module["resource"]["aws_route53_record"].pop("cname")
+        self.assertTrue(cname_findings(module))
+
+    def test_negative_control_an_unconditional_cname_fails(self) -> None:
+        module = load_module(OPENTOFU / "modules" / "dns-knot")
+        module["resource"]["dns_cname_record"]["record"]["count"] = 1
+        self.assertTrue(cname_findings(module))
+
+    def test_only_the_record_root_passes_a_cname(self) -> None:
+        for root in ROOTS:
+            with self.subTest(root=root):
+                call = load_module(OPENTOFU / "roots" / root)["module"]["dns"]
+                self.assertEqual(call["cname"], "")
+        call = load_module(OPENTOFU / "records")["module"]["dns"]
+        self.assertEqual(call["cname"], "${var.cname}")
+
     def test_every_root_uses_the_dns_module(self) -> None:
         for root in ROOTS:
             with self.subTest(root=root):
@@ -360,9 +456,8 @@ class TestRootModules(unittest.TestCase):
 
     def test_the_proxmox_root_takes_kvm_from_the_region(self) -> None:
         self.assertEqual(kvm_findings(OPENTOFU / "roots" / "proxmox"), [])
-        catalog = json.loads(
-            read_text(str(OPENTOFU / "roots" / "proxmox" / "catalog.json"))
-        )
+        catalog = services_catalog("proxmox")
+        self.assertTrue(catalog)
         for flavor in catalog.values():
             for name, region in flavor["regions"].items():
                 with self.subTest(region=name):
@@ -378,6 +473,19 @@ class TestRootModules(unittest.TestCase):
 
         self.assertTrue(_broken("proxmox", "main.tf.json", fix, kvm_findings))
 
+    def test_negative_control_swapped_templates_fail(self) -> None:
+        def swap(document: dict) -> None:
+            document["locals"]["mode"] = '${local.region.kvm ? "emulated" : "kvm"}'
+
+        self.assertTrue(_broken("proxmox", "main.tf.json", swap, kvm_findings))
+
+    def test_negative_control_a_linked_clone_fails(self) -> None:
+        def link(document: dict) -> None:
+            vm = document["resource"]["proxmox_virtual_environment_vm"]["server"]
+            vm["clone"][0]["full"] = False
+
+        self.assertTrue(_broken("proxmox", "main.tf.json", link, kvm_findings))
+
     def test_the_proxmox_root_needs_no_node_ssh(self) -> None:
         self.assertEqual(node_ssh_findings(OPENTOFU / "roots" / "proxmox"), [])
 
@@ -386,6 +494,68 @@ class TestRootModules(unittest.TestCase):
             document["provider"] = {"proxmox": {"ssh": [{"agent": True}]}}
 
         self.assertTrue(_broken("proxmox", "main.tf.json", ssh, node_ssh_findings))
+
+    def test_negative_control_a_catalog_beside_a_root_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as scratch:
+            copy = Path(scratch) / "incus"
+            shutil.copytree(OPENTOFU / "roots" / "incus", copy)
+            (copy / "catalog.json").write_text("{}", encoding="utf-8")
+            self.assertIn(
+                "ships catalog.json beside the root", interface_findings(copy)
+            )
+
+    def test_the_record_root_holds_only_the_dns_module(self) -> None:
+        self.assertEqual(records_findings(OPENTOFU / "records"), [])
+        self.assertEqual(dns_findings(OPENTOFU / "records"), [])
+
+    def test_negative_control_a_record_root_with_a_server_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as scratch:
+            copy = Path(scratch) / "records"
+            shutil.copytree(OPENTOFU / "records", copy)
+            main = json.loads(read_text(str(OPENTOFU / "records" / "main.tf.json")))
+            main["resource"] = {"hcloud_server": {"server": {"name": "x"}}}
+            (copy / "main.tf.json").write_text(json.dumps(main), encoding="utf-8")
+            self.assertTrue(records_findings(copy))
+
+    def test_the_order_line_joins_to_a_hostname_label(self) -> None:
+        inputs = load_inputs_module()
+        name = re.compile(interface()["properties"]["name"]["pattern"])
+        sales_order, line = inputs.order_line(
+            {"SALES_ORDER": "S" + "o" * 55, "LINE": "999999"}, interface()
+        )
+        joined = f"{sales_order}-{line}"
+        self.assertEqual(len(joined), 63)
+        self.assertTrue(name.fullmatch(joined))
+
+    def test_negative_control_a_57_character_sales_order_is_refused(self) -> None:
+        inputs = load_inputs_module()
+        with self.assertRaisesRegex(inputs.RefusedError, "^SALES_ORDER"):
+            inputs.order_line({"SALES_ORDER": "S" * 57, "LINE": "999999"}, interface())
+        self.assertIsNone(
+            re.fullmatch(
+                interface()["properties"]["name"]["pattern"], "S" * 57 + "-999999"
+            )
+        )
+
+    def test_negative_control_a_leading_digit_is_refused(self) -> None:
+        inputs = load_inputs_module()
+        with self.assertRaisesRegex(inputs.RefusedError, "^SALES_ORDER"):
+            inputs.order_line({"SALES_ORDER": "1SO", "LINE": "1"}, interface())
+        with self.assertRaisesRegex(inputs.RefusedError, "^LINE"):
+            inputs.order_line({"SALES_ORDER": "SO", "LINE": "1-2"}, interface())
+
+    def test_negative_control_a_leading_zero_line_is_refused(self) -> None:
+        inputs = load_inputs_module()
+        self.assertEqual(
+            inputs.order_line({"SALES_ORDER": "SO", "LINE": "7"}, interface()),
+            ("SO", "7"),
+        )
+        for line in ("007", "0"):
+            with (
+                self.subTest(line=line),
+                self.assertRaisesRegex(inputs.RefusedError, "^LINE"),
+            ):
+                inputs.order_line({"SALES_ORDER": "SO", "LINE": line}, interface())
 
 
 if __name__ == "__main__":

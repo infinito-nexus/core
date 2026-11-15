@@ -1,0 +1,13 @@
+{
+  "role_type": "jwt",
+  "bound_audiences": [{{ OPENBAO_JWT_AUDIENCE | to_json }}],
+  "user_claim": "sub",
+  "bound_claims_type": "string",
+  "bound_claims": {
+    "project_id": {{ semaphore_task_entities_identity.project_id | to_json }},
+    "template_id": [{{ semaphore_task_entities_identity.template_id | to_json }}]
+  },
+  "token_policies": [{{ OPENBAO_TASK_ENTITIES_ROLE | to_json }}],
+  "token_ttl": {{ OPENBAO_JWT_TOKEN_TTL.deploy | to_json }},
+  "token_max_ttl": {{ OPENBAO_JWT_TOKEN_TTL.deploy | to_json }}
+}

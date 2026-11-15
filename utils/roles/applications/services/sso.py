@@ -156,6 +156,9 @@ def get_sso_config(
                                 or []: one ``{location, groups, auth_uri,
                                 upstream}`` per entry; the gate admits a request
                                 to ``location`` only for a member of ``groups``
+        oauth2_client           dict — ``services.sso.oauth2.client`` as
+                                ``{id, scopes}``, or {} when the gate signs in
+                                through the shared client
 
     ``allow_all_users`` true together with a non-empty ``allowed_groups``
     raises ``SsoConfigConflictError``. A list in the inventory replaces the
@@ -194,6 +197,7 @@ def get_sso_config(
     raw_restricted = _get(
         applications, application_id, "services.sso.oauth2.restricted_locations", []
     )
+    raw_client = _get(applications, application_id, "services.sso.oauth2.client", {})
     allowed_groups, allow_all_users = _oauth2_admission(applications, application_id)
 
     return {
@@ -217,7 +221,33 @@ def get_sso_config(
             else []
         ),
         "oauth2_restricted_locations": restricted_locations(raw_restricted),
+        "oauth2_client": oauth2_client(application_id, raw_client),
     }
+
+
+def oauth2_client(app_id: str, raw: Any) -> dict[str, Any]:
+    """
+    Args:
+        app_id: the consumer application.
+        raw: ``services.sso.oauth2.client``, a ``{id, scopes}`` mapping or empty.
+
+    Returns:
+        ``{}`` when the application declares no client of its own, else
+        ``{"id", "scopes"}``: the client id and the default client scopes it
+        carries beyond the shared login scopes.
+
+    Raises:
+        ValueError: a declared client without an id or without a scope list.
+    """
+    if not raw:
+        return {}
+    client_id = str(raw.get("id") or "").strip() if isinstance(raw, dict) else ""
+    scopes = raw.get("scopes") if isinstance(raw, dict) else None
+    if not client_id or not isinstance(scopes, (list, tuple)):
+        raise ValueError(
+            f"{app_id}: services.sso.oauth2.client needs an id and a scopes list"
+        )
+    return {"id": client_id, "scopes": [str(scope).strip() for scope in scopes]}
 
 
 def restricted_locations(raw: Any) -> list[dict[str, Any]]:

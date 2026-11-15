@@ -17,13 +17,13 @@ flowchart TD
     HOST -->|false| SKIP["exit 0<br>the role deploys on the stack host only"]
     HOST -->|"true, but a swarm node"| SWARMSKIP["probes + backup verification,<br>then exit 0 before the marker is seeded"]
     HOST -->|true| PROBE["probe/snapshot.sh<br>runs on every deploy"]
-    PROBE --> WAIT["wait for the backup unit to terminate,<br>then force one post-deploy run"]
+    PROBE --> WAIT["wait for the backup unit to terminate,<br>workspace/pass.sh prepare when BKP_TEST_WORKSPACES,<br>then force one post-deploy run,<br>polled by verify/maintenance.sh on compose"]
     WAIT --> COUNT{"generations stored"}
     COUNT -->|none| FAIL["fail: nothing was backed up"]
     COUNT -->|"some, no backup subjects on the host"| EMPTY["exit 0<br>a stamped empty generation is the expected outcome"]
     COUNT -->|some| PASS{"DEPLOY_IS_UPDATE"}
     PASS -->|true| UPDATE["verify/backup.sh<br>requires two differential generations"]
-    PASS -->|false| FIRST["verify/backup.sh<br>seed/marker.py seed + one more backup<br>restore_cycle.sh<br>sys-ctl-hlth-container's own script"]
+    PASS -->|false| FIRST["verify/backup.sh<br>seed/marker.py seed + one more backup<br>restore_cycle.sh, with the workspace pass when BKP_TEST_WORKSPACES<br>sys-ctl-hlth-container's own script"]
 ```
 
 The first pass is the whole disaster drill against the host this role deploys on
@@ -115,6 +115,17 @@ flowchart TD
     DIFF -->|yes| OK2["update pass satisfied"]
 ```
 
+## `verify/maintenance.sh`
+
+Starts the forced post-deploy run with `--no-block` and polls
+`baudolo-maintenance active` and the compose projects of the applications the
+run stops (`BKP_TEST_STOPPING`, `BKP_TEST_STOPPING_PROJECTS`) every half
+second until the unit terminates. It fails when the signal lists anything
+before the run, names an application the run never stops, omits one it does,
+lags behind a stopped project, clears while a project is still down, or stays
+set after the run. A run that announces nothing and stops nothing is the
+snapshot path and passes. It runs on compose only, like the restore half.
+
 ## `restore_cycle.sh`
 
 The destructive drill, first pass only. It proves the backup is restorable rather
@@ -196,6 +207,30 @@ that got the order wrong would fail loudly instead of flaking.
 Bringing the apps up **after** the replay also means their healthcheck now runs
 against the restored dump, rather than against the data the drill is about to
 overwrite.
+
+## `workspace/pass.sh`
+
+The workspace pass of requirement 112. `BKP_TEST_WORKSPACES` is true when the
+host holds `web-app-semaphore`, `web-app-openbao`, `web-svc-seaweedfs` and
+`web-app-gitea` with `services.gitea.workspaces.enabled`; only then does
+`test.env.j2` render the URLs and admin credentials the pass reads.
+
+```mermaid
+flowchart TD
+    PREP["prepare, before the forced backup:<br>workspace apply twice, provision one server<br>through the Incus e2e target, record the state"] --> CYCLE["restore_cycle.sh<br>takes every project down and restores"]
+    CYCLE --> PROVE["prove: workspace apply for both,<br>restore time, state against the record,<br>provision again: clone and no change"]
+    PROVE --> CTRL["controls: without the access key encryption key<br>the clone fails; without the seal key<br>OpenBao stays sealed"]
+    CTRL --> CLEAN["cleanup: destroy the server and both workspaces"]
+```
+
+`workspace/drill.py` speaks to Semaphore's API for every workspace step and
+records OpenBao's seal state, the Gitea repositories, the Keycloak organizations
+and groups, and the object versions of the SeaweedFS buckets of both
+workspaces. The controls take the key out of the project's env file, recreate
+the project, and put the file back from a copy in the pass's `0700` scratch
+directory, also when the pass fails. `BKP_TEST_WORKSPACE_ORDER`, the provision
+order for the Incus e2e target of requirement 109, is not rendered yet; the
+pass fails on its absence instead of skipping.
 
 ## `seed/marker.py`
 

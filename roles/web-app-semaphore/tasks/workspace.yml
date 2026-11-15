@@ -1,0 +1,36 @@
+---
+- name: "✅ Assert the workspace operation inputs"
+  ansible.builtin.assert:
+    that:
+      - SEMAPHORE_WORKSPACES_ENABLED | bool
+      - WORKSPACE is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+      - WORKSPACE_ACTION in ['apply', 'destroy']
+      - STACK_HOST in groups[application_id]
+    fail_msg: >-
+      web-app-semaphore: the workspace operation needs services.semaphore.workspaces, a lowercase
+      UUID as WORKSPACE, apply or destroy as WORKSPACE_ACTION and the role on the stack host
+      {{ STACK_HOST }}, the one host that owns the projects and the runner of the workspace
+    quiet: true
+
+- name: "🏷️ Name the workspace"
+  ansible.builtin.set_fact:
+    semaphore_workspace_alias: "{{ SEMAPHORE_WORKSPACE_ALIAS }}"
+    semaphore_workspace_dir: "{{ [SEMAPHORE_WORKSPACES_DIR, SEMAPHORE_WORKSPACE_ALIAS] | path_join }}"
+
+- name: "🎯 Run {{ WORKSPACE_ACTION }} of the workspace on the stack host alone"
+  when: inventory_hostname == STACK_HOST
+  block:
+    - name: "🧭 Run {{ WORKSPACE_ACTION }} of {{ semaphore_workspace_alias }} as the admin"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/admin.yml"
+      vars:
+        semaphore_admin_before: "{{ role_path }}/tasks/utils/workspace/locate.yml"
+        semaphore_admin_tasks: "{{ role_path }}/tasks/utils/workspace/operation.yml"
+
+    - name: "🗑️ Remove the route53 IAM user of {{ semaphore_workspace_alias }}"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/workspace/route53/destroy.yml"
+      when:
+        - WORKSPACE_ACTION == 'destroy'
+        - SEMAPHORE_DNS_FLAVOR == 'route53'
+
+    - name: "📤 Hand the result of {{ WORKSPACE_ACTION }} to workspace.sh and the later roles"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/result.yml"

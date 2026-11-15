@@ -1,0 +1,23 @@
+---
+application_id: svc-dns-knot
+entity_name: "{{ application_id | entity_name }}"
+
+KNOT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+KNOT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, KNOT_CONTAINER) }}"
+KNOT_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.public.dns') }}"
+
+KNOT_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
+KNOT_CONF_FILE: "{{ [ KNOT_VOLUMES_DIR, 'knot.conf' ] | path_join }}"
+KNOT_ZONE_FILE: "{{ [ KNOT_VOLUMES_DIR, 'subzone.zone' ] | path_join }}"
+KNOT_CONF_TARGET: "{{ lookup('volume', application_id, 'conf').target }}"
+KNOT_ZONE_TARGET: "{{ lookup('volume', application_id, 'zone').target }}"
+KNOT_STORAGE_TARGET: "{{ lookup('volume', application_id, 'data').target }}"
+KNOT_KEYS_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'workspaces.json' ] | path_join }}"
+
+KNOT_ZONE: "{{ lookup('config', 'web-app-semaphore', 'services.semaphore.workspaces.dns.zone') | lower }}"
+KNOT_HOSTS: "{{ groups[application_id] }}"
+KNOT_PRIMARY: "{{ KNOT_HOSTS | first }}"
+KNOT_ADDRESSES: "{{ KNOT_HOSTS | map('extract', hostvars, ['networks', 'internet', 'ip4']) | list }}"
+KNOT_TRANSFER_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.transfer_tsig_secret') | regex_replace('^base64:', '') }}"
+KNOT_UPDATE_TYPES: [A, AAAA, CNAME, TXT]
+KNOT_WORKSPACE_ALGORITHM: hmac-sha512

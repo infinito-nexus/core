@@ -1,0 +1,40 @@
+---
+# Param semaphore_workspace_alias: ws-<id> of the workspace apply places.
+# Param semaphore_workspace_hint_query: the hint query of tasks/workspace.yml; its PLACED line names the zone the provision environment of the workspace already holds.
+# Output workspace_dns: zone and zone_id of the Cloudflare zone the workspace lies in.
+- name: "✅ Require the record limit of a zone on the deployment's Cloudflare plan"
+  ansible.builtin.assert:
+    that:
+      - SEMAPHORE_DNS.record_limit is integer
+      - SEMAPHORE_DNS.record_limit > 0
+    fail_msg: >-
+      the cloudflare DNS flavor places a workspace in the first zone below the record limit of the
+      deployment's Cloudflare plan: set services.semaphore.workspaces.dns.record_limit of
+      web-app-semaphore to that limit, got {{ SEMAPHORE_DNS.record_limit }}
+    quiet: true
+
+- name: "🗂️ Read the zone pool and the zone {{ semaphore_workspace_alias }} lies in"
+  ansible.builtin.set_fact:
+    semaphore_cloudflare_zones: "{{ SEMAPHORE_DNS_CREDENTIALS | semaphore_cloudflare_pool | list }}"
+    semaphore_workspace_placed: >-
+      {{ semaphore_workspace_hint_query.stdout_lines | select('match', '^PLACED ')
+         | map('regex_replace', '^PLACED ', '') | map('from_json') | list }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse to move {{ semaphore_workspace_alias }} out of the zone it lies in"
+  ansible.builtin.assert:
+    that:
+      - semaphore_workspace_placed | map(attribute='zone') | reject('in', semaphore_cloudflare_zones) | list | length == 0
+    fail_msg: >-
+      {{ semaphore_workspace_alias }} lies in {{ semaphore_workspace_placed | map(attribute='zone') | join(', ') }},
+      which secrets.credentials.cloudflare_zone_tokens no longer holds, and apply never moves a placed workspace
+    quiet: true
+
+- name: "📌 Keep {{ semaphore_workspace_alias }} in the zone it lies in"
+  ansible.builtin.set_fact:
+    workspace_dns: "{{ semaphore_workspace_placed | first }}"
+  when: semaphore_workspace_placed | length > 0
+
+- name: "🌐 Place {{ semaphore_workspace_alias }} below the zone record limit"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/workspace/cloudflare/place.yml"
+  when: semaphore_workspace_placed | length == 0

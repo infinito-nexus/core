@@ -94,6 +94,51 @@ class TestKeycloakClient(unittest.TestCase):
         self.assertIn("HTTP 409", str(raised.exception))
         self.assertNotIn("secret", str(raised.exception))
 
+    def test_a_delete_carries_its_payload_and_a_read_carries_none(self):
+        token = json.dumps({"access_token": "t", "expires_in": 300}).encode()
+        bodies = []
+
+        def urlopen(request, timeout):
+            if request.full_url.endswith("/token"):
+                return _Response(token)
+            bodies.append((request.get_method(), request.data))
+            return _Response(b"")
+
+        kc = m.Keycloak("http://kc", "r", "admin", "pw")
+        with mock.patch.object(m.urllib.request, "urlopen", urlopen):
+            kc.call("DELETE", "users/u/role-mappings/clients/c", [{"name": "x"}])
+            kc.call("DELETE", "users/u")
+            kc.call("GET", "users/u")
+        self.assertEqual(
+            bodies,
+            [("DELETE", b'[{"name": "x"}]'), ("DELETE", None), ("GET", None)],
+        )
+
+    def test_a_service_account_signs_in_to_its_own_realm(self):
+        token = json.dumps({"access_token": "t", "expires_in": 300}).encode()
+        calls = []
+
+        def urlopen(request, timeout):
+            calls.append((request.full_url, request.data))
+            if request.full_url.endswith("/token"):
+                return _Response(token)
+            return _Response(b"{}")
+
+        kc = m.ServiceAccount("http://kc", "r", "workspace-members", "s3cr3t")
+        with mock.patch.object(m.urllib.request, "urlopen", urlopen):
+            kc.call("GET", "organizations")
+        url, form = calls[0]
+        self.assertEqual(url, "http://kc/realms/r/protocol/openid-connect/token")
+        self.assertEqual(
+            sorted(form.decode().split("&")),
+            [
+                "client_id=workspace-members",
+                "client_secret=s3cr3t",
+                "grant_type=client_credentials",
+            ],
+        )
+        self.assertEqual(calls[1][0], "http://kc/admin/realms/r/organizations")
+
 
 if __name__ == "__main__":
     unittest.main()

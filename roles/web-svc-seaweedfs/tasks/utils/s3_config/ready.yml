@@ -1,0 +1,27 @@
+---
+- name: "⏳ Wait until the SeaweedFS S3 gateway answers"
+  ansible.builtin.shell: >
+    container exec {{ SEAWEEDFS_CONTAINER_ADDRESS }}
+    wget -q -O - {{ SEAWEEDFS_S3_LOCAL_URL }}/status
+  args:
+    executable: /bin/bash
+  register: _seaweedfs_ready
+  retries: 30
+  delay: 5
+  until: _seaweedfs_ready.rc == 0
+  changed_when: false
+
+- name: "📣 Reload the S3 identities when s3.json changed"
+  include_tasks: utils/s3_config/reload.yml
+
+- name: "🚫 Fail unless the gateway refuses an unsigned request"
+  ansible.builtin.shell: >
+    container exec {{ SEAWEEDFS_CONTAINER_ADDRESS }}
+    {{ 10 | curl(retries=0) }} -o /dev/null -w '%{http_code}' {{ SEAWEEDFS_S3_LOCAL_URL }}/
+  args:
+    executable: /bin/bash
+  register: _seaweedfs_unsigned
+  changed_when: false
+  retries: 5
+  delay: 2
+  until: (_seaweedfs_unsigned.stdout | trim) == '403'

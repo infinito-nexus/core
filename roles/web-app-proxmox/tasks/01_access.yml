@@ -6,12 +6,8 @@
     resolve_output_prefix: PROXMOX
     resolve_compose_cid: "{{ PROXMOX_CONTAINER }}"
 
-- name: "⏳ Wait until pveproxy of {{ application_id }} accepts connections"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/wait_container_port.yml') }}"
-  vars:
-    wait_output_prefix: PROXMOX
-    wait_port: "{{ PROXMOX_INTERNAL_PORT }}"
-    wait_timeout: 300
+- name: "🧭 Bring up the {{ PROXMOX_FLAVOR }} flavor of {{ application_id }}"
+  ansible.builtin.include_tasks: "flavors/{{ PROXMOX_FLAVOR }}.yml"
 
 - name: "🪪 Converge the OpenID realm, admin group and ACL of {{ application_id }}"
   ansible.builtin.shell:
@@ -22,7 +18,7 @@
       container exec -i
       -e PROXMOX_REALM -e PROXMOX_REALM_CONFIG -e PROXMOX_REALM_CLIENT_SECRET_B64
       -e PROXMOX_GROUP -e PROXMOX_GROUP_COMMENT -e PROXMOX_ROLE
-      {{ PROXMOX_LOCAL_CID | quote }} perl -
+      {{ PROXMOX_LOCAL_CID | quote }} {{ (PROXMOX_GUEST_EXEC + ['perl', '-']) | map('quote') | join(' ') }}
     stdin: |-
       {{ PROXMOX_OIDC_CLIENT_SECRET | b64encode }}
       {{ lookup('file', 'perl/access.pl') }}

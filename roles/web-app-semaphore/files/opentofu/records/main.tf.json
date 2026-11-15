@@ -1,0 +1,19 @@
+{
+  "locals": {
+    "workspace_file": "${path.module}/workspace.json",
+    "workspace": "${fileexists(local.workspace_file) ? jsondecode(file(local.workspace_file)) : {workspace = \"ws-missing\", dns = {zone = \"invalid\", zone_id = \"\"}}}",
+    "ipv4": "${var.host == \"\" || strcontains(var.host, \":\") ? [] : [var.host]}",
+    "ipv6": "${strcontains(var.host, \":\") ? [var.host] : []}"
+  },
+  "module": {
+    "dns": {
+      "source": "./modules/dns",
+      "zone": "${local.workspace.dns.zone}",
+      "zone_id": "${local.workspace.dns.zone_id}",
+      "name": "${var.dns_label}.${local.workspace.workspace}",
+      "ipv4": "${local.ipv4}",
+      "ipv6": "${local.ipv6}",
+      "cname": "${var.cname}"
+    }
+  }
+}

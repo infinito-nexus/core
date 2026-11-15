@@ -1,0 +1,26 @@
+---
+# Param: usage_result_dir - directory every host writes its count to, handed over by usage.sh
+- name: "Count the active people of every Keycloak of the limited workspace hosts"
+  hosts: web-app-keycloak
+  connection: local
+  become: false
+  gather_facts: false
+  tasks:
+    - name: ✅ Assert the operation usage.sh handed over
+      ansible.builtin.assert:
+        that:
+          - ansible_connection == 'local'
+          - usage_result_dir | length > 0
+        fail_msg: "Run usage.sh: the workspace hosts limited by --limit, ansible_connection local and the result directory"
+        quiet: true
+
+    - name: 🔀 Merge variables
+      ansible.builtin.include_tasks: tasks/utils/constructor/variables.yml
+
+    - name: 🧊 Render the applications SPOT once and carry it into every task's worker
+      applications_carrier: {}
+
+    - name: "📏 Count the active people of the Keycloak on {{ inventory_hostname }}"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: usage

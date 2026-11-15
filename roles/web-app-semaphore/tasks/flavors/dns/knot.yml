@@ -1,0 +1,5 @@
+---
+- name: "🔎 Report the live checks of the knot DNS flavor"
+  ansible.builtin.debug:
+    msg: "{{ SEMAPHORE_DNS_LIVE.message }}"
+  run_once: true

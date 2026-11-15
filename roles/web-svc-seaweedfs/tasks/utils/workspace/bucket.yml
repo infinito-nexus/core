@@ -1,0 +1,65 @@
+---
+# Param: seaweedfs_ws - the names of the workspace (filter seaweedfs_workspace)
+- name: "🔍 Read the filer location rules"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 'fs.configure' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+  args:
+    executable: /bin/bash
+  register: _seaweedfs_filer_conf
+  changed_when: false
+  timeout: "{{ lookup('timeout', 60) | int }}"
+
+- name: "📐 Let every workspace bucket grow one volume at a time"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 'fs.configure -locationPrefix={{ SEAWEEDFS_WORKSPACE_LOCATION_PREFIX }} -volumeGrowthCount={{ SEAWEEDFS_WORKSPACE_VOLUME_GROWTH }} -apply' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+  args:
+    executable: /bin/bash
+  changed_when: true
+  timeout: "{{ lookup('timeout', 60) | int }}"
+  when: >-
+    not (_seaweedfs_filer_conf.stdout
+         | seaweedfs_location_configured(SEAWEEDFS_WORKSPACE_LOCATION_PREFIX, SEAWEEDFS_WORKSPACE_VOLUME_GROWTH))
+
+- name: "📋 List SeaweedFS buckets"
+  include_tasks: utils/bucket/list.yml
+
+- name: "📁 Create the state bucket of the workspace"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 's3.bucket.create -name {{ seaweedfs_ws.bucket }}' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+  args:
+    executable: /bin/bash
+  changed_when: true
+  timeout: "{{ lookup('timeout', 60) | int }}"
+  retries: 3
+  delay: 10
+  register: _seaweedfs_ws_bucket_create
+  until: _seaweedfs_ws_bucket_create is succeeded
+  when: seaweedfs_ws.bucket not in (_seaweedfs_buckets.stdout | seaweedfs_bucket_names)
+
+- name: "🔍 Read the versioning state of the workspace bucket"
+  ansible.builtin.shell: >-
+    {{ SEAWEEDFS_S3_SIGNED_CURL }} -w '\n%{http_code}' {{ (SEAWEEDFS_S3_LOCAL_URL ~ '/' ~ seaweedfs_ws.bucket ~ '?versioning') | quote }}
+  args:
+    executable: /bin/bash
+    stdin: "{{ SEAWEEDFS_ADMIN_CREDENTIALS }}"
+  register: _seaweedfs_ws_versioning
+  changed_when: false
+  retries: 3
+  delay: 5
+  until: _seaweedfs_ws_versioning is succeeded
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗂 Turn versioning on for the workspace bucket"
+  ansible.builtin.shell: >-
+    {{ SEAWEEDFS_S3_SIGNED_CURL }} -f -X PUT --data-binary @- {{ (SEAWEEDFS_S3_LOCAL_URL ~ '/' ~ seaweedfs_ws.bucket ~ '?versioning') | quote }}
+  args:
+    executable: /bin/bash
+    stdin: |-
+      {{ SEAWEEDFS_ADMIN_CREDENTIALS }}
+      <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>
+  changed_when: true
+  when: not (_seaweedfs_ws_versioning.stdout | seaweedfs_versioning_enabled)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

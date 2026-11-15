@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
+import sys
 from typing import Any
 
 from cli.administration.roles.pull import pull_or_exit
 
 from .apps import validate_application_ids
 from .modes import add_dynamic_mode_args, build_modes_from_args, load_modes_from_yaml
+from .openbao import OpenBaoPreflightError
+from .openbao import prepare as openbao_prepare
 from .paths import INVENTORY_VALIDATOR_PATH, MODES_FILE, PLAYBOOK_PATH, PROJECT_ROOT
 from .runner import run_ansible_playbook
 
@@ -214,6 +218,12 @@ def run_from_args(
     validate_application_ids(args.inventory, args.id)
 
     modes: dict[str, Any] = build_modes_from_args(modes_spec, args)
+
+    try:
+        openbao_prepare(args.inventory, os.environ)
+    except OpenBaoPreflightError as exc:
+        print(f"\n[ERROR] {exc}\n", file=sys.stderr)
+        raise SystemExit(1) from None
 
     run_ansible_playbook(
         repo_root=str(PROJECT_ROOT),

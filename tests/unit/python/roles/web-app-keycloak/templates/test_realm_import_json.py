@@ -4,6 +4,7 @@ import copy
 import importlib.util
 import json
 import re
+import sys
 import unittest
 from unittest import mock
 
@@ -102,26 +103,91 @@ def secondary_pattern(domain: str) -> str:
     )
 
 
-def directory_context(realm: str) -> dict:
-    """Resolve the directory client's names through ``vars/main.yml``, switch off.
-
-    Args:
-        realm: KEYCLOAK_REALM the client id derives from.
-    """
+def usage_context() -> dict:
+    """Resolve the usage client's names through ``vars/main.yml``, switch off."""
     env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
-    client_id = env.from_string(ROLE_VARS["KEYCLOAK_DIRECTORY_CLIENT_ID"]).render(
-        KEYCLOAK_REALM=realm
-    )
+    client_id = ROLE_VARS["KEYCLOAK_USAGE_CLIENT_ID"]
     return {
-        "KEYCLOAK_DIRECTORY_CLIENT_ENABLED": False,
-        "KEYCLOAK_DIRECTORY_CLIENT_ID": client_id,
-        "KEYCLOAK_DIRECTORY_CLIENT_SECRET": "d" * 64,
-        "KEYCLOAK_DIRECTORY_CLIENT_ROLES": ROLE_VARS["KEYCLOAK_DIRECTORY_CLIENT_ROLES"],
-        "KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT": env.from_string(
-            ROLE_VARS["KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT"]
-        ).render(KEYCLOAK_DIRECTORY_CLIENT_ID=client_id),
+        "KEYCLOAK_USAGE_CLIENT_ENABLED": False,
+        "KEYCLOAK_USAGE_CLIENT_ID": client_id,
+        "KEYCLOAK_USAGE_CLIENT_SECRET": "d" * 64,
+        "KEYCLOAK_USAGE_CLIENT_ROLES": ROLE_VARS["KEYCLOAK_USAGE_CLIENT_ROLES"],
+        "KEYCLOAK_USAGE_SERVICE_ACCOUNT": env.from_string(
+            ROLE_VARS["KEYCLOAK_USAGE_SERVICE_ACCOUNT"]
+        ).render(KEYCLOAK_USAGE_CLIENT_ID=client_id),
         "KEYCLOAK_CONSOLE_ROLE_CLIENT": ROLE_VARS["KEYCLOAK_CONSOLE_ROLE_CLIENT"],
     }
+
+
+ORGANIZATION_VARIABLES = (
+    "KEYCLOAK_ORGANIZATIONS_ENABLED",
+    "KEYCLOAK_ORGANIZATION_EXECUTION",
+    "KEYCLOAK_WORKSPACES_CLIENT_ID",
+    "KEYCLOAK_WORKSPACE_ROLES_SCOPE",
+    "KEYCLOAK_WORKSPACE_ROLES_CLAIM",
+    "KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID",
+    "KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_SECRET",
+    "KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ROLES",
+    "KEYCLOAK_WORKSPACE_MEMBERS_SERVICE_ACCOUNT",
+    "KEYCLOAK_EXPORT_CLIENT_ID",
+    "KEYCLOAK_EXPORT_CLIENT_SECRET",
+    "KEYCLOAK_EXPORT_CLIENT_ROLES",
+    "KEYCLOAK_EXPORT_SERVICE_ACCOUNT",
+    "KEYCLOAK_EXPORT_RECIPIENT_ATTRIBUTE",
+    "KEYCLOAK_EXPORT_RECIPIENT_PATTERN",
+    "KEYCLOAK_STORE_FIXTURE_CLIENT_ID",
+    "KEYCLOAK_STORE_FIXTURE_CLIENT_SECRET",
+    "KEYCLOAK_STORE_FIXTURE_ENABLED",
+)
+MEMBERS_CLIENT_SECRET = "e" * 64
+EXPORT_CLIENT_SECRET = "f" * 64
+STORE_FIXTURE_CLIENT_SECRET = "a" * 64
+
+
+def organizations_context(enabled: bool, invite_client_id: str | None = None) -> dict:
+    """
+    Args:
+        enabled: value of ``services.keycloak.organizations.enabled``.
+        invite_client_id: value of ``services.semaphore.workspaces.invite_client_id``
+            of ``web-app-semaphore``.
+
+    Returns:
+        The organization variables of ``vars/main.yml``, resolved.
+    """
+    config = {
+        "services": {
+            "keycloak": {"organizations": {"enabled": enabled}},
+            "semaphore": {"workspaces": {"invite_client_id": invite_client_id}},
+        },
+        "secrets": {
+            "credentials": {
+                "workspace_members_client_secret": MEMBERS_CLIENT_SECRET,
+                "export_client_secret": EXPORT_CLIENT_SECRET,
+                "store_fixture_client_secret": STORE_FIXTURE_CLIENT_SECRET,
+            }
+        },
+    }
+
+    def lookup(name, _application_id, path):
+        assert name == "config", name
+        value = config
+        for part in path.split("."):
+            value = value[part]
+        return value
+
+    env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+    env.filters["bool"] = bool
+    resolved: dict = {}
+    for name in ORGANIZATION_VARIABLES:
+        value = ROLE_VARS[name]
+        scope = {"lookup": lookup, "application_id": "web-app-keycloak", **resolved}
+        if isinstance(value, str) and re.fullmatch(r"\{\{[^{}]*\}\}", value.strip()):
+            expression = value.strip().removeprefix("{{").removesuffix("}}")
+            value = env.compile_expression(expression)(**scope)
+        elif isinstance(value, str):
+            value = env.from_string(value).render(**scope)
+        resolved[name] = value
+    return resolved
 
 
 APP_URL = "https://suite.crm.example.com"
@@ -170,7 +236,9 @@ CONTEXT = {
     "KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE"],
     "KEYCLOAK_REGISTRATION_ALLOWED": ROLE_VARS["KEYCLOAK_REGISTRATION_ALLOWED"],
     "KEYCLOAK_ADMIN_EVENTS_EXPIRATION": ADMIN_EVENTS_DAYS * 86400,
-    **directory_context("example.com"),
+    **usage_context(),
+    **organizations_context(False),
+    "KEYCLOAK_PROXY_CLIENTS": [],
     "LDAP_ONLY": False,
     "OIDC": {
         "CLIENT": {"SECRET": "s3cret", "ID": "example.com"},
@@ -241,6 +309,8 @@ def render(
     client_apps: list[str] | None = None,
     network_urls=None,
     overrides: dict | None = None,
+    roots: list[str] | None = None,
+    answer=None,
 ) -> str:
     """
     Args:
@@ -248,15 +318,17 @@ def render(
         client_apps: KEYCLOAK_DECLARED_CLIENT_APPS.
         network_urls: answer of lookup('network_urls', url); None serves one network.
         overrides: context values replacing those of CONTEXT.
+        roots: template roots searched after the project root, for fixture roles.
+        answer: lookup stub replacing fake_lookup; None keeps it.
     """
 
     def lookup(name, *args, **kwargs):
         if name == "network_urls" and network_urls is not None:
             return network_urls(*args)
-        return fake_lookup(name, *args, **kwargs)
+        return (answer or fake_lookup)(name, *args, **kwargs)
 
     env = Environment(
-        loader=FileSystemLoader([str(IMPORT_DIR), str(PROJECT_ROOT)]),
+        loader=FileSystemLoader([str(IMPORT_DIR), str(PROJECT_ROOT), *(roots or [])]),
         trim_blocks=True,
         keep_trailing_newline=True,
         undefined=StrictUndefined,
@@ -511,6 +583,7 @@ CLIENT_APPS = sorted(
     path.parts[-4]
     for path in PROJECT_ROOT.glob("roles/*/templates/keycloak/clients.json.j2")
 )
+OWN_CLIENT_SECRET = "oidc_client_secret"
 REALM_MANAGEMENT = "realm-management"
 EVENT_SETTINGS = {
     "eventsEnabled": False,
@@ -555,13 +628,15 @@ class TestLogoutTrustBoundary(unittest.TestCase):
     def setUp(self) -> None:
         self.realm = json.loads(render([], client_apps=CLIENT_APPS))
 
-    def test_the_realm_renders_on_the_credentials_it_already_had(self) -> None:
+    def test_every_client_renders_on_the_shared_or_its_own_credential(self) -> None:
         secrets = {
             client["secret"]
             for client in self.realm["clients"]
             if client.get("protocol") == "openid-connect" and "secret" in client
         }
-        self.assertEqual(secrets, {CONTEXT["OIDC"]["CLIENT"]["SECRET"]})
+        self.assertEqual(
+            secrets, {CONTEXT["OIDC"]["CLIENT"]["SECRET"], OWN_CLIENT_SECRET}
+        )
 
     def test_no_service_account_user_holds_a_realm_management_role(self) -> None:
         self.assertTrue(
@@ -891,6 +966,196 @@ class TestEmailPolicy(unittest.TestCase):
         for overrides in ({}, SMTP, {**MAILBOX, **SMTP}):
             with self.subTest(overrides=overrides):
                 self.assertFalse(realm_for(overrides)["duplicateEmailsAllowed"])
+
+
+EXPORT_RECIPIENT = ROLE_VARS["KEYCLOAK_EXPORT_RECIPIENT_ATTRIBUTE"]
+EXPORT_PY = PROJECT_ROOT / "roles/web-app-semaphore/files/python/export.py"
+BECH32 = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+RECIPIENT = "age1" + (BECH32 * 2)[:58]
+REFUSED_RECIPIENTS = (
+    "",
+    RECIPIENT[:-1],
+    RECIPIENT + "q",
+    RECIPIENT.upper(),
+    RECIPIENT[:-1] + "b",
+    RECIPIENT[:-1] + "1",
+    "age2" + RECIPIENT[4:],
+    f"{RECIPIENT} {RECIPIENT}",
+    f"{RECIPIENT}\n",
+    f" {RECIPIENT}",
+)
+
+
+def export_recipient_pattern() -> re.Pattern[str]:
+    """
+    Returns:
+        ``RECIPIENT`` of the export script, which reads the attribute.
+    """
+    spec = importlib.util.spec_from_file_location("semaphore_export", EXPORT_PY)
+    module = importlib.util.module_from_spec(spec)
+    with mock.patch.object(sys, "path", [str(EXPORT_PY.parent), *sys.path]):
+        spec.loader.exec_module(module)
+    return module.RECIPIENT
+
+
+def organizations_realm(saml_apps: list[str] | None = None) -> dict:
+    """
+    Args:
+        saml_apps: KEYCLOAK_SAML_APPS.
+
+    Returns:
+        The parsed realm import with organizations on.
+    """
+    return json.loads(render(saml_apps or [], overrides=organizations_context(True)))
+
+
+def recipient_findings(realm: dict) -> list[str]:
+    """
+    Args:
+        realm: the parsed realm import.
+
+    Returns:
+        What keeps ``export_recipient`` from one single-valued age recipient that
+        only its user sets and admins see.
+    """
+    attribute = profile_of(realm).get(EXPORT_RECIPIENT)
+    if attribute is None:
+        return [f"the profile declares no {EXPORT_RECIPIENT}"]
+    permissions = attribute["permissions"]
+    findings = [] if permissions["edit"] == ["user"] else [f"edit is {permissions}"]
+    if "admin" not in permissions["view"]:
+        findings.append(f"view is {permissions['view']}")
+    if attribute["multivalued"] is not False:
+        findings.append("multivalued")
+    pattern = re.compile(attribute["validations"]["pattern"]["pattern"])
+    if not pattern.fullmatch(RECIPIENT):
+        findings.append("the pattern refuses an age recipient")
+    findings.extend(
+        f"the pattern admits {value!r}"
+        for value in REFUSED_RECIPIENTS
+        if pattern.fullmatch(value)
+    )
+    return findings
+
+
+def without_recipient(realm: dict, change) -> dict:
+    """
+    Args:
+        realm: the parsed realm import.
+        change: callable that edits the profile attribute list in place.
+
+    Returns:
+        A copy of ``realm`` whose user profile ``change`` edited.
+    """
+    planted = copy.deepcopy(realm)
+    provider = planted["components"]["org.keycloak.userprofile.UserProfileProvider"]
+    profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+    change(profile["attributes"])
+    provider[0]["config"]["kc.user.profile.config"] = [json.dumps(profile)]
+    return planted
+
+
+def recipient_of(attributes: list[dict]) -> dict:
+    """
+    Args:
+        attributes: the attribute list of a user profile.
+
+    Returns:
+        Its ``export_recipient`` attribute.
+    """
+    return next(a for a in attributes if a["name"] == EXPORT_RECIPIENT)
+
+
+class TestExportRecipient(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.realm = organizations_realm(["web-app-suitecrm"])
+
+    def test_the_export_recipient_is_user_editable_only(self) -> None:
+        self.assertEqual(recipient_findings(self.realm), [])
+
+    def test_the_profile_admits_what_the_export_script_admits(self) -> None:
+        script = export_recipient_pattern()
+        pattern = re.compile(
+            profile_of(self.realm)[EXPORT_RECIPIENT]["validations"]["pattern"][
+                "pattern"
+            ]
+        )
+        for value in (RECIPIENT, *REFUSED_RECIPIENTS):
+            with self.subTest(value=value):
+                self.assertEqual(
+                    bool(pattern.fullmatch(value)), bool(script.fullmatch(value))
+                )
+
+    def test_the_check_catches_an_admin_edit(self) -> None:
+        def admin_edit(attributes: list[dict]) -> None:
+            recipient_of(attributes)["permissions"]["edit"] = ["admin", "user"]
+
+        self.assertEqual(
+            recipient_findings(without_recipient(self.realm, admin_edit)),
+            ["edit is {'view': ['admin', 'user'], 'edit': ['admin', 'user']}"],
+        )
+
+    def test_the_check_catches_a_dropped_attribute(self) -> None:
+        def drop(attributes: list[dict]) -> None:
+            attributes.remove(recipient_of(attributes))
+
+        self.assertEqual(
+            recipient_findings(without_recipient(self.realm, drop)),
+            [f"the profile declares no {EXPORT_RECIPIENT}"],
+        )
+
+    def test_the_check_catches_a_multivalued_or_loose_attribute(self) -> None:
+        def multivalued(attributes: list[dict]) -> None:
+            recipient_of(attributes)["multivalued"] = True
+
+        def loose(attributes: list[dict]) -> None:
+            recipient_of(attributes)["validations"]["pattern"]["pattern"] = "age1.*"
+
+        for change in (multivalued, loose):
+            with self.subTest(change=change.__name__):
+                self.assertTrue(
+                    recipient_findings(without_recipient(self.realm, change))
+                )
+
+    def test_without_organizations_no_recipient_is_declared(self) -> None:
+        self.assertNotIn(EXPORT_RECIPIENT, profile_of(json.loads(render([]))))
+
+    def test_the_recipient_reaches_neither_ldap_nor_saml(self) -> None:
+        self.assertNotIn(
+            EXPORT_RECIPIENT,
+            [entry["name"] for entry in CONTEXT["KEYCLOAK_PROFILE_ATTRIBUTES"]],
+        )
+        self.assertFalse(
+            [
+                name
+                for name, mapper in ldap_mappers_of(self.realm).items()
+                if EXPORT_RECIPIENT in json.dumps(mapper)
+            ]
+        )
+        saml = next(c for c in self.realm["clients"] if c.get("protocol") == "saml")
+        self.assertNotIn(EXPORT_RECIPIENT, json.dumps(saml["protocolMappers"]))
+
+    def test_an_existing_realm_gets_the_profile_of_the_render(self) -> None:
+        init = load_yaml_any(str(ROLE_DIR / "tasks/02_init.yml"))
+        facts = {
+            name: value
+            for task in init
+            for name, value in (task.get("set_fact") or {}).items()
+        }
+        self.assertEqual(
+            facts["KEYCLOAK_DICTIONARY_REALM_RAW"],
+            "{{ lookup('template', 'import/realm.json.j2') }}",
+        )
+        self.assertIn(
+            "KEYCLOAK_DICTIONARY_REALM.components['org.keycloak.userprofile.UserProfileProvider']",
+            facts["KEYCLOAK_USER_PROFILE_OBJECT"],
+        )
+        (push,) = load_yaml_any(str(ROLE_DIR / "tasks/update/05_userprofile.yml"))
+        self.assertIn("update users/profile", push["ansible.builtin.shell"])
+        self.assertEqual(
+            push["args"]["stdin"], "{{ KEYCLOAK_USER_PROFILE_OBJECT | to_json }}"
+        )
 
 
 def drifted_required_actions(desired: list, current: list) -> list:

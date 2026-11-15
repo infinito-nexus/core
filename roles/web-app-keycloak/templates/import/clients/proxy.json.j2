@@ -1,0 +1,14 @@
+{#
+  Args:
+    kc_proxy_client: one entry of KEYCLOAK_PROXY_CLIENTS, {application_id, client_id, scopes}.
+#}
+{% from "clients/consumer.json.j2" import login_client with context %}
+{{ login_client(
+     application_id=kc_proxy_client.application_id,
+     client_id=kc_proxy_client.client_id,
+     name=('SSO gate of ' ~ kc_proxy_client.application_id),
+     secret=lookup('config', kc_proxy_client.application_id, 'secrets.credentials.sso_proxy_client_secret'),
+     login_url=false,
+     audience=true,
+     scopes=kc_proxy_client.scopes,
+     redirect_path='/oauth2/callback') }}

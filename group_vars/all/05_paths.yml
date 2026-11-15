@@ -8,6 +8,8 @@ DIR_COMPOSITIONS: "/opt/compose/"
 DIR_SYSTEM_SERVICE: "/etc/systemd/system"
 DIR_SYSTEM_SERVICE_USER: "$HOME/.config/systemd/user"
 DIR_COMPOSE_PULL_LOCK: "/run/ansible/compose-pull/"
+DIR_MAINTENANCE: "/run/infinito/maintenance"
+FILE_MAINTENANCE_BACKUP: "{{ [DIR_MAINTENANCE, 'backup.json'] | path_join }}"
 
 DIR_BIN: "/usr/bin"
 BIN_COMPOSE: "{{ [ DIR_BIN, 'compose' ] | path_join }}"

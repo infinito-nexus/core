@@ -1,0 +1,13 @@
+---
+- name: "✅ Assert owner age of exports is between 2 days and the admin event retention"
+  ansible.builtin.assert:
+    that:
+      - SEMAPHORE_EXPORT_OWNER_MIN_AGE_DAYS | string is match('^[0-9]+$')
+      - SEMAPHORE_EXPORT_OWNER_MIN_AGE_DAYS | int >= 2
+      - SEMAPHORE_EXPORT_OWNER_MIN_AGE_DAYS | int < SEMAPHORE_EXPORT_EVENT_RETENTION_DAYS | int
+    fail_msg: >-
+      web-app-semaphore: services.semaphore.workspaces.export.owner_min_age_days MUST be a whole number
+      of at least 2 days and below services.keycloak.events.admin.expiration_days of web-app-keycloak,
+      else a missing membership event no longer proves the age of an Owner
+    quiet: true
+  when: SEMAPHORE_WORKSPACES_ENABLED | bool

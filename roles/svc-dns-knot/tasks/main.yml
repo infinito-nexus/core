@@ -1,0 +1,9 @@
+---
+- include_tasks: 00_core.yml
+  when: run_once_svc_dns_knot is not defined
+  vars:
+    application_id: svc-dns-knot
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"

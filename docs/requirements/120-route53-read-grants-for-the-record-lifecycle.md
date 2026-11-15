@@ -10,7 +10,7 @@ The store found that the policy of [104](104-runner-image-opentofu-and-root-modu
 
 ### Today
 
-- The IAM user of a workspace may call `ChangeResourceRecordSets` on the subzone's hosted zone only, when every name matches `*.ws-<id>.<subzone>` and every type is A, AAAA or TXT (104 decision 9). It may call nothing else.
+- The IAM user of a workspace may call `ChangeResourceRecordSets` on the subzone's hosted zone only, when every name matches `*.ws-<id>.<subzone>` and every type is A, AAAA, CNAME or TXT (104 decision 9). It may call nothing else.
 
 ### Upstream
 
@@ -35,6 +35,6 @@ Rejected:
 
 ## Acceptance Criteria
 
-- [ ] The rendered policy of workspace A holds exactly the conditioned `ChangeResourceRecordSets`, `GetHostedZone` and `ListResourceRecordSets` on the subzone's hosted zone, and `GetChange` on `change/*`. Negative controls drop `GetChange`, widen `ListResourceRecordSets` to `*` and add `route53:*`, and each must fail (`test_the_route53_policy_holds_exactly_four_actions` and its controls in `tests/unit/python/roles/web-app-semaphore/test_dns_flavors.py`).
+- [x] The rendered policy of workspace A holds exactly the conditioned `ChangeResourceRecordSets`, `GetHostedZone` and `ListResourceRecordSets` on the subzone's hosted zone, and `GetChange` on `change/*`. Negative controls drop `GetChange`, widen `ListResourceRecordSets` to `*` and add `route53:*`, and each must fail (`semaphore_route53_policy` in `roles/web-app-semaphore/filter_plugins/semaphore_dns.py`, called by `workspace apply` in `roles/web-app-semaphore/tasks/flavors/dns/workspace/route53.yml` through `roles/web-app-semaphore/tasks/utils/workspace/dns.yml`, which writes the policy as the field `policy` of `tenant/data/ws-<id>-provision/dns`; `test_the_route53_policy_holds_exactly_four_actions`, `test_negative_control_a_dropped_get_change_fails`, `test_negative_control_a_list_on_every_zone_fails`, `test_negative_control_route53_star_fails`, `test_apply_hands_the_route53_policy_to_the_workspace_record` and `test_negative_control_a_policy_past_the_filter_fails` in `tests/unit/python/roles/web-app-semaphore/test_dns_flavors.py`; `tests/integration/ansible/filters/test_usage.py`).
 - [ ] On a row with AWS credentials, the key of workspace A creates, reads and destroys its own record with no error and without `allow_overwrite`, and still gets `AccessDenied` on a name of workspace B (`provision: a route53 key runs the whole record lifecycle` in `roles/web-app-semaphore/files/playwright/test-provision.js`).
-- [ ] The [README](../../roles/web-app-semaphore/README.md) lists the four actions and states that a workspace key lists every record of the subzone (`test_the_readme_states_the_route53_reach` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
+- [x] The [README](../../roles/web-app-semaphore/README.md) lists the four actions and states that a workspace key lists every record of the subzone (`test_the_readme_states_the_route53_reach` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`, green at the lane tip; the planted README without the list reach fails it).

@@ -6,7 +6,10 @@ Usage in any ``compose.yml.j2``:
 
     {{ lookup('compose_networks') }}
 
-The output starts at column 0 (no caller-side indent).
+The output starts at column 0 (no caller-side indent). Pass
+``internal=['<name>']`` to define role-private networks without a route out
+after the role's own, and add ``internal_only=True`` (with ``node_local=True``)
+for a compose project of its own that defines nothing else.
 """
 
 from __future__ import annotations
@@ -55,5 +58,7 @@ class LookupModule(LookupBase):
                 lookup_database=ctx.lookup_database,
                 swarm_encrypted=swarm_encrypted,
                 node_local=bool(kwargs.get("node_local", False)),
+                internal=tuple(kwargs.get("internal") or ()),
+                internal_only=bool(kwargs.get("internal_only", False)),
             )
         ]

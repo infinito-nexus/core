@@ -11,6 +11,7 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.env.parser import parse_static_env
 from utils.tests.swarm.extend_inventory import mesh_enabled
+from utils.tests.swarm.proxmox_host import INVENTORY as PROXMOX_INVENTORY
 from utils.tests.swarm.run import run_step
 
 _CONTROLLER = "localhost"
@@ -72,11 +73,28 @@ _LAB_ADDRESSES = {
     "NFS_SERVER": "INFINITO_SWARM_NFS_IP",
     "BACKUP_NODE": "INFINITO_SWARM_BACKUP_IP",
 }
+_PROXMOX_ADDRESS = ("PROXMOX_NODE", "INFINITO_SWARM_PROXMOX_IP")
 
 
-def _lab_endpoints() -> list[str]:
+def _proxmox_inventory(inv_dir: str) -> Path | None:
+    path = Path(inv_dir) / PROXMOX_INVENTORY
+    return path if path.is_file() else None
+
+
+def _lab_endpoints(inv_dir: str) -> list[str]:
+    """
+    Args:
+        inv_dir: inventory directory of the round.
+
+    Returns:
+        The ``--endpoint`` arguments of every lab host; the Proxmox host's
+        only when the round runs it, as its compose profile is up only then.
+    """
+    addresses = dict(_LAB_ADDRESSES)
+    if _proxmox_inventory(inv_dir) is not None:
+        addresses[_PROXMOX_ADDRESS[0]] = _PROXMOX_ADDRESS[1]
     arguments: list[str] = []
-    for name_var, address_var in _LAB_ADDRESSES.items():
+    for name_var, address_var in addresses.items():
         name = os.environ.get(name_var, "").strip()
         address = os.environ.get(address_var, "").strip()
         if name and address:
@@ -95,10 +113,13 @@ def write_mesh(*, inv_dir: str, rotate: bool = False) -> int:
         return 0
     args = ["--inventory", f"{inv_dir}/devices.yml"]
     args += ["--inventory", f"{inv_dir}/backup.yml"]
+    proxmox = _proxmox_inventory(inv_dir)
+    if proxmox is not None:
+        args += ["--inventory", str(proxmox)]
     args += ["--host-vars-dir", f"{inv_dir}/host_vars"]
     args += ["--vault-password-file", f"{inv_dir}/.password"]
     args += ["--controller", _CONTROLLER, "--controller-mesh", transport_mesh()]
-    args += _lab_endpoints()
+    args += _lab_endpoints(inv_dir)
     if rotate:
         args += ["--rotate"]
     label = "rotate the wireguard meshes" if rotate else "write wireguard meshes"

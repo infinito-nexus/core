@@ -1,0 +1,9 @@
+{% from "clients/consumer.json.j2" import consumer_client with context %}
+{{ consumer_client(
+     application_id='web-app-semaphore',
+     client_id=KEYCLOAK_STORE_FIXTURE_CLIENT_ID,
+     name='Store fixture',
+     secret=KEYCLOAK_STORE_FIXTURE_CLIENT_SECRET,
+     login_url=true,
+     audience=true,
+     scopes=[KEYCLOAK_WORKSPACE_ROLES_SCOPE]) }}

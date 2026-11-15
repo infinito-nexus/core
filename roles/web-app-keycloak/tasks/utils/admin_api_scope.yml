@@ -1,0 +1,78 @@
+---
+# Param: keycloak_admin_api_kcadm   - kcadm command into the Keycloak container, logged in to the master realm
+# Param: keycloak_admin_api_realm   - realm that holds the clients
+# Param: keycloak_admin_api_clients - clientIds whose service accounts call the Admin REST API; each gets KEYCLOAK_ADMIN_API_SCOPE as a default client scope, an empty list only checks that the realm holds the scope
+- name: "⬇️ Read the client scopes of realm '{{ keycloak_admin_api_realm }}'"
+  ansible.builtin.shell: >
+    {{ keycloak_admin_api_kcadm }} get client-scopes -r {{ keycloak_admin_api_realm | quote }}
+    --fields id,name --format json
+  register: keycloak_admin_api_scope_list
+  changed_when: false
+
+- name: "🛑 Refuse a realm without the client scope '{{ KEYCLOAK_ADMIN_API_SCOPE }}'"
+  ansible.builtin.assert:
+    that: keycloak_admin_api_scope_ids | length == 1
+    fail_msg: >-
+      Realm '{{ keycloak_admin_api_realm }}' holds no single client scope named
+      '{{ KEYCLOAK_ADMIN_API_SCOPE }}'. Keycloak creates this built-in scope in every
+      realm from version 26.8.2 on and answers 401 to an Admin REST API call whose
+      token lacks it, so run Keycloak 26.8.2 or newer; this role never creates a
+      look-alike scope.
+    quiet: true
+  vars:
+    keycloak_admin_api_scope_ids: >-
+      {{ keycloak_admin_api_scope_list.stdout | kcadm_json
+         | selectattr('name', 'equalto', KEYCLOAK_ADMIN_API_SCOPE) | map(attribute='id') | list }}
+
+- name: "🎫 Assign '{{ KEYCLOAK_ADMIN_API_SCOPE }}' to the Admin API clients"
+  when: keycloak_admin_api_clients | length > 0
+  block:
+    - name: "⬇️ Read the clients of realm '{{ keycloak_admin_api_realm }}'"
+      ansible.builtin.shell: >
+        {{ keycloak_admin_api_kcadm }} get clients -r {{ keycloak_admin_api_realm | quote }}
+        --fields id,clientId --format json
+      register: keycloak_admin_api_client_list
+      changed_when: false
+
+    - name: "🎫 Hand '{{ KEYCLOAK_ADMIN_API_SCOPE }}' to the clients found in the realm"
+      vars:
+        keycloak_admin_api_scope_id: >-
+          {{ (keycloak_admin_api_scope_list.stdout | kcadm_json
+              | selectattr('name', 'equalto', KEYCLOAK_ADMIN_API_SCOPE) | first).id }}
+        keycloak_admin_api_found: >-
+          {{ keycloak_admin_api_client_list.stdout | kcadm_json
+             | selectattr('clientId', 'in', keycloak_admin_api_clients) | list }}
+      block:
+        - name: "🛑 Refuse Admin API clients missing in realm '{{ keycloak_admin_api_realm }}'"
+          ansible.builtin.assert:
+            that: keycloak_admin_api_missing | length == 0
+            fail_msg: >-
+              Realm '{{ keycloak_admin_api_realm }}' holds no client
+              {{ keycloak_admin_api_missing | join(', ') }}.
+            quiet: true
+          vars:
+            keycloak_admin_api_missing: >-
+              {{ keycloak_admin_api_clients
+                 | reject('in', keycloak_admin_api_found | map(attribute='clientId') | list) | list }}
+
+        - name: "⬇️ Read the default client scopes of '{{ item.clientId }}'"
+          ansible.builtin.shell: >
+            {{ keycloak_admin_api_kcadm }} get
+            {{ ('clients/' ~ item.id ~ '/default-client-scopes') | quote }}
+            -r {{ keycloak_admin_api_realm | quote }} --format json
+          loop: "{{ keycloak_admin_api_found }}"
+          loop_control:
+            label: "{{ item.clientId }}"
+          register: keycloak_admin_api_held
+          changed_when: false
+
+        - name: "🎫 Give '{{ item.item.clientId }}' the scope '{{ KEYCLOAK_ADMIN_API_SCOPE }}'"
+          ansible.builtin.shell: >
+            {{ keycloak_admin_api_kcadm }} update
+            {{ ('clients/' ~ item.item.id ~ '/default-client-scopes/' ~ keycloak_admin_api_scope_id) | quote }}
+            -r {{ keycloak_admin_api_realm | quote }}
+          loop: "{{ keycloak_admin_api_held.results }}"
+          loop_control:
+            label: "{{ item.item.clientId }}"
+          when: keycloak_admin_api_scope_id not in (item.stdout | kcadm_json | map(attribute='id') | list)
+          changed_when: true

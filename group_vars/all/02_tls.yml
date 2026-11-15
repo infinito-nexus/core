@@ -45,4 +45,5 @@ CA_TRUST_SYSTEMD_ENV:
   - "CA_TRUST_WRAPPER_CONTAINER={{ CA_TRUST.inject_wrapper_container }}"
 CA_TRUST_SYSTEMD_ENV_SELFSIGNED: >-
   {{ CA_TRUST_SYSTEMD_ENV if (TLS_MODE | lower) == 'self_signed' else [] }}
+CA_TRUST_CERT_CONTAINER_SELFSIGNED: "{{ CA_TRUST.cert_container if (TLS_MODE | lower) == 'self_signed' else '' }}"
 CA_CONTAINER_ENABLED: true # When falsy the container wrapper skips CA injection on `container run`

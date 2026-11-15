@@ -1,0 +1,21 @@
+---
+- name: "📂 Include dependency 'sys-svc-sshd'"
+  ansible.builtin.include_role:
+    name: sys-svc-sshd
+  when: run_once_sys_svc_sshd is not defined
+
+- name: "🔐 Authorize the fixture key for root while the fixture is on"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/root/authorize.yml"
+  when: SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool
+
+- name: "🧹 Drop the root key and sshd drop-in of the fixture outside test runtimes"
+  ansible.builtin.file:
+    path: "{{ semaphore_fixture_root_path }}"
+    state: absent
+  loop:
+    - "{{ SEMAPHORE_DEPLOY_FIXTURE_ROOT_DROPIN }}"
+    - "{{ SEMAPHORE_DEPLOY_FIXTURE_ROOT_KEYS_FILE }}"
+  loop_control:
+    loop_var: semaphore_fixture_root_path
+  notify: sshd-restart
+  when: not SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool

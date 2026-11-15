@@ -120,6 +120,9 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     https:
       start: 443
       end: 443
+    dns:
+      start: 53
+      end: 53
     ssh:
       start: 2201
       end: 2299

@@ -33,6 +33,14 @@ from utils.env.parser import parse_static_env
 from utils.roles.meta_lookup import get_role_placement
 from utils.tests.swarm.backup_repos import repo_placements
 from utils.tests.swarm.derive_includes import applications_for_round, derive_includes
+from utils.tests.swarm.proxmox_host import (
+    INVENTORY as PROXMOX_INVENTORY,
+)
+from utils.tests.swarm.proxmox_host import (
+    PROXMOX_APP,
+    runs_on_proxmox_host,
+    split_off_proxmox_host,
+)
 
 _DOCKER_VARS: dict[str, str] = {
     "ansible_connection": "docker",
@@ -55,11 +63,24 @@ _WORKERS = (
 )
 _NFS_SERVER = f"{_PREFIX}{_NAMES['INFINITO_SWARM_NFS_NAME']}"
 _BACKUP = f"{_PREFIX}{_NAMES['INFINITO_SWARM_BACKUP_NAME']}"
+PROXMOX_HOST = f"{_PREFIX}{_NAMES['INFINITO_SWARM_PROXMOX_NAME']}"
+
+
+def _on_proxmox_host(app_id: str) -> bool:
+    return app_id == PROXMOX_APP and runs_on_proxmox_host(
+        app_id, applications_for_round()
+    )
 
 
 def _host_topology(app_id: str) -> list[tuple[str, str]]:
-    app_hosts: list[tuple[str, str]] = [(app_id, _MANAGER)]
-    if app_id != "svc-swarm-manager" and get_role_placement(app_id) != "manager":
+    app_hosts: list[tuple[str, str]] = []
+    if not _on_proxmox_host(app_id):
+        app_hosts.append((app_id, _MANAGER))
+    if (
+        app_hosts
+        and app_id != "svc-swarm-manager"
+        and get_role_placement(app_id) != "manager"
+    ):
         app_hosts.extend((app_id, w) for w in _WORKERS)
     mesh_hosts: list[tuple[str, str]] = []
     if mesh_enabled():
@@ -135,8 +156,22 @@ def main() -> int:
         children.setdefault(group, {}).setdefault("hosts", {})
         children[group]["hosts"][host] = dict(_DOCKER_VARS)
 
+    sibling = (
+        split_off_proxmox_host(children, app_id, PROXMOX_HOST, _DOCKER_VARS)
+        if _on_proxmox_host(app_id)
+        else None
+    )
+
     dump_yaml(str(inv_path), inv)
     print(inv_path.read_text())  # nocheck: cache-read — re-reads the file just written
+
+    if sibling is not None:
+        if mesh_enabled():
+            sibling["svc-net-wireguard"] = {"hosts": {PROXMOX_HOST: dict(_DOCKER_VARS)}}
+        proxmox_path = inv_path.parent / PROXMOX_INVENTORY
+        dump_yaml(str(proxmox_path), {"all": {"children": sibling}})
+        print(proxmox_path.read_text())  # nocheck: cache-read
+        drop_network_mode(inv_path.parent, PROXMOX_HOST)
 
     backup_inv = {
         "all": {
@@ -163,7 +198,16 @@ def drop_backup_network_mode(inv_dir: str | Path) -> None:
     Args:
         inv_dir: the inventory directory holding ``host_vars``.
     """
-    path = Path(inv_dir) / "host_vars" / f"{_BACKUP}.yml"
+    drop_network_mode(inv_dir, _BACKUP)
+
+
+def drop_network_mode(inv_dir: str | Path, host: str) -> None:
+    """
+    Args:
+        inv_dir: the inventory directory holding ``host_vars``.
+        host: a non-swarm lab host whose vars were copied from the manager.
+    """
+    path = Path(inv_dir) / "host_vars" / f"{host}.yml"
     variables = load_yaml_any(str(path), default_if_missing={})
     if variables.pop("NETWORK_MODE", None) is not None:
         dump_yaml(str(path), variables)

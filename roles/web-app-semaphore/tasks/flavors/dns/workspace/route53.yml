@@ -1,0 +1,56 @@
+---
+# Param semaphore_workspace_alias: ws-<id> of the workspace apply runs for.
+# Output workspace_dns: zone, the subzone, and zone_id, its Route 53 hosted zone.
+- name: "🔑 Read the AWS credential that manages the workspace IAM users"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/workspace/route53/admin.yml"
+
+- name: "🔎 Find the Route 53 hosted zone of {{ SEMAPHORE_DNS.zone }}"
+  semaphore_route53_zone_info:
+    zone: "{{ SEMAPHORE_DNS.zone }}"
+    admin_access_key_id: "{{ semaphore_route53_admin.access_key_id }}"
+    admin_secret_access_key: "{{ semaphore_route53_admin.secret_access_key }}"
+  register: semaphore_route53_zone
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🌐 Place {{ semaphore_workspace_alias }} in the hosted zone of the subzone"
+  ansible.builtin.set_fact:
+    workspace_dns:
+      zone: "{{ SEMAPHORE_DNS.zone }}"
+      zone_id: "{{ semaphore_route53_zone.zone_id }}"
+
+- name: "📜 Render the record policy of {{ semaphore_workspace_alias }}"
+  ansible.builtin.set_fact:
+    semaphore_workspace_route53_policy: >-
+      {{ semaphore_workspace_alias | semaphore_route53_policy(workspace_dns.zone_id, workspace_dns.zone) }}
+
+- name: "📖 Read the route53 record of {{ semaphore_workspace_alias }}"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: read
+    openbao_kv_mount: tenant
+    openbao_kv_path: "{{ semaphore_workspace_alias }}-provision/dns"
+    openbao_kv_data: {}
+
+- name: "👤 Converge the IAM user, policy and key of {{ semaphore_workspace_alias }}"
+  semaphore_route53_user:
+    user: "{{ semaphore_workspace_alias }}"
+    state: present
+    policy_name: records
+    policy: "{{ semaphore_workspace_route53_policy }}"
+    held_access_key_id: "{{ openbao_kv_current | semaphore_route53_held_key }}"
+    admin_access_key_id: "{{ semaphore_route53_admin.access_key_id }}"
+    admin_secret_access_key: "{{ semaphore_route53_admin.secret_access_key }}"
+  register: semaphore_route53_user
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Write the route53 key and policy of {{ semaphore_workspace_alias }}"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: present
+    openbao_kv_mount: tenant
+    openbao_kv_path: "{{ semaphore_workspace_alias }}-provision/dns"
+    openbao_kv_data: "{{ openbao_kv_current | semaphore_route53_record(semaphore_route53_user, semaphore_workspace_route53_policy) }}"

@@ -1,0 +1,6 @@
+{% from "clients/service_account.json.j2" import service_account_client %}
+{{ service_account_client(
+     KEYCLOAK_EXPORT_CLIENT_ID,
+     "Export",
+     "Confidential client of the export task; its service account reads the users, organizations and admin events that decide whether an Owner may export.",
+     KEYCLOAK_EXPORT_CLIENT_SECRET) }}

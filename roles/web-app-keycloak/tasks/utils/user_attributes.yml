@@ -2,30 +2,33 @@
 # Param: keycloak_user_attribute         - user attribute to write; the realm's user profile must declare it
 # Param: keycloak_user_attribute_values  - one {id, value} mapping per user; id is the OIDC sub; an empty list writes nothing and logs nothing in
 # Output: keycloak_user_attribute_results - one {id, value, outcome, held} mapping per entry; held lists the values the user held before; outcome updated or unchanged means the user holds value, conflict means it kept the other values in held, taken means a user no entry hands value has it as username, missing, dropped and failed mean the value did not land
-- name: "🏷️ Keycloak user attribute | Write {{ keycloak_user_attribute }} onto users of realm '{{ KEYCLOAK_REALM }}'"
-  when: keycloak_user_attribute_values | length > 0
+- name: "🏷️ Keycloak user attribute | Run on the stack host"
+  when: IS_STACK_HOST | bool
   block:
-    - name: "🔑 Keycloak user attribute | Log kcadm in as the permanent admin"
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/login.yml"
+    - name: "🏷️ Write {{ keycloak_user_attribute }} to users of realm '{{ KEYCLOAK_REALM }}'"
+      when: keycloak_user_attribute_values | length > 0
+      block:
+        - name: "🔑 Keycloak user attribute | Log kcadm in as the permanent admin"
+          ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/login.yml"
 
-    - name: "🐍 Keycloak user attribute | Write the values in one REST run"
-      ansible.builtin.include_tasks:
-        file: "{{ role_path }}/tasks/utils/rest_script.yml"
-        apply:
-          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
-      vars:
-        rest_script: user_attributes.py
-        rest_script_env:
-          ATTRIBUTE: "{{ keycloak_user_attribute }}"
-          USERS: "{{ keycloak_user_attribute_values | to_json }}"
-        rest_script_stdin: ""
-        rest_script_ok_rcs: [0, 1]
-        rest_script_changed: "updated=[1-9]"
-        rest_script_register: keycloak_user_attribute_run
+        - name: "🐍 Keycloak user attribute | Write the values in one REST run"
+          ansible.builtin.include_tasks:
+            file: "{{ role_path }}/tasks/utils/rest_script.yml"
+            apply:
+              delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+          vars:
+            rest_script: user_attributes.py
+            rest_script_env:
+              ATTRIBUTE: "{{ keycloak_user_attribute }}"
+              USERS: "{{ keycloak_user_attribute_values | to_json }}"
+            rest_script_stdin: ""
+            rest_script_ok_rcs: [0, 1]
+            rest_script_changed: "updated=[1-9]"
+            rest_script_register: keycloak_user_attribute_run
 
-- name: "📌 Keycloak user attribute | Store the outcome of every entry"
-  ansible.builtin.set_fact:
-    keycloak_user_attribute_results: >-
-      {{ (keycloak_user_attribute_run.stdout_lines | select('match', '^USER_ATTRIBUTES ') | first
-          | regex_replace('^USER_ATTRIBUTES ', '') | from_json)
-         if keycloak_user_attribute_values | length > 0 else [] }}
+    - name: "📌 Keycloak user attribute | Store the outcome of every entry"
+      ansible.builtin.set_fact:
+        keycloak_user_attribute_results: >-
+          {{ (keycloak_user_attribute_run.stdout_lines | select('match', '^USER_ATTRIBUTES ') | first
+              | regex_replace('^USER_ATTRIBUTES ', '') | from_json)
+             if keycloak_user_attribute_values | length > 0 else [] }}

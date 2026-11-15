@@ -9,7 +9,8 @@
     "zone_id": {"type": "string", "description": "Provider zone id; unused by RFC 2136 updates."},
     "name": {"type": "string", "description": "Owner name relative to the zone."},
     "ipv4": {"type": "list(string)", "description": "IPv4 addresses of the A record set."},
-    "ipv6": {"type": "list(string)", "description": "IPv6 addresses of the AAAA record set."}
+    "ipv6": {"type": "list(string)", "description": "IPv6 addresses of the AAAA record set."},
+    "cname": {"type": "string", "description": "Host name of the CNAME record, empty for none."}
   },
   "resource": {
     "dns_a_record_set": {
@@ -27,6 +28,15 @@
         "zone": "${var.zone}.",
         "name": "${var.name}",
         "addresses": "${var.ipv6}",
+        "ttl": 300
+      }
+    },
+    "dns_cname_record": {
+      "record": {
+        "count": "${var.cname != \"\" ? 1 : 0}",
+        "zone": "${var.zone}.",
+        "name": "${var.name}",
+        "cname": "${var.cname}.",
         "ttl": 300
       }
     }

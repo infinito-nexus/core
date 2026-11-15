@@ -6,6 +6,9 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      web: openbao-web
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -88,6 +91,25 @@ openbao:
   run_after:
     - web-app-keycloak
     - svc-db-openldap
+    - web-app-semaphore
+  workspaces:
+    audience: openbao
+    token_ttl:
+      deploy: 4h
+      provision: 4h
+      export: 1h
+    store:
+      secret_id_ttl: 720h
+      token_ttl: 1h
+      token_max_ttl: 4h
+    playwright:
+      secret_id_ttl: 168h
+      token_ttl: 15m
+      token_max_ttl: 30m
+      mount: platform
+      logins:
+        semaphore: playwright/semaphore
+        store: playwright/store
   lifecycle: beta
   login:
     method:
@@ -122,7 +144,7 @@ docs:
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
 
-# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology; the workspace mounts gated on this flag need a deployed Semaphore that no variant round of this role deploys, so only the false polarity runs here
 semaphore:
   bond: 0.5
   enabled: "{{ 'web-app-semaphore' in group_names }}"

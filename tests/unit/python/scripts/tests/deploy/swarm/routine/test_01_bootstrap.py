@@ -49,6 +49,7 @@ TOPOLOGY_STUB = (
     "WRK2=demo-wrk2\n"
     "NFS_SERVER=demo-nfs\n"
     "BACKUP_NODE=demo-backup\n"
+    "PROXMOX_NODE=demo-pve\n"
 )
 
 

@@ -4,10 +4,11 @@ logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag
 # nocheck: playwright-service-flag  carries the managed-field lock of meta/forms.yml on every page; no spec gates on it
 javascript:
   bond: 1
-  enabled: true # nocheck: dynamic-flag
+  enabled: true
   shared: true
 ldap:
   bond: 1
@@ -18,6 +19,9 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  oidc:
+    clients:
+      web: gitea-web
   oauth2:
     origin:
       host: gitea
@@ -132,7 +136,6 @@ gitea:
     oauth:
       names: [SSO Login]
       provider: openidConnect
-      client_id: "{{ OIDC.CLIENT.ID }}"
       discovery_url: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
       scopes: "openid profile email {{ RBAC.GROUP.CLAIM }}"
       group_claim_name: "{{ RBAC.GROUP.CLAIM }}"
@@ -162,6 +165,14 @@ gitea:
     minutes:
       routine: 1440
       pressure: 120
+  workspaces:
+    enabled: false
+    organization: workspaces
+    store:
+      username: store
+      email: "store@{{ DOMAIN_PRIMARY }}"
+      scopes: "write:organization,write:repository,read:user"
+      token_prefix: "store-"
 # nocheck: playwright-service-flag
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
 # nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment

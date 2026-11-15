@@ -46,6 +46,9 @@ sso:
       port: "{{ lookup('config', 'web-svc-access-request', 'services.access-request.ports.internal.http') }}"
     pass_access_token: true
     any_email: true
+    client:
+      id: access-request
+      scopes: [kc-admin-api]
 email:
   bond: 1
   enabled: "{{ 'web-app-email' in group_names }}"

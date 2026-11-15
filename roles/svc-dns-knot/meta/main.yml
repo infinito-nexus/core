@@ -1,0 +1,32 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Authoritative Knot DNS for the Semaphore workspace subzone, a DNSSEC-signing primary with TSIG-fed secondaries
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - knot
+    - docker
+    - dns
+    - authoritative
+    - dnssec
+  issue_tracker_url: https://s.infinito.nexus/issues

@@ -1,46 +1,11 @@
 ---
-- name: "🔍 Resolve the node and container of the Semaphore database"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+- name: "🗂️ Converge the projects with the admin API token"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/admin.yml"
   vars:
-    resolve_service_key: postgres
-    resolve_service_name: "{{ lookup('database', application_id, 'service_name') if IS_SWARM_MODE else '' }}"
-    resolve_output_prefix: SEMAPHORE_DATABASE
-    resolve_compose_cid: "{{ lookup('database', application_id, 'container') }}"
+    semaphore_admin_before: "{{ role_path }}/tasks/utils/project/inputs.yml"
+    semaphore_admin_tasks: "{{ role_path }}/tasks/utils/project/sync.yml"
 
-- name: "🔍 Resolve the node and container of Semaphore"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: "{{ SEMAPHORE_SERVICE }}"
-    resolve_output_prefix: SEMAPHORE
-    resolve_compose_cid: "{{ SEMAPHORE_NAME }}"
-
-- name: "🔎 Find the app-control records of this host"
-  ansible.builtin.find:
-    paths: "{{ DIR_COMPOSITIONS }}"
-    patterns: "{{ APP_CONTROL_REGISTRY_FILE }}"
-    hidden: true
-    recurse: true
-    depth: 2
-  register: semaphore_project_records
-
-- name: "📖 Read the app-control records of this host"
-  ansible.builtin.slurp:
-    src: "{{ semaphore_project_record }}"
-  loop: "{{ semaphore_project_records.files | map(attribute='path') | sort }}"
-  loop_control:
-    loop_var: semaphore_project_record
-  register: semaphore_project_record_contents
-
-- name: "🔑 Read the SSH host key the runner pins"
-  ansible.builtin.slurp:
-    src: "{{ SEMAPHORE_APP_CONTROL_HOST_KEY_FILE }}"
-  register: semaphore_project_host_key
-
-- name: "🎯 Prepare the inventory repository and the shared target for the deploy test"
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture.yml"
-  when: SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool
-
-- name: "🎟️ Mint the deploy API token and align the remote runner"
+- name: "🏃 Align one runner row per platform project"
   ansible.builtin.command:
     argv:
       - container
@@ -55,108 +20,18 @@
       - -v
       - ON_ERROR_STOP=1
       - -qtA
-    stdin: "{{ lookup('template', 'sql/project/prepare.sql.j2') }}"
-  register: semaphore_project_prepare
-  changed_when: semaphore_project_prepare.stdout is search('(?<![A-Z])CHANGED')
+    stdin: "{{ lookup('template', 'sql/project/runners.sql.j2') }}"
+  register: semaphore_project_runners
+  changed_when: semaphore_project_runners.stdout is search('(?<![A-Z])CHANGED')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ SEMAPHORE_DATABASE_HOST_NODE }}"
 
-- name: "🎟️ Hold the deploy API token for this run"
-  ansible.builtin.set_fact:
-    semaphore_project_token: "{{ (semaphore_project_prepare.stdout_lines | select('match', '^TOKEN ') | first)[6:] }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "🗂️ Converge the projects with the deploy API token"
-  block:
-    - name: "🗂️ Converge the stop and start templates and the foreign deploy"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ SEMAPHORE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-          - python3
-          - -c
-          - "{{ lookup('file', 'python/project.py') }}"
-        stdin: >-
-          {{ (semaphore_project_spec | combine({'deploy': semaphore_project_deploy})
-              if SEMAPHORE_DEPLOY_ENABLED | bool else semaphore_project_spec) | to_json }}
-      vars:
-        semaphore_project_deploy:
-          project: "{{ SEMAPHORE_DEPLOY_PROJECT_NAME }}"
-          key:
-            name: "{{ SEMAPHORE_DEPLOY_KEY_NAME }}"
-            prefix: "{{ SEMAPHORE_DEPLOY_KEY_PREFIX }}"
-            login: "{{ SEMAPHORE_DEPLOY_LOGIN }}"
-            private_key: "{{ SEMAPHORE_DEPLOY_PRIVATE_KEY }}"
-          repository:
-            name: "{{ SEMAPHORE_DEPLOY_REPOSITORY_NAME }}"
-            url: "{{ SEMAPHORE_DEPLOY_REPOSITORY_URL }}"
-            branch: "{{ SEMAPHORE_DEPLOY_REPOSITORY_BRANCH }}"
-            key:
-              name: "{{ SEMAPHORE_DEPLOY_REPOSITORY_KEY_NAME }}"
-              prefix: "{{ SEMAPHORE_DEPLOY_REPOSITORY_KEY_PREFIX }}"
-              login: ""
-              private_key: "{{ SEMAPHORE_DEPLOY_REPOSITORY_KEY }}"
-          inventory: "{{ SEMAPHORE_DEPLOY_NAME }}"
-          environment:
-            prefix: "{{ SEMAPHORE_DEPLOY_ENVIRONMENT_PREFIX }}"
-            login: "{{ SEMAPHORE_DEPLOY_LOGIN }}"
-            known_hosts: "{{ semaphore_deploy_fixture_known_hosts if SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool else [] }}"
-            vault_password: "{{ SEMAPHORE_DEPLOY_VAULT_PASSWORD }}"
-          task_template:
-            name: "{{ SEMAPHORE_DEPLOY_NAME }}"
-            app: "{{ SEMAPHORE_DEPLOY_APP_ID }}"
-            playbook: "{{ SEMAPHORE_DEPLOY_INVENTORY_FILE }}"
-        semaphore_project_spec:
-          url: "{{ SEMAPHORE_API_URL }}"
-          token: "{{ semaphore_project_token }}"
-          project: "{{ SEMAPHORE_PROJECT_NAME }}"
-          key:
-            name: "{{ SEMAPHORE_APP_CONTROL_KEY_NAME }}"
-            prefix: "{{ SEMAPHORE_APP_CONTROL_KEY_PREFIX }}"
-            login: "{{ APP_CONTROL_USER }}"
-            private_key: "{{ SEMAPHORE_APP_CONTROL_PRIVATE_KEY }}"
-          hosts:
-            - "{{ SEMAPHORE_APP_CONTROL_HOST }}"
-          known_hosts:
-            - "{{ SEMAPHORE_APP_CONTROL_HOST }} {{ (semaphore_project_host_key.content | b64decode).split()[:2] | join(' ') }}"
-          inventory: "{{ SEMAPHORE_APP_CONTROL_NAME }}"
-          repository:
-            name: "{{ SEMAPHORE_APP_CONTROL_NAME }}"
-            path: "{{ SEMAPHORE_RUNNER_REPOSITORY }}"
-          environment: "{{ SEMAPHORE_APP_CONTROL_NAME }}"
-          playbook: "{{ SEMAPHORE_APP_CONTROL_PLAYBOOK }}"
-          applications: >-
-            {{
-              semaphore_project_record_contents.results
-              | map(attribute='content') | map('b64decode') | map('from_json')
-              | selectattr('control', 'sameas', true)
-              | map(attribute='application_id') | sort | list
-            }}
-      register: semaphore_project_sync
-      changed_when: semaphore_project_sync.stdout is search('(?<![A-Z])CHANGED')
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
-  always:
-    - name: "🧹 Revoke the deploy API token of this run"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ SEMAPHORE_DATABASE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-          - psql
-          - -U
-          - "{{ lookup('database', application_id, 'username') }}"
-          - -d
-          - "{{ lookup('database', application_id, 'name') }}"
-          - -v
-          - ON_ERROR_STOP=1
-          - -qtA
-        stdin: "{{ lookup('template', 'sql/project/revoke.sql.j2') }}"
-      register: semaphore_project_revoke
-      changed_when: false
-      failed_when: semaphore_project_revoke.rc != 0 or 'REVOKED' not in semaphore_project_revoke.stdout
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      delegate_to: "{{ SEMAPHORE_DATABASE_HOST_NODE }}"
+- name: "✅ Fail unless platform projects and their runners pair up one to one"
+  ansible.builtin.assert:
+    that:
+      - semaphore_project_runner_findings | length == 0
+    fail_msg: "{{ semaphore_project_runner_findings | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_project_runner_findings: >-
+      {{ semaphore_project_runners.stdout_lines | semaphore_runner_findings(SEMAPHORE_PLATFORM_RUNNERS_ACTIVE) }}

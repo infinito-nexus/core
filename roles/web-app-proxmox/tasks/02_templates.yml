@@ -1,0 +1,28 @@
+---
+- name: "🧩 Keep the KVM and emulated workspace templates on the pinned image"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e PROXMOX_STORAGE -e PROXMOX_BRIDGE -e PROXMOX_IMAGE_URL -e PROXMOX_IMAGE_SHA256
+      -e PROXMOX_TEMPLATE_KVM -e PROXMOX_TEMPLATE_EMULATED
+      {{ PROXMOX_LOCAL_CID | quote }} {{ (PROXMOX_GUEST_EXEC + ['sh', '-s']) | map('quote') | join(' ') }}
+    stdin: "{{ lookup('file', 'shell/templates.sh') }}"
+  environment:
+    PROXMOX_STORAGE: "{{ PROXMOX_WORKSPACES.storage }}"
+    PROXMOX_BRIDGE: "{{ PROXMOX_WORKSPACES.bridge }}"
+    PROXMOX_IMAGE_URL: "{{ PROXMOX_WORKSPACES.image.url }}"
+    PROXMOX_IMAGE_SHA256: "{{ PROXMOX_WORKSPACES.image.sha256 }}"
+    PROXMOX_TEMPLATE_KVM: "{{ PROXMOX_WORKSPACES.templates.kvm }}"
+    PROXMOX_TEMPLATE_EMULATED: "{{ PROXMOX_WORKSPACES.templates.emulated }}"
+  register: proxmox_templates
+  changed_when: proxmox_templates.stdout is search('\[CHANGED\]')
+  failed_when: proxmox_templates.rc != 0 or proxmox_templates.stderr is search('\[FAIL\]')
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+
+- name: "📝 Log the KVM mode of the VMs inside Proxmox VE on {{ inventory_hostname }}"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }} runs the {{ PROXMOX_FLAVOR }} flavor on {{ inventory_hostname }}:
+      VMs inside Proxmox VE run {{ 'with KVM' if PROXMOX_VM_KVM | bool else 'with kvm 0, because the host does not nest KVM' }},
+      and the provision catalog clones template
+      {{ PROXMOX_WORKSPACES.templates.kvm if PROXMOX_VM_KVM | bool else PROXMOX_WORKSPACES.templates.emulated }}.

@@ -90,6 +90,24 @@ Remove the MCP client roles from the deployment, or pin
 `mcp.enabled: false` for this role. The `giteamcp` service is then not
 rendered into the compose file.
 
+## Workspace repositories
+
+An inventory that runs the store sets `services.gitea.workspaces.enabled: true` in its `web-app-gitea` configuration; the role's own value is `false`.
+With the switch on, every deploy converges:
+
+- **The organization `workspaces`** (`services.gitea.workspaces.organization`), private, created through `POST /admin/users/store/orgs` so that `store` is the only member of its `Owners` team. Its teams cannot create repositories, so only its owner can.
+- **The store account `store`** (`services.gitea.workspaces.store.username`), created with `gitea admin user create --user-type bot`. A bot account has no password at all, so nothing is kept, and the OAuth2 account linking of [account-linking-by-name.patch](./files/patch/oauth2/account-linking-by-name.patch) only links individual users, so an SSO sign-in named `store` never reaches it. The deploy takes away the site admin flag and sets the account's own repository limit to 0, so it cannot create a repository in its own namespace. It is the only owner of `workspaces` and a member of nothing else. A `store` account the deploy did not create, an individual one or one that signs in through an external source, stops the deploy before it changes anything.
+- **The store token**, which only `rotate store credentials` mints, through [tasks/utils/store_token.yml](./tasks/utils/store_token.yml). It carries exactly the scopes `write:organization`, `write:repository` and `read:user` (`services.gitea.workspaces.store.scopes`). It comes out of `gitea admin user generate-access-token --raw` on stdout, never on an argv, under `no_log`, and is named `store-<expires_at>`. The rotation writes it to `platform/data/store/gitea` as the two fields `token` and `expires_at`. Gitea gives an access token no expiry of its own, so only the rotation ends a token: each run deletes every store token whose name carries an `expires_at` that has passed, and no other token.
+
+Through the API, the store creates per workspace the repository `workspaces/ws-<id>` and the team `ws-<id>`, adds its own write deploy key and the read-only deploy key whose public half `workspace apply` hands it as `read_key`, and syncs the team's members. Deploy keys work over SSH only, on Gitea's SSH port; the HTTPS remote stays for members.
+
+### Workspace access
+
+- **The team `ws-<id>`** has `permission` `read`, `units_map` `{"repo.code": "read"}` with every other unit `none`, `includes_all_repositories` false and `can_create_org_repo` false, and holds the workspace's repository only.
+- **Its members** are the users in the organization groups `Owner`, `Admin`, `Operator` and `Viewer` of the workspace. A user who is only in `Billing` is not in the team, so the private repository stays hidden from them. A member reaches the inventory only through the store, which writes `main` alone.
+- **Exactly two deploy keys and no collaborator:** the store's writing key and the read-only key of `workspace apply`; a member reaches the repository through the team only.
+- **Every deploy checks it.** After the converge, [tasks/utils/workspaces/check.yml](./tasks/utils/workspaces/check.yml) reads every repository and team of `workspaces` and the account `store` from the database ([files/sql/workspaces-snapshot.sql](./files/sql/workspaces-snapshot.sql)) and fails the deploy, naming the object, when `store` is a site admin, may create a repository of its own, owns one, belongs to another organization or team, or signs in through an external source; when `Owners` holds another member; when a team holds more than `read`, another unit than `repo.code`, all repositories or the right to create one; or when a repository has a third deploy key, a second writing key or a collaborator. A widened grant, by a leaked store token or by hand, therefore stops the next platform deploy.
+
 ## LDAP coverage
 
 With `ldap` on and Gitea's own LDAP login method on, [`files/playwright/test-rbac-ldap.js`](./files/playwright/test-rbac-ldap.js) signs `biber` in through the LDAP authentication source and asserts the administrator and restricted role group mappings. The administrator persona is the local account that [`tasks/01_manager_ops.yml`](./tasks/01_manager_ops.yml) creates with `gitea admin user create`, and Gitea checks its local password, never the LDAP source, so no administrator LDAP scenario exists.

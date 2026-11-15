@@ -8,6 +8,8 @@ incus:
       enabled: false
     swarm:
       enabled: false
+  requires_devices:
+    - /dev/kvm
   bond: 1
   enabled: true
   shared: true
@@ -30,6 +32,29 @@ incus:
       memory: 2GiB
       disk: 20GiB
     secure_boot: false
+  api:
+    enabled: false
+    listen: "[::]:8443"
+    allowed_sources: []
+  remote_token_expiry: 1h
+  workspaces:
+    enabled: false
+    bridge_prefix: wsbr
+    subnet:
+      ipv4: ""
+      ipv6: ""
+    slice:
+      ipv4: 28
+      ipv6: 64
+    limits:
+      instances: 3
+      cpu: 4
+      memory: 8GiB
+      disk: 100GiB
+    instance:
+      cpu: 1
+      memory: 2GiB
+      disk: 20GiB
 
 docs:
   bond: 0.5

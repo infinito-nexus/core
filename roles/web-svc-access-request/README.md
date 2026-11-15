@@ -42,9 +42,10 @@ The token must carry:
 - the realm the requester belongs to as its issuer;
 - an active user session;
 - the `manage-group-membership` scope on the user, granted through FGAP v2;
-- `view` and `manage-membership` on each group, granted through FGAP v2.
+- `view` and `manage-membership` on each group, granted through FGAP v2;
+- the built-in client scope `kc-admin-api`, without which Keycloak 26.8.2 answers `401`.
 
-Keycloak checks no audience on the admin REST API, so the session token the gate forwards works.
+The gate therefore signs in through the service's own confidential client `access-request`, which `services.sso.oauth2.client` in [services.yml](meta/services.yml) declares with `kc-admin-api` as a default client scope; its secret is `sso_proxy_client_secret` from [secrets.yml](meta/secrets.yml). [web-app-keycloak](../web-app-keycloak/README.md) renders the client, and the shared client keeps the scope out, so a token of any other gated application cannot call the admin REST API.
 
 ## Further Resources
 

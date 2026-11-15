@@ -9,7 +9,8 @@
     "zone_id": {"type": "string", "description": "Route 53 hosted zone id of the deploy zone."},
     "name": {"type": "string", "description": "Owner name relative to the zone."},
     "ipv4": {"type": "list(string)", "description": "IPv4 addresses of the A record set."},
-    "ipv6": {"type": "list(string)", "description": "IPv6 addresses of the AAAA record set."}
+    "ipv6": {"type": "list(string)", "description": "IPv6 addresses of the AAAA record set."},
+    "cname": {"type": "string", "description": "Host name of the CNAME record, empty for none."}
   },
   "provider": {
     "aws": {"region": "us-east-1"}
@@ -31,6 +32,14 @@
         "type": "AAAA",
         "ttl": 300,
         "records": "${var.ipv6}"
+      },
+      "cname": {
+        "count": "${var.cname != \"\" ? 1 : 0}",
+        "zone_id": "${var.zone_id}",
+        "name": "${var.name}.${var.zone}",
+        "type": "CNAME",
+        "ttl": 300,
+        "records": ["${var.cname}"]
       }
     }
   },

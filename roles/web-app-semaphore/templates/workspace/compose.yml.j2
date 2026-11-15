@@ -1,0 +1,74 @@
+{# Param semaphore_workspace_alias: ws-<id>, the project name suffix, runner tag and network prefix. #}
+{# Param semaphore_workspace_dir: the host directory holding the token, squid.conf and hosts of the workspace. #}
+{# Param semaphore_workspace_runner_image_tag: the tag of the runner image of the workspace's core version, never a runner tag. #}
+{# Param semaphore_workspace_runner_base: the core image of the workspace's core version. #}
+{# Param semaphore_workspace_runner_uid: the UID no other container on the host holds. #}
+{# nocheck: compose-structure  node-local workspace project: the base include would add the database, cache and SSO sidecars of Semaphore itself to every workspace #}
+name: "semaphore-{{ semaphore_workspace_alias }}"
+services:
+  {% set service_name = 'runner' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, SEMAPHORE_RUNNER_SERVICE, version=semaphore_workspace_runner_image_tag) }}
+    build:
+      context: "{{ SEMAPHORE_RUNNER_BUILD_DIR }}"
+      dockerfile: Dockerfile
+      args:
+        {% for build_arg, build_value in (SEMAPHORE_RUNNER_INPUTS | combine({
+             'SEMAPHORE_RUNNER_USER': SEMAPHORE_WORKSPACE_USER,
+             'SEMAPHORE_RUNNER_UID': semaphore_workspace_runner_uid,
+             'SEMAPHORE_RUNNER_GID': semaphore_workspace_runner_uid,
+             SEMAPHORE_RUNNER_BASE_ARG: semaphore_workspace_runner_base
+           })) | dictsort %}
+        {{ build_arg }}: "{{ build_value }}"
+        {% endfor %}
+    {{ lookup('compose_restart', node_local=True) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
+    user: "{{ semaphore_workspace_runner_uid }}:{{ semaphore_workspace_runner_uid }}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - "no-new-privileges:true"
+    tmpfs:
+      - "{{ SEMAPHORE_WORKSPACE_HOME }}:uid={{ semaphore_workspace_runner_uid }},gid={{ semaphore_workspace_runner_uid }},mode=0700"
+      - "/tmp:uid={{ semaphore_workspace_runner_uid }},gid={{ semaphore_workspace_runner_uid }},mode=0700"
+      - "{{ SEMAPHORE_RUNNER_TMP }}:uid={{ semaphore_workspace_runner_uid }},gid={{ semaphore_workspace_runner_uid }},mode=0700"
+    environment:
+      HOME: "{{ SEMAPHORE_WORKSPACE_HOME }}"
+      SEMAPHORE_WEB_ROOT: "{{ SEMAPHORE_WEB_ROOT }}"
+      SEMAPHORE_TMP_PATH: "{{ SEMAPHORE_RUNNER_TMP }}"
+      SEMAPHORE_RUNNER_TOKEN_FILE: "{{ SEMAPHORE_RUNNER_TOKEN_FILE }}"
+      SEMAPHORE_RUNNER_ONE_OFF: "true"
+      SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS: "1"
+      SEMAPHORE_RUNNER_TAGS: "{{ semaphore_workspace_alias }}"
+      SEMAPHORE_APPS: {{ SEMAPHORE_APPS_JSON | to_json }}
+      {% for proxy_name, proxy_value in SEMAPHORE_RUNNER_PROXY_ENV | dictsort %}
+      {{ proxy_name }}: {{ proxy_value | to_json }}
+      {% endfor %}
+      SEMAPHORE_FORWARDED_ENV_VARS: {{ SEMAPHORE_RUNNER_PROXY_ENV | list | sort | to_json | to_json }}
+    volumes: # nocheck: compose-inline-mount-section  per-workspace host files of a node-local project, not services.yml volumes
+      - "{{ semaphore_workspace_dir }}/runner.token:{{ SEMAPHORE_RUNNER_TOKEN_FILE }}:ro" # nocheck: bind-mount-single-file-swarm-fragile  node-local project, rendered and run on the same host, never stack-deployed
+    {{ lookup('container_networks', internal=SEMAPHORE_WORKSPACE_NETWORK) | indent(4) }}
+  {% set service_name = SEMAPHORE_EGRESS_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('compose_restart', node_local=True) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    security_opt:
+      - "no-new-privileges:true"
+    tmpfs:
+      - /var/spool/squid
+      - /var/log/squid
+      - /var/cache/squid
+      - /run
+    volumes: # nocheck: compose-inline-mount-section  per-workspace host files of a node-local project, not services.yml volumes
+      - "{{ semaphore_workspace_dir }}/squid.conf:{{ SEMAPHORE_EGRESS_CONF_FILE }}:ro" # nocheck: bind-mount-single-file-swarm-fragile  node-local project, rendered and run on the same host, never stack-deployed
+      - "{{ semaphore_workspace_dir }}/hosts:{{ SEMAPHORE_EGRESS_HOSTS_FILE }}:ro" # nocheck: bind-mount-single-file-swarm-fragile  node-local project, rendered and run on the same host, never stack-deployed
+    {{ lookup('container_networks', internal=SEMAPHORE_WORKSPACE_NETWORK, egress=True) | indent(4) }}
+{{ lookup('compose_networks', internal=[SEMAPHORE_WORKSPACE_NETWORK], internal_only=True, node_local=True) }}

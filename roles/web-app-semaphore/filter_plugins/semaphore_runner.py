@@ -59,9 +59,44 @@ def semaphore_runner_base(
     return str(deployed_base)
 
 
+def semaphore_runner_findings(lines: list[str], wanted: list[dict]) -> list[str]:
+    """Args:
+    lines: the stdout lines of ``sql/project/runners.sql.j2``; each ``RUNNER``
+        line carries one runner row as JSON with ``name``, ``project`` (the
+        project name, null without a project) and ``tags``.
+    wanted: ``SEMAPHORE_PLATFORM_RUNNERS_ACTIVE`` (``name``, ``project``,
+        ``tag``).
+
+    Returns:
+        Every runner row without a project and every platform project that
+        does not run on exactly its own runner with exactly its tag.
+    """
+    rows = [
+        json.loads(line[len("RUNNER ") :])
+        for line in lines
+        if line.startswith("RUNNER ")
+    ]
+    findings = [
+        f"runner {row['name']} has no project" for row in rows if row["project"] is None
+    ]
+    for runner in wanted:
+        held = [row for row in rows if row["project"] == runner["project"]]
+        names = sorted(row["name"] for row in held)
+        if names != [runner["name"]]:
+            findings.append(
+                f"project {runner['project']} runs on {names}, expected only {runner['name']}"
+            )
+        elif held[0]["tags"] != [runner["tag"]]:
+            findings.append(
+                f"runner {runner['name']} carries {held[0]['tags']}, expected [{runner['tag']!r}]"
+            )
+    return findings
+
+
 class FilterModule:
     def filters(self):
         return {
             "semaphore_runner_base": semaphore_runner_base,
             "semaphore_runner_digest": semaphore_runner_digest,
+            "semaphore_runner_findings": semaphore_runner_findings,
         }

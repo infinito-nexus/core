@@ -36,6 +36,7 @@
     p=auth/oidc/role/{{ OPENBAO_OIDC_DEFAULT_ROLE }};
     before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
     bao write $p role_type=oidc
+    bound_audiences={{ OPENBAO_OIDC_CLIENT_ID | quote }}
     user_claim={{ OPENBAO_OIDC_USER_CLAIM | quote }}
     groups_claim={{ OPENBAO_OIDC_GROUPS_CLAIM | quote }}
     {% for openbao_claim_mapping in OPENBAO_OIDC_CLAIM_MAPPINGS %}claim_mappings={{ openbao_claim_mapping | quote }} {% endfor %}

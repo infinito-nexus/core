@@ -11,7 +11,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 ### Today
 
 - `workspace apply` creates the workspace templates `deploy`, `backup`, `restart` and `update`, whose scripts come from the runner image ([103](103-semaphore-pin-task-jwt-and-locked-templates.md) decision 6). Every template keeps `allow_override_branch_in_task` false (103 decision 3).
-- `deploy.sh` reads the inventory from the checkout Semaphore made as its working directory (`roles/web-app-semaphore/files/shell/repository/deploy.sh:2-4,23-27`).
+- `deploy.sh` reads the inventory from the checkout Semaphore made as its working directory (`roles/web-app-semaphore/files/shell/repository/deploy.sh`).
 - Each workspace has the repository `workspaces/ws-<id>`, written by the store's write deploy key and cloned by Semaphore's read-only key; members keep its HTTPS remote ([111](111-gitea-repository-per-workspace.md) decisions 4 and 5). No branch of it is protected.
 
 ### Upstream
@@ -39,12 +39,12 @@ Rejected:
 
 ### Survey
 
-- [ ] The surveys of `deploy`, `update` and `backup` each hold `INVENTORY_COMMIT` with target `env`; a template body without it must fail (`test_the_inventory_commit_is_a_survey_variable` and its negative control in `tests/unit/python/roles/web-app-semaphore/files/test_project.py`).
+- [x] The surveys of `deploy`, `update` and `backup` each hold `INVENTORY_COMMIT` with target `env`; a template body without it must fail (`test_the_inventory_commit_is_a_survey_variable` and its negative control in `tests/unit/python/roles/web-app-semaphore/files/test_project.py`).
 
 ### Scripts
 
-- [ ] The scripts of `deploy`, `update` and `backup` refuse, one case each, an empty value, 39 and 64 hex digits, upper-case hex, `HEAD`, `main` and a value starting with `-`, and a git shim records no git call for any of them (`test_each_inventory_script_refuses_a_malformed_commit_before_git` in `tests/unit/python/roles/web-app-semaphore/files/test_inventory_commit.py`).
-- [ ] In a scratch repository, a commit on `main` runs and leaves `HEAD` at that commit; a commit that lies only on another branch and an unknown id are refused. A negative control without the ancestry check must fail (`test_the_commit_must_lie_on_main` and its negative control in `test_inventory_commit.py`).
+- [x] The scripts of `deploy`, `update` and `backup` refuse, one case each, an empty value, 39 and 64 hex digits, upper-case hex, `HEAD`, `main` and a value starting with `-`, and a git shim records no git call for any of them (`test_each_inventory_script_refuses_a_malformed_commit_before_git` in `tests/unit/python/roles/web-app-semaphore/files/test_inventory_commit.py`).
+- [x] In a scratch repository, a commit on `main` runs and leaves `HEAD` at that commit; a commit that lies only on another branch and an unknown id are refused. A negative control without the ancestry check must fail (`test_the_commit_must_lie_on_main` and `test_negative_control_without_the_ancestry_check_another_branch_runs` in `test_inventory_commit.py`, 4 tests green, through `checkout_commit` of `roles/web-app-semaphore/files/shell/repository/lib.sh` against a real git repository).
 - [ ] A `deploy` task started with `INVENTORY_COMMIT` A while `main` has moved to B, and with Semaphore's `commit_hash` set to a commit of another branch, runs on A, shown by the commit the task log records (`inventory commit: a task runs exactly the given commit` in `roles/web-app-semaphore/files/playwright/test-workspace-runners.js`).
 
 ### Branch protection
@@ -53,4 +53,4 @@ Rejected:
 
 ### Documentation
 
-- [ ] The [README](../../roles/web-app-semaphore/README.md) documents `INVENTORY_COMMIT`, its pattern, the ancestry check on `main` and the protection the store sets (`test_the_readme_names_the_inventory_commit` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
+- [x] The [README](../../roles/web-app-semaphore/README.md) documents `INVENTORY_COMMIT`, its pattern, the ancestry check on `main` and the protection the store sets (`test_the_readme_names_the_inventory_commit` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).

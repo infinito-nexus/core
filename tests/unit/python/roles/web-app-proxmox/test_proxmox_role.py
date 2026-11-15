@@ -35,12 +35,15 @@ proxmox_package_pins = _FILTERS.proxmox_package_pins
 SERVICES = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES), default_if_missing={})
 VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN), default_if_missing={})
 VARIANTS = load_yaml_any(str(ROLE / ROLE_FILE_META_VARIANTS), default_if_missing=[])
-DOCKERFILE = read_text(str(ROLE / "files" / "Dockerfile"))
+DOCKERFILE = read_text(str(ROLE / "templates" / "Dockerfile.j2"))
 COMPOSE = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
 README = read_text(str(ROLE / ROLE_FILE_README))
 TASKS = ROLE / "tasks" / "00_core.yml"
 TASK_LIST = load_yaml_any(str(TASKS), default_if_missing=[])
 GUARD = ROLE / "tasks" / "utils" / "stack" / "guard.yml"
+STAGE = load_yaml_any(
+    str(ROLE / "tasks" / "utils" / "stack" / "stage.yml"), default_if_missing=[]
+)
 PROXMOX = SERVICES["proxmox"]
 SSO_GATE = assert_task(
     GUARD, "🛑 Refuse to serve the hypervisor UI without the SSO group gate"
@@ -49,7 +52,8 @@ NO_ONION = assert_task(
     GUARD, "🛑 Refuse to publish the hypervisor UI on an onion address"
 )
 COHOST = assert_task(
-    GUARD, "🛑 Refuse a host that also runs the identity, gateway or vault role"
+    GUARD,
+    "🛑 Refuse a container flavor host shared with identity, gateway or vault",
 )
 
 
@@ -200,9 +204,9 @@ class TestSeparateHost(unittest.TestCase):
             VARS["PROXMOX_EXCLUSIVE_PEERS"], "pve", groups, HOSTVARS
         )
 
-    def _holds(self, peers: list[str], shared: bool) -> bool:
+    def _holds(self, peers: list[str], flavor: str) -> bool:
         return holds(
-            COHOST, {"PROXMOX_COHOSTED_PEERS": peers, "PROXMOX_SHARED_HOST": shared}
+            COHOST, {"PROXMOX_COHOSTED_PEERS": peers, "PROXMOX_FLAVOR": flavor}
         )
 
     def test_vars_use_the_address_aware_filter(self):
@@ -211,18 +215,18 @@ class TestSeparateHost(unittest.TestCase):
     def test_dedicated_host_passes(self):
         peers = self._peers({"web-app-proxmox": ["pve"], "web-app-keycloak": ["idp"]})
         self.assertEqual(peers, [])
-        self.assertTrue(self._holds(peers, False))
+        self.assertTrue(self._holds(peers, "container"))
 
     def test_each_exclusive_peer_in_own_groups_is_refused(self):
         for peer in ("web-app-keycloak", "svc-ai-litellm", "web-app-openbao"):
             peers = self._peers({"web-app-proxmox": ["pve"], peer: ["pve"]})
             self.assertEqual(peers, [peer])
-            self.assertFalse(self._holds(peers, False), peer)
+            self.assertFalse(self._holds(peers, "container"), peer)
 
     def test_peer_on_another_inventory_name_of_the_same_machine_is_refused(self):
         peers = self._peers({"web-app-keycloak": ["idp-alias"]})
         self.assertEqual(peers, ["web-app-keycloak"])
-        self.assertFalse(self._holds(peers, False))
+        self.assertFalse(self._holds(peers, "container"))
 
     def test_other_spellings_of_the_same_machine_are_refused(self):
         for pve, idp in (
@@ -260,11 +264,8 @@ class TestSeparateHost(unittest.TestCase):
         )
         self.assertEqual(found, [])
 
-    def test_shared_host_flag_accepts_the_peers(self):
-        self.assertTrue(self._holds(["web-app-keycloak"], True))
-
-    def test_shared_host_defaults_to_false(self):
-        self.assertIs(PROXMOX["shared_host"], False)
+    def test_the_vm_flavor_accepts_the_peers(self):
+        self.assertTrue(self._holds(["web-app-keycloak"], "vm"))
 
 
 class TestGates(unittest.TestCase):
@@ -299,7 +300,11 @@ class TestGates(unittest.TestCase):
 
 class TestHostChecks(unittest.TestCase):
     def test_kvm_is_required(self):
-        task = _include("svc-virt-kata/tasks/utils/assert/kvm.yml")
+        task = STAGE[0]
+        self.assertIn(
+            "svc-virt-kata/tasks/utils/assert/kvm.yml",
+            task["ansible.builtin.include_tasks"],
+        )
         self.assertEqual(task["vars"]["assert_kvm_consumer"], "{{ application_id }}")
 
     def test_container_limits_are_proven_against_the_vm_demand(self):
@@ -312,6 +317,129 @@ class TestHostChecks(unittest.TestCase):
             set(PROXMOX["agents"]["overhead"]), {"cpus", "memory"}, "overhead shape"
         )
 
+    def test_a_redeploy_counts_its_agent_vms_as_free(self):
+        names = [task.get("name", "") for task in TASK_LIST]
+        read = TASK_LIST[
+            names.index(
+                "🔍 Read what the running Proxmox VE of {{ application_id }} already holds"
+            )
+        ]
+        count = TASK_LIST[
+            names.index(
+                "🧮 Count what the agent VMs of {{ application_id }} hold as free for a redeploy"
+            )
+        ]
+        check = _include("svc-ai-agent-broker/tasks/utils/vm/capacity.yml")
+        self.assertLess(TASK_LIST.index(read), TASK_LIST.index(count))
+        self.assertLess(TASK_LIST.index(count), TASK_LIST.index(check))
+        self.assertEqual(read["when"], "IS_STACK_HOST | bool")
+        inspect, running, thin = read["block"]
+        self.assertIn("--type container", inspect["ansible.builtin.shell"])
+        self.assertIn("PROXMOX_CONTAINER_ADDRESS", inspect["ansible.builtin.shell"])
+        for gated in (running, thin):
+            self.assertEqual(
+                gated["when"], "(web_app_proxmox_running.stdout | trim) == 'true'"
+            )
+        commands = {
+            task["register"]: task["ansible.builtin.shell"]
+            for task in [*running["block"], thin]
+        }
+        self.assertEqual(
+            set(commands),
+            {
+                "web_app_proxmox_resources",
+                "web_app_proxmox_volumes",
+                "web_app_proxmox_pool",
+                "web_app_proxmox_thin",
+            },
+        )
+        loops = {
+            task["register"]: task.get("loop")
+            for task in running["block"]
+            if "loop" in task
+        }
+        storages = (
+            "{{ web_app_proxmox_resources | proxmox_image_storages(PROXMOX_NODE,"
+            " PROXMOX_GUEST_AGENT_STORAGE) }}"
+        )
+        self.assertEqual(
+            loops,
+            {"web_app_proxmox_volumes": storages, "web_app_proxmox_pool": storages},
+        )
+        status = next(
+            task
+            for task in running["block"]
+            if task["register"] == "web_app_proxmox_pool"
+        )
+        self.assertIn("'/status'", status["ansible.builtin.shell"])
+        self.assertEqual(status["when"], "PROXMOX_GUEST_AGENT_STORAGE | length > 0")
+        self.assertEqual(
+            VARS["PROXMOX_GUEST_AGENT_STORAGE"],
+            "{{ PROXMOX_WORKSPACES.storage if PROXMOX_IS_VM | bool else '' }}",
+        )
+        for is_vm, storage in ((True, PROXMOX["workspaces"]["storage"]), (False, "")):
+            scope = {
+                "PROXMOX_IS_VM": is_vm,
+                "PROXMOX_WORKSPACES": PROXMOX["workspaces"],
+            }
+            self.assertEqual(
+                evaluate(VARS["PROXMOX_GUEST_AGENT_STORAGE"][2:-2], scope), storage
+            )
+        for register, command in commands.items():
+            self.assertIn("PROXMOX_GUEST_EXEC +", command, register)
+        self.assertIn("'/cluster/resources'", commands["web_app_proxmox_resources"])
+        self.assertIn("'--content', 'images'", commands["web_app_proxmox_volumes"])
+        self.assertIn(
+            "'lvs', '--reportformat', 'json'", commands["web_app_proxmox_thin"]
+        )
+        self.assertEqual(
+            count["ansible.builtin.set_fact"]["web_app_proxmox_agent_usage"],
+            "{{ web_app_proxmox_resources | proxmox_agent_usage(web_app_proxmox_volumes,"
+            " web_app_proxmox_thin, PROXMOX_AGENT_POOL) }}",
+        )
+        self.assertEqual(
+            check["vars"]["vm_capacity_running_memory"],
+            "{{ web_app_proxmox_agent_usage.memory }}",
+        )
+        self.assertEqual(
+            check["vars"]["vm_capacity_own_disk"],
+            "{{ web_app_proxmox_agent_usage.disk }}",
+        )
+        self.assertEqual(
+            count["ansible.builtin.set_fact"]["web_app_proxmox_agent_disk_pool"],
+            "{{ web_app_proxmox_pool | proxmox_agent_pool(PROXMOX_GUEST_AGENT_STORAGE,"
+            " PROXMOX_GUEST.disk) }}",
+        )
+        self.assertEqual(
+            check["vars"]["vm_capacity_pool_size"],
+            "{{ web_app_proxmox_agent_disk_pool.size }}",
+        )
+        self.assertEqual(
+            check["vars"]["vm_capacity_pool_used"],
+            "{{ web_app_proxmox_agent_disk_pool.used }}",
+        )
+        self.assertNotIn("when", check)
+        self.assertNotIn("when", count)
+        self.assertEqual(
+            VARS["PROXMOX_AGENT_POOL"],
+            "agents-{{ DOMAIN_PRIMARY | replace('.', '-') }}",
+        )
+
+    def test_a_first_deploy_reads_nothing_before_the_check(self):
+        names = [task.get("name", "") for task in TASK_LIST]
+        read = TASK_LIST[
+            names.index(
+                "🔍 Read what the running Proxmox VE of {{ application_id }} already holds"
+            )
+        ]
+        gate = read["block"][1]["when"]
+        for stdout, runs in (("", False), ("false\n", False), ("true\n", True)):
+            with self.subTest(stdout=stdout):
+                self.assertIs(
+                    evaluate(gate, {"web_app_proxmox_running": {"stdout": stdout}}),
+                    runs,
+                )
+
     def test_vm_disks_and_template_base_disks_are_left_out_of_the_backup(self):
         volumes = load_yaml_any(
             str(ROLE / ROLE_FILE_META_VOLUMES), default_if_missing={}
@@ -320,6 +448,16 @@ class TestHostChecks(unittest.TestCase):
         self.assertNotIn("backup", volumes["proxmox_config"])
         self.assertNotIn("backup", volumes["proxmox_templates"])
         self.assertIn("base disks of the agent VM templates", README)
+        self.assertIs(volumes["proxmox_guest_base"]["backup"], False)
+        self.assertNotIn("backup", volumes["proxmox_guest"])
+        for name, flavor in (
+            ("proxmox_guest", "vm"),
+            ("proxmox_guest_base", "vm"),
+            ("proxmox_config", "container"),
+            ("proxmox_templates", "container"),
+            ("proxmox_vm_disks", "container"),
+        ):
+            self.assertIn(f"== '{flavor}'", volumes[name]["mounts"][0]["when"], name)
 
 
 CSP = load_yaml_any(str(ROLE / ROLE_FILE_META_CSP), default_if_missing={})

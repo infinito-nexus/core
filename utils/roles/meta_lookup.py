@@ -23,6 +23,8 @@ Both helpers degrade gracefully:
 from __future__ import annotations
 
 import functools
+import posixpath
+import re
 from pathlib import Path
 
 import yaml
@@ -35,6 +37,8 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_TESTS
 from . import PROJECT_ROOT
 
 PathLike = str | Path
+
+DEVICE_PATH = re.compile(r"/dev/[A-Za-z0-9._+/-]+")
 
 
 class MetaServicesShapeError(ValueError):
@@ -358,6 +362,73 @@ def get_role_architectures(
             f"{raw!r} (expected a non-empty list drawn from {ARCHITECTURES})."
         )
     return [str(value) for value in raw]
+
+
+def get_role_built_services(
+    role: PathLike, *, role_name: str | None = None
+) -> list[str]:
+    """Args:
+        role: the role directory or name.
+        role_name: the role name when ``role`` is a directory under another name.
+
+    Returns:
+        The sorted keys of ``meta/services.yml`` whose image the role builds
+        itself (``custom``). Their pinned image is only the build's base, so its
+        published architectures bound, but do not state, where the built image
+        runs.
+    """
+    role_dir, _name = _resolve_role(role, role_name)
+    services = _read_meta_services(role_dir) or {}
+    return sorted(
+        str(key)
+        for key, entry in services.items()
+        if isinstance(entry, dict) and entry.get("custom")
+    )
+
+
+def _is_device_list(raw: object) -> bool:
+    """Args:
+        raw: the value of ``requires_devices``.
+
+    Returns:
+        Whether it is a non-empty list of distinct, normalised paths below ``/dev``.
+    """
+    if not isinstance(raw, list) or not raw:
+        return False
+    if not all(isinstance(item, str) for item in raw):
+        return False
+    return len(set(raw)) == len(raw) and all(
+        DEVICE_PATH.fullmatch(item) and posixpath.normpath(item) == item for item in raw
+    )
+
+
+def get_role_requires_devices(
+    role: PathLike, *, role_name: str | None = None
+) -> list[str]:
+    """Args:
+        role: role name below ``roles/`` or a role directory.
+        role_name: canonical role name when ``role`` is an arbitrary path.
+
+    Returns:
+        The host devices ``meta/services.yml.<primary_entity>.requires_devices``
+        names, or ``[]`` when the role declares none. A present key that is not a
+        non-empty list of distinct paths below ``/dev`` raises
+        :class:`MetaServicesShapeError`.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    if primary is None:
+        return []
+    raw = primary.get("requires_devices")
+    if raw is None:
+        return []
+    if not _is_device_list(raw):
+        raise MetaServicesShapeError(
+            f"Invalid requires_devices in meta/services.yml for role '{name}': "
+            f"{raw!r} (expected a non-empty list of distinct device paths below "
+            f"/dev, such as [/dev/kvm])."
+        )
+    return list(raw)
 
 
 def get_role_placement(role: PathLike, *, role_name: str | None = None) -> str | None:

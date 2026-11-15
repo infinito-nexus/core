@@ -10,11 +10,16 @@ from ansible.parsing.dataloader import DataLoader
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.roles.applications.forms import iter_fields, locks
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-gitea"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 SETUP = ROLE / "tasks" / "02_setup.yml"
 LDAP_SETUP = ROLE / "tasks" / "setup" / "ldap.yml"
 SQL = ROLE / "files" / "sql" / "login-source-settings.sql"

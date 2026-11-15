@@ -43,6 +43,18 @@
   "permissions": {"view": ["admin","user"], "edit": ["admin"]},
   "multivalued": false
 }] if KEYCLOAK_EMAIL_MAILBOX | bool else [] %}
+{% set _export_attrs = [{
+  "name": KEYCLOAK_EXPORT_RECIPIENT_ATTRIBUTE,
+  "displayName": "Export recipient (age public key)",
+  "validations": {"pattern": {
+    "pattern": KEYCLOAK_EXPORT_RECIPIENT_PATTERN,
+    "error-message": "Enter exactly one age recipient: age1 followed by 58 lowercase bech32 characters."
+  }},
+  "annotations": {},
+  "permissions": {"view": ["admin","user"], "edit": ["user"]},
+  "group": "user-metadata",
+  "multivalued": false
+}] if KEYCLOAK_ORGANIZATIONS_ENABLED | bool else [] %}
 {% set _base_attrs = [
   {
     "name": "username",
@@ -113,7 +125,7 @@
   }
 ] %}
 {% set user_profile = {
-  "attributes": _base_attrs + _mailbox_attrs + _profile.attrs,
+  "attributes": _base_attrs + _mailbox_attrs + _export_attrs + _profile.attrs,
   "groups": [
     {
       "name": "user-metadata",

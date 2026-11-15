@@ -1,0 +1,78 @@
+---
+# Param WORKSPACE: uuid of the workspace.
+# Param WORKSPACE_ACTION: apply creates the TSIG key ws-<uuid>.<subzone>, grants it updates of A, AAAA, CNAME and TXT names at or below ws-<uuid>.<subzone> and writes it to tenant/data/ws-<uuid>-provision/dns; destroy removes the key, its grant and that secret.
+# Output workspace_dns: on apply, zone (the subzone) and an empty zone_id, which web-app-semaphore reads under the knot DNS flavor.
+- name: "🛑 Refuse a malformed workspace call of {{ application_id }}"
+  ansible.builtin.assert:
+    that:
+      - WORKSPACE is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+      - WORKSPACE_ACTION in ['apply', 'destroy']
+    fail_msg: >-
+      svc-dns-knot workspace.yml takes WORKSPACE <uuid> and a WORKSPACE_ACTION
+      of apply or destroy, got {{ WORKSPACE }} and {{ WORKSPACE_ACTION }}.
+    quiet: true
+
+- name: "🏷️ Name the workspace key of {{ WORKSPACE }} in {{ KNOT_ZONE }}"
+  ansible.builtin.set_fact:
+    knot_workspace: "ws-{{ WORKSPACE }}"
+
+- include_tasks:
+    file: utils/keys.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  vars:
+    knot_host: "{{ KNOT_PRIMARY }}"
+
+- name: "🔑 Decide the workspace keys of {{ KNOT_ZONE }}"
+  ansible.builtin.set_fact:
+    knot_workspace_keys: >-
+      {{ knot_workspace_keys | combine({knot_workspace: knot_workspace_keys[knot_workspace]
+         | default(lookup('ansible.builtin.password', '/dev/null', length=64, chars=['ascii_letters', 'digits']) | b64encode)})
+         if WORKSPACE_ACTION == 'apply'
+         else knot_workspace_keys | dict2items | rejectattr('key', 'equalto', knot_workspace) | items2dict }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "💾 Store the workspace keys of {{ KNOT_ZONE }} on the primary"
+  ansible.builtin.copy: # nocheck: stack-host-copy  the primary owns the workspace keys its callers delegate to
+    content: "{{ knot_workspace_keys | to_nice_json }}\n"
+    dest: "{{ KNOT_KEYS_FILE }}"
+    mode: "0600"
+  delegate_to: "{{ KNOT_PRIMARY }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- include_tasks: utils/render.yml
+  vars:
+    knot_host: "{{ KNOT_PRIMARY }}"
+
+- include_tasks: utils/reload.yml
+  vars:
+    knot_host: "{{ KNOT_PRIMARY }}"
+  when: knot_rendered | bool
+
+- name: "🔑 Resolve the provision secret of {{ knot_workspace }} for {{ application_id }}"
+  ansible.builtin.set_fact:
+    knot_workspace_secret: >-
+      {{ {'server': KNOT_ADDRESSES | first,
+          'port': KNOT_PORT | string,
+          'key_name': knot_workspace ~ '.' ~ KNOT_ZONE ~ '.',
+          'key_algorithm': KNOT_WORKSPACE_ALGORITHM,
+          'key_secret': knot_workspace_keys[knot_workspace]}
+         if WORKSPACE_ACTION == 'apply' else {} }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Hand the TSIG key of {{ knot_workspace }} to its provision runner"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: "{{ 'present' if WORKSPACE_ACTION == 'apply' else 'absent' }}"
+    openbao_kv_mount: tenant
+    openbao_kv_path: "{{ knot_workspace }}-provision/dns"
+    openbao_kv_data: "{{ knot_workspace_secret }}"
+
+- name: "🌐 Hand the subzone of {{ knot_workspace }} to the later roles"
+  ansible.builtin.set_fact:
+    workspace_dns:
+      zone: "{{ KNOT_ZONE }}"
+      zone_id: ""
+  when: WORKSPACE_ACTION == 'apply'

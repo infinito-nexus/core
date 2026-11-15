@@ -98,7 +98,9 @@ keycloak:
     redirect_uris: "{{ lookup('redirect_uris') }}"
     web_origins: "{{ lookup('redirect_uris', wildcard='') }}"
     post_logout_redirect_uris: "{{ (['+'] + lookup('network_urls', lookup('tls', 'web-svc-logout', 'url.base') ~ '*')) | join('##') }}"
-  directory_client:
+  usage_client:
+    enabled: false
+  organizations:
     enabled: false
   ports:
     local:

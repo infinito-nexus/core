@@ -1,5 +1,7 @@
 ---
 - services:
+    proxmox:
+      flavor: vm
     docs:
       enabled: false
       shared: false
@@ -24,12 +26,14 @@
       enabled: true
       shared: true
 - services:
+    proxmox:
+      flavor: container
     docs:
       enabled: true
       shared: true
     sso:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     logout:
       enabled: false
       shared: false

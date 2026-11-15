@@ -17,7 +17,7 @@ import re
 import unittest
 from unittest import mock
 
-from ansible.errors import AnsibleFilterError
+from ansible.errors import AnsibleError, AnsibleFilterError
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader, lookup_loader
 from ansible.plugins.lookup import LookupBase
@@ -25,8 +25,10 @@ from ansible.template import Templar
 
 from plugins.filter.docker.build_digest import docker_build_digest
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import dump_yaml_str
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.cache.yaml import dump_yaml_str, load_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+
+from ._fake_opentofu_build import FLAVORS, OPENTOFU, Build, roots
 
 ROLE = "web-app-semaphore"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
@@ -45,6 +47,29 @@ SCRIPTS_DIR = f"roles/{ROLE}/files/shell/repository"
 DOCKERFILE_TEXT = "FROM ${SEMAPHORE_RUNNER_BASE_IMAGE}\n"
 SCRIPTS = {"app-control.sh": "echo stop\n", "deploy.sh": "echo deploy\n"}
 SKIPPED = {"changed": False, "skipped": True}
+RUNNER = load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_META_SERVICES)))[
+    "task-runner"
+]
+PINS = tuple(
+    f"{tool}_{key}"
+    for tool in ("opentofu", "age", "keepassxc")
+    for key in ("version", "url", "sha256")
+)
+BUILD = ROLE_DIR / "files" / "shell" / "opentofu" / "build.sh"
+EXPORT_TOOLS = {
+    "age": {
+        "arg": "SEMAPHORE_AGE",
+        "url": "https://github.com/FiloSottile/age/releases/download/v{version}/age-v{version}-linux-amd64.tar.gz",
+        "add": "ADD ${SEMAPHORE_AGE_URL} /age.tar.gz",
+        "install": 'install /tmp/export-tools/age.tar.gz "${SEMAPHORE_AGE_SHA256}" /usr/local/bin/age',
+    },
+    "keepassxc": {
+        "arg": "SEMAPHORE_KEEPASSXC",
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/{version}/KeePassXC-{version}-x86_64.AppImage",
+        "add": "ADD ${SEMAPHORE_KEEPASSXC_URL} /keepassxc.AppImage",
+        "install": 'install /tmp/export-tools/keepassxc.AppImage "${SEMAPHORE_KEEPASSXC_SHA256}" /usr/local/bin/keepassxc-cli',
+    },
+}
 OLD, NEW = "dev-old", "dev-new"
 OLD_BASE, NEW_BASE = f"{SOFTWARE_IMAGE}:{OLD}", f"{SOFTWARE_IMAGE}:{NEW}"
 OLD_RUNNER, NEW_RUNNER = f"semaphore_custom:{OLD}", f"semaphore_custom:{NEW}"
@@ -130,16 +155,19 @@ def resolve(
         "services.semaphore.image": SERVER_IMAGE,
         "services.semaphore.version": server_version,
         "services.task-runner.name": "semaphore-runner",
+        **{f"services.task-runner.{key}": RUNNER[key] for key in PINS if key in RUNNER},
     }
     stubs = {
         "config": _Stub(lambda _app, path: config[path]),
         "path_absolute": _Stub(lambda *parts: "/".join(parts)),
         "file": _Stub(lambda *paths: [texts[path] for path in paths], many=True),
         "fileglob": _Stub(
-            lambda _pattern: sorted(p for p in texts if p.startswith(SCRIPTS_DIR)),
+            lambda *_patterns: sorted(p for p in texts if p.startswith(SCRIPTS_DIR)),
             many=True,
         ),
-        "volume": _Stub(lambda _app, _name: {"uid": uid, "gid": 1001}),
+        "volume": _Stub(
+            lambda _app, name: {"uid": uid, "gid": 1001, "target": f"/volumes/{name}"}
+        ),
         "deployment": _Stub(lambda: {"primary": primary}),
         "image": _Stub(lambda _app, _service, version: f"semaphore_custom:{version}"),
     }
@@ -363,6 +391,22 @@ class TestPrune(unittest.TestCase):
             [NEW_RUNNER, NEW_BASE, f"{SOFTWARE_IMAGE}:dev-older"],
         )
 
+    def test_the_prune_keeps_workspace_runner_images(self) -> None:
+        workspace_runner = (
+            "semaphore_custom:ws-0b6f1c2e-3d4a-4b5c-8d6e-7f8091a2b3c4-v17.0.0"
+        )
+        workspace_base = f"{SOFTWARE_IMAGE}:v17.0.0"
+        unused_base = f"{SOFTWARE_IMAGE}:v16.0.0"
+        own = resolve(
+            primary=[ROLE],
+            tag=NEW,
+            listed=(*self.LISTED, workspace_runner, workspace_base, unused_base),
+        )
+        pruned = own["SEMAPHORE_RUNNER_PRUNED_IMAGES"]
+        self.assertNotIn(workspace_runner, pruned)
+        self.assertNotIn(workspace_base, pruned)
+        self.assertIn(unused_base, pruned)
+
     def test_a_pulled_base_image_is_not_listed(self) -> None:
         own = resolve(primary=[ROLE], tag=NEW, image_build=False)
         self.assertEqual(
@@ -392,6 +436,188 @@ class TestDockerfile(unittest.TestCase):
         self.assertEqual(
             self.first["SEMAPHORE_RUNNER_LIST_FORMAT"], "{{.Repository}}:{{.Tag}}"
         )
+
+
+class TestOpenTofuLayer(unittest.TestCase):
+    def setUp(self) -> None:
+        self.dockerfile = read_text(str(DOCKERFILE))
+        self.build = Build(RUNNER["opentofu_version"])
+        self.addCleanup(self.build.close)
+
+    def built(self):
+        mirrored = self.build.run("mirror", str(self.build.opentofu))
+        self.assertEqual(mirrored.returncode, 0, mirrored.stderr)
+        mirror_calls = self.build.calls()
+        validated = self.build.run("validate", str(self.build.opentofu))
+        return mirror_calls, validated
+
+    def test_the_build_pins_and_verifies_opentofu(self) -> None:
+        version = tuple(int(part) for part in RUNNER["opentofu_version"].split("."))
+        self.assertGreaterEqual(version, (1, 10, 0))
+        args = resolve(primary=[ROLE], tag=OLD)["SEMAPHORE_RUNNER_BUILD_ARGS"]
+        self.assertEqual(
+            args["SEMAPHORE_OPENTOFU_URL"],
+            RUNNER["opentofu_url"].replace("{version}", RUNNER["opentofu_version"]),
+        )
+        self.assertRegex(args["SEMAPHORE_OPENTOFU_SHA256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(self.dockerfile.count("ADD "), 1 + len(EXPORT_TOOLS))
+        self.assertIn(
+            "ADD ${SEMAPHORE_OPENTOFU_URL} /tmp/opentofu.tar.gz", self.dockerfile
+        )
+        self.assertIn(
+            'install /tmp/opentofu.tar.gz "${SEMAPHORE_OPENTOFU_SHA256}" /usr/local/bin/tofu',
+            self.dockerfile,
+        )
+        archive, digest = self.build.archive("#!/bin/sh\necho OpenTofu v1.13.9\n")
+        binary = self.build.prefix() / "bin" / "tofu"
+        for wrong in ("0" * 64, digest[:-1], "not-a-sum"):
+            with self.subTest(sum=wrong):
+                result = self.build.run("install", str(archive), wrong, str(binary))
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(binary.exists())
+        result = self.build.run("install", str(archive), digest, str(binary))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("OpenTofu v1.13.9", result.stdout)
+
+    def test_the_build_initialises_every_root_offline(self) -> None:
+        self.assertRegex(
+            self.dockerfile,
+            r"FROM opentofu AS opentofu-check\n\nRUN --network=none bash \S+/build\.sh\" "
+            r"\\\n\s+validate ",
+        )
+        self.assertIn(
+            "COPY --from=opentofu-check /usr/local/share/opentofu/validated",
+            self.dockerfile,
+        )
+        mirror_calls, validated = self.built()
+        self.assertEqual(validated.returncode, 0, validated.stderr)
+        self.assertTrue(all(call["cli_config"] is None for call in mirror_calls))
+        inits = [c for c in self.build.calls() if c["argv"][0] == "init"]
+        self.assertEqual(len(inits), len(roots()) * len(FLAVORS))
+        for call in self.build.calls():
+            self.assertEqual(call["cli_config"], str(self.build.opentofu / "tofurc"))
+        for call in inits:
+            self.assertIn("-backend=false", call["argv"])
+            self.assertIn("-lockfile=readonly", call["argv"])
+
+    def test_the_cli_config_installs_from_the_mirror_only(self) -> None:
+        tofurc = read_text(str(OPENTOFU / "tofurc"))
+        blocks = re.findall(r"^\s*(\w+)\s*\{", tofurc, re.MULTILINE)
+        self.assertEqual(blocks, ["provider_installation", "filesystem_mirror"])
+        path = re.search(r'path\s*=\s*"([^"]+)"', tofurc).group(1)
+        self.assertIn(f"COPY --from=opentofu {path} {path}\n", self.dockerfile)
+
+    def test_a_provider_missing_from_the_mirror_fails_the_build(self) -> None:
+        _, validated = self.built()
+        self.assertEqual(validated.returncode, 0, validated.stderr)
+        lock = self.build.opentofu / "roots" / "hetzner" / ".terraform.lock.hcl"
+        with lock.open("a", encoding="utf-8") as handle:
+            handle.write('\nprovider "registry.opentofu.org/example/absent" {\n}\n')
+        result = self.build.run("validate", str(self.build.opentofu))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("example/absent is not in the mirror", result.stderr)
+
+    def test_the_build_validates_every_root_with_each_dns_flavor(self) -> None:
+        _, validated = self.built()
+        self.assertEqual(validated.returncode, 0, validated.stderr)
+        modules = OPENTOFU / "modules"
+        dns = {
+            read_text(str(modules / f"dns-{flavor}" / "main.tf.json")): flavor
+            for flavor in FLAVORS
+        }
+        names = roots()
+        seen = []
+        for call in self.build.calls():
+            if call["argv"][0] != "validate":
+                continue
+            flavor = dns[call["dns"]]
+            seen.append((names[call["main"]], flavor))
+            self.assertEqual(json.loads(call["catalog"]), {})
+            zone_id = json.loads(call["workspace"])["dns"]["zone_id"]
+            self.assertEqual(zone_id == "", flavor == "knot")
+        expected = sorted(
+            (root, flavor) for root in names.values() for flavor in FLAVORS
+        )
+        self.assertEqual(sorted(seen), expected)
+        self.assertEqual(len(validated.stdout.splitlines()), len(expected))
+
+
+class TestExportTools(unittest.TestCase):
+    def setUp(self) -> None:
+        self.dockerfile = read_text(str(DOCKERFILE))
+        self.build = Build(RUNNER["opentofu_version"])
+        self.addCleanup(self.build.close)
+
+    def releases(self):
+        """Returns:
+        ``{tool: (archive, sha256, binary, version line)}`` of release-shaped fakes.
+        """
+        prefix = self.build.prefix()
+        age, age_sum = self.build.archive("#!/bin/sh\necho v1.3.2\n", "age/age")
+        kpx, kpx_sum = self.build.appimage("keepassxc-cli", "#!/bin/sh\necho 2.8.0\n")
+        return {
+            "age": (age, age_sum, prefix / "bin" / "age", "v1.3.2"),
+            "keepassxc": (kpx, kpx_sum, prefix / "bin" / "keepassxc-cli", "2.8.0"),
+        }
+
+    def assert_sum_gates_the_install(self) -> None:
+        for tool, (archive, digest, binary, line) in self.releases().items():
+            for wrong in ("0" * 64, digest[:-1], "not-a-sum"):
+                result = self.build.run("install", str(archive), wrong, str(binary))
+                self.assertNotEqual(result.returncode, 0, f"{tool} took {wrong}")
+                self.assertFalse(binary.is_symlink() or binary.exists(), tool)
+            result = self.build.run("install", str(archive), digest, str(binary))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(line, result.stdout)
+
+    def test_the_build_pins_keepassxc_and_age(self) -> None:
+        args = resolve(primary=[ROLE], tag=OLD)["SEMAPHORE_RUNNER_BUILD_ARGS"]
+        self.assertIn("linux_amd64", RUNNER["opentofu_url"])
+        for tool, pin in EXPORT_TOOLS.items():
+            with self.subTest(tool=tool):
+                version = RUNNER[f"{tool}_version"]
+                self.assertRegex(version, r"^[0-9]+\.[0-9]+\.[0-9]+$")
+                self.assertEqual(RUNNER[f"{tool}_url"], pin["url"])
+                self.assertEqual(
+                    args[f"{pin['arg']}_URL"], pin["url"].replace("{version}", version)
+                )
+                self.assertRegex(args[f"{pin['arg']}_SHA256"], r"^[0-9a-f]{64}$")
+                self.assertEqual(args[f"{pin['arg']}_SHA256"], RUNNER[f"{tool}_sha256"])
+                self.assertIn(pin["add"], self.dockerfile)
+                self.assertIn(pin["install"], self.dockerfile)
+        self.assertRegex(
+            self.dockerfile,
+            r"FROM scratch AS export-tools\n(?:.*\n)*?RUN --mount=type=bind,"
+            r"from=export-tools,target=/tmp/export-tools \\\n\s+bash \S+/build\.sh\" "
+            r"runtime \\\n",
+        )
+        self.assert_sum_gates_the_install()
+
+    def test_the_appimage_lands_beside_its_binary(self) -> None:
+        archive, digest, binary, _ = self.releases()["keepassxc"]
+        result = self.build.run("install", str(archive), digest, str(binary))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        appdir = binary.parent.parent / "lib" / "keepassxc-cli"
+        self.assertEqual(binary.resolve(), appdir / "usr" / "bin" / "keepassxc-cli")
+
+    def test_negative_control_a_missing_sum_fails_the_build_arguments(self) -> None:
+        for key in ("age_sha256", "keepassxc_sha256", "age_url", "keepassxc_version"):
+            with self.subTest(key=key), mock.patch.dict(RUNNER):
+                del RUNNER[key]
+                with self.assertRaises(AnsibleError):
+                    resolve(primary=[ROLE], tag=OLD)
+
+    def test_negative_control_an_installer_without_the_sum_check_installs(
+        self,
+    ) -> None:
+        text = read_text(str(BUILD))
+        check = "| sha256sum --check --strict --quiet -\n"
+        self.assertIn(check, text)
+        planted = self.build.directory / "build.sh"
+        planted.write_text(text.replace(check, "| true\n"), encoding="utf-8")
+        self.build.script = planted
+        with self.assertRaises(AssertionError):
+            self.assert_sum_gates_the_install()
 
 
 if __name__ == "__main__":

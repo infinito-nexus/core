@@ -12,6 +12,14 @@
     - KEYCLOAK_LDAP_ENABLED | bool
     - KEYCLOAK_DICTIONARY_REALM.verifyEmail | bool
 
+- name: "📂 Load the Admin API client scope check for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/utils/admin_api_scope.yml"
+  vars:
+    keycloak_admin_api_kcadm: "{{ KEYCLOAK_EXEC_KCADM }}"
+    keycloak_admin_api_realm: "{{ KEYCLOAK_REALM }}"
+    keycloak_admin_api_clients: []
+  when: KEYCLOAK_ADMIN_API_CLIENT_IDS | length > 0
+
 - name: "📂 Load client and mail settings routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/01_settings.yml"
 
@@ -63,13 +71,17 @@
   include_tasks: "{{ role_path }}/tasks/update/16_client_role_grants.yml"
   when: KEYCLOAK_CLIENT_ROLE_GRANTS | length > 0
 
-- name: "📂 Load directory client routines for '{{ application_id }}'"
-  include_tasks: "{{ role_path }}/tasks/update/17_directory_client/enabled.yml"
-  when: KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool
+- name: "📂 Load usage client routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/18_usage_client/enabled.yml"
+  when: KEYCLOAK_USAGE_CLIENT_ENABLED | bool
 
-- name: "🧹 Remove the directory client of '{{ application_id }}' while its switch is off"
-  include_tasks: "{{ role_path }}/tasks/update/17_directory_client/disabled.yml"
-  when: not KEYCLOAK_DIRECTORY_CLIENT_ENABLED | bool
+- name: "🧹 Remove the usage client of '{{ application_id }}' while its switch is off"
+  include_tasks: "{{ role_path }}/tasks/update/18_usage_client/disabled.yml"
+  when: not KEYCLOAK_USAGE_CLIENT_ENABLED | bool
+
+- name: "📂 Load workspace organization routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/17_organizations.yml"
+  when: KEYCLOAK_ORGANIZATIONS_ENABLED | bool
 
 - name: "📂 Load fine-grained admin permission routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/15_admin_permissions.yml"

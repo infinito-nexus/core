@@ -1,0 +1,22 @@
+---
+- name: "✅ Assert the stop of the workspace tasks runs for destroy"
+  ansible.builtin.assert:
+    that:
+      - SEMAPHORE_WORKSPACES_ENABLED | bool
+      - WORKSPACE is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+      - WORKSPACE_ACTION == 'destroy'
+    fail_msg: >-
+      web-app-semaphore: the stop of the workspace tasks needs services.semaphore.workspaces, a
+      lowercase UUID as WORKSPACE and destroy as WORKSPACE_ACTION
+    quiet: true
+
+- name: "🏷️ Name the workspace"
+  ansible.builtin.set_fact:
+    semaphore_workspace_alias: "{{ SEMAPHORE_WORKSPACE_ALIAS }}"
+
+- name: "🛑 Stop every unfinished task of ws-{{ WORKSPACE }} as the admin"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/admin.yml"
+  vars:
+    semaphore_admin_before: "{{ role_path }}/tasks/utils/workspace/locate.yml"
+    semaphore_admin_tasks: "{{ role_path }}/tasks/utils/workspace/stop.yml"
+  when: inventory_hostname == STACK_HOST

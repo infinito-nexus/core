@@ -1,0 +1,99 @@
+---
+- name: "📜 Write the playwright policy"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    before=$(bao policy read {{ OPENBAO_PLAYWRIGHT_APPROLE | quote }} 2>/dev/null || true);
+    bao policy write {{ OPENBAO_PLAYWRIGHT_APPROLE | quote }} - >/dev/null;
+    after=$(bao policy read {{ OPENBAO_PLAYWRIGHT_APPROLE | quote }});
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ lookup('template', 'policies/playwright.hcl.j2') }}"
+  register: openbao_playwright_policy
+  changed_when: "'OPENBAO_CHANGED' in openbao_playwright_policy.stdout"
+
+- name: "🔍 Probe the Playwright AppRole with the pair of this deploy"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'IFS= read -r secret;
+    token=$(printf "%s" "$secret" | bao write -field=token auth/approle/login
+    role_id={{ OPENBAO_PLAYWRIGHT_ROLE_ID | quote }} secret_id=- 2>/dev/null) || exit 3;
+    BAO_TOKEN="$token" bao token revoke -self >/dev/null'
+  args:
+    stdin: "{{ OPENBAO_PLAYWRIGHT_SECRET_ID }}"
+  register: openbao_playwright_probe
+  changed_when: false
+  failed_when: openbao_playwright_probe.rc not in [0, 3]
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 Drop the Playwright AppRole whose pair OpenBao refused"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao delete auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE | quote }}
+  when: openbao_playwright_probe.rc != 0
+  changed_when: true
+
+- name: "🧩 Write the Playwright AppRole, bound to the playwright policy alone"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE }};
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p
+    token_policies={{ OPENBAO_PLAYWRIGHT_APPROLE | quote }}
+    token_no_default_policy=true
+    token_ttl={{ OPENBAO_PLAYWRIGHT_CONFIG.token_ttl | quote }}
+    token_max_ttl={{ OPENBAO_PLAYWRIGHT_CONFIG.token_max_ttl | quote }}
+    secret_id_ttl={{ OPENBAO_PLAYWRIGHT_CONFIG.secret_id_ttl | quote }}
+    secret_id_num_uses=0 >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  register: openbao_playwright_role
+  changed_when: "'OPENBAO_CHANGED' in openbao_playwright_role.stdout"
+
+- name: "🔑 Pin the Playwright RoleID to the inventory value"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c '[ "$(bao read -field=role_id auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE }}/role-id)" = {{ OPENBAO_PLAYWRIGHT_ROLE_ID | quote }} ] ||
+    { bao write auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE }}/role-id role_id={{ OPENBAO_PLAYWRIGHT_ROLE_ID | quote }} >/dev/null && echo OPENBAO_CHANGED;
+    }'
+  register: openbao_playwright_role_id
+  changed_when: "'OPENBAO_CHANGED' in openbao_playwright_role_id.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Register the Playwright SecretID while the role holds none"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'held=$(bao list -format=json auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE }}/secret-id 2>&1) && exit 0;
+    case "$held" in *"No value found"*) ;; *) echo "$held" >&2; exit 1 ;; esac;
+    bao write auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE }}/custom-secret-id secret_id=- >/dev/null && echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ OPENBAO_PLAYWRIGHT_SECRET_ID }}"
+    stdin_add_newline: false
+  register: openbao_playwright_secret_id
+  changed_when: "'OPENBAO_CHANGED' in openbao_playwright_secret_id.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Read the logins the Playwright AppRole hands to the specs"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao kv get -format=json -mount={{ OPENBAO_PLAYWRIGHT_CONFIG.mount | quote }} {{ OPENBAO_PLAYWRIGHT_CONFIG.logins[item] | quote }} 2>/dev/null || true'
+  loop: "{{ OPENBAO_PLAYWRIGHT_CONFIG.logins | list }}"
+  register: openbao_playwright_logins_read
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Hand each login to the Playwright AppRole"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao kv put -mount={{ OPENBAO_PLAYWRIGHT_CONFIG.mount | quote }} {{ OPENBAO_PLAYWRIGHT_CONFIG.logins[item.item] | quote }} -
+  args:
+    stdin: "{{ OPENBAO_PLAYWRIGHT_LOGINS[item.item] | to_json }}"
+  loop: "{{ openbao_playwright_logins_read.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: >-
+    ((item.stdout | from_json).data.data if item.stdout | trim | length > 0 else {})
+    != OPENBAO_PLAYWRIGHT_LOGINS[item.item]
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

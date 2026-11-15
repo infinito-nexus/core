@@ -313,6 +313,60 @@ class Oauth2AllowAllUsersTests(unittest.TestCase):
         )
 
 
+def _client_apps(client) -> dict:
+    """
+    Args:
+        client: the ``services.sso.oauth2.client`` value of ``web-app-x``.
+
+    Returns:
+        A payload whose oauth2-gated ``web-app-x`` declares ``client``.
+    """
+    return {
+        "web-app-x": {
+            "services": {
+                "sso": {
+                    "enabled": True,
+                    "flavor": "oauth2",
+                    "oauth2": {"client": client},
+                }
+            }
+        }
+    }
+
+
+class Oauth2ClientTests(unittest.TestCase):
+    def test_no_declared_client_keeps_the_shared_one(self):
+        for apps in (_apps(enabled=True, flavor="oauth2"), _client_apps({})):
+            with self.subTest(apps=apps):
+                self.assertEqual(get_sso_config(apps, "web-app-x")["oauth2_client"], {})
+
+    def test_a_declared_client_yields_its_id_and_scopes(self):
+        res = get_sso_config(
+            _client_apps({"id": " x-gate ", "scopes": ["kc-admin-api"]}), "web-app-x"
+        )
+        self.assertEqual(
+            res["oauth2_client"], {"id": "x-gate", "scopes": ["kc-admin-api"]}
+        )
+
+    def test_an_empty_scope_list_is_a_valid_declaration(self):
+        res = get_sso_config(_client_apps({"id": "x-gate", "scopes": []}), "web-app-x")
+        self.assertEqual(res["oauth2_client"], {"id": "x-gate", "scopes": []})
+
+    def test_a_client_without_id_or_scopes_fails_loudly(self):
+        for client in (
+            {"scopes": ["kc-admin-api"]},
+            {"id": "", "scopes": []},
+            {"id": "x-gate"},
+            {"id": "x-gate", "scopes": "kc-admin-api"},
+            "x-gate",
+        ):
+            with self.subTest(client=client):
+                with self.assertRaises(ValueError) as ctx:
+                    get_sso_config(_client_apps(client), "web-app-x")
+                self.assertIn("web-app-x", str(ctx.exception))
+                self.assertIn("services.sso.oauth2.client", str(ctx.exception))
+
+
 class IsPotentiallyEnabledTests(unittest.TestCase):
     def test_none_is_not_potentially_enabled(self):
         self.assertFalse(is_potentially_enabled(None))

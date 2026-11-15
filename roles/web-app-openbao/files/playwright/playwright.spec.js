@@ -9,5 +9,6 @@ require("./test-logout");
 require("./test-rbac-denial");
 require("./test-rbac-groups");
 require("./test-seal-status");
+require("./test-task-login");
 require("./test-userpass-login");
 require("./test-design");

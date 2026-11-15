@@ -2,9 +2,15 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 
 from utils import PROJECT_ROOT
-from utils.tests.swarm.extend_inventory import drop_backup_network_mode
+from utils.tests.swarm.extend_inventory import (
+    PROXMOX_HOST,
+    drop_backup_network_mode,
+    drop_network_mode,
+)
+from utils.tests.swarm.proxmox_host import INVENTORY as PROXMOX_INVENTORY
 from utils.tests.swarm.run import run_step
 
 _SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
@@ -105,6 +111,58 @@ def deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
         f"@{extras_path}",
     ]
     return run_step(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
+
+
+def deploy_proxmox_host(
+    *,
+    app_id: str,
+    inv_dir: str,
+    extras_path: str,
+    round_index: int,
+    update_pass: bool = False,
+) -> int:
+    """
+    Args:
+        app_id: the round's primary application.
+        inv_dir: inventory directory of the round.
+        extras_path: the round's deploy extras file.
+        round_index: variant index of the round.
+        update_pass: run it as the update pass.
+
+    Returns:
+        The exit status; 0 without a deploy when the round wrote no
+        Proxmox host inventory.
+    """
+    inventory = Path(inv_dir) / PROXMOX_INVENTORY
+    if not inventory.is_file():
+        return 0
+    drop_network_mode(inv_dir, PROXMOX_HOST)
+    env = os.environ.copy()
+    env["APP_ID"] = app_id
+    cmd = [
+        "python3",
+        "-m",
+        "cli.administration.deploy.dedicated",
+        str(inventory),
+        "--limit",
+        PROXMOX_HOST,
+        "-p",
+        f"{inv_dir}/.password",
+        "--skip-build",
+        "--skip-pull",
+        *_SKIPPED_MODES,
+        "-e",
+        f"@{_SWARM_EXTRAS_VARS}",
+        "-e",
+        f"@{extras_path}",
+        "-e",
+        f"VARIANT_INDEX={json.dumps(round_index)}",
+        "-e",
+        f"PRIMARY_APPS={json.dumps([app_id], separators=(',', ':'))}",
+    ]
+    if update_pass:
+        cmd += ["-e", "DEPLOY_IS_UPDATE=true"]
+    return run_step(env=env, cmd=cmd, label=f"deploy Proxmox host ({inventory.name})")
 
 
 def sync_role(*, app_id: str, inv_dir: str, extras_path: str, round_index: int) -> int:

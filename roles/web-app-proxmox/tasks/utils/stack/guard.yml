@@ -1,14 +1,26 @@
 ---
-- name: "🛑 Refuse a host that also runs the identity, gateway or vault role"
+- name: "🛑 Refuse a flavor the role does not ship"
   ansible.builtin.assert:
     that:
-      - (PROXMOX_COHOSTED_PEERS | length == 0) or (PROXMOX_SHARED_HOST | bool)
+      - PROXMOX_FLAVOR in PROXMOX_FLAVORS
     fail_msg: >-
-      {{ inventory_hostname }} also runs {{ PROXMOX_COHOSTED_PEERS | join(', ') }}.
-      A VM escape out of Proxmox VE would land next to the identity provider,
-      the model gateway keys or the vault. Move web-app-proxmox to its own
-      host, or accept the shared host by setting
-      applications.web-app-proxmox.services.proxmox.shared_host to true.
+      services.proxmox.flavor is '{{ PROXMOX_FLAVOR }}' for {{ inventory_hostname }},
+      and web-app-proxmox ships the flavors {{ PROXMOX_FLAVORS | join(' and ') }}
+      only. Set applications.web-app-proxmox.services.proxmox.flavor to vm, the
+      default, or to container for a dedicated host.
+    quiet: true
+
+- name: "🛑 Refuse a container flavor host shared with identity, gateway or vault"
+  ansible.builtin.assert:
+    that:
+      - (PROXMOX_FLAVOR != 'container') or (PROXMOX_COHOSTED_PEERS | length == 0)
+    fail_msg: >-
+      {{ inventory_hostname }} runs the container flavor of web-app-proxmox and
+      also {{ PROXMOX_COHOSTED_PEERS | join(', ') }}. Root in the container flavor
+      is root on the host, so a VM escape out of Proxmox VE would land next to the
+      identity provider, the model gateway keys or the vault. Move
+      web-app-proxmox to a host of its own, or deploy the vm flavor, which runs
+      Proxmox VE as a guest of an unprivileged container.
     quiet: true
 
 - name: "🛑 Refuse to serve the hypervisor UI without the SSO group gate"

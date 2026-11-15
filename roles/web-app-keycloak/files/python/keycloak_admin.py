@@ -1,9 +1,11 @@
 """Keycloak admin REST client shared by the scripts beside this module.
 
 Exports:
-    KeycloakError: an HTTP error status, naming method, path and status but never the body.
+    KeycloakError: a failed call, naming method and path but never the body.
+    KeycloakHTTPError: a KeycloakError carrying the HTTP status as ``status``.
     container_credentials: the permanent admin read from ``/proc/<pid>/environ`` of the Keycloak container.
     Keycloak: client whose ``call`` paths are relative to ``/admin/realms/<realm>/`` and ``admin`` paths to ``/admin/realms/``.
+    ServiceAccount: a Keycloak client signed in by the client-credentials grant of a confidential client of its realm.
     ADMIN_ENV_KEYS: container environment keys of the permanent admin user and password.
     PAGE: page size of every paged listing.
     TOKEN_MARGIN: seconds before expiry at which the master realm token is renewed.
@@ -34,6 +36,19 @@ class KeycloakError(Exception):
     pass
 
 
+class KeycloakHTTPError(KeycloakError):
+    """
+    Args:
+        method: HTTP method.
+        path: path below ``/admin/realms/``.
+        status: the HTTP status Keycloak answered.
+    """
+
+    def __init__(self, method: str, path: str, status: int) -> None:
+        super().__init__(f"{method} {path}: HTTP {status}")
+        self.status = status
+
+
 def container_credentials(environ: Path) -> tuple[str, str]:
     """Return the admin user and password from the Keycloak container's environment.
 
@@ -60,6 +75,7 @@ class Keycloak:
     def __init__(self, url: str, realm: str, user: str, password: str) -> None:
         self.url = url.rstrip("/")
         self.realm = realm
+        self._login_realm = "master"
         self._form = urllib.parse.urlencode(
             {
                 "client_id": "admin-cli",
@@ -75,8 +91,9 @@ class Keycloak:
     def _bearer(self) -> str:
         with self._lock:
             if time.monotonic() > self._expires - TOKEN_MARGIN:
+                token_realm = urllib.parse.quote(self._login_realm, safe="")
                 request = urllib.request.Request(  # noqa: S310 fixed local Keycloak origin
-                    f"{self.url}/realms/master/protocol/openid-connect/token",
+                    f"{self.url}/realms/{token_realm}/protocol/openid-connect/token",
                     data=self._form,
                 )
                 with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310 fixed local Keycloak origin
@@ -110,12 +127,35 @@ class Keycloak:
             timeout: seconds the request may take.
         """
         data = b"" if payload is None else json.dumps(payload).encode()
+        return self._send(method, path, data, "application/json", timeout)
+
+    def submit(self, path: str, fields: dict[str, str]) -> tuple[object, str]:
+        """
+        Args:
+            path: path below ``/admin/realms/<realm>/``, query included.
+            fields: the form fields, sent form-encoded by POST.
+
+        Returns:
+            The decoded body and the id the ``Location`` header names.
+        """
+        data = urllib.parse.urlencode(fields).encode()
+        return self._send(
+            "POST",
+            f"{self.realm}/{path}",
+            data,
+            "application/x-www-form-urlencoded",
+            60,
+        )
+
+    def _send(
+        self, method: str, path: str, data: bytes, content_type: str, timeout: int
+    ) -> tuple[object, str]:
         request = urllib.request.Request(  # noqa: S310 fixed local Keycloak origin
             f"{self.url}/admin/realms/{path}",
-            data=data if method in ("POST", "PUT") else None,
+            data=data if method in ("POST", "PUT") or data else None,
             headers={
                 "Authorization": self._bearer(),
-                "Content-Type": "application/json",
+                "Content-Type": content_type,
             },
             method=method,
         )
@@ -124,7 +164,7 @@ class Keycloak:
                 raw = response.read()
                 location = response.headers.get("Location") or ""
         except urllib.error.HTTPError as error:
-            raise KeycloakError(f"{method} {path}: HTTP {error.code}") from None
+            raise KeycloakHTTPError(method, path.split("?", 1)[0], error.code) from None
         return (json.loads(raw) if raw else None), location.rsplit("/", 1)[-1]
 
     def children(self, group_id: str) -> list[dict]:
@@ -142,3 +182,24 @@ class Keycloak:
             found.extend(page)
             if len(page) < PAGE:
                 return found
+
+
+class ServiceAccount(Keycloak):
+    """
+    Args:
+        url: Keycloak base URL.
+        realm: realm of the client and of every ``call`` path.
+        client_id: the confidential client.
+        secret: that client's secret.
+    """
+
+    def __init__(self, url: str, realm: str, client_id: str, secret: str) -> None:
+        super().__init__(url, realm, client_id, secret)
+        self._login_realm = realm
+        self._form = urllib.parse.urlencode(
+            {
+                "client_id": client_id,
+                "client_secret": secret,
+                "grant_type": "client_credentials",
+            }
+        ).encode()

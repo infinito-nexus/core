@@ -21,6 +21,7 @@ set -euo pipefail
 : "${BKP_TEST_HEALTH_TIMEOUT:?}"
 : "${BKP_TEST_LOCK_TIMEOUT:?}"
 : "${BKP_TEST_PYTHON:?}"
+: "${BKP_TEST_WORKSPACES:?}"
 
 if [[ "${BKP_TEST_IS_STACK_HOST}" != "true" ]]; then
     echo "SKIP: not the stack host; svc-bkp-volume-2-local only deploys there"
@@ -36,6 +37,10 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 bash "${DIR}/probe/subvolume.sh"
 bash "${DIR}/probe/snapshot.sh"
+
+swarm_node() {
+    [[ "$(container info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null)" == "active" ]]
+}
 
 # Param $1: when non-empty, a unit already sitting in 'failed' is a verdict
 #           from an earlier deploy rather than this run's, so clear it and
@@ -80,9 +85,19 @@ count_generations() {
 
 wait_service_terminated stale_failure_ok
 
+if [[ "${BKP_TEST_WORKSPACES}" == "true" ]] && ! swarm_node; then
+    BKP_TEST_WORKSPACE_DIR="$(mktemp -d)"
+    export BKP_TEST_WORKSPACE_DIR
+    bash "${DIR}/workspace/pass.sh" prepare
+fi
+
 echo "Forcing a post-deploy backup run (the service-loader pre-state backup can predate the app volumes and be empty)"
-if ! timeout "${BKP_TEST_HEALTH_TIMEOUT}" systemctl start "${BKP_TEST_SERVICE}"; then
-    echo "backup unit start returned non-zero; inspecting result"
+if swarm_node; then
+    if ! timeout "${BKP_TEST_HEALTH_TIMEOUT}" systemctl start "${BKP_TEST_SERVICE}"; then
+        echo "backup unit start returned non-zero; inspecting result"
+    fi
+else
+    bash "${DIR}/verify/maintenance.sh"
 fi
 wait_service_terminated
 
@@ -152,7 +167,7 @@ fi
 
 "${BKP_TEST_PYTHON}" "${DIR}/seed/marker.py" captured "${REPO_DIR}/${NEWEST_GENERATION}" "${DR_TOKEN}"
 
-if [[ "$(container info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null)" == "active" ]]; then
+if swarm_node; then
     echo "SKIP: swarm node; the restore half needs compose lifecycle control, so it is drilled by scripts/tests/deploy/swarm/routine/backup"
     echo "FIRST PASS COMPLETE: backup verified and proven to carry the live payload"
     exit 0

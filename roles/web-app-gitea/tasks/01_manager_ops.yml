@@ -62,6 +62,10 @@
   include_tasks: utils/mcp.yml
   when: GITEA_MCP_ENABLED | bool
 
+- name: "🛡️ Check that the workspace organization holds no widened grant"
+  include_tasks: utils/workspaces/check.yml
+  when: GITEA_WORKSPACES_ENABLED | bool
+
 - name: 📂 Include DNS role to register Gitea domain(s)
   include_role:
     name: sys-dns-cloudflare-records

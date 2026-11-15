@@ -1,0 +1,47 @@
+---
+- name: "🚀 Bring up the runner and egress of {{ semaphore_workspace_alias }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - compose
+      - -f
+      - "{{ semaphore_workspace_dir }}/compose.yml"
+      - up
+      - -d
+      - --build
+      - --remove-orphans
+  register: semaphore_workspace_up
+  changed_when: semaphore_workspace_up.stderr is search('(Created|Recreated|Started|Removed)')
+
+- name: "🔎 List running containers beside the runner of {{ semaphore_workspace_alias }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - ps
+      - --format
+      - '{{ "{{" }}.Names{{ "}}" }} {{ "{{" }}.Label "com.docker.compose.project"{{ "}}" }} {{ "{{" }}.Label "com.docker.compose.service"{{ "}}" }}'
+  register: semaphore_workspace_containers
+  changed_when: false
+
+- name: "🔎 Read the process UIDs beside the runner of {{ semaphore_workspace_alias }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - top
+      - "{{ semaphore_workspace_container }}"
+      - -eo
+      - uid
+  loop: "{{ semaphore_workspace_containers.stdout_lines | semaphore_workspace_neighbours('semaphore-' ~ semaphore_workspace_alias) }}"
+  loop_control:
+    loop_var: semaphore_workspace_container
+  register: semaphore_workspace_tops
+  changed_when: false
+  failed_when: semaphore_workspace_tops.rc != 0 and semaphore_workspace_tops.stderr is not search('is not running|No such container')
+
+- name: "🛡️ Assert no other container runs as the UID of {{ semaphore_workspace_alias }}"
+  ansible.builtin.assert:
+    that: semaphore_workspace_uid_clashes | length == 0
+    fail_msg: "{{ semaphore_workspace_uid_clashes | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_workspace_uid_clashes: "{{ semaphore_workspace_tops.results | semaphore_workspace_uid_findings(semaphore_workspace_runner_uid) }}"

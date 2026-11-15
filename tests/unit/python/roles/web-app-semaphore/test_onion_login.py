@@ -48,7 +48,7 @@ BUTTON = "Sign in with Keycloak"
 EMAIL_CLAIM = "rbac-gated-email-claim"
 
 OIDC = {
-    "CLIENT": {"ISSUER_URL": ISSUER, "ID": "semaphore-client", "SECRET": SECRET},
+    "CLIENT": {"ISSUER_URL": ISSUER, "ID": "shared-client", "SECRET": "shared-secret"},
     "ATTRIBUTES": {"USERNAME": "preferred_username", "NAME": "name"},
 }
 
@@ -121,7 +121,11 @@ def resolve(names, *, siblings, domain, canonical=CLEAR, sso=True) -> dict:
     stubs = {
         "domain": lambda _app: canonical,
         "network_siblings": lambda _domain: siblings,
-        "config": lambda _app, path: {"services.sso.enabled": sso}[path],
+        "config": lambda _app, path: {
+            "services.sso.enabled": sso,
+            "services.sso.oidc.clients.web": "semaphore-client",
+            "secrets.credentials.oidc_client_secret": SECRET,
+        }[path],
         "path_absolute": lambda *parts: "/".join(parts),
         "template": lambda _path: EMAIL_CLAIM,
         "ansible.builtin.template": _rendered_location,

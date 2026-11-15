@@ -27,7 +27,29 @@
     semaphore_deploy_fixture_known_hosts: "{{ (semaphore_deploy_fixture_target.results[1].content | b64decode).splitlines() | select | list }}"
     semaphore_deploy_fixture_holder_key: "{{ semaphore_deploy_fixture_target.results[2].content | b64decode | trim }}"
 
-- name: "🔐 Authorize the Semaphore deploy key for root on the shared target"
+- name: "✅ Fail when the fixture key equals the root, app-control, deploy or target key"
+  ansible.builtin.assert:
+    that:
+      - semaphore_fixture_workspace_findings | length == 0
+    fail_msg: "{{ semaphore_fixture_workspace_findings | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_fixture_workspace_findings: >-
+      {{ SEMAPHORE_DEPLOY_FIXTURE_WORKSPACE_PUBLIC_KEY | semaphore_fixture_key_findings({
+           'root': SEMAPHORE_DEPLOY_FIXTURE_ROOT_PUBLIC_KEY,
+           'app-control': SEMAPHORE_APP_CONTROL_PRIVATE_KEY | ssh_public_key,
+           'deploy': SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY,
+           'target': semaphore_deploy_fixture_holder_key,
+         }) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗂️ Build the Workspaces inventory of the platform host"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/project/fixture/platform.yml"
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Authorize the Semaphore deploy and fixture keys for root on the shared target"
   ansible.builtin.command:
     argv:
       - ssh
@@ -43,7 +65,13 @@
       - >-
         read -r key; if grep -qxF "$key" /root/.ssh/authorized_keys; then echo UNCHANGED;
         else printf '%s\n' "$key" >>/root/.ssh/authorized_keys && echo CHANGED; fi
-    stdin: "{{ SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY }}"
+    stdin: "{{ semaphore_deploy_fixture_authorized }}"
+  loop:
+    - "{{ SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY }}"
+    - "{{ SEMAPHORE_DEPLOY_FIXTURE_WORKSPACE_PUBLIC_KEY }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_authorized
+    label: "{{ semaphore_deploy_fixture_authorized.split()[1][-16:] }}"
   register: semaphore_deploy_fixture_authorize
   changed_when: "'CHANGED' in semaphore_deploy_fixture_authorize.stdout"
 
@@ -124,3 +152,7 @@
     (semaphore_deploy_fixture_keys.stdout | from_json).content | from_json
     | selectattr('key', 'search', (SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key).split()[1] | regex_escape)
     | list | length == 0
+
+- name: "🔐 Hand OpenBao the platform credentials the workspace fixture references"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/credentials.yml"
+  when: SEMAPHORE_WORKSPACES_ENABLED | bool

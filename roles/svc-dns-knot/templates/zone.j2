@@ -1,0 +1,8 @@
+$ORIGIN {{ KNOT_ZONE }}.
+$TTL 300
+@ SOA ns1 hostmaster 1 3600 900 1209600 300
+{% for address in KNOT_ADDRESSES %}
+@ NS ns{{ loop.index }}
+ns{{ loop.index }} A {{ address }}
+{% endfor %}
+_canary TXT "{{ application_id }}"

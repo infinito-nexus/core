@@ -1,0 +1,8 @@
+{% set openbao_role = '{{identity.entity.aliases.' ~ OPENBAO_JWT_EXPORT_ACCESSOR ~ '.metadata.role}}' %}
+path "{{ OPENBAO_TENANT_MOUNT }}/data/{{ openbao_role }}/*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_TENANT_MOUNT }}/metadata/{{ openbao_role }}/*" {
+  capabilities = ["list"]
+}

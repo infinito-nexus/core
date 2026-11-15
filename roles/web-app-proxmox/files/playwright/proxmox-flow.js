@@ -137,4 +137,4 @@ async function runProxmoxAdminFlow(page) {
   await signOut(page, env);
 }
 
-module.exports = { runProxmoxAdminFlow };
+module.exports = { proxmoxEnv, runProxmoxAdminFlow, signInThroughGate, signInThroughRealm };

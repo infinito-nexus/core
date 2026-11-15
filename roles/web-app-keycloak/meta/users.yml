@@ -4,3 +4,4 @@ keycloak_bootstrap:
   username: keycloakbootstrap
   accounts: []
 platform_administrator: {}
+web-app-semaphore-breakglass: {}

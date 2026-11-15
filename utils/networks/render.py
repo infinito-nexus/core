@@ -144,6 +144,43 @@ def compute_external_network_roles(
     return roles
 
 
+def _close_networks(
+    lines: list[str],
+    internal: tuple[str, ...],
+    deployment_mode: str,
+    swarm_encrypted: bool,
+) -> str:
+    """
+    Args:
+        lines: the ``networks:`` block rendered so far.
+        internal: role-private networks to define after it, each without a
+            route out.
+        deployment_mode: compose or swarm.
+        swarm_encrypted: encrypt the overlay of each internal network.
+
+    Returns:
+        The whole block, or ``""`` when it defines no network.
+    """
+    for name in internal:
+        _check_internal_name(name)
+        lines.append(f"  {name}:")
+        if deployment_mode == "swarm":
+            lines.append("    driver: overlay")
+            lines.append("    driver_opts:")
+            lines.append(f'      encrypted: "{"true" if swarm_encrypted else "false"}"')
+        else:
+            lines.append("    driver: bridge")
+        lines.append("    internal: true")
+    if len(lines) == 1:
+        return ""
+    return "\n".join(lines) + "\n"
+
+
+def _check_internal_name(name: str) -> None:
+    if not name or name == "default" or not name.replace("-", "").isalnum():
+        raise ValueError(f"no valid internal network name: {name!r}")
+
+
 def render_compose_networks(
     *,
     application_id: str,
@@ -154,9 +191,33 @@ def render_compose_networks(
     lookup_database: Callable[[str, str], Any],
     swarm_encrypted: bool = True,
     node_local: bool = False,
+    internal: tuple[str, ...] = (),
+    internal_only: bool = False,
 ) -> str:
+    """
+    Args:
+        application_id: role the compose file belongs to.
+        deployment_mode: compose or swarm.
+        registry: service registry built from the merged applications.
+        entity_name: role id to entity name.
+        lookup_config: config value accessor.
+        lookup_database: database value accessor.
+        swarm_encrypted: encrypt the swarm overlays.
+        node_local: render as compose regardless of deployment_mode.
+        internal: role-private networks without a route out, defined after
+            the role's own networks.
+        internal_only: define the ``internal`` networks alone, for a compose
+            project of its own whose ``default`` network compose creates.
+
+    Returns:
+        The top-level ``networks:`` block, or ``""`` when it holds none.
+    """
     if node_local:
         deployment_mode = "compose"
+    if internal_only:
+        return _close_networks(
+            ["networks:"], tuple(internal), deployment_mode, swarm_encrypted
+        )
     attachments, _ = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
@@ -200,10 +261,7 @@ def render_compose_networks(
                 lines.append("      config:")
                 lines.append(f"        - subnet: {subnet}")
 
-    if len(lines) == 1:
-        return ""
-
-    return "\n".join(lines) + "\n"
+    return _close_networks(lines, tuple(internal), deployment_mode, swarm_encrypted)
 
 
 def render_container_networks(
@@ -217,7 +275,34 @@ def render_container_networks(
     provider_self_alias: bool = True,
     node_local: bool = False,
     own_network_only: bool = False,
+    internal: str | None = None,
+    egress: bool = False,
 ) -> str:
+    """
+    Args:
+        application_id: role the service belongs to.
+        deployment_mode: compose or swarm.
+        registry: service registry built from the merged applications.
+        entity_name: role id to entity name.
+        lookup_config: config value accessor.
+        lookup_database: database value accessor.
+        provider_self_alias: carry the provider's own alias.
+        node_local: render as compose regardless of deployment_mode.
+        own_network_only: join only the networks the role provides.
+        internal: a role-private network without a route out, which the
+            service then joins in place of every role network.
+        egress: with ``internal``, also join ``default``, without an alias,
+            as the one route out of the internal network's members.
+
+    Returns:
+        The per-service ``networks:`` attachment, or ``""`` for none.
+    """
+    if internal is not None:
+        _check_internal_name(internal)
+        lines = ["networks:", f"  {internal}: {{}}"]
+        if egress:
+            lines.append("  default: {}")
+        return "\n" + "\n".join(lines)
     if node_local:
         deployment_mode = "compose"
     attachments, default_aliases = _compute_attachments(

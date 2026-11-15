@@ -1,0 +1,12 @@
+---
+# Param semaphore_workspace_alias: ws-<id> of the workspace destroy removes.
+- name: "🔑 Read the AWS credential that manages the workspace IAM users"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/workspace/route53/admin.yml"
+
+- name: "🗑️ Remove the IAM user of {{ semaphore_workspace_alias }} with its keys"
+  semaphore_route53_user:
+    user: "{{ semaphore_workspace_alias }}"
+    state: absent
+    admin_access_key_id: "{{ semaphore_route53_admin.access_key_id }}"
+    admin_secret_access_key: "{{ semaphore_route53_admin.secret_access_key }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

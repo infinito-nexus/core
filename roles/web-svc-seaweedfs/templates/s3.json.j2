@@ -22,7 +22,18 @@
 {%     set _ = anonymous_actions.append("Read:" ~ objstore.bucket) %}
 {%   endif %}
 {% endfor %}
+{% if SEAWEEDFS_EXPORT.enabled | bool %}
+{%   set _ = identities.append({
+       "name": SEAWEEDFS_EXPORT.identity,
+       "credentials": [{"accessKey": SEAWEEDFS_EXPORT.access_key, "secretKey": SEAWEEDFS_EXPORT.secret_key}],
+       "actions": [
+         "Read:" ~ SEAWEEDFS_EXPORT.bucket,
+         "Write:" ~ SEAWEEDFS_EXPORT.bucket,
+         "List:" ~ SEAWEEDFS_EXPORT.bucket
+       ]
+     }) %}
+{% endif %}
 {% if anonymous_actions %}
 {%   set _ = identities.append({"name": "anonymous", "actions": anonymous_actions}) %}
 {% endif %}
-{{ {"identities": identities} | to_nice_json }}
+{{ identities | seaweedfs_s3_identities(seaweedfs_workspace_records) | to_nice_json }}

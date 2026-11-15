@@ -13,7 +13,11 @@ from jinja2.nativetypes import NativeEnvironment
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 from .test_realm_import_json import CONTEXT, render
@@ -32,6 +36,7 @@ CLIENT_ID_CONSUMERS = (
     "roles/*/templates/**/*.j2",
     "roles/*/vars/*.yml",
     "roles/*/tasks/**/*.yml",
+    f"roles/*/{ROLE_FILE_META_FORMS}",
 )
 CLIENT_ID_LOOKUP = re.compile(
     r"lookup\(\s*'config'\s*,\s*[^,()]+,\s*'services\.sso\.oidc\.clients\.\w+'\s*"
@@ -228,6 +233,8 @@ def lookup(name, *args, **_kwargs):
     Args:
         name: the lookup plugin the template asked for.
     """
+    if name == "config" and str(args[1]).startswith("secrets.credentials."):
+        return f"{args[0]}-{str(args[1]).rsplit('.', 1)[-1]}"
     if name == "config":
         return role_config(*args)
     if name == "canonical_url":
@@ -254,6 +261,7 @@ def render_fragment(template: Path) -> list[dict]:
         autoescape=select_autoescape(),
     )
     env.filters["to_json"] = json.dumps
+    env.filters["bool"] = bool
     env.filters["regex_replace"] = lambda value, pattern, repl="": re.sub(
         pattern, repl, str(value)
     )

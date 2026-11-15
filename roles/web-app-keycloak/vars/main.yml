@@ -265,12 +265,16 @@ KEYCLOAK_PROFILE_ATTRIBUTES:
 
 KEYCLOAK_DECLARED_CLIENT_APPS: "{{ lookup('applications') | kc_declared_client_apps(lookup('deployment').groups) }}"
 KEYCLOAK_DECLARED_CLIENT_IDS: "{{ lookup('applications') | kc_declared_client_ids(lookup('deployment').groups) }}"
+KEYCLOAK_PROXY_CLIENTS: "{{ lookup('applications') | kc_proxy_clients(lookup('deployment').groups) }}"
+KEYCLOAK_PROXY_CLIENT_IDS: "{{ KEYCLOAK_PROXY_CLIENTS | map(attribute='client_id') | list }}"
 KEYCLOAK_SAML_CLIENT_IDS: "{{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('protocol', 'equalto', 'saml') | map(attribute='clientId') | list }}"
 KEYCLOAK_DECLARED_MAPPER_CLIENT_IDS: >-
-  {{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'in', KEYCLOAK_DECLARED_CLIENT_IDS)
+  {{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'in', KEYCLOAK_DECLARED_CLIENT_IDS + KEYCLOAK_PROXY_CLIENT_IDS)
      | selectattr('protocolMappers', 'defined') | map(attribute='clientId') | list }}
 KEYCLOAK_CLIENT_ROLE_GRANTS: "{{ lookup('applications') | kc_declared_client_role_grants(KEYCLOAK_REALM_ROLE_GRANT_APP_IDS, KEYCLOAK_RBAC_GROUP_NAME) }}"
-KEYCLOAK_SETTINGS_CLIENT_IDS: "{{ ([KEYCLOAK_CLIENT_ID] + KEYCLOAK_DECLARED_CLIENT_IDS + KEYCLOAK_SAML_CLIENT_IDS) | unique | list }}"
+KEYCLOAK_SETTINGS_CLIENT_IDS: >-
+  {{ ([KEYCLOAK_CLIENT_ID] + KEYCLOAK_DECLARED_CLIENT_IDS + KEYCLOAK_PROXY_CLIENT_IDS + KEYCLOAK_SAML_CLIENT_IDS + KEYCLOAK_WORKSPACE_CLIENT_IDS)
+     | unique | list }}
 KEYCLOAK_SETTINGS_MISSING_CLIENT_IDS: "{{ KEYCLOAK_SETTINGS_CLIENT_IDS | reject('in', KEYCLOAK_DICTIONARY_REALM.clients | map(attribute='clientId') | list) | list
   }}"
 KEYCLOAK_SETTINGS_SPEC:
@@ -285,6 +289,7 @@ KEYCLOAK_SETTINGS_SPEC:
         duplicateEmailsAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.duplicateEmailsAllowed }}"
         adminEventsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminEventsEnabled }}"
         adminPermissionsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.adminPermissionsEnabled }}"
+        organizationsEnabled: "{{ KEYCLOAK_DICTIONARY_REALM.organizationsEnabled }}"
         accessTokenLifespan: "{{ KEYCLOAK_DICTIONARY_REALM.accessTokenLifespan }}"
         attributes:
           adminEventsExpiration: "{{ KEYCLOAK_DICTIONARY_REALM.attributes.adminEventsExpiration }}"
@@ -338,9 +343,48 @@ KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN: |-
       --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME"
   '
 
-KEYCLOAK_DIRECTORY_CLIENT_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.directory_client.enabled') | bool }}"
-KEYCLOAK_DIRECTORY_CLIENT_ID: "{{ KEYCLOAK_REALM }}-directory"
-KEYCLOAK_DIRECTORY_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.directory_client_secret') }}"
-KEYCLOAK_DIRECTORY_CLIENT_ROLES: ["view-users", "query-users", "manage-users"]
-KEYCLOAK_DIRECTORY_SERVICE_ACCOUNT: "service-account-{{ KEYCLOAK_DIRECTORY_CLIENT_ID }}"
-KEYCLOAK_DIRECTORY_CLIENT: "{{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'equalto', KEYCLOAK_DIRECTORY_CLIENT_ID) | list | first }}"
+KEYCLOAK_USAGE_CLIENT_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.usage_client.enabled') | bool }}"
+KEYCLOAK_USAGE_CLIENT_ID: "usage"
+KEYCLOAK_USAGE_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.usage_client_secret') }}"
+KEYCLOAK_USAGE_CLIENT_ROLES: ["view-users"]
+KEYCLOAK_USAGE_SERVICE_ACCOUNT: "service-account-{{ KEYCLOAK_USAGE_CLIENT_ID }}"
+KEYCLOAK_USAGE_CLIENT: "{{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'equalto', KEYCLOAK_USAGE_CLIENT_ID) | list | first }}"
+
+KEYCLOAK_ORGANIZATIONS_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.organizations.enabled') | bool }}"
+KEYCLOAK_ORGANIZATION_EXECUTION: "{{ 'DISABLED' if KEYCLOAK_ORGANIZATIONS_ENABLED | bool else 'ALTERNATIVE' }}"
+KEYCLOAK_ORGANIZATION_FLOW: "Browser - Conditional Organization"
+KEYCLOAK_WORKSPACES_CLIENT_ID: "workspaces"
+KEYCLOAK_WORKSPACE_ROLES_SCOPE: "workspace_roles"
+KEYCLOAK_WORKSPACE_ROLES_CLAIM: "workspace_roles"
+KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID: "workspace-members"
+KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.workspace_members_client_secret') }}"
+KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ROLES: ["manage-organizations", "manage-users"]
+KEYCLOAK_WORKSPACE_MEMBERS_SERVICE_ACCOUNT: "service-account-{{ KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID }}"
+KEYCLOAK_EXPORT_CLIENT_ID: "export"
+KEYCLOAK_EXPORT_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.export_client_secret') }}"
+KEYCLOAK_EXPORT_CLIENT_ROLES: ["view-users", "view-organizations", "view-events"]
+KEYCLOAK_EXPORT_SERVICE_ACCOUNT: "service-account-{{ KEYCLOAK_EXPORT_CLIENT_ID }}"
+KEYCLOAK_EXPORT_CLIENT_LOGIN:
+  mount: platform
+  path: export/keycloak
+  data:
+    client_id: "{{ KEYCLOAK_EXPORT_CLIENT_ID }}"
+    client_secret: "{{ KEYCLOAK_EXPORT_CLIENT_SECRET }}"
+KEYCLOAK_EXPORT_RECIPIENT_ATTRIBUTE: "export_recipient"
+KEYCLOAK_EXPORT_RECIPIENT_PATTERN: "^age1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{58}$"
+KEYCLOAK_STORE_FIXTURE_CLIENT_ID: "workspace-store-fixture"
+KEYCLOAK_STORE_FIXTURE_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.store_fixture_client_secret') }}"
+KEYCLOAK_STORE_FIXTURE_ENABLED: >-
+  {{ KEYCLOAK_ORGANIZATIONS_ENABLED | bool
+     and lookup('config', 'web-app-semaphore', 'services.semaphore.workspaces.invite_client_id') == KEYCLOAK_STORE_FIXTURE_CLIENT_ID }}
+KEYCLOAK_SERVICE_ACCOUNT_ROLES: >-
+  {{ {KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID: KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ROLES,
+      KEYCLOAK_EXPORT_CLIENT_ID: KEYCLOAK_EXPORT_CLIENT_ROLES} }}
+KEYCLOAK_WORKSPACE_CLIENT_IDS: >-
+  {{ KEYCLOAK_DICTIONARY_REALM.clients | map(attribute='clientId')
+     | select('in', [KEYCLOAK_WORKSPACES_CLIENT_ID, KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID, KEYCLOAK_EXPORT_CLIENT_ID, KEYCLOAK_STORE_FIXTURE_CLIENT_ID]) | list }}
+
+KEYCLOAK_ADMIN_API_SCOPE: "kc-admin-api"
+KEYCLOAK_ADMIN_API_CLIENT_IDS: >-
+  {{ KEYCLOAK_DICTIONARY_REALM.clients | selectattr('defaultClientScopes', 'defined')
+     | selectattr('defaultClientScopes', 'contains', KEYCLOAK_ADMIN_API_SCOPE) | map(attribute='clientId') | list }}

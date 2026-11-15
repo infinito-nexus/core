@@ -1,0 +1,35 @@
+---
+# Param: gitea_api_method - HTTP method of the call (GET, POST, PATCH or DELETE)
+# Param: gitea_api_path - API path below /api/v1, starting with a slash
+# Param: gitea_api_body - JSON body as a mapping; an empty mapping sends none
+# Param: gitea_api_sudo - account the administrator acts as through the Sudo header; empty acts as the administrator
+# Param: gitea_api_expect - HTTP status codes the call may answer with
+# Returns: gitea_api_call, whose stdout the gitea_api_response filter splits into status and json
+- name: "🌐 {{ gitea_api_method }} {{ gitea_api_path }} with the administrator's access"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    IFS= read -r GITEA_API_BASIC_AUTH && IFS= read -r GITEA_API_BODY && : "${GITEA_API_BASIC_AUTH:?arrived empty on stdin}" && export GITEA_API_BASIC_AUTH GITEA_API_BODY && container exec -i -e GITEA_API_BASIC_AUTH -e GITEA_API_BODY {{ GITEA_LOCAL_CID | quote }} sh -c '
+      set --
+      [ "$GITEA_API_BODY" = "{}" ] || set -- --data "$GITEA_API_BODY"
+      {% if gitea_api_sudo | length > 0 %}
+      set -- "$@" -H "Sudo: {{ gitea_api_sudo }}"
+      {% endif %}
+      { printf "Authorization: Basic "; printf "%s" "$GITEA_API_BASIC_AUTH" | base64 | tr -d "\n"; printf "\n"; } |
+      {{ lookup('timeout', 30) | curl(5, 0) }} -w "\n%{http_code}" \
+        -X "{{ gitea_api_method }}" \
+        -H @- \
+        -H "Content-Type: application/json" \
+        "$@" \
+        "{{ GITEA_INTERNAL_API_URL ~ gitea_api_path }}"
+    '
+  args:
+    stdin: |-
+      {{ GITEA_ADMIN_BASIC_AUTH }}
+      {{ gitea_api_body | to_json }}
+  register: gitea_api_call
+  changed_when: gitea_api_method != 'GET'
+  failed_when: >-
+    gitea_api_call.rc != 0
+    or (gitea_api_call.stdout | gitea_api_response).status not in gitea_api_expect
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

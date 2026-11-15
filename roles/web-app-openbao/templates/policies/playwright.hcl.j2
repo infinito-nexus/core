@@ -1,0 +1,47 @@
+path "{{ OPENBAO_TENANT_MOUNT }}/data/+/proxmox" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_TENANT_MOUNT }}/data/+/incus" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_TENANT_MOUNT }}/data/+/s3" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_TENANT_MOUNT }}/data/+/dns" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/proxmox-*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/incus-*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_TRANSIT_RECORD_PREFIX }}/ws-*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_TRANSIT_MOUNT }}/keys/ws-*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_FIXTURE_PREFIX }}/+/{{ OPENBAO_FIXTURE_WORKSPACE_KEY }}" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/playwright/semaphore" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/playwright/store" {
+  capabilities = ["read"]
+}
+
+path "auth/token/revoke-self" {
+  capabilities = ["update"]
+}

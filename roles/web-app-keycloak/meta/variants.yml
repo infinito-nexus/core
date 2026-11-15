@@ -10,7 +10,9 @@
       realm:
         totp_enabled: false
         totp_enforced: false
-      directory_client:
+      usage_client:
+        enabled: true
+      organizations:
         enabled: true
     dashboard:
       enabled: true

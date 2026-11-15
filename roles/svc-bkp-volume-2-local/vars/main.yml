@@ -6,8 +6,13 @@
 # - BKP_VOLUME_2_LOCAL_DISABLED:         Exact deployed image refs where backup.disabled is true (for --images-no-backup-required)
 # - BKP_VOLUME_2_LOCAL_HARD_RESTART:     Compose project (entity) names where backup.project_hard_restart is set (for --hard-restart-projects)
 # - BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN:     Launcher that appends --snapshot/--snapshot-subject per run when the mode allows it
+# - BKP_VOLUME_2_LOCAL_SNAPSHOT_DIR:     Directory holding the launcher and the modules it imports; the launcher binary links into it
+# - BKP_VOLUME_2_LOCAL_SNAPSHOT_MODULES: Files of files/python/baudolo/ the launcher runs, with their modes
 # - BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE:    services.volume-2-local.snapshot_mode normalised; YAML reads a bare off/no/false as a boolean
 # - BKP_VOLUME_2_LOCAL_REPO_NAME:        Directory under <backups-dir>/<machine-hash>/; MUST match cli/administration/recover/full.py's volume repo
+# - BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN:  Writer and reader of the maintenance signal FILE_MAINTENANCE_BACKUP
+# - BKP_VOLUME_2_LOCAL_STOPPING:         Application ids whose services declare backup.stop_required true (for --stopping)
+# - BKP_VOLUME_2_LOCAL_MAINTENANCE_CLEAR: Command that rewrites the signal with no application once the run ended
 # baudolo matches --images-* exactly, so the refs carry the swarm registry prefix.
 # CLI-ready variables render these lists as argument strings.
 
@@ -17,7 +22,14 @@ system_service_id: "{{ application_id }}"
 BKP_VOLUME_2_LOCAL_BAUDOLO_BIN: baudolo
 BKP_VOLUME_2_LOCAL_REPO_NAME: backup-docker-to-local
 BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN: "{{ [ DIR_BIN, 'baudolo-snapshot' ] | path_join }}"
+BKP_VOLUME_2_LOCAL_SNAPSHOT_DIR: "{{ [ DIR_SCRIPTS_ROOT, 'baudolo-snapshot' ] | path_join }}"
+BKP_VOLUME_2_LOCAL_SNAPSHOT_MODULES:
+  snapshot.py: "0755"
+  hard_restart.py: "0644"
 BKP_VOLUME_2_LOCAL_SUBVOLUME_BIN: "{{ [ DIR_BIN, 'baudolo-subject-subvolume' ] | path_join }}"
+BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN: "{{ [ DIR_BIN, 'baudolo-maintenance' ] | path_join }}"
+BKP_VOLUME_2_LOCAL_MAINTENANCE_TMPFILES: /etc/tmpfiles.d/infinito-maintenance.conf
+BKP_VOLUME_2_LOCAL_MAINTENANCE_CLEAR: "{{ BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN }} clear --file {{ FILE_MAINTENANCE_BACKUP }}"
 
 BKP_VOLUME_2_LOCAL_SNAPSHOT_MODES:
   - auto
@@ -62,6 +74,12 @@ BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED: >-
 BKP_VOLUME_2_LOCAL_HARD_RESTART: >-
   {{ lookup('backup_hard_restart_projects') }}
 
+BKP_VOLUME_2_LOCAL_STOPPING: >-
+  {{ lookup('backup_stop_applications') }}
+
+BKP_VOLUME_2_LOCAL_STOPPING_CLI: >-
+  {{ BKP_VOLUME_2_LOCAL_STOPPING | map('regex_replace', '^', '--stopping ') | join(' ') }}
+
 BKP_VOLUME_2_LOCAL_DB_ROUTINE_CLI: >-
   {% if BKP_VOLUME_2_LOCAL_DB_ROUTINE | length > 0 -%}
     --database-containers {{ BKP_VOLUME_2_LOCAL_DB_ROUTINE | join(' ') }}
@@ -98,6 +116,10 @@ BKP_VOLUME_2_LOCAL_EXEC: >-
   {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN }}
   --mode {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE }}
   --state-file {{ APP_CONTROL_STATE_FILE }}
+  --maintenance-bin {{ BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN }}
+  --maintenance-file {{ FILE_MAINTENANCE_BACKUP }}
+  --maintenance-seconds {{ SYS_TIMEOUT_BACKUP_SERVICES_SECONDS }}
+  {{ BKP_VOLUME_2_LOCAL_STOPPING_CLI }}
   --
   {{ BKP_VOLUME_2_LOCAL_BAUDOLO_BIN }}
   --compose-dir {{ DIR_COMPOSITIONS }}

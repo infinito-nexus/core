@@ -1,0 +1,14 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+SEMAPHORE_WEB_ROOT={{ SEMAPHORE_WEB_ROOT }}
+SEMAPHORE_TMP_PATH={{ SEMAPHORE_RUNNER_TMP }}
+SEMAPHORE_RUNNER_TOKEN_FILE={{ SEMAPHORE_RUNNER_TOKEN_FILE }}
+SEMAPHORE_RUNNER_ONE_OFF=true
+SEMAPHORE_RUNNER_MAX_PARALLEL_TASKS=1
+{% for proxy_name, proxy_value in SEMAPHORE_RUNNER_PROXY_ENV | dictsort %}
+{{ proxy_name }}={{ proxy_value }}
+{% endfor %}
+SEMAPHORE_FORWARDED_ENV_VARS={{ SEMAPHORE_RUNNER_PROXY_ENV | list | sort | to_json | dotenv_quote }}
+{% if SEMAPHORE_DEPLOY_ENABLED | bool %}
+SEMAPHORE_APPS={{ SEMAPHORE_APPS_JSON | dotenv_quote }}
+{% endif %}

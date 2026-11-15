@@ -121,26 +121,84 @@ The deploy's `kcadm.sh` logins need no entry: every one, including the ones `web
 - Onion visitors reach the vhost from the Tor daemon's address.
 - The Playwright suites of several roles read and change realm groups through the admin REST API.
 
+Keycloak 26.8.2 answers `401` to an admin REST API call whose token lacks the built-in client scope `kc-admin-api`, so the clients whose service accounts call that API, `usage`, `workspace-members`, `export` and `opentalk-controller`, carry it as a default client scope, and [admin_api_scope.yml](tasks/utils/admin_api_scope.yml) stops a deploy whose realm lacks it instead of creating a look-alike. A user's token reaches that API only through an oauth2-proxy gate client that lists the scope under `services.sso.oauth2.client.scopes` (see [OAuth2 Proxy Gate](#oauth2-proxy-gate)); the shared client never carries it.
+
 ## Managed Client Fields
 
 Every run writes the valid redirect URIs, the valid post logout redirect URIs and the web origins of the deployment's client, which `meta/forms.yml` declares as the enforced fields of the `client` form. In the admin console the shared lock renderer of [sys-front-inj-javascript](../sys-front-inj-javascript/README.md) renders them read-only while the page edits that client: each control shows the inventory path of its value as its hover title, one banner lists the fields, and a double-click with a confirmation unlocks a field until the page turns to another client. Every other client, the built-in ones and those an admin creates, stays editable. The inline loader fetches the renderer from `/infinito/field-lock.<sha1>.js` only on pages under `/admin/`, so the login and account pages carry none of it.
 
-## Directory Client
+## Usage Client
 
-`services.keycloak.directory_client.enabled` in [services.yml](meta/services.yml) ships `false`. Switched on, it adds the confidential client `<realm>-directory` to the application realm; `KEYCLOAK_DIRECTORY_CLIENT_ID` in [vars/main.yml](vars/main.yml) is its only definition. A deploy on an existing realm creates the client, and a deploy with the switch off deletes it together with its service account.
+`services.keycloak.usage_client.enabled` in [services.yml](meta/services.yml) ships `false`; variant 0 turns it on. Switched on, it adds the confidential client `usage` to the application realm; `KEYCLOAK_USAGE_CLIENT_ID` in [vars/main.yml](vars/main.yml) is its only definition. A deploy on an existing realm creates the client and converges its service account ([18_usage_client](tasks/update/18_usage_client/enabled.yml)); a deploy with the switch off deletes it together with its service account.
 
 ```yaml
 applications:
   web-app-keycloak:
     services:
       keycloak:
-        directory_client:
+        usage_client:
           enabled: true
 ```
 
-The store gets its token by the client-credentials grant at `/realms/<realm>/protocol/openid-connect/token`. The secret is the credential `secrets.credentials.directory_client_secret` from [secrets.yml](meta/secrets.yml), which the workspace inventory holds. It reaches Keycloak only through the realm import file or the `kcadm` stdin payload, never on a command line.
+The service account `service-account-usage` holds exactly `view-users` of `realm-management`, and every deploy revokes any other `realm-management` role it finds there, so its token reads users and changes nothing. The secret is `secrets.credentials.usage_client_secret` from [secrets.yml](meta/secrets.yml); a workspace keeps it as an OpenBao reference that only a task of its `usage` template reads. It reaches Keycloak only through the realm import file or the `kcadm` stdin payload, never on a command line.
 
-The service account `service-account-<realm>-directory` holds exactly the `realm-management` roles `view-users`, `query-users` and `manage-users`, and every deploy revokes any other `realm-management` role it finds there. These three cover listing and searching users by `username` or `email`, creating and deleting them, and mapping non-admin realm roles to them. `view-realm` stays out, because it would expose the whole realm configuration to the token, so `GET /admin/realms/<realm>/roles/<name>` answers `403`. The store resolves role ids through `GET /admin/realms/<realm>/users/<id>/role-mappings/realm/available` instead, which lists exactly the realm roles the token may map. While `admin.allowed_networks` is set, the store's source network needs an entry, because these calls go to the admin REST API.
+### Usage Count
+
+The Semaphore template `usage` ([web-app-semaphore](../web-app-semaphore/README.md)) runs [playbook-usage.yml](../../playbook-usage.yml) on the workspace runner over the `web-app-keycloak` hosts of the workspace inventory, limited to the hosts of `WORKSPACE_TARGETS` and with `ansible_connection` `local`. The playbook includes only [tasks/usage.yml](tasks/usage.yml), which the role's `main.yml` never runs. The tasks hand the switch, the realm, the origin from the TLS lookup and, only while the switch is on, `secrets.credentials.usage_client_secret` to [files/python/usage.py](files/python/usage.py) on stdin, never in an argument or the environment, and the task is masked by `MASK_CREDENTIALS_IN_LOGS`.
+
+With the switch off the script makes no call and reports `active_users` null. Otherwise it takes a client-credentials token of `usage` over verified HTTPS and reads every page of `GET users`. It counts the enabled users, without service-account users and without the master realm's technical administrator.
+
+## Workspace Organizations
+
+`services.keycloak.organizations.enabled` in [services.yml](meta/services.yml) ships `false`; variant 0 and every inventory that runs the store turn it on. Switched on, the realm has `organizationsEnabled` true and the `organization` execution of `Browser - Conditional Organization` `DISABLED`, so the login page stays one step. A deploy on an existing realm converges both, the clients below and the roles of their service account ([17_organizations.yml](tasks/update/17_organizations.yml)).
+
+A workspace is one organization named `ws-<id>`, where `<id>` is the store's lowercase UUID. The attribute `workspace.id` holds `<id>`; it is the workspace marker, and every template finds the organization only by it. No marker or two markers make every writing template refuse; an organization a Keycloak admin created by hand with the alias `ws-<id>` makes `apply` fail with 409. The organization holds five groups, and a member sits in exactly one:
+
+| Group | Semaphore role in the workspace project |
+| --- | --- |
+| `Owner` | `task_runner` |
+| `Admin` | `task_runner` |
+| `Operator` | `task_runner` |
+| `Billing` | none |
+| `Viewer` | `guest` |
+
+The client `workspaces` enables no flow and holds the client roles `<id>:<role>`, each mapped onto its group. The client scope `workspace_roles` writes them through the stock "User Client Role" mapper as the flat claim `workspace_roles`, and the stock `organization` claim lists the alias of every membership. The store computes a user's rights from these two claims of the user's own token, with no admin read.
+
+Every consumer that needs it declares its own confidential client under `services.sso.oidc.clients` and renders it through the macro `consumer_client` of [consumer.json.j2](templates/import/clients/consumer.json.j2): standard flow only, its own redirect URIs and web origins, its secret from its own credentials. The store's client is a login client only: no service account, no realm-management role, `rootUrl` and `baseUrl` on the store's origin so an invitee returns to it, `workspace_roles` as a default scope, and one `oidc-audience-mapper` that puts its own client id into `aud`. The store mounts its secret as a file with mode `0600` and passes only the path as `KEYCLOAK_CLIENT_SECRET_FILE`.
+
+Core ships no store, so the realm holds a test-only client of the same shape, `workspace-store-fixture` from [store_fixture.json.j2](templates/import/clients/store_fixture.json.j2) on the origin of `web-app-semaphore`, while organizations are on and `services.semaphore.workspaces.invite_client_id` of `web-app-semaphore` names it. Only variant 0 of [web-app-semaphore](../web-app-semaphore/meta/variants.yml) does, so the store specs of [test-organizations.js](files/playwright/test-organizations.js) run in its rounds and no deployment outside them gets the client.
+
+The store holds no Keycloak admin role. Core's confidential client `workspace-members` enables no flow, and its service account holds exactly `manage-organizations` and `manage-users` of `realm-management`; its secret is `secrets.credentials.workspace_members_client_secret` from [secrets.yml](meta/secrets.yml). Reading a realm role by name, `GET /admin/realms/<realm>/roles/<name>`, needs `view-realm` of `realm-management` on Keycloak 26.8.2 with and without fine-grained admin permissions v2; no client the store reaches holds it, so none of them reads role configuration. The store starts these templates of the Workspaces project:
+
+| Store operation | Template and action | Survey variables |
+| --- | --- | --- |
+| Create a workspace | `workspace` `apply` | `WORKSPACE`, `WORKSPACE_ACTION` |
+| Make the creator the first `Owner` | `members` `add` | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `WORKSPACE_MEMBER` |
+| Invite by address | `members` `invite` | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `INVITE_KEY` |
+| Revoke a pending invitation | `members` `uninvite` | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `INVITE_KEY` |
+| Change a member's role, transfer `Owner` | `members` `role` | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `WORKSPACE_MEMBER`, `WORKSPACE_ROLE` |
+| Remove a member | `members` `remove` | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `WORKSPACE_MEMBER` |
+| Place accepted invitees, mirror Semaphore | `members` `sync` | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED` |
+| List members and pending invitations | `members` `list` | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED` |
+| Delete a workspace | `workspace` `destroy` | `WORKSPACE`, `WORKSPACE_ACTION` |
+| Delete a platform account | `user` `erase` | `USER_ACTION`, `USER_ID` |
+
+[members.py](files/python/workspace/members.py) does the Keycloak half of `members`:
+
+- `add` makes an existing user the first member and puts them into `Owner`; a second member or a pending invitation refuses it.
+- `invite` reads the staged invitation `{email, role}` at `platform/data/store/invites/<id>/<INVITE_KEY>` in OpenBao with the task's own token, so no address passes through the survey, the task input or the log. It sends a Keycloak invitation with the store's client id and records `workspace.pending.<role>`, which lists the key, and `workspace.invite.<key>`, which holds the address. A pending key sends no second mail, and a member's address is refused. The store erases the staged entry itself; core only reads it.
+- `uninvite` deletes every invitation of the key's address and drops its two attributes.
+- `role` keeps the member in exactly the given group; `remove` takes them out of every group and ends the membership. Both refuse to leave no enabled `Owner`; `remove` also refuses a `MANAGED` membership and a holder of a platform RBAC role.
+- `sync`, which ends every action but `list`, places each accepted invitee into the invited group and drops the entries Keycloak holds no invitation for.
+- `list` writes nothing; without a marked organization it prints `{"workspace":"<id>","absent":true}`.
+
+Every change prints one `change workspace=<id> action=<action> ...` line with the user id and group, never a secret. The last line lists the members, each with id, groups and `enabled`, and the pending keys with their role, but no name, username or address. A refusal exits 3 with the last line `{"workspace":"<id>","refused":"<reason>"}`, `<reason>` one of `last_owner`, `not_first`, `member_address`, `not_member`, `managed`, `platform_role` and `absent`; any other failure exits 1 without that line, so the store runs it again.
+
+`user erase` ([user.py](files/python/workspace/user.py)) deletes a platform account in Keycloak and, through the writable LDAP federation, in the directory. It refuses a member of a marked organization and a holder of a platform RBAC role (`{"user":"<id>","refused":"member"}`, `platform_role`), prints the user id and no address, and ends with `{"user":"<id>","erased":true}`.
+
+`workspace destroy` ([organization.py](files/python/workspace/organization.py)) runs after every other resource of the workspace is gone, deletes the five client roles and then the organization with its groups, so the marker outlives everything else. Every action checks the state before each change, and an object already gone counts as done, so an action that failed at any step finishes when the store runs it again, and a further run changes nothing.
+
+The export of a workspace's secrets as a KeePassXC database reads Keycloak through core's confidential client `export`. It enables no flow, and its service account holds exactly `view-users`, `view-organizations` and `view-events` of `realm-management`, so it reads users, organization groups and admin events and changes nothing; [17_organizations.yml](tasks/update/17_organizations.yml) converges it beside `workspace-members`. Its secret is `secrets.credentials.export_client_secret`. OpenBao deploys after Keycloak, so the Semaphore deploy hands `client_id` and `client_secret` to OpenBao at `platform/export/keycloak` through [export_login.yml](tasks/utils/export_login.yml), on stdin and without a log, whenever organizations are on and the inventory holds an OpenBao host. The user profile declares the single-valued attribute `export_recipient`, which only its user edits and admins only view, so neither `workspace-members` nor any template writes it. Its pattern admits exactly one age recipient, `age1` and 58 lowercase bech32 characters, as the export script checks. It has no LDAP mapper and reaches no claim or SAML assertion. The client, its service account and the attribute exist only with organizations on.
 
 ## OAuth2 Proxy Gate
 
@@ -162,9 +220,22 @@ applications:
           allow_all_users: true
 ```
 
+The gate signs in through the shared client `OIDC.CLIENT.ID` unless the consumer declares a client of its own:
+
+```yaml
+sso:
+  flavor: oauth2
+  oauth2:
+    client:
+      id: access-request
+      scopes: [kc-admin-api]
+```
+
+`id` and `scopes` are both required; `scopes` lists the default client scopes the client carries beyond the shared login scopes. The realm then holds that client from [proxy.json.j2](templates/import/clients/proxy.json.j2): confidential, standard flow only, its redirect URIs the consumer's `/oauth2/callback` on every network, its secret `secrets.credentials.sso_proxy_client_secret` from the consumer's own `meta/secrets.yml`, and one `oidc-audience-mapper` that puts its own id into `aud`. The [alpha config](templates/sso_proxy/oauth2-proxy-keycloak-alpha.yml.j2) signs the gate in with that id and secret. `KEYCLOAK_PROXY_CLIENTS` in [vars/main.yml](vars/main.yml) lists the clients of the deployed consumers, so a deploy on an existing realm creates and converges them like the declared clients.
+
 ## Biber coverage
 
-No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to ([requirement 017](../../docs/requirements/017-playwright-biber-rbac-coverage.md)). A follow-up tightens them.
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

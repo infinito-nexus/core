@@ -77,8 +77,11 @@ def grants(policy: str) -> dict[str, set[str]]:
         jinja_env()
         .get_template(f"policies/{policy}.hcl.j2")
         .render(
-            OPENBAO_KV_MOUNT=values["OPENBAO_KV_MOUNT"],
-            OPENBAO_PKI_MOUNT=values["OPENBAO_PKI_MOUNT"],
+            **{
+                key: value
+                for key, value in values.items()
+                if isinstance(value, str) and "{{" not in value
+            }
         )
     )
     parsed = {

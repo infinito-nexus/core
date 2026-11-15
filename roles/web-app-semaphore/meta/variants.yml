@@ -36,6 +36,9 @@
     gitea:
       enabled: true
       shared: true
+    openbao:
+      enabled: true
+      shared: true
     lam: # nocheck: variants-services-match
       enabled: true
       shared: true
@@ -48,6 +51,10 @@
           branch: main
           key: "{{ lookup('config', 'web-app-semaphore', 'secrets.credentials.deploy_ssh_key') }}"
         vault_password: "VeryUnsafeTargetInventoryPassword!1"
+      workspaces:
+        private_targets:
+          - "172.30.0.0/16"
+        invite_client_id: workspace-store-fixture
 
 - services:
     semaphore:
@@ -55,6 +62,9 @@
         method:
           2fa:
             enforced: false
+      workspaces:
+        dns:
+          flavor: route53
     docs:
       enabled: true
       shared: true
@@ -92,6 +102,9 @@
     gitea:
       enabled: false
       shared: false
+    openbao:
+      enabled: false
+      shared: false
 
 - services:
     semaphore:
@@ -99,6 +112,9 @@
         method:
           2fa:
             enforced: false
+      workspaces:
+        dns:
+          flavor: cloudflare
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -134,5 +150,8 @@
     tor:
       enabled: true
     gitea:
+      enabled: false
+      shared: false
+    openbao:
       enabled: false
       shared: false

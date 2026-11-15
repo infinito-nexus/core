@@ -28,6 +28,17 @@
       lvm (thin pool).
     quiet: true
 
+- name: "🛑 Refuse workspaces without a routed subnet"
+  ansible.builtin.assert:
+    that:
+      - (not (INCUS_WORKSPACES.enabled | bool)) or ((INCUS_WORKSPACES.subnet.ipv4 | length > 0) and (INCUS_WORKSPACES.subnet.ipv6 | length > 0))
+    fail_msg: >-
+      services.incus.workspaces.enabled is on, but services.incus.workspaces.subnet
+      names ipv4 '{{ INCUS_WORKSPACES.subnet.ipv4 }}' and ipv6 '{{ INCUS_WORKSPACES.subnet.ipv6 }}'.
+      Every workspace bridge routes its own slice of both, without NAT. Name the
+      IPv4 and the IPv6 subnet the provider routes to {{ inventory_hostname }}.
+    quiet: true
+
 - name: "🔍 Look for a running Incus daemon on {{ inventory_hostname }}"
   ansible.builtin.stat:
     path: "{{ INCUS_STORAGE_PATH }}/unix.socket"
@@ -65,6 +76,7 @@
     vm_capacity_pool_used: >-
       {{ (svc_virt_incus_pool_info.stdout | from_yaml).info['space used'] | int
          if (svc_virt_incus_socket.stat.exists and svc_virt_incus_pool_info.rc == 0) else 0 }}
+    vm_capacity_own_disk: 0
     vm_capacity_overhead:
       cpus: 0
       memory: 0
@@ -96,6 +108,56 @@
   register: svc_virt_incus_after
   changed_when: svc_virt_incus_after.stdout != svc_virt_incus_before.stdout
   become: true
+
+- name: "🔍 Read the API listener and the join token expiry"
+  ansible.builtin.command:
+    argv: [incus, config, get, "{{ item.key }}"]
+  loop: "{{ INCUS_SERVER_CONFIG | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: svc_virt_incus_server_config
+  changed_when: false
+  become: true
+
+- name: "🔐 Reconcile the API listener and the join token expiry"
+  ansible.builtin.command:
+    argv: "{{ ['incus', 'config'] + (['set', item.item.key, item.item.value] if item.item.value | length > 0 else ['unset', item.item.key]) }}"
+  loop: "{{ svc_virt_incus_server_config.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+  when: (item.stdout | trim) != (item.item.value | string)
+  changed_when: true
+  become: true
+
+- name: "🛡️ Admit the API from its sources only and keep workspace bridges apart"
+  ansible.builtin.include_role:
+    name: svc-net-firewall
+  vars:
+    FIREWALL_FRAGMENT_ROLE: svc-virt-incus
+  when: (INCUS_API.enabled | bool) or (INCUS_WORKSPACES.enabled | bool)
+
+- name: "📇 Record the API endpoint and the server certificate in OpenBao"
+  when:
+    - INCUS_API.enabled | bool
+    - (groups.get('web-app-openbao') or []) | length > 0
+  block:
+    - name: "🔍 Read the server certificate of {{ inventory_hostname }}"
+      ansible.builtin.command:
+        argv: [incus, query, /1.0]
+      register: svc_virt_incus_server
+      changed_when: false
+      become: true
+
+    - name: "📇 Store the fingerprint the provision runner pins"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+      vars:
+        openbao_kv_state: present
+        openbao_kv_mount: "{{ INCUS_PROVISION_MOUNT }}"
+        openbao_kv_path: "{{ INCUS_PROVISION_PATH }}"
+        openbao_kv_data:
+          endpoint: "{{ INCUS_API_ENDPOINT }}"
+          fingerprint: "{{ (svc_virt_incus_server.stdout | from_json).environment.certificate_fingerprint }}"
+          certificate: "{{ (svc_virt_incus_server.stdout | from_json).environment.certificate }}"
 
 - name: "🔍 Read the projects of the agent instance"
   ansible.builtin.command: incus project list --format csv --columns n

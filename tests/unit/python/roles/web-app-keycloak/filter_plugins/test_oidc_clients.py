@@ -186,5 +186,69 @@ class TestBackchannelLogoutUrls(unittest.TestCase):
         self.assertEqual(self.urls(["not-a-client", {"attributes": "x"}]), [])
 
 
+def _gated(client, *, flavor="oauth2", enabled=True):
+    """
+    Args:
+        client: the ``services.sso.oauth2.client`` value, None for none.
+        flavor: ``services.sso.flavor``.
+        enabled: ``services.sso.enabled``.
+
+    Returns:
+        One application config with that SSO block.
+    """
+    oauth2 = {"origin": {"host": "app", "port": "8000"}}
+    if client is not None:
+        oauth2["client"] = client
+    return {
+        "services": {"sso": {"enabled": enabled, "flavor": flavor, "oauth2": oauth2}}
+    }
+
+
+class TestProxyClients(unittest.TestCase):
+    def setUp(self):
+        self.clients = _load().kc_proxy_clients
+        self.own = {"id": "x-gate", "scopes": ["kc-admin-api"]}
+
+    def test_a_gated_app_with_its_own_client_yields_one_record(self):
+        apps = {"web-app-x": _gated(self.own), "web-app-y": _gated(None)}
+        self.assertEqual(
+            self.clients(apps, ["web-app-y", "web-app-x"]),
+            [
+                {
+                    "application_id": "web-app-x",
+                    "client_id": "x-gate",
+                    "scopes": ["kc-admin-api"],
+                }
+            ],
+        )
+
+    def test_negative_control_no_record_without_gate_or_deployment(self):
+        for apps, app_ids in (
+            ({"web-app-x": _gated(None)}, ["web-app-x"]),
+            ({"web-app-x": _gated(self.own, flavor="oidc")}, ["web-app-x"]),
+            ({"web-app-x": _gated(self.own, enabled=False)}, ["web-app-x"]),
+            ({"web-app-x": _gated(self.own)}, ["web-app-y"]),
+            ({"web-app-x": _gated(self.own)}, []),
+            (None, ["web-app-x"]),
+        ):
+            with self.subTest(apps=apps, app_ids=app_ids):
+                self.assertEqual(self.clients(apps, app_ids), [])
+
+    def test_records_are_sorted_by_application(self):
+        apps = {
+            "web-app-b": _gated({"id": "b-gate", "scopes": []}),
+            "web-app-a": _gated({"id": "a-gate", "scopes": []}),
+        }
+        self.assertEqual(
+            [r["client_id"] for r in self.clients(apps, ["web-app-b", "web-app-a"])],
+            ["a-gate", "b-gate"],
+        )
+
+    def test_a_client_without_scopes_fails_loudly(self):
+        apps = {"web-app-x": _gated({"id": "x-gate"})}
+        with self.assertRaises(ValueError):
+            self.clients(apps, ["web-app-x"])
+
+
 if __name__ == "__main__":
     unittest.main()
