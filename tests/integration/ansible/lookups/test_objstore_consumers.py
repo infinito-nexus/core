@@ -117,7 +117,7 @@ class TestObjstoreConsumersIntegration(unittest.TestCase):
         ):
             with self.subTest(scenario=label):
                 self.assertGreater(
-                    volume_slots(len(consumers)),
+                    volume_slots(len(consumers), 0),
                     VOLUME_GROW_BATCH,
                     "The first grow batch goes to the unnamed default "
                     "collection, so a budget of one batch leaves no volume for "
