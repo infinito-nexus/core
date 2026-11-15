@@ -16,20 +16,35 @@ from utils.cache.yaml import load_yaml, load_yaml_any, load_yaml_str
 from utils.docker.image.ref import DOCKER_HUB_REGISTRIES
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VOLUMES,
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
 
 ROLE = PROJECT_ROOT / "roles" / "svc-registry-cache"
 FRONT_CONF = ROLE / "templates" / "front.conf.j2"
+VENDOR_ENV = ROLE / "templates" / "vendor.env.j2"
+ENV_DIR = "/opt/compose/registry-cache/env/"
+TTL = "168h"
 CORE_TASKS = ROLE / "tasks" / "00_core.yml"
+FRONT_TASKS = ROLE / "tasks" / "utils" / "front.yml"
+VENDOR_ENV_TASKS = ROLE / "tasks" / "utils" / "vendor_env.yml"
 CONSTRUCTOR = PROJECT_ROOT / "tasks" / "stages" / "01_constructor.yml"
 VENDORS = ["docker-registry.kixdesk.com", "ghcr.io", "mcr.microsoft.com"]
 GATEWAY = "192.168.205.1"
 METHODS = ("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE")
+VOLUMES = load_yaml(str(ROLE / ROLE_FILE_META_VOLUMES))
+DATA_TARGET = VOLUMES["data"]["mounts"][0]["target"]
 INCLUDES = {
     "roles/sys-svc-compose/templates/base.yml.j2": "services:\n\n",
-    "roles/sys-svc-container/templates/base.yml.j2": "    base: {{ service_name }}\n\n",
+    "roles/sys-svc-container/templates/base.yml.j2": (
+        "    base: {{ service_name }}\n"
+        "{% if docker_compose_env is defined %}\n"
+        '    env_file: ["{{ docker_compose_env }}"]\n'
+        "{% endif %}\n"
+        "\n"
+    ),
+    "roles/sys-svc-container/templates/env.j2": "TZ=UTC\n",
 }
 TODAY = (
     "services:\n"
@@ -78,6 +93,38 @@ def _vendor_services(vendors):
     return expression(REGISTRY_CACHE_VENDORS=vendors)
 
 
+def _vendor_env_files(vendors):
+    expression = _environment().compile_expression(
+        _role_var("REGISTRY_CACHE_VENDOR_ENV_FILES")
+    )
+    return expression(
+        REGISTRY_CACHE_VENDOR_SERVICES=_vendor_services(vendors),
+        REGISTRY_CACHE_ENV_DIR=ENV_DIR,
+    )
+
+
+def _vendor_env(vendor):
+    return dict(
+        line.split("=", 1)
+        for line in _environment()
+        .from_string(read_text(str(VENDOR_ENV)))
+        .render(registry_cache_vendor=vendor, REGISTRY_CACHE_PROXY_TTL=TTL)
+        .splitlines()
+        if line
+    )
+
+
+def _vendor_env_findings(services, env_files):
+    findings = []
+    for service, env_file in env_files.items():
+        entry = services[service]
+        if entry.get("env_file") != [env_file]:
+            findings.append(f"{service} binds {entry.get('env_file')}")
+        if "environment" in entry:
+            findings.append(f"{service} declares environment inline")
+    return findings
+
+
 def _render(path, vendors):
     return (
         _environment()
@@ -86,9 +133,12 @@ def _render(path, vendors):
             application_id="svc-registry-cache",
             entity_name="cache",
             IS_COMPOSE_MODE=True,
+            REGISTRY_CACHE_FLAVOR="registry",
             REGISTRY_CACHE_CONTAINER="cache-registry",
+            REGISTRY_CACHE_DATA_TARGET=DATA_TARGET,
             REGISTRY_CACHE_VENDORS=vendors,
             REGISTRY_CACHE_VENDOR_SERVICES=_vendor_services(vendors),
+            REGISTRY_CACHE_VENDOR_ENV_FILES=_vendor_env_files(vendors),
             REGISTRY_CACHE_VENDOR_PORT=5000,
             REGISTRY_CACHE_FRONT_CONTAINER="cache-registry-front",
             REGISTRY_CACHE_FRONT_HOST=GATEWAY,
@@ -148,6 +198,10 @@ def _vendor_block():
     return next(task for task in _tasks() if "block" in task)
 
 
+def _front_tasks():
+    return load_yaml_any(str(FRONT_TASKS))
+
+
 class TestWithoutVendors(unittest.TestCase):
     def test_the_compose_render_is_byte_identical_to_today(self):
         self.assertEqual(_render(ROLE / ROLE_FILE_TEMPL_COMPOSE, []), TODAY)
@@ -173,6 +227,10 @@ class TestWithoutVendors(unittest.TestCase):
     def test_every_vendor_task_waits_for_a_vendor(self):
         block = _vendor_block()
         self.assertEqual(block["when"], "REGISTRY_CACHE_VENDORS | length > 0")
+        self.assertIn(
+            "utils/front.yml",
+            [task.get("ansible.builtin.include_tasks") for task in block["block"]],
+        )
         outside = [task for task in _tasks() if task is not block]
         self.assertFalse(
             any("openssl" in json.dumps(task) for task in outside),
@@ -202,16 +260,85 @@ class TestVendorCaches(unittest.TestCase):
         for vendor, service in _vendor_services(VENDORS).items():
             with self.subTest(vendor=vendor):
                 entry = services[service]
-                self.assertEqual(
-                    entry["environment"],
-                    {"REGISTRY_PROXY_REMOTEURL": f"https://{vendor}"},
-                )
-                self.assertEqual(entry["volumes"], [f"{service}:/var/lib/registry"])
+                self.assertEqual(entry["env_file"], [f"{ENV_DIR}{service}.env"])
+                self.assertEqual(entry["volumes"], [f"{service}:{DATA_TARGET}"])
                 self.assertEqual(entry["base"], "vendor")
                 self.assertEqual(
                     _stub_args(entry["container_image"]),
                     [["svc-registry-cache", "cache"], {}],
                 )
+
+    def test_every_vendor_reads_its_own_env_file_and_declares_no_environment(self):
+        services = _compose(VENDORS)["services"]
+        self.assertEqual(_vendor_env_findings(services, _vendor_env_files(VENDORS)), [])
+        self.assertNotIn("env_file", services["cache"])
+        self.assertNotIn("env_file", services["front"])
+
+    def test_negative_control_a_shared_or_inline_vendor_env_is_reported(self):
+        services = _compose(VENDORS)["services"]
+        env_files = _vendor_env_files(VENDORS)
+        first, second = list(env_files)[:2]
+        services[first]["env_file"] = [env_files[second]]
+        services[second]["environment"] = {"REGISTRY_PROXY_REMOTEURL": "https://x"}
+        self.assertEqual(
+            _vendor_env_findings(services, env_files),
+            [
+                f"{first} binds {[env_files[second]]}",
+                f"{second} declares environment inline",
+            ],
+        )
+
+    def test_every_vendor_env_file_proxies_its_own_registry(self):
+        for vendor in VENDORS:
+            with self.subTest(vendor=vendor):
+                self.assertEqual(
+                    _vendor_env(vendor),
+                    {
+                        "TZ": "UTC",
+                        "REGISTRY_PROXY_REMOTEURL": f"https://{vendor}",
+                        "REGISTRY_PROXY_TTL": TTL,
+                    },
+                )
+
+    def test_a_loop_task_renders_one_env_file_per_vendor_before_compose(self):
+        self.assertIn(
+            "utils/vendor_env.yml",
+            [
+                task.get("ansible.builtin.include_tasks")
+                for task in _vendor_block()["block"]
+            ],
+        )
+        tasks = load_yaml_any(str(VENDOR_ENV_TASKS))
+        render = next(task for task in tasks if "stack_host_template" in task)
+        self.assertEqual(render["stack_host_template"]["src"], "vendor.env.j2")
+        self.assertEqual(
+            render["stack_host_template"]["dest"],
+            "{{ REGISTRY_CACHE_VENDOR_ENV_FILES[registry_cache_vendor_service.value] }}",
+        )
+        self.assertEqual(
+            render["loop"], "{{ REGISTRY_CACHE_VENDOR_SERVICES | dict2items }}"
+        )
+        self.assertEqual(
+            render["vars"]["registry_cache_vendor"],
+            "{{ registry_cache_vendor_service.key }}",
+        )
+        self.assertEqual(render["notify"], "compose-up")
+        directory = next(task for task in tasks if "ansible.builtin.file" in task)
+        self.assertLess(tasks.index(directory), tasks.index(render))
+        self.assertEqual(
+            directory["ansible.builtin.file"]["path"], "{{ REGISTRY_CACHE_ENV_DIR }}"
+        )
+        compose = next(i for i, task in enumerate(_tasks()) if "include_role" in task)
+        self.assertLess(_tasks().index(_vendor_block()), compose)
+
+    def test_every_vendor_env_file_lives_in_the_role_env_directory(self):
+        self.assertEqual(
+            _vendor_env_files(VENDORS),
+            {
+                service: f"{ENV_DIR}{service}.env"
+                for service in _vendor_services(VENDORS).values()
+            },
+        )
 
     def test_no_vendor_shares_a_volume_with_docker_hub_or_another_vendor(self):
         compose = _compose(VENDORS)
@@ -252,7 +379,7 @@ class TestVendorCaches(unittest.TestCase):
     def test_the_certificate_names_the_gateway_and_serves_tls_only(self):
         issue = next(
             task
-            for task in _vendor_block()["block"]
+            for task in _front_tasks()
             if "req" in task.get("ansible.builtin.command", {}).get("argv", [])
         )
         argv = issue["ansible.builtin.command"]["argv"]
@@ -266,7 +393,7 @@ class TestVendorCaches(unittest.TestCase):
     def test_the_certificate_is_trusted_for_its_endpoint_only(self):
         copy = next(
             task["ansible.builtin.copy"]
-            for task in _vendor_block()["block"]
+            for task in _front_tasks()
             if "ansible.builtin.copy" in task
         )
         self.assertEqual(copy["src"], "{{ REGISTRY_CACHE_FRONT_CERT }}")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import os
 import re
 import subprocess
@@ -9,11 +10,15 @@ from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import load_yaml_str
+
+role = importlib.import_module("tests.unit.python.roles.svc-registry-cache._render")
 
 IMAGE = "rpardini/docker-registry-proxy:0.6.5"
 IMAGE_ENTRYPOINT = "/entrypoint.sh"
-WRAPPER = PROJECT_ROOT / "compose" / "registry-cache" / "entrypoint.sh"
+WRAPPER = (
+    PROJECT_ROOT / "roles" / "svc-registry-cache" / "files" / "shell" / "entrypoint.sh"
+)
 IMAGE_CONF = "/etc/nginx/conf.d/cache_max_size.conf"
 UPSTREAM_0_6_5 = (
     "#! /bin/bash\n"
@@ -27,14 +32,21 @@ DOTENV = {
     "INFINITO_CACHE_MAX_IDLE_DAYS": "30",
     "INFINITO_CACHE_REGISTRIES": "ghcr.io",
 }
-_REQUIRED = re.compile(r"\$\{(?P<key>[A-Z0-9_]+):\?[^}]*\}")
 _PROXY_CACHE_PATH = re.compile(r"^proxy_cache_path\s+(?P<args>[^;]+);", re.MULTILINE)
 
 
-def _service() -> dict:
-    return load_yaml_any(str(PROJECT_ROOT / "compose" / "cache.override.yml"))[
-        "services"
-    ]["registry-cache"]
+def _multi_proxy(dotenv: dict[str, str]) -> dict[str, object]:
+    """Args:
+        dotenv: the values `.env` holds, as the infra inventory hands them to the role.
+
+    Returns:
+        The ``services.cache.multi_proxy`` keys the infra inventory sets.
+    """
+    return {
+        "registries": dotenv["INFINITO_CACHE_REGISTRIES"].split(),
+        "max_size": dotenv["INFINITO_CACHE_REGISTRY_MAX_SIZE"],
+        "max_idle_days": dotenv["INFINITO_CACHE_MAX_IDLE_DAYS"],
+    }
 
 
 def _environment(dotenv: dict[str, str]) -> dict[str, str]:
@@ -42,12 +54,17 @@ def _environment(dotenv: dict[str, str]) -> dict[str, str]:
         dotenv: the values `.env` holds.
 
     Returns:
-        The service environment with every required ``${KEY:?message}`` reference resolved.
+        The env file the role renders for the multi-proxy flavor.
     """
-    return {
-        key: _REQUIRED.sub(lambda match: dotenv[match.group("key")], str(value))
-        for key, value in _service()["environment"].items()
-    }
+    return role.env_values(
+        role.render("env.j2", "multi-proxy", multi_proxy=_multi_proxy(dotenv))
+    )
+
+
+def _service(dotenv: dict[str, str]) -> dict:
+    return load_yaml_str(
+        role.render("compose.yml.j2", "multi-proxy", multi_proxy=_multi_proxy(dotenv))
+    )["services"]["cache"]
 
 
 def _start(
@@ -114,18 +131,21 @@ class TestRegistryCacheBounds(unittest.TestCase):
         self.assertIn("check the pinned image before bounding its cache", stderr)
 
     def test_the_service_runs_the_image_entrypoint_through_the_wrapper(self) -> None:
-        service = _service()
-        self.assertEqual(service["image"], IMAGE)
+        service = _service(DOTENV)
+        proxy = role.cache_defaults()["multi_proxy"]
+        self.assertEqual(f"{proxy['image']}:{proxy['version']}", IMAGE)
         target = service["entrypoint"][0]
         self.assertEqual(service["entrypoint"][1:], [IMAGE_ENTRYPOINT])
-        binds = [
-            v
-            for v in service["volumes"]
-            if isinstance(v, dict) and v.get("target") == target
-        ]
-        self.assertEqual(len(binds), 1)
-        self.assertTrue(binds[0]["read_only"])
-        self.assertEqual((PROJECT_ROOT / binds[0]["source"]).resolve(), WRAPPER)
+        volume, mount = role.volume_mount("multi_proxy_entrypoint")
+        self.assertEqual(mount["target"], target)
+        self.assertEqual(volume["type"], "bind")
+        self.assertTrue(volume["read_only"])
+        src = WRAPPER.relative_to(role.ROLE / "files").as_posix()
+        shipped = [f for f in role.multi_proxy_files() if f["src"] == src]
+        self.assertEqual(len(shipped), 1)
+        self.assertEqual(shipped[0]["mode"], "0755")
+        self.assertIn("'multi_proxy_entrypoint').source", shipped[0]["dest"])
+        self.assertEqual((role.ROLE / "files" / shipped[0]["src"]).resolve(), WRAPPER)
         self.assertTrue(os.access(WRAPPER, os.X_OK))
 
 

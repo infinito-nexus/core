@@ -65,6 +65,10 @@ _INTERPOLATION = re.compile(r"""^\{\{\s*(.+?)\s*\}\}$""")
 _ROLE_VAR = re.compile(r"^[A-Z][A-Z0-9_]*$")
 _PLAIN_KEY = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 _ENTITY_NAME_EXPRESSIONS = ("entity_name", "application_id | entity_name")
+_FLAVOR_CHOICE = re.compile(
+    r"""^\{\{\s*(['"])([a-z0-9_-]+)\1\s+if\s+(?:(?!\selse\s).)+?\s+else\s+(['"])([a-z0-9_-]+)\3\s*\}\}$""",
+    re.DOTALL,
+)
 
 
 def _role_app_id(rel_path: str) -> str | None:
@@ -159,15 +163,46 @@ def _probe_defect(services: dict[str, Any], key: str) -> str | None:
             f"service '{key}' healthcheck has neither flavor nor test. "
             f"Known flavors: {known_flavors()}"
         )
-    for name in resolve_flavors(flavor) if flavor else []:
+    for branch in _flavor_branches(flavor) if flavor else []:
+        defect = _flavor_defect(key, branch, config)
+        if defect:
+            return defect
+    return None
+
+
+def _flavor_branches(flavor: str | list[str]) -> list[str | list[str]]:
+    """Return the flavors a declared flavor can render to.
+
+    Args:
+        flavor: the declared ``healthcheck.flavor``.
+
+    Returns:
+        Both literals of a ``{{ 'a' if <test> else 'b' }}`` choice, which the
+        lookup renders through the config SPOT before it validates the flavor;
+        any other value as it stands, so a template of another shape fails as
+        an unknown flavor.
+    """
+    choice = _FLAVOR_CHOICE.match(flavor) if isinstance(flavor, str) else None
+    return [choice.group(2), choice.group(4)] if choice else [flavor]
+
+
+def _flavor_defect(key: str, flavor: str | list[str], config: dict) -> str | None:
+    """Report why one renderable flavor would fail at render time.
+
+    Args:
+        key: the service key the call site targets.
+        flavor: one flavor the declaration renders to.
+        config: the service's ``healthcheck`` mapping.
+    """
+    for name in resolve_flavors(flavor):
         if name not in PROBES and name not in PREFIXES:
             return f"service '{key}' has unknown flavor '{name}'"
-    if flavor and len([n for n in resolve_flavors(flavor) if n in PROBES]) != 1:
+    if len([n for n in resolve_flavors(flavor) if n in PROBES]) != 1:
         return (
             f"service '{key}' must name exactly one probe, "
             f"got '{flavor}'. Known flavors: {known_flavors()}"
         )
-    if flavor and config.get("test"):
+    if config.get("test"):
         return (
             f"service '{key}' declares both flavor '{flavor}' and test; "
             "the test would be ignored"
@@ -230,6 +265,32 @@ class TestContainerHealthcheckRequiresProbe(unittest.TestCase):
                 "services declare healthcheck blocks the container_healthcheck "
                 "lookup would refuse at render time:\n\n" + "\n".join(findings)
             )
+
+    def test_a_flavor_choice_is_judged_on_both_literals(self) -> None:
+        test = "lookup('config', 'svc-x', 'services.x.flavor') == 'registry'"
+        for flavor, defect in (
+            (f"{{{{ 'wget' if {test} else 'http' }}}}", None),
+            (
+                f"{{{{ 'wget' if {test} else 'nope' }}}}",
+                "service 'x' has unknown flavor 'nope'",
+            ),
+            (
+                f"{{{{ 'nope' if {test} else 'http' }}}}",
+                "service 'x' has unknown flavor 'nope'",
+            ),
+            (
+                f"{{{{ 'wget' if {test} else 'curl' if {test} else 'nope' }}}}",
+                "service 'x' has unknown flavor",
+            ),
+            ("{{ X_FLAVOR }}", "service 'x' has unknown flavor '{{ X_FLAVOR }}'"),
+        ):
+            with self.subTest(flavor=flavor):
+                found = _probe_defect({"x": {"healthcheck": {"flavor": flavor}}}, "x")
+                if defect is None:
+                    self.assertIsNone(found)
+                else:
+                    self.assertIsNotNone(found)
+                    self.assertTrue(found.startswith(defect), found)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -51,10 +51,24 @@ flowchart LR
 
 The gateway answers every translation request at request time: the content users put into the applications, and the batches `make i18n-translate` sends. Two neighbouring mechanisms keep their own ground:
 
-- The catalogue run in `cli/build/i18n` extracts this repository's own strings into `locale/<code>/LC_MESSAGES/*.po` and fills them through `make i18n-translate`. It used to call one engine directly. It now goes through this gateway, and deploys the gateway when none answers, because whether an engine keeps a masked span intact is a property of the engine and the language pair, which only a comparison across engines can learn. What the run writes into a catalogue, and which answer it discards, stays with the run.
+- The catalogue run in `cli/build/i18n` extracts strings into gettext catalogues and fills them through `make i18n-translate`, which always goes through this gateway, because whether an engine keeps a masked span intact is a property of the engine and the language pair, which only a comparison across engines can learn. What the run writes into a catalogue, and which answer it discards, stays with the run; see [Catalogue runs](#catalogue-runs).
 - The core surfaces, [`web-app-docs`](../web-app-docs/), [`web-app-dashboard`](../web-app-dashboard/) and the logout panel of [`web-app-keycloak`](../web-app-keycloak/), read those catalogues when they are built or rendered and never call this gateway.
 
 None of the three is used to fix a defect that belongs to another.
+
+## Catalogue runs
+
+Every repository translates its gettext catalogues through this gateway with core's `make i18n-translate`:
+
+```bash
+make i18n-translate root=<repo> domain=<domain> gateway=<url>
+```
+
+- **`root`:** the directory whose `locale/` holds the catalogues; empty means core itself.
+- **`domain`:** the catalogue name. The English source is `<root>/locale/<domain>.yml`, the catalogue of each language `<root>/locale/<code>/LC_MESSAGES/<domain>.po`, and every message sits under the `msgctxt` `<domain>:<key>`. Core's own domains are `core` and `docs`.
+- **`gateway`:** the base URL of the shared gateway, used as it is and never deployed from the run; a gateway that names no language stops the run. `make infra-status` prints it as `http://127.0.0.1:<INFINITO_TOOLS_TRANSLATE_PORT>`, the only tools port the infra runner publishes. Without `gateway`, the run deploys the bundle into the infra runner when no gateway answers.
+
+On a development machine the gateway and its engines run once per machine inside the infra runner, see [cache.md](../../docs/contributing/environment/cache.md). `make i18n-translate`, `make i18n-tune` and `make test-oracle` start them on demand, and every run of these targets is stamped in `INFINITO_TOOLS_STAMP_DIR` (default `<DIR_CACHE>/tools`). A systemd timer inside the infra runner stops the tools once `INFINITO_TOOLS_IDLE_GRACE` (default `2h`) has passed since the last run ended and no run is live; the caches beside them keep running. `make i18n-pause` and `make i18n-resume` pause and resume the tools alone.
 
 ## Further resources
 

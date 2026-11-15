@@ -6,12 +6,15 @@ import urllib.error
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from utils.i18n import libretranslate
 from utils.i18n.libretranslate import (
     LibreTranslate,
     accelerated,
     deploying,
     server,
 )
+from utils.infra import GATEWAY_PORT_KEY, INFRA_UP, RUNNER_CONTAINER_KEY
+from utils.inventory.tools_idle import LAST, running
 
 
 class TestParallelDeployIsRefused(unittest.TestCase):
@@ -32,6 +35,7 @@ class TestParallelDeployIsRefused(unittest.TestCase):
         every run raised TypeError before translating a line, and the only
         symptom was an empty log.
         """
+        stamps = self._stamps()
         with (
             mock.patch("utils.i18n.libretranslate.deploying", return_value=False),
             mock.patch("utils.i18n.libretranslate.deployed") as probed,
@@ -41,8 +45,30 @@ class TestParallelDeployIsRefused(unittest.TestCase):
             server(Path("/repo"), redeploy=True) as url,
         ):
             self.assertEqual(url, "http://rebuilt")
+            self.assertTrue(running(stamps))
         probed.assert_not_called()
         started.assert_called_once()
+        self.assertFalse(running(stamps))
+        self.assertTrue((stamps / LAST).is_file())
+
+    def test_a_refused_run_is_not_stamped(self) -> None:
+        stamps = self._stamps()
+        with (
+            mock.patch("utils.i18n.libretranslate.deploying", return_value=True),
+            self.assertRaises(RuntimeError),
+            server(Path("/repo")),
+        ):
+            pass
+        self.assertFalse((stamps / LAST).exists())
+
+    def _stamps(self) -> Path:
+        tmp = TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        stamps = Path(tmp.name) / "tools"
+        patcher = mock.patch("utils.i18n.libretranslate.stamp_dir", return_value=stamps)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return stamps
 
     def test_a_live_pid_that_is_not_the_router_reports_no_deploy(self) -> None:
         """This process is alive and is not a deploy.
@@ -111,7 +137,7 @@ class TestTranslateFailures(unittest.TestCase):
             "http://libretranslate", 500, "boom", {}, None
         )
         with (
-            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch("utils.i18n.client.time.sleep"),
             mock.patch.object(self.client, "_call", side_effect=rejected),
         ):
             self.assertEqual(
@@ -149,7 +175,7 @@ class TestRefusalsAreRetried(unittest.TestCase):
     def test_a_transient_refusal_is_retried_until_it_succeeds(self) -> None:
         answers = [self.refusal, self.refusal, {"translatedText": ["Hallo"]}]
         with (
-            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch("utils.i18n.client.time.sleep"),
             mock.patch.object(self.client, "_call", side_effect=answers),
         ):
             outcome = self.client.translate(["Hello"], "de")
@@ -160,7 +186,7 @@ class TestRefusalsAreRetried(unittest.TestCase):
 
     def test_a_permanent_refusal_is_counted_and_named(self) -> None:
         with (
-            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch("utils.i18n.client.time.sleep"),
             mock.patch.object(self.client, "_call", side_effect=self.refusal),
         ):
             outcome = self.client.translate(["Hello"], "de")
@@ -176,7 +202,7 @@ class TestRefusalsAreRetried(unittest.TestCase):
             {"translatedText": ["Hi"]},
         ]
         with (
-            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch("utils.i18n.client.time.sleep"),
             mock.patch.object(self.client, "_call", side_effect=answers),
         ):
             first = self.client.translate(["Hello"], "de")
@@ -258,6 +284,64 @@ class TestAccelerated(unittest.TestCase):
     def test_an_unavailable_docker_falls_back_to_the_cpu(self) -> None:
         with mock.patch("subprocess.run", return_value=self._runtimes("")):
             self.assertFalse(accelerated())
+
+
+class TestDeployGoesThroughTheInfraRunner(unittest.TestCase):
+    def setUp(self) -> None:
+        self.ENV = {
+            "INFINITO_IMAGE": "img",
+            "INFINITO_GPU_COUNT": "0",
+            GATEWAY_PORT_KEY: "8765",
+            RUNNER_CONTAINER_KEY: "infinito-infra-runner",
+        }
+
+    def _steps(self) -> list[list[str]]:
+        root = Path("/srv/core")
+        with (
+            mock.patch.object(libretranslate, "environment", return_value=self.ENV),
+            mock.patch.object(
+                libretranslate, "_vars_file", return_value=root / "tools.yml"
+            ),
+            mock.patch.object(libretranslate, "accelerated", return_value=False),
+            mock.patch.object(libretranslate.subprocess, "run") as run,
+        ):
+            libretranslate.deploy(root, roles=("web-svc-translate",))
+        return [call.args[0] for call in run.call_args_list]
+
+    def test_the_infra_runner_comes_up_before_any_tool_deploys(self) -> None:
+        steps = self._steps()
+        self.assertEqual(steps[0], list(INFRA_UP))
+        for step in steps[1:]:
+            runner = step.index("exec")
+            self.assertEqual(
+                step[runner : runner + 7],
+                [
+                    "exec",
+                    "-T",
+                    "-w",
+                    "/srv/core",
+                    "-e",
+                    "PYTHONPATH=/srv/core",
+                    "runner",
+                ],
+            )
+            self.assertIn("infinito-infra", step)
+
+    def test_no_step_starts_a_tools_service_of_the_checkout(self) -> None:
+        for step in self._steps():
+            self.assertNotIn("--profile", step)
+            self.assertNotIn("tools", step)
+
+    def test_the_gateway_answers_on_the_published_loopback_port(self) -> None:
+        with mock.patch.object(libretranslate, "environment", return_value=self.ENV):
+            self.assertEqual(
+                libretranslate.service_url(Path("/srv/core")), "http://127.0.0.1:8765"
+            )
+
+    def test_the_lane_container_is_the_infra_runner(self) -> None:
+        self.assertEqual(
+            libretranslate.lane_container(self.ENV), "infinito-infra-runner"
+        )
 
 
 if __name__ == "__main__":

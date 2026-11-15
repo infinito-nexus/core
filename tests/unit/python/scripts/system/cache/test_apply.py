@@ -35,6 +35,12 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")  # nocheck: cache-read
 
 
+INFRA_ARMS = """cache-name) echo infinito-package-cache-frontend ;;
+docker)
+	shift 3
+	exec docker "$@"
+	;;"""
+
 PYTHON_STUB = f"""#!/usr/bin/env bash
 printf 'python %s %s\\n' "$PWD" "$*" >>"$STUB_LOG"
 case "$3" in
@@ -46,10 +52,11 @@ read)
 	cat "$STUB_SHA_FILE"
 	;;
 env) printf '%s\\n' {" ".join(f"'{line}'" for line in PIN_ENV)} ;;
+{INFRA_ARMS}
 esac
 """
 
-DECLARE_PYTHON_STUB = """#!/usr/bin/env bash
+DECLARE_PYTHON_STUB = f"""#!/usr/bin/env bash
 printf 'python %s %s\\n' "$PWD" "$*" >>"$STUB_LOG"
 if [[ "$2" == cli.meta.cache && -z "$3" ]]; then
 	mkdir -p "$(dirname "$INFINITO_CACHE_PACKAGE_FRONTEND_CONF")"
@@ -57,11 +64,12 @@ if [[ "$2" == cli.meta.cache && -z "$3" ]]; then
 	exit 0
 fi
 case "$3" in
-resolve) git rev-parse --verify --quiet "$4^{commit}" ;;
+resolve) git rev-parse --verify --quiet "$4^{{commit}}" ;;
 declare)
 	mkdir -p "$(dirname "$INFINITO_CACHE_PIN_FILE")"
 	echo "$4" >"$INFINITO_CACHE_PIN_FILE"
 	;;
+{INFRA_ARMS}
 esac
 """
 
@@ -237,6 +245,17 @@ class TestApply(unittest.TestCase):
         self.assertIn(
             "docker exec infinito-package-cache-frontend nginx -s reload", run.lines
         )
+
+    def test_every_docker_call_goes_through_the_infra_runner(self) -> None:
+        run = self._run()
+        docker = [line for line in run.lines if line.startswith("docker ")]
+        through_runner = [
+            line.split(" -m cli.administration.infra ", 1)[1]
+            for line in run.lines
+            if " -m cli.administration.infra docker " in line
+        ]
+        self.assertNotEqual(docker, [])
+        self.assertEqual(docker, through_runner)
 
     def test_apply_reports_drift_against_the_pinned_checkout(self) -> None:
         run = self._run()

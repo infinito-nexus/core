@@ -1,0 +1,21 @@
+---
+- name: "📁 Create the env directory of the vendor caches"
+  ansible.builtin.file:
+    path: "{{ REGISTRY_CACHE_ENV_DIR }}"
+    state: directory
+    mode: "0755"
+  when: IS_STACK_HOST | bool
+
+- name: "📄 Render the env file of every vendor cache"
+  stack_host_template:
+    src: vendor.env.j2
+    dest: "{{ REGISTRY_CACHE_VENDOR_ENV_FILES[registry_cache_vendor_service.value] }}"
+    mode: "0640"
+    force: true
+  vars:
+    registry_cache_vendor: "{{ registry_cache_vendor_service.key }}"
+  loop: "{{ REGISTRY_CACHE_VENDOR_SERVICES | dict2items }}"
+  loop_control:
+    loop_var: registry_cache_vendor_service
+    label: "{{ registry_cache_vendor_service.value }}"
+  notify: compose-up

@@ -10,19 +10,14 @@ from utils.cache import pin
 from utils.cache.render import render_artifacts
 from utils.env.handlers.infinito.cache.conf import KEY as CACHE_CONF_KEY
 from utils.env.handlers.infinito.cache.conf import RELATIVE as CACHE_CONF
+from utils.infra import INFRA_UP
 
 from .coredns import CoreDNSCorefileRenderer
 from .docker_root import cleanup_docker_root
 from .network import detect_outer_network_mtu
 from .proc import run_streaming
 from .profile import Profile
-from .runner_mirror import env_image
 from .stack import compose_argv
-
-CACHE_APPLY = Path("scripts") / "system" / "cache" / "apply.sh"
-CACHE_PIN_DOC = "docs/contributing/environment/cache.md"
-
-INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
 
 PACMAN_CACHE_SCRIPT = "/usr/local/bin/pacman-cache.sh"
 PACMAN_CONF = "/etc/pacman.conf"
@@ -131,53 +126,14 @@ class Compose:
         if last_exc is not None:
             raise last_exc
 
-    def _cache_apply_helper(self) -> Path:
-        return self.repo_root / CACHE_APPLY
-
-    def _cache_apply_env(self, env: dict[str, str]) -> dict[str, str]:
-        if not self.profile.image_mirror_enabled():
-            return env
-        return {**env, INIT_IMAGE_KEY: env_image(self.repo_root, INIT_IMAGE_KEY)}
-
-    def _prepare_pinned_cache(self, env: dict[str, str]) -> None:
+    def _ensure_infra(self, env: dict[str, str]) -> None:
         """
         Raises:
-            SystemExit: no pin exists yet, `.env` predates the pin, or the
-                pinned commit cannot be materialized; the stack does not start.
+            CalledProcessError: `make infra-up` refused or failed, so no stack
+                is pointed at caches that do not answer yet.
         """
-        print(">>> Preparing the cache stack from the pinned commit")
-        r = subprocess.run(
-            ["bash", str(self._cache_apply_helper()), "prepare"],
-            cwd=self.repo_root,
-            env=self._cache_apply_env(env),
-            check=False,
-            text=True,
-        )
-        if r.returncode != 0:
-            raise SystemExit(
-                ">>> ERROR: the cache stack does not start without its pin "
-                f"(apply.sh prepare exited rc={r.returncode}, reason above). "
-                "Run `make dotenv` if it names an unset key; before the first "
-                "pin the declarer runs `make cache-declare ref=<commit>`. "
-                f"See {CACHE_PIN_DOC}."
-            )
-
-    def _apply_pinned_cache(self, env: dict[str, str]) -> None:
-        helper = self._cache_apply_helper()
-        print(">>> Applying the pinned cache declarations to the cache stack")
-        r = subprocess.run(
-            ["bash", str(helper)],
-            cwd=self.repo_root,
-            env=self._cache_apply_env(env),
-            check=False,
-            text=True,
-        )
-        if r.returncode != 0:
-            print(
-                f">>> WARNING: cache apply exited rc={r.returncode}; the cache "
-                "frontend keeps serving the map it already had. See the message "
-                f"above, then re-run `make cache-apply` ({helper})."
-            )
+        print(">>> Ensuring the machine-wide infra runner serves the caches")
+        subprocess.run(INFRA_UP, cwd=self.repo_root, env=env, check=True)
 
     def _install_package_frontend_ca_in_runner(self) -> None:
         """Install the frontend CA in the runner trust store. Idempotent."""
@@ -264,9 +220,8 @@ class Compose:
         args: list[str] = ["up", "-d"]
         if no_build:
             args.append("--no-build")
-        if self.profile.owns_cache_stack():
-            self._prepare_pinned_cache(env)
-            args += ["registry-cache", "package-cache", "package-cache-frontend"]
+        if self.profile.cache_stack_enabled():
+            self._ensure_infra(env)
         args += ["coredns", "infinito"]
 
         self._compose_up_with_retries(args, attempts=6, delay_s=30)
@@ -274,7 +229,6 @@ class Compose:
         self.wait_for_healthy()
 
         if self.profile.cache_stack_enabled():
-            self._apply_pinned_cache(env)
             self._install_package_frontend_ca_in_runner()
             if self.profile.shared_package_cache():
                 self._layer_pacman_cache_in_runner()

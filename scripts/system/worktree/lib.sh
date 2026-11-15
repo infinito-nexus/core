@@ -4,9 +4,8 @@
 # Shared helpers for the worktree slot manager. A slot is an integer that
 # isolates one checkout from every other: it shifts the compose subnet, the
 # host bind IP and the swarm lab subnet, so several worktrees can run their
-# stacks side by side. Slot 0 is the primary checkout and owns the shared
-# cache stack; every worktree gets the next free slot and joins that cache
-# over an external docker network.
+# stacks side by side. Slot 0 is the primary checkout; every worktree gets the
+# next free slot.
 #
 # Volumes are deliberately not slotted: compose already namespaces them by
 # project, and INFINITO_DOCKER_VOLUME names a top-level compose key, so
@@ -125,10 +124,4 @@ worktree_report_held() {
 	echo ">>> Unregistered, but the sandbox pins these metadata dirs; git ignores them now:"
 	printf '      %s\n' "$@"
 	echo ">>> Clear them outside the sandbox: rm -rf $*"
-}
-
-worktree_cache_network() {
-	docker inspect infinito-registry-cache \
-		--format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}' 2>/dev/null |
-		head -n1
 }

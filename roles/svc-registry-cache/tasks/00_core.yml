@@ -8,90 +8,39 @@
       vars:
         handler_role_name: "sys-svc-compose"
 
-    - name: "📄 Render the vendor front for '{{ application_id }}'"
-      ansible.builtin.include_tasks:
-        file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
-      vars:
-        role_templates:
-          - src: "front.conf.j2"
-            dest: "{{ REGISTRY_CACHE_FRONT_CONF }}"
-            mode: "0644"
+    - name: "📄 Render, certify and trust the vendor front"
+      ansible.builtin.include_tasks: utils/front.yml
 
-    - name: "📁 Create the vendor front TLS directory"
-      ansible.builtin.file:
-        path: "{{ REGISTRY_CACHE_FRONT_TLS_DIR }}"
-        state: directory
-        mode: "0700"
-
-    - name: "🔎 Check that the vendor front certificate outlives the renewal window"
-      ansible.builtin.command:
-        argv:
-          - openssl
-          - x509
-          - -in
-          - "{{ REGISTRY_CACHE_FRONT_CERT }}"
-          - -noout
-          - -checkend
-          - "{{ REGISTRY_CACHE_FRONT_CERT_RENEW_SECONDS | string }}"
-      register: registry_cache_front_cert
-      changed_when: false
-      failed_when: false
-
-    - name: "⚙️ Issue the self-signed vendor front certificate for its endpoint"
-      ansible.builtin.command:
-        argv:
-          - openssl
-          - req
-          - -x509
-          - -newkey
-          - "rsa:{{ REGISTRY_CACHE_FRONT_KEY_BITS }}"
-          - -nodes
-          - -keyout
-          - "{{ REGISTRY_CACHE_FRONT_KEY }}"
-          - -out
-          - "{{ REGISTRY_CACHE_FRONT_CERT }}"
-          - -days
-          - "{{ REGISTRY_CACHE_FRONT_CERT_DAYS | string }}"
-          - -subj
-          - "/CN={{ REGISTRY_CACHE_FRONT_ENDPOINT }}"
-          - -addext
-          - "subjectAltName=IP:{{ REGISTRY_CACHE_FRONT_HOST }}"
-          - -addext
-          - "basicConstraints=critical,CA:FALSE"
-          - -addext
-          - "keyUsage=critical,digitalSignature,keyEncipherment"
-          - -addext
-          - "extendedKeyUsage=serverAuth"
-      when: registry_cache_front_cert.rc != 0
-      notify: compose-up
-
-    - name: "🔐 Restrict the vendor front key to root"
-      ansible.builtin.file:
-        path: "{{ REGISTRY_CACHE_FRONT_KEY }}"
-        owner: root
-        group: root
-        mode: "0600"
-
-    - name: "📁 Create the docker trust directory of the vendor front endpoint"
-      ansible.builtin.file:
-        path: "{{ REGISTRY_CACHE_FRONT_TRUST_DIR }}"
-        state: directory
-        mode: "0755"
-
-    - name: "🤝 Trust the vendor front certificate for its endpoint only"
-      ansible.builtin.copy:
-        src: "{{ REGISTRY_CACHE_FRONT_CERT }}"
-        dest: "{{ [REGISTRY_CACHE_FRONT_TRUST_DIR, 'ca.crt'] | path_join }}"
-        remote_src: true
-        owner: root
-        group: root
-        mode: "0644"
+    - name: "📄 Render the env file of every vendor cache"
+      ansible.builtin.include_tasks: utils/vendor_env.yml
 
 - name: "🧹 Drop the docker trust of the vendor front once no vendor is served"
   ansible.builtin.file:
     path: "{{ REGISTRY_CACHE_FRONT_TRUST_DIR }}"
     state: absent
   when: REGISTRY_CACHE_VENDORS | length == 0
+
+- name: "🪞 Ship the multi-registry proxy files"
+  when: REGISTRY_CACHE_FLAVOR == 'multi-proxy'
+  block:
+    - include_tasks: utils/load/handlers.yml
+      vars:
+        handler_role_name: "sys-svc-compose"
+
+    - name: "📁 Create the multi-proxy config, mirror and CA directories"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ REGISTRY_CACHE_MULTI_PROXY_DIRS }}"
+
+    - name: "📄 Copy the multi-proxy entrypoint and stale manifest config"
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode }}"
+      loop: "{{ REGISTRY_CACHE_MULTI_PROXY_FILES }}"
+      notify: compose-up
 
 - include_role:
     name: sys-svc-compose

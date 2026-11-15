@@ -98,7 +98,6 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_RUNNING_ON_GITHUB": "true",
             "CI": "true",
             "INFINITO_GIT_COMMON_DIR": "",
-            "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
             "INFINITO_GPU_COUNT": "0",
             "INFINITO_GHCR_MIRROR": "",
@@ -142,8 +141,6 @@ class TestComposeUpRetries(unittest.TestCase):
                 "-f",
                 "compose.yml",
                 "-f",
-                "compose/tools.override.yml",
-                "-f",
                 "build/compose/runner-mirror.override.yml",
                 "ps",
                 "-q",
@@ -161,7 +158,6 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_RUNNING_ON_GITHUB": "",
             "CI": "",
             "INFINITO_GIT_COMMON_DIR": "",
-            "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
             "INFINITO_CACHE_SHARED_HOST_PATH": "",
             "INFINITO_CACHE_HOST_PACMAN_PATH": "",
@@ -173,7 +169,7 @@ class TestComposeUpRetries(unittest.TestCase):
         clear=False,
     )
     @patch("subprocess.run", autospec=True)
-    def test_run_layers_cache_override_locally(self, run_mock: MagicMock) -> None:
+    def test_run_joins_the_infra_network_locally(self, run_mock: MagicMock) -> None:
         compose = self._compose()
 
         run_mock.return_value = subprocess.CompletedProcess(
@@ -195,9 +191,7 @@ class TestComposeUpRetries(unittest.TestCase):
                 "-f",
                 "compose.yml",
                 "-f",
-                "compose/cache.override.yml",
-                "-f",
-                "compose/tools.override.yml",
+                "compose/infra-consumer.override.yml",
                 "ps",
                 "-q",
                 "infinito",
@@ -290,81 +284,33 @@ class TestComposeUpRetries(unittest.TestCase):
             "GITHUB_ACTIONS": "",
             "INFINITO_RUNNING_ON_GITHUB": "",
             "INFINITO_GIT_COMMON_DIR": "",
-            "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
             "INFINITO_CACHE_SHARED_HOST_PATH": "/var/cache/infinito/core/cache/shared",
             "INFINITO_GHCR_MIRROR": "",
         },
         clear=False,
     )
-    def test_up_includes_cache_services_when_local(self) -> None:
+    def test_up_starts_the_infra_runner_before_the_stack(self) -> None:
         compose = self._compose()
+        order: list[str] = []
         compose._render_coredns_corefile = MagicMock()
         compose._prepare_vulnerability_db = MagicMock()
-        compose._compose_up_with_retries = MagicMock()
-        compose.wait_for_healthy = MagicMock()
-        compose._apply_pinned_cache = MagicMock()
-        compose._prepare_pinned_cache = MagicMock()
-        compose._install_package_frontend_ca_in_runner = MagicMock()
-        compose._layer_pacman_cache_in_runner = MagicMock()
-
-        compose.up(run_entry_init=False)
-
-        compose._compose_up_with_retries.assert_called_once_with(
-            [
-                "up",
-                "-d",
-                "registry-cache",
-                "package-cache",
-                "package-cache-frontend",
-                "coredns",
-                "infinito",
-            ],
-            attempts=6,
-            delay_s=30,
+        compose._ensure_infra = MagicMock(
+            side_effect=lambda _env: order.append("infra")
         )
-        compose.wait_for_healthy.assert_called_once_with()
-        compose._apply_pinned_cache.assert_called_once()
-        compose._prepare_pinned_cache.assert_called_once()
-        compose._install_package_frontend_ca_in_runner.assert_called_once()
-        compose._layer_pacman_cache_in_runner.assert_called_once()
-
-    @patch.dict(
-        os.environ,
-        {
-            "INFINITO_BUILD": "1",
-            "INFINITO_IMAGE": "infinito-debian",
-            "INFINITO_PULL_POLICY": "never",
-            "CI": "",
-            "GITHUB_ACTIONS": "",
-            "INFINITO_RUNNING_ON_GITHUB": "",
-            "INFINITO_GIT_COMMON_DIR": "/primary/.git",
-            "INFINITO_CACHE_NETWORK": "infinito-nexus-core_default",
-            "INFINITO_CACHE_STACK": "",
-            "INFINITO_CACHE_SHARED_HOST_PATH": "/var/cache/infinito/core/cache/shared",
-        },
-        clear=False,
-    )
-    def test_up_applies_the_pinned_declarations_to_a_cache_stack_it_shares(
-        self,
-    ) -> None:
-        compose = self._compose()
-        compose._render_coredns_corefile = MagicMock()
-        compose._prepare_vulnerability_db = MagicMock()
-        compose._compose_up_with_retries = MagicMock()
+        compose._compose_up_with_retries = MagicMock(
+            side_effect=lambda *_a, **_k: order.append("stack")
+        )
         compose.wait_for_healthy = MagicMock()
-        compose._prepare_pinned_cache = MagicMock()
-        compose._apply_pinned_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
         compose._layer_pacman_cache_in_runner = MagicMock()
 
         compose.up(run_entry_init=False)
 
+        self.assertEqual(order, ["infra", "stack"])
         compose._compose_up_with_retries.assert_called_once_with(
             ["up", "-d", "coredns", "infinito"], attempts=6, delay_s=30
         )
-        compose._prepare_pinned_cache.assert_not_called()
-        compose._apply_pinned_cache.assert_called_once()
         compose._install_package_frontend_ca_in_runner.assert_called_once()
         compose._layer_pacman_cache_in_runner.assert_called_once()
 
@@ -378,7 +324,37 @@ class TestComposeUpRetries(unittest.TestCase):
             "GITHUB_ACTIONS": "",
             "INFINITO_RUNNING_ON_GITHUB": "",
             "INFINITO_GIT_COMMON_DIR": "",
-            "INFINITO_CACHE_NETWORK": "",
+            "INFINITO_CACHE_STACK": "false",
+            "INFINITO_CACHE_SHARED_HOST_PATH": "",
+            "INFINITO_GHCR_MIRROR": "",
+        },
+        clear=False,
+    )
+    def test_a_disabled_cache_stack_starts_no_infra_runner(self) -> None:
+        compose = self._compose()
+        compose._render_coredns_corefile = MagicMock()
+        compose._prepare_vulnerability_db = MagicMock()
+        compose._ensure_infra = MagicMock()
+        compose._compose_up_with_retries = MagicMock()
+        compose.wait_for_healthy = MagicMock()
+        compose._install_package_frontend_ca_in_runner = MagicMock()
+
+        with patch.object(pin, "served_hosts", return_value=None):
+            compose.up(run_entry_init=False)
+
+        compose._ensure_infra.assert_not_called()
+        compose._install_package_frontend_ca_in_runner.assert_not_called()
+
+    @patch.dict(
+        os.environ,
+        {
+            "INFINITO_BUILD": "1",
+            "INFINITO_IMAGE": "infinito-debian",
+            "INFINITO_PULL_POLICY": "never",
+            "CI": "",
+            "GITHUB_ACTIONS": "",
+            "INFINITO_RUNNING_ON_GITHUB": "",
+            "INFINITO_GIT_COMMON_DIR": "",
             "INFINITO_CACHE_STACK": "",
             "INFINITO_CACHE_SHARED_HOST_PATH": "",
             "INFINITO_GHCR_MIRROR": "",
@@ -391,8 +367,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
-        compose._apply_pinned_cache = MagicMock()
-        compose._prepare_pinned_cache = MagicMock()
+        compose._ensure_infra = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
         compose._layer_pacman_cache_in_runner = MagicMock()
 
@@ -425,32 +400,25 @@ class TestComposeUpRetries(unittest.TestCase):
             live=False,
         )
 
-    @patch.dict(os.environ, {"INFINITO_GHCR_MIRROR": ""}, clear=False)
-    def test_the_cache_stack_starts_and_applies_through_the_pinned_apply(
-        self,
-    ) -> None:
+    def test_the_infra_runner_starts_through_make_infra_up(self) -> None:
         compose = self._compose()
-        helper = str(compose.repo_root / "scripts" / "system" / "cache" / "apply.sh")
         with patch("subprocess.run") as run:
-            run.return_value.returncode = 0
-            compose._prepare_pinned_cache({})
-            compose._apply_pinned_cache({})
-        prepare, apply = run.call_args_list
-        self.assertEqual(prepare.args[0], ["bash", helper, "prepare"])
-        self.assertEqual(apply.args[0], ["bash", helper])
+            compose._ensure_infra({"A": "1"})
+        self.assertEqual(
+            list(run.call_args.args[0][1:]), ["-m", "cli.administration.infra", "up"]
+        )
+        self.assertTrue(run.call_args.kwargs["check"])
 
-    @patch.dict(os.environ, {"INFINITO_GHCR_MIRROR": ""}, clear=False)
-    def test_no_pin_stops_the_owner_with_the_declarer_hint_but_never_a_sharer(
-        self,
-    ) -> None:
+    def test_a_refused_infra_up_stops_the_stack(self) -> None:
         compose = self._compose()
-        with patch("subprocess.run") as run:
-            run.return_value.returncode = 3
-            with self.assertRaises(SystemExit) as stopped:
-                compose._prepare_pinned_cache({})
-            compose._apply_pinned_cache({})
-        self.assertIn("make cache-declare ref=<commit>", str(stopped.exception.code))
-        self.assertIn("make dotenv", str(stopped.exception.code))
+        with (
+            patch(
+                "subprocess.run",
+                side_effect=subprocess.CalledProcessError(2, ["infra"]),
+            ),
+            self.assertRaises(subprocess.CalledProcessError),
+        ):
+            compose._ensure_infra({})
 
     def test_the_hijacks_are_rendered_against_the_pinned_declarations(self) -> None:
         compose = self._compose()

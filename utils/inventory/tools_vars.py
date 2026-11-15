@@ -32,15 +32,14 @@ TEMPLATE = Path("inventories") / "development" / "tools.yml.j2"
 RENDERED = Path("inventories") / "development" / "tools.rendered.yml"
 API_KEY = "toolsLaneTestKeyNotASecret0000000000"
 LITELLM_KEY = "toolsLaneLiteLlmMasterKeyNotASecret000000000000000000"
-LANE_SERVICE = "tools"
 
 
 def models_dir() -> str:
     """Return the node-local directory the lane keeps its models in.
 
-    Reads the same value ``compose/tools.override.yml`` mounts into the
-    runner, so a bind the inventory writes resolves to the host directory
-    rather than to something inside the runner that a rebuild discards.
+    Reads the same value the infra runner sees below its cache base mount, so
+    a bind the inventory writes resolves to the host directory rather than to
+    something inside the runner that a rebuild discards.
     """
     from utils.env.handlers.infinito.tools.models import KEY, default
 

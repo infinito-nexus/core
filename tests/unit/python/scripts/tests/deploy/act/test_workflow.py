@@ -23,9 +23,15 @@ ACT_STUB = (
     "\tshift\n"
     "done\n"
 )
-DOCKER_STUB = (
+INFRA = "-m cli.administration.infra"
+FRONTEND = "stub-package-cache-frontend"
+PYTHON_STUB = (
     "#!/usr/bin/env bash\n"
-    '[ -n "${STUB_FRONTEND}" ] && [ "$*" = "inspect infinito-package-cache-frontend" ]\n'
+    'case "$*" in\n'
+    f'"{INFRA} cache-name frontend") echo {FRONTEND} ;;\n'
+    f'"{INFRA} docker inspect {FRONTEND}") [ -n "${{STUB_FRONTEND}}" ] ;;\n'
+    "*) exit 1 ;;\n"
+    "esac\n"
 )
 WORKFLOW = """on: workflow_dispatch
 jobs:
@@ -57,7 +63,7 @@ def run_act(
     shared_cache: str = "",
     frontend: bool = True,
 ) -> tuple[subprocess.CompletedProcess, list[str], Path, bool, str]:
-    """Run the act wrapper against ``act`` and ``docker`` stubs.
+    """Run the act wrapper against ``act`` and infra CLI (``PYTHON``) stubs.
 
     Args:
         db_host_path: value of ``INFINITO_VULNERABILITY_DB_HOST_PATH`` below a
@@ -74,7 +80,7 @@ def run_act(
         (empty when act never ran).
     """
     with tempfile.TemporaryDirectory() as tmp:
-        for name, body in (("act", ACT_STUB), ("docker", DOCKER_STUB)):
+        for name, body in (("act", ACT_STUB), ("python-stub", PYTHON_STUB)):
             stub = Path(tmp) / name
             stub.write_text(body)
             stub.chmod(0o755)
@@ -96,6 +102,7 @@ def run_act(
             STUB_LOG=str(log),
             STUB_WORKFLOW=str(handed),
             STUB_FRONTEND="1" if frontend else "",
+            PYTHON=str(Path(tmp) / "python-stub"),
             ACT_WORKFLOW=str(workflow),
             ACT_ENV=act_env,
             ACT_ACTION_CACHE_PATH=str(Path(tmp) / "actcache"),

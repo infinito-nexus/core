@@ -63,20 +63,10 @@ fi
 
 COMPOSE_FILE="${SCRIPT_DIR}/../../../../../compose/swarm/compose.yml"
 COMPOSE_ARGS=(-f "${COMPOSE_FILE}")
-CACHE_FRONTEND="infinito-package-cache-frontend"
-REGISTRY_CACHE="infinito-registry-cache"
-CACHE_NET=""
-if docker inspect "${CACHE_FRONTEND}" >/dev/null 2>&1; then
-	CACHE_NET="$(docker inspect "${CACHE_FRONTEND}" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}' | head -n1)"
-	echo "==> package-cache detected on ${CACHE_NET}; wiring swarm nodes to it"
-	registry_ca_src="$(docker inspect "${REGISTRY_CACHE}" \
-		--format '{{range .Mounts}}{{if eq .Destination "/ca"}}{{.Source}}{{end}}{{end}}' 2>/dev/null || true)"
-	if [ -z "${registry_ca_src}" ]; then
-		echo "FAILURE: ${CACHE_FRONTEND} is up but ${REGISTRY_CACHE} exposes no /ca bind; the nodes cannot learn its MITM CA" >&2
-		exit 1
-	fi
-	export INFINITO_CACHE_REGISTRY_CA_HOST_PATH="${registry_ca_src}"
-	echo "==> registry-cache CA source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH}"
+CACHE_NET="$(cd "${REPO_ROOT}" && python3 -m cli.administration.infra attach)"
+if [ -n "${CACHE_NET}" ]; then
+	echo "==> infra runner attached on ${CACHE_NET}; wiring swarm nodes to it"
+	echo "==> registry-cache CA source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}"
 	python3 -m cli.meta.cache
 	COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/cache.override.yml")
 	if [ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]; then

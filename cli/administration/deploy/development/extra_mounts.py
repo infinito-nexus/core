@@ -29,12 +29,16 @@ def parse_mounts(raw: str) -> list[Path]:
     return directories
 
 
-def write_mounts_override(repo_root: Path, directories: list[Path]) -> str:
-    """Write the compose override that mounts ``directories`` into the container.
+def write_mounts_override(
+    repo_root: Path, directories: list[Path], *, service: str, override: str
+) -> str:
+    """Write the compose override that mounts ``directories`` into ``service``.
 
     Args:
         repo_root: repository root the compose files are relative to.
         directories: host directories, each mounted read-only at its own path.
+        service: compose service that receives the mounts.
+        override: override path relative to ``repo_root``.
 
     Returns:
         The override path relative to ``repo_root``.
@@ -43,5 +47,5 @@ def write_mounts_override(repo_root: Path, directories: list[Path]) -> str:
         {"type": "bind", "source": str(path), "target": str(path), "read_only": True}
         for path in directories
     ]
-    dump_yaml(repo_root / OVERRIDE, {"services": {"infinito": {"volumes": volumes}}})
-    return OVERRIDE
+    dump_yaml(repo_root / override, {"services": {service: {"volumes": volumes}}})
+    return override

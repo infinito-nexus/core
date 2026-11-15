@@ -22,9 +22,9 @@ services:
     image: nginx@sha256:d5591131b1d898cd02fc7a17adb8ea026352d67809bc9289707778e9e03a76a4
 """
 
-CACHE_OVERRIDE = """\
+INFRA = """\
 services:
-  package-cache-frontend:
+  runner:
     image: nginx:1.27-alpine
 """
 
@@ -34,7 +34,7 @@ DEFAULT_ENV = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE=alpine:latest\n"
 def _repo(root: Path) -> Path:
     (root / "compose").mkdir()
     (root / "compose.yml").write_text(COMPOSE)
-    (root / "compose" / "cache.override.yml").write_text(CACHE_OVERRIDE)
+    (root / "compose" / "infra.yml").write_text(INFRA)
     (root / "default.env").write_text(DEFAULT_ENV)
     return root
 
@@ -51,8 +51,8 @@ class TestRunnerImages(unittest.TestCase):
             [
                 ("compose.yml", "coredns", "docker.io/coredns/coredns:1.14.4"),
                 (
-                    "compose/cache.override.yml",
-                    "package-cache-frontend",
+                    "compose/infra.yml",
+                    "runner",
                     "docker.io/library/nginx:1.27-alpine",
                 ),
                 (

@@ -18,12 +18,14 @@ from . import (
 from .infinito import (
     build,
     container,
+    distro,
     distros,
     domain,
     ghcr_mirror,
     git_identity,
     image,
     image_repository,
+    infra,
     inventory,
     is_wsl2,
     lifecycles,
@@ -42,8 +44,6 @@ from .infinito import (
 from .infinito.ca import bundle_candidates as ca_bundle_candidates
 from .infinito.ca import cert_host as ca_cert_host
 from .infinito.cache import artefact_base as cache_artefact_base
-from .infinito.cache import host_pacman_path as cache_host_pacman_path
-from .infinito.cache import host_sync as cache_host_sync
 from .infinito.cache import hosts as cache_hosts
 from .infinito.cache import http_hosts as cache_http_hosts
 from .infinito.cache import paths as cache_paths
@@ -52,6 +52,8 @@ from .infinito.cache import registries as cache_registries
 from .infinito.cache import stack as cache_stack
 from .infinito.cache import tls as cache_tls
 from .infinito.cache import upstreams as cache_upstreams
+from .infinito.cache.host import pacman_path as cache_host_pacman_path
+from .infinito.cache.host import sync as cache_host_sync
 from .infinito.dir import backups as dir_backups
 from .infinito.dir import secrets as dir_secrets
 from .infinito.dir import var_lib as dir_var_lib
@@ -74,6 +76,7 @@ from .infinito.running_on import act as running_on_act
 from .infinito.running_on import github as running_on_github
 from .infinito.swarm_nfs import export_base as swarm_nfs_export_base
 from .infinito.swarm_nfs import state_path as swarm_nfs_state_path
+from .infinito.tools import idle as tools_idle
 from .infinito.tools import libretranslate as tools_libretranslate
 from .infinito.tools import litellm as tools_litellm
 from .infinito.tools import models as tools_models
@@ -84,6 +87,8 @@ from .infinito.worker import fetch as worker_fetch
 
 ORDERED_HANDLERS = [
     passthrough,
+    infra,
+    distro,
     docker_platform,
     distros,
     lifecycles,
@@ -138,6 +143,7 @@ ORDERED_HANDLERS = [
     git_identity,
     gpu_count,
     gpu_only_tests,
+    tools_idle,
     tools_libretranslate,
     tools_litellm,
     tools_models,

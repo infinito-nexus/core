@@ -310,7 +310,13 @@ def _collapsed_panel() -> str:
         origin, the everywhere link and the real translation catalogue
     """
     catalogue = json.dumps(
-        keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)),
+        keyed_catalogue(
+            PROJECT_ROOT,
+            logout_context,
+            load_yaml(CATALOGUE_FILE),
+            PROJECT_ROOT,
+            "core",
+        ),
         ensure_ascii=False,
     )
     prelude = (

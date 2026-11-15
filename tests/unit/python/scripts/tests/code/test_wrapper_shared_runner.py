@@ -56,6 +56,11 @@ printf 'make %s\\n' "$*" >>"${STUB_LOG}"
 """
 
 PYTHON_SHIM = f"""#!/usr/bin/env bash
+if [ "$1 $2 $3" = "-m cli.administration.infra attach" ]; then
+\tprintf 'python %s\\n' "$*" >>"${{STUB_LOG}}"
+\t[ -z "${{STUB_INFRA_NETWORK:-}}" ] || printf '%s\\n' "${{STUB_INFRA_NETWORK}}"
+\texit 0
+fi
 if [ "$1 $2" = "-m {STACK_FLAGS_MODULE}" ]; then
 \tprintf -- '-p\\n%s\\n-f\\ncompose.yml\\n' "${{INFINITO_STACK_NAME}}"
 \texit 0
@@ -178,6 +183,17 @@ class TestWrapperSharedRunner(unittest.TestCase):
             ],
             calls,
         )
+
+    def test_the_runner_joins_the_infra_network_attach_names(self) -> None:
+        _done, calls = self._test_run(self.primary, STUB_INFRA_NETWORK="infinito-infra")
+        run = next(call for call in calls if call.startswith("docker run "))
+        self.assertIn("--network infinito-infra", run)
+        self.assertIn("python -m cli.administration.infra attach", calls)
+
+    def test_without_an_attached_network_the_runner_joins_none(self) -> None:
+        _done, calls = self._test_run(self.primary, STUB_INFRA_NETWORK="")
+        run = next(call for call in calls if call.startswith("docker run "))
+        self.assertNotIn("--network", run)
 
     def test_the_worktree_roots_override_replaces_the_default_mounts(self) -> None:
         roots = f"{self.primary}:{self.outside}"

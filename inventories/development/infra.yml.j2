@@ -1,0 +1,43 @@
+---
+TLS_MODE: self_signed
+
+TIMEOUT_FACTOR: 4
+
+DOCKER_BIND_HOST: 0.0.0.0
+
+users:
+  administrator:
+    authorized_keys:
+      - ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito
+
+applications:
+  svc-registry-cache:
+    services:
+      cache:
+        flavor: multi-proxy
+        max_idle_days: [[ idle_days ]]
+        multi_proxy:
+          registries:
+[% for registry in registries %]
+            - [[ registry ]]
+[% endfor %]
+          max_size: [[ registry_cap ]]
+          auth: [[ registry_auth | tojson ]]
+          mirror_path: [[ registry_mirror ]]
+          ca_path: [[ registry_ca ]]
+  svc-cache-package:
+    services:
+      package:
+        blobstore_max: [[ package_cap ]]
+        max_idle_days: [[ idle_days ]]
+        data_path: [[ package_data ]]
+        ports:
+          local:
+            http: [[ package_port ]]
+      frontend:
+        ca_path: [[ frontend_ca ]]
+        certs_path: [[ frontend_certs ]]
+        ports:
+          local:
+            http: 80
+            https: 443

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
-# nocheck: raw-docker  this runs on the developer's host against the dev cache stack, where the `container` wrapper is not on PATH
 #
 # Args:
 #   $1  empty: apply the pinned commit's cache declarations to the running cache stack.
@@ -29,13 +28,11 @@ apply | prepare) ;;
 	;;
 esac
 
-FRONTEND="${CACHE_PIN_FRONTEND}"
-
 if [[ "${stage}" == "apply" ]]; then
 	running=0
 	cache_pin_frontend_running || running=$?
 	if [[ "${running}" -eq 1 ]]; then
-		echo "[cache-apply] ${FRONTEND} is not running; start the cache stack first" >&2
+		echo "[cache-apply] ${CACHE_PIN_FRONTEND} is not running; start the infra runner first with make infra-up" >&2
 	fi
 	if [[ "${running}" -ne 0 ]]; then
 		exit 1
@@ -69,9 +66,9 @@ fi
 echo "[cache-apply] installing the pinned map into ${CACHE_PIN_FRONTEND_MAP}"
 cache_pin_install_map "${pinned}" "${CACHE_PIN_FRONTEND_MAP}"
 
-echo "[cache-apply] reloading ${FRONTEND}"
-docker exec "${FRONTEND}" nginx -t
-docker exec "${FRONTEND}" nginx -s reload
+echo "[cache-apply] reloading ${CACHE_PIN_FRONTEND}"
+cache_pin_docker exec "${CACHE_PIN_FRONTEND}" nginx -t
+cache_pin_docker exec "${CACHE_PIN_FRONTEND}" nginx -s reload
 
 "${PYTHON}" -m cli.meta.cache.pin applied "${sha}"
 echo "[cache-apply] done: ${sha} applied. Recreate this checkout's runner to pick up new DNS hijacks:"

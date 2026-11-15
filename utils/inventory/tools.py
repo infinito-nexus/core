@@ -7,10 +7,8 @@ needs and gets them running, so a check is never skipped merely because
 nothing happened to be up. The host vars those services deploy with are
 rendered by :mod:`utils.inventory.tools_vars`.
 
-Nothing here deploys a cache: the runner extends ``compose.cache-consumer.yml``
-from the outer stack, so its image pulls already traverse ``registry-cache``
-and its package and model downloads resolve to ``package-cache-frontend``
-through that file's ``extra_hosts``.
+Nothing here deploys a cache: the lane runs inside the machine-wide infra
+runner, whose own inventory deploys the caches before any tool role.
 
 The lane pins its own model in the template, rather than taking the
 repository's ``AI_LOCAL_MODELS`` default: the oracle needs a judge that can
@@ -32,12 +30,11 @@ from utils.i18n.libretranslate import (
     deploy,
     deploying,
     environment,
-    lane_container,
 )
-from utils.inventory.tools_vars import LANE_SERVICE, LITELLM_KEY
+from utils.inventory.tools_vars import LITELLM_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
-ADDRESS = Path("inventories") / "development" / "tools.address"
+RUNNER_IP_KEY = "INFINITO_INFRA_RUNNER_IP"
 LIBRETRANSLATE_ROLE = "svc-ai-libretranslate-engine"
 S1_ROLE = "svc-ai-s1"
 LITELLM_ROLE = "svc-ai-litellm"
@@ -47,110 +44,19 @@ LANE_MODEL_ALIAS = "qwen2.5:3b"
 PROBE_TIMEOUT_SECONDS = 10
 
 
-def lane_ip(root: Path) -> str:
-    """Return the runner's address inside the stack's own subnet, or ''.
-
-    Must run on the host: it asks this machine's docker daemon, which the
-    stack's containers cannot reach.
-
-    The runner answers to several addresses, one per network it was ever
-    brought up on, and only the one inside ``INFINITO_SUBNET`` is the network
-    the rest of the stack sits on.
-
-    Args:
-        root: repository root.
-    """
-    import ipaddress
-    import json
-
-    env = environment(root)
-    found = subprocess.run(
-        [
-            "docker",
-            "inspect",
-            lane_container(env),
-            "--format",
-            "{{json .NetworkSettings.Networks}}",
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if found.returncode != 0:
-        return ""
-    try:
-        subnet = ipaddress.ip_network(env["INFINITO_SUBNET"])
-        networks = json.loads(found.stdout)
-    except (KeyError, ValueError):
-        return ""
-    for entry in networks.values():
-        address = (entry or {}).get("IPAddress") or ""
-        if address and ipaddress.ip_address(address) in subnet:
-            return address
-    return ""
-
-
-def lane_address(root: Path) -> str:
-    """Return the address the stack's containers reach the lane on.
-
-    Args:
-        root: repository root.
-    """
-    path = root / ADDRESS
-    if not path.is_file():
-        return LANE_SERVICE
-    return (
-        path.read_text(  # nocheck: cache-read - every lane bring-up rewrites this file and utils.cache.files.read_text is an lru_cache without mtime invalidation
-            encoding="utf-8"
-        ).strip()
-        or LANE_SERVICE
-    )
-
-
 def lane_url(root: Path, role: str, service_key: str) -> str:
-    """Return the URL a container of the compose stack reaches a lane service on.
-
-    The lane runs its services in a docker daemon of its own, inside the
-    runner container. The inventory pins ``DOCKER_BIND_HOST=0.0.0.0`` so
-    their ports are open on the runner's own interface, which the group_vars
-    default would not do (see ``inventories/development/tools.yml.j2``). The
-    host instead reaches only the ports the runner republishes through
-    ``compose/tools.override.yml``.
-
-    The address is the runner's numeric one, written by the bring-up. The
-    stack's containers resolve names through its CoreDNS, which never learns
-    a compose service name, so ``tools`` answered nowhere inside them and
-    every check that asked the lane from there skipped itself instead.
-
-    Args:
+    """Args:
         root: repository root.
         role: application id owning the service.
         service_key: key under ``meta/services.yml``.
 
     Returns:
-        ``http://<lane address>:<local http port>``.
+        ``http://<infra runner address>:<local http port>``, which the host and
+        every container on the infra network reach.
     """
     services = load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)
     port = services[service_key]["ports"]["local"]["http"]
-    return f"http://{lane_address(root)}:{port}"
-
-
-def host_url(root: Path, role: str, service_key: str) -> str:
-    """Return the URL the host reaches a lane service on.
-
-    The runner republishes the lane's ports through
-    ``compose/tools.override.yml``, so a caller on the host uses the bind
-    address rather than the compose service name :func:`lane_url` gives a
-    sibling container.
-
-    Args:
-        root: repository root.
-        role: application id owning the service.
-        service_key: key under ``meta/services.yml``.
-    """
-    services = load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)
-    port = services[service_key]["ports"]["local"]["http"]
-    return f"http://{environment(root)['INFINITO_BIND_IP']}:{port}"
+    return f"http://{environment(root)[RUNNER_IP_KEY]}:{port}"
 
 
 def _answers(url: str, api_key: str = "") -> bytes | None:
@@ -206,7 +112,7 @@ def _litellm_serves_the_named_model(root: Path) -> bool:
     import json
 
     alias = _named_model()
-    body = _answers(f"{host_url(root, LITELLM_ROLE, 'litellm')}/models", LITELLM_KEY)
+    body = _answers(f"{lane_url(root, LITELLM_ROLE, 'litellm')}/models", LITELLM_KEY)
     if body is None or not alias:
         return False
     try:
@@ -242,7 +148,7 @@ def _gateway_covers_the_catalogs(root: Path) -> bool:
         load_languages,
     )
 
-    body = _answers(f"{host_url(root, GATEWAY_ROLE, 'translate')}/languages")
+    body = _answers(f"{lane_url(root, GATEWAY_ROLE, 'translate')}/languages")
     if body is None:
         return False
     try:
@@ -279,7 +185,7 @@ def serving(root: Path, load_only: list[str], roles: tuple[str, ...]) -> bool:
     """
     import json
 
-    if S1_ROLE in roles and _answers(f"{host_url(root, S1_ROLE, 's1')}/health") is None:
+    if S1_ROLE in roles and _answers(f"{lane_url(root, S1_ROLE, 's1')}/health") is None:
         return False
     if LITELLM_ROLE in roles and not _litellm_serves_the_named_model(root):
         return False
@@ -288,7 +194,7 @@ def serving(root: Path, load_only: list[str], roles: tuple[str, ...]) -> bool:
     if LIBRETRANSLATE_ROLE not in roles:
         return True
     body = _answers(
-        f"{host_url(root, LIBRETRANSLATE_ROLE, 'libretranslate-engine')}/languages"
+        f"{lane_url(root, LIBRETRANSLATE_ROLE, 'libretranslate-engine')}/languages"
     )
     if body is None:
         return False
@@ -311,10 +217,6 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
     answers, not a lane that was just rebuilt, so one that already answers
     with everything asked of it is left alone.
 
-    Either way the runner's address is written down, because a container of
-    the stack cannot ask docker for it and the runner takes a new one on
-    every restart.
-
     Args:
         root: repository root.
         roles: application ids to deploy.
@@ -327,7 +229,6 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
         print(
             f"tools lane already serves {', '.join(roles)}; not deploying", flush=True
         )
-        _remember_address(root)
         return
 
     if deploying(root):
@@ -338,14 +239,6 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
         )
     print(f"tools lane deploying {', '.join(roles)}", flush=True)
     deploy(root, roles=roles)
-    _remember_address(root)
-
-
-def _remember_address(root: Path) -> None:
-    """Write the runner's address where a container of the stack reads it."""
-    address = lane_ip(root)
-    if address:
-        (root / ADDRESS).write_text(f"{address}\n", encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:

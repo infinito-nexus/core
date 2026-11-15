@@ -15,6 +15,7 @@ AGENT_ORCHESTRATOR_STATE_DIR: "{{ lookup('volume', application_id, 'state').targ
 AGENT_ORCHESTRATOR_LOCK_DIR: "{{ [AGENT_ORCHESTRATOR_STATE_DIR, 'locks'] | path_join }}"
 AGENT_ORCHESTRATOR_BOARD_URL: "{{ lookup('config', application_id, 'services.agent-orchestrator.board_url') }}"
 AGENT_ORCHESTRATOR_REQUEST_TIMEOUT: "{{ lookup('config', application_id, 'services.agent-orchestrator.request_timeout') }}"
+AGENT_ORCHESTRATOR_LANE_CONTAINER: "{{ lookup('env', 'INFINITO_INFRA_RUNNER_CONTAINER') }}"
 AGENT_ORCHESTRATOR_POLL_INTERVAL: "{{ lookup('config', application_id, 'services.agent-orchestrator.poll_interval') }}"
 AGENT_ORCHESTRATOR_PUBLICLY_REACHABLE: "{{ lookup('config', application_id, 'services.agent-orchestrator.publicly_reachable') }}"
 AGENT_ORCHESTRATOR_RETENTION_DAYS: "{{ lookup('config', application_id, 'services.agent-orchestrator.checkpoint_retention_days') }}"
@@ -57,6 +58,10 @@ AGENT_ORCHESTRATOR_LIBS:
   - utils/cache/files.py
   - utils/cache/gitignore.py
   - utils/cache/yaml.py
+  - utils/design/__init__.py
+  - utils/design/gallery.py
+  - utils/design/proposal.py
+  - utils/design/spec.py
   - utils/roles/__init__.py
   - utils/roles/categories.py
   - utils/roles/custom.py

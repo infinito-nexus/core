@@ -40,6 +40,7 @@ package:
   max_idle_days: 30
   content_max_age_min: 8640
   metadata_max_age_min: 0
+  data_path: ""
   lifecycle: beta
 # nocheck: dynamic-flag  the bootstrap has no group of its own; it runs exactly when the cache it provisions comes up
 bootstrap:
@@ -87,9 +88,13 @@ frontend:
   mem_limit: 256m
   pids_limit: 256
   ports:
+    # nocheck: inventory-open-subtree  the frontend publishes no host port by default; an inventory serving the cache to other hosts lists the protocols to publish
+    local: {}
     internal:
       http: 80
       https: 443
+  ca_path: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'ca'] | path_join }}"
+  certs_path: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'certs'] | path_join }}"
   lifecycle: beta
   security:
     suppressions:

@@ -9,8 +9,20 @@ data:
   mounts:
     - service: package
       target: &nexus_data /nexus-data
+      when: &named_data "{{ lookup('config', 'svc-cache-package', 'services.package.data_path') | length == 0 }}"
     - service: bootstrap
       target: *nexus_data
+      when: *named_data
+data_host:
+  type: bind
+  source: "{{ lookup('config', 'svc-cache-package', 'services.package.data_path') }}"
+  mounts:
+    - service: package
+      target: *nexus_data
+      when: &host_data "{{ lookup('config', 'svc-cache-package', 'services.package.data_path') | length > 0 }}"
+    - service: bootstrap
+      target: *nexus_data
+      when: *host_data
 bootstrap_script:
   type: config
   source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'bootstrap.sh'] | path_join }}"
@@ -20,14 +32,14 @@ bootstrap_script:
       target: /etc/infinito/bootstrap.sh
 frontend_ca:
   type: bind
-  source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'ca'] | path_join }}"
+  source: "{{ lookup('config', 'svc-cache-package', 'services.frontend.ca_path') }}"
   read_only: true
   mounts:
     - service: frontend
       target: /etc/nginx/ca
 frontend_certs:
   type: bind
-  source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'certs'] | path_join }}"
+  source: "{{ lookup('config', 'svc-cache-package', 'services.frontend.certs_path') }}"
   read_only: true
   mounts:
     - service: frontend

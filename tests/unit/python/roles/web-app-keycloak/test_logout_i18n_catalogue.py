@@ -57,7 +57,11 @@ def _keys_read() -> set[str]:
 class TestLogoutCatalogue(unittest.TestCase):
     def setUp(self) -> None:
         self.catalogue = keyed_catalogue(
-            PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)
+            PROJECT_ROOT,
+            logout_context,
+            load_yaml(CATALOGUE_FILE),
+            PROJECT_ROOT,
+            "core",
         )
         self.template = read_text(str(TEMPLATE))
 
@@ -154,7 +158,11 @@ class TestLogoutChoicesAreTranslated(unittest.TestCase):
 class TestLogoutCatalogueIsTranslated(unittest.TestCase):
     def setUp(self) -> None:
         self.catalogue = keyed_catalogue(
-            PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)
+            PROJECT_ROOT,
+            logout_context,
+            load_yaml(CATALOGUE_FILE),
+            PROJECT_ROOT,
+            "core",
         )
 
     def test_translations_are_not_copies_of_english(self) -> None:

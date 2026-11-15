@@ -41,9 +41,13 @@ infinito_test_runner_roots() {
 	done
 }
 
+infinito_test_runner_network() {
+	(cd "${_infinito_test_runner_repo}" && "${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra attach)
+}
+
 infinito_test_runner_up() {
-	local image="$1" name="$2" root roots="" lockfd
-	local -a mounts=()
+	local image="$1" name="$2" root roots="" lockfd network
+	local -a mounts=() networks=()
 	exec {lockfd}>"/tmp/${name}.lock"
 	flock "${lockfd}"
 	case "$(docker inspect --format '{{.State.Running}}' "${name}" 2>/dev/null)" in
@@ -56,6 +60,10 @@ infinito_test_runner_up() {
 			mounts+=(-v "${root}:${root}")
 			roots="${roots:+${roots}:}${root}"
 		done < <(infinito_test_runner_roots)
+		network="$(infinito_test_runner_network)"
+		if [[ -n "${network}" ]]; then
+			networks=(--network "${network}")
+		fi
 		echo ">>> Starting the shared test runner ${name} from ${image}" >&2
 		docker run -d --name "${name}" --privileged --cgroupns=host --no-healthcheck \
 			--tmpfs /run --tmpfs /run/lock \
@@ -63,7 +71,7 @@ infinito_test_runner_up() {
 			-v "${INFINITO_DOCKER_MOUNT:?source scripts/meta/env/load.sh}" \
 			-e INFINITO_DOTENV_HOST_OWNED=true \
 			--label "${_infinito_test_runner_roots_label}=${roots}" \
-			"${mounts[@]}" "${image}" /sbin/init >/dev/null
+			"${networks[@]}" "${mounts[@]}" "${image}" /sbin/init >/dev/null
 		if ! docker exec "${name}" timeout "${INFINITO_WAIT_HEALTH_TIMEOUT_S:?source scripts/meta/env/load.sh}" \
 			systemctl is-system-running --wait >/dev/null 2>&1; then
 			echo ">>> ${name}: systemd booted degraded or not within INFINITO_WAIT_HEALTH_TIMEOUT_S" >&2

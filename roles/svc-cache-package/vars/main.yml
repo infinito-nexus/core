@@ -8,8 +8,9 @@ CACHE_PACKAGE_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services
 CACHE_PACKAGE_PORT: "{{ lookup('config', application_id, 'services.package.ports.internal.http') }}"
 
 CACHE_PACKAGE_FRONTEND_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'upstreams.conf'] | path_join }}"
-CACHE_PACKAGE_CA_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'ca'] | path_join }}"
-CACHE_PACKAGE_CERTS_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'certs'] | path_join }}"
+CACHE_PACKAGE_CA_DIR_HOST: "{{ lookup('config', application_id, 'services.frontend.ca_path') }}"
+CACHE_PACKAGE_CERTS_DIR_HOST: "{{ lookup('config', application_id, 'services.frontend.certs_path') }}"
+CACHE_PACKAGE_FRONTEND_PORTS: "{{ ['frontend'] | product(lookup('config', application_id, 'services.frontend.ports.local')) | list }}"
 CACHE_PACKAGE_SHELL_DIR: "{{ [role_path, 'files', 'shell'] | path_join }}"
 CACHE_PACKAGE_BOOTSTRAP_SCRIPT_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'bootstrap.sh'] | path_join }}"
 CACHE_PACKAGE_BOOTSTRAP_SCRIPT_TARGET: "{{ lookup('volume', application_id, 'bootstrap_script').target }}"

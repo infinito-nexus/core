@@ -7,8 +7,9 @@ the runner, its volumes and an image rebuild, and every node keeps its own
 copy instead of dragging gigabytes across a shared filesystem.
 
 The lane's inner docker resolves a bind against the runner's filesystem, so
-``compose/tools.override.yml`` mounts this path into the runner under the same
-name and ``inventories/development/tools.yml.j2`` points the roles at it.
+the path stays below the cache base ``compose/infra.yml`` mounts into the infra
+runner under the same name, and ``inventories/development/tools.yml.j2``
+points the roles at it.
 """
 
 from __future__ import annotations

@@ -3,11 +3,36 @@ application_id: svc-registry-cache
 entity_name: "{{ application_id | entity_name }}"
 
 REGISTRY_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
+REGISTRY_CACHE_DATA_TARGET: "{{ lookup('volume', application_id, 'data').target }}"
 REGISTRY_CACHE_PROXY_REMOTE_URL: "{{ lookup('config', application_id, 'services.cache.proxy.remote_url') }}"
 REGISTRY_CACHE_PROXY_TTL: "{{ (lookup('config', application_id, 'services.cache.max_idle_days') | int) * 24 }}h"
+REGISTRY_CACHE_FLAVOR: "{{ lookup('config', application_id, 'services.cache.flavor') }}"
 
-REGISTRY_CACHE_VENDORS: "{{ lookup('registry_vendors').registries }}"
-REGISTRY_CACHE_VENDOR_SERVICES: "{{ dict(REGISTRY_CACHE_VENDORS | zip(REGISTRY_CACHE_VENDORS | map('regex_replace', '[^a-z0-9]+', '-') | map('regex_replace', '^', 'vendor-'))) }}"
+REGISTRY_CACHE_MULTI_PROXY_IMAGE: "{{ lookup('config', application_id, 'services.cache.multi_proxy.image') }}"
+REGISTRY_CACHE_MULTI_PROXY_VERSION: "{{ lookup('config', application_id, 'services.cache.multi_proxy.version') }}"
+REGISTRY_CACHE_MULTI_PROXY_REGISTRIES: "{{ lookup('config', application_id, 'services.cache.multi_proxy.registries') }}"
+REGISTRY_CACHE_MULTI_PROXY_MAX_SIZE: "{{ lookup('config', application_id, 'services.cache.multi_proxy.max_size') }}"
+REGISTRY_CACHE_MULTI_PROXY_AUTH: "{{ lookup('config', application_id, 'services.cache.multi_proxy.auth') }}"
+REGISTRY_CACHE_MULTI_PROXY_IDLE_DAYS: "{{ lookup('config', application_id, 'services.cache.max_idle_days') }}"
+REGISTRY_CACHE_MULTI_PROXY_ENTRYPOINT: "{{ lookup('volume', application_id, 'multi_proxy_entrypoint').target }}"
+REGISTRY_CACHE_MULTI_PROXY_DIRS:
+  - "{{ lookup('volume', application_id, 'multi_proxy_entrypoint').source | dirname }}"
+  - "{{ lookup('volume', application_id, 'multi_proxy_mirror').source }}"
+  - "{{ lookup('volume', application_id, 'multi_proxy_ca').source }}"
+REGISTRY_CACHE_MULTI_PROXY_FILES:
+  - src: shell/entrypoint.sh
+    dest: "{{ lookup('volume', application_id, 'multi_proxy_entrypoint').source }}"
+    mode: "0755"
+  - src: nginx.manifest.stale.conf
+    dest: "{{ lookup('volume', application_id, 'multi_proxy_stale').source }}"
+    mode: "0644"
+
+REGISTRY_CACHE_VENDORS: "{{ lookup('registry_vendors').registries if REGISTRY_CACHE_FLAVOR == 'registry' else [] }}"
+REGISTRY_CACHE_VENDOR_SERVICES: "{{ dict(REGISTRY_CACHE_VENDORS | zip(REGISTRY_CACHE_VENDORS | map('regex_replace', '[^a-z0-9]+', '-') | map('regex_replace', '^',
+  'vendor-'))) }}"
+REGISTRY_CACHE_ENV_DIR: "{{ lookup('container', application_id, 'directories.env') }}"
+REGISTRY_CACHE_VENDOR_ENV_FILES: "{{ dict(REGISTRY_CACHE_VENDOR_SERVICES.values() | zip(REGISTRY_CACHE_VENDOR_SERVICES.values() | map('regex_replace', '^', REGISTRY_CACHE_ENV_DIR)
+  | map('regex_replace', '$', '.env'))) }}"
 REGISTRY_CACHE_VENDOR_PORT: "{{ lookup('config', application_id, 'services.vendor.ports.internal.registry') }}"
 REGISTRY_CACHE_FRONT_CONTAINER: "{{ lookup('config', application_id, 'services.front.name') }}"
 REGISTRY_CACHE_FRONT_HOST: "{{ lookup('subnet_gateway') }}"

@@ -14,18 +14,19 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from utils.cache.yaml import load_yaml
 from utils.i18n.libretranslate import (
     DEPLOYED_TIMEOUT_SECONDS,
     deploy,
     deploying,
     environment,
     probe,
+    service_url,
     unaccelerated,
 )
 from utils.i18n.libretranslate import READY_TIMEOUT_SECONDS as READY_TIMEOUT_SECONDS
 from utils.i18n.libretranslate import LibreTranslate as LibreTranslate
 from utils.i18n.libretranslate import download_status as download_status
+from utils.inventory.tools_idle import session, stamp_dir
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
@@ -46,19 +47,17 @@ BUNDLE = (
 )
 
 
-def service_url(root: Path) -> str:
-    """Return the base URL the gateway serves on.
+def deployed(root: Path) -> str:
+    """Return the URL of the deployed gateway, empty when it cannot serve.
 
     Args:
         root: repository root.
     """
-    service = load_yaml(root / SERVICES_FILE)[SERVICE_KEY]
-    host = environment(root)["INFINITO_BIND_IP"]
-    return f"http://{host}:{service['ports']['local']['http']}"
+    return serving(service_url(root))
 
 
-def deployed(root: Path) -> str:
-    """Return the URL of the deployed gateway, empty when it cannot serve.
+def serving(url: str) -> str:
+    """Return ``url`` when a gateway there names a language, empty otherwise.
 
     A gateway answering ``/languages`` with an empty catalogue counts as
     absent. It is a router: without a backend that names a language it can
@@ -66,9 +65,8 @@ def deployed(root: Path) -> str:
     would give it one, which is how a stale container survives a code change.
 
     Args:
-        root: repository root.
+        url: base URL of a gateway.
     """
-    url = service_url(root)
     if not probe(url):
         return ""
     try:
@@ -81,7 +79,7 @@ def deployed(root: Path) -> str:
 
 
 @contextmanager
-def server(root: Path, *, redeploy: bool = False) -> Iterator[str]:
+def server(root: Path, *, redeploy: bool = False, shared: str = "") -> Iterator[str]:
     """Yield the gateway's URL, deploying the whole bundle when it is absent.
 
     Args:
@@ -90,21 +88,37 @@ def server(root: Path, *, redeploy: bool = False) -> Iterator[str]:
             asks whether a gateway answers, which cannot see that the bundle
             or the gateway's own code changed since it started, so an
             iteration on either reaches a container that keeps the old one.
+        shared: base URL of the shared gateway; empty for this checkout's
+            own. It is used as it is and never deployed from here.
 
     Yields:
-        The base URL to translate against.
+        The base URL to translate against, while the run is stamped in the
+        machine-wide tools stamp directory.
 
     Raises:
         RuntimeError: a deploy is already running, and translating would race
-            it for the same container stack.
+            it for the same container stack; or ``shared`` names no language,
+            or is combined with ``redeploy``.
     """
+    if shared:
+        if redeploy:
+            raise RuntimeError(
+                "redeploy deploys this checkout's own gateway; redeploy the "
+                f"shared one at {shared} from the checkout that runs it."
+            )
+        if not serving(shared):
+            raise RuntimeError(f"No gateway at {shared} names a language.")
+        with session(stamp_dir(environment(root))):
+            yield shared
+        return
     if deploying(root):
         raise RuntimeError(
             "A deploy is running; it shares the container stack this translation "
             "would touch. Wait for it to finish and re-run. The running deploy is "
             "left untouched."
         )
-    running = "" if redeploy or unaccelerated(root) else deployed(root)
-    if not running:
-        deploy(root, roles=BUNDLE)
-    yield running or service_url(root)
+    with session(stamp_dir(environment(root))):
+        running = "" if redeploy or unaccelerated(root) else deployed(root)
+        if not running:
+            deploy(root, roles=BUNDLE)
+        yield running or service_url(root)

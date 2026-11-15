@@ -3,8 +3,10 @@
 # Param: $1 the image's own entrypoint script, run with the idle window of CACHE_MAX_IDLE_DAYS in its proxy_cache_path line
 set -euo pipefail
 
-: "${CACHE_MAX_SIZE:?Set by compose/cache.override.yml from INFINITO_CACHE_REGISTRY_MAX_SIZE}"
-: "${CACHE_MAX_IDLE_DAYS:?Set by compose/cache.override.yml from INFINITO_CACHE_MAX_IDLE_DAYS}"
+: "${CACHE_MAX_SIZE:?Set by the svc-registry-cache env from services.cache.multi_proxy.max_size}"
+: "${CACHE_MAX_IDLE_DAYS:?Set by the svc-registry-cache env from services.cache.max_idle_days}"
+: "${REGISTRIES?Set by the svc-registry-cache env from services.cache.multi_proxy.registries}"
+export REGISTRIES="${REGISTRIES//,/ }"
 
 original="${1:?Pass the image entrypoint to wrap}"
 shift

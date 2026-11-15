@@ -1,10 +1,10 @@
-"""Lint: every privileged systemd container of the DiD, swarm and tools stacks
+"""Lint: every privileged systemd container of the DiD, swarm and infra stacks
 masks systemd-sysctl.service.
 
 A privileged container mounts /proc/sys read-write, so the systemd-sysctl it
 boots applies the image's vendor sysctl.d files to the host kernel, among them
 Debian's `kernel.core_pattern=core`. The infinito image masks the unit in the
-root Dockerfile, the swarm node and the tools runner inherit it from that
+root Dockerfile, the swarm node and the infra runner inherit it from that
 image, and the target image masks it in its init script."""
 
 import re
@@ -20,12 +20,12 @@ INHERITORS = {
     "compose/swarm/Dockerfile": re.compile(
         r"^FROM \$\{INFINITO_IMAGE\}\s*$", re.MULTILINE
     ),
-    "compose/tools.override.yml": re.compile(r"image: \"\$\{INFINITO_IMAGE[:?}]"),
+    "compose/infra.yml": re.compile(r"image: \"\$\{INFINITO_IMAGE[:?}]"),
 }
 COMPOSE_FILES = (
     "compose.yml",
     "compose/swarm/compose.yml",
-    "compose/tools.override.yml",
+    "compose/infra.yml",
 )
 MASKED_BUILD_CONTEXTS = {".", "compose/target"}
 

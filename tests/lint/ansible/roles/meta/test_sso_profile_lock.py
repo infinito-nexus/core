@@ -586,7 +586,13 @@ def marker_errors(
 def _translated_languages() -> frozenset[str]:
     source = load_yaml(PROJECT_ROOT / CATALOGUE_SOURCE)
     return frozenset(
-        keyed_catalogue(PROJECT_ROOT, lambda key: f"{CATALOGUE_CONTEXT}:{key}", source)
+        keyed_catalogue(
+            PROJECT_ROOT,
+            lambda key: f"{CATALOGUE_CONTEXT}:{key}",
+            source,
+            PROJECT_ROOT,
+            "core",
+        )
     )
 
 

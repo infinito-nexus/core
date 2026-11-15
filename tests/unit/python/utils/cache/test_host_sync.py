@@ -26,7 +26,7 @@ from utils.cache.host_sync import (
 from utils.cache.hosts import CachedHost, CachedRepo, Declarations, declarations
 from utils.cache.render import render_artifacts
 from utils.env.context import BuildContext, EnvBuilder
-from utils.env.handlers.infinito.cache import host_sync as handler
+from utils.env.handlers.infinito.cache.host import sync as handler
 from utils.env.parser import parse_static_env_with_comments
 
 from . import PROJECT_ROOT
@@ -311,7 +311,7 @@ def _host(root: Path, os_id: str, files: dict[Path, str]) -> None:
 def _snapshot(root: Path) -> dict[str, bytes]:
     return {
         str(p.relative_to(root)): p.read_bytes()  # nocheck: cache-read tempdir files
-        for p in sorted(root.rglob("*"))
+        for p in sorted(root.rglob("*"))  # nocheck: project-walk tempdir host
         if p.is_file()
     }
 

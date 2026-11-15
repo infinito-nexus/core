@@ -64,14 +64,14 @@ Allowing swap masks OOM conditions that the real runner would hit.
 
 For activation, coverage, and operations of the `registry-cache`, `package-cache`, and `package-cache-frontend` services, see [cache.md](../../environment/cache.md).
 
-The env-var contracts each service expects strictly via `${VAR:?…}` (consumed in [compose.yml](../../../../compose.yml) and [compose/cache.override.yml](../../../../compose/cache.override.yml)):
+The env-var contracts each service expects strictly via `${VAR:?…}` (consumed in [compose.yml](../../../../compose.yml) and [compose/infra.yml](../../../../compose/infra.yml)):
 
 | Variable | Purpose |
 |---|---|
 | `INFINITO_CACHE_REGISTRY_HOST_PATH` | Host path bind-mounted into `registry-cache` for blob/manifest persistence. |
 | `INFINITO_CACHE_REGISTRY_CA_HOST_PATH` | Host path holding the proxy MITM CA bundle. Mounted writable into `registry-cache`, read-only into `infinito`. |
 | `INFINITO_CACHE_REGISTRY_MAX_SIZE` | `max_size` of the mirror's nginx cache, fixed `40g` in [default.env](../../../../default.env). |
-| `INFINITO_CACHE_MAX_IDLE_DAYS` | `inactive` window of the mirror's nginx cache in days, fixed `30`; [entrypoint.sh](../../../../compose/registry-cache/entrypoint.sh) writes it into the image's `proxy_cache_path` line. |
+| `INFINITO_CACHE_MAX_IDLE_DAYS` | `inactive` window of the mirror's nginx cache in days, fixed `30`; [entrypoint.sh](../../../../roles/svc-registry-cache/files/shell/entrypoint.sh) writes it into the image's `proxy_cache_path` line. |
 | `INFINITO_CACHE_REGISTRY_AUTH` | `AUTH_REGISTRIES` of `registry-cache`. Consumed bare, because empty is valid and pulls anonymously; `auth.docker.io:<user>:<token>` pulls with that Docker Hub account. Set it in `custom.env` as described in [cache.md](../../environment/cache.md). |
 | `INFINITO_CACHE_REGISTRY_PROXY_CONF` | Bind source for the systemd drop-in inside `infinito`. Set by the dev tooling to the real `proxy.conf` under the `cache` profile. Driver-injected; not produced by `make dotenv`. |
 | `INFINITO_CACHE_PACKAGE_HOST_PATH` | Host path bind-mounted at `/nexus-data`. |

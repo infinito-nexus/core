@@ -275,6 +275,24 @@ def core_messages(root: Path) -> list[tuple[str, str]]:
     ]
 
 
+def keyed_messages(root: Path, domain: str) -> list[tuple[str, str]]:
+    """Return the messages of a domain that lives outside core.
+
+    Args:
+        root: directory holding ``locale/``, e.g. a custom role.
+        domain: gettext domain; ``locale/<domain>.yml`` maps each key to its
+            English text.
+
+    Returns:
+        ``(msgctxt, msgid)`` pairs in source order, ``msgctxt`` being
+        ``<domain>:<key>``.
+    """
+    return [
+        (f"{domain}:{key}", _text(text))
+        for key, text in _load(root / LOCALE_DIR / f"{domain}.yml").items()
+    ]
+
+
 def _extraction_sources(root: Path) -> list[str]:
     listing = subprocess.run(
         [

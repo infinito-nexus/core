@@ -20,7 +20,7 @@ from utils.cache.apt_sources import (
     strip_sources,
 )
 from utils.cache.hosts import declarations
-from utils.env.handlers.infinito.cache.host_pacman_path import ARCH_HOST_ID, host_id
+from utils.env.handlers.infinito.cache.host.pacman_path import ARCH_HOST_ID, host_id
 from utils.paths import read_group_path
 
 if TYPE_CHECKING:

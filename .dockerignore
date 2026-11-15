@@ -52,7 +52,7 @@ compose/package-cache/npmrc
 compose/package-cache/apt/*.list
 
 inventories/development/tools.rendered.yml
-inventories/development/tools.address
+inventories/development/infra.rendered.yml
 
 # Host shell / editor / tooling state accidentally surfaced inside this working copy
 .ansible

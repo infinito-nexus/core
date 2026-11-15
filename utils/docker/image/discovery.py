@@ -293,7 +293,7 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
 
 
 RUNNER_ROLE = "runner"
-RUNNER_COMPOSE_FILES = ("compose.yml", "compose/cache.override.yml")
+RUNNER_COMPOSE_FILES = ("compose.yml", "compose/infra.yml")
 RUNNER_ENV_IMAGES = ("INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE",)
 
 

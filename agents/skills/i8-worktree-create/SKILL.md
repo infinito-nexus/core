@@ -10,8 +10,11 @@ routines: []
 
 Follow the instructions from AGENTS.md, then run
 `make worktree-up branch=<branch>` (the default action of this skill). The
-worktree lands under `~/.local/share/worktrees/<domain>/<account>/<repo>/<branch>`
-and joins the primary checkout's cache stack instead of starting its own.
+worktree lands under `~/.local/share/worktrees/<domain>/<account>/<repo>/<branch>`.
+It gets no cache network and no cache address: every checkout reaches the
+caches and the tools of the machine-wide infra runner by name on the network
+`infinito-infra`. A worktree outside `INFINITO_WORKTREE_ROOTS` is invisible to
+the infra runner and the shared test runner.
 
 The branch MUST exist and MUST NOT be checked out anywhere else; resolve a
 collision with `make worktree-prune` or `make worktree-down` first. Pass
@@ -19,7 +22,9 @@ collision with `make worktree-prune` or `make worktree-down` first. Pass
 then repeat that same `base=` in every later `make worktree-down` call.
 
 Report the slot, path, subnet, bind IP and container name from the target's
-summary, and hand the operator the `cd <path>` plus `make compose-up` follow-up.
+summary, and hand the operator the `cd <path>` follow-up. Tests and lints need
+no stack, because they run in the shared test runner; name `make compose-up`
+only when the worktree is meant to deploy.
 
 Begin by clarifying every open requirement with the `active-listening` skill,
 then work under the `robot` skill. The task is finished only when the worktree

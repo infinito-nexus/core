@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from babel.messages.catalog import Catalog
 from babel.messages.pofile import read_po, write_po
 
+from utils.i18n.languages import DOMAINS
 from utils.i18n.placeholders import carries_placeholder
 from utils.i18n.untranslatable import untranslatable
 from utils.software import (
@@ -40,6 +41,13 @@ HEADER = f"""\
 # Translations template for PROJECT.
 # Copyright (C) YEAR ORGANIZATION
 # This file is distributed under the {SOFTWARE_LICENSE}.
+# {CONTACT}, YEAR.
+# {SOFTWARE_URL}
+#"""
+OUTSIDE_HEADER = f"""\
+# Translations template for PROJECT.
+# Copyright (C) YEAR ORGANIZATION
+# This file is distributed under the licence of the repository that holds it.
 # {CONTACT}, YEAR.
 # {SOFTWARE_URL}
 #"""
@@ -171,10 +179,10 @@ def read_catalog(path: Path) -> Catalog:
     """Return the catalog stored at ``path``.
 
     Args:
-        path: ``.po`` or ``.pot`` file.
+        path: ``.po`` or ``.pot`` file named after its domain.
     """
     with path.open("rb") as handle:
-        return read_po(handle)
+        return read_po(handle, domain=path.stem)
 
 
 def merge(template: Catalog, existing: Catalog | None, code: str) -> Catalog:
@@ -208,7 +216,7 @@ def render(catalog: Catalog) -> bytes:
     catalog.creation_date = STAMP
     catalog.revision_date = STAMP
     catalog.fuzzy = False
-    catalog.header_comment = HEADER
+    catalog.header_comment = HEADER if catalog.domain in DOMAINS else OUTSIDE_HEADER
     catalog.copyright_holder = SOFTWARE_AUTHOR
     catalog.msgid_bugs_address = SOFTWARE_CONTACT
     catalog.last_translator = CONTACT

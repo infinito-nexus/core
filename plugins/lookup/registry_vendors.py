@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 CACHE_ROLE = "svc-registry-cache"
 SUBNET_PATH = "networks.local.subnet"
 FRONT_PORT_PATH = "services.front.ports.local.registry"
+FLAVOR_PATH = "services.cache.flavor"
+FRONTED_FLAVOR = "registry"
 MODE_KEYS = ("DEPLOYMENT_MODE", "compose_mode_force")
 
 
@@ -94,7 +96,8 @@ class LookupModule(LookupBase):
         Returns:
             One routed reference per term, or ``[{"front": "<gateway>:<port>",
             "registries": [...]}]`` without terms. A host outside the
-            ``svc-registry-cache`` group, a swarm deploy, or a repository
+            ``svc-registry-cache`` group, a swarm deploy, a cache whose
+            ``services.cache.flavor`` is not ``registry``, or a repository
             whose role images name no vendor registry routes nothing.
         """
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
@@ -116,6 +119,9 @@ class LookupModule(LookupBase):
         if not registries:
             return unrouted()
         config = lookup_loader.get("config", loader=self._loader, templar=templar)
+        flavor = config.run([CACHE_ROLE, FLAVOR_PATH], variables=variables)[0]
+        if str(flavor).strip() != FRONTED_FLAVOR:
+            return unrouted()
         subnet = config.run([CACHE_ROLE, SUBNET_PATH], variables=variables)[0]
         port = config.run([CACHE_ROLE, FRONT_PORT_PATH], variables=variables)[0]
         try:

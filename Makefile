@@ -166,7 +166,7 @@ cache-evict:
 .PHONY: cache-host-sync
 # Under sudo, point the host's pacman or apt at the cache stack's caches while INFINITO_CACHE_HOST_SYNC is true, and restore every host file it changed once it is false.
 cache-host-sync:
-	@sudo env PYTHONDONTWRITEBYTECODE=1 "$${PYTHON}" -m cli.meta.cache.host_sync --sync "$${INFINITO_CACHE_HOST_SYNC}" --shared "$${INFINITO_CACHE_SHARED_HOST_PATH}" --nexus "http://$${INFINITO_BIND_IP}:$${INFINITO_CACHE_PACKAGE_PORT}" --ubuntu-mirrors "$${INFINITO_APT_UBUNTU_MIRRORS}"
+	@sudo env PYTHONDONTWRITEBYTECODE=1 "$${PYTHON}" -m cli.meta.cache.host_sync --sync "$${INFINITO_CACHE_HOST_SYNC}" --shared "$${INFINITO_CACHE_SHARED_HOST_PATH}" --nexus "http://$${INFINITO_CACHE_PACKAGE_REST_HOST}:$${INFINITO_CACHE_PACKAGE_PORT}" --ubuntu-mirrors "$${INFINITO_APT_UBUNTU_MIRRORS}"
 
 .PHONY: cache-status
 # Print one JSON object per cache with its path, used bytes, cap, headroom and access-time fallback; the cache pin (pinned and applied commit) goes to stderr.
@@ -499,9 +499,10 @@ help:
 
 .PHONY: i18n-extract
 # Merge the translatable strings of core and the documentation into the gettext catalogs under locale/.
-# Param domain: core | docs (empty: both)
+# Param domain: core | docs (empty: both); with root: the domain whose root/locale/<domain>.yml holds the English source
+# Param root: directory holding the locale/ of a custom role or repository outside core (empty: core)
 i18n-extract:
-	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)")
+	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)") $(if $(root),--root "$(root)")
 
 .PHONY: i18n-load
 # Report the host load so the translator's crons can decide whether to start the translation lane, without touching Docker directly.
@@ -509,9 +510,9 @@ i18n-load:
 	@bash scripts/i18n/load.sh
 
 .PHONY: i18n-pause
-# Pause the translation (tools) lane container so a gate can hold the machine lock without the lane sending requests; the lane keeps its models and connections.
+# Pause the tools services inside the infra runner so a gate can hold the machine lock without them sending requests; the caches keep answering and the tools keep their models and connections.
 i18n-pause:
-	@bash scripts/i18n/pause.sh
+	@"$${PYTHON}" -m cli.administration.infra tools-pause
 
 .PHONY: i18n-prune
 # Empty the translations that altered a protected span so the next i18n-translate redoes them.
@@ -521,9 +522,9 @@ i18n-prune:
 	@"$${PYTHON}" -m cli.build.i18n prune $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
 
 .PHONY: i18n-resume
-# Resume the translation (tools) lane container that make i18n-pause paused, with its loaded models and connections intact.
+# Resume the tools services inside the infra runner that make i18n-pause paused, with their loaded models and connections intact.
 i18n-resume:
-	@bash scripts/i18n/resume.sh
+	@"$${PYTHON}" -m cli.administration.infra tools-resume
 
 .PHONY: i18n-retry
 # Offer the entries a previous run recorded as refused again, after the masking or the damage predicate changed.
@@ -534,17 +535,40 @@ i18n-retry:
 
 .PHONY: i18n-translate
 # Machine-translate the empty and fuzzy entries of the gettext catalogs through the translation gateway, deploying its bundle when it does not answer.
-# Param domain: core | docs (empty: both)
+# Param domain: core | docs (empty: both); with root: the domain of the catalogs under root/locale/
+# Param root: directory holding the locale/ of a custom role or repository outside core (empty: core)
 # Param languages: comma-separated ISO 639-1 codes (empty: every language the gateway serves)
 # Param redeploy: true — deploy the bundle even when a gateway already answers (after changing its code or its backends)
+# Param gateway: base URL of the shared translation gateway, used as it is and never deployed from here (empty: this checkout's own, deployed when absent)
 i18n-translate:
-	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)") $(if $(filter true,$(redeploy)),--redeploy)
+	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(root),--root "$(root)") $(if $(languages),--languages "$(languages)") $(if $(filter true,$(redeploy)),--redeploy) $(if $(gateway),--gateway "$(gateway)")
 
 .PHONY: i18n-tune
 # Measure the fastest LibreTranslate client settings on this host and record them for `make dotenv`.
 # Param language: ISO 639-1 code the sweep translates into (default: de)
 i18n-tune:
 	@"$${PYTHON}" -m cli.build.i18n tune $(if $(language),--language "$(language)")
+
+.PHONY: infra-down
+# Stop the machine-wide infra runner; its volumes and every cache byte stay.
+infra-down:
+	@"$${PYTHON}" -m cli.administration.infra down
+
+.PHONY: infra-status
+# Print the infra runner's state, address, the gateway URL the i18n targets take as gateway= and, per tools project, whether docker compose -p reaches it inside the runner.
+infra-status:
+	@"$${PYTHON}" -m cli.administration.infra status
+
+.PHONY: infra-up
+# Start the machine-wide infra runner on INFINITO_INFRA_SUBNET once; refuses before anything starts when the caps leave less than INFINITO_CACHE_DISK_FLOOR free.
+# Param takeover: true stops a running legacy cache stack inside the machine lock right before the runner starts, instead of refusing
+infra-up:
+	@"$${PYTHON}" -m cli.administration.infra $(if $(filter true,$(takeover)),--takeover) up
+
+.PHONY: infra-update
+# Apply changed infra inputs (worktree roots, image, caps) to the running infra runner.
+infra-update:
+	@"$${PYTHON}" -m cli.administration.infra update
 
 .PHONY: install
 # Install all runtime dependencies.
@@ -1170,10 +1194,10 @@ test-merge-signed:
 # Run the suite whose verdict comes from a model (not part of the `test` fan-out).
 # Note: brings the tools lane up first, because the checks run inside the stack's container and cannot deploy the model they ask.
 test-oracle: install
-	@"$${PYTHON}" -m utils.inventory.tools
+	@"$${PYTHON}" -m utils.inventory.tools_idle run -- "$${PYTHON}" -m utils.inventory.tools
 	@INFINITO_TEST_TYPE="oracle" \
 	INFINITO_COMPILE=0 \
-	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
+	"$${PYTHON}" -m utils.inventory.tools_idle run -- bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
 
 .PHONY: test-performance
 # Run the runtime-performance suite (not part of the `test` fan-out).

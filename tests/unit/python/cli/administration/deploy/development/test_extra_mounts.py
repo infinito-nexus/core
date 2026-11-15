@@ -39,7 +39,9 @@ class TestParseMounts(unittest.TestCase):
 class TestWriteMountsOverride(unittest.TestCase):
     def test_each_directory_is_bound_read_only_at_its_own_path(self) -> None:
         with tempfile.TemporaryDirectory() as repo:
-            relative = write_mounts_override(Path(repo), [Path("/srv/gui")])
+            relative = write_mounts_override(
+                Path(repo), [Path("/srv/gui")], service="infinito", override=OVERRIDE
+            )
             override = load_yaml(Path(repo) / relative)
         self.assertEqual(relative, OVERRIDE)
         self.assertEqual(
@@ -58,6 +60,22 @@ class TestWriteMountsOverride(unittest.TestCase):
                     }
                 }
             },
+        )
+
+    def test_the_infra_runner_gets_only_its_own_override(self) -> None:
+        with tempfile.TemporaryDirectory() as repo:
+            relative = write_mounts_override(
+                Path(repo),
+                [Path("/srv/a"), Path("/srv/b")],
+                service="runner",
+                override="build/compose/infra-roots.override.yml",
+            )
+            override = load_yaml(Path(repo) / relative)
+            self.assertFalse((Path(repo) / OVERRIDE).exists())
+        self.assertEqual(list(override["services"]), ["runner"])
+        self.assertEqual(
+            [volume["target"] for volume in override["services"]["runner"]["volumes"]],
+            ["/srv/a", "/srv/b"],
         )
 
 

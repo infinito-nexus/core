@@ -12,11 +12,16 @@ _cache_retry_stale_pattern='Release file .*is expired|Valid-Until.*expired'
 
 _CACHE_RETRY_FALLBACK_REPOS=(apt-debian apt-debian-security apt-ubuntu apt-ubuntu-security)
 
+_cache_retry_nexus() {
+	"${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra docker exec \
+		"$("${PYTHON}" -m cli.administration.infra cache-name package)" "$@"
+}
+
 _cache_retry_nexus_invalidate() {
 	local repo="$1"
 	local rest="http://127.0.0.1:8081/service/rest/v1/repositories/${repo}/invalidate-cache"
 	local code
-	code="$(docker exec infinito-package-cache curl -sS -o /dev/null -w '%{http_code}' \
+	code="$(_cache_retry_nexus curl -sS -o /dev/null -w '%{http_code}' \
 		-u "admin:${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" \
 		-X POST "${rest}" 2>/dev/null || echo 000)"
 	if [[ "${code}" =~ ^2[0-9][0-9]$ ]]; then
@@ -28,7 +33,7 @@ _cache_retry_nexus_invalidate() {
 
 _cache_retry_list_apt_proxy_repos() {
 	local json
-	json="$(docker exec infinito-package-cache curl -sS \
+	json="$(_cache_retry_nexus curl -sS \
 		-u "admin:${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" \
 		"http://127.0.0.1:8081/service/rest/v1/repositories" 2>/dev/null)" || return 1
 	[[ -z "${json}" ]] && return 1

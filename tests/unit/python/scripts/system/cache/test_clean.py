@@ -19,9 +19,20 @@ KEYS = (
     SHARED,
 )
 STUB = "#!/usr/bin/env bash\nexit 0\n"
+RAW_DOCKER_STUB = '#!/usr/bin/env bash\nprintf "raw-docker %s\\n" "$*" >>"$STUB_LOG"\n'
+PYTHON_STUB = """#!/usr/bin/env bash
+printf 'python %s\\n' "$*" >>"$STUB_LOG"
+case "$3" in
+cache-name) echo "inner-$4" ;;
+docker) [[ "$4" == ps ]] && printf 'inner-registry\\ninner-package\\n' ;;
+esac
+exit 0
+"""
 
 
-def clean(exported: tuple[str, ...]) -> tuple[subprocess.CompletedProcess, set[str]]:
+def clean(
+    exported: tuple[str, ...],
+) -> tuple[subprocess.CompletedProcess, set[str], list[str]]:
     """Run clean.sh with an env loader that exports ``exported``.
 
     Args:
@@ -29,7 +40,8 @@ def clean(exported: tuple[str, ...]) -> tuple[subprocess.CompletedProcess, set[s
             own populated folder.
 
     Returns:
-        The finished process and the keys whose folder still exists.
+        The finished process, the keys whose folder still exists and the
+        logged docker and python calls.
     """
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / "repo"
@@ -42,14 +54,24 @@ def clean(exported: tuple[str, ...]) -> tuple[subprocess.CompletedProcess, set[s
         for folder in folders.values():
             folder.mkdir(parents=True)
             (folder / "blob").write_text("cached")
-        loader.write_text("".join(f"export {key}={folders[key]}\n" for key in exported))
         bin_dir = Path(tmp) / "bin"
         bin_dir.mkdir()
-        for name in ("docker", "sudo"):
-            (bin_dir / name).write_text(STUB)
+        stubs = {"docker": RAW_DOCKER_STUB, "sudo": STUB, "python-stub": PYTHON_STUB}
+        for name, body in stubs.items():
+            (bin_dir / name).write_text(body)
             (bin_dir / name).chmod(0o755)
-        env = {k: v for k, v in os.environ.items() if k not in KEYS and k != "BASH_ENV"}
-        env.update(PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
+        loader.write_text(
+            f"export PYTHON={bin_dir / 'python-stub'}\n"
+            + "".join(f"export {key}={folders[key]}\n" for key in exported)
+        )
+        log = Path(tmp) / "calls.log"
+        log.touch()
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k not in KEYS and k not in ("BASH_ENV", "PYTHON")
+        }
+        env.update(PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}", STUB_LOG=str(log))
         done = subprocess.run(
             ["bash", str(script_dir / "clean.sh")],
             env=env,
@@ -57,21 +79,30 @@ def clean(exported: tuple[str, ...]) -> tuple[subprocess.CompletedProcess, set[s
             text=True,
             check=False,
         )
-        return done, {key for key, folder in folders.items() if folder.exists()}
+        calls = log.read_text().splitlines()  # nocheck: cache-read  stub call log
+        return done, {key for key, folder in folders.items() if folder.exists()}, calls
 
 
 class TestCleanCache(unittest.TestCase):
     def test_the_shared_folder_goes_with_the_other_caches(self) -> None:
-        done, left = clean(KEYS)
+        done, left, _calls = clean(KEYS)
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(left, set())
 
     def test_an_env_without_the_shared_key_still_cleans_the_other_caches(
         self,
     ) -> None:
-        done, left = clean(KEYS[:3])
+        done, left, _calls = clean(KEYS[:3])
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(left, {SHARED})
+
+    def test_the_caches_stop_inside_the_infra_runner_only(self) -> None:
+        _done, _left, calls = clean(KEYS)
+        self.assertIn(
+            "python -m cli.administration.infra docker stop inner-registry inner-package",
+            calls,
+        )
+        self.assertEqual([c for c in calls if c.startswith("raw-docker")], [])
 
 
 if __name__ == "__main__":

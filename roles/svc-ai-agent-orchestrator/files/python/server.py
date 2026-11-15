@@ -37,10 +37,10 @@ Environment:
     BOARD_URL:                  origin of the OpenProject board every agent uses.
     GITHUB_TOKEN:               token the re-fetch of a GitHub event reads with;
                                 absent, a webhook is audited but not acted on.
-    TOOLS_LANE_CONTAINER:       the translation lane container whose own load the
-                                day rule leaves out; absent, or without the
-                                ``docker`` CLI, no load is measured and no load
-                                rule fires.
+    INFINITO_INFRA_RUNNER_CONTAINER: the infra runner holding the translation
+                                tools, whose own load the day rule leaves out;
+                                absent, or without the ``docker`` CLI, no load is
+                                measured and no load rule fires.
     REQUEST_TIMEOUT:            seconds a proxied request may take.
 """
 
@@ -91,7 +91,7 @@ ROUTINE_ROLE = {
 LOCK_DIR = Path(ENV["ORCHESTRATOR_LOCK_DIR"])
 BOARD_URL = ENV["BOARD_URL"]
 GITHUB_TOKEN = ENV.get("GITHUB_TOKEN")
-LANE_CONTAINER = ENV.get("TOOLS_LANE_CONTAINER")
+LANE_CONTAINER = ENV.get("INFINITO_INFRA_RUNNER_CONTAINER")
 GITHUB_API = "https://api.github.com"
 GATE_POLL_SECONDS = 5.0
 HERE = Path(__file__).resolve().parent

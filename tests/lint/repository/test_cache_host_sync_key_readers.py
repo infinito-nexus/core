@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import iter_non_ignored_files, read_text
-from utils.env.handlers.infinito.cache.host_sync import KEY
+from utils.env.handlers.infinito.cache.host.sync import KEY
 
 from . import PROJECT_ROOT
 
@@ -12,7 +12,7 @@ READERS = {
     "Makefile",
     "default.env",
     "utils/cache/host_sync.py",
-    "utils/env/handlers/infinito/cache/host_sync.py",
+    "utils/env/handlers/infinito/cache/host/sync.py",
 }
 
 

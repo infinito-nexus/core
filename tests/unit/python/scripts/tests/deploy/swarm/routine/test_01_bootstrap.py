@@ -27,21 +27,18 @@ SHARED_CACHE = "compose/swarm/shared-cache.override.yml"
 PACMAN = "compose/swarm/pacman.override.yml"
 DOCKER_STUB = """#!/usr/bin/env bash
 printf 'docker %s\\n' "$*" >>"${STUB_LOG}"
-if [ "$1" = inspect ] && [ "$2" = infinito-package-cache-frontend ]; then
-	[ "${STUB_FRONTEND}" = up ] || exit 1
-	[ "$#" -eq 2 ] || echo cache_net
-	exit 0
-fi
-if [ "$1" = inspect ] && [ "$2" = infinito-registry-cache ]; then
-	echo /srv/registry-ca
-	exit 0
-fi
 if [ "$1" = network ] && [ "$2" = inspect ]; then
-	echo 172.30.0.0/24
+	echo 10.47.0.0/24
 fi
 exit 0
 """
 NOOP_STUB = "#!/usr/bin/env bash\nexit 0\n"
+PYTHON_STUB = """#!/usr/bin/env bash
+if [ "$*" = "-m cli.administration.infra attach" ] && [ "${STUB_FRONTEND}" = up ]; then
+	echo infinito-infra
+fi
+exit 0
+"""
 TOPOLOGY_STUB = (
     "SWARM_NAME=demo\n"
     "MGR=demo-mgr\n"
@@ -77,9 +74,10 @@ def bootstrap(frontend: bool, cache_env: dict[str, str]) -> dict[str, list[str]]
             swarm / "utils" / "unmount" / "host_state.sh": NOOP_STUB,
             root / "scripts" / "meta" / "env" / "load.sh": "",
             bin_dir / "docker": DOCKER_STUB,
+            bin_dir / "python3": PYTHON_STUB,
             **{
                 bin_dir / name: NOOP_STUB
-                for name in ("apt-get", "sudo", "python3", "ansible-playbook", "make")
+                for name in ("apt-get", "sudo", "ansible-playbook", "make")
             },
         }
         for path, body in files.items():
@@ -104,6 +102,7 @@ def bootstrap(frontend: bool, cache_env: dict[str, str]) -> dict[str, list[str]]
             INFINITO_DIR_VAR_LIB="/var/lib/infinito",
             INFINITO_IMAGE="infinito-arch:latest",
             INFINITO_INSTANCE="0",
+            INFINITO_CACHE_REGISTRY_CA_HOST_PATH="/srv/registry-ca",
             **cache_env,
         )
         done = subprocess.run(

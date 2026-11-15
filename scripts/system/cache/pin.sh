@@ -5,7 +5,8 @@
 #   cache_pin_root: sets CACHE_PIN_ROOT to the resolved INFINITO_CACHE_PIN_ROOT and creates it; refuses a relative root or one inside this checkout.
 #   cache_pin_lock: holds an exclusive lock on CACHE_PIN_ROOT/.lock on fd 9 until cache_pin_unlock or the shell exits.
 #   cache_pin_unlock: releases the lock cache_pin_lock holds.
-#   cache_pin_frontend_running: succeeds while CACHE_PIN_FRONTEND runs; returns 1 when it does not, 2 when docker ps fails.
+#   cache_pin_docker ARGS: runs docker ARGS on the infra runner's daemon, where the cache containers run.
+#   cache_pin_frontend_running: sets CACHE_PIN_FRONTEND and succeeds while it runs; returns 1 when it does not, 2 when docker ps fails.
 #   cache_pin_frontend_map: sets CACHE_PIN_FRONTEND_MAP to the map CACHE_PIN_FRONTEND mounts; refuses one outside CACHE_PIN_ROOT.
 #   cache_pin_materialize SHA: sets CACHE_PIN_CHECKOUT to the checkout of SHA below CACHE_PIN_ROOT; refuses a symlinked checkout and one without its map.
 #   cache_pin_export_env DIR: exports the declaration-derived keys the checkout in DIR computes.
@@ -14,7 +15,6 @@
 
 CACHE_PIN_MAP="compose/package-cache-frontend/upstreams.conf"
 CACHE_PIN_EXCLUDES=(":(exclude)locale" ":(exclude)tests" ":(exclude)docs")
-CACHE_PIN_FRONTEND="infinito-package-cache-frontend"
 CACHE_PIN_MOUNT_TARGET="/etc/nginx/conf.d/upstreams.conf"
 
 cache_pin_root() {
@@ -45,9 +45,14 @@ cache_pin_unlock() {
 	exec 9>&-
 }
 
+cache_pin_docker() {
+	"${PYTHON:?Source scripts/meta/env/load.sh first}" -m cli.administration.infra docker "$@"
+}
+
 cache_pin_frontend_running() {
 	local names
-	if ! names="$(docker ps --format '{{.Names}}')"; then
+	CACHE_PIN_FRONTEND="$("${PYTHON:?Source scripts/meta/env/load.sh first}" -m cli.administration.infra cache-name frontend)" || return 2
+	if ! names="$(cache_pin_docker ps --format '{{.Names}}')"; then
 		echo "[cache-pin] docker ps failed, so it is unknown whether ${CACHE_PIN_FRONTEND} runs" >&2
 		return 2
 	fi
@@ -57,7 +62,7 @@ cache_pin_frontend_running() {
 cache_pin_frontend_map() {
 	local mounted
 	cache_pin_root || return 1
-	mounted="$(docker inspect -f \
+	mounted="$(cache_pin_docker inspect -f \
 		"{{range .Mounts}}{{if eq .Destination \"${CACHE_PIN_MOUNT_TARGET}\"}}{{.Source}}{{end}}{{end}}" \
 		"${CACHE_PIN_FRONTEND}")" || return 1
 	if [[ -z "${mounted}" ]]; then

@@ -1,34 +1,45 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = entity_name %}
   {{ service_name }}:
+    {% if REGISTRY_CACHE_FLAVOR == 'registry' %}
     {{ lookup('container_image', application_id, 'cache') }}
+    {% else %}
+    {{ lookup('container_image', application_id, 'cache', image=REGISTRY_CACHE_MULTI_PROXY_IMAGE, version=REGISTRY_CACHE_MULTI_PROXY_VERSION) }}
+    entrypoint:
+      - "{{ REGISTRY_CACHE_MULTI_PROXY_ENTRYPOINT }}"
+      - /entrypoint.sh
+    {% endif %}
     {% if IS_COMPOSE_MODE %}
     {{ lookup('compose_only', 'container_name', REGISTRY_CACHE_CONTAINER) }}
     {% endif %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% if REGISTRY_CACHE_FLAVOR == 'registry' %}
     {{ lookup('container_ports', ['cache', 'registry']) | indent(4) }}
+    {% else %}
+    {{ lookup('container_ports', ['cache', 'proxy']) | indent(4) }}
+    {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {% set vendor_volumes = {} %}
-{% for vendor, vendor_service in REGISTRY_CACHE_VENDOR_SERVICES.items() %}
+  {% for vendor_service in REGISTRY_CACHE_VENDOR_SERVICES.values() %}
   {% set _ = vendor_volumes.update({vendor_service: {'name': 'docker_registry_cache_' ~ (vendor_service | replace('-', '_'))}}) %}
-  {% set service_name = 'vendor' %}
-  {{ vendor_service }}:
+  {% set service_name = vendor_service %}
+  {{ service_name }}:
     {{ lookup('container_image', application_id, 'cache') }}
     {{ lookup('compose_only', 'container_name', REGISTRY_CACHE_CONTAINER ~ '-' ~ vendor_service) }}
+    {% with service_name = 'vendor', docker_compose_env = REGISTRY_CACHE_VENDOR_ENV_FILES[vendor_service] %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
-      REGISTRY_PROXY_REMOTEURL: "https://{{ vendor }}"
-    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% endwith %}
+    {{ lookup('container_healthcheck', 'vendor') | indent(4) }}
     # nocheck: compose-inline-mount-section  one cache volume per vendor registry; the vendors derive from the role images, so meta/volumes.yml cannot name them
     volumes:
-      - "{{ vendor_service }}:/var/lib/registry"
+      - "{{ vendor_service }}:{{ REGISTRY_CACHE_DATA_TARGET }}"
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
-{% endfor %}
-{% if REGISTRY_CACHE_VENDOR_SERVICES %}
+  {% endfor %}
+  {% if REGISTRY_CACHE_VENDOR_SERVICES %}
   {% set service_name = 'front' %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'front') }}
@@ -39,6 +50,6 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
-{% endif %}
+  {% endif %}
 {{ lookup('compose_volumes', extra_volumes=vendor_volumes) }}
 {{ lookup('compose_networks') }}

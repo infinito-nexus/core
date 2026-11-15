@@ -39,7 +39,7 @@ Every `docker compose` call MUST go through [stack.py](../../../cli/administrati
 - Set, `make compose-up`, `compose-exec`, `compose-deploy`, `compose-down`, `test*` and `lint*` address the project `<name>`.
   [load.sh](../../../scripts/meta/env/load.sh) derives `INFINITO_CONTAINER=infinito_nexus_<name>` and `INFINITO_RUNNER_PREFIX=infinito-<name>` from it, so the checkout's default stack stays untouched.
 - Set it per call (`INFINITO_STACK_NAME=<name> make compose-up`) or in `custom.env`; `make dotenv` writes an exported value into `.env` like every other key.
-- The named stack still uses the checkout's slot, so its subnet and bind IP equal those of the default stack; run one of them at a time until the slot registry of [092](../../requirements/092-local-stack-architecture.md) lands.
+- The named stack still uses the checkout's slot, so its subnet and bind IP equal those of the default stack; run one of them at a time until a slot registry lands.
 
 ## Toolchain image and shared test runner
 
@@ -53,15 +53,33 @@ Every `docker compose` call MUST go through [stack.py](../../../cli/administrati
 - The runner mounts every root of `INFINITO_WORKTREE_ROOTS` (colon-separated) at its host path; empty mounts the primary checkout and `~/.local/share/worktrees`.
   The wrappers exec with the invoking checkout as working directory and `INFINITO_SRC_DIR`, and with a `TMPDIR` of that checkout under `/tmp/infinito-test/` inside the runner.
   A checkout outside the mounted roots is refused.
+- The runner joins the infra network `infinito-infra` and reaches the caches and the tools by name.
 - `make test-runner-down` removes the runner of the checkout's hash; the next call starts a new one with the current roots.
   `make build-cleanup` removes the toolchain images no registered worktree resolves and no container uses.
 - With `INFINITO_STACK_NAME` set, the wrappers exec into that stack's `infinito` container instead, starting the stack when it is down.
+
+## Infra runner
+
+The machine-wide infra runner of `make infra-up` hosts the caches and the tools; see [cache.md](cache.md) for its lifecycle and [setup.md](setup.md) for its targets.
+The runner takes these values from the checkout that runs `make infra-up` or `make infra-update`, so every checkout of the machine SHOULD carry the same ones.
+
+| Key | Source | Default | Meaning |
+|---|---|---|---|
+| `INFINITO_INFRA_SUBNET` | [default.env](../../../default.env) | `10.47.0.0/24` | /24 of the network `infinito-infra`, outside `172.30.0.0/16` and Docker's default address pools |
+| `INFINITO_INFRA_RUNNER_IP` | `make dotenv` | host `.2` of the subnet | fixed address of the runner |
+| `INFINITO_INFRA_RUNNER_CONTAINER` | `make dotenv` | `infinito-infra-runner` | container name of the runner, read by every consumer |
+| `INFINITO_INFRA_CACHE_DIR` | `make dotenv` | `DIR_CACHE` (`/var/cache/infinito/core/cache`) | cache base the runner binds at its host path |
+| `INFINITO_WORKTREE_ROOTS` | [default.env](../../../default.env) | empty: the primary checkout and `~/.local/share/worktrees` | colon-separated absolute directories the runner and the shared test runner mount read-only at their host paths |
+| `INFINITO_TOOLS_IDLE_GRACE` | `make dotenv` | `2h` | `<count><s\|m\|h\|d>` the tools stay up after the last tools target ended |
+| `INFINITO_TOOLS_STAMP_DIR` | `make dotenv` | `<DIR_CACHE>/tools` | machine-wide directory every tools target stamps its runs in |
+
+`make dotenv` also writes `INFINITO_INFRA_RUNNER_IP` into `INFINITO_CACHE_REGISTRY_IP`, `INFINITO_CACHE_PACKAGE_IP` and `INFINITO_CACHE_PACKAGE_FRONTEND_IP`, since the aliases `infinito-registry-cache`, `infinito-package-cache` and `infinito-package-cache-frontend` all resolve to the runner.
 
 ## Variables NOT in `default.env`
 
 A handful of variables are documented next to their consumer because they cannot have a static default:
 
-- **Driver-injected** by `make compose-up` and the dev CLI (cache override paths like `INFINITO_CACHE_REGISTRY_PROXY_CONF`, the package-cache config paths, the frontend CA file).
+- **Driver-injected** by `make compose-up` and the dev CLI (cache consumer paths like `INFINITO_CACHE_REGISTRY_PROXY_CONF`, the package-cache config paths, the frontend CA file).
   See [common.py](../../../cli/administration/deploy/development/common.py) and [compose.yml.md](../artefact/files/compose.yml.md).
 - **Computed at container start** for `INFINITO_PATH`, set by [entry.sh](../../../scripts/docker/entry.sh).
 - **Persisted on the deploy target** for `INFINITO_VERSION`, written by the [sys-version](../../../roles/sys-version/) role.

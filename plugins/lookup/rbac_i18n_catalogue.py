@@ -33,5 +33,7 @@ class LookupModule(LookupBase):
             if role["description"]
         }
         return [
-            keyed_catalogue(root, lambda key: rbac_context(*key.split("/", 1)), source)
+            keyed_catalogue(
+                root, lambda key: rbac_context(*key.split("/", 1)), source, root, "core"
+            )
         ]

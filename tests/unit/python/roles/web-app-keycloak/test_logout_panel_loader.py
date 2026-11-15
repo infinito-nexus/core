@@ -36,7 +36,9 @@ def _render_panel() -> str:
     """Assemble what stack_host_template writes and nginx then serves."""
     source = read_text(str(ASSEMBLY))
     catalogue = json.dumps(
-        keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE)),
+        keyed_catalogue(
+            PROJECT_ROOT, logout_context, load_yaml(CATALOGUE), PROJECT_ROOT, "core"
+        ),
         ensure_ascii=False,
     )
 

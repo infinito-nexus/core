@@ -62,14 +62,6 @@ class Profile:
         """Path of the checkout's shared .git directory, empty when it owns one."""
         return (os.environ.get("INFINITO_GIT_COMMON_DIR") or "").strip()
 
-    def shared_cache_network(self) -> str:
-        """Docker network of a cache stack owned elsewhere, empty when unset."""
-        return (os.environ.get("INFINITO_CACHE_NETWORK") or "").strip()
-
-    def owns_cache_stack(self) -> bool:
-        """True iff this instance runs the cache stack rather than sharing it."""
-        return self.cache_stack_enabled() and not self.shared_cache_network()
-
     def shared_package_cache(self) -> str:
         """Shared package and tool cache folder the runner mounts, empty when unset."""
         return (os.environ.get("INFINITO_CACHE_SHARED_HOST_PATH") or "").strip()

@@ -7,7 +7,7 @@ As an operator who runs many worktrees and agents against one shared cache stack
 ## Context (2026-11-07, base e74b882b21)
 
 - `make cache-apply` ([apply.sh](../../scripts/system/cache/apply.sh)) renders the calling checkout's `cache:` declarations, creates their Nexus repositories, issues their certificates and copies the calling checkout's nginx map onto the file the frontend mounts. `make compose-up` runs it for every checkout that shares the stack ([compose.py](../../cli/administration/deploy/development/compose.py), `_apply_shared_cache`). Whoever applied last wins.
-- The frontend mounts the owning checkout's `compose/package-cache-frontend/upstreams.conf` ([cache.override.yml](../../compose/cache.override.yml), `INFINITO_CACHE_PACKAGE_FRONTEND_CONF`). Every apply from a worktree writes that file in the primary checkout, so the primary checkout holds a map another branch rendered.
+- The frontend mounts the owning checkout's `compose/package-cache-frontend/upstreams.conf` (`compose/cache.override.yml` (removed), `INFINITO_CACHE_PACKAGE_FRONTEND_CONF`). Every apply from a worktree writes that file in the primary checkout, so the primary checkout holds a map another branch rendered.
 - [cache.md](../contributing/environment/cache.md), "Adding a New Upstream", documents the overwrite as expected behaviour.
 - The skills already solve the same problem: [skills.sh](../../scripts/install/skills.sh) installs the committed state of `INFINITO_SKILLS_REF`, never a working tree.
 

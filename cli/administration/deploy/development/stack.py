@@ -6,10 +6,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
 STACK_KEY = "INFINITO_STACK_NAME"
 COMPOSE_KEY = "COMPOSE_PROJECT_NAME"
+INFRA_PROJECT = "infinito-infra"
+INFRA_COMPOSE = "compose/infra.yml"
 
 _PROJECT_CHAR = re.compile(r"[a-z0-9_-]")
 
@@ -85,6 +87,38 @@ def compose_argv(repo_root: Path) -> list[str]:
         stack_name(repo_root, os.environ),
         *compose_file_args(),
     ]
+
+
+def infra_compose_argv(repo_root: Path, overrides: Sequence[str]) -> list[str]:
+    """Args:
+        repo_root: checkout holding the infra compose file and its ``.env``.
+        overrides: override files layered on it, relative to ``repo_root``.
+
+    Returns:
+        ``docker compose`` addressing the machine-wide project ``infinito-infra``.
+    """
+    return [
+        "docker",
+        "compose",
+        "--project-directory",
+        str(repo_root),
+        "-p",
+        INFRA_PROJECT,
+        "-f",
+        str(repo_root / INFRA_COMPOSE),
+        *(flag for path in overrides for flag in ("-f", str(repo_root / path))),
+    ]
+
+
+def runner_compose_argv(project: str, action: str) -> list[str]:
+    """Args:
+        project: compose project of a role stack inside the infra runner.
+        action: ``stop``, ``pause`` or ``unpause``.
+
+    Returns:
+        ``docker compose`` addressing that project by name, run inside the runner.
+    """
+    return ["docker", "compose", "-p", project, action]
 
 
 if __name__ == "__main__":

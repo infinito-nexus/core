@@ -140,9 +140,17 @@ class TestBuildContext(unittest.TestCase):
 class TestBuildEnvOrchestration(unittest.TestCase):
     """End-to-end smoke of build_env against a minimal static map.
 
-    Mocks ``detect_gha_act`` so we don't depend on the host env, and
-    mocks the inventory helper so the test never shells out.
+    Mocks ``detect_gha_act`` and the host distro detection so we don't
+    depend on the host env, and mocks the inventory helper so the test
+    never shells out.
     """
+
+    def setUp(self) -> None:
+        host_distro = patch(
+            "utils.env.handlers.infinito.distro.host_distro", return_value=""
+        )
+        host_distro.start()
+        self.addCleanup(host_distro.stop)
 
     def _clean_env(self) -> dict[str, str]:
         return {"PATH": "/usr/bin"}

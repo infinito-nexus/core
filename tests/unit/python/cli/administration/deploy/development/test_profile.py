@@ -14,7 +14,6 @@ _BLANK_CI_ENV = {
     "CI": "",
     "INFINITO_INSTANCE": "0",
     "INFINITO_GIT_COMMON_DIR": "",
-    "INFINITO_CACHE_NETWORK": "",
     "INFINITO_CACHE_STACK": "",
     "INFINITO_GHCR_MIRROR": "",
 }
@@ -156,26 +155,10 @@ class TestProfileInstance(unittest.TestCase):
         self.assertEqual(Profile().instance(), 0)
 
 
-class TestProfileOwnsCacheStack(unittest.TestCase):
-    @patch.dict(os.environ, _BLANK_CI_ENV, clear=False)
-    def test_owns_the_stack_when_no_network_was_handed_over(self) -> None:
-        self.assertTrue(Profile().owns_cache_stack())
-
-    @patch.dict(
-        os.environ, {**_BLANK_CI_ENV, "INFINITO_CACHE_NETWORK": "primary_default"}
-    )
-    def test_shares_instead_of_owning_when_a_network_is_named(self) -> None:
-        p = Profile()
-        self.assertFalse(p.owns_cache_stack())
-        self.assertTrue(p.cache_stack_enabled())
-
-    @patch.dict(os.environ, {**_BLANK_CI_ENV, "INFINITO_INSTANCE": "7"}, clear=False)
-    def test_a_stray_slot_alone_does_not_give_the_stack_away(self) -> None:
-        self.assertTrue(Profile().owns_cache_stack())
-
-    @patch.dict(os.environ, {**_BLANK_CI_ENV, "CI": "true"}, clear=False)
-    def test_ci_never_owns_the_stack(self) -> None:
-        self.assertFalse(Profile().owns_cache_stack())
+class TestProfileHasNoCacheOwner(unittest.TestCase):
+    def test_no_checkout_owns_or_shares_a_cache_stack(self) -> None:
+        self.assertFalse(hasattr(Profile(), "owns_cache_stack"))
+        self.assertFalse(hasattr(Profile(), "shared_cache_network"))
 
 
 if __name__ == "__main__":  # pragma: no cover

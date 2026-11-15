@@ -102,7 +102,7 @@ class TestAlwaysLayeredFiles(unittest.TestCase):
         always = (
             cache_consumer_yml(),
             read_text(str(PROJECT_ROOT / "compose.yml")),
-            read_text(str(PROJECT_ROOT / "compose" / "cache.override.yml")),
+            read_text(str(PROJECT_ROOT / "compose" / "infra-consumer.override.yml")),
             read_text(str(PROJECT_ROOT / "compose" / "swarm" / "cache.override.yml")),
         )
         for text in always:

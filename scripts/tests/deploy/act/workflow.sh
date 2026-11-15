@@ -18,7 +18,8 @@ set -euo pipefail
 
 _act_shared_cache=""
 if [[ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]] &&
-	docker inspect infinito-package-cache-frontend >/dev/null 2>&1; then
+	"${PYTHON:?source scripts/meta/env/load.sh or invoke via make}" -m cli.administration.infra docker inspect \
+		"$("${PYTHON}" -m cli.administration.infra cache-name frontend)" >/dev/null 2>&1; then
 	_act_shared_cache="${INFINITO_CACHE_SHARED_HOST_PATH}"
 	ACT_CONTAINER_OPTIONS+=" -v '${_act_shared_cache}:${_act_shared_cache}'"
 fi

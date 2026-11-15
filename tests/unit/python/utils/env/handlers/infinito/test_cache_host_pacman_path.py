@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`utils.env.handlers.infinito.cache.host_pacman_path`."""
+"""Unit tests for :mod:`utils.env.handlers.infinito.cache.host.pacman_path`."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from utils.env.context import BuildContext, EnvBuilder
-from utils.env.handlers.infinito.cache import host_pacman_path as handler
+from utils.env.handlers.infinito.cache.host import pacman_path as handler
 
-HELPER = "utils.env.handlers.infinito.cache.host_pacman_path.run_helper"
+HELPER = "utils.env.handlers.infinito.cache.host.pacman_path.run_helper"
 ARCH = 'NAME="Arch Linux"\nID=arch\n'
 MANJARO = 'NAME="Manjaro Linux"\nID=manjaro\nID_LIKE=arch\n'
 ENDEAVOUR = 'NAME="EndeavourOS"\nID="endeavouros"\nID_LIKE="arch"\n'

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import contextlib
 import importlib
 import io
@@ -82,7 +83,9 @@ class TestTranslate(unittest.TestCase):
         self.root = _checkout(self)
         _catalog(self.root, "de", "Hallo")
 
-    def _run(self, requested: list[str] | None = None) -> tuple[int, mock.Mock, mock.Mock]:
+    def _run(
+        self, requested: list[str] | None = None
+    ) -> tuple[int, mock.Mock, mock.Mock]:
         started = mock.Mock(return_value=contextlib.nullcontext("http://lt"))
         client = mock.Mock()
         client.return_value.translate.side_effect = lambda texts, code, exclude=(): (
@@ -93,7 +96,11 @@ class TestTranslate(unittest.TestCase):
             mock.patch.object(cli, "server", started),
             mock.patch.object(cli, "LibreTranslate", client),
         ):
-            return cli.translate(["core"], requested or []), started, client
+            return (
+                cli.translate(["core"], requested or [], False, None),
+                started,
+                client,
+            )
 
     def test_a_code_the_table_does_not_name_is_refused_before_any_deploy(self) -> None:
         status, started, _client = self._run(["xx"])
@@ -137,7 +144,7 @@ class TestTranslate(unittest.TestCase):
         seen: list[str] = []
 
         with mock.patch.object(
-            cli, "one_catalog", lambda _client, _domain, code: seen.append(code)
+            cli, "one_catalog", lambda _client, _root, _domain, code: seen.append(code)
         ):
             status, _started, _client = self._run()
 
@@ -186,7 +193,7 @@ class TestAJudgedFailureIsRetranslatedWithoutItsEngine(unittest.TestCase):
             mock.patch.object(cli, "PROJECT_ROOT", self.root),
             mock.patch("sys.stdout", new_callable=io.StringIO),
         ):
-            cli.one_catalog(client, "core", "de")
+            cli.one_catalog(client, self.root, "core", "de")
 
     def _entry(self, msgid: str):
         return next(m for m in read_catalog(self.path) if m.id == msgid)
@@ -210,6 +217,132 @@ class TestAJudgedFailureIsRetranslatedWithoutItsEngine(unittest.TestCase):
 
         self.assertEqual(record_judged(self.root, "core", "de", stale), 0)
         self.assertEqual(self._entry("Hello").string, "Hallo Welt")
+
+
+def _role(case: unittest.TestCase) -> Path:
+    """Return a custom role directory holding the English source of ``team``.
+
+    Args:
+        case: the test whose lifetime the temporary directory follows.
+    """
+    tmp = TemporaryDirectory()
+    case.addCleanup(tmp.cleanup)
+    role = Path(tmp.name)
+    (role / "locale").mkdir()
+    (role / "locale" / "team.yml").write_text("title: The team\n", encoding="utf-8")
+    return role
+
+
+def _role_catalog(role: Path, code: str, translation: str) -> None:
+    catalog = new_catalog("team", code)
+    catalog.add("The team", translation, context="team:title")
+    path = catalog_path(role, code, "team")
+    path.parent.mkdir(parents=True)
+    write_catalog(path, catalog)
+
+
+class TestRoot(unittest.TestCase):
+    def setUp(self) -> None:
+        self.root = _checkout(self)
+        self.role = _role(self)
+
+    def test_extract_writes_one_catalog_per_language_into_the_role(self) -> None:
+        with (
+            mock.patch.object(cli, "PROJECT_ROOT", self.root),
+            mock.patch("sys.stdout", new_callable=io.StringIO),
+        ):
+            status = cli.extract(["team"], self.role)
+
+        self.assertEqual(status, 0)
+        for code in ("de", "fr", "zu"):
+            with self.subTest(code=code):
+                catalog = read_catalog(catalog_path(self.role, code, "team"))
+                self.assertEqual(
+                    [(m.context, m.id) for m in catalog if m.id],
+                    [("team:title", "The team")],
+                )
+
+    def test_extract_with_a_root_leaves_core_catalogs_alone(self) -> None:
+        with (
+            mock.patch.object(cli, "PROJECT_ROOT", self.root),
+            mock.patch("sys.stdout", new_callable=io.StringIO),
+        ):
+            cli.extract(["team"], self.role)
+
+        self.assertFalse((self.root / "locale").exists())
+
+    def _translate(self, root: Path | None) -> int:
+        client = mock.Mock()
+        client.return_value.translate.side_effect = lambda texts, _code, exclude=(): (
+            Outcome(["Das Team"] * len(texts), 0, 0, "")
+        )
+        with (
+            mock.patch.object(cli, "PROJECT_ROOT", self.root),
+            mock.patch.object(
+                cli,
+                "server",
+                mock.Mock(return_value=contextlib.nullcontext("http://lt")),
+            ),
+            mock.patch.object(cli, "LibreTranslate", client),
+            mock.patch("sys.stdout", new_callable=io.StringIO),
+        ):
+            return cli.translate(["team"] if root else ["core"], [], False, root)
+
+    def test_translate_fills_the_role_catalog_and_not_core(self) -> None:
+        _role_catalog(self.role, "de", "")
+        _catalog(self.root, "de", "")
+
+        self.assertEqual(self._translate(self.role), 0)
+
+        role_de = read_catalog(catalog_path(self.role, "de", "team"))
+        core_de = read_catalog(catalog_path(self.root, "de", "core"))
+        self.assertEqual(
+            role_de.get("The team", context="team:title").string, "Das Team"
+        )
+        self.assertEqual(core_de.get("Hello", context="menu:x:title").string, "")
+
+    def test_translate_without_a_root_leaves_the_role_catalog_alone(self) -> None:
+        _role_catalog(self.role, "de", "")
+        _catalog(self.root, "de", "")
+
+        self.assertEqual(self._translate(None), 0)
+
+        role_de = read_catalog(catalog_path(self.role, "de", "team"))
+        self.assertEqual(role_de.get("The team", context="team:title").string, "")
+
+
+class TestScope(unittest.TestCase):
+    def setUp(self) -> None:
+        self.role = _role(self)
+        self.parser = argparse.ArgumentParser()
+
+    def _refused(self, root: str, domain: str | None) -> None:
+        with (
+            mock.patch("sys.stderr", new_callable=io.StringIO),
+            self.assertRaises(SystemExit),
+        ):
+            cli.scope(self.parser, root, domain)
+
+    def test_without_a_root_both_core_domains_are_covered(self) -> None:
+        self.assertEqual(cli.scope(self.parser, "", None), (["core", "docs"], None))
+
+    def test_without_a_root_only_core_domains_are_accepted(self) -> None:
+        self._refused("", "team")
+
+    def test_a_root_names_its_one_domain(self) -> None:
+        self.assertEqual(
+            cli.scope(self.parser, str(self.role), "team"),
+            (["team"], self.role.resolve()),
+        )
+
+    def test_a_root_without_a_domain_is_refused(self) -> None:
+        self._refused(str(self.role), None)
+
+    def test_a_domain_that_walks_out_of_locale_is_refused(self) -> None:
+        self._refused(str(self.role), "../core")
+
+    def test_a_root_that_is_no_directory_is_refused(self) -> None:
+        self._refused(str(self.role / "missing"), "team")
 
 
 if __name__ == "__main__":

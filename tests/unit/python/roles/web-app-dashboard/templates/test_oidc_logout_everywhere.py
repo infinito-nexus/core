@@ -219,7 +219,9 @@ def _lookup(name, *args, **_kwargs):
 
 
 LOGOUT_URL = f"{KEYCLOAK}/realms/{REALM}/protocol/openid-connect/logout"
-LOGOUT_I18N = keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE))
+LOGOUT_I18N = keyed_catalogue(
+    PROJECT_ROOT, logout_context, load_yaml(CATALOGUE), PROJECT_ROOT, "core"
+)
 
 
 def _context() -> dict:

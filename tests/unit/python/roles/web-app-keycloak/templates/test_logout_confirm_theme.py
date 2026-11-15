@@ -19,7 +19,11 @@ ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 DASHBOARD = PROJECT_ROOT / "roles" / "web-app-dashboard"
 TEMPLATE = "theme/login/logout-confirm.ftl.j2"
 CATALOGUE = keyed_catalogue(
-    PROJECT_ROOT, logout_context, load_yaml(ROLE / "files" / "logout_i18n.yml")
+    PROJECT_ROOT,
+    logout_context,
+    load_yaml(ROLE / "files" / "logout_i18n.yml"),
+    PROJECT_ROOT,
+    "core",
 )
 DASHBOARD_LANDING = "https://dashboard.example.com/"
 MARKER = load_yaml_any(str(DASHBOARD / ROLE_FILE_META_SERVICES))["sso"]["oidc"][

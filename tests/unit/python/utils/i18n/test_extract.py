@@ -11,6 +11,7 @@ from utils.i18n.extract import (
     core_messages,
     core_source,
     docs_sources,
+    keyed_messages,
     logout_context,
     menu_context,
     paused_context,
@@ -269,6 +270,20 @@ class TestCoreMessages(unittest.TestCase):
             messages = role_messages(root)
 
         self.assertEqual(messages, [("role:web-app-wiki:description", "A wiki")])
+
+
+class TestKeyedMessages(unittest.TestCase):
+    def test_only_the_named_domain_is_read_under_its_own_context(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(root, "locale/team.yml", "title: ' The team '\nbuilt: 'Built:'\n")
+            _write(root, "locale/other.yml", "title: Elsewhere\n")
+
+            messages = keyed_messages(root, "team")
+
+        self.assertEqual(
+            messages, [("team:title", "The team"), ("team:built", "Built:")]
+        )
 
 
 if __name__ == "__main__":

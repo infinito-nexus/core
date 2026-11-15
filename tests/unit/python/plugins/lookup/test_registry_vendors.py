@@ -17,9 +17,11 @@ from plugins.lookup.registry_vendors import (
 FRONT = "192.168.205.1:5002"
 VENDORS = {"front": FRONT, "registries": ["ghcr.io", "quay.io"]}
 CONFIG = {
+    (CACHE_ROLE, "services.cache.flavor"): "registry",
     (CACHE_ROLE, "networks.local.subnet"): "192.168.205.0/24",
     (CACHE_ROLE, "services.front.ports.local.registry"): 5002,
 }
+MULTI_PROXY = {**CONFIG, (CACHE_ROLE, "services.cache.flavor"): "multi-proxy"}
 UNLISTED = [
     "nginx:1.31-alpine",
     "library/nginx:1.31-alpine",
@@ -161,6 +163,34 @@ class TestRegistryVendorsLookup(unittest.TestCase):
             module.run(["ghcr.io/foo/bar:1.0"], variables={"group_names": []}),
             ["ghcr.io/foo/bar:1.0"],
         )
+
+    def test_the_multi_proxy_flavor_routes_nothing(self):
+        vendors, config = _vendors(_cache_host(), config=MULTI_PROXY)
+        self.assertEqual(vendors, unrouted())
+        self.assertEqual(
+            [call.args[0] for call in config.run.call_args_list],
+            [[CACHE_ROLE, "services.cache.flavor"]],
+        )
+
+    def test_the_registry_flavor_routes_through_the_front(self):
+        vendors, _ = _vendors(_cache_host(), config=CONFIG)
+        self.assertEqual(vendors["front"], FRONT)
+
+    def test_terms_come_back_unchanged_under_the_multi_proxy_flavor(self):
+        with (
+            patch("plugins.lookup.registry_vendors.lookup_loader") as loader,
+            patch(
+                "plugins.lookup.registry_vendors.image_registries",
+                return_value=["ghcr.io"],
+            ),
+        ):
+            loader.get.return_value.run.side_effect = lambda terms, **_k: [
+                MULTI_PROXY[tuple(terms)]
+            ]
+            module = LookupModule()
+            module._loader = mock.MagicMock()
+            routed = module.run(["ghcr.io/foo/bar:1.0"], variables=_cache_host())
+        self.assertEqual(routed, ["ghcr.io/foo/bar:1.0"])
 
     def test_a_subnet_without_a_gateway_fails_the_render(self):
         config = {**CONFIG, (CACHE_ROLE, "networks.local.subnet"): "192.168.205.1/24"}

@@ -17,6 +17,10 @@ Directory binds and kernel/runtime sources (``/var/run/docker.sock``,
 ``/proc``, ``/sys``, ``/dev``) are exempt — they cannot become
 docker configs and stay as ``type: bind``.
 
+A role that never deploys in swarm (``modes.swarm.enabled: false`` on
+its primary entity, read through ``get_role_mode_enabled``) is exempt as
+a whole: compose mounts the file on the host that rendered it.
+
 Per-line opt-out
 ================
 Add ``# nocheck: meta-volume-file-bind-should-be-config`` on the same
@@ -30,12 +34,15 @@ unique-per-host secret material, ...).
 from __future__ import annotations
 
 import re
+import tempfile
 import unittest
+from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_VOLUMES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VOLUMES
+from utils.roles.meta_lookup import get_role_mode_enabled
 
 from . import PROJECT_ROOT
 
@@ -86,50 +93,121 @@ def _key_line_index(lines: list[str], key: str) -> int | None:
     return None
 
 
-class TestMetaVolumesFileBindShouldBeConfig(unittest.TestCase):
-    def test_no_file_bind_entries_in_meta_volumes(self) -> None:
-        findings: list[tuple[str, int, str]] = []
-        roles_dir = PROJECT_ROOT / "roles"
-        for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir()):
-            meta_path = role_dir / ROLE_FILE_META_VOLUMES
-            if not meta_path.is_file():
-                continue
-            try:
-                entries = load_yaml_any(str(meta_path), default_if_missing={})
-            except Exception:
-                continue
-            if not isinstance(entries, dict):
-                continue
-            try:
-                content_lines = read_text(str(meta_path)).splitlines()
-            except (OSError, ValueError):
-                content_lines = []
-            rel = meta_path.relative_to(PROJECT_ROOT).as_posix()
+def _is_file_bind(entry: object) -> bool:
+    if not isinstance(entry, dict) or entry.get("type") != "bind":
+        return False
+    source = str(entry.get("source", ""))
+    if _is_special_source(source):
+        return False
+    targets = [
+        str(m.get("target", ""))
+        for m in (entry.get("mounts") or [])
+        if isinstance(m, dict)
+    ]
+    return _is_file_like(source) or any(_is_file_like(t) for t in targets)
 
-            for semantic_name, entry in entries.items():
-                if not isinstance(entry, dict):
-                    continue
-                if entry.get("type") != "bind":
-                    continue
-                source = str(entry.get("source", ""))
-                if _is_special_source(source):
-                    continue
-                targets = [
-                    str(m.get("target", ""))
-                    for m in (entry.get("mounts") or [])
-                    if isinstance(m, dict)
-                ]
-                triggers_via_source = _is_file_like(source)
-                triggers_via_target = any(_is_file_like(t) for t in targets)
-                if not (triggers_via_source or triggers_via_target):
-                    continue
-                key_idx = _key_line_index(content_lines, str(semantic_name))
-                line_no = (key_idx + 1) if key_idx is not None else 1
-                if content_lines and is_suppressed_at(
-                    content_lines, line_no, _RULE, mode="same-or-above"
-                ):
-                    continue
-                findings.append((rel, line_no, str(semantic_name)))
+
+def _role_findings(role_dir: Path, root: Path) -> list[tuple[str, int, str]]:
+    """Args:
+    role_dir: one role directory.
+    root: the directory the reported paths are relative to.
+
+    Returns:
+        ``(path, line, entry)`` of every unsuppressed single-file bind of the
+        role's ``meta/volumes.yml``; none for a role that never deploys in
+        swarm.
+    """
+    meta_path = role_dir / ROLE_FILE_META_VOLUMES
+    if not meta_path.is_file():
+        return []
+    if not get_role_mode_enabled(role_dir, mode="swarm", role_name=role_dir.name):
+        return []
+    try:
+        entries = load_yaml_any(str(meta_path), default_if_missing={})
+    except Exception:
+        return []
+    if not isinstance(entries, dict):
+        return []
+    try:
+        content_lines = read_text(str(meta_path)).splitlines()
+    except (OSError, ValueError):
+        content_lines = []
+    rel = meta_path.relative_to(root).as_posix()
+    findings: list[tuple[str, int, str]] = []
+    for semantic_name, entry in entries.items():
+        if not _is_file_bind(entry):
+            continue
+        key_idx = _key_line_index(content_lines, str(semantic_name))
+        line_no = (key_idx + 1) if key_idx is not None else 1
+        if content_lines and is_suppressed_at(
+            content_lines, line_no, _RULE, mode="same-or-above"
+        ):
+            continue
+        findings.append((rel, line_no, str(semantic_name)))
+    return findings
+
+
+def _findings(roles_dir: Path) -> list[tuple[str, int, str]]:
+    """Args:
+    roles_dir: the directory holding the roles.
+
+    Returns:
+        The ``_role_findings`` of every role below ``roles_dir``.
+    """
+    return [
+        finding
+        for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir())
+        for finding in _role_findings(role_dir, roles_dir.parent)
+    ]
+
+
+_PROBE_SERVICES = """\
+probe:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: {swarm}
+"""
+_PROBE_VOLUMES = """\
+probe_conf:
+  type: bind
+  source: /etc/probe/probe.conf
+  mounts:
+    - service: probe
+      target: /etc/probe.conf
+"""
+
+
+def _probe_findings(swarm: str) -> list[tuple[str, int, str]]:
+    """Args:
+    swarm: the ``modes.swarm.enabled`` of the probe role.
+
+    Returns:
+        The findings of one role with one single-file bind.
+    """
+    with tempfile.TemporaryDirectory() as scratch:
+        role = Path(scratch) / "roles" / "web-app-probe"
+        (role / ROLE_FILE_META_VOLUMES).parent.mkdir(parents=True)
+        (role / ROLE_FILE_META_SERVICES).write_text(
+            _PROBE_SERVICES.format(swarm=swarm), encoding="utf-8"
+        )
+        (role / ROLE_FILE_META_VOLUMES).write_text(_PROBE_VOLUMES, encoding="utf-8")
+        return _findings(role.parent)
+
+
+class TestMetaVolumesFileBindShouldBeConfig(unittest.TestCase):
+    def test_a_role_that_never_deploys_in_swarm_is_exempt(self) -> None:
+        self.assertEqual(_probe_findings("false"), [])
+
+    def test_negative_control_a_swarm_capable_file_bind_still_fails(self) -> None:
+        self.assertEqual(
+            _probe_findings("true"),
+            [("roles/web-app-probe/meta/volumes.yml", 1, "probe_conf")],
+        )
+
+    def test_no_file_bind_entries_in_meta_volumes(self) -> None:
+        findings = _findings(PROJECT_ROOT / "roles")
 
         if findings:
             formatted = "\n".join(
