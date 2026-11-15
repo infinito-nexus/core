@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from . import PROJECT_ROOT
 from .test_stack_bridge import BRIDGE, bridge_roles
@@ -127,7 +128,7 @@ def asserting_heads(root: Path) -> list[str]:
     found = []
     for role in bridge_roles(root):
         role_dir = root / "roles" / role
-        tasks = _tasks(role_dir / "tasks/main.yml")
+        tasks = _tasks(role_dir / ROLE_FILE_TASKS_MAIN)
         while tasks:
             task = tasks.pop(0)
             include = _include(task)
@@ -197,7 +198,7 @@ class TestStackGuard(unittest.TestCase):
                     name,
                     {
                         str(BRIDGE): "---\n[]\n",
-                        "tasks/main.yml": CORE,
+                        ROLE_FILE_TASKS_MAIN: CORE,
                         "tasks/00_core.yml": core,
                     },
                 )

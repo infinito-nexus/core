@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN, ROLE_FILE_VARS_MAIN
 
 from .test_stack_entry import CANONICAL_BRIDGE, _write
 
@@ -18,7 +19,7 @@ REAL = (
     STACK / "tasks/batch/late.yml",
     STACK / "tasks/batch/run.yml",
     STACK / "tasks/batch/warm.yml",
-    STACK / "defaults/main.yml",
+    STACK / ROLE_FILE_DEFAULTS_MAIN,
     STACK / "filter_plugins/front_proxy_batch.py",
     STACK / "filter_plugins/front_proxy_unserved.py",
     Path("tasks/utils/once/flag.yml"),
@@ -227,7 +228,7 @@ def _build(workdir: Path, *, guard: bool) -> None:
     for item in (ALPHA, BETA, NESTED):
         _write(workdir / "roles" / item["role"] / "tasks/utils/stack.yml", bridge)
         _write(
-            workdir / "roles" / item["role"] / "vars/main.yml",
+            workdir / "roles" / item["role"] / ROLE_FILE_VARS_MAIN,
             f"---\nconsumer_scope: {item['role']}-vars\n",
         )
     for role, tasks in WARM:

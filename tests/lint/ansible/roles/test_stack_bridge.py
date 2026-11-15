@@ -9,6 +9,11 @@ from typing import TYPE_CHECKING, Any
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import (
+    ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MAIN,
+)
 
 from . import PROJECT_ROOT
 from .test_stack_service_declared import STACK_ENTRY_RE
@@ -21,7 +26,7 @@ BRIDGE = Path("tasks/utils/stack.yml")
 CANONICAL_BRIDGE = Path("roles") / STACK_ROLE / "files/bridge.yml"
 STACK_TASKS = Path("roles") / STACK_ROLE / "tasks"
 CONSTRUCTOR = Path("tasks/stages/01_constructor.yml")
-MAIN = Path("tasks/main.yml")
+MAIN = Path(ROLE_FILE_TASKS_MAIN)
 CORE = "00_core.yml"
 RUN_ONCE_RE = re.compile(r"run_once_[a-z0-9_]+ is not defined")
 LOADER = "sys-service-loader"
@@ -183,7 +188,7 @@ def bootstrap_roles(root: Path) -> set[str]:
 
 def _declares_stack(role_dir: Path) -> bool:
     services = load_yaml_any(
-        str(role_dir / "meta" / "services.yml"), default_if_missing={}
+        str(role_dir / ROLE_FILE_META_SERVICES), default_if_missing={}
     )
     entry = services.get("stack") if isinstance(services, dict) else None
     return (
@@ -336,7 +341,7 @@ def direct_entries(root: Path) -> list[str]:
         ``dependencies`` item.
     """
     bridged = set(bridge_roles(root))
-    files = [*_entry_files(root), *sorted(root.glob("roles/*/meta/main.yml"))]
+    files = [*_entry_files(root), *sorted(root.glob(f"roles/*/{ROLE_FILE_META_MAIN}"))]
     found = []
     for path in files:
         for mapping in _mappings(load_yaml_any(str(path), default_if_missing=[])):
