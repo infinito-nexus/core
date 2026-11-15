@@ -24,7 +24,7 @@ PYTHON_STUB = """#!/usr/bin/env bash
 printf 'python %s\\n' "$*" >>"$STUB_LOG"
 case "$3" in
 cache-name) echo "inner-$4" ;;
-docker) [[ "$4" == ps ]] && printf 'inner-registry\\ninner-package\\n' ;;
+docker) [[ "$4" == ps ]] && printf '%s\\n' inner-registry inner-package {1..10000} ;;
 esac
 exit 0
 """

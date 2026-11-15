@@ -28,7 +28,7 @@ source "scripts/meta/env/load.sh"
 
 registry="$("${PYTHON}" -m cli.administration.infra cache-name registry)"
 package="$("${PYTHON}" -m cli.administration.infra cache-name package)"
-if "${PYTHON}" -m cli.administration.infra docker ps --format '{{.Names}}' 2>/dev/null | grep -qxE "${registry}|${package}"; then
+if "${PYTHON}" -m cli.administration.infra docker ps --format '{{.Names}}' 2>/dev/null | grep -xE "${registry}|${package}" >/dev/null; then
 	echo "[clean-cache] stopping ${registry} + ${package} in the infra runner"
 	"${PYTHON}" -m cli.administration.infra docker stop "${registry}" "${package}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	"${PYTHON}" -m cli.administration.infra docker rm "${registry}" "${package}" 2>/dev/null || true   # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

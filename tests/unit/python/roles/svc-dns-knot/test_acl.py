@@ -68,6 +68,7 @@ def render(template=TEMPLATE, primary=True, keys=None, addresses=ADDRESSES, type
         KNOT_UPDATE_TYPES=VARS["KNOT_UPDATE_TYPES"] if types is None else types,
         KNOT_WORKSPACE_ALGORITHM=VARS["KNOT_WORKSPACE_ALGORITHM"],
         KNOT_STORAGE_TARGET=VOLUMES["data"]["mounts"][0]["target"],
+        KNOT_RUNDIR_TARGET=VOLUMES["rundir"]["mounts"][0]["target"],
         KNOT_ZONE_TARGET=VOLUMES["zone"]["mounts"][0]["target"],
     )
     return load_yaml_str(text)
@@ -202,6 +203,9 @@ class TestTransfer(unittest.TestCase):
 
     def test_the_server_reads_the_paths_its_volumes_mount(self):
         config = render()
+        self.assertEqual(
+            config["server"]["rundir"], VOLUMES["rundir"]["mounts"][0]["target"]
+        )
         self.assertEqual(
             config["database"]["storage"], VOLUMES["data"]["mounts"][0]["target"]
         )
