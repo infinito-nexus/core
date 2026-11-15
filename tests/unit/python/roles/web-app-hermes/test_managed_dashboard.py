@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import unittest
 
-import yaml
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 from jinja2 import Environment, StrictUndefined, select_autoescape
@@ -11,17 +10,18 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from plugins.filter.mcp.authorization import FilterModule as McpFilterModule
 from plugins.filter.mcp.credentials import mcp_with_credentials
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import dump_yaml_str, load_yaml_any, load_yaml_str
 from utils.roles.applications.converge import values
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MCP,
     ROLE_FILE_VARS_MAIN,
 )
 
 ROLE = PROJECT_ROOT / "roles/web-app-hermes"
 TEMPLATE = ROLE / "templates/config.yaml.j2"
-TASKS = ROLE / "tasks/utils/mcp.yml"
+TASKS = ROLE / ROLE_FILE_TASKS_MCP
 SAMPLE = {"theme": "sample-theme", "trusted_proxies": ["198.51.100.0/24"]}
 UNMANAGED = ["203.0.113.0/24"]
 TOKEN = "hermes-sample-token"
@@ -76,7 +76,7 @@ def _rendered(webui: bool, sink: dict, servers: list) -> dict:
         HERMES_DESIGN_THEME="corporate",
         NETWORK_TRUSTED_PROXY_CIDRS=UNMANAGED,
     )
-    return {"document": document, "parsed": yaml.safe_load(document)}
+    return {"document": document, "parsed": load_yaml_str(document)}
 
 
 def _drift_read(document: str, sink: dict, mcp: dict) -> dict:
@@ -122,8 +122,9 @@ class TestManagedDashboard(unittest.TestCase):
         self.assertNotIn("dashboard", _rendered(False, {}, [])["parsed"])
 
     def test_the_drift_read_keeps_only_the_managed_keys(self) -> None:
-        held = yaml.safe_dump(
-            {"dashboard": {"theme": "edited", "port": 1}, "model": {"default": "x"}}
+        held = dump_yaml_str(
+            {"dashboard": {"theme": "edited", "port": 1}, "model": {"default": "x"}},
+            sort_keys=True,
         )
         self.assertEqual(
             {"dashboard": {"theme": "edited"}, "mcp": {}},
@@ -191,13 +192,14 @@ class TestManagedMcpServers(unittest.TestCase):
 
     def test_the_drift_read_sees_a_moved_and_a_hand_added_server(self) -> None:
         mcp = _mcp_sink(True)
-        held = yaml.safe_dump(
+        held = dump_yaml_str(
             {
                 "mcp_servers": {
                     "web_app_gitea": {"url": "http://moved/mcp"},
                     "manual": {"url": "http://manual/mcp"},
                 }
-            }
+            },
+            sort_keys=True,
         )
         self.assertEqual(
             [

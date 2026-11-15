@@ -1,18 +1,22 @@
 ---
 - name: "🔎 Read the managed settings the next start of {{ application_id }} overwrites"
   ansible.builtin.shell:
-    cmd: "container exec {{ HERMES_CONTAINER_ADDRESS }} cat {{ HERMES_CONFIG_PATH_CONTAINER | quote }}"
+    cmd: "container exec {{ HERMES_CONTAINER_ADDRESS }} cat {{ HERMES_CONFIG_CONTAINER_PATH | quote }}"
   register: hermes_config_held
   changed_when: false
   failed_when: false
-  no_log: true
-  when: (HERMES_DASHBOARD_CONFIG | length > 0) or (HERMES_MCP_CONFIG | length > 0)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when:
+    - IS_STACK_HOST | bool
+    - (HERMES_DASHBOARD_CONFIG | length > 0) or (HERMES_MCP_CONFIG | length > 0)
 
 - name: "📣 Report the managed settings the next start of {{ application_id }} reverts"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
   vars:
     hermes_config_current: "{{ hermes_config_held.stdout | from_yaml }}"
-    forms_drift_current: "{{ {'dashboard': hermes_config_current.dashboard | default({}, true) | dict2items | selectattr('key', 'in', HERMES_DASHBOARD_CONFIG) | items2dict, 'mcp': ({'servers': HERMES_MCP_CONFIG.servers | mcp_held(hermes_config_current.mcp_servers | default({}, true), '_')} if 'servers' in HERMES_MCP_CONFIG else {})} }}"
+    forms_drift_current: "{{ {'dashboard': hermes_config_current.dashboard | default({}, true) | dict2items | selectattr('key', 'in', HERMES_DASHBOARD_CONFIG) | items2dict,
+      'mcp': ({'servers': HERMES_MCP_CONFIG.servers | mcp_held(hermes_config_current.mcp_servers | default({}, true), '_')} if 'servers' in HERMES_MCP_CONFIG else
+      {})} }}"
   when:
     - hermes_config_held is not skipped
     - hermes_config_held.rc == 0
