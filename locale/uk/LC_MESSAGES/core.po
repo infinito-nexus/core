@@ -143,6 +143,10 @@ msgctxt "rbac:web-app-joomla:author:description"
 msgid "Author in Joomla, maps onto the built-in `Author` user group (id 3) and may create and edit own articles in the frontend."
 msgstr ""
 
+msgctxt "role:svc-dns-knot:description"
+msgid "Authoritative Knot DNS for the Semaphore workspace subzone, a DNSSEC-signing primary with TSIG-fed secondaries"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
@@ -628,6 +632,10 @@ msgstr "Системи управління контентом (Мапа) веб
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
 msgstr "Система управління контентом для побудови та управління сайтами, блогами та багато сайтів з темами та плагінами"
+
+msgctxt "role:svc-ai-models:description"
+msgid "Content-addressed store that holds every pinned model artefact of a host once"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
