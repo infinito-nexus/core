@@ -614,7 +614,7 @@ class TestExportTools(unittest.TestCase):
         check = "| sha256sum --check --strict --quiet -\n"
         self.assertIn(check, text)
         planted = self.build.directory / "build.sh"
-        planted.write_text(text.replace(check, "| true\n"), encoding="utf-8")
+        planted.write_text(text.replace(check, "| cat >/dev/null\n"), encoding="utf-8")
         self.build.script = planted
         archive, _digest = self.build.archive("#!/bin/sh\necho v1.3.2\n", "age/age")
         binary = self.build.prefix() / "bin" / "age"
