@@ -102,7 +102,12 @@ class TestComposeNetworksLookup(unittest.TestCase):
         self.assertTrue(render_mock.call_args.kwargs["swarm_encrypted"])
 
     def test_the_daemon_mtu_reaches_the_renderer(self):
-        for daemon_mtu, expected in (("1400", 1400), (1400, 1400), (None, None), (0, None)):
+        for daemon_mtu, expected in (
+            ("1400", 1400),
+            (1400, 1400),
+            (None, None),
+            (0, None),
+        ):
             vars_ = {"application_id": "web-app-x", "DEPLOYMENT_MODE": "compose"}
             if daemon_mtu is not None:
                 vars_["SYS_DOCKER_DAEMONM_MTU"] = daemon_mtu
@@ -113,13 +118,17 @@ class TestComposeNetworksLookup(unittest.TestCase):
                     "utils.networks.lookup_context.build_service_registry_from_applications",
                     return_value={},
                 ),
-                mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
+                mock.patch(
+                    "utils.networks.lookup_context.lookup_loader"
+                ) as loader_mock,
                 mock.patch(
                     "plugins.lookup.compose_networks.render_compose_networks",
                     return_value="RENDERED",
                 ) as render_mock,
             ):
-                loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [""])
+                loader_mock.get.return_value = mock.MagicMock(
+                    run=lambda *_a, **_k: [""]
+                )
                 lm.run([], variables=vars_)
                 self.assertEqual(render_mock.call_args.kwargs["bridge_mtu"], expected)
 

@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-import yaml
-
+from utils.cache.yaml import load_yaml_str
 from utils.networks.render import BRIDGE_MTU_OPTION, render_compose_networks
 
 from ._render_helpers import _const_lookup_config, _const_lookup_database, _entity_name
@@ -18,7 +17,9 @@ OPENRESTY = {
 SUBNET = {"networks.local.subnet": "10.0.0.0/24"}
 
 
-def default_network(application_id, deployment_mode, bridge_mtu, registry=None, config=None):
+def default_network(
+    application_id, deployment_mode, bridge_mtu, registry=None, config=None
+):
     rendered = render_compose_networks(
         application_id=application_id,
         deployment_mode=deployment_mode,
@@ -28,7 +29,7 @@ def default_network(application_id, deployment_mode, bridge_mtu, registry=None, 
         lookup_database=_const_lookup_database(),
         bridge_mtu=bridge_mtu,
     )
-    return yaml.safe_load(rendered)["networks"]["default"] or {}
+    return load_yaml_str(rendered)["networks"]["default"] or {}
 
 
 class TestBridgeMtu(unittest.TestCase):
@@ -40,7 +41,9 @@ class TestBridgeMtu(unittest.TestCase):
         }
         for label, (application_id, registry, config) in cases.items():
             with self.subTest(label):
-                network = default_network(application_id, "compose", 1400, registry, config)
+                network = default_network(
+                    application_id, "compose", 1400, registry, config
+                )
                 self.assertEqual(network["driver_opts"], {BRIDGE_MTU_OPTION: "1400"})
 
     def test_a_node_local_swarm_bridge_carries_the_daemon_mtu(self):
@@ -54,7 +57,7 @@ class TestBridgeMtu(unittest.TestCase):
             node_local=True,
             bridge_mtu=1400,
         )
-        network = yaml.safe_load(rendered)["networks"]["default"]
+        network = load_yaml_str(rendered)["networks"]["default"]
         self.assertEqual(network["driver"], "bridge")
         self.assertEqual(network["driver_opts"], {BRIDGE_MTU_OPTION: "1400"})
 
@@ -69,7 +72,9 @@ class TestBridgeMtu(unittest.TestCase):
             ("web-app-anything", None, SUBNET),
         ):
             with self.subTest(application_id):
-                network = default_network(application_id, "compose", None, registry, config)
+                network = default_network(
+                    application_id, "compose", None, registry, config
+                )
                 self.assertNotIn("driver_opts", network)
 
 

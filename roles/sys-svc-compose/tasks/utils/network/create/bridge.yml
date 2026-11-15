@@ -20,7 +20,7 @@
       Remove the stale network or revert the networks.local.force_bridge change.
   when: lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) not in ['', 'bridge']
 
-- name: "🔍 Read the MTU of the existing bridge network for '{{ network_role_id }}' (compose)"
+- name: "🔍 Read bridge network MTU for '{{ network_role_id }}' (compose)"
   ansible.builtin.command:
     argv:
       - container
