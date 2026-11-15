@@ -381,6 +381,27 @@ The helper module `utils/roles/meta_lookup.py` exposes `get_role_run_after(role)
 All consumers of these fields use the helper instead of hand-rolled derivations.
 The helper returns `[]` / `None` gracefully when `meta/services.yml` is absent or when the field is not set.
 
+## Host Devices: `requires_devices` 🔌
+
+A role whose deploy needs a device node on the host names it on its primary entity in `meta/services.yml`:
+
+```yaml
+# roles/svc-virt-incus/meta/services.yml
+incus:
+  requires_devices:
+    - /dev/kvm
+```
+
+- The value is a non-empty list of distinct, normalised paths below `/dev`.
+  Omit the key when the role needs no device.
+  A malformed value, or the key on any entity but the primary one, fails [test_requires_devices.py](../../../../../tests/lint/ansible/roles/meta/test_requires_devices.py).
+- `get_role_requires_devices(role)` in `utils/roles/meta_lookup.py` reads the key and raises on a malformed value.
+- The development deploy, which `make compose-deploy` and the compose and host CI deploy rows run, checks each device the roles of a round declare on the deploy target before that round starts.
+  When one is missing, that round and every later one are declined, not failed: the runner prints `requires-devices: status=declined` with the device and the roles that need it, adds a **not run** line to the job summary and exits 0.
+  See [devices.py](../../../../../cli/administration/deploy/development/deploy/devices.py).
+- The declaration does not replace the role's own refusal.
+  A role that cannot run without the device still asserts it at deploy time, so a deploy outside the development runner stops with the role's message.
+
 ## Descriptive Role-Level Metadata: `meta/info.yml` 📝
 
 Project-internal descriptive metadata (icon, upstream homepage, demo video) lives in an OPTIONAL `meta/info.yml`, not nested inside `galaxy_info:`.

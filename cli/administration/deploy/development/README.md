@@ -86,6 +86,17 @@ Both sides pass `primary_apps` (not the round closure) as the BFS seed and
 the variant-merged services map for that round, so the reachability walk
 sees the same topology the inventory baked.
 
+## Host devices: `requires_devices`
+
+Before a round purges, resets the target or deploys, `deploy/cli.py` collects
+the devices its deploy ids declare in `requires_devices` and probes each one
+with `test -c` inside the `infinito` container, where the deploy runs. When a
+device is missing, [deploy/devices.py](deploy/devices.py) declines that round
+and every later one: it prints `requires-devices: status=declined` naming the
+device and the roles that need it, appends a **not run** line to
+`GITHUB_STEP_SUMMARY` and the handler exits 0. The key's schema is in
+[layout.md](../../../../docs/contributing/design/role/services/layout.md#host-devices-requires_devices-).
+
 ## Closure resolution (per round)
 
 `plan_dev_inventory_matrix` → `_resolve_round_include` runs
