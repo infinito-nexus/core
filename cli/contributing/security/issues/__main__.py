@@ -106,6 +106,11 @@ def image_repository(image: str) -> tuple[str, str]:
     return base, suffix.removeprefix(":") or "latest"
 
 
+def repository_of(name: str) -> str:
+    """Return the image repository an issue title of :func:`title` names."""
+    return image_repository(name.removeprefix(MARK))[0]
+
+
 def superseded(
     titles: Iterable[str],
     standing: Mapping[str, str],
@@ -239,7 +244,8 @@ def sync(
         unresolved CVEs and an updated body; an unchanged table leaves the
         issue alone. An issue :func:`superseded` names closes naming its
         standing issue. Any other issue without rows closes only when
-        ``tracker.covers`` says the report speaks for it.
+        ``tracker.covers`` says the report speaks for it and every image of
+        its repository with rows has a standing issue.
     """
     gh(
         [
@@ -300,10 +306,15 @@ def sync(
         if number is not None:
             filed[name] = f"#{number} {name}"
     replaced = replacements(report, tracker, existing, groups, filed)
+    unfiled = {repository_of(name) for name in groups if name not in filed}
     for name, issue in sorted(existing.items()):
         if name in replaced:
             comment, done = SUPERSEDED.format(by=replaced[name]), "closed superseded"
-        elif name not in groups and tracker.covers(report, name):
+        elif (
+            name not in groups
+            and repository_of(name) not in unfiled
+            and tracker.covers(report, name)
+        ):
             comment, done = tracker.gone, "closed"
         else:
             continue

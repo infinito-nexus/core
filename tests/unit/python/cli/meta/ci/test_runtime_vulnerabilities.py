@@ -456,6 +456,21 @@ class TestIncompleteRun(unittest.TestCase):
             ),
         )
 
+    def test_an_unfinished_journal_beside_a_summarized_one_marks_the_run_incomplete(
+        self,
+    ):
+        name = "rescue-diagnostics-compose-svc-x-0-debian-ext4-amd64"
+        with tempfile.TemporaryDirectory() as root:
+            write_bundle(root, name=name)
+            self.assertTrue(rv.collect(Path(root), PREFIX)["complete"])
+            write_unsummarized(root, name)
+            report = rv.collect(Path(root), PREFIX)
+        self.assertFalse(report["complete"])
+        self.assertIn(
+            f"{name}: a journal names targets without a hlth-runtime summary",
+            report["errors"],
+        )
+
     def test_negative_control_an_incomplete_run_supersedes_nothing(self):
         with tempfile.TemporaryDirectory() as root:
             write_bundle(root)

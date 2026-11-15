@@ -192,8 +192,9 @@ def collect(root: Path, prefix: str) -> dict[str, Any]:
         without such an error scanned, the only issues an absent finding
         may close; ``running``: the issue titles of every target any
         journal names, with or without such an error; ``complete``:
-        whether every artifact holds a journal with a summary, so no
-        deploy of the run stopped before its scan.
+        whether every artifact holds a journal with a summary and no
+        journal naming targets without one, so no deploy of the run
+        stopped before its scan.
     """
     rows: dict[tuple, dict[str, Any]] = {}
     scanned: set[str] = set()
@@ -202,15 +203,21 @@ def collect(root: Path, prefix: str) -> dict[str, Any]:
     unscanned: list[str] = []
     for artifact in sorted(path for path in root.iterdir() if path.is_dir()):
         summaries = 0
+        unfinished = False
         for distro, path in journals(artifact):
             found, seen, failed, summarized = read_journal(path, distro, prefix)
             rows.update((tuple(sorted(item.items())), item) for item in found)
             (blocked if failed else scanned).update(seen)
             summaries += summarized
+            unfinished = unfinished or (bool(seen) and not summarized)
             if failed:
                 errors.append(f"{path.relative_to(root)}: {failed} engine error(s)")
         if not summaries:
             unscanned.append(f"{artifact.name}: no journal with a hlth-runtime summary")
+        elif unfinished:
+            unscanned.append(
+                f"{artifact.name}: a journal names targets without a hlth-runtime summary"
+            )
     return {
         "findings": [rows[key] for key in sorted(rows, key=str)],
         "errors": [*errors, *unscanned],

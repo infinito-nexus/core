@@ -246,6 +246,19 @@ class TestSuperseded(TestCase):
         issues_main.sync(report([ROW], [SCAN_ERROR], [ROW["image"]]), "o/r", gh, MIRROR)
         self.assertEqual(gh.closes(), {})
 
+    def test_a_failed_open_keeps_the_older_tag_open_without_a_scan_error(self):
+        gh = FilingGh([self.issue(5, OLD_TITLE)], hang=[("issue", "create")])
+        issues_main.sync(report([ROW], [], [ROW["image"]]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {})
+
+    def test_negative_control_a_failed_open_of_another_repository_closes_the_tag(
+        self,
+    ):
+        other = {**ROW, "image": OTHER_IMAGE}
+        gh = FilingGh([self.issue(5, OLD_TITLE)], hang=[("issue", "create")])
+        issues_main.sync(report([other], [], [OTHER_IMAGE]), "o/r", gh, MIRROR)
+        self.assertEqual(gh.closes(), {"5": MIRROR.gone})
+
     def test_negative_control_a_failed_update_closes_nothing(self):
         gh = FakeGh(
             [self.issue(7, TITLE), self.issue(5, OLD_TITLE)], hang=[("issue", "edit")]
