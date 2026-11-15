@@ -2,7 +2,8 @@
 - name: "🔑 Mint a personal access token carrying the mcp scope"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r GITLAB_MCP_TOKEN_OWNER_PASSWORD && : "${GITLAB_MCP_TOKEN_OWNER_PASSWORD:?arrived empty on stdin}" && export GITLAB_MCP_TOKEN_OWNER_PASSWORD && container exec -i
+      IFS= read -r GITLAB_MCP_TOKEN_OWNER_PASSWORD && : "${GITLAB_MCP_TOKEN_OWNER_PASSWORD:?arrived empty on stdin}" && export GITLAB_MCP_TOKEN_OWNER_PASSWORD &&
+      container exec -i
       -e GITLAB_MCP_TOKEN_NAME={{ GITLAB_MCP_TOKEN_NAME | quote }}
       -e GITLAB_MCP_TOKEN_OWNER={{ GITLAB_MCP_TOKEN_OWNER | quote }}
       -e GITLAB_MCP_TOKEN_OWNER_NAME={{ GITLAB_MCP_TOKEN_OWNER_NAME | quote }}

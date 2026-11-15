@@ -25,7 +25,8 @@
   ansible.builtin.shell:
     cmd: >
       {{ TYPESENSE_EXEC_SHELL_STDIN }}
-      'IFS= read -r K || :; : "${K:?arrived empty on stdin}"; exec 3<>/dev/tcp/127.0.0.1/8108; printf "GET /health HTTP/1.0\r\nX-TYPESENSE-API-KEY: %s\r\n\r\n" "$K" >&3; grep -q "200 OK" <&3'
+      'IFS= read -r K || :; : "${K:?arrived empty on stdin}"; exec 3<>/dev/tcp/127.0.0.1/8108; printf "GET /health HTTP/1.0\r\nX-TYPESENSE-API-KEY: %s\r\n\r\n" "$K"
+      >&3; grep -q "200 OK" <&3'
     stdin: "{{ TYPESENSE_API_KEY }}"
   register: ts_admin_ready
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

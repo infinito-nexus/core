@@ -2,7 +2,9 @@
 - name: "🤖 Ensure the GitLab bot, its API token and the webhook settings"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver, container-exec-stack-host-gate  CID resolved at delegate_to runtime, container_address targets a manager-only subshell; reached only via 05_addons.yml's templated loop include inside 01_manager_ops.yml, which 00_core.yml includes under IS_STACK_HOST
-      IFS= read -r OPENPROJECT_GITLAB_BOT_PASSWORD && IFS= read -r OPENPROJECT_GITLAB_WEBHOOK_SECRET && IFS= read -r OPENPROJECT_GITLAB_API_TOKEN && : "${OPENPROJECT_GITLAB_BOT_PASSWORD:?arrived empty on stdin}" && : "${OPENPROJECT_GITLAB_WEBHOOK_SECRET:?arrived empty on stdin}" && export OPENPROJECT_GITLAB_BOT_PASSWORD OPENPROJECT_GITLAB_WEBHOOK_SECRET OPENPROJECT_GITLAB_API_TOKEN && container exec -i
+      IFS= read -r OPENPROJECT_GITLAB_BOT_PASSWORD && IFS= read -r OPENPROJECT_GITLAB_WEBHOOK_SECRET && IFS= read -r OPENPROJECT_GITLAB_API_TOKEN && : "${OPENPROJECT_GITLAB_BOT_PASSWORD:?arrived
+      empty on stdin}" && : "${OPENPROJECT_GITLAB_WEBHOOK_SECRET:?arrived empty on stdin}" && export OPENPROJECT_GITLAB_BOT_PASSWORD OPENPROJECT_GITLAB_WEBHOOK_SECRET
+      OPENPROJECT_GITLAB_API_TOKEN && container exec -i
       -e OPENPROJECT_GITLAB_BOT_LOGIN={{ OPENPROJECT_GITLAB_BOT.username | quote }}
       -e OPENPROJECT_GITLAB_BOT_MAIL={{ OPENPROJECT_GITLAB_BOT.email | quote }}
       -e OPENPROJECT_GITLAB_BOT_PASSWORD

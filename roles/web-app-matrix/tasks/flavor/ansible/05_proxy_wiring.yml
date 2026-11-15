@@ -101,7 +101,9 @@
     - name: "📁 ansible-flavor: create native Synapse admin (DiD, idempotent shared-secret)"
       ansible.builtin.shell:
         cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; no host docker involved; ansible flavor forces compose mode
-          IFS= read -r MATRIX_ADMINISTRATOR_PASSWORD || :; : "${MATRIX_ADMINISTRATOR_PASSWORD:?arrived empty on stdin}" && export MATRIX_ADMINISTRATOR_PASSWORD && container exec -e MATRIX_ADMINISTRATOR_PASSWORD {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} sh -lc 'printf "%s" "$MATRIX_ADMINISTRATOR_PASSWORD" | docker exec -i matrix-synapse register_new_matrix_user
+          IFS= read -r MATRIX_ADMINISTRATOR_PASSWORD || :; : "${MATRIX_ADMINISTRATOR_PASSWORD:?arrived empty on stdin}" && export MATRIX_ADMINISTRATOR_PASSWORD &&
+          container exec -e MATRIX_ADMINISTRATOR_PASSWORD {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} sh -lc 'printf "%s" "$MATRIX_ADMINISTRATOR_PASSWORD" | docker
+          exec -i matrix-synapse register_new_matrix_user
           -u "{{ MATRIX_ADMINISTRATOR_USERNAME }}"
           --password-file /dev/stdin
           -a -c {{ lookup('volume', 'web-app-matrix', 'synapse_config').target }} http://localhost:8008'

@@ -175,9 +175,7 @@ class TestRunnerSecrets(unittest.TestCase):
     def test_every_read_is_checked_for_an_empty_value_before_the_exec(self) -> None:
         host = _runner_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]
         for read in SECRET_READS.finditer(host):
-            self.assertIn(
-                f'"${{{read.group(1)}:?', host[read.end() :], read.group(1)
-            )
+            self.assertIn(f'"${{{read.group(1)}:?', host[read.end() :], read.group(1))
 
     def test_the_host_shell_refuses_an_empty_password_line(self) -> None:
         host = _runner_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]

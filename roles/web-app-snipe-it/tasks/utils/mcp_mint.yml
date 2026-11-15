@@ -23,7 +23,8 @@
 - name: "🔑 Mint the read-only Snipe-IT token the MCP adapter presents"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r APP_KEY && IFS= read -r MCP_PASSWORD && IFS= read -r MCP_CURRENT_TOKEN && : "${APP_KEY:?arrived empty on stdin}" && : "${MCP_PASSWORD:?arrived empty on stdin}" && export APP_KEY MCP_PASSWORD MCP_CURRENT_TOKEN && container exec -i -u apache
+      IFS= read -r APP_KEY && IFS= read -r MCP_PASSWORD && IFS= read -r MCP_CURRENT_TOKEN && : "${APP_KEY:?arrived empty on stdin}" && : "${MCP_PASSWORD:?arrived
+      empty on stdin}" && export APP_KEY MCP_PASSWORD MCP_CURRENT_TOKEN && container exec -i -u apache
       -e APP_KEY
       -e MCP_USER={{ SNIPEIT_MCP_UPSTREAM_USER | quote }}
       -e MCP_PASSWORD

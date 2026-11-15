@@ -32,7 +32,8 @@
 - name: "🔌 Reconcile the custom MCP server registry"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-      IFS= read -r FLOWISE_API_KEY && IFS= read -r FLOWISE_MCP_DESIRED && : "${FLOWISE_API_KEY:?arrived empty on stdin}" && : "${FLOWISE_MCP_DESIRED:?arrived empty on stdin}" && export FLOWISE_API_KEY FLOWISE_MCP_DESIRED && container exec -i
+      IFS= read -r FLOWISE_API_KEY && IFS= read -r FLOWISE_MCP_DESIRED && : "${FLOWISE_API_KEY:?arrived empty on stdin}" && : "${FLOWISE_MCP_DESIRED:?arrived empty
+      on stdin}" && export FLOWISE_API_KEY FLOWISE_MCP_DESIRED && container exec -i
       -e FLOWISE_BASE=http://localhost:{{ FLOWISE_PORT_INTERNAL | quote }}
       -e FLOWISE_API_KEY
       -e FLOWISE_WORKSPACE={{ (flowise_mcp_identity.stdout_lines | last | from_json).workspace_id | quote }}

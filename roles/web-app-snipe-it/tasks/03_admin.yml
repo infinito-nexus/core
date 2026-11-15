@@ -48,7 +48,8 @@
 - name: "🔑 Realign the administrator password Snipe-IT persisted at install"
   ansible.builtin.shell:
     cmd: >
-      IFS= read -r APP_KEY && IFS= read -r SNIPE_IT_REALIGN_PASSWORD && : "${APP_KEY:?arrived empty on stdin}" && : "${SNIPE_IT_REALIGN_PASSWORD:?arrived empty on stdin}" && export APP_KEY SNIPE_IT_REALIGN_PASSWORD &&
+      IFS= read -r APP_KEY && IFS= read -r SNIPE_IT_REALIGN_PASSWORD && : "${APP_KEY:?arrived empty on stdin}" && : "${SNIPE_IT_REALIGN_PASSWORD:?arrived empty on
+      stdin}" && export APP_KEY SNIPE_IT_REALIGN_PASSWORD &&
       container exec -i
       -e APP_KEY -e SNIPE_IT_REALIGN_USERNAME -e SNIPE_IT_REALIGN_PASSWORD
       {{ SNIPE_IT_CONTAINER_ADDRESS }} php

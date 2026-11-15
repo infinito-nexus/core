@@ -61,7 +61,8 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r API_BOT_PASSWORD && IFS= read -r API_KEY_SECRET && : "${API_BOT_PASSWORD:?arrived empty on stdin}" && : "${API_KEY_SECRET:?arrived empty on stdin}" && export API_BOT_PASSWORD API_KEY_SECRET &&
+      IFS= read -r API_BOT_PASSWORD && IFS= read -r API_KEY_SECRET && : "${API_BOT_PASSWORD:?arrived empty on stdin}" && : "${API_KEY_SECRET:?arrived empty on stdin}"
+      && export API_BOT_PASSWORD API_KEY_SECRET &&
       container exec -i
       -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
       -e API_BOT_EXTRA_ROLES_JSON -e COUNTRY -e CURRENCY -e SERVER_SCRIPTS_ENABLED

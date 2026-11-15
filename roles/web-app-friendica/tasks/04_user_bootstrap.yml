@@ -27,7 +27,8 @@
 
 - name: "🔑 Converge the Friendica administrator password"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
-    IFS= read -r FRIENDICA_ADMIN_PASSWORD && : "${FRIENDICA_ADMIN_PASSWORD:?arrived empty on stdin}" && export FRIENDICA_ADMIN_PASSWORD && container exec -i -e FRIENDICA_ADMIN_NICKNAME -e FRIENDICA_ADMIN_PASSWORD
+    IFS= read -r FRIENDICA_ADMIN_PASSWORD && : "${FRIENDICA_ADMIN_PASSWORD:?arrived empty on stdin}" && export FRIENDICA_ADMIN_PASSWORD && container exec -i -e FRIENDICA_ADMIN_NICKNAME
+    -e FRIENDICA_ADMIN_PASSWORD
     --user {{ FRIENDICA_USER }} --workdir {{ FRIENDICA_APPLICATION_DIR }}
     {{ FRIENDICA_LOCAL_CID | quote }} php --
   args:

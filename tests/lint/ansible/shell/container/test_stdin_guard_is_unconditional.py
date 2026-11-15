@@ -16,6 +16,7 @@ from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
 GUARD = 'IFS= read -r {name} || :; : "${{{name}:?{message}}}"'
 _MESSAGE = "arrived empty on stdin"
 _YAML_EXTENSIONS = (".yml", ".yaml")
@@ -51,16 +52,21 @@ _MAY_BE_EMPTY: dict[tuple[str, str], str] = {
     ("roles/web-app-snipe-it/tasks/utils/mcp_mint.yml", "MCP_CURRENT_TOKEN"): (
         "MCP_UPSTREAM_CURRENT_KEY is empty on the first mint, before any upstream key exists"
     ),
-    ("roles/web-app-openproject/tasks/addons/gitlab_integration.yml", "OPENPROJECT_GITLAB_API_TOKEN"): (
+    (
+        "roles/web-app-openproject/tasks/addons/gitlab_integration.yml",
+        "OPENPROJECT_GITLAB_API_TOKEN",
+    ): (
         "OPENPROJECT_GITLAB_TOKEN_HELD is empty until the first run mints the GitLab token; "
         "ensure_gitlab_webhook.rb mints one when it reads an empty value"
     ),
-    ("roles/web-app-nextcloud/tasks/addons/integration_gitlab_provision.yml", "NC_HAS_SECRET"): (
-        "the stored client secret is empty until the integration is first provisioned"
-    ),
-    ("roles/web-app-nextcloud/tasks/addons/integration_zammad_provision.yml", "NC_HAS_SECRET"): (
-        "the stored client secret is empty until the integration is first provisioned"
-    ),
+    (
+        "roles/web-app-nextcloud/tasks/addons/integration_gitlab_provision.yml",
+        "NC_HAS_SECRET",
+    ): ("the stored client secret is empty until the integration is first provisioned"),
+    (
+        "roles/web-app-nextcloud/tasks/addons/integration_zammad_provision.yml",
+        "NC_HAS_SECRET",
+    ): ("the stored client secret is empty until the integration is first provisioned"),
 }
 
 
@@ -168,8 +174,7 @@ def _yaml(text: str) -> list:
 class TestConditionalGuards(unittest.TestCase):
     def test_the_check_behind_a_failed_read_is_flagged(self) -> None:
         one_line = (
-            "- shell: >-\n"
-            '    IFS= read -r X || : "${X:?empty}" && export X && run\n'
+            '- shell: >-\n    IFS= read -r X || : "${X:?empty}" && export X && run\n'
         )
         split = (
             "- shell: >-\n"
@@ -193,10 +198,7 @@ class TestConditionalGuards(unittest.TestCase):
             f"    {GUARD.format(name='X', message='empty')} && export X && run\n"
         )
         literal = (
-            "- shell: |\n"
-            "    IFS= read -r X || :\n"
-            '    : "${X:?empty}"\n'
-            "    export X\n"
+            '- shell: |\n    IFS= read -r X || :\n    : "${X:?empty}"\n    export X\n'
         )
         self.assertEqual(conditional_guards(folded, _yaml(folded)), [])
         self.assertEqual(conditional_guards(literal, _yaml(literal)), [])
@@ -239,7 +241,7 @@ class TestUnguardedReads(unittest.TestCase):
 
     def test_loops_pipes_and_redirections_read_no_handed_over_value(self) -> None:
         script = (
-            "while IFS= read -r line; do echo \"$line\"; done\n"
+            'while IFS= read -r line; do echo "$line"; done\n'
             "printf 'a|b\\n' | while IFS='|' read -r a b; do :; done\n"
             "printf 'x' | read -r piped\n"
             'read -r first rest <<< "$value"\n'

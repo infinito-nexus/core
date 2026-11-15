@@ -35,7 +35,7 @@
       }}
   vars:
     nextcloud_crm_link_config:
-      - { appid: integration_suitecrm, configkey: oauth_instance_url, type: null, value: "{{ nextcloud_crm_base_url }}" }
-      - { appid: integration_suitecrm, configkey: client_id, type: null, value: "{{ nextcloud_crm_client_id }}" }
-      - { appid: integration_suitecrm, configkey: client_secret, type: null, value: "{{ nextcloud_crm_client_secret }}" }
+      - { appid: integration_suitecrm, configkey: oauth_instance_url, type: !!null "", value: "{{ nextcloud_crm_base_url }}" }
+      - { appid: integration_suitecrm, configkey: client_id, type: !!null "", value: "{{ nextcloud_crm_client_id }}" }
+      - { appid: integration_suitecrm, configkey: client_secret, type: !!null "", value: "{{ nextcloud_crm_client_secret }}" }
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

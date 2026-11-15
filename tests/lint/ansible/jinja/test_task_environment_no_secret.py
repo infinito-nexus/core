@@ -972,7 +972,7 @@ class TestTaskEnvironmentNoSecret(unittest.TestCase):
             "where the host's `ps` shows it to every local account for the "
             "whole module run and `no_log` cannot mask it. Hand it over on the "
             "module's `stdin:` instead: to the program itself, or to the "
-            "calling shell (`IFS= read -r NAME || :; : \"${NAME:?…}\" && "
+            'calling shell (`IFS= read -r NAME || :; : "${NAME:?…}" && '
             "export NAME && container exec -e NAME …`). Mark a deliberate "
             "exception with "
             f"`# nocheck: {_RULE} <reason>`.\n\nOffenders:\n" + "\n".join(findings),
