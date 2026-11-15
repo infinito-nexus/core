@@ -6,6 +6,7 @@ import tempfile
 import textwrap
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tests.lint.ansible.roles.meta import test_forms as lint
 from utils.roles.mapping import (
@@ -156,17 +157,22 @@ class TestFormsLint(unittest.TestCase):
         )
         self.assertEqual([], self._findings_with(allowed, DEFAULTS, users))
 
-    def test_an_sso_claim_source_passes(self) -> None:
+    def test_an_sso_attribute_source_passes(self) -> None:
         self.assertEqual([], self._findings(VALID + PROFILE))
 
-    def test_an_sso_source_outside_the_oidc_claims_fails(self) -> None:
-        for source in ("sso.shoe_size", "sso.email.domain"):
+    def test_an_sso_source_outside_the_oidc_attribute_keys_fails(self) -> None:
+        for source in (
+            "sso.SHOE_SIZE",
+            "sso.EMAIL.domain",
+            "sso.email",
+            "sso.preferred_username",
+        ):
             with self.subTest(source=source):
-                findings = self._findings(VALID + PROFILE.replace("sso.email", source))
+                findings = self._findings(VALID + PROFILE.replace("sso.EMAIL", source))
                 self.assertEqual(1, len(findings))
                 self.assertIn(
-                    f"{ROLE}: profile.email.source must be sso.<claim> with a claim "
-                    "of OIDC.ATTRIBUTES",
+                    f"{ROLE}: profile.email.source must be sso.<ATTRIBUTE> with an "
+                    "attribute key of OIDC.ATTRIBUTES",
                     findings[0],
                 )
                 self.assertNotIn(source, findings[0])
@@ -195,7 +201,7 @@ profile:
   path: /profile
   fields:
     email:
-      source: sso.email
+      source: sso.EMAIL
       mode: enforced
       selector: "#email[data-sso]"
 """
@@ -215,11 +221,14 @@ class TestConvergenceLint(unittest.TestCase):
     def _findings(files: dict[str, str]) -> list[str]:
         with tempfile.TemporaryDirectory() as tmp:
             role = Path(tmp) / ROLE
-            for name, content in {ROLE_FILE_META_FORMS: VALID, **files}.items():
+            fixture = {ROLE_FILE_META_FORMS: VALID, **files}
+            for name, content in fixture.items():
                 path = role / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(textwrap.dedent(content), encoding="utf-8")
-            return lint.convergence_findings([role])
+            written = tuple(sorted(role / name for name in fixture))
+            with mock.patch.object(lint, "role_files", lambda _role: written):
+                return lint.convergence_findings([role])
 
     def test_a_role_that_converges_each_declared_form_passes(self) -> None:
         self.assertEqual([], self._findings({ROLE_FILE_TASKS_MAIN: CONVERGES_GENERAL}))
@@ -535,11 +544,14 @@ class TestScriptLint(unittest.TestCase):
     def _findings(files: dict[str, str]) -> list[str]:
         with tempfile.TemporaryDirectory() as tmp:
             role = Path(tmp) / ROLE
-            for name, content in {ROLE_FILE_META_FORMS: SCRIPT_FORMS, **files}.items():
+            fixture = {ROLE_FILE_META_FORMS: SCRIPT_FORMS, **files}
+            for name, content in fixture.items():
                 path = role / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(content, encoding="utf-8")
-            return lint.script_findings([role])
+            written = tuple(sorted(role / name for name in fixture))
+            with mock.patch.object(lint, "role_files", lambda _role: written):
+                return lint.script_findings([role])
 
     def test_writes_from_input_or_a_sink_and_skipped_files_pass(self) -> None:
         self.assertEqual([], self._findings(SCRIPT_INPUTS))

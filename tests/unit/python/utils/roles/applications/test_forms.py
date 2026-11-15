@@ -7,8 +7,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
+from utils.cache.reset import _reset_cache_for_tests
 from utils.roles.applications import drift, form_schema, forms
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
@@ -178,13 +178,13 @@ class TestSchema(unittest.TestCase):
                 self.assertIn("blogname.optional must be true", errors[0])
 
     def test_an_sso_field_takes_no_optional(self):
-        spec = {"source": "sso.email", "mode": "enforced", "selector": "#email"}
+        spec = {"source": "sso.EMAIL", "mode": "enforced", "selector": "#email"}
         errors = form_schema.schema_errors(
             "web-app-x",
             _with_field("general", "email", {**spec, "optional": True}),
         )
         self.assertEqual(1, len(errors))
-        self.assertIn("email.optional takes no sso.<claim> source", errors[0])
+        self.assertIn("email.optional takes no sso.<ATTRIBUTE> source", errors[0])
 
     def test_an_env_name_passes(self):
         spec = {**_field("general", "blogname"), "env": "FTLCONF_webserver_domain"}
@@ -417,7 +417,7 @@ class TestSchema(unittest.TestCase):
         data["general"]["native"] = True
         data["general"]["record"] = {"selector": "#clientId", "source": "clients.ids"}
         data["general"]["fields"]["name"] = {
-            "source": "sso.name",
+            "source": "sso.NAME",
             "mode": "enforced",
             "selector": "#name",
         }
@@ -425,7 +425,7 @@ class TestSchema(unittest.TestCase):
             [
                 "web-app-x: general.native takes no record; the application locks it",
                 (
-                    "web-app-x: general.native holds no sso.<claim> field; the shared"
+                    "web-app-x: general.native holds no sso.<ATTRIBUTE> field; the shared"
                     " renderer shows its warning"
                 ),
             ],
@@ -489,14 +489,14 @@ class TestSchema(unittest.TestCase):
     def test_a_pending_lock_holds_no_sso_field(self):
         data = self._pending()
         data["general"]["fields"]["name"] = {
-            "source": "sso.name",
+            "source": "sso.NAME",
             "mode": "enforced",
             "selector": "#name",
         }
         self.assertEqual(
             [
                 (
-                    "web-app-x: general.lock pending holds no sso.<claim> field; the"
+                    "web-app-x: general.lock pending holds no sso.<ATTRIBUTE> field; the"
                     " shared renderer shows its warning"
                 )
             ],
@@ -706,7 +706,7 @@ class TestSourceErrors(unittest.TestCase):
         for source in (
             "secrets.credentials.smtp.password",
             "users.platform_administrator.email",
-            "sso.email",
+            "sso.EMAIL",
             "services.ldap.bind_password",
             "services.password.ids",
         ):

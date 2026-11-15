@@ -6,12 +6,12 @@ Returns ``{"locks": [...], "languages": [...] | None, "profile": {...}}`` for
 ``roles/sys-front-inj-javascript/templates/profile_lock.js.j2``, its catalogue
 and the server guards. ``locks`` holds the entry
 ``utils.roles.applications.forms.locks`` builds for every ``enforced`` field of
-the role's ``meta/forms.yml``; an ``sso.<claim>`` field comes without ``path``,
-so the renderer shows the profile warning and offers no unlock, and a role
-without the file locks nothing. ``languages`` is the role's
+the role's ``meta/forms.yml``; an ``sso.<ATTRIBUTE>`` field comes without
+``path``, so the renderer shows the profile warning and offers no unlock, and a
+role without the file locks nothing. ``languages`` is the role's
 ``services.sso.profile.languages``, or ``None`` for a role that declares none,
 whose page then carries every catalogue language. ``profile`` maps each
-``sso.<claim>`` field to its selector.
+``sso.<ATTRIBUTE>`` field to its selector.
 """
 
 from __future__ import annotations

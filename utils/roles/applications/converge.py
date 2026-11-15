@@ -45,7 +45,7 @@ def values(
     Returns:
         Each field whose ``when`` holds mapped to the value its ``source``
         resolves to, passed through its ``map``, in YAML order; an
-        ``sso.<claim>`` field and an ``optional`` field whose source is
+        ``sso.<ATTRIBUTE>`` field and an ``optional`` field whose source is
         ``false`` are left out.
 
     Raises:

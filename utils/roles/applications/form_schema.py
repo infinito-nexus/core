@@ -129,7 +129,7 @@ def _optional_errors(where: str, spec: Mapping) -> list[str]:
     if is_sso_source(spec.get("source")):
         return [
             (
-                f"{where}.optional takes no sso.<claim> source; such a source has"
+                f"{where}.optional takes no sso.<ATTRIBUTE> source; such a source has"
                 " no deploy-time value"
             )
         ]
@@ -206,7 +206,7 @@ def _native_errors(where: str, block: Mapping) -> list[str]:
         errors.append(f"{where}.native takes no record; the application locks it")
     if _holds_sso_field(block):
         errors.append(
-            f"{where}.native holds no sso.<claim> field; the shared renderer"
+            f"{where}.native holds no sso.<ATTRIBUTE> field; the shared renderer"
             " shows its warning"
         )
     return errors
@@ -241,7 +241,7 @@ def _lock_errors(where: str, block: Mapping) -> list[str]:
         )
     if _holds_sso_field(block):
         errors.append(
-            f"{where}.lock {LOCK_PENDING} holds no sso.<claim> field; the shared"
+            f"{where}.lock {LOCK_PENDING} holds no sso.<ATTRIBUTE> field; the shared"
             " renderer shows its warning"
         )
     return errors

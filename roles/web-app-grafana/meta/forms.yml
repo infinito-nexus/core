@@ -3,15 +3,15 @@ profile:
   path: /profile
   fields:
     name:
-      source: sso.name
+      source: sso.NAME
       mode: enforced
       selector: "#edit-user-profile-name:disabled"
     email:
-      source: sso.email
+      source: sso.EMAIL
       mode: enforced
       selector: "#edit-user-profile-email:disabled"
     username:
-      source: sso.preferred_username
+      source: sso.USERNAME
       mode: enforced
       selector: "#edit-user-profile-username:disabled"
 settings:
@@ -24,35 +24,35 @@ settings:
       mode: enforced
       selector: table.filter-table
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Allow sign-up
     gf_users_allow_org_create:
       source: services.grafana.settings.allow_org_create
       mode: enforced
       selector: table.filter-table
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Allow organization creation
     gf_auth_disable_login_form:
       source: services.grafana.login.method.native.enabled
       mode: enforced
       selector: table.filter-table
       type: checkbox
-      map: {true: "false", false: "true"}
+      map: { true: "false", false: "true" }
       label: Disable login form
     gf_auth_anonymous_enabled:
       source: services.grafana.settings.anonymous_enabled
       mode: enforced
       selector: table.filter-table
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Anonymous access
     gf_auth_basic_enabled:
       source: services.grafana.settings.basic_auth_enabled
       mode: enforced
       selector: table.filter-table
       type: checkbox
-      map: {true: "true", false: "false"}
+      map: { true: "true", false: "false" }
       label: Basic authentication
 datasources:
   path: /connections/datasources/edit/

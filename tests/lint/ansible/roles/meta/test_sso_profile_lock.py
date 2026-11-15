@@ -1,9 +1,9 @@
 """Lint guard: a profile field the SSO login overwrites is locked or written back.
 
 A role locks a profile field as a field of its ``meta/forms.yml`` whose
-``source`` is ``sso.<claim>``; its ``selector`` matches only while the field is
-locked for the account the form edits: every comma-separated part of it matches
-the role's ``MANAGED_MARKER``. The role's ``templates/javascript.js.j2``
+``source`` is ``sso.<ATTRIBUTE>``, a key of ``OIDC.ATTRIBUTES``; its ``selector``
+matches only while the field is locked for the account the form edits: every
+comma-separated part of it matches the role's ``MANAGED_MARKER``. The role's ``templates/javascript.js.j2``
 includes ``SHARED_RENDERER``, which renders every match read-only with the
 translated warning as its hover title, so the role also enables
 ``services.javascript`` and proves the lock in ``ROLE_SPEC``, which
@@ -29,7 +29,7 @@ Every role with a potentially enabled ``sso`` or ``ldap`` service, a custom
 inventory list of this file or by its own ``overwritten`` or ``none_needed``.
 ``OVERWRITTEN`` names the fields a treated role's login, timer or deploy
 overwrites without writing them back, and each of them, like each field of a
-role's own ``overwritten``, MUST be an ``sso.<claim>`` field or appear in
+role's own ``overwritten``, MUST be an ``sso.<ATTRIBUTE>`` field or appear in
 ``write_back``;
 ``NONE_NEEDED`` names the roles whose inventory rows need no treatment;
 ``PENDING`` is the only exemption, the roles not treated yet with the fields
@@ -342,7 +342,7 @@ def _marker_errors(
         errors.append(f"{where}.marker duplicates MANAGED_MARKER[{role!r}]; keep one")
     if not locked:
         errors.append(
-            f"{where}.marker needs the sso.<claim> fields of {ROLE_FILE_META_FORMS}, "
+            f"{where}.marker needs the sso.<ATTRIBUTE> fields of {ROLE_FILE_META_FORMS}, "
             "the selectors it checks"
         )
     marker = profile["marker"]
@@ -364,7 +364,7 @@ def _schema_errors(
         return [f"{where} must be a non-empty mapping of {sorted(PROFILE_KEYS)}"]
     errors = [
         f"{where}.{MOVED_KEY} moved to {ROLE_FILE_META_FORMS}: declare each field "
-        "there with source sso.<claim>"
+        "there with source sso.<ATTRIBUTE>, a key of OIDC.ATTRIBUTES"
         if key == MOVED_KEY
         else f"{where}.{key} is not a known key; use {sorted(PROFILE_KEYS)}"
         for key in sorted(set(profile) - PROFILE_KEYS)
@@ -447,7 +447,7 @@ def _unmarked_parts(marker: re.Pattern[str], locked: dict[str, Any]) -> list[str
 
     Args:
         marker: the role's managed-account marker, see ``_marker``.
-        locked: the selector of each ``sso.<claim>`` field of the role.
+        locked: the selector of each ``sso.<ATTRIBUTE>`` field of the role.
 
     Returns:
         ``field: part`` for every comma-separated part that does not fully
@@ -529,7 +529,7 @@ def uncovered_fields(
 
     Returns:
         Role mapped to the sorted fields of ``OVERWRITTEN`` and of its own
-        ``overwritten`` that are neither an ``sso.<claim>`` field nor in
+        ``overwritten`` that are neither an ``sso.<ATTRIBUTE>`` field nor in
         ``write_back``; roles without such a field are left out.
     """
     forms_by_role = forms_by_role or {}
@@ -618,7 +618,7 @@ class TestSsoProfileLock(unittest.TestCase):
             {},
             uncovered_fields(self.services, self.forms),
             "declare these fields in the role's meta/forms.yml with source "
-            "sso.<claim>, or under services.sso.profile.write_back in its "
+            "sso.<ATTRIBUTE>, or under services.sso.profile.write_back in its "
             "meta/services.yml",
         )
 

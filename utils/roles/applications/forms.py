@@ -96,7 +96,7 @@ def _is_user_path(parts: list[str]) -> bool:
 
 
 def is_sso_source(source: Any) -> bool:
-    """Whether a field's ``source`` names a claim of the SSO sign-in.
+    """Whether a field's ``source`` names an ``OIDC.ATTRIBUTES`` key of the SSO sign-in.
 
     Args:
         source: the field's ``source``.
@@ -159,8 +159,8 @@ def resolve(source: str, application: Mapping, users: Mapping) -> Any:
 
     Raises:
         SourceError: when the source is no dotted path, names nothing, names
-            a user path of another shape or a refused user attribute, or names
-            an SSO claim; the message never repeats the source.
+            a user path of another shape or a refused user attribute, or is
+            an ``sso`` source; the message never repeats the source.
     """
     if not (isinstance(source, str) and _PATH.fullmatch(source)):
         raise SourceError("the source is no dotted inventory path")
@@ -242,7 +242,7 @@ def source_errors(
     Returns:
         One finding per refused or unresolved path, naming the
         ``<form>.<field>.<key>`` or ``<form>.record.source`` coordinate and
-        never the path itself; an ``sso.<claim>`` field source is left to
+        never the path itself; an ``sso.<ATTRIBUTE>`` field source is left to
         ``sso_fields.errors``, while a record source is refused under
         ``users``, ``secrets.credentials`` or ``sso``, with a last segment
         matching ``SECRET_SEGMENT`` or with a segment named like a declared
@@ -429,7 +429,7 @@ def locks(
 
     Returns:
         First one profile lock per form ``page`` path that holds
-        ``sso.<claim>`` fields: their ``selector`` parts joined by commas,
+        ``sso.<ATTRIBUTE>`` fields: their ``selector`` parts joined by commas,
         with the ``label`` and ``path`` ``None`` and never ``secret``. Then
         one entry per other ``enforced`` field whose ``when`` holds and, for
         an ``optional`` field, whose source is not ``false``, in YAML

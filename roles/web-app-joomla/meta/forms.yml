@@ -3,51 +3,116 @@ profile:
   path: /
   fields:
     name:
-      source: sso.name
+      source: sso.NAME
       mode: enforced
       selector: "#jform_name[data-infinito-sso-locked]"
     username:
-      source: sso.preferred_username
+      source: sso.USERNAME
       mode: enforced
       selector: "#jform_username[data-infinito-sso-locked]"
     email:
-      source: sso.email
+      source: sso.EMAIL
       mode: enforced
       selector: "#jform_email1[data-infinito-sso-locked]"
     language:
-      source: sso.locale
+      source: sso.LOCALE
       mode: enforced
       selector: "#jform_params_language[data-infinito-sso-locked]"
     timezone:
-      source: sso.zoneinfo
+      source: sso.ZONEINFO
       mode: enforced
       selector: "#jform_params_timezone[data-infinito-sso-locked]"
     phone:
-      source: sso.phone_number
+      source: sso.PHONE_NUMBER
       mode: enforced
       selector: "#jform_profile_phone[data-infinito-sso-locked]"
     website:
-      source: sso.website
+      source: sso.WEBSITE
       mode: enforced
       selector: "#jform_profile_website[data-infinito-sso-locked]"
     address:
-      source: sso.address
+      source: sso.ADDRESS
       mode: enforced
       selector: "#jform_profile_address1[data-infinito-sso-locked],#jform_profile_city[data-infinito-sso-locked],#jform_profile_region[data-infinito-sso-locked],#jform_profile_postal_code[data-infinito-sso-locked],#jform_profile_country[data-infinito-sso-locked]"
 ldap:
   path: /administrator/index.php?option=com_plugins&view=plugin&layout=edit
   sinks: [JOOMLA_LDAP_PARAMS]
   fields:
-    host: {source: services.joomla.ldap.host, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][host]\"]"}
-    port: {source: services.joomla.ldap.port, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][port]\"]"}
-    use_ldapV3: {source: services.joomla.ldap.use_ldapV3, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: checkbox, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][use_ldapV3]\"]"}
-    encryption: {source: services.joomla.ldap.encryption, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: select, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][encryption]\"]"}
-    no_referrals: {source: services.joomla.ldap.no_referrals, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: checkbox, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][no_referrals]\"]"}
-    auth_method: {source: services.joomla.ldap.auth_method, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: select, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][auth_method]\"]"}
-    base_dn: {source: services.joomla.ldap.base_dn, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][base_dn]\"]"}
-    search_string: {source: services.joomla.ldap.search_string, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "[name=\"jform[params][search_string]\"]"}
-    users_dn: {source: services.joomla.ldap.users_dn, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][users_dn]\"]"}
-    username: {source: services.joomla.ldap.admin_dn, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][username]\"]"}
-    ldap_fullname: {source: services.joomla.ldap.ldap_fullname, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][ldap_fullname]\"]"}
-    ldap_email: {source: services.joomla.ldap.ldap_email, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][ldap_email]\"]"}
-    ldap_uid: {source: services.joomla.ldap.ldap_uid, when: services.joomla.login.method.ldap.enabled, mode: enforced, type: text, selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][ldap_uid]\"]"}
+    host:
+      source: services.joomla.ldap.host
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][host]\"]"
+    port:
+      source: services.joomla.ldap.port
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][port]\"]"
+    use_ldapV3:
+      source: services.joomla.ldap.use_ldapV3
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: checkbox
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][use_ldapV3]\"]"
+    encryption:
+      source: services.joomla.ldap.encryption
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: select
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][encryption]\"]"
+    no_referrals:
+      source: services.joomla.ldap.no_referrals
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: checkbox
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][no_referrals]\"]"
+    auth_method:
+      source: services.joomla.ldap.auth_method
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: select
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][auth_method]\"]"
+    base_dn:
+      source: services.joomla.ldap.base_dn
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][base_dn]\"]"
+    search_string:
+      source: services.joomla.ldap.search_string
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "[name=\"jform[params][search_string]\"]"
+    users_dn:
+      source: services.joomla.ldap.users_dn
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][users_dn]\"]"
+    username:
+      source: services.joomla.ldap.admin_dn
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][username]\"]"
+    ldap_fullname:
+      source: services.joomla.ldap.ldap_fullname
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][ldap_fullname]\"]"
+    ldap_email:
+      source: services.joomla.ldap.ldap_email
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][ldap_email]\"]"
+    ldap_uid:
+      source: services.joomla.ldap.ldap_uid
+      when: services.joomla.login.method.ldap.enabled
+      mode: enforced
+      type: text
+      selector: "form:has([name=\"jform[params][search_string]\"]) [name=\"jform[params][ldap_uid]\"]"

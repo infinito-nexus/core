@@ -22,7 +22,7 @@ general:
       mode: enforced
       selector: "#users_can_register"
       type: checkbox
-      map: {true: "1", false: "0"}
+      map: { true: "1", false: "0" }
       label: Membership
 address:
   path: /wp-admin/options-general.php
@@ -115,32 +115,32 @@ network:
       selector: 'input[name="registration"]'
       type: select
       enum: [none, user, blog, all]
-      map: {true: user, false: none}
+      map: { true: user, false: none }
       label: Allow new registrations
 profile:
   path: /wp-admin/
   fields:
     first_name:
-      source: sso.given_name
+      source: sso.GIVEN_NAME
       mode: enforced
       selector: "body.infinito-sso-managed #your-profile #first_name"
     last_name:
-      source: sso.family_name
+      source: sso.FAMILY_NAME
       mode: enforced
       selector: "body.infinito-sso-managed #your-profile #last_name"
     display_name:
-      source: sso.name
+      source: sso.NAME
       mode: enforced
       selector: "body.infinito-sso-managed #your-profile #display_name"
     email:
-      source: sso.email
+      source: sso.EMAIL
       mode: enforced
       selector: "body.infinito-sso-managed #your-profile #email"
     website:
-      source: sso.website
+      source: sso.WEBSITE
       mode: enforced
       selector: "body.infinito-sso-managed #your-profile #url"
     language:
-      source: sso.locale
+      source: sso.LOCALE
       mode: enforced
       selector: "body.infinito-sso-managed #your-profile #locale"

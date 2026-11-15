@@ -39,7 +39,7 @@ def services(profile: dict[str, Any]) -> dict[str, Any]:
 
 
 def forms(locked: dict[str, str]) -> dict[str, Any]:
-    """A parsed ``meta/forms.yml`` with one ``sso.<claim>`` field per entry.
+    """A parsed ``meta/forms.yml`` with one ``sso.<ATTRIBUTE>`` field per entry.
 
     Args:
         locked: field mapped to its selector.
@@ -48,7 +48,7 @@ def forms(locked: dict[str, str]) -> dict[str, Any]:
         "profile": {
             "path": "/",
             "fields": {
-                field: {"source": "sso.name", "mode": "enforced", "selector": selector}
+                field: {"source": "sso.NAME", "mode": "enforced", "selector": selector}
                 for field, selector in locked.items()
             },
         }
@@ -198,7 +198,7 @@ class TestSchema(unittest.TestCase):
         profile = {"overwritten": ["name"], "write_back": ["name"], "marker": MARKER}
 
         self.assertIn(
-            "marker needs the sso.<claim> fields of meta/forms.yml",
+            "marker needs the sso.<ATTRIBUTE> fields of meta/forms.yml",
             self.errors(CUSTOM, profile),
         )
 
