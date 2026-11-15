@@ -20,13 +20,13 @@ from unittest import mock
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template
 
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache import applications as applications_cache
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.converge import values
 from utils.roles.applications.forms import when_path
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_VARS_MAIN
 
 ROLES = PROJECT_ROOT / "roles"
 SSO = ("web-app-keycloak", "svc-db-openldap")
@@ -194,9 +194,9 @@ class TestGitea(_EnvironmentLine, unittest.TestCase):
 class TestWeblate(_EnvironmentLine, unittest.TestCase):
     ROLE = "web-app-weblate"
     ENTITY = "weblate"
-    MARKER = "INFINITO_WEBLATE_2FA_ENFORCED="
-    ON = "INFINITO_WEBLATE_2FA_ENFORCED=1"
-    OFF = "INFINITO_WEBLATE_2FA_ENFORCED=0"
+    MARKER = "WEBLATE_LOGIN_2FA_ENFORCED="
+    ON = "WEBLATE_LOGIN_2FA_ENFORCED=1"
+    OFF = "WEBLATE_LOGIN_2FA_ENFORCED=0"
     UNMANAGED = OFF
 
 
@@ -221,7 +221,7 @@ class TestEspocrm(_EnforcementCase, unittest.TestCase):
     def _seed(
         self, marker: str, mode: tuple[str, ...], second_factor: dict[str, bool]
     ) -> str:
-        forms = load_yaml_str(read_text(str(ROLES / self.ROLE / "meta/forms.yml")))
+        forms = load_yaml_str(read_text(str(ROLES / self.ROLE / ROLE_FILE_META_FORMS)))
         application: dict[str, Any] = {}
         for spec in forms[self.FORM]["fields"].values():
             for path in filter(None, (spec["source"], when_path(spec.get("when")))):

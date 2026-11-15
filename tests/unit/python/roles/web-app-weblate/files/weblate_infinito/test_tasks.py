@@ -12,10 +12,11 @@ from unittest import mock
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_META_VOLUMES, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles/web-app-weblate"
 MODULE = ROLE / "files/python/weblate_infinito/tasks.py"
-SWITCH = "INFINITO_WEBLATE_2FA_ENFORCED"
+SWITCH = "WEBLATE_LOGIN_2FA_ENFORCED"
 
 
 def matches(row, key: str, wanted) -> bool:
@@ -149,7 +150,8 @@ class WeblateTwoFactorTests(unittest.TestCase):
     def test_the_marker_owns_only_what_the_deploy_switched_on(self) -> None:
         self.deploy("1")
         self.assertEqual(
-            json.loads(self.marker.read_text()), {"projects": [7], "teams": [1]}
+            json.loads(self.marker.read_text()),  # nocheck: cache-read tempdir
+            {"projects": [7], "teams": [1]},
         )
 
     def test_a_converged_site_switches_nothing_and_rewrites_no_marker(self) -> None:
@@ -165,7 +167,8 @@ class WeblateTwoFactorTests(unittest.TestCase):
         self.assertEqual(flags(self.teams), {1: False, 2: False, 3: True, 4: False})
         self.assertEqual(flags(self.projects), {7: False, 8: True})
         self.assertEqual(
-            json.loads(self.marker.read_text()), {"projects": [], "teams": []}
+            json.loads(self.marker.read_text()),  # nocheck: cache-read tempdir
+            {"projects": [], "teams": []},
         )
 
     def test_an_unknown_switch_value_lifts_nothing(self) -> None:
@@ -191,7 +194,8 @@ class WeblateTwoFactorTests(unittest.TestCase):
         self.assertTrue(self.teams[0].enforced_2fa)
         self.assertEqual(flags(self.projects), {7: True, 8: True, 9: True})
         self.assertEqual(
-            json.loads(self.marker.read_text()), {"projects": [7, 9], "teams": [1]}
+            json.loads(self.marker.read_text()),  # nocheck: cache-read tempdir
+            {"projects": [7, 9], "teams": [1]},
         )
 
     def test_a_deleted_object_leaves_the_ownership(self) -> None:
@@ -202,12 +206,13 @@ class WeblateTwoFactorTests(unittest.TestCase):
 class WeblateTwoFactorDeployTests(unittest.TestCase):
     def test_every_stack_host_deploy_runs_the_convergence(self) -> None:
         core = load_yaml_str(read_text(str(ROLE / "tasks/00_core.yml")))
-        include = next(
+        (stack_host,) = [
             task
             for task in core
-            if task.get("ansible.builtin.include_tasks") == "utils/two_factor.yml"
-        )
-        self.assertEqual(include["when"], "IS_STACK_HOST | bool")
+            for child in task.get("block", [])
+            if child.get("ansible.builtin.include_tasks") == "utils/two_factor.yml"
+        ]
+        self.assertEqual(stack_host["when"], "IS_STACK_HOST | bool")
         (task,) = load_yaml_str(read_text(str(ROLE / "tasks/utils/two_factor.yml")))
         self.assertNotIn("when", task)
         self.assertIn(
@@ -227,13 +232,13 @@ class WeblateTwoFactorDeployTests(unittest.TestCase):
         name = "weblate_infinito_tasks.py"
         self.assertIn(
             name,
-            load_yaml_str(read_text(str(ROLE / "vars/main.yml")))[
+            load_yaml_str(read_text(str(ROLE / ROLE_FILE_VARS_MAIN)))[
                 "WEBLATE_TWO_FACTOR_TASKS_HOST"
             ],
         )
         self.assertIn(
             name,
-            load_yaml_str(read_text(str(ROLE / "meta/volumes.yml")))[
+            load_yaml_str(read_text(str(ROLE / ROLE_FILE_META_VOLUMES)))[
                 "two_factor_tasks"
             ]["source"],
         )

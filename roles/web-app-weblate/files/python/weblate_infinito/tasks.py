@@ -1,5 +1,5 @@
 """Environment:
-    INFINITO_WEBLATE_2FA_ENFORCED: ``1`` while the deploy enforces the second
+    WEBLATE_LOGIN_2FA_ENFORCED: ``1`` while the deploy enforces the second
         factor, ``0`` while it does not.
 
 Output:
@@ -12,7 +12,7 @@ from pathlib import Path
 
 from weblate.utils.celery import app
 
-ENFORCED = "INFINITO_WEBLATE_2FA_ENFORCED"
+ENFORCED = "WEBLATE_LOGIN_2FA_ENFORCED"
 GUESTS = "Guests"
 
 
