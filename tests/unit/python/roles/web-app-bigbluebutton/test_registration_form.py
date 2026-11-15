@@ -114,7 +114,11 @@ def _run_script(mode: str, stored: str, wanted: str) -> tuple[int, str, str | No
             check=False,
             timeout=60,
         )
-        written = writes.read_text() if writes.exists() else None
+        written = (
+            writes.read_text()  # nocheck: cache-read tempdir
+            if writes.exists()
+            else None
+        )
     return completed.returncode, completed.stdout, written
 
 
@@ -149,13 +153,13 @@ class TestRegistrationForm(unittest.TestCase):
         self.assertNotIn("BBB_REGISTRATION_METHOD", variables)
 
     def test_the_drift_report_runs_between_the_read_and_the_write(self) -> None:
-        read, report, write = _converge_block()["block"]
+        read, pending = _converge_block()["block"]
+        report, write = pending["block"]
         self.assertEqual("read", read["environment"]["MODE"])
         self.assertEqual("false", str(read["changed_when"]).lower())
         self.assertIn(DRIFT_TASKS, report["ansible.builtin.include_tasks"])
         self.assertEqual("converge", write["environment"]["MODE"])
-        for step in (report, write):
-            self.assertEqual("bbb_registration_state.pending | bool", step["when"])
+        self.assertEqual("bbb_registration_state.pending | bool", pending["when"])
         for step in (read, write):
             self.assertEqual(
                 "{{ BBB_REGISTRATION.registration_method }}",
@@ -163,7 +167,9 @@ class TestRegistrationForm(unittest.TestCase):
             )
 
     def test_the_drift_report_holds_the_stored_method(self) -> None:
-        current = _converge_block()["block"][1]["vars"]["forms_drift_current"]
+        current = _converge_block()["block"][1]["block"][0]["vars"][
+            "forms_drift_current"
+        ]
         stored = {"registration_method": "invite", "pending": True}
         self.assertEqual(
             "invite",

@@ -13,18 +13,25 @@ from unittest.mock import patch
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MCP,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 from .files.test_rbac_teams import FakePretix
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-pretix"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 TEAMS_TASKS = ROLE / "tasks" / "utils" / "rbac_teams.yml"
-MCP_TASKS = ROLE / "tasks" / "utils" / "mcp.yml"
+MCP_TASKS = ROLE / ROLE_FILE_TASKS_MCP
 RBAC_SCRIPT = ROLE / "files" / "python" / "rbac_teams.py"
 MCP_SCRIPT = ROLE / "files" / "python" / "provision_mcp_identity.py"
 READ = ROLE / "files" / "sql" / "select-teams.sql"
@@ -69,7 +76,7 @@ def _forms() -> dict:
 
 
 def _managed() -> tuple:
-    tree = ast.parse(RBAC_SCRIPT.read_text(encoding="utf-8"))
+    tree = ast.parse(read_text(str(RBAC_SCRIPT)))
     return next(
         ast.literal_eval(node.value)
         for node in tree.body
@@ -80,6 +87,20 @@ def _managed() -> tuple:
 
 def _tasks(path) -> list[dict]:
     return DataLoader().load_from_file(str(path), trusted_as_template=True)
+
+
+def _steps(path) -> list[dict]:
+    """Args:
+    path: a task file whose blocks hold no condition of their own children.
+
+    Returns:
+    the tasks in run order, each block child carrying the condition of its block.
+    """
+    return [
+        {**step, "when": task["when"]} if "block" in task else step
+        for task in _tasks(path)
+        for step in task.get("block", [task])
+    ]
 
 
 def _render(expression, variables: dict):
@@ -215,7 +236,7 @@ class TestTheFormsFileDeclaresTheManagedTeams(unittest.TestCase):
     def test_the_lock_renderer_is_loaded_on_every_page(self):
         services = load_yaml_any(str(SERVICES))
         self.assertIs(True, services["javascript"]["enabled"])
-        self.assertIn(SHARED_RENDERER, LOADER.read_text(encoding="utf-8"))
+        self.assertIn(SHARED_RENDERER, read_text(str(LOADER)))
 
 
 class TestTheConvergeTakesTheTeamsFromTheSinks(unittest.TestCase):
@@ -289,7 +310,7 @@ class TestTheConvergeTakesTheTeamsFromTheSinks(unittest.TestCase):
 
 class TestTheDeployReportsBeforeItConverges(unittest.TestCase):
     def test_the_teams_are_read_and_reported_before_the_sync(self):
-        tasks = _tasks(TEAMS_TASKS)
+        tasks = _steps(TEAMS_TASKS)
         read = next(
             index
             for index, task in enumerate(tasks)
@@ -305,7 +326,7 @@ class TestTheDeployReportsBeforeItConverges(unittest.TestCase):
                 self.assertEqual("PRETIX_OIDC_ENABLED | bool", tasks[index]["when"])
 
     def test_the_read_selects_exactly_the_managed_fields_of_the_named_teams(self):
-        text = READ.read_text(encoding="utf-8")
+        text = read_text(str(READ))
         self.assertEqual(set(_managed()), set(JSON_KEY.findall(text)))
         self.assertIn("%(names)s", text)
         names = load_yaml_any(str(VARS))["PRETIX_TEAM_NAMES"]
@@ -316,7 +337,7 @@ class TestTheDeployReportsBeforeItConverges(unittest.TestCase):
                 self.assertIn(f"services.pretix.teams.{key}.names", names[form])
 
     def test_the_report_reads_what_the_store_returned(self):
-        tasks = _tasks(TEAMS_TASKS)
+        tasks = _steps(TEAMS_TASKS)
         report = tasks[_include_index(tasks, DRIFT)]
         stored = {"team_checkin": EXPECTED["team_checkin"]}
         for rows, current in (([[json.dumps(stored)]], stored), ([["{}"]], {})):

@@ -6,23 +6,24 @@
     name: svc-stack
     tasks_from: consumer.yml
 
-- name: "⬇️ Read the LDAP settings the locked KIX config file holds"
-  ansible.builtin.slurp:
-    src: "{{ KIX_AUTH_LDAP_LOCK_HOST_PATH }}"
-  register: kix_ldap_lock_stored
-  failed_when: false
-  become: false
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔍 Report the LDAP settings that drifted in the locked KIX config"
   when: KIX_LDAP_ENABLED | bool
+  block:
+    - name: "⬇️ Read the LDAP settings the locked KIX config file holds"
+      ansible.builtin.slurp:
+        src: "{{ KIX_AUTH_LDAP_LOCK_HOST_PATH }}"
+      register: kix_ldap_lock_stored
+      failed_when: false
+      become: false
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "📣 Report the LDAP settings the write reverts"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
-  vars:
-    forms_drift_current:
-      ldap: "{{ kix_ldap_lock_stored | kix_ldap_lock_fields }}"
-  when: KIX_LDAP_ENABLED | bool
+    - name: "📣 Report the LDAP settings the write reverts"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+      vars:
+        forms_drift_current:
+          ldap: "{{ kix_ldap_lock_stored | kix_ldap_lock_fields }}"
 
 - name: "📄 Render KIX host-side config files (local + swarm peers)"
   ansible.builtin.include_tasks:

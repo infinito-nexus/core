@@ -10,18 +10,18 @@
 - name: "🔎 Resolve the Matomo site id for '{{ domain }}'"
   include_tasks: resolve_site.yml
 
-- name: "🔴 Disable Matomo in inj_enabled for '{{ domain }}' — no site id yet"
-  ansible.builtin.set_fact:
-    inj_enabled: "{{ inj_enabled | combine({'matomo': false}) }}"
+- name: "🔴 Hold the Matomo front until it has a site id"
   when: matomo_site_id == ""
+  block:
+    - name: "🔴 Disable Matomo in inj_enabled for '{{ domain }}' — no site id yet"
+      ansible.builtin.set_fact:
+        inj_enabled: "{{ inj_enabled | combine({'matomo': false}) }}"
 
-- name: "📝 Record '{{ application_id }}' for Matomo to re-run its front once it has a site id"
-  ansible.builtin.set_fact:
-    stack_matomo_unsited: "{{ stack_matomo_unsited | combine({stack_batch_item.id: stack_batch_item}) }}"
-  changed_when: false
-  when:
-    - matomo_site_id == ""
-    - stack_batch_running | bool
+    - name: "📝 Record '{{ application_id }}' to re-run its Matomo front once it has a site id"
+      ansible.builtin.set_fact:
+        stack_matomo_unsited: "{{ stack_matomo_unsited | combine({stack_batch_item.id: stack_batch_item}) }}"
+      changed_when: false
+      when: stack_batch_running | bool
 
 - name: "💉 Inject Matomo tracking for '{{ domain }}'"
   include_tasks: inject.yml

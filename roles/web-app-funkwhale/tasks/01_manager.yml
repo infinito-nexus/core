@@ -94,7 +94,7 @@
     funkwhale_design_state: >-
       {{ funkwhale_design_stored.stdout | regex_search('(?m)^[{]"pending": .*$') | from_json }}
   block:
-    - name: "🔎 Read the stored Funkwhale instance name and whether the theming converge writes"
+    - name: "🔎 Read the stored Funkwhale instance name and whether the theme converge writes"
       ansible.builtin.command:
         argv:
           - container
@@ -122,36 +122,38 @@
       delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
       run_once: true
 
-    - name: "📣 Report the managed Funkwhale settings the converge reverts"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
-      vars:
-        forms_drift_current: "{{ {'settings': {'instance_name': funkwhale_design_state.instance_name}} if FUNKWHALE_SETTINGS.instance_name is defined else {} }}"
+    - name: "🎨 Revert the Funkwhale settings that drifted"
       when: funkwhale_design_state.pending | bool
+      block:
+        - name: "📣 Report the managed Funkwhale settings the converge reverts"
+          ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+          vars:
+            forms_drift_current: "{{ {'settings': {'instance_name': funkwhale_design_state.instance_name}} if FUNKWHALE_SETTINGS.instance_name is defined else {}
+              }}"
 
-    - name: "🎨 Write the instance theming of {{ application_id }}"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - -e
-          - FUNKWHALE_DESIGN_MODE
-          - -e
-          - FUNKWHALE_DESIGN_STATE
-          - -e
-          - FUNKWHALE_DESIGN_MARK
-          - -e
-          - FUNKWHALE_DESIGN_STRINGS
-          - -e
-          - FUNKWHALE_DESIGN_FILES
-          - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
-          - funkwhale-manage
-          - shell
-        stdin: "{{ lookup('file', 'python/design_preferences.py') }}"
-      environment: "{{ funkwhale_design_environment | combine({'FUNKWHALE_DESIGN_MODE': 'converge'}) }}"
-      register: funkwhale_design
-      changed_when: funkwhale_design.stdout is search('(?m)^FUNKWHALE_DESIGN=CHANGED')
-      failed_when: funkwhale_design.stdout is not search('(?m)^FUNKWHALE_DESIGN=(CHANGED|UNCHANGED|FOREIGN)')
-      when: funkwhale_design_state.pending | bool
-      delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
-      run_once: true
+        - name: "🎨 Write the instance theming of {{ application_id }}"
+          ansible.builtin.command:
+            argv:
+              - container
+              - exec
+              - -i
+              - -e
+              - FUNKWHALE_DESIGN_MODE
+              - -e
+              - FUNKWHALE_DESIGN_STATE
+              - -e
+              - FUNKWHALE_DESIGN_MARK
+              - -e
+              - FUNKWHALE_DESIGN_STRINGS
+              - -e
+              - FUNKWHALE_DESIGN_FILES
+              - "{{ FUNKWHALE_API_LOCAL_CID }}" # nocheck: container-exec-resolver
+              - funkwhale-manage
+              - shell
+            stdin: "{{ lookup('file', 'python/design_preferences.py') }}"
+          environment: "{{ funkwhale_design_environment | combine({'FUNKWHALE_DESIGN_MODE': 'converge'}) }}"
+          register: funkwhale_design
+          changed_when: funkwhale_design.stdout is search('(?m)^FUNKWHALE_DESIGN=CHANGED')
+          failed_when: funkwhale_design.stdout is not search('(?m)^FUNKWHALE_DESIGN=(CHANGED|UNCHANGED|FOREIGN)')
+          delegate_to: "{{ FUNKWHALE_API_HOST_NODE }}"
+          run_once: true

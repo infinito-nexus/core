@@ -61,29 +61,30 @@
       delegate_to: "{{ BOOKWYRM_SITE_HOST_NODE }}"
       run_once: true
 
-    - name: "📣 Report the managed BookWyrm site settings the converge reverts"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
-      vars:
-        forms_drift_current: "{{ {'site': {'site_name': bookwyrm_site_state.site_name}} if bookwyrm_site_environment.SITE_NAME | length > 0 else {} }}"
+    - name: "👤 Revert the BookWyrm site settings that drifted"
       when: bookwyrm_site_state.pending | bool
+      block:
+        - name: "📣 Report the managed BookWyrm site settings the converge reverts"
+          ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+          vars:
+            forms_drift_current: "{{ {'site': {'site_name': bookwyrm_site_state.site_name}} if bookwyrm_site_environment.SITE_NAME | length > 0 else {} }}"
 
-    - name: "👤 Write the BookWyrm administrator, title, logos and corporate theme"
-      ansible.builtin.shell:
-        cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
-          IFS= read -r ADMIN_PASSWORD && export ADMIN_PASSWORD && container exec -i
-          -e MODE -e ADMIN_USERNAME -e ADMIN_EMAIL -e ADMIN_PASSWORD -e DESIGN_STATE -e SITE_NAME
-          -e THEME_NAME -e THEME_PATH -e LOGO_SMALL -e LOGO -e FAVICON
-          {{ BOOKWYRM_SITE_LOCAL_CID | quote }}
-          /venv/bin/python manage.py shell --command 'import sys; exec(sys.stdin.read())'
-        stdin: "{{ bookwyrm_site_stdin }}"
-      environment: "{{ bookwyrm_site_environment | combine({'MODE': 'converge'}) }}"
-      register: bookwyrm_site
-      retries: 10
-      delay: 6
-      until: bookwyrm_site.stdout is search('(?m)^BOOKWYRM_RESULT=[A-Z]+$')
-      changed_when: bookwyrm_site.stdout is search('(?m)^BOOKWYRM_RESULT=CHANGED$')
-      failed_when: bookwyrm_site.stdout is not search('(?m)^BOOKWYRM_RESULT=(UNCHANGED|CHANGED)$')
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      when: bookwyrm_site_state.pending | bool
-      delegate_to: "{{ BOOKWYRM_SITE_HOST_NODE }}"
-      run_once: true
+        - name: "👤 Write the BookWyrm administrator, title, logos and corporate theme"
+          ansible.builtin.shell:
+            cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+              IFS= read -r ADMIN_PASSWORD && export ADMIN_PASSWORD && container exec -i
+              -e MODE -e ADMIN_USERNAME -e ADMIN_EMAIL -e ADMIN_PASSWORD -e DESIGN_STATE -e SITE_NAME
+              -e THEME_NAME -e THEME_PATH -e LOGO_SMALL -e LOGO -e FAVICON
+              {{ BOOKWYRM_SITE_LOCAL_CID | quote }}
+              /venv/bin/python manage.py shell --command 'import sys; exec(sys.stdin.read())'
+            stdin: "{{ bookwyrm_site_stdin }}"
+          environment: "{{ bookwyrm_site_environment | combine({'MODE': 'converge'}) }}"
+          register: bookwyrm_site
+          retries: 10
+          delay: 6
+          until: bookwyrm_site.stdout is search('(?m)^BOOKWYRM_RESULT=[A-Z]+$')
+          changed_when: bookwyrm_site.stdout is search('(?m)^BOOKWYRM_RESULT=CHANGED$')
+          failed_when: bookwyrm_site.stdout is not search('(?m)^BOOKWYRM_RESULT=(UNCHANGED|CHANGED)$')
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+          delegate_to: "{{ BOOKWYRM_SITE_HOST_NODE }}"
+          run_once: true

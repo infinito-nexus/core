@@ -18,6 +18,7 @@ WRITER = PROJECT_ROOT / "roles/web-app-keycloak/tasks/utils/user_attributes.yml"
 PROBE_TASK = "Read the accounts each OIDC plugin keyed before another one takes over"
 WRITE_TASK = "Give the Keycloak user of each sociallogin account its user id"
 GUARD_TASK = "Refuse an OIDC plugin switch that gives an existing account a new user id"
+SWITCH_TASK = "Guard the accounts an OIDC plugin switch rekeys"
 PROVIDER = "web-app-keycloak"
 SUB = "3f2a9c4e-0b1d-4e5f-8a6b-7c8d9e0f1a2b"
 CREATED = f"{PROVIDER}-{SUB}"
@@ -48,6 +49,15 @@ def _index(fragment: str) -> int:
     if not found:
         raise AssertionError(f"06_plugin.yml has no task {fragment!r}")
     return found[0]
+
+
+def _switch() -> dict:
+    return TASKS[_index(SWITCH_TASK)]
+
+
+def _switch_step(fragment: str) -> dict:
+    (step,) = [task for task in _switch()["block"] if fragment in task["name"]]
+    return step
 
 
 def _lookup(target: str):
@@ -84,7 +94,7 @@ def _expression(template: str):
 
 def _rekeyed(target: str, probe: dict, ldap: str, results: list) -> list[str]:
     return _expression(
-        TASKS[_index(GUARD_TASK)]["vars"]["nextcloud_sso_rekeyed_accounts"]
+        _switch_step(GUARD_TASK)["vars"]["nextcloud_sso_rekeyed_accounts"]
     )(
         lookup=_lookup(target),
         nextcloud_sso_accounts_probe=probe,
@@ -102,12 +112,14 @@ class TestSsoSwitchGuard(unittest.TestCase):
         order = [
             _index("Plan which plugins need an install"),
             _index(PROBE_TASK),
-            _index(WRITE_TASK),
-            _index(GUARD_TASK),
+            _index(SWITCH_TASK),
             _index("Disable the plugins that end up disabled"),
             _index("Install the plugins Nextcloud lacks"),
         ]
         self.assertEqual(order, sorted(order))
+        self.assertEqual(
+            [_switch_step(WRITE_TASK), _switch_step(GUARD_TASK)], _switch()["block"]
+        )
 
     def test_the_probe_runs_while_any_oidc_plugin_switch_is_pending(self):
         when = TASKS[_index(PROBE_TASK)]["when"]
@@ -148,8 +160,10 @@ class TestSsoSwitchGuard(unittest.TestCase):
                 self.assertIn(fragment, source)
 
     def test_the_guard_asks_the_filter_with_the_target_and_the_ldap_flag(self):
-        guard = TASKS[_index(GUARD_TASK)]
-        self.assertEqual(guard["when"], "nextcloud_sso_accounts_probe is not skipped")
+        guard = _switch_step(GUARD_TASK)
+        self.assertEqual(
+            _switch()["when"], "nextcloud_sso_accounts_probe is not skipped"
+        )
         self.assertEqual(
             guard["ansible.builtin.assert"]["that"],
             ["nextcloud_sso_rekeyed_accounts | length == 0"],
@@ -169,12 +183,14 @@ class TestSsoSwitchGuard(unittest.TestCase):
                 self.assertEqual(_rekeyed(target, probe, ldap, []), rekeyed)
 
     def test_the_switch_to_user_oidc_hands_keycloak_every_sociallogin_user_id(self):
-        task = TASKS[_index(WRITE_TASK)]
+        task = _switch_step(WRITE_TASK)
         self.assertEqual(
             task["ansible.builtin.include_role"],
             {"name": "web-app-keycloak", "tasks_from": "utils/user_attributes.yml"},
         )
-        self.assertEqual(task["when"], "nextcloud_sso_accounts_probe is not skipped")
+        self.assertEqual(
+            _switch()["when"], "nextcloud_sso_accounts_probe is not skipped"
+        )
         self.assertEqual(task["vars"]["application_id"], "web-app-keycloak")
         self.assertEqual(
             task["vars"]["keycloak_user_attribute"],
@@ -216,7 +232,7 @@ class TestSsoSwitchGuard(unittest.TestCase):
 
     def test_the_refusal_names_the_switch_every_account_and_the_way_out(self):
         message = ENVIRONMENT.from_string(
-            TASKS[_index(GUARD_TASK)]["ansible.builtin.assert"]["fail_msg"]
+            _switch_step(GUARD_TASK)["ansible.builtin.assert"]["fail_msg"]
         ).render(
             application_id="web-app-nextcloud",
             lookup=_lookup("oidc_login"),

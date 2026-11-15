@@ -112,14 +112,18 @@ class TestSettingsForm(unittest.TestCase):
                 self.assertEqual(expected, _render(title, JELLYFIN_SETTINGS=settings))
 
     def test_the_drift_report_runs_between_the_read_and_the_write(self) -> None:
-        read, report, write = _server_name_steps()
+        read, drifted = _server_name_steps()
+        report, write = drifted["block"]
         self.assertEqual("jellyfin_design_system", read["register"])
         self.assertIn(DRIFT_TASKS, report["ansible.builtin.include_tasks"])
-        self.assertEqual(write["when"], report["when"])
+        self.assertEqual(
+            "jellyfin_design_system.json.get('ServerName') != jellyfin_design_title",
+            drifted["when"],
+        )
         self.assertIn("ServerName", write["uri_retry"]["body"])
 
     def test_the_drift_report_holds_the_stored_server_name(self) -> None:
-        current = _server_name_steps()[1]["vars"]["forms_drift_current"]
+        current = _server_name_steps()[1]["block"][0]["vars"]["forms_drift_current"]
         self.assertEqual(
             {"settings": {"server_name": "Jellyfin"}},
             _render(

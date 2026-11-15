@@ -18,19 +18,19 @@
   include_tasks: 04_bootstrap.yml
   when: (matomo_install_state.stdout | trim) != 'installed'
 
-- name: "🪙 Mint the API token of an existing install without a stored one"
-  include_tasks: utils/mint_token.yml
-  when:
-    - (matomo_install_state.stdout | trim) == 'installed'
-    - (lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim) == ""
-
-- name: "🩹 Patch database credentials for {{ application_id }}"
-  include_tasks:
-    file: 05_patch_database.yml
-    apply:
-      delegate_to: "{{ MATOMO_HOST_NODE }}"
-      notify: compose-up
+- name: "🩹 Matomo install | Converge the token and database of an existing install"
   when: (matomo_install_state.stdout | trim) == 'installed'
+  block:
+    - name: "🪙 Mint the API token of an existing install without a stored one"
+      include_tasks: utils/mint_token.yml
+      when: (lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim) == ""
+
+    - name: "🩹 Patch database credentials for {{ application_id }}"
+      include_tasks:
+        file: 05_patch_database.yml
+        apply:
+          delegate_to: "{{ MATOMO_HOST_NODE }}"
+          notify: compose-up
 
 - name: "🩹 Patch Trusted Hosts for {{ application_id }}"
   include_tasks: 06_patch_trusted_hosts.yml
@@ -141,7 +141,7 @@
   changed_when: "'CHANGED' in matomo_two_factor_plugin.stdout"
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
-- name: "🔢 Require a second factor of every user while {{ MATOMO_TWO_FACTOR_PLUGIN }} is enforced ({{ MATOMO_TWO_FACTOR_MODE }})"
+- name: "🔢 Require 2FA of every user while it is enforced ({{ MATOMO_TWO_FACTOR_MODE }})"
   ansible.builtin.shell: # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     cmd: >
       container exec -i --user root -e MATOMO_CONFIG -e MATOMO_TWO_FACTOR_MODE

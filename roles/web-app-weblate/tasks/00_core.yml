@@ -31,13 +31,14 @@
 - name: "🚿 Flush handlers so Weblate starts with the settings override mounted"
   meta: flush_handlers
 
-- name: "🔑 Hand the gateway the token it reads the memory with"
-  ansible.builtin.include_tasks: utils/token.yml
+- name: "🧩 Converge the backend-side state of Weblate"
   when: IS_STACK_HOST | bool
+  block:
+    - name: "🔑 Hand the gateway the token it reads the memory with"
+      ansible.builtin.include_tasks: utils/token.yml
 
-- name: "🔐 Converge the second-factor enforcement of the teams and projects"
-  ansible.builtin.include_tasks: utils/two_factor.yml
-  when: IS_STACK_HOST | bool
+    - name: "🔐 Converge the second-factor enforcement of the teams and projects"
+      ansible.builtin.include_tasks: utils/two_factor.yml
 
 - name: "👥 Map the role groups onto superusers and site teams"
   ansible.builtin.include_tasks: utils/rbac.yml

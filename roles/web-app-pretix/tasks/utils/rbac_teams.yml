@@ -1,21 +1,22 @@
 ---
-- name: "⬇️ Read the managed fields of the RBAC teams Pretix holds"
-  database_query:
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ [role_path, 'files/sql/select-teams.sql'] | path_join }}"
-    named_args:
-      names: "{{ PRETIX_TEAM_NAMES | to_json }}"
-    expect_rows: true
-  register: pretix_teams_stored
-  changed_when: false
-  run_once: true
+- name: "🔍 Report the RBAC team fields that drifted in Pretix"
   when: PRETIX_OIDC_ENABLED | bool
+  block:
+    - name: "⬇️ Read the managed fields of the RBAC teams Pretix holds"
+      database_query:
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ [role_path, 'files/sql/select-teams.sql'] | path_join }}"
+        named_args:
+          names: "{{ PRETIX_TEAM_NAMES | to_json }}"
+        expect_rows: true
+      register: pretix_teams_stored
+      changed_when: false
+      run_once: true
 
-- name: "📣 Report the managed team fields the converge reverts"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
-  vars:
-    forms_drift_current: "{{ pretix_teams_stored.rows[0][0] | from_json }}"
-  when: PRETIX_OIDC_ENABLED | bool
+    - name: "📣 Report the managed team fields the converge reverts"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+      vars:
+        forms_drift_current: "{{ pretix_teams_stored.rows[0][0] | from_json }}"
 
 - name: "👥 Converge the RBAC teams and their pretix-oidc team assignment rules"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"

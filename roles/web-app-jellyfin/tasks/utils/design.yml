@@ -43,20 +43,21 @@
           Authorization: "{{ jellyfin_design_authorization }}"
       register: jellyfin_design_system
 
-    - name: "📣 Report the managed Jellyfin server name the write reverts"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
-      vars:
-        forms_drift_current: "{{ {'settings': {'server_name': jellyfin_design_system.json.get('ServerName')}} }}"
+    - name: "🏷️ Revert the Jellyfin server name that drifted"
       when: jellyfin_design_system.json.get('ServerName') != jellyfin_design_title
+      block:
+        - name: "📣 Report the managed Jellyfin server name the write reverts"
+          ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+          vars:
+            forms_drift_current: "{{ {'settings': {'server_name': jellyfin_design_system.json.get('ServerName')}} }}"
 
-    - name: "🏷️ Write the corporate title into the server configuration"
-      uri_retry:
-        url: "{{ JELLYFIN_API }}/System/Configuration"
-        method: POST
-        headers:
-          Authorization: "{{ jellyfin_design_authorization }}"
-        body_format: json
-        body: "{{ jellyfin_design_system.json | combine({'ServerName': jellyfin_design_title}) }}"
-        status_code: [200, 204]
-      when: jellyfin_design_system.json.get('ServerName') != jellyfin_design_title
-      changed_when: true
+        - name: "🏷️ Write the corporate title into the server configuration"
+          uri_retry:
+            url: "{{ JELLYFIN_API }}/System/Configuration"
+            method: POST
+            headers:
+              Authorization: "{{ jellyfin_design_authorization }}"
+            body_format: json
+            body: "{{ jellyfin_design_system.json | combine({'ServerName': jellyfin_design_title}) }}"
+            status_code: [200, 204]
+          changed_when: true

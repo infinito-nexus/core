@@ -11,13 +11,15 @@ from ansible.template import Templar
 from jinja2 import Environment
 
 from utils.cache import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-zammad"
 TASKS = ROLE / "tasks" / "01_manager_ops.yml"
-FORMS = ROLE / "meta" / "forms.yml"
-SERVICES = ROLE / "meta" / "services.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
 LDAP_SQL = ROLE / "files" / "sql" / "select" / "ldap-source.sql"
 EMAIL_SQL = ROLE / "files" / "sql" / "select" / "email-channel.sql"
 DRIFT = "tasks/utils/forms/drift.yml"
@@ -50,6 +52,18 @@ def _tasks() -> list[dict]:
     return DataLoader().load_from_file(str(TASKS), trusted_as_template=True)
 
 
+def _steps() -> list[dict]:
+    """Returns:
+    the tasks in run order, each child of a guarded block carrying the
+    condition of its block.
+    """
+    return [
+        {**step, "when": task["when"]} if "when" in task and "block" in task else step
+        for task in _tasks()
+        for step in task.get("block", [task])
+    ]
+
+
 def _index(tasks: list[dict], predicate) -> int:
     return next(index for index, task in enumerate(tasks) if predicate(task))
 
@@ -75,7 +89,7 @@ def _writes(script: str):
 
 def _patterns(sql) -> dict[str, list[re.Pattern]]:
     found: dict[str, list[re.Pattern]] = {}
-    for column, pattern in SQL_PATTERN.findall(sql.read_text(encoding="utf-8")):
+    for column, pattern in SQL_PATTERN.findall(read_text(str(sql))):
         found.setdefault(column, []).append(re.compile(pattern.replace("''", "'")))
     return found
 
@@ -87,7 +101,7 @@ def _first(pattern: re.Pattern, text: str) -> str | None:
 
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_each_form_is_read_and_reported_before_its_write(self) -> None:
-        tasks = _tasks()
+        tasks = _steps()
         for sql, form, script in (
             ("ldap-source.sql", "ldap", "ldap_source.rb"),
             ("email-channel.sql", "email", "email_channel.rb"),
@@ -104,7 +118,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
                 )
 
     def test_the_writes_take_host_and_port_from_the_sinks(self) -> None:
-        tasks = _tasks()
+        tasks = _steps()
         templar = Templar(
             loader=DataLoader(),
             variables={"ZAMMAD_LDAP_SOURCE": LDAP, "ZAMMAD_EMAIL_CHANNEL": EMAIL},

@@ -14,10 +14,29 @@ def _tasks(relative: str) -> list[dict]:
     return load_yaml_any(str(TASKS / relative)) or []
 
 
+def _steps(tasks: list[dict], inherited: list) -> list[dict]:
+    """Args:
+    tasks: a task list that may hold blocks.
+    inherited: the when conditions of the blocks around ``tasks``.
+
+    Returns:
+    the leaf tasks, each with the conditions of its blocks ahead of its own.
+    """
+    steps: list[dict] = []
+    for task in tasks:
+        when = task.get("when", [])
+        conditions = inherited + (when if isinstance(when, list) else [when])
+        if "block" in task:
+            steps += _steps(task["block"], conditions)
+        else:
+            steps.append({**task, "when": conditions})
+    return steps
+
+
 def _include(relative: str, target: str) -> dict:
     return next(
         task
-        for task in _tasks(relative)
+        for task in _steps(_tasks(relative), [])
         if target
         in str(task.get("include_tasks", task.get("ansible.builtin.include_tasks")))
     )

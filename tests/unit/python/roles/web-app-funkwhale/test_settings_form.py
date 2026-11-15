@@ -87,15 +87,15 @@ class TestSettingsForm(unittest.TestCase):
                 self.assertEqual(expected, _render(name, FUNKWHALE_SETTINGS=settings))
 
     def test_the_drift_report_runs_between_the_read_and_the_write(self) -> None:
-        read, report, write = _theming_block()["block"]
+        read, pending = _theming_block()["block"]
+        report, write = pending["block"]
         self.assertIn(f"'{MODE}': 'read'", read["environment"])
         self.assertEqual("false", str(read["changed_when"]).lower())
         self.assertIn(DRIFT_TASKS, report["ansible.builtin.include_tasks"])
         self.assertIn(f"'{MODE}': 'converge'", write["environment"])
         for step in (read, write):
             self.assertIn(MODE, step["ansible.builtin.command"]["argv"])
-        for step in (report, write):
-            self.assertEqual("funkwhale_design_state.pending | bool", step["when"])
+        self.assertEqual("funkwhale_design_state.pending | bool", pending["when"])
 
     def test_the_state_is_the_json_line_of_the_read(self) -> None:
         state = _theming_block()["vars"]["funkwhale_design_state"]
@@ -108,7 +108,9 @@ class TestSettingsForm(unittest.TestCase):
     def test_the_drift_report_holds_the_stored_name_only_while_it_is_managed(
         self,
     ) -> None:
-        current = _theming_block()["block"][1]["vars"]["forms_drift_current"]
+        current = _theming_block()["block"][1]["block"][0]["vars"][
+            "forms_drift_current"
+        ]
         state = {"pending": True, "instance_name": "Mine"}
         for settings, expected in (
             ({"instance_name": LABEL}, {"settings": {"instance_name": "Mine"}}),

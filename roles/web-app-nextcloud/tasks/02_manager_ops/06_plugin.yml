@@ -21,37 +21,38 @@
     - lookup('sso_oidc_plugin') | length > 0
     - lookup('sso_oidc_plugin') not in (nextcloud_app_list.stdout | from_json).enabled
 
-- name: "🏷️ Give the Keycloak user of each sociallogin account its user id as the uid claim of user_oidc"
-  ansible.builtin.include_role:
-    name: web-app-keycloak
-    tasks_from: utils/user_attributes.yml
-  vars:
-    application_id: web-app-keycloak
-    keycloak_user_attribute: "{{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}"
-    keycloak_user_attribute_values: >-
-      {{ nextcloud_sso_accounts_probe | nextcloud_sociallogin_subjects
-         if lookup('sso_oidc_plugin') == 'user_oidc' else [] }}
+- name: "🛡️ Guard the accounts an OIDC plugin switch rekeys"
   when: nextcloud_sso_accounts_probe is not skipped
+  block:
+    - name: "🏷️ Give the Keycloak user of each sociallogin account its user id for user_oidc"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: utils/user_attributes.yml
+      vars:
+        application_id: web-app-keycloak
+        keycloak_user_attribute: "{{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}"
+        keycloak_user_attribute_values: >-
+          {{ nextcloud_sso_accounts_probe | nextcloud_sociallogin_subjects
+             if lookup('sso_oidc_plugin') == 'user_oidc' else [] }}
 
-- name: "🛑 Refuse an OIDC plugin switch that gives an existing account a new user id"
-  ansible.builtin.assert:
-    that:
-      - nextcloud_sso_rekeyed_accounts | length == 0
-    fail_msg: >-
-      {{ application_id }}: the switch to {{ lookup('sso_oidc_plugin') }} gives each of these accounts
-      a new user id, so its owner meets a second, empty account or none at the next login:
-      {{ nextcloud_sso_rekeyed_accounts | join(', ') }}.
-      user_oidc keeps its own accounts, LDAP accounts while user_ldap stays on, and each sociallogin
-      account whose Keycloak user holds its user id in {{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}, which the
-      switch to user_oidc writes. Clear what each entry names on its Keycloak user, or keep
-      services.sso.oidc.plugin at the plugin these accounts came from.
-    quiet: true
-  vars:
-    nextcloud_sso_rekeyed_accounts: >-
-      {{ nextcloud_sso_accounts_probe
-         | nextcloud_rekeyed_accounts(lookup('sso_oidc_plugin'), NEXTCLOUD_USER_LDAP_ENABLED | bool,
-                                      keycloak_user_attribute_results) }}
-  when: nextcloud_sso_accounts_probe is not skipped
+    - name: "🛑 Refuse an OIDC plugin switch that gives an existing account a new user id"
+      ansible.builtin.assert:
+        that:
+          - nextcloud_sso_rekeyed_accounts | length == 0
+        fail_msg: >-
+          {{ application_id }}: the switch to {{ lookup('sso_oidc_plugin') }} gives each of these accounts
+          a new user id, so its owner meets a second, empty account or none at the next login:
+          {{ nextcloud_sso_rekeyed_accounts | join(', ') }}.
+          user_oidc keeps its own accounts, LDAP accounts while user_ldap stays on, and each sociallogin
+          account whose Keycloak user holds its user id in {{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}, which the
+          switch to user_oidc writes. Clear what each entry names on its Keycloak user, or keep
+          services.sso.oidc.plugin at the plugin these accounts came from.
+        quiet: true
+      vars:
+        nextcloud_sso_rekeyed_accounts: >-
+          {{ nextcloud_sso_accounts_probe
+             | nextcloud_rekeyed_accounts(lookup('sso_oidc_plugin'), NEXTCLOUD_USER_LDAP_ENABLED | bool,
+                                          keycloak_user_attribute_results) }}
 
 - name: "🔴 Disable the plugins that end up disabled"
   ansible.builtin.command:

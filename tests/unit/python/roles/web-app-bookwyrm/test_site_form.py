@@ -90,15 +90,15 @@ class TestSiteForm(unittest.TestCase):
                 self.assertEqual(expected, _render(site_name, BOOKWYRM_SITE=settings))
 
     def test_the_drift_report_runs_between_the_read_and_the_write(self) -> None:
-        read, report, write = _site_block()["block"]
+        read, pending = _site_block()["block"]
+        report, write = pending["block"]
         self.assertIn("'MODE': 'read'", read["environment"])
         self.assertEqual("false", str(read["changed_when"]).lower())
         self.assertIn(DRIFT_TASKS, report["ansible.builtin.include_tasks"])
         self.assertIn("'MODE': 'converge'", write["environment"])
         for step in (read, write):
             self.assertIn("-e MODE ", step["ansible.builtin.shell"]["cmd"])
-        for step in (report, write):
-            self.assertEqual("bookwyrm_site_state.pending | bool", step["when"])
+        self.assertEqual("bookwyrm_site_state.pending | bool", pending["when"])
 
     def test_the_state_is_the_json_line_of_the_read(self) -> None:
         state = _site_block()["vars"]["bookwyrm_site_state"]
@@ -114,7 +114,7 @@ class TestSiteForm(unittest.TestCase):
     def test_the_drift_report_holds_the_stored_name_only_when_one_is_written(
         self,
     ) -> None:
-        current = _site_block()["block"][1]["vars"]["forms_drift_current"]
+        current = _site_block()["block"][1]["block"][0]["vars"]["forms_drift_current"]
         state = {"pending": True, "site_name": "Book Club"}
         for site_name, expected in (
             (LABEL, {"site": {"site_name": "Book Club"}}),

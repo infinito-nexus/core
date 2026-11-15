@@ -65,7 +65,7 @@ def _install_block() -> dict:
     return next(
         task
         for task in load_yaml_any(str(PLUGIN), default_if_missing=[])
-        if "block" in task
+        if "Install the plugins Nextcloud lacks" in task.get("name", "")
     )
 
 

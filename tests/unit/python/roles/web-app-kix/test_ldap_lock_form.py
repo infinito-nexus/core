@@ -12,15 +12,21 @@ from pathlib import PurePosixPath
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_VOLUMES,
+    ROLE_FILE_VARS_MAIN,
+)
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-kix"
-FORMS = ROLE / "meta" / "forms.yml"
-VOLUMES = ROLE / "meta" / "volumes.yml"
-VARS = ROLE / "vars" / "main.yml"
+FORMS = ROLE / ROLE_FILE_META_FORMS
+VOLUMES = ROLE / ROLE_FILE_META_VOLUMES
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 TASKS = ROLE / "tasks" / "00_core.yml"
 LOCK_TEMPLATE = ROLE / "templates" / "auth_ldap.conf.j2"
 XML_TEMPLATE = ROLE / "templates" / "zzz_auth_ldap.xml.j2"
@@ -72,11 +78,15 @@ def _render(path) -> str:
         }
     )
     templar = Templar(loader=DataLoader(), variables=variables)
-    return templar.template(_trust_as_template(path.read_text(encoding="utf-8")))
+    return templar.template(_trust_as_template(read_text(str(path))))
 
 
 def _tasks() -> list[dict]:
     return DataLoader().load_from_file(str(TASKS), trusted_as_template=True)
+
+
+def _steps() -> list[dict]:
+    return [step for task in _tasks() for step in task.get("block", [task])]
 
 
 def _index(tasks: list[dict], predicate) -> int:
@@ -189,7 +199,7 @@ class TestTheFormIsLockedByKix(unittest.TestCase):
 
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_the_file_is_read_and_reported_before_it_is_rendered(self) -> None:
-        tasks = _tasks()
+        tasks = _steps()
         read = _index(
             tasks,
             lambda task: (
@@ -214,7 +224,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_the_report_reads_the_fields_of_the_locked_file(self) -> None:
         report = next(
             task
-            for task in _tasks()
+            for task in _steps()
             if DRIFT in str(task.get("ansible.builtin.include_tasks", ""))
         )
         self.assertEqual(

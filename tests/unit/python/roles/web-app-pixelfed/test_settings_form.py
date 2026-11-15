@@ -63,19 +63,18 @@ class TestSettingsForm(unittest.TestCase):
                 self.assertEqual(expected, _render(title, PIXELFED_SETTINGS=settings))
 
     def test_the_drift_report_runs_between_the_read_and_the_write(self) -> None:
-        steps = _design_block()["block"]
-        read, report, write = steps
+        read, pending = _design_block()["block"]
+        report, write = pending["block"]
         self.assertIn("'mode': 'read'", read["ansible.builtin.command"]["stdin"])
         self.assertEqual("false", str(read["changed_when"]).lower())
         self.assertIn(DRIFT_TASKS, report["ansible.builtin.include_tasks"])
         self.assertIn("'mode': 'converge'", write["ansible.builtin.command"]["stdin"])
-        for step in (report, write):
-            self.assertEqual("pixelfed_design_state.pending | bool", step["when"])
+        self.assertEqual("pixelfed_design_state.pending | bool", pending["when"])
 
     def test_the_drift_report_holds_the_stored_site_name_only_when_one_is_written(
         self,
     ) -> None:
-        current = _design_block()["block"][1]["vars"]["forms_drift_current"]
+        current = _design_block()["block"][1]["block"][0]["vars"]["forms_drift_current"]
         state = {"site_name": "Pixelfed", "pending": True}
         self.assertEqual(
             {"settings": {"site_name": "Pixelfed"}},
