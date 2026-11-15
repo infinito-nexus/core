@@ -31,6 +31,7 @@ proxmox:
       - "--connect-timeout"
       - "5"
       - "https://127.0.0.1:8006/api2/json/version"
+    # nocheck: healthcheck-timing-override  the VM flavor allows 360 ten-second guest-install retries before pveproxy is expected
     start_period: 60m
   # nocheck: min-storage-headroom  Reason: the declared image is only the Dockerfile base; under the vm flavor the proxmox_guest volume holds the installer ISO while the base disk builds, the base disk and the copy-on-write overlay of the guest, whose local-lvm holds the workspace templates and VMs; under the container flavor the built image adds the Proxmox VE packages with QEMU, and the proxmox_templates and proxmox_vm_disks volumes hold the ISO and container templates and the VM disks
   min_storage: 80GB
