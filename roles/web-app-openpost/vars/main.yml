@@ -119,7 +119,13 @@ OPENPOST_PROVIDER_APPS: >-
   {{ _apps }}
 
 OPENPOST_CROSSPOSTER: "{{ lookup('config', application_id, 'services.crossposter') }}"
-OPENPOST_CROSSPOSTER_ROUTES: "{{ OPENPOST_CROSSPOSTER.routes }}"
+OPENPOST_CROSSPOSTER_ROUTES: >-
+  {%- set _routes = [] -%}
+  {%- for _route in OPENPOST_CROSSPOSTER.routes
+        if lookup('config', application_id, 'services.' ~ _route.source.platform ~ '.enabled') | bool -%}
+  {%- set _ = _routes.append(_route) -%}
+  {%- endfor -%}
+  {{ _routes }}
 OPENPOST_CROSSPOSTER_ENABLED: "{{ lookup('config', application_id, 'services.crossposter.enabled') | bool }}"
 OPENPOST_CROSSPOSTER_NAME: "{{ OPENPOST_CROSSPOSTER.name }}"
 OPENPOST_CROSSPOSTER_UID: "{{ OPENPOST_CROSSPOSTER.uid }}"
