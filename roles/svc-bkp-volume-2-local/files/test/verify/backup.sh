@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Verify the newest backup generation is stored, non-empty, and dumped where a
-# dump was owed: a volume counts as payload with a files/ tree or a non-empty
-# sql dump, and a volume the run recorded as a database must carry the dump
-# unless its provider has no consumer on this host.
+# dump was owed: a volume counts as payload with a files/ tree or a sql dump
+# that holds data once decompressed, and a volume the run recorded as a
+# database must carry the dump unless its provider has no consumer on this host.
 # The generation's own manifest is the authority; a generation written before
 # baudolo wrote one is judged by the engine's on-disk footprint instead.
 # Requires REPO_DIR/NEWEST_GENERATION/BKP_TEST_REPO_ROOT from test.sh.
@@ -41,6 +41,20 @@ engine_of() {
     return 1
 }
 
+has_dump() {
+    local dump
+    while IFS= read -r -d '' dump; do
+        if [[ "${dump}" == *.gz ]]; then
+            if (( $(gzip -cd -- "${dump}" 2>/dev/null | head -c 1 | wc -c) > 0 )); then
+                return 0
+            fi
+        elif [[ -s "${dump}" ]]; then
+            return 0
+        fi
+    done < <(find "$1" -mindepth 1 -type f \( -name '*.backup.sql' -o -name '*.backup.sql.gz' \) -print0 2>/dev/null)
+    return 1
+}
+
 IFS=',' read -r -a CONSUMERLESS <<< "${BKP_TEST_CONSUMERLESS_DB_VOLUMES}"
 
 owe_dump() {
@@ -67,7 +81,10 @@ EMPTY=0
 UNDUMPED=()
 for vol_dir in "${VOLUME_DIRS[@]}"; do
     has_files="$(find "${vol_dir}/files" -mindepth 1 -print -quit 2>/dev/null || true)"
-    has_sql="$(find "${vol_dir}/sql" -mindepth 1 -type f -name '*.backup.sql' -size +0 -print -quit 2>/dev/null || true)"
+    has_sql=""
+    if has_dump "${vol_dir}/sql"; then
+        has_sql=1
+    fi
     if [[ -z "${has_files}" ]] && [[ -z "${has_sql}" ]]; then
         echo "WARN: ${vol_dir##*/} backed up empty"
         EMPTY=$((EMPTY + 1))
