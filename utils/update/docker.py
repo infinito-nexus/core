@@ -42,6 +42,7 @@ from utils.docker.image.ref import (
 )
 from utils.docker.registry import fetch_registry_tags
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.security.suppressions import drop_image_tag_entries
 from utils.update.base import (
     declares_source,
     is_maintained,
@@ -410,12 +411,13 @@ def update_config_versions(config_path: Path, service_versions: dict[str, str]) 
 
     The file root IS the services map (no ``services.`` wrapper), so the
     walker tracks one nesting level: top-level service keys and their
-    immediate ``version:`` field.
+    immediate ``version:`` field. A service that moves to another version
+    loses its ``image_tag`` CVE suppressions, which named the old tag.
     """
     lines = config_path.read_text(  # nocheck: cache-read — read-then-write of the same file; cached read would go stale
         encoding="utf-8"
     ).splitlines(keepends=True)
-    changed = False
+    moved: list[str] = []
 
     services_indent: int = 0
     current_service: str | None = None
@@ -463,12 +465,14 @@ def update_config_versions(config_path: Path, service_versions: dict[str, str]) 
         if line.endswith("\n"):
             new_line += "\n"
         lines[index] = new_line
-        changed = True
+        moved.append(current_service)
 
-    if changed:
+    for service in moved:
+        lines = drop_image_tag_entries(lines, service)
+    if moved:
         config_path.write_text("".join(lines), encoding="utf-8")
 
-    return changed
+    return bool(moved)
 
 
 def apply_updates(updates: list[DockerImageVersionUpdate]) -> list[Path]:

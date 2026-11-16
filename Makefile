@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
 # SPOT: Global environment is defined in scripts/meta/env/load.sh.
-ENV_SH ?= $(CURDIR)/scripts/meta/env/load.sh
+override ENV_SH := $(CURDIR)/scripts/meta/env/load.sh
 export ENV_SH
 
 # For non-interactive bash, BASH_ENV is sourced so the env layer applies to *all* Make recipes.
@@ -790,11 +790,6 @@ security-apparmor-teardown:
 		echo "[apparmor] AppArmor module is not loaded — skipping teardown"; \
 	fi
 
-.PHONY: security-runtimes
-# List the PHP runtime of every pinned role image from registry metadata, without pulling, and fail on one below its security floor.
-security-runtimes:
-	@"$${PYTHON}" -m cli.contributing.security.runtimes
-
 .PHONY: setup
 # Run the setup step after generating .dockerignore.
 setup: fix-dockerignore dotenv
@@ -980,6 +975,14 @@ test-performance: install
 	@INFINITO_TEST_TYPE="performance" \
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
+
+.PHONY: test-security
+# Scan every pinned role image of the GHCR mirror with Trivy, Grype and OSV over Syft SBOMs cached by digest (not part of `test`).
+test-security:
+	@"$${PYTHON}" -m cli.contributing.security.scan \
+		--cache-dir build/security \
+		--report build/test-reports/security.json \
+		--workers 4
 
 .PHONY: test-signed
 # Verify HEAD is signed.

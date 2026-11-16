@@ -9,6 +9,11 @@ from cli.administration.inventory.provision.services.disabler import (
     parse_services_disabled,
 )
 from cli.meta.runtime import detect_runtime
+from plugins.filter.merge.with_defaults import merge_with_defaults
+from utils.roles.applications.variants import (
+    services_overrides_for_round as build_services_overrides_for_round,
+)
+from utils.security.deploy import deploy_inventory_overrides
 
 from .common import make_compose
 from .inventory import (
@@ -16,9 +21,6 @@ from .inventory import (
     build_dev_inventory,
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
-)
-from .inventory import (
-    _build_services_overrides_for_round as build_services_overrides_for_round,
 )
 from .storage import detect_storage_constrained
 from .variant_select import (
@@ -109,6 +111,11 @@ def handler(args: argparse.Namespace) -> int:
         if not isinstance(parsed, dict):
             raise SystemExit("--vars must be a JSON object")
         extra_vars = parsed
+
+    extra_vars = dict(extra_vars or {})
+    extra_vars["applications"] = merge_with_defaults(
+        extra_vars.get("applications") or {}, deploy_inventory_overrides()
+    )
 
     forced_storage_constrained = (
         None

@@ -47,7 +47,6 @@ class LookupModule(LookupBase):
         if not port_kind:
             port_kind = "http"
         tail = _as_str(kwargs.get("tail")) or "request"
-        location = _as_str(kwargs.get("location")) or "/"
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
@@ -110,7 +109,6 @@ class LookupModule(LookupBase):
                     authority,
                     deployment_mode,
                     tail=tail,
-                    location=location,
                     host_gateway=host_gateway,
                 )
             ]

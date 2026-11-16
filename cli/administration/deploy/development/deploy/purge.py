@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import subprocess
 
-from cli.administration.deploy.development import PROJECT_ROOT
+from utils.cache import PROJECT_ROOT
 
 
 def _purge_app_entities(*, container: str, app_ids: list[str]) -> None:

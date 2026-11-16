@@ -14,9 +14,9 @@ lmstudio:
   backup:
     stop_required: false
   image: ubuntu
-  version: "22.04"
+  version: "26.10"
   custom: true
-  app_version: 0.0.25-1
+  app_version: 0.0.27-1
   update:
     key: app_version
     type: http_regex

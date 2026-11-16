@@ -4,7 +4,6 @@ import importlib.util
 import sys
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
@@ -36,7 +35,7 @@ class CspAcceptStatusLookupTests(unittest.TestCase):
         lm = self.module.LookupModule()
         lm._templar = _DummyTemplar()
         lm._loader = mock.MagicMock()
-        with patch.object(self.module, "lookup_loader") as loader_mock:
+        with mock.patch.object(self.module, "lookup_loader") as loader_mock:
             loader_mock.get.return_value = mock.MagicMock(
                 run=lambda *_a, **_k: [applications]
             )

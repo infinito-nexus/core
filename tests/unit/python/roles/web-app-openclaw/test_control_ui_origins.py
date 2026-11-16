@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.mcp.authorization import FilterModule as McpFilterModule
 from utils.cache.files import PROJECT_ROOT, read_text
@@ -19,7 +19,10 @@ ONION_URL = f"http://claw.ai.{NODE_ONION}"
 
 
 def _environment() -> Environment:
-    env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders JSON and an ansible var expression, not markup
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     env.filters.update(McpFilterModule().filters())
     env.filters.update({"to_json": json.dumps, "bool": bool})
     return env

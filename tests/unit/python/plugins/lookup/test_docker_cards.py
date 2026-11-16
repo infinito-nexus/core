@@ -17,7 +17,6 @@ sys.path.insert(
 )
 
 import docker_cards as docker_cards_module
-from docker_cards import LookupModule
 
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
@@ -224,7 +223,7 @@ logo:
         return lookup_module.run([self.test_roles_dir], variables=fake_variables)
 
     def test_lookup_when_group_includes_application_id(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
 
         fake_variables = self._base_fake_variables()
         fake_variables["TLS_ENABLED"] = True
@@ -246,7 +245,7 @@ logo:
         self.assertTrue(card["iframe"])
 
     def test_iframe_flag_defaults_to_enabled(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
 
         result = self._run_lookup(lookup_module, fake_variables)
@@ -254,7 +253,7 @@ logo:
         self.assertTrue(result[0][0]["iframe"])
 
     def test_iframe_flag_false_decouples_from_enabled(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
         fake_variables["applications"]["portfolio"]["services"]["dashboard"][
             "iframe"
@@ -267,7 +266,7 @@ logo:
         self.assertFalse(cards[0]["iframe"])
 
     def test_lookup_url_uses_https_when_tls_enabled_true(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
         fake_variables["TLS_ENABLED"] = True
 
@@ -276,7 +275,7 @@ logo:
         self.assertEqual(result[0][0]["url"], "https://myportfolio.com")
 
     def test_lookup_url_uses_http_when_tls_enabled_false(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
         fake_variables["TLS_ENABLED"] = False
 
@@ -285,7 +284,7 @@ logo:
         self.assertEqual(result[0][0]["url"], "http://myportfolio.com")
 
     def test_lookup_when_group_excludes_application_id(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
         fake_variables["group_names"] = []
 
@@ -295,7 +294,7 @@ logo:
         self.assertEqual(len(result[0]), 0)
 
     def test_lookup_url_renders_domain_url_jinja(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
 
         fake_variables["domains"] = {"portfolio": "{{ DOMAIN_PRIMARY }}"}
@@ -307,7 +306,7 @@ logo:
         self.assertEqual(result[0][0]["url"], "https://myportfolio.com")
 
     def test_lookup_url_https_when_tls_enabled_is_string(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
 
         fake_variables["TLS_ENABLED"] = "true"
@@ -317,7 +316,7 @@ logo:
         self.assertEqual(result[0][0]["url"], "https://myportfolio.com")
 
     def test_lookup_url_http_when_tls_enabled_is_string(self):
-        lookup_module = LookupModule()
+        lookup_module = docker_cards_module.LookupModule()
         fake_variables = self._base_fake_variables()
 
         fake_variables["TLS_ENABLED"] = "false"
@@ -342,14 +341,14 @@ logo:
             {"enabled": True, "card": "client"}
         )
 
-        result = self._run_lookup(LookupModule(), fake_variables)
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
         self.assertEqual(result[0][0]["url"], "https://client.myportfolio.com")
 
     def test_card_url_without_card_key_targets_the_primary_domain(self):
         fake_variables = self._card_target_variables({"enabled": True})
 
-        result = self._run_lookup(LookupModule(), fake_variables)
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
         self.assertEqual(result[0][0]["url"], "https://myportfolio.com")
 
@@ -357,7 +356,7 @@ logo:
         fake_variables = self._card_target_variables({"enabled": True, "card": "nope"})
 
         with self.assertRaisesRegex(AnsibleError, "nope"):
-            self._run_lookup(LookupModule(), fake_variables)
+            self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
     def _add_role(self, role_name, application_id, info_yaml):
         role_dir = Path(self.test_roles_dir) / role_name
@@ -388,7 +387,7 @@ logo:
             "enabled"
         ] = False
 
-        result = self._run_lookup(LookupModule(), fake_variables)
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
         self.assertEqual(result, [[]])
 
@@ -396,14 +395,14 @@ logo:
         fake_variables = self._base_fake_variables()
         fake_variables["applications"]["portfolio"]["services"] = {}
 
-        result = self._run_lookup(LookupModule(), fake_variables)
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
     def test_enabled_true_shows_the_card(self):
         fake_variables = self._base_fake_variables()
 
-        result = self._run_lookup(LookupModule(), fake_variables)
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
@@ -413,14 +412,14 @@ logo:
             False
         )
 
-        result = self._run_lookup(LookupModule(), fake_variables)
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
     def test_both_cards_render_when_both_are_enabled(self):
         fake_variables = self._two_role_variables()
 
-        result = self._run_lookup(LookupModule(), fake_variables)
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
         self.assertEqual(
             [c["title"] for c in result[0]],
@@ -434,7 +433,9 @@ logo:
             encoding="utf-8",
         )
 
-        result = self._run_lookup(LookupModule(), self._base_fake_variables())
+        result = self._run_lookup(
+            docker_cards_module.LookupModule(), self._base_fake_variables()
+        )
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
@@ -445,7 +446,7 @@ logo:
         ] = "maybe"
 
         with self.assertRaisesRegex(AnsibleError, "portfolio"):
-            self._run_lookup(LookupModule(), fake_variables)
+            self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
 
 
 if __name__ == "__main__":

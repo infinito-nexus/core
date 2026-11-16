@@ -9,11 +9,10 @@ import importlib.util
 import sys
 import types
 import unittest
+import unittest.mock
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from types import ModuleType
-from unittest import mock
 
 from . import PROJECT_ROOT
 
@@ -37,7 +36,7 @@ class FakePackage:
         return self._path
 
 
-def _load() -> ModuleType:
+def _load() -> types.ModuleType:
     package = types.ModuleType("argostranslate.package")
     package.update_package_index = lambda: None
     package.get_available_packages = list
@@ -59,7 +58,7 @@ def _load() -> ModuleType:
         "libretranslate.language": language,
         "minisbd": minisbd,
     }
-    with mock.patch.dict(sys.modules, modules):
+    with unittest.mock.patch.dict(sys.modules, modules):
         spec = importlib.util.spec_from_file_location("prefetch_models", SCRIPT)
         module = importlib.util.module_from_spec(spec)
         assert spec and spec.loader
@@ -134,7 +133,7 @@ class TestMain(unittest.TestCase):
         self.module.download_models = lambda codes, _: self.minisbd_got.append(codes)
 
     def test_minisbd_gets_the_model_codes_not_the_iso_codes(self) -> None:
-        with mock.patch.object(
+        with unittest.mock.patch.object(
             sys, "argv", ["prefetch_models.py", "--load_only_lang_codes", "en,zh"]
         ):
             self.assertEqual(self.module.main(), 0)
@@ -142,7 +141,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(self.minisbd_got, [["en", "zh-Hans"]])
 
     def test_minisbd_gets_none_when_no_codes_were_requested(self) -> None:
-        with mock.patch.object(sys, "argv", ["prefetch_models.py"]):
+        with unittest.mock.patch.object(sys, "argv", ["prefetch_models.py"]):
             self.assertEqual(self.module.main(), 0)
 
         self.assertEqual(self.minisbd_got, [None])

@@ -167,13 +167,19 @@ own stack, `+tor` on a variant that pins `services.tor.enabled` false, `+multi`
 on a role with `reachability.single_mode: true`, or any axis that fights the
 run's own `mode`, `network`, `distros`, `filesystem` or `architectures` input,
 or `:arm64` on a role whose `meta/services.yml` declares
-`architectures: [amd64]`.
+`architectures: [amd64]`, or `%centos:arm64` on a row installing a package whose
+`meta/packages.yml` centos entry declares `architectures: [amd64]`. Such a
+package entry narrows only its own distro and architecture pair: an unpinned
+row that draws it moves to another architecture of the same distro, so the
+role keeps every other pair.
 
 That is also what a retrigger replays: `--failed` reads the glyphs off the failed
 job's title and writes them back as a token, so the row comes back in the mode,
 network mode, distribution and architecture it died on rather than on whatever
 the rotation would pick next. The architecture is replayed because it is the
-machine the job ran on, not a preference it could fall back from. The
+machine the job ran on, not a preference it could fall back from, unless a
+package entry no longer publishes that pair: the replay then keeps the distro,
+drops the architecture and warns. The
 filesystem is deliberately left out. A title states the
 kind the matrix *assigned*, which a deploy is allowed to fall back from, so
 pinning it would both misstate what the job ran on and turn the kind into a
@@ -281,6 +287,7 @@ reproduces by re-running the same sweep:
 | distro | `(position + sweep) % len(distro pool)` |
 | filesystem | `(position // len(distro pool) + sweep) % len(filesystem pool)` |
 | architecture | `(position + sweep) % len(architecture pool)` |
+| 🔬 vulnerability engine | `(position // (len(distro pool) * len(filesystem pool)) + sweep) % 3` over 🔺 trivy, 🍇 grype, 🐙 osv |
 
 A role offers at most two modes in practice — swarm needs its own stack, host
 needs the absence of one — so a row flips between its two modes on consecutive
@@ -308,6 +315,12 @@ and in every artifact name. Two jobs uploading under one artifact name is a
 conflict, not an overwrite. The distro, filesystem and architecture glyphs
 follow it in the label (`🐳🧅🌀🦓🦾`), so a title says which combination died
 without opening the job.
+
+The vulnerability engine is the odometer digit above distro and filesystem, and its glyph follows the architecture glyph in the label (`🐳🧅🌀🦓🦾🔺`).
+The deploy-time scan of `sys-ctl-hlth-runtime` then runs Syft and that engine only, plus Grype over the source-built runtimes Syft finds.
+The `vulnerability-db` job of [call-test-deploy.yml](call-test-deploy.yml) downloads the Trivy, Grype and OSV databases once per day into the Actions cache; each deploy job restores the Grype database and the drawn engine's into `build/vulnerability-db`, which the stack and every swarm node mount read-only, and fails when one is missing, so no deploy job downloads a database itself.
+Under act these steps are skipped: the deploy draws its engine and refreshes the shared host directory `INFINITO_VULNERABILITY_DB_HOST_PATH`, which [workflow.sh](../../scripts/tests/deploy/act/workflow.sh) binds into the job container at the same path.
+`cron-images-mirror-all.yml` writes the findings of its `scan` job per image and per CVE into the job summary and the `vulnerability-findings` artifact; dispatched with `issues: false` it is a dry run that leaves the issues untouched.
 
 ### Stopping on failure
 

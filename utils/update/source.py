@@ -1,47 +1,20 @@
-"""Resolve version pins that declare their own upstream source.
-
-The Docker updater watches ``image`` plus ``version``, the repository updater
-``repository`` plus ``ref``. A pin outside both - an ``app_version``, a
-``release``, a tag in a registry neither updater speaks - declares where its
-upstream lives::
-
-    stalwart:
-      webui_version: "v1.0.5"
-      update:
-        key: webui_version
-        type: git_tags
-        repository: https://github.com/stalwartlabs/webui.git
-
-``key`` names the pinned key and defaults to ``version``; an entity with
-several pins declares a list of such blocks. The types are
-``git_tags`` (repository), ``registry_tags`` (image), ``npm`` (package),
-``http_regex`` (one url or several, pattern, optionally a template over the
-pattern's named groups) and ``script`` (path, run with the current version and
-printing the latest one). A pin whose asset is fetched by digest names its
-companion checksum beside the type; see :mod:`utils.update.checksum`.
-
-An addon in ``meta/addons/<id>.yml`` declares the same fields in its
-``update:`` block, beside ``monitored``, ``catalog`` and ``upstream_id``. A
-monitored addon of the ``github-releases`` catalog needs no ``type``: its
-``upstream_id`` already names the repository whose tags are its versions. An
-addon's ``config.archive`` URL carries the pinned version and moves with it.
-"""
-
 from __future__ import annotations
 
 import json
 import re
 import subprocess
+import sys
 import urllib.error
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.docker.registry import manifest_exists
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.security.suppressions import drop_image_tag_entries
 from utils.update import checksum
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
 from utils.update.base import (
@@ -60,8 +33,8 @@ from utils.update.docker import (
     is_mcr,
 )
 from utils.update.fetch import TIMEOUT_SECONDS, documents, get
-from utils.update.pins import archive_index, key_line, top_level_line
-from utils.update.repository import git_ls_remote_tags
+from utils.update.pins import archive_index, bump_archive, key_line, top_level_line
+from utils.update.repository import git_ls_remote_tags, git_ref_resolves
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -71,6 +44,7 @@ NOCHECK_MARKER = "version-source"
 UNWATCHED_MARKER = "unwatched-version"
 UPDATE_KEY = "update"
 DEFAULT_KEY = "version"
+REF_KEY = "ref"
 TYPES = ("git_tags", "registry_tags", "npm", "http_regex", "script")
 
 
@@ -91,6 +65,9 @@ class VersionSourceEntry:
             directly or as the base of a ``custom`` build; a bump to a tag
             its registry answers 404 for is withheld, an indeterminate answer
             does not block it.
+        repository: repository the pin checks out when it is the entity's
+            ``ref``; a bump to a name it lists as neither branch nor tag, or
+            one the lookup cannot confirm, is withheld.
     """
 
     role: str
@@ -102,6 +79,7 @@ class VersionSourceEntry:
     line: int
     addon: bool = False
     image: str = ""
+    repository: str = ""
 
 
 @dataclass(frozen=True)
@@ -156,7 +134,7 @@ def registry_v2_tags(image: str, match: str = "") -> list[str]:
         return []
     fields = dict(re.findall(r'(\w+)="([^"]*)"', challenge))
     realm = fields.pop("realm", "")
-    if not realm:
+    if not realm or urlparse(realm).scheme != "https":
         return []
     query = "&".join(f"{name}={value}" for name, value in fields.items())
     try:
@@ -423,9 +401,28 @@ def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
                         config_path=config_path,
                         line=line,
                         image=config.get("image", "") if key == DEFAULT_KEY else "",
+                        repository=str(config.get("repository", ""))
+                        if key == REF_KEY
+                        else "",
                     )
                 )
     return entries + _addon_entries(repo_root)
+
+
+def _ref_resolves(entry: VersionSourceEntry, ref: str) -> bool:
+    resolved = git_ref_resolves(entry.repository, ref)
+    if not resolved:
+        answer = (
+            "lists no branch or tag of that name"
+            if resolved is False
+            else "could not be queried"
+        )
+        print(
+            f"[source] WARN {entry.role}/{entry.entity}.{entry.key}: "
+            f"{entry.repository} {answer}; withholding {entry.current} -> {ref}",
+            file=sys.stderr,
+        )
+    return bool(resolved)
 
 
 def outdated(
@@ -443,6 +440,8 @@ def outdated(
             continue
         if entry.image and manifest_exists(entry.image, newest) is False:
             continue
+        if entry.repository and not _ref_resolves(entry, newest):
+            continue
         updates.append(VersionSourceUpdate(entry=entry, latest=newest))
     return updates
 
@@ -455,6 +454,7 @@ def find_outdated_updates(repo_root: Path) -> list[VersionSourceUpdate]:
 def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
     """Rewrite every pin to its newer version and return the changed files."""
     changed: list[Path] = []
+    moved: dict[Path, list[str]] = {}
     for update in updates:
         path = update.entry.config_path
         lines = path.read_text(  # nocheck: cache-read  read-modify-write: a cached read serves the pre-write content when two pins of one file are bumped in the same run
@@ -464,8 +464,8 @@ def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
         lines[index] = lines[index].replace(update.entry.current, update.latest, 1)
         archive = archive_index(lines) if update.entry.addon else None
         if archive is not None:
-            lines[archive] = lines[archive].replace(
-                update.entry.current, update.latest, 1
+            lines[archive] = bump_archive(
+                lines[archive], update.entry.current, update.latest
             )
         checksum.rewrite(
             lines,
@@ -476,4 +476,13 @@ def apply_updates(updates: Iterable[VersionSourceUpdate]) -> list[Path]:
         path.write_text("".join(lines), encoding="utf-8")
         if path not in changed:
             changed.append(path)
+        if not update.entry.addon and update.entry.key == DEFAULT_KEY:
+            moved.setdefault(path, []).append(update.entry.entity)
+    for path, services in moved.items():
+        lines = path.read_text(  # nocheck: cache-read  read-modify-write of the file the loop above just rewrote
+            encoding="utf-8"
+        ).splitlines(keepends=True)
+        for service in services:
+            lines = drop_image_tag_entries(lines, service)
+        path.write_text("".join(lines), encoding="utf-8")
     return changed

@@ -385,7 +385,7 @@ class TestRun(unittest.TestCase):
                 rc=1 if name == "b" else 0,
                 after=["head"],
                 timeout=10,
-                until="b" if name == "a" else None,
+                until={"a": "b", "b": "a"}.get(name),
             )
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(2), 0)
@@ -518,26 +518,33 @@ class TestRun(unittest.TestCase):
     def test_an_onion_job_waits_while_tor_is_being_recreated(self):
         self._job(0, "onion", 0.1, tor=True)
         self._job(1, "clear", 0.1)
-        writer = os.open(self.tor_lock, os.O_RDWR | os.O_CREAT, 0o644)
+        writer = os.open(self.tor_lock, os.O_RDWR | os.O_CREAT, 0o600)
         fcntl.flock(writer, fcntl.LOCK_EX)
         (self.jobs / rp.SEALED).touch()
         runner = threading.Thread(target=self._run, args=(2,))
         runner.start()
-        time.sleep(0.6)
-        self.assertEqual(self._stamps("start", "onion"), [])
-        self.assertEqual(len(self._stamps("end", "clear")), 1)
-        released = time.time()
-        fcntl.flock(writer, fcntl.LOCK_UN)
-        os.close(writer)
-        runner.join(timeout=10)
+        try:
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline and not (
+                self.trace.exists() and self._stamps("end", "clear")
+            ):
+                time.sleep(0.05)
+            self.assertEqual(len(self._stamps("end", "clear")), 1)
+            self.assertEqual(self._stamps("start", "onion"), [])
+            released = time.time()
+        finally:
+            fcntl.flock(writer, fcntl.LOCK_UN)
+            os.close(writer)
+            runner.join(timeout=10)
         self.assertGreaterEqual(self._stamps("start", "onion")[0], released)
 
     def test_onion_jobs_share_tor_with_each_other(self):
         self._job(0, "onion-a", 0.1, tor=True, timeout=10, until="onion-b")
-        self._job(1, "onion-b", 0.1, tor=True)
+        self._job(1, "onion-b", 0.1, tor=True, timeout=10, until="onion-a")
         (self.jobs / rp.SEALED).touch()
         self.assertEqual(self._run(2), 0)
         self.assertFalse(self._result("onion-a")["timed_out"])
+        self.assertFalse(self._result("onion-b")["timed_out"])
         self.assertEqual(self._peak(), 2)
 
     def test_onion_jobs_stay_within_the_tor_cap(self):
@@ -548,7 +555,7 @@ class TestRun(unittest.TestCase):
                 0.4,
                 tor=True,
                 timeout=10,
-                until="clear" if name == "onion-a" else None,
+                until="clear",
             )
         self._job(3, "clear", 0.4)
         (self.jobs / rp.SEALED).touch()
@@ -715,7 +722,7 @@ class TestTorRecreateWaitsForOnionRuns(unittest.TestCase):
             the exit code, stderr, and whether the pending marker existed
             while the script waited.
         """
-        reader = os.open(self.lock, os.O_RDONLY | os.O_CREAT, 0o644)
+        reader = os.open(self.lock, os.O_RDONLY | os.O_CREAT, 0o600)
         fcntl.flock(reader, fcntl.LOCK_SH)
         proc = self.start(script, str(self.lock))
         began = time.monotonic()

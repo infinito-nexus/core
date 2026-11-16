@@ -1,9 +1,15 @@
 import re
 import unittest
+from typing import ClassVar
 
 from utils.packages.calls import STATE_ABSENT, STATE_PRESENT
 from utils.packages.installed import deb_pin_argv
-from utils.packages.plan import build_plan, merge_plans
+from utils.packages.plan import (
+    HOST_ARCHITECTURE_VAR,
+    build_plan,
+    ensure_published,
+    merge_plans,
+)
 from utils.packages.schema import (
     SOURCE_AUR,
     SOURCE_BUILD,
@@ -287,6 +293,28 @@ class TestDownloadSource(unittest.TestCase):
         self.assertEqual(install.args["state"], STATE_PRESENT)
         self.assertEqual(confirm.args["name"], ["editor"])
 
+    def test_declared_repo_files_are_removed_before_the_confirm(self):
+        repo_file = "/etc/yum.repos.d/editor.repo"
+        plan = build_plan(
+            PackageSpec(
+                ("editor",),
+                source=SOURCE_DOWNLOAD,
+                download={**_RPM, "repo_files": [repo_file]},
+            ),
+            STATE_PRESENT,
+        )
+        self.assertEqual(
+            _modules(plan),
+            [
+                "ansible.builtin.file",
+                "ansible.builtin.get_url",
+                "ansible.builtin.dnf",
+                "ansible.builtin.file",
+                "ansible.builtin.package",
+            ],
+        )
+        self.assertEqual(plan[3].args, {"path": repo_file, "state": "absent"})
+
     def test_an_unsupported_artefact_is_refused(self):
         spec = PackageSpec(
             ("editor",),
@@ -383,6 +411,43 @@ class TestFlatpakSource(unittest.TestCase):
         self.assertEqual(
             _modules(build_plan(spec, STATE_ABSENT)), ["ansible.builtin.package"]
         )
+
+
+class TestEnsurePublished(unittest.TestCase):
+    """A host the source publishes nothing for is refused by name, before the
+    remote answers with an anonymous ``Nothing matches``."""
+
+    SPEC = PackageSpec(
+        ("org.blender.Blender",), source=SOURCE_FLATPAK, architectures=("amd64",)
+    )
+    BY_KERNEL: ClassVar[dict[str, str]] = {"x86_64": "amd64", "aarch64": "arm64"}
+
+    def _ensure(self, kernel, spec=SPEC, distribution="centos"):
+        ensure_published("blender", distribution, kernel, self.BY_KERNEL, spec)
+
+    def test_an_unpublished_architecture_names_package_distro_and_arch(self):
+        with self.assertRaises(ValueError) as caught:
+            self._ensure("aarch64")
+        for word in ("blender", "centos", "arm64", "org.blender.Blender", "amd64"):
+            with self.subTest(word=word):
+                self.assertIn(word, str(caught.exception))
+
+    def test_a_published_architecture_passes(self):
+        self._ensure("x86_64")
+
+    def test_an_unmapped_kernel_architecture_fails_loud(self):
+        for kernel in ("riscv64", ""):
+            with (
+                self.subTest(kernel=kernel),
+                self.assertRaises(ValueError) as caught,
+            ):
+                self._ensure(kernel)
+            self.assertIn(HOST_ARCHITECTURE_VAR, str(caught.exception))
+
+    def test_an_entry_without_architectures_passes_everywhere(self):
+        for kernel in ("aarch64", "riscv64"):
+            with self.subTest(kernel=kernel):
+                self._ensure(kernel, PackageSpec(("blender",)), "fedora")
 
 
 def _plan(*names, **spec):

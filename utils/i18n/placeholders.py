@@ -11,49 +11,15 @@ from __future__ import annotations
 
 import html
 
-from utils.i18n.damage import COLLAPSE_FLOOR as COLLAPSE_FLOOR
-from utils.i18n.damage import COLLAPSE_RATIO as COLLAPSE_RATIO
-from utils.i18n.damage import ECHO_FLOOR as ECHO_FLOOR
-from utils.i18n.damage import LATIN_SHARE as LATIN_SHARE
-from utils.i18n.damage import MARKUP as MARKUP
-from utils.i18n.damage import MAX_SHARING_SOURCES as MAX_SHARING_SOURCES
-from utils.i18n.damage import NON_LATIN_SCRIPTS as NON_LATIN_SCRIPTS
-from utils.i18n.damage import STRUCTURE as STRUCTURE
-from utils.i18n.damage import STUTTER as STUTTER
-from utils.i18n.damage import TRUNCATION_FLOOR as TRUNCATION_FLOOR
-from utils.i18n.damage import TRUNCATION_RATIO as TRUNCATION_RATIO
-from utils.i18n.damage import WORDS as WORDS
 from utils.i18n.damage import Rejected as Rejected
-from utils.i18n.damage import added_spans as added_spans
-from utils.i18n.damage import collapsed as collapsed
-from utils.i18n.damage import harms as harms
-from utils.i18n.damage import missing_names as missing_names
-from utils.i18n.damage import protected_spans as protected_spans
 from utils.i18n.damage import reason as reason
-from utils.i18n.damage import structure as structure
-from utils.i18n.damage import stutters as stutters
-from utils.i18n.damage import truncated as truncated
-from utils.i18n.damage import untranslated as untranslated
-from utils.i18n.repairs import EMPHASIS as EMPHASIS
-from utils.i18n.repairs import RUN_OF_SPACES as RUN_OF_SPACES
-from utils.i18n.repairs import TERMINATORS as TERMINATORS
 from utils.i18n.repairs import collapse as collapse
 from utils.i18n.repairs import recapitalise as recapitalise
 from utils.i18n.repairs import resegment as resegment
 from utils.i18n.repairs import terminate as terminate
 from utils.i18n.repairs import tighten as tighten
-from utils.i18n.spans import EXTRA as EXTRA
-from utils.i18n.spans import PLACEHOLDER as PLACEHOLDER
-from utils.i18n.spans import PRINTF as PRINTF
-from utils.i18n.spans import PROTECTED as PROTECTED
 from utils.i18n.spans import TOKEN as TOKEN
 from utils.i18n.spans import Masked as Masked
-from utils.i18n.spans import carries_placeholder as carries_placeholder
-from utils.i18n.spans import has_words as has_words
-from utils.i18n.spans import mask as mask
-from utils.i18n.spans import mask_tokens as mask_tokens
-from utils.i18n.spans import matches as matches
-from utils.i18n.spans import prose as prose
 
 
 def unmask(

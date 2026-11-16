@@ -22,10 +22,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import io
 import os
 import re
 import sys
 from pathlib import Path
+
+from baudolo.restore.dumpfile import open_dump
 
 sys.path.insert(0, os.environ["BKP_TEST_REPO_ROOT"])
 
@@ -98,7 +101,7 @@ def volume_mountpoint(volume: str) -> Path:
 
 def file_volumes(generation_dir: Path) -> list[str]:
     """The volumes this generation stores as a file tree."""
-    files_glob, _dump_glob = manifest.globs_of(manifest.layout_of(generation_dir))
+    files_glob, _dump_globs = manifest.globs_of(manifest.layout_of(generation_dir))
     return sorted(path.parent.name for path in generation_dir.glob(files_glob))
 
 
@@ -157,7 +160,9 @@ def each_database(generation_dir: Path):
 
 def in_file(path: Path, token: str) -> bool:
     """Whether a token appears anywhere in a file, without holding it in memory."""
-    with path.open(encoding="utf-8", errors="replace") as handle:
+    with io.TextIOWrapper(
+        open_dump(str(path)), encoding="utf-8", errors="replace"
+    ) as handle:
         return any(token in line for line in handle)
 
 

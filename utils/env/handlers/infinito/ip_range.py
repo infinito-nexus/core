@@ -13,7 +13,7 @@ import ipaddress
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from utils.env.builder import EnvBuilder
+    from utils.env.context import EnvBuilder
 
 KEY = "INFINITO_IP_RANGE"
 SUBNET_KEY = "INFINITO_SUBNET"

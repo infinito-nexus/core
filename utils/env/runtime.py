@@ -131,8 +131,32 @@ def cpu_stall_pct() -> float:
     return _pressure_pct("cpu", "some")
 
 
-def uninterruptible_procs() -> int:
-    """Count the processes in uninterruptible (`D`) state via /proc/<pid>/stat.
+def _context_switches(pid: str) -> int | None:
+    """
+    Args:
+        pid: process whose /proc/<pid>/status is read.
+
+    Returns:
+        Its voluntary plus involuntary context switches so far, None when the
+        status is unreadable or carries neither counter.
+    """
+    try:
+        text = Path(
+            f"/proc/{pid}/status"
+        ).read_text()  # nocheck: cache-read -- live kernel pseudo-file
+    except OSError:
+        return None
+    counts = [
+        int(value)
+        for key, _, value in (line.partition(":") for line in text.splitlines())
+        if key in ("voluntary_ctxt_switches", "nonvoluntary_ctxt_switches")
+        and value.strip().isdigit()
+    ]
+    return sum(counts) if counts else None
+
+
+def uninterruptible_switches() -> dict[str, int]:
+    """Map the processes in uninterruptible (`D`) state via /proc/<pid>/stat.
 
     A process stuck in `D` cannot be killed and is the host-visible trace of
     a wedged mount. Only the state field is evaluated; the command name is
@@ -141,13 +165,14 @@ def uninterruptible_procs() -> int:
     state is read after the last closing parenthesis rather than by index.
 
     Returns:
-        The number of `D`-state processes, 0 when /proc is unreadable.
+        The context switches so far of every `D`-state process, keyed by pid;
+        empty when /proc is unreadable.
     """
     try:
         entries = os.listdir("/proc")
     except OSError:
-        return 0
-    count = 0
+        return {}
+    switches: dict[str, int] = {}
     for entry in entries:
         if not entry.isdigit():
             continue
@@ -158,9 +183,12 @@ def uninterruptible_procs() -> int:
         except OSError:
             continue
         fields = stat.rpartition(")")[2].split()
-        if fields and fields[0] == "D":
-            count += 1
-    return count
+        if not fields or fields[0] != "D":
+            continue
+        count = _context_switches(entry)
+        if count is not None:
+            switches[entry] = count
+    return switches
 
 
 def is_wsl2() -> bool:

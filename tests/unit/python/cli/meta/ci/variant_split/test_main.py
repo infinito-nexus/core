@@ -4,9 +4,9 @@ import io
 import json
 import tempfile
 import unittest
+import unittest.mock
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest import mock
 
 from cli.meta.ci.variant_split import __main__ as cli
 from cli.meta.ci.variant_split import snapshot as snapshot_module
@@ -95,7 +95,7 @@ class TestMain(unittest.TestCase):
 
     def test_snapshot_passes_the_seed_and_records_it(self) -> None:
         out_path = self.tmp / "snap.json"
-        with mock.patch.object(
+        with unittest.mock.patch.object(
             snapshot_module, "take", return_value=_snap(seed="42")
         ) as take:
             rc, _, _ = self._run(

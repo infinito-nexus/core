@@ -63,8 +63,8 @@ test("asset: administrator uploads an image asset into a design file", async ({ 
   const newFile = page.getByText(/\+\s*New File/i).first();
   await expect(newFile, "Expected a create-file control in Drafts").toBeVisible({ timeout: resolveTimeout(60_000) });
   await newFile.click({ timeout: resolveTimeout(30_000) });
-  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000), message: "expected to enter the Penpot workspace editor" })
-    .toContain("/workspace");
+  await expect.poll(() => shared.screenOf(page.url()), { timeout: resolveTimeout(90_000), message: "expected to enter the Penpot workspace editor" })
+    .toBe("workspace");
 
   const validPng = shared.validImagePng();
   const fileInput = page.locator("#image-upload");

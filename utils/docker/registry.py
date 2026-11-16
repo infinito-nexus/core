@@ -24,10 +24,12 @@ import tempfile
 import urllib.error
 import urllib.request
 from pathlib import Path
-from urllib.parse import quote, urlencode, urlparse
+from urllib.parse import quote, urlencode, urljoin, urlparse
 
+from utils.docker.digest import valid_digest
 from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_name
 from utils.docker.mirror import mirror_image
+from utils.docker.redirect import OPENER
 
 _UA = "infinito-nexus-version-updater"
 _UNKNOWN_PLATFORM = "unknown"
@@ -66,7 +68,7 @@ def _resolve(image: str) -> tuple[str, str] | None:
 def _bearer_token(challenge: str, repo: str) -> str | None:
     params = dict(_CHALLENGE_PARAM_RE.findall(challenge or ""))
     realm = params.get("realm")
-    if not realm:
+    if not realm or urlparse(realm).scheme != "https":
         return None
     query = {"scope": params.get("scope") or f"repository:{repo}:pull"}
     if params.get("service"):
@@ -75,7 +77,7 @@ def _bearer_token(challenge: str, repo: str) -> str | None:
         req = urllib.request.Request(  # noqa: S310 - https request to a trusted registry host
             f"{realm}?{urlencode(query)}", headers={"User-Agent": _UA}
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 - https request to a trusted registry host
+        with OPENER.open(req, timeout=15) as resp:
             body = json.loads(resp.read().decode())
     except (
         urllib.error.URLError,
@@ -102,7 +104,7 @@ def _request(url: str, repo: str, method: str, accept: str | None):
             headers["Authorization"] = f"Bearer {token}"
         req = urllib.request.Request(url, headers=headers, method=method)  # noqa: S310 - https request to a trusted registry host
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 - https request to a trusted registry host
+            with OPENER.open(req, timeout=15) as resp:
                 return (
                     resp.status,
                     resp.headers,
@@ -152,12 +154,11 @@ def fetch_registry_tags(
         match = _LINK_NEXT_RE.search(resp_headers.get("Link", "") or "")
         if not match:
             break
-        nxt = match.group(1)
-        if nxt.startswith("http"):
-            url = nxt
-        else:
-            parsed = urlparse(url)
-            url = f"{parsed.scheme}://{parsed.netloc}{nxt}"
+        nxt = urljoin(url, match.group(1))
+        target = urlparse(nxt)
+        if target.scheme != "https" or target.netloc != urlparse(url).netloc:
+            break
+        url = nxt
     return tags
 
 
@@ -226,8 +227,8 @@ def platform_digest(manifests: list, os_name: str, architecture: str) -> str | N
             platform.get("os") == os_name
             and platform.get("architecture") == architecture
         ):
-            digest = entry.get("digest")
-            if isinstance(digest, str) and digest:
+            digest = valid_digest(entry.get("digest"))
+            if digest:
                 return digest
     return None
 
@@ -341,6 +342,31 @@ def config_blob(
     return fetch_blob(image, config_digest)
 
 
+def image_platform_digest(
+    image: str, reference: str, *, os_name: str, architecture: str
+) -> str | None:
+    """Return the digest of the ``os_name``/``architecture`` manifest.
+
+    Args:
+        image: image name, with or without registry host.
+        reference: tag or digest.
+        os_name: platform a multi-arch index is resolved to.
+        architecture: platform a multi-arch index is resolved to.
+
+    Returns:
+        The platform manifest's digest, or ``None`` on any indeterminate
+        outcome (see :func:`fetch_manifest`) and on an index without a
+        matching platform.
+    """
+    doc = fetch_manifest(image, reference)
+    if doc is None:
+        return None
+    manifests = doc.get("manifests")
+    if isinstance(manifests, list) and manifests:
+        return platform_digest(manifests, os_name, architecture)
+    return manifest_digest(image, reference)
+
+
 def _platforms_at(image: str, reference: str) -> set[str] | None:
     doc = fetch_manifest(image, reference)
     if doc is None:
@@ -439,7 +465,7 @@ def manifest_digest(image: str, reference: str) -> str | None:
     result = _request(url, repo, method="HEAD", accept=_MANIFEST_ACCEPT)
     if result is None or result[0] != 200:
         return None
-    return result[1].get("Docker-Content-Digest") or None
+    return valid_digest(result[1].get("Docker-Content-Digest"))
 
 
 def manifest_exists(image: str, reference: str) -> bool | None:

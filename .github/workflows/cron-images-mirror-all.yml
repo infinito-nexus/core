@@ -22,9 +22,14 @@ on:
         default: "."
         type: string
       images_per_hour:
-        description: "⏱️ Optional throttle: max images mirrored per hour"
+        description: "⏱️ Optional throttle: max Docker Hub copies per hour (default 150)"
         required: false
         type: string
+      issues:
+        description: "🛡️ Sync the vulnerability issues; off is a dry run"
+        required: false
+        default: true
+        type: boolean
 
   workflow_call:
     inputs:
@@ -43,9 +48,14 @@ on:
         type: string
         default: "."
       images_per_hour:
-        description: "Optional throttle: max images mirrored per hour"
+        description: "Optional throttle: max Docker Hub copies per hour (default 150)"
         required: false
         type: string
+      issues:
+        description: "Open, update and close the vulnerability issues; false is a dry run"
+        required: false
+        default: true
+        type: boolean
     secrets:
       DOCKERHUB_USERNAME:
         required: false
@@ -69,7 +79,7 @@ jobs:
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      IMAGES_PER_HOUR: ${{ github.event.inputs.images_per_hour || inputs.images_per_hour || '50' }}
+      IMAGES_PER_HOUR: ${{ github.event.inputs.images_per_hour || inputs.images_per_hour || '150' }}
 
     steps:
       - name: ⬇️ Checkout
@@ -117,3 +127,70 @@ jobs:
           GHCR_PREFIX: ${{ inputs.ghcr_prefix || 'mirror' }}
           REPO_ROOT: ${{ inputs.repo_root || '.' }}
         run: bash scripts/meta/mirror/sync/all.sh
+
+  scan:
+    name: 🔬 Scan the mirror
+    needs: sync
+    runs-on: ubuntu-26.04
+    timeout-minutes: 355
+    permissions:
+      contents: read
+      issues: write
+
+    env:
+      INFINITO_GHCR_MIRROR_PREFIX: ${{ inputs.ghcr_prefix || 'mirror' }}
+
+    steps:
+      - name: 🧹 Free disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+
+      - name: 🔧 Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install Python deps
+        run: PYTHON=python bash scripts/install/python.sh
+
+      - name: 🗂️ SBOM tree by digest
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/security/sbom
+          key: security-sbom-${{ github.run_id }}
+          restore-keys: security-sbom-
+
+      - name: 🔬 Scan every pinned image
+        run: make test-security
+
+      - name: 📊 Count the findings per image and per CVE
+        if: ${{ !cancelled() }}
+        run: python -m cli.contributing.security.summary --report build/test-reports/security.json --counts build/test-reports/security-counts.json --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: ⬆️ Upload the findings
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4.6.1
+        with:
+          name: vulnerability-findings
+          path: |
+            build/test-reports/security.json
+            build/test-reports/security-counts.json
+          if-no-files-found: error
+
+      - name: 🛡️ Open, update and close the vulnerability issues
+        if: ${{ !cancelled() && (github.event_name == 'schedule' || inputs.issues) }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m cli.contributing.security.issues --report build/test-reports/security.json --repo "${{ github.repository }}"

@@ -375,13 +375,13 @@ jobs:
     secrets: inherit
 
   report-main-failures:
-    name: 🐞 Report main role failures
+    name: 🐞 Report main role failures and runtime vulnerabilities
     needs:
       - test-deploy-chunk-0
       - test-deploy-chunk-1
       - test-deploy-chunk-2
       - test-deploy-chunk-3
-    if: ${{ always() && github.ref == 'refs/heads/main' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+    if: ${{ always() && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-26.04
     permissions:
       issues: write
@@ -390,9 +390,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.0
       - name: 🐞 Open or append issues for failed roles
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 -m cli.meta.ci.report_failures --run-id "${{ github.run_id }}" --repo "${{ github.repository }}"
+      - name: "📥 Load the GHCR mirror prefix SPOT into job env"
+        if: ${{ !cancelled() }}
+        run: grep '^INFINITO_GHCR_MIRROR_PREFIX=' default.env >> "$GITHUB_ENV"
+      - name: 🛡️ Open, update and close the runtime vulnerability issues
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 -m cli.meta.ci.runtime_vulnerabilities --run-id "${{ github.run_id }}" --repo "${{ github.repository }}" --ref "${GITHUB_REF}" --dir "${RUNNER_TEMP}/rescue-diagnostics"
 
   done:
     name: 🏁 Finish pipeline

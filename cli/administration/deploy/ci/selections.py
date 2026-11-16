@@ -28,10 +28,14 @@ stopped, instead of aggregating to role ids and guessing the rest.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
-from utils.github.variant import axes, selection
+from cli.meta.ci import matrix
+from utils.cache import PROJECT_ROOT
+from utils.github.variant import axes, pools, selection
 from utils.github.variant.vpn import VPN_DEPLOY_MODES
+from utils.packages.registry import published_architectures
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -73,20 +77,68 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
         if state == "success" or (strict and state != "failure"):
             continue
         label = axes.parse_label(str(job.get("name", "")))
+        variants = tuple(int(part) for part in label.variant.split(",") if part)
         tokens.add(
             selection.describe(
                 selection.Pin(
                     app,
-                    tuple(int(part) for part in label.variant.split(",") if part),
+                    variants,
                     label.mode,
                     label.network,
                     label.distro or None,
-                    architecture=label.architecture or None,
+                    architecture=_replayable_architecture(
+                        app, variants, label.distro, label.architecture
+                    ),
                     vpn=label.vpn if label.mode in VPN_DEPLOY_MODES else None,
                 )
             )
         )
     return sorted(tokens)
+
+
+def _replayable_architecture(
+    app: str, variants: tuple[int, ...], distro: str, architecture: str
+) -> str | None:
+    """The architecture pin a replay may carry.
+
+    A job the matrix planned before a package narrowed its pair would come
+    back as a token the pin check refuses, and one refused token aborts the
+    whole dispatch. The architecture is dropped instead, with a warning, and
+    the rotation picks one the row's packages are published for.
+
+    Args:
+        app: role id of the failed job.
+        variants: the variant shards its title names.
+        distro: the distro its title names, ``""`` when none.
+        architecture: the architecture its title names, ``""`` when none.
+    """
+    if not architecture or not distro:
+        return architecture or None
+    if not any(
+        architecture not in narrowed.get(distro, pools.ARCHITECTURES)
+        for narrowed in published_architectures(PROJECT_ROOT).values()
+    ):
+        return architecture
+    rounds = matrix.deployed_rounds(app)
+    services = tuple(
+        dict.fromkeys(
+            role
+            for index in variants or (0,)
+            if index < len(rounds)
+            for role in rounds[index]
+        )
+    )
+    if (distro, architecture) in axes.row_pairs(
+        app, (distro,), pools.ARCHITECTURES, services
+    ):
+        return architecture
+    print(
+        f"warning: {app}: replaying the failed {distro}:{architecture} job "
+        f"without its :{architecture} pin; a package the row installs is not "
+        f"published for that pair (meta/packages.yml architectures)",
+        file=sys.stderr,
+    )
+    return None
 
 
 def collapse_to_roles(tokens: Iterable[str]) -> list[str]:

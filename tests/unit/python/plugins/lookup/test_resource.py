@@ -200,6 +200,13 @@ class TestResourceApplicationsAccess(unittest.TestCase):
                 self.read = True
             return super().get(key, default)
 
+        def __eq__(self, other: object) -> bool:
+            return (
+                isinstance(other, type(self))
+                and dict.__eq__(self, other)
+                and self.read == other.read
+            )
+
     def _scope(self):
         scope = self._Tripwire()
         scope.update(_vars())
