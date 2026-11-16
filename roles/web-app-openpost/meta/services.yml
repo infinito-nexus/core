@@ -65,7 +65,7 @@ openpost:
     swarm:
       enabled: true
   image: ghcr.io/getopenpost/openpost
-  version: "v7.37.2"
+  version: "v7.41.6"
   update:
     type: registry_tags
     image: ghcr.io/getopenpost/openpost
