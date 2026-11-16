@@ -168,7 +168,8 @@ applications:
 | `mode` | `review` creates an unscheduled draft; `auto` publishes immediately. New routes start in `review`. |
 | `attribution` | Template per network with `{text}` and `{source_url}`; `default` covers networks without their own entry. |
 
-The deploy validates every route against OpenPost and fails with the route name and the field when a platform is unknown, a token is missing or a target is not connected.
+A route is left out of the deployed configuration while the OpenPost service of its `source.platform` (`services.mastodon`, `services.pixelfed` or `services.peertube`) is disabled, for example PeerTube on an onion-only deployment, since PeerTube refuses the onion.
+The deploy validates every remaining route against OpenPost and fails with the route name and the field when a platform is unknown, a token is missing or a target is not connected.
 Connect the target accounts and create the Social Set in OpenPost before adding the route.
 On the CI rounds with the provider simulator the routes carry no token: the deploy mints read tokens on the local instances, connects the local Mastodon account and creates the empty Social Sets that the CLI probe fills.
 
@@ -230,6 +231,7 @@ A dead-lettered item stays in that state; publish the post again from the OpenPo
 | Bluesky is also reachable without OpenPost through `web-app-bridgy-fed`. | Use the bridge for automatic federation and OpenPost for deliberate Bluesky-native posts. |
 | OpenPost connects PeerTube only through the OAuth password grant, and PeerTube accounts that sign in through Keycloak have no local password. | Connect a local PeerTube account: the `root` account, which a fresh `web-app-peertube` instance creates with the first 50 characters of the platform administrator's password, or one the PeerTube administrator creates for publishing. PeerTube then asks for the channel each video goes to. |
 | Sibling Fediverse instances are reachable only over TLS on port 443. | Keep TLS enabled for `web-app-mastodon`, `web-app-pixelfed` and `web-app-peertube`. |
+| OpenPost's media upload, avatar upload and instance backup routes believe `X-Forwarded-Proto` only from loopback, link-local or private peers, unlike the rest of its API, which follows `OPENPOST_TRUSTED_PROXY_CIDRS`. Behind the shared proxy on the role subnet `192.88.99.0/24` they take an HTTPS session for plain HTTP and refuse it as cross-site (HTTP 403 `cross-site session request rejected`) whenever media stays in the role volume. | The role's own vhost (`templates/proxy.conf.j2`) forwards exactly those routes as plain HTTP and rewrites the browser's own `https://` origin to `http://`, so both sides agree in compose and swarm; OpenPost still compares the origin's host. |
 
 ## Data processing and dependencies
 
