@@ -13,7 +13,7 @@ OPENPOST_SIMULATOR_HOST      one simulator alias, whose /__admin API holds the r
 OPENPOST_PROVIDER_URL        published plain-HTTP origin of the fake provider that plays LinkedIn, empty without it
 OPENPOST_UNCONFIGURED_PLATFORMS JSON list of commercial platforms without credentials, which must not connect
 OPENPOST_S3_PUBLIC_URL       public bucket URL with a trailing slash, empty when media stays in the role volume
-OPENPOST_DB_CONTAINER        resolved Postgres container
+OPENPOST_DB_CONTAINER        Postgres container on the probe's node, empty when swarm placed it elsewhere
 OPENPOST_DB_NAME             OpenPost database name
 OPENPOST_DB_USER             OpenPost database user
 OPENPOST_DB_PASSWORD_B64     base64 OpenPost database password
