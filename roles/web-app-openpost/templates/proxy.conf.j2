@@ -1,0 +1,54 @@
+{% set application_id = front_proxy_application_id | default(application_id) %}
+{% set domain = front_proxy_domain | default(domain) %}
+server
+{
+  server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
+  {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
+
+  {% if lookup('sso', application_id, 'is_proxy_gated') %}
+    {% include 'roles/web-app-keycloak/templates/sso_proxy/endpoint.conf.j2'%}
+  {% endif %}
+
+  {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
+
+  {% if webserver_extra_configuration is defined %}
+    {{ webserver_extra_configuration }}
+  {% endif %}
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  {% set _issuer_host = OIDC.URL | urlsplit('hostname') %}
+  {% if lookup('domain', application_id) == _issuer_host and domain != _issuer_host %}
+  location / {
+    return 302 {{ OIDC.URL }}$request_uri;
+  }
+
+  {% elif lookup('network_handover', application_id, domain) %}
+    {% include 'roles/sys-svc-proxy/templates/location/handover.conf.j2' %}
+
+  {% else %}
+    {% set _echo_session_origin %}
+  set $openpost_origin $http_origin;
+  if ($http_origin = "https://$host") {
+    set $openpost_origin "http://$host";
+  }
+  proxy_set_header Origin $openpost_origin;
+    {% endset %}
+    {% with sso_proxy_enabled = lookup('sso', application_id, 'is_proxy_gated'),
+            location = '~ "^/api/v1/(media/(upload|batch-upload|metadata|upload-session/[^/]+/content)|auth/profile/avatar|admin/backup(/.*)?)$"',
+            proxy_x_forwarded_proto = 'http',
+            webserver_location_extra_configuration = _echo_session_origin %}
+      {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+    {% endwith %}
+
+    {% include 'roles/sys-svc-proxy/templates/location/sso_acl.conf.j2' %}
+  {% endif %}
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/web-svc-seaweedfs/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
+
+}
