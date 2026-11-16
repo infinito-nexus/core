@@ -238,12 +238,24 @@ function skipOnOnionSibling(platform) {
 }
 
 async function disconnectAccount(page, account) {
+  const listed = page.waitForResponse(
+    (response) => response.request().method() === "GET" && new URL(response.url()).pathname === "/api/v1/accounts",
+    { timeout: resolveTimeout(60_000) },
+  );
   await gotoOnion(page, `${env.appBaseUrl}/accounts`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: /connected accounts/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
-  const actions = mastodonChannelActions(page, account);
-  if (!(await actions.isVisible())) {
+  const response = await listed;
+  expect(response.ok(), `${account.handle}: OpenPost must list the workspace accounts, got HTTP ${response.status()}`).toBeTruthy();
+  const username = account.handle.replace(/^@/, "").toLowerCase();
+  const connected = (await response.json()).some(
+    (entry) => entry.platform === "mastodon" && String(entry.account_username).replace(/^@/, "").toLowerCase() === username,
+  );
+  if (!connected) {
     return;
   }
+  const actions = mastodonChannelActions(page, account);
+  await expect(actions, `${account.handle}: the connected account must offer its actions`).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
   await actions.click();
   await page.getByRole("menuitem", { name: /remove connection/i }).click();
   const confirm = page.getByRole("alertdialog").or(page.getByRole("dialog")).first();
