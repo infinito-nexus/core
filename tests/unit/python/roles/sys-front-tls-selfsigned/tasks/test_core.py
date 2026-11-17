@@ -6,11 +6,12 @@ import unittest.mock as mock
 
 from plugins.lookup.tls import LookupModule
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 PROVIDER_TASKS = PROJECT_ROOT / "roles/sys-front-tls-selfsigned/tasks/00_core.yml"
-DISPATCHER_VARS = PROJECT_ROOT / "roles/sys-front-tls/vars/main.yml"
+DISPATCHER_VARS = PROJECT_ROOT / "roles/sys-front-tls" / ROLE_FILE_VARS_MAIN
 
 SERVED_NAME = "*.user.blog.example.org"
 TOR_NODE_VARIABLES = {

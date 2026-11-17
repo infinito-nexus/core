@@ -5,6 +5,7 @@ import re
 import unittest
 
 from utils.cache.files import iter_project_files_with_content
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
@@ -30,7 +31,7 @@ def _v1_references() -> list[tuple[str, str]]:
 class TestApiV1Routes(unittest.TestCase):
     def test_the_scan_sees_the_api_healthcheck_path(self) -> None:
         self.assertIn(
-            ("meta/services.yml", "instance"),
+            (ROLE_FILE_META_SERVICES, "instance"),
             _v1_references(),
         )
 

@@ -6,8 +6,8 @@ import importlib.util
 import json
 import types
 import unittest
+import unittest.mock as mock
 from typing import ClassVar
-from unittest import mock
 
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_TESTS

@@ -1,0 +1,173 @@
+"""The cache roles inside the infra runner: their inventory, host paths, containers and deploy."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+from utils.infra import SERVICE
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+INVENTORY_TEMPLATE = Path("inventories") / "development" / "infra.yml.j2"
+INVENTORY_RENDERED = Path("inventories") / "development" / "infra.rendered.yml"
+INVENTORY_KEYS = {
+    "idle_days": "INFINITO_CACHE_MAX_IDLE_DAYS",
+    "package_cap": "INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX",
+    "package_data": "INFINITO_CACHE_PACKAGE_HOST_PATH",
+    "package_port": "INFINITO_CACHE_PACKAGE_PORT",
+    "frontend_ca": "INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR",
+    "frontend_certs": "INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR",
+    "registry_cap": "INFINITO_CACHE_REGISTRY_MAX_SIZE",
+    "registry_auth": "INFINITO_CACHE_REGISTRY_AUTH",
+    "registry_mirror": "INFINITO_CACHE_REGISTRY_HOST_PATH",
+    "registry_ca": "INFINITO_CACHE_REGISTRY_CA_HOST_PATH",
+}
+PATH_NAMES = (
+    "package_data",
+    "frontend_ca",
+    "frontend_certs",
+    "registry_mirror",
+    "registry_ca",
+)
+REGISTRIES_KEY = "INFINITO_CACHE_REGISTRIES"
+CACHE_ROLES = ("svc-registry-cache", "svc-cache-package")
+CACHE_SERVICES = {
+    "registry": ("svc-registry-cache", "cache"),
+    "package": ("svc-cache-package", "package"),
+    "frontend": ("svc-cache-package", "frontend"),
+}
+
+
+def render_inventory(root: Path, env: Mapping[str, str]) -> Path:
+    """Args:
+        root: repository root holding the template.
+        env: environment holding the cache caps, paths, registries and idle window.
+
+    Returns:
+        The rendered host vars of the infra inventory, beside the template.
+
+    Raises:
+        KeyError: a cap, a path, the registries or the idle window is unset.
+    """
+    from jinja2 import (
+        Environment,
+        FileSystemLoader,
+        StrictUndefined,
+        select_autoescape,
+    )
+
+    template = root / INVENTORY_TEMPLATE
+    jinja = Environment(
+        loader=FileSystemLoader(str(template.parent)),
+        undefined=StrictUndefined,
+        keep_trailing_newline=True,
+        variable_start_string="[[",
+        variable_end_string="]]",
+        block_start_string="[%",
+        block_end_string="%]",
+        trim_blocks=True,
+        lstrip_blocks=True,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    values = {name: env[key] for name, key in INVENTORY_KEYS.items()}
+    body = jinja.get_template(template.name).render(
+        registries=env[REGISTRIES_KEY].split(), **values
+    )
+    rendered = root / INVENTORY_RENDERED
+    rendered.write_text(body, encoding="utf-8")
+    return rendered
+
+
+def unmounted(base: Path, pins: Path, env: Mapping[str, str]) -> list[str]:
+    """Args:
+        base: the cache base the runner mounts read-write at its host path.
+        pins: the pin root the runner mounts read-only at its host path.
+        env: environment holding the host paths the infra roles, the tools
+            services and the idle units bind or read inside the runner.
+
+    Returns:
+        One refusal per set host path outside the roots it may live in, which
+        the runner's inner docker would resolve against its own filesystem.
+        Cache data, the tools models and the tools stamps must lie below
+        ``base``; a pin path below either root.
+    """
+    from utils.env.handlers.infinito.cache.conf import KEY as FRONTEND_CONF_KEY
+    from utils.env.handlers.infinito.tools.idle import STAMP_DIR_KEY
+    from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
+
+    data = (MODELS_KEY, STAMP_DIR_KEY, *(INVENTORY_KEYS[name] for name in PATH_NAMES))
+    checks = [*((key, (base,)) for key in data), (FRONTEND_CONF_KEY, (base, pins))]
+    return [
+        f"[infra] {key}={env[key]} lies outside "
+        f"{' and '.join(str(root) for root in roots)}, which the infra runner "
+        f"mounts; move it below {roots[-1]}"
+        for key, roots in checks
+        if env.get(key)
+        and not any(Path(env[key]).is_relative_to(root) for root in roots)
+    ]
+
+
+def cache_container(root: Path, kind: str) -> str:
+    """Args:
+        root: repository root.
+        kind: ``registry``, ``package`` or ``frontend``.
+
+    Returns:
+        The container name the cache role gives that service inside the runner.
+    """
+    from utils.cache.yaml import load_yaml
+
+    role, key = CACHE_SERVICES[kind]
+    return load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)[key]["name"]
+
+
+def deploy_commands(
+    argv: Sequence[str],
+    checkout: Path,
+    vars_file: Path,
+    inventory_dir: Path,
+    roles: Sequence[str],
+) -> list[list[str]]:
+    """Args:
+        argv: compose call of the infra stack.
+        checkout: checkout inside the runner, at its host path.
+        vars_file: rendered host vars, below ``checkout``.
+        inventory_dir: inventory the runner provisions and deploys.
+        roles: application ids the inventory includes.
+
+    Returns:
+        The commands that deploy ``roles`` inside the runner. The runner image
+        is the toolchain stage, whose venv and collections are built in, and it
+        mounts ``checkout`` read-only, so no command reinstalls from a tree or
+        runs the deploy's build step, which writes into it. ``PYTHONPATH`` is
+        ``checkout``, as ``scripts/meta/env/python.sh`` sets it on a host.
+    """
+    pythonpath = f"PYTHONPATH={checkout}"
+    inside = [*argv, "exec", "-T", "-w", str(checkout), "-e", pythonpath, SERVICE]
+    python = [*inside, "python", "-m"]
+    return [
+        [*inside, "systemctl", "daemon-reload"],
+        [
+            *python,
+            "cli.administration.inventory.provision",
+            str(inventory_dir),
+            "--include",
+            *roles,
+            "--vars-file",
+            str(vars_file),
+        ],
+        [
+            *python,
+            "cli.administration.deploy.dedicated",
+            str(inventory_dir / "devices.yml"),
+            "--password-file",
+            str(inventory_dir / ".password"),
+            "--skip-backup",
+            "--skip-build",
+            "--skip-cleanup",
+            "--skip-pull",
+        ],
+    ]

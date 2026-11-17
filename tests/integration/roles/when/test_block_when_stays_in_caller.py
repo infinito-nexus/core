@@ -23,6 +23,7 @@ from typing import Any, ClassVar
 
 from utils.cache.files import read_text
 from utils.cache.yaml import dump_yaml, load_yaml_all
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -73,8 +74,8 @@ CALLERS = {
     ],
 }
 STORE = {
-    "vars/main.yml": {OWN_ID: "store"},
-    "tasks/main.yml": [
+    ROLE_FILE_VARS_MAIN: {OWN_ID: "store"},
+    ROLE_FILE_TASKS_MAIN: [
         {
             "include_tasks": "00_core.yml",
             "when": "run_once_store is not defined",
@@ -146,9 +147,9 @@ def _fixture(root: Path) -> None:
         dump_yaml(root / "roles" / "store" / relative, body)
     for caller, core in CALLERS.items():
         base = root / "roles" / caller
-        dump_yaml(base / "vars" / "main.yml", {OWN_ID: caller} | CALLER_VARS)
+        dump_yaml(base / ROLE_FILE_VARS_MAIN, {OWN_ID: caller} | CALLER_VARS)
         dump_yaml(
-            base / "tasks" / "main.yml",
+            base / ROLE_FILE_TASKS_MAIN,
             [
                 {
                     "include_tasks": "00_core.yml",
@@ -293,7 +294,7 @@ def _leaks(root: Path) -> list[str]:
     found = []
     for path in sorted(root.glob("roles/*/tasks/**/*.yml")):
         caller = path.relative_to(root).parts[1]
-        scope = {OWN_ID, *_names(root / "roles" / caller / "vars" / "main.yml")}
+        scope = {OWN_ID, *_names(root / "roles" / caller / ROLE_FILE_VARS_MAIN)}
         for include, variables, guards in _includes(_tasks(path)):
             role = str(include.get("name", ""))
             tasks_from = str(include.get("tasks_from") or "main.yml")

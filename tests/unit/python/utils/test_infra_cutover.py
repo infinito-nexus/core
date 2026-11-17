@@ -33,7 +33,6 @@ from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
 from utils.env.parser import parse_static_env
 from utils.infra import (
     BRIDGE_NAME,
-    CACHE_SERVICES,
     LOCK_NAME,
     NETWORK,
     OWNER_NAME,
@@ -41,10 +40,9 @@ from utils.infra import (
     ROOTS_OVERRIDE,
     RUNNER_CONTAINER_KEY,
     SERVICE,
-    cache_container,
     inner_docker,
-    unmounted,
 )
+from utils.infra_inventory import CACHE_SERVICES, cache_container, unmounted
 from utils.inventory import tools_vars
 
 _CACHE_KEY = re.compile(r"INFINITO_CACHE_[A-Z_]+")
@@ -681,8 +679,10 @@ class TestTheWorkspaceJobReachesTheRunnerStart(unittest.TestCase):
         Returns:
             The exit status of ``python -m cli.administration.infra attach``,
             which ``make install-lint`` reaches through the test runner, every
-            docker call it made, and its stderr. Only docker is stubbed; it
-            fails the runner start with status 97.
+            docker call it made, and its stderr. Only docker and the primary
+            checkout are stubbed: docker fails the runner start with status
+            97, and the primary checkout is this checkout, as in the job's
+            plain clone, whatever worktree layout runs the test.
         """
         moved = str(disk / "mnt" / "cache")
         job = {
@@ -710,6 +710,7 @@ class TestTheWorkspaceJobReachesTheRunnerStart(unittest.TestCase):
         with (
             tempfile.TemporaryFile("w+") as stderr,
             patch.dict(os.environ, runner),
+            patch.object(cli, "PRIMARY", ["printf", "%s\n", str(PROJECT_ROOT)]),
             patch.object(cli, "machine", return_value=disk / "var" / "cache"),
             patch.object(
                 cli,
@@ -726,7 +727,8 @@ class TestTheWorkspaceJobReachesTheRunnerStart(unittest.TestCase):
             except subprocess.CalledProcessError as exc:
                 code = exc.returncode
             stderr.seek(0)
-            return code, log.read_text().splitlines(), stderr.read()
+            calls = log.read_text().splitlines()  # nocheck: cache-read  stub call log
+            return code, calls, stderr.read()
 
     def test_the_failing_job_now_passes_every_gate_up_to_the_runner_start(
         self,

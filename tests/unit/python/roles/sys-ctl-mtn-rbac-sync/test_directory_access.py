@@ -12,10 +12,11 @@ from ansible.template import Templar
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
 
-RBAC_VARS = PROJECT_ROOT / "roles/sys-ctl-mtn-rbac-sync/vars/main.yml"
-OPENLDAP_VARS = PROJECT_ROOT / "roles/svc-db-openldap/vars/main.yml"
+RBAC_VARS = PROJECT_ROOT / "roles/sys-ctl-mtn-rbac-sync" / ROLE_FILE_VARS_MAIN
+OPENLDAP_VARS = PROJECT_ROOT / "roles/svc-db-openldap" / ROLE_FILE_VARS_MAIN
 LDAP_VARS = PROJECT_ROOT / "group_vars/all/12_ldap.yml"
 SWARM_VARS = PROJECT_ROOT / "group_vars/all/18_swarm.yml"
 CLIENT = PROJECT_ROOT / "roles/svc-db-openldap/files/python/ldap/client.py"

@@ -28,6 +28,7 @@ SUPPORT_FILES = (
 
 DISTRO = "debian"
 PARENT_IMAGE = "ghcr.io/example/pkgmgr-debian:stable"
+LOADED_FILE_KEY = "INFINITO_ENV_LOADED_FILE"  # nocheck: env-loader-internal-guard
 
 DOCKER_STUB = """#!/usr/bin/env bash
 printf '%s\\n' "$*" >>"${STUB_LOG}"
@@ -148,6 +149,21 @@ def loaded_env(base: Path, **overrides: str) -> dict[str, str]:
     return env
 
 
+def loaded_in(checkout: Path, env: dict[str, str]) -> dict[str, str]:
+    """Return ``env`` as load.sh leaves it once it loaded ``checkout``.
+
+    Args:
+        checkout: repository root whose scripts the call runs.
+        env: an environment of :func:`loaded_env`.
+
+    Returns:
+        ``env`` naming the ``.env`` of ``checkout`` as loaded, so its load.sh
+        keeps ``env`` instead of generating a ``.env`` through the ``cli``
+        package the caller's interpreter happens to import.
+    """
+    return {**env, LOADED_FILE_KEY: str(checkout / ".env")}
+
+
 def resolve_tag(checkout: Path, env: dict[str, str]) -> str:
     """Run the checkout's own local.sh and return the tag it prints.
 
@@ -158,7 +174,7 @@ def resolve_tag(checkout: Path, env: dict[str, str]) -> str:
     done = subprocess.run(
         ["bash", str(checkout / "scripts/meta/resolve/image/local.sh")],
         cwd=checkout,
-        env=env,
+        env=loaded_in(checkout, env),
         capture_output=True,
         text=True,
         check=True,

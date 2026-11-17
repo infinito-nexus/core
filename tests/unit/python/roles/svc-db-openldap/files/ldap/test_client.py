@@ -3,8 +3,8 @@ import ssl
 import tempfile
 import types
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 from urllib.parse import quote
 
 from utils.cache.files import read_text

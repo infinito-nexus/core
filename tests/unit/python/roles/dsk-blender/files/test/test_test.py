@@ -96,7 +96,7 @@ class TestSavedPreferencesCheck(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
         self.assertNotIn("SKIP", run.stdout)
         self.assertEqual(
-            self.probe.read_text().splitlines(),
+            self.probe.read_text().splitlines(),  # nocheck: cache-read  stub argv log
             [str(self.home), str(self.home), "run", "--command=true", APP],
         )
 

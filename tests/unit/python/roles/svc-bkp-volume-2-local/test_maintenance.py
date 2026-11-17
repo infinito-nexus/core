@@ -31,7 +31,7 @@ SIGNAL_TOKENS = (
 )
 VHOST_SUFFIXES = (".conf", ".conf.j2", ".nginx", ".nginx.j2")
 SCANNED_SUFFIXES = (".j2", ".conf", ".lua", ".yml", ".yaml")
-SIGNAL_OWNERS = frozenset({"svc-bkp-volume-2-local"})
+SIGNAL_OWNERS = frozenset({"svc-bkp-volume-2-local", "sys-ctl-mtn-rbac-sync"})
 CLEAR = "{{ BKP_VOLUME_2_LOCAL_MAINTENANCE_CLEAR }}"
 STOPS = ["web-app-openbao", "web-svc-seaweedfs"]
 

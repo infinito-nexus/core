@@ -1,6 +1,10 @@
 ---
 # Param: domain - vhost whose rendered body_filter Lua carries the tracker without a site id.
 # Param: matomo_token_override - Matomo API token, for a run before sys-token-store holds it.
+- name: "🔧 Drop the site id the front batch left before resolving '{{ domain }}'"
+  ansible.builtin.set_fact:
+    matomo_site_id: ""
+
 - name: "🔎 Resolve the Matomo site id for '{{ domain }}'"
   ansible.builtin.include_tasks: resolve_site.yml
 

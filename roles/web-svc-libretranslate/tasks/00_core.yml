@@ -32,6 +32,7 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
   when: LIBRETRANSLATE_MCP_ENABLED | bool
 
+# nocheck: ansible-repeated-when-run  a block guard would be evaluated inside svc-ai-models, whose vars bind its own application_id
 - name: "📦 Seed the engine's models into the store before {{ application_id }} starts"
   ansible.builtin.include_role:
     name: svc-ai-models

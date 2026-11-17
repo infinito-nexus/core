@@ -20,8 +20,6 @@ from utils.env.handlers.infinito.cache.paths import base, machine
 from utils.env.handlers.infinito.cache.pin import ROOT_KEY as PIN_ROOT_KEY
 from utils.infra import (
     BRIDGE_NAME,
-    CACHE_ROLES,
-    CACHE_SERVICES,
     LEGACY_FORMAT,
     LEGACY_REGISTRY,
     LOCK_NAME,
@@ -32,8 +30,6 @@ from utils.infra import (
     RUNNER_CONTAINER_KEY,
     SERVICE,
     base_refusal,
-    cache_container,
-    deploy_commands,
     down,
     floor_refusal,
     foreign_base,
@@ -43,12 +39,18 @@ from utils.infra import (
     legacy_running,
     proxy_bridge,
     read_bridge,
-    render_inventory,
     status,
-    unmounted,
     up,
     worktree_roots,
     write_bridge,
+)
+from utils.infra_inventory import (
+    CACHE_ROLES,
+    CACHE_SERVICES,
+    cache_container,
+    deploy_commands,
+    render_inventory,
+    unmounted,
 )
 from utils.infra_tools import (
     TOOLS_ACTIONS,

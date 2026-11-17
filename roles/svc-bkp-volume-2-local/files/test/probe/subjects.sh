@@ -22,7 +22,7 @@ while IFS= read -r volume; do
     if [[ -z "${volume}" ]] || listed "${volume}" "${BKP_TEST_VOLUMES_NO_BACKUP}"; then
         continue
     fi
-    images="$(container ps -q --filter "volume=${volume}" | xargs -r container inspect --format '{{.Config.Image}}')"
+    images="$(container ps -q --filter "volume=${volume}" | xargs -r container inspect --type container --format '{{.Config.Image}}')"
     ignored=0
     if [[ -n "${images}" ]]; then
         ignored=1

@@ -19,19 +19,24 @@ import jinja2
 from jinja2.nativetypes import NativeEnvironment
 
 from plugins.lookup.node_hosts import node_hosts
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_VOLUMES,
+    ROLE_FILE_TASKS_MAIN,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "svc-net-tor"
 VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
-VOLUMES = load_yaml_any(str(ROLE / "meta" / "volumes.yml"))
+VOLUMES = load_yaml_any(str(ROLE / ROLE_FILE_META_VOLUMES))
 CORE = load_yaml_any(str(ROLE / "tasks" / "00_core.yml"), default_if_missing=[])
-TORRC = (ROLE / "templates" / "torrc.j2").read_text(encoding="utf-8")
+TORRC = read_text(str(ROLE / "templates" / "torrc.j2"))
 PATHS = load_yaml_any(str(PROJECT_ROOT / "group_vars" / "all" / "05_paths.yml"))
 NFS_CLIENT = load_yaml_any(
-    str(PROJECT_ROOT / "roles" / "svc-storage-nfs-client" / "tasks" / "main.yml"),
+    str(PROJECT_ROOT / "roles" / "svc-storage-nfs-client" / ROLE_FILE_TASKS_MAIN),
     default_if_missing=[],
 )
 SERVER_STAGE = load_yaml_any(

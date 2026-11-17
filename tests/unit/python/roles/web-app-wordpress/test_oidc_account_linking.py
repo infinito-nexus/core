@@ -18,6 +18,7 @@ from utils.cache import base as cache_base
 from utils.cache.files import read_text
 from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
@@ -25,11 +26,12 @@ from . import PROJECT_ROOT
 ROLE = PROJECT_ROOT / "roles/web-app-wordpress"
 ADDON_TASKS_ENTRY = ROLE / "tasks/addons/daggerhart-openid-connect-generic.yml"
 ADDON_TASKS = ROLE / "tasks/addons/daggerhart-openid-connect-generic-stack-host.yml"
-ROLE_VARS = ROLE / "vars/main.yml"
+ROLE_VARS = ROLE / ROLE_FILE_VARS_MAIN
 REALM = PROJECT_ROOT / "roles/web-app-keycloak/templates/import/realm.json.j2"
 OIDC_VARS = PROJECT_ROOT / "group_vars/all/11_oidc.yml"
 EMAIL_CLAIM = re.compile(
-    r'"user\.attribute":\s*"email",[^{}]*?"claim\.name":\s*"(?P<claim>[^"]+)"'
+    r'"user\.attribute":\s*"(?:email|\{\{[^"]* else \'email\' \}\})",'
+    r'[^{}]*?"claim\.name":\s*"(?P<claim>[^"]+)"'
 )
 SUBJECT_META_KEY = "openid-connect-generic-subject-identity"
 PREFIXED = "wp_" + SUBJECT_META_KEY

@@ -6,11 +6,12 @@ import unittest.mock as mock
 
 from plugins.lookup.tls import LookupModule
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
-PROVIDER_VARS = PROJECT_ROOT / "roles/sys-front-tls-letsencrypt/vars/main.yml"
-DISPATCHER_VARS = PROJECT_ROOT / "roles/sys-front-tls/vars/main.yml"
+PROVIDER_VARS = PROJECT_ROOT / "roles/sys-front-tls-letsencrypt" / ROLE_FILE_VARS_MAIN
+DISPATCHER_VARS = PROJECT_ROOT / "roles/sys-front-tls" / ROLE_FILE_VARS_MAIN
 TLS_TERM = re.compile(r"\{\{ lookup\('tls', (\w+), '([\w.]+)'\) \}\}")
 
 SERVED_NAME = "*.user.blog.example.org"

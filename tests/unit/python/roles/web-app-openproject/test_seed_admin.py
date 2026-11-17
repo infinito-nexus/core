@@ -5,14 +5,15 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SECRETS
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-openproject"
 ENV = ROLE / "templates" / "env.j2"
-SECRETS = ROLE / "meta" / "secrets.yml"
+SECRETS = ROLE / ROLE_FILE_META_SECRETS
 
 CREDENTIAL = re.compile(
     r"\{\{ lookup\('config', application_id, "
-    r"'secrets\.credentials\.(?P<name>\w+)'\) \}\}"
+    r"'secrets\.credentials\.(?P<name>\w+)'\) \| dotenv_quote \}\}"
 )
 
 

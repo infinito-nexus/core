@@ -95,11 +95,11 @@ class WorkspacePreflightTests(ScriptCase, unittest.TestCase):
 
     def test_negative_control_a_reference_in_another_users_field_is_refused(self):
         (self.checkout / "host_vars" / "platform.yml").write_text(
-            HOST_VARS.replace("    password:", "    email:"), encoding="utf-8"
+            HOST_VARS.replace("    password:", "    username:"), encoding="utf-8"
         )
         run = self.run_script(self.login_env())
         self.assertNotEqual(run.returncode, 0)
-        self.assertIn("users.platform_administrator.email", run.stderr)
+        self.assertIn("users.platform_administrator.username", run.stderr)
         self.assertEqual(self.stub.login_count, self.logins)
         self.assertFalse(self.record.exists(), "the playbook ran")
 

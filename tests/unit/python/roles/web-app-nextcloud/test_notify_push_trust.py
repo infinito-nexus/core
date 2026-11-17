@@ -19,7 +19,6 @@ import unittest
 from ipaddress import ip_address, ip_network
 from urllib.parse import urlsplit
 
-import yaml
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.filter.core import FilterModule
 from ansible.template import Templar
@@ -31,18 +30,22 @@ from plugins.lookup.applications import _reset_cache_for_tests
 from plugins.lookup.container_networks import LookupModule as ContainerNetworksLookup
 from plugins.lookup.proxy_hops import LookupModule as ProxyHopsLookup
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.networks.address import subnet_gateway
 from utils.networks.lookup_context import build_context
 from utils.networks.render import compute_external_network_roles
 from utils.roles.entity.name import entity_name
-from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_MCP,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 APP = "web-app-nextcloud"
 MCP_CLIENTS = sorted(
     path.parent.parent.name
-    for path in ROLES_DIR.glob("*/meta/mcp.yml")
+    for path in ROLES_DIR.glob(f"*/{ROLE_FILE_META_MCP}")
     if str((load_yaml_any(str(path)) or {}).get("direction", "")) in ("client", "both")
 )
 GROUP_NAMES = [
@@ -214,7 +217,7 @@ class _Stack:
             autoescape=select_autoescape(default_for_string=False),
         )
         rendered = env.from_string(fragment).render(self._context(env, fragment, True))
-        return yaml.safe_load(rendered)["networks"]
+        return load_yaml_str(rendered)["networks"]
 
     def source(self, url: str) -> tuple[str, str, str]:
         """Network and address range the daemon's request to ``url`` leaves from.

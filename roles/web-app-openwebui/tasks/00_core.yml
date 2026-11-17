@@ -30,6 +30,7 @@
     - openwebui_tool_servers_held is not skipped
     - openwebui_tool_servers_held.stdout != 'null'
 
+# nocheck: ansible-repeated-when-run  a block guard would be evaluated inside svc-ai-models, whose vars bind its own application_id
 - name: "📦 Seed the model store before {{ application_id }} starts"
   ansible.builtin.include_role:
     name: svc-ai-models

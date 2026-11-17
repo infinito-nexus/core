@@ -15,12 +15,12 @@ from utils.cache.applications import get_merged_applications
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_VARS_MAIN
 
 ROLE = "roles/web-app-nextcloud"
 APPLICATION_ID = "web-app-nextcloud"
 ROLE_VARS = load_yaml_any(str(PROJECT_ROOT / ROLE / ROLE_FILE_VARS_MAIN))
-MCP = load_yaml_any(str(PROJECT_ROOT / ROLE / "meta/mcp.yml"))
+MCP = load_yaml_any(str(PROJECT_ROOT / ROLE / ROLE_FILE_META_MCP))
 RENDER_SERVICE = re.search(
     r"'services\.([a-z_]+)\.enabled'", ROLE_VARS["NEXTCLOUD_MCP_ENABLED"]
 ).group(1)

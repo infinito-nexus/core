@@ -12,6 +12,7 @@ from pathlib import Path
 from tests.unit.python.scripts.image._checkout import (
     git,
     loaded_env,
+    loaded_in,
     toolchain_checkout,
 )
 
@@ -117,7 +118,7 @@ class TestWrapperSharedRunner(unittest.TestCase):
         done = subprocess.run(
             ["bash", str(checkout / script), *args],
             cwd=checkout,
-            env=env,
+            env=loaded_in(checkout, env),
             capture_output=True,
             text=True,
             check=False,

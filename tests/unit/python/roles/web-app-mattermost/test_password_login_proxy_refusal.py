@@ -55,6 +55,7 @@ def render(sso: bool) -> str:
         undefined=StrictUndefined,
         autoescape=select_autoescape(default_for_string=False),
         trim_blocks=True,
+        keep_trailing_newline=True,
     )
     environment.filters["bool"] = bool
     environment.filters["entity_name"] = lambda value: value.rsplit("-", 1)[-1]

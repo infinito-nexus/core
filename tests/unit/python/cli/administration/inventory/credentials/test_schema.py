@@ -7,16 +7,16 @@ from pathlib import Path
 
 from cli.administration.inventory.credentials import schema
 from utils.manager.value_generator import ValueGenerator
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 
 class SchemaInventoryManagerTests(unittest.TestCase):
     def test_the_schema_manager_never_builds_a_value_generator(self):
         with tempfile.TemporaryDirectory() as scratch:
             role = Path(scratch, "web-app-probe")
-            (role / "vars").mkdir(parents=True)
-            (role / "vars" / "main.yml").write_text(
-                "application_id: web-app-probe\n", encoding="utf-8"
-            )
+            role_vars = role / ROLE_FILE_VARS_MAIN
+            role_vars.parent.mkdir(parents=True)
+            role_vars.write_text("application_id: web-app-probe\n", encoding="utf-8")
             with mock.patch.object(
                 ValueGenerator,
                 "__init__",

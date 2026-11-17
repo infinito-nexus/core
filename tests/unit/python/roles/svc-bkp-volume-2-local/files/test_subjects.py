@@ -19,6 +19,7 @@ from pathlib import Path
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -27,7 +28,7 @@ TEST_DIR = ROLE / "files" / "test"
 SCRIPT = TEST_DIR / "probe" / "subjects.sh"
 DRILL = TEST_DIR / "test.sh"
 TEST_ENV = ROLE / "templates" / "test.env.j2"
-VARS = ROLE / "vars" / "main.yml"
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 LOKI_HOST = "docs_docs_sites,loki_data"
 IGNORED = "registry.local:5000/grafana/promtail:3.4"
 KEPT = "registry.local:5000/grafana/loki:3.4"

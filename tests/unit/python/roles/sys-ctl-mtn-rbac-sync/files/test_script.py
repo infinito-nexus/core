@@ -25,6 +25,7 @@ DEPLOYED_MODULES = {
     "ldap_mailbox": LDAP_MODULES_DIR / "mailbox.py",
     "backup_maintenance": PROJECT_ROOT
     / "roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py",
+    "mailbox_seed": SCRIPT.parent / "mailbox_seed.py",
 }
 LDAP = {
     "uri": "ldap://127.0.0.1:389",

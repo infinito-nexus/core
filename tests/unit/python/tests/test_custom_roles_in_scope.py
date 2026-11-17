@@ -15,10 +15,11 @@ from tests.lint.filesystem.playwright import (
 from tests.lint.repository.documentation import test_markdown_links as links
 from tests.lint.repository.structure import test_folder_item_limit as folders
 from utils.cache import files as files_module
-from utils.roles.mapping import ROLE_FILE_PLAYWRIGHT_SPEC
+from utils.roles.mapping import ROLE_FILE_PLAYWRIGHT_SPEC, ROLE_FILE_README
 
 TRACKED_SPEC = f"roles/web-app-nextcloud/{ROLE_FILE_PLAYWRIGHT_SPEC}"
 CUSTOM_SPEC = f"roles/web-app-cst-demo/{ROLE_FILE_PLAYWRIGHT_SPEC}"
+CUSTOM_README = f"roles/web-app-cst-demo/{ROLE_FILE_README}"
 UNTRACKED = "roles/web-app-nextcloud/files/playwright/generated.js"
 
 
@@ -73,9 +74,15 @@ class TestPlaywrightScansReadCustomRoles(_CustomRoleFixture, unittest.TestCase):
 
 
 class TestMarkdownLinksResolveIntoCustomRoles(_CustomRoleFixture, unittest.TestCase):
-    def test_a_link_to_a_custom_role_file_resolves(self) -> None:
+    def test_a_custom_role_page_link_to_its_own_file_resolves(self) -> None:
         self.assertEqual(
-            "", links._unresolvable(self.root / CUSTOM_SPEC, self.root / TRACKED_SPEC)
+            "", links._unresolvable(self.root / CUSTOM_SPEC, self.root / CUSTOM_README)
+        )
+
+    def test_a_tracked_page_link_into_a_custom_role_stays_broken(self) -> None:
+        self.assertIn(
+            "untracked",
+            links._unresolvable(self.root / CUSTOM_SPEC, self.root / TRACKED_SPEC),
         )
 
     def test_a_link_to_an_untracked_file_stays_broken(self) -> None:

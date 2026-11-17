@@ -8,7 +8,7 @@ from contextlib import nullcontext
 from pathlib import Path
 from unittest.mock import patch
 
-from utils import infra
+from utils import infra, infra_inventory
 from utils.cache.evict import Usage
 from utils.cache.yaml import load_yaml
 
@@ -591,12 +591,12 @@ class TestStatus(unittest.TestCase):
 
 class TestDeploy(unittest.TestCase):
     def test_the_cache_roles_deploy_inside_the_runner_from_the_checkout(self) -> None:
-        commands = infra.deploy_commands(
+        commands = infra_inventory.deploy_commands(
             ["compose"],
             Path("/srv/core"),
             Path("/srv/core/inventories/development/infra.rendered.yml"),
             Path("/root/inventories/infinito-infra"),
-            infra.CACHE_ROLES,
+            infra_inventory.CACHE_ROLES,
         )
         for command in commands:
             self.assertEqual(
@@ -622,12 +622,12 @@ class TestDeploy(unittest.TestCase):
         self.assertIn("cli.administration.deploy.dedicated", commands[-1])
 
     def test_no_command_reinstalls_from_the_image_tree(self) -> None:
-        commands = infra.deploy_commands(
+        commands = infra_inventory.deploy_commands(
             ["compose"],
             Path("/srv/core"),
             Path("/srv/core/inventories/development/infra.rendered.yml"),
             Path("/root/inventories/infinito-infra"),
-            infra.CACHE_ROLES,
+            infra_inventory.CACHE_ROLES,
         )
         self.assertEqual(
             [c for c in commands if any("entry-bootstrap" in part for part in c)],
@@ -635,12 +635,12 @@ class TestDeploy(unittest.TestCase):
         )
 
     def test_the_deploy_never_builds_into_the_read_only_checkout(self) -> None:
-        commands = infra.deploy_commands(
+        commands = infra_inventory.deploy_commands(
             ["compose"],
             Path("/srv/core"),
             Path("/srv/core/inventories/development/infra.rendered.yml"),
             Path("/root/inventories/infinito-infra"),
-            infra.CACHE_ROLES,
+            infra_inventory.CACHE_ROLES,
         )
         self.assertIn("--skip-build", commands[-1])
 
@@ -674,13 +674,15 @@ class TestInventory(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            template = root / infra.INVENTORY_TEMPLATE
+            template = root / infra_inventory.INVENTORY_TEMPLATE
             template.parent.mkdir(parents=True)
             template.write_text(
-                read_text(str(PROJECT_ROOT / infra.INVENTORY_TEMPLATE)),
+                read_text(str(PROJECT_ROOT / infra_inventory.INVENTORY_TEMPLATE)),
                 encoding="utf-8",
             )
-            return load_yaml(infra.render_inventory(root, env))["applications"]
+            return load_yaml(infra_inventory.render_inventory(root, env))[
+                "applications"
+            ]
 
     def test_the_caches_take_their_caps_and_idle_window_from_the_environment(
         self,

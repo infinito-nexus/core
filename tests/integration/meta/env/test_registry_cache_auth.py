@@ -12,7 +12,7 @@ from utils.cache.yaml import load_yaml
 from utils.env.builder import build_env
 from utils.env.parser import parse_static_env_with_comments
 from utils.env.writer import write_dotenv
-from utils.infra import INVENTORY_TEMPLATE, render_inventory
+from utils.infra_inventory import INVENTORY_TEMPLATE, render_inventory
 
 from . import PROJECT_ROOT
 

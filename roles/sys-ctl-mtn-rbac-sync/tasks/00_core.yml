@@ -21,7 +21,7 @@
     state: directory
     mode: "0755"
 
-- name: "📋 Install the LDAP and backup-signal modules next to the RBAC sync script"
+- name: "📋 Install the modules the RBAC sync script imports next to it"
   ansible.builtin.copy:
     src: "{{ lookup('path_absolute', item.src) }}"
     dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, item.dest ] | path_join }}"
@@ -30,6 +30,7 @@
     - { src: roles/svc-db-openldap/files/python/ldap/client.py, dest: ldap_client.py }
     - { src: roles/svc-db-openldap/files/python/ldap/mailbox.py, dest: ldap_mailbox.py }
     - { src: roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py, dest: backup_maintenance.py }
+    - { src: roles/sys-ctl-mtn-rbac-sync/files/python/mailbox_seed.py, dest: mailbox_seed.py }
 
 - name: "🧾 Write the RBAC sync configuration"
   ansible.builtin.copy:

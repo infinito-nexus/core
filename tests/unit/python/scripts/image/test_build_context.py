@@ -9,7 +9,7 @@ from pathlib import Path
 
 from utils.docker.image.toolchain import DOCKERFILE, input_files
 
-from ._checkout import loaded_env, stub_docker, toolchain_checkout
+from ._checkout import loaded_env, loaded_in, stub_docker, toolchain_checkout
 
 ONE_GIB = 1 << 30
 STRAYS = (
@@ -32,7 +32,7 @@ class TestBuildContext(unittest.TestCase):
         cls._tmp.cleanup()
 
     def _build(self, *args: str) -> tuple[list[str], dict[str, int]]:
-        env = loaded_env(self.base)
+        env = loaded_in(self.checkout, loaded_env(self.base))
         log = Path(env["STUB_LOG"])
         context = Path(env["STUB_CONTEXT"])
         log.unlink(missing_ok=True)

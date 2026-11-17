@@ -10,6 +10,7 @@ import unittest.mock as mock
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.account_policy import (
     account_max_length,
@@ -374,7 +375,7 @@ def organizations_probe_usernames() -> tuple[list[str], int]:
     every username test-organizations.js creates in Keycloak, and the number
     of createProbeUser call sites, so a call the parse misses shows up.
     """
-    source = ORGANIZATIONS_SPEC.read_text(encoding="utf-8")
+    source = read_text(str(ORGANIZATIONS_SPEC))
     prefix = re.search(
         r'^const PROBE_PREFIX = "([^"]*)";$', source, re.MULTILINE
     ).group(1)

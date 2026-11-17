@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import unittest
 
-import yaml
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
-from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -32,7 +31,7 @@ def _backs_the_export_base(*, fstype: str, runtime: str) -> bool:
     Returns:
         True when every condition of the include holds.
     """
-    tasks = yaml.safe_load(read_text(str(TASKS)))
+    tasks = load_yaml_any(str(TASKS))
     include = next(
         task
         for task in tasks

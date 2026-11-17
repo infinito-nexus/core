@@ -17,8 +17,8 @@ from utils.infra import (
     LOOPBACK,
     ROOTS_OVERRIDE,
     RUNNER_CONTAINER_KEY,
-    deploy_commands,
 )
+from utils.infra_inventory import deploy_commands
 from utils.inventory.tools_idle import session, stamp_dir
 from utils.inventory.tools_vars import render
 from utils.roles.mapping import ROLE_FILE_META_SERVICES

@@ -68,7 +68,7 @@
   failed_when: false
   when: blender_mcp_flatpak_app | length > 0
 
-- name: ⚠️ Report that the Flatpak sandbox refused to start, so the add-on stays disabled
+- name: ⚠️ Report that the Flatpak sandbox refused to start, so the add-on stays off
   ansible.builtin.debug:
     msg: >-
       {{ blender_mcp_flatpak_app }} cannot start its Flatpak sandbox on this host
