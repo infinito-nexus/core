@@ -5,8 +5,6 @@
   register: _nfs_export_base_fstype
   changed_when: false
 
-- name: "🩹 Back the export base with an ext4 loopback image (CI/dev overlay host)"
+- name: "🩹 Back the export base with an ext4 loopback image (overlay host)"
   ansible.builtin.include_tasks: 02_overlay_backing/ext4_loop.yml
-  when:
-    - (_nfs_export_base_fstype.stdout | trim) == 'overlay'
-    - RUNTIME in ['dev', 'act', 'github']
+  when: (_nfs_export_base_fstype.stdout | trim) == 'overlay'

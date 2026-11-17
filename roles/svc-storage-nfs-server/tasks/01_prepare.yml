@@ -7,7 +7,7 @@
     group: root
     mode: "0755"
 
-- name: "📂 Include CI/dev overlay backing for the export base"
+- name: "📂 Include the overlay backing for the export base"
   ansible.builtin.include_tasks: 02_overlay_backing.yml
 
 - name: "📁 Pre-create cluster-shared state subdir under export base"
