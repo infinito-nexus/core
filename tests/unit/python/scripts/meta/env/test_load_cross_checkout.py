@@ -72,9 +72,7 @@ class TestCrossCheckout(unittest.TestCase):
         caller = self.checkout(226, "caller_lane")
         target = self.checkout(226, "target_lane")
 
-        shown = self.container_after(
-            caller, target, INFINITO_CONTAINER="operator_lane"
-        )
+        shown = self.container_after(caller, target, INFINITO_CONTAINER="operator_lane")
 
         self.assertEqual("operator_lane", shown)
 
