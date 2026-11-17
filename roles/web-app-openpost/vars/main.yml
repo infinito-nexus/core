@@ -89,7 +89,7 @@ OPENPOST_PROVIDER_BASE_VERSION: "{{ OPENPOST_PROVIDER.version }}"
 OPENPOST_PROVIDER_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
 OPENPOST_PROVIDER_BROWSER_URL: "http://{{ 'host.docker.internal' if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
 OPENPOST_LINKEDIN_CALLBACK: "{{ OPENPOST_URL }}/api/v1/accounts/linkedin/callback"
-OPENPOST_SIMULATOR_KEYSTORE_PASSWORD: "simulator"
+OPENPOST_SIMULATOR_KEYSTORE_PASSWORD: "password"
 
 OPENPOST_PROVIDER_CREDENTIALS: >-
   {%- set _credentials = {} -%}
