@@ -73,11 +73,12 @@
   register: wordpress_oidc_admin_meta_keys
   changed_when: false
 
-- name: "🔍 WP OIDC: assert every subject identity on the administrator is its Keycloak user id"
+- name: "🔍 WP OIDC: assert every administrator subject identity is its Keycloak id"
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp user meta list {{ WORDPRESS_ADMIN_USER | quote }}
-    --keys={{ (['openid-connect-generic-subject-identity'] + (wordpress_oidc_admin_meta_keys.stdout | from_json | map(attribute='meta_key') | select('search', 'openid-connect-generic-subject-identity$') | list)) | unique | join(',') | quote }}
+    --keys={{ (['openid-connect-generic-subject-identity'] + (wordpress_oidc_admin_meta_keys.stdout | from_json | map(attribute='meta_key') | select('search', 'openid-connect-generic-subject-identity$')
+    | list)) | unique | join(',') | quote }}
     --fields=meta_key,meta_value --format=json
     --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
   register: wordpress_oidc_admin_identities
@@ -101,7 +102,8 @@
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp user meta list {{ item.ID | quote }} --fields=meta_key --format=json
     --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
-  loop: "{{ wordpress_oidc_subject_holders.stdout | from_json | rejectattr('user_login', 'match', '^' ~ (WORDPRESS_ADMIN_USER | regex_escape) ~ '$', ignorecase=true) | list }}"
+  loop: "{{ wordpress_oidc_subject_holders.stdout | from_json | rejectattr('user_login', 'match', '^' ~ (WORDPRESS_ADMIN_USER | regex_escape) ~ '$', ignorecase=true)
+    | list }}"
   loop_control:
     label: "{{ item.user_login }}"
   register: wordpress_oidc_stray_keys
@@ -111,7 +113,8 @@
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp user meta list {{ item.item.ID | quote }}
-    --keys={{ (['openid-connect-generic-subject-identity'] + (item.stdout | from_json | map(attribute='meta_key') | select('search', 'openid-connect-generic-subject-identity$') | list)) | unique | join(',') | quote }}
+    --keys={{ (['openid-connect-generic-subject-identity'] + (item.stdout | from_json | map(attribute='meta_key') | select('search', 'openid-connect-generic-subject-identity$')
+    | list)) | unique | join(',') | quote }}
     --fields=meta_key,meta_value --format=json
     --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
   loop: "{{ wordpress_oidc_stray_keys.results }}"
@@ -131,7 +134,7 @@
     label: "{{ item.user_login }} {{ item.meta_key }}"
   changed_when: true
 
-- name: "🔍 WP OIDC: assert only the administrator holds its Keycloak user id under any site prefix"
+- name: "🔍 WP OIDC: assert only the administrator holds its Keycloak id on any site"
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp user list --blog_id=0 --meta_key=openid-connect-generic-subject-identity --meta_compare_key=LIKE
