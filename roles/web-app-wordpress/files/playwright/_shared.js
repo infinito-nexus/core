@@ -208,6 +208,33 @@ async function keycloakAdminToken(request, keycloakBaseUrl) {
   return json.access_token;
 }
 
+/**
+ * Args:
+ *   request: Playwright APIRequestContext.
+ *   keycloakBaseUrl: Keycloak base URL.
+ *   realmName: realm that holds the user.
+ *   username: Keycloak user name, matched case-insensitively.
+ * Returns:
+ *   The email Keycloak stores for the user; throws when the user or its email is missing.
+ */
+async function keycloakUserEmail(request, keycloakBaseUrl, realmName, username) {
+  const accessToken = await keycloakAdminToken(request, keycloakBaseUrl);
+  const resp = await request.get(
+    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
+    { headers: { Authorization: `Bearer ${accessToken}` }, timeout: resolveTimeout(30_000) }
+  );
+  if (!resp.ok()) {
+    throw new Error(`Keycloak user lookup failed: ${resp.status()} ${await resp.text()}`);
+  }
+  const user = (await resp.json()).find(
+    (u) => (u.username || "").toLowerCase() === username.toLowerCase()
+  );
+  if (!user?.email) {
+    throw new Error(`Keycloak user "${username}" has no email`);
+  }
+  return user.email;
+}
+
 // Resolve via /admin/realms/<realm>/group-by-path/...; fall back to a
 // segment walk if the endpoint is missing on older Keycloak versions.
 async function keycloakResolveGroupId(
@@ -568,6 +595,7 @@ module.exports = {
   wpAdminLoginViaOidc,
   wpSignOut,
   keycloakAdminToken,
+  keycloakUserEmail,
   keycloakResolveGroupId,
   keycloakAdminAddUserToGroup,
   keycloakAdminOpenUserProfile,
