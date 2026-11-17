@@ -33,6 +33,7 @@ DIR_CACHE: "/var/cache/infinito/core/cache"
 DIR_VAR_LIB: "/var/lib/infinito"
 DIR_VAR_LIB_NODE: "{{ DIR_VAR_LIB.rstrip('/') ~ '-node' }}" # Swarm nodes mount DIR_VAR_LIB from one NFS export; state that must differ per node lives here, on the node's own disk. Without the rstrip a trailing slash would put it inside that mount
 DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
+DIR_BACKUPS_NODE: "{{ DIR_VAR_LIB ~ '-backup' }}"
 BACKUP_REPOSITORIES:
   - backup-docker-to-local
   - backup-nfs-to-local
