@@ -51,7 +51,7 @@ out, so the image carries the engine and its models and nothing else.
 | value | when models arrive | cost |
 | --- | --- | --- |
 | `lazy` (default) | the served container fetches one the first time a request needs it | no build and no deploy wait; the first request for a pair pays for it |
-| `build` | baked into the image | the build downloads every selected model, 13 GB for the full set; later requests never wait |
+| `build` | baked into the image | the build downloads every selected model, 9 GB of archives unpacking to 10.3 GB for the full set, and keeps only the unpacked copy; later requests never wait |
 | `task` | a post-deploy task installs them into the running container | the deploy waits instead of the build, and an image rebuild does not refetch |
 
 Under `lazy` and `task` the models live on a node-local bind mount, so a
