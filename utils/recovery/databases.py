@@ -32,6 +32,7 @@ from utils.cache.applications import get_application_defaults
 from utils.recovery import docker as recovery_docker
 from utils.recovery import manifest
 from utils.recovery.docker import RecoveryError
+from utils.recovery.layout import COMPRESSED_SUFFIX
 from utils.roles.applications.services.database import (
     RDBMS_SERVICE_KEYS,
     resolve_database_service_key,
@@ -127,20 +128,50 @@ def dumps_of(generation_dir: Path) -> tuple[list[Dump], list[Cluster]]:
     Returns:
         The single-database dumps, and the cluster dumps, which name their
         instance in the file name and go through ``baudolo-restore cluster``.
+
+    Raises:
+        RecoveryError: one dump is there both compressed and plain.
+            ``baudolo-restore`` refuses to pick either, so the replay stops
+            here, before the first dump goes in.
     """
     dumps: list[Dump] = []
     clusters: list[Cluster] = []
     names = manifest.layout_of(generation_dir)
-    cluster_suffix = names["cluster_suffix"]
-    dump_suffix = names["dump_suffix"]
-    _files_glob, dump_glob = manifest.globs_of(names)
-    for path in sorted(generation_dir.glob(dump_glob)):
+    cluster_suffixes = manifest.dump_suffixes(names["cluster_suffix"])
+    dump_suffixes = manifest.dump_suffixes(names["dump_suffix"])
+    _files_glob, dump_globs = manifest.globs_of(names)
+    hits = {hit for glob in dump_globs for hit in generation_dir.glob(glob)}
+    found: dict[Path, Path] = {}
+    for path in sorted(hits):
+        plain = path.with_name(path.name.removesuffix(COMPRESSED_SUFFIX))
+        if plain in found:
+            raise RecoveryError(
+                f"{found[plain].name} and {path.name} in {path.parent} are the "
+                "same dump twice; remove the one that must not be replayed"
+            )
+        found[plain] = path
         volume = path.parent.parent.name
-        if path.name.endswith(cluster_suffix):
-            clusters.append(Cluster(volume, path.name[: -len(cluster_suffix)], path))
+        instance = _stem(path.name, cluster_suffixes)
+        if instance is not None:
+            clusters.append(Cluster(volume, instance, path))
             continue
-        dumps.append(Dump(volume, path.name[: -len(dump_suffix)], path))
+        dumps.append(Dump(volume, _stem(path.name, dump_suffixes), path))
     return dumps, clusters
+
+
+def _stem(name: str, suffixes: tuple[str, ...]) -> str | None:
+    """
+    Args:
+        name: a dump file name.
+        suffixes: the suffixes a dump of that kind may carry, first match wins.
+
+    Returns:
+        *name* without the first of *suffixes* it ends in, None for none.
+    """
+    for suffix in suffixes:
+        if name.endswith(suffix):
+            return name[: -len(suffix)]
+    return None
 
 
 def _rows_of(csv_path: Path) -> list[Row]:
@@ -230,7 +261,6 @@ def restore_argv(
     engine: str,
     container: str,
     user: str,
-    password: str,
 ) -> list[str]:
     """Build the baudolo-restore call that replays one dump."""
     return [
@@ -249,8 +279,7 @@ def restore_argv(
         dump.database,
         "--db-user",
         user,
-        "--db-password",
-        password,
+        "--db-password-stdin",
         "--empty",
     ]
 
@@ -260,7 +289,6 @@ def cluster_argv(
     generation: Generation,
     container: str,
     user: str,
-    password: str,
 ) -> list[str]:
     """Build the baudolo-restore call that replays one instance as a whole.
 
@@ -283,10 +311,22 @@ def cluster_argv(
         cluster.instance,
         "--db-user",
         user,
-        "--db-password",
-        password,
+        "--db-password-stdin",
         "--empty",
     ]
+
+
+def _restore(argv: list[str], password: str) -> str:
+    """
+    Args:
+        argv: one baudolo-restore call carrying ``--db-password-stdin``.
+        password: sent on stdin followed by one newline, which
+            ``--db-password-stdin`` strips again.
+
+    Returns:
+        The call's output.
+    """
+    return recovery_docker._run(argv, secret=password, stdin=f"{password}\n")
 
 
 def replay(
@@ -358,9 +398,8 @@ def replay(
         container = engine_of_cluster[cluster.path]
         user, password = cluster_credentials[cluster.instance]
         print(
-            recovery_docker._run(
-                cluster_argv(cluster, generation, container, user, password),
-                secret=password,
+            _restore(
+                cluster_argv(cluster, generation, container, user), password
             ).strip()
         )
         print(f"OK: replayed cluster dump '{cluster.instance}' into {container}")
@@ -370,9 +409,8 @@ def replay(
         container = recovery_docker.container_of_volume(dump.volume, docker_host)
         user, password = credentials[dump.database]
         print(
-            recovery_docker._run(
-                restore_argv(dump, generation, engine, container, user, password),
-                secret=password,
+            _restore(
+                restore_argv(dump, generation, engine, container, user), password
             ).strip()
         )
         print(f"OK: replayed {engine} dump '{dump.database}' into {container}")
