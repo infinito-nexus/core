@@ -1,1 +1,1 @@
-SELECT name FROM ir_module_module WHERE name = %(module)s AND state = 'installed';
+SELECT name, latest_version FROM ir_module_module WHERE name = %(module)s AND state = 'installed';

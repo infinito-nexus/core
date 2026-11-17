@@ -39,6 +39,7 @@ odoo:
     swarm:
       enabled: true
   image: odoo
+  # nocheck: docker-version  every newer tag is another Odoo series, and the OCA pins in files/pip/requirements-no-deps.txt have no 20.x on PyPI while Odoo 20 refuses their 19.0 builds as not installable; lift together with those pins
   version: "19.0"
   custom: true
   name: odoo
