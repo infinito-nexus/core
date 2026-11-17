@@ -57,15 +57,18 @@ SQLITE_PATTERNS = (
 
 
 def wait_ready() -> None:
+    last = "no answer"
     while True:
         try:
             status, _ = call("GET", "/ready")
+        except OSError as error:
+            last = str(error)
+        else:
             if status == 200:
                 return
-        except OSError:
-            pass
+            last = f"HTTP {status}"
         if time.monotonic() > DEADLINE:
-            sys.exit("[FAIL] OpenPost never reported ready")
+            sys.exit(f"[FAIL] OpenPost never reported ready: {last}")
         time.sleep(5)
 
 
