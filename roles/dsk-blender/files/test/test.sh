@@ -40,7 +40,27 @@ served="$(python3 "${here}/initialize.py" "${MCP_SERVER_COMMAND}")"
 echo "[dsk-blender] served by: ${served}"
 
 echo "[dsk-blender] the saved preferences enable the add-on"
-grep -aqs "${MCP_ADDON_MODULE}" "${MCP_USER_HOME}"/.config/blender/*/config/userpref.blend
+blender_config="${MCP_USER_HOME}/.config/blender"
+flatpak_app=""
+flatpak_launcher='/app/([^/]+)/[^/]+/[^/]+/[^/]+/export/bin/([^/]+)$'
+launcher="$(realpath "$(command -v blender)")"
+if [[ "${launcher}" =~ ${flatpak_launcher} && "${BASH_REMATCH[1]}" == "${BASH_REMATCH[2]}" ]]; then
+	flatpak_app="${BASH_REMATCH[1]}"
+	blender_config="${MCP_USER_HOME}/.var/app/${flatpak_app}/config/blender"
+fi
+sandbox_rc=0
+if [[ -n "${flatpak_app}" ]]; then
+	as_user=()
+	if [[ "$(stat -c %u "${MCP_USER_HOME}")" != "${EUID}" ]]; then
+		as_user=(runuser -u "$(stat -c %U "${MCP_USER_HOME}")" --)
+	fi
+	sandbox_out="$("${as_user[@]}" env -C "${MCP_USER_HOME}" HOME="${MCP_USER_HOME}" flatpak run --command=true "${flatpak_app}" 2>&1)" || sandbox_rc=$?
+fi
+if [[ "${sandbox_rc}" -ne 0 ]]; then
+	echo "SKIP: ${flatpak_app} cannot start its Flatpak sandbox, so the role left the add-on disabled (flatpak exited ${sandbox_rc}: ${sandbox_out})"
+else
+	grep -aqs "${MCP_ADDON_MODULE}" "${blender_config}"/*/config/userpref.blend
+fi
 
 if [[ "${MCP_CLAUDE_EXPECTED}" == "true" ]]; then
 	echo "[dsk-blender] claude carries the server"

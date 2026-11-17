@@ -56,7 +56,30 @@
   changed_when: not blender_mcp_addon_before.stat.exists or blender_mcp_addon_before.stat.checksum != blender_mcp_addon_after.stat.checksum
   failed_when: not blender_mcp_addon_after.stat.exists
 
+- name: 🔎 Start the Flatpak sandbox of the Blender on PATH without Blender
+  ansible.builtin.command:
+    argv:
+      - flatpak
+      - run
+      - --command=true
+      - "{{ blender_mcp_flatpak_app }}"
+  register: blender_mcp_flatpak_sandbox
+  changed_when: false
+  failed_when: false
+  when: blender_mcp_flatpak_app | length > 0
+
+- name: ⚠️ Report that the Flatpak sandbox refused to start, so the add-on stays disabled
+  ansible.builtin.debug:
+    msg: >-
+      {{ blender_mcp_flatpak_app }} cannot start its Flatpak sandbox on this host
+      (flatpak exited {{ blender_mcp_flatpak_sandbox.rc }}:
+      {{ blender_mcp_flatpak_sandbox.stderr | default('') | trim }}).
+      The MCP add-on is installed in {{ blender_mcp_addons_dir }} but not enabled
+      in the saved preferences; enable it in Blender once the sandbox can start.
+  when: not (blender_mcp_blender_startable | bool)
+
 - name: 🔌 Enable the Blender MCP add-on in the saved preferences
+  when: blender_mcp_blender_startable | bool
   ansible.builtin.command:
     argv:
       - blender
