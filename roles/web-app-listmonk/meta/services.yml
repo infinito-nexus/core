@@ -146,8 +146,8 @@ listmonkmcp:
   enabled: "{{ lookup('config', 'web-app-listmonk', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: listmonkmcp
   cpus: "0.25"
@@ -157,11 +157,6 @@ listmonkmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

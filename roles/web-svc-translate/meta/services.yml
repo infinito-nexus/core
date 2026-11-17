@@ -36,8 +36,8 @@ translate:
     host:
       enabled: false
   image: python
-  # nocheck: docker-version  base of the self-built gateway, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   min_storage: 256MB
   ports:
