@@ -30,12 +30,12 @@ Binding; not reopened by this document.
 ```yaml
 web-app-cst-cosmos:
   url: https://github.com/kevinveenbirkenbach/cosmos.git
-  version: v0.2.1
-  commit: 5071beca9cfb32f22fab6973548931f29fae013f
+  version: v0.3.0
+  commit: fdaeb7eb81a192af4cfe3bbcba2b31b1f7ebfc58
   path: ansible/roles/web-app-cst-cosmos
 ```
 
-The pin moved from the initial `v0.2.0` (D5) to `v0.2.1` (2026-11-14, Cosmos release 18:45: production lint fix, library source `cosmos.mjs`, CDN path `js/cosmos.js` and embeds unchanged).
+The pin moved from the initial `v0.2.0` (D5) to `v0.2.1` (2026-11-14, Cosmos release 18:45: production lint fix, library source `cosmos.mjs`, CDN path `js/cosmos.js` and embeds unchanged), then to `v0.3.0` (2026-11-17: optional sky attributes `azimuth`, `altitude`, `fov`, `sky-top` and `sky-bottom`, the role's Playwright spec skips the granted-location test on plain-HTTP targets; CDN path and embeds unchanged).
 
 [manifest.py](../../cli/administration/roles/manifest.py) validates each entry with the parser of 046 ([declaration.py](../../cli/administration/roles/declaration.py), `parse_source`: unknown fields, Jinja and tagged values, credentials, path naming the group, entity collisions) and adds the manifest's own limits: the `web-app-cst-` prefix, a public `https` URL, a release tag as `version` and a full commit as `commit`. Every check runs offline, before anything is fetched. Whether `version` names a branch or a tag is only known online; that check stays the 046 `git ls-remote` check of [source.py](../../cli/administration/roles/source.py). The fetch compares the commit the tag peels to with `commit` before it unpacks anything.
 
@@ -67,7 +67,7 @@ Proof tiers: `[unit]` a unit test or lint, `[ci]` a CI run, `[host]` the operato
 
 ### Manifest
 
-- [x] `meta/custom_roles.yml` exists, maps `web-app-cst-cosmos` to `url` `https://github.com/kevinveenbirkenbach/cosmos.git`, `version` `v0.2.1`, `commit` `5071beca9cfb32f22fab6973548931f29fae013f` and `path` `ansible/roles/web-app-cst-cosmos`, and passes its own validation. `[unit]` (`tests/unit/python/cli/administration/roles/test_manifest.py`: `test_checked_in_manifest_is_valid`.)
+- [x] `meta/custom_roles.yml` exists, maps `web-app-cst-cosmos` to `url` `https://github.com/kevinveenbirkenbach/cosmos.git`, `version` `v0.3.0`, `commit` `fdaeb7eb81a192af4cfe3bbcba2b31b1f7ebfc58` and `path` `ansible/roles/web-app-cst-cosmos`, and passes its own validation. `[unit]` (`tests/unit/python/cli/administration/roles/test_manifest.py`: `test_checked_in_manifest_is_valid`.)
 - [x] An entry that misses `url`, `version`, `commit` or `path` stops the run before anything is fetched, and the message names the role and the field. `[unit]` (`tests/unit/python/cli/administration/roles/test_manifest.py`: `test_missing_field_names_role_and_field`, one subtest per field, with `test_valid_entry_is_read_with_its_commit` as the negative control.)
 - [x] An entry whose `url` embeds credentials stops the run without echoing the URL; an SSH, plain HTTP or local `url` stops the run naming the role. `[unit]` (`tests/unit/python/cli/administration/roles/test_manifest.py`: `test_url_with_credentials_is_refused_without_echoing_it`, `test_url_other_than_public_https_is_refused`.)
 - [x] A `version` that is no release tag `vX.Y.Z` or `X.Y.Z`, such as `latest`, a prerelease, a branch name or a commit, stops the run naming the role and the value. `[unit]` (`tests/unit/python/cli/administration/roles/test_manifest.py`: `test_version_other_than_a_release_tag_is_refused`, with `test_release_tag_without_v_is_read` as the negative control; `test_placement_manifest.py`: `test_branch_as_version_is_refused`.)
