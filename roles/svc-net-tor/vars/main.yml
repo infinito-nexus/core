@@ -94,10 +94,15 @@ TOR_ROUTER_NODES: "{{ [inventory_hostname] if IS_COMPOSE_MODE else (groups['svc-
 TOR_NODE_ROUTES: "{{ TOR_EGRESS_ROUTE != 'none' and tor_node in TOR_ROUTER_NODES }}"
 TOR_REMOTE_NODES: "{{ [] if IS_COMPOSE_MODE else (query('node_hosts') | difference(groups[application_id] | default([]))) }}"
 
-TOR_DATA_DIR: "{{ [ DIR_VAR_LIB, application_id, 'data' ] | path_join }}"
-TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB, application_id, 'config' ] | path_join }}"
+TOR_DATA_DIR: "{{ [ DIR_VAR_LIB_NODE, application_id, 'data' ] | path_join }}"
+TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB_NODE, application_id, 'config' ] | path_join }}"
 TOR_TORRC_HOST: "{{ [ TOR_CONFIG_DIR, 'torrc' ] | path_join }}"
 TOR_HS_DIR: "{{ [ TOR_DATA_DIR, 'infinito', 'node' ] | path_join }}"
+TOR_LEGACY_DIR: "{{ [ DIR_VAR_LIB, application_id ] | path_join }}"
+TOR_LEGACY_NODES: >-
+  {{ query('node_hosts')
+     | tor_legacy_nodes(groups['svc-swarm-node'] | default([]),
+                        groups['svc-storage-nfs-client'] | default([]), STACK_HOST) }}
 
 TOR_HS_SRC_DIR: "{{ lookup('path_absolute', '.onion-identity', 'hs') }}"
 
