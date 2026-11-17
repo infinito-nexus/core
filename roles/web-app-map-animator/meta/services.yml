@@ -21,6 +21,7 @@ map-animator:
     local:
       http: 8000
       sso: 16490
+      sso_onion: 16551
   lifecycle: alpha
   min_storage: 1GB
   cpus: "2.0"

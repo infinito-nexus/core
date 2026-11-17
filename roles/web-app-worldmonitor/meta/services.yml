@@ -31,6 +31,7 @@ worldmonitor:
     local:
       http: 7993
       sso: 16514
+      sso_onion: 16539
   lifecycle: alpha
   backup:
     stop_required: false

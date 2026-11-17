@@ -43,7 +43,15 @@ record = {{
 }}
 with open(os.environ["FAKE_TOFU_LOG"], "a") as handle:
     handle.write(json.dumps(record) + "\\n")
-if command == "providers":
+manifest = cwd / ".terraform" / "modules" / "modules.json"
+if command in ("get", "init"):
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text("{{}}")
+modules = json.loads(record["main"] or "{{}}").get("module", {{}})
+if command in ("providers", "validate") and modules and not manifest.is_file():
+    print("Error: Module not installed", file=sys.stderr)
+    sys.exit(1)
+if args[:2] == ["providers", "mirror"]:
     for provider in providers:
         (pathlib.Path(args[-1]) / provider).mkdir(parents=True, exist_ok=True)
 if command == "init":

@@ -117,7 +117,12 @@ install_runtime() {
   fi
 }
 
+install_modules() {
+  env -u TF_CLI_CONFIG_FILE tofu -chdir="$1" get
+}
+
 mirror_one() {
+  install_modules "$1"
   env -u TF_CLI_CONFIG_FILE tofu -chdir="$1" providers mirror -platform="${PLATFORM}" "${MIRROR}"
 }
 
@@ -130,6 +135,7 @@ lock_root() {
   done
   scratch="$(mktemp -d)"
   stage "${opentofu}" "${root}" "${FLAVORS[0]}" "${scratch}"
+  install_modules "${scratch}"
   env -u TF_CLI_CONFIG_FILE tofu -chdir="${scratch}" providers lock "${platforms[@]}"
   cp "${scratch}/.terraform.lock.hcl" "${root}/.terraform.lock.hcl"
   rm -rf "${scratch}"

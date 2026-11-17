@@ -16,7 +16,7 @@
       - _tls_enabled | bool
       - _tls_mode == 'letsencrypt'
     fail_msg: >-
-      sys-front-tls-letsencrypt called for '{{ application_id }}'
+      sys-front-tls-letsencrypt called for '{{ domain }}' of '{{ application_id }}'
       but resolver returned enabled={{ _tls_enabled }}, mode={{ _tls_mode }}.
   changed_when: false
 

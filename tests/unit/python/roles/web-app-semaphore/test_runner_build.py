@@ -500,6 +500,35 @@ class TestOpenTofuLayer(unittest.TestCase):
             self.assertIn("-backend=false", call["argv"])
             self.assertIn("-lockfile=readonly", call["argv"])
 
+    def test_the_mirror_installs_the_module_tree_of_every_root_first(self) -> None:
+        mirror_calls, _ = self.built()
+        steps = [call["argv"][:2] for call in mirror_calls]
+        pair = [["get"], ["providers", "mirror"]]
+        self.assertEqual(steps, pair * len(roots()) * len(FLAVORS))
+        for get, mirror in zip(mirror_calls[::2], mirror_calls[1::2], strict=True):
+            self.assertEqual(get["main"], mirror["main"])
+            self.assertIsNone(get["cli_config"])
+
+    def test_the_lock_installs_the_module_tree_first(self) -> None:
+        root = self.build.opentofu / "roots" / "hetzner"
+        result = self.build.run(
+            "lock", str(self.build.opentofu), str(root), "linux_amd64"
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        steps = [call["argv"][:2] for call in self.build.calls()]
+        self.assertEqual(steps, [["get"], ["providers", "lock"]])
+
+    def test_negative_control_a_mirror_without_the_module_tree_fails(self) -> None:
+        script = read_text(str(BUILD))
+        step = '  install_modules "$1"\n'
+        self.assertEqual(script.count(step), 1)
+        unfixed = self.build.directory / "build.sh"
+        unfixed.write_text(script.replace(step, ""), encoding="utf-8")
+        self.build.script = unfixed
+        result = self.build.run("mirror", str(self.build.opentofu))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Module not installed", result.stderr)
+
     def test_the_cli_config_installs_from_the_mirror_only(self) -> None:
         tofurc = read_text(str(OPENTOFU / "tofurc"))
         blocks = re.findall(r"^\s*(\w+)\s*\{", tofurc, re.MULTILINE)

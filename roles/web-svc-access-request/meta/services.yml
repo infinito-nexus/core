@@ -20,6 +20,7 @@ access-request:
     local:
       http: 7999
       sso: 16485
+      sso_onion: 16552
   healthcheck:
     flavor: http_status
     path: healthz
