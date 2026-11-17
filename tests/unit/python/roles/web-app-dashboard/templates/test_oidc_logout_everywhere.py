@@ -43,6 +43,7 @@ DRIVER = textwrap.dedent(
     const CLIENT_ID = process.argv[4];
     const DEVICE_ICON = process.argv[5];
     const EVERYWHERE_ICON = process.argv[6];
+    const DASHBOARD = process.argv[7];
 
     function storage(seed) {
       const values = new Map(Object.entries(seed || {}));
@@ -54,7 +55,7 @@ DRIVER = textwrap.dedent(
       };
     }
 
-    async function mount({ authenticated = true, hash = "", stored = {}, answer = () => ({ ok: true, status: 204 }) } = {}) {
+    async function mount({ authenticated = true, hash = "", search = "", stored = {}, answer = () => ({ ok: true, status: 204 }) } = {}) {
       const calls = [];
       const listeners = {};
       const prepended = [];
@@ -69,7 +70,7 @@ DRIVER = textwrap.dedent(
       global.sessionStorage = storage(stored);
       global.history = { replaceState: (_s, _t, url) => { global.window.location.hash = ""; calls.push(["replace", url]); } };
       global.window = {
-        location: { hash, pathname: "/", search: "" },
+        location: { hash, pathname: "/", search },
         addEventListener(type, fn, options) { (listeners[type] = listeners[type] || []).push({ fn, options }); },
       };
       global.document = {
@@ -129,8 +130,9 @@ DRIVER = textwrap.dedent(
           "offline tokens first, then every other session",
         );
         assert.ok(page.calls.every(([, , auth]) => auth === "Bearer user-token"), "only the user's own token is sent");
-        assert.strictEqual(page.store.get("infinito-logout-result"), "everywhere");
         assert.strictEqual(page.kc.logouts.length, 1, "then this device logs out");
+        assert.strictEqual(page.kc.logouts[0].redirectUri, DASHBOARD + "?logout-result=everywhere", "the outcome rides on the post-logout redirect");
+        assert.strictEqual(page.store.size, 0, "and not on session storage, which the logout sweep's Clear-Site-Data wipes");
         assert.strictEqual(page.kc.config.clientId, CLIENT_ID, "the token holder is the dashboard's own client");
       }
       {
@@ -140,15 +142,15 @@ DRIVER = textwrap.dedent(
         });
         click(page, EVERYWHERE_ICON);
         await settle();
-        assert.strictEqual(page.store.get("infinito-logout-result"), "partial");
         assert.strictEqual(page.kc.logouts.length, 1, "a refused DELETE still logs this device out");
+        assert.strictEqual(page.kc.logouts[0].redirectUri, DASHBOARD + "?logout-result=partial");
       }
       {
         const page = await mount({ answer: () => { throw new TypeError("Failed to fetch"); } });
         click(page, EVERYWHERE_ICON);
         await settle();
-        assert.strictEqual(page.store.get("infinito-logout-result"), "partial");
         assert.strictEqual(page.kc.logouts.length, 1, "a blocked request still logs this device out");
+        assert.strictEqual(page.kc.logouts[0].redirectUri, DASHBOARD + "?logout-result=partial");
       }
       {
         const page = await mount();
@@ -159,7 +161,7 @@ DRIVER = textwrap.dedent(
         assert.strictEqual(page.kc.logouts.length, 0, "keycloak-js sends no id_token_hint");
         assert.strictEqual(page.kc.logins.length, 0);
         assert.deepStrictEqual(page.calls.filter((c) => c[0] !== "replace"), [], "this device sends no Account call");
-        assert.ok(!page.store.has("infinito-logout-result"));
+        assert.strictEqual(page.prepended.length, 0);
       }
       {
         const page = await mount({ authenticated: true, hash: "#logout-everywhere" });
@@ -179,16 +181,21 @@ DRIVER = textwrap.dedent(
         assert.ok(!page.store.has("infinito-logout-pending"));
       }
       {
-        const page = await mount({ authenticated: false, stored: { "infinito-logout-result": "partial" } });
+        const page = await mount({ authenticated: false, search: "?logout-result=partial" });
         assert.strictEqual(page.prepended.length, 1, "the outcome is shown after the redirect");
         assert.strictEqual(page.prepended[0].role, "alert");
         assert.match(page.prepended[0].textContent, /Other devices may still be signed in/);
-        assert.ok(!page.store.has("infinito-logout-result"), "and only once");
+        assert.deepStrictEqual(page.calls[0], ["replace", "/"], "and leaves the address bar, so a reload shows it no more");
       }
       {
-        const page = await mount({ authenticated: false, stored: { "infinito-logout-result": "everywhere" } });
+        const page = await mount({ authenticated: false, search: "?logout-result=everywhere" });
         assert.strictEqual(page.prepended[0].role, "status");
         assert.match(page.prepended[0].textContent, /Signed out everywhere/);
+      }
+      {
+        const page = await mount({ authenticated: false, search: "?logout-result=forged" });
+        assert.strictEqual(page.prepended.length, 0, "an unknown outcome shows nothing");
+        assert.deepStrictEqual(page.calls[0], ["replace", "/"]);
       }
       console.log("OK");
     })().catch((error) => { console.error(error); process.exit(1); });
@@ -327,6 +334,7 @@ class TestDashboardLogoutChoices(unittest.TestCase):
                     CLIENT_ID,
                     DEVICE_ITEM["icon"]["class"],
                     EVERYWHERE_ITEM["icon"]["class"],
+                    DASHBOARD,
                 ],
                 capture_output=True,
                 text=True,

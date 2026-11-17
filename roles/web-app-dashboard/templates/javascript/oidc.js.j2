@@ -21,7 +21,8 @@ const ACCOUNT_REQUEST_TIMEOUT_MS = 10000;
 const LOGOUT_EVERYWHERE_MARKER = {{ DASHBOARD_LOGOUT_EVERYWHERE_MARKER | to_json }};
 const LOGOUT_EVERYWHERE_CLASS = {{ DASHBOARD_LOGOUT_EVERYWHERE_CLASS | to_json }};
 const LOGOUT_PENDING_KEY = "infinito-logout-pending";
-const LOGOUT_RESULT_KEY = "infinito-logout-result";
+const LOGOUT_RESULT_PARAM = "logout-result";
+const LOGOUT_RESULTS = ["everywhere", "partial"];
 const LOGOUT_RESULT_ID = "infinito-logout-result";
 const LOGOUT_I18N = {
 {% for code, entry in DASHBOARD_LOGOUT_I18N.items() %}
@@ -117,9 +118,25 @@ function logoutMessages() {
   return LOGOUT_I18N.en;
 }
 
+function logoutResultUri(result) {
+  const target = new URL(KC_CONFIG.redirectUri);
+  target.searchParams.set(LOGOUT_RESULT_PARAM, result);
+  return target.toString();
+}
+
+function takeLogoutResult() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has(LOGOUT_RESULT_PARAM)) return null;
+  const result = params.get(LOGOUT_RESULT_PARAM);
+  params.delete(LOGOUT_RESULT_PARAM);
+  const query = params.toString();
+  history.replaceState(null, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
+  return result;
+}
+
 function showLogoutResult() {
-  const result = recall(LOGOUT_RESULT_KEY);
-  if (result !== "everywhere" && result !== "partial") return;
+  const result = takeLogoutResult();
+  if (!LOGOUT_RESULTS.includes(result)) return;
   const messages = logoutMessages();
   const box = document.createElement("div");
   box.id = LOGOUT_RESULT_ID;
@@ -166,8 +183,7 @@ async function logoutEverywhere() {
   } catch (e) {
     console.warn("[oidc] logout everywhere left sessions behind:", e);
   } finally {
-    remember(LOGOUT_RESULT_KEY, result);
-    keycloak.logout({ redirectUri: KC_CONFIG.redirectUri });
+    keycloak.logout({ redirectUri: logoutResultUri(result) });
   }
 }
 
