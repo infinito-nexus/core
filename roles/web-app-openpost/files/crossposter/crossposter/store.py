@@ -85,10 +85,10 @@ def item_from_json(raw: dict) -> SourceItem:
 
 class Store:
     def __init__(self, dsn: str) -> None:
-        import psycopg
+        from psycopg import connect
         from psycopg.rows import dict_row
 
-        self.connection = psycopg.connect(dsn, autocommit=True, row_factory=dict_row)
+        self.connection = connect(dsn, autocommit=True, row_factory=dict_row)
 
     def migrate(self) -> None:
         for statement in SCHEMA:
