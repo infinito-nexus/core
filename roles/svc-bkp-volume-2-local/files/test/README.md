@@ -20,7 +20,7 @@ flowchart TD
     PROBE --> WAIT["wait for the backup unit to terminate,<br>workspace/pass.sh prepare when BKP_TEST_WORKSPACES,<br>then force one post-deploy run,<br>polled by verify/maintenance.sh on compose"]
     WAIT --> COUNT{"generations stored"}
     COUNT -->|none| FAIL["fail: nothing was backed up"]
-    COUNT -->|"some, no backup subjects on the host"| EMPTY["exit 0<br>a stamped empty generation is the expected outcome"]
+    COUNT -->|"some, probe/subjects.sh lists nothing"| EMPTY["exit 0<br>a stamped empty generation is the expected outcome"]
     COUNT -->|some| PASS{"DEPLOY_IS_UPDATE"}
     PASS -->|true| UPDATE["verify/backup.sh<br>requires two differential generations"]
     PASS -->|false| FIRST["verify/backup.sh<br>seed/marker.py seed + one more backup<br>restore_cycle.sh, with the workspace pass when BKP_TEST_WORKSPACES<br>sys-ctl-hlth-container's own script"]
@@ -92,6 +92,19 @@ a throwaway privileged container and run it there. Note that a container's
 `/dev` carries no `/dev/loopN` nodes, so `losetup --find` finds nothing and the
 matrix reports `SKIP` unless they are created first (`mknod /dev/loop0 b 7 0`,
 …) or the host's `/dev` is bind-mounted in.
+
+## `probe/subjects.sh`
+
+Lists the host's backup subjects: every volume `container volume ls` reports,
+minus the two kinds baudolo skips. The first is `BKP_TEST_VOLUMES_NO_BACKUP`,
+the very list the role hands baudolo as `--volumes-no-backup-required`. The
+second is a volume whose running containers all run an image of
+`BKP_TEST_IMAGES_NO_BACKUP`, the role's `--images-no-backup-required` list,
+read with baudolo's own `{{.Config.Image}}` field; a volume no container runs
+on stays a subject, as it does for baudolo. baudolo skips both without leaving
+a trace in the generation, so a host whose every volume is skipped
+(`web-svc-loki` next to `web-app-docs`, for instance) stamps an empty
+generation, and that is the expected outcome rather than a missing payload.
 
 ## `verify/backup.sh`
 
