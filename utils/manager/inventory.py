@@ -117,6 +117,8 @@ def _meta_role_config(role_path: Path) -> dict[str, Any]:
 
 
 class InventoryManager:
+    value_generator_type: type = ValueGenerator
+
     def __init__(
         self,
         role_path: Path,
@@ -140,7 +142,7 @@ class InventoryManager:
 
         self.vault_handler = VaultHandler(vault_pw)
         self.roles_root = self.role_path.parent
-        self.value_generator = ValueGenerator()
+        self.value_generator = self.value_generator_type()
 
     # ---------------------------------------------------------------------
     # File loading helpers

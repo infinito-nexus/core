@@ -67,6 +67,8 @@ class AlgorithmRecorder:
 
 
 class SchemaInventoryManager(ReferenceInventoryManager):
+    value_generator_type = AlgorithmRecorder
+
     def __init__(self, role_path: Path) -> None:
         """Args:
         role_path: the role whose credentials, shared providers included,
@@ -80,7 +82,6 @@ class SchemaInventoryManager(ReferenceInventoryManager):
             overrides={},
             allow_empty_plain=True,
         )
-        self.value_generator = AlgorithmRecorder()
 
 
 def _entries(

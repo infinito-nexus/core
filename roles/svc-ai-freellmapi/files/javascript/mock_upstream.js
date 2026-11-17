@@ -3,20 +3,19 @@ const http = require("node:http");
 const REPLY = "OK";
 const CALL_ID = "call_infinito_mock";
 
+function valueFor(property) {
+  if (Array.isArray(property.enum) && property.enum.length > 0) return property.enum[0];
+  if (property.type === "integer" || property.type === "number") return 0;
+  if (property.type === "boolean") return true;
+  if (property.type === "array") return [];
+  if (property.type === "object") return argumentsFor(property);
+  return REPLY;
+}
+
 function argumentsFor(schema) {
   const properties = schema && typeof schema.properties === "object" ? schema.properties : {};
   const names = Array.isArray(schema && schema.required) ? schema.required : Object.keys(properties);
-  const args = {};
-  for (const name of names) {
-    const property = properties[name] || {};
-    if (Array.isArray(property.enum) && property.enum.length > 0) args[name] = property.enum[0];
-    else if (property.type === "integer" || property.type === "number") args[name] = 0;
-    else if (property.type === "boolean") args[name] = true;
-    else if (property.type === "array") args[name] = [];
-    else if (property.type === "object") args[name] = argumentsFor(property);
-    else args[name] = REPLY;
-  }
-  return args;
+  return Object.fromEntries(names.map((name) => [name, valueFor(properties[name] || {})]));
 }
 
 function toolCall(body) {

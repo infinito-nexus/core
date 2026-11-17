@@ -59,6 +59,17 @@ test("schema-derived arguments satisfy the protocol probe's enum", () => {
   );
 });
 
+test("a schema property named __proto__ becomes an own argument, never the arguments' prototype", () => {
+  const schema = JSON.parse(
+    '{"type":"object","properties":{"__proto__":{"type":"object","properties":{"polluted":{"type":"boolean"}}}},"required":["__proto__"]}',
+  );
+  const args = mock.argumentsFor(schema);
+  assert.equal(Object.getPrototypeOf(args), Object.prototype);
+  assert.ok(Object.hasOwn(args, "__proto__"));
+  assert.equal(args.polluted, undefined);
+  assert.equal(JSON.stringify(args), '{"__proto__":{"polluted":true}}');
+});
+
 test("a pinned tool_choice is called; a tool result or tool_choice none yields text", () => {
   const other = { type: "function", function: { name: "other", parameters: {} } };
   const pinned = mock.toolCall({

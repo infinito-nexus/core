@@ -75,23 +75,26 @@ class Keycloak:
     def __init__(self, url: str, realm: str, user: str, password: str) -> None:
         self.url = url.rstrip("/")
         self.realm = realm
-        self._login_realm = "master"
-        self._form = urllib.parse.urlencode(
-            {
-                "client_id": "admin-cli",
-                "grant_type": "password",
-                "username": user,
-                "password": password,
-            }
-        ).encode()
+        self._form = urllib.parse.urlencode(self._grant(user, password)).encode()
         self._lock = threading.Lock()
         self._token = ""
         self._expires = 0.0
 
+    def _token_realm(self) -> str:
+        return "master"
+
+    def _grant(self, principal: str, credential: str) -> dict[str, str]:
+        return {
+            "client_id": "admin-cli",
+            "grant_type": "password",
+            "username": principal,
+            "password": credential,
+        }
+
     def _bearer(self) -> str:
         with self._lock:
             if time.monotonic() > self._expires - TOKEN_MARGIN:
-                token_realm = urllib.parse.quote(self._login_realm, safe="")
+                token_realm = urllib.parse.quote(self._token_realm(), safe="")
                 request = urllib.request.Request(  # noqa: S310 fixed local Keycloak origin
                     f"{self.url}/realms/{token_realm}/protocol/openid-connect/token",
                     data=self._form,
@@ -195,11 +198,13 @@ class ServiceAccount(Keycloak):
 
     def __init__(self, url: str, realm: str, client_id: str, secret: str) -> None:
         super().__init__(url, realm, client_id, secret)
-        self._login_realm = realm
-        self._form = urllib.parse.urlencode(
-            {
-                "client_id": client_id,
-                "client_secret": secret,
-                "grant_type": "client_credentials",
-            }
-        ).encode()
+
+    def _token_realm(self) -> str:
+        return self.realm
+
+    def _grant(self, principal: str, credential: str) -> dict[str, str]:
+        return {
+            "client_id": principal,
+            "client_secret": credential,
+            "grant_type": "client_credentials",
+        }

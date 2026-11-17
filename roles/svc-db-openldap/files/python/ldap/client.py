@@ -230,9 +230,9 @@ class Connection:
         port = parts.port or (636 if parts.scheme == "ldaps" else 389)
         raw = socket.create_connection((parts.hostname, port), timeout=TIMEOUT_SECONDS)
         if parts.scheme == "ldaps":
-            raw = ssl.create_default_context().wrap_socket(
-                raw, server_hostname=parts.hostname
-            )
+            context = ssl.create_default_context()
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
+            raw = context.wrap_socket(raw, server_hostname=parts.hostname)
         self.socket = raw
 
     def close(self):

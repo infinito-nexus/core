@@ -1,8 +1,10 @@
 import socket
+import ssl
 import tempfile
 import types
 import unittest
 from pathlib import Path
+from unittest import mock
 from urllib.parse import quote
 
 from utils.cache.files import read_text
@@ -220,6 +222,30 @@ class LdapClientTests(unittest.TestCase):
     def test_an_unsupported_uri_is_refused_before_connecting(self):
         with self.assertRaises(self.mod.DirectoryError):
             self.mod.Connection("http://openldap:389")
+
+
+class RecordingContext(ssl.SSLContext):
+    def wrap_socket(self, sock, server_hostname=None):
+        self.wrapped = (sock, server_hostname)
+        return sock
+
+
+class LdapsConnectionTests(unittest.TestCase):
+    def test_ldaps_raises_a_permissive_default_floor_to_tls_1_2(self):
+        mod = load_module()
+        context = RecordingContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.minimum_version = ssl.TLSVersion.MINIMUM_SUPPORTED
+        raw = object()
+
+        with (
+            mock.patch.object(mod.ssl, "create_default_context", return_value=context),
+            mock.patch.object(mod.socket, "create_connection", return_value=raw),
+        ):
+            connection = mod.Connection("ldaps://openldap")
+
+        self.assertIs(connection.socket, raw)
+        self.assertEqual(context.wrapped, (raw, "openldap"))
+        self.assertEqual(context.minimum_version, ssl.TLSVersion.TLSv1_2)
 
 
 class LdapiConnectionTests(unittest.TestCase):

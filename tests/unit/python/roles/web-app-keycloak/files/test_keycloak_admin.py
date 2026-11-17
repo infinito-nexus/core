@@ -139,6 +139,27 @@ class TestKeycloakClient(unittest.TestCase):
         )
         self.assertEqual(calls[1][0], "http://kc/admin/realms/r/organizations")
 
+    def test_a_service_account_never_packs_its_secret_into_a_password_grant(self):
+        encoded = []
+        urlencode = m.urllib.parse.urlencode
+
+        def recording(fields, *args, **kwargs):
+            encoded.append(dict(fields))
+            return urlencode(fields, *args, **kwargs)
+
+        with mock.patch.object(m.urllib.parse, "urlencode", recording):
+            m.ServiceAccount("http://kc", "r", "workspace-members", "s3cr3t")
+        self.assertEqual(
+            encoded,
+            [
+                {
+                    "client_id": "workspace-members",
+                    "client_secret": "s3cr3t",
+                    "grant_type": "client_credentials",
+                }
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

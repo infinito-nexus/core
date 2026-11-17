@@ -1,5 +1,5 @@
 const { execFileSync } = require("node:child_process");
-const { randomUUID } = require("node:crypto");
+const { randomBytes, randomInt, randomUUID } = require("node:crypto");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -62,7 +62,11 @@ function client(request, base, authorization, sudo) {
 }
 
 function suffix() {
-  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return `${Date.now().toString(36)}${randomInt(36 ** 4).toString(36).padStart(4, "0")}`;
+}
+
+function probePassword() {
+  return `Pw-${randomBytes(16).toString("hex")}`;
 }
 
 async function mintStoreToken(asAdmin) {
@@ -315,7 +319,7 @@ exports.register = function (shared) {
       const people = ["viewer", "owner", "billing"].map((role) => ({
         role,
         username: `playwright-${role}-${suffix()}`,
-        password: `Pw-${suffix()}-${suffix()}`,
+        password: probePassword(),
       }));
       const repoUrl = `${base().replace(/\/$/, "")}/${organization}/${repository}.git`;
       try {
@@ -433,7 +437,7 @@ exports.register = function (shared) {
       requireTools(["git", "ssh", "ssh-keygen"]);
       const asAdmin = (sudo) => client(request, base(), adminAuth, sudo);
       const repository = `ws-playwright-${suffix()}`;
-      const member = { username: `playwright-member-${suffix()}`, password: `Pw-${suffix()}-${suffix()}` };
+      const member = { username: `playwright-member-${suffix()}`, password: probePassword() };
       const repoApi = `/repos/${organization}/${repository}`;
       const sshRemote = `ssh://git@${domain}:${sshPort}/${organization}/${repository}.git`;
       const httpsRemote = `${base().replace(/\/$/, "")}/${organization}/${repository}.git`;
