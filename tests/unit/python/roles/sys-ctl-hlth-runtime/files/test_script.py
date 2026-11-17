@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import contextlib
 import datetime as dt
+import fcntl
 import importlib.util
 import io
 import json
+import os
 import re
 import subprocess
 import sys
@@ -1526,6 +1528,143 @@ class TestScratch(TestCase):
             )
         self.assertFalse(stale.exists())
         self.assertTrue(keep.is_file())
+
+
+def _exports(argv):
+    return any(arg.startswith("docker:") for arg in argv)
+
+
+OK = SimpleNamespace(returncode=0, stdout="", stderr="")
+
+
+class TestExportsAcrossNodes(TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.shared = self.root / "vulnerability-db"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _layout(self, node, databases):
+        for part in ("sbom", "work"):
+            (self.root / node / part).mkdir(parents=True)
+        return SCRIPT.Layout(
+            runtime=("container", "run"),
+            databases=databases,
+            sbom=self.root / node / "sbom",
+            work=self.root / node / "work",
+            excludes=(),
+        )
+
+    def _scan(self, node, databases, runner):
+        _findings, errors = SCRIPT.scan(
+            SCRIPT.container_targets([_container(node, image=f"sha256:{node}")]),
+            _config(targets=["container"], engines=["syft", "grype"]),
+            {engine: f"{engine}:1" for engine in SCRIPT.ENGINES},
+            self._layout(node, databases),
+            runner,
+        )
+        return errors
+
+    def _slot_taken(self):
+        probe = os.open(self.shared, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        finally:
+            os.close(probe)
+        return False
+
+    def test_another_scan_of_the_database_directory_waits_while_one_exports(self):
+        taken = []
+
+        def engines(argv):
+            if _exports(argv):
+                taken.append(self._slot_taken())
+            return OK
+
+        errors = self._scan("wrk-01", self.shared, engines)
+        self.assertEqual((errors, taken, self._slot_taken()), ([], [True], False))
+
+    def test_nodes_with_their_own_database_directory_export_side_by_side(self):
+        both = threading.Barrier(2, timeout=60)
+        errors = []
+
+        def engines(argv):
+            if _exports(argv):
+                both.wait()
+            return OK
+
+        nodes = [
+            threading.Thread(
+                target=lambda node=node: errors.extend(
+                    self._scan(node, self.root / node / "db", engines)
+                )
+            )
+            for node in ("wrk-01", "wrk-02")
+        ]
+        for node in nodes:
+            node.start()
+        for node in nodes:
+            node.join()
+        self.assertEqual((errors, both.broken), ([], False))
+
+    def _removals(self, failure):
+        started, removals = [], []
+
+        def engines(argv):
+            if _exports(argv):
+                started.append(argv[argv.index("--name") + 1])
+                raise failure
+            if argv[1] == "rm":
+                removals.append((argv[-1], self._slot_taken()))
+            return OK
+
+        return started, removals, engines
+
+    def test_a_timed_out_export_removes_its_container_before_the_slot_frees(self):
+        started, removals, engines = self._removals(
+            subprocess.TimeoutExpired(cmd="container", timeout=5)
+        )
+        errors = self._scan("wrk-01", self.shared, engines)
+        self.assertEqual(errors, ["syft container wrk-01:1: no result within 5s"])
+        self.assertEqual(removals, [(started[0], True)])
+
+    def test_a_crashed_export_removes_its_container_before_the_slot_frees(self):
+        started, removals, engines = self._removals(OSError("client vanished"))
+        with self.assertRaises(OSError):
+            self._scan("wrk-01", self.shared, engines)
+        self.assertEqual(removals, [(started[0], True)])
+
+    def test_consecutive_runs_never_reuse_a_container_name(self):
+        layout = self._layout("wrk-01", self.shared)
+        (target,) = SCRIPT.container_targets([_container("wrk-01", image="sha256:a")])
+        first, second = (
+            SCRIPT.sbom_step(layout, "syft:1", target).container for _run in range(2)
+        )
+        self.assertTrue(first.startswith("work-tmp-syft-a-"))
+        self.assertNotEqual(first, second)
+
+    def test_a_database_directory_that_cannot_be_locked_fails_only_its_lanes(self):
+        self.shared.write_text("", encoding="utf-8")
+        layout = self._layout("wrk-01", self.shared)
+        (target,) = SCRIPT.container_targets([_container("wrk-01", image="sha256:a")])
+        calls = []
+        (errors,) = SCRIPT.run_lanes(
+            [[SCRIPT.sbom_step(layout, "syft:1", target)]],
+            lambda argv: calls.append(argv) or OK,
+            1,
+            layout,
+        )
+        self.assertEqual(calls, [])
+        self.assertEqual(len(errors), 1)
+        self.assertTrue(
+            errors[0].startswith(
+                f"syft container wrk-01:1: no export slot on {self.shared}: "
+            )
+        )
 
 
 class SandboxNodeEngines(FakeEngines):
