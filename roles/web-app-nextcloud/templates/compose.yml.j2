@@ -256,7 +256,11 @@
     expose:
       - "{{ container_port }}"
     {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {% if IS_COMPOSE_MODE %}
+    {{ lookup('container_networks', provider_self_alias=False) | from_yaml | combine({'networks': {NEXTCLOUD_NOTIFY_PUSH_NETWORK: {'ipv4_address': NEXTCLOUD_NOTIFY_PUSH_ADDRESS}}}, recursive=True) | to_nice_yaml(indent=2) | indent(4) }}
+    {% else %}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
+    {% endif %}
   {% endif %}
 
   {% if NEXTCLOUD_MCP_ENABLED | bool %}

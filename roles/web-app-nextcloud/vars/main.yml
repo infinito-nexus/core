@@ -12,7 +12,10 @@ NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.l
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 NEXTCLOUD_NETWORK_BASE_URLS: "{{ lookup('network_urls', NEXTCLOUD_URL) }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
-NEXTCLOUD_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
+NEXTCLOUD_TRUSTED_PROXIES: >-
+  {{ (lookup('proxy_hops', application_id)
+      + ([NEXTCLOUD_NOTIFY_PUSH_ADDRESS] if (NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool) and IS_COMPOSE_MODE else []))
+     | unique | list }}
 
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 NEXTCLOUD_LOGIN_SSO: "{{ lookup('config', application_id, 'services.nextcloud.login.method.sso.enabled') | bool }}"
@@ -304,7 +307,12 @@ NEXTCLOUD_NOTIFY_PUSH_PORT: "{{ lookup('config', application_id, 'services.' ~ N
 NEXTCLOUD_NOTIFY_PUSH_LOCATION: "/push/"
 NEXTCLOUD_NOTIFY_PUSH_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_NOTIFY_PUSH_LOCATION ] | url_join }}"
 NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY: "{{ [ NEXTCLOUD_APPS_DIRECTORY, NEXTCLOUD_NOTIFY_PUSH_SERVICE ] | path_join }}"
-NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_PROXY_DNS_NAME }}:{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.ports.internal.http')
+# Exception: Docker DNS answers a bare name on the shared network that sorts first (mariadb); swarm pins the openresty overlay proxy_hops trusts
+NEXTCLOUD_NOTIFY_PUSH_NETWORK: "{{ ('svc-prx-openresty' | entity_name) if IS_SWARM_MODE else entity_name }}"
+# Exception: compose trusts this one pinned address, never the subnet, which admitted MCP clients share
+NEXTCLOUD_NOTIFY_PUSH_ADDRESS: "{{ lookup('config', application_id, 'networks.local.notify_push') }}"
+NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_HOST: "{{ NEXTCLOUD_PROXY_DNS_NAME }}.{{ NEXTCLOUD_NOTIFY_PUSH_NETWORK }}"
+NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_HOST }}:{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.ports.internal.http')
   }}"
 NEXTCLOUD_NOTIFY_PUSH_LAUNCHER_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'notify-push.sh' ] | path_join }}"
 NEXTCLOUD_NOTIFY_PUSH_LAUNCHER: "{{ lookup('volume', application_id, 'notify_push_launcher').target }}"

@@ -184,9 +184,9 @@ context_agent:
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
 # nocheck: playwright-service-flag  MCP sidecar, no browser surface
-# nocheck: dynamic-flag  the sidecar fronts this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
+# nocheck: dynamic-flag  the sidecar fronts the Context Agent and renders with it, so it follows the context_agent entry, which the svc-stack staging of its build context reads through this flag
 contextagentmcp:
-  enabled: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.context_agent.enabled') | bool }}"
   shared: false
   image: python
   # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
