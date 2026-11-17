@@ -1330,8 +1330,22 @@ def scratch_of(engine: str, subject: str) -> str:
     return f"tmp-{engine}-{subject}"
 
 
+GLOB_SPECIAL = re.compile(r"([\\*?\[\]{}])")
+
+
+def glob_literal(path: str) -> str:
+    """
+    Args:
+        path: a path to hand to Trivy, Syft or Grype as a skip pattern.
+
+    Returns:
+        The doublestar pattern that matches exactly ``path``.
+    """
+    return GLOB_SPECIAL.sub(r"\\\1", path)
+
+
 def _relative_excludes(layout: Layout) -> list[str]:
-    return [f"./{path.strip('/')}" for path in layout.excludes]
+    return [f"./{glob_literal(path.strip('/'))}" for path in layout.excludes]
 
 
 def db_steps(engine: str, layout: Layout, image: str) -> list[Step]:
@@ -1486,11 +1500,10 @@ def trivy_step(
     if not config.db_update:
         args += ["--cache-backend", "memory"]
     if target.kind == "host":
-        args += [
-            "--skip-dirs",
-            ",".join(f"{HOST_ROOT}{path}" for path in layout.excludes),
-            HOST_ROOT,
-        ]
+        for path in layout.excludes:
+            quoted = glob_literal(f"{HOST_ROOT}{path}").replace('"', '""')
+            args += ["--skip-dirs", f'"{quoted}"']
+        args.append(HOST_ROOT)
     else:
         args += ["--image-src", "docker", target.ref]
     scratch = scratch_of("trivy", target.key)
@@ -1970,6 +1983,73 @@ def docker_root() -> str:
     ).stdout.strip()
 
 
+MOUNTINFO = Path("/proc/self/mountinfo")
+NETWORK_FSTYPES = frozenset(
+    {
+        "nfs",
+        "nfs4",
+        "cifs",
+        "smb3",
+        "smbfs",
+        "ceph",
+        "fuse.ceph-fuse",
+        "glusterfs",
+        "fuse.glusterfs",
+        "fuse.sshfs",
+        "fuse.s3fs",
+        "fuse.rclone",
+        "afs",
+        "lustre",
+        "autofs",
+        "davfs",
+        "fuse.gcsfuse",
+        "fuse.juicefs",
+    }
+)
+MOUNTINFO_ESCAPE = re.compile(r"\\([0-7]{3})")
+
+
+def network_mounts(mountinfo: str) -> list[str]:
+    """
+    Args:
+        mountinfo: the text of a ``/proc/<pid>/mountinfo``.
+
+    Returns:
+        The mount points of every network filesystem in it, sorted, except
+        ``/``: a host whose root is remote still scans its root.
+    """
+    points = set()
+    for line in mountinfo.splitlines():
+        fields = line.split(" ")
+        if "-" not in fields[6:]:
+            continue
+        fstype = fields[fields.index("-", 6) + 1]
+        point = MOUNTINFO_ESCAPE.sub(lambda m: chr(int(m.group(1), 8)), fields[4])
+        if fstype in NETWORK_FSTYPES and point != "/":
+            points.add(point)
+    return sorted(points)
+
+
+def host_network_mounts() -> list[str]:
+    return network_mounts(
+        MOUNTINFO.read_text(encoding="utf-8", errors="surrogateescape")
+    )
+
+
+def printable(path: str) -> str:
+    """
+    Args:
+        path: a mount point as decoded from mountinfo.
+
+    Returns:
+        ``path`` with every undecodable byte as ``\\xNN`` and every other
+        non-printable character in its Python escape form, so it prints as
+        exactly one line.
+    """
+    text = os.fsencode(path).decode(errors="backslashreplace")
+    return "".join(char if char.isprintable() else ascii(char)[1:-1] for char in text)
+
+
 def vulnerability_check(
     containers: Sequence[Container],
     config: ScanConfig,
@@ -2043,6 +2123,11 @@ def main(argv=None) -> int:
         print(f"❌ listing the running containers failed: {exc}")
         return 1
     failures, infos = check(containers, hardened, probe_php)
+    remote = host_network_mounts() if "host" in config.targets else []
+    infos += [
+        f"host scan skips the network or automounted filesystem at {printable(point)}"
+        for point in remote
+    ]
     targets, judged, errors = vulnerability_check(
         containers,
         config,
@@ -2050,7 +2135,7 @@ def main(argv=None) -> int:
         suppressions_from_json(json.loads(args.suppressions)),
         Path(args.cache_dir),
         Path(args.database_dir),
-        json.loads(args.host_excludes),
+        [*json.loads(args.host_excludes), *remote],
         default_runner,
         run,
     )
