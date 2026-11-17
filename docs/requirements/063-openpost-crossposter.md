@@ -129,7 +129,7 @@ crossposter:
 
 ### Packaging and lifecycle
 
-- [ ] The `crossposter` entity is built from `files/crossposter/Dockerfile` on a Python base image pinned in `meta/services.yml` and passed as an `ARG` without default, and it runs as a non-root user.
+- [x] The `crossposter` entity is built from `files/crossposter/Dockerfile` on a Python base image pinned in `meta/services.yml` and passed as an `ARG` without default, and it runs as a non-root user.
 - [ ] Its container healthcheck works on the slim base image without extra binaries.
 - [ ] The entity is enabled only when at least one route is configured, and the role deploys green with and without it in compose and swarm.
 - [ ] A second crossposter instance neither polls nor publishes while the first holds the Postgres advisory lock.
@@ -139,7 +139,7 @@ crossposter:
 ### Configuration
 
 - [ ] Routes are read from `services.crossposter.routes`, and an invalid route (unknown platform, missing token, unknown target) fails the deploy with a message naming the route and the field.
-- [ ] Source tokens come from the vault-encrypted inventory and reach the container as files, never as environment variables.
+- [x] Source tokens come from the vault-encrypted inventory and reach the container as files, never as environment variables.
 
 ### Detection
 
@@ -180,7 +180,7 @@ crossposter:
 
 ### Tests
 
-- [ ] Unit tests under `tests/unit/python/roles/web-app-openpost/files/crossposter/` cover length counting, adaptation, routing filters, the idempotency key, backoff timing and the state machine with fixtures recorded from Mastodon, Pixelfed and PeerTube responses.
+- [x] Unit tests under `tests/unit/python/roles/web-app-openpost/files/crossposter/` cover length counting, adaptation, routing filters, the idempotency key, backoff timing and the state machine with fixtures recorded from Mastodon, Pixelfed and PeerTube responses.
 - [ ] The CLI test posts as a test user on the local Mastodon, Pixelfed and PeerTube instances and asserts within a bounded time exactly one OpenPost publication per route, one delivered post on the local Fediverse target, and the expected simulator requests for X, Facebook, Instagram and YouTube.
 - [ ] The CLI test asserts review mode (draft without delivery), the opt-out hashtag, loop prevention, restart without duplicates, and no forwarding of existing posts on route activation.
 - [ ] The CLI test lets the simulator answer 503 before succeeding and asserts one delivery, then forces a permanent failure and asserts the dead-letter state and that the platform mail server accepted the notification for the configured recipients.
@@ -201,8 +201,8 @@ crossposter:
 
 ### Documentation
 
-- [ ] `Administration.md` documents the route schema with examples, the review and auto modes, the opt-out hashtag, the attribution templates and their X cost impact, token creation per source platform, and the handling of dead-lettered items.
-- [ ] `README.md` lists automated crossposting under Features and shows the crossposter in the Cosmos diagram.
+- [x] `Administration.md` documents the route schema with examples, the review and auto modes, the opt-out hashtag, the attribution templates and their X cost impact, token creation per source platform, and the handling of dead-lettered items.
+- [x] `README.md` lists automated crossposting under Features, and `meta/services.yml` declares the `crossposter` entity that the documentation build draws into the role's Cosmos diagram.
 - [ ] This requirement is cross-linked from the implementing pull request and from the OpenProject work item.
 
 ## Out of Scope
