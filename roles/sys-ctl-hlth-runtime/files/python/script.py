@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import datetime as dt
+import fcntl
 import itertools
 import json
 import os
@@ -65,7 +66,6 @@ CACHE = "/cache"
 DOCKER_SOCKET = "/var/run/docker.sock"
 SOCKET_RUNTIME = "runc"
 JOB_TIMEOUT_SECONDS = 4 * 3600
-EXPORT_SLOTS = 1
 RUN_PREFIX = "run-"
 DB_ATTEMPTS = 3
 DB_RETRY_SECONDS = 30
@@ -265,6 +265,17 @@ class Step:
     accept: frozenset[int]
     scratch: str
     exports: bool
+
+    @property
+    def container(self) -> str | None:
+        """
+        Returns:
+            The name of the container the run starts, ``None`` for a run that
+            starts none.
+        """
+        if "--name" not in self.argv:
+            return None
+        return self.argv[self.argv.index("--name") + 1]
 
 
 @dataclass(frozen=True)
@@ -1291,9 +1302,12 @@ def run_argv(
             daemon's default runtime.
         extra_env: environment on top of the engine's own.
         scratch: :attr:`Step.scratch` of the run, its ``TMPDIR`` under
-            :data:`WORK`.
+            :data:`WORK`; with the work directory and a random suffix it also
+            names the container, so a container that a killed run left behind
+            never takes the name of a later one.
     """
-    options = ["--rm"]
+    container = f"{layout.work.name}-{scratch}-{uuid.uuid4().hex[:12]}"
+    options = ["--rm", "--name", container]
     mounts = ["-v", f"{layout.sbom}:{SBOM}", "-v", f"{layout.work}:{WORK}"]
     if engine in SCANNERS:
         mounts += ["-v", f"{layout.databases / engine}:{CACHE}"]
@@ -1606,12 +1620,26 @@ def _tail(text: str) -> str:
     return " | ".join(lines[-3:])
 
 
+def _remove(step: Step, runner: Runner) -> None:
+    """Remove the container of a run whose client is gone.
+
+    A killed ``run`` client leaves its container running, so this happens
+    before the run's export slot and scratch are given up.
+    """
+    if step.container is not None:
+        runner((step.argv[0], "rm", "--force", step.container))
+
+
 def _run_steps(steps: Sequence[Step], runner: Runner) -> list[str]:
     for step in steps:
         try:
             result = runner(step.argv)
         except subprocess.TimeoutExpired as exc:
+            _remove(step, runner)
             return [f"{step.label}: no result within {exc.timeout}s"]
+        except BaseException:
+            _remove(step, runner)
+            raise
         missing = OSV_MISSING_DB.findall(f"{result.stdout}\n{result.stderr}")
         if missing:
             return [
@@ -1623,11 +1651,58 @@ def _run_steps(steps: Sequence[Step], runner: Runner) -> list[str]:
     return []
 
 
+class SlotError(RuntimeError):
+    """The export slot could not be taken."""
+
+
+class ExportSlot:
+    """Let one exporting engine run at a time hold its scratch on the host.
+
+    An export costs up to three times the image on disk: the daemon stages
+    it, the engine saves it, and Syft copies every layer uncompressed. Every
+    scan on a host reads one database directory: the swarm lab nodes and the
+    local stacks of every worktree bind-mount the same host directory there
+    (``INFINITO_VULNERABILITY_DB_HOST_PATH``), while a production node keeps
+    its own. A lock on that directory thus also holds back the exports of the
+    other nodes and worktree stacks whose scratch shares the disk.
+
+    Args:
+        anchor: the database directory.
+    """
+
+    def __init__(self, anchor: Path) -> None:
+        self._anchor = anchor
+        self._threads = threading.Lock()
+        self._held = -1
+
+    def __enter__(self) -> None:
+        self._threads.acquire()
+        try:
+            self._anchor.mkdir(parents=True, exist_ok=True)
+            self._held = os.open(self._anchor, os.O_RDONLY | os.O_DIRECTORY)
+            fcntl.flock(self._held, fcntl.LOCK_EX)
+        except OSError as exc:
+            self._release()
+            raise SlotError(f"no export slot on {self._anchor}: {exc}") from exc
+        except BaseException:
+            self._release()
+            raise
+
+    def __exit__(self, *_exc: object) -> None:
+        self._release()
+
+    def _release(self) -> None:
+        if self._held >= 0:
+            os.close(self._held)
+            self._held = -1
+        self._threads.release()
+
+
 def run_lane(
     lane: Sequence[Step],
     runner: Runner,
     work: Path,
-    exports: threading.Semaphore,
+    exports: contextlib.AbstractContextManager,
 ) -> list[str]:
     """Run steps in order and stop at the first failing one.
 
@@ -1637,7 +1712,9 @@ def run_lane(
         work: the run's work directory, which holds every
             :attr:`Step.scratch`.
         exports: held by a group of steps sharing a scratch directory while
-            one of them exports an image, from its creation to its removal.
+            one of them exports an image, from its creation to the removal of
+            it and of a container left behind; a :class:`SlotError` taking it
+            fails the lane with one line instead of the whole scan.
 
     Returns:
         Error lines, empty when every step succeeded.
@@ -1647,34 +1724,39 @@ def run_lane(
         gate = (
             exports if any(step.exports for step in steps) else contextlib.nullcontext()
         )
-        with gate:
-            directory = work / scratch
-            directory.mkdir(parents=True, exist_ok=True)
-            try:
-                errors = _run_steps(steps, runner)
-            finally:
-                shutil.rmtree(directory, ignore_errors=True)
+        try:
+            with gate:
+                directory = work / scratch
+                directory.mkdir(parents=True, exist_ok=True)
+                try:
+                    errors = _run_steps(steps, runner)
+                finally:
+                    shutil.rmtree(directory, ignore_errors=True)
+        except SlotError as exc:
+            errors = [f"{steps[0].label}: {exc}"]
         if errors:
             return errors
     return []
 
 
 def run_lanes(
-    lanes: Sequence[Sequence[Step]], runner: Runner, workers: int, work: Path
+    lanes: Sequence[Sequence[Step]], runner: Runner, workers: int, layout: Layout
 ) -> list[list[str]]:
     """Run lanes in parallel, at most *workers* at a time.
 
-    At most :data:`EXPORT_SLOTS` image exports are on disk at once, whatever
-    *workers* is.
+    Steps that export an image take turns across every scan sharing
+    :attr:`Layout.databases`, whatever *workers* is (see :class:`ExportSlot`).
 
     Returns:
         The error lines of each lane, in lane order.
     """
     if not lanes:
         return []
-    exports = threading.BoundedSemaphore(EXPORT_SLOTS)
+    exports = ExportSlot(layout.databases)
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        return list(pool.map(lambda lane: run_lane(lane, runner, work, exports), lanes))
+        return list(
+            pool.map(lambda lane: run_lane(lane, runner, layout.work, exports), lanes)
+        )
 
 
 def _flat(errors: Iterable[Sequence[str]]) -> list[str]:
@@ -1718,7 +1800,7 @@ def prepare_databases(
         results.update(
             zip(
                 pending,
-                run_lanes(lanes, runner, config.workers, layout.work),
+                run_lanes(lanes, runner, config.workers, layout),
                 strict=True,
             )
         )
@@ -1791,7 +1873,7 @@ def scan(
             [[sbom_step(layout, images[SBOM_BUILDER], target)] for target in pending],
             runner,
             config.workers,
-            layout.work,
+            layout,
         )
         errors += _flat(results)
         failed = {
@@ -1846,7 +1928,7 @@ def scan(
                 for step in osv_image_steps(layout, images["osv"], target, config)
             ]
         )
-    errors += _flat(run_lanes(lanes, runner, config.workers, layout.work))
+    errors += _flat(run_lanes(lanes, runner, config.workers, layout))
 
     findings: list[Finding] = []
     for target in targets:
