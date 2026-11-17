@@ -56,7 +56,11 @@ EXTERNAL_ISSUER = "https://sso.example.org/realms/infinito"
 TOKEN_PATH = "/protocol/openid-connect/token"
 
 ADMIN_KEYS = "{{ WORDPRESS_ADMIN_USER | quote }} --fields=meta_key --format"
-ADMIN_IDENTITIES = "wordpress_oidc_admin_meta_keys.stdout"
+ADMIN_IDENTITY_KEYS = "wordpress_oidc_admin_identity_keys"
+ADMIN_IDENTITY_READ = "--keys={{ " + ADMIN_IDENTITY_KEYS + " | join(',') | quote }}"
+SUBJECT_FACT = "wordpress_oidc_admin_subject"
+SETTINGS_WRITE = "wp eval-file"
+STORE = "wp user meta update"
 HOLDERS = "--fields=ID,user_login"
 STRAY_KEYS = "{{ item.ID | quote }} --fields=meta_key --format"
 STRAY_IDENTITIES = "item.item.ID"
@@ -91,19 +95,70 @@ def _holds(condition: str, **variables) -> bool:
     return _render("{{ " + condition + " }}", **variables)
 
 
-def _admin_subject() -> dict:
-    lookup = _task_running("kcadm.sh get users")
-    facts = [
+def _fact_setting(name: str) -> dict:
+    matches = [
         t["ansible.builtin.set_fact"]
         for t in _tasks()
-        if "ansible.builtin.set_fact" in t
+        if name in t.get("ansible.builtin.set_fact", {})
     ]
-    assert len(facts) == 1, f"{ADDON_TASKS} must pick the subject in one set_fact"
+    assert len(matches) == 1, f"{ADDON_TASKS} must set {name} in one set_fact"
+    return matches[0]
+
+
+def _index(task: dict) -> int:
+    return _tasks().index(task)
+
+
+def _admin_subject() -> dict:
+    lookup = _task_running("kcadm.sh get users")
     kcadm = {lookup["register"]: {"stdout": json.dumps(KCADM_USERS)}}
-    return {
-        name: _render(expression, WORDPRESS_ADMIN_USER=ADMIN, **kcadm)
-        for name, expression in facts[0].items()
+    expression = _fact_setting(SUBJECT_FACT)[SUBJECT_FACT]
+    return {SUBJECT_FACT: _render(expression, WORDPRESS_ADMIN_USER=ADMIN, **kcadm)}
+
+
+def _identity_keys(admin_keys: list[str]) -> list[str]:
+    listing = _task_running(ADMIN_KEYS)
+    listed = {
+        listing["register"]: {
+            "stdout": json.dumps([{"meta_key": k} for k in admin_keys])
+        }
     }
+    return _render(_fact_setting(ADMIN_IDENTITY_KEYS)[ADMIN_IDENTITY_KEYS], **listed)
+
+
+def _identity_reads() -> tuple[dict, dict]:
+    reads = [
+        t
+        for t in _tasks()
+        if ADMIN_IDENTITY_READ in str(t.get("ansible.builtin.shell"))
+    ]
+    store = _index(_task_running(STORE))
+    before = [t for t in reads if _index(t) < store]
+    after = [t for t in reads if _index(t) > store]
+    assert (len(before), len(after)) == (1, 1), (
+        f"{ADDON_TASKS} must read the administrator's identities once before "
+        "and once after the bind"
+    )
+    return before[0], after[0]
+
+
+def _asserts() -> list[dict]:
+    return [t for t in _tasks() if "ansible.builtin.assert" in t]
+
+
+def _issuer_assert() -> dict:
+    found = [
+        t for t in _asserts() if "wordpress_oidc_local_issuer" in t.get("vars", {})
+    ]
+    assert len(found) == 1, "one assert must pin the issuer"
+    return found[0]
+
+
+def _foreign_identity_guard() -> dict:
+    prior, _ = _identity_reads()
+    found = [t for t in _asserts() if prior["register"] in str(t.get("vars", {}))]
+    assert len(found) == 1, "one assert must check the identities read before the bind"
+    return found[0]
 
 
 def _email_claim_keycloak_emits() -> str:
@@ -140,7 +195,7 @@ class TestSettingsWordPressReceives(unittest.TestCase):
         _reset_cache_for_tests()
 
     def _settings(self) -> dict:
-        sent = _task_running("wp eval-file")["environment"]["WP_OIDC_SETTINGS"]
+        sent = _task_running(SETTINGS_WRITE)["environment"]["WP_OIDC_SETTINGS"]
         oidc = load_yaml_any(str(OIDC_VARS), default_if_missing={})["defaults_oidc"]
         encoded = _render(
             sent,
@@ -165,15 +220,8 @@ class TestSettingsWordPressReceives(unittest.TestCase):
 
 
 class TestIssuerIsTheLocalKeycloak(unittest.TestCase):
-    def _assert_task(self) -> tuple[int, dict]:
-        found = [
-            (i, t) for i, t in enumerate(_tasks()) if "ansible.builtin.assert" in t
-        ]
-        self.assertEqual(len(found), 1, "one assert must pin the issuer")
-        return found[0]
-
     def _passes(self, client: dict) -> bool:
-        _, task = self._assert_task()
+        task = _issuer_assert()
         real_get = lookup_loader.get
 
         def get(name, *args, **kwargs):
@@ -190,12 +238,15 @@ class TestIssuerIsTheLocalKeycloak(unittest.TestCase):
         )
 
     def test_the_issuer_is_checked_before_keycloak_is_asked(self):
-        index, _ = self._assert_task()
+        index = _index(_issuer_assert())
         names = [str(t.get("name", "")) for t in _tasks()]
         resolver = next(i for i, n in enumerate(names) if "resolve the Keycloak" in n)
-        lookup = _tasks().index(_task_running("kcadm.sh get users"))
+        lookup = _index(_task_running("kcadm.sh get users"))
         self.assertLess(index, resolver)
         self.assertLess(index, lookup)
+
+    def test_the_issuer_is_checked_before_the_settings_are_written(self):
+        self.assertLess(_index(_issuer_assert()), _index(_task_running(SETTINGS_WRITE)))
 
     def test_only_the_local_keycloak_passes(self):
         for client, passes in (
@@ -394,17 +445,71 @@ class TestExclusiveBinding(unittest.TestCase):
 
 class TestAdministratorCarriesNoForeignIdentity(unittest.TestCase):
     def _keys_read(self, admin_keys: list[str]) -> list[str]:
-        listing = _task_running(ADMIN_KEYS)
-        check = _task_running(ADMIN_IDENTITIES)
-        listed = {
-            listing["register"]: {
-                "stdout": json.dumps([{"meta_key": k} for k in admin_keys])
-            }
+        identity_keys = {ADMIN_IDENTITY_KEYS: _identity_keys(admin_keys)}
+        read = []
+        for check in _identity_reads():
+            argv = _argv(check, **WORDPRESS, **identity_keys)
+            keys = [a for a in argv if a.startswith("--keys=")]
+            self.assertEqual(len(keys), 1)
+            self.assertIn("--fields=meta_key,meta_value", argv)
+            read.append(keys[0].removeprefix("--keys=").split(","))
+        self.assertEqual(read[0], read[1])
+        return read[0]
+
+    def _guard(self, rows: list[tuple[str, str]]) -> tuple[bool, str]:
+        prior, _ = _identity_reads()
+        guard = _foreign_identity_guard()
+        variables = {
+            **WORDPRESS,
+            **_admin_subject(),
+            prior["register"]: {
+                "rc": 0,
+                "stdout": json.dumps(
+                    [{"meta_key": k, "meta_value": v} for k, v in rows]
+                ),
+            },
         }
-        argv = _argv(check, **WORDPRESS, **_admin_subject(), **listed)
-        keys = [a for a in argv if a.startswith("--keys=")]
-        self.assertEqual(len(keys), 1)
-        return keys[0].removeprefix("--keys=").split(",")
+        variables.update(
+            {name: _render(value, **variables) for name, value in guard["vars"].items()}
+        )
+        check = guard["ansible.builtin.assert"]
+        passes = all(_holds(c, **variables) for c in check["that"])
+        return passes, _render(check["fail_msg"], **variables)
+
+    def test_the_identities_are_checked_after_the_keys_and_before_the_bind(self):
+        prior, verified = _identity_reads()
+        self.assertLess(_index(_task_running(ADMIN_KEYS)), _index(prior))
+        self.assertLess(_index(prior), _index(_foreign_identity_guard()))
+        self.assertLess(_index(_foreign_identity_guard()), _index(_task_running(STORE)))
+        self.assertLess(_index(_task_running(STORE)), _index(verified))
+
+    def test_a_foreign_global_identity_stops_the_deploy_before_the_bind(self):
+        passes, message = self._guard([(SUBJECT_META_KEY, OTHER_ID)])
+        self.assertIs(passes, False)
+        self.assertIn(f"under {SUBJECT_META_KEY},", message)
+        self.assertIn(f"wp user meta delete {ADMIN} <key>", message)
+        self.assertNotIn(OTHER_ID, message)
+
+    def test_every_foreign_key_is_named_without_its_value(self):
+        passes, message = self._guard(
+            [
+                (SUBJECT_META_KEY, KEYCLOAK_ID),
+                (PREFIXED, OTHER_ID),
+                (SITE_PREFIXED, OTHER_ID),
+            ]
+        )
+        self.assertIs(passes, False)
+        self.assertIn(f"under {PREFIXED}, {SITE_PREFIXED},", message)
+        self.assertNotIn(OTHER_ID, message)
+
+    def test_an_absent_or_equal_identity_lets_the_bind_run(self):
+        for rows in (
+            [],
+            [(SUBJECT_META_KEY, KEYCLOAK_ID)],
+            [(SUBJECT_META_KEY, KEYCLOAK_ID), (PREFIXED, KEYCLOAK_ID)],
+        ):
+            with self.subTest(rows=rows):
+                self.assertIs(self._guard(rows)[0], True)
 
     def test_only_subject_identity_keys_are_read_and_the_global_one_always(self):
         listing = _task_running(ADMIN_KEYS)
@@ -427,7 +532,7 @@ class TestAdministratorCarriesNoForeignIdentity(unittest.TestCase):
                 self.assertEqual(self._keys_read(admin_keys), read)
 
     def test_the_run_fails_unless_every_identity_on_the_administrator_is_its_id(self):
-        check = _task_running(ADMIN_IDENTITIES)
+        _, check = _identity_reads()
         for rc, rows, fails in (
             (0, [(SUBJECT_META_KEY, KEYCLOAK_ID)], False),
             (0, [(SUBJECT_META_KEY, KEYCLOAK_ID), (PREFIXED, KEYCLOAK_ID)], False),

@@ -1,17 +1,4 @@
 ---
-- name: "📌 WP OIDC: write the settings to every site of the network"
-  ansible.builtin.shell:
-    cmd: >
-      container exec -i --user {{ WORDPRESS_USER | quote }}
-      -e WP_OIDC_SETTINGS
-      {{ WORDPRESS_CONTAINER_ADDRESS }}
-      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
-    stdin: "{{ lookup('file', 'php/oidc/settings.php') }}"
-  environment:
-    WP_OIDC_SETTINGS: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode }}"
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
 - name: "🛡️ WP OIDC: assert WordPress signs in against the local Keycloak the bind reads"
   ansible.builtin.assert:
     that:
@@ -26,6 +13,19 @@
     quiet: true
   vars:
     wordpress_oidc_local_issuer: "{{ lookup('tls', 'web-app-keycloak', 'url.origin') ~ '/realms/' ~ OIDC.CLIENT.REALM }}"
+
+- name: "📌 WP OIDC: write the settings to every site of the network"
+  ansible.builtin.shell:
+    cmd: >
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      -e WP_OIDC_SETTINGS
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+    stdin: "{{ lookup('file', 'php/oidc/settings.php') }}"
+  environment:
+    WP_OIDC_SETTINGS: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔍 WP OIDC: resolve the Keycloak hosting node and container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
@@ -56,6 +56,43 @@
   ansible.builtin.set_fact:
     wordpress_oidc_admin_subject: "{{ wordpress_keycloak_admin_users.stdout | keycloak_user_id(WORDPRESS_ADMIN_USER) }}"
 
+- name: "🔍 WP OIDC: list the administrator's meta keys"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp user meta list {{ WORDPRESS_ADMIN_USER | quote }} --fields=meta_key --format=json
+    --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+  register: wordpress_oidc_admin_meta_keys
+  changed_when: false
+
+- name: "🔗 WP OIDC: pick the administrator's subject identity keys"
+  ansible.builtin.set_fact:
+    wordpress_oidc_admin_identity_keys: "{{ (['openid-connect-generic-subject-identity'] + (wordpress_oidc_admin_meta_keys.stdout | from_json | map(attribute='meta_key')
+      | select('search', 'openid-connect-generic-subject-identity$') | list)) | unique }}"
+
+- name: "🔍 WP OIDC: read the administrator's subject identities before the bind"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp user meta list {{ WORDPRESS_ADMIN_USER | quote }}
+    --keys={{ wordpress_oidc_admin_identity_keys | join(',') | quote }}
+    --fields=meta_key,meta_value --format=json
+    --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+  register: wordpress_oidc_admin_prior_identities
+  changed_when: false
+
+- name: "🛡️ WP OIDC: refuse to overwrite a foreign identity on the administrator"
+  ansible.builtin.assert:
+    that:
+      - wordpress_oidc_admin_foreign_keys == []
+    fail_msg: >-
+      The administrator {{ WORDPRESS_ADMIN_USER }} already holds another subject identity
+      under {{ wordpress_oidc_admin_foreign_keys | join(', ') }}, so the deploy stops before
+      it overwrites that binding. Check which Keycloak user the stored value belongs to, then
+      clear each key with wp user meta delete {{ WORDPRESS_ADMIN_USER }} <key> and deploy again.
+    quiet: true
+  vars:
+    wordpress_oidc_admin_foreign_keys: "{{ wordpress_oidc_admin_prior_identities.stdout | from_json | rejectattr('meta_value', 'equalto', wordpress_oidc_admin_subject)
+      | map(attribute='meta_key') | list }}"
+
 - name: "🔗 WP OIDC: store the Keycloak user id as the administrator's subject identity"
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
@@ -65,20 +102,11 @@
   register: wordpress_oidc_admin_bound
   changed_when: "'is unchanged' not in wordpress_oidc_admin_bound.stdout"
 
-- name: "🔍 WP OIDC: list the administrator's meta keys"
-  ansible.builtin.shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp user meta list {{ WORDPRESS_ADMIN_USER | quote }} --fields=meta_key --format=json
-    --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
-  register: wordpress_oidc_admin_meta_keys
-  changed_when: false
-
 - name: "🔍 WP OIDC: assert every administrator subject identity is its Keycloak id"
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     wp user meta list {{ WORDPRESS_ADMIN_USER | quote }}
-    --keys={{ (['openid-connect-generic-subject-identity'] + (wordpress_oidc_admin_meta_keys.stdout | from_json | map(attribute='meta_key') | select('search', 'openid-connect-generic-subject-identity$')
-    | list)) | unique | join(',') | quote }}
+    --keys={{ wordpress_oidc_admin_identity_keys | join(',') | quote }}
     --fields=meta_key,meta_value --format=json
     --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
   register: wordpress_oidc_admin_identities
