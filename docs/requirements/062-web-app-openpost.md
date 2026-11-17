@@ -275,7 +275,7 @@ simulator:
 
 ### Role documentation
 
-- [ ] `README.md` follows the [role README rules](../contributing/artefact/files/role/readme_md.md), including the Cosmos diagram with the relay, and states the image and bump policy, the egress relay, the SSO model and the telemetry defaults.
+- [x] `README.md` follows the [role README rules](../contributing/artefact/files/role/readme_md.md) and states the image and bump policy, the egress relay, the SSO model and the telemetry defaults; `meta/services.yml` declares the `relay` entity that the documentation build draws into the role's Cosmos diagram.
 - [ ] This requirement is cross-linked from the implementing pull request and from the OpenProject work item.
 
 ## Validation Apps
