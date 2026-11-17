@@ -32,23 +32,22 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
   when: LIBRETRANSLATE_MCP_ENABLED | bool
 
-- name: "📦 Hold the artefacts of {{ application_id }} in the model store"
+- name: "📦 Seed the engine's models into the store before {{ application_id }} starts"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/seed.yml
+  vars:
+    models_seeded: "{{ LIBRETRANSLATE_ARTEFACTS }}"
   when: LIBRETRANSLATE_STORED | bool
-  block:
-    - name: "📦 Seed the engine's models into the store before {{ application_id }} starts"
-      ansible.builtin.include_role:
-        name: svc-ai-models
-        tasks_from: utils/seed.yml
-      vars:
-        models_seeded: "{{ LIBRETRANSLATE_ARTEFACTS }}"
 
-    - name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
-      ansible.builtin.include_role:
-        name: svc-ai-models
-        tasks_from: utils/require.yml
-      vars:
-        models_consumer: "{{ application_id }}"
-        models_required: "{{ LIBRETRANSLATE_ARTEFACTS }}"
+- name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/require.yml
+  vars:
+    models_consumer: "{{ application_id }}"
+    models_required: "{{ LIBRETRANSLATE_ARTEFACTS }}"
+  when: LIBRETRANSLATE_STORED | bool
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers

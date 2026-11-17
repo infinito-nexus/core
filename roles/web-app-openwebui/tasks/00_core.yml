@@ -30,21 +30,21 @@
     - openwebui_tool_servers_held is not skipped
     - openwebui_tool_servers_held.stdout != 'null'
 
-- name: "📦 Hold the artefacts of {{ application_id }} in the model store"
-  when: OPENWEBUI_STORED | bool
-  block:
-    - name: "📦 Seed the model store before {{ application_id }} starts"
-      ansible.builtin.include_role:
-        name: svc-ai-models
-      when: run_once_svc_ai_models is not defined
+- name: "📦 Seed the model store before {{ application_id }} starts"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+  when:
+    - OPENWEBUI_STORED | bool
+    - run_once_svc_ai_models is not defined
 
-    - name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
-      ansible.builtin.include_role:
-        name: svc-ai-models
-        tasks_from: utils/require.yml
-      vars:
-        models_consumer: "{{ application_id }}"
-        models_required: "{{ OPENWEBUI_ARTEFACTS }}"
+- name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/require.yml
+  vars:
+    models_consumer: "{{ application_id }}"
+    models_required: "{{ OPENWEBUI_ARTEFACTS }}"
+  when: OPENWEBUI_STORED | bool
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:

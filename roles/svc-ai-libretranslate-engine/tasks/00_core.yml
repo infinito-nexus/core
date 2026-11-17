@@ -44,23 +44,22 @@
     - compose-build
     - compose-up
 
-- name: "📦 Hold the artefacts of {{ application_id }} in the model store"
+- name: "📦 Seed the model store before {{ application_id }} starts"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/seed.yml
+  vars:
+    models_seeded: "{{ LIBRETRANSLATE_ENGINE_ARTEFACTS }}"
   when: LIBRETRANSLATE_ENGINE_STORED | bool
-  block:
-    - name: "📦 Seed the model store before {{ application_id }} starts"
-      ansible.builtin.include_role:
-        name: svc-ai-models
-        tasks_from: utils/seed.yml
-      vars:
-        models_seeded: "{{ LIBRETRANSLATE_ENGINE_ARTEFACTS }}"
 
-    - name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
-      ansible.builtin.include_role:
-        name: svc-ai-models
-        tasks_from: utils/require.yml
-      vars:
-        models_consumer: "{{ application_id }}"
-        models_required: "{{ LIBRETRANSLATE_ENGINE_ARTEFACTS }}"
+- name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/require.yml
+  vars:
+    models_consumer: "{{ application_id }}"
+    models_required: "{{ LIBRETRANSLATE_ENGINE_ARTEFACTS }}"
+  when: LIBRETRANSLATE_ENGINE_STORED | bool
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
