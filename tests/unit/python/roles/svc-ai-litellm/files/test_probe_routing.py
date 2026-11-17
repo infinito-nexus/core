@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import types
 import unittest
 from typing import ClassVar
 from unittest import mock
 
 from utils.cache.yaml import load_yaml
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_TESTS
 
 from . import PROJECT_ROOT
 
@@ -339,34 +340,72 @@ SHIPPED_LITELLM = load_yaml(
 )["litellm"]
 SHIPPED_MIN_CHARS_PER_TOKEN = SHIPPED_LITELLM["router"]["min_chars_per_token"]
 SHIPPED_UPSTREAM_TIMEOUT = SHIPPED_LITELLM["upstream_timeout"]
+SHIPPED_CLI_TIMEOUT = load_yaml(
+    PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_TESTS
+)["cli"]["timeout"]
+GATEWAY = "http://127.0.0.1:4000"
+ROUTED = {
+    "model": "auto",
+    "choices": [{"message": {"content": "pong"}}],
+    "usage": {"prompt_tokens": 8206},
+}
 
 
-def gateway(body: dict, headers: dict | None = None):
-    response = mock.MagicMock()
-    response.__enter__.return_value.read.return_value = json.dumps(body).encode()
-    response.__enter__.return_value.headers = headers or {}
-    return mock.patch.object(probe.urllib.request, "urlopen", return_value=response)
+class Clock:
+    def __init__(self) -> None:
+        self.now = 0.0
+
+    def sleep(self, seconds: float) -> None:
+        self.now += seconds
 
 
-def upstream_timeout():
-    return mock.patch.dict(
-        probe.os.environ, {"UPSTREAM_TIMEOUT": str(SHIPPED_UPSTREAM_TIMEOUT)}
+def harness(clock: Clock, prefill: float):
+    """
+    Args:
+        clock: the virtual clock the probe reads and sleeps on.
+        prefill: seconds the backend takes to answer; a request whose timeout
+            is shorter waits that timeout out and raises TimeoutError.
+
+    Returns:
+        The context managers to enter, the urlopen stand-in last.
+    """
+
+    def urlopen(request, timeout):
+        if prefill > timeout:
+            clock.now += timeout
+            raise TimeoutError("timed out")
+        clock.now += prefill
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(
+            ROUTED
+        ).encode()
+        response.__enter__.return_value.headers = {
+            "x-litellm-model-group": "llama3.2:1b"
+        }
+        return response
+
+    return (
+        mock.patch.dict(
+            probe.os.environ,
+            {
+                "UPSTREAM_TIMEOUT": str(SHIPPED_UPSTREAM_TIMEOUT),
+                "CLI_DEADLINE": str(clock.now + SHIPPED_CLI_TIMEOUT),
+            },
+        ),
+        mock.patch.object(
+            probe,
+            "time",
+            types.SimpleNamespace(time=lambda: clock.now, sleep=clock.sleep),
+        ),
+        mock.patch.object(probe.urllib.request, "urlopen", side_effect=urlopen),
     )
 
 
 class TestGatewayResponse(unittest.TestCase):
-    ROUTED: ClassVar[dict] = {
-        "model": "auto",
-        "choices": [{"message": {"content": "pong"}}],
-        "usage": {"prompt_tokens": 8206},
-    }
-
     def test_the_route_is_read_from_the_model_group_header(self) -> None:
-        with (
-            upstream_timeout(),
-            gateway(self.ROUTED, {"x-litellm-model-group": "llama3.2:1b"}),
-        ):
-            _, served, _ = probe._completion("http://127.0.0.1:4000", "k", "auto", 1, 0)
+        env, frozen, backend = harness(Clock(), prefill=0)
+        with env, frozen, backend:
+            _, served, _ = probe._completion(GATEWAY, "k", "auto", 1, 0)
         self.assertEqual(
             served,
             "llama3.2:1b",
@@ -375,13 +414,49 @@ class TestGatewayResponse(unittest.TestCase):
         )
 
     def test_the_client_waits_as_long_as_every_route_waits_upstream(self) -> None:
-        with upstream_timeout(), gateway({"data": []}) as urlopen:
-            probe._call("http://127.0.0.1:4000", "k", "/v1/models")
+        clock = Clock()
+        env, _, _ = harness(clock, prefill=0)
+        with env:
+            self.assertEqual(
+                probe.request_timeout(clock.now),
+                SHIPPED_UPSTREAM_TIMEOUT,
+                "a client that gives up before the gateway re-sends while the "
+                "backend still evaluates the abandoned prompt",
+            )
+
+
+class TestCliDeadline(unittest.TestCase):
+    def test_a_hung_route_fails_in_the_probe_before_the_harness_kills_it(
+        self,
+    ) -> None:
+        clock = Clock()
+        deadline = clock.now + SHIPPED_CLI_TIMEOUT
+        env, frozen, backend = harness(clock, prefill=float("inf"))
+        with env, frozen, backend as urlopen, self.assertRaises(RuntimeError) as hung:
+            probe._completion(GATEWAY, "k", "auto", 10, 6)
+        self.assertLess(
+            clock.now,
+            deadline,
+            "ten attempts at the upstream timeout outlast the CLI timeout, so "
+            "the harness killed the probe before it printed which route hung",
+        )
+        self.assertIn("TimeoutError", str(hung.exception))
         self.assertEqual(
-            urlopen.call_args.kwargs["timeout"],
-            SHIPPED_UPSTREAM_TIMEOUT,
-            "a client that gives up before the gateway re-sends while the "
-            "backend still evaluates the abandoned prompt",
+            json.loads(urlopen.call_args.args[0].data)["num_retries"],
+            0,
+            "the router retries a timed-out upstream call by default, so one "
+            "probe attempt would leave further prefills running on the backend",
+        )
+
+    def test_a_slow_healthy_prefill_still_answers(self) -> None:
+        env, frozen, backend = harness(Clock(), prefill=157)
+        with env, frozen, backend:
+            answer, served, _ = probe._completion(GATEWAY, "k", "auto", 10, 6)
+        self.assertEqual(
+            (answer, served),
+            ("pong", "llama3.2:1b"),
+            "a CPU prefill of the oversized router prompt took 157 s in CI; the "
+            "deadline cut must not starve a route that is slow but healthy",
         )
 
 

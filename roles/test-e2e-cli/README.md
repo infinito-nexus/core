@@ -27,3 +27,5 @@ cli:
   once: true
   timeout: 14400
 ```
+
+The script runs with `CLI_DEADLINE` exported, the epoch second the harness kills it. A script that retries budgets against it, so it can still print its own verdict before the harness ends it.

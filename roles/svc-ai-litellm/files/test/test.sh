@@ -10,6 +10,7 @@
 #   LITELLM_PORT               gateway http port inside the container
 #   LITELLM_ROUTER_MIN_CHARS_PER_TOKEN  the hook's characters-per-token floor
 #   LITELLM_UPSTREAM_TIMEOUT   seconds every route waits upstream, the probe's wait too
+#   CLI_DEADLINE               epoch second the test-e2e-cli harness kills this script
 #   LITELLM_CHAT_MODEL         the model every consumer asks for
 #   LITELLM_CHAT_MODEL_SERVED  true|false
 #   LITELLM_EXPECTED_MODELS    JSON list the config template published
@@ -49,6 +50,7 @@ probe() {
 		-e "PORT=${LITELLM_PORT}" \
 		-e MIN_CHARS_PER_TOKEN \
 		-e "UPSTREAM_TIMEOUT=${LITELLM_UPSTREAM_TIMEOUT}" \
+		-e "CLI_DEADLINE=${CLI_DEADLINE}" \
 		-e "CHAT_MODEL=${LITELLM_CHAT_MODEL}" \
 		-e "CHAT_MODEL_SERVED=${LITELLM_CHAT_MODEL_SERVED}" \
 		-e "EXPECTED_MODELS=${LITELLM_EXPECTED_MODELS}" \

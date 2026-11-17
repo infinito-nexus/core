@@ -24,6 +24,7 @@ Env (rendered into test.env from templates/test.env.j2):
                        sizes its prompt against the number the hook will use
     UPSTREAM_TIMEOUT   seconds every route waits upstream (LITELLM_UPSTREAM_TIMEOUT),
                        also the probe's own wait per request
+    CLI_DEADLINE       epoch second the test-e2e-cli harness kills the test
     RETRIES           completion attempts (default 10)
     SLEEP_SECONDS      wait between attempts (default 6)
 """
@@ -122,7 +123,25 @@ def evaluate(
     return failures
 
 
-def _call(base: str, key: str, path: str, payload: dict | None = None):
+VERDICT_RESERVE_SECONDS = 5
+
+
+def request_timeout(now: float) -> float:
+    """
+    Args:
+        now: the epoch second the request would start.
+
+    Returns:
+        UPSTREAM_TIMEOUT, cut so the verdict still prints
+        VERDICT_RESERVE_SECONDS before CLI_DEADLINE; 0 once no request fits.
+    """
+    left = float(os.environ["CLI_DEADLINE"]) - VERDICT_RESERVE_SECONDS - now
+    return max(0.0, min(float(os.environ["UPSTREAM_TIMEOUT"]), left))
+
+
+def _call(
+    base: str, key: str, path: str, timeout: float, payload: dict | None = None
+):
     body = None if payload is None else json.dumps(payload).encode()
     request = urllib.request.Request(  # noqa: S310 - literal http:// to loopback
         base + path,
@@ -133,7 +152,7 @@ def _call(base: str, key: str, path: str, payload: dict | None = None):
         },
     )
     with urllib.request.urlopen(  # noqa: S310 - literal http:// to loopback
-        request, timeout=float(os.environ["UPSTREAM_TIMEOUT"])
+        request, timeout=timeout
     ) as response:
         return json.loads(response.read().decode() or "{}"), response.headers
 
@@ -154,17 +173,24 @@ def _completion(
     third is the backend's own prompt token count, the only number here that
     does not come from this deployment's own declarations.
     """
-    last_error = "no attempt ran"
-    for attempt in range(1, retries + 1):
+    last_error = "no attempt fit before CLI_DEADLINE"
+    attempt = 0
+    while attempt < retries:
+        wait = request_timeout(time.time())
+        if not wait:
+            break
+        attempt += 1
         try:
             completion, headers = _call(
                 base,
                 key,
                 "/v1/chat/completions",
+                wait,
                 {
                     "model": model,
                     "messages": [{"role": "user", "content": prompt}],
                     "max_tokens": 16,
+                    "num_retries": 0,
                 },
             )
             choices = completion.get("choices") or [{}]
@@ -181,9 +207,10 @@ def _completion(
             last_error = f"HTTP {exc.code}: {exc.read().decode(errors='replace')[:400]}"
         except (urllib.error.URLError, TimeoutError, ValueError) as exc:
             last_error = f"{type(exc).__name__}: {exc}"
-        if attempt < retries:
-            time.sleep(pause)
-    raise RuntimeError(last_error)
+        if attempt == retries or not request_timeout(time.time() + pause):
+            break
+        time.sleep(pause)
+    raise RuntimeError(f"{last_error} ({attempt} of {retries} attempts ran)")
 
 
 TRUNCATION_RATIO = 0.9
@@ -303,7 +330,7 @@ def _probe_router(
         return [
             (
                 f"'{router_alias}' answered nothing for a prompt of about {needed} "
-                f"tokens after {retries} attempts; last failure: {exc}"
+                f"tokens; last failure: {exc}"
             )
         ]
     verdict = route_verdict(
@@ -330,7 +357,7 @@ def main() -> int:
     # nocheck: environ-get-default  likewise unlisted in test.sh's -e set; the wait between attempts is the probe's own
     pause = float(os.environ.get("SLEEP_SECONDS", "6"))
 
-    listing, _ = _call(base, key, "/v1/models")
+    listing, _ = _call(base, key, "/v1/models", request_timeout(time.time()))
     served = {entry.get("id") for entry in listing.get("data", [])}
     print(f"[INFO] gateway answered /v1/models, serving {sorted(served)}")
 
@@ -352,8 +379,8 @@ def main() -> int:
             print(f"[OK]   '{chat_model}' answered: {answer[:60]}")
         except RuntimeError as exc:
             failures.append(
-                f"'{chat_model}' is published but answered nothing after "
-                f"{retries} attempts; last failure: {exc}"
+                f"'{chat_model}' is published but answered nothing; "
+                f"last failure: {exc}"
             )
 
     router_alias = os.environ.get("ROUTER_ALIAS", "").strip()
