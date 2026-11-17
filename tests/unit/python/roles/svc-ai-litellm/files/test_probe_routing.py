@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import unittest
 from typing import ClassVar
+from unittest import mock
 
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -332,9 +334,55 @@ class TestRouteVerdict(unittest.TestCase):
         self.assertEqual(self.verdict("ollama/large"), "")
 
 
-SHIPPED_MIN_CHARS_PER_TOKEN = load_yaml(
+SHIPPED_LITELLM = load_yaml(
     PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
-)["litellm"]["router"]["min_chars_per_token"]
+)["litellm"]
+SHIPPED_MIN_CHARS_PER_TOKEN = SHIPPED_LITELLM["router"]["min_chars_per_token"]
+SHIPPED_UPSTREAM_TIMEOUT = SHIPPED_LITELLM["upstream_timeout"]
+
+
+def gateway(body: dict, headers: dict | None = None):
+    response = mock.MagicMock()
+    response.__enter__.return_value.read.return_value = json.dumps(body).encode()
+    response.__enter__.return_value.headers = headers or {}
+    return mock.patch.object(probe.urllib.request, "urlopen", return_value=response)
+
+
+def upstream_timeout():
+    return mock.patch.dict(
+        probe.os.environ, {"UPSTREAM_TIMEOUT": str(SHIPPED_UPSTREAM_TIMEOUT)}
+    )
+
+
+class TestGatewayResponse(unittest.TestCase):
+    ROUTED: ClassVar[dict] = {
+        "model": "auto",
+        "choices": [{"message": {"content": "pong"}}],
+        "usage": {"prompt_tokens": 8206},
+    }
+
+    def test_the_route_is_read_from_the_model_group_header(self) -> None:
+        with (
+            upstream_timeout(),
+            gateway(self.ROUTED, {"x-litellm-model-group": "llama3.2:1b"}),
+        ):
+            _, served, _ = probe._completion("http://127.0.0.1:4000", "k", "auto", 1, 0)
+        self.assertEqual(
+            served,
+            "llama3.2:1b",
+            "litellm restamps the body's model to the alias the client asked "
+            "for, so only the model group header shows where the hook routed",
+        )
+
+    def test_the_client_waits_as_long_as_every_route_waits_upstream(self) -> None:
+        with upstream_timeout(), gateway({"data": []}) as urlopen:
+            probe._call("http://127.0.0.1:4000", "k", "/v1/models")
+        self.assertEqual(
+            urlopen.call_args.kwargs["timeout"],
+            SHIPPED_UPSTREAM_TIMEOUT,
+            "a client that gives up before the gateway re-sends while the "
+            "backend still evaluates the abandoned prompt",
+        )
 
 
 class TestOversizedPrompt(unittest.TestCase):

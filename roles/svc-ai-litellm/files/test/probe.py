@@ -22,7 +22,9 @@ Env (rendered into test.env from templates/test.env.j2):
     LMSTUDIO_ENABLED   true|false
     MIN_CHARS_PER_TOKEN the hook's own characters-per-token floor, so the probe
                        sizes its prompt against the number the hook will use
-    RETRIES            completion attempts (default 10)
+    UPSTREAM_TIMEOUT   seconds every route waits upstream (LITELLM_UPSTREAM_TIMEOUT),
+                       also the probe's own wait per request
+    RETRIES           completion attempts (default 10)
     SLEEP_SECONDS      wait between attempts (default 6)
 """
 
@@ -131,9 +133,9 @@ def _call(base: str, key: str, path: str, payload: dict | None = None):
         },
     )
     with urllib.request.urlopen(  # noqa: S310 - literal http:// to loopback
-        request, timeout=120
+        request, timeout=float(os.environ["UPSTREAM_TIMEOUT"])
     ) as response:
-        return json.loads(response.read().decode() or "{}")
+        return json.loads(response.read().decode() or "{}"), response.headers
 
 
 def _completion(
@@ -147,14 +149,15 @@ def _completion(
     """The answer, the model that produced it, and the tokens it counted.
 
     The second element is what makes a router observable: the request names an
-    alias, the response names whatever the pre-call hook rewrote it to. The
+    alias, the x-litellm-model-group header names whatever the pre-call hook
+    rewrote it to, while the body's model is restamped to the alias. The
     third is the backend's own prompt token count, the only number here that
     does not come from this deployment's own declarations.
     """
     last_error = "no attempt ran"
     for attempt in range(1, retries + 1):
         try:
-            completion = _call(
+            completion, headers = _call(
                 base,
                 key,
                 "/v1/chat/completions",
@@ -170,7 +173,7 @@ def _completion(
                 usage = completion.get("usage") or {}
                 return (
                     answer,
-                    str(completion.get("model") or ""),
+                    str(headers.get("x-litellm-model-group") or ""),
                     int(usage.get("prompt_tokens") or 0),
                 )
             last_error = "empty content"
@@ -327,7 +330,7 @@ def main() -> int:
     # nocheck: environ-get-default  likewise unlisted in test.sh's -e set; the wait between attempts is the probe's own
     pause = float(os.environ.get("SLEEP_SECONDS", "6"))
 
-    listing = _call(base, key, "/v1/models")
+    listing, _ = _call(base, key, "/v1/models")
     served = {entry.get("id") for entry in listing.get("data", [])}
     print(f"[INFO] gateway answered /v1/models, serving {sorted(served)}")
 
