@@ -31,7 +31,7 @@ config:
     http_request_timeout: 5
     identity_key: "{{ OIDC.ATTRIBUTES.USERNAME }}"
     nickname_key: "{{ OIDC.ATTRIBUTES.USERNAME }}"
-    email_format: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+    email_format: "{{ '{' ~ OIDC.ATTRIBUTES.EMAIL ~ '}' }}"
     displayname_format: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }} {{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
-    identify_with_username: true
+    identify_with_username: false
     state_time_limit: 180
