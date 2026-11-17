@@ -123,8 +123,6 @@ class TestVerifyBackup(unittest.TestCase):
 
 
 class TestDumpPayload(unittest.TestCase):
-    """A dump counts by what it holds, compressed or plain."""
-
     def assert_payload(self, result: subprocess.CompletedProcess[str]) -> None:
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("OK: backup payload present", result.stdout)

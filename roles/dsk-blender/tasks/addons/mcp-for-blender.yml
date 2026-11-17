@@ -21,16 +21,14 @@
   changed_when: "'installed package' in (blender_mcp_install.stdout | lower)"
   when: (blender_mcp_distribution ~ ' ' ~ blender_mcp_version) not in blender_mcp_pipx_list.stdout_lines
 
-- name: 📁 Let Blender name and create its user addons directory
+- name: 📁 Name the user addons directory of the Blender on PATH
   ansible.builtin.command:
     argv:
+      - python3
+      - "-"
       - blender
-      - --background
-      - --python-expr
-      - >-
-        import bpy;
-        print('ADDONS=' + bpy.utils.user_resource('SCRIPTS', path='addons', create=True))
-  register: blender_addons_probe
+    stdin: "{{ lookup('file', 'python/user_addons_dir.py') }}"
+  register: blender_addons_dir
   changed_when: false
 
 - name: 🔎 Fingerprint the Blender side of the MCP bridge before installing it

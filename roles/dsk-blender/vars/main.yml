@@ -11,7 +11,7 @@ blender_mcp_version: "{{ lookup('config', application_id, 'addons.mcp-for-blende
 blender_mcp_command: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.command') }}"
 blender_mcp_bin: "{{ [blender_pipx_bin_dir, blender_mcp_command] | path_join }}"
 blender_mcp_addon_module: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.module') }}"
-blender_mcp_addons_dir: "{{ blender_addons_probe.stdout | regex_search('ADDONS=(\\S+)', '\\1') | first }}"
+blender_mcp_addons_dir: "{{ blender_addons_dir.stdout }}"
 blender_mcp_addon_file: "{{ [blender_mcp_addons_dir, blender_mcp_addon_module ~ '.py'] | path_join }}"
 blender_mcp_server_name: "{{ lookup('config', application_id, 'addons.mcp-for-blender.config.server_name') }}"
 blender_mcp_claude_enabled: "{{ lookup('config', application_id, 'services.claude.enabled') | bool }}"

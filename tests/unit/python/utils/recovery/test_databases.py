@@ -240,8 +240,6 @@ class TestGenerationLayout(TestCase):
 
 
 class TestPasswordTransport(TestCase):
-    """The argv core builds, fed to baudolo-restore's own CLI."""
-
     PASSWORD = "s3 cr'et\n"
 
     def setUp(self):

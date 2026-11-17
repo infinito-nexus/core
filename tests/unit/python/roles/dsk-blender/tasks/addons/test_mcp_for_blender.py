@@ -1,10 +1,5 @@
-import io
 import json
-import sys
-import types
 import unittest
-import unittest.mock as mock
-from contextlib import redirect_stdout
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
@@ -20,7 +15,6 @@ from utils.templating.ansible import _trust_as_template
 
 ROLE = PROJECT_ROOT / "roles/dsk-blender"
 ADDONS = "/home/alice/.config/blender/5.2/scripts/addons"
-BANNER = "Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-22 17:10:25)\n"
 
 
 def _yaml(relative):
@@ -46,26 +40,22 @@ def _holds(condition, **variables):
     return _render("{{ (" + condition + ") | bool }}", **variables)
 
 
-def _probe_stdout():
-    expression = _task("user addons directory")["ansible.builtin.command"]["argv"][-1]
-    bpy = types.SimpleNamespace(
-        utils=types.SimpleNamespace(user_resource=lambda kind, path, create: ADDONS)
-    )
-    out = io.StringIO()
-    with mock.patch.dict(sys.modules, {"bpy": bpy}), redirect_stdout(out):
-        exec(expression, {})
-    return out.getvalue() + BANNER
-
-
 def _codex_list(*names):
     return {"stdout": json.dumps([{"name": name} for name in names])}
 
 
 class TestAddonActivation(unittest.TestCase):
-    def test_addons_dir_survives_the_banner_blender_prints_after_the_probe(self):
+    def test_addons_dir_is_named_by_the_role_script_without_starting_a_flatpak(self):
+        command = _task("user addons directory")["ansible.builtin.command"]
+        self.assertEqual(command["argv"], ["python3", "-", "blender"])
+        self.assertEqual(
+            command["stdin"], "{{ lookup('file', 'python/user_addons_dir.py') }}"
+        )
+
+    def test_addons_dir_is_the_path_the_role_script_prints(self):
         resolved = _render(
             _yaml(ROLE_FILE_VARS_MAIN)["blender_mcp_addons_dir"],
-            blender_addons_probe={"stdout": _probe_stdout()},
+            blender_addons_dir={"stdout": ADDONS},
         )
         self.assertEqual(resolved, ADDONS)
 

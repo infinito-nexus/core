@@ -92,8 +92,7 @@ def layout_of(generation_dir: Path | str) -> dict[str, str]:
 
 
 def dump_suffixes(suffix: str) -> tuple[str, ...]:
-    """Every name ending a dump stated as *suffix* is found under.
-
+    """
     Args:
         suffix: a ``dump_suffix`` or ``cluster_suffix`` of a layout.
 

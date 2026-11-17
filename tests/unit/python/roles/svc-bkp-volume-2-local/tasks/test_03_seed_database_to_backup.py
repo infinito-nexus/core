@@ -1,19 +1,12 @@
-"""03_seed-database-to-backup.yml hands baudolo-seed its password on stdin.
-
-The two tasks are rendered as Ansible renders them, and the argv and stdin they
-give the command module are fed to baudolo-seed's own CLI, so the test fails
-when either side of the contract moves.
-"""
-
 from __future__ import annotations
 
 import io
 import sys
 import tempfile
 import unittest
-import unittest.mock as mock
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from baudolo.databases import read_rows
 from baudolo.seed import __main__ as seed_cli
@@ -40,8 +33,7 @@ def _task(name: str) -> dict:
 
 
 def _render(password: str, csv: Path) -> tuple[list[str], str, dict]:
-    """``(argv, stdin, facts)`` the two tasks produce for one consumer.
-
+    """
     Args:
         password: the consumer's ``database_password``.
         csv: stands in for ``FILE_DATABASE_SECRETS``.
@@ -81,10 +73,17 @@ def _render(password: str, csv: Path) -> tuple[list[str], str, dict]:
 
 
 def _seed(argv: list[str], stdin: str) -> str:
-    """Run baudolo-seed's CLI with *argv* and *stdin*; return its stderr."""
+    """
+    Args:
+        argv: the baudolo-seed call.
+        stdin: text the call reads from stdin.
+
+    Returns:
+        The call's stderr.
+    """
     with (
-        mock.patch.object(sys, "argv", argv),
-        mock.patch.object(sys, "stdin", io.StringIO(stdin)),
+        patch.object(sys, "argv", argv),
+        patch.object(sys, "stdin", io.StringIO(stdin)),
         redirect_stdout(io.StringIO()),
         redirect_stderr(io.StringIO()) as stderr,
     ):

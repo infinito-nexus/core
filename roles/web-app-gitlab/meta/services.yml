@@ -91,7 +91,7 @@ webservice:
   backup:
     stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
-  version: v19.5.5
+  version: v19.5.6
   name: gitlab-webservice
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
@@ -112,7 +112,7 @@ sidekiq:
     flavor: tcp
     path: liveness
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce
-  version: v19.5.5
+  version: v19.5.6
   name: gitlab-sidekiq
   cpus: "1.0"
   mem_reservation: 2g
@@ -125,7 +125,7 @@ workhorse:
   backup:
     stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
-  version: v19.5.5
+  version: v19.5.6
   name: gitlab-workhorse
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
@@ -141,7 +141,7 @@ gitaly:
   # nocheck: default-placement-manager  the repositories live on a node-local volume (meta/volumes.yml nfs: false, gitaly does not support NFS), which a reschedule leaves behind on the old node
   placement: manager
   image: registry.gitlab.com/gitlab-org/build/cng/gitaly
-  version: v19.5.5
+  version: v19.5.6
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
   name: gitlab-gitaly
@@ -156,7 +156,7 @@ shell:
   backup:
     stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-shell
-  version: v19.5.5
+  version: v19.5.6
   name: gitlab-shell
   ports:
     internal:
@@ -171,7 +171,7 @@ migrations:
   # nocheck: single-replica
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce
-  version: v19.5.5
+  version: v19.5.6
   name: gitlab-migrations
   cpus: "1.0"
   mem_reservation: 1g

@@ -160,7 +160,14 @@ def dumps_of(generation_dir: Path) -> tuple[list[Dump], list[Cluster]]:
 
 
 def _stem(name: str, suffixes: tuple[str, ...]) -> str | None:
-    """*name* without the first of *suffixes* it ends in, None for none."""
+    """
+    Args:
+        name: a dump file name.
+        suffixes: the suffixes a dump of that kind may carry, first match wins.
+
+    Returns:
+        *name* without the first of *suffixes* it ends in, None for none.
+    """
     for suffix in suffixes:
         if name.endswith(suffix):
             return name[: -len(suffix)]
@@ -310,10 +317,15 @@ def cluster_argv(
 
 
 def _restore(argv: list[str], password: str) -> str:
-    """Run one baudolo-restore call with the password on its stdin.
+    """
+    Args:
+        argv: one baudolo-restore call carrying ``--db-password-stdin``.
+        password: sent on stdin followed by one newline, which
+            ``--db-password-stdin`` strips again, so a password that itself
+            ends in a newline stays intact.
 
-    ``--db-password-stdin`` strips one trailing newline, so the newline sent
-    after the password keeps a password that itself ends in one intact.
+    Returns:
+        The call's output.
     """
     return recovery_docker._run(argv, secret=password, stdin=f"{password}\n")
 

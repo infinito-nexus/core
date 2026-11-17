@@ -192,8 +192,6 @@ class TestLayoutNamesStayInsideTheGeneration(unittest.TestCase):
 
 
 class TestDumpSuffixes(unittest.TestCase):
-    """A dump is found compressed or plain, as ``baudolo-restore`` looks for it."""
-
     def test_a_compressed_name_also_finds_the_plain_one(self) -> None:
         self.assertEqual(
             manifest.dump_suffixes(".backup.sql.gz"), (".backup.sql.gz", ".backup.sql")

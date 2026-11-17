@@ -39,7 +39,7 @@ espocrm:
     swarm:
       enabled: true
   image: espocrm/espocrm
-  version: "10.1.1"
+  version: "10.1.2"
   custom: true
   name: espocrm
   min_storage: 470MB

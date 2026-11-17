@@ -28,12 +28,11 @@ from typing import TYPE_CHECKING
 
 from utils.cache.files import read_text
 
-from . import PROJECT_ROOT
+from . import PROJECT_ROOT, TARGET_RE
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-_TARGET_RE = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9_-]*)\s*:")
 _COMMENT_RE = re.compile(r"^\s*#")
 _NOCHECK_RE = re.compile(r"^\s*#\s*nocheck\s*:")
 _SCHEMA_RE = re.compile(
@@ -70,7 +69,7 @@ def _scan_file(path: Path) -> list[_Violation]:
     lines = read_text(str(path)).splitlines()
     out: list[_Violation] = []
     for index, line in enumerate(lines):
-        match = _TARGET_RE.match(line)
+        match = TARGET_RE.match(line)
         if match is None:
             continue
         block = _comment_block_above(lines, index)

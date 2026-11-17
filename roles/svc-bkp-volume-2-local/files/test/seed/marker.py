@@ -159,11 +159,7 @@ def each_database(generation_dir: Path):
 
 
 def in_file(path: Path, token: str) -> bool:
-    """Whether a token appears anywhere in a dump, without holding it in memory.
-
-    Read through baudolo's own reader, which decompresses a gzip dump and
-    passes a plain one through, so both a baudolo 8 dump and an older one count.
-    """
+    """Whether a token appears anywhere in a dump, without holding it in memory."""
     with io.TextIOWrapper(
         open_dump(str(path)), encoding="utf-8", errors="replace"
     ) as handle:
