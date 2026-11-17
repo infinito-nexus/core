@@ -1,11 +1,13 @@
 import contextlib
 import io
 import json
+import socket
 import subprocess
 import sys
 import tempfile
 import types
 import unittest
+from itertools import product
 from pathlib import Path
 
 from utils.cache.files import read_text
@@ -18,7 +20,12 @@ SCRIPT = (
 LDAP_MODULES_DIR = (
     PROJECT_ROOT / "roles" / "svc-db-openldap" / "files" / "python" / "ldap"
 )
-DEPLOYED_LDAP_MODULES = {"ldap_client": "client.py", "ldap_mailbox": "mailbox.py"}
+DEPLOYED_MODULES = {
+    "ldap_client": LDAP_MODULES_DIR / "client.py",
+    "ldap_mailbox": LDAP_MODULES_DIR / "mailbox.py",
+    "backup_maintenance": PROJECT_ROOT
+    / "roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py",
+}
 LDAP = {
     "uri": "ldap://127.0.0.1:389",
     "users_dn": "ou=users,dc=example,dc=org",
@@ -27,6 +34,8 @@ LDAP = {
 }
 ALICE = {"username": "alice", "email": "alice@example.org", "name": "Alice Liddell"}
 CONTAINER_BIN = "/usr/bin/container"
+DIRECTORY = "svc-db-openldap"
+BACKUP_UNTIL = "1970-01-01T01:00:00+00:00"
 MAILBOX = {
     "bind_dn": "cn=administrator,dc=example,dc=org",
     "bind_password": "s3cr3t-bind",
@@ -36,9 +45,8 @@ MAILBOX = {
 
 
 def load_module():
-    for name, source in DEPLOYED_LDAP_MODULES.items():
+    for name, path in DEPLOYED_MODULES.items():
         if name not in sys.modules:
-            path = LDAP_MODULES_DIR / source
             sys.modules[name] = types.ModuleType(name)
             exec(
                 compile(read_text(str(path)), str(path), "exec"),
@@ -47,6 +55,20 @@ def load_module():
     module = types.ModuleType("rbac_sync_script")
     exec(compile(read_text(str(SCRIPT)), str(SCRIPT), "exec"), module.__dict__)
     return module
+
+
+def backup_window(applications, until):
+    """Return a maintenance document of svc-bkp-volume-2-local that started at the epoch.
+
+    Args:
+        applications: the application ids the backup stops.
+        until: the RFC 3339 end of the window; the tests run at 1000 s past the epoch.
+    """
+    return {
+        "applications": applications,
+        "started": "1970-01-01T00:00:00+00:00",
+        "until": until,
+    }
 
 
 def hook(**overrides):
@@ -144,6 +166,8 @@ class Workspace:
             json.dumps(
                 {
                     "container_bin": CONTAINER_BIN,
+                    "directory_host": True,
+                    "maintenance_file": str(self.path / "backup.json"),
                     "timeout_seconds": 5,
                     "refresh_seconds": 100,
                     "ldap": ldap,
@@ -516,6 +540,134 @@ class MainTests(unittest.TestCase):
         self.assertIn("SKIPPED no directory", stdout)
         self.assertEqual(run.calls, [])
 
+    def run_against_socket(self, path, mailbox, directory_host=True, backup=None):
+        """Run the timer against a real ``ldapi`` URI with a hook and its container.
+
+        Args:
+            path: the socket path the URI names.
+            mailbox: the content of ``mailbox.json``, or None for none.
+            directory_host: whether the node is a host of svc-db-openldap.
+            backup: the backup's maintenance document, or None for none.
+
+        Returns:
+            The exit code, stdout, stderr and the stand-in for ``subprocess.run``.
+        """
+        uri = "ldapi://" + str(path).replace("/", "%2F")
+        workspace = Workspace(
+            [hook()],
+            {**LDAP, "uri": uri},
+            mailbox=mailbox,
+            config_extra={"directory_host": directory_host},
+        )
+        if backup is not None:
+            (workspace.path / "backup.json").write_text(json.dumps(backup))
+        run = FakeRun({"name=^/weblate$": "c1"})
+        try:
+            code, stdout, stderr = self.run_main(
+                ["--directory", str(workspace.path)], run, self.mod.Connection
+            )
+        finally:
+            workspace.close()
+        return code, stdout, stderr, run
+
+    def missing_socket(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        return Path(directory.name, "run", "ldapi")
+
+    def test_a_node_outside_svc_db_openldap_skips_in_one_line(self):
+        path = self.missing_socket()
+
+        code, stdout, stderr, run = self.run_against_socket(
+            path, None, directory_host=False
+        )
+
+        self.assertEqual((code, stderr, run.calls), (0, "", []))
+        self.assertEqual(
+            stdout.splitlines(),
+            [
+                (
+                    f"SKIPPED no directory socket at {path} on this node: "
+                    "OpenLDAP runs on another node, no hook runs here"
+                )
+            ],
+        )
+
+    def test_a_host_of_svc_db_openldap_without_the_socket_fails_in_one_line(self):
+        path = self.missing_socket()
+        uri = "ldapi://" + str(path).replace("/", "%2F")
+        other = backup_window(["web-app-openbao"], until=BACKUP_UNTIL)
+        expired = backup_window([DIRECTORY], until="1970-01-01T00:10:00+00:00")
+        for mailbox, backup in product((None, MAILBOX), (None, other, expired)):
+            with self.subTest(mailbox=mailbox is not None, backup=backup):
+                code, stdout, stderr, run = self.run_against_socket(
+                    path, mailbox, backup=backup
+                )
+
+                self.assertEqual((code, stdout, run.calls), (1, "", []))
+                self.assertEqual(
+                    stderr.splitlines(),
+                    [
+                        (
+                            f"FAILED directory {uri} unreachable: SocketMissingError: "
+                            f"no directory socket at {path} on this node"
+                        )
+                    ],
+                )
+
+    def test_a_host_of_svc_db_openldap_skips_while_the_backup_holds_it(self):
+        path = self.missing_socket()
+        backup = backup_window([DIRECTORY, "web-app-openbao"], until=BACKUP_UNTIL)
+        for mailbox in (None, MAILBOX):
+            with self.subTest(mailbox=mailbox is not None):
+                code, stdout, stderr, run = self.run_against_socket(
+                    path, mailbox, backup=backup
+                )
+
+                self.assertEqual((code, stderr, run.calls), (0, "", []))
+                self.assertEqual(
+                    stdout.splitlines(),
+                    [
+                        (
+                            f"SKIPPED no directory socket at {path} on this node: "
+                            f"the backup stopped {DIRECTORY}, no hook runs here"
+                        )
+                    ],
+                )
+
+    def test_an_unreadable_mailbox_seed_is_one_line_and_the_hooks_still_run(self):
+        group = "cn=web-app-weblate-administrator,ou=roles,dc=example,dc=org"
+        directory = StubDirectory({group: [("uid=alice", {"uid": ["alice"]})]})
+        workspace = Workspace([hook()], LDAP)
+        (workspace.path / "mailbox.json").write_text("{not json")
+        run = FakeRun({"name=^/weblate$": "c1"})
+        try:
+            code, _, stderr = self.run_main(
+                ["--directory", str(workspace.path)], run, lambda uri: directory
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual(code, 1)
+        self.assertEqual(len(stderr.splitlines()), 1)
+        self.assertTrue(stderr.startswith("[mailbox] FAILED JSONDecodeError"))
+        self.assertEqual(len(run.runs()), 1)
+
+    def test_a_socket_that_does_not_answer_fails_the_run_in_one_line(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        path = Path(directory.name, "ldapi")
+        stale = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        stale.bind(str(path))
+        stale.close()
+        for mailbox in (None, MAILBOX):
+            with self.subTest(mailbox=mailbox is not None):
+                code, stdout, stderr, run = self.run_against_socket(path, mailbox)
+
+                self.assertEqual((code, stdout, run.calls), (1, "", []))
+                self.assertEqual(len(stderr.splitlines()), 1)
+                self.assertIn("unreachable: ConnectionRefusedError", stderr)
+
     def test_the_deploy_passes_its_own_members_and_needs_the_container(self):
         members = {"administrator": [ALICE], "reviewer": []}
         workspace = Workspace([hook()], None)
@@ -683,21 +835,22 @@ class MailboxTests(unittest.TestCase):
         self.assertEqual(seeder.added, [])
         self.assertTrue(seeder.closed)
 
-    def test_an_unreachable_directory_fails_the_run_but_not_the_hooks(self):
-        hooks_directory = StubDirectory({})
+    def test_an_unreachable_directory_fails_the_run_in_one_line(self):
         attempts = []
 
         def connect(uri):
             attempts.append(uri)
-            if len(attempts) == 1:
-                raise ConnectionRefusedError("refused")
-            return hooks_directory
+            raise ConnectionRefusedError("refused")
 
-        code, _, stderr = self.run_main([], connect, hooks=[hook()])
+        code, stdout, stderr = self.run_main([], connect, hooks=[hook()])
 
-        self.assertEqual(code, 1)
-        self.assertIn("[mailbox] FAILED ConnectionRefusedError", stderr)
-        self.assertTrue(hooks_directory.searches)
+        self.assertEqual((code, stdout, attempts), (1, "", [LDAP["uri"]]))
+        self.assertEqual(
+            stderr.splitlines(),
+            [
+                f"FAILED directory {LDAP['uri']} unreachable: ConnectionRefusedError: refused"
+            ],
+        )
 
     def test_a_concurrent_seed_is_no_failure(self):
         seeder = MailboxDirectory(

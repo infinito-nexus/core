@@ -43,7 +43,7 @@ LDAP:
     DOMAIN: "{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}" # Mapping for public or locale access
     PORT: "{{ _ldap_server_port }}"
     URI: "{{ _ldap_protocol }}://{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}:{{ _ldap_server_port }}"
-    # nocheck: swarm-loopback-port open  host-side readers (the RBAC sync, the Playwright runner's LDAP_URL) bind OpenLDAP on this published loopback port, which swarm drops; 074 :27 tracks it
+    # nocheck: swarm-loopback-port open  host-side readers (the Playwright runner's LDAP_URL) bind OpenLDAP on this published loopback port, which swarm drops; 074 :27 tracks it
     HOST_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}" # Host-side URI, local port
     SOCKET_URI: "ldapi://{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'run', 'ldapi'] | path_join | replace('/', '%2F') }}"
     SECURITY: "" # TLS, SSL - Leave empty for none

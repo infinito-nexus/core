@@ -1,5 +1,9 @@
+import socket
+import tempfile
 import types
 import unittest
+from pathlib import Path
+from urllib.parse import quote
 
 from utils.cache.files import read_text
 
@@ -216,6 +220,49 @@ class LdapClientTests(unittest.TestCase):
     def test_an_unsupported_uri_is_refused_before_connecting(self):
         with self.assertRaises(self.mod.DirectoryError):
             self.mod.Connection("http://openldap:389")
+
+
+class LdapiConnectionTests(unittest.TestCase):
+    def setUp(self):
+        self.mod = load_module()
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        socket_path = Path(directory.name, "run", "ldapi")
+        socket_path.parent.mkdir()
+        self.path = str(socket_path)
+        self.uri = "ldapi://" + quote(self.path, safe="")
+
+    def listen(self):
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.addCleanup(server.close)
+        server.bind(self.path)
+        server.listen(1)
+
+    def test_an_ldapi_uri_connects_to_the_unix_socket_at_its_decoded_path(self):
+        self.listen()
+
+        connection = self.mod.Connection(self.uri)
+        self.addCleanup(connection.close)
+
+        self.assertEqual(connection.socket.family, socket.AF_UNIX)
+        self.assertEqual(connection.socket.getpeername(), self.path)
+        self.assertEqual(connection.socket.gettimeout(), self.mod.TIMEOUT_SECONDS)
+
+    def test_a_missing_socket_says_which_socket_this_node_lacks(self):
+        with self.assertRaises(self.mod.SocketMissingError) as raised:
+            self.mod.Connection(self.uri)
+
+        self.assertEqual(
+            str(raised.exception), f"no directory socket at {self.path} on this node"
+        )
+
+    def test_a_socket_nobody_listens_on_is_refused(self):
+        stale = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        stale.bind(self.path)
+        stale.close()
+
+        with self.assertRaises(ConnectionRefusedError):
+            self.mod.Connection(self.uri)
 
 
 if __name__ == "__main__":

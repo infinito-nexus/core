@@ -25,20 +25,24 @@ import os
 import subprocess
 import sys
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 
+from backup_maintenance import active
 from ldap_client import (
     SCOPE_ONE_LEVEL,
     SUCCESS,
     TYPE_OR_VALUE_EXISTS,
     Connection,
     DirectoryError,
+    SocketMissingError,
     equality,
     present,
 )
 from ldap_mailbox import mailbox_address, sole_login
 
 ALL_ROLES = "*"
+DIRECTORY_APPLICATION = "svc-db-openldap"
 USERS_ROLE = "@users"
 HOOK_FILE = "hook.json"
 LAST_RUN_FILE = "last_run.json"
@@ -352,6 +356,80 @@ def paused(hook):
     return marker.is_file() and marker.read_text(encoding="utf-8").strip() == "stopped"
 
 
+def stopped_for_backup(config, now):
+    """Return whether the backup's maintenance signal holds OpenLDAP stopped at ``now``.
+
+    Args:
+        config: the parsed ``config.json``.
+        now: the current time in seconds.
+
+    Returns:
+        False also for a signal that cannot be read, so the missing socket stays a failure.
+    """
+    moment = datetime.fromtimestamp(now, UTC)
+    try:
+        return DIRECTORY_APPLICATION in active(Path(config["maintenance_file"]), moment)
+    except (OSError, TypeError, ValueError):
+        return False
+
+
+def missing_socket_reason(config, now):
+    """Return why a missing socket is no failure here, or an empty string when it is one.
+
+    Args:
+        config: the parsed ``config.json``.
+        now: the current time in seconds.
+    """
+    if not config["directory_host"]:
+        return "OpenLDAP runs on another node"
+    if stopped_for_backup(config, now):
+        return f"the backup stopped {DIRECTORY_APPLICATION}"
+    return ""
+
+
+def reach_directory(connect, config, now):
+    """Return ``(connection, None)``, or ``(None, exit code)`` after one line saying why not.
+
+    Args:
+        connect: ``ldap_client.Connection`` or a stand-in.
+        config: the parsed ``config.json``.
+        now: the current time in seconds.
+
+    Returns:
+        Exit code 0 where OpenLDAP does not run on this node or is stopped for the
+        backup, 1 for every other directory that does not answer.
+    """
+    uri = config["ldap"]["uri"]
+    try:
+        return connect(uri), None
+    except SocketMissingError as error:
+        reason = missing_socket_reason(config, now)
+        if reason:
+            print(f"SKIPPED {error}: {reason}, no hook runs here")
+            return None, 0
+        failure = error
+    except (DirectoryError, OSError) as error:
+        failure = error
+    print(
+        f"FAILED directory {uri} unreachable: {type(failure).__name__}: {failure}",
+        file=sys.stderr,
+    )
+    return None, 1
+
+
+def read_mailbox(path):
+    """Return ``(mailbox, True)``, or ``(None, False)`` after one line saying why it is unreadable.
+
+    Args:
+        path: the ``mailbox.json`` the deploy wrote.
+    """
+    try:
+        return json.loads(path.read_text(encoding="utf-8")), True
+    except (OSError, ValueError) as error:
+        print(f"[mailbox] FAILED {type(error).__name__}: {error}", file=sys.stderr)
+        return None, False
+
+
 def load_hooks(hooks_dir, only):
     """Return ``(hook directory, parsed hook)`` pairs, sorted by application id.
 
@@ -407,16 +485,24 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
     if not ldap:
         print("SKIPPED no directory is deployed, role groups are inventory grants")
         return 0
-    seeded = True
     mailbox_file = directory / MAILBOX_FILE
+    connection, code = reach_directory(connect, config, clock())
+    if connection is None:
+        return code
+    seeded = True
     if mailbox_file.is_file() and not options.only:
+        mailbox, seeded = read_mailbox(mailbox_file)
+    else:
+        mailbox = None
+    if mailbox is not None:
         try:
-            mailbox = json.loads(mailbox_file.read_text(encoding="utf-8"))
-            seeded = seed_mailboxes(connect(ldap["uri"]), ldap, mailbox)
+            seeded = seed_mailboxes(connection, ldap, mailbox)
         except (DirectoryError, OSError) as error:
             print(f"[mailbox] FAILED {type(error).__name__}: {error}", file=sys.stderr)
             seeded = False
-    connection = connect(ldap["uri"])
+        connection, code = reach_directory(connect, config, clock())
+        if connection is None:
+            return code if seeded else 1
     failed = []
     try:
         for hook_dir, hook in hooks:

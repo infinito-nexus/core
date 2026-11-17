@@ -2,7 +2,7 @@
 
 import socket
 import ssl
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 TIMEOUT_SECONDS = 10
 
@@ -36,6 +36,10 @@ DISCONNECTION_NOTICE_ID = 0
 
 class DirectoryError(Exception):
     """The directory refused an operation or answered something unexpected."""
+
+
+class SocketMissingError(DirectoryError):
+    """No ``ldapi`` socket exists at the path: OpenLDAP does not run on this node."""
 
 
 def encode_length(length):
@@ -182,15 +186,45 @@ def normalize_dn(dn):
     return ",".join(part.strip() for part in dn.split(",")).lower()
 
 
-class Connection:
-    """One LDAPv3 session over a plain or TLS socket; a search before any bind is anonymous.
+def unix_connection(path):
+    """Return a stream socket connected to a Unix domain socket.
 
     Args:
-        uri: ``ldap://`` or ``ldaps://`` URI of the directory.
+        path: the filesystem path of the socket.
+
+    Raises:
+        SocketMissingError: nothing exists at the path.
+        OSError: the socket exists but does not answer.
+    """
+    raw = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        raw.settimeout(TIMEOUT_SECONDS)
+        raw.connect(path)
+    except FileNotFoundError as error:
+        raw.close()
+        raise SocketMissingError(
+            f"no directory socket at {path} on this node"
+        ) from error
+    except OSError:
+        raw.close()
+        raise
+    return raw
+
+
+class Connection:
+    """One LDAPv3 session over a plain, TLS or Unix domain socket; a search before any bind is anonymous.
+
+    Args:
+        uri: ``ldap://`` or ``ldaps://`` URI of the directory, or ``ldapi://``
+            with the percent-encoded path of its Unix domain socket.
     """
 
     def __init__(self, uri):
         parts = urlsplit(uri)
+        self.message_id = 0
+        if parts.scheme == "ldapi" and parts.netloc:
+            self.socket = unix_connection(unquote(parts.netloc))
+            return
         if parts.scheme not in ("ldap", "ldaps") or not parts.hostname:
             raise DirectoryError(f"unsupported directory URI {uri!r}")
         port = parts.port or (636 if parts.scheme == "ldaps" else 389)
@@ -200,7 +234,6 @@ class Connection:
                 raw, server_hostname=parts.hostname
             )
         self.socket = raw
-        self.message_id = 0
 
     def close(self):
         self.socket.close()

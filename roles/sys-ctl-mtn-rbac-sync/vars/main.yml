@@ -2,8 +2,10 @@
 system_service_id: sys-ctl-mtn-rbac-sync
 RBAC_SYNC_HOOKS_DIR: "{{ [ DIR_RBAC_SYNC, 'hooks' ] | path_join }}"
 RBAC_SYNC_SCRIPT_DIR: "{{ [ DIR_SCRIPTS_SYSTEMCTL, system_service_id ] | path_join }}"
-RBAC_SYNC_LDAP_ENABLED: "{{ 'svc-db-openldap' in group_names }}"
-RBAC_SYNC_LDAP_URI: "{{ LDAP.SERVER.HOST_URI }}"
+RBAC_SYNC_LDAP_ENABLED: "{{ STACK_HOST in (groups['svc-db-openldap'] | default([])) }}"
+RBAC_SYNC_LDAP_URI: "{{ LDAP.SERVER.SOCKET_URI }}"
+RBAC_SYNC_DIRECTORY_HOST: "{{ 'svc-db-openldap' in group_names }}"
+RBAC_SYNC_TIMER_ENABLED: "{{ (RBAC_SYNC_LDAP_ENABLED | bool) and (RBAC_SYNC_DIRECTORY_HOST | bool) }}"
 RBAC_SYNC_MAILBOX_FILE: "{{ [ DIR_RBAC_SYNC, 'mailbox.json' ] | path_join }}"
 RBAC_SYNC_MAILBOX:
   bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
@@ -14,6 +16,8 @@ RBAC_SYNC_HOOK_TIMEOUT_SECONDS: 600
 RBAC_SYNC_REFRESH_SECONDS: 86400
 RBAC_SYNC_CONFIG:
   container_bin: "{{ BIN_CONTAINER }}"
+  directory_host: "{{ RBAC_SYNC_DIRECTORY_HOST | bool }}"
+  maintenance_file: "{{ FILE_MAINTENANCE_BACKUP }}"
   timeout_seconds: "{{ RBAC_SYNC_HOOK_TIMEOUT_SECONDS | int }}"
   refresh_seconds: "{{ RBAC_SYNC_REFRESH_SECONDS | int }}"
   ldap: >-

@@ -21,14 +21,15 @@
     state: directory
     mode: "0755"
 
-- name: "📋 Install the LDAP modules next to the RBAC sync script"
+- name: "📋 Install the LDAP and backup-signal modules next to the RBAC sync script"
   ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/' ~ item.src) }}"
+    src: "{{ lookup('path_absolute', item.src) }}"
     dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, item.dest ] | path_join }}"
     mode: "0644"
   loop:
-    - { src: client.py, dest: ldap_client.py }
-    - { src: mailbox.py, dest: ldap_mailbox.py }
+    - { src: roles/svc-db-openldap/files/python/ldap/client.py, dest: ldap_client.py }
+    - { src: roles/svc-db-openldap/files/python/ldap/mailbox.py, dest: ldap_mailbox.py }
+    - { src: roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py, dest: backup_maintenance.py }
 
 - name: "🧾 Write the RBAC sync configuration"
   ansible.builtin.copy:
@@ -43,7 +44,7 @@
   include_role:
     name: sys-service
   vars:
-    system_service_timer_enabled: "{{ RBAC_SYNC_LDAP_ENABLED | bool }}"
+    system_service_timer_enabled: "{{ RBAC_SYNC_TIMER_ENABLED | bool }}"
     system_service_on_calendar: "{{ SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC }}"
     system_service_tpl_exec_start: "{{ system_service_script_exec }} --directory {{ DIR_RBAC_SYNC }}"
 
