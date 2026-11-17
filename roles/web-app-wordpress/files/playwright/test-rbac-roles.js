@@ -30,6 +30,7 @@ exports.register = function (shared) {
       );
       const groupPath = `${shared.env.rbacGroupPathPrefix}${role}`;
       let biberAddedToGroup = false;
+      let biberEmail;
 
       // Each identity runs in its own isolated context so WP session
       // cookies, Keycloak SSO cookies, and OIDC post-logout redirect
@@ -64,6 +65,12 @@ exports.register = function (shared) {
             shared.env.keycloakBaseUrl,
             shared.env.realmName,
             groupPath,
+            shared.env.biberUsername
+          );
+          biberEmail = await shared.keycloakUserEmail(
+            adminKc.page.context().request,
+            shared.env.keycloakBaseUrl,
+            shared.env.realmName,
             shared.env.biberUsername
           );
         } finally {
@@ -107,6 +114,15 @@ exports.register = function (shared) {
             rowText.includes(expectedLabel),
             `biber's row on /wp-admin/users.php MUST show WordPress role "${expectedLabel}" after OIDC login; row text: ${rowText}`
           ).toBe(true);
+          const emailCell = biberRow.locator("td.column-email");
+          await expect(
+            emailCell,
+            `biber's row on /wp-admin/users.php MUST NOT show the literal "email" instead of the Keycloak email`
+          ).not.toHaveText(/^\s*email\s*$/i);
+          await expect(
+            emailCell,
+            `biber's row on /wp-admin/users.php MUST show the Keycloak email "${biberEmail}"`
+          ).toHaveText(biberEmail, { timeout: resolveTimeout(30_000) });
         } finally {
           await wpAdmin.ctx.close().catch(() => {});
         }
