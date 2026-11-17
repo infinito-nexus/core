@@ -406,6 +406,27 @@ class MainTests(unittest.TestCase):
         self.assertNotIn("admin", " ".join(argv))
         self.assertTrue(directory.closed)
 
+    def test_a_hook_value_that_is_no_string_reaches_the_process_as_text(self):
+        workspace = Workspace(
+            [hook(env={"WEBLATE_PORT": 8080, "WEBLATE_LDAP_SYNC": True})], LDAP
+        )
+        run = FakeRun({"name=^/weblate$": "c1"})
+        try:
+            code, _, _ = self.run_main(
+                ["--directory", str(workspace.path)], run, lambda uri: StubDirectory({})
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual(code, 0)
+        env = run.runs()[0][1]["env"]
+        self.assertEqual(
+            (env["WEBLATE_PORT"], env["WEBLATE_LDAP_SYNC"]),
+            ("8080", "true"),
+            "hook.json keeps the native type of a templated value such as a port, "
+            "and subprocess refuses any environment value that is not a string",
+        )
+
     def test_a_host_hook_runs_its_script_beside_its_modules_with_the_container_id(self):
         host_hook = hook(
             application_id="web-app-mattermost",

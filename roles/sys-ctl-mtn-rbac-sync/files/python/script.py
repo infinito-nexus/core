@@ -315,7 +315,10 @@ def run_hook(config, hook_dir, hook, members, required, run, now):
             return "failed"
         print(f"[{application_id}] SKIPPED no running container on this node")
         return "skipped"
-    forwarded = {**hook["env"], **members_env(hook, members)}
+    forwarded = {
+        name: value if isinstance(value, str) else json.dumps(value)
+        for name, value in {**hook["env"], **members_env(hook, members)}.items()
+    }
     argv, stdin, extra = invocation(config, hook_dir, hook, cid, forwarded)
     result = run(
         argv,
