@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.env.handlers.infinito.cache.paths import base
+from utils.env.handlers.infinito.cache.paths import resolve
 
 if TYPE_CHECKING:
     from utils.env.context import BuildContext, EnvBuilder
@@ -17,4 +17,5 @@ SEGMENT = "tools"
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     eb.setdefault(GRACE_KEY, GRACE, comment=GRACE_COMMENT)
-    eb.setdefault(STAMP_DIR_KEY, str(base() / SEGMENT), comment=STAMP_COMMENT)
+    stamps = resolve(eb, ctx.repo_root) / SEGMENT
+    eb.setdefault(STAMP_DIR_KEY, str(stamps), comment=STAMP_COMMENT)

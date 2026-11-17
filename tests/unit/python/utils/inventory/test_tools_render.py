@@ -3,9 +3,10 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from utils.cache.files import read_text
+from utils.env.handlers.infinito.cache.paths import BASE_KEY
+from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
 from utils.inventory import tools_vars
 
 MARKUP = "/models/<a & 'b'>\""
@@ -24,8 +25,8 @@ class TestRender(unittest.TestCase):
             template = root / tools_vars.TEMPLATE
             template.parent.mkdir(parents=True)
             template.write_text(TEMPLATE, encoding="utf-8")
-            with patch.object(tools_vars, "models_dir", return_value=MARKUP):
-                rendered = read_text(str(tools_vars.render(root, ["en", "de"])))
+            lane = {BASE_KEY: "/srv/cache", MODELS_KEY: MARKUP}
+            rendered = read_text(str(tools_vars.render(root, ["en", "de"], lane)))
         self.assertIn(f'models: "{MARKUP}"', rendered)
         self.assertIn("languages: de,en", rendered)
         self.assertIn(f"key: {tools_vars.API_KEY}", rendered)

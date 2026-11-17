@@ -9,14 +9,14 @@ copy instead of dragging gigabytes across a shared filesystem.
 The lane's inner docker resolves a bind against the runner's filesystem, so
 the path stays below the cache base ``compose/infra.yml`` mounts into the infra
 runner under the same name, and ``inventories/development/tools.yml.j2``
-points the roles at it.
+points the roles and their model store at it.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.env.handlers.infinito.cache.paths import base
+from utils.env.handlers.infinito.cache import paths
 
 if TYPE_CHECKING:
     from utils.env.context import BuildContext, EnvBuilder
@@ -26,10 +26,6 @@ COMMENT = "Node-local directory the tools lane keeps its downloaded models in."
 SEGMENT = "models"
 
 
-def default() -> str:
-    """Return the models directory below the cache base the SPOT defines."""
-    return str(base() / SEGMENT)
-
-
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
-    eb.setdefault(KEY, default(), comment=COMMENT)
+    models = paths.resolve(eb, ctx.repo_root) / SEGMENT
+    eb.setdefault(KEY, str(models), comment=COMMENT)

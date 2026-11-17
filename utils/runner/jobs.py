@@ -6,13 +6,13 @@ import fcntl
 import json
 import re
 import secrets
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-from utils.paths import read_group_path
+from utils.env.handlers.infinito.cache.paths import machine
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
+    from pathlib import Path
     from typing import TextIO
 
 QUEUED = "queued"
@@ -69,10 +69,11 @@ def parse_duration(value: str) -> int:
 def queue_root() -> Path:
     """Return the machine-wide queue every checkout submits to.
 
-    It sits beside ``DIR_CACHE``, not below it, so neither ``make cache-evict``
-    nor ``make clean-cache`` ever touches a job record.
+    It sits beside the machine-wide cache base, not below it, so neither
+    ``make cache-evict`` nor ``make clean-cache`` ever touches a job record,
+    and like the infra lock it stays put when a shell exports another base.
     """
-    return Path(read_group_path("DIR_CACHE")).parent / "jobs"
+    return machine().parent / "jobs"
 
 
 def _jobs(root: Path) -> Path:

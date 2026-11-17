@@ -18,6 +18,8 @@ from plugins.filter.litellm.local_model import (
 )
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml, load_yaml_any
+from utils.env.handlers.infinito.cache.paths import BASE_KEY
+from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
 from utils.inventory.tools_vars import RENDERED, TEMPLATE, render
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 from utils.templating.ansible import _trust_as_template
@@ -49,7 +51,8 @@ def _rendered_tools(root: Path) -> Any:
     with tempfile.TemporaryDirectory() as scratch:
         (Path(scratch) / TEMPLATE).parent.mkdir(parents=True)
         shutil.copy(root / TEMPLATE, Path(scratch) / TEMPLATE)
-        return load_yaml_any(str(render(Path(scratch), ["en"])))
+        lane = {BASE_KEY: "/srv/cache", MODELS_KEY: "/srv/cache/models"}
+        return load_yaml_any(str(render(Path(scratch), ["en"], lane)))
 
 
 def _rendered(templar: Templar, value: Any) -> Any:

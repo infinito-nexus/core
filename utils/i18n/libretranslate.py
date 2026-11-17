@@ -210,7 +210,7 @@ def baked_languages(root: Path) -> list[str]:
     return sorted({PIVOT_LANGUAGE, *served_languages(root)})
 
 
-def _vars_file(root: Path) -> Path:
+def _vars_file(root: Path, loaded: dict[str, str]) -> Path:
     """Write the lane's host vars pinning which models the image bakes.
 
     ``load_only`` reaches the Dockerfile as a build ARG, so a value that
@@ -219,11 +219,13 @@ def _vars_file(root: Path) -> Path:
 
     Args:
         root: repository root.
+        loaded: the environment the infra runner starts with, whose cache
+            base the rendered paths must lie below.
 
     Returns:
         The rendered file, beside the template so the container sees it.
     """
-    return render(root, baked_languages(root))
+    return render(root, baked_languages(root), loaded)
 
 
 def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
@@ -249,7 +251,7 @@ def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
     compose = infra_compose_argv(root, [ROOTS_OVERRIDE])
     steps = [
         list(INFRA_UP),
-        *deploy_commands(compose, root, _vars_file(root), INVENTORY_DIR, roles),
+        *deploy_commands(compose, root, _vars_file(root, loaded), INVENTORY_DIR, roles),
     ]
     for step in steps:
         subprocess.run(

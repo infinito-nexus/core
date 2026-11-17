@@ -17,7 +17,7 @@ s1:
   custom: true
   name: s1
   model_alias: s1-latest
-  models_dir: "{{ [DIR_CACHE, 'models', 's1'] | path_join }}"
+  models_dir: "{{ [AI_MODELS_STORE_PATH, 's1'] | path_join }}"
   request_timeout: 20
   gpu: true
   flavor: laya

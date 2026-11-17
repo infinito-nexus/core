@@ -75,7 +75,7 @@ STALWART_WEBMAIL_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.
 
 STALWART_WEBUI_VERSION: "{{ lookup('config', application_id, 'services.stalwart.webui_version') }}"
 STALWART_WEBUI_RESOURCE_URL: "https://github.com/stalwartlabs/webui/releases/download/{{ STALWART_WEBUI_VERSION }}/webui.zip"
-STALWART_WEBUI_CACHE_FILE: "/var/cache/infinito/core/cache/package/stalwart-webui/webui-{{ STALWART_WEBUI_VERSION }}.zip"
+STALWART_WEBUI_CACHE_FILE: "{{ [ DIR_CACHE, 'package', 'stalwart-webui', 'webui-' ~ STALWART_WEBUI_VERSION ~ '.zip' ] | path_join }}"
 STALWART_WEBUI_LOCAL_FILE: "{{ [ STALWART_CONFIG_DIR, 'webui.zip' ] | path_join }}"
 STALWART_WEBUI_CONTAINER_FILE: "{{ lookup('volume', application_id, 'webui_bundle').target }}"
 STALWART_WEBUI_LOCAL_URL: "file://{{ STALWART_WEBUI_CONTAINER_FILE }}"

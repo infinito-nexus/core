@@ -3,6 +3,8 @@ from __future__ import annotations
 import io
 import os
 import re
+import shutil
+import subprocess
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -11,17 +13,39 @@ from unittest.mock import patch
 
 from cli.administration.deploy.development.extra_mounts import write_mounts_override
 from cli.administration.infra import __main__ as cli
-from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
+from cli.meta.cache.base import __main__ as base_cli
+from utils.cache.evict import CACHES, FLOOR_KEY, IDLE_KEY, parse_size
+from utils.cache.files import (
+    PROJECT_ROOT,
+    iter_project_files,
+    read_text,
+    repository_files,
+)
 from utils.cache.yaml import load_yaml
+from utils.env.context import BuildContext, EnvBuilder
+from utils.env.handlers.infinito.cache import conf as frontend_conf
+from utils.env.handlers.infinito.cache import paths as cache_paths
+from utils.env.handlers.infinito.cache.paths import BASE_KEY
+from utils.env.handlers.infinito.cache.pin import ROOT_KEY as PIN_ROOT_KEY
+from utils.env.handlers.infinito.tools import idle, models
+from utils.env.handlers.infinito.tools.idle import STAMP_DIR_KEY
+from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
+from utils.env.parser import parse_static_env
 from utils.infra import (
+    BRIDGE_NAME,
     CACHE_SERVICES,
+    LOCK_NAME,
     NETWORK,
+    OWNER_NAME,
+    ROOTS_KEY,
     ROOTS_OVERRIDE,
+    RUNNER_CONTAINER_KEY,
     SERVICE,
     cache_container,
     inner_docker,
     unmounted,
 )
+from utils.inventory import tools_vars
 
 _CACHE_KEY = re.compile(r"INFINITO_CACHE_[A-Z_]+")
 _CACHE_INSPECT = re.compile(r"docker inspect[^\n]*(registry-cache|package-cache)")
@@ -291,6 +315,259 @@ class TestUnmountedHostPathsAreRefused(unittest.TestCase):
             )
 
 
+_WORKSPACE = PROJECT_ROOT / ".github" / "workflows" / "call-test-workspace.yml"
+_MOVED = Path("/mnt/cache")
+
+
+def _derived_env(exported: dict[str, str]) -> tuple[Path, dict[str, str]]:
+    """Args:
+        exported: the INFINITO_* variables a job exports; every guarded path
+            it leaves out derives from the cache base as ``make dotenv`` does.
+
+    Returns:
+        The cache base and the environment ``make infra-up`` then checks.
+    """
+    blank = dict.fromkeys(
+        (
+            BASE_KEY,
+            MODELS_KEY,
+            STAMP_DIR_KEY,
+            *(key for key, _legs, _note in cache_paths.ENTRIES),
+        ),
+        "",
+    )
+    with (
+        tempfile.TemporaryDirectory() as checkout,
+        patch.dict(os.environ, {**blank, **exported}),
+    ):
+        context = BuildContext(
+            static={},
+            static_comments={},
+            repo_root=Path(checkout),
+            on_gha=False,
+            on_act=False,
+        )
+        builder = EnvBuilder()
+        cache_paths.apply(builder, context)
+        idle.apply(builder, context)
+        models.apply(builder, context)
+        frontend_conf.finalize(builder)
+        return Path(builder.values[BASE_KEY]), {**exported, **builder.values}
+
+
+def _workspace_env() -> dict[str, str]:
+    """Returns:
+    The INFINITO_* variables the workspace job exports into its container.
+    """
+    env = load_yaml(_WORKSPACE)["jobs"]["test-workspace"]["env"]
+    return {
+        key: str(value) for key, value in env.items() if key.startswith("INFINITO_")
+    }
+
+
+class TestWorkspaceCachePathsLieBelowTheBase(unittest.TestCase):
+    def test_the_workspace_job_passes_the_mount_guard(self) -> None:
+        exported = _workspace_env()
+        root, env = _derived_env(exported)
+        self.assertEqual(unmounted(root, Path(exported[PIN_ROOT_KEY]), env), [])
+
+    def test_the_workspace_job_keeps_its_caches_on_the_spare_disk(self) -> None:
+        root, env = _derived_env(_workspace_env())
+        self.assertEqual(root, _MOVED)
+        for key, _legs, _note in cache_paths.ENTRIES:
+            self.assertTrue(Path(env[key]).is_relative_to(_MOVED), key)
+
+    def test_the_job_container_sees_the_base_at_its_host_path(self) -> None:
+        workflow = read_text(str(_WORKSPACE))
+        self.assertIn(f"-e {BASE_KEY} \\", workflow)
+        self.assertIn(f'-v "${{{BASE_KEY}}}:${{{BASE_KEY}}}" \\', workflow)
+
+    def test_legs_moved_without_their_base_are_refused(self) -> None:
+        legs = {
+            "INFINITO_CACHE_PACKAGE_HOST_PATH": f"{_MOVED}/package/data",
+            "INFINITO_CACHE_REGISTRY_HOST_PATH": f"{_MOVED}/registry/mirror",
+            "INFINITO_CACHE_REGISTRY_CA_HOST_PATH": f"{_MOVED}/registry/ca",
+            PIN_ROOT_KEY: f"{_MOVED}/pin",
+        }
+        root, env = _derived_env(legs)
+        self.assertEqual(len(unmounted(root, Path(legs[PIN_ROOT_KEY]), env)), 3)
+
+    def test_a_stamp_dir_the_runner_cannot_see_is_refused(self) -> None:
+        pins = f"{_MOVED}/pin"
+        stamps = f"{cache_paths.machine()}/tools"
+        exported = {BASE_KEY: str(_MOVED), STAMP_DIR_KEY: stamps, PIN_ROOT_KEY: pins}
+        root, env = _derived_env(exported)
+        [line] = unmounted(root, Path(pins), env)
+        self.assertIn(f"{STAMP_DIR_KEY}={stamps}", line)
+
+
+def _paths(node: object) -> list[str]:
+    """Args:
+        node: a parsed YAML value.
+
+    Returns:
+        Every absolute path string anywhere inside it.
+    """
+    if isinstance(node, dict):
+        return [path for value in node.values() for path in _paths(value)]
+    if isinstance(node, list):
+        return [path for value in node for path in _paths(value)]
+    return [node] if isinstance(node, str) and node.startswith("/") else []
+
+
+class TestToolsLaneFollowsTheBase(unittest.TestCase):
+    def _rendered(self, exported: dict[str, str]) -> dict:
+        """Args:
+            exported: what the .env the runner starts with sets; the render
+                process itself exports nothing, as outside make.
+
+        Returns:
+            The rendered tools host vars.
+        """
+        _root, env = _derived_env(exported)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            template = root / tools_vars.TEMPLATE
+            template.parent.mkdir(parents=True)
+            shutil.copyfile(PROJECT_ROOT / tools_vars.TEMPLATE, template)
+            blank = dict.fromkeys((BASE_KEY, MODELS_KEY), "")
+            with patch.dict(os.environ, blank):
+                return load_yaml(tools_vars.render(root, ["en"], env))
+
+    def test_the_cache_base_and_the_model_store_follow_the_moved_base(self) -> None:
+        rendered = self._rendered({BASE_KEY: str(_MOVED)})
+        self.assertEqual(
+            [rendered["DIR_CACHE"], rendered["AI_MODELS_STORE_PATH"]],
+            [str(_MOVED), str(_MOVED / "models")],
+        )
+
+    def test_every_path_the_tools_lane_binds_lies_below_the_moved_base(self) -> None:
+        rendered = self._rendered({BASE_KEY: str(_MOVED)})
+        self.assertEqual(
+            [
+                path
+                for path in _paths(rendered)
+                if not Path(path).is_relative_to(_MOVED)
+            ],
+            [],
+        )
+
+    def test_the_model_store_is_the_models_directory_the_guard_checks(self) -> None:
+        rendered = self._rendered(
+            {BASE_KEY: str(_MOVED), MODELS_KEY: f"{_MOVED}/elsewhere"}
+        )
+        self.assertEqual(rendered["AI_MODELS_STORE_PATH"], f"{_MOVED}/elsewhere")
+
+    def test_no_service_pins_a_models_directory_beside_the_store(self) -> None:
+        rendered = self._rendered({BASE_KEY: str(_MOVED)})
+        self.assertEqual(
+            [path for path in _paths(rendered["applications"]) if "models" in path],
+            [],
+        )
+
+    def test_a_render_without_the_runner_environment_fails_loudly(self) -> None:
+        with self.assertRaises(KeyError):
+            tools_vars.render(PROJECT_ROOT, ["en"], {})
+
+
+class TestEveryCacheConsumerDerivesFromTheBase(unittest.TestCase):
+    _SCANNED = ("roles/", "group_vars/", "inventories/", "compose/")
+    _SUFFIXES = (".yml", ".yaml", ".j2")
+    _OWNER = "group_vars/all/05_paths.yml"
+
+    def test_no_role_or_inventory_copies_the_cache_base(self) -> None:
+        spot = str(cache_paths.machine())
+        copies = [
+            rel
+            for rel in repository_files()
+            if rel.startswith(self._SCANNED)
+            and rel.endswith(self._SUFFIXES)
+            and rel != self._OWNER
+            and spot in read_text(str(PROJECT_ROOT / rel))
+        ]
+        self.assertEqual(copies, [])
+
+
+class TestTheLockStaysMachineWide(unittest.TestCase):
+    _GUARDED = (
+        MODELS_KEY,
+        STAMP_DIR_KEY,
+        _CONF,
+        *(key for key, _legs, _note in cache_paths.ENTRIES),
+    )
+
+    def _moved(self) -> dict[str, str]:
+        return {
+            **dict.fromkeys(self._GUARDED, ""),
+            BASE_KEY: str(_MOVED),
+            PIN_ROOT_KEY: f"{_MOVED}/pin",
+        }
+
+    def test_a_moved_base_keeps_the_lock_and_the_marker_in_the_machine_place(
+        self,
+    ) -> None:
+        seen: dict[str, object] = {}
+
+        def record(_argv: list[str], **kwargs: object) -> int:
+            seen.update(kwargs)
+            return 0
+
+        with (
+            patch.dict(os.environ, self._moved()),
+            patch.object(cli, "up", side_effect=record),
+            patch.object(cli, "run_command", return_value=""),
+        ):
+            cli._up(
+                [],
+                Path("/srv/core"),
+                print,
+                recreate=False,
+                takeover=False,
+                bridge=None,
+            )
+        self.assertEqual(seen["lock"], cache_paths.machine() / LOCK_NAME)
+
+    def test_a_moved_base_stops_the_runner_under_the_same_lock(self) -> None:
+        seen: list[Path] = []
+        with (
+            patch.dict(os.environ, self._moved()),
+            patch.object(cli, "_prepare", return_value=([], Path("/srv/core"))),
+            patch.object(
+                cli, "down", side_effect=lambda _c, _r, lock: seen.append(lock) or 0
+            ),
+        ):
+            cli.main(["down"])
+        self.assertEqual(seen, [cache_paths.machine() / LOCK_NAME])
+
+    def test_a_moved_base_reads_the_bridge_record_from_the_machine_place(
+        self,
+    ) -> None:
+        seen: list[Path] = []
+        with (
+            patch.dict(os.environ, {**self._moved(), "INFINITO_IMAGE": "image"}),
+            patch.object(cli, "_resolved", return_value=str(PROJECT_ROOT)),
+            patch.object(cli, "worktree_roots", return_value=[PROJECT_ROOT]),
+            patch.object(cli, "write_mounts_override", return_value="roots.yml"),
+            patch.object(cli, "read_bridge", side_effect=seen.append),
+            patch.object(cli, "infra_compose_argv", return_value=[]),
+        ):
+            cli._prepare(None)
+        self.assertEqual(seen, [cache_paths.machine() / BRIDGE_NAME])
+
+    def test_a_runner_on_another_base_is_compared_by_its_mounts(self) -> None:
+        other = str(cache_paths.machine())
+        mounts = f'[{{"Type": "bind", "Source": "{other}", "Destination": "{other}"}}]'
+        runner = {"INFINITO_INFRA_RUNNER_CONTAINER": "infinito-infra-runner"}
+        with (
+            patch.dict(os.environ, {**self._moved(), **runner}),
+            patch.object(cli, "_running", return_value=True),
+            patch.object(cli, "run_command", return_value=mounts),
+        ):
+            [line] = cli._foreign()
+        self.assertIn(other, line)
+        self.assertIn(str(_MOVED), line)
+
+
 class TestTakeoverRefusal(unittest.TestCase):
     def _refusal(self, names: str | None, *, takeover: bool) -> list[str]:
         with (
@@ -345,6 +622,153 @@ class TestDisabledCacheStackStartsNoInfra(unittest.TestCase):
     def test_an_enabled_cache_stack_prepares_the_runner(self) -> None:
         with self.assertRaisesRegex(AssertionError, "prepared"):
             self._main("up", "true")
+
+
+_PREPARE = "python3 -m cli.meta.cache.base"
+
+
+class TestTheBaseIsPreparedBeforeTheDaemonBindsIt(unittest.TestCase):
+    def test_the_workspace_job_prepares_the_base_before_mounting_it(self) -> None:
+        workflow = read_text(str(_WORKSPACE))
+        mount = workflow.find(f'-v "${{{BASE_KEY}}}:${{{BASE_KEY}}}"')
+        self.assertLess(-1, workflow.find(_PREPARE))
+        self.assertLess(workflow.find(_PREPARE), mount)
+
+    def test_the_preparation_creates_the_base_or_refuses_with_status_2(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            moved = Path(tmp) / "mnt" / "cache"
+            with patch.dict(os.environ, {BASE_KEY: str(moved)}):
+                created = base_cli.main()
+                with (
+                    patch("sys.stderr"),
+                    patch.object(base_cli, "prepare_base", return_value=["no"]),
+                ):
+                    refused = base_cli.main()
+            self.assertEqual([created, refused, moved.is_dir()], [0, 2, True])
+
+
+_DOCKER_STUB = """#!/usr/bin/env bash
+printf '%s\\n' "$*" >>"${DOCKER_LOG}"
+case " $* " in *" up --detach --wait "*) exit 97 ;; esac
+exit 0
+"""
+_RUNNER_START = 97
+_GIB = 1024**3
+_CI_FREE = 117 * _GIB
+
+
+def _dotenv_budget() -> dict[str, str]:
+    """Returns:
+    The cache caps, the idle window and the disk floor ``make dotenv`` copies
+    from default.env.
+    """
+    static = parse_static_env(PROJECT_ROOT / "default.env")
+    keys = (*(spec.cap_key for spec in CACHES), IDLE_KEY, FLOOR_KEY)
+    return {key: static[key] for key in keys}
+
+
+class TestTheWorkspaceJobReachesTheRunnerStart(unittest.TestCase):
+    def _attach(
+        self, exported: dict[str, str], disk: Path, free: int
+    ) -> tuple[int, list[str], str]:
+        """Args:
+            exported: the INFINITO_* variables the job passes into its
+                container, whose ``make dotenv`` derives the rest.
+            disk: stands in for the host filesystem; ``/mnt/cache``, the
+                machine place and the generated roots override move below it.
+            free: the free bytes the disk floor check measures.
+
+        Returns:
+            The exit status of ``python -m cli.administration.infra attach``,
+            which ``make install-lint`` reaches through the test runner, every
+            docker call it made, and its stderr. Only docker is stubbed; it
+            fails the runner start with status 97.
+        """
+        moved = str(disk / "mnt" / "cache")
+        job = {
+            key: value.replace(str(_MOVED), moved) for key, value in exported.items()
+        }
+        _root, env = _derived_env(job)
+        docker = disk / "bin" / "docker"
+        docker.parent.mkdir()
+        docker.write_text(_DOCKER_STUB)
+        docker.chmod(0o755)
+        log = disk / "docker.log"
+        log.touch()
+        runner = {
+            **_dotenv_budget(),
+            **env,
+            "INFINITO_CACHE_STACK": "true",
+            "GITHUB_ACTIONS": "true",
+            "INFINITO_IMAGE": "infinito-nexus-core/debian:ci",
+            "INFINITO_GPU_COUNT": "0",
+            ROOTS_KEY: "",
+            RUNNER_CONTAINER_KEY: "infra-runner",
+            "DOCKER_LOG": str(log),
+            "PATH": f"{docker.parent}{os.pathsep}{os.environ['PATH']}",
+        }
+        with (
+            tempfile.TemporaryFile("w+") as stderr,
+            patch.dict(os.environ, runner),
+            patch.object(cli, "machine", return_value=disk / "var" / "cache"),
+            patch.object(
+                cli,
+                "write_mounts_override",
+                side_effect=lambda _root, *args, **kwargs: write_mounts_override(
+                    disk, *args, **kwargs
+                ),
+            ),
+            patch("utils.infra.free_bytes", return_value=free),
+            patch("sys.stderr", stderr),
+        ):
+            try:
+                code = cli.main(["attach"])
+            except subprocess.CalledProcessError as exc:
+                code = exc.returncode
+            stderr.seek(0)
+            return code, log.read_text().splitlines(), stderr.read()
+
+    def test_the_failing_job_now_passes_every_gate_up_to_the_runner_start(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            disk = Path(tmp)
+            code, calls, _err = self._attach(_workspace_env(), disk, _CI_FREE)
+            marked = (disk / "var" / "cache" / OWNER_NAME).is_file()
+            prepared = (disk / "mnt" / "cache").is_dir()
+        self.assertEqual(
+            [code, calls[-1].split()[-3:], marked, prepared],
+            [_RUNNER_START, ["up", "--detach", "--wait"], True, True],
+        )
+        self.assertIn("system df --format {{json .}}", calls)
+
+    def test_a_disk_below_the_workspace_caps_and_floor_starts_nothing(self) -> None:
+        budget = {**_dotenv_budget(), **_workspace_env()}
+        needed = sum(parse_size(budget[spec.cap_key]) for spec in CACHES)
+        needed += parse_size(budget[FLOOR_KEY])
+        with tempfile.TemporaryDirectory() as tmp:
+            disk = Path(tmp)
+            code, calls, err = self._attach(_workspace_env(), disk, needed - _GIB)
+            prepared = (disk / "mnt" / "cache").exists()
+        self.assertEqual([code, prepared, needed], [2, False, 99 * _GIB])
+        self.assertFalse([call for call in calls if " up " in f" {call} "])
+        self.assertIn(FLOOR_KEY, err)
+
+    def test_the_old_leg_pins_stop_the_job_where_the_ci_log_does(self) -> None:
+        legs = {
+            "INFINITO_CACHE_PACKAGE_HOST_PATH": f"{_MOVED}/package/data",
+            "INFINITO_CACHE_REGISTRY_HOST_PATH": f"{_MOVED}/registry/mirror",
+            "INFINITO_CACHE_REGISTRY_CA_HOST_PATH": f"{_MOVED}/registry/ca",
+            PIN_ROOT_KEY: f"{_MOVED}/pin",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            disk = Path(tmp)
+            with (
+                patch.object(cache_paths, "machine", return_value=disk / "var"),
+                self.assertRaises(SystemExit) as stopped,
+            ):
+                self._attach(legs, disk, _CI_FREE)
+        self.assertEqual(str(stopped.exception).count("lies outside"), 3)
 
 
 if __name__ == "__main__":  # pragma: no cover

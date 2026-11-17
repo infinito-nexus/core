@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.env.handlers.infinito.cache.paths import base
 from utils.networks.infra import SUBNET_KEY, runner_ip
 
 if TYPE_CHECKING:
@@ -10,12 +9,10 @@ if TYPE_CHECKING:
 
 RUNNER_CONTAINER_KEY = "INFINITO_INFRA_RUNNER_CONTAINER"
 RUNNER_IP_KEY = "INFINITO_INFRA_RUNNER_IP"
-CACHE_DIR_KEY = "INFINITO_INFRA_CACHE_DIR"
 RUNNER_CONTAINER = "infinito-infra-runner"
 RUNNER_IP_COMMENT = (
     "Fixed address of the infra runner: host .2 of INFINITO_INFRA_SUBNET."
 )
-CACHE_DIR_COMMENT = "Cache base the infra runner binds at its host path."
 CACHE_IP_KEYS = (
     "INFINITO_CACHE_REGISTRY_IP",
     "INFINITO_CACHE_PACKAGE_IP",
@@ -33,7 +30,6 @@ def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     eb.set(RUNNER_IP_KEY, address, comment=RUNNER_IP_COMMENT)
     for key in CACHE_IP_KEYS:
         eb.set(key, address, comment=CACHE_IP_COMMENT)
-    eb.setdefault(CACHE_DIR_KEY, str(base()), comment=CACHE_DIR_COMMENT)
     eb.setdefault(
         RUNNER_CONTAINER_KEY, RUNNER_CONTAINER, comment=RUNNER_CONTAINER_COMMENT
     )

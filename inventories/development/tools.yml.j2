@@ -13,6 +13,10 @@ RESOURCE_HOST_CPUS_OVERRIDE: "{{ ansible_facts['processor_nproc'] }}"
 
 SIZE_PERCENT_CLEANUP_DISC_SPACE: 98
 
+DIR_CACHE: [[ cache_dir ]]
+
+AI_MODELS_STORE_PATH: [[ models_dir ]]
+
 users:
   administrator:
     authorized_keys:
@@ -22,7 +26,6 @@ applications:
   svc-ai-libretranslate-engine:
     services:
       libretranslate-engine:
-        models_dir: [[ models_dir ]]/libretranslate
         loading_model: task
         directions: from_source
         load_only:
@@ -57,9 +60,6 @@ applications:
     secrets:
       credentials:
         api_key: [[ s1_api_key ]]
-    services:
-      s1:
-        models_dir: [[ models_dir ]]/s1
   web-svc-translate:
     services:
       translate:

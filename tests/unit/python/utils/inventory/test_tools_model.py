@@ -9,10 +9,13 @@ from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.env.handlers.infinito.cache.paths import BASE_KEY
+from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
 from utils.inventory.tools import LANE_MODEL_ALIAS
 from utils.inventory.tools_vars import TEMPLATE, render
 
 OLLAMA_ROLE = "svc-ai-ollama"
+LANE_ENV = {BASE_KEY: "/srv/cache", MODELS_KEY: "/srv/cache/models"}
 
 
 class TestLaneModel(unittest.TestCase):
@@ -34,7 +37,7 @@ class TestLaneModel(unittest.TestCase):
             root = Path(scratch)
             (root / TEMPLATE).parent.mkdir(parents=True)
             shutil.copy(Path(PROJECT_ROOT) / TEMPLATE, root / TEMPLATE)
-            rendered = load_yaml_any(str(render(root, ["en"])))
+            rendered = load_yaml_any(str(render(root, ["en"], LANE_ENV)))
         ollama = rendered["applications"][OLLAMA_ROLE]["services"]["ollama"]
 
         self.assertEqual(

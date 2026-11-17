@@ -23,10 +23,16 @@ judge is not a deployed consumer and has no vault to read one from.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+
+from utils.env.handlers.infinito.cache.paths import BASE_KEY
+from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 TEMPLATE = Path("inventories") / "development" / "tools.yml.j2"
 RENDERED = Path("inventories") / "development" / "tools.rendered.yml"
@@ -34,19 +40,7 @@ API_KEY = "toolsLaneTestKeyNotASecret0000000000"
 LITELLM_KEY = "toolsLaneLiteLlmMasterKeyNotASecret000000000000000000"
 
 
-def models_dir() -> str:
-    """Return the node-local directory the lane keeps its models in.
-
-    Reads the same value the infra runner sees below its cache base mount, so
-    a bind the inventory writes resolves to the host directory rather than to
-    something inside the runner that a rebuild discards.
-    """
-    from utils.env.handlers.infinito.tools.models import KEY, default
-
-    return (os.environ.get(KEY) or "").strip() or default()
-
-
-def render(root: Path, load_only: list[str]) -> Path:
+def render(root: Path, load_only: list[str], environment: Mapping[str, str]) -> Path:
     """Write the tools lane host vars and return the rendered file.
 
     Args:
@@ -54,9 +48,16 @@ def render(root: Path, load_only: list[str]) -> Path:
         load_only: every language code the lane's image prefetches models for.
             Pinning the whole set keeps the build ARG constant, so the prefetch
             layer is not rebuilt once per batch.
+        environment: the environment the infra runner is started with; its
+            cache base and models directory become ``DIR_CACHE`` and
+            ``AI_MODELS_STORE_PATH``, so every bind the inventory writes lies
+            below the base the runner mounts at its host path.
 
     Returns:
         The rendered file.
+
+    Raises:
+        KeyError: the environment names no cache base or models directory.
     """
     template_path = root / TEMPLATE
     env = Environment(
@@ -75,7 +76,8 @@ def render(root: Path, load_only: list[str]) -> Path:
         load_only=sorted(load_only),
         s1_api_key=API_KEY,
         litellm_master_key=LITELLM_KEY,
-        models_dir=models_dir(),
+        cache_dir=environment[BASE_KEY],
+        models_dir=environment[MODELS_KEY],
     )
     rendered = root / RENDERED
     rendered.write_text(body, encoding="utf-8")

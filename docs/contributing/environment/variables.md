@@ -68,10 +68,10 @@ The runner takes these values from the checkout that runs `make infra-up` or `ma
 | `INFINITO_INFRA_SUBNET` | [default.env](../../../default.env) | `10.47.0.0/24` | /24 of the network `infinito-infra`, outside `172.30.0.0/16` and Docker's default address pools |
 | `INFINITO_INFRA_RUNNER_IP` | `make dotenv` | host `.2` of the subnet | fixed address of the runner |
 | `INFINITO_INFRA_RUNNER_CONTAINER` | `make dotenv` | `infinito-infra-runner` | container name of the runner, read by every consumer |
-| `INFINITO_INFRA_CACHE_DIR` | `make dotenv` | `DIR_CACHE` (`/var/cache/infinito/core/cache`) | cache base the runner binds at its host path |
+| `INFINITO_INFRA_CACHE_DIR` | `make dotenv` | `DIR_CACHE` (`/var/cache/infinito/core/cache`) | cache base every cache path derives from and the runner binds at its host path; a `custom.env` line, else an exported value, moves them all, while the lock, the owner marker and the bridge record stay in `DIR_CACHE` |
 | `INFINITO_WORKTREE_ROOTS` | [default.env](../../../default.env) | empty: the primary checkout and `~/.local/share/worktrees` | colon-separated absolute directories the runner and the shared test runner mount read-only at their host paths |
 | `INFINITO_TOOLS_IDLE_GRACE` | `make dotenv` | `2h` | `<count><s\|m\|h\|d>` the tools stay up after the last tools target ended |
-| `INFINITO_TOOLS_STAMP_DIR` | `make dotenv` | `<DIR_CACHE>/tools` | machine-wide directory every tools target stamps its runs in |
+| `INFINITO_TOOLS_STAMP_DIR` | `make dotenv` | `<INFINITO_INFRA_CACHE_DIR>/tools` | machine-wide directory every tools target stamps its runs in |
 
 `make dotenv` also writes `INFINITO_INFRA_RUNNER_IP` into `INFINITO_CACHE_REGISTRY_IP`, `INFINITO_CACHE_PACKAGE_IP` and `INFINITO_CACHE_PACKAGE_FRONTEND_IP`, since the aliases `infinito-registry-cache`, `infinito-package-cache` and `infinito-package-cache-frontend` all resolve to the runner.
 

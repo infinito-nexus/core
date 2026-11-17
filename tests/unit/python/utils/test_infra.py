@@ -48,18 +48,27 @@ class TestUp(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.lock = Path(self.tmp.name) / "infra.lock"
+        self.base = Path(self.tmp.name) / "spare" / "cache"
         self.calls: list[list[str]] = []
 
     def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def _up(self, refusal: list[str], running: bool, recreate: bool) -> int:
+    def _up(
+        self,
+        refusal: list[str],
+        running: bool,
+        recreate: bool,
+        foreign: tuple[str, ...] = (),
+    ) -> int:
         return infra.up(
             ["compose"],
             refusal=lambda: refusal,
+            foreign=lambda: list(foreign),
             running=lambda: running,
             run=self.calls.append,
             lock=self.lock,
+            base=self.base,
             recreate=recreate,
             takeover=[],
             bridge=None,
@@ -70,7 +79,14 @@ class TestUp(unittest.TestCase):
         self.calls.append(["build installs"])
         return [["timer"]]
 
-    def _takeover(self, refusal: list[str], failing: str, *, running: bool) -> int:
+    def _takeover(
+        self,
+        refusal: list[str],
+        failing: str,
+        *,
+        running: bool,
+        foreign: tuple[str, ...] = (),
+    ) -> int:
         def run(argv: list[str]) -> None:
             recorded = self.lock.with_name(infra.BRIDGE_NAME).is_file()
             marked = self.lock.with_name(infra.OWNER_NAME).is_file()
@@ -81,9 +97,11 @@ class TestUp(unittest.TestCase):
         return infra.up(
             ["compose"],
             refusal=lambda: refusal,
+            foreign=lambda: list(foreign),
             running=lambda: running,
             run=run,
             lock=self.lock,
+            base=self.base,
             recreate=False,
             takeover=["legacy-a", "legacy-b"],
             bridge=("legacy-net", "172.30.0.6"),
@@ -154,9 +172,11 @@ class TestUp(unittest.TestCase):
             infra.up(
                 ["compose"],
                 refusal=list,
+                foreign=list,
                 running=lambda: False,
                 run=fail,
                 lock=self.lock,
+                base=self.base,
                 recreate=False,
                 takeover=[],
                 bridge=None,
@@ -209,9 +229,11 @@ class TestUp(unittest.TestCase):
             infra.up(
                 ["compose"],
                 refusal=list,
+                foreign=list,
                 running=lambda: False,
                 run=fail,
                 lock=self.lock,
+                base=self.base,
                 recreate=False,
                 takeover=[],
                 bridge=None,
@@ -225,6 +247,55 @@ class TestUp(unittest.TestCase):
         self.assertFalse(self.lock.with_name(infra.OWNER_NAME).exists())
         self.assertEqual(self.calls, [])
 
+    def test_a_runner_on_another_base_is_neither_kept_nor_recreated(self) -> None:
+        for recreate in (False, True):
+            with self.subTest(recreate=recreate), patch("sys.stderr"):
+                code = self._up([], True, recreate, ("binds another base",))
+                self.assertEqual((code, self.calls), (2, []))
+        self.assertFalse(self.lock.with_name(infra.OWNER_NAME).exists())
+
+    def test_a_runner_on_another_base_stops_no_legacy_stack(self) -> None:
+        with patch("sys.stderr"):
+            code = self._takeover([], "", running=True, foreign=("another base",))
+        self.assertEqual((code, self.calls), (2, []))
+        self.assertFalse(self.lock.with_name(infra.BRIDGE_NAME).exists())
+
+    def test_the_base_exists_before_the_host_daemon_could_create_it(self) -> None:
+        seen: list[bool] = []
+        infra.up(
+            ["compose"],
+            refusal=list,
+            foreign=list,
+            running=lambda: False,
+            run=lambda _argv: seen.append(self.base.is_dir()),
+            lock=self.lock,
+            base=self.base,
+            recreate=False,
+            takeover=[],
+            bridge=None,
+            installs=list,
+        )
+        self.assertEqual(seen, [True])
+
+    def test_a_base_this_user_cannot_create_starts_nothing(self) -> None:
+        with (
+            patch("sys.stderr"),
+            patch.object(infra, "prepare_base", return_value=["refused"]),
+        ):
+            code = self._up([], False, False)
+        self.assertEqual((code, self.calls), (2, []))
+        self.assertFalse(self.lock.with_name(infra.OWNER_NAME).exists())
+
+    def test_a_runner_on_another_base_creates_no_base(self) -> None:
+        with patch("sys.stderr"):
+            self._up([], True, False, ("binds another base",))
+        self.assertFalse(self.base.exists())
+
+    def test_the_lock_lands_in_a_directory_the_call_may_create(self) -> None:
+        self.lock = Path(self.tmp.name) / "core" / "cache" / "infra.lock"
+        self.assertEqual(self._up([], False, False), 0)
+        self.assertTrue(self.lock.with_name(infra.OWNER_NAME).is_file())
+
 
 class TestBaseRefusal(unittest.TestCase):
     def setUp(self) -> None:
@@ -232,16 +303,79 @@ class TestBaseRefusal(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.root, True)
 
     def test_a_writable_base_passes(self) -> None:
-        self.assertEqual(infra.base_refusal(self.root), [])
+        self.assertEqual(infra.base_refusal([self.root]), [])
 
-    def test_a_missing_base_names_the_install_step(self) -> None:
-        [line] = infra.base_refusal(self.root / "cache")
+    def test_a_missing_base_below_a_writable_parent_passes(self) -> None:
+        self.assertEqual(infra.base_refusal([self.root / "core" / "cache"]), [])
+
+    def test_a_missing_base_the_user_cannot_create_names_the_install_step(
+        self,
+    ) -> None:
+        with patch.object(infra.os, "access", return_value=False):
+            [line] = infra.base_refusal([self.root / "cache"])
         self.assertIn(f'sudo install -d -o "$USER" {self.root / "cache"}', line)
 
     def test_a_foreign_base_names_the_chown_step(self) -> None:
         with patch.object(infra.os, "access", return_value=False):
-            [line] = infra.base_refusal(self.root)
+            [line] = infra.base_refusal([self.root])
         self.assertIn(f'sudo chown "$USER": {self.root}', line)
+
+    def test_the_lock_directory_and_a_moved_base_are_both_checked(self) -> None:
+        moved = self.root / "moved"
+        moved.mkdir()
+        with patch.object(
+            infra.os, "access", side_effect=lambda path, _mode: Path(path) != moved
+        ):
+            [line] = infra.base_refusal([self.root, moved])
+        self.assertIn(str(moved), line)
+
+    def test_one_directory_named_twice_is_refused_once(self) -> None:
+        with patch.object(infra.os, "access", return_value=False):
+            self.assertEqual(len(infra.base_refusal([self.root, self.root])), 1)
+
+    def test_preparing_a_missing_base_creates_it_as_this_user(self) -> None:
+        base = self.root / "mnt" / "cache"
+        self.assertEqual(infra.prepare_base(base), [])
+        self.assertEqual(base.stat().st_uid, self.root.stat().st_uid)
+
+    def test_a_base_this_user_cannot_create_is_refused_and_left_alone(self) -> None:
+        base = self.root / "mnt" / "cache"
+        with patch.object(infra.os, "access", return_value=False):
+            [line] = infra.prepare_base(base)
+        self.assertIn(f'sudo install -d -o "$USER" {base}', line)
+        self.assertFalse(base.parent.exists())
+
+
+class TestForeignBase(unittest.TestCase):
+    BASE = Path("/mnt/cache")
+
+    @staticmethod
+    def _bind(source: str, target: str) -> dict[str, object]:
+        return {"Type": "bind", "Source": source, "Destination": target}
+
+    def test_a_stopped_runner_binds_no_foreign_base(self) -> None:
+        self.assertEqual(infra.foreign_base(self.BASE, None), [])
+
+    def test_a_runner_on_the_same_base_passes(self) -> None:
+        mounts = [
+            self._bind("/sys/fs/cgroup", "/sys/fs/cgroup"),
+            self._bind("/mnt/cache", "/mnt/cache"),
+        ]
+        self.assertEqual(infra.foreign_base(self.BASE, mounts), [])
+
+    def test_a_runner_on_another_base_is_named(self) -> None:
+        other = "/var/cache/infinito/core/cache"
+        [line] = infra.foreign_base(self.BASE, [self._bind(other, other)])
+        self.assertIn(other, line)
+        self.assertIn(str(self.BASE), line)
+        self.assertIn("make infra-down", line)
+
+    def test_the_base_bound_elsewhere_or_as_a_volume_does_not_count(self) -> None:
+        mounts = [
+            self._bind("/mnt/cache", "/var/cache/infinito/core/cache"),
+            {"Type": "volume", "Source": "/mnt/cache", "Destination": "/mnt/cache"},
+        ]
+        self.assertEqual(len(infra.foreign_base(self.BASE, mounts)), 1)
 
 
 class TestLegacyRefusal(unittest.TestCase):
@@ -376,9 +510,11 @@ class TestConcurrentUp(unittest.TestCase):
             infra.up(
                 ["compose"],
                 refusal=list,
+                foreign=list,
                 running=running,
                 run=run,
                 lock=lock,
+                base=lock.parent,
                 recreate=False,
                 takeover=[],
                 bridge=None,

@@ -109,25 +109,78 @@ def floor_refusal(env: Mapping[str, str], build: Usage) -> list[str]:
     return floor_violation(settings, usages(settings, build), free_bytes(paths))
 
 
-def base_refusal(path: Path) -> list[str]:
+def base_refusal(paths: Sequence[Path]) -> list[str]:
     """Args:
-        path: the cache base the lock, the owner marker and the idle units
-            land in.
+        paths: the machine-wide directory the lock, the owner marker and the
+            bridge record land in, and the cache base the idle units land in.
 
     Returns:
-        The refusal line while this user cannot write *path*, naming the
-        one-time step that hands it over; nothing otherwise.
+        One refusal line per directory this user can neither write nor
+        create, naming the one-time step that hands it over; nothing
+        otherwise.
     """
-    if path.is_dir() and os.access(path, os.W_OK | os.X_OK):
+    return [
+        f"[infra] this user cannot write {path}, where the lock, the owner "
+        f"marker, the bridge record or the idle units land; hand it over once: "
+        + (
+            f'sudo chown "$USER": {path}'
+            if path.is_dir()
+            else f'sudo install -d -o "$USER" {path}'
+        )
+        for path in dict.fromkeys(paths)
+        if not _writable(path)
+    ]
+
+
+def prepare_base(base: Path) -> list[str]:
+    """Args:
+        base: the cache base every cache path derives from.
+
+    Returns:
+        The refusal line of :func:`base_refusal` while this user can neither
+        write nor create *base*; nothing once *base* exists, created as this
+        user before any bind with ``create_host_path`` lets the Docker daemon
+        create it as root.
+    """
+    lines = base_refusal([base])
+    if not lines:
+        base.mkdir(parents=True, exist_ok=True)
+    return lines
+
+
+def _writable(path: Path) -> bool:
+    existing = next(parent for parent in (path, *path.parents) if parent.exists())
+    return existing.is_dir() and os.access(existing, os.W_OK | os.X_OK)
+
+
+def foreign_base(
+    base: Path, mounts: Sequence[Mapping[str, object]] | None
+) -> list[str]:
+    """Args:
+        base: the cache base of this call.
+        mounts: the ``Mounts`` docker inspect reports for the running runner;
+            None while the runner does not run.
+
+    Returns:
+        The refusal line while the running runner does not bind *base* at
+        its host path, since every leg of this call would then resolve
+        against the runner's own filesystem; nothing otherwise.
+    """
+    if mounts is None:
         return []
-    step = (
-        f'sudo chown "$USER": {path}'
-        if path.is_dir()
-        else f'sudo install -d -o "$USER" {path}'
-    )
+    binds = {
+        (str(mount.get("Source")), str(mount.get("Destination")))
+        for mount in mounts
+        if mount.get("Type") == "bind"
+    }
+    if (str(base), str(base)) in binds:
+        return []
+    bound = sorted(source for source, target in binds if source == target)
     line = (
-        f"[infra] this user cannot write the cache base {path}, where the lock, "
-        f"the owner marker and the idle units land; hand it over once: {step}"
+        f"[infra] the running infra runner does not bind the cache base {base} "
+        f"of this call (it binds {', '.join(bound) or 'nothing'} at its host "
+        f"path); export INFINITO_INFRA_CACHE_DIR to the base it binds, or run "
+        f"make infra-down first to move the runner to {base}"
     )
     return [line]
 
@@ -231,6 +284,7 @@ def machine_lock(path: Path) -> Iterator[None]:
     """Args:
     path: lock file every checkout of the machine shares.
     """
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a") as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
         yield
@@ -240,9 +294,11 @@ def up(
     argv: Sequence[str],
     *,
     refusal: Callable[[], list[str]],
+    foreign: Callable[[], list[str]],
     running: Callable[[], bool],
     run: Callable[[list[str]], None],
     lock: Path,
+    base: Path,
     recreate: bool,
     takeover: Sequence[str],
     bridge: tuple[str, str] | None,
@@ -251,11 +307,18 @@ def up(
     """Args:
         argv: compose call of the infra stack.
         refusal: floor check, run before anything starts.
+        foreign: refusal while a running runner binds another cache base, run
+            first inside the lock, so no other call starts one in between.
         running: whether the runner already runs.
         run: executes a command and raises on failure.
         lock: machine lock file; the owner marker OWNER_NAME lands next to it
             before the runner starts and stays after a failed start or a down,
             unless a takeover rolls back.
+        base: the cache base the runner binds, prepared by
+            :func:`prepare_base` before anything starts, since the bind's
+            ``create_host_path`` would otherwise let the host daemon create it
+            as root, and the idle units written into it after the start would
+            then fail.
         recreate: apply changed inputs to a running runner (infra-update).
         takeover: running legacy cache containers, stopped inside the lock
             right after the marker, which recreates a running runner; when
@@ -268,13 +331,17 @@ def up(
             idle timer; called only then, so a refusal writes nothing.
 
     Returns:
-        2 on a refusal, else 0.
+        2 on a refusal or a foreign base, else 0.
     """
     lines = refusal()
     if lines:
         print("\n".join(lines), file=sys.stderr)
         return 2
     with machine_lock(lock):
+        lines = foreign() or prepare_base(base)
+        if lines:
+            print("\n".join(lines), file=sys.stderr)
+            return 2
         written = (lock.with_name(OWNER_NAME), lock.with_name(BRIDGE_NAME))
         written[0].write_text(f"{NETWORK}\n")
         try:
@@ -392,17 +459,20 @@ def unmounted(base: Path, pins: Path, env: Mapping[str, str]) -> list[str]:
     """Args:
         base: the cache base the runner mounts read-write at its host path.
         pins: the pin root the runner mounts read-only at its host path.
-        env: environment holding the host paths the infra roles bind.
+        env: environment holding the host paths the infra roles, the tools
+            services and the idle units bind or read inside the runner.
 
     Returns:
         One refusal per set host path outside the roots it may live in, which
         the runner's inner docker would resolve against its own filesystem.
-        Cache data must lie below ``base``; a pin path below either root.
+        Cache data, the tools models and the tools stamps must lie below
+        ``base``; a pin path below either root.
     """
     from utils.env.handlers.infinito.cache.conf import KEY as FRONTEND_CONF_KEY
+    from utils.env.handlers.infinito.tools.idle import STAMP_DIR_KEY
     from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
 
-    data = (MODELS_KEY, *(INVENTORY_KEYS[name] for name in PATH_NAMES))
+    data = (MODELS_KEY, STAMP_DIR_KEY, *(INVENTORY_KEYS[name] for name in PATH_NAMES))
     checks = [*((key, (base,)) for key in data), (FRONTEND_CONF_KEY, (base, pins))]
     return [
         f"[infra] {key}={env[key]} lies outside "

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -39,6 +40,10 @@ if [ "$*" = "-m cli.administration.infra attach" ] && [ "${STUB_FRONTEND}" = up 
 fi
 exit 0
 """
+DELEGATING_PYTHON_STUB = """#!/usr/bin/env bash
+cd "${STUB_REPO}"
+exec "${STUB_PYTHON}" "$@"
+"""
 TOPOLOGY_STUB = (
     "SWARM_NAME=demo\n"
     "MGR=demo-mgr\n"
@@ -50,13 +55,16 @@ TOPOLOGY_STUB = (
 )
 
 
-def bootstrap(frontend: bool, cache_env: dict[str, str]) -> dict[str, list[str]]:
+def bootstrap(
+    frontend: bool, cache_env: dict[str, str], python: str = PYTHON_STUB
+) -> dict[str, list[str]]:
     """Run 01_bootstrap.sh against stubs and return the compose files per call.
 
     Args:
         frontend: whether a package-cache frontend runs on the host.
-        cache_env: the shared cache keys the run exports; a key left out is
-            missing from the environment.
+        cache_env: the variables the run exports beyond the fixed ones; a key
+            left out is missing from the environment.
+        python: the ``python3`` the script calls.
 
     Returns:
         The ``-f`` files of the ``build`` and the ``up`` compose call, relative
@@ -74,7 +82,7 @@ def bootstrap(frontend: bool, cache_env: dict[str, str]) -> dict[str, list[str]]
             swarm / "utils" / "unmount" / "host_state.sh": NOOP_STUB,
             root / "scripts" / "meta" / "env" / "load.sh": "",
             bin_dir / "docker": DOCKER_STUB,
-            bin_dir / "python3": PYTHON_STUB,
+            bin_dir / "python3": python,
             **{
                 bin_dir / name: NOOP_STUB
                 for name in ("apt-get", "sudo", "ansible-playbook", "make")
@@ -153,6 +161,23 @@ class TestSwarmSharedCacheLayering(unittest.TestCase):
     def test_the_nodes_start_with_the_files_they_were_built_with(self) -> None:
         calls = bootstrap(True, {SHARED: "/srv/shared", HOST_PACMAN: "/srv/pkg"})
         self.assertEqual(calls["up"], calls["build"])
+
+
+class TestGithubRowWithoutCacheStack(unittest.TestCase):
+    def test_a_cache_base_nobody_may_create_leaves_the_bring_up_alone(self) -> None:
+        absent = Path("/proc") / f"infinito-absent-{os.getpid()}"
+        calls = bootstrap(
+            False,
+            {
+                "GITHUB_ACTIONS": "true",
+                "INFINITO_CACHE_STACK": "false",
+                "INFINITO_INFRA_CACHE_DIR": str(absent),
+                "STUB_REPO": str(PROJECT_ROOT),
+                "STUB_PYTHON": sys.executable,
+            },
+            DELEGATING_PYTHON_STUB,
+        )
+        self.assertEqual([calls["up"], absent.exists()], [[BASE], False])
 
 
 if __name__ == "__main__":

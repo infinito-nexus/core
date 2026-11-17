@@ -7,11 +7,9 @@ from unittest.mock import patch
 
 from utils.env.builder import BuildContext, EnvBuilder
 from utils.env.handlers.infinito import infra as handler
-from utils.env.handlers.infinito.cache.paths import base
 
 _BLANK = {
     handler.RUNNER_IP_KEY: "",
-    handler.CACHE_DIR_KEY: "",
     handler.RUNNER_CONTAINER_KEY: "",
     **dict.fromkeys(handler.CACHE_IP_KEYS, ""),
 }
@@ -38,10 +36,6 @@ class TestInfraHandler(unittest.TestCase):
     def test_the_runner_address_follows_the_subnet(self) -> None:
         self.assertEqual(_apply("10.47.0.0/24")[handler.RUNNER_IP_KEY], "10.47.0.2")
         self.assertEqual(_apply("10.48.0.0/24")[handler.RUNNER_IP_KEY], "10.48.0.2")
-
-    @patch.dict(os.environ, {**_BLANK, "INFINITO_INFRA_SUBNET": ""}, clear=False)
-    def test_the_runner_binds_the_cache_base(self) -> None:
-        self.assertEqual(_apply("10.47.0.0/24")[handler.CACHE_DIR_KEY], str(base()))
 
     @patch.dict(os.environ, {**_BLANK, "INFINITO_INFRA_SUBNET": ""}, clear=False)
     def test_the_three_cache_addresses_equal_the_runner(self) -> None:

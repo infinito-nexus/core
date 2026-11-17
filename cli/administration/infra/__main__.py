@@ -16,7 +16,7 @@ from cli.administration.deploy.development.stack import infra_compose_argv
 from utils.cache.evict import CacheConfigError
 from utils.cache.eviction.docker import build_cache_usage, run_command
 from utils.cache.files import PROJECT_ROOT
-from utils.env.handlers.infinito.cache.paths import base
+from utils.env.handlers.infinito.cache.paths import base, machine
 from utils.env.handlers.infinito.cache.pin import ROOT_KEY as PIN_ROOT_KEY
 from utils.infra import (
     BRIDGE_NAME,
@@ -36,6 +36,7 @@ from utils.infra import (
     deploy_commands,
     down,
     floor_refusal,
+    foreign_base,
     inner_docker,
     inside_roots,
     legacy_refusal,
@@ -108,7 +109,7 @@ def _prepare(bridge: tuple[str, str] | None) -> tuple[list[str], Path]:
         PROJECT_ROOT, roots, service=SERVICE, override=ROOTS_OVERRIDE
     )
     overrides = [override]
-    pair = bridge or read_bridge(base() / BRIDGE_NAME)
+    pair = bridge or read_bridge(machine() / BRIDGE_NAME)
     if pair:
         overrides.append(write_bridge(PROJECT_ROOT, *pair))
     if (os.environ.get(GPU_KEY) or "0").strip() not in ("", "0"):
@@ -133,9 +134,23 @@ def _running() -> bool:
     return (run_command(inspect) or "").strip() == "true"
 
 
+def _foreign() -> list[str]:
+    if not _running():
+        return foreign_base(base(), None)
+    name = os.environ[RUNNER_CONTAINER_KEY]
+    mounts = run_command(["docker", "inspect", "--format", "{{json .Mounts}}", name])
+    if mounts is None:
+        raise SystemExit(
+            f"[infra] docker inspect {name} failed, so its cache base cannot be "
+            "compared with the one of this call"
+        )
+    return foreign_base(base(), json.loads(mounts))
+
+
 def _refusal(names: str | None, *, takeover: bool) -> list[str]:
     stopped = takeover and names is not None
-    legacy = base_refusal(base()) + ([] if stopped else legacy_refusal(names))
+    writable = base_refusal([machine(), base()])
+    legacy = writable + ([] if stopped else legacy_refusal(names))
     try:
         return legacy + floor_refusal(os.environ, build_cache_usage(run_command))
     except CacheConfigError as exc:
@@ -208,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
             run(command)
         return 0
     if args.action == "down":
-        return down(compose, run, base() / LOCK_NAME)
+        return down(compose, run, machine() / LOCK_NAME)
     return _up(
         compose,
         primary,
@@ -235,9 +250,11 @@ def _up(
     return up(
         compose,
         refusal=partial(_refusal, names, takeover=takeover),
+        foreign=_foreign,
         running=_running,
         run=run,
-        lock=base() / LOCK_NAME,
+        lock=machine() / LOCK_NAME,
+        base=base(),
         recreate=recreate,
         takeover=legacy_running(names or "") if takeover else [],
         bridge=bridge,
