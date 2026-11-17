@@ -331,12 +331,17 @@ class TestPlaywrightSsoClientTargets(unittest.TestCase):
     def test_the_backchannel_targets_follow_services_sso_enabled(self) -> None:
         deployed = [APP, *SSO_CLIENT_APPS]
         self.assertEqual(
-            [target["id"] for target in playwright_targets(deployed, sso_client_lookup(True))],
+            [
+                target["id"]
+                for target in playwright_targets(deployed, sso_client_lookup(True))
+            ],
             list(SSO_CLIENT_APPS),
         )
         self.assertEqual(
             dotenv_unquote(
-                playwright_values(deployed, sso_client_lookup(True))["MATRIX_SYNAPSE_URL"]
+                playwright_values(deployed, sso_client_lookup(True))[
+                    "MATRIX_SYNAPSE_URL"
+                ]
             ),
             SYNAPSE_URL,
         )
@@ -348,7 +353,9 @@ class TestPlaywrightSsoClientTargets(unittest.TestCase):
         )
         self.assertEqual(
             dotenv_unquote(
-                playwright_values(deployed, sso_client_lookup(False))["MATRIX_SYNAPSE_URL"]
+                playwright_values(deployed, sso_client_lookup(False))[
+                    "MATRIX_SYNAPSE_URL"
+                ]
             ),
             "",
             "signInToSynapse waits for a login token that a Synapse without SSO never hands back",

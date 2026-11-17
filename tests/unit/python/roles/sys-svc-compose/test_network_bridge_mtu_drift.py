@@ -17,7 +17,9 @@ UNDEFAULTED = "sys_svc_compose_bridge_mtu.stdout | trim"
 
 
 def _drift(tasks: list[dict]) -> dict:
-    return next(task for task in tasks if str(task.get("name", "")).startswith(DRIFT_NAME))
+    return next(
+        task for task in tasks if str(task.get("name", "")).startswith(DRIFT_NAME)
+    )
 
 
 def _mutated(old: str, new: str) -> list[dict]:

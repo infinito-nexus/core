@@ -8,7 +8,7 @@
   ansible.builtin.replace:
     path: "{{ lookup('nginx', 'files.lua', domain) }}"
     regexp: '(data-matomo-site-id="|matomo\.php\?idsite=)[^"&]*'
-    replace: '\g<1>{{ matomo_site_id }}'
+    replace: "\\g<1>{{ matomo_site_id }}"
   notify: reload-openresty
   when:
     - IS_STACK_HOST | bool

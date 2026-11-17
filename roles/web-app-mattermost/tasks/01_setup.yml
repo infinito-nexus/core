@@ -31,7 +31,8 @@
         --system-admin
     '
   args:
-    stdin: "{{ lookup('ansible.builtin.password', '/dev/null', length=48, chars=['ascii_letters', 'digits']) if MATTERMOST_OIDC_ENABLED | bool else lookup('users', 'platform_administrator').password }}"
+    stdin: "{{ lookup('ansible.builtin.password', '/dev/null', length=48, chars=['ascii_letters', 'digits']) if MATTERMOST_OIDC_ENABLED | bool else lookup('users',
+      'platform_administrator').password }}"
   register: mm_create_admin
   changed_when: mm_create_admin.rc == 0
   failed_when: mm_create_admin.rc != 0 and 'already exists' not in (mm_create_admin.stdout + mm_create_admin.stderr)

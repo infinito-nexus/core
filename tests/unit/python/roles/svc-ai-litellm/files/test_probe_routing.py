@@ -376,9 +376,7 @@ def harness(clock: Clock, prefill: float):
             raise TimeoutError("timed out")
         clock.now += prefill
         response = mock.MagicMock()
-        response.__enter__.return_value.read.return_value = json.dumps(
-            ROUTED
-        ).encode()
+        response.__enter__.return_value.read.return_value = json.dumps(ROUTED).encode()
         response.__enter__.return_value.headers = {
             "x-litellm-model-group": "llama3.2:1b"
         }

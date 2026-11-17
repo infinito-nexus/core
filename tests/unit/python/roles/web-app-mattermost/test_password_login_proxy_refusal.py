@@ -9,6 +9,7 @@ from jinja2 import (
     Environment,
     FileSystemLoader,
     StrictUndefined,
+    select_autoescape,
 )
 
 from utils.cache import PROJECT_ROOT
@@ -52,6 +53,7 @@ def render(sso: bool) -> str:
             [DictLoader(STUBBED_INCLUDES), FileSystemLoader(str(PROJECT_ROOT))]
         ),
         undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
         trim_blocks=True,
     )
     environment.filters["bool"] = bool

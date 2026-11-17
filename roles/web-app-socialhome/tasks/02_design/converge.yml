@@ -53,8 +53,8 @@
   failed_when: socialhome_theme_written.rc != 0 or (socialhome_theme_written.stdout | from_json).status != 200
   when:
     - socialhome_theme_primary_current != SOCIALHOME_THEME_PRIMARY
-    - socialhome_theme_primary_current == SOCIALHOME_BRAND_PRIMARY or (socialhome_theme_marker.stat.exists and socialhome_theme_marker.stat.checksum
-      == (socialhome_theme_primary_current | hash('sha1')))
+    - socialhome_theme_primary_current == SOCIALHOME_BRAND_PRIMARY or (socialhome_theme_marker.stat.exists and socialhome_theme_marker.stat.checksum ==
+      (socialhome_theme_primary_current | hash('sha1')))
   delegate_to: "{{ SOCIALHOME_HOST_NODE }}"
   become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -4,7 +4,7 @@ import itertools
 import unittest
 from types import SimpleNamespace
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
@@ -26,7 +26,10 @@ def _lookup(name: str, *_terms: object, **_options: object) -> object:
 
 
 def _environment() -> Environment:
-    environment = Environment(undefined=StrictUndefined)
+    environment = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     environment.filters["bool"] = bool
     environment.globals["lookup"] = _lookup
     return environment
@@ -52,9 +55,7 @@ def handed_password(sso: bool) -> list[str]:
             task.get("when", True), MATTERMOST_OIDC_ENABLED=sso
         ):
             continue
-        rendered = (
-            _environment().from_string(stdin).render(MATTERMOST_OIDC_ENABLED=sso)
-        )
+        rendered = _environment().from_string(stdin).render(MATTERMOST_OIDC_ENABLED=sso)
         if rendered == PASSWORD:
             handed.append(task["name"])
     return handed

@@ -139,9 +139,7 @@ def request_timeout(now: float) -> float:
     return max(0.0, min(float(os.environ["UPSTREAM_TIMEOUT"]), left))
 
 
-def _call(
-    base: str, key: str, path: str, timeout: float, payload: dict | None = None
-):
+def _call(base: str, key: str, path: str, timeout: float, payload: dict | None = None):
     body = None if payload is None else json.dumps(payload).encode()
     request = urllib.request.Request(  # noqa: S310 - literal http:// to loopback
         base + path,
@@ -379,8 +377,7 @@ def main() -> int:
             print(f"[OK]   '{chat_model}' answered: {answer[:60]}")
         except RuntimeError as exc:
             failures.append(
-                f"'{chat_model}' is published but answered nothing; "
-                f"last failure: {exc}"
+                f"'{chat_model}' is published but answered nothing; last failure: {exc}"
             )
 
     router_alias = os.environ.get("ROUTER_ALIAS", "").strip()
