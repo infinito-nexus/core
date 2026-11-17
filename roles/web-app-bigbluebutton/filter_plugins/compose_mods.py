@@ -1,6 +1,7 @@
 import re
 
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
+from utils.templating.ansible import to_plain
 
 
 def _port_host_ip(port):
@@ -106,7 +107,7 @@ def compose_mods(
             svc.pop("build")
 
     data["services"] = services
-    return dump_yaml_str(data)
+    return dump_yaml_str(to_plain(data))
 
 
 class FilterModule:

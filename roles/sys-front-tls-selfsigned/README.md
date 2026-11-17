@@ -14,7 +14,7 @@ This role self-signed TLS provider for sys-front-tls (SAN aware). Generates and 
 
 ## Inputs
 
-- tls_domain
+- domain (the vhost sys-front-tls chose this provider for; TLS and certificate resolve by it)
 - application_id
 - tls_selfsigned_base
 - tls_selfsigned_days

@@ -15,9 +15,10 @@ sys.path.insert(
     ),
 )
 
+from ansible.plugins.filter.core import from_yaml
 from compose_mods import compose_mods
 
-from utils.cache.yaml import load_yaml_str
+from utils.cache.yaml import dump_yaml_str, load_yaml_str
 from utils.domains.default_primary import default_domain_primary
 
 DOMAIN = default_domain_primary()
@@ -304,6 +305,20 @@ services:
                 "infinito.application": "web-app-bigbluebutton",
             },
         )
+
+    def test_contract_parsed_by_ansible_from_yaml_dumps_as_plain_yaml(self):
+        contract = from_yaml(dump_yaml_str(CONTAINER_LOGGING))
+        services = load_yaml_str(
+            compose_mods(
+                "services:\n  redis:\n    image: redis:7.2-alpine\n",
+                self.compose_repository_path,
+                self.env_file,
+                contract,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(services["redis"]["labels"], CONTAINER_LOGGING["labels"])
+        self.assertEqual(services["redis"]["logging"], CONTAINER_LOGGING["logging"])
 
     def test_missing_logging_contract_fails_loudly(self):
         with self.assertRaises(KeyError):
