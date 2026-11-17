@@ -65,7 +65,6 @@ from .test_task_argv_no_secret import _DESCRIBES_CREDENTIAL
 
 _RULE = "task-environment-secret"
 _FACT_KEYS = frozenset({"set_fact", "ansible.builtin.set_fact", "vars"})
-_JINJA = re.compile(r"\{\{(.*?)\}\}", re.DOTALL)
 _JINJA_SPAN = re.compile(r"\{\{(.*?)\}\}|\{%(.*?)%\}", re.DOTALL)
 _SECRET_NAME = re.compile(
     r"(?i)password|passwd|passphrase|secret|token|credential|bearer|jwt"
