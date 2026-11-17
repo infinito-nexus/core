@@ -21,6 +21,7 @@ ROLE = PROJECT_ROOT / "roles" / "sys-service"
 UNIT = "probe.service"
 OMIT = "{{ omit }}"
 STEP_SECONDS = 2
+ASYNC_WAIT_SECONDS = 240
 FAILED_RUN = "Result=exit-code\nExecMainStatus=69\n"
 CLEAN_RUN = "Result=success\nExecMainStatus=0\n"
 GATE_MESSAGE = f"Unable to start service {UNIT}. See shared service diagnostics above."
@@ -50,17 +51,25 @@ def logged():
     return (unit / "events").read_text().split()
 
 
+def wait_for(event):
+    deadline = time.monotonic() + {ASYNC_WAIT_SECONDS}
+    while event not in logged() and time.monotonic() < deadline:
+        time.sleep(0.1)
+
+
+overlapped = (unit / "reload-waits-for-read").exists()
+
 if words[0] == "daemon-reload":
     log("reload-begin")
-    if (unit / "reload-waits-for-read").exists():
-        deadline = time.monotonic() + 30
-        while "read" not in logged() and time.monotonic() < deadline:
-            time.sleep(0.1)
+    if overlapped:
+        wait_for("read")
     else:
         time.sleep({STEP_SECONDS})
     log("reload-end")
 elif words[0] == "show":
     if "-p" in words:
+        if overlapped:
+            wait_for("reload-begin")
         log("read")
     print("LoadState=loaded")
     print("ActiveState=inactive")

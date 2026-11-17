@@ -1,14 +1,4 @@
 ---
-- name: "📌 WP OIDC: write the settings to every site of the network"
+- name: "🖥️ WP OIDC: stack-host container ops (settings, administrator binding)"
+  include_tasks: daggerhart-openid-connect-generic-stack-host.yml
   when: IS_STACK_HOST | bool
-  ansible.builtin.shell:
-    cmd: >
-      container exec -i --user {{ WORDPRESS_USER | quote }}
-      -e WP_OIDC_SETTINGS
-      {{ WORDPRESS_CONTAINER_ADDRESS }}
-      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
-    stdin: "{{ lookup('file', 'php/oidc/settings.php') }}"
-  environment:
-    WP_OIDC_SETTINGS: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode }}"
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
