@@ -11,12 +11,18 @@ import unittest.mock as mock
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.account_policy import (
+    account_max_length,
+    load_policies,
+    username_patterns,
+)
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-keycloak"
 IMPORT_DIR = ROLE_DIR / "templates/import"
+ORGANIZATIONS_SPEC = ROLE_DIR / "files/playwright/test-organizations.js"
 ROLE_VARS = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
 ROLE_SERVICES = load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_SERVICES))
 ADMIN_EVENTS_DAYS = ROLE_SERVICES["keycloak"]["events"]["admin"]["expiration_days"]
@@ -363,6 +369,27 @@ def username_pattern() -> re.Pattern[str]:
     return re.compile(username["validations"]["pattern"]["pattern"])
 
 
+def organizations_probe_usernames() -> tuple[list[str], int]:
+    """Returns:
+    every username test-organizations.js creates in Keycloak, and the number
+    of createProbeUser call sites, so a call the parse misses shows up.
+    """
+    source = ORGANIZATIONS_SPEC.read_text(encoding="utf-8")
+    prefix = re.search(
+        r'^const PROBE_PREFIX = "([^"]*)";$', source, re.MULTILINE
+    ).group(1)
+    names = re.findall(r'await createProbeUser\(\s*kc,\s*"([^"]+)"', source)
+    lists = re.findall(
+        r"for \(const name of \[([^\]]*)\]\) \{\s*users\[name\] = await createProbeUser",
+        source,
+    )
+    for listed in lists:
+        names += re.findall(r'"([^"]+)"', listed)
+    covered = len(re.findall(r'await createProbeUser\(\s*kc,\s*"', source)) + len(lists)
+    sites = len(re.findall(r"await createProbeUser\(", source))
+    return [prefix + name for name in names], sites - covered
+
+
 class TestRealmImportJson(unittest.TestCase):
     def test_app_declared_clients_join_the_realm(self) -> None:
         """An app in KEYCLOAK_DECLARED_CLIENT_APPS ships its own client fragment."""
@@ -488,6 +515,29 @@ class TestRealmImportJson(unittest.TestCase):
         ):
             with self.subTest(username=refused):
                 self.assertIsNone(pattern.match(refused))
+
+    def test_the_organizations_probe_users_pass_the_platform_username_rule(
+        self,
+    ) -> None:
+        policies = load_policies(PROJECT_ROOT / "roles")
+        realm = json.loads(
+            render(
+                [],
+                overrides={
+                    "IAM_USERNAME_PATTERNS": username_patterns(policies),
+                    "IAM_ACCOUNT_MAX_LENGTH": account_max_length(policies),
+                },
+            )
+        )
+        username = profile_of(realm)["username"]["validations"]
+        pattern = re.compile(username["pattern"]["pattern"])
+        probes, unparsed = organizations_probe_usernames()
+        self.assertEqual(unparsed, 0, "every createProbeUser call must name its user")
+        self.assertGreater(len(probes), 0)
+        for probe in probes:
+            with self.subTest(username=probe):
+                self.assertIsNotNone(pattern.match(probe))
+                self.assertLessEqual(len(probe), username["length"]["max"])
 
     def test_only_an_admin_may_change_an_email_address(self) -> None:
         realm = json.loads(render([]))
