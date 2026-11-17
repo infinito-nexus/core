@@ -99,7 +99,7 @@ class TestLayoutOf(unittest.TestCase):
         self.assertEqual(manifest.layout_of(directory)["files_dir"], "payload")
         self.assertEqual(
             manifest.globs_of(manifest.layout_of(directory)),
-            ("*/payload", "*/dumps/*.sql.gz"),
+            ("*/payload", ("*/dumps/*.sql.gz", "*/dumps/*.sql")),
         )
 
     def test_a_generation_without_a_manifest_falls_back_to_the_literals(self) -> None:
@@ -108,11 +108,42 @@ class TestLayoutOf(unittest.TestCase):
         self.assertEqual(names["sql_dir"], layout.SQL_DIR)
 
     def test_the_fallback_globs_match_the_literal_layout(self) -> None:
-        files_glob, dump_glob = manifest.globs_of(
+        files_glob, dump_globs = manifest.globs_of(
             manifest.layout_of(tempfile.mkdtemp())
         )
         self.assertEqual(files_glob, f"*/{layout.FILES_DIR}")
-        self.assertEqual(dump_glob, f"*/{layout.SQL_DIR}/*{layout.DUMP_SUFFIX}")
+        self.assertEqual(
+            dump_globs,
+            (
+                f"*/{layout.SQL_DIR}/*.backup.sql.gz",
+                f"*/{layout.SQL_DIR}/*.backup.sql",
+            ),
+        )
+
+
+class TestDumpSuffixes(unittest.TestCase):
+    def test_a_compressed_name_also_finds_the_plain_one(self) -> None:
+        self.assertEqual(
+            manifest.dump_suffixes(".backup.sql.gz"), (".backup.sql.gz", ".backup.sql")
+        )
+
+    def test_negative_control_a_plain_name_finds_only_itself(self) -> None:
+        self.assertEqual(manifest.dump_suffixes(".backup.sql"), (".backup.sql",))
+
+    def test_a_generation_stating_the_plain_names_is_walked_with_those(self) -> None:
+        directory = generation(
+            {},
+            layout_names={
+                "files_dir": "files",
+                "sql_dir": "sql",
+                "dump_suffix": ".backup.sql",
+                "cluster_suffix": ".cluster.backup.sql",
+            },
+        )
+        self.assertEqual(
+            manifest.globs_of(manifest.layout_of(directory))[1],
+            ("*/sql/*.backup.sql",),
+        )
 
 
 class TestSchemaGuard(unittest.TestCase):
