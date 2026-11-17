@@ -29,7 +29,7 @@ OLD_IMAGE = "docker.io/roundcube/roundcubemail:1.7.4-apache"
 OLD_TITLE = f"🛡️ {OLD_IMAGE}"
 SWARM_TITLE = f"🛡️ web-app-roundcube-swarm-mgr-01:5000/{OLD_IMAGE}"
 SCAN_ERROR = "x: the mirror served no digest"
-NEW_URL = "https://github.com/o/r/issues/42\n"
+NEW_URL = "https://github.invalid/o/r/issues/42\n"
 
 
 def body(rows):
