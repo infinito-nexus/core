@@ -16,6 +16,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, NamedTuple
 
 from utils.cache.files import read_text, repository_files
+from utils.roles.custom import is_custom_path
 
 from . import INDEX_FILES, PROJECT_ROOT, index_page, markdown_files
 
@@ -66,14 +67,18 @@ def _unresolvable(resolved: Path, source: Path) -> str:
 
     A generated file is present for whoever ran the generator and absent
     everywhere else, including the documentation build, which reads what
-    git would track. Existing on this disk is therefore not enough. An
-    untracked source, such as a role `make roles-pull` checked out, arrives
-    and leaves together with its untracked targets, so only a tracked source
-    needs a tracked target.
+    git would track. Existing on this disk is therefore not enough.
+
+    A pulled custom role is the one exception, for links between its own
+    pages and files. ``.gitignore`` keeps it out of every core commit, so none
+    of its files is ever tracked, yet the page scan lists its pages like those
+    of an in-tree role. A page and a target that both lie in pulled custom
+    roles arrive with the pull, so the target only has to exist on disk. A
+    tracked page linking into one still breaks every fresh checkout.
 
     Args:
         resolved: the absolute path a link target resolved to.
-        source: the absolute path of the markdown file holding the link.
+        source: the absolute path of the page carrying the link.
     """
     if not resolved.exists():
         return "no such path"
@@ -81,11 +86,12 @@ def _unresolvable(resolved: Path, source: Path) -> str:
         if index_page(resolved) is None:
             return f"directory without any of {', '.join(INDEX_FILES)}"
         return ""
-    tracked = _tracked_files()
-    if (
-        source.relative_to(PROJECT_ROOT).as_posix() in tracked
-        and resolved.relative_to(PROJECT_ROOT).as_posix() not in tracked
-    ):
+    target = resolved.relative_to(PROJECT_ROOT).as_posix()
+    if is_custom_path(target):
+        shipped = is_custom_path(source.relative_to(PROJECT_ROOT).as_posix())
+    else:
+        shipped = target in _tracked_files()
+    if not shipped:
         return "untracked, so it is absent from a fresh checkout and the docs build"
     return ""
 
