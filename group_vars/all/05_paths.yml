@@ -21,6 +21,7 @@ DIR_CACHE: "/var/cache/infinito/core/cache"
 
 DIR_VAR_LIB: "/var/lib/infinito"
 DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
+DIR_BACKUPS_NODE: "{{ DIR_VAR_LIB ~ '-backup' }}"
 BACKUP_REPOSITORIES:
   - backup-docker-to-local
   - backup-nfs-to-local
