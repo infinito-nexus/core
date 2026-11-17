@@ -1,6 +1,18 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🛑 Refuse email sign-up beside SSO"
+  ansible.builtin.assert:
+    that:
+      - "not (MATTERMOST_OIDC_ENABLED | bool and MATTERMOST_LOGIN_REGISTRATION | bool)"
+    fail_msg: >-
+      With SSO on, the native form stays on, and EmailSettings.EnableSignUpWithEmail
+      would also open SwitchOAuthToEmail, which turns any Keycloak account,
+      the administrator included, into a password account, so
+      services.mattermost.login.method.registration.enabled must be false while
+      login.method.sso.enabled is true.
+    quiet: true
+
 - name: "📣 Report the System Console settings the env file overwrites"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
   vars:

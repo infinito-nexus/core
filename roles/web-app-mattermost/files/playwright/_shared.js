@@ -2,15 +2,20 @@ const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
 
-const oidcEnabled = isServiceEnabled("sso");
+const oidcEnabled = process.env.LOGIN_METHOD_SSO_ENABLED === "true";
 const SSO_ENTRY = "a[href^='/oauth/gitlab/login']";
 
 const loginMethods = {
   native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
   registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
 };
+const nativeForm = loginMethods.native && !oidcEnabled;
+const NATIVE_FORM_PARTS = [
+  ".login-body-card-form > .Input_container",
+  ".login-body-card-form > .login-body-card-form-link",
+  ".login-body-card-form > #saveSetting",
+];
 
 const env = {
   oidcIssuerUrl:     decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL),
@@ -140,6 +145,8 @@ module.exports = {
   env,
   oidcEnabled,
   loginMethods,
+  nativeForm,
+  NATIVE_FORM_PARTS,
   SSO_ENTRY,
   expectedOidcAuthUrl,
   expectedMattermostBaseUrl,

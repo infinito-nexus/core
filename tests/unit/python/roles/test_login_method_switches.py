@@ -114,6 +114,18 @@ def template_line(role: str, relative: str, prefix: str) -> str:
     return lines[0]
 
 
+def on_with_sso(role: str, method: str) -> bool:
+    """
+    Args:
+        role: the role that declares the method.
+        method: one of the declared login methods.
+
+    Returns:
+        The method's default with SSO and LDAP on.
+    """
+    return method == "sso" or lint.keeps_native(role, method)
+
+
 class TestEnvironmentSwitchPenpot(unittest.TestCase):
     ROLE = "web-app-penpot"
 
@@ -319,6 +331,54 @@ class TestInjectedScriptSwitchPixelfed(unittest.TestCase):
         self.assertNotIn(self.TWO_FACTOR, script)
 
 
+def mattermost_form_parts() -> tuple[str, ...]:
+    """
+    Returns:
+        ``NATIVE_FORM_PARTS`` of the Mattermost Playwright helper, the list the
+        sign-in spec asserts hidden on the live page.
+    """
+    shared = read_text(
+        str(ROLES / "web-app-mattermost" / "files" / "playwright" / "_shared.js")
+    )
+    listed = re.search(r"NATIVE_FORM_PARTS = \[(.*?)\];", shared, re.DOTALL)
+    if listed is None:
+        raise AssertionError("_shared.js declares no NATIVE_FORM_PARTS")
+    return tuple(re.findall(r'"([^"]+)"', listed.group(1)))
+
+
+class TestInjectedScriptSwitchMattermost(unittest.TestCase):
+    ROLE = "web-app-mattermost"
+    HIDDEN = mattermost_form_parts()
+
+    def test_the_spec_lists_the_parts(self) -> None:
+        self.assertNotEqual((), self.HIDDEN)
+
+    def _script(self, mode: tuple[str, ...], **methods: bool) -> str:
+        template = read_text(str(ROLES / self.ROLE / "templates/javascript.js.j2"))
+        flags = {self.ROLE: {f"mattermost.{m}": v for m, v in methods.items()}}
+        return render(
+            self.ROLE, template, mode, flags, {"SOFTWARE_NAME": "Infinito.Nexus"}
+        )
+
+    def test_sso_mode_hides_the_native_form(self) -> None:
+        script = self._script(SSO)
+        for selector in self.HIDDEN:
+            with self.subTest(selector=selector):
+                self.assertIn(selector, script)
+
+    def test_native_mode_hides_nothing(self) -> None:
+        script = self._script(NATIVE)
+        for selector in self.HIDDEN:
+            with self.subTest(selector=selector):
+                self.assertNotIn(selector, script)
+
+    def test_an_sso_override_shows_the_native_form(self) -> None:
+        script = self._script(SSO, sso=False)
+        for selector in self.HIDDEN:
+            with self.subTest(selector=selector):
+                self.assertNotIn(selector, script)
+
+
 class TestExtrasStayOffInEveryMode(unittest.TestCase):
     MODES: ClassVar[dict[str, tuple[str, ...]]] = {
         "sso": SSO,
@@ -363,8 +423,9 @@ class TestEveryRoleVariableFollowsItsOverride(unittest.TestCase):
     """Each ``vars/main.yml`` variable that reads a flag renders the override.
 
     With SSO and LDAP on, the default turns ``sso`` on and every other method
-    off; the flipped inventory inverts every declared flag of every role at
-    once, so one render per polarity covers all of them. ``PINNED_OFF`` names
+    off but the ``native`` of a ``NATIVE_BESIDE_SSO`` role; the flipped
+    inventory inverts every declared flag of every role at once, so one
+    render per polarity covers all of them. ``PINNED_OFF`` names
     the variables a role gates on a service it pins off, which stay off.
     """
 
@@ -384,7 +445,9 @@ class TestEveryRoleVariableFollowsItsOverride(unittest.TestCase):
         cls.readers = []
         cls.flipped = {}
         for role, entity, method in lint.declared_flags():
-            cls.flipped.setdefault(role, {})[f"{entity}.{method}"] = method != "sso"
+            cls.flipped.setdefault(role, {})[f"{entity}.{method}"] = not on_with_sso(
+                role, method
+            )
             key = lint.flag_key(entity, method)
             cls.readers.extend(
                 (role, method, str(name))
@@ -399,7 +462,9 @@ class TestEveryRoleVariableFollowsItsOverride(unittest.TestCase):
         return render(role, f"{{{{ {name} }}}}", (*SSO, *self.roles), flags, {})
 
     def _expected(self, role: str, method: str, name: str, flipped: bool) -> bool:
-        return (role, name) not in self.PINNED_OFF and (method == "sso") != flipped
+        return (role, name) not in self.PINNED_OFF and on_with_sso(
+            role, method
+        ) != flipped
 
     def test_the_scan_finds_readers(self) -> None:
         self.assertNotEqual([], self.readers)

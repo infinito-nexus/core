@@ -70,7 +70,7 @@ mattermost:
       sso:
         enabled: "{{ lookup('login_method', 'web-app-mattermost', 'sso') }}"
       native:
-        enabled: "{{ lookup('login_method', 'web-app-mattermost', 'native') }}"
+        enabled: true
       2fa:
         enabled: "{{ lookup('login_method', 'web-app-mattermost', '2fa') }}"
         enforced: true

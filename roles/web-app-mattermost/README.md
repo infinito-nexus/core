@@ -35,15 +35,20 @@ Each sign-in method follows `services.mattermost.login.method.<method>.enabled` 
 | Method | Switch |
 |---|---|
 | `sso` | `MM_GITLABSETTINGS_*` (the Keycloak entry in the GitLab slot), the Keycloak mappers of `tasks/02_keycloak.yml` and the conversion of the administrator to GitLab auth in `tasks/03_oidc_admin.yml` |
-| `native` | `MM_EMAILSETTINGS_ENABLESIGNINWITHEMAIL` and `MM_EMAILSETTINGS_ENABLESIGNINWITHUSERNAME`; while both are off the sign-in page shows only the Keycloak entry |
+| `native` | `MM_EMAILSETTINGS_ENABLESIGNINWITHEMAIL` and `MM_EMAILSETTINGS_ENABLESIGNINWITHUSERNAME`; on by default in every mode, see below |
 | `2fa` | `MM_SERVICESETTINGS_ENABLEMULTIFACTORAUTHENTICATION`, offered to email accounts. `login.method.2fa.enforced` only offers it here: `ServiceSettings.EnforceMultifactorAuthentication` is reported without effect on the Team Edition this role installs, so the role does not render it |
 | `registration` | `MM_EMAILSETTINGS_ENABLESIGNUPWITHEMAIL` and `MM_TEAMSETTINGS_ENABLEOPENSERVER`; Keycloak accounts are still created at their first sign-in |
 
 Team Edition has no LDAP, so `ldap` is not declared.
 
+`native` stays on beside SSO (`NATIVE_BESIDE_SSO` in `tests/lint/ansible/services/test_login_methods.py`): without an OpenID license Team Edition drops `EnableSignUpWithGitLab` from its client config, so the sign-in page renders no GitLab button, and with the form off it shows that no sign-in method is enabled. `templates/javascript.js.j2` adds the Keycloak entry next to the form's submit button, so the form has to stay in the page. With SSO on the same script hides the form's login-id and password fields, its forgot-password link and its submit button, so the page shows only the Keycloak entry; it re-checks on every DOM change, so an in-app return to `/login` gets the entry again. The hiding is cosmetic; the proxy is what refuses the password login. With SSO on, the vhost answers `POST /api/v4/users/login` with 403 (`templates/nginx/password_login.conf.j2`, an exact-match location, so `/api/v4/users/login/sso/code-exchange`, `/api/v4/users/login/switch` and the other sub-paths stay open). Accounts that already hold a local password keep it: an account from a period with SSO off, one whose password a system admin set in the System Console, or the administrator while a deploy that switches SSO on has not reached its conversion task yet. Through the proxy none of them signs in by password, so Keycloak's second factor and deprovisioning stay in force; `mmctl --local` and callers inside the container's network reach Mattermost without the proxy. The deploy with SSO on also:
+
+- creates the administrator with a generated password it discards, converts it to GitLab auth right after, and skips the password realign, because `mmctl user change-password` turns a GitLab-auth account back into a password account;
+- refuses `login.method.registration.enabled: true` (`tasks/00_core.yml`), because `EnableSignUpWithEmail` also opens the switch from GitLab auth to email and password.
+
 ### Break-glass
 
-With SSO on, the platform administrator is a GitLab-auth account and the password form is off. The local administrator keeps `mmctl --local` inside the `mattermost` container, which talks to the server over its local socket without signing in, for example `mmctl --local user change-password` or `mmctl --local roles system-admin`. The environment overrides of `templates/env.j2` lock the sign-in settings, so bringing the form back takes `services.mattermost.login.method.native.enabled: true` in the inventory and a redeploy.
+With SSO on, the platform administrator is a GitLab-auth account without a password, and the proxy refuses every password login, so break-glass goes through `mmctl --local` inside the `mattermost` container, which talks to the server over its local socket without signing in, for example `mmctl --local roles system-admin`. The environment overrides of `templates/env.j2` lock the sign-in settings, so removing the form takes `services.mattermost.login.method.native.enabled: false` in the inventory and a redeploy, which leaves the sign-in page without any entry.
 
 ## MCP Server
 

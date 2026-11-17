@@ -5,8 +5,10 @@ A role whose own sign-in page sits behind native OIDC or SAML declares
 method the page can offer, and each default is the ``login_method`` lookup of
 that role and method. The lookup holds the one table that decides which methods
 a mode turns on (``utils.roles.applications.login``), so a role cannot drift
-from it; an inventory still overrides a single flag. The ``2fa`` method also
-declares ``enforced``, whose default is ``true``, or ``false`` for a role in
+from it; an inventory still overrides a single flag. A role in
+``NATIVE_BESIDE_SSO`` defaults ``native`` to ``true`` instead, because its SSO
+entry needs the native form. The ``2fa`` method also declares ``enforced``,
+whose default is ``true``, or ``false`` for a role in
 ``OFFERED_ONLY`` whose enforcement would lock out the deploy's own accounts;
 every variant of the role with SSO off sets it to ``false``, so its automated
 logins skip enrollment, unless the variant exists to prove the enforced
@@ -60,6 +62,11 @@ OFFERED_ONLY = {
     "individual account without a second factor, token requests included, so the "
     "MCP account the deploy provisions would lose it",
 }
+NATIVE_BESIDE_SSO = {
+    "web-app-mattermost": "Team Edition drops the GitLab button that carries the "
+    "Keycloak entry from its client config without an OpenID license, so the SSO "
+    "link templates/javascript.js.j2 injects needs the native form to sit on",
+}
 UNSWITCHED = {
     (
         "web-app-minio",
@@ -76,6 +83,16 @@ UNSWITCHED = {
 
 def expected(application_id: str, method: str) -> str:
     return f"{{{{ lookup('login_method', '{application_id}', '{method}') }}}}"
+
+
+def keeps_native(application_id: str, method: str) -> bool:
+    return method == "native" and application_id in NATIVE_BESIDE_SSO
+
+
+def enabled_default(application_id: str, method: str) -> object:
+    if keeps_native(application_id, method):
+        return True
+    return expected(application_id, method)
 
 
 def enforced_default(application_id: str) -> bool:
@@ -130,8 +147,8 @@ def method_findings(application_id: str, login: object) -> list[str]:
                 f"login.method.{method} must hold exactly {_key_list(method)}"
             )
             continue
-        default = expected(application_id, method)
-        if _normalized(spec["enabled"]) != default:
+        default = enabled_default(application_id, method)
+        if _normalized(spec["enabled"]) != _normalized(default):
             findings.append(
                 f"login.method.{method}.enabled is {spec['enabled']!r}, expected {default!r}"
             )

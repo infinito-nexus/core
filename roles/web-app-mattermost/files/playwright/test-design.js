@@ -110,7 +110,7 @@ exports.register = function (shared) {
   async function openSignIn(page) {
     await seenLanding(page);
     await gotoOnion(page, `${base}/login`);
-    await shown(shared.loginMethods.native ? LOGIN_ID : SIGN_IN_CARD)(page);
+    await shown(shared.nativeForm ? LOGIN_ID : SIGN_IN_CARD)(page);
   }
 
   /**
@@ -256,8 +256,8 @@ exports.register = function (shared) {
       },
     };
     return [
-      { name: "sign-in", url: `${base}/login`, prepare: shown(shared.loginMethods.native ? LOGIN_ID : SIGN_IN_CARD) },
-      ...(shared.loginMethods.native ? [signInError] : []),
+      { name: "sign-in", url: `${base}/login`, prepare: shown(shared.nativeForm ? LOGIN_ID : SIGN_IN_CARD) },
+      ...(shared.nativeForm ? [signInError] : []),
       { name: "password-reset", url: `${base}/reset_password`, prepare: shown(HEADER_FOOTER) },
       { name: "landing", url: `${base}/landing#/login`, prepare: shown(".get-app__dialog") },
     ];
@@ -343,7 +343,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    const form = shared.loginMethods.native;
+    const form = shared.nativeForm;
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await openSignIn(page);

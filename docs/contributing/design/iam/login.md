@@ -24,6 +24,7 @@ gitea:
 - Declare only the methods the application offers: `sso`, `ldap`, `native`, `2fa`, and the extras `passkey`, `openid2`, `odoo_com`, `email` (magic link) and `registration` (local self-registration).
 - Every default MUST be the `login_method` lookup of the role and the method. The lookup holds the one table in [login.py](../../../../utils/roles/applications/login.py), and [test_login_methods.py](../../../../tests/lint/ansible/services/test_login_methods.py) fails on any other value.
 - The `2fa` method also declares `enforced`, whose default MUST be `true`; the same lint fails on a `2fa` block without it or with any other default. A role whose enforcement would lock out an account the deploy itself provisions defaults to `false` instead, is listed with its reason in `OFFERED_ONLY` of that lint, and says so in its README.
+- A role whose SSO entry only renders on the application's own sign-in form defaults `native` to `true` instead, keeping the form beside SSO; it is listed with its reason in `NATIVE_BESIDE_SSO` of that lint and says so in its README.
 - An inventory overrides a single method with `applications.<app>.services.<entity>.login.method.<method>.enabled`, and the enforcement with `applications.<app>.services.<entity>.login.method.2fa.enforced`.
 - The role reads a method with `lookup('config', application_id, 'services.<entity>.login.method.<method>.enabled')`.
 
@@ -33,10 +34,11 @@ gitea:
 
 | Mode | sso | ldap | native | 2fa | extras and registration |
 |---|---|---|---|---|---|
-| SSO on | on | off | off | off | off |
+| SSO on | on | off | off (on for a `NATIVE_BESIDE_SSO` role) | off | off |
 | SSO off, LDAP on | off | on | off | on | off |
 | SSO off, LDAP off | off | off | on | on | off |
 
+- A `NATIVE_BESIDE_SSO` role keeps `native` on under SSO only so its SSO entry renders; it hides the form in the page and refuses the password login at its proxy, as `web-app-mattermost` does.
 - With SSO on, the second factor lives in Keycloak, so the application's own one is off. The realm sends every account without a second factor to TOTP enrollment through `services.keycloak.realm.totp_enforced` of `web-app-keycloak` (default `true`).
 - `2fa` on runs the application's own second factor. With `enforced: true`, the default, an account without a second factor enrolls one at its next sign-in before it gets in, wherever the application can enforce it; with `enforced: false` the application only offers it.
 - The deploy manages the application's own enforcement setting only while `2fa` is on. While `2fa` is off, as in every SSO deployment, it leaves that setting as an admin set it by hand.

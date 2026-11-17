@@ -31,7 +31,7 @@
         --system-admin
     '
   args:
-    stdin: "{{ lookup('users', 'platform_administrator').password }}"
+    stdin: "{{ lookup('ansible.builtin.password', '/dev/null', length=48, chars=['ascii_letters', 'digits']) if MATTERMOST_OIDC_ENABLED | bool else lookup('users', 'platform_administrator').password }}"
   register: mm_create_admin
   changed_when: mm_create_admin.rc == 0
   failed_when: mm_create_admin.rc != 0 and 'already exists' not in (mm_create_admin.stdout + mm_create_admin.stderr)
@@ -49,7 +49,12 @@
     stdin: "{{ lookup('users', 'platform_administrator').password }}"
   register: mm_realign_admin
   changed_when: mm_realign_admin.rc == 0
+  when: not (MATTERMOST_OIDC_ENABLED | bool)
   delegate_to: "{{ MATTERMOST_HOST_NODE }}"
+
+- name: "🗂️ Mattermost | Wire administrator OIDC auth"
+  ansible.builtin.include_tasks: 03_oidc_admin.yml
+  when: MATTERMOST_OIDC_ENABLED | bool
 
 - name: "📁 Mattermost | Create default team"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
@@ -86,7 +91,3 @@
         "{{ lookup('users', 'platform_administrator').email }}"
   when: lookup('users', 'platform_administrator').email not in mm_team_members.stdout
   delegate_to: "{{ MATTERMOST_HOST_NODE }}"
-
-- name: "🗂️ Mattermost | Wire administrator OIDC auth"
-  ansible.builtin.include_tasks: 03_oidc_admin.yml
-  when: MATTERMOST_OIDC_ENABLED | bool
