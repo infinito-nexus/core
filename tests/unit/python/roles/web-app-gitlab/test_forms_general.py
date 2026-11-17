@@ -20,6 +20,17 @@ SCRIPT = ROLE / "files" / "ruby" / "apply_login_methods.rb"
 TASKS = ROLE / "tasks" / "utils" / "login_methods.yml"
 SQL = ROLE / "files" / "sql" / "select" / "application-settings.sql"
 SINK = "GITLAB_APPLICATION_SETTINGS"
+OBJSTORE = "GITLAB_OBJSTORE_ENABLED"
+LIVE_TRACE = "ci_job_live_trace_enabled"
+LIVE_TRACE_STORED = {
+    "password_authentication_enabled_for_web": True,
+    "signup_enabled": True,
+    LIVE_TRACE: True,
+}
+LIVE_TRACE_WANTED = {
+    "password_authentication_enabled_for_web": True,
+    "signup_enabled": False,
+}
 DRIFT = "tasks/utils/forms/drift.yml"
 
 STUBS = """
@@ -52,7 +63,11 @@ at_exit { STDERR.puts(JSON.generate(UPDATES)) }
 
 
 def _run(
-    stored: dict, wanted: dict, second_factor: str = "false", enforced: str = "false"
+    stored: dict,
+    wanted: dict,
+    second_factor: str = "false",
+    enforced: str = "false",
+    objstore: str = "true",
 ):
     env = {
         "PATH": os.environ["PATH"],
@@ -60,6 +75,7 @@ def _run(
         SINK: json.dumps(wanted),
         "GITLAB_LOGIN_2FA": second_factor,
         "GITLAB_LOGIN_2FA_ENFORCED": enforced,
+        OBJSTORE: objstore,
     }
     program = STUBS + f"eval(File.read({json.dumps(str(SCRIPT))}), TOPLEVEL_BINDING)\n"
     result = subprocess.run(
@@ -119,6 +135,26 @@ class TestTheRunnerWritesTheGeneralForm(unittest.TestCase):
         )
 
 
+@unittest.skipIf(shutil.which("ruby") is None, "ruby is not installed")
+class TestTheWriteStaysValidWithoutObjectStorage(unittest.TestCase):
+    def test_incremental_logging_follows_the_object_storage(self) -> None:
+        converged = {**LIVE_TRACE_STORED, "signup_enabled": False}
+        for objstore, stored, expected in (
+            (
+                "false",
+                LIVE_TRACE_STORED,
+                [{"signup_enabled": False, LIVE_TRACE: False}],
+            ),
+            ("false", converged, [{LIVE_TRACE: False}]),
+            ("true", LIVE_TRACE_STORED, [{"signup_enabled": False}]),
+            ("false", {**converged, LIVE_TRACE: False}, []),
+        ):
+            with self.subTest(objstore=objstore, stored=stored):
+                result, updates = _run(stored, LIVE_TRACE_WANTED, objstore=objstore)
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertEqual(expected, updates)
+
+
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_the_store_is_read_and_reported_before_the_write(self) -> None:
         tasks = _tasks()
@@ -142,6 +178,16 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
             {"signup_enabled": False},
             json.loads(templar.template(write["environment"][SINK])),
         )
+
+    def test_the_write_hands_the_object_storage_state_to_the_runner(self) -> None:
+        write = next(task for task in _tasks() if SINK in task.get("environment", {}))
+        self.assertIn(OBJSTORE, write["ansible.builtin.command"]["argv"])
+        for enabled, handed in ((True, "true"), (False, "false")):
+            with self.subTest(enabled=enabled):
+                templar = Templar(loader=DataLoader(), variables={OBJSTORE: enabled})
+                self.assertEqual(
+                    handed, templar.template(write["environment"][OBJSTORE])
+                )
 
     def test_the_read_asks_for_exactly_the_sink_fields(self) -> None:
         read = next(task for task in _tasks() if "database_query" in task)

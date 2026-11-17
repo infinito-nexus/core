@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
+import shutil
+import subprocess
+import tempfile
 import unittest
 import unittest.mock as mock
+from pathlib import Path
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader
@@ -211,6 +216,48 @@ class TestConverge(unittest.TestCase):
         self.assertEqual(
             "joomla_ldap_plugin is changed", _task("Clear the Joomla cache")["when"]
         )
+
+
+@unittest.skipIf(shutil.which("bash") is None, "bash is not installed")
+class TestBindCredentialHandOver(unittest.TestCase):
+    def _run(self, fragment: str, ldap_login: bool) -> subprocess.CompletedProcess:
+        task = _task(fragment)
+        variables = {
+            "JOOMLA_WEB_USER": "www-data",
+            "JOOMLA_DOCROOT": "/var/www/html",
+            "JOOMLA_LDAP_ENABLED": ldap_login,
+            "JOOMLA_LDAP_PARAMS": {},
+            "JOOMLA_LOCAL_CID": "joomla",
+            "LDAP": LDAP,
+            "role_path": str(ROLE),
+        }
+        command = _templated(
+            _trust_as_template(task["ansible.builtin.shell"]), variables, {}
+        )
+        stdin = _templated(_trust_as_template(task["args"]["stdin"]), variables, {})
+        with tempfile.TemporaryDirectory() as bin_dir:
+            stub = Path(bin_dir) / "container"
+            stub.write_text('#!/bin/sh\nprintf "<%s>" "$J_LDAP_BIND_PASSWORD"\n')
+            stub.chmod(0o755)
+            return subprocess.run(
+                ["bash", "-c", command],
+                input=stdin + "\n",
+                env={"PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+    def test_the_plugin_gets_the_credential_only_while_the_ldap_login_is_on(self):
+        for fragment in ("Read the stored", "Converge the core LDAP"):
+            for ldap_login, handed in (
+                (False, "<>"),
+                (True, f"<{LDAP['BIND_CREDENTIAL']}>"),
+            ):
+                with self.subTest(task=fragment, ldap_login=ldap_login):
+                    result = self._run(fragment, ldap_login=ldap_login)
+                    self.assertEqual(0, result.returncode, result.stderr)
+                    self.assertEqual(handed, result.stdout)
 
 
 if __name__ == "__main__":

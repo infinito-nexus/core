@@ -17,10 +17,10 @@
     - name: "🌐 XWIKI | send {{ xwiki_http_method }} {{ xwiki_http_url }}"
       ansible.builtin.command:
         argv: "{{ XWIKI_NETNS_PYTHON }}"
-        stdin: >-
-          {{ 'HEADERS_B64 = ' ~ (xwiki_http_headers | to_json | b64encode | to_json) ~ '\n'
-             ~ 'BODY_B64 = ' ~ (xwiki_http_body | string | b64encode | to_json) ~ '\n'
-             ~ lookup('file', lookup('path_absolute', 'roles/web-app-xwiki/files/python/http_call.py')) }}
+        stdin: |-
+          HEADERS_B64 = {{ xwiki_http_headers | to_json | b64encode | to_json }}
+          BODY_B64 = {{ xwiki_http_body | string | b64encode | to_json }}
+          {{ lookup('file', lookup('path_absolute', 'roles/web-app-xwiki/files/python/http_call.py')) }}
       environment:
         HTTP_METHOD: "{{ xwiki_http_method }}"
         HTTP_URL: "{{ xwiki_http_url }}"

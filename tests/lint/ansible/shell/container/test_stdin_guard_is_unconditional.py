@@ -46,6 +46,11 @@ _MAY_BE_EMPTY: dict[tuple[str, str], str] = {
     ("roles/web-app-erpnext/tasks/addons/email_account.yml", "SMTP_PASS"): (
         "ERPNEXT_MAIL.password defaults to empty for a relay without authentication"
     ),
+    ("roles/web-app-joomla/tasks/10_ldap.yml", "J_LDAP_BIND_PASSWORD"): (
+        "the bind credential is sent only while the LDAP login is on; with it off the "
+        "plugin is disabled and its password dropped, and ldap_plugin.php refuses an "
+        "empty credential while J_LDAP_ENABLED=1"
+    ),
     (f"roles/web-app-jellyfin/{ROLE_FILE_TASKS_MCP}", "MCP_TOKEN"): (
         "MCP_UPSTREAM_CURRENT_KEY is empty on the first mint, before any upstream key exists"
     ),

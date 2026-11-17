@@ -44,6 +44,8 @@
       - GITLAB_LOGIN_2FA
       - -e
       - GITLAB_LOGIN_2FA_ENFORCED
+      - -e
+      - GITLAB_OBJSTORE_ENABLED
       - "{{ GITLAB_RAILS_LOCAL_CID }}" # nocheck: container-exec-resolver
       - "{{ GITLAB_RAILS_BIN }}"
       - runner
@@ -53,6 +55,7 @@
     GITLAB_APPLICATION_SETTINGS: "{{ GITLAB_APPLICATION_SETTINGS | to_json }}"
     GITLAB_LOGIN_2FA: "{{ GITLAB_LOGIN_2FA | bool | string | lower }}"
     GITLAB_LOGIN_2FA_ENFORCED: "{{ GITLAB_LOGIN_2FA_ENFORCED | bool | string | lower }}"
+    GITLAB_OBJSTORE_ENABLED: "{{ GITLAB_OBJSTORE_ENABLED | bool | string | lower }}"
   register: gitlab_login_methods
   changed_when: gitlab_login_methods.stdout is search('\[CHANGED\]')
   failed_when: >-

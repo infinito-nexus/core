@@ -8,6 +8,7 @@
     expect_rows: true
   register: mastodon_registrations_stored
   changed_when: false
+  delegate_to: "{{ MASTODON_DATABASE_HOST_NODE }}"
 
 - name: "📣 Report the managed registration settings the write reverts"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
