@@ -12,6 +12,7 @@ DIR_MAINTENANCE: "/run/infinito/maintenance"
 FILE_MAINTENANCE_BACKUP: "{{ [DIR_MAINTENANCE, 'backup.json'] | path_join }}"
 
 DIR_BIN: "/usr/bin"
+EXEC_PATH_SYSTEM: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 BIN_COMPOSE: "{{ [ DIR_BIN, 'compose' ] | path_join }}"
 BIN_CONTAINER: "{{ [ DIR_BIN, 'container' ] | path_join }}"
 BIN_LOCK: "{{ [ DIR_BIN, 'lock' ] | path_join }}"

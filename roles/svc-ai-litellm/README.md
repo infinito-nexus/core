@@ -211,7 +211,10 @@ requests is two per consumer and chat model, plus a Responses API request to
 charges. `services.litellm.consumer_validation` configures bounded retries:
 `retries: 2`, `delay: 60` seconds and `max_delay: 120` seconds per wait. HTTP 429
 and adapter-wrapped HTTP 5xx responses explicitly reporting a rate limit or
-cooldown are retried. The validator honors numeric and HTTP-date `Retry-After`
+cooldown are retried, and so is an HTTP 400 reporting `Engine protocol predict
+request failed: fetch failed`: LM Studio answers a lost connection to its own
+inference engine with that 400, which LiteLLM forwards as a request error. The
+validator honors numeric and HTTP-date `Retry-After`
 headers, waits at least the configured delay, and fails without an early retry
 when the requested wait exceeds `max_delay`. Recognized daily-quota exhaustion,
 authentication, credit and other permanent errors are not retried. Exhausted

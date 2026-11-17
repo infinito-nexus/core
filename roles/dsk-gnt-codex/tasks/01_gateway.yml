@@ -78,4 +78,6 @@
       - "{{ lookup('config', application_id, 'services.codex.validation_timeout') | string }}"
   become: true
   become_user: "{{ agnt_codex_user }}"
+  environment:
+    PATH: "{{ EXEC_PATH_SYSTEM }}"
   changed_when: false

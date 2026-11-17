@@ -19,6 +19,8 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from email.utils import parsedate_to_datetime
 
+LMSTUDIO_ENGINE_FETCH_FAILED = "engine protocol predict request failed: fetch failed"
+
 
 def retry_after_seconds(value):
     if not value:
@@ -112,6 +114,7 @@ def request_check(base, key, path, body, timeout):
                 "notfounderror",
                 "rate limit",
                 "cooldown",
+                LMSTUDIO_ENGINE_FETCH_FAILED,
             )
             if term in text
         ]
@@ -147,10 +150,14 @@ def request_with_retry(base, key, path, body, timeout, policy):
         result = request_check(base, key, path, body, timeout)
         status = result.get("http_status")
         signals = result.get("error_signals") or []
-        limited = status == 429 or (
-            status is not None
-            and status >= 500
-            and any(signal in signals for signal in ("rate limit", "cooldown"))
+        limited = (
+            status == 429
+            or (
+                status is not None
+                and status >= 500
+                and any(signal in signals for signal in ("rate limit", "cooldown"))
+            )
+            or (status == 400 and LMSTUDIO_ENGINE_FETCH_FAILED in signals)
         )
         if any(
             signal in signals

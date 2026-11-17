@@ -290,6 +290,39 @@ class TestValidateConsumers(unittest.TestCase):
         self.assertEqual(sleep.call_count, 2)
         self.assertEqual(result["retry_wait_seconds"], 120)
 
+    def test_only_the_lmstudio_engine_fetch_failure_400_is_retried(self):
+        engine = (
+            "litellm.BadRequestError: OpenAIException - Error code: 400 - "
+            "{'error': 'Engine protocol predict request failed: fetch failed'} "
+        )
+        cases = (
+            (400, engine, 2),
+            (400, "litellm.BadRequestError: OpenAIException - fetch failed ", 1),
+            (500, engine, 1),
+            (400, engine + "Invalid API key ", 1),
+        )
+        for status, body, calls in cases:
+            error = urllib.error.HTTPError(
+                "http://127.0.0.1/v1/messages",
+                status,
+                self.key,
+                None,
+                io.BytesIO((body + self.key).encode()),
+            )
+            answer = Response(
+                '{"type":"message","content":[{"type":"text","text":"OK"}]}'
+            )
+            with (
+                self.subTest(status=status, body=body),
+                patch("urllib.request.urlopen", side_effect=[error, answer]) as request,
+                patch.object(validation.time, "sleep") as sleep,
+            ):
+                result = self.retry()
+                self.assertEqual(request.call_count, calls)
+                self.assertIs(result["ok"], calls == 2)
+                self.assertEqual(sleep.call_count, calls - 1)
+                self.assertNotIn(self.key, json.dumps(result))
+
     def test_permanent_errors_and_daily_quota_are_not_retried(self):
         errors = [
             {"ok": False, "http_status": status} for status in (401, 402, 403, 404, 500)
