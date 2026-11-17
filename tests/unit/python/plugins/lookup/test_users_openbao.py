@@ -21,6 +21,15 @@ APP = "web-app-foo"
 TOKEN = "s.fixture-reader"
 VALUE = "known-user-password-4711"
 REFERENCE = {"openbao": "platform/fixture/platform/users/alice#password"}
+PERSONAL_PATH = "platform/fixture/ws-1/users/alice"
+PERSONAL = {
+    "email": "alice.private@example.net",
+    "firstname": "Alice",
+    "lastname": "Liddell",
+}
+PERSONAL_REFERENCES = {
+    field: {"openbao": f"{PERSONAL_PATH}#{field}"} for field in PERSONAL
+}
 
 
 class TestUsersOpenBao(unittest.TestCase):
@@ -28,6 +37,7 @@ class TestUsersOpenBao(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.stub = OpenBaoStub(tokens={TOKEN: ["platform/fixture/"]}, logins={})
         cls.stub.put("platform/fixture/platform/users/alice", {"password": VALUE})
+        cls.stub.put(PERSONAL_PATH, PERSONAL)
         cls.addClassCleanup(cls.stub.close)
 
     def setUp(self) -> None:
@@ -62,12 +72,18 @@ class TestUsersOpenBao(unittest.TestCase):
         environ.start()
         self.addCleanup(environ.stop)
 
-    def users(self, overrides: dict[str, Any], *terms: str) -> Any:
+    def users(
+        self,
+        overrides: dict[str, Any],
+        *terms: str,
+        applications: dict[str, Any] | None = None,
+    ) -> Any:
         lookup = UsersLookup()
         lookup._templar = None
-        return lookup.run(
-            list(terms), variables={"users": overrides}, roles_dir=str(self.roles)
-        )[0]
+        variables = {"users": overrides, "applications": applications or {}}
+        return lookup.run(list(terms), variables=variables, roles_dir=str(self.roles))[
+            0
+        ]
 
     def config(self, overrides: dict[str, Any], path: str) -> Any:
         lookup = ConfigLookup()
@@ -95,11 +111,43 @@ class TestUsersOpenBao(unittest.TestCase):
         self.assertEqual(self.config(overrides, "users.alice.password"), VALUE)
         self.assertEqual(self.config(overrides, "users.alice")["password"], VALUE)
 
+    def test_the_personal_fields_resolve_through_both_lookups(self) -> None:
+        overrides = {"alice": dict(PERSONAL_REFERENCES)}
+        user = self.users(overrides, "alice")
+        self.assertEqual(user["username"], "alice")
+        for field, value in PERSONAL.items():
+            with self.subTest(field=field):
+                self.assertEqual(user[field], value)
+                self.assertEqual(self.config(overrides, f"users.alice.{field}"), value)
+                self.assertEqual(self.config(overrides, "users.alice")[field], value)
+
+    def test_the_mailbox_policy_resolves_the_referenced_email_as_secondary(
+        self,
+    ) -> None:
+        mailbox = {
+            "web-app-keycloak": {
+                "services": {"keycloak": {"email": {"policy": "mailbox"}}}
+            }
+        }
+        user = self.users(
+            {"alice": dict(PERSONAL_REFERENCES)}, "alice", applications=mailbox
+        )
+        self.assertEqual(user["secondary_email"], PERSONAL["email"])
+        self.assertNotEqual(user["email"], PERSONAL["email"])
+        self.assertTrue(str(user["email"]).startswith("alice@"))
+
+    def test_plain_personal_fields_resolve_as_before(self) -> None:
+        before = len(self.stub.requests)
+        user = self.users({"alice": {"firstname": "Plain"}}, "alice")
+        self.assertEqual(user["firstname"], "Plain")
+        self.assertEqual(user["email"], "alice@example.org")
+        self.assertEqual(len(self.stub.requests), before)
+
     def test_negative_control_a_reference_in_any_other_users_field_is_refused(
         self,
     ) -> None:
         for field, override in (
-            ("users.alice.email", {"email": REFERENCE}),
+            ("users.alice.username", {"username": REFERENCE}),
             ("users.alice.tokens.web-app-foo", {"tokens": {APP: REFERENCE}}),
             ("users.alice.authorized_keys.0", {"authorized_keys": [REFERENCE]}),
         ):
@@ -114,7 +162,10 @@ class TestUsersOpenBao(unittest.TestCase):
                 ):
                     lookup({"alice": override})
                 self.assertIn(field, str(caught.exception))
-                self.assertIn("only users.<name>.password", str(caught.exception))
+                self.assertIn(
+                    "only the password, email, firstname, lastname fields of users.<name>",
+                    str(caught.exception),
+                )
 
     def test_negative_control_a_value_instead_of_a_reference_reads_no_openbao(
         self,
@@ -144,15 +195,30 @@ class TestUsersOpenBao(unittest.TestCase):
 
 
 class TestUserReferences(unittest.TestCase):
-    def test_only_the_password_leaf_may_hold_a_reference(self) -> None:
-        users = {"alice": {"password": REFERENCE, "email": "a@example.org"}}
+    def test_the_password_and_the_personal_fields_may_hold_a_reference(self) -> None:
+        users = {
+            "alice": {"password": REFERENCE, **PERSONAL_REFERENCES, "nickname": "a"}
+        }
         self.assertEqual(
             [
                 (".".join(parts), str(ref))
                 for parts, ref in openbao_client.user_references(users)
             ],
-            [("users.alice.password", REFERENCE["openbao"])],
+            [("users.alice.password", REFERENCE["openbao"])]
+            + [
+                (f"users.alice.{field}", reference["openbao"])
+                for field, reference in PERSONAL_REFERENCES.items()
+            ],
         )
+
+    def test_negative_control_the_user_name_may_not_hold_a_reference(self) -> None:
+        for field in ("username", "nickname", "tokens"):
+            with (
+                self.subTest(field=field),
+                self.assertRaises(openbao_client.OpenBaoError) as caught,
+            ):
+                openbao_client.user_references({"alice": {field: REFERENCE}})
+            self.assertIn(f"users.alice.{field}:", str(caught.exception))
 
     def test_negative_control_a_whole_user_as_reference_is_refused(self) -> None:
         with self.assertRaises(openbao_client.OpenBaoError) as caught:

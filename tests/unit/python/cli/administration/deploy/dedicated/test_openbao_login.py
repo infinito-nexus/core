@@ -178,6 +178,36 @@ class TestTheDeployLogsInToOpenBao(unittest.TestCase):
         runner.assert_not_called()
         self.assertIn(f"role {ROLE}", stderr)
 
+    def test_an_erased_person_stops_the_deploy_before_the_play(self) -> None:
+        personal = "".join(
+            f"    {field}:\n      openbao: tenant/{ROLE}/users/alice#{field}\n"
+            for field in ("email", "firstname", "lastname")
+        )
+        self.write_host_vars(
+            HOST_VARS.format(role=ROLE) + "users:\n  alice:\n" + personal
+        )
+        runner, stdout, stderr, status = self.deploy({"BAO_TOKEN": OPERATOR_TOKEN})
+        self.assertEqual(status, 1)
+        runner.assert_not_called()
+        self.assertIn(f"tenant/{ROLE}/users/alice", stderr)
+        self.assertIn("users.alice.email", stderr)
+        self.assertIn("HTTP 404", stderr)
+        for output in (stdout, stderr):
+            self.assertNotIn(VALUE, output)
+
+    def test_a_personal_field_is_read_but_never_printed(self) -> None:
+        email = "alice.private@example.net"
+        self.stub.put(f"tenant/{ROLE}/users/bob", {"email": email})
+        self.write_host_vars(
+            HOST_VARS.format(role=ROLE)
+            + f"users:\n  bob:\n    email:\n      openbao: tenant/{ROLE}/users/bob#email\n"
+        )
+        runner, stdout, stderr, status = self.deploy({"BAO_TOKEN": OPERATOR_TOKEN})
+        self.assertEqual(status, 0, stderr)
+        runner.assert_called_once()
+        for output in (stdout, stderr, repr(runner.call_args)):
+            self.assertNotIn(email, output)
+
     def test_no_resolved_value_reaches_the_output(self) -> None:
         outputs: list[str] = []
         _, stdout, stderr, _ = self.deploy({"BAO_TOKEN": OPERATOR_TOKEN})

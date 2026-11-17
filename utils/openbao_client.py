@@ -21,7 +21,8 @@ TASK_JWT_ENV = "SEMAPHORE_JWT"
 TASK_LOGIN_MOUNT = "jwt"
 CREDENTIALS_PATH = ("secrets", "credentials")
 USERS_KEY = "users"
-USER_REFERENCE_FIELD = "password"
+USER_REFERENCE_FIELDS = ("password", "email", "firstname", "lastname")
+MAILBOX_POLICY_MOVED_EMAIL_FIELD = "secondary_email"
 TIMEOUT_SECONDS = 30
 _SEGMENT = r"[A-Za-z0-9_@+=,.-]+"
 _REFERENCE = re.compile(
@@ -396,9 +397,13 @@ def _collect_user_references(
         name = ".".join(parts)
         reference = parse_reference(node, name)
         if reference is not None:
-            if parts[2:] != (USER_REFERENCE_FIELD,):
+            if len(parts) != 3 or parts[2] not in (
+                *USER_REFERENCE_FIELDS,
+                MAILBOX_POLICY_MOVED_EMAIL_FIELD,
+            ):
                 raise OpenBaoError(
-                    f"{name}: only {USERS_KEY}.<name>.{USER_REFERENCE_FIELD} may hold an OpenBao reference"
+                    f"{name}: only the {', '.join(USER_REFERENCE_FIELDS)} fields of "
+                    "users.<name> may hold an OpenBao reference"
                 )
             found.append((parts, reference))
             return
@@ -420,9 +425,10 @@ def user_references(
         path: the keys below ``users`` that lead to ``value``.
 
     Returns:
-        The full key path and the reference of every ``users.<name>.password``
-        below ``value`` that holds an OpenBao reference; any other users field
-        holding one is refused with its dotted name.
+        The full key path and the reference of every ``users.<name>.<field>``
+        of ``USER_REFERENCE_FIELDS`` below ``value`` that holds an OpenBao
+        reference; any other users field holding one is refused with its
+        dotted name.
     """
     found: list[tuple[tuple[str, ...], Reference]] = []
     _collect_user_references(value, (USERS_KEY, *path), found)
@@ -447,8 +453,9 @@ def resolve_users(value: Any, path: tuple[str, ...], environ: Mapping[str, str])
         environ: see ``session_client``.
 
     Returns:
-        ``value`` with the reference of every ``users.<name>.password`` below it
-        replaced by the field it names; ``value`` itself when it holds none.
+        ``value`` with the reference of every ``users.<name>.<field>`` of
+        ``USER_REFERENCE_FIELDS`` below it replaced by the field it names;
+        ``value`` itself when it holds none.
     """
     key = (id(value), path)
     if _CLEAN_USERS.get(key) is value:

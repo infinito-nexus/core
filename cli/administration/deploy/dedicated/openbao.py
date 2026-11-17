@@ -84,8 +84,8 @@ def inventory_references(inventory: str) -> list[tuple[str, Reference]]:
 
     Returns:
         Every OpenBao reference under ``applications.<id>.secrets.credentials``
-        and in ``users.<name>.password``, with the credential's dotted name, in
-        file order.
+        and in the ``USER_REFERENCE_FIELDS`` of ``users.<name>``, with the
+        credential's dotted name, in file order.
     """
     found: list[tuple[str, Reference]] = []
     for path in inventory_files(inventory):
