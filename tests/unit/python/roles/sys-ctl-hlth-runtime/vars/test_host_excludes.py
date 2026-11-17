@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import posixpath
 import unittest
 from collections.abc import Iterator, Mapping
@@ -8,6 +9,7 @@ from typing import Any
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
+from utils.cache.files import iter_project_files
 from utils.cache.yaml import load_yaml, load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.storage.nfs import get_export_base
@@ -74,8 +76,14 @@ def _tasks(node: Any) -> Iterator[Mapping[str, Any]]:
 
 
 def _mounts(role: str) -> Iterator[Mapping[str, Any]]:
-    for task_file in sorted((_ROLES / role / "tasks").rglob("*.yml")):
-        for task in _tasks(load_yaml_any(str(task_file))):
+    tasks_dir = f"{_ROLES / role / 'tasks'}{os.sep}"
+    task_files = (
+        path
+        for path in iter_project_files(extensions=(".yml",))
+        if path.startswith(tasks_dir)
+    )
+    for task_file in sorted(task_files):
+        for task in _tasks(load_yaml_any(task_file)):
             mount = task.get("ansible.posix.mount")
             if isinstance(mount, Mapping) and mount.get("state") != "unmounted":
                 yield mount
