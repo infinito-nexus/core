@@ -45,7 +45,7 @@
       Remove the network and its containers (make compose-down) and deploy again.
   when:
     - sys_svc_compose_bridge_mtu is not skipped
-    - sys_svc_compose_bridge_mtu.stdout | trim != (SYS_DOCKER_DAEMONM_MTU | int | string)
+    - (sys_svc_compose_bridge_mtu.stdout | trim or '1500') != (SYS_DOCKER_DAEMONM_MTU | int | string)
 
 - name: "✅ Ensure docker bridge network for '{{ network_role_id }}' exists (compose)"
   ansible.builtin.command:
