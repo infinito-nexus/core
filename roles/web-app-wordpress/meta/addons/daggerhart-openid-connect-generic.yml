@@ -24,7 +24,7 @@ config:
     scope: "openid profile email {{ RBAC.GROUP.CLAIM }}"
     create_if_does_not_exist: true
     enforce_privacy: false
-    link_existing_users: true
+    link_existing_users: false
     redirect_on_logout: true
     redirect_user_back: true
     enable_logging: "{{ lookup('debug', 'web-app-wordpress') }}"
@@ -34,5 +34,5 @@ config:
     nickname_key: "{{ OIDC.ATTRIBUTES.USERNAME }}"
     email_format: "{{ '{' ~ OIDC.ATTRIBUTES.EMAIL ~ '}' }}"
     displayname_format: "{{ '{' ~ OIDC.ATTRIBUTES.GIVEN_NAME ~ '} {' ~ OIDC.ATTRIBUTES.FAMILY_NAME ~ '}' }}"
-    identify_with_username: true
+    identify_with_username: false
     state_time_limit: 180

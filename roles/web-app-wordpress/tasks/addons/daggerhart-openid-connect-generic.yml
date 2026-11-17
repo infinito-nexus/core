@@ -1,11 +1,4 @@
 ---
-- name: "📌 WP OIDC: delete the stored settings of every site, the container serves them"
+- name: "🖥️ WP OIDC: stack-host container ops (settings, administrator binding)"
+  include_tasks: daggerhart-openid-connect-generic-stack-host.yml
   when: IS_STACK_HOST | bool
-  ansible.builtin.shell:
-    cmd: >
-      container exec -i --user {{ WORDPRESS_USER | quote }}
-      {{ WORDPRESS_CONTAINER_ADDRESS }}
-      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
-    stdin: "{{ lookup('file', 'php/oidc/settings.php') }}"
-  register: wp_oidc_stored_settings
-  changed_when: "'CHANGED' in wp_oidc_stored_settings.stdout"
