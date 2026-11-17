@@ -63,6 +63,12 @@ const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 
+function roomPath(name) {
+  if (!isServiceEnabled("keycloak_adapter")) return `${name}${JOIN}`;
+  const query = new URLSearchParams({ path: `/${name}`, hash: JOIN.slice(1) });
+  return `oidc/redirect?${query}`;
+}
+
 async function shown(page, selector, base = SHOWN_BASE_MS) {
   await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(base) });
 }
@@ -200,7 +206,7 @@ function views() {
     await page.locator(`[aria-label="${label}"]`).last().click({ timeout: resolveTimeout(10_000) });
   };
   const conference = (name, extra) =>
-    view(name, `${ROOM}${JOIN}`, TOOLBOX, async (page) => {
+    view(name, roomPath(ROOM), TOOLBOX, async (page) => {
       await joined(page);
       if (extra) await extra(page);
     });
@@ -335,7 +341,7 @@ exports.register = function () {
 
     test("design: conference chrome, menu dividers and the leave action follow the palette", async ({ page }) => {
       skipUnlessServiceEnabled("design");
-      await open(page, `${ROOM}-chrome${JOIN}`, TOOLBOX);
+      await open(page, roomPath(`${ROOM}-chrome`), TOOLBOX);
       await joined(page);
       await inBothModes(page, async (mode) => {
         await assertToken(page, "#largeVideoContainer", "background-color", "--design-surface-1", `stage ${mode}`);
@@ -361,7 +367,7 @@ exports.register = function () {
 
     test("design: dialogs and their filled actions follow the palette", async ({ page }) => {
       skipUnlessServiceEnabled("design");
-      await open(page, `${ROOM}-dialog${JOIN}`, TOOLBOX);
+      await open(page, roomPath(`${ROOM}-dialog`), TOOLBOX);
       await joined(page);
       await page.keyboard.press("?");
       await shown(page, DIALOG, 15_000);
@@ -383,7 +389,7 @@ exports.register = function () {
 
     test("design: the destructive action of the leave menu follows the palette", async ({ page }) => {
       skipUnlessServiceEnabled("design");
-      await open(page, `${ROOM}-leave${JOIN}`, TOOLBOX);
+      await open(page, roomPath(`${ROOM}-leave`), TOOLBOX);
       await joined(page);
       test.skip(
         (await page.locator(HANGUP_MENU).count()) === 0,
@@ -433,7 +439,7 @@ exports.register = function () {
           expect(await loads(page, url), `the page must be allowed to load ${url}`).toBe(true);
         }
       }
-      await open(page, `${ROOM}-title${JOIN}`, TOOLBOX);
+      await open(page, roomPath(`${ROOM}-title`), TOOLBOX);
       await joined(page);
       if (title) {
         await expect
@@ -449,7 +455,7 @@ exports.register = function () {
       skipUnlessServiceEnabled("design");
       test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
       test.setTimeout(resolveTimeout(2_400_000));
-      await open(page, `${ROOM}${JOIN}`, TOOLBOX);
+      await open(page, roomPath(ROOM), TOOLBOX);
       await joined(page);
       await captureDesignGallery(page, views());
     });
