@@ -30,7 +30,7 @@ exports.register = function (shared) {
       );
       const groupPath = `${shared.env.rbacGroupPathPrefix}${role}`;
       let biberAddedToGroup = false;
-      let biberEmail = "";
+      let biberEmail;
 
       // Each identity runs in its own isolated context so WP session
       // cookies, Keycloak SSO cookies, and OIDC post-logout redirect
