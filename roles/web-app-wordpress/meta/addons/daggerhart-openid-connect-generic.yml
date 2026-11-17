@@ -23,7 +23,7 @@ config:
     scope: "openid profile email {{ RBAC.GROUP.CLAIM }}"
     create_if_does_not_exist: true
     enforce_privacy: false
-    link_existing_users: true
+    link_existing_users: false
     redirect_on_logout: true
     redirect_user_back: true
     enable_logging: "{{ MODE_DEBUG }}"

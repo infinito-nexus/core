@@ -66,7 +66,7 @@ the unified addon contract. The OIDC and WP-Discourse runtime config lives in ea
 | `s3-uploads` | `plugin` | enabled with the `seaweedfs` service | none |
 | `infinito-s3-uploads` | `mu_plugin` | enabled with the `seaweedfs` service | none |
 
-The OIDC plugin links a Keycloak sign-in to an existing WordPress account by its email, and only when the claim carries `email_verified: true`.
+The OIDC plugin finds an account only by the Keycloak user id it stored for it (the `sub` claim, user meta `openid-connect-generic-subject-identity`). `link_existing_users` is off: plugin 3.11.4 lets a verified email match replace the identity an account is already bound to, so a new Keycloak user holding a reused address could take over that account. A sign-in without a bound account creates a new one. An email that already belongs to an account fails that sign-in closed; a user name that is already taken does not, the plugin creates the account under the next free name (`<name>2`). Every deploy binds the install administrator to the id of the Keycloak user with the same name, removes that id from every other account, and fails when any other account, under any site prefix, still holds it; the deploy log names each account it unbound. A WordPress user that existed before and was never bound can no longer link itself; an administrator binds it by setting that user meta to the Keycloak user id.
 
 The OIDC login + RBAC paths are covered by `test-admin-oidc-login.js` /
 `test-rbac-roles.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
