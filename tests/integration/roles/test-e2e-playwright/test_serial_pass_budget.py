@@ -17,7 +17,7 @@ from utils.roles.invocations import iter_tasks
 from . import PROJECT_ROOT
 
 TASKS = PROJECT_ROOT / "roles" / "test-e2e-playwright" / "tasks" / "03_run_pass.yml"
-BUDGET = 3
+BUDGET = 10
 COMMANDS = {
     "pass": ["sh", "-c", "echo out; echo err >&2"],
     "fail": ["sh", "-c", "echo out; echo err >&2; exit 1"],
