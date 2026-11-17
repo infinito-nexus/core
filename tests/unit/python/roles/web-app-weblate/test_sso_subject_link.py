@@ -87,7 +87,7 @@ class WeblateSubjectLinkTests(unittest.TestCase):
             lookup["ansible.builtin.include_role"],
             {"name": "web-app-keycloak", "tasks_from": "utils/directory_users.yml"},
         )
-        self.assertEqual(lookup["vars"]["application_id"], "web-app-keycloak")
+        self.assertNotIn("application_id", lookup["vars"])
 
     def test_the_adoption_receives_the_backend_and_the_subject(self):
         adopt = next(

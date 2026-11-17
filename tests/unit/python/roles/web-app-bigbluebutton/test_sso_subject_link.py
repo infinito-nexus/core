@@ -43,7 +43,7 @@ class GreenlightSubjectLinkTests(unittest.TestCase):
             lookup["ansible.builtin.include_role"],
             {"name": "web-app-keycloak", "tasks_from": "utils/directory_users.yml"},
         )
-        self.assertEqual(lookup["vars"]["application_id"], "web-app-keycloak")
+        self.assertNotIn("application_id", lookup["vars"])
 
     def test_the_lookup_precedes_the_admin_provisioning(self):
         names = [task["name"] for task in self.tasks]

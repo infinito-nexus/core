@@ -29,7 +29,6 @@
         name: web-app-keycloak
         tasks_from: utils/user_attributes.yml
       vars:
-        application_id: web-app-keycloak
         keycloak_user_attribute: "{{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}"
         keycloak_user_attribute_values: >-
           {{ nextcloud_sso_accounts_probe | nextcloud_sociallogin_subjects

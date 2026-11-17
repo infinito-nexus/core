@@ -2,7 +2,7 @@
 - name: "⏳ Keycloak login | Wait for keycloak container to be running"
   ansible.builtin.shell: >
     container inspect --type container -f '{{ "{{" }}.State.Running{{ "}}" }}'
-    {{ lookup('container_address', application_id, entity_name) }}
+    {{ KEYCLOAK_LOGIN_ADDRESS }}
   register: kc_running_compose
   changed_when: false
   retries: 60
@@ -15,9 +15,10 @@
 - name: "🔍 Keycloak login | Resolve hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
-    resolve_service_key: "{{ entity_name }}"
+    resolve_service_key: keycloak
+    resolve_service_name: "{{ KEYCLOAK_LOGIN_SERVICE if IS_SWARM_MODE else '' }}"
     resolve_output_prefix: KEYCLOAK
-    resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+    resolve_compose_cid: "{{ KEYCLOAK_LOGIN_ADDRESS }}"
     resolve_converge_retries: 120
     resolve_converge_delay: 5
 

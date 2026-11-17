@@ -191,7 +191,7 @@ class TestSsoSwitchGuard(unittest.TestCase):
         self.assertEqual(
             _switch()["when"], "nextcloud_sso_accounts_probe is not skipped"
         )
-        self.assertEqual(task["vars"]["application_id"], "web-app-keycloak")
+        self.assertNotIn("application_id", task["vars"])
         self.assertEqual(
             task["vars"]["keycloak_user_attribute"],
             "{{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}",

@@ -21,7 +21,6 @@
         name: web-app-keycloak
         tasks_from: utils/directory_users.yml
       vars:
-        application_id: web-app-keycloak
         keycloak_directory_usernames:
           - "{{ lookup('users', 'platform_administrator').username }}"
 

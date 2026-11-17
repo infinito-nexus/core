@@ -122,6 +122,9 @@ KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ OIDC.ADMIN.PASSWORD }}"
 
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
 KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+# Exception: Keycloak named literally, as a caller's application_id include param outranks the application_id above when another role runs the login.
+KEYCLOAK_LOGIN_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
+KEYCLOAK_LOGIN_SERVICE: "{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}"
 KEYCLOAK_TARGET_CONTAINER: "{{ KEYCLOAK_LOCAL_CID | default(KEYCLOAK_CONTAINER_ADDRESS) }}" # nocheck: container-var-name-lookup references the consumer's container, not this role's service
 KEYCLOAK_EXEC_CONTAINER: "container exec -i {{ KEYCLOAK_TARGET_CONTAINER }}" # nocheck: container-exec-resolver # nocheck: container-var-name-lookup references the consumer's container, not this role's service
 KEYCLOAK_KCADM: "/opt/keycloak/bin/kcadm.sh"

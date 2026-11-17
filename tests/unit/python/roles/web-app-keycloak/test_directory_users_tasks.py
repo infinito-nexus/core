@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
+import re
 import unittest
 
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 
 TASKS = PROJECT_ROOT / "roles/web-app-keycloak/tasks"
 HELPER = TASKS / "utils/directory_users.yml"
 READER = TASKS / "utils/directory_users/read.yml"
+LOGIN = TASKS / "utils/login.yml"
+LOGIN_HELPERS = ("utils/directory_users.yml", "utils/user_attributes.yml")
+AMBIENT_ID = re.compile(r"\b(application_id|entity_name)\b")
 FIELDS = "id,username,email,emailVerified"
+OWN_ID = "web-app-keycloak"
+INCLUDE_ROLE = "ansible.builtin.include_role"
 
 
 def kcadm_calls(tasks):
@@ -18,6 +24,23 @@ def kcadm_calls(tasks):
         argv = (task.get("ansible.builtin.command") or {}).get("argv")
         if argv:
             yield task, argv
+
+
+def walk(tasks):
+    for task in tasks or []:
+        if not isinstance(task, dict):
+            continue
+        yield task
+        for section in ("block", "rescue", "always"):
+            yield from walk(task.get(section))
+
+
+def login_helper_callers():
+    for path in sorted((PROJECT_ROOT / "roles").glob("*/tasks/**/*.yml")):
+        for task in walk(load_yaml_any(str(path))):
+            include = task.get(INCLUDE_ROLE) or {}
+            if include.get("tasks_from") in LOGIN_HELPERS:
+                yield path, task
 
 
 class TestDirectoryUsersHelper(unittest.TestCase):
@@ -44,6 +67,21 @@ class TestDirectoryUsersHelper(unittest.TestCase):
             self.read["ansible.builtin.include_tasks"],
             "{{ role_path }}/tasks/utils/directory_users/read.yml",
         )
+
+    def test_the_login_never_derives_keycloak_from_the_ambient_application_id(self):
+        self.assertIsNone(AMBIENT_ID.search(read_text(str(LOGIN))))
+
+    def test_the_login_helper_callers_leave_their_application_id_alone(self):
+        callers = list(login_helper_callers())
+        self.assertEqual(
+            {task[INCLUDE_ROLE]["tasks_from"] for _, task in callers},
+            set(LOGIN_HELPERS),
+        )
+        self.assertGreaterEqual(len(callers), 7)
+        for path, task in callers:
+            with self.subTest(caller=str(path.relative_to(PROJECT_ROOT))):
+                self.assertEqual(task[INCLUDE_ROLE]["name"], OWN_ID)
+                self.assertNotIn("application_id", task.get("vars") or {})
 
     def test_every_kcadm_call_is_a_read_on_the_users_endpoint(self):
         self.assertEqual(len(self.calls), 3)
