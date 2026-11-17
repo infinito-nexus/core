@@ -17,7 +17,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVER
 
 ROLE = "web-app-mattermost"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
-LOGIN = "/api/v4/users/login"
+REFUSED = ("= /api/v4/users/login", "= /api/v4/users/login/switch")
 STUBBED_INCLUDES = {
     "roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2": "IDENTITY_STRIPS;\n",
     "roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2": "SECURITY_HEADERS;\n",
@@ -102,15 +102,15 @@ def top_level(directives: list[str]) -> list[str]:
 
 
 class TestPasswordLoginIsRefusedAtTheProxy(unittest.TestCase):
-    def test_sso_refuses_exactly_the_password_login(self) -> None:
+    def test_sso_refuses_exactly_the_password_endpoints(self) -> None:
         found = locations(render(sso=True))
-        self.assertEqual([f"= {LOGIN}"], list(found))
-        directives = found[f"= {LOGIN}"]
-        self.assertIn("return 403;", top_level(directives))
-        for kept in ("IDENTITY_STRIPS;", "SECURITY_HEADERS;", "FORWARDED;"):
-            with self.subTest(kept=kept):
-                self.assertIn(kept, directives)
-        self.assertNotIn("LUA_INJECTION;", directives)
+        self.assertEqual(sorted(REFUSED), sorted(found))
+        for matcher, directives in found.items():
+            with self.subTest(matcher=matcher):
+                self.assertIn("return 403;", top_level(directives))
+                for kept in ("IDENTITY_STRIPS;", "SECURITY_HEADERS;", "FORWARDED;"):
+                    self.assertIn(kept, directives)
+                self.assertNotIn("LUA_INJECTION;", directives)
 
     def test_native_mode_renders_nothing(self) -> None:
         self.assertEqual("", render(sso=False).strip())
