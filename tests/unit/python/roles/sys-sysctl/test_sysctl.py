@@ -1,6 +1,7 @@
 """Contract of sys-sysctl: the kernel.core_pattern default per distro family,
 the container rule that keeps host-global keys out of a container, the drop-in
-per owner, the migrated consumers and the idempotence of the real module. Each
+per owner and its directory, the migrated consumers and the idempotence of the
+real module. Each
 contract carries a negative control that proves its checker can fail."""
 
 import itertools
@@ -114,6 +115,7 @@ SYSCTL_MODULE = (
 def _env():
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders ansible expressions, not markup
     env.filters["path_join"] = lambda parts: posixpath.join(*parts)
+    env.filters["dirname"] = posixpath.dirname
     env.filters["bool"] = boolean
     env.filters["entity_name"] = entity_name
     env.filters["dict2items"] = lambda d: [{"key": k, "value": v} for k, v in d.items()]
@@ -259,7 +261,54 @@ def _run_sysctl_module(sysctl_file, value, state="present", name=CORE_KEY):
         check=False,
     )
     Path(handle.name).unlink()
+    if not result.stdout.strip():
+        return {"failed": True, "msg": result.stderr}
     return json.loads(result.stdout)
+
+
+def _replay(tasks, context, root):
+    """Replays the directory and persist steps of ``tasks`` in their order.
+
+    Args:
+        tasks: role tasks as loaded from tasks/main.yml.
+        context: resolved role variables the tasks render against.
+        root: temporary directory every created path must stay inside.
+
+    Returns:
+        The result of every persist call, in order.
+    """
+    env = _env()
+    results = []
+    for task in tasks:
+        when = task.get("when")
+        if when and not env.compile_expression(when)(**context):
+            continue
+        directory = task.get("ansible.builtin.file", {})
+        if directory.get("state") == "directory":
+            path = Path(_render(directory["path"], context, env))
+            if not path.is_relative_to(root):
+                raise AssertionError(f"{path} escapes {root}")
+            path.mkdir(parents=True, exist_ok=True)
+            path.chmod(int(_render(directory["mode"], context, env), 8))
+        persist = task.get("ansible.posix.sysctl", {})
+        if persist.get("state") == "present":
+            dropin = _render(persist["sysctl_file"], context, env)
+            results.extend(
+                _run_sysctl_module(dropin, item["value"], name=item["key"])
+                for item in _render(task["loop"], context, env)
+            )
+    return results
+
+
+def _hub_context(root):
+    return _resolve(
+        {
+            "sys_sysctl_owner": "wireguard",
+            "sys_sysctl_parameters": {"net.ipv4.ip_forward": "1"},
+            "sys_sysctl_file": str(root / "etc/sysctl.d/99-wireguard.conf"),
+        },
+        in_container=True,
+    )
 
 
 class TestCorePatternDefault(unittest.TestCase):
@@ -379,6 +428,52 @@ class TestDropIn(unittest.TestCase):
         )
         self.assertLess(apply, retire, names)
         self.assertFalse(_tasks()[retire]["ansible.posix.sysctl"]["reload"])
+
+
+class TestDropInDirectory(unittest.TestCase):
+    def _first_write(self, tasks):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            context = _hub_context(root)
+            results = _replay(tasks, context, root)
+            dropin = Path(context["sys_sysctl_file"])
+            written = read_text(str(dropin)) if dropin.exists() else None
+        return results, written
+
+    def test_the_first_write_creates_the_missing_dropin_directory(self):
+        results, written = self._first_write(_tasks())
+        self.assertEqual([result.get("failed", False) for result in results], [False])
+        self.assertEqual(written.splitlines(), ["net.ipv4.ip_forward=1"])
+
+    def test_negative_control_without_the_directory_step_the_write_fails(self):
+        tasks = [task for task in _tasks() if "ansible.builtin.file" not in task]
+        results, written = self._first_write(tasks)
+        self.assertTrue(results[0]["failed"])
+        self.assertIn("No such file or directory", results[0]["msg"])
+        self.assertIn(".ansible_m_sysctl_", results[0]["msg"])
+        self.assertIsNone(written)
+
+    def test_negative_control_a_directory_step_after_the_write_is_too_late(self):
+        tasks = _tasks()
+        late = [t for t in tasks if "ansible.builtin.file" not in t] + [
+            t for t in tasks if "ansible.builtin.file" in t
+        ]
+        results, written = self._first_write(late)
+        self.assertTrue(results[0]["failed"])
+        self.assertIsNone(written)
+
+    def test_nothing_is_created_when_no_key_is_writable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            context = _resolve(
+                {
+                    "sys_sysctl_parameters": {"vm.max_map_count": "262144"},
+                    "sys_sysctl_file": str(root / "etc/sysctl.d/99-host.conf"),
+                },
+                in_container=True,
+            )
+            self.assertEqual(_replay(_tasks(), context, root), [])
+            self.assertEqual(list(root.iterdir()), [])
 
 
 class TestConsumers(unittest.TestCase):

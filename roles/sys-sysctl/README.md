@@ -24,6 +24,7 @@ Inside a container the role writes only the namespaced keys: `net.*`, the IPC ke
 - On Debian and Ubuntu, `systemd-coredump` is a separate optional package, and the `systemd` package ships `10-coredump-debian.conf` with `kernel.core_pattern=core`. On Fedora and CentOS Stream the handler belongs to `systemd-udev`, and on Arch to `systemd`.
 - On Ubuntu, `apport` writes its own pattern when its service starts and writes `core` when it stops, so it can replace the host value until the next deploy.
 - The owner `sysctl` is refused: `/etc/sysctl.d/99-sysctl.conf` is the distro symlink to `/etc/sysctl.conf`.
+- On Fedora and CentOS Stream, `/etc/sysctl.d` itself belongs to `systemd-udev`, which a CentOS Stream container does not carry, and the sysctl module does not create the directory of its file. The role creates the drop-in directory before its first write.
 
 ## Further Resources
 
