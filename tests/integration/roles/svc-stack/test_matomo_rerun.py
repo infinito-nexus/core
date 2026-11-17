@@ -174,7 +174,9 @@ class TestMatomoRerun(unittest.TestCase):
         self.assertEqual(
             fronts,
             [
-                "front:web-app-alpha|False",
+                "inject:web-app-plain|",
+                "inject:web-app-alpha|",
+                "front:web-app-alpha|True",
                 "inject:web-app-alpha|installed",
                 "front:web-app-alpha|True",
             ],

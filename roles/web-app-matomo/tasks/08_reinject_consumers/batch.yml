@@ -1,16 +1,28 @@
 ---
-- name: "🗂️ Matomo | Take the fronts the front batch rendered without a site id"
+- name: "🗂️ Matomo | Take the fronts rendered without a site id"
   ansible.builtin.set_fact:
-    matomo_unsited_items: "{{ stack_matomo_unsited.values() | list }}"
+    matomo_unsited_batch: "{{ stack_matomo_unsited.values() | rejectattr('phase', 'equalto', 'entered') | list }}"
+    matomo_unsited_entered: "{{ stack_matomo_unsited.values() | selectattr('phase', 'equalto', 'entered') | list }}"
     stack_matomo_unsited: {}
   run_once: true
   changed_when: false
 
-- name: "🔁 Matomo | Re-run the front batch for those fronts now Matomo serves their sites"
+- name: "🔁 Matomo | Re-run the front batch for the batch fronts now Matomo serves their sites"
   ansible.builtin.include_role:
     name: svc-stack
     tasks_from: batch/serve.yml
   vars:
-    stack_batch_items: "{{ matomo_unsited_items }}"
+    stack_batch_items: "{{ matomo_unsited_batch }}"
     matomo_token_override: "{{ matomo_token_value }}"
-  when: matomo_unsited_items | length > 0
+  when: matomo_unsited_batch | length > 0
+
+- name: "🔢 Matomo | Write the site id into each vhost its consumer served itself"
+  ansible.builtin.include_role:
+    name: sys-front-inj-matomo
+    tasks_from: site_id.yml
+  loop: "{{ matomo_unsited_entered | map(attribute='domains') | flatten | unique }}"
+  loop_control:
+    loop_var: matomo_unsited_vhost
+  vars:
+    domain: "{{ matomo_unsited_vhost }}"
+    matomo_token_override: "{{ matomo_token_value }}"

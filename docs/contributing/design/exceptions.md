@@ -26,9 +26,11 @@ absent from the token store, so the variable arrives empty.
 as the empty string whenever any of those steps cannot complete. An empty token short-circuits the API
 call, and an API answer that is not a 200 list leaves the id unresolved the same way.
 
-When `matomo_site_id` is empty, `sys-front-inj-matomo` sets `inj_enabled.matomo = false` for the current
-domain. This prevents the NGINX template from rendering the Matomo body snippet (which would reference
-`matomo_site_id`) and skips `inject.yml` entirely. The play continues without error.
+When `matomo_site_id` is empty, `sys-front-inj-matomo` still injects the tracker, whose text carries no
+site id, with an empty `data-matomo-site-id` attribute. The tracker returns before it loads `matomo.js`
+while that attribute is empty, and the play continues without error. A front svc-stack rendered this way
+is recorded in `stack_matomo_unsited`, so [`web-app-matomo`](../../../roles/web-app-matomo/) gives it
+the site id once its install path holds the token.
 
 Failing instead of skipping would make the play non-idempotent on first deployment and would block every
 other application from being configured just because Matomo's bootstrap has not completed yet.
@@ -38,7 +40,7 @@ Matomo tracking is a best-effort enhancement, not a hard runtime dependency of t
 
 Once the Matomo bootstrap has run, either later in the same play or on the next Ansible invocation,
 `sys-token-store` writes the token to disk. On the **next play run** the token is resolved from the store,
-the condition evaluates to false, and `inject.yml` executes normally: registering the site at Matomo
-and injecting the tracking code into the target application.
+and `resolve_site.yml` registers the site at Matomo and renders its id into the tracker of the target
+application.
 
 No manual intervention is required. Re-running the play is sufficient.

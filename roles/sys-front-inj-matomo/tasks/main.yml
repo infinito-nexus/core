@@ -3,26 +3,24 @@
 
 # The Matomo API token may be empty on first deployment or when the Matomo container is
 # already reachable but the bootstrap has not run yet (so sys-token-store never wrote the
-# token file). In that case inj_enabled.matomo is set to false so the NGINX template skips
-# the Matomo body snippet (avoiding 'matomo_site_id is undefined') and inject.yml is not run.
+# token file). The tracker then renders with an empty data-matomo-site-id and stays idle
+# until web-app-matomo writes the site id into the recorded front.
 # See docs/contributing/design/exceptions.md — "Matomo Token Not Yet Available".
 
 - name: "🔎 Resolve the Matomo site id for '{{ domain }}'"
   include_tasks: resolve_site.yml
 
-- name: "🔴 Hold the Matomo front until it has a site id"
-  when: matomo_site_id == ""
-  block:
-    - name: "🔴 Disable Matomo in inj_enabled for '{{ domain }}' — no site id yet"
-      ansible.builtin.set_fact:
-        inj_enabled: "{{ inj_enabled | combine({'matomo': false}) }}"
-
-    - name: "📝 Record '{{ application_id }}' to re-run its Matomo front once it has a site id"
-      ansible.builtin.set_fact:
-        stack_matomo_unsited: "{{ stack_matomo_unsited | combine({stack_batch_item.id: stack_batch_item}) }}"
-      changed_when: false
-      when: stack_batch_running | bool
-
 - name: "💉 Inject Matomo tracking for '{{ domain }}'"
   include_tasks: inject.yml
-  when: inj_enabled.matomo | bool
+
+- name: "📝 Record '{{ application_id }}' to give its Matomo front a site id later"
+  ansible.builtin.set_fact:
+    stack_matomo_unsited: >-
+      {{ stack_matomo_unsited
+         | combine({stack_batch_consumer: {'id': stack_batch_consumer, 'phase': stack_front_phase, 'domains': [domain]}}
+                   if stack_front_phase == 'entered' else {stack_batch_item.id: stack_batch_item},
+                   recursive=true, list_merge='append_rp') }}
+  changed_when: false
+  when:
+    - matomo_site_id == ""
+    - stack_front_phase is defined

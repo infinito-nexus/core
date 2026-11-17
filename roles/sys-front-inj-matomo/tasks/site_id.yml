@@ -1,0 +1,15 @@
+---
+# Param: domain - vhost whose rendered body_filter Lua carries the tracker without a site id.
+# Param: matomo_token_override - Matomo API token, for a run before sys-token-store holds it.
+- name: "🔎 Resolve the Matomo site id for '{{ domain }}'"
+  ansible.builtin.include_tasks: resolve_site.yml
+
+- name: "🔢 Write the Matomo site id into the tracker of '{{ domain }}'"
+  ansible.builtin.replace:
+    path: "{{ lookup('nginx', 'files.lua', domain) }}"
+    regexp: '(data-matomo-site-id="|matomo\.php\?idsite=)[^"&]*'
+    replace: '\g<1>{{ matomo_site_id }}'
+  notify: reload-openresty
+  when:
+    - IS_STACK_HOST | bool
+    - matomo_site_id != ""
