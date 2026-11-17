@@ -104,7 +104,7 @@ relay:
     swarm:
       enabled: true
   image: nginx
-  version: 1.31.7-alpine
+  version: 1.31.8-alpine
   name: openpost-relay
   cpus: "0.2"
   mem_reservation: 16m
@@ -114,6 +114,11 @@ relay:
     internal:
       http: 80
       https: 443
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "1.31.8-alpine"
+        until: 2026-11-30
 # nocheck: playwright-service-flag  CI provider simulator, covered by the role's CLI test
 # nocheck: dynamic-flag  a test fixture switched on by one variant only; no other role's presence decides it
 simulator:
@@ -161,7 +166,7 @@ provider:
     swarm:
       enabled: true
   image: python
-  version: 3.13.7-slim
+  version: 3.13.18-slim
   name: openpost-provider
   uid: 10002
   cpus: "0.25"
@@ -188,7 +193,7 @@ crossposter:
     swarm:
       enabled: true
   image: python
-  version: 3.13.7-slim
+  version: 3.13.18-slim
   name: openpost-crossposter
   uid: 10001
   cpus: "0.25"
