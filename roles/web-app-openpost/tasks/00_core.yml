@@ -39,8 +39,9 @@
   vars:
     compose_handlers_flush: false
     webserver_extra_configuration: >-
-      {{ lookup('file', lookup('path_absolute', 'roles/web-app-openpost/files/nginx/deny-password-registration.conf'))
-         if OPENPOST_OIDC_ENABLED | bool else '' }}
+      {{ lookup('template', 'nginx/echo_routes.conf.j2')
+         ~ (lookup('file', lookup('path_absolute', 'roles/web-app-openpost/files/nginx/deny-password-registration.conf'))
+            if OPENPOST_OIDC_ENABLED | bool else '') }}
 
 - name: "📄 Render the egress relay config (local + swarm peers)"
   ansible.builtin.include_tasks:
