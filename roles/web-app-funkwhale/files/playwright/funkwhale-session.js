@@ -101,8 +101,9 @@ async function signOut(page, label) {
 }
 
 async function currentUser(page) {
-  const response = await page.request.get(`${appBaseUrl}/api/v1/users/me/`);
-  expect(response.ok(), `GET ${appBaseUrl}/api/v1/users/me/ answered ${response.status()}`).toBe(true);
+  const url = `${appBaseUrl}/api/v2/users/me/`;
+  const response = await page.request.get(url);
+  expect(response.ok(), `GET ${url} answered ${response.status()}`).toBe(true);
   return response.json();
 }
 
