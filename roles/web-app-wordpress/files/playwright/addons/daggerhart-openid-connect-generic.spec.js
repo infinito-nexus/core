@@ -11,57 +11,69 @@ const shared = require("../_shared");
 // Keycloak round-trip → wp-admin) succeeds. We REUSE that idiom rather
 // than reimplement OIDC mechanics, gating behind the addon flag and the
 // sso service.
+const admin = shared.env.adminUsername;
+const usersPath = shared.env.multisiteEnabled
+  ? "/wp-admin/network/users.php"
+  : "/wp-admin/users.php";
+
+async function signInAsAdministrator(page) {
+  await shared.wpAdminLoginViaOidc(
+    page,
+    shared.env.wpBaseUrl,
+    admin,
+    shared.env.adminPassword
+  );
+  await expect(page, "Expected to land in wp-admin after the OIDC round-trip").toHaveURL(
+    /\/wp-admin\/?/,
+    { timeout: resolveTimeout(30_000) }
+  );
+  await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/profile.php`, {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(
+    page.locator("#user_login"),
+    `Expected the OIDC round-trip to sign in as the WordPress user "${admin}"`
+  ).toHaveValue(admin, { timeout: resolveTimeout(30_000) });
+}
+
+async function accountsNamedLikeAdministrator(page) {
+  await gotoOnion(
+    page,
+    `${shared.env.wpBaseUrl}${usersPath}?s=${encodeURIComponent(admin)}`,
+    { waitUntil: "domcontentloaded" }
+  );
+  const loginLinks = page.locator("#the-list .column-username strong a");
+  await expect(
+    loginLinks.first(),
+    `Expected ${usersPath} to list "${admin}"`
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  return (await loginLinks.allTextContents()).map((login) => login.trim()).sort();
+}
+
 test("addon daggerhart-openid-connect-generic: administrator OIDC login lands in wp-admin", async ({ browser }) => {
   skipUnlessAddonEnabled("daggerhart-openid-connect-generic");
   skipUnlessServiceEnabled("sso");
 
+  const observer = await browser.newContext({ ignoreHTTPSErrors: true });
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const observerPage = await observer.newPage();
   const page = await context.newPage();
 
   try {
-    await shared.wpAdminLoginViaOidc(
-      page,
-      shared.env.wpBaseUrl,
-      shared.env.adminUsername,
-      shared.env.adminPassword
-    );
+    await signInAsAdministrator(observerPage);
+    const before = await accountsNamedLikeAdministrator(observerPage);
+    expect(before, `Expected ${usersPath} to list "${admin}"`).toContain(admin);
 
-    await expect(page, "Expected to land in wp-admin after the OIDC round-trip").toHaveURL(
-      /\/wp-admin\/?/,
-      { timeout: resolveTimeout(30_000) }
-    );
+    await signInAsAdministrator(page);
 
-    const admin = shared.env.adminUsername;
-    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/profile.php`, {
-      waitUntil: "domcontentloaded",
-    });
-    await expect(
-      page.locator("#user_login"),
-      `Expected the OIDC round-trip to sign in as the WordPress user "${admin}"`
-    ).toHaveValue(admin, { timeout: resolveTimeout(30_000) });
-
-    const usersPath = shared.env.multisiteEnabled
-      ? "/wp-admin/network/users.php"
-      : "/wp-admin/users.php";
-    await gotoOnion(
-      page,
-      `${shared.env.wpBaseUrl}${usersPath}?s=${encodeURIComponent(admin)}`,
-      { waitUntil: "domcontentloaded" }
-    );
-    const loginLinks = page.locator("#the-list .column-username strong a");
-    await expect(
-      loginLinks.first(),
-      `Expected ${usersPath} to list "${admin}"`
-    ).toBeVisible({ timeout: resolveTimeout(30_000) });
-    const logins = (await loginLinks.allTextContents()).map((login) => login.trim());
-    const escaped = admin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    expect(logins, `Expected ${usersPath} to list "${admin}"`).toContain(admin);
     expect(
-      logins.filter((login) => new RegExp(`^${escaped}\\d+$`, "i").test(login)),
-      `Expected no second account named "${admin}" plus a digit on ${usersPath}`
-    ).toEqual([]);
+      await accountsNamedLikeAdministrator(observerPage),
+      `Expected the OIDC login to create no account on ${usersPath}`
+    ).toEqual(before);
   } finally {
     await page.close().catch(() => {});
+    await observerPage.close().catch(() => {});
     await context.close().catch(() => {});
+    await observer.close().catch(() => {});
   }
 });
