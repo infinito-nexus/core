@@ -8,10 +8,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from tests.lint.repository.documentation import test_markdown_links as links
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_README
 
-CUSTOM_SOURCE = "roles/web-app-cst-demo/README.md"
+CUSTOM_ROLE = "roles/web-app-cst-demo"
+CUSTOM_SOURCE = f"{CUSTOM_ROLE}/{ROLE_FILE_README}"
 CORE_SOURCE = "docs/index.md"
-CUSTOM_TARGET = "roles/web-app-cst-demo/meta/services.yml"
+CUSTOM_TARGET = f"{CUSTOM_ROLE}/{ROLE_FILE_META_SERVICES}"
 GENERATED_TARGET = "docs/generated/page.md"
 
 

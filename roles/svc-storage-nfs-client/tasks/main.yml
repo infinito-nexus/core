@@ -124,14 +124,14 @@
 
 - name: "✅ Ensure the node-local backup store exists"
   ansible.builtin.file:
-    path: "{{ SVC_STORAGE_NFS_CLIENT_BACKUPS_DIR }}"
+    path: "{{ DIR_BACKUPS_NODE }}"
     state: directory
     mode: "0755"
 
 - name: "🔗 Keep {{ DIR_BACKUPS }} node-local over the shared state"
   ansible.posix.mount:
     path: "{{ DIR_BACKUPS }}"
-    src: "{{ SVC_STORAGE_NFS_CLIENT_BACKUPS_DIR }}"
+    src: "{{ DIR_BACKUPS_NODE }}"
     fstype: none
     opts: bind,_netdev
     state: mounted
