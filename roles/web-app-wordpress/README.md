@@ -66,6 +66,8 @@ the unified addon contract. The OIDC and WP-Discourse runtime config lives in ea
 | `s3-uploads` | `plugin` | enabled with the `seaweedfs` service | none |
 | `infinito-s3-uploads` | `mu_plugin` | enabled with the `seaweedfs` service | none |
 
+The OIDC plugin links a Keycloak sign-in to an existing WordPress account by its email, and only when the claim carries `email_verified: true`.
+
 The OIDC login + RBAC paths are covered by `test-admin-oidc-login.js` /
 `test-rbac-roles.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
 
