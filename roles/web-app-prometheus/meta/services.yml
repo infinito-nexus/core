@@ -118,7 +118,7 @@ blackbox-exporter:
       http: 9115
 cadvisor:
   image: ghcr.io/google/cadvisor
-  version: v0.60.6
+  version: 0.61.0
   update:
     type: registry_tags
     image: ghcr.io/google/cadvisor
