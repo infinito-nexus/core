@@ -1695,7 +1695,14 @@ class TestCommands(TestCase):
 
     def test_the_host_scan_skips_the_excluded_paths(self):
         step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config(), [])
-        self.assertIn("/host/proc,/host/var/lib/docker", step.argv)
+        self.assertEqual(
+            [
+                step.argv[i + 1]
+                for i, arg in enumerate(step.argv)
+                if arg == "--skip-dirs"
+            ],
+            ['"/host/proc"', '"/host/var/lib/docker"'],
+        )
 
     def test_syft_scans_the_host_with_the_image_catalogers(self):
         step = SCRIPT.sbom_step(self.layout, "syft:1", self.host)
@@ -2255,6 +2262,7 @@ class TestMain(TestCase):
             mock.patch.object(SCRIPT, "running_containers", return_value=[]),
             mock.patch.object(SCRIPT, "check", return_value=([], [])),
             mock.patch.object(SCRIPT, "docker_root", return_value="/var/lib/docker"),
+            mock.patch.object(SCRIPT, "host_network_mounts", return_value=[]),
             mock.patch.object(
                 SCRIPT, "scan", return_value=(list(findings), list(errors))
             ),
