@@ -33,4 +33,5 @@ HEALTH_RUNTIME_HOST_EXCLUDES:
   - /mnt
   - /media
   - "{{ DIR_BACKUPS }}"
+  - "{{ DIR_BACKUPS_NODE }}"
   - "{{ lookup('nfs_export_base') }}"
