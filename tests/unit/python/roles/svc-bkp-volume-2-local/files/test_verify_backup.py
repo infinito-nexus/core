@@ -9,6 +9,7 @@ seed its row, stays a failure.
 
 from __future__ import annotations
 
+import gzip
 import json
 import os
 import subprocess
@@ -53,17 +54,45 @@ def _verify(
             ),
             encoding="utf-8",
         )
-        env = {
-            **os.environ,
-            "REPO_DIR": repo,
-            "NEWEST_GENERATION": GENERATION,
-            "BKP_TEST_REPO_ROOT": str(PROJECT_ROOT),
-            "BKP_TEST_PYTHON": sys.executable,
-            "BKP_TEST_CONSUMERLESS_DB_VOLUMES": consumerless,
-        }
-        return subprocess.run(
-            ["bash", str(SCRIPT)], capture_output=True, text=True, env=env, check=False
+        return _run(repo, consumerless)
+
+
+def _verify_dump(name: str, body: bytes) -> subprocess.CompletedProcess[str]:
+    with tempfile.TemporaryDirectory() as repo:
+        generation = Path(repo) / GENERATION
+        sql = generation / "postgres_data" / SQL_DIR
+        sql.mkdir(parents=True)
+        (sql / name).write_bytes(body)
+        (generation / MANIFEST_FILE).write_text(
+            json.dumps(
+                {
+                    "schema": MANIFEST_SCHEMA,
+                    "volumes": {
+                        "postgres_data": {
+                            "database": True,
+                            "dumped": True,
+                            "engine": "postgres",
+                        }
+                    },
+                }
+            ),
+            encoding="utf-8",
         )
+        return _run(repo, "")
+
+
+def _run(repo: str, consumerless: str) -> subprocess.CompletedProcess[str]:
+    env = {
+        **os.environ,
+        "REPO_DIR": repo,
+        "NEWEST_GENERATION": GENERATION,
+        "BKP_TEST_REPO_ROOT": str(PROJECT_ROOT),
+        "BKP_TEST_PYTHON": sys.executable,
+        "BKP_TEST_CONSUMERLESS_DB_VOLUMES": consumerless,
+    }
+    return subprocess.run(
+        ["bash", str(SCRIPT)], capture_output=True, text=True, env=env, check=False
+    )
 
 
 class TestVerifyBackup(unittest.TestCase):
@@ -91,6 +120,35 @@ class TestVerifyBackup(unittest.TestCase):
         self.assert_passes(
             _verify("mariadb_data", "mariadb", "postgres_data,mariadb_data"),
         )
+
+
+class TestDumpPayload(unittest.TestCase):
+    def assert_payload(self, result: subprocess.CompletedProcess[str]) -> None:
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK: backup payload present", result.stdout)
+
+    def assert_empty(self, result: subprocess.CompletedProcess[str]) -> None:
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("every backed-up volume", result.stdout)
+
+    def test_a_compressed_dump_counts(self) -> None:
+        self.assert_payload(
+            _verify_dump("zammad.backup.sql.gz", gzip.compress(b"SELECT 1;\n"))
+        )
+
+    def test_negative_control_a_compressed_empty_dump_is_empty(self) -> None:
+        empty = gzip.compress(b"")
+        self.assertGreater(len(empty), 0)
+        self.assert_empty(_verify_dump("zammad.backup.sql.gz", empty))
+
+    def test_a_plain_dump_from_before_baudolo_8_counts(self) -> None:
+        self.assert_payload(_verify_dump("zammad.backup.sql", b"SELECT 1;\n"))
+
+    def test_negative_control_a_plain_empty_dump_is_empty(self) -> None:
+        self.assert_empty(_verify_dump("zammad.backup.sql", b""))
+
+    def test_negative_control_a_file_that_is_no_dump_does_not_count(self) -> None:
+        self.assert_empty(_verify_dump("zammad.sql.tmp", b"SELECT 1;\n"))
 
 
 if __name__ == "__main__":

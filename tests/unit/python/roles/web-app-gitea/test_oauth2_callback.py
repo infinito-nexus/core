@@ -7,15 +7,22 @@ import subprocess
 import unittest
 from urllib.parse import quote
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    UndefinedError,
+    select_autoescape,
+)
 
 from plugins.lookup.redirect_uris import build_redirect_uris
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 APP = "web-app-gitea"
 ROLE_DIR = PROJECT_ROOT / "roles" / APP
+OIDC_VARS = PROJECT_ROOT / "group_vars" / "all" / "11_oidc.yml"
 DOMAIN = "code.example.org"
 STALE_ROOT_URL = "https://git.example.net/"
 LEGACY_SOURCE_NAME = "SSO Login (INFINITO.NEXUS)"
@@ -26,14 +33,32 @@ AWK_LOOKUP = re.compile(r"awk -F '(?P<sep>[^']+)' '(?P<program>[^']+)'")
 PLACEHOLDER = "x"
 
 
+def role_vars() -> dict:
+    return load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_VARS_MAIN)))
+
+
 def source_name() -> str:
-    return load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_VARS_MAIN)))[
-        "GITEA_OIDC_SOURCE_NAME"
-    ]
+    return role_vars()["GITEA_OIDC_SOURCE_NAME"]
 
 
-def render_env() -> dict[str, str]:
-    """Render the role's env.j2 for an SSO-enabled Gitea served on ``DOMAIN``.
+def shipped_oauth2_client() -> dict:
+    services = load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_META_SERVICES)))
+    return services["gitea"]["configuration"]["oauth2_client"]
+
+
+def oidc_constants() -> dict:
+    return load_yaml_str(read_text(str(OIDC_VARS)))["defaults_oidc"]
+
+
+def render_env(
+    oauth2_client: dict | None = None, without_oidc: bool = False
+) -> dict[str, str]:
+    """Render the role's env.j2 for a Gitea served on ``DOMAIN``.
+
+    Args:
+        oauth2_client: the ``services.gitea.configuration.oauth2_client`` block
+            an inventory sets; None renders the one meta/services.yml ships.
+        without_oidc: render a Gitea without the Keycloak source.
 
     Returns:
         The rendered KEY=VALUE pairs.
@@ -41,10 +66,15 @@ def render_env() -> dict[str, str]:
     env = Environment(
         loader=FileSystemLoader(str(PROJECT_ROOT)),
         undefined=StrictUndefined,
-        autoescape=select_autoescape(),
+        autoescape=select_autoescape(default_for_string=False),
         keep_trailing_newline=True,
     )
+    client = shipped_oauth2_client() if oauth2_client is None else oauth2_client
     config = {
+        **{
+            f"services.gitea.configuration.oauth2_client.{key}": value
+            for key, value in client.items()
+        },
         "services.gitea.ports.public.ssh": 2201,
         "services.gitea.configuration.repository.enable_push_create_user": True,
         "services.gitea.configuration.repository.default_private": "last",
@@ -66,7 +96,10 @@ def render_env() -> dict[str, str]:
         if name == "email":
             return {"enabled": False}
         if name == "config":
-            return config[terms[1]]
+            value = config[terms[1]]
+            if isinstance(value, str):
+                return env.from_string(value).render(OIDC=oidc_constants())
+            return value
         raise AssertionError(f"env.j2 renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup
@@ -80,9 +113,10 @@ def render_env() -> dict[str, str]:
         GITEA_DESIGN_ENABLED=False,
         GITEA_THEMES={"auto": "corporate-auto"},
         GITEA_THEMES_OFFERED=[],
-        GITEA_OIDC_ENABLED=True,
+        GITEA_OIDC_ENABLED=not without_oidc,
         GITEA_LDAP_ENABLED=False,
-        GITEA_IAM_ENABLED=True,
+        GITEA_IAM_ENABLED=not without_oidc,
+        GITEA_OAUTH2_USERNAME_SOURCES=role_vars()["GITEA_OAUTH2_USERNAME_SOURCES"],
     )
     return dict(
         line.split("=", 1)
@@ -216,6 +250,47 @@ class TestGiteaOAuth2Callback(unittest.TestCase):
         env = render_env()
         self.assertEqual(env["GITEA__openid__ENABLE_OPENID_SIGNIN"], "false")
         self.assertEqual(env["GITEA__openid__ENABLE_OPENID_SIGNUP"], "false")
+
+
+class TestGiteaOAuth2AccountLinking(unittest.TestCase):
+    def test_a_keycloak_login_links_the_existing_account(self) -> None:
+        env = render_env()
+        self.assertEqual(env["GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION"], "true")
+        self.assertEqual(env["GITEA__oauth2_client__ACCOUNT_LINKING"], "auto")
+        self.assertEqual(env["GITEA__oauth2_client__USERNAME"], "preferred_username")
+
+    def test_an_inventory_override_reaches_gitea(self) -> None:
+        env = render_env(
+            {
+                "enable_auto_registration": False,
+                "account_linking": "login",
+                "username": "email",
+            }
+        )
+        self.assertEqual(env["GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION"], "false")
+        self.assertEqual(env["GITEA__oauth2_client__ACCOUNT_LINKING"], "login")
+        self.assertEqual(env["GITEA__oauth2_client__USERNAME"], "email")
+
+    def test_a_sub_claim_selects_the_gitea_user_id(self) -> None:
+        env = render_env({**shipped_oauth2_client(), "username": "sub"})
+        self.assertEqual(env["GITEA__oauth2_client__USERNAME"], "userid")
+
+    def test_a_claim_gitea_cannot_select_fails_the_render(self) -> None:
+        with self.assertRaises(UndefinedError):
+            render_env({**shipped_oauth2_client(), "username": "uid"})
+
+    def test_without_keycloak_gitea_gets_no_oauth2_client_settings(self) -> None:
+        env = render_env(without_oidc=True)
+        self.assertEqual(
+            [key for key in env if key.startswith("GITEA__oauth2_client__")], []
+        )
+
+    def test_the_source_requests_the_claims_auto_linking_matches(self) -> None:
+        task = read_text(str(ROLE_DIR / "tasks" / "setup" / "oidc.yml"))
+        scopes = re.findall(r'--scopes\s+"([^"]+)"', task)
+        self.assertTrue(scopes)
+        for requested in scopes:
+            self.assertLessEqual({"profile", "email"}, set(requested.split()))
 
 
 class TestGiteaAuthSourceConvergence(unittest.TestCase):
