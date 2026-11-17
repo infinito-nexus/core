@@ -11,16 +11,14 @@
   register: blender_mcp_install
   changed_when: "'installed package' in (blender_mcp_install.stdout | lower)"
 
-- name: 📁 Let Blender name and create its user addons directory
+- name: 📁 Name the user addons directory of the Blender on PATH
   ansible.builtin.command:
     argv:
+      - python3
+      - "-"
       - blender
-      - --background
-      - --python-expr
-      - >-
-        import bpy, sys;
-        sys.stdout.write('ADDONS=' + bpy.utils.user_resource('SCRIPTS', path='addons', create=True))
-  register: blender_addons_probe
+    stdin: "{{ lookup('file', 'python/user_addons_dir.py') }}"
+  register: blender_addons_dir
   changed_when: false
 
 - name: 🧩 Install the Blender side of the MCP bridge
@@ -29,7 +27,7 @@
       - "{{ blender_mcp_command }}"
       - install-addon
   environment:
-    BLENDERMCP_ADDONS_DIR: "{{ blender_addons_probe.stdout | regex_search('ADDONS=(\\S+)', '\\1') | first }}"
+    BLENDERMCP_ADDONS_DIR: "{{ blender_addons_dir.stdout }}"
     PATH: "{{ blender_pipx_bin_dir }}:{{ blender_exec_path }}"
   register: blender_mcp_addon
   changed_when: "'installed' in (blender_mcp_addon.stdout | lower)"
