@@ -170,7 +170,13 @@ def compose_onion_peers(gate_apps: list[str]) -> list:
     return seen
 
 
-def playwright_targets(group_names: list[str]) -> list[dict]:
+def playwright_values(group_names: list[str], answer=lookup) -> dict[str, str]:
+    """Render the back-channel target block and the Synapse URL of the Playwright env.
+
+    Args:
+        group_names: the application ids deployed on the host.
+        answer: the lookup stub the template calls.
+    """
     lines = read_text(str(ROLE / "templates" / "playwright.env.j2")).splitlines()
     start = next(
         i
@@ -180,10 +186,52 @@ def playwright_targets(group_names: list[str]) -> list[dict]:
     end = next(
         i for i, row in enumerate(lines) if row.startswith("BACKCHANNEL_TARGETS_JSON=")
     )
-    source = "\n".join(lines[start : end + 1])
-    rendered = environment({}).from_string(source).render(group_names=group_names)
-    value = env_values(rendered)["BACKCHANNEL_TARGETS_JSON"]
+    synapse = next(row for row in lines if row.startswith("MATRIX_SYNAPSE_URL="))
+    source = "\n".join([*lines[start : end + 1], synapse])
+    env = environment({})
+    env.globals["lookup"] = answer
+    return env_values(env.from_string(source).render(group_names=group_names))
+
+
+def playwright_targets(group_names: list[str], answer=lookup) -> list[dict]:
+    value = playwright_values(group_names, answer)["BACKCHANNEL_TARGETS_JSON"]
     return json.loads(dotenv_unquote(value))
+
+
+SSO_CLIENT_APPS = {
+    "web-app-matrix": {
+        "services.sso.oidc.backchannel_logout_path": "/_synapse/client/oidc/backchannel_logout",
+        "services.sso.oidc.clients.synapse": "synapse",
+    },
+    "web-app-opencloud": {
+        "services.sso.oidc.backchannel_logout_path": "/backchannel_logout",
+        "services.sso.oidc.clients.web": "opencloud",
+    },
+    "web-app-opentalk": {
+        "services.sso.oidc.backchannel_logout_path": "/v1/auth/logout",
+        "services.sso.oidc.frontend_client_id": "opentalk-frontend",
+    },
+}
+SYNAPSE_URL = "https://synapse.example.test"
+
+
+def sso_client_lookup(sso_enabled: bool):
+    """Return a lookup stub that deploys every app of SSO_CLIENT_APPS.
+
+    Args:
+        sso_enabled: the ``services.sso.enabled`` value of every such app.
+    """
+
+    def answer(name, *terms, **kwargs):
+        if name == "canonical_url" and terms == ("web-app-matrix", "synapse"):
+            return SYNAPSE_URL
+        if name == "config" and terms[0] in SSO_CLIENT_APPS:
+            if terms[1] == "services.sso.enabled":
+                return sso_enabled
+            return SSO_CLIENT_APPS[terms[0]][terms[1]]
+        return lookup(name, *terms, **kwargs)
+
+    return answer
 
 
 class TestGateClients(unittest.TestCase):
@@ -277,6 +325,34 @@ class TestPlaywrightGateTargets(unittest.TestCase):
 
     def test_an_undeployed_gated_app_is_not_probed(self) -> None:
         self.assertEqual(playwright_targets([APP, OPEN]), [])
+
+
+class TestPlaywrightSsoClientTargets(unittest.TestCase):
+    def test_the_backchannel_targets_follow_services_sso_enabled(self) -> None:
+        deployed = [APP, *SSO_CLIENT_APPS]
+        self.assertEqual(
+            [target["id"] for target in playwright_targets(deployed, sso_client_lookup(True))],
+            list(SSO_CLIENT_APPS),
+        )
+        self.assertEqual(
+            dotenv_unquote(
+                playwright_values(deployed, sso_client_lookup(True))["MATRIX_SYNAPSE_URL"]
+            ),
+            SYNAPSE_URL,
+        )
+        self.assertEqual(
+            playwright_targets(deployed, sso_client_lookup(False)),
+            [],
+            "with services.sso.enabled false the app has no Keycloak client and "
+            "Synapse no oidc-keycloak provider, so no logout token can reach it",
+        )
+        self.assertEqual(
+            dotenv_unquote(
+                playwright_values(deployed, sso_client_lookup(False))["MATRIX_SYNAPSE_URL"]
+            ),
+            "",
+            "signInToSynapse waits for a login token that a Synapse without SSO never hands back",
+        )
 
 
 if __name__ == "__main__":
