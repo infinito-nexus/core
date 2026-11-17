@@ -24,6 +24,16 @@ def _load_module(rel_path: str, name: str):
 MODULE = _load_module(
     "roles/web-app-wordpress/filter_plugins/keycloak_user_id.py", "keycloak_user_id"
 )
+JVM_WARNINGS = (
+    (
+        "[0.001s][warning][os,container] Cgroup memory controller path at "
+        "'/sys/fs/cgroup' seems not to be accurate, detected limits won't be accurate"
+    ),
+    (
+        "[0.002s][warning][os,container] Cgroup cpu controller path at "
+        "'/sys/fs/cgroup' seems not to be accurate"
+    ),
+)
 
 
 def _pick(users, username="platformadmin"):
@@ -60,6 +70,14 @@ class TestKeycloakUserId(unittest.TestCase):
     def test_a_user_without_an_id_is_refused(self):
         with self.assertRaises(AnsibleFilterError):
             _pick([{"id": "", "username": "platformadmin"}])
+
+    def test_jvm_warnings_before_the_list_are_skipped(self):
+        users = [
+            {"id": "id-2", "username": "platformadmin2"},
+            {"id": "id-1", "username": "platformadmin"},
+        ]
+        stdout = "\n".join([*JVM_WARNINGS, json.dumps(users)])
+        self.assertEqual(MODULE.keycloak_user_id(stdout, "platformadmin"), "id-1")
 
     def test_output_that_is_no_json_list_is_refused(self):
         for stdout in (

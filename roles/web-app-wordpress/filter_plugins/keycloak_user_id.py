@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-import json
-
 from ansible.errors import AnsibleFilterError
+
+from utils.kcadm_json import json_from_noisy_stdout
 
 
 def keycloak_user_id(users_json, username):
     """Return the id of the one Keycloak user named ``username``.
 
     Args:
-        users_json: stdout of ``kcadm.sh get users --fields id,username``, a JSON list.
+        users_json: stdout of ``kcadm.sh get users --fields id,username``, a JSON list
+            that JVM warning lines may precede.
         username: the username to match, compared case-insensitively as Keycloak stores it lowercased.
 
     Returns:
@@ -19,8 +20,8 @@ def keycloak_user_id(users_json, username):
         AnsibleFilterError: when the output is no JSON list or not exactly one user with an id matches.
     """
     try:
-        users = json.loads(users_json)
-    except (TypeError, ValueError) as exc:
+        users = json_from_noisy_stdout(users_json)
+    except ValueError as exc:
         raise AnsibleFilterError(f"kcadm printed no JSON user list ({exc})") from exc
     if not isinstance(users, list):
         raise AnsibleFilterError("kcadm printed no JSON user list")
