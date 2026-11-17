@@ -58,8 +58,23 @@ const SELECT_OPTION = "[class*='custom-select-dropdown'] li";
 const REMOVE_ACCOUNT = "[data-testid='remove-acount-btn']";
 const CONFIRM_REMOVE_ACCOUNT = "[data-testid='delete-account-btn']";
 const LAYERS = "[role='tabpanel']";
+const ICON = "link[rel~='icon']";
 
 let session = null;
+
+/**
+ * Args:
+ *   page: Playwright page. Penpot 2.19 ships an SVG and a PNG icon link, and design.js points both at the generated favicon.
+ *   expect: Playwright's expect.
+ *   href: URL of the generated favicon.
+ */
+async function assertEveryIcon(page, expect, href) {
+  const icons = page.locator(ICON);
+  await expect(icons.first(), "the page must carry an icon link").toBeAttached();
+  for (const icon of await icons.all()) {
+    await expect(icon, "every icon link must point at the generated favicon").toHaveAttribute("href", href);
+  }
+}
 
 /**
  * Args:
@@ -498,7 +513,7 @@ exports.register = function (shared) {
         `the logo box on the sign-in page is ${box.width}x${box.height} and must be wider than high`,
       ).toBeGreaterThan(box.height);
       expect(faviconUrl, "DESIGN_FAVICON_URL must accompany a configured logo").toBeTruthy();
-      await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);
+      await assertEveryIcon(page, expect, faviconUrl);
       for (const address of [lockupUrl, faviconUrl]) {
         expect(await loads(address), `the page must be allowed to load ${address}`).toBe(true);
       }
