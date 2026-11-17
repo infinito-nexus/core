@@ -213,7 +213,7 @@ def scan_tree(
         [[sbom_step(p, layout, target, sources[target.ref])] for target in pending],
         runner,
         config.workers,
-        layout.work,
+        layout,
     )
     errors += p._flat(results)
     failed = {
@@ -237,7 +237,7 @@ def scan_tree(
                 encoding="utf-8",
             )
         lanes.append([p.osv_sbom_step(layout, images["osv"], ready, config)])
-    errors += p._flat(p.run_lanes(lanes, runner, config.workers, layout.work))
+    errors += p._flat(p.run_lanes(lanes, runner, config.workers, layout))
 
     findings = []
     for target in ready:

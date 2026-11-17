@@ -142,7 +142,7 @@ while IFS= read -r sql_file; do
     if [[ " ${DB_PROJECTS[*]-} " != *" ${owner} "* ]]; then
         DB_PROJECTS+=("${owner}")
     fi
-done < <(find "${GEN_DIR}" -mindepth 3 -maxdepth 3 -type f -path '*/sql/*.backup.sql' | sort)
+done < <(find "${GEN_DIR}" -mindepth 3 -maxdepth 3 -type f \( -path '*/sql/*.backup.sql' -o -path '*/sql/*.backup.sql.gz' \) | sort)
 echo "OK: ${#DB_PROJECTS[@]} database project(s) hold the dumps: ${DB_PROJECTS[*]-none}"
 for project in "${DB_PROJECTS[@]}"; do
     echo "OK: only service '${DB_SERVICE[${project}]}' of project ${project} comes up for the replay"
