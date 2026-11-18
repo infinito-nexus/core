@@ -26,7 +26,8 @@ STUB = (
     "  id) echo 0 ;;\n"
     "  awk) echo 10 ;;\n"
     "  losetup) echo /dev/infinito-test-loop ;;\n"
-    "  mountpoint) exit 1 ;;\n"
+    '  mount) touch "${STUB_LOG}.mounted" ;;\n'
+    '  mountpoint) [ "$2" = /mnt/docker-fs ] && [ -e "${STUB_LOG}.mounted" ] ;;\n'
     '  zpool) [ "$1" != list ] ;;\n'
     '  systemctl) [ "$1" != cat ] ;;\n'
     "  python3) cat >/dev/null ;;\n"
@@ -39,6 +40,10 @@ STUBBED = (
     "mountpoint",
     "zpool",
     "zfs",
+    "mkfs.ext4",
+    "mkfs.btrfs",
+    "btrfs",
+    "mount",
     "systemctl",
     "python3",
     "modprobe",
@@ -49,8 +54,10 @@ STUBBED = (
 )
 
 
-def apply_zfs() -> tuple[subprocess.CompletedProcess, list[list[str]]]:
-    """Run the zfs path of docker_dataroot.sh against stubs of every host tool.
+def apply(fstype: str) -> tuple[subprocess.CompletedProcess, list[list[str]]]:
+    """
+    Args:
+        fstype: the filesystem the script is asked to put the data root on.
 
     Returns:
         The finished process and the argv of every stubbed call, tool first.
@@ -71,7 +78,7 @@ def apply_zfs() -> tuple[subprocess.CompletedProcess, list[list[str]]]:
         }
         env.update(PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}", STUB_LOG=str(log))
         done = subprocess.run(
-            ["bash", str(SCRIPT), "zfs", "true", "30G", "unit-node"],
+            ["bash", str(SCRIPT), fstype, "true", "30G", "unit-node"],
             env=env,
             capture_output=True,
             text=True,
@@ -83,15 +90,35 @@ def apply_zfs() -> tuple[subprocess.CompletedProcess, list[list[str]]]:
 
 class TestDockerDatarootZfs(unittest.TestCase):
     def test_the_stubbed_zfs_path_applies(self) -> None:
-        done, _ = apply_zfs()
+        done, _ = apply("zfs")
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
         self.assertIn("status=applied-pending-docker", done.stdout)
 
     def test_the_pool_returns_freed_blocks_to_the_sparse_image(self) -> None:
-        _, calls = apply_zfs()
+        _, calls = apply("zfs")
         creates = [argv for argv in calls if argv[:2] == ["zpool", "create"]]
         self.assertEqual(len(creates), 1, calls)
         self.assertIn(("-o", "autotrim=on"), list(pairwise(creates[0])))
+
+
+class TestDockerDatarootLoopMount(unittest.TestCase):
+    DISCARD = {"ext4": "discard", "btrfs": "discard=async"}
+
+    def test_the_stubbed_mount_paths_apply(self) -> None:
+        for fstype in self.DISCARD:
+            with self.subTest(fstype=fstype):
+                done, _ = apply(fstype)
+                self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+                self.assertIn("status=applied-pending-docker", done.stdout)
+
+    def test_the_mount_returns_freed_blocks_to_the_sparse_image(self) -> None:
+        for fstype, option in self.DISCARD.items():
+            with self.subTest(fstype=fstype):
+                _, calls = apply(fstype)
+                mounts = [argv for argv in calls if argv[0] == "mount"]
+                self.assertEqual(len(mounts), 1, calls)
+                self.assertIn(("-t", fstype), list(pairwise(mounts[0])))
+                self.assertIn(("-o", option), list(pairwise(mounts[0])))
 
 
 if __name__ == "__main__":
