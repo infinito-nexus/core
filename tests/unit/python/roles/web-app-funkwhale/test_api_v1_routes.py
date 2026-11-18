@@ -3,15 +3,35 @@ from __future__ import annotations
 import os
 import re
 import unittest
+from typing import TYPE_CHECKING
 
-from utils.cache.files import iter_project_files_with_content
+from utils.cache.files import iter_project_files, read_text
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 ROLE = PROJECT_ROOT / "roles" / "web-app-funkwhale"
 FUNKWHALE_2_V1_ROUTES = frozenset({"channels", "instance", "listen", "oauth"})
 V1_ROUTE = re.compile(r"api/v1/([A-Za-z0-9_-]+)")
+
+
+def _role_texts() -> Iterator[tuple[str, str]]:
+    """
+    Returns:
+        (absolute path, content) of every UTF-8 file the role ships; only the
+        role's own files are read.
+    """
+    prefix = str(ROLE) + os.sep
+    for path in iter_project_files(exclude_tests=True):
+        if not path.startswith(prefix):
+            continue
+        try:
+            yield path, read_text(path)
+        except (OSError, UnicodeDecodeError):
+            continue
 
 
 def _v1_references() -> list[tuple[str, str]]:
@@ -19,11 +39,9 @@ def _v1_references() -> list[tuple[str, str]]:
     Returns:
         (role-relative path, first path segment) of every api/v1/ reference the role ships.
     """
-    prefix = str(ROLE) + os.sep
     return [
         (os.path.relpath(path, ROLE), route)
-        for path, content in iter_project_files_with_content(exclude_tests=True)
-        if path.startswith(prefix)
+        for path, content in _role_texts()
         for route in V1_ROUTE.findall(content)
     ]
 
