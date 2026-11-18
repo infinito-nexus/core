@@ -39,7 +39,7 @@ from utils.tests.swarm.backup_repos import repo_placements
 from utils.tests.swarm.derive_includes import applications_for_round, derive_includes
 
 _DOCKER_VARS: dict[str, str] = {
-    "ansible_connection": "docker",
+    "ansible_connection": "docker_cached",
     "ansible_python_interpreter": "/usr/bin/python3",
     "ansible_user": "root",
 }
