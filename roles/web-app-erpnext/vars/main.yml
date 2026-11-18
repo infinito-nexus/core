@@ -18,6 +18,7 @@ ERPNEXT_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.websocket
 
 ERPNEXT_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ERPNEXT_SITE_NAME: "{{ ERPNEXT_HOSTNAME }}"
+ERPNEXT_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
 
 ERPNEXT_SITES_DIR: "{{ lookup('volume', application_id, 'sites').target }}"
 ERPNEXT_BENCH_PYTHON_ARGV:
