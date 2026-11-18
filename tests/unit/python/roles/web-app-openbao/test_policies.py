@@ -477,6 +477,9 @@ DEPLOY_WRITES = {
     "platform/data/store/semaphore/workspaces": {"create", "read", "update"},
     "platform/data/store/semaphore": set(),
     "platform/data/store/invites/ws-0a/3f2a": set(),
+    "platform/data/store/erpnext/api-identity": {"create", "read", "update"},
+    "platform/data/store/erpnext": set(),
+    "platform/data/store/rotation": set(),
 }
 
 

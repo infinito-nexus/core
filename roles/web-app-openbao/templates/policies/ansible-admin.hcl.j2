@@ -74,6 +74,10 @@ path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/semaphore/workspaces" {
   capabilities = ["create", "read", "update"]
 }
 
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/erpnext/*" {
+  capabilities = ["create", "read", "update"]
+}
+
 path "{{ OPENBAO_TENANT_MOUNT }}/metadata/*" {
   capabilities = ["list", "delete"]
 }
