@@ -193,7 +193,7 @@
   delegate_to: "{{ STACK_HOST }}"
 
 - name: "🛡️ swarm: fail when an HA database member kept its old spec after the deploy"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/db_ha_drift_guard.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/db_ha_rolling_drift_guard.yml') }}"
   listen:
     - compose-up
     - swarm-deploy

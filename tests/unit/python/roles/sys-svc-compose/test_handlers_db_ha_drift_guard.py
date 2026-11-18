@@ -5,7 +5,7 @@ from utils.cache.yaml import load_yaml_any
 
 HANDLERS = PROJECT_ROOT / "roles" / "sys-svc-compose" / "handlers" / "swarm.yml"
 ROLLING = "roles/sys-svc-compose/tasks/utils/swarm/db_ha_rolling.yml"
-GUARD = "roles/sys-svc-compose/tasks/utils/swarm/db_ha_drift_guard.yml"
+GUARD = "roles/sys-svc-compose/tasks/utils/swarm/db_ha_rolling_drift_guard.yml"
 
 
 class TestSwarmDriftGuardRunsAfterTheDeploy(unittest.TestCase):
