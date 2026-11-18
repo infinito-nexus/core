@@ -7,8 +7,15 @@ from unittest.mock import patch
 
 from humanfriendly import parse_size
 
+from plugins.filter.libretranslate_store import libretranslate_unselected
 from utils.cache import hosts
-from utils.cache.artefacts import ARGOS_NET, checked, store_bytes, unpacked_bytes
+from utils.cache.artefacts import (
+    ARGOS_NET,
+    checked,
+    records,
+    store_bytes,
+    unpacked_bytes,
+)
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_META_SERVICES
 
@@ -30,12 +37,16 @@ def _min_storage(role_dir: Path) -> dict[str, int]:
 
 
 def _findings(roles_dir: Path) -> list[str]:
-    declared_artefacts = checked()
-    need = store_bytes(declared_artefacts) + unpacked_bytes(declared_artefacts)
+    kept = {
+        record["name"]
+        for record in libretranslate_unselected(list(records("").values()))
+    }
+    seeded = [artefact for artefact in checked() if artefact.name in kept]
+    need = store_bytes(seeded) + unpacked_bytes(seeded)
     declared = _min_storage(roles_dir / STORE_ROLE).get(STORE_SERVICE)
     drift = (
         f"{STORE_ROLE}: services.{STORE_SERVICE}.min_storage is {declared}, "
-        f"but the declared artefacts need {need} bytes, packed and unpacked"
+        f"but the artefacts it seeds need {need} bytes, packed and unpacked"
     )
     found = [] if declared == need else [drift]
     found.extend(
@@ -96,11 +107,16 @@ class TestStoreMinStorageOnce(unittest.TestCase):
         findings = _findings(hosts.ROLES_DIR)
         self.assertFalse(findings, "\n".join(findings))
 
-    def test_an_argos_package_counts_packed_and_unpacked_once(self) -> None:
-        self.assertEqual(_scratch_findings(42 + 40 + 55), [])
+    def test_the_floor_counts_only_what_the_store_seeds(self) -> None:
+        self.assertEqual(_scratch_findings(42), [])
+
+    def test_a_libretranslate_selection_stays_out_of_the_floor(self) -> None:
+        findings = _scratch_findings(42 + 40 + 55)
+        self.assertEqual([line.split(":")[0] for line in findings], [STORE_ROLE])
+        self.assertIn("seeds need 42 bytes", findings[0])
 
     def test_the_guard_reports_a_drifted_store_and_a_second_owner(self) -> None:
-        findings = _scratch_findings(42 + 40, second_owner=True)
+        findings = _scratch_findings(42 + 1, second_owner=True)
         self.assertEqual(
             [line.split(":")[0] for line in findings], [STORE_ROLE, "svc-ai-engine"]
         )

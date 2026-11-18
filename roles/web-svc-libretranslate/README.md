@@ -53,7 +53,7 @@ All configuration is handled via `meta/services.yml` (services map at file root)
 Key sections include:
 
 - `services.libretranslate`: image and version
-- `cache: artefacts:` of [svc-ai-libretranslate-engine](../svc-ai-libretranslate-engine/README.md): once it pins both Argos packages and MiniSBD models, the image no longer bakes them; the container reads the unpacked packages and the MiniSBD files read-only from the [model store](../svc-ai-models/README.md) and refuses to start on a node that lacks them. Without both, the image bakes them as before.
+- `cache: artefacts:` of [svc-ai-libretranslate-engine](../svc-ai-libretranslate-engine/README.md): with `services.libretranslate.model_store: true` and pins covering the pairs `load_only` and `directions` select, the image no longer bakes them; the container reads only the selected packages, one read-only bind each in `ARGOS_PACKAGES_DIR`, and the MiniSBD files from the [model store](../svc-ai-models/README.md), seeds only that selection and refuses to start on a node that lacks it. Otherwise the image bakes them as before, as the engine's README describes for the selection rule.
 - `services.redis`: enable Redis backend
 - `services.matomo`: enable analytics
 - `domains`: canonical and alias domains

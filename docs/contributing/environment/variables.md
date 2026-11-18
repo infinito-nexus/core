@@ -75,6 +75,8 @@ The runner takes these values from the checkout that runs `make infra-up` or `ma
 
 `make dotenv` also writes `INFINITO_INFRA_RUNNER_IP` into `INFINITO_CACHE_REGISTRY_IP`, `INFINITO_CACHE_PACKAGE_IP` and `INFINITO_CACHE_PACKAGE_FRONTEND_IP`, since the aliases `infinito-registry-cache`, `infinito-package-cache` and `infinito-package-cache-frontend` all resolve to the runner.
 
+`make dotenv` also writes `INFINITO_CACHE_PACKAGE_URL` ([url.py](../../../utils/env/handlers/infinito/package_cache/url.py)): `http://<INFINITO_CACHE_PACKAGE_IP>:<INFINITO_CACHE_PACKAGE_PORT>` while `INFINITO_CACHE_STACK` is true, empty otherwise. It is recomputed on every run, so a value an earlier run wrote never outlives the stack; a line in `custom.env` wins, and an exported value wins for the exporting shell's run only. [compose.yml](../../../compose.yml) hands it to the `infinito` service, and the development inventory that `INFINITO_INVENTORY_VARS_FILE` names makes it the Nix substituter base of `dev-nix`.
+
 ## Variables NOT in `default.env`
 
 A handful of variables are documented next to their consumer because they cannot have a static default:

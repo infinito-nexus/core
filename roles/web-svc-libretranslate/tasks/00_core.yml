@@ -38,7 +38,7 @@
     name: svc-ai-models
     tasks_from: utils/seed.yml
   vars:
-    models_seeded: "{{ LIBRETRANSLATE_ARTEFACTS }}"
+    models_seeded: "{{ LIBRETRANSLATE_STORE.artefacts }}"
   when: LIBRETRANSLATE_STORED | bool
 
 - name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
@@ -47,7 +47,7 @@
     tasks_from: utils/require.yml
   vars:
     models_consumer: "{{ application_id }}"
-    models_required: "{{ LIBRETRANSLATE_ARTEFACTS }}"
+    models_required: "{{ LIBRETRANSLATE_STORE.artefacts }}"
   when: LIBRETRANSLATE_STORED | bool
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"

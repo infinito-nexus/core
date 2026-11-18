@@ -71,6 +71,7 @@ libretranslate-engine:
     - vi
     - zh
   loading_model: lazy
+  model_store: true
   models_dir: "{{ [AI_MODELS_STORE_PATH, 'libretranslate'] | path_join }}"
   directions: both
   prefetch_timeout_seconds: 1800

@@ -23,6 +23,7 @@ libretranslate:
   min_storage: 402MB
   load_only: []
   directions: both
+  model_store: true
   ports:
     local:
       http: 8045

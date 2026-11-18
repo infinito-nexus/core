@@ -10,14 +10,16 @@ from ansible.plugins.test.core import TestModule
 from jinja2 import BaseLoader, Environment, meta
 from jinja2.nativetypes import NativeEnvironment
 
-from plugins.filter.libretranslate_store import MINISBD_ROOT
+from plugins.filter.libretranslate_store import FROM_SOURCE, MINISBD_ROOT
 from plugins.filter.libretranslate_store import FilterModule as StoreFilters
+from plugins.lookup.cache_artefacts import LookupModule as CacheArtefacts
 from utils import PROJECT_ROOT
 from utils.cache.artefacts import records as declared_records
 from utils.cache.artefacts import tree_root, unpack_path
 from utils.cache.files import read_text
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
 from utils.roles.mapping import (
+    ROLE_FILE_META_VARIANTS,
     ROLE_FILE_META_VOLUMES,
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
@@ -25,6 +27,7 @@ from utils.roles.mapping import (
 
 ENGINE = "svc-ai-libretranslate-engine"
 WEB = "web-svc-libretranslate"
+SERVICES = {ENGINE: "libretranslate-engine", WEB: "libretranslate"}
 FILES = {
     "vars": ROLE_FILE_VARS_MAIN,
     "compose": ROLE_FILE_TEMPL_COMPOSE,
@@ -35,7 +38,9 @@ FILES = {
 }
 VOLUMES = "    volumes: "
 STORE = "/srv/cache/models"
-MINISBD_CACHE = "/home/libretranslate/.cache/minisbd"
+HOME = "/home/libretranslate"
+MINISBD_CACHE = f"{HOME}/.cache/minisbd"
+PACKAGES_DIR = f"{HOME}/.local/share/argos-translate/packages"
 BAKE_ARG = '        LIBRETRANSLATE_BAKE_MODELS: "{{ LIBRETRANSLATE_BAKE_MODELS }}"\n'
 BAKE_LINE = '        LIBRETRANSLATE_BAKE_MODELS: "{}"\n'
 BAKE_GUARD = (
@@ -73,11 +78,21 @@ def _record(name: str, url: str, sha256: str, role: str = ENGINE) -> dict:
 ARGOS = _record(
     "argos-en-de", "https://argos-net.com/v1/translate-en_de-1_9.argosmodel", "a" * 64
 )
+ARGOS_FR = _record(
+    "argos-en-fr", "https://argos-net.com/v1/translate-en_fr-1_9.argosmodel", "d" * 64
+)
 MINISBD = _record(
     "minisbd-en-onnx",
     "https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/en.onnx",
     "b" * 64,
 )
+GATE_ON = [ARGOS, ARGOS_FR, MINISBD]
+
+
+def _declared() -> list[dict]:
+    return [
+        record for record in declared_records("").values() if record["role"] == ENGINE
+    ]
 
 
 def _gated(prefix: str) -> re.Pattern[str]:
@@ -96,16 +111,31 @@ def _texts(role: str) -> dict[str, str]:
     }
 
 
-def _with_filters(env: Environment, records: list[dict], loading_model: str):
+def _with_filters(
+    env: Environment,
+    records: list[dict],
+    loading_model: str,
+    directions: str = FROM_SOURCE,
+    load_only: tuple[str, ...] = (),
+    store: bool = True,
+):
     env.filters.update(FilterModule().filters())
     env.filters.update(StoreFilters().filters())
     env.tests.update(TestModule().tests())
+    config = {
+        ".directions": directions,
+        ".load_only": list(load_only),
+        ".model_store": store,
+    }
 
     def lookup(name: str, *terms, **_):
         if name == "cache_artefacts":
             return {r["name"]: r for r in records} if terms == (ENGINE,) else {}
         if name == "config":
-            return loading_model
+            return next(
+                (value for key, value in config.items() if terms[-1].endswith(key)),
+                loading_model,
+            )
         raise KeyError(name)
 
     env.globals["lookup"] = lookup
@@ -113,11 +143,19 @@ def _with_filters(env: Environment, records: list[dict], loading_model: str):
 
 
 def _resolved(
-    role: str, raw_vars: str, records: list[dict], loading_model: str = "lazy"
+    role: str,
+    raw_vars: str,
+    records: list[dict],
+    loading_model: str = "lazy",
+    directions: str = FROM_SOURCE,
+    load_only: tuple[str, ...] = (),
+    store: bool = True,
 ) -> dict:
     prefix = ROLES[role]["prefix"]
     raw = load_yaml_str(raw_vars)
-    env = _with_filters(NativeEnvironment(), records, loading_model)
+    env = _with_filters(
+        NativeEnvironment(), records, loading_model, directions, load_only, store
+    )
     values = {
         f"{prefix}_APP_USER": "libretranslate",
         "AI_MODELS_STORE_PATH": STORE,
@@ -138,6 +176,24 @@ def _resolved(
         ):
             resolve(name)
     return values
+
+
+def _models_artefacts(expression: str) -> set[str]:
+    env = NativeEnvironment()
+    env.filters.update(FilterModule().filters())
+    env.filters.update(StoreFilters().filters())
+
+    def lookup(name: str, *terms, base: str):
+        if name != "cache_artefacts":
+            raise KeyError(name)
+        return CacheArtefacts().run(list(terms), base=base)[0]
+
+    env.globals["lookup"] = lookup
+    roles = sorted({record["role"] for record in declared_records("").values()})
+    rendered = env.from_string(expression).render(
+        MODELS_DEPLOYED_ROLES=roles, MODELS_ARTEFACT_BASE=""
+    )
+    return {record["name"] for record in rendered}
 
 
 class _Stub(BaseLoader):
@@ -173,9 +229,15 @@ def _today(role: str, text: str) -> str:
     return text
 
 
-def _bind_mounted(texts: dict[str, str], records: list[dict], model: str) -> bool:
+def _bind_mounted(
+    texts: dict[str, str],
+    records: list[dict],
+    model: str,
+    directions: str = FROM_SOURCE,
+    load_only: tuple[str, ...] = (),
+) -> bool:
     when = load_yaml_str(texts["volumes"])["models"]["mounts"][0]["when"]
-    env = _with_filters(NativeEnvironment(), records, model)
+    env = _with_filters(NativeEnvironment(), records, model, directions, load_only)
     return bool(env.from_string(when).render())
 
 
@@ -211,7 +273,7 @@ def _gate_off_findings(role: str, texts: dict[str, str]) -> list[str]:
 
 def _gate_on_findings(role: str, texts: dict[str, str]) -> list[str]:
     prefix = ROLES[role]["prefix"]
-    on = _resolved(role, texts["vars"], [ARGOS, MINISBD])
+    on = _resolved(role, texts["vars"], GATE_ON)
     store = on[f"{prefix}_STORE"]
     compose = _render(texts["compose"], on)
     env = _render(texts["env"], on)
@@ -223,15 +285,23 @@ def _gate_on_findings(role: str, texts: dict[str, str]) -> list[str]:
     )
     if baking:
         found.append("gate on still bakes, installs or fetches the models")
-    if role == ENGINE and _bind_mounted(texts, [ARGOS, MINISBD], "lazy"):
+    if role == ENGINE and _bind_mounted(texts, GATE_ON, "lazy"):
         found.append("gate on keeps the writable models bind mount")
     line = next((row for row in compose.splitlines() if row.startswith(VOLUMES)), "")
     mounts = json.loads(line[len(VOLUMES) :] or "[]")
     found.extend(f"writable mount {m}" for m in mounts if not m.endswith(":ro"))
     read_only = [m.split(":")[1] for m in mounts if m.endswith(":ro")]
     packages = str(store["packages"])
-    if f"ARGOS_PACKAGES_DIR={packages}" not in env.splitlines() or not any(
-        packages.startswith(target + "/") for target in read_only
+    selected = {
+        f"{packages}/{record['name']}"
+        for record in store["artefacts"]
+        if record.get("unpack")
+    }
+    listed = {target for target in read_only if target.startswith(f"{packages}/")}
+    if (
+        f"ARGOS_PACKAGES_DIR={packages}" not in env.splitlines()
+        or not selected
+        or listed != selected
     ):
         found.append("the Argos packages are not read from the read-only store")
     if not store["minisbd"] or store["minisbd"] not in read_only:
@@ -242,16 +312,24 @@ def _gate_on_findings(role: str, texts: dict[str, str]) -> list[str]:
 def _gate_findings(role: str, texts: dict[str, str]) -> list[str]:
     prefix = ROLES[role]["prefix"]
     found = [
-        f"the gate opens on {kind} alone"
-        for kind, records in (("Argos", [ARGOS]), ("MiniSBD", [MINISBD]))
+        f"the gate opens on {kind}"
+        for kind, records in (
+            ("Argos alone", [ARGOS, ARGOS_FR]),
+            ("MiniSBD alone", [MINISBD]),
+            ("a single package", [ARGOS, MINISBD]),
+        )
         if _resolved(role, texts["vars"], records)[f"{prefix}_STORED"]
     ]
+    if _resolved(role, texts["vars"], GATE_ON, store=False)[f"{prefix}_STORED"]:
+        found.append("the gate opens with model_store off")
     dumped = [dump_yaml_str(task) for task in load_yaml_str(texts["core"])]
     start = next(i for i, t in enumerate(dumped) if "flush_handlers" in t)
     for step in ("utils/seed.yml", "utils/require.yml"):
         at = next((i for i, t in enumerate(dumped) if step in t), len(dumped))
         if at > start or f"{prefix}_STORED | bool" not in dumped[at]:
             found.append(f"{step} does not run gated before the start")
+        elif f"{prefix}_STORE.artefacts" not in dumped[at]:
+            found.append(f"{step} is not handed the selected artefacts")
     return found
 
 
@@ -289,6 +367,146 @@ class TestLibretranslateStoreGate(unittest.TestCase):
             with self.subTest(role=role):
                 self.assertEqual(_gate_findings(role, _texts(role)), [])
 
+    def test_both_directions_need_every_pinned_pair_in_reverse(self) -> None:
+        reverse = _record(
+            "argos-de-en",
+            "https://argos-net.com/v1/translate-de_en-1_9.argosmodel",
+            "c" * 64,
+        )
+        for role in ROLES:
+            stored = f"{ROLES[role]['prefix']}_STORED"
+            raw = _texts(role)["vars"]
+            with self.subTest(role=role):
+                self.assertFalse(
+                    _resolved(role, raw, GATE_ON, directions="both")[stored]
+                )
+                self.assertTrue(
+                    _resolved(role, raw, [ARGOS, reverse, MINISBD], directions="both")[
+                        stored
+                    ]
+                )
+
+    def test_the_declared_pins_open_the_gate_in_both_directions(self) -> None:
+        declared = _declared()
+        stored = StoreFilters().filters()["libretranslate_stored"]
+        for directions in (FROM_SOURCE, "both"):
+            with self.subTest(directions=directions):
+                self.assertTrue(stored(declared, directions, "", True))
+            for role in ROLES:
+                with self.subTest(directions=directions, role=role):
+                    self.assertTrue(
+                        _resolved(
+                            role, _texts(role)["vars"], declared, directions=directions
+                        )[f"{ROLES[role]['prefix']}_STORED"]
+                    )
+        unpaired = [
+            record
+            for record in declared
+            if not record["upstream"].endswith("/translate-de_en-1_3.argosmodel")
+        ]
+        self.assertEqual(len(unpaired), len(declared) - 1)
+        self.assertFalse(stored(unpaired, "both", "", True))
+
+    def test_the_store_holds_only_the_selected_pairs_for_each_consumer(
+        self,
+    ) -> None:
+        declared = _declared()
+        select = StoreFilters().filters()["libretranslate_store"]
+        minisbd = sorted(r["name"] for r in declared if not r.get("unpack"))
+        for directions, load_only, names in (
+            ("both", "en,de", ["argos-de_en-1_3", "argos-en_de-1_3"]),
+            (FROM_SOURCE, "en,de,fr", ["argos-en_de-1_3", "argos-en_fr-1_9"]),
+        ):
+            with self.subTest(directions=directions):
+                store = select(declared, STORE, HOME, directions, load_only, True)
+                argos = sorted(r["name"] for r in store["artefacts"] if r["unpack"])
+                self.assertEqual(argos, names)
+                self.assertEqual(
+                    sorted(r["name"] for r in store["artefacts"] if not r["unpack"]),
+                    minisbd,
+                )
+                self.assertEqual(
+                    sorted(
+                        m.split(":")[1]
+                        for m in store["mounts"]
+                        if m.split(":")[1].startswith(f"{PACKAGES_DIR}/")
+                    ),
+                    [f"{PACKAGES_DIR}/{name}" for name in names],
+                )
+        self.assertFalse(select(declared, STORE, HOME, "both", "en,xx", True)["stored"])
+        self.assertFalse(
+            select(declared, STORE, HOME, "both", "en,de", False)["stored"]
+        )
+        self.assertFalse(
+            select(declared, STORE, HOME, FROM_SOURCE, "en,de", True)["stored"]
+        )
+
+    def test_both_roles_hand_their_load_only_to_the_selection(self) -> None:
+        declared = _declared()
+        names = ["argos-de_en-1_3", "argos-en_de-1_3"]
+        for role in ROLES:
+            prefix = ROLES[role]["prefix"]
+            raw = _texts(role)["vars"]
+            with self.subTest(role=role):
+                store = _resolved(
+                    role, raw, declared, directions="both", load_only=("en", "de")
+                )[f"{prefix}_STORE"]
+                self.assertEqual(
+                    sorted(r["name"] for r in store["artefacts"] if r["unpack"]),
+                    names,
+                )
+                self.assertEqual(
+                    sorted(
+                        m.split(":")[1]
+                        for m in store["mounts"]
+                        if m.split(":")[1].startswith(f"{PACKAGES_DIR}/")
+                    ),
+                    [f"{PACKAGES_DIR}/{name}" for name in names],
+                )
+                self.assertFalse(
+                    _resolved(role, raw, declared, load_only=("en", "de"))[
+                        f"{prefix}_STORED"
+                    ]
+                )
+        texts = _texts(ENGINE)
+        self.assertFalse(_bind_mounted(texts, declared, "lazy"))
+        self.assertTrue(_bind_mounted(texts, declared, "lazy", load_only=("en", "de")))
+
+    def test_the_store_role_leaves_the_selection_to_the_consumers(self) -> None:
+        raw = read_text(
+            str(Path(PROJECT_ROOT) / "roles" / "svc-ai-models" / ROLE_FILE_VARS_MAIN)
+        )
+        expression = load_yaml_str(raw)["MODELS_ARTEFACTS"]
+        unfiltered = expression.replace(" | libretranslate_unselected", "")
+        self.assertNotEqual(unfiltered, expression)
+        every = set(declared_records(""))
+        engine = {r["name"] for r in _declared()}
+        others = every - engine
+        self.assertTrue(engine)
+        self.assertTrue(others)
+        self.assertEqual(_models_artefacts(expression), others)
+        self.assertEqual(_models_artefacts(unfiltered), every)
+
+    def test_the_variants_keep_the_bake_path_covered(self) -> None:
+        services = {}
+        for role, service in SERVICES.items():
+            path = Path(PROJECT_ROOT) / "roles" / role / ROLE_FILE_META_VARIANTS
+            services[role] = [
+                variant["services"][service]
+                for variant in load_yaml_str(read_text(str(path)))
+            ]
+            with self.subTest(role=role):
+                self.assertEqual(
+                    {variant.get("model_store", True) for variant in services[role]},
+                    {True, False},
+                )
+        off = {
+            variant.get("loading_model")
+            for variant in services[ENGINE]
+            if variant.get("model_store") is False
+        }
+        self.assertEqual(off, {"build", "task"})
+
     def test_only_the_engine_declares_argos_and_minisbd(self) -> None:
         self.assertEqual(_owner_findings(list(declared_records("").values())), [])
 
@@ -307,6 +525,11 @@ class TestLibretranslateStoreGate(unittest.TestCase):
                     + [
                         f"writable mount {STORE}:{STORE}",
                         f"writable mount {STORE}/{MINISBD['root']}:{MINISBD_CACHE}",
+                        *(
+                            f"writable mount {STORE}/{record['unpack']}:"
+                            f"{PACKAGES_DIR}/{record['name']}"
+                            for record in (ARGOS, ARGOS_FR)
+                        ),
                         "the Argos packages are not read from the read-only store",
                         "the MiniSBD cache is not a read-only store mount",
                     ],

@@ -22,7 +22,7 @@ nllb-engine:
   shared: true
   # nocheck: dockerfile-custom  upstream publishes model weights and no server, so the role builds one
   image: python
-  # nocheck: docker-version  base of the self-built inference server, held on the 3.13 minor tag (patches still arrive) because files/shell/build.sh pins torch 2.9.1, which has no cp315 wheel; see TODO.md
+  # nocheck: docker-version  base of the self-built inference server, held on the 3.13 minor tag (patches still arrive) because the torch release AI_TORCH_VERSION in group_vars/all/16_ai.yml pins has no cp315 wheel; see TODO.md
   version: "3.13-slim"
   custom: true
   gpu: true

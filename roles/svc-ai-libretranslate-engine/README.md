@@ -42,6 +42,7 @@ out, so the image carries the engine and its models and nothing else.
 | `image` / `version` | upstream image, suffixed `-cuda` when `gpu` is set |
 | `load_only` | ISO 639-1 codes to load; empty means every package the engine offers |
 | `loading_model` | when the models arrive: `lazy`, `build` or `task` |
+| `model_store` | `true` reads the selected models from the model store; `false` keeps `loading_model` |
 | `directions` | `both` or `from_source` |
 | `gpu` | run on CUDA and assert the device arrived |
 | `ports.local.http` | host-bound port |
@@ -50,7 +51,7 @@ out, so the image carries the engine and its models and nothing else.
 
 | value | when models arrive | cost |
 | --- | --- | --- |
-| `lazy` (default) | the served container fetches one the first time a request needs it | no build and no deploy wait; the first request for a pair pays for it |
+| `lazy` (default) | the served container downloads the package index and every package between the `load_only` codes, both directions, when it starts with fewer than two installed; LibreTranslate filters by `load_only` only and ignores `directions` | no build; the first start downloads them before the engine serves, a later start finds them on the bind mount |
 | `build` | baked into the image | the build downloads every selected model, 9 GB of archives unpacking to 10.3 GB for the full set, and keeps only the unpacked copy; later requests never wait |
 | `task` | a post-deploy task installs them into the running container | the deploy waits instead of the build, and an image rebuild does not refetch |
 
@@ -59,12 +60,31 @@ rebuild or a recreate finds what an earlier run already fetched. `build` is
 mounted without it, because a bind is never seeded from the image and would
 hide what the build baked.
 
-Once this role's `cache: artefacts:` pin both the Argos packages and the
-MiniSBD models, the [model store](../svc-ai-models/README.md) replaces every
+With `model_store: true` and this role's `cache: artefacts:` covering the
+selection, the [model store](../svc-ai-models/README.md) replaces every
 `loading_model`: nothing is baked, installed or fetched lazily, the bind mount
-is dropped, and the container reads the unpacked packages and the MiniSBD
-files read-only from the store, refusing to start on a node that lacks them.
-`web-svc-libretranslate` reads the same entries.
+is dropped, and only the selected packages are seeded and required. The
+selection holds the pinned pairs between the `load_only` codes (every pair when
+it is empty), only those out of `en` under `from_source`; it covers the request
+when it holds at least two packages, every listed code is served and, under
+`both`, every selected pair has its reverse. Below two installed packages
+LibreTranslate fetches the package index and installs on every start, so a
+single-package selection such as `from_source` with `load_only: [en, de]` keeps
+its `loading_model`, as does every selection the pins do not cover. With the
+defaults, `model_store: true` and `loading_model: lazy`, such a selection is not
+seeded: LibreTranslate downloads the package index and every package between
+the `load_only` codes, both directions, inside the container at start, as it
+does without the store.
+`ARGOS_PACKAGES_DIR` holds one read-only bind per selected package, so
+`load_only` and `directions` keep their meaning although LibreTranslate applies
+`load_only` only while fewer than two packages are installed. The MiniSBD
+models, about 18 MB, are mounted whole. `web-svc-libretranslate` reads the same
+entries.
+
+The CI variants keep `model_store: false` for `build` and `task`, so those
+paths stay deployed; `lazy` with the store off is covered only by the unit
+render of `tests/unit/python/roles/web-svc-libretranslate/test_store_gate.py`,
+since the lazy variant now runs the store.
 
 ## GPU
 

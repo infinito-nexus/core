@@ -12,4 +12,9 @@ experimental-features = {{ dev_nix_experimental_features | join(" ") }}
 
 keep-derivations = true
 keep-outputs = true
+{% if DEV_NIX_SUBSTITUTER %}
+
+extra-substituters = {{ DEV_NIX_SUBSTITUTER }}
+trusted-public-keys = {{ DEV_NIX_UPSTREAM_KEY }}
+{% endif %}
 

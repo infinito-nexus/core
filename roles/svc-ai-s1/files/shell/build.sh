@@ -9,7 +9,10 @@
 # Param: S1_JEFF_REF          commit the jeff install is pinned to
 # Param: S1_JEFF_MODEL_REPO   HuggingFace repo id of the jeff checkpoint
 # Param: S1_JEFF_MODEL_PATH   where that checkpoint lands in the image
+# Param: TORCH_VERSION        the torch release every AI image installs (AI_TORCH_VERSION)
 set -euo pipefail
+
+TORCH="torch==${TORCH_VERSION:?TORCH_VERSION is the build arg AI_TORCH_VERSION}"
 
 APT_LISTS=/tmp/apt-lists
 APT_OPTS="-o Acquire::Retries=3 -o Dir::State::Lists=${APT_LISTS}"
@@ -21,15 +24,15 @@ apt-get $APT_OPTS install -y --no-install-recommends git
 rm -rf "${APT_LISTS}"
 
 if [ "${S1_GPU}" = "true" ]; then
-	pip install --no-cache-dir torch
+	pip install --no-cache-dir "${TORCH}"
 	laya_extras="serve,fast"
 else
-	pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch
+	pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu "${TORCH}"
 	laya_extras="serve"
 fi
 
 if [ "${S1_FLAVOR}" = "laya" ]; then
-	pip install --no-cache-dir "laya[${laya_extras}]" huggingface_hub
+	pip install --no-cache-dir "${TORCH}" "laya[${laya_extras}]" huggingface_hub
 	IFS=',' read -ra checkpoints <<<"${S1_LAYA_CHECKPOINTS}"
 	for checkpoint in "${checkpoints[@]}"; do
 		hf download "${checkpoint}"
@@ -42,7 +45,7 @@ if [ "${S1_FLAVOR}" = "onnx" ]; then
 	extra="[onnx]"
 fi
 
-pip install --no-cache-dir "jeff${extra} @ git+${S1_JEFF_REPOSITORY}@${S1_JEFF_REF}" huggingface_hub
+pip install --no-cache-dir "${TORCH}" "jeff${extra} @ git+${S1_JEFF_REPOSITORY}@${S1_JEFF_REF}" huggingface_hub
 hf download "${S1_JEFF_MODEL_REPO}" --local-dir "${S1_JEFF_IMAGE_MODEL_PATH}"
 
 if [ "${S1_FLAVOR}" = "onnx" ]; then

@@ -68,6 +68,7 @@ from .infinito.i18n import tuning as i18n_tuning
 from .infinito.package_cache import admin_password as package_cache_admin_password
 from .infinito.package_cache import direct_mem as package_cache_direct_mem
 from .infinito.package_cache import heap as package_cache_heap
+from .infinito.package_cache import url as package_cache_url
 from .infinito.playwright import reports_base_dir as playwright_reports_base_dir
 from .infinito.playwright import stage_base_dir as playwright_stage_base_dir
 from .infinito.rescue import diagnostics_dir as rescue_diagnostics_dir
@@ -155,6 +156,7 @@ ORDERED_HANDLERS = [
     package_cache_heap,
     package_cache_direct_mem,
     package_cache_admin_password,
+    package_cache_url,
 ]
 
 PASSTHROUGH_STATIC_KEYS = passthrough.STATIC_KEYS

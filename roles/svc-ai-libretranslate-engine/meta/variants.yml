@@ -17,6 +17,7 @@
       shared: false
     libretranslate-engine:
       loading_model: build
+      model_store: false
       load_only:
         - en
         - de
@@ -26,6 +27,7 @@
       shared: false
     libretranslate-engine:
       loading_model: task
+      model_store: false
       load_only:
         - en
         - de

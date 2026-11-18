@@ -63,6 +63,8 @@ AI_FREELLMAPI_MODELS: >-
 
 AI_MODELS_STORE_PATH: "{{ [DIR_CACHE, 'models'] | path_join }}"
 
+AI_TORCH_VERSION: "2.9.1"
+
 AI_LOCAL_MODEL_DECLARATIONS:
   - alias: llama3.2:1b
     context: 65536

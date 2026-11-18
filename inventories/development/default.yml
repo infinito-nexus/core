@@ -47,6 +47,14 @@ applications:
     secrets:
       credentials:
         admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"
+  svc-ai-models:
+    services:
+      models:
+        artefact_base: "{{ lookup('env', 'INFINITO_ARTEFACT_BASE') }}"
+  dev-nix:
+    services:
+      nix:
+        package_cache: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_URL') }}"
   web-app-keycloak:
     services:
       keycloak:

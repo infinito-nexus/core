@@ -20,6 +20,7 @@
         S1_JEFF_MODEL_REPO: "{{ S1_JEFF_MODEL_REPO }}"
         S1_JEFF_MODEL_PATH: "{{ S1_JEFF_MODEL_PATH }}"
         S1_JEFF_IMAGE_MODEL_PATH: "{{ S1_JEFF_IMAGE_MODEL_PATH }}"
+        TORCH_VERSION: "{{ AI_TORCH_VERSION }}"
     {{ lookup('compose_only', 'container_name', S1_CONTAINER) }}
     {{ lookup('container_volumes', service_name, extra_volumes=S1_STORE_MOUNTS) | indent(4) }}
     {{ lookup('container_ports', ['s1', 'http', DOCKER_BIND_HOST]) | indent(4) }}

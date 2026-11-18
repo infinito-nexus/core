@@ -17,4 +17,4 @@ def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     upstream = ctx.static.get(KEY, "")
     frontend = f"http://{eb.get(FRONTEND_IP_KEY)}"
     base = frontend if eb.get(STACK_KEY) == "true" else upstream
-    eb.setdefault(KEY, base, comment=ctx.static_comments.get(KEY, ""))
+    eb.set(KEY, base, comment=ctx.static_comments.get(KEY, ""))
