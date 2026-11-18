@@ -1,16 +1,8 @@
 from __future__ import annotations
 
-import importlib
 import unittest
 
-from tests.lint.filesystem.playwright import test_ldap_scenarios as ldap
-
-gates = importlib.import_module(
-    "tests.lint.ansible.roles.web-app.playwright.persona.test_biber_gates"
-)
-lint = importlib.import_module(
-    "tests.lint.ansible.roles.web-app.playwright.persona.test_biber_end_surface"
-)
+from tests.lint.filesystem.playwright import test_persona_specs as lint
 
 REL = "roles/web-app-x/files/playwright/test-biber.js"
 HEADER = 'const { test, expect } = require("@playwright/test");\n'
@@ -25,8 +17,8 @@ def _test(title: str, *lines: str) -> str:
 
 
 def _offenders(text: str, *helpers: str) -> list[tuple[str, str]]:
-    functions = ldap.helper_functions_in(helpers)
-    items = gates.persona_tests_in(REL, HEADER + text, functions)
+    functions = lint.helper_functions_in(helpers)
+    items = lint.persona_tests_in(REL, HEADER + text, functions)
     return [(s.title, reason) for s, reason in lint.end_surface_offenders(items)]
 
 

@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-import importlib
 import unittest
 
-from tests.lint.filesystem.playwright import test_ldap_scenarios as ldap
-
-lint = importlib.import_module(
-    "tests.lint.ansible.roles.web-app.playwright.persona.test_biber_gates"
-)
+from tests.lint.filesystem.playwright import test_persona_specs as lint
 
 REL = "roles/web-app-x/files/playwright/test-rbac.js"
 OTHER = "roles/web-app-x/files/playwright/test-login.js"
@@ -27,7 +22,7 @@ def _test(title: str, body: str = "") -> str:
 
 
 def _offenders(modules: dict[str, str], *helpers: str) -> list[tuple[str, str]]:
-    functions = ldap.helper_functions_in(helpers)
+    functions = lint.helper_functions_in(helpers)
     items = [
         item
         for rel, text in modules.items()

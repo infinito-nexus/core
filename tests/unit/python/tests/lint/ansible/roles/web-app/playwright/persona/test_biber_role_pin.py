@@ -1,14 +1,8 @@
 from __future__ import annotations
 
-import importlib
 import unittest
 
-gates = importlib.import_module(
-    "tests.lint.ansible.roles.web-app.playwright.persona.test_biber_gates"
-)
-lint = importlib.import_module(
-    "tests.lint.ansible.roles.web-app.playwright.persona.test_biber_role_pin"
-)
+from tests.lint.filesystem.playwright import test_persona_specs as lint
 
 REL = "roles/web-app-x/files/playwright/test-biber.js"
 HEADER = 'const { test, expect } = require("@playwright/test");\n'
@@ -23,7 +17,7 @@ def _test(title: str, *lines: str) -> str:
 
 
 def _gap(text: str, rbac: object = RBAC, readme: str = "") -> bool:
-    items = gates.persona_tests_in(REL, HEADER + text, {})
+    items = lint.persona_tests_in(REL, HEADER + text, {})
     return lint.role_pin_gap(items, rbac, readme)
 
 

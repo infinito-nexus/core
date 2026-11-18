@@ -51,7 +51,7 @@ consistently across the role tree is what this requirement tracks.
   two flags in a single scenario is forbidden. The matrix-deploy
   variants exist precisely to drive each branch in isolation, and
   bundling them defeats the variant matrix.
-  `test_sso_and_ldap_scenarios_keep_separate_bodies` in [test_ldap_scenarios.py](../../tests/lint/filesystem/playwright/test_ldap_scenarios.py) fails every test that reaches both `skipUnlessServiceEnabled("sso")` and `skipUnlessServiceEnabled("ldap")`, directly, through a helper or through a hook. An LDAP scenario whose account source stays the directory behind the SSO front door gates on `ldap` alone and picks the front door through `isServiceEnabled("sso")`, so every variant drives its own branch. The base tree carried 12 combined tests (friendica, kix, openproject, snipe-it), this tree carries none.
+  `test_sso_and_ldap_scenarios_keep_separate_bodies` in [test_persona_specs.py](../../tests/lint/filesystem/playwright/test_persona_specs.py) fails every test that reaches both `skipUnlessServiceEnabled("sso")` and `skipUnlessServiceEnabled("ldap")`, directly, through a helper or through a hook. An LDAP scenario whose account source stays the directory behind the SSO front door gates on `ldap` alone and picks the front door through `isServiceEnabled("sso")`, so every variant drives its own branch. The base tree carried 12 combined tests (friendica, kix, openproject, snipe-it), this tree carries none.
 - [ ] The LDAP scenario MUST exercise BOTH the canonical admin user
   and the canonical non-admin RBAC user `biber` (per
   [017](017-playwright-biber-rbac-coverage.md)). A role that only

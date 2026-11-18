@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from tests.lint.filesystem.playwright import test_ldap_scenarios as lint
+from tests.lint.filesystem.playwright import test_persona_specs as lint
 
 REL = "roles/web-app-x/files/playwright/test-ldap.js"
 HEADER = (

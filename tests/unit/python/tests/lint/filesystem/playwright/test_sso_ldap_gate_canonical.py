@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from tests.lint.filesystem.playwright import test_sso_ldap_gate_canonical as lint
+from tests.lint.filesystem.playwright import test_persona_specs as lint
 
 HEADER = (
     'const { test } = require("@playwright/test");\n'
