@@ -6,6 +6,8 @@
       - exec
       - -i
       - -e
+      - ENABLE_DB_MIGRATIONS=false
+      - -e
       - "OPENWEBUI_BASE=http://localhost:{{ OPENWEBUI_INTERNAL_HTTP_PORT }}"
       - -e
       - "OPENWEBUI_ADMIN_EMAIL={{ OPENWEBUI_API_BOT_USER.email }}"

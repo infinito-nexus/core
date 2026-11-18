@@ -7,6 +7,7 @@ define('CLI_SCRIPT', true);
 require(getenv('MOODLE_CONFIG'));
 
 const MARKER = 'local_infinito_design';
+const THEME_BUILD_TIMEOUT = 300;
 
 $enabled = getenv('DESIGN_ENABLED') === '1';
 $changed = false;
@@ -101,6 +102,14 @@ if ($title !== '' && !$marked('core/fullname', $title)) {
 }
 
 if ($changed) {
+    $deadline = time() + THEME_BUILD_TIMEOUT;
+    while (\core\task\manager::get_adhoc_tasks(\core\task\build_installed_themes_task::class)) {
+        if (time() >= $deadline) {
+            fwrite(STDERR, 'core\task\build_installed_themes_task still queued after ' . THEME_BUILD_TIMEOUT . 's' . PHP_EOL);
+            exit(3);
+        }
+        sleep(1);
+    }
     purge_all_caches();
 }
 
