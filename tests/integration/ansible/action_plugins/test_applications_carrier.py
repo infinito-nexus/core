@@ -25,6 +25,7 @@ from utils.cache.carrier import (
     APPLICATIONS_RENDERED_FACT,
     USERS_RENDERED_FACT,
 )
+from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
 
@@ -187,11 +188,7 @@ def _run(workdir: Path, play: str, inject: bool) -> tuple[int, str, dict | None]
         text=True,
         check=False,
     )
-    report = (
-        json.loads(probe_out.read_text(encoding="utf-8"))
-        if probe_out.exists()
-        else None
-    )
+    report = json.loads(read_text(str(probe_out))) if probe_out.exists() else None
     return result.returncode, result.stdout + result.stderr, report
 
 
