@@ -19,6 +19,7 @@ import contextlib
 import copy
 import hashlib
 import os
+import re
 import threading
 from collections.abc import Iterator, Mapping
 from pathlib import Path
@@ -275,6 +276,34 @@ def _resolve_override_mapping(
     return {}
 
 
+_GROUP_MEMBERSHIP = re.compile(
+    r"\{\{\s*'[\w.-]+'\s+in\s+group_names"
+    r"(?:\s+or\s+'[\w.-]+'\s+in\s+group_names)*\s*\}\}"
+)
+_GROUP_MEMBERSHIP_NAME = re.compile(r"'([\w.-]+)'")
+
+
+def _group_membership(text: str, variables: Mapping[str, Any]) -> bool | None:
+    """
+    Args:
+        text: the scalar being rendered, unstripped, so a padded template
+            keeps the string the templar returns for it.
+        variables: the scope the templar would render it in.
+
+    Returns:
+        The membership result, or ``None`` when *text* is not such a
+        disjunction or ``group_names`` is not a list of strings.
+    """
+    if not _GROUP_MEMBERSHIP.fullmatch(text):
+        return None
+    groups = variables.get("group_names")
+    if type(groups) not in (list, tuple) or not all(
+        type(group) is str for group in groups
+    ):
+        return None
+    return any(name in groups for name in _GROUP_MEMBERSHIP_NAME.findall(text))
+
+
 def _render_with_templar(
     value: Any,
     *,
@@ -306,6 +335,9 @@ def _render_with_templar(
         data = copy.deepcopy(raw)
         if isinstance(data, str):
             stripped = data.strip()
+            member = _group_membership(data, base_variables)
+            if member is not None:
+                return member
             if (
                 stripped.startswith("{{")
                 and stripped.endswith("}}")

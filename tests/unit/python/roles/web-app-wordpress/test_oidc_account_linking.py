@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -184,19 +185,23 @@ def _keycloak_origin(app: str, key: str) -> str:
 
 
 class TestSettingsWordPressReceives(unittest.TestCase):
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         _reset_cache_for_tests()
         cache_base._reset()
-        self._cwd = str(Path.cwd())
-        self._tmpdir = tempfile.TemporaryDirectory()
-        os.chdir(self._tmpdir.name)
+        cwd = str(Path.cwd())
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                os.chdir(tmpdir)
+                try:
+                    cls._rendered = cls._render_settings()
+                finally:
+                    os.chdir(cwd)
+        finally:
+            _reset_cache_for_tests()
 
-    def tearDown(self) -> None:
-        os.chdir(self._cwd)
-        self._tmpdir.cleanup()
-        _reset_cache_for_tests()
-
-    def _settings(self) -> dict:
+    @staticmethod
+    def _render_settings() -> dict:
         served = load_yaml_any(str(ROLE_VARS), default_if_missing={})[
             "WORDPRESS_OIDC_SETTINGS"
         ]
@@ -207,6 +212,9 @@ class TestSettingsWordPressReceives(unittest.TestCase):
             applications={"web-app-wordpress": {}},
             OIDC=oidc,
         )
+
+    def _settings(self) -> dict:
+        return copy.deepcopy(self._rendered)
 
     def test_the_email_format_reads_the_claim_keycloak_emits(self):
         self.assertEqual(

@@ -14,6 +14,7 @@ and ``container_networks`` lookups in both deployment modes.
 
 from __future__ import annotations
 
+import contextlib
 import re
 import unittest
 from ipaddress import ip_address, ip_network
@@ -29,6 +30,7 @@ from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.applications import _reset_cache_for_tests
 from plugins.lookup.container_networks import LookupModule as ContainerNetworksLookup
 from plugins.lookup.proxy_hops import LookupModule as ProxyHopsLookup
+from utils.cache.base import _fingerprint_scope
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.networks.address import subnet_gateway
@@ -253,6 +255,9 @@ class TestNotifyPushTrust(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         _reset_cache_for_tests()
+        scope = contextlib.ExitStack()
+        cls.addClassCleanup(scope.close)
+        scope.enter_context(_fingerprint_scope())
         applications = ApplicationsLookup()
         applications._templar = Templar(loader=DataLoader())
         merged = applications.run(
