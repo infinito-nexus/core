@@ -22,8 +22,7 @@ OPENPOST_SMTP_ENABLED        true when OpenPost itself is given an SMTP relay it
 OPENPOST_SSO_ADMIN_EMAIL     platform administrator the Playwright run provisions through SSO before the backup drill, empty without SSO
 OPENPOST_PEERTUBE_USERNAME   local PeerTube account OpenPost connects through its password login
 OPENPOST_PEERTUBE_PASSWORD_B64  base64 password of that PeerTube account
-OPENPOST_MEMBER_EMAIL        deliverable plus-address of the administrator mailbox for the probe's workspace member
-OPENPOST_MEMBER_PASSWORD_B64 base64 password of the probe's workspace member, stable across credential rotation
+OPENPOST_MEMBER_MAILBOX      administrator mailbox whose per-run plus-address the probe's workspace member registers with
 OPENPOST_PROXY_ADDRESS       stack host address that serves every public vhost, empty when the probe runs on that host's network
 """
 
@@ -77,9 +76,7 @@ PEERTUBE_USERNAME = os.environ["OPENPOST_PEERTUBE_USERNAME"]
 PEERTUBE_PASSWORD = base64.b64decode(
     os.environ["OPENPOST_PEERTUBE_PASSWORD_B64"]
 ).decode()
-MEMBER_USERNAME = "openpost-cli-member"
-MEMBER_PASSWORD = base64.b64decode(os.environ["OPENPOST_MEMBER_PASSWORD_B64"]).decode()
-MEMBER_EMAIL = os.environ["OPENPOST_MEMBER_EMAIL"]
+MEMBER_MAILBOX = os.environ["OPENPOST_MEMBER_MAILBOX"]
 PROXY_ADDRESS = os.environ["OPENPOST_PROXY_ADDRESS"]
 
 SETTLE_SECONDS = 300
