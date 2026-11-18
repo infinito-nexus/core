@@ -6,8 +6,8 @@ import os
 import runpy
 import sys
 import unittest
+import unittest.mock
 from types import ModuleType
-from unittest import mock
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
@@ -18,6 +18,8 @@ from utils.templating.ansible import _trust_as_template
 
 SCRIPT = PROJECT_ROOT / "roles/web-app-weblate/files/python/adopt_admin.py"
 TOKEN_TASKS = PROJECT_ROOT / "roles/web-app-weblate/tasks/utils/token.yml"
+SUBJECT_INCLUDE = "utils/admin_oidc_subject.yml"
+SUBJECT_TASKS = PROJECT_ROOT / "roles/web-app-weblate/tasks" / SUBJECT_INCLUDE
 SUBJECT_FACT = "weblate_admin_oidc_subjects"
 STOP_MARKER = "ADOPT_REFUSED"
 ADMIN = "platformadmin"
@@ -25,8 +27,7 @@ SUBJECT = "4f1c2b8e-9d3a-4e57-8a61-0c2d5e7f9b10"
 OTHER_SUBJECT = "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d"
 JVM_NOISE = (
     "[0.001s][warning][os,container] Cgroup memory controller path at "
-    "'/sys/fs/cgroup' seems to have moved to '../..', detected limits won't be "
-    "accurate"
+    "'/sys/fs/cgroup' seems to have moved, detected limits won't be accurate"
 )
 
 
@@ -192,8 +193,8 @@ def adopt(db: Database, *, sso: bool = True, subject: str = SUBJECT) -> str:
     }
     out = io.StringIO()
     with (
-        mock.patch.dict(sys.modules, db.modules()),
-        mock.patch.dict(os.environ, env),
+        unittest.mock.patch.dict(sys.modules, db.modules()),
+        unittest.mock.patch.dict(os.environ, env),
         contextlib.redirect_stdout(out),
     ):
         runpy.run_path(str(SCRIPT), run_name="__weblate_shell__")
@@ -282,16 +283,12 @@ class TestAdministratorSubjectBinding(unittest.TestCase):
         self.assertTrue(admin.usable_password)
 
 
-def _token_tasks() -> list[dict]:
-    tasks = []
-    for task in load_yaml_any(str(TOKEN_TASKS), default_if_missing=[]):
-        tasks.append(task)
-        tasks.extend(task.get("block", []))
-    return tasks
+def _tasks(path) -> list[dict]:
+    return load_yaml_any(str(path), default_if_missing=[])
 
 
 def _subject_expression() -> str:
-    for task in _token_tasks():
+    for task in _tasks(SUBJECT_TASKS):
         if SUBJECT_FACT in task.get("ansible.builtin.set_fact", {}):
             return task["ansible.builtin.set_fact"][SUBJECT_FACT]
     raise AssertionError(f"no task sets {SUBJECT_FACT}")
@@ -345,10 +342,19 @@ class TestKeycloakSubjectSelection(unittest.TestCase):
 
 
 class TestSubjectReachesTheShell(unittest.TestCase):
+    def test_the_keycloak_lookup_is_included_only_with_sso(self):
+        include = next(
+            task
+            for task in _tasks(TOKEN_TASKS)
+            if task.get("ansible.builtin.include_tasks") == SUBJECT_INCLUDE
+        )
+        self.assertEqual(include["when"], "WEBLATE_OIDC_ENABLED | bool")
+        self.assertTrue(SUBJECT_TASKS.is_file())
+
     def test_the_adopt_task_forwards_the_subject_into_the_container(self):
         adopt_task = next(
             task
-            for task in _token_tasks()
+            for task in _tasks(TOKEN_TASKS)
             if "adopt_admin.py" in str(task.get("ansible.builtin.shell", {}))
         )
         self.assertIn(
