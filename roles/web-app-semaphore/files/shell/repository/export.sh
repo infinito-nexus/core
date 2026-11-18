@@ -6,10 +6,11 @@
 #   (SEMAPHORE_JWT, SEMAPHORE_TASK_ID) set; BAO_CACERT under self_signed
 set -euo pipefail
 
-if [ "$#" -ne 0 ]; then
-	echo "usage: export.sh" >&2
-	exit 2
-fi
+SCRIPT="export.sh"
+# shellcheck source=SCRIPTDIR/lib.sh
+source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
+
+refuse_arguments 0 "$@"
 
 root="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../../../.." && pwd)"
 PYTHONPATH="${root}" exec python3 "${root}/roles/web-app-semaphore/files/python/export.py"

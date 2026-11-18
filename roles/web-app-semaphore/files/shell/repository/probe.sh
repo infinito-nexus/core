@@ -8,10 +8,11 @@
 #   PROBE_ARGS     optional space-separated positional arguments of that text
 set -euo pipefail
 
-if [ "$#" -ne 0 ]; then
-  printf 'probe.sh: takes no argument, got %s\n' "$#" >&2
-  exit 2
-fi
+SCRIPT="probe.sh"
+# shellcheck source=SCRIPTDIR/lib.sh
+source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
+
+refuse_arguments 0 "$@"
 if [ -z "${PROBE_SCRIPT-}" ]; then
   printf 'probe.sh: PROBE_SCRIPT is required\n' >&2
   exit 2

@@ -9,10 +9,11 @@
 #   SSH_AUTH_SOCK            agent holding the app-control key of the inventory
 set -euo pipefail
 
-if [ "$#" -ne 2 ]; then
-	echo "usage: app-control.sh stop|start <application>|all" >&2
-	exit 2
-fi
+SCRIPT="app-control.sh"
+# shellcheck source=SCRIPTDIR/lib.sh
+source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
+
+refuse_arguments 2 "$@"
 case "$1" in
 stop | start) ;;
 *)

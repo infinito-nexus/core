@@ -14,6 +14,14 @@ SCRIPTS = (
     ("task-entities.sh", ()),
     ("announce-owners.sh", ()),
     ("prune-exports.sh", ()),
+    ("export.sh", ()),
+    ("usage.sh", ()),
+    ("app-control.sh", ("stop", "all")),
+    ("probe.sh", ()),
+    ("provision.sh", ()),
+    ("destroy.sh", ()),
+    ("dns.sh", ()),
+    ("unlock.sh", ()),
 )
 
 
@@ -27,9 +35,8 @@ class TemplateScriptTests(unittest.TestCase):
             with self.subTest(script):
                 run = self.runner.run(script, {}, (*args, "--limit=all"))
                 self.assertEqual(run.returncode, 2, run.stderr)
-                self.assertIn(
-                    f"{script}: unexpected argument '--limit=all'", run.stderr
-                )
+                self.assertTrue(run.stderr.startswith(f"{script}: "), run.stderr)
+                self.assertIn("unexpected argument '--limit=all'", run.stderr)
                 self.assertEqual(self.runner.calls(), [])
 
     def test_negative_control_a_script_without_its_argument_is_refused_too(self):

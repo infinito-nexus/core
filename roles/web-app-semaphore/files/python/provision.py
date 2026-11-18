@@ -462,7 +462,7 @@ def dispatch(template, extra, env, checkout):
     if template not in TEMPLATES:
         raise inputs.RefusedError(f"names no template of {', '.join(TEMPLATES)}")
     if extra:
-        raise inputs.RefusedError(f"takes no argument, got {' '.join(extra)!r}")
+        raise inputs.RefusedError(f"unexpected argument {extra[0]!r}")
     interface = json.loads((OPENTOFU / "interface.json").read_text("utf-8"))
     credentials = json.loads((OPENTOFU / "credentials.json").read_text("utf-8"))
     config = configuration(env)
