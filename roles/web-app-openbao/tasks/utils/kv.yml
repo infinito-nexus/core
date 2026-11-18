@@ -35,7 +35,8 @@
       export BAO_TOKEN;
       trap "bao token revoke -self >/dev/null 2>&1 || true" EXIT;
       case "$1" in
-      read) bao kv get -format=json -mount="$2" "$3" 2>/dev/null || true ;;
+      read) exec 3>&1; err="$(bao kv get -format=json -mount="$2" "$3" 2>&1 >&3)" || case "$err" in *"No value found"*) ;; *) printf "%s\n" "$err" >&2; exit 1 ;;
+      esac ;;
       write) IFS= read -r data || :; : "${data:?arrived empty on stdin}"; printf "%s" "$data" | bao kv put -mount="$2" "$3" - >/dev/null ;;
       delete) bao kv metadata delete -mount="$2" "$3" >/dev/null ;;
       esac
