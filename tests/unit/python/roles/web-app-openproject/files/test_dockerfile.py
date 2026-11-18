@@ -9,6 +9,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 DOCKERFILE = PROJECT_ROOT / "roles/web-app-openproject/files/Dockerfile"
 INITIALIZERS = "/app/config/initializers/"
 LOAD_FLAGS = "ActiveRecord::Tasks::DatabaseTasks.structure_load_flags"
+CONDITIONAL = ("||", ";")
 
 
 def _steps(dockerfile: str) -> list[list[str]]:
@@ -39,21 +40,30 @@ def _without_initializers(dockerfile: str) -> str:
 
 
 def _initializers(dockerfile: str) -> dict[str, str]:
-    """Run every step that writes a Rails initializer and return what it wrote.
-
+    """
     Args:
       dockerfile: text of the Dockerfile.
 
     Returns:
       The written initializers, keyed by file name.
+
+    Raises:
+      AssertionError: a RUN instruction that writes an initializer is no plain
+        `&&` chain, so the build could succeed without the write.
     """
-    commands = [
-        step for steps in _steps(dockerfile) for step in steps if INITIALIZERS in step
+    runs = [
+        steps
+        for steps in _steps(dockerfile)
+        if any(INITIALIZERS in step for step in steps)
     ]
+    for steps in runs:
+        if any(operator in step for step in steps for operator in CONDITIONAL):
+            raise AssertionError(f"build may skip the write: RUN {' && '.join(steps)}")
+    commands = [step for steps in runs for step in steps if INITIALIZERS in step]
     with tempfile.TemporaryDirectory() as tmp:
         for command in commands:
             subprocess.run(
-                ["sh", "-c", command.replace(INITIALIZERS, f"{tmp}/")], check=True
+                ["sh", "-c", command.replace(INITIALIZERS, '"$0"/'), tmp], check=True
             )
         return {path.name: read_text(str(path)) for path in Path(tmp).iterdir()}
 
@@ -87,6 +97,12 @@ class TestSchemaLoad(unittest.TestCase):
         upstream = _without_initializers(dockerfile)
         self.assertNotEqual(_steps(upstream), _steps(dockerfile))
         self.assertIsNone(_load_flags(upstream))
+
+    def test_a_write_the_build_may_skip_fails_the_check(self):
+        dockerfile = read_text(str(DOCKERFILE)).rstrip("\n")
+        for suffix in (" || true", "; true"):
+            with self.subTest(suffix=suffix), self.assertRaises(AssertionError):
+                _initializers(f"{dockerfile}{suffix}\n")
 
 
 if __name__ == "__main__":
