@@ -9,7 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
-from tests.integration.infrastructure.compose import test_no_raw_docker as raw_docker
+from tests.integration.infrastructure.docker import test_no_raw_docker as raw_docker
 from tests.lint.filesystem.python import test_python_shebangs as shebangs
 from tests.lint.repository import test_comments_valid as comments
 from tests.lint.repository.documentation import test_todo_transparency as todo
