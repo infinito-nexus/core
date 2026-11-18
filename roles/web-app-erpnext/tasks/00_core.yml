@@ -6,9 +6,19 @@
     src: "python/{{ ERPNEXT_LOGIN_RBAC_APP }}/"
     dest: "{{ ERPNEXT_LOGIN_RBAC_BUILD_DIR }}/"
     directory_mode: "0755"
+  register: erpnext_login_rbac_stage
   notify:
     - compose-build
     - compose-up
+
+- name: "📌 Mark the Frappe restart of the staged sign-in app as pending"
+  ansible.builtin.file:
+    path: "{{ ERPNEXT_LOGIN_RBAC_RESTART_MARKER }}"
+    state: touch
+    mode: "0644"
+    modification_time: preserve
+    access_time: preserve
+  when: erpnext_login_rbac_stage is changed
 
 - name: "🐳 Build and start {{ application_id }}"
   ansible.builtin.meta: flush_handlers

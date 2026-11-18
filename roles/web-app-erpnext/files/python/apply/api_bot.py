@@ -3,6 +3,7 @@ import os
 
 import frappe
 from frappe.utils.password import remove_encrypted_password
+from infinito_rbac.roles import ensure_roles
 
 SITE_NAME = os.environ["SITE_NAME"]
 API_BOT_ENABLED = {"true": True, "false": False}[os.environ["API_BOT_ENABLED"].lower()]
@@ -67,12 +68,8 @@ def retire_api_bot():
 
 
 def extra_roles():
-    for role in API_BOT_EXTRA_ROLES:
-        if not frappe.db.exists("Role", role):
-            doc = frappe.get_doc({"doctype": "Role", "role_name": role})
-            doc.flags.ignore_permissions = True
-            doc.insert()
-            print(f"CHANGED created role {role}")
+    for line in ensure_roles(API_BOT_EXTRA_ROLES):
+        print(line)
     return list(API_BOT_EXTRA_ROLES)
 
 

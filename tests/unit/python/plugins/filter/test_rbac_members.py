@@ -9,6 +9,7 @@ rbac_users = _module.rbac_users
 rbac_ldap_members = _module.rbac_ldap_members
 
 APP = "web-app-gitlab"
+ATTRIBUTES = ("uid", "mail", "cn", "entryUUID")
 
 
 class TestRbacMembers(unittest.TestCase):
@@ -74,33 +75,45 @@ class TestRbacLdapMembers(unittest.TestCase):
                 "uid": "bob",
                 "mail": ["bob@example.org"],
                 "cn": ["Bob Builder"],
+                "entryUUID": ["b0b"],
             },
             {
                 "dn": "uid=amy,ou=users",
                 "uid": ["amy"],
                 "mail": "amy@example.org",
                 "cn": "Amy Pond",
+                "entryUUID": "a3y",
             },
         ]
         self.assertEqual(
-            rbac_ldap_members(entries, "uid", "mail", "cn"),
+            rbac_ldap_members(entries, *ATTRIBUTES),
             [
-                {"username": "amy", "email": "amy@example.org", "name": "Amy Pond"},
-                {"username": "bob", "email": "bob@example.org", "name": "Bob Builder"},
+                {
+                    "username": "amy",
+                    "email": "amy@example.org",
+                    "name": "Amy Pond",
+                    "uuid": "a3y",
+                },
+                {
+                    "username": "bob",
+                    "email": "bob@example.org",
+                    "name": "Bob Builder",
+                    "uuid": "b0b",
+                },
             ],
         )
 
     def test_entry_without_login_is_dropped(self):
-        self.assertEqual(rbac_ldap_members([{"dn": "cn=x"}], "uid", "mail", "cn"), [])
+        self.assertEqual(rbac_ldap_members([{"dn": "cn=x"}], *ATTRIBUTES), [])
 
-    def test_missing_mail_and_name_become_empty(self):
+    def test_missing_mail_name_and_uuid_become_empty(self):
         self.assertEqual(
-            rbac_ldap_members([{"uid": "amy"}], "uid", "mail", "cn"),
-            [{"username": "amy", "email": "", "name": ""}],
+            rbac_ldap_members([{"uid": "amy"}], *ATTRIBUTES),
+            [{"username": "amy", "email": "", "name": "", "uuid": ""}],
         )
 
     def test_no_entries_yield_no_members(self):
-        self.assertEqual(rbac_ldap_members(None, "uid", "mail", "cn"), [])
+        self.assertEqual(rbac_ldap_members(None, *ATTRIBUTES), [])
 
 
 if __name__ == "__main__":

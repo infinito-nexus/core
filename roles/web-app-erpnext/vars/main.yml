@@ -100,29 +100,47 @@ ERPNEXT_RBAC_ROLE_GRANTS:
     - "Accounts User"
   customer:
     - "Customer"
+ERPNEXT_RBAC_CORE_GRANTS: >-
+  {{ {
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ERPNEXT_RBAC_ROLE_GRANTS.administrator,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='manager'): ERPNEXT_RBAC_ROLE_GRANTS.manager,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ERPNEXT_RBAC_ROLE_GRANTS.customer,
+     } }}
+ERPNEXT_RBAC_GROUP_ROLES: "{{ lookup('config', application_id, 'services.erpnext.group_roles') }}"
+ERPNEXT_RBAC_GROUP_PATTERN: "^/{{ RBAC.GROUP.NAME.strip('/') | regex_escape }}/[a-z0-9-]+/[a-z0-9-]+\\Z"
+ERPNEXT_RBAC_RESERVED_ROLES:
+  - "Administrator"
+  - "Guest"
+  - "All"
+ERPNEXT_RBAC_GROUP_GRANTS: >-
+  {{ ([{}] + (ERPNEXT_RBAC_GROUP_ROLES | batch(1) | map('items2dict', key_name='group', value_name='roles') | list))
+     | combine(list_merge='append_rp') }}
+ERPNEXT_RBAC_GRANTS: "{{ [ERPNEXT_RBAC_CORE_GRANTS, ERPNEXT_RBAC_GROUP_GRANTS] | combine(list_merge='append_rp') }}"
 ERPNEXT_RBAC_PROTECTED_USERS:
   - "Administrator"
   - "Guest"
   - "{{ ERPNEXT_API_BOT_USER.email }}"
   - "{{ lookup('users', 'platform_administrator').email }}"
+ERPNEXT_RBAC_PROTECTED_OWNERS: >-
+  {{ {lookup('users', 'platform_administrator').email: lookup('users', 'platform_administrator').username} }}
 ERPNEXT_SSO_PROVIDER_NAME: "keycloak"
 ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME: "directory"
 
 ERPNEXT_LOGIN_RBAC_APP: "infinito_rbac"
 ERPNEXT_LOGIN_RBAC_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), ERPNEXT_LOGIN_RBAC_APP] | path_join }}"
+ERPNEXT_LOGIN_RBAC_RESTART_MARKER: "{{ ERPNEXT_LOGIN_RBAC_BUILD_DIR }}.restart.pending"
 ERPNEXT_LOGIN_RBAC_SETTINGS:
   groups_claim: "{{ RBAC.GROUP.CLAIM }}"
   username_claim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
   given_name_claim: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
   family_name_claim: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
-  role_grants: >-
-    {{ {
-         '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ERPNEXT_RBAC_ROLE_GRANTS.administrator,
-         '/' ~ lookup('rbac_group_path', application_id=application_id, role='manager'): ERPNEXT_RBAC_ROLE_GRANTS.manager,
-         '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ERPNEXT_RBAC_ROLE_GRANTS.customer,
-       } }}
+  role_grants: "{{ ERPNEXT_RBAC_CORE_GRANTS }}"
+  group_roles: "{{ ERPNEXT_RBAC_GROUP_GRANTS }}"
   protected_users: "{{ ERPNEXT_RBAC_PROTECTED_USERS }}"
+  protected_owners: "{{ ERPNEXT_RBAC_PROTECTED_OWNERS }}"
   directory_provider: "{{ ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME }}"
+  uuid_attribute: "{{ LDAP.USER.ATTRIBUTES.UUID }}"
+  directory_ids: "{{ ERPNEXT_LDAP_ENABLED | bool }}"
 
 ERPNEXT_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
 ERPNEXT_LDAP_GROUP_MEMBER_ATTRIBUTE: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"

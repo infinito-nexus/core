@@ -9,9 +9,35 @@ const rbacEnv = {
   managerGroupDn: requireDotenvValue(process.env.LDAP_MANAGER_GROUP_DN, "LDAP_MANAGER_GROUP_DN"),
   phoneAttribute: requireDotenvValue(process.env.LDAP_PHONE_ATTRIBUTE, "LDAP_PHONE_ATTRIBUTE"),
   mobileAttribute: requireDotenvValue(process.env.LDAP_MOBILE_ATTRIBUTE, "LDAP_MOBILE_ATTRIBUTE"),
+  rolesDn: requireDotenvValue(process.env.LDAP_ROLES_DN, "LDAP_ROLES_DN"),
+  groupRoles: JSON.parse(requireDotenvValue(process.env.RBAC_GROUP_ROLES_JSON, "RBAC_GROUP_ROLES_JSON")),
 };
 
 const LDAP_LOGIN = "/api/method/frappe.integrations.doctype.ldap_settings.ldap_settings.login";
+
+function mappedGroupDn(path) {
+  const [, application, role] = path.replace(/^\/+|\/+$/g, "").split("/");
+  return `cn=${application}-${role},${rbacEnv.rolesDn}`;
+}
+
+async function signInThroughDirectory(shared, page, browser, label) {
+  if (shared.env.oidcEnabled) {
+    await shared.signInViaErpnextOidc(page, shared.env.biberUsername, shared.env.biberPassword, "biber");
+    await shared.erpnextLogout(page);
+    return;
+  }
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  try {
+    const response = await context.request.post(`${shared.env.erpnextBaseUrl}${LDAP_LOGIN}`, {
+      form: { usr: shared.env.biberUsername, pwd: shared.env.biberPassword },
+      timeout: resolveTimeout(60_000),
+    });
+    expect(response.status(), `${label} must sign in through LDAP: ${await response.text()}`).toBe(200);
+    await context.request.get(`${shared.env.erpnextBaseUrl}/api/method/logout`).catch(() => {});
+  } finally {
+    await context.close().catch(() => {});
+  }
+}
 
 async function withBreakGlassApi(shared, body) {
   const api = await shared.breakGlassApi();
@@ -103,6 +129,27 @@ exports.register = function (shared) {
           });
         }),
       );
+    });
+
+    test("biber: a sign-in in a group of services.erpnext.group_roles holds its mapped roles at once", async ({ page, browser }) => {
+      shared.skipUnlessServiceEnabled("ldap");
+      const mapped = Object.entries(rbacEnv.groupRoles);
+      test.skip(mapped.length === 0, "the inventory maps no group in services.erpnext.group_roles");
+      test.setTimeout(resolveTimeout(300_000));
+
+      const [path, roles] = mapped[0];
+      await withLdapGroupMember(mappedGroupDn(path), rbacEnv.biberDn, async () => {
+        await signInThroughDirectory(shared, page, browser, `a member of ${path}`);
+
+        await withBreakGlassApi(shared, async (adminRequest) => {
+          const user = await erpnextUser(adminRequest, shared, rbacEnv.biberEmail);
+          expect(user, `the sign-in must give the member of ${path} an account`).toBeTruthy();
+          expect(user.enabled, `the account of the member of ${path} must be enabled`).toBe(1);
+          for (const role of roles) {
+            expect(roleNames(user), `${path} must grant ${role} at sign-in`).toContain(role);
+          }
+        });
+      });
     });
   });
 };

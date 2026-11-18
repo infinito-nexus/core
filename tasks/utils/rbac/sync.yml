@@ -1,7 +1,7 @@
 ---
 # Param rbac_sync_application_id: application whose role mapping the hook reconciles; include on every host of its group, the deploy-time run happens once.
 # Param rbac_sync_enabled: whether the hook is registered; false removes a hook an earlier deploy registered.
-# Param rbac_sync_roles: role names whose members the hook receives; "@users" stands for every account of the directory.
+# Param rbac_sync_roles: role names whose members the hook receives; "@users" stands for every account of the directory, and a group path "/<root>/<application>/<role>" names a role of any application.
 # Param rbac_sync_mode: "swarm" or "compose", the mode the container runs in; a compose container of a swarm cluster runs on the stack host.
 # Param rbac_sync_service_key: compose/swarm service key of the container the hook acts on.
 # Param rbac_sync_service_name: swarm service name of that container when it lives in another stack (a central database), "" to derive it from the application and the service key.

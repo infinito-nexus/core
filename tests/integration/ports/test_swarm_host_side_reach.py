@@ -35,7 +35,16 @@ MODES = {
     "swarm": {"IS_COMPOSE_MODE": False, "IS_SWARM_MODE": True},
 }
 LDAP_VARS = {
-    "LDAP": {"USER": {"ATTRIBUTES": {"ID": "uid", "MAIL": "mail", "FULLNAME": "cn"}}},
+    "LDAP": {
+        "USER": {
+            "ATTRIBUTES": {
+                "ID": "uid",
+                "MAIL": "mail",
+                "FULLNAME": "cn",
+                "UUID": "entryUUID",
+            }
+        }
+    },
     "group_names": ["svc-db-openldap"],
 }
 

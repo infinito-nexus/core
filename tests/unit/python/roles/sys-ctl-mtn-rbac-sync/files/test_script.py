@@ -31,9 +31,21 @@ LDAP = {
     "uri": "ldap://127.0.0.1:389",
     "users_dn": "ou=users,dc=example,dc=org",
     "roles_dn": "ou=roles,dc=example,dc=org",
-    "attributes": {"id": "uid", "mail": "mail", "name": "cn", "member_of": "memberOf"},
+    "attributes": {
+        "id": "uid",
+        "mail": "mail",
+        "name": "cn",
+        "member_of": "memberOf",
+        "uuid": "entryUUID",
+    },
 }
-ALICE = {"username": "alice", "email": "alice@example.org", "name": "Alice Liddell"}
+ALICE_UUID = "7f9c1a2e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+ALICE = {
+    "username": "alice",
+    "email": "alice@example.org",
+    "name": "Alice Liddell",
+    "uuid": ALICE_UUID,
+}
 CONTAINER_BIN = "/usr/bin/container"
 DIRECTORY = "svc-db-openldap"
 BACKUP_UNTIL = "1970-01-01T01:00:00+00:00"
@@ -208,6 +220,7 @@ class DirectoryMembersTests(unittest.TestCase):
                             "uid": ["alice", "al"],
                             "mail": [ALICE["email"]],
                             "cn": [ALICE["name"]],
+                            "entryuuid": [ALICE_UUID],
                         },
                     ),
                     ("uid=ghost", {"mail": ["ghost@example.org"]}),
@@ -221,10 +234,13 @@ class DirectoryMembersTests(unittest.TestCase):
 
         self.assertEqual(
             members,
-            [ALICE, {"username": "bob", "email": "bob@example.org", "name": ""}],
+            [
+                ALICE,
+                {"username": "bob", "email": "bob@example.org", "name": "", "uuid": ""},
+            ],
         )
         self.assertEqual(directory.searches[0][0], LDAP["users_dn"])
-        self.assertEqual(directory.searches[0][2], ["uid", "mail", "cn"])
+        self.assertEqual(directory.searches[0][2], ["uid", "mail", "cn", "entryUUID"])
 
     def test_the_users_role_lists_every_account_with_a_login(self):
         mod = self.mod
@@ -239,8 +255,57 @@ class DirectoryMembersTests(unittest.TestCase):
             Directory(), LDAP, "web-app-nextcloud", "@users"
         )
 
-        self.assertEqual(members, [{"username": "carol", "email": "", "name": ""}])
+        self.assertEqual(
+            members, [{"username": "carol", "email": "", "name": "", "uuid": ""}]
+        )
         self.assertEqual(captured, [mod.present("uid")])
+
+
+class RoleGroupTests(unittest.TestCase):
+    def setUp(self):
+        self.mod = load_module()
+
+    def test_a_role_name_is_a_role_of_the_hooks_application(self):
+        self.assertEqual(
+            self.mod.role_group("web-app-erpnext", "manager"),
+            ("web-app-erpnext", "manager"),
+        )
+
+    def test_a_group_path_names_a_role_of_another_application(self):
+        for path in (
+            "/roles/web-app-consumer/auditor",
+            "roles/web-app-consumer/auditor/",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(
+                    self.mod.role_group("web-app-erpnext", path),
+                    ("web-app-consumer", "auditor"),
+                )
+
+    def test_a_group_path_searches_the_group_of_its_application(self):
+        group = "cn=web-app-consumer-auditor,ou=roles,dc=example,dc=org"
+        directory = StubDirectory(
+            {group: [("uid=alice", {"uid": ["alice"], "mail": [ALICE["email"]]})]}
+        )
+
+        members = self.mod.directory_members(
+            directory,
+            LDAP,
+            *self.mod.role_group("web-app-erpnext", "/roles/web-app-consumer/auditor"),
+        )
+
+        self.assertEqual(
+            members,
+            [{"username": "alice", "email": ALICE["email"], "name": "", "uuid": ""}],
+        )
+
+    def test_a_path_of_another_shape_fails(self):
+        for path in (
+            "/roles/web-app-consumer",
+            "/roles/web-app-consumer/t.example/auditor",
+        ):
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                self.mod.role_group("web-app-erpnext", path)
 
 
 class MembersEnvTests(unittest.TestCase):

@@ -1,5 +1,5 @@
 ---
-# Output rbac_users: list of {username, email, name} of every account, from the directory when OpenLDAP is deployed, from the inventory otherwise.
+# Output rbac_users: list of {username, email, name} of every account, plus the uuid (entryUUID) from the directory when OpenLDAP is deployed, from the inventory otherwise.
 
 - name: "👥 Search every account of the directory"
   community.general.ldap_search:
@@ -13,6 +13,7 @@
       - "{{ LDAP.USER.ATTRIBUTES.ID }}"
       - "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
       - "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+      - "{{ LDAP.USER.ATTRIBUTES.UUID }}"
   register: rbac_users_ldap_search
   delegate_to: "{{ STACK_HOST }}"
   when:
@@ -32,6 +33,7 @@
       - "{{ LDAP.USER.ATTRIBUTES.ID }}"
       - "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
       - "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+      - "{{ LDAP.USER.ATTRIBUTES.UUID }}"
   register: rbac_users_ldap_socket_search
   delegate_to: "{{ STACK_HOST }}"
   when:
@@ -44,7 +46,7 @@
     rbac_users: >-
       {{
         ((rbac_users_ldap_search if (IS_COMPOSE_MODE | bool) else rbac_users_ldap_socket_search).results
-          | rbac_ldap_members(LDAP.USER.ATTRIBUTES.ID, LDAP.USER.ATTRIBUTES.MAIL, LDAP.USER.ATTRIBUTES.FULLNAME))
+          | rbac_ldap_members(LDAP.USER.ATTRIBUTES.ID, LDAP.USER.ATTRIBUTES.MAIL, LDAP.USER.ATTRIBUTES.FULLNAME, LDAP.USER.ATTRIBUTES.UUID))
         if ('svc-db-openldap' in group_names)
         else (lookup('users') | rbac_users)
       }}

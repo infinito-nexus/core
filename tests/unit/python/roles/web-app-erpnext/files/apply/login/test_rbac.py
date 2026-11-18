@@ -28,8 +28,12 @@ SETTINGS = {
     "given_name_claim": "given_name",
     "family_name_claim": "family_name",
     "role_grants": {"/roles/web-app-erpnext/administrator": ["System Manager"]},
+    "group_roles": {},
     "protected_users": ["Administrator", "Guest"],
+    "protected_owners": {},
     "directory_provider": "directory",
+    "uuid_attribute": "entryUUID",
+    "directory_ids": True,
 }
 
 
@@ -98,6 +102,33 @@ class TestLoginRbac(unittest.TestCase):
         self.assertEqual(frappe.conf[APP], SETTINGS)
         self.assertNotIn(("install_app", APP), frappe.calls)
 
+    def test_turning_ldap_off_disables_the_ldap_settings_a_former_deploy_left(
+        self,
+    ) -> None:
+        for directory_ids in (False, True):
+            with self.subTest(directory_ids=directory_ids):
+                frappe = InstallerFrappe(["frappe", "erpnext", APP], {APP: SETTINGS})
+                frappe.singles["LDAP Settings"] = {
+                    "enabled": 1,
+                    "ldap_server_url": "ldap://openldap:389",
+                }
+                settings = {**SETTINGS, "directory_ids": directory_ids}
+
+                first = self._run(frappe, settings)
+                second = self._run(frappe, settings)
+
+                self.assertEqual(
+                    first,
+                    ["UNCHANGED"]
+                    if directory_ids
+                    else [f"CHANGED settings {APP}", "CHANGED disabled LDAP Settings"],
+                )
+                self.assertEqual(second, ["UNCHANGED"])
+                self.assertEqual(
+                    frappe.singles["LDAP Settings"]["enabled"], int(directory_ids)
+                )
+                self.assertEqual(frappe.conf[APP]["directory_ids"], directory_ids)
+
     def test_the_site_is_connected_before_and_released_after_the_change(self) -> None:
         frappe = InstallerFrappe(["frappe"], {})
 
@@ -114,9 +145,16 @@ class TestLoginRbac(unittest.TestCase):
                 ("connect",),
                 ("install_app", APP),
                 ("update_site_config", APP),
+                ("clear_cache",),
                 ("destroy",),
             ],
         )
+
+    def test_an_unchanged_site_still_drops_the_cached_hooks(self) -> None:
+        frappe = InstallerFrappe(["frappe", "erpnext", APP], {APP: SETTINGS})
+
+        self.assertEqual(self._run(frappe), ["UNCHANGED"])
+        self.assertIn(("clear_cache",), frappe.calls)
 
     def test_settings_missing_a_key_fail_before_touching_the_site(self) -> None:
         frappe = InstallerFrappe(["frappe"], {})

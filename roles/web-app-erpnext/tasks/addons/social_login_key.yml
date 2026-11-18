@@ -1,21 +1,4 @@
 ---
-- name: "🛂 Install the sign-in role mapping app and its settings"
-  ansible.builtin.shell:
-    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i
-      -e SITE_NAME -e LOGIN_RBAC_APP -e LOGIN_RBAC_SETTINGS_JSON
-      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
-      {{ ERPNEXT_BENCH_PYTHON }}
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/rbac.py') }}"
-  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
-  environment:
-    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
-    LOGIN_RBAC_APP: "{{ ERPNEXT_LOGIN_RBAC_APP }}"
-    LOGIN_RBAC_SETTINGS_JSON: "{{ ERPNEXT_LOGIN_RBAC_SETTINGS | to_json }}"
-  register: erpnext_login_rbac_apply
-  changed_when: "'CHANGED' in erpnext_login_rbac_apply.stdout"
-  timeout: "{{ lookup('timeout', 600) | int }}"
-
 - name: "📌 apply Social Login Key for Keycloak"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
@@ -42,6 +25,6 @@
   changed_when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
   timeout: "{{ lookup('timeout', 60) | int }}"
 
-- name: "🔄 Restart Frappe after a Social Login Key or sign-in app change"
-  ansible.builtin.include_tasks: "social_login_key_restart.yml"
-  when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout or ('CHANGED installed ' ~ ERPNEXT_LOGIN_RBAC_APP) in erpnext_login_rbac_apply.stdout"
+- name: "🔄 Restart Frappe after a Social Login Key change"
+  ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
+  when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"

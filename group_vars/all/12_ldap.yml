@@ -91,6 +91,7 @@ LDAP:
       NEXTCLOUD_QUOTA: "nextcloudQuota"
       MEMBER_OF: "memberOf"
       PASSWORD: "userPassword"
+      UUID: "entryUUID"
   FILTERS:
     USERS:
       LOGIN: "(&{{ _ldap_filters_users_all }}({{_ldap_user_id}}=%{{_ldap_user_id}}))"

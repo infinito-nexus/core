@@ -1,6 +1,4 @@
-"""Install the login role mapping app on the site and write its settings.
-
-Environment:
+"""Environment:
     SITE_NAME: the Frappe site.
     LOGIN_RBAC_APP: the Frappe app that maps the role groups at sign-in.
     LOGIN_RBAC_SETTINGS_JSON: JSON object the app reads from the site config key named after it.
@@ -23,16 +21,24 @@ SETTINGS = (
     "given_name_claim",
     "family_name_claim",
     "role_grants",
+    "group_roles",
     "protected_users",
+    "protected_owners",
     "directory_provider",
+    "uuid_attribute",
+    "directory_ids",
 )
 
 
 def parse_settings(raw):
-    """Return the settings object, refusing one that lacks or adds a key.
-
-    Args:
+    """Args:
         raw: the JSON text of the settings.
+
+    Returns:
+        The settings object.
+
+    Raises:
+        ValueError: the object lacks or adds a key of ``SETTINGS``.
     """
     settings = json.loads(raw)
     if not isinstance(settings, dict) or sorted(settings) != sorted(SETTINGS):
@@ -43,11 +49,13 @@ def parse_settings(raw):
 
 
 def converge(app, settings):
-    """Install the app when the site lacks it, write its settings, return one line per change.
-
-    Args:
+    """Args:
         app: the Frappe app.
         settings: the settings the app reads from the site config.
+
+    Returns:
+        One line per change: the app installed, its settings written, the
+        ``LDAP Settings`` disabled while ``directory_ids`` is false.
     """
     lines = []
     if app not in frappe.get_installed_apps():
@@ -56,14 +64,17 @@ def converge(app, settings):
     if frappe.conf.get(app) != settings:
         update_site_config(app, settings)
         lines.append(f"CHANGED settings {app}")
+    if not settings["directory_ids"] and frappe.db.get_single_value(
+        "LDAP Settings", "enabled"
+    ):
+        frappe.db.set_single_value("LDAP Settings", "enabled", 0)
+        lines.append("CHANGED disabled LDAP Settings")
     return lines
 
 
 def main(environ):
-    """Converge the site and print the result.
-
-    Args:
-        environ: the process environment.
+    """Args:
+    environ: the process environment.
     """
     site = environ["SITE_NAME"]
     app = environ["LOGIN_RBAC_APP"]
@@ -74,6 +85,7 @@ def main(environ):
     try:
         lines = converge(app, settings)
         frappe.db.commit()
+        frappe.clear_cache()
     finally:
         frappe.destroy()
     print("\n".join(lines) if lines else "UNCHANGED")

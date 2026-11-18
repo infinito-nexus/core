@@ -98,6 +98,7 @@ erpnext:
   api_bot:
     enabled: true
     extra_roles: []
+  group_roles: []
   run_after:
     - web-app-keycloak
     - web-app-email

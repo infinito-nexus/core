@@ -24,6 +24,39 @@
 - name: "🥾 bench bootstrap"
   include_tasks: 02_bench_bootstrap.yml
 
+- name: "🛂 Install the sign-in role mapping app and its settings"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e LOGIN_RBAC_APP -e LOGIN_RBAC_SETTINGS_JSON
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/rbac.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    LOGIN_RBAC_APP: "{{ ERPNEXT_LOGIN_RBAC_APP }}"
+    LOGIN_RBAC_SETTINGS_JSON: "{{ ERPNEXT_LOGIN_RBAC_SETTINGS | to_json }}"
+  register: erpnext_login_rbac_apply
+  changed_when: "'CHANGED' in erpnext_login_rbac_apply.stdout"
+  timeout: "{{ lookup('timeout', 600) | int }}"
+
+- name: "🔍 Probe for the restart a staged sign-in app left pending"
+  ansible.builtin.stat:
+    path: "{{ ERPNEXT_LOGIN_RBAC_RESTART_MARKER }}"
+  register: erpnext_login_rbac_restart_marker
+
+- name: "🔄 Restart Frappe so all workers load the sign-in app first"
+  when: erpnext_login_rbac_restart_marker.stat.exists or ('CHANGED installed ' ~ ERPNEXT_LOGIN_RBAC_APP) in erpnext_login_rbac_apply.stdout
+  block:
+    - name: "🔄 Restart every Frappe process"
+      ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
+
+    - name: "📌 Clear the pending restart of the sign-in app"
+      ansible.builtin.file:
+        path: "{{ ERPNEXT_LOGIN_RBAC_RESTART_MARKER }}"
+        state: absent
+
 - name: "🔧 configure OIDC"
   include_tasks: addons/social_login_key.yml
   when: ERPNEXT_OIDC_ENABLED

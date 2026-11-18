@@ -92,6 +92,7 @@ def _sync(
                     "MAIL": "mail",
                     "FULLNAME": "cn",
                     "MEMBER_OF": "memberOf",
+                    "UUID": "entryUUID",
                 }
             },
         },

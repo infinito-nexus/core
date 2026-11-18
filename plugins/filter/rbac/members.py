@@ -1,8 +1,9 @@
 """Filters that resolve who holds one RBAC role on one application.
 
 {{ lookup('users') | rbac_members('web-app-gitlab', 'administrator') }}
-{{ ldap_search_result.results | rbac_ldap_members('uid', 'mail', 'cn') }}
 -> [{"username": "alice", "email": "alice@example.org", "name": "Alice Liddell"}]
+{{ ldap_search_result.results | rbac_ldap_members('uid', 'mail', 'cn', 'entryUUID') }}
+-> [{"username": "alice", "email": "alice@example.org", "name": "Alice Liddell", "uuid": "..."}]
 """
 
 from __future__ import annotations
@@ -25,12 +26,13 @@ def _single(value: Any) -> str:
 def rbac_members(
     users: Mapping[str, Any] | None, application_id: str, role: str
 ) -> list[dict[str, str]]:
-    """Return the inventory users granted ``role`` on ``application_id``.
-
-    Args:
+    """Args:
         users: the merged users mapping.
         application_id: the application whose grants are resolved.
         role: the role name.
+
+    Returns:
+        The inventory users granted the role on the application.
     """
     by_username = {
         str((cfg or {}).get("username", key)): (key, cfg or {})
@@ -50,10 +52,11 @@ def rbac_members(
 
 
 def rbac_users(users: Mapping[str, Any] | None) -> list[dict[str, str]]:
-    """Return every inventory user, shaped like ``rbac_members``, sorted by username.
-
-    Args:
+    """Args:
         users: the merged users mapping.
+
+    Returns:
+        Every inventory user, shaped like ``rbac_members``, sorted by username.
     """
     accounts = [
         {
@@ -71,20 +74,24 @@ def rbac_ldap_members(
     id_attribute: str,
     mail_attribute: str,
     name_attribute: str,
+    uuid_attribute: str,
 ) -> list[dict[str, str]]:
-    """Return the members found by an LDAP search, sorted by username.
-
-    Args:
+    """Args:
         entries: the ``results`` list of ``community.general.ldap_search``.
         id_attribute: the login attribute, ``LDAP.USER.ATTRIBUTES.ID``.
         mail_attribute: the mail attribute, ``LDAP.USER.ATTRIBUTES.MAIL``.
         name_attribute: the full name attribute, ``LDAP.USER.ATTRIBUTES.FULLNAME``.
+        uuid_attribute: the immutable entry id, ``LDAP.USER.ATTRIBUTES.UUID``.
+
+    Returns:
+        The members found by the search, sorted by username.
     """
     members = [
         {
             "username": _single(entry.get(id_attribute)),
             "email": _single(entry.get(mail_attribute)),
             "name": _single(entry.get(name_attribute)),
+            "uuid": _single(entry.get(uuid_attribute)),
         }
         for entry in entries or []
     ]

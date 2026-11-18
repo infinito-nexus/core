@@ -8,7 +8,7 @@ Args:
     --directory: the directory that holds ``config.json``, ``hooks/`` and,
         under the applied mailbox layout, ``mailbox.json``.
     --only: run only the hook of this application.
-    --members-file: JSON ``{role: [{username, email, name}]}`` used instead of
+    --members-file: JSON ``{role: [{username, email, name, uuid}]}`` used instead of
         a directory lookup; requires ``--only``, and a missing container is
         then an error rather than a skip.
 
@@ -48,22 +48,43 @@ MAILBOX_FILE = "mailbox.json"
 
 
 def first(values):
-    """Return the first value of an attribute, or an empty string.
-
-    Args:
+    """Args:
         values: the attribute values, possibly missing.
+
+    Returns:
+        The first value of the attribute, or an empty string.
     """
     return str(values[0]) if values else ""
 
 
-def directory_members(connection, ldap, application_id, role):
-    """Return the accounts of one role, shaped like ``rbac_ldap_members``.
+def role_group(application_id, role):
+    """Args:
+        application_id: the hook's application.
+        role: a role of that application, ``@users``, or the group path
+            ``/<root>/<application>/<role>`` of a role of any application.
 
-    Args:
+    Returns:
+        ``(application, role)`` of the directory group that holds the role's
+        members.
+    """
+    if "/" not in role:
+        return application_id, role
+    segments = role.strip("/").split("/")
+    if len(segments) != 3:
+        raise ValueError(f"{role!r} is no group path /<root>/<application>/<role>")
+    return segments[1], segments[2]
+
+
+def directory_members(connection, ldap, application_id, role):
+    """Args:
         connection: an open ``ldap_client.Connection``.
         ldap: the ``ldap`` block of ``config.json``.
         application_id: the application the role belongs to.
         role: the role name; ``@users`` stands for every account of the users OU.
+
+    Returns:
+        The accounts of the role, shaped like ``rbac_ldap_members``, each with the
+        first value of every attribute.
     """
     attributes = ldap["attributes"]
     if role == USERS_ROLE:
@@ -76,13 +97,14 @@ def directory_members(connection, ldap, application_id, role):
         ldap["users_dn"],
         SCOPE_ONE_LEVEL,
         search_filter,
-        [attributes["id"], attributes["mail"], attributes["name"]],
+        [attributes["id"], attributes["mail"], attributes["name"], attributes["uuid"]],
     )
     members = [
         {
             "username": first(values.get(attributes["id"].lower())),
             "email": first(values.get(attributes["mail"].lower())),
             "name": first(values.get(attributes["name"].lower())),
+            "uuid": first(values.get(attributes["uuid"].lower())),
         }
         for _, values in entries
     ]
@@ -426,7 +448,9 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
                 print(f"[{hook['application_id']}] SKIPPED paused by app-control")
                 continue
             members = {
-                role: directory_members(connection, ldap, hook["application_id"], role)
+                role: directory_members(
+                    connection, ldap, *role_group(hook["application_id"], role)
+                )
                 for role in hook["roles"]
             }
             now = clock()

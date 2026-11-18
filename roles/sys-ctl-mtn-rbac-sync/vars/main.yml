@@ -31,6 +31,7 @@ RBAC_SYNC_CONFIG:
           'mail': LDAP.USER.ATTRIBUTES.MAIL,
           'name': LDAP.USER.ATTRIBUTES.FULLNAME,
           'member_of': LDAP.USER.ATTRIBUTES.MEMBER_OF,
+          'uuid': LDAP.USER.ATTRIBUTES.UUID,
         },
       } if (RBAC_SYNC_LDAP_ENABLED | bool) else None
     }}
