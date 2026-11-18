@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import unittest
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.util import module_from_spec, spec_from_file_location
@@ -140,6 +141,13 @@ def load(name):
     assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
+
+
+class TempCase(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.root = Path(directory.name)
 
 
 def default_secrets(dns_port):

@@ -418,13 +418,13 @@ class TestKeySnapshot(ProvisionCase):
             "key_created_at": "1763000005",
             "snapshot_at": "1763000000",
         }
-        text = read_text(str(FILES / "python" / "provision.py"))
+        text = read_text(str(FILES / "python" / "provision" / "session.py"))
         planted = text.replace(
             "        require_snapshot(self.bao, self.workspace)\n        if self.empty():",
             "        if self.empty():",
         )
         self.assertNotEqual(planted, text)
-        (self.sandbox.core / "python" / "provision.py").write_text(planted)
+        (self.sandbox.core / "python" / "provision" / "session.py").write_text(planted)
         result = self.sandbox.run("provision")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("apply", self.sandbox.commands())

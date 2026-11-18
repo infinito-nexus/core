@@ -5,19 +5,15 @@ import fcntl
 import functools
 import json
 import os
-import re
 import shutil
 import signal
-import subprocess
 import sys
 import tempfile
-import time
 from pathlib import Path
 
-from provision import inputs, provider_env, remote
+from provision import inputs, opentofu, provider_env, remote
+from provision.session import OPENTOFU, VALUES_FILE, Session
 
-HERE = Path(__file__).resolve().parent
-OPENTOFU = HERE.parent / "opentofu"
 TEMPLATES = ("provision", "destroy", "unlock", "dns", "zone")
 PROVISION_ROLE = "provision"
 ZONE_ROLE = "zone"
@@ -25,31 +21,8 @@ ZONE_STATE = "{sales_order}/{line}.zone.tfstate"
 ZONE_LOCK = "{workspace}.{sales_order}-{line}.zone"
 ZONE_OUTPUTS = ("zone", "zone_id", "status", "name_servers")
 ZONE_RESOURCE = "cloudflare_zone.zone"
-STATE_REGION = "us-east-1"
-CLEARED_PREFIXES = ("TF_", "AWS_")
-CLEARED_NAMES = frozenset({"BAO_TOKEN", "VAULT_TOKEN", "SEMAPHORE_JWT"})
-BACKEND_FILE = "backend.tfbackend"
-VALUES_FILE = "values.tfvars.json"
-RESOLV_CONF = Path("/etc/resolv.conf")
-SNAPSHOT_RECORD = "platform/data/provision/transit/{workspace}"
-SNAPSHOT_FIELDS = ("key_created_at", "snapshot_at")
 LOCKS = "provision-locks"
-LOCK_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 RECORD = "{sales_order}/{line}.provision.json"
-SUPERVISOR = HERE / "tofu_supervisor.py"
-GROUP_POLL_SECONDS = 0.1
-
-
-class FailedError(Exception):
-    """Args:
-    message: the step that failed, never a credential.
-    """
-
-
-class BudgetError(FailedError):
-    """Args:
-    message: the budget the run outlived and how OpenTofu stopped.
-    """
 
 
 def configuration(env):
@@ -70,26 +43,6 @@ def configuration(env):
         "catalogs": inputs.required(env, "PROVISION_CATALOG_DIR"),
         "flavor": flavor,
     }
-
-
-def credential_names(credentials):
-    """Args:
-        credentials: the decoded ``credentials.json``.
-
-    Returns:
-        Every environment name a provider or DNS module reads its credential
-        from, cleared before the task's own values are set.
-    """
-    names = set(credentials["zone"]["env"])
-    for entry in credentials["dns"].values():
-        names |= set(entry["env"])
-    for provider in credentials["providers"].values():
-        names |= set(provider["env"])
-        workspace_secrets = provider.get(provider_env.WORKSPACE_SECRETS, [])
-        for secret in provider["secrets"] + workspace_secrets:
-            names |= set(secret.get("env", {}))
-            names |= set(secret.get(provider_env.CATALOG, {}))
-    return names
 
 
 @contextlib.contextmanager
@@ -143,357 +96,6 @@ def stage(task, root, flavor, workspace):
     )
     shutil.copytree(OPENTOFU / "modules" / f"dns-{flavor}", task / "modules" / "dns")
     (task / "workspace.json").write_text(json.dumps(workspace), encoding="utf-8")
-
-
-def _hcl(value):
-    return json.dumps(value).replace("${", "$${").replace("%{", "%%{")
-
-
-def write_backend(task, config, bucket, key, keys):
-    values = {
-        "bucket": bucket,
-        "key": key,
-        "region": STATE_REGION,
-        "access_key": keys["access_key"],
-        "secret_key": keys["secret_key"],
-    }
-    if config["cafile"]:
-        values["custom_ca_bundle"] = config["cafile"]
-    text = "".join(f"{name} = {_hcl(value)}\n" for name, value in values.items())
-    text += f"endpoints = {{\n  s3 = {_hcl(config['state'])}\n}}\n"
-    return provider_env.private_file(task / BACKEND_FILE, text)
-
-
-def encryption(workspace):
-    method = "${method.aes_gcm.workspace}"
-    return json.dumps(
-        {
-            "key_provider": {
-                "openbao": {
-                    "workspace": {
-                        "key_name": f"{workspace}-provision",
-                        "transit_engine_path": "/transit",
-                        "key_length": 32,
-                    }
-                }
-            },
-            "method": {
-                "aes_gcm": {"workspace": {"keys": "${key_provider.openbao.workspace}"}}
-            },
-            "state": {"method": method, "enforced": True},
-            "plan": {"method": method, "enforced": True},
-        }
-    )
-
-
-def require_snapshot(bao, workspace):
-    """Args:
-        bao: the logged-in OpenBao client of the task.
-        workspace: ``ws-<id>``.
-
-    Raises:
-        RefusedError: the transit key of the workspace has no snapshot
-            record, or its snapshot is older than the key.
-    """
-    path = SNAPSHOT_RECORD.format(workspace=workspace)
-    record = bao.record(path) or {}
-    try:
-        created, snapshot = (int(str(record[name])) for name in SNAPSHOT_FIELDS)
-    except (KeyError, ValueError):
-        raise inputs.RefusedError(
-            f"{path} holds no key_created_at and snapshot_at, so the transit key "
-            f"{workspace}-provision has no backup"
-        ) from None
-    if snapshot < created:
-        raise inputs.RefusedError(
-            f"the snapshot in {path} predates the transit key {workspace}-provision"
-        )
-
-
-def _ended(process, deadline=None):
-    """Args:
-        process: the :data:`SUPERVISOR` to wait for, left unreaped so its
-            zombie keeps the id of its process group reserved for
-            :func:`_killed`.
-        deadline: the :func:`time.monotonic` bound of the wait, ``None`` for
-            none.
-
-    Returns:
-        Its exit code, negative for the signal that killed it, or ``None``
-        once the deadline passed first.
-    """
-    flags = os.WEXITED | os.WNOWAIT | (0 if deadline is None else os.WNOHANG)
-    while (info := os.waitid(os.P_PID, process.pid, flags)) is None:
-        if time.monotonic() >= deadline:
-            return None
-        time.sleep(GROUP_POLL_SECONDS)
-    return info.si_status if info.si_code == os.CLD_EXITED else -info.si_status
-
-
-def _unwatched(process, deadline):
-    """Args:
-    process: a :data:`SUPERVISOR` a signal killed, so the rest of its
-        process group, ``tofu`` included, runs on unwatched. It is reaped
-        first, as its zombie would count as a member; the members that
-        still run keep the group id reserved. Returns once the group is
-        empty or ``deadline``, a :func:`time.monotonic` value, passed.
-    """
-    process.wait()
-    while time.monotonic() < deadline:
-        try:
-            os.killpg(process.pid, 0)
-        except ProcessLookupError:
-            return
-        time.sleep(GROUP_POLL_SECONDS)
-
-
-def _stopped(process, command):
-    """Args:
-        process: the :data:`SUPERVISOR` of the running ``tofu`` to stop.
-        command: its subcommand, e.g. ``apply``.
-
-    Returns:
-        How ``tofu`` ended: on SIGINT within :data:`provider_env.TOFU_GRACE`,
-        or killed after it, also when its supervisor died; the caller kills.
-
-    Raises:
-        Whatever a signal handler raises during the grace.
-    """
-    signal.alarm(0)
-    with contextlib.suppress(ProcessLookupError):
-        os.killpg(process.pid, signal.SIGINT)
-    grace = provider_env.TOFU_GRACE
-    deadline = time.monotonic() + grace.total_seconds()
-    code = _ended(process, deadline)
-    if code is None:
-        return (
-            f"tofu {command} ignored SIGINT for {grace} and was killed, so its "
-            f"state may miss resources and keep its lock until unlock runs"
-        )
-    if code < 0:
-        _unwatched(process, deadline)
-        return (
-            f"the supervisor of tofu {command} died with {code}, so its process "
-            f"group got SIGINT and up to {grace} before SIGKILL, and the state "
-            f"of tofu may miss resources and keep its lock until unlock runs"
-        )
-    return f"tofu {command} stopped on SIGINT with exit code {code}"
-
-
-def _killed(process):
-    """Args:
-    process: the :data:`SUPERVISOR` whose process group, ``tofu`` and its
-        provider plugins included, gets SIGKILL and is reaped; the group id
-        stays reserved while any member lives, the unreaped supervisor too.
-    """
-    with contextlib.suppress(ProcessLookupError):
-        os.killpg(process.pid, signal.SIGKILL)
-    process.wait()
-
-
-def tofu(task, environment, *arguments, capture=False):
-    command = arguments[0]
-    with subprocess.Popen(
-        [sys.executable, "-I", str(SUPERVISOR), str(os.getpid()), "tofu", *arguments],
-        cwd=task,
-        env=environment,
-        text=True,
-        stdout=subprocess.PIPE if capture else None,
-        start_new_session=True,
-    ) as process:
-        try:
-            output = process.stdout.read() if capture else ""
-            code = _ended(process)
-        except BaseException as stop:
-            stopped = _stopped(process, command)
-            if isinstance(stop, BudgetError):
-                raise BudgetError(f"{stop}; {stopped}") from None
-            raise
-        else:
-            if code < 0:
-                raise FailedError(_stopped(process, command))
-        finally:
-            _killed(process)
-    if code != 0:
-        raise FailedError(f"tofu {command} exited with {code}")
-    return output
-
-
-class Session:
-    """Args:
-    env: the task environment.
-    config: the result of :func:`configuration`.
-    credentials: the decoded ``credentials.json``.
-    workspace: the ``workspace.json`` document.
-    task: the task directory holding the staged root.
-    key: the state key in the workspace bucket.
-    reach: the ``{path, env}`` entry of ``credentials.json`` whose fields
-        the root's provider reads from the environment.
-    role: the suffix of the workspace's task token role the run logs in
-        with, :data:`PROVISION_ROLE` or :data:`ZONE_ROLE`.
-    """
-
-    def __init__(self, env, config, credentials, workspace, task, key, reach, role):
-        self.workspace = workspace["workspace"]
-        self.zone = workspace["dns"]["zone"]
-        self.bucket_name = f"{self.workspace}-state"
-        self.key = key
-        self.task = task
-        self.config = config
-        self.bao = remote.OpenBao(config["openbao"], config["cafile"])
-        token = self.bao.login(
-            f"{self.workspace}-{role}", inputs.required(env, "SEMAPHORE_JWT")
-        )
-        state = credentials["state"]
-        keys = provider_env.mapped(
-            self.bao, state["path"].format(workspace=self.workspace), state["backend"]
-        )
-        self.bucket = remote.StateBucket(
-            config["state"],
-            keys["access_key"],
-            keys["secret_key"],
-            STATE_REGION,
-            config["cafile"],
-        )
-        self.backend = write_backend(task, config, self.bucket_name, key, keys)
-        self.reached = provider_env.mapped(
-            self.bao,
-            reach["path"].format(workspace=self.workspace, zone=self.zone),
-            reach["env"],
-        )
-        cleared = credential_names(credentials)
-        self.environment = {
-            name: value
-            for name, value in env.items()
-            if not name.startswith(CLEARED_PREFIXES)
-            and name not in cleared
-            and name not in CLEARED_NAMES
-        } | {
-            "TF_IN_AUTOMATION": "1",
-            "TF_INPUT": "0",
-            "TF_CLI_CONFIG_FILE": str(OPENTOFU / "tofurc"),
-            "TF_ENCRYPTION": encryption(self.workspace),
-            "BAO_ADDR": config["openbao"],
-            "BAO_TOKEN": token,
-            **self.reached,
-        }
-        if config["cafile"]:
-            self.environment["BAO_CACERT"] = config["cafile"]
-
-    def add_provider(self, provider, spec, region, source):
-        context = {
-            "workspace": self.workspace,
-            "zone": self.zone,
-            "host": str(region.get("host", "")),
-            "provider": provider,
-        }
-        self.environment |= provider_env.provider_environment(
-            self.bao, spec, context, self.task, source, region
-        )
-
-    def run(self, *arguments, capture=False):
-        return tofu(self.task, self.environment, *arguments, capture=capture)
-
-    def init(self):
-        self.run("init", "-input=false", f"-backend-config={self.backend}")
-
-    def addresses(self):
-        if not self.bucket.exists(self.bucket_name, self.key):
-            return []
-        return self.run("state", "list", capture=True).split()
-
-    def empty(self):
-        return not self.addresses()
-
-    def servers(self):
-        if self.config["flavor"] == "knot":
-            return [
-                (self.reached["DNS_UPDATE_SERVER"], self.reached["DNS_UPDATE_PORT"])
-            ]
-        return remote.zone_servers(self.zone, RESOLV_CONF)
-
-    def refuse_taken(self, label):
-        fqdn = f"{label}.{self.workspace}.{self.zone}"
-        if remote.taken(fqdn, self.servers()):
-            raise inputs.RefusedError(
-                f"{fqdn} already holds an A, AAAA or CNAME record"
-            )
-
-    def outputs(self):
-        """Returns:
-        ``{output name: value}`` the state holds, read without a write.
-        """
-        outputs = json.loads(self.run("output", "-json", capture=True))
-        return {name: output["value"] for name, output in outputs.items()}
-
-    def apply(self, unclaimed, record=None):
-        """Args:
-            unclaimed: called before the apply of an empty state; it raises
-                :class:`inputs.RefusedError` for a name someone else holds.
-            record: ``(key, document)`` written to the state bucket right
-                before the apply, None for none.
-
-        Returns:
-            ``{output name: value}`` of the root.
-        """
-        require_snapshot(self.bao, self.workspace)
-        if self.empty():
-            unclaimed()
-        if record is not None:
-            key, document = record
-            self.bucket.put(self.bucket_name, key, json.dumps(document).encode())
-        self.run("apply", "-auto-approve", "-input=false", f"-var-file={VALUES_FILE}")
-        return self.outputs()
-
-    def destroy(self, *kept_with_state):
-        """Args:
-            kept_with_state: further keys deleted together with the state.
-
-        Returns:
-            ``{"destroyed": [resource address], "state": "deleted"}``.
-        """
-        require_snapshot(self.bao, self.workspace)
-        destroyed = self.addresses()
-        self.run("destroy", "-auto-approve", "-input=false", f"-var-file={VALUES_FILE}")
-        if self.addresses():
-            raise FailedError(f"{self.key} still holds resources after tofu destroy")
-        return self.forget(destroyed, *kept_with_state)
-
-    def holds_nothing(self, *records):
-        """Args:
-            records: further keys that would name something to destroy.
-
-        Returns:
-            Whether neither the state nor any of *records* exists.
-        """
-        return not any(
-            self.bucket.exists(self.bucket_name, key) for key in (self.key, *records)
-        )
-
-    def forget(self, destroyed=(), *kept_with_state):
-        """Args:
-            destroyed: the resource addresses the destroy removed.
-            kept_with_state: further keys deleted together with the state.
-
-        Returns:
-            ``{"destroyed": [resource address], "state": "deleted"}`` once the
-            state and its lock are deleted.
-        """
-        for key in (self.key, f"{self.key}.tflock", *kept_with_state):
-            self.bucket.delete(self.bucket_name, key)
-        if self.bucket.exists(self.bucket_name, self.key):
-            raise FailedError(f"{self.bucket_name}/{self.key} survived its delete")
-        return {"destroyed": list(destroyed), "state": "deleted"}
-
-    def unlock(self):
-        lock = self.bucket.get(self.bucket_name, f"{self.key}.tflock")
-        if lock is None:
-            print(f"{self.key} holds no lock")
-            return
-        lock_id = str(json.loads(lock).get("ID", ""))
-        if not LOCK_ID.match(lock_id):
-            raise FailedError(f"the lock of {self.key} carries no lock id")
-        self.run("force-unlock", "-force", lock_id)
 
 
 def live_provider(config, interface, values):
@@ -637,7 +239,7 @@ def state_zone(session):
     held = session.outputs()
     missing = sorted(set(ZONE_OUTPUTS) - set(held))
     if missing:
-        raise FailedError(
+        raise opentofu.FailedError(
             f"{session.key} holds {', '.join(addresses)} without the outputs "
             f"{', '.join(missing)}; an interrupted apply left it, so create and "
             f"show refuse to replace or report it until delete removes it"
@@ -695,7 +297,7 @@ def state_domain(session):
     except (ValueError, KeyError, TypeError):
         domain = None
     if not isinstance(domain, str) or not domain:
-        raise FailedError(
+        raise opentofu.FailedError(
             f"{session.key} names no {ZONE_RESOURCE} with a name, so delete keeps it"
         )
     return domain
@@ -777,7 +379,7 @@ def _terminate(signum, _frame):
 
 
 def _over_budget(_signum, _frame):
-    raise BudgetError(
+    raise opentofu.BudgetError(
         f"the run exceeded its time budget of {provider_env.RUN_BUDGET}, the "
         f"budget a customer credential must outlive"
     )
@@ -818,7 +420,7 @@ def main(argv, env, checkout):
     except inputs.RefusedError as refusal:
         print(f"{prefix}: refused: {refusal}", file=sys.stderr)
         return 2
-    except (FailedError, remote.RemoteError) as failure:
+    except (opentofu.FailedError, remote.RemoteError) as failure:
         print(f"{prefix}: failed: {failure}", file=sys.stderr)
         return 1
     finally:

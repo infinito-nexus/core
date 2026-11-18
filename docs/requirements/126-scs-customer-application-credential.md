@@ -31,7 +31,7 @@ The operator filed this follow-up on 2026-11-14, to be built after the IAM store
 
 ### Contract
 
-- [ ] An unrestricted credential, one scoped to no project or to more than one, and one that expires within the run's time budget each refuse the run before any write, naming the rule, and the output carries no part of the secret (`test_scs_credential_contract` in `tests/unit/python/roles/web-app-semaphore/files/provision/test_remote.py`).
+- [ ] An unrestricted credential, one scoped to no project or to more than one, and one that expires within the run's time budget each refuse the run before any write, naming the rule, and the output carries no part of the secret (`test_scs_credential_contract` in `tests/unit/python/roles/web-app-semaphore/files/provision/test_keystone.py`).
 - [ ] Under credentials of a test project, a `provision` with a valid customer credential creates the server in that project and `destroy` removes it (`provision: scs runs in the customer's own project` in `roles/web-app-semaphore/files/playwright/test-provision.js`).
 
 ### Documentation

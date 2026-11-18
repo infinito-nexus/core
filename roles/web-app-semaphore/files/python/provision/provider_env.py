@@ -5,7 +5,7 @@ import os
 import re
 import string
 
-from provision import inputs, remote
+from provision import inputs, keystone
 
 HOST = re.compile(r"^(?!.*\.\.)[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$")
 WORKSPACE_SECRETS = "workspace_secrets"
@@ -147,7 +147,7 @@ def provider_environment(bao, spec, context, task, source, region):
         The variables OpenTofu reads the provider's credential from, after
         every secret with a ``keystone`` list, the variables of its Keystone
         endpoint, credential id and secret in that order, passed
-        :func:`remote.keystone_contract` for :data:`RUN_BUDGET` plus
+        :func:`keystone.keystone_contract` for :data:`RUN_BUDGET` plus
         :data:`TOFU_GRACE`, the longest OpenTofu runs with it.
     """
     directory = task / "credentials"
@@ -170,7 +170,7 @@ def provider_environment(bao, spec, context, task, source, region):
             auth_url, credential_id, secret_value = (
                 environment[name] for name in secret[KEYSTONE]
             )
-            remote.keystone_contract(
+            keystone.keystone_contract(
                 auth_url,
                 credential_id,
                 secret_value,
