@@ -892,8 +892,10 @@ quality:
 	@"$(MAKE)" test
 
 .PHONY: quality-high
-# Full gate: quality (autoformat + test) followed by every lint check.
-quality-high: quality lint
+# Full gate: autoformat, then the whole test suite and every lint check in parallel.
+quality-high:
+	@"$(MAKE)" autoformat
+	@bash scripts/make/parallel.sh test lint
 
 .PHONY: role-skeleton
 # Render a custom web-app-cst-<name> role from a JSON or YAML manifest with the core role skeleton.
@@ -1227,6 +1229,16 @@ test-security:
 		--report build/test-reports/security.json \
 		--workers 4
 
+.PHONY: test-session
+# Run the external, integration, lint and unit Python suites as one pytest session (opt-in; make test runs them as four sessions).
+# Param workers: pytest-xdist worker count of the session (default 20)
+test-session: install
+	@INFINITO_TEST_TYPE="session" \
+	INFINITO_COMPILE=0 \
+	test_paths="tests/external tests/integration tests/lint tests/unit" \
+	pytest_workers='$(or $(workers),20)' \
+	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
+
 .PHONY: test-signed
 # Verify HEAD is signed.
 # Note: `git log %G?` returns N for unsigned; gates the pre-push hook against unsigned tips.
@@ -1237,6 +1249,16 @@ test-signed:
 		exit 1; \
 	fi; \
 	echo "✅ HEAD commit signature status: $$status"
+
+.PHONY: test-single
+# Run the full test pipeline like make test, with the four Python suites in one pytest session (make test-session).
+# Param workers: pytest-xdist worker count of that session (default 20)
+test-single: roles-pull
+	@bash scripts/make/parallel.sh \
+		test-session \
+		test-unit-javascript \
+		test-unit-php \
+		test-unit-ruby
 
 .PHONY: test-unit
 # Run the unit test suite (every language).

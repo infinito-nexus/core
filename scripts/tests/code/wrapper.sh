@@ -26,6 +26,11 @@ source scripts/tests/runner/lib.sh
 : "${INFINITO_TEST_RUNNER:?INFINITO_TEST_RUNNER must be set}"
 : "${INFINITO_TEST_TYPE:?INFINITO_TEST_TYPE must be set}" # nocheck: makefile-supplied
 
+if [[ -z "${pytest_workers:-}" ]]; then
+	pytest_workers="$(python3 -m utils.tests.workers "${INFINITO_TEST_TYPE}")" || pytest_workers="" # nocheck: makefile-supplied
+fi
+export pytest_workers
+
 RUN_SCRIPT_IN_CONTAINER="${INFINITO_SRC_DIR}/${RUNNER_REL}"
 
 case "${INFINITO_TEST_RUNNER}" in
@@ -50,6 +55,7 @@ docker)
 		-e INFINITO_TEST_PATTERN="${INFINITO_TEST_PATTERN}"
 		-e INFINITO_TEST_TYPE="${INFINITO_TEST_TYPE}" # nocheck: makefile-supplied
 		-e lint_scope="${lint_scope:-}"
+		-e pytest_workers="${pytest_workers:-}"
 		-e test_paths="${test_paths:-}"
 	)
 	if [[ -z "${INFINITO_STACK_NAME:-}" ]]; then

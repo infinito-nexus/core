@@ -3,7 +3,14 @@
 # args, runs each as its own background `make` invocation (capped at
 # INFINITO_WORKER_CPU concurrent workers), and at the end prints a
 # per-target wall-clock breakdown plus the overall elapsed time.
+#
+# Param PARALLEL_FAILED_REPORT: set by an outer parallel.sh for each target it
+#   launches; a nested dispatch writes its failed leaf targets there, one per
+#   line, so the outermost FAILED TARGETS line names leaves, not aggregates.
 set -euo pipefail
+
+failed_report="${PARALLEL_FAILED_REPORT:-}"
+unset PARALLEL_FAILED_REPORT
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -45,14 +52,17 @@ echo
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "${tmpdir}"' EXIT
+export PARALLEL_SIBLINGS="${PARALLEL_SIBLINGS:+${PARALLEL_SIBLINGS} }$*"
 
 declare -A pid_to_target=()
 declare -A target_start=()
 declare -A target_dur=()
 declare -A target_rc=()
 declare -A target_log=()
+declare -A target_report=()
 
 start_ts="$(date +%s)"
+[[ -r /proc/stat ]] && cp /proc/stat "${tmpdir}/stat.start"
 
 active=0
 to_launch=("$@")
@@ -79,8 +89,9 @@ for tgt in "${to_launch[@]}"; do
 	done
 	log="${tmpdir}/${launch_idx}.log"
 	target_log["${tgt}"]="${log}"
+	target_report["${tgt}"]="${tmpdir}/${launch_idx}.failed"
 	target_start["${tgt}"]="$(date +%s)"
-	(make -- "${tgt}" 2>&1 | tee "${log}") &
+	(PARALLEL_FAILED_REPORT="${target_report[${tgt}]}" make -- "${tgt}" 2>&1 | tee "${log}") &
 	pid_to_target[$!]="${tgt}"
 	active=$((active + 1))
 	launch_idx=$((launch_idx + 1))
@@ -112,15 +123,26 @@ if ((overall_rc == 0)); then
 else
 	echo "💥  total $(format_duration "${total}")  (exit=${overall_rc})"
 fi
+if [[ -r "${tmpdir}/stat.start" ]] && cpu_avg="$(python3 -c 'import sys; from utils.orchestrator.sample import cpu_percent; print(round(cpu_percent(open(sys.argv[1]).read(), open("/proc/stat").read())))' "${tmpdir}/stat.start" 2>/dev/null)"; then
+	echo "💻  cpu avg ${cpu_avg} % of $(nproc) CPUs"
+fi
 echo
 
 failed_targets=()
+replayed=()
 for tgt in "$@"; do
-	((target_rc["${tgt}"] == 0)) || failed_targets+=("${tgt}")
+	((target_rc["${tgt}"] == 0)) && continue
+	if [[ -s "${target_report[${tgt}]}" ]]; then
+		mapfile -t nested_failed <"${target_report[${tgt}]}"
+		failed_targets+=("${nested_failed[@]}")
+	else
+		failed_targets+=("${tgt}")
+		replayed+=("${tgt}")
+	fi
 done
 
 if ((${#failed_targets[@]} > 0)); then
-	for tgt in "${failed_targets[@]}"; do
+	for tgt in "${replayed[@]}"; do
 		echo "──────── output of failed target: ${tgt} ────────"
 		cat "${target_log[${tgt}]}"
 		echo "──────── end of ${tgt} ────────"
@@ -128,6 +150,9 @@ if ((${#failed_targets[@]} > 0)); then
 	done
 	echo "FAILED TARGETS: ${failed_targets[*]}"
 	echo
+	if [[ -n "${failed_report}" ]]; then
+		printf '%s\n' "${failed_targets[@]}" >"${failed_report}"
+	fi
 fi
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then

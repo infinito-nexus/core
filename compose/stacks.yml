@@ -47,6 +47,7 @@ stacks:
       - test-lint
       - test-oracle
       - test-performance
+      - test-session
       - test-unit-javascript
       - test-unit-php
       - test-unit-python

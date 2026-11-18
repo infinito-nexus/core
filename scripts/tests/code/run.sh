@@ -7,6 +7,8 @@
 #
 # Param test_paths: optional space-separated test files run instead of the
 #                   whole suite directory (make lint-file, make lint-role).
+# Param pytest_workers: optional pytest-xdist worker count (make test-session);
+#                       empty means one worker per CPU.
 set -euo pipefail
 
 _run_sh_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -32,7 +34,7 @@ _junit_report="build/test-reports/${INFINITO_TEST_TYPE}.xml" # nocheck: makefile
 read -r -a _targets <<<"${test_paths:-${_suite_dir}}"
 if "${PYTHON}" -c 'import pytest, xdist' >/dev/null 2>&1; then
 	mkdir -p build/test-reports
-	PYTHONDONTWRITEBYTECODE=1 "${PYTHON}" -m pytest "${_targets[@]}" -q -n auto --dist loadscope -rP -p no:cacheprovider \
+	PYTHONDONTWRITEBYTECODE=1 "${PYTHON}" -m pytest "${_targets[@]}" -q -n "${pytest_workers:-auto}" --dist loadscope --no-loadscope-reorder -p utils.tests.pytest.passes -p utils.tests.pytest.longest_first -p no:cacheprovider \
 		--import-mode=importlib \
 		--junitxml="${_junit_report}" \
 		-o consider_namespace_packages=true \

@@ -29,26 +29,34 @@ source "${SCRIPT_DIR}/diff/files.sh"
 # shellcheck source=scripts/lint/ansible/stamp.sh
 source "${SCRIPT_DIR}/ansible/stamp.sh"
 
-current="$(ansible_lint_fingerprint all)"
-if ansible_lint_stamp_matches "${current}"; then
-	echo "ansible-lint: no file changed since the last green run; skipping"
-	exit 0
-fi
-
+yaml_files=()
+scope="all"
 if lint_diff_active ansible; then
 	mapfile -t yaml_files < <(lint_diff_files '\.ya?ml$' | ansible_lint_included)
 	if [[ "${#yaml_files[@]}" -eq 0 ]]; then
 		echo "ansible-lint: no changed YAML file; skipping"
 		exit 0
 	fi
-	ansible-lint "${yaml_files[@]}"
+	scope="diff"
+fi
+
+if ! current="$(ansible_lint_fingerprint "${scope}" "${yaml_files[@]}")"; then
+	echo "ansible-lint: tool versions unreadable; linting without the ${ANSIBLE_LINT_STAMP} stamp"
+	current=""
+fi
+if ansible_lint_stamp_matches "${current}"; then
+	echo "ansible-lint: SKIPPED (${scope} run): no YAML file, plugin, configuration, collection or tool version changed since the last green run (${ANSIBLE_LINT_STAMP} ${current})"
 	exit 0
 fi
 
-ansible-lint
-mapfile -t custom_roles < <(lint_custom_roles)
-if [[ "${#custom_roles[@]}" -gt 0 ]]; then
-	ansible-lint "${custom_roles[@]}"
+if [[ "${scope}" == "diff" ]]; then
+	ansible-lint "${yaml_files[@]}"
+else
+	ansible-lint
+	mapfile -t custom_roles < <(lint_custom_roles)
+	if [[ "${#custom_roles[@]}" -gt 0 ]]; then
+		ansible-lint "${custom_roles[@]}"
+	fi
 fi
 
 ansible_lint_stamp_record "${current}"

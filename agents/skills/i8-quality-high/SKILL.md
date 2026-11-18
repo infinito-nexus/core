@@ -1,18 +1,18 @@
 ---
 name: i8-quality-high
 description: >
-  Run the full quality gate (make quality-high: docs, autoformat, the whole test
-  suite, then every lint target) in a loop until it is green end to end. Trigger
-  on /i8-quality-high or when the operator asks for the high gate before a
-  commit, a pull request, or a release. Infinito.Nexus specific.
+  Run the full quality gate (make quality-high: docs, autoformat, then the whole
+  test suite and every lint target in parallel) in a loop until it is green end
+  to end. Trigger on /i8-quality-high or when the operator asks for the high
+  gate before a commit, a pull request, or a release. Infinito.Nexus specific.
 routines: []
 ---
 
 # High Quality Gate
 
 Follow the instructions from AGENTS.md, then drive `make quality-high` to green.
-It is `make quality` (docs, autoformat, test) followed by `make lint` — every
-lint target, so budget around ten minutes per pass.
+It runs `make autoformat`, then `make test` and `make lint` (every lint target)
+in parallel, so a pass takes as long as the slower of the two phases.
 
 The fix loop and its forbidden shortcuts are the `test-fix` skill's; this skill
 only pins the command and how to read its result.
@@ -32,9 +32,10 @@ ansible-lint silently.
 
 ## Reading the result
 
-Judge by the two `📊 per-target wall-clock` tables (one for the test phase, one
-for lint) and any `FAILED TARGETS:` line — never by the pipe exit code, which is
-unreliable here. `docs` and `autoformat` write to the tree: run `git status`
+Judge by the `📊 per-target wall-clock` tables (one for the test phase, one for
+lint, and a last one for the two phases) and the last `FAILED TARGETS:` line,
+which names every failed test and lint target of both phases. Never judge by
+the pipe exit code, which is unreliable here. `docs` and `autoformat` write to the tree: run `git status`
 after every pass and treat an unexpected diff as a finding, not as noise.
 
 ## Fixing
