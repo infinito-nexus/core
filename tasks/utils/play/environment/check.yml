@@ -1,6 +1,6 @@
 ---
 # Param: PLAY_ENVIRONMENT_SOURCE - mapping of environment variable to its templated source
-# Param: PLAY_ENVIRONMENT        - the mapping environment_freeze.yml rendered at play start
+# Param: PLAY_ENVIRONMENT        - the mapping freeze.yml rendered at play start
 - name: "✅ Assert the frozen play environment still equals its sources"
   ansible.builtin.assert:
     that:

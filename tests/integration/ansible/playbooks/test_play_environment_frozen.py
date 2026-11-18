@@ -1,8 +1,8 @@
 """The play environment is rendered once per host and checked against its sources.
 
 ``playbook.yml`` passes its environment as the ``PLAY_ENVIRONMENT`` mapping
-that ``tasks/utils/play/environment_freeze.yml`` renders once, so no task
-compiles the source templates again. ``environment_check.yml`` runs at the
+that ``tasks/utils/play/environment/freeze.yml`` renders once, so no task
+compiles the source templates again. ``environment/check.yml`` runs at the
 end of the play and fails when a source changed after the freeze, because
 every task after the change ran with the stale value.
 
@@ -20,8 +20,8 @@ from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
 
-FREEZE = PROJECT_ROOT / "tasks/utils/play/environment_freeze.yml"
-CHECK = PROJECT_ROOT / "tasks/utils/play/environment_check.yml"
+FREEZE = PROJECT_ROOT / "tasks/utils/play/environment/freeze.yml"
+CHECK = PROJECT_ROOT / "tasks/utils/play/environment/check.yml"
 PLAYBOOK = PROJECT_ROOT / "playbook.yml"
 
 PLAY = f"""---
@@ -108,15 +108,15 @@ class TestPlaybookUsesTheFrozenEnvironment(unittest.TestCase):
         self.assertIn('PLAY_ENVIRONMENT: "{{ PLAY_ENVIRONMENT_SOURCE }}"', text)
         pre_tasks = text.index("pre_tasks:")
         self.assertLess(
-            pre_tasks, text.index("tasks/utils/play/environment_freeze.yml")
+            pre_tasks, text.index("tasks/utils/play/environment/freeze.yml")
         )
         self.assertLess(
-            text.index("tasks/utils/play/environment_freeze.yml"),
+            text.index("tasks/utils/play/environment/freeze.yml"),
             text.index("ansible.builtin.script: scripts/system/python"),
         )
         self.assertLess(
             text.index("post_tasks:"),
-            text.index("tasks/utils/play/environment_check.yml"),
+            text.index("tasks/utils/play/environment/check.yml"),
         )
 
 

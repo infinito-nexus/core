@@ -21,7 +21,7 @@
   gather_facts: false
   pre_tasks:
     - name: "🧊 Render the play environment once for this host"
-      ansible.builtin.include_tasks: tasks/utils/play/environment_freeze.yml
+      ansible.builtin.include_tasks: tasks/utils/play/environment/freeze.yml
 
     - name: "🐍 Link the managed Python interpreter before any module needs it"
       ansible.builtin.script: scripts/system/python/managed_interpreter.sh
@@ -45,5 +45,5 @@
       include_tasks: "tasks/stages/03_destructor.yml"
   post_tasks:
     - name: "✅ Check the play environment against its sources"
-      ansible.builtin.include_tasks: tasks/utils/play/environment_check.yml
+      ansible.builtin.include_tasks: tasks/utils/play/environment/check.yml
   become: true
