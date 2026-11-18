@@ -17,6 +17,23 @@ from typing import Any
 from ansible.errors import AnsibleError
 
 from plugins.lookup.image import LookupModule
+from utils.cache.yaml import load_yaml_any
+from utils.docker.image.pin import is_digest
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
+
+from . import PROJECT_ROOT
+
+NODE_DIGEST = "sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
+
+
+def _repository_tag_pins():
+    for path in sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")):
+        for service, entry in (load_yaml_any(str(path)) or {}).items():
+            if not isinstance(entry, dict):
+                continue
+            image, version = entry.get("image"), entry.get("version")
+            if image and version and not is_digest(str(version)):
+                yield path.parts[-3], str(service), str(image), str(version)
 
 
 def _apps(
@@ -440,6 +457,27 @@ class TestImageLookup(unittest.TestCase):
                 variables={"DEPLOYMENT_MODE": "compose"},
                 custom=True,
             )
+
+    def test_a_digest_pin_joins_the_image_with_an_at_sign(self):
+        out = _run(
+            "web-app-mattermost",
+            "mattermost",
+            variables={"DEPLOYMENT_MODE": "compose"},
+            applications=_apps(image="node", version=NODE_DIGEST),
+        )
+        self.assertEqual(out, [f"node@{NODE_DIGEST}"])
+
+    def test_every_tag_pin_of_the_repository_renders_name_colon_version(self):
+        pins = list(_repository_tag_pins())
+        self.assertGreater(len(pins), 100)
+        for role, service, image, version in pins:
+            entry = {"image": image, "version": version}
+            applications = {role: {"services": {service: entry}}}
+            with self.subTest(role=role, service=service):
+                self.assertEqual(
+                    _run(role, service, applications=applications),
+                    [f"{image.strip()}:{version.strip()}"],
+                )
 
 
 if __name__ == "__main__":

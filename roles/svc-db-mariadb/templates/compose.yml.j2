@@ -10,6 +10,7 @@
     command:
       - "--transaction-isolation=READ-COMMITTED"
       - "--binlog-format=ROW"
+      - "--init-file={{ MARIADB_HEALTH_IDENTITY_TARGET }}"
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if MARIADB_EXPOSE_LOCAL %}
