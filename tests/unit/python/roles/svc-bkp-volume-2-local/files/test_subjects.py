@@ -43,8 +43,8 @@ if [[ "$*" == "volume ls -q" ]]; then
     tr ',' '\\n' <<<"${STUB_VOLUMES}" | sed '/^$/d'
 elif [[ "$1 $2 $3" == "ps -q --filter" && "$#" == 4 ]]; then
     rows | awk -F'|' -v volume="${4#volume=}" '$2 == volume { print $1 }'
-elif [[ "$1 $2 $3" == "inspect --format {{.Config.Image}}" ]]; then
-    shift 3
+elif [[ "$1 $2 $3 $4 $5" == "inspect --type container --format {{.Config.Image}}" ]]; then
+    shift 5
     for id in "$@"; do
         rows | awk -F'|' -v id="${id}" '$1 == id { print $3 }'
     done
