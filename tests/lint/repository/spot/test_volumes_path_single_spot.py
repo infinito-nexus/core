@@ -93,32 +93,43 @@ def _hits(lines: list[str], targets: dict[str, str]) -> list[tuple[int, str, str
     return found
 
 
+def _targets_by_role() -> dict[str, dict[str, str]]:
+    """Map role name -> its unambiguous volume targets, roles without any left out."""
+    by_role: dict[str, dict[str, str]] = {}
+    for volumes_path in PROJECT_ROOT.glob(f"roles/*/{ROLE_FILE_META_VOLUMES}"):
+        targets = _unambiguous_targets(volumes_path)
+        if targets:
+            by_role[volumes_path.parent.parent.name] = targets
+    return by_role
+
+
+def _findings() -> list[str]:
+    """Every repeated declared path, found in one pass over the repository."""
+    by_role = _targets_by_role()
+    findings: list[str] = []
+    for path_str in iter_non_ignored_files(exclude_tests=True):
+        rel = Path(path_str).relative_to(PROJECT_ROOT)
+        parts = rel.parts
+        if len(parts) < 3 or parts[0] != "roles" or parts[1] not in by_role:
+            continue
+        if parts[2] in _SKIP_AREAS or rel.suffix == ".md":
+            continue
+        if rel.as_posix() == f"roles/{parts[1]}/{ROLE_FILE_META_VOLUMES}":
+            continue
+        try:
+            lines = read_text(path_str).splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        for line_no, target, key in _hits(lines, by_role[parts[1]]):
+            findings.append(
+                f"- {rel.as_posix()}:{line_no}: {target}  (declared as {key!r})"
+            )
+    return findings
+
+
 class TestVolumesPathSingleSpot(unittest.TestCase):
     def test_declared_paths_are_derived_not_repeated(self) -> None:
-        findings: list[str] = []
-        for volumes_path in sorted(
-            PROJECT_ROOT.glob(f"roles/*/{ROLE_FILE_META_VOLUMES}")
-        ):
-            role_dir = volumes_path.parent.parent
-            targets = _unambiguous_targets(volumes_path)
-            if not targets:
-                continue
-            for path_str in iter_non_ignored_files(exclude_tests=True):
-                path = Path(path_str)
-                if role_dir not in path.parents or path == volumes_path:
-                    continue
-                rel_in_role = path.relative_to(role_dir)
-                if rel_in_role.parts[0] in _SKIP_AREAS or path.suffix == ".md":
-                    continue
-                try:
-                    lines = read_text(path_str).splitlines()
-                except (OSError, UnicodeDecodeError):
-                    continue
-                for line_no, target, key in _hits(lines, targets):
-                    rel = path.relative_to(PROJECT_ROOT).as_posix()
-                    findings.append(
-                        f"- {rel}:{line_no}: {target}  (declared as {key!r})"
-                    )
+        findings = _findings()
 
         if not findings:
             return

@@ -16,8 +16,11 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from utils.cache import files as files_module
+from utils.cache import gitignore as gitignore_module
 from utils.cache.files import (
     _reset,
+    is_translation_catalog,
+    iter_non_ignored_files,
     iter_project_files,
     iter_project_files_with_content,
     read_text,
@@ -216,6 +219,98 @@ class TestReset(_ProjectRootFixture, unittest.TestCase):
         _reset()
         self.assertIn(str(self.root / "y.txt"), set(iter_project_files()))
         self.assertEqual(read_text(str(self.root / "x.txt")), "v1-changed")
+
+
+class TestNonIgnoredIndex(_ProjectRootFixture, unittest.TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.addCleanup(gitignore_module._reset)
+        _touch(self.root / ".gitignore", "ignored/\n*.log\n")
+        for rel in ("kept.txt", "ignored/x.txt", "a.log", "tests/t.py", "docs/d.md"):
+            _touch(self.root / rel)
+
+    def _rels(self, **kwargs) -> set[str]:
+        return {
+            Path(path).relative_to(self.root).as_posix()
+            for path in iter_non_ignored_files(**kwargs)
+        }
+
+    def test_gitignored_paths_are_left_out_and_the_filters_apply(self) -> None:
+        self.assertEqual(
+            self._rels(), {".gitignore", "kept.txt", "tests/t.py", "docs/d.md"}
+        )
+        self.assertEqual(
+            self._rels(exclude_tests=True, exclude_dirs=("docs",)),
+            {".gitignore", "kept.txt"},
+        )
+        self.assertEqual(self._rels(extensions=(".py",)), {"tests/t.py"})
+
+    def test_the_gitignore_match_runs_once_for_every_caller(self) -> None:
+        with patch.object(
+            files_module,
+            "is_path_gitignored",
+            wraps=files_module.is_path_gitignored,
+        ) as matcher:
+            self._rels()
+            self._rels(exclude_tests=True)
+            self._rels(extensions=(".md",))
+        self.assertEqual(matcher.call_count, len(list(iter_project_files())))
+
+    def test_the_index_holds_paths_only(self) -> None:
+        yielded = tuple(iter_non_ignored_files())
+        self.assertEqual(files_module._non_ignored_files.cache_info().currsize, 1)
+        cached = files_module._non_ignored_files(
+            str(self.root),
+            str(self.root),
+            gitignore_module.load_gitignore_patterns(str(self.root)),
+        )
+        self.assertEqual(cached, yielded)
+        self.assertTrue(all(isinstance(path, str) for path in cached))
+
+    def test_a_reloaded_gitignore_is_matched_afresh(self) -> None:
+        self.assertIn("kept.txt", self._rels())
+        _touch(self.root / ".gitignore", "ignored/\n*.log\nkept.txt\n")
+        gitignore_module._reset()
+        self.assertNotIn("kept.txt", self._rels())
+
+
+class TestTranslationCatalogs(_ProjectRootFixture, unittest.TestCase):
+    CATALOG = "locale/de/LC_MESSAGES/docs.po"
+
+    def setUp(self) -> None:
+        super().setUp()
+        _touch(self.root / self.CATALOG, 'msgid "x"\n')
+        _touch(self.root / "docs/a.md", "doc")
+
+    def test_only_po_files_of_the_locale_tree_are_catalogs(self) -> None:
+        self.assertTrue(is_translation_catalog(self.CATALOG))
+        for rel in (
+            "docs/locale.po",
+            "roles/web-app-x/locale/de.po",
+            "locale/de/LC_MESSAGES/docs.mo",
+            "locales/de/docs.po",
+        ):
+            with self.subTest(rel=rel):
+                self.assertFalse(is_translation_catalog(rel))
+
+    def test_a_content_scan_leaves_the_catalogs_unread(self) -> None:
+        with patch.object(
+            files_module, "read_text", wraps=files_module.read_text
+        ) as reader:
+            found = [path for path, _ in iter_project_files_with_content()]
+        self.assertEqual(found, [str(self.root / "docs/a.md")])
+        self.assertNotIn(
+            str(self.root / self.CATALOG), [c.args[0] for c in reader.call_args_list]
+        )
+
+    def test_a_scan_that_opts_in_reads_the_catalogs(self) -> None:
+        found = dict(iter_project_files_with_content(include_catalogs=True))
+        self.assertEqual(found[str(self.root / self.CATALOG)], 'msgid "x"\n')
+        self.assertIn(str(self.root / "docs/a.md"), found)
+
+    def test_the_path_walks_keep_listing_the_catalogs(self) -> None:
+        self.assertIn(str(self.root / self.CATALOG), set(iter_project_files()))
+        self.assertIn(str(self.root / self.CATALOG), set(iter_non_ignored_files()))
 
 
 class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):

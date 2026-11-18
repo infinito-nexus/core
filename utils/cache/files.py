@@ -121,12 +121,26 @@ def iter_project_files(
             ``exclude_dirs=("docs",)`` skips any file whose path contains a
             ``docs`` segment.
     """
-    all_files = _all_project_files(str(PROJECT_ROOT))
+    yield from _filtered(
+        _all_project_files(str(PROJECT_ROOT)),
+        extensions=extensions,
+        exclude_tests=exclude_tests,
+        exclude_dirs=exclude_dirs,
+    )
+
+
+def _filtered(
+    paths: Iterable[str],
+    *,
+    extensions: Iterable[str] | None,
+    exclude_tests: bool,
+    exclude_dirs: Iterable[str] | None,
+) -> Iterator[str]:
     tests_prefix = str(Path(str(PROJECT_ROOT)) / "tests") + os.sep
     ext_lower = tuple(e.lower() for e in extensions) if extensions else None
     exclude_dirs_set = set(exclude_dirs) if exclude_dirs else None
 
-    for path in all_files:
+    for path in paths:
         if exclude_tests and path.startswith(tests_prefix):
             continue
         if exclude_dirs_set is not None:
@@ -182,23 +196,58 @@ def read_text(path: str) -> str:
     return _read_cached(path)
 
 
+TRANSLATION_CATALOG_DIR = "locale"
+TRANSLATION_CATALOG_SUFFIX = ".po"
+
+
+def is_translation_catalog(rel: str) -> bool:
+    """Return whether *rel* is a gettext catalog of the ``locale/`` tree.
+
+    Args:
+        rel: repository-relative POSIX path.
+
+    Returns:
+        True for ``locale/**/*.po``, which ``i18n-extract`` regenerates from
+        the documentation the content scans already read at its source.
+    """
+    return rel.startswith(f"{TRANSLATION_CATALOG_DIR}/") and rel.endswith(
+        TRANSLATION_CATALOG_SUFFIX
+    )
+
+
 def iter_project_files_with_content(
     *,
     extensions: Iterable[str] | None = None,
     exclude_tests: bool = False,
     exclude_dirs: Iterable[str] | None = None,
+    include_catalogs: bool = False,
 ) -> Iterator[tuple[str, str]]:
     """Yield ``(path, content)`` for matching files; content is cached.
 
     Files that fail to read (permission errors, non-UTF-8) are silently
-    skipped — that matches the prior caller behaviour of wrapping
-    ``open().read()`` in a bare ``try/except Exception: continue``.
+    skipped, as the callers did around ``open().read()`` before.
+
+    Args:
+        extensions: see :func:`iter_project_files`.
+        exclude_tests: see :func:`iter_project_files`.
+        exclude_dirs: see :func:`iter_project_files`.
+        include_catalogs: also read the ``locale/**/*.po`` catalogs
+            (:func:`is_translation_catalog`). They hold 1.2 GiB that
+            ``read_text`` never caches, so every scan reading them re-reads
+            all of it; only a scan whose rule concerns them opts in.
     """
+    root_prefix = str(PROJECT_ROOT) + os.sep
     for path in iter_project_files(
         extensions=extensions,
         exclude_tests=exclude_tests,
         exclude_dirs=exclude_dirs,
     ):
+        if (
+            not include_catalogs
+            and path.startswith(root_prefix)
+            and is_translation_catalog(path[len(root_prefix) :].replace(os.sep, "/"))
+        ):
+            continue
         try:
             content = read_text(path)
         except (OSError, UnicodeDecodeError):
@@ -221,18 +270,41 @@ def iter_non_ignored_files(
 
     A path is yielded iff it survives both the in-process skip-dir
     pruning of :func:`iter_project_files` and the ``.gitignore`` match.
+    The ``.gitignore`` match runs once per process over the whole walk and
+    is shared by every caller.
     """
-    base = Path(root) if root else PROJECT_ROOT
-    patterns = load_gitignore_patterns(str(base))
-    for path in iter_project_files(
+    base = str(Path(root) if root else PROJECT_ROOT)
+    yield from _filtered(
+        _non_ignored_files(str(PROJECT_ROOT), base, load_gitignore_patterns(base)),
         extensions=extensions,
         exclude_tests=exclude_tests,
         exclude_dirs=exclude_dirs,
-    ):
-        rel = os.path.relpath(path, str(base)).replace(os.sep, "/")
-        if is_path_gitignored(rel, patterns):
-            continue
-        yield path
+    )
+
+
+@lru_cache(maxsize=4)
+def _non_ignored_files(
+    project_root: str, base: str, patterns: tuple[str, ...]
+) -> tuple[str, ...]:
+    """Paths of the project walk that ``.gitignore`` does not exclude.
+
+    Args:
+        project_root: the walked tree, part of the key so a patched
+            ``PROJECT_ROOT`` never answers from another tree.
+        base: directory the ``.gitignore`` paths are relative to.
+        patterns: the patterns of *base*, part of the key so a reloaded
+            ``.gitignore`` is matched afresh.
+
+    Returns:
+        Absolute paths in walk order; paths only, never contents.
+    """
+    return tuple(
+        path
+        for path in _all_project_files(project_root)
+        if not is_path_gitignored(
+            os.path.relpath(path, base).replace(os.sep, "/"), patterns
+        )
+    )
 
 
 @lru_cache(maxsize=2)
@@ -313,6 +385,7 @@ def _reset() -> None:
     calls to all of them.
     """
     _all_project_files.cache_clear()
+    _non_ignored_files.cache_clear()
     _local_exclude_dirs.cache_clear()
     _read_cached.cache_clear()
     repository_files.cache_clear()

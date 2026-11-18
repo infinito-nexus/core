@@ -4,7 +4,12 @@ import os
 import unittest
 from typing import TYPE_CHECKING
 
-from utils.cache.files import PROJECT_ROOT, iter_non_ignored_files, read_text
+from utils.cache.files import (
+    PROJECT_ROOT,
+    is_translation_catalog,
+    iter_non_ignored_files,
+    read_text,
+)
 from utils.design.cosmos import SERVICE_KEY
 from utils.roles.custom import MARKER_FILE, PREFIX
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
@@ -44,11 +49,14 @@ def repository() -> Iterator[tuple[str, str]]:
         project-tree scans read, placed custom roles included.
     """
     for path in iter_non_ignored_files():
+        rel = os.path.relpath(path, PROJECT_ROOT).replace(os.sep, "/")
+        if is_translation_catalog(rel):
+            continue
         try:
             content = read_text(path)
         except (OSError, UnicodeDecodeError):
             continue
-        yield os.path.relpath(path, PROJECT_ROOT).replace(os.sep, "/"), content
+        yield rel, content
 
 
 class TestCosmosProviderByServiceKey(unittest.TestCase):

@@ -265,11 +265,26 @@ def _collect_include_edges(
                 _collect_include_edges(sub, local_gated, parent_file, edges, tasks_dir)
 
 
-def _role_task_paths(role_dir: Path) -> Iterator[str]:
-    role_rel = role_dir.relative_to(PROJECT_ROOT).as_posix() + "/tasks/"
+@cache
+def _yaml_paths_by_tasks_dir() -> dict[str, tuple[str, ...]]:
+    """Group the project's YAML files by their ``<a>/<b>/<c>/`` prefix.
+
+    Returns:
+      Absolute paths in walk order, keyed by the first three components of
+      their repository-relative path, so a role's ``tasks/`` costs one lookup
+      instead of one walk.
+    """
+    grouped: dict[str, list[str]] = {}
     for path_str in iter_project_files(extensions=(".yml", ".yaml")):
-        if Path(path_str).relative_to(PROJECT_ROOT).as_posix().startswith(role_rel):
-            yield path_str
+        parts = Path(path_str).relative_to(PROJECT_ROOT).as_posix().split("/", 3)
+        if len(parts) == 4:
+            grouped.setdefault("/".join(parts[:3]) + "/", []).append(path_str)
+    return {prefix: tuple(paths) for prefix, paths in grouped.items()}
+
+
+def _role_task_paths(role_dir: Path) -> tuple[str, ...]:
+    role_rel = role_dir.relative_to(PROJECT_ROOT).as_posix() + "/tasks/"
+    return _yaml_paths_by_tasks_dir().get(role_rel, ())
 
 
 @cache
@@ -1247,7 +1262,7 @@ class TestContainerExecStackHostGate(unittest.TestCase):
             extensions=(".yml", ".yaml")
         ):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
-            if not _is_scan_target(rel):
+            if not _is_scan_target(rel) or not _EXEC.search(content):
                 continue
 
             parts = rel.split("/")
