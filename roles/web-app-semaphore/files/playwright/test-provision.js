@@ -5,7 +5,7 @@ const https = require("node:https");
 const net = require("node:net");
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvJsonList, requireDotenvValue } = require("./personas");
+const { decodeDotenvJsonList, decodeDotenvQuotedValue, requireDotenvValue } = require("./personas");
 const { sign } = require("./personas/utils/s3");
 const { TASK_FINISHED,sshEd25519PublicLine, strictFlag, targetAddressIn } = require("./personas/utils/workspace");
 const workspaces = require("./workspace-fixture");
@@ -80,7 +80,10 @@ const PROVISION_PATHS = (workspace) => [
   `${PLATFORM_MOUNT}/data/provision/hetzner`,
   `${PLATFORM_MOUNT}/data/provision/ionos`,
 ];
-const CUSTOMER_TOKEN_PATH = (workspace) => `${TENANT_MOUNT}/data/ws-${workspace}-provision/providers/hetzner`;
+const CUSTOMER_TOKEN_PATH = (workspace, provider) => `ws-${workspace}-provision/providers/${provider}`;
+const SCS_REGION_KEYS = ["auth_url", "region", "network"];
+const SCS_COMPUTE = "compute";
+const SCS_INTERFACE = "public";
 const DNS_UPDATE_OPCODE = 5;
 const DNS_TYPES = { SOA: 6, A: 1, MX: 15, TXT: 16, TSIG: 250 };
 const DNS_CLASS_IN = 1;
@@ -239,6 +242,149 @@ function providerSurvey(order) {
 
 /**
  * Args:
+ *   order: an order line of `orderLine`.
+ *
+ * Returns:
+ *   The survey of provision and destroy on the customer's own credential.
+ */
+function customerSurvey(order) {
+  return { ...orderSurvey(order), PROVIDER_TOKEN: "workspace" };
+}
+
+/**
+ * Returns:
+ *   `id` and `secret` of the application credential of the SCS test
+ *   project; the test skips when either is empty. Only a test of
+ *   `registerScs` may call it, since a trace keeps the body of the OpenBao
+ *   write.
+ */
+function scsTestCredential() {
+  const id = decodeDotenvQuotedValue(process.env.PROVISION_SCS_TEST_CREDENTIAL_ID);
+  const secret = decodeDotenvQuotedValue(process.env.PROVISION_SCS_TEST_CREDENTIAL_SECRET);
+  test.skip(
+    !id || !secret,
+    "PROVISION_SCS_TEST_CREDENTIAL_ID or PROVISION_SCS_TEST_CREDENTIAL_SECRET is empty: secrets.credentials.scs_test_application_credential_id and _secret name no SCS test project, so no customer credential can run",
+  );
+  return { id, secret };
+}
+
+/**
+ * Args:
+ *   method: the HTTP method.
+ *   url: an `https` URL of the SCS cloud.
+ *   headers: the request headers.
+ *   body: the JSON body, `null` for none.
+ *
+ * Returns:
+ *   `{status, headers, json()}` of the answer, sent from Node with TLS
+ *   verified against Node's trust store and through no proxy, so neither
+ *   the Tor exit of an onion pass nor a browser trace sees the request.
+ *   `json()` parses the body, `null` for none, and throws if it is no JSON,
+ *   so a caller holding a token revokes it first. A failure, also a
+ *   connection that drops before the answer is complete, names the method,
+ *   host and path, and the error code if any.
+ */
+function scsRequest(method, url, headers, body) {
+  const target = new URL(url);
+  const what = `${method} ${target.host}${target.pathname}`;
+  const payload = body === null ? null : JSON.stringify(body);
+  const sent = payload === null ? headers : { ...headers, "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) };
+  return new Promise((resolve, reject) => {
+    const request = https.request(
+      target,
+      { method, headers: sent, agent: new https.Agent(), rejectUnauthorized: true, timeout: resolveTimeout(REQUEST_MS) },
+      (response) => {
+        let text = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          text += chunk;
+        });
+        response.on("end", () => {
+          resolve({
+            status: response.statusCode,
+            headers: response.headers,
+            json() {
+              let parsed;
+              try {
+                parsed = text ? JSON.parse(text) : null;
+              } catch {
+                parsed = undefined;
+              }
+              if (parsed === undefined) {
+                throw new Error(`${what} answered no JSON`);
+              }
+              return parsed;
+            },
+          });
+        });
+        response.on("close", () => {
+          if (!response.complete) {
+            reject(new Error(`${what} failed: aborted`));
+          }
+        });
+      },
+    );
+    request.on("timeout", () => request.destroy(Object.assign(new Error("timeout"), { code: "ETIMEDOUT" })));
+    request.on("error", (error) => reject(new Error(`${what} failed${error.code ? `: ${error.code}` : ""}`)));
+    request.end(payload === null ? undefined : payload);
+  });
+}
+
+/**
+ * Args:
+ *   offer: an scs offer of `catalogOffers`.
+ *   credential: the result of `scsTestCredential`, never logged.
+ *
+ * Returns:
+ *   `project`, the project the credential is scoped to,
+ *   `serversNamed(name)`, the servers of that name the project holds as
+ *   `{id, tenant_id}`, both read through `scsRequest` with the credential at
+ *   the catalog's Keystone, never with a platform credential, and
+ *   `revoke()`, which revokes the Keystone token they use; a failure before
+ *   the return revokes it at once.
+ */
+async function scsProject(offer, credential) {
+  const keystone = offer.place.auth_url.replace(/\/+$/, "");
+  const login = await scsRequest("POST", `${keystone}/auth/tokens`, { Accept: "application/json" }, {
+    auth: {
+      identity: { methods: ["application_credential"], application_credential: { id: credential.id, secret: credential.secret } },
+    },
+  });
+  expect(login.status, `${LABEL}: the Keystone login of the SCS test credential`).toBe(201);
+  const token = login.headers["x-subject-token"];
+  const revoke = async () => {
+    const response = await scsRequest("DELETE", `${keystone}/auth/tokens`, { "X-Auth-Token": token, "X-Subject-Token": token }, null);
+    expect([200, 204], `${LABEL}: the revoke of the Keystone token of the SCS test credential`).toContain(response.status);
+  };
+  try {
+    const body = login.json().token;
+    const endpoint = (body.catalog || [])
+      .filter((service) => service.type === SCS_COMPUTE)
+      .flatMap((service) => service.endpoints)
+      .find((candidate) => candidate.interface === SCS_INTERFACE && candidate.region === offer.place.region);
+    expect(endpoint, `${LABEL}: Keystone must list a ${SCS_INTERFACE} ${SCS_COMPUTE} endpoint in ${offer.place.region}`).toBeTruthy();
+    return {
+      project: body.project.id,
+      revoke,
+      async serversNamed(name) {
+        const response = await scsRequest(
+          "GET",
+          `${endpoint.url.replace(/\/+$/, "")}/servers/detail?name=${encodeURIComponent(`^${name}$`)}`,
+          { Accept: "application/json", "X-Auth-Token": token },
+          null,
+        );
+        expect(response.status, `${LABEL}: the Nova list of the servers named ${name}`).toBe(200);
+        return response.json().servers.map((server) => ({ id: server.id, tenant_id: server.tenant_id }));
+      },
+    };
+  } catch (error) {
+    await revoke().catch((failure) => console.warn(String(failure && failure.message).split("\n")[0]));
+    throw error;
+  }
+}
+
+/**
+ * Args:
  *   action: create, remove or unlock.
  *   order: an order line of `orderLine`.
  *   host: the address the record points at.
@@ -304,17 +450,20 @@ function pinnedOpentofu() {
 
 /**
  * Args:
- *   provider: incus or proxmox.
+ *   provider: incus, proxmox or scs.
+ *   keys: the region keys an offer must name, `["host"]` for incus and
+ *     proxmox, `SCS_REGION_KEYS` for scs.
  *
  * Returns:
- *   Every catalog region of the provider that names a host, as `flavor`,
- *   `region`, its catalog entry `place` and the first `size` of the flavor.
+ *   Every catalog region of the provider that names each of the keys, as
+ *   `flavor`, `region`, its catalog entry `place` and the first `size` of
+ *   the flavor.
  */
-function catalogOffers(provider) {
+function catalogOffers(provider, keys) {
   const catalog = JSON.parse(requireDotenvValue(process.env.PROVISION_CATALOGS_JSON, "PROVISION_CATALOGS_JSON"))[provider] || {};
   return Object.entries(catalog).flatMap(([flavor, entry]) =>
     Object.entries(entry.regions || {})
-      .filter(([, place]) => Boolean(place.host))
+      .filter(([, place]) => keys.every((key) => Boolean(place[key])))
       .map(([region, place]) => ({ flavor, region, place, size: Object.keys(entry.sizes || {})[0] })),
   );
 }
@@ -410,7 +559,7 @@ function asStore(shared, context, token, method, path, data) {
  *   `record`.
  */
 async function placement(context, provider) {
-  const offers = catalogOffers(provider);
+  const offers = catalogOffers(provider, ["host"]);
   expect(offers.length, `${LABEL}: services.semaphore.workspaces.catalog.${provider} must offer a region that names a host`).toBeGreaterThan(0);
   if (provider !== "proxmox") {
     return offers[0];
@@ -548,7 +697,21 @@ function outputsOf(run) {
  *   The outputs of a successful provision.
  */
 async function provision(shared, fixture, order) {
-  const run = await runPlatform(shared, fixture, "provision", providerSurvey(order), PROVISION_MS, `provision of ${order.name} in ws-${fixture.workspace}`);
+  return provisionWith(shared, fixture, order, providerSurvey(order));
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   order: an order line whose tfvars the workspace repository holds.
+ *   survey: `providerSurvey` or `customerSurvey` of the order.
+ *
+ * Returns:
+ *   The outputs of a successful provision.
+ */
+async function provisionWith(shared, fixture, order, survey) {
+  const run = await runPlatform(shared, fixture, "provision", survey, PROVISION_MS, `provision of ${order.name} in ws-${fixture.workspace}`);
   workspaces.expectSucceeded(run, run.what);
   return outputsOf(run);
 }
@@ -563,7 +726,21 @@ async function provision(shared, fixture, order) {
  *   The successful destroy run.
  */
 async function destroy(shared, fixture, order) {
-  const run = await runPlatform(shared, fixture, "destroy", providerSurvey(order), DESTROY_MS, `destroy of ${order.name} in ws-${fixture.workspace}`);
+  return destroyWith(shared, fixture, order, providerSurvey(order));
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   order: an order line whose tfvars the workspace repository holds.
+ *   survey: `providerSurvey` or `customerSurvey` of the order.
+ *
+ * Returns:
+ *   The successful destroy run.
+ */
+async function destroyWith(shared, fixture, order, survey) {
+  const run = await runPlatform(shared, fixture, "destroy", survey, DESTROY_MS, `destroy of ${order.name} in ws-${fixture.workspace}`);
   workspaces.expectSucceeded(run, run.what);
   return run;
 }
@@ -1671,7 +1848,7 @@ exports.register = function (shared) {
     workspaces.requireWorkspaces(shared);
     test.setTimeout(resolveTimeout(BASE_MS + PROBE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
-      const path = CUSTOMER_TOKEN_PATH(fixture.workspace);
+      const path = `${TENANT_MOUNT}/data/${CUSTOMER_TOKEN_PATH(fixture.workspace, "hetzner")}`;
       const probe = await workspaceProbe(shared, fixture, [path]);
       expect(probe.statuses, `${probe.what}: OpenBao must answer 403 on the customer token ${path}`).toEqual({ [path]: "403" });
     });
@@ -1886,6 +2063,53 @@ exports.register = function (shared) {
       await expectRecord(servers, fqdn, [host, CONTROL_ADDRESS], `${unchecked}: the record set must take both lines' addresses`);
       expect(await knotUpdate(key, zone, [{ name: fqdn, type: "A", remove: true }]), `${unchecked}, removed as its record set`).toBe("NOERROR");
       await expectRecord(servers, fqdn, [], `${unchecked}: its removal must take the record of ${owner.name} with it`);
+    });
+  });
+};
+
+/**
+ * Args:
+ *   shared: the role's shared helpers. The spec file that passes them sets
+ *     `trace`, `video` and `screenshot` to `off` at file level, because
+ *     this test writes the SCS secret to OpenBao through the browser
+ *     context and `trace` is a worker option no `describe` can set; the
+ *     role's `PLAYWRIGHT_MAX_WORKERS=1` keeps it from running beside the
+ *     other workspace tests.
+ */
+exports.registerScs = function (shared) {
+  test("provision: scs runs in the customer's own project", async ({ browser }) => {
+    workspaces.requireWorkspaces(shared);
+    const credential = scsTestCredential();
+    const [offer] = catalogOffers("scs", SCS_REGION_KEYS);
+    test.skip(
+      offer === undefined,
+      `services.semaphore.workspaces.catalog.scs offers no region that names ${SCS_REGION_KEYS.join(", ")}, so the SCS test project has no endpoint`,
+    );
+    expect(
+      test.info().config.workers,
+      "an scs provision beside test-workspace-runners.js changes the runners and tokens it counts, so PLAYWRIGHT_MAX_WORKERS must keep the semaphore spec files on one worker",
+    ).toBe(1);
+    test.setTimeout(resolveTimeout(BASE_MS + SERVER_MS));
+    await workspaces.withWorkspace(shared, browser, LABEL, `${privateTargetAddress()}:${SSH_PORT}`, async (fixture, cleanup) => {
+      const path = CUSTOMER_TOKEN_PATH(fixture.workspace, "scs");
+      fixture.staged.push(path);
+      await workspaces.vaultWrite(fixture.context, await workspaces.storeVaultToken(fixture.context), TENANT_MOUNT, path, {
+        application_credential_id: credential.id,
+        application_credential_secret: credential.secret,
+      });
+      const project = await scsProject(offer, credential);
+      cleanup(() => project.revoke());
+      const order = orderLine(freshSalesOrder(), "1");
+      await commitValues(fixture, order, offer);
+      cleanup(() => destroyWith(shared, fixture, order, customerSurvey(order)));
+      const outputs = await provisionWith(shared, fixture, order, customerSurvey(order));
+      expect(
+        await project.serversNamed(order.name),
+        `${LABEL}: the scs server ${order.name} must exist exactly once, as ${outputs.server_id}, in the project ${project.project} of the customer's credential`,
+      ).toEqual([{ id: outputs.server_id, tenant_id: project.project }]);
+      const destroyed = await destroyWith(shared, fixture, order, customerSurvey(order));
+      expect(destroyedCount(destroyed), `${destroyed.what}: the destroy must remove the scs server and its record`).toBeGreaterThan(0);
+      expect(await project.serversNamed(order.name), `${LABEL}: the destroy must remove ${order.name} from the project ${project.project}`).toEqual([]);
     });
   });
 };

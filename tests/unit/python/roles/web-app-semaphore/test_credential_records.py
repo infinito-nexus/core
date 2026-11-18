@@ -38,6 +38,7 @@ WRITTEN_ELSEWHERE = {
     "providers.ionos.secrets": "no core task",
     "providers.ionos.workspace_secrets": "the store",
     "providers.scs.secrets": "no core task",
+    "providers.scs.workspace_secrets": "the store",
 }
 
 

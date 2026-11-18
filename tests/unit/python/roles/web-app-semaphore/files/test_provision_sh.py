@@ -11,15 +11,22 @@ from utils.cache.files import read_text
 from .provision._fake_provision import (
     CUSTOMER_TOKEN,
     FILES,
+    KEYSTONE_SUBJECT,
     LOCK_ID,
     OUTPUTS,
     ROUTE53_KEYS,
+    SCS_CREDENTIAL_ID,
+    SCS_CREDENTIAL_SECRET,
     SNAPSHOT_RECORD,
     STATE_KEYS,
     TOKEN,
     WORKSPACE,
     ZONE,
+    FakeKeystone,
     Sandbox,
+    keystone_record,
+    keystone_token,
+    secret_parts,
 )
 
 REFUSED = (
@@ -33,6 +40,8 @@ REFUSED = (
 STATE_OBJECT = f"{WORKSPACE}-state/SO-2026/1.tfstate"
 RECORD_OBJECT = f"{WORKSPACE}-state/SO-2026/1.provision.json"
 CUSTOMER_PATH = f"tenant/data/{WORKSPACE}-provision/providers/hetzner"
+SCS_CUSTOMER_PATH = f"tenant/data/{WORKSPACE}-provision/providers/scs"
+SCS_REGION = "RegionCatalog"
 KEPT_OBJECTS = (
     f"{WORKSPACE}-state/SO-2026/2.tfstate",
     f"{WORKSPACE}-state/SO-2026/1.dns.tfstate",
@@ -523,12 +532,62 @@ class TestProviderToken(ProvisionCase):
                     "PROVIDER_TOKEN",
                 )
 
+    def scs_line(self, record):
+        """Args:
+            record: the ``application_credential`` the fake Keystone holds.
+
+        Returns:
+            The fake Keystone of the line's catalog region.
+        """
+        keystone = FakeKeystone(keystone_token(), record)
+        self.addCleanup(keystone.stop)
+        region = {"auth_url": keystone.auth_url, "region": SCS_REGION, "network": "n"}
+        sizes = {"m1": {"flavor": "SCS-1V-2"}}
+        self.sandbox.write_catalogs(
+            {"scs": {"cloud": {"sizes": sizes, "regions": {"scs1": region}}}}
+        )
+        self.sandbox.tfvars({"size": "m1", "region": "scs1"})
+        self.sandbox.platform.secrets[SCS_CUSTOMER_PATH] = {
+            "application_credential_id": SCS_CREDENTIAL_ID,
+            "application_credential_secret": SCS_CREDENTIAL_SECRET,
+        }
+        return keystone
+
+    def s3_methods(self):
+        return [method for method, _ in self.sandbox.platform.s3_requests]
+
+    def test_a_bad_scs_credential_refuses_before_any_write(self):
+        keystone = self.scs_line(keystone_record() | {"unrestricted": True})
+        result = self.sandbox.run("provision", PROVIDER_TOKEN="workspace")
+        self.assert_refused(
+            result, "refused: the application credential is unrestricted"
+        )
+        self.assertNotIn("PUT", self.s3_methods())
+        self.assertEqual(
+            secret_parts(
+                result.stdout + result.stderr, SCS_CREDENTIAL_SECRET, KEYSTONE_SUBJECT
+            ),
+            [],
+        )
+        self.assertEqual(keystone.revoked, 1)
+
+    def test_negative_control_a_good_scs_credential_writes_and_applies(self):
+        keystone = self.scs_line(keystone_record())
+        result = self.sandbox.run("provision", PROVIDER_TOKEN="workspace")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        env = self.call("apply")["env"]
+        self.assertEqual(env["OS_AUTH_URL"], keystone.auth_url)
+        self.assertEqual(env["OS_REGION_NAME"], SCS_REGION)
+        self.assertEqual(env["OS_APPLICATION_CREDENTIAL_ID"], SCS_CREDENTIAL_ID)
+        self.assertIn("PUT", self.s3_methods())
+        self.assertEqual(keystone.revoked, 1)
+
     def test_a_provider_without_customer_tokens_refuses_workspace(self):
-        self.sandbox.tfvars({"size": "cx22", "region": "scs1"})
+        self.sandbox.tfvars({"size": "demo", "region": "default"})
         self.assert_refused(
             self.sandbox.run("provision", PROVIDER_TOKEN="workspace"),
             "PROVIDER_TOKEN",
-            "scs takes no customer token",
+            "incus takes no customer token",
         )
 
 

@@ -40,6 +40,17 @@ LOCK_ID = "0f6e5c3a-2b1d-4e8f-9a7b-6c5d4e3f2a1b"
 SNAPSHOT_RECORD = f"platform/data/provision/transit/{WORKSPACE}"
 GROUPS = {"web-app-proxmox": ["proxmox"], "svc-virt-incus": ["target"]}
 CUSTOMER_TOKEN = "customer-hcloud-token-0001"
+SCS_CREDENTIAL_ID = "4f0c1e2d3b4a"
+SCS_CREDENTIAL_SECRET = "q7XwZ2pLk9Rt4VbNm3HsYd"
+SCS_WRONG_SECRET = "Hn4rTz8QwE1yUo6KpJ"
+KEYSTONE_SUBJECT = "gK5vQ1nJ8cTb6WfMr0Ae"
+KEYSTONE_USER = "u9d8c7b6"
+KEYSTONE_PROJECT = "p1a2b3c4"
+KEYSTONE_TOKENS = "/v3/auth/tokens"
+KEYSTONE_OWN_RECORD = (
+    f"/v3/users/{KEYSTONE_USER}/application_credentials/{SCS_CREDENTIAL_ID}"
+)
+SECRET_PART = 6
 STRICT = jinja2.Environment(
     undefined=jinja2.StrictUndefined,
     autoescape=jinja2.select_autoescape(default_for_string=False),
@@ -276,6 +287,110 @@ class FakePlatform(ThreadingHTTPServer):
     @property
     def origin(self):
         return f"http://127.0.0.1:{self.server_address[1]}"
+
+    def stop(self):
+        self.shutdown()
+        self.server_close()
+
+
+def keystone_token():
+    return {
+        "user": {"id": KEYSTONE_USER},
+        "project": {"id": KEYSTONE_PROJECT},
+        "application_credential": {"id": SCS_CREDENTIAL_ID, "restricted": True},
+    }
+
+
+def keystone_record():
+    return {
+        "id": SCS_CREDENTIAL_ID,
+        "project_id": KEYSTONE_PROJECT,
+        "unrestricted": False,
+        "expires_at": None,
+    }
+
+
+def secret_parts(text, *secrets):
+    """Args:
+        text: the output of a check.
+        secrets: the values no output may carry.
+
+    Returns:
+        Every substring of :data:`SECRET_PART` characters of a secret the
+        text holds.
+    """
+    return sorted(
+        {
+            secret[start : start + SECRET_PART]
+            for secret in secrets
+            for start in range(len(secret) - SECRET_PART + 1)
+            if secret[start : start + SECRET_PART] in text
+        }
+    )
+
+
+class _KeystoneHandler(BaseHTTPRequestHandler):
+    def log_message(self, *_args):
+        return
+
+    def _send(self, status, document, headers):
+        payload = json.dumps(document).encode()
+        self.send_response(status)
+        for name, value in headers.items():
+            self.send_header(name, value)
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def _own_token(self):
+        return self.headers.get("X-Auth-Token") == KEYSTONE_SUBJECT
+
+    def do_POST(self):
+        self.server.requests.append(("POST", self.path))
+        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        presented = body["auth"]["identity"].get("application_credential")
+        expected = {"id": SCS_CREDENTIAL_ID, "secret": SCS_CREDENTIAL_SECRET}
+        if self.path != KEYSTONE_TOKENS or presented != expected:
+            self._send(401, {"error": {"code": 401}}, {})
+            return
+        headers = {"X-Subject-Token": KEYSTONE_SUBJECT}
+        self._send(201, {"token": self.server.token}, headers)
+
+    def do_GET(self):
+        self.server.requests.append(("GET", self.path))
+        if self.path != KEYSTONE_OWN_RECORD or not self._own_token():
+            self._send(404, {"error": {"code": 404}}, {})
+            return
+        self._send(200, {"application_credential": self.server.record}, {})
+
+    def do_DELETE(self):
+        self.server.requests.append(("DELETE", self.path))
+        subject = self.headers.get("X-Subject-Token") == KEYSTONE_SUBJECT
+        if self.path != KEYSTONE_TOKENS or not (subject and self._own_token()):
+            self._send(404, {"error": {"code": 404}}, {})
+            return
+        self.server.revoked += 1
+        self.send_response(204)
+        self.end_headers()
+
+
+class FakeKeystone(ThreadingHTTPServer):
+    """Args:
+    token: the ``token`` Keystone answers the credential with.
+    record: the ``application_credential`` Keystone holds for it.
+    """
+
+    def __init__(self, token, record):
+        super().__init__(("127.0.0.1", 0), _KeystoneHandler)
+        self.token = token
+        self.record = record
+        self.requests = []
+        self.revoked = 0
+        threading.Thread(target=self.serve_forever, daemon=True).start()
+
+    @property
+    def auth_url(self):
+        return f"http://127.0.0.1:{self.server_address[1]}/v3"
 
     def stop(self):
         self.shutdown()

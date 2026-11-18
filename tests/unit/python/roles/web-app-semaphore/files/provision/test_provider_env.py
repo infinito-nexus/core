@@ -26,7 +26,7 @@ class TestProviderEnvironment(unittest.TestCase):
         context = {"workspace": WORKSPACE, "zone": "z", "host": "target"}
         spec = CREDENTIALS["providers"]["incus"]
         environment = provider_env.provider_environment(
-            FakeBao(), spec, context, self.root, "platform"
+            FakeBao(), spec, context, self.root, "platform", {}
         )
         credentials = self.root / "credentials"
         self.assertEqual(environment["INCUS_REMOTE"], "target")
@@ -52,14 +52,14 @@ class TestProviderEnvironment(unittest.TestCase):
                 self.assertRaisesRegex(RefusedError, "valid host"),
             ):
                 provider_env.provider_environment(
-                    FakeBao(), spec, context, self.root, "platform"
+                    FakeBao(), spec, context, self.root, "platform", {}
                 )
 
     def test_a_dotted_inventory_hostname_names_its_provision_record(self):
         spec = CREDENTIALS["providers"]["proxmox"]
         context = {"workspace": WORKSPACE, "zone": "z", "host": "pve.example.org"}
         environment = provider_env.provider_environment(
-            FakeBao(), spec, context, self.root, "platform"
+            FakeBao(), spec, context, self.root, "platform", {}
         )
         self.assertEqual(
             environment["PROXMOX_VE_ENDPOINT"],
@@ -70,7 +70,7 @@ class TestProviderEnvironment(unittest.TestCase):
         spec = CREDENTIALS["providers"]["proxmox"]
         context = {"workspace": WORKSPACE, "zone": "z", "host": "pve.example.org"}
         environment = provider_env.provider_environment(
-            FakeBao(), spec, context, self.root, "platform"
+            FakeBao(), spec, context, self.root, "platform", {}
         )
         record = f"tenant/data/{WORKSPACE}-provision/proxmox"
         self.assertEqual(

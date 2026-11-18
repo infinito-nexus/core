@@ -10,6 +10,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 from provision import inputs, provider_env, remote
@@ -28,11 +29,19 @@ SNAPSHOT_FIELDS = ("key_created_at", "snapshot_at")
 LOCKS = "provision-locks"
 LOCK_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 RECORD = "{sales_order}/{line}.provision.json"
+SUPERVISOR = HERE / "tofu_supervisor.py"
+GROUP_POLL_SECONDS = 0.1
 
 
 class FailedError(Exception):
     """Args:
     message: the step that failed, never a credential.
+    """
+
+
+class BudgetError(FailedError):
+    """Args:
+    message: the budget the run outlived and how OpenTofu stopped.
     """
 
 
@@ -72,6 +81,7 @@ def credential_names(credentials):
         workspace_secrets = provider.get(provider_env.WORKSPACE_SECRETS, [])
         for secret in provider["secrets"] + workspace_secrets:
             names |= set(secret.get("env", {}))
+            names |= set(secret.get(provider_env.CATALOG, {}))
     return names
 
 
@@ -81,7 +91,8 @@ def task_directory():
     try:
         yield path
     finally:
-        shutil.rmtree(path, ignore_errors=True)
+        with remote.alarm_deferred():
+            shutil.rmtree(path, ignore_errors=True)
 
 
 @contextlib.contextmanager
@@ -175,18 +186,113 @@ def require_snapshot(bao, workspace):
         )
 
 
+def _ended(process, deadline=None):
+    """Args:
+        process: the :data:`SUPERVISOR` to wait for, left unreaped so its
+            zombie keeps the id of its process group reserved for
+            :func:`_killed`.
+        deadline: the :func:`time.monotonic` bound of the wait, ``None`` for
+            none.
+
+    Returns:
+        Its exit code, negative for the signal that killed it, or ``None``
+        once the deadline passed first.
+    """
+    flags = os.WEXITED | os.WNOWAIT | (0 if deadline is None else os.WNOHANG)
+    while (info := os.waitid(os.P_PID, process.pid, flags)) is None:
+        if time.monotonic() >= deadline:
+            return None
+        time.sleep(GROUP_POLL_SECONDS)
+    return info.si_status if info.si_code == os.CLD_EXITED else -info.si_status
+
+
+def _unwatched(process, deadline):
+    """Args:
+    process: a :data:`SUPERVISOR` a signal killed, so the rest of its
+        process group, ``tofu`` included, runs on unwatched. It is reaped
+        first, as its zombie would count as a member; the members that
+        still run keep the group id reserved. Returns once the group is
+        empty or ``deadline``, a :func:`time.monotonic` value, passed.
+    """
+    process.wait()
+    while time.monotonic() < deadline:
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            return
+        time.sleep(GROUP_POLL_SECONDS)
+
+
+def _stopped(process, command):
+    """Args:
+        process: the :data:`SUPERVISOR` of the running ``tofu`` to stop.
+        command: its subcommand, e.g. ``apply``.
+
+    Returns:
+        How ``tofu`` ended: on SIGINT within :data:`provider_env.TOFU_GRACE`,
+        or killed after it, also when its supervisor died; the caller kills.
+
+    Raises:
+        Whatever a signal handler raises during the grace.
+    """
+    signal.alarm(0)
+    with contextlib.suppress(ProcessLookupError):
+        os.killpg(process.pid, signal.SIGINT)
+    grace = provider_env.TOFU_GRACE
+    deadline = time.monotonic() + grace.total_seconds()
+    code = _ended(process, deadline)
+    if code is None:
+        return (
+            f"tofu {command} ignored SIGINT for {grace} and was killed, so its "
+            f"state may miss resources and keep its lock until unlock runs"
+        )
+    if code < 0:
+        _unwatched(process, deadline)
+        return (
+            f"the supervisor of tofu {command} died with {code}, so its process "
+            f"group got SIGINT and up to {grace} before SIGKILL, and the state "
+            f"of tofu may miss resources and keep its lock until unlock runs"
+        )
+    return f"tofu {command} stopped on SIGINT with exit code {code}"
+
+
+def _killed(process):
+    """Args:
+    process: the :data:`SUPERVISOR` whose process group, ``tofu`` and its
+        provider plugins included, gets SIGKILL and is reaped; the group id
+        stays reserved while any member lives, the unreaped supervisor too.
+    """
+    with contextlib.suppress(ProcessLookupError):
+        os.killpg(process.pid, signal.SIGKILL)
+    process.wait()
+
+
 def tofu(task, environment, *arguments, capture=False):
-    result = subprocess.run(
-        ["tofu", *arguments],
+    command = arguments[0]
+    with subprocess.Popen(
+        [sys.executable, "-I", str(SUPERVISOR), str(os.getpid()), "tofu", *arguments],
         cwd=task,
         env=environment,
-        check=False,
         text=True,
         stdout=subprocess.PIPE if capture else None,
-    )
-    if result.returncode != 0:
-        raise FailedError(f"tofu {arguments[0]} exited with {result.returncode}")
-    return result.stdout or ""
+        start_new_session=True,
+    ) as process:
+        try:
+            output = process.stdout.read() if capture else ""
+            code = _ended(process)
+        except BaseException as stop:
+            stopped = _stopped(process, command)
+            if isinstance(stop, BudgetError):
+                raise BudgetError(f"{stop}; {stopped}") from None
+            raise
+        else:
+            if code < 0:
+                raise FailedError(_stopped(process, command))
+        finally:
+            _killed(process)
+    if code != 0:
+        raise FailedError(f"tofu {command} exited with {code}")
+    return output
 
 
 class Session:
@@ -255,7 +361,7 @@ class Session:
             "provider": provider,
         }
         self.environment |= provider_env.provider_environment(
-            self.bao, spec, context, self.task, source
+            self.bao, spec, context, self.task, source, region
         )
 
     def run(self, *arguments, capture=False):
@@ -458,6 +564,13 @@ def _terminate(signum, _frame):
     raise SystemExit(128 + signum)
 
 
+def _over_budget(_signum, _frame):
+    raise BudgetError(
+        f"the run exceeded its time budget of {provider_env.RUN_BUDGET}, the "
+        f"budget a customer credential must outlive"
+    )
+
+
 def dispatch(template, extra, env, checkout):
     if template not in TEMPLATES:
         raise inputs.RefusedError(f"names no template of {', '.join(TEMPLATES)}")
@@ -479,10 +592,13 @@ def main(argv, env, checkout):
         checkout: the workspace checkout Semaphore runs the template in.
 
     Returns:
-        The exit code: 0 done, 1 failed, 2 refused.
+        The exit code: 0 done, 1 failed, also once the run outlives
+        :data:`provider_env.RUN_BUDGET`, 2 refused.
     """
     template = argv[1] if len(argv) > 1 else ""
     prefix = f"{template or 'provision'}.sh"
+    previous = signal.signal(signal.SIGALRM, _over_budget)
+    signal.alarm(int(provider_env.RUN_BUDGET.total_seconds()))
     try:
         dispatch(template, argv[2:], env, checkout)
     except inputs.RefusedError as refusal:
@@ -491,6 +607,9 @@ def main(argv, env, checkout):
     except (FailedError, remote.RemoteError) as failure:
         print(f"{prefix}: failed: {failure}", file=sys.stderr)
         return 1
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
     return 0
 
 
