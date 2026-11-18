@@ -86,6 +86,22 @@ path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/erpnext/*" {
   capabilities = ["create", "read", "update"]
 }
 
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/export/mail" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/export/mail" {
+  capabilities = ["delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/export/s3" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/export/keycloak" {
+  capabilities = ["create", "read", "update"]
+}
+
 path "{{ OPENBAO_TENANT_MOUNT }}/metadata/*" {
   capabilities = ["list", "delete"]
 }

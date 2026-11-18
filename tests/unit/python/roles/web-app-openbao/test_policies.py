@@ -555,7 +555,20 @@ DEPLOY_WRITES = {
     "platform/data/store/erpnext/api-identity": {"create", "read", "update"},
     "platform/data/store/erpnext": set(),
     "platform/data/store/rotation": set(),
+    "platform/data/export/mail": {"create", "read", "update"},
+    "platform/metadata/export/mail": {"delete"},
+    "platform/data/export/s3": {"create", "read", "update"},
+    "platform/data/export/keycloak": {"create", "read", "update"},
+    "platform/data/export/other": set(),
+    "platform/metadata/export/s3": set(),
 }
+
+
+EXPORT_LOGINS = (
+    ("web-app-semaphore", "SEMAPHORE_EXPORT_MAIL_LOGIN"),
+    ("web-app-semaphore", "SEMAPHORE_EXPORT_S3_LOGIN"),
+    ("web-app-keycloak", "KEYCLOAK_EXPORT_CLIENT_LOGIN"),
+)
 
 
 class TestTheAnsiblePolicy(unittest.TestCase):
@@ -564,6 +577,21 @@ class TestTheAnsiblePolicy(unittest.TestCase):
         for path, expected in DEPLOY_WRITES.items():
             with self.subTest(path=path):
                 self.assertEqual(effective(grants, path), expected)
+
+    def test_the_deploy_may_write_every_export_login_the_roles_hand_over(
+        self,
+    ) -> None:
+        grants = parse(render("ansible-admin"))
+        for role, name in EXPORT_LOGINS:
+            login = load_yaml_any(
+                str(PROJECT_ROOT / "roles" / role / ROLE_FILE_VARS_MAIN)
+            )[name]
+            path = f"{login['mount']}/data/{login['path']}"
+            with self.subTest(login=name, path=path):
+                self.assertEqual(
+                    effective(grants, path) & {"create", "read", "update"},
+                    {"create", "read", "update"},
+                )
 
     def test_control_a_deploy_that_cannot_write_tenant_data_fails(self) -> None:
         source = template_source("ansible-admin").replace(
