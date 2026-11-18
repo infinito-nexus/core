@@ -13,8 +13,9 @@ and the inventory is written without complaint.
 
 This guard checks the index still means what it was written to mean, by
 comparing it against the variant ``#reciprocal`` would have found. A pin
-written as ``#reciprocal`` carries no index, so for those the guard only
-confirms the symbolic form resolves to exactly one variant.
+written as ``#reciprocal`` or ``#without-<key>`` carries no index, so for
+those the guard only confirms the symbolic form resolves to exactly one
+variant; ``#without-<key>`` needs no reciprocity.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ from utils.cache.applications import get_variants
 from utils.roles.applications.variant.pins import (
     RECIPROCAL,
     VariantPinError,
-    _reciprocal_index,
+    intended_index,
     pins_of,
 )
 
@@ -49,13 +50,17 @@ class TestVariantPins(unittest.TestCase):
         findings = []
         for role, index, partner, target in _pinning_roles():
             try:
-                reciprocal = _reciprocal_index(
-                    partner, role, roles_dir=str(ROLES_DIR), variants_per_app=variants
+                reciprocal = intended_index(
+                    partner,
+                    role,
+                    target,
+                    roles_dir=str(ROLES_DIR),
+                    variants_per_app=variants,
                 )
             except VariantPinError as exc:
                 findings.append(f"  - {role}#{index} -> {partner}#{target}: {exc}")
                 continue
-            if target != RECIPROCAL and int(target) != reciprocal:
+            if target.isdigit() and int(target) != reciprocal:
                 findings.append(
                     f"  - {role}#{index} pins {partner}#{target}, but the variant "
                     f"that switches {role} back on is {partner}#{reciprocal}"
@@ -68,7 +73,7 @@ class TestVariantPins(unittest.TestCase):
             "that leaves the pairing dark:\n"
             + "\n".join(findings)
             + "\n\nPoint the pin at the reciprocating variant, or write it as "
-            "'#reciprocal' so it follows the partner automatically.",
+            f"'#{RECIPROCAL}' so it follows the partner automatically.",
         )
 
     def test_the_scan_reads_the_marker(self) -> None:

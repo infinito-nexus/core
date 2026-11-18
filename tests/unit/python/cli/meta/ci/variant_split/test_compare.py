@@ -137,6 +137,19 @@ class TestVerdict(unittest.TestCase):
         )
         self.assertEqual(result["pins"]["unreciprocated"], [])
 
+    def test_a_resolving_without_pin_passes(self) -> None:
+        pin = {
+            "carrier": "app#3",
+            "partner": "pa",
+            "target": "without-a",
+            "key": "a",
+            "reciprocal": 0,
+        }
+        result = compare.verdict(
+            _before(), _after(pin=pin), old=["app#0"], split=["app#0", "app#3"]
+        )
+        self.assertEqual(result["pins"]["unreciprocated"], [])
+
     def test_the_render_names_the_verdict(self) -> None:
         text = compare.render(
             compare.verdict(

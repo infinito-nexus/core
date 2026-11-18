@@ -1,4 +1,4 @@
-"""Variant pins: ``# variant-pin: <role>#<index|reciprocal>``.
+"""Variant pins: ``# variant-pin: <role>#<index|reciprocal|without-<key>>``.
 
 A matrix round hands every role the round index, clamping to variant 0 when
 the role has fewer entries (:func:`services_overrides_for_round`). A pairing
@@ -40,12 +40,14 @@ from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 
 PIN = re.compile(
-    r"#\s*variant-pin:\s*([a-z0-9][a-z0-9-]*)\s*#\s*(\d+|reciprocal)\b",
+    r"#\s*variant-pin:\s*([a-z0-9][a-z0-9-]*)\s*#\s*"
+    r"(\d+|reciprocal|without-[a-z0-9_-]+)\b",
     re.IGNORECASE,
 )
 _GROUP_MEMBERSHIP = re.compile(r"'([a-z0-9][a-z0-9-]*)'\s+in\s+group_names")
 
 RECIPROCAL = "reciprocal"
+WITHOUT = "without-"
 
 
 class VariantPinError(ValueError):
@@ -115,6 +117,18 @@ def _reciprocal_key(partner: str, role: str, *, roles_dir: str) -> str | None:
     return None
 
 
+def _variants_setting(
+    partner: str, key: str, enabled: bool, *, variants_per_app: Mapping[str, list]
+) -> list[int]:
+    return [
+        index
+        for index, variant in enumerate(variants_per_app.get(partner) or [])
+        if isinstance(variant, Mapping)
+        and isinstance((variant.get("services") or {}).get(key), Mapping)
+        and (variant["services"][key]).get("enabled") is enabled
+    ]
+
+
 def _reciprocal_index(
     partner: str,
     role: str,
@@ -128,13 +142,7 @@ def _reciprocal_index(
             f"{role} pins {partner}#reciprocal, but {partner}'s "
             f"{ROLE_FILE_META_SERVICES} declares no service gating on {role}"
         )
-    hits = [
-        index
-        for index, variant in enumerate(variants_per_app.get(partner) or [])
-        if isinstance(variant, Mapping)
-        and isinstance((variant.get("services") or {}).get(key), Mapping)
-        and (variant["services"][key]).get("enabled") is True
-    ]
+    hits = _variants_setting(partner, key, True, variants_per_app=variants_per_app)
     if len(hits) != 1:
         raise VariantPinError(
             f"{role} pins {partner}#reciprocal, but {partner} pins "
@@ -142,6 +150,54 @@ def _reciprocal_index(
             f"({hits or 'none'}); reciprocal needs exactly one"
         )
     return hits[0]
+
+
+def _without_index(
+    partner: str, key: str, role: str, *, variants_per_app: Mapping[str, list]
+) -> int:
+    hits = _variants_setting(partner, key, False, variants_per_app=variants_per_app)
+    if len(hits) != 1:
+        raise VariantPinError(
+            f"{role} pins {partner}#{WITHOUT}{key}, but {partner} pins "
+            f"services.{key} to literal false in {len(hits)} variants "
+            f"({hits or 'none'}); {WITHOUT}<key> needs exactly one"
+        )
+    return hits[0]
+
+
+def intended_index(
+    partner: str,
+    role: str,
+    target: str,
+    *,
+    roles_dir: str,
+    variants_per_app: Mapping[str, list],
+) -> int:
+    """
+    Args:
+        partner: the pinned role.
+        role: the carrier role.
+        target: the pin target, an index, ``reciprocal`` or ``without-<key>``.
+        roles_dir: the roles tree the partner's services are read from.
+        variants_per_app: parsed variants per role.
+
+    Returns:
+        The single variant ``without-<key>`` resolves to; for every other
+        target, the variant that switches *role* back on.
+
+    Raises:
+        VariantPinError: the target resolves to no variant or to several.
+    """
+    if target.startswith(WITHOUT):
+        return _without_index(
+            partner,
+            target.removeprefix(WITHOUT),
+            role,
+            variants_per_app=variants_per_app,
+        )
+    return _reciprocal_index(
+        partner, role, roles_dir=roles_dir, variants_per_app=variants_per_app
+    )
 
 
 def resolve_pins(
@@ -171,20 +227,21 @@ def resolve_pins(
             pins_of(role, roles_dir=roles_dir).get(index, {}).items()
         ):
             count = len(variants_per_app.get(partner) or [])
-            if target == RECIPROCAL:
-                wanted = _reciprocal_index(
-                    partner,
-                    role,
-                    roles_dir=roles_dir,
-                    variants_per_app=variants_per_app,
-                )
-            else:
+            if target.isdigit():
                 wanted = int(target)
                 if not 0 <= wanted < count:
                     raise VariantPinError(
                         f"{role}#{index} pins {partner}#{wanted}, but {partner} "
                         f"declares {count} variant(s)"
                     )
+            else:
+                wanted = intended_index(
+                    partner,
+                    role,
+                    target,
+                    roles_dir=roles_dir,
+                    variants_per_app=variants_per_app,
+                )
             if partner in resolved and resolved[partner] != wanted:
                 raise VariantPinConflictError(
                     f"{source[partner]} pins {partner}#{resolved[partner]} while "

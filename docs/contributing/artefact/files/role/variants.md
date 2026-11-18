@@ -50,6 +50,14 @@ The token follows the `role#variant` form used by the priority slots. `#reciproc
     # variant-pin: web-app-nextcloud#reciprocal
 ```
 
+`#without-<key>` resolves to the partner's one variant whose `services.<key>.enabled` is the literal `false`. Use it to cut a transitive chain the carrier does not need, where the partner never gates on the carrier and `#reciprocal` therefore has nothing to find. It needs no reciprocity, only exactly one matching variant; none or several raise `VariantPinError`. Unlike a bare index it keeps working when the partner gains a variant:
+
+```yaml
+    # variant-pin: web-svc-mirror#without-prometheus
+    tor:
+      enabled: true
+```
+
 The marker is a comment, so it never reaches the merged services map or `host_vars`. It applies only to the variant entry it stands in; the same role's other variants are unaffected. A primary app keeps the index the sweep assigned it and no pin overrides it.
 
 A pin is in force only while the role carrying it is part of the round's include and runs the variant the marker stands in. A pin in a role the round does not deploy changes nothing. The round starts every role on its clamped index and recomputes the include and the pins in force until the assignment no longer changes; pins that never settle raise `VariantPinError`. [test_variant_pin_fixed_point.py](../../../../../tests/integration/roles/meta/variants/test_variant_pin_fixed_point.py) settles every round the matrix plans (each role as the only primary, in each of its variants) and fails when a round raises `VariantPinError`, or when a pin in force stands above a service entry the carrier runs with `enabled: false` in that round. Place a pin only above an entry the variant keeps enabled: the guide host `docs` stays on for the primary app alone, so a pin above `docs` fails the guard in any round that pulls the role in as a dependency running that variant.
@@ -84,7 +92,7 @@ flowchart LR
     outside -.->|pin: not in force| partner
 ```
 
-Two roles pinning the same partner to different variants in one round raises `VariantPinConflictError` before an inventory is written. An index that no longer points at the reciprocating variant is caught by [test_variant_pins.py](../../../../../tests/integration/roles/meta/variants/test_variant_pins.py); `#reciprocal` needs exactly one candidate variant on the partner or it raises.
+Two roles pinning the same partner to different variants in one round raises `VariantPinConflictError` before an inventory is written. An index that no longer points at the reciprocating variant is caught by [test_variant_pins.py](../../../../../tests/integration/roles/meta/variants/test_variant_pins.py); `#reciprocal` and `#without-<key>` each need exactly one candidate variant on the partner or they raise.
 
 ## Credentials Interaction 🔐
 

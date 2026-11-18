@@ -1110,10 +1110,11 @@ EMPTY_REPORTS = {
 class FakeEngines:
     """A runner that answers every engine command with a fixture report."""
 
-    def __init__(self, layout, reports, *, fail=()):
+    def __init__(self, layout, reports, *, fail=(), image_ids=None):
         self.layout = layout
         self.reports = {**EMPTY_REPORTS, **reports}
         self.fail = fail
+        self.image_ids = image_ids or {}
         self.calls = []
         self.active = 0
         self.peak = 0
@@ -1129,6 +1130,11 @@ class FakeEngines:
             for marker in self.fail:
                 if marker in text:
                     return SimpleNamespace(returncode=2, stdout="", stderr="boom")
+            if list(argv[1:3]) == ["image", "inspect"]:
+                resolved = self.image_ids.get(argv[-1], "")
+                return SimpleNamespace(
+                    returncode=0 if resolved else 1, stdout=resolved, stderr=""
+                )
             self._write(list(argv))
             return SimpleNamespace(returncode=0, stdout="", stderr="")
         finally:
@@ -1170,8 +1176,8 @@ class TestScan(TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def _scan(self, config, reports, fail=()):
-        runner = FakeEngines(self.layout, reports, fail=fail)
+    def _scan(self, config, reports, fail=(), image_ids=None):
+        runner = FakeEngines(self.layout, reports, fail=fail, image_ids=image_ids)
         with mock.patch.object(SCRIPT, "pause") as self.pauses:
             findings, errors = SCRIPT.scan(
                 self.targets, config, self.images, self.layout, runner
@@ -1269,6 +1275,112 @@ class TestScan(TestCase):
             {(f.engine, f.id) for f in findings},
             {("grype", "CVE-2026-109618"), ("grype", "CVE-2026-109619")},
         )
+
+    def _provide_trivy_database(self):
+        for engine in ("trivy", "grype"):
+            for marker in SCRIPT.DB_MARKERS[engine]:
+                path = self.layout.databases / engine / marker
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("db", encoding="utf-8")
+
+    def _pinned_container_scan(self, trivy_id, fail=()):
+        for stale in self.layout.work.iterdir():
+            stale.unlink()
+        with contextlib.redirect_stdout(io.StringIO()):
+            return self._scan(
+                _config(
+                    targets=["container"], engines=["syft", "trivy"], db_update=False
+                ),
+                {"trivy.json": TRIVY_HOST},
+                fail=fail,
+                image_ids={self.images["trivy"]: trivy_id},
+            )
+
+    def _trivy_calls(self, runner):
+        return [call for call in runner.calls if "--image-src" in call]
+
+    def test_an_unchanged_image_reuses_its_trivy_report_on_an_unchanged_database(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_trivy_database()
+        first, first_errors, first_runner = self._pinned_container_scan(
+            trivy_id="sha256:trivy-1"
+        )
+        second, second_errors, second_runner = self._pinned_container_scan(
+            trivy_id="sha256:trivy-1"
+        )
+        self.assertEqual(
+            (
+                len(self._trivy_calls(first_runner)),
+                len(self._trivy_calls(second_runner)),
+                first_errors + second_errors,
+            ),
+            (1, 0, []),
+        )
+        self.assertEqual(second, first)
+        self.assertTrue(any(f.engine == "trivy" for f in second))
+
+    def test_a_refreshed_trivy_database_scans_the_image_again(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_trivy_database()
+        self._pinned_container_scan(trivy_id="sha256:trivy-1")
+        database = self.layout.databases / "trivy" / SCRIPT.DB_MARKERS["trivy"][0]
+        database.write_text("refreshed db", encoding="utf-8")
+        _findings, errors, runner = self._pinned_container_scan(
+            trivy_id="sha256:trivy-1"
+        )
+        self.assertEqual((len(self._trivy_calls(runner)), errors), (1, []))
+
+    def test_a_trivy_tag_moved_to_another_image_scans_the_image_again(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_trivy_database()
+        self._pinned_container_scan(trivy_id="sha256:trivy-1")
+        _findings, errors, runner = self._pinned_container_scan(
+            trivy_id="sha256:trivy-2"
+        )
+        self.assertEqual((len(self._trivy_calls(runner)), errors), (1, []))
+
+    def test_an_unresolved_trivy_image_reuses_no_report(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_trivy_database()
+        self._pinned_container_scan(trivy_id="")
+        _findings, errors, runner = self._pinned_container_scan(trivy_id="")
+        self.assertEqual((len(self._trivy_calls(runner)), errors), (1, []))
+        self.assertFalse(SCRIPT.trivy_cache_path(self.layout, CENTOS_TARGET).exists())
+
+    def test_a_failed_trivy_run_leaves_no_report_to_reuse(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_trivy_database()
+        _findings, errors, _runner = self._pinned_container_scan(
+            trivy_id="sha256:trivy-1", fail=("--image-src",)
+        )
+        self.assertTrue(errors)
+        self.assertFalse(SCRIPT.trivy_cache_path(self.layout, CENTOS_TARGET).exists())
+        _findings, _errors, runner = self._pinned_container_scan(
+            trivy_id="sha256:trivy-1"
+        )
+        self.assertEqual(len(self._trivy_calls(runner)), 1)
+
+    def test_the_host_is_scanned_by_trivy_on_every_run(self):
+        self._provide_trivy_database()
+        for _ in range(2):
+            for stale in self.layout.work.iterdir():
+                stale.unlink()
+            _findings, _errors, runner = self._scan(
+                _config(targets=["host"], engines=["syft", "trivy"], db_update=False),
+                {},
+            )
+            self.assertEqual(
+                len([call for call in runner.calls if "rootfs" in call]), 1
+            )
+
+    def test_the_reused_trivy_report_survives_the_sbom_prune(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_trivy_database()
+        self._pinned_container_scan(trivy_id="sha256:trivy-1")
+        SCRIPT.prune_sboms(self.layout, [CENTOS_TARGET])
+        self.assertTrue(SCRIPT.trivy_cache_path(self.layout, CENTOS_TARGET).is_file())
+        SCRIPT.prune_sboms(self.layout, [])
+        self.assertFalse(SCRIPT.trivy_cache_path(self.layout, CENTOS_TARGET).exists())
 
     def test_the_provided_trivy_database_is_read_from_memory_cache(self):
         step = SCRIPT.trivy_step(
