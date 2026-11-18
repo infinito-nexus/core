@@ -209,6 +209,64 @@ class TestSwarmBackendPool(unittest.TestCase):
         )
 
 
+class RacingEngine:
+    """
+    Args:
+        conflicts: how many updates the engine rejects as out of sequence first.
+        error: the message of the rejection.
+    """
+
+    def __init__(
+        self, conflicts, error="rpc error: code = Unknown desc = update out of sequence"
+    ):
+        self.conflicts = conflicts
+        self.error = error
+        self.version = 1
+        self.updates = []
+
+    def call(self, method, path, body=None, query=None, expect=(200,)):
+        if path == "/services/agent-hermes-u1" and method == "GET":
+            return {
+                "ID": "agent-hermes-u1",
+                "Spec": {
+                    "Name": "agent-hermes-u1",
+                    "Mode": {"Replicated": {"Replicas": 0}},
+                    "TaskTemplate": {},
+                },
+                "Version": {"Index": self.version},
+            }
+        if path.endswith("/update"):
+            self.updates.append(query["version"])
+            if self.conflicts:
+                self.conflicts -= 1
+                self.version += 1
+                raise engine.EngineError(f"POST {path} -> 500: {self.error!r}", 500)
+            return None
+        raise AssertionError(path)
+
+
+class TestSwarmBackendUpdateRace(unittest.TestCase):
+    def test_an_update_out_of_sequence_is_retried_on_the_fresh_version(self):
+        """Swarm bumps a freshly created service's version on its own, so a
+        start racing that bump must reread the version instead of failing the
+        agent with a 502."""
+        fake = RacingEngine(conflicts=2)
+        swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "agent-hermes-u1"})
+        self.assertEqual(fake.updates, [1, 2, 3])
+
+    def test_another_update_error_is_not_retried(self):
+        fake = RacingEngine(conflicts=1, error="no such image")
+        with self.assertRaises(engine.EngineError):
+            swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "agent-hermes-u1"})
+        self.assertEqual(fake.updates, [1])
+
+    def test_a_conflict_that_never_settles_gives_up(self):
+        fake = RacingEngine(conflicts=swarm.UPDATE_ATTEMPTS)
+        with self.assertRaises(engine.EngineError):
+            swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "agent-hermes-u1"})
+        self.assertEqual(len(fake.updates), swarm.UPDATE_ATTEMPTS)
+
+
 class TestSwarmBackend(unittest.TestCase):
     def test_a_service_is_placed_on_the_sandbox_nodes_and_starts_scaled_down(self):
         fake = RecordingEngine()

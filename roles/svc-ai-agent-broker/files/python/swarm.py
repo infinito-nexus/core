@@ -7,6 +7,9 @@ import threading
 
 from engine import LABEL_PLATFORM, LABEL_POOL, EngineError
 
+UPDATE_ATTEMPTS = 5
+OUT_OF_SEQUENCE = "update out of sequence"
+
 
 class SwarmBackend:
     """
@@ -220,20 +223,46 @@ class SwarmBackend:
         self.engine.call("POST", "/services/create", body=body)
         return self.find(spec["name"])
 
+    def _update(self, service_id, change):
+        """Apply *change* to the service spec, rereading it when swarm moved on.
+
+        Swarm bumps a service's version on its own (a fresh service while its
+        endpoint is allocated), so an update built on the version read a
+        moment earlier is refused as out of sequence.
+
+        Args:
+            service_id: the service to update.
+            change: callable that edits the current spec in place.
+
+        Raises:
+            EngineError: any other refusal, or a conflict after UPDATE_ATTEMPTS tries.
+        """
+        for attempt in range(1, UPDATE_ATTEMPTS + 1):
+            current = self.engine.call("GET", f"/services/{service_id}")
+            spec = current["Spec"]
+            change(spec)
+            try:
+                self.engine.call(
+                    "POST",
+                    f"/services/{service_id}/update",
+                    body=spec,
+                    query={"version": current["Version"]["Index"]},
+                )
+            except EngineError as error:
+                if OUT_OF_SEQUENCE not in str(error) or attempt == UPDATE_ATTEMPTS:
+                    raise
+            else:
+                return
+
     def _scale(self, detail, replicas, network_id=None):
-        current = self.engine.call("GET", f"/services/{detail['ID']}")
-        spec = current["Spec"]
-        spec["Mode"] = {"Replicated": {"Replicas": replicas}}
-        if network_id is not None:
-            spec["TaskTemplate"]["Networks"] = [
-                {"Target": network_id, "Aliases": [spec["Name"]]}
-            ]
-        self.engine.call(
-            "POST",
-            f"/services/{detail['ID']}/update",
-            body=spec,
-            query={"version": current["Version"]["Index"]},
-        )
+        def change(spec):
+            spec["Mode"] = {"Replicated": {"Replicas": replicas}}
+            if network_id is not None:
+                spec["TaskTemplate"]["Networks"] = [
+                    {"Target": network_id, "Aliases": [spec["Name"]]}
+                ]
+
+        self._update(detail["ID"], change)
         return self.engine.call("GET", f"/services/{detail['ID']}")
 
     def start(self, detail, network_id=None):
