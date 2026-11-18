@@ -1,12 +1,14 @@
-"""Render the applications and users SPOTs once and park them as play-scoped carrier facts.
+"""Render the applications and users SPOTs once and park them as play-scoped carrier variables.
 
 Ansible forks a fresh worker per task, so the in-process render caches of
 ``lookup('applications')`` and ``lookup('users')`` are cold in every task
 until something renders in a place all later workers inherit. This action
-renders in the worker of one constructor task and returns both payloads as
-host facts; every later worker inherits them at fork time and
-``get_merged_applications`` / ``get_merged_users`` serve them instead of
-rendering. The users carrier is keyed like the applications carrier plus
+renders in the worker of one constructor task and registers both payloads
+as non-persistent host variables, the layer ``set_fact`` writes; every later
+worker inherits them at fork time and ``get_merged_applications`` /
+``get_merged_users`` serve them instead of rendering. They stay out of the
+fact cache on purpose: ``get_vars`` deep-copies every fact before every task,
+and these are the whole rendered trees. The users carrier is keyed like the applications carrier plus
 the token store digest and ``inventory_hostname``::
 
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
@@ -33,12 +35,12 @@ where the key still matches they serve the carried payload without rendering,
 and a users carrier that still matches is left in place instead of being
 returned again. A store write therefore re-renders the users alone.
 
-The result is masked by the action itself: the facts are the whole rendered
+The result is masked by the action itself: the carriers are the whole rendered
 trees, about 0.4 MB with every application's and user's credentials, and
 printing them at ``-v`` is neither credential debugging nor readable.
 
 Args:
-    clear: drop every carrier fact instead of rendering. Defaults to false.
+    clear: drop every carrier instead of rendering. Defaults to false.
     provider_view: on a host that does not run the onion-serving mail
         provider, also park the applications payload of the provider host's
         view in ``_INFINITO_PROVIDER_VIEW_RENDERED`` (see
@@ -53,7 +55,7 @@ from typing import Any
 
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.parsing.convert_bool import boolean
-from ansible.plugins.action import ActionBase
+from ansible.plugins.action import ActionBase, VariableLayer
 from ansible.plugins.loader import lookup_loader
 
 from plugins.lookup.email import provider_view_carrier
@@ -83,14 +85,14 @@ class ActionModule(ActionBase):
             )
 
         if boolean(args.get("clear", False)):
-            result.update(
-                changed=False,
-                ansible_facts={
+            self._park(
+                {
                     APPLICATIONS_RENDERED_FACT: None,
                     USERS_RENDERED_FACT: None,
                     PROVIDER_VIEW_RENDERED_FACT: None,
-                },
+                }
             )
+            result.update(changed=False)
             return result
 
         revalidate_tokens_file(task_vars)
@@ -120,9 +122,10 @@ class ActionModule(ActionBase):
             if view_carrier is not None:
                 carriers[PROVIDER_VIEW_RENDERED_FACT] = view_carrier
 
-        result.update(
-            changed=False,
-            ansible_facts=carriers,
-            _ansible_no_log=True,
-        )
+        self._park(carriers)
+        result.update(changed=False, _ansible_no_log=True)
         return result
+
+    def _park(self, carriers: dict[str, Any]) -> None:
+        self.register_host_variables({}, VariableLayer.CACHEABLE_FACT)
+        self.register_host_variables(carriers, VariableLayer.EPHEMERAL_FACT)

@@ -3,8 +3,9 @@
 Ansible forks a fresh worker process per task, so the in-process
 `_MERGED_APPLICATIONS_CACHE` and `_MERGED_USERS_CACHE` start empty in every
 worker. The constructor stage renders once and parks each payload plus its
-cache key in the host facts named by `APPLICATIONS_RENDERED_FACT` and
-`USERS_RENDERED_FACT`; every later worker inherits those facts at fork time
+cache key in the non-persistent host variables named by
+`APPLICATIONS_RENDERED_FACT` and `USERS_RENDERED_FACT` (the `set_fact` layer,
+outside the fact cache); every later worker inherits those variables at fork time
 and `get_merged_applications` / `get_merged_users` serve them instead of
 rendering. Ansible-free at import time like the rest of the package.
 """
@@ -28,6 +29,10 @@ if TYPE_CHECKING:
 APPLICATIONS_RENDERED_FACT = "_INFINITO_APPLICATIONS_RENDERED"
 USERS_RENDERED_FACT = "_INFINITO_USERS_RENDERED"
 PROVIDER_VIEW_RENDERED_FACT = "_INFINITO_PROVIDER_VIEW_RENDERED"
+
+
+class CarrierInvisibleError(RuntimeError):
+    """A carrier parked where the variable readers cannot see it."""
 
 
 def merged_applications_cache_key(
@@ -99,12 +104,22 @@ def _carried(
     else ``None``.
 
     Args:
-        variables: The play's variable scope, read for the carrier fact.
-        fact: The carrier fact's name.
+        variables: The play's variable scope, read for the carrier variable.
+        fact: The carrier variable's name.
         field: The carrier's payload field.
         cache_key: The key the caller would render under.
+
+    Raises:
+        CarrierInvisibleError: when *fact* sits in ``ansible_facts`` but not
+            among the variables, so every reader would miss it and render.
     """
     carrier = variables.get(fact)
+    if fact not in variables and fact in (variables.get("ansible_facts") or {}):
+        raise CarrierInvisibleError(
+            f"{fact} is parked in the fact cache but not visible as a variable; "
+            "park it with applications_carrier, which registers it outside the "
+            "fact cache, or every lookup renders the payload again"
+        )
     if not isinstance(carrier, Mapping):
         return None
     key = carrier.get("key")
