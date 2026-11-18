@@ -23,7 +23,7 @@ from ansible.template import Templar, trust_as_template
 from tests.lint.ansible.services import test_login_methods as lint
 from utils.cache import applications as applications_cache
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.reset import _reset_cache_for_tests
+from utils.cache.reset import _reset_rendered_caches_for_tests
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:
@@ -45,13 +45,13 @@ _EAGER_RENDER = mock.patch.object(
 
 
 def setUpModule() -> None:
-    _reset_cache_for_tests()
+    _reset_rendered_caches_for_tests()
     _EAGER_RENDER.start()
 
 
 def tearDownModule() -> None:
     _EAGER_RENDER.stop()
-    _reset_cache_for_tests()
+    _reset_rendered_caches_for_tests()
 
 
 def render(

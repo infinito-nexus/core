@@ -7,6 +7,7 @@ import sys
 import tempfile
 import unittest
 import unittest.mock as mock
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from cli.meta.ci.iterate import __main__ as entry
@@ -78,7 +79,7 @@ class _Script:
         )
 
     def tokens(self, base: str, paths: list[str]) -> list[str]:
-        listing = self.root / "paths"
+        listing = self.root / f"paths-{base}"
         listing.write_text("".join(f"{p}\n" for p in paths), encoding="utf-8")
         result = subprocess.run(
             [shutil.which("bash"), str(self.root / SCRIPTS[0])],
@@ -171,22 +172,30 @@ class TestPlanCoversTheAffectedRolesScript(unittest.TestCase):
         cls.script_roles: dict[str, set[str]] = {}
         cls.same_paths: dict[str, bool] = {}
         cls.plans: dict[str, dict] = {}
+        script_paths: dict[str, list[str]] = {}
         for sha in SAMPLE:
             try:
                 span = diff.resolve(f"{sha}^", sha)
                 renamed = diff._git("diff", "--name-only", "-z", span.base, span.head)
             except (SystemExit, LookupError):
                 continue
-            script_paths = sorted(p for p in renamed.split("\0") if p)
-            tokens = cls.script.tokens(span.base, script_paths)
             cls.spans[sha] = span
-            cls.script_roles[sha] = (
-                set(cls.catalog.roles)
-                if tokens == [plan.ALL]
-                else plan.token_roles(tokens)
-            )
-            cls.same_paths[sha] = script_paths == diff.changed_paths(span)
-            cls.plans[sha] = cls._plan(span)
+            script_paths[sha] = sorted(p for p in renamed.split("\0") if p)
+        with ThreadPoolExecutor(max_workers=max(1, len(cls.spans))) as pool:
+            pending = {
+                sha: pool.submit(cls.script.tokens, span.base, script_paths[sha])
+                for sha, span in cls.spans.items()
+            }
+            for sha, span in cls.spans.items():
+                cls.same_paths[sha] = script_paths[sha] == diff.changed_paths(span)
+                cls.plans[sha] = cls._plan(span)
+            for sha, future in pending.items():
+                tokens = future.result()
+                cls.script_roles[sha] = (
+                    set(cls.catalog.roles)
+                    if tokens == [plan.ALL]
+                    else plan.token_roles(tokens)
+                )
 
     @classmethod
     def tearDownClass(cls) -> None:

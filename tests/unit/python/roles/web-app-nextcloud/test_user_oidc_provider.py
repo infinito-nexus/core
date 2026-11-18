@@ -64,7 +64,6 @@ def renderer(plugin: str):
     Returns:
         A callable that renders one Jinja text in that scope.
     """
-    _reset_cache_for_tests()
     loader = DataLoader()
     variables = {
         **loader.load_from_file(

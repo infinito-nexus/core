@@ -335,13 +335,7 @@ def _direct_media(
         variables["ansible_facts"] = {"all_ipv4_addresses": [PUBLIC_IP, "10.208.0.1"]}
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
-    _reset_cache_for_tests()
-    try:
-        return templar.template(
-            trust_as_template(ROLE_VARS["NEXTCLOUD_HPB_MEDIA_DIRECT"])
-        )
-    finally:
-        _reset_cache_for_tests()
+    return templar.template(trust_as_template(ROLE_VARS["NEXTCLOUD_HPB_MEDIA_DIRECT"]))
 
 
 STANDALONE_TURN = ("web-app-nextcloud", "web-svc-coturn")
@@ -355,6 +349,14 @@ OPTED_IN = _talk(direct_media=True)
 
 
 class TestDirectMediaFlag(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        _reset_cache_for_tests()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        _reset_cache_for_tests()
+
     def test_by_default_every_stream_goes_through_turn(self):
         self.assertIs(_direct_media(list(STANDALONE_TURN)), False)
 

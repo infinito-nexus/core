@@ -22,7 +22,7 @@ from ansible.template import Templar, trust_as_template
 
 from utils.cache import applications as applications_cache
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.reset import _reset_cache_for_tests
+from utils.cache.reset import _reset_rendered_caches_for_tests
 from utils.cache.yaml import load_yaml_str
 from utils.roles.applications.converge import values
 from utils.roles.applications.forms import when_path
@@ -46,13 +46,13 @@ _EAGER_RENDER = mock.patch.object(
 
 
 def setUpModule() -> None:
-    _reset_cache_for_tests()
+    _reset_rendered_caches_for_tests()
     _EAGER_RENDER.start()
 
 
 def tearDownModule() -> None:
     _EAGER_RENDER.stop()
-    _reset_cache_for_tests()
+    _reset_rendered_caches_for_tests()
 
 
 def render(
