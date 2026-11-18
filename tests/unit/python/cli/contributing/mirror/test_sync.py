@@ -7,6 +7,8 @@ from unittest.mock import patch
 import cli.contributing.mirror.sync.__main__ as sync_main
 from utils.docker.image.discovery import ImageRef
 
+from . import DIGEST_REFERENCE, NODE, NODE_MIRROR
+
 
 class TestThrottle(unittest.TestCase):
     def test_only_docker_hub_copies_wait_for_the_throttle(self) -> None:
@@ -166,6 +168,35 @@ class TestMirrorSync(unittest.TestCase):
 
         self.assertEqual(result, 0)
         mock_mirror.assert_called_once_with(image)
+
+    def test_a_digest_pin_reaches_skopeo_as_a_valid_reference(self) -> None:
+        with (
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_role_images",
+                return_value=[NODE],
+            ),
+            patch(
+                "cli.contributing.mirror.sync.__main__.iter_runner_images",
+                return_value=[],
+            ),
+            patch("cli.contributing.mirror.providers.subprocess.run") as run,
+            patch(
+                "sys.argv",
+                [
+                    "mirror-sync",
+                    "--ghcr-namespace",
+                    "acme",
+                    "--ghcr-repository",
+                    "myrepo",
+                ],
+            ),
+        ):
+            result = sync_main.main()
+
+        self.assertEqual(result, 0)
+        dest = run.call_args.args[0][-1]
+        self.assertEqual(dest, f"docker://{NODE_MIRROR}")
+        self.assertRegex(dest.removeprefix("docker://"), DIGEST_REFERENCE)
 
 
 if __name__ == "__main__":  # pragma: no cover
