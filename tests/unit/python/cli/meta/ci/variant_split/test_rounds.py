@@ -76,6 +76,15 @@ class TestPins(unittest.TestCase):
             )
         self.assertTrue(str(finding["reciprocal"]).startswith("error:"))
 
+    def test_a_without_pin_names_the_variant_switching_the_key_off(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            [finding] = rounds.pin_findings(
+                "web-app-a",
+                roles_dir=_tree(tmp, "without-a", gate=False),
+                variants_per_app=VARIANTS,
+            )
+        self.assertEqual((finding["target"], finding["reciprocal"]), ("without-a", 0))
+
 
 class TestToken(unittest.TestCase):
     def test_a_whole_role_row_is_variant_0(self) -> None:
