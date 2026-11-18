@@ -192,6 +192,13 @@
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
+- name: "🛡️ swarm: fail when an HA database member kept its old spec after the deploy"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/db_ha_drift_guard.yml') }}"
+  listen:
+    - compose-up
+    - swarm-deploy
+  when: lookup('db_instances', application_id).ha.capable
+
 - name: "🛡️ swarm: bound the ports the routing mesh now publishes on every node"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-swarm-node/tasks/utils/ingress_guard/refresh.yml') }}"
   listen:

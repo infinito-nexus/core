@@ -1,0 +1,42 @@
+---
+# Param: application_id - HA-capable engine role
+# Param: _guard_stack   - swarm stack of the engine
+# Param: _guard_members - sidecar and instance service keys of the engine
+- name: "📄 db_ha_drift_guard | rendered stack of '{{ application_id }}'"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    docker stack config {{ lookup('compose_file_args', application_id, flag='--compose-file') }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: _guard_config
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🔍 db_ha_drift_guard | running spec of every member"
+  ansible.builtin.command:
+    argv:
+      - container
+      - service
+      - inspect
+      - "{{ _guard_stack ~ '_' ~ item }}"
+      - --format
+      - "{{ '{{json .Spec}}' }}"
+  register: _guard_running
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  loop: "{{ _guard_members }}"
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🛑 db_ha_drift_guard | fail when a member of '{{ application_id }}' kept its old spec"
+  ansible.builtin.fail:
+    msg: >-
+      The stack deploy of '{{ application_id }}' converged, but these HA members still run a spec
+      that differs from the rendered one, so a changed configuration never reached them:
+      {{ _guard_config.stdout | swarm_drift_report(_guard_stack, _guard_running.results) | to_json }}
+  when: (_guard_config.stdout | swarm_drifted_members(_guard_stack, _guard_running.results)) | length > 0
+  run_once: true
