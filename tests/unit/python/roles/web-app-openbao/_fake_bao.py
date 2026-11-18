@@ -86,6 +86,23 @@ def kv(args):
     sys.exit(98)
 
 
+def config(verb, args):
+    state = load()
+    path = positional(args)[0]
+    stored = state.setdefault("config", {}).setdefault(path, {"max_versions": "0"})
+    if verb == "read":
+        print(stored[option(args, "-field")])
+        return
+    if os.environ.get("FAKE_BAO_WRITE_FAIL") == "1":
+        sys.stderr.write("Error writing data to " + path + ": Code: 403\\n")
+        sys.exit(2)
+    for pair in positional(args)[1:]:
+        key, _, value = pair.partition("=")
+        stored[key] = value
+    state.setdefault("writes", []).append(path)
+    save(state)
+
+
 def raft(args):
     mode = os.environ.get("FAKE_BAO_SNAPSHOT", "ok")
     if mode == "fail":
@@ -99,6 +116,8 @@ def raft(args):
 def main(args):
     if args[0] == "kv":
         kv(args[1:])
+    elif args[0] in ("read", "write"):
+        config(args[0], args[1:])
     elif args[:3] == ["operator", "raft", "snapshot"]:
         raft(args[3:])
     else:

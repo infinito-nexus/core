@@ -91,6 +91,7 @@ OPENBAO_RBAC_ROLES:
 
 OPENBAO_WORKSPACES_ENABLED: "{{ lookup('config', application_id, 'services.semaphore.enabled') | bool }}"
 OPENBAO_TENANT_MOUNT: "tenant"
+OPENBAO_TENANT_MAX_VERSIONS: 1
 OPENBAO_PLATFORM_MOUNT: "platform"
 OPENBAO_TRANSIT_MOUNT: "transit"
 OPENBAO_KV_TENANCY_MOUNTS:

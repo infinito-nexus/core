@@ -8,6 +8,15 @@
   register: openbao_tenancy_mount
   changed_when: "'OPENBAO_CHANGED' in openbao_tenancy_mount.stdout"
 
+- name: "🗂 Keep only the current version of every tenant secret"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'p={{ OPENBAO_TENANT_MOUNT | quote }}/config;
+    bao read -field=max_versions $p | grep -qx {{ OPENBAO_TENANT_MAX_VERSIONS | quote }} ||
+    { bao write $p max_versions={{ OPENBAO_TENANT_MAX_VERSIONS | quote }} >/dev/null && echo OPENBAO_CHANGED; }'
+  register: openbao_tenant_versions
+  changed_when: "'OPENBAO_CHANGED' in openbao_tenant_versions.stdout"
+
 - name: "🔐 Ensure the transit engine at '{{ OPENBAO_TRANSIT_MOUNT }}'"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ OPENBAO_LOCAL_CID | quote }}
