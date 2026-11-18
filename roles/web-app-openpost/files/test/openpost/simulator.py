@@ -12,9 +12,7 @@ from openpost.api import (
     DB_NAME,
     DB_PASSWORD,
     DB_USER,
-    MEMBER_EMAIL,
-    MEMBER_PASSWORD,
-    MEMBER_USERNAME,
+    MEMBER_MAILBOX,
     ONION_ORIGIN,
     SIMULATOR_ADMIN,
     SIMULATOR_PLATFORMS,
@@ -28,7 +26,6 @@ from openpost.api import (
     provider,
     release,
     renditions,
-    revoke_invitations,
     settle,
     upload,
 )
@@ -196,28 +193,30 @@ def check_tokens_at_rest() -> None:
     check("no provider token is stored in plaintext", not leaked, leaked)
 
 
-def member_session() -> tuple[str, str]:
-    credentials = {"email": MEMBER_EMAIL, "password": MEMBER_PASSWORD}
+def member_session(tag: str) -> tuple[str, str, str]:
+    local, domain = MEMBER_MAILBOX.split("@", 1)
+    email = f"{local}+{tag}@{domain}"
     status, body = call(
         "POST",
         "/auth/register",
-        {**credentials, "username": MEMBER_USERNAME, "accepted_legal": True},
+        {
+            "email": email,
+            "password": secrets.token_urlsafe(24),
+            "username": tag,
+            "accepted_legal": True,
+        },
     )
-    if status == 409:
-        status, body = call("POST", "/auth/login", credentials)
     if status != 200 or not isinstance(body, dict) or not body.get("token"):
-        sys.exit(f"[FAIL] the probe member cannot sign in: HTTP {status}")
-    return str(body["token"]), str(body["user"]["id"])
+        sys.exit(f"[FAIL] the probe member cannot register: HTTP {status} {body}")
+    return str(body["token"]), str(body["user"]["id"]), email
 
 
 def check_roles(token: str, workspace: str, account: str, tag: str) -> str:
-    member, member_id = member_session()
-    call("DELETE", f"/workspaces/{workspace}/members/{member_id}", token=token)
-    revoke_invitations(token, workspace, MEMBER_EMAIL)
+    member, member_id, email = member_session(tag)
     status, invitation = call(
         "POST",
         f"/workspaces/{workspace}/invitations",
-        {"email": MEMBER_EMAIL, "role": "viewer"},
+        {"email": email, "role": "viewer"},
         token,
     )
     if status != 200 or not isinstance(invitation, dict):
