@@ -9,6 +9,7 @@ update:
   upstream_id: mautrix-meta
 config:
   bridge_name: "meta"
+  instagram_version: v0.2610.0 # dock.mau.dev purges old ig- tags, so the MDAD pin's ig-v0.2609.0 is gone and every ansible-flavor pull 404s (run 44198828712)
   upstream_flags:
     - matrix_bridge_mautrix_meta_messenger_enabled
     - matrix_bridge_mautrix_meta_instagram_enabled
