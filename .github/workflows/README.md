@@ -155,7 +155,7 @@ row would otherwise be assigned. Two spellings are accepted:
 | Form | Example |
 |---|---|
 | ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64` |
-| the job label, pasted back out of the failed run | `🐳🧅🌀🦓🦾𓏴𓏛Nextcloud#0` |
+| the job label, pasted back out of the failed run | `🐳🧅🛣️🌀🦓🦾🔺𓏛Nextcloud#0` |
 
 | Separator | Axis | Values |
 |---|---|---|
@@ -323,11 +323,18 @@ priority role proves several distributions in one sweep.
 Because the same variant can run several times in one sweep, the network mode
 is part of what identifies a job: it is in the job label (`🌐`, `🧅` or `🌈`)
 and in every artifact name. Two jobs uploading under one artifact name is a
-conflict, not an overwrite. The distro, filesystem and architecture glyphs
-follow it in the label (`🐳🧅🌀🦓🦾`), so a title says which combination died
-without opening the job.
+conflict, not an overwrite. The mesh state follows it (`🚇` over the WireGuard
+mesh, `🛣️` direct), then the distro, filesystem and architecture glyphs
+(`🐳🧅🛣️🌀🦓🦾`), so a title says which combination died without opening the
+job.
 
-The vulnerability engine is the odometer digit above distro and filesystem, and its glyph follows the architecture glyph in the label (`🐳🧅🌀🦓🦾🔺`).
+The vulnerability engine is the odometer digit above distro and filesystem, and its glyph follows the architecture glyph in the label (`🐳🧅🛣️🌀🦓🦾🔺`).
+
+Every label carries the same seven axis glyphs in this order, whatever the
+mode: a host row shows `🏠` in the network slot and `🛣️` in the mesh slot, since
+it neither picks a network mode nor meshes. The role follows as the one
+hieroglyph of its deepest category (`𓏛` for `web-app`), unique across
+the [category tree](../../meta/categories.yml), then its name.
 The deploy-time scan of `sys-ctl-hlth-runtime` then runs Syft and that engine only, plus Grype over the source-built runtimes Syft finds.
 [call-vulnerability-db.yml](call-vulnerability-db.yml) downloads the Trivy, Grype and OSV databases once per day into the Actions cache and hands them to the run as the `vulnerability-db-<engine>` artifacts. The orchestrator calls it once per run, beside lint and test, and every chunk block waits for it; [call-test-deploy.yml](call-test-deploy.yml) calls it itself only when it runs standalone (`vulnerability_db_built: false`). Each deploy job restores the Grype database and the drawn engine's into `build/vulnerability-db`, which the stack and every swarm node mount read-only, and fails when one is missing, so no deploy job downloads a database itself.
 Under act these steps are skipped: the deploy draws its engine and refreshes the shared host directory `INFINITO_VULNERABILITY_DB_HOST_PATH`, which [workflow.sh](../../scripts/tests/deploy/act/workflow.sh) binds into the job container at the same path.

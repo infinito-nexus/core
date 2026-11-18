@@ -1,19 +1,16 @@
 ---
-# Glyph labels are compact hierarchical category fragments.
-# Every label is a single Egyptian hieroglyph; its Unicode name carries the
-# Gardiner sign code.
+# Glyph labels name a category in CI job titles by its deepest category alone.
+# Every label is a single Egyptian hieroglyph, unique across the whole tree;
+# its Unicode name carries the Gardiner sign code.
 #
 # A glyph has to stay one codepoint: four UTF-8 bytes. A sign written with a
 # variation selector costs seven and is worse than the two Chinese characters
 # it replaced, at six.
 #
-# Display paths:
-#   parent · child · grandchild
-#
 # Examples:
-#   sys-ctl-cln -> 𓉐·𓌀·𓈖
-#   web-app     -> 𓏴·𓏛
-#   svc-ai      -> 𓊵·𓅝
+#   sys-ctl-cln-docker -> 𓈖docker
+#   web-app-nextcloud  -> 𓏛Nextcloud
+#   svc-ai-ollama      -> 𓅝ollama
 #
 # Deploy stages in call order (tasks/stages/0*.yml): the constructor pass
 # runs first, then the per-host-type passes (workstation, then server), and
@@ -175,7 +172,7 @@ roles:
 
     svc:
       title: "Services"
-      glyph: "𓊵"
+      glyph: "𓋴"
       description: "Static content servers (assets, HTML, legal, files)"
       icon: "fas fa-file"
       invokable: true
@@ -227,7 +224,7 @@ roles:
 
     opt:
       title: "Service Optimation"
-      glyph: "𓅱"
+      glyph: "𓊪"
       description: "Optimation Services to improve your system"
       icon: "fas fa-database"
       stage: destructor
@@ -262,7 +259,7 @@ roles:
 
     bkp:
       title: "Backup Services"
-      glyph: "𓎟"
+      glyph: "𓎡"
       description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration
         across databases, files, and containers."
       icon: "fas fa-database"

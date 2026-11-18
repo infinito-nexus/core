@@ -2,10 +2,10 @@
 
 A role id is the machine handle (``web-app-nextcloud``); the display name is
 what a human reads off a GitHub Actions job or run title
-(``𓏴𓏛Nextcloud``). The category path renders as the ``glyph`` labels
-``meta/categories.yml`` declares, run together into one block, directly
-followed by the role's own ``README.md`` heading or the part of the id the
-categories do not already carry.
+(``𓏛Nextcloud``). The deepest category renders as the one ``glyph``
+``meta/categories.yml`` declares for it, unique across the whole tree,
+directly followed by the role's own ``README.md`` heading or the part of the
+id the categories do not already carry.
 
 The name never holds a space: the ``whitelist`` and ``priority`` workflow
 inputs are space-separated lists, so a display name with a space in it would
@@ -113,6 +113,18 @@ class RoleDisplayName:
             node = child
         return labels
 
+    def glyph(self, app_id: str) -> str:
+        """The ``glyph`` of the deepest category the role id walks through.
+
+        Args:
+            app_id: role id, e.g. ``'web-app-nextcloud'``.
+
+        Returns:
+            ``''`` when the id walks through no category.
+        """
+        labels = self.category_labels(app_id)
+        return labels[-1] if labels else ""
+
     def encode(self, app_id: str, variant: str = "") -> str:
         """The display name for *app_id*, with the variant shard appended.
 
@@ -128,37 +140,42 @@ class RoleDisplayName:
             app_id: role id, e.g. ``'web-app-nextcloud'``.
             variant: variant CSV the job covers, e.g. ``'0,1'`` (``''``: none).
         """
-        name = self._name(app_id, "")
+        name = (
+            self.glyph(app_id) + self._fragment(app_id)
+            if (self.roles_dir / app_id).is_dir()
+            else app_id
+        )
         return f"{name}{VARIANT_SEPARATOR}{variant}" if variant else name
 
-    def _name(self, app_id: str, joiner: str) -> str:
-        """The display name of *app_id* without a variant suffix.
+    def _fragment(self, app_id: str) -> str:
+        fragment = self.id_fragment(app_id)
+        title = self.title(app_id)
+        return title if len(title) <= len(fragment) else fragment
+
+    def _names(self, app_id: str) -> tuple[str, ...]:
+        """Every display name *app_id* carried, the current one last.
+
+        Older runs ran the glyphs of the whole category path together, first
+        with a :data:`SEPARATOR` before the fragment, later without one.
 
         Args:
             app_id: role id, e.g. ``'web-app-nextcloud'``.
-            joiner: what stands between the glyph block and the fragment;
-                ``''`` today, :data:`SEPARATOR` in names of older runs.
         """
-        if not (self.roles_dir / app_id).is_dir():
-            return app_id
-        fragment = self.id_fragment(app_id)
-        title = self.title(app_id)
-        if len(title) <= len(fragment):
-            fragment = title
-        return joiner.join(
-            part for part in ("".join(self.category_labels(app_id)), fragment) if part
+        fragment = self._fragment(app_id)
+        path = "".join(self.category_labels(app_id))
+        return (
+            SEPARATOR.join(part for part in (path, fragment) if part),
+            path + fragment,
+            self.encode(app_id),
         )
 
     def _registry(self) -> dict[str, str]:
         if self._by_display is None:
-            roles = [
-                path.name
+            self._by_display = {
+                name: path.name
                 for path in sorted(self.roles_dir.iterdir())
                 if (path / "README.md").is_file()
-            ]
-            self._by_display = {
-                **{self._name(app_id, SEPARATOR): app_id for app_id in roles},
-                **{self._name(app_id, ""): app_id for app_id in roles},
+                for name in self._names(path.name)
             }
         return self._by_display
 

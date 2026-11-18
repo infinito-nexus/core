@@ -6,7 +6,7 @@ As a maintainer, I want the full-mesh WireGuard test to run only on the role's o
 
 ## Acceptance Criteria
 
-- [x] Compose CI rows carry no 🚇 or 🛣️ glyph and never deploy `svc-net-wireguard`; the `vpn` axis covers swarm rows only, as before Compose support.
+- [x] Compose CI rows carry 🛣️, like host rows, and never deploy `svc-net-wireguard`; only swarm rows mesh (🚇), as before Compose support.
 - [x] `INFINITO_COMPOSE_VPN` and its plumbing are gone.
 - [x] `svc-net-wireguard` runs on a host exactly when the host is in the `svc-net-wireguard` group.
 - [x] Outside swarm, a host in that group without a mesh is skipped with a visible message; in swarm it still fails hard.

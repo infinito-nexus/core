@@ -10,11 +10,12 @@ class TestRoleDisplayName(unittest.TestCase):
     def setUpClass(cls):
         cls.codec = display_names()
 
-    def test_encode_runs_the_category_labels_together_before_the_heading(self):
+    def test_encode_puts_the_deepest_category_glyph_alone_before_the_heading(self):
         self.assertEqual(
-            f"{''.join(self.codec.category_labels(APP))}{self.codec.title(APP)}",
+            f"{self.codec.category_labels(APP)[-1]}{self.codec.title(APP)}",
             self.codec.encode(APP),
         )
+        self.assertEqual(1, len(self.codec.glyph(APP)))
 
     def test_a_heading_longer_than_the_id_section_loses_to_it(self):
         long_heading = "svc-runner"
@@ -23,11 +24,10 @@ class TestRoleDisplayName(unittest.TestCase):
             len(self.codec.id_fragment(long_heading)),
         )
         self.assertEqual(
-            "".join(self.codec.category_labels(long_heading))
-            + self.codec.id_fragment(long_heading),
+            self.codec.glyph(long_heading) + self.codec.id_fragment(long_heading),
             self.codec.encode(long_heading),
         )
-        self.assertEqual("𓉐𓌀𓌉compose", self.codec.encode("sys-ctl-alm-compose"))
+        self.assertEqual("𓌉compose", self.codec.encode("sys-ctl-alm-compose"))
 
     def test_the_id_section_drops_what_the_categories_already_say(self):
         self.assertEqual("nextcloud", self.codec.id_fragment(APP))
@@ -38,16 +38,22 @@ class TestRoleDisplayName(unittest.TestCase):
         self.assertNotIn(" ", encoded)
         self.assertEqual(f"{self.codec.encode(APP)}#0,1", encoded)
 
+    def test_a_role_the_tree_does_not_hold_keeps_its_variant(self):
+        self.assertEqual(
+            "web-app-absent#0,1", self.codec.encode("web-app-absent", "0,1")
+        )
+
     def test_decode_reverses_encode_with_and_without_a_variant(self):
         for variant in ("", "0", "0,1"):
             self.assertEqual(APP, self.codec.decode(self.codec.encode(APP, variant)))
 
-    def test_decode_still_reads_the_dotted_name_of_older_runs(self):
-        glyphs = "".join(self.codec.category_labels(APP))
-        dotted = self.codec.encode(APP).replace(glyphs, f"{glyphs}·", 1)
-        self.assertNotEqual(dotted, self.codec.encode(APP))
-        self.assertEqual(APP, self.codec.decode(dotted))
-        self.assertEqual(APP, self.codec.decode(f"{dotted}#2"))
+    def test_decode_still_reads_the_path_names_of_older_runs(self):
+        path = "".join(self.codec.category_labels(APP))
+        title = self.codec.title(APP)
+        for older in (f"{path}·{title}", f"{path}{title}"):
+            self.assertNotEqual(older, self.codec.encode(APP))
+            self.assertEqual(APP, self.codec.decode(older))
+            self.assertEqual(APP, self.codec.decode(f"{older}#2"))
 
     def test_decode_passes_a_role_id_through(self):
         self.assertEqual(APP, self.codec.decode(APP))

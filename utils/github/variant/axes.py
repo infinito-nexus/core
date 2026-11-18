@@ -87,10 +87,7 @@ from utils.github.variant.pools import (
     rotate,
     runner_of,
 )
-from utils.github.variant.vpn import (
-    VPN_DEPLOY_MODES,
-    rotated_vpn,
-)
+from utils.github.variant.vpn import rotated_vpn
 from utils.networks.reachability import NODE_MODES
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
@@ -318,11 +315,7 @@ def assign(
             glyphs = (
                 to_emoji(mode)
                 + (to_emoji(state) if mode in NETWORK_DEPLOY_MODES else LOCAL_GLYPH)
-                + (
-                    to_emoji("vpn" if meshed else "direct")
-                    if mode in VPN_DEPLOY_MODES or mode == "compose"
-                    else ""
-                )
+                + to_emoji("vpn" if meshed else "direct")
                 + to_emoji(distro)
                 + to_emoji(filesystem)
                 + to_emoji(architecture)
