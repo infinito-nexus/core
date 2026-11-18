@@ -129,7 +129,7 @@ class TestDrift(unittest.TestCase):
 
 class TestAuthorizeClient(unittest.TestCase):
     def test_the_issued_bearer_is_accepted(self):
-        policy.authorize_client("s3cret", "Bearer s3cret")
+        self.assertIsNone(policy.authorize_client("s3cret", "Bearer s3cret"))
 
     def test_a_wrong_bearer_is_refused(self):
         with self.assertRaises(PermissionError):
@@ -165,8 +165,11 @@ AGENT_TOKENS = {"mant0a": "token-of-mant", "impl0a": "token-of-impl"}
 
 class TestAuthorizeAgent(unittest.TestCase):
     def test_an_agent_presenting_its_own_token_is_accepted(self):
-        policy.authorize_agent(AGENT_TOKENS, "mant0a", "Bearer token-of-mant")
-        policy.authorize_agent(AGENT_TOKENS, "impl0a", "Bearer token-of-impl")
+        for agent, token in AGENT_TOKENS.items():
+            with self.subTest(agent=agent):
+                self.assertIsNone(
+                    policy.authorize_agent(AGENT_TOKENS, agent, f"Bearer {token}")
+                )
 
     def test_a_token_of_one_agent_is_refused_for_another(self):
         with self.assertRaises(PermissionError) as error:

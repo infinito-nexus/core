@@ -18,7 +18,9 @@ DSN = "postgresql://assistant@db/assistant"
 
 class TestTableName(unittest.TestCase):
     def test_the_configured_name_is_accepted(self) -> None:
-        store.Store(DSN, "assistant_passages")
+        self.assertEqual(
+            "assistant_passages", store.Store(DSN, "assistant_passages")._table
+        )
 
     def test_a_name_outside_a_plain_identifier_is_refused(self) -> None:
         for table in (

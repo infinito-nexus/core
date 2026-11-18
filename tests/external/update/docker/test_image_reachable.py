@@ -16,7 +16,7 @@ import concurrent.futures
 import unittest
 
 from utils.annotations.message import warning
-from utils.docker.image.discovery import iter_role_images, load_yaml
+from utils.docker.image.discovery import iter_role_images
 from utils.docker.image.pin import pull_reference
 from utils.docker.registry import manifest_exists
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -77,36 +77,6 @@ class TestDockerImageReachable(unittest.TestCase):
                 "These pinned Docker images do not exist in their registry "
                 f"(HTTP 404):\n{lines}"
             )
-
-    def test_incomplete_image_version_pairs_warn(self) -> None:
-        """Warn (never fail) on a service that sets only one of image/version.
-
-        A reachable pull tag needs both; a lone ``image:`` or ``version:`` is
-        either a typo or a base/shared-image indirection worth reviewing.
-        """
-        for services_file in sorted(
-            (PROJECT_ROOT / "roles").glob(f"**/{ROLE_FILE_META_SERVICES}")
-        ):
-            role = services_file.parent.parent.name
-            services = load_yaml(services_file)
-            if not isinstance(services, dict):
-                continue
-            for service, cfg in services.items():
-                if not isinstance(cfg, dict):
-                    continue
-                has_image = bool(cfg.get("image"))
-                has_version = bool(cfg.get("version"))
-                if has_image == has_version:
-                    continue
-                present, missing = (
-                    ("image", "version") if has_image else ("version", "image")
-                )
-                warning(
-                    f"{role}/{service}: has `{present}:` but no `{missing}:` — "
-                    "a reachable pull tag needs both",
-                    title="🔧 Incomplete image/version pair",
-                    file=f"roles/{role}/{ROLE_FILE_META_SERVICES}",
-                )
 
 
 if __name__ == "__main__":

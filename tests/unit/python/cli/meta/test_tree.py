@@ -1,6 +1,10 @@
+import contextlib
+import io
 import shutil
+import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 from cli.build import tree
@@ -26,15 +30,17 @@ class TestTreeMain(unittest.TestCase):
         self.assertEqual(len(roles), 1)
         self.assertEqual(roles[0][0], self.role_name)
 
-    def test_main_execution_does_not_raise(self):
-        import sys
-
-        old_argv = sys.argv
-        sys.argv = ["tree/__main__.py", "-d", self.temp_dir, "-p"]
-        try:
+    def test_main_preview_prints_the_graphs_and_writes_no_tree_file(self):
+        out = io.StringIO()
+        with (
+            unittest.mock.patch.object(
+                sys, "argv", ["tree/__main__.py", "-d", self.temp_dir, "-p"]
+            ),
+            contextlib.redirect_stdout(out),
+        ):
             tree.main()
-        finally:
-            sys.argv = old_argv
+        self.assertIn(f"--- {self.role_name}_", out.getvalue())
+        self.assertFalse((Path(self.role_path) / "meta" / "tree.json").exists())
 
 
 if __name__ == "__main__":
