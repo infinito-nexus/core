@@ -5,7 +5,9 @@ from __future__ import annotations
 import datetime as dt
 import unittest
 
-from tests.lint.ansible.variables import test_container_hard_repair_removed as lint
+from tests.lint.ansible.variables import test_removed_names
+
+lint = test_removed_names.ContainerHardRepair
 
 OTHER = "roles/sys-ctl-hlth-container/tasks/00_core.yml"
 UNIT_STEM, FLAG_STEM, *VARIABLES = lint.NAMES

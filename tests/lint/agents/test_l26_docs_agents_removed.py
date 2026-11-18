@@ -1,23 +1,23 @@
 """L26: the removed agent-docs tree is gone, no live file points into it, and
 every former action page resolves to its routine, skill or the agents README as
-the requirement's mapping table states."""
+the requirement's mapping table states.
+
+The walk for live references runs once with the other removal guards in
+``tests/lint/ansible/variables/test_removed_names.py`` (``DocsAgents``).
+
+SELF-EXPIRING: from 2027-02-18 it fails with a reminder to delete it.
+"""
 
 from __future__ import annotations
 
+import datetime as dt
 import tempfile
 import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR, PROJECT_ROOT
-from utils.cache.files import iter_project_files_with_content, read_text
-
-NEEDLE = "docs/" + "agents"
-
-_EXEMPT_PREFIXES = (
-    "docs/changelog/",
-    "docs/requirements/",
-    "locale/",
-)
+from tests.lint.ansible.variables.test_removed_names import DocsAgents
+from utils.cache.files import read_text
 
 _ACTION_TO_ROUTINE = (
     "commit",
@@ -41,29 +41,6 @@ _ACTION_TO_ROUTINE = (
 _ACTION_TO_SKILL = ("i8-ci-trigger-priority", "i8-refactor")
 
 
-def _reference_problems(items) -> list[str]:
-    """Return a problem per (relpath, content) pair that names the removed tree.
-
-    Args:
-        items: iterable of ``(repo-relative posix path, file content)``.
-    """
-    problems: list[str] = []
-    for rel, content in items:
-        if rel.startswith(_EXEMPT_PREFIXES):
-            continue
-        if NEEDLE in content:
-            problems.append(f"{rel}: references the removed {NEEDLE} tree")
-    return problems
-
-
-def _real_reference_problems() -> list[str]:
-    items = (
-        (Path(path).relative_to(PROJECT_ROOT).as_posix(), content)
-        for path, content in iter_project_files_with_content()
-    )
-    return _reference_problems(items)
-
-
 def _mapping_problems(agents_dir: Path) -> list[str]:
     problems = [
         f"routine destination missing for action page: {name}"
@@ -81,15 +58,25 @@ def _mapping_problems(agents_dir: Path) -> list[str]:
 
 
 class TestL26(unittest.TestCase):
+    def setUp(self) -> None:
+        if DocsAgents.expired(dt.datetime.now(tz=dt.UTC).date()):
+            self.fail(
+                f"Removal guard expired (>= {DocsAgents.SUNSET.isoformat()}): "
+                f"{DocsAgents.NEEDLE} is long gone. DELETE this guard test file, "
+                "DocsAgents in tests/lint/ansible/variables/test_removed_names.py "
+                "and its line in agents/criteria.yml."
+            )
+
+    def test_expiry_fires_on_the_sunset_date(self):
+        self.assertFalse(DocsAgents.expired(DocsAgents.SUNSET - dt.timedelta(days=1)))
+        self.assertTrue(DocsAgents.expired(DocsAgents.SUNSET))
+
     def test_tree_removed_and_action_pages_mapped(self):
         problems: list[str] = []
         if (PROJECT_ROOT / "docs" / "agents").exists():
-            problems.append(f"{NEEDLE} still exists")
+            problems.append(f"{DocsAgents.NEEDLE} still exists")
         problems.extend(_mapping_problems(AGENTS_DIR))
         self.assertEqual(problems, [])
-
-    def test_no_live_file_references_the_removed_tree(self):
-        self.assertEqual(_real_reference_problems(), [])
 
     def test_red_fixture_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -102,7 +89,7 @@ class TestL26(unittest.TestCase):
                 (path.relative_to(root).as_posix(), read_text(str(path)))
                 for path in sorted(root.rglob("*.md"))  # nocheck: project-walk
             ]
-            self.assertNotEqual(_reference_problems(items), [])
+            self.assertNotEqual(DocsAgents.reference_problems(items), [])
             self.assertTrue((root / "docs" / "agents").exists())
 
 

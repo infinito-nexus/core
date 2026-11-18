@@ -5,7 +5,9 @@ from __future__ import annotations
 import datetime as dt
 import unittest
 
-from tests.lint.ansible.variables import test_async_enabled_removed as lint
+from tests.lint.ansible.variables import test_removed_names
+
+lint = test_removed_names.AsyncEnabled
 
 
 class TestNamedLines(unittest.TestCase):
