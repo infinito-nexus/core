@@ -14,7 +14,7 @@ It was rendered by `python -m cli.contributing.role.skeleton` and is deployed th
 
 - **Brand kit:** The page links `tokens.css` and `brand.css` of `[[ brand ]]` and renders header, nav and footer on the server; the nav lists the sites of `services.brand.nav` in the brand role's config that the deployment holds.
 - **Cosmos background:** The sky script and `<cosmos-sky>` render only while `lookup('design', application_id).cosmos` names a provider, so a deployment without one, or `services.cosmos.enabled: false` in `meta/services.yml`, keeps the page plain.
-- **Platform integration:** Matomo tracking and the docs link follow the services deployed beside the role.
+- **Platform integration:** Matomo tracking, the dashboard tile, the Prometheus metrics and the docs link follow the services deployed beside the role.
 
 ## Review
 

@@ -30,6 +30,7 @@ from utils.roles.mapping import (
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.software import SOFTWARE_NAME
 
 BASE_FILES = {
     ROLE_FILE_README,
@@ -90,12 +91,12 @@ def _manifest(**overrides):
     return manifest
 
 
-def _static():
+def _static(description="Site that turns applications into Infinito.Nexus roles"):
     manifest, errors = validate(
         {
             "kind": "static",
             "name": "builder",
-            "description": "Site that turns applications into Infinito.Nexus roles",
+            "description": description,
             "license": "MIT",
         }
     )
@@ -441,6 +442,38 @@ class TestStaticKind(_RenderCase):
         )
         self.assertEqual(2, page.count("{% if BUILDER_COSMOS %}"))
         self.assertLess(page.index("{% if BUILDER_COSMOS %}"), page.index("cosmos.js"))
+
+    def test_the_page_writes_the_software_name_through_its_variables(self):
+        cases = {
+            "Site that turns applications into Infinito.Nexus roles": (
+                "{{ SOFTWARE_NAME }}"
+            ),
+            "Site that hosts the infinito.nexus press kit": "{{ SOFTWARE_DOMAIN }}",
+        }
+        for description, variable in cases.items():
+            with self.subTest(description=description):
+                page = self.files(_static(description))["templates/index.html.j2"]
+                self.assertEqual(
+                    (0, 2),
+                    (
+                        page.lower().count(SOFTWARE_NAME.lower()),
+                        page.count(variable),
+                    ),
+                )
+
+    def test_the_site_meets_the_web_app_service_contracts(self):
+        text = self.files(_static())[ROLE_FILE_META_SERVICES]
+        services = load_yaml_str(text)
+        self.assertEqual(
+            (True, 1, False, False, {"logout", "endpoint", "documentation", "session"}),
+            (
+                "nocheck: garbage-collector-required" in text.split("\nbuilder:")[0],
+                services["builder"]["bond"],
+                services["semaphore"]["control"],
+                services["prometheus"]["scrape"],
+                set(services["sso"]["backchannel"]),
+            ),
+        )
 
     def test_no_file_names_the_cosmos_provider_role(self):
         files = self.files(_static())

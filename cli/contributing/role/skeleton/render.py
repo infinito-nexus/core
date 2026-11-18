@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import functools
 import ipaddress
 import json
 import os
+import re
 import shutil
 import tempfile
 from pathlib import Path
@@ -31,6 +33,7 @@ if TYPE_CHECKING:
     from cli.contributing.role.skeleton.manifest import Manifest
 
 TEMPLATE_DIR = PROJECT_ROOT / "templates" / "roles" / "skeleton"
+GENERAL_FILE = PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"
 NETWORKS_FILE = PROJECT_ROOT / "group_vars" / "all" / "08_networks.yml"
 STACK_BRIDGE = PROJECT_ROOT / "roles" / "svc-stack" / "files" / "bridge.yml"
 VERBATIM = {"tasks/utils/stack.yml": STACK_BRIDGE}
@@ -192,6 +195,34 @@ def _title(name: str) -> str:
     return " ".join(part.capitalize() for part in name.split("-"))
 
 
+@functools.cache
+def _software_name() -> str:
+    return str(load_yaml_any(str(GENERAL_FILE))["SOFTWARE_NAME"])
+
+
+def _identity(text: str) -> str:
+    """Write the software's name in *text* as the Jinja variable that holds it.
+
+    Args:
+        text: manifest text a rendered Jinja template inlines.
+
+    Returns:
+        *text* with every case-insensitive match of ``SOFTWARE_NAME`` replaced
+        by ``{{ SOFTWARE_DOMAIN }}`` when the match is lower case, else by
+        ``{{ SOFTWARE_NAME }}``.
+    """
+    return re.sub(
+        re.escape(_software_name()),
+        lambda match: (
+            "{{ SOFTWARE_DOMAIN }}"
+            if match.group(0).islower()
+            else "{{ SOFTWARE_NAME }}"
+        ),
+        str(text),
+        flags=re.IGNORECASE,
+    )
+
+
 def context(manifest: Manifest, local_port: int, subnet: str) -> dict[str, Any]:
     """Return the variables every skeleton template is rendered with.
 
@@ -249,6 +280,7 @@ def _environment() -> jinja2.Environment:
         autoescape=jinja2.select_autoescape(),
     )
     env.filters["yaml"] = _yaml_scalar
+    env.filters["identity"] = _identity
     return env
 
 

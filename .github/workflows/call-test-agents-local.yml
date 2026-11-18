@@ -69,6 +69,20 @@ jobs:
           source scripts/meta/env/load.sh
           echo "${VENV}/bin" >> "${GITHUB_PATH}"
 
+      - name: 🍇 Pin the deploy to a freshly downloaded Grype database
+        if: ${{ !env.ACT }}
+        shell: bash
+        env:
+          ENGINE: grype
+        run: |
+          set -euo pipefail
+          root="${GITHUB_WORKSPACE}/build/vulnerability-db"
+          python -m cli.contributing.security.database --dir "${root}" --engines "${ENGINE}"
+          {
+            echo "INFINITO_VULNERABILITY_ENGINE=${ENGINE}"
+            echo "INFINITO_VULNERABILITY_DB_HOST_PATH=${root}"
+          } >> "${GITHUB_ENV}"
+
       - name: 📦 Preseed large images (Ollama) by host pull and load
         shell: bash
         run: make agents-preseed

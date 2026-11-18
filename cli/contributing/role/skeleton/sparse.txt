@@ -12,6 +12,7 @@
 /cli/contributing/role/skeleton/__main__.py
 /cli/contributing/role/skeleton/manifest.py
 /cli/contributing/role/skeleton/render.py
+/group_vars/all/00_general.yml
 /group_vars/all/08_networks.yml
 /meta/categories.yml
 /meta/distros.yml
