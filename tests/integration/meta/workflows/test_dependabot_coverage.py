@@ -38,6 +38,7 @@ ECOSYSTEM_FILENAME_INDICATORS: dict[str, list[str]] = {
         "pyproject.toml",
         "requirements.txt",
         "requirements*.txt",
+        "requirements*.in",
         "setup.py",
         "setup.cfg",
         "Pipfile",
@@ -369,6 +370,23 @@ class TestDependabotPipDirectories(unittest.TestCase):
             if not any(_pip_dir_reaches(d, f) for f in self.manifests)
         ]
         self.assertFalse(stale, f"pip directories reaching no manifest: {stale}")
+
+    def test_reach_model(self):
+        odoo = "roles/web-app-odoo/files/pip/requirements-no-deps.txt"
+        cases = (
+            ("/", "pyproject.toml", True),
+            ("/", "python/requirements.in", True),
+            ("/", "a/b/requirements.txt", False),
+            ("/python", "python/requirements.in", True),
+            ("/roles/*/files", "roles/x/files/requirements.txt", True),
+            ("/roles/*/files", "roles/x/files/pip/requirements-no-deps.txt", True),
+            ("/roles/*/files", "roles/x/files/pip/setup.py", False),
+            ("/roles/*/files", "roles/x/y/files/requirements.txt", False),
+            ("/roles/web-app-odo[o]/files/pip", odoo, False),
+        )
+        for dep_dir, rel_file, expected in cases:
+            with self.subTest(dep_dir=dep_dir, rel_file=rel_file):
+                self.assertEqual(_pip_dir_reaches(dep_dir, rel_file), expected)
 
 
 if __name__ == "__main__":
