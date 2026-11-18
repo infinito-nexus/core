@@ -7,7 +7,9 @@ the scan detects it, and ``identity_request_strips.conf.j2`` already blanks it.
 
 Every scan skips docs, Playwright files and ``PLATFORM_ROLES``. A line that
 blanks a header is no trust, and a file carrying ``# nocheck: header-trust`` in
-its head is an exemption, not a hit.
+its head is an exemption, not a hit. The scan runs once per process and
+resolved ``roles_dir``, so a file edited after the first call stays unseen, as
+it does for ``read_text``.
 
 ``header_trust_roles(roles_dir)`` -> ``dict[str, list[str]]``
     roles_dir: the repository's ``roles`` directory.
@@ -45,6 +47,8 @@ its head is an exemption, not a hit.
 from __future__ import annotations
 
 import re
+from functools import lru_cache
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_in_head, marker_reason
@@ -58,7 +62,6 @@ from utils.roles.mapping import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from pathlib import Path
 
 TRUSTED_IDENTITY_HEADERS: tuple[str, ...] = (
     "X-Forwarded-User",
@@ -138,8 +141,8 @@ def named_headers(text: str) -> list[str]:
     )
 
 
-def _scanned_files(roles_dir: Path) -> Iterator[tuple[str, str, str]]:
-    """Yield ``(role, role-relative path, text)`` per file that names a header."""
+def _scanned_files(roles_dir: Path) -> Iterator[tuple[str, str, list[str], str]]:
+    """Yield ``(role, role-relative path, headers, text)`` per file that names a header."""
     for role_dir in sorted(roles_dir.iterdir()):
         if not role_dir.is_dir() or role_dir.name in PLATFORM_ROLES:
             continue
@@ -155,8 +158,30 @@ def _scanned_files(roles_dir: Path) -> Iterator[tuple[str, str, str]]:
                 text = read_text(str(path))
             except (OSError, UnicodeDecodeError):
                 continue
-            if named_headers(text):
-                yield role_dir.name, rel, text
+            headers = named_headers(text)
+            if headers:
+                yield role_dir.name, rel, headers, text
+
+
+_Hit = tuple[str, str, tuple[str, ...], str | None]
+
+
+@lru_cache(maxsize=4)
+def _scan(roles_dir: str) -> tuple[_Hit, ...]:
+    """Returns ``(role, role-relative path, headers, exemption reason)`` per
+    file that names a header.
+
+    Args:
+        roles_dir: the resolved ``roles`` directory.
+    """
+    return tuple(
+        (role, rel, tuple(headers), _exemption_reason(text))
+        for role, rel, headers, text in _scanned_files(Path(roles_dir))
+    )
+
+
+def _hits(roles_dir: Path) -> tuple[_Hit, ...]:
+    return _scan(str(roles_dir.resolve()))
 
 
 def _exemption_reason(text: str) -> str | None:
@@ -175,24 +200,23 @@ def _exemption_reason(text: str) -> str | None:
 
 def header_trust_roles(roles_dir: Path) -> dict[str, list[str]]:
     found: dict[str, list[str]] = {}
-    for role, rel, text in _scanned_files(roles_dir):
-        if _exemption_reason(text) is None:
+    for role, rel, _, reason in _hits(roles_dir):
+        if reason is None:
             found.setdefault(role, []).append(rel)
     return found
 
 
 def header_trust_headers(roles_dir: Path) -> dict[str, list[str]]:
     found: dict[str, set[str]] = {}
-    for role, _, text in _scanned_files(roles_dir):
-        if _exemption_reason(text) is None:
-            found.setdefault(role, set()).update(named_headers(text))
+    for role, _, headers, reason in _hits(roles_dir):
+        if reason is None:
+            found.setdefault(role, set()).update(headers)
     return {role: sorted(headers) for role, headers in found.items()}
 
 
 def header_trust_exemptions(roles_dir: Path) -> dict[str, list[tuple[str, str]]]:
     found: dict[str, list[tuple[str, str]]] = {}
-    for role, rel, text in _scanned_files(roles_dir):
-        reason = _exemption_reason(text)
+    for role, rel, _, reason in _hits(roles_dir):
         if reason is not None:
             found.setdefault(role, []).append((rel, reason))
     return found

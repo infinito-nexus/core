@@ -87,6 +87,22 @@ class TestHeaderTrustRoles(unittest.TestCase):
 
             self.assertEqual(header_trust_roles(roles_dir), {})
 
+    def test_a_caller_mutating_the_result_leaves_the_next_call_intact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles_dir = Path(tmp)
+            _role(roles_dir, "web-app-trusting", RELAY)
+            header_trust_roles(roles_dir)["web-app-trusting"].append("forged")
+            header_trust_headers(roles_dir).clear()
+
+            self.assertEqual(
+                header_trust_roles(roles_dir),
+                {"web-app-trusting": ["templates/proxy.conf.j2"]},
+            )
+            self.assertEqual(
+                header_trust_headers(roles_dir),
+                {"web-app-trusting": ["Remote-User", "X-Forwarded-User"]},
+            )
+
 
 class TestNamedHeaders(unittest.TestCase):
     def test_every_spelling_maps_to_the_canonical_header(self):
