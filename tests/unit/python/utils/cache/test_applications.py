@@ -22,6 +22,7 @@ from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
 from utils.cache.carrier import (
     APPLICATIONS_RENDERED_FACT,
+    CarrierInvisibleError,
     merged_applications_cache_key,
 )
 from utils.cache.yaml import load_yaml_any
@@ -489,6 +490,36 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
                 self.assertEqual(
                     merged["web-app-foo"]["services"]["foo"]["image"], "override"
                 )
+
+    def test_a_carrier_parked_only_in_the_fact_cache_fails_loudly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            variables = self._variables()
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            variables["ansible_facts"] = {
+                APPLICATIONS_RENDERED_FACT: {
+                    "key": [key[0], list(key[1])],
+                    "applications": {"web-app-foo": {"carried": True}},
+                }
+            }
+            with self.assertRaises(CarrierInvisibleError):
+                cache_apps.get_merged_applications(
+                    variables=variables, roles_dir=roles, templar=None
+                )
+
+    def test_a_carrier_visible_as_a_variable_ignores_the_fact_cache(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            variables = self._variables()
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            carried = {"web-app-foo": {"carried": True}}
+            carrier = {"key": [key[0], list(key[1])], "applications": carried}
+            variables[APPLICATIONS_RENDERED_FACT] = carrier
+            variables["ansible_facts"] = {APPLICATIONS_RENDERED_FACT: carrier}
+            merged = cache_apps.get_merged_applications(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertIs(merged, carried)
 
 
 class TestNestedLookupsReuseTheUnrenderedView(unittest.TestCase):
