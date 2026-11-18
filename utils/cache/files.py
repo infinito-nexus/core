@@ -173,7 +173,11 @@ def read_text(path: str) -> str:
         UnicodeDecodeError: the file is not UTF-8; callers that scan
             arbitrary files catch it when non-UTF-8 blobs may appear.
     """
-    if Path(path).stat().st_size > READ_TEXT_CACHE_MAX_BYTES:
+    try:
+        size = Path(path).stat().st_size
+    except FileNotFoundError:
+        return _read_cached(path)
+    if size > READ_TEXT_CACHE_MAX_BYTES:
         return _read(path)
     return _read_cached(path)
 
