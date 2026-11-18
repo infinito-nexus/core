@@ -1488,7 +1488,7 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-# Variant 15: discourse with its matrix and translate chains at full weight
+# Variant 15: discourse with its translate chain at full weight and matrix held light
 - services:
     container_backup:
       enabled: false
@@ -1565,9 +1565,10 @@
     mattermost:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-matrix#3
     matrix:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     zammad:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
