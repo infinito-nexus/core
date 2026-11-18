@@ -5,6 +5,7 @@
       IFS= read -r OPENWEBUI_ADMIN_PASSWORD && IFS= read -r OPENWEBUI_MCP_CONNECTIONS && : "${OPENWEBUI_ADMIN_PASSWORD:?arrived empty on stdin}" && : "${OPENWEBUI_MCP_CONNECTIONS:?arrived
       empty on stdin}" && export OPENWEBUI_ADMIN_PASSWORD OPENWEBUI_MCP_CONNECTIONS && container exec
       -i
+      -e ENABLE_DB_MIGRATIONS=false
       -e OPENWEBUI_BASE=http://localhost:{{ OPENWEBUI_INTERNAL_HTTP_PORT | quote }}
       -e OPENWEBUI_ADMIN_EMAIL={{ OPENWEBUI_API_BOT_USER.email | quote }}
       -e OPENWEBUI_ADMIN_NAME={{ OPENWEBUI_API_BOT_USER.username | quote }}
