@@ -7,8 +7,10 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "pip"
     directories:
-      - "**"
-      - "**/*"
+      - "/"
+      - "/roles/svc-net-tor-smtp/files"
+      - "/roles/web-app-odoo/files/pip"
+      - "/roles/web-svc-translate/files"
     schedule:
       interval: "daily"
       time: "00:00"

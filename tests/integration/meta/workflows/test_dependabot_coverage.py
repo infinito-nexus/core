@@ -289,5 +289,83 @@ class TestDependabotCoverage(unittest.TestCase):
             )
 
 
+def _pip_manifests() -> list[str]:
+    return sorted(
+        rel_file
+        for rel_file in _list_candidate_files()
+        if any(
+            fnmatch.fnmatch(Path(rel_file).name, pattern)
+            for pattern in ECOSYSTEM_FILENAME_INDICATORS["pip"]
+        )
+    )
+
+
+def _rel_dir(path: Path) -> str:
+    return "" if path == Path() else path.as_posix()
+
+
+def _pip_dir_reaches(dep_dir: str, rel_file: str) -> bool:
+    """Args:
+        dep_dir: a pip ``directories`` entry; Dependabot reads its manifests and
+            the requirements files of its direct child directories.
+        rel_file: repo-relative path of a pip manifest.
+
+    Returns:
+        True when Dependabot's pip fetcher reaches ``rel_file`` from ``dep_dir``.
+    """
+    base = dep_dir.strip("/")
+    file_path = Path(rel_file)
+    if fnmatch.fnmatchcase(_rel_dir(file_path.parent), base):
+        return True
+    return (
+        fnmatch.fnmatchcase(_rel_dir(file_path.parent.parent), base)
+        and file_path.suffix in (".txt", ".in")
+        and "requirements" in file_path.name
+    )
+
+
+class TestDependabotPipDirectories(unittest.TestCase):
+    def setUp(self) -> None:
+        pip_entries = [
+            entry
+            for entry in _load_active_entries()
+            if entry["package-ecosystem"] == "pip"
+        ]
+        self.assertEqual(len(pip_entries), 1, "expected exactly one pip entry")
+        self.pip_dirs = _get_entry_dirs(pip_entries[0])
+        self.manifests = _pip_manifests()
+
+    def test_no_glob_directories(self):
+        globs = [d for d in self.pip_dirs if "*" in d]
+        self.assertFalse(globs, f"pip directories must not contain globs: {globs}")
+
+    def test_every_manifest_is_reached_by_exactly_one_directory(self):
+        uncovered: list[str] = []
+        duplicated: list[str] = []
+        for rel_file in self.manifests:
+            reaching = [d for d in self.pip_dirs if _pip_dir_reaches(d, rel_file)]
+            if not reaching:
+                uncovered.append(rel_file)
+            elif len(reaching) > 1:
+                duplicated.append(f"{rel_file}  <-  {', '.join(reaching)}")
+        problems: list[str] = []
+        if uncovered:
+            problems.append("Uncovered pip manifests:\n  " + "\n  ".join(uncovered))
+        if duplicated:
+            problems.append(
+                "Pip manifests reached by several directories:\n  "
+                + "\n  ".join(duplicated)
+            )
+        self.assertFalse(problems, "\n".join(problems))
+
+    def test_every_directory_reaches_a_manifest(self):
+        stale = [
+            d
+            for d in self.pip_dirs
+            if not any(_pip_dir_reaches(d, f) for f in self.manifests)
+        ]
+        self.assertFalse(stale, f"pip directories reaching no manifest: {stale}")
+
+
 if __name__ == "__main__":
     unittest.main()
