@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import re
+import string
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -71,13 +72,22 @@ def refetch_required() -> bool:
     return True
 
 
-_REPOSITORY = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
+_NAME_CHARACTERS = frozenset(string.ascii_letters + string.digits + "_.-")
+_DOT_SEGMENTS = frozenset({".", ".."})
+
+
+def _repository_name(name: object) -> bool:
+    parts = name.split("/") if isinstance(name, str) else []
+    return len(parts) == 2 and all(
+        part and part not in _DOT_SEGMENTS and set(part) <= _NAME_CHARACTERS
+        for part in parts
+    )
 
 
 def _path(kind: str, body: dict) -> str | None:
     repository = body["repository"]
     name = repository["full_name"]
-    if not _REPOSITORY.fullmatch(name):
+    if not _repository_name(name):
         return None
     action = body.get("action")
     if kind == "workflow_run" and action == "completed":

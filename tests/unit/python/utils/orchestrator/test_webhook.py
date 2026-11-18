@@ -180,6 +180,26 @@ class TestRefetch(unittest.TestCase):
             with self.subTest(kind=kind, body=body):
                 self.assertIsNone(refetch_path(kind, body))
 
+    def test_a_dot_segment_repository_name_is_never_fetched(self) -> None:
+        for name in ("../..", "./..", "infinito-nexus/..", "./core", "/core", "a/"):
+            body = {
+                "action": "opened",
+                "repository": {"full_name": name},
+                "issue": {"number": 1},
+            }
+            with self.subTest(name=name):
+                self.assertIsNone(refetch_path("issues", body))
+
+    def test_a_dotted_repository_name_is_still_fetched(self) -> None:
+        body = {
+            "action": "opened",
+            "repository": {"full_name": "infinito-nexus/.github"},
+            "issue": {"number": 3},
+        }
+        self.assertEqual(
+            refetch_path("issues", body), "/repos/infinito-nexus/.github/issues/3"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
