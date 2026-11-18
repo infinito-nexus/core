@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
 const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
@@ -10,13 +11,34 @@ const ICON = "link[rel~='icon']";
 const FAVICON = "https://cdn.example.test/roles/web-app-penpot/latest/img/design/favicon.ico";
 const PENPOT_SVG = "images/favicon.svg";
 const PENPOT_PNG = "images/favicon.png";
+const STYLESHEET = fs.readFileSync(path.join(PROJECT_ROOT, "roles/web-app-penpot/templates/style.css.j2"), "utf8");
+const PERSONAL_TEAM_SLOTS = [
+  "main_ui_dashboard_organization_team_switch__personal-projects-icon",
+  "main_ui_dashboard_organization_team_switch__team-item-personal-icon",
+];
 
-const { screenUrl, assertEveryIcon } = loadInternals(
+const { screenUrl, assertEveryIcon, SIDEBAR_LOGO } = loadInternals(
   path.join(PROJECT_ROOT, "roles/web-app-penpot/files/playwright/test-design.js"),
-  ["screenUrl", "assertEveryIcon"],
+  ["screenUrl", "assertEveryIcon", "SIDEBAR_LOGO"],
   {},
   {},
 );
+
+/**
+ * Args:
+ *   css: role stylesheet template.
+ *   slot: class Penpot renders on the element whose icon the logo replaces.
+ *
+ * Returns:
+ *   Whether a rule names the slot in its selector list, paints the generated logo onto it and hides the icon inside.
+ */
+function brandsSlot(css, slot) {
+  const selector = `\\[class\\*="${slot}"\\]`;
+  return (
+    new RegExp(`${selector}[^{]*\\{\\s*background: url\\("\\{\\{ design\\.urls\\.logo\\.svg \\}\\}"\\)`).test(css) &&
+    new RegExp(`${selector} > svg[^{]*\\{\\s*visibility: hidden;`).test(css)
+  );
+}
 
 /**
  * Args:
@@ -97,4 +119,15 @@ test("the app root carries no screen key", () => {
 
 test("two views of one screen get documents of their own", () => {
   assert.notEqual(screenUrl(BASE, "sign-in", "auth-login"), screenUrl(BASE, "sign-in-focus", "auth-login"));
+});
+
+test("the spec looks for the dashboard logo in the personal-team slot of the Penpot 2.19 team switch", () => {
+  assert.ok(SIDEBAR_LOGO.startsWith("[data-testid='dashboard-sidebar'] "));
+  assert.ok(SIDEBAR_LOGO.endsWith(`[class*='${PERSONAL_TEAM_SLOTS[0]}']`));
+});
+
+test("the stylesheet puts the generated logo into every personal-team slot of the Penpot 2.19 team switch", () => {
+  for (const slot of PERSONAL_TEAM_SLOTS) {
+    assert.ok(brandsSlot(STYLESHEET, slot), `style.css.j2 must brand ${slot}`);
+  }
 });
