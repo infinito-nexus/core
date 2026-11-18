@@ -22,8 +22,7 @@ def _mdad_raw_base() -> str:
 
 
 def fetch_mdad_file(case: unittest.TestCase, path: str) -> str:
-    """Fetch one file of the pinned MDAD ref, skipping *case* when unreachable.
-
+    """
     Args:
         case: the test case to skip or fail.
         path: repository-relative path inside MDAD.
