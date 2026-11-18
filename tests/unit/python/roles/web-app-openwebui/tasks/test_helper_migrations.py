@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import unittest
+from pathlib import Path
 
-import yaml
+from utils.cache.files import iter_project_files
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -12,15 +14,15 @@ HELPER_FILES = {"admin.yml", "agent_models.yml", "mcp_grants.yml"}
 
 
 def python_execs() -> dict[str, str]:
-    """Collect every task that runs python3 inside the Open WebUI container.
-
+    """
     Returns:
         The serialised command of each such task, keyed by
         ``<file>: <task name>``.
     """
     found = {}
-    for path in sorted(TASKS_DIR.rglob("*.yml")):
-        for task in yaml.safe_load(path.read_text()) or []:
+    paths = (Path(p) for p in iter_project_files(extensions=(".yml",)))
+    for path in sorted(p for p in paths if p.is_relative_to(TASKS_DIR)):
+        for task in load_yaml_any(str(path)) or []:
             for module in ("ansible.builtin.command", "ansible.builtin.shell"):
                 command = json.dumps(task.get(module, ""))
                 if "exec" in command and "python3" in command:
