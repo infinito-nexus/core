@@ -27,6 +27,7 @@ PROXMOX_GUEST_FQDN: "{{ PROXMOX_GUEST.node }}.{{ DOMAIN_PRIMARY }}"
 PROXMOX_NODE: "{{ PROXMOX_GUEST.node if PROXMOX_IS_VM | bool else PROXMOX_CONTAINER }}"
 PROXMOX_GUEST_EXEC: "{{ ['pve-guest'] if PROXMOX_IS_VM | bool else [] }}"
 PROXMOX_GUEST_WAIT_RETRIES: 360
+PROXMOX_FIRST_BOOT_DIGESTS_FILE: /var/lib/infinito/first-boot.digests
 PROXMOX_AGENTS: "{{ lookup('config', application_id, 'services.proxmox.agents') }}"
 PROXMOX_AGENT_POOL: "agents-{{ DOMAIN_PRIMARY | replace('.', '-') }}"
 PROXMOX_GUEST_AGENT_STORAGE: "{{ PROXMOX_WORKSPACES.storage if PROXMOX_IS_VM | bool else '' }}"

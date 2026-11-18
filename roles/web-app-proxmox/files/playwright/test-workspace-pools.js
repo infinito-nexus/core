@@ -1,7 +1,7 @@
 const { createHash, randomInt, randomUUID } = require("node:crypto");
 
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, requireDotenvValue } = require("./personas");
+const { decodeDotenvJsonList, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const {
   WORKSPACE_RUN_MS,
   WORKSPACE_TEMPLATE,
@@ -27,6 +27,15 @@ const TEMPLATE_ROLE = "InfinitoTemplateClone";
 const OTHER_STORAGE = "local";
 const VMID_FLOOR = 100_000;
 const VMID_SPAN = 800_000;
+const FIRST_BOOT_PHASES = ["image", "deployed"];
+const FIRST_BOOT_FORMATS = {
+  ssh_host_keys: /^[A-Z0-9]+:SHA256:[A-Za-z0-9+/]{43}(?:,[A-Z0-9]+:SHA256:[A-Za-z0-9+/]{43})*$/,
+  machine_id: /^[0-9a-f]{64}$/,
+  node_certificate: /^[0-9A-F]{2}(?::[0-9A-F]{2}){31}$/,
+  root_ca: /^[0-9A-F]{2}(?::[0-9A-F]{2}){31}$/,
+  root_hash: /^[0-9a-f]{64}$/,
+};
+const LIVE_CERTIFICATES = { node_certificate: "pve-ssl.pem", root_ca: "pve-root-ca.pem" };
 
 const workspacesEnabled = process.env.SEMAPHORE_WORKSPACES_ENABLED === "true";
 const vmFlavor = requireDotenvValue(process.env.PROXMOX_FLAVOR, "PROXMOX_FLAVOR") === "vm";
@@ -242,6 +251,28 @@ async function awaitApi(api, what) {
     .toBe(200);
 }
 
+function firstBootDigests() {
+  const lines = decodeDotenvJsonList(process.env.PROXMOX_FIRST_BOOT_DIGESTS_JSON, "PROXMOX_FIRST_BOOT_DIGESTS_JSON");
+  const record = Object.fromEntries(
+    lines.map((line) => {
+      const at = line.indexOf("=");
+      return at < 0 ? [line, ""] : [line.slice(0, at), line.slice(at + 1)];
+    }),
+  );
+  const items = Object.keys(FIRST_BOOT_FORMATS);
+  const keys = FIRST_BOOT_PHASES.flatMap((phase) => items.map((item) => `${phase}.${item}`)).sort();
+  expect(
+    Object.keys(record).sort(),
+    "the first boot must record the image's and this deployment's identity digests; a guest installed before the hook kept them carries none until the proxmox_guest volume is recreated",
+  ).toEqual(keys);
+  for (const key of keys) {
+    expect(record[key], `${key} of the first-boot record must be well-formed`).toMatch(FIRST_BOOT_FORMATS[key.split(".")[1]]);
+  }
+  return Object.fromEntries(
+    FIRST_BOOT_PHASES.map((phase) => [phase, Object.fromEntries(items.map((item) => [item, record[`${phase}.${item}`]]))]),
+  );
+}
+
 function provisionRecordKvm(record) {
   const kvm = String(record.kvm).toLowerCase();
   expect(["true", "false"], `the provision record must state kvm as true or false, got ${record.kvm}`).toContain(kvm);
@@ -282,6 +313,32 @@ test("proxmox vm: the guest runs the pinned release", async ({ page }) => {
   expect(String(version.version), `pve-manager must belong to release ${pinnedRelease}`).toMatch(
     new RegExp(`^${pinnedRelease.replace(".", "\\.")}\\.`),
   );
+});
+
+test("proxmox vm: no two deployments share a key", async ({ page }) => {
+  test.skip(!vmFlavor, "the container flavor runs Proxmox VE from packages, so no two deployments boot from one image");
+  const { node } = settings();
+  const { image, deployed } = firstBootDigests();
+  const imageHostKeys = image.ssh_host_keys.split(",");
+  const deployedHostKeys = deployed.ssh_host_keys.split(",");
+  expect(
+    deployedHostKeys.filter((key) => imageHostKeys.includes(key)),
+    "no SSH host key of this deployment may be one the image carries",
+  ).toEqual([]);
+  expect(
+    deployedHostKeys.filter((key) => key.startsWith("ED25519:")),
+    "the guest must hold exactly the ed25519 host key the launcher generated for it",
+  ).toHaveLength(1);
+  for (const item of Object.keys(FIRST_BOOT_FORMATS).filter((name) => name !== "ssh_host_keys")) {
+    expect(deployed[item], `the ${item} of this deployment must not be the one the image carries`).not.toBe(image[item]);
+  }
+  const admin = await adminApi(page);
+  const certificates = await admin(`/nodes/${node}/certificates/info`);
+  for (const [item, file] of Object.entries(LIVE_CERTIFICATES)) {
+    const live = certificates.find((certificate) => String(certificate.filename).split("/").pop() === file);
+    expect(live, `Proxmox VE must report ${file} of ${node}`).toBeTruthy();
+    expect(String(live.fingerprint).toUpperCase(), `${file} of ${node} must be the one the first boot generated`).toBe(deployed[item]);
+  }
 });
 
 test.describe.serial("proxmox workspaces", () => {

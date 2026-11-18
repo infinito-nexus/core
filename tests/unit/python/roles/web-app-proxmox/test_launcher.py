@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import importlib.util
 import ipaddress
+import os
 import re
+import stat
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
 from tests.utils.ansible_assert import assert_task, holds, message
 from utils.cache.files import read_text
@@ -59,6 +64,59 @@ COHOST = assert_task(
 HOST_GRANTS = ("/dev/net/tun", "/dev/vhost-net", "/dev/fuse")
 HOST_CAPABILITIES = ("NET_ADMIN", "SYS_ADMIN")
 GUEST_HOSTFWD = re.compile(r"hostfwd=tcp:([^:]+):\$PROXMOX_GUEST_(\w+)_PORT-:(\d+)")
+FIRST_BOOT = read_text(str(ROLE / "files" / "shell" / "first-boot.sh"))
+POOLS_SPEC = read_text(str(ROLE / "files" / "playwright" / "test-workspace-pools.js"))
+SHELL_FUNCTION = re.compile(r"^\w+\(\) \{\n.*?^\}\n", re.MULTILINE | re.DOTALL)
+RECORD_PATH = re.compile(r"^RECORD=(\S+)$", re.MULTILINE)
+SPEC_FORMATS = dict(
+    re.findall(
+        r"^  (\w+): /(.+)/,$",
+        POOLS_SPEC.split("const FIRST_BOOT_FORMATS = {", 1)[-1].split("};", 1)[0],
+        re.MULTILINE,
+    )
+)
+MACHINE_ID = "0123456789abcdef0123456789abcdef"
+ROOT_HASH = "$6$fakesalt$fakehash"
+GUEST_FILES = {
+    "etc/ssh/ssh_host_ed25519_key": "PRIVATE ED25519 HOST KEY\n",
+    "etc/ssh/ssh_host_ed25519_key.pub": "ssh-ed25519 AAAAC3image root@pve\n",
+    "etc/ssh/ssh_host_rsa_key": "PRIVATE RSA HOST KEY\n",
+    "etc/ssh/ssh_host_rsa_key.pub": "ssh-rsa AAAAB3image root@pve\n",
+    "etc/machine-id": f"{MACHINE_ID}\n",
+    "etc/shadow": f"root:{ROOT_HASH}:19000:0:99999:7:::\n",
+    "etc/pve/local/pve-ssl.pem": "NODE CERTIFICATE\n",
+    "etc/pve/local/pve-ssl.key": "PRIVATE NODE KEY\n",
+    "etc/pve/pve-root-ca.pem": "CLUSTER CA\n",
+    "etc/pve/priv/pve-root-ca.key": "PRIVATE CLUSTER CA KEY\n",
+}
+GUEST_SECRETS = {
+    "a private key": "PRIVATE",
+    "the machine id": MACHINE_ID,
+    "the root password hash": ROOT_HASH,
+}
+_GUEST_FAKES = {
+    "ssh-keygen": (
+        "kind=${2##*ssh_host_}; kind=${kind%_key.pub}; "
+        "printf '256 SHA256:%s root@pve (%s)\\n' "
+        '"$(sha256sum <"$2" | cut -c1-43)" '
+        '"$(printf %s "$kind" | tr "[:lower:]" "[:upper:]")"\n'
+    ),
+    "openssl": (
+        '[ -r "$6" ] || exit 1; '
+        "printf 'sha256 Fingerprint=%s\\n' "
+        '"$(sha256sum <"$6" | cut -c1-64 | tr a-f A-F | sed \'s/../&:/g; s/:$//\')"\n'
+    ),
+    "getent": 'grep "^$2:" "$FAKE_ROOT/etc/shadow"\n',
+}
+IMAGE_MEASURE = 'image_digests="$(measure image)"'
+DEPLOYED_MEASURE = "\tmeasure deployed\n"
+ADMIT_LAUNCHER = ">>/root/.ssh/authorized_keys"
+REGENERATION_STEPS = (
+    "rm -f /etc/ssh/ssh_host_*",
+    "rm -f /etc/machine-id",
+    "pvecm updatecerts --force",
+    'usermod -p "$root_hash" root',
+)
 
 
 def launcher_findings(rendered: dict) -> list[str]:
@@ -98,6 +156,91 @@ def launcher_findings(rendered: dict) -> list[str]:
 def _assert_planted(test: unittest.TestCase, old: str, new: str, needle: str) -> None:
     findings = launcher_findings(service("vm", planted(COMPOSE, old, new)))
     test.assertTrue(any(needle in finding for finding in findings), findings)
+
+
+def measured(hook: str, files: dict[str, str]) -> dict[str, str]:
+    """Args:
+        hook: text of the first-boot hook.
+        files: guest files by path below ``/``, planted into a scratch root.
+
+    Returns:
+        The ``image.<item>`` lines the hook's ``measure`` writes for that guest, by key.
+    """
+    functions = "".join(SHELL_FUNCTION.findall(hook)).replace(
+        "/etc/", "$FAKE_ROOT/etc/"
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        guest = Path(tmp) / "guest"
+        for name, content in files.items():
+            path = guest / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        tools = Path(tmp) / "bin"
+        tools.mkdir()
+        for name, body in _GUEST_FAKES.items():
+            tool = tools / name
+            tool.write_text(f"#!/bin/sh\n{body}", encoding="utf-8")
+            tool.chmod(tool.stat().st_mode | stat.S_IXUSR)
+        result = subprocess.run(
+            ["sh", "-c", f"set -eu\n{functions}measure image\n"],
+            capture_output=True,
+            text=True,
+            check=True,
+            env={"PATH": f"{tools}:{os.environ['PATH']}", "FAKE_ROOT": str(guest)},
+        )
+    return dict(line.split("=", 1) for line in result.stdout.splitlines())
+
+
+def record_findings(record: dict[str, str]) -> list[str]:
+    """Args:
+        record: first-boot record lines by key.
+
+    Returns:
+        Every key the spec does not expect, every value its format refuses, and every secret it carries.
+    """
+    findings = []
+    expected = {f"image.{item}" for item in SPEC_FORMATS}
+    if set(record) != expected:
+        findings.append(f"keys {sorted(record)} are not {sorted(expected)}")
+    for key, value in sorted(record.items()):
+        item = key.split(".", 1)[-1]
+        if item in SPEC_FORMATS and not re.fullmatch(SPEC_FORMATS[item], value):
+            findings.append(f"{key} {value!r} is malformed")
+        findings.extend(
+            f"{key} carries {name}"
+            for name, secret in GUEST_SECRETS.items()
+            if secret in value
+        )
+    return findings
+
+
+def order_findings(hook: str) -> list[str]:
+    """Args:
+        hook: text of the first-boot hook.
+
+    Returns:
+        Every regeneration step the image measurement does not precede or the deployed one does not follow, and a launcher key admitted before the record exists.
+    """
+    image, deployed, admit = (
+        hook.find(IMAGE_MEASURE),
+        hook.find(DEPLOYED_MEASURE),
+        hook.find(ADMIT_LAUNCHER),
+    )
+    if min(image, deployed, admit) < 0:
+        return ["the hook measures no image, no deployment or admits no launcher key"]
+    findings = []
+    for step in REGENERATION_STEPS:
+        at = hook.find(step)
+        if not image < at < deployed:
+            findings.append(f"{step!r} is not between both measurements")
+    if not deployed < admit:
+        findings.append("the launcher key is admitted before the record is written")
+    if (
+        "\tprintf '%s\\n' \"$image_digests\"\n" not in hook
+        or '} >"$RECORD"' not in hook
+    ):
+        findings.append("the record does not hold the image measurement")
+    return findings
 
 
 class TestLauncherCompose(unittest.TestCase):
@@ -273,6 +416,95 @@ class TestNestedMode(unittest.TestCase):
 
     def test_negative_control_an_ignored_nested_flag_is_caught(self):
         self.assertNotEqual(proxmox_nested("N\n"), proxmox_nested("Y\n"))
+
+
+class TestFirstBootRecord(unittest.TestCase):
+    def test_the_record_holds_the_spec_formats_and_no_secret(self):
+        self.assertEqual(
+            sorted(SPEC_FORMATS),
+            ["machine_id", "node_certificate", "root_ca", "root_hash", "ssh_host_keys"],
+        )
+        record = measured(FIRST_BOOT, GUEST_FILES)
+        self.assertEqual(record_findings(record), [])
+        self.assertRegex(
+            record["image.ssh_host_keys"], r"^ED25519:SHA256:\S+,RSA:SHA256:\S+$"
+        )
+
+    def test_negative_control_a_raw_root_hash_in_the_record_is_caught(self):
+        mutant = FIRST_BOOT.replace(
+            '"$(digest "$(getent shadow root | cut -d: -f2)")"',
+            '"$(getent shadow root | cut -d: -f2)"',
+        )
+        self.assertNotEqual(mutant, FIRST_BOOT)
+        self.assertIn(
+            "image.root_hash carries the root password hash",
+            record_findings(measured(mutant, GUEST_FILES)),
+        )
+
+    def test_a_missing_value_stays_empty_and_fails_the_spec_format(self):
+        missing = {"etc/machine-id", "etc/pve/local/pve-ssl.pem"}
+        guest = {k: v for k, v in GUEST_FILES.items() if k not in missing}
+        record = measured(FIRST_BOOT, guest)
+        self.assertEqual(record["image.machine_id"], "")
+        self.assertEqual(record["image.node_certificate"], "")
+        self.assertEqual(
+            record_findings(record),
+            [
+                "image.machine_id '' is malformed",
+                "image.node_certificate '' is malformed",
+            ],
+        )
+
+    def test_negative_control_a_digest_of_nothing_passes_the_spec_format(self):
+        mutant = FIRST_BOOT.replace('[ -z "$1" ] || printf', "printf")
+        self.assertNotEqual(mutant, FIRST_BOOT)
+        guest = {k: v for k, v in GUEST_FILES.items() if k != "etc/machine-id"}
+        value = measured(mutant, guest)["image.machine_id"]
+        self.assertNotEqual(value, "")
+        self.assertRegex(value, SPEC_FORMATS["machine_id"])
+
+    def test_the_hook_measures_the_image_first_and_admits_the_launcher_last(self):
+        self.assertEqual(order_findings(FIRST_BOOT), [])
+
+    def test_negative_control_a_late_image_measurement_is_caught(self):
+        mutant = FIRST_BOOT.replace(f"{IMAGE_MEASURE}\n\n", "", 1).replace(
+            "pvecm updatecerts --force\n",
+            f"pvecm updatecerts --force\n{IMAGE_MEASURE}\n",
+            1,
+        )
+        self.assertNotEqual(mutant, FIRST_BOOT)
+        self.assertIn(
+            "'rm -f /etc/ssh/ssh_host_*' is not between both measurements",
+            order_findings(mutant),
+        )
+
+    def test_negative_control_an_early_launcher_key_is_caught(self):
+        admit = "printf '%s\\n' \"$authorized_key\" >>/root/.ssh/authorized_keys\n"
+        mutant = FIRST_BOOT.replace(admit, "").replace(
+            f"{IMAGE_MEASURE}\n", f"{IMAGE_MEASURE}\n{admit}", 1
+        )
+        self.assertNotEqual(mutant, FIRST_BOOT)
+        self.assertIn(
+            "the launcher key is admitted before the record is written",
+            order_findings(mutant),
+        )
+
+    def test_the_role_hands_the_record_to_the_spec(self):
+        self.assertEqual(
+            RECORD_PATH.search(FIRST_BOOT).group(1),
+            VARS["PROXMOX_FIRST_BOOT_DIGESTS_FILE"],
+        )
+        self.assertEqual(
+            set(re.findall(r"printf '%s\.(\w+)=%s\\n'", FIRST_BOOT)), set(SPEC_FORMATS)
+        )
+
+    def test_negative_control_a_record_the_role_does_not_read_is_caught(self):
+        path = VARS["PROXMOX_FIRST_BOOT_DIGESTS_FILE"]
+        mutant = FIRST_BOOT.replace(
+            f"RECORD={path}\n", "RECORD=/root/first-boot.digests\n"
+        )
+        self.assertNotEqual(mutant, FIRST_BOOT)
+        self.assertNotEqual(RECORD_PATH.search(mutant).group(1), path)
 
 
 class TestCiRow(unittest.TestCase):
