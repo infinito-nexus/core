@@ -1,6 +1,9 @@
 ---
-- name: 📊 Gather service facts
-  ansible.builtin.service_facts:
+- name: 📊 Query the docker unit
+  ansible.builtin.systemd_service:
+    name: docker.service
+  register: sys_svc_container_docker_unit
+  failed_when: false
 
 - name: 🔎 Check docker socket
   ansible.builtin.stat:
@@ -10,7 +13,8 @@
 - name: ✅ Assert docker service exists
   ansible.builtin.assert:
     that:
-      - "'docker.service' in ansible_facts.services"
+      - sys_svc_container_docker_unit.status is defined
+      - sys_svc_container_docker_unit.status.LoadState != 'not-found'
     fail_msg: >
       docker.service is not registered in systemd.
       Docker engine does not appear to be installed.
