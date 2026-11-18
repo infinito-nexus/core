@@ -25,7 +25,7 @@ Binding; not reopened by this document.
 ### Removal
 
 - [ ] The directory client of 101, the `directory` template of 123 and the OpenBao binding of 125 are gone with their tasks, scripts, credentials, variants, specs and tests, and the three requirement files are deleted; no file outside `docs/requirements/` names `directory_client`, `directory_client_secret` or the `directory` template.
-- [ ] 102, 103, 105 and 107 no longer refer to 101, 123 or 125; where they named the directory operations, they name this requirement.
+- [x] 102, 103, 105 and 107 no longer refer to 101, 123 or 125; where they named the directory operations, they name this requirement.
 
 ### Usage client
 
