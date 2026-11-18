@@ -12,14 +12,16 @@ This document is the central reference for plugin types and plugin placement in 
 
 ```text
 plugins/
-├── action/   # custom action plugins
-├── filter/   # custom Jinja2 filters
-└── lookup/   # custom lookup plugins
+├── action/       # custom action plugins
+├── connection/   # custom connection plugins
+├── filter/       # custom Jinja2 filters
+└── lookup/       # custom lookup plugins
 ```
 
 Configured plugin paths in this repository are defined in `ansible.cfg`:
 
 - `action_plugins = ./plugins/action`
+- `connection_plugins = ./plugins/connection`
 - `filter_plugins = ./plugins/filter`
 - `lookup_plugins = ./plugins/lookup`
 
