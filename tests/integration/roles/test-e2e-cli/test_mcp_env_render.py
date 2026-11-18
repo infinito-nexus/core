@@ -33,6 +33,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template
 
 from utils.cache.applications import get_application_defaults
+from utils.cache.base import _fingerprint_scope
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
@@ -151,9 +152,12 @@ def _render(application_id: str, group_names: list[str], mode: str = "compose") 
         "SYSTEM_EMAIL_DOMAIN": _DOMAIN,
     }
     templar = Templar(loader=DataLoader(), variables=variables)
-    return templar.template(
-        trust_as_template(f"{{{{ lookup('template', '{role_template.resolve()}') }}}}")
-    )
+    with _fingerprint_scope():
+        return templar.template(
+            trust_as_template(
+                f"{{{{ lookup('template', '{role_template.resolve()}') }}}}"
+            )
+        )
 
 
 def _entries(rendered: str) -> dict[str, str]:

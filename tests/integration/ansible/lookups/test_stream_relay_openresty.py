@@ -11,6 +11,9 @@ with the switch off, keep what they rendered before.
 
 from __future__ import annotations
 
+import contextlib
+import copy
+import json
 import re
 import unittest
 import unittest.mock as mock
@@ -26,6 +29,7 @@ from plugins.lookup.applications import (
 from plugins.lookup.applications import (
     _reset_cache_for_tests,
 )
+from utils.cache.base import _fingerprint_scope
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.networks import attachments
@@ -137,15 +141,27 @@ def _variables(applications: dict, mode: str, application_id: str) -> dict:
     }
 
 
+_MERGED: dict[str, dict] = {}
+
+
 def _merged(overrides: dict) -> dict:
-    _reset_cache_for_tests()
-    applications = ApplicationsLookup()
-    applications._templar = Templar(loader=DataLoader())
-    return applications.run(
-        [],
-        variables=_variables(overrides, "compose", PROXY),
-        roles_dir=str(ROLES_DIR),
-    )[0]
+    key = json.dumps(overrides, sort_keys=True)
+    if key not in _MERGED:
+        _reset_cache_for_tests()
+        applications = ApplicationsLookup()
+        applications._templar = Templar(loader=DataLoader())
+        _MERGED[key] = applications.run(
+            [],
+            variables=_variables(overrides, "compose", PROXY),
+            roles_dir=str(ROLES_DIR),
+        )[0]
+    return copy.deepcopy(_MERGED[key])
+
+
+def _open_fingerprint_scope(cls: type) -> None:
+    scope = contextlib.ExitStack()
+    cls.addClassCleanup(scope.close)
+    scope.enter_context(_fingerprint_scope())
 
 
 def _run(name: str, terms: list, variables: dict, **kwargs) -> list:
@@ -231,6 +247,7 @@ def _proven():
 class _BothSwitchStates:
     @classmethod
     def setUpClass(cls) -> None:
+        _open_fingerprint_scope(cls)
         cls.off = _merged({})
         cls.on = _merged(PUBLIC)
         cls.proof = _proven()
@@ -251,6 +268,7 @@ class _BothSwitchStates:
 class TestTheRelayIsRefusedInSwarmUntilItsProof(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        _open_fingerprint_scope(cls)
         cls.off = _merged({})
         cls.on = _merged(PUBLIC)
 
