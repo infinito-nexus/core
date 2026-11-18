@@ -96,6 +96,9 @@ class FakeDoc:
     def get(self, name):
         return self._values.get(name)
 
+    def set(self, name, value):
+        self._values[name] = value
+
     def append(self, table, row):
         self._values[table].append(SimpleNamespace(**row))
 
@@ -355,12 +358,27 @@ class FakeFrappe:
         utils = ModuleType("frappe.utils")
         utils.getdate = lambda: TODAY
         utils.get_installed_apps_info = lambda: self.apps_info
+        password = ModuleType("frappe.utils.password")
+        password.remove_encrypted_password = self.remove_encrypted_password
+        utils.password = password
         return {
             "frappe": self,
             "frappe.geo": geo,
             "frappe.geo.country_info": country_info,
             "frappe.utils": utils,
+            "frappe.utils.password": password,
         }
+
+    def remove_encrypted_password(self, doctype, name, fieldname="password"):
+        """Drop a stored password field the way ``frappe.utils.password`` does.
+
+        Args:
+            doctype: the record's doctype.
+            name: the record's name.
+            fieldname: the password field to drop.
+        """
+        self.records[doctype][name].pop(fieldname, None)
+        self.calls.append(("remove_encrypted_password", doctype, name, fieldname))
 
 
 def run_script(path, frappe, env):

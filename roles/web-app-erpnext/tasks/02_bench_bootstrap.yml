@@ -105,14 +105,14 @@
   register: erpnext_company_apply
   changed_when: erpnext_company_apply.rc == 0 and (erpnext_company_apply.stdout_lines | last | from_json).created | length > 0
 
-- name: "📌 apply API-bot user + bypass setup wizard"
+- name: "📌 apply or retire the API-bot user + bypass setup wizard"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       IFS= read -r API_BOT_PASSWORD && IFS= read -r API_KEY_SECRET && : "${API_BOT_PASSWORD:?arrived empty on stdin}" && : "${API_KEY_SECRET:?arrived empty on stdin}"
       && export API_BOT_PASSWORD API_KEY_SECRET &&
       container exec -i
-      -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
+      -e SITE_NAME -e API_BOT_ENABLED -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
       -e API_BOT_EXTRA_ROLES_JSON -e COUNTRY -e CURRENCY -e SERVER_SCRIPTS_ENABLED
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
@@ -123,6 +123,7 @@
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    API_BOT_ENABLED: "{{ ERPNEXT_API_BOT_ENABLED }}"
     API_BOT_LOGIN: "{{ ERPNEXT_API_BOT_USER.username }}"
     API_BOT_EMAIL: "{{ ERPNEXT_API_BOT_USER.email }}"
     API_BOT_FIRSTNAME: "{{ ERPNEXT_API_BOT_USER.firstname }}"

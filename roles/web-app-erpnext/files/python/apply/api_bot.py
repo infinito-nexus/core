@@ -2,8 +2,10 @@ import json
 import os
 
 import frappe
+from frappe.utils.password import remove_encrypted_password
 
 SITE_NAME = os.environ["SITE_NAME"]
+API_BOT_ENABLED = {"true": True, "false": False}[os.environ["API_BOT_ENABLED"].lower()]
 API_BOT_LOGIN = os.environ["API_BOT_LOGIN"]
 API_BOT_EMAIL = os.environ["API_BOT_EMAIL"]
 API_BOT_FIRSTNAME = os.environ["API_BOT_FIRSTNAME"]
@@ -48,6 +50,20 @@ def upsert_api_bot():
     user.flags.ignore_password_policy = True
     user.save()
     align_roles(user)
+
+
+def retire_api_bot():
+    if not frappe.db.exists("User", API_BOT_EMAIL):
+        return
+    user = frappe.get_doc("User", API_BOT_EMAIL)
+    user.enabled = 0
+    user.api_key = None
+    user.role_profile_name = None
+    user.set("role_profiles", [])
+    user.set("roles", [])
+    user.flags.ignore_permissions = True
+    user.save()
+    remove_encrypted_password("User", API_BOT_EMAIL, "api_secret")
 
 
 def extra_roles():
@@ -102,7 +118,10 @@ def bypass_setup_wizard():
 frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")
 frappe.connect()
 try:
-    upsert_api_bot()
+    if API_BOT_ENABLED:
+        upsert_api_bot()
+    else:
+        retire_api_bot()
     bypass_setup_wizard()
     frappe.db.commit()
     frappe.clear_cache()

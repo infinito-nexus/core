@@ -96,6 +96,7 @@ erpnext:
     method: "Banker's Rounding"
     row_wise_tax: false
   api_bot:
+    enabled: true
     extra_roles: []
   run_after:
     - web-app-keycloak

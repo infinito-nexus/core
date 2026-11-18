@@ -1,4 +1,4 @@
-const { expect, request } = require("@playwright/test");
+const { expect, request, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion, requireDotenvValue } = require("./personas");
@@ -18,6 +18,7 @@ const managedRoles        = JSON.parse(decodeDotenvQuotedValue(process.env.RBAC_
 const canonicalDomain     = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 const adminApiKey         = decodeDotenvQuotedValue(process.env.ADMIN_API_KEY);
 const adminApiSecret      = decodeDotenvQuotedValue(process.env.ADMIN_API_SECRET);
+const apiBotEnabled       = process.env.API_BOT_ENABLED === "true";
 const loginMethods = {
   ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
   native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
@@ -31,9 +32,10 @@ const LOGIN_SECTION = "section.for-login";
 
 /**
  * Returns:
- *   An API request context that authenticates as the API bot through its token, the break-glass path that stays open while disable_user_pass_login refuses every password sign-in; dispose it after use.
+ *   An API request context that authenticates as the API bot through its token, the break-glass path that stays open while disable_user_pass_login refuses every password sign-in; dispose it after use. Skips the calling test while services.erpnext.api_bot.enabled is off, since the deploy then retires the bot and its token.
  */
 async function breakGlassApi() {
+  test.skip(!apiBotEnabled, "services.erpnext.api_bot.enabled is off, so the site holds no API bot token");
   expect(adminApiKey, "ADMIN_API_KEY must be set").toBeTruthy();
   expect(adminApiSecret, "ADMIN_API_SECRET must be set").toBeTruthy();
   return request.newContext({
