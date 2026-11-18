@@ -30,7 +30,7 @@ const EMAIL = `${AUTH_SECTION} input[type='email']`;
 const PASSWORD = `${AUTH_SECTION} input[type='password']`;
 const RECOVERY_SUBMIT = "[data-testid='recovery-resquest-submit']";
 const SIDEBAR = "[data-testid='dashboard-sidebar']";
-const SIDEBAR_LOGO = `${SIDEBAR} [class*='sidebar__penpot-icon']`;
+const SIDEBAR_LOGO = `${SIDEBAR} [class*='main_ui_dashboard_organization_team_switch__personal-projects-icon']`;
 const HEADER = "[data-testid='dashboard-header']";
 const NAV_TITLE = `${SIDEBAR} [class*='element-title']`;
 const NAV_CURRENT = `${SIDEBAR} li[class*='sidebar__current']`;
