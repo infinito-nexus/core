@@ -181,7 +181,7 @@ class TestRefetch(unittest.TestCase):
                 self.assertIsNone(refetch_path(kind, body))
 
     def test_a_dot_segment_repository_name_is_never_fetched(self) -> None:
-        for name in ("../..", "./..", "infinito-nexus/..", "./core", "/core", "a/"):
+        for name in ("../core", "./..", "infinito-nexus/..", "./core", "/core", "a/"):
             body = {
                 "action": "opened",
                 "repository": {"full_name": name},

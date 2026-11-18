@@ -73,13 +73,12 @@ def refetch_required() -> bool:
 
 
 _NAME_CHARACTERS = frozenset(string.ascii_letters + string.digits + "_.-")
-_DOT_SEGMENTS = frozenset({".", ".."})
 
 
 def _repository_name(name: object) -> bool:
     parts = name.split("/") if isinstance(name, str) else []
     return len(parts) == 2 and all(
-        part and part not in _DOT_SEGMENTS and set(part) <= _NAME_CHARACTERS
+        part and part not in (".", "..") and set(part) <= _NAME_CHARACTERS
         for part in parts
     )
 
