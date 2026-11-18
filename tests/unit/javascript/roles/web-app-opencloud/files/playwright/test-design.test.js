@@ -77,6 +77,6 @@ test("the check and dash marks of a checkbox take the on-primary color without t
 });
 
 test("the access-denied readability check reads the card title inside the app, past the hidden browser-support card", () => {
-  assert.deepEqual(ACCESS_DENIED_TEXTS, ["#exitAnchor", "#opencloud .oc-card h2"]);
+  assert.deepEqual([...ACCESS_DENIED_TEXTS], ["#exitAnchor", "#opencloud .oc-card h2"]);
   assert.ok(ACCESS_DENIED_TEXTS.every((selector) => !selector.includes(".oc-login")));
 });
