@@ -214,9 +214,6 @@ require_tool() {
 require_tool losetup util-linux || decline "losetup is unavailable"
 require_tool mountpoint util-linux || decline "mountpoint is unavailable"
 
-# A block freed inside a loop filesystem stays allocated in its sparse image
-# until the filesystem discards it, so without these options every image pull
-# and docker save staged in the data root grows the host disk for good.
 case "${FSTYPE}" in
 ext4)
 	require_tool mkfs.ext4 e2fsprogs || decline "mkfs.ext4 is unavailable"
