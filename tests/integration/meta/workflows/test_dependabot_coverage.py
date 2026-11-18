@@ -1,4 +1,5 @@
 import fnmatch
+import re
 import subprocess
 import unittest
 from collections.abc import Iterable
@@ -304,21 +305,28 @@ def _rel_dir(path: Path) -> str:
     return "" if path == Path() else path.as_posix()
 
 
+def _glob_to_regex(pattern: str) -> re.Pattern[str]:
+    parts = re.split(r"(\*\*|\*)", pattern)
+    translated = {"**": ".*", "*": "[^/]*"}
+    return re.compile("".join(translated.get(p) or re.escape(p) for p in parts))
+
+
 def _pip_dir_reaches(dep_dir: str, rel_file: str) -> bool:
     """Args:
-        dep_dir: a pip ``directories`` entry; Dependabot reads its manifests and
-            the requirements files of its direct child directories.
+        dep_dir: a pip ``directories`` entry or glob (``*`` one path segment,
+            ``**`` any depth); Dependabot reads its manifests and the
+            requirements files of its direct child directories.
         rel_file: repo-relative path of a pip manifest.
 
     Returns:
         True when Dependabot's pip fetcher reaches ``rel_file`` from ``dep_dir``.
     """
-    base = dep_dir.strip("/")
+    pattern = _glob_to_regex(dep_dir.strip("/"))
     file_path = Path(rel_file)
-    if fnmatch.fnmatchcase(_rel_dir(file_path.parent), base):
+    if pattern.fullmatch(_rel_dir(file_path.parent)):
         return True
     return (
-        fnmatch.fnmatchcase(_rel_dir(file_path.parent.parent), base)
+        pattern.fullmatch(_rel_dir(file_path.parent.parent)) is not None
         and file_path.suffix in (".txt", ".in")
         and "requirements" in file_path.name
     )
@@ -334,10 +342,6 @@ class TestDependabotPipDirectories(unittest.TestCase):
         self.assertEqual(len(pip_entries), 1, "expected exactly one pip entry")
         self.pip_dirs = _get_entry_dirs(pip_entries[0])
         self.manifests = _pip_manifests()
-
-    def test_no_glob_directories(self):
-        globs = [d for d in self.pip_dirs if "*" in d]
-        self.assertFalse(globs, f"pip directories must not contain globs: {globs}")
 
     def test_every_manifest_is_reached_by_exactly_one_directory(self):
         uncovered: list[str] = []
