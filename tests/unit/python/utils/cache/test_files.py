@@ -72,6 +72,27 @@ class TestReadText(_ProjectRootFixture, unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             read_text(str(self.root / "nope.txt"))
 
+    def test_cached_file_deleted_later_returns_the_cached_text(self) -> None:
+        path = _touch(self.root / "a.txt", "first")
+        self.assertEqual(read_text(str(path)), "first")
+        path.unlink()
+        self.assertEqual(read_text(str(path)), "first")
+
+    def test_file_above_the_cache_bound_is_never_cached(self) -> None:
+        path = _touch(self.root / "catalog.po", "first")
+        with patch.object(files_module, "READ_TEXT_CACHE_MAX_BYTES", 4):
+            self.assertEqual(read_text(str(path)), "first")
+            path.write_text("second", encoding="utf-8")
+            self.assertEqual(read_text(str(path)), "second")
+        self.assertEqual(files_module._read_cached.cache_info().currsize, 0)
+
+    def test_file_at_the_cache_bound_stays_cached(self) -> None:
+        path = _touch(self.root / "a.txt", "four")
+        with patch.object(files_module, "READ_TEXT_CACHE_MAX_BYTES", 4):
+            self.assertEqual(read_text(str(path)), "four")
+            path.write_text("zero", encoding="utf-8")
+            self.assertEqual(read_text(str(path)), "four")
+
 
 class TestIterProjectFiles(_ProjectRootFixture, unittest.TestCase):
     def setUp(self) -> None:
