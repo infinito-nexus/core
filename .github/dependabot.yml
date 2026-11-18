@@ -7,8 +7,8 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "pip"
     directories:
-      - "**"
-      - "**/*"
+      - "/"
+      - "/roles/*/files"
     schedule:
       interval: "daily"
       time: "00:00"

@@ -59,6 +59,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.docker.image.custom import custom_image_name
+from utils.docker.image.pin import pull_reference
 from utils.roles.entity.name import entity_name
 
 try:
@@ -185,7 +186,7 @@ class LookupModule(LookupBase):
         version_value = _as_str(version_override) or _as_str(entry.get("version"))
 
         if version_value:
-            image_ref = f"{image_value}:{version_value}"
+            image_ref = pull_reference(image_value, version_value)
         else:
             _warn(
                 f"image: services.{service_key}.version not set for "

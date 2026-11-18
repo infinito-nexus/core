@@ -5,3 +5,10 @@ data:
   mounts:
     - service: mariadb
       target: /var/lib/mysql
+health_identity:
+  type: config
+  source: "{{ [ lookup('container', 'svc-db-mariadb', 'directories.volumes'), 'ensure_health_identity.sql' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mariadb
+      target: /etc/mysql/ensure_health_identity.sql
