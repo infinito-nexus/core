@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import tempfile
@@ -72,7 +73,7 @@ def _environment() -> Environment:
 
 
 def _application(registration: bool, native: bool, offline: bool) -> dict:
-    services = load_yaml_any(str(SERVICES))
+    services = copy.deepcopy(load_yaml_any(str(SERVICES)))
     methods = services["openwebui"]["login"]["method"]
     methods["registration"]["enabled"] = registration
     methods["native"]["enabled"] = native

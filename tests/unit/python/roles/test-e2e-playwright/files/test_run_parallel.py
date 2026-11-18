@@ -28,6 +28,8 @@ def _load_module():
 
 rp = _load_module()
 
+ANNOUNCE_TIMEOUT = 20
+
 ROW = [
     ("web-app-keycloak", 118),
     ("web-app-hermes", 50),
@@ -719,27 +721,43 @@ class TestTorRecreateWaitsForOnionRuns(unittest.TestCase):
             return None
         return json.loads(self.marker.read_text())  # nocheck: cache-read
 
+    def announced(self, proc: subprocess.Popen) -> bool:
+        """Wait until the script marks the recreate pending.
+
+        Args:
+            proc: the running script.
+
+        Returns:
+            Whether the pending marker appeared before the script ended or
+            ANNOUNCE_TIMEOUT seconds passed.
+        """
+        deadline = time.monotonic() + ANNOUNCE_TIMEOUT
+        while proc.poll() is None and time.monotonic() < deadline:
+            if self.pending.exists():
+                return True
+            time.sleep(0.01)
+        return self.pending.exists()
+
     def run_script(
         self, hold: float, wait: int
     ) -> tuple[dict | None, float, int, str, bool]:
         """Run the script in the parallel mode while a reader holds the Tor lock.
 
         Args:
-            hold: seconds the shared lock is held after the script starts,
-                more than the one second after which the pending marker is read.
+            hold: seconds the shared lock stays held after the script marked
+                the recreate pending, the moment it starts to wait.
             wait: seconds the script waits for the exclusive lock.
 
         Returns:
             What the docker stub saw (None when Tor was not recreated), the
             release time, the exit code, stderr, and whether the pending
-            marker existed one second after the start.
+            marker appeared while the script waited.
         """
         reader = os.open(self.lock, os.O_RDONLY | os.O_CREAT, 0o600)
         fcntl.flock(reader, fcntl.LOCK_SH)
         proc = self.start(str(self.lock), wait)
-        time.sleep(1.0)
-        announced = self.pending.exists()
-        time.sleep(hold - 1.0)
+        announced = self.announced(proc)
+        time.sleep(hold)
         released = time.time()
         fcntl.flock(reader, fcntl.LOCK_UN)
         os.close(reader)

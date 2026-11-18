@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import copy
 import json
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
@@ -85,7 +86,7 @@ def _environment(templates: Path) -> Environment:
 
 
 def _application(registration: bool, native: bool) -> dict:
-    services = load_yaml_any(str(SERVICES))
+    services = copy.deepcopy(load_yaml_any(str(SERVICES)))
     services["grafana"]["login"]["method"]["registration"]["enabled"] = registration
     services["grafana"]["login"]["method"]["native"]["enabled"] = native
     return {"services": services}
