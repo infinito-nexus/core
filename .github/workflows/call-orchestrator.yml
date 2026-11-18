@@ -155,6 +155,10 @@ jobs:
     with:
       role_skeleton: ${{ inputs.role_skeleton }}
 
+  vulnerability-db:
+    needs: validate-selection
+    uses: ./.github/workflows/call-vulnerability-db.yml
+
   build-ci-images:
     needs: validate-selection
     permissions:
@@ -196,13 +200,15 @@ jobs:
           && needs.lint.result == 'success'
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
-          && needs.images-mirror-missing.result == 'success' }}
+          && needs.images-mirror-missing.result == 'success'
+          && needs.vulnerability-db.result == 'success' }}
     needs:
       - lint
       - test
       - build-ci-images
       - images-mirror-missing
       - validate-selection
+      - vulnerability-db
     uses: ./.github/workflows/call-test-deploy.yml
     with:
       distros: ${{ inputs.distros }}
@@ -220,6 +226,7 @@ jobs:
       network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
+      vulnerability_db_built: true
 
   test-deploy-chunk-1-gate:
     name: "1️⃣ Gate"
@@ -248,6 +255,7 @@ jobs:
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
+          && needs.vulnerability-db.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
                   && needs.test-deploy-chunk-1-gate.result == 'success')) }}
@@ -257,6 +265,7 @@ jobs:
       - build-ci-images
       - images-mirror-missing
       - validate-selection
+      - vulnerability-db
       - test-deploy-chunk-0
       - test-deploy-chunk-1-gate
     uses: ./.github/workflows/call-test-deploy.yml
@@ -276,6 +285,7 @@ jobs:
       network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
+      vulnerability_db_built: true
 
   test-deploy-chunk-2:
     name: "2️⃣ Batch${{ needs.validate-selection.outputs.starred > 2 && ' ⭐' || '' }}"
@@ -286,6 +296,7 @@ jobs:
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
+          && needs.vulnerability-db.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
                   && needs.test-deploy-chunk-1-gate.result != 'failure'
@@ -296,6 +307,7 @@ jobs:
       - build-ci-images
       - images-mirror-missing
       - validate-selection
+      - vulnerability-db
       - test-deploy-chunk-0
       - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
@@ -316,6 +328,7 @@ jobs:
       network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
+      vulnerability_db_built: true
 
   test-deploy-chunk-3:
     name: "3️⃣ Batch${{ needs.validate-selection.outputs.starred > 3 && ' ⭐' || '' }}"
@@ -326,6 +339,7 @@ jobs:
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
+          && needs.vulnerability-db.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
                   && needs.test-deploy-chunk-1-gate.result != 'failure'
@@ -337,6 +351,7 @@ jobs:
       - build-ci-images
       - images-mirror-missing
       - validate-selection
+      - vulnerability-db
       - test-deploy-chunk-0
       - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
@@ -358,6 +373,103 @@ jobs:
       network: ${{ inputs.network }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
+      vulnerability_db_built: true
+
+  test-deploy-chunk-4:
+    name: "4️⃣ Batch${{ needs.validate-selection.outputs.starred > 4 && ' ⭐' || '' }}"
+    if: >-
+      ${{ !cancelled()
+          && inputs.resume_from_chunk <= 4
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.build-ci-images.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && needs.vulnerability-db.result == 'success'
+          && (!inputs.chunk_gate
+              || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result != 'failure'
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-2.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-3.result))) }}
+    needs:
+      - lint
+      - test
+      - build-ci-images
+      - images-mirror-missing
+      - validate-selection
+      - vulnerability-db
+      - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
+      - test-deploy-chunk-1
+      - test-deploy-chunk-2
+      - test-deploy-chunk-3
+    uses: ./.github/workflows/call-test-deploy.yml
+    with:
+      distros: ${{ inputs.distros }}
+      index: "4"
+      marker: ${{ needs.validate-selection.outputs.starred > 4 && ' ⭐' || '' }}
+      sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
+      offset: ${{ inputs.offset }}
+      chunk_size: ${{ inputs.chunk_size }}
+      whitelist: ${{ inputs.whitelist }}
+      priority: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      modes: ${{ inputs.mode }}
+      filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
+      network: ${{ inputs.network }}
+      vpn: ${{ inputs.vpn }}
+      meshes: ${{ inputs.meshes }}
+      vulnerability_db_built: true
+
+  test-deploy-chunk-5:
+    name: "5️⃣ Batch${{ needs.validate-selection.outputs.starred > 5 && ' ⭐' || '' }}"
+    if: >-
+      ${{ !cancelled()
+          && inputs.resume_from_chunk <= 5
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.build-ci-images.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && needs.vulnerability-db.result == 'success'
+          && (!inputs.chunk_gate
+              || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result != 'failure'
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-2.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-3.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-4.result))) }}
+    needs:
+      - lint
+      - test
+      - build-ci-images
+      - images-mirror-missing
+      - validate-selection
+      - vulnerability-db
+      - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
+      - test-deploy-chunk-1
+      - test-deploy-chunk-2
+      - test-deploy-chunk-3
+      - test-deploy-chunk-4
+    uses: ./.github/workflows/call-test-deploy.yml
+    with:
+      distros: ${{ inputs.distros }}
+      index: "5"
+      marker: ${{ needs.validate-selection.outputs.starred > 5 && ' ⭐' || '' }}
+      sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
+      offset: ${{ inputs.offset }}
+      chunk_size: ${{ inputs.chunk_size }}
+      whitelist: ${{ inputs.whitelist }}
+      priority: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      modes: ${{ inputs.mode }}
+      filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
+      network: ${{ inputs.network }}
+      vpn: ${{ inputs.vpn }}
+      meshes: ${{ inputs.meshes }}
+      vulnerability_db_built: true
 
   test-runner-smoke:
     needs:
@@ -390,6 +502,8 @@ jobs:
       - test-deploy-chunk-1
       - test-deploy-chunk-2
       - test-deploy-chunk-3
+      - test-deploy-chunk-4
+      - test-deploy-chunk-5
     if: ${{ always() && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-26.04
     permissions:
@@ -425,11 +539,14 @@ jobs:
       - test-deploy-chunk-1
       - test-deploy-chunk-2
       - test-deploy-chunk-3
+      - test-deploy-chunk-4
+      - test-deploy-chunk-5
       - test-runner-smoke
       - test-workspace
       - test
       - lint
       - security-codeql
+      - vulnerability-db
     if: ${{ always() }}
     runs-on: ubuntu-26.04
     steps:

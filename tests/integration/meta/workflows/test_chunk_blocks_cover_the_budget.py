@@ -5,6 +5,7 @@ import re
 import unittest
 
 from cli.meta.ci import matrix, query, slots
+from cli.meta.roles.applications.new_in_branch import new_application_roles
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.github.variant import axes, network, pools, vpn
@@ -18,7 +19,9 @@ def _job_list_rows() -> int:
     entries = matrix.entries_of(
         modes=query.resolve_modes(query.ALL_MODES),
         whitelist=codec.decode_list(""),
-        priority=codec.decode_list(""),
+        priority=codec.decode_list(
+            " ".join(new_application_roles(PROJECT_ROOT / "roles"))
+        ),
         lifecycles="",
         sweep=axes.resolve_sweep(),
         network_input=network.resolve_network_input(None),

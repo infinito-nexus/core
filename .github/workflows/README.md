@@ -28,12 +28,15 @@ flowchart TB
         codeql["cron-security-codeql.yml"]
         buildci["build-ci-images: call-images-build-ci.yml"] --> dns["call-test-dns.yml"]
         mirror["call-images-mirror-missing.yml"]
+        vulndb["call-vulnerability-db.yml"]
 
         subgraph chain["serial chunk chain"]
             chunk0["test-deploy-chunk-0"]
             chunk0 --> chunk1["test-deploy-chunk-1"]
             chunk1 --> chunk2["test-deploy-chunk-2"]
             chunk2 --> chunk3["test-deploy-chunk-3"]
+            chunk3 --> chunk4["test-deploy-chunk-4"]
+            chunk4 --> chunk5["test-deploy-chunk-5"]
         end
 
         lintwf --> chain
@@ -41,6 +44,7 @@ flowchart TB
         dns --> chain
         mirror --> chain
         buildci --> chain
+        vulndb --> chain
 
         chunk0 --> smoke["call-test-runner-smoke.yml"]
         chain --> report["report-main-failures"]
@@ -121,7 +125,7 @@ either all priority or all regular — the seam chunk stays short rather than
 being topped up. That is what guarantees every priority row is deployed before
 the first regular one starts. Priority rows never move with the sweep offset.
 
-Each chunk block shows up as `<keycap> Batch`, from `0️⃣ Batch` to `3️⃣ Batch`,
+Each chunk block shows up as `<keycap> Batch`, from `0️⃣ Batch` to `5️⃣ Batch`,
 and its discover job as `🔍 Batch <index>`. A batch that holds priority rows
 wears a trailing `⭐` on both (`0️⃣ Batch ⭐`, `🔍 Batch 0 ⭐`); its deploy rows
 carry no star of their own. The selection job counts those batches before any
@@ -325,7 +329,7 @@ without opening the job.
 
 The vulnerability engine is the odometer digit above distro and filesystem, and its glyph follows the architecture glyph in the label (`🐳🧅🌀🦓🦾🔺`).
 The deploy-time scan of `sys-ctl-hlth-runtime` then runs Syft and that engine only, plus Grype over the source-built runtimes Syft finds.
-The `vulnerability-db` job of [call-test-deploy.yml](call-test-deploy.yml) downloads the Trivy, Grype and OSV databases once per day into the Actions cache; each deploy job restores the Grype database and the drawn engine's into `build/vulnerability-db`, which the stack and every swarm node mount read-only, and fails when one is missing, so no deploy job downloads a database itself.
+[call-vulnerability-db.yml](call-vulnerability-db.yml) downloads the Trivy, Grype and OSV databases once per day into the Actions cache and hands them to the run as the `vulnerability-db-<engine>` artifacts. The orchestrator calls it once per run, beside lint and test, and every chunk block waits for it; [call-test-deploy.yml](call-test-deploy.yml) calls it itself only when it runs standalone (`vulnerability_db_built: false`). Each deploy job restores the Grype database and the drawn engine's into `build/vulnerability-db`, which the stack and every swarm node mount read-only, and fails when one is missing, so no deploy job downloads a database itself.
 Under act these steps are skipped: the deploy draws its engine and refreshes the shared host directory `INFINITO_VULNERABILITY_DB_HOST_PATH`, which [workflow.sh](../../scripts/tests/deploy/act/workflow.sh) binds into the job container at the same path.
 `cron-images-mirror-all.yml` writes the findings of its `scan` job per image and per CVE into the job summary and the `vulnerability-findings` artifact; dispatched with `issues: false` it is a dry run that leaves the issues untouched.
 
