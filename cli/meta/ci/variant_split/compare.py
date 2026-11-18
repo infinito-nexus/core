@@ -159,7 +159,7 @@ def pin_check(before: Mapping[str, Any], after: Mapping[str, Any]) -> dict[str, 
         p
         for p in new_pins
         if not isinstance(p["reciprocal"], int)
-        or (p["target"] != "reciprocal" and int(p["target"]) != p["reciprocal"])
+        or (p["target"].isdigit() and int(p["target"]) != p["reciprocal"])
     ]
 
     def faults(snap: Mapping[str, Any], field: str) -> set[str]:
