@@ -43,7 +43,7 @@ OPENPOST_RELAY_SIBLINGS:
   pixelfed: web-app-pixelfed
   peertube: web-app-peertube
 OPENPOST_RELAY_DOMAINS: >-
-  {%- set _domains = [] -%}
+  {%- set _domains = [lookup('domain', application_id)] -%}
   {%- for _key, _role in OPENPOST_RELAY_SIBLINGS.items() -%}
   {%- if lookup('config', application_id, 'services.' ~ _key ~ '.enabled') | bool -%}
   {%- set _ = _domains.append(lookup('domain', _role)) -%}
