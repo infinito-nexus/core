@@ -101,18 +101,19 @@ class TestDockerDatarootZfs(unittest.TestCase):
         self.assertIn(("-o", "autotrim=on"), list(pairwise(creates[0])))
 
 
-class TestDockerDatarootLoopMount(unittest.TestCase):
-    DISCARD = {"ext4": "discard", "btrfs": "discard=async"}
+DISCARD = {"ext4": "discard", "btrfs": "discard=async"}
 
+
+class TestDockerDatarootLoopMount(unittest.TestCase):
     def test_the_stubbed_mount_paths_apply(self) -> None:
-        for fstype in self.DISCARD:
+        for fstype in DISCARD:
             with self.subTest(fstype=fstype):
                 done, _ = apply(fstype)
                 self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
                 self.assertIn("status=applied-pending-docker", done.stdout)
 
     def test_the_mount_returns_freed_blocks_to_the_sparse_image(self) -> None:
-        for fstype, option in self.DISCARD.items():
+        for fstype, option in DISCARD.items():
             with self.subTest(fstype=fstype):
                 _, calls = apply(fstype)
                 mounts = [argv for argv in calls if argv[0] == "mount"]
