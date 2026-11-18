@@ -1,0 +1,5 @@
+---
+# Param: PLAY_ENVIRONMENT_SOURCE - mapping of environment variable to its templated source
+- name: "🧊 Render the play environment once for this host"
+  ansible.builtin.set_fact:
+    PLAY_ENVIRONMENT: "{{ PLAY_ENVIRONMENT_SOURCE }}"
