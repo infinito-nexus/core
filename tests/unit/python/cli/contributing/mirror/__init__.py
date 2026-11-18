@@ -2,7 +2,7 @@ from utils.docker.image.discovery import ImageRef
 
 NODE_DIGEST = "sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
 NODE = ImageRef(
-    role="web-app-worldmonitor",
+    role="web-app-example",
     service="node",
     name="node",
     version=NODE_DIGEST,

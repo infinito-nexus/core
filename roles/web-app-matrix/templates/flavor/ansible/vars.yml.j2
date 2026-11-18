@@ -181,6 +181,10 @@ matrix_bridge_mautrix_twitter_enabled: {{ MATRIX_BRIDGE.mautrix_twitter | string
 {{ upstream_flag }}: {{ bridge_addon.value.enabled | string | lower }}
 {% endfor %}
 {% endfor %}
+{% if MATRIX_BRIDGE.mautrix_meta | bool %}
+matrix_bridge_mautrix_meta_messenger_version: "{{ MATRIX_ADDON_MAUTRIX_META_VERSION }}"
+matrix_bridge_mautrix_meta_instagram_version: "{{ MATRIX_ADDON_MAUTRIX_META_VERSION }}"
+{% endif %}
 {% if MATRIX_BRIDGE.hookshot %}
 matrix_bridge_hookshot_container_url: localhost
 matrix_bridge_hookshot_gitlab_enabled: {{ MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED | string | lower }}
