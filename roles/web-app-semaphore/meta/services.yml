@@ -105,6 +105,7 @@ semaphore:
       flavor: knot
       zone: "ws.{{ DOMAIN_PRIMARY }}" # nocheck: domain-spot  delegated subzone with no vhost
       record_limit: 0
+      zone_probe: ""
     catalog:
       hetzner: {}
       ionos: {}

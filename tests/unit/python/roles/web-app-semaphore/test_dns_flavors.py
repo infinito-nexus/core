@@ -287,12 +287,44 @@ class TestFlavors(unittest.TestCase):
                     VARS_TEXT,
                 )
         dns_config = SERVICES["semaphore"]["workspaces"]["dns"]
-        self.assertEqual(set(dns_config), {"flavor", "zone", "record_limit"})
+        self.assertEqual(
+            set(dns_config), {"flavor", "zone", "record_limit", "zone_probe"}
+        )
         self.assertEqual(dns_config["record_limit"], 0)
+        self.assertEqual(dns_config["zone_probe"], "")
         self.assertIn("semaphore_dns_live(SEMAPHORE_DNS_CREDENTIALS)", VARS_TEXT)
 
 
+ZONES_SECRETS = {
+    "cloudflare_zones_token": "zones-token",
+    "cloudflare_zones_account_id": "0123456789abcdef0123456789abcdef",
+}
+
+
 class TestCredentialWrites(unittest.TestCase):
+    def test_the_zone_token_lands_where_the_zone_template_reads_it(self):
+        write = dns.semaphore_cloudflare_zones_write(ZONES_SECRETS)
+        read = CREDENTIALS["zone"]
+        self.assertEqual(f"{write['mount']}/data/{write['path']}", read["path"])
+        self.assertEqual(set(write["data"]), set(read["env"].values()))
+        self.assertEqual(write["data"]["token"], "zones-token")
+        self.assertEqual(write["state"], "present")
+
+    def test_a_missing_zone_secret_deletes_the_record(self):
+        for name in ZONES_SECRETS:
+            with self.subTest(missing=name):
+                write = dns.semaphore_cloudflare_zones_write(
+                    {**ZONES_SECRETS, name: ""}
+                )
+                self.assertEqual((write["state"], write["data"]), ("absent", {}))
+
+    def test_the_zones_url_is_the_api_of_the_zone_entry(self):
+        self.assertEqual(
+            dns.semaphore_opentofu_credentials("zone")["api"],
+            CREDENTIALS["zone"]["api"],
+        )
+        self.assertIn("('zone' | semaphore_opentofu_credentials).api", VARS_TEXT)
+
     def test_route53_writes_its_pair_to_the_workspace_operation_path(self):
         (write,) = dns.semaphore_dns_writes(ROUTE53, {"flavor": "route53"})
         self.assertEqual(

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import fcntl
+import functools
 import json
 import os
 import re
@@ -17,7 +18,13 @@ from provision import inputs, provider_env, remote
 
 HERE = Path(__file__).resolve().parent
 OPENTOFU = HERE.parent / "opentofu"
-TEMPLATES = ("provision", "destroy", "unlock", "dns")
+TEMPLATES = ("provision", "destroy", "unlock", "dns", "zone")
+PROVISION_ROLE = "provision"
+ZONE_ROLE = "zone"
+ZONE_STATE = "{sales_order}/{line}.zone.tfstate"
+ZONE_LOCK = "{workspace}.{sales_order}-{line}.zone"
+ZONE_OUTPUTS = ("zone", "zone_id", "status", "name_servers")
+ZONE_RESOURCE = "cloudflare_zone.zone"
 STATE_REGION = "us-east-1"
 CLEARED_PREFIXES = ("TF_", "AWS_")
 CLEARED_NAMES = frozenset({"BAO_TOKEN", "VAULT_TOKEN", "SEMAPHORE_JWT"})
@@ -73,7 +80,7 @@ def credential_names(credentials):
         Every environment name a provider or DNS module reads its credential
         from, cleared before the task's own values are set.
     """
-    names = set()
+    names = set(credentials["zone"]["env"])
     for entry in credentials["dns"].values():
         names |= set(entry["env"])
     for provider in credentials["providers"].values():
@@ -96,18 +103,35 @@ def task_directory():
 
 
 @contextlib.contextmanager
-def workspace_lock(workspace, exclusive):
+def task_lock(name, mode, refusal):
+    """Args:
+    name: the lock file name below ``LOCKS``, without ``.lock``.
+    mode: the ``fcntl.flock`` operation.
+    refusal: the refusal when ``mode`` is non-blocking and the lock is held.
+    """
     directory = Path(tempfile.gettempdir()) / LOCKS
     directory.mkdir(mode=0o700, exist_ok=True)
-    mode = (fcntl.LOCK_EX | fcntl.LOCK_NB) if exclusive else fcntl.LOCK_SH
-    with (directory / f"{workspace}.lock").open("a", encoding="utf-8") as handle:
+    with (directory / f"{name}.lock").open("a", encoding="utf-8") as handle:
         try:
             fcntl.flock(handle, mode)
         except BlockingIOError:
-            raise inputs.RefusedError(
-                f"a provision or destroy task of {workspace} is running"
-            ) from None
+            raise inputs.RefusedError(refusal) from None
         yield
+
+
+def workspace_lock(workspace, exclusive):
+    mode = (fcntl.LOCK_EX | fcntl.LOCK_NB) if exclusive else fcntl.LOCK_SH
+    refusal = f"a provision or destroy task of {workspace} is running"
+    return task_lock(workspace, mode, refusal)
+
+
+def line_lock(workspace, sales_order, line):
+    refusal = f"a zone task of {sales_order}-{line} in {workspace} is running"
+    return task_lock(
+        ZONE_LOCK.format(workspace=workspace, sales_order=sales_order, line=line),
+        fcntl.LOCK_EX | fcntl.LOCK_NB,
+        refusal,
+    )
 
 
 def stage(task, root, flavor, workspace):
@@ -303,9 +327,13 @@ class Session:
     workspace: the ``workspace.json`` document.
     task: the task directory holding the staged root.
     key: the state key in the workspace bucket.
+    reach: the ``{path, env}`` entry of ``credentials.json`` whose fields
+        the root's provider reads from the environment.
+    role: the suffix of the workspace's task token role the run logs in
+        with, :data:`PROVISION_ROLE` or :data:`ZONE_ROLE`.
     """
 
-    def __init__(self, env, config, credentials, workspace, task, key):
+    def __init__(self, env, config, credentials, workspace, task, key, reach, role):
         self.workspace = workspace["workspace"]
         self.zone = workspace["dns"]["zone"]
         self.bucket_name = f"{self.workspace}-state"
@@ -314,7 +342,7 @@ class Session:
         self.config = config
         self.bao = remote.OpenBao(config["openbao"], config["cafile"])
         token = self.bao.login(
-            f"{self.workspace}-provision", inputs.required(env, "SEMAPHORE_JWT")
+            f"{self.workspace}-{role}", inputs.required(env, "SEMAPHORE_JWT")
         )
         state = credentials["state"]
         keys = provider_env.mapped(
@@ -328,11 +356,10 @@ class Session:
             config["cafile"],
         )
         self.backend = write_backend(task, config, self.bucket_name, key, keys)
-        dns = credentials["dns"][config["flavor"]]
-        self.dns = provider_env.mapped(
+        self.reached = provider_env.mapped(
             self.bao,
-            dns["path"].format(workspace=self.workspace, zone=self.zone),
-            dns["env"],
+            reach["path"].format(workspace=self.workspace, zone=self.zone),
+            reach["env"],
         )
         cleared = credential_names(credentials)
         self.environment = {
@@ -348,7 +375,7 @@ class Session:
             "TF_ENCRYPTION": encryption(self.workspace),
             "BAO_ADDR": config["openbao"],
             "BAO_TOKEN": token,
-            **self.dns,
+            **self.reached,
         }
         if config["cafile"]:
             self.environment["BAO_CACERT"] = config["cafile"]
@@ -380,7 +407,9 @@ class Session:
 
     def servers(self):
         if self.config["flavor"] == "knot":
-            return [(self.dns["DNS_UPDATE_SERVER"], self.dns["DNS_UPDATE_PORT"])]
+            return [
+                (self.reached["DNS_UPDATE_SERVER"], self.reached["DNS_UPDATE_PORT"])
+            ]
         return remote.zone_servers(self.zone, RESOLV_CONF)
 
     def refuse_taken(self, label):
@@ -390,9 +419,17 @@ class Session:
                 f"{fqdn} already holds an A, AAAA or CNAME record"
             )
 
-    def apply(self, label, record=None):
+    def outputs(self):
+        """Returns:
+        ``{output name: value}`` the state holds, read without a write.
+        """
+        outputs = json.loads(self.run("output", "-json", capture=True))
+        return {name: output["value"] for name, output in outputs.items()}
+
+    def apply(self, unclaimed, record=None):
         """Args:
-            label: the DNS label the apply creates.
+            unclaimed: called before the apply of an empty state; it raises
+                :class:`inputs.RefusedError` for a name someone else holds.
             record: ``(key, document)`` written to the state bucket right
                 before the apply, None for none.
 
@@ -401,13 +438,12 @@ class Session:
         """
         require_snapshot(self.bao, self.workspace)
         if self.empty():
-            self.refuse_taken(label)
+            unclaimed()
         if record is not None:
             key, document = record
             self.bucket.put(self.bucket_name, key, json.dumps(document).encode())
         self.run("apply", "-auto-approve", "-input=false", f"-var-file={VALUES_FILE}")
-        outputs = json.loads(self.run("output", "-json", capture=True))
-        return {name: output["value"] for name, output in outputs.items()}
+        return self.outputs()
 
     def destroy(self, *kept_with_state):
         """Args:
@@ -493,10 +529,13 @@ def order(template, env, checkout, interface, credentials, config):
     workspace = inputs.workspace_document(env, interface, config["flavor"])
     name = workspace["workspace"]
     key = f"{sales_order}/{line}.tfstate"
+    reach = credentials["dns"][config["flavor"]]
     if template == "unlock":
         with workspace_lock(name, True), task_directory() as task:
             stage(task, OPENTOFU / "records", config["flavor"], workspace)
-            session = Session(env, config, credentials, workspace, task, key)
+            session = Session(
+                env, config, credentials, workspace, task, key, reach, PROVISION_ROLE
+            )
             session.init()
             session.unlock()
         return
@@ -512,7 +551,9 @@ def order(template, env, checkout, interface, credentials, config):
         selected = live_provider(config, interface, values)
     record_key = RECORD.format(sales_order=sales_order, line=line)
     with workspace_lock(name, False), task_directory() as task:
-        session = Session(env, config, credentials, workspace, task, key)
+        session = Session(
+            env, config, credentials, workspace, task, key, reach, PROVISION_ROLE
+        )
         if selected is None and session.holds_nothing(record_key):
             print(json.dumps(session.forget()))
             return
@@ -534,7 +575,8 @@ def order(template, env, checkout, interface, credentials, config):
         session.init()
         if template == "provision":
             document = {"provider": provider, "catalog": catalog}
-            outputs = session.apply(values["dns_label"], (record_key, document))
+            unclaimed = functools.partial(session.refuse_taken, values["dns_label"])
+            outputs = session.apply(unclaimed, (record_key, document))
         else:
             outputs = session.destroy(record_key)
         print(json.dumps(outputs))
@@ -548,16 +590,186 @@ def record(env, interface, credentials, config):
         stage(task, OPENTOFU / "records", config["flavor"], workspace)
         values = {key: request[key] for key in ("dns_label", "host", "cname")}
         (task / VALUES_FILE).write_text(json.dumps(values), encoding="utf-8")
-        session = Session(env, config, credentials, workspace, task, key)
+        reach = credentials["dns"][config["flavor"]]
+        session = Session(
+            env, config, credentials, workspace, task, key, reach, PROVISION_ROLE
+        )
         session.init()
         if request["action"] == "create":
-            print(json.dumps(session.apply(request["dns_label"])))
+            unclaimed = functools.partial(session.refuse_taken, request["dns_label"])
+            print(json.dumps(session.apply(unclaimed)))
         elif request["action"] == "unlock":
             session.unlock()
         elif session.empty():
             print(json.dumps(session.forget()))
         else:
             print(json.dumps(session.destroy()))
+
+
+def reached_field(session, reach, field):
+    """Args:
+        session: a :class:`Session` opened with ``reach``.
+        reach: the ``{path, env}`` entry of ``credentials.json``.
+        field: a field of the record at its path.
+
+    Returns:
+        The value the session read from that field.
+    """
+    (name,) = [name for name, source in reach["env"].items() if source == field]
+    return session.reached[name]
+
+
+def state_zone(session):
+    """Args:
+        session: a :class:`Session` of the zone root.
+
+    Returns:
+        The outputs of the zone the state holds, ``{}`` for a state without
+        resources.
+
+    Raises:
+        FailedError: the state holds resources without every zone output, as
+            an interrupted apply leaves it.
+    """
+    addresses = session.addresses()
+    if not addresses:
+        return {}
+    held = session.outputs()
+    missing = sorted(set(ZONE_OUTPUTS) - set(held))
+    if missing:
+        raise FailedError(
+            f"{session.key} holds {', '.join(addresses)} without the outputs "
+            f"{', '.join(missing)}; an interrupted apply left it, so create and "
+            f"show refuse to replace or report it until delete removes it"
+        )
+    return held
+
+
+def held_zone(session, domain):
+    """Args:
+        session: a :class:`Session` of the zone root.
+        domain: ``DOMAIN`` of the task.
+
+    Returns:
+        The outputs of the zone the state holds, ``{}`` for none.
+
+    Raises:
+        RefusedError: the state holds a zone of another name.
+    """
+    held = state_zone(session)
+    if held and held["zone"] != domain:
+        raise inputs.RefusedError(
+            f"{session.key} holds the zone {held['zone']}, not DOMAIN {domain}; "
+            f"delete it before a create of {domain}"
+        )
+    return held
+
+
+def zone_api(session, reach):
+    return remote.Cloudflare(reach["api"], reached_field(session, reach, "token"))
+
+
+def zone_unlock(session, _reach, _values, _domain):
+    session.unlock()
+
+
+def state_domain(session):
+    """Args:
+        session: a :class:`Session` of the zone root whose state holds resources.
+
+    Returns:
+        The ``name`` of the zone resource the state holds, read from the state
+        itself, so a state an interrupted apply left without outputs names it too.
+
+    Raises:
+        FailedError: the state names no zone resource with a name.
+    """
+    try:
+        shown = json.loads(session.run("show", "-json", capture=True))
+        resources = shown["values"]["root_module"]["resources"]
+        (domain,) = [
+            resource["values"]["name"]
+            for resource in resources
+            if resource["address"] == ZONE_RESOURCE
+        ]
+    except (ValueError, KeyError, TypeError):
+        domain = None
+    if not isinstance(domain, str) or not domain:
+        raise FailedError(
+            f"{session.key} names no {ZONE_RESOURCE} with a name, so delete keeps it"
+        )
+    return domain
+
+
+def zone_delete(session, _reach, values, _domain):
+    if not session.addresses():
+        session.forget()
+        print(json.dumps({"deleted": True, "zone": None}))
+        return
+    zone = state_domain(session)
+    values.write_text(json.dumps({"domain": zone}), "utf-8")
+    session.destroy()
+    print(json.dumps({"deleted": True, "zone": zone}))
+
+
+def zone_show(session, reach, _values, domain):
+    held = held_zone(session, domain)
+    if not held:
+        raise inputs.RefusedError(f"{session.key} holds no zone {domain}")
+    live = zone_api(session, reach).zone(held["zone_id"])
+    print(json.dumps({"zone": domain, "zone_id": held["zone_id"], **live}))
+
+
+def zone_create(session, reach, _values, domain):
+    held_zone(session, domain)
+    cloudflare = zone_api(session, reach)
+    account = reached_field(session, reach, "account_id")
+
+    def unclaimed():
+        if cloudflare.held(domain, account):
+            raise inputs.RefusedError(
+                f"the Cloudflare account already holds DOMAIN {domain} "
+                f"outside {session.key}"
+            )
+
+    outputs = session.apply(unclaimed)
+    print(json.dumps({name: outputs[name] for name in ZONE_OUTPUTS}))
+
+
+ZONE_HANDLERS = {
+    "create": zone_create,
+    "show": zone_show,
+    "delete": zone_delete,
+    "unlock": zone_unlock,
+}
+
+
+def zone_lifecycle(env, interface, credentials, config):
+    sales_order, line = inputs.order_line(env, interface)
+    handler = ZONE_HANDLERS[inputs.required(env, "ZONE_ACTION")]
+    domain = env.get("DOMAIN", "")
+    workspace = inputs.workspace_document(env, interface, config["flavor"])
+    key = ZONE_STATE.format(sales_order=sales_order, line=line)
+    reach = credentials["zone"]
+    exclusive = handler is zone_unlock
+    with (
+        workspace_lock(workspace["workspace"], exclusive),
+        line_lock(workspace["workspace"], sales_order, line),
+        task_directory() as task,
+    ):
+        shutil.copytree(
+            OPENTOFU / "zone",
+            task,
+            dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns(".terraform"),
+        )
+        values = task / VALUES_FILE
+        values.write_text(json.dumps({"domain": domain}), "utf-8")
+        session = Session(
+            env, config, credentials, workspace, task, key, reach, ZONE_ROLE
+        )
+        session.init()
+        handler(session, reach, values, domain)
 
 
 def _terminate(signum, _frame):
@@ -581,6 +793,8 @@ def dispatch(template, extra, env, checkout):
     config = configuration(env)
     if template == "dns":
         record(env, interface, credentials, config)
+    elif template == "zone":
+        zone_lifecycle(env, interface, credentials, config)
     else:
         order(template, env, checkout, interface, credentials, config)
 

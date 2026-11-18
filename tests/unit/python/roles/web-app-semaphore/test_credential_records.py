@@ -31,6 +31,7 @@ PLACEHOLDERS = (
     ("{{ inventory_hostname }}", "{host}"),
 )
 WRITTEN_ELSEWHERE = {
+    "zone": "semaphore_cloudflare_zones_write, from the path and fields of credentials.json",
     "dns.route53": "semaphore_route53_record, from the fields of credentials.json",
     "dns.cloudflare": "semaphore_dns_writes, from the path and field of credentials.json",
     "providers.hetzner.secrets": "no core task",
@@ -52,6 +53,8 @@ def entries(credentials):
     """
     state = credentials["state"]
     yield "state", state["path"], provider_env.mapping_fields(state["backend"])
+    zone = credentials["zone"]
+    yield "zone", zone["path"], provider_env.mapping_fields(zone["env"])
     for flavor, entry in credentials["dns"].items():
         yield f"dns.{flavor}", entry["path"], provider_env.mapping_fields(entry["env"])
     for name, spec in credentials["providers"].items():

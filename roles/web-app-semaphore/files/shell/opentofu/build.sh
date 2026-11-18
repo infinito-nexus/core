@@ -30,7 +30,7 @@ mirror_path() {
 
 roots() {
   local root
-  for root in "$1"/roots/*/ "$1/records/"; do
+  for root in "$1"/roots/*/ "$1/records/" "$1/zone/"; do
     printf '%s\n' "${root%/}"
   done
 }

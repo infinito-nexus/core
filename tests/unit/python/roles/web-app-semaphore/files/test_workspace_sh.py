@@ -523,6 +523,7 @@ class ApplyResultTests(unittest.TestCase):
                     for name in ("provision", "destroy", "unlock")
                 },
                 "dns_template_id": provision[f"dns {ALIAS}"]["id"],
+                "zone_template_id": provision[f"zone {ALIAS}"]["id"],
                 "export_project_id": self.api.project_id("Infinito.Nexus Export"),
                 "export_template_id": export[f"export {ALIAS}"]["id"],
             },

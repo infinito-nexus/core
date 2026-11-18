@@ -163,6 +163,69 @@ class OpenBao:
         return {field: str(data[field]) for field in fields}
 
 
+class Cloudflare:
+    """Args:
+    zones: the zones endpoint of the Cloudflare API, ``https`` or loopback ``http``.
+    token: the zone token, sent only in the ``Authorization`` header.
+    """
+
+    def __init__(self, zones, token):
+        self.zones = zones.rstrip("/")
+        self.token = token
+
+    def _result(self, target, what, shape):
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Bearer {self.token}",
+        }
+        status, payload = request(
+            f"{self.zones}{target}", "GET", headers, None, SYSTEM_TRUST
+        )
+        if status != 200:
+            raise RemoteError(f"Cloudflare GET {what}: HTTP {status}")
+        try:
+            answer = json.loads(payload)
+        except ValueError:
+            answer = None
+        if (
+            not isinstance(answer, dict)
+            or answer.get("success") is not True
+            or not isinstance(answer.get("result"), shape)
+        ):
+            raise RemoteError(
+                f"Cloudflare GET {what}: the answer is no successful "
+                f"{shape.__name__} result"
+            )
+        return answer["result"]
+
+    def held(self, name, account_id):
+        """Args:
+            name: the zone apex.
+            account_id: the Cloudflare account the zone token acts in.
+
+        Returns:
+            Whether the account holds a zone of that name.
+        """
+        query = urllib.parse.urlencode({"name": name, "account.id": account_id})
+        return bool(self._result(f"?{query}", f"zones of {name}", list))
+
+    def zone(self, zone_id):
+        """Args:
+            zone_id: the id of a zone the account holds.
+
+        Returns:
+            ``status`` and ``name_servers`` the provider reports for it.
+        """
+        quoted = urllib.parse.quote(zone_id, safe="")
+        result = self._result(f"/{quoted}", f"zone {zone_id}", dict)
+        try:
+            return {"status": result["status"], "name_servers": result["name_servers"]}
+        except KeyError:
+            raise RemoteError(
+                f"Cloudflare GET zone {zone_id}: the answer holds no status and name_servers"
+            ) from None
+
+
 def _hmac(key, text):
     return hmac.new(key, text.encode("utf-8"), hashlib.sha256).digest()
 

@@ -453,7 +453,8 @@ class TestArguments(ProvisionCase):
         for script in ("provision", "destroy", "unlock", "dns"):
             with self.subTest(script=script):
                 self.assert_refused(
-                    self.sandbox.run(script, "-destroy"), "takes no argument"
+                    self.sandbox.run(script, "-destroy"),
+                    "unexpected argument '-destroy'",
                 )
 
     def test_destroy_destroys_with_the_checkout_values(self):
@@ -499,6 +500,10 @@ class TestProviderToken(ProvisionCase):
         env = self.apply_env("platform")
         self.assertEqual(env["HCLOUD_TOKEN"], "hcloud-platform-token")
         self.assertNotIn(CUSTOMER_PATH, self.sandbox.platform.reads)
+
+    def test_a_provision_run_logs_in_with_the_provision_role_only(self):
+        self.apply_env("platform")
+        self.assertEqual(self.sandbox.platform.logins, [f"{WORKSPACE}-provision"])
 
     def test_workspace_takes_the_customer_token_only(self):
         env = self.apply_env("workspace")

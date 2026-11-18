@@ -7,6 +7,7 @@
       - workspace_semaphore.provision_templates.keys() | sort == ['destroy', 'provision', 'unlock']
       - workspace_semaphore.provision_templates.values() | reject('integer') | list | length == 0
       - workspace_semaphore.dns_template_id is integer
+      - workspace_semaphore.zone_template_id is integer
       - workspace_semaphore.export_project_id is integer
       - workspace_semaphore.export_template_id is integer
       - workspace_semaphore.workspaces_project_id is integer
@@ -18,6 +19,20 @@
       jwt role matches a numeric claim only against a JSON number, and the Keycloak
       id of the pinned Owner group, a lowercase UUID, in workspace_owner_group.
     quiet: true
+
+- name: "📜 Write the zone policy of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=ws-{{ WORKSPACE }}-zone;
+    before=$(bao policy read $p 2>/dev/null || true);
+    bao policy write $p - >/dev/null;
+    after=$(bao policy read $p);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ lookup('template', 'workspace/zone_policy.hcl.j2') }}"
+  register: openbao_workspace_zone_policy
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_zone_policy.stdout"
 
 - name: "🎫 Write the task token roles of ws-{{ WORKSPACE }}"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node

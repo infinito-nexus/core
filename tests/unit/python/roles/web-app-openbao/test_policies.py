@@ -37,6 +37,7 @@ STORE_GRANTS = {
     "auth/approle/role/store/secret-id/lookup": {"update"},
 }
 INVITE_METADATA = "platform/metadata/store/invites/ws-0a/3f2a"
+ZONE_TOKEN = "platform/data/provision/cloudflare-zones"
 FOREIGN_METADATA = (
     "platform/metadata/store/semaphore",
     "platform/metadata/store/gitea",
@@ -133,6 +134,22 @@ def render(policy: str, source: str | None = None) -> str:
         OPENBAO_JWT_ACCESSOR=JWT_ACCESSOR,
         OPENBAO_JWT_EXPORT_ACCESSOR=EXPORT_ACCESSOR,
     )
+
+
+def zone_policy(workspace: str) -> str:
+    """
+    Args:
+        workspace: the workspace id without its ``ws-`` prefix.
+
+    Returns:
+        The zone policy ``workspace apply`` writes for that workspace.
+    """
+    source = read_text(str(ROLE_DIR / "templates/workspace/zone_policy.hcl.j2"))
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    return env.from_string(source).render(**literal_vars(), WORKSPACE=workspace)
 
 
 def parse(rendered: str) -> dict[str, set[str]]:
@@ -234,8 +251,63 @@ class TestTheTenantPolicy(unittest.TestCase):
     def test_the_provision_role_reads_the_shared_provision_secrets_only(self) -> None:
         self.assertEqual(
             parse(render("provision-shared")),
-            {"platform/data/provision/*": {"read"}},
+            {
+                "platform/data/provision/*": {"read"},
+                ZONE_TOKEN: {"deny"},
+            },
         )
+
+    def test_only_the_zone_role_reads_the_zone_token(self) -> None:
+        readers = {
+            policy: effective(parse(render(policy)), ZONE_TOKEN)
+            for policy in (
+                "provision-shared",
+                "tenant",
+                "tenant-export",
+                "export-shared",
+                "store",
+            )
+        }
+        readers["ws-0a-zone"] = effective(parse(zone_policy("0a")), ZONE_TOKEN)
+        self.assertEqual(
+            readers,
+            {
+                "provision-shared": {"deny"},
+                "tenant": set(),
+                "tenant-export": set(),
+                "export-shared": set(),
+                "store": set(),
+                "ws-0a-zone": {"read"},
+            },
+        )
+
+    def test_the_zone_policy_reaches_its_own_workspace_and_the_zone_token_only(
+        self,
+    ) -> None:
+        self.assertEqual(
+            parse(zone_policy("0a")),
+            {
+                "tenant/data/ws-0a-provision/s3": {"read"},
+                "transit/datakey/plaintext/ws-0a-provision": {"update"},
+                "transit/decrypt/ws-0a-provision": {"update"},
+                "platform/data/provision/transit/ws-0a": {"read"},
+                ZONE_TOKEN: {"read"},
+            },
+        )
+
+    def test_the_zone_policy_reads_no_other_workspace_or_provider(self) -> None:
+        grants = parse(zone_policy("0a"))
+        for path in (
+            "tenant/data/ws-0b-provision/s3",
+            "tenant/data/ws-0a-provision/proxmox",
+            "tenant/data/ws-0a/x",
+            "transit/decrypt/ws-0b-provision",
+            "platform/data/provision/transit/ws-0b",
+            "platform/data/provision/hetzner",
+            "platform/data/provision/cloudflare/example.org",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(effective(grants, path), set())
 
 
 class TestThePlatformReaders(unittest.TestCase):
@@ -469,6 +541,9 @@ DEPLOY_WRITES = {
     "tenant/data/ws-0a-provision/dns": {"create", "read", "update"},
     "platform/data/workspaces/route53": {"create", "read", "update"},
     "platform/data/provision/cloudflare/example.org": {"create", "read", "update"},
+    "platform/data/provision/cloudflare-zones": {"create", "read", "update"},
+    "platform/metadata/provision/cloudflare-zones": {"delete"},
+    "platform/metadata/provision/cloudflare/example.org": set(),
     "platform/data/provision/proxmox-echoserver": {"create", "read", "update"},
     "platform/data/provision/incus-echoserver": {"create", "read", "update"},
     "platform/data/provision/hetzner": set(),

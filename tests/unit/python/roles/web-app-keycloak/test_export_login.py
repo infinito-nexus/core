@@ -12,6 +12,7 @@ ROLE_VARS = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
 LOGIN_TASKS = ROLE_DIR / "tasks/utils/export_login.yml"
 KV_TASKS = PROJECT_ROOT / "roles/web-app-openbao/tasks/utils/kv.yml"
 SEMAPHORE_CORE = PROJECT_ROOT / "roles/web-app-semaphore/tasks/00_core.yml"
+SEMAPHORE_EXPORT_LOGINS = "utils/workspaces/openbao.yml"
 OPENBAO_SERVICES = PROJECT_ROOT / "roles/web-app-openbao" / ROLE_FILE_META_SERVICES
 EXPORT_TASK_PY = PROJECT_ROOT / "roles/web-app-semaphore/files/python/export_task.py"
 GATES = [
@@ -134,9 +135,12 @@ class TestExportLogin(unittest.TestCase):
         run_after = load_yaml_any(str(OPENBAO_SERVICES))["openbao"]["run_after"]
         self.assertIn("web-app-keycloak", run_after)
         calls = [
-            (block["when"], task)
-            for block in load_yaml_any(str(SEMAPHORE_CORE))
-            for task in block.get("block", [])
+            (include["when"], task)
+            for include in load_yaml_any(str(SEMAPHORE_CORE))
+            if include.get("include_tasks") == SEMAPHORE_EXPORT_LOGINS
+            for task in load_yaml_any(
+                str(SEMAPHORE_CORE.parent / SEMAPHORE_EXPORT_LOGINS)
+            )
             if task.get("ansible.builtin.include_role", {}).get("tasks_from")
             == "utils/export_login.yml"
         ]

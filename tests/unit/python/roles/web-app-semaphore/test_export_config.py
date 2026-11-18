@@ -20,6 +20,7 @@ from .files._semaphore_fake import load_project
 ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 CORE_TASKS = ROLE / "tasks" / "00_core.yml"
+OPENBAO_TASKS = ROLE / "tasks" / "utils" / "workspaces" / "openbao.yml"
 GUARD_TASKS = ROLE / "tasks" / "utils" / "stack" / "guard.yml"
 STACK_SERVE = PROJECT_ROOT / "roles" / "svc-stack" / "tasks" / "batch" / "serve.yml"
 WORKSPACE_TASKS = ROLE / "tasks" / "utils" / "workspace" / "operation.yml"
@@ -166,13 +167,22 @@ def export_environment(drop=(), email=EMAIL):
 
 def export_logins():
     """Returns:
-    The block of ``tasks/00_core.yml`` that hands the export logins to OpenBao.
+    The tasks of ``tasks/utils/workspaces/openbao.yml``, which hand the
+    export logins to OpenBao.
+    """
+    return DataLoader().load_from_file(str(OPENBAO_TASKS), trusted_as_template=True)
+
+
+def export_logins_gate():
+    """Returns:
+    The ``when`` of the ``tasks/00_core.yml`` include of
+    :func:`export_logins`.
     """
     tasks = DataLoader().load_from_file(str(CORE_TASKS), trusted_as_template=True)
     return next(
-        task
+        task["when"]
         for task in tasks
-        if "SEMAPHORE_EXPORT_MAIL_LOGIN" in str(task.get("block"))
+        if task.get("include_tasks") == "utils/workspaces/openbao.yml"
     )
 
 
@@ -182,7 +192,7 @@ def mail_login_task():
     """
     return next(
         task
-        for task in export_logins()["block"]
+        for task in export_logins()
         if "SEMAPHORE_EXPORT_MAIL_LOGIN" in str(task.get("vars"))
     )
 
@@ -308,7 +318,7 @@ class TestExportEnvironment(unittest.TestCase):
         self.assertEqual(
             task["ansible.builtin.include_role"]["tasks_from"], "utils/kv.yml"
         )
-        self.assertEqual(export_logins()["when"], "SEMAPHORE_WORKSPACES_ENABLED | bool")
+        self.assertEqual(export_logins_gate(), "SEMAPHORE_WORKSPACES_ENABLED | bool")
 
     def test_the_s3_keys_land_where_export_py_reads_them(self):
         engine, _ = templar()
@@ -320,10 +330,9 @@ class TestExportEnvironment(unittest.TestCase):
         )
         self.assertEqual((login["mount"], login["path"]), ("platform", "export/s3"))
         self.assertEqual(sorted(login["data"]), ["access_key", "secret_key"])
-        block = export_logins()
         (task,) = [
             t
-            for t in block["block"]
+            for t in export_logins()
             if "SEMAPHORE_EXPORT_S3_LOGIN" in str(t.get("vars"))
         ]
         self.assertEqual(
@@ -331,7 +340,7 @@ class TestExportEnvironment(unittest.TestCase):
             {"name": "web-app-openbao", "tasks_from": "utils/kv.yml"},
         )
         self.assertEqual(task["vars"]["openbao_kv_state"], "present")
-        self.assertEqual(block["when"], "SEMAPHORE_WORKSPACES_ENABLED | bool")
+        self.assertEqual(export_logins_gate(), "SEMAPHORE_WORKSPACES_ENABLED | bool")
         self.assertEqual(
             secret_findings(engine.available_variables["SEMAPHORE_EXPORT_VARIABLES"]),
             [],

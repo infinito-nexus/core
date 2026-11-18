@@ -446,7 +446,7 @@ exports.register = function (shared) {
 
     test("task login: destroy removes the workspace roles", async () => {
       test.setTimeout(resolveTimeout(DESTROY_MS + 2 * RUN_MS));
-      const roles = [`jwt/ws-${a.workspace}`, `jwt/ws-${a.workspace}-provision`];
+      const roles = [`jwt/ws-${a.workspace}`, `jwt/ws-${a.workspace}-provision`, `jwt/ws-${a.workspace}-zone`];
       const before = await probe(b, b.result.project_id, roles.map((role) => `login=${role}`), "a task of B before A is destroyed");
       for (const role of roles) {
         expectLogin(before, role, "refused", `a task of B on ${role} while A exists`);

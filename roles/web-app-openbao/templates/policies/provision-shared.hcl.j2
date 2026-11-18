@@ -1,3 +1,7 @@
 path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/*" {
   capabilities = ["read"]
 }
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_ZONE_TOKEN_PATH }}" {
+  capabilities = ["deny"]
+}

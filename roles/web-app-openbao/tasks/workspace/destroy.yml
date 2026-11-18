@@ -22,9 +22,22 @@
   loop:
     - "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}"
     - "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-provision"
+    - "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-zone"
     - "{{ OPENBAO_JWT_EXPORT_MOUNT }}/role/ws-{{ WORKSPACE }}"
   register: openbao_workspace_role_delete
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_role_delete.stdout"
+
+- name: "📜 Delete the zone policy of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=ws-{{ WORKSPACE }}-zone;
+    held=;
+    bao policy read $p >/dev/null 2>&1 && held=1;
+    bao policy delete $p >/dev/null;
+    [ -z "$held" ] || echo OPENBAO_CHANGED'
+  register: openbao_workspace_zone_policy_delete
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_zone_policy_delete.stdout"
 
 - name: "🧹 Erase every version of every secret of ws-{{ WORKSPACE }}"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node

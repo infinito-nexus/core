@@ -149,4 +149,5 @@ OPENBAO_PLAYWRIGHT_LOGINS:
     secret_id: "{{ OPENBAO_STORE_SECRET_ID }}"
 OPENBAO_RAFT_SNAPSHOT_DIR: "{{ [DIR_BACKUPS, application_id, 'raft'] | path_join }}"
 OPENBAO_TRANSIT_RECORD_PREFIX: "provision/transit"
+OPENBAO_ZONE_TOKEN_PATH: "provision/cloudflare-zones"
 OPENBAO_OWNER_RECORD_PREFIX: "export/owners"

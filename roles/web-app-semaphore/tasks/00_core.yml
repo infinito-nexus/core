@@ -18,35 +18,9 @@
 - name: "🌐 Run the tasks of the deployment's DNS flavor"
   include_tasks: "flavors/dns/{{ SEMAPHORE_DNS_FLAVOR }}.yml"
 
-- name: "🔐 Hand the logins of the workspace export to OpenBao"
+- name: "🔐 Hand the zone token and the workspace export logins to OpenBao"
+  include_tasks: utils/workspaces/openbao.yml
   when: SEMAPHORE_WORKSPACES_ENABLED | bool
-  block:
-    - name: "🔐 Hand the mail relay login of the export announcements to OpenBao"
-      ansible.builtin.include_role:
-        name: web-app-openbao
-        tasks_from: utils/kv.yml
-      vars:
-        openbao_kv_state: "{{ 'present' if SEMAPHORE_EMAIL.auth | bool else 'absent' }}"
-        openbao_kv_mount: "{{ SEMAPHORE_EXPORT_MAIL_LOGIN.mount }}"
-        openbao_kv_path: "{{ SEMAPHORE_EXPORT_MAIL_LOGIN.path }}"
-        openbao_kv_data: "{{ SEMAPHORE_EXPORT_MAIL_LOGIN.data if SEMAPHORE_EMAIL.auth | bool else {} }}"
-
-    - name: "🔐 Hand the S3 keys of the export identity to OpenBao"
-      ansible.builtin.include_role:
-        name: web-app-openbao
-        tasks_from: utils/kv.yml
-      vars:
-        openbao_kv_state: present
-        openbao_kv_mount: "{{ SEMAPHORE_EXPORT_S3_LOGIN.mount }}"
-        openbao_kv_path: "{{ SEMAPHORE_EXPORT_S3_LOGIN.path }}"
-        openbao_kv_data: "{{ SEMAPHORE_EXPORT_S3_LOGIN.data }}"
-
-    - name: "🔐 Hand the login of the Keycloak client of the export to OpenBao"
-      ansible.builtin.include_role:
-        name: web-app-keycloak
-        tasks_from: utils/export_login.yml
-      vars:
-        application_id: web-app-keycloak
 
 - name: "🧑‍💼 Run the Semaphore account operations on the stack host"
   when: IS_STACK_HOST | bool

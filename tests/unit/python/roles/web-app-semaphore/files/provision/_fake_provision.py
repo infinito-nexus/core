@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
@@ -40,6 +41,10 @@ LOCK_ID = "0f6e5c3a-2b1d-4e8f-9a7b-6c5d4e3f2a1b"
 SNAPSHOT_RECORD = f"platform/data/provision/transit/{WORKSPACE}"
 GROUPS = {"web-app-proxmox": ["proxmox"], "svc-virt-incus": ["target"]}
 CUSTOMER_TOKEN = "customer-hcloud-token-0001"
+ZONE_TOKEN = "cloudflare-zones-token-0001"
+ACCOUNT_ID = "0123456789abcdef0123456789abcdef"
+CLOUDFLARE_ZONES = "/cloudflare/client/v4/zones"
+FAKE_LOCKS = "/fake-locks/"
 SCS_CREDENTIAL_ID = "4f0c1e2d3b4a"
 SCS_CREDENTIAL_SECRET = "q7XwZ2pLk9Rt4VbNm3HsYd"
 SCS_WRONG_SECRET = "Hn4rTz8QwE1yUo6KpJ"
@@ -74,10 +79,31 @@ with open(os.environ["FAKE_TOFU_LOG"], "a") as handle:
     handle.write(json.dumps(record) + "\\n")
 plan = json.loads(pathlib.Path(os.environ["FAKE_TOFU_PLAN"]).read_text())
 command = args[0] if args else ""
+locks = os.environ.get("FAKE_TOFU_LOCKS")
+if locks and command in ("apply", "destroy", "force-unlock"):
+    import re, urllib.error, urllib.request
+    backend = (cwd / "backend.tfbackend").read_text()
+    bucket, key = (
+        re.search("^" + name + ' = "([^"]*)"$', backend, re.M).group(1)
+        for name in ("bucket", "key")
+    )
+    method = "DELETE" if command == "force-unlock" else "GET"
+    try:
+        urllib.request.urlopen(
+            urllib.request.Request(locks + bucket + "/" + key + ".tflock", method=method)
+        )
+        held = method == "GET"
+    except urllib.error.HTTPError:
+        held = False
+    if held:
+        print("Error acquiring the state lock", file=sys.stderr)
+        sys.exit(1)
 if command == "state":
     print("\\n".join(plan.get("state", [])))
 if command == "output":
     print(json.dumps(plan.get("outputs", {{}})))
+if command == "show":
+    print(json.dumps(plan.get("show", {{}})))
 if command == "destroy" and command != plan.get("fail") and not plan.get("survivors"):
     plan["state"] = []
     pathlib.Path(os.environ["FAKE_TOFU_PLAN"]).write_text(json.dumps(plan))
@@ -154,6 +180,10 @@ def default_secrets(dns_port):
         "platform/data/provision/ionos": {"token": "ionos-platform-token"},
         f"platform/data/provision/cloudflare/{ZONE}": {
             "token": "cloudflare-zone-token"
+        },
+        "platform/data/provision/cloudflare-zones": {
+            "token": ZONE_TOKEN,
+            "account_id": ACCOUNT_ID,
         },
         SNAPSHOT_RECORD: {"key_created_at": "1763000000", "snapshot_at": "1763000005"},
     }
@@ -235,16 +265,58 @@ class _Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-        if self.path == "/v1/auth/jwt/login" and body == {
-            "role": f"{WORKSPACE}-provision",
-            "jwt": JWT,
-        }:
+        if (
+            self.path == "/v1/auth/jwt/login"
+            and body.get("jwt") == JWT
+            and body.get("role") in (f"{WORKSPACE}-provision", f"{WORKSPACE}-zone")
+        ):
+            self.server.logins.append(body["role"])
             payload = {"auth": {"client_token": TOKEN}}
             self._send(200, json.dumps(payload).encode())
             return
         self._send(400)
 
+    def _cloudflare(self):
+        platform = self.server
+        platform.cloudflare_requests.append(self.path)
+        if self.headers.get("Authorization") != f"Bearer {ZONE_TOKEN}":
+            self._send(403)
+            return
+        if platform.cloudflare_answer is not None:
+            self._send(200, platform.cloudflare_answer)
+            return
+        target = urllib.parse.urlsplit(self.path.removeprefix(CLOUDFLARE_ZONES))
+        if target.path in ("", "/"):
+            query = urllib.parse.parse_qs(target.query)
+            if query.get("account.id") != [ACCOUNT_ID]:
+                self._send(400)
+                return
+            name = query["name"][0]
+            result = [platform.zones[name]] if name in platform.zones else []
+        else:
+            zone_id = target.path.lstrip("/")
+            held = [z for z in platform.zones.values() if z["id"] == zone_id]
+            if not held:
+                self._send(404)
+                return
+            result = held[0]
+        self._send(200, json.dumps({"success": True, "result": result}).encode())
+
+    def _lock(self):
+        key = self.path.removeprefix(FAKE_LOCKS)
+        if self.command == "DELETE":
+            self.server.objects.pop(key, None)
+            self._send(204)
+            return
+        self._send(200 if key in self.server.objects else 404)
+
     def do_GET(self):
+        if self.path.startswith(FAKE_LOCKS):
+            self._lock()
+            return
+        if self.path.startswith(CLOUDFLARE_ZONES):
+            self._cloudflare()
+            return
         if not self.path.startswith("/v1/"):
             self._s3()
             return
@@ -263,6 +335,9 @@ class _Handler(BaseHTTPRequestHandler):
         self._s3()
 
     def do_DELETE(self):
+        if self.path.startswith(FAKE_LOCKS):
+            self._lock()
+            return
         self._s3()
 
     def do_PUT(self):
@@ -279,8 +354,12 @@ class FakePlatform(ThreadingHTTPServer):
         super().__init__(("127.0.0.1", 0), _Handler)
         self.secrets = secrets
         self.objects = objects
+        self.zones = {}
         self.reads = []
+        self.logins = []
         self.s3_requests = []
+        self.cloudflare_requests = []
+        self.cloudflare_answer = None
         self.thread = threading.Thread(target=self.serve_forever, daemon=True)
         self.thread.start()
 
@@ -453,9 +532,13 @@ def services_catalog():
 class Sandbox:
     """Args:
     flavor: the DNS flavor of the deployment.
+    locks: whether the fake tofu refuses apply and destroy while the state's
+        ``.tflock`` exists and deletes it on force-unlock, as OpenTofu does
+        with ``use_lockfile``.
     """
 
-    def __init__(self, flavor="knot"):
+    def __init__(self, flavor="knot", locks=False):
+        self.locks = locks
         self.directory = Path(tempfile.mkdtemp(prefix="provision-test-"))
         self.core = self.directory / "core" / "roles" / "web-app-semaphore" / "files"
         for part in ("python", "opentofu", "shell"):
@@ -479,6 +562,10 @@ class Sandbox:
         self.dns = FakeDNS({})
         self.platform = FakePlatform(default_secrets(self.dns.port), {})
         self.flavor = flavor
+        credentials = self.core / "opentofu" / "credentials.json"
+        spec = json.loads(read_text(str(credentials)))
+        spec["zone"]["api"] = f"{self.platform.origin}{CLOUDFLARE_ZONES}"
+        credentials.write_text(json.dumps(spec), encoding="utf-8")
 
     def write_catalogs(self, catalogs):
         for provider, catalog in catalogs.items():
@@ -523,13 +610,16 @@ class Sandbox:
             "PROVISION_DNS_FLAVOR": self.flavor,
             "FAKE_TOFU_LOG": str(self.log),
             "FAKE_TOFU_PLAN": str(self.plan),
+            "FAKE_TOFU_LOCKS": (
+                f"{self.platform.origin}{FAKE_LOCKS}" if self.locks else None
+            ),
         }
         env.update(overrides)
         return {name: value for name, value in env.items() if value is not None}
 
     def run(self, script, *arguments, **overrides):
         """Args:
-            script: ``provision``, ``destroy``, ``unlock`` or ``dns``.
+            script: ``provision``, ``destroy``, ``unlock``, ``dns`` or ``zone``.
             arguments: extra arguments, which every script refuses.
             overrides: environment values to set, None to drop one.
 

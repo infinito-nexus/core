@@ -62,6 +62,14 @@ path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/cloudflare/*" {
   capabilities = ["create", "read", "update"]
 }
 
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_ZONE_TOKEN_PATH }}" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_ZONE_TOKEN_PATH }}" {
+  capabilities = ["delete"]
+}
+
 path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/proxmox-*" {
   capabilities = ["create", "read", "update"]
 }

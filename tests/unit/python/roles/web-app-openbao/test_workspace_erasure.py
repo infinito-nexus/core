@@ -221,9 +221,24 @@ class TestTheDestroyOrder(unittest.TestCase):
             [
                 "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}",
                 "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-provision",
+                "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-zone",
                 "{{ OPENBAO_JWT_EXPORT_MOUNT }}/role/ws-{{ WORKSPACE }}",
             ],
         )
+
+    def test_destroy_deletes_the_zone_policy_apply_writes(self) -> None:
+        def policy_of(tasks: list[dict[str, Any]], register: str) -> str:
+            shell = next(task for task in tasks if task.get("register") == register)
+            return shell["ansible.builtin.shell"]
+
+        apply = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
+        self.assertIn(
+            "p=ws-{{ WORKSPACE }}-zone;",
+            policy_of(apply, "openbao_workspace_zone_policy"),
+        )
+        deleted = policy_of(destroy_tasks(), "openbao_workspace_zone_policy_delete")
+        self.assertIn("p=ws-{{ WORKSPACE }}-zone;", deleted)
+        self.assertIn("bao policy delete $p", deleted)
 
 
 if __name__ == "__main__":

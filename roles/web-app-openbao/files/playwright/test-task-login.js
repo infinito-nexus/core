@@ -394,6 +394,14 @@ test.describe.serial("openbao store approle", () => {
     expectAnswer(await bao(request, "GET", `${platform}/data/${record}`, store.token), [404], `the store's read of the erased ${record}`);
   });
 
+  test("store approle: reads no zone token", async ({ request }) => {
+    const { platform } = settings();
+    const path = `${platform}/data/provision/cloudflare-zones`;
+    const store = await storeIdentity(request, tokens);
+    expectAnswer(await bao(request, "GET", path, store.token), REFUSED, `the store's read of ${path}`);
+    expectAnswer(await bao(request, "POST", path, store.token, { data: { token: "planted" } }), REFUSED, `the store's write of ${path}`);
+  });
+
   test("store approle: writes no credential of its own and erases nothing else", async ({ request }) => {
     const { tenant, platform, transit } = settings();
     const workspace = randomUUID();

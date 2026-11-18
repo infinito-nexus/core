@@ -520,21 +520,38 @@ DNS_SURVEY = [
 ]
 
 
-def dns_survey_findings(body, environment):
+ZONE_SURVEY = [
+    ("ZONE_ACTION", True, "env"),
+    ("SALES_ORDER", True, "env"),
+    ("LINE", True, "env"),
+    ("DOMAIN", False, "env"),
+]
+FIXED_SURVEYS = {
+    "dns": (DNS_SURVEY, ("WORKSPACE_TARGETS",)),
+    "zone": (ZONE_SURVEY, ()),
+}
+
+
+def fixed_survey_findings(kind, body, environment):
     """Args:
-    body: the body of ``dns ws-<id>``.
+    kind: ``dns`` or ``zone``, a key of ``FIXED_SURVEYS``.
+    body: the body of ``<kind> ws-<id>``.
     environment: the environment body that template runs with.
 
     Returns:
-        Every drift from ``DNS_SURVEY``, a missing ``WORKSPACE_TARGETS`` and
-        every secret of the environment.
+        Every drift from the kind's survey, every environment variable of
+        the kind it lacks and every secret of the environment.
     """
+    expected, needed = FIXED_SURVEYS[kind]
     survey = [(v["name"], v["required"], v.get("target")) for v in body["survey_vars"]]
-    findings = [] if survey == DNS_SURVEY else [f"the dns survey drifted: {survey}"]
-    if "WORKSPACE_TARGETS" not in decoded(environment):
-        findings.append("the dns environment lacks WORKSPACE_TARGETS")
+    findings = [] if survey == expected else [f"the {kind} survey drifted: {survey}"]
     findings += [
-        f"the dns environment holds the secret {name}"
+        f"the {kind} environment lacks {name}"
+        for name in needed
+        if name not in decoded(environment)
+    ]
+    findings += [
+        f"the {kind} environment holds the secret {name}"
         for _, name in env_secret_names(environment)
     ]
     return findings
@@ -617,6 +634,7 @@ class LockedTemplateTests(unittest.TestCase):
                 "usage",
                 "user",
                 "workspace",
+                "zone",
             ],
         )
         for body in self.bodies:
@@ -819,9 +837,9 @@ class LockedTemplateTests(unittest.TestCase):
             ],
         )
 
-    def dns_template(self):
+    def fixed_template(self, kind):
         project_id = self.api.project_id(workspace_spec()["provision"]["project"])
-        body = copy.deepcopy(self.api.templates(project_id)[f"dns {ALIAS}"])
+        body = copy.deepcopy(self.api.templates(project_id)[f"{kind} {ALIAS}"])
         environment = next(
             e
             for e in self.api.objects[(project_id, "environment")]
@@ -829,38 +847,55 @@ class LockedTemplateTests(unittest.TestCase):
         )
         return body, copy.deepcopy(environment)
 
-    def test_the_dns_survey_is_fixed(self):
-        body, environment = self.dns_template()
-        self.assertEqual(dns_survey_findings(body, environment), [])
+    def assert_fixed_survey(self, kind):
+        body, environment = self.fixed_template(kind)
+        self.assertEqual(fixed_survey_findings(kind, body, environment), [])
         self.assertEqual(self.mod.lock_findings(body), [])
 
-    def test_negative_control_a_dns_survey_with_a_planted_variable(self):
-        body, environment = self.dns_template()
-        body["survey_vars"].append(self.mod.survey_var("DNS_ZONE", True))
-        self.assertEqual(
-            dns_survey_findings(body, environment),
-            [f"the dns survey drifted: {[*DNS_SURVEY, ('DNS_ZONE', True, 'env')]}"],
-        )
+    def test_the_dns_survey_is_fixed(self):
+        self.assert_fixed_survey("dns")
+
+    def test_the_zone_survey_is_fixed(self):
+        self.assert_fixed_survey("zone")
+
+    def test_negative_control_a_survey_with_a_planted_variable(self):
+        for kind, planted in (("dns", "DNS_ZONE"), ("zone", "ZONE_TOKEN")):
+            with self.subTest(kind=kind):
+                body, environment = self.fixed_template(kind)
+                body["survey_vars"].append(self.mod.survey_var(planted, True))
+                drifted = [*FIXED_SURVEYS[kind][0], (planted, True, "env")]
+                self.assertEqual(
+                    fixed_survey_findings(kind, body, environment),
+                    [f"the {kind} survey drifted: {drifted}"],
+                )
 
     def test_negative_control_a_dns_survey_variable_without_env_target(self):
-        body, environment = self.dns_template()
+        body, environment = self.fixed_template("dns")
         body["survey_vars"][3]["target"] = None
         drifted = [*DNS_SURVEY[:3], ("HOST", True, None), DNS_SURVEY[4]]
         self.assertEqual(
-            dns_survey_findings(body, environment),
+            fixed_survey_findings("dns", body, environment),
             [f"the dns survey drifted: {drifted}"],
         )
 
     def test_negative_control_a_dns_environment_with_a_secret_and_no_targets(self):
-        body, environment = self.dns_template()
+        body, environment = self.fixed_template("dns")
         environment["env"] = json.dumps({"WORKSPACE": ALIAS})
         environment["secrets"] = [{"type": "env", "name": "PLANTED_TOKEN"}]
         self.assertEqual(
-            dns_survey_findings(body, environment),
+            fixed_survey_findings("dns", body, environment),
             [
                 "the dns environment lacks WORKSPACE_TARGETS",
                 "the dns environment holds the secret PLANTED_TOKEN",
             ],
+        )
+
+    def test_negative_control_a_zone_environment_with_a_secret(self):
+        body, environment = self.fixed_template("zone")
+        environment["secrets"] = [{"type": "env", "name": "CLOUDFLARE_API_TOKEN"}]
+        self.assertEqual(
+            fixed_survey_findings("zone", body, environment),
+            ["the zone environment holds the secret CLOUDFLARE_API_TOKEN"],
         )
 
     def test_only_the_host_templates_take_a_host_key(self):
@@ -1060,6 +1095,7 @@ PROVISION_WRAPPERS = {
     "destroy": ("destroy.sh", ["SALES_ORDER", "LINE", "PROVIDER_TOKEN"]),
     "unlock": ("unlock.sh", ["SALES_ORDER", "LINE"]),
     "dns": ("dns.sh", ["DNS_ACTION", "SALES_ORDER", "LINE", "HOST", "DNS_LABEL"]),
+    "zone": ("zone.sh", ["ZONE_ACTION", "SALES_ORDER", "LINE", "DOMAIN"]),
 }
 REFUSES_ARGUMENTS = "any argument is refused"
 

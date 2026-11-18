@@ -175,5 +175,5 @@ def roots():
     """Returns:
     ``{main.tf.json text: root name}`` of every root the build validates.
     """
-    paths = [*(OPENTOFU / "roots").iterdir(), OPENTOFU / "records"]
+    paths = [*(OPENTOFU / "roots").iterdir(), OPENTOFU / "records", OPENTOFU / "zone"]
     return {read_text(str(path / "main.tf.json")): path.name for path in paths}

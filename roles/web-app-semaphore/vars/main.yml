@@ -188,6 +188,8 @@ SEMAPHORE_RUNNER_SOURCE_GLOBS:
   - "opentofu/*"
   - "opentofu/records/*"
   - "opentofu/records/.*"
+  - "opentofu/zone/*"
+  - "opentofu/zone/.*"
   - "opentofu/modules/*/*"
   - "opentofu/roots/*/*"
   - "opentofu/roots/*/.*"
@@ -272,7 +274,13 @@ SEMAPHORE_DNS_CREDENTIALS:
   cloudflare_zone_tokens: "{{ lookup('config', application_id, 'secrets.credentials.cloudflare_zone_tokens') }}"
 SEMAPHORE_DNS_LIVE: "{{ SEMAPHORE_DNS | semaphore_dns_live(SEMAPHORE_DNS_CREDENTIALS) }}"
 SEMAPHORE_DNS_WRITES: "{{ SEMAPHORE_DNS_CREDENTIALS | semaphore_dns_writes(SEMAPHORE_DNS) }}"
-SEMAPHORE_CLOUDFLARE_ZONES_URL: "https://api.cloudflare.com/client/v4/zones"
+SEMAPHORE_CLOUDFLARE_ZONES_URL: "{{ ('zone' | semaphore_opentofu_credentials).api }}"
+SEMAPHORE_CLOUDFLARE_ZONES_CREDENTIALS:
+  cloudflare_zones_token: "{{ lookup('config', application_id, 'secrets.credentials.cloudflare_zones_token') }}"
+  cloudflare_zones_account_id: "{{ lookup('config', application_id, 'secrets.credentials.cloudflare_zones_account_id') }}"
+SEMAPHORE_CLOUDFLARE_ZONES_WRITE: "{{ SEMAPHORE_CLOUDFLARE_ZONES_CREDENTIALS | semaphore_cloudflare_zones_write }}"
+SEMAPHORE_CLOUDFLARE_ZONES_LIVE: "{{ SEMAPHORE_CLOUDFLARE_ZONES_WRITE.state == 'present' }}"
+SEMAPHORE_CLOUDFLARE_ZONES_PROBE: "{{ lookup('config', application_id, 'services.semaphore.workspaces.dns.zone_probe') }}"
 SEMAPHORE_WORKSPACE_CATALOGS: >-
   {{ lookup('config', application_id, 'services.semaphore.workspaces.catalog')
      | semaphore_catalogs(applications, application_id) }}

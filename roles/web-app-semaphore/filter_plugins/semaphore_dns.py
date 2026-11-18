@@ -105,9 +105,42 @@ def _write(mount: str, path: str, data: dict) -> dict:
     return {"mount": mount, "path": path, "data": data}
 
 
-def _dns_spec(flavor: str) -> dict:
+def semaphore_opentofu_credentials(entry: str) -> dict:
+    """Args:
+        entry: a top-level key of ``files/opentofu/credentials.json``.
+
+    Returns:
+        That entry, the record and fields the provision runner reads.
+    """
     spec = json.loads((FILES / "credentials.json").read_text(encoding="utf-8"))
-    return spec["dns"][flavor]
+    return spec[entry]
+
+
+def _dns_spec(flavor: str) -> dict:
+    return semaphore_opentofu_credentials("dns")[flavor]
+
+
+def semaphore_cloudflare_zones_write(credentials: Mapping) -> dict:
+    """Args:
+        credentials: ``cloudflare_zones_<field>`` of ``secrets.credentials``
+            for every field the ``zone`` entry of ``credentials.json`` reads.
+
+    Returns:
+        ``{mount, path, data, state}`` of that entry's record: ``present``
+        with every field when all of them are set, else ``absent`` with no
+        data, so no stale zone token outlives its secret.
+    """
+    zone = semaphore_opentofu_credentials("zone")
+    mount, _, path = zone["path"].partition("/data/")
+    data = {
+        field: str(credentials[f"cloudflare_zones_{field}"])
+        for field in sorted(set(zone["env"].values()))
+    }
+    live = all(data.values())
+    return {
+        **_write(mount, path, data if live else {}),
+        "state": "present" if live else "absent",
+    }
 
 
 def semaphore_route53_admin_missing(record: Mapping) -> list[str]:
@@ -308,6 +341,8 @@ class FilterModule:
         return {
             "semaphore_cloudflare_pool": semaphore_cloudflare_pool,
             "semaphore_cloudflare_zone": semaphore_cloudflare_zone,
+            "semaphore_cloudflare_zones_write": semaphore_cloudflare_zones_write,
+            "semaphore_opentofu_credentials": semaphore_opentofu_credentials,
             "semaphore_dns_flavor": semaphore_dns_flavor,
             "semaphore_dns_live": semaphore_dns_live,
             "semaphore_dns_writes": semaphore_dns_writes,

@@ -236,6 +236,27 @@ class TestWorkspaceDestroy(unittest.TestCase):
         self.assertIs(type(count), int)
         self.assertEqual(count, 0)
 
+    def test_destroy_refuses_a_remaining_zone_state(self):
+        (condition,) = _task(self.destroy, "🛑 Fail while a state file is left")[
+            "ansible.builtin.assert"
+        ]["that"]
+        for keys, accepted in (
+            (("SO1/1.zone.tfstate",), False),
+            (("SO1/1.zone.tfstate.tflock", "notes.txt"), True),
+        ):
+            with self.subTest(keys=keys):
+                self.assertIs(
+                    _evaluate(
+                        condition, _seaweedfs_ws_objects={"stdout": _listing(*keys)}
+                    ),
+                    accepted,
+                )
+        count = self._state_count(
+            _seaweedfs_ws_bucket_present=True,
+            _seaweedfs_ws_objects={"stdout": _listing("SO1/1.zone.tfstate")},
+        )
+        self.assertEqual(count, 1)
+
     def test_the_count_reaches_every_host_of_the_play(self):
         task = _task(self.destroy, "📤 Hand the state files")
         self.assertIs(task["delegate_facts"], True)

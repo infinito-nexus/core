@@ -66,7 +66,9 @@ const JWT_MOUNT = "jwt";
 const STORE_SEMAPHORE_PATH = "store/semaphore";
 const GUEST = "guest";
 const RUN_AND_READ = 1 | 128;
-const PLATFORM_KINDS = ["provision", "destroy", "unlock", "dns"];
+const PLATFORM_KINDS = ["provision", "destroy", "unlock", "dns", "zone"];
+const ZONE_MS = 10 * 60_000;
+const ZONE_KEYS = ["name_servers", "status", "zone", "zone_id"];
 const ENVELOPE_KEYS = ["encrypted_data", "encryption_version"];
 const PLAINTEXT_KEYS = ["resources", "outputs", "check_results"];
 const STATE_LIST_FAILED = "tofu state list exited with";
@@ -79,6 +81,7 @@ const PROVISION_PATHS = (workspace) => [
   `${TENANT_MOUNT}/data/ws-${workspace}-provision/scs`,
   `${PLATFORM_MOUNT}/data/provision/hetzner`,
   `${PLATFORM_MOUNT}/data/provision/ionos`,
+  `${PLATFORM_MOUNT}/data/provision/cloudflare-zones`,
 ];
 const CUSTOMER_TOKEN_PATH = (workspace, provider) => `ws-${workspace}-provision/providers/${provider}`;
 const SCS_REGION_KEYS = ["auth_url", "region", "network"];
@@ -259,13 +262,13 @@ function customerSurvey(order) {
  *   write.
  */
 function scsTestCredential() {
-  const id = decodeDotenvQuotedValue(process.env.PROVISION_SCS_TEST_CREDENTIAL_ID);
-  const secret = decodeDotenvQuotedValue(process.env.PROVISION_SCS_TEST_CREDENTIAL_SECRET);
+  const scsCredentialId = decodeDotenvQuotedValue(process.env.PROVISION_SCS_TEST_CREDENTIAL_ID);
+  const scsCredentialSecret = decodeDotenvQuotedValue(process.env.PROVISION_SCS_TEST_CREDENTIAL_SECRET);
   test.skip(
-    !id || !secret,
+    !scsCredentialId || !scsCredentialSecret,
     "PROVISION_SCS_TEST_CREDENTIAL_ID or PROVISION_SCS_TEST_CREDENTIAL_SECRET is empty: secrets.credentials.scs_test_application_credential_id and _secret name no SCS test project, so no customer credential can run",
   );
-  return { id, secret };
+  return { id: scsCredentialId, secret: scsCredentialSecret };
 }
 
 /**
@@ -444,6 +447,96 @@ function requireDnsLive() {
   );
 }
 
+/**
+ * Returns:
+ *   The domain the zone specs create and delete in the Cloudflare account of the zone token.
+ */
+function requireZoneLive() {
+  test.skip(
+    !strictFlag(process.env.PROVISION_ZONE_LIVE, "PROVISION_ZONE_LIVE"),
+    "PROVISION_ZONE_LIVE=false: secrets.credentials.cloudflare_zones_token, cloudflare_zones_account_id or services.semaphore.workspaces.dns.zone_probe is empty",
+  );
+  return requireDotenvValue(process.env.PROVISION_ZONE_PROBE, "PROVISION_ZONE_PROBE");
+}
+
+/**
+ * Args:
+ *   action: create, show, delete or unlock.
+ *   order: an order line of `orderLine`.
+ *   domain: the zone apex, taken by create and show only.
+ *
+ * Returns:
+ *   The survey of zone.
+ */
+function zoneSurvey(action, order, domain) {
+  const survey = { ZONE_ACTION: action, ...orderSurvey(order) };
+  return ["create", "show"].includes(action) ? { ...survey, DOMAIN: domain } : survey;
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   action: create, show, delete or unlock.
+ *   order: an order line of `orderLine`.
+ *   domain: the zone apex.
+ *
+ * Returns:
+ *   The finished zone run.
+ */
+function zoneTask(shared, fixture, action, order, domain) {
+  return runPlatform(shared, fixture, "zone", zoneSurvey(action, order, domain), ZONE_MS, `zone ${action} of ${order.name} in ws-${fixture.workspace}`);
+}
+
+/**
+ * Args:
+ *   run: a zone run of `zoneTask`.
+ *
+ * Returns:
+ *   The JSON object of the run's last output line.
+ */
+function zoneLine(run) {
+  const line = run.lines
+    .map(bare)
+    .reverse()
+    .find((candidate) => candidate.startsWith("{"));
+  expect(line, `${run.what}: task ${run.task.id} must end with a JSON line; output tail:\n${workspaces.outputTail(run.lines)}`).toBeTruthy();
+  return JSON.parse(line);
+}
+
+/**
+ * Args:
+ *   run: a create or show run of `zoneTask`.
+ *   domain: the zone apex.
+ *
+ * Returns:
+ *   The zone line, checked to hold exactly zone, zone_id, status and name_servers.
+ */
+function zoneOutputs(run, domain) {
+  const outputs = zoneLine(run);
+  expect(Object.keys(outputs).sort(), `${run.what}: the zone line must hold exactly ${ZONE_KEYS.join(", ")}`).toEqual(ZONE_KEYS);
+  expect(outputs.zone, `${run.what}: the zone line must name ${domain}`).toBe(domain);
+  expect(typeof outputs.zone_id === "string" && outputs.zone_id !== "", `${run.what}: zone_id must name the zone`).toBe(true);
+  expect(typeof outputs.status === "string" && outputs.status !== "", `${run.what}: status must carry the provider's zone status`).toBe(true);
+  expect(
+    Array.isArray(outputs.name_servers) && outputs.name_servers.length > 0,
+    `${run.what}: name_servers must list the assigned name servers, it is ${JSON.stringify(outputs.name_servers)}`,
+  ).toBe(true);
+  return outputs;
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   order: an order line of `orderLine`.
+ *   domain: the zone apex.
+ */
+async function deleteZone(shared, fixture, order, domain) {
+  const run = await zoneTask(shared, fixture, "delete", order, domain);
+  workspaces.expectSucceeded(run, run.what);
+}
+
 function pinnedOpentofu() {
   return requireDotenvValue(process.env.PROVISION_OPENTOFU_VERSION, "PROVISION_OPENTOFU_VERSION");
 }
@@ -591,7 +684,7 @@ function templateOf(fixture, name) {
 /**
  * Args:
  *   fixture: the result of `workspaces.openWorkspace`.
- *   kind: provision, destroy, unlock or dns.
+ *   kind: provision, destroy, unlock, dns or zone.
  *
  * Returns:
  *   The identity of the workspace's template of that kind in the provision project.
@@ -604,7 +697,7 @@ function platformTemplate(fixture, kind) {
  * Args:
  *   shared: the role's shared helpers.
  *   fixture: the result of `workspaces.openWorkspace`.
- *   kind: provision, destroy, unlock or dns.
+ *   kind: provision, destroy, unlock, dns or zone.
  *   survey: the survey answers.
  *   runMs: the longest the task may run, before timeout scaling.
  *   what: the run the failure messages name.
@@ -1932,6 +2025,86 @@ exports.register = function (shared) {
       await workspaces.destroyWorkspace(shared, fixture, LABEL);
       expect(await workspaces.namedTemplates(shared, fixture.page, identity.project_id, name), `${LABEL}: destroy must remove ${name}`).toEqual([]);
       expect(await grantsOf(fixture.page, identity), `${LABEL}: destroy must remove the grant of ${name}`).toEqual([]);
+    });
+  });
+
+  test("provision rights: apply creates the zone template with its grant", async ({ browser }) => {
+    workspaces.requireWorkspaces(shared);
+    test.setTimeout(resolveTimeout(BASE_MS + 10 * REQUEST_MS));
+    await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
+      const identity = platformTemplate(fixture, "zone");
+      const name = `zone ws-${fixture.workspace}`;
+      const named = await workspaces.namedTemplates(shared, fixture.page, identity.project_id, name);
+      expect(named.map((template) => template.id), `${LABEL}: apply must create exactly one ${name} in the provision project`).toEqual([
+        identity.template_id,
+      ]);
+      workspaces.expectLockedTemplate(await shared.api(fixture.page, "GET", `/project/${identity.project_id}/templates/${identity.template_id}`), LABEL);
+      expect(await grantsOf(fixture.page, identity), `${LABEL}: apply must grant ${GUEST} run and read on ${name}`).toEqual([[GUEST, RUN_AND_READ]]);
+      await workspaces.destroyWorkspace(shared, fixture, LABEL);
+      expect(await workspaces.namedTemplates(shared, fixture.page, identity.project_id, name), `${LABEL}: destroy must remove ${name}`).toEqual([]);
+      expect(await grantsOf(fixture.page, identity), `${LABEL}: destroy must remove the grant of ${name}`).toEqual([]);
+    });
+  });
+
+  test("zone: a zone is created once, shown and deleted", async ({ browser }) => {
+    workspaces.requireWorkspaces(shared);
+    const domain = requireZoneLive();
+    test.setTimeout(resolveTimeout(BASE_MS + 5 * ZONE_MS));
+    await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
+      const order = orderLine(freshSalesOrder(), "1");
+      cleanup(() => deleteZone(shared, fixture, order, domain));
+      const created = await zoneTask(shared, fixture, "create", order, domain);
+      workspaces.expectSucceeded(created, created.what);
+      expect(appliedCounts(created).added, `${created.what}: the first create must add the zone`).toBe(1);
+      const zone = zoneOutputs(created, domain);
+      const state = await stateBucket(fixture);
+      const key = `${order.salesOrder}/${order.line}.zone.tfstate`;
+      expectEncryptedState(await state.get(key), [domain, zone.zone_id], `${LABEL}: ${key} of ws-${fixture.workspace}`);
+      const again = await zoneTask(shared, fixture, "create", order, domain);
+      workspaces.expectSucceeded(again, `second ${again.what}`);
+      expectLine(again, NOTHING_CHANGED);
+      expect(zoneOutputs(again, domain).zone_id, `second ${again.what}: a repeated create must keep the zone`).toBe(zone.zone_id);
+      const shown = await zoneTask(shared, fixture, "show", order, domain);
+      workspaces.expectSucceeded(shown, shown.what);
+      expect(zoneOutputs(shown, domain).zone_id, `${shown.what}: show must print the zone_id of create`).toBe(zone.zone_id);
+      expectNoLine(shown, "Apply complete!");
+      const deleted = await zoneTask(shared, fixture, "delete", order, domain);
+      workspaces.expectSucceeded(deleted, deleted.what);
+      expect(destroyedCount(deleted), `${deleted.what}: the delete must remove the zone`).toBe(1);
+      expect(zoneLine(deleted), `${deleted.what}: the delete must name the deleted zone`).toEqual({ deleted: true, zone: domain });
+      expect(await state.exists(key), `${deleted.what}: the delete must remove the zone state`).toBe(false);
+      const deletedAgain = await zoneTask(shared, fixture, "delete", order, domain);
+      workspaces.expectSucceeded(deletedAgain, `second ${deletedAgain.what}`);
+      expect(zoneLine(deletedAgain), `second ${deletedAgain.what}: a delete without a zone must succeed with nothing to do`).toEqual({
+        deleted: true,
+        zone: null,
+      });
+    });
+  });
+
+  test("zone: a foreign zone is refused", async ({ browser }) => {
+    workspaces.requireWorkspaces(shared);
+    const domain = requireZoneLive();
+    test.setTimeout(resolveTimeout(BASE_MS + 4 * ZONE_MS));
+    await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
+      const salesOrder = freshSalesOrder();
+      const owner = orderLine(salesOrder, "1");
+      const foreign = orderLine(salesOrder, "2");
+      const state = await stateBucket(fixture);
+      cleanup(() => deleteZone(shared, fixture, owner, domain));
+      const created = await zoneTask(shared, fixture, "create", owner, domain);
+      workspaces.expectSucceeded(created, created.what);
+      const zone = zoneOutputs(created, domain);
+      cleanup(() => deleteZone(shared, fixture, foreign, domain));
+      const refused = await zoneTask(shared, fixture, "create", foreign, domain);
+      workspaces.expectRefused(refused, `the Cloudflare account already holds DOMAIN ${domain}`, refused.what);
+      expect(
+        await state.exists(`${foreign.salesOrder}/${foreign.line}.zone.tfstate`),
+        `${refused.what}: the refusal must come before any write, so no zone state may exist`,
+      ).toBe(false);
+      const shown = await zoneTask(shared, fixture, "show", owner, domain);
+      workspaces.expectSucceeded(shown, shown.what);
+      expect(zoneOutputs(shown, domain).zone_id, `${shown.what}: the refused create must leave the zone of ${owner.name}`).toBe(zone.zone_id);
     });
   });
 

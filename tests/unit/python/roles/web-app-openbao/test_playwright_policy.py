@@ -60,6 +60,7 @@ PLAYWRIGHT_PROBES = {
     "platform/data/store/semaphore": set(),
     "platform/data/provision/hetzner": set(),
     "platform/data/provision/cloudflare/example.org": set(),
+    "platform/data/provision/cloudflare-zones": set(),
     "platform/data/workspaces/route53": set(),
     "platform/data/playwright/other": set(),
     "platform/metadata/playwright/store": set(),

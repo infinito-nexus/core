@@ -220,6 +220,11 @@ PROVISION_TEMPLATES = (
             ("DNS_LABEL", True),
         ),
     },
+    {
+        "name": "zone",
+        "script": "zone.sh",
+        "survey": (("ZONE_ACTION", True), *ORDER_SURVEY, ("DOMAIN", False)),
+    },
 )
 EXPORT_TEMPLATES = (
     {
@@ -1943,6 +1948,7 @@ def apply_workspace(api, spec, changes):
                 for name in ("provision", "destroy", "unlock")
             },
             "dns_template_id": ids["provision"]["dns"],
+            "zone_template_id": ids["provision"]["zone"],
             "export_project_id": platform["export"],
             "export_template_id": ids["export"]["export"],
         },

@@ -21,6 +21,7 @@ IDS = {
     "provision_project_id": 7,
     "provision_templates": {"provision": 71, "destroy": 72, "unlock": 73},
     "dns_template_id": 74,
+    "zone_template_id": 75,
     "export_project_id": 9,
     "export_template_id": 91,
     "workspaces_project_id": 3,
@@ -99,6 +100,15 @@ def body_findings(entry: dict[str, Any]) -> list[str]:
     return findings
 
 
+def zone_template_holders(entries: list[dict[str, Any]]) -> list[str]:
+    return [
+        entry["name"]
+        for entry in entries
+        if IDS["zone_template_id"]
+        in entry["body"]["bound_claims"].get("template_id", [])
+    ]
+
+
 def apply_assertions() -> list[str]:
     tasks = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
     return tasks[0]["ansible.builtin.assert"]["that"]
@@ -124,6 +134,7 @@ class TestTheWorkspaceRoles(unittest.TestCase):
                 ("jwt", f"ws-{WORKSPACE}-provision"),
                 ("jwt-export", f"ws-{WORKSPACE}"),
                 ("jwt", "members"),
+                ("jwt", f"ws-{WORKSPACE}-zone"),
             ],
         )
         for entry in entries:
@@ -140,16 +151,38 @@ class TestTheWorkspaceRoles(unittest.TestCase):
     ) -> None:
         body = roles(IDS)[1]["body"]
         self.assertEqual(
-            body["bound_claims"], {"project_id": 7, "template_id": [71, 72, 73, 74]}
+            body["bound_claims"],
+            {"project_id": 7, "template_id": [71, 72, 73, 74]},
         )
         self.assertEqual(body["token_policies"], ["tenant", "provision-shared"])
+
+    def test_the_zone_role_binds_the_zone_template_only(self) -> None:
+        body = roles(IDS)[4]["body"]
+        self.assertEqual(body["bound_claims"], {"project_id": 7, "template_id": [75]})
+        self.assertEqual(body["token_policies"], [f"ws-{WORKSPACE}-zone"])
+
+    def test_no_other_role_binds_the_zone_template(self) -> None:
+        self.assertEqual(zone_template_holders(roles(IDS)), [f"ws-{WORKSPACE}-zone"])
+
+    def test_control_a_provision_role_with_the_zone_template_fails(self) -> None:
+        source = read_text(str(ROLE_DIR / "templates/workspace/jwt_roles.json.j2"))
+        planted = source.replace(
+            "{{ workspace_semaphore.dns_template_id | to_json }}\n",
+            "{{ workspace_semaphore.dns_template_id | to_json }},\n"
+            "          {{ workspace_semaphore.zone_template_id | to_json }}\n",
+            1,
+        )
+        self.assertNotEqual(planted, source)
+        self.assertNotEqual(
+            zone_template_holders(roles(IDS, planted)), [f"ws-{WORKSPACE}-zone"]
+        )
 
     def test_control_a_provision_role_without_the_dns_template_fails(self) -> None:
         source = read_text(str(ROLE_DIR / "templates/workspace/jwt_roles.json.j2"))
         dropped = source.replace(
             "unlock | to_json }},\n"
-            "          {{ workspace_semaphore.dns_template_id | to_json }}",
-            "unlock | to_json }}",
+            "          {{ workspace_semaphore.dns_template_id | to_json }}\n",
+            "unlock | to_json }}\n",
         )
         self.assertNotEqual(dropped, source)
         body = roles(IDS, dropped)[1]["body"]
@@ -172,7 +205,9 @@ class TestTheWorkspaceRoles(unittest.TestCase):
     def test_each_token_lives_as_long_as_its_longest_template_run(self) -> None:
         ttl = workspace_config()["token_ttl"]
         for entry, kind in zip(
-            roles(IDS), ("deploy", "provision", "export", "deploy"), strict=True
+            roles(IDS),
+            ("deploy", "provision", "export", "deploy", "provision"),
+            strict=True,
         ):
             with self.subTest(role=entry["name"], kind=kind):
                 self.assertEqual(entry["body"]["token_ttl"], ttl[kind])
@@ -210,6 +245,10 @@ class TestTheApplyInputs(unittest.TestCase):
 
     def test_apply_refuses_a_missing_dns_template_id(self) -> None:
         ids = {key: value for key, value in IDS.items() if key != "dns_template_id"}
+        self.assertFalse(apply_accepts(ids))
+
+    def test_apply_refuses_a_missing_zone_template_id(self) -> None:
+        ids = {key: value for key, value in IDS.items() if key != "zone_template_id"}
         self.assertFalse(apply_accepts(ids))
 
     def test_apply_refuses_a_template_set_other_than_the_three(self) -> None:

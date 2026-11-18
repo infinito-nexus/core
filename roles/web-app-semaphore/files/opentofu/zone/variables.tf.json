@@ -1,0 +1,6 @@
+{
+  "variable": {
+    "domain": {"type": "string", "nullable": false, "description": "Apex of the customer zone of the order line, without trailing dot."},
+    "account_id": {"type": "string", "nullable": false, "sensitive": true, "description": "Cloudflare account the zone token creates zones in; set from platform/data/provision/cloudflare-zones, never from the task."}
+  }
+}
