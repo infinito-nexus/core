@@ -63,8 +63,23 @@ _SOURCE_CONFIG = {
 }
 _SOURCE_RUN = {"jobs": _JOBS, "displayTitle": render(_SOURCE_CONFIG)}
 
+_REAL_PROBLEMS = trigger.validate.problems
+
 
 class TestTriggerMain(unittest.TestCase):
+    def setUp(self) -> None:
+        """Stub the validator: each real call runs a full role discovery.
+
+        ``autospec`` keeps the call checked against the real signature, and
+        ``test_priority_is_dispatched_with_the_axis_overrides`` runs the real
+        one.
+        """
+        patcher = mock.patch.object(
+            trigger.validate, "problems", autospec=True, return_value=([], [])
+        )
+        self.problems = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _run(
         self,
         argv: list[str],
@@ -100,6 +115,7 @@ class TestTriggerMain(unittest.TestCase):
         )
 
     def test_priority_is_dispatched_with_the_axis_overrides(self) -> None:
+        self.problems.side_effect = _REAL_PROBLEMS
         rc, calls = self._run(
             [
                 "--priority",

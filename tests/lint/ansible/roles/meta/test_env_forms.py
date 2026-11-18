@@ -151,8 +151,8 @@ def type_findings(roles: list[Path]) -> list[str]:
         reports drift on every run.
     """
     errors = []
+    _reset_cache_for_tests()
     for where, (role, form) in sorted(env_forms(roles).items()):
-        _reset_cache_for_tests()
         variables = _scope(_partners(role))
         lookup = FormValues()
         lookup._loader = DataLoader()
