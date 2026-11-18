@@ -43,7 +43,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 ### Backup set
 
 - [ ] A generation taken on a stack with two workspaces holds the Semaphore database dump, the Keycloak database dump, and the volumes of OpenBao, SeaweedFS and Gitea (`test_one_generation_holds_the_workspace_set` in `tests/unit/python/roles/svc-bkp-volume-2-local/test_workspace_set.py`, over the backup subjects the role derives; the generation listing in the drill log). The derived half holds in compose and swarm-local (`test_workspace_set.py`); the drill log listing (`workspace drill: step 3` in `files/test/workspace/pass.sh`) waits for a live run.
-- [ ] The README of `svc-bkp-volume-2-local` names the two inventory credentials a restore needs beside the generation. A new `roles/web-app-semaphore/Administration.md` names Semaphore as a single point of failure for every workspace, with the restore time the drill measured (store criterion 062:179; `test_the_readme_names_the_restore_credentials` in `tests/unit/python/roles/svc-bkp-volume-2-local/test_readme.py` and `test_administration_names_the_single_point_of_failure` in `tests/unit/python/roles/web-app-semaphore/test_administration.py`). Both names hold (`test_readme.py`; `web-app-semaphore/test_administration.py`); the measured restore time waits for the drill's `workspace drill: restore took <seconds>s` line.
+- [ ] The README of `svc-bkp-volume-2-local` names the two inventory credentials a restore needs beside the generation. A new `roles/web-app-semaphore/Administration.md` names Semaphore as a single point of failure for every workspace, with the restore time the drill measured (store criterion 062:179; `test_administration_names_the_single_point_of_failure` in `tests/unit/python/roles/web-app-semaphore/test_administration.py`). The Semaphore name holds (`web-app-semaphore/test_administration.py`); the measured restore time waits for the drill's `workspace drill: restore took <seconds>s` line.
 
 ### Restore drill
 
@@ -66,4 +66,4 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ### Documentation
 
-- [x] The [README](../../roles/svc-bkp-volume-2-local/README.md) documents the backup set, the restore order with `workspace apply`, the signal's path, fields and lifetime, and its consumer flag (`test_the_readme_names_the_maintenance_signal` in `tests/unit/python/roles/svc-bkp-volume-2-local/test_readme.py`). (`test_readme.py`.)
+- [x] The [README](../../roles/svc-bkp-volume-2-local/README.md) documents the backup set, the restore order with `workspace apply`, the signal's path, fields and lifetime, and its consumer flag (`roles/svc-bkp-volume-2-local/README.md`).

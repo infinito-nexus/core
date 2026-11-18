@@ -46,4 +46,4 @@ The store asked on 2026-11-13 (Store ask 34) for a core-owned zone lifecycle, an
 
 ### Documentation
 
-- [ ] The [README](../../roles/web-app-semaphore/README.md) documents `zone ws-<id>`, its actions, inputs, output line, state key and the token's reach (`test_the_readme_names_the_zone_template` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
+- [ ] The [README](../../roles/web-app-semaphore/README.md) documents `zone ws-<id>`, its actions, inputs, output line, state key and the token's reach (`roles/web-app-semaphore/README.md`).

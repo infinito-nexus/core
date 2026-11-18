@@ -132,4 +132,4 @@ Rejected:
 
 ### Documentation
 
-- [x] The [README](../../roles/web-app-openbao/README.md) documents the `jwt` mount, the two roles per workspace, the templated policy, the two mounts, the transit key with its snapshot, the erasure by `workspace destroy`, the store AppRole with the reach of a leaked store credential, the pinned host keys with their one field, and the rotation with its two fields (`test_the_readme_names_the_workspace_paths` in `tests/unit/python/roles/web-app-openbao/test_readme.py`). (`roles/web-app-openbao/README.md`; proven by `test_readme.py`.)
+- [x] The [README](../../roles/web-app-openbao/README.md) documents the `jwt` mount, the two roles per workspace, the templated policy, the two mounts, the transit key with its snapshot, the erasure by `workspace destroy`, the store AppRole with the reach of a leaked store credential, the pinned host keys with their one field, and the rotation with its two fields. (`roles/web-app-openbao/README.md`.)

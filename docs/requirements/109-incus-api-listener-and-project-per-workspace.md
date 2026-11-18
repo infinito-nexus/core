@@ -71,4 +71,4 @@ Rejected:
 
 ### Documentation
 
-- [x] The [README](../../roles/svc-virt-incus/README.md) documents the listener, its firewall sources, the workspace projects and certificates, the VM-only rule and the routed subnet with its slices (`test_the_readme_names_the_workspace_projects` in `tests/unit/python/roles/svc-virt-incus/test_readme.py`). Met: the test and its control that drops the VM-only rule.
+- [x] The [README](../../roles/svc-virt-incus/README.md) documents the listener, its firewall sources, the workspace projects and certificates, the VM-only rule and the routed subnet with its slices (`roles/svc-virt-incus/README.md`).

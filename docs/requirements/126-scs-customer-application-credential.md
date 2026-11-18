@@ -36,4 +36,4 @@ The operator filed this follow-up on 2026-11-14, to be built after the IAM store
 
 ### Documentation
 
-- [ ] The [README](../../roles/web-app-semaphore/README.md) documents the `scs` customer credential, its path, its two fields, the endpoint rule and the contract (`test_the_readme_names_the_scs_customer_credential` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
+- [ ] The [README](../../roles/web-app-semaphore/README.md) documents the `scs` customer credential, its path, its two fields, the endpoint rule and the contract (`roles/web-app-semaphore/README.md`).

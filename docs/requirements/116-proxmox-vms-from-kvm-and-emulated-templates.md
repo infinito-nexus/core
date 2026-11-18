@@ -55,4 +55,4 @@ Rejected:
 
 ### Documentation
 
-- [x] The [README](../../roles/web-app-proxmox/README.md) documents both templates, the image pin, the template ids shared with the catalog, the full clones and the clone-only right (`test_the_readme_names_the_workspace_templates` in `tests/unit/python/roles/web-app-proxmox/test_readme.py`). Met: the test and its control that drops a template id.
+- [x] The [README](../../roles/web-app-proxmox/README.md) documents both templates, the image pin, the template ids shared with the catalog, the full clones and the clone-only right (`roles/web-app-proxmox/README.md`).

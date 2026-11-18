@@ -64,4 +64,4 @@ Rejected:
 
 ### Documentation
 
-- [x] The [README](../../roles/web-app-semaphore/README.md) documents `dns ws-<id>`, its actions and inputs, its state key, the taken-name check and that a removal deletes only its own record (`test_the_readme_names_the_byo_record` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`, green at the lane tip; the planted README without the own-record removal fails it).
+- [x] The [README](../../roles/web-app-semaphore/README.md) documents `dns ws-<id>`, its actions and inputs, its state key, the taken-name check and that a removal deletes only its own record (`roles/web-app-semaphore/README.md`).

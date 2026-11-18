@@ -110,4 +110,4 @@ Rejected:
 
 ### Documentation
 
-- [x] The [README](../../roles/web-app-proxmox/README.md) documents both flavors with their pins and privilege models, the `container` flavor's dedicated-host rule, the guest channel, the image build with its ISO pin, the first-boot values, the nested mode, the workspace pools and tokens with the exact privileges, and the API-only rule (`test_the_readme_names_the_workspace_pools` in `tests/unit/python/roles/web-app-proxmox/test_readme.py`). Met: the test and its control that swaps one listed privilege.
+- [x] The [README](../../roles/web-app-proxmox/README.md) documents both flavors with their pins and privilege models, the `container` flavor's dedicated-host rule, the guest channel, the image build with its ISO pin, the first-boot values, the nested mode, the workspace pools and tokens with the exact privileges, and the API-only rule (`roles/web-app-proxmox/README.md`).

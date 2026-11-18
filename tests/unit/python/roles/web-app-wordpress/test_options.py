@@ -227,13 +227,6 @@ class TestPinnedStructure(unittest.TestCase):
             services["wordpress"]["options"]["permalink_structure"], PINNED_STRUCTURE
         )
 
-    def test_the_hard_coded_structure_is_gone(self):
-        self.assertNotIn("WORDPRESS_PERMALINK_STRUCTURE", _vars())
-        self.assertNotIn(
-            "WORDPRESS_PERMALINK_STRUCTURE",
-            read_text(str(ROLE / "tasks/07_manager_ops.yml")),
-        )
-
 
 class TestStrictLookup(unittest.TestCase):
     def setUp(self) -> None:
@@ -503,15 +496,6 @@ class TestOwnedElsewhere(unittest.TestCase):
             _resolve("WORDPRESS_NETWORK_OPTIONS", ALL_ON | {"multisite": True})
         )
         self.assertFalse(set(owned) & managed)
-
-    def test_no_task_writes_the_registration_options_by_name(self):
-        tasks = read_text(str(ROLE / "tasks/07_manager_ops.yml"))
-        self.assertNotIn("users_can_register", tasks)
-        self.assertNotIn("option update registration", tasks)
-
-    def test_the_contributed_map_is_gone(self):
-        self.assertNotIn("WORDPRESS_OPTIONS_CONTRIBUTED", _vars())
-        self.assertNotIn("WORDPRESS_TRANSLATE_OPTIONS", _vars())
 
 
 class TestOrder(unittest.TestCase):

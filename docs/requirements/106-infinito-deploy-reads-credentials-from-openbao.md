@@ -70,4 +70,4 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ### Documentation
 
-- [x] The deploy and inventory documentation describe the reference form, the login order, the pre-flight and the create-only rule (`test_the_docs_name_the_openbao_reference` in `tests/unit/python/cli/administration/deploy/dedicated/test_docs.py`). (`## OpenBao references` in `cli/administration/deploy/README.md` and `cli/administration/inventory/README.md`; proven by `test_docs.py`.)
+- [x] The deploy and inventory documentation describe the reference form, the login order, the pre-flight and the create-only rule. (`## OpenBao references` in `cli/administration/deploy/README.md` and `cli/administration/inventory/README.md`.)

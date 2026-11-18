@@ -100,4 +100,4 @@ Rejected:
 
 ### Documentation
 
-- [x] The [README](../../roles/web-app-semaphore/README.md) documents the pin floor, the task token settings, the locked fields, the input rule, the inputs of `deploy` and the host key of every host template (`test_the_readme_names_the_locked_fields` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
+- [x] The [README](../../roles/web-app-semaphore/README.md) documents the pin floor, the task token settings, the locked fields, the input rule, the inputs of `deploy` and the host key of every host template (`roles/web-app-semaphore/README.md`).

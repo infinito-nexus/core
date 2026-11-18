@@ -53,4 +53,4 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ### Documentation
 
-- [x] The [README](../../roles/web-app-gitea/README.md) documents the switch, the organization, the store account, the token scopes, where the token lives with its two fields, and that only the rotation ends a token (`test_the_readme_names_the_workspace_organization` in `tests/unit/python/roles/web-app-gitea/test_readme.py`). _(Section "Workspace repositories" of the README; the README without it turns the test red.)_
+- [x] The [README](../../roles/web-app-gitea/README.md) documents the switch, the organization, the store account, the token scopes, where the token lives with its two fields, and that only the rotation ends a token. _(Section "Workspace repositories" of the README.)_

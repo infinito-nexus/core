@@ -65,4 +65,4 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ### Documentation
 
-- [x] The [README](../../roles/web-svc-seaweedfs/README.md) documents the workspace buckets, the identity actions, the fail-closed reload, the slot maximum and the version floor (`test_the_readme_names_the_workspace_buckets` in `tests/unit/python/roles/web-svc-seaweedfs/test_readme.py`). _(Section "Workspace buckets" with "Fail-closed reload", "Slot maximum" and "Version floor"; the base README turns the test red.)_
+- [x] The [README](../../roles/web-svc-seaweedfs/README.md) documents the workspace buckets, the identity actions, the fail-closed reload, the slot maximum and the version floor. _(Section "Workspace buckets" with "Fail-closed reload", "Slot maximum" and "Version floor".)_

@@ -53,4 +53,4 @@ Rejected:
 
 ### Documentation
 
-- [x] The [README](../../roles/web-app-semaphore/README.md) documents `INVENTORY_COMMIT`, its pattern, the ancestry check on `main` and the protection the store sets (`test_the_readme_names_the_inventory_commit` in `tests/unit/python/roles/web-app-semaphore/test_readme.py`).
+- [x] The [README](../../roles/web-app-semaphore/README.md) documents `INVENTORY_COMMIT`, its pattern, the ancestry check on `main` and the protection the store sets (`roles/web-app-semaphore/README.md`).
