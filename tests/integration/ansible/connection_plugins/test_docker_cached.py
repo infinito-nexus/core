@@ -19,6 +19,8 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
+from utils.cache.files import read_text
+
 from . import PROJECT_ROOT
 
 SHIM = f"""#!{sys.executable}
@@ -161,12 +163,8 @@ def _run(workdir: Path, connection: str) -> tuple[dict, list[list[str]], Path]:
         raise RuntimeError(
             f"ansible-playbook failed\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
         )
-    calls = [
-        json.loads(line)
-        for line in log.read_text(encoding="utf-8").splitlines()
-        if line
-    ]
-    return json.loads(report.read_text(encoding="utf-8")), calls, node_dir
+    calls = [json.loads(line) for line in read_text(str(log)).splitlines() if line]
+    return json.loads(read_text(str(report))), calls, node_dir
 
 
 @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
@@ -179,7 +177,7 @@ class TestDockerCachedConnection(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tmp:
                 report, calls, node_dir = _run(Path(tmp), connection)
                 files = {
-                    name: (node_dir / name).read_text(encoding="utf-8")
+                    name: read_text(str(node_dir / name))
                     for name in ("copied.txt", "templated.txt")
                 }
             cls.runs[connection] = (report, calls, files)

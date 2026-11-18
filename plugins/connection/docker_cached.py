@@ -121,7 +121,9 @@ class Connection(DockerConnection):
     def _get_docker_version(self) -> str:
         path = self._version_cache_path()
         try:
-            cached = path.read_text(encoding="utf-8").strip()
+            cached = path.read_text(
+                encoding="utf-8"  # nocheck: cache-read (per-run file the first worker writes)
+            ).strip()
         except FileNotFoundError:
             cached = ""
         if cached:
