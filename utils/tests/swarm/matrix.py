@@ -21,6 +21,7 @@ from utils.tests.swarm.deploy import (
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.extend_inventory import mesh_enabled
 from utils.tests.swarm.extra_vars import with_extra_vars
+from utils.tests.swarm.lab_ports import lab_port_overrides
 from utils.tests.swarm.mesh import (
     bootstrap_mesh,
     converge_mesh,
@@ -317,7 +318,7 @@ def main(argv: list[str] | None = None) -> int:
         round_index,
         inv_dir,
         round_variants,
-        _round_include,
+        round_include,
         round_purge_set,
     ) in enumerate(plan):
         inv_root = inv_dir.rstrip("/")
@@ -351,6 +352,9 @@ def main(argv: list[str] | None = None) -> int:
         if meshed:
             applications = merge_with_defaults(applications, layout_applications())
         applications = merge_with_defaults(applications, scan_pin)
+        applications = merge_with_defaults(
+            applications, lab_port_overrides(round_include)
+        )
         base_overrides = {
             "applications": applications,
             "users": {

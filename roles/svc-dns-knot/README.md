@@ -28,6 +28,8 @@ The primary keeps the workspace keys in `workspaces.json` of its instance direct
 
 Port 53 of the host must be free on every address, so a host stub resolver such as the one of `systemd-resolved` must not listen on it. `svc-dns-unbound` publishes no host port; its consumers reach it on its own network. The delegation of the subzone (its NS, glue and DS records in the parent zone) is written by the platform deploy, not by this role.
 
+The swarm test lab cannot meet this: every lab node runs its own resolver on port 53. Swarm lab rounds therefore publish knot on port 1053 ([lab_ports.py](../../utils/tests/swarm/lab_ports.py)); compose and production keep port 53.
+
 ## Tests
 
 - [test_acl.py](../../tests/unit/python/roles/svc-dns-knot/test_acl.py) renders `knot.conf` for a primary and a secondary and proves the update grants, the signing and the transfer, with negative controls.
