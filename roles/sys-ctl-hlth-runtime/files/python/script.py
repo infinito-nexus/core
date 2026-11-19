@@ -466,7 +466,7 @@ def container_running(container_id: str) -> bool:
         container_id: the container to inspect.
 
     Returns:
-        ``True`` while ``container inspect`` reports it running, ``False``
+        ``True`` while the container engine reports it running, ``False``
         once it stopped or is gone.
     """
     result = subprocess.run(
