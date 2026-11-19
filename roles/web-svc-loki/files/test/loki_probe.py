@@ -12,16 +12,39 @@ Commands:
         answer holds an active NAME alert for APPLICATION, else 1.
     alert-line RUN_ID: print the synthetic critical line of run RUN_ID; it reads
         no answer.
+    url BASE [KEY=VALUE ...]: print BASE with the pairs percent-encoded as its
+        query string; it reads no answer.
 
-Exit 2 reports an answer that is not the expected JSON shape.
+Exit 2 reports an answer that is not the expected JSON shape, or a url pair
+without ``=``.
 """
 
 from __future__ import annotations
 
 import json
 import sys
+from urllib.parse import quote
 
 ALERT_LINE = "INFINITO-ALERT-CANARY {run_id} critical synthetic error line"
+
+
+def query_url(base: str, pairs: list[str]) -> str:
+    """*base* with the ``KEY=VALUE`` *pairs* percent-encoded as its query string.
+
+    Args:
+        base: the URL without a query string.
+        pairs: the query parameters in order; a value may hold ``=``.
+
+    Raises:
+        ValueError: a pair holds no ``=``.
+    """
+    encoded = []
+    for pair in pairs:
+        key, separator, value = pair.partition("=")
+        if not separator:
+            raise ValueError(f"expected KEY=VALUE, got {pair!r}")
+        encoded.append(f"{quote(key, safe='')}={quote(value, safe='')}")
+    return f"{base}?{'&'.join(encoded)}" if encoded else base
 
 
 def stored_lines(answer: dict) -> list[str]:
@@ -120,6 +143,13 @@ def main(argv: list[str]) -> int:
     """
     if len(argv) == 2 and argv[0] == "alert-line":
         print(ALERT_LINE.format(run_id=argv[1]))
+        return 0
+    if len(argv) >= 2 and argv[0] == "url":
+        try:
+            print(query_url(argv[1], argv[2:]))
+        except ValueError as error:
+            print(f"loki_probe: url: {error}", file=sys.stderr)
+            return 2
         return 0
     if not argv or argv[0] not in _ANSWER_COMMANDS:
         print(f"loki_probe: unknown command {argv[:1]!r}", file=sys.stderr)

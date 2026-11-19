@@ -8,7 +8,7 @@
     command:
       - "-config.file={{ LOKI_CONFIG_DOCKER }}"
       - "-config.expand-env=true"
-    {# nocheck: swarm-loopback-port open  Grafana queries Loki by service name and internal port (GRAFANA_LOKI_URL) and shippers push through the gateway vhost, but the host-side test (templates/test.env.j2, files/test/test.sh) curls this local port, which swarm drops; 074 :27 tracks it #}
+    {# nocheck: swarm-loopback-port overlay  Grafana (GRAFANA_LOKI_URL) and the role test (files/test/test.sh, from a container on the loki network) query Loki by service name and internal port, and shippers push through the gateway vhost #}
     {{ lookup('container_ports', ['loki', 'loki', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

@@ -2,7 +2,8 @@
 set -euo pipefail
 
 : "${LOKI_TEST_IS_STACK_HOST:?}"
-: "${LOKI_TEST_LOCAL_URL:?}"
+: "${LOKI_TEST_NETWORK:?}"
+: "${LOKI_TEST_SERVICE_URL:?}"
 : "${LOKI_TEST_PUSH_URL:?}"
 : "${LOKI_TEST_TENANT:?}"
 : "${LOKI_TEST_PUSH_TOKEN_B64:?}"
@@ -90,10 +91,20 @@ source_bearer="CanarySourceBearer${run_id}"
 contract_run loki-canary "${LOKI_TEST_IMAGE}" \
 	sh -c "echo 'INFINITO-SOURCE-CANARY ${run_id} password=${source_password} token=${source_token} Authorization: Bearer ${source_bearer}'"
 
+network_get() {
+	local network="$1"
+	shift
+	# nocheck: logging-driver  the probe's stdout is the Loki or Alertmanager answer this test parses, not an application log; in the journal its canary and alert texts would reach Loki again and match the critical pattern
+	container run --rm --log-driver none --network "${network}" "${LOKI_TEST_IMAGE}" \
+		wget -qO- -T 30 "$@"
+}
+
 loki_get() {
 	local path="$1"
 	shift
-	curl --max-time 30 -sS -G -H "X-Scope-OrgID: ${LOKI_TEST_TENANT}" "$@" "${LOKI_TEST_LOCAL_URL}${path}"
+	local url
+	url="$(python3 -I "${probe}" url "${LOKI_TEST_SERVICE_URL}${path}" "$@")"
+	network_get "${LOKI_TEST_NETWORK}" --header "X-Scope-OrgID: ${LOKI_TEST_TENANT}" "${url}"
 }
 
 query_lines() {
@@ -102,10 +113,10 @@ query_lines() {
 	end="$(date +%s%N)"
 	start="$((end - 3600000000000))"
 	loki_get /loki/api/v1/query_range \
-		--data-urlencode "query={application=\"loki-canary\"} |= \"${marker}\"" \
-		--data-urlencode "start=${start}" \
-		--data-urlencode "end=${end}" \
-		--data-urlencode "limit=20" |
+		"query={application=\"loki-canary\"} |= \"${marker}\"" \
+		"start=${start}" \
+		"end=${end}" \
+		"limit=20" |
 		python3 -I "${probe}" lines
 }
 
@@ -113,8 +124,8 @@ count_lines() {
 	local selector="$1"
 	local marker="$2"
 	loki_get /loki/api/v1/query \
-		--data-urlencode "query=sum(count_over_time(${selector} |= \"${marker}\" [1h]))" \
-		--data-urlencode "time=$(date +%s%N)" |
+		"query=sum(count_over_time(${selector} |= \"${marker}\" [1h]))" \
+		"time=$(date +%s%N)" |
 		python3 -I "${probe}" count
 }
 
@@ -223,9 +234,7 @@ if [ -z "${LOKI_TEST_ALERTMANAGER_URL}" ]; then
 	exit 0
 fi
 alertmanager_alerts() {
-	# nocheck: logging-driver  the probe's stdout is the Alertmanager answer this test parses, not an application log; in the journal its alert texts would match the critical pattern and raise the alert again
-	container run --rm --log-driver none --network "${LOKI_TEST_ALERTMANAGER_NETWORK}" "${LOKI_TEST_IMAGE}" \
-		wget -qO- "${LOKI_TEST_ALERTMANAGER_URL}/api/v2/alerts"
+	network_get "${LOKI_TEST_ALERTMANAGER_NETWORK}" "${LOKI_TEST_ALERTMANAGER_URL}/api/v2/alerts"
 }
 
 delivered=false

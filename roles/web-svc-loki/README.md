@@ -13,7 +13,7 @@ The stack runs two containers:
 
 Every server host runs the [log collector](../sys-svc-log-collector/README.md), which pushes its journal to `https://loki.<DOMAIN_PRIMARY>/loki/api/v1/push`. The vhost serves only that path, only for `POST`, and only with the bearer token `push_token` from `meta/secrets.yml`; it keeps the token's SHA-256, answers `401` without a matching token and `403` for any tenant but `services.loki.tenant`. Every other path answers `404`. `meta/networks.yml` restricts the role to clearnet and the role declares no `tor` service, so the ingest endpoint never answers on an onion address.
 
-Grafana reads Loki over the shared network of the `loki` service bond (`http://loki:3100`). The Loki API and the gateway also bind to the local ports `services.loki.ports.local.loki` and `services.gateway.ports.local.push`, for the front proxy and the role test.
+Grafana reads Loki over the shared network of the `loki` service bond (`http://loki:3100`), and so does the role test, from a throwaway container on that network, so it reaches Loki in compose and swarm alike. The gateway binds to the local port `services.gateway.ports.local.push` for the front proxy; in compose the Loki API also binds to `services.loki.ports.local.loki`.
 
 ## Features
 
