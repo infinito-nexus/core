@@ -34,6 +34,7 @@ if TYPE_CHECKING:
 ROLE = "svc-cache-package"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
 ROLE_VARS = ROLE_DIR / ROLE_FILE_VARS_MAIN
+WEBSERVER_VARS = PROJECT_ROOT / "group_vars" / "all" / "04_webserver.yml"
 TEMPLATE_DIRS = (ROLE_DIR / "templates", PROJECT_ROOT / "compose" / "templates")
 UPSTREAMS_TEMPLATE = "upstreams.conf.j2"
 CONSUMER_TEMPLATE = "cache-consumer.yml.jinja"
@@ -93,10 +94,15 @@ def _render(template: str, **context) -> str:
     return env.get_template(template).render(**context)
 
 
+def _webserver_http2() -> bool:
+    return load_yaml_any(str(WEBSERVER_VARS))["WEBSERVER_HTTP2_ENABLED"]
+
+
 def upstreams_conf() -> str:
     """Return the nginx frontend configuration the declarations produce."""
     return _render(
         UPSTREAMS_TEMPLATE,
+        WEBSERVER_HTTP2_ENABLED=_webserver_http2(),
         CACHE_PACKAGE_UPSTREAMS=list(host_records().values()),
         CACHE_PACKAGE_REPOS=repo_records(),
         CACHE_PACKAGE_BACKEND=BACKEND,

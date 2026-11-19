@@ -33,6 +33,9 @@ server {
 	listen {{ listener.port }}{{ ' ssl' if listener.tls else '' }};
 	server_name {{ host.host }};
 {% if listener.tls %}
+{% if WEBSERVER_HTTP2_ENABLED | string | lower in ['true', 'yes', 'on', '1'] %}
+	http2 on;
+{% endif %}
 	ssl_certificate     {{ CACHE_PACKAGE_CERTS_DIR }}/{{ host.host }}.crt;
 	ssl_certificate_key {{ CACHE_PACKAGE_CERTS_DIR }}/{{ host.host }}.key;
 {% set repo = CACHE_PACKAGE_REPOS[host.repo] %}

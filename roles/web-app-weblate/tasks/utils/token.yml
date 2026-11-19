@@ -43,7 +43,7 @@
   register: weblate_admin_adopt
   retries: 30
   delay: 10
-  until: weblate_admin_adopt.rc == 0
+  until: weblate_admin_adopt.rc == 0 or 'ADOPT_REFUSED' in weblate_admin_adopt.stderr
   changed_when: "'ADOPTED=1' in weblate_admin_adopt.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ WEBLATE_HOST_NODE }}"

@@ -6,6 +6,7 @@ import unittest
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from plugins.filter.security_headers import FilterModule
+from utils.cache.yaml import load_yaml
 from utils.tls.common import resolve_enabled
 
 from . import PROJECT_ROOT
@@ -26,12 +27,13 @@ PRIMARY_DOMAINS = {
 }
 
 
-def render(application_id: str, override: dict) -> str:
+def render(application_id: str, override: dict, http2: bool = False) -> str:
     """Return the TLS server header of one vhost.
 
     Args:
         application_id: the app the vhost belongs to, or a redirect domain.
         override: the app's ``server.security_headers`` block.
+        http2: the value of ``WEBSERVER_HTTP2_ENABLED``.
     """
     applications = {
         app: {"server": {"security_headers": override}}
@@ -65,6 +67,7 @@ def render(application_id: str, override: dict) -> str:
         domain=PRIMARY_DOMAINS[application_id],
         lookup=lookup,
         WEBSERVER_SECURITY_HEADERS=PLATFORM,
+        WEBSERVER_HTTP2_ENABLED=http2,
     )
 
 
@@ -108,6 +111,18 @@ class TestCookieFlags(unittest.TestCase):
 
     def test_a_tls_vhost_keeps_the_upstream_cookie_flags(self):
         self.assertNotIn("proxy_cookie_flags", render("web-app-x", {}))
+
+
+class TestHttp2(unittest.TestCase):
+    def test_a_tls_vhost_serves_no_http2_while_the_switch_is_off(self):
+        self.assertNotIn("http2", render("web-app-x", {}))
+
+    def test_a_tls_vhost_serves_http2_once_the_switch_is_on(self):
+        self.assertIn("\nhttp2 on;\n", render("web-app-x", {}, http2=True))
+
+    def test_the_platform_default_keeps_http2_off(self):
+        defaults = load_yaml(PROJECT_ROOT / "group_vars/all/04_webserver.yml")
+        self.assertIs(defaults["WEBSERVER_HTTP2_ENABLED"], False)
 
 
 if __name__ == "__main__":
