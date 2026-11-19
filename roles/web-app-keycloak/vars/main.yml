@@ -135,7 +135,8 @@ KEYCLOAK_REPLICAS: "{{ groups[application_id] | length }}"
 KEYCLOAK_REPLICAS_WANT: "{{ KEYCLOAK_REPLICAS }}/{{ KEYCLOAK_REPLICAS }}"
 KEYCLOAK_DB_NETWORK_ARG: "{% if lookup('database', application_id, 'shared') | bool %}--network {{ lookup('database', application_id, 'network') | quote }}{% endif
   %}"
-KEYCLOAK_IMPORT_CA_MOUNT_ARG: "{% if lookup('ca_injected', application_id) %}--mount type=bind,source={{ CA_TRUST.cert_host | quote }},target={{ CA_TRUST.inject_cert_container | quote }},readonly{% endif %}"
+KEYCLOAK_IMPORT_CA_MOUNT_ARG: "{% if lookup('ca_injected', application_id) %}--mount type=bind,source={{ CA_TRUST.cert_host | quote }},target={{ CA_TRUST.inject_cert_container
+  | quote }},readonly{% endif %}"
 
 KEYCLOAK_FRONTCHANNEL_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
 KEYCLOAK_JAVASCRIPT_ENABLED: "{{ lookup('config', application_id, 'services.javascript.enabled') | bool }}"

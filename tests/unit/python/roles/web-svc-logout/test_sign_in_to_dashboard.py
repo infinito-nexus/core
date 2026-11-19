@@ -10,10 +10,19 @@ from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
 
-LOGOUT_FLOW = PROJECT_ROOT / "roles" / "web-svc-logout" / "files" / "playwright" / "logout-flow.js"
+LOGOUT_FLOW = (
+    PROJECT_ROOT
+    / "roles"
+    / "web-svc-logout"
+    / "files"
+    / "playwright"
+    / "logout-flow.js"
+)
 
 STUBS = {
-    "node_modules/@playwright/test/package.json": json.dumps({"name": "@playwright/test", "main": "index.js"}),
+    "node_modules/@playwright/test/package.json": json.dumps(
+        {"name": "@playwright/test", "main": "index.js"}
+    ),
     "node_modules/@playwright/test/index.js": """
         module.exports = {
           expect: (target, message) => ({
@@ -103,7 +112,9 @@ class TestSignInToDashboard(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         return json.loads(proc.stdout)
 
-    def test_a_dashboard_the_shared_keycloak_session_signed_in_is_not_clicked(self) -> None:
+    def test_a_dashboard_the_shared_keycloak_session_signed_in_is_not_clicked(
+        self,
+    ) -> None:
         result = self._sign_in("sso")
         self.assertNotIn("error", result, result)
         self.assertEqual(
