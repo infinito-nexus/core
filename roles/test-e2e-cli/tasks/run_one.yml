@@ -104,6 +104,7 @@
     mode: "0600"
     content: "{{ lookup('template', _cli_env_template) }}"
   delegate_to: "{{ CLI_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🚀 Run CLI test script for {{ application_id }}
   ansible.builtin.shell:
