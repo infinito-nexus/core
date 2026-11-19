@@ -118,9 +118,20 @@ function accountTrigger(page) {
 
 /**
  * Args:
+ *   page: a dashboard page whose header oidc.js has yet to settle.
+ */
+async function awaitOidcReady(page) {
+  await page.waitForFunction((flag) => window[flag] === true, OIDC_LOGIN_READY_FLAG, {
+    timeout: resolveTimeout(60_000),
+  });
+}
+
+/**
+ * Args:
  *   page: a page signed in to the dashboard.
  */
 async function openAccountMenu(page) {
+  await awaitOidcReady(page);
   await accountTrigger(page).click({ timeout: resolveTimeout(30_000) });
 }
 
@@ -188,9 +199,7 @@ function loginTrigger(page) {
  */
 async function signInToDashboard(page, dashboardUrl) {
   await gotoOnion(page, dashboardUrl);
-  await page.waitForFunction((flag) => window[flag] === true, OIDC_LOGIN_READY_FLAG, {
-    timeout: resolveTimeout(60_000),
-  });
+  await awaitOidcReady(page);
   if (!(await accountTrigger(page).isVisible())) {
     const trigger = loginTrigger(page);
     const authPage = await clickOidcLoginLink(page, trigger, trigger);

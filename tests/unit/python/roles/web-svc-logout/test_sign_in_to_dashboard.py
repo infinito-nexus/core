@@ -86,16 +86,65 @@ RUNNER = """
 """
 
 
+MENU_RUNNER = """
+    const { chooseFromAccountMenu } = require("./logout-flow");
+    function fakePage() {
+      const page = { events: [], ready: false, open: false };
+      const trigger = {
+        first: () => trigger,
+        click: async () => {
+          page.events.push(page.ready ? "open" : "open-before-oidc-js");
+          page.open = page.ready;
+        },
+      };
+      const choice = {
+        isVisible: async () => page.open,
+        click: async () => page.events.push("choose"),
+      };
+      const header = {
+        first: () => header,
+        getByRole: (role) => (role === "button" ? trigger : choice),
+      };
+      page.locator = () => header;
+      page.waitForFunction = async (_fn, flag) => {
+        page.events.push("wait:" + flag);
+        page.ready = true;
+      };
+      return page;
+    }
+    (async () => {
+      const page = fakePage();
+      try {
+        await chooseFromAccountMenu(page, "everywhere");
+        process.stdout.write(JSON.stringify({ events: page.events }));
+      } catch (error) {
+        process.stdout.write(JSON.stringify({ events: page.events, error: error.message }));
+      }
+    })();
+"""
+
+
+def _workdir(runner: str) -> Path:
+    """Args:
+        runner: the node script that drives logout-flow.js against a fake page.
+
+    Returns:
+        A scratch directory holding the stubs, the runner as run.js and logout-flow.js.
+    """
+    workdir = Path(tempfile.mkdtemp(prefix="logout-flow-"))
+    for relative, source in {**STUBS, "run.js": runner}.items():
+        target = workdir / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("w") as handle:
+            handle.write(textwrap.dedent(source))
+    shutil.copy(str(LOGOUT_FLOW), str(workdir / "logout-flow.js"))
+    return workdir
+
+
 @unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
 class TestSignInToDashboard(unittest.TestCase):
     def setUp(self) -> None:
-        self.workdir = Path(tempfile.mkdtemp(prefix="logout-flow-"))
-        for relative, source in {**STUBS, "run.js": RUNNER}.items():
-            target = self.workdir / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            with target.open("w") as handle:
-                handle.write(textwrap.dedent(source))
-        shutil.copy(str(LOGOUT_FLOW), str(self.workdir / "logout-flow.js"))
+        self.workdir = _workdir(RUNNER)
 
     def tearDown(self) -> None:
         shutil.rmtree(self.workdir, ignore_errors=True)
@@ -133,6 +182,36 @@ class TestSignInToDashboard(unittest.TestCase):
     def test_the_header_is_read_only_after_oidc_js_settled_it(self) -> None:
         result = self._sign_in("sso")
         self.assertEqual(result["events"], ["goto", "wait:__oidcLoginReady"])
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestChooseFromAccountMenu(unittest.TestCase):
+    def setUp(self) -> None:
+        self.workdir = _workdir(MENU_RUNNER)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.workdir, ignore_errors=True)
+
+    def test_the_menu_opens_only_after_oidc_js_settled_the_header(self) -> None:
+        proc = subprocess.run(
+            ["node", "run.js"],
+            capture_output=True,
+            text=True,
+            cwd=str(self.workdir),
+            timeout=20,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        result = json.loads(proc.stdout)
+
+        self.assertNotIn("error", result, result)
+        self.assertEqual(
+            result["events"],
+            ["wait:__oidcLoginReady", "open", "choose"],
+            "a dashboard reloaded after the sign-in hides its Account item until oidc.js "
+            "settles, which closes a menu opened earlier and leaves the everywhere link "
+            "without the handler that ends the sessions",
+        )
 
 
 if __name__ == "__main__":
