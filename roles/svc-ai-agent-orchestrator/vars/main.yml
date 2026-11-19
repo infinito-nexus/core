@@ -31,6 +31,7 @@ AGENT_ORCHESTRATOR_STAGED_DIRS:
   - utils/orchestrator
   - utils/agents
   - utils/cache
+  - utils/design
   - utils/roles
   - agents/routines
   - roles/test-e2e-playwright/vars
