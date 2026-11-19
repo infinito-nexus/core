@@ -105,6 +105,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -246,6 +249,9 @@
       shared: true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -340,6 +346,9 @@
       shared: true
     litellm:
       enabled: false
+    speech:
+      enabled: true
+      shared: true
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -434,6 +443,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -528,6 +540,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: true
       shared: true
@@ -622,6 +637,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -716,6 +734,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -810,6 +831,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -909,6 +933,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1003,6 +1030,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1097,6 +1127,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1196,6 +1229,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1290,6 +1326,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1386,6 +1425,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: true
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1488,6 +1530,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1588,6 +1633,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

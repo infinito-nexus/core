@@ -4,7 +4,7 @@ models:
   modes:
     host:
       enabled: true
-  min_storage: 6696529838
+  min_storage: 6886615325
   cpus: "0.5"
   mem_reservation: "64m"
   mem_limit: "256m"

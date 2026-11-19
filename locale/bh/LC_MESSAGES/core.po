@@ -2518,6 +2518,10 @@ msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr "विक्रमपुराणी ऑनलाइड वीडियो कन्फरेंस प्लेटफार्म जिसका इक्साइड मेडिया/वीडियो चौकरा, चित्र प्रदान, ब्रोकर रूम्स और स्क्वायर स्कोर्टिंग"
 
+msgctxt "role:svc-ai-speech:description"
+msgid "Speech-to-text engine with an OpenAI-compatible transcription endpoint, for consumers that call it directly"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"

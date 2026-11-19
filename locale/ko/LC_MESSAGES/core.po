@@ -2528,6 +2528,10 @@ msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr "오디오 / 비디오 통화, 스크린 공유, 브레이크 아웃 룸 및 SSO를위한 Sovereign 오픈 소스 비디오 conferencing 플랫폼"
 
+msgctxt "role:svc-ai-speech:description"
+msgid "Speech-to-text engine with an OpenAI-compatible transcription endpoint, for consumers that call it directly"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"

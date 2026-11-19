@@ -284,6 +284,12 @@ NEXTCLOUD_WHITEBOARD_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', a
 NEXTCLOUD_RECORDING_SERVICE: "talk_recording"
 NEXTCLOUD_RECORDING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.name') }}"
 NEXTCLOUD_RECORDING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
+NEXTCLOUD_SPEECH_TO_TEXT_ENABLED: >-
+  {{ (lookup('config', application_id, 'addons.integration_openai.enabled') | bool)
+     and (lookup('config', application_id, 'services.speech.enabled') | bool)
+     and (lookup('config', application_id, 'services.speech.shared') | bool) }}
+NEXTCLOUD_SPEECH_TO_TEXT_URL: "{{ lookup('container_url', 'svc-ai-speech', 'speech') }}{{ lookup('config', 'svc-ai-speech', 'services.speech.api_path') }}"
+NEXTCLOUD_SPEECH_TO_TEXT_TIMEOUT: "{{ lookup('config', 'svc-ai-speech', 'services.speech.request_timeout') }}"
 NEXTCLOUD_RECORDING_PORT: "{{ lookup('config', application_id, 'services.talk_recording.ports.internal.recording') }}"
 NEXTCLOUD_RECORDING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_recording_secret') }}"
 NEXTCLOUD_RECORDING_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.repository') }}"

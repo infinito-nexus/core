@@ -204,7 +204,8 @@ cron:
   name: nextcloud-cron
   cpus: "0.25"
   mem_reservation: 128m
-  mem_limit: 512m
+  # Limitation: cron claims core:audio2text tasks like the taskprocessing worker, and integration_openai reads the whole recording into PHP memory
+  mem_limit: 1g
   pids_limit: 256
   min_storage: 1GB
 taskprocessing:
@@ -441,6 +442,11 @@ litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
   shared: "{{ LITELLM_SHARED }}"
+# nocheck: playwright-service-flag: speech-to-text engine without a browser surface, reached over its container network
+speech:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-speech' in group_names }}"
+  shared: "{{ 'svc-ai-speech' in group_names }}"
 # nocheck: playwright-service-flag: bridged mastodon partner, covered by partner role spec
 mastodon:
   bond: 0.5
