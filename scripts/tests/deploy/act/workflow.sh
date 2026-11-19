@@ -105,6 +105,7 @@ if [[ "${ACT_BIND}" != "true" ]] && compgen -G "${_act_repo_root}/roles/web-app-
 fi
 if [[ "${ACT_BIND}" == "true" ]]; then
 	cmd+=(--bind)
+	cmd+=(--env "INFINITO_DOTENV_HOST_OWNED=true")
 fi
 
 "${cmd[@]}"
