@@ -24,6 +24,7 @@ const test = base.test.extend({
     let browser;
     if (isOnion) {
       browser = await playwright.firefox.launch({
+        channel: undefined,
         proxy,
         firefoxUserPrefs: {
           "dom.securecontext.allowlist_onions": true,

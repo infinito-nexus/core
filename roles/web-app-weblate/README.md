@@ -37,7 +37,7 @@ Weblate is served on clearnet over https and on its onion sibling over plain htt
 
 The subclasses override upstream internals checked against Weblate `2026.9` (`weblate/middleware.py` `ProxyMiddleware.process_request`, `weblate/accounts/strategy.py` `WeblateStrategy.build_absolute_uri`/`request_is_secure`/`request_host`/`request_port`). Re-check both before raising `services.weblate.version`. The override refuses to start Weblate when either upstream class path is gone.
 
-WebAuthn second factors stay bound to the clearnet domain (`OTP_WEBAUTHN_*` follows `SITE_URL`), and a plain-http onion page is no secure context, so a WebAuthn key cannot be used on the onion sibling. E-mails, feeds and other links Weblate renders from `SITE_URL` keep naming the clearnet domain.
+WebAuthn second factors stay bound to the clearnet domain (`OTP_WEBAUTHN_*` follows `SITE_URL`), so a key registered there names a relying party the onion sibling's origin is not part of and cannot be used on it. E-mails, feeds and other links Weblate renders from `SITE_URL` keep naming the clearnet domain.
 
 ## Biber coverage
 

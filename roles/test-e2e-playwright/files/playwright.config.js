@@ -64,9 +64,14 @@ module.exports = defineConfig({
     // targets, which Chromium cannot resolve over normal DNS). Empty/unset =
     // direct connection (unchanged default for clearnet targets).
     proxy,
-    launchOptions: onionSecure.length
-      ? { args: [`--unsafely-treat-insecure-origin-as-secure=${onionSecure.join(",")}`] }
-      : undefined,
+    ...(onionSecure.length
+      ? {
+          channel: "chromium",
+          launchOptions: {
+            args: [`--unsafely-treat-insecure-origin-as-secure=${onionSecure.join(",")}`],
+          },
+        }
+      : {}),
     // Fail fast instead of hanging until the per-test timeout when a target is
     // unreachable (e.g. an onion service that is not yet published).
     navigationTimeout: requiredTimeout("PLAYWRIGHT_NAVIGATION_TIMEOUT"),

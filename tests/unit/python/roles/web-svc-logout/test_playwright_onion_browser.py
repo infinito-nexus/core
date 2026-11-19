@@ -21,10 +21,10 @@ class TestOnionBrowser(unittest.TestCase):
                 self.assertEqual(
                     sources,
                     ["./onion-test"],
-                    "Chromium never treats a plaintext .onion origin as a secure "
-                    "context, so keycloak-js on the onion dashboard fails with "
-                    "'Web Crypto API is not available'; the shared onion-test "
-                    "fixture launches Firefox with dom.securecontext.allowlist_onions",
+                    "keycloak-js on the onion dashboard needs the Web Crypto API, "
+                    "which a plaintext .onion offers only as a secure context; the "
+                    "shared onion-test fixture runs these specs in Firefox, the "
+                    "engine of Tor Browser, with dom.securecontext.allowlist_onions",
                 )
 
 

@@ -11,7 +11,7 @@ const dotenv = require(path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/
 const SHARED = path.join(PROJECT_ROOT, "roles/web-app-odoo/files/playwright/_shared.js");
 const TOR = { tor: ".onion" };
 const ONION = `http://odoo.${"a".repeat(56)}.onion`;
-const PROXIED = { channel: "chromium", serviceWorkers: "block" };
+const PROXIED = { serviceWorkers: "block" };
 
 /**
  * Args:
@@ -37,7 +37,7 @@ function onionOptionsFor(baseUrl, suffixes) {
   return { ...onionOptions };
 }
 
-test("an Odoo on the onion network runs in the full Chromium without service workers", () => {
+test("an Odoo on the onion network runs without service workers", () => {
   assert.deepEqual(onionOptionsFor(ONION, TOR), PROXIED);
   assert.deepEqual(onionOptionsFor(`${ONION}/web/login`, TOR), PROXIED);
 });

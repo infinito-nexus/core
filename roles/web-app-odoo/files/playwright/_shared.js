@@ -29,7 +29,7 @@ const networkSuffixes = JSON.parse(
 
 const onionOptions =
   networkOf(new URL(env.odooBaseUrl).hostname, networkSuffixes) !== "clearnet"
-    ? { channel: "chromium", serviceWorkers: "block" }
+    ? { serviceWorkers: "block" }
     : {};
 
 function baseUrl() {
