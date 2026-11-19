@@ -64,6 +64,7 @@ from utils.networks.attachments import (
     _shared_network_key,
     _suppress_default,
 )
+from utils.networks.proxy import REVERSE_PROXY_APPLICATION_ID
 
 BRIDGE_MTU_OPTION = "com.docker.network.driver.mtu"
 
@@ -307,6 +308,7 @@ def render_container_networks(
     provider_self_alias: bool = True,
     node_local: bool = False,
     own_network_only: bool = False,
+    reverse_proxy: bool = False,
     internal: str | None = None,
     egress: bool = False,
 ) -> str:
@@ -321,6 +323,8 @@ def render_container_networks(
         provider_self_alias: carry the provider's own alias.
         node_local: render as compose regardless of deployment_mode.
         own_network_only: join only the networks the role provides.
+        reverse_proxy: with ``own_network_only``, also join the reverse
+            proxy's network, for a service a vhost forwards to.
         internal: a role-private network without a route out, which the
             service then joins in place of every role network.
         egress: with ``internal``, also join ``default``, without an alias,
@@ -344,7 +348,11 @@ def render_container_networks(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
-        if own_network_only and not att["is_provider"]:
+        if (
+            own_network_only
+            and not att["is_provider"]
+            and not (reverse_proxy and att["role"] == REVERSE_PROXY_APPLICATION_ID)
+        ):
             continue
         lines.append(f"  {att.get('network') or entity_name(att['role'])}:")
         aliases = att["aliases"]

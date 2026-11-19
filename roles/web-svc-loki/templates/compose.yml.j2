@@ -29,7 +29,7 @@
       - "{{ LOKI_GATEWAY_CONFIG_DOCKER }}"
     {{ lookup('container_ports', ['gateway', 'push', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False, reverse_proxy=True) | indent(4) }}
     {{ lookup('depends_on', {'loki': 'service_started'}) }}
 
 {{ lookup('compose_volumes') }}
