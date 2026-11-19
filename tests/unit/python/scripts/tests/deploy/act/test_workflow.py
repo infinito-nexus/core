@@ -7,11 +7,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from cli.meta.env.__main__ import HOST_OWNED_KEY
 from utils.cache.files import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "act" / "workflow.sh"
 ACT_STUB = '#!/usr/bin/env bash\nprintf \'%s\\0\' "$@" >"${STUB_LOG}"\n'
 DB_ENV = "INFINITO_VULNERABILITY_DB_HOST_PATH"
+HOST_OWNED = f"{HOST_OWNED_KEY}=true"
 EXTRA_VARS = json.dumps(
     {
         "applications": {
@@ -23,7 +25,11 @@ EXTRA_VARS = json.dumps(
 
 
 def run_act(
-    db_host_path: str | None, act_env: str = ""
+    db_host_path: str | None,
+    act_env: str = "",
+    *,
+    act_bind: str | None = None,
+    custom_role: bool = False,
 ) -> tuple[subprocess.CompletedProcess, list[str], Path, bool]:
     """Run the wrapper against an ``act`` stub that records its argv.
 
@@ -31,6 +37,9 @@ def run_act(
         db_host_path: value of ``INFINITO_VULNERABILITY_DB_HOST_PATH`` below a
             scratch directory, or None to leave it unset.
         act_env: value of ``ACT_ENV``.
+        act_bind: value of ``ACT_BIND``, or None to leave it unset.
+        custom_role: run the wrapper from a scratch checkout that holds a
+            pulled ``roles/web-app-cst-*`` role instead of this repository.
 
     Returns:
         The finished process, the argv act received (one list item per
@@ -38,6 +47,14 @@ def run_act(
         whether it existed afterwards.
     """
     with tempfile.TemporaryDirectory() as tmp:
+        script = SCRIPT
+        if custom_role:
+            root = Path(tmp) / "repo"
+            (root / "roles" / "web-app-cst-demo").mkdir(parents=True)
+            (root / ".github" / "workflows").mkdir(parents=True)
+            script = root / "scripts" / "tests" / "deploy" / "act" / "workflow.sh"
+            script.parent.mkdir(parents=True)
+            script.symlink_to(SCRIPT)
         stub = Path(tmp) / "act"
         stub.write_text(ACT_STUB)
         stub.chmod(0o755)
@@ -48,8 +65,10 @@ def run_act(
         env = {
             k: v
             for k, v in os.environ.items()
-            if k not in ("BASH_ENV", DB_ENV, "ACT_CONTAINER_OPTIONS")
+            if k not in ("BASH_ENV", DB_ENV, "ACT_CONTAINER_OPTIONS", "ACT_BIND")
         }
+        if act_bind is not None:
+            env["ACT_BIND"] = act_bind
         env.update(
             PATH=f"{tmp}{os.pathsep}{os.environ['PATH']}",
             STUB_LOG=str(log),
@@ -63,7 +82,7 @@ def run_act(
         if db_host_path is not None:
             env[DB_ENV] = str(shared)
         done = subprocess.run(
-            ["bash", str(SCRIPT)],
+            ["bash", str(script)],
             env=env,
             capture_output=True,
             text=True,
@@ -99,10 +118,12 @@ def env_items(argv: list[str]) -> list[str]:
 
     Returns:
         Every ``--env`` value in order, without the wrapper's own
-        ``INFINITO_VULNERABILITY_DB_HOST_PATH`` pin.
+        ``INFINITO_VULNERABILITY_DB_HOST_PATH`` and host-owned ``.env`` pins.
     """
     return [
-        value for value in option(argv, "--env") if not value.startswith(f"{DB_ENV}=")
+        value
+        for value in option(argv, "--env")
+        if not value.startswith(f"{DB_ENV}=") and value != HOST_OWNED
     ]
 
 
@@ -163,6 +184,25 @@ class TestActWorkflowEnv(unittest.TestCase):
     def test_an_empty_value_still_passes_as_its_own_item(self) -> None:
         items = env_items(act_argv("INFINITO_INVENTORY_EXTRA_VARS=; disable=css"))
         self.assertEqual(items, ["INFINITO_INVENTORY_EXTRA_VARS=", "disable=css"])
+
+
+class TestBoundCheckoutKeepsTheHostDotenv(unittest.TestCase):
+    def test_an_explicit_bind_keeps_the_host_dotenv(self) -> None:
+        done, argv, _shared, _created = run_act("vulnerability-db", act_bind="true")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn("--bind", argv)
+        self.assertIn(HOST_OWNED, option(argv, "--env"))
+
+    def test_a_bind_for_pulled_custom_roles_keeps_the_host_dotenv(self) -> None:
+        done, argv, _shared, _created = run_act("vulnerability-db", custom_role=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn("--bind", argv)
+        self.assertIn(HOST_OWNED, option(argv, "--env"))
+
+    def test_the_marker_travels_only_with_the_bind(self) -> None:
+        done, argv, _shared, _created = run_act("vulnerability-db", act_bind="false")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual("--bind" in argv, HOST_OWNED in option(argv, "--env"))
 
 
 if __name__ == "__main__":
