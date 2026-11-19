@@ -44,5 +44,30 @@ class TestSeedNodes(unittest.TestCase):
                 )
 
 
+class TestSeedInputsUnderAForeignInclude(unittest.TestCase):
+    CALLER = "svc-ai-libretranslate-engine"
+
+    def _render(self, key: str) -> tuple[object, list[tuple[str, ...]]]:
+        calls: list[tuple[str, ...]] = []
+
+        def lookup(kind: str, *terms: str) -> object:
+            calls.append((kind, *terms))
+            return {self.CALLER: {}} if kind == "applications_current_play" else ""
+
+        variables = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))
+        template = NativeEnvironment().from_string(variables[key])
+        return template.render(lookup=lookup, application_id=self.CALLER), calls
+
+    def test_the_config_lookups_read_the_model_role_not_the_caller(self) -> None:
+        for key in ("MODELS_ARTEFACT_BASE", "MODELS_FETCH_TIMEOUT"):
+            with self.subTest(key=key):
+                _, calls = self._render(key)
+                self.assertEqual([call[:2] for call in calls], [("config", ROLE.name)])
+
+    def test_the_deployed_roles_add_the_model_role_not_the_caller(self) -> None:
+        roles, _ = self._render("MODELS_DEPLOYED_ROLES")
+        self.assertEqual(roles, [self.CALLER, ROLE.name])
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
