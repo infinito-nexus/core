@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const { expect } = require("@playwright/test");
 
 const {
+  OIDC_LOGIN_READY_FLAG,
   apiFetchOnion,
   apiGetOnion,
   clickOidcLoginLink,
@@ -20,7 +21,7 @@ const HEADER = "nav.menu-header";
 const RESULT = "#infinito-logout-result";
 const KEYCLOAK_LOGIN = "input[name='username'], input#username";
 const SSO_BUTTON = /\bsso\b/i;
-const XWIKI_SIGNED_IN = /data-xwiki-user-reference="(?:[^"]*:)?XWiki\.(?!XWikiGuest")/;
+const XWIKI_SIGNED_IN = /data-xwiki-user-reference="(?:[^"]*[:])?XWiki\.(?!XWikiGuest")/;
 const GATED_SESSIONS = {
   "web-app-mediawiki": {
     start: async (page, base) => {
@@ -187,10 +188,15 @@ function loginTrigger(page) {
  */
 async function signInToDashboard(page, dashboardUrl) {
   await gotoOnion(page, dashboardUrl);
-  const trigger = loginTrigger(page);
-  const authPage = await clickOidcLoginLink(page, trigger, trigger);
-  if (authPage) {
-    await performKeycloakLoginForm(authPage, logoutEnv.biberUsername, logoutEnv.biberPassword);
+  await page.waitForFunction((flag) => window[flag] === true, OIDC_LOGIN_READY_FLAG, {
+    timeout: resolveTimeout(60_000),
+  });
+  if (!(await accountTrigger(page).isVisible())) {
+    const trigger = loginTrigger(page);
+    const authPage = await clickOidcLoginLink(page, trigger, trigger);
+    if (authPage) {
+      await performKeycloakLoginForm(authPage, logoutEnv.biberUsername, logoutEnv.biberPassword);
+    }
   }
   await expect(accountTrigger(page), `${dashboardUrl}: biber must reach the Account menu`).toBeVisible({
     timeout: resolveTimeout(60_000),
