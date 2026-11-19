@@ -45,7 +45,7 @@ STUBS = {
             page.signedIn = true;
             return null;
           },
-          decodeDotenvJsonList: () => [],
+          decodeDotenvJsonList: (value) => (value ? JSON.parse(value) : []),
           decodeDotenvQuotedValue: (value) => value,
           gotoOnion: async (page) => page.events.push("goto"),
           performKeycloakLoginForm: async () => calls.push("form"),
@@ -119,6 +119,34 @@ MENU_RUNNER = """
         process.stdout.write(JSON.stringify({ events: page.events }));
       } catch (error) {
         process.stdout.write(JSON.stringify({ events: page.events, error: error.message }));
+      }
+    })();
+"""
+
+
+RETURN_RUNNER = """
+    const DASHBOARD = "https://dashboard.example.test/";
+    process.env.DASHBOARD_URLS_JSON = JSON.stringify([DASHBOARD]);
+    const { awaitDashboardReturn } = require("./logout-flow");
+    const journey = [
+      DASHBOARD,
+      "https://auth.example.test/realms/main/protocol/openid-connect/logout?client_id=dashboard",
+      DASHBOARD + "?logout-result=everywhere",
+    ];
+    const page = {
+      waitForURL: async (predicate) => {
+        for (const href of journey) {
+          if (predicate(new URL(href))) return (page.landed = href);
+        }
+        throw new Error("the page never matched");
+      },
+    };
+    (async () => {
+      try {
+        await awaitDashboardReturn(page);
+        process.stdout.write(JSON.stringify({ landed: page.landed }));
+      } catch (error) {
+        process.stdout.write(JSON.stringify({ error: error.message }));
       }
     })();
 """
@@ -211,6 +239,37 @@ class TestChooseFromAccountMenu(unittest.TestCase):
             "a dashboard reloaded after the sign-in hides its Account item until oidc.js "
             "settles, which closes a menu opened earlier and leaves the everywhere link "
             "without the handler that ends the sessions",
+        )
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not available in PATH")
+class TestAwaitDashboardReturn(unittest.TestCase):
+    def setUp(self) -> None:
+        self.workdir = _workdir(RETURN_RUNNER)
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.workdir, ignore_errors=True)
+
+    def test_the_wait_ends_on_the_redirect_back_not_on_the_page_it_starts_on(
+        self,
+    ) -> None:
+        proc = subprocess.run(
+            ["node", "run.js"],
+            capture_output=True,
+            text=True,
+            cwd=str(self.workdir),
+            timeout=20,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        result = json.loads(proc.stdout)
+
+        self.assertNotIn("error", result, result)
+        self.assertEqual(
+            result["landed"],
+            "https://dashboard.example.test/?logout-result=everywhere",
+            "the logout starts on the dashboard, so a wait for any dashboard URL ends "
+            "before the logout has left it and the result check races the redirect back",
         )
 
 

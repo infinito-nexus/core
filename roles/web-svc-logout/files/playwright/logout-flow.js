@@ -19,6 +19,7 @@ const SYNAPSE_IDP = "oidc-keycloak";
 const DURATION_UNITS_MS = { s: 1_000, m: 60_000, h: 3_600_000 };
 const HEADER = "nav.menu-header";
 const RESULT = "#infinito-logout-result";
+const RESULT_PARAM = "logout-result";
 const KEYCLOAK_LOGIN = "input[name='username'], input#username";
 const SSO_BUTTON = /\bsso\b/i;
 const XWIKI_SIGNED_IN = /data-xwiki-user-reference="(?:[^"]*[:])?XWiki\.(?!XWikiGuest")/;
@@ -137,11 +138,14 @@ async function openAccountMenu(page) {
 
 /**
  * Args:
- *   page: a page that left the dashboard for a logout.
+ *   page: a dashboard page whose logout redirects back to the dashboard with
+ *     the logout result in its query.
  */
 async function awaitDashboardReturn(page) {
   const origins = logoutEnv.dashboardUrls.map((url) => new URL(url).origin);
-  await page.waitForURL((url) => origins.includes(url.origin), { timeout: resolveTimeout(180_000) });
+  await page.waitForURL((url) => origins.includes(url.origin) && url.searchParams.has(RESULT_PARAM), {
+    timeout: resolveTimeout(180_000),
+  });
 }
 
 /**

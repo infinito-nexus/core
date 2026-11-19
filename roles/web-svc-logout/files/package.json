@@ -1,0 +1,8 @@
+{
+  "name": "web-svc-logout-assets",
+  "private": true,
+  "description": "Browser-served frontend assets for the web-svc-logout conductor, mirrored by web-svc-cdn.",
+  "dependencies": {
+    "bootstrap": "5.3.0"
+  }
+}
