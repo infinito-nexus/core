@@ -18,36 +18,96 @@ Forbidden (with fix):
 * top-level injected facts (``ansible_os_family``, ``ansible_eth0`` and every
   other ``ansible_<name>``) -- ``ansible.cfg`` turns fact injection off, so a
   top-level fact is undefined. Use ``ansible_facts['<name>']``. Every
-  ``ansible_<name>`` that is not a magic or connection variable
-  (``ALLOWED_NAMES``, ``ALLOWED_PREFIXES``) counts as a fact. The ``(?!=)``
+  ``ansible_<name>`` that is not a magic variable (``MAGIC_NAMES``) or a
+  variable a connection, become or shell plugin declares for its options (read
+  from the plugins' ``DOCUMENTATION``) counts as a fact. The facts that
+  ``service_facts``, ``package_facts`` and ``getent`` set without the prefix
+  (``services``, ``packages``, ``getent_<db>``) are flagged when read bare
+  inside a Jinja expression or a condition line. The ``(?!=(?!=))``
   guard skips a literal log label such as ``ansible_virtualization_type={{ ...
-  }}`` (name glued to ``=``) while still flagging a comparison like
-  ``ansible_os_family == 'X'`` (space before ``==``). In Python the rule reads
+  }}`` (name glued to a single ``=``) while still flagging a comparison like
+  ``ansible_os_family == 'X'`` or ``ansible_os_family=='X'``. In Python the rule reads
   only subscript and ``.get`` keys, the shape of a variable read.
 
 Scans ``.yml`` / ``.yaml`` / ``.j2`` under roles/, tasks/, group_vars/,
-playbooks/ and the playbook, and ``.py`` outside tests/ and role ``files/``. Mark a genuine
+playbooks/, compose/, inventories/ and both playbooks, and ``.py`` outside
+tests/ and role ``files/``. Mark a genuine
 exception with ``# nocheck: deprecated-ansible`` same-or-above the line.
 """
 
 from __future__ import annotations
 
+import ast
 import re
 import unittest
 from pathlib import Path
 
+from ansible import constants
+
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
+from utils.cache.yaml import load_yaml_str
 
 from . import PROJECT_ROOT
 
 _RULE = "deprecated-ansible"
 SCAN_SUFFIXES = (".yml", ".yaml", ".j2", ".py")
-_YAML_PREFIXES = ("roles/", "tasks/", "group_vars/", "playbooks/", "playbook.yml")
+_YAML_PREFIXES = (
+    "roles/",
+    "tasks/",
+    "group_vars/",
+    "playbooks/",
+    "compose/",
+    "inventories/",
+    "playbook.yml",
+    "playbook-sync.yml",
+)
 _PY_EXCLUDED_PREFIXES = ("tests/",)
 _PY_EXCLUDED_PARTS = ("/files/",)
+_ANSIBLE_PLUGINS = Path(constants.__file__).parent / "plugins"
+_PLUGIN_DOC_DIRS = (
+    _ANSIBLE_PLUGINS / "connection",
+    _ANSIBLE_PLUGINS / "become",
+    _ANSIBLE_PLUGINS / "shell",
+    _ANSIBLE_PLUGINS / "doc_fragments",
+    PROJECT_ROOT / "plugins" / "connection",
+)
 
-ALLOWED_NAMES = frozenset(
+
+def declared_plugin_vars(directories: tuple[Path, ...]) -> frozenset[str]:
+    """Return every ``ansible_*`` variable a plugin option declares under ``vars:``.
+
+    Args:
+        directories: plugin directories whose ``.py`` files carry a
+            ``DOCUMENTATION`` string, at module or class level.
+
+    Returns:
+        The declared variable names.
+    """
+    names: set[str] = set()
+    for directory in directories:
+        for path in sorted(directory.glob("*.py")):
+            for node in ast.walk(ast.parse(read_text(str(path)))):
+                if not (
+                    isinstance(node, ast.Assign)
+                    and any(
+                        isinstance(target, ast.Name) and target.id == "DOCUMENTATION"
+                        for target in node.targets
+                    )
+                    and isinstance(node.value, ast.Constant)
+                    and isinstance(node.value.value, str)
+                ):
+                    continue
+                options = (load_yaml_str(node.value.value) or {}).get("options") or {}
+                for option in options.values():
+                    for var in (option or {}).get("vars") or []:
+                        name = var.get("name", "") if isinstance(var, dict) else ""
+                        if name.startswith("ansible_"):
+                            names.add(name)
+    return frozenset(names)
+
+
+MAGIC_NAMES = frozenset(
     {
         "ansible_facts",
         "ansible_local",
@@ -80,29 +140,27 @@ ALLOWED_NAMES = frozenset(
         "ansible_failed_task",
         "ansible_failed_result",
         "ansible_job_id",
-        "ansible_host",
-        "ansible_port",
-        "ansible_user",
-        "ansible_password",
-        "ansible_connection",
-        "ansible_private_key_file",
-        "ansible_pipelining",
-        "ansible_timeout",
-        "ansible_remote_tmp",
-        "ansible_docker_extra_args",
     }
 )
-ALLOWED_PREFIXES = (
-    "ansible_become",
-    "ansible_ssh_",
-    "ansible_shell_",
-    "ansible_winrm_",
-    "ansible_paramiko_",
+ALLOWED_NAMES = (
+    MAGIC_NAMES
+    | declared_plugin_vars(_PLUGIN_DOC_DIRS)
+    | frozenset(
+        name for names in constants.MAGIC_VARIABLE_MAPPING.values() for name in names
+    )
 )
 ALLOWED_SUFFIXES = ("_interpreter",)
 
-_YAML_NAME = re.compile(r"\bansible_[A-Za-z0-9_]+\b(?!=)")
+_YAML_NAME = re.compile(r"\bansible_[A-Za-z0-9_]+\b(?!=(?!=))")
 _PY_NAME = re.compile(r"(?:\[\s*|\.get\(\s*)[\"'](ansible_[A-Za-z0-9_]+)[\"']")
+_BARE_FACT = re.compile(
+    r"(?<![\w.'\"/-])(?:services|packages|getent_[a-z]+)\b"
+    r"(?=\s*(?:\[|\.\w|\||\s+is\s|==|!=|\s+in\b|\s*\)|\s*}}|\s*%}))"
+)
+_JINJA_EXPR = re.compile(r"\{\{.*?\}\}|\{%.*?%\}")
+_CONDITION = re.compile(
+    r"^\s*(?:(?:when|that|failed_when|changed_when|until):|-(?!\s+[\w\"']+:))\s+(?P<expr>.*)$"
+)
 
 _PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
     (
@@ -117,6 +175,10 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
     ),
 )
 _FACT_FIX = "top-level injected fact, undefined with fact injection off -> use ansible_facts['<name>']"
+_BARE_FACT_FIX = (
+    "fact without the ansible_ prefix (service_facts, package_facts, getent), "
+    "undefined with fact injection off -> use ansible_facts['<name>']"
+)
 
 
 def is_fact_name(name: str) -> bool:
@@ -126,22 +188,20 @@ def is_fact_name(name: str) -> bool:
         name: an ``ansible_<name>`` identifier.
 
     Returns:
-        ``True`` when the name is neither allowed explicitly nor by prefix or suffix.
+        ``True`` when the name is neither allowed explicitly nor by suffix.
     """
-    return not (
-        name in ALLOWED_NAMES
-        or name.startswith(ALLOWED_PREFIXES)
-        or name.endswith(ALLOWED_SUFFIXES)
-    )
+    return not (name in ALLOWED_NAMES or name.endswith(ALLOWED_SUFFIXES))
 
 
-def scan_text(text: str, python: bool) -> list[str]:
+def scan_text(text: str, python: bool, template: bool = False) -> list[str]:
     """Return one issue line per forbidden construct in *text*.
 
     Args:
         text: the file content.
         python: read *text* as Python (subscript and ``.get`` keys only) instead
             of YAML or Jinja.
+        template: read *text* as a Jinja template, whose list items are output,
+            not conditions.
     """
     lines = text.splitlines()
     out: list[str] = []
@@ -159,6 +219,16 @@ def scan_text(text: str, python: bool) -> list[str]:
                 out.append(
                     f"line {idx}: [injected-fact] {line.strip()}  -> {_FACT_FIX}"
                 )
+        if python or line.lstrip().startswith("#"):
+            continue
+        expressions = _JINJA_EXPR.findall(line)
+        condition = None if template else _CONDITION.match(line)
+        if condition:
+            expressions.append(condition.group("expr"))
+        if any(_BARE_FACT.search(expression) for expression in expressions):
+            out.append(
+                f"line {idx}: [injected-bare-fact] {line.strip()}  -> {_BARE_FACT_FIX}"
+            )
     return out
 
 
@@ -181,7 +251,9 @@ class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
                 text = read_text(str(abs_path))
             except (OSError, UnicodeDecodeError):
                 continue
-            issues = scan_text(text, python=rel.endswith(".py"))
+            issues = scan_text(
+                text, python=rel.endswith(".py"), template=rel.endswith(".j2")
+            )
             if issues:
                 offenders[Path(abs_path)] = issues
 
@@ -197,14 +269,24 @@ class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
     def test_a_planted_top_level_fact_read_is_caught(self) -> None:
         planted = {
             "when: ansible_os_family == 'Debian'": False,
+            "when: ansible_os_family=='Debian'": False,
             "{{ ansible_eth0.ipv4.address }}": False,
             "{{ hostvars[h]['ansible_default_ipv4'] }}": False,
             'distro = task_vars.get("ansible_distribution")': True,
             'facts = task_vars["ansible_mounts"]': True,
+            "when: services['docker.service'] is defined": False,
+            "- packages['nfs-ganesha'] | first": False,
+            "- getent_group is defined": False,
+            "{{ getent_passwd.nixbld1[1] }}": False,
         }
         for line, python in planted.items():
             with self.subTest(line=line):
                 self.assertTrue(scan_text(line, python=python), line)
+
+    def test_every_option_var_of_the_lab_connection_is_allowed(self) -> None:
+        for name in ("ansible_docker_extra_env", "ansible_docker_working_dir"):
+            with self.subTest(name=name):
+                self.assertEqual(scan_text(f"{name}: x", python=False), [], name)
 
     def test_magic_connection_and_namespaced_reads_pass(self) -> None:
         clean = {
@@ -215,6 +297,9 @@ class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
             'facts = task_vars.get("ansible_facts") or {}': True,
             'host = hostvars[h].get("ansible_host")': True,
             "ansible_playbook = shutil.which('ansible-playbook')": True,
+            "when: ansible_facts.services['docker.service'] is defined": False,
+            "{{ lookup('config', application_id, 'services.sso.enabled') }}": False,
+            "- name: install language packages": False,
         }
         for line, python in clean.items():
             with self.subTest(line=line):

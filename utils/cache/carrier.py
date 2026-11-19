@@ -116,9 +116,11 @@ def _carried(
     carrier = variables.get(fact)
     if fact not in variables and fact in (variables.get("ansible_facts") or {}):
         raise CarrierInvisibleError(
-            f"{fact} is parked in the fact cache but not visible as a variable; "
-            "park it with applications_carrier, which registers it outside the "
-            "fact cache, or every lookup renders the payload again"
+            f"{fact} is parked in the fact cache but not visible as a variable, "
+            "so every lookup would render the payload again; remove the task "
+            "that returns it as ansible_facts, or run "
+            "'applications_carrier: {clear: true}' before parking it again with "
+            "applications_carrier, which registers it outside the fact cache"
         )
     if not isinstance(carrier, Mapping):
         return None

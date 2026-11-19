@@ -1,12 +1,14 @@
-"""The community.docker docker connection, asking the Docker CLI for its version once per run.
+"""The community.docker docker connection, asking the Docker CLI for its version at the start of a run.
 
 The stock plugin builds a fresh connection in every forked worker, and with a
 remote user set it runs ``docker version`` twice before every module run (the
 first probe never matches a current Docker). This subclass keeps the answer in
 a file under the run's ``DEFAULT_LOCAL_TMP``, which every worker inherits from
 the ``ansible-playbook`` process and which Ansible removes when the run ends,
-so only the first task-host of a run pays for the version query. Everything
-else (user, become, file transfer, timeouts, environment) is the stock plugin's.
+so only the workers that start before the first answer is written pay for the
+version query. The file is replaced atomically, so a concurrent writer never
+leaves a partial answer. Everything else (user, become, file transfer,
+timeouts, environment) is the stock plugin's.
 """
 
 from __future__ import annotations
@@ -24,8 +26,8 @@ DOCUMENTATION = r"""
 name: docker_cached
 short_description: Run tasks in docker containers, with the Docker version cached per run
 description:
-  - The community.docker docker connection, except that the Docker CLI version is queried once per
-    ansible-playbook run and shared by every forked worker.
+  - The community.docker docker connection, except that the Docker CLI version is queried at the start
+    of an ansible-playbook run and shared by every forked worker that starts after the first answer.
 options:
   remote_addr:
     description:

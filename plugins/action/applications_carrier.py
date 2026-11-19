@@ -8,7 +8,9 @@ as non-persistent host variables, the layer ``set_fact`` writes; every later
 worker inherits them at fork time and ``get_merged_applications`` /
 ``get_merged_users`` serve them instead of rendering. They stay out of the
 fact cache on purpose: ``get_vars`` deep-copies every fact before every task,
-and these are the whole rendered trees. The users carrier is keyed like the applications carrier plus
+and these are the whole rendered trees. The action also registers an empty
+cacheable layer, as ``set_fact`` does, so ansible-core never copies a result's
+``ansible_facts`` into the fact cache. The users carrier is keyed like the applications carrier plus
 the token store digest and ``inventory_hostname``::
 
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
@@ -53,9 +55,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from ansible import release
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.parsing.convert_bool import boolean
-from ansible.plugins.action import ActionBase, VariableLayer
+from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import lookup_loader
 
 from plugins.lookup.email import provider_view_carrier
@@ -67,6 +70,11 @@ from utils.cache.carrier import (
     revalidate_tokens_file,
 )
 
+try:
+    from ansible.plugins.action import VariableLayer
+except ImportError:
+    VariableLayer = None
+
 
 class ActionModule(ActionBase):
     TRANSFERS_FILES = False
@@ -74,6 +82,12 @@ class ActionModule(ActionBase):
     def run(
         self, tmp: Any = None, task_vars: dict[str, Any] | None = None
     ) -> dict[str, Any]:
+        if VariableLayer is None:
+            raise AnsibleActionFail(
+                "applications_carrier needs ansible-core 2.21 or newer, found "
+                f"{release.__version__}; install the `deploy` extra of "
+                "pyproject.toml (make install-python)"
+            )
         result = super().run(tmp, task_vars)
         task_vars = task_vars or {}
         args = self._task.args or {}

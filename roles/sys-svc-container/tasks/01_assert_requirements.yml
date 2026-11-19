@@ -13,8 +13,7 @@
 - name: ✅ Assert docker service exists
   ansible.builtin.assert:
     that:
-      - sys_svc_container_docker_unit.status is defined
-      - sys_svc_container_docker_unit.status.LoadState != 'not-found'
+      - sys_svc_container_docker_unit.status.LoadState | default('not-found') != 'not-found'
     fail_msg: >
       docker.service is not registered in systemd.
       Docker engine does not appear to be installed.

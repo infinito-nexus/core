@@ -86,7 +86,7 @@ flowchart TD
 
     proc -.->|"TRIP-WIRE: read BEFORE the<br/>host's own carrier, so an inherited<br/>entry outranks it"| fact
     render -.->|"TRIP-WIRE: main process renders<br/>task names for one host; forked<br/>workers inherit that entry"| proc
-    key -.->|"TRIP-WIRE: carrier.py:121 stringifies<br/>only one side, so a non-scalar key<br/>part silently never matches again"| fact
+    key -.->|"TRIP-WIRE: carrier.py:136 stringifies<br/>only one side, so a non-scalar key<br/>part silently never matches again"| fact
 ```
 
 The key covers `group_names`. `domains.py` derives from the applications view and shares that dependency; `users` reads `group_names` nowhere.

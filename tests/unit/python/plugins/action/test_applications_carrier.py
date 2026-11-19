@@ -235,6 +235,18 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         ):
             action.run(task_vars={})
 
+    def test_an_ansible_core_without_variable_layers_fails_with_its_version(self):
+        action = _make_action(_FakeTask(args={"clear": True}))
+        with (
+            patch("plugins.action.applications_carrier.VariableLayer", None),
+            patch("plugins.action.applications_carrier.release.__version__", "2.20.9"),
+            self.assertRaisesRegex(
+                AnsibleActionFail, r"2\.21 or newer, found 2\.20\.9"
+            ),
+        ):
+            action.run(task_vars={})
+        self.assertEqual(action.registered, {})
+
     def test_clear_drops_every_carrier_without_rendering(self):
         applications, users, loader = _lookups()
         action = _make_action(_FakeTask(args={"clear": True}))
