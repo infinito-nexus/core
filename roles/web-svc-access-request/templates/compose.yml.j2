@@ -8,11 +8,7 @@
         ACCESS_REQUEST_VERSION: "{{ ACCESS_REQUEST_VERSION }}"
     {{ lookup('container_image', application_id, entity_name) }}
     {{ lookup('container_ports', [entity_name, 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', service_name) | indent(4) }}
-      - "{{ ACCESS_REQUEST_CONFIG_HOST }}:{{ ACCESS_REQUEST_CONFIG_TARGET }}:ro"
-      {% if ACCESS_REQUEST_CA_FILE %}
-      - "{{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_container }}:ro"
-      {% endif %}
+    {{ lookup('container_volumes', service_name, extra_volumes=ACCESS_REQUEST_MOUNTS) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_extra_hosts', extra_hosts=(
          ([] if (lookup('domain', 'web-app-keycloak') | network_of) == 'tor'

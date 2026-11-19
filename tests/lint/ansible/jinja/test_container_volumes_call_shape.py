@@ -26,6 +26,7 @@ _CANONICAL = re.compile(
     r"^    \{\{ lookup\('container_volumes', service_name"
     r"(?:, [a-zA-Z_]+=.+)?\) \| indent\(4\) \}\}$"
 )
+_RAW_ITEM = re.compile(r"^\s*- ")
 
 
 class TestContainerVolumesCallShape(unittest.TestCase):
@@ -53,6 +54,28 @@ class TestContainerVolumesCallShape(unittest.TestCase):
                 "position (set it via `{% set service_name = ... %}`), and "
                 "`| indent(4)`. Keyword arguments after service_name are "
                 "allowed; multi-line calls are not.\n\n"
+                "Offenders:\n" + "\n".join(findings)
+            )
+
+    def test_no_raw_mount_follows_the_call(self) -> None:
+        findings: list[str] = []
+        for path_str, content in iter_project_files_with_content(
+            extensions=(".j2",),
+            exclude_tests=True,
+        ):
+            rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
+            lines = content.splitlines()
+            for idx, line in enumerate(lines[:-1], start=1):
+                if _CALL_ANYWHERE.search(line) and _RAW_ITEM.match(lines[idx]):
+                    findings.append(f"- {rel}:{idx + 1}: {lines[idx].strip()}")
+
+        if findings:
+            self.fail(
+                "A raw list item follows a `container_volumes` lookup. The "
+                "lookup renders its items at the indent of `| indent(4)`, so "
+                "a hand-written item lands at another column and YAML folds "
+                "it into the previous mount string (docker: 'too many "
+                "colons'). Pass extra mounts via `extra_volumes=...`.\n\n"
                 "Offenders:\n" + "\n".join(findings)
             )
 
