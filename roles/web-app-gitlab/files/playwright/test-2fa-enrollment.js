@@ -101,8 +101,8 @@ test("2fa enrollment: with its own second factor enforced GitLab sends a local a
       method: "POST",
       headers: { "PRIVATE-TOKEN": impersonation.data.token },
       data: {
-        name: `Infinito 2FA probe ${suffix}`,
-        path: `infinito-2fa-probe-${suffix}`,
+        name: `Infinito 2FA group ${suffix}`,
+        path: `infinito-2fa-group-${suffix}`,
         visibility: "private",
         require_two_factor_authentication: true,
         two_factor_grace_period: 0,
