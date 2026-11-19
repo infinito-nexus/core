@@ -312,6 +312,40 @@ class TestNotifyPushEndpoint(unittest.TestCase):
         )
 
 
+class TestNotifyPushWebsocketTaskWiring(unittest.TestCase):
+    def test_patch_then_fail_closed_probe_follow_the_setup(self):
+        tasks = load_yaml_any(str(PROJECT_ROOT / ROLE / "tasks/addons/notify_push.yml"))
+        programs = {
+            re.search(
+                r"'(php/addons/notify_push/[a-z_/]+\.php)'",
+                task["ansible.builtin.command"]["stdin"],
+            ).group(1): index
+            for index, task in enumerate(tasks)
+            if "stdin" in task.get("ansible.builtin.command", {})
+        }
+        setup = next(
+            i for i, task in enumerate(tasks) if "notify_push:setup" in str(task)
+        )
+        patch = programs["php/addons/notify_push/websocket/patch.php"]
+        probe = programs["php/addons/notify_push/websocket/probe.php"]
+        self.assertLess(setup, patch)
+        self.assertLess(patch, probe)
+        for program in programs:
+            with self.subTest(program=program):
+                self.assertTrue((PROJECT_ROOT / ROLE / "files" / program).is_file())
+        probe_task = tasks[probe]
+        self.assertEqual(
+            probe_task["loop"], "{{ lookup('network_siblings', NEXTCLOUD_DOMAIN) }}"
+        )
+        self.assertIn(
+            "lookup('tls', nextcloud_notify_push_sibling, 'url.origin')",
+            probe_task["ansible.builtin.command"]["cmd"],
+        )
+        for key in ("failed_when", "ignore_errors", "until"):
+            with self.subTest(key=key):
+                self.assertNotIn(key, probe_task)
+
+
 class TestNotifyPushFlags(unittest.TestCase):
     def test_follows_redis_with_or_without_talk(self):
         self.assertEqual(

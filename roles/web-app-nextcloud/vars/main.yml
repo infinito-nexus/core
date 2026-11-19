@@ -307,6 +307,7 @@ NEXTCLOUD_NOTIFY_PUSH_PORT: "{{ lookup('config', application_id, 'services.' ~ N
 NEXTCLOUD_NOTIFY_PUSH_LOCATION: "/push/"
 NEXTCLOUD_NOTIFY_PUSH_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_NOTIFY_PUSH_LOCATION ] | url_join }}"
 NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY: "{{ [ NEXTCLOUD_APPS_DIRECTORY, NEXTCLOUD_NOTIFY_PUSH_SERVICE ] | path_join }}"
+NEXTCLOUD_NOTIFY_PUSH_CAPABILITIES: "{{ [ NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY, 'lib', 'Capabilities.php' ] | path_join }}"
 # Exception: Docker DNS answers a bare name on the shared network that sorts first (mariadb); swarm pins the openresty overlay proxy_hops trusts
 NEXTCLOUD_NOTIFY_PUSH_NETWORK: "{{ ('svc-prx-openresty' | entity_name) if IS_SWARM_MODE else entity_name }}"
 # Exception: compose trusts this one pinned address, never the subnet, which admitted MCP clients share

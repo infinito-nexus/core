@@ -49,3 +49,21 @@
   until: nextcloud_notify_push_setup.rc in [0, 2]
   failed_when: nextcloud_notify_push_setup.rc != 0
   when: (nextcloud_notify_push_endpoint.stdout | trim) != NEXTCLOUD_NOTIFY_PUSH_URL
+
+- name: "🩹 Derive the announced notify_push websocket from the host the client asked"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_NOTIFY_PUSH_CAPABILITIES | quote }}"
+    stdin: "{{ lookup('file', 'php/addons/notify_push/websocket/patch.php') }}"
+  register: nextcloud_notify_push_websocket_patch
+  changed_when: "'PATCHED' in nextcloud_notify_push_websocket_patch.stdout"
+
+- name: "🛑 Refuse a push websocket announced on another network than the one asked"
+  ansible.builtin.command:
+    cmd: >-
+      {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}
+      {{ lookup('tls', nextcloud_notify_push_sibling, 'url.origin') | quote }} {{ NEXTCLOUD_NOTIFY_PUSH_LOCATION | quote }}
+    stdin: "{{ lookup('file', 'php/addons/notify_push/websocket/probe.php') }}"
+  loop: "{{ lookup('network_siblings', NEXTCLOUD_DOMAIN) }}"
+  loop_control:
+    loop_var: nextcloud_notify_push_sibling
+  changed_when: false
