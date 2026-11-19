@@ -5,6 +5,7 @@ entity_name: "{{ application_id | entity_name }}"
 KNOT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 KNOT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, KNOT_CONTAINER) }}"
 KNOT_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.public.dns') }}"
+KNOT_BIND_HOST: "{{ networks.internet.ip4 if 'svc-net-tor' in group_names else '' }}"
 
 KNOT_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
 KNOT_CONF_FILE: "{{ [ KNOT_VOLUMES_DIR, 'knot.conf' ] | path_join }}"

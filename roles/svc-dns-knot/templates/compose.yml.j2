@@ -8,7 +8,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_ports',
               {'service': 'knot', 'protocol': 'dns', 'transport': ['udp', 'tcp'],
-               'mode': 'host'}) | indent(4) }}
+               'mode': 'host', 'ip': KNOT_BIND_HOST}) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

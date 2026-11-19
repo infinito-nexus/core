@@ -405,18 +405,56 @@ class TestContainerPortsDictTerms(unittest.TestCase):
         )
         self.assertEqual(out, 'ports:\n  - "5000"')
 
-    def test_host_mode_rejects_an_ip(self):
-        with self.assertRaises(AnsibleError):
-            _run_edge(
+    def test_host_mode_binds_its_ip_in_compose(self):
+        out = _run_edge(
+            [
+                {
+                    "service": "openresty",
+                    "protocol": "http",
+                    "transport": ["udp", "tcp"],
+                    "mode": "host",
+                    "ip": "203.0.113.10",
+                }
+            ]
+        )
+        self.assertEqual(
+            out,
+            "ports:\n  - target: 80\n    published: 80\n"
+            "    protocol: udp\n    mode: host\n    host_ip: 203.0.113.10\n"
+            "  - target: 80\n    published: 80\n"
+            "    protocol: tcp\n    mode: host\n    host_ip: 203.0.113.10",
+        )
+
+    def test_host_mode_without_an_ip_binds_every_interface(self):
+        out = _run_edge([{"service": "openresty", "protocol": "http", "mode": "host"}])
+        self.assertNotIn("host_ip", out)
+
+    def test_swarm_host_mode_drops_the_ip_its_port_cannot_carry(self):
+        lookup = LookupModule()
+        lookup._loader = mock.MagicMock()
+        with mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [_edge_apps()]
+            )
+            out = lookup.run(
                 [
                     {
                         "service": "openresty",
                         "protocol": "http",
                         "mode": "host",
-                        "ip": "10.0.0.1",
+                        "ip": "203.0.113.10",
                     }
-                ]
-            )
+                ],
+                variables={
+                    "application_id": "web-svc-coturn",
+                    "DEPLOYMENT_MODE": "swarm",
+                },
+            )[0]
+        self.assertEqual(
+            out,
+            "ports:\n  - target: 80\n    published: 80\n"
+            "    protocol: tcp\n    mode: host",
+        )
 
     def test_an_unknown_term_key_is_rejected(self):
         with self.assertRaises(AnsibleError):

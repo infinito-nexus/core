@@ -44,7 +44,9 @@ Keys:
 ``mode``
     ``ingress`` (default) emits the short ``"host:published:container"`` string;
     ``host`` emits the long block with ``mode: host``, which is what an edge
-    role needs in swarm so the client address survives the hop.
+    role needs in swarm so the client address survives the hop. Its ``ip``
+    becomes ``host_ip`` in compose; a swarm port carries no host address, so
+    swarm publishes it on every interface of the node.
 ``publish``
     ``ephemeral`` publishes the container port on a host port docker picks, for
     a service addressed only through the compose network.
@@ -183,11 +185,6 @@ def _normalised(term: Any) -> dict[str, Any]:
             "container_ports: publish accepts only 'ephemeral', "
             f"got {normalised['publish']!r}"
         )
-    if normalised["mode"] == "host" and normalised["ip"]:
-        raise AnsibleError(
-            "container_ports: mode 'host' binds the node's own interface and "
-            "takes no ip"
-        )
     return normalised
 
 
@@ -219,13 +216,14 @@ def _onion_backend(backends: Any, owner: str, service: str, published: str) -> b
     )
 
 
-def _host_lines(published: str, container: str, transport: str) -> list[str]:
-    return [
+def _host_lines(published: str, container: str, transport: str, ip: str) -> list[str]:
+    lines = [
         f"  - target: {container}",
         f"    published: {published}",
         f"    protocol: {transport or 'tcp'}",
         "    mode: host",
     ]
+    return [*lines, f"    host_ip: {ip}"] if ip else lines
 
 
 class LookupModule(LookupBase):
@@ -329,7 +327,14 @@ class LookupModule(LookupBase):
                 container = _port(owner, service, "internal", protocol, required=True)
             for transport in transports:
                 if mode == "host":
-                    lines.extend(_host_lines(published, container, transport))
+                    lines.extend(
+                        _host_lines(
+                            published,
+                            container,
+                            transport,
+                            "" if routing_mesh else term["ip"],
+                        )
+                    )
                 else:
                     lines.append(_short_line(term, published, container, transport))
         return ["\n".join(lines) if len(lines) > 1 else ""]

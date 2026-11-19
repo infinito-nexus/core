@@ -26,7 +26,7 @@ The primary keeps the workspace keys in `workspaces.json` of its instance direct
 
 ## Host requirements
 
-Port 53 of the host must be free on every address, so a host stub resolver such as the one of `systemd-resolved` must not listen on it. `svc-dns-unbound` publishes no host port; its consumers reach it on its own network. The delegation of the subzone (its NS, glue and DS records in the parent zone) is written by the platform deploy, not by this role.
+Port 53 of the host must be free on every address, so a host stub resolver such as the one of `systemd-resolved` must not listen on it. The one exception is a compose host that also runs `svc-net-tor`: its `.onion` split-DNS forwarder holds port 53 on the loopback and docker bridge addresses, so there knot binds port 53 on `networks.internet.ip4` only, which must then be an address of a host interface. A swarm port carries no host address, so in swarm port 53 of the node must stay free on every address. `svc-dns-unbound` publishes no host port; its consumers reach it on its own network. The delegation of the subzone (its NS, glue and DS records in the parent zone) is written by the platform deploy, not by this role.
 
 The swarm test lab cannot meet this: every lab node runs its own resolver on port 53. Swarm lab rounds therefore publish knot on port 1053 ([lab_ports.py](../../utils/tests/swarm/lab_ports.py)); compose and production keep port 53.
 
