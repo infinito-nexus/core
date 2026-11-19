@@ -6,6 +6,8 @@ CACHE_PACKAGE_CONTAINER: "{{ lookup('config', application_id, 'services.package.
 CACHE_PACKAGE_BOOTSTRAP_CONTAINER: "{{ lookup('config', application_id, 'services.bootstrap.name') }}"
 CACHE_PACKAGE_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 CACHE_PACKAGE_PORT: "{{ lookup('config', application_id, 'services.package.ports.internal.http') }}"
+CACHE_PACKAGE_DATA_PATH: "{{ lookup('config', application_id, 'services.package.data_path') }}"
+CACHE_PACKAGE_DOCKER_USER_ID: 200
 
 CACHE_PACKAGE_FRONTEND_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'upstreams.conf'] | path_join }}"
 CACHE_PACKAGE_CA_DIR_HOST: "{{ lookup('config', application_id, 'services.frontend.ca_path') }}"

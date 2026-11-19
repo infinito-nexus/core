@@ -7,7 +7,7 @@ import unittest.mock as mock
 from ansible.errors import AnsibleError
 
 from plugins.lookup.container_ports import LookupModule as ContainerPorts
-from utils.cache.yaml import load_yaml_str
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 
 render = importlib.import_module("tests.unit.python.roles.svc-cache-package._render")
 
@@ -16,6 +16,9 @@ DATA = f"{DIR_CACHE}/package/data"
 CA = f"{DIR_CACHE}/package/frontend/ca"
 CERTS = f"{DIR_CACHE}/package/frontend/certs"
 NEXUS_DATA = "/nexus-data"
+NEXUS_UID = "200"
+TASKS = render.ROLE / "tasks" / "00_core.yml"
+FILE_MODULE = "ansible.builtin.file"
 INFRA = {
     "package": {"data_path": DATA},
     "frontend": {
@@ -52,6 +55,46 @@ def _frontend_ports(compose: str) -> list:
     return block["container_ports"][0] if "container_ports" in block else []
 
 
+def _data_dir(override=None) -> tuple[int, dict, dict]:
+    """Args:
+        override: the ``services`` keys an inventory sets for the role.
+
+    Returns:
+        The position of the role task that prepares the Nexus data directory,
+        the task, and its ``path``, ``owner``, ``group`` and ``when`` resolved
+        with the role's variables.
+    """
+    built = render.environment(override)
+    values = {
+        name: render.role_var(built, name)
+        for name in ("CACHE_PACKAGE_DATA_PATH", "CACHE_PACKAGE_DOCKER_USER_ID")
+    }
+    found = [
+        (index, task)
+        for index, task in enumerate(load_yaml_any(str(TASKS)))
+        if "loop" not in task
+        and FILE_MODULE in task
+        and built.from_string(task[FILE_MODULE]["path"]).render(**values)
+        == values["CACHE_PACKAGE_DATA_PATH"]
+    ]
+    index, task = found[0]
+    resolved = {
+        key: built.from_string(str(task[FILE_MODULE][key])).render(**values)
+        for key in ("path", "owner", "group")
+    }
+    resolved["when"] = built.compile_expression(task["when"])(**values)
+    return index, task, resolved
+
+
+def _compose_up_index() -> int:
+    return next(
+        index
+        for index, task in enumerate(load_yaml_any(str(TASKS)))
+        if task.get("include_role", {}).get("name") == "sys-svc-compose"
+        and task.get("vars", {}).get("compose_handlers_flush") is True
+    )
+
+
 class TestWithoutTheKeys(unittest.TestCase):
     def test_every_render_is_byte_identical_to_today(self) -> None:
         self.assertEqual(render.renders(), render.fixture())
@@ -86,6 +129,21 @@ class TestDataPath(unittest.TestCase):
             with self.subTest(service=service):
                 self.assertIn(f"data:{NEXUS_DATA}", _volumes(service))
                 self.assertNotIn(f"{DATA}:{NEXUS_DATA}", _volumes(service))
+
+
+class TestDataOwner(unittest.TestCase):
+    def test_the_bound_data_path_is_created_for_the_nexus_uid(self) -> None:
+        _, task, resolved = _data_dir(INFRA)
+        self.assertIn(f"{resolved['path']}:{NEXUS_DATA}", _volumes("package", INFRA))
+        self.assertEqual(task[FILE_MODULE]["state"], "directory")
+        self.assertEqual((resolved["owner"], resolved["group"]), (NEXUS_UID, NEXUS_UID))
+        self.assertTrue(resolved["when"])
+
+    def test_the_named_volume_leaves_the_host_alone(self) -> None:
+        self.assertFalse(_data_dir()[2]["when"])
+
+    def test_the_directory_exists_before_compose_starts_nexus(self) -> None:
+        self.assertLess(_data_dir(INFRA)[0], _compose_up_index())
 
 
 class TestFrontendPaths(unittest.TestCase):
