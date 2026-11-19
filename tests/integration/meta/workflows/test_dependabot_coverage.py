@@ -1,4 +1,5 @@
 import fnmatch
+import re
 import subprocess
 import unittest
 from collections.abc import Iterable
@@ -37,6 +38,7 @@ ECOSYSTEM_FILENAME_INDICATORS: dict[str, list[str]] = {
         "pyproject.toml",
         "requirements.txt",
         "requirements*.txt",
+        "requirements*.in",
         "setup.py",
         "setup.cfg",
         "Pipfile",
@@ -287,6 +289,104 @@ class TestDependabotCoverage(unittest.TestCase):
                 "Enable the matching ecosystem or add the directory to an existing entry:\n\n"
                 + "\n".join(f"  {entry}" for entry in sorted(uncovered))
             )
+
+
+def _pip_manifests() -> list[str]:
+    return sorted(
+        rel_file
+        for rel_file in _list_candidate_files()
+        if any(
+            fnmatch.fnmatch(Path(rel_file).name, pattern)
+            for pattern in ECOSYSTEM_FILENAME_INDICATORS["pip"]
+        )
+    )
+
+
+def _rel_dir(path: Path) -> str:
+    return "" if path == Path() else path.as_posix()
+
+
+def _glob_to_regex(pattern: str) -> re.Pattern[str]:
+    parts = re.split(r"(\*\*|\*)", pattern)
+    translated = {"**": ".*", "*": "[^/]*"}
+    return re.compile("".join(translated.get(p) or re.escape(p) for p in parts))
+
+
+def _pip_dir_reaches(dep_dir: str, rel_file: str) -> bool:
+    """Args:
+        dep_dir: a pip ``directories`` entry or glob (``*`` one path segment,
+            ``**`` any depth); Dependabot reads its manifests and the
+            requirements files of its direct child directories.
+        rel_file: repo-relative path of a pip manifest.
+
+    Returns:
+        True when Dependabot's pip fetcher reaches ``rel_file`` from ``dep_dir``.
+    """
+    pattern = _glob_to_regex(dep_dir.strip("/"))
+    file_path = Path(rel_file)
+    if pattern.fullmatch(_rel_dir(file_path.parent)):
+        return True
+    return (
+        pattern.fullmatch(_rel_dir(file_path.parent.parent)) is not None
+        and file_path.suffix in (".txt", ".in")
+        and "requirements" in file_path.name
+    )
+
+
+class TestDependabotPipDirectories(unittest.TestCase):
+    def setUp(self) -> None:
+        pip_entries = [
+            entry
+            for entry in _load_active_entries()
+            if entry["package-ecosystem"] == "pip"
+        ]
+        self.assertEqual(len(pip_entries), 1, "expected exactly one pip entry")
+        self.pip_dirs = _get_entry_dirs(pip_entries[0])
+        self.manifests = _pip_manifests()
+
+    def test_every_manifest_is_reached_by_exactly_one_directory(self):
+        uncovered: list[str] = []
+        duplicated: list[str] = []
+        for rel_file in self.manifests:
+            reaching = [d for d in self.pip_dirs if _pip_dir_reaches(d, rel_file)]
+            if not reaching:
+                uncovered.append(rel_file)
+            elif len(reaching) > 1:
+                duplicated.append(f"{rel_file}  <-  {', '.join(reaching)}")
+        problems: list[str] = []
+        if uncovered:
+            problems.append("Uncovered pip manifests:\n  " + "\n  ".join(uncovered))
+        if duplicated:
+            problems.append(
+                "Pip manifests reached by several directories:\n  "
+                + "\n  ".join(duplicated)
+            )
+        self.assertFalse(problems, "\n".join(problems))
+
+    def test_every_directory_reaches_a_manifest(self):
+        stale = [
+            d
+            for d in self.pip_dirs
+            if not any(_pip_dir_reaches(d, f) for f in self.manifests)
+        ]
+        self.assertFalse(stale, f"pip directories reaching no manifest: {stale}")
+
+    def test_reach_model(self):
+        odoo = "roles/web-app-odoo/files/pip/requirements-no-deps.txt"
+        cases = (
+            ("/", "pyproject.toml", True),
+            ("/", "python/requirements.in", True),
+            ("/", "a/b/requirements.txt", False),
+            ("/python", "python/requirements.in", True),
+            ("/roles/*/files", "roles/x/files/requirements.txt", True),
+            ("/roles/*/files", "roles/x/files/pip/requirements-no-deps.txt", True),
+            ("/roles/*/files", "roles/x/files/pip/setup.py", False),
+            ("/roles/*/files", "roles/x/y/files/requirements.txt", False),
+            ("/roles/web-app-odo[o]/files/pip", odoo, False),
+        )
+        for dep_dir, rel_file, expected in cases:
+            with self.subTest(dep_dir=dep_dir, rel_file=rel_file):
+                self.assertEqual(_pip_dir_reaches(dep_dir, rel_file), expected)
 
 
 if __name__ == "__main__":

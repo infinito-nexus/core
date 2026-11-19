@@ -17,6 +17,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, NamedTuple
 
 from utils.cache.files import read_text
+from utils.roles.custom import is_custom_path
 
 from . import INDEX_FILES, PROJECT_ROOT, index_page, markdown_files
 
@@ -65,7 +66,7 @@ def _tracked_files() -> frozenset[str]:
     return frozenset(entry for entry in listed.stdout.split("\0") if entry)
 
 
-def _unresolvable(resolved: Path) -> str:
+def _unresolvable(resolved: Path, source: Path) -> str:
     """Return why ``resolved`` cannot back a link, empty when it can.
 
     A directory is only a link target because an index page stands in for it:
@@ -77,8 +78,16 @@ def _unresolvable(resolved: Path) -> str:
     everywhere else, including the documentation build, which reads what
     git would track. Existing on this disk is therefore not enough.
 
+    A pulled custom role is the one exception, for links between its own
+    pages and files. ``.gitignore`` keeps it out of every core commit, so none
+    of its files is ever tracked, yet the page scan lists its pages like those
+    of an in-tree role. A page and a target that both lie in pulled custom
+    roles arrive with the pull, so the target only has to exist on disk. A
+    tracked page linking into one still breaks every fresh checkout.
+
     Args:
         resolved: the absolute path a link target resolved to.
+        source: the absolute path of the page carrying the link.
     """
     if not resolved.exists():
         return "no such path"
@@ -86,7 +95,11 @@ def _unresolvable(resolved: Path) -> str:
         if index_page(resolved) is None:
             return f"directory without any of {', '.join(INDEX_FILES)}"
         return ""
-    if resolved.relative_to(PROJECT_ROOT).as_posix() not in _tracked_files():
+    target = resolved.relative_to(PROJECT_ROOT).as_posix()
+    pulled = is_custom_path(target) and is_custom_path(
+        source.relative_to(PROJECT_ROOT).as_posix()
+    )
+    if not pulled and target not in _tracked_files():
         return "untracked, so it is absent from a fresh checkout and the docs build"
     return ""
 
@@ -170,7 +183,7 @@ def _check_file(file: Path, root: Path) -> list[BrokenLink]:
         else:
             resolved = (base / path_part).resolve()
 
-        reason = _unresolvable(resolved)
+        reason = _unresolvable(resolved, file)
         if reason:
             broken.append(
                 BrokenLink(

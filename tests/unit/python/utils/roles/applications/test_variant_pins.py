@@ -180,6 +180,57 @@ class VariantPinTestCase(unittest.TestCase):
             {"web-app-nextcloud": 3},
         )
 
+    def switch_matomo_off(self, *indices: int) -> None:
+        for index in indices:
+            self.variants["web-app-nextcloud"][index]["services"]["matomo"] = {
+                "enabled": False
+            }
+
+    def test_a_without_target_keeps_dashes_and_underscores(self) -> None:
+        self.pin_openproject("without-mail_relay-v2")
+        self.assertEqual(
+            pins_of("web-app-openproject", roles_dir=self.roles_dir),
+            {1: {"web-app-nextcloud": "without-mail_relay-v2"}},
+        )
+
+    def test_without_finds_the_one_variant_switching_the_key_off(self) -> None:
+        self.pin_openproject("without-matomo")
+        self.switch_matomo_off(2)
+        self.assertEqual(
+            self.resolve({"web-app-openproject": 1}), {"web-app-nextcloud": 2}
+        )
+
+    def test_without_and_no_candidate_raises(self) -> None:
+        self.pin_openproject("without-matomo")
+        with self.assertRaises(VariantPinError) as caught:
+            self.resolve({"web-app-openproject": 1})
+        self.assertIn(
+            "web-app-nextcloud pins services.matomo to literal false in 0 variants "
+            "(none)",
+            str(caught.exception),
+        )
+
+    def test_without_and_two_candidates_raises(self) -> None:
+        self.pin_openproject("without-matomo")
+        self.switch_matomo_off(1, 2)
+        with self.assertRaises(VariantPinError) as caught:
+            self.resolve({"web-app-openproject": 1})
+        self.assertIn(
+            "web-app-nextcloud pins services.matomo to literal false in 2 variants "
+            "([1, 2])",
+            str(caught.exception),
+        )
+
+    def test_a_without_pin_conflicting_with_an_index_pin_raises(self) -> None:
+        self.pin_openproject("without-matomo")
+        self.switch_matomo_off(2)
+        self.pin_gitlab("3")
+        with self.assertRaises(VariantPinConflictError) as caught:
+            self.resolve({"web-app-openproject": 1, "web-app-gitlab": 0})
+        self.assertIn(
+            "cannot deploy web-app-nextcloud in two variants", str(caught.exception)
+        )
+
     def test_an_index_pin_and_a_reciprocal_pin_agreeing_do_not_conflict(self) -> None:
         self.pin_openproject("reciprocal")
         self.pin_gitlab("3")

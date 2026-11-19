@@ -6,6 +6,7 @@ import argparse
 import contextlib
 import datetime as dt
 import fcntl
+import hashlib
 import itertools
 import json
 import os
@@ -1330,8 +1331,22 @@ def scratch_of(engine: str, subject: str) -> str:
     return f"tmp-{engine}-{subject}"
 
 
+GLOB_SPECIAL = re.compile(r"([\\*?\[\]{}])")
+
+
+def glob_literal(path: str) -> str:
+    """
+    Args:
+        path: a path to hand to Trivy, Syft or Grype as a skip pattern.
+
+    Returns:
+        The doublestar pattern that matches exactly ``path``.
+    """
+    return GLOB_SPECIAL.sub(r"\\\1", path)
+
+
 def _relative_excludes(layout: Layout) -> list[str]:
-    return [f"./{path.strip('/')}" for path in layout.excludes]
+    return [f"./{glob_literal(path.strip('/'))}" for path in layout.excludes]
 
 
 def db_steps(engine: str, layout: Layout, image: str) -> list[Step]:
@@ -1470,6 +1485,14 @@ def trivy_step(
     config: ScanConfig,
     os_args: Sequence[str],
 ) -> Step:
+    return trivy_args_step(
+        layout, image, target, trivy_args(layout, target, config, os_args)
+    )
+
+
+def trivy_args(
+    layout: Layout, target: Target, config: ScanConfig, os_args: Sequence[str]
+) -> list[str]:
     args = [
         "rootfs" if target.kind == "host" else "image",
         *TRIVY_COMMON,
@@ -1486,13 +1509,18 @@ def trivy_step(
     if not config.db_update:
         args += ["--cache-backend", "memory"]
     if target.kind == "host":
-        args += [
-            "--skip-dirs",
-            ",".join(f"{HOST_ROOT}{path}" for path in layout.excludes),
-            HOST_ROOT,
-        ]
+        for path in layout.excludes:
+            quoted = glob_literal(f"{HOST_ROOT}{path}").replace('"', '""')
+            args += ["--skip-dirs", f'"{quoted}"']
+        args.append(HOST_ROOT)
     else:
         args += ["--image-src", "docker", target.ref]
+    return args
+
+
+def trivy_args_step(
+    layout: Layout, image: str, target: Target, args: Sequence[str]
+) -> Step:
     scratch = scratch_of("trivy", target.key)
     return Step(
         f"trivy {target.kind} {target.label}",
@@ -1503,6 +1531,78 @@ def trivy_step(
         scratch,
         target.kind == "container",
     )
+
+
+def engine_image_id(layout: Layout, image: str, runner: Runner) -> str | None:
+    """
+    Args:
+        layout: where the run keeps its files, its runtime among them.
+        image: the engine image reference, a mutable tag.
+        runner: runs one command.
+
+    Returns:
+        The local image id the reference resolves to, ``None`` when it does
+        not resolve.
+    """
+    try:
+        result = runner(
+            (layout.runtime[0], "image", "inspect", "--format", "{{.Id}}", image)
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    resolved = result.stdout.strip()
+    return resolved if result.returncode == 0 and resolved else None
+
+
+def trivy_fingerprint(
+    layout: Layout, image_id: str | None, args: Sequence[str]
+) -> str | None:
+    """
+    Args:
+        layout: where the run keeps its files, the Trivy database among them.
+        image_id: the resolved id of the Trivy image, see
+            :func:`engine_image_id`.
+        args: the Trivy arguments of one container target.
+
+    Returns:
+        A digest of the engine image id, its arguments and the size and
+        modification time of every Trivy database file, ``None`` when the
+        image id or a database file is missing.
+    """
+    if image_id is None:
+        return None
+    digest = hashlib.sha256(json.dumps([image_id, list(args)]).encode())
+    for marker in DB_MARKERS["trivy"]:
+        path = layout.databases / "trivy" / marker
+        if not path.is_file():
+            return None
+        stat = path.stat()
+        digest.update(f"{marker}:{stat.st_size}:{stat.st_mtime_ns}".encode())
+    return digest.hexdigest()
+
+
+def trivy_cache_path(layout: Layout, target: Target) -> Path:
+    return layout.sbom / f"{target.key}.trivy.json"
+
+
+def cached_trivy_report(
+    layout: Layout, target: Target, fingerprint: str | None
+) -> dict | None:
+    """
+    Returns:
+        The Trivy report of an earlier run on the same image, arguments and
+        database, ``None`` when there is none.
+    """
+    path = trivy_cache_path(layout, target)
+    if fingerprint is None or not path.is_file():
+        return None
+    try:
+        cached = _read_json(path)
+    except (OSError, ValueError):
+        return None
+    if cached.get("fingerprint") != fingerprint:
+        return None
+    return cached.get("report")
 
 
 def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -> Step:
@@ -1883,21 +1983,48 @@ def scan(
 
     lanes: list[list[Step]] = []
     today = dt.datetime.now(tz=dt.UTC).date()
+    trivy_fresh: dict[str, tuple[Target, str]] = {}
+    trivy_lane: int | None = None
     if "trivy" in scanners:
-        lanes.append(
-            [
-                trivy_step(
-                    layout,
-                    images["trivy"],
-                    target,
-                    config,
-                    trivy_os_args(layout, target, scanners, config, today)
-                    if target in sbom_ready
-                    else [],
-                )
-                for target in targets
-            ]
+        steps = []
+        reused = 0
+        trivy_id = (
+            engine_image_id(layout, images["trivy"], runner)
+            if any(target.kind == "container" for target in targets)
+            else None
         )
+        for target in targets:
+            args = trivy_args(
+                layout,
+                target,
+                config,
+                trivy_os_args(layout, target, scanners, config, today)
+                if target in sbom_ready
+                else [],
+            )
+            fingerprint = (
+                trivy_fingerprint(layout, trivy_id, args)
+                if target.kind == "container"
+                else None
+            )
+            report = cached_trivy_report(layout, target, fingerprint)
+            if report is not None:
+                (layout.work / f"{target.key}.trivy.json").write_text(
+                    json.dumps(report), encoding="utf-8"
+                )
+                reused += 1
+                continue
+            if fingerprint is not None:
+                trivy_fresh[target.key] = (target, fingerprint)
+            steps.append(trivy_args_step(layout, images["trivy"], target, args))
+        if reused:
+            print(
+                f"ℹ️ trivy: {reused} report(s) of unchanged images reused "
+                "against the unchanged database"
+            )
+        if steps:
+            trivy_lane = len(lanes)
+            lanes.append(steps)
     if "grype" in scanners:
         lanes.extend(
             [grype_step(layout, images["grype"], target, config)]
@@ -1928,7 +2055,15 @@ def scan(
                 for step in osv_image_steps(layout, images["osv"], target, config)
             ]
         )
-    errors += _flat(run_lanes(lanes, runner, config.workers, layout))
+    results = run_lanes(lanes, runner, config.workers, layout)
+    errors += _flat(results)
+    if trivy_lane is not None and not results[trivy_lane]:
+        for key, (target, fingerprint) in trivy_fresh.items():
+            report = layout.work / f"{key}.trivy.json"
+            write_atomic(
+                trivy_cache_path(layout, target),
+                json.dumps({"fingerprint": fingerprint, "report": _read_json(report)}),
+            )
 
     findings: list[Finding] = []
     for target in targets:
@@ -1954,7 +2089,11 @@ def scan(
 
 def prune_sboms(layout: Layout, targets: Iterable[Target]) -> None:
     """Drop the cached SBOMs of images no container runs any more."""
-    keep = {path for target in targets for path in sbom_paths(layout, target)}
+    keep = {
+        path
+        for target in targets
+        for path in (*sbom_paths(layout, target), trivy_cache_path(layout, target))
+    }
     for path in layout.sbom.glob("*.json"):
         if path not in keep:
             path.unlink()
@@ -1968,6 +2107,73 @@ def docker_root() -> str:
         check=True,
         timeout=EXEC_TIMEOUT_SECONDS,
     ).stdout.strip()
+
+
+MOUNTINFO = Path("/proc/self/mountinfo")
+NETWORK_FSTYPES = frozenset(
+    {
+        "nfs",
+        "nfs4",
+        "cifs",
+        "smb3",
+        "smbfs",
+        "ceph",
+        "fuse.ceph-fuse",
+        "glusterfs",
+        "fuse.glusterfs",
+        "fuse.sshfs",
+        "fuse.s3fs",
+        "fuse.rclone",
+        "afs",
+        "lustre",
+        "autofs",
+        "davfs",
+        "fuse.gcsfuse",
+        "fuse.juicefs",
+    }
+)
+MOUNTINFO_ESCAPE = re.compile(r"\\([0-7]{3})")
+
+
+def network_mounts(mountinfo: str) -> list[str]:
+    """
+    Args:
+        mountinfo: the text of a ``/proc/<pid>/mountinfo``.
+
+    Returns:
+        The mount points of every network filesystem in it, sorted, except
+        ``/``: a host whose root is remote still scans its root.
+    """
+    points = set()
+    for line in mountinfo.splitlines():
+        fields = line.split(" ")
+        if "-" not in fields[6:]:
+            continue
+        fstype = fields[fields.index("-", 6) + 1]
+        point = MOUNTINFO_ESCAPE.sub(lambda m: chr(int(m.group(1), 8)), fields[4])
+        if fstype in NETWORK_FSTYPES and point != "/":
+            points.add(point)
+    return sorted(points)
+
+
+def host_network_mounts() -> list[str]:
+    return network_mounts(
+        MOUNTINFO.read_text(encoding="utf-8", errors="surrogateescape")
+    )
+
+
+def printable(path: str) -> str:
+    """
+    Args:
+        path: a mount point as decoded from mountinfo.
+
+    Returns:
+        ``path`` with every undecodable byte as ``\\xNN`` and every other
+        non-printable character in its Python escape form, so it prints as
+        exactly one line.
+    """
+    text = os.fsencode(path).decode(errors="backslashreplace")
+    return "".join(char if char.isprintable() else ascii(char)[1:-1] for char in text)
 
 
 def vulnerability_check(
@@ -2043,6 +2249,11 @@ def main(argv=None) -> int:
         print(f"❌ listing the running containers failed: {exc}")
         return 1
     failures, infos = check(containers, hardened, probe_php)
+    remote = host_network_mounts() if "host" in config.targets else []
+    infos += [
+        f"host scan skips the network or automounted filesystem at {printable(point)}"
+        for point in remote
+    ]
     targets, judged, errors = vulnerability_check(
         containers,
         config,
@@ -2050,7 +2261,7 @@ def main(argv=None) -> int:
         suppressions_from_json(json.loads(args.suppressions)),
         Path(args.cache_dir),
         Path(args.database_dir),
-        json.loads(args.host_excludes),
+        [*json.loads(args.host_excludes), *remote],
         default_runner,
         run,
     )
