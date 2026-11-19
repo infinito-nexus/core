@@ -1,5 +1,5 @@
 ---
-- name: "✅ Ensure dockerd and the container CLI are installed before the ingress guard reads the swarm"
+- name: "✅ Install dockerd and the container CLI before the ingress guard"
   ansible.builtin.include_role:
     name: sys-svc-container
     public: false
