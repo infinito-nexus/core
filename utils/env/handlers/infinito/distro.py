@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.distros import distro_family
-from utils.env.parser import parse_static_env
+from utils.env.parser import custom_env_value, parse_static_env
 
 if TYPE_CHECKING:
     from utils.env.context import BuildContext, EnvBuilder
@@ -14,7 +14,6 @@ KEY = "INFINITO_DISTRO"
 COMMENT = "Distro the stack deploys: an explicit value, else an Arch, Debian or Ubuntu host's own, else the default.env fallback."
 HOST_FAMILIES = frozenset({"Archlinux", "Debian"})
 OS_RELEASE = Path("/etc/os-release")
-CUSTOM_ENV = "custom.env"
 
 
 def host_distro(os_release: Path) -> str:
@@ -40,9 +39,7 @@ def explicit_distro(repo_root: Path) -> str:
     Returns:
         The value ``custom.env`` sets, else the exported one, else empty.
     """
-    custom = repo_root / CUSTOM_ENV
-    chosen = parse_static_env(custom).get(KEY, "") if custom.is_file() else ""
-    return chosen.strip() or os.environ.get(KEY, "").strip()
+    return custom_env_value(repo_root, KEY) or os.environ.get(KEY, "").strip()
 
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:

@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers.infinito import distro as handler
+from utils.env.parser import CUSTOM_ENV
 
 FALLBACK = "debian"
 ARCH = 'NAME="Arch Linux"\nID=arch\n'
@@ -60,9 +61,7 @@ class TestHostDistro(unittest.TestCase):
             self.assertEqual(self._apply(ARCH), "fedora")
 
     def test_a_custom_env_value_wins_over_the_host_and_the_export(self) -> None:
-        (self.repo / handler.CUSTOM_ENV).write_text(
-            f"{handler.KEY}=ubuntu\n", encoding="utf-8"
-        )
+        (self.repo / CUSTOM_ENV).write_text(f"{handler.KEY}=ubuntu\n", encoding="utf-8")
         with patch.dict(os.environ, {handler.KEY: "fedora"}, clear=False):
             self.assertEqual(self._apply(ARCH), "ubuntu")
 

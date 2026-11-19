@@ -169,7 +169,7 @@ The `cache` decision is exposed via `Profile.cache_stack_enabled()` in [profile.
   - `INFINITO_CACHE_PACKAGE_FRONTEND_IP` env var for the inner compose wrapper
 - Cert generation and the Nexus repo bootstrap run in the `svc-cache-package` deploy inside the infra runner; the consumer installs both CAs into its own trust store.
 
-With `INFINITO_CACHE_STACK=false`, no target starts the infra runner, renders the infra inventory or attaches to the infra network. The deploy stack has no cache mounts or DNS-hijack, and package managers go direct to upstream.
+With `INFINITO_CACHE_STACK=false`, no target starts the infra runner, renders the infra inventory or attaches to the infra network. The deploy stack has no cache mounts or DNS-hijack, and package managers go direct to upstream. To switch one checkout off, set `INFINITO_CACHE_STACK=false` in its `custom.env`: `make dotenv` reads that line before it derives `INFINITO_ARTEFACT_BASE` and `INFINITO_CACHE_PACKAGE_URL` ([stack.py](../../../utils/env/handlers/infinito/cache/stack.py)), so both follow it to the upstream. An exported value does not switch them, because every recipe re-exports the previous `.env`.
 
 ## Coverage Matrix 📋
 

@@ -25,9 +25,9 @@ def apply_custom_env(eb: EnvBuilder, repo_root: Path) -> None:
     ``custom.env`` is the operator's untracked override file; its values
     win over static defaults AND handler-computed values.
     """
-    from utils.env.parser import parse_static_env_with_comments
+    from utils.env.parser import CUSTOM_ENV, parse_static_env_with_comments
 
-    custom_path = repo_root / "custom.env"
+    custom_path = repo_root / CUSTOM_ENV
     if not custom_path.is_file():
         return
     custom, custom_comments = parse_static_env_with_comments(custom_path)

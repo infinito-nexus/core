@@ -22,13 +22,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.env.context import EnvBuilder
-from utils.env.parser import parse_static_env
+from utils.env.parser import custom_env_value
 from utils.paths import read_group_path
 
 if TYPE_CHECKING:
     from utils.env.context import BuildContext
 
-CUSTOM_ENV = "custom.env"
 BASE_KEY = "INFINITO_INFRA_CACHE_DIR"
 BASE_COMMENT = "Cache base every cache path derives from; the infra runner binds it at its host path."
 ENTRIES: tuple[tuple[str, tuple[str, ...], str], ...] = (
@@ -93,10 +92,9 @@ def resolve(eb: EnvBuilder, repo_root: Path) -> Path:
         The cache base: ``BASE_KEY`` as ``custom.env`` sets it, else as the
         builder resolves an exported value, else :func:`machine`.
     """
-    custom = repo_root / CUSTOM_ENV
-    pinned = parse_static_env(custom).get(BASE_KEY, "") if custom.is_file() else ""
-    if pinned.strip():
-        return Path(eb.set(BASE_KEY, pinned.strip(), comment=BASE_COMMENT))
+    pinned = custom_env_value(repo_root, BASE_KEY)
+    if pinned:
+        return Path(eb.set(BASE_KEY, pinned, comment=BASE_COMMENT))
     return Path(eb.setdefault(BASE_KEY, str(machine()), comment=BASE_COMMENT))
 
 

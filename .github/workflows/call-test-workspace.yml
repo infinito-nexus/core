@@ -147,7 +147,6 @@ jobs:
             -e DEV_RUNTIME_IMAGE \
             -e INFINITO_WORKSPACE_TRACKS \
             -e INFINITO_DISTRO \
-            -e INFINITO_IMAGE="infinito-${INFINITO_DISTRO}" \
             -e INFINITO_PULL_POLICY=never \
             -e INFINITO_BUILD=1 \
             -e NIX_CONFIG \
