@@ -277,12 +277,14 @@ html .datatable {
   --dt-primary-color: var(--design-primary);
 }
 
-html .btn.btn-primary-light {
+html .btn.btn-primary-light,
+html .filter-button:has(> .filter-label:not(.hidden)) {
   background-color: var(--design-surface-active);
   color: var(--design-text);
 }
 
-html .btn.btn-primary-light:hover {
+html .btn.btn-primary-light:hover,
+html .filter-button:has(> .filter-label:not(.hidden)):hover {
   background-color: var(--design-surface-hover);
   color: var(--design-text);
 }
