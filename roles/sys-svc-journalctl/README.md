@@ -9,7 +9,7 @@ This Ansible role manages the configuration of `systemd-journald` on target host
 - Raises the journald rate limit of `docker.service`, which every container logs through, with a drop-in configured by `docker_rate_limit` in `meta/services.yml`; `sys-svc-container` writes it through `tasks/utils/docker_rate_limit.yml` before Docker first starts, and a host whose Docker already runs picks it up at its next Docker start  
 - Keeps journal entries at most `max_retention_sec`, one week by default (`meta/services.yml`)  
 - Caps the persistent journal (`SystemMaxUse=`) at `system_max_use_percent` of the filesystem holding `/var/log/journal`, 2 % by default, and leaves `system_keep_free` of that filesystem free, 15 % by default (`meta/services.yml`)  
-- Restarts the `systemd-journald` service when configuration changes  
+- Restarts the `systemd-journald` service when configuration changes, then flushes the runtime journal (`journalctl --flush`): a restarted journald keeps writing to `/run/log/journal` until it gets a flush request, which otherwise comes only from `systemd-journal-flush.service` at the next boot, so a host that booted with a volatile journal would keep it until then  
 - Supports live log streaming via `journalctl -f`
 
 ## Overview
