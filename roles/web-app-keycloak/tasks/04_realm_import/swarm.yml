@@ -32,6 +32,7 @@
       --network {{ application_id | entity_name | quote }} \
       {{ KEYCLOAK_DB_NETWORK_ARG }} \
       --mount type=bind,source={{ KEYCLOAK_REALM_IMPORT_DIR_HOST | quote }},target={{ KEYCLOAK_REALM_IMPORT_DIR_DOCKER | quote }},readonly \
+      {{ KEYCLOAK_IMPORT_CA_MOUNT_ARG }} \
       --entrypoint /opt/keycloak/bin/kc.sh \
       {{ KEYCLOAK_IMAGE }}:{{ KEYCLOAK_VERSION }} \
       import --file {{ KEYCLOAK_REALM_IMPORT_FILE_DOCKER }} --verbose
