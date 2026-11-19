@@ -68,7 +68,7 @@ exports.register = function () {
     test.setTimeout(resolveTimeout(300_000));
     const slug = `infinito-2fa-probe-${Date.now()}`;
     await expectStatus(
-      await api(request, "POST", "projects/", { data: { name: slug, slug, web: "https://probe.invalid/" } }),
+      await api(request, "POST", "projects/", { data: { name: slug, slug, web: "https://example.org/" } }),
       201,
       "create the probe project",
     );
