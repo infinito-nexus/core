@@ -92,6 +92,7 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+  ready_path: version
 
 # nocheck: playwright-service-flag  the rendered logo set is cosmetic and carries no Playwright gate
 design:

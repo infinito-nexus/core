@@ -10,11 +10,11 @@ The role builds a custom openvscode-server image that adds the Claude Code exten
 
 ## Features
 
-- **Browser IDE:** The container serves openvscode-server on the LAN interface, with an HTTP health check against the editor root.
+- **Browser IDE:** The container serves openvscode-server on the LAN interface as the image's own `openvscode-server` user (uid and gid 1000) on a read-only root filesystem, writing only to its home volume and a `/tmp` tmpfs. The HTTP health check probes `/version`, an unauthenticated path; the Prometheus readiness probe uses the same path.
 - **Claude Code extension:** The image install step pulls the Claude Code extension from Open VSX at build time, so every workspace ships with it.
 - **Single sign-on:** When Keycloak is deployed, an OAuth2 proxy sits in front of the editor and admits only members of the administrator and agent-user groups of this application.
 - **Isolating runtime:** The compose service is pinned to the sandbox runtime `svc-virt-kata` installs, and the deploy refuses a container that comes up under the shared host kernel.
 - **Isolation contract:** `services.workspace.isolation` encodes no host home, no sibling repositories, no host Docker socket, no host credentials, own-stack-only Docker access, unprivileged nested Docker with a refused privileged fallback, an uplink-pinned nested MTU, an approval store kept off the agent's writable paths, and agent-firewall egress.
-- **Connection token:** A generated token guards direct editor access behind the proxy.
+- **Editor authentication:** When the OAuth2 proxy fronts the editor, it is the only authentication and openvscode-server starts without a connection token. Without the proxy, a generated connection token, mounted as a file readable by the editor user, guards the editor instead. The deploy never passes both. As with every application behind the OAuth2 proxy, the editor's local port on the host loopback stays reachable without sign-in for processes on that host; the Kata or gVisor sandbox, which holds no host Docker socket and no host credentials, bounds what such a process reaches.
 - **Persistent state:** Editor settings and the opened workspace live in a volume mounted at the editor home and are included in the container volume backup when that service is deployed.
 - **Compose and Swarm:** The role deploys in both modes.

@@ -3,4 +3,6 @@ ARG WORKSPACE_BASE_VERSION
 FROM ${WORKSPACE_BASE_IMAGE}:${WORKSPACE_BASE_VERSION}
 
 USER openvscode-server
-RUN ${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server --install-extension anthropic.claude-code
+RUN "${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server" --install-extension anthropic.claude-code
+
+ENTRYPOINT ["/bin/sh", "-c", "exec \"${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server\" \"$@\"", "--"]

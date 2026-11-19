@@ -13,5 +13,9 @@ WORKSPACE_DATA_DIR: "{{ lookup('volume', application_id, 'workspace_data').targe
 WORKSPACE_CONNECTION_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.connection_token') }}"
 WORKSPACE_CONNECTION_TOKEN_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'connection-token' ] | path_join }}"
 WORKSPACE_CONNECTION_TOKEN_FILE: "{{ lookup('volume', application_id, 'workspace_connection_token').target }}"
+WORKSPACE_READY_PATH: "{{ lookup('config', application_id, 'services.prometheus.ready_path') }}"
+WORKSPACE_UID: "{{ lookup('volume', application_id, 'workspace_connection_token').uid }}"
+WORKSPACE_GID: "{{ lookup('volume', application_id, 'workspace_connection_token').gid }}"
+WORKSPACE_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 
 WORKSPACE_ISOLATION: "{{ lookup('config', application_id, 'services.workspace.isolation') }}"

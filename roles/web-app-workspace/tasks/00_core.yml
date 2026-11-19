@@ -13,7 +13,10 @@
     role_templates:
       - src: "connection-token.j2"
         dest: "{{ WORKSPACE_CONNECTION_TOKEN_FILE_HOST }}"
-        mode: "0600"
+        owner: "{{ WORKSPACE_UID }}"
+        group: "{{ WORKSPACE_GID }}"
+        mode: "0400"
+  when: not (WORKSPACE_SSO_PROXY_GATED | bool)
 
 - name: "🚿 Flush compose for {{ application_id }}"
   meta: flush_handlers
