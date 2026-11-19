@@ -5,6 +5,7 @@ import json
 import os
 
 import frappe
+from frappe.defaults import clear_default
 from frappe.utils.password import get_decrypted_password
 
 SITE_NAME = os.environ["SITE_NAME"]
@@ -90,7 +91,7 @@ frappe.connect()
 changed = False
 try:
     changed = upsert_social_login_key()
-    frappe.db.clear_default(key="erpnext_oidc_group_role_map")
+    clear_default(key="erpnext_oidc_group_role_map")
     frappe.db.commit()
     frappe.clear_cache()
 finally:
