@@ -66,12 +66,12 @@ discourse:
   shared: true
   enabled: true # nocheck: dynamic-flag
   name: discourse
-  ref: 59dacaecae5797991783ab357a86a573bb82a222
+  ref: 1e4333731b0a33b3b1b62e00a53b6c3adbffa1da
   min_storage: 15GB
   repository: https://github.com/discourse/discourse_docker.git
   application:
     repository: https://github.com/discourse/discourse.git
-    ref: v2026.10.1
+    ref: v2026.10.2
   ports:
     local:
       http: 8020
