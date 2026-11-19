@@ -16,7 +16,7 @@ from __future__ import annotations
 import functools
 import os
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from cli.administration.deploy.development.inventory import (
     _build_services_overrides_for_round as build_services_overrides_for_round,
