@@ -28,7 +28,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% if POSTGRES_EXPOSE_LOCAL %}
-    {# nocheck: swarm-loopback-port exec  renders under swarm with services.postgres.exposed (variant 0 sets it), where tasks/01_init.yml provisions inside the container (01_init/container.yml) and applications connect by service name #}
+    {# nocheck: swarm-loopback-port exec  renders under swarm only with services.postgres.exposed (variant 0 sets it), where container_ports publishes it in host mode for the node onion when svc-net-tor is deployed, pinned to the stack host, and the prerouting chain of the swarm node baseline drops every packet to it that does not arrive on lo; tasks/01_init.yml provisions inside the container (01_init/container.yml) and applications connect by service name #}
     {{ lookup('container_ports', ['postgres', 'postgres', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

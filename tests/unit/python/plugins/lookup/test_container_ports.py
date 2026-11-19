@@ -5,6 +5,7 @@ from typing import ClassVar
 from ansible.errors import AnsibleError
 
 from plugins.lookup.container_ports import LookupModule
+from plugins.lookup.tor_ports import collect_host_mode_backends
 
 
 def _apps():
@@ -88,6 +89,159 @@ class TestContainerPortsSwarmRoutingMesh(unittest.TestCase):
         self.assertEqual(
             _run([["gitea", "http", "127.0.0.1"]], mode_vars=self.SWARM, key="expose"),
             ['expose:\n  - "127.0.0.1:8002:3000"'],
+        )
+
+
+def _exposed_mariadb(tor):
+    return {
+        "services": {
+            **({"tor": tor} if tor is not None else {}),
+            "mariadb": {
+                "exposed": True,
+                "ports": {
+                    "local": {"mariadb": 3306},
+                    "internal": {"mariadb": 3306},
+                },
+            },
+        }
+    }
+
+
+def _onion_apps():
+    return {
+        "svc-db-mariadb": _exposed_mariadb({"enabled": True}),
+        "svc-db-mariadb-no-tor": _exposed_mariadb(None),
+        "svc-db-mariadb-tor-off": _exposed_mariadb({"enabled": False}),
+        "svc-db-openldap": {
+            "services": {
+                "tor": {"enabled": True},
+                "openldap": {
+                    "exposed": "{{ 'svc-net-tor' in group_names }}",
+                    "ports": {"local": {"ldap": 389}, "internal": {"ldap": 389}},
+                },
+            }
+        },
+        "web-app-gitea": {
+            "services": {
+                "tor": {"enabled": True},
+                "gitea": {
+                    "ports": {
+                        "local": {"http": 8002, "relay": 3478},
+                        "internal": {"http": 3000, "relay": 3478},
+                        "onion": {"http": True, "relay": True},
+                    }
+                },
+            }
+        },
+    }
+
+
+def _stack_host_backends():
+    return collect_host_mode_backends(_onion_apps(), list(_onion_apps()))
+
+
+def _run_onion(terms, app_id, mode, backends=None):
+    lm = LookupModule()
+    lm._loader = mock.MagicMock()
+    apps = _onion_apps()
+    with mock.patch("plugins.lookup.container_ports.lookup_loader") as loader_mock:
+        loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
+        return lm.run(
+            terms,
+            variables={
+                "application_id": app_id,
+                "DEPLOYMENT_MODE": mode,
+                "SWARM_ONION_HOST_BACKENDS": (
+                    _stack_host_backends() if backends is None else backends
+                ),
+            },
+        )
+
+
+def _host_block(published, target):
+    return (
+        "ports:\n"
+        f"  - target: {target}\n"
+        f"    published: {published}\n"
+        "    protocol: tcp\n"
+        "    mode: host"
+    )
+
+
+class TestContainerPortsSwarmOnionForward(unittest.TestCase):
+    def test_swarm_publishes_an_exposed_local_port_in_host_mode_when_tor_is_deployed(
+        self,
+    ):
+        self.assertEqual(
+            _run_onion(
+                [["mariadb", "mariadb", "127.0.0.1"]], "svc-db-mariadb", "swarm"
+            ),
+            [_host_block(3306, 3306)],
+        )
+
+    def test_swarm_drops_an_exposed_local_port_without_tor(self):
+        for app_id in ("svc-db-mariadb-no-tor", "svc-db-mariadb-tor-off"):
+            with self.subTest(application=app_id):
+                self.assertEqual(
+                    _run_onion([["mariadb", "mariadb", "127.0.0.1"]], app_id, "swarm"),
+                    [""],
+                )
+
+    def test_swarm_drops_a_port_the_stack_host_list_does_not_carry(self):
+        unlisted = [
+            entry
+            for entry in _stack_host_backends()
+            if entry["application"] != "svc-db-mariadb"
+        ]
+        for backends in (unlisted, [], "{{ hostvars[STACK_HOST]['unset'] }}"):
+            with self.subTest(backends=backends):
+                self.assertEqual(
+                    _run_onion(
+                        [["mariadb", "mariadb", "127.0.0.1"]],
+                        "svc-db-mariadb",
+                        "swarm",
+                        backends,
+                    ),
+                    [""],
+                )
+
+    def test_swarm_publishes_only_the_tcp_transport_the_drop_covers(self):
+        term = {"service": "mariadb", "protocol": "mariadb", "ip": "127.0.0.1"}
+        self.assertEqual(
+            _run_onion([{**term, "transport": "udp"}], "svc-db-mariadb", "swarm"),
+            [""],
+        )
+        self.assertEqual(
+            _run_onion(
+                [{**term, "transport": ["tcp", "udp"]}], "svc-db-mariadb", "swarm"
+            ),
+            [_host_block(3306, 3306)],
+        )
+
+    def test_swarm_publishes_a_named_onion_category_in_host_mode(self):
+        self.assertEqual(
+            _run_onion([["gitea", "http", "127.0.0.1"]], "web-app-gitea", "swarm"),
+            [_host_block(8002, 3000)],
+        )
+
+    def test_swarm_drops_a_udp_only_category_the_onion_cannot_carry(self):
+        self.assertEqual(
+            _run_onion([["gitea", "relay", "127.0.0.1"]], "web-app-gitea", "swarm"),
+            [""],
+        )
+
+    def test_swarm_drops_an_unrendered_exposed_flag(self):
+        self.assertEqual(
+            _run_onion([["openldap", "ldap", "127.0.0.1"]], "svc-db-openldap", "swarm"),
+            [""],
+        )
+
+    def test_compose_keeps_the_loopback_bind_of_an_exposed_port(self):
+        self.assertEqual(
+            _run_onion(
+                [["mariadb", "mariadb", "127.0.0.1"]], "svc-db-mariadb", "compose"
+            ),
+            ['ports:\n  - "127.0.0.1:3306:3306"'],
         )
 
 

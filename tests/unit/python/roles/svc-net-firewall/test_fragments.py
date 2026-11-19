@@ -142,6 +142,7 @@ COMMON = {
         ]
     ),
     "SWARM_INGRESS_PEER_ADDRESSES": swarm_node_addresses(["10.0.0.2"]),
+    "SWARM_ONION_GUARDED_PORTS": [389, 3306],
     **_incus_variables(),
 }
 

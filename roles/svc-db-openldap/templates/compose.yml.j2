@@ -13,7 +13,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
     {% if OPENLDAP_NETWORK_EXPOSE_LOCAL | bool %}
-    {# nocheck: swarm-loopback-port overlay  applications bind through the openldap service name on the shared network; the host-side readers of this port (LDAP.SERVER.HOST_URI, the openresty LDAP stream) are the open OpenLDAP swarm requirement #}
+    {# nocheck: swarm-loopback-port overlay  applications bind through the openldap service name on the shared network; with services.openldap.exposed and svc-net-tor deployed container_ports publishes it in host mode for the node onion, pinned to the stack host, and the prerouting chain of the swarm node baseline drops every packet to it that does not arrive on lo; host-side clients, the Playwright runner included, reach slapd through LDAP.SERVER.SOCKET_URI, and the host-side reader of this port, the openresty LDAP stream, is the open OpenLDAP swarm requirement #}
     {{ lookup('container_ports', ['openldap', 'ldap', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
 

@@ -59,8 +59,15 @@ both sides, so a relay range needs no special term.
 In the effective swarm mode (``compose_mode_force`` or ``DEPLOYMENT_MODE``) a
 ``ports`` term that carries an ``ip`` and resolves ``ports.local`` is not
 published: the routing mesh ignores the ip and would open the port on every
-node. ``expose`` feeds ``docker run -p``, which honours the ip, so it keeps such
-terms. A block left without entries renders as an empty string.
+node. A TCP port listed in ``SWARM_ONION_HOST_BACKENDS`` (evaluated once, on the
+stack host) is published in ``mode: host`` instead: the deploy pins its service
+to the stack host, whose hidden service dials it from the host network, and
+the swarm node baseline, loaded from the same list before the first stack
+deploy of the run, drops every packet to it that does not arrive on ``lo``
+until no service publishes it in host mode any more.
+``expose``
+feeds ``docker run -p``, which honours the ip, so it keeps such terms. A block
+left without entries renders as an empty string.
 
 ``application_id`` is read from the play variables unless given as
 ``application_id=``. ``key='expose'`` names the block instead of ``ports``, for
@@ -192,6 +199,26 @@ def _short_line(term: Mapping, published: str, container: str, transport: str) -
     return f'  - "{head}{published}:{container}{suffix}"'
 
 
+def _onion_backend(backends: Any, owner: str, service: str, published: str) -> bool:
+    """Whether a port is in the stack host's ``SWARM_ONION_HOST_BACKENDS``.
+
+    Args:
+        backends: the list as the play renders it; anything else is empty.
+        owner: the application that owns the service.
+        service: the service the term names.
+        published: the ``ports.local`` port the term resolves.
+
+    Returns:
+        True when an ``{"application", "service", "port"}`` entry matches.
+    """
+    return isinstance(backends, list) and any(
+        isinstance(entry, Mapping)
+        and (entry.get("application"), entry.get("service"), _as_str(entry.get("port")))
+        == (owner, service, published)
+        for entry in backends
+    )
+
+
 def _host_lines(published: str, container: str, transport: str) -> list[str]:
     return [
         f"  - target: {container}",
@@ -270,13 +297,25 @@ class LookupModule(LookupBase):
             or resolve_var(templar, variables.get("DEPLOYMENT_MODE", "compose"))
         )
         routing_mesh = block_key == "ports" and effective_mode == "swarm"
+        onion_backends = (
+            resolve_var(templar, variables.get("SWARM_ONION_HOST_BACKENDS"))
+            if routing_mesh
+            else []
+        )
         lines = [f"{block_key}:"]
         for term in parsed:
             service, protocol = term["service"], term["protocol"]
             owner = term["application_id"] or application_id
             local = _port(owner, service, "local", protocol, required=False)
+            mode = term["mode"]
+            transports = _transports_of(term)
             if routing_mesh and term["ip"] and local:
-                continue
+                transports = [t for t in transports if t in ("", "tcp")]
+                if not transports or not _onion_backend(
+                    onion_backends, owner, service, local
+                ):
+                    continue
+                mode = "host"
             published = local or _port(
                 owner,
                 service,
@@ -288,8 +327,8 @@ class LookupModule(LookupBase):
                 container = published
             else:
                 container = _port(owner, service, "internal", protocol, required=True)
-            for transport in _transports_of(term):
-                if term["mode"] == "host":
+            for transport in transports:
+                if mode == "host":
                     lines.extend(_host_lines(published, container, transport))
                 else:
                     lines.append(_short_line(term, published, container, transport))

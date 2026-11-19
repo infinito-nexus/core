@@ -16,12 +16,19 @@ IS_BACKUP_HOST: >-
 STACK_HOST: >-
   {{ (groups['svc-swarm-manager'] | default([]))[0] | default(inventory_hostname) }}
 
+STACK_HOST_NODE: "{{ hostvars[STACK_HOST]['ansible_facts']['nodename'] | default(STACK_HOST) }}"
+
 swarm_stack_fatal_grace: 180
 
 SWARM_INGRESS_GUARDED: "{{ (swarm_ingress_read.stdout_lines | swarm_ingress_sections)['port'] | swarm_ingress_published | swarm_ingress_guarded(lookup('applications')
   | swarm_public_ports) }}"
 
 SWARM_INGRESS_PEERS: "{{ (swarm_ingress_read.stdout_lines | swarm_ingress_sections)['node'] | swarm_node_addresses }}"
+
+SWARM_ONION_HOST_BACKENDS: "{{ hostvars[STACK_HOST]['swarm_onion_host_backends'] }}"
+
+SWARM_ONION_GUARDED: "{{ SWARM_ONION_HOST_BACKENDS | swarm_onion_guarded((swarm_ingress_read.stdout_lines | swarm_ingress_sections)['port'], lookup('applications')
+  | swarm_public_ports) }}"
 
 SWARM_MANAGER_PORT: 2377
 SWARM_LISTEN_ADDR: "0.0.0.0:{{ SWARM_MANAGER_PORT }}"

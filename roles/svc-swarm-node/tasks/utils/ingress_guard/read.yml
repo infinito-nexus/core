@@ -2,9 +2,13 @@
 - name: "🔎 Swarm ingress guard | Read the published ports and the node addresses"
   ansible.builtin.shell: |
     set -euo pipefail
-    if [ "$(container info --format '{{ '{{.Swarm.ControlAvailable}}' }}')" = "true" ]; then
+    swarm="$(container info --format '{{ '{{.Swarm.LocalNodeState}} {{.Swarm.ControlAvailable}}' }}')"
+    if [ "${swarm}" = "active true" ]; then
       container service ls -q | xargs -r container service inspect --format 'port {{ '{{json .Endpoint.Ports}}' }}'
       container node ls -q | xargs -r container node inspect --format 'node {{ '{{.Status.Addr}}' }}'
+    elif [ "${swarm%% *}" = "active" ]; then
+      echo "swarm ingress guard: this node is an active swarm member without control, so it cannot read the published ports" >&2
+      exit 1
     fi
   args:
     executable: /bin/bash

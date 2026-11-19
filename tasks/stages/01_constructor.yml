@@ -69,6 +69,9 @@
 - name: 🧊 Render the applications SPOT once for the bootstrap section
   applications_carrier: {}
 
+- name: "🧅 Evaluate the onion backends from the parked applications SPOT"
+  ansible.builtin.include_tasks: ./tasks/utils/constructor/onion_backends.yml
+
 - name: 🔄 update device
   ansible.builtin.include_role:
     name: update
@@ -102,6 +105,12 @@
   ansible.builtin.include_role:
     name: svc-swarm-node
   when: "'svc-swarm-node' | application_allowed(group_names, lookup('deployment').whitelist)"
+
+- name: "🛡️ Load the onion backend drop before any stack publishes it"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-swarm-node/tasks/utils/ingress_guard/refresh.yml') }}"
+  when:
+    - IS_SWARM_MODE | bool
+    - run_once_svc_swarm_node is not defined
 
 - name: "🥾 Bootstrap storage + cache + registry + runtimes (MUST precede Preload)"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml

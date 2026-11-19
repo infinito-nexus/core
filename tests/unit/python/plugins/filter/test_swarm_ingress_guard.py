@@ -10,6 +10,7 @@ from plugins.filter.swarm_ingress_guard import (
     swarm_ingress_published,
     swarm_ingress_sections,
     swarm_node_addresses,
+    swarm_onion_guarded,
     swarm_public_ports,
 )
 from utils import PROJECT_ROOT
@@ -152,6 +153,47 @@ class TestSwarmIngressGuarded(unittest.TestCase):
         )
 
 
+def _host(port, protocol="tcp"):
+    return (
+        f'[{{"Protocol":"{protocol}","TargetPort":{port},'
+        f'"PublishedPort":{port},"PublishMode":"host"}}]'
+    )
+
+
+class TestSwarmOnionGuarded(unittest.TestCase):
+    def test_keeps_a_port_a_live_service_still_publishes_in_host_mode(self):
+        self.assertEqual(
+            swarm_onion_guarded(
+                [
+                    {
+                        "application": "svc-db-openldap",
+                        "service": "openldap",
+                        "port": 389,
+                    }
+                ],
+                [_host(3306), _host(443), "null"],
+                [443],
+            ),
+            [389, 3306],
+        )
+
+    def test_ingress_and_udp_entries_stay_with_the_ingress_guard(self):
+        ingress = '[{"Protocol":"tcp","TargetPort":1,"PublishedPort":5432,"PublishMode":"ingress"}]'
+        self.assertEqual(swarm_onion_guarded([], [ingress, _host(53, "udp")], []), [])
+
+    def test_a_port_leaves_once_nothing_publishes_it(self):
+        self.assertEqual(swarm_onion_guarded([], [], [443]), [])
+
+    def test_refuses_a_backend_list_that_did_not_render(self):
+        for backends in ("{{ hostvars[STACK_HOST]['unset'] }}", None, [{"port": 1}, 2]):
+            with self.subTest(backends=backends), self.assertRaises(AnsibleFilterError):
+                swarm_onion_guarded(backends, [], [])
+
+    def test_refuses_a_read_that_is_not_json(self):
+        with self.assertRaises(AnsibleFilterError):
+            swarm_onion_guarded([], ["Error: no such service"], [])
+
+
 class TestSwarmNodeAddresses(unittest.TestCase):
     def test_splits_by_family_and_drops_the_unspecified_address(self):
         unspecified = str(ipaddress.IPv4Address(0))
@@ -170,7 +212,7 @@ class TestSwarmNodeAddresses(unittest.TestCase):
 
 
 class TestFilterModule(unittest.TestCase):
-    def test_registers_the_five_filters(self):
+    def test_registers_the_six_filters(self):
         self.assertEqual(
             set(FilterModule().filters()),
             {
@@ -178,6 +220,7 @@ class TestFilterModule(unittest.TestCase):
                 "swarm_ingress_published",
                 "swarm_public_ports",
                 "swarm_ingress_guarded",
+                "swarm_onion_guarded",
                 "swarm_node_addresses",
             },
         )

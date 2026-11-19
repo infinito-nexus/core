@@ -1,4 +1,10 @@
 ---
+- name: "✅ Ensure dockerd and the container CLI are installed before the ingress guard reads the swarm"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    public: false
+  when: run_once_sys_svc_container is not defined
+
 - name: "🛡️ Bound the ports the routing mesh publishes before the node joins"
   ansible.builtin.include_tasks: 00_core/ingress_guard.yml
 

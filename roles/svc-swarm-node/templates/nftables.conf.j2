@@ -21,6 +21,13 @@ table inet {{ FIREWALL_TABLE }} {
   }
 
 {% endfor %}
+{% if SWARM_ONION_GUARDED_PORTS | length > 0 %}
+  set onion_backends_tcp {
+    type inet_service
+    elements = { {{ SWARM_ONION_GUARDED_PORTS | join(', ') }} }
+  }
+
+{% endif %}
   chain prerouting {
     type filter hook prerouting priority -150; policy accept;
 {% for family, match in [('ipv4', 'ip'), ('ipv6', 'ip6')] %}
@@ -28,5 +35,8 @@ table inet {{ FIREWALL_TABLE }} {
     iifname != { "lo", "docker0", "docker_gwbridge" } iifname != "br-*" {{ match }} saddr != @peers_{{ family }} fib daddr type local {{ protocol }} dport @guarded_{{ protocol }} drop
 {% endfor %}
 {% endfor %}
+{% if SWARM_ONION_GUARDED_PORTS | length > 0 %}
+    iifname != "lo" fib daddr type local tcp dport @onion_backends_tcp drop
+{% endif %}
   }
 }
