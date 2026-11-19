@@ -15,22 +15,25 @@
     - "{{ DIR_RBAC_SYNC }}"
     - "{{ RBAC_SYNC_HOOKS_DIR }}"
 
-- name: "📁 Create the RBAC sync script directory"
+- name: "📁 Create the RBAC sync script directory on every node"
   ansible.builtin.file:
     path: "{{ RBAC_SYNC_SCRIPT_DIR }}"
     state: directory
     mode: "0755"
+  delegate_to: "{{ item }}"
+  loop: "{{ query('node_hosts') }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
 
-- name: "📋 Install the modules the RBAC sync script imports next to it"
+- name: "📋 Install the RBAC sync script and the modules it imports on every node"
   ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', item.src) }}"
-    dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, item.dest ] | path_join }}"
-    mode: "0644"
-  loop:
-    - { src: roles/svc-db-openldap/files/python/ldap/client.py, dest: ldap_client.py }
-    - { src: roles/svc-db-openldap/files/python/ldap/mailbox.py, dest: ldap_mailbox.py }
-    - { src: roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py, dest: backup_maintenance.py }
-    - { src: roles/sys-ctl-mtn-rbac-sync/files/python/mailbox_seed.py, dest: mailbox_seed.py }
+    src: "{{ lookup('path_absolute', item.1.src) }}"
+    dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, item.1.dest ] | path_join }}"
+    mode: "{{ item.1.mode }}"
+  delegate_to: "{{ item.0 }}"
+  loop: "{{ query('node_hosts') | product(RBAC_SYNC_RUNNER_FILES) | list }}"
+  loop_control:
+    label: "{{ item.0 }}: {{ item.1.dest }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
 
 - name: "🧾 Write the RBAC sync configuration"
   ansible.builtin.copy:
@@ -45,6 +48,7 @@
   include_role:
     name: sys-service
   vars:
+    system_service_copy_files: false
     system_service_timer_enabled: "{{ RBAC_SYNC_TIMER_ENABLED | bool }}"
     system_service_on_calendar: "{{ SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC }}"
     system_service_tpl_exec_start: "{{ system_service_script_exec }} --directory {{ DIR_RBAC_SYNC }}"
