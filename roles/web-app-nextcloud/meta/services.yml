@@ -121,7 +121,7 @@ proxy:
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
   image: nginx
-  version: 1.31.8-alpine
+  version: 1.31.9-alpine
   backup:
     stop_required: false
   cpus: "0.5"
@@ -132,11 +132,6 @@ proxy:
   ports:
     internal:
       http: 80
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "1.31.8-alpine"
-        until: 2026-11-30
 # nocheck: playwright-service-flag
 # nocheck: dynamic-flag  the container serves this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
 context_agent:
