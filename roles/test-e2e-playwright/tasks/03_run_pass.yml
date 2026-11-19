@@ -33,7 +33,6 @@
   vars:
     application_id: "{{ application_id }}"
     domains: "{{ lookup('domains') }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: ⏳ Wait until application is ready (any non-error response)
   uri_retry:
