@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 import unittest
+from unittest import mock
 
 from cli.meta.ci import query
 
@@ -101,6 +104,26 @@ class TestQueryArgv(unittest.TestCase):
     def test_the_filter_reads_the_tested_column_not_the_capable_one(self) -> None:
         argv = self._argv()
         self.assertIn("test_compose == true", argv[argv.index("--filter") + 1])
+
+
+class TestDiscoverRows(unittest.TestCase):
+    def _discover_with(self, script: str) -> list[dict]:
+        with mock.patch.object(
+            query, "_query_argv", return_value=[sys.executable, "-c", script]
+        ):
+            return query.discover_rows(("compose",))
+
+    def test_a_failing_query_leaves_its_error_on_stderr(self) -> None:
+        with self.assertRaises(subprocess.CalledProcessError) as raised:
+            self._discover_with(
+                "import sys; sys.stderr.write('VariantPinError: x\\n'); sys.exit(1)"
+            )
+        self.assertIsNone(raised.exception.stderr)
+
+    def test_the_rows_are_read_from_stdout(self) -> None:
+        self.assertEqual(
+            self._discover_with('print(\'[{"name": "r"}]\')'), [{"name": "r"}]
+        )
 
 
 if __name__ == "__main__":
