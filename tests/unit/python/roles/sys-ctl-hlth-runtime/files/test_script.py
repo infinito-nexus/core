@@ -2160,6 +2160,11 @@ class TestContainerRunning(TestCase):
     def test_a_removed_container_does_not_run(self):
         self.assertFalse(self._running(1, ""))
 
+    def test_an_engine_that_does_not_answer_counts_as_running(self):
+        timeout = SCRIPT.subprocess.TimeoutExpired(cmd="container", timeout=1)
+        with mock.patch.object(SCRIPT.subprocess, "run", side_effect=timeout):
+            self.assertTrue(SCRIPT.container_running("abc"))
+
 
 class TestProbePhp(TestCase):
     def _run(self, returncode, stdout="", stderr=""):

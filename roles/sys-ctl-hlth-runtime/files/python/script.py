@@ -466,24 +466,28 @@ def container_running(container_id: str) -> bool:
         container_id: the container to inspect.
 
     Returns:
-        ``True`` while the container engine reports it running, ``False``
-        once it stopped or is gone.
+        ``True`` while the container engine reports it running or does not
+        answer in time, so a probe error then stays a failure; ``False`` once
+        it stopped or is gone.
     """
-    result = subprocess.run(
-        [
-            "container",
-            "inspect",
-            "--type",
-            "container",
-            "--format",
-            "{{.State.Running}}",
-            container_id,
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=EXEC_TIMEOUT_SECONDS,
-    )
+    try:
+        result = subprocess.run(
+            [
+                "container",
+                "inspect",
+                "--type",
+                "container",
+                "--format",
+                "{{.State.Running}}",
+                container_id,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=EXEC_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        return True
     return result.returncode == 0 and result.stdout.strip() == "true"
 
 
