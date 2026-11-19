@@ -44,6 +44,17 @@
     mode: "0600"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔎 Check whether an earlier deploy applied the mailbox layout"
+  ansible.builtin.stat:
+    path: "{{ RBAC_SYNC_MAILBOX_FILE }}"
+  register: rbac_sync_mailbox_seed
+
+- name: "🔑 Rewrite the applied mailbox seed with the current bind credential"
+  ansible.builtin.include_tasks: mailbox.yml
+  vars:
+    rbac_sync_mailbox_enabled: true
+  when: rbac_sync_mailbox_seed.stat.exists
+
 - name: "⏱️ Install the RBAC sync service and its timer"
   include_role:
     name: sys-service
