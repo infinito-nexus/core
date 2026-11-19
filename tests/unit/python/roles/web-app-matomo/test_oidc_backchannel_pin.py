@@ -4,10 +4,10 @@ import unittest
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
 
 ROLE = PROJECT_ROOT / "roles/web-app-matomo"
-COMPOSE = read_text(str(ROLE / "templates/compose.yml.j2"))
+COMPOSE = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
 SERVICES = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
 SERVICE_START = "{% set service_name = MATOMO_SERVICE %}"
 NEXT_SERVICE = re.compile(r"\{% set service_name = (?!MATOMO_SERVICE )")

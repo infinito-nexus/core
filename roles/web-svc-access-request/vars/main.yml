@@ -15,7 +15,8 @@ ACCESS_REQUEST_CONFIG_HOST: "{{ [lookup('container', application_id, 'directorie
 ACCESS_REQUEST_CONFIG_TARGET: "/config/config.json"
 ACCESS_REQUEST_DATABASE: "/data/requests.sqlite3"
 ACCESS_REQUEST_CA_FILE: "{{ CA_TRUST_CERT_CONTAINER_SELFSIGNED }}"
-ACCESS_REQUEST_MOUNTS: "{{ [ACCESS_REQUEST_CONFIG_HOST ~ ':' ~ ACCESS_REQUEST_CONFIG_TARGET ~ ':ro'] + ([CA_TRUST.cert_host ~ ':' ~ CA_TRUST.cert_container ~ ':ro'] if ACCESS_REQUEST_CA_FILE else []) }}"
+ACCESS_REQUEST_MOUNTS: "{{ [ACCESS_REQUEST_CONFIG_HOST ~ ':' ~ ACCESS_REQUEST_CONFIG_TARGET ~ ':ro'] + ([CA_TRUST.cert_host ~ ':' ~ CA_TRUST.cert_container ~ ':ro']
+  if ACCESS_REQUEST_CA_FILE else []) }}"
 
 ACCESS_REQUEST_EMAIL: "{{ lookup('email', application_id) }}"
 ACCESS_REQUEST_PLATFORM_ADMIN: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY) }}"

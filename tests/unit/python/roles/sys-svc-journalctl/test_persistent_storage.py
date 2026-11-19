@@ -7,6 +7,7 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_HANDLERS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "sys-svc-journalctl"
 TOPIC = "restart-systemd-journald"
@@ -20,7 +21,7 @@ def handlers_on(topic: str) -> list[dict]:
     Returns:
         The role's handlers listening on it, in run order.
     """
-    handlers = load_yaml_any(str(ROLE / "handlers" / "main.yml"))
+    handlers = load_yaml_any(str(ROLE / ROLE_FILE_HANDLERS_MAIN))
     return [
         handler
         for handler in handlers
