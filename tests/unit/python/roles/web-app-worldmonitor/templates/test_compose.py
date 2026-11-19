@@ -17,11 +17,13 @@ from plugins.lookup.image import LookupModule as ImageLookup
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.docker.image.discovery import iter_role_images
+from utils.git_refspec import git_refspec
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.update.repository import collect_entries as repository_entries
 
 from . import PROJECT_ROOT
 
@@ -43,7 +45,7 @@ REGISTRY = {"host": "registry.example", "port": "5000"}
 PREFIX = {"compose": "", "swarm": "registry.example:5000/"}
 BUILT = ("worldmonitor", "ais-relay", "redis-rest", "seeder")
 UNPUBLISHED = ("ais-relay", "redis-rest", "cache", "seeder")
-UPSTREAM_FROM = "node:24-alpine@sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
+UPSTREAM_FROM = "node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5"
 NODE_CONTEXT = {UPSTREAM_FROM: f"docker-image://node@{SERVICES['node']['version']}"}
 BUILD = SERVICES["stack"]["checkout"]["build"]
 BUILD_VARS = (
@@ -54,6 +56,7 @@ BUILD_VARS = (
     "WORLDMONITOR_REST_DOCKERFILE",
     "WORLDMONITOR_NODE_FROM",
     "WORLDMONITOR_NODE_IMAGE",
+    "WORLDMONITOR_REF",
 )
 AUTH_BYPASS_FLAGS = ("I_UNDERSTAND_THIS_DISABLES_AUTH", "ALLOW_UNAUTHENTICATED_RELAY")
 
@@ -169,13 +172,13 @@ def render(mode: str) -> dict:
 
 
 class TestPinnedSource(unittest.TestCase):
-    def test_the_clone_is_pinned_to_the_release_tag(self) -> None:
+    def test_the_clone_is_pinned_to_a_full_commit(self) -> None:
         app = SERVICES["worldmonitor"]
-        self.assertEqual(app["ref_kind"], "tag")
-        self.assertEqual(app["source_version"], f"v{app['version']}")
+        self.assertEqual(app["ref_kind"], "commit")
+        self.assertEqual(git_refspec(app["ref"], app["ref_kind"]), app["ref"])
         checkout = SERVICES["stack"]["checkout"]
-        self.assertIn("services.worldmonitor.source_version", checkout["ref"])
-        self.assertIn("services.worldmonitor.source_repository", checkout["url"])
+        self.assertIn("services.worldmonitor.ref", checkout["ref"])
+        self.assertIn("services.worldmonitor.repository", checkout["url"])
         self.assertEqual(
             read_text(str(ROLE / "tasks" / "utils" / "stack.yml")),
             read_text(
@@ -185,11 +188,19 @@ class TestPinnedSource(unittest.TestCase):
         self.assertFalse(any("include_role" in task for task in CORE_TASKS))
 
     def test_every_built_image_carries_the_tag_of_the_clone(self) -> None:
-        version = SERVICES["worldmonitor"]["version"]
         for name in BUILT:
             with self.subTest(service=name):
                 self.assertTrue(SERVICES[name]["custom"])
-                self.assertEqual(SERVICES[name]["version"], version)
+                self.assertNotIn("version", SERVICES[name])
+                self.assertNotIn("update", SERVICES[name])
+
+    def test_the_repository_updater_moves_the_commit_pin(self) -> None:
+        pins = [
+            (entry.entity_path, entry.ref)
+            for entry in repository_entries(PROJECT_ROOT)
+            if entry.role == APP
+        ]
+        self.assertEqual(pins, [(("worldmonitor",), SERVICES["worldmonitor"]["ref"])])
 
     def test_the_image_discovery_lists_the_node_base_by_digest(self) -> None:
         refs = [
@@ -260,7 +271,7 @@ class TestComposeBuilds(unittest.TestCase):
                 self.assertEqual(built, declared)
 
     def test_every_image_is_the_pinned_local_build(self) -> None:
-        version = SERVICES["worldmonitor"]["version"]
+        version = SERVICES["worldmonitor"]["ref"]
         local = {
             "worldmonitor": "worldmonitor_custom",
             "ais-relay": "worldmonitor-ais-relay_custom",

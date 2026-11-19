@@ -7,7 +7,7 @@
       dockerfile: "{{ WORLDMONITOR_APP_DOCKERFILE }}"
       additional_contexts:
         "{{ WORLDMONITOR_NODE_FROM }}": "docker-image://{{ WORLDMONITOR_NODE_IMAGE }}"
-    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_image', application_id, service_name, version=WORLDMONITOR_REF) }}
     {{ lookup('compose_only', 'container_name', WORLDMONITOR_CONTAINER) }}
     {{ lookup('container_ports', ['worldmonitor', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
@@ -26,7 +26,7 @@
       dockerfile: "{{ WORLDMONITOR_RELAY_DOCKERFILE }}"
       additional_contexts:
         "{{ WORLDMONITOR_NODE_FROM }}": "docker-image://{{ WORLDMONITOR_NODE_IMAGE }}"
-    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_image', application_id, service_name, version=WORLDMONITOR_REF) }}
     {{ lookup('compose_only', 'container_name', WORLDMONITOR_RELAY_CONTAINER) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -43,7 +43,7 @@
       dockerfile: "{{ WORLDMONITOR_REST_DOCKERFILE }}"
       additional_contexts:
         "{{ WORLDMONITOR_NODE_FROM }}": "docker-image://{{ WORLDMONITOR_NODE_IMAGE }}"
-    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_image', application_id, service_name, version=WORLDMONITOR_REF) }}
     {{ lookup('compose_only', 'container_name', WORLDMONITOR_REST_CONTAINER) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -78,7 +78,7 @@
       target: "{{ WORLDMONITOR_SEEDER_TARGET }}"
       additional_contexts:
         "{{ WORLDMONITOR_NODE_FROM }}": "docker-image://{{ WORLDMONITOR_NODE_IMAGE }}"
-    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('container_image', application_id, service_name, version=WORLDMONITOR_REF) }}
     {{ lookup('compose_only', 'container_name', WORLDMONITOR_SEEDER_CONTAINER) }}
     command:
       - "sh"

@@ -8,19 +8,9 @@ worldmonitor:
     swarm:
       enabled: true
   custom: true
-  version: "2.11.8"
-  source_repository: https://github.com/koala73/worldmonitor.git
-  source_version: v2.11.8
-  ref_kind: tag
-  update:
-    - key: source_version
-      type: git_tags
-      repository: https://github.com/koala73/worldmonitor.git
-      match: "v"
-    - type: git_tags
-      repository: https://github.com/koala73/worldmonitor.git
-      match: "v"
-      strip: true
+  repository: https://github.com/koala73/worldmonitor.git
+  ref: e2d6809b71e942a89625bfef4c69d4a3fe8f01d1
+  ref_kind: commit
   name: worldmonitor
   healthcheck:
     flavor: http
@@ -42,12 +32,6 @@ worldmonitor:
   pids_limit: 512
 ais-relay:
   custom: worldmonitor-ais-relay
-  version: "2.11.8"
-  update:
-    - type: git_tags
-      repository: https://github.com/koala73/worldmonitor.git
-      match: "v"
-      strip: true
   name: worldmonitor-ais-relay
   healthcheck:
     flavor: http
@@ -63,12 +47,6 @@ ais-relay:
   pids_limit: 256
 redis-rest:
   custom: worldmonitor-redis-rest
-  version: "2.11.8"
-  update:
-    - type: git_tags
-      repository: https://github.com/koala73/worldmonitor.git
-      match: "v"
-      strip: true
   name: worldmonitor-redis-rest
   healthcheck:
     test:
@@ -99,12 +77,6 @@ cache:
   pids_limit: 128
 seeder:
   custom: worldmonitor-seeder
-  version: "2.11.8"
-  update:
-    - type: git_tags
-      repository: https://github.com/koala73/worldmonitor.git
-      match: "v"
-      strip: true
   name: worldmonitor-seeder
   interval_seconds: 1800
   timeout_seconds: 600
@@ -124,7 +96,7 @@ seeder:
 node:
   image: node
   # nocheck: docker-digest  every FROM of the pinned upstream Dockerfiles names this digest, and the build swaps the base in by it
-  version: "sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
+  version: "sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5"
   enabled: false
 sso:
   bond: 1
@@ -196,8 +168,8 @@ stack:
         worldmonitor: Dockerfile
         ais-relay: Dockerfile.relay
         redis-rest: docker/Dockerfile.redis-rest
-    ref: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.source_version') }}"
-    url: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.source_repository') }}"
+    ref: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.ref') }}"
+    url: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.repository') }}"
   enabled: true
   shared: true
 

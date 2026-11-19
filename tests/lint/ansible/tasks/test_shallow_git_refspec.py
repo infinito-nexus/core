@@ -5,7 +5,8 @@ MUST set ``refspec`` and MUST NOT set ``single_branch: true``. Every role that
 hands a ``compose_repository_ref`` to the shared clone of ``sys-svc-compose``
 MUST declare ``ref_kind`` on its primary entity in ``meta/services.yml`` and
 MUST NOT pass ``compose_repository_refspec``. Every declared ``ref_kind`` MUST
-be ``tag`` or ``branch`` and sit beside a ``ref`` or ``source_version``.
+be ``tag``, ``branch`` or ``commit`` and sit beside a ``ref`` or
+``source_version``.
 
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
@@ -491,6 +492,10 @@ class TestShallowGitRefspec(unittest.TestCase):
         services = {
             "bigbluebutton": {"ref": "v3.0.39", REF_KIND_KEY: "branch"},
             "hugo": {"source_version": "v0.165.0", REF_KIND_KEY: "tag"},
+            "worldmonitor": {
+                "ref": "e2d6809b71e942a89625bfef4c69d4a3fe8f01d1",
+                REF_KIND_KEY: "commit",
+            },
             "postgres": {"image": "postgres"},
         }
         self.assertEqual(kind_offenders(services), [])

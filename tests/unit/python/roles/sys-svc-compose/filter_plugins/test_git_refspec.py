@@ -5,6 +5,8 @@ from ansible.errors import AnsibleFilterError
 
 from . import PROJECT_ROOT
 
+SHA = "e2d6809b71e942a89625bfef4c69d4a3fe8f01d1"
+
 
 def _load_module():
     path = (
@@ -31,8 +33,16 @@ class TestGitRefspec(unittest.TestCase):
         self.assertEqual(self.module.git_refspec("v3.0.39", "branch"), "")
         self.assertEqual(self.module.git_refspec("stable/17", "branch"), "")
 
+    def test_a_commit_fetches_its_full_sha(self) -> None:
+        self.assertEqual(self.module.git_refspec(SHA, "commit"), SHA)
+
+    def test_a_commit_that_is_no_full_sha_fails(self) -> None:
+        for ref in (SHA[:7], SHA.upper(), f"{SHA}0", "v2.11.8", "main"):
+            with self.subTest(ref=ref), self.assertRaises(AnsibleFilterError):
+                self.module.git_refspec(ref, "commit")
+
     def test_an_unknown_kind_fails(self) -> None:
-        for kind in ("", "Tag", "commit", None):
+        for kind in ("", "Tag", "Commit", "sha", None):
             with self.subTest(kind=kind), self.assertRaises(AnsibleFilterError):
                 self.module.git_refspec("v1", kind)
 

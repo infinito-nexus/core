@@ -10,10 +10,12 @@ def git_refspec(ref: str, kind: str) -> str:
 
     Args:
         ref: the pinned git ref.
-        kind: ``tag`` or ``branch``, the ``ref_kind`` the entity declares.
+        kind: ``tag``, ``branch`` or ``commit``, the ``ref_kind`` the entity
+            declares.
 
     Returns:
-        ``+refs/tags/<ref>:refs/tags/<ref>`` for a tag, ``""`` for a branch.
+        ``+refs/tags/<ref>:refs/tags/<ref>`` for a tag, ``""`` for a branch,
+        the full SHA itself for a commit.
     """
     try:
         return _git_refspec(str(ref), str(kind))

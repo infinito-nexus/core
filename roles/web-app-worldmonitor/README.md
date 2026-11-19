@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role runs the self-hosted stack of the pinned upstream release (`source_version` in [`meta/services.yml`](./meta/services.yml)) behind the platform proxy:
+This role runs the self-hosted stack of the pinned upstream commit (`ref` in [`meta/services.yml`](./meta/services.yml)) behind the platform proxy:
 
 - **worldmonitor:** the dashboard SPA served by nginx together with the Node API that answers `/api/*`.
 - **ais-relay:** the WebSocket relay for live vessel positions and other streaming feeds.
@@ -14,7 +14,7 @@ This role runs the self-hosted stack of the pinned upstream release (`source_ver
 - **cache:** Redis with a password, memory-capped with an LRU policy. The entity is named `cache` because the shared compose base already names its embedded service `redis`.
 - **seeder:** runs the upstream `scripts/run-seeders.sh` in a loop inside the stack, so fresh data arrives without any command on the host.
 
-Every image is built from the pinned upstream clone. The image published on GHCR serves only the frontend and proxies `/api/*` to `api.worldmonitor.app`, so it cannot run self-contained; building the API, relay, REST bridge and seeders from the same tag keeps all traffic inside the stack.
+Every image is built from the pinned upstream clone. The image published on GHCR serves only the frontend and proxies `/api/*` to `api.worldmonitor.app`, so it cannot run self-contained; building the API, relay, REST bridge and seeders from the same commit keeps all traffic inside the stack.
 
 ### Single sign-on
 
@@ -53,7 +53,9 @@ When LiteLLM is usable, `LLM_API_URL`, `LLM_API_KEY` and `LLM_MODEL` point at th
 
 ### Image pin and bump policy
 
-`services.worldmonitor.source_version` pins the upstream tag. The `version` of every custom image in [`meta/services.yml`](./meta/services.yml) names the same release without the `v` prefix. The git-tags updater watches all of them against the same upstream repository, so one bump moves the clone and every image tag together and the image tag always matches the clone it was built from.
+`services.worldmonitor.ref` pins a full upstream commit of the default branch, declared as `ref_kind: commit`, and the clone fetches exactly that commit at depth 1. Every image the stack builds is tagged with the same commit, so the image tag always matches the clone it was built from. The repository updater moves the `ref` to the tip of the upstream default branch, which moves the clone and every image tag together.
+
+The role pins a commit and not a release tag because the upstream build refuses a live-pulse snapshot older than 10 days (`MAX_LIVE_PULSE_SNAPSHOT_AGE_DAYS` in `scripts/build-crawlable-corpus.mjs`), measured against the build date, so every tag stops building 10 days after its snapshot was captured. Return to `ref_kind: tag` once upstream ships a tag that builds independent of the date.
 
 ## Features
 
