@@ -161,6 +161,11 @@
                     + ['-v', _playwright_pass_reports_dir ~ ':/reports']
                     + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
                     + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS ~ ':/e2e/tests/personas:ro']
+                    + (
+                        ['-v', TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR ~ ':' ~ TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR ~ ':ro']
+                        if (TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED | bool)
+                        else []
+                      )
                     + ['-w', '/e2e']
                     + [TEST_E2E_PLAYWRIGHT_IMAGE]
                     + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]

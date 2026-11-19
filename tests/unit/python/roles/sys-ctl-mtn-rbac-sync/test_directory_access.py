@@ -84,7 +84,7 @@ def _sync(
         "BIN_CONTAINER": "/usr/bin/container",
         "FILE_MAINTENANCE_BACKUP": MAINTENANCE_FILE,
         "LDAP": {
-            "SERVER": {"HOST_URI": "ldap://127.0.0.1:389", "SOCKET_URI": socket_uri},
+            "SERVER": {"SOCKET_URI": socket_uri},
             "DN": {"OU": {"USERS": "ou=users", "ROLES": "ou=roles"}},
             "USER": {
                 "ATTRIBUTES": {

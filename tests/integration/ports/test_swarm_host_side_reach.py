@@ -11,14 +11,18 @@ evaluates the real ``when:`` and value expressions in both modes.
 
 from __future__ import annotations
 
+import posixpath
 import unittest
 from itertools import product
+from urllib.parse import unquote
 
-from ansible.plugins.filter.core import path_join
+from ansible.plugins.filter.core import path_join, regex_replace
+from ansible.plugins.test.core import search
 from jinja2.nativetypes import NativeEnvironment
 
 from plugins.filter.rbac.members import rbac_ldap_members
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
@@ -26,10 +30,13 @@ _ENV = NativeEnvironment()
 _ENV.filters.update(
     {
         "bool": bool,
+        "dirname": posixpath.dirname,
         "path_join": path_join,
         "rbac_ldap_members": rbac_ldap_members,
+        "regex_replace": regex_replace,
     }
 )
+_ENV.tests["search"] = search
 MODES = {
     "compose": {"IS_COMPOSE_MODE": True, "IS_SWARM_MODE": False},
     "swarm": {"IS_COMPOSE_MODE": False, "IS_SWARM_MODE": True},
@@ -69,6 +76,20 @@ def _including(tasks: list[dict], target: str) -> dict:
     return next(
         task for task in tasks if task.get("ansible.builtin.include_tasks") == target
     )
+
+
+def _named(tasks: list[dict], name: str) -> dict:
+    for task in tasks:
+        if task.get("name") == name:
+            return task
+        nested = [
+            found
+            for key in ("block", "rescue", "always")
+            if (found := _named(task.get(key, []), name))
+        ]
+        if nested:
+            return nested[0]
+    return {}
 
 
 def _with(tasks: list[dict], key: str, needle: str = "") -> list[dict]:
@@ -161,6 +182,88 @@ class TestRbacDirectorySearch(unittest.TestCase):
             "ldapi://" + socket.replace("/", "%2F"),
             _value(server["LDAP"]["SERVER"]["SOCKET_URI"], variables),
         )
+
+
+class TestPlaywrightDirectoryWrites(unittest.TestCase):
+    VOLUMES = "/opt/compose/openldap/volumes/"
+    STACK_HOST = "mgr-01"
+    LDAP_URL = "LDAP_URL={{ LDAP.SERVER.SOCKET_URI | dotenv_quote }}"
+
+    @staticmethod
+    def _env_lines(template) -> list[str]:
+        return [
+            line
+            for line in read_text(str(template)).splitlines()
+            if line.startswith("LDAP_URL=")
+        ]
+
+    def _templates(self) -> tuple[list, list]:
+        templates = sorted(
+            (PROJECT_ROOT / "roles").glob("*/templates/playwright.env.j2")
+        )
+        ldap = [path for path in templates if self._env_lines(path)]
+        plain = [path for path in templates if not self._env_lines(path)]
+        self.assertTrue(ldap and plain)
+        return ldap, plain
+
+    def _lookup(self, kind: str, *args: str) -> str:
+        return read_text(str(args[0])) if kind == "file" else self.VOLUMES
+
+    def test_every_playwright_ldap_url_is_the_socket_openldap_binds(self) -> None:
+        server = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
+        self.assertNotIn("HOST_URI", server["LDAP"]["SERVER"])
+        for template in self._templates()[0]:
+            with self.subTest(template=template.parent.parent.name):
+                self.assertEqual([self.LDAP_URL], self._env_lines(template))
+
+    def test_only_ldap_roles_mount_the_socket_dir_of_the_stack_host(self) -> None:
+        server = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
+        socket_uri = _value(
+            server["LDAP"]["SERVER"]["SOCKET_URI"], {"lookup": self._lookup}
+        )
+        socket = unquote(socket_uri.removeprefix("ldapi://"))
+        self.assertEqual(path_join([self.VOLUMES, "run", "ldapi"]), socket)
+        socket_dir = posixpath.dirname(socket)
+        role = load_yaml_any(
+            str(PROJECT_ROOT / "roles/test-e2e-playwright" / ROLE_FILE_VARS_MAIN)
+        )
+        for key in ("SOCKET_DIR", "SOCKET_MOUNTED"):
+            self.assertIn(f"TEST_E2E_PLAYWRIGHT_LDAP_{key}", role)
+        run = _named(
+            _tasks("roles/test-e2e-playwright/tasks/03_run_pass.yml"),
+            "▶️ Run Playwright container",
+        )
+        mount = f"{socket_dir}:{socket_dir}:ro"
+        ldap, plain = self._templates()
+        cases = product(
+            MODES,
+            ((ldap[0], True), (plain[0], False)),
+            ({"svc-db-openldap": [self.STACK_HOST]}, {}),
+        )
+        for mode, (template, carries_url), groups in cases:
+            variables = {
+                **MODES[mode],
+                "LDAP": {"SERVER": {"SOCKET_URI": socket_uri}},
+                "STACK_HOST": self.STACK_HOST,
+                "groups": groups,
+                "group_names": [] if groups else ["svc-db-openldap"],
+                "lookup": self._lookup,
+                "_playwright_env_template": str(template),
+            }
+            variables["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR"] = _value(
+                role["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR"], variables
+            )
+            variables["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED"] = _value(
+                role["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED"], variables
+            )
+            argv = _value(run["ansible.builtin.command"]["argv"], variables)
+            mounts = [argv[i + 1] for i, arg in enumerate(argv) if arg == "-v"]
+            role_name = template.parent.parent.name
+            with self.subTest(mode=mode, role=role_name, groups=groups):
+                self.assertEqual(carries_url and bool(groups), mount in mounts)
+                self.assertFalse(
+                    any(socket_dir in item for item in mounts if item != mount)
+                )
 
 
 class TestMatrixRbacHook(unittest.TestCase):

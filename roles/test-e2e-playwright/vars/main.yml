@@ -30,6 +30,10 @@ TEST_E2E_PLAYWRIGHT_PERSONAS_ARCHIVE: "/tmp/infinito-playwright-personas.tar"
 TEST_E2E_PLAYWRIGHT_HELPERS_DIR: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}"
 TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE: "/tmp/infinito-playwright-helpers.tar"
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
+TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR: "{{ LDAP.SERVER.SOCKET_URI | regex_replace('^ldapi://', '') | replace('%2F', '/') | dirname }}"
+TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED: >-
+  {{ STACK_HOST in (groups['svc-db-openldap'] | default([]))
+     and lookup('file', _playwright_env_template) is search('^LDAP_URL=', multiline=True) }}
 
 TEST_E2E_PLAYWRIGHT_PARALLEL: "{{ lookup('playwright_parallel') }}"
 TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_jobs"
