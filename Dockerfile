@@ -103,6 +103,10 @@ RUN set -euo pipefail; \
   systemctl mask getty.target console-getty.service getty-static.service getty@.service \
     systemd-sysctl.service
 
+RUN set -euo pipefail; \
+  mkdir -p /etc/systemd/resolved.conf.d; \
+  printf '[Resolve]\nDNSStubListener=no\n' >/etc/systemd/resolved.conf.d/infinito-no-stub.conf
+
 ENV container=docker
 STOPSIGNAL SIGRTMIN+3
 
