@@ -459,17 +459,50 @@ def probe_php(container_id: str) -> PhpProbe | None:
     return parse_probe(result.stdout)
 
 
+def container_running(container_id: str) -> bool:
+    """Tell whether a container still runs.
+
+    Args:
+        container_id: the container to inspect.
+
+    Returns:
+        ``True`` while the container engine reports it running, ``False``
+        once it stopped or is gone.
+    """
+    result = subprocess.run(
+        [
+            "container",
+            "inspect",
+            "--type",
+            "container",
+            "--format",
+            "{{.State.Running}}",
+            container_id,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=EXEC_TIMEOUT_SECONDS,
+    )
+    return result.returncode == 0 and result.stdout.strip() == "true"
+
+
 def check(
     containers: list[Container],
     hardened: dict,
     probe,
+    running,
 ) -> tuple[list[str], list[str]]:
     """Evaluate the PHP hardening of every container.
+
+    A container that stopped between the listing and its probe, as a swarm
+    task that recycles itself does, is reported as info, not as a failure.
 
     Args:
         containers: the running containers.
         hardened: ``{stack: [service, ...]}`` that must run hardened PHP.
         probe: callable returning a :class:`PhpProbe` or ``None`` per id.
+        running: callable telling whether a container id still runs.
 
     Returns:
         ``(failures, infos)`` as printable lines.
@@ -486,7 +519,10 @@ def check(
         try:
             result = probe(container.id)
         except ProbeError as exc:
-            failures.append(f"{container.name}: {exc}")
+            if running(container.id):
+                failures.append(f"{container.name}: {exc}")
+            else:
+                infos.append(f"{container.name}: stopped before its probe, skipped")
             continue
         if result is None:
             if must_harden:
@@ -2248,7 +2284,7 @@ def main(argv=None) -> int:
     except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
         print(f"❌ listing the running containers failed: {exc}")
         return 1
-    failures, infos = check(containers, hardened, probe_php)
+    failures, infos = check(containers, hardened, probe_php, container_running)
     remote = host_network_mounts() if "host" in config.targets else []
     infos += [
         f"host scan skips the network or automounted filesystem at {printable(point)}"
