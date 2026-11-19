@@ -17,6 +17,7 @@ const { adminPassword, adminUsername, baseUrl, ssoLoginAndAssertUsername } = req
 const SHOWCASE_FOLDER = "design-showcase";
 const SHOWCASE_SPACE = "Design Showcase";
 const SHOWCASE_GROUP = "design-showcase";
+const ACCESS_DENIED_TEXTS = ["#exitAnchor", "#opencloud .oc-card h2"];
 
 const base = baseUrl.replace(/\/$/, "");
 const idmUsername = decodeDotenvQuotedValue(process.env.IDM_ADMIN_USERNAME);
@@ -449,7 +450,7 @@ test("design: a primary-filled control takes the primary color and its on-color"
     await assertToken(page, "#exitAnchor", "background-color", "--design-primary", `opencloud ${mode}`);
     await assertToken(page, "#exitAnchor", "color", "--design-on-primary", `opencloud ${mode}`);
   });
-  await assertReadable(page, ["#exitAnchor", ".oc-login .oc-card h2"], "opencloud access denied");
+  await assertReadable(page, ACCESS_DENIED_TEXTS, "opencloud access denied");
   await expect(
     page.locator('img[alt="OpenCloud emblem"]'),
     "the upstream emblem must not show on the corporate frame",

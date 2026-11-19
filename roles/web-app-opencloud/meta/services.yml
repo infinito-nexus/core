@@ -42,7 +42,7 @@ opencloud:
   replicas: 1
   name: opencloud
   image: opencloudeu/opencloud
-  version: 7.2.5
+  version: 9.1.1
   theme:
     name: "{{ lookup('design', 'web-app-opencloud').label }}"
     slogan: "{{ lookup('design', 'web-app-opencloud').label }}"
