@@ -38,6 +38,7 @@ AGENT_ORCHESTRATOR_STAGED_DIRS:
 
 AGENT_ORCHESTRATOR_LIBS:
   - utils/__init__.py
+  - utils/digests.py
   - utils/orchestrator/__init__.py
   - utils/orchestrator/webhook.py
   - utils/orchestrator/cron.py

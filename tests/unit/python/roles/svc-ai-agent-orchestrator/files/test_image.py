@@ -22,6 +22,7 @@ VARS = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))
 SERVER = ROLE / "files" / "python" / "server.py"
 PROBE = """
 import importlib, sys
+sys.meta_path[:] = [f for f in sys.meta_path if not getattr(f, "__module__", "").startswith("__editable__")]
 sys.path.insert(0, ".")
 from agents.routines import discover, load
 names = discover()
