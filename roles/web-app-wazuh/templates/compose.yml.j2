@@ -45,6 +45,7 @@
         soft: {{ lookup('config', application_id, 'services.indexer.nofile') }}
         hard: {{ lookup('config', application_id, 'services.indexer.nofile') }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra=certs_generator_dependency) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
@@ -58,6 +59,7 @@
     hostname: "{{ WAZUH_DASHBOARD_CONTAINER }}"
     {{ lookup('container_ports', ['console', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'indexer': {'condition': 'service_healthy'},

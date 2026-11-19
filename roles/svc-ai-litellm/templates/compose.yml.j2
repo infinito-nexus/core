@@ -16,6 +16,7 @@
       --host 0.0.0.0
       --port {{ LITELLM_PORT }}
       --config {{ LITELLM_CONFIG_PATH_DOCKER }}
+    {{ lookup('container_extra_hosts', onion_peers=([OIDC.CLIENT.TOKEN_URL, OIDC.CLIENT.USER_INFO_URL] if (LITELLM_UI_SSO | bool) else [])) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
