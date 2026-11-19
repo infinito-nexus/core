@@ -2056,7 +2056,12 @@ def _probe(expose_php=False, upload_progress=False):
 
 
 def _check(containers, probes, hardened):
-    return SCRIPT.check(containers, hardened, lambda container_id: probes[container_id])
+    return SCRIPT.check(
+        containers,
+        hardened,
+        lambda container_id: probes[container_id],
+        lambda _container_id: True,
+    )
 
 
 class TestCheck(TestCase):
@@ -2112,7 +2117,7 @@ class TestCheck(TestCase):
             failures, ["wp: declares php_hardening but has no php to verify it"]
         )
 
-    def test_a_probe_error_in_a_hardened_stack_is_a_failure(self):
+    def test_a_probe_error_in_a_running_container_is_a_failure(self):
         def broken(_container_id):
             raise SCRIPT.ProbeError("php exited 255: boom")
 
@@ -2120,8 +2125,40 @@ class TestCheck(TestCase):
             [_container("wp", "wordpress", "wordpress")],
             {"wordpress": ["wordpress"]},
             broken,
+            lambda _container_id: True,
         )
         self.assertEqual(failures, ["wp: php exited 255: boom"])
+
+    def test_a_container_that_stopped_before_its_probe_is_info_only(self):
+        def gone(_container_id):
+            raise SCRIPT.ProbeError(
+                "php exited 1: Error response from daemon: container x is not running"
+            )
+
+        failures, infos = SCRIPT.check(
+            [_container("worker", "shopware", "worker")],
+            {"shopware": ["worker"]},
+            gone,
+            lambda _container_id: False,
+        )
+        self.assertEqual(failures, [])
+        self.assertEqual(infos, ["worker: stopped before its probe, skipped"])
+
+
+class TestContainerRunning(TestCase):
+    def _running(self, returncode, stdout):
+        completed = SimpleNamespace(returncode=returncode, stdout=stdout, stderr="")
+        with mock.patch.object(SCRIPT.subprocess, "run", return_value=completed):
+            return SCRIPT.container_running("abc")
+
+    def test_a_running_container_runs(self):
+        self.assertTrue(self._running(0, "true\n"))
+
+    def test_a_stopped_container_does_not_run(self):
+        self.assertFalse(self._running(0, "false\n"))
+
+    def test_a_removed_container_does_not_run(self):
+        self.assertFalse(self._running(1, ""))
 
 
 class TestProbePhp(TestCase):
